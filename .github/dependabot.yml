@@ -1,0 +1,16 @@
+# https://docs.github.com/github/administering-a-repository/configuration-options-for-dependency-updates
+
+version: 2
+updates:
+  - package-ecosystem: "maven"
+    directory: "/server"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "yarn"
+    directory: "/client"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "docker"
+    directory: "/deploy/docker"
+    schedule:
+      interval: "weekly"
