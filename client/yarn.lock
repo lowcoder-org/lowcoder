@@ -3140,12 +3140,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@fullcalendar/interaction@npm:^6.0.3":
-  version: 6.0.3
-  resolution: "@fullcalendar/interaction@npm:6.0.3"
+"@fullcalendar/interaction@npm:^6.1.6":
+  version: 6.1.6
+  resolution: "@fullcalendar/interaction@npm:6.1.6"
   peerDependencies:
-    "@fullcalendar/core": ~6.0.3
-  checksum: 07c3405e2367ec76c3462a7e8c3faf5699e156c615752c419bf7e4ed9cd9acdadc35e965e7794ed30e140c647bc62bb66e1a604e54f5d747716a2f41048859ab
+    "@fullcalendar/core": ~6.1.6
+  checksum: b7dea490592cdaf902788825ebea122816185657bb37f82dd78ba8129d10fff0c1c45a70d819dd44b5b7088d8b51588899e8e2332652fd939e263160912940dd
   languageName: node
   linkType: hard
 
@@ -14313,7 +14313,7 @@ __metadata:
   dependencies:
     "@fullcalendar/core": ^6.0.3
     "@fullcalendar/daygrid": ^6.0.3
-    "@fullcalendar/interaction": ^6.0.3
+    "@fullcalendar/interaction": ^6.1.6
     "@fullcalendar/list": ^6.0.3
     "@fullcalendar/moment": ^6.1.4
     "@fullcalendar/react": ^6.0.3
