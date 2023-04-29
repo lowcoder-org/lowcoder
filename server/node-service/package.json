@@ -24,7 +24,7 @@
     "nodemon": "^2.0.20",
     "postman-to-openapi": "^3.0.1",
     "svgo": "^3.0.2",
-    "ts-jest": "^29.0.3",
+    "ts-jest": "^29.1.0",
     "ts-node": "^10.9.1"
   },
   "dependencies": {
