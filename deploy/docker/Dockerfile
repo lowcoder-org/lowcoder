@@ -111,7 +111,7 @@ CMD [ "/bin/sh", "/openblocks/node-service/entrypoint.sh" ]
 ##
 ## Build openblocks client application
 ##
-FROM node:19.4-slim AS build-client
+FROM node:20.0-slim AS build-client
 COPY ./client /openblocks-client
 WORKDIR /openblocks-client
 RUN yarn --immutable
