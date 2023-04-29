@@ -6,11 +6,11 @@ updates:
     directory: "/server/api-service"
     schedule:
       interval: "weekly"
-  - package-ecosystem: "yarn"
+  - package-ecosystem: "npm"
     directory: "/server/node-service"
     schedule:
       interval: "weekly"
-  - package-ecosystem: "yarn"
+  - package-ecosystem: "npm"
     directory: "/client"
     schedule:
       interval: "weekly"
