@@ -132,7 +132,7 @@ RUN yarn build
 ## To create a separate image out of it, build it with:
 ##   DOCKER_BUILDKIT=1 docker build -f deploy/docker/Dockerfile -t openblocksdev/openblocks-ce-frontend --target openblocks-ce-frontend .
 ##
-FROM nginx:1.23.3 as openblocks-ce-frontend
+FROM nginx:1.23.4 as openblocks-ce-frontend
 LABEL maintainer="openblocks"
 
 # Change default nginx user into openblocks user
