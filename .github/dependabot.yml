@@ -3,7 +3,11 @@
 version: 2
 updates:
   - package-ecosystem: "maven"
-    directory: "/server"
+    directory: "/server/api-service"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "yarn"
+    directory: "/server/node-service"
     schedule:
       interval: "weekly"
   - package-ecosystem: "yarn"
