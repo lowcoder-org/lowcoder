@@ -88,7 +88,7 @@
     "remark-gfm": "^3.0.1",
     "resize-observer-polyfill": "^1.5.1",
     "simplebar-react": "^2.3.6",
-    "sql-formatter": "^8.2.0",
+    "sql-formatter": "^12.2.0",
     "styled-components": "^5.3.3",
     "stylis": "^4.1.1",
     "tern": "^0.24.3",
