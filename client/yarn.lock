@@ -5206,12 +5206,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/tern@npm:0.22.0":
-  version: 0.22.0
-  resolution: "@types/tern@npm:0.22.0"
+"@types/tern@npm:0.23.4":
+  version: 0.23.4
+  resolution: "@types/tern@npm:0.23.4"
   dependencies:
     "@types/estree": "*"
-  checksum: c27a699537951a8396c495dec5251c3ed3a96f2f7d13c0aefc3ceebca2ad5a833a552737b3948bf2cbee7f0a62d3be48958d154238d5f4e4ee62c71eefc5b14b
+  checksum: d8fd304f147ed08f1d075f09cb8d440b7f785f69c9ec5c30eadf98132fe3f58f3b1bbbd11283858bb261afac5a2039c1c255f290b0f6e4a47cd6a746f30a6aa8
   languageName: node
   linkType: hard
 
@@ -18344,7 +18344,7 @@ __metadata:
     "@types/shelljs": ^0.8.11
     "@types/styled-components": ^5.1.19
     "@types/stylis": ^4.0.2
-    "@types/tern": 0.22.0
+    "@types/tern": 0.23.4
     "@types/toposort": ^2.0.3
     "@types/ua-parser-js": ^0.7.36
     "@welldone-software/why-did-you-render": ^6.2.3
