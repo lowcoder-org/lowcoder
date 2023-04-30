@@ -3920,6 +3920,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@remix-run/router@npm:1.6.0":
+  version: 1.6.0
+  resolution: "@remix-run/router@npm:1.6.0"
+  checksum: 9f08f20500b2fc9d689c06c3c25504baf2ece861a9f4d0c49ba043ef4040a96b85c15a57a1c11377e64bf78b727ce8fb58b300345642efb05a75d49e4b638344
+  languageName: node
+  linkType: hard
+
 "@rjsf/antd@npm:^4.1.1":
   version: 4.1.1
   resolution: "@rjsf/antd@npm:4.1.1"
@@ -14539,7 +14546,7 @@ __metadata:
     react-redux: ^7.2.6
     react-resizable: ^3.0.4
     react-resize-detector: ^7.0.0
-    react-router: ^5.2.1
+    react-router: ^6.11.0
     react-router-dom: ^5.3.0
     react-signature-canvas: ^1.0.6
     react-test-renderer: ^18.1.0
@@ -16393,7 +16400,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-router@npm:5.2.1, react-router@npm:^5.2.1":
+"react-router@npm:5.2.1":
   version: 5.2.1
   resolution: "react-router@npm:5.2.1"
   dependencies:
@@ -16410,6 +16417,17 @@ __metadata:
   peerDependencies:
     react: ">=15"
   checksum: 7daae084bf64531eb619cc5f4cc40ce5ae0a541b64f71d74ec71a38cbf6130ebdbb7cf38f157303fad5846deec259401f96c4d6c7386466dcc989719e01f9aaa
+  languageName: node
+  linkType: hard
+
+"react-router@npm:^6.11.0":
+  version: 6.11.0
+  resolution: "react-router@npm:6.11.0"
+  dependencies:
+    "@remix-run/router": 1.6.0
+  peerDependencies:
+    react: ">=16.8"
+  checksum: c27d64b074da711d59a94d7b64fe82360da8a49077a5e8326c27e9fb48a7650080f73b5ba3b94d0b11f2d7e315255fabc3bad818cd26d1cec3a52220ad9d64cd
   languageName: node
   linkType: hard
 
