@@ -8,7 +8,7 @@
     "test": "jest -i"
   },
   "devDependencies": {
-    "@rollup/plugin-typescript": "^8.5.0",
+    "@rollup/plugin-typescript": "^11.1.0",
     "rimraf": "^3.0.2",
     "rollup": "^2",
     "rollup-plugin-dts": "^5.0.0",
