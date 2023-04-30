@@ -60,7 +60,7 @@
     "node-fetch": "2",
     "openapi-types": "^12.1.0",
     "openblocks-core": "^0.0.7",
-    "openblocks-sdk": "0.0.38",
+    "openblocks-sdk": "0.0.40",
     "pino": "^8.11.0",
     "prom-client": "^14.2.0",
     "proxy-agent": "^5.0.0",
