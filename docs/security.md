@@ -1,14 +1,14 @@
 # Security
 
-## Does Lowcoder / Openblocks store my data?
+## Does Openblocks store my data?
 
-No, Lowcoder / Openblocks doesn't store any data returned from your APIs or database queries.
+No, Openblocks doesn't store any data returned from your APIs or database queries.
 
-Lowcoder / Openblocks only serves as a proxy between client side and your data sources. When you query your APIs or databases, Lowcoder / Openblocks server connects to the data source with your credentials, forwards the request, and returns the result data to the browser. During the whole process, Lowcoder / Openblocks doesn't store any data from your requests or responses.
+Openblocks only serves as a proxy between client side and your data sources. When you query your APIs or databases, Openblocks server connects to the data source with your credentials, forwards the request, and returns the result data to the browser. During the whole process, Openblocks doesn't store any data from your requests or responses.
 
-Lowcoder / Openblocks also provides a self-hosted version. You can deploy self-hosted Lowcoder / Openblocks images on your own device, on-premise deployment ensures you have total control over your resources and that your data is securely stored.
+Openblocks also provides a self-hosted version. You can deploy self-hosted Openblocks images on your own device, on-premise deployment ensures you have total control over your resources and that your data is securely stored.
 
-## Is it safe to log in to my databases on Lowcoder / Openblocks Cloud?
+## Is it safe to log in to my databases on Openblocks Cloud?
 
 Yes, it is very safe for the following reasons:
 
@@ -17,16 +17,17 @@ Yes, it is very safe for the following reasons:
 
 <figure><img src=".gitbook/assets/image (3) (1).png" alt=""><figcaption></figcaption></figure>
 
-## Other security measures within Lowcoder / Openblocks
+## Other security measures within Openblocks
 
-Lowcoder / Openblocks provides secure-by-default service.
+Openblocks provides secure-by-default service.
 
-* All connections on Lowcoder / Openblocks Cloud are encrypted with [TLS](https://en.wikipedia.org/wiki/Public\_key\_certificate).
-* Sensitive credentials, such as database access credentials, are encrypted with AES-256, and each self-hosted Lowcoder / Openblocks instance can be configured with unique salt values.
-* Lowcoder / Openblocks Cloud service is deployed and hosted on Tier 3 data centres which are located in Switzerland, in secure, ISO9001, ISO27001, ISAE3402 & PCIDSS certified SafeHost data centres which ensure that you are at exceptionally low risk of flooding, landslides or earthquakes..
-* Lowcoder / Openblocks **** ensures data redundancy on all cloud instances, so you do not need to worry about single point of failure or data loss.
-* The Internal access to Lowcoder / Openblocks Cloud is controlled through [two-factor authentication (2FA)](https://en.wikipedia.org/wiki/Help:Two-factor\_authentication) and audit logs.
+* All connections on Openblocks Cloud are encrypted with [TLS](https://en.wikipedia.org/wiki/Public\_key\_certificate).
+* Sensitive credentials, such as database access credentials, are encrypted with AES-256, and each self-hosted Openblocks instance can be configured with unique salt values.
+* Openblocks Cloud only connects to your databases or APIs through allowed IPs: **54.149.191.117** & **54.71.67.239**, ensuring that your data won't be exposed to unknown IPs while using our cloud service.
+* Openblocks Cloud service is deployed and hosted on AWS centers, which are certified with ISO 27001, SOC 1 and SOC 2 standards.
+* Openblocks **** ensures data redundancy on all cloud instances, so you do not need to worry about single point of failure or data loss.
+* Internal access to Openblocks Cloud is controlled through [two-factor authentication (2FA)](https://en.wikipedia.org/wiki/Help:Two-factor\_authentication) and audit logs.
 
 ## Feedback
 
-Should you have any questions about data security in Lowcoder / Openblocks, please feel free to contact us. We welcome any feedback on our service from security experts and all users.
+Should you have any questions about data security in Openblocks, please feel free to contact us. We welcome any feedback on our service from security experts and all users.
