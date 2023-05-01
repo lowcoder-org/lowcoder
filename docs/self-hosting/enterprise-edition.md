@@ -1,14 +1,14 @@
 # Enterprise Edition
 
-In this article, you will be guided through self-hosting **Openblocks Enterprise Edition (EE)** using Docker or Docker Compose:
+In this article, you will be guided through self-hosting **Lowcoder Enterprise Edition (EE)** using Docker or Docker Compose:
 
-* If you're new to Openblocks, we highly recommend you deploy with the [all-in-one image](enterprise-edition.md#all-in-one-image-all-services-in-one-container).
-* For current users of **Openblocks Community Edition (CE)**, please follow instructions in [Upgrade to Enterprise Edition](enterprise-edition.md#upgrade-to-enterprise-edition) section.
+* If you're new to Lowcoder, we highly recommend you deploy with the [all-in-one image](enterprise-edition.md#all-in-one-image-all-services-in-one-container).
+* For current users of **Lowcoder Community Edition (CE)**, please follow instructions in [Upgrade to Enterprise Edition](enterprise-edition.md#upgrade-to-enterprise-edition) section.
 
 {% hint style="info" %}
 A **License Key** is necessary to deploy or upgrade to Enterprise Edition. Feel free to contact our team at <mark style="color:blue;">fan@openblocks.dev</mark> or on [Discord](https://discord.com/invite/z5W2YHXdtt) if needed.
 
-The lack of License Key will not hinder the process of starting and maintaining Openblocks EE services but display the paid features as disabled.
+The lack of License Key will not hinder the process of starting and maintaining Lowcoder EE services but display the paid features as disabled.
 {% endhint %}
 
 ## Premium features
@@ -34,7 +34,7 @@ Recommended system spec: 1-core CPU and 2 GB RAM.
 Windows users are recommended to use PowerShell for running terminal commands below.
 {% endhint %}
 
-In your working directory, run the following commands to make a directory named `openblocks` to store the data of Openblocks:
+In your working directory, run the following commands to make a directory named `openblocks` to store the data of Lowcoder:
 
 ```bash
 mkdir openblocks
@@ -86,11 +86,11 @@ Follow the steps below:
 
 
 
-    When you see **frontend**, **backend**, **redis**, and **mongo** **entered the RUNNING state**, the Openblocks service has officially started.\
+    When you see **frontend**, **backend**, **redis**, and **mongo** **entered the RUNNING state**, the Lowcoder service has officially started.\
 
 
     <figure><img src="../.gitbook/assets/enterprise-edition-4.png" alt=""><figcaption></figcaption></figure>
-7.  Visit [**http://localhost:3000**](http://localhost:3000) and click **Sign up**. Openblocks will automatically create a workspace for you, then you can start building your apps and invite members to your workspace.
+7.  Visit [**http://localhost:3000**](http://localhost:3000) and click **Sign up**. Lowcoder will automatically create a workspace for you, then you can start building your apps and invite members to your workspace.
 
     <figure><img src="../.gitbook/assets/enterprise-edition-5.png" alt=""><figcaption></figcaption></figure>
 {% endtab %}
@@ -118,7 +118,7 @@ Follow the steps below:
 
 {% tabs %}
 {% tab title="Docker-Compose" %}
-Run the following commands to update to the latest Openblocks image:
+Run the following commands to update to the latest Lowcoder image:
 
 ```bash
 docker-compose pull
@@ -128,7 +128,7 @@ docker-compose up -d
 {% endtab %}
 
 {% tab title="Docker" %}
-Run the following commands to update to the latest Openblocks image:
+Run the following commands to update to the latest Lowcoder image:
 
 {% code overflow="wrap" %}
 ```bash
@@ -146,7 +146,7 @@ You can customize deployment configurations by setting environment variables. Fo
 
 ## Upgrade to Enterprise Edition
 
-If you have been using Openblocks Community Edition and want to upgrade to Enterprise Edition, follow the steps below to start Openblocks(EE) containers **based on your current data** stored in MongoDB.
+If you have been using Lowcoder Community Edition and want to upgrade to Enterprise Edition, follow the steps below to start Lowcoder(EE) containers **based on your current data** stored in MongoDB.
 
 {% hint style="info" %}
 Feel free to contact us at <mark style="color:blue;">fan@openblocks.dev</mark> or on [Discord](https://discord.com/invite/z5W2YHXdtt) when you encounter any problem.
@@ -164,13 +164,13 @@ Feel free to contact us at <mark style="color:blue;">fan@openblocks.dev</mark> o
 docker-compose pull
 ```
 
-3. Stop and remove the Openblocks CE service container.
+3. Stop and remove the Lowcoder CE service container.
 
 ```bash
 docker-compose rm -fsv YOUR_CE_CONTAINER_NAME
 ```
 
-4. Run the Openblocks EE container in the background (the Detached mode).
+4. Run the Lowcoder EE container in the background (the Detached mode).
 
 ```bash
 docker-compose up -d
@@ -181,7 +181,7 @@ docker-compose up -d
 
 
     <figure><img src="../.gitbook/assets/enterprise-edition-3.png" alt=""><figcaption></figcaption></figure>
-6. Restart the Openblocks EE container.
+6. Restart the Lowcoder EE container.
 
 ```bash
 docker restart YOUR_EE_CONTAINER_NAME
@@ -203,13 +203,13 @@ Before starting, make sure you have redirected to the working directory where yo
 docker pull openblocksdev/openblocks-ee
 ```
 
-2. Stop and remove the Openblocks CE service container.
+2. Stop and remove the Lowcoder CE service container.
 
 ```bash
 docker rm -fv YOUR_CE_CONTAINER_NAME
 ```
 
-3. Run the Openblocks EE container in the background (the Detached mode).
+3. Run the Lowcoder EE container in the background (the Detached mode).
 
 {% code overflow="wrap" %}
 ```bash
@@ -222,7 +222,7 @@ docker run -d --name YOUR_EE_CONTAINER_NAME -p 3000:3000 -v "$PWD/stacks:/openbl
 
 
     <figure><img src="../.gitbook/assets/enterprise-edition-3.png" alt=""><figcaption></figcaption></figure>
-5. Restart the Openblocks EE container.
+5. Restart the Lowcoder EE container.
 
 ```bash
 docker restart YOUR_EE_CONTAINER_NAME

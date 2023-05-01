@@ -34,7 +34,7 @@ The upload list presents the file names of all uploaded files in chronological o
 
 ### Parse files
 
-Toggle **Parse files** and Openblocks will try to parse the uploaded file data structure into objects, arrays, or strings. You can access the parsed result via the property `parsedValue`. Openblocks supports parsing Excel, JSON, and CSV files. The parsing result of other types of files is `null`.
+Toggle **Parse files** and Lowcoder will try to parse the uploaded file data structure into objects, arrays, or strings. You can access the parsed result via the property `parsedValue`. Lowcoder supports parsing Excel, JSON, and CSV files. The parsing result of other types of files is `null`.
 
 <figure><img src="../../.gitbook/assets/file-upload-4.PNG" alt=""><figcaption></figcaption></figure>
 

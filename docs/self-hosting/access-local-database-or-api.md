@@ -1,6 +1,6 @@
 # Access local database or API
 
-By default, docker-hosted instances uses a [bridge network](https://docs.docker.com/network/bridge/), which does not support access to service on the host via `127.0.0.1` or `localhost`. Here we take PostgreSQL as an example and show you how to access local API or database in different operating systems (OS) for docker-hosted Openblocks.
+By default, docker-hosted instances uses a [bridge network](https://docs.docker.com/network/bridge/), which does not support access to service on the host via `127.0.0.1` or `localhost`. Here we take PostgreSQL as an example and show you how to access local API or database in different operating systems (OS) for docker-hosted Lowcoder.
 
 ## Preparation
 
@@ -17,7 +17,7 @@ Assume that a Postgres service is ready on your local host with port `5432`. Con
     <figure><img src="../.gitbook/assets/access-local-linux.png" alt=""><figcaption></figcaption></figure>
 
     Having set up Docker, the OS would automatically create `docker0` with the IP address `172.17.0.1` (by default), through which the Docker service communicates with the host.
-2.  Enter the same IP address into Openblocks to configure the Postgres data source (`172.17.0.1` in this example, but use the actual IP address displayed on your terminal in real case).
+2.  Enter the same IP address into Lowcoder to configure the Postgres data source (`172.17.0.1` in this example, but use the actual IP address displayed on your terminal in real case).
 
 
 
@@ -40,7 +40,7 @@ On Windows and masOS, Docker does not create the virtual bridge `docker0`. Then 
 host.docker.internal
 ```
 
-In Openblocks, configure the Postgres data source as the following figure shows:
+In Lowcoder, configure the Postgres data source as the following figure shows:
 
 
 

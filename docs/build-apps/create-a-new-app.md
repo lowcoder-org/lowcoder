@@ -2,7 +2,7 @@
 
 ## Create a new web app
 
-Click **New > App** on the upper right of Openblocks homepage, and go to the app editor. You can rename the app at the left-top of the editor.
+Click **New > App** on the upper right of Lowcoder homepage, and go to the app editor. You can rename the app at the left-top of the editor.
 
 <figure><img src="../.gitbook/assets/20221110164930.gif" alt=""><figcaption></figcaption></figure>
 

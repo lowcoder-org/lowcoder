@@ -1,4 +1,4 @@
-# Openblocks' frontend
+# Lowcoder frontend
 
 ## How to contribute
 

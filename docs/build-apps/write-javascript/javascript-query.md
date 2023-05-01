@@ -200,7 +200,7 @@ function getCurrentDate() {
 
 ## Add preloaded scripts
 
-Openblocks supports importing third-party JS libraries and adding predefined JS code, such as adding global methods or variables for reuse either at **app-level** or **workspace-level**. You can find the app-level settings in ⚙️ > **Other** > **Scripts and style**.
+Lowcoder supports importing third-party JS libraries and adding predefined JS code, such as adding global methods or variables for reuse either at **app-level** or **workspace-level**. You can find the app-level settings in ⚙️ > **Other** > **Scripts and style**.
 
 <figure><img src="../../.gitbook/assets/js-query-4.png" alt=""><figcaption></figcaption></figure>
 
@@ -216,4 +216,4 @@ In **JavaScript** tab, you can add preloaded JavaScript code to define global me
 
 ## &#x20;Restrictions
 
-For security reasons, several global variables and functions of **window** are disabled in Openblocks. Please report to our [GitHub](https://github.com/openblocks-dev/openblocks) or [Discord](https://discord.com/invite/z5W2YHXdtt) if you encounter any issues.
+For security reasons, several global variables and functions of **window** are disabled in Lowcoder. Please report to our [GitHub](https://github.com/lowcoder-org/lowcoder) or [Discord](https://discord.com/invite/z5W2YHXdtt) if you encounter any issues.

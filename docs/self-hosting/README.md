@@ -1,6 +1,6 @@
 # Self-hosting
 
-In this article, you will be guided through hosting Openblocks on your own server using Docker-Compose or Docker.
+In this article, you will be guided through hosting Lowcoder on your own server using Docker-Compose or Docker.
 
 For easy setup and deployment, we provide an [all-in-one image](https://hub.docker.com/r/openblocksdev/openblocks-ce) which bundles frontend, backend and data persistence services altogether in one single container.&#x20;
 
@@ -19,7 +19,7 @@ Recommended system spec: 1-core CPU and 2 GB RAM.
 Windows users are recommended to use PowerShell for running commands below.
 {% endhint %}
 
-In your working directory, run the following commands to make a directory named `openblocks` to store the data of Openblocks:
+In your working directory, run the following commands to make a directory named `openblocks` to store the data of Lowcoder:
 
 ```bash
 mkdir openblocks
@@ -61,10 +61,10 @@ Follow the steps below:
 
 
 
-    When you see `frontend`, `backend`, `redis`, and `mongo` `entered the RUNNING state`, the Openblocks service has officially started:&#x20;
+    When you see `frontend`, `backend`, `redis`, and `mongo` `entered the RUNNING state`, the Lowcoder service has officially started:&#x20;
 
     <figure><img src="../.gitbook/assets/check-logs-ce.png" alt=""><figcaption></figcaption></figure>
-4.  Visit [**http://localhost:3000**](http://localhost:3000) and click **Sign up**. Openblocks will automatically create a workspace for you, then you can start building your apps and invite members to your workspace.
+4.  Visit [**http://localhost:3000**](http://localhost:3000) and click **Sign up**. Lowcoder will automatically create a workspace for you, then you can start building your apps and invite members to your workspace.
 
     <figure><img src="../.gitbook/assets/after-deployment.png" alt=""><figcaption></figcaption></figure>
 {% endtab %}
@@ -84,7 +84,7 @@ docker run -d --name openblocks -p 3000:3000 -v "$PWD/stacks:/openblocks-stacks"
 
 {% tabs %}
 {% tab title="Docker-Compose" %}
-Run the following commands to update to the latest Openblocks image:
+Run the following commands to update to the latest Lowcoder image:
 
 ```bash
 docker-compose pull
@@ -94,7 +94,7 @@ docker-compose up -d
 {% endtab %}
 
 {% tab title="Docker" %}
-Run the following commands to update to the latest Openblocks image:
+Run the following commands to update to the latest Lowcoder image:
 
 {% code overflow="wrap" %}
 ```bash
@@ -108,7 +108,7 @@ docker run -d --name openblocks -p 3000:3000 -v "$PWD/stacks:/openblocks-stacks"
 
 ## Separate images: services in different containers <a href="#multi" id="multi"></a>
 
-For developers who require stateless containers in a cluster environment, we offer separate images of backend and frontend service with a customizable Dockerfile. A well-functioning Openblocks deployment consists of below services:
+For developers who require stateless containers in a cluster environment, we offer separate images of backend and frontend service with a customizable Dockerfile. A well-functioning Lowcoder deployment consists of below services:
 
 * **api-service**: Backend service.
 * **node-service**: Backend service.
@@ -122,7 +122,7 @@ For developers who require stateless containers in a cluster environment, we off
 
 ### Deploy
 
-1.  In your working directory, run the following commands to make a directory named `openblocks` to store the data of Openblocks:
+1.  In your working directory, run the following commands to make a directory named `openblocks` to store the data of Lowcoder:
 
     ```bash
     mkdir openblocks
@@ -146,7 +146,7 @@ For developers who require stateless containers in a cluster environment, we off
     ```bash
     docker-compose -f docker-compose-multi.yml up -d
     ```
-5.  Visit [**http://localhost:3000**](http://localhost:3000) and click **Sign up**. Openblocks will automatically create a workspace for you, then you can start building your apps and invite members to your workspace.
+5.  Visit [**http://localhost:3000**](http://localhost:3000) and click **Sign up**. Lowcoder will automatically create a workspace for you, then you can start building your apps and invite members to your workspace.
 
     <figure><img src="../.gitbook/assets/after-deployment.png" alt=""><figcaption></figcaption></figure>
 
@@ -190,12 +190,12 @@ docker rm openblocks
 Below are examples of configuring all-in-one image by setting environment variables in `docker-compose.yml`. If you are self-hosting with separate images, modify `openblocks-api-service` part of `docker-compose-multi.yml` instead.&#x20;
 
 {% hint style="info" %}
-For more information about configurations and environment variables, see [Configuration](https://github.com/openblocks-dev/openblocks/tree/develop/deploy/docker#all-in-one-image).
+For more information about configurations and environment variables, see [Configuration](https://github.com/lowcoder-org/lowcoder/tree/develop/deploy/docker#all-in-one-image).
 {% endhint %}
 
 ### Use your own MongoDB and Redis
 
-By default Openblocks uses the built-in MongoDB and Redis installed inside the container, and you can replace them with your own MongoDB and Redis clusters.
+By default Lowcoder uses the built-in MongoDB and Redis installed inside the container, and you can replace them with your own MongoDB and Redis clusters.
 
 {% tabs %}
 {% tab title="Docker-Compose" %}
@@ -237,7 +237,7 @@ docker run -d --name openblocks -e LOCAL_USER_ID=10010 -p 3000:3000 -v "$PWD/sta
 
 ### Install SSL certificate
 
-With an SSL certificate, you can securely visit self-hosted Openblocks with HTTPS protocol. Here are the steps to install your SSL certificate before starting a container:
+With an SSL certificate, you can securely visit self-hosted Lowcoder with HTTPS protocol. Here are the steps to install your SSL certificate before starting a container:
 
 {% tabs %}
 {% tab title="Docker-Compose" %}

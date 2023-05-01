@@ -5,14 +5,14 @@ Oracle is a leading provider of enterprise software and database management syst
 ## Prerequisites
 
 * Get Oracle database connection parameters from the database owner.
-* Refer to [IP allowlist](../configure-ip-allowlists.md) to add IP addresses of Openblocks to your allowlist (if needed).
+* Refer to [IP allowlist](../configure-ip-allowlists.md) to add IP addresses of Lowcoder to your allowlist (if needed).
 
 ## Connect to Oracle data source
 
 Follow the steps below:
 
 1. Create a new data source in two ways. Note that this permission is restricted to workspace admins and developers.
-   *   Navigate to the **Data Sources** tab on [Openblocks Homepage](https://openblocks.dev) and click **New data source**.&#x20;
+   *   Navigate to the **Data Sources** tab on [Lowcoder Homepage](https://openblocks.dev) and click **New data source**.&#x20;
 
        <figure><img src="../../.gitbook/assets/db-1.PNG" alt=""><figcaption></figcaption></figure>
    *   When creating a new query in the app editor, click **+ New** > **+ New data source**.&#x20;

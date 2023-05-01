@@ -6,7 +6,7 @@ description: >-
 
 # Permissions for resources
 
-Openblocks implements [Role-based Access Control](https://en.wikipedia.org/wiki/Role-based\_access\_control) (RBAC) by assigning a set of permissions to different roles. These permissions determine the actions users can take on resources, including apps, modules, navigations, folders, query library, and data sources.&#x20;
+Lowcoder implements [Role-based Access Control](https://en.wikipedia.org/wiki/Role-based\_access\_control) (RBAC) by assigning a set of permissions to different roles. These permissions determine the actions users can take on resources, including apps, modules, navigations, folders, query library, and data sources.&#x20;
 
 Only workspace admins and members of **Developers** group are allowed to create resources. For workspace admins, they are in fact the owner of all resources.
 
@@ -53,7 +53,7 @@ Folders help you sort out the apps, modules, and navigations in the workspace. O
 
 Only workspace admins and developers can view the **Data Sources** page and create new data sources.
 
-For each data source, workspace admins and the creator can change its **Access Control**. Go to Openblocks homepage > **Data Sources**, and click `···` > **Access Control**.
+For each data source, workspace admins and the creator can change its **Access Control**. Go to Lowcoder homepage > **Data Sources**, and click `···` > **Access Control**.
 
 <figure><img src="../.gitbook/assets/permission-date source-1.png" alt=""><figcaption></figcaption></figure>
 
@@ -70,4 +70,4 @@ The permissions of these two roles are listed in the following table:
 
 ## Query library
 
-Workspace admins and members of developers group can create query library in Openblocks. And they have read, write, use and delete permissions for queries if they can use the query's corresponding data source.
+Workspace admins and members of developers group can create query library in Lowcoder. And they have read, write, use and delete permissions for queries if they can use the query's corresponding data source.

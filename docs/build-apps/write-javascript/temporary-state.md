@@ -8,7 +8,7 @@ Temporary states may help in the following scenarios:
 
 * To track the temporary values of a variable when the user interacts with your app.
 * To store your data only in operation without persisting to a database.
-* To function as a temporary property when built-in properties in Openblocks (such as `{{table.selectedRow}}` and `{{select.value}}`) do not support your use case.
+* To function as a temporary property when built-in properties in Lowcoder (such as `{{table.selectedRow}}` and `{{select.value}}`) do not support your use case.
 
 {% hint style="info" %}
 To store and access data across apps in your workspace, use localStorage instead.

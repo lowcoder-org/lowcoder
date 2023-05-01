@@ -170,7 +170,7 @@ End users are automatically granted permissions to view modules in apps or other
 
 ## Releases and versions
 
-Openblocks stores the history versions of your modules for your references. Click **Preview > Publish** at the top right. The release management of a module is identical to that of an app. For detailed information, see [#release-management](version-and-release-management.md#release-management "mention").
+Lowcoder stores the history versions of your modules for your references. Click **Preview > Publish** at the top right. The release management of a module is identical to that of an app. For detailed information, see [#release-management](version-and-release-management.md#release-management "mention").
 
 {% hint style="info" %}
 For an unpublished module, the apps and modules use its latest version; while for a published one, you need to publish it again to sync your latest changes.

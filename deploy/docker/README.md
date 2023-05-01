@@ -1,4 +1,4 @@
-# Openblocks docker image
+# Lowcoder docker image
 
 Included Dockerfile can be used to build an **all-in-one** image with all required services installed and running within one container, or separate images for frontend and backend services.
 
@@ -7,7 +7,7 @@ For examples on running the all-in-one image or the multi image deployment see *
 
 ## all-in-one image
 
-This image contains all services needed to run Openblocks platform in one container.
+This image contains all services needed to run Lowcoder platform in one container.
 
 ### Building the image
 
@@ -37,13 +37,13 @@ Image can be configured by setting environment variables.
 | `ENCRYPTION_PASSWORD`           | Encryption password                                                 | `openblocks.dev`                                        |
 | `ENCRYPTION_SALT`               | Salt used for encrypting password                                   | `openblocks.dev`                                        |
 | `CORS_ALLOWED_DOMAINS`          | CORS allowed domains                                                | `*`                                                     |
-| `OPENBLOCKS_API_SERVICE_URL`    | Openblocks API service URL                                          | `http://localhost:8080`                                 |
-| `OPENBLOCKS_NODE_SERVICE_URL`   | Openblocks Node service (js executor) URL                           | `http://localhost:6060`                                 |
+| `OPENBLOCKS_API_SERVICE_URL`    | Lowcoder API service URL                                          | `http://localhost:8080`                                 |
+| `OPENBLOCKS_NODE_SERVICE_URL`   | Lowcoder Node service (js executor) URL                           | `http://localhost:6060`                                 |
 
 
 ## Building api-service image
 
-Standalone Openblocks api-service image.
+Standalone Lowcoder api-service image.
 
 ### Building the image
 
@@ -72,7 +72,7 @@ Image can be configured by setting environment variables.
 
 ## Building node-service image
 
-Standalone Openblocks node-service (JS executor) image.
+Standalone Lowcoder node-service (JS executor) image.
 
 ### Building the image
 
@@ -90,11 +90,11 @@ Image can be configured by setting environment variables.
 | --------------------------------| --------------------------------------------------------------------| ------------------------------------------------------- |
 | `PUID`                          | ID of user running services. It will own all created logs and data. | `9001`                                                  |
 | `PGID`                          | ID of group of the user running services.                           | `9001`                                                  |
-| `OPENBLOCKS_API_SERVICE_URL`    | Openblocks API service URL                                          | `http://localhost:8080`                                 |
+| `OPENBLOCKS_API_SERVICE_URL`    | Lowcoder API service URL                                          | `http://localhost:8080`                                 |
 
 ## Building web frontend image
 
-Standalone Openblocks web frontend image.
+Standalone Lowcoder web frontend image.
 
 ### Building the image
 
@@ -112,7 +112,7 @@ Image can be configured by setting environment variables.
 | --------------------------------| --------------------------------------------------------------------| ------------------------------------------------------- |
 | `PUID`                          | ID of user running services. It will own all created logs and data. | `9001`                                                  |
 | `PGID`                          | ID of group of the user running services.                           | `9001`                                                  |
-| `OPENBLOCKS_API_SERVICE_URL`    | Openblocks API service URL                                          | `http://localhost:8080`                                 |
-| `OPENBLOCKS_NODE_SERVICE_URL`   | Openblocks Node service (js executor) URL                           | `http://localhost:6060`                                 |
+| `OPENBLOCKS_API_SERVICE_URL`    | Lowcoder API service URL                                          | `http://localhost:8080`                                 |
+| `OPENBLOCKS_NODE_SERVICE_URL`   | Lowcoder Node service (js executor) URL                           | `http://localhost:6060`                                 |
 
 

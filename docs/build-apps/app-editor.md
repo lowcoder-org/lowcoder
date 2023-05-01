@@ -4,7 +4,7 @@ description: a quick look at the app editor before you start
 
 # App editor
 
-In Openblocks, the app editor is where you assemble components, create queries to interact with data, and publish your apps. It consists of five areas:
+In Lowcoder, the app editor is where you assemble components, create queries to interact with data, and publish your apps. It consists of five areas:
 
 1. Toolbar
 2. Canvas

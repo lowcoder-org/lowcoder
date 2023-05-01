@@ -1,10 +1,10 @@
 # Use third-party libraries
 
-Every developer learns one of the most important principles of software engineering early in their career: DRY (Don’t Repeat Yourself). Using third-party libraries can save your time as you do not need to develop the functionality that the library provides. Openblocks provides some built-in third-party libraries for common uses, and you can manually import other libraries on demand.
+Every developer learns one of the most important principles of software engineering early in their career: DRY (Don’t Repeat Yourself). Using third-party libraries can save your time as you do not need to develop the functionality that the library provides. Lowcoder provides some built-in third-party libraries for common uses, and you can manually import other libraries on demand.
 
 ## Built-in libraries
 
-Openblocks provides some JavaScript built-in libraries for use.
+Lowcoder provides some JavaScript built-in libraries for use.
 
 | Library   | Docs                                                                 | Version                    |
 | --------- | -------------------------------------------------------------------- | -------------------------- |
@@ -16,7 +16,7 @@ Openblocks provides some JavaScript built-in libraries for use.
 
 ## Manually import third-party libraries
 
-Openblocks supports setting up preloaded JavaScript and libraries which can be at **app-level** or **workspace-level**.
+Lowcoder supports setting up preloaded JavaScript and libraries which can be at **app-level** or **workspace-level**.
 
 * **App-level** libraries **** get loaded only in the app where defined. Plus, app A cannot use libraries that are set up for app B.
 * **Workspace-level** libraries **** will be loaded when you open any application in your workspace. All the apps can access those libraries. There can be a certain impact on app performance, especially when you have complex JavaScript functions that aren't being used in every app.

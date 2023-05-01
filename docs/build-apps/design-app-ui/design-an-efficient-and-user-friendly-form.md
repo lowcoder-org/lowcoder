@@ -2,7 +2,7 @@
 
 ### Select proper input components
 
-The UX design of input components in a form is crucial to the form's efficiency. Properly chosen components can save users effort and lead to better results. Openblocks offers a variety of input components, including text input, number input, option list, and radio buttons, each of which works for different scenarios.
+The UX design of input components in a form is crucial to the form's efficiency. Properly chosen components can save users effort and lead to better results. Lowcoder offers a variety of input components, including text input, number input, option list, and radio buttons, each of which works for different scenarios.
 
 For example, when the input is generated from data, use the option list to let users quickly fill in the input.
 
@@ -22,9 +22,9 @@ Keep all input field lengths the same to make the form visually neat, and put al
 
 <figure><img src="../../.gitbook/assets/form-design-4.png" alt=""><figcaption></figcaption></figure>
 
-### Group content with Openblocks divider
+### Group content with Lowcoder divider
 
-Use the Openblocks **Divider** component to group relevant input fields to help users process information in an organized way.
+Use the Lowcoder **Divider** component to group relevant input fields to help users process information in an organized way.
 
 <figure><img src="../../.gitbook/assets/form-design-5.png" alt=""><figcaption></figcaption></figure>
 
@@ -34,7 +34,7 @@ Form component is quite often used for CRUD operations, which sometimes can be r
 
 <figure><img src="../../.gitbook/assets/form-design-6.gif" alt=""><figcaption></figcaption></figure>
 
-Similarly, a notification after users' submission gives users timely feedback. You can add a global notication to the Submit button. In Openblocks, you can add global notifications in three ways. See [global notification](style-theme-and-usability.md#global-notifications) for details.
+Similarly, a notification after users' submission gives users timely feedback. You can add a global notication to the Submit button. In Lowcoder, you can add global notifications in three ways. See [global notification](style-theme-and-usability.md#global-notifications) for details.
 
 ### Clear input fields on submission
 

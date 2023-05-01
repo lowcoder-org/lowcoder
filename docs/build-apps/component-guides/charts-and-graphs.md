@@ -2,7 +2,7 @@
 
 Charts and graphs are visual representations of data that are used to simplify complex information and make it easier to understand. They can help highlight key insights and provide a quick summary of data that would otherwise be difficult to interpret. Charts and graphs come in different forms, such as bar graphs, line graphs, pie charts, scatter plots, and more, each suited for different types of data and analytical purposes.&#x20;
 
-Openblocks allows you to insert multiple forms of charts and graphs into your apps to satisfy your needs in different use cases.
+Lowcoder allows you to insert multiple forms of charts and graphs into your apps to satisfy your needs in different use cases.
 
 <figure><img src="../../.gitbook/assets/charts-and-graphs-1.gif" alt=""><figcaption></figcaption></figure>
 
@@ -59,7 +59,7 @@ Then reference the value of the transformer `{{transformer1.value}}` as the data
 
 ### Chart type
 
-Openblocks supports four types of charts: bar chart, line chart, scatter chart, and pie chart. You can select the chart type in **Properties** > **Data** > **Chart type**. You can also customize the layout and style of your chart in **Properties** tab.
+Lowcoder supports four types of charts: bar chart, line chart, scatter chart, and pie chart. You can select the chart type in **Properties** > **Data** > **Chart type**. You can also customize the layout and style of your chart in **Properties** tab.
 
 <figure><img src="../../.gitbook/assets/charts-and-graphs-3.png" alt=""><figcaption></figcaption></figure>
 
@@ -69,13 +69,13 @@ Bar charts, line charts, and pie charts map values to categorical variables. Thu
 
 <figure><img src="../../.gitbook/assets/charts-and-graphs-4.png" alt=""><figcaption></figcaption></figure>
 
-By default, Openblocks automatically detects the X-axis data and its type. You can also manually select one among "Category axis", "Value axis", "Time axis", or "Log axis". For detailed information, see [X axis type](https://echarts.apache.org/en/option.html#xAxis.type).
+By default, Lowcoder automatically detects the X-axis data and its type. You can also manually select one among "Category axis", "Value axis", "Time axis", or "Log axis". For detailed information, see [X axis type](https://echarts.apache.org/en/option.html#xAxis.type).
 
 <figure><img src="../../.gitbook/assets/charts-and-graphs-5.png" alt=""><figcaption></figcaption></figure>
 
 ### Chart series
 
-In most types of charts, the **Chart series** (Y-axis) presents numeric values for the categories on X-axis. By default, Openblocks populates all numeric fields to Y-axis. You can hide unnecessary fields in **Properties** > **Chart series**.
+In most types of charts, the **Chart series** (Y-axis) presents numeric values for the categories on X-axis. By default, Lowcoder populates all numeric fields to Y-axis. You can hide unnecessary fields in **Properties** > **Chart series**.
 
 <figure><img src="../../.gitbook/assets/charts-and-graphs-6.png" alt=""><figcaption></figcaption></figure>
 

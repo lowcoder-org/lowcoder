@@ -1,6 +1,6 @@
 # Style, theme, and usability
 
-Good user interface (UI) improves user experience (UX) and increases user involvement. You can customize the style of each component in Openblocks and use the theme feature to design the interface on a per-app or workspace basis. Features such as icon configuration and hint messages make the app interaction more user-friendly.
+Good user interface (UI) improves user experience (UX) and increases user involvement. You can customize the style of each component in Lowcoder and use the theme feature to design the interface on a per-app or workspace basis. Features such as icon configuration and hint messages make the app interaction more user-friendly.
 
 ## Component styles
 
@@ -24,7 +24,7 @@ The [theme feature](https://cloud.openblocks.dev/setting/theme) helps you quickl
 
 ### Create a theme
 
-Workspace admins have access to theme settings. On Openblocks homepage, go to **Settings** > **Themes**, and click **+ Create theme**. Enter the theme name, and select one of the preset default themes as the starting point.
+Workspace admins have access to theme settings. On Lowcoder homepage, go to **Settings** > **Themes**, and click **+ Create theme**. Enter the theme name, and select one of the preset default themes as the starting point.
 
 <figure><img src="../../.gitbook/assets/style-theme-usability-5.png" alt=""><figcaption></figcaption></figure>
 
@@ -38,7 +38,7 @@ In the app editor, switch the theme by clicking ⚙️ on the left side-bar. Sel
 
 <figure><img src="../../.gitbook/assets/style-theme-usability-7.png" alt=""><figcaption></figcaption></figure>
 
-You can also set the default theme for all your apps within a workspace in **Settings** > **Themes** on Openblocks homepage.
+You can also set the default theme for all your apps within a workspace in **Settings** > **Themes** on Lowcoder homepage.
 
 <figure><img src="../../.gitbook/assets/style-theme-usability-8.png" alt=""><figcaption></figcaption></figure>
 
@@ -76,7 +76,7 @@ Follow the steps below to include this function in your app.
 
 ## Custom CSS
 
-Openblocks provides a custom CSS feature for more flexible and customized UI styling.
+Lowcoder provides a custom CSS feature for more flexible and customized UI styling.
 
 ### App-level CSS
 
@@ -94,7 +94,7 @@ It is recommended to modify the component styles in **Properties** > **Style** b
 
 ### Preload CSS
 
-In Openblocks, workspace admins can also set pre-loaded CSS styles for all apps within the workspace. Open the **Settings**, and click **Advanced** > **Preload CSS**.
+In Lowcoder, workspace admins can also set pre-loaded CSS styles for all apps within the workspace. Open the **Settings**, and click **Advanced** > **Preload CSS**.
 
 <figure><img src="../../.gitbook/assets/style-theme-usability-15.png" alt=""><figcaption></figcaption></figure>
 
@@ -164,7 +164,7 @@ imageEditor
 scanner
 ```
 
-Avoid using class names that may change with iterations, such as `sc-dkiQaF bfTYCO`.Openblocks supports [CSS pre-processor](https://stylis.js.org/), you can use CSS nesting to improve efficiency, for example:
+Avoid using class names that may change with iterations, such as `sc-dkiQaF bfTYCO`.Lowcoder supports [CSS pre-processor](https://stylis.js.org/), you can use CSS nesting to improve efficiency, for example:
 
 ```css
 .text1 {
@@ -215,7 +215,7 @@ To use custom font family, you need to define it first and then apply it. Insert
 
 ## User-friendly interaction
 
-Openblocks always lives up to efficiency, security, and easy-to-use design.
+Lowcoder always lives up to efficiency, security, and easy-to-use design.
 
 ### Hide UI components
 
@@ -256,7 +256,7 @@ Notifications are messages directly sent to your users to remind them of the sta
 
 #### Global notifications
 
-Global notifications for certain user interactions give users timely feedback. Openblocks offers four types of global notificaitons: **Information**, **Success**, **Warning** and **Error**.
+Global notifications for certain user interactions give users timely feedback. Lowcoder offers four types of global notificaitons: **Information**, **Success**, **Warning** and **Error**.
 
 You can set global notifications in three ways:
 

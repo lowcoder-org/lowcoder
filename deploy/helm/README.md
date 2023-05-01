@@ -1,12 +1,12 @@
-# Openblocks
+# Lowcoder
 
-Openblocks is a developer-friendly open-source low code platform to build internal apps within minutes.
+Lowcoder is a developer-friendly open-source low code platform to build internal apps within minutes.
 
-[Overview of Openblocks](https://docs.openblocks.dev/)
+[Overview of Lowcoder](https://docs.openblocks.dev/)
 
 ## Introduction
 
-This chart bootstraps an Openblocks deployment on a [Kubernetes](https://kubernetes.io) cluster using the [Helm](https://helm.sh) package manager.
+This chart bootstraps an Lowcoder deployment on a [Kubernetes](https://kubernetes.io) cluster using the [Helm](https://helm.sh) package manager.
 
 ## Prerequisites
 
@@ -56,32 +56,32 @@ All available parameters can be found in [Bitnami Redis Chart](https://github.co
 
 All available parameters can be found in [Bitnami MongoDB Chart](https://github.com/bitnami/charts/tree/main/bitnami/mongodb/#parameters)
 
-### Openblocks server api-service
+### Lowcoder server api-service
 
 | Name                                    | Description                                                                 | Value            |
 | --------------------------------------- | --------------------------------------------------------------------------- | ---------------- |
-| `apiService.config.userId`              | User ID of user running Openblocks server application in container          | `9001`           |
-| `apiService.config.groupId`             | Group ID of user running Openblocks server application in container         | `9001`           |
+| `apiService.config.userId`              | User ID of user running Lowcoder server application in container          | `9001`           |
+| `apiService.config.groupId`             | Group ID of user running Lowcoder server application in container         | `9001`           |
 | `apiService.config.corsAllowedDomains`  | CORS allowed domains                                                        | `*`              |
 | `apiService.config.encryption.password` | Encryption password                                                         | `openblocks.dev` |
 | `apiService.config.encryption.salt`     | Encryption salt                                                             | `openblocks.dev` |
 | `apiService.config.enableUserSignUp`    | Enable users signing up to openblocks via login page                        | `true`           |
-| `apiService.config.nodeServiceUrl`      | URL to node-service server if using external Openblocks server              |                  |
+| `apiService.config.nodeServiceUrl`      | URL to node-service server if using external Lowcoder server              |                  |
 
-### Openblocks server node-service
-
-| Name                                    | Description                                                                 | Value            |
-| --------------------------------------- | --------------------------------------------------------------------------- | ---------------- |
-| `nodeService.config.userId`             | User ID of user running Openblocks service application in container         | `9001`           |
-| `nodeService.config.groupId`            | Group ID of user running Openblocks service application in container        | `9001`           |
-| `nodeService.config.apiServiceUrl`      | URL to api-service server if using external Openblocks server               |                  |
-
-### Openblocks frontend (client)
+### Lowcoder server node-service
 
 | Name                                    | Description                                                                 | Value            |
 | --------------------------------------- | --------------------------------------------------------------------------- | ---------------- |
-| `frontend.config.userId`                | User ID of nginx user running Openblocks client application in container    | `9001`           |
-| `frontend.config.groupId`               | Group ID of nginx user running Openblocks client application in container   | `9001`           |
-| `frontend.config.apiServiceUrl`         | URL to api-service server if using external Openblocks server               | `""`             |
-| `frontend.config.nodeServiceUrl`        | URL to node-service server if using external Openblocks server              |                  |
+| `nodeService.config.userId`             | User ID of user running Lowcoder service application in container         | `9001`           |
+| `nodeService.config.groupId`            | Group ID of user running Lowcoder service application in container        | `9001`           |
+| `nodeService.config.apiServiceUrl`      | URL to api-service server if using external Lowcoder server               |                  |
+
+### Lowcoder frontend (client)
+
+| Name                                    | Description                                                                 | Value            |
+| --------------------------------------- | --------------------------------------------------------------------------- | ---------------- |
+| `frontend.config.userId`                | User ID of nginx user running Lowcoder client application in container    | `9001`           |
+| `frontend.config.groupId`               | Group ID of nginx user running Lowcoder client application in container   | `9001`           |
+| `frontend.config.apiServiceUrl`         | URL to api-service server if using external Lowcoder server               | `""`             |
+| `frontend.config.nodeServiceUrl`        | URL to node-service server if using external Lowcoder server              |                  |
 

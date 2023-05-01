@@ -1,6 +1,6 @@
 # Image
 
-Use the **Image** component to present information in your apps in a vivic way. Openblocks supports you adding an image via URL and base64 encoded data.
+Use the **Image** component to present information in your apps in a vivic way. Lowcoder supports you adding an image via URL and base64 encoded data.
 
 ## URL
 
