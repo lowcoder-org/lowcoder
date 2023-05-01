@@ -35,7 +35,7 @@ Lowcoder wants to take a step forward. More specifically, Lowcoder is
 - **Custom components** to share through React and Lowcoder SDK (instead of iFrame).
 - **Native connections** to PostgreSQL, MongoDB, MySQL, Redis, Elasticsearch, REST API, SMTP, etc.
 - **JavaScript supported everywhere** to transform data, control components, etc.
-- **Embed Lowcoder pages as a React component** (instead of iFrame). [Demo](https://github.com/lowcoder-org/lowcoder-sdk-demo)
+- **Embed Lowcoder pages as a React component** (instead of iFrame). [Demo](https://github.com/openblocks-dev/openblocks-sdk-demo)
 - **Role-based access control (RBAC)** for granular permission management.
 - **Auto-saved and restorable history** for release and version control.
 - **DIY app themes** to precisely align with your company's content.
