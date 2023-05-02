@@ -1,15 +1,15 @@
 apiVersion: v2
-name: openblocks
-description: A Helm chart for Kubernetes for installing openblocks
+name: lowcoder
+description: A Helm chart for Kubernetes for installing lowcoder
 
 type: application
 # Chart version (change every time you make changes to the chart)
 version: 0.1.0
 
-# Openblocks version
+# Lowcoder version
 appVersion: "latest"
 
-# Dependencies needed for Openblocks deployment
+# Dependencies needed for Lowcoder deployment
 dependencies:
   - condition: redis.enabled
     name: redis

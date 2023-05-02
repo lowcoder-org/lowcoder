@@ -2,7 +2,7 @@
 
 Lowcoder is a developer-friendly open-source low code platform to build internal apps within minutes.
 
-[Overview of Lowcoder](https://docs.openblocks.dev/)
+[Overview of Lowcoder](https://docs.lowcoder.org/)
 
 ## Introduction
 
@@ -17,7 +17,7 @@ This chart bootstraps an Lowcoder deployment on a [Kubernetes](https://kubernete
 
 ## Installing the Chart
 
-To install the chart with the release name `my-openblocks` into namespace `openblocks`:
+To install the chart with the release name `my-lowcoder` into namespace `lowcoder`:
 
 ```bash
 # If installing mongodb and/or redis, add bitnami chart repository and update chart dependenices
@@ -25,15 +25,15 @@ $ helm repo add bitnami https://charts.bitnami.com/bitnami
 $ helm dependency update
 
 # Install the chart
-$ helm install -n openblocks my-openblocks .
+$ helm install -n lowcoder my-lowcoder .
 ```
 
 ## Uninstalling the Chart
 
-To uninstall/delete the `my-openblocks` deployment from namespace `openblocks`:
+To uninstall/delete the `my-lowcoder` deployment from namespace `lowcoder`:
 
 ```bash
-$ helm delete -n openblocks my-openblocks
+$ helm delete -n lowcoder my-lowcoder
 ```
 
 ## Parameters
@@ -63,9 +63,9 @@ All available parameters can be found in [Bitnami MongoDB Chart](https://github.
 | `apiService.config.userId`              | User ID of user running Lowcoder server application in container          | `9001`           |
 | `apiService.config.groupId`             | Group ID of user running Lowcoder server application in container         | `9001`           |
 | `apiService.config.corsAllowedDomains`  | CORS allowed domains                                                        | `*`              |
-| `apiService.config.encryption.password` | Encryption password                                                         | `openblocks.dev` |
-| `apiService.config.encryption.salt`     | Encryption salt                                                             | `openblocks.dev` |
-| `apiService.config.enableUserSignUp`    | Enable users signing up to openblocks via login page                        | `true`           |
+| `apiService.config.encryption.password` | Encryption password                                                         | `lowcoder.org` |
+| `apiService.config.encryption.salt`     | Encryption salt                                                             | `lowcoder.org` |
+| `apiService.config.enableUserSignUp`    | Enable users signing up to lowcoder via login page                        | `true`           |
 | `apiService.config.nodeServiceUrl`      | URL to node-service server if using external Lowcoder server              |                  |
 
 ### Lowcoder server node-service

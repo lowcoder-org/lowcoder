@@ -1,4 +1,4 @@
-# Default values for openblocks.
+# Default values for lowcoder.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
@@ -37,20 +37,20 @@ mongodb:
   #externalUrl:
   enabled: true
   service:
-    nameOverride: openblocks-mongodb
+    nameOverride: lowcoder-mongodb
   auth:
     rootUser: root
     rootPassword: secret
     usernames:
-      - openblocks
+      - lowcoder
     passwords:
       - supersecret
     databases:
-      - openblocks
+      - lowcoder
 
-# Openblocks backend API service
+# Lowcoder backend API service
 #
-# Find out more about configuration options at: https://github.com/openblocks-dev/openblocks/tree/develop/deploy/docker#configuration-1
+# Find out more about configuration options at: https://github.com/lowcoder-org/lowcoder/tree/main/deploy/docker#configuration-1
 #
 apiService:
   image:
@@ -65,8 +65,8 @@ apiService:
     corsAllowedDomains: "*"
     enableUserSignUp: true
     encryption:
-      password: "openblocks.dev"
-      salt: "openblocks.dev"
+      password: "lowcoder.org"
+      salt: "lowcoder.org"
     #nodeServiceUrl: 
 
   service:
@@ -82,9 +82,9 @@ apiService:
     targetCPUUtilizationPercentage: 80
     # targetMemoryUtilizationPercentage: 80
 
-# Openblocks backend node service
+# Lowcoder backend node service
 #
-# Find out more about configuration options at: https://github.com/openblocks-dev/openblocks/tree/develop/deploy/docker#configuration-3
+# Find out more about configuration options at: https://github.com/lowcoder-org/lowcoder/tree/main/deploy/docker#configuration-3
 #
 nodeService:
   image:
@@ -111,7 +111,7 @@ nodeService:
     targetCPUUtilizationPercentage: 80
     # targetMemoryUtilizationPercentage: 80
  
-# Openblocks frontend
+# Lowcoder frontend
 frontend:
   image:
     repository: lowcoderorg/lowcoder-ce-frontend

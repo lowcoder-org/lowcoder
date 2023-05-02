@@ -1,11 +1,11 @@
-{{- $nameSpace := include "openblocks.namespace" . -}}
-{{- $name := include "openblocks.fullname" . -}}
+{{- $nameSpace := include "lowcoder.namespace" . -}}
+{{- $name := include "lowcoder.fullname" . -}}
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ include "openblocks.fullname" . }}-frontend
+  name: {{ include "lowcoder.fullname" . }}-frontend
   labels:
-    {{- include "openblocks.labels" . | nindent 4 }}
+    {{- include "lowcoder.labels" . | nindent 4 }}
   {{- with .Values.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}

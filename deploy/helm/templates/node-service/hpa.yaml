@@ -2,14 +2,14 @@
 apiVersion: autoscaling/v2beta1
 kind: HorizontalPodAutoscaler
 metadata:
-  name: {{ include "openblocks.fullname" . }}-node-service
+  name: {{ include "lowcoder.fullname" . }}-node-service
   labels:
-    {{- include "openblocks.labels" . | nindent 4 }}
+    {{- include "lowcoder.labels" . | nindent 4 }}
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: {{ include "openblocks.fullname" . }}-node-service
+    name: {{ include "lowcoder.fullname" . }}-node-service
   minReplicas: {{ .Values.nodeService.autoscaling.minReplicas }}
   maxReplicas: {{ .Values.nodeService.autoscaling.maxReplicas }}
   metrics:
