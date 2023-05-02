@@ -14,7 +14,7 @@ This image contains all services needed to run Lowcoder platform in one containe
 This is the default target and can be built by running following command from project root:
 
 ```
-DOCKER_BUILDKIT=1 docker build -f deploy/docker/Dockerfile -t openblocksdev/openblocks-ce .
+DOCKER_BUILDKIT=1 docker build -f deploy/docker/Dockerfile -t lowcoderorg/lowcoder-ce .
 ```
 
 ### Configuration
@@ -25,17 +25,17 @@ Image can be configured by setting environment variables.
 | --------------------------------| --------------------------------------------------------------------| ------------------------------------------------------- |
 | `REDIS_ENABLED`                 | If **true** redis server is started in the container                | `true`                                                  |
 | `MONGODB_ENABLED`               | If **true** mongo database is started in the container              | `true`                                                  |
-| `API_SERVICE_ENABLED`           | If **true** openblocks api-service is started in the container      | `true`                                                  |
-| `NODE_SERVICE_ENABLED`          | If **true** openblocks node-service is started in the container     | `true`                                                  |
-| `FRONTEND_ENABLED`              | If **true** openblocks web frontend is started in the container     | `true`                                                  |
+| `API_SERVICE_ENABLED`           | If **true** lowcoder api-service is started in the container      | `true`                                                  |
+| `NODE_SERVICE_ENABLED`          | If **true** lowcoder node-service is started in the container     | `true`                                                  |
+| `FRONTEND_ENABLED`              | If **true** lowcoder web frontend is started in the container     | `true`                                                  |
 | `PUID`                          | ID of user running services. It will own all created logs and data. | `9001`                                                  |
 | `PGID`                          | ID of group of the user running services.                           | `9001`                                                  |
-| `MONGODB_URI`                   | Mongo database connection string                                    | `mongodb://localhost:27017/openblocks?authSource=admin` |
+| `MONGODB_URI`                   | Mongo database connection string                                    | `mongodb://localhost:27017/lowcoder?authSource=admin` |
 | `REDIS_URL`                     | Redis server URL                                                    | `redis://localhost:6379`                                |
 | `JS_EXECUTOR_URI`               | Node service URL                                                    | `http://localhost:6060`                                 |
 | `ENABLE_USER_SIGN_UP`           | Enable registration of new users                                    | `true`                                                  |
-| `ENCRYPTION_PASSWORD`           | Encryption password                                                 | `openblocks.dev`                                        |
-| `ENCRYPTION_SALT`               | Salt used for encrypting password                                   | `openblocks.dev`                                        |
+| `ENCRYPTION_PASSWORD`           | Encryption password                                                 | `lowcoder.org`                                        |
+| `ENCRYPTION_SALT`               | Salt used for encrypting password                                   | `lowcoder.org`                                        |
 | `CORS_ALLOWED_DOMAINS`          | CORS allowed domains                                                | `*`                                                     |
 | `OPENBLOCKS_API_SERVICE_URL`    | Lowcoder API service URL                                          | `http://localhost:8080`                                 |
 | `OPENBLOCKS_NODE_SERVICE_URL`   | Lowcoder Node service (js executor) URL                           | `http://localhost:6060`                                 |
@@ -50,7 +50,7 @@ Standalone Lowcoder api-service image.
 From project root run:
 
 ```
-DOCKER_BUILDKIT=1 docker build -f deploy/docker/Dockerfile -t openblocksdev/openblocks-ce-api-service --target openblocks-ce-api-service .
+DOCKER_BUILDKIT=1 docker build -f deploy/docker/Dockerfile -t lowcoderorg/lowcoder-ce-api-service --target lowcoder-ce-api-service .
 ```
 
 ### Configuration
@@ -61,12 +61,12 @@ Image can be configured by setting environment variables.
 | --------------------------------| --------------------------------------------------------------------| ------------------------------------------------------- |
 | `PUID`                          | ID of user running services. It will own all created logs and data. | `9001`                                                  |
 | `PGID`                          | ID of group of the user running services.                           | `9001`                                                  |
-| `MONGODB_URI`                   | Mongo database connection string                                    | `mongodb://localhost:27017/openblocks?authSource=admin` |
+| `MONGODB_URI`                   | Mongo database connection string                                    | `mongodb://localhost:27017/lowcoder?authSource=admin` |
 | `REDIS_URL`                     | Redis server URL                                                    | `redis://localhost:6379`                                |
 | `JS_EXECUTOR_URI`               | Node service URL                                                    | `http://localhost:6060`                                 |
 | `ENABLE_USER_SIGN_UP`           | Enable registration of new users                                    | `true`                                                  |
-| `ENCRYPTION_PASSWORD`           | Encryption password                                                 | `openblocks.dev`                                        |
-| `ENCRYPTION_SALT`               | Salt used for encrypting password                                   | `openblocks.dev`                                        |
+| `ENCRYPTION_PASSWORD`           | Encryption password                                                 | `lowcoder.org`                                        |
+| `ENCRYPTION_SALT`               | Salt used for encrypting password                                   | `lowcoder.org`                                        |
 | `CORS_ALLOWED_DOMAINS`          | CORS allowed domains                                                | `*`                                                     |
 
 
@@ -79,7 +79,7 @@ Standalone Lowcoder node-service (JS executor) image.
 From project root run:
 
 ```
-DOCKER_BUILDKIT=1 docker build -f deploy/docker/Dockerfile -t openblocksdev/openblocks-ce-node-service --target openblocks-ce-node-service .
+DOCKER_BUILDKIT=1 docker build -f deploy/docker/Dockerfile -t lowcoderorg/lowcoder-ce-node-service --target lowcoder-ce-node-service .
 ```
 
 ### Configuration
@@ -101,7 +101,7 @@ Standalone Lowcoder web frontend image.
 From project root run:
 
 ```
-DOCKER_BUILDKIT=1 docker build -f deploy/docker/Dockerfile -t openblocksdev/openblocks-ce-frontend --target openblocks-ce-frontend .
+DOCKER_BUILDKIT=1 docker build -f deploy/docker/Dockerfile -t lowcoderorg/lowcoder-ce-frontend --target lowcoder-ce-frontend .
 ```
 
 ### Configuration

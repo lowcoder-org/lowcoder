@@ -8,12 +8,12 @@ export API_HOST="${OPENBLOCKS_API_SERVICE_URL:=http://localhost:8080}"
 
 # Run init script
 echo "Initializing node-service..."
-/openblocks/node-service/init.sh
+/lowcoder/node-service/init.sh
 
-cd /openblocks/node-service/app
+cd /lowcoder/node-service/app
 
 echo
-echo "Running Openblocks node-service with:"
+echo "Running Lowcoder node-service with:"
 echo "  API service host: ${API_HOST}"
 echo "           user id: ${USER_ID}"
 echo "          group id: ${GROUP_ID}"

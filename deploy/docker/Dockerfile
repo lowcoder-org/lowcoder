@@ -1,5 +1,5 @@
 ##
-## Create custom JRE for running Openblocks server application
+## Create custom JRE for running Lowcoder server application
 ##
 FROM eclipse-temurin:17-jdk-jammy AS jre-build
 RUN jlink --add-modules java.base,java.compiler,java.datatransfer,java.desktop,java.instrument,java.logging,java.management,java.management.rmi,java.naming,java.net.http,java.prefs,java.rmi,java.scripting,java.se,java.security.jgss,java.security.sasl,java.smartcardio,java.sql,java.sql.rowset,java.transaction.xa,java.xml,java.xml.crypto,jdk.accessibility,jdk.charsets,jdk.crypto.cryptoki,jdk.crypto.ec,jdk.dynalink,jdk.httpserver,jdk.incubator.foreign,jdk.incubator.vector,jdk.internal.vm.ci,jdk.jdwp.agent,jdk.jfr,jdk.jsobject,jdk.localedata,jdk.management,jdk.management.agent,jdk.management.jfr,jdk.naming.dns,jdk.naming.rmi,jdk.net,jdk.nio.mapmode,jdk.sctp,jdk.security.auth,jdk.security.jgss,jdk.unsupported,jdk.xml.dom,jdk.zipfs,jdk.attach \
@@ -9,60 +9,60 @@ RUN jlink --add-modules java.base,java.compiler,java.datatransfer,java.desktop,j
           --compress=2
 
 ##
-## Build Openblocks api-service application
+## Build Lowcoder api-service application
 ##
 FROM maven:3.8-eclipse-temurin-17 AS build-api-service
-COPY ./server/api-service /openblocks-server
-WORKDIR /openblocks-server
+COPY ./server/api-service /lowcoder-server
+WORKDIR /lowcoder-server
 RUN --mount=type=cache,target=/root/.m2 mvn -f pom.xml clean package -DskipTests
 
 # Create required folder structure
-RUN mkdir -p /openblocks/api-service/plugins /openblocks/api-service/config /openblocks/api-service/logs
+RUN mkdir -p /lowcoder/api-service/plugins /lowcoder/api-service/config /lowcoder/api-service/logs
 
-# Define openblocks main jar and plugin jars
-ARG JAR_FILE=/openblocks-server/openblocks-server/target/openblocks-server-1.0-SNAPSHOT.jar
-ARG PLUGIN_JARS=/openblocks-server/openblocks-plugins/*/target/*.jar
+# Define lowcoder main jar and plugin jars
+ARG JAR_FILE=/lowcoder-server/lowcoder-server/target/lowcoder-server-1.0-SNAPSHOT.jar
+ARG PLUGIN_JARS=/lowcoder-server/lowcoder-plugins/*/target/*.jar
 
 # Copy Java runtime for running server
-COPY --from=jre-build /build/jre /openblocks/api-service/jre
+COPY --from=jre-build /build/jre /lowcoder/api-service/jre
 
-# Copy openblocks server application and plugins
-RUN cp ${JAR_FILE} /openblocks/api-service/server.jar \
-  && cp ${PLUGIN_JARS} /openblocks/api-service/plugins/
+# Copy lowcoder server application and plugins
+RUN cp ${JAR_FILE} /lowcoder/api-service/server.jar \
+  && cp ${PLUGIN_JARS} /lowcoder/api-service/plugins/
 
-# Copy openblocks server configuration
-COPY server/api-service/openblocks-server/src/main/resources/selfhost/ce/application.yml /openblocks/api-service/config/
-COPY server/api-service/openblocks-server/src/main/resources/selfhost/ce/application-selfhost.yml /openblocks/api-service/config/
+# Copy lowcoder server configuration
+COPY server/api-service/lowcoder-server/src/main/resources/selfhost/ce/application.yml /lowcoder/api-service/config/
+COPY server/api-service/lowcoder-server/src/main/resources/selfhost/ce/application-selfhost.yml /lowcoder/api-service/config/
 
 # Add bootstrapfile
-COPY deploy/docker/api-service/entrypoint.sh /openblocks/api-service/entrypoint.sh
-COPY deploy/docker/api-service/init.sh /openblocks/api-service/init.sh
-RUN chmod +x /openblocks/api-service/*.sh 
+COPY deploy/docker/api-service/entrypoint.sh /lowcoder/api-service/entrypoint.sh
+COPY deploy/docker/api-service/init.sh /lowcoder/api-service/init.sh
+RUN chmod +x /lowcoder/api-service/*.sh
 
 ##
-## Intermediary Openblocks api-service image
+## Intermediary Lowcoder api-service image
 ##
 ## To create a separate image out of it, build it with:
-##   DOCKER_BUILDKIT=1 docker build -f deploy/docker/Dockerfile -t openblocksdev/openblocks-ce-api-service --target openblocks-ce-api-service .
+##   DOCKER_BUILDKIT=1 docker build -f deploy/docker/Dockerfile -t lowcoderorg/lowcoder-ce-api-service --target lowcoder-ce-api-service .
 ##
-FROM ubuntu:jammy as openblocks-ce-api-service
-LABEL maintainer="openblocks"
+FROM ubuntu:jammy as lowcoder-ce-api-service
+LABEL maintainer="lowcoder"
 
 RUN apt-get update && apt-get install -y --no-install-recommends gosu \
   && rm -rf /var/cache/apt/lists \
-  && addgroup --system --gid 9001 openblocks \
-  && adduser --system --disabled-password --no-create-home --uid 9001 --gid 9001 openblocks
+  && addgroup --system --gid 9001 lowcoder \
+  && adduser --system --disabled-password --no-create-home --uid 9001 --gid 9001 lowcoder
 
-# Copy openblocks server configuration
-COPY --chown=openblocks:openblocks --from=build-api-service /openblocks/api-service /openblocks/api-service
+# Copy lowcoder server configuration
+COPY --chown=lowcoder:lowcoder --from=build-api-service /lowcoder/api-service /lowcoder/api-service
 
 EXPOSE 8080
-CMD [ "sh" , "/openblocks/api-service/entrypoint.sh" ]
+CMD [ "sh" , "/lowcoder/api-service/entrypoint.sh" ]
 
 #############################################################################
 
 ##
-## Build openblocks node service
+## Build lowcoder node service
 ##
 FROM ubuntu:jammy as build-node-service
 
@@ -74,46 +74,46 @@ RUN curl -sL https://deb.nodesource.com/setup_19.x | bash - \
 && npm install -g yarn
 
 # Copy and build the node-service app
-COPY server/node-service/ /openblocks/node-service/app/
-WORKDIR /openblocks/node-service/app/
+COPY server/node-service/ /lowcoder/node-service/app/
+WORKDIR /lowcoder/node-service/app/
 RUN yarn --immutable
 RUN yarn build
 
 # Copy startup script
-COPY deploy/docker/node-service/entrypoint.sh /openblocks/node-service/entrypoint.sh
-COPY deploy/docker/node-service/init.sh /openblocks/node-service/init.sh
-RUN chmod +x /openblocks/node-service/*.sh
+COPY deploy/docker/node-service/entrypoint.sh /lowcoder/node-service/entrypoint.sh
+COPY deploy/docker/node-service/init.sh /lowcoder/node-service/init.sh
+RUN chmod +x /lowcoder/node-service/*.sh
 
 ##
-## Intermediary Openblocks node service image
+## Intermediary Lowcoder node service image
 ##
 ## To create a separate image out of it, build it with:
-##   DOCKER_BUILDKIT=1 docker build -f deploy/docker/Dockerfile -t openblocksdev/openblocks-ce-node-service --target openblocks-ce-node-service .
+##   DOCKER_BUILDKIT=1 docker build -f deploy/docker/Dockerfile -t lowcoderorg/lowcoder-ce-node-service --target lowcoder-ce-node-service .
 ##
-FROM ubuntu:jammy as openblocks-ce-node-service
-LABEL maintainer="openblocks"
+FROM ubuntu:jammy as lowcoder-ce-node-service
+LABEL maintainer="lowcoder"
 
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y curl ca-certificates \
   && curl -sL https://deb.nodesource.com/setup_19.x | bash - \
   && apt-get install --no-install-recommends -y nodejs gosu \
   && npm install -g yarn \
   && rm -rf /var/cache/apt/lists \
-  && addgroup --system --gid 9001 openblocks \
-  && adduser --system --disabled-password --no-create-home --uid 9001 --gid 9001 openblocks
+  && addgroup --system --gid 9001 lowcoder \
+  && adduser --system --disabled-password --no-create-home --uid 9001 --gid 9001 lowcoder
 
-COPY --from=build-node-service /openblocks/node-service /openblocks/node-service
+COPY --from=build-node-service /lowcoder/node-service /lowcoder/node-service
 
 EXPOSE 6060
-CMD [ "/bin/sh", "/openblocks/node-service/entrypoint.sh" ]
+CMD [ "/bin/sh", "/lowcoder/node-service/entrypoint.sh" ]
 
 #############################################################################
 
 ##
-## Build openblocks client application
+## Build lowcoder client application
 ##
 FROM node:19.4-slim AS build-client
-COPY ./client /openblocks-client
-WORKDIR /openblocks-client
+COPY ./client /lowcoder-client
+WORKDIR /lowcoder-client
 RUN yarn --immutable
 
 # curl is required for yarn build to succeed, because it calls it while building client
@@ -127,20 +127,20 @@ RUN yarn build
 
 
 ##
-## Intermediary Openblocks client image
+## Intermediary Lowcoder client image
 ##
 ## To create a separate image out of it, build it with:
-##   DOCKER_BUILDKIT=1 docker build -f deploy/docker/Dockerfile -t openblocksdev/openblocks-ce-frontend --target openblocks-ce-frontend .
+##   DOCKER_BUILDKIT=1 docker build -f deploy/docker/Dockerfile -t lowcoderorg/lowcoder-ce-frontend --target lowcoder-ce-frontend .
 ##
-FROM nginx:1.23.3 as openblocks-ce-frontend
-LABEL maintainer="openblocks"
+FROM nginx:1.23.3 as lowcoder-ce-frontend
+LABEL maintainer="lowcoder"
 
-# Change default nginx user into openblocks user
-RUN usermod --login openblocks --uid 9001 nginx \
-  && groupmod --new-name openblocks --gid 9001 nginx
+# Change default nginx user into lowcoder user
+RUN usermod --login lowcoder --uid 9001 nginx \
+  && groupmod --new-name lowcoder --gid 9001 nginx
 
-# Copy openblocks client data
-COPY --chown=openblocks:openblocks --from=build-client /openblocks-client/packages/openblocks/build/ /openblocks/client
+# Copy lowcoder client data
+COPY --chown=lowcoder:lowcoder --from=build-client /lowcoder-client/packages/lowcoder/build/ /lowcoder/client
 
 # Copy additional nginx init scripts
 COPY deploy/docker/frontend/00-change-nginx-user.sh /docker-entrypoint.d/00-change-nginx-user.sh
@@ -155,10 +155,10 @@ EXPOSE 3000
 #############################################################################
 
 ##
-## Build Openblocks all-in-one image
+## Build Lowcoder all-in-one image
 ##
-FROM openblocks-ce-frontend
-LABEL maintainer="openblocks"
+FROM lowcoder-ce-frontend
+LABEL maintainer="lowcoder"
 
 # Install required packages
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y bash gnupg curl lsb-release \
@@ -176,20 +176,20 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install --no-instal
   && npm install -g yarn \
   && rm -rf /var/cache/apt/lists
 
-# Add openblocks api-service
-COPY --chown=openblocks:openblocks --from=openblocks-ce-api-service /openblocks/api-service /openblocks/api-service
+# Add lowcoder api-service
+COPY --chown=lowcoder:lowcoder --from=lowcoder-ce-api-service /lowcoder/api-service /lowcoder/api-service
 
-# Add openblocks node-service
-COPY --chown=openblocks:openblocks --from=openblocks-ce-node-service /openblocks/node-service /openblocks/node-service
+# Add lowcoder node-service
+COPY --chown=lowcoder:lowcoder --from=lowcoder-ce-node-service /lowcoder/node-service /lowcoder/node-service
 
 # Add services configuration
-COPY --chown=openblocks:openblocks deploy/docker/all-in-one/etc /openblocks/etc
+COPY --chown=lowcoder:lowcoder deploy/docker/all-in-one/etc /lowcoder/etc
 
 # Add startup script
-COPY --chown=openblocks:openblocks deploy/docker/all-in-one/entrypoint.sh /openblocks/entrypoint.sh
+COPY --chown=lowcoder:lowcoder deploy/docker/all-in-one/entrypoint.sh /lowcoder/entrypoint.sh
 
 EXPOSE 3000
 
-ENTRYPOINT [ "/bin/sh" , "/openblocks/entrypoint.sh" ]
-CMD ["/usr/bin/supervisord", "-n" , "-c" , "/openblocks/etc/supervisord.conf"]
+ENTRYPOINT [ "/bin/sh" , "/lowcoder/entrypoint.sh" ]
+CMD ["/usr/bin/supervisord", "-n" , "-c" , "/lowcoder/etc/supervisord.conf"]
 

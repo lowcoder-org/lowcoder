@@ -5,20 +5,20 @@ set -e
 export USER_ID=${PUID:=9001}
 export GROUP_ID=${PGID:=9001}
 
-# Update ID of openblocks user if required
-if [ ! `id --user openblocks` -eq ${USER_ID} ]; then
-    usermod --uid ${USER_ID} openblocks
-    echo "ID for openblocks user changed to: ${USER_ID}"
+# Update ID of lowcoder user if required
+if [ ! `id --user lowcoder` -eq ${USER_ID} ]; then
+    usermod --uid ${USER_ID} lowcoder
+    echo "ID for lowcoder user changed to: ${USER_ID}"
 fi;
 
-# Update ID of openblocks group if required
-if [ ! `id --group openblocks` -eq ${GROUP_ID} ]; then
-    groupmod --gid ${GROUP_ID} openblocks
-    echo "ID for openblocks group changed to: ${GROUP_ID}"
+# Update ID of lowcoder group if required
+if [ ! `id --group lowcoder` -eq ${GROUP_ID} ]; then
+    groupmod --gid ${GROUP_ID} lowcoder
+    echo "ID for lowcoder group changed to: ${GROUP_ID}"
 fi;
 
-LOGS="/openblocks-stacks/logs"
-DATA="/openblocks-stacks/data"
+LOGS="/lowcoder-stacks/logs"
+DATA="/lowcoder-stacks/data"
 # Create folder for holding application logs and data
 mkdir -p ${LOGS}/redis \
   ${LOGS}/mongodb \
@@ -29,12 +29,12 @@ mkdir -p ${LOGS}/redis \
   ${DATA}/mongodb
 
 # Update owner of logs and data
-chown -R ${USER_ID}:${GROUP_ID} /openblocks-stacks/ /openblocks/etc
+chown -R ${USER_ID}:${GROUP_ID} /lowcoder-stacks/ /lowcoder/etc
 
 
 # Enable services
-SUPERVISOR_AVAILABLE="/openblocks/etc/supervisord/conf-available"
-SUPERVISOR_ENABLED="/openblocks/etc/supervisord/conf-enabled"
+SUPERVISOR_AVAILABLE="/lowcoder/etc/supervisord/conf-available"
+SUPERVISOR_ENABLED="/lowcoder/etc/supervisord/conf-enabled"
 
 # Create folder for supervisor conf-enabled
 mkdir -p ${SUPERVISOR_ENABLED}

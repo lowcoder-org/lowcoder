@@ -2,14 +2,14 @@ version: "3"
 services:
 
   ##
-  ## Start services required for Openblocks (MongoDB and Redis)
+  ## Start services required for Lowcoder (MongoDB and Redis)
   ##
   mongodb:
     image: "mongo:4.4"
     container_name: mongodb
     environment:
-      MONGO_INITDB_DATABASE: openblocks
-      MONGO_INITDB_ROOT_USERNAME: openblocks
+      MONGO_INITDB_DATABASE: lowcoder
+      MONGO_INITDB_ROOT_USERNAME: lowcoder
       MONGO_INITDB_ROOT_PASSWORD: secret123
     # Uncomment to save database data into local 'mongodata' folder
     # volumes:
@@ -22,58 +22,58 @@ services:
 
 
   ##
-  ## Start Openblocks backend services (api-service and node-service)
+  ## Start Lowcoder backend services (api-service and node-service)
   ##
-  openblocks-api-service:
-    image: openblocksdev/openblocks-ce-api-service:latest
-    container_name: openblocks-api-service
+  lowcoder-api-service:
+    image: lowcoderorg/lowcoder-ce-api-service:latest
+    container_name: lowcoder-api-service
     # Enabled ports to be able to access backend from host
     # ports:
     #   - "8080:8080"
     environment:
       PUID: "9001"
       PGID: "9001"
-      MONGODB_URI: "mongodb://openblocks:secret123@mongodb/openblocks?authSource=admin"
+      MONGODB_URI: "mongodb://lowcoder:secret123@mongodb/lowcoder?authSource=admin"
       REDIS_URL: "redis://redis:6379"
-      JS_EXECUTOR_URI: "http://openblocks-node-service:6060"
+      JS_EXECUTOR_URI: "http://lowcoder-node-service:6060"
       ENABLE_USER_SIGN_UP: "true"
-      ENCRYPTION_PASSWORD: "openblocks.dev"
-      ENCRYPTION_SALT: "openblocks.dev"
+      ENCRYPTION_PASSWORD: "lowcoder.org"
+      ENCRYPTION_SALT: "lowcoder.org"
       CORS_ALLOWED_DOMAINS: "*"
     restart: unless-stopped
     depends_on:
       - mongodb
       - redis
 
-  openblocks-node-service:
-    image: openblocksdev/openblocks-ce-node-service:latest
-    container_name: openblocks-node-service
+  lowcoder-node-service:
+    image: lowcoderorg/lowcoder-ce-node-service:latest
+    container_name: lowcoder-node-service
     # Enabled ports to be able to access backend from host
     # ports:
     #   - "6060:6060"
     environment:
       PUID: "9001"
       PGID: "9001"
-      OPENBLOCKS_API_SERVICE_URL: "http://openblocks-api-service:8080"
+      OPENBLOCKS_API_SERVICE_URL: "http://lowcoder-api-service:8080"
     restart: unless-stopped
     depends_on:
-      - openblocks-api-service
+      - lowcoder-api-service
 
   ##
-  ## Start Openblocks web frontend
+  ## Start Lowcoder web frontend
   ##
-  openblocks-frontend:
-    image: openblocksdev/openblocks-ce-frontend:latest
-    container_name: openblocks-frontend
+  lowcoder-frontend:
+    image: lowcoderorg/lowcoder-ce-frontend:latest
+    container_name: lowcoder-frontend
     ports:
       - "3000:3000"
     environment:
       PUID: "9001"
       PGID: "9001"
-      OPENBLOCKS_API_SERVICE_URL: "http://openblocks-api-service:8080"
-      OPENBLOCKS_NODE_SERVICE_URL: "http://openblocks-node-service:6060"
+      OPENBLOCKS_API_SERVICE_URL: "http://lowcoder-api-service:8080"
+      OPENBLOCKS_NODE_SERVICE_URL: "http://lowcoder-node-service:6060"
     restart: unless-stopped
     depends_on:
-      - openblocks-node-service
-      - openblocks-api-service
+      - lowcoder-node-service
+      - lowcoder-api-service
 

@@ -54,7 +54,7 @@ mongodb:
 #
 apiService:
   image:
-    repository: openblocksdev/openblocks-ce-api-service
+    repository: lowcoderorg/lowcoder-ce-api-service
     pullPolicy: Always
     # Overrides the image tag whose default is the chart appVersion.
     #tag: "latest"
@@ -88,7 +88,7 @@ apiService:
 #
 nodeService:
   image:
-    repository: openblocksdev/openblocks-ce-node-service
+    repository: lowcoderorg/lowcoder-ce-node-service
     pullPolicy: Always
     # Overrides the image tag whose default is the chart appVersion.
     #tag: "latest"
@@ -114,7 +114,7 @@ nodeService:
 # Openblocks frontend
 frontend:
   image:
-    repository: openblocksdev/openblocks-ce-frontend
+    repository: lowcoderorg/lowcoder-ce-frontend
     pullPolicy: Always
     # Overrides the image tag whose default is the chart appVersion.
     #tag: "latest"
