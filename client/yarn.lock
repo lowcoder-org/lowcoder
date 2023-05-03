@@ -2497,7 +2497,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/runtime@npm:^7.1.2, @babel/runtime@npm:^7.10.1, @babel/runtime@npm:^7.10.2, @babel/runtime@npm:^7.10.4, @babel/runtime@npm:^7.11.1, @babel/runtime@npm:^7.11.2, @babel/runtime@npm:^7.12.1, @babel/runtime@npm:^7.12.13, @babel/runtime@npm:^7.12.5, @babel/runtime@npm:^7.15.4, @babel/runtime@npm:^7.16.3, @babel/runtime@npm:^7.16.5, @babel/runtime@npm:^7.18.0, @babel/runtime@npm:^7.2.0, @babel/runtime@npm:^7.6.3, @babel/runtime@npm:^7.8.4, @babel/runtime@npm:^7.9.2":
+"@babel/runtime@npm:^7.1.2, @babel/runtime@npm:^7.10.1, @babel/runtime@npm:^7.10.2, @babel/runtime@npm:^7.10.4, @babel/runtime@npm:^7.11.1, @babel/runtime@npm:^7.11.2, @babel/runtime@npm:^7.12.1, @babel/runtime@npm:^7.12.13, @babel/runtime@npm:^7.12.5, @babel/runtime@npm:^7.15.4, @babel/runtime@npm:^7.16.3, @babel/runtime@npm:^7.18.0, @babel/runtime@npm:^7.2.0, @babel/runtime@npm:^7.6.3, @babel/runtime@npm:^7.8.4, @babel/runtime@npm:^7.9.2":
   version: 7.18.9
   resolution: "@babel/runtime@npm:7.18.9"
   dependencies:
@@ -3083,6 +3083,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@fortawesome/fontawesome-common-types@npm:6.4.0":
+  version: 6.4.0
+  resolution: "@fortawesome/fontawesome-common-types@npm:6.4.0"
+  checksum: a9b79136caa615352bd921cfe2710516321b402cd76c3f0ae68e579a7e3d7645c5a5c0ecd7516c0b207adeeffd1d2174978638d8c0d3c8c937d66fca4f2ff556
+  languageName: node
+  linkType: hard
+
 "@fortawesome/fontawesome-svg-core@npm:^6.2.0":
   version: 6.2.0
   resolution: "@fortawesome/fontawesome-svg-core@npm:6.2.0"
@@ -3092,12 +3099,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@fortawesome/free-regular-svg-icons@npm:^6.2.0":
-  version: 6.2.0
-  resolution: "@fortawesome/free-regular-svg-icons@npm:6.2.0"
+"@fortawesome/free-regular-svg-icons@npm:^6.4.0":
+  version: 6.4.0
+  resolution: "@fortawesome/free-regular-svg-icons@npm:6.4.0"
   dependencies:
-    "@fortawesome/fontawesome-common-types": 6.2.0
-  checksum: 1b68a25590b273653c7adfa18bd6ef0ee533710687a46ef21c7b5395deae280a2faaff0b024717d9e54fdaedb8165769f281342704821777f86316223d5264ba
+    "@fortawesome/fontawesome-common-types": 6.4.0
+  checksum: a52689349b858a73b179532a207f98d9ee0f28b31e22eaffa6ce23cf3bfec8cc52bcd35770a0943a2dd1328bafbfdea6809231abee7a8601796bc0fb9759d25f
   languageName: node
   linkType: hard
 
@@ -3140,12 +3147,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@fullcalendar/interaction@npm:^6.0.3":
-  version: 6.0.3
-  resolution: "@fullcalendar/interaction@npm:6.0.3"
+"@fullcalendar/interaction@npm:^6.1.6":
+  version: 6.1.6
+  resolution: "@fullcalendar/interaction@npm:6.1.6"
   peerDependencies:
-    "@fullcalendar/core": ~6.0.3
-  checksum: 07c3405e2367ec76c3462a7e8c3faf5699e156c615752c419bf7e4ed9cd9acdadc35e965e7794ed30e140c647bc62bb66e1a604e54f5d747716a2f41048859ab
+    "@fullcalendar/core": ~6.1.6
+  checksum: b7dea490592cdaf902788825ebea122816185657bb37f82dd78ba8129d10fff0c1c45a70d819dd44b5b7088d8b51588899e8e2332652fd939e263160912940dd
   languageName: node
   linkType: hard
 
@@ -5206,12 +5213,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/tern@npm:0.22.0":
-  version: 0.22.0
-  resolution: "@types/tern@npm:0.22.0"
+"@types/tern@npm:0.23.4":
+  version: 0.23.4
+  resolution: "@types/tern@npm:0.23.4"
   dependencies:
     "@types/estree": "*"
-  checksum: c27a699537951a8396c495dec5251c3ed3a96f2f7d13c0aefc3ceebca2ad5a833a552737b3948bf2cbee7f0a62d3be48958d154238d5f4e4ee62c71eefc5b14b
+  checksum: d8fd304f147ed08f1d075f09cb8d440b7f785f69c9ec5c30eadf98132fe3f58f3b1bbbd11283858bb261afac5a2039c1c255f290b0f6e4a47cd6a746f30a6aa8
   languageName: node
   linkType: hard
 
@@ -5818,17 +5825,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"antd-img-crop@npm:^4.0.2":
-  version: 4.0.2
-  resolution: "antd-img-crop@npm:4.0.2"
+"antd-img-crop@npm:^4.12.2":
+  version: 4.12.2
+  resolution: "antd-img-crop@npm:4.12.2"
   dependencies:
-    "@babel/runtime": ^7.16.5
-    react-easy-crop: ^4.0.1
+    compare-versions: 6.0.0-rc.1
+    react-easy-crop: ^4.7.4
+    tslib: ^2.5.0
   peerDependencies:
     antd: ">=4.0.0"
     react: ">=16.8.0"
     react-dom: ">=16.8.0"
-  checksum: 9bd7dbc0e4ee624dced67fe1ab79f261284d7453d8e42e0f2d8dc774d6a7a79355f3fb195a81cf54e649580074c94f6fcad39343508af1011e464ba8851a46a1
+  checksum: c05e1522b8ec07d2a1274a6172c8eb594a5d2738fcf736645b4689804ad1a8c21802d59a3eab9cbe0f791a1a8331ea927f14ae0424228789c1c077c2b09573f6
   languageName: node
   linkType: hard
 
@@ -7190,6 +7198,13 @@ __metadata:
   version: 1.0.1
   resolution: "commondir@npm:1.0.1"
   checksum: 59715f2fc456a73f68826285718503340b9f0dd89bfffc42749906c5cf3d4277ef11ef1cca0350d0e79204f00f1f6d83851ececc9095dc88512a697ac0b9bdcb
+  languageName: node
+  linkType: hard
+
+"compare-versions@npm:6.0.0-rc.1":
+  version: 6.0.0-rc.1
+  resolution: "compare-versions@npm:6.0.0-rc.1"
+  checksum: ada8d19dab267ef432e7aea91ff7b4422284e3b44245a4d7b4caaf1353d0279e5f17b3767050e06a9cf84670120d19b427b5191b71b7284a125482fcd1eda789
   languageName: node
   linkType: hard
 
@@ -8593,13 +8608,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"echarts@npm:^5.3.3":
-  version: 5.3.3
-  resolution: "echarts@npm:5.3.3"
+"echarts@npm:^5.4.2":
+  version: 5.4.2
+  resolution: "echarts@npm:5.4.2"
   dependencies:
     tslib: 2.3.0
-    zrender: 5.3.2
-  checksum: d6feb97132418421de56c18ae1e9c103849156cde1aa41804d463cf1904eec1f8994f63c0c2cd87e48574556ab408c7a05eeacb6fea2cae5843dcf8c041de515
+    zrender: 5.4.3
+  checksum: 933c28dada362314f7c7a5fd4243b44b24f75adb233f7c87541ac9a81734cb380a9683c3f56c8e559dacfddd363879e95a96f0047e33820123cd8f5b95b60f8f
   languageName: node
   linkType: hard
 
@@ -14313,7 +14328,7 @@ __metadata:
   dependencies:
     "@fullcalendar/core": ^6.0.3
     "@fullcalendar/daygrid": ^6.0.3
-    "@fullcalendar/interaction": ^6.0.3
+    "@fullcalendar/interaction": ^6.1.6
     "@fullcalendar/list": ^6.0.3
     "@fullcalendar/moment": ^6.1.4
     "@fullcalendar/react": ^6.0.3
@@ -14459,7 +14474,7 @@ __metadata:
     "@dnd-kit/sortable": ^6.0.0
     "@dnd-kit/utilities": ^3.1.0
     "@fortawesome/fontawesome-svg-core": ^6.2.0
-    "@fortawesome/free-regular-svg-icons": ^6.2.0
+    "@fortawesome/free-regular-svg-icons": ^6.4.0
     "@fortawesome/free-solid-svg-icons": ^6.2.0
     "@fortawesome/react-fontawesome": latest
     "@manaflair/redux-batch": ^1.0.0
@@ -14480,14 +14495,14 @@ __metadata:
     "@vitejs/plugin-react": ^2.2.0
     ali-oss: ^6.17.1
     antd: 4.22.8
-    antd-img-crop: ^4.0.2
+    antd-img-crop: ^4.12.2
     axios: ^0.21.1
     buffer: ^6.0.3
     clsx: ^1.2.1
     copy-to-clipboard: ^3.3.1
     core-js: ^3.25.2
     dotenv: ^16.0.3
-    echarts: ^5.3.3
+    echarts: ^5.4.2
     eslint: ^8.0.0
     eslint-config-react-app: ^7.0.1
     eslint-plugin-only-ascii: ^0.0.0
@@ -14529,7 +14544,7 @@ __metadata:
     react-signature-canvas: ^1.0.6
     react-test-renderer: ^18.1.0
     react-use: ^17.3.2
-    really-relaxed-json: ^0.3.1
+    really-relaxed-json: ^0.3.2
     redux-devtools-extension: ^2.13.9
     redux-saga: ^1.1.3
     regenerator-runtime: ^0.13.9
@@ -16093,16 +16108,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-easy-crop@npm:^4.0.1":
-  version: 4.0.1
-  resolution: "react-easy-crop@npm:4.0.1"
+"react-easy-crop@npm:^4.7.4":
+  version: 4.7.4
+  resolution: "react-easy-crop@npm:4.7.4"
   dependencies:
     normalize-wheel: ^1.0.1
     tslib: 2.0.1
   peerDependencies:
     react: ">=16.4.0"
     react-dom: ">=16.4.0"
-  checksum: 3705dfb95ecec54da3d6e0abc29a639d7d9a0d465b38577bfed18022101896d56299456eab0d9dcfdcc0d5a9be4d92ba1fe2f24e0bcd297f064becc7b790acb2
+  checksum: 1ed1bc7618c543f67a83a82c308e1bf3b0983b25ae796e80c49c9e71ca3456da98332be87c07795ad5369033aa2b3b1b1b5ca4dacafc864b9bc90001eed1f6e6
   languageName: node
   linkType: hard
 
@@ -16631,10 +16646,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"really-relaxed-json@npm:^0.3.1":
-  version: 0.3.1
-  resolution: "really-relaxed-json@npm:0.3.1"
-  checksum: 15220eb39be2c2bbec75508651ea1e6b0c6f5d0a56862ccef323341ed7a21fe27ce15d6dd1c35fc9b78cedba9a6aeef433e4bddb7bd4127d640968dcfe478bf9
+"really-relaxed-json@npm:^0.3.2":
+  version: 0.3.2
+  resolution: "really-relaxed-json@npm:0.3.2"
+  checksum: ed5ae25fa19ca8cd1cd28446d51c0965f0cd6ff62979921607d4a9a99ba58176c4fb887e841c94c5598628e61ac84f4b63e03d0b502d436573f3ffd169be50d8
   languageName: node
   linkType: hard
 
@@ -18344,7 +18359,7 @@ __metadata:
     "@types/shelljs": ^0.8.11
     "@types/styled-components": ^5.1.19
     "@types/stylis": ^4.0.2
-    "@types/tern": 0.22.0
+    "@types/tern": 0.23.4
     "@types/toposort": ^2.0.3
     "@types/ua-parser-js": ^0.7.36
     "@welldone-software/why-did-you-render": ^6.2.3
@@ -18738,7 +18753,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tslib@npm:^2.4.1":
+"tslib@npm:^2.4.1, tslib@npm:^2.5.0":
   version: 2.5.0
   resolution: "tslib@npm:2.5.0"
   checksum: ae3ed5f9ce29932d049908ebfdf21b3a003a85653a9a140d614da6b767a93ef94f460e52c3d787f0e4f383546981713f165037dc2274df212ea9f8a4541004e1
@@ -20093,12 +20108,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"zrender@npm:5.3.2":
-  version: 5.3.2
-  resolution: "zrender@npm:5.3.2"
+"zrender@npm:5.4.3":
+  version: 5.4.3
+  resolution: "zrender@npm:5.4.3"
   dependencies:
     tslib: 2.3.0
-  checksum: 8f7f4c825cb0e21ff897cd9d4fad291dd0c45604546981ec78c1b6b65359875458c05b4d5eef9a1a52f1aa758b0dbfc923df3bd419a1b880a17963d15813a9ff
+  checksum: ae89584fbe4256217e500a74183fd5870a2bed7e7b3234cd78fcbc0a1a82da8449596b2019105927069531b567ecf94425fb171abd6cedcbf517e52fdf438722
   languageName: node
   linkType: hard
 

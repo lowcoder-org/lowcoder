@@ -11,7 +11,7 @@ RUN jlink --add-modules java.base,java.compiler,java.datatransfer,java.desktop,j
 ##
 ## Build Openblocks api-service application
 ##
-FROM maven:3.8-eclipse-temurin-17 AS build-api-service
+FROM maven:3.9-eclipse-temurin-17 AS build-api-service
 COPY ./server/api-service /openblocks-server
 WORKDIR /openblocks-server
 RUN --mount=type=cache,target=/root/.m2 mvn -f pom.xml clean package -DskipTests
