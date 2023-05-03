@@ -6,7 +6,7 @@
   "dependencies": {
     "@fullcalendar/core": "^6.0.3",
     "@fullcalendar/daygrid": "^6.0.3",
-    "@fullcalendar/interaction": "^6.0.3",
+    "@fullcalendar/interaction": "^6.1.6",
     "@fullcalendar/list": "^6.0.3",
     "@fullcalendar/moment": "^6.1.4",
     "@fullcalendar/react": "^6.0.3",
