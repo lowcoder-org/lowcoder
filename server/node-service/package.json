@@ -57,7 +57,7 @@
     "lodash": "^4.17.21",
     "loglevel": "^1.8.1",
     "morgan": "^1.10.0",
-    "node-fetch": "2",
+    "node-fetch": "3",
     "openapi-types": "^12.1.0",
     "openblocks-core": "^0.0.7",
     "openblocks-sdk": "0.0.40",
