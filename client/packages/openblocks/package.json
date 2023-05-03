@@ -36,7 +36,7 @@
     "@types/react-virtualized": "^9.21.21",
     "ali-oss": "^6.17.1",
     "antd": "4.22.8",
-    "antd-img-crop": "^4.0.2",
+    "antd-img-crop": "^4.12.2",
     "axios": "^0.21.1",
     "buffer": "^6.0.3",
     "clsx": "^1.2.1",
