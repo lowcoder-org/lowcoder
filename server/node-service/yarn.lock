@@ -9852,13 +9852,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"openblocks-sdk@npm:0.0.38":
-  version: 0.0.38
-  resolution: "openblocks-sdk@npm:0.0.38"
+"openblocks-sdk@npm:0.0.40":
+  version: 0.0.40
+  resolution: "openblocks-sdk@npm:0.0.40"
   peerDependencies:
     react: ">=17"
     react-dom: ">=17"
-  checksum: 11bc829871c8037378f35e37d97ca8702a7adbd0c228ea9125befb8a63c8cf883cd9a8ce1818dc70a4865186118da313ae5b7660cd038a6fd0e9dab669e871a9
+  checksum: da996558a19dd28e9f6e98c693c6a3e66e7dd62d2c112e54d4ab14c10dec5ad56863805bd5c877fd787ea300fcb5883ac6f0099c78a928bfdfa7fe9323f10649
   languageName: node
   linkType: hard
 
@@ -11269,7 +11269,7 @@ __metadata:
     nodemon: ^2.0.20
     openapi-types: ^12.1.0
     openblocks-core: ^0.0.7
-    openblocks-sdk: 0.0.38
+    openblocks-sdk: 0.0.40
     pino: ^8.11.0
     postman-to-openapi: ^3.0.1
     prom-client: ^14.2.0
