@@ -11,7 +11,7 @@ RUN jlink --add-modules java.base,java.compiler,java.datatransfer,java.desktop,j
 ##
 ## Build Lowcoder api-service application
 ##
-FROM maven:3.8-eclipse-temurin-17 AS build-api-service
+FROM maven:3.9-eclipse-temurin-17 AS build-api-service
 COPY ./server/api-service /lowcoder-server
 WORKDIR /lowcoder-server
 RUN --mount=type=cache,target=/root/.m2 mvn -f pom.xml clean package -DskipTests
@@ -132,7 +132,7 @@ RUN yarn build
 ## To create a separate image out of it, build it with:
 ##   DOCKER_BUILDKIT=1 docker build -f deploy/docker/Dockerfile -t lowcoderorg/lowcoder-ce-frontend --target lowcoder-ce-frontend .
 ##
-FROM nginx:1.23.3 as lowcoder-ce-frontend
+FROM nginx:1.23.4 as lowcoder-ce-frontend
 LABEL maintainer="lowcoder"
 
 # Change default nginx user into lowcoder user
