@@ -6,7 +6,7 @@ By default, end users interact with the latest version of your app. After drafti
 
 ## History versions
 
-Openblocks automatically stores all your history changes during the construction of an app, such as the addition or deletion of the components, adjustment of the property of the components, rearrangement of the layout, and update of a custom function. You can use it to refer to your earlier ideas or revert to a previous version.
+Lowcoder automatically stores all your history changes during the construction of an app, such as the addition or deletion of the components, adjustment of the property of the components, rearrangement of the layout, and update of a custom function. You can use it to refer to your earlier ideas or revert to a previous version.
 
 App history versions are only accessible to editors and admins.
 

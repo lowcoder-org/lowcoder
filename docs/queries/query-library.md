@@ -1,6 +1,6 @@
 # Query library
 
-**Query Library** lets you store, reuse and share queries across your workspace. Create and run queries in query library, and call them from any Openblocks app.
+**Query Library** lets you store, reuse and share queries across your workspace. Create and run queries in query library, and call them from any Lowcoder app.
 
 ## Features
 
@@ -35,7 +35,7 @@ The main function of the query **** library is to create and manage reusable que
 
 ### Input parameters
 
-There are cases where you want to pass dynamic parameters to a query. Openblocks supports that by introducing input configuration of a query.
+There are cases where you want to pass dynamic parameters to a query. Lowcoder supports that by introducing input configuration of a query.
 
 Click **Add** in the **Inputs** tab in the right pane to add input parameters. Reference them using `{{}}` in the query, then you can input test values to test execution of the query.
 

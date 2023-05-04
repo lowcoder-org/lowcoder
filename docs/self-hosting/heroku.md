@@ -1,5 +1,5 @@
 ---
-description: Self-host Openblocks on Heroku quickly with one-click deployment.
+description: Self-host Lowcoder on Heroku quickly with one-click deployment.
 ---
 
 # Heroku
@@ -7,7 +7,7 @@ description: Self-host Openblocks on Heroku quickly with one-click deployment.
 ## Deploy
 
 1. [Sign up](https://signup.heroku.com/) for a new Heroku account, or [log in](https://id.heroku.com/login) to get started.
-2. Click to start Heroku [one-click deployment](https://heroku.com/deploy?template=https://github.com/openblocks-dev/openblocks).
+2. Click to start Heroku [one-click deployment](https://heroku.com/deploy?template=https://github.com/lowcoder-org/lowcoder).
 3.  Set the **App name** which will be part of the app URL later, and choose a region.
 
     <figure><img src="../.gitbook/assets/heroku-1.png" alt=""><figcaption></figcaption></figure>
@@ -24,7 +24,7 @@ Click the **View** button to open the new app, which should be available at **ht
 
 <figure><img src="../.gitbook/assets/heroku-4.png" alt=""><figcaption></figcaption></figure>
 
-In the welcome page, Click **Sign up** to get started. Openblocks will automatically create a workspace for you. Then you can start building your apps and invite members to your workspace.
+In the welcome page, Click **Sign up** to get started. Lowcoder will automatically create a workspace for you. Then you can start building your apps and invite members to your workspace.
 
 <figure><img src="../.gitbook/assets/heroku-5.png" alt=""><figcaption></figcaption></figure>
 
@@ -73,7 +73,7 @@ You can use [Heroku CLI](https://devcenter.heroku.com/categories/command-line) t
 1\.  Get the latest code by cloning the `openblocks-dev/openblocks` repository from GitHub.
 
 ```bash
-git clone https://github.com/openblocks-dev/openblocks.git
+git clone https://github.com/lowcoder-org/lowcoder.git
 ```
 
 2\.  Move to the `heroku` folder.

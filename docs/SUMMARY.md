@@ -1,6 +1,6 @@
 # Table of contents
 
-* [Openblocks overview](README.md)
+* [Lowcoder overview](README.md)
 * [Self-hosting](self-hosting/README.md)
   * [Enterprise Edition](self-hosting/enterprise-edition.md)
   * [Access local database or API](self-hosting/access-local-database-or-api.md)
@@ -12,7 +12,6 @@
 ## Data sources
 
 * [Data source basics](data-sources/data-source-basics.md)
-* [Configure IP allowlists](data-sources/configure-ip-allowlists.md)
 * [Connect to databases](data-sources/connect-to-databases/README.md)
   * [Big Query](data-sources/connect-to-databases/big-query.md)
   * [ClickHouse](data-sources/connect-to-databases/clickhouse.md)

@@ -23,7 +23,7 @@ utils.openUrl("https://www.google.com", { newTab: true })
 
 ### utils.openApp()
 
-Open an Openblocks app.
+Open an Lowcoder app.
 
 ```javascript
 // Syntax
@@ -38,10 +38,10 @@ utils.openApp( applicationId: string, options?: { queryParams?: {"key":"value"},
 | newTab                                                    | Optional. A **Boolean** value that, when **True**, specifies the url is to open in a new tab. The default value is **True**.                                                         |
 
 ```javascript
-// Example: Open an Openblocks app in a new tab.
+// Example: Open an Lowcoder app in a new tab.
 utils.openApp("632bddc33bb9722fb888f6c0", { newTab: true })
 
-// Example: Open an Openblocks app and pass in "id" parameter.
+// Example: Open an Lowcoder app and pass in "id" parameter.
 utils.openApp("632bddc33bb9722fb888f6c0", {
   queryParams: { "id": table1.selectedRow.id },
 } )

@@ -1,5 +1,5 @@
 ---
-description: Connect to Google Sheets, then access and manipulate data in Openblocks.
+description: Connect to Google Sheets, then access and manipulate data in Lowcoder.
 ---
 
 # Google Sheets
@@ -49,11 +49,11 @@ Navigate back to to [Google Sheets](https://docs.google.com/spreadsheets), and f
 When you see the notification **Access updated**, you have authorized this service account to edit your sheet.
 {% endhint %}
 
-## Connect Google Sheets to Openblocks
+## Connect Google Sheets to Lowcoder
 
 Follow the steps below:
 
-1. Click **Data Sources** on Openblocks homepage.
+1. Click **Data Sources** on Lowcoder homepage.
 2. Click **New Data Source** on the top right. Note that this permission is restricted to workspace admins and developers.
 3.  Select **Database** > **Google Sheets** as the type.
 

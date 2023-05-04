@@ -1,6 +1,6 @@
 # Custom component
 
-In Openblocks, you can design custom components using React.js library to satisfy specific needs when building your app. The custom component can be static or dynamic, but either requires coding.
+In Lowcoder, you can design custom components using React.js library to satisfy specific needs when building your app. The custom component can be static or dynamic, but either requires coding.
 
 {% hint style="info" %}
 If you consider the custom component you are crafting suits general use cases, contact us and we are happy to do coding.
@@ -8,12 +8,12 @@ If you consider the custom component you are crafting suits general use cases, c
 
 ## Prerequisites
 
-* Good understanding of how to build an app in Openblocks.
+* Good understanding of how to build an app in Lowcoder.
 * Familiar with HTML/CSS/JS and the React.js library.
 
 ## Basics
 
-Drag a **Custom component** onto the canvas. By default, Openblocks adds a title box, a text box, and two buttons into it, as shown below. You can modify **Data** and **Code** in the **Properties** pane to tailor it according to your requirements.
+Drag a **Custom component** onto the canvas. By default, Lowcoder adds a title box, a text box, and two buttons into it, as shown below. You can modify **Data** and **Code** in the **Properties** pane to tailor it according to your requirements.
 
 {% hint style="info" %}
 Click the border instead of the inside area to select a **Custom component** and display its property settings.
@@ -29,7 +29,7 @@ Click the border instead of the inside area to select a **Custom component** and
 
 ### Code
 
-By default, Openblocks defines the object `model`, and two functions `runQuery` and `updateModel`.
+By default, Lowcoder defines the object `model`, and two functions `runQuery` and `updateModel`.
 
 <figure><img src="../../.gitbook/assets/custom-component-3.png" alt=""><figcaption></figcaption></figure>
 
@@ -38,10 +38,10 @@ By default, Openblocks defines the object `model`, and two functions `runQuery` 
 
 ## Implementation
 
-All code of your **Custom component**, including HTML, CSS, and JavaScript, stores in the **Code** box in the **Properties** pane. When your app runs, the custom component will be embedded into an [iframe](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/iframe) element.To facilitate the interaction between the **Custom component** and other components in your app, Openblocks offers an API for you through global objects. The type definition and description of the objects are as follows.
+All code of your **Custom component**, including HTML, CSS, and JavaScript, stores in the **Code** box in the **Properties** pane. When your app runs, the custom component will be embedded into an [iframe](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/iframe) element.To facilitate the interaction between the **Custom component** and other components in your app, Lowcoder offers an API for you through global objects. The type definition and description of the objects are as follows.
 
 ```javascript
-interface Openblocks {
+interface Lowcoder {
     // Subscribe to data change
     // When data changes, handler will be triggered
     // The returned value is the unsubscribe function
@@ -72,7 +72,7 @@ The following example is the least code that a custom component requires to work
     const MyCustomComponent = ({ runQuery, model, updateModel }) => (
         <p>Hello, world!</p>
     );
-    const ConnectedComponent = Openblocks.connect(MyCustomComponent);
+    const ConnectedComponent = Lowcoder.connect(MyCustomComponent);
     ReactDOM.render(<ConnectedComponent />, 
 document.getElementById("react"));
 </script>
@@ -114,7 +114,7 @@ Below is the code for this example.
     </Card>
   );
   
-  const ConnectedComponent = Openblocks.connect(MyCustomComponent);
+  const ConnectedComponent = Lowcoder.connect(MyCustomComponent);
   
   const root = ReactDOM.createRoot(document.getElementById("root"));
   root.render(<ConnectedComponent />);
@@ -186,7 +186,7 @@ Then, you import the "antd" library and use the components **Button**, **Input**
     </Card>
   );
   
-  const ConnectedComponent = Openblocks.connect(MyCustomComponent);
+  const ConnectedComponent = Lowcoder.connect(MyCustomComponent);
   
   const root = ReactDOM.createRoot(document.getElementById("root"));
   root.render(<ConnectedComponent />);

@@ -1,6 +1,6 @@
 # openblocks-design
 
-Openblocks base react components.
+Lowcoder base react components.
 
 When add new components, you should rebuild it with:
 

@@ -1,16 +1,16 @@
-# Openblocks overview
+# Lowcoder overview
 
-## What is Openblocks?
+## What is Lowcoder?
 
-Openblocks is a developer-friendly open-source low code platform to build internal apps within minutes.
+Lowcoder is a developer-friendly open-source low code platform to build internal apps within minutes.
 
-Traditionally, building an internal app requires complex frontend and backend interactions with hundreds and thousands lines of code, not to mention work on packaging, integration and deployment. Openblocks significantly reduces the work you need to do to build an app.
+Traditionally, building an internal app requires complex frontend and backend interactions with hundreds and thousands lines of code, not to mention work on packaging, integration and deployment. Lowcoder significantly reduces the work you need to do to build an app.
 
-In Openblocks, all you need to do is drag and drop pre-built or self-customized components onto the What-You-See-Is-What-You-Get (WYSIWYG) canvas, along with ready-to-connect databases and APIs, Openblocks helps you build an app quickly and focus on business logic.
+In Lowcoder, all you need to do is drag and drop pre-built or self-customized components onto the What-You-See-Is-What-You-Get (WYSIWYG) canvas, along with ready-to-connect databases and APIs, Lowcoder helps you build an app quickly and focus on business logic.
 
 <figure><img src=".gitbook/assets/Bu2fpz1h01.gif" alt=""><figcaption></figcaption></figure>
 
-## Why choose Openblocks?
+## Why choose Lowcoder?
 
 * **Open source**: Makes your ideas more feasible.
 * **All-in-one platform**: Connection to all kinds of data sources and APIs such as MySQL, PostgreSQL, SQL Server, MongoDB, Redis, and Elasticsearch, and ensures your data security.
@@ -18,7 +18,7 @@ In Openblocks, all you need to do is drag and drop pre-built or self-customized 
 * **Clean design**: Follows the principles of Ant Design and supports display on screens of different sizes. We have a number of templates and UI components, based on which you can freely build dashboard, admin panel, and content management system (CMS).
 * **Built-in features**: Provide cloud and self-hosted deployment, multi-tenant management, fine-grained access control, and audit logs.
 
-## How to build an app in Openblocks?
+## How to build an app in Lowcoder?
 
 Building an internal app basically takes 5 steps:
 

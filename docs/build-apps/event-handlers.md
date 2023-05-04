@@ -1,6 +1,6 @@
 # Event handlers
 
-In Openblocks, event handlers are responsible for collecting and processing events from components and queries, and executing subsequent actions. For example, for a **Button** component, you can add an event handler to trigger the **Run query** action **** in response to the button **Click** event.
+In Lowcoder, event handlers are responsible for collecting and processing events from components and queries, and executing subsequent actions. For example, for a **Button** component, you can add an event handler to trigger the **Run query** action **** in response to the button **Click** event.
 
 <figure><img src="../.gitbook/assets/image (8) (1).png" alt=""><figcaption></figcaption></figure>
 
@@ -30,7 +30,7 @@ Running a query can result in success or failure, so queries have two events: **
 
 ## Actions
 
-There are a number of event handler actions available in Openblocks for handling different scenarios. Set them in the **Action** dropdown list in an event handler.
+There are a number of event handler actions available in Lowcoder for handling different scenarios. Set them in the **Action** dropdown list in an event handler.
 
 ![](<../.gitbook/assets/image (9) (1).png>)
 
@@ -56,7 +56,7 @@ Store data in a [temporary state](write-javascript/temporary-state.md).&#x20;
 
 ### Go to app
 
-Navigate to an Openblocks app with optional query or hash parameters.
+Navigate to an Lowcoder app with optional query or hash parameters.
 
 | Parameter            | Function                                                                                            |
 | -------------------- | --------------------------------------------------------------------------------------------------- |

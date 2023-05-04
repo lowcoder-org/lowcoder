@@ -14,9 +14,9 @@ npm:
 npm install openblocks-sdk
 ```
 
-## Integrate Openblocks' app/module into existing app page
+## Integrate Lowcoder's app/module into existing app page
 
-1. Publish your app/module in Openblocks.
+1. Publish your app/module in Lowcoder.
 2. Set the app/module's access privilege as public.
 3. Add code in your existing app as below.
 
@@ -36,12 +36,12 @@ import { OpenblocksAppView } from "openblocks-sdk";
 
 #### OpenblocksViewProps
 
-| Name                   | Type                        | Description                                                                             | Default value              |
-| ---------------------- | --------------------------- | --------------------------------------------------------------------------------------- | -------------------------- |
-| appId                  | string                      | The app's id in Openblocks. Required!                                                   | --                         |
-| baseUrl                | string                      | Openblocks' api base url                                                                | https://api.openblocks.dev |
-| onModuleEventTriggered | (eventName: string) => void | Triggered when module's custom event is triggered. Works only when the app is a module. | --                         |
-| onModuleOutputChange   | (output: any) => void       | Triggered when module's outputs change. Works only when the app is a module.            | --                         |
+| Name                   | Type                        | Description                                                                             | Default value |
+|------------------------|-----------------------------|-----------------------------------------------------------------------------------------|---------------|
+| appId                  | string                      | The app's id in Lowcoder. Required!                                                     | --            |
+| baseUrl                | string                      | Lowcoder's api base url                                                                 | --            |
+| onModuleEventTriggered | (eventName: string) => void | Triggered when module's custom event is triggered. Works only when the app is a module. | --            |
+| onModuleOutputChange   | (output: any) => void       | Triggered when module's outputs change. Works only when the app is a module.            | --            |
 
 #### Invoke module methods
 

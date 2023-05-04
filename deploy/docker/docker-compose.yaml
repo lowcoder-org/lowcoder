@@ -2,11 +2,11 @@ version: "3"
 services:
 
   ##
-  ## Start Openblocks (all-in-one)
+  ## Start Lowcoder (all-in-one)
   ##
-  openblocks-api-service:
-    image: openblocksdev/openblocks-ce:latest
-    container_name: openblocks
+  lowcoder-api-service:
+    image: lowcoderorg/lowcoder-ce:latest
+    container_name: lowcoder
     ports:
       - "3000:3000"
     environment:
@@ -20,18 +20,18 @@ services:
       PUID: "1000"
       PGID: "1000"
       # api-service parameters
-      #MONGODB_URI: "mongodb://openblocks:secret123@mongodb/openblocks?authSource=admin"
-      MONGODB_URI: "mongodb://localhost:27017/openblocks?authSource=admin"
+      #MONGODB_URI: "mongodb://lowcoder:secret123@mongodb/lowcoder?authSource=admin"
+      MONGODB_URI: "mongodb://localhost:27017/lowcoder?authSource=admin"
       REDIS_URL: "redis://localhost:6379"
       JS_EXECUTOR_URI: "http://localhost:6060"
       ENABLE_USER_SIGN_UP: "true"
-      ENCRYPTION_PASSWORD: "openblocks.dev"
-      ENCRYPTION_SALT: "openblocks.dev"
+      ENCRYPTION_PASSWORD: "lowcoder.org"
+      ENCRYPTION_SALT: "lowcoder.org"
       CORS_ALLOWED_DOMAINS: "*"
       # api and node service parameters
-      OPENBLOCKS_API_SERVICE_URL: "http://localhost:8080"
-      OPENBLOCKS_NODE_SERVICE_URL: "http://localhost:6060"
+      LOWCODER_API_SERVICE_URL: "http://localhost:8080"
+      LOWCODER_NODE_SERVICE_URL: "http://localhost:6060"
     volumes:
-      - ./openblocks-stacks:/openblocks-stacks
+      - ./lowcoder-stacks:/lowcoder-stacks
     restart: unless-stopped
 

@@ -1,3 +1,3 @@
-FROM openblocksdev/openblocks-ce:heroku
+FROM lowcoderorg/lowcoder-ce:heroku
 
-LABEL maintainer="openblocks"
+LABEL maintainer="lowcoder"

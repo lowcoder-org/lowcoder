@@ -4,7 +4,7 @@
 
 <figure><img src="../.gitbook/assets/navigation1.png" alt=""><figcaption></figcaption></figure>
 
-On Openblocks homepage, click **New** and select **Navigation** to create a navigation page.
+On Lowcoder homepage, click **New** and select **Navigation** to create a navigation page.
 
 <figure><img src="../.gitbook/assets/navigation2.png" alt=""><figcaption></figcaption></figure>
 

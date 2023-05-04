@@ -14,7 +14,7 @@ The UI of query editor varies when you choose different types of data sources. B
 
 <figure><img src="../.gitbook/assets/image (15).png" alt=""><figcaption></figcaption></figure>
 
-Openblocks evaluates your query statement with JavaScript code inside `{{ }}` in real-time, and the result is displayed below in a floating box, so you can use it to check the correctness of the query statement.
+Lowcoder evaluates your query statement with JavaScript code inside `{{ }}` in real-time, and the result is displayed below in a floating box, so you can use it to check the correctness of the query statement.
 
 <figure><img src="../.gitbook/assets/image (36) (1).png" alt=""><figcaption></figcaption></figure>
 
@@ -26,7 +26,7 @@ You can view the metadata of databases such as PostgreSQL, MongoDB and MySQL. Cl
 
 ## Trigger when
 
-Openblocks triggers your queries in two modes, either run automatically when inputs change or on page load, or manually invoked in event handlers.
+Lowcoder triggers your queries in two modes, either run automatically when inputs change or on page load, or manually invoked in event handlers.
 
 <figure><img src="../.gitbook/assets/image (34).png" alt=""><figcaption></figcaption></figure>
 
@@ -43,7 +43,7 @@ For this mode of queries, they run only with your manual trigger, such as a butt
 
 In most cases, queries reading data, like **select** operations, can be set to the former mode, and those writing data, like **create**/**delete**/**update** operations, run the latter way.
 
-When Openblocks detects your query statement switches from reading to writing data, the trigger mode switches to **Manually invoked** automatically, but not the other way around.
+When Lowcoder detects your query statement switches from reading to writing data, the trigger mode switches to **Manually invoked** automatically, but not the other way around.
 {% endhint %}
 
 ## Notification tab and Advanced tab

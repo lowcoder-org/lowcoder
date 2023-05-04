@@ -2,11 +2,11 @@
 
 GraphQL query language allows the client to specify the structure of the requested data, and returns data from the server using the same structure. Such design ensures that only required data is retrieved, thus improving query efficiency.
 
-## Connect GraphQL API to Openblocks
+## Connect GraphQL API to Lowcoder
 
 Follow these steps to connect to GraphQL APIs.
 
-1. Click **Data Sources** on the Openblocks homepage.
+1. Click **Data Sources** on the Lowcoder homepage.
 2. Click **New data source** on the upper right. This permission is restricted to workspace admins and developers.
 3.  Select **APIs** > **GraphQL**.&#x20;
 
@@ -71,7 +71,7 @@ The following GraphQL query searches the latest 20 closed issues in the reposito
 Follow the steps to create a GraphQL query directly.
 
 1. In the query editor, click **+ New**.
-2.  Select **GraphQL Query** in Data sources. Openblocks offers this built-in plain data source so that you can quickly create GraphQL queries without adding a new data source first.
+2.  Select **GraphQL Query** in Data sources. Lowcoder offers this built-in plain data source so that you can quickly create GraphQL queries without adding a new data source first.
 
     <figure><img src="../../.gitbook/assets/graphql-7.png" alt=""><figcaption></figcaption></figure>
 3.  Enter URL, Query, Variables, Parameters, and fill in other fields if needed.&#x20;

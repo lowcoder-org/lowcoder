@@ -1,6 +1,6 @@
 # Members and groups
 
-In Openblocks, you can organize the members of your workspace using different groups, and assign roles to groups to manage [permissions for resources](permissions-for-resources.md). You can find members and groups settings in <img src="../.gitbook/assets/members0.png" alt="" data-size="line">**Settings** on Openblocks homepage.
+In Lowcoder, you can organize the members of your workspace using different groups, and assign roles to groups to manage [permissions for resources](permissions-for-resources.md). You can find members and groups settings in <img src="../.gitbook/assets/members0.png" alt="" data-size="line">**Settings** on Lowcoder homepage.
 
 <figure><img src="../.gitbook/assets/members1.png" alt=""><figcaption></figcaption></figure>
 
@@ -12,7 +12,7 @@ In the **Members** tab, there are two pre-built groups by default: **All members
 
 <figure><img src="../.gitbook/assets/members2.gif" alt=""><figcaption></figcaption></figure>
 
-You can also find the short cut to <img src="../.gitbook/assets/icon-members-2.png" alt="" data-size="line"> **Invite members** on the bottom left on Openblocks homepage.&#x20;
+You can also find the short cut to <img src="../.gitbook/assets/icon-members-2.png" alt="" data-size="line"> **Invite members** on the bottom left on Lowcoder homepage.&#x20;
 
 <figure><img src="../.gitbook/assets/members3.png" alt=""><figcaption></figcaption></figure>
 
@@ -37,7 +37,7 @@ Group-based management helps to organize members from different functional depar
 
 ### Developers group
 
-Openblocks creates a **Developers** group by default and it cannot be deleted, and workspace admins can add members into it. The members of it can create new resources including apps, modules, navigations, folders, and data sources, and can manage query library. Workspace admins can add members to the developers group.
+Lowcoder creates a **Developers** group by default and it cannot be deleted, and workspace admins can add members into it. The members of it can create new resources including apps, modules, navigations, folders, and data sources, and can manage query library. Workspace admins can add members to the developers group.
 
 <figure><img src="../.gitbook/assets/members4.png" alt=""><figcaption></figcaption></figure>
 

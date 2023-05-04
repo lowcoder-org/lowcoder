@@ -2,19 +2,19 @@
 
 set -e
 
-API_SERVICE_ROOT=/openblocks/api-service
+API_SERVICE_ROOT=/lowcoder/api-service
 
-# Update ID of openblocks user if required
-if [ ! `id --user openblocks` -eq ${USER_ID} ]; then 
-    usermod --uid ${USER_ID} openblocks
-    echo "ID for openblocks user changed to: ${USER_ID}"
+# Update ID of lowcoder user if required
+if [ ! `id --user lowcoder` -eq ${USER_ID} ]; then
+    usermod --uid ${USER_ID} lowcoder
+    echo "ID for lowcoder user changed to: ${USER_ID}"
     DO_CHOWN="true"
 fi;
 
-# Update ID of openblocks group if required
-if [ ! `id --group openblocks` -eq ${GROUP_ID} ]; then
-    groupmod --gid ${GROUP_ID} openblocks
-    echo "ID for openblocks group changed to: ${GROUP_ID}"
+# Update ID of lowcoder group if required
+if [ ! `id --group lowcoder` -eq ${GROUP_ID} ]; then
+    groupmod --gid ${GROUP_ID} lowcoder
+    echo "ID for lowcoder group changed to: ${GROUP_ID}"
     DO_CHOWN="true"
 fi;
 
@@ -35,4 +35,4 @@ if [ ! -e ${API_SERVICE_ROOT}/logs/query-error.log ]; then
     chmod 777 ${API_SERVICE_ROOT}/logs/query-error.log
 fi;
 
-echo "Openblocks api-service setup finished."
+echo "Lowcoder api-service setup finished."

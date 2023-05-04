@@ -153,7 +153,7 @@ query1.run({
 );
 ```
 
-**Demo 1**
+**Demo**
 
 When you have several inputs in an app triggering the same query, passing parameters to this query allows you to reuse it anywhere.
 
@@ -178,10 +178,6 @@ Then trigger this query in **Run JavaScript** of event handlers in each of the i
 
 <figure><img src="../../.gitbook/assets/js-query-3.png" alt=""><figcaption></figcaption></figure>
 
-**Demo 2**
-
-You can find another demo for using passed-in paramter queries [here](https://cloud.openblocks.dev/apps/637f38daa899fe1ffcb17f0b/view).
-
 ## Declare a function
 
 You can declare functions inside a JS query for better readability.
@@ -200,7 +196,7 @@ function getCurrentDate() {
 
 ## Add preloaded scripts
 
-Openblocks supports importing third-party JS libraries and adding predefined JS code, such as adding global methods or variables for reuse either at **app-level** or **workspace-level**. You can find the app-level settings in ⚙️ > **Other** > **Scripts and style**.
+Lowcoder supports importing third-party JS libraries and adding predefined JS code, such as adding global methods or variables for reuse either at **app-level** or **workspace-level**. You can find the app-level settings in ⚙️ > **Other** > **Scripts and style**.
 
 <figure><img src="../../.gitbook/assets/js-query-4.png" alt=""><figcaption></figcaption></figure>
 
@@ -216,4 +212,4 @@ In **JavaScript** tab, you can add preloaded JavaScript code to define global me
 
 ## &#x20;Restrictions
 
-For security reasons, several global variables and functions of **window** are disabled in Openblocks. Please report to our [GitHub](https://github.com/openblocks-dev/openblocks) or [Discord](https://discord.com/invite/z5W2YHXdtt) if you encounter any issues.
+For security reasons, several global variables and functions of **window** are disabled in Lowcoder. Please report to our [GitHub](https://github.com/lowcoder-org/lowcoder) or [Discord](https://discord.com/invite/z5W2YHXdtt) if you encounter any issues.

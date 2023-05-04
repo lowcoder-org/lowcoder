@@ -1,6 +1,6 @@
 # Write JavaScript in \{{ \}}
 
-When building apps in Openblocks, you can use JavaScript (JS) to access and transform data from objects, including components, queries, and global parameters. When writing JavaScript inside SQL editor, component property's input box, table column settings, etc., always remember to enclose all your JS code inside double curly braces, such as `{{'hello, ' + currentUser.name}}`.
+When building apps in Lowcoder, you can use JavaScript (JS) to access and transform data from objects, including components, queries, and global parameters. When writing JavaScript inside SQL editor, component property's input box, table column settings, etc., always remember to enclose all your JS code inside double curly braces, such as `{{'hello, ' + currentUser.name}}`.
 
 ## Access data
 
@@ -8,7 +8,7 @@ Objects have globally unique names, such as `input1`, `query1`, and `table1`. Yo
 
 ### Access data in an object
 
-Openblocks supports you accessing the data in an object using dot notation (`objectName.keyName`). For example,`{{userInfo.selectedRow.userName}}` accesses the `userName` value in the currently selected row of **Table** `userInfo`.
+Lowcoder supports you accessing the data in an object using dot notation (`objectName.keyName`). For example,`{{userInfo.selectedRow.userName}}` accesses the `userName` value in the currently selected row of **Table** `userInfo`.
 
 When writing JS in `{{ }}` to access values in an object, add a `.` after the object name to trigger an autosuggest menu in case you are not sure about objects' built-in properties or methods.
 
@@ -75,7 +75,7 @@ The following JS code examples are illegal in `{{ }}`.
 }}
 ```
 
-If you wish to orchestrate multiple lines of JavaScript, Openblocks supports you writing such code in [transformers](transformers.md).
+If you wish to orchestrate multiple lines of JavaScript, Lowcoder supports you writing such code in [transformers](transformers.md).
 
 ```javascript
 // codes inside a transformer
@@ -90,7 +90,7 @@ return "Option 3";
 
 ## View data
 
-Data from queries can be complicated and nested in real cases. Viewing data provides you with the detailed structure of data in objects and helps you understand your data better. Before accessing or transforming data, you may need to view the data and its structure first. Openblocks offers three ways to view data.
+Data from queries can be complicated and nested in real cases. Viewing data provides you with the detailed structure of data in objects and helps you understand your data better. Before accessing or transforming data, you may need to view the data and its structure first. Lowcoder offers three ways to view data.
 
 ### View query result
 

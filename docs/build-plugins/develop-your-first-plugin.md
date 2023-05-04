@@ -1,6 +1,6 @@
 # Develop UI component plugins
 
-With Openblocks plugins, you can develop customized components that are consistent with native components for your specific scenarios.
+With Lowcoder plugins, you can develop customized components that are consistent with native components for your specific scenarios.
 
 ## Initialization
 
@@ -80,7 +80,7 @@ If you do not specify the parameter `--publish`, the `tar` file will be saved in
 
 ## Import plugins
 
-In the Openblocks app, click **Insert** > **Extensions** > **Add npm plugin** in the right pane. <img src="../.gitbook/assets/plugin-2.png" alt="" data-size="original">
+In the Lowcoder app, click **Insert** > **Extensions** > **Add npm plugin** in the right pane. <img src="../.gitbook/assets/plugin-2.png" alt="" data-size="original">
 
 Input your npm package's URL or name, and then you can use your customized components.
 
@@ -96,4 +96,4 @@ https://www.npmjs.com/package/my-plugin
 
 ## Code demo
 
-For code demo, refer to Openblocks [Github](https://github.com/openblocks-dev/openblocks/tree/develop/client/packages/openblocks-plugin-demo).
+For code demo, refer to Lowcoder [Github](https://github.com/lowcoder-org/lowcoder/tree/develop/client/packages/openblocks-plugin-demo).

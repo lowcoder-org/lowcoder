@@ -1,6 +1,6 @@
 # Option lists
 
-A drop menu ensures easy and error-free user input by offering a list of possible options. Openblocks supports implementing option lists using components such as **Select** and **Multiselect**. You can configure an option list either manually or by mapping data from your data sources.
+A drop menu ensures easy and error-free user input by offering a list of possible options. Lowcoder supports implementing option lists using components such as **Select** and **Multiselect**. You can configure an option list either manually or by mapping data from your data sources.
 
 <figure><img src="../../.gitbook/assets/option-lists-overview.png" alt=""><figcaption></figcaption></figure>
 

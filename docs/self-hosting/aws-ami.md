@@ -1,6 +1,6 @@
 # AWS AMI
 
-Openblocks provides an Amazon Machine Image (AMI) for your self-hosting on [Amazon Web Services (AWS)](https://aws.amazon.com/).
+Lowcoder provides an Amazon Machine Image (AMI) for your self-hosting on [Amazon Web Services (AWS)](https://aws.amazon.com/).
 
 ## Deploy
 
@@ -11,7 +11,7 @@ Openblocks provides an Amazon Machine Image (AMI) for your self-hosting on [Amaz
 3.  Follow the steps in [Create a security group](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/working-with-security-groups.html#creating-security-group) to create a new AWS security group. While creating, add an inbound rule that sets port **3000** to be accessible from **anywhere**, as shown below.
 
     <figure><img src="../.gitbook/assets/aws-ami-2.png" alt=""><figcaption></figcaption></figure>
-4.  Click **Images** -> **AMI Catalog** on the left sidebar. Type in **Openblocks** to search in **AWS Marketplace AMIs**. **Select** the Openblocks image from results, then click the **Launch Instance with AMI** button to proceed.
+4.  Click **Images** -> **AMI Catalog** on the left sidebar. Type in **Lowcoder** to search in **AWS Marketplace AMIs**. **Select** the Lowcoder image from results, then click the **Launch Instance with AMI** button to proceed.
 
     <figure><img src="../.gitbook/assets/aws-ami-3.png" alt=""><figcaption></figcaption></figure>
 5.  Configure the following settings:
@@ -34,9 +34,9 @@ After deployment, you can view the instance details on the **Instances** page an
 
 <figure><img src="../.gitbook/assets/aws-ami-7.png" alt=""><figcaption></figcaption></figure>
 
-Your new Openblocks instance should be available at **http://public\_ipv4\_address:3000**.&#x20;
+Your new Lowcoder instance should be available at **http://public\_ipv4\_address:3000**.&#x20;
 
-In the welcome page, click **Sign up** to get started. Openblocks will automatically create a workspace for you. Then you can start building your apps and invite members to your workspace.
+In the welcome page, click **Sign up** to get started. Lowcoder will automatically create a workspace for you. Then you can start building your apps and invite members to your workspace.
 
 <figure><img src="../.gitbook/assets/aws-ami-8.png" alt=""><figcaption></figcaption></figure>
 
@@ -64,13 +64,13 @@ ssh -i "your_private_key.pem" ubuntu@your_public_IPv4_DNS
 
 ### Update
 
-For information about how to update the Openblocks image to the latest version, see [Update](./#update).
+For information about how to update the Lowcoder image to the latest version, see [Update](./#update).
 
 ### Customize configurations
 
-| Location                                                     | Usage                                               |
-| ------------------------------------------------------------ | --------------------------------------------------- |
-| <p><code>~/openblocks/docker-compose.yml</code><br></p>      | Setting up Docker ports, volumes, environments etc. |
-| `~/openblocks/stacks/configuration/application-selfhost.yml` | Setting up Openblocks server configurations         |
+| Location                                                   | Usage                                               |
+|------------------------------------------------------------| --------------------------------------------------- |
+| <p><code>~/lowcoder/docker-compose.yml</code><br></p>      | Setting up Docker ports, volumes, environments etc. |
+| `~/lowcoder/stacks/configuration/application-selfhost.yml` | Setting up Lowcoder server configurations         |
 
 For information about how to customize deployment configurations, see [Customize configurations](./#customize-configurations).

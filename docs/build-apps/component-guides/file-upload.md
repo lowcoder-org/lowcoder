@@ -34,7 +34,7 @@ The upload list presents the file names of all uploaded files in chronological o
 
 ### Parse files
 
-Toggle **Parse files** and Openblocks will try to parse the uploaded file data structure into objects, arrays, or strings. You can access the parsed result via the property `parsedValue`. Openblocks supports parsing Excel, JSON, and CSV files. The parsing result of other types of files is `null`.
+Toggle **Parse files** and Lowcoder will try to parse the uploaded file data structure into objects, arrays, or strings. You can access the parsed result via the property `parsedValue`. Lowcoder supports parsing Excel, JSON, and CSV files. The parsing result of other types of files is `null`.
 
 <figure><img src="../../.gitbook/assets/file-upload-4.PNG" alt=""><figcaption></figcaption></figure>
 
@@ -66,7 +66,7 @@ Files uploaded via the file upload component are stored in browser cache memory 
 
 ## Use case: Upload images to Postman Echo API
 
-This example uploads images to Postman [Echo API](https://learning.postman.com/docs/developer/echo-api/), and inspects the query result whether the files are sent successfully to the remote server. For more details, see [Image uploader](https://cloud.openblocks.dev/apps/63a2651e660ad97d59eb4a51/view).
+This example uploads images to Postman [Echo API](https://learning.postman.com/docs/developer/echo-api/), and inspects the query result whether the files are sent successfully to the remote server.
 
 <figure><img src="../../.gitbook/assets/file-upload-8.gif" alt=""><figcaption></figcaption></figure>
 
