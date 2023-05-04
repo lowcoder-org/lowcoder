@@ -68,9 +68,9 @@ For information about how to update the Lowcoder image to the latest version, se
 
 ### Customize configurations
 
-| Location                                                     | Usage                                               |
-| ------------------------------------------------------------ | --------------------------------------------------- |
-| <p><code>~/openblocks/docker-compose.yml</code><br></p>      | Setting up Docker ports, volumes, environments etc. |
-| `~/openblocks/stacks/configuration/application-selfhost.yml` | Setting up Lowcoder server configurations         |
+| Location                                                   | Usage                                               |
+|------------------------------------------------------------| --------------------------------------------------- |
+| <p><code>~/lowcoder/docker-compose.yml</code><br></p>      | Setting up Docker ports, volumes, environments etc. |
+| `~/lowcoder/stacks/configuration/application-selfhost.yml` | Setting up Lowcoder server configurations         |
 
 For information about how to customize deployment configurations, see [Customize configurations](./#customize-configurations).

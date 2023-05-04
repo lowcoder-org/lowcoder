@@ -15,7 +15,7 @@ data:
   PUID: {{ .Values.nodeService.config.userId | default "9001" | quote }}
   PGID: {{ .Values.nodeService.config.groupId | default "9001" | quote }}
   {{- if .Values.nodeService.apiServiceUrl }}
-  OPENBLOCKS_API_SERVICE_URL: {{ .Values.nodeService.apiServiceUrl | quote }}
+  LOWCODER_API_SERVICE_URL: {{ .Values.nodeService.apiServiceUrl | quote }}
   {{- else }}
-  OPENBLOCKS_API_SERVICE_URL: "http://{{ $name }}-api-service:{{ .Values.apiService.service.port }}"
+  LOWCODER_API_SERVICE_URL: "http://{{ $name }}-api-service:{{ .Values.apiService.service.port }}"
   {{- end }}

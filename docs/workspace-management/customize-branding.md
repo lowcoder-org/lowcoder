@@ -8,7 +8,7 @@ Custom branding is a **premium feature** of self-hosted [Enterprise Edition](../
 
 ## Branding settings
 
-Only **workspace admins** have the permission to customize branding. Navigate to [Lowcoder homepage](https://cloud.openblocks.dev/), select ⚙️ **Settings** tab **** in **** the left pane and click **Branding**. You can edit the settings on the left and preview the actual effects on the right.
+Only **workspace admins** have the permission to customize branding. Navigate to Lowcoder homepage, select ⚙️ **Settings** tab **** in **** the left pane and click **Branding**. You can edit the settings on the left and preview the actual effects on the right.
 
 <figure><img src="../.gitbook/assets/custom-branding-1.png" alt=""><figcaption></figcaption></figure>
 

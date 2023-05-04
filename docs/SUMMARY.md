@@ -12,7 +12,6 @@
 ## Data sources
 
 * [Data source basics](data-sources/data-source-basics.md)
-* [Configure IP allowlists](data-sources/configure-ip-allowlists.md)
 * [Connect to databases](data-sources/connect-to-databases/README.md)
   * [Big Query](data-sources/connect-to-databases/big-query.md)
   * [ClickHouse](data-sources/connect-to-databases/clickhouse.md)

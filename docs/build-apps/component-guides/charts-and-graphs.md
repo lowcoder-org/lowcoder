@@ -83,7 +83,7 @@ In most types of charts, the **Chart series** (Y-axis) presents numeric values f
 
 Apart from the built-in charts and graphs, you can also plot your data with [Apache ECharts](https://echarts.apache.org/en/index.html), an open-source JS visualization library. You only need to complete the **Configuration** > **Option** field in JSON format. For detailed information, see [ECharts docs](https://echarts.apache.org/en/option.html#title) and [ECharts examples](https://echarts.apache.org/examples/en/index.html).
 
-For an instance of using Echarts, see [Stacked Area Chart](https://cloud.openblocks.dev/apps/63779dd6c54c5224c70ea537/view).
+For an instance of using Echarts, see Stacked Area Chart:
 
 <figure><img src="../../.gitbook/assets/charts-and-graphs-7.png" alt=""><figcaption></figcaption></figure>
 

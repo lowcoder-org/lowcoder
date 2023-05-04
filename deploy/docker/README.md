@@ -37,8 +37,8 @@ Image can be configured by setting environment variables.
 | `ENCRYPTION_PASSWORD`           | Encryption password                                                 | `lowcoder.org`                                        |
 | `ENCRYPTION_SALT`               | Salt used for encrypting password                                   | `lowcoder.org`                                        |
 | `CORS_ALLOWED_DOMAINS`          | CORS allowed domains                                                | `*`                                                     |
-| `OPENBLOCKS_API_SERVICE_URL`    | Lowcoder API service URL                                          | `http://localhost:8080`                                 |
-| `OPENBLOCKS_NODE_SERVICE_URL`   | Lowcoder Node service (js executor) URL                           | `http://localhost:6060`                                 |
+| `LOWCODER_API_SERVICE_URL`    | Lowcoder API service URL                                          | `http://localhost:8080`                                 |
+| `LOWCODER_NODE_SERVICE_URL`   | Lowcoder Node service (js executor) URL                           | `http://localhost:6060`                                 |
 
 
 ## Building api-service image
@@ -90,7 +90,7 @@ Image can be configured by setting environment variables.
 | --------------------------------| --------------------------------------------------------------------| ------------------------------------------------------- |
 | `PUID`                          | ID of user running services. It will own all created logs and data. | `9001`                                                  |
 | `PGID`                          | ID of group of the user running services.                           | `9001`                                                  |
-| `OPENBLOCKS_API_SERVICE_URL`    | Lowcoder API service URL                                          | `http://localhost:8080`                                 |
+| `LOWCODER_API_SERVICE_URL`    | Lowcoder API service URL                                          | `http://localhost:8080`                                 |
 
 ## Building web frontend image
 
@@ -112,7 +112,7 @@ Image can be configured by setting environment variables.
 | --------------------------------| --------------------------------------------------------------------| ------------------------------------------------------- |
 | `PUID`                          | ID of user running services. It will own all created logs and data. | `9001`                                                  |
 | `PGID`                          | ID of group of the user running services.                           | `9001`                                                  |
-| `OPENBLOCKS_API_SERVICE_URL`    | Lowcoder API service URL                                          | `http://localhost:8080`                                 |
-| `OPENBLOCKS_NODE_SERVICE_URL`   | Lowcoder Node service (js executor) URL                           | `http://localhost:6060`                                 |
+| `LOWCODER_API_SERVICE_URL`    | Lowcoder API service URL                                          | `http://localhost:8080`                                 |
+| `LOWCODER_NODE_SERVICE_URL`   | Lowcoder Node service (js executor) URL                           | `http://localhost:6060`                                 |
 
 

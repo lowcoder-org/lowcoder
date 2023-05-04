@@ -14,7 +14,7 @@ Elasticsearch is a highly scalable and distributed search and analytics engine d
 Follow the steps below:
 
 1. Create a new data source in two ways. Note that this permission is restricted to workspace admins and developers.
-   *   Navigate to the **Data Sources** tab on [Lowcoder Homepage](https://openblocks.dev) and click **New data source**.&#x20;
+   *   Navigate to the **Data Sources** tab on Lowcoder Homepage and click **New data source**.&#x20;
 
        <figure><img src="../../.gitbook/assets/db-1.PNG" alt=""><figcaption></figcaption></figure>
    *   When creating a new query in the app editor, click **+ New** > **+ New data source**.&#x20;

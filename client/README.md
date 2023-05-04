@@ -9,10 +9,10 @@
 Simply run below command to start a backend server.
 
 ```bash
-docker run -d --name openblocks -p 3000:3000 -v "$PWD/stacks:/openblocks-stacks" openblocksdev/openblocks-ce
+docker run -d --name openblocks -p 3000:3000 -v "$PWD/stacks:/openblocks-stacks" lowcoderorg/lowcoder-ce
 ```
 
-For more information, view our doc https://docs.openblocks.dev/self-hosting
+For more information, view our [docs](../docs/self-hosting)
 
 #### Build Docker image from source
 

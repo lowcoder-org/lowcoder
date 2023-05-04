@@ -29,8 +29,8 @@ services:
       ENCRYPTION_SALT: "lowcoder.org"
       CORS_ALLOWED_DOMAINS: "*"
       # api and node service parameters
-      OPENBLOCKS_API_SERVICE_URL: "http://localhost:8080"
-      OPENBLOCKS_NODE_SERVICE_URL: "http://localhost:6060"
+      LOWCODER_API_SERVICE_URL: "http://localhost:8080"
+      LOWCODER_NODE_SERVICE_URL: "http://localhost:6060"
     volumes:
       - ./lowcoder-stacks:/lowcoder-stacks
     restart: unless-stopped

@@ -36,12 +36,12 @@ import { OpenblocksAppView } from "openblocks-sdk";
 
 #### OpenblocksViewProps
 
-| Name                   | Type                        | Description                                                                             | Default value              |
-| ---------------------- | --------------------------- | --------------------------------------------------------------------------------------- | -------------------------- |
-| appId                  | string                      | The app's id in Lowcoder. Required!                                                   | --                         |
-| baseUrl                | string                      | Lowcoder's api base url                                                                | https://api.openblocks.dev |
-| onModuleEventTriggered | (eventName: string) => void | Triggered when module's custom event is triggered. Works only when the app is a module. | --                         |
-| onModuleOutputChange   | (output: any) => void       | Triggered when module's outputs change. Works only when the app is a module.            | --                         |
+| Name                   | Type                        | Description                                                                             | Default value |
+|------------------------|-----------------------------|-----------------------------------------------------------------------------------------|---------------|
+| appId                  | string                      | The app's id in Lowcoder. Required!                                                     | --            |
+| baseUrl                | string                      | Lowcoder's api base url                                                                 | --            |
+| onModuleEventTriggered | (eventName: string) => void | Triggered when module's custom event is triggered. Works only when the app is a module. | --            |
+| onModuleOutputChange   | (output: any) => void       | Triggered when module's outputs change. Works only when the app is a module.            | --            |
 
 #### Invoke module methods
 

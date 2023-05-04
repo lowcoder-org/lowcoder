@@ -2,9 +2,9 @@
 
 In this article, you will be guided through hosting Lowcoder on your own server using Docker-Compose or Docker.
 
-For easy setup and deployment, we provide an [all-in-one image](https://hub.docker.com/r/openblocksdev/openblocks-ce) which bundles frontend, backend and data persistence services altogether in one single container.&#x20;
+For easy setup and deployment, we provide an [all-in-one image](https://hub.docker.com/r/lowcoderorg/lowcoder-ce) which bundles frontend, backend and data persistence services altogether in one single container.&#x20;
 
-Also, for developers in need of stateless containers in cluster environment, we provide [separate images](https://hub.docker.com/u/openblocksdev) of backend and frontend services with a customizable Dockerfile.
+Also, for developers in need of stateless containers in cluster environment, we provide [separate images](https://hub.docker.com/u/lowcoderorg) of backend and frontend services with a customizable Dockerfile.
 
 ## All-in-one image: all services in one container <a href="#all-in-one" id="all-in-one"></a>
 
@@ -32,11 +32,11 @@ cd openblocks
 {% tab title="Docker-Compose (Recommend)" %}
 Follow the steps below:
 
-1.  Download the configuration file by clicking [docker-compose.yml](https://cdn-files.openblocks.dev/docker-compose.yml) or running the curl command:&#x20;
+1.  Download the configuration file by clicking [docker-compose.yml](https://raw.githubusercontent.com/lowcoder-org/lowcoder/main/deploy/docker/docker-compose.yaml) or running the curl command:&#x20;
 
     {% code overflow="wrap" %}
     ```bash
-    curl https://cdn-files.openblocks.dev/docker-compose.yml -o $PWD/docker-compose.yml
+    curl https://raw.githubusercontent.com/lowcoder-org/lowcoder/main/deploy/docker/docker-compose.yaml -o $PWD/docker-compose.yml
     ```
     {% endcode %}
 2.  Start the Docker container by running this command:
@@ -74,7 +74,7 @@ Run the command below:
 
 {% code overflow="wrap" %}
 ```bash
-docker run -d --name openblocks -p 3000:3000 -v "$PWD/stacks:/openblocks-stacks" openblocksdev/openblocks-ce
+docker run -d --name openblocks -p 3000:3000 -v "$PWD/stacks:/openblocks-stacks" lowcoderorg/lowcoder-ce
 ```
 {% endcode %}
 {% endtab %}
@@ -98,9 +98,9 @@ Run the following commands to update to the latest Lowcoder image:
 
 {% code overflow="wrap" %}
 ```bash
-docker pull openblocksdev/openblocks-ce
+docker pull lowcoderorg/lowcoder-ce
 docker rm -fv openblocks
-docker run -d --name openblocks -p 3000:3000 -v "$PWD/stacks:/openblocks-stacks" openblocksdev/openblocks-ce
+docker run -d --name openblocks -p 3000:3000 -v "$PWD/stacks:/openblocks-stacks" lowcoderorg/lowcoder-ce
 ```
 {% endcode %}
 {% endtab %}
@@ -128,9 +128,9 @@ For developers who require stateless containers in a cluster environment, we off
     mkdir openblocks
     cd openblocks
     ```
-2.  Download the configuration file by clicking [docker-compose-multi.yml](https://cdn-files.openblocks.dev/docker-compose-multi.yml) or running the curl command:
+2.  Download the configuration file by clicking [docker-compose-multi.yml](https://raw.githubusercontent.com/lowcoder-org/lowcoder/main/deploy/docker/docker-compose-multi.yaml) or running the curl command:
 
-    <pre class="language-bash" data-overflow="wrap"><code class="lang-bash"><strong>curl https://cdn-files.openblocks.dev/docker-compose-multi.yml -o $PWD/docker-compose-multi.yml
+    <pre class="language-bash" data-overflow="wrap"><code class="lang-bash"><strong>curl https://raw.githubusercontent.com/lowcoder-org/lowcoder/main/deploy/docker/docker-compose.yaml -o $PWD/docker-compose-multi.yml
     </strong></code></pre>
 3.  Modify service configurations in the downloaded Dockerfile according to your needs:
 
@@ -208,7 +208,7 @@ Add environment variables `MONGODB_URI` and `REDIS_URI` to the deployment comman
 
 {% code overflow="wrap" %}
 ```bash
-docker run -d --name openblocks -e MONGODB_URI=YOUR_MONGODB_URI REDIS_URI=YOUR_REDIS_URI -p 3000:3000 -v "$PWD/stacks:/openblocks-stacks openblocksdev/openblocks-ce
+docker run -d --name openblocks -e MONGODB_URI=YOUR_MONGODB_URI REDIS_URI=YOUR_REDIS_URI -p 3000:3000 -v "$PWD/stacks:/openblocks-stacks lowcoderorg/lowcoder-ce
 ```
 {% endcode %}
 {% endtab %}
@@ -229,7 +229,7 @@ Add an environment variable `LOCAL_USER_ID` to the deployment command, as shown 
 
 {% code overflow="wrap" %}
 ```bash
-docker run -d --name openblocks -e LOCAL_USER_ID=10010 -p 3000:3000 -v "$PWD/stacks:/openblocks-stacks" openblocksdev/openblocks-ce
+docker run -d --name openblocks -e LOCAL_USER_ID=10010 -p 3000:3000 -v "$PWD/stacks:/openblocks-stacks" lowcoderorg/lowcoder-ce
 ```
 {% endcode %}
 {% endtab %}
@@ -252,7 +252,7 @@ With an SSL certificate, you can securely visit self-hosted Lowcoder with HTTPS 
 
 {% code overflow="wrap" %}
 ```bash
-docker run -d --name openblocks -p 3443:3443 -v "$PWD/stacks:/openblocks-stacks" openblocksdev/openblocks-ce
+docker run -d --name openblocks -p 3443:3443 -v "$PWD/stacks:/openblocks-stacks" lowcoderorg/lowcoder-ce
 ```
 {% endcode %}
 {% endtab %}

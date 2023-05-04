@@ -153,7 +153,7 @@ query1.run({
 );
 ```
 
-**Demo 1**
+**Demo**
 
 When you have several inputs in an app triggering the same query, passing parameters to this query allows you to reuse it anywhere.
 
@@ -177,10 +177,6 @@ select id, name, gender, address from users where id= {{id}}
 Then trigger this query in **Run JavaScript** of event handlers in each of the inputs.
 
 <figure><img src="../../.gitbook/assets/js-query-3.png" alt=""><figcaption></figcaption></figure>
-
-**Demo 2**
-
-You can find another demo for using passed-in paramter queries [here](https://cloud.openblocks.dev/apps/637f38daa899fe1ffcb17f0b/view).
 
 ## Declare a function
 

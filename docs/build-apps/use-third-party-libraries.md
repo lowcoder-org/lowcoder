@@ -80,6 +80,6 @@ Note that the cowsay library is imported at app-level and you can not use it in 
 
 ### At workspace-level
 
-Go to [Opneblocks homepage](https://cloud.openblocks.dev/), select **Settings** > **Advanced**, and then click **Add** under the **JavaScript library** tab. Paste the link of the third-party JS library and click **Add New** to add it to your workspace. You can also click the download icon to quickly add any recommended JS library. The installed libraries are accessible from any app within your workspace.
+Go to the Lowcoder homepage, select **Settings** > **Advanced**, and then click **Add** under the **JavaScript library** tab. Paste the link of the third-party JS library and click **Add New** to add it to your workspace. You can also click the download icon to quickly add any recommended JS library. The installed libraries are accessible from any app within your workspace.
 
 <figure><img src="../.gitbook/assets/third-party-lib-4.png" alt=""><figcaption></figcaption></figure>

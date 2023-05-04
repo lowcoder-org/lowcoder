@@ -35,7 +35,7 @@ Lowcoder wants to take a step forward. More specifically, Lowcoder is
 - **Custom components** to share through React and Lowcoder SDK (instead of iFrame).
 - **Native connections** to PostgreSQL, MongoDB, MySQL, Redis, Elasticsearch, REST API, SMTP, etc.
 - **JavaScript supported everywhere** to transform data, control components, etc.
-- **Embed Lowcoder pages as a React component** (instead of iFrame). [Demo](https://github.com/openblocks-dev/openblocks-sdk-demo)
+- **Embed Lowcoder pages as a React component** (instead of iFrame). [Demo](https://github.com/lowcoder-org/lowcoder-sdk-demo)
 - **Role-based access control (RBAC)** for granular permission management.
 - **Auto-saved and restorable history** for release and version control.
 - **DIY app themes** to precisely align with your company's content.
@@ -64,28 +64,9 @@ If you have any questions, please feel free to contact us or share with our comm
 You can access Lowcoder from [cloud-hosted version](https://www.lowcoder.cloud/) at any time, or use the following resources for deploying Lowcoder on different platforms:
 - [Docker](docs/self-hosting/README.md)
 - [AWS AMI](docs/self-hosting/aws-ami.md) (Coming Soon)
-- [DigitalOcean](https://docs.openblocks.dev/self-hosting/digitalocean) (Coming Soon)
+- [DigitalOcean](docs/self-hosting/digitalocean.md) (Coming Soon)
 
 ## 💪 Contributing
 - Language support: If you have experience with a language that isn't currently supported by our product, send us a pull request.
 - Create and share components or demos: If you've created something that might be useful to others, add the link here.
 - [Frontend contributing guide](https://github.com/lowcoder-org/lowcoder/tree/develop/client)
-
-## 📝 Examples(WIP)
-- [Basic CRUD](https://cloud.openblocks.dev/apps/6374b8dbc23a1103804cc23e/view)
-- [Simple table horizontal scroll and pagination demo](https://cloud.openblocks.dev/apps/6377695dc54c5224c70e9770/view)
-- [Pagination with temporary state demo](https://cloud.openblocks.dev/apps/6379cdd9f02c6e6ecc1d37ff/view)
-- [Import third-party JS lib demo](https://cloud.openblocks.dev/apps/637a1797c54c5224c70efed3/view)
-- [JSON schema parsing using a third-party lib](https://cloud.openblocks.dev/apps/638dc95c75cfb658566143c5/view)
-- [Custom Echarts demo](https://cloud.openblocks.dev/apps/63779dd6c54c5224c70ea537/view), [Echarts source](https://echarts.apache.org/examples/en/editor.html?c=area-stack)
-- [Periodically user action report demo](https://cloud.openblocks.dev/apps/637f38daa899fe1ffcb17f0b/view)
-- [Generate PDF using jsPdf](https://cloud.openblocks.dev/apps/6388610b0a254922d92e3882/view)
-- [Excel Explorer](https://cloud.openblocks.dev/apps/6392ff5d51cd8a59114b0c2c/view)
-- [File upload with REST API](https://cloud.openblocks.dev/apps/63a2651e660ad97d59eb4a51/view)
-- [Shopping cart demo using transformers/state/drawer](https://cloud.openblocks.dev/apps/63a422a344075b798fe3ae06/view)
-- [Module demo: color picker](https://cloud.openblocks.dev/apps/63a58f1e85d4cb49cebad1d4/view)
-- [S3 File Management](https://cloud.openblocks.dev/apps/63c7aa55686c4f301cf4d755/view)
-- [Custom Markdown Style](https://cloud.openblocks.dev/apps/63c8bdb9de760726cd253c90/view)
-- [Use JS query to orchestrate other queries](https://cloud.openblocks.dev/apps/63c8fb1e0279b679be2b5a09/view)
-- [Data responder demo](https://cloud.openblocks.dev/apps/63f84d23f5f6f66102fedf81/view)
-- [Change theme by code](https://cloud.openblocks.dev/apps/63f84ca9f5f6f66102fedf3b/view)

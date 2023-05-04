@@ -4,7 +4,7 @@ set -e
 
 export USER_ID=${PUID:=9001}
 export GROUP_ID=${PGID:=9001}
-export API_HOST="${OPENBLOCKS_API_SERVICE_URL:=http://localhost:8080}"
+export API_HOST="${LOWCODER_API_SERVICE_URL:=http://localhost:8080}"
 
 # Run init script
 echo "Initializing node-service..."

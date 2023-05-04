@@ -23,8 +23,6 @@ The default authentication type is **None**. Other options are **Basic** and **D
 
 <figure><img src="../../.gitbook/assets/rest-api-3.png" alt=""><figcaption></figcaption></figure>
 
-If you need other customized authentication methods, contact our customer service on the [homepage](https://openblocks.dev).
-
 ## SSL Cert Verification
 
 In the advanced settings tab, you can configure SSL Cert Verification for your data sources. Three options are available: CA (Certificate Authority) Certificate, Self Signed Certificate, or Disabled. For security reasons, Lowcoder accepts APIs with CA certificates by default. For APIs without CA certificates, you can either select "Verify Self Signed Cert" and enter the self-signed certificate or disable the SSL Cert verification.

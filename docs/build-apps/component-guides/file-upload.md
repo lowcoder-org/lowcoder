@@ -66,7 +66,7 @@ Files uploaded via the file upload component are stored in browser cache memory 
 
 ## Use case: Upload images to Postman Echo API
 
-This example uploads images to Postman [Echo API](https://learning.postman.com/docs/developer/echo-api/), and inspects the query result whether the files are sent successfully to the remote server. For more details, see [Image uploader](https://cloud.openblocks.dev/apps/63a2651e660ad97d59eb4a51/view).
+This example uploads images to Postman [Echo API](https://learning.postman.com/docs/developer/echo-api/), and inspects the query result whether the files are sent successfully to the remote server.
 
 <figure><img src="../../.gitbook/assets/file-upload-8.gif" alt=""><figcaption></figcaption></figure>
 
