@@ -140,7 +140,7 @@ RUN usermod --login lowcoder --uid 9001 nginx \
   && groupmod --new-name lowcoder --gid 9001 nginx
 
 # Copy lowcoder client data
-COPY --chown=lowcoder:lowcoder --from=build-client /lowcoder-client/packages/lowcoder/build/ /lowcoder/client
+COPY --chown=lowcoder:lowcoder --from=build-client /lowcoder-client/packages/openblocks/build/ /lowcoder/client
 
 # Copy additional nginx init scripts
 COPY deploy/docker/frontend/00-change-nginx-user.sh /docker-entrypoint.d/00-change-nginx-user.sh
