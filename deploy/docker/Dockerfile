@@ -31,8 +31,8 @@ RUN cp ${JAR_FILE} /lowcoder/api-service/server.jar \
   && cp ${PLUGIN_JARS} /lowcoder/api-service/plugins/
 
 # Copy lowcoder server configuration
-COPY server/api-service/lowcoder-server/src/main/resources/selfhost/ce/application.yml /lowcoder/api-service/config/
-COPY server/api-service/lowcoder-server/src/main/resources/selfhost/ce/application-selfhost.yml /lowcoder/api-service/config/
+COPY server/api-service/openblocks-server/src/main/resources/selfhost/ce/application.yml /lowcoder/api-service/config/
+COPY server/api-service/openblocks-server/src/main/resources/selfhost/ce/application-selfhost.yml /lowcoder/api-service/config/
 
 # Add bootstrapfile
 COPY deploy/docker/api-service/entrypoint.sh /lowcoder/api-service/entrypoint.sh
