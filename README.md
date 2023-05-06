@@ -1,15 +1,13 @@
-<div align="center">
-<h1 style="border-bottom: none">
-    <b>Lowcoder</b><br />
-    The Open Source Retool Alternative
-</h1>
-<p>
-    Build internal tools fast, with no limitations
-</p>
-</div>
-
 > **Note**  
-> Lowcoder continues from the abandoned Openblocks project. For more information read our [manifesto](MANIFESTO.md).
+> Lowcoder continues from the abandoned Openblocks project. For more information [read our manifesto](MANIFESTO.md).
+
+<div align="center">
+    <h1 style="border-bottom: none; margin-bottom: 0">Lowcoder</h1>
+    <h3 style="margin-top: 0">The Open Source Retool Alternative</h3>
+    <p>
+        Build internal tools fast, with no limitations
+    </p>
+</div>
 
 <img src="/docs/.gitbook/assets/Bu2fpz1h01.gif"/>
 
@@ -17,6 +15,7 @@
 1. Connect to any data sources or APIs.
 2. Build UI with 50+ components.
 3. Share with colleagues and customers.
+
 ## 💡 Why Lowcoder
 It's cumbersome to create a single app. You had to design user interfaces, write code in multiple languages and frameworks, and understand how all of that code works together.
 
