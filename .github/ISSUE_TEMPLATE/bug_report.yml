@@ -1,0 +1,43 @@
+name: 🐞 Bug Report
+description: File a new bug report
+title: '[Bug]: <title>'
+labels: [bug, needs triage]
+body:
+  - type: checkboxes
+    attributes:
+      label: 'Is there an existing issue for this?'
+      description: 'Please [search the issues](https://github.com/lowcoder-org/lowcoder) to check if this bug has already been reported.'
+      options:
+        - label: 'I have searched the existing issues'
+          required: true
+  - type: textarea
+    attributes:
+      label: 'Current Behavior'
+      description: 'Describe the problem you are experiencing. Screenshots are welcome.'
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: 'Expected Behavior'
+      description: 'Describe what you expect to happen instead.'
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: 'Steps to reproduce'
+      description: |
+        Please provide a the _concise_ set of actions to reproduce the issue. Providing these steps is essential to fix the bug quickly.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: 'Environment'
+      description: 'Please provide the information about your environment. E.g. operating system, what version of Lowcoder are you running etc.'
+    validations:
+      required: false
+  - type: textarea
+    attributes:
+      label: Additional Information
+      description: Any relevant links or references that will help us resolve the bug.
+    validations:
+      required: false
