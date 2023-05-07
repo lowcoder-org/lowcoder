@@ -3076,13 +3076,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@fortawesome/fontawesome-common-types@npm:6.2.0":
-  version: 6.2.0
-  resolution: "@fortawesome/fontawesome-common-types@npm:6.2.0"
-  checksum: 1d0a3340dc2d2798609195cf77f1b0db98f0d87144044eb7cd3d78745baac8509705c6ebc7cce3d9bb36c7d7358ca064f77f39d86478ab1e7aa7aadc344cfd91
-  languageName: node
-  linkType: hard
-
 "@fortawesome/fontawesome-common-types@npm:6.4.0":
   version: 6.4.0
   resolution: "@fortawesome/fontawesome-common-types@npm:6.4.0"
@@ -3090,12 +3083,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@fortawesome/fontawesome-svg-core@npm:^6.2.0":
-  version: 6.2.0
-  resolution: "@fortawesome/fontawesome-svg-core@npm:6.2.0"
+"@fortawesome/fontawesome-svg-core@npm:^6.4.0":
+  version: 6.4.0
+  resolution: "@fortawesome/fontawesome-svg-core@npm:6.4.0"
   dependencies:
-    "@fortawesome/fontawesome-common-types": 6.2.0
-  checksum: 3bae680cba4098bc3a6aee04e655e0c6b6bab2d78e6709dc0a44d106f57a09bc2fd979310108777a373df301273a2a276739056f8984cd8bc5a50d37338c5380
+    "@fortawesome/fontawesome-common-types": 6.4.0
+  checksum: 5d4e6c15f814f5ce29053b666d0c7d194dc8ba173d128a38cc5856403a09d4e817e54956d30ed8d48d621f2f5ebcc71756f4e8fe5c5a091c636fc728fcb2362b
   languageName: node
   linkType: hard
 
@@ -3108,12 +3101,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@fortawesome/free-solid-svg-icons@npm:^6.2.0":
-  version: 6.2.0
-  resolution: "@fortawesome/free-solid-svg-icons@npm:6.2.0"
+"@fortawesome/free-solid-svg-icons@npm:^6.4.0":
+  version: 6.4.0
+  resolution: "@fortawesome/free-solid-svg-icons@npm:6.4.0"
   dependencies:
-    "@fortawesome/fontawesome-common-types": 6.2.0
-  checksum: b5edf24be491e8493028b7fd2158fb73f3a76491087970609c0ef6a4449fd4744312fe768bfcffc90a5ef86b9980f9ab8ebb36927ba8d9854c2fa638ceadb0ac
+    "@fortawesome/fontawesome-common-types": 6.4.0
+  checksum: efdd1688620be3d52aacaeac36c955571962e174ae981fc697b6e92fb0996b00166d02e7729a59ea93713a514e2c8d564ab1aa79c9653b4cfed0263e4874d070
   languageName: node
   linkType: hard
 
@@ -3129,21 +3122,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@fullcalendar/core@npm:^6.0.3":
-  version: 6.0.3
-  resolution: "@fullcalendar/core@npm:6.0.3"
+"@fullcalendar/core@npm:^6.1.6":
+  version: 6.1.6
+  resolution: "@fullcalendar/core@npm:6.1.6"
   dependencies:
-    preact: ^10.0.5
-  checksum: aacbdf2eae995d27aa518bdb793b41ad05dd7d99b7d1b7611ca7e5f089ed4b5dbbe2dbbe5b003359db069a180eec1e8499744361029b5120c6ac5369a19b9207
+    preact: ~10.12.1
+  checksum: 72ec698bd226ea76cef106b9eecd4391a0434b13f9f02f663a84720d5b1e0ca8db21f1ace72278d22814cc4d1dfb1374f17532abde0ae99210bfd5ad7468e17f
   languageName: node
   linkType: hard
 
-"@fullcalendar/daygrid@npm:^6.0.3, @fullcalendar/daygrid@npm:~6.0.3":
-  version: 6.0.3
-  resolution: "@fullcalendar/daygrid@npm:6.0.3"
+"@fullcalendar/daygrid@npm:^6.1.6, @fullcalendar/daygrid@npm:~6.1.6":
+  version: 6.1.6
+  resolution: "@fullcalendar/daygrid@npm:6.1.6"
   peerDependencies:
-    "@fullcalendar/core": ~6.0.3
-  checksum: 584ba2c671fb41d69cb6ca56ceedf79a65523cd333ddc2223ddfc2996b8c59c3738767292e155fd3e022a70a91a9be4436ec5fd87ddb57ad4f0eea6b874aa58e
+    "@fullcalendar/core": ~6.1.6
+  checksum: e7b60e359b620091c834fe3472761b9f4ebf3cd8d65a2ae56ead10dcb65a898c4c86770046dc3addff86002df9972a58395b7916502e8a4ec8d7b83a74b150b9
   languageName: node
   linkType: hard
 
@@ -3156,44 +3149,44 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@fullcalendar/list@npm:^6.0.3":
-  version: 6.0.3
-  resolution: "@fullcalendar/list@npm:6.0.3"
+"@fullcalendar/list@npm:^6.1.6":
+  version: 6.1.6
+  resolution: "@fullcalendar/list@npm:6.1.6"
   peerDependencies:
-    "@fullcalendar/core": ~6.0.3
-  checksum: 75165592cfd2395acb961f9ce97d45b8db3da7df630efdb80f2036e4c4e5fe4edbbfc2393e44cd8016dafbb7f1c50ad6200035dc58d6bae433ece5e1cd701706
+    "@fullcalendar/core": ~6.1.6
+  checksum: e5beb01c624b9994490ef0e8e3cb4e9f97efd4a0be6539191f912a27df4cd56bbf4124f558536618f18889b8133920fadf0962994a7345fb089fd4245bcbcf15
   languageName: node
   linkType: hard
 
-"@fullcalendar/moment@npm:^6.1.4":
-  version: 6.1.4
-  resolution: "@fullcalendar/moment@npm:6.1.4"
+"@fullcalendar/moment@npm:^6.1.6":
+  version: 6.1.6
+  resolution: "@fullcalendar/moment@npm:6.1.6"
   peerDependencies:
-    "@fullcalendar/core": ~6.1.4
+    "@fullcalendar/core": ~6.1.6
     moment: ^2.29.1
-  checksum: 92c34acf5c818055e3c1a47792dd87a92d99d1e49711b182e54b3459d3a5cb3ded9adb41ef69f47476f67d57ae72d6c009e2a2abc7995b813a9ac758647db3ce
+  checksum: f4945e1d15e37590828df4c97a72b1000b3e28d5ee96cfd732c2058e063285dba0a50c05b9f6f8df58e410c1c6360ad9f514af5a170b6bf659a2cd5ead735643
   languageName: node
   linkType: hard
 
-"@fullcalendar/react@npm:^6.0.3":
-  version: 6.0.3
-  resolution: "@fullcalendar/react@npm:6.0.3"
+"@fullcalendar/react@npm:^6.1.6":
+  version: 6.1.6
+  resolution: "@fullcalendar/react@npm:6.1.6"
   peerDependencies:
-    "@fullcalendar/core": ~6.0.3
+    "@fullcalendar/core": ~6.1.6
     react: ^16.7.0 || ^17 || ^18
     react-dom: ^16.7.0 || ^17 || ^18
-  checksum: e39d69e9c385bad3f975878dc9e70e2a58e4856bd977b2eb28044a63a07c4cd8705fe7fe0aea903ddea6d18cca7b2bfb4cbfcb14f63a7d0e404578c5dcda4972
+  checksum: 06d729e240eb5a9bbd4159bec538396ceda58961dca7a3770c2f594b382c3b90cfb0f668e9329e8a89435faef8d412d29d20ff46cd08d8111313d361be54c861
   languageName: node
   linkType: hard
 
-"@fullcalendar/timegrid@npm:^6.0.3":
-  version: 6.0.3
-  resolution: "@fullcalendar/timegrid@npm:6.0.3"
+"@fullcalendar/timegrid@npm:^6.1.6":
+  version: 6.1.6
+  resolution: "@fullcalendar/timegrid@npm:6.1.6"
   dependencies:
-    "@fullcalendar/daygrid": ~6.0.3
+    "@fullcalendar/daygrid": ~6.1.6
   peerDependencies:
-    "@fullcalendar/core": ~6.0.3
-  checksum: ffb1cd1ade75448db4a30802085cdcdc6b3332172e2b1db065da6ef4041483717a9a92d0f965111993f062142919806464f5af2929441fef50a7696c0039af32
+    "@fullcalendar/core": ~6.1.6
+  checksum: ef79183dad0a49f86f43b3eb58fabfd48312ec0abf03b690094be72c3d8821a488038f8308cb0e136c0f716648409dc33c8a5fc77192c7c0d93cd9962cb4c814
   languageName: node
   linkType: hard
 
@@ -14326,13 +14319,13 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "openblocks-comps@workspace:packages/openblocks-comps"
   dependencies:
-    "@fullcalendar/core": ^6.0.3
-    "@fullcalendar/daygrid": ^6.0.3
+    "@fullcalendar/core": ^6.1.6
+    "@fullcalendar/daygrid": ^6.1.6
     "@fullcalendar/interaction": ^6.1.6
-    "@fullcalendar/list": ^6.0.3
-    "@fullcalendar/moment": ^6.1.4
-    "@fullcalendar/react": ^6.0.3
-    "@fullcalendar/timegrid": ^6.0.3
+    "@fullcalendar/list": ^6.1.6
+    "@fullcalendar/moment": ^6.1.6
+    "@fullcalendar/react": ^6.1.6
+    "@fullcalendar/timegrid": ^6.1.6
     "@types/react": 17
     "@types/react-dom": 17
     big.js: ^6.2.1
@@ -14473,9 +14466,9 @@ __metadata:
     "@dnd-kit/modifiers": ^5.0.0
     "@dnd-kit/sortable": ^6.0.0
     "@dnd-kit/utilities": ^3.1.0
-    "@fortawesome/fontawesome-svg-core": ^6.2.0
+    "@fortawesome/fontawesome-svg-core": ^6.4.0
     "@fortawesome/free-regular-svg-icons": ^6.4.0
-    "@fortawesome/free-solid-svg-icons": ^6.2.0
+    "@fortawesome/free-solid-svg-icons": ^6.4.0
     "@fortawesome/react-fontawesome": latest
     "@manaflair/redux-batch": ^1.0.0
     "@rjsf/antd": ^4.1.1
@@ -14982,10 +14975,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"preact@npm:^10.0.5":
-  version: 10.11.3
-  resolution: "preact@npm:10.11.3"
-  checksum: 9387115aa0581e8226309e6456e9856f17dfc0e3d3e63f774de80f3d462a882ba7c60914c05942cb51d51e23e120dcfe904b8d392d46f29ad15802941fe7a367
+"preact@npm:~10.12.1":
+  version: 10.12.1
+  resolution: "preact@npm:10.12.1"
+  checksum: 0de99f477563ab7f94a0f964952ad216375973c0dcd9eb49881f8eb5effc5ed6948da062548c87d5bb0d82f1a1e516b649020e760eab3a0503dfdd8e64d34a26
   languageName: node
   linkType: hard
 

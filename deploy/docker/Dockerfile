@@ -20,8 +20,8 @@ RUN --mount=type=cache,target=/root/.m2 mvn -f pom.xml clean package -DskipTests
 RUN mkdir -p /lowcoder/api-service/plugins /lowcoder/api-service/config /lowcoder/api-service/logs
 
 # Define lowcoder main jar and plugin jars
-ARG JAR_FILE=/lowcoder-server/lowcoder-server/target/lowcoder-server-1.0-SNAPSHOT.jar
-ARG PLUGIN_JARS=/lowcoder-server/lowcoder-plugins/*/target/*.jar
+ARG JAR_FILE=/lowcoder-server/openblocks-server/target/openblocks-server-1.0-SNAPSHOT.jar
+ARG PLUGIN_JARS=/lowcoder-server/openblocks-plugins/*/target/*.jar
 
 # Copy Java runtime for running server
 COPY --from=jre-build /build/jre /lowcoder/api-service/jre
@@ -31,8 +31,8 @@ RUN cp ${JAR_FILE} /lowcoder/api-service/server.jar \
   && cp ${PLUGIN_JARS} /lowcoder/api-service/plugins/
 
 # Copy lowcoder server configuration
-COPY server/api-service/lowcoder-server/src/main/resources/selfhost/ce/application.yml /lowcoder/api-service/config/
-COPY server/api-service/lowcoder-server/src/main/resources/selfhost/ce/application-selfhost.yml /lowcoder/api-service/config/
+COPY server/api-service/openblocks-server/src/main/resources/selfhost/ce/application.yml /lowcoder/api-service/config/
+COPY server/api-service/openblocks-server/src/main/resources/selfhost/ce/application-selfhost.yml /lowcoder/api-service/config/
 
 # Add bootstrapfile
 COPY deploy/docker/api-service/entrypoint.sh /lowcoder/api-service/entrypoint.sh
@@ -69,7 +69,7 @@ FROM ubuntu:jammy as build-node-service
 RUN apt update && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y curl ca-certificates
 
 # Download nodejs and install yarn
-RUN curl -sL https://deb.nodesource.com/setup_19.x | bash - \
+RUN curl -sL https://deb.nodesource.com/setup_20.x | bash - \
 && apt-get install --no-install-recommends -y nodejs \
 && npm install -g yarn
 
@@ -94,7 +94,7 @@ FROM ubuntu:jammy as lowcoder-ce-node-service
 LABEL maintainer="lowcoder"
 
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y curl ca-certificates \
-  && curl -sL https://deb.nodesource.com/setup_19.x | bash - \
+  && curl -sL https://deb.nodesource.com/setup_20.x | bash - \
   && apt-get install --no-install-recommends -y nodejs gosu \
   && npm install -g yarn \
   && rm -rf /var/cache/apt/lists \
@@ -111,7 +111,7 @@ CMD [ "/bin/sh", "/lowcoder/node-service/entrypoint.sh" ]
 ##
 ## Build lowcoder client application
 ##
-FROM node:19.4-slim AS build-client
+FROM node:20.0-slim AS build-client
 COPY ./client /lowcoder-client
 WORKDIR /lowcoder-client
 RUN yarn --immutable
@@ -140,7 +140,7 @@ RUN usermod --login lowcoder --uid 9001 nginx \
   && groupmod --new-name lowcoder --gid 9001 nginx
 
 # Copy lowcoder client data
-COPY --chown=lowcoder:lowcoder --from=build-client /lowcoder-client/packages/lowcoder/build/ /lowcoder/client
+COPY --chown=lowcoder:lowcoder --from=build-client /lowcoder-client/packages/openblocks/build/ /lowcoder/client
 
 # Copy additional nginx init scripts
 COPY deploy/docker/frontend/00-change-nginx-user.sh /docker-entrypoint.d/00-change-nginx-user.sh
@@ -166,7 +166,7 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install --no-instal
   && echo "deb [signed-by=/usr/share/keyrings/redis-archive-keyring.gpg] https://packages.redis.io/deb bullseye main" | tee /etc/apt/sources.list.d/redis.list \
   && curl -fsSL https://www.mongodb.org/static/pgp/server-4.4.asc | gpg --dearmor -o /usr/share/keyrings/mongodb-archive-keyring.gpg \
   && echo "deb [signed-by=/usr/share/keyrings/mongodb-archive-keyring.gpg arch=amd64,arm64] http://repo.mongodb.org/apt/ubuntu focal/mongodb-org/4.4 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-4.4.list \
-  && curl -sL https://deb.nodesource.com/setup_19.x | bash - \
+  && curl -sL https://deb.nodesource.com/setup_20.x | bash - \
   && apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install --no-install-recommends -y \
       mongodb-org \
       redis \
