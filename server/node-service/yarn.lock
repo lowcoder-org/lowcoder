@@ -3310,10 +3310,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:^18.16.3":
-  version: 18.16.4
-  resolution: "@types/node@npm:18.16.4"
-  checksum: 21d575391c88be9f3568675de59d571597cfc122efa32939ae2697c2218c6ccfb6ba0d4b5d9301905e6c4964f43add42569249b15d2e12d68b0aedaf891ec9a5
+"@types/node@npm:^20.1.0":
+  version: 20.1.0
+  resolution: "@types/node@npm:20.1.0"
+  checksum: c6d9afa9aa78b4b4348c69ece94975be70346b144c278f1395694a10ef919d7db300018101b6f9245e6bdd76674a5327d2d14829092f3d5295e858cff5f22a66
   languageName: node
   linkType: hard
 
@@ -8960,7 +8960,7 @@ __metadata:
     "@types/jsonpath": ^0.2.0
     "@types/lodash": ^4.14.190
     "@types/morgan": ^1.9.3
-    "@types/node": ^18.16.3
+    "@types/node": ^20.1.0
     "@types/node-fetch": ^2.6.2
     axios: ^1.2.0
     base64-arraybuffer: ^1.0.2
