@@ -7319,6 +7319,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"copy-to-clipboard@npm:^3.3.3":
+  version: 3.3.3
+  resolution: "copy-to-clipboard@npm:3.3.3"
+  dependencies:
+    toggle-selection: ^1.0.6
+  checksum: e0a325e39b7615108e6c1c8ac110ae7b829cdc4ee3278b1df6a0e4228c490442cc86444cd643e2da344fbc424b3aab8909e2fec82f8bc75e7e5b190b7c24eecf
+  languageName: node
+  linkType: hard
+
 "copy-to@npm:^2.0.1":
   version: 2.0.1
   resolution: "copy-to@npm:2.0.1"
@@ -14492,7 +14501,7 @@ __metadata:
     axios: ^0.21.1
     buffer: ^6.0.3
     clsx: ^1.2.1
-    copy-to-clipboard: ^3.3.1
+    copy-to-clipboard: ^3.3.3
     core-js: ^3.25.2
     dotenv: ^16.0.3
     echarts: ^5.4.2
