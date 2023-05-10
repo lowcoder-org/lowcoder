@@ -1,0 +1,40 @@
+demo:
+  datasource:
+    mysql:
+      host: 127.0.0.1
+      password: 123456
+      port: 3306
+      timeout: 8s
+      username: root
+
+spring:
+  redis:
+    url: redis://localhost:6369
+  mongodb:
+    embedded:
+      version: 4.0.2
+  main:
+    allow-circular-references: true
+
+common:
+  domain:
+    default-value: skipCheck
+  encrypt:
+    password: lowcoder.org
+    salt: lowcoder.org
+  cloud: false
+  security:
+    cors-allowed-domains:
+      - '*'
+  version: 1.0.20
+  block-hound-enable: false
+
+material:
+  mongodb-grid-fs:
+    bucket-name: material
+
+auth:
+  mobile:
+    enable: true
+  email:
+    enable: true

@@ -10,18 +10,18 @@
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <groupId>com.openblocks</groupId>
-    <artifactId>openblocks-root</artifactId>
+    <groupId>org.lowcoder</groupId>
+    <artifactId>lowcoder-root</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
-    <name>openblocks-root</name>
+    <name>lowcoder-root</name>
 
     <properties>
         <java.version>17</java.version>
         <javadoc.disabled>true</javadoc.disabled>
         <deploy.disabled>true</deploy.disabled>
         <source.disabled>true</source.disabled>
-        <project.groupId>com.openblocks</project.groupId>
+        <project.groupId>org.lowcoder</project.groupId>
         <project.version>1.0-SNAPSHOT</project.version>
         <skipDockerBuild>true</skipDockerBuild>
         <log4j2.version>2.17.0</log4j2.version>
@@ -275,12 +275,12 @@
     </dependencyManagement>
 
     <modules>
-        <module>openblocks-sdk</module>
-        <module>openblocks-infra</module>
-        <module>openblocks-domain</module>
-        <module>openblocks-plugins</module>
-        <module>openblocks-server</module>
-        <module>openblocks-ee</module>
+        <module>lowcoder-sdk</module>
+        <module>lowcoder-infra</module>
+        <module>lowcoder-domain</module>
+        <module>lowcoder-plugins</module>
+        <module>lowcoder-server</module>
+        <module>lowcoder-ee</module>
     </modules>
 
 </project>
