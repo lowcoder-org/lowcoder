@@ -61,7 +61,7 @@
     "openapi-types": "^12.1.0",
     "openblocks-core": "^0.0.7",
     "openblocks-sdk": "0.0.40",
-    "pino": "^8.11.0",
+    "pino": "^8.14.1",
     "prom-client": "^14.2.0",
     "proxy-agent": "^5.0.0",
     "stylis": "^4.1.3",
