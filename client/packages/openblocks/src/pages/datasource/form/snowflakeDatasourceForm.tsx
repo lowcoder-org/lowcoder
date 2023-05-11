@@ -1,5 +1,5 @@
 import React from "react";
-import { DatasourceForm, FormInputItem, FormKeyValueItem, FormSection } from "openblocks-design";
+import { DatasourceForm, FormInputItem, FormKeyValueItem, FormSection } from "lowcoder-design";
 import { SnowflakeConfig } from "api/datasourceApi";
 import { DatasourceFormProps } from "./datasourceFormRegistry";
 import {

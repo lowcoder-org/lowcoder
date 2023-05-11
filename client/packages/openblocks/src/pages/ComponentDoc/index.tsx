@@ -1,4 +1,4 @@
-import { Search } from "openblocks-design";
+import { Search } from "lowcoder-design";
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import styled from "styled-components";

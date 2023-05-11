@@ -1,9 +1,9 @@
 import styled from "styled-components";
 import { ReactNode, useContext, useMemo, useRef, useState } from "react";
 import { Layers } from "../../constants/Layers";
-import { CodeEditorOpenIcon } from "openblocks-design";
-import { CodeEditorCloseIcon } from "openblocks-design";
-import { DragIcon } from "openblocks-design";
+import { CodeEditorOpenIcon } from "lowcoder-design";
+import { CodeEditorCloseIcon } from "lowcoder-design";
+import { DragIcon } from "lowcoder-design";
 import Trigger from "rc-trigger";
 import { Resizable } from "react-resizable";
 import Handle from "../../layout/handler";

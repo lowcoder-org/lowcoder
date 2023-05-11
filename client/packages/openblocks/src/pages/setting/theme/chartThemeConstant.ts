@@ -1,4 +1,4 @@
-import { chartColorPalette } from "openblocks-design";
+import { chartColorPalette } from "lowcoder-design";
 
 export const ChartTheme = {
   color: chartColorPalette,

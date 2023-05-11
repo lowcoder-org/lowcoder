@@ -2,7 +2,7 @@ import React, { CSSProperties } from "react";
 import styled from "styled-components";
 
 import { message } from "antd";
-import { CommonGrayLabel, EmptyDataIcon } from "openblocks-design";
+import { CommonGrayLabel, EmptyDataIcon } from "lowcoder-design";
 import { Layers } from "constants/Layers";
 import _ from "lodash";
 import { useResizeDetector } from "react-resize-detector";

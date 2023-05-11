@@ -9,7 +9,7 @@ import {
 import { stringExposingStateControl } from "comps/controls/codeStateControl";
 import { LabelControl } from "comps/controls/labelControl";
 import { InputLikeStyleType } from "comps/controls/styleControlConstants";
-import { Section, sectionNames, ValueFromOption } from "openblocks-design";
+import { Section, sectionNames, ValueFromOption } from "lowcoder-design";
 import _ from "lodash";
 import { css } from "styled-components";
 import { EMAIL_PATTERN, URL_PATTERN } from "util/stringUtils";

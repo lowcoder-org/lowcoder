@@ -8,7 +8,7 @@ import {
   labelCss,
   ModalFooterWrapper,
   TacoButton,
-} from "openblocks-design";
+} from "lowcoder-design";
 import _ from "lodash";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";

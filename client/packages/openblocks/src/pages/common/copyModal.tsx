@@ -1,6 +1,6 @@
 import { message } from "antd";
 import { APPLICATION_VIEW_URL } from "constants/routesURL";
-import { CustomModal, CustomSelect, TacoInput } from "openblocks-design";
+import { CustomModal, CustomSelect, TacoInput } from "lowcoder-design";
 import { trans } from "i18n";
 import { useState } from "react";
 import { useSelector } from "react-redux";

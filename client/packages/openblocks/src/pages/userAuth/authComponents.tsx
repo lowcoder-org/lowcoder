@@ -1,7 +1,7 @@
 import { CheckboxChangeEvent } from "antd/lib/checkbox";
 import LoginBackground from "assets/images/loginBackground.png";
 import React, { CSSProperties, useEffect, useRef, useState } from "react";
-import { CheckBox, PackUpIcon, TacoButton } from "openblocks-design";
+import { CheckBox, PackUpIcon, TacoButton } from "lowcoder-design";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 import ReactHotkeys from "util/hotkeys";

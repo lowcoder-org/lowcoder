@@ -1,4 +1,4 @@
-import { Section, sectionNames } from "openblocks-design";
+import { Section, sectionNames } from "lowcoder-design";
 import { ChildrenTypeToDepsKeys, depsConfig } from "../../generators/withExposing";
 import { BoolControl } from "../../controls/boolControl";
 import { CustomRuleControl } from "../../controls/codeControl";

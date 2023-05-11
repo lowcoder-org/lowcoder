@@ -14,7 +14,7 @@ import {
   Tooltip,
   UnfoldIcon,
   UnShow,
-} from "openblocks-design";
+} from "lowcoder-design";
 import React, { ReactNode, useCallback, useContext, useMemo, useState } from "react";
 import { hookCompCategory } from "comps/hooks/hookCompTypes";
 import _ from "lodash";

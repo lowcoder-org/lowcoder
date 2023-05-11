@@ -3,7 +3,7 @@ import { useSelector } from "react-redux";
 import React, { useContext, useMemo, useState } from "react";
 import { DataSourceTypeInfo } from "api/datasourceApi";
 import styled from "styled-components";
-import { CustomSelect, EllipsisTextCss } from "openblocks-design";
+import { CustomSelect, EllipsisTextCss } from "lowcoder-design";
 import { DatasourceModal } from "pages/datasource/datasourceModal";
 import { InputStatus } from "antd/lib/_util/statusUtils";
 import { getDataSource, getDataSourceTypes } from "redux/selectors/datasourceSelectors";

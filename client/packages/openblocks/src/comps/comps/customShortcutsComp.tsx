@@ -2,7 +2,7 @@ import { ActionSelectorControl } from "comps/controls/actionSelector/actionSelec
 import { MultiCompBuilder, valueComp } from "comps/generators";
 import { KeyValueItem, KeyValueItemListWithNewCreateState } from "components/KeyValueItemList";
 import { list } from "comps/generators/list";
-import { StyledInput } from "openblocks-design";
+import { StyledInput } from "lowcoder-design";
 import { trans } from "i18n";
 import {
   eventKeyString,

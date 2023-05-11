@@ -91,7 +91,7 @@ import {
   TreeSelectIcon,
   UploadCompIcon,
   VideoCompIcon,
-} from "openblocks-design";
+} from "lowcoder-design";
 
 import { defaultFormData, FormComp } from "./comps/formComp/formComp";
 import { IFrameComp } from "./comps/iframeComp";

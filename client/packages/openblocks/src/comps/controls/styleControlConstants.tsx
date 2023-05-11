@@ -1,5 +1,5 @@
 import { ThemeDetail } from "api/commonSettingApi";
-import { darkenColor, isDarkColor, lightenColor, toHex } from "openblocks-design";
+import { darkenColor, isDarkColor, lightenColor, toHex } from "lowcoder-design";
 import { trans } from "i18n";
 import { StyleConfigType } from "./styleControl";
 

@@ -1,4 +1,4 @@
-import { TacoButton } from "openblocks-design";
+import { TacoButton } from "lowcoder-design";
 import { PropsWithChildren, ReactNode } from "react";
 import styled from "styled-components";
 

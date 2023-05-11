@@ -8,7 +8,7 @@ import { Layers } from "constants/Layers";
 import { TopHeaderHeight } from "constants/style";
 import { trans } from "i18n";
 import { draggingUtils } from "layout";
-import { LeftPreloadIcon, LeftSettingIcon, LeftStateIcon, ScrollBar } from "openblocks-design";
+import { LeftPreloadIcon, LeftSettingIcon, LeftStateIcon, ScrollBar } from "lowcoder-design";
 import { useTemplateViewMode } from "util/hooks";
 import Header, { PanelStatus, TogglePanel } from "pages/common/header";
 import { HelpDropdown } from "pages/common/help";

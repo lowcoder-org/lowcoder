@@ -7,7 +7,7 @@ import { list } from "comps/generators/list";
 import { NameGenerator } from "comps/utils/nameGenerator";
 import { trans } from "i18n";
 import { multiChangeAction } from "lowcoder-core";
-import { ControlPropertyViewWrapper } from "openblocks-design";
+import { ControlPropertyViewWrapper } from "lowcoder-design";
 import { useEffect } from "react";
 import ParamListItemComp, {
   getParamOptionLabel,

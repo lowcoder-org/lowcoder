@@ -2,7 +2,7 @@ import styled from "styled-components";
 import history from "../../util/history";
 import { Button } from "antd";
 import { useCallback, useMemo, useState } from "react";
-import { CopyTextButton, DocIcon, PackUpIcon, TacoButton } from "openblocks-design";
+import { CopyTextButton, DocIcon, PackUpIcon, TacoButton } from "lowcoder-design";
 import { useDatasourceForm } from "./form/useDatasourceForm";
 import { useParams } from "react-router-dom";
 import { DATASOURCE_URL } from "../../constants/routesURL";

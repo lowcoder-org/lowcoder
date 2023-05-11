@@ -1,11 +1,11 @@
 import { RightPanelWrapper } from "pages/common/styledComponent";
-import { Tabs } from "openblocks-design";
+import { Tabs } from "lowcoder-design";
 import PropertyView from "./PropertyView";
 import InsertView from "./InsertView";
 import UIComp, { UiLayoutType } from "comps/comps/uiComp";
 import { useEffect, useState } from "react";
-import { AttributeIcon } from "openblocks-design";
-import { InsertIcon } from "openblocks-design";
+import { AttributeIcon } from "lowcoder-design";
+import { InsertIcon } from "lowcoder-design";
 import { trans } from "i18n";
 import { isAggregationApp } from "util/appUtils";
 

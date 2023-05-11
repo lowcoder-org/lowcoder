@@ -9,7 +9,7 @@ import {
   SelectInputInvalidConfig,
   useSelectInputValidate,
 } from "./selectInputConstants";
-import { EllipsisTextCss, ValueFromOption } from "openblocks-design";
+import { EllipsisTextCss, ValueFromOption } from "lowcoder-design";
 import { trans } from "i18n";
 
 const getStyle = (style: RadioStyleType) => {

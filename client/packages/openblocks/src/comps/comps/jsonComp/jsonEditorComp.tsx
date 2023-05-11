@@ -1,4 +1,4 @@
-import { Section, sectionNames } from "openblocks-design";
+import { Section, sectionNames } from "lowcoder-design";
 import { UICompBuilder } from "../../generators";
 import { NameConfigHidden, NameConfig, withExposingConfigs } from "../../generators/withExposing";
 import { defaultData } from "./jsonConstants";

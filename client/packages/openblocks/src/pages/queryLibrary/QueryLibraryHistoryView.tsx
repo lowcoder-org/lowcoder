@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { CustomModal, TacoButton } from "openblocks-design";
+import { CustomModal, TacoButton } from "lowcoder-design";
 import { QueryLibraryEditorView } from "./queryLibraryEditorView";
 import { ReadOnlyMask } from "../common/styledComponent";
 import { useDispatch, useSelector } from "react-redux";
@@ -13,7 +13,7 @@ import { getCompContainer, useCompInstance } from "../../comps/utils/useCompInst
 import { QueryLibraryComp } from "../../comps/comps/queryLibrary/queryLibraryComp";
 import { SnapshotList } from "../../components/SnapshotList";
 import { timestampToHumanReadable } from "../../util/dateTimeUtils";
-import { ScrollBar } from "openblocks-design";
+import { ScrollBar } from "lowcoder-design";
 import QueryLibrarySkeletonView from "./QueryLibrarySkeletonView";
 import { ReadonlyTag } from "../common/freeLimitTag";
 import { trans } from "i18n";

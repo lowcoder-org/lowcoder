@@ -2,7 +2,7 @@ import { FunctionControl } from "comps/controls/codeControl";
 import { MultiCompBuilder } from "comps/generators";
 import { QueryResult } from "./queryComp";
 import { QueryTutorials } from "util/tutorialUtils";
-import { DocLink } from "openblocks-design";
+import { DocLink } from "lowcoder-design";
 import { getGlobalSettings } from "comps/utils/globalSettings";
 import { trans } from "i18n";
 import { QUERY_EXECUTION_ERROR, QUERY_EXECUTION_OK } from "../../constants/queryConstants";

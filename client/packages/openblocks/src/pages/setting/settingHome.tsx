@@ -8,7 +8,7 @@ import AuditSetting from "@openblocks-ee/pages/setting/audit";
 import { isEE, isEnterpriseMode, isSelfDomain, showAuditLog } from "util/envUtils";
 import { TwoColumnSettingPageContent } from "./styled";
 import SubSideBar from "components/layout/SubSideBar";
-import { Menu } from "openblocks-design";
+import { Menu } from "lowcoder-design";
 import { useSelector } from "react-redux";
 import { getUser } from "redux/selectors/usersSelectors";
 import history from "util/history";

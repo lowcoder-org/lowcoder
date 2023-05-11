@@ -1,7 +1,7 @@
 import { message, Typography } from "antd";
 import OrgApi from "api/orgApi";
 import { buildGroupId } from "constants/routesURL";
-import { AddIcon, CustomModal, EditPopover } from "openblocks-design";
+import { AddIcon, CustomModal, EditPopover } from "lowcoder-design";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchGroupsAction, updateGroupAction } from "redux/reduxActions/orgActions";

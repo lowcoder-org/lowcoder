@@ -8,7 +8,7 @@ import { Node } from "lowcoder-core";
 import { Fragment, ReactNode } from "react";
 import { setFieldsNoTypeCheck } from "util/objectUtils";
 import { inputControls, InputTypeEnum } from "../moduleContainerComp/ioComp/inputListItemComp";
-import { controlItem, ControlNode } from "openblocks-design";
+import { controlItem, ControlNode } from "lowcoder-design";
 
 interface InputItem {
   name: string;

@@ -1,7 +1,7 @@
 import { codeControl, StringControl } from "comps/controls/codeControl";
 import { dropdownControl } from "comps/controls/dropdownControl";
 import { MultiCompBuilder } from "comps/generators/multi";
-import { BranchDiv } from "openblocks-design";
+import { BranchDiv } from "lowcoder-design";
 import { trans } from "i18n";
 import { saveDataAsFile } from "util/fileUtils";
 

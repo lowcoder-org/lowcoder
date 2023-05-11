@@ -10,7 +10,7 @@ import {
   Dropdown,
   OptionsType,
   ValueFromOption,
-} from "openblocks-design";
+} from "lowcoder-design";
 import { ReactNode, useEffect, useState } from "react";
 import { ControlParams } from "./controlParams";
 

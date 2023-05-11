@@ -1,6 +1,6 @@
 import React, { ReactNode, useEffect, useMemo, useState } from "react";
 import { DataSourceTypeInfo } from "../../api/datasourceApi";
-import { AddIcon, DocIcon, ModalFooterWrapper, TacoButton } from "openblocks-design";
+import { AddIcon, DocIcon, ModalFooterWrapper, TacoButton } from "lowcoder-design";
 import styled from "styled-components";
 import { Button } from "antd";
 import { useDatasourceForm } from "./form/useDatasourceForm";

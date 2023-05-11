@@ -14,7 +14,7 @@ import CreateModal from "./createModal";
 import history from "util/history";
 import { THEME_DETAIL } from "constants/routesURL";
 import { currentOrgAdmin } from "util/permissionUtils";
-import { AddIcon } from "openblocks-design";
+import { AddIcon } from "lowcoder-design";
 import { CreateButton, ThemeContent } from "./styledComponents";
 import { genQueryId } from "comps/utils/idGenerator";
 import { trans } from "i18n";

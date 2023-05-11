@@ -20,7 +20,7 @@ import {
   NameConfigRequired,
   withExposingConfigs,
 } from "comps/generators/withExposing";
-import { Section, sectionNames, ValueFromOption } from "openblocks-design";
+import { Section, sectionNames, ValueFromOption } from "lowcoder-design";
 import { useEffect, useRef, useState } from "react";
 import styled, { css } from "styled-components";
 import { RecordConstructorToView } from "lowcoder-core";

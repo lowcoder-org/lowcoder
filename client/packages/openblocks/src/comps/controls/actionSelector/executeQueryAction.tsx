@@ -3,7 +3,7 @@ import { InputTypeEnum } from "comps/comps/moduleContainerComp/ioComp/inputListI
 import { SimpleNameComp } from "comps/comps/simpleNameComp";
 import { EditorContext, EditorState } from "comps/editorState";
 import { MultiCompBuilder } from "comps/generators/multi";
-import { BranchDiv, Dropdown } from "openblocks-design";
+import { BranchDiv, Dropdown } from "lowcoder-design";
 import { BottomResTypeEnum } from "types/bottomRes";
 import { getPromiseAfterDispatch } from "util/promiseUtils";
 import { trans } from "i18n";

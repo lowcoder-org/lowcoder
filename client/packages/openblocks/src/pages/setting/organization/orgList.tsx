@@ -1,5 +1,5 @@
 import { ADMIN_ROLE } from "constants/orgConstants";
-import { AddIcon, CustomModal, DangerIcon, EditPopover } from "openblocks-design";
+import { AddIcon, CustomModal, DangerIcon, EditPopover } from "lowcoder-design";
 import { useDispatch, useSelector } from "react-redux";
 import { createOrgAction, deleteOrgAction } from "redux/reduxActions/orgActions";
 import styled from "styled-components";

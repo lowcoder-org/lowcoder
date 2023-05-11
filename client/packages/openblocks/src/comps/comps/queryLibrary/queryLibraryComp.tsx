@@ -16,7 +16,7 @@ import {
   ScrollBar,
   TacoButton,
   UnfoldWhiteIcon,
-} from "openblocks-design";
+} from "lowcoder-design";
 import ReactHotkeys from "../../../util/hotkeys";
 import { executeQueryAction, renameAction } from "lowcoder-core";
 import { deleteQueryLibrary } from "redux/reduxActions/queryLibraryActions";

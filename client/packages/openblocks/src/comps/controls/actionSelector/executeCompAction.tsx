@@ -8,7 +8,7 @@ import { valueComp, withTypeAndChildren } from "comps/generators";
 import { list } from "comps/generators/list";
 import { MultiCompBuilder } from "comps/generators/multi";
 import { HookComp } from "comps/hooks/hookComp";
-import { BranchDiv, Dropdown } from "openblocks-design";
+import { BranchDiv, Dropdown } from "lowcoder-design";
 import { mapValues } from "lodash";
 import { Fragment, ReactNode } from "react";
 import { getPromiseAfterDispatch } from "util/promiseUtils";

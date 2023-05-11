@@ -3,7 +3,7 @@ import { evalAndReduceWithExposing } from "comps/utils";
 import _ from "lodash";
 import React, { ReactNode, useContext, useEffect, useState } from "react";
 import styled from "styled-components";
-import { ShowBorderIcon, EditIcon } from "openblocks-design";
+import { ShowBorderIcon, EditIcon } from "lowcoder-design";
 import propNames from "../propNameText";
 import valueTranslate from "../propValueText";
 import { AppTypeEnum } from "constants/applicationConstants";

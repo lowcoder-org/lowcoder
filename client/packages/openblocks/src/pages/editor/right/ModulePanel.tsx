@@ -8,7 +8,7 @@ import {
   BorderColor,
   GreyTextColor,
 } from "constants/style";
-import { ModuleDocIcon } from "openblocks-design";
+import { ModuleDocIcon } from "lowcoder-design";
 import { trans } from "i18n";
 import { draggingUtils } from "layout/draggingUtils";
 import { useContext, useEffect } from "react";

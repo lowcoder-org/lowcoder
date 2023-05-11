@@ -16,7 +16,7 @@ import {
   QueryConfigLabel,
   QueryConfigWrapper,
   QueryTutorialButton,
-} from "openblocks-design";
+} from "lowcoder-design";
 import { Fragment, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";

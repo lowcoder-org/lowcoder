@@ -19,7 +19,7 @@ import {
   withFunction,
   wrapChildAction,
 } from "lowcoder-core";
-import { AlignClose, AlignLeft, AlignRight } from "openblocks-design";
+import { AlignClose, AlignLeft, AlignRight } from "lowcoder-design";
 import { ColumnTypeComp, ColumnTypeCompMap } from "./columnTypeComp";
 
 export type Render = ReturnType<ConstructorToComp<typeof RenderComp>["getOriginalComp"]>;

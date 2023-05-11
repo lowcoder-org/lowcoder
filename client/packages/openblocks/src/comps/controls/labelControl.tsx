@@ -6,14 +6,14 @@ import { NumberControl, StringControl } from "comps/controls/codeControl";
 import { dropdownControl } from "comps/controls/dropdownControl";
 import { withDefault } from "comps/generators";
 import { MultiCompBuilder } from "comps/generators/multi";
-import { labelCss, Section, Tooltip, UnderlineCss } from "openblocks-design";
-import { ValueFromOption } from "openblocks-design";
+import { labelCss, Section, Tooltip, UnderlineCss } from "lowcoder-design";
+import { ValueFromOption } from "lowcoder-design";
 import { isEmpty } from "lodash";
 import { ReactNode } from "react";
 import styled, { css } from "styled-components";
-import { AlignLeft } from "openblocks-design";
-import { AlignRight } from "openblocks-design";
-import { StarIcon } from "openblocks-design";
+import { AlignLeft } from "lowcoder-design";
+import { AlignRight } from "lowcoder-design";
+import { StarIcon } from "lowcoder-design";
 
 type LabelViewProps = Pick<FormItemProps, "required" | "help" | "validateStatus"> & {
   children: ReactNode;

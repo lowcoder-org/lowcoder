@@ -3,7 +3,7 @@ import { CodeEditor } from "base/codeEditor";
 import { EmptyContent } from "components/EmptyContent";
 import { HelpText } from "components/HelpText";
 import { GreyTextColor } from "constants/style";
-import { CustomModal, CustomSelect, TacoButton } from "openblocks-design";
+import { CustomModal, CustomSelect, TacoButton } from "lowcoder-design";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchCommonSettings, setCommonSettings } from "redux/reduxActions/commonSettingsActions";

@@ -3,7 +3,7 @@ import { GoogleSheetsConfig } from "../../../api/datasourceApi";
 import { DatasourceFormProps } from "./datasourceFormRegistry";
 import { DatasourceNameFormInputItem, GeneralSettingFormSectionLabel } from "../form";
 import { trans } from "i18n";
-import { DatasourceForm, FormSection, FormTextAreaItem } from "openblocks-design";
+import { DatasourceForm, FormSection, FormTextAreaItem } from "lowcoder-design";
 
 /**
  * todo check service account

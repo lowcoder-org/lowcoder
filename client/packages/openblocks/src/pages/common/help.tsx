@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import { Layers } from "constants/Layers";
-import { HelpIcon, LeftHelpIcon, HelpGithubIcon, HelpDiscordIcon } from "openblocks-design";
+import { HelpIcon, LeftHelpIcon, HelpGithubIcon, HelpDiscordIcon } from "lowcoder-design";
 import { VideoIcon, ChatIcon, DocIcon, TutorialIcon, ShortcutIcon } from "assets/icons";
 import TutorialVideoPic from "assets/images/tutorialVideoThumbnail.png";
 import { Dropdown, Popover, Tooltip } from "antd";
@@ -15,14 +15,14 @@ import { createApplication } from "redux/reduxActions/applicationActions";
 import history from "util/history";
 import { buildAppRouteWithState } from "constants/routesURL";
 import { getUser } from "redux/selectors/usersSelectors";
-import { DropdownMenu } from "openblocks-design";
+import { DropdownMenu } from "lowcoder-design";
 import VideoDialog from "pages/common/videoDialog";
 import { PlatformApi } from "api/platformApi";
-import { CommonTipsOverlay } from "openblocks-design";
+import { CommonTipsOverlay } from "lowcoder-design";
 import { markUserStatus } from "redux/reduxActions/userActions";
 import { AppTypeEnum } from "constants/applicationConstants";
 import { ShortcutListPopup } from "./shortcutListPopup";
-import { QuestionIcon, UpgradeIcon } from "openblocks-design";
+import { QuestionIcon, UpgradeIcon } from "lowcoder-design";
 import { trans } from "i18n";
 import { localEnv } from "util/envUtils";
 

@@ -22,7 +22,7 @@ import {
   tableDragClassName,
   UserGuideLocationState,
 } from "./tutorialsConstant";
-import { TooltipCodeBlock, TooltipLink, TutorialsTooltip } from "openblocks-design";
+import { TooltipCodeBlock, TooltipLink, TutorialsTooltip } from "lowcoder-design";
 import { markUserStatus } from "redux/reduxActions/userActions";
 import { useHistory } from "react-router";
 import { defaultLayout, GridItemDataType } from "comps/comps/gridItemComp";

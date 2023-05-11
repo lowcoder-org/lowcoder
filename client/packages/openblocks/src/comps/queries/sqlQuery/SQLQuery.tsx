@@ -12,7 +12,7 @@ import {
   QueryConfigItemWrapper,
   QueryConfigLabel,
   QueryConfigWrapper,
-} from "openblocks-design";
+} from "lowcoder-design";
 import { BoolPureControl } from "../../controls/boolControl";
 import { dropdownControl } from "../../controls/dropdownControl";
 import { TableNameComp } from "./tableNameComp";

@@ -4,7 +4,7 @@ import { StringControl } from "comps/controls/codeControl";
 import { jsonObjectStateControl } from "comps/controls/codeStateControl";
 import { UICompBuilder, withDefault } from "comps/generators";
 import { NameConfig, NameConfigHidden, withExposingConfigs } from "comps/generators/withExposing";
-import { Section, sectionNames } from "openblocks-design";
+import { Section, sectionNames } from "lowcoder-design";
 import { useEffect, useRef } from "react";
 import styled from "styled-components";
 import { getPromiseAfterDispatch } from "util/promiseUtils";

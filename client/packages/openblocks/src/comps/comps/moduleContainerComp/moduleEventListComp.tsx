@@ -7,7 +7,7 @@ import { simpleMultiComp, valueComp } from "comps/generators";
 import { list } from "comps/generators/list";
 import { NameGenerator } from "comps/utils";
 import { NameAndExposingInfo } from "comps/utils/exposingTypes";
-import { controlItem, Section, Switch, SwitchWrapper } from "openblocks-design";
+import { controlItem, Section, Switch, SwitchWrapper } from "lowcoder-design";
 import { trans } from "i18n";
 import { ModuleEventListItemComp } from "./moduleEventListItemComp";
 import { ConfigViewSection } from "./styled";

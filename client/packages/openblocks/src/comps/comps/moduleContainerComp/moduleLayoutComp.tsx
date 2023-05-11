@@ -11,7 +11,7 @@ import { CompAction, CompActionTypes } from "lowcoder-core";
 import { ReactElement, useContext } from "react";
 import { ExternalEditorContext } from "util/context/ExternalEditorContext";
 import { JSONValue } from "util/jsonTypes";
-import { Section, sectionNames } from "openblocks-design";
+import { Section, sectionNames } from "lowcoder-design";
 import { getAllCompItems, IContainer } from "../containerBase";
 import { SimpleContainerComp } from "../containerBase/simpleContainerComp";
 import { GridItemsType } from "../containerComp/containerView";

@@ -7,7 +7,7 @@ import { LinkStyle, LinkStyleType } from "comps/controls/styleControlConstants";
 import { withDefault } from "comps/generators";
 import { migrateOldData } from "comps/generators/simpleGenerators";
 import { UICompBuilder } from "comps/generators/uiCompBuilder";
-import { Section, sectionNames } from "openblocks-design";
+import { Section, sectionNames } from "lowcoder-design";
 import styled from "styled-components";
 import { CommonNameConfig, NameConfig, withExposingConfigs } from "../../generators/withExposing";
 import {

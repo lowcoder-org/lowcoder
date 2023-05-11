@@ -10,7 +10,7 @@ import {
   Tooltip,
   WarnIcon,
   WhiteLoading,
-} from "openblocks-design";
+} from "lowcoder-design";
 import styled from "styled-components";
 import React, { useEffect, useState } from "react";
 import { i18nObjs, trans } from "i18n";

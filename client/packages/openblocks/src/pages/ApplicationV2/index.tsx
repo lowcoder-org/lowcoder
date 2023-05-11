@@ -30,7 +30,7 @@ import {
   PointIcon,
   RecyclerActiveIcon,
   RecyclerIcon,
-} from "openblocks-design";
+} from "lowcoder-design";
 import React, { useEffect, useState } from "react";
 import { fetchAllApplications, fetchHomeData } from "redux/reduxActions/applicationActions";
 import { getHomeOrg, normalAppListSelector } from "redux/selectors/applicationSelector";

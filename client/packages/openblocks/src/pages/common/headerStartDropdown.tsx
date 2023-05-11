@@ -8,7 +8,7 @@ import {
   PackUpIcon,
   TextWrapper,
   ModuleIcon,
-} from "openblocks-design";
+} from "lowcoder-design";
 import { trans, transToNode } from "i18n";
 import { exportApplicationAsJSONFile } from "pages/ApplicationV2/components/AppImport";
 import { useContext, useState } from "react";

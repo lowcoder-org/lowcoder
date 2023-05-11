@@ -4,7 +4,7 @@ import { withExposingConfigs } from "comps/generators/withExposing";
 import { GreyTextColor } from "constants/style";
 import log from "loglevel";
 import { Comp, CompAction, CompParams, customAction, isCustomAction } from "lowcoder-core";
-import { WhiteLoading } from "openblocks-design";
+import { WhiteLoading } from "lowcoder-design";
 import { useState } from "react";
 import { useMount } from "react-use";
 import styled from "styled-components";

@@ -1,4 +1,4 @@
-import { labelCss } from "openblocks-design";
+import { labelCss } from "lowcoder-design";
 import { PropsWithChildren } from "react";
 import styled from "styled-components";
 

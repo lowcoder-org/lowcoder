@@ -1,5 +1,5 @@
 import { GreyTextColor } from "constants/style";
-import { TacoButton } from "openblocks-design";
+import { TacoButton } from "lowcoder-design";
 import styled from "styled-components";
 
 export const TwoColumnSettingPageContent = styled.div`

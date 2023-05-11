@@ -1,7 +1,7 @@
 import { StringControl } from "comps/controls/codeControl";
 import { MultiCompBuilder } from "comps/generators/multi";
 import copy from "copy-to-clipboard";
-import { BranchDiv } from "openblocks-design";
+import { BranchDiv } from "lowcoder-design";
 import { trans } from "i18n";
 
 export const CopyToClipboardAction = (function () {

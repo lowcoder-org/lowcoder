@@ -5,7 +5,7 @@ import {
   MobileAppIcon,
   ModuleDocIcon,
   NavDocIcon,
-} from "openblocks-design";
+} from "lowcoder-design";
 import { HomeResTypeEnum } from "../types/homeRes";
 import { APPLICATION_VIEW_URL, buildFolderUrl } from "../constants/routesURL";
 import history from "./history";

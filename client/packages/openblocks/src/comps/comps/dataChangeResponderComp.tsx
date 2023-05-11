@@ -13,7 +13,7 @@ import {
   QueryConfigWrapper,
   QueryPropertyViewWrapper,
   QuerySectionWrapper,
-} from "openblocks-design";
+} from "lowcoder-design";
 import { BottomTabs } from "pages/editor/bottom/BottomTabs";
 import { ReactNode } from "react";
 import { BottomResComp, BottomResCompResult, BottomResTypeEnum } from "types/bottomRes";

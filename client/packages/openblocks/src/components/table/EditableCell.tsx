@@ -1,7 +1,7 @@
 import { PresetStatusColorType } from "antd/es/_util/colors";
 import _ from "lodash";
 import { changeChildAction, DispatchType } from "lowcoder-core";
-import { constantColors } from "openblocks-design";
+import { constantColors } from "lowcoder-design";
 import React, { ReactNode, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
 import { JSONValue } from "util/jsonTypes";

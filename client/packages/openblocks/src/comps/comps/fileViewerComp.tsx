@@ -4,7 +4,7 @@ import { isEmpty } from "lodash";
 import { useState } from "react";
 import { DocumentViewer } from "react-documents";
 import styled, { css } from "styled-components";
-import { Section, sectionNames } from "openblocks-design";
+import { Section, sectionNames } from "lowcoder-design";
 import { StringControl } from "../controls/codeControl";
 import { UICompBuilder } from "../generators";
 import { NameConfig, NameConfigHidden, withExposingConfigs } from "../generators/withExposing";

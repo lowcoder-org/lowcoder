@@ -7,7 +7,7 @@ import {
   QueryConfigWrapper,
   QueryTutorialButton,
   ValueFromOption,
-} from "openblocks-design";
+} from "lowcoder-design";
 import { QueryTutorials } from "util/tutorialUtils";
 import {
   ParamsNumberControl,

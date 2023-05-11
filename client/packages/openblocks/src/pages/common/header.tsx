@@ -15,7 +15,7 @@ import {
   PackUpIcon,
   Right,
   TacoButton,
-} from "openblocks-design";
+} from "lowcoder-design";
 import { trans } from "i18n";
 import moment from "moment";
 import { useContext, useState } from "react";

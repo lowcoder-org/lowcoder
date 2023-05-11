@@ -1,4 +1,4 @@
-import { CustomModal } from "openblocks-design";
+import { CustomModal } from "lowcoder-design";
 
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";

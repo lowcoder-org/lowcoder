@@ -1,7 +1,7 @@
 import { trans } from "i18n";
 import { isEmpty } from "lodash";
 import { changeValueAction, DispatchType } from "lowcoder-core";
-import { Dropdown, OptionsType } from "openblocks-design";
+import { Dropdown, OptionsType } from "lowcoder-design";
 import { useContext } from "react";
 import { useSelector } from "react-redux";
 import { getDataSourceStructures } from "../../../redux/selectors/datasourceSelectors";

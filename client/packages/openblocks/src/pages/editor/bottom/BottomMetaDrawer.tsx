@@ -1,5 +1,5 @@
 import { DataNode } from "antd/lib/tree";
-import { CopyTextButton, CustomTree, labelCss, PackUpIcon, Search } from "openblocks-design";
+import { CopyTextButton, CustomTree, labelCss, PackUpIcon, Search } from "lowcoder-design";
 import _ from "lodash";
 import { Drawer as AntdDrawer } from "antd";
 import { CSSProperties, useEffect, useState } from "react";

@@ -10,7 +10,7 @@ import {
   hiddenPropertyView,
   loadingPropertyView,
 } from "comps/utils/propertyUtils";
-import { CommonBlueLabel, controlItem, Dropdown, Section, sectionNames } from "openblocks-design";
+import { CommonBlueLabel, controlItem, Dropdown, Section, sectionNames } from "lowcoder-design";
 import { trans } from "i18n";
 import styled from "styled-components";
 import { CommonNameConfig, NameConfig, withExposingConfigs } from "../../generators/withExposing";

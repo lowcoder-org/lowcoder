@@ -4,7 +4,7 @@ import { EditorContext } from "comps/editorState";
 import { valueComp } from "comps/generators";
 import { CompExposingContext } from "comps/generators/withContext";
 import { exposingDataForAutoComplete } from "comps/utils/exposingTypes";
-import { ControlPropertyViewWrapper } from "openblocks-design";
+import { ControlPropertyViewWrapper } from "lowcoder-design";
 import _ from "lodash";
 import { ReactNode, useContext, useMemo } from "react";
 import { CodeEditorProps } from "base/codeEditor/codeEditorTypes";

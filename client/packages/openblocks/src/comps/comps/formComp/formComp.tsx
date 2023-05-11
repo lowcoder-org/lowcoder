@@ -4,11 +4,11 @@ import {
   NameConfig,
   withExposingConfigs,
 } from "comps/generators/withExposing";
-import { Section, sectionNames } from "openblocks-design";
+import { Section, sectionNames } from "lowcoder-design";
 import { genQueryId } from "comps/utils/idGenerator";
 import { CompNameContext, EditorContext, EditorState } from "comps/editorState";
 import { withMethodExposing } from "comps/generators/withMethodExposing";
-import { ContainerPlaceholder } from "openblocks-design";
+import { ContainerPlaceholder } from "lowcoder-design";
 import {
   CompAction,
   CompActionTypes,

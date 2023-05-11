@@ -16,7 +16,7 @@ import {
 import { tableDragClassName } from "pages/tutorials/tutorialsConstant";
 import React, { useContext, useMemo } from "react";
 import styled from "styled-components";
-import { labelCss } from "openblocks-design";
+import { labelCss } from "lowcoder-design";
 import { TransparentImg } from "../../../util/commonUtils";
 import { RightContext } from "./rightContext";
 

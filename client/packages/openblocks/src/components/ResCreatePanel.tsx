@@ -1,4 +1,4 @@
-import { AddIcon, CloseIcon, CustomModalProps, ImportIconV2, ScrollBar } from "openblocks-design";
+import { AddIcon, CloseIcon, CustomModalProps, ImportIconV2, ScrollBar } from "lowcoder-design";
 import { BottomShadow, GreyTextColor, TabActiveColor } from "constants/style";
 import { trans } from "i18n";
 import _, { noop } from "lodash";

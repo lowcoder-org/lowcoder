@@ -1,10 +1,10 @@
 import { ThemeType } from "api/commonSettingApi";
 import { useState } from "react";
 import { themeTemplateList } from "./themeConstant";
-import { RadioCheckedIcon } from "openblocks-design";
-import { SwitchCheckedIcon } from "openblocks-design";
-import { RequiredIcon } from "openblocks-design";
-import { SuccessIcon } from "openblocks-design";
+import { RadioCheckedIcon } from "lowcoder-design";
+import { SwitchCheckedIcon } from "lowcoder-design";
+import { RequiredIcon } from "lowcoder-design";
+import { SuccessIcon } from "lowcoder-design";
 import {
   CustomModalStyled,
   ModalNameDiv,

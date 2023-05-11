@@ -1,11 +1,11 @@
 import { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
-import { EditPopoverItemType, PointIcon, Search, SearchOutlinedIcon } from "openblocks-design";
-import { EditPopover } from "openblocks-design";
+import { EditPopoverItemType, PointIcon, Search, SearchOutlinedIcon } from "lowcoder-design";
+import { EditPopover } from "lowcoder-design";
 import { EditorContext } from "comps/editorState";
 import { GridCompOperator } from "comps/utils/gridCompOperator";
-import { PopupCard } from "openblocks-design";
-import { EditText } from "openblocks-design";
+import { PopupCard } from "lowcoder-design";
+import { EditText } from "lowcoder-design";
 import { values } from "lodash";
 import { GreyTextColor } from "constants/style";
 import { UICompType } from "comps/uiCompRegistry";

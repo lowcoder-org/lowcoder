@@ -4,7 +4,7 @@ import { EsDatasourceForm } from "./esDatasourceForm";
 import { SMTPDatasourceForm } from "./smtpDatasourceForm";
 import { FormInstance } from "antd";
 import { MongoDatasourceForm } from "./mongoDatasourceForm";
-import { FormSize } from "openblocks-design";
+import { FormSize } from "lowcoder-design";
 import { GoogleSheetsDatasourceForm } from "./googleSheetsDatasourceForm";
 import { DatasourceType } from "@openblocks-ee/constants/queryConstants";
 import { Datasource } from "@openblocks-ee/constants/datasourceConstants";

@@ -6,7 +6,7 @@ import {
 import { ColumnValueTooltip } from "comps/comps/tableComp/column/simpleColumnTypeComps";
 import { StringControl } from "comps/controls/codeControl";
 import { trans } from "i18n";
-import { markdownCompCss, TacoMarkDown } from "openblocks-design";
+import { markdownCompCss, TacoMarkDown } from "lowcoder-design";
 import styled from "styled-components";
 
 const Wrapper = styled.div`

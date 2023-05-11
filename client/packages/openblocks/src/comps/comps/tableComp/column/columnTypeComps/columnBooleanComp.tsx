@@ -8,7 +8,7 @@ import styled from "styled-components";
 import { CheckboxStyle, CheckboxStyleType } from "comps/controls/styleControlConstants";
 import { useStyle } from "comps/controls/styleControl";
 import { dropdownControl } from "comps/controls/dropdownControl";
-import { TableCheckedIcon, TableUnCheckedIcon } from "openblocks-design";
+import { TableCheckedIcon, TableUnCheckedIcon } from "lowcoder-design";
 
 const CheckboxStyled = styled(Checkbox)<{ $style: CheckboxStyleType }>`
   ${(props) => props.$style && getStyle(props.$style)}

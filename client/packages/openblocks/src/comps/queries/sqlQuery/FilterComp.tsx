@@ -5,8 +5,8 @@ import { ParamsJsonControl } from "../../controls/paramsControl";
 import { ColumnNameDropdown } from "./columnNameDropdown";
 import { list } from "../../generators/list";
 import { ControlParams } from "../../controls/controlParams";
-import { ControlPropertyViewWrapper } from "openblocks-design";
-import { KeyValueList } from "openblocks-design";
+import { ControlPropertyViewWrapper } from "lowcoder-design";
+import { KeyValueList } from "lowcoder-design";
 import React from "react";
 
 const SingleFilter = class extends buildQueryCommand({

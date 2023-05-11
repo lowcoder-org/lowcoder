@@ -6,7 +6,7 @@ import { BackgroundColorContext } from "comps/utils/backgroundColorContext";
 import { ThemeContext } from "comps/utils/themeContext";
 import { trans } from "i18n";
 import _ from "lodash";
-import { controlItem, IconRadius, IconReset } from "openblocks-design";
+import { controlItem, IconRadius, IconReset } from "lowcoder-design";
 import { useContext } from "react";
 import styled from "styled-components";
 import { useIsMobile } from "util/hooks";

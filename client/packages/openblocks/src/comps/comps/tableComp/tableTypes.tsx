@@ -27,7 +27,7 @@ import {
   RecordConstructorToComp,
   RecordConstructorToView,
 } from "lowcoder-core";
-import { controlItem } from "openblocks-design";
+import { controlItem } from "lowcoder-design";
 import { JSONObject } from "util/jsonTypes";
 import { ExpansionControl } from "./expansionControl";
 import { PaginationControl } from "./paginationControl";

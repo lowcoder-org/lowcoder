@@ -1,5 +1,5 @@
 import styled, { css } from "styled-components";
-import { Section, sectionNames } from "openblocks-design";
+import { Section, sectionNames } from "lowcoder-design";
 import { clickEvent, eventHandlerControl } from "../controls/eventHandlerControl";
 import { StringStateControl } from "../controls/codeStateControl";
 import { UICompBuilder, withDefault } from "../generators";

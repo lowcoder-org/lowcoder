@@ -9,7 +9,7 @@ import styled from "styled-components";
 import { getRemoteCompType } from "comps/utils/remote";
 import { OpenblocksCompMeta } from "types/remoteComp";
 import { TransparentImg } from "util/commonUtils";
-import { ModuleIcon } from "openblocks-design";
+import { ModuleIcon } from "lowcoder-design";
 import { NPM_PLUGIN_ASSETS_BASE_URL } from "constants/npmPlugins";
 
 const ItemWrapper = styled.div`

@@ -32,7 +32,7 @@ import {
   TacoButton,
   TacoInput,
   ValueFromOption,
-} from "openblocks-design";
+} from "lowcoder-design";
 import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
 import styled, { css } from "styled-components";
 import { JSONValue } from "util/jsonTypes";

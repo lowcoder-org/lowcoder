@@ -1,7 +1,7 @@
 import { Route, Switch, useLocation } from "react-router-dom";
 import { Layout } from "antd";
 import { AppHeader } from "pages/common/header";
-import { Menu } from "openblocks-design";
+import { Menu } from "lowcoder-design";
 import history from "util/history";
 import styled from "styled-components";
 import * as React from "react";

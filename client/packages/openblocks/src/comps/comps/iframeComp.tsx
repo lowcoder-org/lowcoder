@@ -1,5 +1,5 @@
 import { UICompBuilder, withDefault } from "../generators";
-import { Section, sectionNames } from "openblocks-design";
+import { Section, sectionNames } from "lowcoder-design";
 import { StringControl } from "../controls/codeControl";
 import { BoolControl } from "../controls/boolControl";
 import styled from "styled-components";

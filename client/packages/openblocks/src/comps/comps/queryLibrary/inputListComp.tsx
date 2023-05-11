@@ -10,7 +10,7 @@ import {
   PointIcon,
   SimplePopover,
   TacoButton,
-} from "openblocks-design";
+} from "lowcoder-design";
 import { Fragment, useContext, useEffect, useState } from "react";
 import styled from "styled-components";
 import { EmptyContent } from "../../../components/EmptyContent";

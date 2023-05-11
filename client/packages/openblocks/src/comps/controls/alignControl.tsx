@@ -1,5 +1,5 @@
-import { ValueFromOption } from "openblocks-design";
-import { AlignCenter, AlignJustify, AlignLeft, AlignRight } from "openblocks-design";
+import { ValueFromOption } from "lowcoder-design";
+import { AlignCenter, AlignJustify, AlignLeft, AlignRight } from "lowcoder-design";
 import { dropdownControl } from "./dropdownControl";
 
 const AlignOptions = [

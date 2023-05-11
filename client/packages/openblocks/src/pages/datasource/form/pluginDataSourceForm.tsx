@@ -20,7 +20,7 @@ import {
   FormSelectItemProps,
   TacoButton,
   TacoMarkDown,
-} from "openblocks-design";
+} from "lowcoder-design";
 import { DatasourceFormProps } from "./datasourceFormRegistry";
 import { DatasourceNameFormInputItem, GeneralSettingFormSectionLabel } from "../form";
 import {

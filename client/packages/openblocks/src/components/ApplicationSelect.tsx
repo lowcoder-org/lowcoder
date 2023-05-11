@@ -1,5 +1,5 @@
 import { AppTypeEnum } from "constants/applicationConstants";
-import { Dropdown } from "openblocks-design";
+import { Dropdown } from "lowcoder-design";
 import { trans } from "i18n";
 import { ReactNode, useEffect } from "react";
 import { useApplicationId } from "util/hooks";

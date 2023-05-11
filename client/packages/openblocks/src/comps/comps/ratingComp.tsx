@@ -1,6 +1,6 @@
 import { Rate } from "antd";
 import styled, { css } from "styled-components";
-import { Section, sectionNames } from "openblocks-design";
+import { Section, sectionNames } from "lowcoder-design";
 import { NumberControl } from "../controls/codeControl";
 import { BoolControl } from "../controls/boolControl";
 import { changeEvent, eventHandlerControl } from "../controls/eventHandlerControl";

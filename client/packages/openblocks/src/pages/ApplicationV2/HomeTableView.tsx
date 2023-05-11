@@ -1,6 +1,6 @@
 import { timestampToHumanReadable } from "../../util/dateTimeUtils";
 import { Table } from "../../components/Table";
-import { TacoButton } from "openblocks-design";
+import { TacoButton } from "lowcoder-design";
 import styled from "styled-components";
 import { useDispatch } from "react-redux";
 import {

@@ -1,6 +1,6 @@
 import styled, { css } from "styled-components";
-import { FormInput, OtpFormInput, PasswordInput } from "openblocks-design";
-import { TacoButton } from "openblocks-design";
+import { FormInput, OtpFormInput, PasswordInput } from "lowcoder-design";
+import { TacoButton } from "lowcoder-design";
 
 const FormInputStyle = css`
   input {

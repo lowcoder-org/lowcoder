@@ -3,7 +3,7 @@ import { EditorContext } from "comps/editorState";
 import { BackgroundColorContext } from "comps/utils/backgroundColorContext";
 import _ from "lodash";
 import { ConstructorToView, deferAction } from "lowcoder-core";
-import { HintPlaceHolder, pageItemRender } from "openblocks-design";
+import { HintPlaceHolder, pageItemRender } from "lowcoder-design";
 import { RefObject, useContext, useEffect, useMemo, useRef } from "react";
 import ReactResizeDetector from "react-resize-detector";
 import styled from "styled-components";

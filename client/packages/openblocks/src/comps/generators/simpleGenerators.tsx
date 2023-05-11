@@ -10,7 +10,7 @@ import {
   ConstructorToDataType,
   SimpleComp,
 } from "lowcoder-core";
-import { ControlPropertyViewWrapper } from "openblocks-design";
+import { ControlPropertyViewWrapper } from "lowcoder-design";
 import { ReactNode } from "react";
 import { JSONValue } from "util/jsonTypes";
 

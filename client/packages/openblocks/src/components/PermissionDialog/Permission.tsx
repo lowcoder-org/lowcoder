@@ -4,7 +4,7 @@ import {
   CommonTextLabel,
   CustomSelect,
   TacoButton,
-} from "openblocks-design";
+} from "lowcoder-design";
 import { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import ProfileImage from "pages/common/profileImage";

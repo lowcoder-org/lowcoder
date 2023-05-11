@@ -1,6 +1,6 @@
-import { Input } from "openblocks-design";
+import { Input } from "lowcoder-design";
 import { SimpleComp } from "lowcoder-core";
-import { ControlPropertyViewWrapper } from "openblocks-design";
+import { ControlPropertyViewWrapper } from "lowcoder-design";
 import { ControlParams } from "./controlParams";
 
 class SimpleStringControl extends SimpleComp<string> {

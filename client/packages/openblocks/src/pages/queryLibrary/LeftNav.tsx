@@ -9,7 +9,7 @@ import {
   ScrollBar,
   Search,
   TacoButton,
-} from "openblocks-design";
+} from "lowcoder-design";
 import { LibraryQuery } from "../../api/queryLibraryApi";
 import { timestampToHumanReadable } from "../../util/dateTimeUtils";
 import { useDispatch, useSelector } from "react-redux";

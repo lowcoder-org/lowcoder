@@ -20,7 +20,7 @@ import {
   MultiBaseComp,
   withFunction,
 } from "lowcoder-core";
-import { AutoArea, controlItem, Option } from "openblocks-design";
+import { AutoArea, controlItem, Option } from "lowcoder-design";
 import styled from "styled-components";
 import { lastValueIfEqual } from "util/objectUtils";
 import { getNextEntityName } from "util/stringUtils";

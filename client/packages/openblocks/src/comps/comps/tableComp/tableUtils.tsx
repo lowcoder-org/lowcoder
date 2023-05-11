@@ -12,7 +12,7 @@ import { TableFilter, tableFilterOperatorMap } from "comps/comps/tableComp/table
 import { SortValue, TableOnEventView } from "comps/comps/tableComp/tableTypes";
 import _ from "lodash";
 import { changeChildAction, CompAction, NodeToValue } from "lowcoder-core";
-import { EditableIcon } from "openblocks-design";
+import { EditableIcon } from "lowcoder-design";
 import { tryToNumber } from "util/convertUtils";
 import { JSONObject, JSONValue } from "util/jsonTypes";
 import { StatusType } from "./column/columnTypeComps/columnStatusComp";

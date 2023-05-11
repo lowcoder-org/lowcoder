@@ -1,6 +1,6 @@
 import { uiCompRegistry } from "comps/uiCompRegistry";
 import { trans } from "i18n";
-import { chartColorPalette } from "openblocks-design";
+import { chartColorPalette } from "lowcoder-design";
 import Example from "../../common/Example";
 import ExampleGroup from "../../common/ExampleGroup";
 

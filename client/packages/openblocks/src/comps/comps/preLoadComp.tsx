@@ -13,7 +13,7 @@ import { CodeTextControl } from "comps/controls/codeTextControl";
 import SimpleStringControl from "comps/controls/simpleStringControl";
 import { MultiCompBuilder, withPropertyViewFn } from "comps/generators";
 import { list } from "comps/generators/list";
-import { BaseSection, CustomModal, PlusIcon, ScrollBar } from "openblocks-design";
+import { BaseSection, CustomModal, PlusIcon, ScrollBar } from "lowcoder-design";
 import React, { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
 import { ExternalEditorContext } from "util/context/ExternalEditorContext";

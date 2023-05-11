@@ -1,7 +1,7 @@
 import styled, { css } from "styled-components";
 import { Table } from "components/Table";
 import { Button, Checkbox, Form } from "antd";
-import { UnderlineCss } from "openblocks-design";
+import { UnderlineCss } from "lowcoder-design";
 
 const btnLoadingCss = css`
   > .ant-btn-loading-icon .anticon {

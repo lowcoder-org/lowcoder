@@ -10,7 +10,7 @@ import {
   LockIcon,
   UnLockIcon,
   CloseEyeIcon,
-} from "openblocks-design";
+} from "lowcoder-design";
 import history from "util/history";
 import { IDSOURCE_SETTING } from "constants/routesURL";
 import {

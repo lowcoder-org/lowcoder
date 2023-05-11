@@ -26,7 +26,7 @@ import {
   TacoButton,
   useIcon,
   wrapperToControlItem,
-} from "openblocks-design";
+} from "lowcoder-design";
 import { ReactNode, useCallback, useState } from "react";
 import styled from "styled-components";
 import { setFieldsNoTypeCheck } from "util/objectUtils";

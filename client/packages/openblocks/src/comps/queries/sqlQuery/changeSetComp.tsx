@@ -1,5 +1,5 @@
 import { trans } from "i18n";
-import { ControlPropertyViewWrapper, Dropdown, KeyValueList } from "openblocks-design";
+import { ControlPropertyViewWrapper, Dropdown, KeyValueList } from "lowcoder-design";
 import { ControlParams } from "../../controls/controlParams";
 import { ParamsJsonControl } from "../../controls/paramsControl";
 import { valueComp, withDefault, withType } from "../../generators";

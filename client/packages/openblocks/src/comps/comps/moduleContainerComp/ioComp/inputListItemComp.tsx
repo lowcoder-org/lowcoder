@@ -29,7 +29,7 @@ import { Fragment, useEffect } from "react";
 import { setFieldsNoTypeCheck } from "util/objectUtils";
 import { handlePromiseAndDispatch } from "util/promiseUtils";
 import { trans } from "i18n";
-import { controlItem } from "openblocks-design";
+import { controlItem } from "lowcoder-design";
 
 export enum InputTypeEnum {
   Data = "data",

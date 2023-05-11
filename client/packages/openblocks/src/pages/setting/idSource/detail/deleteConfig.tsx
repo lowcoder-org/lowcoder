@@ -4,7 +4,7 @@ import { trans } from "i18n";
 import { useState } from "react";
 import { validateResponse } from "api/apiUtils";
 import IdSourceApi from "api/idSourceApi";
-import { DangerIcon, CustomModal } from "openblocks-design";
+import { DangerIcon, CustomModal } from "lowcoder-design";
 import history from "util/history";
 import { IDSOURCE_SETTING } from "constants/routesURL";
 

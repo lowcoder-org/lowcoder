@@ -2,7 +2,7 @@ import { Progress } from "antd";
 import { styleControl } from "comps/controls/styleControl";
 import { ProgressStyle, ProgressStyleType } from "comps/controls/styleControlConstants";
 import styled, { css } from "styled-components";
-import { Section, sectionNames } from "openblocks-design";
+import { Section, sectionNames } from "lowcoder-design";
 import { numberExposingStateControl } from "../controls/codeStateControl";
 import { UICompBuilder } from "../generators";
 import { NameConfig, NameConfigHidden, withExposingConfigs } from "../generators/withExposing";

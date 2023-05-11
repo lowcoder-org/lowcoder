@@ -6,7 +6,7 @@ import {
   ScrollBar,
   TacoButton,
   UnfoldWhiteIcon,
-} from "openblocks-design";
+} from "lowcoder-design";
 import React, { ReactNode, useContext, useEffect, useState } from "react";
 import styled from "styled-components";
 import { EditorContext } from "../../../comps/editorState";

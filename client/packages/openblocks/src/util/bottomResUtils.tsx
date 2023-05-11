@@ -30,7 +30,7 @@ import {
   TempStateIcon,
   TraceApiIcon,
   TransformerIcon,
-} from "openblocks-design";
+} from "lowcoder-design";
 import { BottomResTypeEnum } from "types/bottomRes";
 import { HttpMethod } from "api/api";
 

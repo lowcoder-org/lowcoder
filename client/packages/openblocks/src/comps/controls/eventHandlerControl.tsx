@@ -19,7 +19,7 @@ import {
   OptionType,
   QueryConfigItemWrapper,
   ValueFromOption,
-} from "openblocks-design";
+} from "lowcoder-design";
 import { Fragment, ReactNode, useContext, useEffect, useState } from "react";
 import { memo } from "util/cacheUtils";
 import { EditorContext } from "../editorState";

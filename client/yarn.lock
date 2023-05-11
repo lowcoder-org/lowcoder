@@ -14380,9 +14380,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"openblocks-design@^0.0.1, openblocks-design@workspace:^, openblocks-design@workspace:packages/openblocks-design":
+"lowcoder-design@^0.0.1, lowcoder-design@workspace:^, lowcoder-design@workspace:packages/lowcoder-design":
   version: 0.0.0-use.local
-  resolution: "openblocks-design@workspace:packages/openblocks-design"
+  resolution: "lowcoder-design@workspace:packages/lowcoder-design"
   dependencies:
     "@rollup/plugin-commonjs": ^23.0.2
     "@rollup/plugin-json": ^5.0.1
@@ -14419,7 +14419,7 @@ __metadata:
     "@types/react-dom": 17
     openblocks-cli: "workspace:^"
     lowcoder-core: ^0.0.1
-    openblocks-design: ^0.0.1
+    lowcoder-design: ^0.0.1
     openblocks-sdk: "workspace:^"
     react: 17
     react-dom: 17
@@ -14521,7 +14521,7 @@ __metadata:
     moment: ^2.29.4
     numbro: ^2.3.6
     lowcoder-core: "workspace:^"
-    openblocks-design: "workspace:^"
+    lowcoder-design: "workspace:^"
     lowcoder-dev-utils: "workspace:^"
     papaparse: ^5.3.2
     qrcode.react: ^3.1.0

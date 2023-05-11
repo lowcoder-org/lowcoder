@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import { Modal } from "antd";
-import { CloseIcon } from "openblocks-design";
+import { CloseIcon } from "lowcoder-design";
 import styled from "styled-components";
 import { Layers } from "constants/Layers";
 

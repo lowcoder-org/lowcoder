@@ -17,7 +17,7 @@ import {
   SelectInputValidationSection,
   useSelectInputValidate,
 } from "./selectInputConstants";
-import { Section, sectionNames } from "openblocks-design";
+import { Section, sectionNames } from "lowcoder-design";
 import { hiddenPropertyView, disabledPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { hasIcon } from "comps/utils";

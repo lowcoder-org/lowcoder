@@ -1,5 +1,5 @@
-import { CustomModal } from "openblocks-design";
-import { CustomModalProps } from "openblocks-design";
+import { CustomModal } from "lowcoder-design";
+import { CustomModalProps } from "lowcoder-design";
 import { ReactNode, useState } from "react";
 
 interface StepRenderProps {

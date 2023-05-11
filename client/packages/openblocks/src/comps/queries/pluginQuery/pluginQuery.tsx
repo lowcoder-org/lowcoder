@@ -22,13 +22,13 @@ import {
   QueryConfigItemWrapper,
   QueryConfigLabel,
   QueryConfigWrapper,
-} from "openblocks-design";
+} from "lowcoder-design";
 import React, { ReactNode, useEffect, useState } from "react";
 import { FunctionProperty, toQueryView } from "../queryCompUtils";
 import { CompConstructor } from "lowcoder-core";
 import { dropdownControl } from "comps/controls/dropdownControl";
 import { ControlParams, ControlType } from "comps/controls/controlParams";
-import MarkdownTooltip from "openblocks-design/src/components/MarkdownTooltip";
+import MarkdownTooltip from "lowcoder-design/src/components/MarkdownTooltip";
 import { KeyValueControlParams, keyValueListControl } from "comps/controls/keyValueControl";
 import { VariablesControl } from "../httpQuery/graphqlQuery";
 

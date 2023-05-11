@@ -1,7 +1,7 @@
 import { StringControl } from "comps/controls/codeControl";
 import { BoolControl } from "comps/controls/boolControl";
 import { MultiCompBuilder } from "comps/generators/multi";
-import { BranchDiv } from "openblocks-design";
+import { BranchDiv } from "lowcoder-design";
 import { trans } from "i18n";
 
 export const GoToURLAction = (function () {

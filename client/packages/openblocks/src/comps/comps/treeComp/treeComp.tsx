@@ -1,7 +1,7 @@
 import { RecordConstructorToView } from "lowcoder-core";
 import { UICompBuilder } from "comps/generators/uiCompBuilder";
 import { withExposingConfigs } from "comps/generators/withExposing";
-import { Section, sectionNames } from "openblocks-design";
+import { Section, sectionNames } from "lowcoder-design";
 import { Tree } from "antd";
 import { useEffect, useState } from "react";
 import styled from "styled-components";

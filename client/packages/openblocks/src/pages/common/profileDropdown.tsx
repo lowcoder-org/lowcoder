@@ -12,7 +12,7 @@ import {
   DropDownSubMenu,
   EditIcon,
   PackUpIcon,
-} from "openblocks-design";
+} from "lowcoder-design";
 import ProfileSettingModal from "pages/setting/profile";
 import React, { useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";

@@ -1,4 +1,4 @@
-import { QueryConfigLabel } from "openblocks-design";
+import { QueryConfigLabel } from "lowcoder-design";
 import { trans } from "i18n";
 
 export const QueryConfigLabelMethod = () => {

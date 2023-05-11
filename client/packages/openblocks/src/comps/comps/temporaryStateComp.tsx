@@ -6,7 +6,7 @@ import { NameConfig, withExposingConfigs } from "comps/generators/withExposing";
 import { withMethodExposing } from "comps/generators/withMethodExposing";
 import { trans } from "i18n";
 import _ from "lodash";
-import { DocLink } from "openblocks-design";
+import { DocLink } from "lowcoder-design";
 import { BottomTabs } from "pages/editor/bottom/BottomTabs";
 import { ReactNode } from "react";
 import { BottomResComp, BottomResCompResult, BottomResTypeEnum } from "types/bottomRes";

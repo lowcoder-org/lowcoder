@@ -7,7 +7,7 @@ import {
   ViewUpdate,
   WidgetType,
 } from "@codemirror/view";
-import { useIcon } from "openblocks-design";
+import { useIcon } from "lowcoder-design";
 import ReactDOM from "react-dom";
 import styled from "styled-components";
 

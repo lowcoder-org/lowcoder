@@ -5,7 +5,7 @@ import { list } from "comps/generators/list";
 import { NameGenerator } from "comps/utils";
 import { GreyTextColor } from "constants/style";
 import { trans } from "i18n";
-import { controlItem, Section, TacoButton } from "openblocks-design";
+import { controlItem, Section, TacoButton } from "lowcoder-design";
 import styled from "styled-components";
 import { ModuleMethodListItemComp, WithParamsActionControl } from "./moduleMethodListItemComp";
 import ModuleMethodParamListComp from "./moduleMethodParamListComp";

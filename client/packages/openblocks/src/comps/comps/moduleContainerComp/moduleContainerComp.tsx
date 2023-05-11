@@ -1,7 +1,7 @@
 import { defaultTheme } from "comps/controls/styleControlConstants";
 import { ThemeContext } from "comps/utils/themeContext";
 import { BorderColor } from "constants/style";
-import { HintPlaceHolder } from "openblocks-design";
+import { HintPlaceHolder } from "lowcoder-design";
 import _ from "lodash";
 import { useContext, useRef } from "react";
 import styled from "styled-components";

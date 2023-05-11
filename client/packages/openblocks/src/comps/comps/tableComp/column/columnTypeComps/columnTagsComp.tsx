@@ -13,8 +13,8 @@ import _ from "lodash";
 import { ReactNode, useContext, useState } from "react";
 import { toJson } from "really-relaxed-json";
 import { hashToNum } from "util/stringUtils";
-import { CustomSelect, PackUpIcon } from "openblocks-design";
-import { ScrollBar } from "openblocks-design";
+import { CustomSelect, PackUpIcon } from "lowcoder-design";
+import { ScrollBar } from "lowcoder-design";
 
 const colors = PresetColorTypes;
 

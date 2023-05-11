@@ -1,4 +1,4 @@
-import { Section, sectionNames } from "openblocks-design";
+import { Section, sectionNames } from "lowcoder-design";
 import { UICompBuilder, withDefault } from "../../generators";
 import { NameConfigHidden, NameConfig, withExposingConfigs } from "../../generators/withExposing";
 import ReactJson, { ThemeKeys } from "react-json-view";

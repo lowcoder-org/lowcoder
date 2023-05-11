@@ -24,7 +24,7 @@ import {
   sectionNames,
   TextLabel,
   ToolTipLabel,
-} from "openblocks-design";
+} from "lowcoder-design";
 import { tableDataDivClassName } from "pages/tutorials/tutorialsConstant";
 import styled, { css } from "styled-components";
 import { getSelectedRowKeys } from "./selectionControl";

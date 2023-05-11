@@ -16,7 +16,7 @@ import {
   QueryConfigWrapper,
   QueryTutorialButton,
   ValueFromOption,
-} from "openblocks-design";
+} from "lowcoder-design";
 import { useSelector } from "react-redux";
 import styled from "styled-components";
 import { QueryTutorials } from "util/tutorialUtils";

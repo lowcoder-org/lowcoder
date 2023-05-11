@@ -1,6 +1,6 @@
 import { MultiCompBuilder } from "comps/generators";
 import { CompAction, CompActionTypes } from "lowcoder-core";
-import { OptionsType, ValueFromOption } from "openblocks-design";
+import { OptionsType, ValueFromOption } from "lowcoder-design";
 import { ReactNode } from "react";
 import { ControlPlacement } from "./controlParams";
 import { dropdownControl } from "./dropdownControl";

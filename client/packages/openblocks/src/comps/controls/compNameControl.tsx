@@ -1,8 +1,8 @@
-import { PopupCard } from "openblocks-design";
-import { Input } from "openblocks-design";
+import { PopupCard } from "lowcoder-design";
+import { Input } from "lowcoder-design";
 import { EditorContext } from "comps/editorState";
 import { valueComp } from "comps/generators";
-import { ControlPropertyViewWrapper } from "openblocks-design";
+import { ControlPropertyViewWrapper } from "lowcoder-design";
 import { trans } from "i18n";
 import { ReactNode, useContext, useRef, useState } from "react";
 import { ControlParams } from "./controlParams";

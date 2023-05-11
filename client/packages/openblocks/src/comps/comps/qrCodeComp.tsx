@@ -6,7 +6,7 @@ import { styleControl } from "comps/controls/styleControl";
 import { QRCodeStyle } from "comps/controls/styleControlConstants";
 import { UICompBuilder } from "comps/generators/uiCompBuilder";
 import { NameConfig, NameConfigHidden, withExposingConfigs } from "comps/generators/withExposing";
-import { Section, sectionNames } from "openblocks-design";
+import { Section, sectionNames } from "lowcoder-design";
 import { QRCodeSVG } from "qrcode.react";
 import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";

@@ -1,10 +1,10 @@
 import { Form } from "antd";
 import { FormListProps, Rule } from "antd/lib/form";
-import { TacoButton } from "openblocks-design";
-import { Input } from "openblocks-design";
+import { TacoButton } from "lowcoder-design";
+import { Input } from "lowcoder-design";
 import styled from "styled-components";
 import LinkPlusButton from "./LinkPlusButton";
-import { BluePlusIcon } from "openblocks-design";
+import { BluePlusIcon } from "lowcoder-design";
 import { useEffect } from "react";
 import { useForm } from "antd/lib/form/Form";
 import { trans } from "i18n";

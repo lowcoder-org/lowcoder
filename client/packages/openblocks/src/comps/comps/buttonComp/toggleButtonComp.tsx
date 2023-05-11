@@ -6,7 +6,7 @@ import {
   hiddenPropertyView,
   loadingPropertyView,
 } from "comps/utils/propertyUtils";
-import { Section, sectionNames } from "openblocks-design";
+import { Section, sectionNames } from "lowcoder-design";
 import { trans } from "i18n";
 import styled from "styled-components";
 import { ChangeEventHandlerControl } from "../../controls/eventHandlerControl";

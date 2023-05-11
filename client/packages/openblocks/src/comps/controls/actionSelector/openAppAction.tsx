@@ -1,6 +1,6 @@
 import { MultiCompBuilder } from "comps/generators/multi";
 import { withDefault } from "comps/generators/simpleGenerators";
-import { BranchDiv } from "openblocks-design";
+import { BranchDiv } from "lowcoder-design";
 import { KeyValue } from "types/common";
 import ApplicationSelectControl from "../appSelectControl";
 import { BoolControl } from "../boolControl";

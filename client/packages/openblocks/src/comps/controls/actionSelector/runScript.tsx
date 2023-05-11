@@ -1,7 +1,7 @@
 import { MultiCompBuilder } from "comps/generators/multi";
 import { getGlobalSettings } from "comps/utils/globalSettings";
 import { trans } from "i18n";
-import { BranchDiv } from "openblocks-design";
+import { BranchDiv } from "lowcoder-design";
 import { FunctionControl } from "../codeControl";
 
 const RunScriptTmpAction = (function () {

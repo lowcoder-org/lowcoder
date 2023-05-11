@@ -14,7 +14,7 @@ import { connect } from "react-redux";
 import { fetchCommonSettings, setCommonSettings } from "redux/reduxActions/commonSettingsActions";
 import { AppState } from "redux/reducers";
 import { DETAIL_TYPE } from "../themeConstant";
-import { ArrowIcon, CustomModal, ResetIcon } from "openblocks-design";
+import { ArrowIcon, CustomModal, ResetIcon } from "lowcoder-design";
 import {
   DetailContainer,
   DetailContent,

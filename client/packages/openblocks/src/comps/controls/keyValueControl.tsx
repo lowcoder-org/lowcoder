@@ -1,4 +1,4 @@
-import { ControlPropertyViewWrapper, KeyValueList, OptionsType } from "openblocks-design";
+import { ControlPropertyViewWrapper, KeyValueList, OptionsType } from "lowcoder-design";
 import { ReactNode } from "react";
 import styled from "styled-components";
 import { MultiCompBuilder } from "../generators";

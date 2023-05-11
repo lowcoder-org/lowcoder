@@ -24,7 +24,7 @@ import {
   replaceCompAction,
   wrapActionExtraInfo,
 } from "lowcoder-core";
-import { CustomModal } from "openblocks-design";
+import { CustomModal } from "lowcoder-design";
 import { pasteKey, undoKey } from "util/keyUtils";
 import { genRandomKey } from "./idGenerator";
 import { getLatestVersion, getRemoteCompType, parseCompType } from "./remote";

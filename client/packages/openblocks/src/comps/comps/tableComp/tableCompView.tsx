@@ -24,7 +24,7 @@ import { BackgroundColorContext } from "comps/utils/backgroundColorContext";
 import { PrimaryColor } from "constants/style";
 import { trans } from "i18n";
 import _ from "lodash";
-import { darkenColor, isDarkColor } from "openblocks-design";
+import { darkenColor, isDarkColor } from "lowcoder-design";
 import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { Resizable } from "react-resizable";
 import styled, { css } from "styled-components";

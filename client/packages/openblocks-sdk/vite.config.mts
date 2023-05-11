@@ -85,7 +85,7 @@ export const viteConfig: UserConfig = {
       projects: [
         "../openblocks/tsconfig.json",
         "../openblocks-comps/tsconfig.json",
-        "../openblocks-design/tsconfig.json",
+        "../lowcoder-design/tsconfig.json",
       ],
     }),
     svgrPlugin({

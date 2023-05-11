@@ -1,4 +1,4 @@
-import { FormInput, PasswordInput } from "openblocks-design";
+import { FormInput, PasswordInput } from "lowcoder-design";
 import {
   AuthBottomView,
   ConfirmButton,

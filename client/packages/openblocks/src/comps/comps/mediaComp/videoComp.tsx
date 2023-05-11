@@ -1,4 +1,4 @@
-import { Section, sectionNames } from "openblocks-design";
+import { Section, sectionNames } from "lowcoder-design";
 import { eventHandlerControl } from "../../controls/eventHandlerControl";
 import { StringStateControl, numberExposingStateControl } from "../../controls/codeStateControl";
 import { UICompBuilder } from "../../generators";
@@ -9,11 +9,11 @@ import { styleControl } from "comps/controls/styleControl";
 import { ImageStyle } from "comps/controls/styleControlConstants";
 import { BoolControl } from "comps/controls/boolControl";
 import { withDefault } from "../../generators/simpleGenerators";
-import { Container, playIcon } from "openblocks-design";
+import { Container, playIcon } from "lowcoder-design";
 import { RangeControl } from "../../controls/codeControl";
 import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
-import { Video } from "openblocks-design";
+import { Video } from "lowcoder-design";
 import ReactPlayer from "react-player";
 import { mediaCommonChildren, mediaMethods } from "./mediaUtils";
 

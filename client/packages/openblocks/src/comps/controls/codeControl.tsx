@@ -30,7 +30,7 @@ import {
   isValidColor,
   toHex,
   wrapperToControlItem,
-} from "openblocks-design";
+} from "lowcoder-design";
 import { ReactNode } from "react";
 import {
   showTransform,

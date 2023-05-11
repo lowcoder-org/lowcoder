@@ -1,5 +1,5 @@
 import { message } from "antd";
-import { TacoButton } from "openblocks-design";
+import { TacoButton } from "lowcoder-design";
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import { updateAppMetaAction } from "redux/reduxActions/applicationActions";

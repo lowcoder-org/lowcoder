@@ -1,4 +1,4 @@
-import { Input, Section, sectionNames } from "openblocks-design";
+import { Input, Section, sectionNames } from "lowcoder-design";
 import { BoolControl } from "comps/controls/boolControl";
 import { styleControl } from "comps/controls/styleControl";
 import { InputLikeStyle, InputLikeStyleType } from "comps/controls/styleControlConstants";

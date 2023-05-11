@@ -1,5 +1,5 @@
 import { Org } from "constants/orgConstants";
-import { ArrowIcon, BlurFinishInput } from "openblocks-design";
+import { ArrowIcon, BlurFinishInput } from "lowcoder-design";
 import { useDispatch, useSelector } from "react-redux";
 import { updateOrgAction } from "redux/reduxActions/orgActions";
 import styled from "styled-components";

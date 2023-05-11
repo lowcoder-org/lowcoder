@@ -1,5 +1,5 @@
 import { Carousel } from "antd";
-import { Section, sectionNames } from "openblocks-design";
+import { Section, sectionNames } from "lowcoder-design";
 import { BoolControl } from "../controls/boolControl";
 import { UICompBuilder, withDefault } from "../generators";
 import { NameConfig, NameConfigHidden, withExposingConfigs } from "../generators/withExposing";

@@ -43,7 +43,7 @@ import {
   multiChangeAction,
   wrapActionExtraInfo,
 } from "lowcoder-core";
-import { ValueFromOption } from "openblocks-design";
+import { ValueFromOption } from "lowcoder-design";
 import { ReactNode, useEffect } from "react";
 import {
   BottomResComp,

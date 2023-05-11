@@ -1,7 +1,7 @@
 import ApplicationSelect from "components/ApplicationSelect";
 import { StringControl } from "comps/controls/codeControl";
 import { MultiCompBuilder } from "comps/generators/multi";
-import { ControlPropertyViewWrapper } from "openblocks-design";
+import { ControlPropertyViewWrapper } from "lowcoder-design";
 import { trans } from "i18n";
 
 const childrenMap = {

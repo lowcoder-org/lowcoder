@@ -10,7 +10,7 @@ import {
   FormSection,
   FormSelectItem,
   TacoButton,
-} from "openblocks-design";
+} from "lowcoder-design";
 import { moveToFolder } from "../../redux/reduxActions/folderActions";
 import styled from "styled-components";
 import { trans } from "../../i18n";

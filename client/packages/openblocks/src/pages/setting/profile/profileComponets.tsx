@@ -6,9 +6,9 @@ import {
   FormInput,
   OtpFormInput,
   PasswordInput,
-} from "openblocks-design";
-import { TacoButton } from "openblocks-design";
-import { PackUpIcon } from "openblocks-design";
+} from "lowcoder-design";
+import { TacoButton } from "lowcoder-design";
+import { PackUpIcon } from "lowcoder-design";
 import ProfileImage from "pages/common/profileImage";
 import { User } from "constants/userConstants";
 import { replaceMiddleWithStar } from "util/stringUtils";

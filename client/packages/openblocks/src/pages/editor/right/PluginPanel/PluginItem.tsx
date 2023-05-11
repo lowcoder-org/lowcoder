@@ -1,6 +1,6 @@
 import axios from "axios";
 import { EmptyContent } from "components/EmptyContent";
-import { LinkButton } from "openblocks-design";
+import { LinkButton } from "lowcoder-design";
 import { useShallowEqualSelector } from "util/hooks";
 import { useContext, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";

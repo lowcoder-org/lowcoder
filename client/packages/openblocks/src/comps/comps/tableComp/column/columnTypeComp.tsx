@@ -3,7 +3,7 @@ import { DateTimeComp } from "comps/comps/tableComp/column/columnTypeComps/colum
 import { ButtonComp } from "comps/comps/tableComp/column/simpleColumnTypeComps";
 import { withType } from "comps/generators";
 import { trans } from "i18n";
-import { Dropdown } from "openblocks-design";
+import { Dropdown } from "lowcoder-design";
 import { BooleanComp } from "./columnTypeComps/columnBooleanComp";
 import { DateComp } from "./columnTypeComps/columnDateComp";
 import { ImageComp } from "./columnTypeComps/columnImgComp";

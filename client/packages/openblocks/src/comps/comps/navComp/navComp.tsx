@@ -1,6 +1,6 @@
 import { NameConfig, NameConfigHidden, withExposingConfigs } from "comps/generators/withExposing";
 import { UICompBuilder, withDefault } from "comps/generators";
-import { Section, sectionNames } from "openblocks-design";
+import { Section, sectionNames } from "lowcoder-design";
 import styled from "styled-components";
 import { clickEvent, eventHandlerControl } from "comps/controls/eventHandlerControl";
 import { StringControl } from "comps/controls/codeControl";

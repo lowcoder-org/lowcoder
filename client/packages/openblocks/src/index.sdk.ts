@@ -53,7 +53,7 @@ export * from "comps/utils";
 export * from "comps/utils/themeContext";
 
 // design
-export * from "openblocks-design";
+export * from "lowcoder-design";
 export * from "lowcoder-core";
 
 // controls

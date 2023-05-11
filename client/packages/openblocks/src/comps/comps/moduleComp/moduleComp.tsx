@@ -22,7 +22,7 @@ import { getReduceContext, PartialReduceContext, reduceInContext } from "comps/u
 import { API_STATUS_CODES } from "constants/apiConstants";
 import { AppTypeEnum } from "constants/applicationConstants";
 import { GreyTextColor } from "constants/style";
-import { Section, sectionNames } from "openblocks-design";
+import { Section, sectionNames } from "lowcoder-design";
 import { ReactNode, useEffect, useMemo } from "react";
 import styled from "styled-components";
 import {

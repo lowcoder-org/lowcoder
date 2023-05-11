@@ -1,5 +1,5 @@
 import { ColorCodeControl } from "./codeControl";
-import { ColorSelect, controlItem, ControlPropertyViewWrapper, IconDep } from "openblocks-design";
+import { ColorSelect, controlItem, ControlPropertyViewWrapper, IconDep } from "lowcoder-design";
 import styled from "styled-components";
 import React, { useEffect, useState } from "react";
 import { ControlParams } from "./controlParams";

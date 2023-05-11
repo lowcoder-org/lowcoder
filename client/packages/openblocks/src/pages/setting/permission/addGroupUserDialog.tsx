@@ -1,7 +1,7 @@
 import Column from "antd/lib/table/Column";
 import OrgApi from "api/orgApi";
 import { GroupUser, MEMBER_ROLE, OrgUser } from "constants/orgConstants";
-import { CheckBox, CustomModal } from "openblocks-design";
+import { CheckBox, CustomModal } from "lowcoder-design";
 import { CSSProperties, ReactNode, useEffect, useRef, useState } from "react";
 import { connect, useDispatch } from "react-redux";
 import { AppState } from "redux/reducers";
@@ -11,7 +11,7 @@ import { StyledTable, UserTableCellWrapper } from "./styledComponents";
 import { formatTimestamp } from "util/dateTimeUtils";
 import ProfileImage from "pages/common/profileImage";
 import { isGroupAdmin } from "util/permissionUtils";
-import { SuperUserIcon } from "openblocks-design";
+import { SuperUserIcon } from "lowcoder-design";
 import { EmptyContent } from "pages/common/styledComponent";
 import { trans } from "i18n";
 

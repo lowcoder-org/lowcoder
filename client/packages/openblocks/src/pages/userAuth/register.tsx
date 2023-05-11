@@ -7,7 +7,7 @@ import {
   StyledRouteLinkLogin,
   TermsAndPrivacyInfo,
 } from "pages/userAuth/authComponents";
-import { FormInput, PasswordInput } from "openblocks-design";
+import { FormInput, PasswordInput } from "lowcoder-design";
 import { AUTH_LOGIN_URL } from "constants/routesURL";
 import UserApi from "api/userApi";
 import { useRedirectUrl } from "util/hooks";

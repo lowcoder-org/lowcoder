@@ -1,5 +1,5 @@
 import { trans } from "i18n";
-import { Section, sectionNames } from "openblocks-design";
+import { Section, sectionNames } from "lowcoder-design";
 import { numberExposingStateControl } from "../../controls/codeStateControl";
 import { UICompBuilder } from "../../generators";
 import { CommonNameConfig, NameConfig, withExposingConfigs } from "../../generators/withExposing";

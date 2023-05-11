@@ -4,7 +4,7 @@ import { jsonExposingStateControl, jsonStateControl } from "comps/controls/codeS
 import { NewChildren } from "comps/generators/uiCompBuilder";
 import { CommonNameConfig, NameConfig } from "comps/generators/withExposing";
 import { disabledPropertyView, hiddenPropertyView } from "comps/utils/propertyUtils";
-import { ControlNode, Section, sectionNames } from "openblocks-design";
+import { ControlNode, Section, sectionNames } from "lowcoder-design";
 import { trans } from "i18n";
 import { RecordConstructorToComp, RecordConstructorToView } from "lowcoder-core";
 import { ReactNode, useEffect } from "react";

@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { EditPopover, PointIcon, Search, TacoButton } from "openblocks-design";
+import { EditPopover, PointIcon, Search, TacoButton } from "lowcoder-design";
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getDataSource, getDataSourceTypesMap } from "../../redux/selectors/datasourceSelectors";

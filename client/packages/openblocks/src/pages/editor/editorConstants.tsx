@@ -36,7 +36,7 @@ import {
   LeftTree,
   LeftVideo,
   LeftSignature
-} from "openblocks-design";
+} from "lowcoder-design";
 
 export const CompStateIcon: {
   [key in UICompType]: JSX.Element;

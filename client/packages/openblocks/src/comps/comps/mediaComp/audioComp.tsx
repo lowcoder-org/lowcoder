@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { Section, sectionNames } from "openblocks-design";
+import { Section, sectionNames } from "lowcoder-design";
 import { eventHandlerControl } from "../../controls/eventHandlerControl";
 import { StringStateControl } from "../../controls/codeStateControl";
 import { UICompBuilder } from "../../generators";
@@ -7,7 +7,7 @@ import { NameConfig, NameConfigHidden, withExposingConfigs } from "../../generat
 import { RecordConstructorToView } from "lowcoder-core";
 import { styleControl } from "comps/controls/styleControl";
 import { ImageStyle } from "comps/controls/styleControlConstants";
-import { TacoAudio } from "openblocks-design";
+import { TacoAudio } from "lowcoder-design";
 import { BoolControl } from "comps/controls/boolControl";
 import { withDefault } from "../../generators/simpleGenerators";
 import { trans } from "i18n";

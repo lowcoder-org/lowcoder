@@ -2,7 +2,7 @@ import { triggerModuleEventAction, routeByNameAction } from "lowcoder-core";
 import { SimpleNameComp } from "comps/comps/simpleNameComp";
 import { CompNameContext, EditorContext } from "comps/editorState";
 import { MultiCompBuilder } from "comps/generators/multi";
-import { BranchDiv, Dropdown } from "openblocks-design";
+import { BranchDiv, Dropdown } from "lowcoder-design";
 import { ModuleLayoutCompName } from "constants/compConstants";
 import { trans } from "i18n";
 

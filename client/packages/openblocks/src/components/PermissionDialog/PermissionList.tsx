@@ -5,7 +5,7 @@ import {
   CommonGrayLabel,
   CommonTextLabel,
   CustomSelect,
-} from "openblocks-design";
+} from "lowcoder-design";
 import {
   PermissionItemName,
   RoleSelectOption,

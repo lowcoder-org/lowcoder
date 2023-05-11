@@ -20,7 +20,7 @@ import {
   QueryPropertyViewWrapper,
   QuerySectionWrapper,
   TriggerTypeStyled,
-} from "openblocks-design";
+} from "lowcoder-design";
 import { BottomTabs } from "pages/editor/bottom/BottomTabs";
 import { useContext, useMemo } from "react";
 import { useSelector } from "react-redux";

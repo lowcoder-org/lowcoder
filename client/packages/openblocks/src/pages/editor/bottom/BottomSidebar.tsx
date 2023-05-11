@@ -11,7 +11,7 @@ import {
   SearchIcon,
   TacoButton,
   UnfoldIcon,
-} from "openblocks-design";
+} from "lowcoder-design";
 import { CSSProperties, useContext, useEffect, useState } from "react";
 import { EditorContext } from "comps/editorState";
 import { useSelector } from "react-redux";

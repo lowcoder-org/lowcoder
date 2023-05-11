@@ -7,7 +7,7 @@ import { ProgressStyle } from "comps/controls/styleControlConstants";
 import { useStyle } from "comps/controls/styleControl";
 import { BoolControl } from "comps/controls/boolControl";
 import { ProgressStyled as Progress } from "comps/comps/progressComp";
-import { TableMinusIcon, TablePlusIcon } from "openblocks-design";
+import { TableMinusIcon, TablePlusIcon } from "lowcoder-design";
 import styled from "styled-components";
 
 const ProgressStyled = styled(Progress)`

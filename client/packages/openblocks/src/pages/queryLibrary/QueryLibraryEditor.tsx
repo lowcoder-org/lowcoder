@@ -33,7 +33,7 @@ import {
   FormRadioItem,
   FormSection,
   TacoButton,
-} from "openblocks-design";
+} from "lowcoder-design";
 import { CheckboxOptionType } from "antd/lib/checkbox/Group";
 import { trans } from "i18n";
 import { getDataSource } from "../../redux/selectors/datasourceSelectors";

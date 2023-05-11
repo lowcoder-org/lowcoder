@@ -1,5 +1,5 @@
 import { trans, transToNode } from "i18n";
-import { Section, sectionNames } from "openblocks-design";
+import { Section, sectionNames } from "lowcoder-design";
 import { ListViewImplComp } from "./listViewComp";
 import { ListCompType } from "./listViewUtils";
 

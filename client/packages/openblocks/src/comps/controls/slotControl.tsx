@@ -11,7 +11,7 @@ import { CanvasContainerID } from "constants/domLocators";
 import { Layers } from "constants/Layers";
 import { trans } from "i18n";
 import { changeChildAction, ConstructorToView } from "lowcoder-core";
-import { HintPlaceHolder, TacoButton } from "openblocks-design";
+import { HintPlaceHolder, TacoButton } from "lowcoder-design";
 import { createContext, useContext } from "react";
 import styled from "styled-components";
 import { NameGenerator } from "comps/utils";

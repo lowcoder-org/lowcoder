@@ -19,7 +19,7 @@ import { trans } from "i18n";
 import _ from "lodash";
 import moment from "moment";
 import { ConstructorToComp } from "lowcoder-core";
-import { Section, sectionNames } from "openblocks-design";
+import { Section, sectionNames } from "lowcoder-design";
 import React, { useContext, useEffect, useMemo } from "react";
 import { useInterval, useTitle, useWindowSize } from "react-use";
 import { useCurrentUser } from "util/currentUser";

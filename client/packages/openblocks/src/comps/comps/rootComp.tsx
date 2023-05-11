@@ -26,7 +26,7 @@ import {
   PropertySectionContext,
   PropertySectionContextType,
   PropertySectionState,
-} from "openblocks-design";
+} from "lowcoder-design";
 import RefTreeComp from "./refTreeComp";
 
 interface RootViewProps extends HTMLAttributes<HTMLDivElement> {

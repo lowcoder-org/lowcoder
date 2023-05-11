@@ -18,8 +18,8 @@ import { styleControl } from "comps/controls/styleControl";
 import { CheckboxStyle, CheckboxStyleType } from "comps/controls/styleControlConstants";
 import { RadioLayoutOptions, RadioPropertyView } from "./radioCompConstants";
 import { dropdownControl } from "../../controls/dropdownControl";
-import { ValueFromOption } from "openblocks-design";
-import { EllipsisTextCss } from "openblocks-design";
+import { ValueFromOption } from "lowcoder-design";
+import { EllipsisTextCss } from "lowcoder-design";
 import { trans } from "i18n";
 import { RefControl } from "comps/controls/refControl";
 

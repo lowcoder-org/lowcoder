@@ -1,7 +1,7 @@
 import { Button, message } from "antd";
 import { ManualWapper } from "pages/setting/idSource/styledComponents";
 import { trans } from "i18n";
-import { SyncManualIcon } from "openblocks-design";
+import { SyncManualIcon } from "lowcoder-design";
 import { useState } from "react";
 import { validateResponse } from "api/apiUtils";
 import { AuthType } from "@openblocks-ee/pages/setting/idSource/idSourceConstants";

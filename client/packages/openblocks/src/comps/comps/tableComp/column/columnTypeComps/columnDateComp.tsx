@@ -10,7 +10,7 @@ import { formatPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { isNumber } from "lodash";
 import moment from "moment";
-import { CalendarIcon, PrevIcon, SuperPrevIcon } from "openblocks-design";
+import { CalendarIcon, PrevIcon, SuperPrevIcon } from "lowcoder-design";
 import { useState } from "react";
 import styled from "styled-components";
 import { DateParser, DATE_FORMAT } from "util/dateTimeUtils";

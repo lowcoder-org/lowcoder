@@ -1,7 +1,7 @@
 import { changeChildAction, DispatchType, RecordConstructorToView } from "lowcoder-core";
 import { UICompBuilder } from "comps/generators/uiCompBuilder";
 import { NameConfig, withExposingConfigs } from "comps/generators/withExposing";
-import { Section, sectionNames, ValueFromOption } from "openblocks-design";
+import { Section, sectionNames, ValueFromOption } from "lowcoder-design";
 import { TreeSelect } from "antd";
 import { useEffect } from "react";
 import styled from "styled-components";

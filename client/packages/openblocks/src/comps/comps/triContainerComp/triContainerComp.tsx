@@ -21,7 +21,7 @@ import {
 import { SimpleContainerComp } from "../containerBase/simpleContainerComp";
 import { ContainerBodyChildComp } from "./containerBodyChildComp";
 import { trans } from "i18n";
-import { ControlNode } from "openblocks-design";
+import { ControlNode } from "lowcoder-design";
 
 const childrenMap = {
   header: SimpleContainerComp,

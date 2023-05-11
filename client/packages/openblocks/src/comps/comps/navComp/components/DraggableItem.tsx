@@ -1,4 +1,4 @@
-import { DragIcon } from "openblocks-design";
+import { DragIcon } from "lowcoder-design";
 import React, { Ref } from "react";
 import { HTMLAttributes, ReactNode } from "react";
 import styled from "styled-components";

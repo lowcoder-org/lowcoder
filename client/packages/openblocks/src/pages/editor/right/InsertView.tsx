@@ -1,6 +1,6 @@
 import Segmented from "components/Segmented";
 import { featureSwitch } from "constants/featureSwitch";
-import { ScrollBar, Search } from "openblocks-design";
+import { ScrollBar, Search } from "lowcoder-design";
 import { useState } from "react";
 import styled from "styled-components";
 import { RightContext } from "./rightContext";

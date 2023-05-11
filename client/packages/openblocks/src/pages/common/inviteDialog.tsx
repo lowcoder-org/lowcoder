@@ -1,13 +1,13 @@
 import { message } from "antd";
 import InviteApi, { InviteInfo } from "api/inviteApi";
-import { CommonTextLabel, CustomModal, TacoButton, TacoInput } from "openblocks-design";
+import { CommonTextLabel, CustomModal, TacoButton, TacoInput } from "lowcoder-design";
 import { CSSProperties, ReactNode, useEffect, useState } from "react";
 import { connect } from "react-redux";
 import { AppState } from "redux/reducers";
 import { getUser } from "redux/selectors/usersSelectors";
 import styled from "styled-components";
 import { validateResponse } from "api/apiUtils";
-import { WhiteLoading } from "openblocks-design";
+import { WhiteLoading } from "lowcoder-design";
 import { genInviteLink } from "util/urlUtils";
 import { HelpText } from "components/HelpText";
 import copyToClipboard from "copy-to-clipboard";

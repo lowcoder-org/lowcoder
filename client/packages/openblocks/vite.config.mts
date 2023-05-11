@@ -124,7 +124,7 @@ export const viteConfig: UserConfig = {
       },
     }),
     viteTsconfigPaths({
-      projects: ["../openblocks/tsconfig.json", "../openblocks-design/tsconfig.json"],
+      projects: ["../openblocks/tsconfig.json", "../lowcoder-design/tsconfig.json"],
     }),
     svgrPlugin({
       svgrOptions: {

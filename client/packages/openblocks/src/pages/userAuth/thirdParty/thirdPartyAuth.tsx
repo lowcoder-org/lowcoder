@@ -4,7 +4,7 @@ import {
   ThirdPartyAuthGoal,
   ThirdPartyConfigType,
 } from "constants/authConstants";
-import { CommonGrayLabel, WhiteLoading } from "openblocks-design";
+import { CommonGrayLabel, WhiteLoading } from "lowcoder-design";
 import { useLocation } from "react-router-dom";
 import history from "util/history";
 import { LoginLogoStyle, StyledLoginButton } from "pages/userAuth/authComponents";

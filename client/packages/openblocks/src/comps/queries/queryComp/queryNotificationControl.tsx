@@ -9,7 +9,7 @@ import {
   QueryConfigWrapper,
   QueryPropertyViewWrapper,
   QuerySectionWrapper,
-} from "openblocks-design";
+} from "lowcoder-design";
 import _, { pick } from "lodash";
 import { ControlParams } from "../../controls/controlParams";
 import styled from "styled-components";

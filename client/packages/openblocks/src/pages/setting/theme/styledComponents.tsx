@@ -7,7 +7,7 @@ import {
   ScrollBar,
   TacoButton,
   TacoInput,
-} from "openblocks-design";
+} from "lowcoder-design";
 import styled, { css } from "styled-components";
 import { PopoverIcon } from "../permission/styledComponents";
 

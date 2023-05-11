@@ -6,7 +6,7 @@ import { LabelControl } from "comps/controls/labelControl";
 import { styleControl } from "comps/controls/styleControl";
 import { SwitchStyle, SwitchStyleType } from "comps/controls/styleControlConstants";
 import { migrateOldData } from "comps/generators/simpleGenerators";
-import { Section, sectionNames } from "openblocks-design";
+import { Section, sectionNames } from "lowcoder-design";
 import styled, { css } from "styled-components";
 import { UICompBuilder } from "../generators";
 import { CommonNameConfig, NameConfig, withExposingConfigs } from "../generators/withExposing";

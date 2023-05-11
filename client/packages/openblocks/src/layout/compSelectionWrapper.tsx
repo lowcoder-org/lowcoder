@@ -2,10 +2,10 @@ import { EditorContext } from "comps/editorState";
 import { UICompType } from "comps/uiCompRegistry";
 import { Layers } from "constants/Layers";
 import { ModulePrimaryColor, PrimaryColor } from "constants/style";
-import { fadeColor } from "openblocks-design";
-import { CloseEyeIcon } from "openblocks-design";
-import { DragWhiteIcon } from "openblocks-design";
-import { WidthDragIcon } from "openblocks-design";
+import { fadeColor } from "lowcoder-design";
+import { CloseEyeIcon } from "lowcoder-design";
+import { DragWhiteIcon } from "lowcoder-design";
+import { WidthDragIcon } from "lowcoder-design";
 import React, {
   MouseEvent,
   MouseEventHandler,
@@ -16,7 +16,7 @@ import React, {
 } from "react";
 import ReactResizeDetector, { useResizeDetector } from "react-resize-detector";
 import styled, { css } from "styled-components";
-import { EllipsisTextCss } from "openblocks-design";
+import { EllipsisTextCss } from "lowcoder-design";
 import { draggingUtils } from "./draggingUtils";
 import { ResizeHandleAxis } from "./gridLayoutPropTypes";
 

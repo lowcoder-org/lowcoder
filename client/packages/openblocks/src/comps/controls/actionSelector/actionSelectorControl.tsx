@@ -17,7 +17,7 @@ import {
   isMyCustomAction,
   UpdateActionContextAction,
 } from "lowcoder-core";
-import { Dropdown, HighContainer, Treediv } from "openblocks-design";
+import { Dropdown, HighContainer, Treediv } from "lowcoder-design";
 import { useContext } from "react";
 import { limitExecutor, setFieldsNoTypeCheck } from "util/objectUtils";
 import { getPromiseAfterExecuteDispatch, handlePromiseAfterResult } from "util/promiseUtils";

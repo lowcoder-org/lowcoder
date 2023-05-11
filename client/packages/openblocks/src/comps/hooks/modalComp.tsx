@@ -10,7 +10,7 @@ import { withMethodExposing } from "comps/generators/withMethodExposing";
 import { BackgroundColorContext } from "comps/utils/backgroundColorContext";
 import { CanvasContainerID } from "constants/domLocators";
 import { Layers } from "constants/Layers";
-import { HintPlaceHolder, Modal, Section, sectionNames } from "openblocks-design";
+import { HintPlaceHolder, Modal, Section, sectionNames } from "lowcoder-design";
 import { trans } from "i18n";
 import { changeChildAction } from "lowcoder-core";
 import { CSSProperties, useCallback } from "react";
