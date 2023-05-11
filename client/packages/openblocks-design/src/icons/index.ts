@@ -202,7 +202,7 @@ export { ReactComponent as HeadApiIcon } from "./icon-query-head.svg";
 export { ReactComponent as TraceApiIcon } from "./icon-query-trace.svg";
 export { ReactComponent as PostgresIcon } from "./icon-query-postgres.svg";
 export { ReactComponent as JSIcon } from "./icon-query-JS.svg";
-export { ReactComponent as OpenBlocksQueryIcon } from "./icon-query-openblocks.svg";
+export { ReactComponent as OpenBlocksQueryIcon } from "./icon-query-lowcoder.svg";
 export { ReactComponent as RedisIcon } from "./icon-query-Redis.svg";
 export { ReactComponent as EsIcon } from "./icon-query-ElasticSearch.svg";
 export { ReactComponent as MSSQLIcon } from "./icon-query-mssql.svg";

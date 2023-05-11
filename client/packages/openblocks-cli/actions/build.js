@@ -21,13 +21,13 @@ function validPackageJSON() {
     return "- openblocks field is required in package.json";
   }
   const openblocks = packageJSON.openblocks;
-  if (!openblocks.comps || Object.keys(openblocks.comps).length === 0) {
+  if (!lowcoder.comps || Object.keys(lowcoder.comps).length === 0) {
     return "- not found any comps to build";
   }
 
   const compErrors = [];
-  Object.keys(openblocks.comps).forEach((name) => {
-    const compManifest = packageJSON.openblocks.comps[name];
+  Object.keys(lowcoder.comps).forEach((name) => {
+    const compManifest = packageJSON.lowcoder.comps[name];
     if (!compManifest.icon) {
       // compErrors.push(`- comp ${name} must specify an icon`);
       return;
@@ -64,7 +64,7 @@ export default async function buildAction(options) {
     return;
   }
 
-  const compNames = Object.keys(packageJSON.openblocks.comps);
+  const compNames = Object.keys(packageJSON.lowcoder.comps);
   console.cyan(`Name    : ${packageJSON.name}`);
   console.cyan(`Version : ${packageJSON.version}`);
   console.cyan(`Comps   : ${compNames.length}\n`);
@@ -78,7 +78,7 @@ export default async function buildAction(options) {
   await build(viteConfig);
 
   // write package.json
-  packageJSON.openblocks.entry = "index.js";
+  packageJSON.lowcoder.entry = "index.js";
   writeFileSync(paths.appOutPackageJson, JSON.stringify(packageJSON, null, 2));
 
   // copy locales
@@ -88,7 +88,7 @@ export default async function buildAction(options) {
 
   // copy icon files
   compNames.forEach((name) => {
-    const compManifest = packageJSON.openblocks.comps[name];
+    const compManifest = packageJSON.lowcoder.comps[name];
     if (compManifest.icon) {
       copySync(paths.resolveApp(compManifest.icon), resolve(paths.appOutPath, compManifest.icon));
     }

@@ -11,7 +11,7 @@ function CompDevApp() {
       compMap={compMap}
       packageName={name}
       packageVersion={version}
-      compMeta={openblocks.comps}
+      compMeta={lowcoder.comps}
     />
   );
 }

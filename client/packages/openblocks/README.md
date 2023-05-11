@@ -1,3 +1,3 @@
 # openblocks
 
-The main app of openblocks.
+The main app of lowcoder.

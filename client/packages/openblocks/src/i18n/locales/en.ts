@@ -1248,7 +1248,7 @@ export const en = {
   },
   audio: {
     src: "Audio URL",
-    defaultSrcUrl: "https://cdn-files.openblocks.dev/canon-excerpt.mp3",
+    defaultSrcUrl: "https://cdn-files.lowcoder.dev/canon-excerpt.mp3",
     autoPlay: "Autoplay",
     loop: "Loop",
     srcDesc: "Current audio URL",
@@ -1606,7 +1606,7 @@ export const en = {
     phoneColumn: "Phone",
     subTitle: "Title",
     linkLabel: "Link",
-    linkUrl: "cloud.openblocks.dev",
+    linkUrl: "cloud.lowcoder.dev",
     progressLabel: "Progress",
     sliderLabel: "Slider",
     radioLabel: "Radio",
@@ -1932,7 +1932,7 @@ export const en = {
     jsLibraryInstallSuccess: "JavaScript library installed successfully",
     jsLibraryInstallFailed: "JavaScript library installation failed",
     jsLibraryInstallFailedCloud:
-      "Perhaps the library is not available in the sandbox, [Documentation](https://docs.openblocks.dev/build-apps/write-javascript/use-third-party-libraries#manually-import-libraries)\n{message}",
+      "Perhaps the library is not available in the sandbox, [Documentation](https://docs.lowcoder.dev/build-apps/write-javascript/use-third-party-libraries#manually-import-libraries)\n{message}",
     jsLibraryInstallFailedHost: "{message}",
     add: "Add New",
     jsHelpText: "Add a global method or variable to the current application.",
@@ -2083,8 +2083,8 @@ export const en = {
     showBorder: "Show border",
   },
   docUrls: {
-    docHome: "https://docs.openblocks.dev/",
-    components: "https://cloud.openblocks.dev/components?n={compType}",
+    docHome: "https://docs.lowcoder.dev/",
+    components: "https://cloud.lowcoder.dev/components?n={compType}",
     module: "",
     optionList: "",
     terms: "",
@@ -2092,12 +2092,12 @@ export const en = {
     aboutUs: "",
     changeLog: "",
     introVideo: "",
-    devNpmPlugin: "https://docs.openblocks.dev/build-plugins/develop-your-first-plugin",
+    devNpmPlugin: "https://docs.lowcoder.dev/build-plugins/develop-your-first-plugin",
     devNpmPluginText: "How to develop npm plugin",
-    useHost: "https://docs.openblocks.dev/self-hosting/access-local-database-or-api",
+    useHost: "https://docs.lowcoder.dev/self-hosting/access-local-database-or-api",
     eventHandlerSlowdown:
-      "https://docs.openblocks.dev/build-apps/event-handlers#debounce-and-throttle",
-    thirdLib: "https://docs.openblocks.dev/build-apps/write-javascript/use-third-party-libraries",
+      "https://docs.lowcoder.dev/build-apps/event-handlers#debounce-and-throttle",
+    thirdLib: "https://docs.lowcoder.dev/build-apps/write-javascript/use-third-party-libraries",
     thirdLibUrlText: "Use third-party libraries",
   },
   datasourceTutorial: {
@@ -2111,11 +2111,11 @@ export const en = {
   },
   queryTutorial: {
     js: "",
-    transformer: "https://docs.openblocks.dev/build-apps/write-javascript/transformers",
-    tempState: "https://docs.openblocks.dev/build-apps/write-javascript/temporary-state",
+    transformer: "https://docs.lowcoder.dev/build-apps/write-javascript/transformers",
+    tempState: "https://docs.lowcoder.dev/build-apps/write-javascript/temporary-state",
   },
   customComponent: {
-    entryUrl: "https://custom-component.openblocks.dev/index.html",
+    entryUrl: "https://custom-component.lowcoder.dev/index.html",
   },
   template: {
     cloneUrl: "/apps/template-import/",
