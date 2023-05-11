@@ -9,7 +9,7 @@
 Simply run below command to start a backend server.
 
 ```bash
-docker run -d --name openblocks -p 3000:3000 -v "$PWD/stacks:/lowcoder-stacks" lowcoderorg/lowcoder-ce
+docker run -d --name lowcoder -p 3000:3000 -v "$PWD/stacks:/lowcoder-stacks" lowcoderorg/lowcoder-ce
 ```
 
 For more information, view our [docs](../docs/self-hosting)
@@ -43,4 +43,4 @@ In addition, before submitting a pull request, please make sure the following is
 
 1. If you’ve fixed a bug or added code that should be tested and add unit test suite.
 2. Run `yarn test` and ensure all test suites pass.
-3. If you add new dependency, use yarn workspace openblocks some-package to make sure yarn.lock is also updated.
+3. If you add new dependency, use yarn workspace lowcoder some-package to make sure yarn.lock is also updated.

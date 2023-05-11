@@ -19,7 +19,7 @@ export type DatasourceType =
   | "mongodb"
   | "restApi"
   | "postgres"
-  | "openblocksApi"
+  | "lowcoderApi"
   | "redis"
   | "es"
   | "mssql"
@@ -39,7 +39,7 @@ export const QueryMap = {
   restApi: HttpQuery,
   mongodb: MongoQuery,
   postgres: SQLQuery,
-  openblocksApi: OpenBlocksQuery,
+  lowcoderApi: OpenBlocksQuery,
   redis: RedisQuery,
   es: EsQuery,
   mssql: SQLQuery,

@@ -89,7 +89,7 @@ function executeNodeScript({ cwd, args }, data, source) {
 }
 
 /**
- * create openblocks comps project
+ * create lowcoder comps project
  * 1. create dir
  * 2. create package.json
  * 3. install lowcoder-cli

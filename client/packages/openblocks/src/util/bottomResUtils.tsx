@@ -131,7 +131,7 @@ export const getBottomResIcon = (
         return <GoogleSheetsIcon />;
       case "graphql":
         return <GraphqlIcon />;
-      case "openblocksApi":
+      case "lowcoderApi":
         return <OpenBlocksQueryIcon />;
       case "snowflake":
         return <SnowflakeIcon />;

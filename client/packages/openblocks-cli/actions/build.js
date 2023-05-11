@@ -17,10 +17,10 @@ function validPackageJSON() {
   if (!packageJSON.version) {
     return "- package version is required";
   }
-  if (!packageJSON.openblocks) {
-    return "- openblocks field is required in package.json";
+  if (!packageJSON.lowcoder) {
+    return "- lowcoder field is required in package.json";
   }
-  const openblocks = packageJSON.openblocks;
+  const lowcoder = packageJSON.lowcoder;
   if (!lowcoder.comps || Object.keys(lowcoder.comps).length === 0) {
     return "- not found any comps to build";
   }

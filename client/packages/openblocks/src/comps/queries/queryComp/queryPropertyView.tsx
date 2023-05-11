@@ -186,12 +186,12 @@ export const QueryGeneralPropertyView = (props: {
   );
   if (datasourceId === oldOpenblocksId) {
     datasourceId = OPENBLOCKS_API_ID;
-    datasourceType = "openblocksApi";
+    datasourceType = "lowcoderApi";
     dispatch(
       comp.changeValueAction({
         ...comp.toJsonValue(),
         datasourceId: OPENBLOCKS_API_ID,
-        compType: "openblocksApi",
+        compType: "lowcoderApi",
       } as any)
     );
   }

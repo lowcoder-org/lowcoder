@@ -62,7 +62,7 @@ export function PluginItem(props: PluginViewProps) {
   );
   const currentVersion = useSelector((state: AppState) => state.npmPlugin.packageVersion[name]);
   const versions = useMemo(() => packageMeta?.versions || {}, [packageMeta?.versions]);
-  const comps = versions[currentVersion]?.openblocks?.comps || {};
+  const comps = versions[currentVersion]?.lowcoder?.comps || {};
   const compNames = Object.keys(comps);
 
   useEffect(() => {

@@ -14457,9 +14457,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"openblocks@workspace:packages/lowcoder":
+"lowcoder@workspace:packages/lowcoder":
   version: 0.0.0-use.local
-  resolution: "openblocks@workspace:packages/lowcoder"
+  resolution: "lowcoder@workspace:packages/lowcoder"
   dependencies:
     "@ant-design/icons": ^4.7.0
     "@ant-design/pro-form": ^1.52.9

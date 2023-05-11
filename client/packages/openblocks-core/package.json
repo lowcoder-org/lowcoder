@@ -21,9 +21,9 @@
     "lodash": "^4.17.21",
     "lru-cache": "^7.14.1"
   },
-  "description": "lowcoder-core is a JavaScript library for building new components in openblocks",
+  "description": "lowcoder-core is a JavaScript library for building new components in lowcoder",
   "keywords": [
-    "openblocks",
+    "lowcoder",
     "components"
   ],
   "types": "lib/index.d.ts",

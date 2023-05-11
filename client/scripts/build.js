@@ -83,8 +83,8 @@ buildVars.forEach(({ name, defaultValue }) => {
   shell.env[name] = shell.env[name] ?? defaultValue;
 });
 
-shell.exec(`BUILD_TARGET=browserCheck yarn workspace openblocks build`, { fatal: true });
-shell.exec(`yarn workspace openblocks build`, { fatal: true });
+shell.exec(`BUILD_TARGET=browserCheck yarn workspace lowcoder build`, { fatal: true });
+shell.exec(`yarn workspace lowcoder build`, { fatal: true });
 
 if (process.env.REACT_APP_BUNDLE_BUILTIN_PLUGIN) {
   for (const pluginName of builtinPlugins) {

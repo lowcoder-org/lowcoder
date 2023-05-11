@@ -169,12 +169,12 @@ const ResButton = (props: {
         dataSourceId: QUICK_GRAPHQL_ID,
       },
     },
-    openblocksApi: {
+    lowcoderApi: {
       icon: OPENBLOCKS_API_INFO.icon,
       label: OPENBLOCKS_API_INFO.name,
       type: BottomResTypeEnum.Query,
       extra: {
-        compType: "openblocksApi",
+        compType: "lowcoderApi",
         dataSourceId: OPENBLOCKS_API_ID,
       },
     },
@@ -320,7 +320,7 @@ export function ResCreatePanel(props: ResCreateModalProps) {
                 <ResButton size={buttonSize} identifier={"restApi"} onSelect={onSelect} />
                 <ResButton size={buttonSize} identifier={"graphql"} onSelect={onSelect} />
                 {placement === "editor" && (
-                  <ResButton size={buttonSize} identifier={"openblocksApi"} onSelect={onSelect} />
+                  <ResButton size={buttonSize} identifier={"lowcoderApi"} onSelect={onSelect} />
                 )}
 
                 {datasource.map((i) => (

@@ -74,7 +74,7 @@ export default async function initAction(options) {
   const templatePackageJson = fs.readJsonSync(templatePackageJsonFile);
   const appPackageJson = fs.readJsonSync(paths.appPackageJson);
 
-  appPackageJson.openblocks = templatePackageJson.openblocks || {};
+  appPackageJson.lowcoder = templatePackageJson.lowcoder || {};
   appPackageJson.scripts = {
     start: "vite",
     build: "lowcoder-cli build",

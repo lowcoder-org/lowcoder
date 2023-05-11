@@ -409,7 +409,7 @@ export const en = {
     transformer: "Transformer",
     quickRestAPI: "REST Query",
     quickGraphql: "GraphQL Query",
-    openblocksAPI: "Openblocks API",
+    lowcoderAPI: "Openblocks API",
     executeJSCode: "Run JavaScript Code",
     importFromQueryLibrary: "Import from Query Library",
     importFromFile: "Import from File",

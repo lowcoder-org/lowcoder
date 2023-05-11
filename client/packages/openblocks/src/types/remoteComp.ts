@@ -15,7 +15,7 @@ export interface OpenblocksMeta {
 export interface NpmVersionMeta {
   name: string;
   version: string;
-  openblocks: OpenblocksMeta;
+  lowcoder: OpenblocksMeta;
 }
 
 export interface NpmPackageMeta {

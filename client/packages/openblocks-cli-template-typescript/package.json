@@ -6,7 +6,7 @@
     "start": "vite",
     "build": "lowcoder-cli build"
   },
-  "openblocks": {
+  "lowcoder": {
     "description": "",
     "comps": {
       "hello_world": {
@@ -22,7 +22,7 @@
     "vite": "^3.2.4"
   },
   "keywords": [
-    "openblocks"
+    "lowcoder"
   ],
   "license": "MIT"
 }

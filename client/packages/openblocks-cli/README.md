@@ -1,3 +1,3 @@
 # lowcoder-cli
 
-CLI tool used to start build and publish openblocks component library.
+CLI tool used to start build and publish lowcoder component library.

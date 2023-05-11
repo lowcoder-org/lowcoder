@@ -97,7 +97,7 @@ const QuickGraphqlValue: ResourceOptionValue = {
 
 const OpenblocksAPIValue: ResourceOptionValue = {
   id: OPENBLOCKS_API_ID,
-  type: "openblocksApi",
+  type: "lowcoderApi",
 };
 
 interface ResourceDropdownProps {

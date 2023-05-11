@@ -240,7 +240,7 @@ export class GridCompOperator {
       return;
     }
 
-    if (!latestVersion.openblocks?.comps?.[compInfo.compName]) {
+    if (!latestVersion.lowcoder?.comps?.[compInfo.compName]) {
       message.error(trans("comp.compNotFoundInLatestVersion"));
       return;
     }

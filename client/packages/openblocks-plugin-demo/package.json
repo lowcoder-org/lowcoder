@@ -12,7 +12,7 @@
   "publishConfig": {
     "registry": "https://registry.npmjs.com"
   },
-  "openblocks": {
+  "lowcoder": {
     "description": "",
     "comps": {
       "hello_world": {

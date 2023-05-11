@@ -10,12 +10,12 @@
     "node": "^14.18.0 || >=16.0.0"
   },
   "scripts": {
-    "start": "yarn workspace openblocks start",
-    "start:ee": "REACT_APP_EDITION=enterprise yarn workspace openblocks start",
-    "start:ee-global": "REACT_APP_EDITION=enterprise-global yarn workspace openblocks start",
+    "start": "yarn workspace lowcoder start",
+    "start:ee": "REACT_APP_EDITION=enterprise yarn workspace lowcoder start",
+    "start:ee-global": "REACT_APP_EDITION=enterprise-global yarn workspace lowcoder start",
     "build": "yarn node ./scripts/build.js",
     "test": "jest && yarn workspace lowcoder-comps test",
-    "prepare": "yarn workspace openblocks prepare",
+    "prepare": "yarn workspace lowcoder prepare",
     "build:core": "yarn workspace lowcoder-core build",
     "test:core": "yarn workspace lowcoder-core test"
   },
