@@ -18,15 +18,15 @@
     "jsx": "react-jsx",
     "baseUrl": "src",
     "paths": {
-      "openblocks-sdk": [
+      "lowcoder-sdk": [
         "../../openblocks/src/index.sdk.ts",
-        "../node_modules/openblocks-sdk/src/openblocks/index.sdk.ts"
+        "../node_modules/lowcoder-sdk/src/openblocks/index.sdk.ts"
       ],
       "*": [
         "*",
         "../../openblocks/src/*",
-        "../../openblocks-sdk/src/*",
-        "../node_modules/openblocks-sdk/src/openblocks/*"
+        "../../lowcoder-sdk/src/*",
+        "../node_modules/lowcoder-sdk/src/openblocks/*"
       ]
     }
   },

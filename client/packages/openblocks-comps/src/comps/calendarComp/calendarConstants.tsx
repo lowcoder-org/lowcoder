@@ -15,7 +15,7 @@ import {
   lightenColor,
   toHex,
   UnderlineCss,
-} from "openblocks-sdk";
+} from "lowcoder-sdk";
 import styled from "styled-components";
 import moment from "moment";
 import {

@@ -1,6 +1,6 @@
-import { MultiCompBuilder } from "openblocks-sdk";
+import { MultiCompBuilder } from "lowcoder-sdk";
 import { PieSeriesOption } from "echarts";
-import { dropdownControl } from "openblocks-sdk";
+import { dropdownControl } from "lowcoder-sdk";
 import { ConstructorToView } from "lowcoder-core";
 import { trans } from "i18n/comps";
 

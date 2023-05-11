@@ -1,6 +1,6 @@
 import { DatasourceType } from "@openblocks-ee/constants/queryConstants";
 import { DatasourceFormRegistry } from "@openblocks-ee/pages/datasource/form/datasourceFormRegistry";
-import { DataSourcePluginMeta } from "openblocks-sdk/dataSource";
+import { DataSourcePluginMeta } from "lowcoder-sdk/dataSource";
 import { DatasourceFormManifest } from "./form/datasourceFormRegistry";
 import { PluginDataSourceForm } from "./form/pluginDataSourceForm";
 

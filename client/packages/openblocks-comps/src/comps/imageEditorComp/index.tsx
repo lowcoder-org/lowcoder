@@ -11,7 +11,7 @@ import {
   eventHandlerControl,
   NameConfigHidden,
   stringExposingStateControl,
-} from "openblocks-sdk";
+} from "lowcoder-sdk";
 import { useRef } from "react";
 import ReactResizeDetector from "react-resize-detector";
 import _ from "lodash";

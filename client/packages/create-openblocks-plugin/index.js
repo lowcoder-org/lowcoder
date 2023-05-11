@@ -12,7 +12,7 @@ const pkg = readJson(path.resolve(currentDir, "./package.json"));
 
 const isUsingYarn = (process.env.npm_config_user_agent || "").indexOf("yarn") === 0;
 const cliPackageName = "openblocks-cli";
-const sdkPackageName = "openblocks-sdk";
+const sdkPackageName = "lowcoder-sdk";
 
 let verbose = false;
 let registry;

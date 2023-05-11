@@ -1,6 +1,6 @@
 import _ from "lodash";
 import { CompConstructor, CustomAction } from "lowcoder-core";
-import { evalAndReduce, isExposingMethodComp } from "openblocks-sdk";
+import { evalAndReduce, isExposingMethodComp } from "lowcoder-sdk";
 import { ChartCompWithDefault } from "comps/chartComp/chartComp";
 import log from "loglevel";
 

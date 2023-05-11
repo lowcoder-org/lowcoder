@@ -1,5 +1,5 @@
 {
-  "name": "openblocks-sdk",
+  "name": "lowcoder-sdk",
   "version": "0.0.39",
   "type": "module",
   "files": [
@@ -9,12 +9,12 @@
     "dataSource.d.ts",
     "tsconfig.json"
   ],
-  "main": "./dist/openblocks-sdk.js",
-  "module": "./dist/openblocks-sdk.js",
+  "main": "./dist/lowcoder-sdk.js",
+  "module": "./dist/lowcoder-sdk.js",
   "exports": {
     ".": {
-      "import": "./dist/openblocks-sdk.js",
-      "require": "./dist/openblocks-sdk.js"
+      "import": "./dist/lowcoder-sdk.js",
+      "require": "./dist/lowcoder-sdk.js"
     },
     "./dataSource": {
       "types": "./dataSource.d.ts"

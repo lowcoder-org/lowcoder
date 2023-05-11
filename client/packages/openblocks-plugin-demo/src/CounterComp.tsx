@@ -9,7 +9,7 @@ import {
   NameConfig,
   eventHandlerControl,
   withMethodExposing,
-} from "openblocks-sdk";
+} from "lowcoder-sdk";
 import styles from "./style.module.css";
 
 const { Button } = antd;

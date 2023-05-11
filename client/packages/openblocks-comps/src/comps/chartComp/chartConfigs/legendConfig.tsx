@@ -4,7 +4,7 @@ import {
   AlignRight,
   dropdownControl,
   MultiCompBuilder,
-} from "openblocks-sdk";
+} from "lowcoder-sdk";
 import { LegendComponentOption } from "echarts";
 import { trans } from "i18n/comps";
 

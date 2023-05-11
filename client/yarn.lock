@@ -14291,7 +14291,7 @@ __metadata:
   resolution: "openblocks-cli-template-typescript@workspace:packages/openblocks-cli-template-typescript"
   dependencies:
     openblocks-cli: "workspace:^"
-    openblocks-sdk: "workspace:^"
+    lowcoder-sdk: "workspace:^"
     typescript: ^4.8.4
     vite: ^3.2.4
   languageName: unknown
@@ -14318,7 +14318,7 @@ __metadata:
     vite-plugin-css-injected-by-js: ^2.1.1
     vite-plugin-svgr: ^2.2.2
   peerDependencies:
-    openblocks-sdk: "*"
+    lowcoder-sdk: "*"
   bin:
     openblocks-cli: ./index.js
   languageName: unknown
@@ -14341,7 +14341,7 @@ __metadata:
     jest: 29.3.0
     mermaid: ^10.0.2
     openblocks-cli: "workspace:^"
-    openblocks-sdk: "workspace:^"
+    lowcoder-sdk: "workspace:^"
     react: 17
     react-dom: 17
     typescript: 4.8.4
@@ -14420,7 +14420,7 @@ __metadata:
     openblocks-cli: "workspace:^"
     lowcoder-core: ^0.0.1
     lowcoder-design: ^0.0.1
-    openblocks-sdk: "workspace:^"
+    lowcoder-sdk: "workspace:^"
     react: 17
     react-dom: 17
     typescript: 4.8.4
@@ -14428,9 +14428,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"openblocks-sdk@workspace:^, openblocks-sdk@workspace:packages/openblocks-sdk":
+"lowcoder-sdk@workspace:^, lowcoder-sdk@workspace:packages/lowcoder-sdk":
   version: 0.0.0-use.local
-  resolution: "openblocks-sdk@workspace:packages/openblocks-sdk"
+  resolution: "lowcoder-sdk@workspace:packages/lowcoder-sdk"
   dependencies:
     "@rollup/plugin-commonjs": ^22.0.2
     "@rollup/plugin-json": ^5.0.1

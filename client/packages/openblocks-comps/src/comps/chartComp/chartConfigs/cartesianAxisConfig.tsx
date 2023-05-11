@@ -9,7 +9,7 @@ import {
   dropdownControl,
   JSONValue,
   isNumeric,
-} from "openblocks-sdk";
+} from "lowcoder-sdk";
 import { i18nObjs, trans } from "i18n/comps";
 import _, { isNil } from "lodash";
 import { xAxisTypeUrl } from "./chartUrls";

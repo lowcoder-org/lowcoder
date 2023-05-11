@@ -7,7 +7,7 @@ import {
   withContext,
   StringControl,
   ColorOrBoolCodeControl,
-} from "openblocks-sdk";
+} from "lowcoder-sdk";
 import { trans } from "i18n/comps";
 
 const BarTypeOptions = [

@@ -3,7 +3,7 @@ import {
   dropdownControl,
   MultiCompBuilder,
   showLabelPropertyView,
-} from "openblocks-sdk";
+} from "lowcoder-sdk";
 import { BarSeriesOption } from "echarts";
 import { trans } from "i18n/comps";
 

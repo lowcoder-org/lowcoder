@@ -9,7 +9,7 @@ import {
   OptionsType,
   MultiCompBuilder,
   valueComp,
-} from "openblocks-sdk";
+} from "lowcoder-sdk";
 import { trans } from "i18n/comps";
 
 import { ConstructorToComp, ConstructorToDataType, ConstructorToView } from "lowcoder-core";

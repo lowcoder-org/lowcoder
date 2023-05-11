@@ -4,7 +4,7 @@ import {
   ActionParamConfig,
   KeyedParamConfig,
   QueryConfig,
-} from "openblocks-sdk/dataSource";
+} from "lowcoder-sdk/dataSource";
 import {
   ParamsBooleanCodeControl,
   ParamsNumberControl,

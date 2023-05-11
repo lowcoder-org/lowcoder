@@ -24,7 +24,7 @@ export const viteConfig: UserConfig = {
   resolve: {
     extensions: [".mjs", ".js", ".ts", ".jsx", ".tsx", ".json"],
     alias: {
-      "openblocks-sdk": path.resolve(__dirname, "../openblocks/src/index.sdk"),
+      "lowcoder-sdk": path.resolve(__dirname, "../openblocks/src/index.sdk"),
       "@openblocks-ee": path.resolve(__dirname, "../openblocks/src"),
     },
   },
@@ -34,7 +34,7 @@ export const viteConfig: UserConfig = {
       formats: ["es"],
       entry: "./src/index.ts",
       name: "Openblocks",
-      fileName: "openblocks-sdk",
+      fileName: "lowcoder-sdk",
     },
     rollupOptions: {
       external: ["react", "react-dom"],
@@ -73,7 +73,7 @@ export const viteConfig: UserConfig = {
     },
   },
   plugins: [
-    globalDepPlugin(["openblocks-sdk"]),
+    globalDepPlugin(["lowcoder-sdk"]),
     react({
       babel: {
         parserOpts: {

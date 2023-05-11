@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import { Button } from "antd";
-import { EventConfigType } from "openblocks-sdk";
+import { EventConfigType } from "lowcoder-sdk";
 import { trans } from "i18n/comps";
 
 export const saveEvent: EventConfigType = {

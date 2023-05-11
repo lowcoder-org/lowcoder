@@ -7,7 +7,7 @@ import { DatasourceType } from "@openblocks-ee/constants/queryConstants";
 import { JSONArray } from "util/jsonTypes";
 import { AuthType, HttpOAuthGrantType } from "pages/datasource/form/httpDatasourceForm";
 import { Datasource } from "@openblocks-ee/constants/datasourceConstants";
-import { DataSourcePluginMeta } from "openblocks-sdk/dataSource";
+import { DataSourcePluginMeta } from "lowcoder-sdk/dataSource";
 
 export interface PreparedStatementConfig {
   enableTurnOffPreparedStatement: boolean;

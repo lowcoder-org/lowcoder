@@ -20,7 +20,7 @@ export default {
       dirname,
       isEE ? "../../packages/openblocks/src/ee/$1" : "../../packages/openblocks/src/$1"
     ),
-    "openblocks-sdk": path.resolve(dirname, "../../packages/openblocks/src/index.sdk"),
+    "lowcoder-sdk": path.resolve(dirname, "../../packages/openblocks/src/index.sdk"),
   },
   globals,
   // roots: ["<rootDir>/src"],

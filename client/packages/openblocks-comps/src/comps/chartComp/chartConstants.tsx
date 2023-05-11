@@ -1,10 +1,10 @@
-import { jsonControl, JSONObject, stateComp, toJSONObjectArray, toObject } from "openblocks-sdk";
-import { StringControl } from "openblocks-sdk";
-import { dropdownControl } from "openblocks-sdk";
-import { eventHandlerControl } from "openblocks-sdk";
-import { valueComp, withType } from "openblocks-sdk";
-import { ValueFromOption } from "openblocks-sdk";
-import { uiChildren } from "openblocks-sdk";
+import { jsonControl, JSONObject, stateComp, toJSONObjectArray, toObject } from "lowcoder-sdk";
+import { StringControl } from "lowcoder-sdk";
+import { dropdownControl } from "lowcoder-sdk";
+import { eventHandlerControl } from "lowcoder-sdk";
+import { valueComp, withType } from "lowcoder-sdk";
+import { ValueFromOption } from "lowcoder-sdk";
+import { uiChildren } from "lowcoder-sdk";
 import { RecordConstructorToComp, RecordConstructorToView } from "lowcoder-core";
 import { BarChartConfig } from "./chartConfigs/barChartConfig";
 import { XAxisConfig, YAxisConfig } from "./chartConfigs/cartesianAxisConfig";

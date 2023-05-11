@@ -1,5 +1,5 @@
 import { I18nObjects } from "./types";
-import { chartColorPalette } from "openblocks-sdk";
+import { chartColorPalette } from "lowcoder-sdk";
 
 export const enObj: I18nObjects = {
   defaultDataSource: [

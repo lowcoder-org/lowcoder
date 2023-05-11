@@ -8,7 +8,7 @@ import {
 import { getPieRadiusAndCenter } from "comps/chartComp/chartConfigs/pieChartConfig";
 import { EChartsOption } from "echarts";
 import _ from "lodash";
-import { chartColorPalette, isNumeric, JSONObject } from "openblocks-sdk";
+import { chartColorPalette, isNumeric, JSONObject } from "lowcoder-sdk";
 import { calcXYConfig } from "comps/chartComp/chartConfigs/cartesianAxisConfig";
 import Big from "big.js";
 

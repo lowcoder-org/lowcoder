@@ -23,7 +23,7 @@ export const libs = [
     extractDefault: true,
   },
   {
-    name: "openblocks-sdk",
+    name: "lowcoder-sdk",
     from: "./src/index.sdk.ts",
   },
   {

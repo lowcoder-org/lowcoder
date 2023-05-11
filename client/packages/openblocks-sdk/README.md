@@ -1,17 +1,17 @@
-# openblocks-sdk
+# lowcoder-sdk
 
 ## Usage
 
 yarn:
 
 ```bash
-yarn add openblocks-sdk
+yarn add lowcoder-sdk
 ```
 
 npm:
 
 ```bash
-npm install openblocks-sdk
+npm install lowcoder-sdk
 ```
 
 ## Integrate Lowcoder's app/module into existing app page
@@ -23,13 +23,13 @@ npm install openblocks-sdk
 ### Import style
 
 ```ts
-import "openblocks-sdk/dist/style.css";
+import "lowcoder-sdk/dist/style.css";
 ```
 
 ### For react app:
 
 ```ts
-import { OpenblocksAppView } from "openblocks-sdk";
+import { OpenblocksAppView } from "lowcoder-sdk";
 
 <OpenblocksAppView appId="{YOUR_APPLICATION_ID}" />;
 ```
@@ -47,7 +47,7 @@ import { OpenblocksAppView } from "openblocks-sdk";
 
 ```tsx
 import { useRef } from "ref";
-import { OpenblocksAppView } from "openblocks-sdk";
+import { OpenblocksAppView } from "lowcoder-sdk";
 
 function MyExistingAppPage() {
   const appRef = useRef();
@@ -65,7 +65,7 @@ function MyExistingAppPage() {
 ### For vanilla js:
 
 ```js
-import { bootstrapAppAt } from "openblocks-sdk";
+import { bootstrapAppAt } from "lowcoder-sdk";
 
 const node = document.querySelector("#my-app");
 

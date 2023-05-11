@@ -21,7 +21,7 @@ import {
   jsonValueExposingStateControl,
   CalendarDeleteIcon,
   Tooltip,
-} from "openblocks-sdk";
+} from "lowcoder-sdk";
 import { Input, Form } from "antd";
 import { trans, getCalendarLocale } from "../../i18n/comps";
 import { createRef, useContext, useRef, useState } from "react";

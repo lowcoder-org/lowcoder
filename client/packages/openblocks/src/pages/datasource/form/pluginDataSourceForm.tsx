@@ -29,7 +29,7 @@ import {
   DataSourceParamType,
   DataSourcePluginMeta,
   DataSourceExtraConfig,
-} from "openblocks-sdk/dataSource";
+} from "lowcoder-sdk/dataSource";
 import styled from "styled-components";
 import { trans } from "i18n";
 import { Datasource } from "constants/datasourceConstants";

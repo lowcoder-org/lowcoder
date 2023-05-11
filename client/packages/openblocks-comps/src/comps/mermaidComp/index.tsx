@@ -6,7 +6,7 @@ import {
   NameConfig,
   eventHandlerControl,
   withMethodExposing,
-} from "openblocks-sdk";
+} from "lowcoder-sdk";
 
 import Mermaid from "./mermaid";
 

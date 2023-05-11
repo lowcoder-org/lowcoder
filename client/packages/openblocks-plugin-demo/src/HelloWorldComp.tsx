@@ -4,7 +4,7 @@ import {
   Section,
   withExposingConfigs,
   NameConfig,
-} from "openblocks-sdk";
+} from "lowcoder-sdk";
 
 import styles from "./style.module.css";
 

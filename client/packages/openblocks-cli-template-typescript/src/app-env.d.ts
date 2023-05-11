@@ -1,3 +1,3 @@
 /// <reference types="openblocks-cli/client" />
 
-declare module "openblocks-sdk";
+declare module "lowcoder-sdk";
