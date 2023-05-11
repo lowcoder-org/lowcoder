@@ -96,9 +96,9 @@ if (process.argv.includes("--internal-deploy")) {
   const deployDir = shell.env["DEPLOY_DIR"];
   console.log();
   console.log(chalk.cyan`deploying...`);
-  shell.exec("docker cp ./packages/openblocks/build openblocks-fe:/var/www/", { fatal: true });
+  shell.exec("docker cp ./packages/openblocks/build lowcoder-fe:/var/www/", { fatal: true });
   shell.exec(
-    `docker exec openblocks-fe /bin/sh -c "cd /var/www/ && rm -rf ${deployDir} && mv build ${deployDir}"`,
+    `docker exec lowcoder-fe /bin/sh -c "cd /var/www/ && rm -rf ${deployDir} && mv build ${deployDir}"`,
     { fatal: true }
   );
 }

@@ -15,7 +15,7 @@
     "@types/react-dom": "17",
     "big.js": "^6.2.1",
     "mermaid": "^10.0.2",
-    "openblocks-cli": "workspace:^",
+    "lowcoder-cli": "workspace:^",
     "lowcoder-sdk": "workspace:^",
     "react": "17",
     "react-dom": "17",
@@ -52,8 +52,8 @@
   },
   "scripts": {
     "start": "vite",
-    "build": "yarn test && openblocks-cli build",
-    "build_only": "openblocks-cli build",
+    "build": "yarn test && lowcoder-cli build",
+    "build_only": "lowcoder-cli build",
     "test": "jest"
   },
   "devDependencies": {

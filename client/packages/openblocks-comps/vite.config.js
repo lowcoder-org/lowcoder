@@ -1,4 +1,4 @@
-import config from "openblocks-cli/config/vite.config";
+import config from "lowcoder-cli/config/vite.config";
 import viteTsconfigPaths from "vite-tsconfig-paths";
 export default {
   ...config,

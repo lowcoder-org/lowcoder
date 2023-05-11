@@ -3,7 +3,7 @@
   "version": "0.0.5",
   "license": "MIT",
   "type": "module",
-  "description": "Openblocks dev utils for openblocks build process and openblocks-cli",
+  "description": "Openblocks dev utils for openblocks build process and lowcoder-cli",
   "keywords": [
     "openblocks"
   ]

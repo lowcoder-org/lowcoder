@@ -1,11 +1,11 @@
-# create-openblocks-plugin
+# create-lowcoder-plugin
 
 ## Usage
 
 ```bash
-yarn create openblocks-plugin my-openblocks-plugin
+yarn create lowcoder-plugin my-lowcoder-plugin
 
 # or
 
-npm create openblocks-plugin my-openblocks-plugin
+npm create lowcoder-plugin my-lowcoder-plugin
 ```

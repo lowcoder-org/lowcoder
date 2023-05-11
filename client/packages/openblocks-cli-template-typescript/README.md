@@ -1,5 +1,5 @@
-# openblocks-cli-template-typescript
+# lowcoder-cli-template-typescript
 
-This is the official typescript template of openblocks-cli.
+This is the official typescript template of lowcoder-cli.
 
 This template will be used by default.

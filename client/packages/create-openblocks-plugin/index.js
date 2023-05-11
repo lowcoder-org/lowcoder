@@ -11,7 +11,7 @@ const currentDir = currentDirName(import.meta.url);
 const pkg = readJson(path.resolve(currentDir, "./package.json"));
 
 const isUsingYarn = (process.env.npm_config_user_agent || "").indexOf("yarn") === 0;
-const cliPackageName = "openblocks-cli";
+const cliPackageName = "lowcoder-cli";
 const sdkPackageName = "lowcoder-sdk";
 
 let verbose = false;
@@ -92,8 +92,8 @@ function executeNodeScript({ cwd, args }, data, source) {
  * create openblocks comps project
  * 1. create dir
  * 2. create package.json
- * 3. install openblocks-cli
- * 4. run `openblocks-cli init`
+ * 3. install lowcoder-cli
+ * 4. run `lowcoder-cli init`
  */
 async function createProject(projectName, options) {
   const { template, force } = options;

@@ -9,7 +9,7 @@
 Simply run below command to start a backend server.
 
 ```bash
-docker run -d --name openblocks -p 3000:3000 -v "$PWD/stacks:/openblocks-stacks" lowcoderorg/lowcoder-ce
+docker run -d --name openblocks -p 3000:3000 -v "$PWD/stacks:/lowcoder-stacks" lowcoderorg/lowcoder-ce
 ```
 
 For more information, view our [docs](../docs/self-hosting)
@@ -20,13 +20,13 @@ For more information, view our [docs](../docs/self-hosting)
 2. Use the command below to build Docker image :
 
 ```bash
-docker build -f ./deploy/docker/Dockerfile -t openblocks-dev .
+docker build -f ./deploy/docker/Dockerfile -t lowcoder-dev .
 ```
 
 3. Start
 
 ```bash
-docker run -d --name openblocks-dev -p 3000:3000 -v "$PWD/stacks:/openblocks-stacks" openblocks-dev
+docker run -d --name lowcoder-dev -p 3000:3000 -v "$PWD/stacks:/lowcoder-stacks" lowcoder-dev
 ```
 
 ### Start develop

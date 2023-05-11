@@ -7466,9 +7466,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"create-openblocks-plugin@workspace:packages/create-openblocks-plugin":
+"create-lowcoder-plugin@workspace:packages/create-lowcoder-plugin":
   version: 0.0.0-use.local
-  resolution: "create-openblocks-plugin@workspace:packages/create-openblocks-plugin"
+  resolution: "create-lowcoder-plugin@workspace:packages/create-lowcoder-plugin"
   dependencies:
     chalk: 4
     commander: ^9.4.1
@@ -7476,7 +7476,7 @@ __metadata:
     fs-extra: ^10.1.0
     lowcoder-dev-utils: "workspace:^"
   bin:
-    create-openblocks-plugin: ./index.js
+    create-lowcoder-plugin: ./index.js
   languageName: unknown
   linkType: soft
 
@@ -14286,20 +14286,20 @@ __metadata:
   languageName: node
   linkType: hard
 
-"openblocks-cli-template-typescript@workspace:packages/openblocks-cli-template-typescript":
+"lowcoder-cli-template-typescript@workspace:packages/lowcoder-cli-template-typescript":
   version: 0.0.0-use.local
-  resolution: "openblocks-cli-template-typescript@workspace:packages/openblocks-cli-template-typescript"
+  resolution: "lowcoder-cli-template-typescript@workspace:packages/lowcoder-cli-template-typescript"
   dependencies:
-    openblocks-cli: "workspace:^"
+    lowcoder-cli: "workspace:^"
     lowcoder-sdk: "workspace:^"
     typescript: ^4.8.4
     vite: ^3.2.4
   languageName: unknown
   linkType: soft
 
-"openblocks-cli@workspace:^, openblocks-cli@workspace:packages/openblocks-cli":
+"lowcoder-cli@workspace:^, lowcoder-cli@workspace:packages/lowcoder-cli":
   version: 0.0.0-use.local
-  resolution: "openblocks-cli@workspace:packages/openblocks-cli"
+  resolution: "lowcoder-cli@workspace:packages/lowcoder-cli"
   dependencies:
     "@types/axios": ^0.14.0
     "@vitejs/plugin-react": ^2.2.0
@@ -14320,7 +14320,7 @@ __metadata:
   peerDependencies:
     lowcoder-sdk: "*"
   bin:
-    openblocks-cli: ./index.js
+    lowcoder-cli: ./index.js
   languageName: unknown
   linkType: soft
 
@@ -14340,7 +14340,7 @@ __metadata:
     big.js: ^6.2.1
     jest: 29.3.0
     mermaid: ^10.0.2
-    openblocks-cli: "workspace:^"
+    lowcoder-cli: "workspace:^"
     lowcoder-sdk: "workspace:^"
     react: 17
     react-dom: 17
@@ -14411,13 +14411,13 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"openblocks-plugin-demo@workspace:packages/openblocks-plugin-demo":
+"lowcoder-plugin-demo@workspace:packages/lowcoder-plugin-demo":
   version: 0.0.0-use.local
-  resolution: "openblocks-plugin-demo@workspace:packages/openblocks-plugin-demo"
+  resolution: "lowcoder-plugin-demo@workspace:packages/lowcoder-plugin-demo"
   dependencies:
     "@types/react": 17
     "@types/react-dom": 17
-    openblocks-cli: "workspace:^"
+    lowcoder-cli: "workspace:^"
     lowcoder-core: ^0.0.1
     lowcoder-design: ^0.0.1
     lowcoder-sdk: "workspace:^"

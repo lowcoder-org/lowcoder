@@ -1,5 +1,5 @@
 {
-  "name": "openblocks-cli",
+  "name": "lowcoder-cli",
   "description": "CLI tool used to start build publish openblocks components",
   "version": "0.0.24",
   "license": "MIT",

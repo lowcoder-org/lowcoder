@@ -64,7 +64,7 @@ async function uninstall(dependencies) {
  */
 export default async function initAction(options) {
   const { template, registry } = options;
-  const templatePackageName = `openblocks-cli-template-${template}`;
+  const templatePackageName = `lowcoder-cli-template-${template}`;
 
   await install([templatePackageName], registry);
   console.log("template package installed");
@@ -77,7 +77,7 @@ export default async function initAction(options) {
   appPackageJson.openblocks = templatePackageJson.openblocks || {};
   appPackageJson.scripts = {
     start: "vite",
-    build: "openblocks-cli build",
+    build: "lowcoder-cli build",
   };
   fs.writeFileSync(paths.appPackageJson, JSON.stringify(appPackageJson, null, 2));
   console.log("package.json updated");

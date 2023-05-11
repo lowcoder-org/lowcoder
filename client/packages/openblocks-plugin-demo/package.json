@@ -1,5 +1,5 @@
 {
-  "name": "openblocks-plugin-demo",
+  "name": "lowcoder-plugin-demo",
   "version": "0.0.3",
   "type": "module",
   "license": "MIT",
@@ -27,12 +27,12 @@
   },
   "scripts": {
     "start": "vite",
-    "build": "openblocks-cli build"
+    "build": "lowcoder-cli build"
   },
   "devDependencies": {
     "@types/react": "17",
     "@types/react-dom": "17",
-    "openblocks-cli": "workspace:^",
+    "lowcoder-cli": "workspace:^",
     "lowcoder-sdk": "workspace:^",
     "typescript": "4.8.4",
     "vite": "^3.2.4"
