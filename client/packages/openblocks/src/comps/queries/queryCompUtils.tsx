@@ -6,7 +6,7 @@ import { MultiCompBuilder, ToConstructor } from "../generators/multi";
 import { Fragment } from "react";
 import { ParamsControlType, ValueFunction } from "../controls/paramsControl";
 import { getGlobalSettings } from "comps/utils/globalSettings";
-import { ResourceType } from "@openblocks-ee/constants/queryConstants";
+import { ResourceType } from "@lowcoder-ee/constants/queryConstants";
 
 export type FunctionProperty = {
   key: string;

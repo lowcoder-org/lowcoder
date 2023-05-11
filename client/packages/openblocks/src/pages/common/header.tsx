@@ -34,7 +34,7 @@ import history from "util/history";
 import { useApplicationId } from "util/hooks";
 import { canManageApp } from "util/permissionUtils";
 import ProfileDropdown from "./profileDropdown";
-import { Logo, LogoWithName } from "@openblocks-ee/assets/images";
+import { Logo, LogoWithName } from "@lowcoder-ee/assets/images";
 import { HeaderStartDropdown } from "./headerStartDropdown";
 import { AppPermissionDialog } from "../../components/PermissionDialog/AppPermissionDialog";
 import { getBrandingConfig } from "../../redux/selectors/configSelectors";

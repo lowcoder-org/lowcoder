@@ -1,7 +1,7 @@
 import { createReducer } from "util/reducerUtils";
 import { ReduxAction, ReduxActionTypes } from "constants/reduxActionConstants";
 import { DatasourceInfo, DatasourceStructure } from "api/datasourceApi";
-import { Datasource } from "@openblocks-ee/constants/datasourceConstants";
+import { Datasource } from "@lowcoder-ee/constants/datasourceConstants";
 import { DatasourcePermissionInfo } from "../../../api/datasourcePermissionApi";
 import {
   DeleteDatasourcePermissionPayload,

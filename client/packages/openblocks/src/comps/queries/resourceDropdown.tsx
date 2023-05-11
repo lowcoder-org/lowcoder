@@ -8,9 +8,9 @@ import { DatasourceModal } from "pages/datasource/datasourceModal";
 import { InputStatus } from "antd/lib/_util/statusUtils";
 import { getDataSource, getDataSourceTypes } from "redux/selectors/datasourceSelectors";
 import { getUser } from "redux/selectors/usersSelectors";
-import { getBottomResIcon } from "@openblocks-ee/util/bottomResUtils";
+import { getBottomResIcon } from "@lowcoder-ee/util/bottomResUtils";
 import { trans } from "i18n";
-import { DatasourceType, ResourceType } from "@openblocks-ee/constants/queryConstants";
+import { DatasourceType, ResourceType } from "@lowcoder-ee/constants/queryConstants";
 import {
   OPENBLOCKS_API_ID,
   OPENBLOCKS_API_INFO,
@@ -20,7 +20,7 @@ import {
 import {
   apiPluginsForQueryLibrary,
   databasePlugins,
-} from "@openblocks-ee/constants/datasourceConstants";
+} from "@lowcoder-ee/constants/datasourceConstants";
 import { QueryContext } from "util/context/QueryContext";
 
 const SelectOptionLabel = styled.div`

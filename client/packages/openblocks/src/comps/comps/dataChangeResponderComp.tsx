@@ -1,4 +1,4 @@
-import { getBottomResIcon } from "@openblocks-ee/util/bottomResUtils";
+import { getBottomResIcon } from "@lowcoder-ee/util/bottomResUtils";
 import { JSONValueControl } from "comps/controls/codeControl";
 import { EventConfigType, eventHandlerControl } from "comps/controls/eventHandlerControl";
 import { MultiCompBuilder, valueComp } from "comps/generators";

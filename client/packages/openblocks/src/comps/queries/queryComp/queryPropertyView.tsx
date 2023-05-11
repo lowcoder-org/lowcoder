@@ -1,5 +1,5 @@
-import { OLD_OPENBLOCKS_DATASOURCE } from "@openblocks-ee/constants/datasourceConstants";
-import { manualTriggerResource, ResourceType } from "@openblocks-ee/constants/queryConstants";
+import { OLD_OPENBLOCKS_DATASOURCE } from "@lowcoder-ee/constants/datasourceConstants";
+import { manualTriggerResource, ResourceType } from "@lowcoder-ee/constants/queryConstants";
 import { PreparedStatementConfig } from "api/datasourceApi";
 import { isCompWithPropertyView } from "comps/utils/propertyUtils";
 import {

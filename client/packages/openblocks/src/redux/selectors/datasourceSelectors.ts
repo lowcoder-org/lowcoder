@@ -1,6 +1,6 @@
 import { AppState } from "../reducers";
 import { DataSourceTypeInfo } from "../../api/datasourceApi";
-import { DatasourceType } from "@openblocks-ee/constants/queryConstants";
+import { DatasourceType } from "@lowcoder-ee/constants/queryConstants";
 
 export const getDataSource = (state: AppState) => {
   return state.entities.datasource.data;

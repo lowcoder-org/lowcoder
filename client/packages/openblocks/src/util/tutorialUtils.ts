@@ -1,4 +1,4 @@
-import { DatasourceType } from "@openblocks-ee/constants/queryConstants";
+import { DatasourceType } from "@lowcoder-ee/constants/queryConstants";
 import { trans } from "i18n";
 
 const DatasourceTutorials: Partial<Record<DatasourceType, string>> = {

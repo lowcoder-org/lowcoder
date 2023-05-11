@@ -3,10 +3,10 @@ import Api from "./api";
 import { GenericApiResponse } from "./apiResponses";
 import { DEFAULT_TEST_DATA_SOURCE_TIMEOUT_MS } from "constants/apiConstants";
 import { Datasource as CEDatasource } from "../constants/datasourceConstants";
-import { DatasourceType } from "@openblocks-ee/constants/queryConstants";
+import { DatasourceType } from "@lowcoder-ee/constants/queryConstants";
 import { JSONArray } from "util/jsonTypes";
 import { AuthType, HttpOAuthGrantType } from "pages/datasource/form/httpDatasourceForm";
-import { Datasource } from "@openblocks-ee/constants/datasourceConstants";
+import { Datasource } from "@lowcoder-ee/constants/datasourceConstants";
 import { DataSourcePluginMeta } from "lowcoder-sdk/dataSource";
 
 export interface PreparedStatementConfig {

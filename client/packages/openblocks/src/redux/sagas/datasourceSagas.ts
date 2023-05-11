@@ -14,7 +14,7 @@ import {
 import { validateResponse } from "api/apiUtils";
 import log from "loglevel";
 import { message } from "antd";
-import { Datasource } from "@openblocks-ee/constants/datasourceConstants";
+import { Datasource } from "@lowcoder-ee/constants/datasourceConstants";
 
 export function* fetchDatasourceSaga(action: EvaluationReduxAction<FetchDatasourcePayload>) {
   const { organizationId, onSuccess } = action.payload;

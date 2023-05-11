@@ -27,7 +27,7 @@
         "../../lowcoder-comps/src/*",
         "../../lowcoder-design/src/*"
       ],
-      "@openblocks-ee/*": ["../../openblocks/src/*"]
+      "@lowcoder-ee/*": ["../../openblocks/src/*"]
     }
   },
   "exclude": ["../openblocks/src/ee/*"],

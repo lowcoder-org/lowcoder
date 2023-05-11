@@ -1,4 +1,4 @@
-import { UserConnectionSource } from "@openblocks-ee/constants/userConstants";
+import { UserConnectionSource } from "@lowcoder-ee/constants/userConstants";
 import { useSelector } from "react-redux";
 import { getUser } from "redux/selectors/usersSelectors";
 import EmailCard from "pages/setting/profile/emailCard";

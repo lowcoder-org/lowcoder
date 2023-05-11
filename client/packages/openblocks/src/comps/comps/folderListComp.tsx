@@ -1,4 +1,4 @@
-import { getBottomResIcon } from "@openblocks-ee/util/bottomResUtils";
+import { getBottomResIcon } from "@lowcoder-ee/util/bottomResUtils";
 import { MultiCompBuilder, valueComp } from "comps/generators";
 import { bottomResListComp } from "comps/generators/bottomResList";
 import { NameGenerator } from "comps/utils";

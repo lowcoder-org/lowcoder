@@ -3,7 +3,7 @@ import { libsImportCode } from "./external.js";
 export function globalDepPlugin(exclude = []) {
   const virtualModuleId = "virtual:globals";
   return {
-    name: "openblocks-global-plugin",
+    name: "lowcoder-global-plugin",
     resolveId(id) {
       if (id === virtualModuleId) {
         return id;

@@ -22,7 +22,7 @@ import {
   FolderMeta,
 } from "constants/applicationConstants";
 import { CommonSettingResponseData } from "./commonSettingApi";
-import { ResourceType } from "@openblocks-ee/constants/queryConstants";
+import { ResourceType } from "@lowcoder-ee/constants/queryConstants";
 
 export interface HomeOrgMeta {
   id: string;

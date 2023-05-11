@@ -1,4 +1,4 @@
-import { getBottomResIcon } from "@openblocks-ee/util/bottomResUtils";
+import { getBottomResIcon } from "@lowcoder-ee/util/bottomResUtils";
 import { jsonValueStateControl } from "comps/controls/codeStateControl";
 import { MultiCompBuilder } from "comps/generators";
 import { bottomResListComp } from "comps/generators/bottomResList";

@@ -8,7 +8,7 @@ import {
   customerService,
   showCustomerServicePanel,
   showHelpDropdown,
-} from "@openblocks-ee/pages/common/customerService";
+} from "@lowcoder-ee/pages/common/customerService";
 import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { createApplication } from "redux/reduxActions/applicationActions";

@@ -2,7 +2,7 @@ import styled from "styled-components";
 import { Button as AntdButton } from "antd";
 import { useSelector } from "react-redux";
 import { getDataSourceTypes } from "../../redux/selectors/datasourceSelectors";
-import { getBottomResIcon } from "@openblocks-ee/util/bottomResUtils";
+import { getBottomResIcon } from "@lowcoder-ee/util/bottomResUtils";
 import { DataSourceTypeInfo } from "../../api/datasourceApi";
 import { useCurrentPage } from "../../util/hooks";
 import { trans } from "i18n";
@@ -10,7 +10,7 @@ import {
   apiPlugins,
   apiPluginsForQueryLibrary,
   databasePlugins,
-} from "@openblocks-ee/constants/datasourceConstants";
+} from "@lowcoder-ee/constants/datasourceConstants";
 
 export const DataSourceButton = styled(AntdButton)`
   width: 208px;

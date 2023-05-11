@@ -1,7 +1,7 @@
 import Api from "./api";
 import { AxiosPromise } from "axios";
 import { GenericApiResponse } from "./apiResponses";
-import { DatasourceType } from "@openblocks-ee/constants/queryConstants";
+import { DatasourceType } from "@lowcoder-ee/constants/queryConstants";
 
 export interface LibraryQuery {
   id: string;

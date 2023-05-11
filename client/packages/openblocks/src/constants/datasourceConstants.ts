@@ -1,6 +1,6 @@
-import { DatasourceType } from "@openblocks-ee/constants/queryConstants";
+import { DatasourceType } from "@lowcoder-ee/constants/queryConstants";
 import { DatasourceConfigType } from "api/datasourceApi";
-import { getBottomResIcon } from "@openblocks-ee/util/bottomResUtils";
+import { getBottomResIcon } from "@lowcoder-ee/util/bottomResUtils";
 import { trans } from "i18n";
 import { DataSourcePluginMeta } from "lowcoder-sdk/dataSource";
 

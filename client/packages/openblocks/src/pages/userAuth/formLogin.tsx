@@ -11,7 +11,7 @@ import styled from "styled-components";
 import UserApi from "api/userApi";
 import { useRedirectUrl } from "util/hooks";
 import { checkEmailValid, checkPhoneValid } from "util/stringUtils";
-import { UserConnectionSource } from "@openblocks-ee/constants/userConstants";
+import { UserConnectionSource } from "@lowcoder-ee/constants/userConstants";
 import { trans } from "i18n";
 import { AuthContext, useAuthSubmit } from "pages/userAuth/authUtils";
 import { ThirdPartyAuth } from "pages/userAuth/thirdParty/thirdPartyAuth";

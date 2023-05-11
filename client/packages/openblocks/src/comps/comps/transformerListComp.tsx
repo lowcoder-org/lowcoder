@@ -1,4 +1,4 @@
-import { getBottomResIcon } from "@openblocks-ee/util/bottomResUtils";
+import { getBottomResIcon } from "@lowcoder-ee/util/bottomResUtils";
 import { codeControl, TransformerCodeControl } from "comps/controls/codeControl";
 import { EditorContext } from "comps/editorState";
 import { MultiCompBuilder } from "comps/generators";

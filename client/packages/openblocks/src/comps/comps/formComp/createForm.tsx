@@ -24,7 +24,7 @@ import { uiCompRegistry } from "comps/uiCompRegistry";
 import { arrayMove, SortableContainer, SortableElement, SortableHandle } from "react-sortable-hoc";
 import { trans } from "i18n";
 import log from "loglevel";
-import { Datasource } from "@openblocks-ee/constants/datasourceConstants";
+import { Datasource } from "@lowcoder-ee/constants/datasourceConstants";
 import DataSourceIcon from "components/DataSourceIcon";
 
 const OpenDialogButton = styled.span`

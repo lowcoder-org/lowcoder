@@ -16,7 +16,7 @@ export default {
   moduleNameMapper: {
     "react-markdown": path.resolve(dirname, "./mocks/react-markdown.js"),
     "\\.md\\?url$": path.resolve(dirname, "./mocks/markdown-url-module.js"),
-    "^@openblocks-ee(.*)$": path.resolve(
+    "^@lowcoder-ee(.*)$": path.resolve(
       dirname,
       isEE ? "../../packages/openblocks/src/ee/$1" : "../../packages/openblocks/src/$1"
     ),

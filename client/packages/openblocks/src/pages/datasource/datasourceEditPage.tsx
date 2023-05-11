@@ -9,8 +9,8 @@ import { DATASOURCE_URL } from "../../constants/routesURL";
 import { useSelector } from "react-redux";
 import { getDataSource, getDataSourceTypes } from "../../redux/selectors/datasourceSelectors";
 import { trans } from "i18n";
-import { DatasourceType } from "@openblocks-ee/constants/queryConstants";
-import { getDatasourceTutorial } from "@openblocks-ee/util/tutorialUtils";
+import { DatasourceType } from "@lowcoder-ee/constants/queryConstants";
+import { getDatasourceTutorial } from "@lowcoder-ee/util/tutorialUtils";
 import { getDataSourceFormManifest } from "./getDataSourceFormManifest";
 import DataSourceIcon from "components/DataSourceIcon";
 

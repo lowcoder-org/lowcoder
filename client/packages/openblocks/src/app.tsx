@@ -40,7 +40,7 @@ import { loadComps } from "comps";
 import { fetchHomeData } from "redux/reduxActions/applicationActions";
 import { initApp } from "util/commonUtils";
 import ApplicationHome from "./pages/ApplicationV2";
-import { favicon } from "@openblocks-ee/assets/images";
+import { favicon } from "@lowcoder-ee/assets/images";
 import { hasQueryParam } from "util/urlUtils";
 import { isFetchUserFinished } from "redux/selectors/usersSelectors";
 import { SystemWarning } from "./components/SystemWarning";

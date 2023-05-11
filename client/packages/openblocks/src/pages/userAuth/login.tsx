@@ -3,7 +3,7 @@ import { AuthSearchParams } from "constants/authConstants";
 import { CommonTextLabel } from "components/Label";
 import { trans } from "i18n";
 import { ThirdPartyAuth } from "pages/userAuth/thirdParty/thirdPartyAuth";
-import FormLogin from "@openblocks-ee/pages/userAuth/formLogin";
+import FormLogin from "@lowcoder-ee/pages/userAuth/formLogin";
 import { AuthContainer } from "pages/userAuth/authComponents";
 import React, { useContext } from "react";
 import { AuthContext, getLoginTitle } from "pages/userAuth/authUtils";

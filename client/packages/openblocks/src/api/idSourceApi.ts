@@ -1,7 +1,7 @@
 import Api from "api/api";
 import { AxiosPromise } from "axios";
 import { ApiResponse } from "api/apiResponses";
-import { AuthType } from "@openblocks-ee/pages/setting/idSource/idSourceConstants";
+import { AuthType } from "@lowcoder-ee/pages/setting/idSource/idSourceConstants";
 
 export interface ConfigItem {
   id: string;

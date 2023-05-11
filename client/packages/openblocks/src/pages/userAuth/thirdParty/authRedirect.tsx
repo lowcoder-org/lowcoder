@@ -6,7 +6,7 @@ import history from "util/history";
 import PageSkeleton from "components/PageSkeleton";
 import { trans } from "i18n";
 import { useEffect, useState } from "react";
-import { getAuthenticator } from "@openblocks-ee/pages/userAuth/thirdParty/authenticator";
+import { getAuthenticator } from "@lowcoder-ee/pages/userAuth/thirdParty/authenticator";
 import { AuthRedirectUrlParams } from "pages/userAuth/thirdParty/authenticator";
 import { loadAuthParams } from "pages/userAuth/authUtils";
 

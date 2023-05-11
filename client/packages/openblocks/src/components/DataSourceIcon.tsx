@@ -1,4 +1,4 @@
-import { getBottomResIcon } from "@openblocks-ee/util/bottomResUtils";
+import { getBottomResIcon } from "@lowcoder-ee/util/bottomResUtils";
 import { HttpMethod } from "api/api";
 import { useSelector } from "react-redux";
 import { getDataSource } from "redux/selectors/datasourceSelectors";

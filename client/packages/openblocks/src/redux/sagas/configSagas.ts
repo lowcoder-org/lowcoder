@@ -4,7 +4,7 @@ import { AxiosResponse } from "axios";
 import { validateResponse } from "api/apiUtils";
 import log from "loglevel";
 import ConfigApi, { ConfigResponse } from "api/configApi";
-import { transToSystemConfig } from "@openblocks-ee/constants/configConstants";
+import { transToSystemConfig } from "@lowcoder-ee/constants/configConstants";
 
 export function* fetchConfigSaga() {
   try {

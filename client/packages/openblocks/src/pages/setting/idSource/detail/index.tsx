@@ -17,7 +17,7 @@ import {
   authConfig,
   AuthType,
   ManualSyncTypes,
-} from "@openblocks-ee/pages/setting/idSource/idSourceConstants";
+} from "@lowcoder-ee/pages/setting/idSource/idSourceConstants";
 import { Manual } from "pages/setting/idSource/detail/manual";
 import { DeleteConfig } from "pages/setting/idSource/detail/deleteConfig";
 import { Divider, Form, Input, message, Tooltip } from "antd";

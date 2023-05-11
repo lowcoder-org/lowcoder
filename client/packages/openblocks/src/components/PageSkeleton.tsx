@@ -2,7 +2,7 @@ import { Layout, Skeleton } from "antd";
 import MainContent from "components/layout/MainContent";
 import SideBar from "components/layout/SideBar";
 import Header from "./layout/Header";
-import { Logo, LogoWithName } from "@openblocks-ee/assets/images";
+import { Logo, LogoWithName } from "@lowcoder-ee/assets/images";
 import styled from "styled-components";
 import { useSelector } from "react-redux";
 import { getBrandingConfig, getSystemConfigFetching } from "../redux/selectors/configSelectors";

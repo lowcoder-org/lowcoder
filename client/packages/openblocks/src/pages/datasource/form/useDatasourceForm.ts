@@ -7,8 +7,8 @@ import { getUser } from "../../../redux/selectors/usersSelectors";
 import { createDatasource, updateDatasource } from "../../../redux/reduxActions/datasourceActions";
 import { trans } from "i18n";
 import { registryDataSourcePlugin } from "constants/queryConstants";
-import { DatasourceType } from "@openblocks-ee/constants/queryConstants";
-import { Datasource } from "@openblocks-ee/constants/datasourceConstants";
+import { DatasourceType } from "@lowcoder-ee/constants/queryConstants";
+import { Datasource } from "@lowcoder-ee/constants/datasourceConstants";
 import { getSnowflakeFormParams } from "pages/datasource/form/snowflakeDatasourceForm";
 
 export function useDatasourceForm() {

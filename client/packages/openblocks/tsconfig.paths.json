@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "paths": {
-      "@openblocks-ee/*": ["*"],
+      "@lowcoder-ee/*": ["*"],
       "lowcoder-sdk": ["index.sdk"],
       "*": ["*", "../../lowcoder-comps/src/*", "../../lowcoder-design/src/*"]
     }

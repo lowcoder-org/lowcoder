@@ -25,7 +25,7 @@ export const viteConfig: UserConfig = {
     extensions: [".mjs", ".js", ".ts", ".jsx", ".tsx", ".json"],
     alias: {
       "lowcoder-sdk": path.resolve(__dirname, "../openblocks/src/index.sdk"),
-      "@openblocks-ee": path.resolve(__dirname, "../openblocks/src"),
+      "@lowcoder-ee": path.resolve(__dirname, "../openblocks/src"),
     },
   },
   base: ensureLastSlash(process.env.PUBLIC_URL),

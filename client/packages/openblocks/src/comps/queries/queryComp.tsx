@@ -2,7 +2,7 @@ import {
   manualTriggerResource,
   QueryMap,
   ResourceType,
-} from "@openblocks-ee/constants/queryConstants";
+} from "@lowcoder-ee/constants/queryConstants";
 import { message } from "antd";
 import axios from "axios";
 import DataSourceIcon from "components/DataSourceIcon";

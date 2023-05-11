@@ -9,12 +9,12 @@ import { DatasourceFormManifest } from "./form/datasourceFormRegistry";
 import StepModal, { StepItem, StepModalProps } from "components/StepModal";
 import { GreyTextColor } from "constants/style";
 import { trans } from "i18n";
-import { DatasourceType } from "@openblocks-ee/constants/queryConstants";
-import { getDatasourceTutorial } from "@openblocks-ee/util/tutorialUtils";
+import { DatasourceType } from "@lowcoder-ee/constants/queryConstants";
+import { getDatasourceTutorial } from "@lowcoder-ee/util/tutorialUtils";
 import { useSelector } from "react-redux";
 import { getDataSourceTypesMap } from "../../redux/selectors/datasourceSelectors";
-import { getBottomResIcon } from "@openblocks-ee/util/bottomResUtils";
-import { Datasource } from "@openblocks-ee/constants/datasourceConstants";
+import { getBottomResIcon } from "@lowcoder-ee/util/bottomResUtils";
+import { Datasource } from "@lowcoder-ee/constants/datasourceConstants";
 import { getDataSourceFormManifest } from "./getDataSourceFormManifest";
 
 const EditButton = styled(Button)`

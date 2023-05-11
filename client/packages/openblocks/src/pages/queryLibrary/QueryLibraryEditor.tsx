@@ -41,7 +41,7 @@ import {
   apiPluginsForQueryLibrary,
   databasePlugins,
   Datasource,
-} from "@openblocks-ee/constants/datasourceConstants";
+} from "@lowcoder-ee/constants/datasourceConstants";
 import { importQueryLibrary } from "./importQueryLibrary";
 import { registryDataSourcePlugin } from "constants/queryConstants";
 

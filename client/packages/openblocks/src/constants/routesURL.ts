@@ -1,7 +1,7 @@
 import { AppViewMode } from "constants/applicationConstants";
 import { LocationDescriptor } from "history";
 import { UserGuideLocationState } from "pages/tutorials/tutorialsConstant";
-import { DatasourceType } from "@openblocks-ee/constants/queryConstants";
+import { DatasourceType } from "@lowcoder-ee/constants/queryConstants";
 
 export const BASE_URL = "/";
 export const USER_AUTH_URL = "/user/auth";

@@ -9,7 +9,7 @@ import {
 import { trans } from "i18n";
 import { toNumber } from "lodash";
 import { useHostCheck } from "./form/useHostCheck";
-import { Datasource } from "@openblocks-ee/constants/datasourceConstants";
+import { Datasource } from "@lowcoder-ee/constants/datasourceConstants";
 import React, { ReactNode, useState } from "react";
 import { HttpConfig, SSLCertVerificationEnum } from "../../api/datasourceApi";
 

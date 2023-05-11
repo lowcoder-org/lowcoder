@@ -1,4 +1,4 @@
-import { QueryMap } from "@openblocks-ee/constants/queryConstants";
+import { QueryMap } from "@lowcoder-ee/constants/queryConstants";
 import { loadComps } from "comps";
 import { ColumnComp, RenderComp } from "comps/comps/tableComp/column/tableColumnComp";
 import { InputComp } from "comps/comps/textInputComp/inputComp";

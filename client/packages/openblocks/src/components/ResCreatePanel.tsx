@@ -11,14 +11,14 @@ import { BottomResTypeEnum } from "types/bottomRes";
 import { LargeBottomResIconWrapper } from "util/bottomResUtils";
 import { PageType } from "../constants/pageConstants";
 import { SizeType } from "antd/lib/config-provider/SizeContext";
-import { Datasource } from "@openblocks-ee/constants/datasourceConstants";
+import { Datasource } from "@lowcoder-ee/constants/datasourceConstants";
 import {
   OPENBLOCKS_API_ID,
   OPENBLOCKS_API_INFO,
   QUICK_GRAPHQL_ID,
   QUICK_REST_API_ID,
 } from "../constants/datasourceConstants";
-import { ResourceType } from "@openblocks-ee/constants/queryConstants";
+import { ResourceType } from "@lowcoder-ee/constants/queryConstants";
 import { Upload } from "antd";
 import { useSelector } from "react-redux";
 import { getUser } from "../redux/selectors/usersSelectors";

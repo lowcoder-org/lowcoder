@@ -12,7 +12,7 @@ import {
 } from "redux/selectors/datasourceSelectors";
 import { EmptyContent } from "components/EmptyContent";
 import { trans } from "i18n";
-import { DatasourceType } from "@openblocks-ee/constants/queryConstants";
+import { DatasourceType } from "@lowcoder-ee/constants/queryConstants";
 
 const TreeTitle = styled.div`
   height: 23px;

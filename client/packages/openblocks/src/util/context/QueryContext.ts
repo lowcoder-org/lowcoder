@@ -1,5 +1,5 @@
 import React from "react";
-import { ResourceType } from "@openblocks-ee/constants/queryConstants";
+import { ResourceType } from "@lowcoder-ee/constants/queryConstants";
 
 class Query {
   readonly datasourceId?: string;

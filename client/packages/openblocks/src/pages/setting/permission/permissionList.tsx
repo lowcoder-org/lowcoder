@@ -22,7 +22,7 @@ import history from "util/history";
 import { Level1SettingPageContentWithList, Level1SettingPageTitleWithBtn } from "../styled";
 import { currentOrgAdmin, isGroupAdmin } from "../../../util/permissionUtils";
 import { timestampToHumanReadable } from "../../../util/dateTimeUtils";
-import { usePermissionMenuItems } from "@openblocks-ee/pages/setting/permission/permissionMenuItems";
+import { usePermissionMenuItems } from "@lowcoder-ee/pages/setting/permission/permissionMenuItems";
 import { OrgGroup } from "constants/orgConstants";
 
 const NEW_GROUP_PREFIX = trans("memberSettings.newGroupPrefix");

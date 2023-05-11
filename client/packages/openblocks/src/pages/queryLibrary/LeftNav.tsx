@@ -18,7 +18,7 @@ import { deleteQueryLibrary } from "../../redux/reduxActions/queryLibraryActions
 import { EmptyContent } from "../../components/EmptyContent";
 import { ReadOnlyMask } from "../common/styledComponent";
 import { trans } from "i18n";
-import { DatasourceType } from "@openblocks-ee/constants/queryConstants";
+import { DatasourceType } from "@lowcoder-ee/constants/queryConstants";
 import { saveAs } from "file-saver";
 import DataSourceIcon from "components/DataSourceIcon";
 

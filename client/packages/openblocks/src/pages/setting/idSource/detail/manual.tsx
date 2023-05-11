@@ -4,7 +4,7 @@ import { trans } from "i18n";
 import { SyncManualIcon } from "lowcoder-design";
 import { useState } from "react";
 import { validateResponse } from "api/apiUtils";
-import { AuthType } from "@openblocks-ee/pages/setting/idSource/idSourceConstants";
+import { AuthType } from "@lowcoder-ee/pages/setting/idSource/idSourceConstants";
 import IdSourceApi from "api/idSourceApi";
 
 export const Manual = (props: { type: AuthType }) => {

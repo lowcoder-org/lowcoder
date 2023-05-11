@@ -4,7 +4,7 @@ import React from "react";
 import { useSelector } from "react-redux";
 import { selectSystemConfig } from "redux/selectors/configSelectors";
 import { AuthContext } from "pages/userAuth/authUtils";
-import { AuthRoutes } from "@openblocks-ee/constants/authConstants";
+import { AuthRoutes } from "@lowcoder-ee/constants/authConstants";
 import { AuthLocationState } from "constants/authConstants";
 import { ProductLoading } from "components/ProductLoading";
 

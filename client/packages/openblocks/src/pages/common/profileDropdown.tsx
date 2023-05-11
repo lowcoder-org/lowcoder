@@ -23,7 +23,7 @@ import ProfileImage from "pages/common/profileImage";
 import { isProfileSettingModalVisible } from "redux/selectors/usersSelectors";
 import { logoutAction, profileSettingModalVisible } from "redux/reduxActions/userActions";
 import { trans } from "i18n";
-import { showSwitchOrg } from "@openblocks-ee/pages/common/customerService";
+import { showSwitchOrg } from "@lowcoder-ee/pages/common/customerService";
 import { checkIsMobile } from "util/commonUtils";
 import { selectSystemConfig } from "redux/selectors/configSelectors";
 

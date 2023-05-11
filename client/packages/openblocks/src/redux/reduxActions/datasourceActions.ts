@@ -3,7 +3,7 @@ import {
   ReduxActionTypes,
   ReduxActionWithCallbacks,
 } from "constants/reduxActionConstants";
-import { Datasource } from "@openblocks-ee/constants/datasourceConstants";
+import { Datasource } from "@lowcoder-ee/constants/datasourceConstants";
 import { DatasourceInfo, DataSourceTypeInfo } from "api/datasourceApi";
 
 export type FetchDatasourcePayload = {

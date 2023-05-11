@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { ResourceType } from "@openblocks-ee/constants/queryConstants";
+import { ResourceType } from "@lowcoder-ee/constants/queryConstants";
 import {
   ClickHouseIcon,
   DataResponderIcon,

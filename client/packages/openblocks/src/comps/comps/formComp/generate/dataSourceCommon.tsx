@@ -1,7 +1,7 @@
 import { ConstructorToDataType } from "lowcoder-core";
 import { QueryComp } from "comps/queries/queryComp";
 import { CompConfig, CompSelection, generateWrapJs } from "./comp";
-import { DatasourceType } from "@openblocks-ee/constants/queryConstants";
+import { DatasourceType } from "@lowcoder-ee/constants/queryConstants";
 
 export type TableColumn = {
   // The type of column, different data sources have different definitions

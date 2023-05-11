@@ -13,7 +13,7 @@ import { useApplicationId } from "util/hooks";
 import { canEditApp, canManageApp } from "util/permissionUtils";
 import ProfileDropdown from "./profileDropdown";
 import { trans } from "i18n";
-import { Logo } from "@openblocks-ee/assets/images";
+import { Logo } from "@lowcoder-ee/assets/images";
 import { AppPermissionDialog } from "../../components/PermissionDialog/AppPermissionDialog";
 import { useState } from "react";
 import { getBrandingConfig } from "../../redux/selectors/configSelectors";

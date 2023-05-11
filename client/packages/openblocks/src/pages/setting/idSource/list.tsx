@@ -13,7 +13,7 @@ import {
   AuthType,
   authTypeDisabled,
   IdSource,
-} from "@openblocks-ee/pages/setting/idSource/idSourceConstants";
+} from "@lowcoder-ee/pages/setting/idSource/idSourceConstants";
 import { SpanStyled, StatusSpan, TableStyled } from "pages/setting/idSource/styledComponents";
 import { genQueryId } from "comps/utils/idGenerator";
 import FreeLimitTag from "pages/common/freeLimitTag";
@@ -23,7 +23,7 @@ import { selectSystemConfig } from "redux/selectors/configSelectors";
 import { isEnterpriseMode, isSelfDomain } from "util/envUtils";
 import { Badge, message } from "antd";
 import { validateResponse } from "api/apiUtils";
-import { ServerAuthTypeInfo } from "@openblocks-ee/constants/authConstants";
+import { ServerAuthTypeInfo } from "@lowcoder-ee/constants/authConstants";
 import { GeneralLoginIcon } from "assets/icons";
 import { FreeTypes } from "pages/setting/idSource/idSourceConstants";
 

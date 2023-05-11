@@ -58,7 +58,7 @@ export const viteConfig: UserConfig = {
   resolve: {
     extensions: [".mjs", ".js", ".ts", ".jsx", ".tsx", ".json"],
     alias: {
-      "@openblocks-ee": path.resolve(
+      "@lowcoder-ee": path.resolve(
         __dirname,
         isEE ? `../openblocks/src/${isEEGlobal ? "ee-global" : "ee"}` : "../openblocks/src"
       ),

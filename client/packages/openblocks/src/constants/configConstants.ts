@@ -1,12 +1,12 @@
 import { ThirdPartyConfigType } from "constants/authConstants";
 import { QR_CODE_OAUTH_URL } from "constants/routesURL";
-import { UserConnectionSource } from "@openblocks-ee/constants/userConstants";
+import { UserConnectionSource } from "@lowcoder-ee/constants/userConstants";
 import { GeneralLoginIcon } from "assets/icons";
 import {
   isRouteLink,
   ServerAuthType,
   ServerAuthTypeInfo,
-} from "@openblocks-ee/constants/authConstants";
+} from "@lowcoder-ee/constants/authConstants";
 
 interface FeatureFlag {
   enableCustomBranding: boolean;

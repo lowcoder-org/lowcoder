@@ -18,7 +18,7 @@ import { trans } from "i18n";
 import { Prompt } from "react-router";
 import history from "util/history";
 import { Location } from "history";
-import { useExtraAdvanceSettings } from "@openblocks-ee/pages/setting/advanced/extraAdvancedSetting";
+import { useExtraAdvanceSettings } from "@lowcoder-ee/pages/setting/advanced/extraAdvancedSetting";
 import { JSLibraryModal } from "components/JSLibraryModal";
 import { JSLibraryTree } from "components/JSLibraryTree";
 import { getGlobalSettings } from "comps/utils/globalSettings";
