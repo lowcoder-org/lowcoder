@@ -1,5 +1,5 @@
 import { DropdownContainer, OptionsType, ValueFromOption } from "components/Dropdown";
-import { SimpleComp } from "openblocks-core";
+import { SimpleComp } from "lowcoder-core";
 import { ControlParams, ControlPlacement } from "./controlParams";
 import { ReactNode } from "react";
 import { Tooltip, ToolTipLabel } from "components/toolTip";

@@ -7,7 +7,7 @@ import { JsonSchemaFormStyle, JsonSchemaFormStyleType } from "comps/controls/sty
 import { depsConfig, NameConfigHidden, withExposingConfigs } from "comps/generators/withExposing";
 import { withMethodExposing } from "comps/generators/withMethodExposing";
 import { ValueFromOption } from "openblocks-design";
-import { i18n } from "openblocks-core";
+import { i18n } from "lowcoder-core";
 import { i18nObjs, trans } from "i18n";
 import { JSONSchema7 } from "json-schema";
 import styled from "styled-components";

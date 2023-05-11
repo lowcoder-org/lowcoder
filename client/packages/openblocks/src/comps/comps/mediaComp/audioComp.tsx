@@ -4,7 +4,7 @@ import { eventHandlerControl } from "../../controls/eventHandlerControl";
 import { StringStateControl } from "../../controls/codeStateControl";
 import { UICompBuilder } from "../../generators";
 import { NameConfig, NameConfigHidden, withExposingConfigs } from "../../generators/withExposing";
-import { RecordConstructorToView } from "openblocks-core";
+import { RecordConstructorToView } from "lowcoder-core";
 import { styleControl } from "comps/controls/styleControl";
 import { ImageStyle } from "comps/controls/styleControlConstants";
 import { TacoAudio } from "openblocks-design";

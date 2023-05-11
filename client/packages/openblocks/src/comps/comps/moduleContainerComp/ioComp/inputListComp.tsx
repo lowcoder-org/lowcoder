@@ -6,7 +6,7 @@ import { dropdownControl } from "comps/controls/dropdownControl";
 import { EditorContext } from "comps/editorState";
 import { list } from "comps/generators/list";
 import { trans } from "i18n";
-import { multiChangeAction } from "openblocks-core";
+import { multiChangeAction } from "lowcoder-core";
 import { controlItem, Section } from "openblocks-design";
 import { useContext } from "react";
 import InputListItemComp, { getInputOptionLabel, InputTypeEnum } from "./inputListItemComp";

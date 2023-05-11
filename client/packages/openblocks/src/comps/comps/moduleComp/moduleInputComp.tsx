@@ -1,10 +1,10 @@
-import { routeByNameAction, executeQueryAction } from "openblocks-core";
-import { CompAction, CompActionTypes, RouteByNameAction } from "openblocks-core";
-import { CompParams } from "openblocks-core";
+import { routeByNameAction, executeQueryAction } from "lowcoder-core";
+import { CompAction, CompActionTypes, RouteByNameAction } from "lowcoder-core";
+import { CompParams } from "lowcoder-core";
 import { codeControl } from "comps/controls/codeControl";
 import QuerySelectControl from "comps/controls/querySelectControl";
 import { MultiCompBuilder, parseChildrenFromValueAndChildrenMap } from "comps/generators/multi";
-import { Node } from "openblocks-core";
+import { Node } from "lowcoder-core";
 import { Fragment, ReactNode } from "react";
 import { setFieldsNoTypeCheck } from "util/objectUtils";
 import { inputControls, InputTypeEnum } from "../moduleContainerComp/ioComp/inputListItemComp";

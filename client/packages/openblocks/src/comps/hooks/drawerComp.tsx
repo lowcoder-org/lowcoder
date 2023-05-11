@@ -16,7 +16,7 @@ import { BackgroundColorContext } from "comps/utils/backgroundColorContext";
 import { CanvasContainerID } from "constants/domLocators";
 import { Layers } from "constants/Layers";
 import { trans } from "i18n";
-import { changeChildAction } from "openblocks-core";
+import { changeChildAction } from "lowcoder-core";
 import { Drawer, HintPlaceHolder, Section, sectionNames } from "openblocks-design";
 import { useCallback } from "react";
 import { ResizeHandle } from "react-resizable";

@@ -1,1 +1,1 @@
-this is a README file for openblocks-core.
+this is a README file for lowcoder-core.

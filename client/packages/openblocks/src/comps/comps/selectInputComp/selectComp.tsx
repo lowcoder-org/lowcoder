@@ -16,7 +16,7 @@ import {
   useSelectInputValidate,
 } from "./selectInputConstants";
 import { useRef } from "react";
-import { RecordConstructorToView } from "openblocks-core";
+import { RecordConstructorToView } from "lowcoder-core";
 
 const SelectBasicComp = (function () {
   const childrenMap = {

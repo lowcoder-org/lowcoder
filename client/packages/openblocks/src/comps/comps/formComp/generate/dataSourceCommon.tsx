@@ -1,4 +1,4 @@
-import { ConstructorToDataType } from "openblocks-core";
+import { ConstructorToDataType } from "lowcoder-core";
 import { QueryComp } from "comps/queries/queryComp";
 import { CompConfig, CompSelection, generateWrapJs } from "./comp";
 import { DatasourceType } from "@openblocks-ee/constants/queryConstants";

@@ -14,7 +14,7 @@ import {
   NodeToValue,
   RecordConstructorToComp,
   wrapDispatch,
-} from "openblocks-core";
+} from "lowcoder-core";
 import { ReactNode } from "react";
 import { JSONValue } from "util/jsonTypes";
 import { map } from "./map";

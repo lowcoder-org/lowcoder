@@ -1,8 +1,8 @@
-import { updateNodesV2Action } from "openblocks-core";
-import { Node } from "openblocks-core";
-import { EvalMethods } from "openblocks-core";
+import { updateNodesV2Action } from "lowcoder-core";
+import { Node } from "lowcoder-core";
+import { EvalMethods } from "lowcoder-core";
 import _ from "lodash";
-import { Comp } from "openblocks-core";
+import { Comp } from "lowcoder-core";
 import { exposingInfoToNodes, exposingMethods } from "./exposingTypes";
 import { ReactNode, ReactElement } from "react";
 export * from "./nameGenerator";

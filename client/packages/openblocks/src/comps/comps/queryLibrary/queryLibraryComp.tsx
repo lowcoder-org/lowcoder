@@ -18,7 +18,7 @@ import {
   UnfoldWhiteIcon,
 } from "openblocks-design";
 import ReactHotkeys from "../../../util/hotkeys";
-import { executeQueryAction, renameAction } from "openblocks-core";
+import { executeQueryAction, renameAction } from "lowcoder-core";
 import { deleteQueryLibrary } from "redux/reduxActions/queryLibraryActions";
 import { useDispatch } from "react-redux";
 import styled from "styled-components";

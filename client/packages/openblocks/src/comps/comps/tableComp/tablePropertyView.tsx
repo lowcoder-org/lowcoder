@@ -5,7 +5,7 @@ import {
 } from "comps/comps/tableComp/column/tableColumnComp";
 import { hiddenPropertyView, loadingPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
-import { changeValueAction, deferAction, MultiBaseComp, wrapChildAction } from "openblocks-core";
+import { changeValueAction, deferAction, MultiBaseComp, wrapChildAction } from "lowcoder-core";
 import {
   BluePlusIcon,
   CheckBox,

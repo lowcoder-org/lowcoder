@@ -1,5 +1,5 @@
 import { CodeEditorControlParams } from "base/codeEditor/codeEditorTypes";
-import { Comp } from "openblocks-core";
+import { Comp } from "lowcoder-core";
 // import { CodeEditorControlParams } from "../../base/codeEditor/codeEditorTypes";
 import { CSSProperties, ReactNode } from "react";
 

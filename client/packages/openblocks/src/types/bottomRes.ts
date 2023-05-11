@@ -1,4 +1,4 @@
-import { Comp } from "openblocks-core";
+import { Comp } from "lowcoder-core";
 import { EditorState } from "comps/editorState";
 import { ReactNode } from "react";
 

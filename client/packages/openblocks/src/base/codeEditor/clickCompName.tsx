@@ -1,5 +1,5 @@
-import { CodeType } from "openblocks-core";
-import { getDynamicStringSegments, isDynamicSegment } from "openblocks-core";
+import { CodeType } from "lowcoder-core";
+import { getDynamicStringSegments, isDynamicSegment } from "lowcoder-core";
 import { useEffect } from "react";
 import { Decoration, DecorationSet, EditorView, StateEffect, StateField } from "./codeMirror";
 

@@ -3,7 +3,7 @@ import styled from "styled-components";
 import "comps";
 import { UICompType, UICompManifest, uiCompRegistry, UICompCategory } from "comps/uiCompRegistry";
 import { CompPlayground } from "ide/CompPlayground";
-import { Comp } from "openblocks-core";
+import { Comp } from "lowcoder-core";
 import { EditorContext, EditorState } from "comps/editorState";
 import { RootComp } from "comps/comps/rootComp";
 

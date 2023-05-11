@@ -6,7 +6,7 @@ import { CommonNameConfig, NameConfig } from "comps/generators/withExposing";
 import { disabledPropertyView, hiddenPropertyView } from "comps/utils/propertyUtils";
 import { ControlNode, Section, sectionNames } from "openblocks-design";
 import { trans } from "i18n";
-import { RecordConstructorToComp, RecordConstructorToView } from "openblocks-core";
+import { RecordConstructorToComp, RecordConstructorToView } from "lowcoder-core";
 import { ReactNode, useEffect } from "react";
 import { check } from "util/convertUtils";
 import { formDataChildren, FormDataPropertyView } from "../formComp/formDataConstants";

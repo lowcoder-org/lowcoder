@@ -7,7 +7,7 @@ import { AddLine } from "./eventHandler";
 import React, { useState } from "react";
 import { CSS } from "@dnd-kit/utilities";
 import { SortableContext, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
-import { ConstructorToComp, MultiCompConstructor } from "openblocks-core";
+import { ConstructorToComp, MultiCompConstructor } from "lowcoder-core";
 import { ReactComponent as WarnIcon } from "icons/icon-warning-white.svg";
 import { DndContext } from "@dnd-kit/core";
 import { restrictToVerticalAxis } from "@dnd-kit/modifiers";

@@ -1,4 +1,4 @@
-import { RecordConstructorToComp } from "openblocks-core";
+import { RecordConstructorToComp } from "lowcoder-core";
 import { StringControl } from "comps/controls/codeControl";
 import { CompNameContext, EditorContext } from "comps/editorState";
 import { Section } from "openblocks-design";

@@ -1,5 +1,5 @@
-import { CompAction } from "openblocks-core";
-import { DispatchType } from "openblocks-core";
+import { CompAction } from "lowcoder-core";
+import { DispatchType } from "lowcoder-core";
 
 export interface PromiseActionOptions {
   // auto handle after reduce if not handled

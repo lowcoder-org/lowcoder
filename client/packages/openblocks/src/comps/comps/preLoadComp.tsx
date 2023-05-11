@@ -8,7 +8,7 @@ import {
   evalFunc,
   evalStyle,
   RecordConstructorToComp,
-} from "openblocks-core";
+} from "lowcoder-core";
 import { CodeTextControl } from "comps/controls/codeTextControl";
 import SimpleStringControl from "comps/controls/simpleStringControl";
 import { MultiCompBuilder, withPropertyViewFn } from "comps/generators";

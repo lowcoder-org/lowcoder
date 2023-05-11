@@ -1,4 +1,4 @@
-import { triggerModuleEventAction, routeByNameAction } from "openblocks-core";
+import { triggerModuleEventAction, routeByNameAction } from "lowcoder-core";
 import { SimpleNameComp } from "comps/comps/simpleNameComp";
 import { CompNameContext, EditorContext } from "comps/editorState";
 import { MultiCompBuilder } from "comps/generators/multi";

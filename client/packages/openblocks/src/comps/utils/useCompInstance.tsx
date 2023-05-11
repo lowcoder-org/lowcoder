@@ -7,7 +7,7 @@ import {
 } from "constants/perf";
 import _ from "lodash";
 import log from "loglevel";
-import { CompAction, CompActionTypes, CompConstructor } from "openblocks-core";
+import { CompAction, CompActionTypes, CompConstructor } from "lowcoder-core";
 import { useEffect, useMemo, useState } from "react";
 import { PriorityQueue, Queue } from "typescript-collections";
 import { JSONValue } from "util/jsonTypes";

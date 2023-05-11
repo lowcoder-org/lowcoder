@@ -7,7 +7,7 @@ import {
   ConstructorToView,
   MultiBaseComp,
   wrapDispatch,
-} from "openblocks-core";
+} from "lowcoder-core";
 import {
   parseChildrenFromValueAndChildrenMap,
   ToConstructor,

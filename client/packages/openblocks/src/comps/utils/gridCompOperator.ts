@@ -23,7 +23,7 @@ import {
   multiChangeAction,
   replaceCompAction,
   wrapActionExtraInfo,
-} from "openblocks-core";
+} from "lowcoder-core";
 import { CustomModal } from "openblocks-design";
 import { pasteKey, undoKey } from "util/keyUtils";
 import { genRandomKey } from "./idGenerator";

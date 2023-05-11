@@ -10,7 +10,7 @@ import {
   WrapNode,
   CompParams,
   DispatchType,
-} from "openblocks-core";
+} from "lowcoder-core";
 import { RootComp } from "comps/comps/rootComp";
 import { AutoHeightControl } from "comps/controls/autoHeightControl";
 import { valueComp, withViewFn } from "comps/generators";

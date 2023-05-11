@@ -1,7 +1,7 @@
 import _, { isObject } from "lodash";
 import { QueryApi, QueryExecuteRequest } from "../../api/queryApi";
 import { QueryResult, TriggerType } from "./queryComp";
-import { Comp } from "openblocks-core";
+import { Comp } from "lowcoder-core";
 import { MultiCompBuilder, ToConstructor } from "../generators/multi";
 import { Fragment } from "react";
 import { ParamsControlType, ValueFunction } from "../controls/paramsControl";

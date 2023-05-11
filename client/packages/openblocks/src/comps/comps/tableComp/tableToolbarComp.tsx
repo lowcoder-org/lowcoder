@@ -12,7 +12,7 @@ import { genRandomKey } from "comps/utils/idGenerator";
 import { ThemeContext } from "comps/utils/themeContext";
 import { trans } from "i18n";
 import _, { isNil } from "lodash";
-import { changeChildAction, ConstructorToView } from "openblocks-core";
+import { changeChildAction, ConstructorToView } from "lowcoder-core";
 import {
   AlignBottom,
   AlignClose,

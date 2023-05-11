@@ -1,6 +1,6 @@
 import { withTypeAndChildrenAbstract } from "comps/generators/withType";
 import { trans } from "i18n";
-import { CompConstructor } from "openblocks-core";
+import { CompConstructor } from "lowcoder-core";
 import { Dropdown, ValueFromOption } from "openblocks-design";
 import { buildQueryCommand, FunctionProperty, toQueryView } from "./queryCompUtils";
 

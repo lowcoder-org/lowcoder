@@ -1,6 +1,6 @@
-import { CodeType } from "openblocks-core";
-import { relaxedJSONToJSON } from "openblocks-core";
-import { getDynamicStringSegments, isDynamicSegment } from "openblocks-core";
+import { CodeType } from "lowcoder-core";
+import { relaxedJSONToJSON } from "lowcoder-core";
+import { getDynamicStringSegments, isDynamicSegment } from "lowcoder-core";
 import { format as formatSQL } from "sql-formatter";
 import { Language } from "./codeEditorTypes";
 

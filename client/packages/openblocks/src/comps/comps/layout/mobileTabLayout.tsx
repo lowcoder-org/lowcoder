@@ -9,7 +9,7 @@ import React, { Suspense, useContext, useState } from "react";
 import { registerLayoutMap } from "comps/comps/uiComp";
 import { AppSelectComp } from "comps/comps/layout/appSelectComp";
 import { NameAndExposingInfo } from "comps/utils/exposingTypes";
-import { ConstructorToComp } from "openblocks-core";
+import { ConstructorToComp } from "lowcoder-core";
 import { CanvasContainer } from "comps/comps/gridLayoutComp/canvasView";
 import { CanvasContainerID } from "constants/domLocators";
 import { EditorContainer, EmptyContent } from "pages/common/styledComponent";

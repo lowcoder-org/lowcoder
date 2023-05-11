@@ -1,9 +1,9 @@
 import { JSONValue } from "util/jsonTypes";
-import { Comp, ConstructorToComp, ConstructorToDataType } from "openblocks-core";
+import { Comp, ConstructorToComp, ConstructorToDataType } from "lowcoder-core";
 import { ToType } from "comps/utils";
 import React from "react";
-import { CompAction, CompActionTypes, customAction, CustomAction } from "openblocks-core";
-import { CompConstructor, CompParams, MultiBaseComp, wrapDispatch } from "openblocks-core";
+import { CompAction, CompActionTypes, customAction, CustomAction } from "lowcoder-core";
+import { CompConstructor, CompParams, MultiBaseComp, wrapDispatch } from "lowcoder-core";
 import _ from "lodash";
 
 type MapAction<ChildDataType extends JSONValue = JSONValue> =

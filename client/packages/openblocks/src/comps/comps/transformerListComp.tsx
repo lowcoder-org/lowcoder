@@ -5,7 +5,7 @@ import { MultiCompBuilder } from "comps/generators";
 import { bottomResListComp } from "comps/generators/bottomResList";
 import { withExposingRaw } from "comps/generators/withExposing";
 import { trans } from "i18n";
-import { fromRecord } from "openblocks-core";
+import { fromRecord } from "lowcoder-core";
 import { DocLink } from "openblocks-design";
 import { BottomTabs } from "pages/editor/bottom/BottomTabs";
 import { ReactNode } from "react";

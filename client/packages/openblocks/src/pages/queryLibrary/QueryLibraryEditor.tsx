@@ -21,7 +21,7 @@ import { BottomResTypeEnum } from "../../types/bottomRes";
 import { useCompInstance } from "../../comps/utils/useCompInstance";
 import { QueryLibraryComp } from "../../comps/comps/queryLibrary/queryLibraryComp";
 import { useSearchParam, useThrottle } from "react-use";
-import { Comp } from "openblocks-core";
+import { Comp } from "lowcoder-core";
 import { LibraryQuery } from "../../api/queryLibraryApi";
 import { NameGenerator } from "../../comps/utils";
 import { QueryLibraryHistoryView } from "./QueryLibraryHistoryView";

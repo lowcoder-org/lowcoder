@@ -8,7 +8,7 @@ import {
   MultiCompConstructor,
   RenameAction,
   wrapChildAction,
-} from "openblocks-core";
+} from "lowcoder-core";
 
 const treeItemComp = (childComp: MultiCompConstructor) => {
   class TreeItemListComp extends list(childComp) {

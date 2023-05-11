@@ -23,7 +23,7 @@ import { JSLibraryModal } from "components/JSLibraryModal";
 import { JSLibraryTree } from "components/JSLibraryTree";
 import { getGlobalSettings } from "comps/utils/globalSettings";
 import { fetchJSLibrary } from "util/jsLibraryUtils";
-import { evalFunc } from "openblocks-core";
+import { evalFunc } from "lowcoder-core";
 
 const AdvancedSettingContent = styled.div`
   max-width: 840px;

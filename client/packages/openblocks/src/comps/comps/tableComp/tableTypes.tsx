@@ -26,7 +26,7 @@ import {
   ConstructorToView,
   RecordConstructorToComp,
   RecordConstructorToView,
-} from "openblocks-core";
+} from "lowcoder-core";
 import { controlItem } from "openblocks-design";
 import { JSONObject } from "util/jsonTypes";
 import { ExpansionControl } from "./expansionControl";

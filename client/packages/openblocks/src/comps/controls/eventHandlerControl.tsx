@@ -3,7 +3,7 @@ import { CustomListAction, list } from "comps/generators/list";
 import { simpleMultiComp } from "comps/generators/multi";
 import { trans } from "i18n";
 import _ from "lodash";
-import { DispatchType } from "openblocks-core";
+import { DispatchType } from "lowcoder-core";
 import {
   AddEventIcon,
   AddLine,

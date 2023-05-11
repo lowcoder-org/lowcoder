@@ -1,6 +1,6 @@
 import { AutocompleteDataType } from "base/codeEditor/completion/ternServer";
 import _ from "lodash";
-import { evalScript } from "openblocks-core";
+import { evalScript } from "lowcoder-core";
 import { checkCursorInBinding } from "../codeEditorUtils";
 import { Completion, CompletionContext, CompletionResult, EditorView } from "../codeMirror";
 import { CompletionSource } from "./completion";

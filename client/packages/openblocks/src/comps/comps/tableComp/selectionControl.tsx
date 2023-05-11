@@ -2,7 +2,7 @@ import { TableRowSelection } from "antd/lib/table/interface";
 import { dropdownControl } from "comps/controls/dropdownControl";
 import { stateComp } from "comps/generators";
 import { trans } from "i18n";
-import { changeChildAction, ConstructorToComp } from "openblocks-core";
+import { changeChildAction, ConstructorToComp } from "lowcoder-core";
 import { TableOnEventView } from "./tableTypes";
 import { OB_ROW_ORI_INDEX, RecordType } from "comps/comps/tableComp/tableUtils";
 import { ControlNodeCompBuilder } from "comps/generators/controlCompBuilder";

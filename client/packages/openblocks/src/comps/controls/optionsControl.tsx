@@ -19,7 +19,7 @@ import {
   fromRecord,
   MultiBaseComp,
   withFunction,
-} from "openblocks-core";
+} from "lowcoder-core";
 import { AutoArea, controlItem, Option } from "openblocks-design";
 import styled from "styled-components";
 import { lastValueIfEqual } from "util/objectUtils";

@@ -20,7 +20,7 @@ import {
 import { Skeleton } from "antd";
 import { TacoPagination } from "openblocks-design";
 import { AppSnapshotContext, AppSnapshotList } from "constants/applicationConstants";
-import { ExtraActionType } from "openblocks-core";
+import { ExtraActionType } from "lowcoder-core";
 import { formatString } from "util/stringUtils";
 import { getUser } from "redux/selectors/usersSelectors";
 import { ScrollBar } from "openblocks-design";

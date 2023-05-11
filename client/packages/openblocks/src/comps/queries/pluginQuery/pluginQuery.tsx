@@ -25,7 +25,7 @@ import {
 } from "openblocks-design";
 import React, { ReactNode, useEffect, useState } from "react";
 import { FunctionProperty, toQueryView } from "../queryCompUtils";
-import { CompConstructor } from "openblocks-core";
+import { CompConstructor } from "lowcoder-core";
 import { dropdownControl } from "comps/controls/dropdownControl";
 import { ControlParams, ControlType } from "comps/controls/controlParams";
 import MarkdownTooltip from "openblocks-design/src/components/MarkdownTooltip";

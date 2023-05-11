@@ -1,6 +1,6 @@
 import { MultiCompBuilder } from "comps/generators";
 import { evalAndReduce } from "comps/utils";
-import { fromValue } from "openblocks-core";
+import { fromValue } from "lowcoder-core";
 import { NameConfig, withExposingConfigs } from "../generators/withExposing";
 import { arrayStringStateControl, StringStateControl } from "./codeStateControl";
 

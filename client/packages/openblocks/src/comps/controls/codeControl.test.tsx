@@ -1,5 +1,5 @@
 import { evalAndReduce } from "comps/utils";
-import { Comp } from "openblocks-core";
+import { Comp } from "lowcoder-core";
 import { NumberControl, StringControl } from "./codeControl";
 
 function serialize(comp: Comp) {

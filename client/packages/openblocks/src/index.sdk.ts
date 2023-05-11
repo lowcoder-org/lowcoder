@@ -54,7 +54,7 @@ export * from "comps/utils/themeContext";
 
 // design
 export * from "openblocks-design";
-export * from "openblocks-core";
+export * from "lowcoder-core";
 
 // controls
 export * from "comps/controls/alignControl";

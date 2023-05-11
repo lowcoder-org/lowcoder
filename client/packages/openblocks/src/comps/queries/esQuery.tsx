@@ -7,7 +7,7 @@ import {
   DispatchType,
   MultiBaseComp,
   multiChangeAction,
-} from "openblocks-core";
+} from "lowcoder-core";
 import {
   Dropdown,
   EllipsisTextCss,

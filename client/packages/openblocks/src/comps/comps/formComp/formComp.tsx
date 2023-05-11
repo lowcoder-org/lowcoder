@@ -20,7 +20,7 @@ import {
   RecordConstructorToView,
   ValueAndMsg,
   wrapChildAction,
-} from "openblocks-core";
+} from "lowcoder-core";
 import { NameGenerator } from "comps/utils";
 import _ from "lodash";
 import { CreateData, CreateForm } from "./createForm";

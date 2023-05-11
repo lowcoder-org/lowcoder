@@ -20,7 +20,7 @@ import {
   multiChangeAction,
   RecordConstructorToComp,
   RecordConstructorToView,
-} from "openblocks-core";
+} from "lowcoder-core";
 import { UploadRequestOption } from "rc-upload/lib/interface";
 import { useEffect, useState } from "react";
 import styled, { css } from "styled-components";

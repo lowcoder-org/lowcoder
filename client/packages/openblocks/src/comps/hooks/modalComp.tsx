@@ -12,7 +12,7 @@ import { CanvasContainerID } from "constants/domLocators";
 import { Layers } from "constants/Layers";
 import { HintPlaceHolder, Modal, Section, sectionNames } from "openblocks-design";
 import { trans } from "i18n";
-import { changeChildAction } from "openblocks-core";
+import { changeChildAction } from "lowcoder-core";
 import { CSSProperties, useCallback } from "react";
 import { ResizeHandle } from "react-resizable";
 import styled, { css } from "styled-components";

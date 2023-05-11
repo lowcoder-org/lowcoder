@@ -3,7 +3,7 @@ import { Decoration, DecorationSet, EditorView, ViewPlugin, ViewUpdate } from "@
 import { defaultHighlightStyle, HighlightStyle, syntaxTree } from "@codemirror/language";
 import { highlightTree } from "@lezer/highlight";
 import { Tree } from "@lezer/common";
-import { CodeType, getDynamicStringSegments, isDynamicSegment } from "openblocks-core";
+import { CodeType, getDynamicStringSegments, isDynamicSegment } from "lowcoder-core";
 import { Language } from "../codeEditorTypes";
 
 const highlighterFacet = Facet.define();

@@ -1,5 +1,5 @@
 import { Input } from "openblocks-design";
-import { SimpleComp } from "openblocks-core";
+import { SimpleComp } from "lowcoder-core";
 import { ControlPropertyViewWrapper } from "openblocks-design";
 import { ControlParams } from "./controlParams";
 

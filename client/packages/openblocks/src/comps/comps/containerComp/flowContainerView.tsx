@@ -1,4 +1,4 @@
-import { DispatchType } from "openblocks-core";
+import { DispatchType } from "lowcoder-core";
 import { GridItemsType } from "comps/comps/containerComp/containerView";
 import _ from "lodash";
 import { FlowLayout } from "layout/utils";

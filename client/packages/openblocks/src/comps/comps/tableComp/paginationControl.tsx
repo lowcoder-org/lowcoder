@@ -4,7 +4,7 @@ import { stateComp, valueComp, withDefault } from "comps/generators";
 import { ControlNodeCompBuilder } from "comps/generators/controlCompBuilder";
 import { migrateOldData } from "comps/generators/simpleGenerators";
 import { trans } from "i18n";
-import { changeChildAction, ConstructorToNodeType } from "openblocks-core";
+import { changeChildAction, ConstructorToNodeType } from "lowcoder-core";
 
 const DEFAULT_PAGE_SIZE = 5;
 

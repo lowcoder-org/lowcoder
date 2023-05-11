@@ -1,7 +1,7 @@
 import React, { useState, useMemo, ChangeEvent } from "react";
 import ReactJson from "react-json-view";
 import { UICompLayoutInfo } from "comps/uiCompRegistry";
-import { Comp, customAction } from "openblocks-core";
+import { Comp, customAction } from "lowcoder-core";
 import { Button, Space, Input, Form } from "antd";
 import styled from "styled-components";
 import { useCompInstance, GetContainerParams } from "comps/utils/useCompInstance";

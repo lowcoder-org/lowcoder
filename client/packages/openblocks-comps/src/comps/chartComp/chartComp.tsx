@@ -4,7 +4,7 @@ import {
   CompAction,
   CompActionTypes,
   wrapChildAction,
-} from "openblocks-core";
+} from "lowcoder-core";
 import { AxisFormatterComp, EchartsAxisType } from "./chartConfigs/cartesianAxisConfig";
 import { chartChildrenMap, ChartSize, getDataKeys } from "./chartConstants";
 import { chartPropertyView } from "./chartPropertyView";

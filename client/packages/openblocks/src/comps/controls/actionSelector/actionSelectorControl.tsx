@@ -16,7 +16,7 @@ import {
   isCustomAction,
   isMyCustomAction,
   UpdateActionContextAction,
-} from "openblocks-core";
+} from "lowcoder-core";
 import { Dropdown, HighContainer, Treediv } from "openblocks-design";
 import { useContext } from "react";
 import { limitExecutor, setFieldsNoTypeCheck } from "util/objectUtils";

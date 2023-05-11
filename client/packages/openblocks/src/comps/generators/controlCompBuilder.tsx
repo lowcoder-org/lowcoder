@@ -1,4 +1,4 @@
-import { Comp, DispatchType } from "openblocks-core";
+import { Comp, DispatchType } from "lowcoder-core";
 import { controlItem, ControlItemData, ControlNode } from "openblocks-design";
 import { MultiCompBuilder } from "./multi";
 

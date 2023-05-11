@@ -1,6 +1,6 @@
 import { useMemo, useRef } from "react";
 import { Decoration, DecorationSet, EditorView, ViewPlugin, ViewUpdate } from "@codemirror/view";
-import { CodeType } from "openblocks-core";
+import { CodeType } from "lowcoder-core";
 
 const successHighlightMark = Decoration.mark({ class: "cm-success-highlight" });
 const errorHighlightMark = Decoration.mark({ class: "cm-error-highlight" });

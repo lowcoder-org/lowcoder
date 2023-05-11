@@ -1,5 +1,5 @@
 import { evalAndReduce } from "comps/utils";
-import { customAction, fromRecord, fromValue, RecordNode, SimpleNode } from "openblocks-core";
+import { customAction, fromRecord, fromValue, RecordNode, SimpleNode } from "lowcoder-core";
 import { ExecuteAction } from "comps/controls/actionSelector/executeCompTypes";
 import { ButtonComp } from "comps/comps/buttonComp/buttonComp";
 import { withIsLoading } from "comps/generators/withIsLoading";

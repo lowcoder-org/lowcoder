@@ -5,7 +5,7 @@ import { eventHandlerControl } from "openblocks-sdk";
 import { valueComp, withType } from "openblocks-sdk";
 import { ValueFromOption } from "openblocks-sdk";
 import { uiChildren } from "openblocks-sdk";
-import { RecordConstructorToComp, RecordConstructorToView } from "openblocks-core";
+import { RecordConstructorToComp, RecordConstructorToView } from "lowcoder-core";
 import { BarChartConfig } from "./chartConfigs/barChartConfig";
 import { XAxisConfig, YAxisConfig } from "./chartConfigs/cartesianAxisConfig";
 import { LegendConfig } from "./chartConfigs/legendConfig";

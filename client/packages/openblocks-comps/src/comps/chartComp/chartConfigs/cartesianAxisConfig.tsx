@@ -1,6 +1,6 @@
 import { XAXisComponentOption, YAXisComponentOption } from "echarts";
 import { ChartSize, XAxisDirectionType } from "../chartConstants";
-import { i18n } from "openblocks-core";
+import { i18n } from "lowcoder-core";
 import {
   MultiCompBuilder,
   withContext,

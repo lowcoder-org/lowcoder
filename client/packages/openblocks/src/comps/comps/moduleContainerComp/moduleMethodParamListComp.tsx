@@ -6,7 +6,7 @@ import { dropdownControl } from "comps/controls/dropdownControl";
 import { list } from "comps/generators/list";
 import { NameGenerator } from "comps/utils/nameGenerator";
 import { trans } from "i18n";
-import { multiChangeAction } from "openblocks-core";
+import { multiChangeAction } from "lowcoder-core";
 import { ControlPropertyViewWrapper } from "openblocks-design";
 import { useEffect } from "react";
 import ParamListItemComp, {

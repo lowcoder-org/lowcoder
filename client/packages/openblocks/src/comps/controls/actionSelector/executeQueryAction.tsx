@@ -1,4 +1,4 @@
-import { executeQueryAction, routeByNameAction } from "openblocks-core";
+import { executeQueryAction, routeByNameAction } from "lowcoder-core";
 import { InputTypeEnum } from "comps/comps/moduleContainerComp/ioComp/inputListItemComp";
 import { SimpleNameComp } from "comps/comps/simpleNameComp";
 import { EditorContext, EditorState } from "comps/editorState";

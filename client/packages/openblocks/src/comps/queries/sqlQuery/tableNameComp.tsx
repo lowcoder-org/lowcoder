@@ -1,6 +1,6 @@
 import { trans } from "i18n";
 import { isEmpty } from "lodash";
-import { changeValueAction, DispatchType } from "openblocks-core";
+import { changeValueAction, DispatchType } from "lowcoder-core";
 import { Dropdown, OptionsType } from "openblocks-design";
 import { useContext } from "react";
 import { useSelector } from "react-redux";

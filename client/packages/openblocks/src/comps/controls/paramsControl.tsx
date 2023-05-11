@@ -8,7 +8,7 @@ import {
   Node,
   withFunction,
   wrapChildAction,
-} from "openblocks-core";
+} from "lowcoder-core";
 import { ReactNode } from "react";
 import { lastValueIfEqual } from "util/objectUtils";
 import {

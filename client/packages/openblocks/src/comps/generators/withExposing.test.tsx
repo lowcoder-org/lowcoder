@@ -3,7 +3,7 @@ import { BoolControl } from "comps/controls/boolControl";
 import { StringControl } from "comps/controls/codeControl";
 import { numberExposingStateControl } from "comps/controls/codeStateControl";
 import { evalAndReduce } from "comps/utils";
-import { customAction, Node, RecordNode } from "openblocks-core";
+import { customAction, Node, RecordNode } from "lowcoder-core";
 import { shallowEqual } from "util/objectUtils";
 import { MultiCompBuilder, valueComp } from ".";
 import { depsConfig, NameConfig, withExposingConfigs } from "./withExposing";

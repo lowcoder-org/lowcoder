@@ -1,4 +1,4 @@
-import { Node } from "openblocks-core";
+import { Node } from "lowcoder-core";
 import { mapValues } from "lodash";
 import { ParamsConfig } from "comps/controls/actionSelector/executeCompTypes";
 import { ReactNode } from "react";

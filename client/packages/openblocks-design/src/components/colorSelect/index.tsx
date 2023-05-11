@@ -10,7 +10,7 @@ import {
 import styled, { css } from "styled-components";
 import { useCallback, useRef, useState } from "react";
 import { throttle } from "lodash";
-import { changeValueAction } from "openblocks-core";
+import { changeValueAction } from "lowcoder-core";
 
 interface ColorSelectProps {
   color: string;

@@ -1,4 +1,4 @@
-import { RecordConstructorToComp } from "openblocks-core";
+import { RecordConstructorToComp } from "lowcoder-core";
 import { BoolCodeControl } from "../../controls/codeControl";
 import { LabelControl } from "../../controls/labelControl";
 import {

@@ -18,7 +18,7 @@ import {
   multiChangeAction,
   withFunction,
   wrapChildAction,
-} from "openblocks-core";
+} from "lowcoder-core";
 import { AlignClose, AlignLeft, AlignRight } from "openblocks-design";
 import { ColumnTypeComp, ColumnTypeCompMap } from "./columnTypeComp";
 

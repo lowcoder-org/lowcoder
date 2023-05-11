@@ -6,7 +6,7 @@ import { bottomResListComp } from "comps/generators/bottomResList";
 import { NameConfig, withExposingConfigs } from "comps/generators/withExposing";
 import { trans } from "i18n";
 import _ from "lodash";
-import { CompAction, CompActionTypes } from "openblocks-core";
+import { CompAction, CompActionTypes } from "lowcoder-core";
 import {
   DocLink,
   QueryConfigLabel,

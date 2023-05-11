@@ -1,4 +1,4 @@
-import { fromUnevaledValue } from "openblocks-core";
+import { fromUnevaledValue } from "lowcoder-core";
 import { exposingDataForAutoComplete, NameAndExposingInfo } from "./exposingTypes";
 
 describe("exposingDataForAutoComplete", () => {

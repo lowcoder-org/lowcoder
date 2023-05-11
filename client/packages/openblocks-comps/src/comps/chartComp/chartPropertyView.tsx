@@ -1,4 +1,4 @@
-import { changeChildAction, CompAction } from "openblocks-core";
+import { changeChildAction, CompAction } from "lowcoder-core";
 import { ChartCompChildrenType, ChartTypeOptions, getDataKeys } from "./chartConstants";
 import { newSeries } from "./seriesComp";
 import {

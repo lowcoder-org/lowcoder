@@ -3,7 +3,7 @@ import { NameGenerator } from "../../comps/utils";
 import { checkName } from "../../comps/utils/rename";
 import React from "react";
 import { setFields } from "../objectUtils";
-import { renameAction } from "openblocks-core";
+import { renameAction } from "lowcoder-core";
 import { trans } from "i18n";
 
 export class QueryLibraryState {

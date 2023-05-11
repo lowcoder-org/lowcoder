@@ -1,7 +1,7 @@
 import { ThemeDetail } from "api/commonSettingApi";
 import React, { CSSProperties, useContext, useEffect, useState } from "react";
 import { RootComp } from "comps/comps/rootComp";
-import { Comp } from "openblocks-core";
+import { Comp } from "lowcoder-core";
 import { evalAndReduceWithExposing } from "comps/utils";
 import { ThemeContext } from "comps/utils/themeContext";
 import { ExternalEditorContext } from "util/context/ExternalEditorContext";

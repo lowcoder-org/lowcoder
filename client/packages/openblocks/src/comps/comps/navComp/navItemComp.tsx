@@ -6,7 +6,7 @@ import { withDefault } from "comps/generators/simpleGenerators";
 import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import _ from "lodash";
-import { fromRecord, MultiBaseComp, Node, RecordNode, RecordNodeToValue } from "openblocks-core";
+import { fromRecord, MultiBaseComp, Node, RecordNode, RecordNodeToValue } from "lowcoder-core";
 import { ReactNode } from "react";
 
 const events = [clickEvent];

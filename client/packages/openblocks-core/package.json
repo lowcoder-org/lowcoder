@@ -1,5 +1,5 @@
 {
-  "name": "openblocks-core",
+  "name": "lowcoder-core",
   "version": "0.0.7",
   "type": "module",
   "scripts": {
@@ -21,7 +21,7 @@
     "lodash": "^4.17.21",
     "lru-cache": "^7.14.1"
   },
-  "description": "openblocks-core is a JavaScript library for building new components in openblocks",
+  "description": "lowcoder-core is a JavaScript library for building new components in openblocks",
   "keywords": [
     "openblocks",
     "components"

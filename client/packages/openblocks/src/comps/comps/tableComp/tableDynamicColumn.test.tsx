@@ -3,7 +3,7 @@ import { columnsToAntdFormat } from "comps/comps/tableComp/tableUtils";
 import { evalAndReduce } from "comps/utils";
 import { reduceInContext } from "comps/utils/reduceContext";
 import _ from "lodash";
-import { changeChildAction, fromValue, SimpleNode } from "openblocks-core";
+import { changeChildAction, fromValue, SimpleNode } from "lowcoder-core";
 import { JSONObject } from "util/jsonTypes";
 
 const expectColumn = (

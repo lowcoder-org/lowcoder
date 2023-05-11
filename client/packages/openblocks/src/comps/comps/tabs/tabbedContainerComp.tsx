@@ -1,7 +1,7 @@
 import { message, Tabs } from "antd";
 import { JSONObject, JSONValue } from "util/jsonTypes";
-import { CompAction, CompActionTypes, deleteCompAction, wrapChildAction } from "openblocks-core";
-import { DispatchType, RecordConstructorToView, wrapDispatch } from "openblocks-core";
+import { CompAction, CompActionTypes, deleteCompAction, wrapChildAction } from "lowcoder-core";
+import { DispatchType, RecordConstructorToView, wrapDispatch } from "lowcoder-core";
 import { AutoHeightControl } from "comps/controls/autoHeightControl";
 import { stringExposingStateControl } from "comps/controls/codeStateControl";
 import { eventHandlerControl } from "comps/controls/eventHandlerControl";

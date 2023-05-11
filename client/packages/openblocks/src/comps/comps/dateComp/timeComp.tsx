@@ -1,6 +1,6 @@
 import _ from "lodash";
 import moment from "moment";
-import { RecordConstructorToComp, RecordConstructorToView } from "openblocks-core";
+import { RecordConstructorToComp, RecordConstructorToView } from "lowcoder-core";
 import {
   BoolCodeControl,
   CustomRuleControl,

@@ -10,7 +10,7 @@ import {
   Node,
   routeByNameAction,
   triggerModuleEventAction,
-} from "openblocks-core";
+} from "lowcoder-core";
 import { lastValueIfEqual } from "util/objectUtils";
 
 const childrenMap = {

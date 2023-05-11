@@ -7,7 +7,7 @@ import {
   isCustomAction,
   isMyCustomAction,
   CustomAction,
-} from "openblocks-core";
+} from "lowcoder-core";
 import { MethodConfig, ExecuteAction } from "comps/controls/actionSelector/executeCompTypes";
 import {
   JSONValueControl,
@@ -24,7 +24,7 @@ import { withType, MultiCompBuilder } from "comps/generators";
 import { simpleValueComp } from "comps/generators/hookToComp";
 import { withExposingRaw } from "comps/generators/withExposing";
 import { getReduceContext } from "comps/utils/reduceContext";
-import { FunctionNode, CodeNode, fromRecord, Node } from "openblocks-core";
+import { FunctionNode, CodeNode, fromRecord, Node } from "lowcoder-core";
 import { Fragment, useEffect } from "react";
 import { setFieldsNoTypeCheck } from "util/objectUtils";
 import { handlePromiseAndDispatch } from "util/promiseUtils";

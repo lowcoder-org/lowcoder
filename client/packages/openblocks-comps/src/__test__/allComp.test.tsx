@@ -1,5 +1,5 @@
 import _ from "lodash";
-import { CompConstructor, CustomAction } from "openblocks-core";
+import { CompConstructor, CustomAction } from "lowcoder-core";
 import { evalAndReduce, isExposingMethodComp } from "openblocks-sdk";
 import { ChartCompWithDefault } from "comps/chartComp/chartComp";
 import log from "loglevel";

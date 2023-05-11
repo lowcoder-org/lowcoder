@@ -1,4 +1,4 @@
-import { CompParams } from "openblocks-core";
+import { CompParams } from "lowcoder-core";
 import { ToDataType } from "comps/generators/multi";
 import { NameConfigHidden, withExposingConfigs } from "comps/generators/withExposing";
 import { NameGenerator } from "comps/utils/nameGenerator";

@@ -18,7 +18,7 @@ import { ModalComp } from "comps/hooks/modalComp";
 import { trans } from "i18n";
 import _ from "lodash";
 import moment from "moment";
-import { ConstructorToComp } from "openblocks-core";
+import { ConstructorToComp } from "lowcoder-core";
 import { Section, sectionNames } from "openblocks-design";
 import React, { useContext, useEffect, useMemo } from "react";
 import { useInterval, useTitle, useWindowSize } from "react-use";

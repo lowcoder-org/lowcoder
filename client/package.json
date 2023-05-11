@@ -16,8 +16,8 @@
     "build": "yarn node ./scripts/build.js",
     "test": "jest && yarn workspace openblocks-comps test",
     "prepare": "yarn workspace openblocks prepare",
-    "build:core": "yarn workspace openblocks-core build",
-    "test:core": "yarn workspace openblocks-core test"
+    "build:core": "yarn workspace lowcoder-core build",
+    "test:core": "yarn workspace lowcoder-core test"
   },
   "devDependencies": {
     "@babel/preset-env": "^7.20.2",

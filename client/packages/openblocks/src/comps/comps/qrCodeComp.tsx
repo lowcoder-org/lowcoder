@@ -1,4 +1,4 @@
-import { RecordConstructorToView } from "openblocks-core";
+import { RecordConstructorToView } from "lowcoder-core";
 import { BoolControl } from "comps/controls/boolControl";
 import { stringExposingStateControl } from "comps/controls/codeStateControl";
 import { dropdownControl } from "comps/controls/dropdownControl";

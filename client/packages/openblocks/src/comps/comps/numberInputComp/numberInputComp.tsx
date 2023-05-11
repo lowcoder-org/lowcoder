@@ -23,7 +23,7 @@ import {
 import { Section, sectionNames, ValueFromOption } from "openblocks-design";
 import { useEffect, useRef, useState } from "react";
 import styled, { css } from "styled-components";
-import { RecordConstructorToView } from "openblocks-core";
+import { RecordConstructorToView } from "lowcoder-core";
 import { InputEventHandlerControl } from "../../controls/eventHandlerControl";
 import { UICompBuilder, withDefault } from "../../generators";
 import { formDataChildren, FormDataPropertyView } from "../formComp/formDataConstants";

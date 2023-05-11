@@ -24,7 +24,7 @@ import {
   transformWrapper,
   ValueAndMsg,
   withFunction,
-} from "openblocks-core";
+} from "lowcoder-core";
 import {
   ControlPropertyViewWrapper,
   isValidColor,

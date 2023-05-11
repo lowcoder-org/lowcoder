@@ -1,4 +1,4 @@
-import { SimpleAbstractComp } from "openblocks-core";
+import { SimpleAbstractComp } from "lowcoder-core";
 import {
   AlignBottom,
   AlignCenter,

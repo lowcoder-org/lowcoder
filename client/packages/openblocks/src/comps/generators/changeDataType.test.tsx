@@ -2,7 +2,7 @@ import { NumberControl, StringControl } from "comps/controls/codeControl";
 import { changeDataType } from "./changeDataType";
 import { MultiCompBuilder } from "./multi";
 import { evalAndReduce } from "comps/utils";
-import { Comp } from "openblocks-core";
+import { Comp } from "lowcoder-core";
 
 const childrenMap = {
   value: StringControl,

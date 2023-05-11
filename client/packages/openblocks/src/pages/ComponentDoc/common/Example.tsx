@@ -1,4 +1,4 @@
-import { Comp } from "openblocks-core";
+import { Comp } from "lowcoder-core";
 import { evalAndReduceWithExposing } from "comps/utils";
 import _ from "lodash";
 import React, { ReactNode, useContext, useEffect, useState } from "react";

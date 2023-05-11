@@ -1,5 +1,5 @@
-import { routeByNameAction, executeQueryAction } from "openblocks-core";
-import { CompAction } from "openblocks-core";
+import { routeByNameAction, executeQueryAction } from "lowcoder-core";
+import { CompAction } from "lowcoder-core";
 import { StringControl } from "comps/controls/codeControl";
 import { jsonObjectStateControl } from "comps/controls/codeStateControl";
 import { UICompBuilder, withDefault } from "comps/generators";

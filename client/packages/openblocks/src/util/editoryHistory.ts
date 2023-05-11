@@ -1,6 +1,6 @@
 import { JSONValue } from "util/jsonTypes";
-import { CompAction, CompActionTypes, isBroadcastAction, RenameAction } from "openblocks-core";
-import { Comp } from "openblocks-core";
+import { CompAction, CompActionTypes, isBroadcastAction, RenameAction } from "lowcoder-core";
+import { Comp } from "lowcoder-core";
 import { CompContainer } from "comps/utils/useCompInstance";
 import { AppSnapshotContext } from "constants/applicationConstants";
 import _ from "lodash";

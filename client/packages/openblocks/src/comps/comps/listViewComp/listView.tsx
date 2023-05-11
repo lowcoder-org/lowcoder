@@ -2,7 +2,7 @@ import { Pagination } from "antd";
 import { EditorContext } from "comps/editorState";
 import { BackgroundColorContext } from "comps/utils/backgroundColorContext";
 import _ from "lodash";
-import { ConstructorToView, deferAction } from "openblocks-core";
+import { ConstructorToView, deferAction } from "lowcoder-core";
 import { HintPlaceHolder, pageItemRender } from "openblocks-design";
 import { RefObject, useContext, useEffect, useMemo, useRef } from "react";
 import ReactResizeDetector from "react-resize-detector";

@@ -4,13 +4,13 @@ import {
   multiChangeAction,
   updateNodesV2Action,
   wrapChildAction,
-} from "openblocks-core";
+} from "lowcoder-core";
 import { valueComp, withDefault } from ".";
-import { Comp } from "openblocks-core";
+import { Comp } from "lowcoder-core";
 import { MultiCompBuilder } from "./multi";
 import { StringControl } from "comps/controls/codeControl";
 import { evalAndReduce } from "comps/utils";
-import { fromRecord, fromValue } from "openblocks-core";
+import { fromRecord, fromValue } from "lowcoder-core";
 import { BoolControl } from "comps/controls/boolControl";
 
 const emptyViewFunc = (props: Record<string, any>) => {

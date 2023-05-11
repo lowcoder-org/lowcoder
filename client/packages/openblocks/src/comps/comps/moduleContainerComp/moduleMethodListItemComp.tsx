@@ -2,7 +2,7 @@ import { ActionSelectorControl } from "comps/controls/actionSelector/actionSelec
 import CompNameControl from "comps/controls/compNameControl";
 import { MultiCompBuilder } from "comps/generators";
 import { withParams } from "comps/generators/withParams";
-import { CompAction, customAction, isCustomAction } from "openblocks-core";
+import { CompAction, customAction, isCustomAction } from "lowcoder-core";
 import { getPromiseAfterDispatch } from "util/promiseUtils";
 import ModuleMethodParamListComp from "./moduleMethodParamListComp";
 

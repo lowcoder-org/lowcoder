@@ -9,7 +9,7 @@ import {
   Node,
   SimpleComp,
   ValueAndMsg,
-} from "openblocks-core";
+} from "lowcoder-core";
 import { CheckBox, controlItem, Switch, SwitchJsIcon, SwitchWrapper } from "openblocks-design";
 import { ReactNode } from "react";
 import styled from "styled-components";

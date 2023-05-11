@@ -4,7 +4,7 @@ import { clickEvent, eventHandlerControl } from "../controls/eventHandlerControl
 import { StringStateControl } from "../controls/codeStateControl";
 import { UICompBuilder, withDefault } from "../generators";
 import { NameConfig, NameConfigHidden, withExposingConfigs } from "../generators/withExposing";
-import { RecordConstructorToView } from "openblocks-core";
+import { RecordConstructorToView } from "lowcoder-core";
 import { useEffect, useRef, useState } from "react";
 import _ from "lodash";
 import ReactResizeDetector from "react-resize-detector";

@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
-import { CompAction } from "openblocks-core";
-import { AbstractComp, CompParams } from "openblocks-core";
+import { CompAction } from "lowcoder-core";
+import { AbstractComp, CompParams } from "lowcoder-core";
 
 // empty object
 type EmptyDataType = {};

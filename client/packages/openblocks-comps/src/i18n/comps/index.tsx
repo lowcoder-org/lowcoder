@@ -1,4 +1,4 @@
-import { getI18nObjects, getValueByLocale, Translator } from "openblocks-core";
+import { getI18nObjects, getValueByLocale, Translator } from "lowcoder-core";
 import * as localeData from "./locales";
 import { I18nObjects } from "./locales/types";
 

@@ -10,7 +10,7 @@ import { setEditorExternalStateAction } from "redux/reduxActions/configActions";
 import { AppTypeEnum } from "constants/applicationConstants";
 import EditorSkeletonView from "pages/editor/editorSkeletonView";
 import { useThrottle, useUnmount } from "react-use";
-import { Comp } from "openblocks-core";
+import { Comp } from "lowcoder-core";
 import { localEnv } from "util/envUtils";
 import { saveMainComp } from "util/localStorageUtil";
 import { RootComp } from "comps/comps/rootComp";

@@ -1,5 +1,5 @@
 import { trans } from "i18n";
-import { CompConstructor } from "openblocks-core";
+import { CompConstructor } from "lowcoder-core";
 import React, { ErrorInfo } from "react";
 import styled from "styled-components";
 

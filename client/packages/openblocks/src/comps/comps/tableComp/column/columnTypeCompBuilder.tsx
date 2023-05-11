@@ -19,7 +19,7 @@ import {
   NodeToValue,
   RecordConstructorToComp,
   withFunction,
-} from "openblocks-core";
+} from "lowcoder-core";
 import { ReactNode } from "react";
 import { JSONValue } from "util/jsonTypes";
 

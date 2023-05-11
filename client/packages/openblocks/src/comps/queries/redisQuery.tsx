@@ -1,7 +1,7 @@
 import { withTypeAndChildrenAbstract } from "comps/generators/withType";
 import { trans } from "i18n";
 import { includes } from "lodash";
-import { CompAction, CompConstructor } from "openblocks-core";
+import { CompAction, CompConstructor } from "lowcoder-core";
 import {
   Dropdown,
   QueryConfigWrapper,

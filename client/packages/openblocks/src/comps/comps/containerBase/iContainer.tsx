@@ -1,5 +1,5 @@
 import { JSONValue } from "util/jsonTypes";
-import { Comp } from "openblocks-core";
+import { Comp } from "lowcoder-core";
 import { NameGenerator } from "comps/utils";
 import { SimpleContainerComp } from "./simpleContainerComp";
 import { CompTree } from "./utils";

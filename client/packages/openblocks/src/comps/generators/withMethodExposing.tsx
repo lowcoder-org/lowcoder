@@ -1,5 +1,5 @@
-import { CompAction, CustomAction, isMyCustomAction } from "openblocks-core";
-import { AbstractComp, Comp, ConstructorToComp, MultiBaseComp } from "openblocks-core";
+import { CompAction, CustomAction, isMyCustomAction } from "lowcoder-core";
+import { AbstractComp, Comp, ConstructorToComp, MultiBaseComp } from "lowcoder-core";
 import {
   EvalParamType,
   ExecuteAction,

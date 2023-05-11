@@ -6,7 +6,7 @@ import {
 } from "../../controls/paramsControl";
 import { toQueryView } from "../queryCompUtils";
 import { withTypeAndChildrenAbstract } from "../../generators/withType";
-import { CompAction } from "openblocks-core";
+import { CompAction } from "lowcoder-core";
 import {
   Dropdown,
   QueryConfigItemWrapper,

@@ -1,7 +1,7 @@
 import { NumberControl, StringControl } from "comps/controls/codeControl";
 import { evalAndReduce } from "comps/utils";
 import _ from "lodash";
-import { updateNodesV2Action } from "openblocks-core";
+import { updateNodesV2Action } from "lowcoder-core";
 import { getObjectId } from "util/objectUtils";
 import { cost } from "util/perfUtils";
 import { MultiCompBuilder } from "./multi";

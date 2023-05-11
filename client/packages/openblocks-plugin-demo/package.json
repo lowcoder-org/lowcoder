@@ -4,7 +4,7 @@
   "type": "module",
   "license": "MIT",
   "dependencies": {
-    "openblocks-core": "^0.0.1",
+    "lowcoder-core": "^0.0.1",
     "openblocks-design": "^0.0.1",
     "react": "17",
     "react-dom": "17"

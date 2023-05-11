@@ -10,7 +10,7 @@ import { ControlItemCompBuilder } from "comps/generators/controlCompBuilder";
 import { BackgroundColorContext } from "comps/utils/backgroundColorContext";
 import { trans } from "i18n";
 import _ from "lodash";
-import { ConstructorToView, wrapChildAction } from "openblocks-core";
+import { ConstructorToView, wrapChildAction } from "lowcoder-core";
 import { useContext } from "react";
 import { tryToNumber } from "util/convertUtils";
 import { SimpleContainerComp } from "../containerBase/simpleContainerComp";

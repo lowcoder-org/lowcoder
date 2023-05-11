@@ -1,6 +1,6 @@
 import { withPropertyViewFn, withTypeAndChildren } from "comps/generators";
 import { includes } from "lodash";
-import { CompAction, CompConstructor } from "openblocks-core";
+import { CompAction, CompConstructor } from "lowcoder-core";
 import { Dropdown, ValueFromOption } from "openblocks-design";
 import { dropdownControl } from "../controls/dropdownControl";
 import {

@@ -1,4 +1,4 @@
-import { CompAction, changeValueAction, CompActionTypes } from "openblocks-core";
+import { CompAction, changeValueAction, CompActionTypes } from "lowcoder-core";
 import _ from "lodash";
 import { actionHandlerGenerator, nestDispatchHandlerGenerator } from "./useCompInstance";
 

@@ -7,7 +7,7 @@ import {
   executeQueryAction,
   multiChangeAction,
   wrapActionExtraInfo,
-} from "openblocks-core";
+} from "lowcoder-core";
 import { addMapChildAction } from "comps/generators/sameTypeMap";
 import { genQueryId, genRandomKey } from "comps/utils/idGenerator";
 import { useDispatch, useSelector } from "react-redux";

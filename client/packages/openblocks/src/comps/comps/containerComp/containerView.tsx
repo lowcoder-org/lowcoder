@@ -37,7 +37,7 @@ import {
   RecordConstructorToView,
   wrapActionExtraInfo,
   wrapChildAction,
-} from "openblocks-core";
+} from "lowcoder-core";
 import React, {
   DragEvent,
   HTMLAttributes,

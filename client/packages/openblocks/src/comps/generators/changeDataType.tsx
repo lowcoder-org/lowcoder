@@ -1,6 +1,6 @@
 import { JSONValue } from "util/jsonTypes";
-import { Comp, CompParams, ConstructorToNodeType, ConstructorToView } from "openblocks-core";
-import { MultiBaseComp } from "openblocks-core";
+import { Comp, CompParams, ConstructorToNodeType, ConstructorToView } from "lowcoder-core";
+import { MultiBaseComp } from "lowcoder-core";
 
 type GetDataType<T> = T extends new (params: CompParams<any>) => MultiBaseComp<any, infer A, any>
   ? A

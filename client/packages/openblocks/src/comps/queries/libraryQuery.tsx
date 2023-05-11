@@ -10,7 +10,7 @@ import {
   isMyCustomAction,
   MultiBaseComp,
   wrapChildAction,
-} from "openblocks-core";
+} from "lowcoder-core";
 import {
   Dropdown,
   QueryConfigLabel,

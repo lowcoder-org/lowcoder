@@ -9,7 +9,7 @@ import {
   Node,
   routeByNameAction,
   triggerModuleEventAction,
-} from "openblocks-core";
+} from "lowcoder-core";
 import { getPromiseAfterDispatch } from "util/promiseUtils";
 import { RootComp } from "../rootComp";
 import { TextComp } from "../textComp";

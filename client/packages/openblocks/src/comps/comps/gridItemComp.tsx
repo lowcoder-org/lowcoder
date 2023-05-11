@@ -16,7 +16,7 @@ import {
 import { ExposingInfo } from "comps/utils/exposingTypes";
 import { getReduceContext, WithParamsContext } from "comps/utils/reduceContext";
 import { parseCompType } from "comps/utils/remote";
-import { Comp, CompAction, ConstructorToDataType } from "openblocks-core";
+import { Comp, CompAction, ConstructorToDataType } from "lowcoder-core";
 import { ScrollBar, SearchTextContext } from "openblocks-design";
 import React, { Profiler, useContext, useEffect, useMemo, useState } from "react";
 import { profilerCallback } from "util/cacheUtils";

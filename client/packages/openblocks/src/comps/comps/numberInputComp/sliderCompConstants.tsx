@@ -3,7 +3,7 @@ import { LabelControl } from "../../controls/labelControl";
 import { withDefault } from "../../generators";
 import { ChangeEventHandlerControl } from "../../controls/eventHandlerControl";
 import { Section, sectionNames } from "openblocks-design";
-import { RecordConstructorToComp } from "openblocks-core";
+import { RecordConstructorToComp } from "lowcoder-core";
 import { styleControl } from "comps/controls/styleControl";
 import { SliderStyle, SliderStyleType } from "comps/controls/styleControlConstants";
 import styled, { css } from "styled-components";

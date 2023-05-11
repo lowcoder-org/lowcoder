@@ -1,7 +1,7 @@
 import { MultiCompBuilder } from "openblocks-sdk";
 import { PieSeriesOption } from "echarts";
 import { dropdownControl } from "openblocks-sdk";
-import { ConstructorToView } from "openblocks-core";
+import { ConstructorToView } from "lowcoder-core";
 import { trans } from "i18n/comps";
 
 const BarTypeOptions = [

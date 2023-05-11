@@ -1,5 +1,5 @@
 import { ThemeDetail, ThemeType } from "api/commonSettingApi";
-import { RecordConstructorToComp } from "openblocks-core";
+import { RecordConstructorToComp } from "lowcoder-core";
 import { dropdownInputSimpleControl } from "comps/controls/dropdownInputSimpleControl";
 import { MultiCompBuilder, valueComp } from "comps/generators";
 import { AddIcon, Dropdown } from "openblocks-design";

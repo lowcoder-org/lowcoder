@@ -1,9 +1,9 @@
 import { JSONObject } from "util/jsonTypes";
-import { NodeToValue, RecordNode } from "openblocks-core";
+import { NodeToValue, RecordNode } from "lowcoder-core";
 import _ from "lodash";
 import React, { ReactNode } from "react";
-import { CompAction } from "openblocks-core";
-import { Comp, CompParams, MultiBaseComp, wrapDispatch } from "openblocks-core";
+import { CompAction } from "lowcoder-core";
+import { Comp, CompParams, MultiBaseComp, wrapDispatch } from "lowcoder-core";
 
 type ViewFnType<ViewReturn, ChildrenType> = (
   childrenType: ChildrenType,

@@ -42,7 +42,7 @@ import {
   MultiBaseComp,
   multiChangeAction,
   wrapActionExtraInfo,
-} from "openblocks-core";
+} from "lowcoder-core";
 import { ValueFromOption } from "openblocks-design";
 import { ReactNode, useEffect } from "react";
 import {

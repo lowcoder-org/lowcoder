@@ -1,11 +1,11 @@
-import { DispatchType } from "openblocks-core";
+import { DispatchType } from "lowcoder-core";
 import { ControlPlacement } from "../../controls/controlParams";
 import React, { useContext } from "react";
 import { Dropdown, OptionsType } from "openblocks-design";
 import { isEmpty, values } from "lodash";
 import { useSelector } from "react-redux";
 import { getDataSourceStructures } from "../../../redux/selectors/datasourceSelectors";
-import { changeValueAction } from "openblocks-core";
+import { changeValueAction } from "lowcoder-core";
 import { QueryContext } from "../../../util/context/QueryContext";
 
 export const ColumnNameDropdown = (props: {

@@ -3,7 +3,7 @@ import { ChildrenTypeToDepsKeys, depsConfig } from "../../generators/withExposin
 import { BoolControl } from "../../controls/boolControl";
 import { CustomRuleControl } from "../../controls/codeControl";
 import { isEmpty } from "lodash";
-import { ConstructorToComp, RecordConstructorToComp } from "openblocks-core";
+import { ConstructorToComp, RecordConstructorToComp } from "lowcoder-core";
 import {
   arrayStringExposingStateControl,
   jsonExposingStateControl,

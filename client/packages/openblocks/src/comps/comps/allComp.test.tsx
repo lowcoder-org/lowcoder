@@ -13,7 +13,7 @@ import { QueryComp } from "comps/queries";
 import { JSQuery } from "comps/queries/jsQuery";
 import { evalAndReduce } from "comps/utils";
 import _ from "lodash";
-import { CompConstructor } from "openblocks-core";
+import { CompConstructor } from "lowcoder-core";
 import { ParamsStringControl } from "../controls/paramsControl";
 import { SQLQuery } from "../queries/sqlQuery/SQLQuery";
 import { uiCompRegistry } from "../uiCompRegistry";

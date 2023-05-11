@@ -1,4 +1,4 @@
-import { CompConstructor, CompParams, DispatchType } from "openblocks-core";
+import { CompConstructor, CompParams, DispatchType } from "lowcoder-core";
 
 /**
  * Hijack the dispatch method.

@@ -1,5 +1,5 @@
 import { QueryComp } from "./queryComp";
-import { CompParams } from "openblocks-core";
+import { CompParams } from "lowcoder-core";
 
 // shallow copy all values and methods
 test("object create", () => {

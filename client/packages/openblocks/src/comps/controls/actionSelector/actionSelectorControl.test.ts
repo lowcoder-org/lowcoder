@@ -2,7 +2,7 @@ import { simpleMultiComp } from "comps/generators/multi";
 import { valueComp } from "comps/generators/simpleGenerators";
 import { setGlobalSettings } from "comps/utils/globalSettings";
 import { evalAndReduce } from "comps/utils";
-import { fromValue } from "openblocks-core";
+import { fromValue } from "lowcoder-core";
 import { ActionSelectorControl } from "./actionSelectorControl";
 
 test("action handler always get latest data", async () => {

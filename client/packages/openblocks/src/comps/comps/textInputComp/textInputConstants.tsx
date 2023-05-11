@@ -13,7 +13,7 @@ import { Section, sectionNames, ValueFromOption } from "openblocks-design";
 import _ from "lodash";
 import { css } from "styled-components";
 import { EMAIL_PATTERN, URL_PATTERN } from "util/stringUtils";
-import { MultiBaseComp, RecordConstructorToComp, RecordConstructorToView } from "openblocks-core";
+import { MultiBaseComp, RecordConstructorToComp, RecordConstructorToView } from "lowcoder-core";
 import { dropdownControl } from "../../controls/dropdownControl";
 import { InputEventHandlerControl } from "../../controls/eventHandlerControl";
 import {

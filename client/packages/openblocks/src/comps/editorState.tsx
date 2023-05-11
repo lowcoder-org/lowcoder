@@ -5,7 +5,7 @@ import _ from "lodash";
 import React, { ReactNode } from "react";
 import { BottomResComp, BottomResListComp, BottomResTypeEnum } from "types/bottomRes";
 import { setFields } from "util/objectUtils";
-import { OptionalComp, renameAction } from "openblocks-core";
+import { OptionalComp, renameAction } from "lowcoder-core";
 import { GridItemComp } from "./comps/gridItemComp";
 import { hookCompCategory, isHookComp } from "./hooks/hookCompTypes";
 import { NameGenerator } from "./utils";

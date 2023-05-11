@@ -6,7 +6,7 @@ import {
   MultiCompConstructor,
   wrapChildAction,
   wrapDispatch,
-} from "openblocks-core";
+} from "lowcoder-core";
 import { ReactNode } from "react";
 import { lastValueIfEqual, setFieldsNoTypeCheck } from "util/objectUtils";
 import { COMP_KEY, MAP_KEY, withMultiContext } from "./withMultiContext";

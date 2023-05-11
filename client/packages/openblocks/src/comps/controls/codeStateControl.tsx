@@ -25,7 +25,7 @@ import {
   ConstructorToView,
   evalNodeOrMinor,
   updateNodesV2Action,
-} from "openblocks-core";
+} from "lowcoder-core";
 import { memo } from "util/cacheUtils";
 import {
   toBoolean,

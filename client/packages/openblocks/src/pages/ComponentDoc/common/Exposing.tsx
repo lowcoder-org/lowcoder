@@ -1,5 +1,5 @@
 import { Table } from "antd";
-import { Comp } from "openblocks-core";
+import { Comp } from "lowcoder-core";
 import { UICompType } from "comps/uiCompRegistry";
 import { EventConfigsType } from "comps/controls/eventHandlerControl";
 import { evalAndReduceWithExposing } from "comps/utils";

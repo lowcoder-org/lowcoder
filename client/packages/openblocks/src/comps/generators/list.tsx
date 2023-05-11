@@ -14,7 +14,7 @@ import {
   Node,
   withFunction,
   wrapDispatch,
-} from "openblocks-core";
+} from "lowcoder-core";
 import { ReactNode } from "react";
 import { JSONValue } from "util/jsonTypes";
 import { lastValueIfEqual, setFieldsNoTypeCheck } from "util/objectUtils";

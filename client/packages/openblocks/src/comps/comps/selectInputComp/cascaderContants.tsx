@@ -1,6 +1,6 @@
 import { SelectEventHandlerControl } from "../../controls/eventHandlerControl";
 import { Section, sectionNames } from "openblocks-design";
-import { RecordConstructorToComp } from "openblocks-core";
+import { RecordConstructorToComp } from "lowcoder-core";
 import { BoolCodeControl, JSONObjectArrayControl, StringControl } from "comps/controls/codeControl";
 import { arrayStringExposingStateControl } from "comps/controls/codeStateControl";
 import { BoolControl } from "comps/controls/boolControl";

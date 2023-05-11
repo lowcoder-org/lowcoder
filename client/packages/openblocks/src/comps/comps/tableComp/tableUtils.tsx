@@ -11,7 +11,7 @@ import { RawColumnType, Render } from "comps/comps/tableComp/column/tableColumnC
 import { TableFilter, tableFilterOperatorMap } from "comps/comps/tableComp/tableToolbarComp";
 import { SortValue, TableOnEventView } from "comps/comps/tableComp/tableTypes";
 import _ from "lodash";
-import { changeChildAction, CompAction, NodeToValue } from "openblocks-core";
+import { changeChildAction, CompAction, NodeToValue } from "lowcoder-core";
 import { EditableIcon } from "openblocks-design";
 import { tryToNumber } from "util/convertUtils";
 import { JSONObject, JSONValue } from "util/jsonTypes";

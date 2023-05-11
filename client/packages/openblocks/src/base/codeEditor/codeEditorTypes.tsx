@@ -1,4 +1,4 @@
-import { CodeType } from "openblocks-core";
+import { CodeType } from "lowcoder-core";
 import React, { ReactNode } from "react";
 import { EditorState, EditorView } from "./codeMirror";
 

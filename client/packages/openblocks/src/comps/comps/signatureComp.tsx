@@ -13,7 +13,7 @@ import {
 import { stateComp, withDefault } from "comps/generators/simpleGenerators";
 import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
-import { changeValueAction, multiChangeAction } from "openblocks-core";
+import { changeValueAction, multiChangeAction } from "lowcoder-core";
 import { Section, sectionNames, UndoIcon } from "openblocks-design";
 import React, { Suspense, useState } from "react";
 import ReactResizeDetector from "react-resize-detector";

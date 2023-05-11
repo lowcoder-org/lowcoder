@@ -12,8 +12,8 @@ import {
 } from "openblocks-sdk";
 import { trans } from "i18n/comps";
 
-import { ConstructorToComp, ConstructorToDataType, ConstructorToView } from "openblocks-core";
-import { CompAction, CustomAction, customAction, isMyCustomAction } from "openblocks-core";
+import { ConstructorToComp, ConstructorToDataType, ConstructorToView } from "lowcoder-core";
+import { CompAction, CustomAction, customAction, isMyCustomAction } from "lowcoder-core";
 
 export type SeriesCompType = ConstructorToComp<typeof SeriesComp>;
 export type RawSeriesCompType = ConstructorToView<typeof SeriesComp>;

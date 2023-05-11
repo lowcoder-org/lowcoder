@@ -1,7 +1,7 @@
 import { ColumnComp } from "comps/comps/tableComp/column/tableColumnComp";
 import { evalAndReduce } from "comps/utils";
 import _ from "lodash";
-import { fromValue } from "openblocks-core";
+import { fromValue } from "lowcoder-core";
 import { MemoryRouter } from "react-router-dom";
 import { MockTableComp } from "./mockTableComp";
 import { TableComp } from "./tableComp";

@@ -3,7 +3,7 @@ import { QueryConfigItemWrapper, QueryConfigLabel, QueryConfigWrapper } from "co
 import { valueComp, withDefault } from "comps/generators";
 import { trans } from "i18n";
 import { includes } from "lodash";
-import { CompAction, MultiBaseComp } from "openblocks-core";
+import { CompAction, MultiBaseComp } from "lowcoder-core";
 import { keyValueListControl } from "../../controls/keyValueControl";
 import { ParamsJsonControl, ParamsStringControl } from "../../controls/paramsControl";
 import { withTypeAndChildrenAbstract } from "../../generators/withType";

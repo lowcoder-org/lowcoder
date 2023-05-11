@@ -11,7 +11,7 @@ import { ViewQuery } from "../comps/queries/viewQuery";
 import { GoogleSheetsQuery } from "../comps/queries/googleSheetsQuery";
 import { GraphqlQuery } from "../comps/queries/httpQuery/graphqlQuery";
 import { toPluginQuery } from "comps/queries/pluginQuery/pluginQuery";
-import { MultiCompConstructor } from "openblocks-core";
+import { MultiCompConstructor } from "lowcoder-core";
 import { DataSourcePluginMeta } from "openblocks-sdk/dataSource";
 
 export type DatasourceType =

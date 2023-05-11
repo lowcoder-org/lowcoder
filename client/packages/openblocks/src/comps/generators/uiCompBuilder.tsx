@@ -1,7 +1,7 @@
 import { BoolCodeControl } from "comps/controls/codeControl";
 import React, { ReactNode, useContext } from "react";
 import { ExternalEditorContext } from "util/context/ExternalEditorContext";
-import { Comp, CompParams, MultiBaseComp } from "openblocks-core";
+import { Comp, CompParams, MultiBaseComp } from "lowcoder-core";
 import {
   childrenToProps,
   parseChildrenFromValueAndChildrenMap,

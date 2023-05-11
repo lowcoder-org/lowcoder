@@ -3,7 +3,7 @@ import {
   DispatchType,
   RecordConstructorToComp,
   RecordConstructorToView,
-} from "openblocks-core";
+} from "lowcoder-core";
 import { BoolControl } from "../../controls/boolControl";
 import { LabelControl } from "../../controls/labelControl";
 import { BoolCodeControl, StringControl } from "../../controls/codeControl";

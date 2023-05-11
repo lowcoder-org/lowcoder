@@ -3,7 +3,7 @@ import { simpleMultiComp } from "comps/generators";
 import { withExposingConfigs } from "comps/generators/withExposing";
 import { GreyTextColor } from "constants/style";
 import log from "loglevel";
-import { Comp, CompAction, CompParams, customAction, isCustomAction } from "openblocks-core";
+import { Comp, CompAction, CompParams, customAction, isCustomAction } from "lowcoder-core";
 import { WhiteLoading } from "openblocks-design";
 import { useState } from "react";
 import { useMount } from "react-use";

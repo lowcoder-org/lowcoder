@@ -17,7 +17,7 @@ import { BoolCodeControl, StringControl } from "../../controls/codeControl";
 import { BoolPureControl } from "../../controls/boolControl";
 import { millisecondsControl } from "../../controls/millisecondControl";
 import { trans } from "i18n";
-import { CompAction, customAction, isMyCustomAction } from "openblocks-core";
+import { CompAction, customAction, isMyCustomAction } from "lowcoder-core";
 
 const SuccessMessageAction = new MultiCompBuilder(
   {

@@ -1,5 +1,5 @@
 import { MultiCompBuilder } from "comps/generators";
-import { CompAction, CompActionTypes } from "openblocks-core";
+import { CompAction, CompActionTypes } from "lowcoder-core";
 import { OptionsType, ValueFromOption } from "openblocks-design";
 import { ReactNode } from "react";
 import { ControlPlacement } from "./controlParams";

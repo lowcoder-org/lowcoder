@@ -11,7 +11,7 @@ import {
   DispatchType,
   Node,
   ValueAndMsg,
-} from "openblocks-core";
+} from "lowcoder-core";
 import {
   BlockGrayLabel,
   controlItem,

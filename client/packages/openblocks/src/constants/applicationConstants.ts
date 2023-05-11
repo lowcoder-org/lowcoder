@@ -1,5 +1,5 @@
 import { JSONValue } from "util/jsonTypes";
-import { ExtraActionType } from "openblocks-core";
+import { ExtraActionType } from "lowcoder-core";
 import { CommonSettingResponseData } from "api/commonSettingApi";
 import { PermissionItem } from "../components/PermissionDialog/PermissionList";
 import { UiLayoutType } from "comps/comps/uiComp";

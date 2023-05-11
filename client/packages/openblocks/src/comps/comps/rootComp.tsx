@@ -1,4 +1,4 @@
-import { CompAction, CompActionTypes } from "openblocks-core";
+import { CompAction, CompActionTypes } from "lowcoder-core";
 import { EditorContext, EditorState } from "comps/editorState";
 import { simpleMultiComp } from "comps/generators";
 import { HookListComp } from "comps/hooks/hookListComp";

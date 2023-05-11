@@ -13,7 +13,7 @@ import {
   Node,
   NodeToValue,
   wrapDispatch,
-} from "openblocks-core";
+} from "lowcoder-core";
 import { ReactNode } from "react";
 import { memo } from "util/cacheUtils";
 

@@ -1,4 +1,4 @@
-import { RecordConstructorToView } from "openblocks-core";
+import { RecordConstructorToView } from "lowcoder-core";
 import { UICompBuilder } from "comps/generators/uiCompBuilder";
 import { withExposingConfigs } from "comps/generators/withExposing";
 import { Section, sectionNames } from "openblocks-design";

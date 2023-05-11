@@ -1,5 +1,5 @@
 import { JSONValue } from "util/jsonTypes";
-import { Comp, CompParams } from "openblocks-core";
+import { Comp, CompParams } from "lowcoder-core";
 import { UICompBuilder } from "comps/generators";
 import {
   PropertyViewFnTypeForComp,

@@ -1,4 +1,4 @@
-import { fromValue, Node } from "openblocks-core";
+import { fromValue, Node } from "lowcoder-core";
 import _ from "lodash";
 import moment from "moment";
 import { useCurrentUser } from "util/currentUser";

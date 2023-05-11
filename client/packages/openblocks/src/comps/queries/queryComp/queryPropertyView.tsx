@@ -10,7 +10,7 @@ import {
 import { PageType } from "constants/pageConstants";
 import { trans } from "i18n";
 import { includes, mapValues } from "lodash";
-import { deferAction, executeQueryAction, wrapActionExtraInfo } from "openblocks-core";
+import { deferAction, executeQueryAction, wrapActionExtraInfo } from "lowcoder-core";
 import {
   CustomModal,
   Dropdown,

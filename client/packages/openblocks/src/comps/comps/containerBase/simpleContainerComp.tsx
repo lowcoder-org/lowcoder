@@ -1,6 +1,6 @@
 import { JSONValue } from "util/jsonTypes";
-import { changeValueAction, CustomAction, multiChangeAction } from "openblocks-core";
-import { ConstructorToDataType } from "openblocks-core";
+import { changeValueAction, CustomAction, multiChangeAction } from "lowcoder-core";
+import { ConstructorToDataType } from "lowcoder-core";
 import { sameTypeMap, stateComp, valueComp } from "comps/generators";
 import { MultiCompBuilder } from "comps/generators/multi";
 import { addMapChildAction, multiMapAction } from "comps/generators/sameTypeMap";

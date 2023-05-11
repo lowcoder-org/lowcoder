@@ -1,5 +1,5 @@
 import { UICompManifest } from "comps/uiCompRegistry";
-import { CompConstructor } from "openblocks-core";
+import { CompConstructor } from "lowcoder-core";
 
 export type RemoteCompSource = "npm" | "bundle";
 export interface OpenblocksCompMeta extends Omit<UICompManifest, "comp" | "icon"> {

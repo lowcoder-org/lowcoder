@@ -2,7 +2,7 @@ import { message } from "antd";
 import { EditorState } from "comps/editorState";
 import { NameAndExposingInfo } from "comps/utils/exposingTypes";
 import { trans } from "i18n";
-import { CompParams, MultiBaseComp, wrapActionExtraInfo } from "openblocks-core";
+import { CompParams, MultiBaseComp, wrapActionExtraInfo } from "lowcoder-core";
 import { BottomResComp, BottomResListComp, BottomResTypeEnum } from "types/bottomRes";
 import { undoKey } from "util/keyUtils";
 import { list } from "./list";

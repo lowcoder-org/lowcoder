@@ -1,5 +1,5 @@
 import { Layout, Menu } from "antd";
-import { Comp } from "openblocks-core";
+import { Comp } from "lowcoder-core";
 import { InputComp } from "comps/comps/textInputComp/inputComp";
 import { ButtonComp } from "comps/comps/buttonComp/buttonComp";
 import { NavLayout } from "comps/comps/layout/navLayout";
