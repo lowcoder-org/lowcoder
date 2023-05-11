@@ -8,7 +8,7 @@
     "commander": "^9.4.1",
     "cross-spawn": "^7.0.3",
     "fs-extra": "^10.1.0",
-    "openblocks-dev-utils": "workspace:^"
+    "lowcoder-dev-utils": "workspace:^"
   },
   "license": "MIT",
   "keywords": [

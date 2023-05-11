@@ -7474,7 +7474,7 @@ __metadata:
     commander: ^9.4.1
     cross-spawn: ^7.0.3
     fs-extra: ^10.1.0
-    openblocks-dev-utils: "workspace:^"
+    lowcoder-dev-utils: "workspace:^"
   bin:
     create-openblocks-plugin: ./index.js
   languageName: unknown
@@ -14308,7 +14308,7 @@ __metadata:
     commander: ^9.4.1
     cross-spawn: ^7.0.3
     fs-extra: ^10.1.0
-    openblocks-dev-utils: "workspace:^"
+    lowcoder-dev-utils: "workspace:^"
     react: ^17
     react-dom: ^17
     react-json-view: ^1.21.3
@@ -14405,9 +14405,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"openblocks-dev-utils@workspace:^, openblocks-dev-utils@workspace:packages/openblocks-dev-utils":
+"lowcoder-dev-utils@workspace:^, lowcoder-dev-utils@workspace:packages/lowcoder-dev-utils":
   version: 0.0.0-use.local
-  resolution: "openblocks-dev-utils@workspace:packages/openblocks-dev-utils"
+  resolution: "lowcoder-dev-utils@workspace:packages/lowcoder-dev-utils"
   languageName: unknown
   linkType: soft
 
@@ -14439,7 +14439,7 @@ __metadata:
     "@rollup/plugin-url": ^7.0.0
     "@svgr/rollup": ^6.3.1
     "@vitejs/plugin-react": ^2.2.0
-    openblocks-dev-utils: "workspace:^"
+    lowcoder-dev-utils: "workspace:^"
     rollup: ^2
     rollup-plugin-cleaner: ^1.0.0
     rollup-plugin-node-builtins: ^2.1.2
@@ -14522,7 +14522,7 @@ __metadata:
     numbro: ^2.3.6
     lowcoder-core: "workspace:^"
     openblocks-design: "workspace:^"
-    openblocks-dev-utils: "workspace:^"
+    lowcoder-dev-utils: "workspace:^"
     papaparse: ^5.3.2
     qrcode.react: ^3.1.0
     rc-trigger: ^5.3.1
@@ -18376,7 +18376,7 @@ __metadata:
     lint-staged: ^13.0.1
     mq-polyfill: ^1.1.8
     number-precision: ^1.6.0
-    openblocks-dev-utils: "workspace:^"
+    lowcoder-dev-utils: "workspace:^"
     prettier: ^2.7.0
     react-player: ^2.11.0
     rimraf: ^3.0.2

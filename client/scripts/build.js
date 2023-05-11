@@ -4,8 +4,8 @@ import https from "node:https";
 import shell from "shelljs";
 import chalk from "chalk";
 import axios from "axios";
-import { buildVars } from "openblocks-dev-utils/buildVars.js";
-import { currentDirName, readJson } from "openblocks-dev-utils/util.js";
+import { buildVars } from "lowcoder-dev-utils/buildVars.js";
+import { currentDirName, readJson } from "lowcoder-dev-utils/util.js";
 
 const builtinPlugins = ["openblocks-comps"];
 const curDirName = currentDirName(import.meta.url);

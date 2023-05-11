@@ -50,7 +50,7 @@
     "jest-environment-jsdom": "^29.0.3",
     "lint-staged": "^13.0.1",
     "mq-polyfill": "^1.1.8",
-    "openblocks-dev-utils": "workspace:^",
+    "lowcoder-dev-utils": "workspace:^",
     "prettier": "^2.7.0",
     "rimraf": "^3.0.2",
     "rollup": "^2.79.0",

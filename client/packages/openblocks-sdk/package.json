@@ -35,7 +35,7 @@
     "@rollup/plugin-url": "^7.0.0",
     "@svgr/rollup": "^6.3.1",
     "@vitejs/plugin-react": "^2.2.0",
-    "openblocks-dev-utils": "workspace:^",
+    "lowcoder-dev-utils": "workspace:^",
     "rollup": "^2",
     "rollup-plugin-cleaner": "^1.0.0",
     "rollup-plugin-node-builtins": "^2.1.2",
