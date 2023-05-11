@@ -14324,9 +14324,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"openblocks-comps@workspace:packages/openblocks-comps":
+"lowcoder-comps@workspace:packages/lowcoder-comps":
   version: 0.0.0-use.local
-  resolution: "openblocks-comps@workspace:packages/openblocks-comps"
+  resolution: "lowcoder-comps@workspace:packages/lowcoder-comps"
   dependencies:
     "@fullcalendar/core": ^6.1.6
     "@fullcalendar/daygrid": ^6.1.6

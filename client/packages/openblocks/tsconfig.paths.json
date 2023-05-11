@@ -3,7 +3,7 @@
     "paths": {
       "@openblocks-ee/*": ["*"],
       "openblocks-sdk": ["index.sdk"],
-      "*": ["*", "../../openblocks-comps/src/*", "../../lowcoder-design/src/*"]
+      "*": ["*", "../../lowcoder-comps/src/*", "../../lowcoder-design/src/*"]
     }
   }
 }

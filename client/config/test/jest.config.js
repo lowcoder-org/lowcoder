@@ -27,7 +27,7 @@ export default {
   modulePaths: [
     "<rootDir>/src",
     path.resolve(dirname, "../../packages/openblocks/src"),
-    path.resolve(dirname, "../../packages/openblocks-comps/src"),
+    path.resolve(dirname, "../../packages/lowcoder-comps/src"),
     path.resolve(dirname, "../../packages/lowcoder-design/src"),
   ],
   setupFiles: [path.resolve(dirname, "./jest.setup.js")],

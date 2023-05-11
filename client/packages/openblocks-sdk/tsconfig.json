@@ -24,7 +24,7 @@
       "*": [
         "*",
         "../../openblocks/src/*",
-        "../../openblocks-comps/src/*",
+        "../../lowcoder-comps/src/*",
         "../../lowcoder-design/src/*"
       ],
       "@openblocks-ee/*": ["../../openblocks/src/*"]
@@ -35,7 +35,7 @@
     "src",
     "index.tsx",
     "../openblocks/src",
-    "../openblocks-comps/src",
+    "../lowcoder-comps/src",
     "../lowcoder-design/src"
   ]
 }

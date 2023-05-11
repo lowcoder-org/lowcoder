@@ -84,7 +84,7 @@ export const viteConfig: UserConfig = {
     viteTsconfigPaths({
       projects: [
         "../openblocks/tsconfig.json",
-        "../openblocks-comps/tsconfig.json",
+        "../lowcoder-comps/tsconfig.json",
         "../lowcoder-design/tsconfig.json",
       ],
     }),
