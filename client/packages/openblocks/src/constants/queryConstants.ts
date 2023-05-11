@@ -2,7 +2,7 @@ import { JSQuery } from "../comps/queries/jsQuery";
 import { SQLQuery } from "../comps/queries/sqlQuery/SQLQuery";
 import { HttpQuery } from "../comps/queries/httpQuery/httpQuery";
 import { MongoQuery } from "../comps/queries/mongoQuery";
-import { OpenBlocksQuery } from "../comps/queries/openBlocksQuery";
+import { LowcoderQuery } from "../comps/queries/openBlocksQuery";
 import { RedisQuery } from "../comps/queries/redisQuery";
 import { EsQuery } from "../comps/queries/esQuery";
 import { SMTPQuery } from "../comps/queries/smtpQuery";
@@ -39,7 +39,7 @@ export const QueryMap = {
   restApi: HttpQuery,
   mongodb: MongoQuery,
   postgres: SQLQuery,
-  lowcoderApi: OpenBlocksQuery,
+  lowcoderApi: LowcoderQuery,
   redis: RedisQuery,
   es: EsQuery,
   mssql: SQLQuery,

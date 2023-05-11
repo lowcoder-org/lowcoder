@@ -15,7 +15,7 @@ import {
   MongoIcon,
   MSSQLIcon,
   MysqlIcon,
-  OpenBlocksQueryIcon,
+  LowcoderQueryIcon,
   OptionsApiIcon,
   OracleIcon,
   PatchApiIcon,
@@ -132,7 +132,7 @@ export const getBottomResIcon = (
       case "graphql":
         return <GraphqlIcon />;
       case "lowcoderApi":
-        return <OpenBlocksQueryIcon />;
+        return <LowcoderQueryIcon />;
       case "snowflake":
         return <SnowflakeIcon />;
       case "mariadb":

@@ -15,9 +15,9 @@ const CommandMap: Record<
   queryOrgUsers: buildQueryCommand({}),
 };
 
-const OpenBlocksTmpQuery = withTypeAndChildrenAbstract(CommandMap, "queryOrgUsers", {});
+const LowcoderTmpQuery = withTypeAndChildrenAbstract(CommandMap, "queryOrgUsers", {});
 
-export class OpenBlocksQuery extends OpenBlocksTmpQuery {
+export class LowcoderQuery extends LowcoderTmpQuery {
   override getView() {
     const params = this.children.comp.getView();
     return toQueryView(params);
