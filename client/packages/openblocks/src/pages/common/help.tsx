@@ -176,8 +176,8 @@ type HelpDropdownProps = {
 const docHomeUrl = trans("docUrls.docHome");
 const changeLogDocUrl = trans("docUrls.changeLog");
 const introVideoUrl = trans("docUrls.introVideo");
-const issueUrl = trans("openBlocksUrl.createIssue");
-const discordUrl = trans("openBlocksUrl.discord");
+const issueUrl = trans("lowcoderUrl.createIssue");
+const discordUrl = trans("lowcoderUrl.discord");
 
 export function HelpDropdown(props: HelpDropdownProps) {
   const [showHelp, setShowHelp] = useState(true);

@@ -5,7 +5,7 @@ import { Dropdown, ValueFromOption } from "lowcoder-design";
 import { buildQueryCommand, FunctionProperty, toQueryView } from "./queryCompUtils";
 
 const CommandOptions = [
-  { label: trans("openBlocksQuery.queryOrgUsers"), value: "queryOrgUsers" },
+  { label: trans("lowcoderQuery.queryOrgUsers"), value: "queryOrgUsers" },
 ] as const;
 
 const CommandMap: Record<

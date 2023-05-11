@@ -605,7 +605,7 @@ export const en = {
     accountIdentifierTooltip: "See ",
     extParamsTooltip: "Configure more connection parameters",
   },
-  openBlocksQuery: {
+  lowcoderQuery: {
     queryOrgUsers: "Query workspace users",
   },
   redisQuery: {
@@ -2120,7 +2120,7 @@ export const en = {
   template: {
     cloneUrl: "/apps/template-import/",
   },
-  openBlocksUrl: {
+  lowcoderUrl: {
     createIssue: "https://github.com/lowcoder-dev/lowcoder/issues",
     discord: "https://discord.com/invite/z5W2YHXdtt",
   },

@@ -52,7 +52,7 @@ export const ExtensionContentWrapper = styled.div`
 
 export const EmptyCompContent = () => {
   const aboutUsUrl = trans("docUrls.aboutUs");
-  const issueUrl = trans("openBlocksUrl.createIssue");
+  const issueUrl = trans("lowcoderUrl.createIssue");
   return (
     <EmptyContent
       text={
