@@ -23,18 +23,18 @@
     "paths": {
       "*": [
         "*",
-        "../../openblocks/src/*",
+        "../../lowcoder/src/*",
         "../../lowcoder-comps/src/*",
         "../../lowcoder-design/src/*"
       ],
-      "@lowcoder-ee/*": ["../../openblocks/src/*"]
+      "@lowcoder-ee/*": ["../../lowcoder/src/*"]
     }
   },
-  "exclude": ["../openblocks/src/ee/*"],
+  "exclude": ["../lowcoder/src/ee/*"],
   "include": [
     "src",
     "index.tsx",
-    "../openblocks/src",
+    "../lowcoder/src",
     "../lowcoder-comps/src",
     "../lowcoder-design/src"
   ]

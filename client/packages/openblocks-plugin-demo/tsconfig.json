@@ -19,14 +19,14 @@
     "baseUrl": "src",
     "paths": {
       "lowcoder-sdk": [
-        "../../openblocks/src/index.sdk.ts",
-        "../node_modules/lowcoder-sdk/src/openblocks/index.sdk.ts"
+        "../../lowcoder/src/index.sdk.ts",
+        "../node_modules/lowcoder-sdk/src/lowcoder/index.sdk.ts"
       ],
       "*": [
         "*",
-        "../../openblocks/src/*",
+        "../../lowcoder/src/*",
         "../../lowcoder-sdk/src/*",
-        "../node_modules/lowcoder-sdk/src/openblocks/*"
+        "../node_modules/lowcoder-sdk/src/lowcoder/*"
       ]
     }
   },

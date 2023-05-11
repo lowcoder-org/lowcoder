@@ -1,1 +1,1 @@
-/// <reference path="../../openblocks/src/app-env.d.ts" />
+/// <reference path="../../lowcoder/src/app-env.d.ts" />

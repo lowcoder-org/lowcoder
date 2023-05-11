@@ -1,1 +1,1 @@
-import "../../openblocks/src/global";
+import "../../lowcoder/src/global";

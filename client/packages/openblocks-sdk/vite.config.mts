@@ -24,8 +24,8 @@ export const viteConfig: UserConfig = {
   resolve: {
     extensions: [".mjs", ".js", ".ts", ".jsx", ".tsx", ".json"],
     alias: {
-      "lowcoder-sdk": path.resolve(__dirname, "../openblocks/src/index.sdk"),
-      "@lowcoder-ee": path.resolve(__dirname, "../openblocks/src"),
+      "lowcoder-sdk": path.resolve(__dirname, "../lowcoder/src/index.sdk"),
+      "@lowcoder-ee": path.resolve(__dirname, "../lowcoder/src"),
     },
   },
   base: ensureLastSlash(process.env.PUBLIC_URL),
@@ -83,7 +83,7 @@ export const viteConfig: UserConfig = {
     }),
     viteTsconfigPaths({
       projects: [
-        "../openblocks/tsconfig.json",
+        "../lowcoder/tsconfig.json",
         "../lowcoder-comps/tsconfig.json",
         "../lowcoder-design/tsconfig.json",
       ],

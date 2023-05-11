@@ -1,3 +1,3 @@
 export default {
-  projects: ["<rootDir>/packages/openblocks", "<rootDir>/packages/lowcoder-core"],
+  projects: ["<rootDir>/packages/lowcoder", "<rootDir>/packages/lowcoder-core"],
 };

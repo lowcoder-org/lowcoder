@@ -18,15 +18,15 @@ export default {
     "\\.md\\?url$": path.resolve(dirname, "./mocks/markdown-url-module.js"),
     "^@lowcoder-ee(.*)$": path.resolve(
       dirname,
-      isEE ? "../../packages/openblocks/src/ee/$1" : "../../packages/openblocks/src/$1"
+      isEE ? "../../packages/lowcoder/src/ee/$1" : "../../packages/lowcoder/src/$1"
     ),
-    "lowcoder-sdk": path.resolve(dirname, "../../packages/openblocks/src/index.sdk"),
+    "lowcoder-sdk": path.resolve(dirname, "../../packages/lowcoder/src/index.sdk"),
   },
   globals,
   // roots: ["<rootDir>/src"],
   modulePaths: [
     "<rootDir>/src",
-    path.resolve(dirname, "../../packages/openblocks/src"),
+    path.resolve(dirname, "../../packages/lowcoder/src"),
     path.resolve(dirname, "../../packages/lowcoder-comps/src"),
     path.resolve(dirname, "../../packages/lowcoder-design/src"),
   ],

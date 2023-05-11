@@ -60,7 +60,7 @@ export const viteConfig: UserConfig = {
     alias: {
       "@lowcoder-ee": path.resolve(
         __dirname,
-        isEE ? `../openblocks/src/${isEEGlobal ? "ee-global" : "ee"}` : "../openblocks/src"
+        isEE ? `../lowcoder/src/${isEEGlobal ? "ee-global" : "ee"}` : "../lowcoder/src"
       ),
     },
   },
@@ -124,7 +124,7 @@ export const viteConfig: UserConfig = {
       },
     }),
     viteTsconfigPaths({
-      projects: ["../openblocks/tsconfig.json", "../lowcoder-design/tsconfig.json"],
+      projects: ["../lowcoder/tsconfig.json", "../lowcoder-design/tsconfig.json"],
     }),
     svgrPlugin({
       svgrOptions: {
