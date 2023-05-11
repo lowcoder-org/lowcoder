@@ -50,7 +50,7 @@ const Wrapper = styled.div`
 const editorState = new EditorState(new RootComp({ value: {} }), () => {});
 
 export default function ComponentPlayground() {
-  window.__OPENBLOCKS_DEV__ = {};
+  window.__LOWCODER_ORG__ = {};
 
   const params = useParams<{ name: UICompType; dsl: string }>();
   const dsl = JSON.parse(decodeURIComponent(params.dsl || ""));

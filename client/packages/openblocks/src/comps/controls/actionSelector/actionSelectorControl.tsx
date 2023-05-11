@@ -158,7 +158,7 @@ function ActionSelectorControlPropertyView(props: PropertyViewProps) {
         lineHeight={300}
         value={comp.children.compType.getView()}
         options={ActionOptions.filter((i) => {
-          if (window.__OPENBLOCKS_DEV__) {
+          if (window.__LOWCODER_ORG__) {
             return devActions.includes(i.value);
           }
           if (editorState?.isModule()) {

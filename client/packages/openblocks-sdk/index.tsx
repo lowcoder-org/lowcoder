@@ -1,6 +1,6 @@
 import { useRef } from "react";
 import ReactDOM, { flushSync } from "react-dom";
-import { AppViewInstance, bootstrapAppAt, OpenblocksAppView } from "./src/index";
+import { AppViewInstance, bootstrapAppAt, LowcoderAppView } from "./src/index";
 
 const url = new URL(location.href);
 const appId = url.searchParams.get("appId");
@@ -13,7 +13,7 @@ function ReactDemoApp() {
   }
   return (
     <div>
-      <OpenblocksAppView
+      <LowcoderAppView
         ref={ref}
         appId={appId}
         baseUrl={baseUrl}

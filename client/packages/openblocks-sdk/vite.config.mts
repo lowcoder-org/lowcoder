@@ -33,7 +33,7 @@ export const viteConfig: UserConfig = {
     lib: {
       formats: ["es"],
       entry: "./src/index.ts",
-      name: "Openblocks",
+      name: "Lowcoder",
       fileName: "lowcoder-sdk",
     },
     rollupOptions: {

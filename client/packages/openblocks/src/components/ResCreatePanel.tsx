@@ -13,8 +13,8 @@ import { PageType } from "../constants/pageConstants";
 import { SizeType } from "antd/lib/config-provider/SizeContext";
 import { Datasource } from "@lowcoder-ee/constants/datasourceConstants";
 import {
-  OPENBLOCKS_API_ID,
-  OPENBLOCKS_API_INFO,
+  LOWCODER_API_ID,
+  LOWCODER_API_INFO,
   QUICK_GRAPHQL_ID,
   QUICK_REST_API_ID,
 } from "../constants/datasourceConstants";
@@ -170,12 +170,12 @@ const ResButton = (props: {
       },
     },
     lowcoderApi: {
-      icon: OPENBLOCKS_API_INFO.icon,
-      label: OPENBLOCKS_API_INFO.name,
+      icon: LOWCODER_API_INFO.icon,
+      label: LOWCODER_API_INFO.name,
       type: BottomResTypeEnum.Query,
       extra: {
         compType: "lowcoderApi",
-        dataSourceId: OPENBLOCKS_API_ID,
+        dataSourceId: LOWCODER_API_ID,
       },
     },
   };

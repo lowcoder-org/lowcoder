@@ -7,7 +7,7 @@ import {
 import { draggingUtils } from "layout";
 import styled from "styled-components";
 import { getRemoteCompType } from "comps/utils/remote";
-import { OpenblocksCompMeta } from "types/remoteComp";
+import { LowcoderCompMeta } from "types/remoteComp";
 import { TransparentImg } from "util/commonUtils";
 import { ModuleIcon } from "lowcoder-design";
 import { NPM_PLUGIN_ASSETS_BASE_URL } from "constants/npmPlugins";
@@ -70,7 +70,7 @@ interface PluginCompItemProps {
   packageName: string;
   packageVersion: string;
   compName: string;
-  compMeta: OpenblocksCompMeta;
+  compMeta: LowcoderCompMeta;
   onDrag: (compType: string) => void;
 }
 

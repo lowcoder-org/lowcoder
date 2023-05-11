@@ -1,9 +1,9 @@
-import { OLD_OPENBLOCKS_DATASOURCE } from "@lowcoder-ee/constants/datasourceConstants";
+import { OLD_LOWCODER_DATASOURCE } from "@lowcoder-ee/constants/datasourceConstants";
 import { manualTriggerResource, ResourceType } from "@lowcoder-ee/constants/queryConstants";
 import { PreparedStatementConfig } from "api/datasourceApi";
 import { isCompWithPropertyView } from "comps/utils/propertyUtils";
 import {
-  OPENBLOCKS_API_ID,
+  LOWCODER_API_ID,
   QUICK_GRAPHQL_ID,
   QUICK_REST_API_ID,
 } from "constants/datasourceConstants";
@@ -175,22 +175,22 @@ export const QueryGeneralPropertyView = (props: {
     comp.children.datasourceId.dispatchChangeValueAction(QUICK_REST_API_ID);
   }
 
-  // transfer old Openblocks API datasource to new
-  const oldOpenblocksId = useMemo(
+  // transfer old Lowcoder API datasource to new
+  const oldLowcoderId = useMemo(
     () =>
       datasource.find(
         (d) =>
-          d.datasource.creationSource === 2 && OLD_OPENBLOCKS_DATASOURCE.includes(d.datasource.type)
+          d.datasource.creationSource === 2 && OLD_LOWCODER_DATASOURCE.includes(d.datasource.type)
       )?.datasource.id,
     [datasource]
   );
-  if (datasourceId === oldOpenblocksId) {
-    datasourceId = OPENBLOCKS_API_ID;
+  if (datasourceId === oldLowcoderId) {
+    datasourceId = LOWCODER_API_ID;
     datasourceType = "lowcoderApi";
     dispatch(
       comp.changeValueAction({
         ...comp.toJsonValue(),
-        datasourceId: OPENBLOCKS_API_ID,
+        datasourceId: LOWCODER_API_ID,
         compType: "lowcoderApi",
       } as any)
     );
@@ -366,7 +366,7 @@ function useDatasourceStatus(datasourceId: string, datasourceType: ResourceType)
       datasourceType === "libraryQuery" ||
       datasourceId === QUICK_REST_API_ID ||
       datasourceId === QUICK_GRAPHQL_ID ||
-      datasourceId === OPENBLOCKS_API_ID
+      datasourceId === LOWCODER_API_ID
     ) {
       return "";
     }

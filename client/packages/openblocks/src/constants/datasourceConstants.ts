@@ -42,9 +42,9 @@ export interface Datasource {
 
 export const QUICK_REST_API_ID = "#QUICK_REST_API";
 export const QUICK_GRAPHQL_ID = "#QUICK_GRAPHQL";
-export const OPENBLOCKS_API_ID = "#OPENBLOCKS_API";
-export const OPENBLOCKS_API_INFO = {
+export const LOWCODER_API_ID = "#LOWCODER_API";
+export const LOWCODER_API_INFO = {
   icon: getBottomResIcon("lowcoderApi"),
   name: trans("query.lowcoderAPI"),
 };
-export const OLD_OPENBLOCKS_DATASOURCE: Partial<DatasourceType>[] = [];
+export const OLD_LOWCODER_DATASOURCE: Partial<DatasourceType>[] = [];

@@ -29,12 +29,12 @@ import "lowcoder-sdk/dist/style.css";
 ### For react app:
 
 ```ts
-import { OpenblocksAppView } from "lowcoder-sdk";
+import { LowcoderAppView } from "lowcoder-sdk";
 
-<OpenblocksAppView appId="{YOUR_APPLICATION_ID}" />;
+<LowcoderAppView appId="{YOUR_APPLICATION_ID}" />;
 ```
 
-#### OpenblocksViewProps
+#### LowcoderViewProps
 
 | Name                   | Type                        | Description                                                                             | Default value |
 |------------------------|-----------------------------|-----------------------------------------------------------------------------------------|---------------|
@@ -47,13 +47,13 @@ import { OpenblocksAppView } from "lowcoder-sdk";
 
 ```tsx
 import { useRef } from "ref";
-import { OpenblocksAppView } from "lowcoder-sdk";
+import { LowcoderAppView } from "lowcoder-sdk";
 
 function MyExistingAppPage() {
   const appRef = useRef();
   return (
     <div>
-      <OpenblocksAppView appId={YOUR_APPLICATION_ID} ref={appRef} />;
+      <LowcoderAppView appId={YOUR_APPLICATION_ID} ref={appRef} />;
       <button onClick={() => appRef.current?.invokeMethod("some-method-name")}>
         Invoke method
       </button>

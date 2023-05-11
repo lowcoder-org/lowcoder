@@ -1,7 +1,7 @@
 declare global {
   interface Window {
     printPerf: () => void;
-    __OPENBLOCKS_DEV__?: {};
+    __LOWCODER_ORG__?: {};
   }
 }
 

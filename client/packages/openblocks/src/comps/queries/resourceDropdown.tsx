@@ -12,8 +12,8 @@ import { getBottomResIcon } from "@lowcoder-ee/util/bottomResUtils";
 import { trans } from "i18n";
 import { DatasourceType, ResourceType } from "@lowcoder-ee/constants/queryConstants";
 import {
-  OPENBLOCKS_API_ID,
-  OPENBLOCKS_API_INFO,
+  LOWCODER_API_ID,
+  LOWCODER_API_INFO,
   QUICK_GRAPHQL_ID,
   QUICK_REST_API_ID,
 } from "constants/datasourceConstants";
@@ -95,8 +95,8 @@ const QuickGraphqlValue: ResourceOptionValue = {
   type: "graphql",
 };
 
-const OpenblocksAPIValue: ResourceOptionValue = {
-  id: OPENBLOCKS_API_ID,
+const LowcoderAPIValue: ResourceOptionValue = {
+  id: LOWCODER_API_ID,
   type: "lowcoderApi",
 };
 
@@ -267,13 +267,13 @@ export const ResourceDropdown = (props: ResourceDropdownProps) => {
         {context?.placement !== "queryLibrary" && (
           <>
             <SelectOption
-              key={JSON.stringify(OpenblocksAPIValue)}
-              label={OPENBLOCKS_API_INFO.name}
-              value={JSON.stringify(OpenblocksAPIValue)}
+              key={JSON.stringify(LowcoderAPIValue)}
+              label={LOWCODER_API_INFO.name}
+              value={JSON.stringify(LowcoderAPIValue)}
             >
               <SelectOptionContains>
-                {OPENBLOCKS_API_INFO.icon}
-                <SelectOptionLabel>{OPENBLOCKS_API_INFO.name} </SelectOptionLabel>
+                {LOWCODER_API_INFO.icon}
+                <SelectOptionLabel>{LOWCODER_API_INFO.name} </SelectOptionLabel>
               </SelectOptionContains>
             </SelectOption>
 

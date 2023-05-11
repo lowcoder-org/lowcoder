@@ -7,15 +7,15 @@ import {
 } from "./AppViewInstance";
 import { bootstrapAppAt } from "./bootstrapAt";
 
-export interface OpenblocksAppViewProps<I, O> extends AppViewInstanceOptions<I> {
+export interface LowcoderAppViewProps<I, O> extends AppViewInstanceOptions<I> {
   appId: string;
   className?: string;
   onModuleOutputChange?: OutputChangeHandler<O>;
   onModuleEventTriggered?: EventTriggerHandler;
 }
 
-function OpenblocksAppViewBase<I = any, O = any>(
-  props: OpenblocksAppViewProps<I, O>,
+function LowcoderAppViewBase<I = any, O = any>(
+  props: LowcoderAppViewProps<I, O>,
   ref: React.Ref<AppViewInstance | undefined>
 ) {
   const { appId, className, onModuleEventTriggered, onModuleOutputChange, ...options } = props;
@@ -51,4 +51,4 @@ function OpenblocksAppViewBase<I = any, O = any>(
   return <div ref={nodeRef} className={className}></div>;
 }
 
-export const OpenblocksAppView = React.forwardRef(OpenblocksAppViewBase);
+export const LowcoderAppView = React.forwardRef(LowcoderAppViewBase);

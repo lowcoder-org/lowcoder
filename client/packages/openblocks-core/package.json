@@ -34,5 +34,5 @@
     "import": "./lib/index.js",
     "require": "./lib/index.cjs"
   },
-  "author": "Openblocks"
+  "author": "Lowcoder"
 }

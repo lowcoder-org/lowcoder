@@ -18,7 +18,7 @@ export interface AppViewInstanceOptions<I = any> {
   baseUrl?: string;
 }
 
-export interface OpenblocksAppViewProps<I, O> extends AppViewInstanceOptions<I> {
+export interface LowcoderAppViewProps<I, O> extends AppViewInstanceOptions<I> {
   appId: string;
   className?: string;
   onModuleOutputChange?: OutputChangeHandler<O>;
@@ -31,8 +31,8 @@ export interface AppViewInstance<I, O> {
   invokeMethod(methodName: string, params?: any[]): void;
 }
 
-export declare const OpenblocksAppView: React.ForwardRefExoticComponent<
-  OpenblocksAppViewProps<unknown, unknown> &
+export declare const LowcoderAppView: React.ForwardRefExoticComponent<
+  LowcoderAppViewProps<unknown, unknown> &
     React.RefAttributes<AppViewInstance<unknown, unknown> | undefined>
 >;
 

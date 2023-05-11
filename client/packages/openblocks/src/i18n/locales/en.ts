@@ -1,7 +1,7 @@
 import table from "./componentDocExtra/table.md?url";
 
 export const en = {
-  productName: "Openblocks",
+  productName: "Lowcoder",
   productDesc: "Build internal tools fast, with no limitations",
   notSupportedBrowser:
     "Your current browser may have compatibility issues. For a better user experience, it is recommended to use the latest version of the Chrome browser.",
@@ -409,7 +409,7 @@ export const en = {
     transformer: "Transformer",
     quickRestAPI: "REST Query",
     quickGraphql: "GraphQL Query",
-    lowcoderAPI: "Openblocks API",
+    lowcoderAPI: "Lowcoder API",
     executeJSCode: "Run JavaScript Code",
     importFromQueryLibrary: "Import from Query Library",
     importFromFile: "Import from File",
@@ -509,9 +509,9 @@ export const en = {
     saveSuccessfully: "Saved",
     database: "Database",
     cloudHosting:
-      "Cloud-hosted Openblocks cannot access your local services with 127.0.0.1 or localhost. Try to connect public network data sources or use a reverse proxy fronting your private services.",
+      "Cloud-hosted Lowcoder cannot access your local services with 127.0.0.1 or localhost. Try to connect public network data sources or use a reverse proxy fronting your private services.",
     notCloudHosting:
-      "For docker hosted deployment, Openblocks uses bridge networks, so 127.0.0.1 and localhost are invalid for host addresses. To visit data sources on your local machine, please refer to this",
+      "For docker hosted deployment, Lowcoder uses bridge networks, so 127.0.0.1 and localhost are invalid for host addresses. To visit data sources on your local machine, please refer to this",
     howToAccessHostDocLink: "How do I access the host API/DB",
     returnList: "Return",
     chooseDatasourceType: "Choose data source type",
@@ -520,7 +520,7 @@ export const en = {
     save: "Save",
     whitelist: "Allowlist",
     whitelistTooltip:
-      "Add the following IP addresses of Openblocks to your data source allowlist when needed.",
+      "Add the following IP addresses of Lowcoder to your data source allowlist when needed.",
     address: "Address: ",
     nameExists: "Name {name} already exist",
     jsQueryDocLink: "About JavaScript query",
@@ -860,7 +860,7 @@ export const en = {
     triggerQuery: "Trigger query",
     updateData: "Update data",
     updateText: "I'm also in a good mood!",
-    sdkGlobalVarName: "Openblocks",
+    sdkGlobalVarName: "Lowcoder",
   },
   tree: {
     selectType: "Select type",
@@ -1736,7 +1736,7 @@ export const en = {
     authenticationFail: "User authentication failed, please sign in again",
     verifyAccount: "Need to verify account",
     functionNotSupported:
-      "The current version does not support this function. Please contact the Openblocks business team to upgrade your account",
+      "The current version does not support this function. Please contact the Lowcoder business team to upgrade your account",
   },
   globalErrorMessage: {
     createCompFail: "Create component {comp} failed",
@@ -2126,9 +2126,9 @@ export const en = {
   },
   componentDoc: {
     markdownDemoText:
-      "**Openblocks** is a _developer-friendly_ open-source low code platform to build internal apps within minutes.",
+      "**Lowcoder** is a _developer-friendly_ open-source low code platform to build internal apps within minutes.",
     demoText:
-      "Openblocks is a developer-friendly open-source low code platform to build internal apps within minutes.",
+      "Lowcoder is a developer-friendly open-source low code platform to build internal apps within minutes.",
     submit: "Submit",
     style: "style",
     danger: "Danger",

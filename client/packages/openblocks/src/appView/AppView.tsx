@@ -10,16 +10,16 @@ import { ExternalEditorContext } from "util/context/ExternalEditorContext";
 
 const browserHistory = createBrowserHistory();
 
-export interface OpenblocksAppBootStrapOptions {
+export interface LowcoderAppBootStrapOptions {
   /**
    * where to load application dsl and static assets
    */
   baseUrl?: string;
 }
 
-export interface OpenblocksAppViewProps
+export interface LowcoderAppViewProps
   extends HTMLAttributes<HTMLDivElement>,
-    OpenblocksAppBootStrapOptions {
+    LowcoderAppBootStrapOptions {
   appId: string;
 }
 

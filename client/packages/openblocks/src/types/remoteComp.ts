@@ -2,20 +2,20 @@ import { UICompManifest } from "comps/uiCompRegistry";
 import { CompConstructor } from "lowcoder-core";
 
 export type RemoteCompSource = "npm" | "bundle";
-export interface OpenblocksCompMeta extends Omit<UICompManifest, "comp" | "icon"> {
+export interface LowcoderCompMeta extends Omit<UICompManifest, "comp" | "icon"> {
   icon?: string;
 }
 
-export interface OpenblocksMeta {
+export interface LowcoderMeta {
   entry: string;
   description: string;
-  comps: Record<string, OpenblocksCompMeta>;
+  comps: Record<string, LowcoderCompMeta>;
 }
 
 export interface NpmVersionMeta {
   name: string;
   version: string;
-  lowcoder: OpenblocksMeta;
+  lowcoder: LowcoderMeta;
 }
 
 export interface NpmPackageMeta {
