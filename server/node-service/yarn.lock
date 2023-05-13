@@ -7603,9 +7603,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"openblocks-core@npm:^0.0.7":
+"lowcoder-core@npm:^0.0.7":
   version: 0.0.7
-  resolution: "openblocks-core@npm:0.0.7"
+  resolution: "lowcoder-core@npm:0.0.7"
   dependencies:
     "@rollup/plugin-commonjs": ^23.0.0
     "@rollup/plugin-node-resolve": ^15.0.0
@@ -7616,9 +7616,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"openblocks-sdk@npm:0.0.40":
+"lowcoder-sdk@npm:0.0.40":
   version: 0.0.40
-  resolution: "openblocks-sdk@npm:0.0.40"
+  resolution: "lowcoder-sdk@npm:0.0.40"
   peerDependencies:
     react: ">=17"
     react-dom: ">=17"
@@ -8982,8 +8982,8 @@ __metadata:
     node-fetch: 2
     nodemon: ^2.0.22
     openapi-types: ^12.1.0
-    openblocks-core: ^0.0.7
-    openblocks-sdk: 0.0.40
+    lowcoder-core: ^0.0.7
+    lowcoder-sdk: 0.0.40
     pino: ^8.14.1
     postman-to-openapi: ^3.0.1
     prom-client: ^14.2.0

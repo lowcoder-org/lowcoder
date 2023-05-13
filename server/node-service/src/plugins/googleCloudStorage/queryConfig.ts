@@ -1,4 +1,4 @@
-import { Config, ConfigToType, QueryConfig } from "openblocks-sdk/dataSource";
+import { Config, ConfigToType, QueryConfig } from "lowcoder-sdk/dataSource";
 
 const bucketActionParam = {
   key: "bucket",

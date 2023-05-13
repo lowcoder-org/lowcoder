@@ -2,7 +2,7 @@ import { readYaml } from "../../common/util";
 import _ from "lodash";
 import path from "path";
 import { OpenAPIV3, OpenAPI } from "openapi-types";
-import { ConfigToType, DataSourcePlugin } from "openblocks-sdk/dataSource";
+import { ConfigToType, DataSourcePlugin } from "lowcoder-sdk/dataSource";
 import { runOpenApi } from "../openApi";
 import { parseOpenApi, ParseOpenApiOptions } from "../openApi/parse";
 <% if (isJsonSpec) {%>

@@ -1,4 +1,4 @@
-import { ConfigToType, QueryConfig } from "openblocks-sdk/dataSource";
+import { ConfigToType, QueryConfig } from "lowcoder-sdk/dataSource";
 
 enum FirebaseCategory {
   RealtimeDatabase = "RealtimeDatabase",

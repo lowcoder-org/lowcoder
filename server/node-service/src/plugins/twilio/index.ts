@@ -3,7 +3,7 @@ import _ from "lodash";
 import fs from "fs";
 import path from "path";
 import { OpenAPI } from "openapi-types";
-import { ConfigToType, DataSourcePlugin, QueryConfig } from "openblocks-sdk/dataSource";
+import { ConfigToType, DataSourcePlugin, QueryConfig } from "lowcoder-sdk/dataSource";
 import { runOpenApi } from "../openApi";
 import { MultiOpenApiSpecItem, parseMultiOpenApi, ParseOpenApiOptions } from "../openApi/parse";
 import { appendTags } from "../openApi/util";

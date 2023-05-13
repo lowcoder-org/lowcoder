@@ -1,4 +1,4 @@
-import { DataSourcePlugin, ConfigToType } from "openblocks-sdk/dataSource";
+import { DataSourcePlugin, ConfigToType } from "lowcoder-sdk/dataSource";
 
 const dataSourceConfig = {
   type: "dataSource",

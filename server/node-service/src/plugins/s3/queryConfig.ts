@@ -1,4 +1,4 @@
-import { ActionParamConfig, Config, ConfigToType, QueryConfig } from "openblocks-sdk/dataSource";
+import { ActionParamConfig, Config, ConfigToType, QueryConfig } from "lowcoder-sdk/dataSource";
 import { S3I18nTranslator } from "./i18n";
 
 function getQueryConfig(i18n: S3I18nTranslator) {

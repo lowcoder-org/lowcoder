@@ -1,6 +1,6 @@
 import { badRequest } from "common/error";
 import { OpenAPIV3, OpenAPI } from "openapi-types";
-import { ConfigToType, DataSourcePlugin } from "openblocks-sdk/dataSource";
+import { ConfigToType, DataSourcePlugin } from "lowcoder-sdk/dataSource";
 import { runOpenApi } from "../openApi";
 import { defaultParseOpenApiOptions, parseOpenApi, ParseOpenApiOptions } from "../openApi/parse";
 import spec from "./spec.json";

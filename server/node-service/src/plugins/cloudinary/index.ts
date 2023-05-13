@@ -2,7 +2,7 @@ import { readYaml } from "../../common/util";
 import _ from "lodash";
 import path from "path";
 import { OpenAPI } from "openapi-types";
-import { ConfigToType, DataSourcePlugin, QueryConfig } from "openblocks-sdk/dataSource";
+import { ConfigToType, DataSourcePlugin, QueryConfig } from "lowcoder-sdk/dataSource";
 import { runOpenApi } from "../openApi";
 import { parseMultiOpenApi, parseOpenApi, ParseOpenApiOptions } from "../openApi/parse";
 import { mergeCategories } from "../../plugins/openApi/util";
