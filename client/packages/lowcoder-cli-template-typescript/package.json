@@ -1,6 +1,6 @@
 {
   "name": "lowcoder-cli-template-typescript",
-  "version": "0.0.11",
+  "version": "0.0.12",
   "type": "module",
   "scripts": {
     "start": "vite",
@@ -11,7 +11,7 @@
     "comps": {
       "hello_world": {
         "name": "__i18n_helloWorldCompName__",
-        "icon": "./icons/demo-icon.png"
+        "icon": "./icons/demo-icon.svg"
       }
     }
   },

@@ -1,6 +1,6 @@
 {
   "name": "lowcoder-dev-utils",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "license": "MIT",
   "type": "module",
   "description": "Lowcoder dev utils for lowcoder build process and lowcoder-cli",
