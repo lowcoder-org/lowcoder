@@ -36,7 +36,7 @@
     "@aws-sdk/s3-request-presigner": "^3.327.0",
     "@google-cloud/bigquery": "^6.1.0",
     "@google-cloud/storage": "^6.10.1",
-    "@supabase/supabase-js": "^2.10.0",
+    "@supabase/supabase-js": "^2.22.0",
     "@types/axios": "^0.14.0",
     "@types/express": "^4.17.14",
     "@types/jsonpath": "^0.2.0",
