@@ -1,0 +1,17 @@
+---
+name: 💡 Chore
+about: tasks related to tech debt/ tidying up, NOT for fixing broken things. Examples include superficial wordings/namings, or underlying architecture, tools, packages, or language versions.
+title: "[chore]:"
+labels: chore
+assignees: ''
+
+---
+
+**What is your suggested improvement? Please describe.**
+A clear and concise description of what the problem is. Eg. The package XXX is no longer maintained or developed [...]
+
+**Describe the solution you'd like**
+A clear and concise description of what you want to happen. Eg.  I suggest using package YYY which provides similar functionality [...]
+
+**Additional context**
+Add any other context or screenshots about the feature request here.
