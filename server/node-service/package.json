@@ -33,7 +33,7 @@
     "@aws-sdk/client-dynamodb": "^3.327.0",
     "@aws-sdk/client-lambda": "^3.327.0",
     "@aws-sdk/client-s3": "^3.327.0",
-    "@aws-sdk/s3-request-presigner": "^3.327.0",
+    "@aws-sdk/s3-request-presigner": "^3.332.0",
     "@google-cloud/bigquery": "^6.1.0",
     "@google-cloud/storage": "^6.10.1",
     "@supabase/supabase-js": "^2.10.0",
