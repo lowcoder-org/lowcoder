@@ -1,4 +1,4 @@
-import { DataSourcePlugin } from "openblocks-sdk/dataSource";
+import { DataSourcePlugin } from "lowcoder-sdk/dataSource";
 import dataSourceConfig, { DataSourceDataType } from "./dataSourceConfig";
 import queryConfig, { ActionDataType } from "./queryConfig";
 import { runDynamoDbQuery } from "./run";

@@ -10,14 +10,14 @@
     "node": "^14.18.0 || >=16.0.0"
   },
   "scripts": {
-    "start": "yarn workspace openblocks start",
-    "start:ee": "REACT_APP_EDITION=enterprise yarn workspace openblocks start",
-    "start:ee-global": "REACT_APP_EDITION=enterprise-global yarn workspace openblocks start",
+    "start": "yarn workspace lowcoder start",
+    "start:ee": "REACT_APP_EDITION=enterprise yarn workspace lowcoder start",
+    "start:ee-global": "REACT_APP_EDITION=enterprise-global yarn workspace lowcoder start",
     "build": "yarn node ./scripts/build.js",
-    "test": "jest && yarn workspace openblocks-comps test",
-    "prepare": "yarn workspace openblocks prepare",
-    "build:core": "yarn workspace openblocks-core build",
-    "test:core": "yarn workspace openblocks-core test"
+    "test": "jest && yarn workspace lowcoder-comps test",
+    "prepare": "yarn workspace lowcoder prepare",
+    "build:core": "yarn workspace lowcoder-core build",
+    "test:core": "yarn workspace lowcoder-core test"
   },
   "devDependencies": {
     "@babel/preset-env": "^7.20.2",
@@ -49,8 +49,8 @@
     "jest": "^29.3.0",
     "jest-environment-jsdom": "^29.0.3",
     "lint-staged": "^13.0.1",
+    "lowcoder-dev-utils": "workspace:^",
     "mq-polyfill": "^1.1.8",
-    "openblocks-dev-utils": "workspace:^",
     "prettier": "^2.7.0",
     "rimraf": "^3.0.2",
     "rollup": "^2.79.0",

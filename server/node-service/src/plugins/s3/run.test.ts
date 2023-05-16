@@ -8,7 +8,7 @@ const dataSourceConfig = {
   region: "us-west-2",
 };
 
-const bucket = "openblocks-demo";
+const bucket = "lowcoder-demo";
 const i18n = getI18nTranslator(["en"]);
 
 describe.skip("s3 plugin", () => {

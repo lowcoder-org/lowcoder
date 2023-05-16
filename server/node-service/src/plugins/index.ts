@@ -1,4 +1,4 @@
-import { DataSourcePlugin, DataSourcePluginFactory } from "openblocks-sdk/dataSource";
+import { DataSourcePlugin, DataSourcePluginFactory } from "lowcoder-sdk/dataSource";
 import s3Plugin from "./s3";
 import n8nPlugin from "./n8n";
 import openApiPlugin from "./openApi";

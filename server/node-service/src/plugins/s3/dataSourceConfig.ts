@@ -1,4 +1,4 @@
-import { ConfigToType } from "openblocks-sdk/dataSource";
+import { ConfigToType } from "lowcoder-sdk/dataSource";
 import { S3I18nTranslator } from "./i18n";
 
 const getDataSourceConfig = (i18n: S3I18nTranslator) => {

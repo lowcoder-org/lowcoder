@@ -1,7 +1,7 @@
 import { readFileSync } from "fs";
 import _ from "lodash";
 import { OpenAPI } from "openapi-types";
-import { ConfigToType, DataSourcePlugin, QueryConfig } from "openblocks-sdk/dataSource";
+import { ConfigToType, DataSourcePlugin, QueryConfig } from "lowcoder-sdk/dataSource";
 import path from "path";
 import { runOpenApi } from "../openApi";
 import { parseOpenApi, ParseOpenApiOptions } from "../openApi/parse";

@@ -6,7 +6,7 @@ import {
   ActionConfig,
   ActionParamConfig,
   DataSourceParamConfig,
-} from "openblocks-sdk/dataSource";
+} from "lowcoder-sdk/dataSource";
 import { parseOperation as parseOas3Operation } from "./parse/oas3";
 import { parseOperation as parseSwagger2Operation } from "./parse/swagger2";
 import _ from "lodash";
