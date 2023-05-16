@@ -5,16 +5,16 @@ updates:
   - package-ecosystem: "maven"
     directory: "/server/api-service"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
   - package-ecosystem: "npm"
     directory: "/server/node-service"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
   - package-ecosystem: "npm"
     directory: "/client"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
   - package-ecosystem: "docker"
     directory: "/deploy/docker"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
