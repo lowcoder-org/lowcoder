@@ -3634,6 +3634,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@jridgewell/sourcemap-codec@npm:^1.4.13":
+  version: 1.4.15
+  resolution: "@jridgewell/sourcemap-codec@npm:1.4.15"
+  checksum: b881c7e503db3fc7f3c1f35a1dd2655a188cc51a3612d76efc8a6eb74728bef5606e6758ee77423e564092b4a518aba569bbb21c9bac5ab7a35b0c6ae7e344c8
+  languageName: node
+  linkType: hard
+
 "@jridgewell/trace-mapping@npm:^0.3.12, @jridgewell/trace-mapping@npm:^0.3.15, @jridgewell/trace-mapping@npm:^0.3.9":
   version: 0.3.15
   resolution: "@jridgewell/trace-mapping@npm:0.3.15"
@@ -9505,10 +9512,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"estree-walker@npm:^3.0.1":
-  version: 3.0.1
-  resolution: "estree-walker@npm:3.0.1"
-  checksum: 674096950819041f1ee471e63f7aa987f2ed3a3a441cc41a5176e9ed01ea5cfd6487822c3b9c2cddd0e2c8f9d7ef52d32d06147a19b5a9ca9f8ab0c094bd43b9
+"estree-walker@npm:^3.0.3":
+  version: 3.0.3
+  resolution: "estree-walker@npm:3.0.3"
+  dependencies:
+    "@types/estree": ^1.0.0
+  checksum: a65728d5727b71de172c5df323385755a16c0fdab8234dc756c3854cfee343261ddfbb72a809a5660fac8c75d960bb3e21aa898c2d7e9b19bb298482ca58a3af
   languageName: node
   linkType: hard
 
@@ -11227,12 +11236,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"is-reference@npm:^3.0.0":
-  version: 3.0.0
-  resolution: "is-reference@npm:3.0.0"
+"is-reference@npm:^3.0.1":
+  version: 3.0.1
+  resolution: "is-reference@npm:3.0.1"
   dependencies:
     "@types/estree": "*"
-  checksum: 408bb3442ff5f90a9740bf578e8fa2863f68bc07ee99b92079a358a34af58341dc7014b054e8cc51a3da5d1ab83f635b6ee1ce2982db7899a128d7a05173898f
+  checksum: 12c316d16191961938057e949c9f59ecac3c00c8101005a81ee351fde0775590238939c294ecac3a371400eb85d4b2556675396ebd4db821b767c145df28623f
   languageName: node
   linkType: hard
 
@@ -12816,7 +12825,7 @@ __metadata:
     react: ^17
     react-dom: ^17
     react-json-view: ^1.21.3
-    rollup-plugin-external-globals: ^0.7.1
+    rollup-plugin-external-globals: ^0.8.0
     typescript: ^4.8.4
     vite: ^3.2.4
     vite-plugin-css-injected-by-js: ^2.1.1
@@ -13161,6 +13170,15 @@ __metadata:
   dependencies:
     sourcemap-codec: ^1.4.8
   checksum: 89b0d60cbb32bbf3d1e23c46ea93db082d18a8230b972027aecb10a40bba51be519ecce0674f995571e3affe917b76b09f59d8dbc9a1b2c9c4102a2b6e8a2b01
+  languageName: node
+  linkType: hard
+
+"magic-string@npm:^0.30.0":
+  version: 0.30.0
+  resolution: "magic-string@npm:0.30.0"
+  dependencies:
+    "@jridgewell/sourcemap-codec": ^1.4.13
+  checksum: 7bdf22e27334d8a393858a16f5f840af63a7c05848c000fd714da5aa5eefa09a1bc01d8469362f25cc5c4a14ec01b46557b7fff8751365522acddf21e57c488d
   languageName: node
   linkType: hard
 
@@ -17170,17 +17188,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rollup-plugin-external-globals@npm:^0.7.1":
-  version: 0.7.1
-  resolution: "rollup-plugin-external-globals@npm:0.7.1"
+"rollup-plugin-external-globals@npm:^0.8.0":
+  version: 0.8.0
+  resolution: "rollup-plugin-external-globals@npm:0.8.0"
   dependencies:
     "@rollup/pluginutils": ^5.0.2
-    estree-walker: ^3.0.1
-    is-reference: ^3.0.0
-    magic-string: ^0.26.7
+    estree-walker: ^3.0.3
+    is-reference: ^3.0.1
+    magic-string: ^0.30.0
   peerDependencies:
     rollup: ^2.25.0 || ^3.3.0
-  checksum: 190c1f7b05159d56de97375597a9d07f12ebb2503db30ed400bd72a2c515ab3fac51b9eae0228b69cd5ca6aafa3e0142a11159a04cfc04e68ff395286a5edf8d
+  checksum: 36d562036b8ab4f248b2f26ca53f68bf4030ee6a67ac6e88034db5739348883dcc999c2bcab2dd3a7adffc77031d28e695af0f18bb9cf698c435bb9e2d759947
   languageName: node
   linkType: hard
 
