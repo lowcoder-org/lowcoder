@@ -1,6 +1,6 @@
 import { CheckboxChangeEvent } from "antd/lib/checkbox";
 import LoginBackground from "assets/images/loginBackground.png";
-import React, { CSSProperties, useEffect, useRef, useState } from "react";
+import React, { CSSProperties, useRef } from "react";
 import { CheckBox, PackUpIcon, TacoButton } from "lowcoder-design";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
@@ -14,7 +14,6 @@ const AuthCardContainer = styled.div`
   align-items: center;
   min-height: 100vh;
   height: 100%;
-  background: url(${LoginBackground}) no-repeat center;
   background-size: 100% 100%;
 `;
 
