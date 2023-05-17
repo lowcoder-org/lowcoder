@@ -1,6 +1,6 @@
 import { safeJsonStringify } from "../../../common/util";
 import { OpenAPIV3 } from "openapi-types";
-import { ActionParamConfig, ActionParamType } from "openblocks-sdk/dataSource";
+import { ActionParamConfig, ActionParamType } from "lowcoder-sdk/dataSource";
 import {
   ConfigKeySplit,
   getSchemaExample,

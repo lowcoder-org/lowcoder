@@ -20,8 +20,8 @@ RUN --mount=type=cache,target=/root/.m2 mvn -f pom.xml clean package -DskipTests
 RUN mkdir -p /lowcoder/api-service/plugins /lowcoder/api-service/config /lowcoder/api-service/logs
 
 # Define lowcoder main jar and plugin jars
-ARG JAR_FILE=/lowcoder-server/openblocks-server/target/openblocks-server-1.0-SNAPSHOT.jar
-ARG PLUGIN_JARS=/lowcoder-server/openblocks-plugins/*/target/*.jar
+ARG JAR_FILE=/lowcoder-server/lowcoder-server/target/lowcoder-server-1.0-SNAPSHOT.jar
+ARG PLUGIN_JARS=/lowcoder-server/lowcoder-plugins/*/target/*.jar
 
 # Copy Java runtime for running server
 COPY --from=jre-build /build/jre /lowcoder/api-service/jre
@@ -31,8 +31,8 @@ RUN cp ${JAR_FILE} /lowcoder/api-service/server.jar \
   && cp ${PLUGIN_JARS} /lowcoder/api-service/plugins/
 
 # Copy lowcoder server configuration
-COPY server/api-service/openblocks-server/src/main/resources/selfhost/ce/application.yml /lowcoder/api-service/config/
-COPY server/api-service/openblocks-server/src/main/resources/selfhost/ce/application-selfhost.yml /lowcoder/api-service/config/
+COPY server/api-service/lowcoder-server/src/main/resources/selfhost/ce/application.yml /lowcoder/api-service/config/
+COPY server/api-service/lowcoder-server/src/main/resources/selfhost/ce/application-selfhost.yml /lowcoder/api-service/config/
 
 # Add bootstrapfile
 COPY deploy/docker/api-service/entrypoint.sh /lowcoder/api-service/entrypoint.sh
@@ -140,7 +140,7 @@ RUN usermod --login lowcoder --uid 9001 nginx \
   && groupmod --new-name lowcoder --gid 9001 nginx
 
 # Copy lowcoder client data
-COPY --chown=lowcoder:lowcoder --from=build-client /lowcoder-client/packages/openblocks/build/ /lowcoder/client
+COPY --chown=lowcoder:lowcoder --from=build-client /lowcoder-client/packages/lowcoder/build/ /lowcoder/client
 
 # Copy additional nginx init scripts
 COPY deploy/docker/frontend/00-change-nginx-user.sh /docker-entrypoint.d/00-change-nginx-user.sh

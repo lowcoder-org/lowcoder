@@ -1,0 +1,41 @@
+auth:
+  email:
+    enable: true
+    enable-register: ${ENABLE_USER_SIGN_UP:true}
+
+spring:
+  data:
+    mongodb:
+      authentication-database: admin
+      auto-index-creation: false
+  main:
+    allow-bean-definition-overriding: true
+    allow-circular-references: true
+  codec:
+    max-in-memory-size: 20MB
+
+server:
+  compression:
+    enabled: true
+  forward-headers-strategy: NATIVE
+  http2:
+    enabled: true
+  port: 8080
+  shutdown: graceful
+
+common:
+  cookie-name: LOWCODER_CE_SELFHOST_TOKEN
+  product: lowcoder
+  domain:
+    default-value: lowcoder.org
+  cloud: false
+  version: 1.1.8
+  block-hound-enable: false
+  js-executor:
+    host: ${JS_EXECUTOR_URI:http://127.0.0.1:6060}
+  max-query-request-size-in-mb: 20
+  max-query-response-size-in-mb: 20
+
+material:
+  mongodb-grid-fs:
+    bucket-name: material

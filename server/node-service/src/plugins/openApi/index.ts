@@ -1,6 +1,6 @@
 import SwaggerClient from "swagger-client";
 import SwaggerParser from "@apidevtools/swagger-parser";
-import { ConfigToType, DataSourcePlugin } from "openblocks-sdk/dataSource";
+import { ConfigToType, DataSourcePlugin } from "lowcoder-sdk/dataSource";
 import { authParamsConfig, MultiOpenApiSpecItem, parseOpenApi, retrieveSpec } from "./parse";
 import {
   extractSecurityParams,

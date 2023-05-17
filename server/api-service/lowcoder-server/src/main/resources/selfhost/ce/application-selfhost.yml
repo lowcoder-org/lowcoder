@@ -1,0 +1,20 @@
+common:
+  encrypt:
+    password: ${ENCRYPTION_PASSWORD:lowcoder.org}
+    salt: ${ENCRYPTION_SALT:lowcoder.org}
+  security:
+    corsAllowedDomainString: ${CORS_ALLOWED_DOMAINS:*}
+  workspace:
+    mode: ENTERPRISE
+
+auth:
+  email:
+    enable: ${LOGIN_CHANNEL_EMAIL:true}
+    enable-register: ${ENABLE_USER_SIGN_UP:true}
+
+spring:
+  data:
+    mongodb:
+      uri: ${MONGODB_URI:mongodb://localhost:27017/lowcoder?socketTimeoutMS=5000}
+  redis:
+    url: ${REDIS_URL:redis://localhost:6379}

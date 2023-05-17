@@ -1,7 +1,7 @@
 import { badRequest } from "../common/error";
 import { Request, Response } from "express";
 import _ from "lodash";
-import { Config } from "openblocks-sdk/dataSource";
+import { Config } from "lowcoder-sdk/dataSource";
 import * as pluginServices from "../services/plugin";
 
 export async function listPlugins(req: Request, res: Response) {

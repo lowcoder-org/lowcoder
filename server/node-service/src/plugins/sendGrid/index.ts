@@ -1,6 +1,6 @@
 import _ from "lodash";
 import { OpenAPIV3, OpenAPI } from "openapi-types";
-import { ConfigToType, DataSourcePlugin } from "openblocks-sdk/dataSource";
+import { ConfigToType, DataSourcePlugin } from "lowcoder-sdk/dataSource";
 import { runOpenApi } from "../openApi";
 import { parseOpenApi, ParseOpenApiOptions } from "../openApi/parse";
 

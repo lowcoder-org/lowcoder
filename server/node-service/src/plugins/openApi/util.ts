@@ -3,7 +3,7 @@ import url from "url";
 import { File } from "formdata-node";
 import { OpenAPI, OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from "openapi-types";
 import swaggerClient from "swagger-client";
-import { ActionCategory } from "openblocks-sdk/dataSource";
+import { ActionCategory } from "lowcoder-sdk/dataSource";
 import SwaggerClient from "swagger-client";
 
 export const MediaTypeOctetStream = "application/octet-stream";

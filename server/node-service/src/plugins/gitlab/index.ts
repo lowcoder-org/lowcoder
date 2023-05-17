@@ -1,5 +1,5 @@
 import { kvToRecord } from "../../common/util";
-import { ConfigToType, DataSourcePlugin, PluginContext } from "openblocks-sdk/dataSource";
+import { ConfigToType, DataSourcePlugin, PluginContext } from "lowcoder-sdk/dataSource";
 import { graphQLQueryConfig } from "../graphql/queryConfig";
 import { runGraphQL } from "../graphql/run";
 

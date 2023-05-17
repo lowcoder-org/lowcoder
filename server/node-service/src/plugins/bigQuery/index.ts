@@ -1,4 +1,4 @@
-import { PluginContext } from "openblocks-sdk/dataSource";
+import { PluginContext } from "lowcoder-sdk/dataSource";
 import queryConfig, { ActionDataType } from "./queryConfig";
 import { dataSourceConfig, DataSourceDataType } from "./dataSourceConfig";
 import run, { validateDataSourceConfig } from "./run";

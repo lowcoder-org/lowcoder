@@ -1,0 +1,59 @@
+{
+  "name": "lowcoder-sdk",
+  "version": "0.0.41",
+  "type": "module",
+  "files": [
+    "src",
+    "dist",
+    "index.d.ts",
+    "dataSource.d.ts",
+    "tsconfig.json"
+  ],
+  "main": "./dist/lowcoder-sdk.js",
+  "module": "./dist/lowcoder-sdk.js",
+  "exports": {
+    ".": {
+      "import": "./dist/lowcoder-sdk.js",
+      "require": "./dist/lowcoder-sdk.js"
+    },
+    "./dataSource": {
+      "types": "./dataSource.d.ts"
+    },
+    "./dist/style.css": {
+      "import": "./dist/style.css"
+    }
+  },
+  "scripts": {
+    "build": "vite build",
+    "start": "vite"
+  },
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^22.0.2",
+    "@rollup/plugin-json": "^5.0.1",
+    "@rollup/plugin-node-resolve": "^14.1.0",
+    "@rollup/plugin-replace": "^5.0.1",
+    "@rollup/plugin-url": "^7.0.0",
+    "@svgr/rollup": "^6.3.1",
+    "@vitejs/plugin-react": "^2.2.0",
+    "lowcoder-dev-utils": "workspace:^",
+    "rollup": "^2",
+    "rollup-plugin-cleaner": "^1.0.0",
+    "rollup-plugin-node-builtins": "^2.1.2",
+    "rollup-plugin-node-globals": "^1.4.0",
+    "rollup-plugin-polyfill-node": "^0.10.2",
+    "rollup-plugin-terser": "^7.0.2",
+    "rollup-plugin-typescript": "^1.0.1",
+    "typescript": "^4.8.4",
+    "vite": "^3.2.4",
+    "vite-plugin-svgr": "^2.2.2",
+    "vite-tsconfig-paths": "^3.6.0"
+  },
+  "peerDependencies": {
+    "react": ">=17",
+    "react-dom": ">=17"
+  },
+  "keywords": [
+    "lowcoder"
+  ],
+  "license": "MIT"
+}

@@ -1,7 +1,7 @@
 import { S3ServiceException } from "@aws-sdk/client-s3";
 import { ServiceError } from "../../common/error";
 import _ from "lodash";
-import { PluginContext } from "openblocks-sdk/dataSource";
+import { PluginContext } from "lowcoder-sdk/dataSource";
 import queryConfig, { ActionDataType } from "./queryConfig";
 import { DataSourceDataType } from "./dataSourceConfig";
 import run, { validateDataSourceConfig } from "./run";

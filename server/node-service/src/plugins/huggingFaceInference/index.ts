@@ -1,5 +1,5 @@
 import _ from "lodash";
-import { ConfigToType, DataSourcePlugin } from "openblocks-sdk/dataSource";
+import { ConfigToType, DataSourcePlugin } from "lowcoder-sdk/dataSource";
 
 const dataSourceConfig = {
   type: "dataSource",
