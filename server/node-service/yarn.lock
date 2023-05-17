@@ -2017,6 +2017,7 @@ __metadata:
   languageName: node
   linkType: hard
 
+
 "@google-cloud/storage@npm:^6.9.3, @google-cloud/storage@npm:^6.9.5":
   version: 6.10.1
   resolution: "@google-cloud/storage@npm:6.10.1"
@@ -8939,7 +8940,7 @@ __metadata:
     "@aws-sdk/client-s3": ^3.332.0
     "@aws-sdk/s3-request-presigner": ^3.332.0
     "@google-cloud/bigquery": ^6.1.0
-    "@google-cloud/storage": ^6.9.3
+    "@google-cloud/storage": ^6.10.1
     "@supabase/supabase-js": ^2.10.0
     "@types/axios": ^0.14.0
     "@types/express": ^4.17.14
