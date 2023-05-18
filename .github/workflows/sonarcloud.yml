@@ -5,6 +5,8 @@ on:
       - main
   pull_request_target:
     types: [opened, synchronize, reopened]
+    paths:
+      - 'server/api-service/**'
 
 permissions:
   contents: read
