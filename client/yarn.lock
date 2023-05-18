@@ -10857,11 +10857,14 @@ __metadata:
   linkType: hard
 
 "jest-environment-jsdom@npm:^29.5.0":
+<<<<<<< HEAD
   version: 29.5.0
   resolution: "jest-environment-jsdom@npm:29.5.0"
   dependencies:
 =======
 "jest-environment-jsdom@npm:^29.0.3":
+=======
+>>>>>>> 9f314e3 (chore: updated jest and jsdom)
   version: 29.5.0
   resolution: "jest-environment-jsdom@npm:29.5.0"
   dependencies:
@@ -11661,10 +11664,14 @@ __metadata:
   linkType: hard
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 "jest@npm:^29.5.0":
 =======
 "jest@npm:^29.3.0":
 >>>>>>> 8e9400f (chore: updated dependencies)
+=======
+"jest@npm:^29.5.0":
+>>>>>>> 9f314e3 (chore: updated jest and jsdom)
   version: 29.5.0
   resolution: "jest@npm:29.5.0"
   dependencies:
