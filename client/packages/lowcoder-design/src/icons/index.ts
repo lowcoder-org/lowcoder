@@ -230,6 +230,7 @@ export { ReactComponent as HelpDiscordIcon } from "./icon-help-discord.svg";
 export { ReactComponent as LeftAudio } from "./icon-left-comp-audio.svg";
 export { ReactComponent as LeftButton } from "./icon-left-comp-button.svg";
 export { ReactComponent as LeftChart } from "./icon-left-comp-chart.svg";
+export { ReactComponent as LeftMermaid } from "./icon-left-comp-chart.svg";
 export { ReactComponent as LeftCheckbox } from "./icon-left-comp-checkbox.svg";
 export { ReactComponent as LeftCommon } from "./icon-left-comp-common.svg";
 export { ReactComponent as LeftContainer } from "./icon-left-comp-container.svg";

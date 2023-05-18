@@ -3,6 +3,7 @@ import {
   LeftAudio,
   LeftButton,
   LeftChart,
+  LeftMermaid,
   LeftCheckbox,
   LeftCommon,
   LeftContainer,
@@ -35,7 +36,7 @@ import {
   LeftTime,
   LeftTree,
   LeftVideo,
-  LeftSignature
+  LeftSignature,
 } from "lowcoder-design";
 
 export const CompStateIcon: {
@@ -73,6 +74,7 @@ export const CompStateIcon: {
   progress: <LeftProgress />,
   progressCircle: <LeftProgress />,
   chart: <LeftChart />,
+  mermaid: <LeftMermaid />,
   fileViewer: <LeftFileViewer />,
   divider: <LeftDivider />,
   qrCode: <LeftQrCode />,

@@ -4,7 +4,10 @@ import { ModalComp } from "comps/hooks/modalComp";
 import { ButtonComp } from "./comps/buttonComp/buttonComp";
 import { DropdownComp } from "./comps/buttonComp/dropdownComp";
 import { LinkComp } from "./comps/buttonComp/linkComp";
-import { ContainerComp, defaultContainerData } from "./comps/containerComp/containerComp";
+import {
+  ContainerComp,
+  defaultContainerData,
+} from "./comps/containerComp/containerComp";
 import { CustomComp } from "./comps/customComp/customComp";
 import { DatePickerComp, DateRangeComp } from "./comps/dateComp/dateComp";
 import { DividerComp } from "./comps/dividerComp";
@@ -95,7 +98,12 @@ import {
 
 import { defaultFormData, FormComp } from "./comps/formComp/formComp";
 import { IFrameComp } from "./comps/iframeComp";
-import { defaultGridData, defaultListViewData, GridComp, ListViewComp } from "./comps/listViewComp";
+import {
+  defaultGridData,
+  defaultListViewData,
+  GridComp,
+  ListViewComp,
+} from "./comps/listViewComp";
 import { ModuleComp } from "./comps/moduleComp/moduleComp";
 import { NavComp } from "./comps/navComp/navComp";
 import { TableComp } from "./comps/tableComp";
@@ -774,6 +782,19 @@ const uiCompMap: Registry = {
       h: 35,
     },
   },
+  mermaid: {
+    name: trans("uiComp.mermaidCompName"),
+    enName: "Mermaid",
+    description: trans("uiComp.mermaidCompDesc"),
+    categories: ["dataDisplay", "common"],
+    icon: ChartCompIcon,
+    comp: remoteComp({ ...builtInRemoteComps, compName: "mermaid" }),
+    keywords: trans("uiComp.mermaidCompKeywords"),
+    layoutInfo: {
+      w: 11,
+      h: 35,
+    },
+  },
   imageEditor: {
     name: trans("uiComp.imageEditorCompName"),
     enName: "Image Editor",
@@ -807,7 +828,7 @@ const uiCompMap: Registry = {
     layoutInfo: {
       w: 24,
       h: 60,
-    }
+    },
   },
   signature: {
     name: trans("uiComp.signatureCompName"),
