@@ -10158,7 +10158,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jest-environment-jsdom@npm:^29.0.3":
+"jest-environment-jsdom@npm:^29.5.0":
   version: 29.5.0
   resolution: "jest-environment-jsdom@npm:29.5.0"
   dependencies:
@@ -10495,7 +10495,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jest@npm:^29.3.0":
+"jest@npm:^29.5.0":
   version: 29.5.0
   resolution: "jest@npm:29.5.0"
   dependencies:
@@ -16742,8 +16742,8 @@ __metadata:
     babel-preset-react-app: ^10.0.1
     chalk: 4
     husky: ^8.0.1
-    jest: ^29.3.0
-    jest-environment-jsdom: ^29.0.3
+    jest: ^29.5.0
+    jest-environment-jsdom: ^29.5.0
     lint-staged: ^13.0.1
     lowcoder-dev-utils: "workspace:^"
     mq-polyfill: ^1.1.8
