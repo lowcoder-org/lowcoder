@@ -36,7 +36,7 @@ import {
   LeftTime,
   LeftTree,
   LeftVideo,
-  LeftSignature,
+  LeftSignature
 } from "lowcoder-design";
 
 export const CompStateIcon: {

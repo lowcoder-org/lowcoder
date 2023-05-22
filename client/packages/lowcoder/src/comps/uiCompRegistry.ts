@@ -5,9 +5,7 @@ import { JSONValue } from "util/jsonTypes";
 import { EditorState } from "./editorState";
 import { trans } from "i18n";
 
-export type ExposingMultiCompConstructor = ReturnType<
-  typeof withExposingConfigs
->;
+export type ExposingMultiCompConstructor = ReturnType<typeof withExposingConfigs>;
 // Required when the container generates default child comps
 type CompDefaultDataFunction = (
   compName: string,
@@ -117,10 +115,7 @@ export type UICompType =
 
 export const uiCompRegistry = {} as Record<UICompType | string, UICompManifest>;
 
-export function registerComp(
-  compType: UICompType | string,
-  manifest: UICompManifest
-) {
+export function registerComp(compType: UICompType | string, manifest: UICompManifest) {
   uiCompRegistry[compType] = {
     ...manifest,
     keywords: [manifest.name, manifest.enName, manifest.keywords]
