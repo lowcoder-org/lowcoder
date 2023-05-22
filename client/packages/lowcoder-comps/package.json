@@ -1,6 +1,6 @@
 {
   "name": "lowcoder-comps",
-  "version": "0.0.5",
+  "version": "0.0.12",
   "type": "module",
   "license": "MIT",
   "dependencies": {
@@ -62,6 +62,7 @@
     "start": "vite",
     "build": "yarn test && lowcoder-cli build",
     "build_only": "lowcoder-cli build",
+    "build_publish": "lowcoder-cli build --publish",
     "test": "jest"
   },
   "devDependencies": {
