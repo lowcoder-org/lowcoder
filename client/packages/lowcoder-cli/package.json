@@ -1,0 +1,51 @@
+{
+  "name": "lowcoder-cli",
+  "description": "CLI tool used to start build publish lowcoder components",
+  "version": "0.0.25",
+  "license": "MIT",
+  "bin": "./index.js",
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./index.js",
+      "require": "./index.js"
+    },
+    "./config/vite.config": {
+      "import": "./config/vite.config.js",
+      "require": "./config/vite.config.js"
+    },
+    "./client": {
+      "types": "./client.d.ts"
+    },
+    "./actions/init.js": {
+      "import": "./actions/init.js",
+      "require": "./actions/init.js"
+    }
+  },
+  "dependencies": {
+    "@vitejs/plugin-react": "^2.2.0",
+    "axios": "^1.1.3",
+    "chalk": "4",
+    "commander": "^9.4.1",
+    "cross-spawn": "^7.0.3",
+    "fs-extra": "^10.1.0",
+    "lowcoder-dev-utils": "workspace:^",
+    "react": "^17",
+    "react-dom": "^17",
+    "react-json-view": "^1.21.3",
+    "rollup-plugin-external-globals": "^0.7.1",
+    "vite": "^3.2.4",
+    "vite-plugin-css-injected-by-js": "^2.1.1",
+    "vite-plugin-svgr": "^2.2.2"
+  },
+  "devDependencies": {
+    "@types/axios": "^0.14.0",
+    "typescript": "^4.8.4"
+  },
+  "peerDependencies": {
+    "lowcoder-sdk": "*"
+  },
+  "keywords": [
+    "lowcoder"
+  ]
+}

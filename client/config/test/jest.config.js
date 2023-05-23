@@ -1,6 +1,6 @@
 import path from "node:path";
-import { buildVars } from "openblocks-dev-utils/buildVars.js";
-import { currentDirName } from "openblocks-dev-utils/util.js";
+import { buildVars } from "lowcoder-dev-utils/buildVars.js";
+import { currentDirName } from "lowcoder-dev-utils/util.js";
 
 const globals = {};
 buildVars.forEach(({ name, defaultValue }) => {
@@ -13,22 +13,25 @@ const dirname = currentDirName(import.meta.url);
 
 export default {
   testEnvironment: "jsdom",
+  testEnvironmentOptions: {
+    url: 'http://localhost'
+  },
   moduleNameMapper: {
     "react-markdown": path.resolve(dirname, "./mocks/react-markdown.js"),
     "\\.md\\?url$": path.resolve(dirname, "./mocks/markdown-url-module.js"),
-    "^@openblocks-ee(.*)$": path.resolve(
+    "^@lowcoder-ee(.*)$": path.resolve(
       dirname,
-      isEE ? "../../packages/openblocks/src/ee/$1" : "../../packages/openblocks/src/$1"
+      isEE ? "../../packages/lowcoder/src/ee/$1" : "../../packages/lowcoder/src/$1"
     ),
-    "openblocks-sdk": path.resolve(dirname, "../../packages/openblocks/src/index.sdk"),
+    "lowcoder-sdk": path.resolve(dirname, "../../packages/lowcoder/src/index.sdk"),
   },
   globals,
   // roots: ["<rootDir>/src"],
   modulePaths: [
     "<rootDir>/src",
-    path.resolve(dirname, "../../packages/openblocks/src"),
-    path.resolve(dirname, "../../packages/openblocks-comps/src"),
-    path.resolve(dirname, "../../packages/openblocks-design/src"),
+    path.resolve(dirname, "../../packages/lowcoder/src"),
+    path.resolve(dirname, "../../packages/lowcoder-comps/src"),
+    path.resolve(dirname, "../../packages/lowcoder-design/src"),
   ],
   setupFiles: [path.resolve(dirname, "./jest.setup.js")],
   setupFilesAfterEnv: [path.resolve(dirname, "./jest.setup-after-env.js")],

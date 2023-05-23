@@ -1,0 +1,1 @@
+import "../../lowcoder/src/global";

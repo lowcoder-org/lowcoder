@@ -14,7 +14,7 @@
 
 # production
 /build
-/packages/openblocks/build
+/packages/lowcoder/build
 
 # misc
 .DS_Store

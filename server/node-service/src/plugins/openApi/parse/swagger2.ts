@@ -1,5 +1,5 @@
 import { OpenAPIV2 } from "openapi-types";
-import { ActionParamType, ActionParamConfig, ParamOption } from "openblocks-sdk/dataSource";
+import { ActionParamType, ActionParamConfig, ParamOption } from "lowcoder-sdk/dataSource";
 import {
   ConfigKeySplit,
   getSchemaExample,

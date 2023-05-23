@@ -1,6 +1,6 @@
 import _ from "lodash";
 import { toString, toNumber, toBoolean } from "../common/util";
-import { getDynamicStringSegments, isDynamicSegment, RelaxedJsonParser } from "openblocks-core";
+import { getDynamicStringSegments, isDynamicSegment, RelaxedJsonParser } from "lowcoder-core";
 import jsonPath from "jsonpath";
 import plugins from "../plugins";
 import {
@@ -11,7 +11,7 @@ import {
   DynamicConfigObject,
   MixedConfig,
   PluginContext,
-} from "openblocks-sdk/dataSource";
+} from "lowcoder-sdk/dataSource";
 import { badRequest, ServiceError } from "../common/error";
 import { Request } from "express";
 
