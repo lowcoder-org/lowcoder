@@ -13,9 +13,6 @@ const dirname = currentDirName(import.meta.url);
 
 export default {
   testEnvironment: "jsdom",
-  testEnvironmentOptions: {
-    url: 'http://localhost'
-  },
   moduleNameMapper: {
     "react-markdown": path.resolve(dirname, "./mocks/react-markdown.js"),
     "\\.md\\?url$": path.resolve(dirname, "./mocks/markdown-url-module.js"),
