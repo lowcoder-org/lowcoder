@@ -130,7 +130,7 @@ For developers who require stateless containers in a cluster environment, we off
     ```
 2.  Download the configuration file by clicking [docker-compose-multi.yml](https://raw.githubusercontent.com/lowcoder-org/lowcoder/main/deploy/docker/docker-compose-multi.yaml) or running the curl command:
 
-    <pre class="language-bash" data-overflow="wrap"><code class="lang-bash"><strong>curl https://raw.githubusercontent.com/lowcoder-org/lowcoder/main/deploy/docker/docker-compose.yaml -o $PWD/docker-compose-multi.yml
+    <pre class="language-bash" data-overflow="wrap"><code class="lang-bash"><strong>curl https://raw.githubusercontent.com/lowcoder-org/lowcoder/main/deploy/docker/docker-compose-multi.yaml -o $PWD/docker-compose-multi.yml
     </strong></code></pre>
 3.  Modify service configurations in the downloaded Dockerfile according to your needs:
 
