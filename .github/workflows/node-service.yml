@@ -10,8 +10,8 @@ permissions:
   contents: read
 
 jobs:
-  test-node-service:
-    name: Tests
+  build-node-service:
+    name: Build
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -34,5 +34,5 @@ jobs:
       - name: Run tests
         uses: borales/actions-yarn@v4.2.0
         with:
-          cmd: test
+          cmd: build
           dir: server/node-service

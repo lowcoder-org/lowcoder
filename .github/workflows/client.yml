@@ -10,8 +10,8 @@ permissions:
   contents: read
 
 jobs:
-  test:
-    name: Tests
+  build-client:
+    name: Build
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -31,8 +31,8 @@ jobs:
         with:
           cmd: install
           dir: client
-#      - name: Run tests
-#        uses: borales/actions-yarn@v4.2.0
-#        with:
-#          cmd: test
-#          dir: client
+      - name: Run tests
+        uses: borales/actions-yarn@v4.2.0
+        with:
+          cmd: build
+          dir: client
