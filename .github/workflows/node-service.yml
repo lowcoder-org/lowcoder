@@ -1,4 +1,4 @@
-name: Client
+name: Node Service
 on:
   pull_request:
     types: [opened, synchronize, reopened]
