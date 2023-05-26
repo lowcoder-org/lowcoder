@@ -74,7 +74,7 @@ const Wrapper = styled.div<{ dragging: boolean; isOver: boolean; dropInAsSub: bo
 `;
 
 interface IProps extends HTMLAttributes<HTMLDivElement> {
-  content?: ReactNode | null;
+  content?: ReactNode | string | null;
   isOver?: boolean;
   extra?: ReactNode;
   dragging?: boolean;
