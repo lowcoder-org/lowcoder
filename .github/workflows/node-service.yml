@@ -3,13 +3,13 @@ on:
   pull_request:
     types: [opened, synchronize, reopened]
     paths:
-      - 'client/**'
+      - 'server/node-service/**'
 
 permissions:
   contents: read
 
 jobs:
-  test:
+  test-node-service:
     name: Tests
     runs-on: ubuntu-latest
     strategy:
@@ -24,14 +24,14 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'yarn'
-          cache-dependency-path: 'client/yarn.lock'
+          cache-dependency-path: 'server/node-service/yarn.lock'
       - name: Install dependencies
         uses: borales/actions-yarn@v4.2.0
         with:
           cmd: install
+          dir: server/node-service
+      - name: Run tests
+        uses: borales/actions-yarn@v4.2.0
+        with:
+          cmd: test
           dir: client
-#      - name: Run tests
-#        uses: borales/actions-yarn@v4.2.0
-#        with:
-#          cmd: test
-#          dir: client
