@@ -4,6 +4,7 @@ on:
     types: [opened, synchronize, reopened]
     paths:
       - 'client/**'
+      - '.github/workflows/client.yml'
 
 permissions:
   contents: read
