@@ -4,6 +4,7 @@ on:
     types: [opened, synchronize, reopened]
     paths:
       - 'server/node-service/**'
+      - '.github/workflows/node-service.yml'
 
 permissions:
   contents: read
