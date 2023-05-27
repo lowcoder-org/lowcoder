@@ -1,16 +1,16 @@
 import { Tooltip } from "antd";
-import { getThemeDetailName, isThemeColorKey, ThemeDetail } from "api/commonSettingApi";
+import { getThemeDetailName, isThemeColorKey, ThemeDetail, ThemeExpand } from "api/commonSettingApi";
 import { ControlItemCompBuilder } from "comps/generators/controlCompBuilder";
 import { childrenToProps, ToConstructor } from "comps/generators/multi";
 import { BackgroundColorContext } from "comps/utils/backgroundColorContext";
 import { ThemeContext } from "comps/utils/themeContext";
 import { trans } from "i18n";
 import _ from "lodash";
-import { controlItem, IconRadius, IconReset } from "lowcoder-design";
+import { controlItem, IconRadius, IconReset,IconBold, IconFontSize } from "lowcoder-design";
 import { useContext } from "react";
 import styled from "styled-components";
 import { useIsMobile } from "util/hooks";
-import { RadiusControl } from "./codeControl";
+import { RadiusControl,BoldTitleControl,TitleSizeControl } from "./codeControl";
 import { ColorControl } from "./colorControl";
 import {
   defaultTheme,
@@ -19,6 +19,9 @@ import {
   RadiusConfig,
   SimpleColorConfig,
   SingleColorConfig,
+  BoldTitleConfig,
+  TitleSizeConfig,
+  customTheme,
 } from "./styleControlConstants";
 
 function isSimpleColorConfig(config: SingleColorConfig): config is SimpleColorConfig {
@@ -31,6 +34,14 @@ function isDepColorConfig(config: SingleColorConfig): config is DepColorConfig {
 
 function isRadiusConfig(config: SingleColorConfig): config is RadiusConfig {
   return config.hasOwnProperty("radius");
+}
+//step7 Need a function to determine the setting
+function isBoldTitleConfig(config: SingleColorConfig): config is BoldTitleConfig {
+  return config.name==="boldTitle";
+}
+
+function isTitleSizeConfig(config: SingleColorConfig): config is TitleSizeConfig {
+  return config.name==="titleSize";
 }
 
 // function styleControl(colorConfig: Array<SingleColorConfig>) {
@@ -53,9 +64,11 @@ function calcColors<ColorMap extends Record<string, string>>(
   props: ColorMap,
   colorConfigs: readonly SingleColorConfig[],
   theme?: ThemeDetail,
-  bgColor?: string
+  bgColor?: string,
+  cTheme?: ThemeExpand,
 ) {
   const themeWithDefault = (theme || defaultTheme) as unknown as Record<string, string>;
+  const themeWithCustom = cTheme as unknown as Record<string, string>;
   // Cover what is not there for the first pass
   let res: Record<string, string> = {};
   colorConfigs.forEach((config) => {
@@ -82,7 +95,15 @@ function calcColors<ColorMap extends Record<string, string>>(
       res[name] = config.color;
     }
     if (isRadiusConfig(config)) {
+      // res[name] = themeWithDefault[config.radius];
       res[name] = themeWithDefault[config.radius];
+    }
+    //step8 boldTitle default config
+    if (isBoldTitleConfig(config)) {
+      res[name] = themeWithCustom["boldTitle"];
+    }
+    if (isTitleSizeConfig(config)) {
+      res[name] = themeWithCustom["titleSize"];
     }
   });
   // The second pass calculates dep
@@ -190,22 +211,36 @@ const StyleContent = styled.div`
 const RadiusIcon = styled(IconRadius)`
   margin: 0 8px 0 -2px;
 `;
-
+const BoldIcon = styled(IconBold)`
+  margin: 0 8px 0 -2px;
+`;
+const FontSizeIcon = styled(IconFontSize)`
+  margin: 0 8px 0 -2px;
+`;
 const ResetIcon = styled(IconReset)`
   &:hover g g {
     stroke: #315efb;
   }
 `;
-
+//step9 Here you can define the style attribute controller
 export function styleControl<T extends readonly SingleColorConfig[]>(colorConfigs: T) {
   type ColorMap = { [K in Names<T>]: string };
   const childrenMap: any = {};
   colorConfigs.map((config) => {
     const name: Names<T> = config.name;
-    if (name === "radius") {
-      childrenMap[name] = RadiusControl;
-    } else {
-      childrenMap[name] = ColorControl;
+    switch (name) {
+      case "radius":
+        childrenMap[name] = RadiusControl;
+        break;
+      case "boldTitle":
+        childrenMap[name] = BoldTitleControl;
+        break;
+      case "titleSize":
+        childrenMap[name] = TitleSizeControl;
+        break;
+      default:
+        childrenMap[name] = ColorControl;
+        break;
     }
   });
   // [K in Names<T>]: new (params: CompParams<any>) => ColorControl;
@@ -216,7 +251,7 @@ export function styleControl<T extends readonly SingleColorConfig[]>(colorConfig
       // const x = useContext(CompNameContext);
       const theme = useContext(ThemeContext);
       const bgColor = useContext(BackgroundColorContext);
-      return calcColors(props as ColorMap, colorConfigs, theme?.theme, bgColor);
+      return calcColors(props as ColorMap, colorConfigs, theme?.theme, bgColor,customTheme);
     }
   )
     .setControlItemData({ filterText: label, searchChild: true })
@@ -229,7 +264,8 @@ export function styleControl<T extends readonly SingleColorConfig[]>(colorConfig
         childrenToProps(children) as ColorMap,
         colorConfigs,
         theme?.theme,
-        bgColor
+        bgColor,
+        customTheme
       );
       const showReset = Object.values(childrenToProps(children)).findIndex((item) => item) > -1;
       return (
@@ -241,7 +277,7 @@ export function styleControl<T extends readonly SingleColorConfig[]>(colorConfig
                 onClick={() => {
                   colorConfigs.map((item) => {
                     const name: Names<T> = item.name;
-                    if (name === "radius") {
+                    if (name === "radius"||name === "boldTitle") {
                       children[name]?.dispatchChangeValueAction("");
                     } else {
                       children[name] &&
@@ -276,22 +312,40 @@ export function styleControl<T extends readonly SingleColorConfig[]>(colorConfig
                     depMsg = trans("style.generated");
                   }
                 }
+                //step10 comps style control
                 return controlItem(
                   { filterText: config.label },
                   <div key={index}>
-                    {name === "radius"
-                      ? (children[name] as InstanceType<typeof RadiusControl>).propertyView({
-                          label: config.label,
-                          preInputNode: <RadiusIcon title="" />,
-                          placeholder: props[name],
-                        })
-                      : children[name].propertyView({
-                          label: config.label,
-                          panelDefaultColor: props[name],
-                          // isDep: isDepColorConfig(config),
-                          isDep: true,
-                          depMsg: depMsg,
-                        })}
+                    {(()=>{
+                        switch (name) {
+                          case "radius":
+                            return (children[name] as InstanceType<typeof RadiusControl>).propertyView({
+                              label: config.label,
+                              preInputNode: <RadiusIcon title="" />,
+                              placeholder: props[name],
+                            })
+                          case "boldTitle":
+                            return (children[name] as InstanceType<typeof BoldTitleControl>).propertyView({
+                              label: config.label,
+                              preInputNode: <BoldIcon title="" />,
+                              placeholder: props[name],
+                            })
+                          case "titleSize":
+                            return (children[name] as InstanceType<typeof TitleSizeControl>).propertyView({
+                              label: config.label,
+                              preInputNode: <FontSizeIcon title="" />,
+                              placeholder: props[name],
+                            })
+                          default:
+                            return children[name].propertyView({
+                              label: config.label,
+                              panelDefaultColor: props[name],
+                              // isDep: isDepColorConfig(config),
+                              isDep: true,
+                              depMsg: depMsg,
+                            })
+                        } 
+                    })()}
                   </div>
                 );
               })}
@@ -310,5 +364,6 @@ export function useStyle<T extends readonly SingleColorConfig[]>(colorConfigs: T
   colorConfigs.forEach((config) => {
     props[config.name as Names<T>] = "";
   });
-  return calcColors(props, colorConfigs, theme?.theme, bgColor);
+
+  return calcColors(props, colorConfigs, theme?.theme, bgColor, customTheme);
 }

@@ -1,4 +1,4 @@
-import { ThemeDetail } from "api/commonSettingApi";
+import { ThemeDetail, ThemeExpand } from "api/commonSettingApi";
 import { darkenColor, isDarkColor, lightenColor, toHex } from "lowcoder-design";
 import { trans } from "i18n";
 import { StyleConfigType } from "./styleControl";
@@ -16,13 +16,18 @@ export type SimpleColorConfig = CommonColorConfig & {
 export type RadiusConfig = CommonColorConfig & {
   readonly radius: string;
 };
+//step3 You can set other properties besides the default properties
+export type BoldTitleConfig = CommonColorConfig & {
+};
+export type TitleSizeConfig = CommonColorConfig & {
+};
 export type DepColorConfig = CommonColorConfig & {
   readonly depName?: string;
   readonly depTheme?: keyof ThemeDetail;
   readonly depType?: DEP_TYPE;
   transformer: (color: string, ...rest: string[]) => string;
 };
-export type SingleColorConfig = SimpleColorConfig | DepColorConfig | RadiusConfig;
+export type SingleColorConfig = SimpleColorConfig | DepColorConfig | RadiusConfig | BoldTitleConfig;
 
 export const defaultTheme: ThemeDetail = {
   primary: "#3377FF",
@@ -32,7 +37,11 @@ export const defaultTheme: ThemeDetail = {
   primarySurface: "#FFFFFF",
   borderRadius: "4px",
 };
-
+//step4 custom theme default attr
+export const customTheme: ThemeExpand = {
+  boldTitle: "normal",
+  titleSize: "13px"
+}
 export const SURFACE_COLOR = "#FFFFFF";
 const SECOND_SURFACE_COLOR = "#D7D9E0";
 const ERROR_COLOR = "#F5222D";
@@ -194,6 +203,16 @@ const LABEL = {
   depType: DEP_TYPE.CONTRAST_TEXT,
   transformer: contrastText,
 } as const;
+//step5 custom style properties
+const BOLDTITLE = {
+  name: "boldTitle",
+  label: trans("style.boldTitle"),
+}as const;
+
+const TITLESIZE = {
+  name: "titleSize",
+  label: trans("style.titleSize"),
+}as const;
 
 const ACCENT = {
   name: "accent",
@@ -354,9 +373,11 @@ export const SliderStyle = [
   },
   TRACK,
 ] as const;
-
+//step6 setting comps style properties
 export const InputLikeStyle = [
   LABEL,
+  BOLDTITLE,
+  TITLESIZE,
   ...getStaticBgBorderRadiusByBg(SURFACE_COLOR),
   TEXT,
   ...ACCENT_VALIDATE,
@@ -364,6 +385,8 @@ export const InputLikeStyle = [
 
 export const RatingStyle = [
   LABEL,
+  BOLDTITLE,
+  TITLESIZE,
   {
     name: "checked",
     label: trans("style.checked"),
@@ -378,6 +401,8 @@ export const RatingStyle = [
 
 export const SwitchStyle = [
   LABEL,
+  BOLDTITLE,
+  TITLESIZE,
   {
     name: "handle",
     label: trans("style.handle"),
@@ -400,6 +425,8 @@ export const SwitchStyle = [
 
 export const SelectStyle = [
   LABEL,
+  BOLDTITLE,
+  TITLESIZE,
   ...getStaticBgBorderRadiusByBg(SURFACE_COLOR, "pc"),
   TEXT,
   ...ACCENT_VALIDATE,
@@ -407,6 +434,8 @@ export const SelectStyle = [
 
 const multiSelectCommon = [
   LABEL,
+  BOLDTITLE,
+  TITLESIZE,
   ...getStaticBgBorderRadiusByBg(SURFACE_COLOR, "pc"),
   TEXT,
   {
@@ -461,6 +490,8 @@ export const ModalStyle = getBgBorderRadiusByBg();
 
 export const CascaderStyle = [
   LABEL,
+  BOLDTITLE,
+  TITLESIZE,
   ...getStaticBgBorderRadiusByBg(SURFACE_COLOR, "pc"),
   TEXT,
   ACCENT,
@@ -491,6 +522,8 @@ function checkAndUncheck() {
 
 export const CheckboxStyle = [
   LABEL,
+  BOLDTITLE,
+  TITLESIZE,
   ...checkAndUncheck(),
   {
     name: "checked",
@@ -506,6 +539,8 @@ export const CheckboxStyle = [
 
 export const RadioStyle = [
   LABEL,
+  BOLDTITLE,
+  TITLESIZE,
   ...checkAndUncheck(),
   {
     name: "checked",
@@ -520,6 +555,8 @@ export const RadioStyle = [
 
 export const SegmentStyle = [
   LABEL,
+  BOLDTITLE,
+  TITLESIZE,
   {
     name: "indicatorBackground",
     label: trans("style.indicatorBackground"),
@@ -612,6 +649,8 @@ export const IframeStyle = [getBackground(), getStaticBorder("#00000000"), RADIU
 
 export const DateTimeStyle = [
   LABEL,
+  BOLDTITLE,
+  TITLESIZE,
   ...getStaticBgBorderRadiusByBg(SURFACE_COLOR),
   TEXT,
   ...ACCENT_VALIDATE,
@@ -684,6 +723,8 @@ export const QRCodeStyle = [
 
 export const TreeStyle = [
   LABEL,
+  BOLDTITLE,
+  TITLESIZE,
   ...getStaticBgBorderRadiusByBg(SURFACE_COLOR),
   TEXT,
   VALIDATE,
@@ -693,7 +734,11 @@ export const TreeSelectStyle = [...multiSelectCommon, ...ACCENT_VALIDATE] as con
 
 export const DrawerStyle = [getBackground()] as const;
 
-export const JsonEditorStyle = [LABEL] as const;
+export const JsonEditorStyle = [
+  LABEL,
+  BOLDTITLE,
+  TITLESIZE,
+] as const;
 
 export const CalendarStyle = [
   getBackground("primarySurface"),
@@ -741,6 +786,8 @@ export const CalendarStyle = [
 
 export const SignatureStyle = [
   LABEL,
+  BOLDTITLE,
+  TITLESIZE,
   ...getBgBorderRadiusByBg(),
   {
     name: "pen",

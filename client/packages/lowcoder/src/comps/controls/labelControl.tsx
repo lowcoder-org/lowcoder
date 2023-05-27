@@ -24,12 +24,14 @@ const StyledStarIcon = styled(StarIcon)`
   margin-left: 4px;
   flex-shrink: 0;
 `;
-
+//step11 setting comps css
 function getStyle(style: any) {
   return css`
     > div:nth-of-type(1) {
       > div:nth-of-type(1) > span {
         color: ${style.label};
+        font-weight: ${style.boldTitle};
+        font-size: ${style.titleSize};
       }
     }
     > div:nth-of-type(2) {

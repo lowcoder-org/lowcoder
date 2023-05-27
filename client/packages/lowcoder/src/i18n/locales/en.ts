@@ -321,6 +321,8 @@ export const en = {
     pen: "Pen",
     footerIcon: "Footer icon",
     tips: "Tips",
+    boldTitle:"Bold Title",
+    titleSize:"Title Size",
   },
   export: {
     hiddenDesc: "If true, the component is hidden",

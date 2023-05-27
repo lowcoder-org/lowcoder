@@ -46,6 +46,12 @@ export interface ThemeDetail {
   chart?: string;
 }
 
+//Customized for style
+export interface ThemeExpand {
+  boldTitle?: string;
+  titleSize?: string;
+}
+
 export function getThemeDetailName(key: keyof ThemeDetail) {
   switch (key) {
     case "primary":
