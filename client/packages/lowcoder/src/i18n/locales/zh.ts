@@ -317,7 +317,9 @@ export const zh  = {
         toolbarText: "工具栏文本",
         pen: "画笔",
         footerIcon: "底部图标",
-        tips: "提示"
+        tips: "提示",
+        boldTitle:"粗体标题",
+        titleSize:"标题大小",
     },
     export: {
         hiddenDesc: "如果为true,则隐藏组件",

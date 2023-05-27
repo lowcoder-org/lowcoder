@@ -3,3 +3,4 @@ logs/
 stacks/
 client/.yarn/cache/*.zip
 server/node-service/.yarn/cache/*.zip
+client/packages/lowcoder/vite.config.mts.timestamp-1684847882101.mjs

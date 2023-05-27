@@ -264,6 +264,7 @@ export function controlItem(data: ControlItemData, propertyView: ReactElement): 
       {propertyView}
     </ControlItemWrapper>
   );
+  //console.log(item)
   return { ...item, __control__: true };
 }
 

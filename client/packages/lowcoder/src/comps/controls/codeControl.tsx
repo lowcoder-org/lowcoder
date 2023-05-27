@@ -472,6 +472,36 @@ export const RadiusControl = codeControl<string>(
   }
 );
 
+//custom style control,font-weight
+export const BoldTitleControl = codeControl<string>(
+  (value: unknown) => {
+    const valueString = toString(value);
+    if (valueString === "" ||valueString === "normal"||valueString === "bold"||valueString === "lighter"||valueString === "bolder") {
+      return valueString;
+    }
+    if (/^[1-8]\d{2}$|900$/.test(valueString)&&Number(valueString) % 100 === 0 ) {
+      return valueString;
+    }
+    throw new Error(`the parameter must be a value related to the CSS font-weight property`);
+  },
+  {
+    expectedType: "CSS",
+  }
+);
+
+//step2 custom style control,font-weight
+export const TitleSizeControl = codeControl<string>(
+  (value: unknown) => {
+    const valueString = toString(value);
+    if (valueString === "" || /(\d+(?:\.\d+)?)(px|%)/.test(valueString)) {
+      return valueString;
+    }
+    throw new Error(`the argument must be a number of pixels (13px), or a percent (50%)`);
+  },
+  {
+    expectedType: "CSS",
+  }
+);
 export const FunctionControl = codeControl<CodeFunction>(
   (value) => {
     if (typeof value === "function") {
