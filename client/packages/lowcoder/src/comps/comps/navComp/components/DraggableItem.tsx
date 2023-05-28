@@ -74,7 +74,7 @@ const Wrapper = styled.div<{ dragging: boolean; isOver: boolean; dropInAsSub: bo
 `;
 
 interface IProps extends HTMLAttributes<HTMLDivElement> {
-  content: ReactNode;
+  dragContent: ReactNode;
   isOver?: boolean;
   extra?: ReactNode;
   dragging?: boolean;
@@ -84,7 +84,7 @@ interface IProps extends HTMLAttributes<HTMLDivElement> {
 
 function DraggableItem(props: IProps, ref: Ref<HTMLDivElement>) {
   const {
-    content: text,
+    dragContent: text,
     extra,
     dragging = false,
     dropInAsSub = true,
