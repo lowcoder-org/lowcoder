@@ -73,7 +73,7 @@ const MenuItem = React.forwardRef((props: IMenuItemProps, ref: React.Ref<HTMLDiv
       dragging={dragging}
       dropInAsSub={dropInAsSub}
       dragListeners={dragListeners}
-      content={
+      dragContent={
         <SimplePopover
           title={trans("edit")}
           content={content}
