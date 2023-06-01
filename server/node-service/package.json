@@ -29,7 +29,7 @@
   },
   "dependencies": {
     "@apidevtools/swagger-parser": "^10.1.0",
-    "@aws-sdk/client-athena": "^3.333.0",
+    "@aws-sdk/client-athena": "^3.342.0",
     "@aws-sdk/client-dynamodb": "^3.332.0",
     "@aws-sdk/client-lambda": "^3.332.0",
     "@aws-sdk/client-s3": "^3.332.0",
