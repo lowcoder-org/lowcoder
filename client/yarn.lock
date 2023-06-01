@@ -31,6 +31,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@ant-design/colors@npm:^7.0.0":
+  version: 7.0.0
+  resolution: "@ant-design/colors@npm:7.0.0"
+  dependencies:
+    "@ctrl/tinycolor": ^3.4.0
+  checksum: 419e98d9cb823ff0935024f4278f7b9c5896805dce4c93d667b5a4d76b03f5fa969b32d1998ee761113da43063e2b23a94c330ad6e865f03fbbb2579907e7fdb
+  languageName: node
+  linkType: hard
+
 "@ant-design/icons-svg@npm:^4.2.1":
   version: 4.2.1
   resolution: "@ant-design/icons-svg@npm:4.2.1"
@@ -51,6 +60,22 @@ __metadata:
     react: ">=16.0.0"
     react-dom: ">=16.0.0"
   checksum: d569dae9f84245a90fb5152af4c4e6e9f1bce9d638b5831f3e9d126ff654c9477e3c9d9192c6b3f349ade39c9e0bc85605cad5d8c2e401e632dbd6190b638ad3
+  languageName: node
+  linkType: hard
+
+"@ant-design/icons@npm:^5.1.4":
+  version: 5.1.4
+  resolution: "@ant-design/icons@npm:5.1.4"
+  dependencies:
+    "@ant-design/colors": ^7.0.0
+    "@ant-design/icons-svg": ^4.2.1
+    "@babel/runtime": ^7.11.2
+    classnames: ^2.2.6
+    rc-util: ^5.31.1
+  peerDependencies:
+    react: ">=16.0.0"
+    react-dom: ">=16.0.0"
+  checksum: f74f27b526459e69354adbc9d222a99afcf5fd0074a97575df239fbe5d077de0de903afa612546f24c378c2e163e02e4e31cde575da4e84e597025f12c90984f
   languageName: node
   linkType: hard
 
@@ -11410,7 +11435,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "lowcoder@workspace:packages/lowcoder"
   dependencies:
-    "@ant-design/icons": ^4.7.0
+    "@ant-design/icons": ^5.1.4
     "@ant-design/pro-form": ^1.52.9
     "@ant-design/pro-table": ^2.62.7
     "@codemirror/autocomplete": ^0.20.3
@@ -14477,6 +14502,19 @@ __metadata:
     react: ">=16.9.0"
     react-dom: ">=16.9.0"
   checksum: c6322a869dd77586b521c66bf62874d5767d8b2ed91a4170978a3e87018ff9e061670bc750104e302924ec21f15b271a88188d10c9266d6ed252737308ecb2e7
+  languageName: node
+  linkType: hard
+
+"rc-util@npm:^5.31.1":
+  version: 5.32.4
+  resolution: "rc-util@npm:5.32.4"
+  dependencies:
+    "@babel/runtime": ^7.18.3
+    react-is: ^16.12.0
+  peerDependencies:
+    react: ">=16.9.0"
+    react-dom: ">=16.9.0"
+  checksum: b7e084254a0a91a19e8c91d603d1d2ad4ddb8af70d5ccb321cb5027a5d26780f62e16716da4326a3d94c4f6ef831b6cfaaba6bbd4cd40eb2fccad920696bb1d9
   languageName: node
   linkType: hard
 

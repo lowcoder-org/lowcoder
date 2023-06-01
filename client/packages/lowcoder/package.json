@@ -6,7 +6,7 @@
   "main": "src/index.sdk.ts",
   "types": "src/index.sdk.ts",
   "dependencies": {
-    "@ant-design/icons": "^4.7.0",
+    "@ant-design/icons": "^5.1.4",
     "@ant-design/pro-form": "^1.52.9",
     "@ant-design/pro-table": "^2.62.7",
     "@codemirror/autocomplete": "^0.20.3",
