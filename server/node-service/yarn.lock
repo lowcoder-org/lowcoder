@@ -1971,7 +1971,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@google-cloud/firestore@npm:^6.5.0":
+"@google-cloud/firestore@npm:^6.6.0":
   version: 6.6.0
   resolution: "@google-cloud/firestore@npm:6.6.0"
   dependencies:
@@ -5196,14 +5196,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"firebase-admin@npm:^11.5.0":
-  version: 11.8.0
-  resolution: "firebase-admin@npm:11.8.0"
+"firebase-admin@npm:^11.9.0":
+  version: 11.9.0
+  resolution: "firebase-admin@npm:11.9.0"
   dependencies:
     "@fastify/busboy": ^1.2.1
     "@firebase/database-compat": ^0.3.4
     "@firebase/database-types": ^0.10.4
-    "@google-cloud/firestore": ^6.5.0
+    "@google-cloud/firestore": ^6.6.0
     "@google-cloud/storage": ^6.9.5
     "@types/node": ">=12.12.47"
     jsonwebtoken: ^9.0.0
@@ -5215,7 +5215,7 @@ __metadata:
       optional: true
     "@google-cloud/storage":
       optional: true
-  checksum: e7f3596db58bf668702e2a6dfb74071ee112aef5ac3001071079a57fb5ce41aba5a1f398dfac40a40792ac6894e040c3b3cb508dc02d026741eada6672974048
+  checksum: c07ec5e9fb4242df904941d9def5bfca0633e6a2378d87a4857fff0d2349252c0f0fdaaa37221c327366a9284f3b44260d18ae94cefa202fbf514d680ccf4da4
   languageName: node
   linkType: hard
 
@@ -8971,7 +8971,7 @@ __metadata:
     dynamodb-data-types: ^4.0.1
     express: ^4.18.2
     express-async-errors: ^3.1.1
-    firebase-admin: ^11.5.0
+    firebase-admin: ^11.9.0
     formdata-node: 4
     graphql: ^16.6.0
     graphql-request: ^5.1.0

@@ -49,7 +49,7 @@
     "dynamodb-data-types": "^4.0.1",
     "express": "^4.18.2",
     "express-async-errors": "^3.1.1",
-    "firebase-admin": "^11.5.0",
+    "firebase-admin": "^11.9.0",
     "formdata-node": "4",
     "graphql": "^16.6.0",
     "graphql-request": "^5.1.0",
