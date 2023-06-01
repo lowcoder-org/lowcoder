@@ -11265,7 +11265,7 @@ __metadata:
     rollup-plugin-external-globals: ^0.7.1
     typescript: ^4.8.4
     vite: ^3.2.4
-    vite-plugin-css-injected-by-js: ^2.1.1
+    vite-plugin-css-injected-by-js: ^3.1.1
     vite-plugin-svgr: ^2.2.2
   peerDependencies:
     lowcoder-sdk: "*"
@@ -17789,12 +17789,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vite-plugin-css-injected-by-js@npm:^2.1.1":
-  version: 2.4.0
-  resolution: "vite-plugin-css-injected-by-js@npm:2.4.0"
+"vite-plugin-css-injected-by-js@npm:^3.1.1":
+  version: 3.1.1
+  resolution: "vite-plugin-css-injected-by-js@npm:3.1.1"
   peerDependencies:
     vite: ">2.0.0-0"
-  checksum: f4cd84e9b552c2525e2f374371b3dd57c896bbea77c4e55bf136fbafa561543684c690c9c0bb74bc496f694b092e2229293cd2b9cde438f3bc9e33bab8f810b2
+  checksum: 3f05747631805c3ca7646067d9f6eda5d89decc5a5cc939abf3c115c2d5a226429ca2e96711299524394623131688b11f1f6a90ad7e3f37692dcb5ecbcf82e10
   languageName: node
   linkType: hard
 
