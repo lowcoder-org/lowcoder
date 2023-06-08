@@ -2115,7 +2115,7 @@ export const en = {
     tempState: "https://docs.lowcoder.dev/build-apps/write-javascript/temporary-state",
   },
   customComponent: {
-    entryUrl: "https://custom-component.lowcoder.dev/index.html",
+    entryUrl: "https://sdk.lowcoder.cloud/custom_component.html",
   },
   template: {
     cloneUrl: "/apps/template-import/",
