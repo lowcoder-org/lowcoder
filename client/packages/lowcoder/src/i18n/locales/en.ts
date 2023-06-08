@@ -276,8 +276,6 @@ export const en = {
     primarySurfaceDesc: "The default background color for components such as tables",
     borderRadius: "Border radius",
     borderRadiusDesc: "Most components use the default border radius",
-    padding: "padding",
-    paddingDesc: "Most components use the default padding",
     chart: "Chart style",
     chartDesc: "Input Echarts",
     echartsJson: "Theme JSON",
