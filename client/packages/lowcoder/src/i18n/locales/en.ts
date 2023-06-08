@@ -276,6 +276,8 @@ export const en = {
     primarySurfaceDesc: "The default background color for components such as tables",
     borderRadius: "Border radius",
     borderRadiusDesc: "Most components use the default border radius",
+    padding: "padding",
+    paddingDesc: "Most components use the default padding",
     chart: "Chart style",
     chartDesc: "Input Echarts",
     echartsJson: "Theme JSON",
@@ -2115,7 +2117,7 @@ export const en = {
     tempState: "https://docs.lowcoder.dev/build-apps/write-javascript/temporary-state",
   },
   customComponent: {
-    entryUrl: "https://custom-component.lowcoder.dev/index.html",
+    entryUrl: "https://sdk.lowcoder.cloud/custom_component.html",
   },
   template: {
     cloneUrl: "/apps/template-import/",
