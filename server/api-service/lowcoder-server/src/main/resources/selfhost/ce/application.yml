@@ -23,6 +23,13 @@ server:
   port: 8080
   shutdown: graceful
 
+default:
+  orgs-per-user: 100
+  org-member-count: 1000
+  org-group-count: 100
+  org-app-count: 1000
+  developer-count: 50
+
 common:
   cookie-name: LOWCODER_CE_SELFHOST_TOKEN
   product: lowcoder

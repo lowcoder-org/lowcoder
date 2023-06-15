@@ -9,12 +9,28 @@ import org.lowcoder.sdk.config.dynamic.Conf;
 import org.lowcoder.sdk.config.dynamic.ConfigCenter;
 import org.lowcoder.sdk.config.dynamic.ConfigInstance;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import reactor.core.publisher.Mono;
 
 @Service
 public class BizThresholdChecker extends AbstractBizThresholdChecker {
+
+	@Value("${default.orgsPerUser:100}")
+	private int defaultMaxOrgPerUser;
+
+	@Value("${default.maxOrgMemberCount:1000}")
+	private int defaultMaxOrgMemberCount;
+
+	@Value("${default.maxOrgGroupCount:100}")
+	private int defaultMaxOrgGroupCount;
+
+	@Value("${default.maxOrgAppCount:1000}")
+	private int defaultMaxOrgAppCount;
+
+	@Value("${default.maxDeveloperCount:100}")
+	private int defaultMaxDeveloperCount;
 
     @Autowired
     private ConfigCenter configCenter;
@@ -31,14 +47,14 @@ public class BizThresholdChecker extends AbstractBizThresholdChecker {
     @PostConstruct
     private void init() {
         ConfigInstance threshold = configCenter.threshold();
-        maxOrgPerUser = threshold.ofInteger("maxOrgPerUser", 5);
+        maxOrgPerUser = threshold.ofInteger("maxOrgPerUser", defaultMaxOrgPerUser);
         userOrgCountWhiteList = threshold.ofMap("userOrgCountWhiteList", String.class, Integer.class, Collections.emptyMap());
-        maxOrgMemberCount = threshold.ofInteger("maxOrgMemberCount", 50);
+        maxOrgMemberCount = threshold.ofInteger("maxOrgMemberCount", defaultMaxOrgMemberCount);
         orgMemberCountWhiteList = threshold.ofMap("orgMemberCountWhiteList", String.class, Integer.class, Collections.emptyMap());
-        maxOrgGroupCount = threshold.ofInteger("maxOrgGroupCount", 10);
-        maxOrgAppCount = threshold.ofInteger("maxOrgAppCount", 50);
+        maxOrgGroupCount = threshold.ofInteger("maxOrgGroupCount", defaultMaxOrgGroupCount);
+        maxOrgAppCount = threshold.ofInteger("maxOrgAppCount", defaultMaxOrgAppCount);
         orgAppCountWhiteList = threshold.ofMap("orgAppCountWhiteList", String.class, Integer.class, Collections.emptyMap());
-        maxDeveloperCount = threshold.ofInteger("maxDeveloperCount", 50);
+        maxDeveloperCount = threshold.ofInteger("maxDeveloperCount", defaultMaxDeveloperCount);
     }
 
     @Override

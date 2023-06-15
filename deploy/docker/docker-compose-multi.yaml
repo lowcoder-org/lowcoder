@@ -40,6 +40,11 @@ services:
       ENCRYPTION_PASSWORD: "lowcoder.org"
       ENCRYPTION_SALT: "lowcoder.org"
       CORS_ALLOWED_DOMAINS: "*"
+      DEFAULT_ORGS_PER_USER: 100
+      DEFAULT_ORG_MEMBER_COUNT: 1000
+      DEFAULT_ORG_GROUP_COUNT: 100
+      DEFAULT_ORG_APP_COUNT: 1000
+      DEFAULT_DEVELOPER_COUNT: 50
     restart: unless-stopped
     depends_on:
       - mongodb

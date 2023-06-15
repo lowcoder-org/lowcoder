@@ -20,6 +20,11 @@ services:
       PUID: "1000"
       PGID: "1000"
       # api-service parameters
+      DEFAULT_ORGS_PER_USER: 100
+      DEFAULT_ORG_MEMBER_COUNT: 1000
+      DEFAULT_ORG_GROUP_COUNT: 100
+      DEFAULT_ORG_APP_COUNT: 1000
+      DEFAULT_DEVELOPER_COUNT: 50
       #MONGODB_URI: "mongodb://lowcoder:secret123@mongodb/lowcoder?authSource=admin"
       MONGODB_URI: "mongodb://localhost:27017/lowcoder?authSource=admin"
       REDIS_URL: "redis://localhost:6379"
