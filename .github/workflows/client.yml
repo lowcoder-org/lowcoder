@@ -43,4 +43,4 @@ jobs:
         working-directory: client
         run: npm publish --workspaces
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.LOWCODERNPMBOT }}
