@@ -41,6 +41,9 @@ jobs:
           dir: client
       - name: version
         working-directory: client
+        run: yarn workspaces foreach version --deferred
+      - name: version-update
+        working-directory: client  
         run: yarn version apply
       - name: publish
         working-directory: client
