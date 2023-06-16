@@ -37,8 +37,12 @@ jobs:
           cmd: build
           dir: client
       - name: Increase packages version on NPM 📦
-        run: npm version patch --workspaces
+        with:
+          cmd: npm version patch --workspaces
+          dir: client
       - name: Publish package on NPM 📦
-        run: npm publish --workspaces
+        with:
+          cmd: npm publish --workspaces
+          dir: client
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
