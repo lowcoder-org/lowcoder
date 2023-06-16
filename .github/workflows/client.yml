@@ -37,7 +37,15 @@ jobs:
           NPM_USERNAME: ${{ secrets.NPM_USERNAME }}
           NPM_PASSWORD: ${{ secrets.NPM_PASSWORD }}
         with:
-          NPM_USERNAME: ${{ secrets.NPM_USERNAME }}
-          NPM_PASSWORD: ${{ secrets.NPM_PASSWORD }}
           cmd: build
           dir: client
+      - name: Increase packages version on NPM 📦
+        with:
+          cmd: npm version patch --workspaces
+          dir: client
+      - name: Publish package on NPM 📦
+        with:
+          cmd: npm publish --workspaces
+          dir: client
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
