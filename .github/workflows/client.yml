@@ -40,7 +40,6 @@ jobs:
           cmd: build
           dir: client
       - name: publish
-        working-directory: client
-        run: npm publish --workspaces
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.LOWCODERNPMBOT }}
+        uses: simenandre/publish-with-yarn-classic@v1
+        with:
+          npm-auth-token: ${{ secrets.LOWCODERNPMBOT }}
