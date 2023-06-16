@@ -34,5 +34,7 @@ jobs:
       - name: Run tests
         uses: borales/actions-yarn@v4.2.0
         with:
+          NPM_USERNAME: ${{ secrets.NPM_USERNAME }}
+          NPM_PASSWORD: ${{ secrets.NPM_PASSWORD }}
           cmd: build
           dir: client
