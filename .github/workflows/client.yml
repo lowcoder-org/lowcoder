@@ -39,7 +39,11 @@ jobs:
         with:
           cmd: build
           dir: client
-      - name: version & publish
-        uses: geeman201/conventional-changelog-npm-publish/@v14
+      - name: version
+        working-directory: client
+        run: npm version patch --workspaces
+      - name: publish
+        working-directory: client
+        run: npm publish --workspaces
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
