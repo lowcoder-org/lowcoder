@@ -40,10 +40,12 @@ jobs:
           cmd: build
           dir: client
       - name: Increase packages version on NPM 📦
+        uses: borales/actions-yarn@v4.2.0
         with:
           cmd: npm version patch --workspaces
           dir: client
       - name: Publish package on NPM 📦
+        uses: borales/actions-yarn@v4.2.0
         with:
           cmd: npm publish --workspaces
           dir: client
