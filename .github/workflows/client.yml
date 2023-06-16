@@ -40,8 +40,10 @@ jobs:
           cmd: build
           dir: client
       - name: version
-        working-directory: client
-        run: npm version patch --workspaces
+        uses: borales/actions-yarn@v4.2.0
+        with:
+          cmd: version apply
+          dir: client
       - name: publish
         working-directory: client
         run: npm publish --workspaces
