@@ -33,6 +33,9 @@ jobs:
           dir: client
       - name: Run tests
         uses: borales/actions-yarn@v4.2.0
+        env: 
+          NPM_USERNAME: ${{ secrets.NPM_USERNAME }}
+          NPM_PASSWORD: ${{ secrets.NPM_PASSWORD }}
         with:
           NPM_USERNAME: ${{ secrets.NPM_USERNAME }}
           NPM_PASSWORD: ${{ secrets.NPM_PASSWORD }}
