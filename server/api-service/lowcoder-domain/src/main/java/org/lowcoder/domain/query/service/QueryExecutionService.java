@@ -47,7 +47,7 @@ public class QueryExecutionService {
 
         return Mono.defer(() -> {
                     if (datasourceMetaInfoService.isJsDatasourcePlugin(datasource.getType())) {
-                        return executeByNodeJs(datasource, queryConfig, requestParams);
+                        return executeByNodeJs(datasource, queryConfig, requestParams, queryVisitorContext);
                     }
                     return executeLocally(datasource, queryConfig, requestParams, queryVisitorContext);
                 })
@@ -77,11 +77,19 @@ public class QueryExecutionService {
                 });
     }
 
-    private Mono<QueryExecutionResult> executeByNodeJs(Datasource datasource, Map<String, Object> queryConfig, Map<String, Object> requestParams) {
+    private Mono<QueryExecutionResult> executeByNodeJs(Datasource datasource, Map<String, Object> queryConfig, Map<String, Object> requestParams, QueryVisitorContext queryVisitorContext) {
         List<Map<String, Object>> context = requestParams.entrySet()
                 .stream()
                 .map(entry -> Map.of("key", entry.getKey(), "value", entry.getValue()))
                 .collect(Collectors.toList());
+
+        //forward cookies to js datasource
+        List<Map<String, Object>> cookies = queryVisitorContext.getCookies().entrySet()
+                .stream()
+                .map(entry -> Map.of("key", entry.getKey(), "value", entry.getValue()))
+                .collect(Collectors.toList());
+        context.addAll(cookies);
+
         return datasourcePluginClient.executeQuery(datasource.getType(), queryConfig, context, datasource.getDetailConfig());
     }
 }

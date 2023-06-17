@@ -46,3 +46,10 @@ common:
 material:
   mongodb-grid-fs:
     bucket-name: material
+
+springdoc:
+  api-docs:
+    path: /api/docs/api-docs
+  swagger-ui:
+    path: /api/docs/swagger-ui
+  paths-to-exclude: /api/v1/**

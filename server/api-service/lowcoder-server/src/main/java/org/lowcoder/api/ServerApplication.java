@@ -11,6 +11,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import lombok.extern.slf4j.Slf4j;
 import reactor.blockhound.BlockHound;
 import reactor.core.publisher.Hooks;
@@ -22,6 +23,7 @@ import reactor.tools.agent.ReactorDebugAgent;
 @ComponentScan(basePackages = "org.lowcoder.api.framework.configuration")
 @EnableScheduling
 @EnableConfigurationProperties
+@OpenAPIDefinition
 public class ServerApplication {
 
     @Autowired
