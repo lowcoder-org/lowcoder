@@ -25,7 +25,7 @@ const dataSourceConfig = {
       label: "Spec URL",
       key: "url",
       type: "textInput",
-      updatable: false,
+      updatable: true,
       rules: [
         {
           required: true,
@@ -146,18 +146,11 @@ const openApiPlugin: DataSourcePlugin<ActionDataType, DataSourceDataType> = {
   dataSourceConfig: {
     ...dataSourceConfig,
     extra: async (dataSourceConfig) => {
-      const { url, extra } = dataSourceConfig;
-      let spec: string = extra?.spec;
-      let specObj: OpenAPI.Document;
-      if (!spec) {
-        // retrieve spec from remote only once
-        const { spec: remoteSpec } = await retrieveSpec(url);
-        specObj = remoteSpec;
-        spec = JSON.stringify(remoteSpec);
-      } else {
-        specObj = safeJsonParse(spec);
-      }
+      // called whenever datasource config opens or changes
+      const { url} = dataSourceConfig;
+      const { spec: specObj} = await retrieveSpec(url);
       const extraParams = await authParamsConfig(specObj);
+      const spec = JSON.stringify(specObj);
       return {
         data: {
           spec,
