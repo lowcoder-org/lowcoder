@@ -34,6 +34,7 @@ import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.ServerAuthenticationEntryPoint;
+import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.reactive.CorsConfigurationSource;
@@ -62,8 +63,17 @@ public class SecurityConfig {
     @Bean
     public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
 
-
-        http.cors()
+    	if (!commonConfig.getSecurity().getForbiddenEndpoints().isEmpty())
+    	{
+    		http.authorizeExchange()
+	    		.matchers(
+		        		commonConfig.getSecurity().getForbiddenEndpoints().stream()
+		        		.map(apiEndpoint -> ServerWebExchangeMatchers.pathMatchers(apiEndpoint.getMethod(), apiEndpoint.getUri()))
+		        		.toArray(size -> new ServerWebExchangeMatcher[size])
+				).denyAll();    		
+    	}
+    	
+    	http.cors()
                 .configurationSource(buildCorsConfigurationSource())
                 .and()
                 .csrf().disable()
@@ -137,6 +147,7 @@ public class SecurityConfig {
         return http.build();
     }
 
+        
     /**
      * enable CORS
      */
