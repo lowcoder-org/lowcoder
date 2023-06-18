@@ -20,9 +20,9 @@ public final class MongoConnectionUriParser {
      *
      * ^(mongodb(?:\+srv)?:\/\/)(?:(.+):(.+)@)?([^\/\?]+)\/?([^\?]+)?\??(.+)?$
      */
-    public static final String MONGO_URI_REGEX = "^(mongodb(?:\\+srv)?://)(?:(.+):(.+)@)?([^/?]+)/?([^?]+)?\\??(.+)?$";
+    public static final String MONGO_URL_REGEX = "^(mongodb(?:\\+srv)?://)(?:(.+):(.+)@)?([^/?]+)/?([^?]+)?\\??(.+)?$";
 
-    private static final Pattern PATTERN = Pattern.compile(MONGO_URI_REGEX);
+    private static final Pattern PATTERN = Pattern.compile(MONGO_URL_REGEX);
 
     private static final int REGEX_GROUP_HEAD = 1;
 
@@ -53,7 +53,7 @@ public final class MongoConnectionUriParser {
     }
 
     public static Map<String, String> extractInfoFromConnectionStringURI(String uri) {
-        if (!uri.matches(MONGO_URI_REGEX)) {
+        if (!uri.matches(MONGO_URL_REGEX)) {
             return null;
         }
 
@@ -75,7 +75,7 @@ public final class MongoConnectionUriParser {
     public static String parseDatabaseFrom(String uri) {
         Map<String, String> extractedInfo = extractInfoFromConnectionStringURI(uri);
         if (extractedInfo == null) {
-            throw ofPluginException(DATASOURCE_ARGUMENT_ERROR, "INVALID_MONGODB_URI");
+            throw ofPluginException(DATASOURCE_ARGUMENT_ERROR, "INVALID_MONGODB_URL");
         }
 
         String database = extractedInfo.get(KEY_URI_DBNAME);

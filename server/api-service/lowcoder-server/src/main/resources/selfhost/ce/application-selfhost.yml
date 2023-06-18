@@ -15,6 +15,6 @@ auth:
 spring:
   data:
     mongodb:
-      uri: ${MONGODB_URI:mongodb://localhost:27017/lowcoder?socketTimeoutMS=5000}
+      uri: ${MONGODB_URL:mongodb://localhost:27017/lowcoder?socketTimeoutMS=5000}
   redis:
     url: ${REDIS_URL:redis://localhost:6379}
