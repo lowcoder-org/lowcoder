@@ -27,8 +27,8 @@
       "description": "The domains supported for CORS requests. All domains are allowed by default. If there are multiple domains, please separate them with commas.",
       "required": false
     },
-    "MONGODB_URI": {
-      "description": "Your Mongo Database URI.",
+    "MONGODB_URL": {
+      "description": "Your Mongo Database URL.",
       "required": false
     },
     "REDIS_URL": {

@@ -18,9 +18,9 @@ data:
   REDIS_URL: {{- .Values.redis.externalUrl | quote }}
   {{- end }}
   {{- if .Values.apiService.nodeServiceUrl }}
-  JS_EXECUTOR_URI: {{ .Values.apiService.nodeServiceUrl | quote }}
+  LOWCODER_NODE_SERVICE_URL: {{ .Values.apiService.nodeServiceUrl | quote }}
   {{- else }}
-  JS_EXECUTOR_URI: "http://{{ $name }}-node-service:{{ .Values.nodeService.service.port }}"
+  LOWCODER_NODE_SERVICE_URL: "http://{{ $name }}-node-service:{{ .Values.nodeService.service.port }}"
   {{- end }}
   PUID: {{ .Values.apiService.config.userId | default "9001" | quote }}
   PGID: {{ .Values.apiService.config.groupId | default "9001" | quote }}

@@ -19,7 +19,7 @@ package org.lowcoder.plugin.redis;
 import static com.google.common.collect.Maps.newHashMap;
 import static java.util.Objects.isNull;
 import static org.lowcoder.plugin.redis.RedisError.REDIS_EXECUTION_ERROR;
-import static org.lowcoder.plugin.redis.RedisError.REDIS_URI_ERROR;
+import static org.lowcoder.plugin.redis.RedisError.REDIS_URL_ERROR;
 import static org.lowcoder.plugin.redis.constants.RedisConstants.JEDIS_POOL_MAX_IDLE;
 import static org.lowcoder.plugin.redis.constants.RedisConstants.JEDIS_POOL_MAX_TOTAL;
 import static org.lowcoder.plugin.redis.constants.RedisConstants.JEDIS_POOL_MIN_EVICTABLE_IDLE_MILLIS;
@@ -101,7 +101,7 @@ public class RedisPlugin extends Plugin {
                     .subscribeOn(scheduler)
                     .onErrorMap(t -> {
                         if (t instanceof ArrayIndexOutOfBoundsException && connectionConfig.isUsingUri()) {
-                            return new PluginException(REDIS_URI_ERROR, "REDIS_URI_ERROR", t.getMessage());
+                            return new PluginException(REDIS_URL_ERROR, "REDIS_URL_ERROR", t.getMessage());
                         }
                         return t;
                     });
@@ -173,7 +173,7 @@ public class RedisPlugin extends Plugin {
 
             if (connectionConfig.isUsingUri()) {
                 if (StringUtils.isBlank(connectionConfig.getUri())) {
-                    invalids.add("REDIS_URI_EMPTY");
+                    invalids.add("REDIS_URL_EMPTY");
                 }
             } else {
                 if (StringUtils.isBlank(host)) {

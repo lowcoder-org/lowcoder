@@ -30,9 +30,8 @@ Image can be configured by setting environment variables.
 | `FRONTEND_ENABLED`              | If **true** lowcoder web frontend is started in the container       | `true`                                                |
 | `PUID`                          | ID of user running services. It will own all created logs and data. | `9001`                                                |
 | `PGID`                          | ID of group of the user running services.                           | `9001`                                                |
-| `MONGODB_URI`                   | Mongo database connection string                                    | `mongodb://localhost:27017/lowcoder?authSource=admin` |
+| `MONGODB_URL`                   | Mongo database connection string                                    | `mongodb://localhost:27017/lowcoder?authSource=admin` |
 | `REDIS_URL`                     | Redis server URL                                                    | `redis://localhost:6379`                              |
-| `JS_EXECUTOR_URI`               | Node service URL                                                    | `http://localhost:6060`                               |
 | `ENABLE_USER_SIGN_UP`           | Enable registration of new users                                    | `true`                                                |
 | `ENCRYPTION_PASSWORD`           | Encryption password                                                 | `lowcoder.org`                                        |
 | `ENCRYPTION_SALT`               | Salt used for encrypting password                                   | `lowcoder.org`                                        |
@@ -66,9 +65,8 @@ Image can be configured by setting environment variables.
 | --------------------------------| --------------------------------------------------------------------| ------------------------------------------------------|
 | `PUID`                          | ID of user running services. It will own all created logs and data. | `9001`                                                |
 | `PGID`                          | ID of group of the user running services.                           | `9001`                                                |
-| `MONGODB_URI`                   | Mongo database connection string                                    | `mongodb://localhost:27017/lowcoder?authSource=admin` |
+| `MONGODB_URL`                   | Mongo database connection string                                    | `mongodb://localhost:27017/lowcoder?authSource=admin` |
 | `REDIS_URL`                     | Redis server URL                                                    | `redis://localhost:6379`                              |
-| `JS_EXECUTOR_URI`               | Node service URL                                                    | `http://localhost:6060`                               |
 | `ENABLE_USER_SIGN_UP`           | Enable registration of new users                                    | `true`                                                |
 | `ENCRYPTION_PASSWORD`           | Encryption password                                                 | `lowcoder.org`                                        |
 | `ENCRYPTION_SALT`               | Salt used for encrypting password                                   | `lowcoder.org`                                        |

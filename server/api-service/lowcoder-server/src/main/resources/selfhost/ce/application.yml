@@ -39,7 +39,7 @@ common:
   version: 1.1.8
   block-hound-enable: false
   js-executor:
-    host: ${JS_EXECUTOR_URI:http://127.0.0.1:6060}
+    host: ${LOWCODER_NODE_SERVICE_URL:http://127.0.0.1:6060}
   max-query-request-size-in-mb: 20
   max-query-response-size-in-mb: 20
 
