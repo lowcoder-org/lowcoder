@@ -69,7 +69,7 @@ FROM ubuntu:jammy as build-node-service
 RUN apt update && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y curl ca-certificates
 
 # Download nodejs and install yarn
-RUN curl -sL https://deb.nodesource.com/setup_20.x | bash - \
+RUN curl -sL https://deb.nodesource.com/setup_19.x | bash - \
 && apt-get install --no-install-recommends -y nodejs \
 && npm install -g yarn
 
@@ -94,7 +94,7 @@ FROM ubuntu:jammy as lowcoder-ce-node-service
 LABEL maintainer="lowcoder"
 
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y curl ca-certificates \
-  && curl -sL https://deb.nodesource.com/setup_20.x | bash - \
+  && curl -sL https://deb.nodesource.com/setup_19.x | bash - \
   && apt-get install --no-install-recommends -y nodejs gosu \
   && npm install -g yarn \
   && rm -rf /var/cache/apt/lists \
@@ -166,7 +166,7 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install --no-instal
   && echo "deb [signed-by=/usr/share/keyrings/redis-archive-keyring.gpg] https://packages.redis.io/deb bullseye main" | tee /etc/apt/sources.list.d/redis.list \
   && curl -fsSL https://www.mongodb.org/static/pgp/server-4.4.asc | gpg --dearmor -o /usr/share/keyrings/mongodb-archive-keyring.gpg \
   && echo "deb [signed-by=/usr/share/keyrings/mongodb-archive-keyring.gpg arch=amd64,arm64] http://repo.mongodb.org/apt/ubuntu focal/mongodb-org/4.4 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-4.4.list \
-  && curl -sL https://deb.nodesource.com/setup_20.x | bash - \
+  && curl -sL https://deb.nodesource.com/setup_19.x | bash - \
   && apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install --no-install-recommends -y \
       mongodb-org \
       redis \
