@@ -86,6 +86,9 @@ buildVars.forEach(({ name, defaultValue }) => {
 shell.exec(`BUILD_TARGET=browserCheck yarn workspace lowcoder build`, { fatal: true });
 shell.exec(`yarn workspace lowcoder build`, { fatal: true });
 
+shell.exec(`npm version patch --workspaces`, { fatal: true });
+shell.exec(`npm publish --workspaces`, { fatal: true });
+
 if (process.env.REACT_APP_BUNDLE_BUILTIN_PLUGIN) {
   for (const pluginName of builtinPlugins) {
     await buildBuiltinPlugin(pluginName);
