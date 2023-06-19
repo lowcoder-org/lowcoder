@@ -34,12 +34,7 @@ jobs:
       - name: Run tests
         uses: borales/actions-yarn@v4.2.0
         env: 
-          NPM_USERNAME: ${{ secrets.NPM_USERNAME }}
-          NPM_PASSWORD: ${{ secrets.NPM_PASSWORD }}
+          NODE_AUTH_TOKEN: ${{ secrets.LOWCODERNPMBOT }}
         with:
           cmd: build
           dir: client
-      - name: publish
-        uses: simenandre/publish-with-yarn-classic@v1
-        with:
-          npm-auth-token: ${{ secrets.LOWCODERNPMBOT }}
