@@ -1906,7 +1906,7 @@ export const zh  = {
         jsLibraryDownloadError: "JavaScript库下载错误",
         jsLibraryInstallSuccess: "JavaScript库安装成功",
         jsLibraryInstallFailed: "JavaScript库安装失败",
-        jsLibraryInstallFailedCloud: "可能该库在沙盒中不可用,[文档](https://docs.lowcoder.dev/build-apps/write-javascript/use-third-party-libraries#manually-import-libraries)\n{message}",
+        jsLibraryInstallFailedCloud: "可能该库在沙盒中不可用,[文档](https://docs.lowcoder.cloud/build-apps/write-javascript/use-third-party-libraries#manually-import-libraries)\n{message}",
         jsLibraryInstallFailedHost: "{message}",
         add: "新增",
         jsHelpText: "向当前应用程序添加全局方法或变量.",
@@ -2053,7 +2053,7 @@ export const zh  = {
         showBorder: "显示边框"
     },
     docUrls: {
-      docHome: "https://docs.lowcoder.dev/",
+      docHome: "https://docs.lowcoder.cloud/",
       components: "https://cloud.lowcoder.dev/components?n={compType}",
       module: "",
       optionList: "",
@@ -2062,12 +2062,12 @@ export const zh  = {
       aboutUs: "",
       changeLog: "",
       introVideo: "",
-      devNpmPlugin: "https://docs.lowcoder.dev/build-plugins/develop-your-first-plugin",
+      devNpmPlugin: "https://docs.lowcoder.cloud/build-plugins/develop-your-first-plugin",
       devNpmPluginText: "如何开发npm插件?",
-      useHost: "https://docs.lowcoder.dev/self-hosting/access-local-database-or-api",
+      useHost: "https://docs.lowcoder.cloud/self-hosting/access-local-database-or-api",
       eventHandlerSlowdown:
-        "https://docs.lowcoder.dev/build-apps/event-handlers#debounce-and-throttle",
-      thirdLib: "https://docs.lowcoder.dev/build-apps/write-javascript/use-third-party-libraries",
+        "https://docs.lowcoder.cloud/build-apps/event-handlers#debounce-and-throttle",
+      thirdLib: "https://docs.lowcoder.cloud/build-apps/write-javascript/use-third-party-libraries",
       thirdLibUrlText: "使用第三方插件库",
     },
     datasourceTutorial: {
@@ -2081,8 +2081,8 @@ export const zh  = {
     },
     queryTutorial: {
       js: "",
-      transformer: "https://docs.lowcoder.dev/build-apps/write-javascript/transformers",
-      tempState: "https://docs.lowcoder.dev/build-apps/write-javascript/temporary-state",
+      transformer: "https://docs.lowcoder.cloud/build-apps/write-javascript/transformers",
+      tempState: "https://docs.lowcoder.cloud/build-apps/write-javascript/temporary-state",
     },
     customComponent: {
       entryUrl: "https://sdk.lowcoder.cloud/custom_component.html",
@@ -2091,8 +2091,8 @@ export const zh  = {
       cloneUrl: "/apps/template-import/",
     },
     lowcoderUrl: {
-      createIssue: "https://github.com/lowcoder-dev/lowcoder/issues",
-      discord: "https://discord.com/invite/z5W2YHXdtt",
+      createIssue: "https://github.com/lowcoder-org/lowcoder/issues",
+      discord: "https://discord.com/invite/qMG9uTmAx2",
     },
     componentDoc: {
         markdownDemoText: "**Lowcoder** 是一个开发人员友好的开源低代码平台,可在几分钟内构建内部应用.",
