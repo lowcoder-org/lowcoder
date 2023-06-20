@@ -9,7 +9,7 @@ const DatasourceTutorials: Partial<Record<DatasourceType, string>> = {
   es: trans("datasourceTutorial.es"),
   smtp: trans("datasourceTutorial.smtp"),
   clickHouse: trans("datasourceTutorial.clickHouse"),
-  googleSheets: "https://docs.lowcoder.dev/data-sources/connect-to-databases/google-sheets",
+  googleSheets: "https://docs.lowcoder.cloud/data-sources/connect-to-databases/google-sheets",
 };
 
 export const getDatasourceTutorial = (datasourceType: DatasourceType) => {
