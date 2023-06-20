@@ -2,10 +2,10 @@
 
 There are cases where you want to orchestrate operations, for instance, after triggering two queries, you want to combine and store their results to a temporary state, and then open a modal. This process can be complicated when chaining several event handlers, and certainly cannot be done in one line of code in `{{ }}`. That's where JavaScript (JS) query comes into play. It unleashes the ability to interact with components and queries by writing complex JS queries to achieve the following operations:
 
-* Interact with UI components
-* Trigger queries
-* Access third-party JS libraries
-* Customize functions
+- Interact with UI components
+- Trigger queries
+- Access third-party JS libraries
+- Customize functions
 
 The following example is for you to quickly understand what JS query is and how it works.
 
@@ -27,20 +27,19 @@ Use a JS query to left join `query1` and `query2` on the same `tid` in the follo
 
 1.  Create `query3`, and choose **Run** **JavaScript Code**.
 
-
-
     <figure><img src="../../.gitbook/assets/js-query-1.PNG" alt=""><figcaption></figcaption></figure>
+
 2.  Insert the following code.
 
     ```javascript
     return Promise.all([query1.run(), query2.run()]).then(
-      data => join(data[0], data[1]),
-      error => {}
+      (data) => join(data[0], data[1]),
+      (error) => {}
     );
 
     function join(players, teams) {
-      return players.map(player => {
-        const team = teams.find(t => player.tid === t.tid);
+      return players.map((player) => {
+        const team = teams.find((t) => player.tid === t.tid);
         return { ...player, ...team };
       });
     }
@@ -49,7 +48,6 @@ Use a JS query to left join `query1` and `query2` on the same `tid` in the follo
     \
     In this code snippet, the `Promise.all()` method receives the results of `query1` and `query2`, and the `join()` method joins their results after a successful run based on the values of `tid` field.\
 
-
     <figure><img src="../../.gitbook/assets/js-query-2.PNG" alt=""><figcaption></figcaption></figure>
 
 ## Return data
@@ -57,13 +55,13 @@ Use a JS query to left join `query1` and `query2` on the same `tid` in the follo
 Use `return` syntax to return result. For example, the following code returns `3`.
 
 ```javascript
-return Math.floor(3.4)
+return Math.floor(3.4);
 ```
 
-The result returned can also be a [Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global\_Objects/Promise) object. For example, `query2.run()` returns a Promise object.
+The result returned can also be a [Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise) object. For example, `query2.run()` returns a Promise object.
 
 ```javascript
-return query2.run()
+return query2.run();
 ```
 
 {% hint style="info" %}
@@ -88,7 +86,7 @@ input1.setValue("Hello");
 ```
 
 {% hint style="warning" %}
-The `input1.setValue()` method (or other component methods) is asynchronous and returns a [Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global\_Objects/Promise) object. Accessing `input1.value` immediately after setting the value of `input1` does not return the updated value.
+The `input1.setValue()` method (or other component methods) is asynchronous and returns a [Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise) object. Accessing `input1.value` immediately after setting the value of `input1` does not return the updated value.
 {% endhint %}
 
 ## Run query
@@ -105,12 +103,14 @@ The return value of `query.run()` is a Promise, so you can attach callbacks to h
 
 ```javascript
 return queryByName.run().then(
-  data => { // after query runs successfully
-      return "hello, " + data.user_fullname; 
+  (data) => {
+    // after query runs successfully
+    return "hello, " + data.user_fullname;
   },
-  error => { // after query runs in failure
+  (error) => {
+    // after query runs in failure
     // use built-in message function to pop up an error message
-    message.error("An error occured when fetching user: " + error.message); 
+    message.error("An error occured when fetching user: " + error.message);
   }
 );
 ```
@@ -130,9 +130,9 @@ query.run({
 For example, in SQL query `query1`, you can define `name` and `status` as parameters that need to be passed in for its execution.
 
 ```sql
-select * from users 
-   where 
-     user_name = {{ name }} 
+select * from users
+   where
+     user_name = {{ name }}
    and
     user_status = {{ status }}
 ```
@@ -140,17 +140,21 @@ select * from users
 Then you can pass in corresponding parameters to `query1`.
 
 ```javascript
-query1.run({
-  name: "Bob",
-  status: 0 
-}).then(
-  data => { // after query1 runs successfully
-    console.log("The result is" + JSON.stringify(data)); 
-  },
-  error => { // after query1 runs failed
-    console.log("An error occured," + error.message);
-  }
-);
+query1
+  .run({
+    name: "Bob",
+    status: 0,
+  })
+  .then(
+    (data) => {
+      // after query1 runs successfully
+      console.log("The result is" + JSON.stringify(data));
+    },
+    (error) => {
+      // after query1 runs failed
+      console.log("An error occured," + error.message);
+    }
+  );
 ```
 
 **Demo**
@@ -158,11 +162,11 @@ query1.run({
 When you have several inputs in an app triggering the same query, passing parameters to this query allows you to reuse it anywhere.
 
 ```sql
--- query1: 
+-- query1:
 select id, name, gender, address from users where id={{numberInput1.value}}
--- query2: 
+-- query2:
 select id, name, gender, address from users where id={{table1.selectedRow.id}}
--- query3: 
+-- query3:
 select id, name, gender, address from users where id={{select1.value}}
 ...
 ```
@@ -170,7 +174,7 @@ select id, name, gender, address from users where id={{select1.value}}
 Things might get fuzzy when you want to update SQL implementations, because you have to carefully check and update all duplicated queries. Now you can be relieved of this repeated SQL by introducing query parameters.
 
 ```sql
--- just write the SQL once, and extract its parameter {{id}}: 
+-- just write the SQL once, and extract its parameter {{id}}:
 select id, name, gender, address from users where id= {{id}}
 ```
 
@@ -185,12 +189,12 @@ You can declare functions inside a JS query for better readability.
 ```javascript
 // Whether the first number is a multiple of the second number
 function isMultiple(num1, num2) {
-      return num1 % num2 === 0;
-   }
-   
+  return num1 % num2 === 0;
+}
+
 // Call the moment library to return the current date
 function getCurrentDate() {
-      return moment().format("YYYY-MM-DD");
+  return moment().format("YYYY-MM-DD");
 }
 ```
 
@@ -212,4 +216,4 @@ In **JavaScript** tab, you can add preloaded JavaScript code to define global me
 
 ## &#x20;Restrictions
 
-For security reasons, several global variables and functions of **window** are disabled in Lowcoder. Please report to our [GitHub](https://github.com/lowcoder-org/lowcoder) or [Discord](https://discord.com/invite/z5W2YHXdtt) if you encounter any issues.
+For security reasons, several global variables and functions of **window** are disabled in Lowcoder. Please report to our [GitHub](https://github.com/lowcoder-org/lowcoder) or [Discord](https://discord.com/invite/qMG9uTmAx2) if you encounter any issues.
