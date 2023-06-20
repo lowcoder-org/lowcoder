@@ -212,4 +212,4 @@ In **JavaScript** tab, you can add preloaded JavaScript code to define global me
 
 ## &#x20;Restrictions
 
-For security reasons, several global variables and functions of **window** are disabled in Lowcoder. Please report to our [GitHub](https://github.com/lowcoder-org/lowcoder) or [Discord](https://discord.com/invite/z5W2YHXdtt) if you encounter any issues.
+For security reasons, several global variables and functions of **window** are disabled in Lowcoder. Please report to our [GitHub](https://github.com/lowcoder-org/lowcoder) or [Discord](https://discord.com/invite/qMG9uTmAx2) if you encounter any issues.
