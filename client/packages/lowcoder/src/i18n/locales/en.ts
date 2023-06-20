@@ -2092,12 +2092,12 @@ export const en = {
     aboutUs: "",
     changeLog: "",
     introVideo: "",
-    devNpmPlugin: "https://docs.lowcoder.cloud/build-plugins/develop-your-first-plugin",
+    devNpmPlugin: "https://docs.lowcoder.cloud/lowcoder-extension/develop-data-source-plugins",
     devNpmPluginText: "How to develop npm plugin",
-    useHost: "https://docs.lowcoder.cloud/self-hosting/access-local-database-or-api",
+    useHost: "https://docs.lowcoder.cloud/setup-and-run/self-hosting/access-local-database-or-api",
     eventHandlerSlowdown:
-      "https://docs.lowcoder.cloud/build-apps/event-handlers#debounce-and-throttle",
-    thirdLib: "https://docs.lowcoder.cloud/build-apps/write-javascript/use-third-party-libraries",
+      "https://docs.lowcoder.cloud/build-applications/app-interaction/event-handlers",
+    thirdLib: "https://docs.lowcoder.cloud/lowcoder-extension/use-third-party-libraries-in-apps",
     thirdLibUrlText: "Use third-party libraries",
   },
   datasourceTutorial: {
@@ -2111,8 +2111,8 @@ export const en = {
   },
   queryTutorial: {
     js: "",
-    transformer: "https://docs.lowcoder.cloud/build-apps/write-javascript/transformers",
-    tempState: "https://docs.lowcoder.cloud/build-apps/write-javascript/temporary-state",
+    transformer: "https://docs.lowcoder.cloud/business-logic-in-apps/write-javascript/transformers",
+    tempState: "https://docs.lowcoder.cloud/business-logic-in-apps/write-javascript/temporary-state",
   },
   customComponent: {
     entryUrl: "https://sdk.lowcoder.cloud/custom_component.html",
