@@ -7,7 +7,7 @@ public enum RedisError implements PluginError {
     // redis
     REDIS_EXECUTION_ERROR,
 
-    REDIS_URI_ERROR,
+    REDIS_URL_ERROR,
 
 
 }

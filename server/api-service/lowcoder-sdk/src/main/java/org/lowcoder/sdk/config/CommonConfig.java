@@ -8,9 +8,11 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.lowcoder.sdk.constants.WorkspaceMode;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
 
 import lombok.Data;
@@ -63,6 +65,8 @@ public class CommonConfig {
         // support of docker env file.
         private String corsAllowedDomainString;
 
+        private List<ApiEndpoint> forbiddenEndpoints;
+        
         public List<String> getAllCorsAllowedDomains() {
             List<String> all = new ArrayList<>();
             if (CollectionUtils.isNotEmpty(corsAllowedDomains)) {
@@ -74,8 +78,19 @@ public class CommonConfig {
             }
             return all;
         }
+        
+        public List<ApiEndpoint> getForbiddenEndpoints()
+        {
+        	return ListUtils.emptyIfNull(forbiddenEndpoints);
+        }
     }
 
+    @Data
+    public static class ApiEndpoint {
+    	private HttpMethod method;
+    	private String uri;
+    }
+    
     @Data
     public static class Workspace {
 

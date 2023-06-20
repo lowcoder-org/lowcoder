@@ -23,6 +23,13 @@ server:
   port: 8080
   shutdown: graceful
 
+default:
+  orgs-per-user: 100
+  org-member-count: 1000
+  org-group-count: 100
+  org-app-count: 1000
+  developer-count: 50
+
 common:
   cookie-name: LOCAL_LOWCODER_TOKEN
   product: lowcoder
@@ -41,3 +48,10 @@ common:
 material:
   mongodb-grid-fs:
     bucket-name: material
+
+springdoc:
+  api-docs:
+    path: /api/docs/api-docs
+  swagger-ui:
+    path: /api/docs/swagger-ui
+  paths-to-exclude: /api/v1/**

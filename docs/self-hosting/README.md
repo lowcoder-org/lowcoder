@@ -136,8 +136,8 @@ For developers who require stateless containers in a cluster environment, we off
 
     <figure><img src="../.gitbook/assets/docker-compose-multi.jpeg" alt=""><figcaption></figcaption></figure>
 
-    * **mongodb**: Start a new MongoDB instance on your host. You can delete this part  and modify the environment variable `MONGODB_URI` of **openblocks-api-service** to use your own MongoDB.
-    * **redis**: Start a new Redis instance on your host. You can delete this part and modify the environment variable `REDIS_URI` of **openblocks-api-service** to use your own Redis.
+    * **mongodb**: Start a new MongoDB instance on your host. You can delete this part  and modify the environment variable `MONGODB_URL` of **openblocks-api-service** to use your own MongoDB.
+    * **redis**: Start a new Redis instance on your host. You can delete this part and modify the environment variable `REDIS_URL` of **openblocks-api-service** to use your own Redis.
     * **openblocks-api-service**: Required.&#x20;
     * **openblocks-node-service**: Required.
     * **openblocks-frontend**: Required. Can be optional if you deploy frontend on CDN.
@@ -199,16 +199,16 @@ By default Lowcoder uses the built-in MongoDB and Redis installed inside the con
 
 {% tabs %}
 {% tab title="Docker-Compose" %}
-Add environment variables `MONGODB_URI` and `REDIS_URI` in `docker-compose.yml` downloaded in your working directory.\
+Add environment variables `MONGODB_URL` and `REDIS_URL` in `docker-compose.yml` downloaded in your working directory.\
 <img src="../.gitbook/assets/mongodb-redis-uri.png" alt="" data-size="original">
 {% endtab %}
 
 {% tab title="Docker" %}
-Add environment variables `MONGODB_URI` and `REDIS_URI` to the deployment command, as shown below:
+Add environment variables `MONGODB_URL` and `REDIS_URL` to the deployment command, as shown below:
 
 {% code overflow="wrap" %}
 ```bash
-docker run -d --name openblocks -e MONGODB_URI=YOUR_MONGODB_URI REDIS_URI=YOUR_REDIS_URI -p 3000:3000 -v "$PWD/stacks:/openblocks-stacks lowcoderorg/lowcoder-ce
+docker run -d --name openblocks -e MONGODB_URL=YOUR_MONGODB_URL REDIS_URL=YOUR_REDIS_URL -p 3000:3000 -v "$PWD/stacks:/openblocks-stacks lowcoderorg/lowcoder-ce
 ```
 {% endcode %}
 {% endtab %}

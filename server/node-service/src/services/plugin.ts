@@ -211,6 +211,14 @@ export async function runPluginQuery(
   const plugin = getPlugin(pluginName, pluginContext);
   const queryConfig = await getQueryConfig(plugin, dataSourceConfig);
   const action = await evalToValue(queryConfig, dsl, context, dataSourceConfig);
+
+  //forward cookies
+  context.forEach(({ key, value }) => {
+    if (key in dataSourceConfig.dynamicParamsConfig) {
+      const valueKey = `${key}.value`;
+      dataSourceConfig.dynamicParamsConfig[valueKey] = value[0].value
+    }
+  })
   const result = await plugin.run(action, dataSourceConfig, pluginContext);
 
   return {

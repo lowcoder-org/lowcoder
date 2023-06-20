@@ -23,6 +23,13 @@ server:
   port: 8080
   shutdown: graceful
 
+default:
+  orgs-per-user: 100
+  org-member-count: 1000
+  org-group-count: 100
+  org-app-count: 1000
+  developer-count: 50
+
 common:
   cookie-name: LOWCODER_CE_SELFHOST_TOKEN
   product: lowcoder
@@ -32,10 +39,17 @@ common:
   version: 1.1.8
   block-hound-enable: false
   js-executor:
-    host: ${JS_EXECUTOR_URI:http://127.0.0.1:6060}
+    host: ${LOWCODER_NODE_SERVICE_URL:http://127.0.0.1:6060}
   max-query-request-size-in-mb: 20
   max-query-response-size-in-mb: 20
 
 material:
   mongodb-grid-fs:
     bucket-name: material
+
+springdoc:
+  api-docs:
+    path: /api/docs/api-docs
+  swagger-ui:
+    path: /api/docs/swagger-ui
+  paths-to-exclude: /api/v1/**

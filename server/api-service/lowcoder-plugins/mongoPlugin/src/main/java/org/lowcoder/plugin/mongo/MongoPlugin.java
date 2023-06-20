@@ -344,13 +344,13 @@ public class MongoPlugin extends Plugin {
 
             if (mongoDatasourceConfig.isUsingUri()) {
                 if (StringUtils.isBlank(mongoDatasourceConfig.getUri())) {
-                    throw new PluginException(DATASOURCE_ARGUMENT_ERROR, "MONGODB_URI_EMPTY");
+                    throw new PluginException(DATASOURCE_ARGUMENT_ERROR, "MONGODB_URL_EMPTY");
                 }
 
                 String uri = mongoDatasourceConfig.getUri();
                 Map<String, String> extractedInfo = extractInfoFromConnectionStringURI(uri);
                 if (extractedInfo == null) {
-                    throw new PluginException(DATASOURCE_ARGUMENT_ERROR, "MONGODB_URI_EXTRACT_ERROR");
+                    throw new PluginException(DATASOURCE_ARGUMENT_ERROR, "MONGODB_URL_EXTRACT_ERROR");
                 }
 
                 return uri;
@@ -420,17 +420,17 @@ public class MongoPlugin extends Plugin {
 
             if (connectionConfig.isUsingUri()) {
                 if (StringUtils.isBlank(connectionConfig.getUri())) {
-                    return ImmutableSet.of("MONGODB_URI_EMPTY_PLZ_CHECK");
+                    return ImmutableSet.of("MONGODB_URL_EMPTY_PLZ_CHECK");
                 }
 
                 String mongoUri = connectionConfig.getUri();
                 if (!MongoConnectionUriParser.isValid(mongoUri)) {
-                    return ImmutableSet.of("INVALID_MONGODB_URI_PLZ_CHECK");
+                    return ImmutableSet.of("INVALID_MONGODB_URL_PLZ_CHECK");
                 }
 
                 Map<String, String> extractedInfo = extractInfoFromConnectionStringURI(mongoUri);
                 if (extractedInfo == null) {
-                    return ImmutableSet.of("INVALID_MONGODB_URI_PLZ_CHECK");
+                    return ImmutableSet.of("INVALID_MONGODB_URL_PLZ_CHECK");
                 }
 
                 return invalids;
