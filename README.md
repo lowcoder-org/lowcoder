@@ -3,9 +3,9 @@
 
 <div align="center">
     <h1 style="border-bottom: none; margin-bottom: 0">Lowcoder</h1>
-    <h3 style="margin-top: 0">The Open Source Retool Alternative</h3>
+    <h3 style="margin-top: 0">The Open Source Retool, Tooljet and Appsmith Alternative</h3>
     <p>
-        Build internal tools fast, with no limitations
+        Build internal and customer facing Apps fast, with no limitations
     </p>
 </div>
 
