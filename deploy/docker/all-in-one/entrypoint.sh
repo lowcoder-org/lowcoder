@@ -66,19 +66,6 @@ fi;
 # Enable frontend if configured to run
 if [ "${FRONTEND_ENABLED:=true}" = "true" ]; then
    ln ${SUPERVISOR_AVAILABLE}/20-frontend.conf ${SUPERVISOR_ENABLED}/20-frontend.conf
-
-   unlink /etc/nginx/nginx.conf 2>/dev/null
-   if [ -e "${CERT}/fullchain.pem" ] && [ -e "${CERT}/privkey.pem" ]; then
-      echo "Certificates found, starting with HTTPS."
-      ln -s /etc/nginx/nginx-https.conf /etc/nginx/nginx.conf
-      if [ ! -e "${CERT}/dhparam.pem" ]; then
-         echo "Diffle-Helmann parameters file not found, generating in now... (this can take some time)"
-         openssl dhparam -out "${CERT}/dhparam.pem" 4096
-      fi;
-   else
-      echo "Certificates not found, starting with HTTP."
-      ln -s /etc/nginx/nginx-http.conf /etc/nginx/nginx.conf
-   fi;
 fi;
 
 # Handle CMD command

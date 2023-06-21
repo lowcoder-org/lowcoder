@@ -135,9 +135,10 @@ RUN yarn build
 FROM nginx:1.23.4 as lowcoder-ce-frontend
 LABEL maintainer="lowcoder"
 
-# Change default nginx user into lowcoder user
+# Change default nginx user into lowcoder user and remove default nginx config
 RUN usermod --login lowcoder --uid 9001 nginx \
-  && groupmod --new-name lowcoder --gid 9001 nginx
+  && groupmod --new-name lowcoder --gid 9001 nginx \
+  && rm -f /etc/nginx/nginx.conf
 
 # Copy lowcoder client data
 COPY --chown=lowcoder:lowcoder --from=build-client /lowcoder-client/packages/lowcoder/build/ /lowcoder/client
