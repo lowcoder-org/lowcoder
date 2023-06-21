@@ -149,8 +149,14 @@ COPY deploy/docker/frontend/01-update-nginx-conf.sh /docker-entrypoint.d/01-upda
 RUN chmod +x /docker-entrypoint.d/00-change-nginx-user.sh && \
     chmod +x /docker-entrypoint.d/01-update-nginx-conf.sh
 
-COPY deploy/docker/frontend/nginx.conf /etc/nginx/nginx.conf
+COPY deploy/docker/frontend/nginx-http.conf /etc/nginx/nginx-http.conf
+COPY deploy/docker/frontend/nginx-https.conf /etc/nginx/nginx-https.conf
+COPY deploy/docker/frontend/ssl-certificate.conf /etc/nginx/ssl-certificate.conf
+COPY deploy/docker/frontend/ssl-params.conf /etc/nginx/ssl-params.conf
+
+
 EXPOSE 3000
+EXPOSE 3443
 
 #############################################################################
 
@@ -189,6 +195,7 @@ COPY --chown=lowcoder:lowcoder deploy/docker/all-in-one/etc /lowcoder/etc
 COPY --chown=lowcoder:lowcoder deploy/docker/all-in-one/entrypoint.sh /lowcoder/entrypoint.sh
 
 EXPOSE 3000
+EXPOSE 3443
 
 ENTRYPOINT [ "/bin/sh" , "/lowcoder/entrypoint.sh" ]
 CMD ["/usr/bin/supervisord", "-n" , "-c" , "/lowcoder/etc/supervisord.conf"]
