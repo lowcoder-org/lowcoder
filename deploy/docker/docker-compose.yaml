@@ -9,6 +9,7 @@ services:
     container_name: lowcoder
     ports:
       - "3000:3000"
+      - "3443:3443"
     environment:
       # enable services
       REDIS_ENABLED: "true"

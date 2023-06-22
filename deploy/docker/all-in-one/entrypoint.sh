@@ -19,6 +19,7 @@ fi;
 
 LOGS="/lowcoder-stacks/logs"
 DATA="/lowcoder-stacks/data"
+CERT="/lowcoder-stacks/ssl"
 # Create folder for holding application logs and data
 mkdir -p ${LOGS}/redis \
   ${LOGS}/mongodb \
@@ -26,11 +27,11 @@ mkdir -p ${LOGS}/redis \
   ${LOGS}/node-service \
   ${LOGS}/frontend \
   ${DATA}/redis \
-  ${DATA}/mongodb
+  ${DATA}/mongodb \
+  ${CERT}
 
 # Update owner of logs and data
 chown -R ${USER_ID}:${GROUP_ID} /lowcoder-stacks/ /lowcoder/etc
-
 
 # Enable services
 SUPERVISOR_AVAILABLE="/lowcoder/etc/supervisord/conf-available"
@@ -62,7 +63,7 @@ if [ "${NODE_SERVICE_ENABLED:=true}" = "true" ]; then
     ln ${SUPERVISOR_AVAILABLE}/11-node-service.conf ${SUPERVISOR_ENABLED}/11-node-service.conf
 fi;
 
-# Enable forntend if configured to run
+# Enable frontend if configured to run
 if [ "${FRONTEND_ENABLED:=true}" = "true" ]; then
    ln ${SUPERVISOR_AVAILABLE}/20-frontend.conf ${SUPERVISOR_ENABLED}/20-frontend.conf
 fi;
