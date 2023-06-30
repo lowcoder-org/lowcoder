@@ -2,6 +2,9 @@
 
 set -e
 
+CERT="/lowcoder-stacks/ssl"
+
+rm -f /etc/nginx/nginx.conf
 echo "Creating nginx config..."
 if [ -e "${CERT}/fullchain.pem" ] && [ -e "${CERT}/privkey.pem" ]; then
    echo "Certificates found, configuring with HTTPS."
