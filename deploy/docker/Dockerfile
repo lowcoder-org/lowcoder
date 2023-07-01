@@ -111,7 +111,7 @@ CMD [ "/bin/sh", "/lowcoder/node-service/entrypoint.sh" ]
 ##
 ## Build lowcoder client application
 ##
-FROM node:20.0-slim AS build-client
+FROM node:20.3-slim AS build-client
 COPY ./client /lowcoder-client
 WORKDIR /lowcoder-client
 RUN yarn --immutable
