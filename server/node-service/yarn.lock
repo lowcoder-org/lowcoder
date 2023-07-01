@@ -8861,10 +8861,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"stylis@npm:^4.1.3":
-  version: 4.2.0
-  resolution: "stylis@npm:4.2.0"
-  checksum: 0eb6cc1b866dc17a6037d0a82ac7fa877eba6a757443e79e7c4f35bacedbf6421fadcab4363b39667b43355cbaaa570a3cde850f776498e5450f32ed2f9b7584
+"stylis@npm:^4.3.0":
+  version: 4.3.0
+  resolution: "stylis@npm:4.3.0"
+  checksum: 6120de3f03eacf3b5adc8e7919c4cca991089156a6badc5248752a3088106afaaf74996211a6817a7760ebeadca09004048eea31875bd8d4df51386365c50025
   languageName: node
   linkType: hard
 
@@ -8990,7 +8990,7 @@ __metadata:
     postman-to-openapi: ^3.0.1
     prom-client: ^14.2.0
     proxy-agent: ^5.0.0
-    stylis: ^4.1.3
+    stylis: ^4.3.0
     svgo: ^3.0.2
     swagger-client: ^3.19.7
     ts-jest: ^29.0.3
