@@ -35,8 +35,6 @@ common:
   product: lowcoder
   domain:
     default-value: skipCheck
-  js-executor:
-    host: ${LOWCODER_NODE_SERVICE_URL:http://127.0.0.1:6060}
   encrypt:
     password: lowcoder
     salt: lowcoder
