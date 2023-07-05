@@ -11291,7 +11291,7 @@ __metadata:
     jest: 29.3.0
     lowcoder-cli: "workspace:^"
     lowcoder-sdk: "workspace:^"
-    mermaid: ^10.0.2
+    mermaid: ^10.2.4
     react: 17
     react-dom: 17
     typescript: 4.8.4
@@ -11920,9 +11920,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mermaid@npm:^10.0.2":
-  version: 10.2.0
-  resolution: "mermaid@npm:10.2.0"
+"mermaid@npm:^10.2.4":
+  version: 10.2.4
+  resolution: "mermaid@npm:10.2.4"
   dependencies:
     "@braintree/sanitize-url": ^6.0.2
     cytoscape: ^3.23.0
@@ -11941,7 +11941,7 @@ __metadata:
     ts-dedent: ^2.2.0
     uuid: ^9.0.0
     web-worker: ^1.2.0
-  checksum: 95efd9074b6fa1e3a9df90f99357a127ebfb04f11cd2759b7fe104a9ef1b331d1d0fa3c1b03302afcbbad45b9de7d73ce3ae6ae3bd206b53676c3563fcf07629
+  checksum: a63a7e9922dd46aa540abd859a88ef98abe3d923ead68b96d1666a4d381085b454c9000f789d7f4efca5398a67ee7b935086a6191e7fcf329f54b78b196a0d1e
   languageName: node
   linkType: hard
 
