@@ -15,10 +15,7 @@ import static org.lowcoder.sdk.util.ExceptionUtils.deferredError;
 import static org.lowcoder.sdk.util.ExceptionUtils.ofError;
 
 import java.time.Instant;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
@@ -366,8 +363,8 @@ public class ApplicationApiService {
     }
 
     public Mono<Boolean> grantPermission(String applicationId,
-            Set<String> userIds,
-            Set<String> groupIds, ResourceRole role) {
+                                         Set<String> userIds,
+                                         Set<String> groupIds, ResourceRole role) {
         if (userIds.isEmpty() && groupIds.isEmpty()) {
             return Mono.just(true);
         }
@@ -502,10 +499,47 @@ public class ApplicationApiService {
         if (applicationDsl.get("queries") instanceof List<?> queries) {
             List<Map<String, Object>> list = queries.stream().map(this::doSanitizeQuery).toList();
             applicationDsl.put("queries", list);
+            removeTestVariablesFromProductionView(applicationDsl);
             return applicationDsl;
         }
+        removeTestVariablesFromProductionView(applicationDsl);
         return applicationDsl;
     }
+
+    private void removeTestVariablesFromProductionView(Map<String, Object> applicationDsl) {
+        /**Remove "test" object if it exists within "applicationDSL**/
+        if (applicationDsl.containsKey("ui")) {
+            Map<String, Object> dataObject = (Map<String, Object>) applicationDsl.get("ui");
+            if (dataObject.containsKey("comp")) {
+                Map<String, Object> applicationDSL = (Map<String, Object>) dataObject.get("comp");
+                doRemoveTestVariablesFromProductionView(applicationDSL);
+            }
+        }
+    }
+
+    private void doRemoveTestVariablesFromProductionView(Map<String, Object> map) {
+        if (map.containsKey("io")) {
+            Map<String, Object> io = (Map<String, Object>) map.get("io");
+            if (io.containsKey("inputs")) {
+                List<Map<String, Object>> inputs = (List<Map<String, Object>>) io.get("inputs");
+                    for (Map<String, Object> inputMap : inputs) {
+                        if (inputMap.containsKey("test")) {
+                            inputMap.remove("test");
+                        }
+                    }
+            }
+
+            if (io.containsKey("outputs")) {
+                List<Map<String, Object>> outputs = (List<Map<String, Object>>) io.get("outputs");
+                for (Map<String, Object> inputMap : outputs) {
+                    if (inputMap.containsKey("test")) {
+                        inputMap.remove("test");
+                    }
+                }
+            }
+        }
+    }
+
 
     @SuppressWarnings("unchecked")
     private Map<String, Object> doSanitizeQuery(Object query) {
