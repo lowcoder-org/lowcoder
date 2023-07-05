@@ -111,7 +111,7 @@ CMD [ "/bin/sh", "/lowcoder/node-service/entrypoint.sh" ]
 ##
 ## Build lowcoder client application
 ##
-FROM node:20.0-slim AS build-client
+FROM node:20.3-slim AS build-client
 COPY ./client /lowcoder-client
 WORKDIR /lowcoder-client
 RUN yarn --immutable
@@ -132,7 +132,7 @@ RUN yarn build
 ## To create a separate image out of it, build it with:
 ##   DOCKER_BUILDKIT=1 docker build -f deploy/docker/Dockerfile -t lowcoderorg/lowcoder-ce-frontend --target lowcoder-ce-frontend .
 ##
-FROM nginx:1.23.4 as lowcoder-ce-frontend
+FROM nginx:1.25.1 as lowcoder-ce-frontend
 LABEL maintainer="lowcoder"
 
 # Change default nginx user into lowcoder user and remove default nginx config
