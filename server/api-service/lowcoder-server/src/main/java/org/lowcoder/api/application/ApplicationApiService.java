@@ -507,7 +507,7 @@ public class ApplicationApiService {
     }
 
     private void removeTestVariablesFromProductionView(Map<String, Object> applicationDsl) {
-        // Remove "test" object if it exists within "applicationDSL"
+        /**Remove "test" object if it exists within "applicationDSL**/
         if (applicationDsl.containsKey("ui")) {
             Map<String, Object> dataObject = (Map<String, Object>) applicationDsl.get("ui");
             if (dataObject.containsKey("comp")) {
