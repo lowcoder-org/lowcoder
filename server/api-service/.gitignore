@@ -35,3 +35,4 @@ package-lock.json
 coverage-summary.json
 app/client/cypress/locators/Widgets.json
 /openblocks-domain/logs/
+application-lowcoder.yml
