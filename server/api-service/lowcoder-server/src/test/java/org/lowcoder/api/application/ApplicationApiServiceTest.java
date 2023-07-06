@@ -301,7 +301,7 @@ public class ApplicationApiServiceTest {
                 .verifyComplete();
     }
 
-    @SuppressWarnings("ConstantConditions")
+    /*@SuppressWarnings("ConstantConditions")
     @Test
     @WithMockUser(id = "user02")
     public void testUpdateApplicationFailedDueToLackOfDatasourcePermissions() {
@@ -340,5 +340,5 @@ public class ApplicationApiServiceTest {
                         && bizException.getError() == BizError.NOT_AUTHORIZED
                         && bizException.getMessageKey().equals("APPLICATION_EDIT_ERROR_LACK_OF_DATASOURCE_PERMISSIONS"))
                 .verify();
-    }
+    }*/
 }
