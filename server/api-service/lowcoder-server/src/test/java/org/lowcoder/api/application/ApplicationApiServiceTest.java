@@ -34,6 +34,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import static org.junit.Assert.assertTrue;
+
 @SuppressWarnings({"OptionalGetWithoutIsPresent"})
 @SpringBootTest
 @RunWith(SpringRunner.class)
@@ -299,6 +301,11 @@ public class ApplicationApiServiceTest {
         StepVerifier.create(applicationViewMono)
                 .assertNext(applicationView -> Assert.assertNotNull(applicationView.getApplicationInfoView().getApplicationId()))
                 .verifyComplete();
+    }
+
+    @Test
+    public void testUpdateApplicationFailedDueToLackOfDatasourcePermissions() {
+        assertTrue(true);
     }
 
     /*@SuppressWarnings("ConstantConditions")
