@@ -11,7 +11,14 @@ export const dataSourceConfig = {
       label: "Endpoint",
       key: "endpoint",
       rules: [{ required: true }],
+      placeholder: "https://{shop}.myshopify.com/admin/api/2023-01/graphql.json",
     },
+    {
+      type: "password",
+      label: "Access Token",
+      key: "token",
+      rules: [{ required: true }],
+    }
   ],
 } as const;
 
@@ -28,7 +35,11 @@ const shopifyPlugin: DataSourcePlugin<
   run: function (actionData, dataSourceConfig, context: PluginContext): Promise<any> {
     const { query, variables: variableKvs, headers: queryHeaders } = actionData;
     const variables = kvToRecord(variableKvs);
-    return runGraphQL(dataSourceConfig.endpoint, query, variables, {});
+    const headers = {
+      ...kvToRecord(queryHeaders),
+      'X-Shopify-Access-Token': dataSourceConfig.token
+    };
+    return runGraphQL(dataSourceConfig.endpoint, query, variables, headers);
   },
 };
 

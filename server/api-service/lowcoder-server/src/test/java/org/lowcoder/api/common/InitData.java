@@ -57,7 +57,7 @@ public class InitData {
     @SuppressWarnings({"ConstantConditions"})
     private void execute() {
 
-        String currentDirPath = JsonFileReader.buildPath("com/lowcoder/api/common/json");
+        String currentDirPath = JsonFileReader.buildPath("org/lowcoder/api/common/json");
         File dir = new File(currentDirPath);
         Stream.of(dir.listFiles())
                 .filter(file -> file.isFile() && file.getName().endsWith(".json"))

@@ -21,7 +21,10 @@ const dataSourceConfig = {
 
 const parseOptions: ParseOpenApiOptions = {
   actionLabel: (method: string, path: string, operation: OpenAPI.Operation) =>
-    operation.operationId?.replace("_", " ") || "",
+    operation.summary || "",
+  actionDescription: (method: string, path: string, operation: OpenAPI.Operation) => {
+    return operation.description || "";
+  }
 };
 
 type DataSourceConfigType = ConfigToType<typeof dataSourceConfig>;
