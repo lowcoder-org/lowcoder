@@ -91,6 +91,18 @@ export function CanvasView(props: ContainerBaseProps) {
   const isModule = appType === AppTypeEnum.Module;
   const bgColor = (useContext(ThemeContext)?.theme || defaultTheme).canvas;
 
+  // Added By Aqib Mirza
+  const defaultGrid =
+    useContext(ThemeContext)?.theme?.gridColumns ||
+    defaultTheme?.gridColumns ||
+    "24";
+
+  const positionParams = {
+    ...props.positionParams,
+    cols: parseInt(defaultGrid),
+  };
+  //////////////////////
+
   if (readOnly) {
     return (
       <UICompContainer
@@ -105,6 +117,7 @@ export function CanvasView(props: ContainerBaseProps) {
               containerPadding={rootContainerPadding}
               overflow={rootContainerOverflow}
               {...props}
+              positionParams={positionParams} // Added By Aqib Mirza
               {...gridLayoutCanvasProps}
               bgColor={bgColor}
               radius="0px"

@@ -29,6 +29,7 @@ export const themeTemplateList = [
       primarySurface: "#FFFFFF",
       borderRadius: "4px",
       chart: JSON.stringify(ChartTheme, null, 2),
+      gridColumns: "24", //Added By Aqib Mirza
     },
   },
   {
@@ -43,6 +44,7 @@ export const themeTemplateList = [
       primarySurface: "#495780",
       borderRadius: "4px",
       chart: JSON.stringify(ChartYellowTheme, null, 2),
+      gridColumns: "24", //Added By Aqib Mirza
     },
   },
   {
@@ -57,6 +59,7 @@ export const themeTemplateList = [
       primarySurface: "#FFFFFF",
       borderRadius: "4px",
       chart: JSON.stringify(ChartGreenTheme, null, 2),
+      gridColumns: "24", //Added By Aqib Mirza
     },
   },
 ];

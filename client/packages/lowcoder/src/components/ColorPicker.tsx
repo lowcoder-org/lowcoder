@@ -1,15 +1,17 @@
 import _ from "lodash";
 import { useEffect, useState } from "react";
-import { ConfigItem, Radius } from "../pages/setting/theme/styledComponents";
+import { ConfigItem, Radius, GridColumns } from "../pages/setting/theme/styledComponents";
 import { isValidColor, toHex } from "components/colorSelect/colorUtils";
 import { ColorSelect } from "components/colorSelect";
 import { TacoInput } from "components/tacoInput";
+import { TableCellsIcon as GridIcon } from "lowcoder-design"; //Added By Aqib Mirza
 
 export type configChangeParams = {
   colorKey: string;
   color?: string;
   radius?: string;
   chart?: string;
+  gridColumns?: string; //Added By Aqib Mirza
 };
 
 type ColorConfigProps = {
@@ -21,6 +23,7 @@ type ColorConfigProps = {
   radius?: string;
   configChange: (params: configChangeParams) => void;
   showVarName?: boolean;
+  gridColumns?: string; //Added By Aqib Mirza
 };
 
 export default function ColorPicker(props: ColorConfigProps) {
@@ -32,10 +35,14 @@ export default function ColorPicker(props: ColorConfigProps) {
     radius: defaultRadius,
     configChange,
     showVarName = true,
+    gridColumns: defaultGridColumns, //Added By Aqib Mirza
   } = props;
   const configChangeWithDebounce = _.debounce(configChange, 0);
   const [color, setColor] = useState(defaultColor);
   const [radius, setRadius] = useState(defaultRadius);
+
+  const [gridColumns, setGridColumns] = useState(defaultGridColumns); //Added By Aqib Mirza
+
   const varName = `(${colorKey})`;
 
   const colorInputBlur = () => {
@@ -62,6 +69,21 @@ export default function ColorPicker(props: ColorConfigProps) {
     configChange({ colorKey, radius: result });
   };
 
+  //Added By Aqib Mirza
+
+  const gridColumnsInputBlur = (gridColumns: string) => {
+    let result = "";
+    if (!gridColumns) {
+      result = "0";
+    } else {
+      result = gridColumns;
+    }
+    setGridColumns(result);
+    configChange({ colorKey, gridColumns: result });
+  };
+
+  /////////////////////
+
   useEffect(() => {
     if (color && isValidColor(color)) {
       configChangeWithDebounce({ colorKey, color });
@@ -77,6 +99,12 @@ export default function ColorPicker(props: ColorConfigProps) {
     setRadius(defaultRadius);
   }, [defaultRadius]);
 
+  // Added By Aqib Mirza
+  useEffect(() => {
+    setGridColumns(defaultGridColumns);
+  }, [defaultGridColumns]);
+  //////////////////////
+
   return (
     <ConfigItem className={props.className}>
       <div className="text-desc">
@@ -85,7 +113,8 @@ export default function ColorPicker(props: ColorConfigProps) {
         </div>
         <div className="desc">{desc}</div>
       </div>
-      {colorKey !== "borderRadius" ? (
+      {colorKey !== "borderRadius" &&
+      colorKey !== "gridColumns" && (
         <div className="config-input">
           <ColorSelect
             changeColor={_.debounce(setColor, 500, {
@@ -102,7 +131,8 @@ export default function ColorPicker(props: ColorConfigProps) {
             onKeyUp={(e) => e.nativeEvent.key === "Enter" && colorInputBlur()}
           />
         </div>
-      ) : (
+      )} 
+      {colorKey === "borderRadius" && (
         <div className="config-input">
           <Radius radius={defaultRadius || "0"}>
             <div>
@@ -114,6 +144,24 @@ export default function ColorPicker(props: ColorConfigProps) {
             onChange={(e) => setRadius(e.target.value)}
             onBlur={(e) => radiusInputBlur(e.target.value)}
             onKeyUp={(e) => e.nativeEvent.key === "Enter" && radiusInputBlur(e.currentTarget.value)}
+          />
+        </div>
+      )}
+      {colorKey === "gridColumns" && (
+        <div className="config-input">
+          <GridColumns gridColumns={defaultGridColumns || "24"}>
+            <div>
+              <GridIcon title="" />
+            </div>
+          </GridColumns>
+          <TacoInput
+            value={gridColumns}
+            onChange={(e) => setGridColumns(e.target.value)}
+            onBlur={(e) => gridColumnsInputBlur(e.target.value)}
+            onKeyUp={(e) =>
+              e.nativeEvent.key === "Enter" &&
+              gridColumnsInputBlur(e.currentTarget.value)
+            }
           />
         </div>
       )}

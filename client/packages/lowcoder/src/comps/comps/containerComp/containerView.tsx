@@ -58,6 +58,8 @@ import { checkIsMobile } from "util/commonUtils";
 import { ExternalEditorContext } from "util/context/ExternalEditorContext";
 import { selectCompModifierKeyPressed } from "util/keyUtils";
 import { defaultLayout, GridItemComp, GridItemDataType } from "../gridItemComp";
+import { ThemeContext } from "comps/utils/themeContext";
+import { defaultTheme } from "comps/controls/styleControlConstants";
 
 const childrenMap = {
   layout: valueComp<Layout>({}),
@@ -312,6 +314,12 @@ export function InnerGrid(props: ViewPropsWithSelect) {
   const editorState = useContext(EditorContext);
   const { readOnly } = useContext(ExternalEditorContext);
 
+  //Added By Aqib Mirza
+  const defaultGrid =
+    useContext(ThemeContext)?.theme?.gridColumns ||
+    defaultTheme?.gridColumns ||
+    "24";
+  /////////////////////
   const isDroppable =
     useContext(IsDroppable) && (_.isNil(props.isDroppable) || props.isDroppable) && !readOnly;
   const isDraggable = !readOnly && (_.isNil(props.isDraggable) || props.isDraggable);
@@ -354,7 +362,7 @@ export function InnerGrid(props: ViewPropsWithSelect) {
           margin: [0, 0],
           containerPadding: [0, 0],
           containerWidth: width,
-          cols: DEFAULT_GRID_COLUMNS,
+          cols: parseInt(defaultGrid),
           rowHeight: currentRowHeight,
           maxRows: currentRowCount,
         };
@@ -493,7 +501,7 @@ export function InnerGrid(props: ViewPropsWithSelect) {
       rowHeight={currentRowHeight}
       overflow={props.overflow}
       extraHeight={props.extraHeight}
-      cols={DEFAULT_GRID_COLUMNS}
+      cols={parseInt(defaultGrid)}
       autoHeight={props.autoHeight}
       minHeight={props.minHeight}
       bgColor={props.bgColor}
