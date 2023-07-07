@@ -100,4 +100,5 @@ export const CompStateIcon: {
   npmPlugin: <LeftCommon />,
   calendar: <LeftDate />,
   signature: <LeftSignature />,
+  jsonLottie: <LeftJsonEditor />, //Added By Aqib Mirza
 };
