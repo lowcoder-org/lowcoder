@@ -1,17 +1,6 @@
 package org.lowcoder.sdk.util;
 
-import static org.apache.http.HttpHeaders.CONTENT_TYPE;
-import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VALUE;
-
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
@@ -30,7 +19,17 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.springframework.http.HttpMethod;
 
-import lombok.extern.slf4j.Slf4j;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+
+import static org.apache.http.HttpHeaders.CONTENT_TYPE;
+import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VALUE;
 
 @Slf4j
 public class HttpUtils {
@@ -38,9 +37,9 @@ public class HttpUtils {
     private static final CloseableHttpClient HTTP_CLIENT = HttpClients.createDefault();
 
     public static String request(HttpMethod method, String uri, Map<String, String> params, Map<String, String> headers, String jsonBody) {
-        return switch (method) {
-            case GET -> get(uri, params, headers);
-            case POST -> post(uri, params, headers, jsonBody);
+        return switch (method.name()) {
+            case HttpGet.METHOD_NAME -> get(uri, params, headers);
+            case HttpPost.METHOD_NAME -> post(uri, params, headers, jsonBody);
             default -> throw new IllegalStateException("Unexpected value: " + method);
         };
     }
