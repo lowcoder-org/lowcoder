@@ -27,7 +27,6 @@
         <log4j2.version>2.17.0</log4j2.version>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
-        <maven.compiler.args></maven.compiler.args>
     </properties>
 
     <repositories>
@@ -297,7 +296,6 @@
                 <groupId>org.mongodb</groupId>
                 <artifactId>mongo-java-driver</artifactId>
                 <version>3.12.8</version>
-                <scope>compile</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
