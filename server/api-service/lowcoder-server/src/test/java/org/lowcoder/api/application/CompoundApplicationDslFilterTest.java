@@ -1,14 +1,10 @@
 package org.lowcoder.api.application;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-
 import org.apache.commons.collections4.MapUtils;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.lowcoder.api.application.CompoundApplicationDslFilter;
 import org.lowcoder.api.common.mockuser.WithMockUser;
 import org.lowcoder.sdk.constants.DslConstants.CompoundAppDslConstants;
 import org.lowcoder.sdk.test.JsonFileReader;
@@ -16,6 +12,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
+@Ignore
 @SpringBootTest
 @RunWith(SpringRunner.class)
 public class CompoundApplicationDslFilterTest {

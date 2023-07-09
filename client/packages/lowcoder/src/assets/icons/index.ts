@@ -10,4 +10,6 @@ export { ReactComponent as DocIcon } from "./view-doc.svg";
 export { ReactComponent as TutorialIcon } from "./tutorial.svg";
 export { ReactComponent as ShortcutIcon } from "./icon-help-shortcut.svg";
 
+export { ReactComponent as LottieIcon } from "./icon-lottie.svg"; //Added By Aqib Mirza
+
 export { GoogleLoginIcon, GithubLoginIcon, GeneralLoginIcon, EmailLoginIcon };
