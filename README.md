@@ -30,40 +30,50 @@ Lowcoder wants to take a step forward. More specifically, Lowcoder is
 
 ## 🪄 Features
 - **Visual UI builder** with 50+ built-in components.
-- **Module and Query Library** for reusable components and queries in the UI builder.
-- **Custom components** to share through React and Lowcoder SDK (instead of iFrame).
-- **Native connections** to PostgreSQL, MongoDB, MySQL, Redis, Elasticsearch, REST API, SMTP, etc.
+- **Modules** for reusable (!) component sets in the UI builder.
+- **Embed Lowcoder Apps as native React component** instead of iFrame (!). [Demo](https://github.com/lowcoder-org/lowcoder-sdk-demo)
+- **Query Library** for reusable data queries of your data sources.
+- **Custom components** to develop own components and use them in the UI builder.
+- **Native Data connections** to PostgreSQL, MongoDB, MySQL, Redis, Elasticsearch, REST API, SMTP, etc.
 - **JavaScript supported everywhere** to transform data, control components, etc.
-- **Embed Lowcoder pages as a React component** (instead of iFrame). [Demo](https://github.com/lowcoder-org/lowcoder-sdk-demo)
 - **Role-based access control (RBAC)** for granular permission management.
 - **Auto-saved and restorable history** for release and version control.
-- **DIY app themes** to precisely align with your company's content.
-- **Audit logs** to track activities and ensure compliance.
+- **App Themes and Theme Editor** to precisely align with your company's brand guidelines.
+
+- **Self Hosting** to use Lowcoder in your internal company network.
+- **Free Community Cloud** to start within a minute and build your first Apps. [Start here](https://app.lowcoder.cloud)
 
 ## 🏆 Comparisons
 ### Lowcoder vs Retool
 - Lowcoder is open-source. You don't need to worry about vendor lock-in or being stuck with an outdated version of the software.
 - In Lowcoder, developers can create and use their own components instead of depending on official updates.
-- Lowcoder supports left menu navigation (like most sites do). Retool has header navigation only.
+- Lowcoder is free and you can contribute!
+- The EE Version of Lowcoder comes with a much better pricing model, so you have no "per-user costs".
 ### Lowcoder vs Appsmith, Tooljet
 - Lowcoder has more components and richer configuration than Appsmith and Tooljet.
 - In Lowcoder, you can choose auto-height or fixed-height mode for your components, while Appsmith supports fixed-height mode only.
 - In Lowcoder, you can reuse common structures when building apps with modules and query library features.
+### Lowcoder vs Mendix, Outsystems, Pega
+- Lowcoder is modern. The codebase is fresh and uses modern standards.
+- Lowcoder Apps do not need a compile and deployment. Just publish and use.
+- Lowcoder Apps can get embedded natively in websites and apps, even in mobile apps.
+### Lowcoder vs internal Tool platforms
+- Lowcoder supports internal tools like admin panels perfectly, but also customer-facing apps can get developed and published.
+- The Lowcoder UI builder is straightforward and better to use than Bubble.
+- App release cycles and updates can be done nearly daily without service downtimes for customers and users.
 
 ## 👐 Support and Community
-If you have any questions, please feel free to contact us or share with our community. Our team is here ready to help.
+If you have any questions, please feel free to contact us or share them with our community. Our team is here ready to help.
 
-📮 Chat with us on [Discord](https://discord.gg/vByQwGT2Yx)
+📮 Best way is to chat with us on [Discord](https://discord.gg/qMG9uTmAx2)
 
-📑 Search for solutions in our [Documentation](docs)
+📑 Search for solutions in our [Documentation](https://docs.lowcoder.cloud/lowcoder-documentation/)
 
 🔎 Submit an issue here on [GitHub](https://github.com/lowcoder-org/lowcoder/issues)
 
 ## 💻 Deployment Options
 You can access Lowcoder from [cloud-hosted version](https://www.lowcoder.cloud/) at any time, or use the following resources for deploying Lowcoder on different platforms:
 - [Docker](docs/self-hosting/README.md)
-- [AWS AMI](docs/self-hosting/aws-ami.md) (Coming Soon)
-- [DigitalOcean](docs/self-hosting/digitalocean.md) (Coming Soon)
 
 ## 💪 Contributing
 - Language support: If you have experience with a language that isn't currently supported by our product, send us a pull request.
