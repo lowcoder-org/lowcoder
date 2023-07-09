@@ -44,6 +44,7 @@ export const en = {
   accessControl: " Access Control",
   copySuccess: "Copied",
   copyError: "Copy error",
+  lottieJson: "Lottie JSON", //Added By Aqib Mirza
   api: {
     publishSuccess: "Published",
     recoverFailed: "Recover failed",
@@ -818,6 +819,11 @@ export const en = {
     signatureCompName: "Signature",
     signatureCompDesc: "Signature component",
     signatureCompKeywords: "",
+    //Added By Aqib Mirza
+    jsonLottieCompName: "Lottie Animation",
+    jsonLottieCompDesc: "Lottie Animation",
+    jsonLottieCompKeywords: "",
+    /////////////////////
   },
   comp: {
     menuViewDocs: "View documentation",
@@ -2395,4 +2401,15 @@ export const en = {
   slotControl: {
     configSlotView: "Configure slot view",
   },
+  //Added By Aqib Mirza
+  jsonLottie: {
+    speed: "Speed",
+    width: "Width",
+    height: "Height",
+    backgroundColor: "Background color",
+    animationStart: "Animation Start",
+    valueDesc: "Current json Data",
+    loop: "Loop",
+  },
+  /////////////////////
 };
