@@ -760,6 +760,18 @@ export const SignatureStyle = [
   },
 ] as const;
 
+//Added by Aqib Mirza
+export const LottieStyle = [
+  {
+    name: "background",
+    label: trans("style.background"),
+    depTheme: "canvas",
+    depType: DEP_TYPE.CONTRAST_TEXT,
+    transformer: contrastText,
+  },
+] as const;
+/////////////////////
+
 export const CarouselStyle = [getBackground("canvas")] as const;
 
 export const RichTextEditorStyle = [getStaticBorder(), RADIUS] as const;
