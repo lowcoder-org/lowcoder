@@ -111,7 +111,7 @@ CMD [ "/bin/sh", "/lowcoder/node-service/entrypoint.sh" ]
 ##
 ## Build lowcoder client application
 ##
-FROM node:20.3-slim AS build-client
+FROM node:20.2-slim AS build-client
 COPY ./client /lowcoder-client
 WORKDIR /lowcoder-client
 RUN yarn --immutable
@@ -174,6 +174,8 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install --no-instal
   && curl -fsSL https://www.mongodb.org/static/pgp/server-4.4.asc | gpg --dearmor -o /usr/share/keyrings/mongodb-archive-keyring.gpg \
   && echo "deb [signed-by=/usr/share/keyrings/mongodb-archive-keyring.gpg arch=amd64,arm64] http://repo.mongodb.org/apt/ubuntu focal/mongodb-org/4.4 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-4.4.list \
   && curl -sL https://deb.nodesource.com/setup_19.x | bash - \
+  && curl -sL http://archive.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.1f-1ubuntu2_amd64.deb --output libssl1.1_1.1.1f-1ubuntu2_amd64.deb \
+  && dpkg -i libssl1.1_1.1.1f-1ubuntu2_amd64.deb \
   && apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install --no-install-recommends -y \
       mongodb-org \
       redis \
