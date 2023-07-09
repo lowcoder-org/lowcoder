@@ -280,6 +280,10 @@ export const en = {
     chart: "Chart style",
     chartDesc: "Input Echarts",
     echartsJson: "Theme JSON",
+    //Added By Aqib Mirza
+    gridColumns: "Grid Columns",
+    gridColumnsDesc:
+      "The default number of columns is typically used for most containers",
   },
   style: {
     resetTooltip: "Reset styles. Delete the input's value to reset an individual field.",

@@ -31,6 +31,7 @@ export const defaultTheme: ThemeDetail = {
   canvas: "#F5F5F6",
   primarySurface: "#FFFFFF",
   borderRadius: "4px",
+  gridColumns: "24",
 };
 
 export const SURFACE_COLOR = "#FFFFFF";
