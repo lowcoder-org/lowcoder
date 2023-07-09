@@ -1,17 +1,16 @@
 package org.lowcoder.api.authentication.service.factory;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.annotation.PostConstruct;
-
+import jakarta.annotation.PostConstruct;
 import org.lowcoder.api.authentication.dto.AuthConfigRequest;
 import org.lowcoder.sdk.auth.AbstractAuthConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 @Primary
 @Component

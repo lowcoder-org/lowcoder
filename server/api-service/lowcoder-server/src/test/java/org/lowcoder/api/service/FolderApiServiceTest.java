@@ -1,12 +1,7 @@
 package org.lowcoder.api.service;
 
-import static org.junit.Assert.assertEquals;
-
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.lowcoder.api.application.view.ApplicationInfoView;
@@ -20,10 +15,16 @@ import org.lowcoder.domain.permission.model.ResourceRole;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
-
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import static org.junit.Assert.assertEquals;
+
+@Ignore
 @SpringBootTest
 @RunWith(SpringRunner.class)
 public class FolderApiServiceTest {

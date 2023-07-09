@@ -11521,7 +11521,7 @@ __metadata:
     rehype-sanitize: ^5.0.1
     remark-gfm: ^3.0.1
     resize-observer-polyfill: ^1.5.1
-    rollup-plugin-visualizer: ^5.8.3
+    rollup-plugin-visualizer: ^5.9.2
     simplebar-react: 2.3.6
     sql-formatter: ^8.2.0
     styled-components: ^5.3.3
@@ -15668,9 +15668,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rollup-plugin-visualizer@npm:^5.8.3":
-  version: 5.9.0
-  resolution: "rollup-plugin-visualizer@npm:5.9.0"
+"rollup-plugin-visualizer@npm:^5.9.2":
+  version: 5.9.2
+  resolution: "rollup-plugin-visualizer@npm:5.9.2"
   dependencies:
     open: ^8.4.0
     picomatch: ^2.3.1
@@ -15683,7 +15683,7 @@ __metadata:
       optional: true
   bin:
     rollup-plugin-visualizer: dist/bin/cli.js
-  checksum: 362d4fac0295c14bd205dbc85c20c31f4b6c47604868da21d9565ed47e0333759f08b9fe0acb82f78221f5173ea01e4eb70d47351eb6012216afe71b5492ed5f
+  checksum: ab2adf322e3b20bffc94a8dc804f46be8840a9fcbab4f872dcc2dec205cdd7752e4d2d90cfcf00783bfb5209c5a8bb4e591984e8b61bca41fd048fb7deb0ed4e
   languageName: node
   linkType: hard
 

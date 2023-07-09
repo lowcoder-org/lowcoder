@@ -1,9 +1,12 @@
 package org.lowcoder.domain.configurations;
 
-import java.util.List;
-
-import javax.annotation.PostConstruct;
-
+import com.github.cloudyrock.mongock.driver.mongodb.springdata.v3.SpringDataMongoV3Driver;
+import com.github.cloudyrock.spring.v5.MongockSpring5;
+import com.mongodb.ReadConcern;
+import com.mongodb.ReadPreference;
+import com.mongodb.WriteConcern;
+import jakarta.annotation.PostConstruct;
+import lombok.extern.slf4j.Slf4j;
 import org.lowcoder.domain.user.model.User;
 import org.lowcoder.sdk.config.MaterialProperties;
 import org.lowcoder.sdk.models.HasIdAndAuditing;
@@ -23,13 +26,7 @@ import org.springframework.data.mongodb.gridfs.ReactiveGridFsTemplate;
 import org.springframework.data.mongodb.repository.config.EnableReactiveMongoRepositories;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 
-import com.github.cloudyrock.mongock.driver.mongodb.springdata.v3.SpringDataMongoV3Driver;
-import com.github.cloudyrock.spring.v5.MongockSpring5;
-import com.mongodb.ReadConcern;
-import com.mongodb.ReadPreference;
-import com.mongodb.WriteConcern;
-
-import lombok.extern.slf4j.Slf4j;
+import java.util.List;
 
 @Slf4j
 @Configuration

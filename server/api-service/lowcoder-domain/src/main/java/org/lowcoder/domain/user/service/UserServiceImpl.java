@@ -1,26 +1,8 @@
 package org.lowcoder.domain.user.service;
 
 
-import static com.google.common.collect.Sets.newHashSet;
-import static org.lowcoder.domain.user.model.UserDetail.ANONYMOUS_CURRENT_USER;
-import static org.lowcoder.sdk.constants.GlobalContext.CLIENT_IP;
-import static org.lowcoder.sdk.util.ExceptionUtils.ofError;
-import static org.lowcoder.sdk.util.ExceptionUtils.ofException;
-
-import java.security.SecureRandom;
-import java.util.Collection;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
-import javax.annotation.Nonnull;
-import javax.annotation.PostConstruct;
-
+import jakarta.annotation.PostConstruct;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -34,11 +16,7 @@ import org.lowcoder.domain.group.service.GroupMemberService;
 import org.lowcoder.domain.group.service.GroupService;
 import org.lowcoder.domain.organization.model.OrgMember;
 import org.lowcoder.domain.organization.service.OrgMemberService;
-import org.lowcoder.domain.user.model.AuthUser;
-import org.lowcoder.domain.user.model.Connection;
-import org.lowcoder.domain.user.model.User;
-import org.lowcoder.domain.user.model.UserDetail;
-import org.lowcoder.domain.user.model.UserState;
+import org.lowcoder.domain.user.model.*;
 import org.lowcoder.domain.user.model.User.TransformedUserInfo;
 import org.lowcoder.domain.user.repository.UserRepository;
 import org.lowcoder.infra.mongo.MongoUpsertHelper;
@@ -57,10 +35,20 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.codec.multipart.Part;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ServerWebExchange;
-
-import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import javax.annotation.Nonnull;
+import java.security.SecureRandom;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import static com.google.common.collect.Sets.newHashSet;
+import static org.lowcoder.domain.user.model.UserDetail.ANONYMOUS_CURRENT_USER;
+import static org.lowcoder.sdk.constants.GlobalContext.CLIENT_IP;
+import static org.lowcoder.sdk.util.ExceptionUtils.ofError;
+import static org.lowcoder.sdk.util.ExceptionUtils.ofException;
 
 @Slf4j
 @Service
