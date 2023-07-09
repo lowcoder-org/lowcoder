@@ -1,28 +1,10 @@
 package org.lowcoder.domain.datasource.service.impl;
 
-import static org.lowcoder.infra.perf.PerfEvent.CLIENT_BASED_CONNECTION_CREATE;
-import static org.lowcoder.infra.perf.PerfEvent.CLIENT_BASED_CONNECTION_REMOVE;
-import static org.lowcoder.infra.perf.PerfEvent.CLIENT_BASED_CONNECTION_SIZE;
-import static org.lowcoder.infra.perf.PerfEvent.HIKARI_POOL_ACTIVE_CONNECTIONS;
-import static org.lowcoder.infra.perf.PerfEvent.HIKARI_POOL_IDLE_CONNECTIONS;
-import static org.lowcoder.infra.perf.PerfEvent.HIKARI_POOL_TOTAL_CONNECTIONS;
-import static org.lowcoder.infra.perf.PerfEvent.HIKARI_POOL_WAITING_CONNECTIONS;
-import static org.lowcoder.sdk.exception.BizError.PLUGIN_CREATE_CONNECTION_FAILED;
-import static org.lowcoder.sdk.plugin.common.QueryExecutionUtils.querySharedScheduler;
-
-import java.time.Duration;
-import java.time.Instant;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Objects;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.annotation.PostConstruct;
-
+import com.google.common.cache.*;
+import com.google.common.collect.ImmutableList;
+import io.micrometer.core.instrument.Tags;
+import jakarta.annotation.PostConstruct;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.lowcoder.domain.datasource.model.ClientBasedDatasourceConnectionHolder;
 import org.lowcoder.domain.datasource.model.Datasource;
@@ -38,17 +20,22 @@ import org.lowcoder.sdk.plugin.common.QueryExecutionUtils;
 import org.lowcoder.sdk.plugin.common.sql.HikariPerfWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
-import com.google.common.cache.RemovalListener;
-import com.google.common.cache.RemovalNotification;
-import com.google.common.collect.ImmutableList;
-
-import io.micrometer.core.instrument.Tags;
-import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
+
+import static org.lowcoder.infra.perf.PerfEvent.*;
+import static org.lowcoder.sdk.exception.BizError.PLUGIN_CREATE_CONNECTION_FAILED;
+import static org.lowcoder.sdk.plugin.common.QueryExecutionUtils.querySharedScheduler;
 
 /**
  * for hikari pool/redis client/es client/..., these clients has taken over underlying connections

@@ -127,6 +127,10 @@
             <artifactId>netty-http-authenticator</artifactId>
             <version>1.5</version>
         </dependency>
+        <dependency>
+            <groupId>org.mongodb</groupId>
+            <artifactId>mongo-java-driver</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
