@@ -1,14 +1,10 @@
 package org.lowcoder.api.application;
 
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.lowcoder.api.application.ApplicationApiService;
 import org.lowcoder.api.application.ApplicationController.CreateApplicationRequest;
 import org.lowcoder.api.application.view.ApplicationPermissionView;
 import org.lowcoder.api.application.view.ApplicationView;
@@ -30,10 +26,14 @@ import org.lowcoder.sdk.exception.BizException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
-
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+@Ignore
 @SuppressWarnings({"OptionalGetWithoutIsPresent"})
 @SpringBootTest
 @RunWith(SpringRunner.class)

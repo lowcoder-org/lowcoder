@@ -1,6 +1,6 @@
 package org.lowcoder.api.config;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 
 import org.lowcoder.api.framework.view.ResponseView;
 import org.lowcoder.api.usermanagement.OrgApiService;

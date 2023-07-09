@@ -3,7 +3,7 @@ package org.lowcoder.api.bizthreshold;
 import java.util.Collections;
 import java.util.Map;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 
 import org.lowcoder.sdk.config.dynamic.Conf;
 import org.lowcoder.sdk.config.dynamic.ConfigCenter;
