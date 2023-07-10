@@ -39,6 +39,7 @@ export const defaultTheme: ThemeDetail = {
   borderRadius: "4px",
   margin: "3px",	
   padding: "3px",
+  gridColumns: "24",
 };
 
 export const SURFACE_COLOR = "#FFFFFF";
@@ -830,6 +831,18 @@ export const SignatureStyle = [
   MARGIN,	
   PADDING,
 ] as const;
+
+//Added by Aqib Mirza
+export const LottieStyle = [
+  {
+    name: "background",
+    label: trans("style.background"),
+    depTheme: "canvas",
+    depType: DEP_TYPE.CONTRAST_TEXT,
+    transformer: contrastText,
+  },
+] as const;
+/////////////////////
 
 export const CarouselStyle = [getBackground("canvas")] as const;
 

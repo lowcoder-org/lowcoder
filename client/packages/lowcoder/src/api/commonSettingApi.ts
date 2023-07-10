@@ -46,6 +46,7 @@ export interface ThemeDetail {
   chart?: string;
   margin?: string;	
   padding?: string;
+  gridColumns?: string; //Added By Aqib Mirza
 }
 
 export function getThemeDetailName(key: keyof ThemeDetail) {
@@ -66,6 +67,9 @@ export function getThemeDetailName(key: keyof ThemeDetail) {
       return trans("style.margin");	
     case "padding":	
       return trans("style.padding");
+    //Added By Aqib Mirza
+    case "gridColumns":
+      return trans("themeDetail.gridColumns");
   }
   return "";
 }
@@ -79,6 +83,7 @@ export function isThemeColorKey(key: string) {
     case "primarySurface":
     case "margin":	
     case "padding":
+    case "gridColumns": //Added By Aqib Mirza
       return true;
   }
   return false;

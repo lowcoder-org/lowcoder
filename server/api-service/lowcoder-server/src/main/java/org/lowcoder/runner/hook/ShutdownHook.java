@@ -1,6 +1,6 @@
 package org.lowcoder.runner.hook;
 
-import javax.annotation.PreDestroy;
+import jakarta.annotation.PreDestroy;
 
 import org.lowcoder.sdk.destructor.DestructorUtil;
 import org.springframework.stereotype.Component;

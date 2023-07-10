@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 
 import org.lowcoder.domain.authentication.context.AuthRequestContext;
 import org.lowcoder.sdk.exception.BizException;

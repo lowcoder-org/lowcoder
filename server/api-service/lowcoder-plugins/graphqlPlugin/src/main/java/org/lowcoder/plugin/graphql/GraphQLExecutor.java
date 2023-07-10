@@ -377,7 +377,7 @@ public class GraphQLExecutor implements QueryExecutor<GraphQLDatasourceConfig, O
         HttpHeaders headers = stringResponseEntity.getHeaders();
         MediaType contentType = firstNonNull(headers.getContentType(), MediaType.TEXT_PLAIN); // text type if null
         byte[] body = stringResponseEntity.getBody();
-        HttpStatus statusCode = stringResponseEntity.getStatusCode();
+        HttpStatus statusCode = HttpStatus.resolve(stringResponseEntity.getStatusCode().value());
         JsonNode resultHeaders = parseExecuteResultHeaders(headers);
 
         if (body == null) {

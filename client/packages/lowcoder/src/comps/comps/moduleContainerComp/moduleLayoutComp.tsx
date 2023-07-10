@@ -23,6 +23,7 @@ import ModuleMethodListComp from "./moduleMethodListComp";
 import { ConfigViewWrapper } from "./styled";
 import { CNRootContainer } from "constants/styleSelectors";
 import styled from "styled-components";
+import { ThemeContext } from "comps/utils/themeContext";
 
 export const MODULE_LAYOUT_COMP = "@moduleLayoutComp";
 
@@ -60,6 +61,8 @@ const moduleContainerId = "moduleContainer";
 function ModuleLayoutView(props: IProps) {
   const { containerSize, containerView, positionParams, onPositionParamsChange, onLayoutChange } =
     props;
+
+  const defaultGrid = useContext(ThemeContext)?.theme?.gridColumns || "24"; //Added By Aqib Mirza
   const { readOnly } = useContext(ExternalEditorContext);
 
   if (readOnly) {
@@ -94,7 +97,7 @@ function ModuleLayoutView(props: IProps) {
     <CanvasView
       layout={layout}
       items={items}
-      positionParams={positionParams}
+      positionParams={{ ...positionParams, cols: parseInt(defaultGrid) }}
       onPositionParamsChange={onPositionParamsChange}
       dispatch={_.noop}
       onLayoutChange={onLayoutChange}

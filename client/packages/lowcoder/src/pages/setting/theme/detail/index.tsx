@@ -127,7 +127,7 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
     this.setState({
       theme: {
         ...this.state.theme,
-        [params.colorKey]: params.color || params.radius || params.chart || params.margin || params.padding,
+        [params.colorKey]: params.color || params.radius || params.chart || params.margin || params.padding  || params.gridColumns,
       },
     });
   }
@@ -267,6 +267,18 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
                   name={trans("themeDetail.padding")}
                   desc={trans("themeDetail.paddingDesc")}
                   padding={this.state.theme.padding}
+                  configChange={(params) => {
+                    this.configChange(params);
+                  }}
+                />
+              </div>
+              <div>
+                <DetailTitle>{trans("themeDetail.gridColumns")}</DetailTitle>
+                <ColorPicker
+                  colorKey="gridColumns"
+                  name={trans("themeDetail.gridColumns")}
+                  desc={trans("themeDetail.gridColumnsDesc")}
+                  gridColumns={this.state.theme.gridColumns}
                   configChange={(params) => {
                     this.configChange(params);
                   }}

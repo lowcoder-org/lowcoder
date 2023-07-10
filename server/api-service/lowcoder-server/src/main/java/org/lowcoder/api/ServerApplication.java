@@ -1,6 +1,6 @@
 package org.lowcoder.api;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 
 import org.lowcoder.sdk.config.CommonConfig;
 import org.springframework.beans.factory.annotation.Autowired;

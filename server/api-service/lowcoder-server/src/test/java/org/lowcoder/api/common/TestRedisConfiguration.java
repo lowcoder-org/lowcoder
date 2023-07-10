@@ -1,16 +1,13 @@
 package org.lowcoder.api.common;
 
+import com.google.common.util.concurrent.Uninterruptibles;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
+import org.springframework.boot.test.context.TestConfiguration;
+import redis.embedded.RedisServer;
+
 import java.time.Duration;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-
-import org.springframework.boot.test.context.TestConfiguration;
-
-import com.google.common.util.concurrent.Uninterruptibles;
-
-import redis.embedded.RedisServer;
 
 @SuppressWarnings("UnstableApiUsage")
 @TestConfiguration

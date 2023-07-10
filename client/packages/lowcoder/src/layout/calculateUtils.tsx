@@ -7,7 +7,17 @@ export type PositionParams = Pick<
   "margin" | "containerPadding" | "containerWidth" | "cols" | "rowHeight" | "maxRows"
 >;
 
-export const DEFAULT_GRID_COLUMNS = 24;
+// Added By Aqib Mirza
+let gridColumns: number;
+
+const getDefaultGridColumns = () => {
+  return gridColumns;
+};
+
+export { getDefaultGridColumns };
+export const DEFAULT_GRID_COLUMNS = getDefaultGridColumns() || 24;
+//////////////////////
+
 export const DEFAULT_ROW_HEIGHT = 8;
 
 export const DEFAULT_POSITION_PARAMS: PositionParams = {

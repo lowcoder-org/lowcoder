@@ -672,5 +672,15 @@ export const Padding = styled.div<{ padding: string }>`
       fill: currentColor;	
     }	
   }	
-}	
+}`
+// Added By Aqib Mirza
+export const GridColumns = styled.div<{ gridColumns: string }>`
+  > div {
+    margin: 3px;
+    overflow: hidden;
+      > svg {
+        fill: currentColor;
+      }
+    }
+  }
 `;
