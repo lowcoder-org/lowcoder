@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.lowcoder.sdk.config.dynamic.ConfigCenter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.Ordered;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
@@ -30,8 +31,10 @@ import static org.lowcoder.sdk.util.ExceptionUtils.ofError;
 @Component
 public class ThrottlingFilter implements WebFilter, Ordered {
 
-    private static final int DEFAULT_RATE_THRESHOLD = 50;
+	@Value("${default.apiRateLimit:50}")
+    private int defaultApiRateLimit;
 
+    
     private final Map<String, RateLimiterWrapper> rateLimiterMap = new ConcurrentHashMap<>();
     private Supplier<Map<String, Integer>> urlRateLimiter;
 
@@ -52,7 +55,7 @@ public class ThrottlingFilter implements WebFilter, Ordered {
 
         RateLimiterWrapper rateLimiter = rateLimiterMap.compute(requestUrl,
                 (url, currentLimiter) -> {
-                    int targetRate = urlRateLimiter.get().getOrDefault(url, DEFAULT_RATE_THRESHOLD);
+                    int targetRate = urlRateLimiter.get().getOrDefault(url, defaultApiRateLimit);
                     if (currentLimiter == null) {
                         return RateLimiterWrapper.create(targetRate);
                     }
