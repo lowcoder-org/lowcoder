@@ -279,6 +279,10 @@ export const en = {
     chart: "Chart style",
     chartDesc: "Input Echarts",
     echartsJson: "Theme JSON",
+    margin: "Margin",
+    marginDesc: "The default margin is typically used for most components",
+    padding: "Padding",
+    paddingDesc: "The default padding is typically used for most components",
   },
   style: {
     resetTooltip: "Reset styles. Delete the input's value to reset an individual field.",
@@ -321,6 +325,12 @@ export const en = {
     pen: "Pen",
     footerIcon: "Footer icon",
     tips: "Tips",
+    margin: "Margin",
+    padding: "Padding",
+    marginLeft: "Margin Left",
+    marginRight: "Margin Right",
+    marginTop: "Margin Top",
+    marginBottom: "Margin Bottom",
   },
   export: {
     hiddenDesc: "If true, the component is hidden",

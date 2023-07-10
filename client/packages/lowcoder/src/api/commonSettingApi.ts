@@ -44,6 +44,8 @@ export interface ThemeDetail {
   primarySurface: string; // comp bg-color
   borderRadius: string;
   chart?: string;
+  margin?: string;	
+  padding?: string;
 }
 
 export function getThemeDetailName(key: keyof ThemeDetail) {
@@ -60,6 +62,10 @@ export function getThemeDetailName(key: keyof ThemeDetail) {
       return trans("themeDetail.primarySurface");
     case "borderRadius":
       return trans("themeDetail.borderRadius");
+    case "margin":	
+      return trans("style.margin");	
+    case "padding":	
+      return trans("style.padding");
   }
   return "";
 }
@@ -71,6 +77,8 @@ export function isThemeColorKey(key: string) {
     case "textLight":
     case "canvas":
     case "primarySurface":
+    case "margin":	
+    case "padding":
       return true;
   }
   return false;
