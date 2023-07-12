@@ -16,13 +16,33 @@ export type SimpleColorConfig = CommonColorConfig & {
 export type RadiusConfig = CommonColorConfig & {
   readonly radius: string;
 };
+
+export type ContainerHeaderPaddigConfig = CommonColorConfig & {
+  readonly containerheaderpadding: string;
+};
+
+export type ContainerBodyPaddigConfig = CommonColorConfig & {
+  readonly containerbodypadding: string;
+};
+
+export type ContainerFooterPaddigConfig = CommonColorConfig & {
+  readonly containerfooterpadding: string;
+};
+
+export type MarginConfig = CommonColorConfig & {	
+  readonly margin: string;	
+};	
+export type PaddingConfig = CommonColorConfig & {	
+  readonly padding: string;	
+};
+
 export type DepColorConfig = CommonColorConfig & {
   readonly depName?: string;
   readonly depTheme?: keyof ThemeDetail;
   readonly depType?: DEP_TYPE;
   transformer: (color: string, ...rest: string[]) => string;
 };
-export type SingleColorConfig = SimpleColorConfig | DepColorConfig | RadiusConfig;
+export type SingleColorConfig = SimpleColorConfig | DepColorConfig | RadiusConfig | MarginConfig | PaddingConfig | ContainerHeaderPaddigConfig | ContainerFooterPaddigConfig | ContainerBodyPaddigConfig;
 
 export const defaultTheme: ThemeDetail = {
   primary: "#3377FF",
@@ -31,6 +51,8 @@ export const defaultTheme: ThemeDetail = {
   canvas: "#F5F5F6",
   primarySurface: "#FFFFFF",
   borderRadius: "4px",
+  margin: "3px",	
+  padding: "3px",
   gridColumns: "24",
 };
 
@@ -226,6 +248,37 @@ const RADIUS = {
   radius: "borderRadius",
 } as const;
 
+const MARGIN = {	
+  name: "margin",	
+  label: trans("style.margin"),	
+  margin: "margin",	
+} as const;	
+
+const PADDING = {	
+  name: "padding",	
+  label: trans("style.padding"),	
+  padding: "padding",	
+} as const;
+
+const CONTAINERHEADERPADDING = {	
+  name: "containerheaderpadding",	
+  label: trans("style.containerheaderpadding"),	
+  containerheaderpadding: "padding",	
+} as const;
+
+const CONTAINERFOOTERPADDING = {	
+  name: "containerfooterpadding",	
+  label: trans("style.containerfooterpadding"),	
+  containerfooterpadding: "padding",	
+} as const;
+
+
+const CONTAINERBODYPADDING = {	
+  name: "containerbodypadding",	
+  label: trans("style.containerbodypadding"),	
+  containerbodypadding: "padding",	
+} as const;
+
 const getStaticBorder = (color: string = SECOND_SURFACE_COLOR) =>
   ({
     name: "border",
@@ -293,7 +346,7 @@ function getStaticBackground(color: string) {
   } as const;
 }
 
-export const ButtonStyle = [...getBgBorderRadiusByBg("primary"), TEXT] as const;
+export const ButtonStyle = [...getBgBorderRadiusByBg("primary"), TEXT, MARGIN, PADDING] as const;
 
 export const ToggleButtonStyle = [
   getBackground("canvas"),
@@ -306,6 +359,8 @@ export const ToggleButtonStyle = [
     transformer: toSelf,
   },
   RADIUS,
+  MARGIN,	
+  PADDING,
 ] as const;
 
 export const TextStyle = [
@@ -317,6 +372,8 @@ export const TextStyle = [
     transformer: toSelf,
   },
   TEXT,
+  MARGIN,	
+  PADDING,
   {
     name: "links",
     label: trans("style.links"),
@@ -325,6 +382,15 @@ export const TextStyle = [
     transformer: toSelf,
   },
 ] as const;
+
+export const MarginStyle = [	
+  {	
+    name: "margin",	
+    label: trans("style.margin"),	
+    margin: "margin",	
+  },	
+];	
+
 
 export const ContainerStyle = [
   ...BG_STATIC_BORDER_RADIUS,
@@ -336,6 +402,11 @@ export const ContainerStyle = [
     depType: DEP_TYPE.SELF,
     transformer: toSelf,
   },
+  MARGIN,	
+  PADDING,
+  CONTAINERHEADERPADDING,
+  CONTAINERFOOTERPADDING,
+  CONTAINERBODYPADDING
 ] as const;
 
 export const SliderStyle = [
@@ -354,12 +425,16 @@ export const SliderStyle = [
     color: SURFACE_COLOR,
   },
   TRACK,
+  MARGIN,	
+  PADDING,
 ] as const;
 
 export const InputLikeStyle = [
   LABEL,
   ...getStaticBgBorderRadiusByBg(SURFACE_COLOR),
   TEXT,
+  MARGIN,	
+  PADDING,
   ...ACCENT_VALIDATE,
 ] as const;
 
@@ -375,6 +450,8 @@ export const RatingStyle = [
     label: trans("style.unchecked"),
     color: SECOND_SURFACE_COLOR,
   },
+  MARGIN,	
+  PADDING,
 ] as const;
 
 export const SwitchStyle = [
@@ -397,12 +474,16 @@ export const SwitchStyle = [
     depType: DEP_TYPE.SELF,
     transformer: toSelf,
   },
+  MARGIN,	
+  PADDING,
 ] as const;
 
 export const SelectStyle = [
   LABEL,
   ...getStaticBgBorderRadiusByBg(SURFACE_COLOR, "pc"),
   TEXT,
+  MARGIN,	
+  PADDING,
   ...ACCENT_VALIDATE,
 ] as const;
 
@@ -410,6 +491,8 @@ const multiSelectCommon = [
   LABEL,
   ...getStaticBgBorderRadiusByBg(SURFACE_COLOR, "pc"),
   TEXT,
+  MARGIN,	
+  PADDING,
   {
     name: "tags",
     label: trans("style.tags"),
@@ -456,6 +539,8 @@ export const TabContainerStyle = [
     depType: DEP_TYPE.SELF,
     transformer: toSelf,
   },
+  MARGIN,	
+  PADDING,
 ] as const;
 
 export const ModalStyle = getBgBorderRadiusByBg();
@@ -465,6 +550,8 @@ export const CascaderStyle = [
   ...getStaticBgBorderRadiusByBg(SURFACE_COLOR, "pc"),
   TEXT,
   ACCENT,
+  MARGIN,	
+  PADDING,
 ] as const;
 
 function checkAndUncheck() {
@@ -503,6 +590,8 @@ export const CheckboxStyle = [
   RADIUS,
   STATIC_TEXT,
   VALIDATE,
+  MARGIN,	
+  PADDING,
 ] as const;
 
 export const RadioStyle = [
@@ -517,6 +606,8 @@ export const RadioStyle = [
   },
   STATIC_TEXT,
   VALIDATE,
+  MARGIN,	
+  PADDING,
 ] as const;
 
 export const SegmentStyle = [
@@ -541,6 +632,8 @@ export const SegmentStyle = [
   },
   RADIUS,
   VALIDATE,
+  MARGIN,	
+  PADDING,
 ] as const;
 
 export const TableStyle = [
@@ -601,20 +694,24 @@ export const TableStyle = [
   },
 ] as const;
 
-export const FileStyle = [...getStaticBgBorderRadiusByBg(SURFACE_COLOR), TEXT, ACCENT] as const;
+export const FileStyle = [...getStaticBgBorderRadiusByBg(SURFACE_COLOR), TEXT, ACCENT, MARGIN, PADDING] as const;
 
 export const FileViewerStyle = [
   getStaticBackground("#FFFFFF"),
   getStaticBorder("#00000000"),
   RADIUS,
+  MARGIN,	
+  PADDING,
 ] as const;
 
-export const IframeStyle = [getBackground(), getStaticBorder("#00000000"), RADIUS] as const;
+export const IframeStyle = [getBackground(), getStaticBorder("#00000000"), RADIUS, MARGIN, PADDING] as const;
 
 export const DateTimeStyle = [
   LABEL,
   ...getStaticBgBorderRadiusByBg(SURFACE_COLOR),
   TEXT,
+  MARGIN,	
+  PADDING,
   ...ACCENT_VALIDATE,
 ] as const;
 
@@ -626,6 +723,8 @@ export const LinkStyle = [
     depType: DEP_TYPE.SELF,
     transformer: toSelf,
   },
+  MARGIN,	
+  PADDING,
 ] as const;
 
 export const DividerStyle = [
@@ -640,6 +739,8 @@ export const DividerStyle = [
     depName: "color",
     transformer: handleToDividerText,
   },
+  MARGIN,	
+  PADDING,
 ] as const;
 
 export const ProgressStyle = [
@@ -653,6 +754,8 @@ export const ProgressStyle = [
   TRACK,
   FILL,
   SUCCESS,
+  MARGIN,	
+  PADDING,
 ] as const;
 
 export const NavigationStyle = [
@@ -666,9 +769,11 @@ export const NavigationStyle = [
   ACCENT,
   getStaticBackground("#FFFFFF00"),
   getStaticBorder("#FFFFFF00"),
+  MARGIN,	
+  PADDING,
 ] as const;
 
-export const ImageStyle = [getStaticBorder("#00000000"), RADIUS] as const;
+export const ImageStyle = [getStaticBorder("#00000000"), RADIUS, MARGIN, PADDING] as const;
 
 export const ListViewStyle = BG_STATIC_BORDER_RADIUS;
 
@@ -681,6 +786,8 @@ export const QRCodeStyle = [
     label: trans("color"),
     color: "#000000",
   },
+  MARGIN,	
+  PADDING,
 ] as const;
 
 export const TreeStyle = [
@@ -758,6 +865,8 @@ export const SignatureStyle = [
     label: trans("style.footerIcon"),
     color: "#222222",
   },
+  MARGIN,	
+  PADDING,
 ] as const;
 
 //Added by Aqib Mirza
@@ -769,6 +878,8 @@ export const LottieStyle = [
     depType: DEP_TYPE.CONTRAST_TEXT,
     transformer: contrastText,
   },
+  MARGIN,	
+  PADDING,
 ] as const;
 /////////////////////
 
@@ -811,3 +922,58 @@ export type CalendarStyleType = StyleConfigType<typeof CalendarStyle>;
 export type SignatureStyleType = StyleConfigType<typeof SignatureStyle>;
 export type CarouselStyleType = StyleConfigType<typeof CarouselStyle>;
 export type RichTextEditorStyleType = StyleConfigType<typeof RichTextEditorStyle>;
+
+export function widthCalculator(margin: string) {
+  const marginArr = margin?.trim().split(" ") || "";
+  if (marginArr.length === 1) {
+    return `calc(100% - ${
+      parseInt(margin.replace(/[^\d.]/g, "")) * 2 + margin.replace(/[0-9]/g, "")
+    })`;
+  } else if (marginArr.length === 2 || marginArr.length === 3) {
+    return `calc(100% - ${
+      parseInt(marginArr[1].replace(/[^\d.]/g, "")) * 2 +
+      marginArr[1].replace(/[0-9]/g, "")
+    })`;
+  } else {
+    return `calc(100% - ${
+      parseInt(marginArr[1]?.replace(/[^\d.]/g, "") || "0") +
+      marginArr[1]?.replace(/[0-9]/g, "" || "px")
+    } - ${
+      parseInt(marginArr[3]?.replace(/[^\d.]/g, "") || "0") +
+      marginArr[3]?.replace(/[0-9]/g, "" || "px")
+    })`;
+  }
+}
+
+export function heightCalculator(margin: string) {
+  const marginArr = margin?.trim().split(" ") || "";
+  if (marginArr.length === 1) {
+    return `calc(100% - ${
+      parseInt(margin.replace(/[^\d.]/g, "")) * 2 + margin.replace(/[0-9]/g, "")
+    })`;
+  } else if (marginArr.length === 2) {
+    return `calc(100% - ${
+      parseInt(marginArr[0].replace(/[^\d.]/g, "")) * 2 +
+      marginArr[0].replace(/[0-9]/g, "")
+    })`;
+  } else {
+    return `calc(100% - ${
+      parseInt(marginArr[0]?.replace(/[^\d.]/g, "") || "0") +
+        marginArr[0]?.replace(/[0-9]/g, "") || "px"
+    } - ${
+      parseInt(marginArr[2]?.replace(/[^\d.]/g, "") || "0") +
+        marginArr[2]?.replace(/[0-9]/g, "") || "px"
+    })`;
+  }
+}
+
+export function marginCalculator(margin: string) {
+  const marginArr = margin?.trim().split(" ") || "";
+  if (marginArr.length === 1) {
+    return parseInt(margin.replace(/[^\d.]/g, "")) * 2;
+  } else if (marginArr.length === 2) {
+    return parseInt(marginArr[0].replace(/[^\d.]/g, "")) * 2;
+  } else {
+    return parseInt(marginArr[0]?.replace(/[^\d.]/g, "") || "0") + parseInt(marginArr[2]?.replace(/[^\d.]/g, "") || "0")
+  }
+}

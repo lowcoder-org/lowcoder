@@ -10,10 +10,13 @@ import { UICompBuilder } from "../generators";
 import { NameConfig, NameConfigHidden, withExposingConfigs } from "../generators/withExposing";
 import { markdownCompCss, TacoMarkDown } from "lowcoder-design";
 import { styleControl } from "comps/controls/styleControl";
-import { TextStyle, TextStyleType } from "comps/controls/styleControlConstants";
+import { TextStyle, TextStyleType, heightCalculator, widthCalculator } from "comps/controls/styleControlConstants";
 import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { alignWithJustifyControl } from "comps/controls/alignControl";
+
+import { MarginControl } from "../controls/marginControl";
+import { PaddingControl } from "../controls/paddingControl";
 
 const getStyle = (style: TextStyleType) => {
   return css`
@@ -24,6 +27,10 @@ const getStyle = (style: TextStyleType) => {
       color: ${style.links};
     }
     .markdown-body {
+      margin: ${style.margin} !important;	
+      padding: ${style.padding};	
+      width: ${widthCalculator(style.margin)};	
+      height: ${heightCalculator(style.margin)};
       h1 {
         line-height: 1.5;
       }
@@ -60,7 +67,7 @@ const TextContainer = styled.div<{ type: string; styleConfig: TextStyleType }>`
   overflow: auto;
   margin: 0;
   ${(props) =>
-    props.type === "text" && "white-space:break-spaces;line-height: 1.9;padding: 3px 0;"};
+    props.type === "text" && "white-space:break-spaces;line-height: 1.9;"};
   ${(props) => props.styleConfig && getStyle(props.styleConfig)}
   display: flex;
   font-size: 13px;
@@ -107,6 +114,8 @@ let TextTmpComp = (function () {
     horizontalAlignment: alignWithJustifyControl(),
     verticalAlignment: dropdownControl(VerticalAlignmentOptions, "center"),
     style: styleControl(TextStyle),
+    margin: MarginControl,	
+    padding: PaddingControl,
   };
   return new UICompBuilder(childrenMap, (props) => {
     const value = props.text.value;

@@ -7,6 +7,8 @@ import {
 import { BoolControl } from "../../controls/boolControl";
 import { LabelControl } from "../../controls/labelControl";
 import { BoolCodeControl, StringControl } from "../../controls/codeControl";
+import { PaddingControl } from "../../controls/paddingControl";	
+import { MarginControl } from "../../controls/marginControl";
 import {
   ControlNode,
   isDarkColor,
@@ -31,8 +33,10 @@ import {
   MultiSelectStyleType,
   SelectStyleType,
   TreeSelectStyleType,
+  widthCalculator,
+  heightCalculator
 } from "comps/controls/styleControlConstants";
-import { stateComp } from "../../generators";
+import { stateComp, withDefault } from "../../generators";
 import {
   allowClearPropertyView,
   disabledPropertyView,
@@ -54,11 +58,24 @@ export const getStyle = (
     &.ant-select .ant-select-selector,
     &.ant-select-multiple .ant-select-selection-item {
       border-radius: ${style.radius};
+      padding: ${style.padding};	
+      height: auto;	
+    }	
+    .ant-select-selection-search {	
+      padding: ${style.padding};	
+    }	
+    .ant-select-selector::after,	
+    .ant-select-selection-placeholder,	
+    .ant-select-selection-item {	
+      line-height: 1.5715 !important;
     }
 
     &.ant-select:not(.ant-select-disabled) {
       color: ${style.text};
-
+      .ant-select-selection-placeholder,	
+      .ant-select-selection-item {	
+        line-height: 1.5715 !important;	
+      }
       .ant-select-selection-placeholder,
       &.ant-select-single.ant-select-open .ant-select-selection-item {
         color: ${style.text};
@@ -142,11 +159,15 @@ const getDropdownStyle = (style: MultiSelectStyleType) => {
 
 const Select = styled(AntdSelect)<{ $style: SelectStyleType & MultiSelectStyleType }>`
   width: 100%;
+
   ${(props) => props.$style && getStyle(props.$style)}
 `;
 
 const DropdownStyled = styled.div<{ $style: MultiSelectStyleType }>`
   ${(props) => props.$style && getDropdownStyle(props.$style)}
+  .ant-select-item-option-content {
+    ${(props) => `padding: ${props.$style.padding}`};	
+  }
   .option-label img {
     min-width: 14px;
     margin-right: 0;
@@ -173,6 +194,8 @@ export const SelectChildrenMap = {
   inputValue: stateComp<string>(""), // user's input value when search
   showSearch: BoolControl.DEFAULT_TRUE,
   viewRef: RefControl<BaseSelectRef>,
+  margin: MarginControl,	
+  padding: PaddingControl,
   ...SelectInputValidationChildren,
   ...formDataChildren,
 };
