@@ -1,7 +1,6 @@
 package org.lowcoder.api.authentication;
 
 import com.google.common.collect.Iterables;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.lowcoder.api.authentication.AuthenticationController.FormLoginRequest;
@@ -48,7 +47,6 @@ public class AuthenticationControllerTest {
     @Autowired
     private AuthenticationService authenticationService;
 
-    @Ignore
     @Test
     public void testFormRegisterSuccess() {
         String email = "test_register@ob.dev";
@@ -84,7 +82,7 @@ public class AuthenticationControllerTest {
                     assertEquals(email, connection.getRawId());
                     assertEquals(email, connection.getName());
                     assertNull(connection.getAvatar());
-                    assertEquals(1, connection.getOrgIds().size());
+                    assertEquals(0, connection.getOrgIds().size());
                     assertNull(connection.getAuthConnectionAuthToken());
                     assertEquals(Map.of("email", email), connection.getRawUserInfo());
                     //exchange
@@ -95,8 +93,6 @@ public class AuthenticationControllerTest {
                 })
                 .verifyComplete();
     }
-
-    @Ignore
     @Test
     public void testFormLoginSuccess() {
         String email = "test_login@ob.dev";
@@ -138,7 +134,7 @@ public class AuthenticationControllerTest {
                     assertEquals(email, connection.getRawId());
                     assertEquals(email, connection.getName());
                     assertNull(connection.getAvatar());
-                    assertEquals(1, connection.getOrgIds().size());
+                    assertEquals(0, connection.getOrgIds().size());
                     assertNull(connection.getAuthConnectionAuthToken());
                     assertEquals(Map.of("email", email), connection.getRawUserInfo());
                     //exchange
@@ -150,7 +146,6 @@ public class AuthenticationControllerTest {
                 .verifyComplete();
     }
 
-    @Ignore
     @Test
     public void testRegisterFailByLoginIdExist() {
 

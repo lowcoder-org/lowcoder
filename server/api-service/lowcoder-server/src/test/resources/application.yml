@@ -22,3 +22,12 @@ demo:
       timeout: 100
       username: 123
       host: localhost
+
+common:
+  cookie-name: UT-TACO-TOKEN
+
+auth:
+  email:
+    enable: true
+  google:
+    enable: true
