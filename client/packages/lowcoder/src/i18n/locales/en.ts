@@ -2356,6 +2356,7 @@ export const en = {
     left: "Left",
     right: "Right",
     center: "Center",
+    bottom: "Bottom",
     justify: "Justify both ends",
   },
   playground: {

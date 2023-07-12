@@ -7,7 +7,7 @@ import { stringExposingStateControl } from "comps/controls/codeStateControl";
 import { eventHandlerControl } from "comps/controls/eventHandlerControl";
 import { TabsOptionControl } from "comps/controls/optionsControl";
 import { styleControl } from "comps/controls/styleControl";
-import { TabContainerStyle, TabContainerStyleType } from "comps/controls/styleControlConstants";
+import { TabContainerStyle, TabContainerStyleType, heightCalculator, widthCalculator } from "comps/controls/styleControlConstants";
 import { sameTypeMap, UICompBuilder, withDefault } from "comps/generators";
 import { addMapChildAction } from "comps/generators/sameTypeMap";
 import { NameConfig, NameConfigHidden, withExposingConfigs } from "comps/generators/withExposing";
@@ -65,6 +65,10 @@ const getStyle = (style: TabContainerStyleType) => {
       border: 1px solid ${style.border};
       border-radius: ${style.radius};
       overflow: hidden;
+      margin: ${style.margin};	
+      padding: ${style.padding};	
+      width: ${widthCalculator(style.margin)};	
+      height: ${heightCalculator(style.margin)};
 
       > .ant-tabs-content-holder > .ant-tabs-content > div > .react-grid-layout {
         background-color: ${style.background};

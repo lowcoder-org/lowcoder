@@ -12,6 +12,8 @@ export function getButtonStyle(buttonStyle: ButtonStyleType) {
   const activeColor = genActiveColor(buttonStyle.background);
   return css`
     border-radius: ${buttonStyle.radius};
+    margin: ${buttonStyle.margin};	
+    padding: ${buttonStyle.padding};
     &:not(:disabled) {
       // click animation color
       --antd-wave-shadow-color: ${buttonStyle.border};
@@ -19,6 +21,8 @@ export function getButtonStyle(buttonStyle: ButtonStyleType) {
       color: ${buttonStyle.text};
       background-color: ${buttonStyle.background};
       border-radius: ${buttonStyle.radius};
+      margin: ${buttonStyle.margin};	
+      padding: ${buttonStyle.padding};
 
       :hover,
       :focus {
@@ -37,12 +41,14 @@ export function getButtonStyle(buttonStyle: ButtonStyleType) {
           : buttonStyle.border};
       }
     }
+    
   `;
 }
 
 export const Button100 = styled(Button)<{ $buttonStyle?: ButtonStyleType }>`
   ${(props) => props.$buttonStyle && getButtonStyle(props.$buttonStyle)}
-  width: 100%;
+  width: -webkit-fill-available;	
+  height: auto;
   display: inline-flex;
   justify-content: center;
   align-items: center;

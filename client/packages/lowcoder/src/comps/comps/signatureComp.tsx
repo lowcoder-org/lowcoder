@@ -9,6 +9,8 @@ import {
   contrastColor,
   SignatureStyle,
   SignatureStyleType,
+  widthCalculator,
+  heightCalculator
 } from "comps/controls/styleControlConstants";
 import { stateComp, withDefault } from "comps/generators/simpleGenerators";
 import { hiddenPropertyView } from "comps/utils/propertyUtils";
@@ -33,7 +35,14 @@ const Wrapper = styled.div<{ $style: SignatureStyleType; isEmpty: boolean }>`
   overflow: hidden;
   width: 100%;
   height: 100%;
-
+  width: ${(props) => {	
+    return widthCalculator(props.$style.margin);	
+  }};	
+  height: ${(props) => {	
+    return heightCalculator(props.$style.margin);	
+  }};	
+  margin: ${(props) => props.$style.margin};	
+  padding: ${(props) => props.$style.padding};
   .signature {
     background-color: ${(props) => props.$style.background};
     opacity: ${(props) => (props.isEmpty ? 0 : 1)};

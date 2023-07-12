@@ -1,4 +1,4 @@
-import { ContainerStyleType } from "comps/controls/styleControlConstants";
+import { ContainerStyleType, heightCalculator, widthCalculator } from "comps/controls/styleControlConstants";
 import { EditorContext } from "comps/editorState";
 import { BackgroundColorContext } from "comps/utils/backgroundColorContext";
 import { HintPlaceHolder } from "lowcoder-design";
@@ -13,6 +13,10 @@ const getStyle = (style: ContainerStyleType) => {
     border-color: ${style.border};
     border-radius: ${style.radius};
     overflow: hidden;
+    margin: ${style.margin};	
+    padding: ${style.padding};	
+    width: ${widthCalculator(style.margin)};	
+    height: ${heightCalculator(style.margin)};
   `;
 };
 
