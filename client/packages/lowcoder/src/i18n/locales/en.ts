@@ -284,6 +284,8 @@ export const en = {
     marginDesc: "The default margin is typically used for most components",
     padding: "Padding",
     paddingDesc: "The default padding is typically used for most components",
+    containerheaderpadding: "Header Padding",
+    containerheaderpaddingDesc: "The default headerpadding is typically used for most components",
     //Added By Aqib Mirza
     gridColumns: "Grid Columns",
     gridColumnsDesc:
@@ -336,6 +338,9 @@ export const en = {
     marginRight: "Margin Right",
     marginTop: "Margin Top",
     marginBottom: "Margin Bottom",
+    containerheaderpadding: "Header Padding",
+    containerfooterpadding: "Footer Padding",
+    containerbodypadding: "Body Padding",
   },
   export: {
     hiddenDesc: "If true, the component is hidden",

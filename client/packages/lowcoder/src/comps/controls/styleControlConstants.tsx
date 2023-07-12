@@ -16,19 +16,33 @@ export type SimpleColorConfig = CommonColorConfig & {
 export type RadiusConfig = CommonColorConfig & {
   readonly radius: string;
 };
+
+export type ContainerHeaderPaddigConfig = CommonColorConfig & {
+  readonly containerheaderpadding: string;
+};
+
+export type ContainerBodyPaddigConfig = CommonColorConfig & {
+  readonly containerbodypadding: string;
+};
+
+export type ContainerFooterPaddigConfig = CommonColorConfig & {
+  readonly containerfooterpadding: string;
+};
+
 export type MarginConfig = CommonColorConfig & {	
   readonly margin: string;	
 };	
 export type PaddingConfig = CommonColorConfig & {	
   readonly padding: string;	
 };
+
 export type DepColorConfig = CommonColorConfig & {
   readonly depName?: string;
   readonly depTheme?: keyof ThemeDetail;
   readonly depType?: DEP_TYPE;
   transformer: (color: string, ...rest: string[]) => string;
 };
-export type SingleColorConfig = SimpleColorConfig | DepColorConfig | RadiusConfig | MarginConfig | PaddingConfig;
+export type SingleColorConfig = SimpleColorConfig | DepColorConfig | RadiusConfig | MarginConfig | PaddingConfig | ContainerHeaderPaddigConfig | ContainerFooterPaddigConfig | ContainerBodyPaddigConfig;
 
 export const defaultTheme: ThemeDetail = {
   primary: "#3377FF",
@@ -239,10 +253,30 @@ const MARGIN = {
   label: trans("style.margin"),	
   margin: "margin",	
 } as const;	
+
 const PADDING = {	
   name: "padding",	
   label: trans("style.padding"),	
   padding: "padding",	
+} as const;
+
+const CONTAINERHEADERPADDING = {	
+  name: "containerheaderpadding",	
+  label: trans("style.containerheaderpadding"),	
+  containerheaderpadding: "padding",	
+} as const;
+
+const CONTAINERFOOTERPADDING = {	
+  name: "containerfooterpadding",	
+  label: trans("style.containerfooterpadding"),	
+  containerfooterpadding: "padding",	
+} as const;
+
+
+const CONTAINERBODYPADDING = {	
+  name: "containerbodypadding",	
+  label: trans("style.containerbodypadding"),	
+  containerbodypadding: "padding",	
 } as const;
 
 const getStaticBorder = (color: string = SECOND_SURFACE_COLOR) =>
@@ -370,6 +404,9 @@ export const ContainerStyle = [
   },
   MARGIN,	
   PADDING,
+  CONTAINERHEADERPADDING,
+  CONTAINERFOOTERPADDING,
+  CONTAINERBODYPADDING
 ] as const;
 
 export const SliderStyle = [

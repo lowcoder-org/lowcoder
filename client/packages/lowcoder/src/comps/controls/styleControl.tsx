@@ -239,7 +239,7 @@ export function styleControl<T extends readonly SingleColorConfig[]>(colorConfig
       name === "cardRadius"
     ) {	
       childrenMap[name] = StringControl;	
-    } else if (name === "margin" || name === "padding") {	
+    } else if (name === "margin" || name === "padding" || name==="containerheaderpadding" || name==="containerfooterpadding" || name==="containerbodypadding") {	
       childrenMap[name] = StringControl;	
     } else {	
       childrenMap[name] = ColorControl;	
@@ -281,7 +281,10 @@ export function styleControl<T extends readonly SingleColorConfig[]>(colorConfig
                     if (	
                       name === "radius" ||	
                       name === "margin" ||	
-                      name === "padding"	
+                      name === "padding" ||
+                      name==="containerheaderpadding"	||
+                      name==="containerfooterpadding"	||
+                      name==="containerbodypadding"
                     ) {
                       children[name]?.dispatchChangeValueAction("");
                     } else {
@@ -338,7 +341,10 @@ export function styleControl<T extends readonly SingleColorConfig[]>(colorConfig
                           preInputNode: <MarginIcon title="" />,	
                           placeholder: props[name],	
                         })	
-                      : name === "padding"	
+                      : name === "padding" ||
+                      name === "containerheaderpadding"	||
+                      name === "containerfooterpadding"	||
+                      name === "containerbodypadding"
                       ? (	
                           children[name] as InstanceType<typeof StringControl>	
                         ).propertyView({	

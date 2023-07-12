@@ -91,6 +91,7 @@ export function TriContainer(props: TriContainerProps) {
             containerPadding={[paddingWidth, 3]}
             showName={{ bottom: showBody || showFooter ? 20 : 0 }}
             backgroundColor={style?.headerBackground}
+            style={{padding: style.containerheaderpadding}}
           />
         </BackgroundColorContext.Provider>
       )}
@@ -109,6 +110,7 @@ export function TriContainer(props: TriContainerProps) {
             hintPlaceholder={props.hintPlaceholder ?? HintPlaceHolder}
             backgroundColor={style?.background}
             borderColor={style?.border}
+            style={{padding: style.containerbodypadding}}
           />
         </BackgroundColorContext.Provider>
       )}
@@ -125,6 +127,7 @@ export function TriContainer(props: TriContainerProps) {
             showName={{ top: showHeader || showBody ? 20 : 0 }}
             backgroundColor={style?.footerBackground}
             borderColor={style?.border}
+            style={{padding: style.containerfooterpadding}}
           />
         </BackgroundColorContext.Provider>
       )}
