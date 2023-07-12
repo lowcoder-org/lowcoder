@@ -29,7 +29,6 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
-import org.bson.internal.Base64;
 import org.lowcoder.plugin.restapi.constants.ResponseDataType;
 import org.lowcoder.plugin.restapi.helpers.AuthHelper;
 import org.lowcoder.plugin.restapi.helpers.BufferingFilter;
@@ -398,13 +397,13 @@ public class RestApiExecutor implements QueryExecutor<RestApiDatasourceConfig, O
 
         if (isPicture(contentType)) {
             return ResponseBodyData.builder()
-                    .body(Base64.encode(body))
+                    .body(Base64.getEncoder().encode(body))
                     .dataType(ResponseDataType.IMAGE)
                     .build();
         }
         if (isBinary(contentType)) {
             return ResponseBodyData.builder()
-                    .body(Base64.encode(body))
+                    .body(Base64.getEncoder().encode(body))
                     .dataType(ResponseDataType.BINARY)
                     .build();
         }
