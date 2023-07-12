@@ -13,10 +13,10 @@ const getStyle = (style: ContainerStyleType) => {
     border-color: ${style.border};
     border-radius: ${style.radius};
     overflow: hidden;
-    margin: ${style.margin};	
+    // margin: ${style.margin};	
     padding: ${style.padding};	
-    width: ${widthCalculator(style.margin)};	
-    height: ${heightCalculator(style.margin)};
+    // width: ${widthCalculator(style.margin)};	
+    // height: ${heightCalculator(style.margin)};
   `;
 };
 
@@ -78,6 +78,7 @@ export function TriContainer(props: TriContainerProps) {
   const paddingWidth = isMobile ? 7 : 19;
 
   return (
+    <div style={{padding: style.margin}}>
     <Wrapper $style={style}>
       {showHeader && (
         <BackgroundColorContext.Provider value={container.style.headerBackground}>
@@ -128,5 +129,6 @@ export function TriContainer(props: TriContainerProps) {
         </BackgroundColorContext.Provider>
       )}
     </Wrapper>
+    </div>
   );
 }
