@@ -34,7 +34,6 @@ import static org.junit.Assert.*;
 import static org.lowcoder.sdk.exception.BizError.INVALID_PASSWORD;
 import static org.lowcoder.sdk.exception.BizError.USER_LOGIN_ID_EXIST;
 
-@Ignore
 @SpringBootTest
 @RunWith(SpringRunner.class)
 @ActiveProfiles("AuthenticationControllerTest")
@@ -49,6 +48,7 @@ public class AuthenticationControllerTest {
     @Autowired
     private AuthenticationService authenticationService;
 
+    @Ignore
     @Test
     public void testFormRegisterSuccess() {
         String email = "test_register@ob.dev";
@@ -96,6 +96,7 @@ public class AuthenticationControllerTest {
                 .verifyComplete();
     }
 
+    @Ignore
     @Test
     public void testFormLoginSuccess() {
         String email = "test_login@ob.dev";
@@ -149,6 +150,7 @@ public class AuthenticationControllerTest {
                 .verifyComplete();
     }
 
+    @Ignore
     @Test
     public void testRegisterFailByLoginIdExist() {
 

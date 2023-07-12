@@ -29,7 +29,6 @@ import java.util.Objects;
 
 import static org.junit.Assert.*;
 
-@Ignore
 @SpringBootTest
 @RunWith(SpringRunner.class)
 public class GoogleAuthenticateTest {
@@ -43,6 +42,7 @@ public class GoogleAuthenticateTest {
     @Autowired
     private AuthenticationService authenticationService;
 
+    @Ignore
     @Test
     public void testGoogleRegisterSuccess() {
         String email = "test_register@ob.dev";

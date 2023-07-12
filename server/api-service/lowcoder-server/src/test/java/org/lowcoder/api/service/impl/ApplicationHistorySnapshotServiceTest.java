@@ -17,7 +17,6 @@ import com.google.common.collect.ImmutableMap;
 import lombok.extern.slf4j.Slf4j;
 import reactor.test.StepVerifier;
 
-@Ignore
 @SuppressWarnings({"ReactiveStreamsNullableInLambdaInTransform"})
 @RunWith(SpringRunner.class)
 @SpringBootTest
