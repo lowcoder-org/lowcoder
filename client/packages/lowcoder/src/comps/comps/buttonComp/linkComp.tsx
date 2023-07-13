@@ -21,7 +21,7 @@ import { hasIcon } from "comps/utils";
 import { RefControl } from "comps/controls/refControl";
 
 const Link = styled(Button)<{ $style: LinkStyleType }>`
-  ${(props) => `color: ${props.$style.text};`}
+  ${(props) => `color: ${props.$style.text};margin: ${props.$style.margin}; padding: ${props.$style.padding};`}
   &.ant-btn {
     display: inline-flex;
     align-items: center;

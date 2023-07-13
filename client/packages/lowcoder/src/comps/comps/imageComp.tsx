@@ -9,7 +9,7 @@ import { useEffect, useRef, useState } from "react";
 import _ from "lodash";
 import ReactResizeDetector from "react-resize-detector";
 import { styleControl } from "comps/controls/styleControl";
-import { ImageStyle, ImageStyleType } from "comps/controls/styleControlConstants";
+import { ImageStyle, ImageStyleType, heightCalculator, widthCalculator } from "comps/controls/styleControlConstants";
 import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { AutoHeightControl } from "comps/controls/autoHeightControl";
@@ -23,7 +23,6 @@ const Container = styled.div<{ $style: ImageStyleType | undefined }>`
   display: flex;
   align-items: center;
   justify-content: center;
-
   .ant-image,
   img {
     width: 100%;
@@ -43,6 +42,10 @@ const getStyle = (style: ImageStyleType) => {
     img {
       border: 1px solid ${style.border};
       border-radius: ${style.radius};
+      margin: ${style.margin};	
+      padding: ${style.padding};	
+      max-width: ${widthCalculator(style.margin)};	
+      max-height: ${heightCalculator(style.margin)};
     }
 
     .ant-image-mask {

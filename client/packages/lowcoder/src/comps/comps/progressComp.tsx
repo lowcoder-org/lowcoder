@@ -5,7 +5,7 @@ import { BoolControl } from "../controls/boolControl";
 import { UICompBuilder } from "../generators";
 import { NameConfig, NameConfigHidden, withExposingConfigs } from "../generators/withExposing";
 import { styleControl } from "comps/controls/styleControl";
-import { ProgressStyle, ProgressStyleType } from "comps/controls/styleControlConstants";
+import { ProgressStyle, ProgressStyleType, heightCalculator, widthCalculator } from "comps/controls/styleControlConstants";
 import styled, { css } from "styled-components";
 import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
@@ -16,6 +16,10 @@ const getStyle = (style: ProgressStyleType) => {
     .ant-progress-text {
       color: ${style.text};
     }
+    width: ${widthCalculator(style.margin)};	
+    height: ${heightCalculator(style.margin)};	
+    margin: ${style.margin};	
+    padding: ${style.padding};
     .ant-progress-inner {
       background-color: ${style.track};
       .ant-progress-bg {

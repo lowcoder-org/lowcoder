@@ -18,6 +18,9 @@ import { i18nObjs, trans } from "i18n";
 import { RefControl } from "comps/controls/refControl";
 import { CascaderRef } from "antd/lib/cascader";
 
+import { MarginControl } from "../../controls/marginControl";	
+import { PaddingControl } from "../../controls/paddingControl";
+
 export const defaultDataSource = JSON.stringify(i18nObjs.cascader, null, " ");
 
 export const CascaderChildren = {
@@ -31,6 +34,8 @@ export const CascaderChildren = {
   style: styleControl(CascaderStyle),
   showSearch: BoolControl.DEFAULT_TRUE,
   viewRef: RefControl<CascaderRef>,
+  margin: MarginControl,	
+  padding: PaddingControl,
 };
 
 export const CascaderPropertyView = (

@@ -63,7 +63,7 @@ export const disabledTime = (min: string, max: string) => {
 export const getStyle = (style: DateTimeStyleType) => {
   return css`
     border-radius: ${style.radius};
-
+    padding: ${style.padding};
     &:not(.ant-picker-disabled) {
       border-color: ${style.border};
       background-color: ${style.background};

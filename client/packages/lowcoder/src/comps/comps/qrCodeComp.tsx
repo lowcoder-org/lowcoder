@@ -3,7 +3,7 @@ import { BoolControl } from "comps/controls/boolControl";
 import { stringExposingStateControl } from "comps/controls/codeStateControl";
 import { dropdownControl } from "comps/controls/dropdownControl";
 import { styleControl } from "comps/controls/styleControl";
-import { QRCodeStyle } from "comps/controls/styleControlConstants";
+import { QRCodeStyle, heightCalculator,	widthCalculator } from "comps/controls/styleControlConstants";
 import { UICompBuilder } from "comps/generators/uiCompBuilder";
 import { NameConfig, NameConfigHidden, withExposingConfigs } from "comps/generators/withExposing";
 import { Section, sectionNames } from "lowcoder-design";
@@ -34,18 +34,28 @@ const QRCodeView = (props: RecordConstructorToView<typeof childrenMap>) => {
     return <>{trans("QRCode.maxLength")}</>;
   }
   return (
-    <QRCodeSVG
-      value={value}
-      level={props.level}
-      width="100%"
-      height="100%"
-      bgColor={props.style.background}
-      fgColor={props.style.color}
-      includeMargin={props.includeMargin}
-      imageSettings={
-        props.image ? { src: props.image, width: 0, height: 0, excavate: true } : undefined
-      }
-    />
+    <div
+      style={{
+        margin: props.style.margin,
+        padding: props.includeMargin ? props.style.padding : 0,
+        width: widthCalculator(props.style.margin),
+        height: heightCalculator(props.style.margin),
+        background: props.style.background,
+      }}
+    >
+      <QRCodeSVG
+        value={value}
+        level={props.level}
+        width="100%"
+        height="100%"
+        bgColor={props.style.background}
+        fgColor={props.style.color}
+        includeMargin={false}
+        imageSettings={
+          props.image ? { src: props.image, width: 0, height: 0, excavate: true } : undefined
+        }
+      />
+    </div>
   );
 };
 
