@@ -1,11 +1,15 @@
 spring:
-  mongodb:
-    embedded:
-      version: 4.0.2
   main:
     allow-circular-references: true
-  redis:
-    url: redis://localhost:6370
+  data:
+    redis:
+      url: redis://localhost:6370
+
+de:
+  flapdoodle:
+    mongodb:
+      embedded:
+        version: 4.0.2
 
 server:
   port: 8080
@@ -18,3 +22,12 @@ demo:
       timeout: 100
       username: 123
       host: localhost
+
+common:
+  cookie-name: UT-TACO-TOKEN
+
+auth:
+  email:
+    enable: true
+  google:
+    enable: true

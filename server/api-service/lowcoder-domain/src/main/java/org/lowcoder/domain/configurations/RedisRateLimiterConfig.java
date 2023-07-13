@@ -10,7 +10,7 @@ import io.lettuce.core.RedisClient;
 @Configuration
 public class RedisRateLimiterConfig {
 
-    @Value("${spring.redis.url:redis}")
+    @Value("${spring.data.redis.url:redis}")
     private String redis;
 
     @Bean

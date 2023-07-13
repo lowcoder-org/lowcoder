@@ -21,7 +21,6 @@ import java.util.Map;
 
 import static org.lowcoder.api.common.mockuser.WithMockUser.DEFAULT_CURRENT_ORG_ID;
 
-@Ignore
 @SuppressWarnings("SameParameterValue")
 @SpringBootTest
 @RunWith(SpringRunner.class)
@@ -32,6 +31,7 @@ public class LibraryQueryApiServiceTest {
     @Autowired
     private LibraryQueryApiService libraryQueryApiService;
 
+    @Ignore
     @Test
     @WithMockUser
     public void testListLibraryQueries() {

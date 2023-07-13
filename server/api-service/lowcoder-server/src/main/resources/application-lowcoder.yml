@@ -8,8 +8,8 @@ spring:
       authentication-database: admin
       auto-index-creation: false
       uri: mongodb://localhost:27017/lowcoder?socketTimeoutMS=5000
-  redis:
-    url: redis://localhost:6379
+    redis:
+      url: redis://localhost:6379
   main:
     allow-bean-definition-overriding: true
     allow-circular-references: true
