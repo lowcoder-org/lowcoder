@@ -1,24 +1,6 @@
 package org.lowcoder.api.framework.security;
 
 
-import static org.lowcoder.infra.constant.NewUrl.GITHUB_STAR;
-import static org.lowcoder.infra.constant.Url.APPLICATION_URL;
-import static org.lowcoder.infra.constant.Url.CONFIG_URL;
-import static org.lowcoder.infra.constant.Url.CUSTOM_AUTH;
-import static org.lowcoder.infra.constant.Url.DATASOURCE_URL;
-import static org.lowcoder.infra.constant.Url.GROUP_URL;
-import static org.lowcoder.infra.constant.Url.INVITATION_URL;
-import static org.lowcoder.infra.constant.Url.ORGANIZATION_URL;
-import static org.lowcoder.infra.constant.Url.QUERY_URL;
-import static org.lowcoder.infra.constant.Url.STATE_URL;
-import static org.lowcoder.infra.constant.Url.USER_URL;
-import static org.lowcoder.sdk.constants.Authentication.ANONYMOUS_USER;
-import static org.lowcoder.sdk.constants.Authentication.ANONYMOUS_USER_ID;
-
-import java.util.List;
-
-import javax.annotation.Nonnull;
-
 import org.lowcoder.api.framework.filter.UserSessionPersistenceFilter;
 import org.lowcoder.api.home.SessionUserService;
 import org.lowcoder.domain.user.model.User;
@@ -27,6 +9,7 @@ import org.lowcoder.sdk.config.CommonConfig;
 import org.lowcoder.sdk.util.CookieHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableReactiveMethodSecurity;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
@@ -41,6 +24,15 @@ import org.springframework.web.cors.reactive.CorsConfigurationSource;
 import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
 import org.springframework.web.server.adapter.ForwardedHeaderTransformer;
 
+import javax.annotation.Nonnull;
+import java.util.List;
+
+import static org.lowcoder.infra.constant.NewUrl.GITHUB_STAR;
+import static org.lowcoder.infra.constant.Url.*;
+import static org.lowcoder.sdk.constants.Authentication.ANONYMOUS_USER;
+import static org.lowcoder.sdk.constants.Authentication.ANONYMOUS_USER_ID;
+
+@Configuration
 @EnableWebFluxSecurity
 @EnableReactiveMethodSecurity
 public class SecurityConfig {
