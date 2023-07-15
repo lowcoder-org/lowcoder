@@ -15,6 +15,8 @@ import { AlignLeft } from "lowcoder-design";
 import { AlignRight } from "lowcoder-design";
 import { StarIcon } from "lowcoder-design";
 
+import { heightCalculator, widthCalculator } from "./styleControlConstants";
+
 type LabelViewProps = Pick<FormItemProps, "required" | "help" | "validateStatus"> & {
   children: ReactNode;
   style?: Record<string, string>;
@@ -146,7 +148,20 @@ export const LabelControl = (function () {
   };
   return new MultiCompBuilder(childrenMap, (props) => (args: LabelViewProps) => (
     <LabelViewWrapper $style={args.style}>
-      <MainWrapper position={props.position} hasLabel={!!props.text}>
+      <MainWrapper	
+        position={props.position}	
+        hasLabel={!!props.text}	
+        style={{	
+          margin: args && args.style ? args?.style?.margin : 0,	
+          // padding: args && args.style ? args?.style?.padding : 0,	
+          width: widthCalculator(	
+            args && args.style ? args?.style?.margin : "0px"	
+          ),	
+          height: heightCalculator(	
+            args && args.style ? args?.style?.margin : "0px"	
+          ),	
+        }}	
+      >
         {!props.hidden && !isEmpty(props.text) && (
           <LabelWrapper
             align={props.align}

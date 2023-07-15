@@ -29,6 +29,7 @@ default:
   org-group-count: 100
   org-app-count: 1000
   developer-count: 50
+  api-rate-limit: 50
 
 common:
   cookie-name: LOWCODER_CE_SELFHOST_TOKEN

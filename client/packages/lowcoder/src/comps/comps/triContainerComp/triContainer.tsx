@@ -1,4 +1,4 @@
-import { ContainerStyleType } from "comps/controls/styleControlConstants";
+import { ContainerStyleType, heightCalculator, widthCalculator } from "comps/controls/styleControlConstants";
 import { EditorContext } from "comps/editorState";
 import { BackgroundColorContext } from "comps/utils/backgroundColorContext";
 import { HintPlaceHolder } from "lowcoder-design";
@@ -13,6 +13,10 @@ const getStyle = (style: ContainerStyleType) => {
     border-color: ${style.border};
     border-radius: ${style.radius};
     overflow: hidden;
+    // margin: ${style.margin};	
+    padding: ${style.padding};	
+    // width: ${widthCalculator(style.margin)};	
+    // height: ${heightCalculator(style.margin)};
   `;
 };
 
@@ -74,6 +78,7 @@ export function TriContainer(props: TriContainerProps) {
   const paddingWidth = isMobile ? 7 : 19;
 
   return (
+    <div style={{padding: style.margin}}>
     <Wrapper $style={style}>
       {showHeader && (
         <BackgroundColorContext.Provider value={container.style.headerBackground}>
@@ -86,6 +91,7 @@ export function TriContainer(props: TriContainerProps) {
             containerPadding={[paddingWidth, 3]}
             showName={{ bottom: showBody || showFooter ? 20 : 0 }}
             backgroundColor={style?.headerBackground}
+            style={{padding: style.containerheaderpadding}}
           />
         </BackgroundColorContext.Provider>
       )}
@@ -104,6 +110,7 @@ export function TriContainer(props: TriContainerProps) {
             hintPlaceholder={props.hintPlaceholder ?? HintPlaceHolder}
             backgroundColor={style?.background}
             borderColor={style?.border}
+            style={{padding: style.containerbodypadding}}
           />
         </BackgroundColorContext.Provider>
       )}
@@ -120,9 +127,11 @@ export function TriContainer(props: TriContainerProps) {
             showName={{ top: showHeader || showBody ? 20 : 0 }}
             backgroundColor={style?.footerBackground}
             borderColor={style?.border}
+            style={{padding: style.containerfooterpadding}}
           />
         </BackgroundColorContext.Provider>
       )}
     </Wrapper>
+    </div>
   );
 }

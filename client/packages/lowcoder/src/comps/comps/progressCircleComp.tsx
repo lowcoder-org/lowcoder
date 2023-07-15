@@ -1,6 +1,6 @@
 import { Progress } from "antd";
 import { styleControl } from "comps/controls/styleControl";
-import { ProgressStyle, ProgressStyleType } from "comps/controls/styleControlConstants";
+import { ProgressStyle, ProgressStyleType, heightCalculator, widthCalculator } from "comps/controls/styleControlConstants";
 import styled, { css } from "styled-components";
 import { Section, sectionNames } from "lowcoder-design";
 import { numberExposingStateControl } from "../controls/codeStateControl";
@@ -11,6 +11,10 @@ import { trans } from "i18n";
 
 const getStyle = (style: ProgressStyleType) => {
   return css`
+    width: ${widthCalculator(style.margin)};	
+    height: ${heightCalculator(style.margin)};	
+    margin: ${style.margin};	
+    padding: ${style.padding};
     .ant-progress-text {
       color: ${style.text};
     }

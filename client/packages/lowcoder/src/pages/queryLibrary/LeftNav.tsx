@@ -51,7 +51,7 @@ const AddIcon = styled(BluePlusIcon)`
   margin-right: 2px;
 `;
 const CreateBtn = styled(TacoButton)<{ readOnly?: boolean }>`
-  height: 32px;
+  min-height: 24px;
   width: 70px;
   padding: 4px 12px;
   display: flex;

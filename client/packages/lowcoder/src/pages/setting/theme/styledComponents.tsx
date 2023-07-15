@@ -654,6 +654,25 @@ export const CustomModalStyled = styled(CustomModal)`
   }
 `;
 
+export const Margin = styled.div<{ margin: string }>`	
+> div {	
+  margin: 3px;	
+  overflow: hidden;	
+    > svg {	
+      fill: currentColor;	
+    }	
+  }	
+}	
+`;	
+export const Padding = styled.div<{ padding: string }>`	
+> div {	
+  margin: 3px;	
+  overflow: hidden;	
+    > svg {	
+      fill: currentColor;	
+    }	
+  }	
+}`
 // Added By Aqib Mirza
 export const GridColumns = styled.div<{ gridColumns: string }>`
   > div {

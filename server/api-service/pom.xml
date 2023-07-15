@@ -278,7 +278,7 @@
             </dependency>
             <dependency>
                 <groupId>de.flapdoodle.embed</groupId>
-                <artifactId>de.flapdoodle.embed.mongo</artifactId>
+                <artifactId>de.flapdoodle.embed.mongo.spring30x</artifactId>
                 <version>4.7.0</version>
             </dependency>
             <dependency>
@@ -291,11 +291,6 @@
                 <groupId>javax.validation</groupId>
                 <artifactId>validation-api</artifactId>
                 <version>2.0.1.Final</version>
-            </dependency>
-            <dependency>
-                <groupId>org.mongodb</groupId>
-                <artifactId>mongo-java-driver</artifactId>
-                <version>3.12.8</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

@@ -8,7 +8,7 @@ import {
 } from "comps/controls/codeControl";
 import { stringExposingStateControl } from "comps/controls/codeStateControl";
 import { LabelControl } from "comps/controls/labelControl";
-import { InputLikeStyleType } from "comps/controls/styleControlConstants";
+import { InputLikeStyleType, heightCalculator, widthCalculator } from "comps/controls/styleControlConstants";
 import { Section, sectionNames, ValueFromOption } from "lowcoder-design";
 import _ from "lodash";
 import { css } from "styled-components";
@@ -219,6 +219,7 @@ export const TextInputValidationSection = (children: TextInputComp) => (
 export function getStyle(style: InputLikeStyleType) {
   return css`
     border-radius: ${style.radius};
+    padding: ${style.padding};	
     // still use antd style when disabled
     &:not(.ant-input-disabled, .ant-input-affix-wrapper-disabled),
     input {
