@@ -48,7 +48,7 @@ TODO
 !.yarn/releases
 !.yarn/sdks
 !.yarn/versions
-
+yarn.lock
 /ossutil_output
 package-lock.json
 
