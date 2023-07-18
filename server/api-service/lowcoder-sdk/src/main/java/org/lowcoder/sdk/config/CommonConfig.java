@@ -6,6 +6,8 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.ListUtils;
@@ -33,8 +35,9 @@ public class CommonConfig {
     private String version;
     private boolean blockHoundEnable;
     private String cookieName;
-    private int maxQueryRequestSizeInMb = 10;
-    private int maxQueryResponseSizeInMb = 10;
+    private String maxUploadSize = "20MB";
+    private String maxQueryRequestSize = "20MB";
+    private String maxQueryResponseSize = "20MB";
     private Query query = new Query();
     private Cookie cookie = new Cookie();
     private JsExecutor jsExecutor = new JsExecutor();
@@ -48,6 +51,37 @@ public class CommonConfig {
         return workspace.getMode() == WorkspaceMode.ENTERPRISE;
     }
 
+    private static final Pattern HUMAN_DATA_SIZE_PATTERN = Pattern.compile("^([ \t]*)(?<number>\\d+(\\.\\d+)?)([ \t]*)(?<unit>[kKmMgGtT]{1})?([bB \t]*)$");
+    public static String normalizeDataUnits(String dataWithUnits)
+    {
+    	String normalized = dataWithUnits;
+    	Matcher m = HUMAN_DATA_SIZE_PATTERN.matcher(dataWithUnits);
+    	if (m.matches())
+    	{
+    		normalized = m.group("number");
+    		if (StringUtils.isNotBlank(m.group("unit")))
+    		{
+    			normalized += m.group("unit").toUpperCase() + "B";
+    		}
+    	}
+    	return normalized;
+    }
+    
+    public void setMaxUploadSize(String size)
+    {
+    	this.maxUploadSize = normalizeDataUnits(size);
+    }
+    
+    public void setMaxQueryRequestSize(String size)
+    {
+    	this.maxQueryRequestSize = normalizeDataUnits(size);
+    }
+    
+    public void setMaxQueryResponseSize(String size)
+    {
+    	this.maxQueryResponseSize = normalizeDataUnits(size);
+    }
+    
     @Data
     public static class Domain {
         private String defaultValue;
