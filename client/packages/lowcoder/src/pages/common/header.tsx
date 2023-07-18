@@ -34,7 +34,7 @@ import history from "util/history";
 import { useApplicationId } from "util/hooks";
 import { canManageApp } from "util/permissionUtils";
 import ProfileDropdown from "./profileDropdown";
-import { Logo, LogoWithName } from "@lowcoder-ee/assets/images";
+import { Logo, LogoHome, LogoWithName } from "@lowcoder-ee/assets/images";
 import { HeaderStartDropdown } from "./headerStartDropdown";
 import { AppPermissionDialog } from "../../components/PermissionDialog/AppPermissionDialog";
 import { getBrandingConfig } from "../../redux/selectors/configSelectors";
@@ -287,7 +287,9 @@ export default function Header(props: HeaderProps) {
   const headerStart = (
     <>
       <StyledLink onClick={() => history.push(ALL_APPLICATIONS_URL)}>
-        <LogoIcon />
+      {LOWCODER_SHOW_BRAND === 'true' ? 
+      LOWCODER_CUSTOM_LOGO_SQUARE !== "" ? <img src={LOWCODER_CUSTOM_LOGO_SQUARE } height={24} width={24} alt="logo" /> :<LogoIcon /> : 
+      <LogoHome />}
       </StyledLink>
       {editName ? (
         <Wrapper>
@@ -429,7 +431,9 @@ export function AppHeader() {
   const brandingConfig = useSelector(getBrandingConfig);
   const headerStart = (
     <StyledLink onClick={() => history.push(ALL_APPLICATIONS_URL)}>
-      <LogoWithName branding={!user.orgDev} />
+      {LOWCODER_SHOW_BRAND === 'true' ? 
+      LOWCODER_CUSTOM_LOGO !== "" ? <img src={LOWCODER_CUSTOM_LOGO}  height={28} alt="logo" /> :<LogoWithName branding={!user.orgDev} /> : 
+      <LogoHome />}
     </StyledLink>
   );
   const headerEnd = <HeaderProfile user={user} />;
