@@ -64,7 +64,7 @@ export const LargeBottomResIconWrapper = styled(IconWrapper)`
 function getBottomResIconInnerByUrl(type: BottomResType, url: string) {
   let fullUrl = url;
   if (!fullUrl.startsWith("http")) {
-    fullUrl = `${REACT_APP_API_HOST}/node-service/plugin-icons/${url}`;
+    fullUrl = `${LOWCODER_NODE_SERVICE_URL !== "" ? LOWCODER_NODE_SERVICE_URL : REACT_APP_API_HOST}/node-service/plugin-icons/${url}`;
   }
   return <img style={{ width: "100%", height: "100%" }} src={fullUrl} alt="" />;
 }
