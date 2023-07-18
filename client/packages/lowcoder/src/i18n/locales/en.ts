@@ -44,7 +44,6 @@ export const en = {
   accessControl: " Access Control",
   copySuccess: "Copied",
   copyError: "Copy error",
-  lottieJson: "Lottie JSON", //Added By Aqib Mirza
   api: {
     publishSuccess: "Published",
     recoverFailed: "Recover failed",
@@ -2423,6 +2422,7 @@ export const en = {
   },
   //Added By Aqib Mirza
   jsonLottie: {
+    lottieJson: "Lottie JSON",
     speed: "Speed",
     width: "Width",
     height: "Height",
@@ -2430,6 +2430,11 @@ export const en = {
     animationStart: "Animation Start",
     valueDesc: "Current json Data",
     loop: "Loop",
+    auto: 'auto',
+    onHover: "On hover",
+    singlePlay: "Single Play",
+    endlessLoop: "Endless Loop",
+    keepLastFrame: "Keep Last Frame",
   },
   /////////////////////
 };

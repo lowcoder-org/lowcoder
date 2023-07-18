@@ -91,6 +91,7 @@ import {
   TreeSelectIcon,
   UploadCompIcon,
   VideoCompIcon,
+  LottieIcon,
 } from "lowcoder-design";
 
 import { defaultFormData, FormComp } from "./comps/formComp/formComp";
@@ -119,7 +120,6 @@ import { SignatureComp } from "./comps/signatureComp";
 
 //Added by Aqib Mirza
 import { JsonLottieComp } from "./comps/jsonComp/jsonLottieComp";
-import { LottieIcon } from "../assets/icons";
 
 type Registry = {
   [key in UICompType]?: UICompManifest;

@@ -2412,5 +2412,20 @@ idSource: {
     slotControl: {
     configSlotView: "配置槽视图",
     },
+    jsonLottie: {
+        lottieJson: "JSON数据",
+        speed: "播放速度",
+        width: "宽度",
+        height: "高度",
+        backgroundColor: "背景颜色",
+        animationStart: "播放方式",
+        valueDesc: "JSON数据",
+        loop: "循环方式",
+        auto: "自动",
+        onHover: "鼠标悬停时",
+        singlePlay: "播放一次",
+        endlessLoop: "循环播放",
+        keepLastFrame: "冻结最后一帧",
+      },
 };
 
