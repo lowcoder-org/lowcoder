@@ -5,11 +5,10 @@
     <parent>
         <artifactId>lowcoder-root</artifactId>
         <groupId>org.lowcoder</groupId>
-        <version>1.0-SNAPSHOT</version>
+        <version>${revision}</version>
     </parent>
 
     <artifactId>lowcoder-server</artifactId>
-    <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>lowcoder-server</name>
@@ -23,23 +22,14 @@
         <dependency>
             <groupId>org.lowcoder</groupId>
             <artifactId>lowcoder-sdk</artifactId>
-            <version>1.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.lowcoder</groupId>
             <artifactId>lowcoder-infra</artifactId>
-            <version>1.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.lowcoder</groupId>
             <artifactId>lowcoder-domain</artifactId>
-            <version>1.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>org.lowcoder</groupId>
-            <artifactId>lowcoder-ee</artifactId>
-            <type>pom</type>
-            <version>1.0-SNAPSHOT</version>
         </dependency>
 
         <dependency>

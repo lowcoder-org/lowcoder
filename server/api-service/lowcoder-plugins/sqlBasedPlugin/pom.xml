@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.lowcoder</groupId>
         <artifactId>lowcoder-plugins</artifactId>
-        <version>1.0-SNAPSHOT</version>
+        <version>${revision}</version>
     </parent>
 
     <artifactId>sqlBasedPlugin</artifactId>
