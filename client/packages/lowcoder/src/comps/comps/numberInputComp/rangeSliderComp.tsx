@@ -28,6 +28,7 @@ const RangeSliderBasicComp = (function () {
             range={true}
             value={[props.start.value, props.end.value]}
             $style={props.style}
+            style={{margin: 0}}
             onChange={([start, end]) => {
               props.start.onChange(start);
               props.end.onChange(end);

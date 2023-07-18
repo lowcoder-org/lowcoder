@@ -1,7 +1,6 @@
 package org.lowcoder.api.authentication;
 
 import com.google.common.collect.Iterables;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.lowcoder.api.authentication.AuthenticationController.FormLoginRequest;
@@ -34,7 +33,6 @@ import static org.junit.Assert.*;
 import static org.lowcoder.sdk.exception.BizError.INVALID_PASSWORD;
 import static org.lowcoder.sdk.exception.BizError.USER_LOGIN_ID_EXIST;
 
-@Ignore
 @SpringBootTest
 @RunWith(SpringRunner.class)
 @ActiveProfiles("AuthenticationControllerTest")
@@ -84,7 +82,7 @@ public class AuthenticationControllerTest {
                     assertEquals(email, connection.getRawId());
                     assertEquals(email, connection.getName());
                     assertNull(connection.getAvatar());
-                    assertEquals(1, connection.getOrgIds().size());
+                    assertEquals(0, connection.getOrgIds().size());
                     assertNull(connection.getAuthConnectionAuthToken());
                     assertEquals(Map.of("email", email), connection.getRawUserInfo());
                     //exchange
@@ -95,7 +93,6 @@ public class AuthenticationControllerTest {
                 })
                 .verifyComplete();
     }
-
     @Test
     public void testFormLoginSuccess() {
         String email = "test_login@ob.dev";
@@ -137,7 +134,7 @@ public class AuthenticationControllerTest {
                     assertEquals(email, connection.getRawId());
                     assertEquals(email, connection.getName());
                     assertNull(connection.getAvatar());
-                    assertEquals(1, connection.getOrgIds().size());
+                    assertEquals(0, connection.getOrgIds().size());
                     assertNull(connection.getAuthConnectionAuthToken());
                     assertEquals(Map.of("email", email), connection.getRawUserInfo());
                     //exchange

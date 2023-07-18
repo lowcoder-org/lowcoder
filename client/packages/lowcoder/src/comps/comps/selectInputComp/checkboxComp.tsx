@@ -64,6 +64,7 @@ export const getStyle = (style: CheckboxStyleType) => {
     }
 
     .ant-checkbox-wrapper {
+      padding: ${style.padding};
       .ant-checkbox-inner,
       .ant-checkbox-checked::after {
         border-radius: ${style.radius};

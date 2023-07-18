@@ -18,7 +18,6 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@Ignore
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @Slf4j

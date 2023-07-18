@@ -6,7 +6,7 @@ import { darkenColor } from "components/colorSelect/colorUtils";
 import { Section, sectionNames } from "components/Section";
 import { IconControl } from "comps/controls/iconControl";
 import { styleControl } from "comps/controls/styleControl";
-import { FileStyle, FileStyleType } from "comps/controls/styleControlConstants";
+import { FileStyle, FileStyleType, heightCalculator, widthCalculator } from "comps/controls/styleControlConstants";
 import { withMethodExposing } from "comps/generators/withMethodExposing";
 import { hasIcon } from "comps/utils";
 import { getComponentDocUrl } from "comps/utils/compDocUtil";
@@ -133,6 +133,10 @@ const getStyle = (style: FileStyleType) => {
   return css`
     .ant-btn {
       border-radius: ${style.radius};
+      margin: ${style.margin};	
+      padding: ${style.padding};	
+      width: ${widthCalculator(style.margin)};	
+      height: ${heightCalculator(style.margin)};
     }
 
     .ant-btn:not(:disabled) {

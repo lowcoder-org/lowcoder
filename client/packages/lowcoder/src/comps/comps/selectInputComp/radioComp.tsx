@@ -16,9 +16,9 @@ const getStyle = (style: RadioStyleType) => {
   return css`
     .ant-radio-wrapper:not(.ant-radio-wrapper-disabled) {
       color: ${style.staticText};
-      height: 22px;
+      // height: 22px;
       max-width: calc(100% - 8px);
-
+      padding: ${style.padding};
       span:not(.ant-radio) {
         ${EllipsisTextCss};
       }

@@ -16,7 +16,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-@Ignore
 @SpringBootTest
 @RunWith(SpringRunner.class)
 public class CompoundApplicationDslFilterTest {

@@ -12,11 +12,16 @@ import {
 } from "./selectCompConstants";
 import { SelectInputInvalidConfig, useSelectInputValidate } from "./selectInputConstants";
 
+import { PaddingControl } from "../../controls/paddingControl";	
+import { MarginControl } from "../../controls/marginControl";
+
 const MultiSelectBasicComp = (function () {
   const childrenMap = {
     ...SelectChildrenMap,
     value: arrayStringExposingStateControl("value", ["1", "2"]),
     style: styleControl(MultiSelectStyle),
+    margin: MarginControl,	
+    padding: PaddingControl,
   };
   return new UICompBuilder(childrenMap, (props, dispatch) => {
     const valueSet = new Set<any>(props.options.map((o) => o.value)); // Filter illegal default values entered by the user
