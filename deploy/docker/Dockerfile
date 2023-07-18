@@ -20,7 +20,7 @@ RUN --mount=type=cache,target=/root/.m2 mvn -f pom.xml clean package -DskipTests
 RUN mkdir -p /lowcoder/api-service/plugins /lowcoder/api-service/config /lowcoder/api-service/logs
 
 # Define lowcoder main jar and plugin jars
-ARG JAR_FILE=/lowcoder-server/lowcoder-server/target/lowcoder-server-1.0-SNAPSHOT.jar
+ARG JAR_FILE=/lowcoder-server/lowcoder-server/target/lowcoder-server-*.jar
 ARG PLUGIN_JARS=/lowcoder-server/lowcoder-plugins/*/target/*.jar
 
 # Copy Java runtime for running server
