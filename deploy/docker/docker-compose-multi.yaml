@@ -75,6 +75,7 @@ services:
     environment:
       PUID: "9001"
       PGID: "9001"
+      LOWCODER_MAX_REQUEST_SIZE: 20m
       LOWCODER_API_SERVICE_URL: "http://lowcoder-api-service:8080"
       LOWCODER_NODE_SERVICE_URL: "http://lowcoder-node-service:6060"
     restart: unless-stopped
