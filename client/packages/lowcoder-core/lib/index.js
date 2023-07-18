@@ -11270,7 +11270,7 @@ var globalMessages = Object.fromEntries(Object.entries(getDataByLocale(localeDat
 }));
 var Translator = /** @class */ (function () {
     function Translator(fileData, filterLocales, locales) {
-        var _a = getDataByLocale(fileData, "", filterLocales, locales), data = _a.data, language = _a.language;
+        var _a = getDataByLocale(fileData, "", filterLocales, locales), data = _.merge( fileData.en, _a.data), language = _a.language;
         this.messages = Object.assign({}, data, globalMessages);
         this.language = language;
         this.trans = this.trans.bind(this);
