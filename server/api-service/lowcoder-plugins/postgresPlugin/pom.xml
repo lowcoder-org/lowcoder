@@ -21,7 +21,7 @@
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <plugin.id>postgres-plugin</plugin.id>
         <plugin.class>org.lowcoder.plugin.postgres.PostgresPlugin</plugin.class>
-        <plugin.version>1.0-SNAPSHOT</plugin.version>
+        <plugin.version>${revision}</plugin.version>
         <plugin.provider>service@lowcoder.org</plugin.provider>
         <plugin.dependencies/>
     </properties>
@@ -100,6 +100,9 @@
                     </execution>
                 </executions>
             </plugin>
+			<plugin>
+				<artifactId>maven-antrun-plugin</artifactId>
+			</plugin>
         </plugins>
     </build>
 

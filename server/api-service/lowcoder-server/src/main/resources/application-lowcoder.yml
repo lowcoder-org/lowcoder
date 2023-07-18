@@ -2,13 +2,6 @@ auth:
   email:
     enable: true
 
-#debug: true
-logging:
-  level:
-    org.lowcoder: DEBUG
-    org.pf4j: DEBUG
-    org.pf4j.spring: DEBUG
-
 spring:
   data:
     mongodb:

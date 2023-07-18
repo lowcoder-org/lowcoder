@@ -18,7 +18,7 @@
 
         <plugin.id>oracle-plugin</plugin.id>
         <plugin.class>org.lowcoder.plugin.oracle.OraclePlugin</plugin.class>
-        <plugin.version>1.0-SNAPSHOT</plugin.version>
+        <plugin.version>${revision}</plugin.version>
         <plugin.provider>service@lowcoder.org</plugin.provider>
         <plugin.dependencies/>
     </properties>
@@ -94,6 +94,9 @@
                     </execution>
                 </executions>
             </plugin>
+			<plugin>
+				<artifactId>maven-antrun-plugin</artifactId>
+			</plugin>            
         </plugins>
     </build>
 </project>
