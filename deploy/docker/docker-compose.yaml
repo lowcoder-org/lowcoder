@@ -37,7 +37,7 @@ services:
       LOWCODER_API_SERVICE_URL: "http://localhost:8080"
       LOWCODER_NODE_SERVICE_URL: "http://localhost:6060"
       # frontend parameters
-      LOWCODER_MAX_REQUEST_SIZE: 5m
+      LOWCODER_MAX_REQUEST_SIZE: 20m
     volumes:
       - ./lowcoder-stacks:/lowcoder-stacks
     restart: unless-stopped
