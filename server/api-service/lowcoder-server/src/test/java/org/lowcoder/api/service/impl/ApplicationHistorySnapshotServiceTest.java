@@ -1,8 +1,8 @@
 package org.lowcoder.api.service.impl;
 
-import org.junit.Ignore;
+import com.google.common.collect.ImmutableMap;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
-import org.junit.jupiter.api.Assertions;
 import org.junit.runner.RunWith;
 import org.lowcoder.domain.application.model.ApplicationHistorySnapshot;
 import org.lowcoder.domain.application.service.ApplicationHistorySnapshotService;
@@ -11,11 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.junit4.SpringRunner;
-
-import com.google.common.collect.ImmutableMap;
-
-import lombok.extern.slf4j.Slf4j;
 import reactor.test.StepVerifier;
+
+import static org.junit.Assert.*;
 
 @SuppressWarnings({"ReactiveStreamsNullableInLambdaInTransform"})
 @RunWith(SpringRunner.class)
@@ -47,19 +45,19 @@ public class ApplicationHistorySnapshotServiceTest {
 
         StepVerifier.create(service.listAllHistorySnapshotBriefInfo(applicationId, PageRequest.of(0, 5)))
                 .assertNext(list -> {
-                    Assertions.assertEquals(2, list.size());
+                    assertEquals(2, list.size());
 
                     ApplicationHistorySnapshot first = list.get(0);
                     ApplicationHistorySnapshot second = list.get(1);
-                    Assertions.assertTrue(first.getCreatedAt().isAfter(second.getCreatedAt()));
+                    assertTrue(first.getCreatedAt().isAfter(second.getCreatedAt()));
 
-                    Assertions.assertNull(first.getDsl());
-                    Assertions.assertEquals(ImmutableMap.of("context", "context2"), first.getContext());
-                    Assertions.assertEquals(applicationId, first.getApplicationId());
+                    assertNull(first.getDsl());
+                    assertEquals(ImmutableMap.of("context", "context2"), first.getContext());
+                    assertEquals(applicationId, first.getApplicationId());
 
-                    Assertions.assertNull(second.getDsl());
-                    Assertions.assertEquals(ImmutableMap.of("context", "context1"), second.getContext());
-                    Assertions.assertEquals(applicationId, second.getApplicationId());
+                    assertNull(second.getDsl());
+                    assertEquals(ImmutableMap.of("context", "context1"), second.getContext());
+                    assertEquals(applicationId, second.getApplicationId());
 
 
                 })
@@ -67,11 +65,11 @@ public class ApplicationHistorySnapshotServiceTest {
 
         StepVerifier.create(service.listAllHistorySnapshotBriefInfo(applicationId, PageRequest.of(1, 1)))
                 .assertNext(list -> {
-                    Assertions.assertEquals(1, list.size());
+                    assertEquals(1, list.size());
                     ApplicationHistorySnapshot one = list.get(0);
-                    Assertions.assertNull(one.getDsl());
-                    Assertions.assertEquals(ImmutableMap.of("context", "context1"), one.getContext());
-                    Assertions.assertEquals(applicationId, one.getApplicationId());
+                    assertNull(one.getDsl());
+                    assertEquals(ImmutableMap.of("context", "context1"), one.getContext());
+                    assertEquals(applicationId, one.getApplicationId());
                 })
                 .verifyComplete();
 
@@ -81,8 +79,8 @@ public class ApplicationHistorySnapshotServiceTest {
                         .map(HasIdAndAuditing::getId)
                         .flatMap(id -> service.getHistorySnapshotDetail(id)))
                 .assertNext(snapshot -> {
-                    Assertions.assertEquals(ImmutableMap.of("dsl", "dsl2"), snapshot.getDsl());
-                    Assertions.assertEquals(ImmutableMap.of("context", "context2"), snapshot.getContext());
+                    assertEquals(ImmutableMap.of("dsl", "dsl2"), snapshot.getDsl());
+                    assertEquals(ImmutableMap.of("context", "context2"), snapshot.getContext());
                 })
                 .verifyComplete();
 
