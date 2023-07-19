@@ -2,7 +2,7 @@ import { Layout, Skeleton } from "antd";
 import MainContent from "components/layout/MainContent";
 import SideBar from "components/layout/SideBar";
 import Header from "./layout/Header";
-import { Logo, LogoWithName } from "@lowcoder-ee/assets/images";
+import { Logo, LogoWithName, LogoHome } from "@lowcoder-ee/assets/images";
 import styled from "styled-components";
 import { useSelector } from "react-redux";
 import { getBrandingConfig, getSystemConfigFetching } from "../redux/selectors/configSelectors";
@@ -18,6 +18,11 @@ interface IProps {
 }
 
 const StyledLogo = styled(Logo)`
+  height: 24px;
+  width: 24px;
+`;
+
+const StyledLogoHome = styled(LogoHome)`
   height: 24px;
   width: 24px;
 `;
@@ -78,7 +83,9 @@ export default function PageSkeleton(props: IProps) {
       {!hideHeader && isHeaderReady && (
         <Header
           headerStart={
-            logoWithName ? <StyledLogoWithName branding={true} /> : <StyledLogo branding={true} />
+            LOWCODER_SHOW_BRAND === 'true' ? 
+            LOWCODER_CUSTOM_LOGO !== "" ? <img src={LOWCODER_CUSTOM_LOGO} alt="logo" /> :<StyledLogoWithName branding={true} /> : 
+            <StyledLogoHome branding={true} />
           }
           style={{ backgroundColor: brandingConfig?.headerColor, ...props.headStyle }}
         />

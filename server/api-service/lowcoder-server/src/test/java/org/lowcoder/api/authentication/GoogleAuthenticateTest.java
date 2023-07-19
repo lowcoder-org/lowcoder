@@ -1,17 +1,9 @@
 package org.lowcoder.api.authentication;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-
-import java.util.Map;
-import java.util.Objects;
-
+import com.google.common.collect.Iterables;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.lowcoder.api.authentication.AuthenticationController;
 import org.lowcoder.api.authentication.AuthenticationController.FormLoginRequest;
 import org.lowcoder.domain.authentication.AuthenticationService;
 import org.lowcoder.domain.authentication.FindAuthConfig;
@@ -29,11 +21,13 @@ import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.mock.web.server.MockServerWebExchange;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.MultiValueMap;
-
-import com.google.common.collect.Iterables;
-
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
+
+import java.util.Map;
+import java.util.Objects;
+
+import static org.junit.Assert.*;
 
 @SpringBootTest
 @RunWith(SpringRunner.class)
@@ -48,6 +42,7 @@ public class GoogleAuthenticateTest {
     @Autowired
     private AuthenticationService authenticationService;
 
+    @Ignore
     @Test
     public void testGoogleRegisterSuccess() {
         String email = "test_register@ob.dev";

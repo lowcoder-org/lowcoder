@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.io.IOUtils;
@@ -57,7 +57,7 @@ public class InitData {
     @SuppressWarnings({"ConstantConditions"})
     private void execute() {
 
-        String currentDirPath = JsonFileReader.buildPath("com/lowcoder/api/common/json");
+        String currentDirPath = JsonFileReader.buildPath("org/lowcoder/api/common/json");
         File dir = new File(currentDirPath);
         Stream.of(dir.listFiles())
                 .filter(file -> file.isFile() && file.getName().endsWith(".json"))

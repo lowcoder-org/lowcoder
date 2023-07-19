@@ -18,9 +18,11 @@ else
    ln -s /etc/nginx/nginx-http.conf /etc/nginx/nginx.conf
 fi;
 
+sed -i "s@__LOWCODER_MAX_REQUEST_SIZE__@${LOWCODER_MAX_REQUEST_SIZE:=20m}@" /etc/nginx/nginx.conf
 sed -i "s@__LOWCODER_API_SERVICE_URL__@${LOWCODER_API_SERVICE_URL:=http://localhost:8080}@" /etc/nginx/nginx.conf
 sed -i "s@__LOWCODER_NODE_SERVICE_URL__@${LOWCODER_NODE_SERVICE_URL:=http://localhost:6060}@" /etc/nginx/nginx.conf
 
 echo "nginx config updated with:"
-echo "    Lowcoder api service URL: ${LOWCODER_API_SERVICE_URL}"
-echo "   Lowcoder node service URL: ${LOWCODER_NODE_SERVICE_URL}"
+echo "    Lowcoder max upload size: ${LOWCODER_MAX_REQUEST_SIZE:=20m}"
+echo "    Lowcoder api service URL: ${LOWCODER_API_SERVICE_URL:=http://localhost:8080}"
+echo "   Lowcoder node service URL: ${LOWCODER_NODE_SERVICE_URL:=http://localhost:6060}"

@@ -127,7 +127,7 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
     this.setState({
       theme: {
         ...this.state.theme,
-        [params.colorKey]: params.color || params.radius || params.chart,
+        [params.colorKey]: params.color || params.radius || params.chart || params.margin || params.padding  || params.gridColumns,
       },
     });
   }
@@ -247,12 +247,50 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
                 />
               </div>
             </div>
+            <div className="common">
+              <div>
+                <DetailTitle>{trans("themeDetail.margin")}</DetailTitle>
+                <ColorPicker
+                  colorKey="margin"
+                  name={trans("themeDetail.margin")}
+                  desc={trans("themeDetail.marginDesc")}
+                  margin={this.state.theme.margin}
+                  configChange={(params) => {
+                    this.configChange(params);
+                  }}
+                />
+              </div>
+              <div>
+                <DetailTitle>{trans("themeDetail.padding")}</DetailTitle>
+                <ColorPicker
+                  colorKey="padding"
+                  name={trans("themeDetail.padding")}
+                  desc={trans("themeDetail.paddingDesc")}
+                  padding={this.state.theme.padding}
+                  configChange={(params) => {
+                    this.configChange(params);
+                  }}
+                />
+              </div>
+              <div>
+                <DetailTitle>{trans("themeDetail.gridColumns")}</DetailTitle>
+                <ColorPicker
+                  colorKey="gridColumns"
+                  name={trans("themeDetail.gridColumns")}
+                  desc={trans("themeDetail.gridColumnsDesc")}
+                  gridColumns={this.state.theme.gridColumns}
+                  configChange={(params) => {
+                    this.configChange(params);
+                  }}
+                />
+              </div>
+            </div>
             <PreviewApp style={{marginTop: '3px'}} theme={this.state.theme} dsl={dsl} />
             <div className="chart">
               <DetailTitle>{trans("themeDetail.chart")}</DetailTitle>
               <ChartDesc>
                 {trans("themeDetail.chartDesc")}
-                <a target="_blank" href="https://echarts.apache.org/en/theme-builder.html">
+                <a target="_blank" href="https://echarts.apache.org/en/theme-builder.html" rel="noreferrer">
                   {" "}
                   {trans("themeDetail.echartsJson")}
                 </a>

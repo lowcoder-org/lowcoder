@@ -21,11 +21,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -35,7 +32,6 @@ import javax.annotation.Nullable;
 
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.bson.internal.Base64;
 import org.lowcoder.plugin.graphql.constants.ResponseDataType;
 import org.lowcoder.plugin.graphql.helpers.AuthHelper;
 import org.lowcoder.plugin.graphql.helpers.BufferingFilter;
@@ -377,7 +373,7 @@ public class GraphQLExecutor implements QueryExecutor<GraphQLDatasourceConfig, O
         HttpHeaders headers = stringResponseEntity.getHeaders();
         MediaType contentType = firstNonNull(headers.getContentType(), MediaType.TEXT_PLAIN); // text type if null
         byte[] body = stringResponseEntity.getBody();
-        HttpStatus statusCode = stringResponseEntity.getStatusCode();
+        HttpStatus statusCode = HttpStatus.resolve(stringResponseEntity.getStatusCode().value());
         JsonNode resultHeaders = parseExecuteResultHeaders(headers);
 
         if (body == null) {
@@ -427,13 +423,13 @@ public class GraphQLExecutor implements QueryExecutor<GraphQLDatasourceConfig, O
                 MediaType.IMAGE_JPEG.equals(contentType) ||
                 MediaType.IMAGE_PNG.equals(contentType)) {
             return ResponseBodyData.builder()
-                    .body(Base64.encode(body))
+                    .body(Base64.getEncoder().encode(body))
                     .dataType(ResponseDataType.IMAGE)
                     .build();
         }
         if (BINARY_DATA_TYPES.contains(contentType.toString())) {
             return ResponseBodyData.builder()
-                    .body(Base64.encode(body))
+                    .body(Base64.getEncoder().encode(body))
                     .dataType(ResponseDataType.BINARY)
                     .build();
         }

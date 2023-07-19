@@ -7,9 +7,9 @@ spring:
     mongodb:
       authentication-database: admin
       auto-index-creation: false
-      uri: mongodb://localhost:27017/lowcoder?socketTimeoutMS=5000
-  redis:
-    url: redis://localhost:6379
+      uri: mongodb://lowcoder:secret123@127.0.0.1/lowcoder?authSource=admin
+    redis:
+      url: redis://localhost:6379
   main:
     allow-bean-definition-overriding: true
     allow-circular-references: true
@@ -29,6 +29,7 @@ default:
   org-group-count: 100
   org-app-count: 1000
   developer-count: 50
+  api-rate-limit: 50 
 
 common:
   cookie-name: LOCAL_LOWCODER_TOKEN

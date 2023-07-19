@@ -7,9 +7,7 @@ import static org.lowcoder.sdk.exception.BizError.EXCEED_QUERY_RESPONSE_SIZE;
 import java.util.concurrent.atomic.AtomicLong;
 
 import javax.annotation.Nonnull;
-import javax.annotation.PostConstruct;
 
-import org.apache.commons.io.FileUtils;
 import org.lowcoder.infra.constant.NewUrl;
 import org.lowcoder.infra.constant.Url;
 import org.lowcoder.sdk.config.CommonConfig;
@@ -26,10 +24,12 @@ import org.springframework.http.server.reactive.ServerHttpRequestDecorator;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.http.server.reactive.ServerHttpResponseDecorator;
 import org.springframework.stereotype.Component;
+import org.springframework.util.unit.DataSize;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
 
+import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -62,11 +62,13 @@ public class QueryExecuteHttpBodySizeFilter implements WebFilter, Ordered {
         // check query api
         if (path.startsWith(NewUrl.QUERY_URL) || path.startsWith(Url.QUERY_URL)) {
 
-            long maxRequestSize = configInstance.ofLong("maxRequestSize",
-                    commonConfig.getMaxQueryRequestSizeInMb() * FileUtils.ONE_MB);
-            long maxResponseSize = configInstance.ofLong("maxResponseSize",
-                    commonConfig.getMaxQueryResponseSizeInMb() * FileUtils.ONE_MB);
+            String maxSize = configInstance.ofString("maxRequestSize", commonConfig.getMaxQueryRequestSize());
+            long maxRequestSize = DataSize.parse(maxSize).toBytes();
+            maxSize = configInstance.ofString("maxResponseSize", commonConfig.getMaxQueryResponseSize());
+            long maxResponseSize = DataSize.parse(maxSize).toBytes();
 
+            log.info("Setting up maximum query request size to: {} bytes", maxRequestSize);
+            log.info("Setting up maximum query response size to: {} bytes", maxResponseSize);
             ServerWebExchange newServerWebExchange = exchange.mutate()
                     .request(new CustomServerHttpRequestDecorator(exchange.getRequest(), maxRequestSize))
                     .response(new CustomServerHttpResponseDecorator(exchange.getResponse(), maxResponseSize))
@@ -128,4 +130,5 @@ public class QueryExecuteHttpBodySizeFilter implements WebFilter, Ordered {
                     }));
         }
     }
+    
 }

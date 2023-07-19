@@ -117,6 +117,10 @@ import { RemoteCompInfo } from "types/remoteComp";
 import { ScannerComp } from "./comps/buttonComp/scannerComp";
 import { SignatureComp } from "./comps/signatureComp";
 
+//Added by Aqib Mirza
+import { JsonLottieComp } from "./comps/jsonComp/jsonLottieComp";
+import { LottieIcon } from "../assets/icons";
+
 type Registry = {
   [key in UICompType]?: UICompManifest;
 };
@@ -820,6 +824,20 @@ const uiCompMap: Registry = {
     layoutInfo: {
       w: 9,
       h: 35,
+    },
+  },
+  //Added by Aqib Mirza
+  jsonLottie: {
+    name: trans("uiComp.jsonLottieCompName"),
+    enName: "Lottie Animation",
+    description: trans("uiComp.jsonLottieCompDesc"),
+    categories: ["dataDisplay"],
+    icon: LottieIcon,
+    keywords: trans("uiComp.jsonLottieCompKeywords"),
+    comp: JsonLottieComp,
+    layoutInfo: {
+      w: 10,
+      h: 47,
     },
   },
 };

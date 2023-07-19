@@ -31,6 +31,7 @@ const SliderBasicComp = (function () {
             {...props}
             value={props.value.value}
             $style={props.style}
+            style={{margin: 0}}
             onChange={(e) => {
               props.value.onChange(e);
               props.onEvent("change");

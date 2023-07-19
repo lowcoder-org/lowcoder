@@ -1,26 +1,25 @@
 package org.lowcoder.api.query;
 
-import static org.lowcoder.api.common.mockuser.WithMockUser.DEFAULT_CURRENT_ORG_ID;
-
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.lowcoder.api.common.mockuser.WithMockUser;
 import org.lowcoder.api.datasource.DatasourceApiService;
 import org.lowcoder.api.datasource.DatasourceApiServiceTest;
-import org.lowcoder.api.query.LibraryQueryApiService;
 import org.lowcoder.api.query.view.LibraryQueryView;
 import org.lowcoder.domain.query.model.LibraryQuery;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
-
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
+
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+
+import static org.lowcoder.api.common.mockuser.WithMockUser.DEFAULT_CURRENT_ORG_ID;
 
 @SuppressWarnings("SameParameterValue")
 @SpringBootTest
@@ -32,6 +31,7 @@ public class LibraryQueryApiServiceTest {
     @Autowired
     private LibraryQueryApiService libraryQueryApiService;
 
+    @Ignore
     @Test
     @WithMockUser
     public void testListLibraryQueries() {

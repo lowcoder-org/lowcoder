@@ -44,6 +44,7 @@ export const en = {
   accessControl: " Access Control",
   copySuccess: "Copied",
   copyError: "Copy error",
+  lottieJson: "Lottie JSON", //Added By Aqib Mirza
   api: {
     publishSuccess: "Published",
     recoverFailed: "Recover failed",
@@ -279,6 +280,16 @@ export const en = {
     chart: "Chart style",
     chartDesc: "Input Echarts",
     echartsJson: "Theme JSON",
+    margin: "Margin",
+    marginDesc: "The default margin is typically used for most components",
+    padding: "Padding",
+    paddingDesc: "The default padding is typically used for most components",
+    containerheaderpadding: "Header Padding",
+    containerheaderpaddingDesc: "The default headerpadding is typically used for most components",
+    //Added By Aqib Mirza
+    gridColumns: "Grid Columns",
+    gridColumnsDesc:
+      "The default number of columns is typically used for most containers",
   },
   style: {
     resetTooltip: "Reset styles. Delete the input's value to reset an individual field.",
@@ -321,6 +332,15 @@ export const en = {
     pen: "Pen",
     footerIcon: "Footer icon",
     tips: "Tips",
+    margin: "Margin",
+    padding: "Padding",
+    marginLeft: "Margin Left",
+    marginRight: "Margin Right",
+    marginTop: "Margin Top",
+    marginBottom: "Margin Bottom",
+    containerheaderpadding: "Header Padding",
+    containerfooterpadding: "Footer Padding",
+    containerbodypadding: "Body Padding",
   },
   export: {
     hiddenDesc: "If true, the component is hidden",
@@ -818,6 +838,11 @@ export const en = {
     signatureCompName: "Signature",
     signatureCompDesc: "Signature component",
     signatureCompKeywords: "",
+    //Added By Aqib Mirza
+    jsonLottieCompName: "Lottie Animation",
+    jsonLottieCompDesc: "Lottie Animation",
+    jsonLottieCompKeywords: "",
+    /////////////////////
   },
   comp: {
     menuViewDocs: "View documentation",
@@ -2336,6 +2361,7 @@ export const en = {
     left: "Left",
     right: "Right",
     center: "Center",
+    bottom: "Bottom",
     justify: "Justify both ends",
   },
   playground: {
@@ -2395,4 +2421,15 @@ export const en = {
   slotControl: {
     configSlotView: "Configure slot view",
   },
+  //Added By Aqib Mirza
+  jsonLottie: {
+    speed: "Speed",
+    width: "Width",
+    height: "Height",
+    backgroundColor: "Background color",
+    animationStart: "Animation Start",
+    valueDesc: "Current json Data",
+    loop: "Loop",
+  },
+  /////////////////////
 };

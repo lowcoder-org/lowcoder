@@ -109,7 +109,8 @@ export type UICompType =
   | "npmPlugin"
   | "collapsibleContainer"
   | "calendar"
-  | "signature";
+  | "signature"
+  | "jsonLottie"; //Added By Aqib Mirza
 
 export const uiCompRegistry = {} as Record<UICompType | string, UICompManifest>;
 

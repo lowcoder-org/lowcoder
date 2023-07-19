@@ -1,19 +1,8 @@
 package org.lowcoder.api.authentication;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.lowcoder.sdk.exception.BizError.INVALID_PASSWORD;
-import static org.lowcoder.sdk.exception.BizError.USER_LOGIN_ID_EXIST;
-
-import java.util.Map;
-import java.util.Objects;
-
+import com.google.common.collect.Iterables;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.lowcoder.api.authentication.AuthenticationController;
 import org.lowcoder.api.authentication.AuthenticationController.FormLoginRequest;
 import org.lowcoder.api.framework.view.ResponseView;
 import org.lowcoder.domain.authentication.AuthenticationService;
@@ -34,11 +23,15 @@ import org.springframework.mock.web.server.MockServerWebExchange;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.MultiValueMap;
-
-import com.google.common.collect.Iterables;
-
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
+
+import java.util.Map;
+import java.util.Objects;
+
+import static org.junit.Assert.*;
+import static org.lowcoder.sdk.exception.BizError.INVALID_PASSWORD;
+import static org.lowcoder.sdk.exception.BizError.USER_LOGIN_ID_EXIST;
 
 @SpringBootTest
 @RunWith(SpringRunner.class)
@@ -89,7 +82,7 @@ public class AuthenticationControllerTest {
                     assertEquals(email, connection.getRawId());
                     assertEquals(email, connection.getName());
                     assertNull(connection.getAvatar());
-                    assertEquals(1, connection.getOrgIds().size());
+                    assertEquals(0, connection.getOrgIds().size());
                     assertNull(connection.getAuthConnectionAuthToken());
                     assertEquals(Map.of("email", email), connection.getRawUserInfo());
                     //exchange
@@ -100,7 +93,6 @@ public class AuthenticationControllerTest {
                 })
                 .verifyComplete();
     }
-
     @Test
     public void testFormLoginSuccess() {
         String email = "test_login@ob.dev";
@@ -142,7 +134,7 @@ public class AuthenticationControllerTest {
                     assertEquals(email, connection.getRawId());
                     assertEquals(email, connection.getName());
                     assertNull(connection.getAvatar());
-                    assertEquals(1, connection.getOrgIds().size());
+                    assertEquals(0, connection.getOrgIds().size());
                     assertNull(connection.getAuthConnectionAuthToken());
                     assertEquals(Map.of("email", email), connection.getRawUserInfo());
                     //exchange

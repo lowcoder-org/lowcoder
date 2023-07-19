@@ -16,7 +16,7 @@
     "big.js": "^6.2.1",
     "lowcoder-cli": "workspace:^",
     "lowcoder-sdk": "workspace:^",
-    "mermaid": "^10.0.2",
+    "mermaid": "^10.2.4",
     "react": "17",
     "react-dom": "17",
     "typescript": "4.8.4"
@@ -59,7 +59,7 @@
   },
   "devDependencies": {
     "jest": "29.3.0",
-    "vite": "^3.2.4",
+    "vite": "^4.3.9",
     "vite-tsconfig-paths": "^3.6.0"
   }
 }

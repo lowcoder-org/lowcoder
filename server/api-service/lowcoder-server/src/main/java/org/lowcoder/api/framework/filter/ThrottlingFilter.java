@@ -10,10 +10,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
 import javax.annotation.Nonnull;
-import javax.annotation.PostConstruct;
 
 import org.lowcoder.sdk.config.dynamic.ConfigCenter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.core.Ordered;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
@@ -23,18 +24,21 @@ import org.springframework.web.server.WebFilterChain;
 
 import com.google.common.util.concurrent.RateLimiter;
 
+import jakarta.annotation.PostConstruct;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
-
+@ConditionalOnExpression("${default.api-rate-limit:0} > 0")
 @SuppressWarnings("UnstableApiUsage")
 @Slf4j
 @Component
 public class ThrottlingFilter implements WebFilter, Ordered {
 
-    private static final int DEFAULT_RATE_THRESHOLD = 50;
+	@Value("${default.api-rate-limit}")
+    private int defaultApiRateLimit;
 
+    
     private final Map<String, RateLimiterWrapper> rateLimiterMap = new ConcurrentHashMap<>();
     private Supplier<Map<String, Integer>> urlRateLimiter;
 
@@ -44,6 +48,7 @@ public class ThrottlingFilter implements WebFilter, Ordered {
     @PostConstruct
     private void init() {
         urlRateLimiter = configCenter.threshold().ofMap("urlRateLimiter", String.class, Integer.class, emptyMap());
+        log.info("API rate limit filter enabled with default rate limit set to: {} requests per second");
     }
 
     @Nonnull
@@ -55,7 +60,7 @@ public class ThrottlingFilter implements WebFilter, Ordered {
 
         RateLimiterWrapper rateLimiter = rateLimiterMap.compute(requestUrl,
                 (url, currentLimiter) -> {
-                    int targetRate = urlRateLimiter.get().getOrDefault(url, DEFAULT_RATE_THRESHOLD);
+                    int targetRate = urlRateLimiter.get().getOrDefault(url, defaultApiRateLimit);
                     if (currentLimiter == null) {
                         return RateLimiterWrapper.create(targetRate);
                     }

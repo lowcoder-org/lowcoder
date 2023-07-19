@@ -36,6 +36,7 @@ Image can be configured by setting environment variables.
 | `ENCRYPTION_PASSWORD`           | Encryption password                                                 | `lowcoder.org`                                        |
 | `ENCRYPTION_SALT`               | Salt used for encrypting password                                   | `lowcoder.org`                                        |
 | `CORS_ALLOWED_DOMAINS`          | CORS allowed domains                                                | `*`                                                   |
+| `LOWCODER_MAX_REQUEST_SIZE`     | Lowcoder max request size                                           | `20m`                                                 |
 | `LOWCODER_API_SERVICE_URL`      | Lowcoder API service URL                                            | `http://localhost:8080`                               |
 | `LOWCODER_NODE_SERVICE_URL`     | Lowcoder Node service (js executor) URL                             | `http://localhost:6060`                               |
 | `DEFAULT_ORGS_PER_USER`         | Default maximum organizations per user                              | `100`                                                 |
@@ -121,6 +122,7 @@ Image can be configured by setting environment variables.
 | --------------------------------| --------------------------------------------------------------------| ------------------------------------------------------- |
 | `PUID`                          | ID of user running services. It will own all created logs and data. | `9001`                                                  |
 | `PGID`                          | ID of group of the user running services.                           | `9001`                                                  |
+| `LOWCODER_MAX_REQUEST_SIZE`     | Lowcoder max request size                                           | `20m`                                                   |
 | `LOWCODER_API_SERVICE_URL`      | Lowcoder API service URL                                            | `http://localhost:8080`                                 |
 | `LOWCODER_NODE_SERVICE_URL`     | Lowcoder Node service (js executor) URL                             | `http://localhost:6060`                                 |
 

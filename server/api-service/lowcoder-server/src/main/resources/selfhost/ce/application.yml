@@ -29,6 +29,7 @@ default:
   org-group-count: 100
   org-app-count: 1000
   developer-count: 50
+  api-rate-limit: 50
 
 common:
   cookie-name: LOWCODER_CE_SELFHOST_TOKEN
@@ -40,8 +41,9 @@ common:
   block-hound-enable: false
   js-executor:
     host: ${LOWCODER_NODE_SERVICE_URL:http://127.0.0.1:6060}
-  max-query-request-size-in-mb: 20
-  max-query-response-size-in-mb: 20
+  max-query-request-size: ${LOWCODER_MAX_REQUEST_SIZE:20m}
+  max-query-response-size: ${LOWCODER_MAX_REQUEST_SIZE:20m}
+  max-upload-size: ${LOWCODER_MAX_REQUEST_SIZE:20m}
 
 material:
   mongodb-grid-fs:

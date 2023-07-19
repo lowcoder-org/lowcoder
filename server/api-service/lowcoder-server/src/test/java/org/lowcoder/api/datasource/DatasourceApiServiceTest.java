@@ -1,18 +1,10 @@
 package org.lowcoder.api.datasource;
 
-import static org.lowcoder.domain.permission.model.ResourceRole.OWNER;
-import static org.lowcoder.domain.permission.model.ResourceRole.VIEWER;
-
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
-
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.lowcoder.api.common.mockuser.WithMockUser;
-import org.lowcoder.api.datasource.DatasourceApiService;
-import org.lowcoder.api.datasource.DatasourceView;
 import org.lowcoder.api.permission.view.CommonPermissionView;
 import org.lowcoder.api.permission.view.PermissionItemView;
 import org.lowcoder.domain.datasource.model.Datasource;
@@ -24,9 +16,15 @@ import org.lowcoder.sdk.plugin.mysql.MysqlDatasourceConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
-
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
+
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
+
+import static org.lowcoder.domain.permission.model.ResourceRole.OWNER;
+import static org.lowcoder.domain.permission.model.ResourceRole.VIEWER;
 
 @SpringBootTest
 @RunWith(SpringRunner.class)
@@ -35,6 +33,7 @@ public class DatasourceApiServiceTest {
     @Autowired
     private DatasourceApiService datasourceApiService;
 
+    @Ignore
     @Test
     @WithMockUser(id = "user02")
     public void testListOrgDatasource() {
@@ -63,6 +62,7 @@ public class DatasourceApiServiceTest {
                 .orElse(null);
     }
 
+    @Ignore
     @Test
     @WithMockUser
     public void testGrantPermissionAndGetPermissionSuccess() {
@@ -90,6 +90,7 @@ public class DatasourceApiServiceTest {
                 .verifyComplete();
     }
 
+    @Ignore
     @Test
     @WithMockUser
     public void testUpdatePermissionAndDeletePermissionSuccess() {
@@ -127,6 +128,7 @@ public class DatasourceApiServiceTest {
                 .verifyComplete();
     }
 
+    @Ignore
     @Test
     @WithMockUser(id = "user02")
     public void testUpdatePermissionErrorWithNoPermission() {

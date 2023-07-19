@@ -5,13 +5,12 @@
     <parent>
         <groupId>org.lowcoder</groupId>
         <artifactId>lowcoder-root</artifactId>
-        <version>1.0-SNAPSHOT</version>
+        <version>${revision}</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
     <artifactId>lowcoder-plugins</artifactId>
     <name>lowcoder-plugins</name>
-    <version>1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <repositories>
@@ -36,7 +35,6 @@
         <dependency>
             <groupId>org.lowcoder</groupId>
             <artifactId>lowcoder-sdk</artifactId>
-            <version>1.0-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -77,8 +75,112 @@
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-collections4</artifactId>
         </dependency>
-
     </dependencies>
+    
+    <dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.lowcoder</groupId>
+				<artifactId>sqlBasedPlugin</artifactId>
+				<version>${revision}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.lowcoder</groupId>
+				<artifactId>postgresPlugin</artifactId>
+				<version>${revision}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.lowcoder</groupId>
+				<artifactId>restApiPlugin</artifactId>
+				<version>${revision}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.lowcoder</groupId>
+				<artifactId>mongoPlugin</artifactId>
+				<version>${revision}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.lowcoder</groupId>
+				<artifactId>mysqlPlugin</artifactId>
+				<version>${revision}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.lowcoder</groupId>
+				<artifactId>lowcoderApiPlugin</artifactId>
+				<version>${revision}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.lowcoder</groupId>
+				<artifactId>elasticSearchPlugin</artifactId>
+				<version>${revision}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.lowcoder</groupId>
+				<artifactId>redisPlugin</artifactId>
+				<version>${revision}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.lowcoder</groupId>
+				<artifactId>mssqlPlugin</artifactId>
+				<version>${revision}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.lowcoder</groupId>
+				<artifactId>smtpPlugin</artifactId>
+				<version>${revision}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.lowcoder</groupId>
+				<artifactId>clickHousePlugin</artifactId>
+				<version>${revision}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.lowcoder</groupId>
+				<artifactId>googleSheetsPlugin</artifactId>
+				<version>${revision}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.lowcoder</groupId>
+				<artifactId>oraclePlugin</artifactId>
+				<version>${revision}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.lowcoder</groupId>
+				<artifactId>graphqlPlugin</artifactId>
+				<version>${revision}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.lowcoder</groupId>
+				<artifactId>snowflakePlugin</artifactId>
+				<version>${revision}</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+    
+    <build>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<artifactId>maven-antrun-plugin</artifactId>
+					<executions>
+						<execution>
+							<id>create-plugin-properties</id>
+							<phase>compile</phase>
+							<configuration>
+								<target name="createPluginProperties">
+									<echo file="${project.basedir}/plugin.properties" append="false" force="true" message="plugin.id=${plugin.id}${line.separator}plugin.class=${plugin.class}${line.separator}plugin.version=${plugin.version}${line.separator}plugin.provider=${plugin.provider}${line.separator}plugin.dependencies=${plugin.dependencies}" />
+								</target>
+							</configuration>
+							<goals>
+								<goal>run</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+	</build>
+    
     <modules>
         <module>postgresPlugin</module>
         <module>restApiPlugin</module>

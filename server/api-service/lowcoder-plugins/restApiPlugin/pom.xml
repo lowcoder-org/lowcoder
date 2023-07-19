@@ -5,12 +5,11 @@
     <parent>
         <groupId>org.lowcoder</groupId>
         <artifactId>lowcoder-plugins</artifactId>
-        <version>1.0-SNAPSHOT</version>
+        <version>${revision}</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
     <artifactId>restApiPlugin</artifactId>
-    <version>1.0-SNAPSHOT</version>
 
     <name>restApiPlugin</name>
 
@@ -21,7 +20,7 @@
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <plugin.id>restapi-plugin</plugin.id>
         <plugin.class>org.lowcoder.plugin.restapi.RestApiPlugin</plugin.class>
-        <plugin.version>1.0-SNAPSHOT</plugin.version>
+        <plugin.version>${revision}</plugin.version>
         <plugin.provider>service@lowcoder.org</plugin.provider>
         <plugin.dependencies/>
     </properties>
@@ -96,7 +95,6 @@
             <artifactId>spring-test</artifactId>
             <scope>test</scope>
         </dependency>
-
     </dependencies>
 
     <build>
@@ -150,6 +148,9 @@
                     </execution>
                 </executions>
             </plugin>
+			<plugin>
+				<artifactId>maven-antrun-plugin</artifactId>
+			</plugin>
         </plugins>
     </build>
 

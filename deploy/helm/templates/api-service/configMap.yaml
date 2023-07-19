@@ -15,7 +15,7 @@ data:
   {{- if .Values.redis.enabled }}
   REDIS_URL: "redis://{{ $name }}-redis-master.{{ $nameSpace }}.svc.cluster.local:6379"
   {{- else }}
-  REDIS_URL: {{- .Values.redis.externalUrl | quote }}
+  REDIS_URL: {{ .Values.redis.externalUrl | quote }}
   {{- end }}
   {{- if .Values.apiService.nodeServiceUrl }}
   LOWCODER_NODE_SERVICE_URL: {{ .Values.apiService.nodeServiceUrl | quote }}
