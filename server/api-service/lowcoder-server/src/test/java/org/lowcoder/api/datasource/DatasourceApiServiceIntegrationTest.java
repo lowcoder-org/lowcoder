@@ -28,12 +28,10 @@ import static org.lowcoder.domain.permission.model.ResourceRole.VIEWER;
 
 @SpringBootTest
 @RunWith(SpringRunner.class)
-public class DatasourceApiServiceTest {
-
+public class DatasourceApiServiceIntegrationTest {
     @Autowired
     private DatasourceApiService datasourceApiService;
 
-    @Ignore
     @Test
     @WithMockUser(id = "user02")
     public void testListOrgDatasource() {
@@ -62,7 +60,6 @@ public class DatasourceApiServiceTest {
                 .orElse(null);
     }
 
-    @Ignore
     @Test
     @WithMockUser
     public void testGrantPermissionAndGetPermissionSuccess() {
@@ -90,7 +87,6 @@ public class DatasourceApiServiceTest {
                 .verifyComplete();
     }
 
-    @Ignore
     @Test
     @WithMockUser
     public void testUpdatePermissionAndDeletePermissionSuccess() {
@@ -128,7 +124,6 @@ public class DatasourceApiServiceTest {
                 .verifyComplete();
     }
 
-    @Ignore
     @Test
     @WithMockUser(id = "user02")
     public void testUpdatePermissionErrorWithNoPermission() {

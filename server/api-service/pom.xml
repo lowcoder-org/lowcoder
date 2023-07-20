@@ -12,11 +12,12 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.lowcoder</groupId>
     <artifactId>lowcoder-root</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>${revision}</version>
     <packaging>pom</packaging>
     <name>lowcoder-root</name>
 
     <properties>
+        <revision>2.0.1-SNAPSHOT</revision>
         <java.version>17</java.version>
         <javadoc.disabled>true</javadoc.disabled>
         <deploy.disabled>true</deploy.disabled>
@@ -105,6 +106,33 @@
 
     <dependencyManagement>
         <dependencies>
+
+			<dependency>
+				<groupId>org.lowcoder</groupId>
+				<artifactId>lowcoder-sdk</artifactId>
+				<version>${revision}</version>
+			</dependency>			
+			<dependency>
+				<groupId>org.lowcoder</groupId>
+				<artifactId>lowcoder-infra</artifactId>
+				<version>${revision}</version>
+			</dependency>			
+			<dependency>
+				<groupId>org.lowcoder</groupId>
+				<artifactId>lowcoder-domain</artifactId>
+				<version>${revision}</version>
+			</dependency>			
+			<dependency>
+				<groupId>org.lowcoder</groupId>
+				<artifactId>lowcoder-plugins</artifactId>
+				<version>${revision}</version>
+			</dependency>			
+			<dependency>
+				<groupId>org.lowcoder</groupId>
+				<artifactId>lowcoder-server</artifactId>
+				<version>${revision}</version>
+			</dependency>			
+			
             <dependency>
                 <groupId>org.pf4j</groupId>
                 <artifactId>pf4j</artifactId>
@@ -208,7 +236,7 @@
             <dependency>
                 <groupId>org.pf4j</groupId>
                 <artifactId>pf4j-spring</artifactId>
-                <version>0.7.0</version>
+                <version>0.8.0</version>
             </dependency>
 
             <dependency>
@@ -260,11 +288,11 @@
                 <version>1.0.6.RELEASE</version>
             </dependency>
 
-            <dependency>
-                <groupId>javax.servlet</groupId>
-                <artifactId>javax.servlet-api</artifactId>
-                <version>4.0.1</version>
-            </dependency>
+			<dependency>
+			    <groupId>jakarta.servlet</groupId>
+			    <artifactId>jakarta.servlet-api</artifactId>
+			    <version>6.0.0</version>
+			</dependency>
 
             <dependency>
                 <groupId>io.projectreactor</groupId>
@@ -301,7 +329,6 @@
         <module>lowcoder-domain</module>
         <module>lowcoder-plugins</module>
         <module>lowcoder-server</module>
-        <module>lowcoder-ee</module>
     </modules>
 
 </project>
