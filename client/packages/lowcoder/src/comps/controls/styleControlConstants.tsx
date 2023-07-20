@@ -875,18 +875,15 @@ export const LottieStyle = [
     name: "background",
     label: trans("style.background"),
     depTheme: "canvas",
-    depType: DEP_TYPE.CONTRAST_TEXT,
-    transformer: contrastText,
+    depType: DEP_TYPE.SELF,
+    transformer: toSelf,
   },
-  MARGIN,	
-  PADDING,
 ] as const;
 /////////////////////
 
 export const CarouselStyle = [getBackground("canvas")] as const;
 
 export const RichTextEditorStyle = [getStaticBorder(), RADIUS] as const;
-
 export type InputLikeStyleType = StyleConfigType<typeof InputLikeStyle>;
 export type ButtonStyleType = StyleConfigType<typeof ButtonStyle>;
 export type ToggleButtonStyleType = StyleConfigType<typeof ToggleButtonStyle>;
