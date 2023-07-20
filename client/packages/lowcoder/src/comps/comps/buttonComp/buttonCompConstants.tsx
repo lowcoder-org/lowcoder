@@ -47,7 +47,7 @@ export function getButtonStyle(buttonStyle: ButtonStyleType) {
 
 export const Button100 = styled(Button)<{ $buttonStyle?: ButtonStyleType }>`
   ${(props) => props.$buttonStyle && getButtonStyle(props.$buttonStyle)}
-  width: -webkit-fill-available;	
+  width: 100%;
   height: auto;
   display: inline-flex;
   justify-content: center;
