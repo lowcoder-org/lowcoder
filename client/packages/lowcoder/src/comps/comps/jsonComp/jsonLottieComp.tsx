@@ -94,31 +94,36 @@ let JsonLottieTmpComp = (function () {
   };
   return new UICompBuilder(childrenMap, (props) => {
     return (
-      <div
-        style={{
-          height: "100%",
-          display: "flex",
-          justifyContent: "center",
-          backgroundColor: `${props.backgroundColor.background}`,
-        }}
-      >
-        <Player
-          key={
-            [props.speed, props.animationStart, props.loop, props.value, props.keepLastFrame] as any
-          }
-          keepLastFrame={props.keepLastFrame}
-          autoplay={props.animationStart === "auto" && true}
-          hover={props.animationStart === "on hover" && true}
-          loop={props.loop === "single" ? false : true}
-          speed={Number(props.speed)}
-          src={props.value}
+      <div style={{
+        padding: `${props.backgroundColor.margin}`,
+      }}>
+        <div
           style={{
             height: "100%",
-            width: "100%",
-            maxWidth: "100%",
-            maxHeight: "100%",
+            display: "flex",
+            justifyContent: "center",
+            backgroundColor: `${props.backgroundColor.background}`,
+            padding: `${props.backgroundColor.padding}`
           }}
-        />
+        >
+          <Player
+            key={
+              [props.speed, props.animationStart, props.loop, props.value, props.keepLastFrame] as any
+            }
+            keepLastFrame={props.keepLastFrame}
+            autoplay={props.animationStart === "auto" && true}
+            hover={props.animationStart === "on hover" && true}
+            loop={props.loop === "single" ? false : true}
+            speed={Number(props.speed)}
+            src={props.value}
+            style={{
+              height: "100%",
+              width: "100%",
+              maxWidth: "100%",
+              maxHeight: "100%",
+            }}
+          />
+        </div>
       </div>
     );
   })

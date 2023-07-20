@@ -878,6 +878,8 @@ export const LottieStyle = [
     depType: DEP_TYPE.SELF,
     transformer: toSelf,
   },
+  MARGIN,	
+  PADDING,
 ] as const;
 /////////////////////
 
