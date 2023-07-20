@@ -15,6 +15,9 @@
 
     <properties>
         <java.version>17</java.version>
+        <skipTests>false</skipTests>
+        <skipUnitTests>${skipTests}</skipUnitTests>
+        <skipIntegrationTests>${skipTests}</skipIntegrationTests>
     </properties>
 
     <dependencies>
@@ -175,6 +178,13 @@
             <version>2.0.0.AM26</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.junit.vintage</groupId>
+            <artifactId>junit-vintage-engine</artifactId>
+            <version>5.9.3</version>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 
     <build>
@@ -186,7 +196,66 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.12.4</version>
+                <version>3.1.2</version>
+                <configuration>
+                    <skipTests>${skipUnitTests}</skipTests>
+                    <excludes>
+                        <exclude>**/*IntegrationTest.java</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <configuration>
+                    <skipTests>${skipIntegrationTests}</skipTests>
+                    <includes>
+                        <include>**/*IntegrationTest.java</include>
+                    </includes>
+                    <argLine>
+                        -Dpf4j.pluginsDir=../lowcoder-plugins/plugins
+                    </argLine>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>integration-test</goal>
+                            <goal>verify</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-plugins-jar-for-integration-tests</id>
+                        <phase>pre-integration-test</phase>
+                        <configuration>
+                            <target>
+                                <copy todir="../lowcoder-plugins/plugins">
+                                    <fileset dir="../lowcoder-plugins" includes="/*/target/*shaded.jar" />
+                                    <mapper type="flatten"/>
+                                </copy>
+                            </target>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>delete-plugins-after-integration-tests-phase</id>
+                        <phase>post-integration-test</phase>
+                        <configuration>
+                            <target>
+                                <delete dir="../lowcoder-plugins/plugins"/>
+                            </target>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
