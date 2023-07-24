@@ -1,4 +1,4 @@
-import { ConfigProvider } from "antd";
+import { App, ConfigProvider } from "antd";
 import {
   ALL_APPLICATIONS_URL,
   APP_EDITOR_URL,
@@ -46,6 +46,7 @@ import { isFetchUserFinished } from "redux/selectors/usersSelectors";
 import { SystemWarning } from "./components/SystemWarning";
 import { getBrandingConfig, getSystemConfigFetching } from "./redux/selectors/configSelectors";
 import { buildMaterialPreviewURL } from "./util/materialUtils";
+import GlobalInstances from 'components/GlobalInstances';
 
 const LazyUserAuthComp = React.lazy(() => import("pages/userAuth"));
 const LazyInviteLanding = React.lazy(() => import("pages/common/inviteLanding"));
@@ -54,9 +55,17 @@ const LazyComponentPlayground = React.lazy(() => import("pages/ComponentPlaygrou
 const LazyDebugComp = React.lazy(() => import("./debug"));
 const LazyDebugNewComp = React.lazy(() => import("./debugNew"));
 
-const Wrapper = (props: { children: React.ReactNode }) => {
-  return <ConfigProvider locale={getAntdLocale(language)}>{props.children}</ConfigProvider>;
-};
+const Wrapper = (props: { children: React.ReactNode }) => (
+  <ConfigProvider
+    theme={{ hashed: false }}
+    locale={getAntdLocale(language)}
+  >
+    <App>
+      <GlobalInstances />
+      {props.children}
+    </App>
+  </ConfigProvider>
+);
 
 type AppIndexProps = {
   isFetchUserFinished: boolean;
