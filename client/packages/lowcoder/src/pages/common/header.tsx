@@ -38,7 +38,7 @@ import { Logo, LogoHome, LogoWithName } from "@lowcoder-ee/assets/images";
 import { HeaderStartDropdown } from "./headerStartDropdown";
 import { AppPermissionDialog } from "../../components/PermissionDialog/AppPermissionDialog";
 import { getBrandingConfig } from "../../redux/selectors/configSelectors";
-import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
+import { messageInstance } from "lowcoder-design";
 
 const StyledLink = styled.a`
   display: flex;

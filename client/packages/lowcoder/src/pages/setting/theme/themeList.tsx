@@ -16,7 +16,7 @@ import {
 } from "./styledComponents";
 import { ThemeType } from "api/commonSettingApi";
 import { trans } from "i18n";
-import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
+import { messageInstance } from "lowcoder-design";
 
 const { Column } = Table;
 

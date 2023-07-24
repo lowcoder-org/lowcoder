@@ -9,7 +9,8 @@ import { AxiosPromise, AxiosResponse } from "axios";
 import { ApiResponse } from "api/apiResponses";
 import { doValidResponse } from "api/apiUtils";
 import { SERVER_ERROR_CODES } from "constants/apiConstants";
-import { message } from "antd";
+import { messageInstance } from "lowcoder-design";
+
 import { trans } from "i18n";
 import { createContext, useState } from "react";
 import { SystemConfig } from "constants/configConstants";
@@ -48,7 +49,7 @@ export function useAuthSubmit(
       requestFunc()
         .then((resp) => authRespValidate(resp, infoCompleteCheck, redirectUrl))
         .catch((e) => {
-          message.error(e.message);
+          messageInstance.error(e.message);
         })
         .finally(() => setLoading(false));
     },
@@ -80,7 +81,7 @@ export function authRespValidate(
     resp.data.code === SERVER_ERROR_CODES.EXCEED_MAX_USER_ORG_COUNT ||
     resp.data.code === SERVER_ERROR_CODES.ALREADY_IN_ORGANIZATION
   ) {
-    message.error(resp.data.message);
+    messageInstance.error(resp.data.message);
     // redirect after displaying the message for a second
     setTimeout(() => window.location.replace(replaceUrl), 1500);
   } else {

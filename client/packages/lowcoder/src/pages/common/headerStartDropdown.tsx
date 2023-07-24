@@ -22,7 +22,7 @@ import { AppTypeEnum } from "constants/applicationConstants";
 import { recycleApplication } from "redux/reduxActions/applicationActions";
 import { CopyModal } from "./copyModal";
 import { ExternalEditorContext } from "util/context/ExternalEditorContext";
-import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
+import { messageInstance } from "lowcoder-design";
 
 const PackUpIconStyled = styled(PackUpIcon)`
   transform: rotate(180deg);

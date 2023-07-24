@@ -1,4 +1,3 @@
-import { message } from "antd";
 import InviteApi from "api/inviteApi";
 import { API_STATUS_CODES, SERVER_ERROR_CODES } from "constants/apiConstants";
 import { AUTH_LOGIN_URL, BASE_URL } from "constants/routesURL";
@@ -10,6 +9,7 @@ import { AppState } from "redux/reducers";
 import history from "util/history";
 import { isFetchUserFinished } from "redux/selectors/usersSelectors";
 import { trans } from "i18n";
+import { messageInstance } from "lowcoder-design";
 
 type InviteLandingProp = RouteComponentProps<{ invitationId: string }, StaticContext, any> & {
   invitationId: string;
@@ -31,7 +31,7 @@ function InviteLanding(props: InviteLandingProp) {
     InviteApi.acceptInvite({ invitationId })
       .then((resp) => {
         if (resp.data?.success) {
-          message.success(trans("orgSettings.inviteSuccessMessage"));
+          messageInstance.success(trans("orgSettings.inviteSuccessMessage"));
           setTimeout(() => (window.location.href = BASE_URL), 500);
           return;
         } else if (
@@ -51,7 +51,7 @@ function InviteLanding(props: InviteLandingProp) {
         throw Error(resp.data?.message || trans("orgSettings.inviteFailMessage"));
       })
       .catch((errorResp) => {
-        message.error(errorResp.message);
+        messageInstance.error(errorResp.message);
         history.push(BASE_URL);
       });
   }, [fetchUserFinished, invitationId]);

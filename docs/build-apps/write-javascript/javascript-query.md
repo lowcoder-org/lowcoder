@@ -110,7 +110,7 @@ return queryByName.run().then(
   },
   error => { // after query runs in failure
     // use built-in message function to pop up an error message
-    message.error("An error occured when fetching user: " + error.message); 
+    messageInstance.error("An error occured when fetching user: " + error.message); 
   }
 );
 ```

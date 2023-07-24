@@ -1,4 +1,3 @@
-import { message } from "antd";
 import InviteApi, { InviteInfo } from "api/inviteApi";
 import { CommonTextLabel, CustomModal, TacoButton, TacoInput } from "lowcoder-design";
 import { CSSProperties, ReactNode, useEffect, useState } from "react";
@@ -12,6 +11,7 @@ import { genInviteLink } from "util/urlUtils";
 import { HelpText } from "components/HelpText";
 import copyToClipboard from "copy-to-clipboard";
 import { trans } from "i18n";
+import { messageInstance } from "lowcoder-design";
 
 const InviteButton = styled(TacoButton)`
   width: 76px;
@@ -41,8 +41,8 @@ function InviteContent(props: { inviteInfo: InviteInfo }) {
           buttonType="primary"
           onClick={() => {
             inviteText && copyToClipboard(inviteText)
-              ? message.success(trans("copySuccess"))
-              : message.error(trans("copyError"));
+              ? messageInstance.success(trans("copySuccess"))
+              : messageInstance.error(trans("copyError"));
           }}
         >
           {trans("memberSettings.inviteCopyLink")}
@@ -70,12 +70,12 @@ function InviteDialog(props: {
           }
         })
         .catch((e) => {
-          message.error(e.message);
+          messageInstance.error(e.message);
         });
     }
   }, [inviteDialogVisible]);
   if (!orgId && inviteDialogVisible) {
-    message.error(trans("memberSettings.organizationNotExist"));
+    messageInstance.error(trans("memberSettings.organizationNotExist"));
     setInviteDialogVisible(false);
     return null;
   }
@@ -93,7 +93,7 @@ function InviteDialog(props: {
         </div>
       )}
       <CustomModal
-        visible={inviteDialogVisible}
+        open={inviteDialogVisible}
         title={trans("memberSettings.inviteUser")}
         destroyOnClose
         onCancel={() => setInviteDialogVisible(false)}

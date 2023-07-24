@@ -32,6 +32,7 @@ import { Prompt } from "react-router";
 import { HeaderBack } from "pages/setting/permission/styledComponents";
 import dsl from "./previewDsl";
 import chartDsl from "./chartPreviewDsl";
+import { messageInstance } from "lowcoder-design";
 
 type LocationProp = {
   theme: ThemeDetail;
@@ -116,7 +117,7 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
         orgId: this.props.orgId,
         data: { key: "themeList", value: list },
         onSuccess: () => {
-          message.success(trans("theme.saveSuccessMsg"));
+          messageInstance.success(trans("theme.saveSuccessMsg"));
           this.themeDefault = this.state.theme;
         },
       });

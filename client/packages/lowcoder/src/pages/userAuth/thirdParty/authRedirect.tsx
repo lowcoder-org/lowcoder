@@ -1,6 +1,7 @@
 import { useLocation } from "react-router-dom";
 import { AuthSessionStoreParams } from "constants/authConstants";
-import { message } from "antd";
+import { messageInstance } from "lowcoder-design";
+
 import { AUTH_LOGIN_URL, BASE_URL } from "constants/routesURL";
 import history from "util/history";
 import PageSkeleton from "components/PageSkeleton";
@@ -33,7 +34,7 @@ function validateParam(authParams: AuthSessionStoreParams, urlParam: AuthRedirec
   if (valid) {
     return true;
   } else {
-    message.error(trans("userAuth.invalidThirdPartyParam"));
+    messageInstance.error(trans("userAuth.invalidThirdPartyParam"));
     history.push(authParams.authGoal === "login" ? AUTH_LOGIN_URL : BASE_URL, {
       thirdPartyAuthError: true,
     });

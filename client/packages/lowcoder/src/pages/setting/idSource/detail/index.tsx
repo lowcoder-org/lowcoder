@@ -20,7 +20,7 @@ import {
 } from "@lowcoder-ee/pages/setting/idSource/idSourceConstants";
 import { Manual } from "pages/setting/idSource/detail/manual";
 import { DeleteConfig } from "pages/setting/idSource/detail/deleteConfig";
-import { Divider, Form, Input, message, Tooltip } from "antd";
+import { Divider, Form, Input, Tooltip } from "antd";
 import {
   SaveButton,
   CheckboxStyled,
@@ -33,6 +33,7 @@ import { validateResponse } from "api/apiUtils";
 import { ItemType } from "pages/setting/idSource/idSourceConstants";
 import { useForm } from "antd/es/form/Form";
 import _ from "lodash";
+import { messageInstance } from "lowcoder-design";
 
 type IdSourceDetailProps = {
   location: Location & { state: ConfigItem };
@@ -73,10 +74,10 @@ export const IdSourceDetail = (props: IdSourceDetailProps) => {
     IdSourceApi.saveConfig(params)
       .then((resp) => {
         if (validateResponse(resp)) {
-          message.success(trans("idSource.saveSuccess"), 0.8, goList);
+          messageInstance.success(trans("idSource.saveSuccess"), 0.8, goList);
         }
       })
-      .catch((e) => message.error(e.message))
+      .catch((e) => messageInstance.error(e.message))
       .finally(() => setSaveLoading(false));
   };
 

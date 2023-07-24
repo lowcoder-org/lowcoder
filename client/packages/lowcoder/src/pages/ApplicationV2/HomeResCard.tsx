@@ -1,4 +1,3 @@
-import { message } from "antd";
 import { TacoButton } from "lowcoder-design";
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
@@ -21,6 +20,7 @@ import history from "util/history";
 import { APPLICATION_VIEW_URL } from "constants/routesURL";
 import { TypographyText } from "../../components/TypographyText";
 import { useParams } from "react-router-dom";
+import { messageInstance } from "lowcoder-design";
 
 const EditButton = styled(TacoButton)`
   width: 52px;
@@ -186,7 +186,7 @@ export function HomeResCard(props: { res: HomeRes; onMove: (res: HomeRes) => voi
             editing={appNameEditing}
             onChange={(value) => {
               if (!value.trim()) {
-                message.warn(trans("home.nameCheckMessage"));
+                messageInstance.warning(trans("home.nameCheckMessage"));
                 return;
               }
               if (res.type === HomeResTypeEnum.Folder) {

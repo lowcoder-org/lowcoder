@@ -5,7 +5,8 @@ import { AxiosResponse } from "axios";
 import { DatasourceApi, DataSourceTypeInfo } from "api/datasourceApi";
 import { validateResponse } from "api/apiUtils";
 import log from "loglevel";
-import { message } from "antd";
+import { messageInstance } from "lowcoder-design";
+
 import { FetchDataSourceTypesActionPayload } from "redux/reduxActions/datasourceActions";
 
 export function* fetchDataSourceTypesSaga(
@@ -27,7 +28,7 @@ export function* fetchDataSourceTypesSaga(
     }
   } catch (error: any) {
     log.error("fetch data source type error: ", error);
-    message.error(error.message);
+    messageInstance.error(error.message);
   }
 }
 

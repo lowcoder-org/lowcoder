@@ -1,4 +1,3 @@
-import { message } from "antd";
 import { APPLICATION_VIEW_URL } from "constants/routesURL";
 import { CustomModal, CustomSelect, TacoInput } from "lowcoder-design";
 import { trans } from "i18n";
@@ -10,6 +9,7 @@ import { validateResponse } from "api/apiUtils";
 import { foldersSelector } from "redux/selectors/folderSelector";
 import { AppTypeEnum } from "constants/applicationConstants";
 import { TypeName } from "./headerStartDropdown";
+import { messageInstance } from "lowcoder-design";
 
 type CopyModalProps = {
   visible: boolean;
@@ -35,7 +35,7 @@ export function CopyModal(props: CopyModalProps) {
   return (
     <CustomModal
       title={trans("home.copyModalTitle", { name })}
-      visible={visible}
+      open={visible}
       okButtonProps={{ disabled: !copyName }}
       destroyOnClose={true}
       onCancel={close}
@@ -66,7 +66,7 @@ export function CopyModal(props: CopyModalProps) {
               }
             })
             .catch((e) => {
-              message.error(trans("copyError"));
+              messageInstance.error(trans("copyError"));
             });
         }
       }}

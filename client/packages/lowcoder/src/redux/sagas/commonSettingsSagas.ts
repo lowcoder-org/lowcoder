@@ -3,7 +3,8 @@ import { ReduxAction, ReduxActionTypes } from "constants/reduxActionConstants";
 import { AxiosResponse } from "axios";
 import { validateResponse } from "api/apiUtils";
 import log from "loglevel";
-import { message } from "antd";
+import { messageInstance } from "lowcoder-design";
+
 import CommonSettingApi, {
   CommonSettingResponseData,
   FetchCommonSettingPayload,
@@ -27,7 +28,7 @@ export function* fetchCommonSettingsSaga(action: ReduxAction<FetchCommonSettingP
       });
     }
   } catch (error) {
-    message.error(error instanceof Error ? error.message : error);
+    messageInstance.error(error instanceof Error ? error.message : error);
     log.debug("fetch event type error: ", error);
   }
 }
@@ -49,7 +50,7 @@ export function* setCommonSettingsSaga(action: ReduxAction<SetCommonSettingPaylo
       });
     }
   } catch (error) {
-    message.error(error instanceof Error ? error.message : error);
+    messageInstance.error(error instanceof Error ? error.message : error);
     log.debug("fetch event type error: ", error);
   }
 }

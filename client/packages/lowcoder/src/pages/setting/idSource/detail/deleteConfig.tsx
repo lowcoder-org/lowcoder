@@ -1,4 +1,4 @@
-import { Button, message } from "antd";
+import { Button } from "antd";
 import { DeleteWrapper } from "pages/setting/idSource/styledComponents";
 import { trans } from "i18n";
 import { useState } from "react";
@@ -7,6 +7,7 @@ import IdSourceApi from "api/idSourceApi";
 import { DangerIcon, CustomModal } from "lowcoder-design";
 import history from "util/history";
 import { IDSOURCE_SETTING } from "constants/routesURL";
+import { messageInstance } from "lowcoder-design";
 
 export const DeleteConfig = (props: { id: string }) => {
   const [deleteLoading, setDeleteLoading] = useState(false);
@@ -19,12 +20,12 @@ export const DeleteConfig = (props: { id: string }) => {
         IdSourceApi.deleteConfig(props.id)
           .then((resp) => {
             if (validateResponse(resp)) {
-              message.success(trans("idSource.disableSuccess"), 0.8, () =>
+              messageInstance.success(trans("idSource.disableSuccess"), 0.8, () =>
                 history.push(IDSOURCE_SETTING)
               );
             }
           })
-          .catch((e) => message.error(e.message))
+          .catch((e) => messageInstance.error(e.message))
           .finally(() => setDeleteLoading(false));
       },
     });

@@ -6,11 +6,11 @@ import { setCommonSettings } from "redux/reduxActions/commonSettingsActions";
 import { getUser } from "redux/selectors/usersSelectors";
 import { BluePlusIcon, CustomModal, DocLink, TacoButton, TacoInput } from "lowcoder-design";
 import { getCommonSettings } from "redux/selectors/commonSettingSelectors";
-import { message } from "antd";
 import styled from "styled-components";
 import { normalizeNpmPackage, validateNpmPackage } from "comps/utils/remote";
 import { ComListTitle, ExtensionContentWrapper } from "../styledComponent";
 import { EmptyContent } from "components/EmptyContent";
+import { messageInstance } from "lowcoder-design";
 
 const Footer = styled.div`
   display: flex;
@@ -54,7 +54,7 @@ export default function PluginPanel() {
       return;
     }
     if (!validateNpmPackage(newPluginName)) {
-      message.error(trans("npm.invalidNpmPackageName"));
+      messageInstance.error(trans("npm.invalidNpmPackageName"));
       return;
     }
     if (
@@ -62,7 +62,7 @@ export default function PluginPanel() {
         (i) => normalizeNpmPackage(i) === normalizeNpmPackage(newPluginName)
       )
     ) {
-      message.error(trans("npm.pluginExisted"));
+      messageInstance.error(trans("npm.pluginExisted"));
       return;
     }
     const nextNpmPlugins = (commonSettings?.npmPlugins || []).concat(newPluginName);
@@ -96,7 +96,7 @@ export default function PluginPanel() {
       <CustomModal
         centered
         title={trans("npm.addPluginModalTitle")}
-        visible={isAddModalShow}
+        open={isAddModalShow}
         onOk={handleAddNewPlugin}
         onCancel={() => showAddModal(false)}
       >
