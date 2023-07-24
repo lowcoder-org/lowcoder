@@ -66,7 +66,7 @@ CMD [ "sh" , "/lowcoder/api-service/entrypoint.sh" ]
 ##
 FROM ubuntu:jammy as build-node-service
 
-RUN apt update && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y curl ca-certificates
+RUN apt update && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y curl ca-certificates build-essential
 
 # Download nodejs and install yarn
 RUN curl -sL https://deb.nodesource.com/setup_19.x | bash - \
