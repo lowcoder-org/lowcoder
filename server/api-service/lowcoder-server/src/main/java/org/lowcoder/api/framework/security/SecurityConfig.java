@@ -1,8 +1,12 @@
 package org.lowcoder.api.framework.security;
 
 
+import org.lowcoder.api.authentication.request.AuthRequestFactory;
+import org.lowcoder.api.authentication.service.AuthenticationApiServiceImpl;
 import org.lowcoder.api.framework.filter.UserSessionPersistenceFilter;
 import org.lowcoder.api.home.SessionUserService;
+import org.lowcoder.domain.authentication.AuthenticationService;
+import org.lowcoder.domain.authentication.context.AuthRequestContext;
 import org.lowcoder.domain.user.model.User;
 import org.lowcoder.infra.constant.NewUrl;
 import org.lowcoder.sdk.config.CommonConfig;
@@ -51,6 +55,15 @@ public class SecurityConfig {
 
     @Autowired
     private CookieHelper cookieHelper;
+
+    @Autowired
+    AuthenticationService authenticationService;
+
+    @Autowired
+    AuthenticationApiServiceImpl authenticationApiService;
+
+    @Autowired
+    AuthRequestFactory<AuthRequestContext> authRequestFactory;
 
     @Bean
     public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
@@ -135,7 +148,7 @@ public class SecurityConfig {
                 .authenticationEntryPoint(serverAuthenticationEntryPoint)
                 .accessDeniedHandler(accessDeniedHandler);
 
-        http.addFilterBefore(new UserSessionPersistenceFilter(sessionUserService, cookieHelper), SecurityWebFiltersOrder.AUTHENTICATION);
+        http.addFilterBefore(new UserSessionPersistenceFilter(sessionUserService, cookieHelper, authenticationService, authenticationApiService, authRequestFactory), SecurityWebFiltersOrder.AUTHENTICATION);
 
         return http.build();
     }
