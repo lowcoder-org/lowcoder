@@ -1,4 +1,4 @@
-import { Dropdown, message } from "antd";
+import { Dropdown } from "antd";
 import { BASE_URL } from "constants/routesURL";
 import {
   CommonTextLabel,
@@ -22,6 +22,7 @@ import { AppTypeEnum } from "constants/applicationConstants";
 import { recycleApplication } from "redux/reduxActions/applicationActions";
 import { CopyModal } from "./copyModal";
 import { ExternalEditorContext } from "util/context/ExternalEditorContext";
+import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 
 const PackUpIconStyled = styled(PackUpIcon)`
   transform: rotate(180deg);
@@ -81,7 +82,7 @@ export function HeaderStartDropdown(props: { setEdit: () => void }) {
         placement="bottomLeft"
         trigger={["click"]}
         disabled={showAppSnapshot}
-        overlay={
+        dropdownRender={() => (
           <DropdownMenuStyled
             style={{ minWidth: "136px", maxWidth: "288px", borderRadius: "4px" }}
             onClick={(e) => {
@@ -103,10 +104,10 @@ export function HeaderStartDropdown(props: { setEdit: () => void }) {
                       recycleApplication(
                         { applicationId: applicationId, folderId: "" },
                         () => {
-                          message.success(trans("success"));
+                          messageInstance.success(trans("success"));
                           history.push(BASE_URL);
                         },
-                        () => message.error(trans("home.deleteErrorMsg"))
+                        () => messageInstance.error(trans("home.deleteErrorMsg"))
                       )
                     ),
                   confirmBtnType: "delete",
@@ -139,7 +140,7 @@ export function HeaderStartDropdown(props: { setEdit: () => void }) {
               },
             ]}
           />
-        }
+        )}
       >
         <EditTextWrapper
           style={{ width: "fit-content", maxWidth: "288px", padding: "0 8px" }}

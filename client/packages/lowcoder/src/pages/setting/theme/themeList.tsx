@@ -1,4 +1,4 @@
-import { Button, Dropdown, Empty, Menu, message, Table, Typography } from "antd";
+import { Button, Dropdown, Empty, Menu, Table, Typography } from "antd";
 import { timestampToHumanReadable } from "util/dateTimeUtils";
 import { MENU_TYPE } from "./themeConstant";
 import React, { useState } from "react";
@@ -16,6 +16,7 @@ import {
 } from "./styledComponents";
 import { ThemeType } from "api/commonSettingApi";
 import { trans } from "i18n";
+import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 
 const { Column } = Table;
 
@@ -100,13 +101,13 @@ function ThemeList(props: ThemeListProp) {
                   triggerType: ["text"],
                   onChange: (value) => {
                     if (!value.trim()) {
-                      message.warn(trans("home.nameCheckMessage"));
+                      messageInstance.warning(trans("home.nameCheckMessage"));
                       return;
                     }
                     // check duplicate names
                     const isExist = themeList?.find((theme) => theme.name === value);
                     if (isExist && value !== theme.name) {
-                      message.error(trans("theme.checkDuplicateNames"));
+                      messageInstance.error(trans("theme.checkDuplicateNames"));
                       return;
                     }
                     clickMenu({ key: MENU_TYPE.RENAME, themeId: theme.id, name: value });
@@ -153,7 +154,7 @@ function ThemeList(props: ThemeListProp) {
                 <Dropdown
                   trigger={["click"]}
                   getPopupContainer={() => tableRef.current!}
-                  overlay={
+                  dropdownRender={() => (
                     <Menu
                       onClick={(params) => {
                         if (params.key !== MENU_TYPE.RENAME) {
@@ -186,7 +187,7 @@ function ThemeList(props: ThemeListProp) {
                         },
                       ]}
                     />
-                  }
+                  )}
                 >
                   <MoreIconDiv>
                     <StyledMoreActionIcon />

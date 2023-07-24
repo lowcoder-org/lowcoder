@@ -1,4 +1,4 @@
-import { Dropdown, message, Skeleton } from "antd";
+import { Dropdown, Skeleton } from "antd";
 import LayoutHeader from "components/layout/Header";
 import { SHARE_TITLE } from "constants/apiConstants";
 import { AppTypeEnum } from "constants/applicationConstants";
@@ -17,7 +17,7 @@ import {
   TacoButton,
 } from "lowcoder-design";
 import { trans } from "i18n";
-import moment from "moment";
+import dayjs from "dayjs";
 import { useContext, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { publishApplication, updateAppMetaAction } from "redux/reduxActions/applicationActions";
@@ -38,6 +38,7 @@ import { Logo, LogoHome, LogoWithName } from "@lowcoder-ee/assets/images";
 import { HeaderStartDropdown } from "./headerStartDropdown";
 import { AppPermissionDialog } from "../../components/PermissionDialog/AppPermissionDialog";
 import { getBrandingConfig } from "../../redux/selectors/configSelectors";
+import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 
 const StyledLink = styled.a`
   display: flex;
@@ -301,7 +302,7 @@ export default function Header(props: HeaderProps) {
             editing={editing}
             onFinish={(value) => {
               if (!value.trim()) {
-                message.warn(trans("header.nameCheckMessage"));
+                messageInstance.warning(trans("header.nameCheckMessage"));
                 return;
               }
               dispatch(updateAppMetaAction({ applicationId: applicationId, name: value }));
@@ -342,7 +343,7 @@ export default function Header(props: HeaderProps) {
               CustomModal.confirm({
                 title: trans("header.recoverAppSnapshotTitle"),
                 content: trans("header.recoverAppSnapshotContent", {
-                  time: moment(selectedSnapshot.createTime).format("YYYY-MM-DD HH:mm"),
+                  time: dayjs(selectedSnapshot.createTime).format("YYYY-MM-DD HH:mm"),
                 }),
                 onConfirm: () => {
                   dispatch(
@@ -388,7 +389,7 @@ export default function Header(props: HeaderProps) {
         className="cypress-header-dropdown"
         placement="bottomRight"
         trigger={["click"]}
-        overlay={
+        dropdownRender={() => (
           <DropdownMenuStyled
             style={{ minWidth: "110px", borderRadius: "4px" }}
             onClick={(e) => {
@@ -409,7 +410,7 @@ export default function Header(props: HeaderProps) {
               },
             ]}
           />
-        }
+        )}
       >
         <PackUpBtn buttonType="primary">
           <PackUpIcon />
