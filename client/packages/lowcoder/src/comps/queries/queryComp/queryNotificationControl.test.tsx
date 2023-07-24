@@ -3,6 +3,15 @@ import { trans } from "../../../i18n";
 import { evalAndReduce } from "comps/utils";
 import { messageInstance } from "lowcoder-design";
 
+jest.mock('lowcoder-design/src/components/GlobalInstances', () => ({
+  __esModule: true, // this property makes it work
+  default: 'mockedDefaultExport',
+  messageInstance: {
+    error: jest.fn(),
+    success: jest.fn(),
+  },
+}));
+
 const param = {
   value: {
     showSuccess: true,

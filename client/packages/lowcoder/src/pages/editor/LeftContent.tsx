@@ -540,7 +540,6 @@ export const LeftContent = (props: LeftContentProps) => {
     <LeftContentWrapper className="cypress-left-content">
       <LeftContentTabs
         defaultActiveKey={LeftTabKey.ModuleSetting}
-        // TODO: RAHEEL
         items={tabItems}
       >
       </LeftContentTabs>
