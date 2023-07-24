@@ -1,4 +1,7 @@
-import { AjvError, ErrorListProps, UISchemaSubmitButtonOptions, withTheme } from "@rjsf/core";
+import { withTheme } from '@rjsf/core';
+import { RJSFValidationError, ErrorListProps, UISchemaSubmitButtonOptions } from "@rjsf/utils";
+import validator from "@rjsf/validator-ajv8";
+// import Ajv from "@rjsf/validator-ajv8";
 import { Button } from "antd";
 import { BoolControl } from "comps/controls/boolControl";
 import { jsonObjectExposingStateControl } from "comps/controls/codeStateControl";
@@ -107,7 +110,7 @@ function convertData(schema?: JSONSchema7, data?: any) {
 // refer to ajv-i18n, https://github.com/ajv-validator/ajv-i18n/blob/master/messages/index.js
 // https://github.com/ajv-validator/ajv/tree/6a671057ea6aae690b5967ee26a0ddf8452c6297#Validation-keywords
 // JSON schema refer to https://json-schema.org/understanding-json-schema/reference/
-function getErrorMessage(error: AjvError): string {
+function getErrorMessage(error: RJSFValidationError): string {
   switch (error.name) {
     case "required":
       return trans("jsonSchemaForm.required");
@@ -133,7 +136,7 @@ function getErrorMessage(error: AjvError): string {
   return "";
 }
 
-function transformErrors(errors: AjvError[]): AjvError[] {
+function transformErrors(errors: RJSFValidationError[]): RJSFValidationError[] {
   return errors.map((error) => {
     const message = getErrorMessage(error);
     if (message) {
@@ -194,13 +197,14 @@ let FormBasicComp = (function () {
       <Container $style={props.style}>
         <ErrorBoundary>
           <Form
+            validator={validator}
             schema={props.schema}
             uiSchema={props.uiSchema}
             formData={convertData(props.schema, props.data.value)}
             onSubmit={() => onSubmit(props)}
             onChange={(e) => props.data.onChange(e.formData)}
             transformErrors={(errors) => transformErrors(errors)}
-            ErrorList={ErrorList}
+            // ErrorList={ErrorList}
             children={
               <Button
                 hidden={buttonOptions?.norender}

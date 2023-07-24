@@ -64,7 +64,7 @@ export const PermissionDialog = (props: {
 
   return (
     <StepModal
-      visible={visible}
+      open={visible}
       destroyOnClose
       onCancel={() => {
         setActiveStepKey("view");

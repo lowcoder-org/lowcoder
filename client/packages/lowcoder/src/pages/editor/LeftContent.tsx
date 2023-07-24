@@ -516,24 +516,33 @@ export const LeftContent = (props: LeftContentProps) => {
     return <LeftContentWrapper className="cypress-left-content">{stateContent}</LeftContentWrapper>;
   }
 
+  const tabItems = [
+    {
+      key: LeftTabKey.State,
+      label: <TabTitle text={trans("leftPanel.stateTab")} />,
+      children: <>{ stateContent }</>
+    },
+    {
+      key: LeftTabKey.ModuleSetting,
+      label: <TabTitle text={trans("leftPanel.settingsTab")} />,
+      children: (
+        <ScrollBar>
+          <div style={{ paddingBottom: 80, paddingTop: 16 }}>
+            <BaseSection width={288} noMargin>
+              <span>{moduleLayoutComp.getConfigView()}</span>
+            </BaseSection>
+          </div>
+        </ScrollBar>
+      )
+    }
+  ]
   return (
     <LeftContentWrapper className="cypress-left-content">
-      <LeftContentTabs defaultActiveKey={LeftTabKey.ModuleSetting}>
-        <Tabs.TabPane key={LeftTabKey.State} tab={<TabTitle text={trans("leftPanel.stateTab")} />}>
-          {stateContent}
-        </Tabs.TabPane>
-        <Tabs.TabPane
-          key={LeftTabKey.ModuleSetting}
-          tab={<TabTitle text={trans("leftPanel.settingsTab")} />}
-        >
-          <ScrollBar>
-            <div style={{ paddingBottom: 80, paddingTop: 16 }}>
-              <BaseSection width={288} noMargin>
-                <span>{moduleLayoutComp.getConfigView()}</span>
-              </BaseSection>
-            </div>
-          </ScrollBar>
-        </Tabs.TabPane>
+      <LeftContentTabs
+        defaultActiveKey={LeftTabKey.ModuleSetting}
+        // TODO: RAHEEL
+        items={tabItems}
+      >
       </LeftContentTabs>
     </LeftContentWrapper>
   );

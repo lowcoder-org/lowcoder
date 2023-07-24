@@ -1,4 +1,4 @@
-import { message, Tabs } from "antd";
+import { Tabs } from "antd";
 import { JSONObject, JSONValue } from "util/jsonTypes";
 import { CompAction, CompActionTypes, deleteCompAction, wrapChildAction } from "lowcoder-core";
 import { DispatchType, RecordConstructorToView, wrapDispatch } from "lowcoder-core";
@@ -32,8 +32,7 @@ import { BoolCodeControl } from "comps/controls/codeControl";
 import { DisabledContext } from "comps/generators/uiCompBuilder";
 import { EditorContext } from "comps/editorState";
 import { checkIsMobile } from "util/commonUtils";
-
-const { TabPane } = Tabs;
+import { messageInstance } from "lowcoder-design";
 
 const EVENT_OPTIONS = [
   {
@@ -163,6 +162,56 @@ const TabbedContainer = (props: TabbedContainerProps) => {
 
   // log.debug("TabbedContainer. props: ", props);
 
+  const tabItems = visibleTabs.map((tab) => {
+    // log.debug("Tab. tab: ", tab, " containers: ", containers);
+    const id = String(tab.id);
+    const childDispatch = wrapDispatch(wrapDispatch(dispatch, "containers"), id);
+    const containerProps = containers[id].children;
+    const hasIcon = tab.icon.props.value;
+    const label = (
+      <>
+        {tab.iconPosition === "left" && hasIcon && (
+          <span style={{ marginRight: "4px" }}>{tab.icon}</span>
+        )}
+        {tab.label}
+        {tab.iconPosition === "right" && hasIcon && (
+          <span style={{ marginLeft: "4px" }}>{tab.icon}</span>
+        )}
+      </>
+    );
+    return {
+      label,
+      key: tab.key,
+      forceRender: true,
+      children: (
+        <BackgroundColorContext.Provider value={props.style.background}>
+          <ContainerInTab
+            layout={containerProps.layout.getView()}
+            items={gridItemCompToGridItems(containerProps.items.getView())}
+            positionParams={containerProps.positionParams.getView()}
+            dispatch={childDispatch}
+            autoHeight={props.autoHeight}
+            containerPadding={[paddingWidth, 20]}
+          />
+        </BackgroundColorContext.Provider>
+      )
+    }
+    // return (
+    //   <TabPane tab={label} key={tab.key} forceRender>
+    //     <BackgroundColorContext.Provider value={props.style.background}>
+    //       <ContainerInTab
+    //         layout={containerProps.layout.getView()}
+    //         items={gridItemCompToGridItems(containerProps.items.getView())}
+    //         positionParams={containerProps.positionParams.getView()}
+    //         dispatch={childDispatch}
+    //         autoHeight={props.autoHeight}
+    //         containerPadding={[paddingWidth, 20]}
+    //       />
+    //     </BackgroundColorContext.Provider>
+    //   </TabPane>
+    // );
+  })
+
   return (
     <div style={{padding: props.style.margin}}>
     <StyledTabs
@@ -178,39 +227,8 @@ const TabbedContainer = (props: TabbedContainerProps) => {
       animated
       $isMobile={isMobile}
       // tabBarGutter={32}
+      items={tabItems}
     >
-      {visibleTabs.map((tab) => {
-        // log.debug("Tab. tab: ", tab, " containers: ", containers);
-        const id = String(tab.id);
-        const childDispatch = wrapDispatch(wrapDispatch(dispatch, "containers"), id);
-        const containerProps = containers[id].children;
-        const hasIcon = tab.icon.props.value;
-        const label = (
-          <>
-            {tab.iconPosition === "left" && hasIcon && (
-              <span style={{ marginRight: "4px" }}>{tab.icon}</span>
-            )}
-            {tab.label}
-            {tab.iconPosition === "right" && hasIcon && (
-              <span style={{ marginLeft: "4px" }}>{tab.icon}</span>
-            )}
-          </>
-        );
-        return (
-          <TabPane tab={label} key={tab.key} forceRender>
-            <BackgroundColorContext.Provider value={props.style.background}>
-              <ContainerInTab
-                layout={containerProps.layout.getView()}
-                items={gridItemCompToGridItems(containerProps.items.getView())}
-                positionParams={containerProps.positionParams.getView()}
-                dispatch={childDispatch}
-                autoHeight={props.autoHeight}
-                containerPadding={[paddingWidth, 20]}
-              />
-            </BackgroundColorContext.Provider>
-          </TabPane>
-        );
-      })}
     </StyledTabs>
     </div>
   );
@@ -293,7 +311,7 @@ class TabbedContainerImplComp extends TabbedContainerBaseComp implements IContai
         } as CompAction;
       }
       if (value.type === "delete" && this.children.tabs.getView().length <= 1) {
-        message.warn(trans("tabbedContainer.atLeastOneTabError"));
+        messageInstance.warning(trans("tabbedContainer.atLeastOneTabError"));
         // at least one tab
         return this;
       }

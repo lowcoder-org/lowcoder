@@ -243,11 +243,24 @@ enum TabKey {
 function PreloadConfigModal(props: ChildrenInstance) {
   const [activeKey, setActiveKey] = useState(TabKey.JavaScript);
   const { showScriptsAndStyleModal, changeExternalState } = useContext(ExternalEditorContext);
+  
+  const tabItems = [
+    {
+      key: TabKey.JavaScript,
+      label: 'JavaScript',
+      children: <JavaScriptTabPane comp={props.script} />
+    },
+    {
+      key: TabKey.CSS,
+      label: 'CSS',
+      children: <CSSTabPane comp={props.css} />
+    },
+  ]
   return (
     <CustomModal
       draggable
       mask={activeKey !== TabKey.CSS}
-      visible={showScriptsAndStyleModal}
+      open={showScriptsAndStyleModal}
       title={trans("preLoad.scriptsAndStyles")}
       destroyOnClose
       onCancel={() => changeExternalState?.({ showScriptsAndStyleModal: false })}
@@ -259,13 +272,8 @@ function PreloadConfigModal(props: ChildrenInstance) {
         onChange={(k) => setActiveKey(k as TabKey)}
         style={{ marginBottom: 8, marginTop: 4 }}
         activeKey={activeKey}
+        items={ tabItems }
       >
-        <Tabs.TabPane key={TabKey.JavaScript} tab="JavaScript">
-          <JavaScriptTabPane comp={props.script} />
-        </Tabs.TabPane>
-        <Tabs.TabPane key={TabKey.CSS} tab="CSS">
-          <CSSTabPane comp={props.css} />
-        </Tabs.TabPane>
       </Tabs>
     </CustomModal>
   );

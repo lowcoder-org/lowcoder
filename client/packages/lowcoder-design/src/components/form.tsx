@@ -335,7 +335,7 @@ const FormSelect = (props: any) => {
           onChange(x);
           props.afterChange && props.afterChange(x);
         }}
-        dropdownMatchSelectWidth={false}
+        popupMatchSelectWidth={false}
         placeholder={props.placeholder}
         dropdownRender={props.dropdownRender}
       >

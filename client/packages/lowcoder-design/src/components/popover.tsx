@@ -68,8 +68,8 @@ const SimplePopover = (props: {
       destroyTooltipOnHide
       content={contentWithBox}
       trigger="click"
-      visible={visible}
-      onVisibleChange={setVisible}
+      open={visible}
+      onOpenChange={setVisible}
       placement="left"
       overlayStyle={{ width: "310px" }}
     >
@@ -100,8 +100,8 @@ const CustomPopover = (props: {
     <Popover
       content={contentWithBox}
       trigger="click"
-      visible={visible}
-      onVisibleChange={setVisible}
+      open={visible}
+      onOpenChange={setVisible}
       placement={props.type === "query" ? "top" : "left"}
       overlayStyle={{ width: "310px" }}
       align={{
@@ -225,8 +225,8 @@ const EditPopover = (props: EditPopoverProps) => {
         </>
       )}
       trigger="click"
-      visible={visible}
-      onVisibleChange={setVisible}
+      open={visible}
+      onOpenChange={setVisible}
       placement="bottomRight"
       // overlayStyle={{ width: "88px" }}
       align={{

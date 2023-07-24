@@ -1,6 +1,7 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import type { IconDefinition } from "@fortawesome/free-regular-svg-icons";
 import { Popover } from "antd";
+import { ActionType } from '@rc-component/trigger/lib/interface';
 import { TacoInput } from "components/tacoInput";
 import { Tooltip } from "components/toolTip";
 import { trans } from "i18n/design";
@@ -274,7 +275,7 @@ export const IconSelectBase = (props: {
   children?: ReactNode;
   visible?: boolean;
   setVisible?: (v: boolean) => void;
-  trigger?: string;
+  trigger?: ActionType;
   leftOffset?: number;
   parent?: HTMLElement | null;
   searchKeywords?: Record<string, string>;
@@ -285,8 +286,8 @@ export const IconSelectBase = (props: {
       trigger={props.trigger}
       placement="left"
       align={{ offset: [props.leftOffset ?? 0, 0, 0, 0] }}
-      visible={props.visible}
-      onVisibleChange={setVisible}
+      open={props.visible}
+      onOpenChange={setVisible}
       getPopupContainer={parent ? () => parent : undefined}
       // hide the original background when dragging the popover is allowed
       overlayInnerStyle={{ border: "none", boxShadow: "none", background: "transparent" }}

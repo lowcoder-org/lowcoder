@@ -53,7 +53,7 @@ export const MoveToFolderModal = (props: { source?: HomeRes; onClose: () => void
 
   return (
     <CustomModal
-      visible={!!props.source}
+      open={!!props.source}
       onCancel={props.onClose}
       destroyOnClose={true}
       width="408px"
