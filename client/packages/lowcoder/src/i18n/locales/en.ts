@@ -1139,6 +1139,7 @@ export const en = {
     fixed: "Fixed",
     columnType: "Column type",
     text: "Text",
+    number: "Number",
     link: "Link",
     links: "Links",
     tag: "Tag",
