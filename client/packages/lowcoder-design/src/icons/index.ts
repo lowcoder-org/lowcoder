@@ -287,4 +287,5 @@ export { ReactComponent as FileFolderIcon } from "icons/icon-editor-folder.svg";
 export { ReactComponent as ExpandIcon } from "icons/icon-expand.svg";
 export { ReactComponent as CompressIcon } from "icons/icon-compress.svg";
 export { ReactComponent as TableCellsIcon } from "icons/icon-table-cells.svg"; // Added By Aqib Mirza
+export { ReactComponent as TimeLineIcon } from "icons/icon-timeline-comp.svg"
 export { ReactComponent as LottieIcon } from "icons/icon-lottie.svg";
