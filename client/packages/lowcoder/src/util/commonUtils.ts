@@ -1,14 +1,14 @@
 import log, { LogLevelDesc } from "loglevel";
-import moment from "moment";
+import dayjs from "dayjs";
 import { getMomentLocale } from "i18n/momentLocale";
 import _ from "lodash";
 
 // https://github.com/vitejs/vite/discussions/7492#discussioncomment-2449310
-import "moment/dist/locale/en-gb";
-import "moment/dist/locale/zh-cn";
+import "dayjs/locale/en-gb";
+import "dayjs/locale/zh-cn";
 
 export function initApp() {
-  moment.locale(getMomentLocale());
+  dayjs.locale(getMomentLocale());
   const logLevel = getEnvLogLevel();
   log.setLevel(logLevel);
 }

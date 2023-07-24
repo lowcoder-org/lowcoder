@@ -1,5 +1,5 @@
 import _ from "lodash";
-import moment from "moment";
+import dayjs from "dayjs";
 import { RecordConstructorToComp, RecordConstructorToView } from "lowcoder-core";
 import {
   BoolCodeControl,
@@ -49,6 +49,7 @@ import { TimeUIView } from "./timeUIView";
 import { TimeRangeUIView } from "comps/comps/dateComp/timeRangeUIView";
 import { RefControl } from "comps/controls/refControl";
 import { CommonPickerMethods } from "antd/lib/date-picker/generatePicker/interface";
+import { TimePickerProps } from "antd";
 
 const EventOptions = [changeEvent, focusEvent, blurEvent] as const;
 
@@ -76,7 +77,7 @@ const commonChildren = {
 };
 
 const timePickerComps = (props: RecordConstructorToView<typeof commonChildren>) =>
-  _.pick(props, "format", "use12Hours", "hourStep", "minuteStep", "secondStep");
+  _.pick(props, "format", "use12Hours", "minuteStep", "secondStep");
 
 const commonBasicSection = (children: RecordConstructorToComp<typeof commonChildren>) => [
   formatPropertyView({ children }),
@@ -101,7 +102,7 @@ function validate(
     return { validateStatus: "error", help: props.customRule };
   }
 
-  const current = moment(props.value.value, TimeParser);
+  const current = dayjs(props.value.value, TimeParser);
   if (props.required && !current.isValid()) {
     return { validateStatus: "error", help: trans("prop.required") };
   }
@@ -113,9 +114,16 @@ const childrenMap = {
   ...commonChildren,
   ...formDataChildren,
 };
+
+type hourStepType =  TimePickerProps['hourStep'];
+type minuteStepType =  TimePickerProps['minuteStep'];
+type secondStepType =  TimePickerProps['secondStep'];
+
 export type TimeCompViewProps = Pick<
   RecordConstructorToView<typeof childrenMap>,
-  "disabled" | "use12Hours" | "hourStep" | "minuteStep" | "secondStep" | "format" | "viewRef"
+  "disabled" | "use12Hours" | "format" | "viewRef"
+> & Pick<
+  TimePickerProps, "hourStep" | "minuteStep" | "secondStep"
 > & {
   onFocus: () => void;
   onBlur: () => void;
@@ -125,7 +133,7 @@ export type TimeCompViewProps = Pick<
 };
 
 export const timePickerControl = new UICompBuilder(childrenMap, (props) => {
-  const time = moment(props.value.value, TimeParser);
+  const time = dayjs(props.value.value, TimeParser);
 
   return props.label({
     required: props.required,
@@ -138,6 +146,9 @@ export const timePickerControl = new UICompBuilder(childrenMap, (props) => {
         value={time.isValid() ? time : null}
         disabledTime={() => disabledTime(props.minTime, props.maxTime)}
         {...timePickerComps(props)}
+        hourStep={props.hourStep as hourStepType}
+        minuteStep={props.hourStep as minuteStepType}
+        secondStep={props.hourStep as secondStepType}
         onChange={(time) => {
           handleDateChange(
             time && time.isValid() ? time.format(TIME_FORMAT) : "",
@@ -198,8 +209,8 @@ export const timeRangeControl = (function () {
   };
 
   return new UICompBuilder(childrenMap, (props) => {
-    const start = moment(props.start.value, TimeParser);
-    const end = moment(props.end.value, TimeParser);
+    const start = dayjs(props.start.value, TimeParser);
+    const end = dayjs(props.end.value, TimeParser);
 
     const children = (
       <TimeRangeUIView
@@ -210,6 +221,9 @@ export const timeRangeControl = (function () {
         end={end.isValid() ? end : null}
         disabledTime={() => disabledTime(props.minTime, props.maxTime)}
         {...timePickerComps(props)}
+        hourStep={props.hourStep as hourStepType}
+        minuteStep={props.hourStep as minuteStepType}
+        secondStep={props.hourStep as secondStepType}
         onChange={(start, end) => {
           props.start.onChange(start && start.isValid() ? start.format(TIME_FORMAT) : "");
           props.end.onChange(end && end.isValid() ? end.format(TIME_FORMAT) : "");
@@ -283,7 +297,7 @@ export const TimePickerComp = withExposingConfigs(timePickerControl, [
     desc: trans("export.timePickerFormattedValueDesc"),
     depKeys: ["value", "format"],
     func: (input) => {
-      const mom = moment(input.value, TimeParser);
+      const mom = dayjs(input.value, TimeParser);
       return mom.isValid() ? mom.format(input.format) : "";
     },
   }),
@@ -308,8 +322,8 @@ export let TimeRangeComp = withExposingConfigs(timeRangeControl, [
     desc: trans("export.timeRangeFormattedValueDesc"),
     depKeys: ["start", "end", "format"],
     func: (input) => {
-      const start = moment(input.start, TimeParser);
-      const end = moment(input.end, TimeParser);
+      const start = dayjs(input.start, TimeParser);
+      const end = dayjs(input.end, TimeParser);
       return [
         start.isValid() && start.format(input.format),
         end.isValid() && end.format(input.format),
@@ -323,7 +337,7 @@ export let TimeRangeComp = withExposingConfigs(timeRangeControl, [
     desc: trans("export.timeRangeFormattedStartValueDesc"),
     depKeys: ["start", "format"],
     func: (input) => {
-      const start = moment(input.start, TimeParser);
+      const start = dayjs(input.start, TimeParser);
       return start.isValid() && start.format(input.format);
     },
   }),
@@ -332,7 +346,7 @@ export let TimeRangeComp = withExposingConfigs(timeRangeControl, [
     desc: trans("export.timeRangeFormattedEndValueDesc"),
     depKeys: ["end", "format"],
     func: (input) => {
-      const end = moment(input.end, TimeParser);
+      const end = dayjs(input.end, TimeParser);
       return end.isValid() && end.format(input.format);
     },
   }),

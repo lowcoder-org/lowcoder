@@ -1,4 +1,4 @@
-import moment, { Moment } from "moment/moment";
+import dayjs from "dayjs";
 import { DateParser, TimeParser } from "util/dateTimeUtils";
 import { range } from "lodash";
 import { DateTimeStyleType } from "../../controls/styleControlConstants";
@@ -16,9 +16,9 @@ export const handleDateChange = (
   onChange(time).then(() => onEvent("change"));
 };
 
-export const disabledDate = (current: Moment, min: string, max: string) => {
-  const maxDate = moment(max, DateParser);
-  const minDate = moment(min, DateParser);
+export const disabledDate = (current: dayjs.Dayjs, min: string, max: string) => {
+  const maxDate = dayjs(max, DateParser);
+  const minDate = dayjs(min, DateParser);
   return (
     current &&
     current.isValid() &&
@@ -27,34 +27,34 @@ export const disabledDate = (current: Moment, min: string, max: string) => {
 };
 
 export const disabledTime = (min: string, max: string) => {
-  const maxTime = moment(max, TimeParser);
-  const minTime = moment(min, TimeParser);
+  const maxTime = dayjs(max, TimeParser);
+  const minTime = dayjs(min, TimeParser);
   return {
     disabledHours: () => {
       let disabledHours: number[] = [];
       if (minTime.isValid()) {
-        disabledHours = [...disabledHours, ...range(0, minTime.hours())];
+        disabledHours = [...disabledHours, ...range(0, minTime.hour())];
       }
       if (maxTime.isValid()) {
-        disabledHours = [...disabledHours, ...range(maxTime.hours() + 1, 24)];
+        disabledHours = [...disabledHours, ...range(maxTime.hour() + 1, 24)];
       }
       return disabledHours;
     },
     disabledMinutes: (hour: number) => {
       if (minTime.isValid() && minTime.hour() === hour) {
-        return range(0, minTime.minutes());
+        return range(0, minTime.minute());
       }
       if (maxTime.isValid() && maxTime.hour() === hour) {
-        return range(maxTime.minutes() + 1, 60);
+        return range(maxTime.minute() + 1, 60);
       }
       return [];
     },
     disabledSeconds: (hour: number, minute: number) => {
       if (minTime.isValid() && minTime.hour() === hour && minTime.minute() === minute) {
-        return range(0, minTime.seconds());
+        return range(0, minTime.second());
       }
-      if (maxTime.isValid() && maxTime.hours() === hour && maxTime.minute() === minute) {
-        return range(maxTime.seconds() + 1, 60);
+      if (maxTime.isValid() && maxTime.hour() === hour && maxTime.minute() === minute) {
+        return range(maxTime.second() + 1, 60);
       }
       return [];
     },

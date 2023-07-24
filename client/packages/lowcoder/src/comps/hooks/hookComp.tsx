@@ -17,7 +17,7 @@ import { HookCompConstructor, HookCompMapRawType, HookCompType } from "comps/hoo
 import { ModalComp } from "comps/hooks/modalComp";
 import { trans } from "i18n";
 import _ from "lodash";
-import moment from "moment";
+import dayjs from "dayjs";
 import { ConstructorToComp } from "lowcoder-core";
 import { Section, sectionNames } from "lowcoder-design";
 import React, { useContext, useEffect, useMemo } from "react";
@@ -30,10 +30,10 @@ import UrlParamsHookComp from "./UrlParamsHookComp";
 import { UtilsComp } from "./utilsComp";
 
 window._ = _;
-window.moment = moment;
+window.dayjs = dayjs;
 
 const LodashJsLib = simpleValueComp(_);
-const MomentJsLib = simpleValueComp(moment);
+const DayJsLib = simpleValueComp(dayjs);
 
 const WindowSizeComp = hookToStateComp(useWindowSize);
 
@@ -84,7 +84,7 @@ const HookMap: HookCompMapRawType = {
   windowSize: WindowSizeComp,
   currentTime: CurrentTimeHookComp,
   lodashJsLib: LodashJsLib,
-  momentJsLib: MomentJsLib,
+  dayJsLib: DayJsLib,
   utils: UtilsComp,
   message: MessageComp,
   localStorage: LocalStorageComp,
