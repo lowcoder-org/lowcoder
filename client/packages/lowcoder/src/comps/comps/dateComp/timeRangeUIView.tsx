@@ -28,7 +28,7 @@ export interface TimeRangeUIViewProps extends TimeCompViewProps {
 
 export const TimeRangeUIView = (props: TimeRangeUIViewProps) => {
   const editorState = useContext(EditorContext);
-  console.log(props);
+
   return useUIView(
     <TimeRangeMobileUIView {...props} />,
     <RangePickerStyled

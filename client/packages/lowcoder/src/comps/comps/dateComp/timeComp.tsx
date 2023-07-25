@@ -133,7 +133,10 @@ export type TimeCompViewProps = Pick<
 };
 
 export const timePickerControl = new UICompBuilder(childrenMap, (props) => {
-  const time = dayjs(props.value.value, TimeParser);
+  let time = dayjs(null);
+  if(props.value.value !== '') {
+    time = dayjs(props.value.value, TimeParser);
+  }
 
   return props.label({
     required: props.required,
@@ -147,8 +150,8 @@ export const timePickerControl = new UICompBuilder(childrenMap, (props) => {
         disabledTime={() => disabledTime(props.minTime, props.maxTime)}
         {...timePickerComps(props)}
         hourStep={props.hourStep as hourStepType}
-        minuteStep={props.hourStep as minuteStepType}
-        secondStep={props.hourStep as secondStepType}
+        minuteStep={props.minuteStep as minuteStepType}
+        secondStep={props.secondStep as secondStepType}
         onChange={(time) => {
           handleDateChange(
             time && time.isValid() ? time.format(TIME_FORMAT) : "",
@@ -209,21 +212,27 @@ export const timeRangeControl = (function () {
   };
 
   return new UICompBuilder(childrenMap, (props) => {
-    const start = dayjs(props.start.value, TimeParser);
-    const end = dayjs(props.end.value, TimeParser);
+    let start = null;
+    if(props.start.value !== '') {
+      start = dayjs(props.start.value, TimeParser);
+    }
+    let end = null;
+    if(props.end.value !== '') {
+      end = dayjs(props.end.value, TimeParser);
+    }
 
     const children = (
       <TimeRangeUIView
         viewRef={props.viewRef}
         $style={props.style}
         disabled={props.disabled}
-        start={start.isValid() ? start : null}
-        end={end.isValid() ? end : null}
+        start={start?.isValid() ? start : null}
+        end={end?.isValid() ? end : null}
         disabledTime={() => disabledTime(props.minTime, props.maxTime)}
         {...timePickerComps(props)}
         hourStep={props.hourStep as hourStepType}
-        minuteStep={props.hourStep as minuteStepType}
-        secondStep={props.hourStep as secondStepType}
+        minuteStep={props.minuteStep as minuteStepType}
+        secondStep={props.secondStep as secondStepType}
         onChange={(start, end) => {
           props.start.onChange(start && start.isValid() ? start.format(TIME_FORMAT) : "");
           props.end.onChange(end && end.isValid() ? end.format(TIME_FORMAT) : "");

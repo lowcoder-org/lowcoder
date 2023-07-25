@@ -17,8 +17,11 @@ export const handleDateChange = (
 };
 
 export const disabledDate = (current: dayjs.Dayjs, min: string, max: string) => {
-  const maxDate = dayjs(max, DateParser);
-  const minDate = dayjs(min, DateParser);
+  const tmpMinDate = min === '' ? undefined : min
+  const tmpMaxDate = max === '' ? undefined : max
+  const maxDate = dayjs(tmpMaxDate, DateParser);
+  const minDate = dayjs(tmpMinDate, DateParser);
+
   return (
     current &&
     current.isValid() &&
@@ -27,8 +30,11 @@ export const disabledDate = (current: dayjs.Dayjs, min: string, max: string) => 
 };
 
 export const disabledTime = (min: string, max: string) => {
-  const maxTime = dayjs(max, TimeParser);
-  const minTime = dayjs(min, TimeParser);
+  const tmpMinTime = min === '' ? undefined : min
+  const tmpMaxTime = max === '' ? undefined : max
+  const maxTime = dayjs(tmpMaxTime, TimeParser);
+  const minTime = dayjs(tmpMinTime, TimeParser);
+
   return {
     disabledHours: () => {
       let disabledHours: number[] = [];

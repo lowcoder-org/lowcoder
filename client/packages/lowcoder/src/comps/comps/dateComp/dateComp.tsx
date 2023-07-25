@@ -154,8 +154,10 @@ export type DateCompViewProps = Pick<
 };
 
 export const datePickerControl = new UICompBuilder(childrenMap, (props) => {
-  const time = dayjs(props.value.value, DateParser);
-
+  let time = dayjs(null);
+  if(props.value.value !== '') {
+    time = dayjs(props.value.value, DateParser);
+  }
   return props.label({
     required: props.required,
     style: props.style,
@@ -242,8 +244,14 @@ export const dateRangeControl = (function () {
   };
 
   return new UICompBuilder(childrenMap, (props) => {
-    const start = dayjs(props.start.value, DateParser);
-    const end = dayjs(props.end.value, DateParser);
+    let start = dayjs(null);
+    let end = dayjs(null);
+    if(props.start.value !== '') {
+      start = dayjs(props.start.value, DateParser);
+    }
+    if(props.end.value !== '') {
+      end = dayjs(props.end.value, DateParser);
+    }
 
     const children = (
       <DateRangeUIView

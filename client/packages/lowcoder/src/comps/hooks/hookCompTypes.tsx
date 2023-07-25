@@ -8,6 +8,7 @@ const AllHookComp = [
   "currentTime",
   "lodashJsLib",
   "dayJsLib",
+  "momentJsLib",
   "utils",
   "message",
   "localStorage",
@@ -44,6 +45,9 @@ const HookCompConfig: Record<
     category: "hide",
   },
   dayJsLib: {
+    category: "hide",
+  },
+  momentJsLib: {
     category: "hide",
   },
   utils: { category: "hide" },
