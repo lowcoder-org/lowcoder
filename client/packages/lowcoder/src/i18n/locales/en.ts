@@ -842,6 +842,9 @@ export const en = {
     jsonLottieCompDesc: "Lottie Animation",
     jsonLottieCompKeywords: "",
     /////////////////////
+    timelineCompName: "Time Line",
+    timelineCompDesc: "Time Line",
+    timelineCompKeywords: "",
   },
   comp: {
     menuViewDocs: "View documentation",
@@ -2437,4 +2440,32 @@ export const en = {
     keepLastFrame: "Keep Last Frame",
   },
   /////////////////////
+  timeLine: {
+    titleColor: "title Color",
+    subTitleColor: "subTitle Color",
+    lableColor: "lable Color",
+    value: "value",
+    mode: "mode",
+    left: "Left",
+    right: "Right",
+    alternate: "alternate",
+    modeTooltip: "Set the content to appear left/right or alternately on both sides of the timeline",
+    reverse: "reverse",
+    pending: "pending",
+    defaultPending: "continuous improvement",
+    clickTitleEvent: "clickTitleEvent",
+    clickTitleEventDesc: "click Title Event",
+    Introduction: "Introduction keys",
+    helpTitle: "title of timeline(Required)",
+    helpsubTitle: "subtitle of timeline",
+    helpLabel: "label of timeline,be used to display dates",
+    helpColor: "Indicates timeline node color",
+    helpDot: "Rendering Timeline Nodes as Ant Design Icons",
+    helpTitleColor: "Individually control the color of node title",
+    helpSubTitleColor: "Individually control the color of node subtitle",
+    helpLableColor: "Individually control the color of node icon",
+    valueDesc: "data of timeline",
+    clickedObjectDesc: "clicked item data",
+    clickedIndexDesc: "clicked item index",
+  }
 };
