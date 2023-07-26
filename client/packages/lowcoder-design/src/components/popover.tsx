@@ -98,6 +98,7 @@ const CustomPopover = (props: {
   );
   return (
     <Popover
+      overlayInnerStyle={{padding: 0}}
       content={contentWithBox}
       trigger="click"
       open={visible}
