@@ -30,6 +30,8 @@ const Dropdown = styled(AntdDropdown)`
 `;
 
 const CreateDropdownMenu = styled(AntdMenu)`
+&&& {
+
   width: fit-content;
   min-width: 110px;
   padding: 8px;
@@ -54,7 +56,9 @@ const CreateDropdownMenu = styled(AntdMenu)`
     font-size: 13px;
     color: #333333;
     line-height: 13px;
+    display: flex;
   }
+}
 `;
 
 const CreateMenuItem = styled.div`

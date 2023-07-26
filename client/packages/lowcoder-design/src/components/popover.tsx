@@ -62,6 +62,7 @@ const SimplePopover = (props: {
   );
   return (
     <Popover
+      overlayInnerStyle={{padding: 0}}
       align={{
         offset: [-12, 0, 0, 0],
       }}
@@ -161,6 +162,9 @@ const EditPopover = (props: EditPopoverProps) => {
 
   return (
     <Popover
+      arrow={false}
+      overlayStyle={{paddingTop: '15px'}}
+      overlayInnerStyle={{padding: 0}}
       content={() => (
         <>
           <Wedge />

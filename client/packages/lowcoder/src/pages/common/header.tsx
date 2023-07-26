@@ -142,25 +142,27 @@ const LoginBtn = styled(TacoButton)`
   margin-right: 4px;
 `;
 const GrayBtn = styled(TacoButton)`
-  color: #ffffff;
-  background: #8b8fa34c;
-  border: none;
-  height: 28px;
-  padding: 4px 13px;
-  margin-right: 8px;
-  cursor: pointer;
-  --antd-wave-shadow-color: #8b8fa34c;
-
-  &:hover {
-    background: #666666;
+  &&& {
     color: #ffffff;
+    background: #8b8fa34c;
     border: none;
-  }
-
-  &:focus {
-    background: #666666;
-    color: #ffffff;
-    border: none;
+    height: 28px;
+    padding: 4px 13px;
+    margin-right: 8px;
+    cursor: pointer;
+    --antd-wave-shadow-color: #8b8fa34c;
+  
+    &:hover {
+      background: #666666;
+      color: #ffffff;
+      border: none;
+    }
+  
+    &:focus {
+      background: #666666;
+      color: #ffffff;
+      border: none;
+    }
   }
 `;
 

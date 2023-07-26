@@ -10,30 +10,33 @@ const Icon = styled.div`
 `;
 
 const Btn = styled(TacoButton)`
-  height: 13px;
-  padding: 0;
-  color: #4965f2;
-  border: none;
-  display: flex;
-  align-items: center;
-  font-size: 13px;
-  line-height: 13px;
-  box-shadow: none;
+  &&& {
 
-  :hover {
-    color: #315efb;
+    height: 13px;
+    padding: 0;
+    color: #4965f2;
     border: none;
-    background-color: #ffffff;
-  }
+    display: flex;
+    align-items: center;
+    font-size: 13px;
+    line-height: 13px;
+    box-shadow: none;
 
-  :focus {
-    color: #315efb;
-    border: none;
-    background-color: #ffffff;
-  }
+    :hover {
+      color: #315efb;
+      border: none;
+      background-color: #ffffff;
+    }
 
-  &:hover ${Icon} g {
-    stroke: #315efb;
+    :focus {
+      color: #315efb;
+      border: none;
+      background-color: #ffffff;
+    }
+
+    &:hover ${Icon} g {
+      stroke: #315efb;
+    }
   }
 `;
 
