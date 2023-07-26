@@ -790,6 +790,28 @@ export const QRCodeStyle = [
   PADDING,
 ] as const;
 
+export const TimeLineStyle = [
+  getBackground(),
+  {
+    name: "titleColor",
+    label: trans("timeLine.titleColor"),
+    color: "#000000",
+  },
+  {
+    name: "lableColor",
+    label: trans("timeLine.lableColor"),
+    color: "#000000",
+  },
+  {
+    name: "subTitleColor",
+    label: trans("timeLine.subTitleColor"),
+    color: "#848484",
+  },
+  MARGIN,	
+  PADDING,
+  RADIUS
+] as const;
+
 export const TreeStyle = [
   LABEL,
   ...getStaticBgBorderRadiusByBg(SURFACE_COLOR),

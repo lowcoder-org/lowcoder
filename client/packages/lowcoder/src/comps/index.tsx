@@ -91,6 +91,7 @@ import {
   TreeSelectIcon,
   UploadCompIcon,
   VideoCompIcon,
+  TimeLineIcon,
   LottieIcon,
 } from "lowcoder-design";
 
@@ -117,6 +118,7 @@ import { defaultCollapsibleContainerData } from "./comps/containerComp/collapsib
 import { RemoteCompInfo } from "types/remoteComp";
 import { ScannerComp } from "./comps/buttonComp/scannerComp";
 import { SignatureComp } from "./comps/signatureComp";
+import { TimeLineComp } from "./comps/timelineComp/timelineComp";
 
 //Added by Aqib Mirza
 import { JsonLottieComp } from "./comps/jsonComp/jsonLottieComp";
@@ -838,6 +840,19 @@ const uiCompMap: Registry = {
     layoutInfo: {
       w: 10,
       h: 47,
+    },
+  },
+  timeline: {
+    name: trans("uiComp.timelineCompName"),
+    enName: "timeline",
+    description: trans("uiComp.timelineCompDesc"),
+    categories: ["dataDisplay"],
+    icon: TimeLineIcon,
+    keywords: trans("uiComp.timelineCompKeywords"),
+    comp: TimeLineComp,
+    layoutInfo: {
+      w: 13,
+      h: 55,
     },
   },
 };
