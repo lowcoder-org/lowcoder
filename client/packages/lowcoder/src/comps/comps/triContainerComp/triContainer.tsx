@@ -78,7 +78,7 @@ export function TriContainer(props: TriContainerProps) {
   const paddingWidth = isMobile ? 7 : 19;
 
   return (
-    <div style={{padding: style.margin}}>
+    <div style={{padding: style.margin, height: '100%'}}>
     <Wrapper $style={style}>
       {showHeader && (
         <BackgroundColorContext.Provider value={container.style.headerBackground}>

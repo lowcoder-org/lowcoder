@@ -213,7 +213,7 @@ const TabbedContainer = (props: TabbedContainerProps) => {
   })
 
   return (
-    <div style={{padding: props.style.margin}}>
+    <div style={{padding: props.style.margin, height: '100%'}}>
     <StyledTabs
       activeKey={activeKey}
       $style={style}
