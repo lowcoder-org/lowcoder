@@ -91,14 +91,15 @@ const TimelineComp = (
   return (
     <div
       style={{
-        margin: style.margin,
-        padding: style.padding,
-        width: widthCalculator(style.margin),
-        height: heightCalculator(style.margin),
+        margin: style.margin ?? '3px',
+        padding: style.padding ?? '3px',
+        width: widthCalculator(style.margin ?? '3px'),
+        height: heightCalculator(style.margin ?? '3px'),
         background: style.background,
         overflow: "auto",
         overflowX: "hidden",
         borderRadius: style.radius,
+        //height: '100%'
       }}
     >
       <Timeline
