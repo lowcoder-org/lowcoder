@@ -305,6 +305,16 @@ export const successEvent: EventConfigType = {
   value: "success",
   description: trans("event.successDesc"),
 };
+export const deleteEvent: EventConfigType = {
+  label: trans("event.delete"),
+  value: "delete",
+  description: trans("event.deleteDesc"),
+};
+export const mentionEvent: EventConfigType = {
+  label: trans("event.mention"),
+  value: "mention",
+  description: trans("event.mentionDesc"),
+};
 
 export const InputEventHandlerControl = eventHandlerControl([
   changeEvent,
