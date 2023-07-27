@@ -145,6 +145,11 @@ const CommentCompBase = (
   useEffect(() => {
     props.commentList.onChange(commentListData);
     mergeAllMentionList(mentionList);
+    //   Used to scroll the list to the bottom after submission
+    setTimeout(() => {
+      // VirtualListRef?.current?.scrollTo(999999);
+      if (divRef.current) divRef.current.scrollTop = 999999;
+    }, 50);
   }, [commentListData]);
 
   // 获取提及搜索关键字
@@ -192,11 +197,6 @@ const CommentCompBase = (
     setCommentListData(_.concat(commentListData, [subObject]));
     setContext("");
     mergeAllMentionList(mentionList);
-    //   Used to scroll the list to the bottom after submission
-    setTimeout(() => {
-      // VirtualListRef?.current?.scrollTo(999999);
-      if (divRef.current) divRef.current.scrollTop = 999999;
-    }, 100);
     props.onEvent("submit");
   };
 
