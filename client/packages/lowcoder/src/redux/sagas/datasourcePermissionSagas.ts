@@ -8,7 +8,8 @@ import { all, put, takeLatest } from "redux-saga/effects";
 import { AxiosResponse } from "axios";
 import { validateResponse } from "api/apiUtils";
 import log from "loglevel";
-import { message } from "antd";
+import { messageInstance } from "lowcoder-design";
+
 import { LibraryQuery } from "../../api/queryLibraryApi";
 import {
   DeleteDatasourcePermissionPayload,
@@ -31,7 +32,7 @@ function* fetchPermissionsSaga(action: ReduxAction<FetchDatasourcePermissionsPay
     }
   } catch (error: any) {
     log.error("fetch datasource permissions error: ", error);
-    message.error(error.message);
+    messageInstance.error(error.message);
   }
 }
 
@@ -53,7 +54,7 @@ function* grantPermissionSaga(
     }
   } catch (error: any) {
     log.error("grant datasource permission error: ", error);
-    message.error(error.message);
+    messageInstance.error(error.message);
     action.onErrorCallback && action.onErrorCallback(error);
   }
 }
@@ -72,7 +73,7 @@ function* updatePermissionSaga(action: ReduxAction<UpdateDatasourcePermissionPay
     }
   } catch (error: any) {
     log.error("update datasource permission error: ", error);
-    message.error(error.message);
+    messageInstance.error(error.message);
   }
 }
 
@@ -90,7 +91,7 @@ function* deletePermissionSaga(action: ReduxAction<DeleteDatasourcePermissionPay
     }
   } catch (error: any) {
     log.error("delete datasource permission error: ", error);
-    message.error(error.message);
+    messageInstance.error(error.message);
   }
 }
 

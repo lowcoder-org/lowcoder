@@ -1,4 +1,4 @@
-import { Form, message } from "antd";
+import { Form } from "antd";
 import { DatasourceApi } from "../../../api/datasourceApi";
 import _ from "lodash";
 import { useState } from "react";
@@ -10,6 +10,7 @@ import { registryDataSourcePlugin } from "constants/queryConstants";
 import { DatasourceType } from "@lowcoder-ee/constants/queryConstants";
 import { Datasource } from "@lowcoder-ee/constants/datasourceConstants";
 import { getSnowflakeFormParams } from "pages/datasource/form/snowflakeDatasourceForm";
+import { messageInstance } from "lowcoder-design";
 
 export function useDatasourceForm() {
   const [testLoading, setTestLoading] = useState(false);
@@ -88,16 +89,16 @@ export function useDatasourceForm() {
     resolveTest: (request: Partial<Datasource>) => {
       form.validateFields().then(() => {
         setTestLoading(true);
-        message.destroy();
+        messageInstance.destroy();
 
         DatasourceApi.testDatasource(request)
           .then((response) => {
             response.data.code === 1
-              ? message.success(trans("query.connectSuccessfully"))
-              : message.error(response.data.message);
+              ? messageInstance.success(trans("query.connectSuccessfully"))
+              : messageInstance.error(response.data.message);
           })
           .catch((e) => {
-            message.error(JSON.stringify(e));
+            messageInstance.error(JSON.stringify(e));
           })
           .finally(() => setTestLoading(false));
       });
@@ -113,10 +114,10 @@ export function useDatasourceForm() {
     }) => {
       form.validateFields().then(() => {
         setCreateLoading(true);
-        message.destroy();
+        messageInstance.destroy();
 
         const onSuccessCallback = (response: any) => {
-          message.success(trans("query.saveSuccessfully"));
+          messageInstance.success(trans("query.saveSuccessfully"));
           const dataSource: Datasource = response.data.data;
           afterCreate?.(dataSource);
           if (dataSource.pluginDefinition) {

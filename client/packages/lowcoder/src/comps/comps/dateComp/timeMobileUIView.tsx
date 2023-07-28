@@ -1,7 +1,7 @@
 import { Picker } from "antd-mobile";
 import { CanvasContainerID } from "constants/domLocators";
 import type { TimeCompViewProps } from "./timeComp";
-import moment from "moment";
+import dayjs from "dayjs";
 import { TIME_12_FORMAT, TIME_FORMAT, TimeParser } from "util/dateTimeUtils";
 import { range } from "lodash";
 import styled from "styled-components";
@@ -55,8 +55,8 @@ const handleClick = (
     TimeCompViewProps,
     "hourStep" | "minuteStep" | "secondStep" | "use12Hours" | "disabledTime" | "onFocus" | "onBlur"
   > & {
-    value: moment.Moment | null;
-    onChange: (value: moment.Moment | null) => void;
+    value: dayjs.Dayjs | null;
+    onChange: (value: dayjs.Dayjs | null) => void;
   }
 ) => {
   const { disabledHours, disabledMinutes, disabledSeconds } = params.disabledTime();
@@ -67,7 +67,7 @@ const handleClick = (
     destroyOnClose: true,
     closeOnMaskClick: true,
     columns: (values) => {
-      const time = moment(values.join(":"), TimeParser);
+      const time = dayjs(values.join(":"), TimeParser);
       return [
         (params.use12Hours ? Hours12Columns : HoursColumns)(params.hourStep).filter(
           ({ label, value }) =>
@@ -86,7 +86,7 @@ const handleClick = (
       ? params.value.format(params.use12Hours ? TIME_12_FORMAT : TIME_FORMAT).split(":")
       : undefined,
     onConfirm: (value) => {
-      const time = moment(value.join(":"), TimeParser);
+      const time = dayjs(value.join(":"), TimeParser);
       params.onChange(time);
     },
     onClose: params.onBlur,

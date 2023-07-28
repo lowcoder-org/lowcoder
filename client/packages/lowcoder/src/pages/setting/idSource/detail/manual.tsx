@@ -1,4 +1,4 @@
-import { Button, message } from "antd";
+import { Button } from "antd";
 import { ManualWapper } from "pages/setting/idSource/styledComponents";
 import { trans } from "i18n";
 import { SyncManualIcon } from "lowcoder-design";
@@ -6,6 +6,7 @@ import { useState } from "react";
 import { validateResponse } from "api/apiUtils";
 import { AuthType } from "@lowcoder-ee/pages/setting/idSource/idSourceConstants";
 import IdSourceApi from "api/idSourceApi";
+import { messageInstance } from "lowcoder-design";
 
 export const Manual = (props: { type: AuthType }) => {
   const [manualLoading, setManualLoading] = useState(false);
@@ -14,10 +15,10 @@ export const Manual = (props: { type: AuthType }) => {
     IdSourceApi.syncManual(props.type)
       .then((resp) => {
         if (validateResponse(resp)) {
-          message.success(trans("idSource.syncManualSuccess"));
+          messageInstance.success(trans("idSource.syncManualSuccess"));
         }
       })
-      .catch((e) => message.error(e.message))
+      .catch((e) => messageInstance.error(e.message))
       .finally(() => setManualLoading(false));
   };
   return (

@@ -115,7 +115,7 @@ const dsl = {
   transformers: [],
   hooks: [
     { compType: "urlParams", comp: {}, name: "url" },
-    { compType: "momentJsLib", comp: {}, name: "moment" },
+    { compType: "dayJsLib", comp: {}, name: "dayjs" },
     { compType: "lodashJsLib", comp: {}, name: "_" },
     { compType: "utils", comp: {}, name: "utils" },
     { compType: "message", comp: {}, name: "message" },

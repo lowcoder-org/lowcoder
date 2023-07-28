@@ -1,4 +1,4 @@
-import { Collapse as AntdCollapse } from "antd";
+import { Collapse as AntdCollapse, CollapseProps } from "antd";
 import { ReactComponent as UnFold } from "icons/icon-unfold.svg";
 import { ReactComponent as Folded } from "icons/icon-folded.svg";
 import { ReactComponent as Omit } from "icons/icon-omit.svg";
@@ -98,6 +98,12 @@ export const Collapse = (props: Iprops) => {
   //   setColor(keys.length ? "#F2F7FC" : "");
   //   onChange && onChange(keys);
   // };
+  const collapseItems:CollapseProps['items'] = config.map((item) => ({
+      key: item.key,
+      label: item.title,
+      children: item.data,
+  }))
+
   return (
     // <Contain $color={props.isSelected || Color!==""}>
     <Container optColor={props.isSelected} simple={props.simple} className={props.className}>
@@ -106,19 +112,8 @@ export const Collapse = (props: Iprops) => {
         expandIcon={getExpandIcon}
         defaultActiveKey={props.isOpen ? [props.config[0].key] : []}
         // onChange={handlechange}
-      >
-        {config && config.length > 0
-          ? config.map((item, index) => {
-              return (
-                <React.Fragment key={index}>
-                  <Panel header={item.title} key={item.key} showArrow={true}>
-                    {item.data}
-                  </Panel>
-                </React.Fragment>
-              );
-            })
-          : null}
-      </AntdCollapse>
+        items={collapseItems}
+      />
     </Container>
   );
 };

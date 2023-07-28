@@ -25,52 +25,54 @@ const buttonStyleConfig = {
     }
   `,
   primary: css`
-    background: #4965f2;
-    border: 1px solid #4965f2;
-    color: #ffffff;
-
-    &.ant-btn-background-ghost {
-      background-color: #fafbff;
-      color: #4965f2;
-      border-color: #c9d1fc;
-
-      :hover {
-        color: #315efb;
-        background-color: #f5faff;
-        border-color: #c2d6ff;
-      }
-
-      :focus {
-        color: #315efb;
-        background-color: #f5faff;
-        border-color: #c2d6ff;
-      }
-    }
-
-    :focus {
+  &&& {
       background: #4965f2;
       border: 1px solid #4965f2;
       color: #ffffff;
-    }
 
-    :hover {
-      border: 1px solid #315efb;
-      background: #315efb;
-      color: #ffffff;
-    }
+      &.ant-btn-background-ghost {
+        background-color: #fafbff;
+        color: #4965f2;
+        border-color: #c9d1fc;
 
-    :disabled {
+        :hover {
+          color: #315efb;
+          background-color: #f5faff;
+          border-color: #c2d6ff;
+        }
+
+        :focus {
+          color: #315efb;
+          background-color: #f5faff;
+          border-color: #c2d6ff;
+        }
+      }
+
+      :focus {
+        background: #4965f2;
+        border: 1px solid #4965f2;
+        color: #ffffff;
+      }
+
       :hover {
+        border: 1px solid #315efb;
+        background: #315efb;
+        color: #ffffff;
+      }
+
+      :disabled {
+        :hover {
+          border: 1px solid #dbe1fd;
+          background: #dbe1fd;
+          color: #ffffff;
+          opacity: 1;
+        }
+
         border: 1px solid #dbe1fd;
         background: #dbe1fd;
         color: #ffffff;
         opacity: 1;
       }
-
-      border: 1px solid #dbe1fd;
-      background: #dbe1fd;
-      color: #ffffff;
-      opacity: 1;
     }
   `,
   blue: css`
@@ -98,37 +100,41 @@ const buttonStyleConfig = {
     }
   `,
   link: css`
-    color: #4955f2;
-    border-color: #c9d1fc;
-    background-color: #fafbff;
-
-    &:hover {
-      color: #315efb;
-      border-color: #c2d6ff;
-      background-color: #f9fbff;
-    }
-
-    &:focus {
-      color: #315efb;
-      border-color: #c2d6ff;
-      background-color: #f9fbff;
+    &&& {
+      color: #4955f2;
+      border-color: #c9d1fc;
+      background-color: #fafbff;
+  
+      &:hover {
+        color: #315efb;
+        border-color: #c2d6ff;
+        background-color: #f9fbff;
+      }
+  
+      &:focus {
+        color: #315efb;
+        border-color: #c2d6ff;
+        background-color: #f9fbff;
+      }
     }
   `,
   delete: css`
-    color: #f73131;
-    border-color: #fccdcd;
-    background-color: #fef4f4;
-
-    &:hover {
+    &&& {
       color: #f73131;
       border-color: #fccdcd;
-      background-color: #feecec;
-    }
-
-    &:focus {
-      color: #f73131;
-      border-color: #fccdcd;
-      background-color: #feecec;
+      background-color: #fef4f4;
+  
+      &:hover {
+        color: #f73131;
+        border-color: #fccdcd;
+        background-color: #feecec;
+      }
+  
+      &:focus {
+        color: #f73131;
+        border-color: #fccdcd;
+        background-color: #feecec;
+      }
     }
   `,
 };
@@ -142,7 +148,7 @@ const StyledAntdButton = styled(Button)<{ $buttonType: TacoButtonType; $loading:
   text-align: center;
   line-height: 13px;
   font-size: 13px;
-  border-radius: 4px;
+  // border-radius: 4px;
 
   &.ant-btn {
     box-shadow: none;

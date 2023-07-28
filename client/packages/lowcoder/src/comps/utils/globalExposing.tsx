@@ -1,6 +1,6 @@
 import { fromValue, Node } from "lowcoder-core";
 import _ from "lodash";
-import moment from "moment";
+import dayjs from "dayjs";
 import { useCurrentUser } from "util/currentUser";
 
 /**
@@ -42,12 +42,12 @@ export function withGlobalExposingData<T extends GlobalExposingWithName>(
         data: [
           { name: "currentUser", value: currentUser },
           { name: "_", value: _, hideInLeftPanel: true },
-          { name: "moment", value: moment, hideInLeftPanel: true },
+          { name: "dayjs", value: dayjs, hideInLeftPanel: true },
         ],
         nodes: {
           currentUser: fromValue(currentUser),
           _: fromValue(_),
-          moment: fromValue(moment),
+          dayjs: fromValue(dayjs),
         } as GlobalExposingNodes,
       },
     } as T;

@@ -1,4 +1,3 @@
-import { message } from "antd";
 import { EmptyContent } from "components/EmptyContent";
 import { HelpText } from "components/HelpText";
 import InputList from "components/InputList";
@@ -15,6 +14,7 @@ import {
   SettingContent,
 } from "./styled";
 import { trans } from "i18n";
+import { messageInstance } from "lowcoder-design";
 
 export function PluginSetting() {
   const dispatch = useDispatch();
@@ -43,7 +43,7 @@ export function PluginSetting() {
             if (value !== undefined) {
               setSettings((i) => ({ ...i, [key]: value }));
             }
-            message.success(trans("advanced.saveSuccess"));
+            messageInstance.success(trans("advanced.saveSuccess"));
           },
         })
       );

@@ -7,7 +7,7 @@ import { checkIsMobile } from "util/commonUtils";
 import React, { useContext } from "react";
 import type { TimeCompViewProps } from "./timeComp";
 import { EditorContext } from "../../editorState";
-import moment from "moment/moment";
+import dayjs from "dayjs"
 
 const TimePickerStyled = styled(TimePicker)<{ $style: DateTimeStyleType }>`
   width: 100%;
@@ -19,8 +19,8 @@ const TimeMobileUIView = React.lazy(() =>
 );
 
 export interface TimeUIViewProps extends TimeCompViewProps {
-  value: moment.Moment | null;
-  onChange: (value: moment.Moment | null) => void;
+  value: dayjs.Dayjs | null;
+  onChange: (value: dayjs.Dayjs | null) => void;
 }
 
 export const TimeUIView = (props: TimeUIViewProps) => {

@@ -7,10 +7,10 @@ import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import UserApi from "api/userApi";
 import { validateResponse } from "api/apiUtils";
-import { message } from "antd";
 import { fetchUserAction } from "redux/reduxActions/userActions";
 import { trans } from "i18n";
 import { checkPassWithMsg } from "pages/userAuth/authUtils";
+import { messageInstance } from "lowcoder-design";
 
 function PasswordCard(props: { hasPass: boolean }) {
   const [oldPass, setOldPass] = useState("");
@@ -27,12 +27,12 @@ function PasswordCard(props: { hasPass: boolean }) {
     responsePromise
       .then((resp) => {
         if (validateResponse(resp)) {
-          message.success(successMsg);
+          messageInstance.success(successMsg);
           dispatch(fetchUserAction());
         }
       })
       .catch((e) => {
-        message.error(e.message);
+        messageInstance.error(e.message);
       });
   };
 

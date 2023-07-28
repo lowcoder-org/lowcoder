@@ -38,7 +38,7 @@ export function TriggeredDialog(props: {
         </div>
       )}
       <CustomModal
-        visible={visible}
+        open={visible}
         title={modalTitle}
         destroyOnClose
         onCancel={() => setVisible(false)}

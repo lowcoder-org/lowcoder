@@ -1,7 +1,6 @@
 import ApplicationApi from "api/applicationApi";
 import { useParams } from "react-router-dom";
 import { validateResponse } from "api/apiUtils";
-import { message } from "antd";
 import history from "util/history";
 import { APPLICATION_VIEW_URL, ALL_APPLICATIONS_URL } from "constants/routesURL";
 import { WhiteLoading } from "lowcoder-design";
@@ -10,6 +9,7 @@ import { CommonTextLabel } from "lowcoder-design";
 import styled from "styled-components";
 import { trans } from "i18n";
 import { ERROR_CODES } from "constants/apiConstants";
+import { messageInstance } from "lowcoder-design";
 
 const CreateDiv = styled.div`
   display: flex;
@@ -33,7 +33,7 @@ export default function AppFromTemplate() {
         }
       })
       .catch((e) => {
-        message.error(trans("home.importError", { message: e.message }));
+        messageInstance.error(trans("home.importError", { message: e.message }));
         if (e.code !== ERROR_CODES.REQUEST_NOT_AUTHORISED) {
           history.replace(ALL_APPLICATIONS_URL);
         }

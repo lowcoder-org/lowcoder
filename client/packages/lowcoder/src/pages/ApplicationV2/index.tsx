@@ -53,8 +53,8 @@ import { useCreateFolder } from "./useCreateFolder";
 import { trans } from "../../i18n";
 import { foldersSelector } from "../../redux/selectors/folderSelector";
 import Setting from "pages/setting";
-import { message } from "antd";
 import { TypographyText } from "../../components/TypographyText";
+import { messageInstance } from "lowcoder-design";
 
 const TabLabel = styled.div`
   font-weight: 500;
@@ -119,7 +119,7 @@ const FolderName = (props: { id: string; name: string }) => {
         editing={folderNameEditing}
         onChange={(value) => {
           if (!value.trim()) {
-            message.warn(trans("home.nameCheckMessage"));
+            messageInstance.warning(trans("home.nameCheckMessage"));
             return;
           }
           dispatch(updateFolder({ id: props.id, name: value }));

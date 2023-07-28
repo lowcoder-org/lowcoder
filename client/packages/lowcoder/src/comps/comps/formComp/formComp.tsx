@@ -40,7 +40,7 @@ import {
 import { TriContainer } from "../triContainerComp/triContainer";
 import { traverseCompTree } from "../containerBase/utils";
 import { IForm } from "./formDataConstants";
-import { message, Spin } from "antd";
+import { Spin } from "antd";
 import { BoolControl } from "comps/controls/boolControl";
 import { BottomResTypeEnum } from "types/bottomRes";
 import { BoolCodeControl, JSONObjectControl } from "comps/controls/codeControl";
@@ -56,6 +56,7 @@ import { trans } from "i18n";
 import log from "loglevel";
 import { DisabledContext } from "comps/generators/uiCompBuilder";
 import { LoadingOutlined } from "@ant-design/icons";
+import { messageInstance } from "lowcoder-design";
 
 const eventOptions = [submitEvent] as const;
 
@@ -290,7 +291,7 @@ let FormTmpComp = class extends FormBaseComp implements IForm {
         return Promise.resolve();
       });
     } else {
-      message.error(trans("formComp.notValidForm"));
+      messageInstance.error(trans("formComp.notValidForm"));
       return Promise.reject("formComp.notValidForm");
     }
   }

@@ -92,7 +92,7 @@ function CreateModal(props: CreateModalProp) {
     <CustomModalStyled
       width="602px"
       title={trans("theme.createTheme")}
-      visible={modalVisible}
+      open={modalVisible}
       onOk={handleOk}
       okButtonProps={{ disabled: !name || !selectId }}
       onCancel={handleCancel}

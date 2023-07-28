@@ -182,9 +182,11 @@ function ToolTipLabel(
       color="#2c2c2c"
       title={title && <TooltipTitleWrapper>{title}</TooltipTitleWrapper>}
       overlayInnerStyle={{ maxWidth: "232px", whiteSpace: "break-spaces" }}
-      arrowPointAtCenter={true}
+      arrow={{
+        pointAtCenter: true
+      }}
       placement="top"
-      defaultVisible={false}
+      defaultOpen={false}
       trigger="hover"
       popupVisible={!!title}
       style={tooltipStyle}

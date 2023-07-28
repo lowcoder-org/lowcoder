@@ -301,7 +301,7 @@ export default function BottomMetaDrawer(props: BottomMetaDrawerProps) {
         placement="bottom"
         closable={false}
         onClose={() => setVisible(false)}
-        visible={visible}
+        open={visible}
         getContainer={false}
       >
         <DataSourceStructureTree dataSourceId={dataSourceId} datasourceType={queryType} />

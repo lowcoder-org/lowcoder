@@ -7,7 +7,6 @@ import {
   SetCommonSettingPayload,
   ThemeType,
 } from "api/commonSettingApi";
-import { message } from "antd";
 import ThemeList from "./themeList";
 import { DETAIL_TYPE, MENU_TYPE } from "./themeConstant";
 import CreateModal from "./createModal";
@@ -19,6 +18,7 @@ import { CreateButton, ThemeContent } from "./styledComponents";
 import { genQueryId } from "comps/utils/idGenerator";
 import { trans } from "i18n";
 import { Level1SettingPageTitleWithBtn } from "../styled";
+import { messageInstance } from "lowcoder-design";
 
 type ThemeProps = {
   setCommonSettings: (params: SetCommonSettingPayload) => void;
@@ -72,7 +72,7 @@ class ThemePage extends React.Component<ThemeProps, ThemeState> {
   createTheme(params: ThemeType) {
     // check duplicate names
     if (this.props.themeList?.find((theme) => theme.name === params.name)) {
-      message.error(trans("theme.checkDuplicateNames"));
+      messageInstance.error(trans("theme.checkDuplicateNames"));
       return;
     }
     this.setState({
@@ -123,7 +123,7 @@ class ThemePage extends React.Component<ThemeProps, ThemeState> {
       },
       onSuccess: () => {
         if (tips) {
-          message.success(tips);
+          messageInstance.success(tips);
         }
         this.props.fetchCommonSettings(this.props.orgId);
       },

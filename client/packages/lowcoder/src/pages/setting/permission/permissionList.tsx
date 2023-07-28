@@ -1,4 +1,4 @@
-import { message, Typography } from "antd";
+import { Typography } from "antd";
 import OrgApi from "api/orgApi";
 import { buildGroupId } from "constants/routesURL";
 import { AddIcon, CustomModal, EditPopover } from "lowcoder-design";
@@ -24,6 +24,7 @@ import { currentOrgAdmin, isGroupAdmin } from "../../../util/permissionUtils";
 import { timestampToHumanReadable } from "../../../util/dateTimeUtils";
 import { usePermissionMenuItems } from "@lowcoder-ee/pages/setting/permission/permissionMenuItems";
 import { OrgGroup } from "constants/orgConstants";
+import { messageInstance } from "lowcoder-design";
 
 const NEW_GROUP_PREFIX = trans("memberSettings.newGroupPrefix");
 
@@ -73,7 +74,7 @@ export default function PermissionSetting() {
         }
       })
       .catch((e) => {
-        message.error(e.message);
+        messageInstance.error(e.message);
       })
       .finally(() => {
         setGroupCreating(false);
@@ -87,7 +88,7 @@ export default function PermissionSetting() {
         }
       })
       .catch((e) => {
-        message.error(e.message);
+        messageInstance.error(e.message);
       });
   };
 
@@ -155,7 +156,7 @@ export default function PermissionSetting() {
                       triggerType: ["text"],
                       onChange: (value) => {
                         if (!value.trim()) {
-                          message.warn(trans("home.nameCheckMessage"));
+                          messageInstance.warning(trans("home.nameCheckMessage"));
                           return;
                         }
                         dispatch(updateGroupAction(record.key, { groupName: value }, orgId));

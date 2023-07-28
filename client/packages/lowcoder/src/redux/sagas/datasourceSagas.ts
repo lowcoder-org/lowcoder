@@ -13,7 +13,8 @@ import {
 } from "redux/reduxActions/datasourceActions";
 import { validateResponse } from "api/apiUtils";
 import log from "loglevel";
-import { message } from "antd";
+import { messageInstance } from "lowcoder-design";
+
 import { Datasource } from "@lowcoder-ee/constants/datasourceConstants";
 
 export function* fetchDatasourceSaga(action: EvaluationReduxAction<FetchDatasourcePayload>) {
@@ -31,7 +32,7 @@ export function* fetchDatasourceSaga(action: EvaluationReduxAction<FetchDatasour
     }
   } catch (error: any) {
     log.error("fetch datasource error: ", error);
-    message.error(error.message);
+    messageInstance.error(error.message);
   }
 }
 
@@ -72,7 +73,7 @@ export function* fetchDatasourceStructureSaga(action: EvaluationReduxAction<any>
     }
   } catch (error: any) {
     log.error("fetch datasource structure error: ", error);
-    message.error(error.message);
+    messageInstance.error(error.message);
   }
 }
 
@@ -93,7 +94,7 @@ export function* createDatasourceSaga(action: ReduxActionWithCallbacks<Datasourc
     }
   } catch (error: any) {
     log.error("create datasource error: ", error);
-    message.error(error.message);
+    messageInstance.error(error.message);
     action.onErrorCallback && action.onErrorCallback(error);
   }
 }
@@ -115,7 +116,7 @@ export function* updateDatasourceSaga(action: ReduxActionWithCallbacks<Datasourc
     }
   } catch (error: any) {
     log.error("update datasource error: ", error);
-    message.error(error.message);
+    messageInstance.error(error.message);
     action.onErrorCallback && action.onErrorCallback(error);
   }
 }
@@ -137,7 +138,7 @@ export function* deleteDatasourceSaga(
     }
   } catch (error: any) {
     log.error("delete datasource error: ", error);
-    message.error(error.message);
+    messageInstance.error(error.message);
   }
 }
 

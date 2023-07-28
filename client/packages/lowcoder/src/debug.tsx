@@ -76,6 +76,10 @@ const childrenMap = {
   currentTime: CurrentTimeHookComp,
 };
 const menuKeys = Object.keys(childrenMap);
+const menuItems = menuKeys.map((key) => ({
+  key,
+  title: key,
+}))
 
 const DebugComp = withViewFn(simpleMultiComp(childrenMap), (debugComp) => {
   const history = useHistory();
@@ -92,10 +96,8 @@ const DebugComp = withViewFn(simpleMultiComp(childrenMap), (debugComp) => {
             // this.setState({selectedKey: e.key});
           }}
           selectedKeys={[selectedKey]}
+          items={menuItems}
         >
-          {menuKeys.map((key) => (
-            <Menu.Item key={key}>{key}</Menu.Item>
-          ))}
         </Menu>
       </Layout.Sider>
       <Layout.Content>

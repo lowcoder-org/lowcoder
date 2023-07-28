@@ -390,7 +390,7 @@ export const DatasourceModal = (props: ResourceModalProps) => {
         onClick={(e) => e.stopPropagation()}
       >
         <CreateDataSourceModal
-          visible={visible}
+          open={visible}
           onCancel={() => setVisible(false)}
           dataSource={props.datasource}
           onCreated={(dataSource: Datasource) => {

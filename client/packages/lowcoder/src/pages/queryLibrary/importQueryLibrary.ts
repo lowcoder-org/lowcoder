@@ -1,7 +1,7 @@
 import { trans } from "../../i18n";
 import { createQueryLibrary } from "../../redux/reduxActions/queryLibraryActions";
-import { message } from "antd";
 import { Dispatch } from "redux";
+import { messageInstance } from "lowcoder-design";
 
 export const importQueryLibrary = (params: {
   dispatch: Dispatch;
@@ -16,13 +16,13 @@ export const importQueryLibrary = (params: {
     try {
       if (!e.target?.result) {
         onError(new Error(trans("home.fileUploadError")));
-        message.error(trans("home.fileUploadError"));
+        messageInstance.error(trans("home.fileUploadError"));
         return;
       }
       const dsl = JSON.parse(e.target.result.toString());
       if (!dsl || !dsl.query || !dsl.query.compType) {
         onError(new Error(trans("home.fileFormatError")));
-        message.error(trans("home.fileFormatError"));
+        messageInstance.error(trans("home.fileFormatError"));
         return;
       }
       params.dispatch(
@@ -33,19 +33,19 @@ export const importQueryLibrary = (params: {
             libraryQueryDSL: dsl,
           },
           (resp) => {
-            message.success(trans("home.importSuccess"));
+            messageInstance.success(trans("home.importSuccess"));
             onSuccess(trans("success"));
             params.onSuccess(resp);
           },
           () => {
             onError(new Error(trans("home.fileUploadError")));
-            message.error(trans("home.fileUploadError"));
+            messageInstance.error(trans("home.fileUploadError"));
           }
         )
       );
     } catch (e: any) {
       onError(e);
-      message.error(trans("home.importError", { message: e.message }));
+      messageInstance.error(trans("home.importError", { message: e.message }));
     }
   };
 };

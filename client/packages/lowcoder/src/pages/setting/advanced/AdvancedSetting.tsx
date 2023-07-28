@@ -1,4 +1,3 @@
-import { message } from "antd";
 import { CodeEditor } from "base/codeEditor";
 import { EmptyContent } from "components/EmptyContent";
 import { HelpText } from "components/HelpText";
@@ -24,6 +23,7 @@ import { JSLibraryTree } from "components/JSLibraryTree";
 import { getGlobalSettings } from "comps/utils/globalSettings";
 import { fetchJSLibrary } from "util/jsLibraryUtils";
 import { evalFunc } from "lowcoder-core";
+import { messageInstance } from "lowcoder-design";
 
 const AdvancedSettingContent = styled.div`
   max-width: 840px;
@@ -109,7 +109,7 @@ export function AdvancedSetting() {
               setSettings((i) => ({ ...i, [key]: value }));
             }
             onSuccess?.();
-            message.success(trans("advanced.saveSuccess"));
+            messageInstance.success(trans("advanced.saveSuccess"));
           },
         })
       );

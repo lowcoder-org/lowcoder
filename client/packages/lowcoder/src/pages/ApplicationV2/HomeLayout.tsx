@@ -4,7 +4,7 @@ import styled from "styled-components";
 import { ApplicationMeta, FolderMeta } from "constants/applicationConstants";
 import { ALL_APPLICATIONS_URL } from "constants/routesURL";
 import history from "util/history";
-import moment from "moment";
+import dayjs from "dayjs";
 import { Breadcrumb as AntdBreadcrumb, Select, Skeleton } from "antd";
 import React, { useEffect, useState } from "react";
 import {
@@ -78,6 +78,12 @@ const Breadcrumb = styled(AntdBreadcrumb)`
     font-weight: 500;
     color: #222222;
   }
+
+  li.ant-breadcrumb-separator {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
 `;
 
 const OperationRightWrapper = styled.div`
@@ -148,7 +154,7 @@ const FilterMenuItem = styled.div`
   width: 100%;
 `;
 
-const BreadcrumbItem = styled(Breadcrumb.Item)`
+const BreadcrumbItem = styled.div`
   cursor: pointer;
 `;
 
@@ -216,7 +222,7 @@ function showNewUserGuide(user: User) {
     user.orgDev &&
     !user.userStatus.newUserGuidance &&
     // registered in 7 days
-    moment(user.createdTimeMs).add(7, "days").isAfter(moment())
+    dayjs(user.createdTimeMs).add(7, "days").isAfter(dayjs())
   );
 }
 
@@ -319,22 +325,35 @@ export function HomeLayout(props: HomeLayoutProps) {
     };
   };
 
+  const breadcrumbItems = [
+    {
+      key: 0,
+      title: trans("home.home"),
+      onClick: () =>
+        currentPath !== ALL_APPLICATIONS_URL && history.push(ALL_APPLICATIONS_URL),
+    },
+    ...breadcrumb.map((b, i) => ({
+      key: i+1,
+      title: b.text,
+      onClick: () => currentPath !== b.path && history.push(b.path)
+    }))
+  ]
+
   return (
     <Wrapper>
       <HeaderWrapper>
-        <Breadcrumb separator={<ArrowIcon />}>
-          <BreadcrumbItem
-            onClick={() =>
-              currentPath !== ALL_APPLICATIONS_URL && history.push(ALL_APPLICATIONS_URL)
-            }
-          >
-            {trans("home.home")}
-          </BreadcrumbItem>
-          {breadcrumb.map((b, i) => (
-            <BreadcrumbItem onClick={() => currentPath !== b.path && history.push(b.path)} key={i}>
-              {b.text}
+        <Breadcrumb
+          separator={<ArrowIcon />}
+          items={breadcrumbItems}
+          itemRender={(item) => (
+            <BreadcrumbItem
+              key={item.key}
+              onClick={item.onClick}
+            >
+              {item.title}
             </BreadcrumbItem>
-          ))}
+          )}
+        >
         </Breadcrumb>
       </HeaderWrapper>
 
