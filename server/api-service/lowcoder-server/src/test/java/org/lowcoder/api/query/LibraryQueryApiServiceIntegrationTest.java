@@ -6,7 +6,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.lowcoder.api.common.mockuser.WithMockUser;
 import org.lowcoder.api.datasource.DatasourceApiService;
-import org.lowcoder.api.datasource.DatasourceApiServiceTest;
+import org.lowcoder.api.datasource.DatasourceApiServiceIntegrationTest;
 import org.lowcoder.api.query.view.LibraryQueryView;
 import org.lowcoder.domain.query.model.LibraryQuery;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,18 +24,17 @@ import static org.lowcoder.api.common.mockuser.WithMockUser.DEFAULT_CURRENT_ORG_
 @SuppressWarnings("SameParameterValue")
 @SpringBootTest
 @RunWith(SpringRunner.class)
-public class LibraryQueryApiServiceTest {
+public class LibraryQueryApiServiceIntegrationTest {
 
     @Autowired
     private DatasourceApiService datasourceApiService;
     @Autowired
     private LibraryQueryApiService libraryQueryApiService;
 
-    @Ignore
     @Test
     @WithMockUser
     public void testListLibraryQueries() {
-        Mono<List<LibraryQueryView>> listMono = datasourceApiService.create(DatasourceApiServiceTest.buildMysqlDatasource("mysql06"))
+        Mono<List<LibraryQueryView>> listMono = datasourceApiService.create(DatasourceApiServiceIntegrationTest.buildMysqlDatasource("mysql06"))
                 .flatMap(datasource -> libraryQueryApiService.create(buildLibraryQuery("query01", datasource.getId())))
                 .then(libraryQueryApiService.listLibraryQueries());
 

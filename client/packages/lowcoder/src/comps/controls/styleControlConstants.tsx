@@ -790,6 +790,28 @@ export const QRCodeStyle = [
   PADDING,
 ] as const;
 
+export const TimeLineStyle = [
+  getBackground(),
+  {
+    name: "titleColor",
+    label: trans("timeLine.titleColor"),
+    color: "#000000",
+  },
+  {
+    name: "lableColor",
+    label: trans("timeLine.lableColor"),
+    color: "#000000",
+  },
+  {
+    name: "subTitleColor",
+    label: trans("timeLine.subTitleColor"),
+    color: "#848484",
+  },
+  MARGIN,	
+  PADDING,
+  RADIUS
+] as const;
+
 export const TreeStyle = [
   LABEL,
   ...getStaticBgBorderRadiusByBg(SURFACE_COLOR),
@@ -875,8 +897,8 @@ export const LottieStyle = [
     name: "background",
     label: trans("style.background"),
     depTheme: "canvas",
-    depType: DEP_TYPE.CONTRAST_TEXT,
-    transformer: contrastText,
+    depType: DEP_TYPE.SELF,
+    transformer: toSelf,
   },
   MARGIN,	
   PADDING,
@@ -886,7 +908,6 @@ export const LottieStyle = [
 export const CarouselStyle = [getBackground("canvas")] as const;
 
 export const RichTextEditorStyle = [getStaticBorder(), RADIUS] as const;
-
 export type InputLikeStyleType = StyleConfigType<typeof InputLikeStyle>;
 export type ButtonStyleType = StyleConfigType<typeof ButtonStyle>;
 export type ToggleButtonStyleType = StyleConfigType<typeof ToggleButtonStyle>;

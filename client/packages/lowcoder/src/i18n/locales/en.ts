@@ -44,7 +44,6 @@ export const en = {
   accessControl: " Access Control",
   copySuccess: "Copied",
   copyError: "Copy error",
-  lottieJson: "Lottie JSON", //Added By Aqib Mirza
   api: {
     publishSuccess: "Published",
     recoverFailed: "Recover failed",
@@ -843,6 +842,9 @@ export const en = {
     jsonLottieCompDesc: "Lottie Animation",
     jsonLottieCompKeywords: "",
     /////////////////////
+    timelineCompName: "Time Line",
+    timelineCompDesc: "Time Line",
+    timelineCompKeywords: "",
   },
   comp: {
     menuViewDocs: "View documentation",
@@ -2423,6 +2425,7 @@ export const en = {
   },
   //Added By Aqib Mirza
   jsonLottie: {
+    lottieJson: "Lottie JSON",
     speed: "Speed",
     width: "Width",
     height: "Height",
@@ -2430,6 +2433,39 @@ export const en = {
     animationStart: "Animation Start",
     valueDesc: "Current json Data",
     loop: "Loop",
+    auto: 'auto',
+    onHover: "On hover",
+    singlePlay: "Single Play",
+    endlessLoop: "Endless Loop",
+    keepLastFrame: "Keep Last Frame",
   },
   /////////////////////
+  timeLine: {
+    titleColor: "title Color",
+    subTitleColor: "subTitle Color",
+    lableColor: "lable Color",
+    value: "value",
+    mode: "mode",
+    left: "Left",
+    right: "Right",
+    alternate: "alternate",
+    modeTooltip: "Set the content to appear left/right or alternately on both sides of the timeline",
+    reverse: "reverse",
+    pending: "pending",
+    defaultPending: "continuous improvement",
+    clickTitleEvent: "clickTitleEvent",
+    clickTitleEventDesc: "click Title Event",
+    Introduction: "Introduction keys",
+    helpTitle: "title of timeline(Required)",
+    helpsubTitle: "subtitle of timeline",
+    helpLabel: "label of timeline,be used to display dates",
+    helpColor: "Indicates timeline node color",
+    helpDot: "Rendering Timeline Nodes as Ant Design Icons",
+    helpTitleColor: "Individually control the color of node title",
+    helpSubTitleColor: "Individually control the color of node subtitle",
+    helpLableColor: "Individually control the color of node icon",
+    valueDesc: "data of timeline",
+    clickedObjectDesc: "clicked item data",
+    clickedIndexDesc: "clicked item index",
+  }
 };

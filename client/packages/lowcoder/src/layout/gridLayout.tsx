@@ -147,7 +147,7 @@ class GridLayout extends React.Component<GridLayoutProps, GridLayoutState> {
       );
       // log.debug("layout: getDrivedState. nextProps: ", nextProps.layout, " prevState: ", prevState.layout, " newLayoutBase: ", newLayoutBase, " newLayout: ", newLayout);
       return {
-        layout: draggingUtils.isDragging() ? newLayout : nextProps.layout,
+        layout: draggingUtils.isDragging() || !childrenEqual(nextProps.children, prevState.children) ? newLayout : nextProps.layout,
         // We need to save these props to state for using
         // getDerivedStateFromProps instead of componentDidMount (in which we would get extra rerender)
         children: nextProps.children,

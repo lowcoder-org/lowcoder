@@ -29,5 +29,3 @@ common:
 auth:
   email:
     enable: true
-  google:
-    enable: true
