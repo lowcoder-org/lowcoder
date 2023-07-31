@@ -861,7 +861,7 @@ const uiCompMap: Registry = {
     name: trans("uiComp.autoCompleteCompName"),
     enName: "autoComplete",
     description: trans("uiComp.autoCompleteCompDesc"),
-    categories: ["dataDisplay"],
+    categories: ["dataInputText"],
     icon: AutoCompleteCompIcon,
     keywords: cnchar.spell(trans("uiComp.autoCompleteCompName"), "first", "low").toString(),
     comp: AutoCompleteComp,
