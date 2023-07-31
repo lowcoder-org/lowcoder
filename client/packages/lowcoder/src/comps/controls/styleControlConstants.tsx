@@ -905,6 +905,19 @@ export const LottieStyle = [
 ] as const;
 /////////////////////
 
+export const CommentStyle = [
+  {
+    name: "background",
+    label: trans("style.background"),
+    depTheme: "canvas",
+    depType: DEP_TYPE.SELF,
+    transformer: toSelf,
+  },
+  MARGIN,	
+  PADDING,
+  RADIUS,
+] as const
+
 export const CarouselStyle = [getBackground("canvas")] as const;
 
 export const RichTextEditorStyle = [getStaticBorder(), RADIUS] as const;

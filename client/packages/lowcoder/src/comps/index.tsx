@@ -93,6 +93,7 @@ import {
   VideoCompIcon,
   TimeLineIcon,
   LottieIcon,
+  CommentIcon,
 } from "lowcoder-design";
 
 import { defaultFormData, FormComp } from "./comps/formComp/formComp";
@@ -119,6 +120,7 @@ import { RemoteCompInfo } from "types/remoteComp";
 import { ScannerComp } from "./comps/buttonComp/scannerComp";
 import { SignatureComp } from "./comps/signatureComp";
 import { TimeLineComp } from "./comps/timelineComp/timelineComp";
+import { CommentComp } from "./comps/commentComp/commentComp";
 
 //Added by Aqib Mirza
 import { JsonLottieComp } from "./comps/jsonComp/jsonLottieComp";
@@ -850,6 +852,19 @@ const uiCompMap: Registry = {
     icon: TimeLineIcon,
     keywords: trans("uiComp.timelineCompKeywords"),
     comp: TimeLineComp,
+    layoutInfo: {
+      w: 13,
+      h: 55,
+    },
+  },
+  comment: {
+    name: trans("uiComp.commentCompName"),
+    enName: "comment",
+    description: trans("uiComp.commentCompDesc"),
+    categories: ["dataDisplay"],
+    icon: CommentIcon,
+    keywords: trans("uiComp.commentCompKeywords"),
+    comp: CommentComp,
     layoutInfo: {
       w: 13,
       h: 55,
