@@ -2481,7 +2481,7 @@ export const en = {
     searchText: "search text",
     SectionDataName: "autoComplete Data",
     valueInItems: "value in items",
-    type: "autoComplete type",
+    type: "type",
     antDesign: "AntDesign",
     normal: "Normal",
     selectKey: 'key',
