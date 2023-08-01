@@ -258,7 +258,9 @@ event: {
     parse: "解析",
     parseDesc: "在解析时触发",
     success: "成功",
-    successDesc: "在成功时触发"
+    successDesc: "在成功时触发",
+    mention: "提及",
+    mentionDesc: "在提及时触发",
 },
 themeDetail: {
     primary: "颜色主题",
@@ -828,6 +830,9 @@ uiComp: {
     timelineCompName: "时间线",
     timelineCompDesc: "时间线组件",
     timelineCompKeywords: "sjx",
+    mentionCompName: "提及",
+    mentionCompDesc: "提及组件",
+    mentionCompKeywords: "tj",
 },
 comp: {
     menuViewDocs: "查看文档",
@@ -2458,5 +2463,8 @@ timeLine: {
         endlessLoop: "循环播放",
         keepLastFrame: "冻结最后一帧",
       },
+    mention:{
+        mentionList: "提及列表",
+    },
 };
 

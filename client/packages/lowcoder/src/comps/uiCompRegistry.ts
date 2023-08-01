@@ -112,6 +112,7 @@ export type UICompType =
   | "signature"
   | "jsonLottie" //Added By Aqib Mirza
   | "timeline"
+  | "mention"
 
 export const uiCompRegistry = {} as Record<UICompType | string, UICompManifest>;
 

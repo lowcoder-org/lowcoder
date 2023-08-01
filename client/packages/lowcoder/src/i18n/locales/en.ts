@@ -262,6 +262,8 @@ export const en = {
     parseDesc: "Triggers on parse",
     success: "Success",
     successDesc: "Triggers on success",
+    mention: "mention",
+    mentionDesc: "Triggers on mention",
   },
   themeDetail: {
     primary: "Brand color",
@@ -845,6 +847,9 @@ export const en = {
     timelineCompName: "Time Line",
     timelineCompDesc: "Time Line",
     timelineCompKeywords: "",
+    mentionCompName: "mention",
+    mentionCompDesc: "mention",
+    mentionCompKeywords: "",
   },
   comp: {
     menuViewDocs: "View documentation",
@@ -2467,5 +2472,8 @@ export const en = {
     valueDesc: "data of timeline",
     clickedObjectDesc: "clicked item data",
     clickedIndexDesc: "clicked item index",
-  }
+  },
+  mention:{
+    mentionList: "mention list",
+  },
 };
