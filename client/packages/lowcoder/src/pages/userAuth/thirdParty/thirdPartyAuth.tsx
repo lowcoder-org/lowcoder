@@ -11,7 +11,8 @@ import { LoginLogoStyle, StyledLoginButton } from "pages/userAuth/authComponents
 import { useSelector } from "react-redux";
 import { selectSystemConfig } from "redux/selectors/configSelectors";
 import React from "react";
-import { message } from "antd";
+import { messageInstance } from "lowcoder-design";
+
 import { trans } from "i18n";
 import { geneAuthStateAndSaveParam, getAuthUrl, getRedirectUrl } from "pages/userAuth/authUtils";
 
@@ -44,7 +45,7 @@ function ThirdPartyLoginButton(props: {
       });
     } else if (config.routeLink) {
       if (!config?.clientId) {
-        message.error(trans("userAuth.invalidThirdPartyParam"));
+        messageInstance.error(trans("userAuth.invalidThirdPartyParam"));
         return;
       }
       const routeState: OAuthLocationState = {

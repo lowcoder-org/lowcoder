@@ -10,7 +10,8 @@ import { all, put, takeLatest } from "redux-saga/effects";
 import { AxiosResponse } from "axios";
 import { validateResponse } from "api/apiUtils";
 import log from "loglevel";
-import { message } from "antd";
+import { messageInstance } from "lowcoder-design";
+
 import {
   LibraryQuery,
   LibraryQueryDropdownInfo,
@@ -32,7 +33,7 @@ function* fetchQueryLibrarySaga(action: ReduxActionWithoutPayload) {
     }
   } catch (error: any) {
     log.error("fetch query library error: ", error);
-    message.error(error.message);
+    messageInstance.error(error.message);
   }
 }
 
@@ -60,7 +61,7 @@ function* fetchQueryLibraryRecordDSLSaga(
     }
   } catch (error: any) {
     log.error("fetch query library dsl by id error: ", error);
-    message.error(error.message);
+    messageInstance.error(error.message);
     action.onErrorCallback && action.onErrorCallback(error);
   }
 }
@@ -78,7 +79,7 @@ function* fetchQueryLibraryDropdownSaga() {
     }
   } catch (error: any) {
     log.error("fetch query library dropdown error: ", error);
-    message.error(error.message);
+    messageInstance.error(error.message);
   }
 }
 
@@ -99,7 +100,7 @@ export function* createQueryLibrarySaga(action: ReduxActionWithCallbacks<Library
     }
   } catch (error: any) {
     log.error("create query library error: ", error);
-    message.error(error.message);
+    messageInstance.error(error.message);
     action.onErrorCallback && action.onErrorCallback(error);
   }
 }
@@ -121,7 +122,7 @@ export function* updateQueryLibrarySaga(action: ReduxActionWithCallbacks<Library
     }
   } catch (error: any) {
     log.error("update library query error: ", error);
-    message.error(error.message);
+    messageInstance.error(error.message);
     action.onErrorCallback && action.onErrorCallback(error);
   }
 }
@@ -143,7 +144,7 @@ export function* deleteQueryLibrarySaga(
     }
   } catch (error: any) {
     log.error("delete query library error: ", error);
-    message.error(error.message);
+    messageInstance.error(error.message);
   }
 }
 
@@ -161,7 +162,7 @@ function* fetchQueryLibraryRecordSaga(action: ReduxAction<{ libraryQueryId: stri
     }
   } catch (error: any) {
     log.error("fetch query library records by id error: ", error);
-    message.error(error.message);
+    messageInstance.error(error.message);
   }
 }
 
@@ -188,7 +189,7 @@ export function* createQueryLibraryRecordSaga(
     }
   } catch (error: any) {
     log.error("create query library record error: ", error);
-    message.error(error.message);
+    messageInstance.error(error.message);
     action.onErrorCallback && action.onErrorCallback(error);
   }
 }

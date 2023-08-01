@@ -1,4 +1,4 @@
-import moment from "moment/moment";
+import dayjs from "dayjs";
 import type { DateCompViewProps } from "./dateComp";
 import { disabledDate, getStyle } from "comps/comps/dateComp/dateCompUtil";
 import { useUIView } from "../../utils/useUIView";
@@ -21,9 +21,9 @@ const DateRangeMobileUIView = React.lazy(() =>
 );
 
 export interface DateRangeUIViewProps extends DateCompViewProps {
-  start: moment.Moment | null;
-  end: moment.Moment | null;
-  onChange: (start?: moment.Moment | null, end?: moment.Moment | null) => void;
+  start: dayjs.Dayjs | null;
+  end: dayjs.Dayjs | null;
+  onChange: (start?: dayjs.Dayjs | null, end?: dayjs.Dayjs | null) => void;
   onPanelChange: (value: any, mode: [string, string]) => void;
 }
 

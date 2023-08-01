@@ -28,7 +28,8 @@ import {
 } from "redux/reduxActions/applicationActions";
 import { doValidResponse, validateResponse } from "api/apiUtils";
 import { APPLICATION_VIEW_URL, BASE_URL } from "constants/routesURL";
-import { message } from "antd";
+import { messageInstance } from "lowcoder-design";
+
 import { SERVER_ERROR_CODES } from "constants/apiConstants";
 import history from "util/history";
 import { ApplicationMeta, AppTypeEnum } from "constants/applicationConstants";
@@ -70,7 +71,7 @@ export function* fetchAllApplicationSaga(action: ReduxAction<HomeDataPayload>) {
     }
   } catch (error: any) {
     log.debug("fetch all application error: ", error);
-    message.error(error.message);
+    messageInstance.error(error.message);
   }
 }
 
@@ -89,7 +90,7 @@ export function* fetchAllModulesSaga(action: ReduxAction<HomeDataPayload>) {
     }
   } catch (error: any) {
     log.debug("fetch all modules error: ", error);
-    message.error(error.message);
+    messageInstance.error(error.message);
   }
 }
 
@@ -109,7 +110,7 @@ export function* createApplicationSaga(action: ReduxAction<CreateApplicationPayl
     }
   } catch (error: any) {
     log.error("fetch all application error: ", error);
-    message.error(error.message);
+    messageInstance.error(error.message);
     yield put({
       type: ReduxActionErrorTypes.CREATE_APPLICATION_ERROR,
     });
@@ -186,11 +187,11 @@ export function* publishApplicationSaga(action: ReduxAction<PublishApplicationPa
         type: ReduxActionTypes.PUBLISH_APPLICATION_SUCCESS,
         payload: action.payload,
       });
-      message.success(trans("api.publishSuccess"));
+      messageInstance.success(trans("api.publishSuccess"));
       window.open(APPLICATION_VIEW_URL(action.payload.applicationId, "view"));
     }
   } catch (error: any) {
-    message.error(error.message);
+    messageInstance.error(error.message);
     yield put({
       type: ReduxActionErrorTypes.PUBLISH_APPLICATION_ERROR,
       payload: action.payload,
@@ -246,7 +247,7 @@ export function* fetchApplicationDetailSaga(action: ReduxAction<FetchAppInfoPayl
       throw Error(response.data.message);
     }
   } catch (error: any) {
-    message.error(error.message);
+    messageInstance.error(error.message);
     yield put({
       type: ReduxActionErrorTypes.FETCH_APPLICATION_DETAIL_ERROR,
     });
@@ -285,7 +286,7 @@ export function* updateApplicationPermission(action: ReduxAction<UpdateAppPermis
       });
     }
   } catch (error: any) {
-    message.error(error.message);
+    messageInstance.error(error.message);
   }
 }
 
@@ -324,7 +325,7 @@ function* recycleApplicationSaga(
       action.onSuccessCallback && action.onSuccessCallback(response);
     }
   } catch (error: any) {
-    message.error(error.message);
+    messageInstance.error(error.message);
     log.debug("recycle application error: ", error);
     action.onErrorCallback && action.onErrorCallback(error);
   }
@@ -347,7 +348,7 @@ function* restoreApplicationSaga(
       action.onSuccessCallback && action.onSuccessCallback(response);
     }
   } catch (error: any) {
-    message.error(error.message);
+    messageInstance.error(error.message);
     log.debug("restore application error: ", error);
     action.onErrorCallback && action.onErrorCallback(error);
   }
@@ -366,7 +367,7 @@ function* fetchApplicationRecycleListSaga() {
       });
     }
   } catch (error: any) {
-    message.error(error.message);
+    messageInstance.error(error.message);
     log.debug("fetch application recycle list error: ", error);
   }
 }

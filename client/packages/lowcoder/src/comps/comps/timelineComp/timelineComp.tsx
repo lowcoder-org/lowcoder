@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { Button } from "antd";
 // 渲染组件到编辑器
 import {
   changeChildAction,
@@ -87,18 +88,55 @@ const TimelineComp = (
   }
 ) => {
   const { value, dispatch, style, mode, reverse, onEvent } = props;
+  const timelineItems = value.map((value: timelineNode, index: number) => ({
+    key: index,
+    color: value?.color,
+    dot: value?.dot && ANTDICON.hasOwnProperty(value?.dot.toLowerCase())
+      ? ANTDICON[value?.dot.toLowerCase() as keyof typeof ANTDICON]
+      : "",
+    label: (
+      <span style={{ color: value?.lableColor || style?.lableColor }}>
+        {value?.label}
+      </span>
+    ),
+    children: (
+      <>
+        <Button
+          type="link"
+          onClick={(e) => {
+            e.preventDefault();
+            dispatch(changeChildAction("clickedObject", value, false));
+            dispatch(changeChildAction("clickedIndex", index, false));
+            onEvent("click");
+          }}
+          style={{
+            cursor: "pointer",
+            color: value?.titleColor || style?.titleColor,
+          }}
+        >
+          <b>{value?.title}</b>
+        </Button>
+        <p style={{ color: value?.subTitleColor || style?.subTitleColor }}>
+          {value?.subTitle}
+        </p>
+      </>
+    )
+  }
+  ))
+
   // TODO:parse px string
   return (
     <div
       style={{
-        margin: style.margin,
-        padding: style.padding,
-        width: widthCalculator(style.margin),
-        height: heightCalculator(style.margin),
+        margin: style.margin ?? '3px',
+        padding: style.padding ?? '3px',
+        width: widthCalculator(style.margin ?? '3px'),
+        height: heightCalculator(style.margin ?? '3px'),
         background: style.background,
         overflow: "auto",
         overflowX: "hidden",
         borderRadius: style.radius,
+        //height: '100%'
       }}
     >
       <Timeline
@@ -111,43 +149,8 @@ const TimelineComp = (
             </span>
           )
         }
-      >
-        {value.map((value: timelineNode, index: number) => (
-          <Timeline.Item
-            key={index}
-            color={value?.color}
-            dot={
-              value?.dot && ANTDICON.hasOwnProperty(value?.dot.toLowerCase())
-                ? ANTDICON[value?.dot.toLowerCase() as keyof typeof ANTDICON]
-                : ""
-            }
-            label={
-              <span style={{ color: value?.lableColor || style?.lableColor }}>
-                {value?.label}
-              </span>
-            }
-          >
-            <a
-              href=""
-              onClick={(e) => {
-                e.preventDefault();
-                dispatch(changeChildAction("clickedObject", value, false));
-                dispatch(changeChildAction("clickedIndex", index, false));
-                onEvent("click");
-              }}
-              style={{
-                cursor: "pointer",
-                color: value?.titleColor || style?.titleColor,
-              }}
-            >
-              <b>{value?.title}</b>
-            </a>
-            <p style={{ color: value?.subTitleColor || style?.subTitleColor }}>
-              {value?.subTitle}
-            </p>
-          </Timeline.Item>
-        ))}
-      </Timeline>
+        items={timelineItems}
+      />
     </div>
   );
 };

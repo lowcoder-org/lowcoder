@@ -5,7 +5,7 @@ import { trans } from "i18n";
 import { DocLink } from "components/ExternalLink";
 import { Input } from "components/Input";
 import { TacoButton } from "components/button";
-import { message, Spin } from "antd";
+import { Spin } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import { recommendJSLibrarySelector } from "redux/selectors/jsLibrarySelector";
 import { JSLibraryInfo, JSLibraryLabel } from "components/JSLibraryTree";
@@ -22,6 +22,7 @@ import { LoadingOutlined } from "@ant-design/icons";
 import { RecommendedJSLibraryMeta } from "api/jsLibraryApi";
 import log from "loglevel";
 import { TacoMarkDown } from "components/markdown";
+import { messageInstance } from "lowcoder-design";
 
 const ModalLabel = styled.div`
   display: flex;
@@ -81,7 +82,7 @@ const handleDownload = (
     .onLoad(trimUrl)
     .then(() => {
       props.onSuccess(trimUrl);
-      message.success(trans("preLoad.jsLibraryInstallSuccess"));
+      messageInstance.success(trans("preLoad.jsLibraryInstallSuccess"));
     })
     .catch((e) => {
       if (props.runInHost) {
@@ -251,7 +252,7 @@ export function JSLibraryModal(props: JSLibraryModalProps) {
       </div>
       <CustomModal
         draggable
-        visible={visible}
+        open={visible}
         title={
           <ModalLabel>
             {trans("preLoad.jsLibrary")}

@@ -109,14 +109,14 @@ utils.copyToClipboard( input1.value )
 Use `message` methods to send a global alert notification, which displays at the top of the screen and lasts for 3 seconds by default. Each of the following four methods supports a unique display style.
 
 ```javascript
-// message.info( text: string, options?: {duration: number = 3 } )
-message.info("Please confirm your information", { duration: 10 })
-// message.success( text: string, options?: {duration: number = 3 } )
-message.success("Query runs successfully", { duration: 10 })
-// message.warn( text: string, options?: {duration: number = 3 } )
-message.warn("Warning", { duration: 10 })
-// message.error( text: string, options?: {duration: number = 3 } )
-message.error("Query runs with error", { duration: 10 })
+// messageInstance.info( text: string, options?: {duration: number = 3 } )
+messageInstance.info("Please confirm your information", { duration: 10 })
+// messageInstance.success( text: string, options?: {duration: number = 3 } )
+messageInstance.success("Query runs successfully", { duration: 10 })
+// messageInstance.warning( text: string, options?: {duration: number = 3 } )
+messageInstance.warning("Warning", { duration: 10 })
+// messageInstance.error( text: string, options?: {duration: number = 3 } )
+messageInstance.error("Query runs with error", { duration: 10 })
 ```
 
 <figure><img src="../../.gitbook/assets/builtin-js-messages.png" alt=""><figcaption></figcaption></figure>

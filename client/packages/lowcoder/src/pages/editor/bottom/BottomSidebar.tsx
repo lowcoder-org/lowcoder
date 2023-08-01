@@ -83,40 +83,42 @@ const AddIcon = styled(BluePlusIcon)`
   margin-right: 2px;
 `;
 const AddBtn = styled(TacoButton)`
-  height: 24px;
-  width: 64px;
-  padding: 4px 12px;
-  background-color: #fafbff;
-  color: #4965f2;
-  border-color: #c9d1fc;
-  display: flex;
-  align-items: center;
-  box-shadow: none;
-
-  :hover {
-    color: #315efb;
-    background-color: #f5faff;
-    border-color: #c2d6ff;
-  }
-
-  :focus {
-    color: #315efb;
-    background-color: #f5faff;
-    border-color: #c2d6ff;
-  }
-
-  &:hover ${AddIcon} g {
-    stroke: #315efb;
-  }
-
-  :disabled,
-  :disabled:hover {
-    background: #f9fbff;
-    border: 1px solid #dee9ff;
-    border-radius: 4px;
-
-    ${AddIcon} g {
-      stroke: #4965f230;
+  &&& {
+    height: 24px;
+    width: 64px;
+    padding: 4px 12px;
+    background-color: #fafbff;
+    color: #4965f2;
+    border-color: #c9d1fc;
+    display: flex;
+    align-items: center;
+    box-shadow: none;
+  
+    :hover {
+      color: #315efb;
+      background-color: #f5faff;
+      border-color: #c2d6ff;
+    }
+  
+    :focus {
+      color: #315efb;
+      background-color: #f5faff;
+      border-color: #c2d6ff;
+    }
+  
+    &:hover ${AddIcon} g {
+      stroke: #315efb;
+    }
+  
+    :disabled,
+    :disabled:hover {
+      background: #f9fbff;
+      border: 1px solid #dee9ff;
+      border-radius: 4px;
+  
+      ${AddIcon} g {
+        stroke: #4965f230;
+      }
     }
   }
 `;

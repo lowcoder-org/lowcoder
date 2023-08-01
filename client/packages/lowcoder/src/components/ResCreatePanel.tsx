@@ -341,7 +341,7 @@ export function ResCreatePanel(props: ResCreateModalProps) {
         </ScrollBar>
       </Content>
       <CreateDataSourceModal
-        visible={visible}
+       open={visible}
         onCancel={() => setVisible(false)}
         onCreated={() => setVisible(false)}
       />

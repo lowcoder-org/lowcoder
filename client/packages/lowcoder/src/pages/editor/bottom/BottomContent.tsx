@@ -13,7 +13,7 @@ import { ResCreatePanel } from "components/ResCreatePanel";
 import { trans } from "i18n";
 import { getDataSource } from "redux/selectors/datasourceSelectors";
 import { useMetaData } from "util/hooks";
-import { message } from "antd";
+import { messageInstance } from "lowcoder-design";
 
 const Container = styled.div`
   width: 100%;
@@ -110,7 +110,7 @@ export const BottomContent = () => {
   const handleDelete = (type: BottomResTypeEnum, name: string) => {
     const listComp = editorState.getBottomResListComp(type);
     if (type === BottomResTypeEnum.Folder && refTreeComp.hasChildren(name)) {
-      message.error(trans("query.folderNotEmpty"));
+      messageInstance.error(trans("query.folderNotEmpty"));
       return false;
     }
     listComp.delete(name);

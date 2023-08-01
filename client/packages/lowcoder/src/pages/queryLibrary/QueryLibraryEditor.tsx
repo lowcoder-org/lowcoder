@@ -25,7 +25,7 @@ import { Comp } from "lowcoder-core";
 import { LibraryQuery } from "../../api/queryLibraryApi";
 import { NameGenerator } from "../../comps/utils";
 import { QueryLibraryHistoryView } from "./QueryLibraryHistoryView";
-import { Form, message } from "antd";
+import { Form } from "antd";
 import {
   CustomModal,
   DatasourceForm,
@@ -44,6 +44,7 @@ import {
 } from "@lowcoder-ee/constants/datasourceConstants";
 import { importQueryLibrary } from "./importQueryLibrary";
 import { registryDataSourcePlugin } from "constants/queryConstants";
+import { messageInstance } from "lowcoder-design";
 
 const Wrapper = styled.div`
   display: flex;
@@ -250,7 +251,7 @@ const PublishModal = (props: {
 
   return (
     <CustomModal
-      visible={props.visible}
+      open={props.visible}
       onCancel={props.onClose}
       destroyOnClose={true}
       width="600px"
@@ -270,7 +271,7 @@ const PublishModal = (props: {
                     onSuccessCallback: () => {
                       props.onClose();
                       setLoading(false);
-                      message.success(trans("queryLibrary.publishSuccess"));
+                      messageInstance.success(trans("queryLibrary.publishSuccess"));
                     },
                     onErrorCallback: () => setLoading(false),
                   })

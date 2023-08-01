@@ -8,6 +8,7 @@ import Draggable from "react-draggable";
 import { DarkActiveTextColor, GreyTextColor } from "constants/style";
 import { CloseIcon, ErrorIcon, SuccessIcon, WarningIcon, WarningWhiteIcon } from "icons";
 import { trans } from "i18n/design";
+import { modalInstance } from "components/GlobalInstances";
 
 type ModalWrapperProps = {
   width?: string | number;
@@ -107,6 +108,7 @@ export const ModalFooterWrapper = styled.div`
     padding-right: 11px;
   }
 `;
+
 
 function ModalHeader(props: {
   title?: React.ReactNode;
@@ -242,6 +244,7 @@ function CustomModalRender(props: CustomModalProps & ModalFuncProps) {
 /**
  * an antd modal capsulation
  */
+
 function CustomModal(props: CustomModalProps) {
   return (
     <AntdModal
@@ -272,6 +275,7 @@ CustomModal.confirm = (props: {
   type?: "info" | "warn" | "error" | "success";
   width?: number | string;
 }): any => {
+
   const defaultConfirmProps: ModalFuncProps = {
     ...DEFAULT_PROPS,
     okText: trans("ok"),
@@ -285,7 +289,7 @@ CustomModal.confirm = (props: {
     },
   };
   // create model
-  const model = AntdModal.confirm({
+  const model = modalInstance.confirm({
     width: "fit-content",
     style: props.style,
     centered: true,

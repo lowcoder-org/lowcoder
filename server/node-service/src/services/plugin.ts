@@ -214,7 +214,7 @@ export async function runPluginQuery(
 
   //forward cookies
   context.forEach(({ key, value }) => {
-    if (key in dataSourceConfig.dynamicParamsConfig) {
+    if (dataSourceConfig.dynamicParamsConfig && key in dataSourceConfig.dynamicParamsConfig) {
       const valueKey = `${key}.value`;
       dataSourceConfig.dynamicParamsConfig[valueKey] = value[0].value
     }

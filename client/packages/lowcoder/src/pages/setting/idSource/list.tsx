@@ -21,11 +21,12 @@ import history from "util/history";
 import { IDSOURCE_DETAIL } from "constants/routesURL";
 import { selectSystemConfig } from "redux/selectors/configSelectors";
 import { isEnterpriseMode, isSelfDomain } from "util/envUtils";
-import { Badge, message } from "antd";
+import { Badge } from "antd";
 import { validateResponse } from "api/apiUtils";
 import { ServerAuthTypeInfo } from "@lowcoder-ee/constants/authConstants";
 import { GeneralLoginIcon } from "assets/icons";
 import { FreeTypes } from "pages/setting/idSource/idSourceConstants";
+import { messageInstance } from "lowcoder-design";
 
 export const IdSourceList = () => {
   const user = useSelector(getUser);
@@ -80,7 +81,7 @@ export const IdSourceList = () => {
         }
       })
       .catch((e) => {
-        message.error(e.message);
+        messageInstance.error(e.message);
       })
       .finally(() => {
         setFetching(false);

@@ -69,7 +69,7 @@ export function multiSelectControl<T extends OptionsType>(
             <DropdownContainer placement={placement}>
               <CustomSelect
                 mode={"multiple"}
-                dropdownClassName="ob-dropdown-control-select"
+                popupClassName="ob-dropdown-control-select"
                 filterOption={(input, option) => {
                   if (!option?.value) {
                     return false;

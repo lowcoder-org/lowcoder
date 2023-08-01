@@ -4,10 +4,10 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchUserAction, profileSettingModalVisible } from "redux/reduxActions/userActions";
 import { ProfileInfoCard } from "@lowcoder-ee/pages/setting/profile/profileInfoCard";
-import { message } from "antd";
 import { WindowMessageTypes } from "constants/messages";
 import { isProfileSettingModalVisible } from "redux/selectors/usersSelectors";
 import { trans } from "i18n";
+import { messageInstance } from "lowcoder-design";
 
 export default function ProfileSettingModal() {
   const visible = useSelector(isProfileSettingModalVisible);
@@ -28,9 +28,9 @@ export default function ProfileSettingModal() {
     }
     if (e.data.success) {
       dispatch(fetchUserAction());
-      message.info(trans("profile.bindingSuccess", { sourceName: e.data.sourceName }));
+      messageInstance.info(trans("profile.bindingSuccess", { sourceName: e.data.sourceName }));
     } else {
-      message.error(e.data.message);
+      messageInstance.error(e.data.message);
       setModalContent(IndexContent);
     }
   };
@@ -43,7 +43,7 @@ export default function ProfileSettingModal() {
   return (
     <CustomModal
       title={title}
-      visible={visible}
+      open={visible}
       onCancel={() => dispatch(profileSettingModalVisible(false))}
       showOkButton={false}
       showCancelButton={false}

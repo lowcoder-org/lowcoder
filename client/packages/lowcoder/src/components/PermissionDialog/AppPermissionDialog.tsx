@@ -17,7 +17,6 @@ import { PermissionItemsType } from "./PermissionList";
 import { trans } from "../../i18n";
 import ApplicationApi from "../../api/applicationApi";
 import { validateResponse } from "../../api/apiUtils";
-import { message } from "antd";
 import { PermissionDialog } from "./PermissionDialog";
 import { TacoSwitch } from "components/Switch";
 import styled from "styled-components";
@@ -29,6 +28,7 @@ import copy from "copy-to-clipboard";
 import { StyledLoading } from "./commonComponents";
 import { PermissionRole } from "./Permission";
 import { SHARE_TITLE } from "../../constants/apiConstants";
+import { messageInstance } from "lowcoder-design";
 
 export const AppPermissionDialog = (props: {
   applicationId: string;
@@ -125,7 +125,7 @@ export const AppPermissionDialog = (props: {
             }
           })
           .catch((e) => {
-            message.error(trans("home.addPermissionErrorMessage", { message: e.message }));
+            messageInstance.error(trans("home.addPermissionErrorMessage", { message: e.message }));
           })
       }
       updatePermission={(permissionId, role) =>
@@ -171,9 +171,9 @@ const AppInviteView = (props: { appId: string }) => {
           buttonType="primary"
           onClick={() => {
             if (copy(inviteLink)) {
-              message.success(trans("copySuccess"));
+              messageInstance.success(trans("copySuccess"));
             } else {
-              message.error(trans("copyError"));
+              messageInstance.error(trans("copyError"));
             }
           }}
         >
@@ -214,7 +214,7 @@ function AppShareView(props: {
                 dispatch(updateAppPermissionInfo({ publicToAll: checked }));
               })
               .catch((e) => {
-                message.error(e.message);
+                messageInstance.error(e.message);
               });
           }}
           label={isModule ? trans("home.modulePublicMessage") : trans("home.appPublicMessage")}

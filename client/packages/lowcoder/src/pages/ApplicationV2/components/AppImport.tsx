@@ -1,15 +1,23 @@
-import { message, Upload } from "antd";
+import { Upload as AntUpload } from "antd";
 import React from "react";
 import ApplicationApi from "api/applicationApi";
 import { validateResponse } from "api/apiUtils";
 import { APPLICATION_VIEW_URL } from "constants/routesURL";
 import history from "util/history";
+import styled from "styled-components";
 import { AppTypeEnum } from "constants/applicationConstants";
 import { trans } from "i18n";
 import { useParams } from "react-router-dom";
 import { put } from "redux-saga/effects";
 import { ReduxActionTypes } from "../../../constants/reduxActionConstants";
 import { UiLayoutType } from "comps/comps/uiComp";
+import { messageInstance } from "lowcoder-design";
+
+const Upload = styled(AntUpload)`
+  .ant-upload-wrapper .ant-upload-select {
+    display: block;
+  }
+`;
 
 export const exportApplicationAsJSONFile = (applicationId: string) => {
   const id = `t--export-app-link`;
@@ -49,7 +57,7 @@ export const exportApplicationAsJSONFile = (applicationId: string) => {
         return;
       }
     })
-    .catch((e) => message.error(trans("home.exportError", { message: e.message })));
+    .catch((e) => messageInstance.error(trans("home.exportError", { message: e.message })));
 };
 
 function getAppType(applicationData: any): AppTypeEnum {
@@ -91,7 +99,7 @@ const importApplication = async (options: any, orgId: string, folderId?: string)
       })
         .then(async (resp) => {
           if (validateResponse(resp)) {
-            message.success(trans("home.importSuccess"));
+            messageInstance.success(trans("home.importSuccess"));
             onSuccess(trans("success"));
 
             await put({
@@ -109,10 +117,10 @@ const importApplication = async (options: any, orgId: string, folderId?: string)
             );
           }
         })
-        .catch((e) => message.error(trans("home.importError", { message: e.message })));
+        .catch((e) => messageInstance.error(trans("home.importError", { message: e.message })));
     } catch (error: any) {
       onError(error);
-      message.error(trans("home.importError", { message: error.message }));
+      messageInstance.error(trans("home.importError", { message: error.message }));
     }
   };
 };

@@ -49,7 +49,7 @@ import {
   viewClassNames,
   FormWrapper,
 } from "./calendarConstants";
-import moment from "moment";
+import dayjs from "dayjs";
 
 const childrenMap = {
   events: jsonValueExposingStateControl("events", defaultData),
@@ -79,8 +79,8 @@ let CalendarBasicComp = (function () {
       return {
         title: item.title,
         id: item.id,
-        start: moment(item.start, DateParser).format(),
-        end: moment(item.end, DateParser).format(),
+        start: dayjs(item.start, DateParser).format(),
+        end: dayjs(item.end, DateParser).format(),
         allDay: item.allDay,
         color: isValidColor(item.color || "") ? item.color : theme?.theme?.primary,
         ...(item.groupId ? { groupId: item.groupId } : null),
@@ -104,7 +104,7 @@ let CalendarBasicComp = (function () {
       const isList = eventInfo.view.type === "listWeek";
       let sizeClass = "";
       if ([ViewType.WEEK, ViewType.DAY].includes(eventInfo.view.type as ViewType)) {
-        const duration = moment(eventInfo.event.end).diff(moment(eventInfo.event.start), "minutes");
+        const duration = dayjs(eventInfo.event.end).diff(dayjs(eventInfo.event.start), "minutes");
         if (duration <= 30 || eventInfo.event.allDay) {
           sizeClass = "small";
         } else if (duration <= 60) {
@@ -114,7 +114,7 @@ let CalendarBasicComp = (function () {
         }
       }
       const stateClass =
-        moment().isAfter(moment(eventInfo.event.end)) &&
+        dayjs().isAfter(dayjs(eventInfo.event.end)) &&
         (eventInfo.view.type as ViewType) !== ViewType.MONTH
           ? "past"
           : "";
@@ -177,7 +177,7 @@ let CalendarBasicComp = (function () {
         end: info.endStr,
       };
       const view = info.view.type as ViewType;
-      const duration = moment(info.end).diff(moment(info.start), "minutes");
+      const duration = dayjs(info.end).diff(dayjs(info.start), "minutes");
       const singleClick =
         (view === ViewType.MONTH && duration === 1440) ||
         ([ViewType.WEEK, ViewType.DAY].includes(view) && duration === 30) ||
@@ -355,8 +355,8 @@ let CalendarBasicComp = (function () {
             let changeEvents: EventType[] = [];
             info.forEach((item) => {
               const event = events.find((i: EventType) => i.id === item.id);
-              const start = moment(item.start, DateParser).format();
-              const end = moment(item.end, DateParser).format();
+              const start = dayjs(item.start, DateParser).format();
+              const end = dayjs(item.end, DateParser).format();
               if (
                 start !== event?.start ||
                 end !== event?.end ||

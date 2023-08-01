@@ -83,14 +83,14 @@ function CustomSelect(props: CustomSelectProps & AntdSelectProps) {
     innerRef,
     className,
     border,
-    dropdownClassName = "custom-ant-select-dropdown",
+    popupClassName = "custom-ant-select-dropdown",
     ...restProps
   } = props;
   return (
     <SelectWrapper className={className} ref={innerRef} border={border}>
       <AntdSelect
-        dropdownClassName={dropdownClassName}
-        dropdownMatchSelectWidth={false}
+        popupClassName={popupClassName}
+        popupMatchSelectWidth={false}
         suffixIcon={<PackUpIcon />}
         {...restProps}
       >

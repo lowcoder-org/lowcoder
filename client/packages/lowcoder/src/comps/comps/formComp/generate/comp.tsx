@@ -88,6 +88,7 @@ const multiSelectComps: CompConfig[] = [
 const dateComp: CompConfig = {
   type: "date",
 };
+// TODO: RAHEEL
 function dateTimeToTimestamp(compName: string) {
   return "moment(" + compName + ".value || 0).valueOf()";
 }

@@ -7,7 +7,7 @@ import { checkIsMobile } from "util/commonUtils";
 import React, { useContext } from "react";
 import type { TimeCompViewProps } from "./timeComp";
 import { EditorContext } from "../../editorState";
-import moment from "moment/moment";
+import dayjs from "dayjs";
 import { hasIcon } from "comps/utils";
 import { omit } from "lodash";
 
@@ -21,9 +21,9 @@ const TimeRangeMobileUIView = React.lazy(() =>
 );
 
 export interface TimeRangeUIViewProps extends TimeCompViewProps {
-  start: moment.Moment | null;
-  end: moment.Moment | null;
-  onChange: (start?: moment.Moment | null, end?: moment.Moment | null) => void;
+  start: dayjs.Dayjs | null;
+  end: dayjs.Dayjs | null;
+  onChange: (start?: dayjs.Dayjs | null, end?: dayjs.Dayjs | null) => void;
 }
 
 export const TimeRangeUIView = (props: TimeRangeUIViewProps) => {
