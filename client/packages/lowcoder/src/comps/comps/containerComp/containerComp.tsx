@@ -14,10 +14,12 @@ import { disabledPropertyView, hiddenPropertyView } from "comps/utils/propertyUt
 import { trans } from "i18n";
 import { BoolCodeControl } from "comps/controls/codeControl";
 import { DisabledContext } from "comps/generators/uiCompBuilder";
+import { BoolControl } from "@lowcoder-ee/comps/controls/boolControl";
 
 export const ContainerBaseComp = (function () {
   const childrenMap = {
     disabled: BoolCodeControl,
+    showScroll: BoolControl.DEFAULT_TRUE,
   };
   return new ContainerCompBuilder(childrenMap, (props, dispatch) => {
     return (
@@ -32,6 +34,8 @@ export const ContainerBaseComp = (function () {
           <Section name={sectionNames.interaction}>{disabledPropertyView(children)}</Section>
           <Section name={sectionNames.layout}>
             {children.container.getPropertyView()}
+            {!children.container.children.autoHeight.getView() && children.showScroll.propertyView({
+            label: trans("container.showScroll")})}
             {hiddenPropertyView(children)}
           </Section>
           <Section name={sectionNames.style}>{children.container.stylePropertyView()}</Section>

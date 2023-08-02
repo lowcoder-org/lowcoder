@@ -39,9 +39,11 @@ const BodyInnerGrid = styled(InnerGrid)<{
   showBorder: boolean;
   backgroundColor: string;
   borderColor: string;
+  showScroll?: boolean;
 }>`
   border-top: ${(props) => `${props.showBorder ? 1 : 0}px solid ${props.borderColor}`};
   flex: 1;
+  overflow: ${(props) => `${props.showScroll ? 'auto' : 'hidden'}`};
   ${(props) => props.backgroundColor && `background-color: ${props.backgroundColor};`}
   border-radius: 0;
 `;
@@ -59,6 +61,7 @@ const FooterInnerGrid = styled(InnerGrid)<{
 
 export type TriContainerProps = TriContainerViewProps & {
   hintPlaceholder?: ReactNode;
+  showScroll?: boolean;
 };
 
 export function TriContainer(props: TriContainerProps) {
@@ -110,6 +113,7 @@ export function TriContainer(props: TriContainerProps) {
             hintPlaceholder={props.hintPlaceholder ?? HintPlaceHolder}
             backgroundColor={style?.background}
             borderColor={style?.border}
+            showScroll={props?.showScroll}
             style={{padding: style.containerbodypadding}}
           />
         </BackgroundColorContext.Provider>

@@ -1333,6 +1333,7 @@ selectionControl: {
 },
 container: {
     title: "容器标题",
+    showScroll: "显示滚动条",
 },
 drawer: {
     placement: "抽屉位置",
