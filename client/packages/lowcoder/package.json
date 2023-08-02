@@ -57,7 +57,6 @@
     "lowcoder-core": "workspace:^",
     "lowcoder-design": "workspace:^",
     "mime": "^3.0.0",
-    "moment": "^2.29.4",
     "numbro": "^2.3.6",
     "papaparse": "^5.3.2",
     "qrcode.react": "^3.1.0",

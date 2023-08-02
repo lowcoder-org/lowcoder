@@ -19,10 +19,6 @@ export const libs = [
   "@dnd-kit/sortable",
   "@dnd-kit/utilities",
   {
-    name: "moment",
-    extractDefault: true,
-  },
-  {
     name: "dayjs",
     extractDefault: true,
   },
