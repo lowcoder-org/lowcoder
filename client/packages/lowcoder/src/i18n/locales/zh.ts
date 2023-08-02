@@ -1669,7 +1669,7 @@ advanced: {
     preloadCSSApply: "应用到工作空间的首页",
     preloadLibsTitle: "JavaScript 库",
     preloadLibsHelp:
-    "为当前工作空间中的所有应用程序设置预加载的 JavaScript 库,系统内置了 lodash、moment、uuid、numbro 可供直接使用.JavaScript 库在应用程序初始化之前加载,因此对应用程序性能有一定影响.",
+    "为当前工作空间中的所有应用程序设置预加载的 JavaScript 库,系统内置了 lodash、day.js、uuid、numbro 可供直接使用.JavaScript 库在应用程序初始化之前加载,因此对应用程序性能有一定影响.",
     preloadLibsEmpty: "尚未添加 JavaScript 库",
     preloadLibsAddBtn: "添加库",
     saveSuccess: "保存成功",
@@ -1927,7 +1927,7 @@ userAuth: {
     copyPassword: "复制密码",
 },
 preLoad: {
-    jsLibraryHelpText: "通过URL链接向当前应用程序添加JavaScript库.lodash、moment、uuid、numbro内置于系统中,可立即使用.JavaScript库在应用程序初始化之前加载,这可能会影响应用程序的性能.",
+    jsLibraryHelpText: "通过URL链接向当前应用程序添加JavaScript库.lodash、day.js、uuid、numbro内置于系统中,可立即使用.JavaScript库在应用程序初始化之前加载,这可能会影响应用程序的性能.",
     exportedAs: "导出为",
     urlTooltip: "JavaScript库的URL链接,建议使用[unpkg.com](https://unpkg.com/)或[jsdelivr.net](https://www.jsdelivr.com/).",
     recommended: "推荐",
