@@ -41,7 +41,7 @@
     "antd-img-crop": "^4.12.2",
     "axios": "^0.21.1",
     "buffer": "^6.0.3",
-    "clsx": "^1.2.1",
+    "clsx": "^2.0.0",
     "cnchar": "^3.2.4",
     "copy-to-clipboard": "^3.3.3",
     "core-js": "^3.25.2",
