@@ -12,7 +12,7 @@ import {
   NameConfigRequired,
   withExposingConfigs,
 } from "comps/generators/withExposing";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 import { UICompBuilder } from "../../generators";
 import { FormDataPropertyView } from "../formComp/formDataConstants";
 import { jsonControl } from "comps/controls/codeControl";
@@ -56,8 +56,38 @@ import {
   componentSize,
 } from "./autoCompleteConstants";
 
+// const InputStyle = styled(Input)<{ $style: InputLikeStyleType }>`
+//   ${(props) => props.$style && getStyle(props.$style) }
+// `;
+
 const InputStyle = styled(Input)<{ $style: InputLikeStyleType }>`
-  ${(props) => props.$style && getStyle(props.$style)}
+  ${(props) => css`
+    ${getStyle(props.$style)}
+    .ant-select-selection-search-input {
+      height: 100%;
+    }
+    input {
+      padding: ${props.style?.padding}
+    }
+  `}
+`;
+
+const CustomStyledSearch = styled(AntInput.Search)<{ $style: InputLikeStyleType }>`
+  ${(props) => css`
+    padding: 0;
+    input.ant-input {
+      padding: ${props.$style?.padding};
+    }
+    .ant-btn.ant-input-search-button {
+      height: 100%;
+      padding: ${props.$style?.padding} !important;
+      padding-left: 15px !important;
+      padding-right: 15px !important;
+      .ant-btn-icon {
+        line-height: 28px;
+      }
+    }
+  `}
 `;
 
 const childrenMap = {
@@ -156,12 +186,6 @@ let AutoCompleteCompBase = (function () {
             <AutoComplete
               disabled={props.disabled}
               value={searchtext}
-              style={{
-                width: "100%",
-                height: "100%",
-                padding: props.style.padding,
-                margin: props.style.margin,
-              }}
               options={items}
               onChange={(value: string, option) => {
                 props.valueInItems.onChange(false);
@@ -259,7 +283,7 @@ let AutoCompleteCompBase = (function () {
               }}
             >
               {autoCompleteType === "AntDesign" ? (
-                <AntInput.Search
+                <CustomStyledSearch
                   placeholder={placeholder}
                   enterButton={autocompleteIconColor === "blue"}
                   allowClear={props.allowClear}
@@ -267,12 +291,13 @@ let AutoCompleteCompBase = (function () {
                   onPressEnter={undefined}
                   status={getValidate(validateState)}
                   onSubmit={() => props.onEvent("submit")}
+                  $style={props.style}
                 />
               ) : (
                 <InputStyle
-                  style={{
-                    height: componentSize === "small" ? "30px" : "38px",
-                  }}
+                  // style={{
+                  //   height: componentSize === "small" ? "30px" : "38px",
+                  // }}
                   ref={props.viewRef}
                   placeholder={placeholder}
                   allowClear={props.allowClear}
@@ -299,11 +324,6 @@ let AutoCompleteCompBase = (function () {
               label: trans("autoComplete.type"),
               radioButton: true,
             })}
-            {allowClearPropertyView(children)}
-            {children.componentSize.propertyView({
-              label: trans("autoComplete.componentSize"),
-              radioButton: true,
-            })}
             {children.autoCompleteType.getView() === "AntDesign" &&
               children.autocompleteIconColor.propertyView({
                 label: trans("button.prefixIcon"),
@@ -318,6 +338,7 @@ let AutoCompleteCompBase = (function () {
               children.suffixIcon.propertyView({
                 label: trans("button.suffixIcon"),
               })}
+              {allowClearPropertyView(children)}
           </Section>
           <Section name={trans("autoComplete.SectionDataName")}>
             {children.items.propertyView({
