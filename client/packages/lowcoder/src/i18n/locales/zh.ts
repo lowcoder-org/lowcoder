@@ -1127,7 +1127,7 @@ table: {
     columnType: "列类型",
     text: "文本",
     link: "链接",
-    links: "链接",
+    links: "多链接",
     tag: "标签",
     date: "日期",
     dateTime: "日期时间",
