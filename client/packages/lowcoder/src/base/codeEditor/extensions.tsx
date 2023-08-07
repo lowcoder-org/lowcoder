@@ -111,7 +111,7 @@ const defaultTheme = EditorView.theme({
   "&.cm-editor": {
     backgroundColor: "#ffffff",
     width: "100%",
-    height: "100%",
+    // height: "100%",
     "font-size": "13px",
     transition: "all .4s ease",
     outline: "none",
