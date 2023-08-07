@@ -258,7 +258,9 @@ event: {
     parse: "解析",
     parseDesc: "在解析时触发",
     success: "成功",
-    successDesc: "在成功时触发"
+    successDesc: "在成功时触发",
+    mention: "提及",
+    mentionDesc: "在提及时触发",
 },
 themeDetail: {
     primary: "颜色主题",
@@ -828,6 +830,9 @@ uiComp: {
     timelineCompName: "时间线",
     timelineCompDesc: "时间线组件",
     timelineCompKeywords: "sjx",
+    mentionCompName: "提及",
+    mentionCompDesc: "提及组件",
+    mentionCompKeywords: "tj",
     autoCompleteCompName: "自动完成",
     autoCompleteCompDesc: "自动完成",
     autoCompleteCompKeywords: "zdwc",
@@ -2461,6 +2466,9 @@ timeLine: {
         endlessLoop: "循环播放",
         keepLastFrame: "冻结最后一帧",
       },
+    mention:{
+        mentionList: "提及列表",
+    },
     autoComplete: {
         value: "数据",
         checkedValueFrom: "选择提示时获取",
