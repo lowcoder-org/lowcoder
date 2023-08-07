@@ -44,6 +44,7 @@ public class CommonConfig {
     private Cookie cookie = new Cookie();
     private JsExecutor jsExecutor = new JsExecutor();
     private Set<String> disallowedHosts = new HashSet<>();
+    private List<String> pluginDirs = new ArrayList<>();
 
     public boolean isSelfHost() {
         return !isCloud();
