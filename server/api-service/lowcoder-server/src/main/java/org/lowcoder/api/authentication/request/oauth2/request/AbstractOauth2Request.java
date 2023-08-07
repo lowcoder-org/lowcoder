@@ -37,7 +37,19 @@ public abstract class AbstractOauth2Request<T extends Oauth2SimpleAuthConfig> im
                 .subscribeOn(AUTH_REQUEST_THREAD_POOL);
     }
 
+    public Mono<AuthUser> refresh(String refreshToken) {
+        return refreshAuthToken(refreshToken)
+                .flatMap(authToken -> getAuthUser(authToken).doOnNext(authUser -> authUser.setAuthToken(authToken)))
+                .onErrorResume(throwable -> {
+                    log.error("failed to refresh token: ", throwable);
+                    return deferredError(FAIL_TO_GET_OIDC_INFO, "FAIL_TO_GET_OIDC_INFO", throwable.getMessage());
+                })
+                .subscribeOn(AUTH_REQUEST_THREAD_POOL);
+    }
+
     protected abstract Mono<AuthToken> getAuthToken(OAuth2RequestContext context);
+
+    protected abstract Mono<AuthToken> refreshAuthToken(String refreshToken);
 
     protected abstract Mono<AuthUser> getAuthUser(AuthToken authToken);
 }

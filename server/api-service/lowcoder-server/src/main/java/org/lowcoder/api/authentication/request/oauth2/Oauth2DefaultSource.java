@@ -13,6 +13,11 @@ public enum Oauth2DefaultSource implements Oauth2Source {
             return "https://api.github.com/user";
         }
 
+        @Override
+        public String refresh() {
+            return "https://www.googleapis.com/oauth2/v4/token";
+        }
+
     },
     GOOGLE {
         @Override
@@ -23,6 +28,11 @@ public enum Oauth2DefaultSource implements Oauth2Source {
         @Override
         public String userInfo() {
             return "https://www.googleapis.com/oauth2/v3/userinfo";
+        }
+
+        @Override
+        public String refresh() {
+            return "https://www.googleapis.com/oauth2/v4/token";
         }
 
     }

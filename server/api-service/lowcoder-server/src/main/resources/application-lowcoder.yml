@@ -1,7 +1,3 @@
-auth:
-  email:
-    enable: true
-
 spring:
   data:
     mongodb:
