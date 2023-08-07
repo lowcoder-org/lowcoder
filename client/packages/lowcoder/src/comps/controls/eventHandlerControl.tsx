@@ -305,6 +305,11 @@ export const successEvent: EventConfigType = {
   value: "success",
   description: trans("event.successDesc"),
 };
+export const mentionEvent: EventConfigType = {
+  label: trans("event.mention"),
+  value: "mention",
+  description: trans("event.mentionDesc"),
+};
 
 export const InputEventHandlerControl = eventHandlerControl([
   changeEvent,

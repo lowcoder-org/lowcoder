@@ -6065,6 +6065,22 @@ __metadata:
   languageName: node
   linkType: hard
 
+"cnchar-types@npm:^3.2.4":
+  version: 3.2.4
+  resolution: "cnchar-types@npm:3.2.4"
+  checksum: 5a79f30632cbc34e94c1fa5a81efa535956a1d9ad2c6f0dcf4f5fdaa20cbe3983056769806b04a37ed6e9aa2e80f529eaa90436ebb6faac7c8341e4a9440bb4d
+  languageName: node
+  linkType: hard
+
+"cnchar@npm:^3.2.4":
+  version: 3.2.4
+  resolution: "cnchar@npm:3.2.4"
+  dependencies:
+    cnchar-types: ^3.2.4
+  checksum: 536502ce4e5e3087ce33658fe250350bf247f8a546b5bb7e67fe760ee122618a7cdc5d3019171d326b7123afc05ddc573f70adf949587375c70685e23a95c172
+  languageName: node
+  linkType: hard
+
 "co@npm:^4.6.0":
   version: 4.6.0
   resolution: "co@npm:4.6.0"
@@ -11706,6 +11722,7 @@ __metadata:
     axios: ^0.21.1
     buffer: ^6.0.3
     clsx: ^1.2.1
+    cnchar: ^3.2.4
     copy-to-clipboard: ^3.3.3
     core-js: ^3.25.2
     dotenv: ^16.0.3
