@@ -152,7 +152,7 @@ export const textInputChildren = {
   ...formDataChildren,
 };
 
-const textInputProps = (props: RecordConstructorToView<typeof textInputChildren>) => ({
+export const textInputProps = (props: RecordConstructorToView<typeof textInputChildren>) => ({
   disabled: props.disabled,
   readOnly: props.readOnly,
   placeholder: props.placeholder,
