@@ -114,6 +114,10 @@ export type UICompType =
   | "timeline"
   | "mention"
   | "autocomplete"
+  | "weekPicker"
+  | "monthPicker"
+  | "quarterPicker"
+  | "yearPicker"
 
 export const uiCompRegistry = {} as Record<UICompType | string, UICompManifest>;
 

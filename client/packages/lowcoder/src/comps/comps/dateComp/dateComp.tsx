@@ -117,8 +117,8 @@ function validate(
   if (props.customRule) {
     return { validateStatus: "error", help: props.customRule };
   }
-
-  const currentDateTime = dayjs(props.value.value, DATE_TIME_FORMAT);
+  // 修复必填验证失效bug
+  const currentDateTime = dayjs(props.value.value, DATE_FORMAT);
 
   if (props.required && !currentDateTime.isValid()) {
     return { validateStatus: "error", help: trans("prop.required") };
@@ -163,6 +163,7 @@ export const datePickerControl = new UICompBuilder(childrenMap, (props) => {
     style: props.style,
     children: (
       <DateUIView
+        picker={'date'}
         viewRef={props.viewRef}
         disabledTime={() => disabledTime(props.minTime, props.maxTime)}
         $style={props.style}
@@ -345,6 +346,578 @@ export const dateRangeControl = (function () {
     })
     .build();
 })();
+
+export const weekPickerControl = new UICompBuilder(
+  {...childrenMap,...{format: withDefault(StringControl,'gggg-wo')}}
+  , (props) => {
+  let time = dayjs(null);
+  if(props.value.value !== '') {
+    time = dayjs(props.value.value, DateParser);
+  }
+  return props.label({
+    required: props.required,
+    style: props.style,
+    children: (
+      <DateUIView
+        picker={'week'}
+        viewRef={props.viewRef}
+        disabledTime={() => disabledTime(props.minTime, props.maxTime)}
+        $style={props.style}
+        disabled={props.disabled}
+        {...datePickerProps(props)}
+        minDate={props.minDate}
+        maxDate={props.maxDate}
+        value={time.isValid() ? time : null}
+        onChange={(time) => {
+          handleDateChange(
+            time && time.isValid()
+              ? time.format(DATE_FORMAT)
+              : "",
+            props.value.onChange,
+            props.onEvent
+          );
+        }}
+        onPanelChange={() => {
+          handleDateChange("", props.value.onChange, noop);
+        }}
+        onFocus={() => props.onEvent("focus")}
+        onBlur={() => props.onEvent("blur")}
+        suffixIcon={hasIcon(props.suffixIcon) && props.suffixIcon}
+      />
+    ),
+    ...validate(props),
+  });
+})
+  .setPropertyViewFn((children) => {
+    const isMobile = useIsMobile();
+    return (
+      <>
+        <Section name={sectionNames.basic}>
+          {children.value.propertyView({
+            label: trans("prop.defaultValue"),
+            placeholder: "2022-04-07",
+            tooltip: trans("date.formatTip"),
+          })}
+          {formatPropertyView({ children })}
+        </Section>
+
+        <FormDataPropertyView {...children} />
+
+        {children.label.getPropertyView()}
+
+        <Section name={sectionNames.interaction}>
+          {children.onEvent.getPropertyView()}
+          {disabledPropertyView(children)}
+        </Section>
+
+        <Section name={sectionNames.validation}>
+          {requiredPropertyView(children)}
+          {dateValidationFields(children)}
+          {timeValidationFields(children)}
+          {children.customRule.propertyView({})}
+        </Section>
+
+        {!isMobile && commonAdvanceSection(children)}
+
+        <Section name={sectionNames.layout}>
+          {children.suffixIcon.propertyView({ label: trans("button.suffixIcon") })}
+          {hiddenPropertyView(children)}
+        </Section>
+
+        <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
+      </>
+    );
+  })
+  .setExposeMethodConfigs(dateRefMethods)
+  .build();
+
+export const WeekPickerComp = withExposingConfigs(weekPickerControl, [
+  depsConfig({
+    name: "value",
+    desc: trans("export.weekPickerValueDesc"),
+    depKeys: ["value"],
+    func: (input) => {
+      const mom = dayjs(input.value, DateParser);
+      return mom.isValid() ? parseInt(mom.format('w')) : "";
+    },
+  }),
+  depsConfig({
+    name: "startOf",
+    desc: trans("export.dateRangeStartDesc"),
+    depKeys: ["value"],
+    func: (input) => {
+      const mom = dayjs(input.value, DateParser).startOf('week');
+      return mom.isValid() ? mom : "";
+    },
+  }),
+  depsConfig({
+    name: "endOf",
+    desc: trans("export.dateRangeEndDesc"),
+    depKeys: ["value"],
+    func: (input) => {
+      const mom = dayjs(input.value, DateParser).endOf('week');
+      return mom.isValid() ? mom : "";
+    },
+  }),
+  depsConfig({
+    name: "formattedValue",
+    desc: trans("export.datePickerFormattedValueDesc"),
+    depKeys: ["value", "format"],
+    func: (input) => {
+      const mom = dayjs(input.value, DateParser);
+      return mom.isValid() ? mom.format(input.format) : "";
+    },
+  }),
+  depsConfig({
+    name: "invalid",
+    desc: trans("export.invalidDesc"),
+    depKeys: ["value", "required", "minTime", "maxTime", "minDate", "maxDate", "customRule"],
+    func: (input) =>
+      {
+        let x= validate({
+        ...input,
+        value: { value: input.value },
+      } as any).validateStatus !== "success"
+      return x
+    }
+  }),
+  ...CommonNameConfig,
+]);
+
+export const monthPickerControl = new UICompBuilder(
+  {...childrenMap,...{format: withDefault(StringControl,'YYYY-MMM')}}
+  , (props) => {
+  let time = dayjs(null);
+  if(props.value.value !== '') {
+    time = dayjs(props.value.value, DateParser);
+  }
+  return props.label({
+    required: props.required,
+    style: props.style,
+    children: (
+      <DateUIView
+        picker={'month'}
+        viewRef={props.viewRef}
+        disabledTime={() => disabledTime(props.minTime, props.maxTime)}
+        $style={props.style}
+        disabled={props.disabled}
+        {...datePickerProps(props)}
+        minDate={props.minDate}
+        maxDate={props.maxDate}
+        value={time.isValid() ? time : null}
+        onChange={(time) => {
+          handleDateChange(
+            time && time.isValid()
+              ? time.format(DATE_FORMAT)
+              : "",
+            props.value.onChange,
+            props.onEvent
+          );
+        }}
+        onPanelChange={() => {
+        }}
+        onFocus={() => props.onEvent("focus")}
+        onBlur={() => props.onEvent("blur")}
+        suffixIcon={hasIcon(props.suffixIcon) && props.suffixIcon}
+      />
+    ),
+    ...validate(props),
+  });
+})
+  .setPropertyViewFn((children) => {
+    const isMobile = useIsMobile();
+    return (
+      <>
+        <Section name={sectionNames.basic}>
+          {children.value.propertyView({
+            label: trans("prop.defaultValue"),
+            placeholder: "2022-04-07",
+            tooltip: trans("date.formatTip"),
+          })}
+          {formatPropertyView({ children })}
+        </Section>
+
+        <FormDataPropertyView {...children} />
+
+        {children.label.getPropertyView()}
+
+        <Section name={sectionNames.interaction}>
+          {children.onEvent.getPropertyView()}
+          {disabledPropertyView(children)}
+        </Section>
+
+        <Section name={sectionNames.validation}>
+          {requiredPropertyView(children)}
+          {dateValidationFields(children)}
+          {timeValidationFields(children)}
+          {children.customRule.propertyView({})}
+        </Section>
+
+        {!isMobile && commonAdvanceSection(children)}
+
+        <Section name={sectionNames.layout}>
+          {children.suffixIcon.propertyView({ label: trans("button.suffixIcon") })}
+          {hiddenPropertyView(children)}
+        </Section>
+
+        <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
+      </>
+    );
+  })
+  .setExposeMethodConfigs(dateRefMethods)
+  .build();
+
+export const MonthPickerComp = withExposingConfigs(monthPickerControl, [
+  depsConfig({
+    name: "value",
+    desc: trans("export.monthPickerValueDesc"),
+    depKeys: ["value"],
+    func: (input) => {
+      const mom = dayjs(input.value, DateParser);
+      return mom.isValid() ? mom.month()+1 : "";
+    },
+  }),
+  depsConfig({
+    name: "daysInMonth",
+    desc: trans("export.monthPickerDaysInMonthDesc"),
+    depKeys: ["value"],
+    func: (input) => {
+      const mom = dayjs(input.value, DateParser);
+      return mom.isValid() ? mom.daysInMonth() : "";
+    },
+  }),
+  depsConfig({
+    name: "startOf",
+    desc: trans("export.dateRangeStartDesc"),
+    depKeys: ["value"],
+    func: (input) => {
+      const mom = dayjs(input.value, DateParser).startOf('month');
+      return mom.isValid() ? mom : "";
+    },
+  }),
+  depsConfig({
+    name: "endOf",
+    desc: trans("export.dateRangeEndDesc"),
+    depKeys: ["value"],
+    func: (input) => {
+      const mom = dayjs(input.value, DateParser).endOf('month');
+      return mom.isValid() ? mom : "";
+    },
+  }),
+  depsConfig({
+    name: "formattedValue",
+    desc: trans("export.datePickerFormattedValueDesc"),
+    depKeys: ["value", "format"],
+    func: (input) => {
+      const mom = dayjs(input.value, DateParser);
+      return mom.isValid() ? mom.format(input.format) : "";
+    },
+  }),
+  depsConfig({
+    name: "invalid",
+    desc: trans("export.invalidDesc"),
+    depKeys: ["value", "required", "minTime", "maxTime", "minDate", "maxDate", "customRule"],
+    func: (input) =>
+      {
+        let x= validate({
+        ...input,
+        value: { value: input.value },
+      } as any).validateStatus !== "success"
+      return x
+    }
+  }),
+  ...CommonNameConfig,
+]);
+
+export const quarterPickerControl = new UICompBuilder(
+  {...childrenMap,...{format: withDefault(StringControl,'gggg-[Q]Q')}}
+  , (props) => {
+  let time = dayjs(null);
+  if(props.value.value !== '') {
+    time = dayjs(props.value.value, DateParser);
+  }
+  return props.label({
+    required: props.required,
+    style: props.style,
+    children: (
+      <DateUIView
+        picker={'quarter'}
+        viewRef={props.viewRef}
+        disabledTime={() => disabledTime(props.minTime, props.maxTime)}
+        $style={props.style}
+        disabled={props.disabled}
+        {...datePickerProps(props)}
+        minDate={props.minDate}
+        maxDate={props.maxDate}
+        value={time.isValid() ? time : null}
+        onChange={(time) => {
+          handleDateChange(
+            time && time.isValid()
+              ? time.format(DATE_FORMAT)
+              : "",
+            props.value.onChange,
+            props.onEvent
+          );
+        }}
+        onPanelChange={() => {
+        }}
+        onFocus={() => props.onEvent("focus")}
+        onBlur={() => props.onEvent("blur")}
+        suffixIcon={hasIcon(props.suffixIcon) && props.suffixIcon}
+      />
+    ),
+    ...validate(props),
+  });
+})
+  .setPropertyViewFn((children) => {
+    const isMobile = useIsMobile();
+    return (
+      <>
+        <Section name={sectionNames.basic}>
+          {children.value.propertyView({
+            label: trans("prop.defaultValue"),
+            placeholder: "2022-04-07",
+            tooltip: trans("date.formatTip"),
+          })}
+          {formatPropertyView({ children })}
+        </Section>
+
+        <FormDataPropertyView {...children} />
+
+        {children.label.getPropertyView()}
+
+        <Section name={sectionNames.interaction}>
+          {children.onEvent.getPropertyView()}
+          {disabledPropertyView(children)}
+        </Section>
+
+        <Section name={sectionNames.validation}>
+          {requiredPropertyView(children)}
+          {dateValidationFields(children)}
+          {timeValidationFields(children)}
+          {children.customRule.propertyView({})}
+        </Section>
+
+        {!isMobile && commonAdvanceSection(children)}
+
+        <Section name={sectionNames.layout}>
+          {children.suffixIcon.propertyView({ label: trans("button.suffixIcon") })}
+          {hiddenPropertyView(children)}
+        </Section>
+
+        <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
+      </>
+    );
+  })
+  .setExposeMethodConfigs(dateRefMethods)
+  .build();
+
+export const QuarterPickerComp = withExposingConfigs(quarterPickerControl, [
+  depsConfig({
+    name: "value",
+    desc: trans("export.quarterPickerDaysInMonthDesc"),
+    depKeys: ["value"],
+    func: (input) => {
+      const mom = dayjs(input.value, DateParser);
+      return mom.isValid() ? parseInt(mom.format('Q')) : "";
+    },
+  }),
+  depsConfig({
+    name: "daysInQuarter",
+    desc: trans("export.quarterPickerDaysInMonthDesc"),
+    depKeys: ["value"],
+    func: (input) => {
+      const mom = dayjs(input.value, DateParser);
+      return mom.isValid() ? mom.add(2,"month").endOf('month').diff(mom.startOf('month'),"day")+1 : "";
+    },
+  }),
+  depsConfig({
+    name: "startOf",
+    desc: trans("export.dateRangeStartDesc"),
+    depKeys: ["value"],
+    func: (input) => {
+      const mom = dayjs(input.value, DateParser).startOf('month');
+      return mom.isValid() ? mom : "";
+    },
+  }),
+  depsConfig({
+    name: "endOf",
+    desc: trans("export.dateRangeEndDesc"),
+    depKeys: ["value"],
+    func: (input) => {
+      const mom = dayjs(input.value, DateParser).endOf('month');
+      return mom.isValid() ? mom.add(2,"month") : "";
+    },
+  }),
+  depsConfig({
+    name: "formattedValue",
+    desc: trans("export.datePickerFormattedValueDesc"),
+    depKeys: ["value", "format"],
+    func: (input) => {
+      const mom = dayjs(input.value, DateParser);
+      return mom.isValid() ? mom.format(input.format) : "";
+    },
+  }),
+  depsConfig({
+    name: "invalid",
+    desc: trans("export.invalidDesc"),
+    depKeys: ["value", "required", "minTime", "maxTime", "minDate", "maxDate", "customRule"],
+    func: (input) =>
+      {
+        let x= validate({
+        ...input,
+        value: { value: input.value },
+      } as any).validateStatus !== "success"
+      return x
+    }
+  }),
+  ...CommonNameConfig,
+]);
+
+export const yearPickerControl = new UICompBuilder(
+  {...childrenMap,...{format: withDefault(StringControl,'YYYY')}}
+  , (props) => {
+  let time = dayjs(null);
+  if(props.value.value !== '') {
+    time = dayjs(props.value.value, DateParser);
+  }
+  return props.label({
+    required: props.required,
+    style: props.style,
+    children: (
+      <DateUIView
+        picker={'year'}
+        viewRef={props.viewRef}
+        disabledTime={() => disabledTime(props.minTime, props.maxTime)}
+        $style={props.style}
+        disabled={props.disabled}
+        {...datePickerProps(props)}
+        minDate={props.minDate}
+        maxDate={props.maxDate}
+        value={time.isValid() ? time : null}
+        onChange={(time) => {
+          handleDateChange(
+            time && time.isValid()
+              ? time.format(DATE_FORMAT)
+              : "",
+            props.value.onChange,
+            props.onEvent
+          );
+        }}
+        onPanelChange={() => {
+        }}
+        onFocus={() => props.onEvent("focus")}
+        onBlur={() => props.onEvent("blur")}
+        suffixIcon={hasIcon(props.suffixIcon) && props.suffixIcon}
+      />
+    ),
+    ...validate(props),
+  });
+})
+  .setPropertyViewFn((children) => {
+    const isMobile = useIsMobile();
+    return (
+      <>
+        <Section name={sectionNames.basic}>
+          {children.value.propertyView({
+            label: trans("prop.defaultValue"),
+            placeholder: "2023",
+            tooltip: trans("date.formatTip"),
+          })}
+          {formatPropertyView({ children })}
+        </Section>
+
+        <FormDataPropertyView {...children} />
+
+        {children.label.getPropertyView()}
+
+        <Section name={sectionNames.interaction}>
+          {children.onEvent.getPropertyView()}
+          {disabledPropertyView(children)}
+        </Section>
+
+        <Section name={sectionNames.validation}>
+          {requiredPropertyView(children)}
+          {dateValidationFields(children)}
+          {timeValidationFields(children)}
+          {children.customRule.propertyView({})}
+        </Section>
+
+        {!isMobile && commonAdvanceSection(children)}
+
+        <Section name={sectionNames.layout}>
+          {children.suffixIcon.propertyView({ label: trans("button.suffixIcon") })}
+          {hiddenPropertyView(children)}
+        </Section>
+
+        <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
+      </>
+    );
+  })
+  .setExposeMethodConfigs(dateRefMethods)
+  .build();
+
+export const YearPickerComp = withExposingConfigs(yearPickerControl, [
+  depsConfig({
+    name: "value",
+    desc: trans("export.yearPickerDaysInMonthDesc"),
+    depKeys: ["value"],
+    func: (input) => {
+      const mom = dayjs(input.value, DateParser);
+      return mom.isValid() ? mom.year() : "";
+    },
+  }),
+  depsConfig({
+    name: "daysInYear",
+    desc: trans("export.yearPickerDaysInMonthDesc"),
+    depKeys: ["value"],
+    func: (input) => {
+      const mom = dayjs(input.value, DateParser);
+      return mom.isValid() ? mom.endOf('year').diff(mom.startOf("year"),"day")+1 : "";
+    },
+  }),
+  depsConfig({
+    name: "startOf",
+    desc: trans("export.dateRangeStartDesc"),
+    depKeys: ["value"],
+    func: (input) => {
+      const mom = dayjs(input.value, DateParser).startOf('year');
+      return mom.isValid() ? mom: "";
+    },
+  }),
+  depsConfig({
+    name: "endOf",
+    desc: trans("export.dateRangeEndDesc"),
+    depKeys: ["value"],
+    func: (input) => {
+      const mom = dayjs(input.value, DateParser).endOf('year');
+      return mom.isValid() ? mom: "";
+    },
+  }),
+  depsConfig({
+    name: "formattedValue",
+    desc: trans("export.datePickerFormattedValueDesc"),
+    depKeys: ["value", "format"],
+    func: (input) => {
+      const mom = dayjs(input.value, DateParser);
+      return mom.isValid() ? mom.format(input.format) : "";
+    },
+  }),
+  depsConfig({
+    name: "invalid",
+    desc: trans("export.invalidDesc"),
+    depKeys: ["value", "required", "minTime", "maxTime", "minDate", "maxDate", "customRule"],
+    func: (input) =>
+      {
+        let x= validate({
+        ...input,
+        value: { value: input.value },
+      } as any).validateStatus !== "success"
+      return x
+    }
+  }),
+  ...CommonNameConfig,
+]);
 
 export const DatePickerComp = withExposingConfigs(datePickerControl, [
   depsConfig({

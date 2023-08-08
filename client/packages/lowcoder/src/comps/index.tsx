@@ -7,7 +7,13 @@ import { DropdownComp } from "./comps/buttonComp/dropdownComp";
 import { LinkComp } from "./comps/buttonComp/linkComp";
 import { ContainerComp, defaultContainerData } from "./comps/containerComp/containerComp";
 import { CustomComp } from "./comps/customComp/customComp";
-import { DatePickerComp, DateRangeComp } from "./comps/dateComp/dateComp";
+import { 
+  DatePickerComp, 
+  DateRangeComp, 
+  WeekPickerComp, 
+  MonthPickerComp, 
+  QuarterPickerComp, 
+  YearPickerComp } from "./comps/dateComp/dateComp";
 import { DividerComp } from "./comps/dividerComp";
 import { FileComp } from "./comps/fileComp/fileComp";
 import { FileViewerComp } from "./comps/fileViewerComp";
@@ -96,6 +102,10 @@ import {
   LottieIcon,
   MentionIcon,
   AutoCompleteCompIcon,
+  WeekPickerIcon,
+  MonthPickerIcon,
+  QuarterPickerIcon,
+  YearPickerIcon,
 } from "lowcoder-design";
 
 import { defaultFormData, FormComp } from "./comps/formComp/formComp";
@@ -878,6 +888,58 @@ const uiCompMap: Registry = {
     comp: AutoCompleteComp,
     layoutInfo: {
       w: 7,
+      h: 5,
+    },
+  },
+  weekPicker: {
+    name: trans("uiComp.weekPickerCompName"),
+    enName: "weekPicker",
+    description: trans("uiComp.weekPickerCompDesc"),
+    categories: ["dataInputDate"],
+    icon: WeekPickerIcon,
+    keywords: trans("uiComp.weekPickerCompKeywords"),
+    comp: WeekPickerComp,
+    layoutInfo: {
+      w: 6,
+      h: 5,
+    },
+  },
+  monthPicker: {
+    name: trans("uiComp.monthPickerCompName"),
+    enName: "monthPicker",
+    description: trans("uiComp.monthPickerCompDesc"),
+    categories: ["dataInputDate"],
+    icon: MonthPickerIcon,
+    keywords: trans("uiComp.monthPickerCompKeywords"),
+    comp: MonthPickerComp,
+    layoutInfo: {
+      w: 6,
+      h: 5,
+    },
+  },
+  quarterPicker: {
+    name: trans("uiComp.quarterPickerCompName"),
+    enName: "quarterPicker",
+    description: trans("uiComp.quarterPickerCompDesc"),
+    categories: ["dataInputDate"],
+    icon: QuarterPickerIcon,
+    keywords: trans("uiComp.quarterPickerCompKeywords"),
+    comp: QuarterPickerComp,
+    layoutInfo: {
+      w: 6,
+      h: 5,
+    },
+  },
+  yearPicker: {
+    name: trans("uiComp.yearPickerCompName"),
+    enName: "yearPicker",
+    description: trans("uiComp.yearPickerCompDesc"),
+    categories: ["dataInputDate"],
+    icon: YearPickerIcon,
+    keywords: trans("uiComp.yearPickerCompKeywords"),
+    comp: YearPickerComp,
+    layoutInfo: {
+      w: 6,
       h: 5,
     },
   },

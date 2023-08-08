@@ -18,6 +18,7 @@ export interface DataUIViewProps extends DateCompViewProps {
   value: dayjs.Dayjs | null;
   onChange: (value: dayjs.Dayjs | null) => void;
   onPanelChange: () => void;
+  picker: "date" | "week" | "month" | "quarter" | "year" | undefined
 }
 
 const DateMobileUIView = React.lazy(() =>
@@ -33,7 +34,7 @@ export const DateUIView = (props: DataUIViewProps) => {
       {...props}
       ref={props.viewRef as any}
       disabledDate={(current) => disabledDate(current, props.minDate, props.maxDate)}
-      picker={"date"}
+      picker={props?.picker ?? "date"}
       inputReadOnly={checkIsMobile(editorState?.getAppSettings().maxWidth)}
     />
   );
