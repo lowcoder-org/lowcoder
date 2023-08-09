@@ -127,7 +127,7 @@ class Icon {
     }
   }
   getView() {
-    if (this.names[0].startsWith("antd/")) return this.def;
+    if (this.names[0]?.startsWith("antd/")) return this.def;
     else
       return (
         <FontAwesomeIcon
