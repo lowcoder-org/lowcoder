@@ -775,6 +775,10 @@ export const NavigationStyle = [
 
 export const ImageStyle = [getStaticBorder("#00000000"), RADIUS, MARGIN, PADDING] as const;
 
+export const IconStyle = [getStaticBackground("#00000000"),
+  getStaticBorder("#00000000"), FILL, RADIUS, MARGIN, PADDING] as const;
+
+
 export const ListViewStyle = BG_STATIC_BORDER_RADIUS;
 
 export const JsonSchemaFormStyle = BG_STATIC_BORDER_RADIUS;
@@ -934,6 +938,7 @@ export type DividerStyleType = StyleConfigType<typeof DividerStyle>;
 export type ProgressStyleType = StyleConfigType<typeof ProgressStyle>;
 export type NavigationStyleType = StyleConfigType<typeof NavigationStyle>;
 export type ImageStyleType = StyleConfigType<typeof ImageStyle>;
+export type IconStyleType = StyleConfigType<typeof IconStyle>;
 export type ListViewStyleType = StyleConfigType<typeof ListViewStyle>;
 export type JsonSchemaFormStyleType = StyleConfigType<typeof JsonSchemaFormStyle>;
 export type TreeSelectStyleType = StyleConfigType<typeof TreeSelectStyle>;

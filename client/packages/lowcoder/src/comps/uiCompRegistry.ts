@@ -114,6 +114,7 @@ export type UICompType =
   | "timeline"
   | "mention"
   | "autocomplete"
+  | "icon"
 
 export const uiCompRegistry = {} as Record<UICompType | string, UICompManifest>;
 
