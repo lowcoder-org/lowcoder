@@ -52,6 +52,7 @@ common:
   max-query-timeout: ${LOWCODER_MAX_QUERY_TIMEOUT:120}
   plugin-dirs:
     - plugins
+    - /tmp/plugins
 
 material:
   mongodb-grid-fs:
