@@ -137,4 +137,16 @@
         <maven.compiler.target>17</maven.compiler.target>
     </properties>
 
+    <dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.lowcoder</groupId>
+				<artifactId>lowcoder-dependencies</artifactId>
+				<version>${revision}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>			
+		</dependencies>
+	</dependencyManagement>
+
 </project>

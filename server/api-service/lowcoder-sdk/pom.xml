@@ -5,7 +5,7 @@
     <parent>
         <artifactId>lowcoder-root</artifactId>
         <groupId>org.lowcoder</groupId>
-	<version>${revision}</version>
+		<version>${revision}</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
@@ -171,4 +171,17 @@
             <artifactId>validation-api</artifactId>
         </dependency>
     </dependencies>
+    
+    <dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.lowcoder</groupId>
+				<artifactId>lowcoder-dependencies</artifactId>
+				<version>${revision}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>			
+		</dependencies>
+	</dependencyManagement>
+    
 </project>
