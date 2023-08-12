@@ -20,13 +20,13 @@ import reactor.core.publisher.Mono;
 @Configuration
 public class PluginConfiguration
 {
-//	private final ApplicationContext applicationContext;
-//	private final PluginLoader pluginLoader;
-//
-//	public LowcoderPluginManager lowcoderPluginManager()
-//	{
-//		return new LowcoderPluginManager(applicationContext, pluginLoader);
-//	}
+	private final ApplicationContext applicationContext;
+	private final PluginLoader pluginLoader;
+
+	public LowcoderPluginManager lowcoderPluginManager()
+	{
+		return new LowcoderPluginManager(applicationContext, pluginLoader);
+	}
 
     @SuppressWarnings("unchecked")
     @Bean

@@ -1,17 +1,24 @@
 package org.lowcoder.api.framework.plugin;
 
 import java.io.IOException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import java.util.ServiceLoader;
+import java.util.Set;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.lowcoder.plugin.api.LowcoderPlugin;
+import org.lowcoder.plugin.LowcoderPlugin;
 import org.lowcoder.sdk.config.CommonConfig;
+import org.reflections.Reflections;
+import org.reflections.scanners.SubTypesScanner;
+import org.reflections.scanners.TypeAnnotationsScanner;
+import org.reflections.util.ClasspathHelper;
+import org.reflections.util.ConfigurationBuilder;
+import org.springframework.beans.factory.BeanClassLoaderAware;
 import org.springframework.boot.system.ApplicationHome;
 import org.springframework.stereotype.Component;
 
@@ -21,10 +28,12 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @RequiredArgsConstructor
 @Component
-public class PathBasedPluginLoader implements PluginLoader 
+public class PathBasedPluginLoader implements PluginLoader, BeanClassLoaderAware 
 {
 	private final CommonConfig common;
 	private final ApplicationHome applicationHome;
+
+	private ClassLoader beanClassLoader;
 	
 	@Override
 	public List<LowcoderPlugin> loadPlugins() 
@@ -49,6 +58,7 @@ public class PathBasedPluginLoader implements PluginLoader
 			{
 				for (LowcoderPlugin plugin : loadedPlugins)
 				{
+					log.debug("   - loaded plugin: {}  ::  {}", plugin.pluginId(), plugin.description());
 					plugins.add(plugin);
 				}				
 			}
@@ -94,25 +104,37 @@ public class PathBasedPluginLoader implements PluginLoader
 		return pluginCandidates;
 	}
 	
-	protected List<LowcoderPlugin> loadPluginCandidates(String pluginJar)
+	protected List<LowcoderPlugin> loadPluginCandidates(String pluginsDir)
 	{
 		List<LowcoderPlugin> pluginCandidates = new ArrayList<>();
 		
-		PluginJarClassLoader pluginClassLoader = null;
+		URLClassLoader testClassLoader = null;
+		
 		try
 		{
-			pluginClassLoader = new PluginJarClassLoader(getClass().getClassLoader(), Path.of(pluginJar));
+			testClassLoader = URLClassLoader.newInstance(new URL[] {
+					Path.of(pluginsDir).toUri().toURL()
+			}, beanClassLoader);
 
-			
-			ServiceLoader<LowcoderPlugin> pluginServices = ServiceLoader.load(LowcoderPlugin.class, pluginClassLoader);
-			if (pluginServices != null )
+			Reflections reflections = new Reflections(new ConfigurationBuilder()
+					.addClassLoader(testClassLoader)
+					.addUrls(ClasspathHelper.forClassLoader(testClassLoader))
+				    .setScanners(new SubTypesScanner(false), new TypeAnnotationsScanner())
+			);
+
+			Set<Class<? extends LowcoderPlugin>> found = reflections.getSubTypesOf(LowcoderPlugin.class);
+			for (Class<? extends LowcoderPlugin> pluginClass : found)
 			{
-				Iterator<LowcoderPlugin> pluginIterator = pluginServices.iterator();
-				while(pluginIterator.hasNext())
+				log.debug("      - found plugin: {}", pluginClass.getName());
+				try
 				{
-					LowcoderPlugin plugin = pluginIterator.next();
+					LowcoderPlugin plugin = pluginClass.getConstructor().newInstance();
 					log.debug("      - loaded plugin: {} - {}", plugin.pluginId(), plugin.description());
 					pluginCandidates.add(plugin);
+				}
+				catch(Throwable loadFail)
+				{
+					log.error("    - error loading plugin: {}!", pluginClass.getName(), loadFail);
 				}
 			}
 		}
@@ -137,5 +159,12 @@ public class PathBasedPluginLoader implements PluginLoader
 		}
 		
 		return null;
+	}
+
+
+	@Override
+	public void setBeanClassLoader(ClassLoader classLoader) 
+	{
+		this.beanClassLoader = classLoader;
 	}
 }
