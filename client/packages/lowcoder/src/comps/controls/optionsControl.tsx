@@ -1,5 +1,5 @@
 import { ViewDocIcon } from "assets/icons";
-import { ArrayControl, BoolCodeControl, StringControl } from "comps/controls/codeControl";
+import { ArrayControl, BoolCodeControl, RadiusControl, StringControl } from "comps/controls/codeControl";
 import { dropdownControl, LeftRightControl } from "comps/controls/dropdownControl";
 import { IconControl } from "comps/controls/iconControl";
 import { MultiCompBuilder, valueComp, withContext, withDefault } from "comps/generators";
@@ -27,6 +27,7 @@ import { getNextEntityName } from "util/stringUtils";
 import { JSONValue } from "util/jsonTypes";
 import { ButtonEventHandlerControl } from "./eventHandlerControl";
 import { ControlItemCompBuilder } from "comps/generators/controlCompBuilder";
+import { ColorControl } from "./colorControl";
 
 const OptionTypes = [
   {
@@ -521,3 +522,51 @@ export const TabsOptionControl = manualOptionsControl(TabsOption, {
   uniqField: "key",
   autoIncField: "id",
 });
+
+const ColumnOption = new MultiCompBuilder(
+  {
+    id: valueComp<number>(-1),
+    label: StringControl,
+    key: StringControl,
+    minWidth: withDefault(RadiusControl, ""),
+    background: withDefault(ColorControl, ""),
+    border: withDefault(ColorControl, ""),
+    radius: withDefault(RadiusControl, ""),
+    margin: withDefault(StringControl, ""),
+    padding: withDefault(StringControl, ""),
+  },
+  (props) => props
+)
+.setPropertyViewFn((children) => (
+  <>
+    {children.minWidth.propertyView({
+      label: trans('responsiveLayout.minWidth')
+    })}
+    {children.background.propertyView({
+      label: trans('style.background')
+    })}
+    {children.border.propertyView({
+      label: trans('style.border')
+    })}
+    {children.radius.propertyView({
+      label: trans('style.borderRadius')
+    })}
+    {children.margin.propertyView({
+      label: trans('style.margin')
+    })}
+    {children.padding.propertyView({
+      label: trans('style.padding')
+    })}
+  </>
+))
+  .build();
+
+export const ColumnOptionControl = manualOptionsControl(ColumnOption, {
+  initOptions: [
+    { id: 0, key: "Column1", label: "Column1" },
+    { id: 1, key: "Column2", label: "Column2" },
+  ],
+  uniqField: "key",
+  autoIncField: "id",
+});
+

@@ -338,6 +338,7 @@ style: {
     containerheaderpadding: "上内边距",
     containerfooterpadding: "下内边距",
     containerbodypadding: "内边距",
+    minWidth: "最小宽度",
 },
 export: {
     hiddenDesc: "如果为true,则隐藏组件",
@@ -836,6 +837,9 @@ uiComp: {
     autoCompleteCompName: "自动完成",
     autoCompleteCompDesc: "自动完成",
     autoCompleteCompKeywords: "zdwc",
+    responsiveLayoutCompName: "响应式布局",
+    responsiveLayoutCompDesc: "响应式布局",
+    responsiveLayoutCompKeywords: "",
 },
 comp: {
     menuViewDocs: "查看文档",
@@ -2495,5 +2499,19 @@ timeLine: {
         helpLabel: "标签",
         helpValue: "值",
     },
+    responsiveLayout: {
+        column: "列",
+        atLeastOneColumnError: "响应式布局至少保留一列",
+        columnsSpacing: "列间距(px)",
+        horizontal: "水平的",
+        vertical: "垂直的",
+        mobile: "移动的",
+        tablet: "药片",
+        desktop: "桌面",
+        rowStyle: "行式",
+        columnStyle: "栏目样式",
+        minWidth: "最小宽度",
+        rowBreak: "断行",
+    }
 };
 

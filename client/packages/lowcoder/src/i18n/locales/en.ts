@@ -342,6 +342,7 @@ export const en = {
     containerheaderpadding: "Header Padding",
     containerfooterpadding: "Footer Padding",
     containerbodypadding: "Body Padding",
+    minWidth: "Minimum Width",
   },
   export: {
     hiddenDesc: "If true, the component is hidden",
@@ -853,6 +854,9 @@ export const en = {
     autoCompleteCompName: "autoComplete",
     autoCompleteCompDesc: "autoComplete",
     autoCompleteCompKeywords: "",
+    responsiveLayoutCompName: "Responsive Layout",
+    responsiveLayoutCompDesc: "Responsive Layout",
+    responsiveLayoutCompKeywords: "",
   },
   comp: {
     menuViewDocs: "View documentation",
@@ -2504,5 +2508,19 @@ export const en = {
     Introduction: "Introduction keys",
     helpLabel: "label",
     helpValue: "value",
+  },
+  responsiveLayout: {
+    column: "Columns",
+    atLeastOneColumnError: "Responsive layout keeps at least one Column",
+    columnsSpacing: "Columns Spacing(px)",
+    horizontal: "Horizontal",
+    vertical: "Vertical",
+    mobile: "Mobile",
+    tablet: "Tablet",
+    desktop: "Desktop",
+    rowStyle: "Row Style",
+    columnStyle: "Column Style",
+    minWidth: "Minimum Width",
+    rowBreak: "Row Break",
   },
 };
