@@ -61,7 +61,12 @@ const childrenMap = {
   }),
   autoHeight: AutoHeightControl,
   rowBreak: withDefault(BoolControl, false),
-  rowStyle: styleControl(ResponsiveLayoutRowStyle),
+  rowStyle: withDefault(styleControl(ResponsiveLayoutRowStyle), {
+    background: 'transparent',
+    border: 'transparent',
+    margin: '0',
+    padding: '0',
+  }),
   columnStyle: styleControl(ResponsiveLayoutColStyle),
 };
 
