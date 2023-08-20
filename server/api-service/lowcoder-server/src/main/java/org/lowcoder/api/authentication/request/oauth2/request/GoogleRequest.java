@@ -53,9 +53,45 @@ public class GoogleRequest extends AbstractOauth2Request<Oauth2SimpleAuthConfig>
                     AuthToken authToken = AuthToken.builder()
                             .accessToken(MapUtils.getString(map, "access_token"))
                             .expireIn(MapUtils.getIntValue(map, "expires_in"))
+                            .refreshToken(MapUtils.getString(map, "refresh_token"))
                             .build();
                     return Mono.just(authToken);
                 });
+    }
+
+    @Override
+    protected Mono<AuthToken> refreshAuthToken(String refreshToken) {
+
+        URI uri;
+        try {
+            uri = new URIBuilder(source.refresh())
+                    .addParameter("refresh_token", refreshToken)
+                    .addParameter("client_id", config.getClientId())
+                    .addParameter("client_secret", config.getClientSecret())
+                    .addParameter("grant_type", "refresh_token")
+                    .build();
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
+
+        return WebClientBuildHelper.builder()
+                .systemProxy()
+                .build()
+                .post()
+                .uri(uri)
+                .exchangeToMono(response -> response.bodyToMono(new ParameterizedTypeReference<Map<String, Object>>() {
+                }))
+                .flatMap(map -> {
+                    if (map.containsKey("error") || map.containsKey("error_description")) {
+                        throw new AuthException(JsonUtils.toJson(map));
+                    }
+                    AuthToken authToken = AuthToken.builder()
+                            .accessToken(MapUtils.getString(map, "access_token"))
+                            .expireIn(MapUtils.getIntValue(map, "expires_in"))
+                            .build();
+                    return Mono.just(authToken);
+                });
+
     }
 
     @Override

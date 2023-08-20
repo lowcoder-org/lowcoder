@@ -1,5 +1,6 @@
 import "comps/comps/layout/navLayout";
 import "comps/comps/layout/mobileTabLayout";
+import cnchar from "cnchar";
 import { ModalComp } from "comps/hooks/modalComp";
 import { ButtonComp } from "./comps/buttonComp/buttonComp";
 import { DropdownComp } from "./comps/buttonComp/dropdownComp";
@@ -93,6 +94,8 @@ import {
   VideoCompIcon,
   TimeLineIcon,
   LottieIcon,
+  MentionIcon,
+  AutoCompleteCompIcon,
 } from "lowcoder-design";
 
 import { defaultFormData, FormComp } from "./comps/formComp/formComp";
@@ -119,7 +122,8 @@ import { RemoteCompInfo } from "types/remoteComp";
 import { ScannerComp } from "./comps/buttonComp/scannerComp";
 import { SignatureComp } from "./comps/signatureComp";
 import { TimeLineComp } from "./comps/timelineComp/timelineComp";
-
+import { MentionComp } from "./comps/textInputComp/mentionComp";
+import { AutoCompleteComp } from "./comps/autoCompleteComp/autoCompleteComp"
 //Added by Aqib Mirza
 import { JsonLottieComp } from "./comps/jsonComp/jsonLottieComp";
 
@@ -813,7 +817,7 @@ const uiCompMap: Registry = {
     layoutInfo: {
       w: 24,
       h: 60,
-    }
+    },
   },
   signature: {
     name: trans("uiComp.signatureCompName"),
@@ -853,6 +857,28 @@ const uiCompMap: Registry = {
     layoutInfo: {
       w: 13,
       h: 55,
+    },
+  },
+  mention: {
+    name: trans("uiComp.mentionCompName"),
+    enName: "mention",
+    description: trans("uiComp.mentionCompDesc"),
+    categories: ["dataInputText"],
+    icon: MentionIcon,
+    keywords: trans("uiComp.mentionCompKeywords"),
+    comp: MentionComp,
+  },
+  autocomplete: {
+    name: trans("uiComp.autoCompleteCompName"),
+    enName: "autoComplete",
+    description: trans("uiComp.autoCompleteCompDesc"),
+    categories: ["dataInputText"],
+    icon: AutoCompleteCompIcon,
+    keywords: cnchar.spell(trans("uiComp.autoCompleteCompName"), "first", "low").toString(),
+    comp: AutoCompleteComp,
+    layoutInfo: {
+      w: 7,
+      h: 5,
     },
   },
 };

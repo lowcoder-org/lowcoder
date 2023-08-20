@@ -44,6 +44,6 @@ public interface OrgApiService {
 
     Mono<Boolean> tryAddUserToOrgAndSwitchOrg(String orgId, String userId);
 
-    Mono<ConfigView> getOrganizationConfigs();
+    Mono<ConfigView> getOrganizationConfigs(String orgId);
 }
 

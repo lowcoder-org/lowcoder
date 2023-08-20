@@ -1,7 +1,5 @@
 package org.lowcoder.api.authentication.request.form;
 
-import static org.lowcoder.sdk.util.ExceptionUtils.ofError;
-
 import org.lowcoder.api.authentication.request.AuthRequest;
 import org.lowcoder.domain.authentication.context.AuthRequestContext;
 import org.lowcoder.domain.authentication.context.FormAuthRequestContext;
@@ -15,8 +13,9 @@ import org.lowcoder.sdk.exception.BizError;
 import org.lowcoder.sdk.exception.BizException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
 import reactor.core.publisher.Mono;
+
+import static org.lowcoder.sdk.util.ExceptionUtils.ofError;
 
 @Component
 public class FormAuthRequest implements AuthRequest {
@@ -57,5 +56,10 @@ public class FormAuthRequest implements AuthRequest {
                             });
                 })
                 .thenReturn(AuthUser.builder().uid(context.getLoginId()).username(context.getLoginId()).build());
+    }
+
+    @Override
+    public Mono<AuthUser> refresh(String refreshToken) {
+        return Mono.error(new UnsupportedOperationException());
     }
 }

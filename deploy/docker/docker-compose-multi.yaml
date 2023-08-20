@@ -36,6 +36,7 @@ services:
       MONGODB_URL: "mongodb://lowcoder:secret123@mongodb/lowcoder?authSource=admin"
       REDIS_URL: "redis://redis:6379"
       LOWCODER_NODE_SERVICE_URL: "http://lowcoder-node-service:6060"
+      LOWCODER_MAX_QUERY_TIMEOUT: 120
       ENABLE_USER_SIGN_UP: "true"
       ENCRYPTION_PASSWORD: "lowcoder.org"
       ENCRYPTION_SALT: "lowcoder.org"
@@ -76,6 +77,7 @@ services:
       PUID: "9001"
       PGID: "9001"
       LOWCODER_MAX_REQUEST_SIZE: 20m
+      LOWCODER_MAX_QUERY_TIMEOUT: 120
       LOWCODER_API_SERVICE_URL: "http://lowcoder-api-service:8080"
       LOWCODER_NODE_SERVICE_URL: "http://lowcoder-node-service:6060"
     restart: unless-stopped
