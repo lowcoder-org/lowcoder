@@ -10,9 +10,9 @@ public interface AuthenticationService {
 
     EmailAuthConfig DEFAULT_AUTH_CONFIG = new EmailAuthConfig(AuthSourceConstants.EMAIL, true, true);
 
-    Mono<FindAuthConfig> findAuthConfigByAuthId(String authId);
+    Mono<FindAuthConfig> findAuthConfigByAuthId(String orgId, String authId);
 
-    Mono<FindAuthConfig> findAuthConfigBySource(String source);
+    Mono<FindAuthConfig> findAuthConfigBySource(String orgId, String source);
 
-    Flux<FindAuthConfig> findAllAuthConfigs(boolean enableOnly);
+    Flux<FindAuthConfig> findAllAuthConfigs(String orgId, boolean enableOnly);
 }

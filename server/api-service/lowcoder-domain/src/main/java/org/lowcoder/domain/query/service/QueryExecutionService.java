@@ -16,6 +16,7 @@ import org.lowcoder.domain.datasource.service.DatasourceConnectionPool;
 import org.lowcoder.domain.plugin.client.DatasourcePluginClient;
 import org.lowcoder.domain.plugin.service.DatasourceMetaInfoService;
 import org.lowcoder.domain.query.util.QueryTimeoutUtils;
+import org.lowcoder.sdk.config.CommonConfig;
 import org.lowcoder.sdk.exception.BizException;
 import org.lowcoder.sdk.exception.PluginException;
 import org.lowcoder.sdk.models.QueryExecutionResult;
@@ -40,10 +41,14 @@ public class QueryExecutionService {
     @Autowired
     private DatasourcePluginClient datasourcePluginClient;
 
+    @Autowired
+    private CommonConfig common;
+    
     public Mono<QueryExecutionResult> executeQuery(Datasource datasource, Map<String, Object> queryConfig, Map<String, Object> requestParams,
             String timeoutStr, QueryVisitorContext queryVisitorContext) {
 
-        int timeoutMs = QueryTimeoutUtils.parseQueryTimeoutMs(timeoutStr, requestParams);
+        int timeoutMs = QueryTimeoutUtils.parseQueryTimeoutMs(timeoutStr, requestParams, common.getMaxQueryTimeout());
+        queryConfig.putIfAbsent("timeoutMs", timeoutMs);
 
         return Mono.defer(() -> {
                     if (datasourceMetaInfoService.isJsDatasourcePlugin(datasource.getType())) {

@@ -91,7 +91,7 @@ public class GoogleAuthenticateTest {
     }
 
     private String getGoogleAuthConfigId() {
-        return authenticationService.findAuthConfigBySource(AuthSourceConstants.GOOGLE)
+        return authenticationService.findAuthConfigBySource(null, AuthSourceConstants.GOOGLE)
                 .map(FindAuthConfig::authConfig)
                 .map(AbstractAuthConfig::getId)
                 .block();

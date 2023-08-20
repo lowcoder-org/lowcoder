@@ -14,6 +14,8 @@ import com.fasterxml.jackson.annotation.JsonView;
 
 import lombok.Getter;
 
+import static org.lowcoder.sdk.auth.constants.Oauth2Constants.CLIENT_ID_PLACEHOLDER;
+
 /**
  * simple oauth2 auth config.
  */
@@ -48,8 +50,8 @@ public class Oauth2SimpleAuthConfig extends AbstractAuthConfig {
     @JsonView(JsonViews.Public.class)
     public String getAuthorizeUrl() {
         return switch (authType) {
-            case AuthTypeConstants.GOOGLE -> Oauth2Constants.GOOGLE_AUTHORIZE_URL;
-            case AuthTypeConstants.GITHUB -> Oauth2Constants.GITHUB_AUTHORIZE_URL;
+            case AuthTypeConstants.GOOGLE -> replaceAuthUrlClientIdPlaceholder(Oauth2Constants.GOOGLE_AUTHORIZE_URL);
+            case AuthTypeConstants.GITHUB -> replaceAuthUrlClientIdPlaceholder(Oauth2Constants.GITHUB_AUTHORIZE_URL);
             default -> null;
         };
     }
@@ -69,5 +71,9 @@ public class Oauth2SimpleAuthConfig extends AbstractAuthConfig {
         if (StringUtils.isBlank(this.clientSecret) && oldConfig instanceof Oauth2SimpleAuthConfig oldSimpleConfig) {
             this.clientSecret = oldSimpleConfig.getClientSecret();
         }
+    }
+
+    private String replaceAuthUrlClientIdPlaceholder(String url) {
+        return url.replace(CLIENT_ID_PLACEHOLDER, clientId);
     }
 }

@@ -30,6 +30,8 @@ export const themeTemplateList = [
       borderRadius: "4px",
       chart: JSON.stringify(ChartTheme, null, 2),
       gridColumns: "24", //Added By Aqib Mirza
+      margin: "3px",
+      padding: "3px",
     },
   },
   {
@@ -45,6 +47,8 @@ export const themeTemplateList = [
       borderRadius: "4px",
       chart: JSON.stringify(ChartYellowTheme, null, 2),
       gridColumns: "24", //Added By Aqib Mirza
+      margin: "3px",
+      padding: "3px",
     },
   },
   {
@@ -60,6 +64,8 @@ export const themeTemplateList = [
       borderRadius: "4px",
       chart: JSON.stringify(ChartGreenTheme, null, 2),
       gridColumns: "24", //Added By Aqib Mirza
+      margin: "3px",
+      padding: "3px",
     },
   },
 ];
