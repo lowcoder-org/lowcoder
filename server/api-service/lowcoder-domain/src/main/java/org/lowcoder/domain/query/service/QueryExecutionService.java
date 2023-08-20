@@ -44,6 +44,7 @@ public class QueryExecutionService {
             String timeoutStr, QueryVisitorContext queryVisitorContext) {
 
         int timeoutMs = QueryTimeoutUtils.parseQueryTimeoutMs(timeoutStr, requestParams);
+        queryConfig.putIfAbsent("timeoutMs", timeoutMs);
 
         return Mono.defer(() -> {
                     if (datasourceMetaInfoService.isJsDatasourcePlugin(datasource.getType())) {

@@ -30,10 +30,11 @@ public class RestApiQueryConfig {
     private final List<Property> params;
     private final List<Property> headers;
     private final List<Property> bodyFormData;
+    private final long timeoutMs;
 
     @JsonCreator
     private RestApiQueryConfig(HttpMethod httpMethod, boolean disableEncodingParams, String body, String path,
-            List<Property> params, List<Property> headers, List<Property> bodyFormData) {
+            List<Property> params, List<Property> headers, List<Property> bodyFormData, long timeoutMs) {
         this.httpMethod = httpMethod;
         this.disableEncodingParams = disableEncodingParams;
         this.body = body;
@@ -41,6 +42,7 @@ public class RestApiQueryConfig {
         this.params = params;
         this.headers = headers;
         this.bodyFormData = bodyFormData;
+        this.timeoutMs = timeoutMs;
     }
 
     public static RestApiQueryConfig from(Map<String, Object> queryConfigs) {
