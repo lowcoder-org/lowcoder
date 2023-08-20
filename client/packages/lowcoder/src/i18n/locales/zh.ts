@@ -2502,6 +2502,7 @@ timeLine: {
     responsiveLayout: {
         column: "列",
         atLeastOneColumnError: "响应式布局至少保留一列",
+        columnsPerRow: "每行列数",
         columnsSpacing: "列间距(px)",
         horizontal: "水平的",
         vertical: "垂直的",
@@ -2510,7 +2511,7 @@ timeLine: {
         desktop: "桌面",
         rowStyle: "行式",
         columnStyle: "栏目样式",
-        minWidth: "最小宽度",
+        minWidth: "分钟。宽度",
         rowBreak: "断行",
     }
 };

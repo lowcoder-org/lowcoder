@@ -39,6 +39,7 @@ import {
   TimeLineIcon,
   MentionIcon,
   AutoCompleteCompIcon,
+  ResponsiveLayoutCompIcon,
 } from "lowcoder-design";
 
 export const CompStateIcon: {
@@ -107,5 +108,5 @@ export const CompStateIcon: {
   timeline: <TimeLineIcon />,
   mention: <MentionIcon/>,
   autocomplete: <AutoCompleteCompIcon />,
-  responsiveLayout: <LeftContainer />,
+  responsiveLayout: <ResponsiveLayoutCompIcon />,
 };

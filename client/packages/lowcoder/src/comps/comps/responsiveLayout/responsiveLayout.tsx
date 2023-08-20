@@ -1,4 +1,4 @@
-import { Row } from "antd";
+import { Row, Col } from "antd";
 import { JSONObject, JSONValue } from "util/jsonTypes";
 import { CompAction, CompActionTypes, deleteCompAction, wrapChildAction } from "lowcoder-core";
 import { DispatchType, RecordConstructorToView, wrapDispatch } from "lowcoder-core";
@@ -30,6 +30,7 @@ import { EditorContext } from "comps/editorState";
 import { checkIsMobile } from "util/commonUtils";
 import { messageInstance } from "lowcoder-design";
 import { BoolControl } from "comps/controls/boolControl";
+import { NumberControl } from "comps/controls/codeControl";
 
 const RowWrapper = styled(Row)<{$style: ResponsiveLayoutRowStyleType}>`
   height: 100%;
@@ -37,19 +38,21 @@ const RowWrapper = styled(Row)<{$style: ResponsiveLayoutRowStyleType}>`
   border-radius: ${(props) => props.$style.radius};
   padding: ${(props) => props.$style.padding};
   background-color: ${(props) => props.$style.background};
+  overflow-x: auto;
 `;
 
-const ColWrapper = styled(InnerGrid)<{
+const ColWrapper = styled(Col)<{
   $style: ResponsiveLayoutColStyleType,
-  $minWidth: string,
+  $minWidth?: string,
+  $backgroundImage?: string,
 }>`
   height: 100%;
   min-width: ${(props) => props.$minWidth};
-  border: 1px solid ${(props) => props.$style.border};
-  border-radius: ${(props) => props.$style.radius};
-  padding: ${(props) => props.$style.padding};
-  background-color: ${(props) => props.$style.background};
-  flex: 1 1 auto;
+
+  > div {
+    background: ${(props) => `center / cover url(${props.$backgroundImage}) no-repeat, ${props.$style.background} !important`};
+    border: 1px solid ${(props) => props.$style.border} !important;
+  }
 `;
 
 const childrenMap = {
@@ -61,31 +64,28 @@ const childrenMap = {
   }),
   autoHeight: AutoHeightControl,
   rowBreak: withDefault(BoolControl, false),
-  rowStyle: withDefault(styleControl(ResponsiveLayoutRowStyle), {
-    background: 'transparent',
-    border: 'transparent',
-    margin: '0',
-    padding: '0',
-  }),
-  columnStyle: styleControl(ResponsiveLayoutColStyle),
+  rowStyle: withDefault(styleControl(ResponsiveLayoutRowStyle), {}),
+  columnStyle: withDefault(styleControl(ResponsiveLayoutColStyle), {}),
+  columnPerRowLG: withDefault(NumberControl, 4),
+  columnPerRowMD: withDefault(NumberControl, 2),
+  columnPerRowSM: withDefault(NumberControl, 1),
+  verticalSpacing: withDefault(NumberControl, 8),
+  horizontalSpacing: withDefault(NumberControl, 8),
 };
 
 type ViewProps = RecordConstructorToView<typeof childrenMap>;
 type ResponsiveLayoutProps = ViewProps & { dispatch: DispatchType };
 type ColumnContainerProps = Omit<ContainerBaseProps, 'style'> & {
   style: ResponsiveLayoutColStyleType
-  minWidth: string,
 }
 
 const ColumnContainer = (props: ColumnContainerProps) => {
   return (
-    <ColWrapper
+    <InnerGrid
       {...props}
       emptyRows={15}
-      bgColor={"white"}
       hintPlaceholder={HintPlaceHolder}
-      $style={props.style}
-      $minWidth={props.minWidth}
+      style={props.style}
     />
   );
 };
@@ -99,8 +99,12 @@ const ResponsiveLayout = (props: ResponsiveLayoutProps) => {
     rowBreak,
     rowStyle,
     columnStyle,
+    columnPerRowLG,
+    columnPerRowMD,
+    columnPerRowSM,
+    verticalSpacing,
+    horizontalSpacing,
   } = props;
-  console.log(props)
 
   const editorState = useContext(EditorContext);
   const maxWidth = editorState.getAppSettings().maxWidth;
@@ -112,31 +116,43 @@ const ResponsiveLayout = (props: ResponsiveLayoutProps) => {
       <RowWrapper
         $style={rowStyle}
         wrap={rowBreak}
+        gutter={[horizontalSpacing, verticalSpacing]}
       >
         {columns.map(column => {
           const id = String(column.id);
           const childDispatch = wrapDispatch(wrapDispatch(dispatch, "containers"), id);
           if(!containers[id]) return null
           const containerProps = containers[id].children;
+
           const columnCustomStyle = {
             margin: !_.isEmpty(column.margin) ? column.margin : columnStyle.margin,
             padding: !_.isEmpty(column.padding) ? column.padding : columnStyle.padding,
-            border: !_.isEmpty(column.border) ? column.border : columnStyle.border,
             radius: !_.isEmpty(column.radius) ? column.radius : columnStyle.radius,
+            border: !_.isEmpty(column.border) ? column.border : columnStyle.border,
             background: !_.isEmpty(column.background) ? column.background : columnStyle.background,
           }
-          console.log(column);
+          const noOfColumns = columns.length;
           return (
-            <ColumnContainer
+            <ColWrapper
               key={id}
-              layout={containerProps.layout.getView()}
-              items={gridItemCompToGridItems(containerProps.items.getView())}
-              positionParams={containerProps.positionParams.getView()}
-              dispatch={childDispatch}
-              autoHeight={props.autoHeight}
-              style={columnCustomStyle}
-              minWidth={column.minWidth}
-            />
+              lg={24/(noOfColumns < columnPerRowLG ? noOfColumns : columnPerRowLG)}
+              md={24/(noOfColumns < columnPerRowMD ? noOfColumns : columnPerRowMD)}
+              sm={24/(noOfColumns < columnPerRowSM ? noOfColumns : columnPerRowSM)}
+              $style={columnCustomStyle}
+              $minWidth={column.minWidth}
+              $backgroundImage={
+                !_.isEmpty(column.backgroundImage) && column.backgroundImage
+              }
+            >
+              <ColumnContainer
+                layout={containerProps.layout.getView()}
+                items={gridItemCompToGridItems(containerProps.items.getView())}
+                positionParams={containerProps.positionParams.getView()}
+                dispatch={childDispatch}
+                autoHeight={props.autoHeight}
+                style={columnCustomStyle}
+              />
+            </ColWrapper>
           )
           })
         }
@@ -164,6 +180,25 @@ export const ResponsiveLayoutBaseComp = (function () {
           <Section name={sectionNames.layout}>
             {children.rowBreak.propertyView({
               label: trans("responsiveLayout.rowBreak")
+            })}
+          </Section>
+          <Section name={trans("responsiveLayout.columnsPerRow")}>
+            {children.columnPerRowLG.propertyView({
+              label: trans("responsiveLayout.desktop")
+            })}
+            {children.columnPerRowMD.propertyView({
+              label: trans("responsiveLayout.tablet")
+            })}
+            {children.columnPerRowSM.propertyView({
+              label: trans("responsiveLayout.mobile")
+            })}
+          </Section>
+          <Section name={trans("responsiveLayout.columnsSpacing")}>
+            {children.horizontalSpacing.propertyView({
+              label: trans("responsiveLayout.horizontal")
+            })}
+            {children.verticalSpacing.propertyView({
+              label: trans("responsiveLayout.vertical")
             })}
           </Section>
           <Section name={trans("responsiveLayout.rowStyle")}>

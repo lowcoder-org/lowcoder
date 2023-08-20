@@ -2512,6 +2512,7 @@ export const en = {
   responsiveLayout: {
     column: "Columns",
     atLeastOneColumnError: "Responsive layout keeps at least one Column",
+    columnsPerRow: "Columns per Row",
     columnsSpacing: "Columns Spacing(px)",
     horizontal: "Horizontal",
     vertical: "Vertical",
@@ -2520,7 +2521,7 @@ export const en = {
     desktop: "Desktop",
     rowStyle: "Row Style",
     columnStyle: "Column Style",
-    minWidth: "Minimum Width",
+    minWidth: "Min. Width",
     rowBreak: "Row Break",
   },
 };

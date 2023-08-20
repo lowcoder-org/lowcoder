@@ -96,6 +96,7 @@ import {
   LottieIcon,
   MentionIcon,
   AutoCompleteCompIcon,
+  ResponsiveLayoutCompIcon,
 } from "lowcoder-design";
 
 import { defaultFormData, FormComp } from "./comps/formComp/formComp";
@@ -887,7 +888,7 @@ const uiCompMap: Registry = {
     enName: "Responsive Layout",
     description: trans("uiComp.responsiveLayoutCompDesc"),
     categories: ["container", "common"],
-    icon: TabbedContainerCompIcon,
+    icon: ResponsiveLayoutCompIcon,
     keywords: trans("uiComp.responsiveLayoutCompKeywords"),
     comp: ResponsiveLayoutComp,
     withoutLoading: true,
