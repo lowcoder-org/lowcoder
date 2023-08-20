@@ -38,6 +38,7 @@ services:
       LOWCODER_NODE_SERVICE_URL: "http://localhost:6060"
       # frontend parameters
       LOWCODER_MAX_REQUEST_SIZE: 20m
+      LOWCODER_MAX_QUERY_TIMEOUT: 120
     volumes:
       - ./lowcoder-stacks:/lowcoder-stacks
     restart: unless-stopped
