@@ -15,11 +15,16 @@ import { RatingComp } from "./columnTypeComps/columnRatingComp";
 import { BadgeStatusComp } from "./columnTypeComps/columnStatusComp";
 import { ColumnTagsComp } from "./columnTypeComps/columnTagsComp";
 import { SimpleTextComp } from "./columnTypeComps/simpleTextComp";
+import { ColumnNumberComp } from "./columnTypeComps/ColumnNumberComp";
 
 const actionOptions = [
   {
     label: trans("table.text"),
     value: "text",
+  },
+  {
+    label: trans("table.number"),
+    value: "number",
   },
   {
     label: trans("table.link"),
@@ -73,6 +78,7 @@ const actionOptions = [
 
 export const ColumnTypeCompMap = {
   text: SimpleTextComp,
+  number: ColumnNumberComp,
   button: ButtonComp,
   badgeStatus: BadgeStatusComp,
   link: LinkComp,
