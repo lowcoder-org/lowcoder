@@ -14,7 +14,7 @@ import { NameGenerator } from "comps/utils";
 import { Section, sectionNames } from "lowcoder-design";
 import { HintPlaceHolder } from "lowcoder-design";
 import _ from "lodash";
-import React, { useContext } from "react";
+import React from "react";
 import styled from "styled-components";
 import { IContainer } from "../containerBase/iContainer";
 import { SimpleContainerComp } from "../containerBase/simpleContainerComp";
@@ -26,8 +26,6 @@ import {
 } from "../containerComp/containerView";
 import { BackgroundColorContext } from "comps/utils/backgroundColorContext";
 import { trans } from "i18n";
-import { EditorContext } from "comps/editorState";
-import { checkIsMobile } from "util/commonUtils";
 import { messageInstance } from "lowcoder-design";
 import { BoolControl } from "comps/controls/boolControl";
 import { NumberControl } from "comps/controls/codeControl";
@@ -44,14 +42,10 @@ const RowWrapper = styled(Row)<{$style: ResponsiveLayoutRowStyleType}>`
 const ColWrapper = styled(Col)<{
   $style: ResponsiveLayoutColStyleType,
   $minWidth?: string,
-  $backgroundImage?: string,
 }>`
-  height: 100%;
   min-width: ${(props) => props.$minWidth};
-
   > div {
-    background: ${(props) => `center / cover url(${props.$backgroundImage}) no-repeat, ${props.$style.background} !important`};
-    border: 1px solid ${(props) => props.$style.border} !important;
+    height: 100%;
   }
 `;
 
@@ -76,7 +70,7 @@ const childrenMap = {
 type ViewProps = RecordConstructorToView<typeof childrenMap>;
 type ResponsiveLayoutProps = ViewProps & { dispatch: DispatchType };
 type ColumnContainerProps = Omit<ContainerBaseProps, 'style'> & {
-  style: ResponsiveLayoutColStyleType
+  style: ResponsiveLayoutColStyleType,
 }
 
 const ColumnContainer = (props: ColumnContainerProps) => {
@@ -106,57 +100,59 @@ const ResponsiveLayout = (props: ResponsiveLayoutProps) => {
     horizontalSpacing,
   } = props;
 
-  const editorState = useContext(EditorContext);
-  const maxWidth = editorState.getAppSettings().maxWidth;
-  const isMobile = checkIsMobile(maxWidth);
-  const paddingWidth = isMobile ? 8 : 20;
-
   return (
     <BackgroundColorContext.Provider value={props.rowStyle.background}>
-      <RowWrapper
-        $style={rowStyle}
-        wrap={rowBreak}
-        gutter={[horizontalSpacing, verticalSpacing]}
-      >
-        {columns.map(column => {
-          const id = String(column.id);
-          const childDispatch = wrapDispatch(wrapDispatch(dispatch, "containers"), id);
-          if(!containers[id]) return null
-          const containerProps = containers[id].children;
+      <div style={{padding: rowStyle.margin, height: '100%'}}>
+        <RowWrapper
+          $style={rowStyle}
+          wrap={rowBreak}
+          gutter={[horizontalSpacing, verticalSpacing]}
+        >
+          {columns.map(column => {
+            const id = String(column.id);
+            const childDispatch = wrapDispatch(wrapDispatch(dispatch, "containers"), id);
+            if(!containers[id]) return null
+            const containerProps = containers[id].children;
 
-          const columnCustomStyle = {
-            margin: !_.isEmpty(column.margin) ? column.margin : columnStyle.margin,
-            padding: !_.isEmpty(column.padding) ? column.padding : columnStyle.padding,
-            radius: !_.isEmpty(column.radius) ? column.radius : columnStyle.radius,
-            border: !_.isEmpty(column.border) ? column.border : columnStyle.border,
-            background: !_.isEmpty(column.background) ? column.background : columnStyle.background,
+            const columnCustomStyle = {
+              margin: !_.isEmpty(column.margin) ? column.margin : columnStyle.margin,
+              padding: !_.isEmpty(column.padding) ? column.padding : columnStyle.padding,
+              radius: !_.isEmpty(column.radius) ? column.radius : columnStyle.radius,
+              border: !_.isEmpty(column.border) ? column.border : columnStyle.border,
+              background: !_.isEmpty(column.background) ? column.background : columnStyle.background,
+            }
+            const noOfColumns = columns.length;
+            let backgroundStyle = columnCustomStyle.background;
+            if(!_.isEmpty(column.backgroundImage))  {
+              backgroundStyle = `center / cover url('${column.backgroundImage}') no-repeat, ${backgroundStyle}`;
+            }
+            return (
+              <ColWrapper
+                key={id}
+                lg={24/(noOfColumns < columnPerRowLG ? noOfColumns : columnPerRowLG)}
+                md={24/(noOfColumns < columnPerRowMD ? noOfColumns : columnPerRowMD)}
+                sm={24/(noOfColumns < columnPerRowSM ? noOfColumns : columnPerRowSM)}
+                xs={24/(noOfColumns < columnPerRowSM ? noOfColumns : columnPerRowSM)}
+                $style={columnCustomStyle}
+                $minWidth={column.minWidth}
+              >
+                <ColumnContainer
+                  layout={containerProps.layout.getView()}
+                  items={gridItemCompToGridItems(containerProps.items.getView())}
+                  positionParams={containerProps.positionParams.getView()}
+                  dispatch={childDispatch}
+                  autoHeight={props.autoHeight}
+                  style={{
+                    ...columnCustomStyle,
+                    background: backgroundStyle,
+                  }}
+                />
+              </ColWrapper>
+            )
+            })
           }
-          const noOfColumns = columns.length;
-          return (
-            <ColWrapper
-              key={id}
-              lg={24/(noOfColumns < columnPerRowLG ? noOfColumns : columnPerRowLG)}
-              md={24/(noOfColumns < columnPerRowMD ? noOfColumns : columnPerRowMD)}
-              sm={24/(noOfColumns < columnPerRowSM ? noOfColumns : columnPerRowSM)}
-              $style={columnCustomStyle}
-              $minWidth={column.minWidth}
-              $backgroundImage={
-                !_.isEmpty(column.backgroundImage) && column.backgroundImage
-              }
-            >
-              <ColumnContainer
-                layout={containerProps.layout.getView()}
-                items={gridItemCompToGridItems(containerProps.items.getView())}
-                positionParams={containerProps.positionParams.getView()}
-                dispatch={childDispatch}
-                autoHeight={props.autoHeight}
-                style={columnCustomStyle}
-              />
-            </ColWrapper>
-          )
-          })
-        }
-      </RowWrapper>
+        </RowWrapper>
+      </div>
     </BackgroundColorContext.Provider>
   );
 };
