@@ -2523,5 +2523,6 @@ export const en = {
     columnStyle: "Column Style",
     minWidth: "Min. Width",
     rowBreak: "Row Break",
+    matchColumnsHeight: "Match Columns Height",
   },
 };

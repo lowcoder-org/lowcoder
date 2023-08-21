@@ -2513,6 +2513,7 @@ timeLine: {
         columnStyle: "栏目样式",
         minWidth: "分钟。宽度",
         rowBreak: "断行",
+        matchColumnsHeight: "匹配列高度",
     }
 };
 

@@ -42,10 +42,11 @@ const RowWrapper = styled(Row)<{$style: ResponsiveLayoutRowStyleType}>`
 const ColWrapper = styled(Col)<{
   $style: ResponsiveLayoutColStyleType,
   $minWidth?: string,
+  $matchColumnsHeight: boolean,
 }>`
   min-width: ${(props) => props.$minWidth};
   > div {
-    height: 100%;
+    height: ${(props) => props.$matchColumnsHeight ? '100%' : 'auto'};
   }
 `;
 
@@ -58,6 +59,7 @@ const childrenMap = {
   }),
   autoHeight: AutoHeightControl,
   rowBreak: withDefault(BoolControl, false),
+  matchColumnsHeight: withDefault(BoolControl, false),
   rowStyle: withDefault(styleControl(ResponsiveLayoutRowStyle), {}),
   columnStyle: withDefault(styleControl(ResponsiveLayoutColStyle), {}),
   columnPerRowLG: withDefault(NumberControl, 4),
@@ -91,6 +93,7 @@ const ResponsiveLayout = (props: ResponsiveLayoutProps) => {
     containers,
     dispatch,
     rowBreak,
+    matchColumnsHeight,
     rowStyle,
     columnStyle,
     columnPerRowLG,
@@ -135,6 +138,7 @@ const ResponsiveLayout = (props: ResponsiveLayoutProps) => {
                 xs={24/(noOfColumns < columnPerRowSM ? noOfColumns : columnPerRowSM)}
                 $style={columnCustomStyle}
                 $minWidth={column.minWidth}
+                $matchColumnsHeight={matchColumnsHeight}
               >
                 <ColumnContainer
                   layout={containerProps.layout.getView()}
@@ -176,6 +180,9 @@ export const ResponsiveLayoutBaseComp = (function () {
           <Section name={sectionNames.layout}>
             {children.rowBreak.propertyView({
               label: trans("responsiveLayout.rowBreak")
+            })}
+            {children.matchColumnsHeight.propertyView({
+              label: trans("responsiveLayout.matchColumnsHeight")
             })}
           </Section>
           <Section name={trans("responsiveLayout.columnsPerRow")}>
