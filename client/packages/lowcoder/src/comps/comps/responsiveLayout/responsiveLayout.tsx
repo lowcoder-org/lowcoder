@@ -6,7 +6,12 @@ import { AutoHeightControl } from "comps/controls/autoHeightControl";
 import { stringExposingStateControl } from "comps/controls/codeStateControl";
 import { ColumnOptionControl } from "comps/controls/optionsControl";
 import { styleControl } from "comps/controls/styleControl";
-import { ResponsiveLayoutRowStyle, ResponsiveLayoutRowStyleType, ResponsiveLayoutColStyleType, TabContainerStyle, TabContainerStyleType, heightCalculator, widthCalculator, ResponsiveLayoutColStyle } from "comps/controls/styleControlConstants";
+import {
+  ResponsiveLayoutRowStyle,
+  ResponsiveLayoutRowStyleType,
+  ResponsiveLayoutColStyleType,
+  ResponsiveLayoutColStyle
+} from "comps/controls/styleControlConstants";
 import { sameTypeMap, UICompBuilder, withDefault } from "comps/generators";
 import { addMapChildAction } from "comps/generators/sameTypeMap";
 import { NameConfigHidden, withExposingConfigs } from "comps/generators/withExposing";
@@ -52,7 +57,6 @@ const ColWrapper = styled(Col)<{
 
 const childrenMap = {
   columns: ColumnOptionControl,
-  selectedTabKey: stringExposingStateControl("key", "Tab1"),
   containers: withDefault(sameTypeMap(SimpleContainerComp), {
     0: { view: {}, layout: {} },
     1: { view: {}, layout: {} },
@@ -278,11 +282,6 @@ class ResponsiveLayoutImplComp extends ResponsiveLayoutBaseComp implements ICont
   }
 
   realSimpleContainer(key?: string): SimpleContainerComp | undefined {
-    let selectedTabKey = this.children.selectedTabKey.getView().value;
-    const columns = this.children.columns.getView();
-    const selectedTab = columns.find((column) => column.key === selectedTabKey) ?? columns[0];
-    const id = String(selectedTab.id);
-    if (_.isNil(key)) return this.children.containers.children[id];
     return Object.values(this.children.containers.children).find((container) =>
       container.realSimpleContainer(key)
     );
