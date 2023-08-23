@@ -3,7 +3,6 @@ import { JSONObject, JSONValue } from "util/jsonTypes";
 import { CompAction, CompActionTypes, deleteCompAction, wrapChildAction } from "lowcoder-core";
 import { DispatchType, RecordConstructorToView, wrapDispatch } from "lowcoder-core";
 import { AutoHeightControl } from "comps/controls/autoHeightControl";
-import { stringExposingStateControl } from "comps/controls/codeStateControl";
 import { ColumnOptionControl } from "comps/controls/optionsControl";
 import { styleControl } from "comps/controls/styleControl";
 import {
@@ -50,6 +49,9 @@ const ColWrapper = styled(Col)<{
   $matchColumnsHeight: boolean,
 }>`
   min-width: ${(props) => props.$minWidth};
+  display: flex;
+  flex-direction: column;
+
   > div {
     height: ${(props) => props.$matchColumnsHeight ? '100%' : 'auto'};
   }
