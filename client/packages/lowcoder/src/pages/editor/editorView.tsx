@@ -302,7 +302,6 @@ function EditorView(props: EditorViewProps) {
     setMenuKey(params.key);
   };
   const appSettingsComp = editorState.getAppSettingsComp();
-
   return (
     <Height100Div
       onDragEnd={(e) => {

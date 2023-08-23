@@ -905,6 +905,18 @@ export const LottieStyle = [
 ] as const;
 /////////////////////
 
+export const ResponsiveLayoutRowStyle = [
+  ...BG_STATIC_BORDER_RADIUS,
+  MARGIN,	
+  PADDING,
+] as const;
+
+export const ResponsiveLayoutColStyle = [
+  ...BG_STATIC_BORDER_RADIUS,
+  MARGIN,	
+  PADDING,
+] as const;
+
 export const CarouselStyle = [getBackground("canvas")] as const;
 
 export const RichTextEditorStyle = [getStaticBorder(), RADIUS] as const;
@@ -943,6 +955,8 @@ export type CalendarStyleType = StyleConfigType<typeof CalendarStyle>;
 export type SignatureStyleType = StyleConfigType<typeof SignatureStyle>;
 export type CarouselStyleType = StyleConfigType<typeof CarouselStyle>;
 export type RichTextEditorStyleType = StyleConfigType<typeof RichTextEditorStyle>;
+export type ResponsiveLayoutRowStyleType = StyleConfigType<typeof ResponsiveLayoutRowStyle>;
+export type ResponsiveLayoutColStyleType = StyleConfigType<typeof ResponsiveLayoutColStyle>;
 
 export function widthCalculator(margin: string) {
   const marginArr = margin?.trim().replace(/\s+/g,' ').split(" ") || "";
