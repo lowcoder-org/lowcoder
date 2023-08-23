@@ -1,5 +1,5 @@
 import { ViewDocIcon } from "assets/icons";
-import { ArrayControl, BoolCodeControl, StringControl } from "comps/controls/codeControl";
+import { ArrayControl, BoolCodeControl, RadiusControl, StringControl } from "comps/controls/codeControl";
 import { dropdownControl, LeftRightControl } from "comps/controls/dropdownControl";
 import { IconControl } from "comps/controls/iconControl";
 import { MultiCompBuilder, valueComp, withContext, withDefault } from "comps/generators";
@@ -20,13 +20,24 @@ import {
   MultiBaseComp,
   withFunction,
 } from "lowcoder-core";
-import { AutoArea, controlItem, Option } from "lowcoder-design";
+import {
+  AutoArea,
+  CompressIcon,
+  controlItem,
+  ExpandIcon,
+  IconRadius,
+  Option,
+  WidthIcon,
+  ImageCompIcon,
+} from "lowcoder-design";
 import styled from "styled-components";
 import { lastValueIfEqual } from "util/objectUtils";
 import { getNextEntityName } from "util/stringUtils";
 import { JSONValue } from "util/jsonTypes";
 import { ButtonEventHandlerControl } from "./eventHandlerControl";
 import { ControlItemCompBuilder } from "comps/generators/controlCompBuilder";
+import { ColorControl } from "./colorControl";
+import { StringStateControl } from "./codeStateControl";
 
 const OptionTypes = [
   {
@@ -521,3 +532,95 @@ export const TabsOptionControl = manualOptionsControl(TabsOption, {
   uniqField: "key",
   autoIncField: "id",
 });
+
+const StyledIcon = styled.span`
+  margin: 0 4px 0 14px;
+`;
+
+const StyledContent = styled.div`
+  > div {
+    margin: 4px 0;
+    flex-direction: row;
+    gap: 4px 0px;
+    flex-wrap: wrap;
+
+    > div:nth-of-type(1) {
+      flex: 0 0 96px;
+  
+      div {
+        line-height: 16px;
+      }
+    }
+  
+    > svg {
+      height: 30px;
+      width: 25px;
+    }
+  
+    > div:nth-of-type(2) {
+      flex: 1 1 auto;
+    }
+  }
+`;
+
+const ColumnOption = new MultiCompBuilder(
+  {
+    id: valueComp<number>(-1),
+    label: StringControl,
+    key: StringControl,
+    minWidth: withDefault(RadiusControl, ""),
+    background: withDefault(ColorControl, ""),
+    backgroundImage: withDefault(StringControl, ""),
+    border: withDefault(ColorControl, ""),
+    radius: withDefault(RadiusControl, ""),
+    margin: withDefault(StringControl, ""),
+    padding: withDefault(StringControl, ""),
+  },
+  (props) => props
+)
+.setPropertyViewFn((children) => (
+  <StyledContent>
+    {children.minWidth.propertyView({
+      label: trans('responsiveLayout.minWidth'),
+      preInputNode: <StyledIcon as={WidthIcon} title="" />,
+      placeholder: '3px',
+    })}
+    {children.background.propertyView({
+      label: trans('style.background'),
+    })}
+    {children.backgroundImage.propertyView({
+      label: `Background Image`,
+      // preInputNode: <StyledIcon as={ImageCompIcon} title="" />,
+      placeholder: 'https://temp.im/350x400',
+    })}
+    {children.border.propertyView({
+      label: trans('style.border')
+    })}
+    {children.radius.propertyView({
+      label: trans('style.borderRadius'),
+      preInputNode: <StyledIcon as={IconRadius} title="" />,	
+      placeholder: '3px',
+    })}
+    {children.margin.propertyView({
+      label: trans('style.margin'),
+      preInputNode: <StyledIcon as={ExpandIcon} title="" />,	
+      placeholder: '3px',
+    })}
+    {children.padding.propertyView({
+      label: trans('style.padding'),
+      preInputNode: <StyledIcon as={CompressIcon} title="" />,	
+      placeholder: '3px',
+    })}
+  </StyledContent>
+))
+  .build();
+
+export const ColumnOptionControl = manualOptionsControl(ColumnOption, {
+  initOptions: [
+    { id: 0, key: "Column1", label: "Column1" },
+    { id: 1, key: "Column2", label: "Column2" },
+  ],
+  uniqField: "key",
+  autoIncField: "id",
+});
+

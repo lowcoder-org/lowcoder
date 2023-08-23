@@ -328,7 +328,7 @@ const PermissionSelector = (props: {
       <PermissionSelectWrapper>
         <AddPermissionsSelect
           open
-          innerRef={selectRef}
+          ref={selectRef}
           placeholder={trans("home.addPermissionPlaceholder")}
           mode="multiple"
           getPopupContainer={() => document.getElementById("add-app-user-permission-dropdown")!}
