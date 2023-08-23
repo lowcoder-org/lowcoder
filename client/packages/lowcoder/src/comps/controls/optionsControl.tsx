@@ -573,8 +573,8 @@ const ColumnOption = new MultiCompBuilder(
     backgroundImage: withDefault(StringControl, ""),
     border: withDefault(ColorControl, ""),
     radius: withDefault(RadiusControl, ""),
-    margin: withDefault(StringControl, "0px"),
-    padding: withDefault(StringControl, "0px"),
+    margin: withDefault(StringControl, ""),
+    padding: withDefault(StringControl, ""),
   },
   (props) => props
 )

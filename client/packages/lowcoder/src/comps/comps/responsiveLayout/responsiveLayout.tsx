@@ -16,7 +16,7 @@ import { sameTypeMap, UICompBuilder, withDefault } from "comps/generators";
 import { addMapChildAction } from "comps/generators/sameTypeMap";
 import { NameConfigHidden, withExposingConfigs } from "comps/generators/withExposing";
 import { NameGenerator } from "comps/utils";
-import { Section, sectionNames } from "lowcoder-design";
+import { Section, controlItem, sectionNames } from "lowcoder-design";
 import { HintPlaceHolder } from "lowcoder-design";
 import _ from "lodash";
 import React from "react";
@@ -85,6 +85,7 @@ const ColumnContainer = (props: ColumnContainerProps) => {
       {...props}
       emptyRows={15}
       hintPlaceholder={HintPlaceHolder}
+      radius={props.style.radius}
       style={props.style}
     />
   );
@@ -125,7 +126,7 @@ const ResponsiveLayout = (props: ResponsiveLayoutProps) => {
               margin: !_.isEmpty(column.margin) ? column.margin : columnStyle.margin,
               padding: !_.isEmpty(column.padding) ? column.padding : columnStyle.padding,
               radius: !_.isEmpty(column.radius) ? column.radius : columnStyle.radius,
-              border: !_.isEmpty(column.border) ? column.border : columnStyle.border,
+              border: `1px solid ${!_.isEmpty(column.border) ? column.border : columnStyle.border}`,
               background: !_.isEmpty(column.background) ? column.background : columnStyle.background,
             }
             const noOfColumns = columns.length;
@@ -181,15 +182,15 @@ export const ResponsiveLayoutBaseComp = (function () {
             })}
             {children.autoHeight.getPropertyView()}
           </Section>
-          <Section name={sectionNames.layout}>
+          <Section name={trans("responsiveLayout.rowLayout")}>
             {children.rowBreak.propertyView({
               label: trans("responsiveLayout.rowBreak")
             })}
-            {children.matchColumnsHeight.propertyView({
-              label: trans("responsiveLayout.matchColumnsHeight")
-            })}
-          </Section>
-          <Section name={trans("responsiveLayout.columnsPerRow")}>
+            {controlItem({}, (
+              <div style={{marginTop: '8px'}}>
+                {trans("responsiveLayout.columnsPerRow")}
+              </div>
+            ))}
             {children.columnPerRowLG.propertyView({
               label: trans("responsiveLayout.desktop")
             })}
@@ -200,7 +201,15 @@ export const ResponsiveLayoutBaseComp = (function () {
               label: trans("responsiveLayout.mobile")
             })}
           </Section>
-          <Section name={trans("responsiveLayout.columnsSpacing")}>
+          <Section name={trans("responsiveLayout.columnsLayout")}>
+            {children.matchColumnsHeight.propertyView({
+              label: trans("responsiveLayout.matchColumnsHeight")
+            })}
+            {controlItem({}, (
+              <div style={{marginTop: '8px'}}>
+                {trans("responsiveLayout.columnsSpacing")}
+              </div>
+            ))}
             {children.horizontalSpacing.propertyView({
               label: trans("responsiveLayout.horizontal")
             })}
