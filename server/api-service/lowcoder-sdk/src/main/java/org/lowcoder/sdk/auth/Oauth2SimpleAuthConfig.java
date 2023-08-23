@@ -52,6 +52,7 @@ public class Oauth2SimpleAuthConfig extends AbstractAuthConfig {
         return switch (authType) {
             case AuthTypeConstants.GOOGLE -> replaceAuthUrlClientIdPlaceholder(Oauth2Constants.GOOGLE_AUTHORIZE_URL);
             case AuthTypeConstants.GITHUB -> replaceAuthUrlClientIdPlaceholder(Oauth2Constants.GITHUB_AUTHORIZE_URL);
+            case AuthTypeConstants.ORY -> replaceAuthUrlClientIdPlaceholder(Oauth2Constants.ORY_AUTHORIZE_URL);
             default -> null;
         };
     }
@@ -73,7 +74,7 @@ public class Oauth2SimpleAuthConfig extends AbstractAuthConfig {
         }
     }
 
-    private String replaceAuthUrlClientIdPlaceholder(String url) {
+    public String replaceAuthUrlClientIdPlaceholder(String url) {
         return url.replace(CLIENT_ID_PLACEHOLDER, clientId);
     }
 }
