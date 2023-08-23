@@ -1700,7 +1700,7 @@ export const en = {
     preloadCSSApply: "Apply to the homepage of the workspace",
     preloadLibsTitle: "JavaScript library",
     preloadLibsHelp:
-      "Set up preloaded JavaScript libraries for all applications in the current workspace, and the system has built-in lodash, moment, uuid, numbro for direct use. JavaScript libraries are loaded before the app is initialized, so there is a certain impact on app performance.",
+      "Set up preloaded JavaScript libraries for all applications in the current workspace, and the system has built-in lodash, day.js, uuid, numbro for direct use. JavaScript libraries are loaded before the app is initialized, so there is a certain impact on app performance.",
     preloadLibsEmpty: "No JavaScript libraries were added",
     preloadLibsAddBtn: "Add a library",
     saveSuccess: "Saved successfully",
@@ -1962,7 +1962,7 @@ export const en = {
   },
   preLoad: {
     jsLibraryHelpText:
-      "Add JavaScript libraries to your current application via URL addresses. lodash, moment, uuid, numbro are built into the system for immediate use.  JavaScript libraries are loaded before the application is initialized, which can have an impact on application performance.",
+      "Add JavaScript libraries to your current application via URL addresses. lodash, day.js, uuid, numbro are built into the system for immediate use.  JavaScript libraries are loaded before the application is initialized, which can have an impact on application performance.",
     exportedAs: "Exported as",
     urlTooltip:
       "URL address of the JavaScript library, [unpkg.com](https://unpkg.com/) or [jsdelivr.net](https://www.jsdelivr.com/) is recommended",

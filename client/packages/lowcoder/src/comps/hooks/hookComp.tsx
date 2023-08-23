@@ -85,7 +85,7 @@ const HookMap: HookCompMapRawType = {
   currentTime: CurrentTimeHookComp,
   lodashJsLib: LodashJsLib,
   dayJsLib: DayJsLib,
-  momentJsLib: DayJsLib,
+  momentJsLib: DayJsLib,  // old components use this hook
   utils: UtilsComp,
   message: MessageComp,
   localStorage: LocalStorageComp,
