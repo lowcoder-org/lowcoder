@@ -38,7 +38,7 @@ public class Oauth2OryAuthConfig extends Oauth2SimpleAuthConfig {
     }
 
     @Override
-    protected String replaceAuthUrlClientIdPlaceholder(String url) {
+    public String replaceAuthUrlClientIdPlaceholder(String url) {
         return super.replaceAuthUrlClientIdPlaceholder(url).replace(INSTANCE_ID_PLACEHOLDER, instanceId);
     }
 }

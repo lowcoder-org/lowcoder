@@ -74,7 +74,7 @@ public class Oauth2SimpleAuthConfig extends AbstractAuthConfig {
         }
     }
 
-    protected String replaceAuthUrlClientIdPlaceholder(String url) {
+    public String replaceAuthUrlClientIdPlaceholder(String url) {
         return url.replace(CLIENT_ID_PLACEHOLDER, clientId);
     }
 }
