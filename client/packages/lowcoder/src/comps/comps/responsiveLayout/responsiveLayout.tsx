@@ -66,7 +66,7 @@ const childrenMap = {
   }),
   autoHeight: AutoHeightControl,
   rowBreak: withDefault(BoolControl, false),
-  matchColumnsHeight: withDefault(BoolControl, false),
+  matchColumnsHeight: withDefault(BoolControl, true),
   rowStyle: withDefault(styleControl(ResponsiveLayoutRowStyle), {}),
   columnStyle: withDefault(styleControl(ResponsiveLayoutColStyle), {}),
   columnPerRowLG: withDefault(NumberControl, 4),
