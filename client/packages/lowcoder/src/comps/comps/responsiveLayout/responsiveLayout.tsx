@@ -48,9 +48,10 @@ const ColWrapper = styled(Col)<{
   $minWidth?: string,
   $matchColumnsHeight: boolean,
 }>`
-  min-width: ${(props) => props.$minWidth};
   display: flex;
   flex-direction: column;
+  flex-basis: ${(props) => props.$minWidth};
+  max-width: ${(props) => props.$minWidth};
 
   > div {
     height: ${(props) => props.$matchColumnsHeight ? '100%' : 'auto'};
