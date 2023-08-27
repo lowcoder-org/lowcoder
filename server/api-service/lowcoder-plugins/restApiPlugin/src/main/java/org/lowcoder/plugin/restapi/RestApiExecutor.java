@@ -47,7 +47,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;
@@ -94,7 +93,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.reactive.ClientHttpRequest;
-import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.BodyInserter;
 import org.springframework.web.reactive.function.BodyInserters;
@@ -109,7 +107,6 @@ import com.google.common.collect.ImmutableMap;
 import lombok.Builder;
 import lombok.Getter;
 import reactor.core.publisher.Mono;
-import reactor.netty.http.client.HttpClient;
 
 @Extension
 public class RestApiExecutor implements QueryExecutor<RestApiDatasourceConfig, Object, RestApiQueryExecutionContext> {
@@ -244,6 +241,7 @@ public class RestApiExecutor implements QueryExecutor<RestApiDatasourceConfig, O
                     WebClient.Builder webClientBuilder = WebClientBuildHelper.builder()
                             .disallowedHosts(commonConfig.getDisallowedHosts())
                             .sslConfig(context.getSslConfig())
+                            .timeoutMs(context.getTimeoutMs())
                             .toWebClientBuilder();
 
                     Map<String, String> allHeaders = context.getHeaders();
@@ -260,13 +258,9 @@ public class RestApiExecutor implements QueryExecutor<RestApiDatasourceConfig, O
                         webClientBuilder.filter(new BufferingFilter());
                     }
 
-                    HttpClient httpClient = HttpClient.create()
-                    		.responseTimeout(Duration.ofMillis(context.getTimeoutMs()));
-
                     webClientBuilder.defaultCookies(injectCookies(context));
                     WebClient client = webClientBuilder
                             .exchangeStrategies(exchangeStrategies)
-                            .clientConnector(new ReactorClientHttpConnector(httpClient))
                             .build();
 
                     BodyInserter<?, ? super ClientHttpRequest> bodyInserter = buildBodyInserter(
