@@ -172,7 +172,7 @@ public class LowcoderPluginManager
 	{
 		ResolvableType returnType = ResolvableType.forMethodReturnType(method);
 		
-		return (returnType.isAssignableFrom(Mono.class)
+		return (returnType.getRawClass().isAssignableFrom(Mono.class)
 					&& returnType.getGenerics().length == 1
 					&& returnType.getGeneric(0).isAssignableFrom(ServerResponse.class)
 					&& method.getParameterCount() == 1
