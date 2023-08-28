@@ -48,9 +48,10 @@ const ColWrapper = styled(Col)<{
   $minWidth?: string,
   $matchColumnsHeight: boolean,
 }>`
-  min-width: ${(props) => props.$minWidth};
   display: flex;
   flex-direction: column;
+  flex-basis: ${(props) => props.$minWidth};
+  max-width: ${(props) => props.$minWidth};
 
   > div {
     height: ${(props) => props.$matchColumnsHeight ? '100%' : 'auto'};
@@ -65,7 +66,7 @@ const childrenMap = {
   }),
   autoHeight: AutoHeightControl,
   rowBreak: withDefault(BoolControl, false),
-  matchColumnsHeight: withDefault(BoolControl, false),
+  matchColumnsHeight: withDefault(BoolControl, true),
   rowStyle: withDefault(styleControl(ResponsiveLayoutRowStyle), {}),
   columnStyle: withDefault(styleControl(ResponsiveLayoutColStyle), {}),
   columnPerRowLG: withDefault(NumberControl, 4),
