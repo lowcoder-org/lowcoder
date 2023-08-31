@@ -1,6 +1,6 @@
-import { WidgetProps } from "@rjsf/core";
+import { WidgetProps } from "@rjsf/utils";
 import { DatePicker } from "antd";
-import moment from "moment";
+import dayjs from "dayjs";
 
 const DATE_PICKER_STYLE = {
   width: "100%",
@@ -28,7 +28,7 @@ const DateWidget = (showTime: boolean) => (props: WidgetProps) => {
       placeholder={props.placeholder}
       showTime={showTime}
       style={DATE_PICKER_STYLE}
-      value={props.value && moment(props.value)}
+      value={props.value && dayjs(props.value)}
     />
   );
 };

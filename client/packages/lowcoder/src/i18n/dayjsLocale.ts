@@ -1,6 +1,6 @@
 import { language } from "i18n";
 
-export function getMomentLocale() {
+export function getDayJSLocale() {
   switch (language) {
     case "zh":
       return "zh-cn";

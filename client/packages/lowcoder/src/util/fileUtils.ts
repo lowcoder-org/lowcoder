@@ -1,4 +1,5 @@
-import { message } from "antd";
+import { messageInstance } from "lowcoder-design";
+
 import { RcFile } from "antd/lib/upload/interface";
 import { Buffer } from "buffer";
 import mime from "mime";
@@ -15,12 +16,12 @@ export function getBase64(img: any, callback: (imageUrl: any) => void) {
 export function beforeImgUpload(file: RcFile) {
   const isJpgOrPng = file.type === "image/jpeg" || file.type === "image/png";
   if (!isJpgOrPng) {
-    message.error(trans("imgUpload.notSupportError", { types: "JPG/PNG" }));
+    messageInstance.error(trans("imgUpload.notSupportError", { types: "JPG/PNG" }));
     return false;
   }
   const sizeExceed = file.size / 1024 > 300;
   if (sizeExceed) {
-    message.error(trans("imgUpload.exceedSizeError", { size: "300kb" }));
+    messageInstance.error(trans("imgUpload.exceedSizeError", { size: "300kb" }));
   }
   return !sizeExceed;
 }

@@ -289,3 +289,7 @@ export { ReactComponent as CompressIcon } from "icons/icon-compress.svg";
 export { ReactComponent as TableCellsIcon } from "icons/icon-table-cells.svg"; // Added By Aqib Mirza
 export { ReactComponent as TimeLineIcon } from "icons/icon-timeline-comp.svg"
 export { ReactComponent as LottieIcon } from "icons/icon-lottie.svg";
+export { ReactComponent as MentionIcon } from "icons/icon-mention-comp.svg";
+export { ReactComponent as AutoCompleteCompIcon } from "icons/icon-autocomplete-comp.svg";
+export { ReactComponent as WidthIcon } from "icons/icon-width.svg";
+export { ReactComponent as ResponsiveLayoutCompIcon } from "icons/icon-responsive-layout-comp.svg";

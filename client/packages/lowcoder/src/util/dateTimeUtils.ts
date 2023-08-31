@@ -1,4 +1,6 @@
-import moment from "moment";
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
+dayjs.extend(relativeTime);
 
 export const TIME_FORMAT = "HH:mm:ss";
 export const TIME_12_FORMAT = "HH:mm:ss:a";
@@ -18,7 +20,7 @@ export type PickerMode = "date" | "week" | "month" | "quarter" | "year";
  * @returns string YYYY-MM-DD HH:mm
  */
 export function formatTimestamp(timestamp: number): string {
-  return moment.unix(timestamp / 1000).format("YYYY-MM-DD HH:mm");
+  return dayjs.unix(timestamp / 1000).format("YYYY-MM-DD HH:mm");
 }
 
 /**
@@ -41,9 +43,9 @@ export function timestampToHumanReadable(
   const TIME_FORMAT = "YYYY-MM-DD HH:mm";
   let timeInfo;
   if (now - new Date(timestamp).getTime() <= intervalMillis) {
-    timeInfo = moment(timestamp).fromNow();
+    timeInfo = dayjs(timestamp).fromNow();
   } else {
-    timeInfo = moment(timestamp).format(TIME_FORMAT);
+    timeInfo = dayjs(timestamp).format(TIME_FORMAT);
   }
   return timeInfo;
 }

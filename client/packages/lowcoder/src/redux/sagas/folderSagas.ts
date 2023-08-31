@@ -9,7 +9,8 @@ import { all, put, takeLatest } from "redux-saga/effects";
 import { AxiosResponse } from "axios";
 import { validateResponse } from "api/apiUtils";
 import log from "loglevel";
-import { message } from "antd";
+import { messageInstance } from "lowcoder-design";
+
 import {
   CreateFolderPayload,
   DeleteFolderPayload,
@@ -36,7 +37,7 @@ export function* createFolderSaga(action: ReduxActionWithCallbacks<CreateFolderP
     }
   } catch (error: any) {
     log.error("create folder error: ", error);
-    message.error(error.message);
+    messageInstance.error(error.message);
     action.onErrorCallback && action.onErrorCallback(error);
   }
 }
@@ -56,7 +57,7 @@ export function* updateFolderSaga(action: ReduxAction<UpdateFolderPayload>) {
     }
   } catch (error: any) {
     log.error("update folder error: ", error);
-    message.error(error.message);
+    messageInstance.error(error.message);
   }
 }
 
@@ -76,7 +77,7 @@ export function* deleteFolderSaga(action: ReduxActionWithCallbacks<DeleteFolderP
     }
   } catch (error: any) {
     log.error("delete folder error: ", error);
-    message.error(error.message);
+    messageInstance.error(error.message);
     action.onErrorCallback && action.onErrorCallback(error);
   }
 }
@@ -97,7 +98,7 @@ export function* moveToFolderSaga(action: ReduxActionWithCallbacks<MoveToFolderP
     }
   } catch (error: any) {
     log.error("move to folder error: ", error);
-    message.error(error.message);
+    messageInstance.error(error.message);
     action.onErrorCallback && action.onErrorCallback(error);
   }
 }
@@ -123,7 +124,7 @@ export function* fetchFolderElementsSaga(action: ReduxAction<FetchFolderElements
     }
   } catch (error: any) {
     log.error("fetch folder elements error: ", error);
-    message.error(error.message);
+    messageInstance.error(error.message);
     yield put({
       type: ReduxActionErrorTypes.FETCH_FOLDER_ELEMENTS_ERROR,
     });

@@ -47,10 +47,10 @@ function VideoDialog(props: {
   }, [visible]);
 
   return (
-    <Modal
+    (<Modal
       centered
       zIndex={Layers.videoDialog}
-      visible={visible}
+      open={visible}
       maskClosable
       onCancel={() => {
         setVisible(false);
@@ -81,7 +81,7 @@ function VideoDialog(props: {
           </VideoModalWrapper>
         );
       }}
-    />
+    />)
   );
 }
 

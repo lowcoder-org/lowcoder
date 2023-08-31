@@ -1,4 +1,4 @@
-import { message, Table } from "antd";
+import { Table } from "antd";
 import { TableProps } from "antd/es/table";
 import { TableCellContext, TableRowContext } from "comps/comps/tableComp/tableContext";
 import { TableToolbar } from "comps/comps/tableComp/tableToolbarComp";
@@ -33,6 +33,7 @@ import { TableImplComp } from "./tableComp";
 import { useResizeDetector } from "react-resize-detector";
 import { SlotConfigContext } from "comps/controls/slotControl";
 import { EmptyContent } from "pages/common/styledComponent";
+import { messageInstance } from "lowcoder-design";
 
 const TitleResizeHandle = styled.span`
   position: absolute;
@@ -594,7 +595,7 @@ export function TableCompView(props: {
   const handleChangeEvent = useCallback(
     (eventName) => {
       if (eventName === "saveChanges" && !compChildren.onEvent.isBind(eventName)) {
-        !viewMode && message.warn(trans("table.saveChangesNotBind"));
+        !viewMode && messageInstance.warning(trans("table.saveChangesNotBind"));
         return;
       }
       compChildren.onEvent.getView()(eventName);

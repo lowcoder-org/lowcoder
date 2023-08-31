@@ -1,4 +1,4 @@
-import { Divider, message, Select } from "antd";
+import { Divider, Select } from "antd";
 import { useSelector } from "react-redux";
 import React, { useContext, useMemo, useState } from "react";
 import { DataSourceTypeInfo } from "api/datasourceApi";
@@ -22,6 +22,7 @@ import {
   databasePlugins,
 } from "@lowcoder-ee/constants/datasourceConstants";
 import { QueryContext } from "util/context/QueryContext";
+import { messageInstance } from "lowcoder-design";
 
 const SelectOptionLabel = styled.div`
   font-size: 13px;
@@ -142,7 +143,7 @@ export const ResourceDropdown = (props: ResourceDropdownProps) => {
         showSearch={true}
         optionFilterProp={"label"}
         maxTagCount={"responsive" as const}
-        dropdownMatchSelectWidth={false}
+        popupMatchSelectWidth={false}
         value={JSON.stringify(props.selectedResource)}
         placeholder={trans("query.chooseResource")}
         onChange={(value: string) => {
@@ -150,7 +151,7 @@ export const ResourceDropdown = (props: ResourceDropdownProps) => {
           const datasourceId = optionValue.id;
           const datasourceType = optionValue.type;
           if (!datasourceType) {
-            message.error("datasource invalid");
+            messageInstance.error("datasource invalid");
             return;
           }
           props.changeResource(datasourceId, datasourceType);

@@ -24,13 +24,13 @@ In the following example, `transformer1` uses the data of star rating in `rating
 
 ### Transform timestamp
 
-Use the `moment().format()` method to transform timestamp formats. The following example converts the timestamp value of `start_time` returned by `query1` to `YYYY-MM-DD` format.
+Use the `dayjs().format()` method to transform timestamp formats. The following example converts the timestamp value of `start_time` returned by `query1` to `YYYY-MM-DD` format.
 
 ```javascript
 return query1.data.map(it => {
      return {
          ...it,
-         start_time: moment(it.start_time).format('YYYY-MM-DD')
+         start_time: dayjs(it.start_time).format('YYYY-MM-DD')
      };
 })
 ```

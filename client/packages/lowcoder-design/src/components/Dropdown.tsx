@@ -170,7 +170,7 @@ export function Dropdown<T extends OptionsType>(props: DropdownProps<T>) {
             <CustomSelect
               open={props.open}
               listHeight={props.lineHeight}
-              dropdownClassName="ob-dropdown-control-select"
+              popupClassName="ob-dropdown-control-select"
               showSearch={props.showSearch}
               filterOption={(input, option) => {
                 if (props.optionFilterProp) {

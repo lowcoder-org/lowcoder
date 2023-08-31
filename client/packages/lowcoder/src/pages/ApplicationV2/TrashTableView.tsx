@@ -7,8 +7,8 @@ import { HomeResInfo } from "../../util/homeResUtils";
 import { HomeResTypeEnum } from "../../types/homeRes";
 import { deleteApplication, restoreApplication } from "../../redux/reduxActions/applicationActions";
 import { HomeRes } from "./HomeLayout";
-import { message } from "antd";
 import { trans, transToNode } from "../../i18n";
+import { messageInstance } from "lowcoder-design";
 
 const OperationWrapper = styled.div`
   display: flex;
@@ -121,7 +121,7 @@ export const TrashTableView = (props: { resources: HomeRes[] }) => {
                     onClick={() =>
                       dispatch(
                         restoreApplication({ applicationId: item.id }, () => {
-                          message.success(trans("home.recoverSuccessMsg"));
+                          messageInstance.success(trans("home.recoverSuccessMsg"));
                         })
                       )
                     }
@@ -145,7 +145,7 @@ export const TrashTableView = (props: { resources: HomeRes[] }) => {
                             deleteApplication(
                               { applicationId: item.id },
                               () => {
-                                message.success(trans("home.deleteSuccessMsg"));
+                                messageInstance.success(trans("home.deleteSuccessMsg"));
                                 resolve(true);
                               },
                               () => reject()

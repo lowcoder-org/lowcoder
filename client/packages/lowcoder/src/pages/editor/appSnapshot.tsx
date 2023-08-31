@@ -8,7 +8,7 @@ import {
   setSelectSnapshotId,
   setShowAppSnapshot,
 } from "redux/reduxActions/appSnapshotActions";
-import moment from "moment";
+import dayjs from "dayjs";
 import { useCallback, useEffect, useState } from "react";
 import { currentApplication } from "redux/selectors/applicationSelector";
 import {
@@ -115,7 +115,7 @@ function getOperationDesc(context: AppSnapshotContext) {
         desc,
         o.compName,
         o.oldName || "",
-        o.snapshotCreateTime ? moment(o.snapshotCreateTime).format(TIME_FORMAT) : ""
+        o.snapshotCreateTime ? dayjs(o.snapshotCreateTime).format(TIME_FORMAT) : ""
       );
     })
     .join(", ");

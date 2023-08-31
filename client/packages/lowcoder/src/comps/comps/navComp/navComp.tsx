@@ -158,7 +158,10 @@ const NavCompBase = new UICompBuilder(childrenMap, (props) => {
             />
           );
           return (
-            <Dropdown key={idx} overlay={subMenu}>
+            <Dropdown
+              key={idx}
+              dropdownRender={() => subMenu}
+            >
               {item}
             </Dropdown>
           );

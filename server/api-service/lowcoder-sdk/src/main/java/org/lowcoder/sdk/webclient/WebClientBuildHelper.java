@@ -2,6 +2,7 @@ package org.lowcoder.sdk.webclient;
 
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.time.Duration;
 import java.util.Set;
 
 import javax.net.ssl.SSLException;
@@ -33,6 +34,7 @@ public class WebClientBuildHelper {
     private SslConfig sslConfig;
     private Set<String> disallowedHosts;
     private boolean systemProxy;
+    private Long timeoutMs;
 
     static {
         proxyHost = System.getProperty("http.proxyHost");
@@ -61,12 +63,22 @@ public class WebClientBuildHelper {
         return this;
     }
 
+    public WebClientBuildHelper timeoutMs(long milliseconds) {
+        this.timeoutMs = milliseconds;
+        return this;
+    }    
+    
     public WebClient build() {
         return toWebClientBuilder().build();
     }
 
     public Builder toWebClientBuilder() {
         HttpClient httpClient = HttpClient.create();
+        if (timeoutMs != null)
+        {
+        	httpClient.responseTimeout(Duration.ofMillis(timeoutMs));
+        }
+        
         if (sslConfig != null) {
             if (sslConfig instanceof DisableVerifySslConfig) {
                 httpClient = httpClient.secure(sslProviderWithoutCertVerify());

@@ -43,6 +43,7 @@ public class RestApiQueryExecutionContext extends QueryExecutionContext {
     @Getter
     private Mono<List<Property>> authTokenMono;
     private SslConfig sslConfig;
+    private long timeoutMs;
 
     public URI getUri() {
         return uri;
@@ -96,4 +97,8 @@ public class RestApiQueryExecutionContext extends QueryExecutionContext {
     public SslConfig getSslConfig() {
         return sslConfig;
     }
+
+	public long getTimeoutMs() {
+		return timeoutMs;
+	}
 }

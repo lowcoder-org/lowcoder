@@ -125,12 +125,12 @@ let TmpDrawerComp = (function () {
             <Drawer
               resizable={resizable}
               onResizeStop={onResizeStop}
-              style={props.visible.value ? { overflow: "auto", pointerEvents: "auto" } : {}}
+              rootStyle={props.visible.value ? { overflow: "auto", pointerEvents: "auto" } : {}}
               contentWrapperStyle={{ maxHeight: "100%", maxWidth: "100%" }}
               bodyStyle={{ padding: 0, backgroundColor: props.style.background }}
               closable={false}
               placement={props.placement}
-              visible={props.visible.value}
+              open={props.visible.value}
               getContainer={() => document.querySelector(`#${CanvasContainerID}`) || document.body}
               footer={null}
               width={transToPxSize(props.width || DEFAULT_SIZE)}
@@ -138,7 +138,7 @@ let TmpDrawerComp = (function () {
               onClose={(e) => {
                 props.visible.onChange(false);
               }}
-              afterVisibleChange={(visible) => {
+              afterOpenChange={(visible) => {
                 if (!visible) {
                   props.onEvent("close");
                 }

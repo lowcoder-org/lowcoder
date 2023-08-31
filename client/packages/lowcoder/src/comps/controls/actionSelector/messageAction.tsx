@@ -1,10 +1,10 @@
-import { message } from "antd";
 import { StringControl } from "comps/controls/codeControl";
 import { dropdownControl } from "comps/controls/dropdownControl";
 import { MultiCompBuilder } from "comps/generators/multi";
 import { BranchDiv } from "lowcoder-design";
 import { trans } from "i18n";
 import { millisecondsControl } from "../millisecondControl";
+import { messageInstance } from "lowcoder-design";
 
 const childrenMap = {
   text: StringControl,
@@ -12,7 +12,7 @@ const childrenMap = {
     [
       { label: trans("information"), value: "info" },
       { label: trans("success"), value: "success" },
-      { label: trans("warning"), value: "warn" },
+      { label: trans("warning"), value: "warning" },
       { label: trans("error"), value: "error" },
     ] as const,
     "info"
@@ -22,7 +22,7 @@ const childrenMap = {
 
 export const MessageAction = new MultiCompBuilder(
   childrenMap,
-  (props) => () => message[props.level](props.text, props.duration / 1000)
+  (props) => () => messageInstance[props.level](props.text, props.duration / 1000)
 )
   .setPropertyViewFn((children) => (
     <>

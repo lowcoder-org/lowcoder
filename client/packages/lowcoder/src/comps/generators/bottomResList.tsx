@@ -1,4 +1,3 @@
-import { message } from "antd";
 import { EditorState } from "comps/editorState";
 import { NameAndExposingInfo } from "comps/utils/exposingTypes";
 import { trans } from "i18n";
@@ -7,6 +6,7 @@ import { BottomResComp, BottomResListComp, BottomResTypeEnum } from "types/botto
 import { undoKey } from "util/keyUtils";
 import { list } from "./list";
 import { IExposingComp } from "./withExposing";
+import { messageInstance } from "lowcoder-design";
 
 type BottomResListItemCompConstr = new (param: CompParams<any>) => MultiBaseComp<any, any, any> &
   BottomResComp &
@@ -121,7 +121,7 @@ export function bottomResListComp<T extends BottomResListItemCompConstr>(
           ],
         })
       );
-      message.success(trans("query.deleteSuccessMessage", { undoKey }));
+      messageInstance.success(trans("query.deleteSuccessMessage", { undoKey }));
     }
   };
 }

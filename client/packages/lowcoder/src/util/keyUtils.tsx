@@ -86,7 +86,7 @@ function normalizeKey(e: React.KeyboardEvent | KeyboardEvent) {
     return v;
   }
   for (const p of codePrefixes) {
-    if (code.length === p.length + 1 && code.startsWith(p)) {
+    if (code?.length === p.length + 1 && code?.startsWith(p)) {
       return code.slice(p.length);
     }
   }

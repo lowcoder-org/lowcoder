@@ -1,4 +1,3 @@
-import { message } from "antd";
 import { EmptyContent } from "components/EmptyContent";
 import { KeyValueItem, KeyValueItemListWithNewCreateState } from "components/KeyValueItemList";
 import { StringControl } from "comps/controls/codeControl";
@@ -11,6 +10,7 @@ import { controlItem, Section, Switch, SwitchWrapper } from "lowcoder-design";
 import { trans } from "i18n";
 import { ModuleEventListItemComp } from "./moduleEventListItemComp";
 import { ConfigViewSection } from "./styled";
+import { messageInstance } from "lowcoder-design";
 
 const ModuleEventListComp = list(ModuleEventListItemComp);
 
@@ -26,7 +26,7 @@ export class ModuleEventComp extends simpleMultiComp({
 
   trigger(name: string) {
     if (this.children.enableEventTestMessage.getView()) {
-      message.success(trans("module.eventTriggered", { name: name }));
+      messageInstance.success(trans("module.eventTriggered", { name: name }));
     }
   }
 

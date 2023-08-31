@@ -37,6 +37,7 @@ Image can be configured by setting environment variables.
 | `ENCRYPTION_SALT`               | Salt used for encrypting password                                   | `lowcoder.org`                                        |
 | `CORS_ALLOWED_DOMAINS`          | CORS allowed domains                                                | `*`                                                   |
 | `LOWCODER_MAX_REQUEST_SIZE`     | Lowcoder max request size                                           | `20m`                                                 |
+| `LOWCODER_MAX_QUERY_TIMEOUT`    | Lowcoder max query timeout (in seconds)                             | `120`                                                 |
 | `LOWCODER_API_SERVICE_URL`      | Lowcoder API service URL                                            | `http://localhost:8080`                               |
 | `LOWCODER_NODE_SERVICE_URL`     | Lowcoder Node service (js executor) URL                             | `http://localhost:6060`                               |
 | `DEFAULT_ORGS_PER_USER`         | Default maximum organizations per user                              | `100`                                                 |
@@ -77,6 +78,8 @@ Image can be configured by setting environment variables.
 | `DEFAULT_ORG_GROUP_COUNT`       | Default maximum groups per organization                             | `100`                                                 |
 | `DEFAULT_ORG_APP_COUNT`         | Default maximum applications per organization                       | `1000`                                                |
 | `DEFAULT_DEVELOPER_COUNT`       | Default maximum developers                                          | `100`                                                 |
+| `LOWCODER_MAX_QUERY_TIMEOUT`    | Lowcoder max query timeout (in seconds)                             | `120`                                                 |
+| `LOWCODER_MAX_REQUEST_SIZE`     | Lowcoder max request size                                           | `20m`                                                 |
 
 
 
@@ -122,6 +125,7 @@ Image can be configured by setting environment variables.
 | --------------------------------| --------------------------------------------------------------------| ------------------------------------------------------- |
 | `PUID`                          | ID of user running services. It will own all created logs and data. | `9001`                                                  |
 | `PGID`                          | ID of group of the user running services.                           | `9001`                                                  |
+| `LOWCODER_MAX_QUERY_TIMEOUT`    | Lowcoder max query timeout (in seconds)                             | `120`                                                 |
 | `LOWCODER_MAX_REQUEST_SIZE`     | Lowcoder max request size                                           | `20m`                                                   |
 | `LOWCODER_API_SERVICE_URL`      | Lowcoder API service URL                                            | `http://localhost:8080`                                 |
 | `LOWCODER_NODE_SERVICE_URL`     | Lowcoder Node service (js executor) URL                             | `http://localhost:6060`                                 |

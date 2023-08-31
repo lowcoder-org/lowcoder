@@ -1,4 +1,3 @@
-import { message } from "antd";
 import { isContainer } from "comps/comps/containerBase";
 import { SimpleContainerComp } from "comps/comps/containerBase/simpleContainerComp";
 import { GridItemComp } from "comps/comps/gridItemComp";
@@ -24,7 +23,7 @@ import {
   replaceCompAction,
   wrapActionExtraInfo,
 } from "lowcoder-core";
-import { CustomModal } from "lowcoder-design";
+import { CustomModal, messageInstance } from "lowcoder-design";
 import { pasteKey, undoKey } from "util/keyUtils";
 import { genRandomKey } from "./idGenerator";
 import { getLatestVersion, getRemoteCompType, parseCompType } from "./remote";
@@ -41,19 +40,19 @@ export class GridCompOperator {
   static copyComp(editorState: EditorState, compRecords: Record<string, Comp>) {
     const oldUi = editorState.getUIComp().getComp();
     if (!oldUi) {
-      message.info(trans("gridCompOperator.notSupport"));
+      messageInstance.info(trans("gridCompOperator.notSupport"));
       return false;
     }
 
     const compKeys = Object.keys(compRecords);
 
     if (_.size(compRecords) <= 0) {
-      message.info(trans("gridCompOperator.selectAtLeastOneComponent"));
+      messageInstance.info(trans("gridCompOperator.selectAtLeastOneComponent"));
       return false;
     }
     const container = editorState.findContainer(compKeys[0]);
     if (!container) {
-      message.info(trans("gridCompOperator.selectAtLeastOneComponent"));
+      messageInstance.info(trans("gridCompOperator.selectAtLeastOneComponent"));
       return false;
     }
     const simpleContainer = container.realSimpleContainer(compKeys[0]);
@@ -67,7 +66,7 @@ export class GridCompOperator {
 
     const toCopyComps = Object.values(compMap).filter((item) => !!item.item && !!item.layout);
     if (!toCopyComps || _.size(toCopyComps) <= 0) {
-      message.info(trans("gridCompOperator.selectAtLeastOneComponent"));
+      messageInstance.info(trans("gridCompOperator.selectAtLeastOneComponent"));
       return false;
     }
     this.copyComps = toCopyComps;
@@ -79,17 +78,17 @@ export class GridCompOperator {
 
   static pasteComp(editorState: EditorState) {
     if (!this.copyComps || _.size(this.copyComps) <= 0 || !this.sourcePositionParams) {
-      message.info(trans("gridCompOperator.selectCompFirst"));
+      messageInstance.info(trans("gridCompOperator.selectCompFirst"));
       return false;
     }
     const oldUi = editorState.getUIComp().getComp();
     if (!oldUi) {
-      message.info(trans("gridCompOperator.notSupport"));
+      messageInstance.info(trans("gridCompOperator.notSupport"));
       return false;
     }
     let selectedContainer = editorState.selectedContainer();
     if (!selectedContainer) {
-      message.warn(trans("gridCompOperator.noContainerSelected"));
+      messageInstance.warning(trans("gridCompOperator.noContainerSelected"));
       return false;
     }
     const selectedComps = editorState.selectedComps();
@@ -171,7 +170,7 @@ export class GridCompOperator {
 
     const deleteFunc = () => {
       this.doDelete(editorState, compRecords) &&
-        message.info(trans("gridCompOperator.deleteCompsSuccess", { undoKey }));
+      messageInstance.info(trans("gridCompOperator.deleteCompsSuccess", { undoKey }));
     };
     if (compNum > 1) {
       CustomModal.confirm({
@@ -190,7 +189,7 @@ export class GridCompOperator {
   static cutComp(editorState: EditorState, compRecords: Record<string, Comp>) {
     this.copyComp(editorState, compRecords) &&
       this.doDelete(editorState, compRecords) &&
-      message.info(trans("gridCompOperator.cutCompsSuccess", { pasteKey, undoKey }));
+        messageInstance.info(trans("gridCompOperator.cutCompsSuccess", { pasteKey, undoKey }));
   }
 
   private static doDelete(editorState: EditorState, compRecords: Record<string, Comp>): boolean {
@@ -231,17 +230,17 @@ export class GridCompOperator {
     const latestVersion = await getLatestVersion(compInfo);
 
     if (!latestVersion) {
-      message.error(trans("comp.getLatestVersionMetaError"));
+      messageInstance.error(trans("comp.getLatestVersionMetaError"));
       return;
     }
 
     if (latestVersion.version === compInfo.packageVersion) {
-      message.info(trans("comp.needNotUpgrade"));
+      messageInstance.info(trans("comp.needNotUpgrade"));
       return;
     }
 
     if (!latestVersion.lowcoder?.comps?.[compInfo.compName]) {
-      message.error(trans("comp.compNotFoundInLatestVersion"));
+      messageInstance.error(trans("comp.compNotFoundInLatestVersion"));
       return;
     }
 
@@ -267,6 +266,6 @@ export class GridCompOperator {
         )
       )
     );
-    message.success(trans("comp.upgradeSuccess"));
+    messageInstance.success(trans("comp.upgradeSuccess"));
   }
 }

@@ -17,9 +17,10 @@ import { getUser } from "redux/selectors/usersSelectors";
 import { UploadChangeParam } from "antd/lib/upload";
 import { beforeImgUpload, getBase64 } from "util/fileUtils";
 import { updateUserAction, updateUserSuccess } from "redux/reduxActions/userActions";
-import { message, Upload } from "antd";
+import { Upload } from "antd";
 import { USER_HEAD_UPLOAD_URL } from "constants/apiConstants";
 import { trans } from "i18n";
+import { messageInstance } from "lowcoder-design";
 
 const FormInputStyle = css`
   input {
@@ -246,7 +247,7 @@ export function HeadNameFiled() {
       });
     }
     if (info.file.status === "error") {
-      message.error(trans("profile.uploadError"));
+      messageInstance.error(trans("profile.uploadError"));
     }
   };
   if (!user) {

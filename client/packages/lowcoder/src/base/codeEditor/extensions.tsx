@@ -56,7 +56,6 @@ import { SQLCompletionSource } from "./completion/sqlCompletionSource";
 import { getFormatter } from "./autoFormat";
 import { CodeType } from "lowcoder-core";
 import { CompletionSource } from "./completion/completion";
-import { message } from "antd";
 import { CodeEditorTooltipContainer } from "./codeEditor";
 import { libNames } from "constants/libConstants";
 import { QueryContext } from "../../util/context/QueryContext";
@@ -65,6 +64,7 @@ import { highlightJsTheme, useHighlightJsExtension } from "./extensions/highligh
 import { trans } from "i18n";
 import log from "loglevel";
 import { highlightSyntaxExtension } from "./extensions/highlightSyntax";
+import { messageInstance } from "lowcoder-design";
 
 // reference: https://github.com/codemirror/basic-setup/blob/main/src/codemirror.ts
 const basicSetup = [
@@ -111,7 +111,7 @@ const defaultTheme = EditorView.theme({
   "&.cm-editor": {
     backgroundColor: "#ffffff",
     width: "100%",
-    height: "100%",
+    // height: "100%",
     "font-size": "13px",
     transition: "all .4s ease",
     outline: "none",
@@ -392,10 +392,10 @@ export function languageExtension(language?: Language, codeType?: CodeType): Ext
               }
             })
             .catch((e) => {
-              message.error(e instanceof Error ? e.message : e);
+              messageInstance.error(e instanceof Error ? e.message : e);
             });
         } else {
-          message.warn(trans("codeEditor.notSupportAutoFormat"));
+          messageInstance.warning(trans("codeEditor.notSupportAutoFormat"));
         }
         return true;
       },

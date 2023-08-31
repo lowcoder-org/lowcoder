@@ -1,9 +1,9 @@
 import copy from "copy-to-clipboard";
 import styled from "styled-components";
 import { ReactComponent as Dcopy } from "icons/icon-copy.svg";
-import { message } from "antd";
 import { trans } from "i18n/design";
 import { CSSProperties } from "react";
+import { messageInstance } from "./GlobalInstances";
 
 const Copy = styled(Dcopy)`
   flex-shrink: 0;
@@ -26,10 +26,10 @@ export function CopyTextButton(props: { text: string; style?: CSSProperties }) {
       onClick={(e) => {
         e.stopPropagation();
         if (props.text) {
-          message.success(trans("notification.copySuccess"));
+          messageInstance.success(trans("notification.copySuccess"));
           return copy(props.text);
         }
-        message.error(trans("notification.copyFail"));
+        messageInstance.error(trans("notification.copyFail"));
         return;
       }}
     />

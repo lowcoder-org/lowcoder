@@ -198,7 +198,7 @@ export default function ProfileDropdown(props: DropDownProps) {
             {trans("profile.joinedOrg")}
           </CommonTextLabel>
           {orgs.map((org: Org) => {
-            const MenuItem = currentOrgId === org.id ? SelectDropMenuItem : Menu.Item;
+            const MenuItem = (currentOrgId === org.id ? SelectDropMenuItem : Menu.Item) as React.ElementType;
             return (
               <MenuItem key={org.id} icon={currentOrgId === org.id && <CheckoutIcon />}>
                 {org.name}
@@ -220,7 +220,10 @@ export default function ProfileDropdown(props: DropDownProps) {
   );
   return (
     <>
-      <StyledDropdown overlay={menu} trigger={["click"]}>
+      <StyledDropdown
+        dropdownRender={() => menu}
+        trigger={["click"]}
+      >
         <div>
           <ProfileImage
             style={{ cursor: "pointer", userSelect: "none" }}

@@ -110,7 +110,7 @@ return queryByName.run().then(
   },
   error => { // after query runs in failure
     // use built-in message function to pop up an error message
-    message.error("An error occured when fetching user: " + error.message); 
+    messageInstance.error("An error occured when fetching user: " + error.message); 
   }
 );
 ```
@@ -188,9 +188,9 @@ function isMultiple(num1, num2) {
       return num1 % num2 === 0;
    }
    
-// Call the moment library to return the current date
+// Call the day.js library to return the current date
 function getCurrentDate() {
-      return moment().format("YYYY-MM-DD");
+      return dayjs().format("YYYY-MM-DD");
 }
 ```
 

@@ -23,6 +23,10 @@ export const libs = [
     extractDefault: true,
   },
   {
+    name: "dayjs",
+    extractDefault: true,
+  },
+  {
     name: "lowcoder-sdk",
     from: "./src/index.sdk.ts",
   },

@@ -1,5 +1,5 @@
 import { Tag } from "antd";
-import { PresetColorTypes } from "antd/lib/_util/colors";
+import { PresetStatusColorTypes } from "antd/lib/_util/colors";
 import { TagsContext } from "components/table/EditableCell";
 import {
   ColumnTypeCompBuilder,
@@ -16,7 +16,7 @@ import { hashToNum } from "util/stringUtils";
 import { CustomSelect, PackUpIcon } from "lowcoder-design";
 import { ScrollBar } from "lowcoder-design";
 
-const colors = PresetColorTypes;
+const colors = PresetStatusColorTypes;
 
 const isStringArray = (value: any) => {
   return (

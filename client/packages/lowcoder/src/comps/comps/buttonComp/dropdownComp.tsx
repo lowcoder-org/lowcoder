@@ -82,6 +82,7 @@ const DropdownTmpComp = (function () {
         icon: hasIcon && <span>{option.prefixIcon}</span>,
         onEvent: option.onEvent,
       }));
+
     const menu = (
       <Menu
         items={items}
@@ -93,7 +94,10 @@ const DropdownTmpComp = (function () {
       <ButtonCompWrapper disabled={props.disabled}>
         {console.log("props,", props)}
         {props.onlyMenu ? (
-          <Dropdown disabled={props.disabled} overlay={menu}>
+          <Dropdown
+            disabled={props.disabled}
+            dropdownRender={() => menu}
+          >
             <Button100 $buttonStyle={props.style} disabled={props.disabled}>
               {props.text || " " /* Avoid button disappearing */}
             </Button100>
@@ -101,7 +105,7 @@ const DropdownTmpComp = (function () {
         ) : (
           <DropdownButton
             disabled={props.disabled}
-            overlay={menu}
+            dropdownRender={() => menu}
             onClick={() => props.onEvent("click")}
             buttonsRender={([left, right]) => [
               <LeftButtonWrapper $buttonStyle={props.style}>

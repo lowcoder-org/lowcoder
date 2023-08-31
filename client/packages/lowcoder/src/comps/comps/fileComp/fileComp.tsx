@@ -1,4 +1,4 @@
-import { Button, message, Upload as AntdUpload } from "antd";
+import { Button, Upload as AntdUpload } from "antd";
 import { UploadChangeParam } from "antd/lib/upload";
 import { UploadFile, UploadProps } from "antd/lib/upload/interface";
 import { Buffer } from "buffer";
@@ -38,6 +38,7 @@ import { changeEvent, eventHandlerControl } from "../../controls/eventHandlerCon
 import { stateComp, UICompBuilder, withDefault } from "../../generators";
 import { CommonNameConfig, NameConfig, withExposingConfigs } from "../../generators/withExposing";
 import { formDataChildren, FormDataPropertyView } from "../formComp/formDataConstants";
+import { messageInstance } from "lowcoder-design";
 
 const FileSizeControl = codeControl((value) => {
   if (typeof value === "number") {
@@ -248,7 +249,7 @@ const Upload = (
       fileList={fileList}
       beforeUpload={(file) => {
         if (!file.size || file.size <= 0) {
-          message.error(`${file.name} ` + trans("file.fileEmptyErrorMsg"));
+          messageInstance.error(`${file.name} ` + trans("file.fileEmptyErrorMsg"));
           return AntdUpload.LIST_IGNORE;
         }
 
@@ -256,7 +257,7 @@ const Upload = (
           (!!props.minSize && file.size < props.minSize) ||
           (!!props.maxSize && file.size > props.maxSize)
         ) {
-          message.error(`${file.name} ` + trans("file.fileSizeExceedErrorMsg"));
+          messageInstance.error(`${file.name} ` + trans("file.fileSizeExceedErrorMsg"));
           return AntdUpload.LIST_IGNORE;
         }
         return true;

@@ -1,4 +1,4 @@
-import { Form, FormInstance, message, Select } from "antd";
+import { Form, FormInstance, Select } from "antd";
 import {
   CheckBox,
   CustomModal,
@@ -26,6 +26,7 @@ import { trans } from "i18n";
 import log from "loglevel";
 import { Datasource } from "@lowcoder-ee/constants/datasourceConstants";
 import DataSourceIcon from "components/DataSourceIcon";
+import { messageInstance } from "lowcoder-design";
 
 const OpenDialogButton = styled.span`
   :hover {
@@ -384,14 +385,14 @@ function onClick(
     .then((data: FormData) => {
       return onSubmit(data, dataSourceTypeConfig, items, onCreate, (error) => {
         if (error) {
-          message.error(error);
+          messageInstance.error(error);
         } else {
-          message.success(trans("formComp.success"));
+          messageInstance.success(trans("formComp.success"));
         }
       });
     })
     .catch((e) => {
-      message.error(JSON.stringify(e));
+      messageInstance.error(JSON.stringify(e));
     });
 }
 
@@ -661,7 +662,7 @@ export const CreateForm = (props: { onCreate: CreateHandler }) => {
         onClick={(e) => e.stopPropagation()}
       >
         <CustomModal
-          visible={visible}
+          open={visible}
           destroyOnClose={true}
           title={trans("formComp.generateForm")}
           footer={null}

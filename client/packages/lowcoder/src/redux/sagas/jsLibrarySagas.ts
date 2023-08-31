@@ -4,7 +4,8 @@ import { all, put, takeLatest } from "redux-saga/effects";
 import { AxiosResponse } from "axios";
 import { validateResponse } from "api/apiUtils";
 import log from "loglevel";
-import { message } from "antd";
+import { messageInstance } from "lowcoder-design";
+
 import { JSLibraryApi, JSLibraryMeta, RecommendedJSLibraryMeta } from "api/jsLibraryApi";
 import { FetchJSLibraryMetasPayload } from "redux/reduxActions/jsLibraryActions";
 
@@ -22,7 +23,7 @@ function* fetchMetas(action: ReduxAction<FetchJSLibraryMetasPayload>) {
     }
   } catch (error: any) {
     log.error("fetch js library metas error: ", error);
-    message.error(error.message);
+    messageInstance.error(error.message);
   }
 }
 
@@ -40,7 +41,7 @@ function* fetchRecommends() {
     }
   } catch (error: any) {
     log.error("fetch js library recommends error: ", error);
-    message.error(error.message);
+    messageInstance.error(error.message);
   }
 }
 

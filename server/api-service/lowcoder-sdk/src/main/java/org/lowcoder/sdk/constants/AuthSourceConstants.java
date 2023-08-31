@@ -10,10 +10,12 @@ public class AuthSourceConstants {
     public static final String PHONE = "PHONE";
     public static final String GOOGLE = "GOOGLE";
     public static final String GITHUB = "GITHUB";
+    public static final String ORY = "ORY";
 
     // source name
     public static final String GOOGLE_NAME = "Google";
     public static final String GITHUB_NAME = "Github";
+    public static final String ORY_NAME = "Ory";
 
     // default source and source name for common protocol
     // oauth 2.0

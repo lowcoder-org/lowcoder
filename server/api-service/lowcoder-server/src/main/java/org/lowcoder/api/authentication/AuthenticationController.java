@@ -1,7 +1,7 @@
 package org.lowcoder.api.authentication;
 
-import java.util.List;
-
+import com.fasterxml.jackson.annotation.JsonView;
+import lombok.extern.slf4j.Slf4j;
 import org.lowcoder.api.authentication.dto.AuthConfigRequest;
 import org.lowcoder.api.authentication.service.AuthenticationApiService;
 import org.lowcoder.api.framework.view.ResponseView;
@@ -17,20 +17,11 @@ import org.lowcoder.sdk.config.SerializeConfig.JsonViews;
 import org.lowcoder.sdk.constants.AuthSourceConstants;
 import org.lowcoder.sdk.util.CookieHelper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ServerWebExchange;
-
-import com.fasterxml.jackson.annotation.JsonView;
-
-import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
+
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -72,9 +63,10 @@ public class AuthenticationController {
             @RequestParam(required = false) String source,
             @RequestParam String code,
             @RequestParam(required = false) String invitationId,
-            @RequestParam(required = false) String redirectUrl,
+            @RequestParam String redirectUrl,
+            @RequestParam String orgId,
             ServerWebExchange exchange) {
-        return authenticationApiService.authenticateByOauth2(authId, source, code, redirectUrl)
+        return authenticationApiService.authenticateByOauth2(authId, source, code, redirectUrl, orgId)
                 .flatMap(authUser -> authenticationApiService.loginOrRegister(authUser, exchange, invitationId))
                 .thenReturn(ResponseView.success(true));
     }
@@ -99,10 +91,10 @@ public class AuthenticationController {
                 .thenReturn(ResponseView.success(null));
     }
 
-    @JsonView(JsonViews.Public.class)
+    @JsonView(JsonViews.Internal.class)
     @GetMapping("/configs")
     public Mono<ResponseView<List<AbstractAuthConfig>>> getAllConfigs() {
-        return authenticationService.findAllAuthConfigs(false)
+        return authenticationApiService.findAuthConfigs(false)
                 .map(FindAuthConfig::authConfig)
                 .collectList()
                 .map(ResponseView::success);

@@ -37,6 +37,9 @@ import {
   LeftVideo,
   LeftSignature,
   TimeLineIcon,
+  MentionIcon,
+  AutoCompleteCompIcon,
+  ResponsiveLayoutCompIcon,
 } from "lowcoder-design";
 
 export const CompStateIcon: {
@@ -103,4 +106,7 @@ export const CompStateIcon: {
   signature: <LeftSignature />,
   jsonLottie: <LeftJsonEditor />, //Added By Aqib Mirza
   timeline: <TimeLineIcon />,
+  mention: <MentionIcon/>,
+  autocomplete: <AutoCompleteCompIcon />,
+  responsiveLayout: <ResponsiveLayoutCompIcon />,
 };
