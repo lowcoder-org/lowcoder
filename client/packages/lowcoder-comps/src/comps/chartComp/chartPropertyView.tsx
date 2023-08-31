@@ -9,6 +9,7 @@ import {
   RedButton,
   Section,
   sectionNames,
+  controlItem,
 } from "lowcoder-sdk";
 import { trans } from "i18n/comps";
 import { examplesUrl, optionUrl } from "./chartConfigs/chartUrls";
@@ -147,6 +148,58 @@ export function chartPropertyView(
     </>
   );
 
+  const mapModePropertyView = (
+    <>
+      <Section name={'Map Configuration'}>
+        {children.mapApiKey.propertyView({
+          label: "API Key"
+        })}
+        {children.mapZoomLevel.propertyView({
+          label: "Zoom Level"
+        })}
+        {controlItem({}, (
+          <b style={{marginTop: '8px'}}>
+            {'Center Position'}
+          </b>
+        ))}
+        {children.mapCenterLng.propertyView({
+          label: "Longitude"
+        })}
+        {children.mapCenterLat.propertyView({
+          label: "Latitude"
+        })}
+      </Section>
+      <Section name={'Map Data'}>
+        {children.mapOptions.propertyView({
+          label: trans("chart.echartsOptionLabel"),
+          styleName: "higher",
+          tooltip: (
+            <div>
+              <a href={optionUrl} target="_blank" rel="noopener noreferrer">
+                {trans("chart.echartsOptionTooltip")}
+              </a>
+              <br />
+              <a href={examplesUrl} target="_blank" rel="noopener noreferrer">
+                {trans("chart.echartsOptionExamples")}
+              </a>
+            </div>
+          ),
+        })}
+      </Section>
+      <Section name={sectionNames.layout}>{hiddenPropertyView(children)}</Section>
+    </>
+  );
+  
+  const getChatConfigByMode = (mode: string) => {
+    switch(mode) {
+      case "ui":
+        return uiModePropertyView;
+      case "json":
+        return jsonModePropertyView;
+      case "map":
+        return mapModePropertyView;
+    }
+  }
   return (
     <>
       <Section name={trans("chart.mode")}>
@@ -155,7 +208,7 @@ export function chartPropertyView(
           radioButton: true,
         })}
       </Section>
-      {children.mode.getView() === "ui" ? uiModePropertyView : jsonModePropertyView}
+      {getChatConfigByMode(children.mode.getView())}
     </>
   );
 }

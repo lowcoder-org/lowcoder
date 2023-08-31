@@ -1,6 +1,26 @@
 import { I18nObjects } from "./types";
 import { chartColorPalette } from "lowcoder-sdk";
 
+
+const defaultMapData = {
+  tooltip: {
+    trigger: "item"
+  },
+  animation: true,
+  series: [
+    {
+      type: 'scatter',
+      coordinateSystem: 'gmap',
+      data: [[120, 30, 8], [120.1, 30.2, 20]],
+      encode: {
+        value: 2,
+        lng: 0,
+        lat: 1
+      }
+    }
+  ]
+}
+
 export const enObj: I18nObjects = {
   defaultDataSource: [
     {
@@ -117,4 +137,6 @@ export const enObj: I18nObjects = {
       },
     ],
   },
+
+  defaultMapJsonOption: defaultMapData,
 };
