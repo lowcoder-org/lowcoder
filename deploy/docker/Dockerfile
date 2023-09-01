@@ -132,7 +132,7 @@ RUN yarn build
 ## To create a separate image out of it, build it with:
 ##   DOCKER_BUILDKIT=1 docker build -f deploy/docker/Dockerfile -t lowcoderorg/lowcoder-ce-frontend --target lowcoder-ce-frontend .
 ##
-FROM nginx:1.25.1 as lowcoder-ce-frontend
+FROM nginx:1.25.2 as lowcoder-ce-frontend
 LABEL maintainer="lowcoder"
 
 # Change default nginx user into lowcoder user and remove default nginx config
