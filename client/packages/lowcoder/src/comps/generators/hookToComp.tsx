@@ -42,7 +42,7 @@ export function hookToStateComp(useHookFn: () => JSONObject) {
 }
 
 /**
- * Provide a comp of static data, such as exposure of lodash, moment library
+ * Provide a comp of static data, such as exposure of lodash, day.js library
  */
 export function simpleValueComp(value: any) {
   return simpleValueGetterComp(() => value);

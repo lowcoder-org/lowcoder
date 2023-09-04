@@ -35,6 +35,7 @@ public class CommonConfig {
     private String version;
     private boolean blockHoundEnable;
     private String cookieName;
+    private int maxQueryTimeout = 300;
     private String maxUploadSize = "20MB";
     private String maxQueryRequestSize = "20MB";
     private String maxQueryResponseSize = "20MB";

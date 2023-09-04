@@ -342,6 +342,7 @@ export const en = {
     containerheaderpadding: "Header Padding",
     containerfooterpadding: "Footer Padding",
     containerbodypadding: "Body Padding",
+    minWidth: "Minimum Width",
   },
   export: {
     hiddenDesc: "If true, the component is hidden",
@@ -853,6 +854,9 @@ export const en = {
     autoCompleteCompName: "autoComplete",
     autoCompleteCompDesc: "autoComplete",
     autoCompleteCompKeywords: "",
+    responsiveLayoutCompName: "Responsive Layout",
+    responsiveLayoutCompDesc: "Responsive Layout",
+    responsiveLayoutCompKeywords: "",
   },
   comp: {
     menuViewDocs: "View documentation",
@@ -1149,7 +1153,11 @@ export const en = {
     auto: "Auto",
     fixed: "Fixed",
     columnType: "Column type",
+    float: "Float",
+    prefix: "Prefix",
+    suffix: "Suffix",
     text: "Text",
+    number: "Number",
     link: "Link",
     links: "Links",
     tag: "Tag",
@@ -1692,7 +1700,7 @@ export const en = {
     preloadCSSApply: "Apply to the homepage of the workspace",
     preloadLibsTitle: "JavaScript library",
     preloadLibsHelp:
-      "Set up preloaded JavaScript libraries for all applications in the current workspace, and the system has built-in lodash, moment, uuid, numbro for direct use. JavaScript libraries are loaded before the app is initialized, so there is a certain impact on app performance.",
+      "Set up preloaded JavaScript libraries for all applications in the current workspace, and the system has built-in lodash, day.js, uuid, numbro for direct use. JavaScript libraries are loaded before the app is initialized, so there is a certain impact on app performance.",
     preloadLibsEmpty: "No JavaScript libraries were added",
     preloadLibsAddBtn: "Add a library",
     saveSuccess: "Saved successfully",
@@ -1954,7 +1962,7 @@ export const en = {
   },
   preLoad: {
     jsLibraryHelpText:
-      "Add JavaScript libraries to your current application via URL addresses. lodash, moment, uuid, numbro are built into the system for immediate use.  JavaScript libraries are loaded before the application is initialized, which can have an impact on application performance.",
+      "Add JavaScript libraries to your current application via URL addresses. lodash, day.js, uuid, numbro are built into the system for immediate use.  JavaScript libraries are loaded before the application is initialized, which can have an impact on application performance.",
     exportedAs: "Exported as",
     urlTooltip:
       "URL address of the JavaScript library, [unpkg.com](https://unpkg.com/) or [jsdelivr.net](https://www.jsdelivr.com/) is recommended",
@@ -2504,5 +2512,23 @@ export const en = {
     Introduction: "Introduction keys",
     helpLabel: "label",
     helpValue: "value",
+  },
+  responsiveLayout: {
+    column: "Columns",
+    atLeastOneColumnError: "Responsive layout keeps at least one Column",
+    columnsPerRow: "Columns per Row",
+    columnsSpacing: "Columns Spacing (px)",
+    horizontal: "Horizontal",
+    vertical: "Vertical",
+    mobile: "Mobile",
+    tablet: "Tablet",
+    desktop: "Desktop",
+    rowStyle: "Row Style",
+    columnStyle: "Column Style",
+    minWidth: "Min. Width",
+    rowBreak: "Row Break",
+    matchColumnsHeight: "Match Columns Height",
+    rowLayout: "Row Layout",
+    columnsLayout: "Columns Layout",
   },
 };

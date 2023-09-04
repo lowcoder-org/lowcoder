@@ -285,7 +285,7 @@ export default function BottomMetaDrawer(props: BottomMetaDrawerProps) {
           boxShadow: "none",
           borderRadius: "0",
         }}
-        style={{
+        rootStyle={{
           position: "absolute",
           height: "100%",
           bottom: 0,

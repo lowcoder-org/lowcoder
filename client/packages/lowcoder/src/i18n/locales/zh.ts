@@ -338,6 +338,7 @@ style: {
     containerheaderpadding: "上内边距",
     containerfooterpadding: "下内边距",
     containerbodypadding: "内边距",
+    minWidth: "最小宽度",
 },
 export: {
     hiddenDesc: "如果为true,则隐藏组件",
@@ -836,6 +837,9 @@ uiComp: {
     autoCompleteCompName: "自动完成",
     autoCompleteCompDesc: "自动完成",
     autoCompleteCompKeywords: "zdwc",
+    responsiveLayoutCompName: "响应式布局",
+    responsiveLayoutCompDesc: "响应式布局",
+    responsiveLayoutCompKeywords: "",
 },
 comp: {
     menuViewDocs: "查看文档",
@@ -1130,7 +1134,11 @@ table: {
     auto: "自动",
     fixed: "固定",
     columnType: "列类型",
+    float: "分数",
+    prefix: "字首",
+    suffix: "后缀",
     text: "文本",
+    number: "数字",
     link: "链接",
     links: "多链接",
     tag: "标签",
@@ -1669,7 +1677,7 @@ advanced: {
     preloadCSSApply: "应用到工作空间的首页",
     preloadLibsTitle: "JavaScript 库",
     preloadLibsHelp:
-    "为当前工作空间中的所有应用程序设置预加载的 JavaScript 库,系统内置了 lodash、moment、uuid、numbro 可供直接使用.JavaScript 库在应用程序初始化之前加载,因此对应用程序性能有一定影响.",
+    "为当前工作空间中的所有应用程序设置预加载的 JavaScript 库,系统内置了 lodash、day.js、uuid、numbro 可供直接使用.JavaScript 库在应用程序初始化之前加载,因此对应用程序性能有一定影响.",
     preloadLibsEmpty: "尚未添加 JavaScript 库",
     preloadLibsAddBtn: "添加库",
     saveSuccess: "保存成功",
@@ -1927,7 +1935,7 @@ userAuth: {
     copyPassword: "复制密码",
 },
 preLoad: {
-    jsLibraryHelpText: "通过URL链接向当前应用程序添加JavaScript库.lodash、moment、uuid、numbro内置于系统中,可立即使用.JavaScript库在应用程序初始化之前加载,这可能会影响应用程序的性能.",
+    jsLibraryHelpText: "通过URL链接向当前应用程序添加JavaScript库.lodash、day.js、uuid、numbro内置于系统中,可立即使用.JavaScript库在应用程序初始化之前加载,这可能会影响应用程序的性能.",
     exportedAs: "导出为",
     urlTooltip: "JavaScript库的URL链接,建议使用[unpkg.com](https://unpkg.com/)或[jsdelivr.net](https://www.jsdelivr.com/).",
     recommended: "推荐",
@@ -2495,5 +2503,23 @@ timeLine: {
         helpLabel: "标签",
         helpValue: "值",
     },
+    responsiveLayout: {
+        column: "列",
+        atLeastOneColumnError: "响应式布局至少保留一列",
+        columnsPerRow: "每行列数",
+        columnsSpacing: "列间距 (px)",
+        horizontal: "水平的",
+        vertical: "垂直的",
+        mobile: "移动的",
+        tablet: "药片",
+        desktop: "桌面",
+        rowStyle: "行式",
+        columnStyle: "栏目样式",
+        minWidth: "分钟。宽度",
+        rowBreak: "断行",
+        matchColumnsHeight: "匹配列高度",
+        rowLayout: "行布局",
+        columnsLayout: "栏目布局",
+    }
 };
 

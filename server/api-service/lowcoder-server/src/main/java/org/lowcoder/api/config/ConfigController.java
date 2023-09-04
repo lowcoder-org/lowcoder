@@ -13,12 +13,7 @@ import org.lowcoder.sdk.config.SerializeConfig.JsonViews;
 import org.lowcoder.sdk.config.dynamic.Conf;
 import org.lowcoder.sdk.config.dynamic.ConfigCenter;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ServerWebExchange;
 
 import com.fasterxml.jackson.annotation.JsonView;
@@ -70,8 +65,8 @@ public class ConfigController {
 
     @JsonView(JsonViews.Public.class)
     @GetMapping
-    public Mono<ResponseView<ConfigView>> getConfig(ServerWebExchange exchange) {
-        return orgApiService.getOrganizationConfigs()
+    public Mono<ResponseView<ConfigView>> getConfig(ServerWebExchange exchange,@RequestParam(required = false) String orgId) {
+        return orgApiService.getOrganizationConfigs(orgId)
                 .map(ResponseView::success);
     }
 

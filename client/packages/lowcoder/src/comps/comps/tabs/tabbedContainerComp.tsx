@@ -196,20 +196,6 @@ const TabbedContainer = (props: TabbedContainerProps) => {
         </BackgroundColorContext.Provider>
       )
     }
-    // return (
-    //   <TabPane tab={label} key={tab.key} forceRender>
-    //     <BackgroundColorContext.Provider value={props.style.background}>
-    //       <ContainerInTab
-    //         layout={containerProps.layout.getView()}
-    //         items={gridItemCompToGridItems(containerProps.items.getView())}
-    //         positionParams={containerProps.positionParams.getView()}
-    //         dispatch={childDispatch}
-    //         autoHeight={props.autoHeight}
-    //         containerPadding={[paddingWidth, 20]}
-    //       />
-    //     </BackgroundColorContext.Provider>
-    //   </TabPane>
-    // );
   })
 
   return (
