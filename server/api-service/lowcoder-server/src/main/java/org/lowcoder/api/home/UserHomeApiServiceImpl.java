@@ -1,26 +1,12 @@
 package org.lowcoder.api.home;
 
-import static java.util.Objects.isNull;
-import static org.lowcoder.domain.permission.model.ResourceAction.READ_APPLICATIONS;
-import static org.lowcoder.infra.util.MonoUtils.emptyIfNull;
-import static org.lowcoder.sdk.util.StreamUtils.collectList;
-
-import java.time.Instant;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
-import javax.annotation.Nullable;
-
 import org.apache.commons.lang3.StringUtils;
 import org.lowcoder.api.application.view.ApplicationInfoView;
 import org.lowcoder.api.application.view.ApplicationInfoView.ApplicationInfoViewBuilder;
 import org.lowcoder.api.usermanagement.OrgDevChecker;
 import org.lowcoder.api.usermanagement.view.OrgAndVisitorRoleView;
 import org.lowcoder.api.usermanagement.view.UserProfileView;
+import org.lowcoder.api.usermanagement.view.UserView;
 import org.lowcoder.domain.application.model.Application;
 import org.lowcoder.domain.application.model.ApplicationStatus;
 import org.lowcoder.domain.application.model.ApplicationType;
@@ -42,9 +28,22 @@ import org.lowcoder.infra.util.NetworkUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
-
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import javax.annotation.Nullable;
+import java.time.Instant;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import static java.util.Objects.isNull;
+import static org.lowcoder.domain.permission.model.ResourceAction.READ_APPLICATIONS;
+import static org.lowcoder.infra.util.MonoUtils.emptyIfNull;
+import static org.lowcoder.sdk.util.StreamUtils.collectList;
 
 
 @Component
@@ -81,62 +80,7 @@ public class UserHomeApiServiceImpl implements UserHomeApiService {
 
     @Override
     public Mono<UserProfileView> buildUserProfileView(User user, ServerWebExchange exchange) {
-
-        if (user.isAnonymous()) {
-            return Mono.just(UserProfileView.builder()
-                    .isAnonymous(true)
-                    .username(user.getName())
-                    .ip(NetworkUtils.getRemoteIp(exchange))
-                    .build()
-            );
-        }
-
-        Mono<UserStatus> userStatusMono = userStatusService.findByUserId(user.getId());
-
-        return Mono.zip(userStatusMono, orgMemberService.getUserOrgMemberInfo(user.getId()))
-                .flatMap(tuple -> {
-                    UserStatus userStatus = tuple.getT1();
-                    OrgMember currentOrgMember = tuple.getT2().currentOrgMember();
-                    List<OrgMember> orgMembers = tuple.getT2().orgMembers();
-                    List<String> orgIds = collectList(orgMembers, OrgMember::getOrgId);
-                    Mono<List<OrgAndVisitorRoleView>> orgAndRolesMono = organizationService.getByIds(orgIds)
-                            .collectMap(Organization::getId, Function.identity())
-                            .map(map -> orgMembers.stream()
-                                    .map(member -> {
-                                        String orgId = member.getOrgId();
-                                        Organization organization = map.get(orgId);
-                                        if (organization == null) {
-                                            return null;
-                                        }
-                                        return new OrgAndVisitorRoleView(organization, member.getRole().getValue());
-                                    })
-                                    .filter(Objects::nonNull)
-                                    .collect(Collectors.toList()));
-
-                    String currentOrgId = currentOrgMember.getOrgId();
-
-                    return Mono.zip(orgAndRolesMono, orgDevChecker.isCurrentOrgDev())
-                            .map(tuple2 -> {
-                                List<OrgAndVisitorRoleView> orgAndRoles = tuple2.getT1();
-                                boolean isOrgDev = tuple2.getT2();
-                                return UserProfileView.builder()
-                                        .id(user.getId())
-                                        .username(user.getName())
-                                        .isAnonymous(user.isAnonymous())
-                                        .avatarUrl(user.getAvatarUrl())
-                                        .avatar(user.getAvatar())
-                                        .connections(user.getConnections())
-                                        .currentOrgId(currentOrgId)
-                                        .orgAndRoles(orgAndRoles)
-                                        .hasPassword(StringUtils.isNotBlank(user.getPassword()))
-                                        .hasSetNickname(user.isHasSetNickname())
-                                        .userStatus(userStatus.getStatusMap())
-                                        .isOrgDev(isOrgDev)
-                                        .createdTimeMs(user.getCreatedAt().toEpochMilli())
-                                        .ip(NetworkUtils.getRemoteIp(exchange))
-                                        .build();
-                            });
-                });
+        return createUserProfile(user, exchange);
     }
 
     @Override
@@ -196,7 +140,7 @@ public class UserHomeApiServiceImpl implements UserHomeApiService {
 
     @Override
     public Flux<ApplicationInfoView> getAllAuthorisedApplications4CurrentOrgMember(@Nullable ApplicationType applicationType,
-            @Nullable ApplicationStatus applicationStatus, boolean withContainerSize) {
+                                                                                   @Nullable ApplicationStatus applicationStatus, boolean withContainerSize) {
 
         return sessionUserService.getVisitorOrgMemberCache()
                 .flatMapMany(orgMember -> {
@@ -257,7 +201,7 @@ public class UserHomeApiServiceImpl implements UserHomeApiService {
     }
 
     private ApplicationInfoView buildView(Application application, ResourceRole maxRole, Map<String, User> userMap, @Nullable Instant lastViewTime,
-            boolean withContainerSize) {
+                                          boolean withContainerSize) {
         ApplicationInfoViewBuilder applicationInfoViewBuilder = ApplicationInfoView.builder()
                 .applicationId(application.getId())
                 .orgId(application.getOrganizationId())
@@ -280,4 +224,74 @@ public class UserHomeApiServiceImpl implements UserHomeApiService {
         return applicationInfoViewBuilder.build();
     }
 
+
+    @Override
+    public Mono<UserView> getUserProfileView(User user, ServerWebExchange exchange) {
+        return createUserProfile(user, exchange)
+                .map(userProfileView -> UserView.builder()
+                        .id(userProfileView.getId())
+                        .username(userProfileView.getUsername())
+                        .isAnonymous(userProfileView.isAnonymous())
+                        .ip(userProfileView.getIp())
+                        .build());
+    }
+
+
+    private Mono<UserProfileView> createUserProfile(User user, ServerWebExchange exchange) {
+        if (user.isAnonymous()) {
+            return Mono.just(UserProfileView.builder()
+                    .isAnonymous(true)
+                    .username(user.getName())
+                    .ip(NetworkUtils.getRemoteIp(exchange))
+                    .build()
+            );
+        }
+
+        Mono<UserStatus> userStatusMono = userStatusService.findByUserId(user.getId());
+
+        return Mono.zip(userStatusMono, orgMemberService.getUserOrgMemberInfo(user.getId()))
+                .flatMap(tuple -> {
+                    UserStatus userStatus = tuple.getT1();
+                    OrgMember currentOrgMember = tuple.getT2().currentOrgMember();
+                    List<OrgMember> orgMembers = tuple.getT2().orgMembers();
+                    List<String> orgIds = collectList(orgMembers, OrgMember::getOrgId);
+                    Mono<List<OrgAndVisitorRoleView>> orgAndRolesMono = organizationService.getByIds(orgIds)
+                            .collectMap(Organization::getId, Function.identity())
+                            .map(map -> orgMembers.stream()
+                                    .map(member -> {
+                                        String orgId = member.getOrgId();
+                                        Organization organization = map.get(orgId);
+                                        if (organization == null) {
+                                            return null;
+                                        }
+                                        return new OrgAndVisitorRoleView(organization, member.getRole().getValue());
+                                    })
+                                    .filter(Objects::nonNull)
+                                    .collect(Collectors.toList()));
+
+                    String currentOrgId = currentOrgMember.getOrgId();
+
+                    return Mono.zip(orgAndRolesMono, orgDevChecker.isCurrentOrgDev())
+                            .map(tuple2 -> {
+                                List<OrgAndVisitorRoleView> orgAndRoles = tuple2.getT1();
+                                boolean isOrgDev = tuple2.getT2();
+                                return UserProfileView.builder()
+                                        .id(user.getId())
+                                        .username(user.getName())
+                                        .isAnonymous(user.isAnonymous())
+                                        .avatarUrl(user.getAvatarUrl())
+                                        .avatar(user.getAvatar())
+                                        .connections(user.getConnections())
+                                        .currentOrgId(currentOrgId)
+                                        .orgAndRoles(orgAndRoles)
+                                        .hasPassword(StringUtils.isNotBlank(user.getPassword()))
+                                        .hasSetNickname(user.isHasSetNickname())
+                                        .userStatus(userStatus.getStatusMap())
+                                        .isOrgDev(isOrgDev)
+                                        .createdTimeMs(user.getCreatedAt().toEpochMilli())
+                                        .ip(NetworkUtils.getRemoteIp(exchange))
+                                        .build();
+                            });
+                });
+    }
 }
