@@ -143,7 +143,7 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
                 // after register
                 .delayUntil(user -> {
                     if (user.getIsNewUser()) {
-                        return onUserRegister(user);
+                        return onUserRegister(user, false);
                     }
                     return Mono.empty();
                 })
@@ -160,7 +160,7 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
                 .then(businessEventPublisher.publishUserLoginEvent(authUser.getSource()));
     }
 
-    private Mono<User> updateOrCreateUser(AuthUser authUser) {
+    public Mono<User> updateOrCreateUser(AuthUser authUser) {
         return findByAuthUser(authUser)
                 .flatMap(findByAuthUser -> {
                     if (findByAuthUser.userExist()) {
@@ -224,8 +224,8 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
                 .get();
     }
 
-    protected Mono<Void> onUserRegister(User user) {
-        return organizationService.createDefault(user).then();
+    public Mono<Void> onUserRegister(User user, boolean isSuperAdmin) {
+        return organizationService.createDefault(user, isSuperAdmin).then();
     }
 
     protected Mono<Void> onUserLogin(String orgId, User user, String source) {
@@ -330,7 +330,7 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
     private Mono<Void> checkIfAdmin() {
         return sessionUserService.getVisitorOrgMemberCache()
                 .flatMap(orgMember -> {
-                    if (orgMember.isAdmin()) {
+                    if (orgMember.isAdmin() || orgMember.isSuperAdmin()) {
                         return Mono.empty();
                     }
                     return deferredError(BizError.NOT_AUTHORIZED, "NOT_AUTHORIZED");

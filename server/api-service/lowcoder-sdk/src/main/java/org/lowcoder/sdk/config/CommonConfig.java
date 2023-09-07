@@ -45,6 +45,7 @@ public class CommonConfig {
     private JsExecutor jsExecutor = new JsExecutor();
     private Set<String> disallowedHosts = new HashSet<>();
     private List<String> pluginDirs = new ArrayList<>();
+    private SuperAdmin superAdmin = new SuperAdmin();
 
     public boolean isSelfHost() {
         return !isCloud();
@@ -151,5 +152,11 @@ public class CommonConfig {
     @Setter
     public static class Query {
         private long readStructureTimeout = 15000;
+    }
+
+    @Data
+    public static class SuperAdmin {
+        private String userName;
+        private String password;
     }
 }

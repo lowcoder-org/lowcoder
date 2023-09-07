@@ -53,6 +53,9 @@ common:
     host: http://127.0.0.1:6060
   plugin-dirs:
     - /tmp/plugins
+  super-admin:
+    username: test@lowcoder.pro
+    password: Password@123
 
 material:
   mongodb-grid-fs:
