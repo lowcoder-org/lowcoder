@@ -67,7 +67,7 @@ public class UserController {
     @GetMapping("/me")
     public Mono<ResponseView<?>> getUserProfile(ServerWebExchange exchange) {
         return sessionUserService.getVisitor()
-                .flatMap(user -> userHomeApiService.buildUserProfileView(user, exchange))
+                .flatMap(user -> userHomeApiService.getUserProfileView(user, exchange))
                 .flatMap(view -> orgApiService.checkOrganizationDomain()
                         .flatMap(OrganizationDomainCheckResult::buildOrganizationDomainCheckView)
                         .switchIfEmpty(Mono.just(ResponseView.success(view))));

@@ -21,6 +21,7 @@ import org.lowcoder.api.application.view.ApplicationInfoView.ApplicationInfoView
 import org.lowcoder.api.usermanagement.OrgDevChecker;
 import org.lowcoder.api.usermanagement.view.OrgAndVisitorRoleView;
 import org.lowcoder.api.usermanagement.view.UserProfileView;
+import org.lowcoder.api.usermanagement.view.UserView;
 import org.lowcoder.domain.application.model.Application;
 import org.lowcoder.domain.application.model.ApplicationStatus;
 import org.lowcoder.domain.application.model.ApplicationType;
@@ -81,64 +82,8 @@ public class UserHomeApiServiceImpl implements UserHomeApiService {
 
     @Override
     public Mono<UserProfileView> buildUserProfileView(User user, ServerWebExchange exchange) {
-
-        if (user.isAnonymous()) {
-            return Mono.just(UserProfileView.builder()
-                    .isAnonymous(true)
-                    .username(user.getName())
-                    .ip(NetworkUtils.getRemoteIp(exchange))
-                    .build()
-            );
-        }
-
-        Mono<UserStatus> userStatusMono = userStatusService.findByUserId(user.getId());
-
-        return Mono.zip(userStatusMono, orgMemberService.getUserOrgMemberInfo(user.getId()))
-                .flatMap(tuple -> {
-                    UserStatus userStatus = tuple.getT1();
-                    OrgMember currentOrgMember = tuple.getT2().currentOrgMember();
-                    List<OrgMember> orgMembers = tuple.getT2().orgMembers();
-                    List<String> orgIds = collectList(orgMembers, OrgMember::getOrgId);
-                    Mono<List<OrgAndVisitorRoleView>> orgAndRolesMono = organizationService.getByIds(orgIds)
-                            .collectMap(Organization::getId, Function.identity())
-                            .map(map -> orgMembers.stream()
-                                    .map(member -> {
-                                        String orgId = member.getOrgId();
-                                        Organization organization = map.get(orgId);
-                                        if (organization == null) {
-                                            return null;
-                                        }
-                                        return new OrgAndVisitorRoleView(organization, member.getRole().getValue());
-                                    })
-                                    .filter(Objects::nonNull)
-                                    .collect(Collectors.toList()));
-
-                    String currentOrgId = currentOrgMember.getOrgId();
-
-                    return Mono.zip(orgAndRolesMono, orgDevChecker.isCurrentOrgDev())
-                            .map(tuple2 -> {
-                                List<OrgAndVisitorRoleView> orgAndRoles = tuple2.getT1();
-                                boolean isOrgDev = tuple2.getT2();
-                                return UserProfileView.builder()
-                                        .id(user.getId())
-                                        .username(user.getName())
-                                        .isAnonymous(user.isAnonymous())
-                                        .avatarUrl(user.getAvatarUrl())
-                                        .avatar(user.getAvatar())
-                                        .connections(user.getConnections())
-                                        .currentOrgId(currentOrgId)
-                                        .orgAndRoles(orgAndRoles)
-                                        .hasPassword(StringUtils.isNotBlank(user.getPassword()))
-                                        .hasSetNickname(user.isHasSetNickname())
-                                        .userStatus(userStatus.getStatusMap())
-                                        .isOrgDev(isOrgDev)
-                                        .createdTimeMs(user.getCreatedAt().toEpochMilli())
-                                        .ip(NetworkUtils.getRemoteIp(exchange))
-                                        .build();
-                            });
-                });
+        return createUserProfile(user, exchange);
     }
-
     @Override
     public Mono<Boolean> markNewUserGuidanceShown(String userId) {
         return userStatusService.markNewUserGuidanceShown(userId);
@@ -278,6 +223,76 @@ public class UserHomeApiServiceImpl implements UserHomeApiService {
                     .build();
         }
         return applicationInfoViewBuilder.build();
+    }
+
+    @Override
+    public Mono<UserView> getUserProfileView(User user, ServerWebExchange exchange) {
+        return createUserProfile(user, exchange)
+                .map(userProfileView -> UserView.builder()
+                        .id(userProfileView.getId())
+                        .username(userProfileView.getUsername())
+                        .isAnonymous(userProfileView.isAnonymous())
+                        .ip(userProfileView.getIp())
+                        .build());
+    }
+
+
+    private Mono<UserProfileView> createUserProfile(User user, ServerWebExchange exchange) {
+        if (user.isAnonymous()) {
+            return Mono.just(UserProfileView.builder()
+                    .isAnonymous(true)
+                    .username(user.getName())
+                    .ip(NetworkUtils.getRemoteIp(exchange))
+                    .build()
+            );
+        }
+
+        Mono<UserStatus> userStatusMono = userStatusService.findByUserId(user.getId());
+
+        return Mono.zip(userStatusMono, orgMemberService.getUserOrgMemberInfo(user.getId()))
+                .flatMap(tuple -> {
+                    UserStatus userStatus = tuple.getT1();
+                    OrgMember currentOrgMember = tuple.getT2().currentOrgMember();
+                    List<OrgMember> orgMembers = tuple.getT2().orgMembers();
+                    List<String> orgIds = collectList(orgMembers, OrgMember::getOrgId);
+                    Mono<List<OrgAndVisitorRoleView>> orgAndRolesMono = organizationService.getByIds(orgIds)
+                            .collectMap(Organization::getId, Function.identity())
+                            .map(map -> orgMembers.stream()
+                                    .map(member -> {
+                                        String orgId = member.getOrgId();
+                                        Organization organization = map.get(orgId);
+                                        if (organization == null) {
+                                            return null;
+                                        }
+                                        return new OrgAndVisitorRoleView(organization, member.getRole().getValue());
+                                    })
+                                    .filter(Objects::nonNull)
+                                    .collect(Collectors.toList()));
+
+                    String currentOrgId = currentOrgMember.getOrgId();
+
+                    return Mono.zip(orgAndRolesMono, orgDevChecker.isCurrentOrgDev())
+                            .map(tuple2 -> {
+                                List<OrgAndVisitorRoleView> orgAndRoles = tuple2.getT1();
+                                boolean isOrgDev = tuple2.getT2();
+                                return UserProfileView.builder()
+                                        .id(user.getId())
+                                        .username(user.getName())
+                                        .isAnonymous(user.isAnonymous())
+                                        .avatarUrl(user.getAvatarUrl())
+                                        .avatar(user.getAvatar())
+                                        .connections(user.getConnections())
+                                        .currentOrgId(currentOrgId)
+                                        .orgAndRoles(orgAndRoles)
+                                        .hasPassword(StringUtils.isNotBlank(user.getPassword()))
+                                        .hasSetNickname(user.isHasSetNickname())
+                                        .userStatus(userStatus.getStatusMap())
+                                        .isOrgDev(isOrgDev)
+                                        .createdTimeMs(user.getCreatedAt().toEpochMilli())
+                                        .ip(NetworkUtils.getRemoteIp(exchange))
+                                        .build();
+                            });
+                });
     }
 
 }

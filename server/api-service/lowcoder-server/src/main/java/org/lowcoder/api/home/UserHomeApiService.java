@@ -2,6 +2,7 @@ package org.lowcoder.api.home;
 
 import javax.annotation.Nullable;
 
+import org.lowcoder.api.usermanagement.view.UserView;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -22,4 +23,6 @@ public interface UserHomeApiService {
 
     Flux<ApplicationInfoView> getAllAuthorisedApplications4CurrentOrgMember(@Nullable ApplicationType applicationType,
             @Nullable ApplicationStatus applicationStatus, boolean withContainerSize);
+
+    Mono<UserView> getUserProfileView(User user, ServerWebExchange exchange);
 }
