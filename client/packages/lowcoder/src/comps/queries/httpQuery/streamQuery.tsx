@@ -1,25 +1,14 @@
-import { ControlPropertyViewWrapper } from "components/control";
-import { Input } from "components/Input";
-import { KeyValueList } from "components/keyValueList";
-import { QueryConfigItemWrapper, QueryConfigLabel, QueryConfigWrapper } from "components/query";
 import { simpleMultiComp } from "comps/generators/multi";
-import { ReactNode } from "react";
-import { JSONValue } from "../../../util/jsonTypes";
-import { keyValueListControl } from "../../controls/keyValueControl";
-import { ParamsJsonControl, ParamsStringControl } from "../../controls/paramsControl";
-import { list } from "../../generators/list";
-import { valueComp, withDefault } from "../../generators/simpleGenerators";
-import { FunctionProperty, toQueryView } from "../queryCompUtils";
+import {  ParamsStringControl } from "../../controls/paramsControl";
 import {
-  HttpHeaderPropertyView,
-  HttpParametersPropertyView,
   HttpPathPropertyView,
 } from "./httpQueryConstants";
 import { QueryResult } from "../queryComp";
 import { QUERY_EXECUTION_ERROR, QUERY_EXECUTION_OK } from "constants/queryConstants";
 import { FunctionControl } from "comps/controls/codeControl";
+import { JSONValue } from "util/jsonTypes";
 
-const connect = async (socket: WebSocket, timeout = 10000) => {
+const socketConnection = async (socket: WebSocket, timeout = 10000) => {
   const isOpened = () => (socket.readyState === WebSocket.OPEN)
 
   if (socket.readyState !== WebSocket.CONNECTING) {
@@ -34,6 +23,29 @@ const connect = async (socket: WebSocket, timeout = 10000) => {
       loop++
     }
     return isOpened()
+  }
+}
+
+const createSuccessResponse = (
+  data: JSONValue,
+  runTime?: number,
+): QueryResult => {
+  return {
+    data,
+    runTime,
+    success: true,
+    code: QUERY_EXECUTION_OK,
+  }
+}
+
+const createErrorResponse = (
+  message: string,
+): QueryResult => {
+  return {
+    message,
+    data: "",
+    success: false,
+    code: QUERY_EXECUTION_ERROR,
   }
 }
 
@@ -58,60 +70,37 @@ export class StreamQuery extends StreamTmpQuery {
 
       try {
         const timer = performance.now();
-        this.socket = new WebSocket(children.path.children.text.getView());
+        const socketUrl = children.path.children.text.getView();
+        
+        this.socket = new WebSocket(socketUrl);
+        this.socket.onopen = () => {
+          console.log("[WebSocket] Connection established");
+        }
 
-        this.socket.onopen = function(e) {
-          console.log("[open] Connection established");
-        };
-
-        this.socket.onmessage = function(event) {
-          console.log(`[message] Data received from server: ${event.data}`);
+        this.socket.onmessage = (event) => {
+          console.log(`[WebSocket] Data received from server`);
           if(typeof JSON.parse(event.data) === 'object') {
-            const result = {
-              data: JSON.parse(event.data),
-              code: QUERY_EXECUTION_OK,
-              success: true,
-              runTime: Number((performance.now() - timer).toFixed()),
-            }
+            const result = createSuccessResponse(JSON.parse(event.data))
             p?.callback?.(result);
           }
-        };
+        }
 
-        this.socket.onclose = function(event) {
-          if (event.wasClean) {
-            console.log(`[close] Connection closed cleanly, code=${event.code} reason=${event.reason}`);
-          } else {
-            console.log('[close] Connection died');
-          }
-        };
+        this.socket.onclose = () => {
+          console.log(`[WebSocket] Connection closed`);
+        }
 
         this.socket.onerror = function(error) {
           throw new Error(error as any)
-        };
-
-        const isConnectionOpen = await connect(this.socket);
-        if(!isConnectionOpen) {
-          return {
-            success: false,
-            data: "",
-            code: QUERY_EXECUTION_ERROR,
-            message: "Socket connection failed",
-          };
         }
 
-        return {
-          data: "",
-          code: QUERY_EXECUTION_OK,
-          success: true,
-          runTime: Number((performance.now() - timer).toFixed()),
-        };
+        const isConnectionOpen = await socketConnection(this.socket);
+        if(!isConnectionOpen) {
+          return createErrorResponse("Socket connection failed")
+        }
+
+        return createSuccessResponse("", Number((performance.now() - timer).toFixed()))
       } catch (e) {
-        return {
-          success: false,
-          data: "",
-          code: QUERY_EXECUTION_ERROR,
-          message: (e as any).message || "",
-        };
+        return createErrorResponse((e as any).message || "")
       }
     };
   }
@@ -138,139 +127,3 @@ const PropertyView = (props: { comp: InstanceType<typeof StreamQuery>; datasourc
     </>
   );
 };
-
-
-
-// import { ParamsStringControl } from "comps/controls/paramsControl";
-// import { FunctionControl, StringControl, codeControl } from "comps/controls/codeControl";
-// import { MultiCompBuilder } from "comps/generators";
-// import { QueryResult } from "../queryComp";
-// import { QueryTutorials } from "util/tutorialUtils";
-// import { DocLink } from "lowcoder-design";
-// import { getGlobalSettings } from "comps/utils/globalSettings";
-// import { trans } from "i18n";
-// import { QUERY_EXECUTION_ERROR, QUERY_EXECUTION_OK } from "constants/queryConstants";
-
-// const connect = async (socket: WebSocket, timeout = 10000) => {
-//   const isOpened = () => (socket.readyState === WebSocket.OPEN)
-
-//   if (socket.readyState !== WebSocket.CONNECTING) {
-//     return isOpened()
-//   }
-//   else {
-//     const intrasleep = 100
-//     const ttl = timeout / intrasleep // time to loop
-//     let loop = 0
-//     while (socket.readyState === WebSocket.CONNECTING && loop < ttl) {
-//       await new Promise(resolve => setTimeout(resolve, intrasleep))
-//       loop++
-//     }
-//     return isOpened()
-//   }
-// }
-
-// export const StreamQuery = (function () {
-//   const childrenMap = {
-//     path: StringControl,
-//     destroySocketConnection: FunctionControl,
-//   };
-//   return new MultiCompBuilder(childrenMap, (props) => {
-//     const { orgCommonSettings } = getGlobalSettings();
-//     const runInHost = !!orgCommonSettings?.runJavaScriptInHost;
-
-//     console.log(props.path);
-//     return async (
-//       p: {
-//         args?: Record<string, unknown>,
-//         callback?: (result: QueryResult) => void
-//       }
-//     ): Promise<QueryResult> => {
-//       console.log('Stream Query', props)
-
-//       try {
-//         const timer = performance.now();
-//         // const url = 'wss://free.blr2.piesocket.com/v3/1?api_key=yWUvGQggacrrTdXYjvTpRD5qhm4RIsglS7YJlKzp&notify_self=1'
-//         const socket = new WebSocket(props.path);
-
-//         props.destroySocketConnection = () => {
-//           socket.close();
-//         };
-
-//         socket.onopen = function(e) {
-//           console.log("[open] Connection established");
-//         };
-
-//         socket.onmessage = function(event) {
-//           console.log(`[message] Data received from server: ${event.data}`);
-//           console.log(JSON.parse(event.data))
-//           if(typeof JSON.parse(event.data) === 'object') {
-//             const result = {
-//               data: JSON.parse(event.data),
-//               code: QUERY_EXECUTION_OK,
-//               success: true,
-//               runTime: Number((performance.now() - timer).toFixed()),
-//             }
-//             p?.callback?.(result);
-//           }
-//         };
-
-//         socket.onclose = function(event) {
-//           if (event.wasClean) {
-//             console.log(`[close] Connection closed cleanly, code=${event.code} reason=${event.reason}`);
-//           } else {
-//             // e.g. server process killed or network down
-//             // event.code is usually 1006 in this case
-//             console.log('[close] Connection died');
-//           }
-//         };
-
-//         socket.onerror = function(error) {
-//           throw new Error(error as any)
-//         };
-//         const isConnectionOpen = await connect(socket);
-//         if(!isConnectionOpen) {
-//           return {
-//             success: false,
-//             data: "",
-//             code: QUERY_EXECUTION_ERROR,
-//             message: "Socket connection failed",
-//           };
-//         }
-
-//         // const data = await props.script(p.args, runInHost);
-//         return {
-//           data: "",
-//           code: QUERY_EXECUTION_OK,
-//           success: true,
-//           runTime: Number((performance.now() - timer).toFixed()),
-//         };
-//       } catch (e) {
-//         return {
-//           success: false,
-//           data: "",
-//           code: QUERY_EXECUTION_ERROR,
-//           message: (e as any).message || "",
-//         };
-//       }
-//     };
-//   })
-//     .setPropertyViewFn((children) => {
-//       return (
-//         <>
-//           {
-//             children.path.propertyView({
-//               label: "URL",
-//               placement: "bottom",
-//               placeholder:"wss://www.example.com/socketserver",
-//             })
-//           }
-
-//           {/* TODO: Add docs for Stream Query
-//           {QueryTutorials.js && (
-//             <DocLink href={QueryTutorials.js}>{trans("query.jsQueryDocLink")}</DocLink>
-//           )} */}
-//         </>
-//       );
-//     })
-//     .build();
-// })();
