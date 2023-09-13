@@ -12,7 +12,7 @@ import {
   controlItem,
 } from "lowcoder-sdk";
 import { trans } from "i18n/comps";
-import { examplesUrl, optionUrl } from "./chartConfigs/chartUrls";
+import { examplesUrl, mapExamplesUrl, mapOptionUrl, optionUrl } from "./chartConfigs/chartUrls";
 
 export function chartPropertyView(
   children: ChartCompChildrenType,
@@ -175,12 +175,12 @@ export function chartPropertyView(
           styleName: "higher",
           tooltip: (
             <div>
-              <a href={optionUrl} target="_blank" rel="noopener noreferrer">
-                {trans("chart.echartsOptionTooltip")}
+              <a href={mapOptionUrl} target="_blank" rel="noopener noreferrer">
+                {trans("chart.echartsMapOptionTooltip")}
               </a>
               <br />
-              <a href={examplesUrl} target="_blank" rel="noopener noreferrer">
-                {trans("chart.echartsOptionExamples")}
+              <a href={mapExamplesUrl} target="_blank" rel="noopener noreferrer">
+                {trans("chart.echartsMapOptionExamples")}
               </a>
             </div>
           ),
