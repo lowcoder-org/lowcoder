@@ -226,9 +226,9 @@ export const chartUiModeChildren = {
 
 const chartMapModeChildren = {
   mapApiKey: withDefault(StringControl, ''),
-  mapZoomLevel: withDefault(NumberControl, 4),
-  mapCenterLng: withDefault(NumberControl, 120),
-  mapCenterLat: withDefault(NumberControl, 30),
+  mapZoomLevel: withDefault(NumberControl, 3),
+  mapCenterLng: withDefault(NumberControl, 15.932644),
+  mapCenterLat: withDefault(NumberControl, 50.942063),
   mapOptions: jsonControl(toObject, i18nObjs.defaultMapJsonOption),
 }
 
