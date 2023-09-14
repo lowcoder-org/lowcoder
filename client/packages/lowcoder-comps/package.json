@@ -1,6 +1,6 @@
 {
   "name": "lowcoder-comps",
-  "version": "0.0.12",
+  "version": "0.0.13",
   "type": "module",
   "license": "MIT",
   "dependencies": {
@@ -14,6 +14,7 @@
     "@types/react": "17",
     "@types/react-dom": "17",
     "big.js": "^6.2.1",
+    "echarts-extension-gmap": "^1.6.0",
     "lowcoder-cli": "workspace:^",
     "lowcoder-sdk": "workspace:^",
     "mermaid": "^10.2.4",

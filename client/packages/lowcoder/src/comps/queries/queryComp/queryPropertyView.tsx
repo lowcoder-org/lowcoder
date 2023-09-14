@@ -307,7 +307,7 @@ export const QueryGeneralPropertyView = (props: {
                 [
                   {
                     label:
-                      children.compType.getView() === "js"
+                      (children.compType.getView() === "js" || children.compType.getView() === "streamApi")
                         ? trans("query.triggerTypePageLoad")
                         : trans("query.triggerTypeAuto"),
                     value: "automatic",
@@ -363,6 +363,7 @@ function useDatasourceStatus(datasourceId: string, datasourceType: ResourceType)
   return useMemo(() => {
     if (
       datasourceType === "js" ||
+      datasourceType === "streamApi" ||
       datasourceType === "libraryQuery" ||
       datasourceId === QUICK_REST_API_ID ||
       datasourceId === QUICK_GRAPHQL_ID ||
