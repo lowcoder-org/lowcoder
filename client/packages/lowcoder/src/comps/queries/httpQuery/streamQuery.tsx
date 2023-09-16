@@ -1,5 +1,5 @@
 import { simpleMultiComp } from "comps/generators/multi";
-import {  ParamsStringControl } from "../../controls/paramsControl";
+import {  ParamsStringControl } from "comps/controls/paramsControl";
 import {
   HttpPathPropertyView,
 } from "./httpQueryConstants";
@@ -7,6 +7,9 @@ import { QueryResult } from "../queryComp";
 import { QUERY_EXECUTION_ERROR, QUERY_EXECUTION_OK } from "constants/queryConstants";
 import { FunctionControl } from "comps/controls/codeControl";
 import { JSONValue } from "util/jsonTypes";
+import { withMethodExposing } from "comps/generators/withMethodExposing";
+import { stateComp } from "comps/generators";
+import { multiChangeAction } from "lowcoder-core";
 
 const socketConnection = async (socket: WebSocket, timeout = 10000) => {
   const isOpened = () => (socket.readyState === WebSocket.OPEN)
@@ -52,9 +55,29 @@ const createErrorResponse = (
 const childrenMap = {
   path: ParamsStringControl,
   destroySocketConnection: FunctionControl,
+  isSocketConnected: stateComp<boolean>(false),
 };
 
-const StreamTmpQuery = simpleMultiComp(childrenMap);
+let StreamTmpQuery = simpleMultiComp(childrenMap);
+
+StreamTmpQuery = withMethodExposing(StreamTmpQuery, [
+  {
+    method: {
+      name: "broadcast",
+      params: [{ name: "args", type: "JSON" }],
+    },
+    execute: (comp, params) => {
+      return new Promise((resolve, reject) => {
+        const tmpComp = (comp as StreamQuery);
+        if(!tmpComp.getSocket()) {
+          return reject('Socket message send failed')
+        }
+        tmpComp.broadcast(params);
+        resolve({});
+      })
+    },
+  },
+])
 
 export class StreamQuery extends StreamTmpQuery {
   private socket: WebSocket | undefined;
@@ -89,17 +112,29 @@ export class StreamQuery extends StreamTmpQuery {
           console.log(`[WebSocket] Connection closed`);
         }
 
-        this.socket.onerror = function(error) {
+        this.socket.onerror = (error) => {
+          this.destroy()
           throw new Error(error as any)
         }
 
         const isConnectionOpen = await socketConnection(this.socket);
+        
         if(!isConnectionOpen) {
+          this.destroy();
           return createErrorResponse("Socket connection failed")
         }
 
-        return createSuccessResponse("", Number((performance.now() - timer).toFixed()))
+        this.dispatch(
+          multiChangeAction({
+            isSocketConnected: this.children.isSocketConnected.changeValueAction(true),
+          })
+        );
+        return createSuccessResponse(
+          "Socket connection successfull",
+          Number((performance.now() - timer).toFixed())
+        )
       } catch (e) {
+        this.destroy();
         return createErrorResponse((e as any).message || "")
       }
     };
@@ -111,6 +146,19 @@ export class StreamQuery extends StreamTmpQuery {
 
   destroy() {
     this.socket?.close();
+    this.dispatch(
+      multiChangeAction({
+        isSocketConnected: this.children.isSocketConnected.changeValueAction(false),
+      })
+    );
+  }
+
+  broadcast(data: any) {
+    this.socket?.send(JSON.stringify(data));
+  }
+
+  getSocket() {
+    return this.socket;
   }
 }
 
