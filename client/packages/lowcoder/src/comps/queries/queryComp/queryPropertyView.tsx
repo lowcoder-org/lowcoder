@@ -30,6 +30,7 @@ import { EditorContext } from "../../editorState";
 import { QueryComp } from "../queryComp";
 import { ResourceDropdown } from "../resourceDropdown";
 import { NOT_SUPPORT_GUI_SQL_QUERY, SQLQuery } from "../sqlQuery/SQLQuery";
+import { StreamQuery } from "../httpQuery/streamQuery";
 
 export function QueryPropertyView(props: { comp: InstanceType<typeof QueryComp> }) {
   const { comp } = props;
@@ -45,6 +46,7 @@ export function QueryPropertyView(props: { comp: InstanceType<typeof QueryComp> 
     .datasourceConfig;
 
   const datasourceStatus = useDatasourceStatus(datasourceId, datasourceType);
+  const isStreamQuery  = children.compType.getView() === 'streamApi';
 
   return (
     <BottomTabs
@@ -142,6 +144,16 @@ export function QueryPropertyView(props: { comp: InstanceType<typeof QueryComp> 
       btnLoading={children.isFetching.getView()}
       status={datasourceStatus}
       message={datasourceStatus === "error" ? trans("query.dataSourceStatusError") : undefined}
+      isStreamQuery={isStreamQuery}
+      isSocketConnected={
+        isStreamQuery
+          ? (children.comp as StreamQuery).children.isSocketConnected.getView()
+          : false
+      }
+      disconnectSocket={() => {
+        const streamQueryComp = comp.children.comp as StreamQuery;
+        streamQueryComp?.destroy();
+      }}
     />
   );
 }
