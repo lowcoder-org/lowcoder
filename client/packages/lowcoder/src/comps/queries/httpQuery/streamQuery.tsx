@@ -64,7 +64,7 @@ StreamTmpQuery = withMethodExposing(StreamTmpQuery, [
   {
     method: {
       name: "broadcast",
-      params: [{ name: "args", type: "JSON" }],
+      params: [{ name: "data", type: "JSON" }],
     },
     execute: (comp, params) => {
       return new Promise((resolve, reject) => {
@@ -72,7 +72,7 @@ StreamTmpQuery = withMethodExposing(StreamTmpQuery, [
         if(!tmpComp.getSocket()) {
           return reject('Socket message send failed')
         }
-        tmpComp.broadcast(params);
+        tmpComp.broadcast(params[0]);
         resolve({});
       })
     },
