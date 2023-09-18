@@ -1,5 +1,5 @@
 import * as echarts from "echarts";
-import { EChartsReactProps, EChartsOption, EChartsInstance } from "./types";
+import { EChartsReactProps, EChartsInstance, EChartsOptionWithMap } from "./types";
 import EChartsReactCore from "./core";
 
 /**
@@ -7,7 +7,7 @@ import EChartsReactCore from "./core";
  * add exception-catch for setOption
  * if query isn't successfully loaded, chart will fail to load and can't reload
  */
-export type { EChartsReactProps, EChartsOption, EChartsInstance };
+export type { EChartsReactProps, EChartsOptionWithMap, EChartsInstance };
 
 // export the Component the echarts Object.
 export default class EChartsReact extends EChartsReactCore {

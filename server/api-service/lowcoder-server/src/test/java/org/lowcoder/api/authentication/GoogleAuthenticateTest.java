@@ -3,6 +3,8 @@ package org.lowcoder.api.authentication;
 import com.google.common.collect.Iterables;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.runner.RunWith;
 import org.lowcoder.api.authentication.AuthenticationController.FormLoginRequest;
 import org.lowcoder.domain.authentication.AuthenticationService;
@@ -21,6 +23,8 @@ import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.mock.web.server.MockServerWebExchange;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.MultiValueMap;
+import org.testcontainers.containers.MongoDBContainer;
+import org.testcontainers.junit.jupiter.Container;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -32,6 +36,22 @@ import static org.junit.Assert.*;
 @SpringBootTest
 @RunWith(SpringRunner.class)
 public class GoogleAuthenticateTest {
+
+    @Container
+    private static final MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:4.4.6")
+            .withExposedPorts(27017);
+
+    @BeforeAll
+    static void beforeAll() {
+        mongoDBContainer.start();
+        System.setProperty("MONGODB_PROPERTIES", "classpath:mongodb.properties");
+    }
+
+    @AfterAll
+    static void afterAll() {
+        mongoDBContainer.stop();
+    }
+
 
     @Autowired
     private AuthenticationController authenticationController;

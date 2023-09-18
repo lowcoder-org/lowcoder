@@ -1,32 +1,52 @@
 package org.lowcoder.domain.organization.service;
 
+import org.apache.commons.lang3.RandomUtils;
+import org.junit.Assert;
+import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.runner.RunWith;
+import org.lowcoder.domain.organization.model.MemberRole;
+import org.lowcoder.domain.organization.model.OrgMember;
+import org.lowcoder.sdk.util.IDUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.junit4.SpringRunner;
+import org.testcontainers.containers.MongoDBContainer;
+import org.testcontainers.junit.jupiter.Container;
+import reactor.core.publisher.Mono;
+import reactor.test.StepVerifier;
+
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import org.apache.commons.lang3.RandomUtils;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.lowcoder.domain.organization.model.MemberRole;
-import org.lowcoder.domain.organization.model.OrgMember;
-import org.lowcoder.domain.organization.service.OrgMemberService;
-import org.lowcoder.sdk.util.IDUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
-
-import reactor.core.publisher.Mono;
-import reactor.test.StepVerifier;
-
 @SpringBootTest
 @RunWith(SpringRunner.class)
 public class OrgMemberServiceTest {
 
+    @Container
+    private static final MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:4.4.6")
+            .withExposedPorts(27017);
     @Autowired
     private OrgMemberService orgMemberService;
+
+    @BeforeAll
+    static void beforeAll() {
+        mongoDBContainer.start();
+        System.setProperty("MONGODB_PROPERTIES", "classpath:mongodb.properties");
+    }
+
+    @AfterAll
+    static void afterAll() {
+        mongoDBContainer.stop();
+    }
+
+    private static String getMongoUri() {
+        return "mongodb://" + mongoDBContainer.getContainerIpAddress() + ":" + mongoDBContainer.getMappedPort(27017);
+    }
 
     @Test
     public void testGetAllOrganizationMembers() {

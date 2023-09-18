@@ -1,44 +1,39 @@
 package org.lowcoder.plugin.restapi;
 
-import static java.util.Collections.emptyList;
-import static java.util.Collections.emptyMap;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.lowcoder.sdk.plugin.restapi.auth.RestApiAuthType.BASIC_AUTH;
-import static org.lowcoder.sdk.plugin.restapi.auth.RestApiAuthType.DIGEST_AUTH;
-
-import java.net.URI;
-import java.util.List;
-import java.util.Map;
-
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.TextNode;
+import com.google.common.collect.ImmutableMap;
 import org.junit.Assert;
 import org.junit.Test;
-import org.lowcoder.plugin.restapi.RestApiConnector;
-import org.lowcoder.plugin.restapi.RestApiExecutor;
 import org.lowcoder.plugin.restapi.model.RestApiQueryExecutionContext;
 import org.lowcoder.sdk.config.CommonConfig;
 import org.lowcoder.sdk.models.Property;
 import org.lowcoder.sdk.models.QueryExecutionResult;
 import org.lowcoder.sdk.plugin.common.RestApiUriBuilder;
+import org.lowcoder.sdk.plugin.common.ssl.DisableVerifySslConfig;
+import org.lowcoder.sdk.plugin.common.ssl.SslCertVerificationType;
 import org.lowcoder.sdk.plugin.restapi.RestApiDatasourceConfig;
 import org.lowcoder.sdk.plugin.restapi.auth.BasicAuthConfig;
 import org.lowcoder.sdk.query.QueryExecutionContext;
 import org.lowcoder.sdk.query.QueryVisitorContext;
-
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.node.TextNode;
-import com.google.common.collect.ImmutableMap;
-
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.net.URI;
+import java.util.List;
+import java.util.Map;
+
+import static java.util.Collections.emptyList;
+import static java.util.Collections.emptyMap;
+import static org.junit.Assert.*;
+import static org.lowcoder.sdk.plugin.restapi.auth.RestApiAuthType.BASIC_AUTH;
+import static org.lowcoder.sdk.plugin.restapi.auth.RestApiAuthType.DIGEST_AUTH;
+
 public class RestApiEngineTest {
 
-    private final RestApiExecutor executor = new RestApiExecutor(new CommonConfig());
     private static final RestApiConnector connector = new RestApiConnector();
-
+    private final RestApiExecutor executor = new RestApiExecutor(new CommonConfig());
     private final QueryVisitorContext queryVisitorContext = new QueryVisitorContext("userId1",
             "workspace1", 8080, null, null, null);
 
@@ -208,7 +203,7 @@ public class RestApiEngineTest {
                         }"""
         );
 
-        Map<String, Object> params = ImmutableMap.<String, Object> builder()
+        Map<String, Object> params = ImmutableMap.<String, Object>builder()
                 .put("name", "jack")
                 .put("email", "jack@jack.com")
                 .put("age", 30)
@@ -256,6 +251,7 @@ public class RestApiEngineTest {
                 .headers(List.of(new Property("Content-Type", "application/json")))
                 .authConfig(new BasicAuthConfig("postman", "password", DIGEST_AUTH))
                 .url("https://postman-echo.com/digest-auth")
+                .sslConfig(new DisableVerifySslConfig(SslCertVerificationType.DISABLED)) // Set SSL Config here
                 .build();
 
         RestApiQueryExecutionContext context = executor.doBuildQueryExecutionContext(datasourceConfig,
@@ -270,6 +266,7 @@ public class RestApiEngineTest {
                 })
                 .verifyComplete();
     }
+
 
     @Test
     public void responseJsonTypeTest() {
@@ -298,7 +295,7 @@ public class RestApiEngineTest {
     }
 
     private Mono<QueryExecutionResult> execute(RestApiDatasourceConfig datasourceConfig, Map<String, Object> queryConfig,
-            Map<String, Object> params) {
+                                               Map<String, Object> params) {
         QueryExecutionContext context = executor.doBuildQueryExecutionContext(datasourceConfig,
                 queryConfig, params, queryVisitorContext);
         return executor.doExecuteQuery(null, context);

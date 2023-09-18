@@ -11,6 +11,7 @@ import org.lowcoder.domain.user.model.User;
 import org.lowcoder.sdk.config.MaterialProperties;
 import org.lowcoder.sdk.models.HasIdAndAuditing;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -33,6 +34,8 @@ import java.util.List;
 @EnableReactiveMongoAuditing
 @EnableReactiveMongoRepositories(basePackages = {"org.lowcoder.infra", "org.lowcoder.domain"})
 public class MongoConfig {
+    @Value("${spring.data.mongodb.uri}")
+    private String mongoUri;
 
     @Autowired
     private MaterialProperties materialProperties;
@@ -81,7 +84,7 @@ public class MongoConfig {
      */
     @Bean("reactiveMongoSlaveTemplate")
     public ReactiveMongoTemplate reactiveMongoSlaveTemplate(ReactiveMongoDatabaseFactory mongoDbFactory,
-            MappingMongoConverter mappingMongoConverter) {
+                                                            MappingMongoConverter mappingMongoConverter) {
         ReactiveMongoTemplate mongoTemplate = new ReactiveMongoTemplate(mongoDbFactory, mappingMongoConverter);
         mongoTemplate.setReadPreference(ReadPreference.secondaryPreferred());
         return mongoTemplate;

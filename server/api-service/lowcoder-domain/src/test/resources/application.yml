@@ -10,9 +10,9 @@ demo:
 spring:
   redis:
     url: redis://localhost:6369
-  mongodb:
-    embedded:
-      version: 4.0.2
+  data:
+    mongodb:
+      uri: mongodb://${mongoDBContainer.getContainerIpAddress()}:${mongoDBContainer.getMappedPort(27017)}
   main:
     allow-circular-references: true
 

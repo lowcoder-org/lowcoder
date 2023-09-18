@@ -1,6 +1,8 @@
 import { CSSProperties } from "react";
+import { EChartsOption } from "echarts";
+import { GoogleMapComponentOption } from "echarts-extension-gmap";
 
-export type EChartsOption = any;
+export type EChartsOptionWithMap = EChartsOption & GoogleMapComponentOption<any>;
 
 export type EChartsInstance = any;
 
@@ -28,7 +30,7 @@ export type EChartsReactProps = {
   /**
    * echarts option
    */
-  readonly option: EChartsOption;
+  readonly option: EChartsOptionWithMap;
   /**
    * echarts theme config, can be:
    * 1. theme name string
