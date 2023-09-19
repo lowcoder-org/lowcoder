@@ -2,9 +2,8 @@ package org.lowcoder.api.authentication;
 
 import com.google.common.collect.Iterables;
 import org.junit.Test;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.runner.RunWith;
+import org.lowcoder.api.application.AbstractIntegrationTest;
 import org.lowcoder.api.authentication.AuthenticationController.FormLoginRequest;
 import org.lowcoder.api.framework.view.ResponseView;
 import org.lowcoder.domain.authentication.AuthenticationService;
@@ -25,8 +24,6 @@ import org.springframework.mock.web.server.MockServerWebExchange;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.MultiValueMap;
-import org.testcontainers.containers.MongoDBContainer;
-import org.testcontainers.junit.jupiter.Container;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -40,23 +37,7 @@ import static org.lowcoder.sdk.exception.BizError.USER_LOGIN_ID_EXIST;
 @SpringBootTest
 @RunWith(SpringRunner.class)
 @ActiveProfiles("AuthenticationControllerTest")
-public class AuthenticationControllerTest {
-
-    @Container
-    private static final MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:4.4.6")
-            .withExposedPorts(27017);
-
-    @BeforeAll
-    static void beforeAll() {
-        mongoDBContainer.start();
-        System.setProperty("MONGODB_PROPERTIES", "classpath:mongodb.properties");
-    }
-
-    @AfterAll
-    static void afterAll() {
-        mongoDBContainer.stop();
-    }
-
+public class AuthenticationControllerTest extends AbstractIntegrationTest {
 
     @Autowired
     private AuthenticationController authenticationController;
@@ -113,6 +94,7 @@ public class AuthenticationControllerTest {
                 })
                 .verifyComplete();
     }
+
     @Test
     public void testFormLoginSuccess() {
         String email = "test_login@ob.dev";

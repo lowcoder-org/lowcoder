@@ -5,8 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.runner.RunWith;
 import org.lowcoder.api.application.ApplicationController.CreateApplicationRequest;
 import org.lowcoder.api.application.view.ApplicationView;
@@ -18,15 +16,12 @@ import org.lowcoder.api.permission.view.PermissionItemView;
 import org.lowcoder.domain.application.model.Application;
 import org.lowcoder.domain.application.model.ApplicationType;
 import org.lowcoder.domain.datasource.model.Datasource;
-import org.lowcoder.domain.organization.service.OrgMemberService;
 import org.lowcoder.domain.permission.model.ResourceRole;
 import org.lowcoder.sdk.exception.BizError;
 import org.lowcoder.sdk.exception.BizException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.testcontainers.containers.MongoDBContainer;
-import org.testcontainers.junit.jupiter.Container;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -37,23 +32,7 @@ import java.util.Set;
 @SpringBootTest
 @RunWith(SpringRunner.class)
 @Slf4j(topic = "ApplicationApiServiceIntegrationTest")
-public class ApplicationApiServiceIntegrationTest {
-
-    @Container
-    private static final MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:4.4.6")
-            .withExposedPorts(27017);
-
-    @BeforeAll
-    static void beforeAll() {
-        mongoDBContainer.start();
-        System.setProperty("MONGODB_PROPERTIES", "classpath:mongodb.properties");
-    }
-
-    @AfterAll
-    static void afterAll() {
-        mongoDBContainer.stop();
-    }
-
+public class ApplicationApiServiceIntegrationTest extends AbstractIntegrationTest {
 
     @Autowired
     private ApplicationApiService applicationApiService;

@@ -1,11 +1,9 @@
 package org.lowcoder.api.datasource;
 
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.runner.RunWith;
+import org.lowcoder.api.application.AbstractIntegrationTest;
 import org.lowcoder.api.common.mockuser.WithMockUser;
 import org.lowcoder.api.permission.view.CommonPermissionView;
 import org.lowcoder.api.permission.view.PermissionItemView;
@@ -18,8 +16,6 @@ import org.lowcoder.sdk.plugin.mysql.MysqlDatasourceConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.testcontainers.containers.MongoDBContainer;
-import org.testcontainers.junit.jupiter.Container;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -32,25 +28,28 @@ import static org.lowcoder.domain.permission.model.ResourceRole.VIEWER;
 
 @SpringBootTest
 @RunWith(SpringRunner.class)
-public class DatasourceApiServiceIntegrationTest {
-
-    @Container
-    private static final MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:4.4.6")
-            .withExposedPorts(27017);
-
-    @BeforeAll
-    static void beforeAll() {
-        mongoDBContainer.start();
-        System.setProperty("MONGODB_PROPERTIES", "classpath:mongodb.properties");
-    }
-
-    @AfterAll
-    static void afterAll() {
-        mongoDBContainer.stop();
-    }
+public class DatasourceApiServiceIntegrationTest extends AbstractIntegrationTest {
 
     @Autowired
     private DatasourceApiService datasourceApiService;
+
+    public static Datasource buildMysqlDatasource(String name) {
+        Datasource datasource = new Datasource();
+        datasource.setName(name);
+        datasource.setType("mysql");
+        datasource.setOrganizationId("org01");
+        datasource.setCreationSource(DatasourceCreationSource.USER_CREATED.getValue());
+        datasource.setDatasourceStatus(DatasourceStatus.NORMAL);
+
+        MysqlDatasourceConfig mysqlDatasourceConfig = MysqlDatasourceConfig.builder()
+                .host("mysql")
+                .port(3306L)
+                .database("test")
+                .build();
+        datasource.setDetailConfig(mysqlDatasourceConfig);
+
+        return datasource;
+    }
 
     @Test
     @WithMockUser(id = "user02")
@@ -170,23 +169,5 @@ public class DatasourceApiServiceIntegrationTest {
                 .filter(permissionItemView -> permissionItemView.getId().equals(userId))
                 .findFirst()
                 .orElse(null);
-    }
-
-    public static Datasource buildMysqlDatasource(String name) {
-        Datasource datasource = new Datasource();
-        datasource.setName(name);
-        datasource.setType("mysql");
-        datasource.setOrganizationId("org01");
-        datasource.setCreationSource(DatasourceCreationSource.USER_CREATED.getValue());
-        datasource.setDatasourceStatus(DatasourceStatus.NORMAL);
-
-        MysqlDatasourceConfig mysqlDatasourceConfig = MysqlDatasourceConfig.builder()
-                .host("mysql")
-                .port(3306L)
-                .database("test")
-                .build();
-        datasource.setDetailConfig(mysqlDatasourceConfig);
-
-        return datasource;
     }
 }

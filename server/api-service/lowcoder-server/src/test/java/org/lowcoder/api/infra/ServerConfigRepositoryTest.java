@@ -3,9 +3,8 @@ package org.lowcoder.api.infra;
 import com.google.common.collect.ImmutableList;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.runner.RunWith;
+import org.lowcoder.api.application.AbstractIntegrationTest;
 import org.lowcoder.infra.config.model.ServerConfig;
 import org.lowcoder.infra.config.repository.ServerConfigRepository;
 import org.lowcoder.sdk.config.dynamic.Conf;
@@ -13,8 +12,6 @@ import org.lowcoder.sdk.config.dynamic.ConfigInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.testcontainers.containers.MongoDBContainer;
-import org.testcontainers.junit.jupiter.Container;
 
 import java.util.List;
 import java.util.Map;
@@ -24,23 +21,7 @@ import static org.junit.Assert.assertEquals;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @Slf4j
-public class ServerConfigRepositoryTest {
-    @Container
-    private static final MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:4.4.6")
-            .withExposedPorts(27017);
-
-    @BeforeAll
-    static void beforeAll() {
-        mongoDBContainer.start();
-        System.setProperty("MONGODB_PROPERTIES", "classpath:mongodb.properties");
-    }
-
-    @AfterAll
-    static void afterAll() {
-        mongoDBContainer.stop();
-    }
-
-
+public class ServerConfigRepositoryTest extends AbstractIntegrationTest {
     @Autowired
     ServerConfigRepository configRepository;
 

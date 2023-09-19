@@ -11,6 +11,7 @@ import java.util.stream.Stream;
 
 import jakarta.annotation.PostConstruct;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.io.IOUtils;
 import org.lowcoder.sdk.models.HasIdAndAuditing;
@@ -22,6 +23,7 @@ import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.stereotype.Component;
 
 @Component
+@Slf4j
 public class InitData {
 
     private static final AtomicInteger STATE = new AtomicInteger(0);
@@ -33,6 +35,7 @@ public class InitData {
     @SuppressWarnings("BusyWait")
     public void init() {
         try {
+            log.debug("Initializing InitData...");
             while (true) {
                 if (STATE.compareAndSet(0, 1)) {
                     // execute only once.
@@ -50,6 +53,7 @@ public class InitData {
                 }
             }
         } catch (Exception e) {
+            log.error("Error during InitData initialization:", e);
             throw new RuntimeException(e);
         }
     }

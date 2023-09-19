@@ -1,11 +1,9 @@
 package org.lowcoder.api.query;
 
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.runner.RunWith;
+import org.lowcoder.api.application.AbstractIntegrationTest;
 import org.lowcoder.api.common.mockuser.WithMockUser;
 import org.lowcoder.api.datasource.DatasourceApiService;
 import org.lowcoder.api.datasource.DatasourceApiServiceIntegrationTest;
@@ -14,8 +12,6 @@ import org.lowcoder.domain.query.model.LibraryQuery;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.testcontainers.containers.MongoDBContainer;
-import org.testcontainers.junit.jupiter.Container;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -28,23 +24,7 @@ import static org.lowcoder.api.common.mockuser.WithMockUser.DEFAULT_CURRENT_ORG_
 @SuppressWarnings("SameParameterValue")
 @SpringBootTest
 @RunWith(SpringRunner.class)
-public class LibraryQueryApiServiceIntegrationTest {
-
-    @Container
-    private static final MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:4.4.6")
-            .withExposedPorts(27017);
-
-    @BeforeAll
-    static void beforeAll() {
-        mongoDBContainer.start();
-        System.setProperty("MONGODB_PROPERTIES", "classpath:mongodb.properties");
-    }
-
-    @AfterAll
-    static void afterAll() {
-        mongoDBContainer.stop();
-    }
-
+public class LibraryQueryApiServiceIntegrationTest extends AbstractIntegrationTest {
 
     @Autowired
     private DatasourceApiService datasourceApiService;

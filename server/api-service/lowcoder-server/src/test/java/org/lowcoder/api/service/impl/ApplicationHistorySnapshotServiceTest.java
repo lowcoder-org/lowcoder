@@ -3,9 +3,8 @@ package org.lowcoder.api.service.impl;
 import com.google.common.collect.ImmutableMap;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.runner.RunWith;
+import org.lowcoder.api.application.AbstractIntegrationTest;
 import org.lowcoder.domain.application.model.ApplicationHistorySnapshot;
 import org.lowcoder.domain.application.service.ApplicationHistorySnapshotService;
 import org.lowcoder.sdk.models.HasIdAndAuditing;
@@ -13,8 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.testcontainers.containers.MongoDBContainer;
-import org.testcontainers.junit.jupiter.Container;
 import reactor.test.StepVerifier;
 
 import static org.junit.Assert.*;
@@ -23,23 +20,7 @@ import static org.junit.Assert.*;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @Slf4j
-public class ApplicationHistorySnapshotServiceTest {
-
-    @Container
-    private static final MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:4.4.6")
-            .withExposedPorts(27017);
-
-    @BeforeAll
-    static void beforeAll() {
-        mongoDBContainer.start();
-        System.setProperty("MONGODB_PROPERTIES", "classpath:mongodb.properties");
-    }
-
-    @AfterAll
-    static void afterAll() {
-        mongoDBContainer.stop();
-    }
-
+public class ApplicationHistorySnapshotServiceTest extends AbstractIntegrationTest {
 
     @Autowired
     private ApplicationHistorySnapshotService service;
