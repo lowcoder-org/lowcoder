@@ -12,9 +12,19 @@ import { useSelector } from "react-redux";
 import { selectSystemConfig } from "redux/selectors/configSelectors";
 import React from "react";
 import { messageInstance } from "lowcoder-design";
-
+import styled from "styled-components";
 import { trans } from "i18n";
 import { geneAuthStateAndSaveParam, getAuthUrl, getRedirectUrl } from "pages/userAuth/authUtils";
+
+const ThirdPartyLoginButtonWrapper = styled.div`
+  button{
+    width: 100%;
+
+    &:not(:last-child) {
+      margin-bottom: 16px;
+    }
+  }
+`;
 
 function ThirdPartyLoginButton(props: {
   config: ThirdPartyConfigType;
@@ -116,5 +126,9 @@ export function ThirdPartyAuth(props: {
       />
     );
   });
-  return <>{socialLoginButtons}</>;
+  return (
+    <ThirdPartyLoginButtonWrapper>
+      {socialLoginButtons}
+    </ThirdPartyLoginButtonWrapper>
+  );
 }

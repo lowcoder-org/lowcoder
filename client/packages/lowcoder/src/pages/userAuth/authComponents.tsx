@@ -158,6 +158,7 @@ export const ConfirmButton = (props: {
 const TermsAndPrivacyContent = styled.div`
   display: flex;
   align-items: center;
+  margin-top: 16px;
 
   font-size: 13px;
   color: #333333;

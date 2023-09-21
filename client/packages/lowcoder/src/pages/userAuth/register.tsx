@@ -33,10 +33,6 @@ const RegisterContent = styled(FormWrapperMobile)`
   display: flex;
   flex-direction: column;
   margin-bottom: 106px;
-
-  button {
-    margin-bottom: 16px;
-  }
 `;
 
 function UserRegister() {
