@@ -83,7 +83,9 @@ type AppIndexProps = {
 class AppIndex extends React.Component<AppIndexProps, any> {
   componentDidMount() {
     this.props.getCurrentUser();
-    this.props.fetchConfig();
+    if (!history.location.pathname.startsWith("/invite/")) {
+      this.props.fetchConfig();
+    }
     if (history.location.pathname === BASE_URL) {
       this.props.fetchHome();
     }

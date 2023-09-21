@@ -17,6 +17,7 @@ import { AuthContext, useAuthSubmit } from "pages/userAuth/authUtils";
 import { ThirdPartyAuth } from "pages/userAuth/thirdParty/thirdPartyAuth";
 import { AUTH_REGISTER_URL } from "constants/routesURL";
 import { useLocation } from "react-router-dom";
+import { Divider } from "antd";
 
 const AccountLoginWrapper = styled(FormWrapperMobile)`
   display: flex;
@@ -30,6 +31,7 @@ export default function FormLogin() {
   const redirectUrl = useRedirectUrl();
   const { systemConfig, inviteInfo } = useContext(AuthContext);
   const invitationId = inviteInfo?.invitationId;
+  const invitedOrganizationId = inviteInfo?.invitedOrganizationId;
   const authId = systemConfig?.form.id;
   const location = useLocation();
 
@@ -69,9 +71,18 @@ export default function FormLogin() {
         <ConfirmButton loading={loading} disabled={!account || !password} onClick={onSubmit}>
           {trans("userAuth.login")}
         </ConfirmButton>
+        {Boolean(invitationId) && (
+          <>
+            <Divider />
+            <ThirdPartyAuth
+              invitationId={invitationId}
+              invitedOrganizationId={invitedOrganizationId}
+              authGoal="login"
+            />
+          </>
+        )}
       </AccountLoginWrapper>
       <AuthBottomView>
-        <ThirdPartyAuth invitationId={invitationId} authGoal="login" />
         {systemConfig.form.enableRegister && (
           <StyledRouteLink to={{ pathname: AUTH_REGISTER_URL, state: location.state }}>
             {trans("userAuth.register")}

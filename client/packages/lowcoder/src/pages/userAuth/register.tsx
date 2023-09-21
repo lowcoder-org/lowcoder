@@ -18,6 +18,8 @@ import { useLocation } from "react-router-dom";
 import { UserConnectionSource } from "@lowcoder-ee/constants/userConstants";
 import { trans } from "i18n";
 import { AuthContext, checkPassWithMsg, useAuthSubmit } from "pages/userAuth/authUtils";
+import { Divider } from "antd";
+import { ThirdPartyAuth } from "pages/userAuth/thirdParty/thirdPartyAuth";
 
 const StyledFormInput = styled(FormInput)`
   margin-bottom: 16px;
@@ -30,16 +32,10 @@ const StyledPasswordInput = styled(PasswordInput)`
 const RegisterContent = styled(FormWrapperMobile)`
   display: flex;
   flex-direction: column;
+  margin-bottom: 106px;
 
   button {
-    margin: 20px 0 16px 0;
-  }
-`;
-
-const TermsAndPrivacyInfoWrapper = styled.div`
-  margin-bottom: 80px;
-  @media screen and (max-width: 640px) {
-    margin: 10px 0 64px 0;
+    margin-bottom: 16px;
   }
 `;
 
@@ -50,6 +46,8 @@ function UserRegister() {
   const redirectUrl = useRedirectUrl();
   const location = useLocation();
   const { systemConfig, inviteInfo } = useContext(AuthContext);
+  const invitationId = inviteInfo?.invitationId;
+  const invitedOrganizationId = inviteInfo?.invitedOrganizationId;
   const authId = systemConfig.form.id;
   const { loading, onSubmit } = useAuthSubmit(
     () =>
@@ -57,7 +55,7 @@ function UserRegister() {
         register: true,
         loginId: account,
         password: password,
-        invitationId: inviteInfo?.invitationId,
+        invitationId,
         source: UserConnectionSource.email,
         authId,
       }),
@@ -95,13 +93,21 @@ function UserRegister() {
         >
           {trans("userAuth.register")}
         </ConfirmButton>
-        <TermsAndPrivacyInfoWrapper>
-          <TermsAndPrivacyInfo onCheckChange={(e) => setSubmitBtnDisable(!e.target.checked)} />
-        </TermsAndPrivacyInfoWrapper>
-        <StyledRouteLinkLogin to={{ pathname: AUTH_LOGIN_URL, state: location.state }}>
-          {trans("userAuth.userLogin")}
-        </StyledRouteLinkLogin>
+        <TermsAndPrivacyInfo onCheckChange={(e) => setSubmitBtnDisable(!e.target.checked)} />
+        {Boolean(invitationId) && (
+          <>
+            <Divider />
+            <ThirdPartyAuth
+              invitationId={invitationId}
+              invitedOrganizationId={invitedOrganizationId}
+              authGoal="register"
+            />
+          </>
+        )}
       </RegisterContent>
+      <StyledRouteLinkLogin to={{ pathname: AUTH_LOGIN_URL, state: location.state }}>
+        {trans("userAuth.userLogin")}
+      </StyledRouteLinkLogin>
     </AuthContainer>
   );
 }

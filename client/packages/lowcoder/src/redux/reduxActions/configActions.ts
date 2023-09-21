@@ -1,9 +1,16 @@
 import { ReduxActionTypes } from "constants/reduxActionConstants";
 import { ExternalEditorContextState } from "util/context/ExternalEditorContext";
 
-export const fetchConfigAction = () => {
+export type FetchConfigActionPayload = {
+  orgId?: string;
+};
+
+export const fetchConfigAction = (orgId?: string) => {
   return {
     type: ReduxActionTypes.FETCH_SYS_CONFIG_INIT,
+    payload: {
+      orgId,
+    }
   };
 };
 

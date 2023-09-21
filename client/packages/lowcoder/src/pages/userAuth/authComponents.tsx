@@ -199,10 +199,23 @@ export const LoginLogoStyle = styled.img`
   margin-right: 8px;
   width: 32px;
   height: 32px;
+  position: absolute;
+  left: 6px;
 `;
 
-export const StyledLoginButton = styled.button`
-  padding: 0;
+export const LoginLabelStyle = styled.p`
+  font-size: 16px;
+  color: #333333;
+  line-height: 16px;
+  margin: 0px;
+`;
+
+export const StyledLoginButton = styled(TacoButton)`
+  position: relative;
+  height: 48px;
+  border: 1px solid lightgray !important;
+  border-radius: 8px;
+  padding: 8px;
   white-space: nowrap;
   word-break: keep-all;
   outline: 0;
