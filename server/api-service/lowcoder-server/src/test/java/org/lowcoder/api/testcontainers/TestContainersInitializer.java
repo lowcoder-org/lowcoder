@@ -41,13 +41,6 @@ public class TestContainersInitializer implements ApplicationContextInitializer<
                 + "/" + DB_DATABASE + "?authSource=admin";
         System.out.println("MongoDB URI: " + mongoUri);
         TestPropertyValues.of(
-
-//                "spring.data.mongodb.host: " + mongodb.getHost(),
-//                "spring.data.mongodb.port: " + mongodb.getFirstMappedPort(),
-//                "spring.data.mongodb.database: " + DB_DATABASE,
-//                "spring.data.mongodb.username: " + DB_USERNAME,
-//                "spring.data.mongodb.password: " + DB_PASSWORD
-
                 "spring.data.mongodb.uri=" + mongoUri,
                 "MONGO_URI=" + mongoUri // Set the property for test overrides
         ).applyTo(applicationContext.getEnvironment());
