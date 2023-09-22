@@ -71,16 +71,13 @@ export default function FormLogin() {
         <ConfirmButton loading={loading} disabled={!account || !password} onClick={onSubmit}>
           {trans("userAuth.login")}
         </ConfirmButton>
-        {Boolean(invitationId) && (
-          <>
-            <Divider />
-            <ThirdPartyAuth
-              invitationId={invitationId}
-              invitedOrganizationId={invitedOrganizationId}
-              authGoal="login"
-            />
-          </>
-        )}
+
+        <Divider />
+        <ThirdPartyAuth
+          invitationId={invitationId}
+          invitedOrganizationId={invitedOrganizationId}
+          authGoal="login"
+        />
       </AccountLoginWrapper>
       <AuthBottomView>
         {systemConfig.form.enableRegister && (
