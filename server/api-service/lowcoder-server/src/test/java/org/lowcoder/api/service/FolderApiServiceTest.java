@@ -9,11 +9,13 @@ import org.lowcoder.api.application.view.ApplicationPermissionView;
 import org.lowcoder.api.common.mockuser.WithMockUser;
 import org.lowcoder.api.home.FolderApiService;
 import org.lowcoder.api.permission.view.PermissionItemView;
+import org.lowcoder.api.testcontainers.TestWithContainers;
 import org.lowcoder.domain.folder.model.Folder;
 import org.lowcoder.domain.folder.service.FolderService;
 import org.lowcoder.domain.permission.model.ResourceRole;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -26,7 +28,9 @@ import static org.junit.Assert.assertEquals;
 
 @SpringBootTest
 @RunWith(SpringRunner.class)
-public class FolderApiServiceTest extends AbstractIntegrationTest {
+@TestWithContainers
+@ActiveProfiles("FolderApiServiceTest")
+public class FolderApiServiceTest {
 
     @Autowired
     private FolderApiService folderApiService;

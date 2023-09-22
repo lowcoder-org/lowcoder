@@ -6,10 +6,12 @@ import org.junit.Test;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.runner.RunWith;
 import org.lowcoder.api.common.mockuser.WithMockUser;
+import org.lowcoder.api.testcontainers.TestWithContainers;
 import org.lowcoder.sdk.constants.DslConstants.CompoundAppDslConstants;
 import org.lowcoder.sdk.test.JsonFileReader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.HashMap;
@@ -18,15 +20,12 @@ import java.util.Set;
 
 @SpringBootTest
 @RunWith(SpringRunner.class)
-public class CompoundApplicationDslFilterTest extends AbstractIntegrationTest {
+@TestWithContainers
+@ActiveProfiles("CompoundApplicationDslFilterTest")
+public class CompoundApplicationDslFilterTest {
 
     @Autowired
     private CompoundApplicationDslFilter filter;
-
-    @AfterAll
-    static void afterAll() {
-        mongoDBContainer.stop();
-    }
 
     @Test
     public void testGetAllSubAppIdsFromCompoundAppDsl() {

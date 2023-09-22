@@ -7,6 +7,7 @@ import org.lowcoder.api.application.AbstractIntegrationTest;
 import org.lowcoder.api.common.mockuser.WithMockUser;
 import org.lowcoder.api.permission.view.CommonPermissionView;
 import org.lowcoder.api.permission.view.PermissionItemView;
+import org.lowcoder.api.testcontainers.TestWithContainers;
 import org.lowcoder.domain.datasource.model.Datasource;
 import org.lowcoder.domain.datasource.model.DatasourceCreationSource;
 import org.lowcoder.domain.datasource.model.DatasourceStatus;
@@ -15,6 +16,7 @@ import org.lowcoder.sdk.exception.BizException;
 import org.lowcoder.sdk.plugin.mysql.MysqlDatasourceConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -28,7 +30,9 @@ import static org.lowcoder.domain.permission.model.ResourceRole.VIEWER;
 
 @SpringBootTest
 @RunWith(SpringRunner.class)
-public class DatasourceApiServiceIntegrationTest extends AbstractIntegrationTest {
+@TestWithContainers
+@ActiveProfiles("DatasourceApiServiceIntegrationTest")
+public class DatasourceApiServiceIntegrationTest {
 
     @Autowired
     private DatasourceApiService datasourceApiService;

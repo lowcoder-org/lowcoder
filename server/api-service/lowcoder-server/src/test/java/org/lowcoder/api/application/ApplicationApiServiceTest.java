@@ -12,6 +12,7 @@ import org.lowcoder.api.common.mockuser.WithMockUser;
 import org.lowcoder.api.datasource.DatasourceApiService;
 import org.lowcoder.api.home.FolderApiService;
 import org.lowcoder.api.permission.view.PermissionItemView;
+import org.lowcoder.api.testcontainers.TestWithContainers;
 import org.lowcoder.domain.application.model.Application;
 import org.lowcoder.domain.application.model.ApplicationStatus;
 import org.lowcoder.domain.application.model.ApplicationType;
@@ -22,6 +23,7 @@ import org.lowcoder.sdk.exception.BizError;
 import org.lowcoder.sdk.exception.BizException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -32,7 +34,9 @@ import java.util.Set;
 @SpringBootTest
 @RunWith(SpringRunner.class)
 @Slf4j(topic = "ApplicationApiServiceTest")
-public class ApplicationApiServiceTest extends AbstractIntegrationTest {
+@TestWithContainers
+@ActiveProfiles("ApplicationApiServiceTest")
+public class ApplicationApiServiceTest {
 
     @Autowired
     private ApplicationApiService applicationApiService;

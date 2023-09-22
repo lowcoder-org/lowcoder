@@ -6,6 +6,7 @@ import org.junit.runner.RunWith;
 import org.lowcoder.api.application.AbstractIntegrationTest;
 import org.lowcoder.api.authentication.AuthenticationController.FormLoginRequest;
 import org.lowcoder.api.framework.view.ResponseView;
+import org.lowcoder.api.testcontainers.TestWithContainers;
 import org.lowcoder.domain.authentication.AuthenticationService;
 import org.lowcoder.domain.authentication.FindAuthConfig;
 import org.lowcoder.domain.encryption.EncryptionService;
@@ -37,7 +38,8 @@ import static org.lowcoder.sdk.exception.BizError.USER_LOGIN_ID_EXIST;
 @SpringBootTest
 @RunWith(SpringRunner.class)
 @ActiveProfiles("AuthenticationControllerTest")
-public class AuthenticationControllerTest extends AbstractIntegrationTest {
+@TestWithContainers
+public class AuthenticationControllerTest {
 
     @Autowired
     private AuthenticationController authenticationController;

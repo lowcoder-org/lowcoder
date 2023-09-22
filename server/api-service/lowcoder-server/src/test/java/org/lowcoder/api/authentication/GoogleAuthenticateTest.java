@@ -4,8 +4,8 @@ import com.google.common.collect.Iterables;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.lowcoder.api.application.AbstractIntegrationTest;
 import org.lowcoder.api.authentication.AuthenticationController.FormLoginRequest;
+import org.lowcoder.api.testcontainers.TestWithContainers;
 import org.lowcoder.domain.authentication.AuthenticationService;
 import org.lowcoder.domain.authentication.FindAuthConfig;
 import org.lowcoder.domain.encryption.EncryptionService;
@@ -20,6 +20,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.ResponseCookie;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.mock.web.server.MockServerWebExchange;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Mono;
@@ -32,7 +33,9 @@ import static org.junit.Assert.*;
 
 @SpringBootTest
 @RunWith(SpringRunner.class)
-public class GoogleAuthenticateTest extends AbstractIntegrationTest {
+@TestWithContainers
+@ActiveProfiles("GoogleAuthenticateTest")
+public class GoogleAuthenticateTest{
 
     @Autowired
     private AuthenticationController authenticationController;

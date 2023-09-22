@@ -5,7 +5,7 @@ spring:
     redis:
       url: redis://localhost:6370
     mongodb:
-      uri: mongodb://localhost:27017/lowcoder?socketTimeoutMS=5000
+      uri: ${MONGO_URI:mongodb://localhost:27017/lowcoder?socketTimeoutMS=5000}
 
 server:
   port: 8080

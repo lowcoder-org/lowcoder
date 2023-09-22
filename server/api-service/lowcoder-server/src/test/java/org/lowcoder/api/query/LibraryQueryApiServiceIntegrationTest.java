@@ -8,9 +8,11 @@ import org.lowcoder.api.common.mockuser.WithMockUser;
 import org.lowcoder.api.datasource.DatasourceApiService;
 import org.lowcoder.api.datasource.DatasourceApiServiceIntegrationTest;
 import org.lowcoder.api.query.view.LibraryQueryView;
+import org.lowcoder.api.testcontainers.TestWithContainers;
 import org.lowcoder.domain.query.model.LibraryQuery;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -24,7 +26,9 @@ import static org.lowcoder.api.common.mockuser.WithMockUser.DEFAULT_CURRENT_ORG_
 @SuppressWarnings("SameParameterValue")
 @SpringBootTest
 @RunWith(SpringRunner.class)
-public class LibraryQueryApiServiceIntegrationTest extends AbstractIntegrationTest {
+@TestWithContainers
+@ActiveProfiles("LibraryQueryApiServiceIntegrationTest")
+public class LibraryQueryApiServiceIntegrationTest {
 
     @Autowired
     private DatasourceApiService datasourceApiService;

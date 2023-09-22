@@ -4,13 +4,14 @@ import com.google.common.collect.ImmutableList;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.lowcoder.api.application.AbstractIntegrationTest;
+import org.lowcoder.api.testcontainers.TestWithContainers;
 import org.lowcoder.infra.config.model.ServerConfig;
 import org.lowcoder.infra.config.repository.ServerConfigRepository;
 import org.lowcoder.sdk.config.dynamic.Conf;
 import org.lowcoder.sdk.config.dynamic.ConfigInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.List;
@@ -21,7 +22,9 @@ import static org.junit.Assert.assertEquals;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @Slf4j
-public class ServerConfigRepositoryTest extends AbstractIntegrationTest {
+@TestWithContainers
+@ActiveProfiles("ServerConfigRepositoryTest")
+public class ServerConfigRepositoryTest {
     @Autowired
     ServerConfigRepository configRepository;
 
