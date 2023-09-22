@@ -36,6 +36,10 @@ export const buildVars = [
     defaultValue: "",
   },
   {
+    name: "LOWCODER_SHOW_CUSTOM_AUTH_WELCOME_TEXT",
+    defaultValue: "",
+  },
+  {
     name: "REACT_APP_ENV",
     defaultValue: "production",
   },
