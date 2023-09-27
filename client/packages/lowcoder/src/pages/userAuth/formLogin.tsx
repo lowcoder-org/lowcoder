@@ -6,7 +6,7 @@ import {
   LoginCardTitle,
   StyledRouteLink,
 } from "pages/userAuth/authComponents";
-import React, { useContext, useState } from "react";
+import React, { useContext, useMemo, useState } from "react";
 import styled from "styled-components";
 import UserApi from "api/userApi";
 import { useRedirectUrl } from "util/hooks";
@@ -15,8 +15,8 @@ import { UserConnectionSource } from "@lowcoder-ee/constants/userConstants";
 import { trans } from "i18n";
 import { AuthContext, useAuthSubmit } from "pages/userAuth/authUtils";
 import { ThirdPartyAuth } from "pages/userAuth/thirdParty/thirdPartyAuth";
-import { AUTH_REGISTER_URL } from "constants/routesURL";
-import { useLocation } from "react-router-dom";
+import { AUTH_REGISTER_URL, ORG_AUTH_REGISTER_URL } from "constants/routesURL";
+import { useLocation, useParams } from "react-router-dom";
 import { Divider } from "antd";
 
 const AccountLoginWrapper = styled(FormWrapperMobile)`
@@ -25,15 +25,26 @@ const AccountLoginWrapper = styled(FormWrapperMobile)`
   margin-bottom: 106px;
 `;
 
-export default function FormLogin() {
+type FormLoginProps = {
+  organizationId?: string;
+}
+
+export default function FormLogin(props: FormLoginProps) {
   const [account, setAccount] = useState("");
   const [password, setPassword] = useState("");
   const redirectUrl = useRedirectUrl();
   const { systemConfig, inviteInfo } = useContext(AuthContext);
   const invitationId = inviteInfo?.invitationId;
-  const invitedOrganizationId = inviteInfo?.invitedOrganizationId;
   const authId = systemConfig?.form.id;
   const location = useLocation();
+  const orgId = useParams<any>().orgId;
+
+  // const organizationId = useMemo(() => {
+  //   if(inviteInfo?.invitedOrganizationId) {
+  //     return inviteInfo?.invitedOrganizationId;
+  //   }
+  //   return orgId;
+  // }, [ inviteInfo, orgId ])
 
   const { onSubmit, loading } = useAuthSubmit(
     () =>
@@ -71,20 +82,27 @@ export default function FormLogin() {
         <ConfirmButton loading={loading} disabled={!account || !password} onClick={onSubmit}>
           {trans("userAuth.login")}
         </ConfirmButton>
-
-        <Divider />
-        <ThirdPartyAuth
-          invitationId={invitationId}
-          invitedOrganizationId={invitedOrganizationId}
-          authGoal="login"
-        />
+        
+        {props.organizationId && (
+          <>
+            <Divider />
+            <ThirdPartyAuth
+              invitationId={invitationId}
+              invitedOrganizationId={props.organizationId}
+              authGoal="login"
+            />
+          </>
+        )}
       </AccountLoginWrapper>
       <AuthBottomView>
-        {systemConfig.form.enableRegister && (
-          <StyledRouteLink to={{ pathname: AUTH_REGISTER_URL, state: location.state }}>
-            {trans("userAuth.register")}
-          </StyledRouteLink>
-        )}
+        <StyledRouteLink to={{
+          pathname: orgId
+            ? ORG_AUTH_REGISTER_URL.replace(':orgId', orgId)
+            : AUTH_REGISTER_URL,
+          state: location.state
+        }}>
+          {trans("userAuth.register")}
+        </StyledRouteLink>
       </AuthBottomView>
     </>
   );

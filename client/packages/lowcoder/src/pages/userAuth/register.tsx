@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useMemo } from "react";
 import {
   AuthContainer,
   ConfirmButton,
@@ -8,7 +8,7 @@ import {
   TermsAndPrivacyInfo,
 } from "pages/userAuth/authComponents";
 import { FormInput, PasswordInput } from "lowcoder-design";
-import { AUTH_LOGIN_URL } from "constants/routesURL";
+import { AUTH_LOGIN_URL, ORG_AUTH_LOGIN_URL } from "constants/routesURL";
 import UserApi from "api/userApi";
 import { useRedirectUrl } from "util/hooks";
 import { checkEmailValid } from "util/stringUtils";
@@ -20,6 +20,7 @@ import { trans } from "i18n";
 import { AuthContext, checkPassWithMsg, useAuthSubmit } from "pages/userAuth/authUtils";
 import { Divider } from "antd";
 import { ThirdPartyAuth } from "pages/userAuth/thirdParty/thirdPartyAuth";
+import { useParams } from "react-router-dom";
 
 const StyledFormInput = styled(FormInput)`
   margin-bottom: 16px;
@@ -43,8 +44,16 @@ function UserRegister() {
   const location = useLocation();
   const { systemConfig, inviteInfo } = useContext(AuthContext);
   const invitationId = inviteInfo?.invitationId;
-  const invitedOrganizationId = inviteInfo?.invitedOrganizationId;
-  const authId = systemConfig.form.id;
+  // const invitedOrganizationId = inviteInfo?.invitedOrganizationId;
+  const orgId = useParams<any>().orgId;
+  const organizationId = useMemo(() => {
+    if(inviteInfo?.invitedOrganizationId) {
+      return inviteInfo?.invitedOrganizationId;
+    }
+    return orgId;
+  }, [ inviteInfo, orgId ])
+
+  const authId = systemConfig?.form.id;
   const { loading, onSubmit } = useAuthSubmit(
     () =>
       UserApi.formLogin({
@@ -58,12 +67,17 @@ function UserRegister() {
     false,
     redirectUrl
   );
-  if (!systemConfig || !systemConfig.form.enableRegister) {
+
+  if (!systemConfig || !systemConfig?.form.enableRegister) {
     return null;
   }
 
+  const registerTitle = organizationId && LOWCODER_CUSTOM_AUTH_WELCOME_TEXT !== ""
+    ? LOWCODER_CUSTOM_AUTH_WELCOME_TEXT
+    : trans("userAuth.register")
+
   return (
-    <AuthContainer title={trans("userAuth.register")} type="large">
+    <AuthContainer title={registerTitle} type="large">
       <RegisterContent>
         <LoginCardTitle>{trans("userAuth.registerByEmail")}</LoginCardTitle>
         <StyledFormInput
@@ -95,13 +109,18 @@ function UserRegister() {
             <Divider />
             <ThirdPartyAuth
               invitationId={invitationId}
-              invitedOrganizationId={invitedOrganizationId}
+              invitedOrganizationId={organizationId}
               authGoal="register"
             />
           </>
         )}
       </RegisterContent>
-      <StyledRouteLinkLogin to={{ pathname: AUTH_LOGIN_URL, state: location.state }}>
+      <StyledRouteLinkLogin to={{
+        pathname: orgId
+          ? ORG_AUTH_LOGIN_URL.replace(':orgId', orgId)
+          : AUTH_LOGIN_URL,
+        state: location.state
+      }}>
         {trans("userAuth.userLogin")}
       </StyledRouteLinkLogin>
     </AuthContainer>

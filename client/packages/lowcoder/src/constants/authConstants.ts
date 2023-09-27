@@ -3,6 +3,8 @@ import {
   AUTH_LOGIN_URL,
   AUTH_REGISTER_URL,
   OAUTH_REDIRECT,
+  ORG_AUTH_LOGIN_URL,
+  ORG_AUTH_REGISTER_URL,
 } from "constants/routesURL";
 import { InviteInfo } from "api/inviteApi";
 import Login, { ThirdPartyBindCard } from "pages/userAuth/login";
@@ -73,6 +75,8 @@ export const AuthRoutes: Array<{ path: string; component: React.ComponentType<an
   { path: AUTH_BIND_URL, component: ThirdPartyBindCard },
   { path: AUTH_REGISTER_URL, component: UserRegister },
   { path: OAUTH_REDIRECT, component: AuthRedirect },
+  { path: ORG_AUTH_LOGIN_URL, component: Login },
+  { path: ORG_AUTH_REGISTER_URL, component: UserRegister },
 ];
 
 export type ServerAuthType = "GOOGLE" | "GITHUB" | "FORM";

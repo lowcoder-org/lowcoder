@@ -23,7 +23,7 @@ import {
 } from "constants/authConstants";
 
 export const AuthContext = createContext<{
-  systemConfig: SystemConfig;
+  systemConfig?: SystemConfig;
   inviteInfo?: AuthInviteInfo;
   thirdPartyAuthError?: boolean;
 }>(undefined as any);

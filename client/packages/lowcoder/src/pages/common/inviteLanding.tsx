@@ -58,7 +58,7 @@ function InviteLanding(props: InviteLandingProp) {
         messageInstance.error(errorResp.message);
         history.push(BASE_URL);
       }).finally(() => {
-        fetchConfig(orgId);
+        // fetchConfig(orgId);
       });
   }, [fetchUserFinished, invitationId, fetchConfig]);
   return null;
