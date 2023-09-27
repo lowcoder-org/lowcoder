@@ -430,6 +430,7 @@ export const en = {
     tempState: "Temporary state",
     transformer: "Transformer",
     quickRestAPI: "REST Query",
+    quickStreamAPI: "Stream Query",
     quickGraphql: "GraphQL Query",
     lowcoderAPI: "Lowcoder API",
     executeJSCode: "Run JavaScript Code",

@@ -26,6 +26,7 @@ import {
   withViewFn,
   ThemeContext,
   chartColorPalette,
+  loadScript,
 } from "lowcoder-sdk";
 import { getEchartsLocale, trans } from "i18n/comps";
 import { ItemColorComp } from "comps/chartComp/chartConfigs/lineChartConfig";
@@ -33,7 +34,9 @@ import {
   echartsConfigOmitChildren,
   getEchartsConfig,
   getSelectedPoints,
+  loadGoogleMapsScript,
 } from "comps/chartComp/chartUtils";
+import 'echarts-extension-gmap';
 import log from "loglevel";
 
 let ChartTmpComp = (function () {
@@ -45,6 +48,7 @@ let ChartTmpComp = (function () {
 ChartTmpComp = withViewFn(ChartTmpComp, (comp) => {
   const echartsCompRef = useRef<ReactECharts | null>();
   const [chartSize, setChartSize] = useState<ChartSize>();
+  const [mapScriptLoaded, setMapScriptLoaded] = useState(false);
   const firstResize = useRef(true);
   const theme = useContext(ThemeContext);
   const defaultChartTheme = {
@@ -87,6 +91,34 @@ ChartTmpComp = withViewFn(ChartTmpComp, (comp) => {
     );
   }, [chartSize, ...Object.values(echartsConfigChildren)]);
 
+  const isMapScriptLoaded = useMemo(() => {
+    return mapScriptLoaded || window?.google;
+  }, [mapScriptLoaded])
+
+  const loadGoogleMapsData = () => {
+    const echartsCompInstance = echartsCompRef?.current?.getEchartsInstance();
+    if (!echartsCompInstance) {
+      return _.noop;
+    }
+    echartsCompInstance.getModel().getComponent("gmap").getGoogleMap();
+  }
+
+  const apiKey = comp.children.mapApiKey.getView();
+  const mode = comp.children.mode.getView();
+  useEffect(() => {
+    if(mode === 'map') {
+      const gMapScript = loadGoogleMapsScript('');
+      if(isMapScriptLoaded) {
+        loadGoogleMapsData();
+        return;
+      }
+      gMapScript.addEventListener('load', function () {
+        setMapScriptLoaded(true);
+        loadGoogleMapsData();
+      });
+    }
+  }, [mode, apiKey, option])
+
   return (
     <ReactResizeDetector
       onResize={(w, h) => {
@@ -101,15 +133,17 @@ ChartTmpComp = withViewFn(ChartTmpComp, (comp) => {
         }
       }}
     >
-      <ReactECharts
-        ref={(e) => (echartsCompRef.current = e)}
-        style={{ height: "100%" }}
-        notMerge
-        lazyUpdate
-        opts={{ locale: getEchartsLocale() }}
-        option={option}
-        theme={themeConfig}
-      />
+      {(mode !== 'map' || (mode === 'map' && isMapScriptLoaded)) && (
+        <ReactECharts
+          ref={(e) => (echartsCompRef.current = e)}
+          style={{ height: "100%" }}
+          notMerge
+          lazyUpdate
+          opts={{ locale: getEchartsLocale() }}
+          option={option}
+          theme={mode !== 'map' ? themeConfig : undefined}
+        />
+      )}
     </ReactResizeDetector>
   );
 });

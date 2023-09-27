@@ -1,5 +1,5 @@
 import { jsonControl, JSONObject, stateComp, toJSONObjectArray, toObject } from "lowcoder-sdk";
-import { StringControl } from "lowcoder-sdk";
+import { withDefault, BooleanControl, StringControl, NumberControl, JSONObjectControl } from "lowcoder-sdk";
 import { dropdownControl } from "lowcoder-sdk";
 import { eventHandlerControl } from "lowcoder-sdk";
 import { valueComp, withType } from "lowcoder-sdk";
@@ -15,7 +15,6 @@ import { ScatterChartConfig } from "./chartConfigs/scatterChartConfig";
 import { SeriesListComp } from "./seriesComp";
 import { EChartsOption } from "echarts";
 import { i18nObjs, trans } from "i18n/comps";
-import { JSONValue } from "lowcoder";
 
 export const ChartTypeOptions = [
   {
@@ -44,6 +43,10 @@ const chartModeOptions = [
   {
     label: "ECharts JSON",
     value: "json",
+  },
+  {
+    label: "Map",
+    value: "map",
   },
 ] as const;
 
@@ -221,6 +224,14 @@ export const chartUiModeChildren = {
   chartConfig: ChartOptionComp,
 };
 
+const chartMapModeChildren = {
+  mapApiKey: withDefault(StringControl, ''),
+  mapZoomLevel: withDefault(NumberControl, 3),
+  mapCenterLng: withDefault(NumberControl, 15.932644),
+  mapCenterLat: withDefault(NumberControl, 50.942063),
+  mapOptions: jsonControl(toObject, i18nObjs.defaultMapJsonOption),
+}
+
 export const chartChildrenMap = {
   mode: dropdownControl(chartModeOptions, "ui"),
   echartsOption: jsonControl(toObject, i18nObjs.defaultEchartsJsonOption),
@@ -236,6 +247,7 @@ export const chartChildrenMap = {
     }>
   >([]),
   ...chartUiModeChildren,
+  ...chartMapModeChildren,
 };
 
 const chartUiChildrenMap = uiChildren(chartChildrenMap);

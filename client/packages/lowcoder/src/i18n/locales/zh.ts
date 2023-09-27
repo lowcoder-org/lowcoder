@@ -422,6 +422,7 @@ query: {
     tempState: "临时状态",
     transformer: "转换器",
     quickRestAPI: "REST查询",
+    quickStreamAPI: "Stream查询",
     quickGraphql: "GraphQL查询",
     lowcoderAPI: "Lowcoder API",
     executeJSCode: "运行JavaScript代码",
