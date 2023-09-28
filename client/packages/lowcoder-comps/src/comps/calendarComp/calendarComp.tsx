@@ -125,6 +125,7 @@ let CalendarBasicComp = (function () {
           isList={isList}
           bg={eventInfo.backgroundColor}
           theme={theme?.theme}
+          allDay={showAllDay}
           $style={props.style}
         >
           <div className="event-time">{eventInfo.timeText}</div>
