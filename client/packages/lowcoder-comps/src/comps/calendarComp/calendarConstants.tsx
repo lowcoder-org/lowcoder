@@ -388,7 +388,7 @@ export const Wrapper = styled.div<{
 
   .fc-scrollgrid-liquid > tbody {
     & > tr:nth-of-type(2) {
-      display: none;
+      display: ${(props) => props.allDay && 1};
     }
   }
   .fc .fc-timegrid-slot-label-cushion {
@@ -639,6 +639,7 @@ export const Event = styled.div<{
   bg: string;
   theme: Object;
   isList: boolean;
+  allDay: boolean;
   $style: CalendarStyleType;
 }>`
   height: 100%;
