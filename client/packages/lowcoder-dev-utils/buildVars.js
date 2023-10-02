@@ -37,7 +37,7 @@ export const buildVars = [
   },
   {
     name: "LOWCODER_CUSTOM_AUTH_WELCOME_TEXT",
-    defaultValue: "This is custom welcome message",
+    defaultValue: "",
   },
   {
     name: "REACT_APP_ENV",

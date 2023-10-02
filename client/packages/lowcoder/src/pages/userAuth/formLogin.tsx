@@ -6,7 +6,7 @@ import {
   LoginCardTitle,
   StyledRouteLink,
 } from "pages/userAuth/authComponents";
-import React, { useContext, useMemo, useState } from "react";
+import React, { useContext, useState } from "react";
 import styled from "styled-components";
 import UserApi from "api/userApi";
 import { useRedirectUrl } from "util/hooks";
@@ -17,7 +17,6 @@ import { AuthContext, useAuthSubmit } from "pages/userAuth/authUtils";
 import { ThirdPartyAuth } from "pages/userAuth/thirdParty/thirdPartyAuth";
 import { AUTH_REGISTER_URL, ORG_AUTH_REGISTER_URL } from "constants/routesURL";
 import { useLocation, useParams } from "react-router-dom";
-import { Divider } from "antd";
 
 const AccountLoginWrapper = styled(FormWrapperMobile)`
   display: flex;
@@ -38,13 +37,6 @@ export default function FormLogin(props: FormLoginProps) {
   const authId = systemConfig?.form.id;
   const location = useLocation();
   const orgId = useParams<any>().orgId;
-
-  // const organizationId = useMemo(() => {
-  //   if(inviteInfo?.invitedOrganizationId) {
-  //     return inviteInfo?.invitedOrganizationId;
-  //   }
-  //   return orgId;
-  // }, [ inviteInfo, orgId ])
 
   const { onSubmit, loading } = useAuthSubmit(
     () =>
@@ -84,14 +76,11 @@ export default function FormLogin(props: FormLoginProps) {
         </ConfirmButton>
         
         {props.organizationId && (
-          <>
-            <Divider />
-            <ThirdPartyAuth
-              invitationId={invitationId}
-              invitedOrganizationId={props.organizationId}
-              authGoal="login"
-            />
-          </>
+          <ThirdPartyAuth
+            invitationId={invitationId}
+            invitedOrganizationId={props.organizationId}
+            authGoal="login"
+          />
         )}
       </AccountLoginWrapper>
       <AuthBottomView>

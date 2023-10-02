@@ -64,7 +64,7 @@ const thirdPartyLoginLabel = (name: string) => trans("userAuth.signInLabel", { n
 export const ThirdPartyBindCard = () => {
   const { systemConfig } = useContext(AuthContext);
   return (
-    <AuthContainer title={trans("userAuth.bindAccount")}>
+    <AuthContainer heading={trans("userAuth.bindAccount")}>
       <ThirdAuthWrapper>
         <ThirdPartyAuth
           authGoal="bind"
@@ -131,12 +131,19 @@ function Login() {
     loginCardView = thirdPartyLoginView;
   }
 
-  const loginTitle = organizationId && LOWCODER_CUSTOM_AUTH_WELCOME_TEXT !== ""
+  const loginHeading = organizationId && LOWCODER_CUSTOM_AUTH_WELCOME_TEXT !== ""
     ? LOWCODER_CUSTOM_AUTH_WELCOME_TEXT
     : getLoginTitle(inviteInfo?.createUserName, systemConfig?.branding?.brandName)
 
+  const loginSubHeading = organizationId && LOWCODER_CUSTOM_AUTH_WELCOME_TEXT !== ""
+    ? trans("userAuth.poweredByLowcoder")
+    : ''
+
   return (
-    <AuthContainer title={loginTitle} >
+    <AuthContainer
+      heading={loginHeading}
+      subHeading={loginSubHeading}
+    >
       {loginCardView}
     </AuthContainer>
   );

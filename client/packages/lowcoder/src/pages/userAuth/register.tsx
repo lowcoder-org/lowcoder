@@ -18,7 +18,6 @@ import { useLocation } from "react-router-dom";
 import { UserConnectionSource } from "@lowcoder-ee/constants/userConstants";
 import { trans } from "i18n";
 import { AuthContext, checkPassWithMsg, useAuthSubmit } from "pages/userAuth/authUtils";
-import { Divider } from "antd";
 import { ThirdPartyAuth } from "pages/userAuth/thirdParty/thirdPartyAuth";
 import { useParams } from "react-router-dom";
 
@@ -72,12 +71,20 @@ function UserRegister() {
     return null;
   }
 
-  const registerTitle = organizationId && LOWCODER_CUSTOM_AUTH_WELCOME_TEXT !== ""
+  const registerHeading = organizationId && LOWCODER_CUSTOM_AUTH_WELCOME_TEXT !== ""
     ? LOWCODER_CUSTOM_AUTH_WELCOME_TEXT
     : trans("userAuth.register")
 
+  const registerSubHeading = organizationId && LOWCODER_CUSTOM_AUTH_WELCOME_TEXT !== ""
+    ? trans("userAuth.poweredByLowcoder")
+    : ''
+
   return (
-    <AuthContainer title={registerTitle} type="large">
+    <AuthContainer
+      heading={registerHeading}
+      subHeading={registerSubHeading}
+      type="large"
+    >
       <RegisterContent>
         <LoginCardTitle>{trans("userAuth.registerByEmail")}</LoginCardTitle>
         <StyledFormInput
@@ -104,15 +111,12 @@ function UserRegister() {
           {trans("userAuth.register")}
         </ConfirmButton>
         <TermsAndPrivacyInfo onCheckChange={(e) => setSubmitBtnDisable(!e.target.checked)} />
-        {Boolean(invitationId) && (
-          <>
-            <Divider />
-            <ThirdPartyAuth
-              invitationId={invitationId}
-              invitedOrganizationId={organizationId}
-              authGoal="register"
-            />
-          </>
+        {organizationId && (
+          <ThirdPartyAuth
+            invitationId={invitationId}
+            invitedOrganizationId={organizationId}
+            authGoal="register"
+          />
         )}
       </RegisterContent>
       <StyledRouteLinkLogin to={{

@@ -15,6 +15,7 @@ import { messageInstance } from "lowcoder-design";
 import styled from "styled-components";
 import { trans } from "i18n";
 import { geneAuthStateAndSaveParam, getAuthUrl, getRedirectUrl } from "pages/userAuth/authUtils";
+import { Divider } from "antd";
 
 const ThirdPartyLoginButtonWrapper = styled.div`
   button{
@@ -128,6 +129,7 @@ export function ThirdPartyAuth(props: {
   });
   return (
     <ThirdPartyLoginButtonWrapper>
+      { Boolean(socialLoginButtons.length) && <Divider /> }
       {socialLoginButtons}
     </ThirdPartyLoginButtonWrapper>
   );

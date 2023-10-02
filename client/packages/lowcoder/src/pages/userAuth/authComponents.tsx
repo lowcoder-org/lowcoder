@@ -32,7 +32,7 @@ const AuthCard = styled.div`
   }
 `;
 
-const AuthCardTitle = styled.div<{ type?: string }>`
+const AuthCardHeading = styled.div<{ type?: string }>`
   font-weight: 600;
   font-size: 28px;
   color: #222222;
@@ -50,6 +50,12 @@ const AuthCardTitle = styled.div<{ type?: string }>`
     ${(props) => props.type === "large" && "margin-top: 32px"}
   }
 `;
+
+const AuthCardSubHeading = styled.div`
+  font-size: 14px;
+  color: #222222;
+  line-height: 14px;
+`
 
 const AuthBottom = styled.div`
   display: flex;
@@ -116,10 +122,24 @@ const StyledConfirmButton = styled(TacoButton)`
   transition: unset;
 `;
 
-export const AuthContainer = (props: { children: any; title?: string; type?: string }) => {
+export const AuthContainer = (props: {
+  children: any;
+  heading?: string;
+  subHeading?: string;
+  type?: string
+}) => {
   return (
     <AuthCardContainer>
-      <AuthCardTitle type={props.type}>{props.title || ""}</AuthCardTitle>
+      <AuthCardHeading
+        type={props.type}
+      >
+        {props.heading || ""}
+      </AuthCardHeading>
+      { props.subHeading && (
+        <AuthCardSubHeading>
+          {props.subHeading}
+        </AuthCardSubHeading>
+      )}
       <AuthCard>{props.children}</AuthCard>
     </AuthCardContainer>
   );
