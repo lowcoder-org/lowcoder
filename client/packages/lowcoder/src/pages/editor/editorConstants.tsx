@@ -6,6 +6,7 @@ import {
   LeftCheckbox,
   LeftCommon,
   LeftContainer,
+  LeftMeeting,
   LeftDate,
   LeftDivider,
   LeftDrawer,
@@ -83,6 +84,9 @@ export const CompStateIcon: {
   form: <LeftForm />,
   jsonSchemaForm: <LeftJsonEditor />,
   container: <LeftContainer />,
+  meeting: <LeftMeeting />,
+  videocomponent: <LeftMeeting />,
+  meetingcontrols: <LeftMeeting />,
   tabbedContainer: <LeftContainer />,
   modal: <LeftModal />,
   listView: <LeftListView />,
@@ -106,7 +110,7 @@ export const CompStateIcon: {
   signature: <LeftSignature />,
   jsonLottie: <LeftJsonEditor />, //Added By Aqib Mirza
   timeline: <TimeLineIcon />,
-  mention: <MentionIcon/>,
+  mention: <MentionIcon />,
   autocomplete: <AutoCompleteCompIcon />,
   responsiveLayout: <ResponsiveLayoutCompIcon />,
 };

@@ -3,14 +3,14 @@ import { Section, sectionNames } from "lowcoder-design";
 import {
   clickEvent,
   eventHandlerControl,
-} from "../controls/eventHandlerControl";
-import { StringStateControl } from "../controls/codeStateControl";
-import { UICompBuilder, withDefault } from "../generators";
+} from "../../controls/eventHandlerControl";
+import { StringStateControl } from "../../controls/codeStateControl";
+import { UICompBuilder, withDefault } from "../../generators";
 import {
   NameConfig,
   NameConfigHidden,
   withExposingConfigs,
-} from "../generators/withExposing";
+} from "../../generators/withExposing";
 import { RecordConstructorToView } from "lowcoder-core";
 import { useEffect, useRef, useState } from "react";
 import _ from "lodash";
@@ -28,6 +28,11 @@ import { AutoHeightControl } from "comps/controls/autoHeightControl";
 import { BoolControl } from "comps/controls/boolControl";
 import { Image as AntImage } from "antd";
 import { DEFAULT_IMG_URL } from "util/stringUtils";
+import {
+  Button100,
+  ButtonCompWrapper,
+  ButtonStyleControl,
+} from "./videobuttonCompConstants";
 
 const Container = styled.div<{ $style: ImageStyleType | undefined }>`
   height: 100%;
@@ -102,31 +107,37 @@ const ContainerImg = (props: RecordConstructorToView<typeof childrenMap>) => {
     console.log(width, height);
 
     const img = imgRef.current;
-    const imgDiv = img?.getElementsByTagName("div")[0];
-    const imgCurrent = img?.getElementsByTagName("img")[0];
+    console.log("img", img);
+    const imgDiv = img?.getElementsByTagName("button")[0];
+    console.log("button", imgDiv);
+
+    const imgCurrent = img?.getElementsByTagName("button")[0];
     img!.style.height = height;
     img!.style.width = width;
     imgDiv!.style.height = height;
     imgDiv!.style.width = width;
-    imgCurrent!.style.height = height;
-    imgCurrent!.style.width = width;
+    // imgCurrent!.style.height = height;
+    // imgCurrent!.style.width = width;
   };
 
   const onResize = () => {
     const img = imgRef.current;
     const container = conRef.current;
+    console.log(container?.clientWidth, container?.clientHeight);
+
     if (!img?.clientWidth || !img?.clientHeight || props.autoHeight || !width) {
       return;
     }
     // fixme border style bug on safari
-    if (
-      (_.divide(container?.clientWidth!, container?.clientHeight!) || 0) >
-      (_.divide(Number(width), Number(height)) || 0)
-    ) {
-      setStyle("100%", "auto");
-    } else {
-      setStyle("auto", "100%");
-    }
+    setStyle(container?.clientHeight + "px", container?.clientWidth + "px");
+    // if (
+    //   (_.divide(container?.clientWidth!, container?.clientHeight!) || 0) >
+    //   (_.divide(Number(width), Number(height)) || 0)
+    // ) {
+    //   setStyle("100%", "auto");
+    // } else {
+    //   setStyle("auto", "100%");
+    // }
   };
   return (
     <ReactResizeDetector onResize={onResize}>
@@ -137,14 +148,25 @@ const ContainerImg = (props: RecordConstructorToView<typeof childrenMap>) => {
             props.autoHeight ? { width: "100%", height: "100%" } : undefined
           }
         >
-          <AntImage
-            src={props.src.value}
-            referrerPolicy="same-origin"
-            draggable={false}
-            preview={props.supportPreview}
-            fallback={DEFAULT_IMG_URL}
-            onClick={() => props.onEvent("click")}
-          />
+          <Button100
+            // $buttonStyle={props.style}
+            // loading={props.loading}
+            style={
+              props.autoHeight ? { width: "100%", height: "100%" } : undefined
+            }
+            //   disabled={
+            //     props.disabled ||
+            //     (!isDefault(props.type) &&
+            //       getForm(editorState, props.form)?.disableSubmit())
+            //   }
+            //   onClick={() =>
+            //     isDefault(props.type)
+            //       ? props.onEvent("click")
+            //       : submitForm(editorState, props.form)
+            //   }
+          >
+            m
+          </Button100>
         </div>
       </Container>
     </ReactResizeDetector>
@@ -198,7 +220,7 @@ ImageBasicComp = class extends ImageBasicComp {
   }
 };
 
-export const ImageComp = withExposingConfigs(ImageBasicComp, [
+export const VideoContolComp = withExposingConfigs(ImageBasicComp, [
   new NameConfig("src", trans("image.srcDesc")),
   NameConfigHidden,
 ]);
