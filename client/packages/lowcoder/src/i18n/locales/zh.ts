@@ -1271,7 +1271,7 @@ jsonExplorer: {
 },
 audio: {
     src: "音频链接",
-    defaultSrcUrl: "https://cdn-files.lowcoder.dev/canon-excerpt.mp3",
+    defaultSrcUrl: "https://cdn-files.lowcoder.cloud/canon-excerpt.mp3",
     autoPlay: "自动播放",
     loop: "循环播放",
     srcDesc: "当前音频链接",
@@ -1627,7 +1627,7 @@ theme: {
     phoneColumn: "电话",
     subTitle: "标题",
     linkLabel: "链接",
-    linkUrl: "cloud.lowcoder.dev",
+    linkUrl: "app.lowcoder.cloud",
     progressLabel: "进度",
     sliderLabel: "滑块",
     radioLabel: "单选按钮",
@@ -2095,7 +2095,7 @@ toggleButton: {
 },
 docUrls: {
     docHome: "https://docs.lowcoder.cloud/",
-    components: "https://cloud.lowcoder.dev/components?n={compType}",
+    components: "https://app.lowcoder.cloud/components?n={compType}",
     module: "",
     optionList: "",
     terms: "",
