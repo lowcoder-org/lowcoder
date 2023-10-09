@@ -24,7 +24,7 @@ export interface UICompLayoutInfo {
 
 export const uiCompCategoryNames = {
   common: trans("uiCompCategory.common"),
-  meeting: trans("uiCompCategory.meeting"),
+  meeting: trans("meeting.meeting"),
   dataInputText: trans("uiCompCategory.dataInputText"),
   dataInputNumber: trans("uiCompCategory.dataInputNumber"),
   dataInputSelect: trans("uiCompCategory.dataInputSelect"),

@@ -136,9 +136,9 @@ import { AutoCompleteComp } from "./comps/autoCompleteComp/autoCompleteComp";
 //Added by Aqib Mirza
 import { JsonLottieComp } from "./comps/jsonComp/jsonLottieComp";
 import { ResponsiveLayoutComp } from "./comps/responsiveLayout";
-import { VideoMeetingComp } from "./comps/meetingComp/videoStreamComp";
+import { VideoMeetingStreamComp } from "./comps/meetingComp/videoMeetingStreamComp";
 import { VideoControlButton } from "./comps/meetingComp/videoControlButton";
-import { VideoCOntrollerComp } from "./comps/meetingComp/videoControllerComp";
+import { VideoMeetingControllerComp } from "./comps/meetingComp/videoMeetingControllerComp";
 
 type Registry = {
   [key in UICompType]?: UICompManifest;
@@ -565,7 +565,7 @@ const uiCompMap: Registry = {
     categories: ["meeting"],
     icon: VideoCompIcon,
     keywords: trans("meeting.meetingCompKeywords"),
-    comp: VideoMeetingComp,
+    comp: VideoMeetingStreamComp,
     withoutLoading: true,
   },
   meetingcontrols: {
@@ -781,7 +781,7 @@ const uiCompMap: Registry = {
     categories: ["meeting"],
     icon: DrawerCompIcon,
     keywords: trans("meeting.meetingCompKeywords"),
-    comp: VideoCOntrollerComp,
+    comp: VideoMeetingControllerComp,
     withoutLoading: true,
   },
   carousel: {

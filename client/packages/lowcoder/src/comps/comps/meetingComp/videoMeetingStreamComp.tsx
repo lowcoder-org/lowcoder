@@ -215,7 +215,7 @@ VideoCompBuilder = class extends VideoCompBuilder {
 };
 
 
-export const VideoMeetingComp = withExposingConfigs(VideoCompBuilder, [
+export const VideoMeetingStreamComp = withExposingConfigs(VideoCompBuilder, [
   new NameConfig("loading", trans("button.loadingDesc")),
   ...CommonNameConfig,
 ]);

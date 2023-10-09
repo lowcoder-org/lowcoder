@@ -697,7 +697,6 @@ export const en = {
   },
   uiCompCategory: {
     common: "Commonly used",
-    meeting: "Meeting Settings",
     dataInputText: "Text inputs",
     dataInputNumber: "Number inputs",
     dataInputSelect: "Select inputs",
@@ -1436,7 +1435,8 @@ export const en = {
     height: "Drawer height",
   },
   meeting: {
-    placement: "Drawer placement",
+    placement: "Meeting placement",
+    meeting: "Meeting Settings",
     size: "Size",
     top: "Top",
     right: "Right",

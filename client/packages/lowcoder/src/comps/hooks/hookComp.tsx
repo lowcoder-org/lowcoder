@@ -32,7 +32,7 @@ import { MessageComp } from "./messageComp";
 import { ThemeComp } from "./themeComp";
 import UrlParamsHookComp from "./UrlParamsHookComp";
 import { UtilsComp } from "./utilsComp";
-import { VideoCOntrollerComp } from "../comps/meetingComp/videoControllerComp";
+import { VideoMeetingControllerComp } from "../comps/meetingComp/videoMeetingControllerComp";
 
 window._ = _;
 window.dayjs = dayjs;
@@ -95,7 +95,7 @@ const HookMap: HookCompMapRawType = {
   message: MessageComp,
   localStorage: LocalStorageComp,
   modal: ModalComp,
-  meeting: VideoCOntrollerComp,
+  meeting: VideoMeetingControllerComp,
   currentUser: CurrentUserHookComp,
   urlParams: UrlParamsHookComp,
   drawer: DrawerComp,

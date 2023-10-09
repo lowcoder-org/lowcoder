@@ -7,9 +7,7 @@ import {
 } from "comps/comps/containerComp/containerView";
 import { AutoHeightControl } from "comps/controls/autoHeightControl";
 import { BoolControl } from "comps/controls/boolControl";
-import {
-  StringControl,
-} from "comps/controls/codeControl";
+import { StringControl } from "comps/controls/codeControl";
 import {
   booleanExposingStateControl,
   jsonObjectExposingStateControl,
@@ -93,7 +91,6 @@ const ButtonStyle = styled(Button)`
 function transToPxSize(size: string | number) {
   return isNumeric(size) ? size + "px" : (size as string);
 }
-
 
 let client: IAgoraRTCClient = AgoraRTC.createClient({
   mode: "rtc",
@@ -461,7 +458,7 @@ MTComp = withMethodExposing(MTComp, [
   },
 ]);
 
-export const VideoCOntrollerComp = withExposingConfigs(MTComp, [
+export const VideoMeetingControllerComp = withExposingConfigs(MTComp, [
   new NameConfig("visible", trans("export.visibleDesc")),
   new NameConfig("appId", trans("prop.appid")),
   new NameConfig("participants", trans("prop.participants")),
