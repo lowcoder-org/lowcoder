@@ -8,10 +8,14 @@ export interface ConfigResponse extends ApiResponse {
 }
 
 class ConfigApi extends Api {
-  static configURL = "/v1/configs";
+  static configURL = "/configs";
 
-  static fetchConfig(): AxiosPromise<ConfigResponse> {
-    return Api.get(ConfigApi.configURL);
+  static fetchConfig(orgId?: string): AxiosPromise<ConfigResponse> {
+    let authConfigURL = ConfigApi.configURL;
+    if(orgId?.length) {
+      authConfigURL += `?orgId?=${orgId}`;
+    }
+    return Api.get(authConfigURL);
   }
 }
 

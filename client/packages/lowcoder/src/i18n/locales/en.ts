@@ -1960,6 +1960,7 @@ export const en = {
     resetSuccess: "Reset succeeded",
     resetSuccessDesc: "Password reset succeeded. The new password is: {password}",
     copyPassword: "Copy password",
+    poweredByLowcoder: "Powered by Lowcoder.cloud"
   },
   preLoad: {
     jsLibraryHelpText:
