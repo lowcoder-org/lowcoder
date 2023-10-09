@@ -32,7 +32,7 @@ import { MessageComp } from "./messageComp";
 import { ThemeComp } from "./themeComp";
 import UrlParamsHookComp from "./UrlParamsHookComp";
 import { UtilsComp } from "./utilsComp";
-import { VideoCOntrollerComp } from "./videoControllerComp";
+import { VideoCOntrollerComp } from "../comps/meetingComp/videoControllerComp";
 
 window._ = _;
 window.dayjs = dayjs;

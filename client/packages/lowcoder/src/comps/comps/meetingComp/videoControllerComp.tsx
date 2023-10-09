@@ -8,12 +8,9 @@ import {
 import { AutoHeightControl } from "comps/controls/autoHeightControl";
 import { BoolControl } from "comps/controls/boolControl";
 import {
-  JSONObjectArrayControl,
-  NumberControl,
   StringControl,
 } from "comps/controls/codeControl";
 import {
-  arrayStringExposingStateControl,
   booleanExposingStateControl,
   jsonObjectExposingStateControl,
   jsonValueExposingStateControl,
@@ -39,22 +36,19 @@ import {
   Section,
   sectionNames,
 } from "lowcoder-design";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect } from "react";
 import { ResizeHandle } from "react-resizable";
 import styled from "styled-components";
 import { useUserViewMode } from "util/hooks";
 import { isNumeric } from "util/stringUtils";
-import { NameConfig, withExposingConfigs } from "../generators/withExposing";
-import { v4 as uuidv4 } from "uuid";
+import { NameConfig, withExposingConfigs } from "../../generators/withExposing";
 
 import AgoraRTC, {
   ICameraVideoTrack,
   IMicrophoneAudioTrack,
   IAgoraRTCClient,
   IAgoraRTCRemoteUser,
-  IRemoteVideoTrack,
 } from "agora-rtc-sdk-ng";
-import { JSONObject } from "@lowcoder-ee/index.sdk";
 
 const EventOptions = [closeEvent] as const;
 
@@ -100,24 +94,6 @@ function transToPxSize(size: string | number) {
   return isNumeric(size) ? size + "px" : (size as string);
 }
 
-const PlacementOptions = [
-  {
-    label: trans("drawer.top"),
-    value: "top",
-  },
-  {
-    label: trans("drawer.right"),
-    value: "right",
-  },
-  {
-    label: trans("drawer.bottom"),
-    value: "bottom",
-  },
-  {
-    label: trans("drawer.left"),
-    value: "left",
-  },
-] as const;
 
 let client: IAgoraRTCClient = AgoraRTC.createClient({
   mode: "rtc",
@@ -144,8 +120,6 @@ const turnOnMicrophone = async (flag?: boolean) => {
 };
 
 const leaveChannel = async () => {
-  console.log("isJoined", isJoined);
-
   if (!client) {
     console.error("Agora client is not initialized");
     return;
@@ -156,19 +130,19 @@ const leaveChannel = async () => {
     return;
   }
   if (videoTrack) {
-    // await turnOnCamera(false);
+    await turnOnCamera(false);
     await client.unpublish(videoTrack);
     videoTrack.stop();
   }
 
   if (audioTrack) {
-    // await turnOnMicrophone(false);
+    await turnOnMicrophone(false);
     await client.unpublish(audioTrack);
     audioTrack.stop();
   }
 
   await client.leave();
-  isJoined = false; // Update the flag to indicate that you have left the channel
+  isJoined = false;
 };
 let isJoined = false;
 
@@ -181,8 +155,6 @@ const joinChannel = async (appId: any, channel: any, token: any) => {
     await leaveChannel();
   }
 
-  // client.on("user-published", onUserPublish);
-
   await client.join(
     appId,
     channel,
@@ -194,7 +166,6 @@ const joinChannel = async (appId: any, channel: any, token: any) => {
 };
 
 const publishVideo = async (appId: any, channel: any, height: any) => {
-  console.log("publishVideo", appId, channel, isJoined);
   await turnOnCamera(true);
   console.log(appId, channel);
 
@@ -202,11 +173,7 @@ const publishVideo = async (appId: any, channel: any, height: any) => {
     await joinChannel(appId, channel, null);
   }
 
-  console.log("publish videoTrack ", videoTrack);
-
   await client.publish(videoTrack);
-
-  // turnOnCamera(true);
   const mediaStreamTrack = videoTrack.getMediaStreamTrack();
 
   if (mediaStreamTrack) {
@@ -276,16 +243,12 @@ let MTComp = (function () {
       [dispatch, isTopBom]
     );
 
-    const usersWithVideoTracks: any = {};
-
     useEffect(() => {
       console.log("nnnn ", props.participants);
     }, [props.participants.value]);
 
     useEffect(() => {
       if (client) {
-        console.log("REGISTERING LISTNERS");
-
         client.on(
           "user-published",
           async (user: IAgoraRTCRemoteUser, mediaType: "video" | "audio") => {
@@ -297,26 +260,10 @@ let MTComp = (function () {
               const remoteTrack = await client.subscribe(user, mediaType);
               remoteTrack.play();
             }
-            const remoteVideoTrack = user.videoTrack;
-            if (remoteVideoTrack) {
-              props.participants.onChange([JSON.stringify(user.uid)]);
-              console.log("usersWithVideoTracks", props.participants);
-            }
           }
         );
 
-        client.on("user-joined", (user: IAgoraRTCRemoteUser) => {
-          // usersWithVideoTracks[user.uid] = { user, videoTracks: [] };
-          // props.participants.onChange(usersWithVideoTracks);
-          // console.log(
-          //   "userJoined",
-          //   user.uid,
-          //   props.participants.value,
-          //   usersWithVideoTracks
-          // );
-          // const uid = user.uid;
-          // usersWithVideoTracks[uid] = { user, videoTracks: [] };
-        });
+        client.on("user-joined", (user: IAgoraRTCRemoteUser) => {});
         client.on("user-offline", (uid: any, reason: any) => {
           console.log(`User  ${uid} left the channel.`);
         });
@@ -328,13 +275,8 @@ let MTComp = (function () {
         });
         client.on("stream-added", (user: IAgoraRTCRemoteUser) => {
           console.log("stream-added");
-
-          if (user.hasVideo) {
-            console.log(`Stream from user ${user.videoTrack} added.`);
-          }
         });
       }
-      // turnOnCamera(true);
     }, [client]);
 
     return (

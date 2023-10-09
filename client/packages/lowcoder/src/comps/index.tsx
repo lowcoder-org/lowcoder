@@ -136,9 +136,9 @@ import { AutoCompleteComp } from "./comps/autoCompleteComp/autoCompleteComp";
 //Added by Aqib Mirza
 import { JsonLottieComp } from "./comps/jsonComp/jsonLottieComp";
 import { ResponsiveLayoutComp } from "./comps/responsiveLayout";
-import { VideoMeetingComp } from "./comps/videoComp/videoMeetingComp";
-import { VideoControlButton } from "./comps/videoComp/videoControlButton";
-import { VideoCOntrollerComp } from "./hooks/videoControllerComp";
+import { VideoMeetingComp } from "./comps/meetingComp/videoStreamComp";
+import { VideoControlButton } from "./comps/meetingComp/videoControlButton";
+import { VideoCOntrollerComp } from "./comps/meetingComp/videoControllerComp";
 
 type Registry = {
   [key in UICompType]?: UICompManifest;

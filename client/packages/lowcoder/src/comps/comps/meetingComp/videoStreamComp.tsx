@@ -165,19 +165,12 @@ let VideoCompBuilder = (function (props) {
     suffixIcon: IconControl,
     style: ButtonStyleControl,
     viewRef: RefControl<HTMLElement>,
-    appId: withDefault(StringControl, trans("prop.appid")), ///
-    videokey: withDefault(StringControl, trans("prop.videokey")),
-    participants: arrayStringExposingStateControl("participants"),
     userId: stringExposingStateControl(
       "text",
       trans("meeting.userId", { name: "{{currentUser.name}}" })
     ),
   };
-  // const { client, videoHeight, videoWidth, setHeight, setWidth } = useAgora();
-
   return new UICompBuilder(childrenMap, (props) => {
-    console.log("userId", props.userId.value);
-    //   "afd10eabe68a4de68a76461be92c693c"
     const videoRef = useRef<HTMLVideoElement>(null);
     const conRef = useRef<HTMLDivElement>(null);
 
@@ -185,11 +178,6 @@ let VideoCompBuilder = (function (props) {
       onResize();
     }, []);
 
-    useEffect(() => {
-      if (props.participants.value.length > 0) {
-        console.log("bbb", props.participants.value);
-      }
-    }, [props.participants.value]);
 
     const onResize = async () => {
       const container = conRef.current;
@@ -205,7 +193,6 @@ let VideoCompBuilder = (function (props) {
             <Container ref={conRef} $style={props.style}>
               <video
                 ref={videoRef}
-                id={props.videokey}
                 style={{ width: 300, height: 300 }}
               ></video>
             </Container>
@@ -216,46 +203,6 @@ let VideoCompBuilder = (function (props) {
   })
     .setPropertyViewFn((children) => (
       <>
-        {/* <Section name={sectionNames.settings}>
-          {children.userId.propertyView({
-            label: trans("meeting.userId"),
-          })}
-          {children.autoHeight.getPropertyView()}
-          {children.videokey.propertyView({
-            label: trans("prop.videokey"),
-          })}
-        </Section> */}
-        {/* <Section name={sectionNames.layout}>
-          {/* {hiddenPropertyView(children)} 
-        </Section> */}
-
-        {/* <Section name={sectionNames.interaction}>
-          {children.type.propertyView({
-            label: trans("prop.type"),
-            radioButton: true,
-          })} */}
-        {/* {isDefault(children.type.getView())
-            ? [
-                children.onEvent.getPropertyView(),
-                disabledPropertyView(children),
-                loadingPropertyView(children),
-              ]  
-            : children.form.getPropertyView()} */}
-        {/* </Section> */}
-
-        {/* <Section name={sectionNames.layout}>
-          {children.prefixIcon.propertyView({
-            label: trans("button.prefixIcon"),
-          })}
-          {children.suffixIcon.propertyView({
-            label: trans("button.suffixIcon"),
-          })}
-          {hiddenPropertyView(children)}
-        </Section>
-
-        <Section name={sectionNames.style}>
-          {children.style.getPropertyView()}
-        </Section> */}
       </>
     ))
     .build();
@@ -267,57 +214,8 @@ VideoCompBuilder = class extends VideoCompBuilder {
   }
 };
 
-VideoCompBuilder = withMethodExposing(VideoCompBuilder, [
-  {
-    method: {
-      name: "audioControl",
-      description: trans("meeting.actionBtnDesc"),
-      params: [],
-    },
-    execute: (comp, values) => {
-      // let value = !comp.children.audioControl.getView().value;
-      // turnOnMicrophone(value);
-      // comp.children.audioControl.change(value);
-    },
-  },
-  // {
-  //   method: {
-  //     name: "videoControl",
-  //     description: trans("meeting.actionBtnDesc"),
-  //     params: [],
-  //   },
-  //   execute: (comp, values) => {
-  //     let value = !comp.children.videoControl.getView().value;
-  //     turnOnCamera(value);
-  //     comp.children.videoControl.change(value);
-  //   },
-  // },
-  // {
-  //   method: {
-  //     name: "startMeeting",
-  //     description: trans("meeting.actionBtnDesc"),
-  //     params: [],
-  //   },
-  //   execute: (comp, values) => {
-  //     publishVideo(comp.children.appId.getView(), "testsdaadasdsa");
-  //   },
-  // },
-  // {
-  //   method: {
-  //     name: "endCall",
-  //     description: trans("meeting.actionBtnDesc"),
-  //     params: [],
-  //   },
-  //   execute: (comp, values) => {
-  //     let value = !comp.children.endCall.getView().value;
-  //     leaveChannel();
-  //     comp.children.endCall.change(value);
-  //   },
-  // },
-]);
 
 export const VideoMeetingComp = withExposingConfigs(VideoCompBuilder, [
-  // new NameConfig("appId", trans("button.textDesc")),
   new NameConfig("loading", trans("button.loadingDesc")),
   ...CommonNameConfig,
 ]);
