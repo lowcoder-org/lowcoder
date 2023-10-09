@@ -168,6 +168,7 @@ export { ReactComponent as AudioCompIcon } from "./icon-insert-audio.svg";
 export { ReactComponent as VideoCompIcon } from "./icon-insert-video.svg";
 export { ReactComponent as videoPlayTriangle } from "./icon-video-play-triangle.svg";
 export { ReactComponent as DrawerCompIcon } from "./icon-drawer.svg";
+export { ReactComponent as LeftMeetingIcon } from "./icon-left-comp-video.svg";
 export { ReactComponent as PlusIcon } from "./icon-plus.svg";
 export { ReactComponent as HomeIcon } from "./icon-application-home.svg";
 export { ReactComponent as HomeModuleIcon } from "./icon-application-module.svg";
@@ -236,6 +237,7 @@ export { ReactComponent as LeftContainer } from "./icon-left-comp-container.svg"
 export { ReactComponent as LeftDate } from "./icon-left-comp-date.svg";
 export { ReactComponent as LeftDivider } from "./icon-left-comp-divider.svg";
 export { ReactComponent as LeftDrawer } from "./icon-left-comp-drawer.svg";
+export { ReactComponent as LeftMeeting } from "./icon-left-comp-video.svg";
 export { ReactComponent as LeftFile } from "./icon-left-comp-file.svg";
 export { ReactComponent as LeftFileViewer } from "./icon-left-comp-fileViewer.svg";
 export { ReactComponent as LeftForm } from "./icon-left-comp-form.svg";

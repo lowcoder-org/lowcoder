@@ -216,7 +216,7 @@ let VideoCompBuilder = (function (props) {
   })
     .setPropertyViewFn((children) => (
       <>
-        <Section name={sectionNames.settings}>
+        {/* <Section name={sectionNames.settings}>
           {children.userId.propertyView({
             label: trans("meeting.userId"),
           })}
@@ -224,7 +224,7 @@ let VideoCompBuilder = (function (props) {
           {children.videokey.propertyView({
             label: trans("prop.videokey"),
           })}
-        </Section>
+        </Section> */}
         {/* <Section name={sectionNames.layout}>
           {/* {hiddenPropertyView(children)} 
         </Section> */}
