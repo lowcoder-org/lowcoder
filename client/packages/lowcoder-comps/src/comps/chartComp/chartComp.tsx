@@ -142,6 +142,7 @@ ChartTmpComp = withViewFn(ChartTmpComp, (comp) => {
           opts={{ locale: getEchartsLocale() }}
           option={option}
           theme={mode !== 'map' ? themeConfig : undefined}
+          mode={mode}
         />
       )}
     </ReactResizeDetector>

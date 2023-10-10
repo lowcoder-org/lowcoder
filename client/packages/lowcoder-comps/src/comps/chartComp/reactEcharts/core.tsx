@@ -67,6 +67,11 @@ export default class EChartsReactCore extends PureComponent<EChartsReactProps> {
       return;
     }
 
+    if(this.props.mode === "json") {
+      this.updateEChartsOption();
+      return;
+    }
+
     // when these props are not isEqual, update echarts
     const pickKeys = ["option", "notMerge", "lazyUpdate", "showLoading", "loadingOption"];
     if (!isEqual(_.pick(this.props, pickKeys), _.pick(prevProps, pickKeys))) {
