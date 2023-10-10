@@ -9,7 +9,6 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.collections4.CollectionUtils;
 import org.lowcoder.infra.event.SystemCommonEvent;
 import org.lowcoder.infra.perf.PerfHelper;
-import org.lowcoder.plugin.events.ServerLogEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -54,5 +53,4 @@ public class ServerLogService {
                     );
                 });
     }
-
 }
