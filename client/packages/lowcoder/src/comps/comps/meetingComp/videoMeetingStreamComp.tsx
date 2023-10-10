@@ -1,11 +1,4 @@
-import {
-  ArrayControl,
-  ArrayOrJSONObjectControl,
-  BoolCodeControl,
-  JSONObjectArrayControl,
-  NumberControl,
-  StringControl,
-} from "comps/controls/codeControl";
+import { BoolCodeControl } from "comps/controls/codeControl";
 import { dropdownControl } from "comps/controls/dropdownControl";
 import { ButtonEventHandlerControl } from "comps/controls/eventHandlerControl";
 import { IconControl } from "comps/controls/iconControl";
@@ -36,22 +29,16 @@ import { RefControl } from "comps/controls/refControl";
 import { useEffect, useRef, useState } from "react";
 
 import { AutoHeightControl } from "comps/controls/autoHeightControl";
-import {
-  arrayStringExposingStateControl,
-  booleanExposingStateControl,
-  jsonObjectExposingStateControl,
-  stringExposingStateControl,
-  withMethodExposing,
-} from "@lowcoder-ee/index.sdk";
+import { client } from "./videoMeetingControllerComp";
+
+import { IAgoraRTCRemoteUser, UID } from "agora-rtc-sdk-ng";
+
+import { stringExposingStateControl } from "@lowcoder-ee/index.sdk";
 // import useAgora from "@lowcoder-ee/comps/hooks/agoraFunctions";
 
 const FormLabel = styled(CommonBlueLabel)`
   font-size: 13px;
   margin-right: 4px;
-`;
-
-const IconWrapper = styled.div`
-  display: flex;
 `;
 
 function getFormOptions(editorState: EditorState) {
@@ -165,10 +152,7 @@ let VideoCompBuilder = (function (props) {
     suffixIcon: IconControl,
     style: ButtonStyleControl,
     viewRef: RefControl<HTMLElement>,
-    userId: stringExposingStateControl(
-      "text",
-      trans("meeting.userId", { name: "{{currentUser.name}}" })
-    ),
+    userId: stringExposingStateControl("user id", trans("meeting.userId")),
   };
   return new UICompBuilder(childrenMap, (props) => {
     const videoRef = useRef<HTMLVideoElement>(null);
@@ -178,13 +162,45 @@ let VideoCompBuilder = (function (props) {
       onResize();
     }, []);
 
-
     const onResize = async () => {
       const container = conRef.current;
       let videoCo = videoRef.current;
       videoCo!.style.height = container?.clientHeight + "px";
       videoCo!.style.width = container?.clientWidth + "px";
     };
+
+    useEffect(() => {
+      client.on(
+        "user-published",
+        async (user: IAgoraRTCRemoteUser, mediaType: "video" | "audio") => {
+          if (mediaType === "video") {
+
+            // const videoElement = document.createElement("video");
+            // videoElement.id = user.uid + "";
+            // videoElement.width = 640; 
+            // videoElement.height = 360;
+
+            // if (conRef.current) {
+            //   conRef.current.appendChild(videoElement);
+            // }
+
+            // console.log("elementHtml", document.getElementById(user.uid + ""));
+
+            const remoteTrack = await client.subscribe(user, mediaType);
+            remoteTrack.play(user.uid + "_v");
+            console.log("user-published ", user.uid);
+          }
+          if (mediaType === "audio") {
+            const remoteTrack = await client.subscribe(user, mediaType);
+            remoteTrack.play();
+          }
+        }
+      );
+
+      client.on("user-joined", (user: IAgoraRTCRemoteUser) => {
+        console.log("drawer joined", user.uid);
+      });
+    }, [props.userId]);
 
     return (
       <EditorContext.Consumer>
@@ -193,6 +209,7 @@ let VideoCompBuilder = (function (props) {
             <Container ref={conRef} $style={props.style}>
               <video
                 ref={videoRef}
+                id={props.userId.value + "_v"}
                 style={{ width: 300, height: 300 }}
               ></video>
             </Container>
@@ -203,6 +220,10 @@ let VideoCompBuilder = (function (props) {
   })
     .setPropertyViewFn((children) => (
       <>
+        <Section name={sectionNames.basic}>
+          {children.userId.propertyView({ label: trans("text") })}
+          {children.autoHeight.getPropertyView()}
+        </Section>
       </>
     ))
     .build();
@@ -213,7 +234,6 @@ VideoCompBuilder = class extends VideoCompBuilder {
     return this.children.autoHeight.getView();
   }
 };
-
 
 export const VideoMeetingStreamComp = withExposingConfigs(VideoCompBuilder, [
   new NameConfig("loading", trans("button.loadingDesc")),

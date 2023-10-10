@@ -11,7 +11,6 @@ import { StringControl } from "comps/controls/codeControl";
 import {
   booleanExposingStateControl,
   jsonObjectExposingStateControl,
-  jsonValueExposingStateControl,
   numberExposingStateControl,
 } from "comps/controls/codeStateControl";
 import { PositionControl } from "comps/controls/dropdownControl";
@@ -21,7 +20,7 @@ import {
 } from "comps/controls/eventHandlerControl";
 import { styleControl } from "comps/controls/styleControl";
 import { DrawerStyle } from "comps/controls/styleControlConstants";
-import { withDefault } from "comps/generators";
+import { stateComp, withDefault } from "comps/generators";
 import { withMethodExposing } from "comps/generators/withMethodExposing";
 import { BackgroundColorContext } from "comps/utils/backgroundColorContext";
 import { CanvasContainerID } from "constants/domLocators";
@@ -34,7 +33,7 @@ import {
   Section,
   sectionNames,
 } from "lowcoder-design";
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { ResizeHandle } from "react-resizable";
 import styled from "styled-components";
 import { useUserViewMode } from "util/hooks";
@@ -47,6 +46,8 @@ import AgoraRTC, {
   IAgoraRTCClient,
   IAgoraRTCRemoteUser,
 } from "agora-rtc-sdk-ng";
+import { JSONValue } from "@lowcoder-ee/index.sdk";
+import { getData } from "../listViewComp/listViewUtils";
 
 const EventOptions = [closeEvent] as const;
 
@@ -92,11 +93,10 @@ function transToPxSize(size: string | number) {
   return isNumeric(size) ? size + "px" : (size as string);
 }
 
-let client: IAgoraRTCClient = AgoraRTC.createClient({
+export const client: IAgoraRTCClient = AgoraRTC.createClient({
   mode: "rtc",
   codec: "vp8",
 });
-
 let audioTrack: IMicrophoneAudioTrack;
 let videoTrack: ICameraVideoTrack;
 
@@ -105,7 +105,7 @@ const turnOnCamera = async (flag?: boolean) => {
     return videoTrack.setEnabled(flag!);
   }
   videoTrack = await AgoraRTC.createCameraVideoTrack();
-  videoTrack.play("camera-video");
+  videoTrack.play("host-video");
 };
 
 const turnOnMicrophone = async (flag?: boolean) => {
@@ -151,13 +151,9 @@ const joinChannel = async (appId: any, channel: any, token: any) => {
   if (isJoined) {
     await leaveChannel();
   }
-
-  await client.join(
-    appId,
-    channel,
-    token || null,
-    Math.floor(100000 + Math.random() * 900000)
-  );
+  let userId = Math.floor(100000 + Math.random() * 900000);
+  console.log("me joining ", userId);
+  await client.join(appId, channel, token || null, userId);
 
   isJoined = true;
 };
@@ -177,27 +173,10 @@ const publishVideo = async (appId: any, channel: any, height: any) => {
     const videoSettings = mediaStreamTrack.getSettings();
     const videoWidth = videoSettings.width;
     const videoHeight = videoSettings.height;
-    console.log("videoHeight ", videoHeight);
-
     height.videoWidth.change(videoWidth);
     height.videoHeight.change(videoHeight);
-    console.log(`Video width: ${videoWidth}px, height: ${videoHeight}px`);
   } else {
     console.error("Media stream track not found");
-  }
-};
-
-const onUserPublish = async (
-  user: IAgoraRTCRemoteUser,
-  mediaType: "video" | "audio"
-) => {
-  if (mediaType === "video") {
-    const remoteTrack = await client.subscribe(user, mediaType);
-    remoteTrack.play("remote-video");
-  }
-  if (mediaType === "audio") {
-    const remoteTrack = await client.subscribe(user, mediaType);
-    remoteTrack.play();
   }
 };
 
@@ -219,7 +198,7 @@ let MTComp = (function () {
     videoWidth: numberExposingStateControl("videoWidth", 200),
     videoHeight: numberExposingStateControl("videoHeight", 200),
     appId: withDefault(StringControl, trans("prop.appid")),
-    participants: jsonValueExposingStateControl("participants"),
+    participants: stateComp<JSONValue>([]),
   };
   return new ContainerCompBuilder(childrenMap, (props, dispatch) => {
     const isTopBom = ["top", "bottom"].includes(props.placement);
@@ -239,33 +218,19 @@ let MTComp = (function () {
       },
       [dispatch, isTopBom]
     );
+    const [userIds, setUserIds] = useState<any>([]);
 
     useEffect(() => {
-      console.log("nnnn ", props.participants);
-    }, [props.participants.value]);
+      dispatch(changeChildAction("participants", getData(userIds).data, false));
+    }, [userIds]);
 
     useEffect(() => {
       if (client) {
-        client.on(
-          "user-published",
-          async (user: IAgoraRTCRemoteUser, mediaType: "video" | "audio") => {
-            if (mediaType === "video") {
-              const remoteTrack = await client.subscribe(user, mediaType);
-              remoteTrack.play("remote-video");
-            }
-            if (mediaType === "audio") {
-              const remoteTrack = await client.subscribe(user, mediaType);
-              remoteTrack.play();
-            }
-          }
-        );
-
-        client.on("user-joined", (user: IAgoraRTCRemoteUser) => {});
+        client.on("user-joined", (user: IAgoraRTCRemoteUser) => {
+          setUserIds((userIds: any) => [...userIds, { user: user.uid }]);
+        });
         client.on("user-offline", (uid: any, reason: any) => {
           console.log(`User  ${uid} left the channel.`);
-        });
-        client.on("user-published", (user, mediaType) => {
-          console.log(`User ${user.uid} published ${user.videoTrack} stream.`);
         });
         client.on("stream-removed", (user: IAgoraRTCRemoteUser) => {
           console.log(`Stream from user ${user.uid} removed.`);
@@ -463,3 +428,7 @@ export const VideoMeetingControllerComp = withExposingConfigs(MTComp, [
   new NameConfig("appId", trans("prop.appid")),
   new NameConfig("participants", trans("prop.participants")),
 ]);
+
+export function agoraClient() {
+  return client;
+}
