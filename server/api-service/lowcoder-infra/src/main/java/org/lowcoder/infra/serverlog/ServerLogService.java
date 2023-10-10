@@ -9,7 +9,6 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.collections4.CollectionUtils;
 import org.lowcoder.infra.event.SystemCommonEvent;
 import org.lowcoder.infra.perf.PerfHelper;
-import org.lowcoder.plugin.events.ServerLogEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -47,13 +46,11 @@ public class ServerLogService {
                 .subscribe(result -> {
                     int count = result.size();
                     perfHelper.count(SERVER_LOG_BATCH_INSERT, Tags.of("size", String.valueOf(result.size())));
-                    publishServerLogEvent(count);
+                    applicationEventPublisher.publishEvent(SystemCommonEvent.builder()
+                    		.apiCalls(count)
+                    		.detail("apiCalls", Integer.toString(count))
+                    		.build()
+                    );
                 });
-    }
-
-    private void publishServerLogEvent(int count) {
-        ServerLogEvent event = new ServerLogEvent();
-        event.setApiCallsCount(count);
-        applicationEventPublisher.publishEvent(event);
     }
 }
