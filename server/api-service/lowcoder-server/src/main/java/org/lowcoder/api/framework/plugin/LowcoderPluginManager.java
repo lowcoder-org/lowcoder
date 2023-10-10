@@ -18,17 +18,21 @@ import java.util.Map;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.lowcoder.plugin.EndpointExtension;
-import org.lowcoder.plugin.LowcoderPlugin;
-import org.lowcoder.plugin.PluginEndpoint;
+import org.lowcoder.api.framework.plugin.data.PluginServerRequest;
+import org.lowcoder.plugin.api.EndpointExtension;
+import org.lowcoder.plugin.api.LowcoderPlugin;
+import org.lowcoder.plugin.api.LowcoderServices;
+import org.lowcoder.plugin.api.PluginEndpoint;
+import org.lowcoder.plugin.api.data.EndpointRequest;
+import org.lowcoder.plugin.api.data.EndpointResponse;
 import org.lowcoder.sdk.exception.BaseException;
-import org.springframework.context.ApplicationContext;
 import org.springframework.core.ResolvableType;
+import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.server.RequestPredicate;
 import org.springframework.web.reactive.function.server.RouterFunction;
-import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
+import org.springframework.web.reactive.function.server.ServerResponse.BodyBuilder;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
@@ -41,7 +45,7 @@ import reactor.core.publisher.Mono;
 @Slf4j
 public class LowcoderPluginManager
 {
-	private final ApplicationContext applicationContext;
+	private final LowcoderServices lowcoderServices;
 	private final PluginLoader pluginLoader;	
 	
 	private Map<String, LowcoderPlugin> plugins = new LinkedHashMap<>();
@@ -56,7 +60,7 @@ public class LowcoderPluginManager
 		
 		for (LowcoderPlugin plugin : sorted)
 		{
-			if (plugin.load(applicationContext))
+			if (plugin.load(lowcoderServices))
 			{
 				log.info("Plugin [{}] loaded successfully.", plugin.pluginId());
 				registerEndpoints(plugin);
@@ -136,7 +140,6 @@ public class LowcoderPluginManager
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	private void registerEndpointHandler(LowcoderPlugin plugin, PluginEndpoint endpoint, Method handler)
 	{
 		if (handler.isAnnotationPresent(EndpointExtension.class))
@@ -149,7 +152,8 @@ public class LowcoderPluginManager
 						Mono<ServerResponse> result = null;
 						try
 						{
-							result = (Mono<ServerResponse>)handler.invoke(endpoint, req);
+							EndpointResponse response = (EndpointResponse)handler.invoke(endpoint, PluginServerRequest.fromServerRequest(req));
+							result = createServerResponse(response);
 						}
 						catch (IllegalAccessException | InvocationTargetException cause) 
 						{
@@ -167,16 +171,49 @@ public class LowcoderPluginManager
 		}
 	}
 	
+	private Mono<ServerResponse> createServerResponse(EndpointResponse pluginResponse)
+	{
+		/** Create response with given status **/
+		BodyBuilder builder = ServerResponse.status(pluginResponse.statusCode());
+
+		/** Set response headers **/
+		if (pluginResponse.headers() != null && !pluginResponse.headers().isEmpty())
+		{
+			pluginResponse.headers().entrySet()
+				.forEach(entry -> {
+					builder.header(entry.getKey(), entry.getValue().toArray(new String[] {}));
+				});
+			
+		}
+		
+		/** Set cookies if available **/
+		if (pluginResponse.cookies() != null && !pluginResponse.cookies().isEmpty())
+		{
+			pluginResponse.cookies().values()
+				.forEach(cookies -> {
+					cookies.forEach(cookie -> {
+						builder.cookie(ResponseCookie.from(cookie.getKey(), cookie.getValue()).build());
+					});
+					
+				});
+		}
+		
+		/** Set response body if available **/
+		if (pluginResponse.body() != null)
+		{
+			return builder.bodyValue(pluginResponse.body());
+		}
+
+		return builder.build();
+	}
 	
 	private boolean checkHandlerMethod(Method method)
 	{
 		ResolvableType returnType = ResolvableType.forMethodReturnType(method);
-		
-		return (returnType.getRawClass().isAssignableFrom(Mono.class)
-					&& returnType.getGenerics().length == 1
-					&& returnType.getGeneric(0).isAssignableFrom(ServerResponse.class)
+
+		return (returnType.getRawClass().isAssignableFrom(EndpointResponse.class)
 					&& method.getParameterCount() == 1
-					&& method.getParameterTypes()[0].isAssignableFrom(ServerRequest.class)
+					&& method.getParameterTypes()[0].isAssignableFrom(EndpointRequest.class)
 		);
 	}
 	

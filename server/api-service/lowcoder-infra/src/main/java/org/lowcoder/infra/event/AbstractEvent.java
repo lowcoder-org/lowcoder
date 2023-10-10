@@ -1,6 +1,5 @@
 package org.lowcoder.infra.event;
 
-import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -15,12 +14,9 @@ public abstract class AbstractEvent implements LowcoderEvent
 {
     protected final String orgId;
     protected final String userId;
-	protected final String sessionHash;
-	protected final Boolean isAnonymous;
-	private final String ipAddress;
-    protected Map<String, Object> details;
+    protected Map<String, String> details;
     
-    public Map<String, Object> details()
+    public Map<String, String> details()
     {
     	return this.details;
     }
@@ -37,20 +33,4 @@ public abstract class AbstractEvent implements LowcoderEvent
     		return self();
     	}
     }
-
-	public void populateDetails() {
-		if (details == null) {
-			details = new HashMap<>();
-		}
-		for(Field f : getClass().getDeclaredFields()){
-			Object value = null;
-			try {
-				f.setAccessible(Boolean.TRUE);
-				value = f.get(this);
-				details.put(f.getName(), value);
-			} catch (Exception e) {
-            }
-
-		}
-	}
 }
