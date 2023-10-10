@@ -1,0 +1,54 @@
+# This workflow will run tests using node and then publish a package to GitHub Packages when a release is created
+# For more information see: https://docs.github.com/en/actions/publishing-packages/publishing-nodejs-packages
+
+name: Publish Lowcoder Comps
+
+on:
+  push:
+    branches: [ "echarts-json-rerender-fix" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'yarn'
+          cache-dependency-path: 'client/packages/lowcoder-comps/yarn.lock'
+      - name: Install dependencies
+        uses: borales/actions-yarn@v4.2.0
+        with:
+          cmd: install
+          dir: client/packages/lowcoder-comps
+      - name: Run tests
+        uses: borales/actions-yarn@v4.2.0
+        with:
+          cmd: test
+          dir: client/packages/lowcoder-comps
+
+  publish-package:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          registry-url: https://registry.npmjs.org/
+      - name: Install dependencies
+        uses: borales/actions-yarn@v4.2.0
+        with:
+          cmd: install
+          dir: client/packages/lowcoder-comps
+      - name: Publish
+        uses: borales/actions-yarn@v4.2.0
+        with:
+          cmd: build_publish
+          dir: client/packages/lowcoder-comps
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.npm_token}}
