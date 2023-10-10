@@ -1,12 +1,12 @@
 package org.lowcoder.api.application;
 
 import static org.apache.commons.collections4.SetUtils.emptyIfNull;
-import static org.lowcoder.infra.event.EventType.APPLICATION_CREATE;
-import static org.lowcoder.infra.event.EventType.APPLICATION_DELETE;
-import static org.lowcoder.infra.event.EventType.APPLICATION_RECYCLED;
-import static org.lowcoder.infra.event.EventType.APPLICATION_RESTORE;
-import static org.lowcoder.infra.event.EventType.APPLICATION_UPDATE;
-import static org.lowcoder.infra.event.EventType.VIEW;
+import static org.lowcoder.plugin.api.event.LowcoderEvent.EventType.APPLICATION_CREATE;
+import static org.lowcoder.plugin.api.event.LowcoderEvent.EventType.APPLICATION_DELETE;
+import static org.lowcoder.plugin.api.event.LowcoderEvent.EventType.APPLICATION_RECYCLED;
+import static org.lowcoder.plugin.api.event.LowcoderEvent.EventType.APPLICATION_RESTORE;
+import static org.lowcoder.plugin.api.event.LowcoderEvent.EventType.APPLICATION_UPDATE;
+import static org.lowcoder.plugin.api.event.LowcoderEvent.EventType.APPLICATION_VIEW;
 import static org.lowcoder.sdk.exception.BizError.INVALID_PARAMETER;
 import static org.lowcoder.sdk.util.ExceptionUtils.ofError;
 
@@ -92,7 +92,7 @@ public class ApplicationController implements ApplicationEndpoints {
     public Mono<ResponseView<ApplicationView>> getPublishedApplication(@PathVariable String applicationId) {
         return applicationApiService.getPublishedApplication(applicationId)
                 .delayUntil(applicationView -> applicationApiService.updateUserApplicationLastViewTime(applicationId))
-                .delayUntil(applicationView -> businessEventPublisher.publishApplicationCommonEvent(applicationView, VIEW))
+                .delayUntil(applicationView -> businessEventPublisher.publishApplicationCommonEvent(applicationView, APPLICATION_VIEW))
                 .map(ResponseView::success);
     }
 

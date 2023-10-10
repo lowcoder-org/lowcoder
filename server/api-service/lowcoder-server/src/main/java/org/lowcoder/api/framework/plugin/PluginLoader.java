@@ -2,7 +2,7 @@ package org.lowcoder.api.framework.plugin;
 
 import java.util.List;
 
-import org.lowcoder.plugin.LowcoderPlugin;
+import org.lowcoder.plugin.api.LowcoderPlugin;
 
 public interface PluginLoader 
 {
