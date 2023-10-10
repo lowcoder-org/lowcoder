@@ -19,7 +19,6 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'yarn'
-          cache-dependency-path: 'client/packages/lowcoder-comps/yarn.lock'
       - name: Install dependencies
         uses: borales/actions-yarn@v4.2.0
         with:
