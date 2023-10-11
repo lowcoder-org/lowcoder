@@ -35,6 +35,7 @@ jobs:
         with:
           node-version: 16
           registry-url: https://registry.npmjs.org/
+      - run: npm whoami
       - name: Install dependencies
         uses: borales/actions-yarn@v4.2.0
         with:
