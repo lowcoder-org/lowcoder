@@ -35,7 +35,12 @@ jobs:
         with:
           node-version: 16
           registry-url: https://registry.npmjs.org/
-      - run: cat ~/.npmrc
+      name: Configure npm
+        run: |
+          echo '//registry.npmjs.org/:_authToken=${{secrets.NPM_TOKEN}}' > .npmrc
+          cat .npmrc
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
       - run: echo ${{ secrets.NPM_TOKEN }}
       - name: Install dependencies
         uses: borales/actions-yarn@v4.2.0
