@@ -86,7 +86,7 @@ export const CompStateIcon: {
   container: <LeftContainer />,
   meeting: <LeftMeeting />,
   videocomponent: <LeftMeeting />,
-  meetingcontrols: <LeftMeeting />,
+  controlButton: <LeftMeeting />,
   tabbedContainer: <LeftContainer />,
   modal: <LeftModal />,
   listView: <LeftListView />,

@@ -137,7 +137,7 @@ import { AutoCompleteComp } from "./comps/autoCompleteComp/autoCompleteComp";
 import { JsonLottieComp } from "./comps/jsonComp/jsonLottieComp";
 import { ResponsiveLayoutComp } from "./comps/responsiveLayout";
 import { VideoMeetingStreamComp } from "./comps/meetingComp/videoMeetingStreamComp";
-import { VideoControlButton } from "./comps/meetingComp/videoControlButton";
+import { ControlButton } from "./comps/meetingComp/controlButton";
 import { VideoMeetingControllerComp } from "./comps/meetingComp/videoMeetingControllerComp";
 
 type Registry = {
@@ -568,14 +568,14 @@ const uiCompMap: Registry = {
     comp: VideoMeetingStreamComp,
     withoutLoading: true,
   },
-  meetingcontrols: {
+  controlButton: {
     name: trans("meeting.meetingControlCompName"),
     enName: "Controls",
     description: trans("meeting.meetingCompDesc"),
     categories: ["meeting"],
     icon: ButtonCompIcon,
     keywords: trans("meeting.meetingCompKeywords"),
-    comp: VideoControlButton,
+    comp: ControlButton,
     withoutLoading: true,
   },
   tabbedContainer: {

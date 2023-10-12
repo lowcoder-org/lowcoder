@@ -58,7 +58,7 @@ export type UICompType =
   | "chart"
   | "meeting"
   | "videocomponent"
-  | "meetingcontrols"
+  | "controlButton"
   | "imageEditor"
   | "calendar"
   | "password"

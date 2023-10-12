@@ -306,17 +306,7 @@ let ButtonTmpComp = (function () {
                       {props.prefixIcon}
                     </IconWrapper>
                   )}
-                  {
-                    props.text ||
-                      (props.prefixIcon || props.suffixIcon ? undefined : " ") // Avoid button disappearing
-                  }
-                  {props.suffixIcon && (
-                    <IconWrapper
-                      $style={{ ...props.style, size: props.iconSize }}
-                    >
-                      {props.suffixIcon}
-                    </IconWrapper>
-                  )}
+                  
                 </Button100>
               </div>
             </Container>
@@ -369,7 +359,7 @@ ButtonTmpComp = class extends ButtonTmpComp {
     return this.children.autoHeight.getView();
   }
 };
-export const VideoControlButton = withExposingConfigs(ButtonTmpComp, [
+export const ControlButton = withExposingConfigs(ButtonTmpComp, [
   new NameConfig("text", trans("button.textDesc")),
   new NameConfig("loading", trans("button.loadingDesc")),
   ...CommonNameConfig,
