@@ -117,26 +117,20 @@ const turnOnMicrophone = async (flag?: boolean) => {
 };
 
 const leaveChannel = async () => {
-  if (!client) {
-    console.error("Agora client is not initialized");
-    return;
-  }
-
-  if (!client.localTracks.length) {
-    console.error("No local tracks to unpublish");
-    return;
-  }
+  console.log("user leaving 3");
   if (videoTrack) {
     await turnOnCamera(false);
     await client.unpublish(videoTrack);
     videoTrack.stop();
   }
 
+  console.log("user leaving 2");
   if (audioTrack) {
     await turnOnMicrophone(false);
     await client.unpublish(audioTrack);
     audioTrack.stop();
   }
+  console.log("user leaving");
 
   await client.leave();
   isJoined = false;
@@ -225,20 +219,14 @@ let MTComp = (function () {
     }, [userIds]);
 
     useEffect(() => {
-      if (client) {
-        client.on("user-joined", (user: IAgoraRTCRemoteUser) => {
-          setUserIds((userIds: any) => [...userIds, { user: user.uid }]);
-        });
-        client.on("user-offline", (uid: any, reason: any) => {
-          console.log(`User  ${uid} left the channel.`);
-        });
-        client.on("stream-removed", (user: IAgoraRTCRemoteUser) => {
-          console.log(`Stream from user ${user.uid} removed.`);
-        });
-        client.on("stream-added", (user: IAgoraRTCRemoteUser) => {
-          console.log("stream-added");
-        });
-      }
+      client.on("user-joined", (user: IAgoraRTCRemoteUser) => {
+        setUserIds((userIds: any) => [...userIds, { user: user.uid }]);
+      });
+      client.on("user-left", (user: IAgoraRTCRemoteUser, reason: any) => {
+        setUserIds((userIds: any) =>
+          userIds.filter((item: any) => item.user !== user.uid)
+        );
+      });
     }, [client]);
 
     return (
@@ -407,6 +395,8 @@ MTComp = withMethodExposing(MTComp, [
     },
     execute: async (comp, values) => {
       let value = !comp.children.endCall.getView().value;
+      console.log("");
+
       await leaveChannel();
       comp.children.endCall.change(value);
     },

@@ -34,7 +34,6 @@ import { client } from "./videoMeetingControllerComp";
 import { IAgoraRTCRemoteUser, UID } from "agora-rtc-sdk-ng";
 
 import { stringExposingStateControl } from "@lowcoder-ee/index.sdk";
-// import useAgora from "@lowcoder-ee/comps/hooks/agoraFunctions";
 
 const FormLabel = styled(CommonBlueLabel)`
   font-size: 13px;
@@ -168,27 +167,13 @@ let VideoCompBuilder = (function (props) {
       videoCo!.style.height = container?.clientHeight + "px";
       videoCo!.style.width = container?.clientWidth + "px";
     };
-
     useEffect(() => {
       client.on(
         "user-published",
         async (user: IAgoraRTCRemoteUser, mediaType: "video" | "audio") => {
           if (mediaType === "video") {
-
-            // const videoElement = document.createElement("video");
-            // videoElement.id = user.uid + "";
-            // videoElement.width = 640; 
-            // videoElement.height = 360;
-
-            // if (conRef.current) {
-            //   conRef.current.appendChild(videoElement);
-            // }
-
-            // console.log("elementHtml", document.getElementById(user.uid + ""));
-
             const remoteTrack = await client.subscribe(user, mediaType);
-            remoteTrack.play(user.uid + "_v");
-            console.log("user-published ", user.uid);
+            remoteTrack.play(user.uid + "");
           }
           if (mediaType === "audio") {
             const remoteTrack = await client.subscribe(user, mediaType);
@@ -196,12 +181,7 @@ let VideoCompBuilder = (function (props) {
           }
         }
       );
-
-      client.on("user-joined", (user: IAgoraRTCRemoteUser) => {
-        console.log("drawer joined", user.uid);
-      });
-    }, [props.userId]);
-
+    }, [props.userId.value]);
     return (
       <EditorContext.Consumer>
         {(editorState) => (
@@ -209,7 +189,7 @@ let VideoCompBuilder = (function (props) {
             <Container ref={conRef} $style={props.style}>
               <video
                 ref={videoRef}
-                id={props.userId.value + "_v"}
+                id={props.userId.value}
                 style={{ width: 300, height: 300 }}
               ></video>
             </Container>
