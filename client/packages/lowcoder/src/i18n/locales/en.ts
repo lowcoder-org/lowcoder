@@ -1452,6 +1452,7 @@ export const en = {
     title: "Meeting title",
     meetingCompName: "Meeting Controller",
     videoCompName: "Video Stream",
+    videoSharingCompName: "Video Sharing",
     meetingControlCompName: "Controls Buttons",
     meetingCompDesc: "Meeting component",
     meetingCompControls: "Meeting control",

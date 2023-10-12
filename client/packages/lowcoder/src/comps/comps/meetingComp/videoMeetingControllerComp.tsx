@@ -12,6 +12,7 @@ import {
   booleanExposingStateControl,
   jsonObjectExposingStateControl,
   numberExposingStateControl,
+  stringExposingStateControl,
 } from "comps/controls/codeStateControl";
 import { PositionControl } from "comps/controls/dropdownControl";
 import {
@@ -45,6 +46,8 @@ import AgoraRTC, {
   IMicrophoneAudioTrack,
   IAgoraRTCClient,
   IAgoraRTCRemoteUser,
+  UID,
+  ILocalVideoTrack,
 } from "agora-rtc-sdk-ng";
 import { JSONValue } from "@lowcoder-ee/index.sdk";
 import { getData } from "../listViewComp/listViewUtils";
@@ -99,13 +102,14 @@ export const client: IAgoraRTCClient = AgoraRTC.createClient({
 });
 let audioTrack: IMicrophoneAudioTrack;
 let videoTrack: ICameraVideoTrack;
-
+let screenShareStream: ILocalVideoTrack;
+let userId: UID | null | undefined;
 const turnOnCamera = async (flag?: boolean) => {
   if (videoTrack) {
     return videoTrack.setEnabled(flag!);
   }
   videoTrack = await AgoraRTC.createCameraVideoTrack();
-  videoTrack.play("host-video");
+  videoTrack.play(userId + "");
 };
 
 const turnOnMicrophone = async (flag?: boolean) => {
@@ -115,24 +119,42 @@ const turnOnMicrophone = async (flag?: boolean) => {
   audioTrack = await AgoraRTC.createMicrophoneAudioTrack();
   audioTrack.play();
 };
-
+const shareScreen = async (sharing: boolean) => {
+  try {
+    if (sharing == false) {
+      await client.unpublish(screenShareStream);
+      await client.publish(videoTrack);
+      videoTrack.play(userId + "");
+    } else {
+      screenShareStream = await AgoraRTC.createScreenVideoTrack(
+        {
+          screenSourceType: "screen",
+        },
+        "disable"
+      );
+      await client.unpublish(videoTrack);
+      screenShareStream.play(userId + "");
+      await client.publish(screenShareStream);
+    }
+  } catch (error) {
+    console.error("Failed to create screen share stream:", error);
+  }
+};
 const leaveChannel = async () => {
-  console.log("user leaving 3");
   if (videoTrack) {
     await turnOnCamera(false);
     await client.unpublish(videoTrack);
     videoTrack.stop();
   }
 
-  console.log("user leaving 2");
   if (audioTrack) {
     await turnOnMicrophone(false);
     await client.unpublish(audioTrack);
     audioTrack.stop();
   }
-  console.log("user leaving");
 
   await client.leave();
+  window.location.reload(); //FixMe: this reloads the page when user leaves
   isJoined = false;
 };
 let isJoined = false;
@@ -145,7 +167,6 @@ const joinChannel = async (appId: any, channel: any, token: any) => {
   if (isJoined) {
     await leaveChannel();
   }
-  let userId = Math.floor(100000 + Math.random() * 900000);
   console.log("me joining ", userId);
   await client.join(appId, channel, token || null, userId);
 
@@ -154,8 +175,6 @@ const joinChannel = async (appId: any, channel: any, token: any) => {
 
 const publishVideo = async (appId: any, channel: any, height: any) => {
   await turnOnCamera(true);
-  console.log(appId, channel);
-
   if (!isJoined) {
     await joinChannel(appId, channel, null);
   }
@@ -188,11 +207,13 @@ let MTComp = (function () {
     audioControl: booleanExposingStateControl("false"),
     videoControl: booleanExposingStateControl("true"),
     endCall: booleanExposingStateControl("false"),
+    sharingScreen: booleanExposingStateControl("false"),
     videoSettings: jsonObjectExposingStateControl(""),
     videoWidth: numberExposingStateControl("videoWidth", 200),
     videoHeight: numberExposingStateControl("videoHeight", 200),
     appId: withDefault(StringControl, trans("prop.appid")),
     participants: stateComp<JSONValue>([]),
+    host: stringExposingStateControl("host"),
   };
   return new ContainerCompBuilder(childrenMap, (props, dispatch) => {
     const isTopBom = ["top", "bottom"].includes(props.placement);
@@ -351,6 +372,18 @@ MTComp = withMethodExposing(MTComp, [
   },
   {
     method: {
+      name: "startSharing",
+      description: trans("drawer.openDrawerDesc"),
+      params: [],
+    },
+    execute: async (comp, values) => {
+      let sharing = !comp.children.sharingScreen.getView().value;
+      comp.children.sharingScreen.change(sharing);
+      await shareScreen(sharing);
+    },
+  },
+  {
+    method: {
       name: "audioControl",
       description: trans("meeting.actionBtnDesc"),
       params: [],
@@ -380,6 +413,8 @@ MTComp = withMethodExposing(MTComp, [
       params: [],
     },
     execute: async (comp, values) => {
+      userId = Math.floor(100000 + Math.random() * 900000);
+      comp.children.host.change(userId + "");
       await publishVideo(
         comp.children.appId.getView(),
         "testsdaadasdsa",
@@ -395,7 +430,6 @@ MTComp = withMethodExposing(MTComp, [
     },
     execute: async (comp, values) => {
       let value = !comp.children.endCall.getView().value;
-      console.log("");
 
       await leaveChannel();
       comp.children.endCall.change(value);
@@ -416,6 +450,7 @@ MTComp = withMethodExposing(MTComp, [
 export const VideoMeetingControllerComp = withExposingConfigs(MTComp, [
   new NameConfig("visible", trans("export.visibleDesc")),
   new NameConfig("appId", trans("prop.appid")),
+  new NameConfig("host", trans("prop.appid")),
   new NameConfig("participants", trans("prop.participants")),
 ]);
 

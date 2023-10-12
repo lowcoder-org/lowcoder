@@ -31,7 +31,7 @@ import { useEffect, useRef, useState } from "react";
 import { AutoHeightControl } from "comps/controls/autoHeightControl";
 import { client } from "./videoMeetingControllerComp";
 
-import { IAgoraRTCRemoteUser, UID } from "agora-rtc-sdk-ng";
+import AgoraRTC, { IAgoraRTCRemoteUser, UID } from "agora-rtc-sdk-ng";
 
 import { stringExposingStateControl } from "@lowcoder-ee/index.sdk";
 
@@ -168,12 +168,18 @@ let VideoCompBuilder = (function (props) {
       videoCo!.style.width = container?.clientWidth + "px";
     };
     useEffect(() => {
+
       client.on(
         "user-published",
         async (user: IAgoraRTCRemoteUser, mediaType: "video" | "audio") => {
           if (mediaType === "video") {
             const remoteTrack = await client.subscribe(user, mediaType);
-            remoteTrack.play(user.uid + "");
+            let userId = user.uid + "";
+            const element = document.getElementById(userId);
+            if (element) {
+              console.log("userId", element);
+              remoteTrack.play(userId);
+            }
           }
           if (mediaType === "audio") {
             const remoteTrack = await client.subscribe(user, mediaType);
