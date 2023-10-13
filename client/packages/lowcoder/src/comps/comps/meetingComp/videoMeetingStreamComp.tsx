@@ -26,14 +26,18 @@ import { IForm } from "../formComp/formDataConstants";
 import { SimpleNameComp } from "../simpleNameComp";
 import { ButtonStyleControl } from "./videobuttonCompConstants";
 import { RefControl } from "comps/controls/refControl";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 
 import { AutoHeightControl } from "comps/controls/autoHeightControl";
 import { client } from "./videoMeetingControllerComp";
 
-import AgoraRTC, { IAgoraRTCRemoteUser, UID } from "agora-rtc-sdk-ng";
+import { IAgoraRTCRemoteUser } from "agora-rtc-sdk-ng";
 
-import { stringExposingStateControl } from "@lowcoder-ee/index.sdk";
+import {
+  hiddenPropertyView,
+  stringExposingStateControl,
+} from "@lowcoder-ee/index.sdk";
+import { BackgroundColorContext } from "@lowcoder-ee/comps/utils/backgroundColorContext";
 
 const FormLabel = styled(CommonBlueLabel)`
   font-size: 13px;
@@ -60,11 +64,12 @@ const Container = styled.div<{ $style: any }>`
 
 const getStyle = (style: any) => {
   return css`
-    button {
+     {
       border: 1px solid ${style.border};
       border-radius: ${style.radius};
       margin: ${style.margin};
       padding: ${style.padding};
+      background-color: ${style.background};
     }
   `;
 };
@@ -138,6 +143,9 @@ const typeOptions = [
     value: "submit",
   },
 ] as const;
+function isDefault(type?: string) {
+  return !type;
+}
 
 let VideoCompBuilder = (function (props) {
   const childrenMap = {
@@ -168,7 +176,6 @@ let VideoCompBuilder = (function (props) {
       videoCo!.style.width = container?.clientWidth + "px";
     };
     useEffect(() => {
-
       client.on(
         "user-published",
         async (user: IAgoraRTCRemoteUser, mediaType: "video" | "audio") => {
@@ -188,6 +195,9 @@ let VideoCompBuilder = (function (props) {
         }
       );
     }, [props.userId.value]);
+
+    console.log(props);
+
     return (
       <EditorContext.Consumer>
         {(editorState) => (
@@ -207,8 +217,17 @@ let VideoCompBuilder = (function (props) {
     .setPropertyViewFn((children) => (
       <>
         <Section name={sectionNames.basic}>
-          {children.userId.propertyView({ label: trans("text") })}
+          {children.userId.propertyView({ label: trans("meeting.videoId") })}
           {children.autoHeight.getPropertyView()}
+        </Section>
+        <Section name={sectionNames.interaction}>
+          {children.onEvent.getPropertyView()}
+        </Section>
+        <Section name={sectionNames.layout}>
+          {hiddenPropertyView(children)}
+        </Section>
+        <Section name={sectionNames.style}>
+          {children.style.getPropertyView()}
         </Section>
       </>
     ))

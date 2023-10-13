@@ -1441,6 +1441,7 @@ export const en = {
     top: "Top",
     right: "Right",
     bottom: "Bottom",
+    videoId: "Video Id",
     left: "Left",
     widthTooltip: "Number or percentage, e.g. 520, 60%",
     heightTooltip: "Number, e.g. 378",

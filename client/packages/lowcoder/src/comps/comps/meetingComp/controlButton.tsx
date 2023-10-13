@@ -204,7 +204,6 @@ let ButtonTmpComp = (function () {
       const img = imgRef.current;
 
       const imgDiv = img?.getElementsByTagName("button")[0];
-      const imgCurrent = img?.getElementsByTagName("button")[0];
       img!.style.height = height;
       img!.style.width = width;
       imgDiv!.style.height = height;
@@ -222,10 +221,6 @@ let ButtonTmpComp = (function () {
       ) {
         return;
       }
-      console.log(
-        container?.clientHeight + "px",
-        container?.clientWidth + "px"
-      );
 
       setStyle(container?.clientHeight + "px", container?.clientWidth + "px");
     };
