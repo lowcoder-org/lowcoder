@@ -211,9 +211,10 @@ let MTComp = (function () {
     videoSettings: jsonObjectExposingStateControl(""),
     videoWidth: numberExposingStateControl("videoWidth", 200),
     videoHeight: numberExposingStateControl("videoHeight", 200),
-    appId: withDefault(StringControl, trans("prop.appid")),
+    appId: withDefault(StringControl, trans("meeting.appid")),
     participants: stateComp<JSONValue>([]),
     host: stringExposingStateControl("host"),
+    meetingName: stringExposingStateControl("meetingName"),
   };
   return new ContainerCompBuilder(childrenMap, (props, dispatch) => {
     const isTopBom = ["top", "bottom"].includes(props.placement);
@@ -316,7 +317,10 @@ let MTComp = (function () {
     .setPropertyViewFn((children) => (
       <>
         <Section name={sectionNames.basic}>
-          {children.appId.propertyView({ label: trans("prop.appid") })}
+          {children.appId.propertyView({ label: trans("meeting.appid") })}
+          {children.meetingName.propertyView({
+            label: trans("meeting.meetingName"),
+          })}
           {children.placement.propertyView({
             label: trans("drawer.placement"),
             radioButton: true,
@@ -417,7 +421,9 @@ MTComp = withMethodExposing(MTComp, [
       comp.children.host.change(userId + "");
       await publishVideo(
         comp.children.appId.getView(),
-        "testsdaadasdsa",
+        comp.children.meetingName.getView().value == ""
+          ? userId + "_meetingId"
+          : comp.children.meetingName.getView().value,
         comp.children
       );
     },
@@ -449,9 +455,10 @@ MTComp = withMethodExposing(MTComp, [
 
 export const VideoMeetingControllerComp = withExposingConfigs(MTComp, [
   new NameConfig("visible", trans("export.visibleDesc")),
-  new NameConfig("appId", trans("prop.appid")),
-  new NameConfig("host", trans("prop.appid")),
-  new NameConfig("participants", trans("prop.participants")),
+  new NameConfig("appId", trans("meeting.appid")),
+  new NameConfig("host", trans("meeting.host")),
+  new NameConfig("participants", trans("meeting.participants")),
+  new NameConfig("meetingName", trans("meeting.meetingName")),
 ]);
 
 export function agoraClient() {
