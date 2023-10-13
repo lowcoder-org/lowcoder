@@ -62,6 +62,15 @@ const Container = styled.div<{ $style: any }>`
   ${(props) => props.$style && getStyle(props.$style)}
 `;
 
+const VideoContainer = styled.video<{ $style: any }>`
+  height: 100%;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  ${(props) => props.$style && getStyle(props.$style)}
+`;
+
 const getStyle = (style: any) => {
   return css`
      {
@@ -203,11 +212,12 @@ let VideoCompBuilder = (function (props) {
         {(editorState) => (
           <ReactResizeDetector onResize={onResize}>
             <Container ref={conRef} $style={props.style}>
-              <video
+              <VideoContainer
                 ref={videoRef}
+                $style={props.style}
                 id={props.userId.value}
-                style={{ width: 300, height: 300 }}
-              ></video>
+              ></VideoContainer>
+              {/* <video ref={videoRef} style={{ width: 300, height: 300 }}></video> */}
             </Container>
           </ReactResizeDetector>
         )}
