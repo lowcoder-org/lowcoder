@@ -30,13 +30,11 @@ import { IForm } from "../formComp/formDataConstants";
 import { SimpleNameComp } from "../simpleNameComp";
 import {
   Button100,
-  ButtonCompWrapper,
   ButtonStyleControl,
 } from "./videobuttonCompConstants";
 import { RefControl } from "comps/controls/refControl";
 import {
   AutoHeightControl,
-  ImageStyleType,
   heightCalculator,
   widthCalculator,
 } from "@lowcoder-ee/index.sdk";
@@ -84,14 +82,6 @@ function getStyleIcon(style: any) {
     }
   `;
 }
-
-// const IconWrapper = styled.div<{ $styled: any }>`
-//   display: flex;
-//   svg {
-//     width: ${styled.width}px !important;
-//     height: ${styled.height}30px !important;
-//   }
-// `;
 
 function getFormOptions(editorState: EditorState) {
   return editorState
@@ -186,7 +176,6 @@ function submitForm(editorState: EditorState, formName: string) {
 
 let ButtonTmpComp = (function () {
   const childrenMap = {
-    text: withDefault(StringControl, trans("button.button")),
     iconSize: withDefault(StringControl, "20px"),
     type: dropdownControl(typeOptions, ""),
     autoHeight: withDefault(AutoHeightControl, "fixed"),
@@ -195,7 +184,6 @@ let ButtonTmpComp = (function () {
     loading: BoolCodeControl,
     form: SelectFormControl,
     prefixIcon: IconControl,
-    suffixIcon: IconControl,
     style: ButtonStyleControl,
     viewRef: RefControl<HTMLElement>,
   };
@@ -209,39 +197,23 @@ let ButtonTmpComp = (function () {
     useEffect(() => {
       if (height && width) {
         onResize();
-        console.log("props", props, height, width);
       }
     }, [height, width]);
 
     const setStyle = (height: string, width: string) => {
-      console.log(width, height);
-
       const img = imgRef.current;
 
       const imgDiv = img?.getElementsByTagName("button")[0];
-      console.log("img 1", img);
       const imgCurrent = img?.getElementsByTagName("button")[0];
-      console.log("img 2", imgCurrent);
       img!.style.height = height;
       img!.style.width = width;
       imgDiv!.style.height = height;
       imgDiv!.style.width = width;
-      // imgCurrent!.style.height = height;
-      // imgCurrent!.style.width = width;
     };
 
     const onResize = () => {
       const img = imgRef.current;
-      console.log("img", img);
       const container = conRef.current;
-      // console.log("img", container);
-      console.log(
-        "img",
-        !img?.clientWidth,
-        !img?.clientHeight,
-        props.autoHeight,
-        !width
-      );
       if (
         !img?.clientWidth ||
         !img?.clientHeight ||
@@ -250,20 +222,12 @@ let ButtonTmpComp = (function () {
       ) {
         return;
       }
-      // fixme border style bug on safari
-      // if (
-      //   (_.divide(container?.clientWidth!, container?.clientHeight!) || 0) >
-      //   (_.divide(Number(width), Number(height)) || 0)
-      // ) {
-      //   setStyle("100%", "auto");
-      // } else {
       console.log(
         container?.clientHeight + "px",
         container?.clientWidth + "px"
       );
 
       setStyle(container?.clientHeight + "px", container?.clientWidth + "px");
-      // }
     };
 
     return (
@@ -318,7 +282,6 @@ let ButtonTmpComp = (function () {
     .setPropertyViewFn((children) => (
       <>
         <Section name={sectionNames.basic}>
-          {children.text.propertyView({ label: trans("text") })}
           {children.autoHeight.getPropertyView()}
         </Section>
         <Section name={sectionNames.interaction}>
@@ -339,9 +302,6 @@ let ButtonTmpComp = (function () {
           {children.prefixIcon.propertyView({
             label: trans("button.prefixIcon"),
           })}
-          {children.suffixIcon.propertyView({
-            label: trans("button.suffixIcon"),
-          })}
           {children.iconSize.propertyView({
             label: trans("meeting.iconSize"),
           })}
@@ -360,7 +320,6 @@ ButtonTmpComp = class extends ButtonTmpComp {
   }
 };
 export const ControlButton = withExposingConfigs(ButtonTmpComp, [
-  new NameConfig("text", trans("button.textDesc")),
   new NameConfig("loading", trans("button.loadingDesc")),
   ...CommonNameConfig,
 ]);
