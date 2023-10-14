@@ -1934,6 +1934,7 @@ userAuth: {
     resetSuccess: "重置成功",
     resetSuccessDesc: "密码重置成功.新密码为:{password}",
     copyPassword: "复制密码",
+    poweredByLowcoder: "供电 Lowcoder.cloud"
 },
 preLoad: {
     jsLibraryHelpText: "通过URL链接向当前应用程序添加JavaScript库.lodash、day.js、uuid、numbro内置于系统中,可立即使用.JavaScript库在应用程序初始化之前加载,这可能会影响应用程序的性能.",

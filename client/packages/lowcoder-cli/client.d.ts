@@ -34,6 +34,7 @@ declare var LOWCODER_NODE_SERVICE_URL: string;
 declare var LOWCODER_SHOW_BRAND: string;
 declare var LOWCODER_CUSTOM_LOGO: string;
 declare var LOWCODER_CUSTOM_LOGO_SQUARE: string;
+declare var LOWCODER_CUSTOM_AUTH_WELCOME_TEXT: string;
 declare var REACT_APP_ENV: string;
 declare var REACT_APP_BUILD_ID: string;
 declare var REACT_APP_LOG_LEVEL: string;
