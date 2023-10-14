@@ -49,8 +49,10 @@ import AgoraRTC, {
   UID,
   ILocalVideoTrack,
 } from "agora-rtc-sdk-ng";
+
 import { JSONValue } from "@lowcoder-ee/index.sdk";
 import { getData } from "../listViewComp/listViewUtils";
+import { meetingStreamChildren } from "./videoMeetingStreamComp";
 
 const EventOptions = [closeEvent] as const;
 
@@ -104,6 +106,7 @@ let audioTrack: IMicrophoneAudioTrack;
 let videoTrack: ICameraVideoTrack;
 let screenShareStream: ILocalVideoTrack;
 let userId: UID | null | undefined;
+
 const turnOnCamera = async (flag?: boolean) => {
   if (videoTrack) {
     return videoTrack.setEnabled(flag!);
@@ -172,6 +175,9 @@ const joinChannel = async (appId: any, channel: any, token: any) => {
 
   isJoined = true;
 };
+const hostChanged = (users: any) => {};
+
+
 
 const publishVideo = async (appId: any, channel: any, height: any) => {
   await turnOnCamera(true);
@@ -193,127 +199,145 @@ const publishVideo = async (appId: any, channel: any, height: any) => {
   }
 };
 
+export const meetingControllerChildren = {
+  visible: booleanExposingStateControl("visible"),
+  onEvent: eventHandlerControl(EventOptions),
+  width: StringControl,
+  height: StringControl,
+  autoHeight: AutoHeightControl,
+  style: styleControl(DrawerStyle),
+  placement: PositionControl,
+  maskClosable: withDefault(BoolControl, true),
+  showMask: withDefault(BoolControl, true),
+  audioControl: booleanExposingStateControl("false"),
+  videoControl: booleanExposingStateControl("true"),
+  endCall: booleanExposingStateControl("false"),
+  sharingScreen: booleanExposingStateControl("false"),
+  videoSettings: jsonObjectExposingStateControl(""),
+  videoWidth: numberExposingStateControl("videoWidth", 200),
+  videoHeight: numberExposingStateControl("videoHeight", 200),
+  appId: withDefault(StringControl, trans("meeting.appid")),
+  participants: stateComp<JSONValue>([]),
+  host: stringExposingStateControl("host"),
+  meetingName: stringExposingStateControl("meetingName"),
+};
 let MTComp = (function () {
-  const childrenMap = {
-    visible: booleanExposingStateControl("visible"),
-    onEvent: eventHandlerControl(EventOptions),
-    width: StringControl,
-    height: StringControl,
-    autoHeight: AutoHeightControl,
-    style: styleControl(DrawerStyle),
-    placement: PositionControl,
-    maskClosable: withDefault(BoolControl, true),
-    showMask: withDefault(BoolControl, true),
-    audioControl: booleanExposingStateControl("false"),
-    videoControl: booleanExposingStateControl("true"),
-    endCall: booleanExposingStateControl("false"),
-    sharingScreen: booleanExposingStateControl("false"),
-    videoSettings: jsonObjectExposingStateControl(""),
-    videoWidth: numberExposingStateControl("videoWidth", 200),
-    videoHeight: numberExposingStateControl("videoHeight", 200),
-    appId: withDefault(StringControl, trans("meeting.appid")),
-    participants: stateComp<JSONValue>([]),
-    host: stringExposingStateControl("host"),
-    meetingName: stringExposingStateControl("meetingName"),
-  };
-  return new ContainerCompBuilder(childrenMap, (props, dispatch) => {
-    const isTopBom = ["top", "bottom"].includes(props.placement);
-    const { items, ...otherContainerProps } = props.container;
-    const userViewMode = useUserViewMode();
-    const resizable = !userViewMode && (!isTopBom || !props.autoHeight);
-    const onResizeStop = useCallback(
-      (
-        e: React.SyntheticEvent,
-        node: HTMLElement,
-        size: { width: number; height: number },
-        handle: ResizeHandle
-      ) => {
-        isTopBom
-          ? dispatch(changeChildAction("height", size.height, true))
-          : dispatch(changeChildAction("width", size.width, true));
-      },
-      [dispatch, isTopBom]
-    );
-    const [userIds, setUserIds] = useState<any>([]);
+  return new ContainerCompBuilder(
+    meetingControllerChildren,
+    (props, dispatch) => {
+      const isTopBom = ["top", "bottom"].includes(props.placement);
+      const { items, ...otherContainerProps } = props.container;
+      const userViewMode = useUserViewMode();
+      const resizable = !userViewMode && (!isTopBom || !props.autoHeight);
+      const onResizeStop = useCallback(
+        (
+          e: React.SyntheticEvent,
+          node: HTMLElement,
+          size: { width: number; height: number },
+          handle: ResizeHandle
+        ) => {
+          isTopBom
+            ? dispatch(changeChildAction("height", size.height, true))
+            : dispatch(changeChildAction("width", size.width, true));
+        },
+        [dispatch, isTopBom]
+      );
+      const [userIds, setUserIds] = useState<any>([]);
 
-    useEffect(() => {
-      dispatch(changeChildAction("participants", getData(userIds).data, false));
-    }, [userIds]);
-
-    useEffect(() => {
-      client.on("user-joined", (user: IAgoraRTCRemoteUser) => {
-        setUserIds((userIds: any) => [...userIds, { user: user.uid }]);
-      });
-      client.on("user-left", (user: IAgoraRTCRemoteUser, reason: any) => {
-        setUserIds((userIds: any) =>
-          userIds.filter((item: any) => item.user !== user.uid)
+      useEffect(() => {
+        dispatch(
+          changeChildAction("participants", getData(userIds).data, false)
         );
-      });
-    }, [client]);
+      }, [userIds]);
 
-    return (
-      <BackgroundColorContext.Provider value={props.style.background}>
-        <DrawerWrapper>
-          <Drawer
-            resizable={resizable}
-            onResizeStop={onResizeStop}
-            rootStyle={
-              props.visible.value
-                ? { overflow: "auto", pointerEvents: "auto" }
-                : {}
-            }
-            contentWrapperStyle={{ maxHeight: "100%", maxWidth: "100%" }}
-            bodyStyle={{
-              padding: 0,
-              backgroundColor: props.style.background,
-            }}
-            closable={false}
-            placement={props.placement}
-            open={props.visible.value}
-            getContainer={() =>
-              document.querySelector(`#${CanvasContainerID}`) || document.body
-            }
-            footer={null}
-            width={transToPxSize(props.width || DEFAULT_SIZE)}
-            height={
-              !props.autoHeight
-                ? transToPxSize(props.height || DEFAULT_SIZE)
-                : ""
-            }
-            onClose={(e) => {
-              props.visible.onChange(false);
-            }}
-            afterOpenChange={(visible) => {
-              if (!visible) {
-                props.onEvent("close");
+      useEffect(() => {
+        client.on("user-joined", (user: IAgoraRTCRemoteUser) => {
+          console.log("userData", user);
+          let userData = { user: user.uid, host: false };
+          if (userIds.length == 0) {
+            userData.host = true;
+          } else {
+            userData.host = false;
+          }
+          console.log("userData", userData);
+
+          setUserIds((userIds: any) => [...userIds, userData]);
+        });
+        client.on("user-left", (user: IAgoraRTCRemoteUser, reason: any) => {
+          let newUsers = userIds.filter((item: any) => item.user !== user.uid);
+          let hostExists = newUsers.filter((f: any) => f.host === true);
+          if (hostExists.length == 0 && newUsers.length > 0) {
+            newUsers[0].host = true;
+            hostChanged(newUsers);
+          }
+          setUserIds(newUsers);
+        });
+      }, [client]);
+
+      return (
+        <BackgroundColorContext.Provider value={props.style.background}>
+          <DrawerWrapper>
+            <Drawer
+              resizable={resizable}
+              onResizeStop={onResizeStop}
+              rootStyle={
+                props.visible.value
+                  ? { overflow: "auto", pointerEvents: "auto" }
+                  : {}
               }
-            }}
-            zIndex={Layers.drawer}
-            maskClosable={props.maskClosable}
-            mask={props.showMask}
-          >
-            <ButtonStyle
-              onClick={() => {
+              contentWrapperStyle={{ maxHeight: "100%", maxWidth: "100%" }}
+              bodyStyle={{
+                padding: 0,
+                backgroundColor: props.style.background,
+              }}
+              closable={false}
+              placement={props.placement}
+              open={props.visible.value}
+              getContainer={() =>
+                document.querySelector(`#${CanvasContainerID}`) || document.body
+              }
+              footer={null}
+              width={transToPxSize(props.width || DEFAULT_SIZE)}
+              height={
+                !props.autoHeight
+                  ? transToPxSize(props.height || DEFAULT_SIZE)
+                  : ""
+              }
+              onClose={(e) => {
                 props.visible.onChange(false);
               }}
+              afterOpenChange={(visible) => {
+                if (!visible) {
+                  props.onEvent("close");
+                }
+              }}
+              zIndex={Layers.drawer}
+              maskClosable={props.maskClosable}
+              mask={props.showMask}
             >
-              <CloseOutlined />
-            </ButtonStyle>
-            <InnerGrid
-              {...otherContainerProps}
-              items={gridItemCompToGridItems(items)}
-              autoHeight={props.autoHeight}
-              minHeight={isTopBom ? DEFAULT_SIZE + "px" : "100%"}
-              style={{ height: "100%" }}
-              containerPadding={[DEFAULT_PADDING, DEFAULT_PADDING]}
-              hintPlaceholder={HintPlaceHolder}
-              bgColor={props.style.background}
-            />
-          </Drawer>
-        </DrawerWrapper>
-      </BackgroundColorContext.Provider>
-    );
-  })
+              <ButtonStyle
+                onClick={() => {
+                  props.visible.onChange(false);
+                }}
+              >
+                <CloseOutlined />
+              </ButtonStyle>
+              <InnerGrid
+                {...otherContainerProps}
+                items={gridItemCompToGridItems(items)}
+                autoHeight={props.autoHeight}
+                minHeight={isTopBom ? DEFAULT_SIZE + "px" : "100%"}
+                style={{ height: "100%" }}
+                containerPadding={[DEFAULT_PADDING, DEFAULT_PADDING]}
+                hintPlaceholder={HintPlaceHolder}
+                bgColor={props.style.background}
+              />
+            </Drawer>
+          </DrawerWrapper>
+        </BackgroundColorContext.Provider>
+      );
+    }
+  )
     .setPropertyViewFn((children) => (
       <>
         <Section name={sectionNames.basic}>
@@ -422,7 +446,7 @@ MTComp = withMethodExposing(MTComp, [
       await publishVideo(
         comp.children.appId.getView(),
         comp.children.meetingName.getView().value == ""
-          ? userId + "_meetingId"
+          ? "_meetingId"
           : comp.children.meetingName.getView().value,
         comp.children
       );
@@ -430,7 +454,7 @@ MTComp = withMethodExposing(MTComp, [
   },
   {
     method: {
-      name: "endCall",
+      name: "endMeeting",
       description: trans("meeting.actionBtnDesc"),
       params: [],
     },

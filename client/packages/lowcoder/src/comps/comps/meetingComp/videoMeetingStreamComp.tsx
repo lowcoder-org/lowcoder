@@ -1,6 +1,5 @@
 import { BoolCodeControl } from "comps/controls/codeControl";
 import { dropdownControl } from "comps/controls/dropdownControl";
-import { ButtonEventHandlerControl } from "comps/controls/eventHandlerControl";
 import { IconControl } from "comps/controls/iconControl";
 import { CompNameContext, EditorContext, EditorState } from "comps/editorState";
 import { withDefault } from "comps/generators";
@@ -29,15 +28,20 @@ import { RefControl } from "comps/controls/refControl";
 import { useEffect, useRef } from "react";
 
 import { AutoHeightControl } from "comps/controls/autoHeightControl";
-import { client } from "./videoMeetingControllerComp";
+import {
+  client,
+  meetingControllerChildren,
+} from "./videoMeetingControllerComp";
 
 import { IAgoraRTCRemoteUser } from "agora-rtc-sdk-ng";
 
 import {
+  ButtonEventHandlerControl,
+  MeetingEventHandlerControl,
   hiddenPropertyView,
+  refMethods,
   stringExposingStateControl,
 } from "@lowcoder-ee/index.sdk";
-import { BackgroundColorContext } from "@lowcoder-ee/comps/utils/backgroundColorContext";
 
 const FormLabel = styled(CommonBlueLabel)`
   font-size: 13px;
@@ -155,95 +159,105 @@ const typeOptions = [
 function isDefault(type?: string) {
   return !type;
 }
+export const videoShared = () => {
+  console.log("data");
+  
+}
+export const meetingStreamChildren = {
+  autoHeight: withDefault(AutoHeightControl, "fixed"),
+  type: dropdownControl(typeOptions, ""),
+  // onEvent: ButtonEventHandlerControl,
+  onEvent: MeetingEventHandlerControl,
+  disabled: BoolCodeControl,
+  loading: BoolCodeControl,
+  form: SelectFormControl,
+  prefixIcon: IconControl,
+  suffixIcon: IconControl,
+  style: ButtonStyleControl,
+  viewRef: RefControl<HTMLElement>,
+  // viewRef: RefControl<BaseStreamRef>,
+  userId: stringExposingStateControl("user id", trans("meeting.userId")),
+};
 
 let VideoCompBuilder = (function (props) {
-  const childrenMap = {
-    autoHeight: withDefault(AutoHeightControl, "fixed"),
-    type: dropdownControl(typeOptions, ""),
-    onEvent: ButtonEventHandlerControl,
-    disabled: BoolCodeControl,
-    loading: BoolCodeControl,
-    form: SelectFormControl,
-    prefixIcon: IconControl,
-    suffixIcon: IconControl,
-    style: ButtonStyleControl,
-    viewRef: RefControl<HTMLElement>,
-    userId: stringExposingStateControl("user id", trans("meeting.userId")),
-  };
-  return new UICompBuilder(childrenMap, (props) => {
-    const videoRef = useRef<HTMLVideoElement>(null);
-    const conRef = useRef<HTMLDivElement>(null);
+  return (
+    new UICompBuilder(meetingStreamChildren, (props) => {
+      const videoRef = useRef<HTMLVideoElement>(null);
+      const conRef = useRef<HTMLDivElement>(null);
 
-    useEffect(() => {
-      onResize();
-    }, []);
+      useEffect(() => {
+        onResize();
+      }, []);
 
-    const onResize = async () => {
-      const container = conRef.current;
-      let videoCo = videoRef.current;
-      videoCo!.style.height = container?.clientHeight + "px";
-      videoCo!.style.width = container?.clientWidth + "px";
-    };
-    useEffect(() => {
-      client.on(
-        "user-published",
-        async (user: IAgoraRTCRemoteUser, mediaType: "video" | "audio") => {
-          if (mediaType === "video") {
-            const remoteTrack = await client.subscribe(user, mediaType);
-            let userId = user.uid + "";
-            const element = document.getElementById(userId);
-            if (element) {
-              console.log("userId", element);
-              remoteTrack.play(userId);
+      const onResize = async () => {
+        const container = conRef.current;
+        let videoCo = videoRef.current;
+        videoCo!.style.height = container?.clientHeight + "px";
+        videoCo!.style.width = container?.clientWidth + "px";
+      };
+      useEffect(() => {
+        client.on(
+          "user-published",
+          async (user: IAgoraRTCRemoteUser, mediaType: "video" | "audio") => {
+            if (mediaType === "video") {
+              const remoteTrack = await client.subscribe(user, mediaType);
+              console.log("remoteTrack", remoteTrack);
+
+              let userId = user.uid + "";
+              const element = document.getElementById(userId);
+              if (element) {
+                remoteTrack.play(userId);
+              }
+            }
+            if (mediaType === "audio") {
+              const remoteTrack = await client.subscribe(user, mediaType);
+              remoteTrack.play();
             }
           }
-          if (mediaType === "audio") {
-            const remoteTrack = await client.subscribe(user, mediaType);
-            remoteTrack.play();
-          }
-        }
+        );
+      }, [props.userId.value]);
+
+      return (
+        <EditorContext.Consumer>
+          {(editorState) => (
+            <ReactResizeDetector onResize={onResize}>
+              <Container ref={conRef} $style={props.style}>
+                <VideoContainer
+                  ref={videoRef}
+                  $style={props.style}
+                  id={props.userId.value}
+                ></VideoContainer>
+              </Container>
+            </ReactResizeDetector>
+          )}
+        </EditorContext.Consumer>
       );
-    }, [props.userId.value]);
-
-    console.log(props);
-
-    return (
-      <EditorContext.Consumer>
-        {(editorState) => (
-          <ReactResizeDetector onResize={onResize}>
-            <Container ref={conRef} $style={props.style}>
-              <VideoContainer
-                ref={videoRef}
-                $style={props.style}
-                id={props.userId.value}
-              ></VideoContainer>
-              {/* <video ref={videoRef} style={{ width: 300, height: 300 }}></video> */}
-            </Container>
-          </ReactResizeDetector>
-        )}
-      </EditorContext.Consumer>
-    );
-  })
-    .setPropertyViewFn((children) => (
-      <>
-        <Section name={sectionNames.basic}>
-          {children.userId.propertyView({ label: trans("meeting.videoId") })}
-          {children.autoHeight.getPropertyView()}
-        </Section>
-        <Section name={sectionNames.interaction}>
-          {children.onEvent.getPropertyView()}
-        </Section>
-        <Section name={sectionNames.layout}>
-          {hiddenPropertyView(children)}
-        </Section>
-        <Section name={sectionNames.style}>
-          {children.style.getPropertyView()}
-        </Section>
-      </>
-    ))
-    .build();
+    })
+      .setPropertyViewFn((children) => (
+        <>
+          <Section name={sectionNames.basic}>
+            {children.userId.propertyView({ label: trans("meeting.videoId") })}
+            {children.autoHeight.getPropertyView()}
+          </Section>
+          <Section name={sectionNames.interaction}>
+            {children.onEvent.getPropertyView()}
+          </Section>
+          <Section name={sectionNames.layout}>
+            {hiddenPropertyView(children)}
+          </Section>
+          <Section name={sectionNames.style}>
+            {children.style.getPropertyView()}
+          </Section>
+        </>
+      ))
+      // .setExposeMethodConfigs(refMethods<BaseStreamRef>([shareMethod]))
+      .build()
+  );
 })();
 
+// interface BaseStreamRef {
+//   shared: () => void;
+// }
 VideoCompBuilder = class extends VideoCompBuilder {
   override autoHeight(): boolean {
     return this.children.autoHeight.getView();

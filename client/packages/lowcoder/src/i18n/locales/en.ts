@@ -1435,6 +1435,11 @@ export const en = {
   meeting: {
     placement: "Meeting placement",
     meeting: "Meeting Settings",
+    cameraView: "Camera View",
+    cameraViewDesc: "Camera View",
+    screenShared: "Screen Shared",
+    screenSharedDesc: "Screen Shared",
+    audioMuteUnmute: "Audio Mute",
     size: "Size",
     top: "Top",
     host: "Host",
