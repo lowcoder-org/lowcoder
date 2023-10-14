@@ -3,9 +3,9 @@ spring:
     mongodb:
       authentication-database: admin
       auto-index-creation: false
-      uri: mongodb://lowcoder:secret123@127.0.0.1/lowcoder?authSource=admin
+      uri: mongodb://192.168.8.100:27017/lowcoder?authSource=admin
     redis:
-      url: redis://localhost:6379
+      url: redis://192.168.8.100:6379
   main:
     allow-bean-definition-overriding: true
     allow-circular-references: true
@@ -41,6 +41,8 @@ common:
       - '*'
   version: 1.1.8
   block-hound-enable: false
+  js-executor:
+    host: http://127.0.0.1:6060
 
 material:
   mongodb-grid-fs:
@@ -52,3 +54,8 @@ springdoc:
   swagger-ui:
     path: /api/docs/swagger-ui
   paths-to-exclude: /api/v1/**
+
+auth:
+  email:
+    enable: true
+    enable-register: false
