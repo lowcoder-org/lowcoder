@@ -1,0 +1,153 @@
+{
+  "$schema": "https://json-schema.org/draft/2019-09/schema",
+  "$id": "http://example.com/example.json",
+  "type": "object",
+  "default": {},
+  "title": "Root Schema",
+  "required": [
+    "contentType",
+    "data",
+    "serialVersionUID",
+    "id",
+    "createdAt",
+    "createdBy",
+    "modifiedBy"
+  ],
+  "properties": {
+    "contentType": {
+      "type": "string",
+      "default": "",
+      "title": "The contentType Schema",
+      "examples": [
+        ""
+      ]
+    },
+    "data": {
+      "type": "array",
+      "default": [],
+      "title": "The data Schema",
+      "items": {
+        "type": "integer",
+        "default": 0,
+        "title": "A Schema",
+        "examples": [
+          0
+        ]
+      },
+      "examples": [
+        [
+          0]
+      ]
+    },
+    "serialVersionUID": {
+      "type": "integer",
+      "default": 0,
+      "title": "The serialVersionUID Schema",
+      "examples": [
+        0
+      ]
+    },
+    "id": {
+      "type": "string",
+      "default": "",
+      "title": "The id Schema",
+      "examples": [
+        ""
+      ]
+    },
+    "createdAt": {
+      "type": "object",
+      "default": {},
+      "title": "The createdAt Schema",
+      "required": [
+        "MIN_SECOND",
+        "MAX_SECOND",
+        "serialVersionUID",
+        "seconds",
+        "nanos"
+      ],
+      "properties": {
+        "MIN_SECOND": {
+          "type": "integer",
+          "default": 0,
+          "title": "The MIN_SECOND Schema",
+          "examples": [
+            0
+          ]
+        },
+        "MAX_SECOND": {
+          "type": "integer",
+          "default": 0,
+          "title": "The MAX_SECOND Schema",
+          "examples": [
+            0
+          ]
+        },
+        "serialVersionUID": {
+          "type": "integer",
+          "default": 0,
+          "title": "The serialVersionUID Schema",
+          "examples": [
+            0
+          ]
+        },
+        "seconds": {
+          "type": "integer",
+          "default": 0,
+          "title": "The seconds Schema",
+          "examples": [
+            0
+          ]
+        },
+        "nanos": {
+          "type": "integer",
+          "default": 0,
+          "title": "The nanos Schema",
+          "examples": [
+            0
+          ]
+        }
+      },
+      "examples": [{
+        "MIN_SECOND": 0,
+        "MAX_SECOND": 0,
+        "serialVersionUID": 0,
+        "seconds": 0,
+        "nanos": 0
+      }]
+    },
+    "createdBy": {
+      "type": "string",
+      "default": "",
+      "title": "The createdBy Schema",
+      "examples": [
+        ""
+      ]
+    },
+    "modifiedBy": {
+      "type": "string",
+      "default": "",
+      "title": "The modifiedBy Schema",
+      "examples": [
+        ""
+      ]
+    }
+  },
+  "examples": [{
+    "contentType": "",
+    "data": [
+      0
+    ],
+    "serialVersionUID": 0,
+    "id": "",
+    "createdAt": {
+      "MIN_SECOND": 0,
+      "MAX_SECOND": 0,
+      "serialVersionUID": 0,
+      "seconds": 0,
+      "nanos": 0
+    },
+    "createdBy": "",
+    "modifiedBy": ""
+  }]
+}

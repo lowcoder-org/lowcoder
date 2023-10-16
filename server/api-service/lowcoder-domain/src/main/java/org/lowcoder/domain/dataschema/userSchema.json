@@ -1,0 +1,472 @@
+{
+  "$schema": "https://json-schema.org/draft/2019-09/schema",
+  "$id": "http://example.com/example.json",
+  "type": "object",
+  "default": {},
+  "title": "Root Schema",
+  "required": [
+    "EMPTY_TRANSFORMED_USER_INFO",
+    "name",
+    "avatar",
+    "tpAvatarLink",
+    "state",
+    "isEnabled",
+    "password",
+    "isAnonymous",
+    "connections",
+    "avatarUrl",
+    "isNewUser",
+    "hasSetNickname",
+    "serialVersionUID",
+    "id",
+    "createdAt",
+    "createdBy",
+    "modifiedBy"
+  ],
+  "properties": {
+    "EMPTY_TRANSFORMED_USER_INFO": {
+      "type": "object",
+      "default": {},
+      "title": "The EMPTY_TRANSFORMED_USER_INFO Schema",
+      "required": [
+        "serialVersionUID",
+        "DEFAULT_INITIAL_CAPACITY",
+        "MAXIMUM_CAPACITY",
+        "DEFAULT_LOAD_FACTOR",
+        "TREEIFY_THRESHOLD",
+        "UNTREEIFY_THRESHOLD",
+        "MIN_TREEIFY_CAPACITY",
+        "table",
+        "entrySet",
+        "size",
+        "modCount",
+        "threshold",
+        "loadFactor",
+        "values"
+      ],
+      "properties": {
+        "serialVersionUID": {
+          "type": "integer",
+          "default": 0,
+          "title": "The serialVersionUID Schema",
+          "examples": [
+            0
+          ]
+        },
+        "DEFAULT_INITIAL_CAPACITY": {
+          "type": "integer",
+          "default": 0,
+          "title": "The DEFAULT_INITIAL_CAPACITY Schema",
+          "examples": [
+            0
+          ]
+        },
+        "MAXIMUM_CAPACITY": {
+          "type": "integer",
+          "default": 0,
+          "title": "The MAXIMUM_CAPACITY Schema",
+          "examples": [
+            0
+          ]
+        },
+        "DEFAULT_LOAD_FACTOR": {
+          "type": "number",
+          "default": 0.0,
+          "title": "The DEFAULT_LOAD_FACTOR Schema",
+          "examples": [
+            0.0
+          ]
+        },
+        "TREEIFY_THRESHOLD": {
+          "type": "integer",
+          "default": 0,
+          "title": "The TREEIFY_THRESHOLD Schema",
+          "examples": [
+            0
+          ]
+        },
+        "UNTREEIFY_THRESHOLD": {
+          "type": "integer",
+          "default": 0,
+          "title": "The UNTREEIFY_THRESHOLD Schema",
+          "examples": [
+            0
+          ]
+        },
+        "MIN_TREEIFY_CAPACITY": {
+          "type": "integer",
+          "default": 0,
+          "title": "The MIN_TREEIFY_CAPACITY Schema",
+          "examples": [
+            0
+          ]
+        },
+        "table": {
+          "type": "array",
+          "default": [],
+          "title": "The table Schema",
+          "items": {
+            "type": "object",
+            "default": {},
+            "title": "A Schema",
+            "required": [
+              "hash",
+              "key",
+              "value"
+            ],
+            "properties": {
+              "hash": {
+                "type": "integer",
+                "default": 0,
+                "title": "The hash Schema",
+                "examples": [
+                  0
+                ]
+              },
+              "key": {
+                "type": "object",
+                "default": {},
+                "title": "The key Schema",
+                "required": [],
+                "properties": {},
+                "examples": [{}]
+              },
+              "value": {
+                "type": "object",
+                "default": {},
+                "title": "The value Schema",
+                "required": [],
+                "properties": {},
+                "examples": [{}]
+              }
+            },
+            "examples": [{
+              "hash": 0,
+              "key": {},
+              "value": {}
+            }]
+          },
+          "examples": [
+            [{
+              "hash": 0,
+              "key": {},
+              "value": {}
+            }]
+          ]
+        },
+        "entrySet": {
+          "type": "object",
+          "default": {},
+          "title": "The entrySet Schema",
+          "required": [],
+          "properties": {},
+          "examples": [{}]
+        },
+        "size": {
+          "type": "integer",
+          "default": 0,
+          "title": "The size Schema",
+          "examples": [
+            0
+          ]
+        },
+        "modCount": {
+          "type": "integer",
+          "default": 0,
+          "title": "The modCount Schema",
+          "examples": [
+            0
+          ]
+        },
+        "threshold": {
+          "type": "integer",
+          "default": 0,
+          "title": "The threshold Schema",
+          "examples": [
+            0
+          ]
+        },
+        "loadFactor": {
+          "type": "number",
+          "default": 0.0,
+          "title": "The loadFactor Schema",
+          "examples": [
+            0.0
+          ]
+        },
+        "values": {
+          "type": "object",
+          "default": {},
+          "title": "The values Schema",
+          "required": [],
+          "properties": {},
+          "examples": [{}]
+        }
+      },
+      "examples": [{
+        "serialVersionUID": 0,
+        "DEFAULT_INITIAL_CAPACITY": 0,
+        "MAXIMUM_CAPACITY": 0,
+        "DEFAULT_LOAD_FACTOR": 0.0,
+        "TREEIFY_THRESHOLD": 0,
+        "UNTREEIFY_THRESHOLD": 0,
+        "MIN_TREEIFY_CAPACITY": 0,
+        "table": [{
+          "hash": 0,
+          "key": {},
+          "value": {}
+        }],
+        "entrySet": {},
+        "size": 0,
+        "modCount": 0,
+        "threshold": 0,
+        "loadFactor": 0.0,
+        "values": {}
+      }]
+    },
+    "name": {
+      "type": "string",
+      "default": "",
+      "title": "The name Schema",
+      "examples": [
+        ""
+      ]
+    },
+    "avatar": {
+      "type": "string",
+      "default": "",
+      "title": "The avatar Schema",
+      "examples": [
+        ""
+      ]
+    },
+    "tpAvatarLink": {
+      "type": "string",
+      "default": "",
+      "title": "The tpAvatarLink Schema",
+      "examples": [
+        ""
+      ]
+    },
+    "state": {
+      "type": "array",
+      "default": [],
+      "title": "The state Schema",
+      "items": {
+        "type": "string",
+        "title": "A Schema",
+        "examples": [
+          "NEW",
+          "INVITED",
+          "ACTIVATED",
+          "DELETED"
+        ]
+      },
+      "examples": [
+        ["NEW",
+          "INVITED",
+          "ACTIVATED",
+          "DELETED"
+        ]
+      ]
+    },
+    "isEnabled": {
+      "type": "boolean",
+      "default": false,
+      "title": "The isEnabled Schema",
+      "examples": [
+        false
+      ]
+    },
+    "password": {
+      "type": "string",
+      "default": "",
+      "title": "The password Schema",
+      "examples": [
+        ""
+      ]
+    },
+    "isAnonymous": {
+      "type": "boolean",
+      "default": false,
+      "title": "The isAnonymous Schema",
+      "examples": [
+        false
+      ]
+    },
+    "connections": {
+      "type": "object",
+      "default": {},
+      "title": "The connections Schema",
+      "required": [],
+      "properties": {},
+      "examples": [{}]
+    },
+    "avatarUrl": {
+      "type": "object",
+      "default": {},
+      "title": "The avatarUrl Schema",
+      "required": [],
+      "properties": {},
+      "examples": [{}]
+    },
+    "isNewUser": {
+      "type": "boolean",
+      "default": false,
+      "title": "The isNewUser Schema",
+      "examples": [
+        false
+      ]
+    },
+    "hasSetNickname": {
+      "type": "boolean",
+      "default": false,
+      "title": "The hasSetNickname Schema",
+      "examples": [
+        false
+      ]
+    },
+    "serialVersionUID": {
+      "type": "integer",
+      "default": 0,
+      "title": "The serialVersionUID Schema",
+      "examples": [
+        0
+      ]
+    },
+    "id": {
+      "type": "string",
+      "default": "",
+      "title": "The id Schema",
+      "examples": [
+        ""
+      ]
+    },
+    "createdAt": {
+      "type": "object",
+      "default": {},
+      "title": "The createdAt Schema",
+      "required": [
+        "MIN_SECOND",
+        "MAX_SECOND",
+        "serialVersionUID",
+        "seconds",
+        "nanos"
+      ],
+      "properties": {
+        "MIN_SECOND": {
+          "type": "integer",
+          "default": 0,
+          "title": "The MIN_SECOND Schema",
+          "examples": [
+            0
+          ]
+        },
+        "MAX_SECOND": {
+          "type": "integer",
+          "default": 0,
+          "title": "The MAX_SECOND Schema",
+          "examples": [
+            0
+          ]
+        },
+        "serialVersionUID": {
+          "type": "integer",
+          "default": 0,
+          "title": "The serialVersionUID Schema",
+          "examples": [
+            0
+          ]
+        },
+        "seconds": {
+          "type": "integer",
+          "default": 0,
+          "title": "The seconds Schema",
+          "examples": [
+            0
+          ]
+        },
+        "nanos": {
+          "type": "integer",
+          "default": 0,
+          "title": "The nanos Schema",
+          "examples": [
+            0
+          ]
+        }
+      },
+      "examples": [{
+        "MIN_SECOND": 0,
+        "MAX_SECOND": 0,
+        "serialVersionUID": 0,
+        "seconds": 0,
+        "nanos": 0
+      }]
+    },
+    "createdBy": {
+      "type": "string",
+      "default": "",
+      "title": "The createdBy Schema",
+      "examples": [
+        ""
+      ]
+    },
+    "modifiedBy": {
+      "type": "string",
+      "default": "",
+      "title": "The modifiedBy Schema",
+      "examples": [
+        ""
+      ]
+    }
+  },
+  "examples": [{
+    "EMPTY_TRANSFORMED_USER_INFO": {
+      "serialVersionUID": 0,
+      "DEFAULT_INITIAL_CAPACITY": 0,
+      "MAXIMUM_CAPACITY": 0,
+      "DEFAULT_LOAD_FACTOR": 0.0,
+      "TREEIFY_THRESHOLD": 0,
+      "UNTREEIFY_THRESHOLD": 0,
+      "MIN_TREEIFY_CAPACITY": 0,
+      "table": [{
+        "hash": 0,
+        "key": {},
+        "value": {}
+      }],
+      "entrySet": {},
+      "size": 0,
+      "modCount": 0,
+      "threshold": 0,
+      "loadFactor": 0.0,
+      "values": {}
+    },
+    "name": "",
+    "avatar": "",
+    "tpAvatarLink": "",
+    "state": [
+      "NEW",
+      "INVITED",
+      "ACTIVATED",
+      "DELETED"
+    ],
+    "isEnabled": false,
+    "password": "",
+    "isAnonymous": false,
+    "connections": {},
+    "avatarUrl": {},
+    "isNewUser": false,
+    "hasSetNickname": false,
+    "serialVersionUID": 0,
+    "id": "",
+    "createdAt": {
+      "MIN_SECOND": 0,
+      "MAX_SECOND": 0,
+      "serialVersionUID": 0,
+      "seconds": 0,
+      "nanos": 0
+    },
+    "createdBy": "",
+    "modifiedBy": ""
+  }]
+}

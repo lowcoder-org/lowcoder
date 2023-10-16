@@ -1,0 +1,208 @@
+{
+  "$schema": "https://json-schema.org/draft/2019-09/schema",
+  "$id": "http://example.com/example.json",
+  "type": "object",
+  "default": {},
+  "title": "Root Schema",
+  "required": [
+    "organizationId",
+    "name",
+    "applicationType",
+    "applicationStatus",
+    "publishedApplicationDSL",
+    "publicToAll",
+    "editingQueries",
+    "serialVersionUID",
+    "id",
+    "createdAt",
+    "createdBy",
+    "modifiedBy"
+  ],
+  "properties": {
+    "organizationId": {
+      "type": "string",
+      "default": "",
+      "title": "The organizationId Schema",
+      "examples": [
+        ""
+      ]
+    },
+    "name": {
+      "type": "string",
+      "default": "",
+      "title": "The name Schema",
+      "examples": [
+        ""
+      ]
+    },
+    "applicationType": {
+      "type": "integer",
+      "default": 0,
+      "title": "The applicationType Schema",
+      "examples": [
+        0
+      ]
+    },
+    "applicationStatus": {
+      "type": "array",
+      "default": [],
+      "title": "The applicationStatus Schema",
+      "items": {
+        "type": "string",
+        "title": "A Schema",
+        "examples": [
+          "NORMAL",
+          "RECYCLED",
+          "DELETED"
+        ]
+      },
+      "examples": [
+        ["NORMAL",
+          "RECYCLED",
+          "DELETED"
+        ]
+      ]
+    },
+    "publishedApplicationDSL": {
+      "type": "object",
+      "default": {},
+      "title": "The publishedApplicationDSL Schema",
+      "required": [],
+      "properties": {},
+      "examples": [{}]
+    },
+    "publicToAll": {
+      "type": "boolean",
+      "default": false,
+      "title": "The publicToAll Schema",
+      "examples": [
+        false
+      ]
+    },
+    "editingQueries": {
+      "type": "object",
+      "default": {},
+      "title": "The editingQueries Schema",
+      "required": [],
+      "properties": {},
+      "examples": [{}]
+    },
+    "serialVersionUID": {
+      "type": "integer",
+      "default": 0,
+      "title": "The serialVersionUID Schema",
+      "examples": [
+        0
+      ]
+    },
+    "id": {
+      "type": "string",
+      "default": "",
+      "title": "The id Schema",
+      "examples": [
+        ""
+      ]
+    },
+    "createdAt": {
+      "type": "object",
+      "default": {},
+      "title": "The createdAt Schema",
+      "required": [
+        "MIN_SECOND",
+        "MAX_SECOND",
+        "serialVersionUID",
+        "seconds",
+        "nanos"
+      ],
+      "properties": {
+        "MIN_SECOND": {
+          "type": "integer",
+          "default": 0,
+          "title": "The MIN_SECOND Schema",
+          "examples": [
+            0
+          ]
+        },
+        "MAX_SECOND": {
+          "type": "integer",
+          "default": 0,
+          "title": "The MAX_SECOND Schema",
+          "examples": [
+            0
+          ]
+        },
+        "serialVersionUID": {
+          "type": "integer",
+          "default": 0,
+          "title": "The serialVersionUID Schema",
+          "examples": [
+            0
+          ]
+        },
+        "seconds": {
+          "type": "integer",
+          "default": 0,
+          "title": "The seconds Schema",
+          "examples": [
+            0
+          ]
+        },
+        "nanos": {
+          "type": "integer",
+          "default": 0,
+          "title": "The nanos Schema",
+          "examples": [
+            0
+          ]
+        }
+      },
+      "examples": [{
+        "MIN_SECOND": 0,
+        "MAX_SECOND": 0,
+        "serialVersionUID": 0,
+        "seconds": 0,
+        "nanos": 0
+      }]
+    },
+    "createdBy": {
+      "type": "string",
+      "default": "",
+      "title": "The createdBy Schema",
+      "examples": [
+        ""
+      ]
+    },
+    "modifiedBy": {
+      "type": "string",
+      "default": "",
+      "title": "The modifiedBy Schema",
+      "examples": [
+        ""
+      ]
+    }
+  },
+  "examples": [{
+    "organizationId": "",
+    "name": "",
+    "applicationType": 0,
+    "applicationStatus": [
+      "NORMAL",
+      "RECYCLED",
+      "DELETED"
+    ],
+    "publishedApplicationDSL": {},
+    "publicToAll": false,
+    "editingQueries": {},
+    "serialVersionUID": 0,
+    "id": "",
+    "createdAt": {
+      "MIN_SECOND": 0,
+      "MAX_SECOND": 0,
+      "serialVersionUID": 0,
+      "seconds": 0,
+      "nanos": 0
+    },
+    "createdBy": "",
+    "modifiedBy": ""
+  }]
+}

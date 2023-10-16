@@ -1,0 +1,73 @@
+{
+  "$schema": "https://json-schema.org/draft/2019-09/schema",
+  "$id": "http://example.com/example.json",
+  "type": "object",
+  "default": {},
+  "title": "Root Schema",
+  "required": [
+    "userId",
+    "urlPath",
+    "httpMethod",
+    "requestBody",
+    "queryParameters",
+    "createTime"
+  ],
+  "properties": {
+    "userId": {
+      "type": "string",
+      "default": "",
+      "title": "The userId Schema",
+      "examples": [
+        ""
+      ]
+    },
+    "urlPath": {
+      "type": "string",
+      "default": "",
+      "title": "The urlPath Schema",
+      "examples": [
+        ""
+      ]
+    },
+    "httpMethod": {
+      "type": "string",
+      "default": "",
+      "title": "The httpMethod Schema",
+      "examples": [
+        ""
+      ]
+    },
+    "requestBody": {
+      "type": "string",
+      "default": "",
+      "title": "The requestBody Schema",
+      "examples": [
+        ""
+      ]
+    },
+    "queryParameters": {
+      "type": "object",
+      "default": {},
+      "title": "The queryParameters Schema",
+      "required": [],
+      "properties": {},
+      "examples": [{}]
+    },
+    "createTime": {
+      "type": "integer",
+      "default": 0,
+      "title": "The createTime Schema",
+      "examples": [
+        0
+      ]
+    }
+  },
+  "examples": [{
+    "userId": "",
+    "urlPath": "",
+    "httpMethod": "",
+    "requestBody": "",
+    "queryParameters": {},
+    "createTime": 0
+  }]
+}

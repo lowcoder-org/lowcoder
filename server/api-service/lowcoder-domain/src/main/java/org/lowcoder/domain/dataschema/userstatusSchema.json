@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2019-09/schema",
+  "$id": "http://example.com/example.json",
+  "type": "object",
+  "default": {},
+  "title": "Root Schema",
+  "required": [
+    "id",
+    "hasShowNewUserGuidance",
+    "banned",
+    "statusMap"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "default": "",
+      "title": "The id Schema",
+      "examples": [
+        ""
+      ]
+    },
+    "hasShowNewUserGuidance": {
+      "type": "boolean",
+      "default": false,
+      "title": "The hasShowNewUserGuidance Schema",
+      "examples": [
+        false
+      ]
+    },
+    "banned": {
+      "type": "boolean",
+      "default": false,
+      "title": "The banned Schema",
+      "examples": [
+        false
+      ]
+    },
+    "statusMap": {
+      "type": "object",
+      "default": {},
+      "title": "The statusMap Schema",
+      "required": [],
+      "properties": {},
+      "examples": [{}]
+    }
+  },
+  "examples": [{
+    "id": "",
+    "hasShowNewUserGuidance": false,
+    "banned": false,
+    "statusMap": {}
+  }]
+}
