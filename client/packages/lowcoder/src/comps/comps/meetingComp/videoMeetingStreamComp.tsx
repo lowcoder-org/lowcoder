@@ -28,18 +28,13 @@ import { RefControl } from "comps/controls/refControl";
 import { useEffect, useRef } from "react";
 
 import { AutoHeightControl } from "comps/controls/autoHeightControl";
-import {
-  client,
-  meetingControllerChildren,
-} from "./videoMeetingControllerComp";
+import { client } from "./videoMeetingControllerComp";
 
 import { IAgoraRTCRemoteUser } from "agora-rtc-sdk-ng";
 
 import {
-  ButtonEventHandlerControl,
   MeetingEventHandlerControl,
   hiddenPropertyView,
-  refMethods,
   stringExposingStateControl,
 } from "@lowcoder-ee/index.sdk";
 
@@ -156,13 +151,10 @@ const typeOptions = [
     value: "submit",
   },
 ] as const;
-function isDefault(type?: string) {
-  return !type;
-}
+
 export const videoShared = () => {
   console.log("data");
-  
-}
+};
 export const meetingStreamChildren = {
   autoHeight: withDefault(AutoHeightControl, "fixed"),
   type: dropdownControl(typeOptions, ""),
@@ -201,8 +193,6 @@ let VideoCompBuilder = (function (props) {
           async (user: IAgoraRTCRemoteUser, mediaType: "video" | "audio") => {
             if (mediaType === "video") {
               const remoteTrack = await client.subscribe(user, mediaType);
-              console.log("remoteTrack", remoteTrack);
-
               let userId = user.uid + "";
               const element = document.getElementById(userId);
               if (element) {
@@ -211,7 +201,28 @@ let VideoCompBuilder = (function (props) {
             }
             if (mediaType === "audio") {
               const remoteTrack = await client.subscribe(user, mediaType);
+              if (
+                user.hasAudio &&
+                user.uid + "" != props.userId.value &&
+                props.userId.value != ""
+              ) {
+                props.onEvent("audioMuteUnmute");
+              }
               remoteTrack.play();
+            }
+          }
+        );
+        client.on(
+          "user-unpublished",
+          (user: IAgoraRTCRemoteUser, mediaType: "video" | "audio") => {
+            if (mediaType === "audio") {
+              if (
+                !user.hasAudio &&
+                user.uid + "" != props.userId.value &&
+                props.userId.value != ""
+              ) {
+                props.onEvent("audioMuteUnmute");
+              }
             }
           }
         );

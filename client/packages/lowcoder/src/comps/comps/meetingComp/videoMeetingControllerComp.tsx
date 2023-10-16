@@ -121,6 +121,12 @@ const turnOnMicrophone = async (flag?: boolean) => {
   }
   audioTrack = await AgoraRTC.createMicrophoneAudioTrack();
   audioTrack.play();
+
+  if (!flag) {
+    await client.unpublish(audioTrack);
+  } else {
+    await client.publish(audioTrack);
+  }
 };
 const shareScreen = async (sharing: boolean) => {
   try {
@@ -162,40 +168,20 @@ const leaveChannel = async () => {
 };
 let isJoined = false;
 
-const joinChannel = async (appId: any, channel: any, token: any) => {
-  if (!channel) {
-    channel = "react-room";
-  }
-
-  if (isJoined) {
-    await leaveChannel();
-  }
-  console.log("me joining ", userId);
-  await client.join(appId, channel, token || null, userId);
-
-  isJoined = true;
-};
 const hostChanged = (users: any) => {};
-
-
 
 const publishVideo = async (appId: any, channel: any, height: any) => {
   await turnOnCamera(true);
-  if (!isJoined) {
-    await joinChannel(appId, channel, null);
-  }
-
+  await client.join(appId, channel, null, userId);
   await client.publish(videoTrack);
-  const mediaStreamTrack = videoTrack.getMediaStreamTrack();
 
+  const mediaStreamTrack = videoTrack.getMediaStreamTrack();
   if (mediaStreamTrack) {
     const videoSettings = mediaStreamTrack.getSettings();
     const videoWidth = videoSettings.width;
     const videoHeight = videoSettings.height;
     height.videoWidth.change(videoWidth);
     height.videoHeight.change(videoHeight);
-  } else {
-    console.error("Media stream track not found");
   }
 };
 
@@ -252,15 +238,12 @@ let MTComp = (function () {
 
       useEffect(() => {
         client.on("user-joined", (user: IAgoraRTCRemoteUser) => {
-          console.log("userData", user);
           let userData = { user: user.uid, host: false };
           if (userIds.length == 0) {
             userData.host = true;
           } else {
             userData.host = false;
           }
-          console.log("userData", userData);
-
           setUserIds((userIds: any) => [...userIds, userData]);
         });
         client.on("user-left", (user: IAgoraRTCRemoteUser, reason: any) => {
@@ -416,9 +399,11 @@ MTComp = withMethodExposing(MTComp, [
       description: trans("meeting.actionBtnDesc"),
       params: [],
     },
-    execute: (comp, values) => {
+    execute: async (comp, values) => {
       let value = !comp.children.audioControl.getView().value;
-      turnOnMicrophone(value);
+      console.log("turnOnMicrophone", value);
+      // await audioTrack.setEnabled(value);
+      await turnOnMicrophone(value);
       comp.children.audioControl.change(value);
     },
   },
