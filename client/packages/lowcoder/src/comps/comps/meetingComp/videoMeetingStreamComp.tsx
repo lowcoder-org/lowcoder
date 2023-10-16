@@ -58,8 +58,7 @@ const Container = styled.div<{ $style: any }>`
   display: flex;
   align-items: center;
   justify-content: center;
-  ${(props) => props.$style && getStyle(props.$style)}
-`;
+`; // ${(props) => props.$style && getStyle(props.$style)} - they should be applyed to VideoContainer only
 
 const VideoContainer = styled.video<{ $style: any }>`
   height: 100%;
