@@ -28,7 +28,10 @@ import { RefControl } from "comps/controls/refControl";
 import { useEffect, useRef } from "react";
 
 import { AutoHeightControl } from "comps/controls/autoHeightControl";
-import { client } from "./videoMeetingControllerComp";
+import {
+  client,
+  meetingControllerChildren,
+} from "./videoMeetingControllerComp";
 
 import { IAgoraRTCRemoteUser } from "agora-rtc-sdk-ng";
 
@@ -193,6 +196,13 @@ let VideoCompBuilder = (function (props) {
             if (mediaType === "video") {
               const remoteTrack = await client.subscribe(user, mediaType);
               let userId = user.uid + "";
+              if (
+                user.hasVideo &&
+                user.uid + "" != props.userId.value &&
+                props.userId.value != ""
+              ) {
+                props.onEvent("videoActiveInactive");
+              }
               const element = document.getElementById(userId);
               if (element) {
                 remoteTrack.play(userId);
@@ -221,6 +231,15 @@ let VideoCompBuilder = (function (props) {
                 props.userId.value != ""
               ) {
                 props.onEvent("audioMuteUnmute");
+              }
+            }
+            if (mediaType === "video") {
+              if (
+                !user.hasVideo &&
+                user.uid + "" != props.userId.value &&
+                props.userId.value != ""
+              ) {
+                props.onEvent("videoActiveInactive");
               }
             }
           }

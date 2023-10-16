@@ -363,7 +363,11 @@ export const audioMuteUnmute: EventConfigType = {
   value: "audioMuteUnmute",
   description: trans("meeting.audioMuteUnmute"),
 };
-
+export const videoActiveInactive: EventConfigType = {
+  label: trans("meeting.videoActiveInactive"),
+  value: "videoActiveInactive",
+  description: trans("meeting.videoActiveInactive"),
+};
 export const InputEventHandlerControl = eventHandlerControl([
   changeEvent,
   focusEvent,
@@ -395,4 +399,5 @@ export const MeetingEventHandlerControl = eventHandlerControl([
   screenShared,
   cameraView,
   audioMuteUnmute,
+  videoActiveInactive,
 ] as const);

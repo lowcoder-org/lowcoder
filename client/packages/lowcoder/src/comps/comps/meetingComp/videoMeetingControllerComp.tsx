@@ -52,7 +52,6 @@ import AgoraRTC, {
 
 import { JSONValue } from "@lowcoder-ee/index.sdk";
 import { getData } from "../listViewComp/listViewUtils";
-import { meetingStreamChildren } from "./videoMeetingStreamComp";
 
 const EventOptions = [closeEvent] as const;
 
@@ -151,22 +150,15 @@ const shareScreen = async (sharing: boolean) => {
 };
 const leaveChannel = async () => {
   if (videoTrack) {
-    await turnOnCamera(false);
     await client.unpublish(videoTrack);
-    videoTrack.stop();
+    await turnOnCamera(false);
   }
 
   if (audioTrack) {
     await turnOnMicrophone(false);
-    await client.unpublish(audioTrack);
-    audioTrack.stop();
   }
-
   await client.leave();
-  window.location.reload(); //FixMe: this reloads the page when user leaves
-  isJoined = false;
 };
-let isJoined = false;
 
 const hostChanged = (users: any) => {};
 
@@ -235,6 +227,17 @@ let MTComp = (function () {
           changeChildAction("participants", getData(userIds).data, false)
         );
       }, [userIds]);
+
+      useEffect(() => {
+        if (props.endCall.value) {
+          let newUsers = userIds.filter((item: any) => item.user !== userId);
+          console.log("newUsers", newUsers, userId);
+
+          dispatch(
+            changeChildAction("participants", getData(newUsers).data, false)
+          );
+        }
+      }, [props.endCall.value]);
 
       useEffect(() => {
         client.on("user-joined", (user: IAgoraRTCRemoteUser) => {
@@ -401,8 +404,6 @@ MTComp = withMethodExposing(MTComp, [
     },
     execute: async (comp, values) => {
       let value = !comp.children.audioControl.getView().value;
-      console.log("turnOnMicrophone", value);
-      // await audioTrack.setEnabled(value);
       await turnOnMicrophone(value);
       comp.children.audioControl.change(value);
     },
@@ -413,9 +414,14 @@ MTComp = withMethodExposing(MTComp, [
       description: trans("meeting.actionBtnDesc"),
       params: [],
     },
-    execute: (comp, values) => {
+    execute: async (comp, values) => {
       let value = !comp.children.videoControl.getView().value;
-      turnOnCamera(value);
+      if (videoTrack) {
+        videoTrack.setEnabled(value);
+      } else {
+        await turnOnCamera(value);
+      }
+      
       comp.children.videoControl.change(value);
     },
   },
@@ -445,9 +451,8 @@ MTComp = withMethodExposing(MTComp, [
     },
     execute: async (comp, values) => {
       let value = !comp.children.endCall.getView().value;
-
-      await leaveChannel();
       comp.children.endCall.change(value);
+      await leaveChannel();
     },
   },
   {
