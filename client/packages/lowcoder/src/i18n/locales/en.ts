@@ -1440,6 +1440,7 @@ export const en = {
     screenShared: "Screen Shared",
     screenSharedDesc: "Screen Shared",
     audioMuteUnmute: "Audio Mute",
+    videoClicked: "Video Clicked",
     videoActiveInactive: "Video Active Inactive",
     size: "Size",
     top: "Top",

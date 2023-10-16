@@ -252,6 +252,7 @@ let VideoCompBuilder = (function (props) {
             <ReactResizeDetector onResize={onResize}>
               <Container ref={conRef} $style={props.style}>
                 <VideoContainer
+                  onClick={() => props.onEvent("videoClicked")}
                   ref={videoRef}
                   $style={props.style}
                   id={props.userId.value}

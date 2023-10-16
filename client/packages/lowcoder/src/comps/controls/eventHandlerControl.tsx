@@ -368,6 +368,11 @@ export const videoActiveInactive: EventConfigType = {
   value: "videoActiveInactive",
   description: trans("meeting.videoActiveInactive"),
 };
+export const videoClicked: EventConfigType = {
+  label: trans("meeting.videoClicked"),
+  value: "videoClicked",
+  description: trans("meeting.videoClicked"),
+};
 export const InputEventHandlerControl = eventHandlerControl([
   changeEvent,
   focusEvent,
@@ -400,4 +405,5 @@ export const MeetingEventHandlerControl = eventHandlerControl([
   cameraView,
   audioMuteUnmute,
   videoActiveInactive,
+  videoClicked,
 ] as const);
