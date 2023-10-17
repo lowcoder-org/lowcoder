@@ -55,5 +55,24 @@ public enum Oauth2DefaultSource implements Oauth2Source {
             return "https://" + Oauth2Constants.INSTANCE_ID_PLACEHOLDER + "/oauth2/token";
         }
 
+    },
+    
+    KEYCLOAK {
+
+        @Override
+        public String accessToken() {
+            return "http://" + Oauth2Constants.INSTANCE_ID_PLACEHOLDER + "/realms/" + Oauth2Constants.REALM_PLACEHOLDER + "/protocol/openid-connect/token";
+        }
+
+        @Override
+        public String userInfo() {
+            return "http://" + Oauth2Constants.INSTANCE_ID_PLACEHOLDER + "/realms/" + Oauth2Constants.REALM_PLACEHOLDER + "/protocol/openid-connect/userinfo";
+        }
+
+        @Override
+        public String refresh() {
+        	return "http://" + Oauth2Constants.INSTANCE_ID_PLACEHOLDER + "/realms/" + Oauth2Constants.REALM_PLACEHOLDER + "/protocol/openid-connect/token";
+        }
+    	
     }
 }
