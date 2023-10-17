@@ -25,12 +25,11 @@ import { IForm } from "../formComp/formDataConstants";
 import { SimpleNameComp } from "../simpleNameComp";
 import { ButtonStyleControl } from "./videobuttonCompConstants";
 import { RefControl } from "comps/controls/refControl";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { AutoHeightControl } from "comps/controls/autoHeightControl";
 import {
   client,
-  meetingControllerChildren,
 } from "./videoMeetingControllerComp";
 
 import { IAgoraRTCRemoteUser } from "agora-rtc-sdk-ng";
@@ -61,8 +60,7 @@ const Container = styled.div<{ $style: any }>`
   display: flex;
   align-items: center;
   justify-content: center;
-`; // ${(props) => props.$style && getStyle(props.$style)} - they should be applyed to VideoContainer only
-
+`; 
 const VideoContainer = styled.video<{ $style: any }>`
   height: 100%;
   width: 100%;
@@ -154,13 +152,9 @@ const typeOptions = [
   },
 ] as const;
 
-export const videoShared = () => {
-  console.log("data");
-};
 export const meetingStreamChildren = {
   autoHeight: withDefault(AutoHeightControl, "fixed"),
   type: dropdownControl(typeOptions, ""),
-  // onEvent: ButtonEventHandlerControl,
   onEvent: MeetingEventHandlerControl,
   disabled: BoolCodeControl,
   loading: BoolCodeControl,
@@ -169,27 +163,28 @@ export const meetingStreamChildren = {
   suffixIcon: IconControl,
   style: ButtonStyleControl,
   viewRef: RefControl<HTMLElement>,
-  // viewRef: RefControl<BaseStreamRef>,
-  userId: stringExposingStateControl("user id", trans("meeting.userId")),
+  userId: stringExposingStateControl(""),
 };
 
 let VideoCompBuilder = (function (props) {
-  return (
-    new UICompBuilder(meetingStreamChildren, (props) => {
-      const videoRef = useRef<HTMLVideoElement>(null);
-      const conRef = useRef<HTMLDivElement>(null);
+  return new UICompBuilder(meetingStreamChildren, (props) => {
+    const videoRef = useRef<HTMLVideoElement>(null);
+    const conRef = useRef<HTMLDivElement>(null);
+    const [userId, setUserId] = useState();
 
-      useEffect(() => {
-        onResize();
-      }, []);
+    useEffect(() => {
+      onResize();
+    }, []);
 
-      const onResize = async () => {
-        const container = conRef.current;
-        let videoCo = videoRef.current;
-        videoCo!.style.height = container?.clientHeight + "px";
-        videoCo!.style.width = container?.clientWidth + "px";
-      };
-      useEffect(() => {
+    const onResize = async () => {
+      const container = conRef.current;
+      let videoCo = videoRef.current;
+      videoCo!.style.height = container?.clientHeight + "px";
+      videoCo!.style.width = container?.clientWidth + "px";
+    };
+    useEffect(() => {
+      if (props.userId.value !== "") {
+        let userData = JSON.parse(props.userId?.value);
         client.on(
           "user-published",
           async (user: IAgoraRTCRemoteUser, mediaType: "video" | "audio") => {
@@ -198,10 +193,10 @@ let VideoCompBuilder = (function (props) {
               let userId = user.uid + "";
               if (
                 user.hasVideo &&
-                user.uid + "" != props.userId.value &&
-                props.userId.value != ""
+                user.uid + "" != userData.user &&
+                userData.user != ""
               ) {
-                props.onEvent("videoActiveInactive");
+                props.onEvent("videoOn");
               }
               const element = document.getElementById(userId);
               if (element) {
@@ -212,10 +207,12 @@ let VideoCompBuilder = (function (props) {
               const remoteTrack = await client.subscribe(user, mediaType);
               if (
                 user.hasAudio &&
-                user.uid + "" != props.userId.value &&
-                props.userId.value != ""
+                user.uid + "" != userData.user &&
+                userData.user != ""
               ) {
-                props.onEvent("audioMuteUnmute");
+                userData.audiostatus = user.hasVideo;
+
+                props.onEvent("audioUnmuted");
               }
               remoteTrack.play();
             }
@@ -227,67 +224,67 @@ let VideoCompBuilder = (function (props) {
             if (mediaType === "audio") {
               if (
                 !user.hasAudio &&
-                user.uid + "" != props.userId.value &&
-                props.userId.value != ""
+                user.uid + "" != userData.user &&
+                userData.user != ""
               ) {
-                props.onEvent("audioMuteUnmute");
+                userData.audiostatus = user.hasVideo;
+                props.onEvent("audioMuted");
               }
             }
             if (mediaType === "video") {
               if (
                 !user.hasVideo &&
-                user.uid + "" != props.userId.value &&
-                props.userId.value != ""
+                user.uid + "" != userData.user &&
+                userData.user != ""
               ) {
-                props.onEvent("videoActiveInactive");
+                props.onEvent("videoOff");
               }
             }
           }
         );
-      }, [props.userId.value]);
+        setUserId(userData.user);
+      }
+    }, [props.userId.value]);
 
-      return (
-        <EditorContext.Consumer>
-          {(editorState) => (
-            <ReactResizeDetector onResize={onResize}>
-              <Container ref={conRef} $style={props.style}>
-                <VideoContainer
-                  onClick={() => props.onEvent("videoClicked")}
-                  ref={videoRef}
-                  $style={props.style}
-                  id={props.userId.value}
-                ></VideoContainer>
-              </Container>
-            </ReactResizeDetector>
-          )}
-        </EditorContext.Consumer>
-      );
-    })
-      .setPropertyViewFn((children) => (
-        <>
-          <Section name={sectionNames.basic}>
-            {children.userId.propertyView({ label: trans("meeting.videoId") })}
-            {children.autoHeight.getPropertyView()}
-          </Section>
-          <Section name={sectionNames.interaction}>
-            {children.onEvent.getPropertyView()}
-          </Section>
-          <Section name={sectionNames.layout}>
-            {hiddenPropertyView(children)}
-          </Section>
-          <Section name={sectionNames.style}>
-            {children.style.getPropertyView()}
-          </Section>
-        </>
-      ))
-      // .setExposeMethodConfigs(refMethods<BaseStreamRef>([shareMethod]))
-      .build()
-  );
+    
+
+    return (
+      <EditorContext.Consumer>
+        {(editorState) => (
+          <ReactResizeDetector onResize={onResize}>
+            <Container ref={conRef} $style={props.style}>
+              <VideoContainer
+                onClick={() => props.onEvent("videoClicked")}
+                ref={videoRef}
+                $style={props.style}
+                id={userId}
+              ></VideoContainer>
+            </Container>
+          </ReactResizeDetector>
+        )}
+      </EditorContext.Consumer>
+    );
+  })
+    .setPropertyViewFn((children) => (
+      <>
+        <Section name={sectionNames.basic}>
+          {children.userId.propertyView({ label: trans("meeting.videoId") })}
+          {children.autoHeight.getPropertyView()}
+        </Section>
+        <Section name={sectionNames.interaction}>
+          {children.onEvent.getPropertyView()}
+        </Section>
+        <Section name={sectionNames.layout}>
+          {hiddenPropertyView(children)}
+        </Section>
+        <Section name={sectionNames.style}>
+          {children.style.getPropertyView()}
+        </Section>
+      </>
+    ))
+    .build();
 })();
 
-// interface BaseStreamRef {
-//   shared: () => void;
-// }
 VideoCompBuilder = class extends VideoCompBuilder {
   override autoHeight(): boolean {
     return this.children.autoHeight.getView();

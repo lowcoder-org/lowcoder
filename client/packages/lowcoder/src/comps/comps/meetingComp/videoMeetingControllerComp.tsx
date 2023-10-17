@@ -190,13 +190,14 @@ export const meetingControllerChildren = {
   audioControl: booleanExposingStateControl("false"),
   videoControl: booleanExposingStateControl("true"),
   endCall: booleanExposingStateControl("false"),
-  sharingScreen: booleanExposingStateControl("false"),
+  sharing: booleanExposingStateControl("false"),
   videoSettings: jsonObjectExposingStateControl(""),
   videoWidth: numberExposingStateControl("videoWidth", 200),
   videoHeight: numberExposingStateControl("videoHeight", 200),
   appId: withDefault(StringControl, trans("meeting.appid")),
   participants: stateComp<JSONValue>([]),
-  host: stringExposingStateControl("host"),
+  usersScreenShared: stateComp<JSONValue>([]),
+  localUser: jsonObjectExposingStateControl(""),
   meetingName: stringExposingStateControl("meetingName"),
 };
 let MTComp = (function () {
@@ -231,8 +232,6 @@ let MTComp = (function () {
       useEffect(() => {
         if (props.endCall.value) {
           let newUsers = userIds.filter((item: any) => item.user !== userId);
-          console.log("newUsers", newUsers, userId);
-
           dispatch(
             changeChildAction("participants", getData(newUsers).data, false)
           );
@@ -241,7 +240,11 @@ let MTComp = (function () {
 
       useEffect(() => {
         client.on("user-joined", (user: IAgoraRTCRemoteUser) => {
-          let userData = { user: user.uid, host: false };
+          let userData = {
+            user: user.uid,
+            host: false,
+            audiostatus: user.hasVideo,
+          };
           if (userIds.length == 0) {
             userData.host = true;
           } else {
@@ -391,9 +394,9 @@ MTComp = withMethodExposing(MTComp, [
       params: [],
     },
     execute: async (comp, values) => {
-      let sharing = !comp.children.sharingScreen.getView().value;
-      comp.children.sharingScreen.change(sharing);
+      let sharing = !comp.children.sharing.getView().value;
       await shareScreen(sharing);
+      comp.children.sharing.change(sharing);
     },
   },
   {
@@ -404,6 +407,11 @@ MTComp = withMethodExposing(MTComp, [
     },
     execute: async (comp, values) => {
       let value = !comp.children.audioControl.getView().value;
+      let localUserData = comp.children.localUser.change({
+        user: userId + "",
+        audiostatus: value,
+      });
+      console.log(localUserData);
       await turnOnMicrophone(value);
       comp.children.audioControl.change(value);
     },
@@ -421,7 +429,7 @@ MTComp = withMethodExposing(MTComp, [
       } else {
         await turnOnCamera(value);
       }
-      
+
       comp.children.videoControl.change(value);
     },
   },
@@ -433,7 +441,10 @@ MTComp = withMethodExposing(MTComp, [
     },
     execute: async (comp, values) => {
       userId = Math.floor(100000 + Math.random() * 900000);
-      comp.children.host.change(userId + "");
+      comp.children.localUser.change({
+        user: userId + "",
+        audiostatus: false,
+      });
       await publishVideo(
         comp.children.appId.getView(),
         comp.children.meetingName.getView().value == ""
@@ -470,7 +481,7 @@ MTComp = withMethodExposing(MTComp, [
 export const VideoMeetingControllerComp = withExposingConfigs(MTComp, [
   new NameConfig("visible", trans("export.visibleDesc")),
   new NameConfig("appId", trans("meeting.appid")),
-  new NameConfig("host", trans("meeting.host")),
+  new NameConfig("localUser", trans("meeting.host")),
   new NameConfig("participants", trans("meeting.participants")),
   new NameConfig("meetingName", trans("meeting.meetingName")),
 ]);

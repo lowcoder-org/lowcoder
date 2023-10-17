@@ -348,25 +348,25 @@ export const mentionEvent: EventConfigType = {
   value: "mention",
   description: trans("event.mentionDesc"),
 };
-export const screenShared: EventConfigType = {
-  label: trans("meeting.screenShared"),
-  value: "screenShared",
-  description: trans("meeting.screenSharedDesc"),
+export const audioUnmuted: EventConfigType = {
+  label: trans("meeting.audioUnmuted"),
+  value: "audioUnmuted",
+  description: trans("meeting.audioUnmuted"),
 };
-export const cameraView: EventConfigType = {
-  label: trans("meeting.cameraView"),
-  value: "cameraView",
-  description: trans("meeting.cameraViewDesc"),
+export const audioMuted: EventConfigType = {
+  label: trans("meeting.audioMuted"),
+  value: "audioMuted",
+  description: trans("meeting.audioMuted"),
 };
-export const audioMuteUnmute: EventConfigType = {
-  label: trans("meeting.audioMuteUnmute"),
-  value: "audioMuteUnmute",
-  description: trans("meeting.audioMuteUnmute"),
+export const videoOff: EventConfigType = {
+  label: trans("meeting.videoOff"),
+  value: "videoOff",
+  description: trans("meeting.videoOff"),
 };
-export const videoActiveInactive: EventConfigType = {
-  label: trans("meeting.videoActiveInactive"),
-  value: "videoActiveInactive",
-  description: trans("meeting.videoActiveInactive"),
+export const videoOn: EventConfigType = {
+  label: trans("meeting.videoOn"),
+  value: "videoOn",
+  description: trans("meeting.videoOn"),
 };
 export const videoClicked: EventConfigType = {
   label: trans("meeting.videoClicked"),
@@ -401,9 +401,9 @@ export const ScannerEventHandlerControl = eventHandlerControl([
 ] as const);
 
 export const MeetingEventHandlerControl = eventHandlerControl([
-  screenShared,
-  cameraView,
-  audioMuteUnmute,
-  videoActiveInactive,
+  audioMuted,
+  audioUnmuted,
+  videoOff,
+  videoOn,
   videoClicked,
 ] as const);
