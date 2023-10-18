@@ -1,6 +1,7 @@
 package org.lowcoder.api.authentication.request.oauth2;
 
 import org.lowcoder.sdk.auth.constants.Oauth2Constants;
+import org.springframework.security.config.oauth2.client.CommonOAuth2Provider;
 
 public enum Oauth2DefaultSource implements Oauth2Source {
 
@@ -17,7 +18,7 @@ public enum Oauth2DefaultSource implements Oauth2Source {
 
         @Override
         public String refresh() {
-            return "https://www.googleapis.com/oauth2/v4/token";
+            return "https://github.com/login/oauth/access_token";
         }
 
     },
