@@ -35,8 +35,8 @@ export class AppViewInstance<I = any, O = any> {
   private events = new Map<keyof EventHandlerMap, EventHandlerMap<O>[keyof EventHandlerMap]>();
   private dataPromise: Promise<{ appDsl: any; moduleDslMap: any }>;
   private options: AppViewInstanceOptions = {
-    baseUrl: "https://api.lowcoder.dev",
-    webUrl: "https://cloud.lowcoder.dev",
+    baseUrl: "https://api-service.lowcoder.cloud",
+    webUrl: "https://app.lowcoder.cloud",
   };
 
   constructor(private appId: string, private node: Element, options: AppViewInstanceOptions = {}) {
