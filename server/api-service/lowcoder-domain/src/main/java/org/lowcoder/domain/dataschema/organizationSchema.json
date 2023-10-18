@@ -1,9 +1,9 @@
 {
   "$schema": "https://json-schema.org/draft/2019-09/schema",
-  "$id": "http://example.com/example.json",
+  "$id": "organizationSchema.json",
   "type": "object",
   "default": {},
-  "title": "Root Schema",
+  "title": "Organization Schema",
   "required": [
     "EMPTY_SETTINGS",
     "name",
@@ -26,7 +26,7 @@
     "EMPTY_SETTINGS": {
       "type": "object",
       "default": {},
-      "title": "The EMPTY_SETTINGS Schema",
+      "title": "EMPTY_SETTINGS Identifier (general attribute)",
       "required": [
         "USER_EXTRA_TRANSFORMER",
         "USER_EXTRA_TRANSFORMER_UPDATE_TIME",
@@ -50,7 +50,7 @@
         "USER_EXTRA_TRANSFORMER": {
           "type": "string",
           "default": "",
-          "title": "The USER_EXTRA_TRANSFORMER Schema",
+          "title": "USER_EXTRA_TRANSFORMER Identifier (general attribute)",
           "examples": [
             ""
           ]
@@ -58,7 +58,7 @@
         "USER_EXTRA_TRANSFORMER_UPDATE_TIME": {
           "type": "string",
           "default": "",
-          "title": "The USER_EXTRA_TRANSFORMER_UPDATE_TIME Schema",
+          "title": "USER_EXTRA_TRANSFORMER_UPDATE_TIME Identifier (general attribute)",
           "examples": [
             ""
           ]
@@ -66,7 +66,7 @@
         "CUSTOM_BRANDING_KEY": {
           "type": "string",
           "default": "",
-          "title": "The CUSTOM_BRANDING_KEY Schema",
+          "title": "CUSTOM_BRANDING_KEY Identifier (general attribute)",
           "examples": [
             ""
           ]
@@ -74,7 +74,7 @@
         "serialVersionUID": {
           "type": "integer",
           "default": 0,
-          "title": "The serialVersionUID Schema",
+          "title": "SerialVersionUID Identifier (general attribute)",
           "examples": [
             0
           ]
@@ -82,7 +82,7 @@
         "DEFAULT_INITIAL_CAPACITY": {
           "type": "integer",
           "default": 0,
-          "title": "The DEFAULT_INITIAL_CAPACITY Schema",
+          "title": "DEFAULT_INITIAL_CAPACITY Identifier (general attribute)",
           "examples": [
             0
           ]
@@ -90,7 +90,7 @@
         "MAXIMUM_CAPACITY": {
           "type": "integer",
           "default": 0,
-          "title": "The MAXIMUM_CAPACITY Schema",
+          "title": "MAXIMUM_CAPACITY Identifier (general attribute)",
           "examples": [
             0
           ]
@@ -98,7 +98,7 @@
         "DEFAULT_LOAD_FACTOR": {
           "type": "number",
           "default": 0.0,
-          "title": "The DEFAULT_LOAD_FACTOR Schema",
+          "title": "DEFAULT_LOAD_FACTOR Identifier (general attribute)",
           "examples": [
             0.0
           ]
@@ -106,7 +106,7 @@
         "TREEIFY_THRESHOLD": {
           "type": "integer",
           "default": 0,
-          "title": "The TREEIFY_THRESHOLD Schema",
+          "title": "TREEIFY_THRESHOLD Identifier (general attribute)",
           "examples": [
             0
           ]
@@ -114,7 +114,7 @@
         "UNTREEIFY_THRESHOLD": {
           "type": "integer",
           "default": 0,
-          "title": "The UNTREEIFY_THRESHOLD Schema",
+          "title": "UNTREEIFY_THRESHOLD Identifier (general attribute)",
           "examples": [
             0
           ]
@@ -122,7 +122,7 @@
         "MIN_TREEIFY_CAPACITY": {
           "type": "integer",
           "default": 0,
-          "title": "The MIN_TREEIFY_CAPACITY Schema",
+          "title":  "MIN_TREEIFY_CAPACITY Identifier (general attribute)",
           "examples": [
             0
           ]
@@ -130,7 +130,7 @@
         "table": {
           "type": "array",
           "default": [],
-          "title": "The table Schema",
+          "title": "Table Identifier (general attribute)",
           "items": {
             "type": "object",
             "default": {},
@@ -144,7 +144,7 @@
               "hash": {
                 "type": "integer",
                 "default": 0,
-                "title": "The hash Schema",
+                "title": "Hash Identifier (general attribute)",
                 "examples": [
                   0
                 ]
@@ -152,7 +152,7 @@
               "key": {
                 "type": "object",
                 "default": {},
-                "title": "The key Schema",
+                "title": "The key Identifier (general attribute)",
                 "required": [],
                 "properties": {},
                 "examples": [{}]
@@ -160,7 +160,7 @@
               "value": {
                 "type": "object",
                 "default": {},
-                "title": "The value Schema",
+                "title": "The value Identifier (general attribute)",
                 "required": [],
                 "properties": {},
                 "examples": [{}]
@@ -183,7 +183,7 @@
         "entrySet": {
           "type": "object",
           "default": {},
-          "title": "The entrySet Schema",
+          "title": "The entrySet Identifier (general attribute)",
           "required": [],
           "properties": {},
           "examples": [{}]
@@ -191,7 +191,7 @@
         "size": {
           "type": "integer",
           "default": 0,
-          "title": "The size Schema",
+          "title": "The size Identifier (general attribute)",
           "examples": [
             0
           ]
@@ -199,7 +199,7 @@
         "modCount": {
           "type": "integer",
           "default": 0,
-          "title": "The modCount Schema",
+          "title": "The modCount Identifier (general attribute)",
           "examples": [
             0
           ]
@@ -207,7 +207,7 @@
         "threshold": {
           "type": "integer",
           "default": 0,
-          "title": "The threshold Schema",
+          "title": "The threshold Identifier (general attribute)",
           "examples": [
             0
           ]
@@ -215,7 +215,7 @@
         "loadFactor": {
           "type": "number",
           "default": 0.0,
-          "title": "The loadFactor Schema",
+          "title": "The loadFactor Identifier (general attribute)",
           "examples": [
             0.0
           ]
@@ -223,7 +223,7 @@
         "values": {
           "type": "object",
           "default": {},
-          "title": "The values Schema",
+          "title": "The values Identifier (general attribute)",
           "required": [],
           "properties": {},
           "examples": [{}]
@@ -256,7 +256,7 @@
     "name": {
       "type": "string",
       "default": "",
-      "title": "The name Schema",
+      "title": "Name Identifier (general attribute)",
       "examples": [
         ""
       ]
@@ -264,7 +264,7 @@
     "isAutoGeneratedOrganization": {
       "type": "boolean",
       "default": false,
-      "title": "The isAutoGeneratedOrganization Schema",
+      "title": "IsAutoGeneratedOrganization Identifier (general attribute)",
       "examples": [
         false
       ]
@@ -272,7 +272,7 @@
     "contactName": {
       "type": "string",
       "default": "",
-      "title": "The contactName Schema",
+      "title": "ContactName Identifier (general attribute)",
       "examples": [
         ""
       ]
@@ -280,7 +280,7 @@
     "contactEmail": {
       "type": "string",
       "default": "",
-      "title": "The contactEmail Schema",
+      "title": "ContactEmail Identifier (general attribute)",
       "examples": [
         ""
       ]
@@ -288,7 +288,7 @@
     "contactPhoneNumber": {
       "type": "string",
       "default": "",
-      "title": "The contactPhoneNumber Schema",
+      "title": "ContactPhoneNumber Identifier (general attribute)",
       "examples": [
         ""
       ]
@@ -296,7 +296,7 @@
     "logoAssetId": {
       "type": "string",
       "default": "",
-      "title": "The logoAssetId Schema",
+      "title": "LogoAssetId Identifier (general attribute)",
       "examples": [
         ""
       ]
@@ -304,7 +304,7 @@
     "source": {
       "type": "string",
       "default": "",
-      "title": "The source Schema",
+      "title": "Source Identifier (general attribute)",
       "examples": [
         ""
       ]
@@ -312,7 +312,7 @@
     "thirdPartyCompanyId": {
       "type": "string",
       "default": "",
-      "title": "The thirdPartyCompanyId Schema",
+      "title": "ThirdPartyCompanyId Identifier (general attribute)",
       "examples": [
         ""
       ]
@@ -320,10 +320,9 @@
     "state": {
       "type": "array",
       "default": [],
-      "title": "The state Schema",
+      "title": "State Identifier (general attribute)",
       "items": {
         "type": "string",
-        "title": "A Schema",
         "examples": [
           "ACTIVE",
           "DELETED"
@@ -338,7 +337,7 @@
     "organizationDomain": {
       "type": "object",
       "default": {},
-      "title": "The organizationDomain Schema",
+      "title": "OrganizationDomain Identifier (general attribute)",
       "required": [
         "domain",
         "configs",
@@ -349,7 +348,7 @@
         "domain": {
           "type": "string",
           "default": "",
-          "title": "The domain Schema",
+          "title": "Domain Identifier (general attribute)",
           "examples": [
             ""
           ]
@@ -357,11 +356,10 @@
         "configs": {
           "type": "array",
           "default": [],
-          "title": "The configs Schema",
+          "title": "Configs Identifier (general attribute)",
           "items": {
             "type": "object",
             "default": {},
-            "title": "A Schema",
             "required": [
               "id",
               "source",
@@ -375,7 +373,7 @@
               "id": {
                 "type": "string",
                 "default": "",
-                "title": "The id Schema",
+                "title": "Id Identifier (general attribute)",
                 "examples": [
                   ""
                 ]
@@ -383,7 +381,7 @@
               "source": {
                 "type": "string",
                 "default": "",
-                "title": "The source Schema",
+                "title": "Source Identifier (general attribute)",
                 "examples": [
                   ""
                 ]
@@ -391,7 +389,7 @@
               "sourceName": {
                 "type": "string",
                 "default": "",
-                "title": "The sourceName Schema",
+                "title": "SourceName Identifier (general attribute)",
                 "examples": [
                   ""
                 ]
@@ -399,7 +397,7 @@
               "enable": {
                 "type": "boolean",
                 "default": false,
-                "title": "The enable Schema",
+                "title": "Enable Identifier (general attribute)",
                 "examples": [
                   false
                 ]
@@ -407,7 +405,7 @@
               "enableRegister": {
                 "type": "boolean",
                 "default": false,
-                "title": "The enableRegister Schema",
+                "title": "EnableRegister Identifier (general attribute)",
                 "examples": [
                   false
                 ]
@@ -415,7 +413,7 @@
               "authType": {
                 "type": "string",
                 "default": "",
-                "title": "The authType Schema",
+                "title": "AuthType Identifier (general attribute)",
                 "examples": [
                   ""
                 ]
@@ -423,7 +421,7 @@
               "@comment": {
                 "type": "object",
                 "default": {},
-                "title": "The @comment Schema",
+                "title": "The @comment Identifier (internal attribute)",
                 "required": [
                   "source"
                 ],
@@ -431,7 +429,7 @@
                   "source": {
                     "type": "string",
                     "default": "",
-                    "title": "The source Schema",
+                    "title": "Source Identifier (internal attribute)",
                     "examples": [
                       "/**\n     * here source should be unique for every authentication source. e.g., the google oauth2, the gitHub oauth2, or cas-sso of an org.\n     */"
                     ]
@@ -471,11 +469,10 @@
         "authConfigs": {
           "type": "array",
           "default": [],
-          "title": "The authConfigs Schema",
+          "title": "The authConfigs Identifier (internal attribute)",
           "items": {
             "type": "object",
             "default": {},
-            "title": "A Schema",
             "required": [],
             "properties": {},
             "examples": [{}]
@@ -487,7 +484,7 @@
         "@comment": {
           "type": "object",
           "default": {},
-          "title": "The @comment Schema",
+          "title": "The @comment Identifier (internal attribute)",
           "required": [
             "authConfigs"
           ],
@@ -495,7 +492,7 @@
             "authConfigs": {
               "type": "string",
               "default": "",
-              "title": "The authConfigs Schema",
+              "title": "The authConfigs Identifier (internal attribute)",
               "examples": [
                 "/**\n     * Only used for mongodb (de)serialization\n     */"
               ]
@@ -528,7 +525,7 @@
     "serialVersionUID": {
       "type": "integer",
       "default": 0,
-      "title": "The serialVersionUID Schema",
+      "title": "The serialVersionUID Identifier (internal attribute)",
       "examples": [
         0
       ]
@@ -536,7 +533,7 @@
     "id": {
       "type": "string",
       "default": "",
-      "title": "The id Schema",
+      "title": "The id Identifier (internal attribute)",
       "examples": [
         ""
       ]
@@ -544,7 +541,7 @@
     "createdAt": {
       "type": "object",
       "default": {},
-      "title": "The createdAt Schema",
+      "title": "The createdAt Identifier (internal attribute)",
       "required": [
         "MIN_SECOND",
         "MAX_SECOND",
@@ -556,7 +553,7 @@
         "MIN_SECOND": {
           "type": "integer",
           "default": 0,
-          "title": "The MIN_SECOND Schema",
+          "title": "The MIN_SECOND Identifier (internal attribute)",
           "examples": [
             0
           ]
@@ -564,7 +561,7 @@
         "MAX_SECOND": {
           "type": "integer",
           "default": 0,
-          "title": "The MAX_SECOND Schema",
+          "title": "The MAX_SECOND Identifier (internal attribute)",
           "examples": [
             0
           ]
@@ -572,7 +569,7 @@
         "serialVersionUID": {
           "type": "integer",
           "default": 0,
-          "title": "The serialVersionUID Schema",
+          "title": "The serialVersionUID Identifier (internal attribute)",
           "examples": [
             0
           ]
@@ -580,7 +577,7 @@
         "seconds": {
           "type": "integer",
           "default": 0,
-          "title": "The seconds Schema",
+          "title": "The seconds Identifier (internal attribute)",
           "examples": [
             0
           ]
@@ -588,7 +585,7 @@
         "nanos": {
           "type": "integer",
           "default": 0,
-          "title": "The nanos Schema",
+          "title": "The nanos Identifier (internal attribute)",
           "examples": [
             0
           ]
@@ -605,7 +602,7 @@
     "createdBy": {
       "type": "string",
       "default": "",
-      "title": "The createdBy Schema",
+      "title": "The createdBy Identifier (internal attribute)",
       "examples": [
         ""
       ]
@@ -613,7 +610,7 @@
     "modifiedBy": {
       "type": "string",
       "default": "",
-      "title": "The modifiedBy Schema",
+      "title": "The modifiedBy Identifier (internal attribute)",
       "examples": [
         ""
       ]

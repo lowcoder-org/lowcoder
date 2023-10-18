@@ -1,9 +1,9 @@
 {
   "$schema": "https://json-schema.org/draft/2019-09/schema",
-  "$id": "http://example.com/example.json",
+  "$id": "invitationSchema.json",
   "type": "object",
   "default": {},
-  "title": "Root Schema",
+  "title": "Invitation Schema",
   "required": [
     "createUserId",
     "invitedOrganizationId",
@@ -19,7 +19,7 @@
     "createUserId": {
       "type": "string",
       "default": "",
-      "title": "The createUserId Schema",
+      "title": "User who created invitation Identifier (general attribute)",
       "examples": [
         ""
       ]
@@ -27,7 +27,7 @@
     "invitedOrganizationId": {
       "type": "string",
       "default": "",
-      "title": "The invitedOrganizationId Schema",
+      "title": "InvitedOrganizationId Identifier (general attribute)",
       "examples": [
         ""
       ]
@@ -35,7 +35,7 @@
     "invitedUserIds": {
       "type": "object",
       "default": {},
-      "title": "The invitedUserIds Schema",
+      "title": "InvitedUserIds Identifier (general attribute)",
       "required": [],
       "properties": {},
       "examples": [{}]
@@ -43,7 +43,7 @@
     "serialVersionUID": {
       "type": "integer",
       "default": 0,
-      "title": "The serialVersionUID Schema",
+      "title": "SerialVersionUID Identifier (internal attribute)",
       "examples": [
         0
       ]
@@ -51,7 +51,7 @@
     "id": {
       "type": "string",
       "default": "",
-      "title": "The id Schema",
+      "title": "Id Identifier (internal attribute)",
       "examples": [
         ""
       ]
@@ -59,7 +59,7 @@
     "createdAt": {
       "type": "object",
       "default": {},
-      "title": "The createdAt Schema",
+      "title": "CreatedAt Identifier (internal attribute)",
       "required": [
         "MIN_SECOND",
         "MAX_SECOND",
@@ -71,7 +71,7 @@
         "MIN_SECOND": {
           "type": "integer",
           "default": 0,
-          "title": "The MIN_SECOND Schema",
+          "title": "MIN_SECOND Identifier (internal attribute)",
           "examples": [
             0
           ]
@@ -79,7 +79,7 @@
         "MAX_SECOND": {
           "type": "integer",
           "default": 0,
-          "title": "The MAX_SECOND Schema",
+          "title": "MAX_SECOND Identifier (internal attribute)",
           "examples": [
             0
           ]
@@ -87,7 +87,7 @@
         "serialVersionUID": {
           "type": "integer",
           "default": 0,
-          "title": "The serialVersionUID Schema",
+          "title": "SerialVersionUID Identifier (internal attribute)",
           "examples": [
             0
           ]
@@ -95,7 +95,7 @@
         "seconds": {
           "type": "integer",
           "default": 0,
-          "title": "The seconds Schema",
+          "title": "Seconds Identifier (internal attribute)",
           "examples": [
             0
           ]
@@ -103,7 +103,7 @@
         "nanos": {
           "type": "integer",
           "default": 0,
-          "title": "The nanos Schema",
+          "title": "Nanos Identifier (internal attribute)",
           "examples": [
             0
           ]
@@ -120,7 +120,7 @@
     "createdBy": {
       "type": "string",
       "default": "",
-      "title": "The createdBy Schema",
+      "title": "CreatedBy Identifier (internal attribute)",
       "examples": [
         ""
       ]
@@ -128,7 +128,7 @@
     "modifiedBy": {
       "type": "string",
       "default": "",
-      "title": "The modifiedBy Schema",
+      "title": "ModifiedBy Identifier (internal attribute)",
       "examples": [
         ""
       ]
@@ -136,7 +136,7 @@
     "@comment": {
       "type": "object",
       "default": {},
-      "title": "The @comment Schema",
+      "title": "@comment Identifier (internal attribute)",
       "required": [
         "createUserId",
         "invitedUserIds"
@@ -145,7 +145,7 @@
         "createUserId": {
           "type": "string",
           "default": "",
-          "title": "The createUserId Schema",
+          "title": "CreateUserId Identifier (internal attribute)",
           "examples": [
             "/**\n     * user who create this invitation\n     */"
           ]
@@ -153,7 +153,7 @@
         "invitedUserIds": {
           "type": "string",
           "default": "",
-          "title": "The invitedUserIds Schema",
+          "title": "InvitedUserIds Identifier (internal attribute)",
           "examples": [
             "/**\n     * invited user ids by this invitation\n     */"
           ]

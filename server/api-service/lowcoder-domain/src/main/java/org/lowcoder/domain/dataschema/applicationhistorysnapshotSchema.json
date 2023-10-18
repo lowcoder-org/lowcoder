@@ -1,9 +1,9 @@
 {
   "$schema": "https://json-schema.org/draft/2019-09/schema",
-  "$id": "http://example.com/example.json",
+  "$id": "applicationhistorysnapshotSchema.json",
   "type": "object",
   "default": {},
-  "title": "Root Schema",
+  "title": "Applicationhistorysnapshot Schema",
   "required": [
     "applicationId",
     "dsl",
@@ -17,7 +17,7 @@
     "applicationId": {
       "type": "string",
       "default": "",
-      "title": "The applicationId Schema",
+      "title": "Application Identifier (general attribute)",
       "examples": [
         ""
       ]
@@ -25,7 +25,7 @@
     "dsl": {
       "type": "object",
       "default": {},
-      "title": "The dsl Schema",
+      "title": "dsl Identifier (general attribute)",
       "required": [],
       "properties": {},
       "examples": [{}]
@@ -33,7 +33,7 @@
     "serialVersionUID": {
       "type": "integer",
       "default": 0,
-      "title": "The serialVersionUID Schema",
+      "title": "SerialVersionUID Identifier (internal attribute)",
       "examples": [
         0
       ]
@@ -41,7 +41,7 @@
     "id": {
       "type": "string",
       "default": "",
-      "title": "The id Schema",
+      "title": "Id Identifier (internal attribute)",
       "examples": [
         ""
       ]
@@ -49,7 +49,7 @@
     "createdAt": {
       "type": "object",
       "default": {},
-      "title": "The createdAt Schema",
+      "title": "CreatedAt Identifier (internal attribute)",
       "required": [
         "MIN_SECOND",
         "MAX_SECOND",
@@ -61,7 +61,7 @@
         "MIN_SECOND": {
           "type": "integer",
           "default": 0,
-          "title": "The MIN_SECOND Schema",
+          "title": "MIN_SECOND Identifier (internal attribute)",
           "examples": [
             0
           ]
@@ -69,7 +69,7 @@
         "MAX_SECOND": {
           "type": "integer",
           "default": 0,
-          "title": "The MAX_SECOND Schema",
+          "title": "MAX_SECOND Identifier (internal attribute)",
           "examples": [
             0
           ]
@@ -77,7 +77,7 @@
         "serialVersionUID": {
           "type": "integer",
           "default": 0,
-          "title": "The serialVersionUID Schema",
+          "title": "SerialVersionUID Identifier (internal attribute)",
           "examples": [
             0
           ]
@@ -85,7 +85,7 @@
         "seconds": {
           "type": "integer",
           "default": 0,
-          "title": "The seconds Schema",
+          "title": "Seconds Identifier (internal attribute)",
           "examples": [
             0
           ]
@@ -93,7 +93,7 @@
         "nanos": {
           "type": "integer",
           "default": 0,
-          "title": "The nanos Schema",
+          "title": "Nanos Identifier (internal attribute)",
           "examples": [
             0
           ]
@@ -110,7 +110,7 @@
     "createdBy": {
       "type": "string",
       "default": "",
-      "title": "The createdBy Schema",
+      "title": "CreatedBy Identifier (internal attribute)",
       "examples": [
         ""
       ]
@@ -118,7 +118,7 @@
     "modifiedBy": {
       "type": "string",
       "default": "",
-      "title": "The modifiedBy Schema",
+      "title": "ModifiedBy Identifier (internal attribute)",
       "examples": [
         ""
       ]

@@ -1,9 +1,9 @@
 {
   "$schema": "https://json-schema.org/draft/2019-09/schema",
-  "$id": "http://example.com/example.json",
+  "$id": "inviteuserSchema.json",
   "type": "object",
   "default": {},
-  "title": "Root Schema",
+  "title": "InviteUser Schema",
   "required": [
     "inviterUserId",
     "token",
@@ -29,7 +29,7 @@
     "inviterUserId": {
       "type": "string",
       "default": "",
-      "title": "The inviterUserId Schema",
+      "title": "InviterUserId Identifier (general attribute)",
       "examples": [
         ""
       ]
@@ -37,7 +37,7 @@
     "token": {
       "type": "string",
       "default": "",
-      "title": "The token Schema",
+      "title": "Token Identifier (general attribute)",
       "examples": [
         ""
       ]
@@ -45,7 +45,7 @@
     "EMPTY_TRANSFORMED_USER_INFO": {
       "type": "object",
       "default": {},
-      "title": "The EMPTY_TRANSFORMED_USER_INFO Schema",
+      "title": "EMPTY_TRANSFORMED_USER_INFO Identifier (general attribute)",
       "required": [
         "serialVersionUID",
         "DEFAULT_INITIAL_CAPACITY",
@@ -66,7 +66,7 @@
         "serialVersionUID": {
           "type": "integer",
           "default": 0,
-          "title": "The serialVersionUID Schema",
+          "title": "SerialVersionUID Identifier (internal attribute)",
           "examples": [
             0
           ]
@@ -74,7 +74,7 @@
         "DEFAULT_INITIAL_CAPACITY": {
           "type": "integer",
           "default": 0,
-          "title": "The DEFAULT_INITIAL_CAPACITY Schema",
+          "title": "DEFAULT_INITIAL_CAPACITY Identifier (internal attribute)",
           "examples": [
             0
           ]
@@ -82,7 +82,7 @@
         "MAXIMUM_CAPACITY": {
           "type": "integer",
           "default": 0,
-          "title": "The MAXIMUM_CAPACITY Schema",
+          "title": "MAXIMUM_CAPACITY Identifier (internal attribute)",
           "examples": [
             0
           ]
@@ -90,7 +90,7 @@
         "DEFAULT_LOAD_FACTOR": {
           "type": "number",
           "default": 0.0,
-          "title": "The DEFAULT_LOAD_FACTOR Schema",
+          "title": "DEFAULT_LOAD_FACTOR Identifier (internal attribute)",
           "examples": [
             0.0
           ]
@@ -98,7 +98,7 @@
         "TREEIFY_THRESHOLD": {
           "type": "integer",
           "default": 0,
-          "title": "The TREEIFY_THRESHOLD Schema",
+          "title": "TREEIFY_THRESHOLD Identifier (internal attribute)",
           "examples": [
             0
           ]
@@ -106,7 +106,7 @@
         "UNTREEIFY_THRESHOLD": {
           "type": "integer",
           "default": 0,
-          "title": "The UNTREEIFY_THRESHOLD Schema",
+          "title": "UNTREEIFY_THRESHOLD Identifier (internal attribute)",
           "examples": [
             0
           ]
@@ -114,7 +114,7 @@
         "MIN_TREEIFY_CAPACITY": {
           "type": "integer",
           "default": 0,
-          "title": "The MIN_TREEIFY_CAPACITY Schema",
+          "title": "MIN_TREEIFY_CAPACITY Identifier (internal attribute)",
           "examples": [
             0
           ]
@@ -122,11 +122,9 @@
         "table": {
           "type": "array",
           "default": [],
-          "title": "The table Schema",
           "items": {
             "type": "object",
             "default": {},
-            "title": "A Schema",
             "required": [
               "hash",
               "key",
@@ -136,7 +134,6 @@
               "hash": {
                 "type": "integer",
                 "default": 0,
-                "title": "The hash Schema",
                 "examples": [
                   0
                 ]
@@ -144,7 +141,6 @@
               "key": {
                 "type": "object",
                 "default": {},
-                "title": "The key Schema",
                 "required": [],
                 "properties": {},
                 "examples": [{}]
@@ -152,7 +148,6 @@
               "value": {
                 "type": "object",
                 "default": {},
-                "title": "The value Schema",
                 "required": [],
                 "properties": {},
                 "examples": [{}]
@@ -175,7 +170,6 @@
         "entrySet": {
           "type": "object",
           "default": {},
-          "title": "The entrySet Schema",
           "required": [],
           "properties": {},
           "examples": [{}]
@@ -183,7 +177,6 @@
         "size": {
           "type": "integer",
           "default": 0,
-          "title": "The size Schema",
           "examples": [
             0
           ]
@@ -191,7 +184,6 @@
         "modCount": {
           "type": "integer",
           "default": 0,
-          "title": "The modCount Schema",
           "examples": [
             0
           ]
@@ -199,7 +191,7 @@
         "threshold": {
           "type": "integer",
           "default": 0,
-          "title": "The threshold Schema",
+          "title": "Threshold Identifier (internal attribute)",
           "examples": [
             0
           ]
@@ -207,7 +199,7 @@
         "loadFactor": {
           "type": "number",
           "default": 0.0,
-          "title": "The loadFactor Schema",
+          "title": "LoadFactor Identifier (internal attribute)",
           "examples": [
             0.0
           ]
@@ -215,7 +207,7 @@
         "values": {
           "type": "object",
           "default": {},
-          "title": "The values Schema",
+          "title": "Values Identifier (internal attribute)",
           "required": [],
           "properties": {},
           "examples": [{}]
@@ -245,7 +237,7 @@
     "name": {
       "type": "string",
       "default": "",
-      "title": "The name Schema",
+      "title": "Name Identifier (general attribute)",
       "examples": [
         ""
       ]
@@ -253,7 +245,7 @@
     "avatar": {
       "type": "string",
       "default": "",
-      "title": "The avatar Schema",
+      "title": "Avatar Identifier (general attribute)",
       "examples": [
         ""
       ]
@@ -261,7 +253,7 @@
     "tpAvatarLink": {
       "type": "string",
       "default": "",
-      "title": "The tpAvatarLink Schema",
+      "title": "TpAvatarLink Identifier (general attribute)",
       "examples": [
         ""
       ]
@@ -269,10 +261,9 @@
     "state": {
       "type": "array",
       "default": [],
-      "title": "The state Schema",
+      "title": "State Identifier (general attribute)",
       "items": {
         "type": "string",
-        "title": "A Schema",
         "examples": [
           "NEW",
           "INVITED",
@@ -291,7 +282,7 @@
     "isEnabled": {
       "type": "boolean",
       "default": false,
-      "title": "The isEnabled Schema",
+      "title": "IsEnabled Identifier (general attribute)",
       "examples": [
         false
       ]
@@ -299,7 +290,7 @@
     "password": {
       "type": "string",
       "default": "",
-      "title": "The password Schema",
+      "title": "Password Identifier (general attribute)",
       "examples": [
         ""
       ]
@@ -307,7 +298,7 @@
     "isAnonymous": {
       "type": "boolean",
       "default": false,
-      "title": "The isAnonymous Schema",
+      "title": "IsAnonymous Identifier (general attribute)",
       "examples": [
         false
       ]
@@ -315,7 +306,7 @@
     "connections": {
       "type": "object",
       "default": {},
-      "title": "The connections Schema",
+      "title": "Connections Identifier (general attribute)",
       "required": [],
       "properties": {},
       "examples": [{}]
@@ -323,7 +314,7 @@
     "avatarUrl": {
       "type": "object",
       "default": {},
-      "title": "The avatarUrl Schema",
+      "title": "AvatarUrl Identifier (general attribute)",
       "required": [],
       "properties": {},
       "examples": [{}]
@@ -331,7 +322,7 @@
     "isNewUser": {
       "type": "boolean",
       "default": false,
-      "title": "The isNewUser Schema",
+      "title": "IsNewUser Identifier (general attribute)",
       "examples": [
         false
       ]
@@ -339,7 +330,7 @@
     "hasSetNickname": {
       "type": "boolean",
       "default": false,
-      "title": "The hasSetNickname Schema",
+      "title": "HasSetNickname Identifier (general attribute)",
       "examples": [
         false
       ]
@@ -347,7 +338,7 @@
     "serialVersionUID": {
       "type": "integer",
       "default": 0,
-      "title": "The serialVersionUID Schema",
+      "title": "SerialVersionUID Identifier (internal attribute)",
       "examples": [
         0
       ]
@@ -355,7 +346,7 @@
     "id": {
       "type": "string",
       "default": "",
-      "title": "The id Schema",
+      "title": "Id Identifier (internal attribute)a",
       "examples": [
         ""
       ]
@@ -363,7 +354,7 @@
     "createdAt": {
       "type": "object",
       "default": {},
-      "title": "The createdAt Schema",
+      "title": "CreatedAt Identifier (internal attribute)",
       "required": [
         "MIN_SECOND",
         "MAX_SECOND",
@@ -375,7 +366,7 @@
         "MIN_SECOND": {
           "type": "integer",
           "default": 0,
-          "title": "The MIN_SECOND Schema",
+          "title": "MIN_SECOND Identifier (internal attribute)",
           "examples": [
             0
           ]
@@ -383,7 +374,7 @@
         "MAX_SECOND": {
           "type": "integer",
           "default": 0,
-          "title": "The MAX_SECOND Schema",
+          "title": "MAX_SECOND Identifier (internal attribute)",
           "examples": [
             0
           ]
@@ -391,7 +382,7 @@
         "serialVersionUID": {
           "type": "integer",
           "default": 0,
-          "title": "The serialVersionUID Schema",
+          "title": "SerialVersionUID Identifier (internal attribute)",
           "examples": [
             0
           ]
@@ -399,7 +390,7 @@
         "seconds": {
           "type": "integer",
           "default": 0,
-          "title": "The seconds Schema",
+          "title": "Seconds Identifier (internal attribute)",
           "examples": [
             0
           ]
@@ -407,7 +398,7 @@
         "nanos": {
           "type": "integer",
           "default": 0,
-          "title": "The nanos Schema",
+          "title": "Nanos Identifier (internal attribute)",
           "examples": [
             0
           ]
@@ -424,7 +415,7 @@
     "createdBy": {
       "type": "string",
       "default": "",
-      "title": "The createdBy Schema",
+      "title": "CreatedBy Identifier (internal attribute)",
       "examples": [
         ""
       ]
@@ -432,7 +423,7 @@
     "modifiedBy": {
       "type": "string",
       "default": "",
-      "title": "The modifiedBy Schema",
+      "title": "ModifiedBy Identifier (internal attribute)",
       "examples": [
         ""
       ]

@@ -1,9 +1,9 @@
 {
   "$schema": "https://json-schema.org/draft/2019-09/schema",
-  "$id": "http://example.com/example.json",
+  "$id": "groupSchema.json",
   "type": "object",
   "default": {},
-  "title": "Root Schema",
+  "title": "Group Schema",
   "required": [
     "COMPARATOR",
     "name",
@@ -24,7 +24,7 @@
     "COMPARATOR": {
       "type": "object",
       "default": {},
-      "title": "The COMPARATOR Schema",
+      "title": "COMPARATOR Identifier (general attribute)",
       "required": [],
       "properties": {},
       "examples": [{}]
@@ -32,7 +32,7 @@
     "name": {
       "type": "string",
       "default": "",
-      "title": "The name Schema",
+      "title": "Name Identifier (general attribute)",
       "examples": [
         ""
       ]
@@ -40,7 +40,7 @@
     "organizationId": {
       "type": "string",
       "default": "",
-      "title": "The organizationId Schema",
+      "title": "Organization Identifier (general attribute)",
       "examples": [
         ""
       ]
@@ -48,7 +48,7 @@
     "allUsersGroup": {
       "type": "boolean",
       "default": false,
-      "title": "The allUsersGroup Schema",
+      "title": "AllUsersGroup Identifier (general attribute)",
       "examples": [
         false
       ]
@@ -56,7 +56,7 @@
     "type": {
       "type": "string",
       "default": "",
-      "title": "The type Schema",
+      "title": "Type Identifier (general attribute)",
       "examples": [
         ""
       ]
@@ -64,7 +64,7 @@
     "dynamicRule": {
       "type": "string",
       "default": "",
-      "title": "The dynamicRule Schema",
+      "title": "DynamicRule Identifier (general attribute)",
       "examples": [
         ""
       ]
@@ -72,7 +72,7 @@
     "source": {
       "type": "string",
       "default": "",
-      "title": "The source Schema",
+      "title": "Source Identifier (general attribute)",
       "examples": [
         ""
       ]
@@ -80,7 +80,7 @@
     "rawDepartmentId": {
       "type": "string",
       "default": "",
-      "title": "The rawDepartmentId Schema",
+      "title": "RawDepartmentId Identifier (general attribute)",
       "examples": [
         ""
       ]
@@ -88,7 +88,7 @@
     "syncDeleted": {
       "type": "boolean",
       "default": false,
-      "title": "The syncDeleted Schema",
+      "title": "SyncDeleted Identifier (general attribute)",
       "examples": [
         false
       ]
@@ -96,7 +96,7 @@
     "serialVersionUID": {
       "type": "integer",
       "default": 0,
-      "title": "The serialVersionUID Schema",
+      "title": "SerialVersionUID Identifier (internal attribute)",
       "examples": [
         0
       ]
@@ -104,7 +104,7 @@
     "id": {
       "type": "string",
       "default": "",
-      "title": "The id Schema",
+      "title": "Id Identifier (internal attribute)",
       "examples": [
         ""
       ]
@@ -112,7 +112,7 @@
     "createdAt": {
       "type": "object",
       "default": {},
-      "title": "The createdAt Schema",
+      "title": "CreatedAt Identifier (internal attribute)",
       "required": [
         "MIN_SECOND",
         "MAX_SECOND",
@@ -124,7 +124,7 @@
         "MIN_SECOND": {
           "type": "integer",
           "default": 0,
-          "title": "The MIN_SECOND Schema",
+          "title": "MIN_SECOND Identifier (internal attribute)",
           "examples": [
             0
           ]
@@ -132,7 +132,7 @@
         "MAX_SECOND": {
           "type": "integer",
           "default": 0,
-          "title": "The MAX_SECOND Schema",
+          "title": "MAX_SECOND Identifier (internal attribute)",
           "examples": [
             0
           ]
@@ -140,7 +140,7 @@
         "serialVersionUID": {
           "type": "integer",
           "default": 0,
-          "title": "The serialVersionUID Schema",
+          "title": "SerialVersionUID Identifier (internal attribute)",
           "examples": [
             0
           ]
@@ -148,7 +148,7 @@
         "seconds": {
           "type": "integer",
           "default": 0,
-          "title": "The seconds Schema",
+          "title": "Seconds Identifier (internal attribute)",
           "examples": [
             0
           ]
@@ -156,7 +156,7 @@
         "nanos": {
           "type": "integer",
           "default": 0,
-          "title": "The nanos Schema",
+          "title": "Nanos Identifier (internal attribute)",
           "examples": [
             0
           ]
@@ -173,7 +173,7 @@
     "createdBy": {
       "type": "string",
       "default": "",
-      "title": "The createdBy Schema",
+      "title": "CreatedBy Identifier (internal attribute)",
       "examples": [
         ""
       ]
@@ -181,7 +181,7 @@
     "modifiedBy": {
       "type": "string",
       "default": "",
-      "title": "The modifiedBy Schema",
+      "title": "ModifiedBy Identifier (internal attribute)",
       "examples": [
         ""
       ]

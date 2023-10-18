@@ -1,9 +1,9 @@
 {
   "$schema": "https://json-schema.org/draft/2019-09/schema",
-  "$id": "http://example.com/example.json",
+  "$id": "userstatusSchema.json",
   "type": "object",
   "default": {},
-  "title": "Root Schema",
+  "title": "UserStatus Schema",
   "required": [
     "id",
     "hasShowNewUserGuidance",
@@ -14,7 +14,7 @@
     "id": {
       "type": "string",
       "default": "",
-      "title": "The id Schema",
+      "title": "Id Identifier (general attribute)",
       "examples": [
         ""
       ]
@@ -22,7 +22,7 @@
     "hasShowNewUserGuidance": {
       "type": "boolean",
       "default": false,
-      "title": "The hasShowNewUserGuidance Schema",
+      "title": "HasShowNewUserGuidance Identifier (general attribute)",
       "examples": [
         false
       ]
@@ -30,7 +30,7 @@
     "banned": {
       "type": "boolean",
       "default": false,
-      "title": "The banned Schema",
+      "title": "Banned Identifier (general attribute)",
       "examples": [
         false
       ]
@@ -38,7 +38,7 @@
     "statusMap": {
       "type": "object",
       "default": {},
-      "title": "The statusMap Schema",
+      "title": "StatusMap Identifier (general attribute)",
       "required": [],
       "properties": {},
       "examples": [{}]

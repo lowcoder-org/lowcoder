@@ -1,9 +1,9 @@
 {
   "$schema": "https://json-schema.org/draft/2019-09/schema",
-  "$id": "http://example.com/example.json",
+  "$id": "serverlogSchema.json",
   "type": "object",
   "default": {},
-  "title": "Root Schema",
+  "title": "ServerLog Schema",
   "required": [
     "userId",
     "urlPath",
@@ -16,7 +16,7 @@
     "userId": {
       "type": "string",
       "default": "",
-      "title": "The userId Schema",
+      "title": "UserId Identifier (general attribute)",
       "examples": [
         ""
       ]
@@ -24,7 +24,7 @@
     "urlPath": {
       "type": "string",
       "default": "",
-      "title": "The urlPath Schema",
+      "title": "UrlPath Identifier (general attribute)",
       "examples": [
         ""
       ]
@@ -32,7 +32,7 @@
     "httpMethod": {
       "type": "string",
       "default": "",
-      "title": "The httpMethod Schema",
+      "title": "HttpMethod Identifier (general attribute)",
       "examples": [
         ""
       ]
@@ -40,7 +40,7 @@
     "requestBody": {
       "type": "string",
       "default": "",
-      "title": "The requestBody Schema",
+      "title": "RequestBody Identifier (general attribute)",
       "examples": [
         ""
       ]
@@ -48,7 +48,7 @@
     "queryParameters": {
       "type": "object",
       "default": {},
-      "title": "The queryParameters Schema",
+      "title": "QueryParameters Identifier (general attribute)",
       "required": [],
       "properties": {},
       "examples": [{}]
@@ -56,7 +56,7 @@
     "createTime": {
       "type": "integer",
       "default": 0,
-      "title": "The createTime Schema",
+      "title": "CreateTime Identifier (general attribute)",
       "examples": [
         0
       ]
