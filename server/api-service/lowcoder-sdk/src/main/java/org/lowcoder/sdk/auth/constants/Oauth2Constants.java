@@ -6,8 +6,9 @@ public class Oauth2Constants {
     public static final String CLIENT_ID_PLACEHOLDER = "$CLIENT_ID";
     public static final String REDIRECT_URL_PLACEHOLDER = "$REDIRECT_URL";
     public static final String STATE_PLACEHOLDER = "$STATE";
+    public static final String REALM_PLACEHOLDER = "$REALM";
 
-    public static final String INSTANCE_ID_PLACEHOLDER = "INSTANCE_ID";
+    public static final String INSTANCE_ID_PLACEHOLDER = "$INSTANCE_ID";
 
     // authorize url
     public static final String GITHUB_AUTHORIZE_URL = "https://github.com/login/oauth/authorize"
@@ -32,4 +33,11 @@ public class Oauth2Constants {
             + "&redirect_uri=" + REDIRECT_URL_PLACEHOLDER
             + "&state=" + STATE_PLACEHOLDER
             + "&scope=openid email profile offline_access";
+
+    public static final String KEYCLOAK_AUTHORIZE_URL = "https://" + INSTANCE_ID_PLACEHOLDER + "/realms/" + REALM_PLACEHOLDER + "/protocol/openid-connect/auth"
+            + "?response_type=code"
+            + "&client_id=" + CLIENT_ID_PLACEHOLDER
+            + "&redirect_uri=" + REDIRECT_URL_PLACEHOLDER
+            + "&state=" + STATE_PLACEHOLDER
+            + "&scope=openid email profile";
 }

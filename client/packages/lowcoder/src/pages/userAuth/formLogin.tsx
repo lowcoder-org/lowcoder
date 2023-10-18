@@ -15,8 +15,8 @@ import { UserConnectionSource } from "@lowcoder-ee/constants/userConstants";
 import { trans } from "i18n";
 import { AuthContext, useAuthSubmit } from "pages/userAuth/authUtils";
 import { ThirdPartyAuth } from "pages/userAuth/thirdParty/thirdPartyAuth";
-import { AUTH_REGISTER_URL } from "constants/routesURL";
-import { useLocation } from "react-router-dom";
+import { AUTH_REGISTER_URL, ORG_AUTH_REGISTER_URL } from "constants/routesURL";
+import { useLocation, useParams } from "react-router-dom";
 
 const AccountLoginWrapper = styled(FormWrapperMobile)`
   display: flex;
@@ -24,7 +24,11 @@ const AccountLoginWrapper = styled(FormWrapperMobile)`
   margin-bottom: 106px;
 `;
 
-export default function FormLogin() {
+type FormLoginProps = {
+  organizationId?: string;
+}
+
+export default function FormLogin(props: FormLoginProps) {
   const [account, setAccount] = useState("");
   const [password, setPassword] = useState("");
   const redirectUrl = useRedirectUrl();
@@ -32,6 +36,7 @@ export default function FormLogin() {
   const invitationId = inviteInfo?.invitationId;
   const authId = systemConfig?.form.id;
   const location = useLocation();
+  const orgId = useParams<any>().orgId;
 
   const { onSubmit, loading } = useAuthSubmit(
     () =>
@@ -69,14 +74,24 @@ export default function FormLogin() {
         <ConfirmButton loading={loading} disabled={!account || !password} onClick={onSubmit}>
           {trans("userAuth.login")}
         </ConfirmButton>
+        
+        {props.organizationId && (
+          <ThirdPartyAuth
+            invitationId={invitationId}
+            invitedOrganizationId={props.organizationId}
+            authGoal="login"
+          />
+        )}
       </AccountLoginWrapper>
       <AuthBottomView>
-        <ThirdPartyAuth invitationId={invitationId} authGoal="login" />
-        {systemConfig.form.enableRegister && (
-          <StyledRouteLink to={{ pathname: AUTH_REGISTER_URL, state: location.state }}>
-            {trans("userAuth.register")}
-          </StyledRouteLink>
-        )}
+        <StyledRouteLink to={{
+          pathname: orgId
+            ? ORG_AUTH_REGISTER_URL.replace(':orgId', orgId)
+            : AUTH_REGISTER_URL,
+          state: location.state
+        }}>
+          {trans("userAuth.register")}
+        </StyledRouteLink>
       </AuthBottomView>
     </>
   );

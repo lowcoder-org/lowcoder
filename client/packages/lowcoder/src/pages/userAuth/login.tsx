@@ -1,11 +1,11 @@
-import { useLocation } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import { AuthSearchParams } from "constants/authConstants";
 import { CommonTextLabel } from "components/Label";
 import { trans } from "i18n";
 import { ThirdPartyAuth } from "pages/userAuth/thirdParty/thirdPartyAuth";
 import FormLogin from "@lowcoder-ee/pages/userAuth/formLogin";
 import { AuthContainer } from "pages/userAuth/authComponents";
-import React, { useContext } from "react";
+import React, { useContext, useMemo } from "react";
 import { AuthContext, getLoginTitle } from "pages/userAuth/authUtils";
 import styled from "styled-components";
 import { requiresUnAuth } from "pages/userAuth/authHOC";
@@ -64,13 +64,13 @@ const thirdPartyLoginLabel = (name: string) => trans("userAuth.signInLabel", { n
 export const ThirdPartyBindCard = () => {
   const { systemConfig } = useContext(AuthContext);
   return (
-    <AuthContainer title={trans("userAuth.bindAccount")}>
+    <AuthContainer heading={trans("userAuth.bindAccount")}>
       <ThirdAuthWrapper>
         <ThirdPartyAuth
           authGoal="bind"
           autoJumpSource={
-            systemConfig.authConfigs.length === 1
-              ? systemConfig.authConfigs[0].sourceType
+            systemConfig?.authConfigs.length === 1
+              ? systemConfig?.authConfigs[0].sourceType
               : undefined
           }
           labelFormatter={thirdPartyLoginLabel}
@@ -85,7 +85,9 @@ function Login() {
   const invitationId = inviteInfo?.invitationId;
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
-  const loginType = systemConfig.authConfigs.find(
+  const orgId = useParams<any>().orgId;
+
+  const loginType = systemConfig?.authConfigs.find(
     (config) => config.sourceType === queryParams.get(AuthSearchParams.loginType)
   )?.sourceType;
   let autoJumpSource: string | undefined;
@@ -95,6 +97,13 @@ function Login() {
     // auto jump third party login page when only one source
     autoJumpSource = systemConfig.authConfigs[0].sourceType;
   }
+
+  const organizationId = useMemo(() => {
+    if(inviteInfo?.invitedOrganizationId) {
+      return inviteInfo?.invitedOrganizationId;
+    }
+    return orgId;
+  }, [ inviteInfo, orgId ])
 
   const thirdPartyLoginView = (
     <ThirdAuthWrapper>
@@ -116,15 +125,24 @@ function Login() {
   if (loginType) {
     loginCardView = thirdPartyLoginView;
     // Specify the login type with query param
-  } else if (systemConfig.form.enableLogin) {
-    loginCardView = <FormLogin />;
+  } else if (systemConfig?.form.enableLogin) {
+    loginCardView = <FormLogin organizationId={organizationId} />;
   } else {
     loginCardView = thirdPartyLoginView;
   }
 
+  const loginHeading = organizationId && LOWCODER_CUSTOM_AUTH_WELCOME_TEXT !== ""
+    ? LOWCODER_CUSTOM_AUTH_WELCOME_TEXT
+    : getLoginTitle(inviteInfo?.createUserName, systemConfig?.branding?.brandName)
+
+  const loginSubHeading = organizationId && LOWCODER_CUSTOM_AUTH_WELCOME_TEXT !== ""
+    ? trans("userAuth.poweredByLowcoder")
+    : ''
+
   return (
     <AuthContainer
-      title={getLoginTitle(inviteInfo?.createUserName, systemConfig.branding?.brandName)}
+      heading={loginHeading}
+      subHeading={loginSubHeading}
     >
       {loginCardView}
     </AuthContainer>

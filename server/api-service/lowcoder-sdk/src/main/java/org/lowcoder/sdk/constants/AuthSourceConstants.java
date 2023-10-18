@@ -11,11 +11,13 @@ public class AuthSourceConstants {
     public static final String GOOGLE = "GOOGLE";
     public static final String GITHUB = "GITHUB";
     public static final String ORY = "ORY";
+    public static final String KEYCLOAK = "KEYCLOAK";
 
     // source name
     public static final String GOOGLE_NAME = "Google";
     public static final String GITHUB_NAME = "Github";
     public static final String ORY_NAME = "Ory";
+    public static final String KEYCLOAK_NAME = "Keycloak";
 
     // default source and source name for common protocol
     // oauth 2.0
