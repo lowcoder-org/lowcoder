@@ -1,6 +1,7 @@
 package org.lowcoder.domain.authentication;
 
 import lombok.extern.slf4j.Slf4j;
+import org.lowcoder.domain.organization.service.OrgMemberService;
 import org.lowcoder.domain.organization.service.OrganizationService;
 import org.lowcoder.sdk.auth.AbstractAuthConfig;
 import org.lowcoder.sdk.auth.EmailAuthConfig;
@@ -26,6 +27,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Autowired
     private OrganizationService organizationService;
+
+    @Autowired
+    private OrgMemberService orgMemberService;
+
     @Autowired
     private CommonConfig commonConfig;
     @Autowired
@@ -51,7 +56,16 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Override
     public Flux<FindAuthConfig> findAllAuthConfigs(String orgId, boolean enableOnly) {
-        return findAllAuthConfigsByDomain()
+
+        Mono<FindAuthConfig> emailAuthConfigMono = orgMemberService.doesAtleastOneAdminExist()
+                .map(doesAtleastOneAdminExist -> {
+                    boolean shouldEnableRegister = !doesAtleastOneAdminExist && authProperties.getEmail().isEnableRegister();
+                    return new FindAuthConfig
+                            (new EmailAuthConfig(AuthSourceConstants.EMAIL, authProperties.getEmail().isEnable(), shouldEnableRegister), null);
+                });
+
+
+        Flux<FindAuthConfig> findAuthConfigFlux = findAllAuthConfigsByDomain()
                 .switchIfEmpty(findAllAuthConfigsForEnterpriseMode())
                 .switchIfEmpty(findAllAuthConfigsForSaasMode(orgId))
                 .filter(findAuthConfig -> {
@@ -59,10 +73,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                         return findAuthConfig.authConfig().isEnable();
                     }
                     return true;
-                })
-                .concatWithValues(new FindAuthConfig
-                        (new EmailAuthConfig(AuthSourceConstants.EMAIL, authProperties.getEmail().isEnable(),
-                                authProperties.getEmail().isEnableRegister()), null));
+                });
+
+        return Flux.concat(findAuthConfigFlux, emailAuthConfigMono);
+
     }
 
     private Flux<FindAuthConfig> findAllAuthConfigsByDomain() {
