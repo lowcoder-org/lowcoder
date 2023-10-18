@@ -119,7 +119,7 @@ const turnOnMicrophone = async (flag?: boolean) => {
     return audioTrack.setEnabled(flag!);
   }
   audioTrack = await AgoraRTC.createMicrophoneAudioTrack();
-  audioTrack.play();
+  // audioTrack.play();
 
   if (!flag) {
     await client.unpublish(audioTrack);
