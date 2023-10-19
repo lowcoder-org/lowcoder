@@ -14,7 +14,7 @@
     "id": {
       "type": "string",
       "default": "",
-      "title": "Id Identifier (general attribute)",
+      "title": "Id - User status Identifier ",
       "examples": [
         ""
       ]
@@ -22,7 +22,7 @@
     "hasShowNewUserGuidance": {
       "type": "boolean",
       "default": false,
-      "title": "HasShowNewUserGuidance Identifier (general attribute)",
+      "title": "HasShowNewUserGuidance - Identifies if a new user guidance is true or false",
       "examples": [
         false
       ]
@@ -30,7 +30,7 @@
     "banned": {
       "type": "boolean",
       "default": false,
-      "title": "Banned Identifier (general attribute)",
+      "title": "Banned - The Banned status of the user",
       "examples": [
         false
       ]
@@ -38,7 +38,7 @@
     "statusMap": {
       "type": "object",
       "default": {},
-      "title": "StatusMap Identifier (general attribute)",
+      "title": "StatusMap - The status map of the user",
       "required": [],
       "properties": {},
       "examples": [{}]

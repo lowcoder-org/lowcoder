@@ -27,7 +27,7 @@
     "EMPTY_TRANSFORMED_USER_INFO": {
       "type": "object",
       "default": {},
-      "title": "The EMPTY_TRANSFORMED_USER_INFO Schema",
+      "title": "The EMPTY_TRANSFORMED_USER_INFO details",
       "required": [
         "serialVersionUID",
         "DEFAULT_INITIAL_CAPACITY",
@@ -48,7 +48,7 @@
         "serialVersionUID": {
           "type": "integer",
           "default": 0,
-          "title": "The serialVersionUID Identifier (internal attribute)",
+          "title": "serialVersionUID - versionUID Identifier",
           "examples": [
             0
           ]
@@ -56,7 +56,7 @@
         "DEFAULT_INITIAL_CAPACITY": {
           "type": "integer",
           "default": 0,
-          "title": "The DEFAULT_INITIAL_CAPACITY Identifier (general attribute)",
+          "title": "DEFAULT_INITIAL_CAPACITY number",
           "examples": [
             0
           ]
@@ -64,7 +64,7 @@
         "MAXIMUM_CAPACITY": {
           "type": "integer",
           "default": 0,
-          "title": "The MAXIMUM_CAPACITY Identifier (general attribute)",
+          "title": "MAXIMUM_CAPACITY number",
           "examples": [
             0
           ]
@@ -72,7 +72,7 @@
         "DEFAULT_LOAD_FACTOR": {
           "type": "number",
           "default": 0.0,
-          "title": "The DEFAULT_LOAD_FACTOR Identifier (general attribute)",
+          "title": "DEFAULT_LOAD_FACTOR number",
           "examples": [
             0.0
           ]
@@ -80,7 +80,7 @@
         "TREEIFY_THRESHOLD": {
           "type": "integer",
           "default": 0,
-          "title": "The TREEIFY_THRESHOLD Identifier (general attribute)",
+          "title": "TREEIFY_THRESHOLD number",
           "examples": [
             0
           ]
@@ -88,7 +88,7 @@
         "UNTREEIFY_THRESHOLD": {
           "type": "integer",
           "default": 0,
-          "title": "The UNTREEIFY_THRESHOLD Identifier (general attribute)",
+          "title": "UNTREEIFY_THRESHOLD number",
           "examples": [
             0
           ]
@@ -96,7 +96,7 @@
         "MIN_TREEIFY_CAPACITY": {
           "type": "integer",
           "default": 0,
-          "title": "The MIN_TREEIFY_CAPACITY Identifier (general attribute)",
+          "title": "MIN_TREEIFY_CAPACITY number",
           "examples": [
             0
           ]
@@ -104,7 +104,7 @@
         "table": {
           "type": "array",
           "default": [],
-          "title": "The table Identifier (general attribute)",
+          "title": "table details",
           "items": {
             "type": "object",
             "default": {},
@@ -117,7 +117,7 @@
               "hash": {
                 "type": "integer",
                 "default": 0,
-                "title": "The hash Identifier (general attribute)",
+                "title": "Hash - A number identifier",
                 "examples": [
                   0
                 ]
@@ -125,7 +125,7 @@
               "key": {
                 "type": "object",
                 "default": {},
-                "title": "The key Identifier (general attribute)",
+                "title": "Key - The details of the key in the hash ",
                 "required": [],
                 "properties": {},
                 "examples": [{}]
@@ -133,7 +133,7 @@
               "value": {
                 "type": "object",
                 "default": {},
-                "title": "The value Identifier (general attribute)",
+                "title": "Value - The details of the value in the hash ",
                 "required": [],
                 "properties": {},
                 "examples": [{}]
@@ -156,7 +156,7 @@
         "entrySet": {
           "type": "object",
           "default": {},
-          "title": "The entrySet Identifier (general attribute)",
+          "title": "entrySet details",
           "required": [],
           "properties": {},
           "examples": [{}]
@@ -164,7 +164,6 @@
         "size": {
           "type": "integer",
           "default": 0,
-          "title": "The size Identifier (general attribute)",
           "examples": [
             0
           ]
@@ -172,7 +171,6 @@
         "modCount": {
           "type": "integer",
           "default": 0,
-          "title": "The modCount Identifier (general attribute)",
           "examples": [
             0
           ]
@@ -180,7 +178,6 @@
         "threshold": {
           "type": "integer",
           "default": 0,
-          "title": "The threshold Identifier (general attribute)",
           "examples": [
             0
           ]
@@ -188,7 +185,6 @@
         "loadFactor": {
           "type": "number",
           "default": 0.0,
-          "title": "The loadFactor Identifier (general attribute)",
           "examples": [
             0.0
           ]
@@ -196,7 +192,6 @@
         "values": {
           "type": "object",
           "default": {},
-          "title": "The values Identifier (general attribute)",
           "required": [],
           "properties": {},
           "examples": [{}]
@@ -226,7 +221,7 @@
     "name": {
       "type": "string",
       "default": "",
-      "title": "The name Identifier (general attribute)",
+      "title": "name - name of the user)",
       "examples": [
         ""
       ]
@@ -234,7 +229,7 @@
     "avatar": {
       "type": "string",
       "default": "",
-      "title": "The avatar Identifier (general attribute)",
+      "title": "Avatar - the user avater",
       "examples": [
         ""
       ]
@@ -242,7 +237,7 @@
     "tpAvatarLink": {
       "type": "string",
       "default": "",
-      "title": "The tpAvatarLink Identifier (general attribute)",
+      "title": "TpAvatarLink - the link to the tpavatar",
       "examples": [
         ""
       ]
@@ -250,7 +245,7 @@
     "state": {
       "type": "array",
       "default": [],
-      "title": "The state Identifier (general attribute)",
+      "title": "State - State details identifier",
       "items": {
         "type": "string",
         "title": "A Schema",
@@ -272,7 +267,7 @@
     "isEnabled": {
       "type": "boolean",
       "default": false,
-      "title": "The isEnabled Identifier (general attribute)",
+      "title": "IsEnabled - shows if a user is enabled",
       "examples": [
         false
       ]
@@ -280,7 +275,7 @@
     "password": {
       "type": "string",
       "default": "",
-      "title": "The password Identifier (general attribute)",
+      "title": "password - password Identifier",
       "examples": [
         ""
       ]
@@ -288,7 +283,7 @@
     "isAnonymous": {
       "type": "boolean",
       "default": false,
-      "title": "The isAnonymous Identifier (general attribute)",
+      "title": "IsAnonymous - Identifies an anonymous",
       "examples": [
         false
       ]
@@ -296,7 +291,7 @@
     "connections": {
       "type": "object",
       "default": {},
-      "title": "The connections Identifier (general attribute)",
+      "title": "connections - coonections details",
       "required": [],
       "properties": {},
       "examples": [{}]
@@ -304,7 +299,7 @@
     "avatarUrl": {
       "type": "object",
       "default": {},
-      "title": "The avatarUrl Identifier (general attribute)",
+      "title": "AvatarUrl - The link to the user avatar",
       "required": [],
       "properties": {},
       "examples": [{}]
@@ -312,7 +307,7 @@
     "isNewUser": {
       "type": "boolean",
       "default": false,
-      "title": "The isNewUser Identifier (general attribute)",
+      "title": "IsNewUser - Indicates if the user is a new",
       "examples": [
         false
       ]
@@ -320,7 +315,7 @@
     "hasSetNickname": {
       "type": "boolean",
       "default": false,
-      "title": "HasSetNickname Identifier (general attribute)",
+      "title": "HasSetNickname - shows if a user as set a Nickname or not using the true or false",
       "examples": [
         false
       ]
@@ -328,7 +323,7 @@
     "serialVersionUID": {
       "type": "integer",
       "default": 0,
-      "title": "SerialVersionUID Identifier (internal attribute)",
+      "title": "SerialVersionUID - VersionUID identifier(internal)",
       "examples": [
         0
       ]
@@ -336,7 +331,7 @@
     "id": {
       "type": "string",
       "default": "",
-      "title": "Id Identifier (internal attribute)",
+      "title": "Id - An Identifier(internal)",
       "examples": [
         ""
       ]
@@ -344,7 +339,7 @@
     "createdAt": {
       "type": "object",
       "default": {},
-      "title": "CreatedAt Identifier (internal attribute)",
+      "title": "CreatedAt - The date when the creation was made(internal)",
       "required": [
         "MIN_SECOND",
         "MAX_SECOND",
@@ -356,7 +351,7 @@
         "MIN_SECOND": {
           "type": "integer",
           "default": 0,
-          "title": "MIN_SECOND Identifier (internal attribute)",
+          "title": "MIN_SECOND - The min_second Identifier(internal)",
           "examples": [
             0
           ]
@@ -364,7 +359,7 @@
         "MAX_SECOND": {
           "type": "integer",
           "default": 0,
-          "title": "MAX_SECOND Identifier (internal attribute)",
+          "title": "MAX_SECOND - The max_second Identifier(internal)",
           "examples": [
             0
           ]
@@ -372,7 +367,7 @@
         "serialVersionUID": {
           "type": "integer",
           "default": 0,
-          "title": "SerialVersionUID Identifier (internal attribute)",
+          "title": "SerialVersionUID - The serialVersionUID details (internal)",
           "examples": [
             0
           ]
@@ -380,7 +375,7 @@
         "seconds": {
           "type": "integer",
           "default": 0,
-          "title": "Seconds Identifier (internal attribute)",
+          "title": "Seconds - The seconds details(internal)",
           "examples": [
             0
           ]
@@ -388,7 +383,7 @@
         "nanos": {
           "type": "integer",
           "default": 0,
-          "title": "Nanos Identifier (internal attribute)",
+          "title": "Nanos - The nanos details(internal)",
           "examples": [
             0
           ]
@@ -405,7 +400,7 @@
     "createdBy": {
       "type": "string",
       "default": "",
-      "title": "CreatedBy Identifier (internal attribute)",
+      "title": "CreatedBy - The details of who made the creation(internal)",
       "examples": [
         ""
       ]
@@ -413,7 +408,7 @@
     "modifiedBy": {
       "type": "string",
       "default": "",
-      "title": "ModifiedBy Identifier (internal attribute)",
+      "title": "ModifiedBy - Identifies who did a modification(internal)",
       "examples": [
         ""
       ]

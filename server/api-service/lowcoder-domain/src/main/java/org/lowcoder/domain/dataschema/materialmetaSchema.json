@@ -19,7 +19,7 @@
     "filename": {
       "type": "string",
       "default": "",
-      "title": "Filename Identifier (general attribute)",
+      "title": "Filename - identifies the file name in the material meta",
       "examples": [
         ""
       ]
@@ -27,7 +27,7 @@
     "orgId": {
       "type": "string",
       "default": "",
-      "title": "OrgId Identifier (general attribute)",
+      "title": "orgId - identifies the organization",
       "examples": [
         ""
       ]
@@ -35,7 +35,7 @@
     "size": {
       "type": "integer",
       "default": 0,
-      "title": "Size Identifier (general attribute)",
+      "title": "Size - identifies the size",
       "examples": [
         0
       ]
@@ -43,7 +43,7 @@
     "type": {
       "type": "array",
       "default": [],
-      "title": "Type Identifier (general attribute)",
+      "title": "Type - identifies the type of materialMeta",
       "items": {
         "type": "string",
         "examples": [
@@ -62,7 +62,7 @@
     "serialVersionUID": {
       "type": "integer",
       "default": 0,
-      "title": "SerialVersionUID Identifier (internal attribute)",
+      "title": "serialVersionUID - The Identifier serialVersionUID (internal)",
       "examples": [
         0
       ]
@@ -70,7 +70,7 @@
     "id": {
       "type": "string",
       "default": "",
-      "title": "Id Identifier (internal attribute)",
+      "title": "Id - An Identifier(internal)",
       "examples": [
         ""
       ]
@@ -78,7 +78,7 @@
     "createdAt": {
       "type": "object",
       "default": {},
-      "title": "CreatedAt Identifier (internal attribute)",
+      "title": "CreatedAt - The date when the creation was made(internal)",
       "required": [
         "MIN_SECOND",
         "MAX_SECOND",
@@ -90,7 +90,7 @@
         "MIN_SECOND": {
           "type": "integer",
           "default": 0,
-          "title": "MIN_SECOND Identifier (internal attribute)",
+          "title": "MIN_SECOND - The min_second Identifier(internal)",
           "examples": [
             0
           ]
@@ -98,7 +98,7 @@
         "MAX_SECOND": {
           "type": "integer",
           "default": 0,
-          "title": "MAX_SECOND Identifier (internal attribute)",
+          "title": "MAX_SECOND - The max_second Identifier(internal)",
           "examples": [
             0
           ]
@@ -106,7 +106,7 @@
         "serialVersionUID": {
           "type": "integer",
           "default": 0,
-          "title": "SerialVersionUID Identifier (internal attribute)",
+          "title": "serialVersionUID - The Identifier serialVersionUID (internal)",
           "examples": [
             0
           ]
@@ -114,7 +114,7 @@
         "seconds": {
           "type": "integer",
           "default": 0,
-          "title": "Seconds Identifier (internal attribute)",
+          "title": "Seconds - The seconds details(internal)",
           "examples": [
             0
           ]
@@ -122,7 +122,7 @@
         "nanos": {
           "type": "integer",
           "default": 0,
-          "title": "Nanos Identifier (internal attribute)",
+          "title": "Nanos - The nanos details(internal)",
           "examples": [
             0
           ]
@@ -139,7 +139,7 @@
     "createdBy": {
       "type": "string",
       "default": "",
-      "title": "CreatedBy Identifier (internal attribute)",
+      "title": "CreatedBy - The details of who made the creation(internal)",
       "examples": [
         ""
       ]
@@ -147,7 +147,7 @@
     "modifiedBy": {
       "type": "string",
       "default": "",
-      "title": "ModifiedBy Identifier (internal attribute)",
+      "title": "ModifiedBy - Identifies who did a modification(internal)",
       "examples": [
         ""
       ]

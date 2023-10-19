@@ -21,7 +21,7 @@
   "properties": {
     "organizationId": {
       "type": "string",
-      "default": "Organization Identifier (general attribute)",
+      "default": "ApplicationId - Application Identifier",
       "title": "",
       "examples": [
         ""
@@ -30,7 +30,7 @@
     "name": {
       "type": "string",
       "default": "",
-      "title": "Organization Name Identifier (general attribute)",
+      "title": "Name - Application name Identifier",
       "examples": [
         ""
       ]
@@ -38,7 +38,7 @@
     "applicationType": {
       "type": "integer",
       "default": 0,
-      "title": "ApplicationType Identifier (general attribute)",
+      "title": "ApplicationType - Indicates the application type",
       "examples": [
         0
       ]
@@ -46,7 +46,7 @@
     "applicationStatus": {
       "type": "array",
       "default": [],
-      "title": "ApplicationStatus Identifier (general attribute)",
+      "title": "ApplicationStatus - Identifies the Application status",
       "items": {
         "type": "string",
         "title": "A Schema",
@@ -66,7 +66,7 @@
     "publishedApplicationDSL": {
       "type": "object",
       "default": {},
-      "title": "PublishedApplicationDSL Identifier (general attribute)",
+      "title": "publishedApplicationDSL Identifier",
       "required": [],
       "properties": {},
       "examples": [{}]
@@ -74,7 +74,7 @@
     "publicToAll": {
       "type": "boolean",
       "default": false,
-      "title": "PublicToAll Identifier (general attribute)",
+      "title": "PublicToAll - Indicate if public to all or not",
       "examples": [
         false
       ]
@@ -82,7 +82,7 @@
     "editingQueries": {
       "type": "object",
       "default": {},
-      "title": "EditingQueries Identifier (general attribute)",
+      "title": "EditingQueries - The application query",
       "required": [],
       "properties": {},
       "examples": [{}]
@@ -90,7 +90,7 @@
     "serialVersionUID": {
       "type": "integer",
       "default": 0,
-      "title": "SerialVersionUID Identifier (internal attribute)",
+      "title": "SerialVersionUID - VersionUID identifier(internal)",
       "examples": [
         0
       ]
@@ -98,7 +98,7 @@
     "id": {
       "type": "string",
       "default": "",
-      "title": "Id Identifier (internal attribute)",
+      "title": "Id - An Identifier(internal)",
       "examples": [
         ""
       ]
@@ -106,7 +106,7 @@
     "createdAt": {
       "type": "object",
       "default": {},
-      "title": "CreatedAt Identifier (internal attribute)",
+      "title": "CreatedAt - The date when the creation was made(internal)",
       "required": [
         "MIN_SECOND",
         "MAX_SECOND",
@@ -118,7 +118,7 @@
         "MIN_SECOND": {
           "type": "integer",
           "default": 0,
-          "title": "MIN_SECOND Identifier (internal attribute)",
+          "title": "MIN_SECOND - The min_second Identifier(internal)",
           "examples": [
             0
           ]
@@ -126,7 +126,7 @@
         "MAX_SECOND": {
           "type": "integer",
           "default": 0,
-          "title": "MAX_SECOND Identifier (internal attribute)",
+          "title": "MAX_SECOND - The max_second Identifier(internal)",
           "examples": [
             0
           ]
@@ -134,7 +134,7 @@
         "serialVersionUID": {
           "type": "integer",
           "default": 0,
-          "title": "SerialVersionUID Identifier (internal attribute)",
+          "title": "SerialVersionUID - The serialVersionUID details (internal)",
           "examples": [
             0
           ]
@@ -142,7 +142,7 @@
         "seconds": {
           "type": "integer",
           "default": 0,
-          "title": "Seconds Identifier (internal attribute)",
+          "title": "Seconds - The seconds details(internal)",
           "examples": [
             0
           ]
@@ -150,7 +150,7 @@
         "nanos": {
           "type": "integer",
           "default": 0,
-          "title": "Nanos Identifier (internal attribute)",
+          "title":  "Nanos - The nanos details(internal)",
           "examples": [
             0
           ]
@@ -167,7 +167,7 @@
     "createdBy": {
       "type": "string",
       "default": "",
-      "title": "CreatedBy Identifier (internal attribute)",
+      "title": "CreatedBy - The details of who made the creation(internal)",
       "examples": [
         ""
       ]
@@ -175,7 +175,7 @@
     "modifiedBy": {
       "type": "string",
       "default": "",
-      "title": "ModifiedBy Identifier (internal attribute)",
+      "title": "ModifiedBy - Identifies who did a modification(internal)",
       "examples": [
         ""
       ]

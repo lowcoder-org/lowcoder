@@ -16,7 +16,7 @@
     "userId": {
       "type": "string",
       "default": "",
-      "title": "UserId Identifier (general attribute)",
+      "title": "userId - indicates the user id ",
       "examples": [
         ""
       ]
@@ -24,7 +24,7 @@
     "urlPath": {
       "type": "string",
       "default": "",
-      "title": "UrlPath Identifier (general attribute)",
+      "title": "urlPath - identifies the url path in the serverLog",
       "examples": [
         ""
       ]
@@ -32,7 +32,7 @@
     "httpMethod": {
       "type": "string",
       "default": "",
-      "title": "HttpMethod Identifier (general attribute)",
+      "title": "httpMethod - identifies the http method in the serverLog ",
       "examples": [
         ""
       ]
@@ -40,7 +40,7 @@
     "requestBody": {
       "type": "string",
       "default": "",
-      "title": "RequestBody Identifier (general attribute)",
+      "title": "requestBody - identifies the requestBody in serverLog",
       "examples": [
         ""
       ]
@@ -48,7 +48,7 @@
     "queryParameters": {
       "type": "object",
       "default": {},
-      "title": "QueryParameters Identifier (general attribute)",
+      "title": "QueryParameter - Identifies the query param",
       "required": [],
       "properties": {},
       "examples": [{}]
@@ -56,7 +56,7 @@
     "createTime": {
       "type": "integer",
       "default": 0,
-      "title": "CreateTime Identifier (general attribute)",
+      "title": "createTime - Shows the time it was created",
       "examples": [
         0
       ]

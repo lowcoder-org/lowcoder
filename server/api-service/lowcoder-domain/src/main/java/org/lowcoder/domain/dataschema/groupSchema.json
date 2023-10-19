@@ -24,7 +24,7 @@
     "COMPARATOR": {
       "type": "object",
       "default": {},
-      "title": "COMPARATOR Identifier (general attribute)",
+      "title": "COMPARATOR - identifies COMPARATOR in the group",
       "required": [],
       "properties": {},
       "examples": [{}]
@@ -32,7 +32,7 @@
     "name": {
       "type": "string",
       "default": "",
-      "title": "Name Identifier (general attribute)",
+      "title": "Name - identifies the name of the group",
       "examples": [
         ""
       ]
@@ -40,7 +40,7 @@
     "organizationId": {
       "type": "string",
       "default": "",
-      "title": "Organization Identifier (general attribute)",
+      "title": "OrganizationId - identifies the organization",
       "examples": [
         ""
       ]
@@ -48,7 +48,7 @@
     "allUsersGroup": {
       "type": "boolean",
       "default": false,
-      "title": "AllUsersGroup Identifier (general attribute)",
+      "title": "AllUsersGroup - indicates all users in the group",
       "examples": [
         false
       ]
@@ -56,7 +56,7 @@
     "type": {
       "type": "string",
       "default": "",
-      "title": "Type Identifier (general attribute)",
+      "title": "Type - Identifies the group type",
       "examples": [
         ""
       ]
@@ -64,7 +64,7 @@
     "dynamicRule": {
       "type": "string",
       "default": "",
-      "title": "DynamicRule Identifier (general attribute)",
+      "title": "DynamicRule - identifies the dynamicRule in the group",
       "examples": [
         ""
       ]
@@ -72,7 +72,7 @@
     "source": {
       "type": "string",
       "default": "",
-      "title": "Source Identifier (general attribute)",
+      "title": "Source - identifies the source",
       "examples": [
         ""
       ]
@@ -80,7 +80,7 @@
     "rawDepartmentId": {
       "type": "string",
       "default": "",
-      "title": "RawDepartmentId Identifier (general attribute)",
+      "title": "RawDepartmentId - identifies the DepartmentId in the group of the app",
       "examples": [
         ""
       ]
@@ -88,7 +88,7 @@
     "syncDeleted": {
       "type": "boolean",
       "default": false,
-      "title": "SyncDeleted Identifier (general attribute)",
+      "title": "SyncDeleted - identifies the syncDeleted in the group",
       "examples": [
         false
       ]
@@ -96,7 +96,7 @@
     "serialVersionUID": {
       "type": "integer",
       "default": 0,
-      "title": "SerialVersionUID Identifier (internal attribute)",
+      "title": "SerialVersionUID - The Identifier serialVersionUID (internal)",
       "examples": [
         0
       ]
@@ -104,7 +104,7 @@
     "id": {
       "type": "string",
       "default": "",
-      "title": "Id Identifier (internal attribute)",
+      "title": "Id - An Identifier(internal)",
       "examples": [
         ""
       ]
@@ -112,7 +112,7 @@
     "createdAt": {
       "type": "object",
       "default": {},
-      "title": "CreatedAt Identifier (internal attribute)",
+      "title": "CreatedAt - The date when the creation was made(internal)",
       "required": [
         "MIN_SECOND",
         "MAX_SECOND",
@@ -124,7 +124,7 @@
         "MIN_SECOND": {
           "type": "integer",
           "default": 0,
-          "title": "MIN_SECOND Identifier (internal attribute)",
+          "title": "MIN_SECOND - The min_second Identifier(internal)",
           "examples": [
             0
           ]
@@ -132,7 +132,7 @@
         "MAX_SECOND": {
           "type": "integer",
           "default": 0,
-          "title": "MAX_SECOND Identifier (internal attribute)",
+          "title": "MAX_SECOND - The max_second Identifier(internal)",
           "examples": [
             0
           ]
@@ -140,7 +140,7 @@
         "serialVersionUID": {
           "type": "integer",
           "default": 0,
-          "title": "SerialVersionUID Identifier (internal attribute)",
+          "title": "serialVersionUID - The Identifier serialVersionUID (internal)",
           "examples": [
             0
           ]
@@ -148,7 +148,7 @@
         "seconds": {
           "type": "integer",
           "default": 0,
-          "title": "Seconds Identifier (internal attribute)",
+          "title": "Seconds - The seconds details(internal)",
           "examples": [
             0
           ]
@@ -156,7 +156,7 @@
         "nanos": {
           "type": "integer",
           "default": 0,
-          "title": "Nanos Identifier (internal attribute)",
+          "title": "Nanos - The nanos details(internal)",
           "examples": [
             0
           ]
@@ -173,7 +173,7 @@
     "createdBy": {
       "type": "string",
       "default": "",
-      "title": "CreatedBy Identifier (internal attribute)",
+      "title": "CreatedBy - The details of who made the creation(internal)",
       "examples": [
         ""
       ]
@@ -181,7 +181,7 @@
     "modifiedBy": {
       "type": "string",
       "default": "",
-      "title": "ModifiedBy Identifier (internal attribute)",
+      "title": "ModifiedBy - Identifies who did a modification(internal)",
       "examples": [
         ""
       ]

@@ -23,7 +23,7 @@
     "bizType": {
       "type": "array",
       "default": [],
-      "title": "BizType Identifier (general attribute)",
+      "title": "BizType - identifies the type of the biRelation",
       "items": {
         "type": "string",
         "examples": [
@@ -48,7 +48,7 @@
     "sourceId": {
       "type": "string",
       "default": "",
-      "title": "SourceId Identifier (general attribute)",
+      "title": "SourceId - indicates the source id ",
       "examples": [
         ""
       ]
@@ -56,7 +56,7 @@
     "targetId": {
       "type": "string",
       "default": "",
-      "title": "TargetId Identifier (general attribute)",
+      "title": "TargetId - shows the targetId",
       "examples": [
         ""
       ]
@@ -64,7 +64,7 @@
     "relation": {
       "type": "string",
       "default": "",
-      "title": "Relation Identifier (general attribute)",
+      "title": "Relation - identifies the relation in the application",
       "examples": [
         ""
       ]
@@ -72,7 +72,7 @@
     "state": {
       "type": "string",
       "default": "",
-      "title": "State Identifier (general attribute)",
+      "title": "state - identifies the state",
       "examples": [
         ""
       ]
@@ -80,7 +80,7 @@
     "extParam1": {
       "type": "string",
       "default": "",
-      "title": "ExtParam1 Identifier (general attribute)",
+      "title": "extParam1 - details of the extParam1",
       "examples": [
         ""
       ]
@@ -88,7 +88,7 @@
     "extParam2": {
       "type": "string",
       "default": "",
-      "title": "ExtParam2 Identifier (general attribute)",
+      "title": "extParam2 - details of the extParam2",
       "examples": [
         ""
       ]
@@ -96,7 +96,7 @@
     "extParam3": {
       "type": "string",
       "default": "",
-      "title": "ExtParam3 Identifier (general attribute)",
+      "title": "extParam3 - details of the extParam3",
       "examples": [
         ""
       ]
@@ -104,7 +104,7 @@
     "serialVersionUID": {
       "type": "integer",
       "default": 0,
-      "title": "SerialVersionUID Identifier (internal attribute)",
+      "title": "SerialVersionUID - VersionUID identifier(internal)",
       "examples": [
         0
       ]
@@ -112,7 +112,7 @@
     "id": {
       "type": "string",
       "default": "",
-      "title": "Id Identifier (internal attribute)",
+      "title": "Id - An Identifier(internal)",
       "examples": [
         ""
       ]
@@ -120,7 +120,7 @@
     "createdAt": {
       "type": "object",
       "default": {},
-      "title": "CreatedAt Identifier (internal attribute)",
+      "title": "CreatedAt - The date when the creation was made(internal)",
       "required": [
         "MIN_SECOND",
         "MAX_SECOND",
@@ -132,7 +132,7 @@
         "MIN_SECOND": {
           "type": "integer",
           "default": 0,
-          "title": "MIN_SECOND Identifier (internal attribute)",
+          "title": "MIN_SECOND - The min_second Identifier(internal)",
           "examples": [
             0
           ]
@@ -140,7 +140,7 @@
         "MAX_SECOND": {
           "type": "integer",
           "default": 0,
-          "title": "MAX_SECOND Identifier (internal attribute)",
+          "title": "MAX_SECOND - The max_second Identifier(internal)",
           "examples": [
             0
           ]
@@ -148,7 +148,7 @@
         "serialVersionUID": {
           "type": "integer",
           "default": 0,
-          "title": "SerialVersionUID Identifier (internal attribute)",
+          "title": "SerialVersionUID - The Identifier serialVersionUID (internal)",
           "examples": [
             0
           ]
@@ -156,7 +156,7 @@
         "seconds": {
           "type": "integer",
           "default": 0,
-          "title": "Seconds Identifier (internal attribute)",
+          "title": "Seconds - The seconds details(internal)",
           "examples": [
             0
           ]
@@ -164,7 +164,7 @@
         "nanos": {
           "type": "integer",
           "default": 0,
-          "title": "Nanos Identifier (internal attribute)",
+          "title": "Nanos - The nanos details(internal)",
           "examples": [
             0
           ]
@@ -181,7 +181,7 @@
     "createdBy": {
       "type": "string",
       "default": "",
-      "title": "CreatedBy Identifier (internal attribute)",
+      "title": "CreatedBy - The details of who made the creation(internal)",
       "examples": [
         ""
       ]
@@ -189,7 +189,7 @@
     "modifiedBy": {
       "type": "string",
       "default": "",
-      "title": "ModifiedBy Identifier (internal attribute)",
+      "title": "ModifiedBy - Identifies who did a modification(internal)",
       "examples": [
         ""
       ]

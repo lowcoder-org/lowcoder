@@ -17,7 +17,7 @@
     "key": {
       "type": "string",
       "default": "",
-      "title": "Key Identifier (general attribute)",
+      "title": "Key - identifies the key of the server config in the app",
       "examples": [
         ""
       ]
@@ -25,7 +25,7 @@
     "value": {
       "type": "object",
       "default": {},
-      "title": "Value Identifier (general attribute)",
+      "title": "Value - identifies the value of server config in the app",
       "required": [],
       "properties": {},
       "examples": [{}]
@@ -33,7 +33,7 @@
     "serialVersionUID": {
       "type": "integer",
       "default": 0,
-      "title": "The serialVersionUID Identifier (internal attribute)",
+      "title": "SerialVersionUID - The Identifier serialVersionUID (internal)",
       "examples": [
         0
       ]
@@ -41,7 +41,7 @@
     "id": {
       "type": "string",
       "default": "",
-      "title": "The id Identifier (internal attribute)",
+      "title":  "Id - An Identifier(internal)",
       "examples": [
         ""
       ]
@@ -49,7 +49,7 @@
     "createdAt": {
       "type": "object",
       "default": {},
-      "title": "The createdAt Identifier (internal attribute)",
+      "title": "CreatedAt - The date when the creation was made(internal)",
       "required": [
         "MIN_SECOND",
         "MAX_SECOND",
@@ -61,7 +61,7 @@
         "MIN_SECOND": {
           "type": "integer",
           "default": 0,
-          "title": "The MIN_SECOND Identifier (internal attribute)",
+          "title": "MIN_SECOND - The min_second Identifier(internal)",
           "examples": [
             0
           ]
@@ -69,7 +69,7 @@
         "MAX_SECOND": {
           "type": "integer",
           "default": 0,
-          "title": "The MAX_SECOND Identifier (internal attribute)",
+          "title": "MAX_SECOND - The max_second Identifier(internal)",
           "examples": [
             0
           ]
@@ -77,7 +77,7 @@
         "serialVersionUID": {
           "type": "integer",
           "default": 0,
-          "title": "The serialVersionUID Identifier (internal attribute)",
+          "title":"SerialVersionUID - The serialVersionUID details (internal)",
           "examples": [
             0
           ]
@@ -85,7 +85,7 @@
         "seconds": {
           "type": "integer",
           "default": 0,
-          "title": "The seconds Identifier (internal attribute)",
+          "title":  "Seconds - The seconds details(internal)",
           "examples": [
             0
           ]
@@ -93,7 +93,7 @@
         "nanos": {
           "type": "integer",
           "default": 0,
-          "title": "The nanos Identifier (internal attribute)",
+          "title": "Nanos - The nanos details(internal)",
           "examples": [
             0
           ]
@@ -110,7 +110,7 @@
     "createdBy": {
       "type": "string",
       "default": "",
-      "title": "The createdBy Identifier (internal attribute)",
+      "title": "CreatedBy - The details of who made the creation(internal)",
       "examples": [
         ""
       ]
@@ -118,7 +118,7 @@
     "modifiedBy": {
       "type": "string",
       "default": "",
-      "title": "The modifiedBy Identifier (internal attribute)",
+      "title": "ModifiedBy - Identifies who did a modification(internal)",
       "examples": [
         ""
       ]
