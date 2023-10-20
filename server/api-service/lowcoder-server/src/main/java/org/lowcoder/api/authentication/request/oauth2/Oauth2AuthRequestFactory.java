@@ -7,7 +7,9 @@ import org.lowcoder.api.authentication.request.AuthRequestFactory;
 import org.lowcoder.api.authentication.request.oauth2.request.AbstractOauth2Request;
 import org.lowcoder.api.authentication.request.oauth2.request.GithubRequest;
 import org.lowcoder.api.authentication.request.oauth2.request.GoogleRequest;
+import org.lowcoder.api.authentication.request.oauth2.request.KeycloakRequest;
 import org.lowcoder.api.authentication.request.oauth2.request.OryRequest;
+import org.lowcoder.sdk.auth.Oauth2KeycloakAuthConfig;
 import org.lowcoder.sdk.auth.Oauth2OryAuthConfig;
 import org.lowcoder.sdk.auth.Oauth2SimpleAuthConfig;
 import org.springframework.stereotype.Component;
@@ -29,6 +31,7 @@ public class Oauth2AuthRequestFactory implements AuthRequestFactory<OAuth2Reques
             case GITHUB -> new GithubRequest((Oauth2SimpleAuthConfig) context.getAuthConfig());
             case GOOGLE -> new GoogleRequest((Oauth2SimpleAuthConfig) context.getAuthConfig());
             case ORY -> new OryRequest((Oauth2OryAuthConfig) context.getAuthConfig());
+            case KEYCLOAK -> new KeycloakRequest((Oauth2KeycloakAuthConfig)context.getAuthConfig());
             default -> throw new UnsupportedOperationException(context.getAuthConfig().getAuthType());
         };
     }
@@ -38,6 +41,7 @@ public class Oauth2AuthRequestFactory implements AuthRequestFactory<OAuth2Reques
         return Set.of(
                 GITHUB,
                 GOOGLE,
-                ORY);
+                ORY,
+                KEYCLOAK);
     }
 }
