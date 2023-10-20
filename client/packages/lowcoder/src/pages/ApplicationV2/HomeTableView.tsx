@@ -13,12 +13,13 @@ import { HomeResTypeEnum } from "../../types/homeRes";
 import React, { useState } from "react";
 import { updateFolder } from "../../redux/reduxActions/folderActions";
 import { updateAppMetaAction } from "../../redux/reduxActions/applicationActions";
-import { message, Typography } from "antd";
+import { Typography } from "antd";
 import { HomeRes } from "./HomeLayout";
 import { HomeResOptions } from "./HomeResOptions";
 import { MoveToFolderModal } from "./MoveToFolderModal";
 import { trans } from "../../i18n";
 import { useParams } from "react-router-dom";
+import { messageInstance } from "lowcoder-design";
 
 const OperationWrapper = styled.div`
   display: flex;
@@ -113,7 +114,7 @@ export const HomeTableView = (props: { resources: HomeRes[] }) => {
                       triggerType: ["text"],
                       onChange: (value) => {
                         if (!value.trim()) {
-                          message.warn(trans("home.nameCheckMessage"));
+                          messageInstance.warning(trans("home.nameCheckMessage"));
                           return;
                         }
                         if (item.type === HomeResTypeEnum.Folder) {

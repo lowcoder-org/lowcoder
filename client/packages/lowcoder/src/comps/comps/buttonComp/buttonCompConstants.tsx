@@ -11,43 +11,44 @@ export function getButtonStyle(buttonStyle: ButtonStyleType) {
   const hoverColor = genHoverColor(buttonStyle.background);
   const activeColor = genActiveColor(buttonStyle.background);
   return css`
-    border-radius: ${buttonStyle.radius};
-    margin: ${buttonStyle.margin};	
-    padding: ${buttonStyle.padding};
-    &:not(:disabled) {
-      // click animation color
-      --antd-wave-shadow-color: ${buttonStyle.border};
-      border-color: ${buttonStyle.border};
-      color: ${buttonStyle.text};
-      background-color: ${buttonStyle.background};
+    &&& {
       border-radius: ${buttonStyle.radius};
       margin: ${buttonStyle.margin};	
       padding: ${buttonStyle.padding};
-
-      :hover,
-      :focus {
+      &:not(:disabled) {
+        // click animation color
+        --antd-wave-shadow-color: ${buttonStyle.border};
+        border-color: ${buttonStyle.border};
         color: ${buttonStyle.text};
-        background-color: ${hoverColor};
-        border-color: ${buttonStyle.border === buttonStyle.background
-          ? hoverColor
-          : buttonStyle.border};
-      }
-
-      :active {
-        color: ${buttonStyle.text};
-        background-color: ${activeColor};
-        border-color: ${buttonStyle.border === buttonStyle.background
-          ? activeColor
-          : buttonStyle.border};
+        background-color: ${buttonStyle.background};
+        border-radius: ${buttonStyle.radius};
+        margin: ${buttonStyle.margin};	
+        padding: ${buttonStyle.padding};
+  
+        :hover,
+        :focus {
+          color: ${buttonStyle.text};
+          background-color: ${hoverColor};
+          border-color: ${buttonStyle.border === buttonStyle.background
+            ? hoverColor
+            : buttonStyle.border};
+        }
+  
+        :active {
+          color: ${buttonStyle.text};
+          background-color: ${activeColor};
+          border-color: ${buttonStyle.border === buttonStyle.background
+            ? activeColor
+            : buttonStyle.border};
+        }
       }
     }
-    
   `;
 }
 
 export const Button100 = styled(Button)<{ $buttonStyle?: ButtonStyleType }>`
   ${(props) => props.$buttonStyle && getButtonStyle(props.$buttonStyle)}
-  width: -webkit-fill-available;	
+  width: 100%;
   height: auto;
   display: inline-flex;
   justify-content: center;

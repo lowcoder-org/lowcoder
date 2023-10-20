@@ -168,6 +168,7 @@ export { ReactComponent as AudioCompIcon } from "./icon-insert-audio.svg";
 export { ReactComponent as VideoCompIcon } from "./icon-insert-video.svg";
 export { ReactComponent as videoPlayTriangle } from "./icon-video-play-triangle.svg";
 export { ReactComponent as DrawerCompIcon } from "./icon-drawer.svg";
+export { ReactComponent as LeftMeetingIcon } from "./icon-left-comp-video.svg";
 export { ReactComponent as PlusIcon } from "./icon-plus.svg";
 export { ReactComponent as HomeIcon } from "./icon-application-home.svg";
 export { ReactComponent as HomeModuleIcon } from "./icon-application-module.svg";
@@ -236,6 +237,7 @@ export { ReactComponent as LeftContainer } from "./icon-left-comp-container.svg"
 export { ReactComponent as LeftDate } from "./icon-left-comp-date.svg";
 export { ReactComponent as LeftDivider } from "./icon-left-comp-divider.svg";
 export { ReactComponent as LeftDrawer } from "./icon-left-comp-drawer.svg";
+export { ReactComponent as LeftMeeting } from "./icon-left-comp-video.svg";
 export { ReactComponent as LeftFile } from "./icon-left-comp-file.svg";
 export { ReactComponent as LeftFileViewer } from "./icon-left-comp-fileViewer.svg";
 export { ReactComponent as LeftForm } from "./icon-left-comp-form.svg";
@@ -285,5 +287,11 @@ export { ReactComponent as TableCheckedIcon } from "icons/icon-table-checked.svg
 export { ReactComponent as TableUnCheckedIcon } from "icons/icon-table-boolean-false.svg";
 export { ReactComponent as FileFolderIcon } from "icons/icon-editor-folder.svg";
 export { ReactComponent as ExpandIcon } from "icons/icon-expand.svg";
-export { ReactComponent as CompressIcon } from "icons/icon-compress.svg"
-export { ReactComponent as TableCellsIcon } from "icons/icon-table-cells.svg" // Added By Aqib Mirza
+export { ReactComponent as CompressIcon } from "icons/icon-compress.svg";
+export { ReactComponent as TableCellsIcon } from "icons/icon-table-cells.svg"; // Added By Aqib Mirza
+export { ReactComponent as TimeLineIcon } from "icons/icon-timeline-comp.svg"
+export { ReactComponent as LottieIcon } from "icons/icon-lottie.svg";
+export { ReactComponent as MentionIcon } from "icons/icon-mention-comp.svg";
+export { ReactComponent as AutoCompleteCompIcon } from "icons/icon-autocomplete-comp.svg";
+export { ReactComponent as WidthIcon } from "icons/icon-width.svg";
+export { ReactComponent as ResponsiveLayoutCompIcon } from "icons/icon-responsive-layout-comp.svg";

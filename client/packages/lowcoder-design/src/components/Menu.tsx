@@ -140,11 +140,13 @@ const DropDownMenuItemCss = `
 `;
 
 const DropdownMenu = styled(AntdMenu)`
-  padding: 8px;
-  background: #ffffff;
-  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
-  border-radius: 8px;
-  ${DropDownMenuItemCss}
+  &&& {
+    padding: 8px;
+    background: #ffffff;
+    box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    ${DropDownMenuItemCss}
+  }
 `;
 const StyleableDropDownSubMenu = (props: { className?: string } & SubMenuProps) => {
   const { className, ...restProps } = props;

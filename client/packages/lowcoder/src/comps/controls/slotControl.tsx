@@ -58,10 +58,10 @@ function ModalConfigView(props: {
     return null;
   }
   return (
-    <ModalWrapper>
+    (<ModalWrapper>
       <Modal
         width={modalWidth}
-        visible={visible}
+        open={visible}
         onCancel={onCancel}
         getContainer={() => document.querySelector(`#${CanvasContainerID}`) || document.body}
         footer={null}
@@ -81,7 +81,7 @@ function ModalConfigView(props: {
           items={gridItemCompToGridItems(containerProps.items)}
         />
       </Modal>
-    </ModalWrapper>
+    </ModalWrapper>)
   );
 }
 

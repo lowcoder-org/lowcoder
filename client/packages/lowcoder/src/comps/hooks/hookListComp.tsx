@@ -15,7 +15,7 @@ const defaultHookListValue = [
   // { compType: "title", name: "title" },
   // { compType: "windowSize", name: "windowSize" },
   { compType: "urlParams", name: "url" },
-  { compType: "momentJsLib", name: "moment" },
+  { compType: "dayJsLib", name: "dayjs" },
   { compType: "lodashJsLib", name: "_" },
   { compType: "utils", name: "utils" },
   { compType: "message", name: "message" },

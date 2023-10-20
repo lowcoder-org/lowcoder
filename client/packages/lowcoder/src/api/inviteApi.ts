@@ -14,10 +14,11 @@ export type InviteInfo = {
   inviteCode: string;
   createUserName: string;
   invitedOrganizationName: string;
+  invitedOrganizationId: string;
 };
 
 class InviteApi extends Api {
-  static getInviteURL = "/v1/invitation";
+  static getInviteURL = "/invitation";
   static acceptInviteURL = (invitationId: string) => `/v1/invitation/${invitationId}/invite`;
 
   // generate invitation

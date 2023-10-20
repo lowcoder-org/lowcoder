@@ -26,7 +26,7 @@ export type NewChildren<ChildrenCompMap extends Record<string, Comp<unknown>>> =
 export function HidableView(props: { children: JSX.Element | React.ReactNode; hidden: boolean }) {
   const { readOnly } = useContext(ExternalEditorContext);
   if (readOnly) {
-    return <>{!props.hidden && props.children}</>;
+    return <>{props.children}</>;
   } else {
     return (
       <>

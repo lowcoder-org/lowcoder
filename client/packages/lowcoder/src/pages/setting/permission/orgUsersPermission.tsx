@@ -45,9 +45,9 @@ import { isSaasMode } from "util/envUtils";
 import { selectSystemConfig } from "redux/selectors/configSelectors";
 import UserApi from "api/userApi";
 import { validateResponse } from "api/apiUtils";
-import { message } from "antd";
 import copyToClipboard from "copy-to-clipboard";
 import { BackgroundColor } from "constants/style";
+import { messageInstance } from "lowcoder-design";
 
 const StyledMembersIcon = styled(MembersIcon)`
   g g {
@@ -112,7 +112,7 @@ function OrgUsersPermission(props: UsersPermissionProp) {
                 buttonType="primary"
                 onClick={() => {
                   copyToClipboard(newPassword);
-                  message.success(trans("copySuccess"));
+                  messageInstance.success(trans("copySuccess"));
                 }}
               >
                 {trans("userAuth.copyPassword")}
@@ -122,7 +122,7 @@ function OrgUsersPermission(props: UsersPermissionProp) {
         });
       })
       .catch((e) => {
-        message.error(e.message);
+        messageInstance.error(e.message);
       });
   };
 

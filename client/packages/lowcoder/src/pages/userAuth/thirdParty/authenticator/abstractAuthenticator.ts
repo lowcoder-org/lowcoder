@@ -4,7 +4,8 @@ import { AxiosPromise } from "axios";
 import { ApiResponse } from "api/apiResponses";
 import history from "util/history";
 import { AUTH_BIND_URL, AUTH_LOGIN_URL } from "constants/routesURL";
-import { message } from "antd";
+import { messageInstance } from "lowcoder-design";
+
 import { WindowMessageTypes } from "constants/messages";
 import { validateResponse } from "api/apiUtils";
 
@@ -27,7 +28,9 @@ export abstract class AbstractAuthenticator {
 
   doAuth() {
     const { authParams } = this;
-    authParams.authGoal === "login" ? this.doLogin() : this.doBind();
+    (authParams.authGoal === "login" || authParams.authGoal === "register")
+      ? this.doLogin()
+      : this.doBind();
   }
 
   protected doLogin() {
@@ -43,7 +46,7 @@ export abstract class AbstractAuthenticator {
         history.push(AUTH_LOGIN_URL, {
           thirdPartyAuthError: true,
         });
-        message.error(e.message);
+        messageInstance.error(e.message);
       });
   }
 
@@ -75,7 +78,7 @@ export abstract class AbstractAuthenticator {
         });
         window.close();
       } else {
-        message.error(errorMsg);
+        messageInstance.error(errorMsg);
         history.push(AUTH_BIND_URL);
       }
     };

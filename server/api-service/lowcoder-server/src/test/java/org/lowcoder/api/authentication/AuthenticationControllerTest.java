@@ -189,7 +189,7 @@ public class AuthenticationControllerTest {
     }
 
     private String getEmailAuthConfigId() {
-        return authenticationService.findAuthConfigBySource(AuthSourceConstants.EMAIL)
+        return authenticationService.findAuthConfigBySource(null, AuthSourceConstants.EMAIL)
                 .map(FindAuthConfig::authConfig)
                 .map(AbstractAuthConfig::getId)
                 .block();

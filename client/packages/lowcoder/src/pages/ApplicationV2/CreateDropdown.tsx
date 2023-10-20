@@ -30,6 +30,8 @@ const Dropdown = styled(AntdDropdown)`
 `;
 
 const CreateDropdownMenu = styled(AntdMenu)`
+&&& {
+
   width: fit-content;
   min-width: 110px;
   padding: 8px;
@@ -54,7 +56,9 @@ const CreateDropdownMenu = styled(AntdMenu)`
     font-size: 13px;
     color: #333333;
     line-height: 13px;
+    display: flex;
   }
+}
 `;
 
 const CreateMenuItem = styled.div`
@@ -150,7 +154,7 @@ function NavLayoutPickModal(props: {
   const { visible, setVisible, onCreate } = props;
   return (
     <CustomModal
-      visible={visible}
+      open={visible}
       footer={null}
       onCancel={() => setVisible(false)}
       title={trans("home.createNavigation")}
@@ -238,11 +242,11 @@ export const CreateDropdown = (props: { defaultVisible?: boolean; mode: HomeLayo
         setVisible={setLayoutPickerVisible}
       />
       <Dropdown
-        visible={createDropdownVisible || defaultVisible}
+        open={createDropdownVisible || defaultVisible}
         trigger={["hover"]}
         getPopupContainer={(node) => node}
-        onVisibleChange={() => setCreateDropdownVisible(!createDropdownVisible)}
-        overlay={
+        onOpenChange={() => setCreateDropdownVisible(!createDropdownVisible)}
+        dropdownRender={() => (
           <CreateDropdownMenu
             items={[
               getCreateMenuItem(HomeResTypeEnum.Application, mode),
@@ -265,7 +269,7 @@ export const CreateDropdown = (props: { defaultVisible?: boolean; mode: HomeLayo
                 : null,
             ]}
           />
-        }
+        )}
       >
         <CreateBtn buttonType={"primary"}>
           {isCreating ? trans("home.creating") : trans("newItem")}

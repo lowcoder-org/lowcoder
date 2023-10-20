@@ -5,6 +5,7 @@ import {
   NumberControl,
 } from "comps/controls/codeControl";
 import { dropdownControl } from "comps/controls/dropdownControl";
+import { BoolControl } from "comps/controls/boolControl";
 import { styleControl } from "comps/controls/styleControl";
 import { LottieStyle } from "comps/controls/styleControlConstants";
 import { trans } from "i18n";
@@ -22,27 +23,35 @@ import { defaultLottie } from "./jsonConstants";
  */
 const animationStartOptions = [
   {
-    label: "Auto",
+    label: trans("jsonLottie.auto"),
     value: "auto",
   },
   {
-    label: "On Hover",
+    label: trans("jsonLottie.onHover"),
     value: "on hover",
   },
 ] as const;
 
 const loopOptions = [
   {
-    label: "Single play",
+    label: trans("jsonLottie.singlePlay"),
     value: "single",
   },
   {
-    label: "Endless loop",
+    label: trans("jsonLottie.endlessLoop"),
     value: "endless",
   },
 ] as const;
 
 const speedOptions = [
+  {
+    label: "0.5x",
+    value: "0.5",
+  },
+  {
+    label: "0.75x",
+    value: "0.75",
+  },
   {
     label: "1x",
     value: "1",
@@ -81,34 +90,40 @@ let JsonLottieTmpComp = (function () {
     backgroundColor: styleControl(LottieStyle),
     animationStart: dropdownControl(animationStartOptions, "auto"),
     loop: dropdownControl(loopOptions, "single"),
+    keepLastFrame: BoolControl.DEFAULT_TRUE,
   };
-
   return new UICompBuilder(childrenMap, (props) => {
     return (
-      <div
-        style={{
-          height: "100%",
-          display: "flex",
-          justifyContent: "center",
-          backgroundColor: `${props.backgroundColor.background}`,
-        }}
-      >
-        <Player
-          key={
-            [props.speed, props.animationStart, props.loop, props.value] as any
-          }
-          autoplay={props.animationStart === "auto" && true}
-          hover={props.animationStart === "on hover" && true}
-          loop={props.loop === "single" ? false : true}
-          speed={Number(props.speed)}
-          src={props.value}
+      <div style={{
+        padding: `${props.backgroundColor.margin}`,
+      }}>
+        <div
           style={{
             height: "100%",
-            width: "100%",
-            maxWidth: "100%",
-            maxHeight: "100%",
+            display: "flex",
+            justifyContent: "center",
+            backgroundColor: `${props.backgroundColor.background}`,
+            padding: `${props.backgroundColor.padding}`
           }}
-        />
+        >
+          <Player
+            key={
+              [props.speed, props.animationStart, props.loop, props.value, props.keepLastFrame] as any
+            }
+            keepLastFrame={props.keepLastFrame}
+            autoplay={props.animationStart === "auto" && true}
+            hover={props.animationStart === "on hover" && true}
+            loop={props.loop === "single" ? false : true}
+            speed={Number(props.speed)}
+            src={props.value}
+            style={{
+              height: "100%",
+              width: "100%",
+              maxWidth: "100%",
+              maxHeight: "100%",
+            }}
+          />
+        </div>
       </div>
     );
   })
@@ -117,7 +132,7 @@ let JsonLottieTmpComp = (function () {
         <>
           <Section name={sectionNames.basic}>
             {children.value.propertyView({
-              label: trans("lottieJson"),
+              label: trans("jsonLottie.lottieJson"),
             })}
             {children.speed.propertyView({
               label: trans("jsonLottie.speed"),
@@ -127,6 +142,9 @@ let JsonLottieTmpComp = (function () {
             })}
             {children.animationStart.propertyView({
               label: trans("jsonLottie.animationStart"),
+            })}
+            {children.keepLastFrame.propertyView({
+              label: trans("jsonLottie.keepLastFrame"),
             })}
           </Section>
           <Section name={sectionNames.style}>

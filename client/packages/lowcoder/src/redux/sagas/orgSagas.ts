@@ -1,4 +1,5 @@
-import { message } from "antd";
+import { messageInstance } from "lowcoder-design";
+
 import { ApiResponse, GenericApiResponse } from "api/apiResponses";
 import OrgApi, { CreateOrgResponse, GroupUsersResponse, OrgUsersResponse } from "api/orgApi";
 import { AxiosResponse } from "axios";
@@ -193,7 +194,7 @@ export function* quitGroupSaga(action: ReduxAction<RemoveGroupUserPayload>) {
       });
     }
   } catch (error: any) {
-    message.error(error.message);
+    messageInstance.error(error.message);
     log.error(error);
   }
 }
@@ -207,7 +208,7 @@ export function* quitOrgSaga(action: ReduxAction<{ orgId: string }>) {
       window.location.href = BASE_URL;
     }
   } catch (error: any) {
-    message.error(error.message);
+    messageInstance.error(error.message);
     log.error(error);
   }
 }
@@ -220,7 +221,7 @@ export function* switchOrgSaga(action: ReduxAction<{ orgId: string }>) {
       window.location.replace(BASE_URL);
     }
   } catch (error: any) {
-    message.error(error.message);
+    messageInstance.error(error.message);
     log.error(error);
   }
 }
@@ -243,7 +244,7 @@ export function* createOrgSaga(action: ReduxAction<{ orgName: string }>) {
     yield put({
       type: ReduxActionErrorTypes.CREATE_ORG_ERROR,
     });
-    message.error(error.message);
+    messageInstance.error(error.message);
     log.error(error);
   }
 }
@@ -261,7 +262,7 @@ export function* deleteOrgSaga(action: ReduxAction<{ orgId: string }>) {
       });
     }
   } catch (error: any) {
-    message.error(error.message);
+    messageInstance.error(error.message);
     log.error(error);
   }
 }
@@ -274,7 +275,7 @@ export function* updateOrgSaga(action: ReduxAction<UpdateOrgPayload>) {
       yield put(updateOrgSuccess(action.payload));
     }
   } catch (error: any) {
-    message.error(error.message);
+    messageInstance.error(error.message);
     log.error(error);
   }
 }

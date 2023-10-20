@@ -108,7 +108,7 @@ let TmpModalComp = (function () {
               height={height}
               resizeHandles={resizeHandles}
               onResizeStop={onResizeStop}
-              visible={props.visible.value}
+              open={props.visible.value}
               maskClosable={props.maskClosable}
               focusTriggerAfterClose={false}
               getContainer={() => document.querySelector(`#${CanvasContainerID}`) || document.body}

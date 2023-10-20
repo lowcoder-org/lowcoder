@@ -1,4 +1,4 @@
-import { ConfigProvider } from "antd";
+import { App, ConfigProvider } from "antd";
 import {
   ALL_APPLICATIONS_URL,
   APP_EDITOR_URL,
@@ -13,6 +13,8 @@ import {
   IMPORT_APP_FROM_TEMPLATE_URL,
   INVITE_LANDING_URL,
   isAuthUnRequired,
+  ORG_AUTH_LOGIN_URL,
+  ORG_AUTH_REGISTER_URL,
   QUERY_LIBRARY_URL,
   SETTING,
   TRASH_URL,
@@ -46,6 +48,7 @@ import { isFetchUserFinished } from "redux/selectors/usersSelectors";
 import { SystemWarning } from "./components/SystemWarning";
 import { getBrandingConfig, getSystemConfigFetching } from "./redux/selectors/configSelectors";
 import { buildMaterialPreviewURL } from "./util/materialUtils";
+import GlobalInstances from 'components/GlobalInstances';
 
 const LazyUserAuthComp = React.lazy(() => import("pages/userAuth"));
 const LazyInviteLanding = React.lazy(() => import("pages/common/inviteLanding"));
@@ -54,17 +57,26 @@ const LazyComponentPlayground = React.lazy(() => import("pages/ComponentPlaygrou
 const LazyDebugComp = React.lazy(() => import("./debug"));
 const LazyDebugNewComp = React.lazy(() => import("./debugNew"));
 
-const Wrapper = (props: { children: React.ReactNode }) => {
-  return <ConfigProvider locale={getAntdLocale(language)}>{props.children}</ConfigProvider>;
-};
+const Wrapper = (props: { children: React.ReactNode }) => (
+  <ConfigProvider
+    theme={{ hashed: false }}
+    locale={getAntdLocale(language)}
+  >
+    <App>
+      <GlobalInstances />
+      {props.children}
+    </App>
+  </ConfigProvider>
+);
 
 type AppIndexProps = {
   isFetchUserFinished: boolean;
   isFetchHomeFinished: boolean;
-  isFetchingConfig: boolean;
+  // isFetchingConfig: boolean;
+  currentOrgId?: string;
   orgDev: boolean;
   defaultHomePage: string | null | undefined;
-  fetchConfig: () => void;
+  fetchConfig: (orgId?: string) => void;
   getCurrentUser: () => void;
   fetchHome: () => void;
   favicon: string;
@@ -74,15 +86,21 @@ type AppIndexProps = {
 class AppIndex extends React.Component<AppIndexProps, any> {
   componentDidMount() {
     this.props.getCurrentUser();
-    this.props.fetchConfig();
-    if (history.location.pathname === BASE_URL) {
+    const { pathname } = history.location;
+
+    this.props.fetchConfig(this.props.currentOrgId);
+
+    if (pathname === BASE_URL) {
       this.props.fetchHome();
     }
   }
 
-  componentDidUpdate() {
+  componentDidUpdate(prevProps: AppIndexProps) {
     if (history.location.pathname === BASE_URL) {
       this.props.fetchHome();
+    }
+    if(prevProps.currentOrgId !== this.props.currentOrgId) {
+      this.props.fetchConfig(this.props.currentOrgId);
     }
   }
 
@@ -92,7 +110,7 @@ class AppIndex extends React.Component<AppIndexProps, any> {
     // make sure all users in this app have checked login info
     if (
       !this.props.isFetchUserFinished ||
-      this.props.isFetchingConfig ||
+      // this.props.isFetchingConfig ||
       (pathname === BASE_URL && !this.props.isFetchHomeFinished)
     ) {
       const hideLoadingHeader = isTemplate || isAuthUnRequired(pathname);
@@ -142,6 +160,8 @@ class AppIndex extends React.Component<AppIndexProps, any> {
               component={ApplicationHome}
             />
             <LazyRoute path={USER_AUTH_URL} component={LazyUserAuthComp} />
+            <LazyRoute path={ORG_AUTH_LOGIN_URL} component={LazyUserAuthComp} />
+            <LazyRoute path={ORG_AUTH_REGISTER_URL} component={LazyUserAuthComp} />
             <LazyRoute path={INVITE_LANDING_URL} component={LazyInviteLanding} />
             <LazyRoute path={`${COMPONENT_DOC_URL}/:name`} component={LazyComponentDoc} />
             <LazyRoute path={`/playground/:name/:dsl`} component={LazyComponentPlayground} />
@@ -165,8 +185,9 @@ class AppIndex extends React.Component<AppIndexProps, any> {
 
 const mapStateToProps = (state: AppState) => ({
   isFetchUserFinished: isFetchUserFinished(state),
-  isFetchingConfig: getSystemConfigFetching(state),
+  // isFetchingConfig: getSystemConfigFetching(state),
   orgDev: state.ui.users.user.orgDev,
+  currentOrgId: state.ui.users.user.currentOrgId,
   defaultHomePage: state.ui.application.homeOrg?.commonSettings.defaultHomePage,
   isFetchHomeFinished: state.ui.application.loadingStatus.fetchHomeDataFinished,
   favicon: getBrandingConfig(state)?.favicon
@@ -179,7 +200,7 @@ const mapDispatchToProps = (dispatch: any) => ({
   getCurrentUser: () => {
     dispatch(fetchUserAction());
   },
-  fetchConfig: () => dispatch(fetchConfigAction()),
+  fetchConfig: (orgId?: string) => dispatch(fetchConfigAction(orgId)),
   fetchHome: () => dispatch(fetchHomeData({})),
 });
 

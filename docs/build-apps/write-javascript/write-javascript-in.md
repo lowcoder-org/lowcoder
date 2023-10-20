@@ -43,7 +43,7 @@ Lowercase a string.
 Change date format.
 
 ```javascript
-{{moment(table1.selectedRow.date_column).format('YYYY-MM-DD')}}
+{{dayjs(table1.selectedRow.date_column).format('YYYY-MM-DD')}}
 ```
 
 Return name from query results.

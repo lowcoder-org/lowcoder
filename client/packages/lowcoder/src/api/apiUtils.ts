@@ -10,11 +10,11 @@ import {
 import { AUTH_BIND_URL, OAUTH_REDIRECT } from "constants/routesURL";
 import log from "loglevel";
 import history from "util/history";
-import { message } from "antd";
 import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from "axios";
 import { trans } from "i18n";
 import StoreRegistry from "redux/store/storeRegistry";
 import { logoutAction } from "redux/reduxActions/userActions";
+import { messageInstance } from "lowcoder-design";
 
 const executeActionRegex = /query\/execute/;
 const timeoutErrorRegex = /timeout of (\d+)ms exceeded/;
@@ -146,8 +146,8 @@ export const apiFailureResponseInterceptor = (error: any) => {
         error.response?.data?.code === SERVER_ERROR_CODES.CURRENT_EDITION_NOT_SUPPORT_THIS_FEATURE
       ) {
         const errMsg = error.response.data?.message ?? trans("apiMessage.functionNotSupported");
-        message.destroy();
-        message.error(errMsg);
+        messageInstance.destroy();
+        messageInstance.error(errMsg);
         return Promise.reject({ message: errMsg });
       }
 

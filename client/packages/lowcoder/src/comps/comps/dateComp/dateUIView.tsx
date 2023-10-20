@@ -1,4 +1,4 @@
-import moment from "moment/moment";
+import dayjs from "dayjs";
 import type { DateCompViewProps } from "./dateComp";
 import { disabledDate, getStyle } from "comps/comps/dateComp/dateCompUtil";
 import { useUIView } from "../../utils/useUIView";
@@ -15,8 +15,8 @@ const DatePickerStyled = styled(DatePicker)<{ $style: DateTimeStyleType }>`
 `;
 
 export interface DataUIViewProps extends DateCompViewProps {
-  value: moment.Moment | null;
-  onChange: (value: moment.Moment | null) => void;
+  value: dayjs.Dayjs | null;
+  onChange: (value: dayjs.Dayjs | null) => void;
   onPanelChange: () => void;
 }
 

@@ -1,4 +1,5 @@
 import { BoolControl } from "comps/controls/boolControl";
+import { check } from "util/convertUtils";
 import {
   BoolCodeControl,
   CustomRuleControl,
@@ -151,7 +152,7 @@ export const textInputChildren = {
   ...formDataChildren,
 };
 
-const textInputProps = (props: RecordConstructorToView<typeof textInputChildren>) => ({
+export const textInputProps = (props: RecordConstructorToView<typeof textInputChildren>) => ({
   disabled: props.disabled,
   readOnly: props.readOnly,
   placeholder: props.placeholder,
@@ -268,3 +269,14 @@ export const inputRefMethods = [
       (comp.children.viewRef.viewRef?.input?.setRangeText as any)?.(...params),
   },
 ];
+
+export function checkMentionListData(data: any) {
+  if(data === "") return {}
+  for(const key in data) {
+    check(data[key], ["array"], key,(node)=>{
+      check(node, ["string"], );
+      return node
+    })
+  }
+  return data
+}

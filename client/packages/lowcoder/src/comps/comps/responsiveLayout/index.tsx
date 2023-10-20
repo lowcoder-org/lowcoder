@@ -1,0 +1,1 @@
+export { ResponsiveLayoutComp } from "./responsiveLayout";

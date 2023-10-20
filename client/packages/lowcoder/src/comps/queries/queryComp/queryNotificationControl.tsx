@@ -1,6 +1,5 @@
 import { MultiCompBuilder, withContext, withDefault } from "../../generators";
 import { QueryResult, TriggerType } from "../queryComp";
-import { message } from "antd";
 import { list } from "../../generators/list";
 import {
   KeyValueList,
@@ -18,12 +17,13 @@ import { BoolPureControl } from "../../controls/boolControl";
 import { millisecondsControl } from "../../controls/millisecondControl";
 import { trans } from "i18n";
 import { CompAction, customAction, isMyCustomAction } from "lowcoder-core";
+import { messageInstance } from "lowcoder-design";
 
 const SuccessMessageAction = new MultiCompBuilder(
   {
     text: StringControl,
   },
-  (props) => (duration: number) => props.text && message.success(props.text, duration)
+  (props) => (duration: number) => props.text && messageInstance.success(props.text, duration)
 )
   .setPropertyViewFn((children) => (
     <>
@@ -109,14 +109,14 @@ const QueryNotificationTmpControl = new MultiCompBuilder(
       props.fail.forEach((item) => {
         const props = (item.getView() as any)({ data: result.data });
         if (props.condition && props.text) {
-          message.error(props.text, duration);
+          messageInstance.error(props.text, duration);
           hasNoticed = true;
         }
       });
 
       // Execute system notification if triggered manually without custom notification and query fails
       if (!result.success && !hasNoticed) {
-        hasNoticed = !!message.error(
+        hasNoticed = !!messageInstance.error(
           trans("query.failMessageWithName", {
             name,
             result: JSON.stringify(pick(result, ["code", "message"])),
@@ -131,7 +131,7 @@ const QueryNotificationTmpControl = new MultiCompBuilder(
 
       // Execute system notification when triggered manually and without custom notification and query is successful
       if (result.success && !hasNoticed) {
-        message.success(trans("query.successMessageWithName", { name }), duration);
+        messageInstance.success(trans("query.successMessageWithName", { name }), duration);
       }
     }
   }

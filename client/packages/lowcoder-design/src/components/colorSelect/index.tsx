@@ -1,5 +1,6 @@
 import { RgbaStringColorPicker } from "react-colorful";
 import { Popover } from "antd";
+import { ActionType } from '@rc-component/trigger/lib/interface';
 import {
   alphaOfRgba,
   toRGBA,
@@ -14,7 +15,7 @@ import { changeValueAction } from "lowcoder-core";
 
 interface ColorSelectProps {
   color: string;
-  trigger?: string;
+  trigger?: ActionType;
   dispatch?: (value: any) => void;
   changeColor?: (value: any) => void;
 }
@@ -35,7 +36,7 @@ export const ColorSelect = (props: ColorSelectProps) => {
     <Popover
       trigger={trigger}
       destroyTooltipOnHide={true}
-      onVisibleChange={(value) => {
+      onOpenChange={(value) => {
         pickerColor.current = toRGBA(color);
         setVisible(value);
       }}

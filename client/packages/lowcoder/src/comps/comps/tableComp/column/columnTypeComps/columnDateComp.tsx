@@ -9,11 +9,14 @@ import { withDefault } from "comps/generators";
 import { formatPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { isNumber } from "lodash";
-import moment from "moment";
+import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
 import { CalendarIcon, PrevIcon, SuperPrevIcon } from "lowcoder-design";
 import { useState } from "react";
 import styled from "styled-components";
 import { DateParser, DATE_FORMAT } from "util/dateTimeUtils";
+
+dayjs.extend(utc)
 
 const IconNext = styled(PrevIcon)`
   transform: rotate(180deg);
@@ -119,12 +122,13 @@ const Wrapper = styled.div`
 `;
 
 export function formatDate(date: string, format: string) {
-  let mom = moment(date);
+  let mom = dayjs(date);
   if (isNumber(Number(date)) && date !== "") {
-    mom = moment(Number(date));
+    mom = dayjs(Number(date));
   }
   if (!mom.isValid()) {
-    mom = moment.utc(date, DateParser).local();
+    // mom = dayjs.utc(date, DateParser).local();
+    mom = dayjs.utc(date).local();
   }
 
   return mom.isValid() ? mom.format(format) : "";
@@ -146,9 +150,9 @@ type DateEditProps = {
 
 export const DateEdit = (props: DateEditProps) => {
   const [panelOpen, setPanelOpen] = useState(true);
-  let value = moment(props.value, DateParser);
+  let value = dayjs(props.value, DateParser);
   if (!value.isValid()) {
-    value = moment(0, DateParser);
+    value = dayjs(0, DateParser);
   }
   return (
     <Wrapper

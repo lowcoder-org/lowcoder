@@ -112,7 +112,7 @@ export const enObj: I18nObjects = {
     ],
   },
   editorTutorials: {
-    mockDataUrl: "https://63621db87521369cd06514c2.mockapi.io/api/lowcoder/users",
+    mockDataUrl: "https://6523073ef43b179384152c4f.mockapi.io/api/lowcoder/users",
     data: (code) => (
       <>
         The component and query data are listed here, which can be referenced through

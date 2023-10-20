@@ -399,50 +399,48 @@ export function HelpDropdown(props: HelpDropdownProps) {
     return null;
   }
 
-  return (
-    <>
-      {introVideoUrl && (
-        <VideoDialog
-          visible={videoVisible}
-          setVisible={(v) => setVideoVisible(v)}
-          videoSrc={introVideoUrl}
-        />
-      )}
-      <HelpWrapper>
-        {toolTipContent && (
-          <Popover
-            content={toolTipContent}
-            visible
-            align={{
-              points: ["br", "cc"],
-              offset: [-16, 24],
-            }}
-            placement="left"
-          >
-            <span />
-          </Popover>
-        )}
-        {props.showShortcutList && props.setShowShortcutList && (
-          <ShortcutListPopup setShowShortcutList={props.setShowShortcutList} />
-        )}
-        <Dropdown
-          overlay={overlayMenus}
-          placement="topRight"
-          trigger={["click"]}
-          visible={showDropdown}
-          onVisibleChange={(open: boolean) => setShowDropdown(open)}
+  return (<>
+    {introVideoUrl && (
+      <VideoDialog
+        visible={videoVisible}
+        setVisible={(v) => setVideoVisible(v)}
+        videoSrc={introVideoUrl}
+      />
+    )}
+    <HelpWrapper>
+      {toolTipContent && (
+        <Popover
+          content={toolTipContent}
+          open={true}
+          align={{
+            points: ["br", "cc"],
+            offset: [-16, 24],
+          }}
+          placement="left"
         >
-          {props.isEdit ? (
-            <SpanStyled selected={showDropdown}>
-              <LeftHelpIcon />
-            </SpanStyled>
-          ) : (
-            <HelpDiv>
-              <HelpIcon />
-            </HelpDiv>
-          )}
-        </Dropdown>
-      </HelpWrapper>
-    </>
-  );
+          <span />
+        </Popover>
+      )}
+      {props.showShortcutList && props.setShowShortcutList && (
+        <ShortcutListPopup setShowShortcutList={props.setShowShortcutList} />
+      )}
+      <Dropdown
+        dropdownRender={() => overlayMenus}
+        placement="topRight"
+        trigger={["click"]}
+        open={showDropdown}
+        onOpenChange={(open: boolean) => setShowDropdown(open)}
+      >
+        {props.isEdit ? (
+          <SpanStyled selected={showDropdown}>
+            <LeftHelpIcon />
+          </SpanStyled>
+        ) : (
+          <HelpDiv>
+            <HelpIcon />
+          </HelpDiv>
+        )}
+      </Dropdown>
+    </HelpWrapper>
+  </>);
 }

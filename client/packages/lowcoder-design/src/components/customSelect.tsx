@@ -71,34 +71,41 @@ const SelectWrapper = styled.div<{ border?: boolean }>`
   }
 `;
 
-export type CustomSelectProps = {
+export interface CustomSelectProps extends AntdSelectProps {
   children?: JSX.Element | React.ReactNode;
-  innerRef?: React.Ref<HTMLDivElement> | undefined;
   border?: boolean;
 };
 
-function CustomSelect(props: CustomSelectProps & AntdSelectProps) {
+interface CustomSelectInterface extends React.ForwardRefExoticComponent<
+  CustomSelectProps & React.RefAttributes<HTMLDivElement>
+> {
+  Option: any;
+}
+const CustomSelect = React.forwardRef<HTMLDivElement, CustomSelectProps>((
+  props,
+  ref,
+) => {
   const {
     children,
-    innerRef,
     className,
     border,
-    dropdownClassName = "custom-ant-select-dropdown",
+    popupClassName = "custom-ant-select-dropdown",
     ...restProps
   } = props;
   return (
-    <SelectWrapper className={className} ref={innerRef} border={border}>
+    <SelectWrapper className={className} ref={ref} border={border}>
       <AntdSelect
-        dropdownClassName={dropdownClassName}
-        dropdownMatchSelectWidth={false}
+        popupClassName={popupClassName}
+        popupMatchSelectWidth={false}
         suffixIcon={<PackUpIcon />}
         {...restProps}
       >
         {children}
       </AntdSelect>
+      <div></div>
     </SelectWrapper>
   );
-}
+}) as CustomSelectInterface;
 
 CustomSelect.Option = AntdSelect.Option;
 export { CustomSelect };

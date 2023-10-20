@@ -3,6 +3,7 @@ export * from "./components/CustomModal";
 export * from "./components/Drawer";
 export * from "./components/Dropdown";
 export * from "./components/ExternalLink";
+export * from "./components/GlobalInstances";
 export * from "./components/Input";
 export * from "./components/Label";
 export * from "./components/Menu";

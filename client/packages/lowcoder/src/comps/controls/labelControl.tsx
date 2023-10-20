@@ -80,7 +80,6 @@ const LabelWrapper = styled.div<{
 const Label = styled.span<{ border: boolean }>`
   ${labelCss};
   ${(props) => props.border && UnderlineCss};
-  padding-bottom: 2.5px;
   width: fit-content;
   user-select: text;
   white-space: nowrap;
@@ -175,7 +174,9 @@ export const LabelControl = (function () {
           >
             <Tooltip
               title={props.tooltip && <TooltipWrapper>{props.tooltip}</TooltipWrapper>}
-              arrowPointAtCenter={true}
+              arrow={{
+                pointAtCenter: true,
+              }}
               placement="top"
               color="#2c2c2c"
               popupVisible={!!props.tooltip}

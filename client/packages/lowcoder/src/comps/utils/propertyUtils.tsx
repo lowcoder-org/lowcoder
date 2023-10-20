@@ -30,6 +30,7 @@ export const placeholderPropertyView = (children: {
   placeholder: InstanceType<typeof StringControl>;
 }) => children.placeholder.propertyView({ label: trans("prop.placeholder") });
 
+
 export const allowClearPropertyView = (children: {
   allowClear: InstanceType<typeof BoolControl>;
 }) => children.allowClear.propertyView({ label: trans("prop.showClear") });
@@ -109,12 +110,12 @@ export const formatPropertyView = (params: {
         {trans("date.reference")} &nbsp;
         <a
           href={`${
-            language === "zh" ? "http://momentjs.cn" : "http://momentjs.com"
-          }/docs/#/displaying/format/`}
+            language === "zh" ? "https://day.js.org/docs/zh-CN" : "https://day.js.org/docs/en"
+          }/display/format`}
           target={"_blank"}
           rel="noreferrer"
         >
-          momentjs format
+          dayjs format
         </a>
       </>
     ),

@@ -8,11 +8,11 @@ import { deleteFolder } from "../../redux/reduxActions/folderActions";
 import { useDispatch } from "react-redux";
 import React, { useState } from "react";
 import styled from "styled-components";
-import { message } from "antd";
 import { trans, transToNode } from "../../i18n";
 import { useParams } from "react-router-dom";
 import { AppTypeEnum } from "constants/applicationConstants";
 import { CopyModal } from "pages/common/copyModal";
+import { messageInstance } from "lowcoder-design";
 
 const PopoverIcon = styled(PointIcon)`
   cursor: pointer;
@@ -84,7 +84,7 @@ export const HomeResOptions = (props: {
                     recycleApplication(
                       { applicationId: res.id, folderId: folderId },
                       () => {
-                        message.success(trans("success"));
+                        messageInstance.success(trans("success"));
                         resolve(true);
                       },
                       () => reject()
@@ -121,7 +121,7 @@ export const HomeResOptions = (props: {
                     deleteFolder(
                       { folderId: res.id, parentFolderId: folderId },
                       () => {
-                        message.success(trans("home.deleteSuccessMsg"));
+                        messageInstance.success(trans("home.deleteSuccessMsg"));
                         resolve(true);
                       },
                       () => reject()

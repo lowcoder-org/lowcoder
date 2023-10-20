@@ -53,25 +53,27 @@ const CloneBtn = styled(TacoButton)`
 `;
 
 const PreviewBtn = styled(TacoButton)`
-  color: #ffffff;
-  background: #8b8fa34c;
-  border: none;
-  height: 28px;
-  margin-right: 8px;
-  min-width: 60px;
-  padding: 0;
-  cursor: pointer;
-
-  &:hover {
-    background: #666666;
+  &&& {
     color: #ffffff;
+    background: #8b8fa34c;
     border: none;
-  }
-
-  &:focus {
-    background: #666666;
-    color: #ffffff;
-    border: none;
+    height: 28px;
+    margin-right: 8px;
+    min-width: 60px;
+    padding: 0;
+    cursor: pointer;
+  
+    &:hover {
+      background: #666666;
+      color: #ffffff;
+      border: none;
+    }
+  
+    &:focus {
+      background: #666666;
+      color: #ffffff;
+      border: none;
+    }
   }
 `;
 

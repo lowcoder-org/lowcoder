@@ -1,22 +1,6 @@
 package org.lowcoder.api.authentication.service;
 
-import static org.lowcoder.sdk.exception.BizError.AUTH_ERROR;
-import static org.lowcoder.sdk.exception.BizError.DISABLE_AUTH_CONFIG_FORBIDDEN;
-import static org.lowcoder.sdk.exception.BizError.USER_NOT_EXIST;
-import static org.lowcoder.sdk.util.ExceptionUtils.deferredError;
-import static org.lowcoder.sdk.util.ExceptionUtils.ofError;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
-import javax.annotation.Nullable;
-
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.lowcoder.api.authentication.dto.AuthConfigRequest;
@@ -51,9 +35,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ServerWebExchange;
-
-import lombok.extern.slf4j.Slf4j;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import javax.annotation.Nullable;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import static org.lowcoder.sdk.exception.BizError.*;
+import static org.lowcoder.sdk.util.ExceptionUtils.deferredError;
+import static org.lowcoder.sdk.util.ExceptionUtils.ofError;
 
 @Service
 @Slf4j
@@ -94,17 +86,17 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
     }
 
     @Override
-    public Mono<AuthUser> authenticateByOauth2(String authId, String source, String code, String redirectUrl) {
-        return authenticate(authId, source, new OAuth2RequestContext(code, redirectUrl));
+    public Mono<AuthUser> authenticateByOauth2(String authId, String source, String code, String redirectUrl, String orgId) {
+        return authenticate(authId, source, new OAuth2RequestContext(orgId, code, redirectUrl));
     }
 
     protected Mono<AuthUser> authenticate(String authId, @Deprecated String source, AuthRequestContext context) {
         return Mono.defer(() -> {
                     if (StringUtils.isNotBlank(authId)) {
-                        return authenticationService.findAuthConfigByAuthId(authId);
+                        return authenticationService.findAuthConfigByAuthId(context.getOrgId(), authId);
                     }
                     log.warn("source is deprecated and will be removed in the future, please use authId instead. {}", source);
-                    return authenticationService.findAuthConfigBySource(source);
+                    return authenticationService.findAuthConfigBySource(context.getOrgId(), source);
                 })
                 .doOnNext(findAuthConfig -> {
                     context.setAuthConfig(findAuthConfig.authConfig());
@@ -166,6 +158,19 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
                         return userService.update(user.getId(), user);
                     }
 
+                    // if the user is logging/registering via OAuth provider for the first time,
+                    // but is not anonymous, then just add a new connection
+
+                     userService.findById(authUser.getUid())
+                             .switchIfEmpty(Mono.empty())
+                             .filter(user -> {
+                                 // not logged in yet
+                                 return !user.isAnonymous();
+                             }).doOnNext(user -> {
+                                 userService.addNewConnection(user.getId(), authUser.toAuthConnection());
+                             }).subscribe();
+
+
                     if (authUser.getAuthContext().getAuthConfig().isEnableRegister()) {
                         return userService.createNewUserByAuthUser(authUser);
                     }
@@ -182,7 +187,7 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
     /**
      * Update the connection after re-authenticating
      */
-    private void updateConnection(AuthUser authUser, User user) {
+    public void updateConnection(AuthUser authUser, User user) {
 
         String orgId = authUser.getOrgId();
         Connection oldConnection = getAuthConnection(authUser, user);
@@ -224,7 +229,12 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
         return checkIfAdmin()
                 .then(sessionUserService.getVisitorOrgMemberCache())
                 .flatMap(orgMember -> organizationService.getById(orgMember.getOrgId()))
-                .doOnNext(organization -> addOrUpdateNewAuthConfig(organization, authConfigFactory.build(authConfigRequest, true)))
+                .doOnNext(organization -> {
+                    boolean duplicateAuthType = addOrUpdateNewAuthConfig(organization, authConfigFactory.build(authConfigRequest, true));
+                    if(duplicateAuthType) {
+                        deferredError(DUPLICATE_AUTH_CONFIG_ADDITION, "DUPLICATE_AUTH_CONFIG_ADDITION");
+                    }
+                })
                 .flatMap(organization -> organizationService.update(organization.getId(), organization));
     }
 
@@ -243,6 +253,14 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
                     return Mono.empty();
                 });
     }
+
+    @Override
+    public Flux<FindAuthConfig> findAuthConfigs(boolean enableOnly) {
+        return checkIfAdmin().
+                then(sessionUserService.getVisitorOrgMemberCache())
+                .flatMapMany(orgMember -> authenticationService.findAllAuthConfigs(orgMember.getOrgId(),false));
+    }
+
 
     private Mono<Void> removeTokensByAuthId(String authId) {
         return sessionUserService.getVisitorOrgMemberCache()
@@ -273,7 +291,7 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
                 .filter(connection -> StringUtils.isNotBlank(connection.getAuthId()))
                 .map(Connection::getAuthId)
                 .collectList();
-        Mono<List<String>> orgAuthIdListMono = authenticationService.findAllAuthConfigs(true)
+        Mono<List<String>> orgAuthIdListMono = authenticationService.findAllAuthConfigs(null, true)
                 .map(FindAuthConfig::authConfig)
                 .map(AbstractAuthConfig::getId)
                 .collectList();
@@ -303,7 +321,7 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
     /**
      * If the source of the newAuthConfig exists in the auth configs of the organization, update it. Otherwise, add it.
      */
-    private void addOrUpdateNewAuthConfig(Organization organization, AbstractAuthConfig newAuthConfig) {
+    private boolean addOrUpdateNewAuthConfig(Organization organization, AbstractAuthConfig newAuthConfig) {
         OrganizationDomain organizationDomain = organization.getOrganizationDomain();
         if (organizationDomain == null) {
             organizationDomain = new OrganizationDomain();
@@ -313,6 +331,13 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
         Map<String, AbstractAuthConfig> authConfigMap = organizationDomain.getConfigs()
                 .stream()
                 .collect(Collectors.toMap(AbstractAuthConfig::getId, Function.identity()));
+
+        boolean authTypeAlreadyExists = authConfigMap.values().stream()
+                .anyMatch(config -> !config.getId().equals(newAuthConfig.getId()) && config.getAuthType().equals(newAuthConfig.getAuthType()));
+        if(authTypeAlreadyExists) {
+            return false;
+        }
+
         // Under the organization, the source can uniquely identify the whole auth config.
         AbstractAuthConfig old = authConfigMap.get(newAuthConfig.getId());
         if (old != null) {
@@ -320,6 +345,9 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
         }
         authConfigMap.put(newAuthConfig.getId(), newAuthConfig);
         organizationDomain.setConfigs(new ArrayList<>(authConfigMap.values()));
+
+        return true;
+
     }
 
     // static inner class

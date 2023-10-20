@@ -655,7 +655,7 @@ function ToolbarPopover(props: {
   const popOverRef = useRef<HTMLDivElement>(null);
   return (
     <Popover
-      visible={visible}
+      open={visible}
       overlayStyle={{ pointerEvents: "auto" }}
       content={
         <div

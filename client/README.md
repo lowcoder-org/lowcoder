@@ -6,18 +6,18 @@
 
 #### Use prebuilt docker image
 
-Simply run below command to start a backend server.
+Simply run the below command to start a backend server.
 
 ```bash
 docker run -d --name lowcoder -p 3000:3000 -v "$PWD/stacks:/lowcoder-stacks" lowcoderorg/lowcoder-ce
 ```
 
-For more information, view our [docs](../docs/self-hosting)
+For more information, view our [docs](https://docs.lowcoder.cloud/lowcoder-documentation/setup-and-run/self-hosting)
 
 #### Build Docker image from source
 
-1. Check out source code and change to source dir.
-2. Use the command below to build Docker image :
+1. Check out the source code and change to source dir.
+2. Use the command below to build a Docker image :
 
 ```bash
 docker build -f ./deploy/docker/Dockerfile -t lowcoder-dev .
@@ -31,11 +31,21 @@ docker run -d --name lowcoder-dev -p 3000:3000 -v "$PWD/stacks:/lowcoder-stacks"
 
 ### Start develop
 
-1. Check out source code.
+1. Check out the source code.
 2. Change to client dir in the repository root via cd client.
-3. Run yarn to install dependencies: .
-4. Start dev server: `LOWCODER_API_SERVICE_URL=http://localhost:3000 yarn start`.
-5. After dev server starts successfully, it will be automatically opened in the default browser.
+
+```bash
+cd client
+```
+   
+4. Run yarn to install dependencies: .
+
+```bash
+yarn install
+```
+
+5. Start dev server: `LOWCODER_API_SERVICE_URL=http://localhost:3000 yarn start`.
+6. After the dev server starts successfully, it will be automatically opened in the default browser.
 
 ### Before submitting a pull request
 

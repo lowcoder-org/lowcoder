@@ -20,7 +20,8 @@ import { validateResponse } from "api/apiUtils";
 import { Org } from "constants/orgConstants";
 import { SERVER_ERROR_CODES } from "constants/apiConstants";
 import { defaultUser } from "constants/userConstants";
-import { message } from "antd";
+import { messageInstance } from "lowcoder-design";
+
 import { AuthSearchParams } from "constants/authConstants";
 
 function validResponseData(response: AxiosResponse<ApiResponse>) {
@@ -107,7 +108,7 @@ export function* getRawCurrentUserSaga() {
       });
     }
   } catch (error: any) {
-    message.error(error instanceof Error ? error.message : error);
+    messageInstance.error(error instanceof Error ? error.message : error);
     log.error("getRawCurrentUser error:", error);
   }
 }

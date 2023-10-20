@@ -147,7 +147,7 @@ const ScannerTmpComp = (function () {
         <CustomModalStyled
           showOkButton={false}
           showCancelButton={false}
-          visible={showModal}
+          open={showModal}
           maskClosable={props.maskClosable}
           destroyOnClose
           onCancel={() => {
@@ -178,16 +178,16 @@ const ScannerTmpComp = (function () {
                   <Dropdown
                     placement="bottomRight"
                     trigger={["click"]}
-                    visible={dropdownShow}
-                    onVisibleChange={(value) => setDropdownShow(value)}
-                    overlay={
+                    open={dropdownShow}
+                    onOpenChange={(value) => setDropdownShow(value)}
+                    dropdownRender={() => (
                       <Menu
                         items={modeList}
                         onClick={(value) =>
                           setVideoConstraints({ ...videoConstraints, deviceId: value.key })
                         }
                       />
-                    }
+                    )}
                   >
                     <Button
                       style={{ float: "right", marginTop: "10px" }}

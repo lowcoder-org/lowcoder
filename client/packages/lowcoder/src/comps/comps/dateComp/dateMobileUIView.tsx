@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import { DateTimeStyleType } from "comps/controls/styleControlConstants";
 import { getMobileStyle } from "comps/comps/dateComp/dateCompUtil";
-import moment from "moment";
+import dayjs from "dayjs";
 import { DATE_FORMAT, DATE_TIME_FORMAT, DateParser } from "util/dateTimeUtils";
 import { CanvasContainerID } from "constants/domLocators";
 import { trans } from "i18n";
@@ -16,14 +16,14 @@ const handleClick = async (
     DateCompViewProps,
     "showTime" | "minDate" | "maxDate" | "disabledTime" | "onFocus" | "onBlur"
   > & {
-    value: moment.Moment | null;
-    onChange: (value: moment.Moment | null) => void;
+    value: dayjs.Dayjs | null;
+    onChange: (value: dayjs.Dayjs | null) => void;
   }
 ) => {
   const MobileDatePicker = (await import("antd-mobile/es/components/date-picker")).default;
 
-  const min = moment(params.minDate, DateParser);
-  const max = moment(params.maxDate, DateParser);
+  const min = dayjs(params.minDate, DateParser);
+  const max = dayjs(params.maxDate, DateParser);
 
   const { disabledHours, disabledMinutes, disabledSeconds } = params.disabledTime();
 
@@ -42,7 +42,7 @@ const handleClick = async (
       second: (val, { date }) => !disabledSeconds(date.getHours(), date.getMinutes()).includes(val),
     },
     onConfirm: (value) => {
-      const time = moment(value);
+      const time = dayjs(value);
       params.onChange(time);
     },
     onClose: params.onBlur,

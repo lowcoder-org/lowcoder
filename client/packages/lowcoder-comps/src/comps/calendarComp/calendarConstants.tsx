@@ -17,7 +17,7 @@ import {
   UnderlineCss,
 } from "lowcoder-sdk";
 import styled from "styled-components";
-import moment from "moment";
+import dayjs from "dayjs";
 import {
   DayHeaderContentArg,
   FormatterInput,
@@ -388,7 +388,7 @@ export const Wrapper = styled.div<{
 
   .fc-scrollgrid-liquid > tbody {
     & > tr:nth-of-type(2) {
-      display: none;
+      display: ${(props) => props.allDay && 1};
     }
   }
   .fc .fc-timegrid-slot-label-cushion {
@@ -639,6 +639,7 @@ export const Event = styled.div<{
   bg: string;
   theme: Object;
   isList: boolean;
+  allDay: boolean;
   $style: CalendarStyleType;
 }>`
   height: 100%;
@@ -813,15 +814,15 @@ export const defaultData = [
   {
     id: "1",
     title: "Coding",
-    start: moment().hours(10).minutes(0).second(0).format(DATE_TIME_FORMAT),
-    end: moment().hours(11).minutes(30).second(0).format(DATE_TIME_FORMAT),
+    start: dayjs().hour(10).minute(0).second(0).format(DATE_TIME_FORMAT),
+    end: dayjs().hour(11).minute(30).second(0).format(DATE_TIME_FORMAT),
     color: "#079968",
   },
   {
     id: "2",
     title: "Rest",
-    start: moment().hours(24).format(DATE_FORMAT),
-    end: moment().hours(48).format(DATE_FORMAT),
+    start: dayjs().hour(24).format(DATE_FORMAT),
+    end: dayjs().hour(48).format(DATE_FORMAT),
     allDay: true,
   },
 ];
@@ -852,10 +853,10 @@ const weekHeadContent = (info: DayHeaderContentArg) => {
 const leftTimeContent = (info: SlotLabelContentArg) => {
   let isPast = false;
   if (info.view.type === ViewType.WEEK) {
-    isPast = moment().isAfter(moment(moment().format("YYYY MM DD " + info.text)));
+    isPast = dayjs().isAfter(dayjs(dayjs().format("YYYY MM DD " + info.text)));
   } else if (info.view.type === ViewType.DAY) {
-    isPast = moment().isAfter(
-      moment(moment(info.view.activeStart).format("YYYY MM DD " + info.text))
+    isPast = dayjs().isAfter(
+      dayjs(dayjs(info.view.activeStart).format("YYYY MM DD " + info.text))
     );
   }
   return {
@@ -887,9 +888,9 @@ export const slotLabelFormat = [
 export const viewClassNames = (info: ViewContentArg) => {
   let className = "";
   if ([ViewType.WEEK, ViewType.DAY].includes(info.view.type as ViewType)) {
-    if (moment().isAfter(info.view.activeEnd)) {
+    if (dayjs().isAfter(info.view.activeEnd)) {
       className = "past";
-    } else if (moment().isBefore(info.view.activeStart)) {
+    } else if (dayjs().isBefore(info.view.activeStart)) {
       className = "future";
     }
   }

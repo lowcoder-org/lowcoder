@@ -15,7 +15,8 @@ import {
 } from "redux/reduxActions/appSnapshotActions";
 import ApplicationApi, { ApplicationResp } from "api/applicationApi";
 import { ApiResponse } from "api/apiResponses";
-import { message } from "antd";
+import { messageInstance } from "lowcoder-design";
+
 import { trans } from "i18n";
 
 export function* createAppSnapshotSaga(action: ReduxAction<CreateSnapshotPayload>) {
@@ -111,7 +112,7 @@ export function* recoverAppSnapshotSaga(action: ReduxAction<RecoverSnapshotPaylo
       }
     }
   } catch (error) {
-    message.error(trans("api.recoverFailed"));
+    messageInstance.error(trans("api.recoverFailed"));
   }
 }
 

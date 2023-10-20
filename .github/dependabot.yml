@@ -6,15 +6,19 @@ updates:
     directory: "/server/api-service"
     schedule:
       interval: "monthly"
+    target-branch: "dev"
   - package-ecosystem: "npm"
     directory: "/server/node-service"
     schedule:
       interval: "monthly"
+    target-branch: "dev"
   - package-ecosystem: "npm"
     directory: "/client"
     schedule:
       interval: "monthly"
+    target-branch: "dev"
   - package-ecosystem: "docker"
     directory: "/deploy/docker"
     schedule:
       interval: "monthly"
+    target-branch: "dev"

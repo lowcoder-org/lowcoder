@@ -9,7 +9,8 @@ import { AxiosPromise, AxiosResponse } from "axios";
 import { ApiResponse } from "api/apiResponses";
 import { doValidResponse } from "api/apiUtils";
 import { SERVER_ERROR_CODES } from "constants/apiConstants";
-import { message } from "antd";
+import { messageInstance } from "lowcoder-design";
+
 import { trans } from "i18n";
 import { createContext, useState } from "react";
 import { SystemConfig } from "constants/configConstants";
@@ -22,7 +23,7 @@ import {
 } from "constants/authConstants";
 
 export const AuthContext = createContext<{
-  systemConfig: SystemConfig;
+  systemConfig?: SystemConfig;
   inviteInfo?: AuthInviteInfo;
   thirdPartyAuthError?: boolean;
 }>(undefined as any);
@@ -48,7 +49,7 @@ export function useAuthSubmit(
       requestFunc()
         .then((resp) => authRespValidate(resp, infoCompleteCheck, redirectUrl))
         .catch((e) => {
-          message.error(e.message);
+          messageInstance.error(e.message);
         })
         .finally(() => setLoading(false));
     },
@@ -80,7 +81,7 @@ export function authRespValidate(
     resp.data.code === SERVER_ERROR_CODES.EXCEED_MAX_USER_ORG_COUNT ||
     resp.data.code === SERVER_ERROR_CODES.ALREADY_IN_ORGANIZATION
   ) {
-    message.error(resp.data.message);
+    messageInstance.error(resp.data.message);
     // redirect after displaying the message for a second
     setTimeout(() => window.location.replace(replaceUrl), 1500);
   } else {
@@ -124,7 +125,8 @@ export const geneAuthStateAndSaveParam = (
   authGoal: ThirdPartyAuthGoal,
   config: ThirdPartyConfigType,
   afterLoginRedirect: string | null,
-  invitationId?: string
+  invitationId?: string,
+  invitedOrganizationId?: string,
 ) => {
   const state = Math.floor(Math.random() * 0xffffffff).toString(16);
   const params: AuthSessionStoreParams = {
@@ -134,6 +136,7 @@ export const geneAuthStateAndSaveParam = (
     afterLoginRedirect: afterLoginRedirect || null,
     sourceType: config.sourceType,
     invitationId: invitationId,
+    invitedOrganizationId: invitedOrganizationId,
     routeLink: config.routeLink,
     name: config.name,
     authId: config.id,

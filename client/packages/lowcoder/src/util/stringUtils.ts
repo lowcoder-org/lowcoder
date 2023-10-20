@@ -57,6 +57,18 @@ export const COLOR_PALETTE = [
   "#2693FF",
   "#4965F2",
   "#3377FF",
+  "#ff4d4f",
+  "#d4380d",
+  "#873800",
+  "#ffc53d",
+  "#d4b106",
+  "#3f6600",
+  "#73d13d",
+  "#08979c",
+  "#003a8c",
+  "#597ef7",
+  "#531dab",
+  "#780650",
 ] as const;
 
 export const PHONE_NUMBER_PATTERN = /^1\d{10}$/;
