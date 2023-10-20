@@ -2651,7 +2651,7 @@ export const en = {
     helpdisplayName: "display name(low priority)",
     helpvalue: "Comment content",
     helpcreatedAt: "create date",
-  }
+  },
   mention: {
     mentionList: "mention list",
   },

@@ -931,6 +931,8 @@ const uiCompMap: Registry = {
     layoutInfo: {
       w: 13,
       h: 55,
+    }
+  },
   mention: {
     name: trans("uiComp.mentionCompName"),
     enName: "mention",

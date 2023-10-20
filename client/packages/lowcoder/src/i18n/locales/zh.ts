@@ -2508,7 +2508,7 @@ timeLine: {
         helpdisplayName: "头像文字(低优先)",
         helpvalue: "评论内容",
         helpcreatedAt: "创建时间",
-      }
+      },
     mention:{
         mentionList: "提及列表",
     },
