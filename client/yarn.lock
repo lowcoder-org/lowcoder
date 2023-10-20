@@ -7776,6 +7776,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"echarts-wordcloud@npm:^2.1.0":
+  version: 2.1.0
+  resolution: "echarts-wordcloud@npm:2.1.0"
+  peerDependencies:
+    echarts: ^5.0.1
+  checksum: d6e8996bb1267fbaa3fde23a121918a662a46ddd9ccd00ba0829aa4bd95b1a7b5cab64e3f4fe7241d605caaba7ad7b8e68eeaa9e1ad4adbf43cc0551deb14e33
+  languageName: node
+  linkType: hard
+
 "echarts@npm:^5.4.2":
   version: 5.4.2
   resolution: "echarts@npm:5.4.2"
@@ -11818,6 +11827,7 @@ __metadata:
     "@types/react-dom": 17
     big.js: ^6.2.1
     echarts-extension-gmap: ^1.6.0
+    echarts-wordcloud: ^2.1.0
     jest: 29.3.0
     lowcoder-cli: "workspace:^"
     lowcoder-sdk: "workspace:^"
@@ -11990,6 +12000,7 @@ __metadata:
     core-js: ^3.25.2
     dotenv: ^16.0.3
     echarts: ^5.4.2
+    echarts-wordcloud: ^2.1.0
     eslint: ^8.0.0
     eslint-config-react-app: ^7.0.1
     eslint-plugin-only-ascii: ^0.0.0

@@ -224,6 +224,7 @@ export { ReactComponent as GraphqlIcon } from "./icon-query-Graphql.svg";
 export { ReactComponent as SnowflakeIcon } from "./icon-query-snowflake.svg";
 export { ReactComponent as MariaDBIcon } from "./icon-query-MariaDB.svg";
 export { ReactComponent as imageEditorIcon } from "./icon-insert-imageEditor.svg";
+export { ReactComponent as MermaidIcon } from "./icon-mermaid.svg";
 export { ReactComponent as HomeSettingsIcon } from "./icon-home-settings.svg";
 export { ReactComponent as HomeSettingsActiveIcon } from "./icon-home-settings-active.svg";
 export { ReactComponent as HelpGithubIcon } from "./icon-help-github.svg";

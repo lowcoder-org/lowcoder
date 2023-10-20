@@ -100,6 +100,7 @@ import {
   MentionIcon,
   AutoCompleteCompIcon,
   ResponsiveLayoutCompIcon,
+  MermaidIcon,
 } from "lowcoder-design";
 
 import { defaultFormData, FormComp } from "./comps/formComp/formComp";
@@ -836,6 +837,19 @@ const uiCompMap: Registry = {
     categories: ["dataDisplay"],
     icon: imageEditorIcon,
     keywords: trans("uiComp.imageEditorCompKeywords"),
+    layoutInfo: {
+      w: 15,
+      h: 60,
+    },
+  },
+  mermaid: {
+    name: trans("uiComp.mermaidCompName"),
+    enName: "Mermaid Charts",
+    comp: remoteComp({ ...builtInRemoteComps, compName: "mermaid" }),
+    description: trans("uiComp.mermaidCompDesc"),
+    categories: ["dataDisplay"],
+    icon: MermaidIcon,
+    keywords: trans("uiComp.mermaidCompKeywords"),
     layoutInfo: {
       w: 15,
       h: 60,
