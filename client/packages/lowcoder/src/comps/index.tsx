@@ -97,6 +97,7 @@ import {
   VideoCompIcon,
   TimeLineIcon,
   LottieIcon,
+  CommentIcon,
   MentionIcon,
   AutoCompleteCompIcon,
   ResponsiveLayoutCompIcon,
@@ -132,6 +133,7 @@ import { RemoteCompInfo } from "types/remoteComp";
 import { ScannerComp } from "./comps/buttonComp/scannerComp";
 import { SignatureComp } from "./comps/signatureComp";
 import { TimeLineComp } from "./comps/timelineComp/timelineComp";
+import { CommentComp } from "./comps/commentComp/commentComp";
 import { MentionComp } from "./comps/textInputComp/mentionComp";
 import { AutoCompleteComp } from "./comps/autoCompleteComp/autoCompleteComp";
 //Added by Aqib Mirza
@@ -916,6 +918,20 @@ const uiCompMap: Registry = {
       w: 13,
       h: 55,
     },
+  },
+
+  comment: {
+    name: trans("uiComp.commentCompName"),
+    enName: "comment",
+    description: trans("uiComp.commentCompDesc"),
+    categories: ["dataDisplay"],
+    icon: CommentIcon,
+    keywords: trans("uiComp.commentCompKeywords"),
+    comp: CommentComp,
+    layoutInfo: {
+      w: 13,
+      h: 55,
+    }
   },
   mention: {
     name: trans("uiComp.mentionCompName"),

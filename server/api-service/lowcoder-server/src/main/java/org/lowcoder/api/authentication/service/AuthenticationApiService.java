@@ -17,7 +17,7 @@ public interface AuthenticationApiService {
 
     Mono<Boolean> enableAuthConfig(AuthConfigRequest authConfigRequest);
 
-    Mono<Boolean> disableAuthConfig(String authId);
+    Mono<Boolean> disableAuthConfig(String authId, boolean delete);
 
     Flux<FindAuthConfig> findAuthConfigs(boolean enableOnly);
 }
