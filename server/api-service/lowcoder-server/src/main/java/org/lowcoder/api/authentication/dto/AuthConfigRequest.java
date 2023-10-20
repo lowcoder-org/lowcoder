@@ -29,6 +29,11 @@ public class AuthConfigRequest extends HashMap<String, Object> {
     }
 
     @Nullable
+    public String getInstanceId() {
+        return getString("instanceId");
+    }
+
+    @Nullable
     public String getClientId() {
         return getString("clientId");
     }

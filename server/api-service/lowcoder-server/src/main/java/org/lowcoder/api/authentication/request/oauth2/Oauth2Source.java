@@ -6,9 +6,7 @@ public interface Oauth2Source {
 
     String userInfo();
 
-    default String refresh() {
-        throw new UnsupportedOperationException(getName());
-    }
+    String refresh();
 
     default String getName() {
         if (this instanceof Enum) {

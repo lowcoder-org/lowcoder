@@ -94,7 +94,9 @@ import {
   VideoCompIcon,
   TimeLineIcon,
   LottieIcon,
+  MentionIcon,
   AutoCompleteCompIcon,
+  ResponsiveLayoutCompIcon,
 } from "lowcoder-design";
 
 import { defaultFormData, FormComp } from "./comps/formComp/formComp";
@@ -121,9 +123,11 @@ import { RemoteCompInfo } from "types/remoteComp";
 import { ScannerComp } from "./comps/buttonComp/scannerComp";
 import { SignatureComp } from "./comps/signatureComp";
 import { TimeLineComp } from "./comps/timelineComp/timelineComp";
-import { AutoCompleteComp } from "./comps/autoCompleteComp/autoCompleteComp";
+import { MentionComp } from "./comps/textInputComp/mentionComp";
+import { AutoCompleteComp } from "./comps/autoCompleteComp/autoCompleteComp"
 //Added by Aqib Mirza
 import { JsonLottieComp } from "./comps/jsonComp/jsonLottieComp";
+import { ResponsiveLayoutComp } from "./comps/responsiveLayout";
 
 type Registry = {
   [key in UICompType]?: UICompManifest;
@@ -857,6 +861,15 @@ const uiCompMap: Registry = {
       h: 55,
     },
   },
+  mention: {
+    name: trans("uiComp.mentionCompName"),
+    enName: "mention",
+    description: trans("uiComp.mentionCompDesc"),
+    categories: ["dataInputText"],
+    icon: MentionIcon,
+    keywords: trans("uiComp.mentionCompKeywords"),
+    comp: MentionComp,
+  },
   autocomplete: {
     name: trans("uiComp.autoCompleteCompName"),
     enName: "autoComplete",
@@ -868,6 +881,21 @@ const uiCompMap: Registry = {
     layoutInfo: {
       w: 7,
       h: 5,
+    }
+  },
+  responsiveLayout: {
+    name: trans("uiComp.responsiveLayoutCompName"),
+    enName: "Responsive Layout",
+    description: trans("uiComp.responsiveLayoutCompDesc"),
+    categories: ["container", "common"],
+    icon: ResponsiveLayoutCompIcon,
+    keywords: trans("uiComp.responsiveLayoutCompKeywords"),
+    comp: ResponsiveLayoutComp,
+    withoutLoading: true,
+    layoutInfo: {
+      w: 15,
+      h: 27,
+      delayCollision: true,
     },
   },
 };

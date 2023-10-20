@@ -161,6 +161,13 @@ const ResButton = (props: {
         dataSourceId: QUICK_REST_API_ID,
       },
     },
+    streamApi: {
+      label: trans("query.quickStreamAPI"),
+      type: BottomResTypeEnum.Query,
+      extra: {
+        compType: "streamApi",
+      },
+    },
     graphql: {
       label: trans("query.quickGraphql"),
       type: BottomResTypeEnum.Query,
@@ -318,6 +325,7 @@ export function ResCreatePanel(props: ResCreateModalProps) {
             <div className="section">
               <DataSourceListWrapper placement={placement}>
                 <ResButton size={buttonSize} identifier={"restApi"} onSelect={onSelect} />
+                <ResButton size={buttonSize} identifier={"streamApi"} onSelect={onSelect} />
                 <ResButton size={buttonSize} identifier={"graphql"} onSelect={onSelect} />
                 {placement === "editor" && (
                   <ResButton size={buttonSize} identifier={"lowcoderApi"} onSelect={onSelect} />

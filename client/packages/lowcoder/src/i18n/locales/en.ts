@@ -2,7 +2,7 @@ import table from "./componentDocExtra/table.md?url";
 
 export const en = {
   productName: "Lowcoder",
-  productDesc: "Build internal tools fast, with no limitations",
+  productDesc: "Create software applications for your Company and your Customers with minimal coding experience. Lowcoder is the best Retool, Appsmith or Tooljet Alternative.",
   notSupportedBrowser:
     "Your current browser may have compatibility issues. For a better user experience, it is recommended to use the latest version of the Chrome browser.",
   create: "Create",
@@ -262,6 +262,8 @@ export const en = {
     parseDesc: "Triggers on parse",
     success: "Success",
     successDesc: "Triggers on success",
+    mention: "mention",
+    mentionDesc: "Triggers on mention",
   },
   themeDetail: {
     primary: "Brand color",
@@ -340,6 +342,7 @@ export const en = {
     containerheaderpadding: "Header Padding",
     containerfooterpadding: "Footer Padding",
     containerbodypadding: "Body Padding",
+    minWidth: "Minimum Width",
   },
   export: {
     hiddenDesc: "If true, the component is hidden",
@@ -427,6 +430,7 @@ export const en = {
     tempState: "Temporary state",
     transformer: "Transformer",
     quickRestAPI: "REST Query",
+    quickStreamAPI: "Stream Query",
     quickGraphql: "GraphQL Query",
     lowcoderAPI: "Lowcoder API",
     executeJSCode: "Run JavaScript Code",
@@ -845,9 +849,15 @@ export const en = {
     timelineCompName: "Time Line",
     timelineCompDesc: "Time Line",
     timelineCompKeywords: "",
+    mentionCompName: "mention",
+    mentionCompDesc: "mention",
+    mentionCompKeywords: "",
     autoCompleteCompName: "autoComplete",
     autoCompleteCompDesc: "autoComplete",
     autoCompleteCompKeywords: "",
+    responsiveLayoutCompName: "Responsive Layout",
+    responsiveLayoutCompDesc: "Responsive Layout",
+    responsiveLayoutCompKeywords: "",
   },
   comp: {
     menuViewDocs: "View documentation",
@@ -1144,7 +1154,11 @@ export const en = {
     auto: "Auto",
     fixed: "Fixed",
     columnType: "Column type",
+    float: "Float",
+    prefix: "Prefix",
+    suffix: "Suffix",
     text: "Text",
+    number: "Number",
     link: "Link",
     links: "Links",
     tag: "Tag",
@@ -1278,7 +1292,7 @@ export const en = {
   },
   audio: {
     src: "Audio URL",
-    defaultSrcUrl: "https://cdn-files.lowcoder.dev/canon-excerpt.mp3",
+    defaultSrcUrl: "https://cdn-files.lowcoder.cloud/canon-excerpt.mp3",
     autoPlay: "Autoplay",
     loop: "Loop",
     srcDesc: "Current audio URL",
@@ -1636,7 +1650,7 @@ export const en = {
     phoneColumn: "Phone",
     subTitle: "Title",
     linkLabel: "Link",
-    linkUrl: "cloud.lowcoder.dev",
+    linkUrl: "app.lowcoder.cloud",
     progressLabel: "Progress",
     sliderLabel: "Slider",
     radioLabel: "Radio",
@@ -1687,7 +1701,7 @@ export const en = {
     preloadCSSApply: "Apply to the homepage of the workspace",
     preloadLibsTitle: "JavaScript library",
     preloadLibsHelp:
-      "Set up preloaded JavaScript libraries for all applications in the current workspace, and the system has built-in lodash, moment, uuid, numbro for direct use. JavaScript libraries are loaded before the app is initialized, so there is a certain impact on app performance.",
+      "Set up preloaded JavaScript libraries for all applications in the current workspace, and the system has built-in lodash, day.js, uuid, numbro for direct use. JavaScript libraries are loaded before the app is initialized, so there is a certain impact on app performance.",
     preloadLibsEmpty: "No JavaScript libraries were added",
     preloadLibsAddBtn: "Add a library",
     saveSuccess: "Saved successfully",
@@ -1949,7 +1963,7 @@ export const en = {
   },
   preLoad: {
     jsLibraryHelpText:
-      "Add JavaScript libraries to your current application via URL addresses. lodash, moment, uuid, numbro are built into the system for immediate use.  JavaScript libraries are loaded before the application is initialized, which can have an impact on application performance.",
+      "Add JavaScript libraries to your current application via URL addresses. lodash, day.js, uuid, numbro are built into the system for immediate use.  JavaScript libraries are loaded before the application is initialized, which can have an impact on application performance.",
     exportedAs: "Exported as",
     urlTooltip:
       "URL address of the JavaScript library, [unpkg.com](https://unpkg.com/) or [jsdelivr.net](https://www.jsdelivr.com/) is recommended",
@@ -2114,7 +2128,7 @@ export const en = {
   },
   docUrls: {
     docHome: "https://docs.lowcoder.cloud/",
-    components: "https://cloud.lowcoder.dev/components?n={compType}",
+    components: "https://app.lowcoder.cloud/components?n={compType}",
     module: "",
     optionList: "",
     terms: "",
@@ -2156,9 +2170,9 @@ export const en = {
   },
   componentDoc: {
     markdownDemoText:
-      "**Lowcoder** is a _developer-friendly_ open-source low code platform to build internal apps within minutes.",
+      "**Lowcoder** | Create software applications for your Company and your Customers with minimal coding experience. Lowcoder is the best Retool, Appsmith or Tooljet Alternative.",
     demoText:
-      "Lowcoder is a developer-friendly open-source low code platform to build internal apps within minutes.",
+      "Lowcoder | Create software applications for your Company and your Customers with minimal coding experience. Lowcoder is the best Retool, Appsmith or Tooljet Alternative.",
     submit: "Submit",
     style: "style",
     danger: "Danger",
@@ -2471,6 +2485,9 @@ export const en = {
     clickedObjectDesc: "clicked item data",
     clickedIndexDesc: "clicked item index",
   },
+  mention:{
+    mentionList: "mention list",
+  },
   autoComplete: {
     value: "auto complete value",
     checkedValueFrom: "checked value from",
@@ -2496,5 +2513,23 @@ export const en = {
     Introduction: "Introduction keys",
     helpLabel: "label",
     helpValue: "value",
+  },
+  responsiveLayout: {
+    column: "Columns",
+    atLeastOneColumnError: "Responsive layout keeps at least one Column",
+    columnsPerRow: "Columns per Row",
+    columnsSpacing: "Columns Spacing (px)",
+    horizontal: "Horizontal",
+    vertical: "Vertical",
+    mobile: "Mobile",
+    tablet: "Tablet",
+    desktop: "Desktop",
+    rowStyle: "Row Style",
+    columnStyle: "Column Style",
+    minWidth: "Min. Width",
+    rowBreak: "Row Break",
+    matchColumnsHeight: "Match Columns Height",
+    rowLayout: "Row Layout",
+    columnsLayout: "Columns Layout",
   },
 };

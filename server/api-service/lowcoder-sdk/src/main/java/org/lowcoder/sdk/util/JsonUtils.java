@@ -1,9 +1,5 @@
 package org.lowcoder.sdk.util;
 
-import static org.lowcoder.sdk.auth.constants.AuthTypeConstants.FORM;
-import static org.lowcoder.sdk.auth.constants.AuthTypeConstants.GITHUB;
-import static org.lowcoder.sdk.auth.constants.AuthTypeConstants.GOOGLE;
-
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
@@ -12,6 +8,7 @@ import java.util.Set;
 import javax.annotation.Nullable;
 
 import org.lowcoder.sdk.auth.EmailAuthConfig;
+import org.lowcoder.sdk.auth.Oauth2OryAuthConfig;
 import org.lowcoder.sdk.auth.Oauth2SimpleAuthConfig;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -32,6 +29,8 @@ import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 
 import lombok.extern.slf4j.Slf4j;
 
+import static org.lowcoder.sdk.auth.constants.AuthTypeConstants.*;
+
 @Slf4j
 public final class JsonUtils {
 
@@ -46,6 +45,7 @@ public final class JsonUtils {
         OBJECT_MAPPER.registerSubtypes(new NamedType(EmailAuthConfig.class, FORM));
         OBJECT_MAPPER.registerSubtypes(new NamedType(Oauth2SimpleAuthConfig.class, GITHUB));
         OBJECT_MAPPER.registerSubtypes(new NamedType(Oauth2SimpleAuthConfig.class, GOOGLE));
+        OBJECT_MAPPER.registerSubtypes(new NamedType(Oauth2OryAuthConfig.class, ORY));
     }
 
     public static final JsonNode EMPTY_JSON_NODE = createObjectNode();

@@ -17,11 +17,14 @@ public class InvitationVO {
 
     private final String invitedOrganizationName;
 
+    private final String invitedOrganizationId;
+
     public static InvitationVO from(Invitation invitation, User createUser, Organization invitedOrganization) {
         return InvitationVO.builder()
                 .inviteCode(invitation.getId())
                 .createUserName(createUser.getName())
                 .invitedOrganizationName(invitedOrganization.getName())
+                .invitedOrganizationId(invitedOrganization.getId())
                 .build();
     }
 

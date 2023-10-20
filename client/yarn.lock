@@ -6,9 +6,9 @@ __metadata:
   cacheKey: 8
 
 "@adobe/css-tools@npm:^4.0.1":
-  version: 4.2.0
-  resolution: "@adobe/css-tools@npm:4.2.0"
-  checksum: dc5cc92ba3d562e7ffddb79d6d222c7e00b65f255fd2725b3d71490ff268844be322f917415d8c4ab39eca646343b632058db8bd5b1d646193fcc94d1d3e420b
+  version: 4.3.1
+  resolution: "@adobe/css-tools@npm:4.3.1"
+  checksum: ad43456379ff391132aff687ece190cb23ea69395e23c9b96690eeabe2468da89a4aaf266e4f8b6eaab53db3d1064107ce0f63c3a974e864f4a04affc768da3f
   languageName: node
   linkType: hard
 
@@ -7560,6 +7560,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"echarts-extension-gmap@npm:^1.6.0":
+  version: 1.6.0
+  resolution: "echarts-extension-gmap@npm:1.6.0"
+  checksum: 5bab07c7e739b81cf9c9c91b2d2db1101bab1f3b6bf649d6ebdf93fb4be0f9089058f934e4300a21a05dfb0cc0702214c48a5ec5fb34d7be19e419efbc317a61
+  languageName: node
+  linkType: hard
+
 "echarts@npm:^5.4.2":
   version: 5.4.2
   resolution: "echarts@npm:5.4.2"
@@ -11565,6 +11572,7 @@ __metadata:
     "@types/react": 17
     "@types/react-dom": 17
     big.js: ^6.2.1
+    echarts-extension-gmap: ^1.6.0
     jest: 29.3.0
     lowcoder-cli: "workspace:^"
     lowcoder-sdk: "workspace:^"

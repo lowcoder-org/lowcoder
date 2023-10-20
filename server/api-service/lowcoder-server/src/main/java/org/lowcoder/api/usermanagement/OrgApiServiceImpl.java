@@ -355,8 +355,8 @@ public class OrgApiServiceImpl implements OrgApiService {
     }
 
     @Override
-    public Mono<ConfigView> getOrganizationConfigs() {
-        return authenticationService.findAllAuthConfigs(true)
+    public Mono<ConfigView> getOrganizationConfigs(String orgId) {
+        return authenticationService.findAllAuthConfigs(orgId,true)
                 .map(FindAuthConfig::authConfig)
                 .collectList()
                 .zipWith(organizationService.getByDomain().hasElement())

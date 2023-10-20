@@ -44,7 +44,7 @@ import {
   booleanExposingStateControl,
 } from "comps/controls/codeStateControl";
 
-import { getMomentLocale } from "i18n/momentLocale";
+import { getDayJSLocale } from "i18n/dayjsLocale";
 import {
   autoCompleteDate,
   itemsDataTooltip,
@@ -151,7 +151,7 @@ let AutoCompleteCompBase = (function () {
     const [validateState, setvalidateState] = useState({});
 
     //   是否中文环境
-    const [chineseEnv, setChineseEnv] = useState(getMomentLocale() === "zh-cn");
+    const [chineseEnv, setChineseEnv] = useState(getDayJSLocale() === "zh-cn");
 
     useEffect(() => {
       setsearchtext(props.value.value);
@@ -346,11 +346,11 @@ let AutoCompleteCompBase = (function () {
               tooltip: itemsDataTooltip,
               placeholder: "[]",
             })}
-            {getMomentLocale() === "zh-cn" &&
+            {getDayJSLocale() === "zh-cn" &&
               children.searchFirstPY.propertyView({
                 label: trans("autoComplete.searchFirstPY"),
               })}
-            {getMomentLocale() === "zh-cn" &&
+            {getDayJSLocale() === "zh-cn" &&
               children.searchCompletePY.propertyView({
                 label: trans("autoComplete.searchCompletePY"),
               })}

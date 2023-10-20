@@ -125,7 +125,7 @@ let TmpDrawerComp = (function () {
             <Drawer
               resizable={resizable}
               onResizeStop={onResizeStop}
-              style={props.visible.value ? { overflow: "auto", pointerEvents: "auto" } : {}}
+              rootStyle={props.visible.value ? { overflow: "auto", pointerEvents: "auto" } : {}}
               contentWrapperStyle={{ maxHeight: "100%", maxWidth: "100%" }}
               bodyStyle={{ padding: 0, backgroundColor: props.style.background }}
               closable={false}

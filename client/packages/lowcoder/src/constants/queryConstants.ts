@@ -1,6 +1,7 @@
 import { JSQuery } from "../comps/queries/jsQuery";
 import { SQLQuery } from "../comps/queries/sqlQuery/SQLQuery";
 import { HttpQuery } from "../comps/queries/httpQuery/httpQuery";
+import { StreamQuery } from "../comps/queries/httpQuery/streamQuery";
 import { MongoQuery } from "../comps/queries/mongoQuery";
 import { LowcoderQuery } from "../comps/queries/lowcoderQuery";
 import { RedisQuery } from "../comps/queries/redisQuery";
@@ -18,6 +19,7 @@ export type DatasourceType =
   | "mysql"
   | "mongodb"
   | "restApi"
+  | "streamApi"
   | "postgres"
   | "lowcoderApi"
   | "redis"
@@ -37,6 +39,7 @@ export const QueryMap = {
   js: JSQuery,
   mysql: SQLQuery,
   restApi: HttpQuery,
+  streamApi: StreamQuery,
   mongodb: MongoQuery,
   postgres: SQLQuery,
   lowcoderApi: LowcoderQuery,

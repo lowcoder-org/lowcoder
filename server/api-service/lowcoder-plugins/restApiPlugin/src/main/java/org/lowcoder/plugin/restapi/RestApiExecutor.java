@@ -19,12 +19,47 @@
 
 package org.lowcoder.plugin.restapi;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.google.common.collect.ImmutableMap;
-import lombok.Builder;
-import lombok.Getter;
+import static com.google.common.base.MoreObjects.firstNonNull;
+import static org.apache.commons.collections4.MapUtils.emptyIfNull;
+import static org.apache.commons.lang3.StringUtils.trimToEmpty;
+import static org.lowcoder.plugin.restapi.RestApiError.REST_API_EXECUTION_ERROR;
+import static org.lowcoder.plugin.restapi.helpers.ContentTypeHelper.isBinary;
+import static org.lowcoder.plugin.restapi.helpers.ContentTypeHelper.isJson;
+import static org.lowcoder.plugin.restapi.helpers.ContentTypeHelper.isJsonContentType;
+import static org.lowcoder.plugin.restapi.helpers.ContentTypeHelper.isPicture;
+import static org.lowcoder.plugin.restapi.helpers.ContentTypeHelper.isValidContentType;
+import static org.lowcoder.plugin.restapi.helpers.ContentTypeHelper.parseContentType;
+import static org.lowcoder.sdk.exception.PluginCommonError.JSON_PARSE_ERROR;
+import static org.lowcoder.sdk.exception.PluginCommonError.QUERY_ARGUMENT_ERROR;
+import static org.lowcoder.sdk.exception.PluginCommonError.QUERY_EXECUTION_ERROR;
+import static org.lowcoder.sdk.plugin.restapi.DataUtils.convertToMultiformFileValue;
+import static org.lowcoder.sdk.plugin.restapi.auth.RestApiAuthType.DIGEST_AUTH;
+import static org.lowcoder.sdk.plugin.restapi.auth.RestApiAuthType.OAUTH2_INHERIT_FROM_LOGIN;
+import static org.lowcoder.sdk.util.ExceptionUtils.propagateError;
+import static org.lowcoder.sdk.util.JsonUtils.readTree;
+import static org.lowcoder.sdk.util.JsonUtils.toJsonThrows;
+import static org.lowcoder.sdk.util.MustacheHelper.renderMustacheJson;
+import static org.lowcoder.sdk.util.MustacheHelper.renderMustacheString;
+import static org.lowcoder.sdk.util.StreamUtils.collectList;
+
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import javax.annotation.Nullable;
+
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -51,41 +86,27 @@ import org.lowcoder.sdk.plugin.restapi.auth.RestApiAuthType;
 import org.lowcoder.sdk.query.QueryVisitorContext;
 import org.lowcoder.sdk.webclient.WebClientBuildHelper;
 import org.pf4j.Extension;
-import org.springframework.http.*;
+import org.springframework.http.HttpCookie;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.reactive.ClientHttpRequest;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.BodyInserter;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.common.collect.ImmutableMap;
+
+import lombok.Builder;
+import lombok.Getter;
 import reactor.core.publisher.Mono;
-
-import javax.annotation.Nullable;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.nio.charset.StandardCharsets;
-import java.text.ParseException;
-import java.util.*;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import static com.google.common.base.MoreObjects.firstNonNull;
-import static org.apache.commons.collections4.MapUtils.emptyIfNull;
-import static org.apache.commons.lang3.StringUtils.trimToEmpty;
-import static org.lowcoder.plugin.restapi.RestApiError.REST_API_EXECUTION_ERROR;
-import static org.lowcoder.plugin.restapi.helpers.ContentTypeHelper.*;
-import static org.lowcoder.sdk.exception.PluginCommonError.*;
-import static org.lowcoder.sdk.plugin.restapi.DataUtils.convertToMultiformFileValue;
-import static org.lowcoder.sdk.plugin.restapi.auth.RestApiAuthType.DIGEST_AUTH;
-import static org.lowcoder.sdk.plugin.restapi.auth.RestApiAuthType.OAUTH2_INHERIT_FROM_LOGIN;
-import static org.lowcoder.sdk.util.ExceptionUtils.propagateError;
-import static org.lowcoder.sdk.util.JsonUtils.readTree;
-import static org.lowcoder.sdk.util.JsonUtils.toJsonThrows;
-import static org.lowcoder.sdk.util.MustacheHelper.renderMustacheJson;
-import static org.lowcoder.sdk.util.MustacheHelper.renderMustacheString;
-import static org.lowcoder.sdk.util.StreamUtils.collectList;
 
 @Extension
 public class RestApiExecutor implements QueryExecutor<RestApiDatasourceConfig, Object, RestApiQueryExecutionContext> {
@@ -176,6 +197,7 @@ public class RestApiExecutor implements QueryExecutor<RestApiDatasourceConfig, O
                 .authConfig(datasourceConfig.getAuthConfig())
                 .sslConfig(datasourceConfig.getSslConfig())
                 .authTokenMono(queryVisitorContext.getAuthTokenMono())
+                .timeoutMs(queryConfig.getTimeoutMs())
                 .build();
     }
 
@@ -219,6 +241,7 @@ public class RestApiExecutor implements QueryExecutor<RestApiDatasourceConfig, O
                     WebClient.Builder webClientBuilder = WebClientBuildHelper.builder()
                             .disallowedHosts(commonConfig.getDisallowedHosts())
                             .sslConfig(context.getSslConfig())
+                            .timeoutMs(context.getTimeoutMs())
                             .toWebClientBuilder();
 
                     Map<String, String> allHeaders = context.getHeaders();
