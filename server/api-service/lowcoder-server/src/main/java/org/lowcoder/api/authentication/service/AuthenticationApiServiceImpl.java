@@ -41,6 +41,7 @@ import reactor.core.publisher.Mono;
 import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static org.lowcoder.sdk.exception.BizError.*;
@@ -239,12 +240,12 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
     }
 
     @Override
-    public Mono<Boolean> disableAuthConfig(String authId) {
+    public Mono<Boolean> disableAuthConfig(String authId, boolean delete) {
         return checkIfAdmin()
                 .then(checkIfOnlyEffectiveCurrentUserConnections(authId))
                 .then(sessionUserService.getVisitorOrgMemberCache())
                 .flatMap(orgMember -> organizationService.getById(orgMember.getOrgId()))
-                .doOnNext(organization -> disableAuthConfig(organization, authId))
+                .doOnNext(organization -> disableAuthConfig(organization, authId, delete))
                 .flatMap(organization -> organizationService.update(organization.getId(), organization))
                 .delayUntil(result -> {
                     if (result) {
@@ -309,13 +310,28 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
                 .then();
     }
 
-    private void disableAuthConfig(Organization organization, String authId) {
-        Optional.of(organization)
-                .map(Organization::getAuthConfigs)
-                .orElse(Collections.emptyList())
-                .stream()
-                .filter(abstractAuthConfig -> Objects.equals(abstractAuthConfig.getId(), authId))
-                .forEach(abstractAuthConfig -> abstractAuthConfig.setEnable(false));
+    private void disableAuthConfig(Organization organization, String authId, boolean delete) {
+
+        Predicate<AbstractAuthConfig> authConfigPredicate = abstractAuthConfig -> Objects.equals(abstractAuthConfig.getId(), authId);
+
+        if(delete) {
+            List<AbstractAuthConfig> abstractAuthConfigs = Optional.of(organization)
+                    .map(Organization::getAuthConfigs)
+                    .orElse(Collections.emptyList());
+
+            abstractAuthConfigs.removeIf(authConfigPredicate);
+
+            organization.getOrganizationDomain().setConfigs(abstractAuthConfigs);
+
+        } else {
+            Optional.of(organization)
+                    .map(Organization::getAuthConfigs)
+                    .orElse(Collections.emptyList()).stream()
+                    .filter(authConfigPredicate)
+                    .forEach(abstractAuthConfig -> {
+                        abstractAuthConfig.setEnable(false);
+                    });
+        }
     }
 
     /**
