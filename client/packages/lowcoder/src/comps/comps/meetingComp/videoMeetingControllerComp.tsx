@@ -296,26 +296,30 @@ let MTComp = (function () {
       }, [props.endCall.value]);
 
       useEffect(() => {
+        if (rtmMessages) {
+          dispatch(
+            changeChildAction("messages", getData(rtmMessages).data, false)
+          );
+        }
+      }, [rtmMessages]);
+
+      useEffect(() => {
         if (rtmChannelResponse) {
           rtmClient.on("MessageFromPeer", function (message, peerId) {
-            console.log("Message from: " + peerId + " Message: " + message.text);
-            setRtmMessages((messages: any) => [...messages, message.text]);
-            console.log("messages " + rtmMessages);
-            dispatch(
-              changeChildAction("messages", getData(rtmMessages).data, false)
+            console.log(
+              "Message from: " + peerId + " Message: " + message.text
             );
+            setRtmMessages(message.text);
           });
           rtmChannelResponse.on("ChannelMessage", function (message, memberId) {
             console.log("Message received from: " + memberId, message.text);
-            setRtmMessages((messages: any) => [...messages, message.text]);
+            setRtmMessages(message.text);
             dispatch(
               changeChildAction("messages", getData(rtmMessages).data, false)
             );
           });
         }
       }, [rtmChannelResponse]);
-
-      console.log("rtmMessages ", props.messages);
 
       useEffect(() => {
         client.on("user-joined", (user: IAgoraRTCRemoteUser) => {
@@ -539,21 +543,28 @@ MTComp = withMethodExposing(MTComp, [
       params: [],
     },
     execute: async (comp, values) => {
-      let message = {
-        time: new Date().getMilliseconds(),
-        from: comp.children.localUser.getView(),
-      };
-      console.log(values);
+      let otherData =
+        values != undefined && values[1] !== undefined ? values[1] : "";
+      let toUsers: any =
+        values != undefined && values[0] !== undefined ? values[0] : "";
 
-      if (values != undefined && values[0] !== undefined) {
-        let peers = values?.map((u: any) => u.user);
-        peers.forEach((p) => {
+      let message: any = {
+        time: Date.now(),
+        from: userId,
+      };
+      message["data"] = otherData;
+
+      console.log(toUsers);
+
+      if (toUsers.length > 0 && toUsers[0] !== undefined) {
+        let peers = toUsers?.map((u: any) => u.user);
+        console.log("peers", peers);
+        peers.forEach((p: any) => {
           sendPeerMessageRtm(message, String(p));
         });
       } else {
         sendMessageRtm(message);
       }
-      comp.children.messages.getView();
     },
   },
   {
