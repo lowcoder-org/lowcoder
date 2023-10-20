@@ -36,13 +36,13 @@ docker run -d --name lowcoder-dev -p 3000:3000 -v "$PWD/stacks:/lowcoder-stacks"
 
 ```bash
 cd client
-```bash
+```
    
 4. Run yarn to install dependencies: .
 
 ```bash
 yarn install
-```bash
+```
 
 5. Start dev server: `LOWCODER_API_SERVICE_URL=http://localhost:3000 yarn start`.
 6. After the dev server starts successfully, it will be automatically opened in the default browser.
