@@ -119,6 +119,7 @@ export type UICompType =
   | "signature"
   | "jsonLottie" //Added By Aqib Mirza
   | "timeline"
+  | "comment"
   | "mention"
   | "autocomplete"
   | "responsiveLayout";
