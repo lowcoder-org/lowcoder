@@ -3,6 +3,8 @@ import {
   AUTH_LOGIN_URL,
   AUTH_REGISTER_URL,
   OAUTH_REDIRECT,
+  ORG_AUTH_LOGIN_URL,
+  ORG_AUTH_REGISTER_URL,
 } from "constants/routesURL";
 import { InviteInfo } from "api/inviteApi";
 import Login, { ThirdPartyBindCard } from "pages/userAuth/login";
@@ -56,6 +58,7 @@ export type AuthSessionStoreParams = {
   afterLoginRedirect: string | null;
   sourceType: string;
   invitationId?: string;
+  invitedOrganizationId?: string;
   routeLink?: boolean;
   name: string;
   authId?: string;
@@ -65,13 +68,15 @@ export type AuthSessionStoreParams = {
  * action after third party auth
  * bind & innerBind has different redirect action
  */
-export type ThirdPartyAuthGoal = "login" | "bind" | "innerBind";
+export type ThirdPartyAuthGoal = "register" | "login" | "bind" | "innerBind";
 
 export const AuthRoutes: Array<{ path: string; component: React.ComponentType<any> }> = [
   { path: AUTH_LOGIN_URL, component: Login },
   { path: AUTH_BIND_URL, component: ThirdPartyBindCard },
   { path: AUTH_REGISTER_URL, component: UserRegister },
   { path: OAUTH_REDIRECT, component: AuthRedirect },
+  { path: ORG_AUTH_LOGIN_URL, component: Login },
+  { path: ORG_AUTH_REGISTER_URL, component: UserRegister },
 ];
 
 export type ServerAuthType = "GOOGLE" | "GITHUB" | "FORM";
