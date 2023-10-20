@@ -90,8 +90,8 @@ public class AuthenticationController {
     }
 
     @DeleteMapping("/config/{id}")
-    public Mono<ResponseView<Void>> disableAuthConfig(@PathVariable("id") String id) {
-        return authenticationApiService.disableAuthConfig(id)
+    public Mono<ResponseView<Void>> disableAuthConfig(@PathVariable("id") String id, @RequestParam(required = false) boolean delete) {
+        return authenticationApiService.disableAuthConfig(id, delete)
                 .thenReturn(ResponseView.success(null));
     }
 
