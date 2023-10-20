@@ -41,6 +41,7 @@ import { useUserViewMode } from "util/hooks";
 import { isNumeric } from "util/stringUtils";
 import { NameConfig, withExposingConfigs } from "../../generators/withExposing";
 
+import axios from "axios";
 import AgoraRTC, {
   ICameraVideoTrack,
   IMicrophoneAudioTrack,
@@ -109,6 +110,15 @@ let userId: UID | null | undefined;
 let rtmChannelResponse: RtmChannel;
 let rtmClient: RtmClient;
 
+const generateToken = async (
+  appId: any,
+  certificate: any,
+  channelName: any
+) => {
+  const agoraTokenUrl = `https://api.agora.io/v1/token?channelName=test&uid=${userId}&appID=${appId}&appCertificate=${certificate}`;
+  await axios.post(agoraTokenUrl);
+};
+
 const turnOnCamera = async (flag?: boolean) => {
   if (videoTrack) {
     return videoTrack.setEnabled(flag!);
@@ -164,7 +174,18 @@ const leaveChannel = async () => {
 
 const hostChanged = (users: any) => {};
 
-const publishVideo = async (appId: any, channel: any, height: any) => {
+const publishVideo = async (
+  appId: string,
+  channel: any,
+  height: any,
+  certifiCateKey: string
+) => {
+  // console.log(
+  //   "generateToken",
+  //   await generateToken(appId, certifiCateKey, channel)
+  // );
+
+  // return;
   await turnOnCamera(true);
   await client.join(appId, channel, null, userId);
   await client.publish(videoTrack);
@@ -254,6 +275,7 @@ export const meetingControllerChildren = {
   usersScreenShared: stateComp<JSONValue>([]),
   localUser: jsonObjectExposingStateControl(""),
   meetingName: stringExposingStateControl("meetingName"),
+  certifiCateKey: stringExposingStateControl(""),
   messages: stateComp<JSONValue>([]),
 };
 let MTComp = (function () {
@@ -414,6 +436,10 @@ let MTComp = (function () {
       <>
         <Section name={sectionNames.basic}>
           {children.appId.propertyView({ label: trans("meeting.appid") })}
+          {children.certifiCateKey.propertyView({
+            label: trans("meeting.certifiCateKey"),
+          })}
+
           {children.meetingName.propertyView({
             label: trans("meeting.meetingName"),
           })}
@@ -532,7 +558,8 @@ MTComp = withMethodExposing(MTComp, [
         comp.children.meetingName.getView().value == ""
           ? "_meetingId"
           : comp.children.meetingName.getView().value,
-        comp.children
+        comp.children,
+        comp.children.certifiCateKey.getView().value
       );
     },
   },

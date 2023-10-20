@@ -1464,6 +1464,7 @@ export const en = {
     height: "Drawer height",
     actionBtnDesc: "Action Button",
     broadCast: "BroadCast Messages",
+    certifiCateKey: "certifiCate Key",
     title: "Meeting title",
     meetingCompName: "Meeting Controller",
     videoCompName: "Video Stream",
