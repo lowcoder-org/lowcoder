@@ -28,7 +28,9 @@ export abstract class AbstractAuthenticator {
 
   doAuth() {
     const { authParams } = this;
-    authParams.authGoal === "login" ? this.doLogin() : this.doBind();
+    (authParams.authGoal === "login" || authParams.authGoal === "register")
+      ? this.doLogin()
+      : this.doBind();
   }
 
   protected doLogin() {

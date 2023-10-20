@@ -1,7 +1,7 @@
 package org.lowcoder.api.authentication;
 
-import com.fasterxml.jackson.annotation.JsonView;
-import lombok.extern.slf4j.Slf4j;
+import java.util.List;
+
 import org.lowcoder.api.authentication.dto.AuthConfigRequest;
 import org.lowcoder.api.authentication.service.AuthenticationApiService;
 import org.lowcoder.api.framework.view.ResponseView;
@@ -9,7 +9,6 @@ import org.lowcoder.api.home.SessionUserService;
 import org.lowcoder.api.usermanagement.UserController;
 import org.lowcoder.api.usermanagement.UserController.UpdatePasswordRequest;
 import org.lowcoder.api.util.BusinessEventPublisher;
-import org.lowcoder.domain.authentication.AuthenticationService;
 import org.lowcoder.domain.authentication.FindAuthConfig;
 import org.lowcoder.infra.constant.NewUrl;
 import org.lowcoder.sdk.auth.AbstractAuthConfig;
@@ -17,13 +16,20 @@ import org.lowcoder.sdk.config.SerializeConfig.JsonViews;
 import org.lowcoder.sdk.constants.AuthSourceConstants;
 import org.lowcoder.sdk.util.CookieHelper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ServerWebExchange;
+
+import com.fasterxml.jackson.annotation.JsonView;
+
 import reactor.core.publisher.Mono;
 
-import java.util.List;
-
-@Slf4j
 @RestController
 @RequestMapping(value = {NewUrl.CUSTOM_AUTH})
 public class AuthenticationController {
@@ -36,8 +42,6 @@ public class AuthenticationController {
     private CookieHelper cookieHelper;
     @Autowired
     private BusinessEventPublisher businessEventPublisher;
-    @Autowired
-    private AuthenticationService authenticationService;
 
     /**
      * login by email or phone with password; or register by email for now.

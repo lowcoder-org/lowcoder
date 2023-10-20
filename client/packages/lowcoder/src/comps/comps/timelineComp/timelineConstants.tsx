@@ -34,17 +34,17 @@ export const TimelineDataTooltip = (
 
 export const timelineDate=[
   {
-    title: "码匠发布",
+    title: "Majiang Releases",
     subTitle: "Majiang Published in China",
     label: "2022-6-10",
   },
   {
-    title: "openblocks开源",
+    title: "Openblocks public release",
     subTitle: "Openblocks open source in GitHub",
     label: "2022-11-28",
   },
   {
-    title: "最后一次提交代码",
+    title: "Last code submission",
     subTitle: "Openblocks project abandoned",
     dot: "ExclamationCircleOutlined",
     label: "2023-3-28",
@@ -54,10 +54,10 @@ export const timelineDate=[
     lableColor: "red",
   },
   {
-    title: "Lowcoder继续前行",
+    title: "Lowcoder 2.0",
     subTitle: "Lowcoder, keep moving forward",
     dot: "LogoutOutlined",
     color: "green",
-    label: "2023-4-26",
+    label: "2023-6-20",
   },
 ]
