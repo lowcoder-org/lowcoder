@@ -49,6 +49,7 @@
     "copy-to-clipboard": "^3.3.3",
     "core-js": "^3.25.2",
     "echarts": "^5.4.2",
+    "echarts-wordcloud": "^2.1.0",
     "eslint4b-prebuilt-2": "^7.32.0",
     "file-saver": "^2.0.5",
     "github-markdown-css": "^5.1.0",
