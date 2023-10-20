@@ -91,6 +91,11 @@ const QuickRestAPIValue: ResourceOptionValue = {
   type: "restApi",
 };
 
+const QuickStreamAPIValue: ResourceOptionValue = {
+  id: "",
+  type: "streamApi",
+};
+
 const QuickGraphqlValue: ResourceOptionValue = {
   id: QUICK_GRAPHQL_ID,
   type: "graphql",
@@ -251,6 +256,17 @@ export const ResourceDropdown = (props: ResourceDropdownProps) => {
           <SelectOptionContains>
             {getBottomResIcon("restApi")}
             <SelectOptionLabel>{trans("query.quickRestAPI")} </SelectOptionLabel>
+          </SelectOptionContains>
+        </SelectOption>
+
+        <SelectOption
+          key={JSON.stringify(QuickStreamAPIValue)}
+          label={trans("query.quickStreamAPI")}
+          value={JSON.stringify(QuickStreamAPIValue)}
+        >
+          <SelectOptionContains>
+            {getBottomResIcon("restApi")}
+            <SelectOptionLabel>{trans("query.quickStreamAPI")} </SelectOptionLabel>
           </SelectOptionContains>
         </SelectOption>
 

@@ -108,7 +108,7 @@ const TabContainer = styled.div`
     }
   }
 `;
-const Button = styled(TacoButton)`
+const RunButton = styled(TacoButton)`
   padding: 0 11px;
   flex: 0 0 64px;
   height: 24px;
@@ -130,6 +130,41 @@ const Button = styled(TacoButton)`
     content: "";
   }
 `;
+const DisconnectButton = styled(TacoButton)`
+  padding: 0 11px;
+  flex: 0 0 64px;
+  height: 24px;
+  border: none;
+  color: white;
+  border-color: #079968;
+  background-color: #079968;
+
+  :hover, :focus, :disabled, :disabled:hover {
+    padding: 0 11px;
+    border: none;
+    box-shadow: none;
+  }
+  
+  :disabled,
+  :disabled:hover {
+    background-color: #bbdecd !important;
+    border-color: #bbdecd;
+  }
+
+  :hover {
+    background-color: #07714e;
+    border-color: #07714e;
+  }
+
+  :focus {
+    background-color: #07714e;
+    border-color: #07714e;
+  }
+
+  :after {
+    content: "";
+  }
+`;
 const ButtonLabel = styled.span`
   font-weight: 500;
   font-size: 13px;
@@ -137,7 +172,7 @@ const ButtonLabel = styled.span`
   text-align: center;
   line-height: 24px;
 `;
-const Icon = styled(UnfoldWhiteIcon)`
+const RunIcon = styled(UnfoldWhiteIcon)`
   transform: rotate(-90deg);
   display: inline-block;
   padding-right: 2px;
@@ -165,6 +200,9 @@ export function BottomTabs<T extends TabsConfigType>(props: {
   status?: "" | "error";
   message?: string;
   runButtonText?: string;
+  isStreamQuery?: boolean;
+  isSocketConnected?: boolean;
+  disconnectSocket?: () => void;
 }) {
   const {
     type,
@@ -175,6 +213,9 @@ export function BottomTabs<T extends TabsConfigType>(props: {
     status,
     message,
     runButtonText = trans("bottomPanel.run"),
+    isStreamQuery = false,
+    isSocketConnected = false,
+    disconnectSocket,
   } = props;
   const [key, setKey] = useState<TabsConfigKeyType<typeof tabsConfig>>("general");
   const [error, setError] = useState<string | undefined>(undefined);
@@ -185,6 +226,31 @@ export function BottomTabs<T extends TabsConfigType>(props: {
   const valueInfoMap = _.fromPairs(tabsConfig.map((c) => [c.key, c]));
 
   useEffect(() => setKey("general"), [editorState.selectedBottomResName]);
+
+  const RunButtonWrapper = () => (
+    <RunButton
+      onClick={onRunBtnClick}
+      loading={btnLoading}
+      buttonType="primary"
+      disabled={readOnly}
+    >
+      <RunIcon />
+      <ButtonLabel>{runButtonText}</ButtonLabel>
+    </RunButton>
+  )
+
+  const DisconnectButtonWrapper = () => (
+    <DisconnectButton
+      onClick={disconnectSocket}
+      loading={btnLoading}
+      buttonType="normal"
+      disabled={readOnly}
+    >
+      <ButtonLabel>
+        {'Disconnect'}
+      </ButtonLabel>
+    </DisconnectButton>
+  )
 
   return (
     <>
@@ -220,16 +286,11 @@ export function BottomTabs<T extends TabsConfigType>(props: {
             hasError={!!error}
           />
         </div>
-        {onRunBtnClick && (
-          <Button
-            onClick={onRunBtnClick}
-            loading={btnLoading}
-            buttonType="primary"
-            disabled={readOnly}
-          >
-            <Icon />
-            <ButtonLabel>{runButtonText}</ButtonLabel>
-          </Button>
+        {!isSocketConnected && onRunBtnClick && (
+          <RunButtonWrapper />
+        )}
+        {isSocketConnected && onRunBtnClick && disconnectSocket &&  (
+          <DisconnectButtonWrapper /> 
         )}
       </TabContainer>
 
@@ -246,9 +307,9 @@ export function BottomTabs<T extends TabsConfigType>(props: {
 
 export const EmptyTab = (
   <TabContainer>
-    <Button disabled={true} style={{ marginLeft: "auto" }}>
-      <Icon></Icon>
+    <RunButton disabled={true} style={{ marginLeft: "auto" }}>
+      <RunIcon />
       <ButtonLabel>{trans("bottomPanel.run")}</ButtonLabel>
-    </Button>
+    </RunButton>
   </TabContainer>
 );

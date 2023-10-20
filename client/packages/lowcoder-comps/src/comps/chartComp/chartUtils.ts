@@ -6,11 +6,12 @@ import {
   noDataPieChartConfig,
 } from "comps/chartComp/chartConstants";
 import { getPieRadiusAndCenter } from "comps/chartComp/chartConfigs/pieChartConfig";
-import { EChartsOption } from "echarts";
+import { EChartsOptionWithMap } from "./reactEcharts/types";
 import _ from "lodash";
-import { chartColorPalette, isNumeric, JSONObject } from "lowcoder-sdk";
+import { chartColorPalette, isNumeric, JSONObject, loadScript } from "lowcoder-sdk";
 import { calcXYConfig } from "comps/chartComp/chartConfigs/cartesianAxisConfig";
 import Big from "big.js";
+import { googleMapsApiUrl } from "./chartConfigs/chartUrls";
 
 export function transformData(
   originData: JSONObject[],
@@ -122,9 +123,29 @@ export function getSeriesConfig(props: EchartsConfigProps) {
 }
 
 // https://echarts.apache.org/en/option.html
-export function getEchartsConfig(props: EchartsConfigProps, chartSize?: ChartSize): EChartsOption {
+export function getEchartsConfig(props: EchartsConfigProps, chartSize?: ChartSize): EChartsOptionWithMap {
   if (props.mode === "json") {
     return props.echartsOption ? props.echartsOption : {};
+  }
+  if(props.mode === "map") {
+    const {
+      mapZoomLevel,
+      mapCenterLat,
+      mapCenterLng,
+      mapOptions,  
+    } = props;
+  
+    const echartsOption = mapOptions ? mapOptions : {};
+    return {
+      gmap: {
+        center: [mapCenterLng, mapCenterLat],
+        zoom: mapZoomLevel,
+        renderOnMoving: true,
+        // echartsLayerZIndex: 2019,
+        roam: true
+      },
+      ...echartsOption,
+    }
   }
   // axisChart
   const axisChart = isAxisChart(props.chartConfig.type);
@@ -134,7 +155,7 @@ export function getEchartsConfig(props: EchartsConfigProps, chartSize?: ChartSiz
     top: 50,
     bottom: 35,
   };
-  let config: EChartsOption = {
+  let config: EChartsOptionWithMap = {
     title: { text: props.title, left: "center" },
     tooltip: {
       confine: true,
@@ -237,4 +258,22 @@ export function getSelectedPoints(param: any, option: any) {
     });
   }
   return [];
+}
+
+export function loadGoogleMapsScript(apiKey?: string) {
+  const mapsUrl = `${googleMapsApiUrl}?key=${apiKey}`;
+  const scripts = document.getElementsByTagName('script');
+  const scriptIndex = _.findIndex(scripts, (script) => script.src === mapsUrl);
+  if(scriptIndex > -1) {
+    return scripts[scriptIndex];
+  }
+
+  const script = document.createElement("script");
+  script.type = "text/javascript";
+  script.src = mapsUrl;
+  script.async = true;
+  script.defer = true;
+  window.document.body.appendChild(script);
+
+  return script;
 }

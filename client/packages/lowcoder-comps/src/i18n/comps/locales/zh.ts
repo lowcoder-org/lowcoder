@@ -56,6 +56,8 @@ export const zh = {
         echartsOptionLabel: "选项",
         echartsOptionTooltip: "ECharts选项",
         echartsOptionExamples: "ECharts示例",
+        echartsMapOptionTooltip: "ECharts地图选项",
+        echartsMapOptionExamples: "ECharts地图示例",
         selectDesc: "当用户选择图表中的部分数据时触发",
         unselectDesc: "当用户取消选择图表中的部分数据时触发",
         selectedPointsDesc: "已选中的数据点",

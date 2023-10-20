@@ -69,6 +69,7 @@ import { millisecondsControl } from "../controls/millisecondControl";
 import { paramsMillisecondsControl } from "../controls/paramsControl";
 import { NameConfig, withExposingConfigs } from "../generators/withExposing";
 import { HttpQuery } from "./httpQuery/httpQuery";
+import { StreamQuery } from "./httpQuery/streamQuery";
 import { QueryConfirmationModal } from "./queryComp/queryConfirmationModal";
 import { QueryNotificationControl } from "./queryComp/queryNotificationControl";
 import { QueryPropertyView } from "./queryComp/queryPropertyView";
@@ -419,6 +420,7 @@ QueryCompTmp = class extends QueryCompTmp {
           applicationPath: parentApplicationPath,
           args: action.args,
           timeout: this.children.timeout,
+          callback: (result) => this.processResult(result, action, startTime)
         });
       }, getTriggerType(this) === "manual")
       .then(
@@ -517,6 +519,7 @@ QueryCompTmp = class extends QueryCompTmp implements BottomResComp {
     switch (type) {
       case "js":
       case "restApi":
+      case "streamApi":
       case "mongodb":
       case "redis":
       case "es":
@@ -708,6 +711,9 @@ class QueryListComp extends QueryListTmpComp implements BottomResListComp {
         ],
       })
     );
+    if(toDelQuery.children.compType.getView() === 'streamApi') {
+      (toDelQuery.children.comp as StreamQuery)?.destroy();
+    }
     messageInstance.success(trans("query.deleteSuccessMessage", { undoKey }));
   }
 

@@ -7553,6 +7553,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"echarts-extension-gmap@npm:^1.6.0":
+  version: 1.6.0
+  resolution: "echarts-extension-gmap@npm:1.6.0"
+  checksum: 5bab07c7e739b81cf9c9c91b2d2db1101bab1f3b6bf649d6ebdf93fb4be0f9089058f934e4300a21a05dfb0cc0702214c48a5ec5fb34d7be19e419efbc317a61
+  languageName: node
+  linkType: hard
+
 "echarts@npm:^5.4.2":
   version: 5.4.2
   resolution: "echarts@npm:5.4.2"
@@ -11558,6 +11565,7 @@ __metadata:
     "@types/react": 17
     "@types/react-dom": 17
     big.js: ^6.2.1
+    echarts-extension-gmap: ^1.6.0
     jest: 29.3.0
     lowcoder-cli: "workspace:^"
     lowcoder-sdk: "workspace:^"
