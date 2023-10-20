@@ -57,6 +57,8 @@ export const en = {
     echartsOptionLabel: "Option",
     echartsOptionTooltip: "ECharts option",
     echartsOptionExamples: "ECharts examples",
+    echartsMapOptionTooltip: "ECharts Map Option",
+    echartsMapOptionExamples: "ECharts Map Examples",
     selectDesc: "Triggered when the user selects part of the data in the chart",
     unselectDesc: "Triggered when the user unselects part of the data in the chart",
     selectedPointsDesc: "Selected points",

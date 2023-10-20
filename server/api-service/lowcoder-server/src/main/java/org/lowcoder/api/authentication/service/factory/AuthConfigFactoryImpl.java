@@ -12,6 +12,8 @@ import org.apache.commons.collections4.MapUtils;
 import org.lowcoder.api.authentication.dto.AuthConfigRequest;
 import org.lowcoder.sdk.auth.AbstractAuthConfig;
 import org.lowcoder.sdk.auth.EmailAuthConfig;
+import org.lowcoder.sdk.auth.Oauth2KeycloakAuthConfig;
+import org.lowcoder.sdk.auth.Oauth2OryAuthConfig;
 import org.lowcoder.sdk.auth.Oauth2SimpleAuthConfig;
 import org.lowcoder.sdk.auth.constants.AuthTypeConstants;
 import org.springframework.stereotype.Component;
@@ -25,6 +27,8 @@ public class AuthConfigFactoryImpl implements AuthConfigFactory {
             case AuthTypeConstants.FORM -> buildEmailAuthConfig(authConfigRequest, enable);
             case AuthTypeConstants.GITHUB -> buildOauth2SimpleAuthConfig(GITHUB, GITHUB_NAME, authConfigRequest, enable);
             case AuthTypeConstants.GOOGLE -> buildOauth2SimpleAuthConfig(GOOGLE, GOOGLE_NAME, authConfigRequest, enable);
+            case AuthTypeConstants.ORY -> buildOauth2OryAuthConfig(authConfigRequest, enable);
+            case AuthTypeConstants.KEYCLOAK -> buildOauth2KeycloakAuthConfig(authConfigRequest, enable);
             default -> throw new UnsupportedOperationException(authConfigRequest.getAuthType());
         };
     }
@@ -34,7 +38,9 @@ public class AuthConfigFactoryImpl implements AuthConfigFactory {
         return Set.of(
                 AuthTypeConstants.FORM,
                 AuthTypeConstants.GITHUB,
-                AuthTypeConstants.GOOGLE
+                AuthTypeConstants.GOOGLE,
+                AuthTypeConstants.ORY,
+                AuthTypeConstants.KEYCLOAK
         );
     }
 
@@ -55,4 +61,32 @@ public class AuthConfigFactoryImpl implements AuthConfigFactory {
                 authConfigRequest.getClientSecret(),
                 authConfigRequest.getAuthType());
     }
+
+    private Oauth2SimpleAuthConfig buildOauth2OryAuthConfig(AuthConfigRequest authConfigRequest, boolean enable) {
+        return new Oauth2OryAuthConfig(
+                authConfigRequest.getId(),
+                enable,
+                authConfigRequest.isEnableRegister(),
+                AuthTypeConstants.ORY,
+                org.lowcoder.sdk.constants.AuthSourceConstants.ORY_NAME,
+                requireNonNull(authConfigRequest.getClientId(), "clientId can not be null."),
+                authConfigRequest.getClientSecret(),
+                authConfigRequest.getInstanceId(),
+                authConfigRequest.getAuthType());
+    }
+    
+    private Oauth2SimpleAuthConfig buildOauth2KeycloakAuthConfig(AuthConfigRequest authConfigRequest, boolean enable) {
+        return new Oauth2KeycloakAuthConfig(
+                authConfigRequest.getId(),
+                enable,
+                authConfigRequest.isEnableRegister(),
+                AuthTypeConstants.KEYCLOAK,
+                org.lowcoder.sdk.constants.AuthSourceConstants.KEYCLOAK_NAME,
+                requireNonNull(authConfigRequest.getClientId(), "clientId can not be null."),
+                authConfigRequest.getClientSecret(),
+                authConfigRequest.getInstanceId(),
+                authConfigRequest.getString("realm"),
+                authConfigRequest.getAuthType());
+    }
+    
 }

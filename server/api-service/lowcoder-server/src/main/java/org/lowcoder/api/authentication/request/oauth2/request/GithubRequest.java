@@ -59,6 +59,11 @@ public class GithubRequest extends AbstractOauth2Request<Oauth2SimpleAuthConfig>
                 });
     }
 
+    @Override
+    protected Mono<AuthToken> refreshAuthToken(String refreshToken) {
+        return Mono.empty();
+    }
+
     private Map<String, String> parseStringToMap(String s) {
         if (StringUtils.isBlank(s)) {
             return new HashMap<>();

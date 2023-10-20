@@ -891,7 +891,7 @@ export const SignatureStyle = [
   PADDING,
 ] as const;
 
-//Added by Aqib Mirza
+// Added by Aqib Mirza
 export const LottieStyle = [
   {
     name: "background",
@@ -904,7 +904,6 @@ export const LottieStyle = [
   PADDING,
 ] as const;
 /////////////////////
-
 export const CommentStyle = [
   {
     name: "background",
@@ -917,6 +916,17 @@ export const CommentStyle = [
   PADDING,
   RADIUS,
 ] as const
+export const ResponsiveLayoutRowStyle = [
+  ...BG_STATIC_BORDER_RADIUS,
+  MARGIN,	
+  PADDING,
+] as const;
+
+export const ResponsiveLayoutColStyle = [
+  ...BG_STATIC_BORDER_RADIUS,
+  MARGIN,	
+  PADDING,
+] as const;
 
 export const CarouselStyle = [getBackground("canvas")] as const;
 
@@ -956,47 +966,46 @@ export type CalendarStyleType = StyleConfigType<typeof CalendarStyle>;
 export type SignatureStyleType = StyleConfigType<typeof SignatureStyle>;
 export type CarouselStyleType = StyleConfigType<typeof CarouselStyle>;
 export type RichTextEditorStyleType = StyleConfigType<typeof RichTextEditorStyle>;
+export type ResponsiveLayoutRowStyleType = StyleConfigType<typeof ResponsiveLayoutRowStyle>;
+export type ResponsiveLayoutColStyleType = StyleConfigType<typeof ResponsiveLayoutColStyle>;
 
 export function widthCalculator(margin: string) {
-  const marginArr = margin?.trim().split(" ") || "";
+  const marginArr = margin?.trim().replace(/\s+/g,' ').split(" ") || "";
   if (marginArr.length === 1) {
     return `calc(100% - ${
-      parseInt(margin.replace(/[^\d.]/g, "")) * 2 + margin.replace(/[0-9]/g, "")
+      parseInt(margin.replace(/[^\d.]/g, "")) * 2 + 
+      (margin.replace(/[0-9]/g, "") || "px")
     })`;
   } else if (marginArr.length === 2 || marginArr.length === 3) {
     return `calc(100% - ${
       parseInt(marginArr[1].replace(/[^\d.]/g, "")) * 2 +
-      marginArr[1].replace(/[0-9]/g, "")
+      (marginArr[1].replace(/[0-9]/g, "") || 'px')
     })`;
   } else {
     return `calc(100% - ${
       parseInt(marginArr[1]?.replace(/[^\d.]/g, "") || "0") +
-      marginArr[1]?.replace(/[0-9]/g, "" || "px")
+      (marginArr[1]?.replace(/[0-9]/g, "") || "px")
     } - ${
       parseInt(marginArr[3]?.replace(/[^\d.]/g, "") || "0") +
-      marginArr[3]?.replace(/[0-9]/g, "" || "px")
+      (marginArr[3]?.replace(/[0-9]/g, "") || "px")
     })`;
   }
 }
 
 export function heightCalculator(margin: string) {
   const marginArr = margin?.trim().split(" ") || "";
-  if (marginArr.length === 1) {
+  if (marginArr.length === 1 || marginArr.length === 2) {
     return `calc(100% - ${
-      parseInt(margin.replace(/[^\d.]/g, "")) * 2 + margin.replace(/[0-9]/g, "")
+      parseInt(marginArr[0].replace(/[^\d.]/g, "")) * 2 + 
+      (marginArr[0].replace(/[0-9]/g, "") || 'px')
     })`;
-  } else if (marginArr.length === 2) {
-    return `calc(100% - ${
-      parseInt(marginArr[0].replace(/[^\d.]/g, "")) * 2 +
-      marginArr[0].replace(/[0-9]/g, "")
-    })`;
-  } else {
+  }else if(marginArr.length >2){
     return `calc(100% - ${
       parseInt(marginArr[0]?.replace(/[^\d.]/g, "") || "0") +
-        marginArr[0]?.replace(/[0-9]/g, "") || "px"
+      (marginArr[0]?.replace(/[0-9]/g, "") || "px")
     } - ${
       parseInt(marginArr[2]?.replace(/[^\d.]/g, "") || "0") +
-        marginArr[2]?.replace(/[0-9]/g, "") || "px"
+      (marginArr[2]?.replace(/[0-9]/g, "") || "px")
     })`;
   }
 }

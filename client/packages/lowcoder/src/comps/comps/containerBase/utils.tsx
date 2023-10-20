@@ -95,6 +95,7 @@ export function oldContainerParamsToNew(params: any): any {
       container: { layout: params.value.layout, items: params.value.items },
     };
     const newParams = { ...params, value: newValue };
+    // console.log("tempParams", newParams);
     // log.debug("params: ", params, "newParams: ", newParams);
     return newParams;
   }
