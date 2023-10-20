@@ -11827,6 +11827,7 @@ __metadata:
     "@types/react-dom": 17
     big.js: ^6.2.1
     echarts-extension-gmap: ^1.6.0
+    echarts-wordcloud: ^2.1.0
     jest: 29.3.0
     lowcoder-cli: "workspace:^"
     lowcoder-sdk: "workspace:^"

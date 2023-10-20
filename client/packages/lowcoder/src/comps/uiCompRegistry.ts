@@ -89,6 +89,7 @@ export type UICompType =
   | "progress"
   | "progressCircle"
   | "chart"
+  | "mermaid" //Added By Falk Wolsky
   | "fileViewer"
   | "divider"
   | "qrCode"
