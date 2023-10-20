@@ -166,6 +166,10 @@ public class BiRelationService {
         return biRelationRepository.findByBizTypeAndSourceIdAndRelation(bizType, sourceId, relation);
     }
 
+    public Mono<Long> countByRelation(BiRelationBizType bizType, String relation) {
+        return biRelationRepository.countByBizTypeAndRelation(bizType, relation);
+    }
+
     public Mono<Long> countBySourceId(BiRelationBizType bizType, String sourceId) {
         return biRelationRepository.countByBizTypeAndSourceId(bizType, sourceId);
     }

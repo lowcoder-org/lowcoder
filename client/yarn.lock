@@ -12,6 +12,40 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@agora-js/media@npm:^4.19.0":
+  version: 4.19.0
+  resolution: "@agora-js/media@npm:4.19.0"
+  dependencies:
+    "@agora-js/report": ^4.19.0
+    "@agora-js/shared": ^4.19.0
+    agora-rte-extension: ^1.2.3
+    axios: ^0.27.2
+    pako: ^2.1.0
+    webrtc-adapter: 8.2.0
+  checksum: c72485d9350376e8168dfcc205c2d5e19ea00c041a49404c4829cc520ab9216a842011467d23b542cff649447699852cb48563c675b2883c3a1ac3e68d27d78b
+  languageName: node
+  linkType: hard
+
+"@agora-js/report@npm:^4.19.0":
+  version: 4.19.0
+  resolution: "@agora-js/report@npm:4.19.0"
+  dependencies:
+    "@agora-js/shared": ^4.19.0
+    axios: ^0.27.2
+  checksum: 2624fcad0aecb89ad38a420e7135bbeeb33c46c4e56797211a54b01c32fcf4b4add818bbf5af9497e27bdb0cc62eb95fe607c53071b21c03a2b2345cb37adb80
+  languageName: node
+  linkType: hard
+
+"@agora-js/shared@npm:^4.19.0":
+  version: 4.19.0
+  resolution: "@agora-js/shared@npm:4.19.0"
+  dependencies:
+    axios: ^0.27.2
+    ua-parser-js: ^0.7.34
+  checksum: 215164c8456a81c614809cb351b4ea31ed939324d99ce3e80bedd1e7737488c1486dd65320641077473339c25cf5520e4406d47003ac6e5a88ee889270bae378
+  languageName: node
+  linkType: hard
+
 "@ampproject/remapping@npm:^2.2.0":
   version: 2.2.1
   resolution: "@ampproject/remapping@npm:2.2.1"
@@ -4813,6 +4847,46 @@ __metadata:
   languageName: node
   linkType: hard
 
+"agora-access-token@npm:^2.0.4":
+  version: 2.0.4
+  resolution: "agora-access-token@npm:2.0.4"
+  dependencies:
+    crc-32: 1.2.0
+    cuint: 0.2.2
+  checksum: 7d91fa01c4ba085f70b8bdac9d296f8a5d29d2dc5a1c5cd995d4fe7bfb557cc3c5223bb0417065e89c584c0dbfaa7ddfdb4b689b0b8fc2459e77ad9d4ff0d52a
+  languageName: node
+  linkType: hard
+
+"agora-rtc-sdk-ng@npm:^4.19.0":
+  version: 4.19.0
+  resolution: "agora-rtc-sdk-ng@npm:4.19.0"
+  dependencies:
+    "@agora-js/media": ^4.19.0
+    "@agora-js/report": ^4.19.0
+    "@agora-js/shared": ^4.19.0
+    agora-rte-extension: ^1.2.3
+    axios: ^0.27.2
+    formdata-polyfill: ^4.0.7
+    ua-parser-js: ^0.7.34
+    webrtc-adapter: 8.2.0
+  checksum: 495d16957dd7c12f0032dcc0a27d3d918ed20e4c869ea828e611dbc0130708231e483859cd51d64a7527e71078a7c7ed28d7924fb0dfe0be9a169b915ec1280a
+  languageName: node
+  linkType: hard
+
+"agora-rte-extension@npm:^1.2.3":
+  version: 1.2.3
+  resolution: "agora-rte-extension@npm:1.2.3"
+  checksum: 5b53a2f08720a17e7dac5dc35c3d4c539a5eabe9e20a4da2bf08c666072dc11e90cac6b92e2b1ccbd4516c70cf4934ddfe13d9863553e1e36949a7b138cde96a
+  languageName: node
+  linkType: hard
+
+"agora-rtm-sdk@npm:^1.5.1":
+  version: 1.5.1
+  resolution: "agora-rtm-sdk@npm:1.5.1"
+  checksum: b7518664df7c63a8910d400c48660301da2536bccb2f2d55dc8daa074a8441ceb62c7987e97fd447fd76da5fb5285d44fff03f4c2e78bca78890fa3d62981947
+  languageName: node
+  linkType: hard
+
 "ahooks-v3-count@npm:^1.0.0":
   version: 1.0.0
   resolution: "ahooks-v3-count@npm:1.0.0"
@@ -5398,6 +5472,16 @@ __metadata:
   dependencies:
     follow-redirects: ^1.14.0
   checksum: 44245f24ac971e7458f3120c92f9d66d1fc695e8b97019139de5b0cc65d9b8104647db01e5f46917728edfc0cfd88eb30fc4c55e6053eef4ace76768ce95ff3c
+  languageName: node
+  linkType: hard
+
+"axios@npm:^0.27.2":
+  version: 0.27.2
+  resolution: "axios@npm:0.27.2"
+  dependencies:
+    follow-redirects: ^1.14.9
+    form-data: ^4.0.0
+  checksum: 38cb7540465fe8c4102850c4368053c21683af85c5fdf0ea619f9628abbcb59415d1e22ebc8a6390d2bbc9b58a9806c874f139767389c862ec9b772235f06854
   languageName: node
   linkType: hard
 
@@ -6533,6 +6617,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"crc-32@npm:1.2.0":
+  version: 1.2.0
+  resolution: "crc-32@npm:1.2.0"
+  dependencies:
+    exit-on-epipe: ~1.0.1
+    printj: ~1.1.0
+  bin:
+    crc32: ./bin/crc32.njs
+  checksum: 7bcde8bea262f6629ac3c70e20bdfa3d058dc77091705ce8620513f76f19b41fc273ddd65a716eef9b4e33fbb61ff7f9b266653d214319aef27e4223789c6b9e
+  languageName: node
+  linkType: hard
+
 "crc-32@npm:~1.2.0, crc-32@npm:~1.2.1":
   version: 1.2.2
   resolution: "crc-32@npm:1.2.2"
@@ -6788,6 +6884,13 @@ __metadata:
   version: 3.1.2
   resolution: "csstype@npm:3.1.2"
   checksum: e1a52e6c25c1314d6beef5168da704ab29c5186b877c07d822bd0806717d9a265e8493a2e35ca7e68d0f5d472d43fac1cdce70fd79fd0853dff81f3028d857b5
+  languageName: node
+  linkType: hard
+
+"cuint@npm:0.2.2":
+  version: 0.2.2
+  resolution: "cuint@npm:0.2.2"
+  checksum: b8127a93a7f16ce120ffcb22108014327c9808b258ee20e7dbb4c6740d7cb0f0c12d18a054eb716b0f2470090666abaae8a082d3cd5ef0e94fa447dd155842c4
   languageName: node
   linkType: hard
 
@@ -8537,6 +8640,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"exit-on-epipe@npm:~1.0.1":
+  version: 1.0.1
+  resolution: "exit-on-epipe@npm:1.0.1"
+  checksum: e8ab4940416d19f311b3c9226e3725c6c4c6026fe682266ecc0ff33a455d585fe3e4ee757857c7bf1d0491b478cb232b8e395dfb438e65ac87317eda47304c32
+  languageName: node
+  linkType: hard
+
 "exit@npm:^0.1.2":
   version: 0.1.2
   resolution: "exit@npm:0.1.2"
@@ -8713,6 +8823,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"fetch-blob@npm:^3.1.2":
+  version: 3.2.0
+  resolution: "fetch-blob@npm:3.2.0"
+  dependencies:
+    node-domexception: ^1.0.0
+    web-streams-polyfill: ^3.0.3
+  checksum: f19bc28a2a0b9626e69fd7cf3a05798706db7f6c7548da657cbf5026a570945f5eeaedff52007ea35c8bcd3d237c58a20bf1543bc568ab2422411d762dd3d5bf
+  languageName: node
+  linkType: hard
+
 "file-entry-cache@npm:^6.0.1":
   version: 6.0.1
   resolution: "file-entry-cache@npm:6.0.1"
@@ -8813,6 +8933,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"follow-redirects@npm:^1.14.9":
+  version: 1.15.3
+  resolution: "follow-redirects@npm:1.15.3"
+  peerDependenciesMeta:
+    debug:
+      optional: true
+  checksum: 584da22ec5420c837bd096559ebfb8fe69d82512d5585004e36a3b4a6ef6d5905780e0c74508c7b72f907d1fa2b7bd339e613859e9c304d0dc96af2027fd0231
+  languageName: node
+  linkType: hard
+
 "for-each@npm:^0.3.3":
   version: 0.3.3
   resolution: "for-each@npm:0.3.3"
@@ -8855,6 +8985,15 @@ __metadata:
     combined-stream: ^1.0.6
     mime-types: ^2.1.12
   checksum: 10c1780fa13dbe1ff3100114c2ce1f9307f8be10b14bf16e103815356ff567b6be39d70fc4a40f8990b9660012dc24b0f5e1dde1b6426166eb23a445ba068ca3
+  languageName: node
+  linkType: hard
+
+"formdata-polyfill@npm:^4.0.7":
+  version: 4.0.10
+  resolution: "formdata-polyfill@npm:4.0.10"
+  dependencies:
+    fetch-blob: ^3.1.2
+  checksum: 82a34df292afadd82b43d4a740ce387bc08541e0a534358425193017bf9fb3567875dc5f69564984b1da979979b70703aa73dee715a17b6c229752ae736dd9db
   languageName: node
   linkType: hard
 
@@ -11837,6 +11976,9 @@ __metadata:
     "@types/regenerator-runtime": ^0.13.1
     "@types/uuid": ^8.3.4
     "@vitejs/plugin-react": ^2.2.0
+    agora-access-token: ^2.0.4
+    agora-rtc-sdk-ng: ^4.19.0
+    agora-rtm-sdk: ^1.5.1
     ali-oss: ^6.17.1
     antd: 5.7.2
     antd-img-crop: ^4.12.2
@@ -13038,6 +13180,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"node-domexception@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "node-domexception@npm:1.0.0"
+  checksum: ee1d37dd2a4eb26a8a92cd6b64dfc29caec72bff5e1ed9aba80c294f57a31ba4895a60fd48347cf17dd6e766da0ae87d75657dfd1f384ebfa60462c2283f5c7f
+  languageName: node
+  linkType: hard
+
 "node-fetch@npm:^2.6.11":
   version: 2.6.11
   resolution: "node-fetch@npm:2.6.11"
@@ -13484,6 +13633,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"pako@npm:^2.1.0":
+  version: 2.1.0
+  resolution: "pako@npm:2.1.0"
+  checksum: 71666548644c9a4d056bcaba849ca6fd7242c6cf1af0646d3346f3079a1c7f4a66ffec6f7369ee0dc88f61926c10d6ab05da3e1fca44b83551839e89edd75a3e
+  languageName: node
+  linkType: hard
+
 "papaparse@npm:^5.3.2":
   version: 5.4.1
   resolution: "papaparse@npm:5.4.1"
@@ -13803,6 +13959,15 @@ __metadata:
     ansi-styles: ^5.0.0
     react-is: ^18.0.0
   checksum: 4065356b558e6db25b4d41a01efb386935a6c06a0c9c104ef5ce59f2f476b8210edb8b3949b386e60ada0a6dc5ebcb2e6ccddc8c64dfd1a9943c3c3a9e7eaf89
+  languageName: node
+  linkType: hard
+
+"printj@npm:~1.1.0":
+  version: 1.1.2
+  resolution: "printj@npm:1.1.2"
+  bin:
+    printj: ./bin/printj.njs
+  checksum: 1c0c66844545415e339356ad62009cdc467819817b1e0341aba428087a1414d46b84089edb4e77ef24705829f8aae6349724b9c7bd89d8690302b2de7a89b315
   languageName: node
   linkType: hard
 
@@ -16469,6 +16634,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"sdp@npm:^3.0.2":
+  version: 3.2.0
+  resolution: "sdp@npm:3.2.0"
+  checksum: 227885bddab9a5845e56ae184ff51e43ec7bc155e7f1ed2f17ca1b012e6767011d5bd01b6c4064ded8e3b6f6bf3c9b26b2cf754b9c8662285988ed27b54f37b1
+  languageName: node
+  linkType: hard
+
 "semver@npm:^5.0.1, semver@npm:^5.6.0":
   version: 5.7.1
   resolution: "semver@npm:5.7.1"
@@ -17912,6 +18084,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"ua-parser-js@npm:^0.7.34":
+  version: 0.7.36
+  resolution: "ua-parser-js@npm:0.7.36"
+  checksum: 04e18e7f6bf4964a10d74131ea9784c7f01d0c2d3b96f73340ac0a1f8e83d010b99fd7d425e7a2100fa40c58b72f6201408cbf4baa2df1103637f96fb59f2a30
+  languageName: node
+  linkType: hard
+
 "ua-parser-js@npm:^1.0.33":
   version: 1.0.35
   resolution: "ua-parser-js@npm:1.0.35"
@@ -18641,6 +18820,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"web-streams-polyfill@npm:^3.0.3":
+  version: 3.2.1
+  resolution: "web-streams-polyfill@npm:3.2.1"
+  checksum: b119c78574b6d65935e35098c2afdcd752b84268e18746606af149e3c424e15621b6f1ff0b42b2676dc012fc4f0d313f964b41a4b5031e525faa03997457da02
+  languageName: node
+  linkType: hard
+
 "web-vitals@npm:^2.1.0":
   version: 2.1.4
   resolution: "web-vitals@npm:2.1.4"
@@ -18673,6 +18859,15 @@ __metadata:
   version: 7.0.0
   resolution: "webidl-conversions@npm:7.0.0"
   checksum: f05588567a2a76428515333eff87200fae6c83c3948a7482ebb109562971e77ef6dc49749afa58abb993391227c5697b3ecca52018793e0cb4620a48f10bd21b
+  languageName: node
+  linkType: hard
+
+"webrtc-adapter@npm:8.2.0":
+  version: 8.2.0
+  resolution: "webrtc-adapter@npm:8.2.0"
+  dependencies:
+    sdp: ^3.0.2
+  checksum: 67221eac0f01c35f32235b0b988ed27b7e850d03315050a4432f6dc2ff47b8e0535732dfbe5d9718f6a27d46eddc527ca1465e509ba628fdd4c968013fdacb86
   languageName: node
   linkType: hard
 
@@ -18829,9 +19024,9 @@ __metadata:
   linkType: hard
 
 "word-wrap@npm:^1.2.3, word-wrap@npm:~1.2.3":
-  version: 1.2.3
-  resolution: "word-wrap@npm:1.2.3"
-  checksum: 30b48f91fcf12106ed3186ae4fa86a6a1842416df425be7b60485de14bec665a54a68e4b5156647dec3a70f25e84d270ca8bc8cd23182ed095f5c7206a938c1f
+  version: 1.2.4
+  resolution: "word-wrap@npm:1.2.4"
+  checksum: 8f1f2e0a397c0e074ca225ba9f67baa23f99293bc064e31355d426ae91b8b3f6b5f6c1fc9ae5e9141178bb362d563f55e62fd8d5c31f2a77e3ade56cb3e35bd1
   languageName: node
   linkType: hard
 
