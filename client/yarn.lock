@@ -4767,6 +4767,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"agora-rtm-sdk@npm:^1.5.1":
+  version: 1.5.1
+  resolution: "agora-rtm-sdk@npm:1.5.1"
+  checksum: b7518664df7c63a8910d400c48660301da2536bccb2f2d55dc8daa074a8441ceb62c7987e97fd447fd76da5fb5285d44fff03f4c2e78bca78890fa3d62981947
+  languageName: node
+  linkType: hard
+
 "ahooks-v3-count@npm:^1.0.0":
   version: 1.0.0
   resolution: "ahooks-v3-count@npm:1.0.0"
@@ -11858,6 +11865,7 @@ __metadata:
     "@vitejs/plugin-react": ^2.2.0
     agora-access-token: ^2.0.4
     agora-rtc-sdk-ng: ^4.19.0
+    agora-rtm-sdk: ^1.5.1
     ali-oss: ^6.17.1
     antd: 5.7.2
     antd-img-crop: ^4.12.2

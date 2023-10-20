@@ -1,6 +1,0 @@
-{
-  "dependencies": {
-    "agora-rtm-sdk": "^1.5.1",
-    "uuid": "^9.0.1"
-  }
-}
