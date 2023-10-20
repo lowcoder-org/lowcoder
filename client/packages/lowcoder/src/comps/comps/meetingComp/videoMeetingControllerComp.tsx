@@ -41,6 +41,7 @@ import { useUserViewMode } from "util/hooks";
 import { isNumeric } from "util/stringUtils";
 import { NameConfig, withExposingConfigs } from "../../generators/withExposing";
 
+import axios from "axios";
 import AgoraRTC, {
   ICameraVideoTrack,
   IMicrophoneAudioTrack,
@@ -52,6 +53,7 @@ import AgoraRTC, {
 
 import { JSONValue } from "@lowcoder-ee/index.sdk";
 import { getData } from "../listViewComp/listViewUtils";
+import AgoraRTM, { RtmChannel, RtmClient, RtmMessage } from "agora-rtm-sdk";
 
 const EventOptions = [closeEvent] as const;
 
@@ -105,6 +107,17 @@ let audioTrack: IMicrophoneAudioTrack;
 let videoTrack: ICameraVideoTrack;
 let screenShareStream: ILocalVideoTrack;
 let userId: UID | null | undefined;
+let rtmChannelResponse: RtmChannel;
+let rtmClient: RtmClient;
+
+const generateToken = async (
+  appId: any,
+  certificate: any,
+  channelName: any
+) => {
+  const agoraTokenUrl = `https://api.agora.io/v1/token?channelName=test&uid=${userId}&appID=${appId}&appCertificate=${certificate}`;
+  await axios.post(agoraTokenUrl);
+};
 
 const turnOnCamera = async (flag?: boolean) => {
   if (videoTrack) {
@@ -119,8 +132,6 @@ const turnOnMicrophone = async (flag?: boolean) => {
     return audioTrack.setEnabled(flag!);
   }
   audioTrack = await AgoraRTC.createMicrophoneAudioTrack();
-  // audioTrack.play();
-
   if (!flag) {
     await client.unpublish(audioTrack);
   } else {
@@ -141,7 +152,7 @@ const shareScreen = async (sharing: boolean) => {
         "disable"
       );
       await client.unpublish(videoTrack);
-      screenShareStream.play(userId + "");
+      screenShareStream.play("share-screen");
       await client.publish(screenShareStream);
     }
   } catch (error) {
@@ -158,14 +169,28 @@ const leaveChannel = async () => {
     await turnOnMicrophone(false);
   }
   await client.leave();
+  await rtmChannelResponse.leave();
 };
 
 const hostChanged = (users: any) => {};
 
-const publishVideo = async (appId: any, channel: any, height: any) => {
+const publishVideo = async (
+  appId: string,
+  channel: any,
+  height: any,
+  certifiCateKey: string
+) => {
+  // console.log(
+  //   "generateToken",
+  //   await generateToken(appId, certifiCateKey, channel)
+  // );
+
+  // return;
   await turnOnCamera(true);
   await client.join(appId, channel, null, userId);
   await client.publish(videoTrack);
+
+  await rtmInit(appId, userId, channel);
 
   const mediaStreamTrack = videoTrack.getMediaStreamTrack();
   if (mediaStreamTrack) {
@@ -175,6 +200,57 @@ const publishVideo = async (appId: any, channel: any, height: any) => {
     height.videoWidth.change(videoWidth);
     height.videoHeight.change(videoHeight);
   }
+};
+
+const sendMessageRtm = (message: any) => {
+  rtmChannelResponse
+    .sendMessage({ text: JSON.stringify(message) })
+    .then(() => {
+      console.log("message sent " + JSON.stringify(message));
+    })
+    .catch((e: any) => {
+      console.log("error", e);
+    });
+};
+
+const sendPeerMessageRtm = (message: any, toId: string) => {
+  rtmClient
+    .sendMessageToPeer({ text: JSON.stringify(message) }, toId)
+    .then(() => {
+      console.log("message sent " + JSON.stringify(message));
+    })
+    .catch((e: any) => {
+      console.log("error", e);
+    });
+};
+
+const rtmInit = async (appId: any, uid: any, channel: any) => {
+  rtmClient = AgoraRTM.createInstance(appId);
+  let options = {
+    uid: String(uid),
+  };
+  await rtmClient.login(options);
+
+  rtmClient.on("ConnectionStateChanged", function (state, reason) {
+    console.log("State changed To: " + state + " Reason: " + reason);
+  });
+
+  rtmChannelResponse = rtmClient.createChannel(channel);
+
+  await rtmChannelResponse.join().then(async () => {
+    console.log(
+      "You have successfully joined channel " + rtmChannelResponse.channelId
+    );
+  });
+
+  // Display channel member stats
+  rtmChannelResponse.on("MemberJoined", function (memberId) {
+    console.log(memberId + " joined the channel");
+  });
+  // Display channel member stats
+  rtmChannelResponse.on("MemberLeft", function (memberId) {
+    console.log(memberId + " left the channel");
+  });
 };
 
 export const meetingControllerChildren = {
@@ -199,6 +275,8 @@ export const meetingControllerChildren = {
   usersScreenShared: stateComp<JSONValue>([]),
   localUser: jsonObjectExposingStateControl(""),
   meetingName: stringExposingStateControl("meetingName"),
+  certifiCateKey: stringExposingStateControl(""),
+  messages: stateComp<JSONValue>([]),
 };
 let MTComp = (function () {
   return new ContainerCompBuilder(
@@ -222,6 +300,7 @@ let MTComp = (function () {
         [dispatch, isTopBom]
       );
       const [userIds, setUserIds] = useState<any>([]);
+      const [rtmMessages, setRtmMessages] = useState<any>([]);
 
       useEffect(() => {
         dispatch(
@@ -237,6 +316,32 @@ let MTComp = (function () {
           );
         }
       }, [props.endCall.value]);
+
+      useEffect(() => {
+        if (rtmMessages) {
+          dispatch(
+            changeChildAction("messages", getData(rtmMessages).data, false)
+          );
+        }
+      }, [rtmMessages]);
+
+      useEffect(() => {
+        if (rtmChannelResponse) {
+          rtmClient.on("MessageFromPeer", function (message, peerId) {
+            console.log(
+              "Message from: " + peerId + " Message: " + message.text
+            );
+            setRtmMessages(message.text);
+          });
+          rtmChannelResponse.on("ChannelMessage", function (message, memberId) {
+            console.log("Message received from: " + memberId, message.text);
+            setRtmMessages(message.text);
+            dispatch(
+              changeChildAction("messages", getData(rtmMessages).data, false)
+            );
+          });
+        }
+      }, [rtmChannelResponse]);
 
       useEffect(() => {
         client.on("user-joined", (user: IAgoraRTCRemoteUser) => {
@@ -331,6 +436,10 @@ let MTComp = (function () {
       <>
         <Section name={sectionNames.basic}>
           {children.appId.propertyView({ label: trans("meeting.appid") })}
+          {children.certifiCateKey.propertyView({
+            label: trans("meeting.certifiCateKey"),
+          })}
+
           {children.meetingName.propertyView({
             label: trans("meeting.meetingName"),
           })}
@@ -429,7 +538,6 @@ MTComp = withMethodExposing(MTComp, [
       } else {
         await turnOnCamera(value);
       }
-
       comp.children.videoControl.change(value);
     },
   },
@@ -450,8 +558,40 @@ MTComp = withMethodExposing(MTComp, [
         comp.children.meetingName.getView().value == ""
           ? "_meetingId"
           : comp.children.meetingName.getView().value,
-        comp.children
+        comp.children,
+        comp.children.certifiCateKey.getView().value
       );
+    },
+  },
+  {
+    method: {
+      name: "broadCast",
+      description: trans("meeting.broadCast"),
+      params: [],
+    },
+    execute: async (comp, values) => {
+      let otherData =
+        values != undefined && values[1] !== undefined ? values[1] : "";
+      let toUsers: any =
+        values != undefined && values[0] !== undefined ? values[0] : "";
+
+      let message: any = {
+        time: Date.now(),
+        from: userId,
+      };
+      message["data"] = otherData;
+
+      console.log(toUsers);
+
+      if (toUsers.length > 0 && toUsers[0] !== undefined) {
+        let peers = toUsers?.map((u: any) => u.user);
+        console.log("peers", peers);
+        peers.forEach((p: any) => {
+          sendPeerMessageRtm(message, String(p));
+        });
+      } else {
+        sendMessageRtm(message);
+      }
     },
   },
   {
@@ -484,8 +624,5 @@ export const VideoMeetingControllerComp = withExposingConfigs(MTComp, [
   new NameConfig("localUser", trans("meeting.host")),
   new NameConfig("participants", trans("meeting.participants")),
   new NameConfig("meetingName", trans("meeting.meetingName")),
+  new NameConfig("messages", trans("meeting.meetingName")),
 ]);
-
-export function agoraClient() {
-  return client;
-}

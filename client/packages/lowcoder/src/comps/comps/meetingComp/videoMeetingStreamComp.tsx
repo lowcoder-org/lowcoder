@@ -28,9 +28,7 @@ import { RefControl } from "comps/controls/refControl";
 import { useEffect, useRef, useState } from "react";
 
 import { AutoHeightControl } from "comps/controls/autoHeightControl";
-import {
-  client,
-} from "./videoMeetingControllerComp";
+import { client } from "./videoMeetingControllerComp";
 
 import { IAgoraRTCRemoteUser } from "agora-rtc-sdk-ng";
 
@@ -60,7 +58,7 @@ const Container = styled.div<{ $style: any }>`
   display: flex;
   align-items: center;
   justify-content: center;
-`; 
+`;
 const VideoContainer = styled.video<{ $style: any }>`
   height: 100%;
   width: 100%;
@@ -154,6 +152,7 @@ const typeOptions = [
 
 export const meetingStreamChildren = {
   autoHeight: withDefault(AutoHeightControl, "fixed"),
+  shareScreen: withDefault(BoolCodeControl, false),
   type: dropdownControl(typeOptions, ""),
   onEvent: MeetingEventHandlerControl,
   disabled: BoolCodeControl,
@@ -246,8 +245,6 @@ let VideoCompBuilder = (function (props) {
       }
     }, [props.userId.value]);
 
-    
-
     return (
       <EditorContext.Consumer>
         {(editorState) => (
@@ -257,7 +254,7 @@ let VideoCompBuilder = (function (props) {
                 onClick={() => props.onEvent("videoClicked")}
                 ref={videoRef}
                 $style={props.style}
-                id={userId}
+                id={props.shareScreen ? "share-screen" : userId}
               ></VideoContainer>
             </Container>
           </ReactResizeDetector>
@@ -270,6 +267,9 @@ let VideoCompBuilder = (function (props) {
         <Section name={sectionNames.basic}>
           {children.userId.propertyView({ label: trans("meeting.videoId") })}
           {children.autoHeight.getPropertyView()}
+          {children.shareScreen.propertyView({
+            label: trans("meeting.shareScreen"),
+          })}
         </Section>
         <Section name={sectionNames.interaction}>
           {children.onEvent.getPropertyView()}
