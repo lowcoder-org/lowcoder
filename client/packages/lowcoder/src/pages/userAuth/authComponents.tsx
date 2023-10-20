@@ -32,7 +32,7 @@ const AuthCard = styled.div`
   }
 `;
 
-const AuthCardTitle = styled.div<{ type?: string }>`
+const AuthCardHeading = styled.div<{ type?: string }>`
   font-weight: 600;
   font-size: 28px;
   color: #222222;
@@ -50,6 +50,12 @@ const AuthCardTitle = styled.div<{ type?: string }>`
     ${(props) => props.type === "large" && "margin-top: 32px"}
   }
 `;
+
+const AuthCardSubHeading = styled.div`
+  font-size: 14px;
+  color: #222222;
+  line-height: 14px;
+`
 
 const AuthBottom = styled.div`
   display: flex;
@@ -116,10 +122,24 @@ const StyledConfirmButton = styled(TacoButton)`
   transition: unset;
 `;
 
-export const AuthContainer = (props: { children: any; title?: string; type?: string }) => {
+export const AuthContainer = (props: {
+  children: any;
+  heading?: string;
+  subHeading?: string;
+  type?: string
+}) => {
   return (
     <AuthCardContainer>
-      <AuthCardTitle type={props.type}>{props.title || ""}</AuthCardTitle>
+      <AuthCardHeading
+        type={props.type}
+      >
+        {props.heading || ""}
+      </AuthCardHeading>
+      { props.subHeading && (
+        <AuthCardSubHeading>
+          {props.subHeading}
+        </AuthCardSubHeading>
+      )}
       <AuthCard>{props.children}</AuthCard>
     </AuthCardContainer>
   );
@@ -158,6 +178,7 @@ export const ConfirmButton = (props: {
 const TermsAndPrivacyContent = styled.div`
   display: flex;
   align-items: center;
+  margin-top: 16px;
 
   font-size: 13px;
   color: #333333;
@@ -199,10 +220,23 @@ export const LoginLogoStyle = styled.img`
   margin-right: 8px;
   width: 32px;
   height: 32px;
+  position: absolute;
+  left: 6px;
 `;
 
-export const StyledLoginButton = styled.button`
-  padding: 0;
+export const LoginLabelStyle = styled.p`
+  font-size: 16px;
+  color: #333333;
+  line-height: 16px;
+  margin: 0px;
+`;
+
+export const StyledLoginButton = styled(TacoButton)`
+  position: relative;
+  height: 48px;
+  border: 1px solid lightgray !important;
+  border-radius: 8px;
+  padding: 8px;
   white-space: nowrap;
   word-break: keep-all;
   outline: 0;

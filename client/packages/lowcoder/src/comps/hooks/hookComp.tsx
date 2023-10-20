@@ -13,7 +13,11 @@ import {
 import { hookToStateComp, simpleValueComp } from "comps/generators/hookToComp";
 import { withSimpleExposing } from "comps/generators/withExposing";
 import { DrawerComp } from "comps/hooks/drawerComp";
-import { HookCompConstructor, HookCompMapRawType, HookCompType } from "comps/hooks/hookCompTypes";
+import {
+  HookCompConstructor,
+  HookCompMapRawType,
+  HookCompType,
+} from "comps/hooks/hookCompTypes";
 import { ModalComp } from "comps/hooks/modalComp";
 import { trans } from "i18n";
 import _ from "lodash";
@@ -28,6 +32,7 @@ import { MessageComp } from "./messageComp";
 import { ThemeComp } from "./themeComp";
 import UrlParamsHookComp from "./UrlParamsHookComp";
 import { UtilsComp } from "./utilsComp";
+import { VideoMeetingControllerComp } from "../comps/meetingComp/videoMeetingControllerComp";
 
 window._ = _;
 window.dayjs = dayjs;
@@ -85,11 +90,12 @@ const HookMap: HookCompMapRawType = {
   currentTime: CurrentTimeHookComp,
   lodashJsLib: LodashJsLib,
   dayJsLib: DayJsLib,
-  momentJsLib: DayJsLib,  // old components use this hook
+  momentJsLib: DayJsLib, // old components use this hook
   utils: UtilsComp,
   message: MessageComp,
   localStorage: LocalStorageComp,
   modal: ModalComp,
+  meeting: VideoMeetingControllerComp,
   currentUser: CurrentUserHookComp,
   urlParams: UrlParamsHookComp,
   drawer: DrawerComp,
@@ -111,9 +117,12 @@ function SelectHookView(props: {
   // Select the modal and its subcomponents on the left to display the modal
   useEffect(() => {
     if (
-      (props.compType !== "modal" && props.compType !== "drawer") ||
+      (props.compType !== "modal" &&
+        props.compType !== "drawer" &&
+        props.compType !== "meeting") ||
       !selectedComp ||
-      (editorState.selectSource !== "addComp" && editorState.selectSource !== "leftPanel")
+      (editorState.selectSource !== "addComp" &&
+        editorState.selectSource !== "leftPanel")
     ) {
       return;
     } else if ((selectedComp as any).children.comp === props.comp) {
@@ -125,7 +134,9 @@ function SelectHookView(props: {
     } else {
       // all child components of modal
       const allChildComp = getAllCompItems((props.comp as any).getCompTree());
-      const selectChildComp = Object.values(allChildComp).find((child) => child === selectedComp);
+      const selectChildComp = Object.values(allChildComp).find(
+        (child) => child === selectedComp
+      );
       const visible = props.comp.children.visible.getView().value;
       if (selectChildComp && !visible) {
         props.comp.children.visible.dispatch(
@@ -140,7 +151,11 @@ function SelectHookView(props: {
   }, [selectedComp, editorState.selectSource]);
 
   return (
-    <div onClick={() => editorState.setSelectedCompNames(new Set([props.compName]))}>
+    <div
+      onClick={() =>
+        editorState.setSelectedCompNames(new Set([props.compName]))
+      }
+    >
       {props.children}
     </div>
   );

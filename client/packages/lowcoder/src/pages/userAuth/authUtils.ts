@@ -23,7 +23,7 @@ import {
 } from "constants/authConstants";
 
 export const AuthContext = createContext<{
-  systemConfig: SystemConfig;
+  systemConfig?: SystemConfig;
   inviteInfo?: AuthInviteInfo;
   thirdPartyAuthError?: boolean;
 }>(undefined as any);
@@ -125,7 +125,8 @@ export const geneAuthStateAndSaveParam = (
   authGoal: ThirdPartyAuthGoal,
   config: ThirdPartyConfigType,
   afterLoginRedirect: string | null,
-  invitationId?: string
+  invitationId?: string,
+  invitedOrganizationId?: string,
 ) => {
   const state = Math.floor(Math.random() * 0xffffffff).toString(16);
   const params: AuthSessionStoreParams = {
@@ -135,6 +136,7 @@ export const geneAuthStateAndSaveParam = (
     afterLoginRedirect: afterLoginRedirect || null,
     sourceType: config.sourceType,
     invitationId: invitationId,
+    invitedOrganizationId: invitedOrganizationId,
     routeLink: config.routeLink,
     name: config.name,
     authId: config.id,

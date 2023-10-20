@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableReactiveMethodSecurity;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
@@ -66,27 +67,24 @@ public class SecurityConfig {
     AuthRequestFactory<AuthRequestContext> authRequestFactory;
 
     @Bean
-    public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
+    SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
 
     	if (!commonConfig.getSecurity().getForbiddenEndpoints().isEmpty())
     	{
-    		http.authorizeExchange()
-	    		.matchers(
-		        		commonConfig.getSecurity().getForbiddenEndpoints().stream()
+    		http.authorizeExchange(customizer -> customizer
+	    		.matchers(commonConfig.getSecurity().getForbiddenEndpoints().stream()
 		        		.map(apiEndpoint -> ServerWebExchangeMatchers.pathMatchers(apiEndpoint.getMethod(), apiEndpoint.getUri()))
 		        		.toArray(size -> new ServerWebExchangeMatcher[size])
-				).denyAll();    		
+				).denyAll()
+	    	);
     	}
     	
-    	http.cors()
-                .configurationSource(buildCorsConfigurationSource())
-                .and()
-                .csrf().disable()
-                .anonymous().principal(createAnonymousUser())
-                .and()
-                .httpBasic()
-                .and()
-                .authorizeExchange()
+    	http
+    		.cors(cors -> cors.configurationSource(buildCorsConfigurationSource()))
+            .csrf(csrf -> csrf.disable())
+            .anonymous(anonymous -> anonymous.principal(createAnonymousUser()))
+            .httpBasic(Customizer.withDefaults())
+            .authorizeExchange(customizer -> customizer
                 .matchers(
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, CUSTOM_AUTH + "/otp/send"), // sms verification
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, CUSTOM_AUTH + "/phone/login"),
@@ -134,19 +132,21 @@ public class SecurityConfig {
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, NewUrl.DATASOURCE_URL + "/jsDatasourcePlugins"),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, "/api/docs/**")
                 )
-                .permitAll()
+                	.permitAll()
                 .pathMatchers("/api/**")
-                .authenticated()
+                	.authenticated()
                 .pathMatchers("/test/**")
-                .authenticated()
+                	.authenticated()
                 .pathMatchers("/**")
-                .permitAll()
+                	.permitAll()
                 .anyExchange()
-                .authenticated();
+                	.authenticated()
+        );
 
-        http.exceptionHandling()
+        http.exceptionHandling(customizer -> customizer
                 .authenticationEntryPoint(serverAuthenticationEntryPoint)
-                .accessDeniedHandler(accessDeniedHandler);
+                .accessDeniedHandler(accessDeniedHandler)
+        );
 
         http.addFilterBefore(new UserSessionPersistenceFilter(sessionUserService, cookieHelper, authenticationService, authenticationApiService, authRequestFactory), SecurityWebFiltersOrder.AUTHENTICATION);
 
