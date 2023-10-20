@@ -26,6 +26,8 @@ public interface BiRelationRepository extends ReactiveMongoRepository<BiRelation
 
     Flux<BiRelation> findByBizTypeAndSourceIdAndRelation(BiRelationBizType bizType, String sourceId, String relation);
 
+    Mono<Long> countByBizTypeAndRelation(BiRelationBizType bizType, String relation);
+
     Mono<Long> countByBizTypeAndSourceId(BiRelationBizType bizType, String sourceId);
 
     Mono<Long> countByBizTypeAndTargetId(BiRelationBizType bizType, String targetId);
