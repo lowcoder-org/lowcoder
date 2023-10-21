@@ -3,15 +3,18 @@ package org.lowcoder.domain.user.model;
 import static com.google.common.base.Suppliers.memoize;
 import static org.lowcoder.infra.util.AssetUtils.toAssetPath;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Supplier;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.commons.collections4.SetUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.lowcoder.domain.mongodb.AfterMongodbRead;
+import org.lowcoder.domain.mongodb.BeforeMongodbWrite;
+import org.lowcoder.domain.mongodb.MongodbInterceptorContext;
+import org.lowcoder.sdk.config.SerializeConfig;
 import org.lowcoder.sdk.models.HasIdAndAuditing;
+import org.lowcoder.sdk.util.JsonUtils;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -29,7 +32,7 @@ import lombok.ToString;
 @ToString
 @Document
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class User extends HasIdAndAuditing {
+public class User extends HasIdAndAuditing implements BeforeMongodbWrite, AfterMongodbRead {
 
     private static final OrgTransformedUserInfo EMPTY_TRANSFORMED_USER_INFO = new OrgTransformedUserInfo();
 
@@ -51,6 +54,16 @@ public class User extends HasIdAndAuditing {
     Boolean isAnonymous = false;
 
     private Set<Connection> connections;
+
+    @Setter
+    @Getter
+    @Transient
+    private List<APIKey> apiKeysList = new ArrayList<>();
+
+    /**
+     * Only used for mongodb (de)serialization
+     */
+    private List<Object> apiKeys = new ArrayList<>();
 
     @Transient
     @JsonIgnore
@@ -108,5 +121,19 @@ public class User extends HasIdAndAuditing {
         SetUtils.emptyIfNull(this.getConnections())
                 .forEach(connection -> connection.setSource(
                         connection.getSource() + "(User deleted at " + System.currentTimeMillis() / 1000 + ")"));
+    }
+
+    @Override
+    public void beforeMongodbWrite(MongodbInterceptorContext context) {
+        this.apiKeysList.forEach(apiKey -> apiKey.doEncrypt(s -> context.encryptionService().encryptString(s)));
+        apiKeys = JsonUtils.fromJsonSafely(JsonUtils.toJsonSafely(apiKeysList, SerializeConfig.JsonViews.Internal.class), new TypeReference<>() {
+        }, new ArrayList<>());
+    }
+
+    @Override
+    public void afterMongodbRead(MongodbInterceptorContext context) {
+        this.apiKeysList = JsonUtils.fromJsonSafely(JsonUtils.toJson(apiKeys), new TypeReference<>() {
+        }, new ArrayList<>());
+        this.apiKeysList.forEach(authConfig -> authConfig.doDecrypt(s -> context.encryptionService().decryptString(s)));
     }
 }
