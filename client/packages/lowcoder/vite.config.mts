@@ -22,7 +22,9 @@ const isEEGlobal = edition === "enterprise-global";
 const isEE = edition === "enterprise" || isEEGlobal;
 const isDev = nodeEnv === "development";
 const isVisualizerEnabled = !!process.env.ENABLE_VISUALIZER;
-const browserCheckFileName = `browser-check-${process.env.REACT_APP_COMMIT_ID}.js`;
+// the file was never created
+// const browserCheckFileName = `browser-check-${process.env.REACT_APP_COMMIT_ID}.js`;
+const browserCheckFileName = `browser-check.js`;
 const base = ensureLastSlash(process.env.PUBLIC_URL);
 
 if (!apiProxyTarget && isDev) {
