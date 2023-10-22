@@ -59,7 +59,12 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         Mono<FindAuthConfig> emailAuthConfigMono = orgMemberService.doesAtleastOneAdminExist()
                 .map(doesAtleastOneAdminExist -> {
-                    boolean shouldEnableRegister = !doesAtleastOneAdminExist && authProperties.getEmail().isEnableRegister();
+                    boolean shouldEnableRegister;
+                    if(doesAtleastOneAdminExist) {
+                        shouldEnableRegister = authProperties.getEmail().getEnableRegister();
+                    } else {
+                        shouldEnableRegister = Boolean.TRUE;
+                    }
                     return new FindAuthConfig
                             (new EmailAuthConfig(AuthSourceConstants.EMAIL, authProperties.getEmail().isEnable(), shouldEnableRegister), null);
                 });
