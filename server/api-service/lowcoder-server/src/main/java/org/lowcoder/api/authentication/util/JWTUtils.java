@@ -5,16 +5,19 @@ import io.jsonwebtoken.JwtParser;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import jakarta.annotation.PostConstruct;
-import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.lowcoder.domain.user.model.User;
 import org.lowcoder.sdk.config.AuthProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.web.server.ServerWebExchange;
+
 import java.util.Random;
 
 import java.util.Date;
 
 @Component
+@Slf4j(topic = "JWTUtils")
 public class JWTUtils {
 
     @Autowired
@@ -43,13 +46,18 @@ public class JWTUtils {
                 .compact();
     }
 
-    private Claims parseJwtClaims(String token) {
-        return jwtParser.parseClaimsJws(token).getBody();
+    public Claims parseJwtClaims(String token) {
+        try {
+            return jwtParser.parseClaimsJws(token).getBody();
+        } catch (Exception e) {
+            log.warn("Failed to validate token. Exception: ", e);
+            return null;
+        }
     }
 
-    public String resolveToken(HttpServletRequest request) {
+    public String resolveToken(ServerWebExchange exchange) {
 
-        String bearerToken = request.getHeader(TOKEN_HEADER);
+        String bearerToken = exchange.getRequest().getHeaders().getFirst(TOKEN_HEADER);
         if (bearerToken != null && bearerToken.startsWith(TOKEN_PREFIX)) {
             return bearerToken.substring(TOKEN_PREFIX.length());
         }
