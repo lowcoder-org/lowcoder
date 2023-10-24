@@ -3,6 +3,8 @@ package org.lowcoder.api.framework.security;
 
 import org.lowcoder.api.authentication.request.AuthRequestFactory;
 import org.lowcoder.api.authentication.service.AuthenticationApiServiceImpl;
+import org.lowcoder.api.authentication.util.JWTUtils;
+import org.lowcoder.api.framework.filter.APIKeyAuthFilter;
 import org.lowcoder.api.framework.filter.UserSessionPersistenceFilter;
 import org.lowcoder.api.home.SessionUserService;
 import org.lowcoder.domain.authentication.AuthenticationService;
@@ -65,6 +67,9 @@ public class SecurityConfig {
 
     @Autowired
     AuthRequestFactory<AuthRequestContext> authRequestFactory;
+
+    @Autowired
+    JWTUtils jwtUtils;
 
     @Bean
     SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
@@ -149,6 +154,7 @@ public class SecurityConfig {
         );
 
         http.addFilterBefore(new UserSessionPersistenceFilter(sessionUserService, cookieHelper, authenticationService, authenticationApiService, authRequestFactory), SecurityWebFiltersOrder.AUTHENTICATION);
+        http.addFilterBefore(new APIKeyAuthFilter(sessionUserService, cookieHelper, jwtUtils), SecurityWebFiltersOrder.AUTHENTICATION);
 
         return http.build();
     }

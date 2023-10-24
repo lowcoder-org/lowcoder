@@ -107,9 +107,9 @@ public abstract class SqlBasedConnector<T extends SqlBasedDatasourceConnectionCo
             invalids.add("HOST_WITH_COLON");
         }
 
-        if (StringUtils.equalsIgnoreCase(host, "localhost") || StringUtils.equals(host, "127.0.0.1")) {
-            invalids.add("INVALID_HOST");
-        }
+//        if (StringUtils.equalsIgnoreCase(host, "localhost") || StringUtils.equals(host, "127.0.0.1")) {
+//            invalids.add("INVALID_HOST");
+//        }
 
         if (StringUtils.isBlank(connectionConfig.getDatabase())) {
             invalids.add("DATABASE_NAME_EMPTY");

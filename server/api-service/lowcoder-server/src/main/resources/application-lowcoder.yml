@@ -56,6 +56,8 @@ springdoc:
   paths-to-exclude: /api/v1/**
 
 auth:
+  api-key:
+    secret: 123456789101112131415123456789101112131415123456789101112131415123456789101112131415
   email:
     enable: true
     enable-register: false
