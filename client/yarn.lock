@@ -7799,13 +7799,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"echarts@npm:^5.4.2":
-  version: 5.4.2
-  resolution: "echarts@npm:5.4.2"
+"echarts@npm:^5.4.3":
+  version: 5.4.3
+  resolution: "echarts@npm:5.4.3"
   dependencies:
     tslib: 2.3.0
-    zrender: 5.4.3
-  checksum: 933c28dada362314f7c7a5fd4243b44b24f75adb233f7c87541ac9a81734cb380a9683c3f56c8e559dacfddd363879e95a96f0047e33820123cd8f5b95b60f8f
+    zrender: 5.4.4
+  checksum: f4f69becf1cf8f546f9488ffa3bffaa971dcfbd49f5d635f288cbc8c5177839154bd6c325d6ed72c2b822c89c9bba4947ac73400614fd23c6f2f7ace3c939132
   languageName: node
   linkType: hard
 
@@ -12024,7 +12024,7 @@ __metadata:
     copy-to-clipboard: ^3.3.3
     core-js: ^3.25.2
     dotenv: ^16.0.3
-    echarts: ^5.4.2
+    echarts: ^5.4.3
     echarts-wordcloud: ^2.1.0
     eslint: ^8.0.0
     eslint-config-react-app: ^7.0.1
@@ -19327,12 +19327,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"zrender@npm:5.4.3":
-  version: 5.4.3
-  resolution: "zrender@npm:5.4.3"
+"zrender@npm:5.4.4":
+  version: 5.4.4
+  resolution: "zrender@npm:5.4.4"
   dependencies:
     tslib: 2.3.0
-  checksum: ae89584fbe4256217e500a74183fd5870a2bed7e7b3234cd78fcbc0a1a82da8449596b2019105927069531b567ecf94425fb171abd6cedcbf517e52fdf438722
+  checksum: 4b317346af8eca38e62ba029239c3a13e97eac4fa15b3ddadbae23442d8b373f0e937c255dee8080d6bb2fc79c9da54f1106415586ed8942bd8bc684b3890ea9
   languageName: node
   linkType: hard
 
