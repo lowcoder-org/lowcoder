@@ -1,0 +1,68 @@
+{
+  "name": "lowcoder-comps",
+  "version": "0.0.14",
+  "type": "module",
+  "license": "MIT",
+  "dependencies": {
+    "@fullcalendar/core": "^6.1.6",
+    "@fullcalendar/daygrid": "^6.1.6",
+    "@fullcalendar/interaction": "^6.1.6",
+    "@fullcalendar/list": "^6.1.6",
+    "@fullcalendar/moment": "^6.1.6",
+    "@fullcalendar/react": "^6.1.6",
+    "@fullcalendar/timegrid": "^6.1.6",
+    "@types/react": "17",
+    "@types/react-dom": "17",
+    "big.js": "^6.2.1",
+    "echarts-extension-gmap": "^1.6.0",
+    "lowcoder-cli": "workspace:^",
+    "lowcoder-sdk": "workspace:^",
+    "mermaid": "^10.2.4",
+    "react": "17",
+    "react-dom": "17",
+    "typescript": "4.8.4"
+  },
+  "lowcoder": {
+    "description": "",
+    "comps": {
+      "chart": {
+        "name": "Chart",
+        "icon": "./icons/icon-chart.svg",
+        "layoutInfo": {
+          "w": 11,
+          "h": 35
+        }
+      },
+      "imageEditor": {
+        "name": "Image Editor",
+        "icon": "./icons/icon-chart.svg",
+        "layoutInfo": {
+          "w": 15,
+          "h": 60
+        }
+      },
+      "calendar": {
+        "name": "Calendar",
+        "icon": "./icons/icon-comp-calendar.svg",
+        "layoutInfo": {
+          "w": 15,
+          "h": 60
+        }
+      }
+    },
+    "entry": "index.js"
+  },
+  "scripts": {
+    "start": "vite",
+    "build": "yarn test && lowcoder-cli build",
+    "build_only": "lowcoder-cli build",
+    "build_publish": "lowcoder-cli build --publish",
+    "test": "jest"
+  },
+  "devDependencies": {
+    "jest": "29.3.0",
+    "jest-canvas-mock": "^2.5.2",
+    "vite": "^4.3.9",
+    "vite-tsconfig-paths": "^3.6.0"
+  }
+}
