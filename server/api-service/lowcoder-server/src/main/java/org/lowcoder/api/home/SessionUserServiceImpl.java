@@ -8,6 +8,7 @@ import static org.lowcoder.sdk.util.JsonUtils.fromJsonQuietly;
 import java.time.Duration;
 import java.util.Objects;
 
+import io.jsonwebtoken.Claims;
 import org.apache.commons.lang3.StringUtils;
 import org.lowcoder.api.usermanagement.UserApiService;
 import org.lowcoder.domain.organization.model.OrgMember;
@@ -137,6 +138,17 @@ public class SessionUserServiceImpl implements SessionUserService {
                     return userService.findById(user.getId());
                 })
                 .filter(user -> user.getState() != UserState.DELETED);
+    }
+
+    @Override
+    public Mono<User> resolveSessionUserForJWT(Claims claims, String token) {
+        String userId = claims.get("userId").toString();
+        return userService.findById(userId)
+                .filter(user -> user.getState() != UserState.DELETED)
+                .filter(user -> {
+                    long apiKeyFound = user.getApiKeysList().stream().filter(apiKey -> apiKey.getToken().equals(token)).count();
+                    return apiKeyFound > 0;
+                });
     }
 
     @Override

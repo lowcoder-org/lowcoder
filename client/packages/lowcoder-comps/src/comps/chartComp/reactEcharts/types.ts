@@ -69,4 +69,8 @@ export type EChartsReactProps = {
    * should update echarts options
    */
   readonly shouldSetOption?: (prevProps: EChartsReactProps, props: EChartsReactProps) => boolean;
+  /** 
+   * echarts mode: ui | json | map 
+  */
+  readonly mode?: 'ui' | 'json' | 'map'
 };

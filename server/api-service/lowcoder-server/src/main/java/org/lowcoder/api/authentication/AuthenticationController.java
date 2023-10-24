@@ -2,14 +2,17 @@ package org.lowcoder.api.authentication;
 
 import java.util.List;
 
+import org.lowcoder.api.authentication.dto.APIKeyRequest;
 import org.lowcoder.api.authentication.dto.AuthConfigRequest;
 import org.lowcoder.api.authentication.service.AuthenticationApiService;
 import org.lowcoder.api.framework.view.ResponseView;
 import org.lowcoder.api.home.SessionUserService;
 import org.lowcoder.api.usermanagement.UserController;
 import org.lowcoder.api.usermanagement.UserController.UpdatePasswordRequest;
+import org.lowcoder.api.usermanagement.view.APIKeyVO;
 import org.lowcoder.api.util.BusinessEventPublisher;
 import org.lowcoder.domain.authentication.FindAuthConfig;
+import org.lowcoder.domain.user.model.APIKey;
 import org.lowcoder.infra.constant.NewUrl;
 import org.lowcoder.sdk.auth.AbstractAuthConfig;
 import org.lowcoder.sdk.config.SerializeConfig.JsonViews;
@@ -100,6 +103,26 @@ public class AuthenticationController {
     public Mono<ResponseView<List<AbstractAuthConfig>>> getAllConfigs() {
         return authenticationApiService.findAuthConfigs(false)
                 .map(FindAuthConfig::authConfig)
+                .collectList()
+                .map(ResponseView::success);
+    }
+
+    // ----------- API Key Management ----------------
+    @PostMapping("/api-key")
+    public Mono<ResponseView<APIKeyVO>> createAPIKey(@RequestBody APIKeyRequest apiKeyRequest) {
+        return authenticationApiService.createAPIKey(apiKeyRequest)
+                .map(ResponseView::success);
+    }
+
+    @DeleteMapping("/api-key/{id}")
+    public Mono<ResponseView<Void>> deleteAPIKey(@PathVariable("id") String id) {
+        return authenticationApiService.deleteAPIKey(id)
+                .thenReturn(ResponseView.success(null));
+    }
+
+    @GetMapping("/api-keys")
+    public Mono<ResponseView<List<APIKey>>> getAllAPIKeys() {
+        return authenticationApiService.findAPIKeys()
                 .collectList()
                 .map(ResponseView::success);
     }

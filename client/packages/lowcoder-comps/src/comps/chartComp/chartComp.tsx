@@ -23,6 +23,7 @@ import {
   UICompBuilder,
   withDefault,
   withExposingConfigs,
+  withMethodExposing,
   withViewFn,
   ThemeContext,
   chartColorPalette,
@@ -55,12 +56,14 @@ ChartTmpComp = withViewFn(ChartTmpComp, (comp) => {
     color: chartColorPalette,
     backgroundColor: "#fff",
   };
+
   let themeConfig = defaultChartTheme;
   try {
     themeConfig = theme?.theme.chart ? JSON.parse(theme?.theme.chart) : defaultChartTheme;
   } catch (error) {
     log.error('theme chart error: ', error);
   }
+
   const onEvent = comp.children.onEvent.getView();
   useEffect(() => {
     // bind events
@@ -68,8 +71,8 @@ ChartTmpComp = withViewFn(ChartTmpComp, (comp) => {
     if (!echartsCompInstance) {
       return _.noop;
     }
-    echartsCompInstance.on("selectchanged", (param: any) => {
-      const option: any = echartsCompInstance.getOption();
+    echartsCompInstance?.on("selectchanged", (param: any) => {
+      const option: any = echartsCompInstance?.getOption();
       //log.log("chart select change", param);
       if (param.fromAction === "select") {
         comp.dispatch(changeChildAction("selectedPoints", getSelectedPoints(param, option)));
@@ -80,7 +83,7 @@ ChartTmpComp = withViewFn(ChartTmpComp, (comp) => {
       }
     });
     // unbind
-    return () => echartsCompInstance.off("selectchanged");
+    return () => echartsCompInstance?.off("selectchanged");
   }, [onEvent]);
 
   const echartsConfigChildren = _.omit(comp.children, echartsConfigOmitChildren);
@@ -96,27 +99,34 @@ ChartTmpComp = withViewFn(ChartTmpComp, (comp) => {
   }, [mapScriptLoaded])
 
   const loadGoogleMapsData = () => {
-    const echartsCompInstance = echartsCompRef?.current?.getEchartsInstance();
-    if (!echartsCompInstance) {
-      return _.noop;
-    }
-    echartsCompInstance.getModel().getComponent("gmap").getGoogleMap();
+    setTimeout(() => {
+      setMapScriptLoaded(true);
+      const echartsCompInstance = echartsCompRef?.current?.getEchartsInstance();
+      if (!echartsCompInstance) {
+        return _.noop;
+      }
+
+      const mapInstance = echartsCompInstance?.getModel()?.getComponent("gmap")?.getGoogleMap();
+      comp.dispatch(changeChildAction("mapInstance", mapInstance));
+    }, 500)
   }
 
   const apiKey = comp.children.mapApiKey.getView();
   const mode = comp.children.mode.getView();
   useEffect(() => {
-    if(mode === 'map') {
-      const gMapScript = loadGoogleMapsScript('');
-      if(isMapScriptLoaded) {
-        loadGoogleMapsData();
-        return;
-      }
-      gMapScript.addEventListener('load', function () {
-        setMapScriptLoaded(true);
-        loadGoogleMapsData();
-      });
+    if( mode !== 'map') {
+      comp.dispatch(changeChildAction("mapInstance", undefined));
+      return;
     }
+
+    const gMapScript = loadGoogleMapsScript(apiKey);
+    if(isMapScriptLoaded) {
+      loadGoogleMapsData();
+      return;
+    }
+    gMapScript.addEventListener('load', function () {
+      loadGoogleMapsData();
+    });
   }, [mode, apiKey, option])
 
   return (
@@ -142,6 +152,7 @@ ChartTmpComp = withViewFn(ChartTmpComp, (comp) => {
           opts={{ locale: getEchartsLocale() }}
           option={option}
           theme={mode !== 'map' ? themeConfig : undefined}
+          mode={mode}
         />
       )}
     </ReactResizeDetector>
@@ -241,7 +252,7 @@ ChartTmpComp = class extends ChartTmpComp {
   }
 };
 
-const ChartComp = withExposingConfigs(ChartTmpComp, [
+let ChartComp = withExposingConfigs(ChartTmpComp, [
   depsConfig({
     name: "selectedPoints",
     desc: trans("chart.selectedPointsDesc"),
@@ -265,6 +276,20 @@ const ChartComp = withExposingConfigs(ChartTmpComp, [
   }),
   new NameConfig("title", trans("chart.titleDesc")),
 ]);
+
+ChartComp = withMethodExposing(ChartTmpComp, [
+  {
+    method: {
+      name: "getMapInstance",
+    },
+    execute: (comp) => {
+      return new Promise((resolve) => {
+        console.log(comp.children.mapInstance.getView())
+        resolve(comp.children.mapInstance.getView())
+      })
+    },
+  },
+])
 
 export const ChartCompWithDefault = withDefault(ChartComp, {
   xAxisKey: "date",

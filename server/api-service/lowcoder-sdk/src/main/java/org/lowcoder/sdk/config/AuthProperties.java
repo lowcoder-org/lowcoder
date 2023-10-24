@@ -27,6 +27,7 @@ public class AuthProperties {
     private Email email = new Email();
     private Oauth2Simple google = new Oauth2Simple();
     private Oauth2Simple github = new Oauth2Simple();
+    private ApiKey apiKey = new ApiKey();
 
     @Getter
     @Setter
@@ -51,6 +52,12 @@ public class AuthProperties {
     public static class Oauth2Simple extends AuthWay {
         private String clientId;
         private String clientSecret;
+    }
+
+    @Setter
+    @Getter
+    public static class ApiKey {
+        private String secret;
     }
 
     /**
