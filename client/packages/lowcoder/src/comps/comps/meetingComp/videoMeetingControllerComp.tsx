@@ -103,6 +103,8 @@ export const client: IAgoraRTCClient = AgoraRTC.createClient({
   mode: "rtc",
   codec: "vp8",
 });
+AgoraRTC.setLogLevel(3);
+
 let audioTrack: IMicrophoneAudioTrack;
 let videoTrack: ICameraVideoTrack;
 let screenShareStream: ILocalVideoTrack;
@@ -115,8 +117,13 @@ const generateToken = async (
   certificate: any,
   channelName: any
 ) => {
-  const agoraTokenUrl = `https://api.agora.io/v1/token?channelName=test&uid=${userId}&appID=${appId}&appCertificate=${certificate}`;
-  await axios.post(agoraTokenUrl);
+  const agoraTokenUrl = `https://sandbox.wiggolive.com/token/rtc`;
+  let response = await axios.post(agoraTokenUrl, {
+    appId,
+    certificate,
+    channelName,
+  });
+  return response.data;
 };
 
 const turnOnCamera = async (flag?: boolean) => {
@@ -180,14 +187,13 @@ const publishVideo = async (
   height: any,
   certifiCateKey: string
 ) => {
-  // console.log(
-  //   "generateToken",
-  //   await generateToken(appId, certifiCateKey, channel)
-  // );
-
-  // return;
+  console.log(appId, certifiCateKey, channel);
+  let token = null;
+  if (certifiCateKey) {
+    token = await generateToken(appId, certifiCateKey, channel);
+  }
   await turnOnCamera(true);
-  await client.join(appId, channel, null, userId);
+  await client.join(appId, channel, token, userId);
   await client.publish(videoTrack);
 
   await rtmInit(appId, userId, channel);
@@ -580,8 +586,6 @@ MTComp = withMethodExposing(MTComp, [
         from: userId,
       };
       message["data"] = otherData;
-
-      console.log(toUsers);
 
       if (toUsers.length > 0 && toUsers[0] !== undefined) {
         let peers = toUsers?.map((u: any) => u.user);
