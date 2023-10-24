@@ -1,5 +1,6 @@
 package org.lowcoder.api.home;
 
+import io.jsonwebtoken.Claims;
 import org.lowcoder.domain.organization.model.OrgMember;
 import org.lowcoder.domain.user.model.User;
 import org.lowcoder.infra.annotation.NonEmptyMono;
@@ -28,6 +29,8 @@ public interface SessionUserService {
     Mono<Void> removeUserSession(String sessionId);
 
     Mono<User> resolveSessionUserFromCookie(String token);
+
+    Mono<User> resolveSessionUserForJWT(Claims claims, String token);
 
     Mono<Boolean> tokenExist(String token);
 }

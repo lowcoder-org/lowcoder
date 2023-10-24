@@ -6331,7 +6331,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"color-name@npm:~1.1.4":
+"color-name@npm:^1.1.4, color-name@npm:~1.1.4":
   version: 1.1.4
   resolution: "color-name@npm:1.1.4"
   checksum: b0445859521eb4021cd0fb0cc1a75cecf67fceecae89b63f62b201cca8d345baf8b952c966862a9d9a2632987d4f6581f0ec8d957dfacece86f0a7919316f610
@@ -6836,6 +6836,13 @@ __metadata:
   version: 1.5.1
   resolution: "css.escape@npm:1.5.1"
   checksum: f6d38088d870a961794a2580b2b2af1027731bb43261cfdce14f19238a88664b351cc8978abc20f06cc6bbde725699dec8deb6fe9816b139fc3f2af28719e774
+  languageName: node
+  linkType: hard
+
+"cssfontparser@npm:^1.2.1":
+  version: 1.2.1
+  resolution: "cssfontparser@npm:1.2.1"
+  checksum: 952d487cddab591fb944f2a4c326a7736bc963784a6d92b6ad4051f3bf5ee49a732eff62e29a52ff085197cb07f5bd66525a2245ded7fd356113ac81be9238b9
   languageName: node
   linkType: hard
 
@@ -7792,13 +7799,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"echarts@npm:^5.4.2":
-  version: 5.4.2
-  resolution: "echarts@npm:5.4.2"
+"echarts@npm:^5.4.3":
+  version: 5.4.3
+  resolution: "echarts@npm:5.4.3"
   dependencies:
     tslib: 2.3.0
-    zrender: 5.4.3
-  checksum: 933c28dada362314f7c7a5fd4243b44b24f75adb233f7c87541ac9a81734cb380a9683c3f56c8e559dacfddd363879e95a96f0047e33820123cd8f5b95b60f8f
+    zrender: 5.4.4
+  checksum: f4f69becf1cf8f546f9488ffa3bffaa971dcfbd49f5d635f288cbc8c5177839154bd6c325d6ed72c2b822c89c9bba4947ac73400614fd23c6f2f7ace3c939132
   languageName: node
   linkType: hard
 
@@ -10546,6 +10553,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"jest-canvas-mock@npm:^2.5.2":
+  version: 2.5.2
+  resolution: "jest-canvas-mock@npm:2.5.2"
+  dependencies:
+    cssfontparser: ^1.2.1
+    moo-color: ^1.0.2
+  checksum: a3004d2e96473049045e49dcf98e5ea6011494048ab42b5422b3089d9ff406aaca8353e79587055d840fa145541668eb8f78613765f252ad5901a8217e91ea5d
+  languageName: node
+  linkType: hard
+
 "jest-changed-files@npm:^29.5.0":
   version: 29.5.0
   resolution: "jest-changed-files@npm:29.5.0"
@@ -11836,6 +11853,7 @@ __metadata:
     echarts-extension-gmap: ^1.6.0
     echarts-wordcloud: ^2.1.0
     jest: 29.3.0
+    jest-canvas-mock: ^2.5.2
     lowcoder-cli: "workspace:^"
     lowcoder-sdk: "workspace:^"
     mermaid: ^10.2.4
@@ -12006,7 +12024,7 @@ __metadata:
     copy-to-clipboard: ^3.3.3
     core-js: ^3.25.2
     dotenv: ^16.0.3
-    echarts: ^5.4.2
+    echarts: ^5.4.3
     echarts-wordcloud: ^2.1.0
     eslint: ^8.0.0
     eslint-config-react-app: ^7.0.1
@@ -13057,6 +13075,15 @@ __metadata:
   version: 2.29.2
   resolution: "moment@npm:2.29.2"
   checksum: ee850b5776485e2af0775ceb3cfebaa7d7638f0a750fe0678fcae24c310749f96c1938808384bd422a55e5703834a71fcb09c8a1d36d9cf847f6ed0205d7a3e5
+  languageName: node
+  linkType: hard
+
+"moo-color@npm:^1.0.2":
+  version: 1.0.3
+  resolution: "moo-color@npm:1.0.3"
+  dependencies:
+    color-name: ^1.1.4
+  checksum: 02bf59b6bbd5e86641bc062e2dc0843e6e579e18ef67e1c8e93bfc01945df578f20e66ce16aa9632db2aa0e16806e0914a26eb345a804f45fff1ae12a8906a29
   languageName: node
   linkType: hard
 
@@ -19300,12 +19327,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"zrender@npm:5.4.3":
-  version: 5.4.3
-  resolution: "zrender@npm:5.4.3"
+"zrender@npm:5.4.4":
+  version: 5.4.4
+  resolution: "zrender@npm:5.4.4"
   dependencies:
     tslib: 2.3.0
-  checksum: ae89584fbe4256217e500a74183fd5870a2bed7e7b3234cd78fcbc0a1a82da8449596b2019105927069531b567ecf94425fb171abd6cedcbf517e52fdf438722
+  checksum: 4b317346af8eca38e62ba029239c3a13e97eac4fa15b3ddadbae23442d8b373f0e937c255dee8080d6bb2fc79c9da54f1106415586ed8942bd8bc684b3890ea9
   languageName: node
   linkType: hard
 

@@ -1,5 +1,5 @@
 import { jsonControl, JSONObject, stateComp, toJSONObjectArray, toObject } from "lowcoder-sdk";
-import { withDefault, BooleanControl, StringControl, NumberControl, JSONObjectControl } from "lowcoder-sdk";
+import { withDefault, BooleanControl, StringControl, NumberControl, JSONObjectControl, FunctionControl } from "lowcoder-sdk";
 import { dropdownControl } from "lowcoder-sdk";
 import { eventHandlerControl } from "lowcoder-sdk";
 import { valueComp, withType } from "lowcoder-sdk";
@@ -225,6 +225,8 @@ export const chartUiModeChildren = {
 };
 
 const chartMapModeChildren = {
+  mapInstance: stateComp(),
+  getMapInstance: FunctionControl,
   mapApiKey: withDefault(StringControl, ''),
   mapZoomLevel: withDefault(NumberControl, 3),
   mapCenterLng: withDefault(NumberControl, 15.932644),

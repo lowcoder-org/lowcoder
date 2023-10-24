@@ -59,11 +59,17 @@ export default class EChartsReactCore extends PureComponent<EChartsReactProps> {
       !isEqual(prevProps.theme, this.props.theme) ||
       !isEqual(prevProps.opts, this.props.opts) ||
       !isEqual(prevProps.onEvents, this.props.onEvents) ||
-      this.props.option.gmap
+      !isEqual(prevProps.mode, this.props.mode)
+      // this.props.option.gmap
     ) {
       this.dispose();
 
       this.renderNewEcharts(); // re-render
+      return;
+    }
+
+    if(this.props.mode === "json") {
+      this.updateEChartsOption();
       return;
     }
 
