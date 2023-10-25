@@ -12,7 +12,9 @@ import {
   booleanExposingStateControl,
   jsonObjectExposingStateControl,
   numberExposingStateControl,
+  numberStateControl,
   stringExposingStateControl,
+  stringStateControl,
 } from "comps/controls/codeStateControl";
 import { PositionControl } from "comps/controls/dropdownControl";
 import {
@@ -274,13 +276,14 @@ export const meetingControllerChildren = {
   endCall: booleanExposingStateControl("false"),
   sharing: booleanExposingStateControl("false"),
   videoSettings: jsonObjectExposingStateControl(""),
-  videoWidth: numberExposingStateControl("videoWidth", 200),
-  videoHeight: numberExposingStateControl("videoHeight", 200),
+  videoWidth: numberStateControl(200),
+  videoHeight: numberStateControl(200),
   appId: withDefault(StringControl, trans("meeting.appid")),
   participants: stateComp<JSONValue>([]),
   usersScreenShared: stateComp<JSONValue>([]),
   localUser: jsonObjectExposingStateControl(""),
-  meetingName: stringExposingStateControl("meetingName"),
+  meetingName: stringStateControl("meetingName"),
+  userName: stringStateControl("userName"),
   certifiCateKey: stringExposingStateControl(""),
   messages: stateComp<JSONValue>([]),
 };
@@ -315,6 +318,12 @@ let MTComp = (function () {
       }, [userIds]);
 
       useEffect(() => {
+        dispatch(
+          changeChildAction("participants", getData(userIds).data, false)
+        );
+      }, [userIds]);
+
+      useEffect(() => {
         if (props.endCall.value) {
           let newUsers = userIds.filter((item: any) => item.user !== userId);
           dispatch(
@@ -330,6 +339,19 @@ let MTComp = (function () {
           );
         }
       }, [rtmMessages]);
+
+      useEffect(() => {
+        if (props.localUser.value) {
+          let newUsers = userIds.filter((item: any) => item.user !== userId);
+          if (newUsers.length == 0) return;
+          newUsers = props.localUser.value;
+          let updatedUsers = [...userIds, newUsers];
+          console.log("updatedUsers", updatedUsers);
+          dispatch(
+            changeChildAction("participants", getData(updatedUsers).data, false)
+          );
+        }
+      }, [props.localUser.value]);
 
       useEffect(() => {
         if (rtmChannelResponse) {
@@ -526,7 +548,6 @@ MTComp = withMethodExposing(MTComp, [
         user: userId + "",
         audiostatus: value,
       });
-      console.log(localUserData);
       await turnOnMicrophone(value);
       comp.children.audioControl.change(value);
     },
@@ -583,19 +604,41 @@ MTComp = withMethodExposing(MTComp, [
 
       let message: any = {
         time: Date.now(),
-        from: userId,
+        from: comp.children.localUser.getView().value,
       };
       message["data"] = otherData;
 
       if (toUsers.length > 0 && toUsers[0] !== undefined) {
         let peers = toUsers?.map((u: any) => u.user);
-        console.log("peers", peers);
         peers.forEach((p: any) => {
           sendPeerMessageRtm(message, String(p));
         });
       } else {
         sendMessageRtm(message);
       }
+    },
+  },
+  {
+    method: {
+      name: "setMeetingName",
+      description: trans("meeting.meetingName"),
+      params: [],
+    },
+    execute: async (comp, values) => {
+      let meetingName: any = values[0];
+      comp.children.meetingName.change(meetingName);
+    },
+  },
+  {
+    method: {
+      name: "setUserName",
+      description: trans("meeting.meetingName"),
+      params: [],
+    },
+    execute: async (comp, values) => {
+      let userName: any = values[0];
+      let userLocal = comp.children.localUser.getView().value;
+      comp.children.localUser.change({ ...userLocal, userName: userName });
     },
   },
   {
