@@ -38,6 +38,12 @@ services:
       LOWCODER_NODE_SERVICE_URL: "http://lowcoder-node-service:6060"
       LOWCODER_MAX_QUERY_TIMEOUT: 120
       ENABLE_USER_SIGN_UP: "true"
+      #
+      # ! PLEASE CHANGE THESE TO SOMETHING UNIQUE !
+      # 
+      #    ENCRYPTION_PASSWORD and ENCRYPTION_SALT is used to encrypt sensitive 
+      #    data in database so it is important to change the defaults
+      #
       ENCRYPTION_PASSWORD: "lowcoder.org"
       ENCRYPTION_SALT: "lowcoder.org"
       CORS_ALLOWED_DOMAINS: "*"
@@ -46,6 +52,11 @@ services:
       DEFAULT_ORG_GROUP_COUNT: 100
       DEFAULT_ORG_APP_COUNT: 1000
       DEFAULT_DEVELOPER_COUNT: 50
+      #
+      # API-KEY secret - should be a string of at least 32 random characters
+      #    - on linux/mac, generate one eg. with: head /dev/urandom | head -c 30 | shasum -a 256
+      #
+      LOWCODER_API_KEY_SECRET: "5a41b090758b39b226603177ef48d73ae9839dd458ccb7e66f7e7cc028d5a50b"
     restart: unless-stopped
     depends_on:
       - mongodb
