@@ -195,9 +195,7 @@ let VideoCompBuilder = (function (props) {
         client.on(
           "user-published",
           async (user: IAgoraRTCRemoteUser, mediaType: "video" | "audio") => {
-            if (mediaType === "video") {
-              console.log("user-published",user.uid);
-              
+            if (mediaType === "video") {              
               const remoteTrack = await client.subscribe(user, mediaType);
               let userId = user.uid + "";
               if (
@@ -241,7 +239,6 @@ let VideoCompBuilder = (function (props) {
               }
             }
             if (mediaType === "video") {
-              console.log("user-unpublished video", user.uid);
               if (videoRef.current && videoRef.current?.id == user.uid + "") {
                 videoRef.current.srcObject = null;
               }

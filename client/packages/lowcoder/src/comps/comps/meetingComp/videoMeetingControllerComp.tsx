@@ -210,25 +210,11 @@ const publishVideo = async (
 };
 
 const sendMessageRtm = (message: any) => {
-  rtmChannelResponse
-    .sendMessage({ text: JSON.stringify(message) })
-    .then(() => {
-      console.log("message sent " + JSON.stringify(message));
-    })
-    .catch((e: any) => {
-      console.log("error", e);
-    });
+  rtmChannelResponse.sendMessage({ text: JSON.stringify(message) });
 };
 
 const sendPeerMessageRtm = (message: any, toId: string) => {
-  rtmClient
-    .sendMessageToPeer({ text: JSON.stringify(message) }, toId)
-    .then(() => {
-      console.log("message sent " + JSON.stringify(message));
-    })
-    .catch((e: any) => {
-      console.log("error", e);
-    });
+  rtmClient.sendMessageToPeer({ text: JSON.stringify(message) }, toId);
 };
 
 const rtmInit = async (appId: any, uid: any, channel: any) => {
@@ -238,26 +224,9 @@ const rtmInit = async (appId: any, uid: any, channel: any) => {
   };
   await rtmClient.login(options);
 
-  rtmClient.on("ConnectionStateChanged", function (state, reason) {
-    console.log("State changed To: " + state + " Reason: " + reason);
-  });
-
   rtmChannelResponse = rtmClient.createChannel(channel);
 
-  await rtmChannelResponse.join().then(async () => {
-    console.log(
-      "You have successfully joined channel " + rtmChannelResponse.channelId
-    );
-  });
-
-  // Display channel member stats
-  rtmChannelResponse.on("MemberJoined", function (memberId) {
-    console.log(memberId + " joined the channel");
-  });
-  // Display channel member stats
-  rtmChannelResponse.on("MemberLeft", function (memberId) {
-    console.log(memberId + " left the channel");
-  });
+  await rtmChannelResponse.join();
 };
 
 export const meetingControllerChildren = {
@@ -322,7 +291,6 @@ let MTComp = (function () {
 
       useEffect(() => {
         if (updateVolume.userid) {
-          console.log("userIds ", props.participants);
           let prevUsers: [] = props.participants as [];
 
           const updatedItems = prevUsers.map((userInfo: any) => {
@@ -334,8 +302,6 @@ let MTComp = (function () {
             }
             return userInfo;
           });
-          console.log("updatedItems", updatedItems);
-
           dispatch(
             changeChildAction("participants", getData(updatedItems).data, false)
           );
@@ -365,7 +331,6 @@ let MTComp = (function () {
           if (newUsers.length == 0) return;
           newUsers = props.localUser.value;
           let updatedUsers = [...userIds, newUsers];
-          console.log("updatedUsers", updatedUsers);
           dispatch(
             changeChildAction("participants", getData(updatedUsers).data, false)
           );
@@ -375,13 +340,9 @@ let MTComp = (function () {
       useEffect(() => {
         if (rtmChannelResponse) {
           rtmClient.on("MessageFromPeer", function (message, peerId) {
-            console.log(
-              "Message from: " + peerId + " Message: " + message.text
-            );
             setRtmMessages(message.text);
           });
           rtmChannelResponse.on("ChannelMessage", function (message, memberId) {
-            console.log("Message received from: " + memberId, message.text);
             setRtmMessages(message.text);
             dispatch(
               changeChildAction("messages", getData(rtmMessages).data, false)
