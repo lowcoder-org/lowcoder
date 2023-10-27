@@ -28,7 +28,10 @@ import { RefControl } from "comps/controls/refControl";
 import { useEffect, useRef, useState } from "react";
 
 import { AutoHeightControl } from "comps/controls/autoHeightControl";
-import { client } from "./videoMeetingControllerComp";
+import {
+  VideoMeetingControllerComp,
+  client,
+} from "./videoMeetingControllerComp";
 
 import { IAgoraRTCRemoteUser } from "agora-rtc-sdk-ng";
 
@@ -184,6 +187,14 @@ let VideoCompBuilder = (function (props) {
     useEffect(() => {
       if (props.userId.value !== "") {
         let userData = JSON.parse(props.userId?.value);
+        if (
+          userData.user == userId &&
+          userData.streamingVideo == false &&
+          videoRef.current &&
+          videoRef.current?.id == userId + ""
+        ) {
+          videoRef.current.srcObject = null;
+        }
         client.on(
           "user-published",
           async (user: IAgoraRTCRemoteUser, mediaType: "video" | "audio") => {
@@ -231,6 +242,10 @@ let VideoCompBuilder = (function (props) {
               }
             }
             if (mediaType === "video") {
+              console.log("user-unpublished video");
+              if (videoRef.current && videoRef.current?.id == user.uid + "") {
+                videoRef.current.srcObject = null;
+              }
               if (
                 !user.hasVideo &&
                 user.uid + "" != userData.user &&
@@ -241,9 +256,16 @@ let VideoCompBuilder = (function (props) {
             }
           }
         );
+
         setUserId(userData.user);
       }
     }, [props.userId.value]);
+
+    // useEffect(() => {
+    //   if (videoRef.current && videoRef.current?.id == userId + "") {
+    //     videoRef.current.srcObject = null;
+    //   }
+    // }, []);
 
     return (
       <EditorContext.Consumer>

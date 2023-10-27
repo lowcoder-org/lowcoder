@@ -189,7 +189,6 @@ const publishVideo = async (
   height: any,
   certifiCateKey: string
 ) => {
-  console.log(appId, certifiCateKey, channel);
   let token = null;
   if (certifiCateKey) {
     token = await generateToken(appId, certifiCateKey, channel);
@@ -562,7 +561,7 @@ MTComp = withMethodExposing(MTComp, [
     },
     execute: async (comp, values) => {
       let value = !comp.children.audioControl.getView().value;
-      let localUserData = comp.children.localUser.change({
+      comp.children.localUser.change({
         user: userId + "",
         audiostatus: value,
       });
@@ -598,8 +597,8 @@ MTComp = withMethodExposing(MTComp, [
         user: userId + "",
         audiostatus: false,
         speaking: false,
+        streamingVideo: true,
       });
-      console.log(userId);
 
       await publishVideo(
         comp.children.appId.getView(),
@@ -671,7 +670,13 @@ MTComp = withMethodExposing(MTComp, [
     execute: async (comp, values) => {
       let value = !comp.children.endCall.getView().value;
       comp.children.endCall.change(value);
+
       await leaveChannel();
+
+      comp.children.localUser.change({
+        user: userId + "",
+        streamingVideo: false,
+      });
     },
   },
   {
