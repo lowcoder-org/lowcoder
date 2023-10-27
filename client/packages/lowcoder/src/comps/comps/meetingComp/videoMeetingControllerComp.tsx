@@ -312,12 +312,7 @@ let MTComp = (function () {
       const [rtmMessages, setRtmMessages] = useState<any>([]);
 
       useEffect(() => {
-        dispatch(
-          changeChildAction("participants", getData(userIds).data, false)
-        );
-      }, [userIds]);
-
-      useEffect(() => {
+        console.log(userIds);
         dispatch(
           changeChildAction("participants", getData(userIds).data, false)
         );
@@ -372,28 +367,51 @@ let MTComp = (function () {
       }, [rtmChannelResponse]);
 
       useEffect(() => {
-        client.on("user-joined", (user: IAgoraRTCRemoteUser) => {
-          let userData = {
-            user: user.uid,
-            host: false,
-            audiostatus: user.hasVideo,
-          };
-          if (userIds.length == 0) {
-            userData.host = true;
-          } else {
-            userData.host = false;
-          }
-          setUserIds((userIds: any) => [...userIds, userData]);
-        });
-        client.on("user-left", (user: IAgoraRTCRemoteUser, reason: any) => {
-          let newUsers = userIds.filter((item: any) => item.user !== user.uid);
-          let hostExists = newUsers.filter((f: any) => f.host === true);
-          if (hostExists.length == 0 && newUsers.length > 0) {
-            newUsers[0].host = true;
-            hostChanged(newUsers);
-          }
-          setUserIds(newUsers);
-        });
+        if (client) {
+          client.enableAudioVolumeIndicator();
+          client.on("user-joined", (user: IAgoraRTCRemoteUser) => {
+            let userData = {
+              user: user.uid,
+              host: false,
+              audiostatus: user.hasVideo,
+            };
+
+            if (userIds.length == 0) {
+              userData.host = true;
+            } else {
+              userData.host = false;
+            }
+            setUserIds((userIds: any) => [...userIds, userData]);
+          });
+          client.on("user-left", (user: IAgoraRTCRemoteUser, reason: any) => {
+            let newUsers = userIds.filter(
+              (item: any) => item.user !== user.uid
+            );
+            let hostExists = newUsers.filter((f: any) => f.host === true);
+            if (hostExists.length == 0 && newUsers.length > 0) {
+              newUsers[0].host = true;
+              hostChanged(newUsers);
+            }
+            setUserIds(newUsers);
+          });
+          client.on("volume-indicator", (volumeInfos: any) => {
+            if (volumeInfos.length == 0) return;
+            volumeInfos.map((volumeInfo: any) => {
+              const speaking = volumeInfo.level >= 30;
+              if (volumeInfo.uid == userId) {
+                props.localUser.onChange({
+                  ...props.localUser.value,
+                  speaking,
+                });
+              } else {
+                const userInfo = userIds.find(
+                  (info: any) => info.user === volumeInfo.uid
+                );
+                setUserIds([...userIds, { ...userInfo, speaking }]);
+              }
+            });
+          });
+        }
       }, [client]);
 
       return (
@@ -579,7 +597,10 @@ MTComp = withMethodExposing(MTComp, [
       comp.children.localUser.change({
         user: userId + "",
         audiostatus: false,
+        speaking: false,
       });
+      console.log(userId);
+
       await publishVideo(
         comp.children.appId.getView(),
         comp.children.meetingName.getView().value == ""
