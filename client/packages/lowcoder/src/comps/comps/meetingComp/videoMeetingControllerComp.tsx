@@ -308,14 +308,39 @@ let MTComp = (function () {
         [dispatch, isTopBom]
       );
       const [userIds, setUserIds] = useState<any>([]);
+      const [updateVolume, setUpdateVolume] = useState<any>({
+        update: false,
+        userid: null,
+      });
       const [rtmMessages, setRtmMessages] = useState<any>([]);
 
       useEffect(() => {
-        console.log(userIds);
         dispatch(
           changeChildAction("participants", getData(userIds).data, false)
         );
       }, [userIds]);
+
+      useEffect(() => {
+        if (updateVolume.userid) {
+          console.log("userIds ", props.participants);
+          let prevUsers: [] = props.participants as [];
+
+          const updatedItems = prevUsers.map((userInfo: any) => {
+            if (
+              userInfo.user === updateVolume.userid &&
+              userInfo.speaking != updateVolume.update
+            ) {
+              return { ...userInfo, speaking: updateVolume.update };
+            }
+            return userInfo;
+          });
+          console.log("updatedItems", updatedItems);
+
+          dispatch(
+            changeChildAction("participants", getData(updatedItems).data, false)
+          );
+        }
+      }, [updateVolume]);
 
       useEffect(() => {
         if (props.endCall.value) {
@@ -397,16 +422,16 @@ let MTComp = (function () {
             if (volumeInfos.length == 0) return;
             volumeInfos.map((volumeInfo: any) => {
               const speaking = volumeInfo.level >= 30;
-              if (volumeInfo.uid == userId) {
+              if (
+                volumeInfo.uid == userId &&
+                props.localUser.value.speaking != speaking
+              ) {
                 props.localUser.onChange({
                   ...props.localUser.value,
                   speaking,
                 });
               } else {
-                const userInfo = userIds.find(
-                  (info: any) => info.user === volumeInfo.uid
-                );
-                setUserIds([...userIds, { ...userInfo, speaking }]);
+                setUpdateVolume({ update: speaking, userid: volumeInfo.uid });
               }
             });
           });
@@ -582,6 +607,12 @@ MTComp = withMethodExposing(MTComp, [
       } else {
         await turnOnCamera(value);
       }
+      comp.children.localUser.change({
+        user: userId + "",
+        streamingVideo: value,
+        audiostatus: false,
+        speaking: false,
+      });
       comp.children.videoControl.change(value);
     },
   },

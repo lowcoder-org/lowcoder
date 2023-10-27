@@ -187,18 +187,17 @@ let VideoCompBuilder = (function (props) {
     useEffect(() => {
       if (props.userId.value !== "") {
         let userData = JSON.parse(props.userId?.value);
-        if (
-          userData.user == userId &&
-          userData.streamingVideo == false &&
-          videoRef.current &&
-          videoRef.current?.id == userId + ""
-        ) {
-          videoRef.current.srcObject = null;
+        if (userData.user == userId && userData.streamingVideo == false && videoRef.current && videoRef.current?.id == userId + "") {
+          if (videoRef.current && videoRef.current?.id == userId + "") {
+            videoRef.current.srcObject = null;
+          }
         }
         client.on(
           "user-published",
           async (user: IAgoraRTCRemoteUser, mediaType: "video" | "audio") => {
             if (mediaType === "video") {
+              console.log("user-published",user.uid);
+              
               const remoteTrack = await client.subscribe(user, mediaType);
               let userId = user.uid + "";
               if (
@@ -242,7 +241,7 @@ let VideoCompBuilder = (function (props) {
               }
             }
             if (mediaType === "video") {
-              console.log("user-unpublished video");
+              console.log("user-unpublished video", user.uid);
               if (videoRef.current && videoRef.current?.id == user.uid + "") {
                 videoRef.current.srcObject = null;
               }
