@@ -4,6 +4,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtParser;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.io.Encoders;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.lowcoder.domain.user.model.User;
@@ -11,8 +12,6 @@ import org.lowcoder.sdk.config.AuthProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
-
-import java.util.Random;
 
 import java.util.Date;
 
@@ -25,12 +24,17 @@ public class JWTUtils {
 
     private JwtParser jwtParser;
 
+    private String base64EncodedSecret;
+
     private final String TOKEN_HEADER = "Authorization";
     private final String TOKEN_PREFIX = "Bearer ";
 
     @PostConstruct
     public void setup(){
-        this.jwtParser = Jwts.parser().setSigningKey(authProperties.getApiKey().getSecret());
+        base64EncodedSecret = Encoders.BASE64.encode(authProperties.getApiKey().getSecret().getBytes());
+        this.jwtParser = Jwts.parserBuilder()
+                .setSigningKey(base64EncodedSecret)
+                .build();
     }
 
     public String createToken(User user) {
@@ -39,10 +43,9 @@ public class JWTUtils {
                 .setIssuedAt(new Date());
         claims.put("userId", user.getId() );
         claims.put("createdBy", user.getName());
-        String randomFactor = String.valueOf(new Random().nextLong(100000000L));
         return Jwts.builder()
                 .setClaims(claims)
-                .signWith(SignatureAlgorithm.HS256, authProperties.getApiKey().getSecret() + randomFactor)
+                .signWith(SignatureAlgorithm.HS256, base64EncodedSecret)
                 .compact();
     }
 
