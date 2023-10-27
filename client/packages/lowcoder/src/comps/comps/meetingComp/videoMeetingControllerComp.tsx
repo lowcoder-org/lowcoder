@@ -474,6 +474,7 @@ let MTComp = (function () {
           {children.meetingName.propertyView({
             label: trans("meeting.meetingName"),
           })}
+          
           {children.placement.propertyView({
             label: trans("drawer.placement"),
             radioButton: true,

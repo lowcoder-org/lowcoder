@@ -62,6 +62,15 @@ const Container = styled.div<{ $style: any }>`
   align-items: center;
   justify-content: center;
 `;
+const TextContainer = styled.div<{ $style: any }>`
+  height: 100%;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  position: absolute;
+  justify-content: center;
+  ${(props) => props.$style && getStyle(props.$style)}
+`;
 const VideoContainer = styled.video<{ $style: any }>`
   height: 100%;
   width: 100%;
@@ -166,13 +175,16 @@ export const meetingStreamChildren = {
   style: ButtonStyleControl,
   viewRef: RefControl<HTMLElement>,
   userId: stringExposingStateControl(""),
+  noVideoText: stringExposingStateControl("No Video"),
 };
 
 let VideoCompBuilder = (function (props) {
   return new UICompBuilder(meetingStreamChildren, (props) => {
     const videoRef = useRef<HTMLVideoElement>(null);
     const conRef = useRef<HTMLDivElement>(null);
+    const userNameRef = useRef<HTMLDivElement>(null);
     const [userId, setUserId] = useState();
+    const [userName, setUsername] = useState("");
 
     useEffect(() => {
       onResize();
@@ -181,21 +193,31 @@ let VideoCompBuilder = (function (props) {
     const onResize = async () => {
       const container = conRef.current;
       let videoCo = videoRef.current;
-      videoCo!.style.height = container?.clientHeight + "px";
-      videoCo!.style.width = container?.clientWidth + "px";
+      if (videoCo) {
+        videoCo!.style.height = container?.clientHeight + "px";
+        videoCo!.style.width = container?.clientWidth + "px";
+      }
     };
     useEffect(() => {
       if (props.userId.value !== "") {
         let userData = JSON.parse(props.userId?.value);
-        if (userData.user == userId && userData.streamingVideo == false && videoRef.current && videoRef.current?.id == userId + "") {
+        if (
+          userData.user == userId &&
+          userData.streamingVideo == false &&
+          videoRef.current &&
+          videoRef.current?.id == userId + ""
+        ) {
           if (videoRef.current && videoRef.current?.id == userId + "") {
             videoRef.current.srcObject = null;
+            if (userNameRef.current) {
+              userNameRef.current.textContent = userData.user;
+            }
           }
         }
         client.on(
           "user-published",
           async (user: IAgoraRTCRemoteUser, mediaType: "video" | "audio") => {
-            if (mediaType === "video") {              
+            if (mediaType === "video") {
               const remoteTrack = await client.subscribe(user, mediaType);
               let userId = user.uid + "";
               if (
@@ -254,26 +276,29 @@ let VideoCompBuilder = (function (props) {
         );
 
         setUserId(userData.user);
+        setUsername(userData.user);
       }
     }, [props.userId.value]);
-
-    // useEffect(() => {
-    //   if (videoRef.current && videoRef.current?.id == userId + "") {
-    //     videoRef.current.srcObject = null;
-    //   }
-    // }, []);
 
     return (
       <EditorContext.Consumer>
         {(editorState) => (
           <ReactResizeDetector onResize={onResize}>
             <Container ref={conRef} $style={props.style}>
-              <VideoContainer
-                onClick={() => props.onEvent("videoClicked")}
-                ref={videoRef}
-                $style={props.style}
-                id={props.shareScreen ? "share-screen" : userId}
-              ></VideoContainer>
+              {props.shareScreen || userId ? (
+                <div style={{ position: "relative" }}>
+                  <VideoContainer
+                    onClick={() => props.onEvent("videoClicked")}
+                    ref={videoRef}
+                    $style={props.style}
+                    id={props.shareScreen ? "share-screen" : userId}
+                  ></VideoContainer>
+                </div>
+              ) : (
+                <TextContainer $style={props.style}>
+                  <p>No Video</p>
+                </TextContainer>
+              )}
             </Container>
           </ReactResizeDetector>
         )}

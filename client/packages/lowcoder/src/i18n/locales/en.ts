@@ -1451,6 +1451,7 @@ export const en = {
     shareScreen: "Share Screen",
     appid: "Application Id",
     meetingName: "Meeting Name",
+    videoCompText: "No video Text",
     right: "Right",
     bottom: "Bottom",
     videoId: "Video Id",
