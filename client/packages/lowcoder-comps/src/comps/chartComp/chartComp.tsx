@@ -47,6 +47,10 @@ let ChartTmpComp = (function () {
 })();
 
 ChartTmpComp = withViewFn(ChartTmpComp, (comp) => {
+  const apiKey = comp.children.mapApiKey.getView();
+  const mode = comp.children.mode.getView();
+  const onEvent = comp.children.onEvent.getView();
+
   const echartsCompRef = useRef<ReactECharts | null>();
   const [chartSize, setChartSize] = useState<ChartSize>();
   const [mapScriptLoaded, setMapScriptLoaded] = useState(false);
@@ -64,8 +68,9 @@ ChartTmpComp = withViewFn(ChartTmpComp, (comp) => {
     log.error('theme chart error: ', error);
   }
 
-  const onEvent = comp.children.onEvent.getView();
   useEffect(() => {
+    if(mode !== 'ui') return;
+    
     // bind events
     const echartsCompInstance = echartsCompRef?.current?.getEchartsInstance();
     if (!echartsCompInstance) {
@@ -84,7 +89,7 @@ ChartTmpComp = withViewFn(ChartTmpComp, (comp) => {
     });
     // unbind
     return () => echartsCompInstance?.off("selectchanged");
-  }, [onEvent]);
+  }, [mode, onEvent]);
 
   const echartsConfigChildren = _.omit(comp.children, echartsConfigOmitChildren);
   const option = useMemo(() => {
@@ -100,19 +105,17 @@ ChartTmpComp = withViewFn(ChartTmpComp, (comp) => {
 
   const loadGoogleMapsData = () => {
     setTimeout(() => {
-      setMapScriptLoaded(true);
       const echartsCompInstance = echartsCompRef?.current?.getEchartsInstance();
       if (!echartsCompInstance) {
         return _.noop;
       }
 
-      const mapInstance = echartsCompInstance?.getModel()?.getComponent("gmap")?.getGoogleMap();
+      let mapInstance = undefined;
+      mapInstance = echartsCompInstance?.getModel()?.getComponent("gmap")?.getGoogleMap();
       comp.dispatch(changeChildAction("mapInstance", mapInstance));
     }, 500)
   }
-
-  const apiKey = comp.children.mapApiKey.getView();
-  const mode = comp.children.mode.getView();
+  
   useEffect(() => {
     if( mode !== 'map') {
       comp.dispatch(changeChildAction("mapInstance", undefined));
@@ -125,6 +128,7 @@ ChartTmpComp = withViewFn(ChartTmpComp, (comp) => {
       return;
     }
     gMapScript.addEventListener('load', function () {
+      setMapScriptLoaded(true);
       loadGoogleMapsData();
     });
   }, [mode, apiKey, option])
@@ -277,16 +281,13 @@ let ChartComp = withExposingConfigs(ChartTmpComp, [
   new NameConfig("title", trans("chart.titleDesc")),
 ]);
 
-ChartComp = withMethodExposing(ChartTmpComp, [
+ChartComp = withMethodExposing(ChartComp, [
   {
     method: {
       name: "getMapInstance",
     },
     execute: (comp) => {
-      return new Promise((resolve) => {
-        console.log(comp.children.mapInstance.getView())
-        resolve(comp.children.mapInstance.getView())
-      })
+      return comp.children.mapInstance.getView()
     },
   },
 ])
