@@ -286,14 +286,12 @@ let VideoCompBuilder = (function (props) {
           <ReactResizeDetector onResize={onResize}>
             <Container ref={conRef} $style={props.style}>
               {props.shareScreen || userId ? (
-                <div style={{ position: "relative" }}>
                   <VideoContainer
                     onClick={() => props.onEvent("videoClicked")}
                     ref={videoRef}
                     $style={props.style}
                     id={props.shareScreen ? "share-screen" : userId}
                   ></VideoContainer>
-                </div>
               ) : (
                 <TextContainer $style={props.style}>
                   <p>No Video</p>

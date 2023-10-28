@@ -9,7 +9,7 @@ import { useState } from "react";
 import { useMount } from "react-use";
 import styled from "styled-components";
 import { RemoteCompInfo, RemoteCompLoader } from "types/remoteComp";
-import { loaders } from "./loaders";
+import { loaders } from "./loaders"; 
 import { withErrorBoundary } from "comps/generators/withErrorBoundary";
 
 const ViewError = styled.div`
