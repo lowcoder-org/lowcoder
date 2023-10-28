@@ -182,9 +182,10 @@ let VideoCompBuilder = (function (props) {
   return new UICompBuilder(meetingStreamChildren, (props) => {
     const videoRef = useRef<HTMLVideoElement>(null);
     const conRef = useRef<HTMLDivElement>(null);
-    const userNameRef = useRef<HTMLDivElement>(null);
+    const placeholderRef = useRef<HTMLDivElement>(null);
     const [userId, setUserId] = useState();
     const [userName, setUsername] = useState("");
+    const [showVideo, setVideo] = useState(true);
 
     useEffect(() => {
       onResize();
@@ -209,10 +210,10 @@ let VideoCompBuilder = (function (props) {
         ) {
           if (videoRef.current && videoRef.current?.id == userId + "") {
             videoRef.current.srcObject = null;
-            if (userNameRef.current) {
-              userNameRef.current.textContent = userData.user;
-            }
+            setVideo(false);
           }
+        } else {
+          setVideo(true);
         }
         client.on(
           "user-published",
@@ -228,6 +229,7 @@ let VideoCompBuilder = (function (props) {
                 props.onEvent("videoOn");
               }
               const element = document.getElementById(userId);
+
               if (element) {
                 remoteTrack.play(userId);
               }
@@ -276,7 +278,7 @@ let VideoCompBuilder = (function (props) {
         );
 
         setUserId(userData.user);
-        setUsername(userData.user);
+        setUsername(userData.userName);
       }
     }, [props.userId.value]);
 
@@ -286,13 +288,25 @@ let VideoCompBuilder = (function (props) {
           <ReactResizeDetector onResize={onResize}>
             <Container ref={conRef} $style={props.style}>
               {props.shareScreen || userId ? (
+                <>
                   <VideoContainer
                     onClick={() => props.onEvent("videoClicked")}
                     ref={videoRef}
+                    style={{ display: `${showVideo ? "flex" : "none"}` }}
                     $style={props.style}
                     id={props.shareScreen ? "share-screen" : userId}
                   ></VideoContainer>
+                  <TextContainer
+                    onClick={() => props.onEvent("videoClicked")}
+                    ref={placeholderRef}
+                    style={{ display: `${!showVideo ? "flex" : "none"}` }}
+                    $style={props.style}
+                  >
+                    {userName ?? "No Username"}
+                  </TextContainer>
+                </>
               ) : (
+                // )
                 <TextContainer $style={props.style}>
                   <p>No Video</p>
                 </TextContainer>
