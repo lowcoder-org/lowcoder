@@ -37,6 +37,7 @@ import { IAgoraRTCRemoteUser } from "agora-rtc-sdk-ng";
 
 import {
   MeetingEventHandlerControl,
+  StringStateControl,
   hiddenPropertyView,
   stringExposingStateControl,
 } from "@lowcoder-ee/index.sdk";
@@ -175,6 +176,10 @@ export const meetingStreamChildren = {
   style: ButtonStyleControl,
   viewRef: RefControl<HTMLElement>,
   userId: stringExposingStateControl(""),
+  profileImageUrl: withDefault(
+    StringStateControl,
+    "https://via.placeholder.com/120"
+  ),
   noVideoText: stringExposingStateControl("No Video"),
 };
 
@@ -299,9 +304,16 @@ let VideoCompBuilder = (function (props) {
                   <TextContainer
                     onClick={() => props.onEvent("videoClicked")}
                     ref={placeholderRef}
-                    style={{ display: `${!showVideo ? "flex" : "none"}` }}
+                    style={{
+                      display: `${!showVideo ? "flex" : "none"}`,
+                      flexDirection: "column",
+                    }}
                     $style={props.style}
                   >
+                    <img
+                      style={{ borderRadius: "50%" }}
+                      src={props.profileImageUrl.value}
+                    />
                     {userName ?? "No Username"}
                   </TextContainer>
                 </>
@@ -321,6 +333,10 @@ let VideoCompBuilder = (function (props) {
       <>
         <Section name={sectionNames.basic}>
           {children.userId.propertyView({ label: trans("meeting.videoId") })}
+          {children.profileImageUrl.propertyView({
+            label: trans("meeting.profileImageUrl"),
+            placeholder: "https://via.placeholder.com/120",
+          })}
           {children.autoHeight.getPropertyView()}
           {children.shareScreen.propertyView({
             label: trans("meeting.shareScreen"),
@@ -348,5 +364,7 @@ VideoCompBuilder = class extends VideoCompBuilder {
 
 export const VideoMeetingStreamComp = withExposingConfigs(VideoCompBuilder, [
   new NameConfig("loading", trans("button.loadingDesc")),
+  new NameConfig("profileImageUrl", trans("meeting.profileImageUrl")),
+
   ...CommonNameConfig,
 ]);

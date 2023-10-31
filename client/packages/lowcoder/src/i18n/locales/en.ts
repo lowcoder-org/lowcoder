@@ -1452,6 +1452,7 @@ export const en = {
     appid: "Application Id",
     meetingName: "Meeting Name",
     videoCompText: "No video Text",
+    profileImageUrl: "Profile Image Url",
     right: "Right",
     bottom: "Bottom",
     videoId: "Video Id",
