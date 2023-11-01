@@ -11,7 +11,7 @@
     "@ant-design/pro-table": "^2.62.7",
     "@codemirror/autocomplete": "^0.20.3",
     "@codemirror/basic-setup": "^0.20.0",
-    "@codemirror/lang-css": "0.20",
+    "@codemirror/lang-css": "6.2",
     "@codemirror/lang-html": "0.20",
     "@codemirror/lang-javascript": "^0.20.1",
     "@codemirror/lang-json": "0.20.0",
