@@ -2532,12 +2532,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@fullcalendar/list@npm:^6.1.6":
-  version: 6.1.8
-  resolution: "@fullcalendar/list@npm:6.1.8"
+"@fullcalendar/list@npm:^6.1.9":
+  version: 6.1.9
+  resolution: "@fullcalendar/list@npm:6.1.9"
   peerDependencies:
-    "@fullcalendar/core": ~6.1.8
-  checksum: b5c397040e0ed9566f0bdbe2c6377a3656f2db823b38085bf45bfb50c6415ecc854411e496b81d5932a5c77a1a9abfa8b582d67bad1e4dc562f41b6b14621dae
+    "@fullcalendar/core": ~6.1.9
+  checksum: 978dd54b7131369d023e4d8a0e97b986a89a986b94a0d71dc6e9782e60e6c268184f2c596dcc7fa0580b143bfd39390a40ea4c9114afd1fa2eca5c48a7b0aaab
   languageName: node
   linkType: hard
 
@@ -11843,7 +11843,7 @@ __metadata:
     "@fullcalendar/core": ^6.1.6
     "@fullcalendar/daygrid": ^6.1.6
     "@fullcalendar/interaction": ^6.1.6
-    "@fullcalendar/list": ^6.1.6
+    "@fullcalendar/list": ^6.1.9
     "@fullcalendar/moment": ^6.1.6
     "@fullcalendar/react": ^6.1.6
     "@fullcalendar/timegrid": ^6.1.6
