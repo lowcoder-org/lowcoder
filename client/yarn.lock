@@ -4025,10 +4025,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/intl@npm:^1.2.0":
-  version: 1.2.0
-  resolution: "@types/intl@npm:1.2.0"
-  checksum: 95348313fee4949c6feba98bb35be45c0930ff816d7fedee8afd003282cbc004bf682ff94e6a662af5987c8fcc98bb4e8f93a4919d1ef6bbd9ce83577bd77fa6
+"@types/intl@npm:^1.2.1":
+  version: 1.2.1
+  resolution: "@types/intl@npm:1.2.1"
+  checksum: 5e1c93792a0c61f55c21384d8a64e521deae878cb5ff730008aca43790b2a6e91d96ab5779c390014ec9184246e2420835455c261645a8877a2500c96646a49e
   languageName: node
   linkType: hard
 
@@ -11999,7 +11999,7 @@ __metadata:
     "@rjsf/utils": ^5.10.0
     "@rjsf/validator-ajv8": ^5.10.0
     "@types/core-js": ^2.5.5
-    "@types/intl": ^1.2.0
+    "@types/intl": ^1.2.1
     "@types/lodash": ^4.14.194
     "@types/node": ^16.7.13
     "@types/papaparse": ^5.3.5
