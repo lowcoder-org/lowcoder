@@ -12,7 +12,7 @@ import {
   CloseEyeIcon,
 } from "lowcoder-design";
 import history from "util/history";
-import { IDSOURCE_SETTING } from "constants/routesURL";
+import { OAUTH_PROVIDER_SETTING } from "constants/routesURL";
 import {
   authConfig,
   AuthType,
@@ -59,7 +59,7 @@ export const IdSourceDetail = (props: IdSourceDetailProps) => {
   });
   const configDetail = props.location.state;
   const goList = () => {
-    history.push(IDSOURCE_SETTING);
+    history.push(OAUTH_PROVIDER_SETTING);
   };
   if (!configDetail) {
     goList();
