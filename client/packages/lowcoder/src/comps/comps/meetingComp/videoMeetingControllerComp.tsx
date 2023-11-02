@@ -387,10 +387,7 @@ let MTComp = (function () {
                 volumeInfo.uid == userId &&
                 props.localUser.value.speaking != speaking
               ) {
-                props.localUser.onChange({
-                  ...props.localUser.value,
-                  speaking,
-                });
+                props.localUser.value.speaking = speaking;
               } else {
                 setUpdateVolume({ update: speaking, userid: volumeInfo.uid });
               }
@@ -474,7 +471,7 @@ let MTComp = (function () {
           {children.meetingName.propertyView({
             label: trans("meeting.meetingName"),
           })}
-          
+
           {children.placement.propertyView({
             label: trans("drawer.placement"),
             radioButton: true,

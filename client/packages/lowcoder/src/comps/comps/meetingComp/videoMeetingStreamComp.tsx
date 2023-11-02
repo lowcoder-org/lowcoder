@@ -37,6 +37,7 @@ import { IAgoraRTCRemoteUser } from "agora-rtc-sdk-ng";
 
 import {
   MeetingEventHandlerControl,
+  StringControl,
   StringStateControl,
   hiddenPropertyView,
   stringExposingStateControl,
@@ -64,6 +65,15 @@ const Container = styled.div<{ $style: any }>`
   justify-content: center;
 `;
 const TextContainer = styled.div<{ $style: any }>`
+  height: 100%;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  position: absolute;
+  justify-content: center;
+  ${(props) => props.$style && getStyle(props.$style)}
+`;
+const ProfileImageContainer = styled.div<{ $style: any }>`
   height: 100%;
   width: 100%;
   display: flex;
@@ -166,6 +176,8 @@ const typeOptions = [
 export const meetingStreamChildren = {
   autoHeight: withDefault(AutoHeightControl, "fixed"),
   shareScreen: withDefault(BoolCodeControl, false),
+  profileImageHeight: withDefault(StringControl, "300px"),
+  profileImageWidth: withDefault(StringControl, "300px"),
   type: dropdownControl(typeOptions, ""),
   onEvent: MeetingEventHandlerControl,
   disabled: BoolCodeControl,
@@ -311,16 +323,26 @@ let VideoCompBuilder = (function (props) {
                     $style={props.style}
                   >
                     <img
-                      style={{ borderRadius: "50%" }}
+                      style={{
+                        borderRadius: "50%",
+                        width: props.profileImageWidth,
+                        height: props.profileImageHeight,
+                      }}
                       src={props.profileImageUrl.value}
                     />
                     {userName ?? "No Username"}
                   </TextContainer>
                 </>
               ) : (
-                // )
                 <TextContainer $style={props.style}>
-                  <p>No Video</p>
+                  <img
+                    style={{
+                      borderRadius: "50%",
+                      width: props.profileImageWidth,
+                      height: props.profileImageHeight,
+                    }}
+                    src={props.profileImageUrl.value}
+                  />
                 </TextContainer>
               )}
             </Container>
@@ -333,10 +355,6 @@ let VideoCompBuilder = (function (props) {
       <>
         <Section name={sectionNames.basic}>
           {children.userId.propertyView({ label: trans("meeting.videoId") })}
-          {children.profileImageUrl.propertyView({
-            label: trans("meeting.profileImageUrl"),
-            placeholder: "https://via.placeholder.com/120",
-          })}
           {children.autoHeight.getPropertyView()}
           {children.shareScreen.propertyView({
             label: trans("meeting.shareScreen"),
@@ -349,6 +367,14 @@ let VideoCompBuilder = (function (props) {
           {hiddenPropertyView(children)}
         </Section>
         <Section name={sectionNames.style}>
+          {children.profileImageUrl.propertyView({
+            label: trans("meeting.profileImageUrl"),
+            placeholder: "https://via.placeholder.com/120",
+          })}
+          {children.profileImageHeight.propertyView({
+            label: "Profile Height",
+          })}
+          {children.profileImageWidth.propertyView({ label: "Profile Width" })}
           {children.style.getPropertyView()}
         </Section>
       </>
