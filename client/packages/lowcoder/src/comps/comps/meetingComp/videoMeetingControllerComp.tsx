@@ -387,7 +387,13 @@ let MTComp = (function () {
                 volumeInfo.uid == userId &&
                 props.localUser.value.speaking != speaking
               ) {
-                props.localUser.value.speaking = speaking;
+               let localObject = {
+                 user: userId + "",
+                 audiostatus: props.audioControl.value,
+                 streamingVideo: props.videoControl.value,
+                 speaking: speaking,
+               };
+                props.localUser.onChange(localObject);
               } else {
                 setUpdateVolume({ update: speaking, userid: volumeInfo.uid });
               }
@@ -548,6 +554,8 @@ MTComp = withMethodExposing(MTComp, [
       comp.children.localUser.change({
         user: userId + "",
         audiostatus: value,
+        streamingVideo: comp.children.videoControl.getView().value,
+        speaking: false,
       });
       await turnOnMicrophone(value);
       comp.children.audioControl.change(value);
