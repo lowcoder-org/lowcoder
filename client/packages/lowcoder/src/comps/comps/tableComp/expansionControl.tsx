@@ -54,7 +54,7 @@ let ExpansionControlTmp = (function () {
     .setControlItemData({ filterText: label })
     .setPropertyViewFn((children, dispatch) => {
       return (
-        <>
+        <> 
           {children.expandable.propertyView({ label })}
           {children.expandable.getView() &&
             children.slot

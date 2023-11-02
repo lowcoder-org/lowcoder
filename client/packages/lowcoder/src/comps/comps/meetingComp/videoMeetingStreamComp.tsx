@@ -28,20 +28,20 @@ import { RefControl } from "comps/controls/refControl";
 import { useEffect, useRef, useState } from "react";
 
 import { AutoHeightControl } from "comps/controls/autoHeightControl";
-import {
-  VideoMeetingControllerComp,
-  client,
-} from "./videoMeetingControllerComp";
+import { client } from "./videoMeetingControllerComp";
 
 import { IAgoraRTCRemoteUser } from "agora-rtc-sdk-ng";
 
 import {
+  ControlParams,
   MeetingEventHandlerControl,
+  SimpleComp,
   StringControl,
   StringStateControl,
   hiddenPropertyView,
   stringExposingStateControl,
 } from "@lowcoder-ee/index.sdk";
+import { BoolShareVideoControl } from "./meetingControlerUtils";
 
 const FormLabel = styled(CommonBlueLabel)`
   font-size: 13px;
@@ -73,15 +73,7 @@ const TextContainer = styled.div<{ $style: any }>`
   justify-content: center;
   ${(props) => props.$style && getStyle(props.$style)}
 `;
-const ProfileImageContainer = styled.div<{ $style: any }>`
-  height: 100%;
-  width: 100%;
-  display: flex;
-  align-items: center;
-  position: absolute;
-  justify-content: center;
-  ${(props) => props.$style && getStyle(props.$style)}
-`;
+
 const VideoContainer = styled.video<{ $style: any }>`
   height: 100%;
   width: 100%;
@@ -102,6 +94,7 @@ const getStyle = (style: any) => {
     }
   `;
 };
+
 function getForm(editorState: EditorState, formName: string) {
   const comp = editorState?.getUICompByName(formName);
   if (comp && comp.children.compType.getView() === "form") {
@@ -175,7 +168,7 @@ const typeOptions = [
 
 export const meetingStreamChildren = {
   autoHeight: withDefault(AutoHeightControl, "fixed"),
-  shareScreen: withDefault(BoolCodeControl, false),
+  shareScreen: withDefault(BoolShareVideoControl, false),
   profileImageHeight: withDefault(StringControl, "300px"),
   profileImageWidth: withDefault(StringControl, "300px"),
   type: dropdownControl(typeOptions, ""),
@@ -304,7 +297,7 @@ let VideoCompBuilder = (function (props) {
         {(editorState) => (
           <ReactResizeDetector onResize={onResize}>
             <Container ref={conRef} $style={props.style}>
-              {props.shareScreen || userId ? (
+              {userId ? (
                 <>
                   <VideoContainer
                     onClick={() => props.onEvent("videoClicked")}
@@ -360,6 +353,7 @@ let VideoCompBuilder = (function (props) {
             label: trans("meeting.shareScreen"),
           })}
         </Section>
+
         <Section name={sectionNames.interaction}>
           {children.onEvent.getPropertyView()}
         </Section>
