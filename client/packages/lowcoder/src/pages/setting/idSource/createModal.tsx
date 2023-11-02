@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { messageInstance, CustomSelect, CloseEyeIcon } from "lowcoder-design";
 import {
   CustomModalStyled,
@@ -10,12 +10,13 @@ import {
   SpanStyled,
   PasswordLabel
 } from "./styledComponents";
-import { Form, Input, Select } from "antd";
+import { Form, Input, Select, Tooltip } from "antd";
 import IdSourceApi, { ConfigItem } from "api/idSourceApi";
 import { validateResponse } from "api/apiUtils";
-import { authConfig, AuthType } from "./idSourceConstants";
+import { authConfig, AuthType, clientIdandSecretConfig, ItemType } from "./idSourceConstants";
 import { ServerAuthTypeInfo } from "constants/authConstants";
 import { GeneralLoginIcon } from "assets/icons";
+import _ from "lodash";
 
 type CreateModalProp = {
   modalVisible: boolean;
@@ -42,7 +43,11 @@ function CreateModal(props: CreateModalProp) {
   }
   function saveAuthProvider(values: ConfigItem) {
     setSaveLoading(true);
-    IdSourceApi.saveConfig(values)
+    const config = {
+      ...values,
+      enableRegister: true,
+    }
+    IdSourceApi.saveConfig(config)
       .then((resp) => {
         if (validateResponse(resp)) {
           messageInstance.success(trans("idSource.saveSuccess"));
@@ -68,6 +73,13 @@ function CreateModal(props: CreateModalProp) {
       label: config.sourceName,
       value: config.sourceValue,
     }));
+
+  const selectedAuthType = Form.useWatch('authType', form);;
+
+  const authConfigForm = useMemo(() => {
+    if(!authConfig[selectedAuthType]) return clientIdandSecretConfig;
+    return authConfig[selectedAuthType].form;
+  }, [selectedAuthType])
 
   return (
     <CustomModalStyled
@@ -115,7 +127,56 @@ function CreateModal(props: CreateModalProp) {
             ))}
           </CustomSelect>
         </Form.Item>
-        <Form.Item
+        {Object.entries(authConfigForm).map(([key, value]) => {
+          const valueObject = _.isObject(value) ? (value as ItemType) : false;
+          const required = true;
+          const label = valueObject ? valueObject.label : value;
+          const tip = valueObject && valueObject.tip;
+          const isPassword = valueObject && valueObject.isPassword;
+          return (
+            <div key={key}>
+              <Form.Item
+                key={key}
+                name={key}
+                rules={[
+                  {
+                    required,
+                    message: trans("idSource.formPlaceholder", {
+                      label,
+                    }),
+                  },
+                ]}
+                label={
+                  isPassword ? (
+                    <PasswordLabel>
+                      <span>{label}:</span>
+                      <CloseEyeIcon />
+                    </PasswordLabel>
+                  ) : (
+                    <Tooltip title={tip}>
+                      <span className={tip ? "has-tip" : ""}>{label}</span>:
+                    </Tooltip>
+                  )
+                }
+              >
+                {isPassword ? (
+                  <Input
+                    type={"password"}
+                    placeholder={trans("idSource.encryptedServer")}
+                    autoComplete={"one-time-code"}
+                  />
+                ) : (
+                  <Input
+                    placeholder={trans("idSource.formPlaceholder", {
+                      label,
+                    })}
+                  />
+                )}
+              </Form.Item>
+            </div>
+          );
+        })}
+        {/* <Form.Item
           name="clientId"
           label="Client ID"
           rules={[{ required: true }]}
@@ -147,10 +208,7 @@ function CreateModal(props: CreateModalProp) {
             placeholder={trans("idSource.encryptedServer")}
             autoComplete="off"
           />
-        </Form.Item>
-        <Form.Item className="register" name="enableRegister" valuePropName="checked">
-          <CheckboxStyled>{trans("idSource.enableRegister")}</CheckboxStyled>
-        </Form.Item>
+        </Form.Item> */}
       </FormStyled>
     </CustomModalStyled>
   );

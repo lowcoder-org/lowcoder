@@ -46,12 +46,21 @@ export const authConfig = {
   [AuthType.Ory]: {
     sourceName: "Ory",
     sourceValue: AuthType.Ory,
-    form: clientIdandSecretConfig,
+    form: {
+      ...clientIdandSecretConfig,
+      instanceId: "Instance ID",
+      scope: "Scope",
+    },
   },
   [AuthType.KeyCloak]: {
     sourceName: "KeyCloak",
     sourceValue: AuthType.KeyCloak,
-    form: clientIdandSecretConfig,
+    form: {
+      ...clientIdandSecretConfig,
+      instanceId: "Instance ID",
+      realm: "Realm",
+      scope: "Scope",
+    },
   },
 } as { [key: string]: { sourceName: string; sourceValue: AuthType, form: FormItemType } };
 

@@ -64,7 +64,6 @@ export const IdSourceList = (props: any) => {
             IdSource.includes(item.authType)
           );
           res = _.uniqBy(res, 'authType');
-          console.log(res)
           setConfigs(res);
         }
       })

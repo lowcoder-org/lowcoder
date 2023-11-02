@@ -231,9 +231,9 @@ export const IdSourceDetail = (props: IdSourceDetailProps) => {
               </div>
             );
           })}
-          <Form.Item className="register" name="enableRegister" valuePropName="checked">
+          {/* <Form.Item className="register" name="enableRegister" valuePropName="checked">
             <CheckboxStyled>{trans("idSource.enableRegister")}</CheckboxStyled>
-          </Form.Item>
+          </Form.Item> */}
 
           <Form.Item>
             <SaveButton loading={saveLoading} disabled={saveDisable} htmlType="submit">
