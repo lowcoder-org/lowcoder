@@ -29,7 +29,7 @@ import { BackgroundColorContext } from "comps/utils/backgroundColorContext";
 import { CanvasContainerID } from "constants/domLocators";
 import { Layers } from "constants/Layers";
 import { trans } from "i18n";
-import { changeChildAction } from "lowcoder-core";
+import { changeChildAction, changeValueAction } from "lowcoder-core";
 import {
   Drawer,
   HintPlaceHolder,
@@ -282,6 +282,7 @@ let MTComp = (function () {
         userid: null,
       });
       const [rtmMessages, setRtmMessages] = useState<any>([]);
+      const [localUserSpeaking, setLocalUserSpeaking] = useState<any>(false);
 
       useEffect(() => {
         dispatch(
@@ -324,6 +325,18 @@ let MTComp = (function () {
           );
         }
       }, [rtmMessages]);
+
+      useEffect(() => {
+        if (localUserSpeaking === true) {
+          let localObject = {
+            user: userId + "",
+            audiostatus: props.audioControl.value,
+            streamingVideo: props.videoControl.value,
+            speaking: localUserSpeaking,
+          };
+          props.localUser.onChange(localObject);
+        }
+      }, [localUserSpeaking]);
 
       useEffect(() => {
         if (props.localUser.value) {
@@ -387,13 +400,7 @@ let MTComp = (function () {
                 volumeInfo.uid == userId &&
                 props.localUser.value.speaking != speaking
               ) {
-               let localObject = {
-                 user: userId + "",
-                 audiostatus: props.audioControl.value,
-                 streamingVideo: props.videoControl.value,
-                 speaking: speaking,
-               };
-                props.localUser.onChange(localObject);
+                setLocalUserSpeaking(speaking);
               } else {
                 setUpdateVolume({ update: speaking, userid: volumeInfo.uid });
               }
@@ -574,12 +581,14 @@ MTComp = withMethodExposing(MTComp, [
       } else {
         await turnOnCamera(value);
       }
-      comp.children.localUser.change({
+      let localData = {
         user: userId + "",
         streamingVideo: value,
-        audiostatus: false,
-        speaking: false,
-      });
+        audiostatus: comp.children.audioControl.getView().value,
+        speaking: comp.children.localUser.getView().value.speaking,
+      };
+
+      comp.children.localUser.change(localData);
       comp.children.videoControl.change(value);
     },
   },
@@ -598,6 +607,19 @@ MTComp = withMethodExposing(MTComp, [
         streamingVideo: true,
       });
 
+      comp.children.localUser.children.value.dispatch(
+        changeChildAction(
+          "localUser",
+          {
+            user: userId + "",
+            audiostatus: false,
+            speaking: false,
+            streamingVideo: true,
+          },
+          false
+        )
+      );
+      comp.children.videoControl.change(true);
       await publishVideo(
         comp.children.appId.getView(),
         comp.children.meetingName.getView().value == ""
