@@ -169,8 +169,8 @@ const typeOptions = [
 export const meetingStreamChildren = {
   autoHeight: withDefault(AutoHeightControl, "fixed"),
   shareScreen: withDefault(BoolShareVideoControl, false),
-  profileImageHeight: withDefault(StringControl, "300px"),
-  profileImageWidth: withDefault(StringControl, "300px"),
+  profilePadding: withDefault(StringControl, "0px"),
+  profileBorderRadius: withDefault(StringControl, "0px"),
   type: dropdownControl(typeOptions, ""),
   onEvent: MeetingEventHandlerControl,
   disabled: BoolCodeControl,
@@ -287,8 +287,6 @@ let VideoCompBuilder = (function (props) {
           }
         );
 
-        console.log(userData);
-        
         setUserId(userData.user);
         setUsername(userData.userName);
       }
@@ -319,9 +317,8 @@ let VideoCompBuilder = (function (props) {
                   >
                     <img
                       style={{
-                        borderRadius: "50%",
-                        width: props.profileImageWidth,
-                        height: props.profileImageHeight,
+                        padding: props.profilePadding,
+                        borderRadius: props.profileBorderRadius,
                       }}
                       src={props.profileImageUrl.value}
                     />
@@ -332,9 +329,9 @@ let VideoCompBuilder = (function (props) {
                 <TextContainer $style={props.style}>
                   <img
                     style={{
-                      borderRadius: "50%",
-                      width: props.profileImageWidth,
-                      height: props.profileImageHeight,
+                      padding: props.profilePadding,
+                      width: "100%",
+                      borderRadius: props.profileBorderRadius,
                     }}
                     src={props.profileImageUrl.value}
                   />
@@ -367,10 +364,12 @@ let VideoCompBuilder = (function (props) {
             label: trans("meeting.profileImageUrl"),
             placeholder: "https://via.placeholder.com/120",
           })}
-          {children.profileImageHeight.propertyView({
-            label: "Profile Height",
+          {children.profilePadding.propertyView({
+            label: "Profile Padding",
           })}
-          {children.profileImageWidth.propertyView({ label: "Profile Width" })}
+          {children.profileBorderRadius.propertyView({
+            label: "Profile Border Radius",
+          })}
           {children.style.getPropertyView()}
         </Section>
       </>

@@ -10,10 +10,8 @@ import { BoolControl } from "comps/controls/boolControl";
 import { StringControl } from "comps/controls/codeControl";
 import {
   booleanExposingStateControl,
+  BooleanStateControl,
   jsonObjectExposingStateControl,
-  numberExposingStateControl,
-  numberStateControl,
-  stringExposingStateControl,
   stringStateControl,
 } from "comps/controls/codeStateControl";
 import { PositionControl } from "comps/controls/dropdownControl";
@@ -29,7 +27,7 @@ import { BackgroundColorContext } from "comps/utils/backgroundColorContext";
 import { CanvasContainerID } from "constants/domLocators";
 import { Layers } from "constants/Layers";
 import { trans } from "i18n";
-import { changeChildAction, changeValueAction } from "lowcoder-core";
+import { changeChildAction } from "lowcoder-core";
 import {
   Drawer,
   HintPlaceHolder,
@@ -55,7 +53,7 @@ import AgoraRTC, {
 
 import { JSONValue } from "@lowcoder-ee/index.sdk";
 import { getData } from "../listViewComp/listViewUtils";
-import AgoraRTM, { RtmChannel, RtmClient, RtmMessage } from "agora-rtm-sdk";
+import AgoraRTM, { RtmChannel, RtmClient } from "agora-rtm-sdk";
 
 const EventOptions = [closeEvent] as const;
 
@@ -113,13 +111,13 @@ let screenShareStream: ILocalVideoTrack;
 let userId: UID | null | undefined;
 let rtmChannelResponse: RtmChannel;
 let rtmClient: RtmClient;
+const agoraTokenUrl = `https://sandbox.wiggolive.com/token/rtc`;
 
 const generateToken = async (
   appId: any,
   certificate: any,
   channelName: any
 ) => {
-  const agoraTokenUrl = `https://sandbox.wiggolive.com/token/rtc`;
   let response = await axios.post(agoraTokenUrl, {
     appId,
     certificate,
@@ -204,8 +202,8 @@ const publishVideo = async (
     const videoSettings = mediaStreamTrack.getSettings();
     const videoWidth = videoSettings.width;
     const videoHeight = videoSettings.height;
-    height.videoWidth.change(videoWidth);
-    height.videoHeight.change(videoHeight);
+    // height.videoWidth.change(videoWidth);
+    // height.videoHeight.change(videoHeight);
   }
 };
 
@@ -230,7 +228,7 @@ const rtmInit = async (appId: any, uid: any, channel: any) => {
 };
 
 export const meetingControllerChildren = {
-  visible: booleanExposingStateControl("visible"),
+  visible: withDefault(BooleanStateControl, "visible"),
   onEvent: eventHandlerControl(EventOptions),
   width: StringControl,
   height: StringControl,
@@ -239,20 +237,17 @@ export const meetingControllerChildren = {
   placement: PositionControl,
   maskClosable: withDefault(BoolControl, true),
   showMask: withDefault(BoolControl, true),
-  audioControl: booleanExposingStateControl("false"),
-  videoControl: booleanExposingStateControl("true"),
-  endCall: booleanExposingStateControl("false"),
-  sharing: booleanExposingStateControl("false"),
-  videoSettings: jsonObjectExposingStateControl(""),
-  videoWidth: numberStateControl(200),
-  videoHeight: numberStateControl(200),
+  meetingActive: withDefault(BooleanStateControl, "false"),
+  audioControl: withDefault(BooleanStateControl, "false"),
+  videoControl: withDefault(BooleanStateControl, "true"),
+  endCall: withDefault(BooleanStateControl, "false"),
+  sharing: withDefault(BooleanStateControl, "false"),
   appId: withDefault(StringControl, trans("meeting.appid")),
   participants: stateComp<JSONValue>([]),
   usersScreenShared: stateComp<JSONValue>([]),
   localUser: jsonObjectExposingStateControl(""),
   meetingName: stringStateControl("meetingName"),
-  userName: stringStateControl("userName"),
-  certifiCateKey: stringExposingStateControl(""),
+  certifiCateKey: stringStateControl(""),
   messages: stateComp<JSONValue>([]),
 };
 let MTComp = (function () {
@@ -628,6 +623,7 @@ MTComp = withMethodExposing(MTComp, [
         comp.children,
         comp.children.certifiCateKey.getView().value
       );
+      comp.children.meetingActive.change(true);
     },
   },
   {
@@ -690,6 +686,7 @@ MTComp = withMethodExposing(MTComp, [
     execute: async (comp, values) => {
       let value = !comp.children.endCall.getView().value;
       comp.children.endCall.change(value);
+      comp.children.meetingActive.change(false);
 
       await leaveChannel();
 
@@ -716,6 +713,8 @@ export const VideoMeetingControllerComp = withExposingConfigs(MTComp, [
   new NameConfig("appId", trans("meeting.appid")),
   new NameConfig("localUser", trans("meeting.host")),
   new NameConfig("participants", trans("meeting.participants")),
+  new NameConfig("meetingActive", trans("meeting.meetingName")),
   new NameConfig("meetingName", trans("meeting.meetingName")),
   new NameConfig("messages", trans("meeting.meetingName")),
 ]);
+
