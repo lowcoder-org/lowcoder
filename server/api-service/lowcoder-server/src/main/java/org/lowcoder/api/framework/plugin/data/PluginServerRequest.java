@@ -1,5 +1,13 @@
 package org.lowcoder.api.framework.plugin.data;
 
+import org.lowcoder.plugin.api.PluginEndpoint;
+import org.lowcoder.plugin.api.PluginEndpoint.Method;
+import org.lowcoder.plugin.api.data.EndpointRequest;
+import org.springframework.http.HttpCookie;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.web.reactive.function.server.ServerRequest;
+
 import java.net.URI;
 import java.security.Principal;
 import java.util.AbstractMap.SimpleEntry;
@@ -10,14 +18,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.CompletableFuture;
 
-import org.lowcoder.plugin.api.PluginEndpoint;
-import org.lowcoder.plugin.api.PluginEndpoint.Method;
-import org.lowcoder.plugin.api.data.EndpointRequest;
-import org.springframework.http.HttpCookie;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.web.reactive.function.server.ServerRequest;
-
 public class PluginServerRequest implements EndpointRequest 
 {
 	private URI uri;
@@ -27,6 +27,8 @@ public class PluginServerRequest implements EndpointRequest
 	private Map<String, List<Map.Entry<String, String>>> cookies;
 	private Map<String, Object> attributes;
 	private Map<String, String> pathVariables;
+
+	private Map<String, List<String>> queryParams;
 	private CompletableFuture<? extends Principal> principal;
 
 
@@ -36,6 +38,7 @@ public class PluginServerRequest implements EndpointRequest
 		cookies = new HashMap<>();
 		attributes = new HashMap<>();
 		pathVariables = new HashMap<>();
+		queryParams = new HashMap<>();
 	}
 	
 	public static PluginServerRequest fromServerRequest(ServerRequest request)
@@ -73,6 +76,14 @@ public class PluginServerRequest implements EndpointRequest
 				.forEach(entry -> {
 					psr.pathVariables.put(entry.getKey(), entry.getValue());
 				});
+		}
+
+		if (request.queryParams() != null)
+		{
+			request.queryParams().entrySet()
+					.forEach(entry -> {
+						psr.queryParams.put(entry.getKey(), entry.getValue());
+					});
 		}
 		
 		psr.principal =  request.principal().toFuture();
@@ -124,6 +135,11 @@ public class PluginServerRequest implements EndpointRequest
 	@Override
 	public Map<String, String> pathVariables() {
 		return pathVariables;
+	}
+
+	@Override
+	public Map<String, List<String>> queryParams() {
+		return queryParams;
 	}
 	@Override
 	public CompletableFuture<? extends Principal> principal() {

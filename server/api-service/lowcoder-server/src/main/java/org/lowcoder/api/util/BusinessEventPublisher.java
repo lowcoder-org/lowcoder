@@ -39,6 +39,7 @@ import org.lowcoder.infra.event.groupmember.GroupMemberRoleUpdateEvent;
 import org.lowcoder.infra.event.user.UserLoginEvent;
 import org.lowcoder.infra.event.user.UserLogoutEvent;
 import org.lowcoder.plugin.api.event.LowcoderEvent.EventType;
+import org.lowcoder.sdk.constants.Authentication;
 import org.lowcoder.sdk.util.LocaleUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
