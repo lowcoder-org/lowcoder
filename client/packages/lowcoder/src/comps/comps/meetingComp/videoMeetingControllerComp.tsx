@@ -717,4 +717,3 @@ export const VideoMeetingControllerComp = withExposingConfigs(MTComp, [
   new NameConfig("meetingName", trans("meeting.meetingName")),
   new NameConfig("messages", trans("meeting.meetingName")),
 ]);
-

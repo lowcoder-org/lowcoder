@@ -33,9 +33,7 @@ import { client } from "./videoMeetingControllerComp";
 import { IAgoraRTCRemoteUser } from "agora-rtc-sdk-ng";
 
 import {
-  ControlParams,
   MeetingEventHandlerControl,
-  SimpleComp,
   StringControl,
   StringStateControl,
   hiddenPropertyView,
@@ -57,43 +55,14 @@ function getFormOptions(editorState: EditorState) {
       value: info.name,
     }));
 }
-const Container = styled.div<{ $style: any }>`
-  height: 100%;
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-`;
-const TextContainer = styled.div<{ $style: any }>`
-  height: 100%;
-  width: 100%;
-  display: flex;
-  align-items: center;
-  position: absolute;
-  justify-content: center;
-  ${(props) => props.$style && getStyle(props.$style)}
-`;
 
-const VideoContainer = styled.video<{ $style: any }>`
+const VideoContainer = styled.video`
   height: 100%;
   width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  ${(props) => props.$style && getStyle(props.$style)}
 `;
-
-const getStyle = (style: any) => {
-  return css`
-     {
-      border: 1px solid ${style.border};
-      border-radius: ${style.radius};
-      margin: ${style.margin};
-      padding: ${style.padding};
-      background-color: ${style.background};
-    }
-  `;
-};
 
 function getForm(editorState: EditorState, formName: string) {
   const comp = editorState?.getUICompByName(formName);
@@ -192,23 +161,10 @@ let VideoCompBuilder = (function (props) {
   return new UICompBuilder(meetingStreamChildren, (props) => {
     const videoRef = useRef<HTMLVideoElement>(null);
     const conRef = useRef<HTMLDivElement>(null);
-    const placeholderRef = useRef<HTMLDivElement>(null);
     const [userId, setUserId] = useState();
     const [userName, setUsername] = useState("");
     const [showVideo, setVideo] = useState(true);
 
-    useEffect(() => {
-      onResize();
-    }, []);
-
-    const onResize = async () => {
-      const container = conRef.current;
-      let videoCo = videoRef.current;
-      if (videoCo) {
-        videoCo!.style.height = container?.clientHeight + "px";
-        videoCo!.style.width = container?.clientWidth + "px";
-      }
-    };
     useEffect(() => {
       if (props.userId.value !== "") {
         let userData = JSON.parse(props.userId?.value);
@@ -289,55 +245,84 @@ let VideoCompBuilder = (function (props) {
 
         setUserId(userData.user);
         setUsername(userData.userName);
+        console.log(userData);
       }
     }, [props.userId.value]);
 
     return (
       <EditorContext.Consumer>
         {(editorState) => (
-          <ReactResizeDetector onResize={onResize}>
-            <Container ref={conRef} $style={props.style}>
+          <ReactResizeDetector>
+            <div
+              ref={conRef}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                height: "100%",
+                overflow: "hidden",
+                borderRadius: props.style.radius,
+                aspectRatio: "1 / 1",
+                backgroundColor: props.style.background,
+                padding: props.style.padding,
+                margin: props.style.margin,
+              }}
+            >
               {userId ? (
-                <>
+                showVideo ? (
                   <VideoContainer
                     onClick={() => props.onEvent("videoClicked")}
                     ref={videoRef}
-                    style={{ display: `${showVideo ? "flex" : "none"}` }}
-                    $style={props.style}
+                    style={{
+                      display: `${showVideo ? "flex" : "none"}`,
+                      aspectRatio: "1 / 1",
+                      borderRadius: props.style.radius,
+                      width: "auto",
+                    }}
                     id={props.shareScreen ? "share-screen" : userId}
                   ></VideoContainer>
-                  <TextContainer
-                    onClick={() => props.onEvent("videoClicked")}
-                    ref={placeholderRef}
+                ) : (
+                  <div
                     style={{
-                      display: `${!showVideo ? "flex" : "none"}`,
                       flexDirection: "column",
+                      display: "flex",
+                      alignItems: "center",
+                      margin: "0 auto",
+                      padding: props.profilePadding,
                     }}
-                    $style={props.style}
                   >
                     <img
                       style={{
-                        padding: props.profilePadding,
                         borderRadius: props.profileBorderRadius,
+                        width: "100%",
+                        overflow: "hidden",
                       }}
                       src={props.profileImageUrl.value}
                     />
-                    {userName ?? "No Username"}
-                  </TextContainer>
-                </>
+                    <p style={{ margin: "0" }}>{userName ?? ""}</p>
+                  </div>
+                )
               ) : (
-                <TextContainer $style={props.style}>
+                <div
+                  style={{
+                    flexDirection: "column",
+                    display: "flex",
+                    alignItems: "center",
+                    margin: "0 auto",
+                    padding: props.profilePadding,
+                  }}
+                >
                   <img
                     style={{
-                      padding: props.profilePadding,
-                      width: "100%",
                       borderRadius: props.profileBorderRadius,
+                      width: "100%",
+                      overflow: "hidden",
                     }}
                     src={props.profileImageUrl.value}
                   />
-                </TextContainer>
+                  <p style={{ margin: "0" }}>{userName ?? ""}</p>
+                </div>
               )}
-            </Container>
+            </div>
           </ReactResizeDetector>
         )}
       </EditorContext.Consumer>
