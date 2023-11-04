@@ -8,15 +8,17 @@ import { RouteComponentProps } from "react-router-dom";
 import { AppState } from "redux/reducers";
 import history from "util/history";
 import { isFetchUserFinished } from "redux/selectors/usersSelectors";
+import { fetchConfigAction } from "redux/reduxActions/configActions";
 import { trans } from "i18n";
 import { messageInstance } from "lowcoder-design";
 
 type InviteLandingProp = RouteComponentProps<{ invitationId: string }, StaticContext, any> & {
   invitationId: string;
+  fetchConfig: (orgId?: string) => void;
 };
 
 function InviteLanding(props: InviteLandingProp) {
-  const { invitationId } = props;
+  const { invitationId, fetchConfig } = props;
   const fetchUserFinished = useSelector(isFetchUserFinished);
   useEffect(() => {
     if (!fetchUserFinished) {
@@ -27,6 +29,7 @@ function InviteLanding(props: InviteLandingProp) {
       history.push(BASE_URL);
       return;
     }
+    let orgId:string | undefined = undefined;
     // accept the invitation
     InviteApi.acceptInvite({ invitationId })
       .then((resp) => {
@@ -39,6 +42,7 @@ function InviteLanding(props: InviteLandingProp) {
           resp?.status === API_STATUS_CODES.REQUEST_NOT_AUTHORISED
         ) {
           const inviteInfo = resp.data.data;
+          orgId = inviteInfo.invitedOrganizationId;
           const inviteState = inviteInfo ? { ...inviteInfo, invitationId } : { invitationId };
           history.push({
             pathname: AUTH_LOGIN_URL,
@@ -53,8 +57,10 @@ function InviteLanding(props: InviteLandingProp) {
       .catch((errorResp) => {
         messageInstance.error(errorResp.message);
         history.push(BASE_URL);
+      }).finally(() => {
+        // fetchConfig(orgId);
       });
-  }, [fetchUserFinished, invitationId]);
+  }, [fetchUserFinished, invitationId, fetchConfig]);
   return null;
 }
 
@@ -64,4 +70,9 @@ const mapStateToProps = (state: AppState, props: InviteLandingProp) => {
   };
 };
 
-export default connect(mapStateToProps)(InviteLanding);
+const mapDispatchToProps = (dispatch: any) => ({
+  fetchConfig: (orgId?: string) => dispatch(fetchConfigAction(orgId)),
+});
+
+
+export default connect(mapStateToProps, mapDispatchToProps)(InviteLanding);

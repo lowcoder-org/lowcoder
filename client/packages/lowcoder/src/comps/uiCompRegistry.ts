@@ -89,6 +89,7 @@ export type UICompType =
   | "progress"
   | "progressCircle"
   | "chart"
+  | "mermaid" //Added By Falk Wolsky
   | "fileViewer"
   | "divider"
   | "qrCode"
@@ -118,6 +119,7 @@ export type UICompType =
   | "signature"
   | "jsonLottie" //Added By Aqib Mirza
   | "timeline"
+  | "comment"
   | "mention"
   | "autocomplete"
   | "responsiveLayout";

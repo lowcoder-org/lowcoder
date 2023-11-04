@@ -1,6 +1,6 @@
 {
   "name": "lowcoder-comps",
-  "version": "0.0.13",
+  "version": "0.0.17",
   "type": "module",
   "license": "MIT",
   "dependencies": {
@@ -15,6 +15,7 @@
     "@types/react-dom": "17",
     "big.js": "^6.2.1",
     "echarts-extension-gmap": "^1.6.0",
+    "echarts-wordcloud": "^2.1.0",
     "lowcoder-cli": "workspace:^",
     "lowcoder-sdk": "workspace:^",
     "mermaid": "^10.2.4",
@@ -29,8 +30,8 @@
         "name": "Chart",
         "icon": "./icons/icon-chart.svg",
         "layoutInfo": {
-          "w": 11,
-          "h": 35
+          "w": 15,
+          "h": 40
         }
       },
       "imageEditor": {
@@ -38,7 +39,7 @@
         "icon": "./icons/icon-chart.svg",
         "layoutInfo": {
           "w": 15,
-          "h": 60
+          "h": 40
         }
       },
       "calendar": {
@@ -47,6 +48,14 @@
         "layoutInfo": {
           "w": 15,
           "h": 60
+        }
+      },
+      "mermaid": {
+        "name": "Mermaid",
+        "icon": "./icons/mermaidchart.svg",
+        "layoutInfo": {
+          "w": 15,
+          "h": 40
         }
       }
     }
@@ -60,6 +69,7 @@
   },
   "devDependencies": {
     "jest": "29.3.0",
+    "jest-canvas-mock": "^2.5.2",
     "vite": "^4.3.9",
     "vite-tsconfig-paths": "^3.6.0"
   }

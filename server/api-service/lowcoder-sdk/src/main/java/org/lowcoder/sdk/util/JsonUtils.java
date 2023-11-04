@@ -8,6 +8,7 @@ import java.util.Set;
 import javax.annotation.Nullable;
 
 import org.lowcoder.sdk.auth.EmailAuthConfig;
+import org.lowcoder.sdk.auth.Oauth2KeycloakAuthConfig;
 import org.lowcoder.sdk.auth.Oauth2OryAuthConfig;
 import org.lowcoder.sdk.auth.Oauth2SimpleAuthConfig;
 
@@ -46,6 +47,7 @@ public final class JsonUtils {
         OBJECT_MAPPER.registerSubtypes(new NamedType(Oauth2SimpleAuthConfig.class, GITHUB));
         OBJECT_MAPPER.registerSubtypes(new NamedType(Oauth2SimpleAuthConfig.class, GOOGLE));
         OBJECT_MAPPER.registerSubtypes(new NamedType(Oauth2OryAuthConfig.class, ORY));
+        OBJECT_MAPPER.registerSubtypes(new NamedType(Oauth2KeycloakAuthConfig.class, KEYCLOAK));
     }
 
     public static final JsonNode EMPTY_JSON_NODE = createObjectNode();

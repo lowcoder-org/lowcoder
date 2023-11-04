@@ -1,6 +1,6 @@
 import { AbstractAuthenticator } from "./abstractAuthenticator";
 import { AxiosPromise } from "axios";
-import UserApi from "api/userApi";
+import UserApi, { CommonLoginParam, ThirdPartyAuthRequest } from "api/userApi";
 import { ApiResponse } from "api/apiResponses";
 
 export class OAuthAuthenticator extends AbstractAuthenticator {
@@ -19,13 +19,16 @@ export class OAuthAuthenticator extends AbstractAuthenticator {
 
   login(): AxiosPromise<ApiResponse> {
     const { urlParam, authParams, redirectUrl } = this;
-    return UserApi.thirdPartyLogin({
+    const params: ThirdPartyAuthRequest & CommonLoginParam = {
       state: urlParam.state!,
       code: urlParam.code!,
       source: authParams.sourceType,
       authId: authParams.authId,
       redirectUrl: redirectUrl,
-      ...(authParams.invitationId && { invitationId: authParams.invitationId }),
-    });
+    }
+    if(authParams.invitedOrganizationId) {
+      params.orgId = authParams.invitedOrganizationId;
+    }
+    return UserApi.thirdPartyLogin(params);
   }
 }

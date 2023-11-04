@@ -251,7 +251,7 @@ let FormBasicComp = (function () {
                   {trans("jsonSchemaForm.schemaTooltip") + " "}
                   <a
                     href={
-                      "https://react-jsonschema-form.readthedocs.io/en/latest/api-reference/uiSchema/"
+                      "https://jsonforms.io/docs/uischema"
                     }
                     target={"_blank"}
                     rel="noreferrer"

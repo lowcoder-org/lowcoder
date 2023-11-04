@@ -891,7 +891,7 @@ export const SignatureStyle = [
   PADDING,
 ] as const;
 
-//Added by Aqib Mirza
+// Added by Aqib Mirza
 export const LottieStyle = [
   {
     name: "background",
@@ -904,7 +904,18 @@ export const LottieStyle = [
   PADDING,
 ] as const;
 /////////////////////
-
+export const CommentStyle = [
+  {
+    name: "background",
+    label: trans("style.background"),
+    depTheme: "canvas",
+    depType: DEP_TYPE.SELF,
+    transformer: toSelf,
+  },
+  MARGIN,	
+  PADDING,
+  RADIUS,
+] as const
 export const ResponsiveLayoutRowStyle = [
   ...BG_STATIC_BORDER_RADIUS,
   MARGIN,	

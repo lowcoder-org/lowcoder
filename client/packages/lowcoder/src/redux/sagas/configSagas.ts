@@ -1,14 +1,22 @@
 import { all, call, put, takeLatest } from "redux-saga/effects";
-import { ReduxActionErrorTypes, ReduxActionTypes } from "constants/reduxActionConstants";
+import {
+  ReduxActionErrorTypes,
+  ReduxActionTypes,
+  ReduxAction,
+} from "constants/reduxActionConstants";
 import { AxiosResponse } from "axios";
 import { validateResponse } from "api/apiUtils";
 import log from "loglevel";
 import ConfigApi, { ConfigResponse } from "api/configApi";
 import { transToSystemConfig } from "@lowcoder-ee/constants/configConstants";
+import { FetchConfigActionPayload } from "redux/reduxActions/configActions";
 
-export function* fetchConfigSaga() {
+export function* fetchConfigSaga(action: ReduxAction<FetchConfigActionPayload>) {
   try {
-    const response: AxiosResponse<ConfigResponse> = yield call(ConfigApi.fetchConfig);
+    const response: AxiosResponse<ConfigResponse> = yield call(
+      ConfigApi.fetchConfig,
+      action.payload.orgId,
+    );
     const isValidResponse: boolean = validateResponse(response);
     if (isValidResponse) {
       yield put({

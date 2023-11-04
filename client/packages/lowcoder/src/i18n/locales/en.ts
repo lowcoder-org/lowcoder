@@ -2,7 +2,7 @@ import table from "./componentDocExtra/table.md?url";
 
 export const en = {
   productName: "Lowcoder",
-  productDesc: "Build internal tools fast, with no limitations",
+  productDesc: "Create software applications for your Company and your Customers with minimal coding experience. Lowcoder is the best Retool, Appsmith or Tooljet Alternative.",
   notSupportedBrowser:
     "Your current browser may have compatibility issues. For a better user experience, it is recommended to use the latest version of the Chrome browser.",
   create: "Create",
@@ -272,6 +272,8 @@ export const en = {
     parseDesc: "Triggers on parse",
     success: "Success",
     successDesc: "Triggers on success",
+    delete: "Delete",
+    deleteDesc: "Triggers on delete",
     mention: "mention",
     mentionDesc: "Triggers on mention",
   },
@@ -870,6 +872,9 @@ export const en = {
     imageEditorCompName: "Image Editor",
     imageEditorCompDesc: "Image Editor component",
     imageEditorCompKeywords: "",
+    mermaidCompName: "Mermaid Charts",
+    mermaidCompDesc: "Render Mermaid Charts based on text",
+    mermaidCompKeywords: "",
     calendarCompName: "Calendar",
     calendarCompDesc: "Calendar component",
     calendarCompKeywords: "",
@@ -884,6 +889,9 @@ export const en = {
     timelineCompName: "Time Line",
     timelineCompDesc: "Time Line",
     timelineCompKeywords: "",
+    commentCompName: "Comment",
+    commentCompDesc: "Comment",
+    commentCompKeywords: "",
     mentionCompName: "mention",
     mentionCompDesc: "mention",
     mentionCompKeywords: "",
@@ -1341,7 +1349,7 @@ export const en = {
   },
   audio: {
     src: "Audio URL",
-    defaultSrcUrl: "https://cdn-files.lowcoder.dev/canon-excerpt.mp3",
+    defaultSrcUrl: "https://cdn-files.lowcoder.cloud/canon-excerpt.mp3",
     autoPlay: "Autoplay",
     loop: "Loop",
     srcDesc: "Current audio URL",
@@ -1481,7 +1489,7 @@ export const en = {
   },
   settings: {
     title: "Settings",
-    member: "Members",
+    userGroups: "User Groups",
     organization: "Workspaces",
     audit: "Audit Logs",
     theme: "Themes",
@@ -1489,7 +1497,9 @@ export const en = {
     advanced: "Advanced",
     lab: "Lab",
     branding: "Branding",
-    idSource: "ID Providers",
+    oauthProviders: "OAuth Providers",
+    appUsage: "App Usage Logs",
+    environments: "Environments",
     premium: "Premium",
   },
   memberSettings: {
@@ -1766,7 +1776,7 @@ export const en = {
     phoneColumn: "Phone",
     subTitle: "Title",
     linkLabel: "Link",
-    linkUrl: "cloud.lowcoder.dev",
+    linkUrl: "app.lowcoder.cloud",
     progressLabel: "Progress",
     sliderLabel: "Slider",
     radioLabel: "Radio",
@@ -2084,6 +2094,7 @@ export const en = {
     resetSuccessDesc:
       "Password reset succeeded. The new password is: {password}",
     copyPassword: "Copy password",
+    poweredByLowcoder: "Powered by Lowcoder.cloud"
   },
   preLoad: {
     jsLibraryHelpText:
@@ -2254,7 +2265,7 @@ export const en = {
   },
   docUrls: {
     docHome: "https://docs.lowcoder.cloud/",
-    components: "https://cloud.lowcoder.dev/components?n={compType}",
+    components: "https://app.lowcoder.cloud/components?n={compType}",
     module: "",
     optionList: "",
     terms: "",
@@ -2301,9 +2312,9 @@ export const en = {
   },
   componentDoc: {
     markdownDemoText:
-      "**Lowcoder** is a _developer-friendly_ open-source low code platform to build internal apps within minutes.",
+      "**Lowcoder** | Create software applications for your Company and your Customers with minimal coding experience. Lowcoder is the best Retool, Appsmith or Tooljet Alternative.",
     demoText:
-      "Lowcoder is a developer-friendly open-source low code platform to build internal apps within minutes.",
+      "Lowcoder | Create software applications for your Company and your Customers with minimal coding experience. Lowcoder is the best Retool, Appsmith or Tooljet Alternative.",
     submit: "Submit",
     style: "style",
     danger: "Danger",
@@ -2537,7 +2548,7 @@ export const en = {
     table,
   },
   idSource: {
-    title: "ID Providers",
+    title: "OAuth Providers",
     form: "Email",
     pay: "Premium",
     enable: "Enable",
@@ -2619,6 +2630,31 @@ export const en = {
     valueDesc: "data of timeline",
     clickedObjectDesc: "clicked item data",
     clickedIndexDesc: "clicked item index",
+  },
+  comment: {
+    value: "comment list data",
+    showSendButton: "Allowing Comments",
+    title: "title",
+    titledDefaultValue: "%d comment in total",
+    placeholder: "shift + enter to comment;Enter @ or # for quick input",
+    placeholderDec: "placeholder",
+    buttonTextDec: "button title",
+    buttonText: "comment",
+    mentionList: "mention list data",
+    mentionListDec: "key-Mention keywords;value-Mention list data",
+    userInfo: "user info",
+    dateErr: "date error",
+    commentList: "comment list",
+    deletedItem: "deleted item",
+    submitedItem: "submited item",
+    deleteAble: "show delete button",
+    Introduction: "Introduction keys",
+    helpUser: "user info(Required)",
+    helpname: "user name(Required)",
+    helpavatar: "avatar url(high priority)",
+    helpdisplayName: "display name(low priority)",
+    helpvalue: "Comment content",
+    helpcreatedAt: "create date",
   },
   mention: {
     mentionList: "mention list",

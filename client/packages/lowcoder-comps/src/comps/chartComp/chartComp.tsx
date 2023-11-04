@@ -23,6 +23,7 @@ import {
   UICompBuilder,
   withDefault,
   withExposingConfigs,
+  withMethodExposing,
   withViewFn,
   ThemeContext,
   chartColorPalette,
@@ -46,6 +47,10 @@ let ChartTmpComp = (function () {
 })();
 
 ChartTmpComp = withViewFn(ChartTmpComp, (comp) => {
+  const apiKey = comp.children.mapApiKey.getView();
+  const mode = comp.children.mode.getView();
+  const onEvent = comp.children.onEvent.getView();
+
   const echartsCompRef = useRef<ReactECharts | null>();
   const [chartSize, setChartSize] = useState<ChartSize>();
   const [mapScriptLoaded, setMapScriptLoaded] = useState(false);
@@ -55,21 +60,24 @@ ChartTmpComp = withViewFn(ChartTmpComp, (comp) => {
     color: chartColorPalette,
     backgroundColor: "#fff",
   };
+
   let themeConfig = defaultChartTheme;
   try {
     themeConfig = theme?.theme.chart ? JSON.parse(theme?.theme.chart) : defaultChartTheme;
   } catch (error) {
     log.error('theme chart error: ', error);
   }
-  const onEvent = comp.children.onEvent.getView();
+
   useEffect(() => {
+    if(mode !== 'ui') return;
+    
     // bind events
     const echartsCompInstance = echartsCompRef?.current?.getEchartsInstance();
     if (!echartsCompInstance) {
       return _.noop;
     }
-    echartsCompInstance.on("selectchanged", (param: any) => {
-      const option: any = echartsCompInstance.getOption();
+    echartsCompInstance?.on("selectchanged", (param: any) => {
+      const option: any = echartsCompInstance?.getOption();
       //log.log("chart select change", param);
       if (param.fromAction === "select") {
         comp.dispatch(changeChildAction("selectedPoints", getSelectedPoints(param, option)));
@@ -80,8 +88,8 @@ ChartTmpComp = withViewFn(ChartTmpComp, (comp) => {
       }
     });
     // unbind
-    return () => echartsCompInstance.off("selectchanged");
-  }, [onEvent]);
+    return () => echartsCompInstance?.off("selectchanged");
+  }, [mode, onEvent]);
 
   const echartsConfigChildren = _.omit(comp.children, echartsConfigOmitChildren);
   const option = useMemo(() => {
@@ -96,27 +104,33 @@ ChartTmpComp = withViewFn(ChartTmpComp, (comp) => {
   }, [mapScriptLoaded])
 
   const loadGoogleMapsData = () => {
-    const echartsCompInstance = echartsCompRef?.current?.getEchartsInstance();
-    if (!echartsCompInstance) {
-      return _.noop;
-    }
-    echartsCompInstance.getModel().getComponent("gmap").getGoogleMap();
-  }
-
-  const apiKey = comp.children.mapApiKey.getView();
-  const mode = comp.children.mode.getView();
-  useEffect(() => {
-    if(mode === 'map') {
-      const gMapScript = loadGoogleMapsScript('');
-      if(isMapScriptLoaded) {
-        loadGoogleMapsData();
-        return;
+    setTimeout(() => {
+      const echartsCompInstance = echartsCompRef?.current?.getEchartsInstance();
+      if (!echartsCompInstance) {
+        return _.noop;
       }
-      gMapScript.addEventListener('load', function () {
-        setMapScriptLoaded(true);
-        loadGoogleMapsData();
-      });
+
+      let mapInstance = undefined;
+      mapInstance = echartsCompInstance?.getModel()?.getComponent("gmap")?.getGoogleMap();
+      comp.dispatch(changeChildAction("mapInstance", mapInstance));
+    }, 500)
+  }
+  
+  useEffect(() => {
+    if( mode !== 'map') {
+      comp.dispatch(changeChildAction("mapInstance", undefined));
+      return;
     }
+
+    const gMapScript = loadGoogleMapsScript(apiKey);
+    if(isMapScriptLoaded) {
+      loadGoogleMapsData();
+      return;
+    }
+    gMapScript.addEventListener('load', function () {
+      setMapScriptLoaded(true);
+      loadGoogleMapsData();
+    });
   }, [mode, apiKey, option])
 
   return (
@@ -142,6 +156,7 @@ ChartTmpComp = withViewFn(ChartTmpComp, (comp) => {
           opts={{ locale: getEchartsLocale() }}
           option={option}
           theme={mode !== 'map' ? themeConfig : undefined}
+          mode={mode}
         />
       )}
     </ReactResizeDetector>
@@ -241,7 +256,7 @@ ChartTmpComp = class extends ChartTmpComp {
   }
 };
 
-const ChartComp = withExposingConfigs(ChartTmpComp, [
+let ChartComp = withExposingConfigs(ChartTmpComp, [
   depsConfig({
     name: "selectedPoints",
     desc: trans("chart.selectedPointsDesc"),
@@ -265,6 +280,17 @@ const ChartComp = withExposingConfigs(ChartTmpComp, [
   }),
   new NameConfig("title", trans("chart.titleDesc")),
 ]);
+
+ChartComp = withMethodExposing(ChartComp, [
+  {
+    method: {
+      name: "getMapInstance",
+    },
+    execute: (comp) => {
+      return comp.children.mapInstance.getView()
+    },
+  },
+])
 
 export const ChartCompWithDefault = withDefault(ChartComp, {
   xAxisKey: "date",

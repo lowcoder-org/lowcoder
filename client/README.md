@@ -6,7 +6,7 @@
 
 #### Use prebuilt docker image
 
-Simply run below command to start a backend server.
+Simply run the below command to start a backend server.
 
 ```bash
 docker run -d --name lowcoder -p 3000:3000 -v "$PWD/stacks:/lowcoder-stacks" lowcoderorg/lowcoder-ce
@@ -16,8 +16,8 @@ For more information, view our [docs](https://docs.lowcoder.cloud/lowcoder-docum
 
 #### Build Docker image from source
 
-1. Check out source code and change to source dir.
-2. Use the command below to build Docker image :
+1. Check out the source code and change to source dir.
+2. Use the command below to build a Docker image :
 
 ```bash
 docker build -f ./deploy/docker/Dockerfile -t lowcoder-dev .
@@ -30,6 +30,7 @@ docker run -d --name lowcoder-dev -p 3000:3000 -v "$PWD/stacks:/lowcoder-stacks"
 ```
 
 ### Start develop
+
 
 1. Check out source code.
 2. Change to **/client** dir in the source dir.
