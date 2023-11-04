@@ -1,11 +1,11 @@
 import { BoolCodeControl } from "comps/controls/codeControl";
 import { dropdownControl } from "comps/controls/dropdownControl";
-import { IconControl } from "comps/controls/iconControl";
+// import { IconControl } from "comps/controls/iconControl";
 import { CompNameContext, EditorContext, EditorState } from "comps/editorState";
 import { withDefault } from "comps/generators";
 import { UICompBuilder } from "comps/generators/uiCompBuilder";
 import ReactResizeDetector from "react-resize-detector";
-import _ from "lodash";
+// import _ from "lodash";
 import {
   CommonBlueLabel,
   controlItem,
@@ -61,7 +61,7 @@ const VideoContainer = styled.video`
   width: 100%;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-around;
 `;
 
 function getForm(editorState: EditorState, formName: string) {
@@ -140,13 +140,14 @@ export const meetingStreamChildren = {
   shareScreen: withDefault(BoolShareVideoControl, false),
   profilePadding: withDefault(StringControl, "0px"),
   profileBorderRadius: withDefault(StringControl, "0px"),
+  videoAspectRatio: withDefault(StringControl, "1 / 1"),
   type: dropdownControl(typeOptions, ""),
   onEvent: MeetingEventHandlerControl,
   disabled: BoolCodeControl,
   loading: BoolCodeControl,
   form: SelectFormControl,
-  prefixIcon: IconControl,
-  suffixIcon: IconControl,
+  // prefixIcon: IconControl,
+  // suffixIcon: IconControl,
   style: ButtonStyleControl,
   viewRef: RefControl<HTMLElement>,
   userId: stringExposingStateControl(""),
@@ -169,12 +170,12 @@ let VideoCompBuilder = (function (props) {
       if (props.userId.value !== "") {
         let userData = JSON.parse(props.userId?.value);
         if (
-          userData.user == userId &&
-          userData.streamingVideo == false &&
+          userData.user === userId &&
+          userData.streamingVideo === false &&
           videoRef.current &&
-          videoRef.current?.id == userId + ""
+          videoRef.current?.id === userId + ""
         ) {
-          if (videoRef.current && videoRef.current?.id == userId + "") {
+          if (videoRef.current && videoRef.current?.id === userId + "") {
             videoRef.current.srcObject = null;
             setVideo(false);
           }
@@ -189,8 +190,8 @@ let VideoCompBuilder = (function (props) {
               let userId = user.uid + "";
               if (
                 user.hasVideo &&
-                user.uid + "" != userData.user &&
-                userData.user != ""
+                user.uid + "" !== userData.user &&
+                userData.user !== ""
               ) {
                 props.onEvent("videoOn");
               }
@@ -204,8 +205,8 @@ let VideoCompBuilder = (function (props) {
               const remoteTrack = await client.subscribe(user, mediaType);
               if (
                 user.hasAudio &&
-                user.uid + "" != userData.user &&
-                userData.user != ""
+                user.uid + "" !== userData.user &&
+                userData.user !== ""
               ) {
                 userData.audiostatus = user.hasVideo;
 
@@ -221,21 +222,21 @@ let VideoCompBuilder = (function (props) {
             if (mediaType === "audio") {
               if (
                 !user.hasAudio &&
-                user.uid + "" != userData.user &&
-                userData.user != ""
+                user.uid + "" !== userData.user &&
+                userData.user !== ""
               ) {
                 userData.audiostatus = user.hasVideo;
                 props.onEvent("audioMuted");
               }
             }
             if (mediaType === "video") {
-              if (videoRef.current && videoRef.current?.id == user.uid + "") {
+              if (videoRef.current && videoRef.current?.id === user.uid + "") {
                 videoRef.current.srcObject = null;
               }
               if (
                 !user.hasVideo &&
-                user.uid + "" != userData.user &&
-                userData.user != ""
+                user.uid + "" !== userData.user &&
+                userData.user !== ""
               ) {
                 props.onEvent("videoOff");
               }
@@ -245,7 +246,7 @@ let VideoCompBuilder = (function (props) {
 
         setUserId(userData.user);
         setUsername(userData.userName);
-        console.log(userData);
+        // console.log(userData);
       }
     }, [props.userId.value]);
 
@@ -261,7 +262,7 @@ let VideoCompBuilder = (function (props) {
                 height: "100%",
                 overflow: "hidden",
                 borderRadius: props.style.radius,
-                aspectRatio: "1 / 1",
+                aspectRatio: props.videoAspectRatio,
                 backgroundColor: props.style.background,
                 padding: props.style.padding,
                 margin: props.style.margin,
@@ -274,7 +275,7 @@ let VideoCompBuilder = (function (props) {
                     ref={videoRef}
                     style={{
                       display: `${showVideo ? "flex" : "none"}`,
-                      aspectRatio: "1 / 1",
+                      aspectRatio: props.videoAspectRatio,
                       borderRadius: props.style.radius,
                       width: "auto",
                     }}
@@ -290,7 +291,7 @@ let VideoCompBuilder = (function (props) {
                       padding: props.profilePadding,
                     }}
                   >
-                    <img
+                    <img alt=""
                       style={{
                         borderRadius: props.profileBorderRadius,
                         width: "100%",
@@ -311,7 +312,7 @@ let VideoCompBuilder = (function (props) {
                     padding: props.profilePadding,
                   }}
                 >
-                  <img
+                  <img alt=""
                     style={{
                       borderRadius: props.profileBorderRadius,
                       width: "100%",
@@ -336,6 +337,10 @@ let VideoCompBuilder = (function (props) {
           {children.shareScreen.propertyView({
             label: trans("meeting.shareScreen"),
           })}
+          {children.profileImageUrl.propertyView({
+            label: trans("meeting.profileImageUrl"),
+            placeholder: "https://via.placeholder.com/120",
+          })}
         </Section>
 
         <Section name={sectionNames.interaction}>
@@ -345,15 +350,14 @@ let VideoCompBuilder = (function (props) {
           {hiddenPropertyView(children)}
         </Section>
         <Section name={sectionNames.style}>
-          {children.profileImageUrl.propertyView({
-            label: trans("meeting.profileImageUrl"),
-            placeholder: "https://via.placeholder.com/120",
-          })}
           {children.profilePadding.propertyView({
-            label: "Profile Padding",
+            label: "Profile Image Padding",
           })}
           {children.profileBorderRadius.propertyView({
-            label: "Profile Border Radius",
+            label: "Profile Image Border Radius",
+          })}
+          {children.videoAspectRatio.propertyView({
+            label: "Video Aspect Ratio",
           })}
           {children.style.getPropertyView()}
         </Section>
