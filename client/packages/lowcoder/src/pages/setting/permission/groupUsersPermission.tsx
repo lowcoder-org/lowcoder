@@ -72,7 +72,7 @@ function GroupUsersPermission(props: GroupPermissionProp) {
     <>
       <PermissionHeaderWrapper>
         <HeaderBack>
-          <span onClick={() => history.push(PERMISSION_SETTING)}>{trans("settings.member")}</span>
+          <span onClick={() => history.push(PERMISSION_SETTING)}>{trans("settings.userGroups")}</span>
           <ArrowIcon />
           {isGroupAdmin(currentUserGroupRole) && !group.devGroup ? (
             <span>{group.groupName}</span>

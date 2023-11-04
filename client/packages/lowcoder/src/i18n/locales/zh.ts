@@ -1367,7 +1367,7 @@ drawer: {
 },
 settings: {
     title: "设置",
-    member: "成员",
+    userGroups: "用户组",
     organization: "工作空间",
     audit: "审计日志",
     theme: "主题",
@@ -1375,7 +1375,9 @@ settings: {
     advanced: "高级",
     lab: "实验室",
     branding: "品牌",
-    idSource: "登录方式",
+    oauthProviders: "OAuth 提供商",
+    appUsage: "应用程序使用日志",
+    environments: "环境",
     premium: "高级版",
 },
 memberSettings: {
@@ -2408,7 +2410,7 @@ componentDocExtra: {
     table,
 },
 idSource: {
-    title: "登录方式",
+    title: "OAuth 提供商",
     form: "电子邮件",
     pay: "高级",
     enable: "启用",
