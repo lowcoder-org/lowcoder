@@ -40,7 +40,7 @@
     "agora-rtc-sdk-ng": "^4.19.0",
     "agora-rtm-sdk": "^1.5.1",
     "ali-oss": "^6.17.1",
-    "antd": "5.10.3",
+    "antd": "5.7.2",
     "antd-img-crop": "^4.12.2",
     "axios": "^0.21.1",
     "buffer": "^6.0.3",
