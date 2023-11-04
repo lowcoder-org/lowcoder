@@ -299,3 +299,30 @@ export const StatusSpan = styled.span`
     color: #8b8fa3;
   }
 `;
+
+export const CreateButton = styled(Button)`
+  background-color: #4965f2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 8px;
+  font-size: 13px;
+  border: 1px solid #4965f2;
+  box-shadow: none;
+  &.ant-btn-primary:hover,
+  &.ant-btn-primary:focus {
+    background: #315efb;
+    border-color: #315efb;
+  }
+  &:disabled,
+  &:disabled:hover {
+    background: #dbe1fd;
+    color: #ffffff;
+    border-color: #dbe1fd;
+  }
+  svg {
+    margin-right: 2px;
+    width: 12px;
+    height: 12px;
+  }
+`;
