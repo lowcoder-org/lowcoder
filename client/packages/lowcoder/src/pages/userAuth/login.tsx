@@ -131,11 +131,11 @@ function Login() {
     loginCardView = thirdPartyLoginView;
   }
 
-  const loginHeading = organizationId && LOWCODER_CUSTOM_AUTH_WELCOME_TEXT !== ""
+  const loginHeading = LOWCODER_CUSTOM_AUTH_WELCOME_TEXT !== ""
     ? LOWCODER_CUSTOM_AUTH_WELCOME_TEXT
     : getLoginTitle(inviteInfo?.createUserName, systemConfig?.branding?.brandName)
 
-  const loginSubHeading = organizationId && LOWCODER_CUSTOM_AUTH_WELCOME_TEXT !== ""
+  const loginSubHeading = LOWCODER_CUSTOM_AUTH_WELCOME_TEXT !== ""
     ? trans("userAuth.poweredByLowcoder")
     : ''
 

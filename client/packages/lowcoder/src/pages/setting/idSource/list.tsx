@@ -45,13 +45,13 @@ export const IdSourceList = (props: any) => {
   const enableEnterpriseLogin = useSelector(selectSystemConfig)?.featureFlag?.enableEnterpriseLogin;
 
   useEffect(() => {
-    if (!currentOrgId || (!isSelfDomain(config) && !isEnterpriseMode(config))) {
+    if (!currentOrgId) {
       return;
     }
     getConfigs();
   }, [currentOrgId]);
   
-  if (!currentOrgId || (!isSelfDomain(config) && !isEnterpriseMode(config))) {
+  if (!currentOrgId) {
     return null;
   }
 
