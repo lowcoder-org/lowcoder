@@ -17,12 +17,12 @@ public class OpenAPIDocsConfiguration {
     private CommonConfig commonConfig;
 
     @Bean
-    public OpenAPI customizeOpenAPI() {
+    OpenAPI customizeOpenAPI() {
         final String securitySchemeName = commonConfig.getCookieName();
         return new OpenAPI()
                 .info(new Info()
                         .title("Lowcoder API")
-                        .version("1.0"))
+                        .version(commonConfig.getApiVersion()))
                 .addServersItem(new Server()
                         .url("/"))
                 .addSecurityItem(new SecurityRequirement()

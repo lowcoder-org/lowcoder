@@ -33,6 +33,7 @@ public class CommonConfig {
     private boolean cloud;
     private Security security = new Security();
     private String version;
+    private String apiVersion;
     private boolean blockHoundEnable;
     private String cookieName;
     private int maxQueryTimeout = 300;
