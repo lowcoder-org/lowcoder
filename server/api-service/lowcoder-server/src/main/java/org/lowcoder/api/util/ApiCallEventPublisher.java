@@ -64,7 +64,7 @@ public class ApiCallEventPublisher {
                             }
                             MultiValueMap<String, String> headers = writableHttpHeaders(request.getHeaders());
                             headers.remove("Cookie");
-                            headers.remove("X-Real-IP");
+                            String ipAddress = headers.remove("X-Real-IP").stream().findFirst().get();
                             APICallEvent event = APICallEvent.builder()
                                     .userId(orgMember.getUserId())
                                     .orgId(orgMember.getOrgId())
@@ -75,6 +75,7 @@ public class ApiCallEventPublisher {
                                     .requestUri(request.getURI().getPath())
                                     .headers(headers)
                                     .queryParams(request.getQueryParams())
+                                    .ipAddress(ipAddress)
                                     .build();
                             event.populateDetails();
                             applicationEventPublisher.publishEvent(event);
