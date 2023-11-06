@@ -246,7 +246,6 @@ let VideoCompBuilder = (function (props) {
 
         setUserId(userData.user);
         setUsername(userData.userName);
-        // console.log(userData);
       }
     }, [props.userId.value]);
 

@@ -540,6 +540,7 @@ MTComp = withMethodExposing(MTComp, [
       params: [],
     },
     execute: async (comp, values) => {
+      if (!comp.children.meetingActive.getView().value) return;
       let sharing = !comp.children.sharing.getView().value;
       await shareScreen(sharing);
       comp.children.sharing.change(sharing);
@@ -552,6 +553,7 @@ MTComp = withMethodExposing(MTComp, [
       params: [],
     },
     execute: async (comp, values) => {
+      if (!comp.children.meetingActive.getView().value) return;
       let value = !comp.children.audioControl.getView().value;
       comp.children.localUser.change({
         user: userId + "",
@@ -570,6 +572,7 @@ MTComp = withMethodExposing(MTComp, [
       params: [],
     },
     execute: async (comp, values) => {
+      if (!comp.children.meetingActive.getView().value) return;
       let value = !comp.children.videoControl.getView().value;
       if (videoTrack) {
         videoTrack.setEnabled(value);
@@ -633,6 +636,7 @@ MTComp = withMethodExposing(MTComp, [
       params: [],
     },
     execute: async (comp, values) => {
+      if (!comp.children.meetingActive.getView().value) return;
       let otherData =
         values != undefined && values[1] !== undefined ? values[1] : "";
       let toUsers: any =
@@ -684,6 +688,7 @@ MTComp = withMethodExposing(MTComp, [
       params: [],
     },
     execute: async (comp, values) => {
+      if (!comp.children.meetingActive.getView().value) return;
       let value = !comp.children.endCall.getView().value;
       comp.children.endCall.change(value);
       comp.children.meetingActive.change(false);
