@@ -97,13 +97,12 @@ public class PathBasedPluginLoader implements PluginLoader
 	protected List<LowcoderPlugin> loadPluginCandidates(String pluginJar)
 	{
 		List<LowcoderPlugin> pluginCandidates = new ArrayList<>();
-		
-		PluginJarClassLoader pluginClassLoader = null;
+
 		try
 		{
-			pluginClassLoader = new PluginJarClassLoader(getClass().getClassLoader(), Path.of(pluginJar));
+			Path pluginPath = Path.of(pluginJar);
+			PluginClassLoader pluginClassLoader = new PluginClassLoader(pluginPath.getFileName().toString(), pluginPath);
 
-			
 			ServiceLoader<LowcoderPlugin> pluginServices = ServiceLoader.load(LowcoderPlugin.class, pluginClassLoader);
 			if (pluginServices != null )
 			{

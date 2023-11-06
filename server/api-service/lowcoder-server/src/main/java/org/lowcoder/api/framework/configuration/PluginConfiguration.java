@@ -3,8 +3,7 @@ package org.lowcoder.api.framework.configuration;
 import java.util.ArrayList;
 
 import org.lowcoder.api.framework.plugin.LowcoderPluginManager;
-import org.lowcoder.api.framework.plugin.PluginLoader;
-import org.springframework.context.ApplicationContext;
+import org.lowcoder.api.framework.plugin.endpoint.PluginEndpointHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
@@ -20,24 +19,17 @@ import reactor.core.publisher.Mono;
 @Configuration
 public class PluginConfiguration
 {
-//	private final ApplicationContext applicationContext;
-//	private final PluginLoader pluginLoader;
-//
-//	public LowcoderPluginManager lowcoderPluginManager()
-//	{
-//		return new LowcoderPluginManager(applicationContext, pluginLoader);
-//	}
 
     @SuppressWarnings("unchecked")
     @Bean
     @DependsOn("lowcoderPluginManager")
-    RouterFunction<?> pluginEndpoints(LowcoderPluginManager pluginManager) 
+    RouterFunction<?> pluginEndpoints(LowcoderPluginManager pluginManager, PluginEndpointHandler pluginEndpointHandler) 
     {
         RouterFunction<?> pluginsList = RouterFunctions.route()
         		.GET(RequestPredicates.path("/plugins"), req -> ServerResponse.ok().body(Mono.just(pluginManager.getLoadedPluginsInfo()), ArrayList.class))
         		.build();
         
-        RouterFunction<?> endpoints = pluginManager.getEndpoints().stream()
+        RouterFunction<?> endpoints = pluginEndpointHandler.registeredEndpoints().stream()
         		.map(r-> (RouterFunction<ServerResponse>)r)
                 .reduce((o, r )-> (RouterFunction<ServerResponse>) o.andOther(r))
                 .orElse(null);
