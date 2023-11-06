@@ -52,14 +52,9 @@ export function SettingHome() {
     {
       key: SettingPageEnum.OAuthProvider,
       label: (
-        <span>
-          <span className="text">{trans("settings.oauthProviders")}</span>
-          {(!currentOrgAdmin(user) || (!isSelfDomain(config) && !isEnterpriseMode(config))) && (
-            <FreeLimitTag text={trans("settings.premium")} />
-          )}
-        </span>
+         <span className="text">{trans("settings.oauthProviders")}</span>
       ),
-      disabled: !currentOrgAdmin(user) || (!isSelfDomain(config) && !isEnterpriseMode(config)),
+      disabled: !currentOrgAdmin(user),
     },
     {
       key: SettingPageEnum.Environments,
