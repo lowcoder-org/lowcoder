@@ -17,6 +17,7 @@ public abstract class AbstractEvent implements LowcoderEvent
     protected final String userId;
 	protected final String sessionHash;
 	protected final Boolean isAnonymous;
+	private final String ipAddress;
     protected Map<String, Object> details;
     
     public Map<String, Object> details()
