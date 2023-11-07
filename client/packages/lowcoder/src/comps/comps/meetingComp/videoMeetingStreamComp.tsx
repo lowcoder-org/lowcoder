@@ -169,19 +169,6 @@ let VideoCompBuilder = (function (props) {
     useEffect(() => {
       if (props.userId.value !== "") {
         let userData = JSON.parse(props.userId?.value);
-        if (
-          userData.user === userId &&
-          userData.streamingVideo === false &&
-          videoRef.current &&
-          videoRef.current?.id === userId + ""
-        ) {
-          if (videoRef.current && videoRef.current?.id === userId + "") {
-            videoRef.current.srcObject = null;
-            setVideo(false);
-          }
-        } else {
-          setVideo(true);
-        }
         client.on(
           "user-published",
           async (user: IAgoraRTCRemoteUser, mediaType: "video" | "audio") => {
@@ -219,6 +206,8 @@ let VideoCompBuilder = (function (props) {
         client.on(
           "user-unpublished",
           (user: IAgoraRTCRemoteUser, mediaType: "video" | "audio") => {
+            console.log("user-unpublished");
+
             if (mediaType === "audio") {
               if (
                 !user.hasAudio &&
@@ -246,6 +235,7 @@ let VideoCompBuilder = (function (props) {
 
         setUserId(userData.user);
         setUsername(userData.userName);
+        setVideo(userData.streamingVideo);
       }
     }, [props.userId.value]);
 
@@ -268,62 +258,40 @@ let VideoCompBuilder = (function (props) {
               }}
             >
               {userId ? (
-                showVideo ? (
-                  <VideoContainer
-                    onClick={() => props.onEvent("videoClicked")}
-                    ref={videoRef}
-                    style={{
-                      display: `${showVideo ? "flex" : "none"}`,
-                      aspectRatio: props.videoAspectRatio,
-                      borderRadius: props.style.radius,
-                      width: "auto",
-                    }}
-                    id={props.shareScreen ? "share-screen" : userId}
-                  ></VideoContainer>
-                ) : (
-                  <div
-                    style={{
-                      flexDirection: "column",
-                      display: "flex",
-                      alignItems: "center",
-                      margin: "0 auto",
-                      padding: props.profilePadding,
-                    }}
-                  >
-                    <img
-                      alt=""
-                      style={{
-                        borderRadius: props.profileBorderRadius,
-                        width: "100%",
-                        overflow: "hidden",
-                      }}
-                      src={props.profileImageUrl.value}
-                    />
-                    <p style={{ margin: "0" }}>{userName ?? ""}</p>
-                  </div>
-                )
-              ) : (
-                <div
+                <VideoContainer
+                  onClick={() => props.onEvent("videoClicked")}
+                  ref={videoRef}
                   style={{
-                    flexDirection: "column",
-                    display: "flex",
-                    alignItems: "center",
-                    margin: "0 auto",
-                    padding: props.profilePadding,
+                    display: `${showVideo ? "flex" : "none"}`,
+                    aspectRatio: props.videoAspectRatio,
+                    borderRadius: props.style.radius,
+                    width: "auto",
                   }}
-                >
-                  <img
-                    alt=""
-                    style={{
-                      borderRadius: props.profileBorderRadius,
-                      width: "100%",
-                      overflow: "hidden",
-                    }}
-                    src={props.profileImageUrl.value}
-                  />
-                  <p style={{ margin: "0" }}>{userName ?? ""}</p>
-                </div>
+                  id={props.shareScreen ? "share-screen" : userId}
+                ></VideoContainer>
+              ) : (
+                <></>
               )}
+              <div
+                style={{
+                  flexDirection: "column",
+                  alignItems: "center",
+                  display: `${!showVideo || userId ? "flex" : "none"}`,
+                  margin: "0 auto",
+                  padding: props.profilePadding,
+                }}
+              >
+                <img
+                  alt=""
+                  style={{
+                    borderRadius: props.profileBorderRadius,
+                    width: "100%",
+                    overflow: "hidden",
+                  }}
+                  src={props.profileImageUrl.value}
+                />
+                <p style={{ margin: "0" }}>{userName ?? ""}</p>
+              </div>
             </div>
           </ReactResizeDetector>
         )}

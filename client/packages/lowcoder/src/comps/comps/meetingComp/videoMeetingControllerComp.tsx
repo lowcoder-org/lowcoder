@@ -196,7 +196,6 @@ const publishVideo = async (
   await client.publish(videoTrack);
 
   await rtmInit(appId, userId, channel);
-
 };
 
 const sendMessageRtm = (message: any) => {
@@ -270,6 +269,8 @@ let MTComp = (function () {
       });
       const [rtmMessages, setRtmMessages] = useState<any>([]);
       const [localUserSpeaking, setLocalUserSpeaking] = useState<any>(false);
+      const [localUserVideo, setLocalUserVideo] =
+        useState<IAgoraRTCRemoteUser>();
       const [userJoined, setUserJoined] = useState<IAgoraRTCRemoteUser>();
       const [userLeft, setUserLeft] = useState<IAgoraRTCRemoteUser>();
 
@@ -278,7 +279,8 @@ let MTComp = (function () {
           let userData = {
             user: userJoined.uid,
             host: false,
-            audiostatus: userJoined.hasVideo,
+            audiostatus: userJoined.hasAudio,
+            streamingVideo: true,
           };
           setUserIds((userIds: any) => [...userIds, userData]);
           if (userIds.length == 0) {
@@ -312,12 +314,9 @@ let MTComp = (function () {
       }
       useEffect(() => {
         if (userLeft) {
-          console.log("user left", userLeft.uid);
-          console.log("all users ", userIds);
           let newUsers = userIds.filter(
             (item: any) => item.user !== userLeft.uid
           );
-          console.log("after user left  ", newUsers);
           let hostExists = newUsers.filter((f: any) => f.host === true);
           if (hostExists.length == 0 && newUsers.length > 0) {
             newUsers[0].host = true;
@@ -353,12 +352,18 @@ let MTComp = (function () {
         }
       }, [updateVolume]);
 
-      // useEffect(() => {
-      //   if (props.endCall.value) {
-      //     let newUsers = userIds.filter((item: any) => item.user !== userId);
-      //     changeChildAction("participants", getData([]).data, false);
-      //   }
-      // }, [props.endCall.value]);
+      useEffect(() => {
+        let prevUsers: [] = props.participants as [];
+        const updatedItems = prevUsers.map((userInfo: any) => {
+          if (userInfo.user === localUserVideo?.uid) {
+            return { ...userInfo, streamingVideo: localUserVideo?.hasVideo };
+          }
+          return userInfo;
+        });
+        dispatch(
+          changeChildAction("participants", getData(updatedItems).data, false)
+        );
+      }, [localUserVideo?.hasVideo]);
 
       useEffect(() => {
         if (rtmMessages) {
@@ -369,7 +374,7 @@ let MTComp = (function () {
       }, [rtmMessages]);
 
       useEffect(() => {
-        if (localUserSpeaking === true) {
+        if (localUserSpeaking === true || localUserVideo) {
           let localObject = {
             user: userId + "",
             audiostatus: props.audioControl.value,
@@ -379,18 +384,6 @@ let MTComp = (function () {
           props.localUser.onChange(localObject);
         }
       }, [localUserSpeaking]);
-
-      // useEffect(() => {
-      //   if (props.localUser.value) {
-      //     let newUsers = userIds.filter((item: any) => item.user !== userId);
-      //     if (newUsers.length == 0) return;
-      //     newUsers = props.localUser.value;
-      //     let updatedUsers = [...userIds, newUsers];
-      //     dispatch(
-      //       changeChildAction("participants", getData(updatedUsers).data, false)
-      //     );
-      //   }
-      // }, [props.localUser.value]);
 
       useEffect(() => {
         if (rtmChannelResponse) {
@@ -429,6 +422,21 @@ let MTComp = (function () {
               }
             });
           });
+
+          client.on(
+            "user-published",
+            async (user: IAgoraRTCRemoteUser, mediaType: "video" | "audio") => {
+              setLocalUserVideo(user);
+            }
+          );
+          client.on(
+            "user-unpublished",
+            (user: IAgoraRTCRemoteUser, mediaType: "video" | "audio") => {
+              console.log("user-unpublished");
+
+              setLocalUserVideo(user);
+            }
+          );
         }
       }, [client]);
 
@@ -600,13 +608,16 @@ MTComp = withMethodExposing(MTComp, [
       params: [],
     },
     execute: async (comp, values) => {
+      //check if meeting is active
       if (!comp.children.meetingActive.getView().value) return;
+      //toggle videoControl
       let value = !comp.children.videoControl.getView().value;
       if (videoTrack) {
         videoTrack.setEnabled(value);
       } else {
         await turnOnCamera(value);
       }
+      //change my local user data
       let localData = {
         user: userId + "",
         streamingVideo: value,
@@ -717,20 +728,6 @@ MTComp = withMethodExposing(MTComp, [
     },
     execute: async (comp, values) => {
       if (!comp.children.meetingActive.getView().value) return;
-      let participants = comp.children.participants.getView() as [];
-      console.log("participants", participants);
-
-      let newUsers = participants.filter((item: any) => item.user !== userId);
-      console.log("after user left  ", newUsers);
-      let hostExists = newUsers.filter((f: any) => f.host === true);
-      // if (hostExists.length == 0 && newUsers.length > 0) {
-      //   newUsers[0].host = true;
-      //   hostChanged(newUsers);
-      // }
-      // setUserIds(newUsers);
-      // dispatch(
-      //   changeChildAction("participants", getData(newUsers).data, false)
-      // );
 
       let value = !comp.children.endCall.getView().value;
       comp.children.endCall.change(value);
