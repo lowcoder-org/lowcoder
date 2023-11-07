@@ -83,8 +83,8 @@ export default function PageSkeleton(props: IProps) {
       {!hideHeader && isHeaderReady && (
         <Header
           headerStart={
-            LOWCODER_SHOW_BRAND === 'true' ? 
-            LOWCODER_CUSTOM_LOGO !== "" ? <img src={LOWCODER_CUSTOM_LOGO} alt="logo" /> :<StyledLogoWithName branding={true} /> : 
+            REACT_APP_LOWCODER_SHOW_BRAND === 'true' ? 
+            REACT_APP_LOWCODER_CUSTOM_LOGO !== "" ? <img src={REACT_APP_LOWCODER_CUSTOM_LOGO} alt="logo" /> :<StyledLogoWithName branding={true} /> : 
             <StyledLogoHome branding={true} />
           }
           style={{ backgroundColor: brandingConfig?.headerColor, ...props.headStyle }}

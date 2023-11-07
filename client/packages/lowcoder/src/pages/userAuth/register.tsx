@@ -71,11 +71,11 @@ function UserRegister() {
     return null;
   }
 
-  const registerHeading = LOWCODER_CUSTOM_AUTH_WELCOME_TEXT !== ""
-    ? LOWCODER_CUSTOM_AUTH_WELCOME_TEXT
+  const registerHeading = REACT_APP_LOWCODER_CUSTOM_AUTH_WELCOME_TEXT !== ""
+    ? REACT_APP_LOWCODER_CUSTOM_AUTH_WELCOME_TEXT
     : trans("userAuth.register")
 
-  const registerSubHeading = LOWCODER_CUSTOM_AUTH_WELCOME_TEXT !== ""
+  const registerSubHeading = REACT_APP_LOWCODER_CUSTOM_AUTH_WELCOME_TEXT !== ""
     ? trans("userAuth.poweredByLowcoder")
     : ''
 

@@ -20,23 +20,23 @@ export const buildVars = [
     defaultValue: "",
   },
   {
-    name: "LOWCODER_SHOW_BRAND",
+    name: "REACT_APP_LOWCODER_SHOW_BRAND",
     defaultValue: 'false',
   },
   {
-    name: "LOWCODER_CUSTOM_LOGO",
+    name: "REACT_APP_LOWCODER_CUSTOM_LOGO",
     defaultValue: '',
   },
   {
-    name: "LOWCODER_CUSTOM_LOGO_SQUARE",
+    name: "REACT_APP_LOWCODER_CUSTOM_LOGO_SQUARE",
+    defaultValue: '',
+  },
+  {
+    name: "REACT_APP_LOWCODER_CUSTOM_AUTH_WELCOME_TEXT",
     defaultValue: '',
   },
   {
     name: "LOWCODER_NODE_SERVICE_URL",
-    defaultValue: "",
-  },
-  {
-    name: "LOWCODER_CUSTOM_AUTH_WELCOME_TEXT",
     defaultValue: "",
   },
   {
