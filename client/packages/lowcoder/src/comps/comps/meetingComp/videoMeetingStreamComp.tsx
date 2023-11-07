@@ -290,7 +290,8 @@ let VideoCompBuilder = (function (props) {
                       padding: props.profilePadding,
                     }}
                   >
-                    <img alt=""
+                    <img
+                      alt=""
                       style={{
                         borderRadius: props.profileBorderRadius,
                         width: "100%",
@@ -311,7 +312,8 @@ let VideoCompBuilder = (function (props) {
                     padding: props.profilePadding,
                   }}
                 >
-                  <img alt=""
+                  <img
+                    alt=""
                     style={{
                       borderRadius: props.profileBorderRadius,
                       width: "100%",

@@ -197,14 +197,6 @@ const publishVideo = async (
 
   await rtmInit(appId, userId, channel);
 
-  const mediaStreamTrack = videoTrack.getMediaStreamTrack();
-  if (mediaStreamTrack) {
-    const videoSettings = mediaStreamTrack.getSettings();
-    const videoWidth = videoSettings.width;
-    const videoHeight = videoSettings.height;
-    // height.videoWidth.change(videoWidth);
-    // height.videoHeight.change(videoHeight);
-  }
 };
 
 const sendMessageRtm = (message: any) => {
@@ -278,12 +270,69 @@ let MTComp = (function () {
       });
       const [rtmMessages, setRtmMessages] = useState<any>([]);
       const [localUserSpeaking, setLocalUserSpeaking] = useState<any>(false);
+      const [userJoined, setUserJoined] = useState<IAgoraRTCRemoteUser>();
+      const [userLeft, setUserLeft] = useState<IAgoraRTCRemoteUser>();
 
       useEffect(() => {
-        dispatch(
-          changeChildAction("participants", getData(userIds).data, false)
-        );
-      }, [userIds]);
+        if (userJoined) {
+          let userData = {
+            user: userJoined.uid,
+            host: false,
+            audiostatus: userJoined.hasVideo,
+          };
+          setUserIds((userIds: any) => [...userIds, userData]);
+          if (userIds.length == 0) {
+            userData.host = true;
+          } else {
+            userData.host = false;
+          }
+          dispatch(
+            changeChildAction(
+              "participants",
+              removeDuplicates(getData([...userIds, userData]).data, "user"),
+              false
+            )
+          );
+        }
+      }, [userJoined]);
+      function removeDuplicates(arr: any, prop: any) {
+        const uniqueObjects = [];
+        const seenValues = new Set();
+
+        for (const obj of arr) {
+          const objValue = obj[prop];
+
+          if (!seenValues.has(objValue)) {
+            seenValues.add(objValue);
+            uniqueObjects.push(obj);
+          }
+        }
+
+        return uniqueObjects;
+      }
+      useEffect(() => {
+        if (userLeft) {
+          console.log("user left", userLeft.uid);
+          console.log("all users ", userIds);
+          let newUsers = userIds.filter(
+            (item: any) => item.user !== userLeft.uid
+          );
+          console.log("after user left  ", newUsers);
+          let hostExists = newUsers.filter((f: any) => f.host === true);
+          if (hostExists.length == 0 && newUsers.length > 0) {
+            newUsers[0].host = true;
+            hostChanged(newUsers);
+          }
+          setUserIds(newUsers);
+          dispatch(
+            changeChildAction(
+              "participants",
+              removeDuplicates(getData(newUsers).data, "user"),
+              false
+            )
+          );
+        }
+      }, [userLeft]);
 
       useEffect(() => {
         if (updateVolume.userid) {
@@ -304,14 +353,12 @@ let MTComp = (function () {
         }
       }, [updateVolume]);
 
-      useEffect(() => {
-        if (props.endCall.value) {
-          let newUsers = userIds.filter((item: any) => item.user !== userId);
-          dispatch(
-            changeChildAction("participants", getData(newUsers).data, false)
-          );
-        }
-      }, [props.endCall.value]);
+      // useEffect(() => {
+      //   if (props.endCall.value) {
+      //     let newUsers = userIds.filter((item: any) => item.user !== userId);
+      //     changeChildAction("participants", getData([]).data, false);
+      //   }
+      // }, [props.endCall.value]);
 
       useEffect(() => {
         if (rtmMessages) {
@@ -333,17 +380,17 @@ let MTComp = (function () {
         }
       }, [localUserSpeaking]);
 
-      useEffect(() => {
-        if (props.localUser.value) {
-          let newUsers = userIds.filter((item: any) => item.user !== userId);
-          if (newUsers.length == 0) return;
-          newUsers = props.localUser.value;
-          let updatedUsers = [...userIds, newUsers];
-          dispatch(
-            changeChildAction("participants", getData(updatedUsers).data, false)
-          );
-        }
-      }, [props.localUser.value]);
+      // useEffect(() => {
+      //   if (props.localUser.value) {
+      //     let newUsers = userIds.filter((item: any) => item.user !== userId);
+      //     if (newUsers.length == 0) return;
+      //     newUsers = props.localUser.value;
+      //     let updatedUsers = [...userIds, newUsers];
+      //     dispatch(
+      //       changeChildAction("participants", getData(updatedUsers).data, false)
+      //     );
+      //   }
+      // }, [props.localUser.value]);
 
       useEffect(() => {
         if (rtmChannelResponse) {
@@ -363,29 +410,10 @@ let MTComp = (function () {
         if (client) {
           client.enableAudioVolumeIndicator();
           client.on("user-joined", (user: IAgoraRTCRemoteUser) => {
-            let userData = {
-              user: user.uid,
-              host: false,
-              audiostatus: user.hasVideo,
-            };
-
-            if (userIds.length == 0) {
-              userData.host = true;
-            } else {
-              userData.host = false;
-            }
-            setUserIds((userIds: any) => [...userIds, userData]);
+            setUserJoined(user);
           });
           client.on("user-left", (user: IAgoraRTCRemoteUser, reason: any) => {
-            let newUsers = userIds.filter(
-              (item: any) => item.user !== user.uid
-            );
-            let hostExists = newUsers.filter((f: any) => f.host === true);
-            if (hostExists.length == 0 && newUsers.length > 0) {
-              newUsers[0].host = true;
-              hostChanged(newUsers);
-            }
-            setUserIds(newUsers);
+            setUserLeft(user);
           });
           client.on("volume-indicator", (volumeInfos: any) => {
             if (volumeInfos.length == 0) return;
@@ -689,6 +717,21 @@ MTComp = withMethodExposing(MTComp, [
     },
     execute: async (comp, values) => {
       if (!comp.children.meetingActive.getView().value) return;
+      let participants = comp.children.participants.getView() as [];
+      console.log("participants", participants);
+
+      let newUsers = participants.filter((item: any) => item.user !== userId);
+      console.log("after user left  ", newUsers);
+      let hostExists = newUsers.filter((f: any) => f.host === true);
+      // if (hostExists.length == 0 && newUsers.length > 0) {
+      //   newUsers[0].host = true;
+      //   hostChanged(newUsers);
+      // }
+      // setUserIds(newUsers);
+      // dispatch(
+      //   changeChildAction("participants", getData(newUsers).data, false)
+      // );
+
       let value = !comp.children.endCall.getView().value;
       comp.children.endCall.change(value);
       comp.children.meetingActive.change(false);
