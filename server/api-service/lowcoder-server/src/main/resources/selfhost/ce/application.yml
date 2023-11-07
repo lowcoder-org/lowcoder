@@ -40,6 +40,7 @@ common:
     default-value: lowcoder.org
   cloud: false
   version: 2.1.4
+  apiVersion: 1.1
   block-hound-enable: false
   js-executor:
     host: ${LOWCODER_NODE_SERVICE_URL:http://127.0.0.1:6060}
