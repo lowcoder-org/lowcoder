@@ -39,14 +39,13 @@ import { CodeEditorTooltipContainer } from "base/codeEditor/codeEditor";
 import { ProductLoading } from "components/ProductLoading";
 import { language, trans } from "i18n";
 import { loadComps } from "comps";
-import { fetchHomeData } from "redux/reduxActions/applicationActions";
 import { initApp } from "util/commonUtils";
 import ApplicationHome from "./pages/ApplicationV2";
 import { favicon } from "@lowcoder-ee/assets/images";
 import { hasQueryParam } from "util/urlUtils";
 import { isFetchUserFinished } from "redux/selectors/usersSelectors";
 import { SystemWarning } from "./components/SystemWarning";
-import { getBrandingConfig, getSystemConfigFetching } from "./redux/selectors/configSelectors";
+import { getBrandingConfig } from "./redux/selectors/configSelectors";
 import { buildMaterialPreviewURL } from "./util/materialUtils";
 import GlobalInstances from 'components/GlobalInstances';
 
@@ -71,14 +70,11 @@ const Wrapper = (props: { children: React.ReactNode }) => (
 
 type AppIndexProps = {
   isFetchUserFinished: boolean;
-  isFetchHomeFinished: boolean;
-  // isFetchingConfig: boolean;
   currentOrgId?: string;
   orgDev: boolean;
   defaultHomePage: string | null | undefined;
   fetchConfig: (orgId?: string) => void;
   getCurrentUser: () => void;
-  fetchHome: () => void;
   favicon: string;
   brandName: string;
 };
@@ -86,20 +82,10 @@ type AppIndexProps = {
 class AppIndex extends React.Component<AppIndexProps, any> {
   componentDidMount() {
     this.props.getCurrentUser();
-    const { pathname } = history.location;
-
-    this.props.fetchConfig(this.props.currentOrgId);
-
-    if (pathname === BASE_URL) {
-      this.props.fetchHome();
-    }
   }
 
   componentDidUpdate(prevProps: AppIndexProps) {
-    if (history.location.pathname === BASE_URL) {
-      this.props.fetchHome();
-    }
-    if(prevProps.currentOrgId !== this.props.currentOrgId) {
+    if(prevProps.currentOrgId !== this.props.currentOrgId && this.props.currentOrgId !== '') {
       this.props.fetchConfig(this.props.currentOrgId);
     }
   }
@@ -108,11 +94,7 @@ class AppIndex extends React.Component<AppIndexProps, any> {
     const isTemplate = hasQueryParam("template");
     const pathname = history.location.pathname;
     // make sure all users in this app have checked login info
-    if (
-      !this.props.isFetchUserFinished ||
-      // this.props.isFetchingConfig ||
-      (pathname === BASE_URL && !this.props.isFetchHomeFinished)
-    ) {
+    if (!this.props.isFetchUserFinished) {
       const hideLoadingHeader = isTemplate || isAuthUnRequired(pathname);
       return <ProductLoading hideHeader={hideLoadingHeader} />;
     }
@@ -185,11 +167,9 @@ class AppIndex extends React.Component<AppIndexProps, any> {
 
 const mapStateToProps = (state: AppState) => ({
   isFetchUserFinished: isFetchUserFinished(state),
-  // isFetchingConfig: getSystemConfigFetching(state),
   orgDev: state.ui.users.user.orgDev,
   currentOrgId: state.ui.users.user.currentOrgId,
   defaultHomePage: state.ui.application.homeOrg?.commonSettings.defaultHomePage,
-  isFetchHomeFinished: state.ui.application.loadingStatus.fetchHomeDataFinished,
   favicon: getBrandingConfig(state)?.favicon
     ? buildMaterialPreviewURL(getBrandingConfig(state)?.favicon!)
     : favicon,
@@ -201,7 +181,6 @@ const mapDispatchToProps = (dispatch: any) => ({
     dispatch(fetchUserAction());
   },
   fetchConfig: (orgId?: string) => dispatch(fetchConfigAction(orgId)),
-  fetchHome: () => dispatch(fetchHomeData({})),
 });
 
 const AppIndexWithProps = connect(mapStateToProps, mapDispatchToProps)(AppIndex);
