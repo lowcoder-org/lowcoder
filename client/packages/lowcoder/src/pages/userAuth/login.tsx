@@ -144,7 +144,7 @@ function Login() {
       heading={loginHeading}
       subHeading={loginSubHeading}
     >
-      {loginCardView}
+      <FormLogin organizationId={organizationId} />
     </AuthContainer>
   );
 }

@@ -26,20 +26,21 @@ export abstract class AbstractAuthenticator {
     this.redirectUrl = decodeURIComponent(getRedirectUrl(authParams.authType));
   }
 
-  doAuth() {
+  doAuth(onAuthSuccess?: () => void) {
     const { authParams } = this;
     (authParams.authGoal === "login" || authParams.authGoal === "register")
-      ? this.doLogin()
+      ? this.doLogin(onAuthSuccess)
       : this.doBind();
   }
 
-  protected doLogin() {
+  protected doLogin(onAuthSuccess?: () => void) {
     this.login()
       .then((resp) => {
         authRespValidate(
           resp,
           this.needInfoCheck(this.authParams.sourceType),
-          this.authParams.afterLoginRedirect
+          this.authParams.afterLoginRedirect,
+          onAuthSuccess,
         );
       })
       .catch((e) => {
