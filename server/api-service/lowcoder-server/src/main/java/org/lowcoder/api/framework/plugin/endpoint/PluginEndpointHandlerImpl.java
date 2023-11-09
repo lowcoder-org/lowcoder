@@ -21,6 +21,8 @@ import org.lowcoder.plugin.api.PluginEndpoint;
 import org.lowcoder.plugin.api.data.EndpointRequest;
 import org.lowcoder.plugin.api.data.EndpointResponse;
 import org.lowcoder.sdk.exception.BaseException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.core.ResolvableType;
 import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Component;
@@ -28,17 +30,23 @@ import org.springframework.web.reactive.function.server.RequestPredicate;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import org.springframework.web.reactive.function.server.ServerResponse.BodyBuilder;
+import org.springframework.web.reactive.function.server.support.RouterFunctionMapping;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
 @Slf4j
+@RequiredArgsConstructor
 @Component
 public class PluginEndpointHandlerImpl implements PluginEndpointHandler
 {
 	private static final String PLUGINS_BASE_URL = "/plugins/";
 	private List<RouterFunction<ServerResponse>> routes = new ArrayList<>();
-
+	
+	private final ApplicationContext applicationContext;
+	private final RouterFunctionMapping routerFunctionMapping;
+	
 	@Override
 	public void registerEndpoints(String pluginUrlPrefix, List<PluginEndpoint> endpoints) 
 	{
@@ -57,7 +65,9 @@ public class PluginEndpointHandlerImpl implements PluginEndpointHandler
 						registerEndpointHandler(urlPrefix, endpoint, handler);
 					}
 				}
-			}			
+			}
+			
+			((ReloadableRouterFunctionMapping)routerFunctionMapping).reloadFunctionMappings();			
 		}
 	}
 	
@@ -74,8 +84,10 @@ public class PluginEndpointHandlerImpl implements PluginEndpointHandler
 			if (checkHandlerMethod(handler))
 			{
 				
-				EndpointExtension endpointMeta = handler.getAnnotation(EndpointExtension.class);
-				routes.add(route(createRequestPredicate(urlPrefix, endpointMeta), req -> {
+				EndpointExtension endpointMeta = handler.getAnnotation(EndpointExtension.class);			
+				String endpointName = endpoint.getClass().getSimpleName() + "_" + handler.getName();
+				
+				RouterFunction<ServerResponse> routerFunction = route(createRequestPredicate(urlPrefix, endpointMeta), req -> {
 						Mono<ServerResponse> result = null;
 						try
 						{
@@ -87,8 +99,10 @@ public class PluginEndpointHandlerImpl implements PluginEndpointHandler
 							throw new BaseException("Error running handler for [ " + endpointMeta.method() + ": " + endpointMeta.uri() + "] !");
 						}
 						return result; 
-					})
-				);
+				});				
+				routes.add(routerFunction);				
+				registerRouterFunctionMapping(endpointName, routerFunction);
+				
 				log.info("Registered endpoint: {} -> {}: {}", endpoint.getClass().getSimpleName(), endpointMeta.method(), urlPrefix + endpointMeta.uri());
 			}
 			else
@@ -97,6 +111,18 @@ public class PluginEndpointHandlerImpl implements PluginEndpointHandler
 			}
 		}
 	}
+	
+	private void registerRouterFunctionMapping(String endpointName, RouterFunction<ServerResponse> routerFunction)
+	{
+		String beanName = "pluginEndpoint_" + endpointName + "_" + System.currentTimeMillis();
+		
+		((GenericApplicationContext)applicationContext).registerBean(beanName, RouterFunction.class, () -> {
+			return routerFunction;
+		});
+		
+		log.debug("Registering RouterFunction bean definition: {}", beanName);
+	}
+	
 	
 	private Mono<ServerResponse> createServerResponse(EndpointResponse pluginResponse)
 	{
