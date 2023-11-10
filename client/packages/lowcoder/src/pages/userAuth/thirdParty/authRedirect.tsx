@@ -6,10 +6,10 @@ import { AUTH_LOGIN_URL, AUTH_REGISTER_URL, BASE_URL } from "constants/routesURL
 import history from "util/history";
 import PageSkeleton from "components/PageSkeleton";
 import { trans } from "i18n";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { getAuthenticator } from "@lowcoder-ee/pages/userAuth/thirdParty/authenticator";
 import { AuthRedirectUrlParams } from "pages/userAuth/thirdParty/authenticator";
-import { loadAuthParams } from "pages/userAuth/authUtils";
+import { AuthContext, loadAuthParams } from "pages/userAuth/authUtils";
 
 function getUrlParams(queryParams: URLSearchParams): AuthRedirectUrlParams {
   const ticket = queryParams.get("ticket");
@@ -53,6 +53,8 @@ export function AuthRedirect() {
   const queryParams = new URLSearchParams(location.search);
   const urlParam = getUrlParams(queryParams);
   const [authParams, setAuthParam] = useState<AuthSessionStoreParams>();
+  const { fetchUserAfterAuthSuccess } = useContext(AuthContext);
+
   useEffect(() => {
     const localAuthParams = loadAuthParams();
     if (!localAuthParams) {
@@ -61,8 +63,9 @@ export function AuthRedirect() {
       setAuthParam(localAuthParams);
     }
   }, []);
+
   if (authParams && validateParam(authParams, urlParam)) {
-    getAuthenticator(authParams, urlParam).doAuth();
+    getAuthenticator(authParams, urlParam).doAuth(fetchUserAfterAuthSuccess);
   }
   return <PageSkeleton hideSideBar />;
 }

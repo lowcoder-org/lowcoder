@@ -8,6 +8,7 @@ import { AuthRoutes } from "@lowcoder-ee/constants/authConstants";
 import { AuthLocationState } from "constants/authConstants";
 import { ProductLoading } from "components/ProductLoading";
 import { fetchConfigAction } from "redux/reduxActions/configActions";
+import { fetchUserAction } from "redux/reduxActions/userActions";
 import _ from "lodash";
 
 export default function UserAuth() {
@@ -34,12 +35,17 @@ export default function UserAuth() {
     return <ProductLoading hideHeader />;
   }
 
+  const fetchUserAfterAuthSuccess = () => {
+    dispatch(fetchUserAction());
+  }
+
   return (
     <AuthContext.Provider
       value={{
         systemConfig: systemConfig,
         inviteInfo: location.state?.inviteInfo,
         thirdPartyAuthError: location.state?.thirdPartyAuthError,
+        fetchUserAfterAuthSuccess,
       }}
     >
       <Switch location={location}>
