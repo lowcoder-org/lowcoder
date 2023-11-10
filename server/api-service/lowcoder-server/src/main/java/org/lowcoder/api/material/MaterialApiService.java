@@ -2,7 +2,7 @@ package org.lowcoder.api.material;
 
 import java.util.List;
 
-import org.lowcoder.api.material.MaterialController.MaterialView;
+import org.lowcoder.api.material.MaterialEndpoints.MaterialView;
 import org.lowcoder.domain.material.model.MaterialMeta;
 import org.lowcoder.domain.material.model.MaterialType;
 import org.reactivestreams.Publisher;

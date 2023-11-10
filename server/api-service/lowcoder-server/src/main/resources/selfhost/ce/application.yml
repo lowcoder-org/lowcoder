@@ -15,6 +15,8 @@ spring:
     allow-circular-references: true
   codec:
     max-in-memory-size: 20MB
+  webflux:
+    context-path: /
 
 server:
   compression:

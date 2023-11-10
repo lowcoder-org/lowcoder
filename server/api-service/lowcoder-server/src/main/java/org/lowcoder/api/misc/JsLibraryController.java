@@ -25,7 +25,6 @@ import org.lowcoder.infra.localcache.ReloadableCache;
 import org.lowcoder.sdk.util.JsonUtils;
 import org.lowcoder.sdk.webclient.WebClientBuildHelper;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -45,12 +44,10 @@ import reactor.core.publisher.Mono;
 @Slf4j
 @RestController
 @RequestMapping(NewUrl.JS_LIBRARY)
-public class JsLibraryController {
-
+public class JsLibraryController implements JsLibraryEndpoints
+{
     private static final String META_URL_TEMPLATE = "https://registry.npmjs.com/%s";
-
     private static final ConcurrentMap<String, ReloadableCache<JsLibraryMeta>> RECOMMENDED_JS_LIB_META_CACHE = new ConcurrentHashMap<>();
-
     private static final LoadingCache<String, Mono<JsLibraryMeta>> JS_LIB_META_CACHE = CacheBuilder.newBuilder()
             .maximumSize(1000)
             .expireAfterAccess(Duration.ofDays(1))
@@ -95,12 +92,12 @@ public class JsLibraryController {
         }
     }
 
-    @GetMapping("/recommendations")
+    @Override
     public Mono<ResponseView<List<JsLibraryMeta>>> getRecommendationMetas() {
         return getMeta(RECOMMENDED_JS_LIB_META_CACHE.keySet());
     }
 
-    @GetMapping("/metas")
+    @Override
     public Mono<ResponseView<List<JsLibraryMeta>>> getMeta(@RequestParam("name") Collection<String> names) {
         if (CollectionUtils.isEmpty(names)) {
             return Mono.just(ResponseView.success(Collections.emptyList()));
@@ -116,7 +113,7 @@ public class JsLibraryController {
                 .collectList()
                 .map(ResponseView::success);
     }
-
+        
     @SuppressWarnings("unchecked")
     private static Mono<JsLibraryMeta> fetch(String name) {
         log.info("fetch js library:{}", name);
