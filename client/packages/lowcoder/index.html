@@ -96,5 +96,11 @@
     <div id="root"></div>
     <script type="module" src="/src/index.ts"></script>
     <!-- <%- browserCheckScript %> -->
+    <script>
+      window.lowcoder_show_brand = "<%= process.env.REACT_APP_LOWCODER_SHOW_BRAND %>";
+      window.lowcoder_custom_auth_welcome_text = "<%= process.env.REACT_APP_LOWCODER_CUSTOM_AUTH_WELCOME_TEXT %>";
+      window.lowcoder_custom_logo = "<%= process.env.REACT_APP_LOWCODER_CUSTOM_LOGO %>";
+      window.lowcoder_custom_logo_square = "<%= process.env.REACT_APP_LOWCODER_CUSTOM_LOGO_SQUARE %>";
+    </script>
   </body>
 </html>

@@ -13,7 +13,7 @@ class ConfigApi extends Api {
   static fetchConfig(orgId?: string): AxiosPromise<ConfigResponse> {
     let authConfigURL = ConfigApi.configURL;
     if(orgId?.length) {
-      authConfigURL += `?orgId?=${orgId}`;
+      authConfigURL += `?orgId=${orgId}`;
     }
     return Api.get(authConfigURL);
   }
