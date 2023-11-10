@@ -273,7 +273,7 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
                     String token = jwtUtils.createToken(user);
                     APIKey apiKey = new APIKey(apiKeyRequest.getId(), apiKeyRequest.getName(), apiKeyRequest.getDescription(), token);
                     addAPIKey(user, apiKey);
-                    return Pair.of(token, user);
+                    return Pair.of(APIKey.builder().id(apiKey.getId()).token(token).build(), user);
                 })
                 .flatMap(pair -> userService.update(pair.getRight().getId(), pair.getRight()).thenReturn(pair.getKey()))
                 .map(APIKeyVO::from);
