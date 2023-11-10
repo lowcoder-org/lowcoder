@@ -15,17 +15,10 @@ import org.lowcoder.domain.organization.model.Organization;
 import org.lowcoder.domain.organization.model.Organization.OrganizationCommonSettings;
 import org.lowcoder.domain.plugin.DatasourceMetaInfo;
 import org.lowcoder.domain.plugin.service.DatasourceMetaInfoService;
-import org.lowcoder.infra.constant.NewUrl;
-import org.lowcoder.infra.constant.Url;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.codec.multipart.Part;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
@@ -34,8 +27,8 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 @RestController
-@RequestMapping(value = {Url.ORGANIZATION_URL, NewUrl.ORGANIZATION_URL})
-public class OrganizationController {
+public class OrganizationController implements OrganizationEndpoints
+{
 
     @Autowired
     private OrgApiService orgApiService;
@@ -44,33 +37,33 @@ public class OrganizationController {
     @Autowired
     private BusinessEventPublisher businessEventPublisher;
 
-    @PostMapping
+    @Override
     public Mono<ResponseView<OrgView>> create(@Valid @RequestBody Organization organization) {
         return orgApiService.create(organization)
                 .map(ResponseView::success);
     }
 
-    @PutMapping("{orgId}/update")
+    @Override
     public Mono<ResponseView<Boolean>> update(@PathVariable String orgId,
             @Valid @RequestBody UpdateOrgRequest updateOrgRequest) {
         return orgApiService.update(orgId, updateOrgRequest)
                 .map(ResponseView::success);
     }
 
-    @PostMapping("/{orgId}/logo")
+    @Override
     public Mono<ResponseView<Boolean>> uploadLogo(@PathVariable String orgId,
             @RequestPart("file") Mono<Part> fileMono) {
         return orgApiService.uploadLogo(orgId, fileMono)
                 .map(ResponseView::success);
     }
 
-    @DeleteMapping("/{orgId}/logo")
+    @Override
     public Mono<ResponseView<Boolean>> deleteLogo(@PathVariable String orgId) {
         return orgApiService.deleteLogo(orgId)
                 .map(ResponseView::success);
     }
 
-    @GetMapping("/{orgId}/members")
+    @Override
     public Mono<ResponseView<OrgMemberListView>> getOrgMembers(@PathVariable String orgId,
             @RequestParam(name = "page", required = false, defaultValue = "0") int page,
             @RequestParam(name = "count", required = false, defaultValue = "1000") int count) {
@@ -78,14 +71,14 @@ public class OrganizationController {
                 .map(ResponseView::success);
     }
 
-    @PutMapping("/{orgId}/role")
+    @Override
     public Mono<ResponseView<Boolean>> updateRoleForMember(@RequestBody UpdateRoleRequest updateRoleRequest,
             @PathVariable String orgId) {
         return orgApiService.updateRoleForMember(orgId, updateRoleRequest)
                 .map(ResponseView::success);
     }
 
-    @PutMapping("/switchOrganization/{orgId}")
+    @Override
     public Mono<ResponseView<?>> setCurrentOrganization(@PathVariable String orgId, ServerWebExchange serverWebExchange) {
         return businessEventPublisher.publishUserLogoutEvent()
                 .then(orgApiService.switchCurrentOrganizationTo(orgId))
@@ -95,46 +88,42 @@ public class OrganizationController {
                         .defaultIfEmpty(ResponseView.success(result)));
     }
 
-    @DeleteMapping("/{orgId}")
+    @Override
     public Mono<ResponseView<Boolean>> removeOrg(@PathVariable String orgId) {
         return orgApiService.removeOrg(orgId)
                 .map(ResponseView::success);
     }
 
-    @DeleteMapping("/{orgId}/leave")
+    @Override
     public Mono<ResponseView<Boolean>> leaveOrganization(@PathVariable String orgId) {
         return orgApiService.leaveOrganization(orgId)
                 .map(ResponseView::success);
     }
 
-    @DeleteMapping("/{orgId}/remove")
+    @Override
     public Mono<ResponseView<Boolean>> removeUserFromOrg(@PathVariable String orgId,
             @RequestParam String userId) {
         return orgApiService.removeUserFromOrg(orgId, userId)
                 .map(ResponseView::success);
     }
 
-    @GetMapping("/{orgId}/datasourceTypes")
+    @Override
     public Mono<ResponseView<List<DatasourceMetaInfo>>> getSupportedDatasourceTypes(@PathVariable String orgId) {
         return datasourceMetaInfoService.getAllSupportedDatasourceMetaInfos()
                 .collectList()
                 .map(ResponseView::success);
     }
 
-    @GetMapping("/{orgId}/common-settings")
+    @Override
     public Mono<ResponseView<OrganizationCommonSettings>> getOrgCommonSettings(@PathVariable String orgId) {
         return orgApiService.getOrgCommonSettings(orgId)
                 .map(ResponseView::success);
     }
 
-    @PutMapping("/{orgId}/common-settings")
+    @Override
     public Mono<ResponseView<Boolean>> updateOrgCommonSettings(@PathVariable String orgId, @RequestBody UpdateOrgCommonSettingsRequest request) {
         return orgApiService.updateOrgCommonSettings(orgId, request.key(), request.value())
                 .map(ResponseView::success);
-    }
-
-    private record UpdateOrgCommonSettingsRequest(String key, Object value) {
-
     }
 
 }

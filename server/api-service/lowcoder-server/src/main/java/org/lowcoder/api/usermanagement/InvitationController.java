@@ -7,23 +7,16 @@ import static org.lowcoder.sdk.exception.BizError.INVITED_USER_NOT_LOGIN;
 import org.lowcoder.api.framework.view.ResponseView;
 import org.lowcoder.api.home.SessionUserService;
 import org.lowcoder.api.usermanagement.view.InvitationVO;
-import org.lowcoder.infra.constant.NewUrl;
-import org.lowcoder.infra.constant.Url;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
 @RestController
-@RequestMapping(value = {Url.INVITATION_URL, NewUrl.INVITATION_URL})
-@Slf4j
-public class InvitationController {
+public class InvitationController implements InvitationEndpoints
+{
 
     @Autowired
     private InvitationApiService invitationApiService;
@@ -31,19 +24,19 @@ public class InvitationController {
     @Autowired
     private SessionUserService sessionUserService;
 
-    @PostMapping
+    @Override
     public Mono<ResponseView<InvitationVO>> create(@RequestParam String orgId) {
         return invitationApiService.create(orgId)
                 .map(ResponseView::success);
     }
 
-    @GetMapping("/{invitationId}")
+    @Override
     public Mono<ResponseView<InvitationVO>> get(@PathVariable String invitationId) {
         return invitationApiService.getInvitationView(invitationId)
                 .map(ResponseView::success);
     }
 
-    @GetMapping("/{invitationId}/invite")
+    @Override
     public Mono<ResponseView<?>> inviteUser(@PathVariable String invitationId) {
         return sessionUserService.getVisitorId()
                 .flatMap(visitorId -> {

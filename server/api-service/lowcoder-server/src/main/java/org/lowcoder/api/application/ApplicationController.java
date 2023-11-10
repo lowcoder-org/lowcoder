@@ -11,12 +11,7 @@ import static org.lowcoder.sdk.exception.BizError.INVALID_PARAMETER;
 import static org.lowcoder.sdk.util.ExceptionUtils.ofError;
 
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
-import javax.annotation.Nullable;
-
-import org.apache.commons.lang3.BooleanUtils;
 import org.lowcoder.api.application.view.ApplicationInfoView;
 import org.lowcoder.api.application.view.ApplicationPermissionView;
 import org.lowcoder.api.application.view.ApplicationView;
@@ -28,87 +23,72 @@ import org.lowcoder.domain.application.model.Application;
 import org.lowcoder.domain.application.model.ApplicationStatus;
 import org.lowcoder.domain.application.model.ApplicationType;
 import org.lowcoder.domain.permission.model.ResourceRole;
-import org.lowcoder.infra.constant.NewUrl;
-import org.lowcoder.infra.constant.Url;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
-import lombok.extern.slf4j.Slf4j;
+import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
-@Slf4j
+@RequiredArgsConstructor
 @RestController
-@RequestMapping(value = {Url.APPLICATION_URL, NewUrl.APPLICATION_URL})
-public class ApplicationController {
+public class ApplicationController implements ApplicationEndpoints {
 
-    @Autowired
-    private UserHomeApiService userHomeApiService;
+    private final UserHomeApiService userHomeApiService;
+    private final ApplicationApiService applicationApiService;
+    private final BusinessEventPublisher businessEventPublisher;
 
-    @Autowired
-    private ApplicationApiService applicationApiService;
-    @Autowired
-    private BusinessEventPublisher businessEventPublisher;
-
-    @PostMapping
+    @Override
     public Mono<ResponseView<ApplicationView>> create(@RequestBody CreateApplicationRequest createApplicationRequest) {
         return applicationApiService.create(createApplicationRequest)
                 .delayUntil(applicationView -> businessEventPublisher.publishApplicationCommonEvent(applicationView, APPLICATION_CREATE))
                 .map(ResponseView::success);
     }
 
-    @PostMapping("/createFromTemplate")
+    @Override
     public Mono<ResponseView<ApplicationView>> createFromTemplate(@RequestParam String templateId) {
         return applicationApiService.createFromTemplate(templateId)
                 .delayUntil(applicationView -> businessEventPublisher.publishApplicationCommonEvent(applicationView, APPLICATION_CREATE))
                 .map(ResponseView::success);
     }
 
-    @PutMapping("/recycle/{applicationId}")
+    @Override
     public Mono<ResponseView<Boolean>> recycle(@PathVariable String applicationId) {
         return applicationApiService.recycle(applicationId)
                 .delayUntil(__ -> businessEventPublisher.publishApplicationCommonEvent(applicationId, null, APPLICATION_RECYCLED))
                 .map(ResponseView::success);
     }
 
-    @PutMapping("/restore/{applicationId}")
+    @Override
     public Mono<ResponseView<Boolean>> restore(@PathVariable String applicationId) {
         return applicationApiService.restore(applicationId)
                 .delayUntil(__ -> businessEventPublisher.publishApplicationCommonEvent(applicationId, null, APPLICATION_RESTORE))
                 .map(ResponseView::success);
     }
 
-    @GetMapping("/recycle/list")
+    @Override
     public Mono<ResponseView<List<ApplicationInfoView>>> getRecycledApplications() {
         return applicationApiService.getRecycledApplications()
                 .collectList()
                 .map(ResponseView::success);
     }
 
-    @DeleteMapping("/{applicationId}")
+    @Override
     public Mono<ResponseView<ApplicationView>> delete(@PathVariable String applicationId) {
         return applicationApiService.delete(applicationId)
                 .delayUntil(applicationView -> businessEventPublisher.publishApplicationCommonEvent(applicationView, APPLICATION_DELETE))
                 .map(ResponseView::success);
     }
 
-    @GetMapping("/{applicationId}")
+    @Override
     public Mono<ResponseView<ApplicationView>> getEditingApplication(@PathVariable String applicationId) {
         return applicationApiService.getEditingApplication(applicationId)
                 .delayUntil(__ -> applicationApiService.updateUserApplicationLastViewTime(applicationId))
                 .map(ResponseView::success);
     }
 
-    @GetMapping("/{applicationId}/view")
+    @Override
     public Mono<ResponseView<ApplicationView>> getPublishedApplication(@PathVariable String applicationId) {
         return applicationApiService.getPublishedApplication(applicationId)
                 .delayUntil(applicationView -> applicationApiService.updateUserApplicationLastViewTime(applicationId))
@@ -116,7 +96,7 @@ public class ApplicationController {
                 .map(ResponseView::success);
     }
 
-    @PutMapping("/{applicationId}")
+    @Override
     public Mono<ResponseView<ApplicationView>> update(@PathVariable String applicationId,
             @RequestBody Application newApplication) {
         return applicationApiService.update(applicationId, newApplication)
@@ -124,20 +104,20 @@ public class ApplicationController {
                 .map(ResponseView::success);
     }
 
-    @PostMapping("/{applicationId}/publish")
+    @Override
     public Mono<ResponseView<ApplicationView>> publish(@PathVariable String applicationId) {
         return applicationApiService.publish(applicationId)
                 .map(ResponseView::success);
     }
 
-    @GetMapping("/home")
+    @Override
     public Mono<ResponseView<UserHomepageView>> getUserHomePage(@RequestParam(required = false, defaultValue = "0") int applicationType) {
         ApplicationType type = ApplicationType.fromValue(applicationType);
         return userHomeApiService.getUserHomePageView(type)
                 .map(ResponseView::success);
     }
 
-    @GetMapping("/list")
+    @Override
     public Mono<ResponseView<List<ApplicationInfoView>>> getApplications(@RequestParam(required = false) Integer applicationType,
             @RequestParam(required = false) ApplicationStatus applicationStatus,
             @RequestParam(defaultValue = "true") boolean withContainerSize) {
@@ -147,7 +127,7 @@ public class ApplicationController {
                 .map(ResponseView::success);
     }
 
-    @PutMapping("/{applicationId}/permissions/{permissionId}")
+    @Override
     public Mono<ResponseView<Boolean>> updatePermission(@PathVariable String applicationId,
             @PathVariable String permissionId,
             @RequestBody UpdatePermissionRequest updatePermissionRequest) {
@@ -160,7 +140,7 @@ public class ApplicationController {
                 .map(ResponseView::success);
     }
 
-    @DeleteMapping("/{applicationId}/permissions/{permissionId}")
+    @Override
     public Mono<ResponseView<Boolean>> removePermission(
             @PathVariable String applicationId,
             @PathVariable String permissionId) {
@@ -169,7 +149,7 @@ public class ApplicationController {
                 .map(ResponseView::success);
     }
 
-    @PutMapping("/{applicationId}/permissions")
+    @Override
     public Mono<ResponseView<Boolean>> grantPermission(
             @PathVariable String applicationId,
             @RequestBody BatchAddPermissionRequest request) {
@@ -185,37 +165,16 @@ public class ApplicationController {
     }
 
 
-    @GetMapping("/{applicationId}/permissions")
+    @Override
     public Mono<ResponseView<ApplicationPermissionView>> getApplicationPermissions(@PathVariable String applicationId) {
         return applicationApiService.getApplicationPermissions(applicationId)
                 .map(ResponseView::success);
     }
 
-    @PutMapping("/{applicationId}/public-to-all")
+    @Override
     public Mono<ResponseView<Boolean>> setApplicationPublicToAll(@PathVariable String applicationId,
             @RequestBody ApplicationPublicToAllRequest request) {
         return applicationApiService.setApplicationPublicToAll(applicationId, request.publicToAll())
                 .map(ResponseView::success);
-    }
-
-    private record BatchAddPermissionRequest(String role, Set<String> userIds, Set<String> groupIds) {
-    }
-
-    private record ApplicationPublicToAllRequest(Boolean publicToAll) {
-        @Override
-        public Boolean publicToAll() {
-            return BooleanUtils.isTrue(publicToAll);
-        }
-    }
-
-    private record UpdatePermissionRequest(String role) {
-    }
-
-    public record CreateApplicationRequest(@JsonProperty("orgId") String organizationId,
-                                           String name,
-                                           Integer applicationType,
-                                           Map<String, Object> publishedApplicationDSL,
-                                           Map<String, Object> editingApplicationDSL,
-                                           @Nullable String folderId) {
     }
 }
