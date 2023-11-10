@@ -32,7 +32,7 @@ import reactor.core.publisher.Mono;
 @RequestMapping(value = {NewUrl.CUSTOM_AUTH})
 public interface AuthenticationEndpoints 
 {
-	public static final String TAG_AUTHENTICATION = "Authentication Management APIs";
+	public static final String TAG_AUTHENTICATION = "Authentication APIs";
     /**
      * login by email or phone with password; or register by email for now.
      *

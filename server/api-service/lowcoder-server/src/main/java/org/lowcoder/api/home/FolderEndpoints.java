@@ -25,8 +25,8 @@ import reactor.core.publisher.Mono;
 @RequestMapping(NewUrl.FOLDER_URL)
 public interface FolderEndpoints 
 {
-	public static final String TAG_FOLDER_MANAGEMENT = "Folder Management APIs";
-	public static final String TAG_FOLDER_PERMISSIONS = "Folder Permissions Management APIs";
+	public static final String TAG_FOLDER_MANAGEMENT = "Folder APIs";
+	public static final String TAG_FOLDER_PERMISSIONS = "Folder Permissions APIs";
 	
 	@Operation(
 			tags = TAG_FOLDER_MANAGEMENT,

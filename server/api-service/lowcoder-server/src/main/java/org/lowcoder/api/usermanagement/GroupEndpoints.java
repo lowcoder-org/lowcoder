@@ -30,8 +30,8 @@ import reactor.core.publisher.Mono;
 @RequestMapping(value = {Url.GROUP_URL, NewUrl.GROUP_URL})
 public interface GroupEndpoints 
 {
-	public static final String TAG_GROUP_MANAGEMENT = "Group Management APIs";
-	public static final String TAG_GROUP_MEMBERS = "Group Members Management APIs";
+	public static final String TAG_GROUP_MANAGEMENT = "Group APIs";
+	public static final String TAG_GROUP_MEMBERS = "Group Members APIs";
 
 	@Operation(
 			tags = TAG_GROUP_MANAGEMENT,

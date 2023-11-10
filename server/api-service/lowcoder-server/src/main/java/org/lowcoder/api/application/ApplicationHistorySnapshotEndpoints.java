@@ -20,7 +20,7 @@ import reactor.core.publisher.Mono;
 @RequestMapping(value = {NewUrl.APPLICATION_HISTORY_URL})
 public interface ApplicationHistorySnapshotEndpoints 
 {
-	public static final String TAG_APPLICATION_HISTORY_MANAGEMENT = "Application History Management APIs";
+	public static final String TAG_APPLICATION_HISTORY_MANAGEMENT = "Application History APIs";
 	
 	@Operation(
 			tags = TAG_APPLICATION_HISTORY_MANAGEMENT,
