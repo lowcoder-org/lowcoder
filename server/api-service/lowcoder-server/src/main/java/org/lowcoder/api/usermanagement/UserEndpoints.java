@@ -27,9 +27,9 @@ import reactor.core.publisher.Mono;
 @RequestMapping(value = {Url.USER_URL, NewUrl.USER_URL})
 public interface UserEndpoints 
 {
-	public static final String TAG_USER_MANAGEMENT = "User Management APIs";
-	public static final String TAG_USER_PASSWORD_MANAGEMENT = "User Password Management APIs";
-	public static final String TAG_USER_PROFILE_PHOTO_MANAGEMENT = "User Profile Photo Management APIs";
+	public static final String TAG_USER_MANAGEMENT = "User APIs";
+	public static final String TAG_USER_PASSWORD_MANAGEMENT = "User Password APIs";
+	public static final String TAG_USER_PROFILE_PHOTO_MANAGEMENT = "User Profile Photo APIs";
 	
 	@Operation(
 			tags = TAG_USER_MANAGEMENT,

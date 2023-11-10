@@ -28,7 +28,7 @@ public interface MaterialEndpoints
 {
     public static final String DOWNLOAD_TYPE = "download";
     public static final String PREVIEW_TYPE = "preview";
-	public static final String TAG_MATERIAL_MANAGEMENT = "File Management APIs";
+	public static final String TAG_MATERIAL_MANAGEMENT = "File APIs";
 	
 	@Operation(
 			tags = TAG_MATERIAL_MANAGEMENT,

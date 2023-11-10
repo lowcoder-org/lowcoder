@@ -23,7 +23,7 @@ import reactor.core.publisher.Mono;
 @RequestMapping(value = {Url.CONFIG_URL, NewUrl.CONFIG_URL})
 public interface ConfigEndpoints 
 {
-	public static final String TAG_CONFIGURATION_MANAGEMENT = "Configuration Management APIs";
+	public static final String TAG_CONFIGURATION_MANAGEMENT = "Configuration APIs";
 	
 	@Operation(
 			tags = TAG_CONFIGURATION_MANAGEMENT,

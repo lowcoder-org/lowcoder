@@ -21,7 +21,7 @@ import reactor.core.publisher.Mono;
 @RequestMapping(value = LIBRARY_QUERY_RECORD_URL)
 public interface LibraryQueryRecordEndpoints 
 {
-	public static final String TAG_LIBRARY_QUERY_RECORDS = "Library Queries Record Management APIs";
+	public static final String TAG_LIBRARY_QUERY_RECORDS = "Library Queries Record APIs";
 
 	@Operation(
 			tags = LIBRARY_QUERY_RECORD_URL,
