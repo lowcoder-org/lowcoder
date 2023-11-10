@@ -99,6 +99,10 @@ export const getStyle = (style: DateTimeStyleType) => {
           : style.text};
       }
 
+      .ant-picker-clear {
+        inset-inline-end: 18px
+      }
+
       .ant-picker-clear:hover {
         color: ${style.text === "#222222"
           ? "#8B8FA3"
