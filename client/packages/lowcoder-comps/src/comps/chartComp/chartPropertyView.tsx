@@ -105,7 +105,7 @@ export function chartPropertyView(
           dataIndex={(s) => s.getView().dataIndex}
         />
       </Section>
-      <Section name={sectionNames.interaction}>{children.onEvent.getPropertyView()}</Section>
+      <Section name={sectionNames.interaction}>{children.onUIEvent.getPropertyView()}</Section>
       <Section name={sectionNames.layout}>
         {children.title.propertyView({ label: trans("chart.title") })}
         {children.chartConfig.children.compType.getView() !== "pie" && (
@@ -168,6 +168,9 @@ export function chartPropertyView(
         {children.mapCenterLat.propertyView({
           label: "Latitude"
         })}
+        {children.showCharts.propertyView({
+          label: "Show Charts"
+        })}
       </Section>
       <Section name={'Map Data'}>
         {children.mapOptions.propertyView({
@@ -186,6 +189,7 @@ export function chartPropertyView(
           ),
         })}
       </Section>
+      <Section name={sectionNames.interaction}>{children.onMapEvent.getPropertyView()}</Section>
       <Section name={sectionNames.layout}>{hiddenPropertyView(children)}</Section>
     </>
   );
