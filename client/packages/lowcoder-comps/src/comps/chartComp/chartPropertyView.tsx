@@ -168,6 +168,9 @@ export function chartPropertyView(
         {children.mapCenterLat.propertyView({
           label: "Latitude"
         })}
+        {children.showCharts.propertyView({
+          label: "Show Charts"
+        })}
       </Section>
       <Section name={'Map Data'}>
         {children.mapOptions.propertyView({

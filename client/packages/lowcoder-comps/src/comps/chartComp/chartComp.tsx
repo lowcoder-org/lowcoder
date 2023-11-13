@@ -141,15 +141,13 @@ ChartTmpComp = withViewFn(ChartTmpComp, (comp) => {
   }, [mode, apiKey, option])
 
   useEffect(() => {
-    if(mode === 'map') {
-      onMapEvent('centerPositionChange')
-    }
+    if(mode !== 'map') return;
+    onMapEvent('centerPositionChange');
   }, [mode, mapCenterPosition.lat, mapCenterPosition.lng])
 
   useEffect(() => {
-    if(mode === 'map') {
-      onMapEvent('zoomLevelChange')
-    }
+    if(mode !== 'map') return;
+    onMapEvent('zoomLevelChange');
   }, [mode, mapZoomlevel])
 
   return (
@@ -333,10 +331,10 @@ ChartComp = withMethodExposing(ChartComp, [
       name: "getMapCenterPosition",
     },
     execute: (comp) => {
-      return {
+      return Promise.resolve({
         lng: comp.children.mapCenterLng.getView(),
         lat: comp.children.mapCenterLat.getView(),
-      };
+      });
     }
   },
 ])

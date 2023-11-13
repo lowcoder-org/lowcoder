@@ -1,10 +1,21 @@
-import { jsonControl, JSONObject, stateComp, toJSONObjectArray, toObject } from "lowcoder-sdk";
-import { withDefault, BooleanControl, StringControl, NumberControl, JSONObjectControl, FunctionControl } from "lowcoder-sdk";
-import { dropdownControl } from "lowcoder-sdk";
-import { eventHandlerControl } from "lowcoder-sdk";
-import { valueComp, withType } from "lowcoder-sdk";
-import { ValueFromOption } from "lowcoder-sdk";
-import { uiChildren } from "lowcoder-sdk";
+import {
+  jsonControl,
+  JSONObject,
+  stateComp,
+  toJSONObjectArray,
+  toObject,
+  BoolControl,
+  withDefault,
+  StringControl,
+  NumberControl,
+  FunctionControl,
+  dropdownControl,
+  eventHandlerControl,
+  valueComp,
+  withType,
+  ValueFromOption,
+  uiChildren,
+} from "lowcoder-sdk";
 import { RecordConstructorToComp, RecordConstructorToView } from "lowcoder-core";
 import { BarChartConfig } from "./chartConfigs/barChartConfig";
 import { XAxisConfig, YAxisConfig } from "./chartConfigs/cartesianAxisConfig";
@@ -251,6 +262,7 @@ const chartMapModeChildren = {
   mapCenterLat: withDefault(NumberControl, 50.942063),
   mapOptions: jsonControl(toObject, i18nObjs.defaultMapJsonOption),
   onMapEvent: eventHandlerControl(MapEventOptions),
+  showCharts: withDefault(BoolControl, true),
 }
 
 export const chartChildrenMap = {
