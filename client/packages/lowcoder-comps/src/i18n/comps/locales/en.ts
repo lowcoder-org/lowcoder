@@ -73,6 +73,12 @@ export const en = {
     arrow: "Arrow",
     pointColorLabel: "Point color",
     pointColorTooltip: `Set the point color according to the series name and current point value, optional variables: seriesName, value. Example: '{{value < 25000 ? "red" : "green"}}'`,
+    mapReady: "Map Ready",
+    mapReadyDesc: "Triggers when map is ready",
+    zoomLevelChange: "Zoom Level Change",
+    zoomLevelChangeDesc: "Triggers when map zoom level changed",
+    centerPositionChange: "Center Position Change",
+    centerPositionChangeDesc: "Triggers when map center position changed"
   },
   imageEditor: {
     defaultSrc: "",

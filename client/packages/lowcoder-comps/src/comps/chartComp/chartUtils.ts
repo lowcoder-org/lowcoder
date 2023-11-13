@@ -52,7 +52,12 @@ export function transformData(
 }
 
 const notAxisChartSet: Set<CharOptionCompType> = new Set(["pie"] as const);
-export const echartsConfigOmitChildren = ["hidden", "selectedPoints", "onEvent", "mapInstance"] as const;
+export const echartsConfigOmitChildren = [
+  "hidden",
+  "selectedPoints",
+  "onUIEvent",
+  "mapInstance"
+] as const;
 type EchartsConfigProps = Omit<ChartCompPropsType, typeof echartsConfigOmitChildren[number]>;
 
 export function isAxisChart(type: CharOptionCompType) {
@@ -132,16 +137,17 @@ export function getEchartsConfig(props: EchartsConfigProps, chartSize?: ChartSiz
       mapZoomLevel,
       mapCenterLat,
       mapCenterLng,
-      mapOptions,  
+      mapOptions, 
+      showCharts, 
     } = props;
-  
-    const echartsOption = mapOptions ? mapOptions : {};
+
+    const echartsOption = mapOptions && showCharts ? mapOptions : {};
     return {
       gmap: {
         center: [mapCenterLng, mapCenterLat],
         zoom: mapZoomLevel,
         renderOnMoving: true,
-        echartsLayerZIndex: 2019,
+        echartsLayerZIndex: showCharts ? 2019 : 0,
         roam: true
       },
       ...echartsOption,
