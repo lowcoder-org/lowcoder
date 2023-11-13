@@ -16,7 +16,7 @@ spring:
   codec:
     max-in-memory-size: 20MB
   webflux:
-    context-path: /
+    base-path: /
 
 server:
   compression:

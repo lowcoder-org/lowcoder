@@ -13,5 +13,4 @@ public class CustomWebFluxConfigurationSupport extends WebFluxConfigurationSuppo
 	{
 		return new ReloadableRouterFunctionMapping();
 	}
-
 }

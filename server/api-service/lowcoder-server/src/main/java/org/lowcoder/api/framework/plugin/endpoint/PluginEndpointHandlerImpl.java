@@ -21,6 +21,7 @@ import org.lowcoder.plugin.api.PluginEndpoint;
 import org.lowcoder.plugin.api.data.EndpointRequest;
 import org.lowcoder.plugin.api.data.EndpointResponse;
 import org.lowcoder.sdk.exception.BaseException;
+import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.core.ResolvableType;
@@ -30,7 +31,6 @@ import org.springframework.web.reactive.function.server.RequestPredicate;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import org.springframework.web.reactive.function.server.ServerResponse.BodyBuilder;
-import org.springframework.web.reactive.function.server.support.RouterFunctionMapping;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -45,7 +45,7 @@ public class PluginEndpointHandlerImpl implements PluginEndpointHandler
 	private List<RouterFunction<ServerResponse>> routes = new ArrayList<>();
 	
 	private final ApplicationContext applicationContext;
-	private final RouterFunctionMapping routerFunctionMapping;
+	private final DefaultListableBeanFactory beanFactory;
 	
 	@Override
 	public void registerEndpoints(String pluginUrlPrefix, List<PluginEndpoint> endpoints) 
@@ -54,7 +54,7 @@ public class PluginEndpointHandlerImpl implements PluginEndpointHandler
 		
 		if (CollectionUtils.isNotEmpty(endpoints))
 		{
-			
+			List<EndpointExtension> toAuthorize = new ArrayList<>();
 			for (PluginEndpoint endpoint : endpoints)
 			{
 				Method[] handlers = endpoint.getClass().getDeclaredMethods();
@@ -62,12 +62,16 @@ public class PluginEndpointHandlerImpl implements PluginEndpointHandler
 				{
 					for (Method handler : handlers)
 					{
-						registerEndpointHandler(urlPrefix, endpoint, handler);
+						toAuthorize.addAll(registerEndpointHandler(urlPrefix, endpoint, handler));
 					}
 				}
 			}
 			
-			((ReloadableRouterFunctionMapping)routerFunctionMapping).reloadFunctionMappings();			
+			((ReloadableRouterFunctionMapping)beanFactory.getBean("routerFunctionMapping")).reloadFunctionMappings();
+			if (!toAuthorize.isEmpty())
+			{
+				// TODO: ludomikula: finish endpoint authorization
+			}
 		}
 	}
 	
@@ -77,8 +81,10 @@ public class PluginEndpointHandlerImpl implements PluginEndpointHandler
 		return routes;
 	}
 
-	private void registerEndpointHandler(String urlPrefix, PluginEndpoint endpoint, Method handler)
+	private List<EndpointExtension> registerEndpointHandler(String urlPrefix, PluginEndpoint endpoint, Method handler)
 	{
+		List<EndpointExtension> toAuthorize = new ArrayList<>();
+		
 		if (handler.isAnnotationPresent(EndpointExtension.class))
 		{
 			if (checkHandlerMethod(handler))
@@ -103,6 +109,11 @@ public class PluginEndpointHandlerImpl implements PluginEndpointHandler
 				routes.add(routerFunction);				
 				registerRouterFunctionMapping(endpointName, routerFunction);
 				
+				if (endpointMeta.authenticated())
+				{
+					toAuthorize.add(endpointMeta);
+				}
+				
 				log.info("Registered endpoint: {} -> {}: {}", endpoint.getClass().getSimpleName(), endpointMeta.method(), urlPrefix + endpointMeta.uri());
 			}
 			else
@@ -110,6 +121,8 @@ public class PluginEndpointHandlerImpl implements PluginEndpointHandler
 				log.error("Cannot register plugin endpoint: {} -> {}! Handler method must be defined as: public Mono<ServerResponse> {}(ServerRequest request)", endpoint.getClass().getSimpleName(), handler.getName(), handler.getName());
 			}
 		}
+		
+		return toAuthorize;
 	}
 	
 	private void registerRouterFunctionMapping(String endpointName, RouterFunction<ServerResponse> routerFunction)
