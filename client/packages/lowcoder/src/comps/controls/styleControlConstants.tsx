@@ -823,6 +823,8 @@ export const TreeSelectStyle = [...multiSelectCommon, ...ACCENT_VALIDATE] as con
 
 export const DrawerStyle = [getBackground()] as const;
 
+export const NavLayoutStyle = [getBackground()] as const;
+
 export const JsonEditorStyle = [LABEL] as const;
 
 export const CalendarStyle = [

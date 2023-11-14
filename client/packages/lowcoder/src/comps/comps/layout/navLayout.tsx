@@ -8,12 +8,17 @@ import { withDispatchHook } from "comps/generators/withDispatchHook";
 import { NameAndExposingInfo } from "comps/utils/exposingTypes";
 import { ALL_APPLICATIONS_URL } from "constants/routesURL";
 import { TopHeaderHeight } from "constants/style";
-import { Section } from "lowcoder-design";
+import { Section, sectionNames } from "lowcoder-design";
 import { trans } from "i18n";
 import { EditorContainer, EmptyContent } from "pages/common/styledComponent";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
 import { isUserViewMode, useAppPathParam } from "util/hooks";
+import { StringControl } from "comps/controls/codeControl";
+import { styleControl } from "comps/controls/styleControl";
+import { NavLayoutStyle } from "comps/controls/styleControlConstants";
+
+const DEFAULT_WIDTH = 240;
 
 const StyledSide = styled(Layout.Sider)`
   max-height: calc(100vh - ${TopHeaderHeight});
@@ -46,6 +51,8 @@ let NavTmpLayout = (function () {
         label: trans("menuItem") + " 1",
       },
     ]),
+    width: StringControl,
+    style: styleControl(NavLayoutStyle),
   };
   return new MultiCompBuilder(childrenMap, (props) => {
     return null;
@@ -54,6 +61,16 @@ let NavTmpLayout = (function () {
       return (
         <>
           <Section name={trans("menu")}>{menuPropertyView(children.items)}</Section>
+          <Section name={sectionNames.layout}>
+            { children.width.propertyView({
+                label: trans("drawer.width"),
+                tooltip: trans("drawer.widthTooltip"),
+                placeholder: DEFAULT_WIDTH + "",
+              })}
+          </Section>
+          <Section name={sectionNames.style}>
+            { children.style.getPropertyView() }
+          </Section>
         </>
       );
     })
@@ -195,7 +212,7 @@ NavTmpLayout = withViewFn(NavTmpLayout, (comp) => {
 
   let content = (
     <Layout>
-      <StyledSide theme="light" width={240}>
+      <StyledSide theme="light" width={DEFAULT_WIDTH}>
         <AntdMenu
           items={menuItems}
           mode="inline"
