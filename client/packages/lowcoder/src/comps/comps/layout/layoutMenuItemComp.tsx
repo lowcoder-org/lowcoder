@@ -38,15 +38,13 @@ export class LayoutMenuItemComp extends MultiBaseComp<ChildrenType> {
   }
 
   override getPropertyView(): ReactNode {
-    const isLeaf = this.children.items.getView().length === 0;
     return (
       <>
-        {isLeaf &&
-          this.children.action.propertyView({
-            onAppChange: (label) => {
-              label && this.children.label.dispatchChangeValueAction(label);
-            },
-          })}
+        {this.children.action.propertyView({
+          onAppChange: (label) => {
+            label && this.children.label.dispatchChangeValueAction(label);
+          },
+        })}
         {this.children.label.propertyView({ label: trans("label") })}
         {this.children.icon.propertyView({
           label: trans("icon"),

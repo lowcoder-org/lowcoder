@@ -71,6 +71,33 @@ NavTmpLayout = withViewFn(NavTmpLayout, (comp) => {
     return !item.children.hidden.getView();
   }, []);
 
+  const generateItemKeyRecord = useCallback((items: LayoutMenuItemComp[]) => {
+    const result: Record<string, LayoutMenuItemComp> = {};
+    items.forEach((item) => {
+      const subItems = item.children.items.getView();
+      if (subItems.length > 0) {
+        Object.assign(result, generateItemKeyRecord(subItems))
+      }
+      result[item.getItemKey()] = item;
+    });
+    return result;
+  }, [items])
+
+  const itemKeyRecord = useMemo(() => {
+    return generateItemKeyRecord(items)
+  }, [generateItemKeyRecord, items]);
+
+  const onMenuItemClick = ({key}: {key: string}) => {
+    const itemComp = itemKeyRecord[key];
+    const url = [
+      ALL_APPLICATIONS_URL,
+      pathParam.applicationId,
+      pathParam.viewMode,
+      itemComp.getItemKey(),
+    ].join("/");
+    itemComp.children.action.act(url);
+  }
+
   const getMenuItem = useCallback(
     (itemComps: LayoutMenuItemComp[]): MenuProps["items"] => {
       return itemComps.filter(filterItem).map((item) => {
@@ -81,6 +108,8 @@ NavTmpLayout = withViewFn(NavTmpLayout, (comp) => {
           title: label,
           key: item.getItemKey(),
           icon: <span>{item.children.icon.getView()}</span>,
+          onTitleClick: onMenuItemClick,
+          onClick: onMenuItemClick,
           ...(subItems.length > 0 && { children: getMenuItem(subItems) }),
         };
       });
@@ -133,25 +162,6 @@ NavTmpLayout = withViewFn(NavTmpLayout, (comp) => {
     },
     [filterItem]
   );
-  
-  const generateItemKeyRecord = useCallback((items: LayoutMenuItemComp[]) => {
-    console.log('generateItemKeyRecord', items)
-    const result: Record<string, LayoutMenuItemComp> = {};
-    items.forEach((item) => {
-      const subItems = item.children.items.getView();
-      if (subItems.length > 0) {
-        Object.assign(result, generateItemKeyRecord(subItems))
-      }
-      else {
-        result[item.getItemKey()] = item;
-      }
-    });
-    return result;
-  }, [items])
-
-  const itemKeyRecord = useMemo(() => {
-    return generateItemKeyRecord(items)
-  }, [generateItemKeyRecord, items]);
 
   const defaultOpenKeys = useMemo(() => {
     let itemPath: string[];
@@ -192,16 +202,6 @@ NavTmpLayout = withViewFn(NavTmpLayout, (comp) => {
           style={{ height: "100%" }}
           defaultOpenKeys={defaultOpenKeys}
           selectedKeys={[selectedKey]}
-          onClick={(e) => {
-            const itemComp = itemKeyRecord[e.key];
-            const url = [
-              ALL_APPLICATIONS_URL,
-              pathParam.applicationId,
-              pathParam.viewMode,
-              itemComp.getItemKey(),
-            ].join("/");
-            itemComp.children.action.act(url);
-          }}
         />
       </StyledSide>
       <MainContent>{pageView}</MainContent>
