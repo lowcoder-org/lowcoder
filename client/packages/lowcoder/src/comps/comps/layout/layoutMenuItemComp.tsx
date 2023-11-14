@@ -100,10 +100,14 @@ export class LayoutMenuItemListComp extends list(LayoutMenuItemCompMigrate) {
     const data = this.getView();
     this.dispatch(
       this.pushAction(
-        value || {
-          label: trans("menuItem") + " " + (data.length + 1),
-          itemKey: genRandomKey(),
-        }
+        value
+          ? {
+            ...value,
+            itemKey: value.itemKey || genRandomKey(),
+          } : {
+            label: trans("menuItem") + " " + (data.length + 1),
+            itemKey: genRandomKey(),
+          }
       )
     );
   }
