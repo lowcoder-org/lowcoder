@@ -117,7 +117,7 @@ export default function DraggableMenuItem(props: IDraggableMenuItemProps) {
                 item={subItem}
                 level={0}
                 disabled={disabled || isDragging || disableDropIn}
-                // onAddSubMenu={onAddSubMenu}
+                onAddSubMenu={onAddSubMenu}
                 onDelete={onDelete}
                 parentDragging={isDragging}
               />

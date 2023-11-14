@@ -133,21 +133,25 @@ NavTmpLayout = withViewFn(NavTmpLayout, (comp) => {
     },
     [filterItem]
   );
-
-  const itemKeyRecord = useMemo(() => {
+  
+  const generateItemKeyRecord = useCallback((items: LayoutMenuItemComp[]) => {
+    console.log('generateItemKeyRecord', items)
     const result: Record<string, LayoutMenuItemComp> = {};
     items.forEach((item) => {
       const subItems = item.children.items.getView();
       if (subItems.length > 0) {
-        item.children.items
-          .getView()
-          .forEach((subItem) => (result[subItem.getItemKey()] = subItem));
-      } else {
+        Object.assign(result, generateItemKeyRecord(subItems))
+      }
+      else {
         result[item.getItemKey()] = item;
       }
     });
     return result;
-  }, [items]);
+  }, [items])
+
+  const itemKeyRecord = useMemo(() => {
+    return generateItemKeyRecord(items)
+  }, [generateItemKeyRecord, items]);
 
   const defaultOpenKeys = useMemo(() => {
     let itemPath: string[];
