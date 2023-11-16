@@ -35,8 +35,8 @@ import reactor.core.publisher.Mono;
 @RequestMapping(value = {Url.APPLICATION_URL, NewUrl.APPLICATION_URL})
 public interface ApplicationEndpoints 
 {
-	public static final String TAG_APPLICATION_MANAGEMENT = "Application Management APIs";
-	public static final String TAG_APPLICATION_PERMISSIONS = "Application Permissions Management APIs";
+	public static final String TAG_APPLICATION_MANAGEMENT = "Application APIs";
+	public static final String TAG_APPLICATION_PERMISSIONS = "Application Permissions APIs";
 	
 	@Operation(
 			tags = TAG_APPLICATION_MANAGEMENT,

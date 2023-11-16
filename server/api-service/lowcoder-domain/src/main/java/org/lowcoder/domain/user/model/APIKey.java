@@ -1,5 +1,6 @@
 package org.lowcoder.domain.user.model;
 
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -8,6 +9,7 @@ import java.util.function.Function;
 
 @Getter
 @Setter
+@Builder
 public class APIKey {
 
     private String id;

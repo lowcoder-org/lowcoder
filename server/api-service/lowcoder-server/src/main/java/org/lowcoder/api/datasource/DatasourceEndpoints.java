@@ -36,8 +36,8 @@ import reactor.core.publisher.Mono;
 @RequestMapping(value = {Url.DATASOURCE_URL, NewUrl.DATASOURCE_URL})
 public interface DatasourceEndpoints 
 {
-	public static final String TAG_DATASOURCE_MANAGEMENT = "Data Source Management APIs";
-	public static final String TAG_DATASOURCE_PERMISSIONS = "Data Source Permissions Management APIs";
+	public static final String TAG_DATASOURCE_MANAGEMENT = "Data Source APIs";
+	public static final String TAG_DATASOURCE_PERMISSIONS = "Data Source Permissions APIs";
 	
 	@Operation(
 			tags = TAG_DATASOURCE_MANAGEMENT,

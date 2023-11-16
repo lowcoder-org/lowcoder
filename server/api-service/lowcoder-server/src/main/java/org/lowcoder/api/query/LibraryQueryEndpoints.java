@@ -27,7 +27,7 @@ import reactor.core.publisher.Mono;
 @RequestMapping(value = LIBRARY_QUERY_URL)
 public interface LibraryQueryEndpoints 
 {
-	public static final String TAG_LIBRARY_QUERY_MANAGEMENT = "Query Library Management APIs";
+	public static final String TAG_LIBRARY_QUERY_MANAGEMENT = "Query Library APIs";
 	
 	@Operation(
 			tags = TAG_LIBRARY_QUERY_MANAGEMENT,

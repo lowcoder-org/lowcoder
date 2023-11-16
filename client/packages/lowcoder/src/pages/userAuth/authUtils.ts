@@ -78,6 +78,7 @@ export function authRespValidate(
   onAuthSuccess?: () => void
 ) {
   let replaceUrl = redirectUrl || BASE_URL;
+  const baseUrl = `${window.location.protocol}//${window.location.host}`;
   if (infoCompleteCheck) {
     // need complete info
     replaceUrl = redirectUrl
@@ -86,7 +87,7 @@ export function authRespValidate(
   }
   if (doValidResponse(resp)) {
     onAuthSuccess?.();
-    history.replace(replaceUrl);
+    history.replace(replaceUrl.replace(baseUrl, ''));
   } else if (
     resp.data.code === SERVER_ERROR_CODES.EXCEED_MAX_USER_ORG_COUNT ||
     resp.data.code === SERVER_ERROR_CODES.ALREADY_IN_ORGANIZATION

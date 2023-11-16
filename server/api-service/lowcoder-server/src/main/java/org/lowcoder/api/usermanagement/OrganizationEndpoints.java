@@ -34,8 +34,8 @@ import reactor.core.publisher.Mono;
 @RequestMapping(value = {Url.ORGANIZATION_URL, NewUrl.ORGANIZATION_URL})
 public interface OrganizationEndpoints 
 {
-	public static final String TAG_ORGANIZATION_MANAGEMENT = "Organization Management APIs";
-	public static final String TAG_ORGANIZATION_MEMBERS = "Organization Member Management APIs";
+	public static final String TAG_ORGANIZATION_MANAGEMENT = "Organization APIs";
+	public static final String TAG_ORGANIZATION_MEMBERS = "Organization Member APIs";
 	
 	@Operation(
 			tags = TAG_ORGANIZATION_MANAGEMENT,

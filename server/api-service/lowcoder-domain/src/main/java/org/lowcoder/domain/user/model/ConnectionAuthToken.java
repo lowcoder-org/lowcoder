@@ -30,11 +30,22 @@ public class ConnectionAuthToken {
     }
 
     public static ConnectionAuthToken of(AuthToken token) {
+
+        Long accessTokenExpiry = 0L;
+        if(token.getExpireIn() != 0) {
+            accessTokenExpiry = System.currentTimeMillis() / 1000 + token.getExpireIn() - 60;
+        }
+
+        Long refreshTokenExpiry = 0L;
+        if(token.getRefreshTokenExpireIn() != 0) {
+            refreshTokenExpiry = System.currentTimeMillis() / 1000 + token.getRefreshTokenExpireIn() - 60;
+        }
+
         return ConnectionAuthToken.builder()
                 .accessToken(token.getAccessToken())
-                .expireAt(System.currentTimeMillis() / 1000 + token.getExpireIn() - 60)
+                .expireAt(accessTokenExpiry)
                 .refreshToken(token.getRefreshToken())
-                .refreshTokenExpireAt(System.currentTimeMillis() / 1000 + token.getRefreshTokenExpireIn() - 60)
+                .refreshTokenExpireAt(refreshTokenExpiry)
                 .source(null)
                 .build();
     }
