@@ -111,18 +111,21 @@ let screenShareStream: ILocalVideoTrack;
 let userId: UID | null | undefined;
 let rtmChannelResponse: RtmChannel;
 let rtmClient: RtmClient;
-const agoraTokenUrl = `https://sandbox.wiggolive.com/token/rtc`;
 
 const generateToken = async (
   appId: any,
   certificate: any,
-  channelName: any
+  channelName: any,
+  serverurl: any
 ) => {
-  let response = await axios.post(agoraTokenUrl, {
-    appId,
-    certificate,
-    channelName,
-  });
+  let response = await axios.post(
+    serverurl ?? "https://sandbox.wiggolive.com/token/rtc",
+    {
+      appId,
+      certificate,
+      channelName,
+    }
+  );
   return response.data;
 };
 
@@ -179,17 +182,16 @@ const leaveChannel = async () => {
   await rtmChannelResponse.leave();
 };
 
-const hostChanged = (users: any) => {};
-
 const publishVideo = async (
   appId: string,
   channel: any,
   height: any,
-  certifiCateKey: string
+  certifiCateKey: string,
+  serverurl: string
 ) => {
   let token = null;
   if (certifiCateKey) {
-    token = await generateToken(appId, certifiCateKey, channel);
+    token = await generateToken(appId, certifiCateKey, channel, serverurl);
   }
   await turnOnCamera(true);
   await client.join(appId, channel, token, userId);
@@ -234,6 +236,7 @@ export const meetingControllerChildren = {
   endCall: withDefault(BooleanStateControl, "false"),
   sharing: withDefault(BooleanStateControl, "false"),
   appId: withDefault(StringControl, trans("meeting.appid")),
+  tokenServerUrl: withDefault(StringControl, trans("meeting.serverurl")),
   participants: stateComp<JSONValue>([]),
   usersScreenShared: stateComp<JSONValue>([]),
   localUser: jsonObjectExposingStateControl(""),
@@ -276,27 +279,23 @@ let MTComp = (function () {
 
       useEffect(() => {
         if (userJoined) {
+          let prevUsers: any[] = props.participants as [];
           let userData = {
             user: userJoined.uid,
-            host: false,
             audiostatus: userJoined.hasAudio,
             streamingVideo: true,
           };
           setUserIds((userIds: any) => [...userIds, userData]);
-          if (userIds.length == 0) {
-            userData.host = true;
-          } else {
-            userData.host = false;
-          }
           dispatch(
             changeChildAction(
               "participants",
-              removeDuplicates(getData([...userIds, userData]).data, "user"),
+              removeDuplicates(getData([...prevUsers, userData]).data, "user"),
               false
             )
           );
         }
       }, [userJoined]);
+
       function removeDuplicates(arr: any, prop: any) {
         const uniqueObjects = [];
         const seenValues = new Set();
@@ -320,7 +319,6 @@ let MTComp = (function () {
           let hostExists = newUsers.filter((f: any) => f.host === true);
           if (hostExists.length == 0 && newUsers.length > 0) {
             newUsers[0].host = true;
-            hostChanged(newUsers);
           }
           setUserIds(newUsers);
           dispatch(
@@ -432,8 +430,6 @@ let MTComp = (function () {
           client.on(
             "user-unpublished",
             (user: IAgoraRTCRemoteUser, mediaType: "video" | "audio") => {
-              console.log("user-unpublished");
-
               setLocalUserVideo(user);
             }
           );
@@ -511,9 +507,11 @@ let MTComp = (function () {
           {children.certifiCateKey.propertyView({
             label: trans("meeting.certifiCateKey"),
           })}
-
           {children.meetingName.propertyView({
             label: trans("meeting.meetingName"),
+          })}
+          {children.tokenServerUrl.propertyView({
+            label: trans("meeting.serverurl"),
           })}
 
           {children.placement.propertyView({
@@ -636,6 +634,7 @@ MTComp = withMethodExposing(MTComp, [
       params: [],
     },
     execute: async (comp, values) => {
+      if (comp.children.meetingActive.getView().value) return;
       userId = Math.floor(100000 + Math.random() * 900000);
       comp.children.localUser.change({
         user: userId + "",
@@ -663,7 +662,8 @@ MTComp = withMethodExposing(MTComp, [
           ? "_meetingId"
           : comp.children.meetingName.getView().value,
         comp.children,
-        comp.children.certifiCateKey.getView().value
+        comp.children.certifiCateKey.getView().value,
+        comp.children.tokenServerUrl.getView()
       );
       comp.children.meetingActive.change(true);
     },

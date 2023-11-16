@@ -2,7 +2,8 @@ import table from "./componentDocExtra/table.md?url";
 
 export const en = {
   productName: "Lowcoder",
-  productDesc: "Create software applications for your Company and your Customers with minimal coding experience. Lowcoder is the best Retool, Appsmith or Tooljet Alternative.",
+  productDesc:
+    "Create software applications for your Company and your Customers with minimal coding experience. Lowcoder is the best Retool, Appsmith or Tooljet Alternative.",
   notSupportedBrowser:
     "Your current browser may have compatibility issues. For a better user experience, it is recommended to use the latest version of the Chrome browser.",
   create: "Create",
@@ -1458,6 +1459,7 @@ export const en = {
     participants: "Participants",
     shareScreen: "Share Screen",
     appid: "Application Id",
+    serverurl: "Token Server url",
     meetingName: "Meeting Name",
     videoCompText: "No video Text",
     profileImageUrl: "Profile Image Url",
@@ -2094,7 +2096,7 @@ export const en = {
     resetSuccessDesc:
       "Password reset succeeded. The new password is: {password}",
     copyPassword: "Copy password",
-    poweredByLowcoder: "Powered by Lowcoder.cloud"
+    poweredByLowcoder: "Powered by Lowcoder.cloud",
   },
   preLoad: {
     jsLibraryHelpText:
