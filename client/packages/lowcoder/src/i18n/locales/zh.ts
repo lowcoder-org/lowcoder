@@ -2557,6 +2557,15 @@ timeLine: {
         matchColumnsHeight: "匹配列高度",
         rowLayout: "行布局",
         columnsLayout: "栏目布局",
+    },
+    navLayout: {
+        mode: "模式",
+        modeInline: "排队",
+        modeVertical: "垂直的",
+        width: "宽度",
+        widthTooltip: "数字或百分比,例如 520,60%",
+        navStyle: "菜单风格",
+        navItemStyle: "菜单项样式",
     }
 };
 

@@ -1,4 +1,4 @@
-import { Layout, Menu as AntdMenu, MenuProps } from "antd";
+import { Layout, Menu as AntdMenu, MenuProps, Segmented } from "antd";
 import MainContent from "components/layout/MainContent";
 import { LayoutMenuItemComp, LayoutMenuItemListComp } from "comps/comps/layout/layoutMenuItemComp";
 import { menuPropertyView } from "comps/comps/navComp/components/MenuItemList";
@@ -8,17 +8,47 @@ import { withDispatchHook } from "comps/generators/withDispatchHook";
 import { NameAndExposingInfo } from "comps/utils/exposingTypes";
 import { ALL_APPLICATIONS_URL } from "constants/routesURL";
 import { TopHeaderHeight } from "constants/style";
-import { Section, sectionNames } from "lowcoder-design";
+import { Section, controlItem, sectionNames } from "lowcoder-design";
 import { trans } from "i18n";
 import { EditorContainer, EmptyContent } from "pages/common/styledComponent";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 import { isUserViewMode, useAppPathParam } from "util/hooks";
 import { StringControl } from "comps/controls/codeControl";
 import { styleControl } from "comps/controls/styleControl";
-import { NavLayoutStyle } from "comps/controls/styleControlConstants";
+import {
+  NavLayoutStyle,
+  NavLayoutItemStyle,
+  NavLayoutItemStyleType,
+  NavLayoutItemHoverStyle,
+  NavLayoutItemHoverStyleType,
+  NavLayoutItemActiveStyle,
+  NavLayoutItemActiveStyleType,
+} from "comps/controls/styleControlConstants";
+import { dropdownControl } from "comps/controls/dropdownControl";
 
 const DEFAULT_WIDTH = 240;
+const ModeOptions = [
+  { label: trans("navLayout.modeInline"), value: "inline" },
+  { label: trans("navLayout.modeVertical"), value: "vertical" },
+] as const;
+
+type MenuItemStyleOptionValue = "normal" | "hover" | "active";
+
+const menuItemStyleOptions = [
+  {
+    value: "normal",
+    label: "Normal",
+  },
+  {
+    value: "hover",
+    label: "Hover",
+  },
+  {
+    value: "active",
+    label: "Active",
+  }
+]
 
 const StyledSide = styled(Layout.Sider)`
   max-height: calc(100vh - ${TopHeaderHeight});
@@ -44,6 +74,80 @@ const ContentWrapper = styled.div`
   }
 `;
 
+const StyledMenu = styled(AntdMenu)<{
+  $navItemStyle?: NavLayoutItemStyleType & { width: string},
+  $navItemHoverStyle?: NavLayoutItemHoverStyleType,
+  $navItemActiveStyle?: NavLayoutItemActiveStyleType,
+}>`
+  .ant-menu-item {
+    height: auto;
+    width: ${(props) => props.$navItemStyle?.width};
+    background-color: ${(props) => props.$navItemStyle?.background};
+    color: ${(props) => props.$navItemStyle?.text};
+    border-radius: ${(props) => props.$navItemStyle?.radius} !important;
+    border: ${(props) => `1px solid ${props.$navItemStyle?.border}`};
+    margin: ${(props) => props.$navItemStyle?.margin};
+    padding: ${(props) => props.$navItemStyle?.padding};
+
+  }
+  .ant-menu-item-active {
+    background-color: ${(props) => props.$navItemHoverStyle?.background} !important;
+    color: ${(props) => props.$navItemHoverStyle?.text} !important;
+    border: ${(props) => `1px solid ${props.$navItemHoverStyle?.border}`};
+  }
+
+  .ant-menu-item-selected {
+    background-color: ${(props) => props.$navItemActiveStyle?.background} !important;
+    color: ${(props) => props.$navItemActiveStyle?.text} !important;
+    border: ${(props) => `1px solid ${props.$navItemActiveStyle?.border}`};
+  }
+
+  .ant-menu-submenu {
+    margin: ${(props) => props.$navItemStyle?.margin};
+    width: ${(props) => props.$navItemStyle?.width};
+
+    .ant-menu-submenu-title {
+      width: 100%;
+      height: auto !important;
+      background-color: ${(props) => props.$navItemStyle?.background};
+      color: ${(props) => props.$navItemStyle?.text};
+      border-radius: ${(props) => props.$navItemStyle?.radius} !important;
+      border: ${(props) => `1px solid ${props.$navItemStyle?.border}`};
+      margin: 0;
+      padding: ${(props) => props.$navItemStyle?.padding};
+
+    }
+
+    .ant-menu-item {
+      width: 100%;
+    }
+
+    &.ant-menu-submenu-active {
+      >.ant-menu-submenu-title {
+        width: 100%;
+        background-color: ${(props) => props.$navItemHoverStyle?.background} !important;
+        color: ${(props) => props.$navItemHoverStyle?.text} !important;
+        border: ${(props) => `1px solid ${props.$navItemHoverStyle?.border}`};
+      }
+    }
+    &.ant-menu-submenu-selected {
+      >.ant-menu-submenu-title {
+        width: 100%;
+        background-color: ${(props) => props.$navItemActiveStyle?.background} !important;
+        color: ${(props) => props.$navItemActiveStyle?.text} !important;
+        border: ${(props) => `1px solid ${props.$navItemActiveStyle?.border}`};
+      }
+    }
+  }
+
+`;
+
+const defaultStyle = {
+  radius: '0px',
+  margin: '0px',
+  padding: '0px',
+}
+
 let NavTmpLayout = (function () {
   const childrenMap = {
     items: withDefault(LayoutMenuItemListComp, [
@@ -51,27 +155,57 @@ let NavTmpLayout = (function () {
         label: trans("menuItem") + " 1",
       },
     ]),
-    width: StringControl,
-    style: styleControl(NavLayoutStyle),
+    width: withDefault(StringControl, DEFAULT_WIDTH),
+    mode: dropdownControl(ModeOptions, "inline"),
+    navStyle: withDefault(styleControl(NavLayoutStyle), defaultStyle),
+    navItemStyle: withDefault(styleControl(NavLayoutItemStyle), defaultStyle),
+    navItemHoverStyle: withDefault(styleControl(NavLayoutItemHoverStyle), {}),
+    navItemActiveStyle: withDefault(styleControl(NavLayoutItemActiveStyle), {}),
   };
   return new MultiCompBuilder(childrenMap, (props) => {
     return null;
   })
     .setPropertyViewFn((children) => {
+      const [styleSegment, setStyleSegment] = useState('normal')
+
       return (
-        <>
+        <div style={{overflowY: 'auto'}}>
           <Section name={trans("menu")}>{menuPropertyView(children.items)}</Section>
           <Section name={sectionNames.layout}>
             { children.width.propertyView({
-                label: trans("drawer.width"),
-                tooltip: trans("drawer.widthTooltip"),
+                label: trans("navLayout.width"),
+                tooltip: trans("navLayout.widthTooltip"),
                 placeholder: DEFAULT_WIDTH + "",
-              })}
+            })}
+            { children.mode.propertyView({
+              label: trans("labelProp.position"),
+              radioButton: true
+            })}
           </Section>
-          <Section name={sectionNames.style}>
-            { children.style.getPropertyView() }
+          <Section name={trans("navLayout.navStyle")}>
+            { children.navStyle.getPropertyView() }
           </Section>
-        </>
+          <Section name={trans("navLayout.navItemStyle")}>
+            {controlItem({}, (
+              <Segmented
+                block
+                options={menuItemStyleOptions}
+                value={styleSegment}
+                // className="comp-panel-tab"
+                onChange={(k) => setStyleSegment(k as MenuItemStyleOptionValue)}
+              />
+            ))}
+            {styleSegment === 'normal' && (
+              children.navItemStyle.getPropertyView()
+            )}
+            {styleSegment === 'hover' && (
+              children.navItemHoverStyle.getPropertyView()
+            )}
+            {styleSegment === 'active' && (
+              children.navItemActiveStyle.getPropertyView()
+            )}
+          </Section>
+        </div>
       );
     })
     .build();
@@ -82,13 +216,19 @@ NavTmpLayout = withViewFn(NavTmpLayout, (comp) => {
   const isViewMode = isUserViewMode(pathParam);
   const [selectedKey, setSelectedKey] = useState("");
   const items = useMemo(() => comp.children.items.getView(), [comp.children.items]);
-
+  const navWidth = useMemo(() => comp.children.width.getView(), [comp.children.width]);
+  const navMode = useMemo(() => comp.children.mode.getView(), [comp.children.mode]);
+  const navStyle = useMemo(() => comp.children.navStyle.getView(), [comp.children.navStyle]);
+  const navItemStyle = useMemo(() => comp.children.navItemStyle.getView(), [comp.children.navItemStyle]);
+  const navItemHoverStyle = useMemo(() => comp.children.navItemHoverStyle.getView(), [comp.children.navItemHoverStyle]);
+  const navItemActiveStyle = useMemo(() => comp.children.navItemActiveStyle.getView(), [comp.children.navItemActiveStyle]);
+  console.log(navItemActiveStyle);
   // filter out hidden. unauthorised items filtered by server
   const filterItem = useCallback((item: LayoutMenuItemComp): boolean => {
     return !item.children.hidden.getView();
   }, []);
 
-  const generateItemKeyRecord = useCallback((items: LayoutMenuItemComp[]) => {
+  const generateItemKeyRecord = (items: LayoutMenuItemComp[]) => {
     const result: Record<string, LayoutMenuItemComp> = {};
     items.forEach((item) => {
       const subItems = item.children.items.getView();
@@ -98,13 +238,13 @@ NavTmpLayout = withViewFn(NavTmpLayout, (comp) => {
       result[item.getItemKey()] = item;
     });
     return result;
-  }, [items])
+  }
 
   const itemKeyRecord = useMemo(() => {
     return generateItemKeyRecord(items)
-  }, [generateItemKeyRecord, items]);
+  }, [items]);
 
-  const onMenuItemClick = ({key}: {key: string}) => {
+  const onMenuItemClick = useCallback(({key}: {key: string}) => {
     const itemComp = itemKeyRecord[key];
     const url = [
       ALL_APPLICATIONS_URL,
@@ -113,7 +253,7 @@ NavTmpLayout = withViewFn(NavTmpLayout, (comp) => {
       itemComp.getItemKey(),
     ].join("/");
     itemComp.children.action.act(url);
-  }
+  }, [pathParam.applicationId, pathParam.viewMode, itemKeyRecord])
 
   const getMenuItem = useCallback(
     (itemComps: LayoutMenuItemComp[]): MenuProps["items"] => {
@@ -131,7 +271,7 @@ NavTmpLayout = withViewFn(NavTmpLayout, (comp) => {
         };
       });
     },
-    [filterItem]
+    [onMenuItemClick, filterItem]
   );
 
   const menuItems = useMemo(() => getMenuItem(items), [items, getMenuItem]);
@@ -210,15 +350,47 @@ NavTmpLayout = withViewFn(NavTmpLayout, (comp) => {
     }
   }
 
+  const getVerticalMargin = (margin: string[]) => {
+    if(margin.length === 1) return `${margin[0]}`;
+    if(margin.length === 2) return `(${margin[0]} + ${margin[0]})`;
+    if(margin.length === 3 || margin.length === 4)
+      return `(${margin[0]} + ${margin[2]})`;
+
+    return '0px';
+  }
+  const getHorizontalMargin = (margin: string[]) => {
+    if(margin.length === 1) return `(${margin[0]} + ${margin[0]})`;
+    if(margin.length === 2) return `(${margin[1]} + ${margin[1]})`;
+    if(margin.length === 3 || margin.length === 4)
+      return `(${margin[1]} + ${margin[3]})`;
+
+    return '0px';
+  }
+
   let content = (
     <Layout>
-      <StyledSide theme="light" width={DEFAULT_WIDTH}>
-        <AntdMenu
+      <StyledSide theme="light" width={navWidth}>
+        <StyledMenu
           items={menuItems}
-          mode="inline"
-          style={{ height: "100%" }}
+          mode={navMode}
+          style={{
+            height: `calc(100% - ${getVerticalMargin(navStyle.margin.split(' '))})`,
+            width: `calc(100% - ${getHorizontalMargin(navStyle.margin.split(' '))})`,
+            borderRadius: navStyle.radius,
+            color: navStyle.text,
+            margin: navStyle.margin,
+            padding: navStyle.padding,
+            background: navStyle.background,
+            borderRight: `1px solid ${navStyle.border}`,
+          }}
           defaultOpenKeys={defaultOpenKeys}
           selectedKeys={[selectedKey]}
+          $navItemStyle={{
+            width: `calc(100% - ${getHorizontalMargin(navItemStyle.margin.split(' '))})`,
+            ...navItemStyle
+          }}
+          $navItemHoverStyle={navItemHoverStyle}
+          $navItemActiveStyle={navItemActiveStyle}
         />
       </StyledSide>
       <MainContent>{pageView}</MainContent>

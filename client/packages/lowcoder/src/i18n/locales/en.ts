@@ -2710,4 +2710,13 @@ export const en = {
     rowLayout: "Row Layout",
     columnsLayout: "Columns Layout",
   },
+  navLayout: {
+    mode: "Mode",
+    modeInline: "Inline",
+    modeVertical: "Vertical",
+    width: "Width",
+    widthTooltip: "Number or percentage, e.g. 520, 60%",
+    navStyle: "Menu Style",
+    navItemStyle: "Menu Item Style",
+  }
 };
