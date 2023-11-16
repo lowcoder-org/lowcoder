@@ -26,6 +26,7 @@ import {
   NavLayoutItemActiveStyleType,
 } from "comps/controls/styleControlConstants";
 import { dropdownControl } from "comps/controls/dropdownControl";
+import _ from "lodash";
 
 const DEFAULT_WIDTH = 240;
 const ModeOptions = [
@@ -156,6 +157,7 @@ let NavTmpLayout = (function () {
       },
     ]),
     width: withDefault(StringControl, DEFAULT_WIDTH),
+    backgroundImage: withDefault(StringControl, ""),
     mode: dropdownControl(ModeOptions, "inline"),
     navStyle: withDefault(styleControl(NavLayoutStyle), defaultStyle),
     navItemStyle: withDefault(styleControl(NavLayoutItemStyle), defaultStyle),
@@ -170,7 +172,9 @@ let NavTmpLayout = (function () {
 
       return (
         <div style={{overflowY: 'auto'}}>
-          <Section name={trans("menu")}>{menuPropertyView(children.items)}</Section>
+          <Section name={trans("menu")}>
+            {menuPropertyView(children.items)}
+          </Section>
           <Section name={sectionNames.layout}>
             { children.width.propertyView({
                 label: trans("navLayout.width"),
@@ -180,6 +184,10 @@ let NavTmpLayout = (function () {
             { children.mode.propertyView({
               label: trans("labelProp.position"),
               radioButton: true
+            })}
+            {children.backgroundImage.propertyView({
+              label: `Background Image`,
+              placeholder: 'https://temp.im/350x400',
             })}
           </Section>
           <Section name={trans("navLayout.navStyle")}>
@@ -222,7 +230,8 @@ NavTmpLayout = withViewFn(NavTmpLayout, (comp) => {
   const navItemStyle = useMemo(() => comp.children.navItemStyle.getView(), [comp.children.navItemStyle]);
   const navItemHoverStyle = useMemo(() => comp.children.navItemHoverStyle.getView(), [comp.children.navItemHoverStyle]);
   const navItemActiveStyle = useMemo(() => comp.children.navItemActiveStyle.getView(), [comp.children.navItemActiveStyle]);
-  console.log(navItemActiveStyle);
+  const backgroundImage = comp.children.backgroundImage.getView();
+
   // filter out hidden. unauthorised items filtered by server
   const filterItem = useCallback((item: LayoutMenuItemComp): boolean => {
     return !item.children.hidden.getView();
@@ -367,6 +376,10 @@ NavTmpLayout = withViewFn(NavTmpLayout, (comp) => {
     return '0px';
   }
 
+  let backgroundStyle = navStyle.background;
+  if(!_.isEmpty(backgroundImage))  {
+    backgroundStyle = `center / cover url('${backgroundImage}') no-repeat, ${backgroundStyle}`;
+  }
   let content = (
     <Layout>
       <StyledSide theme="light" width={navWidth}>
@@ -376,18 +389,18 @@ NavTmpLayout = withViewFn(NavTmpLayout, (comp) => {
           style={{
             height: `calc(100% - ${getVerticalMargin(navStyle.margin.split(' '))})`,
             width: `calc(100% - ${getHorizontalMargin(navStyle.margin.split(' '))})`,
+            borderRight: `1px solid ${navStyle.border}`,
             borderRadius: navStyle.radius,
             color: navStyle.text,
             margin: navStyle.margin,
             padding: navStyle.padding,
-            background: navStyle.background,
-            borderRight: `1px solid ${navStyle.border}`,
+            background: backgroundStyle,
           }}
           defaultOpenKeys={defaultOpenKeys}
           selectedKeys={[selectedKey]}
           $navItemStyle={{
             width: `calc(100% - ${getHorizontalMargin(navItemStyle.margin.split(' '))})`,
-            ...navItemStyle
+            ...navItemStyle,
           }}
           $navItemHoverStyle={navItemHoverStyle}
           $navItemActiveStyle={navItemActiveStyle}
