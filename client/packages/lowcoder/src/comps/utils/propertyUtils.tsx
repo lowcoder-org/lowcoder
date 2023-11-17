@@ -30,6 +30,7 @@ export const placeholderPropertyView = (children: {
   placeholder: InstanceType<typeof StringControl>;
 }) => children.placeholder.propertyView({ label: trans("prop.placeholder") });
 
+
 export const allowClearPropertyView = (children: {
   allowClear: InstanceType<typeof BoolControl>;
 }) => children.allowClear.propertyView({ label: trans("prop.showClear") });

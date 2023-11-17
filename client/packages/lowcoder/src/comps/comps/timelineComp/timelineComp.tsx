@@ -59,7 +59,8 @@ import {
 import { timelineDate, timelineNode, TimelineDataTooltip } from "./timelineConstants";
 import { convertTimeLineData } from "./timelineUtils";
 import { Timeline } from "antd";
-import { ANTDICON } from "./antIcon";
+
+import { ANTDICON } from "./antIcon"; // todo: select icons to not import all icons
 
 const EventOptions = [
   clickEvent,
@@ -129,14 +130,13 @@ const TimelineComp = (
     <div
       style={{
         margin: style.margin ?? '3px',
-        padding: style.padding ?? '3px',
+        padding: style.padding !== '3px' ? style.padding : '20px 10px 0px 10px',
         width: widthCalculator(style.margin ?? '3px'),
         height: heightCalculator(style.margin ?? '3px'),
         background: style.background,
         overflow: "auto",
         overflowX: "hidden",
         borderRadius: style.radius,
-        //height: '100%'
       }}
     >
       <Timeline

@@ -143,12 +143,22 @@ export const CompName = (props: Iprops) => {
           style={{ color: showSearch ? "#315EFB" : "#8B8FA3" }}
         />
       )}
-      <EditPopover
-        items={items}
-        del={() => GridCompOperator.deleteComp(editorState, editorState.selectedComps())}
-      >
-        <Icon tabIndex={-1} />
-      </EditPopover>
+      { compType === "module" ? (
+        <EditPopover
+          items={items}
+          edit={() => GridCompOperator.editComp(editorState)}
+          del={() => GridCompOperator.deleteComp(editorState, editorState.selectedComps())}
+        >
+          <Icon tabIndex={-1} />
+        </EditPopover>
+      ) : (
+        <EditPopover
+          items={items}
+          del={() => GridCompOperator.deleteComp(editorState, editorState.selectedComps())}
+        >
+          <Icon tabIndex={-1} />
+        </EditPopover>
+      )}
     </CompDiv>
   );
   return (

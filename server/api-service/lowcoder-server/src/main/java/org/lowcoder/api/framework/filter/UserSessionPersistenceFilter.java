@@ -59,6 +59,9 @@ public class UserSessionPersistenceFilter implements WebFilter {
                     user.getConnections().forEach(connection -> {
                         if(!connection.getAuthId().equals(DEFAULT_AUTH_CONFIG.getId())) {
                             Instant next5Minutes = Instant.now().plusSeconds( 300 );
+                            if(connection.getAuthConnectionAuthToken().getExpireAt() == 0) {
+                                return;
+                            }
                             boolean isAccessTokenExpiryNear = (connection.getAuthConnectionAuthToken().getExpireAt()*1000) <= next5Minutes.toEpochMilli();
                             if(isAccessTokenExpiryNear) {
                                 connection.getOrgIds().forEach(orgId -> {

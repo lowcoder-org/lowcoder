@@ -5,7 +5,9 @@ import { JSONValue } from "util/jsonTypes";
 import { EditorState } from "./editorState";
 import { trans } from "i18n";
 
-export type ExposingMultiCompConstructor = ReturnType<typeof withExposingConfigs>;
+export type ExposingMultiCompConstructor = ReturnType<
+  typeof withExposingConfigs
+>;
 // Required when the container generates default child comps
 type CompDefaultDataFunction = (
   compName: string,
@@ -22,6 +24,7 @@ export interface UICompLayoutInfo {
 
 export const uiCompCategoryNames = {
   common: trans("uiCompCategory.common"),
+  meeting: trans("meeting.meeting"),
   dataInputText: trans("uiCompCategory.dataInputText"),
   dataInputNumber: trans("uiCompCategory.dataInputNumber"),
   dataInputSelect: trans("uiCompCategory.dataInputSelect"),
@@ -53,6 +56,9 @@ export type UICompType =
   | "moduleContainer"
   | "textArea"
   | "chart"
+  | "meeting"
+  | "videocomponent"
+  | "controlButton"
   | "imageEditor"
   | "calendar"
   | "password"
@@ -83,6 +89,7 @@ export type UICompType =
   | "progress"
   | "progressCircle"
   | "chart"
+  | "mermaid" //Added By Falk Wolsky
   | "fileViewer"
   | "divider"
   | "qrCode"
@@ -112,13 +119,17 @@ export type UICompType =
   | "signature"
   | "jsonLottie" //Added By Aqib Mirza
   | "timeline"
+  | "comment"
   | "mention"
   | "autocomplete"
-  | "responsiveLayout"
+  | "responsiveLayout";
 
 export const uiCompRegistry = {} as Record<UICompType | string, UICompManifest>;
 
-export function registerComp(compType: UICompType | string, manifest: UICompManifest) {
+export function registerComp(
+  compType: UICompType | string,
+  manifest: UICompManifest
+) {
   uiCompRegistry[compType] = {
     ...manifest,
     keywords: [manifest.name, manifest.enName, manifest.keywords]

@@ -2,7 +2,7 @@ import table from "./componentDocExtra/table.md?url";
 
 export const en = {
   productName: "Lowcoder",
-  productDesc: "Build internal tools fast, with no limitations",
+  productDesc: "Create software applications for your Company and your Customers with minimal coding experience. Lowcoder is the best Retool, Appsmith or Tooljet Alternative.",
   notSupportedBrowser:
     "Your current browser may have compatibility issues. For a better user experience, it is recommended to use the latest version of the Chrome browser.",
   create: "Create",
@@ -47,7 +47,8 @@ export const en = {
   api: {
     publishSuccess: "Published",
     recoverFailed: "Recover failed",
-    needUpdate: "Your current version is too old, please upgrade to the latest version.",
+    needUpdate:
+      "Your current version is too old, please upgrade to the latest version.",
   },
   codeEditor: {
     notSupportAutoFormat: "Current code editor not supports auto formatting",
@@ -64,16 +65,20 @@ export const en = {
     blur: "Remove focus",
     click: "Click",
     select: "Select all the text",
-    setSelectionRange: "Set the start and end positions of the current text selection",
+    setSelectionRange:
+      "Set the start and end positions of the current text selection",
     selectionStart: "The 0-based index of the first selected character.",
-    selectionEnd: "The 0-based index of the character after the last selected character.",
+    selectionEnd:
+      "The 0-based index of the character after the last selected character.",
     setRangeText: "Replace a range of text",
     replacement: "The string to insert.",
     replaceStart: "The 0-based index of the first character to replace.",
-    replaceEnd: "The 0-based index of the character after the last character to replace.",
+    replaceEnd:
+      "The 0-based index of the character after the last character to replace.",
   },
   errorBoundary: {
-    encounterError: "Loading component failed. Please check your configuration. ",
+    encounterError:
+      "Loading component failed. Please check your configuration. ",
     clickToReload: "Click to reload",
     errorMsg: "Error: ",
   },
@@ -88,8 +93,10 @@ export const en = {
     noContainerSelected: "[bug] No selected container",
     deleteCompsSuccess: "Delete success. You can use {undoKey} to undo.",
     deleteCompsTitle: "Delete components",
-    deleteCompsBody: "Are you sure you want to delete {compNum} selected components?",
-    cutCompsSuccess: "Cut success. You can use {pasteKey} to paste, or use {undoKey} to undo.",
+    deleteCompsBody:
+      "Are you sure you want to delete {compNum} selected components?",
+    cutCompsSuccess:
+      "Cut success. You can use {pasteKey} to paste, or use {undoKey} to undo.",
   },
   leftPanel: {
     queries: "Queries",
@@ -135,6 +142,7 @@ export const en = {
   prop: {
     expand: "Expand",
     columns: "Columns",
+    videokey: "video key",
     rowSelection: "Row selection",
     toolbar: "Toolbar",
     pagination: "Pagination",
@@ -234,10 +242,12 @@ export const en = {
     export: "Export data",
     exportNoFileType: "No select (optional)",
     fileName: "File name",
-    fileNameTooltip: "Support extension to specify the file type, like image.png.",
+    fileNameTooltip:
+      "Support extension to specify the file type, like image.png.",
     fileType: "File type",
     condition: "Only run when",
-    conditionTooltip: "Only run the event handler when this condition evaluates to 'true'",
+    conditionTooltip:
+      "Only run the event handler when this condition evaluates to 'true'",
     debounce: "Debounce",
     throttle: "Throttle",
     slowdownTooltip:
@@ -262,6 +272,8 @@ export const en = {
     parseDesc: "Triggers on parse",
     success: "Success",
     successDesc: "Triggers on success",
+    delete: "Delete",
+    deleteDesc: "Triggers on delete",
     mention: "mention",
     mentionDesc: "Triggers on mention",
   },
@@ -275,7 +287,8 @@ export const en = {
     canvas: "Canvas color",
     canvasDesc: "The default background color of the app",
     primarySurface: "Container color",
-    primarySurfaceDesc: "The default background color for components such as tables",
+    primarySurfaceDesc:
+      "The default background color for components such as tables",
     borderRadius: "Border radius",
     borderRadiusDesc: "Most components use the default border radius",
     chart: "Chart style",
@@ -286,14 +299,16 @@ export const en = {
     padding: "Padding",
     paddingDesc: "The default padding is typically used for most components",
     containerheaderpadding: "Header Padding",
-    containerheaderpaddingDesc: "The default headerpadding is typically used for most components",
+    containerheaderpaddingDesc:
+      "The default headerpadding is typically used for most components",
     //Added By Aqib Mirza
     gridColumns: "Grid Columns",
     gridColumnsDesc:
       "The default number of columns is typically used for most containers",
   },
   style: {
-    resetTooltip: "Reset styles. Delete the input's value to reset an individual field.",
+    resetTooltip:
+      "Reset styles. Delete the input's value to reset an individual field.",
     contrastText: "Contrast text color",
     generated: "Generated",
     customize: "Customize",
@@ -346,7 +361,8 @@ export const en = {
   },
   export: {
     hiddenDesc: "If true, the component is hidden",
-    disabledDesc: "If true, the component will be greyed out and non-interactive",
+    disabledDesc:
+      "If true, the component will be greyed out and non-interactive",
     visibleDesc: "If true, the component is visible",
     inputValueDesc: "Current value of the input",
     invalidDesc: "Whether the value is invalid",
@@ -365,22 +381,32 @@ export const en = {
     ratingValueDesc: "The currently selected score",
     ratingMaxDesc: "The maximum score currently set",
     datePickerValueDesc: "Currently selected date",
-    datePickerFormattedValueDesc: "Formatted selected date according to the specified format",
+    datePickerFormattedValueDesc:
+      "Formatted selected date according to the specified format",
     datePickerTimestampDesc: "The currently selected timestamp of the date (s)",
     dateRangeStartDesc: "Currently selected start date",
     dateRangeEndDesc: "Currently selected end date",
-    dateRangeStartTimestampDesc: "The currently selected timestamp of the start date (s)",
-    dateRangeEndTimestampDesc: "The currently selected timestamp of the end date (s)",
-    dateRangeFormattedValueDesc: "Formatted selected date according to the specified format",
-    dateRangeFormattedStartValueDesc: "Formatted start date according to the specified format",
-    dateRangeFormattedEndValueDesc: "Formatted end date according to the specified format",
+    dateRangeStartTimestampDesc:
+      "The currently selected timestamp of the start date (s)",
+    dateRangeEndTimestampDesc:
+      "The currently selected timestamp of the end date (s)",
+    dateRangeFormattedValueDesc:
+      "Formatted selected date according to the specified format",
+    dateRangeFormattedStartValueDesc:
+      "Formatted start date according to the specified format",
+    dateRangeFormattedEndValueDesc:
+      "Formatted end date according to the specified format",
     timePickerValueDesc: "Currently selected time",
-    timePickerFormattedValueDesc: "Formatted selected time according to the specified format",
+    timePickerFormattedValueDesc:
+      "Formatted selected time according to the specified format",
     timeRangeStartDesc: "Currently selected start time",
     timeRangeEndDesc: "Currently selected end time",
-    timeRangeFormattedValueDesc: "Formatted selected time according to the specified format",
-    timeRangeFormattedStartValueDesc: "Formatted start time according to the specified format",
-    timeRangeFormattedEndValueDesc: "Formatted end time according to the specified format",
+    timeRangeFormattedValueDesc:
+      "Formatted selected time according to the specified format",
+    timeRangeFormattedStartValueDesc:
+      "Formatted start time according to the specified format",
+    timeRangeFormattedEndValueDesc:
+      "Formatted end time according to the specified format",
   },
   validationDesc: {
     email: "Please enter a valid email address",
@@ -392,10 +418,14 @@ export const en = {
       "Insufficient number of characters, current length {length}, minimum length {minLength}",
     maxValue: "Greater than the maximum, current {value}, maximum {max}",
     minValue: "Less than the minimum, current {value}, minimum {min}",
-    maxTime: "Greater than the maximum time, current time {time}, the maximum time {maxTime}",
-    minTime: "Less than the minimum time, current time {time}, the minimum time {minTime}",
-    maxDate: "Greater than maximum date, current time {date}, maximum date {maxDate}",
-    minDate: "Less than minimum date, current time {date}, minimum date {minDate}",
+    maxTime:
+      "Greater than the maximum time, current time {time}, the maximum time {maxTime}",
+    minTime:
+      "Less than the minimum time, current time {time}, the minimum time {minTime}",
+    maxDate:
+      "Greater than maximum date, current time {date}, maximum date {maxDate}",
+    minDate:
+      "Less than minimum date, current time {date}, minimum date {minDate}",
   },
   query: {
     noQueries: "No queries available. ",
@@ -407,7 +437,8 @@ export const en = {
     advancedTab: "Advanced",
     showFailNotification: "Show notification on failure",
     failCondition: "Failure conditions",
-    failConditionTooltip1: "Customizes failure condition and corresponding notification.",
+    failConditionTooltip1:
+      "Customizes failure condition and corresponding notification.",
     failConditionTooltip2:
       "If any condition returns true, the query will be marked as failure and triggers corresponding notification.",
     showSuccessNotification: "Show notification on success",
@@ -477,7 +508,8 @@ export const en = {
     execSuccess: "run success",
     execFail: "run failed",
     execIgnored: "The results of this query was ignored.",
-    deleteSuccessMessage: "Successfully deleted. You can use {undoKey} to undo.",
+    deleteSuccessMessage:
+      "Successfully deleted. You can use {undoKey} to undo.",
     dataExportDesc: "Data obtained by the current query",
     codeExportDesc: "Current query status code",
     successExportDesc: "Whether the current query was executed successfully",
@@ -522,7 +554,8 @@ export const en = {
     sslCertVerificationTypeDisabled: "Disabled",
     selfSignedCert: "Self-signed Cert",
     selfSignedCertRequireMsg: "Please enter your Certificate",
-    enableTurnOffPreparedStatement: "Enable toggling prepared statements for queries",
+    enableTurnOffPreparedStatement:
+      "Enable toggling prepared statements for queries",
     enableTurnOffPreparedStatementTooltip:
       "You can enable or disable prepared statements in query Advanced tab",
     serviceName: "Service name",
@@ -610,11 +643,13 @@ export const en = {
     publish: "Publish",
     historyVersion: "History version",
     deleteQueryLabel: "Delete query",
-    deleteQueryContent: "The query can't be recovered after being deleted. Delete the query?",
+    deleteQueryContent:
+      "The query can't be recovered after being deleted. Delete the query?",
     run: "Run",
     readOnly: "Read only",
     exit: "Exit",
-    recoverAppSnapshotContent: "Restore the current query to the version {version}",
+    recoverAppSnapshotContent:
+      "Restore the current query to the version {version}",
     searchPlaceholder: "Search query",
     allQuery: "All queries",
     deleteQueryTitle: "Delete query",
@@ -648,8 +683,10 @@ export const en = {
   },
   smtpQuery: {
     attachment: "Attachment",
-    attachmentTooltip: "Can use with file upload component, need convert data to: ",
-    MIMETypeUrl: "https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types",
+    attachmentTooltip:
+      "Can use with file upload component, need convert data to: ",
+    MIMETypeUrl:
+      "https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types",
     sender: "Sender",
     recipient: "Recipient",
     carbonCopy: "Carbon copy",
@@ -835,6 +872,9 @@ export const en = {
     imageEditorCompName: "Image Editor",
     imageEditorCompDesc: "Image Editor component",
     imageEditorCompKeywords: "",
+    mermaidCompName: "Mermaid Charts",
+    mermaidCompDesc: "Render Mermaid Charts based on text",
+    mermaidCompKeywords: "",
     calendarCompName: "Calendar",
     calendarCompDesc: "Calendar component",
     calendarCompKeywords: "",
@@ -849,6 +889,9 @@ export const en = {
     timelineCompName: "Time Line",
     timelineCompDesc: "Time Line",
     timelineCompKeywords: "",
+    commentCompName: "Comment",
+    commentCompDesc: "Comment",
+    commentCompKeywords: "",
     mentionCompName: "mention",
     mentionCompDesc: "mention",
     mentionCompKeywords: "",
@@ -863,13 +906,16 @@ export const en = {
     menuViewDocs: "View documentation",
     menuUpgradeToLatest: "Upgrade to latest version",
     nameNotEmpty: "Can not be empty",
-    nameRegex: "Must start with a letter and contain only letters, digits, and underscores (_)",
+    nameRegex:
+      "Must start with a letter and contain only letters, digits, and underscores (_)",
     nameJSKeyword: "Can not be a Javascript keyword",
     nameGlobalVariable: "Can not be global variable name",
     nameExists: "Name {name} already exist",
-    getLatestVersionMetaError: "Failed to fetch latest version, please try later.",
+    getLatestVersionMetaError:
+      "Failed to fetch latest version, please try later.",
     needNotUpgrade: "Current version is already latest.",
-    compNotFoundInLatestVersion: "Current component not found in the latest version.",
+    compNotFoundInLatestVersion:
+      "Current component not found in the latest version.",
     upgradeSuccess: "Successfully upgraded to latest version.",
     searchProp: "Search",
   },
@@ -990,9 +1036,11 @@ export const en = {
   radio: {
     options: "Options",
     horizontal: "Horizontal",
-    horizontalTooltip: "The horizontal layout wraps itself when it runs out of space",
+    horizontalTooltip:
+      "The horizontal layout wraps itself when it runs out of space",
     vertical: "Vertical",
-    verticalTooltip: "The vertical layout will always be displayed in a single column",
+    verticalTooltip:
+      "The vertical layout will always be displayed in a single column",
     autoColumns: "Auto column",
     autoColumnsTooltip:
       "The auto column layout automatically rearranges the order as space permits and displays as multiple columns",
@@ -1002,11 +1050,13 @@ export const en = {
   },
   selectInput: {
     valueDesc: "Currently selected value",
-    selectedIndexDesc: "The index of the currently selected value, or -1 if no value is selected",
+    selectedIndexDesc:
+      "The index of the currently selected value, or -1 if no value is selected",
     selectedLabelDesc: "The label of the currently selected value",
   },
   file: {
-    typeErrorMsg: "Must be a number with a valid file size unit, or a unitless number of bytes.",
+    typeErrorMsg:
+      "Must be a number with a valid file size unit, or a unitless number of bytes.",
     fileEmptyErrorMsg: "upload failed. The file size is empty.",
     fileSizeExceedErrorMsg: "upload failed. The file size exceeds the limit.",
     minSize: "Min size",
@@ -1025,7 +1075,8 @@ export const en = {
     uploadType: "Upload type",
     showUploadList: "Show upload list",
     maxFiles: "Max files",
-    filesValueDesc: "The contents of the currently uploaded file are Base64 encoded",
+    filesValueDesc:
+      "The contents of the currently uploaded file are Base64 encoded",
     filesDesc: "List of the current uploaded files. For details, refer to",
     clearValueDesc: "Clear all files",
     parseFiles: "Parse files",
@@ -1068,13 +1119,15 @@ export const en = {
     default: "Default",
     submit: "Submit",
     textDesc: "Text currently displayed on button",
-    loadingDesc: "Is the button in loading state? If true the current button is loading",
+    loadingDesc:
+      "Is the button in loading state? If true the current button is loading",
     formButtonEvent: "event",
   },
   link: {
     link: "Link",
     textDesc: "Text currently displayed on link",
-    loadingDesc: "Is the link in loading state? If true the current link is loading",
+    loadingDesc:
+      "Is the link in loading state? If true the current link is loading",
   },
   scanner: {
     text: "Click scan",
@@ -1174,7 +1227,8 @@ export const en = {
     optionList: "Operation list",
     option1: "Operation 1",
     status: "Status",
-    statusTooltip: "Optional values: success, error, default, warning, processing",
+    statusTooltip:
+      "Optional values: success, error, default, warning, processing",
     primaryButton: "Primary",
     defaultButton: "Default",
     type: "Type",
@@ -1186,7 +1240,8 @@ export const en = {
     small: "S",
     middle: "M",
     large: "L",
-    refreshButtonTooltip: "The current data changes, click to regenerate the column.",
+    refreshButtonTooltip:
+      "The current data changes, click to regenerate the column.",
     changeSetDesc:
       "An object representing changes to an editable table, only contains the changed cell. Rows go first and columns go second.",
     selectedRowDesc:
@@ -1228,7 +1283,8 @@ export const en = {
     showValue: "Show Value",
     expandable: "Expandable",
     configExpandedView: "Configure expanded view",
-    toUpdateRowsDesc: "An array of objects for rows to be updated in editable tables.",
+    toUpdateRowsDesc:
+      "An array of objects for rows to be updated in editable tables.",
     empty: "Empty",
     falseValues: "Text when false",
     allColumn: "All",
@@ -1276,7 +1332,8 @@ export const en = {
     M: "M (Medium)",
     Q: "Q (Quartile)",
     H: "H (High)",
-    maxLength: "The content is too long. Set the length to less than 2953 characters",
+    maxLength:
+      "The content is too long. Set the length to less than 2953 characters",
   },
   jsonExplorer: {
     indent: "Indent",
@@ -1292,7 +1349,7 @@ export const en = {
   },
   audio: {
     src: "Audio URL",
-    defaultSrcUrl: "https://cdn-files.lowcoder.dev/canon-excerpt.mp3",
+    defaultSrcUrl: "https://cdn-files.lowcoder.cloud/canon-excerpt.mp3",
     autoPlay: "Autoplay",
     loop: "Loop",
     srcDesc: "Current audio URL",
@@ -1335,8 +1392,10 @@ export const en = {
   media: {
     playDesc: "Begins playback of the media.",
     pauseDesc: "Pauses the media playback.",
-    loadDesc: "Resets the media to the beginning and restart selecting the media resource.",
-    seekTo: "Seek to the given number of seconds, or fraction if amount is between 0 and 1",
+    loadDesc:
+      "Resets the media to the beginning and restart selecting the media resource.",
+    seekTo:
+      "Seek to the given number of seconds, or fraction if amount is between 0 and 1",
     seekToAmount: "Number of seconds, or fraction if it is between 0 and 1",
     showPreview: "Show preview",
   },
@@ -1353,8 +1412,10 @@ export const en = {
     insertImage: "Insert an image or ",
   },
   millisecondsControl: {
-    timeoutTypeError: "Please enter the correct timeout period, the current input is: {value}",
-    timeoutLessThanMinError: "Input must greater than {left}, the current input is: {value}",
+    timeoutTypeError:
+      "Please enter the correct timeout period, the current input is: {value}",
+    timeoutLessThanMinError:
+      "Input must greater than {left}, the current input is: {value}",
   },
   selectionControl: {
     single: "Single",
@@ -1379,9 +1440,56 @@ export const en = {
     width: "Drawer width",
     height: "Drawer height",
   },
+  meeting: {
+    placement: "Meeting placement",
+    meeting: "Meeting Settings",
+    cameraView: "Camera View",
+    cameraViewDesc: "Camera View",
+    screenShared: "Screen Shared",
+    screenSharedDesc: "Screen Shared",
+    audioUnmuted: "Audio Unmuted",
+    audioMuted: "Audio Muted",
+    videoClicked: "Video Clicked",
+    videoOff: "Video Off",
+    videoOn: "Video On",
+    size: "Size",
+    top: "Top",
+    host: "Host",
+    participants: "Participants",
+    shareScreen: "Share Screen",
+    appid: "Application Id",
+    meetingName: "Meeting Name",
+    videoCompText: "No video Text",
+    profileImageUrl: "Profile Image Url",
+    right: "Right",
+    bottom: "Bottom",
+    videoId: "Video Id",
+    audioStatus: "audio status",
+    left: "Left",
+    widthTooltip: "Number or percentage, e.g. 520, 60%",
+    heightTooltip: "Number, e.g. 378",
+    openDrawerDesc: "Open Drawer",
+    closeDrawerDesc: "Close Drawer",
+    width: "Drawer width",
+    height: "Drawer height",
+    actionBtnDesc: "Action Button",
+    broadCast: "BroadCast Messages",
+    certifiCateKey: "certifiCate Key",
+    title: "Meeting title",
+    meetingCompName: "Meeting Controller",
+    videoCompName: "Video Stream",
+    videoSharingCompName: "Video Sharing",
+    meetingControlCompName: "Controls Buttons",
+    meetingCompDesc: "Meeting component",
+    meetingCompControls: "Meeting control",
+    meetingCompKeywords: "",
+    iconSize: "Icon Size",
+    userId: "userId",
+    roomId: "roomId",
+  },
   settings: {
     title: "Settings",
-    member: "Members",
+    userGroups: "User Groups",
     organization: "Workspaces",
     audit: "Audit Logs",
     theme: "Themes",
@@ -1389,7 +1497,9 @@ export const en = {
     advanced: "Advanced",
     lab: "Lab",
     branding: "Branding",
-    idSource: "ID Providers",
+    oauthProviders: "OAuth Providers",
+    appUsage: "App Usage Logs",
+    environments: "Environments",
     premium: "Premium",
   },
   memberSettings: {
@@ -1404,7 +1514,8 @@ export const en = {
     newGroupPrefix: "New group ",
     allMembers: "All members",
     deleteModalTitle: "Delete this group",
-    deleteModalContent: "The deleted group cannot be restored. Are you sure to delete the group?",
+    deleteModalContent:
+      "The deleted group cannot be restored. Are you sure to delete the group?",
     addMember: "Add members",
     nameColumn: "User name",
     joinTimeColumn: "Joining time",
@@ -1416,9 +1527,12 @@ export const en = {
     exitOrg: "Leave",
     exitOrgDesc: "Are you sure you want to leave this workspace.",
     moveOutOrg: "Remove",
-    moveOutOrgDescSaasMode: "Are you sure you want to remove user {name} from this workspace?",
-    moveOutOrgDesc: "Are you sure you want to remove user {name}? This action cannot be recovered.",
-    devGroupTip: "Members of the developer group have privileges to create apps and data sources.",
+    moveOutOrgDescSaasMode:
+      "Are you sure you want to remove user {name} from this workspace?",
+    moveOutOrgDesc:
+      "Are you sure you want to remove user {name}? This action cannot be recovered.",
+    devGroupTip:
+      "Members of the developer group have privileges to create apps and data sources.",
     lastAdminQuit: "The last administrator cannot exit.",
     organizationNotExist: "The current workspace does not exist",
     inviteUserHelp: "You can copy the invitation link to send to the user",
@@ -1431,7 +1545,8 @@ export const en = {
     manageBtn: "Manage",
     userDetail: "Detail",
     syncDeleteTip: "This group has been deleted from the address book source",
-    syncGroupTip: "This group is an address book synchronization group and cannot be edited",
+    syncGroupTip:
+      "This group is an address book synchronization group and cannot be edited",
   },
   orgSettings: {
     newOrg: "New workspace",
@@ -1442,7 +1557,8 @@ export const en = {
       "You are about to delete this workspace {permanentlyDelete}. Once deleted, the workspace {notRestored}.",
     permanentlyDelete: "permanently",
     notRestored: "cannot be restored",
-    deleteModalLabel: "Please enter workspace name{name}to confirm the operation:",
+    deleteModalLabel:
+      "Please enter workspace name{name}to confirm the operation:",
     deleteModalTip: "Please enter workspace name",
     deleteModalErr: "Workspace name is incorrect",
     deleteModalBtn: "Delete",
@@ -1488,9 +1604,12 @@ export const en = {
     noTableSelected: "No table selected",
     noColumn: "No column",
     noColumnSelected: "No column selected",
-    noDataSourceFound: "No supported data source found. Create a new data source",
-    noTableFound: "No tables were found in this data source, please select another data source",
-    noColumnFound: "No supported column was found in this table. Please select another table",
+    noDataSourceFound:
+      "No supported data source found. Create a new data source",
+    noTableFound:
+      "No tables were found in this data source, please select another data source",
+    noColumnFound:
+      "No supported column was found in this table. Please select another table",
     formTitle: "Form title",
     name: "Name",
     nameTooltip:
@@ -1522,9 +1641,11 @@ export const en = {
       "Number of rows in the list - This is usually set to a variable (for example, '{{query1.data.length}}') if you need to present the results of a query.",
     noOfColumns: "Column count",
     itemIndexName: "Item index name",
-    itemIndexNameDesc: "the variable name refer to the item's index, default as {default}",
+    itemIndexNameDesc:
+      "the variable name refer to the item's index, default as {default}",
     itemDataName: "Item data name",
-    itemDataNameDesc: "the variable name refer to the item's data object, default as {default}",
+    itemDataNameDesc:
+      "the variable name refer to the item's data object, default as {default}",
     itemsDesc: "Exposing data of Comps in list",
     dataDesc: "The raw data used in the current list",
     dataTooltip:
@@ -1594,19 +1715,23 @@ export const en = {
   },
   temporaryState: {
     value: "Init value",
-    valueTooltip: "The initial Value stored in the temporary state can be any valid JSON Value.",
+    valueTooltip:
+      "The initial Value stored in the temporary state can be any valid JSON Value.",
     docLink: "About temporary state",
     pathTypeError: "Path must be either a string or an array of values",
     unStructuredError: "Unstructured data {prev} can't be updated by {path}",
     valueDesc: "Temporary state value",
-    deleteMessage: "The temporary state is deleted successfully. You can use {undoKey} to undo.",
+    deleteMessage:
+      "The temporary state is deleted successfully. You can use {undoKey} to undo.",
   },
   dataResponder: {
     data: "Data",
     dataDesc: "Data of current data responder",
-    dataTooltip: "When this data is changed, it will trigger subsequent actions.",
+    dataTooltip:
+      "When this data is changed, it will trigger subsequent actions.",
     docLink: "About the Data responder",
-    deleteMessage: "The data responder is deleted successfully. You can use {undoKey} to undo.",
+    deleteMessage:
+      "The data responder is deleted successfully. You can use {undoKey} to undo.",
   },
   theme: {
     title: "Themes",
@@ -1644,13 +1769,14 @@ export const en = {
     defaultTheme: "Default",
     yellow: "Yellow",
     green: "Green",
-    previewTitle: "Theme preview\nExample components that use your theme colors",
+    previewTitle:
+      "Theme preview\nExample components that use your theme colors",
     dateColumn: "Date",
     emailColumn: "Email",
     phoneColumn: "Phone",
     subTitle: "Title",
     linkLabel: "Link",
-    linkUrl: "cloud.lowcoder.dev",
+    linkUrl: "app.lowcoder.cloud",
     progressLabel: "Progress",
     sliderLabel: "Slider",
     radioLabel: "Radio",
@@ -1682,7 +1808,8 @@ export const en = {
   pluginSetting: {
     title: "Plugins",
     npmPluginTitle: "npm plugins",
-    npmPluginDesc: "Set up npm plugins for all applications in the current workspace.",
+    npmPluginDesc:
+      "Set up npm plugins for all applications in the current workspace.",
     npmPluginEmpty: "No npm plugins were added.",
     npmPluginAddButton: "Add a npm plugin",
     saveSuccess: "Saved successfully",
@@ -1695,9 +1822,11 @@ export const en = {
     defaultHomePlaceholder: "Select the default homepage",
     saveBtn: "Save",
     preloadJSTitle: "Preload JavaScript",
-    preloadJSHelp: "Set up preloaded JavaScript code for all apps in the current workspace.",
+    preloadJSHelp:
+      "Set up preloaded JavaScript code for all apps in the current workspace.",
     preloadCSSTitle: "Preload CSS",
-    preloadCSSHelp: " Set up preloaded CSS code for all apps in the current workspace.",
+    preloadCSSHelp:
+      " Set up preloaded CSS code for all apps in the current workspace.",
     preloadCSSApply: "Apply to the homepage of the workspace",
     preloadLibsTitle: "JavaScript library",
     preloadLibsHelp:
@@ -1739,7 +1868,8 @@ export const en = {
   },
   module: {
     emptyText: "No data",
-    circularReference: "Circular reference, current module/application cannot be used!",
+    circularReference:
+      "Circular reference, current module/application cannot be used!",
     emptyTestInput: "The current module has no input to test",
     emptyTestMethod: "The current module has no method to test",
     name: "Name",
@@ -1762,7 +1892,8 @@ export const en = {
     output: "Output",
     nameExists: "Name {name} already exist",
     eventTriggered: "Event {name} is triggered",
-    globalPromptWhenEventTriggered: "Displays a global prompt when an event is triggered",
+    globalPromptWhenEventTriggered:
+      "Displays a global prompt when an event is triggered",
     emptyEventTest: "The current module has no events to test",
     emptyEvent: "No event has been added",
     event: "Event",
@@ -1898,7 +2029,8 @@ export const en = {
     videoText: "Overview",
     onBtnText: "OK",
     // eslint-disable-next-line only-ascii/only-ascii
-    permissionDenyTitle: "💡 Unable to create a new application or data source?",
+    permissionDenyTitle:
+      "💡 Unable to create a new application or data source?",
     permissionDenyContent:
       "You don't have permission to create the application and data source. Please contact the administrator to join the developer group.",
     appName: "Tutorial application",
@@ -1914,7 +2046,8 @@ export const en = {
     nameCheckMessage: "The name cannot be empty",
     viewOnly: "View only",
     recoverAppSnapshotTitle: "Restore this version?",
-    recoverAppSnapshotContent: "Restore current app to the version created at {time}.",
+    recoverAppSnapshotContent:
+      "Restore current app to the version created at {time}.",
     recoverAppSnapshotMessage: "Restore this version",
     returnEdit: "Return to editor",
     deploy: "Publish",
@@ -1958,8 +2091,10 @@ export const en = {
     resetPasswordDesc:
       "Reset user {name}'s password. A new password will be generated after reset.",
     resetSuccess: "Reset succeeded",
-    resetSuccessDesc: "Password reset succeeded. The new password is: {password}",
+    resetSuccessDesc:
+      "Password reset succeeded. The new password is: {password}",
     copyPassword: "Copy password",
+    poweredByLowcoder: "Powered by Lowcoder.cloud"
   },
   preLoad: {
     jsLibraryHelpText:
@@ -2051,7 +2186,8 @@ export const en = {
     resCardSubTitle: "{time} by {creator}",
     trashEmpty: "Trash is empty.",
     projectEmpty: "Nothing here.",
-    projectEmptyCanAdd: "You don't have any apps yet. Click New to get started.",
+    projectEmptyCanAdd:
+      "You don't have any apps yet. Click New to get started.",
     name: "Name",
     type: "Type",
     creator: "Created by",
@@ -2063,7 +2199,8 @@ export const en = {
     nameCheckMessage: "The name cannot be empty",
     deleteElementTitle: "Delete permanently",
     moveToTrashSubTitle: "{type} {name} will be moved to trash.",
-    deleteElementSubTitle: "Delete {type} {name} permanently, it cannot be recovered.",
+    deleteElementSubTitle:
+      "Delete {type} {name} permanently, it cannot be recovered.",
     deleteSuccessMsg: "Deleted successfully",
     deleteErrorMsg: "Deleted error",
     recoverSuccessMsg: "Recovered successfully",
@@ -2128,7 +2265,7 @@ export const en = {
   },
   docUrls: {
     docHome: "https://docs.lowcoder.cloud/",
-    components: "https://cloud.lowcoder.dev/components?n={compType}",
+    components: "https://app.lowcoder.cloud/components?n={compType}",
     module: "",
     optionList: "",
     terms: "",
@@ -2136,12 +2273,15 @@ export const en = {
     aboutUs: "",
     changeLog: "",
     introVideo: "",
-    devNpmPlugin: "https://docs.lowcoder.cloud/lowcoder-extension/develop-data-source-plugins",
+    devNpmPlugin:
+      "https://docs.lowcoder.cloud/lowcoder-extension/develop-data-source-plugins",
     devNpmPluginText: "How to develop npm plugin",
-    useHost: "https://docs.lowcoder.cloud/setup-and-run/self-hosting/access-local-database-or-api",
+    useHost:
+      "https://docs.lowcoder.cloud/setup-and-run/self-hosting/access-local-database-or-api",
     eventHandlerSlowdown:
       "https://docs.lowcoder.cloud/build-applications/app-interaction/event-handlers",
-    thirdLib: "https://docs.lowcoder.cloud/lowcoder-extension/use-third-party-libraries-in-apps",
+    thirdLib:
+      "https://docs.lowcoder.cloud/lowcoder-extension/use-third-party-libraries-in-apps",
     thirdLibUrlText: "Use third-party libraries",
   },
   datasourceTutorial: {
@@ -2155,8 +2295,10 @@ export const en = {
   },
   queryTutorial: {
     js: "",
-    transformer: "https://docs.lowcoder.cloud/business-logic-in-apps/write-javascript/transformers",
-    tempState: "https://docs.lowcoder.cloud/business-logic-in-apps/write-javascript/temporary-state",
+    transformer:
+      "https://docs.lowcoder.cloud/business-logic-in-apps/write-javascript/transformers",
+    tempState:
+      "https://docs.lowcoder.cloud/business-logic-in-apps/write-javascript/temporary-state",
   },
   customComponent: {
     entryUrl: "https://sdk.lowcoder.cloud/custom_component.html",
@@ -2170,9 +2312,9 @@ export const en = {
   },
   componentDoc: {
     markdownDemoText:
-      "**Lowcoder** is a _developer-friendly_ open-source low code platform to build internal apps within minutes.",
+      "**Lowcoder** | Create software applications for your Company and your Customers with minimal coding experience. Lowcoder is the best Retool, Appsmith or Tooljet Alternative.",
     demoText:
-      "Lowcoder is a developer-friendly open-source low code platform to build internal apps within minutes.",
+      "Lowcoder | Create software applications for your Company and your Customers with minimal coding experience. Lowcoder is the best Retool, Appsmith or Tooljet Alternative.",
     submit: "Submit",
     style: "style",
     danger: "Danger",
@@ -2226,7 +2368,8 @@ export const en = {
     defaultStartDateValue: "Default Start Date",
     defaultEndDateValue: "Default End Date",
     basicUsage: "Basic Usage",
-    basicDemoDescription: "The following examples show the basic usage of the component.",
+    basicDemoDescription:
+      "The following examples show the basic usage of the component.",
     noDefaultValue: "No Default Value",
     forbid: "Forbidden",
     placeholder: "Placeholder",
@@ -2298,7 +2441,8 @@ export const en = {
     styleColor: "Font color",
     selectionMode: "Row selection mode",
     paginationSetting: "Pagination setting",
-    paginationShowSizeChanger: "Support users to modify the number of entries per page",
+    paginationShowSizeChanger:
+      "Support users to modify the number of entries per page",
     paginationShowSizeChangerButton: "Show size changer button",
     paginationShowQuickJumper: "Show quick jumper",
     paginationHideOnSinglePage: "Hide when there is only one page",
@@ -2404,7 +2548,7 @@ export const en = {
     table,
   },
   idSource: {
-    title: "ID Providers",
+    title: "OAuth Providers",
     form: "Email",
     pay: "Premium",
     enable: "Enable",
@@ -2432,7 +2576,8 @@ export const en = {
     disableContent:
       "Disabling this ID provider may result in some users being unable to log in. Are you sure to proceed?",
     manualTip: "",
-    lockTip: "The content is locked. To make changes, please click the{icon}to unlock.",
+    lockTip:
+      "The content is locked. To make changes, please click the{icon}to unlock.",
     lockModalContent:
       "Changing the 'ID attribute' field can have significant impacts on user identification. Please confirm that you understand the implications of this change before proceeding.",
     payUserTag: "Premium",
@@ -2450,7 +2595,7 @@ export const en = {
     animationStart: "Animation Start",
     valueDesc: "Current json Data",
     loop: "Loop",
-    auto: 'auto',
+    auto: "auto",
     onHover: "On hover",
     singlePlay: "Single Play",
     endlessLoop: "Endless Loop",
@@ -2466,7 +2611,8 @@ export const en = {
     left: "Left",
     right: "Right",
     alternate: "alternate",
-    modeTooltip: "Set the content to appear left/right or alternately on both sides of the timeline",
+    modeTooltip:
+      "Set the content to appear left/right or alternately on both sides of the timeline",
     reverse: "reverse",
     pending: "pending",
     defaultPending: "continuous improvement",
@@ -2485,7 +2631,32 @@ export const en = {
     clickedObjectDesc: "clicked item data",
     clickedIndexDesc: "clicked item index",
   },
-  mention:{
+  comment: {
+    value: "comment list data",
+    showSendButton: "Allowing Comments",
+    title: "title",
+    titledDefaultValue: "%d comment in total",
+    placeholder: "shift + enter to comment;Enter @ or # for quick input",
+    placeholderDec: "placeholder",
+    buttonTextDec: "button title",
+    buttonText: "comment",
+    mentionList: "mention list data",
+    mentionListDec: "key-Mention keywords;value-Mention list data",
+    userInfo: "user info",
+    dateErr: "date error",
+    commentList: "comment list",
+    deletedItem: "deleted item",
+    submitedItem: "submited item",
+    deleteAble: "show delete button",
+    Introduction: "Introduction keys",
+    helpUser: "user info(Required)",
+    helpname: "user name(Required)",
+    helpavatar: "avatar url(high priority)",
+    helpdisplayName: "display name(low priority)",
+    helpvalue: "Comment content",
+    helpcreatedAt: "create date",
+  },
+  mention: {
     mentionList: "mention list",
   },
   autoComplete: {
@@ -2501,13 +2672,13 @@ export const en = {
     type: "type",
     antDesign: "AntDesign",
     normal: "Normal",
-    selectKey: 'key',
-    selectLable: 'label',
-    ComponentType: 'Component Type',
-    colorIcon: 'blue',
-    grewIcon: 'grew',
-    noneIcon: 'none',
-    small: 'small',
+    selectKey: "key",
+    selectLable: "label",
+    ComponentType: "Component Type",
+    colorIcon: "blue",
+    grewIcon: "grew",
+    noneIcon: "none",
+    small: "small",
     large: "large",
     componentSize: "component size",
     Introduction: "Introduction keys",

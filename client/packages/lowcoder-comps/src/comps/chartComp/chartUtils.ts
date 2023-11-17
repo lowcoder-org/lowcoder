@@ -52,7 +52,12 @@ export function transformData(
 }
 
 const notAxisChartSet: Set<CharOptionCompType> = new Set(["pie"] as const);
-export const echartsConfigOmitChildren = ["hidden", "selectedPoints", "onEvent"] as const;
+export const echartsConfigOmitChildren = [
+  "hidden",
+  "selectedPoints",
+  "onUIEvent",
+  "mapInstance"
+] as const;
 type EchartsConfigProps = Omit<ChartCompPropsType, typeof echartsConfigOmitChildren[number]>;
 
 export function isAxisChart(type: CharOptionCompType) {
@@ -132,16 +137,17 @@ export function getEchartsConfig(props: EchartsConfigProps, chartSize?: ChartSiz
       mapZoomLevel,
       mapCenterLat,
       mapCenterLng,
-      mapOptions,  
+      mapOptions, 
+      showCharts, 
     } = props;
-  
-    const echartsOption = mapOptions ? mapOptions : {};
+
+    const echartsOption = mapOptions && showCharts ? mapOptions : {};
     return {
       gmap: {
         center: [mapCenterLng, mapCenterLat],
         zoom: mapZoomLevel,
         renderOnMoving: true,
-        // echartsLayerZIndex: 2019,
+        echartsLayerZIndex: showCharts ? 2019 : 0,
         roam: true
       },
       ...echartsOption,
@@ -261,11 +267,17 @@ export function getSelectedPoints(param: any, option: any) {
 }
 
 export function loadGoogleMapsScript(apiKey?: string) {
-  const mapsUrl = `${googleMapsApiUrl}?key=${apiKey}`;
+  const mapsUrl = `${googleMapsApiUrl}&key=${apiKey}`;
   const scripts = document.getElementsByTagName('script');
-  const scriptIndex = _.findIndex(scripts, (script) => script.src === mapsUrl);
+  // is script already loaded
+  let scriptIndex = _.findIndex(scripts, (script) => script.src.endsWith(mapsUrl));
   if(scriptIndex > -1) {
     return scripts[scriptIndex];
+  }
+  // is script loaded with diff api_key, remove the script and load again
+  scriptIndex = _.findIndex(scripts, (script) => script.src.startsWith(googleMapsApiUrl));
+  if(scriptIndex > -1) {
+    scripts[scriptIndex].remove();
   }
 
   const script = document.createElement("script");

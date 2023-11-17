@@ -47,7 +47,9 @@ const childrenMap = {
   handler: ActionSelectorControl,
 };
 
-class SingleEventHandlerControl<T extends EventConfigsType> extends simpleMultiComp(childrenMap) {
+class SingleEventHandlerControl<
+  T extends EventConfigsType
+> extends simpleMultiComp(childrenMap) {
   // view is function (eventName: ValueFromOption<T>) => void, representing a named event
   getView() {
     const name = this.children.name.getView();
@@ -67,14 +69,18 @@ class SingleEventHandlerControl<T extends EventConfigsType> extends simpleMultiC
     const children = this.children;
     const { eventConfigs } = props;
 
-    const eventName = eventConfigs.find((x) => x.value === name)?.label?.toString();
+    const eventName = eventConfigs
+      .find((x) => x.value === name)
+      ?.label?.toString();
 
     let content: ReactNode = null;
     if (props.inline && eventConfigs.length === 1) {
       content = (
         <InlineEventFormWrapper>
           <div>
-            {trans("eventHandler.inlineEventTitle", { eventName: eventName?.toLowerCase() ?? "" })}
+            {trans("eventHandler.inlineEventTitle", {
+              eventName: eventName?.toLowerCase() ?? "",
+            })}
           </div>
           {children.handler.propertyView({
             label: trans("eventHandler.action"),
@@ -124,15 +130,27 @@ class SingleEventHandlerControl<T extends EventConfigsType> extends simpleMultiC
 
 const EventHandlerControlPropertyView = (props: {
   dispatch: DispatchType;
-  pushAction: (value: any) => CustomListAction<typeof SingleEventHandlerControl>;
-  deleteAction: (index: number) => CustomListAction<typeof SingleEventHandlerControl>;
+  pushAction: (
+    value: any
+  ) => CustomListAction<typeof SingleEventHandlerControl>;
+  deleteAction: (
+    index: number
+  ) => CustomListAction<typeof SingleEventHandlerControl>;
   items: InstanceType<typeof SingleEventHandlerControl>[];
   inline?: boolean;
   title?: ReactNode;
   type?: "query";
   eventConfigs: EventConfigsType;
 }) => {
-  const { dispatch, pushAction, deleteAction, inline = false, items, eventConfigs, type } = props;
+  const {
+    dispatch,
+    pushAction,
+    deleteAction,
+    inline = false,
+    items,
+    eventConfigs,
+    type,
+  } = props;
   const editorState = useContext(EditorContext);
   const [showNewCreate, setShowNewCreate] = useState(false);
 
@@ -149,7 +167,9 @@ const EventHandlerControlPropertyView = (props: {
     const queryExecHandler = {
       compType: "executeQuery",
       comp: {
-        queryName: editorState?.selectedOrFirstQueryComp()?.children.name.getView(),
+        queryName: editorState
+          ?.selectedOrFirstQueryComp()
+          ?.children.name.getView(),
       },
     };
     const messageHandler = {
@@ -181,7 +201,9 @@ const EventHandlerControlPropertyView = (props: {
         ))}
       </div>
     ) : (
-      <EmptyItem onClick={handleAdd}>{trans("eventHandler.emptyEventHandlers")}</EmptyItem>
+      <EmptyItem onClick={handleAdd}>
+        {trans("eventHandler.emptyEventHandlers")}
+      </EmptyItem>
     );
   if (props.inline) {
     return <div style={{ paddingTop: 8 }}>{renderItems()}</div>;
@@ -210,7 +232,9 @@ const EventHandlerControlPropertyView = (props: {
   );
 };
 
-class EventHandlerControl<T extends EventConfigsType> extends list(SingleEventHandlerControl) {
+class EventHandlerControl<T extends EventConfigsType> extends list(
+  SingleEventHandlerControl
+) {
   @memo
   // @ts-ignore
   getView() {
@@ -227,14 +251,21 @@ class EventHandlerControl<T extends EventConfigsType> extends list(SingleEventHa
   }
 
   isBind(eventName: ValueFromOption<T>) {
-    return super.getView().some((child) => child.children.name.getView() === eventName);
+    return super
+      .getView()
+      .some((child) => child.children.name.getView() === eventName);
   }
 
   override getPropertyView() {
     return this.propertyView();
   }
 
-  propertyView(options?: { inline?: boolean; title?: ReactNode; type?: "query"; eventConfigs: T }) {
+  propertyView(options?: {
+    inline?: boolean;
+    title?: ReactNode;
+    type?: "query";
+    eventConfigs: T;
+  }) {
     const title = options?.title ?? trans("eventHandler.eventHandlers");
     return controlItem(
       { filterText: title },
@@ -252,13 +283,20 @@ class EventHandlerControl<T extends EventConfigsType> extends list(SingleEventHa
   }
 }
 
-export function eventHandlerControl<T extends EventConfigsType>(eventConfigs?: T, type?: "query") {
+export function eventHandlerControl<T extends EventConfigsType>(
+  eventConfigs?: T,
+  type?: "query"
+) {
   class EventHandlerTempControl extends EventHandlerControl<T> {
     getEventNames() {
       return eventConfigs;
     }
 
-    propertyView(options?: { inline?: boolean; title?: ReactNode; eventConfigs?: T }) {
+    propertyView(options?: {
+      inline?: boolean;
+      title?: ReactNode;
+      eventConfigs?: T;
+    }) {
       return super.propertyView({
         ...options,
         type,
@@ -305,12 +343,41 @@ export const successEvent: EventConfigType = {
   value: "success",
   description: trans("event.successDesc"),
 };
+export const deleteEvent: EventConfigType = {
+  label: trans("event.delete"),
+  value: "delete",
+  description: trans("event.deleteDesc"),
+};
 export const mentionEvent: EventConfigType = {
   label: trans("event.mention"),
   value: "mention",
   description: trans("event.mentionDesc"),
 };
-
+export const audioUnmuted: EventConfigType = {
+  label: trans("meeting.audioUnmuted"),
+  value: "audioUnmuted",
+  description: trans("meeting.audioUnmuted"),
+};
+export const audioMuted: EventConfigType = {
+  label: trans("meeting.audioMuted"),
+  value: "audioMuted",
+  description: trans("meeting.audioMuted"),
+};
+export const videoOff: EventConfigType = {
+  label: trans("meeting.videoOff"),
+  value: "videoOff",
+  description: trans("meeting.videoOff"),
+};
+export const videoOn: EventConfigType = {
+  label: trans("meeting.videoOn"),
+  value: "videoOn",
+  description: trans("meeting.videoOn"),
+};
+export const videoClicked: EventConfigType = {
+  label: trans("meeting.videoClicked"),
+  value: "videoClicked",
+  description: trans("meeting.videoClicked"),
+};
 export const InputEventHandlerControl = eventHandlerControl([
   changeEvent,
   focusEvent,
@@ -318,9 +385,13 @@ export const InputEventHandlerControl = eventHandlerControl([
   submitEvent,
 ] as const);
 
-export const ButtonEventHandlerControl = eventHandlerControl([clickEvent] as const);
+export const ButtonEventHandlerControl = eventHandlerControl([
+  clickEvent,
+] as const);
 
-export const ChangeEventHandlerControl = eventHandlerControl([changeEvent] as const);
+export const ChangeEventHandlerControl = eventHandlerControl([
+  changeEvent,
+] as const);
 
 export const SelectEventHandlerControl = eventHandlerControl([
   changeEvent,
@@ -332,4 +403,12 @@ export const ScannerEventHandlerControl = eventHandlerControl([
   clickEvent,
   successEvent,
   closeEvent,
+] as const);
+
+export const MeetingEventHandlerControl = eventHandlerControl([
+  audioMuted,
+  audioUnmuted,
+  videoOff,
+  videoOn,
+  videoClicked,
 ] as const);

@@ -5,7 +5,6 @@ import static org.lowcoder.sdk.exception.BizError.INVALID_PARAMETER;
 import static org.lowcoder.sdk.util.ExceptionUtils.ofError;
 
 import java.util.List;
-import java.util.Set;
 
 import org.lowcoder.api.application.view.ApplicationPermissionView;
 import org.lowcoder.api.framework.view.ResponseView;
@@ -14,33 +13,25 @@ import org.lowcoder.domain.application.model.ApplicationType;
 import org.lowcoder.domain.folder.model.Folder;
 import org.lowcoder.domain.folder.service.FolderService;
 import org.lowcoder.domain.permission.model.ResourceRole;
-import org.lowcoder.infra.constant.NewUrl;
 import org.lowcoder.infra.event.EventType;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
+@RequiredArgsConstructor
 @RestController
-@RequestMapping(NewUrl.FOLDER_URL)
-public class FolderController {
+public class FolderController implements FolderEndpoints 
+{
 
-    @Autowired
-    private FolderService folderService;
-    @Autowired
-    private FolderApiService folderApiService;
-    @Autowired
-    private BusinessEventPublisher businessEventPublisher;
+    private final FolderService folderService;
+    private final FolderApiService folderApiService;
+    private final BusinessEventPublisher businessEventPublisher;
 
-    @PostMapping
+    @Override
     public Mono<ResponseView<FolderInfoView>> create(@RequestBody Folder folder) {
         return folderApiService.create(folder)
                 .delayUntil(folderInfoView -> folderApiService.upsertLastViewTime(folderInfoView.getFolderId()))
@@ -48,7 +39,7 @@ public class FolderController {
                 .map(ResponseView::success);
     }
 
-    @DeleteMapping("/{id}")
+    @Override
     public Mono<ResponseView<Void>> delete(@PathVariable("id") String folderId) {
         return folderApiService.delete(folderId)
                 .delayUntil(f -> businessEventPublisher.publishFolderCommonEvent(f.getId(), f.getName(), EventType.FOLDER_DELETE))
@@ -58,7 +49,7 @@ public class FolderController {
     /**
      * update name only.
      */
-    @PutMapping
+    @Override
     public Mono<ResponseView<FolderInfoView>> update(@RequestBody Folder folder) {
         return folderService.findById(folder.getId())
                 .zipWhen(__ -> folderApiService.update(folder))
@@ -73,7 +64,7 @@ public class FolderController {
     /**
      * get all files under folder
      */
-    @GetMapping("/elements")
+    @Override
     public Mono<ResponseView<List<?>>> getElements(@RequestParam(value = "id", required = false) String folderId,
             @RequestParam(value = "applicationType", required = false) ApplicationType applicationType) {
         return folderApiService.getElements(folderId, applicationType)
@@ -82,7 +73,7 @@ public class FolderController {
                 .map(ResponseView::success);
     }
 
-    @PutMapping("/move/{id}")
+    @Override
     public Mono<ResponseView<Void>> move(@PathVariable("id") String applicationLikeId,
             @RequestParam(value = "targetFolderId", required = false) String targetFolderId) {
         return folderApiService.move(applicationLikeId, targetFolderId)
@@ -90,7 +81,7 @@ public class FolderController {
                 .then(Mono.fromSupplier(() -> ResponseView.success(null)));
     }
 
-    @PutMapping("/{folderId}/permissions/{permissionId}")
+    @Override
     public Mono<ResponseView<Void>> updatePermission(@PathVariable String folderId,
             @PathVariable String permissionId,
             @RequestBody UpdatePermissionRequest updatePermissionRequest) {
@@ -103,7 +94,7 @@ public class FolderController {
                 .then(Mono.fromSupplier(() -> ResponseView.success(null)));
     }
 
-    @DeleteMapping("/{folderId}/permissions/{permissionId}")
+    @Override
     public Mono<ResponseView<Void>> removePermission(
             @PathVariable String folderId,
             @PathVariable String permissionId) {
@@ -112,7 +103,7 @@ public class FolderController {
                 .then(Mono.fromSupplier(() -> ResponseView.success(null)));
     }
 
-    @PostMapping("/{folderId}/permissions")
+    @Override
     public Mono<ResponseView<Void>> grantPermission(
             @PathVariable String folderId,
             @RequestBody BatchAddPermissionRequest request) {
@@ -124,15 +115,9 @@ public class FolderController {
                 .then(Mono.fromSupplier(() -> ResponseView.success(null)));
     }
 
-    @GetMapping("/{folderId}/permissions")
+    @Override
     public Mono<ResponseView<ApplicationPermissionView>> getApplicationPermissions(@PathVariable String folderId) {
         return folderApiService.getPermissions(folderId)
                 .map(ResponseView::success);
-    }
-
-    private record BatchAddPermissionRequest(String role, Set<String> userIds, Set<String> groupIds) {
-    }
-
-    private record UpdatePermissionRequest(String role) {
     }
 }

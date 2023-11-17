@@ -5,7 +5,10 @@ import { ModalComp } from "comps/hooks/modalComp";
 import { ButtonComp } from "./comps/buttonComp/buttonComp";
 import { DropdownComp } from "./comps/buttonComp/dropdownComp";
 import { LinkComp } from "./comps/buttonComp/linkComp";
-import { ContainerComp, defaultContainerData } from "./comps/containerComp/containerComp";
+import {
+  ContainerComp,
+  defaultContainerData,
+} from "./comps/containerComp/containerComp";
 import { CustomComp } from "./comps/customComp/customComp";
 import { DatePickerComp, DateRangeComp } from "./comps/dateComp/dateComp";
 import { DividerComp } from "./comps/dividerComp";
@@ -94,14 +97,21 @@ import {
   VideoCompIcon,
   TimeLineIcon,
   LottieIcon,
+  CommentIcon,
   MentionIcon,
   AutoCompleteCompIcon,
   ResponsiveLayoutCompIcon,
+  MermaidIcon,
 } from "lowcoder-design";
 
 import { defaultFormData, FormComp } from "./comps/formComp/formComp";
 import { IFrameComp } from "./comps/iframeComp";
-import { defaultGridData, defaultListViewData, GridComp, ListViewComp } from "./comps/listViewComp";
+import {
+  defaultGridData,
+  defaultListViewData,
+  GridComp,
+  ListViewComp,
+} from "./comps/listViewComp";
 import { ModuleComp } from "./comps/moduleComp/moduleComp";
 import { NavComp } from "./comps/navComp/navComp";
 import { TableComp } from "./comps/tableComp";
@@ -123,11 +133,15 @@ import { RemoteCompInfo } from "types/remoteComp";
 import { ScannerComp } from "./comps/buttonComp/scannerComp";
 import { SignatureComp } from "./comps/signatureComp";
 import { TimeLineComp } from "./comps/timelineComp/timelineComp";
+import { CommentComp } from "./comps/commentComp/commentComp";
 import { MentionComp } from "./comps/textInputComp/mentionComp";
-import { AutoCompleteComp } from "./comps/autoCompleteComp/autoCompleteComp"
+import { AutoCompleteComp } from "./comps/autoCompleteComp/autoCompleteComp";
 //Added by Aqib Mirza
 import { JsonLottieComp } from "./comps/jsonComp/jsonLottieComp";
 import { ResponsiveLayoutComp } from "./comps/responsiveLayout";
+import { VideoMeetingStreamComp } from "./comps/meetingComp/videoMeetingStreamComp";
+import { ControlButton } from "./comps/meetingComp/controlButton";
+import { VideoMeetingControllerComp } from "./comps/meetingComp/videoMeetingControllerComp";
 
 type Registry = {
   [key in UICompType]?: UICompManifest;
@@ -373,7 +387,7 @@ const uiCompMap: Registry = {
     keywords: trans("uiComp.buttonCompKeywords"),
     comp: ButtonComp,
     layoutInfo: {
-      w: 3,
+      w: 2,
       h: 5,
     },
     withoutLoading: true,
@@ -545,6 +559,27 @@ const uiCompMap: Registry = {
       delayCollision: true,
     },
     defaultDataFn: defaultContainerData,
+  },
+
+  videocomponent: {
+    name: trans("meeting.videoCompName"),
+    enName: "Video",
+    description: trans("meeting.videoCompName"),
+    categories: ["meeting"],
+    icon: VideoCompIcon,
+    keywords: trans("meeting.meetingCompKeywords"),
+    comp: VideoMeetingStreamComp,
+    withoutLoading: true,
+  },
+  controlButton: {
+    name: trans("meeting.meetingControlCompName"),
+    enName: "Controls",
+    description: trans("meeting.meetingCompDesc"),
+    categories: ["meeting"],
+    icon: ButtonCompIcon,
+    keywords: trans("meeting.meetingCompKeywords"),
+    comp: ControlButton,
+    withoutLoading: true,
   },
   tabbedContainer: {
     name: trans("uiComp.tabbedContainerCompName"),
@@ -742,6 +777,16 @@ const uiCompMap: Registry = {
     comp: DrawerComp,
     withoutLoading: true,
   },
+  meeting: {
+    name: trans("meeting.meetingCompName"),
+    enName: "Drawer",
+    description: trans("meeting.meetingCompDesc"),
+    categories: ["meeting"],
+    icon: DrawerCompIcon,
+    keywords: trans("meeting.meetingCompKeywords"),
+    comp: VideoMeetingControllerComp,
+    withoutLoading: true,
+  },
   carousel: {
     name: trans("uiComp.carouselCompName"),
     enName: "Carousel",
@@ -794,6 +839,19 @@ const uiCompMap: Registry = {
     categories: ["dataDisplay"],
     icon: imageEditorIcon,
     keywords: trans("uiComp.imageEditorCompKeywords"),
+    layoutInfo: {
+      w: 15,
+      h: 60,
+    },
+  },
+  mermaid: {
+    name: trans("uiComp.mermaidCompName"),
+    enName: "Mermaid Charts",
+    comp: remoteComp({ ...builtInRemoteComps, compName: "mermaid" }),
+    description: trans("uiComp.mermaidCompDesc"),
+    categories: ["dataDisplay"],
+    icon: MermaidIcon,
+    keywords: trans("uiComp.mermaidCompKeywords"),
     layoutInfo: {
       w: 15,
       h: 60,
@@ -861,6 +919,20 @@ const uiCompMap: Registry = {
       h: 55,
     },
   },
+
+  comment: {
+    name: trans("uiComp.commentCompName"),
+    enName: "comment",
+    description: trans("uiComp.commentCompDesc"),
+    categories: ["dataDisplay"],
+    icon: CommentIcon,
+    keywords: trans("uiComp.commentCompKeywords"),
+    comp: CommentComp,
+    layoutInfo: {
+      w: 13,
+      h: 55,
+    }
+  },
   mention: {
     name: trans("uiComp.mentionCompName"),
     enName: "mention",
@@ -876,12 +948,14 @@ const uiCompMap: Registry = {
     description: trans("uiComp.autoCompleteCompDesc"),
     categories: ["dataInputText"],
     icon: AutoCompleteCompIcon,
-    keywords: cnchar.spell(trans("uiComp.autoCompleteCompName"), "first", "low").toString(),
+    keywords: cnchar
+      .spell(trans("uiComp.autoCompleteCompName"), "first", "low")
+      .toString(),
     comp: AutoCompleteComp,
     layoutInfo: {
       w: 7,
       h: 5,
-    }
+    },
   },
   responsiveLayout: {
     name: trans("uiComp.responsiveLayoutCompName"),

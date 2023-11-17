@@ -34,7 +34,7 @@ debug(`REACT_APP_LANGUAGES:, ${REACT_APP_LANGUAGES}`);
 debug(`REACT_APP_API_HOST:, ${REACT_APP_API_HOST}`);
 debug(`REACT_APP_ENV:, ${REACT_APP_ENV}`);
 debug(`REACT_APP_LOG_LEVEL:, ${REACT_APP_LOG_LEVEL}`);
-
+ 
 try {
   bootstrap();
   hideLoading();

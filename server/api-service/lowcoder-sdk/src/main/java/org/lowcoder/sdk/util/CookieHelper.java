@@ -53,11 +53,6 @@ public class CookieHelper {
         return getCookieValue(exchange, getCookieName(), "");
     }
 
-    @Nullable
-    public String getJWT(ServerWebExchange exchange) {
-        return getCookieValue(exchange, "JWT", null);
-    }
-
     public String getCookieValue(ServerWebExchange exchange, String cookieName, String defaultValue) {
         MultiValueMap<String, HttpCookie> cookies = exchange.getRequest().getCookies();
         return ofNullable(cookies.getFirst(cookieName))

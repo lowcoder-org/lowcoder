@@ -23,10 +23,10 @@ import {
   UICompBuilder,
   withDefault,
   withExposingConfigs,
+  withMethodExposing,
   withViewFn,
   ThemeContext,
   chartColorPalette,
-  loadScript,
 } from "lowcoder-sdk";
 import { getEchartsLocale, trans } from "i18n/comps";
 import { ItemColorComp } from "comps/chartComp/chartConfigs/lineChartConfig";
@@ -46,6 +46,16 @@ let ChartTmpComp = (function () {
 })();
 
 ChartTmpComp = withViewFn(ChartTmpComp, (comp) => {
+  const apiKey = comp.children.mapApiKey.getView();
+  const mode = comp.children.mode.getView();
+  const mapCenterPosition = {
+    lng: comp.children.mapCenterLng.getView(),
+    lat: comp.children.mapCenterLat.getView(),
+  }
+  const mapZoomlevel = comp.children.mapZoomLevel.getView();
+  const onUIEvent = comp.children.onUIEvent.getView();
+  const onMapEvent = comp.children.onMapEvent.getView();
+
   const echartsCompRef = useRef<ReactECharts | null>();
   const [chartSize, setChartSize] = useState<ChartSize>();
   const [mapScriptLoaded, setMapScriptLoaded] = useState(false);
@@ -55,33 +65,36 @@ ChartTmpComp = withViewFn(ChartTmpComp, (comp) => {
     color: chartColorPalette,
     backgroundColor: "#fff",
   };
+
   let themeConfig = defaultChartTheme;
   try {
     themeConfig = theme?.theme.chart ? JSON.parse(theme?.theme.chart) : defaultChartTheme;
   } catch (error) {
     log.error('theme chart error: ', error);
   }
-  const onEvent = comp.children.onEvent.getView();
+
   useEffect(() => {
+    if(mode !== 'ui') return;
+    
     // bind events
     const echartsCompInstance = echartsCompRef?.current?.getEchartsInstance();
     if (!echartsCompInstance) {
       return _.noop;
     }
-    echartsCompInstance.on("selectchanged", (param: any) => {
-      const option: any = echartsCompInstance.getOption();
+    echartsCompInstance?.on("selectchanged", (param: any) => {
+      const option: any = echartsCompInstance?.getOption();
       //log.log("chart select change", param);
       if (param.fromAction === "select") {
         comp.dispatch(changeChildAction("selectedPoints", getSelectedPoints(param, option)));
-        onEvent("select");
+        onUIEvent("select");
       } else if (param.fromAction === "unselect") {
         comp.dispatch(changeChildAction("selectedPoints", getSelectedPoints(param, option)));
-        onEvent("unselect");
+        onUIEvent("unselect");
       }
     });
     // unbind
-    return () => echartsCompInstance.off("selectchanged");
-  }, [onEvent]);
+    return () => echartsCompInstance?.off("selectchanged");
+  }, [mode, onUIEvent]);
 
   const echartsConfigChildren = _.omit(comp.children, echartsConfigOmitChildren);
   const option = useMemo(() => {
@@ -95,29 +108,47 @@ ChartTmpComp = withViewFn(ChartTmpComp, (comp) => {
     return mapScriptLoaded || window?.google;
   }, [mapScriptLoaded])
 
-  const loadGoogleMapsData = () => {
+  const loadGoogleMapData = () => {
     const echartsCompInstance = echartsCompRef?.current?.getEchartsInstance();
     if (!echartsCompInstance) {
       return _.noop;
     }
-    echartsCompInstance.getModel().getComponent("gmap").getGoogleMap();
+
+    comp.children.mapInstance.dispatch(changeValueAction(echartsCompInstance))
+    onMapEvent('mapReady')
+  }
+  
+  const handleOnMapScriptLoad = () => {
+    setMapScriptLoaded(true);
+    loadGoogleMapData();
   }
 
-  const apiKey = comp.children.mapApiKey.getView();
-  const mode = comp.children.mode.getView();
   useEffect(() => {
-    if(mode === 'map') {
-      const gMapScript = loadGoogleMapsScript('');
-      if(isMapScriptLoaded) {
-        loadGoogleMapsData();
-        return;
-      }
-      gMapScript.addEventListener('load', function () {
-        setMapScriptLoaded(true);
-        loadGoogleMapsData();
-      });
+    if( mode !== 'map') {
+      comp.children.mapInstance.dispatch(changeValueAction(undefined))
+      return;
+    }
+
+    const gMapScript = loadGoogleMapsScript(apiKey);
+    if(isMapScriptLoaded) {
+      handleOnMapScriptLoad();
+      return;
+    }
+    gMapScript.addEventListener('load', handleOnMapScriptLoad);
+    return () => {
+      gMapScript.removeEventListener('load', handleOnMapScriptLoad);
     }
   }, [mode, apiKey, option])
+
+  useEffect(() => {
+    if(mode !== 'map') return;
+    onMapEvent('centerPositionChange');
+  }, [mode, mapCenterPosition.lat, mapCenterPosition.lng])
+
+  useEffect(() => {
+    if(mode !== 'map') return;
+    onMapEvent('zoomLevelChange');
+  }, [mode, mapZoomlevel])
 
   return (
     <ReactResizeDetector
@@ -142,6 +173,7 @@ ChartTmpComp = withViewFn(ChartTmpComp, (comp) => {
           opts={{ locale: getEchartsLocale() }}
           option={option}
           theme={mode !== 'map' ? themeConfig : undefined}
+          mode={mode}
         />
       )}
     </ReactResizeDetector>
@@ -241,7 +273,7 @@ ChartTmpComp = class extends ChartTmpComp {
   }
 };
 
-const ChartComp = withExposingConfigs(ChartTmpComp, [
+let ChartComp = withExposingConfigs(ChartTmpComp, [
   depsConfig({
     name: "selectedPoints",
     desc: trans("chart.selectedPointsDesc"),
@@ -265,6 +297,47 @@ const ChartComp = withExposingConfigs(ChartTmpComp, [
   }),
   new NameConfig("title", trans("chart.titleDesc")),
 ]);
+
+ChartComp = withMethodExposing(ChartComp, [
+  {
+    method: {
+      name: "getMapInstance",
+    },
+    execute: (comp) => {
+      return new Promise(resolve => {
+        let intervalCount = 0;
+        const mapInstanceInterval = setInterval(() => {
+          const instance = comp.children.mapInstance.getView();
+          const mapInstance = instance?.getModel()?.getComponent("gmap")?.getGoogleMap()
+          if(mapInstance || intervalCount === 10) {
+            clearInterval(mapInstanceInterval)
+            resolve(mapInstance)
+          }
+          intervalCount++;
+        }, 1000);
+      })
+    }
+  },
+  {
+    method: {
+      name: "getMapZoomLevel",
+    },
+    execute: (comp) => {
+      return comp.children.mapZoomLevel.getView();
+    }
+  },
+  {
+    method: {
+      name: "getMapCenterPosition",
+    },
+    execute: (comp) => {
+      return Promise.resolve({
+        lng: comp.children.mapCenterLng.getView(),
+        lat: comp.children.mapCenterLat.getView(),
+      });
+    }
+  },
+])
 
 export const ChartCompWithDefault = withDefault(ChartComp, {
   xAxisKey: "date",

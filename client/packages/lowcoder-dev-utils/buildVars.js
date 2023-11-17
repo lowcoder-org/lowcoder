@@ -20,18 +20,6 @@ export const buildVars = [
     defaultValue: "",
   },
   {
-    name: "LOWCODER_SHOW_BRAND",
-    defaultValue: 'false',
-  },
-  {
-    name: "LOWCODER_CUSTOM_LOGO",
-    defaultValue: '',
-  },
-  {
-    name: "LOWCODER_CUSTOM_LOGO_SQUARE",
-    defaultValue: '',
-  },
-  {
     name: "LOWCODER_NODE_SERVICE_URL",
     defaultValue: "",
   },

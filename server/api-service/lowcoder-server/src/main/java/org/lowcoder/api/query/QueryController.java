@@ -10,8 +10,6 @@ import org.lowcoder.api.query.view.LibraryQueryRequestFromJs;
 import org.lowcoder.api.query.view.QueryExecutionRequest;
 import org.lowcoder.api.query.view.QueryResultView;
 import org.lowcoder.api.util.BusinessEventPublisher;
-import org.lowcoder.infra.constant.NewUrl;
-import org.lowcoder.infra.constant.Url;
 import org.lowcoder.sdk.exception.BizError;
 import org.lowcoder.sdk.exception.BizException;
 import org.lowcoder.sdk.models.QueryExecutionResult;
@@ -20,17 +18,14 @@ import org.lowcoder.sdk.util.LocaleUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ServerWebExchange;
 
-import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
-@Slf4j
 @RestController
-@RequestMapping(value = {Url.QUERY_URL, NewUrl.QUERY_URL})
-public class QueryController {
+public class QueryController implements QueryEndpoints
+{
 
     @Autowired
     private ApplicationQueryApiService applicationQueryApiService;
@@ -45,7 +40,7 @@ public class QueryController {
     @Autowired
     private BusinessEventPublisher businessEventPublisher;
 
-    @PostMapping("/execute")
+    @Override
     public Mono<QueryResultView> execute(ServerWebExchange exchange,
             @RequestBody QueryExecutionRequest queryExecutionRequest) {
         return Mono.deferContextual(contextView -> {
@@ -64,7 +59,7 @@ public class QueryController {
         });
     }
 
-    @PostMapping("/execute-from-node")
+    @Override
     public Mono<QueryResultView> executeLibraryQueryFromJs(ServerWebExchange exchange,
             @RequestBody LibraryQueryRequestFromJs queryExecutionRequest) {
         return Mono.deferContextual(contextView -> {
