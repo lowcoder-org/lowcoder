@@ -23,6 +23,7 @@ export const en = {
     validation: "Validation",
     layout: "Layout",
     style: "Style",
+    meetings : "Meeting Settings",
   },
   passwordInput: {
     label: "Password:",
