@@ -2,7 +2,8 @@ import table from "./componentDocExtra/table.md?url";
 
 export const en = {
   productName: "Lowcoder",
-  productDesc: "Create software applications for your Company and your Customers with minimal coding experience. Lowcoder is the best Retool, Appsmith or Tooljet Alternative.",
+  productDesc:
+    "Create software applications for your Company and your Customers with minimal coding experience. Lowcoder is the best Retool, Appsmith or Tooljet Alternative.",
   notSupportedBrowser:
     "Your current browser may have compatibility issues. For a better user experience, it is recommended to use the latest version of the Chrome browser.",
   create: "Create",
@@ -1441,6 +1442,7 @@ export const en = {
     height: "Drawer height",
   },
   meeting: {
+    logLevel: "Agora SDK Log Level",
     placement: "Meeting placement",
     meeting: "Meeting Settings",
     cameraView: "Camera View",
@@ -1454,17 +1456,21 @@ export const en = {
     videoOn: "Video On",
     size: "Size",
     top: "Top",
-    host: "Host",
-    participants: "Participants",
-    shareScreen: "Share Screen",
-    appid: "Application Id",
+    host: "Host of the Meetingroom",
+    participants: "Participants of the Meetingroom",
+    shareScreen: "Local Screenshare",
+    appid: "Agora Application Id",
     meetingName: "Meeting Name",
+    localUserID: "Host User Id",
+    userName: "Host User Name",
+    rtmToken : "Agora RTM Token",
+    rtcToken : "Agora RTC Token",
     videoCompText: "No video Text",
     profileImageUrl: "Profile Image Url",
     right: "Right",
     bottom: "Bottom",
-    videoId: "Video Id",
-    audioStatus: "audio status",
+    videoId: "Video Stream Id",
+    audioStatus: "Audio status",
     left: "Left",
     widthTooltip: "Number or percentage, e.g. 520, 60%",
     heightTooltip: "Number, e.g. 378",
@@ -1474,11 +1480,10 @@ export const en = {
     height: "Drawer height",
     actionBtnDesc: "Action Button",
     broadCast: "BroadCast Messages",
-    certifiCateKey: "certifiCate Key",
-    title: "Meeting title",
+    title: "Meeting Title",
     meetingCompName: "Meeting Controller",
     videoCompName: "Video Stream",
-    videoSharingCompName: "Video Sharing",
+    videoSharingCompName: "Screen Sharing",
     meetingControlCompName: "Controls Buttons",
     meetingCompDesc: "Meeting component",
     meetingCompControls: "Meeting control",
@@ -1486,6 +1491,8 @@ export const en = {
     iconSize: "Icon Size",
     userId: "userId",
     roomId: "roomId",
+    meetingActive :  "Ongoing Meeting",
+    messages : "Broadcasted Messages",
   },
   settings: {
     title: "Settings",
@@ -2094,7 +2101,7 @@ export const en = {
     resetSuccessDesc:
       "Password reset succeeded. The new password is: {password}",
     copyPassword: "Copy password",
-    poweredByLowcoder: "Powered by Lowcoder.cloud"
+    poweredByLowcoder: "Powered by Lowcoder.cloud",
   },
   preLoad: {
     jsLibraryHelpText:

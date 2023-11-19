@@ -151,10 +151,7 @@ export const meetingStreamChildren = {
   style: ButtonStyleControl,
   viewRef: RefControl<HTMLElement>,
   userId: stringExposingStateControl(""),
-  profileImageUrl: withDefault(
-    StringStateControl,
-    "https://via.placeholder.com/120"
-  ),
+  profileImageUrl: withDefault(StringStateControl, "https://api.dicebear.com/7.x/fun-emoji/svg?seed=Peanut&radius=50&backgroundColor=transparent&randomizeIds=true&eyes=wink,sleepClose"),
   noVideoText: stringExposingStateControl("No Video"),
 };
 
