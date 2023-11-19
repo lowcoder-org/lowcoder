@@ -1,14 +1,23 @@
 package org.lowcoder.api.framework.plugin;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.lowcoder.plugin.api.LowcoderPlugin;
 import org.lowcoder.plugin.api.LowcoderServices;
+import org.springframework.core.env.AbstractEnvironment;
+import org.springframework.core.env.EnumerablePropertySource;
+import org.springframework.core.env.Environment;
+import org.springframework.core.env.MutablePropertySources;
 import org.springframework.stereotype.Component;
 
 import jakarta.annotation.PostConstruct;
@@ -22,7 +31,8 @@ import lombok.extern.slf4j.Slf4j;
 public class LowcoderPluginManager
 {
 	private final LowcoderServices lowcoderServices;
-	private final PluginLoader pluginLoader;	
+	private final PluginLoader pluginLoader;
+	private final Environment environment;
 	
 	private Map<String, LowcoderPlugin> plugins = new LinkedHashMap<>();
 
@@ -35,7 +45,7 @@ public class LowcoderPluginManager
 		
 		for (LowcoderPlugin plugin : sorted)
 		{
-			PluginExecutor executor = new PluginExecutor(plugin, lowcoderServices);
+			PluginExecutor executor = new PluginExecutor(plugin, getPluginEnvironmentVariables(plugin), lowcoderServices);
 			executor.start();
 		}
 	}
@@ -64,6 +74,29 @@ public class LowcoderPluginManager
 			infos.add(new PluginInfo(plugin.pluginId(), plugin.description(), plugin.pluginInfo()));
 		}
 		return infos;
+	}
+	
+	private Map<String, Object> getPluginEnvironmentVariables(LowcoderPlugin plugin)
+	{
+		Map<String, Object> env = new HashMap<>();
+		
+		String varPrefix = "PLUGIN_" + plugin.pluginId().toUpperCase().replaceAll("-", "_") + "_";
+		MutablePropertySources propertySources = ((AbstractEnvironment) environment).getPropertySources();
+        List<String> properties = StreamSupport.stream(propertySources.spliterator(), false)
+                .filter(propertySource -> propertySource instanceof EnumerablePropertySource)
+                .map(propertySource -> ((EnumerablePropertySource<?>) propertySource).getPropertyNames())
+                .flatMap(Arrays::<String> stream)
+                .distinct()
+                .sorted()
+                .filter(prop -> prop.startsWith(varPrefix))
+                .collect(Collectors.toList());
+        
+        for (String prop : properties)
+        {
+        	env.put(StringUtils.removeStart(prop, varPrefix), environment.getProperty(prop));
+        }
+        
+		return env;
 	}
 	
 	private void registerPlugins()
