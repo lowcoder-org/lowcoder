@@ -51,7 +51,7 @@ common:
   max-upload-size: ${LOWCODER_MAX_REQUEST_SIZE:20m}
   max-query-timeout: ${LOWCODER_MAX_QUERY_TIMEOUT:120}
   plugin-dirs:
-    - plugins
+    - ${PLUGINS_DIR:plugins}
 
 material:
   mongodb-grid-fs:
