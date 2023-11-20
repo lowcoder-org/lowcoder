@@ -66,12 +66,17 @@ CMD [ "sh" , "/lowcoder/api-service/entrypoint.sh" ]
 ##
 FROM ubuntu:jammy as build-node-service
 
-RUN apt update && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y curl ca-certificates build-essential
+RUN apt update && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y curl ca-certificates build-essential gnupg
+
+# Add nodejs repo and keys
+RUN mkdir -p /etc/apt/keyrings \
+  && curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg \
+  && echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_20.x nodistro main" | tee /etc/apt/sources.list.d/nodesource.list
 
 # Download nodejs and install yarn
-RUN curl -sL https://deb.nodesource.com/setup_19.x | bash - \
-&& apt-get install --no-install-recommends -y nodejs \
-&& npm install -g yarn
+RUN apt-get update \
+  && apt-get install --no-install-recommends -y nodejs \
+  && npm install -g yarn
 
 # Copy and build the node-service app
 COPY server/node-service/ /lowcoder/node-service/app/
@@ -93,9 +98,16 @@ RUN chmod +x /lowcoder/node-service/*.sh
 FROM ubuntu:jammy as lowcoder-ce-node-service
 LABEL maintainer="lowcoder"
 
-RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y curl ca-certificates \
-  && curl -sL https://deb.nodesource.com/setup_19.x | bash - \
-  && apt-get install --no-install-recommends -y nodejs gosu \
+RUN apt update && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y curl ca-certificates gnupg
+
+# Add nodejs repo and keys
+RUN mkdir -p /etc/apt/keyrings \
+  && curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg \
+  && echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_20.x nodistro main" | tee /etc/apt/sources.list.d/nodesource.list
+
+# Download nodejs and install yarn
+RUN apt-get update \
+  && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y nodejs gosu \
   && npm install -g yarn \
   && rm -rf /var/cache/apt/lists \
   && addgroup --system --gid 9001 lowcoder \
@@ -167,13 +179,20 @@ EXPOSE 3443
 FROM lowcoder-ce-frontend
 LABEL maintainer="lowcoder"
 
+RUN apt update && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y curl ca-certificates gnupg
+
+# Add nodejs repo and keys
+RUN mkdir -p /etc/apt/keyrings \
+  && curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg \
+  && echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_20.x nodistro main" | tee /etc/apt/sources.list.d/nodesource.list
+
+
 # Install required packages
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y bash gnupg curl lsb-release \
   && curl -fsSL https://packages.redis.io/gpg | gpg --dearmor -o /usr/share/keyrings/redis-archive-keyring.gpg \
   && echo "deb [signed-by=/usr/share/keyrings/redis-archive-keyring.gpg] https://packages.redis.io/deb bullseye main" | tee /etc/apt/sources.list.d/redis.list \
   && curl -fsSL https://www.mongodb.org/static/pgp/server-4.4.asc | gpg --dearmor -o /usr/share/keyrings/mongodb-archive-keyring.gpg \
   && echo "deb [signed-by=/usr/share/keyrings/mongodb-archive-keyring.gpg arch=amd64,arm64] http://repo.mongodb.org/apt/ubuntu focal/mongodb-org/4.4 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-4.4.list \
-  && curl -sL https://deb.nodesource.com/setup_19.x | bash - \
   && if [ "$(dpkg --print-architecture)" = "amd64" ] || [ "$(dpkg --print-architecture)" = "i386" ]; then \
     curl -sL http://archive.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.1f-1ubuntu2_$(dpkg --print-architecture).deb --output libssl1.1_1.1.1f-1ubuntu2_$(dpkg --print-architecture).deb; \
   else \

@@ -1,7 +1,6 @@
 package org.lowcoder.api.authentication.request.oauth2;
 
 import org.lowcoder.sdk.auth.constants.Oauth2Constants;
-import org.springframework.security.config.oauth2.client.CommonOAuth2Provider;
 
 public enum Oauth2DefaultSource implements Oauth2Source {
 
@@ -43,17 +42,17 @@ public enum Oauth2DefaultSource implements Oauth2Source {
     ORY {
         @Override
         public String accessToken() {
-            return "https://" + Oauth2Constants.INSTANCE_ID_PLACEHOLDER + "/oauth2/token";
+            return Oauth2Constants.BASE_URL_PLACEHOLDER + "/oauth2/token";
         }
 
         @Override
         public String userInfo() {
-            return "https://" + Oauth2Constants.INSTANCE_ID_PLACEHOLDER + "/userinfo";
+            return Oauth2Constants.BASE_URL_PLACEHOLDER + "/userinfo";
         }
 
         @Override
         public String refresh() {
-            return "https://" + Oauth2Constants.INSTANCE_ID_PLACEHOLDER + "/oauth2/token";
+            return Oauth2Constants.BASE_URL_PLACEHOLDER + "/oauth2/token";
         }
 
     },
@@ -62,17 +61,17 @@ public enum Oauth2DefaultSource implements Oauth2Source {
 
         @Override
         public String accessToken() {
-            return "http://" + Oauth2Constants.INSTANCE_ID_PLACEHOLDER + "/realms/" + Oauth2Constants.REALM_PLACEHOLDER + "/protocol/openid-connect/token";
+            return Oauth2Constants.BASE_URL_PLACEHOLDER + "/realms/" + Oauth2Constants.REALM_PLACEHOLDER + "/protocol/openid-connect/token";
         }
 
         @Override
         public String userInfo() {
-            return "http://" + Oauth2Constants.INSTANCE_ID_PLACEHOLDER + "/realms/" + Oauth2Constants.REALM_PLACEHOLDER + "/protocol/openid-connect/userinfo";
+            return Oauth2Constants.BASE_URL_PLACEHOLDER + "/realms/" + Oauth2Constants.REALM_PLACEHOLDER + "/protocol/openid-connect/userinfo";
         }
 
         @Override
         public String refresh() {
-        	return "http://" + Oauth2Constants.INSTANCE_ID_PLACEHOLDER + "/realms/" + Oauth2Constants.REALM_PLACEHOLDER + "/protocol/openid-connect/token";
+        	return Oauth2Constants.BASE_URL_PLACEHOLDER + "/realms/" + Oauth2Constants.REALM_PLACEHOLDER + "/protocol/openid-connect/token";
         }
     	
     }

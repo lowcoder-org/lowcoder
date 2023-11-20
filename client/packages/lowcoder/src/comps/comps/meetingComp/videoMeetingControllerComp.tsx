@@ -378,16 +378,29 @@ let MTComp = (function () {
       useEffect(() => {
         if (rtmChannelResponse) {
           rtmClient.on("MessageFromPeer", function (message, peerId) {
-            setRtmMessages(message.text);
+            setRtmMessages((prevMessages: any[]) => {
+              // Check if the messages array exceeds the maximum limit
+              if (prevMessages.length >= 500) {
+                prevMessages.pop(); // Remove the oldest message
+              }
+              return [...prevMessages, {"peermessage" : JSON.parse(message.text + ""), "from" : peerId}];
+            });
           });
+      
           rtmChannelResponse.on("ChannelMessage", function (message, memberId) {
-            setRtmMessages(message.text);
-            dispatch(
-              changeChildAction("messages", getData(rtmMessages).data, false)
-            );
+            setRtmMessages((prevMessages: any[]) => {
+              // Check if the messages array exceeds the maximum limit
+              if (prevMessages.length >= 500) {
+                prevMessages.pop(); // Remove the oldest message
+              }
+              return [...prevMessages, {"channelmessage" : JSON.parse(message.text + ""), "from" : memberId}];
+            });
+      
+            dispatch(changeChildAction("messages", getData(rtmMessages).data, false));
           });
         }
       }, [rtmChannelResponse]);
+      
 
       useEffect(() => {
         if (client) {
@@ -399,11 +412,11 @@ let MTComp = (function () {
             setUserLeft(user);
           });
           client.on("volume-indicator", (volumeInfos: any) => {
-            if (volumeInfos.length == 0) return;
+            if (volumeInfos.length === 0) return;
             volumeInfos.map((volumeInfo: any) => {
               const speaking = volumeInfo.level >= 30;
               if (
-                volumeInfo.uid == userId &&
+                volumeInfo.uid === userId &&
                 props.localUser.value.speaking != speaking
               ) {
                 setLocalUserSpeaking(speaking);
@@ -671,21 +684,20 @@ MTComp = withMethodExposing(MTComp, [
     },
     execute: async (comp, values) => {
       if (!comp.children.meetingActive.getView().value) return;
-      let otherData =
-        values !== undefined && values[1] !== undefined ? values[1] : "";
-      let toUsers: any =
+      let messagedata =
         values !== undefined && values[0] !== undefined ? values[0] : "";
+      let toUsers: any =
+        values !== undefined && values[1] !== undefined ? values[1] : "";
 
       let message: any = {
         time: Date.now(),
-        from: comp.children.localUser.getView().value,
+        message: messagedata,
       };
-      message["data"] = otherData;
 
       if (toUsers.length > 0 && toUsers[0] !== undefined) {
-        let peers = toUsers?.map((u: any) => u.user);
-        peers.forEach((p: any) => {
-          sendPeerMessageRtm(message, String(p));
+        toUsers.forEach((peer: any) => {
+          message.to = peer;
+          sendPeerMessageRtm(message, String(peer));
         });
       } else {
         sendMessageRtm(message);

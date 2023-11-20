@@ -319,6 +319,7 @@ export const en = {
     validate: "Validation message",
     border: "Border",
     borderRadius: "Border radius",
+    borderwidth: "Border width",
     background: "Background",
     headerBackground: "Header background",
     footerBackground: "Footer background",
@@ -906,6 +907,7 @@ export const en = {
   },
   comp: {
     menuViewDocs: "View documentation",
+    menuViewPlayground: "View playground",
     menuUpgradeToLatest: "Upgrade to latest version",
     nameNotEmpty: "Can not be empty",
     nameRegex:
@@ -2273,13 +2275,13 @@ export const en = {
   },
   docUrls: {
     docHome: "https://docs.lowcoder.cloud/",
-    components: "https://app.lowcoder.cloud/components?n={compType}",
-    module: "",
+    components: "https://app.lowcoder.cloud/components/{compType}",
+    module: "https://docs.lowcoder.cloud/lowcoder-documentation/build-applications/create-a-new-app/modules",
     optionList: "",
-    terms: "",
-    privacy: "",
-    aboutUs: "",
-    changeLog: "",
+    terms: "https://lowcoder.cloud/terms",
+    privacy: "https://lowcoder.cloud/privacy",
+    aboutUs: "https://lowcoder.cloud/about",
+    changeLog: "https://github.com/lowcoder-org/lowcoder/releases",
     introVideo: "",
     devNpmPlugin:
       "https://docs.lowcoder.cloud/lowcoder-extension/develop-data-source-plugins",
@@ -2536,6 +2538,7 @@ export const en = {
     justify: "Justify both ends",
   },
   playground: {
+    url: "https://app.lowcoder.cloud/playground/{compType}/1",
     data: "Data",
     preview: "Preview",
     property: "Properties",
