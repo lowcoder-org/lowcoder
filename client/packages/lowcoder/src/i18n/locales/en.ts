@@ -318,6 +318,7 @@ export const en = {
     validate: "Validation message",
     border: "Border",
     borderRadius: "Border radius",
+    borderwidth: "Border width",
     background: "Background",
     headerBackground: "Header background",
     footerBackground: "Footer background",
