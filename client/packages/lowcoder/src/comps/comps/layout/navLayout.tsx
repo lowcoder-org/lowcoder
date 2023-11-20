@@ -12,9 +12,9 @@ import { Section, controlItem, sectionNames } from "lowcoder-design";
 import { trans } from "i18n";
 import { EditorContainer, EmptyContent } from "pages/common/styledComponent";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import styled, { css } from "styled-components";
+import styled from "styled-components";
 import { isUserViewMode, useAppPathParam } from "util/hooks";
-import { StringControl } from "comps/controls/codeControl";
+import { StringControl, jsonControl } from "comps/controls/codeControl";
 import { styleControl } from "comps/controls/styleControl";
 import {
   NavLayoutStyle,
@@ -27,29 +27,19 @@ import {
 } from "comps/controls/styleControlConstants";
 import { dropdownControl } from "comps/controls/dropdownControl";
 import _ from "lodash";
+import { check } from "util/convertUtils";
+import { genRandomKey } from "comps/utils/idGenerator";
+import history from "util/history";
+import {
+  DataOption,
+  DataOptionType,
+  ModeOptions,
+  jsonMenuItems,
+  menuItemStyleOptions
+} from "./navLayoutConstants";
 
 const DEFAULT_WIDTH = 240;
-const ModeOptions = [
-  { label: trans("navLayout.modeInline"), value: "inline" },
-  { label: trans("navLayout.modeVertical"), value: "vertical" },
-] as const;
-
 type MenuItemStyleOptionValue = "normal" | "hover" | "active";
-
-const menuItemStyleOptions = [
-  {
-    value: "normal",
-    label: "Normal",
-  },
-  {
-    value: "hover",
-    label: "Hover",
-  },
-  {
-    value: "active",
-    label: "Active",
-  }
-]
 
 const StyledSide = styled(Layout.Sider)`
   max-height: calc(100vh - ${TopHeaderHeight});
@@ -143,19 +133,57 @@ const StyledMenu = styled(AntdMenu)<{
 
 `;
 
+const StyledImage = styled.img`
+  height: 1em;
+  color: currentColor;
+`;
+
 const defaultStyle = {
   radius: '0px',
   margin: '0px',
   padding: '0px',
 }
 
+type UrlActionType = {
+  url?: string;
+  newTab?: boolean;
+}
+
+export type MenuItemNode = {
+  label: string;
+  key: string;
+  hidden?: boolean;
+  icon?: any;
+  action?: UrlActionType,
+  children?: MenuItemNode[];
+}
+
+function checkDataNodes(value: any, key?: string): MenuItemNode[] | undefined {
+  return check(value, ["array", "undefined"], key, (node, k) => {
+    check(node, ["object"], k);
+    check(node["label"], ["string"], "label");
+    check(node["hidden"], ["boolean", "undefined"], "hidden");
+    check(node["icon"], ["string", "undefined"], "icon");
+    check(node["action"], ["object", "undefined"], "action");
+    checkDataNodes(node["children"], "children");
+    return node;
+  });
+}
+
+function convertTreeData(data: any) {
+  return data === "" ? [] : checkDataNodes(data) ?? [];
+}
+
 let NavTmpLayout = (function () {
   const childrenMap = {
+    dataOptionType: dropdownControl(DataOptionType, DataOption.Manual),
     items: withDefault(LayoutMenuItemListComp, [
       {
         label: trans("menuItem") + " 1",
+        itemKey: genRandomKey(),
       },
     ]),
+    jsonItems: jsonControl(convertTreeData, jsonMenuItems),
     width: withDefault(StringControl, DEFAULT_WIDTH),
     backgroundImage: withDefault(StringControl, ""),
     mode: dropdownControl(ModeOptions, "inline"),
@@ -173,7 +201,17 @@ let NavTmpLayout = (function () {
       return (
         <div style={{overflowY: 'auto'}}>
           <Section name={trans("menu")}>
-            {menuPropertyView(children.items)}
+            {children.dataOptionType.propertyView({
+              radioButton: true,
+              type: "oneline",
+            })}
+            {
+              children.dataOptionType.getView() === DataOption.Manual
+                ? menuPropertyView(children.items)
+                : children.jsonItems.propertyView({
+                  label: "Json Data",
+                })
+            }
           </Section>
           <Section name={sectionNames.layout}>
             { children.width.propertyView({
@@ -199,7 +237,6 @@ let NavTmpLayout = (function () {
                 block
                 options={menuItemStyleOptions}
                 value={styleSegment}
-                // className="comp-panel-tab"
                 onChange={(k) => setStyleSegment(k as MenuItemStyleOptionValue)}
               />
             ))}
@@ -223,46 +260,97 @@ NavTmpLayout = withViewFn(NavTmpLayout, (comp) => {
   const pathParam = useAppPathParam();
   const isViewMode = isUserViewMode(pathParam);
   const [selectedKey, setSelectedKey] = useState("");
-  const items = useMemo(() => comp.children.items.getView(), [comp.children.items]);
-  const navWidth = useMemo(() => comp.children.width.getView(), [comp.children.width]);
-  const navMode = useMemo(() => comp.children.mode.getView(), [comp.children.mode]);
-  const navStyle = useMemo(() => comp.children.navStyle.getView(), [comp.children.navStyle]);
-  const navItemStyle = useMemo(() => comp.children.navItemStyle.getView(), [comp.children.navItemStyle]);
-  const navItemHoverStyle = useMemo(() => comp.children.navItemHoverStyle.getView(), [comp.children.navItemHoverStyle]);
-  const navItemActiveStyle = useMemo(() => comp.children.navItemActiveStyle.getView(), [comp.children.navItemActiveStyle]);
+  const items = comp.children.items.getView();
+  const navWidth = comp.children.width.getView();
+  const navMode = comp.children.mode.getView();
+  const navStyle = comp.children.navStyle.getView();
+  const navItemStyle = comp.children.navItemStyle.getView();
+  const navItemHoverStyle = comp.children.navItemHoverStyle.getView();
+  const navItemActiveStyle = comp.children.navItemActiveStyle.getView();
   const backgroundImage = comp.children.backgroundImage.getView();
-
+  const jsonItems = comp.children.jsonItems.getView();
+  const dataOptionType = comp.children.dataOptionType.getView();
+  
   // filter out hidden. unauthorised items filtered by server
   const filterItem = useCallback((item: LayoutMenuItemComp): boolean => {
     return !item.children.hidden.getView();
   }, []);
 
-  const generateItemKeyRecord = (items: LayoutMenuItemComp[]) => {
-    const result: Record<string, LayoutMenuItemComp> = {};
-    items.forEach((item) => {
-      const subItems = item.children.items.getView();
-      if (subItems.length > 0) {
-        Object.assign(result, generateItemKeyRecord(subItems))
+  const generateItemKeyRecord = useCallback(
+    (items: LayoutMenuItemComp[] | MenuItemNode[]) => {
+      const result: Record<string, LayoutMenuItemComp | MenuItemNode> = {};
+      if(dataOptionType === DataOption.Manual) {
+        (items as LayoutMenuItemComp[])?.forEach((item) => {
+          const subItems = item.children.items.getView();
+          if (subItems.length > 0) {
+            Object.assign(result, generateItemKeyRecord(subItems))
+          }
+          result[item.getItemKey()] = item;
+        });
       }
-      result[item.getItemKey()] = item;
-    });
-    return result;
-  }
+      if(dataOptionType === DataOption.Json) {
+        (items as MenuItemNode[])?.forEach((item) => {
+          if (item.children?.length) {
+            Object.assign(result, generateItemKeyRecord(item.children))
+          }
+          result[item.key] = item;
+        })
+      }
+      return result;
+    }, [dataOptionType]
+  )
 
   const itemKeyRecord = useMemo(() => {
+    if(dataOptionType === DataOption.Json) {
+      return generateItemKeyRecord(jsonItems)
+    }
     return generateItemKeyRecord(items)
-  }, [items]);
+  }, [dataOptionType, jsonItems, items, generateItemKeyRecord]);
 
   const onMenuItemClick = useCallback(({key}: {key: string}) => {
-    const itemComp = itemKeyRecord[key];
+    const itemComp = itemKeyRecord[key]
+  
     const url = [
       ALL_APPLICATIONS_URL,
       pathParam.applicationId,
       pathParam.viewMode,
-      itemComp.getItemKey(),
+      key,
     ].join("/");
-    itemComp.children.action.act(url);
-  }, [pathParam.applicationId, pathParam.viewMode, itemKeyRecord])
+
+    // handle manual menu item action
+    if(dataOptionType === DataOption.Manual) {
+      (itemComp as LayoutMenuItemComp).children.action.act(url);
+      return;
+    }
+    // handle json menu item action
+    if((itemComp as MenuItemNode).action?.newTab) {
+      return window.open((itemComp as MenuItemNode).action?.url, '_blank')
+    }
+    history.push(url);
+  }, [pathParam.applicationId, pathParam.viewMode, dataOptionType, itemKeyRecord])
+
+  const getJsonMenuItem = useCallback(
+    (items: MenuItemNode[]): MenuProps["items"] => {
+      return items?.map((item: MenuItemNode) => {
+        const {
+          label,
+          key,
+          hidden,
+          icon,
+          children,
+        } = item;
+        return {
+          label,
+          key,
+          hidden,
+          icon: <StyledImage src={icon} />,
+          onTitleClick: onMenuItemClick,
+          onClick: onMenuItemClick,
+          ...(children?.length && { children: getJsonMenuItem(children) }),
+        }
+      })
+    }, [onMenuItemClick]
+  )
 
   const getMenuItem = useCallback(
     (itemComps: LayoutMenuItemComp[]): MenuProps["items"] => {
@@ -283,7 +371,11 @@ NavTmpLayout = withViewFn(NavTmpLayout, (comp) => {
     [onMenuItemClick, filterItem]
   );
 
-  const menuItems = useMemo(() => getMenuItem(items), [items, getMenuItem]);
+  const menuItems = useMemo(() => {
+    if(dataOptionType === DataOption.Json) return getJsonMenuItem(jsonItems)
+
+    return getMenuItem(items)
+  }, [dataOptionType, jsonItems, getJsonMenuItem, items, getMenuItem]);
 
   // Find by path itemKey
   const findItemPathByKey = useCallback(
@@ -329,7 +421,60 @@ NavTmpLayout = withViewFn(NavTmpLayout, (comp) => {
     [filterItem]
   );
 
+  // Find by path itemKey
+  const findItemPathByKeyJson = useCallback(
+    (itemComps: MenuItemNode[], itemKey: string): string[] => {
+      for (let item of itemComps) {
+        const subItems = item.children;
+        if (subItems?.length) {
+          // have subMenus
+          const childPath = findItemPathByKeyJson(subItems, itemKey);
+          if (childPath.length > 0) {
+            return [item.key, ...childPath];
+          }
+        } else {
+          if (item.key === itemKey) {
+            return [item.key];
+          }
+        }
+      }
+      return [];
+    },
+    []
+  );
+
+  // Get the first visible menu
+  const findFirstItemPathJson = useCallback(
+    (itemComps: MenuItemNode[]): string[] => {
+      for (let item of itemComps) {
+        if (!item.hidden) {
+          const subItems = item.children;
+          if (subItems?.length) {
+            // have subMenus
+            const childPath = findFirstItemPathJson(subItems);
+            if (childPath.length > 0) {
+              return [item.key, ...childPath];
+            }
+          } else {
+            return [item.key];
+          }
+        }
+      }
+      return [];
+    }, []
+  );
+
   const defaultOpenKeys = useMemo(() => {
+    if(dataOptionType === DataOption.Json) {
+      let itemPath: string[];
+      if (pathParam.appPageId) {
+        itemPath = findItemPathByKeyJson(jsonItems, pathParam.appPageId);
+      } else {
+        itemPath = findFirstItemPathJson(jsonItems);
+      }
+      return itemPath.slice(0, itemPath.length - 1);
+    }
+
     let itemPath: string[];
     if (pathParam.appPageId) {
       itemPath = findItemPathByKey(items, pathParam.appPageId);
@@ -350,14 +495,32 @@ NavTmpLayout = withViewFn(NavTmpLayout, (comp) => {
     setSelectedKey(selectedKey);
   }, [pathParam.appPageId]);
 
-  let pageView = <EmptyContent text="" style={{ height: "100%" }} />;
-  const selectedItem = itemKeyRecord[selectedKey];
-  if (selectedItem && !selectedItem.children.hidden.getView()) {
-    const compView = selectedItem.children.action.getView();
-    if (compView) {
-      pageView = compView;
+  const pageView = useMemo(() => {
+    let pageView = <EmptyContent text="" style={{ height: "100%" }} />;
+    
+    if(dataOptionType === DataOption.Manual) {
+      const selectedItem = (itemKeyRecord[selectedKey] as LayoutMenuItemComp);
+      if (selectedItem && !selectedItem.children.hidden.getView()) {
+        const compView = selectedItem.children.action.getView();
+        if (compView) {
+          pageView = compView;
+        }
+      }
     }
-  }
+    if(dataOptionType === DataOption.Json) {
+      const item = (itemKeyRecord[selectedKey] as MenuItemNode)
+      if(item?.action?.url) {
+        pageView =  <iframe
+          title={item?.action?.url}
+          src={item?.action?.url}
+          width="100%"
+          height="100%"
+          style={{ border: "none", marginBottom: "-6px" }}
+        />
+      }
+    }
+    return pageView;
+  }, [dataOptionType, itemKeyRecord, selectedKey])
 
   const getVerticalMargin = (margin: string[]) => {
     if(margin.length === 1) return `${margin[0]}`;
@@ -380,6 +543,7 @@ NavTmpLayout = withViewFn(NavTmpLayout, (comp) => {
   if(!_.isEmpty(backgroundImage))  {
     backgroundStyle = `center / cover url('${backgroundImage}') no-repeat, ${backgroundStyle}`;
   }
+
   let content = (
     <Layout>
       <StyledSide theme="light" width={navWidth}>

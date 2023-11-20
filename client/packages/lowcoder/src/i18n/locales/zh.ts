@@ -167,6 +167,7 @@ prop: {
     customRuleTooltip: "如果结果是非空字符串,则为错误消息.如果为空或null,则验证通过.\n示例:",
     manual: "手动",
     map: "映射",
+    json: "JSON",
     use12Hours: "使用12小时制",
     hourStep: "小时步长",
     minuteStep: "分钟步长",

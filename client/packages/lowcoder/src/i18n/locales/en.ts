@@ -177,6 +177,7 @@ export const en = {
       "If the result is non-empty string, it is an error message. If empty or null, the validation passes. Example: ",
     manual: "Manual",
     map: "Mapped",
+    json: "JSON",
     use12Hours: "Use 12-hours",
     hourStep: "Hour step",
     minuteStep: "Minute step",

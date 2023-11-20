@@ -96,6 +96,7 @@ const LayoutMenuItemCompMigrate = migrateOldData(LayoutMenuItemComp, (oldData: a
 export class LayoutMenuItemListComp extends list(LayoutMenuItemCompMigrate) {
   addItem(value?: any) {
     const data = this.getView();
+
     this.dispatch(
       this.pushAction(
         value
