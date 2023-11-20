@@ -1,6 +1,6 @@
 package org.lowcoder.sdk.auth;
 
-import static org.lowcoder.sdk.auth.constants.Oauth2Constants.INSTANCE_ID_PLACEHOLDER;
+import static org.lowcoder.sdk.auth.constants.Oauth2Constants.BASE_URL_PLACEHOLDER;
 
 import javax.annotation.Nullable;
 
@@ -14,7 +14,7 @@ import lombok.Getter;
 @Getter
 public class Oauth2OryAuthConfig extends Oauth2SimpleAuthConfig {
 
-    protected String instanceId;
+    protected String baseUrl;
 
     @JsonCreator
     public Oauth2OryAuthConfig(
@@ -25,14 +25,14 @@ public class Oauth2OryAuthConfig extends Oauth2SimpleAuthConfig {
             String sourceName,
             String clientId,
             String clientSecret,
-            String instanceId,
+            String baseUrl,
             String authType) {
         super(id, enable, enableRegister, source, sourceName, clientId, clientSecret, authType);
-        this.instanceId = instanceId;
+        this.baseUrl = baseUrl;
     }
 
     @Override
     public String replaceAuthUrlClientIdPlaceholder(String url) {
-        return super.replaceAuthUrlClientIdPlaceholder(url).replace(INSTANCE_ID_PLACEHOLDER, instanceId);
+        return super.replaceAuthUrlClientIdPlaceholder(url).replace(BASE_URL_PLACEHOLDER, baseUrl);
     }
 }
