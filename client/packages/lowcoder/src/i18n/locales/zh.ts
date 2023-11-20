@@ -852,6 +852,7 @@ uiComp: {
 },
 comp: {
     menuViewDocs: "查看文档",
+    menuViewPlayground: "查看组件游乐场",
     menuUpgradeToLatest: "升级到最新版本",
     nameNotEmpty: "不能为空",
     nameRegex: "必须以字母开头,只能包含字母、数字和下划线(_)",
@@ -2106,7 +2107,7 @@ toggleButton: {
 },
 docUrls: {
     docHome: "https://docs.lowcoder.cloud/",
-    components: "https://app.lowcoder.cloud/components?n={compType}",
+    components: "https://app.lowcoder.cloud/components/{compType}",
     module: "",
     optionList: "",
     terms: "",
@@ -2391,6 +2392,7 @@ componentDoc: {
     justify: "两端对齐",
 },
 playground: {
+    url: "https://app.lowcoder.cloud/playground/{compType}/1",
     data: "数据",
     preview: "预览",
     property: "属性",
