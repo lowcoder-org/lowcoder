@@ -167,6 +167,7 @@ prop: {
     customRuleTooltip: "如果结果是非空字符串,则为错误消息.如果为空或null,则验证通过.\n示例:",
     manual: "手动",
     map: "映射",
+    json: "JSON",
     use12Hours: "使用12小时制",
     hourStep: "小时步长",
     minuteStep: "分钟步长",
@@ -2559,6 +2560,15 @@ timeLine: {
         matchColumnsHeight: "匹配列高度",
         rowLayout: "行布局",
         columnsLayout: "栏目布局",
+    },
+    navLayout: {
+        mode: "模式",
+        modeInline: "排队",
+        modeVertical: "垂直的",
+        width: "宽度",
+        widthTooltip: "数字或百分比,例如 520,60%",
+        navStyle: "菜单风格",
+        navItemStyle: "菜单项样式",
     }
 };
 
