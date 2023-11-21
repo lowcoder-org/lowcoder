@@ -643,6 +643,9 @@ export function TableCompView(props: {
               ? COLUMN_CHILDREN_KEY
               : "OB_CHILDREN_KEY_PLACEHOLDER",
             fixed: "left",
+            onExpand: (expanded) => {
+              if(expanded) handleChangeEvent('rowExpand')
+            }
           }}
           rowColor={compChildren.rowColor.getView() as any}
           {...compChildren.selection.getView()(onEvent)}

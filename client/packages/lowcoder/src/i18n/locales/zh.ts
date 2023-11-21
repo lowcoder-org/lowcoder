@@ -1197,6 +1197,7 @@ table: {
     cancelChanges: "取消更改",
     rowSelectChange: "行选中变化",
     rowClick: "行点击",
+    rowExpand: "行展开",
     filterChange: "筛选变化",
     sortChange: "排序变化",
     pageChange: "分页变化",

@@ -70,6 +70,11 @@ export const TableEventOptions = [
     description: trans("table.rowClick"),
   },
   {
+    label: trans("table.rowExpand"),
+    value: "rowExpand",
+    description: trans("table.rowExpand"),
+  },
+  {
     label: trans("table.filterChange"),
     value: "filterChange",
     description: trans("table.filterChange"),

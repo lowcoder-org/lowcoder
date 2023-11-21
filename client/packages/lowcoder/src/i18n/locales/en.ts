@@ -1266,6 +1266,7 @@ export const en = {
     cancelChanges: "Cancel changes",
     rowSelectChange: "Row select change",
     rowClick: "Row click",
+    rowExpand: "Row expand",
     filterChange: "Filter change",
     sortChange: "Sort change",
     pageChange: "Page change",
