@@ -34,6 +34,7 @@ import { useResizeDetector } from "react-resize-detector";
 import { SlotConfigContext } from "comps/controls/slotControl";
 import { EmptyContent } from "pages/common/styledComponent";
 import { messageInstance } from "lowcoder-design";
+import { ReactRef, ResizeHandleAxis } from "layout/gridLayoutPropTypes";
 
 const TitleResizeHandle = styled.span`
   position: absolute;
@@ -345,8 +346,9 @@ const ResizeableTitle = (props: any) => {
       }}
       onResizeStop={onResizeStop}
       draggableOpts={{ enableUserSelectHack: false }}
-      handle={() => (
+      handle={(axis: ResizeHandleAxis, ref: ReactRef<HTMLDivElement>) => (
         <TitleResizeHandle
+          ref={ref}
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
