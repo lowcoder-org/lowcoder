@@ -2094,7 +2094,7 @@ export const en = {
     inviteWelcomeTitle: "{username} invite you to login {productName}",
     terms: "Terms",
     privacy: "Privacy Policy",
-    registerHint: "I have read and agree",
+    registerHint: "I have read and agree to the",
     chooseAccount: "Choose your Account",
     signInLabel: "Sign in with {name}",
     bindAccount: "Bind Account",

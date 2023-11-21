@@ -90,7 +90,7 @@ You can access Lowcoder from [cloud-hosted version](https://app.lowcoder.cloud/)
 ## 💪 Contributing
 - Language support: If you have experience with a language that isn't currently supported by our product, send us a pull request.
 - Create and share components or demos: If you've created something that might be useful to others, add the link here.
-- [Frontend contributing guide](https://github.com/lowcoder-org/lowcoder/tree/develop/client)
+- [Frontend contributing guide](https://github.com/lowcoder-org/lowcoder/tree/main/client)
 
 ## 🥇 Sponsors
 Accelerate the growth of Lowcoder and unleash its potential with your Sponsorship – together, we're shaping the future of Lowcode for everyone!
