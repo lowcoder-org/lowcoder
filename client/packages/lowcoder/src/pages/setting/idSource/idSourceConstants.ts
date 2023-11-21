@@ -48,7 +48,7 @@ export const authConfig = {
     sourceValue: AuthType.Ory,
     form: {
       ...clientIdandSecretConfig,
-      instanceId: "Instance ID",
+      baseUrl: "Base URL",
       scope: "Scope",
     },
   },
@@ -57,7 +57,7 @@ export const authConfig = {
     sourceValue: AuthType.KeyCloak,
     form: {
       ...clientIdandSecretConfig,
-      instanceId: "Instance ID",
+      baseUrl: "Base URL",
       realm: "Realm",
       scope: "Scope",
     },
@@ -107,5 +107,7 @@ export type FormItemType = {
   authServerId?: string;
   publicKey?: ItemType;
   domain?: string;
+  baseUrl?: string;
   realm?: string;
+  scope?: string;
 };
