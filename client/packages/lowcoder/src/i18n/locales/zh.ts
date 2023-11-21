@@ -167,6 +167,7 @@ prop: {
     customRuleTooltip: "如果结果是非空字符串,则为错误消息.如果为空或null,则验证通过.\n示例:",
     manual: "手动",
     map: "映射",
+    json: "JSON",
     use12Hours: "使用12小时制",
     hourStep: "小时步长",
     minuteStep: "分钟步长",
@@ -852,6 +853,7 @@ uiComp: {
 },
 comp: {
     menuViewDocs: "查看文档",
+    menuViewPlayground: "查看组件游乐场",
     menuUpgradeToLatest: "升级到最新版本",
     nameNotEmpty: "不能为空",
     nameRegex: "必须以字母开头,只能包含字母、数字和下划线(_)",
@@ -2106,7 +2108,7 @@ toggleButton: {
 },
 docUrls: {
     docHome: "https://docs.lowcoder.cloud/",
-    components: "https://app.lowcoder.cloud/components?n={compType}",
+    components: "https://app.lowcoder.cloud/components/{compType}",
     module: "",
     optionList: "",
     terms: "",
@@ -2391,6 +2393,7 @@ componentDoc: {
     justify: "两端对齐",
 },
 playground: {
+    url: "https://app.lowcoder.cloud/playground/{compType}/1",
     data: "数据",
     preview: "预览",
     property: "属性",
@@ -2557,6 +2560,15 @@ timeLine: {
         matchColumnsHeight: "匹配列高度",
         rowLayout: "行布局",
         columnsLayout: "栏目布局",
+    },
+    navLayout: {
+        mode: "模式",
+        modeInline: "排队",
+        modeVertical: "垂直的",
+        width: "宽度",
+        widthTooltip: "数字或百分比,例如 520,60%",
+        navStyle: "菜单风格",
+        navItemStyle: "菜单项样式",
     }
 };
 

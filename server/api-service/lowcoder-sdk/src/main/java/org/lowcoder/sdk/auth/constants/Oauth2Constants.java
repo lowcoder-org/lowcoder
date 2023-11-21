@@ -8,7 +8,8 @@ public class Oauth2Constants {
     public static final String STATE_PLACEHOLDER = "$STATE";
     public static final String REALM_PLACEHOLDER = "$REALM";
 
-    public static final String INSTANCE_ID_PLACEHOLDER = "$INSTANCE_ID";
+    public static final String BASE_URL_PLACEHOLDER = "$BASE_URL";
+    public static final String SCOPE_PLACEHOLDER = "$SCOPE";
 
     // authorize url
     public static final String GITHUB_AUTHORIZE_URL = "https://github.com/login/oauth/authorize"
@@ -27,17 +28,17 @@ public class Oauth2Constants {
             + "&scope=openid email profile"
             + "&prompt=select_account";
 
-    public static final String ORY_AUTHORIZE_URL = "https://" + INSTANCE_ID_PLACEHOLDER +  "/oauth2/auth"
+    public static final String ORY_AUTHORIZE_URL = BASE_URL_PLACEHOLDER +  "/oauth2/auth"
             + "?response_type=code"
             + "&client_id=" + CLIENT_ID_PLACEHOLDER
             + "&redirect_uri=" + REDIRECT_URL_PLACEHOLDER
             + "&state=" + STATE_PLACEHOLDER
-            + "&scope=openid email profile offline_access";
+            + "&scope=" + SCOPE_PLACEHOLDER;
 
-    public static final String KEYCLOAK_AUTHORIZE_URL = "https://" + INSTANCE_ID_PLACEHOLDER + "/realms/" + REALM_PLACEHOLDER + "/protocol/openid-connect/auth"
+    public static final String KEYCLOAK_AUTHORIZE_URL = BASE_URL_PLACEHOLDER + "/realms/" + REALM_PLACEHOLDER + "/protocol/openid-connect/auth"
             + "?response_type=code"
             + "&client_id=" + CLIENT_ID_PLACEHOLDER
             + "&redirect_uri=" + REDIRECT_URL_PLACEHOLDER
             + "&state=" + STATE_PLACEHOLDER
-            + "&scope=openid email profile";
+            + "&scope=" + SCOPE_PLACEHOLDER;
 }

@@ -41,7 +41,7 @@ import { useUserViewMode } from "util/hooks";
 import { isNumeric } from "util/stringUtils";
 import { NameConfig, withExposingConfigs } from "../../generators/withExposing";
 
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4 } from "uuid";
 
 // import axios from "axios";
 
@@ -147,6 +147,7 @@ const shareScreen = async (sharing: boolean) => {
   try {
     if (sharing === false) {
       await client.unpublish(screenShareStream);
+      screenShareStream.close();
       await client.publish(videoTrack);
       videoTrack.play(userId + "");
     } else {
@@ -165,11 +166,16 @@ const shareScreen = async (sharing: boolean) => {
   }
 };
 const leaveChannel = async () => {
+  //stops local sharing video
+  screenShareStream.close();
+
+  //stops local video streaming and puts off the camera
   if (videoTrack) {
     await client.unpublish(videoTrack);
     await turnOnCamera(false);
   }
 
+  //mutes and stops locla audio stream
   if (audioTrack) {
     await turnOnMicrophone(false);
   }
@@ -183,12 +189,12 @@ const publishVideo = async (
   rtmToken: string,
   rtcToken: string
 ) => {
-    // initializing the Agora Meeting Client
-    await turnOnCamera(true);
-    await client.join(appId, channel, rtcToken, userId);
-    await client.publish(videoTrack);
-    // initializing the Agora RTM Client
-    await rtmInit(appId, userId, rtmToken, channel);
+  // initializing the Agora Meeting Client
+  await turnOnCamera(true);
+  await client.join(appId, channel, rtcToken, userId);
+  await client.publish(videoTrack);
+  // initializing the Agora RTM Client
+  await rtmInit(appId, userId, rtmToken, channel);
 };
 
 const sendMessageRtm = (message: any) => {
@@ -231,8 +237,14 @@ export const meetingControllerChildren = {
   participants: stateComp<JSONValue>([]),
   usersScreenShared: stateComp<JSONValue>([]),
   localUser: jsonObjectExposingStateControl(""),
-  localUserID : withDefault(stringStateControl(trans("meeting.localUserID")), uuidv4() + ""),
-  meetingName: withDefault(stringStateControl(trans("meeting.meetingName")), uuidv4() + ""),
+  localUserID: withDefault(
+    stringStateControl(trans("meeting.localUserID")),
+    uuidv4() + ""
+  ),
+  meetingName: withDefault(
+    stringStateControl(trans("meeting.meetingName")),
+    uuidv4() + ""
+  ),
   rtmToken: stringStateControl(trans("meeting.rtmToken")),
   rtcToken: stringStateControl(trans("meeting.rtcToken")),
   messages: stateComp<JSONValue>([]),
@@ -265,7 +277,8 @@ let MTComp = (function () {
       });
       const [rtmMessages, setRtmMessages] = useState<any>([]);
       const [localUserSpeaking, setLocalUserSpeaking] = useState<any>(false);
-      const [localUserVideo, setLocalUserVideo] = useState<IAgoraRTCRemoteUser>();
+      const [localUserVideo, setLocalUserVideo] =
+        useState<IAgoraRTCRemoteUser>();
       const [userJoined, setUserJoined] = useState<IAgoraRTCRemoteUser>();
       const [userLeft, setUserLeft] = useState<IAgoraRTCRemoteUser>();
 
@@ -323,6 +336,8 @@ let MTComp = (function () {
         }
       }, [userLeft]);
 
+      console.log("sharing", props.sharing);
+
       useEffect(() => {
         if (updateVolume.userid) {
           let prevUsers: [] = props.participants as [];
@@ -341,6 +356,28 @@ let MTComp = (function () {
           );
         }
       }, [updateVolume]);
+
+      useEffect(() => {
+        let prevUsers: [] = props.participants as [];
+        const updatedItems = prevUsers.map((userInfo: any) => {
+          if (userInfo.user === localUserVideo?.uid) {
+            return { ...userInfo, streamingSharing: props.sharing.value };
+          }
+          return userInfo;
+        });
+        dispatch(
+          changeChildAction("participants", getData(updatedItems).data, false)
+        );
+
+        let localObject = {
+          user: userId + "",
+          audiostatus: props.audioControl.value,
+          streamingVideo: props.videoControl.value,
+          streamingSharing: props.sharing.value,
+          speaking: localUserSpeaking,
+        };
+        props.localUser.onChange(localObject);
+      }, [props.sharing.value]);
 
       useEffect(() => {
         let prevUsers: [] = props.participants as [];
@@ -378,10 +415,33 @@ let MTComp = (function () {
       useEffect(() => {
         if (rtmChannelResponse) {
           rtmClient.on("MessageFromPeer", function (message, peerId) {
-            setRtmMessages(message.text);
+            setRtmMessages((prevMessages: any[]) => {
+              // Check if the messages array exceeds the maximum limit
+              if (prevMessages.length >= 500) {
+                prevMessages.pop(); // Remove the oldest message
+              }
+              return [
+                ...prevMessages,
+                { peermessage: JSON.parse(message.text + ""), from: peerId },
+              ];
+            });
           });
+
           rtmChannelResponse.on("ChannelMessage", function (message, memberId) {
-            setRtmMessages(message.text);
+            setRtmMessages((prevMessages: any[]) => {
+              // Check if the messages array exceeds the maximum limit
+              if (prevMessages.length >= 500) {
+                prevMessages.pop(); // Remove the oldest message
+              }
+              return [
+                ...prevMessages,
+                {
+                  channelmessage: JSON.parse(message.text + ""),
+                  from: memberId,
+                },
+              ];
+            });
+
             dispatch(
               changeChildAction("messages", getData(rtmMessages).data, false)
             );
@@ -391,19 +451,24 @@ let MTComp = (function () {
 
       useEffect(() => {
         if (client) {
+          //Enable Agora to send audio bytes
           client.enableAudioVolumeIndicator();
+          //user activity listeners
           client.on("user-joined", (user: IAgoraRTCRemoteUser) => {
             setUserJoined(user);
           });
           client.on("user-left", (user: IAgoraRTCRemoteUser, reason: any) => {
             setUserLeft(user);
           });
+
+          //listen to user speaking,
           client.on("volume-indicator", (volumeInfos: any) => {
-            if (volumeInfos.length == 0) return;
+            if (volumeInfos.length === 0) return;
             volumeInfos.map((volumeInfo: any) => {
+              //when the volume is above 30, user is probably speaking
               const speaking = volumeInfo.level >= 30;
               if (
-                volumeInfo.uid == userId &&
+                volumeInfo.uid === userId &&
                 props.localUser.value.speaking != speaking
               ) {
                 setLocalUserSpeaking(speaking);
@@ -521,8 +586,8 @@ let MTComp = (function () {
           })}
         </Section>
         <Section name={sectionNames.meetings}>
-          {children.appId.propertyView({ 
-            label: trans("meeting.appid") 
+          {children.appId.propertyView({
+            label: trans("meeting.appid"),
           })}
           {children.meetingName.propertyView({
             label: trans("meeting.meetingName"),
@@ -633,7 +698,10 @@ MTComp = withMethodExposing(MTComp, [
     },
     execute: async (comp, values) => {
       if (comp.children.meetingActive.getView().value) return;
-      userId = comp.children.localUserID.getView().value === "" ? uuidv4() : comp.children.localUserID.getView().value;
+      userId =
+        comp.children.localUserID.getView().value === ""
+          ? uuidv4()
+          : comp.children.localUserID.getView().value;
       comp.children.localUser.change({
         user: userId + "",
         audiostatus: false,
@@ -656,7 +724,9 @@ MTComp = withMethodExposing(MTComp, [
       comp.children.videoControl.change(true);
       await publishVideo(
         comp.children.appId.getView(),
-        comp.children.meetingName.getView().value === "" ? uuidv4() : comp.children.meetingName.getView().value, 
+        comp.children.meetingName.getView().value === ""
+          ? uuidv4()
+          : comp.children.meetingName.getView().value,
         comp.children.rtmToken.getView().value,
         comp.children.rtcToken.getView().value
       );
@@ -671,21 +741,20 @@ MTComp = withMethodExposing(MTComp, [
     },
     execute: async (comp, values) => {
       if (!comp.children.meetingActive.getView().value) return;
-      let otherData =
-        values !== undefined && values[1] !== undefined ? values[1] : "";
-      let toUsers: any =
+      let messagedata =
         values !== undefined && values[0] !== undefined ? values[0] : "";
+      let toUsers: any =
+        values !== undefined && values[1] !== undefined ? values[1] : "";
 
       let message: any = {
         time: Date.now(),
-        from: comp.children.localUser.getView().value,
+        message: messagedata,
       };
-      message["data"] = otherData;
 
       if (toUsers.length > 0 && toUsers[0] !== undefined) {
-        let peers = toUsers?.map((u: any) => u.user);
-        peers.forEach((p: any) => {
-          sendPeerMessageRtm(message, String(p));
+        toUsers.forEach((peer: any) => {
+          message.to = peer;
+          sendPeerMessageRtm(message, String(peer));
         });
       } else {
         sendMessageRtm(message);
@@ -778,7 +847,7 @@ export const VideoMeetingControllerComp = withExposingConfigs(MTComp, [
   new NameConfig("meetingActive", trans("meeting.meetingActive")),
   new NameConfig("meetingName", trans("meeting.meetingName")),
   new NameConfig("localUserID", trans("meeting.localUserID")),
-  new NameConfig("messages", trans("meeting.messages")), 
+  new NameConfig("messages", trans("meeting.messages")),
   new NameConfig("rtmToken", trans("meeting.rtmToken")),
   new NameConfig("rtcToken", trans("meeting.rtcToken")),
 ]);

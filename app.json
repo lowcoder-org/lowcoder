@@ -1,11 +1,16 @@
 {
   "name": "lowcoder",
-  "description": "Lowcoder is a developer-friendly open-source low code platform to build internal apps within minutes.",
+  "description": "An all-in-one IDE to create internal or customer-facing apps. · Visual UI builder with 50+ built-in components",
   "repository": "https://github.com/lowcoder-org/lowcoder",
-  "logo": "https://cdn-files.openblocks.dev/logo.png",
+  "logo": "https://lowcoder.cloud/images/webclip.png",
   "keywords": [
-    "low code",
-    "develop tool"
+    "LowCode",
+    "Low code",
+    "develop tool",
+    "Fast Application Development",
+    "Rapid development",
+    "Collaboration tool",
+    "Video conferencing"
   ],
   "stack": "container",
   "formation": {
