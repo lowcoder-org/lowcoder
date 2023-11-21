@@ -150,17 +150,20 @@ export const meetingStreamChildren = {
   style: ButtonStyleControl,
   viewRef: RefControl<HTMLElement>,
   userId: stringExposingStateControl(""),
-  profileImageUrl: withDefault(StringStateControl, "https://api.dicebear.com/7.x/fun-emoji/svg?seed=Peanut&radius=50&backgroundColor=transparent&randomizeIds=true&eyes=wink,sleepClose"),
+  profileImageUrl: withDefault(
+    StringStateControl,
+    "https://api.dicebear.com/7.x/fun-emoji/svg?seed=Peanut&radius=50&backgroundColor=transparent&randomizeIds=true&eyes=wink,sleepClose"
+  ),
   noVideoText: stringExposingStateControl("No Video"),
 };
 
-let VideoCompBuilder = (function (props) {
+let SharingCompBuilder = (function (props) {
   return new UICompBuilder(meetingStreamChildren, (props) => {
     const videoRef = useRef<HTMLVideoElement>(null);
     const conRef = useRef<HTMLDivElement>(null);
     const [userId, setUserId] = useState();
     const [userName, setUsername] = useState("");
-    const [showVideo, setVideo] = useState(true);
+    const [showVideoSharing, setVideoSharing] = useState(true);
 
     useEffect(() => {
       if (props.userId.value !== "") {
@@ -231,12 +234,9 @@ let VideoCompBuilder = (function (props) {
 
         setUserId(userData.user);
         setUsername(userData.userName);
-        setVideo(userData.streamingVideo);
+        setVideoSharing(userData.streamingSharing);
       }
     }, [props.userId.value]);
-
-    console.log(props.userId);
-    
 
     return (
       <EditorContext.Consumer>
@@ -261,12 +261,12 @@ let VideoCompBuilder = (function (props) {
                   onClick={() => props.onEvent("videoClicked")}
                   ref={videoRef}
                   style={{
-                    display: `${showVideo ? "flex" : "none"}`,
+                    display: `${showVideoSharing ? "flex" : "none"}`,
                     aspectRatio: props.videoAspectRatio,
                     borderRadius: props.style.radius,
                     width: "auto",
                   }}
-                  id={userId}
+                  id="share-screen"
                 ></VideoContainer>
               ) : (
                 <></>
@@ -275,7 +275,7 @@ let VideoCompBuilder = (function (props) {
                 style={{
                   flexDirection: "column",
                   alignItems: "center",
-                  display: `${!showVideo || userId ? "flex" : "none"}`,
+                  display: `${!showVideoSharing || userId ? "flex" : "none"}`,
                   margin: "0 auto",
                   padding: props.profilePadding,
                 }}
@@ -331,13 +331,13 @@ let VideoCompBuilder = (function (props) {
     .build();
 })();
 
-VideoCompBuilder = class extends VideoCompBuilder {
+SharingCompBuilder = class extends SharingCompBuilder {
   override autoHeight(): boolean {
     return this.children.autoHeight.getView();
   }
 };
 
-export const VideoMeetingStreamComp = withExposingConfigs(VideoCompBuilder, [
+export const VideoSharingStreamComp = withExposingConfigs(SharingCompBuilder, [
   new NameConfig("loading", trans("button.loadingDesc")),
   new NameConfig("profileImageUrl", trans("meeting.profileImageUrl")),
 
