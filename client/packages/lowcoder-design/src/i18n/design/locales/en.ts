@@ -23,7 +23,8 @@ export const en = {
     validation: "Validation",
     layout: "Layout",
     style: "Style",
-    meetings : "Meeting Settings",
+    meetings: "Meeting Settings",
+    chats: "Chat Settings", //added by Fred
   },
   passwordInput: {
     label: "Password:",

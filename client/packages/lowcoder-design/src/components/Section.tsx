@@ -142,5 +142,6 @@ export const sectionNames = {
   validation: trans("prop.validation"),
   layout: trans("prop.layout"),
   style: trans("prop.style"),
-  meetings : trans("prop.meetings"), // added by Falk Wolsky
+  meetings: trans("prop.meetings"), // added by Falk Wolsky
+  chats: trans("prop.chats"), // added by Fred
 };

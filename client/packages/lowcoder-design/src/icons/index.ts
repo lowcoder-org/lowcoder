@@ -169,6 +169,7 @@ export { ReactComponent as VideoCompIcon } from "./icon-insert-video.svg";
 export { ReactComponent as videoPlayTriangle } from "./icon-video-play-triangle.svg";
 export { ReactComponent as DrawerCompIcon } from "./icon-drawer.svg";
 export { ReactComponent as LeftMeetingIcon } from "./icon-left-comp-video.svg";
+export { ReactComponent as LeftChatIcon } from "./icon-left-comp-video.svg";
 export { ReactComponent as PlusIcon } from "./icon-plus.svg";
 export { ReactComponent as HomeIcon } from "./icon-application-home.svg";
 export { ReactComponent as HomeModuleIcon } from "./icon-application-module.svg";
