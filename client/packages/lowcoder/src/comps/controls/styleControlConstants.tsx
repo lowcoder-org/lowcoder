@@ -694,6 +694,17 @@ export const TableStyle = [
   },
 ] as const;
 
+export const TableColumnStyle = [
+  ...BG_STATIC_BORDER_RADIUS,
+  {
+    name: "cellText",
+    label: trans("style.tableCellText"),
+    depName: "background",
+    depType: DEP_TYPE.CONTRAST_TEXT,
+    transformer: contrastText,
+  }
+] as const;
+
 export const FileStyle = [...getStaticBgBorderRadiusByBg(SURFACE_COLOR), TEXT, ACCENT, MARGIN, PADDING] as const;
 
 export const FileViewerStyle = [
@@ -1001,6 +1012,7 @@ export type CheckboxStyleType = StyleConfigType<typeof CheckboxStyle>;
 export type RadioStyleType = StyleConfigType<typeof RadioStyle>;
 export type SegmentStyleType = StyleConfigType<typeof SegmentStyle>;
 export type TableStyleType = StyleConfigType<typeof TableStyle>;
+export type TableColumnStyleType = StyleConfigType<typeof TableColumnStyle>;
 export type FileStyleType = StyleConfigType<typeof FileStyle>;
 export type FileViewerStyleType = StyleConfigType<typeof FileViewerStyle>;
 export type IframeStyleType = StyleConfigType<typeof IframeStyle>;

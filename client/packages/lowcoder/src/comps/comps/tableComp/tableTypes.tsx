@@ -10,7 +10,7 @@ import {
 import { dropdownControl } from "comps/controls/dropdownControl";
 import { eventHandlerControl } from "comps/controls/eventHandlerControl";
 import { styleControl } from "comps/controls/styleControl";
-import { TableStyle } from "comps/controls/styleControlConstants";
+import { TableColumnStyle, TableStyle } from "comps/controls/styleControlConstants";
 import {
   MultiCompBuilder,
   stateComp,
@@ -143,6 +143,7 @@ const tableChildrenMap = {
   sort: valueComp<Array<SortValue>>([]),
   toolbar: TableToolbarComp,
   style: styleControl(TableStyle),
+  columnStyle: styleControl(TableColumnStyle),
   viewModeResizable: BoolControl,
   // sample data for regenerating columns
   dataRowExample: stateComp<JSONObject | null>(null),

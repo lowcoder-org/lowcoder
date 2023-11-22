@@ -463,6 +463,9 @@ export function compTablePropertyView<T extends MultiBaseComp<TableChildrenType>
           label: trans("table.hideBordered"),
         })}
       </Section>
+      <Section name={'Column Styles'}>
+        {comp.children.columnStyle.getPropertyView()}
+      </Section>
     </>
   );
 }

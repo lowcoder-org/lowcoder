@@ -17,6 +17,7 @@ import {
   defaultTheme,
   handleToHoverRow,
   handleToSelectedRow,
+  TableColumnStyleType,
   TableStyleType,
 } from "comps/controls/styleControlConstants";
 import { CompNameContext, EditorContext } from "comps/editorState";
@@ -292,18 +293,28 @@ const TableTh = styled.th<{ width?: number }>`
   ${(props) => props.width && `width: ${props.width}px`};
 `;
 
-const TableTd = styled.td<{ background: string; $isEditing: boolean }>`
+const TableTd = styled.td<{
+  background: string;
+  columnStyle: TableColumnStyleType;
+  $isEditing: boolean;
+}>`
   .ant-table-row-expand-icon,
   .ant-table-row-indent {
     display: ${(props) => (props.$isEditing ? "none" : "initial")};
   }
-
-  ${(props) =>
-    props.background &&
-    `
-      background: ${props.background} !important;
-   `};
+  > div > div {
+    background: ${(props) => props.background};
+    color: ${(props) => props.columnStyle.cellText} !important;
+    border-radius: ${(props) => props.columnStyle.radius};
+    border-color: ${(props) => props.columnStyle.border};
+  }
 `;
+
+// ${(props) =>
+//   props.background &&
+//   `
+//     background: ${props.background} !important;
+//  `};
 
 const ResizeableTitle = (props: any) => {
   const { onResize, onResizeStop, width, viewModeResizable, ...restProps } = props;
@@ -365,6 +376,7 @@ type CustomTableProps<RecordType> = Omit<TableProps<RecordType>, "components" | 
   columns: CustomColumnType<RecordType>[];
   viewModeResizable: boolean;
   rowColor: RowColorViewType;
+  columnStyle: TableColumnStyleType;
 };
 
 function TableCellView(props: {
@@ -373,8 +385,10 @@ function TableCellView(props: {
   rowColor: RowColorViewType;
   rowIndex: number;
   children: any;
+  columnStyle: TableColumnStyleType;
 }) {
-  const { record, title, rowIndex, rowColor, children, ...restProps } = props;
+  const { record, title, rowIndex, rowColor, children, columnStyle, ...restProps } = props;
+  console.log(columnStyle)
   const [editing, setEditing] = useState(false);
   const rowContext = useContext(TableRowContext);
   let tdView;
@@ -387,7 +401,7 @@ function TableCellView(props: {
       currentOriginalIndex: record[OB_ROW_ORI_INDEX],
       columnTitle: title,
     });
-    let background = "";
+    let { background } = columnStyle;
     if (color) {
       background = genLinerGradient(color);
     }
@@ -398,7 +412,12 @@ function TableCellView(props: {
       background = genLinerGradient(handleToHoverRow(color)) + "," + background;
     }
     tdView = (
-      <TableTd {...restProps} background={background} $isEditing={editing}>
+      <TableTd
+        {...restProps}
+        background={background}
+        columnStyle={columnStyle}
+        $isEditing={editing}
+      >
         {children}
       </TableTd>
     );
@@ -466,6 +485,7 @@ function ResizeableTable<RecordType extends object>(props: CustomTableProps<Reco
         title: col.titleText,
         rowColor: props.rowColor,
         rowIndex: rowIndex,
+        columnStyle: props.columnStyle,
       }),
       onHeaderCell: () => ({
         width: resizeWidth,
@@ -533,6 +553,7 @@ export function TableCompView(props: {
   const changeSet = useMemo(() => compChildren.columns.getChangeSet(), [compChildren.columns]);
   const hasChange = useMemo(() => !_.isEmpty(changeSet), [changeSet]);
   const columns = useMemo(() => compChildren.columns.getView(), [compChildren.columns]);
+  const columnStyle = useMemo(() => compChildren.columnStyle.getView(), [compChildren.columnStyle]);
   const columnViews = useMemo(() => columns.map((c) => c.getView()), [columns]);
   const data = comp.filterData;
   const sort = useMemo(() => compChildren.sort.getView(), [compChildren.sort]);
@@ -657,6 +678,7 @@ export function TableCompView(props: {
           }}
           showHeader={!compChildren.hideHeader.getView()}
           columns={antdColumns}
+          columnStyle={columnStyle}
           viewModeResizable={compChildren.viewModeResizable.getView()}
           dataSource={pageDataInfo.data}
           size={compChildren.size.getView()}
