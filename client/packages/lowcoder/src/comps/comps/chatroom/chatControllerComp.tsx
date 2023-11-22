@@ -8,11 +8,7 @@ import {
 import { AutoHeightControl } from "comps/controls/autoHeightControl";
 import { BoolControl } from "comps/controls/boolControl";
 import { StringControl } from "comps/controls/codeControl";
-import {
-  BooleanStateControl,
-  jsonObjectExposingStateControl,
-  stringStateControl,
-} from "comps/controls/codeStateControl";
+import { BooleanStateControl } from "comps/controls/codeStateControl";
 import { PositionControl } from "comps/controls/dropdownControl";
 import {
   closeEvent,
@@ -20,7 +16,6 @@ import {
 } from "comps/controls/eventHandlerControl";
 import { styleControl } from "comps/controls/styleControl";
 import { DrawerStyle } from "comps/controls/styleControlConstants";
-import { stateComp, withDefault } from "comps/generators";
 import { withMethodExposing } from "comps/generators/withMethodExposing";
 import { BackgroundColorContext } from "comps/utils/backgroundColorContext";
 import { CanvasContainerID } from "constants/domLocators";
@@ -33,34 +28,25 @@ import {
   Section,
   sectionNames,
 } from "lowcoder-design";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect } from "react";
 import { ResizeHandle } from "react-resizable";
 import styled from "styled-components";
 import { useUserViewMode } from "util/hooks";
 import { isNumeric } from "util/stringUtils";
 import { NameConfig, withExposingConfigs } from "../../generators/withExposing";
 
-import { v4 as uuidv4 } from "uuid";
+import { createClient } from "matrix-js-sdk";
 
-// import axios from "axios";
-
-import AgoraRTC, {
-  ICameraVideoTrack,
-  IMicrophoneAudioTrack,
-  IAgoraRTCClient,
-  IAgoraRTCRemoteUser,
-  UID,
-  ILocalVideoTrack,
-} from "agora-rtc-sdk-ng";
-
-import { JSONValue, NumberControl } from "@lowcoder-ee/index.sdk";
-import { getData } from "../listViewComp/listViewUtils";
-import AgoraRTM, { RtmChannel, RtmClient } from "agora-rtm-sdk";
+import { withDefault } from "@lowcoder-ee/index.sdk";
 
 const EventOptions = [closeEvent] as const;
 
 const DEFAULT_SIZE = 378;
 const DEFAULT_PADDING = 16;
+
+const matrixClient = createClient({
+  baseUrl: "https://matrix.org",
+});
 
 const DrawerWrapper = styled.div`
   // Shield the mouse events of the lower layer, the mask can be closed in the edit mode to prevent the lower layer from sliding
@@ -101,11 +87,6 @@ function transToPxSize(size: string | number) {
   return isNumeric(size) ? size + "px" : (size as string);
 }
 
-export const client: IAgoraRTCClient = AgoraRTC.createClient({
-  mode: "rtc",
-  codec: "vp8",
-});
-
 export const meetingControllerChildren = {
   visible: withDefault(BooleanStateControl, "visible"),
   onEvent: eventHandlerControl(EventOptions),
@@ -119,6 +100,7 @@ export const meetingControllerChildren = {
   credentials: withDefault(StringControl, trans("chat.credentials")),
   username: withDefault(StringControl, trans("chat.username")),
   password: withDefault(StringControl, trans("chat.password")),
+  roomAlias: withDefault(StringControl, ""),
 };
 let MTComp = (function () {
   return new ContainerCompBuilder(
@@ -142,7 +124,105 @@ let MTComp = (function () {
         [dispatch, isTopBom]
       );
 
-      useEffect(() => {}, []);
+      useEffect(() => {
+        const handleMatrixOperations = async () => {
+          try {
+            console.log(props.roomAlias);
+            
+            if (props.roomAlias)
+              matrixClient
+                .login("m.login.password", {
+                  user: props.username,
+                  password: props.password,
+                })
+                .then(async (response) => {
+                  const room = await matrixClient.joinRoom(
+                    `#${props.roomAlias}:matrix.org`
+                  );
+                  const publicRoom = room.getMembers();
+                  console.log("publicRoom ", publicRoom);
+
+                  const content: any = {
+                    body: "message text b bb",
+                    msgtype: "m.text",
+                  };
+                  matrixClient.sendEvent(
+                    room.roomId,
+                    "m.room.message",
+                    content,
+                    (err: any, res: any) => {
+                      console.log(err);
+                    }
+                  );
+
+                  console.log(room);
+
+                  // const content = {
+                  //   body: "message text",
+                  //   msgtype: "m.text",
+                  // };
+                  // matrixClient.sendEvent(
+                  //   "roomId",
+                  //   "m.room.message",
+                  //   content,
+                  //   "",
+                  //   (err, res) => {
+                  //     console.log(err);
+                  //   }
+                  // );
+                })
+                .catch((error) => {
+                  // Handle login error
+                });
+
+            // Step 2: Log in to the created account
+            //   const loginDetails = {
+            //     user: "freddy254",
+            //     password: "1122,.Fred",
+            //   };
+
+            //   const loginResponse = await client.login(
+            //     "m.login.password",
+            //     loginDetails
+            //   );
+
+            //   const accessToken = loginResponse.access_token;
+            //   console.log("Access Token:", accessToken);
+
+            //   // Step 2: Get public room information
+            //   const publicRoomAlias = "#fredtestung254:matrix.org"; // Replace with your desired public room alias or ID
+
+            //   try {
+            //     await client.joinRoom(publicRoomAlias);
+            //   } catch (joinError) {
+            //     console.error("Error joining room:", joinError);
+            //     return;
+            //   }
+
+            //   const publicRoom = client.getRoom(publicRoomAlias);
+            //   console.log("publicRoom", publicRoom);
+
+            //   if (publicRoom) {
+            //     console.log("Public Room ID:", publicRoom.roomId);
+            //     console.log(
+            //       "Public Room Members:",
+            //       publicRoom.getJoinedMembers()
+            //     );
+            //     console.log(
+            //       "Public Room Messages:",
+            //       publicRoom.getLiveTimeline().getEvents()
+            //     );
+            //   } else {
+            //     console.error("Public room not found.");
+            //   }
+          } catch (error) {
+            console.error("Matrix operation error:", error);
+          }
+        };
+
+        // Call the Matrix operations function
+        handleMatrixOperations();
+      }, [matrixClient]);
 
       return (
         <BackgroundColorContext.Provider value={props.style.background}>
@@ -242,6 +322,9 @@ let MTComp = (function () {
           })}
           {children.password.propertyView({
             label: trans("chat.password"),
+          })}
+          {children.roomAlias.propertyView({
+            label: trans("chat.roomalias"),
           })}
         </Section>
         <Section name={sectionNames.interaction}>

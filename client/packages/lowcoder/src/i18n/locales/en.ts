@@ -1452,6 +1452,7 @@ export const en = {
     username: "Username",
     credentials: "Matrix Credentials",
     password: "Password",
+    roomalias: "Room name or room ID",
   },
   //END
   meeting: {
