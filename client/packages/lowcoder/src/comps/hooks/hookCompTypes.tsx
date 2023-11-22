@@ -4,6 +4,7 @@ const AllHookComp = [
   "modal",
   "drawer",
   "meeting",
+  "chat",
   "title",
   "windowSize",
   "currentTime",

@@ -33,6 +33,7 @@ import { ThemeComp } from "./themeComp";
 import UrlParamsHookComp from "./UrlParamsHookComp";
 import { UtilsComp } from "./utilsComp";
 import { VideoMeetingControllerComp } from "../comps/meetingComp/videoMeetingControllerComp";
+import { ChatControllerComp } from "../comps/chatroom/chatControllerComp";
 
 window._ = _;
 window.dayjs = dayjs;
@@ -96,6 +97,7 @@ const HookMap: HookCompMapRawType = {
   localStorage: LocalStorageComp,
   modal: ModalComp,
   meeting: VideoMeetingControllerComp,
+  chat: ChatControllerComp,
   currentUser: CurrentUserHookComp,
   urlParams: UrlParamsHookComp,
   drawer: DrawerComp,
@@ -119,6 +121,7 @@ function SelectHookView(props: {
     if (
       (props.compType !== "modal" &&
         props.compType !== "drawer" &&
+        props.compType !== "chat" &&
         props.compType !== "meeting") ||
       !selectedComp ||
       (editorState.selectSource !== "addComp" &&

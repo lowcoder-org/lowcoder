@@ -143,6 +143,8 @@ import { VideoMeetingStreamComp } from "./comps/meetingComp/videoMeetingStreamCo
 import { ControlButton } from "./comps/meetingComp/controlButton";
 import { VideoMeetingControllerComp } from "./comps/meetingComp/videoMeetingControllerComp";
 import { VideoSharingStreamComp } from "./comps/meetingComp/videoSharingStreamComp";
+import { ChatIcon } from "@lowcoder-ee/assets/icons";
+import { ChatControllerComp } from "./comps/chatroom/chatControllerComp";
 
 type Registry = {
   [key in UICompType]?: UICompManifest;
@@ -797,6 +799,16 @@ const uiCompMap: Registry = {
     icon: DrawerCompIcon,
     keywords: trans("meeting.meetingCompKeywords"),
     comp: VideoMeetingControllerComp,
+    withoutLoading: true,
+  },
+  chat: {
+    name: trans("chat.chatCompName"),
+    enName: "Drawer",
+    description: trans("chat.chatCompDesc"),
+    categories: ["chat"],
+    icon: DrawerCompIcon,
+    keywords: trans("chat.chatCompKeywords"),
+    comp: ChatControllerComp,
     withoutLoading: true,
   },
   carousel: {

@@ -25,6 +25,7 @@ export interface UICompLayoutInfo {
 export const uiCompCategoryNames = {
   common: trans("uiCompCategory.common"),
   meeting: trans("meeting.meeting"),
+  chat: trans("chat.chat"),
   dataInputText: trans("uiCompCategory.dataInputText"),
   dataInputNumber: trans("uiCompCategory.dataInputNumber"),
   dataInputSelect: trans("uiCompCategory.dataInputSelect"),
@@ -57,6 +58,7 @@ export type UICompType =
   | "textArea"
   | "chart"
   | "meeting"
+  | "chat"
   | "videocomponent"
   | "sharingcomponent"
   | "controlButton"

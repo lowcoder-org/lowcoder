@@ -1443,6 +1443,17 @@ export const en = {
     width: "Drawer width",
     height: "Drawer height",
   },
+  //ADDED BY FRED
+  chat: {
+    chatCompName: "Chat Controller",
+    chatCompDesc: "Chat component",
+    chatCompKeywords: "",
+    chat: "Chat Settings",
+    username: "Username",
+    credentials: "Matrix Credentials",
+    password: "Password",
+  },
+  //END
   meeting: {
     logLevel: "Agora SDK Log Level",
     placement: "Meeting placement",
@@ -1492,6 +1503,7 @@ export const en = {
     meetingCompDesc: "Meeting component",
     meetingCompControls: "Meeting control",
     meetingCompKeywords: "",
+
     //END
     iconSize: "Icon Size",
     userId: "userId",

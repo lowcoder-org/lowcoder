@@ -42,6 +42,7 @@ import {
   MentionIcon,
   AutoCompleteCompIcon,
   ResponsiveLayoutCompIcon,
+  LeftChatIcon,
 } from "lowcoder-design";
 
 export const CompStateIcon: {
@@ -86,6 +87,7 @@ export const CompStateIcon: {
   jsonSchemaForm: <LeftJsonEditor />,
   container: <LeftContainer />,
   meeting: <LeftMeeting />,
+  chat: <LeftChatIcon />,
   mermaid: <LeftChart />,
   videocomponent: <LeftMeeting />,
   sharingcomponent: <LeftMeeting />,
