@@ -34,6 +34,7 @@ import { messageInstance, AddIcon } from "lowcoder-design";
 import { currentOrgAdmin } from "../../../util/permissionUtils";
 import CreateModal from "./createModal";
 import _ from "lodash";
+import { HelpText } from "components/HelpText";
 
 export const IdSourceList = (props: any) => {
   const user = useSelector(getUser);
@@ -43,6 +44,18 @@ export const IdSourceList = (props: any) => {
   const [fetching, setFetching] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const enableEnterpriseLogin = useSelector(selectSystemConfig)?.featureFlag?.enableEnterpriseLogin;
+
+  let protocol = window.location.protocol;
+  const port = window.location.port;
+  let currentDomain = window.location.hostname;
+
+  // Show port only if it is not a standard port
+  if (port && port !== '80' && port !== '443') {
+    currentDomain += `:${port}`;
+  }
+
+  const redirectUrl = encodeURIComponent(`${protocol}//${currentDomain}/apps`);
+  const loginUrl = `${protocol}//${currentDomain}/org/${currentOrgId}/auth/login?redirectUrl=${encodeURIComponent(redirectUrl)}`;
 
   useEffect(() => {
     if (!currentOrgId) {
@@ -154,6 +167,11 @@ export const IdSourceList = (props: any) => {
             )}
           />
         </TableStyled>
+
+        <div style={{ marginTop: 20, marginLeft: 12 }} className="section-title">{trans("advanced.AuthOrgTitle")}</div>
+        <HelpText style={{ marginBottom: 12, marginLeft: 12 }}>{trans("advanced.AuthOrgDescrition") + ": "}</HelpText>
+        <HelpText style={{ marginBottom: 12, marginLeft: 12 }}><a href={loginUrl} target="blank">{loginUrl}</a></HelpText> 
+
       </Level1SettingPageContentWithList>
       <CreateModal
         modalVisible={modalVisible}
@@ -167,3 +185,4 @@ export const IdSourceList = (props: any) => {
     </>
   );
 };
+
