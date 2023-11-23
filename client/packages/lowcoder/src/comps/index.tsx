@@ -142,6 +142,7 @@ import { ResponsiveLayoutComp } from "./comps/responsiveLayout";
 import { VideoMeetingStreamComp } from "./comps/meetingComp/videoMeetingStreamComp";
 import { ControlButton } from "./comps/meetingComp/controlButton";
 import { VideoMeetingControllerComp } from "./comps/meetingComp/videoMeetingControllerComp";
+import { VideoSharingStreamComp } from "./comps/meetingComp/videoSharingStreamComp";
 
 type Registry = {
   [key in UICompType]?: UICompManifest;
@@ -560,7 +561,17 @@ const uiCompMap: Registry = {
     },
     defaultDataFn: defaultContainerData,
   },
-
+  //ADDED BY FRED
+  sharingcomponent: {
+    name: trans("meeting.sharingCompName"),
+    enName: "Sharing",
+    description: trans("meeting.sharingCompName"),
+    categories: ["meeting"],
+    icon: VideoCompIcon,
+    keywords: trans("meeting.meetingCompKeywords"),
+    comp: VideoSharingStreamComp,
+    withoutLoading: true,
+  },
   videocomponent: {
     name: trans("meeting.videoCompName"),
     enName: "Video",
@@ -581,6 +592,7 @@ const uiCompMap: Registry = {
     comp: ControlButton,
     withoutLoading: true,
   },
+  //END
   tabbedContainer: {
     name: trans("uiComp.tabbedContainerCompName"),
     enName: "Tabbed Container",
@@ -931,7 +943,7 @@ const uiCompMap: Registry = {
     layoutInfo: {
       w: 13,
       h: 55,
-    }
+    },
   },
   mention: {
     name: trans("uiComp.mentionCompName"),

@@ -2,7 +2,8 @@ import table from "./componentDocExtra/table.md?url";
 
 export const en = {
   productName: "Lowcoder",
-  productDesc: "Create software applications for your Company and your Customers with minimal coding experience. Lowcoder is the best Retool, Appsmith or Tooljet Alternative.",
+  productDesc:
+    "Create software applications for your Company and your Customers with minimal coding experience. Lowcoder is the best Retool, Appsmith or Tooljet Alternative.",
   notSupportedBrowser:
     "Your current browser may have compatibility issues. For a better user experience, it is recommended to use the latest version of the Chrome browser.",
   create: "Create",
@@ -176,6 +177,7 @@ export const en = {
       "If the result is non-empty string, it is an error message. If empty or null, the validation passes. Example: ",
     manual: "Manual",
     map: "Mapped",
+    json: "JSON",
     use12Hours: "Use 12-hours",
     hourStep: "Hour step",
     minuteStep: "Minute step",
@@ -317,6 +319,7 @@ export const en = {
     validate: "Validation message",
     border: "Border",
     borderRadius: "Border radius",
+    borderwidth: "Border width",
     background: "Background",
     headerBackground: "Header background",
     footerBackground: "Footer background",
@@ -858,6 +861,7 @@ export const en = {
     audioCompDesc: "Audio component",
     audioCompKeywords: "",
     videoCompName: "Video",
+    sharingCompName: "Sharing",
     videoCompDesc: "Video component",
     videoCompKeywords: "",
     drawerCompName: "Drawer",
@@ -904,6 +908,7 @@ export const en = {
   },
   comp: {
     menuViewDocs: "View documentation",
+    menuViewPlayground: "View playground",
     menuUpgradeToLatest: "Upgrade to latest version",
     nameNotEmpty: "Can not be empty",
     nameRegex:
@@ -1441,6 +1446,7 @@ export const en = {
     height: "Drawer height",
   },
   meeting: {
+    logLevel: "Agora SDK Log Level",
     placement: "Meeting placement",
     meeting: "Meeting Settings",
     cameraView: "Camera View",
@@ -1454,17 +1460,21 @@ export const en = {
     videoOn: "Video On",
     size: "Size",
     top: "Top",
-    host: "Host",
-    participants: "Participants",
-    shareScreen: "Share Screen",
-    appid: "Application Id",
+    host: "Host of the Meetingroom",
+    participants: "Participants of the Meetingroom",
+    shareScreen: "Local Screenshare",
+    appid: "Agora Application Id",
     meetingName: "Meeting Name",
+    localUserID: "Host User Id",
+    userName: "Host User Name",
+    rtmToken: "Agora RTM Token",
+    rtcToken: "Agora RTC Token",
     videoCompText: "No video Text",
     profileImageUrl: "Profile Image Url",
     right: "Right",
     bottom: "Bottom",
-    videoId: "Video Id",
-    audioStatus: "audio status",
+    videoId: "Video Stream Id",
+    audioStatus: "Audio status",
     left: "Left",
     widthTooltip: "Number or percentage, e.g. 520, 60%",
     heightTooltip: "Number, e.g. 378",
@@ -1474,18 +1484,22 @@ export const en = {
     height: "Drawer height",
     actionBtnDesc: "Action Button",
     broadCast: "BroadCast Messages",
-    certifiCateKey: "certifiCate Key",
-    title: "Meeting title",
-    meetingCompName: "Meeting Controller",
-    videoCompName: "Video Stream",
-    videoSharingCompName: "Video Sharing",
-    meetingControlCompName: "Controls Buttons",
-    meetingCompDesc: "Meeting component",
-    meetingCompControls: "Meeting control",
-    meetingCompKeywords: "",
+    title: "Meeting Title",
+    //ADDED BY FRED
+    meetingCompName: "Agora Meeting Controller",
+    sharingCompName: "Screen share Stream",
+    videoCompName: "Camera Stream",
+    videoSharingCompName: "Screen share Stream",
+    meetingControlCompName: "Control Button",
+    meetingCompDesc: "Meeting Component",
+    meetingCompControls: "Meeting Control",
+    meetingCompKeywords: "Agora Meeting, Web Meeting, Collaboration",
+    //END
     iconSize: "Icon Size",
     userId: "userId",
     roomId: "roomId",
+    meetingActive: "Ongoing Meeting",
+    messages: "Broadcasted Messages",
   },
   settings: {
     title: "Settings",
@@ -1834,6 +1848,8 @@ export const en = {
     preloadLibsEmpty: "No JavaScript libraries were added",
     preloadLibsAddBtn: "Add a library",
     saveSuccess: "Saved successfully",
+    AuthOrgTitle: "Workspace welcome Screen",
+    AuthOrgDescrition: "The URL for your users to Sign in to the current workspace.",
   },
   branding: {
     title: "Branding",
@@ -2078,7 +2094,7 @@ export const en = {
     inviteWelcomeTitle: "{username} invite you to login {productName}",
     terms: "Terms",
     privacy: "Privacy Policy",
-    registerHint: "I have read and agree",
+    registerHint: "I have read and agree to the",
     chooseAccount: "Choose your Account",
     signInLabel: "Sign in with {name}",
     bindAccount: "Bind Account",
@@ -2094,7 +2110,7 @@ export const en = {
     resetSuccessDesc:
       "Password reset succeeded. The new password is: {password}",
     copyPassword: "Copy password",
-    poweredByLowcoder: "Powered by Lowcoder.cloud"
+    poweredByLowcoder: "Powered by Lowcoder.cloud",
   },
   preLoad: {
     jsLibraryHelpText:
@@ -2265,13 +2281,13 @@ export const en = {
   },
   docUrls: {
     docHome: "https://docs.lowcoder.cloud/",
-    components: "https://app.lowcoder.cloud/components?n={compType}",
-    module: "",
+    components: "https://app.lowcoder.cloud/components/{compType}",
+    module: "https://docs.lowcoder.cloud/lowcoder-documentation/build-applications/create-a-new-app/modules",
     optionList: "",
-    terms: "",
-    privacy: "",
-    aboutUs: "",
-    changeLog: "",
+    terms: "https://lowcoder.cloud/terms",
+    privacy: "https://lowcoder.cloud/privacy",
+    aboutUs: "https://lowcoder.cloud/about",
+    changeLog: "https://github.com/lowcoder-org/lowcoder/releases",
     introVideo: "",
     devNpmPlugin:
       "https://docs.lowcoder.cloud/lowcoder-extension/develop-data-source-plugins",
@@ -2528,6 +2544,7 @@ export const en = {
     justify: "Justify both ends",
   },
   playground: {
+    url: "https://app.lowcoder.cloud/playground/{compType}/1",
     data: "Data",
     preview: "Preview",
     property: "Properties",
@@ -2703,4 +2720,13 @@ export const en = {
     rowLayout: "Row Layout",
     columnsLayout: "Columns Layout",
   },
+  navLayout: {
+    mode: "Mode",
+    modeInline: "Inline",
+    modeVertical: "Vertical",
+    width: "Width",
+    widthTooltip: "Number or percentage, e.g. 520, 60%",
+    navStyle: "Menu Style",
+    navItemStyle: "Menu Item Style",
+  }
 };

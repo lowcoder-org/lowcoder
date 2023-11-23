@@ -27,7 +27,6 @@ import {
   withViewFn,
   ThemeContext,
   chartColorPalette,
-  loadScript,
 } from "lowcoder-sdk";
 import { getEchartsLocale, trans } from "i18n/comps";
 import { ItemColorComp } from "comps/chartComp/chartConfigs/lineChartConfig";
@@ -49,7 +48,13 @@ let ChartTmpComp = (function () {
 ChartTmpComp = withViewFn(ChartTmpComp, (comp) => {
   const apiKey = comp.children.mapApiKey.getView();
   const mode = comp.children.mode.getView();
-  const onEvent = comp.children.onEvent.getView();
+  const mapCenterPosition = {
+    lng: comp.children.mapCenterLng.getView(),
+    lat: comp.children.mapCenterLat.getView(),
+  }
+  const mapZoomlevel = comp.children.mapZoomLevel.getView();
+  const onUIEvent = comp.children.onUIEvent.getView();
+  const onMapEvent = comp.children.onMapEvent.getView();
 
   const echartsCompRef = useRef<ReactECharts | null>();
   const [chartSize, setChartSize] = useState<ChartSize>();
@@ -81,15 +86,15 @@ ChartTmpComp = withViewFn(ChartTmpComp, (comp) => {
       //log.log("chart select change", param);
       if (param.fromAction === "select") {
         comp.dispatch(changeChildAction("selectedPoints", getSelectedPoints(param, option)));
-        onEvent("select");
+        onUIEvent("select");
       } else if (param.fromAction === "unselect") {
         comp.dispatch(changeChildAction("selectedPoints", getSelectedPoints(param, option)));
-        onEvent("unselect");
+        onUIEvent("unselect");
       }
     });
     // unbind
     return () => echartsCompInstance?.off("selectchanged");
-  }, [mode, onEvent]);
+  }, [mode, onUIEvent]);
 
   const echartsConfigChildren = _.omit(comp.children, echartsConfigOmitChildren);
   const option = useMemo(() => {
@@ -103,35 +108,47 @@ ChartTmpComp = withViewFn(ChartTmpComp, (comp) => {
     return mapScriptLoaded || window?.google;
   }, [mapScriptLoaded])
 
-  const loadGoogleMapsData = () => {
-    setTimeout(() => {
-      const echartsCompInstance = echartsCompRef?.current?.getEchartsInstance();
-      if (!echartsCompInstance) {
-        return _.noop;
-      }
+  const loadGoogleMapData = () => {
+    const echartsCompInstance = echartsCompRef?.current?.getEchartsInstance();
+    if (!echartsCompInstance) {
+      return _.noop;
+    }
 
-      let mapInstance = undefined;
-      mapInstance = echartsCompInstance?.getModel()?.getComponent("gmap")?.getGoogleMap();
-      comp.dispatch(changeChildAction("mapInstance", mapInstance));
-    }, 500)
+    comp.children.mapInstance.dispatch(changeValueAction(echartsCompInstance))
+    onMapEvent('mapReady')
   }
   
+  const handleOnMapScriptLoad = () => {
+    setMapScriptLoaded(true);
+    loadGoogleMapData();
+  }
+
   useEffect(() => {
     if( mode !== 'map') {
-      comp.dispatch(changeChildAction("mapInstance", undefined));
+      comp.children.mapInstance.dispatch(changeValueAction(undefined))
       return;
     }
 
     const gMapScript = loadGoogleMapsScript(apiKey);
     if(isMapScriptLoaded) {
-      loadGoogleMapsData();
+      handleOnMapScriptLoad();
       return;
     }
-    gMapScript.addEventListener('load', function () {
-      setMapScriptLoaded(true);
-      loadGoogleMapsData();
-    });
+    gMapScript.addEventListener('load', handleOnMapScriptLoad);
+    return () => {
+      gMapScript.removeEventListener('load', handleOnMapScriptLoad);
+    }
   }, [mode, apiKey, option])
+
+  useEffect(() => {
+    if(mode !== 'map') return;
+    onMapEvent('centerPositionChange');
+  }, [mode, mapCenterPosition.lat, mapCenterPosition.lng])
+
+  useEffect(() => {
+    if(mode !== 'map') return;
+    onMapEvent('zoomLevelChange');
+  }, [mode, mapZoomlevel])
 
   return (
     <ReactResizeDetector
@@ -287,8 +304,38 @@ ChartComp = withMethodExposing(ChartComp, [
       name: "getMapInstance",
     },
     execute: (comp) => {
-      return comp.children.mapInstance.getView()
+      return new Promise(resolve => {
+        let intervalCount = 0;
+        const mapInstanceInterval = setInterval(() => {
+          const instance = comp.children.mapInstance.getView();
+          const mapInstance = instance?.getModel()?.getComponent("gmap")?.getGoogleMap()
+          if(mapInstance || intervalCount === 10) {
+            clearInterval(mapInstanceInterval)
+            resolve(mapInstance)
+          }
+          intervalCount++;
+        }, 1000);
+      })
+    }
+  },
+  {
+    method: {
+      name: "getMapZoomLevel",
     },
+    execute: (comp) => {
+      return comp.children.mapZoomLevel.getView();
+    }
+  },
+  {
+    method: {
+      name: "getMapCenterPosition",
+    },
+    execute: (comp) => {
+      return Promise.resolve({
+        lng: comp.children.mapCenterLng.getView(),
+        lat: comp.children.mapCenterLat.getView(),
+      });
+    }
   },
 ])
 
