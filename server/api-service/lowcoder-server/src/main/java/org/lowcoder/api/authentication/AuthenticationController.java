@@ -41,10 +41,11 @@ public class AuthenticationController implements AuthenticationEndpoints
      */
     @Override
     public Mono<ResponseView<Boolean>> formLogin(@RequestBody FormLoginRequest formLoginRequest,
-            @RequestParam(required = false) String invitationId,
-            ServerWebExchange exchange) {
+                                                 @RequestParam(required = false) String invitationId,
+                                                 @RequestParam(required = false) String orgId,
+                                                 ServerWebExchange exchange) {
         return authenticationApiService.authenticateByForm(formLoginRequest.loginId(), formLoginRequest.password(),
-                        formLoginRequest.source(), formLoginRequest.register(), formLoginRequest.authId())
+                        formLoginRequest.source(), formLoginRequest.register(), formLoginRequest.authId(), orgId)
                 .flatMap(user -> authenticationApiService.loginOrRegister(user, exchange, invitationId))
                 .thenReturn(ResponseView.success(true));
     }
