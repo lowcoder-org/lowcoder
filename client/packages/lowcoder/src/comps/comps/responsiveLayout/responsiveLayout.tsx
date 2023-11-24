@@ -277,7 +277,8 @@ class ResponsiveLayoutImplComp extends ResponsiveLayoutBaseComp implements ICont
           },
         } as CompAction;
       }
-      if (value.type === "delete" && columns.length <= 1) {
+      const { path } = action;
+      if (value.type === "delete" && path[0] === 'columns' && columns.length <= 1) {
         messageInstance.warning(trans("responsiveLayout.atLeastOneColumnError"));
         // at least one column
         return this;
