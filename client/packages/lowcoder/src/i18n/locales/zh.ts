@@ -293,6 +293,7 @@ themeDetail: {
 },
 style: {
     resetTooltip: "重置样式.删除输入框的值以重置单个字段.",
+    textColor: "文字颜色",
     contrastText: "对比文本颜色",
     generated: "已生成",
     customize: "自定义",
@@ -1202,11 +1203,15 @@ table: {
     sortChange: "排序变化",
     pageChange: "分页变化",
     refresh: "刷新",
-    rowColor: "行颜色",
+    rowColor: "条件行颜色",
     rowColorDesc:
         "基于可选变量条件设置行颜色:\n" +
         "currentRow, currentOriginalIndex, currentIndex, columnTitle.\n" +
         "例如:'{{ currentRow.id > 3 ? \"green\" : \"red\" }}'",
+    cellColor: "条件单元格颜色",
+    cellColorDesc:
+        "使用 currentCell 根据单元格值有条件地设置单元格颜色:\n" +
+        "例如:'{{ currentCell == 3 ? \"green\" : \"red\" }}'",
     saveChangesNotBind:
         "未配置保存更改的事件处理程序.请在点击之前绑定至少一个事件处理程序.",
     dynamicColumn: "使用动态列设置",

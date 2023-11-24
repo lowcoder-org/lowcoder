@@ -311,6 +311,7 @@ export const en = {
   style: {
     resetTooltip:
       "Reset styles. Delete the input's value to reset an individual field.",
+    textColor: "Text color",
     contrastText: "Contrast text color",
     generated: "Generated",
     customize: "Customize",
@@ -1271,12 +1272,17 @@ export const en = {
     sortChange: "Sort change",
     pageChange: "Page change",
     refresh: "Refresh",
-    rowColor: "Row color",
+    rowColor: "Conditional row color",
     rowColorDesc:
       "Conditionally set the row color based on the optional variables:\n" +
       "currentRow, currentOriginalIndex, currentIndex, columnTitle. \n" +
       "For example:\n" +
       `'{{ currentRow.id > 3 ? "green" : "red" }}'`,
+    cellColor: "Conditional cell color",
+    cellColorDesc:
+      "Conditionally set the cell color based on the cell value using currentCell:\n" +
+      "For example:\n" +
+      `'{{ currentCell == 3 ? "green" : "red" }}'`,
     saveChangesNotBind:
       "No event handler configured for saving changes. Please bind at least one event handler before click.",
     dynamicColumn: "Use dynamic column setting",

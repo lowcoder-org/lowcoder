@@ -449,9 +449,8 @@ export function compTablePropertyView<T extends MultiBaseComp<TableChildrenType>
           tooltip: trans("table.viewModeResizableTooltip"),
         })}
       </Section>
-      <Section name={sectionNames.style}>
+      <Section name={"Table Style"}>
         {comp.children.style.getPropertyView()}
-        {comp.children.rowColor.getPropertyView()}
         {comp.children.size.propertyView({
           label: trans("table.tableSize"),
           radioButton: true,
@@ -463,8 +462,12 @@ export function compTablePropertyView<T extends MultiBaseComp<TableChildrenType>
           label: trans("table.hideBordered"),
         })}
       </Section>
-      <Section name={'Column Styles'}>
-        {comp.children.columnStyle.getPropertyView()}
+      <Section name={"Row Style"}>
+        {comp.children.rowStyle.getPropertyView()}
+        {comp.children.rowColor.getPropertyView()}
+      </Section>
+      <Section name={"Column Style"}>
+        {comp.children.columnsStyle.getPropertyView()}
       </Section>
     </>
   );

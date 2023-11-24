@@ -67,7 +67,7 @@ export enum DEP_TYPE {
 }
 
 export function contrastText(color: string, textDark: string, textLight: string) {
-  return isDarkColor(color) ? textLight : textDark;
+  return isDarkColor(color) && color !== '#00000000' ? textLight : textDark;
 }
 
 // return similar background color
@@ -639,33 +639,6 @@ export const SegmentStyle = [
 export const TableStyle = [
   ...BG_STATIC_BORDER_RADIUS,
   {
-    name: "cellText",
-    label: trans("style.tableCellText"),
-    depName: "background",
-    depType: DEP_TYPE.CONTRAST_TEXT,
-    transformer: contrastText,
-  },
-  {
-    name: "selectedRowBackground",
-    label: trans("style.selectedRowBackground"),
-    depName: "background",
-    depTheme: "primary",
-    transformer: handleToSelectedRow,
-  },
-  {
-    name: "hoverRowBackground",
-    label: trans("style.hoverRowBackground"),
-    depName: "background",
-    transformer: handleToHoverRow,
-  },
-  {
-    name: "alternateBackground",
-    label: trans("style.alternateRowBackground"),
-    depName: "background",
-    depType: DEP_TYPE.SELF,
-    transformer: toSelf,
-  },
-  {
     name: "headerBackground",
     label: trans("style.tableHeaderBackground"),
     depName: "background",
@@ -694,15 +667,35 @@ export const TableStyle = [
   },
 ] as const;
 
-export const TableColumnStyle = [
-  ...BG_STATIC_BORDER_RADIUS,
+export const TableRowStyle = [
+  getBackground(),
   {
-    name: "cellText",
-    label: trans("style.tableCellText"),
+    name: "selectedRowBackground",
+    label: trans("style.selectedRowBackground"),
     depName: "background",
-    depType: DEP_TYPE.CONTRAST_TEXT,
-    transformer: contrastText,
-  }
+    depTheme: "primary",
+    transformer: handleToSelectedRow,
+  },
+  {
+    name: "hoverRowBackground",
+    label: trans("style.hoverRowBackground"),
+    depName: "background",
+    transformer: handleToHoverRow,
+  },
+  {
+    name: "alternateBackground",
+    label: trans("style.alternateRowBackground"),
+    depName: "background",
+    depType: DEP_TYPE.SELF,
+    transformer: toSelf,
+  },
+] as const;
+
+export const TableColumnStyle = [
+  getStaticBackground("#00000000"),
+  getStaticBorder(),
+  RADIUS,
+  TEXT,
 ] as const;
 
 export const FileStyle = [...getStaticBgBorderRadiusByBg(SURFACE_COLOR), TEXT, ACCENT, MARGIN, PADDING] as const;
@@ -1012,6 +1005,7 @@ export type CheckboxStyleType = StyleConfigType<typeof CheckboxStyle>;
 export type RadioStyleType = StyleConfigType<typeof RadioStyle>;
 export type SegmentStyleType = StyleConfigType<typeof SegmentStyle>;
 export type TableStyleType = StyleConfigType<typeof TableStyle>;
+export type TableRowStyleType = StyleConfigType<typeof TableRowStyle>;
 export type TableColumnStyleType = StyleConfigType<typeof TableColumnStyle>;
 export type FileStyleType = StyleConfigType<typeof FileStyle>;
 export type FileViewerStyleType = StyleConfigType<typeof FileViewerStyle>;

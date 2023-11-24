@@ -18,6 +18,7 @@ import {
   handleToHoverRow,
   handleToSelectedRow,
   TableColumnStyleType,
+  TableRowStyleType,
   TableStyleType,
 } from "comps/controls/styleControlConstants";
 import { CompNameContext, EditorContext } from "comps/editorState";
@@ -36,6 +37,7 @@ import { SlotConfigContext } from "comps/controls/slotControl";
 import { EmptyContent } from "pages/common/styledComponent";
 import { messageInstance } from "lowcoder-design";
 import { ReactRef, ResizeHandleAxis } from "layout/gridLayoutPropTypes";
+import { CellColorViewType } from "./column/tableColumnComp";
 
 const TitleResizeHandle = styled.span`
   position: absolute;
@@ -51,12 +53,15 @@ function genLinerGradient(color: string) {
   return `linear-gradient(${color}, ${color})`;
 }
 
-const getStyle = (style: TableStyleType) => {
+const getStyle = (
+  style: TableStyleType,
+  rowStyle: TableRowStyleType,
+) => {
   const background = genLinerGradient(style.background);
-  const selectedRowBackground = genLinerGradient(style.selectedRowBackground);
-  const hoverRowBackground = genLinerGradient(style.hoverRowBackground);
-  const alternateBackground = genLinerGradient(style.alternateBackground);
-  const isDark = isDarkColor(style.background);
+  const selectedRowBackground = genLinerGradient(rowStyle.selectedRowBackground);
+  const hoverRowBackground = genLinerGradient(rowStyle.hoverRowBackground);
+  const alternateBackground = genLinerGradient(rowStyle.alternateBackground);
+
   return css`
     border-color: ${style.border};
     border-radius: ${style.radius};
@@ -74,6 +79,7 @@ const getStyle = (style: TableStyleType) => {
       > .ant-table-thead {
         > tr > th {
           background-color: ${style.headerBackground};
+          border-color: ${style.border};
           color: ${style.headerText};
 
           &.ant-table-column-has-sorters:hover {
@@ -90,30 +96,7 @@ const getStyle = (style: TableStyleType) => {
         > tr:nth-of-type(2n + 1) {
           &,
           > td {
-            background: ${background};
-            color: ${style.cellText};
-            // Column type view and edit color
-            > div > div {
-              &,
-              > .ant-badge > .ant-badge-status-text,
-              > div > .markdown-body {
-                color: ${style.cellText};
-              }
-
-              > div > svg g {
-                stroke: ${style.cellText};
-              }
-
-              // dark link|links color
-              > a,
-              > div > a {
-                color: ${isDark && "#A6FFFF"};
-
-                &:hover {
-                  color: ${isDark && "#2EE6E6"};
-                }
-              }
-            }
+            background: ${genLinerGradient(rowStyle.background)};
           }
         }
 
@@ -121,52 +104,29 @@ const getStyle = (style: TableStyleType) => {
           &,
           > td {
             background: ${alternateBackground};
-            color: ${style.cellText};
-            // Column type view and edit color
-            > div > div {
-              &,
-              > .ant-badge > .ant-badge-status-text,
-              > div > .markdown-body {
-                color: ${style.cellText};
-              }
-
-              > div > svg g {
-                stroke: ${style.cellText};
-              }
-
-              // dark link|links color
-              > a,
-              > div > a {
-                color: ${isDark && "#A6FFFF"};
-
-                &:hover {
-                  color: ${isDark && "#2EE6E6"};
-                }
-              }
-            }
           }
         }
 
         // selected row
         > tr:nth-of-type(2n + 1).ant-table-row-selected {
           > td {
-            background: ${selectedRowBackground}, ${background};
+            background: ${selectedRowBackground}, ${rowStyle.background} !important;
           }
 
           > td.ant-table-cell-row-hover,
           &:hover > td {
-            background: ${hoverRowBackground}, ${selectedRowBackground}, ${background};
+            background: ${hoverRowBackground}, ${selectedRowBackground}, ${rowStyle.background} !important;
           }
         }
 
         > tr:nth-of-type(2n).ant-table-row-selected {
           > td {
-            background: ${selectedRowBackground}, ${alternateBackground};
+            background: ${selectedRowBackground}, ${alternateBackground} !important;
           }
 
           > td.ant-table-cell-row-hover,
           &:hover > td {
-            background: ${hoverRowBackground}, ${selectedRowBackground}, ${alternateBackground};
+            background: ${hoverRowBackground}, ${selectedRowBackground}, ${alternateBackground} !important;
           }
         }
 
@@ -174,15 +134,19 @@ const getStyle = (style: TableStyleType) => {
         > tr:nth-of-type(2n + 1) > td.ant-table-cell-row-hover {
           &,
           > div:nth-of-type(2) {
-            background: ${hoverRowBackground}, ${background};
+            background: ${hoverRowBackground}, ${rowStyle.background} !important;
           }
         }
 
         > tr:nth-of-type(2n) > td.ant-table-cell-row-hover {
           &,
           > div:nth-of-type(2) {
-            background: ${hoverRowBackground}, ${alternateBackground};
+            background: ${hoverRowBackground}, ${alternateBackground} !important;
           }
+        }
+
+        > tr.ant-table-expanded-row > td {
+          background: ${background};
         }
       }
     }
@@ -191,6 +155,7 @@ const getStyle = (style: TableStyleType) => {
 
 const TableWrapper = styled.div<{
   $style: TableStyleType;
+  $rowStyle: TableRowStyleType;
   toolbarPosition: "above" | "below" | "close";
 }>`
   overflow: hidden;
@@ -221,8 +186,11 @@ const TableWrapper = styled.div<{
   }
 
   .ant-table {
+    background: ${(props) => props.$style.background};
     .ant-table-container {
       border-left: unset;
+      border-top: none !important;
+      border-inline-start: none !important;
 
       .ant-table-content {
         // A table expand row contains table
@@ -278,7 +246,8 @@ const TableWrapper = styled.div<{
     }
   }
 
-  ${(props) => props.$style && getStyle(props.$style)}
+  ${(props) => 
+    props.$style && getStyle(props.$style, props.$rowStyle)}
 `;
 
 const TableTh = styled.th<{ width?: number }>`
@@ -295,26 +264,40 @@ const TableTh = styled.th<{ width?: number }>`
 
 const TableTd = styled.td<{
   background: string;
-  columnStyle: TableColumnStyleType;
+  $style: TableColumnStyleType;
   $isEditing: boolean;
 }>`
   .ant-table-row-expand-icon,
   .ant-table-row-indent {
     display: ${(props) => (props.$isEditing ? "none" : "initial")};
   }
+  background: ${(props) => props.background} !important;
+  border-color: ${(props) => props.$style.border} !important;
+  border-radius: ${(props) => props.$style.radius};
+
   > div > div {
-    background: ${(props) => props.background};
-    color: ${(props) => props.columnStyle.cellText} !important;
-    border-radius: ${(props) => props.columnStyle.radius};
-    border-color: ${(props) => props.columnStyle.border};
+    color: ${(props) => props.$style.text};
+    &,
+    > .ant-badge > .ant-badge-status-text,
+    > div > .markdown-body {
+      color: ${(props) => props.$style.text};
+    }
+
+    > div > svg g {
+      stroke: ${(props) => props.$style.text};
+    }
+
+    // dark link|links color
+    > a,
+    > div > a {
+      color: ${(props) => isDarkColor(props.background) && "#A6FFFF"};
+
+      &:hover {
+        color: ${(props) => isDarkColor(props.background) && "#2EE6E6"};
+      }
+    }
   }
 `;
-
-// ${(props) =>
-//   props.background &&
-//   `
-//     background: ${props.background} !important;
-//  `};
 
 const ResizeableTitle = (props: any) => {
   const { onResize, onResizeStop, width, viewModeResizable, ...restProps } = props;
@@ -375,47 +358,65 @@ const ResizeableTitle = (props: any) => {
 type CustomTableProps<RecordType> = Omit<TableProps<RecordType>, "components" | "columns"> & {
   columns: CustomColumnType<RecordType>[];
   viewModeResizable: boolean;
-  rowColor: RowColorViewType;
-  columnStyle: TableColumnStyleType;
+  rowColorFn: RowColorViewType;
+  columnsStyle: TableColumnStyleType;
 };
 
 function TableCellView(props: {
   record: RecordType;
   title: string;
-  rowColor: RowColorViewType;
+  rowColorFn: RowColorViewType;
+  cellColorFn: CellColorViewType;
   rowIndex: number;
   children: any;
+  columnsStyle: TableColumnStyleType;
   columnStyle: TableColumnStyleType;
 }) {
-  const { record, title, rowIndex, rowColor, children, columnStyle, ...restProps } = props;
-  console.log(columnStyle)
+  const {
+    record,
+    title,
+    rowIndex,
+    rowColorFn,
+    cellColorFn,
+    children,
+    columnsStyle,
+    columnStyle,
+    ...restProps
+  } = props;
   const [editing, setEditing] = useState(false);
   const rowContext = useContext(TableRowContext);
   let tdView;
   if (!record) {
     tdView = <td {...restProps}>{children}</td>;
   } else {
-    const color = rowColor({
+    const rowColor = rowColorFn({
       currentRow: record,
       currentIndex: rowIndex,
       currentOriginalIndex: record[OB_ROW_ORI_INDEX],
       columnTitle: title,
     });
-    let { background } = columnStyle;
-    if (color) {
-      background = genLinerGradient(color);
+    const cellColor = cellColorFn({
+      currentCell: record[title.toLowerCase()],
+    });
+  
+    const style: TableColumnStyleType = {
+      background: cellColor || rowColor || columnStyle.background || columnsStyle.background,
+      text: columnStyle.text || columnsStyle.text,
+      border: columnStyle.border || columnsStyle.border,
+      radius: columnStyle.radius || columnsStyle.radius,
     }
-    if (color && rowContext.selected) {
-      background = genLinerGradient(handleToSelectedRow(color)) + "," + background;
+    let { background } = style;
+    if (rowContext.selected) {
+      background = genLinerGradient(handleToSelectedRow(background)) + "," + background;
     }
-    if (color && rowContext.hover) {
-      background = genLinerGradient(handleToHoverRow(color)) + "," + background;
+    if (rowContext.hover) {
+      background = genLinerGradient(handleToHoverRow(background)) + "," + background;
     }
     tdView = (
       <TableTd
         {...restProps}
         background={background}
-        columnStyle={columnStyle}
+        $style={style}
         $isEditing={editing}
       >
         {children}
@@ -457,7 +458,7 @@ function ResizeableTable<RecordType extends object>(props: CustomTableProps<Reco
   });
   let allColumnFixed = true;
   const columns = props.columns.map((col, index) => {
-    const { width, ...restCol } = col;
+    const { width, style, cellColorFn, ...restCol } = col;
     const resizeWidth = (resizeData.index === index ? resizeData.width : col.width) ?? 0;
     let colWidth: number | string = "auto";
     let minWidth: number | string = COL_MIN_WIDTH;
@@ -483,9 +484,11 @@ function ResizeableTable<RecordType extends object>(props: CustomTableProps<Reco
       onCell: (record: RecordType, rowIndex: any) => ({
         record,
         title: col.titleText,
-        rowColor: props.rowColor,
+        rowColorFn: props.rowColorFn,
+        cellColorFn: cellColorFn,
         rowIndex: rowIndex,
-        columnStyle: props.columnStyle,
+        columnsStyle: props.columnsStyle,
+        columnStyle: style,
       }),
       onHeaderCell: () => ({
         width: resizeWidth,
@@ -550,10 +553,11 @@ export function TableCompView(props: {
   const { comp, onDownload, onRefresh } = props;
   const compChildren = comp.children;
   const style = compChildren.style.getView();
+  const rowStyle = compChildren.rowStyle.getView();
+  const columnsStyle = compChildren.columnsStyle.getView();
   const changeSet = useMemo(() => compChildren.columns.getChangeSet(), [compChildren.columns]);
   const hasChange = useMemo(() => !_.isEmpty(changeSet), [changeSet]);
   const columns = useMemo(() => compChildren.columns.getView(), [compChildren.columns]);
-  const columnStyle = useMemo(() => compChildren.columnStyle.getView(), [compChildren.columnStyle]);
   const columnViews = useMemo(() => columns.map((c) => c.getView()), [columns]);
   const data = comp.filterData;
   const sort = useMemo(() => compChildren.sort.getView(), [compChildren.sort]);
@@ -657,7 +661,12 @@ export function TableCompView(props: {
 
   return (
     <BackgroundColorContext.Provider value={style.background}>
-      <TableWrapper ref={ref} $style={style} toolbarPosition={toolbar.position}>
+      <TableWrapper
+        ref={ref}
+        $style={style}
+        $rowStyle={rowStyle}
+        toolbarPosition={toolbar.position}
+      >
         {toolbar.position === "above" && toolbarView}
         <ResizeableTable<RecordType>
           expandable={{
@@ -670,7 +679,7 @@ export function TableCompView(props: {
               if(expanded) handleChangeEvent('rowExpand')
             }
           }}
-          rowColor={compChildren.rowColor.getView() as any}
+          rowColorFn={compChildren.rowColor.getView() as any}
           {...compChildren.selection.getView()(onEvent)}
           bordered={!compChildren.hideBordered.getView()}
           onChange={(pagination, filters, sorter, extra) => {
@@ -678,7 +687,7 @@ export function TableCompView(props: {
           }}
           showHeader={!compChildren.hideHeader.getView()}
           columns={antdColumns}
-          columnStyle={columnStyle}
+          columnsStyle={columnsStyle}
           viewModeResizable={compChildren.viewModeResizable.getView()}
           dataSource={pageDataInfo.data}
           size={compChildren.size.getView()}
