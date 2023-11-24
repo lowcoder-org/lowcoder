@@ -47,6 +47,7 @@ public interface AuthenticationEndpoints
     @PostMapping("/form/login")
     public Mono<ResponseView<Boolean>> formLogin(@RequestBody FormLoginRequest formLoginRequest,
             @RequestParam(required = false) String invitationId,
+			@RequestParam(required = false) String orgId,
             ServerWebExchange exchange);
     
     /**
