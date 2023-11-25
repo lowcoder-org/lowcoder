@@ -7,7 +7,7 @@ import {
 } from "antd/es/table/interface";
 import { SortOrder } from "antd/lib/table/interface";
 import { __COLUMN_DISPLAY_VALUE_FN } from "comps/comps/tableComp/column/columnTypeCompBuilder";
-import { RawColumnType, Render } from "comps/comps/tableComp/column/tableColumnComp";
+import { CellColorViewType, RawColumnType, Render } from "comps/comps/tableComp/column/tableColumnComp";
 import { TableFilter, tableFilterOperatorMap } from "comps/comps/tableComp/tableToolbarComp";
 import { SortValue, TableOnEventView } from "comps/comps/tableComp/tableTypes";
 import _ from "lodash";
@@ -17,6 +17,7 @@ import { tryToNumber } from "util/convertUtils";
 import { JSONObject, JSONValue } from "util/jsonTypes";
 import { StatusType } from "./column/columnTypeComps/columnStatusComp";
 import { ColumnListComp, tableDataRowExample } from "./column/tableColumnListComp";
+import { TableColumnStyleType } from "comps/controls/styleControlConstants";
 
 export const COLUMN_CHILDREN_KEY = "children";
 export const OB_ROW_ORI_INDEX = "__ob_origin_index";
@@ -173,7 +174,6 @@ export function getOriDisplayData(
         displayData[col.dataIndex] = colValue;
       }
     });
-    // console.info("getOriDisplayData. idx: ", idx, " displayData: ", JSON.stringify(displayData));
     return displayData;
   });
 }
@@ -253,6 +253,8 @@ function renderTitle(props: { title: string; editable: boolean }) {
 export type CustomColumnType<RecordType> = ColumnType<RecordType> & {
   onWidthResize?: (width: number) => void;
   titleText: string;
+  style: TableColumnStyleType;
+  cellColorFn: CellColorViewType;
 };
 
 /**
@@ -314,6 +316,15 @@ export function columnsToAntdFormat(
       align: column.align,
       width: column.autoWidth === "auto" ? 0 : column.width,
       fixed: column.fixed === "close" ? false : column.fixed,
+      style: {
+        background: column.background,
+        text: column.text,
+        border: column.border,
+        radius: column.radius,
+        textSize: column.textSize,
+        borderWidth: column.borderWidth,
+      },
+      cellColorFn: column.cellColor,
       onWidthResize: column.onWidthResize,
       render: (value: any, record: RecordType, index: number) => {
         return column
