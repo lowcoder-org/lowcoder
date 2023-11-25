@@ -6,7 +6,14 @@ import { BackgroundColorContext } from "comps/utils/backgroundColorContext";
 import { ThemeContext } from "comps/utils/themeContext";
 import { trans } from "i18n";
 import _ from "lodash";
-import { controlItem, IconRadius, IconReset, ExpandIcon, CompressIcon, } from "lowcoder-design";
+import {
+  controlItem,
+  IconRadius,
+  IconReset,
+  ExpandIcon,
+  CompressIcon,
+  TextSizeIcon,
+} from "lowcoder-design";
 import { useContext } from "react";
 import styled from "styled-components";
 import { useIsMobile } from "util/hooks";
@@ -21,6 +28,7 @@ import {
   SingleColorConfig,
   MarginConfig,
   PaddingConfig,
+  TextSizeConfig,
 } from "./styleControlConstants";
 
 function isSimpleColorConfig(config: SingleColorConfig): config is SimpleColorConfig {
@@ -33,6 +41,10 @@ function isDepColorConfig(config: SingleColorConfig): config is DepColorConfig {
 
 function isRadiusConfig(config: SingleColorConfig): config is RadiusConfig {
   return config.hasOwnProperty("radius");
+}
+
+function isTextSizeConfig(config: SingleColorConfig): config is TextSizeConfig {
+  return config.hasOwnProperty("textSize");
 }
 
 function isMarginConfig(config: SingleColorConfig): config is MarginConfig {	
@@ -54,6 +66,10 @@ function isEmptyColor(color: string) {
 
 function isEmptyRadius(radius: string) {
   return _.isEmpty(radius);
+}
+
+function isEmptyTextSize(textSize: string) {
+  return _.isEmpty(textSize);
 }
 
 function isEmptyMargin(margin: string) {	
@@ -80,6 +96,10 @@ function calcColors<ColorMap extends Record<string, string>>(
     if (!isEmptyRadius(props[name]) && isRadiusConfig(config)) {	
       res[name] = props[name];	
       return;	
+    }
+    if (!isEmptyTextSize(props[name]) && isTextSizeConfig(config)) {	
+      res[name] = props[name];	
+      return;	
     }	
     if (!isEmptyMargin(props[name]) && isMarginConfig(config)) {	
       res[name] = props[name];	
@@ -102,6 +122,10 @@ function calcColors<ColorMap extends Record<string, string>>(
     }
     if (isRadiusConfig(config)) {
       res[name] = themeWithDefault[config.radius];
+    }
+    if (isTextSizeConfig(config)) {
+      // TODO: remove default textSize after added in theme in backend.
+      res[name] = themeWithDefault[config.textSize] || '14px';
     }
     if (isMarginConfig(config)) {	
       res[name] = themeWithDefault[config.margin];	
@@ -222,7 +246,9 @@ margin: 0 8px 0 -2px;
 const PaddingIcon = styled(CompressIcon)`	
 margin: 0 8px 0 -2px;	
 `;
-
+const StyledTextSizeIcon = styled(TextSizeIcon)`	
+margin: 0 8px 0 -2px;	
+`;
 const ResetIcon = styled(IconReset)`
   &:hover g g {
     stroke: #315efb;
@@ -236,7 +262,8 @@ export function styleControl<T extends readonly SingleColorConfig[]>(colorConfig
     const name: Names<T> = config.name;
     if (	
       name === "radius" ||	
-      name === "cardRadius"
+      name === "cardRadius" ||
+      name === "textSize"
     ) {	
       childrenMap[name] = StringControl;	
     } else if (name === "margin" || name === "padding" || name==="containerheaderpadding" || name==="containerfooterpadding" || name==="containerbodypadding") {	
@@ -323,9 +350,9 @@ export function styleControl<T extends readonly SingleColorConfig[]>(colorConfig
                 return controlItem(
                   { filterText: config.label },
                   <div key={index}>	
-                    {name === "radius" ||	
+                    {(name === "radius" ||	
                     name === "gap" ||	
-                    name === "cardRadius"
+                    name === "cardRadius")
                       ? (	
                           children[name] as InstanceType<typeof StringControl>	
                         ).propertyView({	
@@ -341,10 +368,10 @@ export function styleControl<T extends readonly SingleColorConfig[]>(colorConfig
                           preInputNode: <MarginIcon title="" />,	
                           placeholder: props[name],	
                         })	
-                      : name === "padding" ||
+                      : (name === "padding" ||
                       name === "containerheaderpadding"	||
                       name === "containerfooterpadding"	||
-                      name === "containerbodypadding"
+                      name === "containerbodypadding")
                       ? (	
                           children[name] as InstanceType<typeof StringControl>	
                         ).propertyView({	
@@ -352,6 +379,14 @@ export function styleControl<T extends readonly SingleColorConfig[]>(colorConfig
                           preInputNode: <PaddingIcon title="" />,	
                           placeholder: props[name],	
                         })	
+                      : name === "textSize"
+                      ? (	
+                          children[name] as InstanceType<typeof StringControl>	
+                        ).propertyView({	
+                          label: config.label,	
+                          preInputNode: <StyledTextSizeIcon title="" />,	
+                          placeholder: props[name],	
+                        })
                       : children[name].propertyView({	
                           label: config.label,	
                           panelDefaultColor: props[name],	

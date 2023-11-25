@@ -321,6 +321,7 @@ export function columnsToAntdFormat(
         text: column.text,
         border: column.border,
         radius: column.radius,
+        textSize: column.textSize,
       },
       cellColorFn: column.cellColor,
       onWidthResize: column.onWidthResize,

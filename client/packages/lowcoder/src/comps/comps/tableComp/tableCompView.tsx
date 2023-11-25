@@ -277,6 +277,7 @@ const TableTd = styled.td<{
 
   > div > div {
     color: ${(props) => props.$style.text};
+    font-size: ${(props) => props.$style.textSize};
     &,
     > .ant-badge > .ant-badge-status-text,
     > div > .markdown-body {
@@ -404,6 +405,7 @@ function TableCellView(props: {
       text: columnStyle.text || columnsStyle.text,
       border: columnStyle.border || columnsStyle.border,
       radius: columnStyle.radius || columnsStyle.radius,
+      textSize: columnStyle.textSize || columnsStyle.textSize,
     }
     let { background } = style;
     if (rowContext.selected) {

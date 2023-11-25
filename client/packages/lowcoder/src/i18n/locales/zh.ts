@@ -343,6 +343,7 @@ style: {
     containerfooterpadding: "下内边距",
     containerbodypadding: "内边距",
     minWidth: "最小宽度",
+    textSize: "字体大小",
 },
 export: {
     hiddenDesc: "如果为true,则隐藏组件",

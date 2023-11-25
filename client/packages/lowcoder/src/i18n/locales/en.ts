@@ -362,6 +362,7 @@ export const en = {
     containerfooterpadding: "Footer Padding",
     containerbodypadding: "Body Padding",
     minWidth: "Minimum Width",
+    textSize: "Text Size",
   },
   export: {
     hiddenDesc: "If true, the component is hidden",

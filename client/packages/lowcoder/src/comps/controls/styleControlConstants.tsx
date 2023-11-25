@@ -17,6 +17,10 @@ export type RadiusConfig = CommonColorConfig & {
   readonly radius: string;
 };
 
+export type TextSizeConfig = CommonColorConfig & {
+  readonly textSize: string;
+};
+
 export type ContainerHeaderPaddigConfig = CommonColorConfig & {
   readonly containerheaderpadding: string;
 };
@@ -42,7 +46,7 @@ export type DepColorConfig = CommonColorConfig & {
   readonly depType?: DEP_TYPE;
   transformer: (color: string, ...rest: string[]) => string;
 };
-export type SingleColorConfig = SimpleColorConfig | DepColorConfig | RadiusConfig | MarginConfig | PaddingConfig | ContainerHeaderPaddigConfig | ContainerFooterPaddigConfig | ContainerBodyPaddigConfig;
+export type SingleColorConfig = SimpleColorConfig | DepColorConfig | RadiusConfig | TextSizeConfig | MarginConfig | PaddingConfig | ContainerHeaderPaddigConfig | ContainerFooterPaddigConfig | ContainerBodyPaddigConfig;
 
 export const defaultTheme: ThemeDetail = {
   primary: "#3377FF",
@@ -54,6 +58,7 @@ export const defaultTheme: ThemeDetail = {
   margin: "3px",	
   padding: "3px",
   gridColumns: "24",
+  textSize: "14px",
 };
 
 export const SURFACE_COLOR = "#FFFFFF";
@@ -259,6 +264,12 @@ const PADDING = {
   label: trans("style.padding"),	
   padding: "padding",	
 } as const;
+
+const TEXT_SIZE = {	
+  name: "textSize",
+  label: trans("style.textSize"),	
+  textSize: "textSize",	
+} as const;	
 
 const CONTAINERHEADERPADDING = {	
   name: "containerheaderpadding",	
@@ -696,6 +707,7 @@ export const TableColumnStyle = [
   getStaticBorder(),
   RADIUS,
   TEXT,
+  TEXT_SIZE,
 ] as const;
 
 export const FileStyle = [...getStaticBgBorderRadiusByBg(SURFACE_COLOR), TEXT, ACCENT, MARGIN, PADDING] as const;

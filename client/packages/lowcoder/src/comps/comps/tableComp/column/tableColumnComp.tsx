@@ -21,10 +21,11 @@ import {
   withFunction,
   wrapChildAction,
 } from "lowcoder-core";
-import { AlignClose, AlignLeft, AlignRight, controlItem } from "lowcoder-design";
+import { AlignClose, AlignLeft, AlignRight, IconRadius, TextSizeIcon, controlItem } from "lowcoder-design";
 import { ColumnTypeComp, ColumnTypeCompMap } from "./columnTypeComp";
 import { ColorControl } from "comps/controls/colorControl";
 import { JSONValue } from "util/jsonTypes";
+import styled from "styled-components";
 
 export type Render = ReturnType<ConstructorToComp<typeof RenderComp>["getOriginalComp"]>;
 export const RenderComp = withSelectedMultiContext(ColumnTypeComp);
@@ -100,8 +101,13 @@ export const columnChildrenMap = {
   text: withDefault(ColorControl, ""),
   border: withDefault(ColorControl, ""),
   radius: withDefault(RadiusControl, ""),
+  textSize: withDefault(RadiusControl, ""),
   cellColor: CellColorComp, 
 };
+
+const StyledIcon = styled.span`
+  margin: 0 4px 0 14px;
+`;
 
 /**
  * export for test.
@@ -208,8 +214,13 @@ export class ColumnComp extends ColumnInitComp {
         })}
         {this.children.radius.propertyView({
           label: trans('style.borderRadius'),
-          // preInputNode: <StyledIcon as={IconRadius} title="" />,	
+          preInputNode: <StyledIcon as={IconRadius} title="" />,	
           placeholder: '3px',
+        })}
+        {this.children.textSize.propertyView({
+          label: trans('style.textSize'),
+          preInputNode: <StyledIcon as={TextSizeIcon} title="" />,	
+          placeholder: '14px',
         })}
         {this.children.cellColor.getPropertyView()}
       </>
