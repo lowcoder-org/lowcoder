@@ -273,6 +273,7 @@ const TableTd = styled.td<{
   }
   background: ${(props) => props.background} !important;
   border-color: ${(props) => props.$style.border} !important;
+  border-width: ${(props) => props.$style.borderWidth} !important;
   border-radius: ${(props) => props.$style.radius};
 
   > div > div {
@@ -405,6 +406,7 @@ function TableCellView(props: {
       text: columnStyle.text || columnsStyle.text,
       border: columnStyle.border || columnsStyle.border,
       radius: columnStyle.radius || columnsStyle.radius,
+      borderWidth: columnStyle.borderWidth || columnsStyle.borderWidth,
       textSize: columnStyle.textSize || columnsStyle.textSize,
     }
     let { background } = style;

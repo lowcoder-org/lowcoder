@@ -17,6 +17,10 @@ export type RadiusConfig = CommonColorConfig & {
   readonly radius: string;
 };
 
+export type BorderWidthConfig = CommonColorConfig & {
+  readonly borderWidth: string;
+};
+
 export type TextSizeConfig = CommonColorConfig & {
   readonly textSize: string;
 };
@@ -46,7 +50,7 @@ export type DepColorConfig = CommonColorConfig & {
   readonly depType?: DEP_TYPE;
   transformer: (color: string, ...rest: string[]) => string;
 };
-export type SingleColorConfig = SimpleColorConfig | DepColorConfig | RadiusConfig | TextSizeConfig | MarginConfig | PaddingConfig | ContainerHeaderPaddigConfig | ContainerFooterPaddigConfig | ContainerBodyPaddigConfig;
+export type SingleColorConfig = SimpleColorConfig | DepColorConfig | RadiusConfig | BorderWidthConfig | TextSizeConfig | MarginConfig | PaddingConfig | ContainerHeaderPaddigConfig | ContainerFooterPaddigConfig | ContainerBodyPaddigConfig;
 
 export const defaultTheme: ThemeDetail = {
   primary: "#3377FF",
@@ -251,6 +255,12 @@ const RADIUS = {
   name: "radius",
   label: trans("style.borderRadius"),
   radius: "borderRadius",
+} as const;
+
+const BORDER_WIDTH = {
+  name: "borderWidth",
+  label: trans("style.borderWidth"),
+  borderWidth: "borderWidth",
 } as const;
 
 const MARGIN = {	
@@ -705,6 +715,7 @@ export const TableRowStyle = [
 export const TableColumnStyle = [
   getStaticBackground("#00000000"),
   getStaticBorder(),
+  BORDER_WIDTH,
   RADIUS,
   TEXT,
   TEXT_SIZE,

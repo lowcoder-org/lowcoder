@@ -100,6 +100,7 @@ export const columnChildrenMap = {
   background: withDefault(ColorControl, ""),
   text: withDefault(ColorControl, ""),
   border: withDefault(ColorControl, ""),
+  borderWidth: withDefault(RadiusControl, ""),
   radius: withDefault(RadiusControl, ""),
   textSize: withDefault(RadiusControl, ""),
   cellColor: CellColorComp, 
@@ -211,6 +212,11 @@ export class ColumnComp extends ColumnInitComp {
         })}
         {this.children.border.propertyView({
           label: trans('style.border')
+        })}
+        {this.children.borderWidth.propertyView({
+          label: trans('style.borderWidth'),
+          preInputNode: <StyledIcon as={IconRadius} title="" />,	
+          placeholder: '1px',
         })}
         {this.children.radius.propertyView({
           label: trans('style.borderRadius'),

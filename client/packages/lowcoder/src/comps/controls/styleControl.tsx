@@ -29,6 +29,7 @@ import {
   MarginConfig,
   PaddingConfig,
   TextSizeConfig,
+  BorderWidthConfig,
 } from "./styleControlConstants";
 
 function isSimpleColorConfig(config: SingleColorConfig): config is SimpleColorConfig {
@@ -41,6 +42,10 @@ function isDepColorConfig(config: SingleColorConfig): config is DepColorConfig {
 
 function isRadiusConfig(config: SingleColorConfig): config is RadiusConfig {
   return config.hasOwnProperty("radius");
+}
+
+function isBorderWidthConfig(config: SingleColorConfig): config is BorderWidthConfig {
+  return config.hasOwnProperty("borderWidth");
 }
 
 function isTextSizeConfig(config: SingleColorConfig): config is TextSizeConfig {
@@ -67,7 +72,9 @@ function isEmptyColor(color: string) {
 function isEmptyRadius(radius: string) {
   return _.isEmpty(radius);
 }
-
+function isEmptyBorderWidth(borderWidth: string) {
+  return _.isEmpty(borderWidth);
+}
 function isEmptyTextSize(textSize: string) {
   return _.isEmpty(textSize);
 }
@@ -97,6 +104,10 @@ function calcColors<ColorMap extends Record<string, string>>(
       res[name] = props[name];	
       return;	
     }
+    if (!isEmptyBorderWidth(props[name]) && isBorderWidthConfig(config)) {	
+      res[name] = props[name];	
+      return;	
+    }
     if (!isEmptyTextSize(props[name]) && isTextSizeConfig(config)) {	
       res[name] = props[name];	
       return;	
@@ -122,6 +133,9 @@ function calcColors<ColorMap extends Record<string, string>>(
     }
     if (isRadiusConfig(config)) {
       res[name] = themeWithDefault[config.radius];
+    }
+    if (isBorderWidthConfig(config)) {
+      res[name] = '1px';
     }
     if (isTextSizeConfig(config)) {
       // TODO: remove default textSize after added in theme in backend.
@@ -261,7 +275,8 @@ export function styleControl<T extends readonly SingleColorConfig[]>(colorConfig
   colorConfigs.map((config) => {
     const name: Names<T> = config.name;
     if (	
-      name === "radius" ||	
+      name === "radius" ||
+      name === "borderWidth" ||
       name === "cardRadius" ||
       name === "textSize"
     ) {	
@@ -350,7 +365,8 @@ export function styleControl<T extends readonly SingleColorConfig[]>(colorConfig
                 return controlItem(
                   { filterText: config.label },
                   <div key={index}>	
-                    {(name === "radius" ||	
+                    {(name === "radius" ||
+                    name === "borderWidth" ||
                     name === "gap" ||	
                     name === "cardRadius")
                       ? (	
