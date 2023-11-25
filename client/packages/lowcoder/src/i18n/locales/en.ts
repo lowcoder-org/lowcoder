@@ -1346,9 +1346,9 @@ export const en = {
   },
   jsonExplorer: {
     indent: "Indent",
-    expandToggle: "Expand toggle",
+    expandToggle: "Expand JSON Tree",
     theme: "Theme",
-    valueDesc: "Current json Data",
+    valueDesc: "Current JSON Data",
     default: "Default",
     defaultDark: "Default dark",
     neutralLight: "Neutral light",

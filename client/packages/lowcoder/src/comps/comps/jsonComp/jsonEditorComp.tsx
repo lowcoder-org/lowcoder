@@ -12,7 +12,7 @@ import { formDataChildren, FormDataPropertyView } from "../formComp/formDataCons
 import { JsonEditorStyle } from "comps/controls/styleControlConstants";
 import { styleControl } from "comps/controls/styleControl";
 import { migrateOldData, withDefault } from "comps/generators/simpleGenerators";
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useContext } from "react";
 import {
   EditorState,
   EditorView,
@@ -20,6 +20,7 @@ import {
 } from "base/codeEditor/codeMirror";
 import { useExtensions } from "base/codeEditor/extensions";
 import { getJsonFormatter } from "base/codeEditor/autoFormat";
+import { EditorContext } from "comps/editorState";
 
 /**
  * JsonEditor Comp
@@ -124,13 +125,23 @@ let JsonEditorTmpComp = (function () {
       return (
         <>
           <Section name={sectionNames.basic}>
-            {children.value.propertyView({ label: trans("prop.defaultValue") })}
+            {children.value.propertyView({ label: trans("export.jsonEditorDesc") })}
           </Section>
+
           <FormDataPropertyView {...children} />
-          {children.label.getPropertyView()}
-          <Section name={sectionNames.interaction}>{children.onEvent.getPropertyView()}</Section>
-          <Section name={sectionNames.layout}>{hiddenPropertyView(children)}</Section>
-          <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
+
+          {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
+            <Section name={sectionNames.interaction}>
+              {children.onEvent.getPropertyView()}
+              {hiddenPropertyView(children)}
+            </Section>
+          )}
+
+          {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && ( children.label.getPropertyView() )}
+          {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
+            <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
+          )}
+
         </>
       );
     })
