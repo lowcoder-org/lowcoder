@@ -389,7 +389,7 @@ export function InnerGrid(props: ViewPropsWithSelect) {
         setRowHeight(nextRowHeight);
       }
     },
-    [
+    [ defaultGrid,
       currentRowCount,
       currentRowHeight,
       isRowCountLocked,

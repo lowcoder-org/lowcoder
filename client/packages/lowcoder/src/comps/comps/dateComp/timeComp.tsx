@@ -40,7 +40,7 @@ import {
 } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { TIME_FORMAT, TimeParser } from "util/dateTimeUtils";
-import React, { ReactNode } from "react";
+import React, { ReactNode, useContext } from "react";
 import { IconControl } from "comps/controls/iconControl";
 import { hasIcon } from "comps/utils";
 import { Section, sectionNames } from "components/Section";
@@ -50,6 +50,8 @@ import { TimeRangeUIView } from "comps/comps/dateComp/timeRangeUIView";
 import { RefControl } from "comps/controls/refControl";
 import { CommonPickerMethods } from "antd/lib/date-picker/generatePicker/interface";
 import { TimePickerProps } from "antd";
+
+import { EditorContext } from "comps/editorState";
 
 const EventOptions = [changeEvent, focusEvent, blurEvent] as const;
 
@@ -62,6 +64,7 @@ const validationChildren = {
 
 const commonChildren = {
   label: LabelControl,
+  placeholder: withDefault(StringControl, trans("time.placeholder")),
   format: StringControl,
   disabled: BoolCodeControl,
   onEvent: eventHandlerControl(EventOptions),
@@ -77,12 +80,12 @@ const commonChildren = {
 };
 
 const timePickerComps = (props: RecordConstructorToView<typeof commonChildren>) =>
-  _.pick(props, "format", "use12Hours", "minuteStep", "secondStep");
+  _.pick(props, "format", "use12Hours", "minuteStep", "secondStep", "placeholder");
 
-const commonBasicSection = (children: RecordConstructorToComp<typeof commonChildren>) => [
+/* const commonBasicSection = (children: RecordConstructorToComp<typeof commonChildren>) => [
   formatPropertyView({ children }),
   children.use12Hours.propertyView({ label: trans("prop.use12Hours") }),
-];
+]; */
 
 const commonAdvanceSection = (children: RecordConstructorToComp<typeof commonChildren>) => [
   hourStepPropertyView(children),
@@ -130,6 +133,7 @@ export type TimeCompViewProps = Pick<
   $style: DateTimeStyleType;
   disabledTime: () => ReturnType<typeof disabledTime>;
   suffixIcon?: ReactNode | false;
+  placeholder?: string | [string, string];
 };
 
 export const timePickerControl = new UICompBuilder(childrenMap, (props) => {
@@ -152,6 +156,7 @@ export const timePickerControl = new UICompBuilder(childrenMap, (props) => {
         hourStep={props.hourStep as hourStepType}
         minuteStep={props.minuteStep as minuteStepType}
         secondStep={props.secondStep as secondStepType}
+        placeholder={props.placeholder}
         onChange={(time) => {
           handleDateChange(
             time && time.isValid() ? time.format(TIME_FORMAT) : "",
@@ -174,31 +179,46 @@ export const timePickerControl = new UICompBuilder(childrenMap, (props) => {
           label: trans("prop.defaultValue"),
           tooltip: trans("time.formatTip"),
         })}
-        {commonBasicSection(children)}
+        
       </Section>
+
       <FormDataPropertyView {...children} />
-      {children.label.getPropertyView()}
 
-      <Section name={sectionNames.interaction}>
-        {children.onEvent.getPropertyView()}
-        {disabledPropertyView(children)}
-      </Section>
+      {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
+        <><Section name={sectionNames.validation}>
+          {requiredPropertyView(children)}
+          {minTimePropertyView(children)}
+          {maxTimePropertyView(children)}
+          {children.customRule.propertyView({})}
+        </Section>
+        <Section name={sectionNames.interaction}>
+          {children.onEvent.getPropertyView()}
+          {disabledPropertyView(children)}
+          {hiddenPropertyView(children)}
+        </Section></>
+      )}
 
-      <Section name={sectionNames.validation}>
-        {requiredPropertyView(children)}
-        {minTimePropertyView(children)}
-        {maxTimePropertyView(children)}
-        {children.customRule.propertyView({})}
-      </Section>
+      {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && children.label.getPropertyView()}
+      {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
+        <Section name={sectionNames.layout}>
+          {children.format.propertyView({ label: trans("time.format") })}
+          {children.placeholder.propertyView({ label: trans("time.placeholderText") })}
+        </Section>
+      )}
 
-      <Section name={sectionNames.advanced}>{commonAdvanceSection(children)}</Section>
+      {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
+        <Section name={sectionNames.advanced}>
+          {commonAdvanceSection(children)}
+          {children.use12Hours.propertyView({ label: trans("prop.use12Hours") })}
+          {children.suffixIcon.propertyView({ label: trans("button.suffixIcon") })}
+        </Section>
+      )}
 
-      <Section name={sectionNames.layout}>
-        {children.suffixIcon.propertyView({ label: trans("button.suffixIcon") })}
-        {hiddenPropertyView(children)}
-      </Section>
-
-      <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
+      {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
+        <Section name={sectionNames.style}>
+          {children.style.getPropertyView()}
+        </Section>
+      )}
     </>
   ))
   .setExposeMethodConfigs(dateRefMethods)
@@ -233,6 +253,7 @@ export const timeRangeControl = (function () {
         hourStep={props.hourStep as hourStepType}
         minuteStep={props.minuteStep as minuteStepType}
         secondStep={props.secondStep as secondStepType}
+        placeholder={[props.placeholder, props.placeholder]}
         onChange={(start, end) => {
           props.start.onChange(start && start.isValid() ? start.format(TIME_FORMAT) : "");
           props.end.onChange(end && end.isValid() ? end.format(TIME_FORMAT) : "");
@@ -269,31 +290,43 @@ export const timeRangeControl = (function () {
             label: trans("time.end"),
             tooltip: trans("time.formatTip"),
           })}
-          {commonBasicSection(children)}
         </Section>
 
-        {children.label.getPropertyView()}
+        {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
+          <><Section name={sectionNames.validation}>
+            {requiredPropertyView(children)}
+            {minTimePropertyView(children)}
+            {maxTimePropertyView(children)}
+            {children.customRule.propertyView({})}
+          </Section>
+          <Section name={sectionNames.interaction}>
+            {children.onEvent.getPropertyView()}
+            {disabledPropertyView(children)}
+            {hiddenPropertyView(children)}
+          </Section></>
+        )}
 
-        <Section name={sectionNames.interaction}>
-          {children.onEvent.getPropertyView()}
-          {disabledPropertyView(children)}
-        </Section>
+        {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && children.label.getPropertyView()}
+        {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
+          <Section name={sectionNames.layout}>
+            {children.format.propertyView({ label: trans("time.format") })}
+            {children.placeholder.propertyView({ label: trans("time.placeholderText") })}
+          </Section>
+        )}
 
-        <Section name={sectionNames.validation}>
-          {requiredPropertyView(children)}
-          {minTimePropertyView(children)}
-          {maxTimePropertyView(children)}
-          {children.customRule.propertyView({})}
-        </Section>
+        {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
+          <Section name={sectionNames.advanced}>
+            {commonAdvanceSection(children)}
+            {children.use12Hours.propertyView({ label: trans("prop.use12Hours") })}
+            {children.suffixIcon.propertyView({ label: trans("button.suffixIcon") })}
+          </Section>
+        )}
 
-        <Section name={sectionNames.advanced}>{commonAdvanceSection(children)}</Section>
-
-        <Section name={sectionNames.layout}>
-          {children.suffixIcon.propertyView({ label: trans("button.suffixIcon") })}
-          {hiddenPropertyView(children)}
-        </Section>
-
-        <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
+        {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
+          <Section name={sectionNames.style}>
+            {children.style.getPropertyView()}
+          </Section>
+        )}
       </>
     ))
     .build();

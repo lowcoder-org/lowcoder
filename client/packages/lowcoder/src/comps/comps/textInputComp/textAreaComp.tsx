@@ -33,6 +33,9 @@ import { RefControl } from "comps/controls/refControl";
 import { TextAreaRef } from "antd/lib/input/TextArea";
 import { blurMethod, focusWithOptions } from "comps/utils/methodUtils";
 
+import React, { useContext } from "react";
+import { EditorContext } from "comps/editorState";
+
 const TextAreaStyled = styled(TextArea)<{
   $style: InputLikeStyleType;
 }>`
@@ -88,23 +91,26 @@ let TextAreaTmpComp = (function () {
       <>
         <TextInputBasicSection {...children} />
         <FormDataPropertyView {...children} />
-        {children.label.getPropertyView()}
 
-        <TextInputInteractionSection {...children} />
+        {useContext(EditorContext).editorModeStatus === "layout" && (
+          children.label.getPropertyView()
+        )}
 
-        <Section name={sectionNames.advanced}>
-          {allowClearPropertyView(children)}
-          {readOnlyPropertyView(children)}
-        </Section>
+        {useContext(EditorContext).editorModeStatus !== "layout" && (
+          <><TextInputInteractionSection {...children} />
+          <Section name={sectionNames.layout}>
+            {children.autoHeight.getPropertyView()}
+            {hiddenPropertyView(children)}
+          </Section>
+          <Section name={sectionNames.advanced}>
+            {allowClearPropertyView(children)}
+            {readOnlyPropertyView(children)}
+          </Section><TextInputValidationSection {...children} /></>
+        )}
 
-        <TextInputValidationSection {...children} />
-
-        <Section name={sectionNames.layout}>
-          {children.autoHeight.getPropertyView()}
-          {hiddenPropertyView(children)}
-        </Section>
-
-        <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
+        {useContext(EditorContext).editorModeStatus === "layout" && (
+          <><Section name={sectionNames.style}>{children.style.getPropertyView()}</Section></>
+        )}
       </>
     ))
     .build();

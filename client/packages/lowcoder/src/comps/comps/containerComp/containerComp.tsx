@@ -14,6 +14,8 @@ import { disabledPropertyView, hiddenPropertyView } from "comps/utils/propertyUt
 import { trans } from "i18n";
 import { BoolCodeControl } from "comps/controls/codeControl";
 import { DisabledContext } from "comps/generators/uiCompBuilder";
+import React, { useContext } from "react";
+import { EditorContext } from "comps/editorState";
 
 export const ContainerBaseComp = (function () {
   const childrenMap = {
@@ -29,17 +31,23 @@ export const ContainerBaseComp = (function () {
     .setPropertyViewFn((children) => {
       return (
         <>
-          <Section name={sectionNames.interaction}>{disabledPropertyView(children)}</Section>
-          <Section name={sectionNames.layout}>
-            {children.container.getPropertyView()}
-            {hiddenPropertyView(children)}
-          </Section>
-          <Section name={sectionNames.style}>{children.container.stylePropertyView()}</Section>
+          {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
+            <Section name={sectionNames.interaction}>
+              {disabledPropertyView(children)}
+              {hiddenPropertyView(children)}
+            </Section>
+          )}
+
+          {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
+            <><Section name={sectionNames.layout}>
+              {children.container.getPropertyView()}
+            </Section><Section name={sectionNames.style}>{children.container.stylePropertyView()}</Section></>
+          )}
         </>
       );
     })
     .build();
-})();
+})(); 
 
 // Compatible with old data
 function convertOldContainerParams(params: CompParams<any>) {
