@@ -40,6 +40,9 @@ import { CommonNameConfig, NameConfig, withExposingConfigs } from "../../generat
 import { formDataChildren, FormDataPropertyView } from "../formComp/formDataConstants";
 import { messageInstance } from "lowcoder-design";
 
+import React, { useContext } from "react";
+import { EditorContext } from "comps/editorState";
+
 const FileSizeControl = codeControl((value) => {
   if (typeof value === "number") {
     return value;
@@ -370,47 +373,49 @@ let FileTmpComp = new UICompBuilder(childrenMap, (props, dispatch) => (
         {children.text.propertyView({
           label: trans("text"),
         })}
-        {children.fileType.propertyView({
-          label: trans("file.fileType"),
-          placeholder: '[".png"]',
-          tooltip: (
-            <>
-              {trans("file.reference")}{" "}
-              <a href={trans("file.fileTypeTooltipUrl")} target="_blank" rel="noreferrer">
-                {trans("file.fileTypeTooltip")}
-              </a>
-            </>
-          ),
-        })}
         {children.uploadType.propertyView({ label: trans("file.uploadType") })}
-        {children.showUploadList.propertyView({ label: trans("file.showUploadList") })}
-        {children.parseFiles.propertyView({
-          label: trans("file.parseFiles"),
-          tooltip: ParseFileTooltip,
-          placement: "right",
-        })}
       </Section>
 
       <FormDataPropertyView {...children} />
 
-      <Section name={sectionNames.interaction}>
-        {children.onEvent.getPropertyView()}
-        {disabledPropertyView(children)}
-      </Section>
+      {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
+        <><Section name={sectionNames.validation}>
+          {children.uploadType.getView() !== "single" && children.maxFiles.propertyView({ label: trans("file.maxFiles") })}
+          {commonValidationFields(children)}
+        </Section>
+        <Section name={sectionNames.interaction}>
+            {children.onEvent.getPropertyView()}
+            {disabledPropertyView(children)}
+            {hiddenPropertyView(children)}
+          </Section>
+          <Section name={sectionNames.advanced}>
+              {children.fileType.propertyView({
+              label: trans("file.fileType"),
+              placeholder: '[".png"]',
+              tooltip: (
+                <>
+                  {trans("file.reference")}{" "}
+                  <a href={trans("file.fileTypeTooltipUrl")} target="_blank" rel="noreferrer">
+                    {trans("file.fileTypeTooltip")}
+                  </a>
+                </>
+              ),
+            })}
+            {children.prefixIcon.propertyView({ label: trans("button.prefixIcon") })}
+            {children.suffixIcon.propertyView({ label: trans("button.suffixIcon") })}
+            {children.showUploadList.propertyView({ label: trans("file.showUploadList") })}
+            {children.parseFiles.propertyView({
+              label: trans("file.parseFiles"),
+              tooltip: ParseFileTooltip,
+              placement: "right",
+            })}
+          </Section>
+        </>
+      )}
 
-      <Section name={sectionNames.validation}>
-        {children.uploadType.getView() !== "single" &&
-          children.maxFiles.propertyView({ label: trans("file.maxFiles") })}
-        {commonValidationFields(children)}
-      </Section>
-
-      <Section name={sectionNames.layout}>
-        {children.prefixIcon.propertyView({ label: trans("button.prefixIcon") })}
-        {children.suffixIcon.propertyView({ label: trans("button.suffixIcon") })}
-        {hiddenPropertyView(children)}
-      </Section>
-
-      <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
+      {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
+        <><Section name={sectionNames.style}>{children.style.getPropertyView()}</Section></>
+      )}
     </>
   ))
   .build();

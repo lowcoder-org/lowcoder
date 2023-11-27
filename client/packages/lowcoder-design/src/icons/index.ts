@@ -64,6 +64,7 @@ export { ReactComponent as WarningWhiteIcon } from "./icon-warning-white.svg";
 export { ReactComponent as WarningIcon } from "./icon-warning.svg";
 export { ReactComponent as WidthDragIcon } from "./icon-widthDrag.svg";
 export { ReactComponent as ManyCheckboxIcon } from "./manyCheckbox.svg";
+export { ReactComponent as Layout } from "./icon-ShowLayout.svg";
 export { ReactComponent as Left } from "./icon-ShowLeft.svg";
 export { ReactComponent as Middle } from "./icon-ShowMiddle.svg";
 export { ReactComponent as Right } from "./icon-ShowRight.svg";

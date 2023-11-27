@@ -20,6 +20,9 @@ import { hiddenPropertyView, disabledPropertyView } from "comps/utils/propertyUt
 import { trans } from "i18n";
 import { RefControl } from "comps/controls/refControl";
 
+import { useContext } from "react";
+import { EditorContext } from "comps/editorState";
+
 export const RadioLayoutOptions = [
   { label: trans("radio.horizontal"), value: "horizontal" },
   { label: trans("radio.vertical"), value: "vertical" },
@@ -54,29 +57,38 @@ export const RadioPropertyView = (
       {children.options.propertyView({})}
       {children.value.propertyView({ label: trans("prop.defaultValue") })}
     </Section>
-    <FormDataPropertyView {...children} />
-    {children.label.getPropertyView()}
 
-    <Section name={sectionNames.interaction}>
-      {children.onEvent.getPropertyView()}
-      {disabledPropertyView(children)}
-    </Section>
+    {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+      <><SelectInputValidationSection {...children} />
+      <FormDataPropertyView {...children} />
+      <Section name={sectionNames.interaction}>
+        {children.onEvent.getPropertyView()}
+        {disabledPropertyView(children)}
+        {hiddenPropertyView(children)}
+      </Section></>
+    )}
 
-    <SelectInputValidationSection {...children} />
+    {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+      <Section name={sectionNames.layout}>
+        {children.layout.propertyView({
+          label: trans("radio.options"),
+          tooltip: (
+            <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+              <div>{trans("radio.horizontalTooltip")}</div>
+              <div>{trans("radio.verticalTooltip")}</div>
+              <div>{trans("radio.autoColumnsTooltip")}</div>
+            </div>
+          ),
+        })}
+      </Section>
+    )}
 
-    <Section name={sectionNames.layout}>
-      {children.layout.propertyView({
-        label: trans("radio.options"),
-        tooltip: (
-          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-            <div>{trans("radio.horizontalTooltip")}</div>
-            <div>{trans("radio.verticalTooltip")}</div>
-            <div>{trans("radio.autoColumnsTooltip")}</div>
-          </div>
-        ),
-      })}
-      {hiddenPropertyView(children)}
-    </Section>
-    <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
+    {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && ( 
+      children.label.getPropertyView() 
+    )}
+
+    {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+      <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
+    )}
   </>
 );

@@ -18,6 +18,10 @@ import { alignWithJustifyControl } from "comps/controls/alignControl";
 import { MarginControl } from "../controls/marginControl";
 import { PaddingControl } from "../controls/paddingControl";
 
+import React, { useContext } from "react";
+import { EditorContext } from "comps/editorState";
+
+
 const getStyle = (style: TextStyleType) => {
   return css`
     border-radius: 4px;
@@ -103,7 +107,9 @@ const VerticalAlignmentOptions = [
   { label: <AlignBottom />, value: "flex-end" },
 ] as const;
 
-let TextTmpComp = (function () {
+
+let TextTmpComp = (function () {  
+
   const childrenMap = {
     text: stringExposingStateControl(
       "text",
@@ -136,6 +142,7 @@ let TextTmpComp = (function () {
     .setPropertyViewFn((children) => {
       return (
         <>
+        {useContext(EditorContext).editorModeStatus === "layout" && (
           <Section name={sectionNames.basic}>
             {children.type.propertyView({
               label: trans("value"),
@@ -144,6 +151,7 @@ let TextTmpComp = (function () {
             })}
             {children.text.propertyView({})}
           </Section>
+        )}
 
           <Section name={sectionNames.layout}>
             {children.autoHeight.getPropertyView()}
