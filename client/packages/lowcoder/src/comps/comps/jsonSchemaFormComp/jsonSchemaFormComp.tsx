@@ -24,6 +24,9 @@ import ErrorBoundary from "./errorBoundary";
 import { Theme } from "@rjsf/antd";
 import { hiddenPropertyView } from "comps/utils/propertyUtils";
 
+import { useContext } from "react";
+import { EditorContext } from "comps/editorState";
+
 Theme.widgets.DateWidget = DateWidget(false);
 Theme.widgets.DateTimeWidget = DateWidget(true);
 const Form = withTheme(Theme);
@@ -106,7 +109,7 @@ function convertData(schema?: JSONSchema7, data?: any) {
   }
 }
 
-// FIXME: translate more other errors
+// TODO: translate more other errors
 // refer to ajv-i18n, https://github.com/ajv-validator/ajv-i18n/blob/master/messages/index.js
 // https://github.com/ajv-validator/ajv/tree/6a671057ea6aae690b5967ee26a0ddf8452c6297#Validation-keywords
 // JSON schema refer to https://json-schema.org/understanding-json-schema/reference/
@@ -225,52 +228,105 @@ let FormBasicComp = (function () {
     .setPropertyViewFn((children) => {
       return (
         <>
-          <Section name={sectionNames.basic}>
-            {children.resetAfterSubmit.propertyView({
-              label: trans("jsonSchemaForm.resetAfterSubmit"),
-            })}
-            {children.schema.propertyView({
-              label: trans("jsonSchemaForm.jsonSchema"),
-              tooltip: (
-                <>
-                  {trans("jsonSchemaForm.schemaTooltip") + " "}
-                  <a
-                    href={"http://json-schema.org/learn/getting-started-step-by-step"}
-                    target={"_blank"}
-                    rel="noreferrer"
-                  >
-                    JSON schema
-                  </a>
-                </>
-              ),
-            })}
-            {children.uiSchema.propertyView({
-              label: trans("jsonSchemaForm.uiSchema"),
-              tooltip: (
-                <>
-                  {trans("jsonSchemaForm.schemaTooltip") + " "}
-                  <a
-                    href={
-                      "https://jsonforms.io/docs/uischema"
-                    }
-                    target={"_blank"}
-                    rel="noreferrer"
-                  >
-                    UI schema
-                  </a>
-                </>
-              ),
-            })}
-            {children.data.propertyView({
-              label: trans("jsonSchemaForm.defaultData"),
-            })}
-          </Section>
+          {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
+            <Section name={sectionNames.basic}>
+              
+              {children.schema.propertyView({
+                label: (
+                  <>
+                    {trans("jsonSchemaForm.jsonSchema") + " ("}
+                    <a
+                      href={"http://json-schema.org/learn/getting-started-step-by-step"}
+                      target={"_blank"}
+                      rel="noreferrer"
+                    >
+                      Docs 1
+                    </a>
+                    {", "}
+                    <a
+                      href={"https://jsonforms.io/examples/basic"}
+                      target={"_blank"}
+                      rel="noreferrer"
+                    >
+                      Docs 2
+                    </a>
+                    {")"}
+                  </>
+                ),
+                tooltip: (
+                  <>
+                    {trans("jsonSchemaForm.schemaTooltip") + " "}
+                    <a
+                      href={"http://json-schema.org/learn/getting-started-step-by-step"}
+                      target={"_blank"}
+                      rel="noreferrer"
+                    >
+                      JSON schema
+                    </a>
+                  </>
+                ),
+              })}
+              {children.uiSchema.propertyView({
+                label: (
+                  <>
+                    {trans("jsonSchemaForm.uiSchema") + " ("}
+                    <a
+                      href={"https://jsonforms.io/docs/uischema"}
+                      target={"_blank"}
+                      rel="noreferrer"
+                    >
+                      Docs 1
+                    </a>
+                    {", "}
+                    <a
+                      href={"https://rjsf-team.github.io/react-jsonschema-form/docs/api-reference/uiSchema"}
+                      target={"_blank"}
+                      rel="noreferrer"
+                    >
+                      Docs 2
+                    </a>
+                    {")"}
+                  </> 
+                ),
+                tooltip: (
+                  <>
+                    {trans("jsonSchemaForm.schemaTooltip") + " "}
+                    <a
+                      href={
+                        "https://jsonforms.io/docs/uischema"
+                      }
+                      target={"_blank"}
+                      rel="noreferrer"
+                    >
+                      UI schema
+                    </a>
+                  </>
+                ),
+              })}
+              {children.data.propertyView({
+                label: trans("jsonSchemaForm.defaultData"),
+              })}
+            </Section>
+          )}
 
-          <Section name={sectionNames.interaction}>{children.onEvent.getPropertyView()}</Section>
+          {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
+            <Section name={sectionNames.interaction}>
+              {children.onEvent.getPropertyView()}
+              {hiddenPropertyView(children)}
+              {children.resetAfterSubmit.propertyView({
+                label: trans("jsonSchemaForm.resetAfterSubmit"),
+              })}
+            </Section>
+          )}
 
-          <Section name={sectionNames.layout}>{hiddenPropertyView(children)}</Section>
+          {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
+            <>
+              <Section name={sectionNames.style}>
+                {children.style.getPropertyView()}
+              </Section>
+            </>
+          )}
 
-          <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
         </>
       );
     })

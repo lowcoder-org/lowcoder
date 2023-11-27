@@ -362,6 +362,7 @@ export const en = {
     containerfooterpadding: "Footer Padding",
     containerbodypadding: "Body Padding",
     minWidth: "Minimum Width",
+    aspectRatio: "Aspect Ratio",
   },
   export: {
     hiddenDesc: "If true, the component is hidden",
@@ -1052,7 +1053,7 @@ export const en = {
       "The auto column layout automatically rearranges the order as space permits and displays as multiple columns",
   },
   cascader: {
-    options: "Structure",
+    options: "Data",
   },
   selectInput: {
     valueDesc: "Currently selected value",
@@ -1123,6 +1124,8 @@ export const en = {
   button: {
     prefixIcon: "Prefix icon",
     suffixIcon: "Suffix icon",
+    icon: "Icon",
+    iconSize: "Icon size",
     button: "Button",
     formToSubmit: "Form to submit",
     default: "Default",
@@ -1358,7 +1361,7 @@ export const en = {
   },
   audio: {
     src: "Audio URL",
-    defaultSrcUrl: "https://cdn-files.lowcoder.cloud/canon-excerpt.mp3",
+    defaultSrcUrl: "https://cdn.pixabay.com/audio/2023/07/06/audio_e12e5bea9d.mp3",
     autoPlay: "Autoplay",
     loop: "Loop",
     srcDesc: "Current audio URL",
@@ -1450,6 +1453,7 @@ export const en = {
     height: "Drawer height",
   },
   meeting: {
+
     logLevel: "Agora SDK Log Level",
     placement: "Meeting placement",
     meeting: "Meeting Settings",
@@ -1473,7 +1477,7 @@ export const en = {
     userName: "Host User Name",
     rtmToken: "Agora RTM Token",
     rtcToken: "Agora RTC Token",
-    videoCompText: "No video Text",
+    noVideo: "No video",
     profileImageUrl: "Profile Image Url",
     right: "Right",
     bottom: "Bottom",

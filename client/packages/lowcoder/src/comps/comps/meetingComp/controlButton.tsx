@@ -41,6 +41,8 @@ import {
 import { useEffect, useRef, useState } from "react";
 import ReactResizeDetector from "react-resize-detector";
 
+import { useContext } from "react";
+
 const Container = styled.div<{ $style: any }>`
   height: 100%;
   width: 100%;
@@ -286,37 +288,35 @@ let ButtonTmpComp = (function () {
     .setPropertyViewFn((children) => (
       <>
         <Section name={sectionNames.basic}>
-          {children.autoHeight.getPropertyView()}
-        </Section>
-        <Section name={sectionNames.interaction}>
-          {children.type.propertyView({
-            label: trans("prop.type"),
-            radioButton: true,
+          {children.prefixIcon.propertyView({
+            label: trans("button.icon"),
           })}
-          {isDefault(children.type.getView())
-            ? [
-                children.onEvent.getPropertyView(),
-                disabledPropertyView(children),
-                loadingPropertyView(children),
-              ]
-            : children.form.getPropertyView()}
         </Section>
 
-        <Section name={sectionNames.layout}>
-          {children.prefixIcon.propertyView({
-            label: trans("button.prefixIcon"),
-          })}
-          {children.iconSize.propertyView({
-            label: trans("meeting.iconSize"),
-          })}
-          {hiddenPropertyView(children)}
-        </Section>
-        <Section name={sectionNames.style}>
-          {children.style.getPropertyView()}
-          {children.aspectRatio.propertyView({
-            label: "Video Aspect Ratio",
-          })}
-        </Section>
+
+        {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
+          <Section name={sectionNames.interaction}>
+            {children.onEvent.getPropertyView()}
+            {disabledPropertyView(children)}
+            {hiddenPropertyView(children)}
+            {loadingPropertyView(children)}
+          </Section>
+        )}
+
+        {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
+          <><Section name={sectionNames.layout}>
+              {children.autoHeight.getPropertyView()}
+              {children.iconSize.propertyView({
+                label: trans("button.iconSize"),
+              })}
+            </Section>
+            <Section name={sectionNames.style}>
+                {children.style.getPropertyView()}
+                {children.aspectRatio.propertyView({
+                  label: trans("style.aspectRatio"),
+                })}
+            </Section></>
+        )}
       </>
     ))
     .build();

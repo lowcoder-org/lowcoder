@@ -1281,7 +1281,7 @@ jsonExplorer: {
 },
 audio: {
     src: "音频链接",
-    defaultSrcUrl: "https://cdn-files.lowcoder.cloud/canon-excerpt.mp3",
+    defaultSrcUrl: "https://cdn.pixabay.com/audio/2023/07/06/audio_e12e5bea9d.mp3",
     autoPlay: "自动播放",
     loop: "循环播放",
     srcDesc: "当前音频链接",
