@@ -312,15 +312,16 @@ export const en = {
   style: {
     resetTooltip:
       "Reset styles. Delete the input's value to reset an individual field.",
+    textColor: "Text color",
     contrastText: "Contrast text color",
     generated: "Generated",
     customize: "Customize",
     staticText: "Static text",
     accent: "Accent",
     validate: "Validation message",
-    border: "Border",
+    border: "Border color",
     borderRadius: "Border radius",
-    borderwidth: "Border width",
+    borderWidth: "Border width",
     background: "Background",
     headerBackground: "Header background",
     footerBackground: "Footer background",
@@ -363,6 +364,7 @@ export const en = {
     containerbodypadding: "Body Padding",
     minWidth: "Minimum Width",
     aspectRatio: "Aspect Ratio",
+    textSize: "Text size",
   },
   export: {
     hiddenDesc: "If true, the component is hidden",
@@ -1273,16 +1275,22 @@ export const en = {
     cancelChanges: "Cancel changes",
     rowSelectChange: "Row select change",
     rowClick: "Row click",
+    rowExpand: "Row expand",
     filterChange: "Filter change",
     sortChange: "Sort change",
     pageChange: "Page change",
     refresh: "Refresh",
-    rowColor: "Row color",
+    rowColor: "Conditional row color",
     rowColorDesc:
       "Conditionally set the row color based on the optional variables:\n" +
       "currentRow, currentOriginalIndex, currentIndex, columnTitle. \n" +
       "For example:\n" +
       `'{{ currentRow.id > 3 ? "green" : "red" }}'`,
+    cellColor: "Conditional cell color",
+    cellColorDesc:
+      "Conditionally set the cell color based on the cell value using currentCell:\n" +
+      "For example:\n" +
+      `'{{ currentCell == 3 ? "green" : "red" }}'`,
     saveChangesNotBind:
       "No event handler configured for saving changes. Please bind at least one event handler before click.",
     dynamicColumn: "Use dynamic column setting",

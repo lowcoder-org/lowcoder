@@ -17,6 +17,14 @@ export type RadiusConfig = CommonColorConfig & {
   readonly radius: string;
 };
 
+export type BorderWidthConfig = CommonColorConfig & {
+  readonly borderWidth: string;
+};
+
+export type TextSizeConfig = CommonColorConfig & {
+  readonly textSize: string;
+};
+
 export type ContainerHeaderPaddigConfig = CommonColorConfig & {
   readonly containerheaderpadding: string;
 };
@@ -42,7 +50,7 @@ export type DepColorConfig = CommonColorConfig & {
   readonly depType?: DEP_TYPE;
   transformer: (color: string, ...rest: string[]) => string;
 };
-export type SingleColorConfig = SimpleColorConfig | DepColorConfig | RadiusConfig | MarginConfig | PaddingConfig | ContainerHeaderPaddigConfig | ContainerFooterPaddigConfig | ContainerBodyPaddigConfig;
+export type SingleColorConfig = SimpleColorConfig | DepColorConfig | RadiusConfig | BorderWidthConfig | TextSizeConfig | MarginConfig | PaddingConfig | ContainerHeaderPaddigConfig | ContainerFooterPaddigConfig | ContainerBodyPaddigConfig;
 
 export const defaultTheme: ThemeDetail = {
   primary: "#3377FF",
@@ -54,6 +62,7 @@ export const defaultTheme: ThemeDetail = {
   margin: "3px",	
   padding: "3px",
   gridColumns: "24",
+  textSize: "14px",
 };
 
 export const SURFACE_COLOR = "#FFFFFF";
@@ -67,7 +76,7 @@ export enum DEP_TYPE {
 }
 
 export function contrastText(color: string, textDark: string, textLight: string) {
-  return isDarkColor(color) ? textLight : textDark;
+  return isDarkColor(color) && color !== '#00000000' ? textLight : textDark;
 }
 
 // return similar background color
@@ -248,6 +257,12 @@ const RADIUS = {
   radius: "borderRadius",
 } as const;
 
+const BORDER_WIDTH = {
+  name: "borderWidth",
+  label: trans("style.borderWidth"),
+  borderWidth: "borderWidth",
+} as const;
+
 const MARGIN = {	
   name: "margin",	
   label: trans("style.margin"),	
@@ -259,6 +274,12 @@ const PADDING = {
   label: trans("style.padding"),	
   padding: "padding",	
 } as const;
+
+const TEXT_SIZE = {	
+  name: "textSize",
+  label: trans("style.textSize"),	
+  textSize: "textSize",	
+} as const;	
 
 const CONTAINERHEADERPADDING = {	
   name: "containerheaderpadding",	
@@ -639,33 +660,6 @@ export const SegmentStyle = [
 export const TableStyle = [
   ...BG_STATIC_BORDER_RADIUS,
   {
-    name: "cellText",
-    label: trans("style.tableCellText"),
-    depName: "background",
-    depType: DEP_TYPE.CONTRAST_TEXT,
-    transformer: contrastText,
-  },
-  {
-    name: "selectedRowBackground",
-    label: trans("style.selectedRowBackground"),
-    depName: "background",
-    depTheme: "primary",
-    transformer: handleToSelectedRow,
-  },
-  {
-    name: "hoverRowBackground",
-    label: trans("style.hoverRowBackground"),
-    depName: "background",
-    transformer: handleToHoverRow,
-  },
-  {
-    name: "alternateBackground",
-    label: trans("style.alternateRowBackground"),
-    depName: "background",
-    depType: DEP_TYPE.SELF,
-    transformer: toSelf,
-  },
-  {
     name: "headerBackground",
     label: trans("style.tableHeaderBackground"),
     depName: "background",
@@ -692,6 +686,39 @@ export const TableStyle = [
     depType: DEP_TYPE.CONTRAST_TEXT,
     transformer: contrastText,
   },
+] as const;
+
+export const TableRowStyle = [
+  getBackground(),
+  {
+    name: "selectedRowBackground",
+    label: trans("style.selectedRowBackground"),
+    depName: "background",
+    depTheme: "primary",
+    transformer: handleToSelectedRow,
+  },
+  {
+    name: "hoverRowBackground",
+    label: trans("style.hoverRowBackground"),
+    depName: "background",
+    transformer: handleToHoverRow,
+  },
+  {
+    name: "alternateBackground",
+    label: trans("style.alternateRowBackground"),
+    depName: "background",
+    depType: DEP_TYPE.SELF,
+    transformer: toSelf,
+  },
+] as const;
+
+export const TableColumnStyle = [
+  getStaticBackground("#00000000"),
+  getStaticBorder(),
+  BORDER_WIDTH,
+  RADIUS,
+  TEXT,
+  TEXT_SIZE,
 ] as const;
 
 export const FileStyle = [...getStaticBgBorderRadiusByBg(SURFACE_COLOR), TEXT, ACCENT, MARGIN, PADDING] as const;
@@ -1001,6 +1028,8 @@ export type CheckboxStyleType = StyleConfigType<typeof CheckboxStyle>;
 export type RadioStyleType = StyleConfigType<typeof RadioStyle>;
 export type SegmentStyleType = StyleConfigType<typeof SegmentStyle>;
 export type TableStyleType = StyleConfigType<typeof TableStyle>;
+export type TableRowStyleType = StyleConfigType<typeof TableRowStyle>;
+export type TableColumnStyleType = StyleConfigType<typeof TableColumnStyle>;
 export type FileStyleType = StyleConfigType<typeof FileStyle>;
 export type FileViewerStyleType = StyleConfigType<typeof FileViewerStyle>;
 export type IframeStyleType = StyleConfigType<typeof IframeStyle>;

@@ -298,3 +298,4 @@ export { ReactComponent as MentionIcon } from "icons/icon-mention-comp.svg";
 export { ReactComponent as AutoCompleteCompIcon } from "icons/icon-autocomplete-comp.svg";
 export { ReactComponent as WidthIcon } from "icons/icon-width.svg";
 export { ReactComponent as ResponsiveLayoutCompIcon } from "icons/icon-responsive-layout-comp.svg";
+export { ReactComponent as TextSizeIcon } from "./icon-text-size.svg";

@@ -65,23 +65,24 @@ public class UserSessionPersistenceFilter implements WebFilter {
                             boolean isAccessTokenExpiryNear = (connection.getAuthConnectionAuthToken().getExpireAt()*1000) <= next5Minutes.toEpochMilli();
                             if(isAccessTokenExpiryNear) {
                                 connection.getOrgIds().forEach(orgId -> {
-                                    FindAuthConfig findAuthConfig = authenticationService.findAuthConfigByAuthId(orgId, connection.getAuthId()).block();
-                                    if(findAuthConfig == null) {
-                                        return;
-                                    }
-                                    OAuth2RequestContext oAuth2RequestContext = new OAuth2RequestContext(orgId, null, null);
-                                    oAuth2RequestContext.setAuthConfig(findAuthConfig.authConfig());
-                                    AuthRequest authRequest = authRequestFactory.build(oAuth2RequestContext).block();
-                                    try {
-                                        AuthUser authUser = authRequest.refresh(connection.getAuthConnectionAuthToken().getRefreshToken()).block();
-                                        authUser.setAuthContext(oAuth2RequestContext);
-                                        authenticationApiService.updateConnection(authUser, user);
-                                    } catch (Exception e) {
-                                        log.error("Failed to refresh access token. Removing user sessions/tokens.");
-                                        tokensToRemove.addAll(connection.getTokens());
-                                    }
+                                    authenticationService.findAuthConfigByAuthId(orgId, connection.getAuthId())
+	                                	.doOnSuccess(findAuthConfig -> {
+	                                        if(findAuthConfig == null) {
+	                                            return;
+	                                        }
+	                                        OAuth2RequestContext oAuth2RequestContext = new OAuth2RequestContext(orgId, null, null);
+	                                        oAuth2RequestContext.setAuthConfig(findAuthConfig.authConfig());
+	                                        AuthRequest authRequest = authRequestFactory.build(oAuth2RequestContext).block();
+	                                        try {
+	                                            AuthUser authUser = authRequest.refresh(connection.getAuthConnectionAuthToken().getRefreshToken()).block();
+	                                            authUser.setAuthContext(oAuth2RequestContext);
+	                                            authenticationApiService.updateConnection(authUser, user);
+	                                        } catch (Exception e) {
+	                                            log.error("Failed to refresh access token. Removing user sessions/tokens.");
+	                                            tokensToRemove.addAll(connection.getTokens());
+	                                        }
+	                                	});
                                 });
-
                             }
                         }
                     });

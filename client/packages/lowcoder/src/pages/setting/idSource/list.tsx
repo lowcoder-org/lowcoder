@@ -54,8 +54,7 @@ export const IdSourceList = (props: any) => {
     currentDomain += `:${port}`;
   }
 
-  const redirectUrl = encodeURIComponent(`${protocol}//${currentDomain}/apps`);
-  const loginUrl = `${protocol}//${currentDomain}/org/${currentOrgId}/auth/login?redirectUrl=${encodeURIComponent(redirectUrl)}`;
+  const loginUrl = `${protocol}//${currentDomain}/org/${currentOrgId}/auth/login`;
 
   useEffect(() => {
     if (!currentOrgId) {
