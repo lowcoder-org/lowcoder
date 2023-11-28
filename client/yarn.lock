@@ -3013,6 +3013,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@matrix-org/matrix-sdk-crypto-wasm@npm:^3.0.1":
+  version: 3.0.1
+  resolution: "@matrix-org/matrix-sdk-crypto-wasm@npm:3.0.1"
+  checksum: 893a70df458bc096a792fcd118a9cd55bdd16c5a37f166b4a2fb5e40df9958290d9aec2253c5591198c0680b8a6ace8990d197d1bf4bdef95499a111908a75c9
+  languageName: node
+  linkType: hard
+
 "@nicolo-ribaudo/eslint-scope-5-internals@npm:5.1.1-v1":
   version: 5.1.1-v1
   resolution: "@nicolo-ribaudo/eslint-scope-5-internals@npm:5.1.1-v1"
@@ -3964,6 +3971,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/events@npm:^3.0.0":
+  version: 3.0.3
+  resolution: "@types/events@npm:3.0.3"
+  checksum: 50af9312fab001fd6bd4bb3ff65830f940877e6778de140a92481a0d9bf5f4853d44ec758a8800ef60e0598ac43ed1b5688116a3c65906ae54e989278d6c7c82
+  languageName: node
+  linkType: hard
+
 "@types/file-saver@npm:^2.0.5":
   version: 2.0.5
   resolution: "@types/file-saver@npm:2.0.5"
@@ -4334,6 +4348,13 @@ __metadata:
   version: 1.20.2
   resolution: "@types/resolve@npm:1.20.2"
   checksum: 61c2cad2499ffc8eab36e3b773945d337d848d3ac6b7b0a87c805ba814bc838ef2f262fc0f109bfd8d2e0898ff8bd80ad1025f9ff64f1f71d3d4294c9f14e5f6
+  languageName: node
+  linkType: hard
+
+"@types/retry@npm:0.12.0":
+  version: 0.12.0
+  resolution: "@types/retry@npm:0.12.0"
+  checksum: 61a072c7639f6e8126588bf1eb1ce8835f2cb9c2aba795c4491cf6310e013267b0c8488039857c261c387e9728c1b43205099223f160bb6a76b4374f741b5603
   languageName: node
   linkType: hard
 
@@ -4981,6 +5002,13 @@ __metadata:
     utility: ^1.8.0
     xml2js: ^0.4.16
   checksum: 20ee699b3f3894fa98e4683d68f767beb5d9e82dc77c00f0c3dcf96f92b50c02f458b48bcde0bf20ed515e03e3c9d9a6f035ddc48a2e03600ce89a702f43ccef
+  languageName: node
+  linkType: hard
+
+"another-json@npm:^0.2.0":
+  version: 0.2.0
+  resolution: "another-json@npm:0.2.0"
+  checksum: b1d27bd5d7a35364ff2e8eb66e65ef9a53f3ab84f7a4ae38495bf14ba0b346654f107487b4f2f247dbe6a22a8fb4ca2a94330738176516b78494e641fce05178
   languageName: node
   linkType: hard
 
@@ -5684,6 +5712,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"base-x@npm:^4.0.0":
+  version: 4.0.0
+  resolution: "base-x@npm:4.0.0"
+  checksum: b25db9e07eb1998472a20557c7f00c797dc0595f79df95155ab74274e7fa98b9f2659b3ee547ac8773666b7f69540656793aeb97ad2b1ceccdb6fa5faaf69ac0
+  languageName: node
+  linkType: hard
+
 "base16@npm:^1.0.0":
   version: 1.0.0
   resolution: "base16@npm:1.0.0"
@@ -5893,6 +5928,15 @@ __metadata:
   bin:
     browserslist: cli.js
   checksum: 9755986b22e73a6a1497fd8797aedd88e04270be33ce66ed5d85a1c8a798292a65e222b0f251bafa1c2522261e237d73b08b58689d4920a607e5a53d56dc4706
+  languageName: node
+  linkType: hard
+
+"bs58@npm:^5.0.0":
+  version: 5.0.0
+  resolution: "bs58@npm:5.0.0"
+  dependencies:
+    base-x: ^4.0.0
+  checksum: 2475cb0684e07077521aac718e604a13e0f891d58cff923d437a2f7e9e28703ab39fce9f84c7c703ab369815a675f11e3bd394d38643bfe8969fbe42e6833d45
   languageName: node
   linkType: hard
 
@@ -6517,7 +6561,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"content-type@npm:^1.0.2":
+"content-type@npm:^1.0.2, content-type@npm:^1.0.4":
   version: 1.0.5
   resolution: "content-type@npm:1.0.5"
   checksum: 566271e0a251642254cde0f845f9dd4f9856e52d988f4eb0d0dcffbb7a1f8ec98de7a5215fc628f3bce30fe2fb6fd2bc064b562d721658c59b544e2d34ea2766
@@ -6739,6 +6783,13 @@ __metadata:
     randombytes: ^2.0.0
     randomfill: ^1.0.3
   checksum: c1609af82605474262f3eaa07daa0b2140026bd264ab316d4bf1170272570dbe02f0c49e29407fe0d3634f96c507c27a19a6765fb856fed854a625f9d15618e2
+  languageName: node
+  linkType: hard
+
+"crypto-js@npm:^4.2.0":
+  version: 4.2.0
+  resolution: "crypto-js@npm:4.2.0"
+  checksum: f051666dbc077c8324777f44fbd3aaea2986f198fe85092535130d17026c7c2ccf2d23ee5b29b36f7a4a07312db2fae23c9094b644cc35f7858b1b4fcaf27774
   languageName: node
   linkType: hard
 
@@ -8608,6 +8659,13 @@ __metadata:
   version: 4.0.7
   resolution: "eventemitter3@npm:4.0.7"
   checksum: 1875311c42fcfe9c707b2712c32664a245629b42bb0a5a84439762dd0fd637fc54d078155ea83c2af9e0323c9ac13687e03cfba79b03af9f40c89b4960099374
+  languageName: node
+  linkType: hard
+
+"events@npm:^3.2.0":
+  version: 3.3.0
+  resolution: "events@npm:3.3.0"
+  checksum: f6f487ad2198aa41d878fa31452f1a3c00958f46e9019286ff4787c84aac329332ab45c9cdc8c445928fc6d7ded294b9e005a7fce9426488518017831b272780
   languageName: node
   linkType: hard
 
@@ -11355,6 +11413,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"jwt-decode@npm:^3.1.2":
+  version: 3.1.2
+  resolution: "jwt-decode@npm:3.1.2"
+  checksum: 20a4b072d44ce3479f42d0d2c8d3dabeb353081ba4982e40b83a779f2459a70be26441be6c160bfc8c3c6eadf9f6380a036fbb06ac5406b5674e35d8c4205eeb
+  languageName: node
+  linkType: hard
+
 "khroma@npm:^2.0.0":
   version: 2.0.0
   resolution: "khroma@npm:2.0.0"
@@ -11766,7 +11831,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"loglevel@npm:^1.8.0":
+"loglevel@npm:^1.7.1, loglevel@npm:^1.8.0":
   version: 1.8.1
   resolution: "loglevel@npm:1.8.1"
   checksum: a1a62db40291aaeaef2f612334c49e531bff71cc1d01a2acab689ab80d59e092f852ab164a5aedc1a752fdc46b7b162cb097d8a9eb2cf0b299511106c29af61d
@@ -12041,6 +12106,7 @@ __metadata:
     lowcoder-core: "workspace:^"
     lowcoder-design: "workspace:^"
     lowcoder-dev-utils: "workspace:^"
+    matrix-js-sdk: ^30.1.0
     mime: ^3.0.0
     moment: ^2.29.4
     numbro: ^2.3.6
@@ -12257,6 +12323,45 @@ __metadata:
   peerDependencies:
     react: ">= 0.14.0"
   checksum: 0c8c715229044401ea48c2fc26c2554464100074959dafacdd9e4a0e849f0a190b02f39edb373bbdd95e38b8f910074b83b63d08752b8ae6be6ddcfb40ea50a0
+  languageName: node
+  linkType: hard
+
+"matrix-events-sdk@npm:0.0.1":
+  version: 0.0.1
+  resolution: "matrix-events-sdk@npm:0.0.1"
+  checksum: 18b61a1a2cd9947e5cec4f9332186f5609e3a47c6c6e775b306e9af0e12babcdb2f68459133c4d44ebc5a7e5ee60e7528813dfccb80d8a8b55668338cd81ee49
+  languageName: node
+  linkType: hard
+
+"matrix-js-sdk@npm:^30.1.0":
+  version: 30.1.0
+  resolution: "matrix-js-sdk@npm:30.1.0"
+  dependencies:
+    "@babel/runtime": ^7.12.5
+    "@matrix-org/matrix-sdk-crypto-wasm": ^3.0.1
+    another-json: ^0.2.0
+    bs58: ^5.0.0
+    content-type: ^1.0.4
+    jwt-decode: ^3.1.2
+    loglevel: ^1.7.1
+    matrix-events-sdk: 0.0.1
+    matrix-widget-api: ^1.6.0
+    oidc-client-ts: ^2.2.4
+    p-retry: 4
+    sdp-transform: ^2.14.1
+    unhomoglyph: ^1.0.6
+    uuid: 9
+  checksum: 3298db6120cbfbabe3ff8861e0f0892cba3efc28022f6f9a8a10f7ddb2839e1a9ecfa9d069f11219755a9d1fae782d0fc3414a8931124b32fa1b9490cb1b6459
+  languageName: node
+  linkType: hard
+
+"matrix-widget-api@npm:^1.6.0":
+  version: 1.6.0
+  resolution: "matrix-widget-api@npm:1.6.0"
+  dependencies:
+    "@types/events": ^3.0.0
+    events: ^3.2.0
+  checksum: 0263dfc0ce6f73b3b0bff3ac656d1c20407b8bdc15aae7ff8b2f2beac88a37b8aebcd6f3504bae8fc4ceb654b96f68d52f50208379578933b0006e87918198d5
   languageName: node
   linkType: hard
 
@@ -13502,6 +13607,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"oidc-client-ts@npm:^2.2.4":
+  version: 2.4.0
+  resolution: "oidc-client-ts@npm:2.4.0"
+  dependencies:
+    crypto-js: ^4.2.0
+    jwt-decode: ^3.1.2
+  checksum: 8467db689298221f706d3358961efb0ddc789f6bd7d4765e71ae5fe62067999d2ce6e8e7584b9d991b8caa6f7fb383f75841e1cfa9e05808c34632de374f5e68
+  languageName: node
+  linkType: hard
+
 "omit.js@npm:^2.0.2":
   version: 2.0.2
   resolution: "omit.js@npm:2.0.2"
@@ -13640,6 +13755,16 @@ __metadata:
   dependencies:
     aggregate-error: ^3.0.0
   checksum: cb0ab21ec0f32ddffd31dfc250e3afa61e103ef43d957cc45497afe37513634589316de4eb88abdfd969fe6410c22c0b93ab24328833b8eb1ccc087fc0442a1c
+  languageName: node
+  linkType: hard
+
+"p-retry@npm:4":
+  version: 4.6.2
+  resolution: "p-retry@npm:4.6.2"
+  dependencies:
+    "@types/retry": 0.12.0
+    retry: ^0.13.1
+  checksum: 45c270bfddaffb4a895cea16cb760dcc72bdecb6cb45fef1971fa6ea2e91ddeafddefe01e444ac73e33b1b3d5d29fb0dd18a7effb294262437221ddc03ce0f2e
   languageName: node
   linkType: hard
 
@@ -16280,6 +16405,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"retry@npm:^0.13.1":
+  version: 0.13.1
+  resolution: "retry@npm:0.13.1"
+  checksum: 47c4d5be674f7c13eee4cfe927345023972197dbbdfba5d3af7e461d13b44de1bfd663bfc80d2f601f8ef3fc8164c16dd99655a221921954a65d044a2fc1233b
+  languageName: node
+  linkType: hard
+
 "reusify@npm:^1.0.4":
   version: 1.0.4
   resolution: "reusify@npm:1.0.4"
@@ -16676,6 +16808,15 @@ __metadata:
   dependencies:
     get-ready: ~1.0.0
   checksum: 8475cca6182ae16078e863cf251b995ce925710619af1a1adca46a21f0f1a3169dc005051f3041761420c342038712a2e09f67b0e034419a9dbe3b07a2bf8b00
+  languageName: node
+  linkType: hard
+
+"sdp-transform@npm:^2.14.1":
+  version: 2.14.1
+  resolution: "sdp-transform@npm:2.14.1"
+  bin:
+    sdp-verify: checker.js
+  checksum: 8b3179786db1a0f1ebfdacb1ac0dfe2833e63e8c64b638884cec212455061d53beaa8d9c8bf76fdbd5f844b7885f3892adec27e87734cfbc2b3e5c65e18a489b
   languageName: node
   linkType: hard
 
@@ -18164,6 +18305,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"unhomoglyph@npm:^1.0.6":
+  version: 1.0.6
+  resolution: "unhomoglyph@npm:1.0.6"
+  checksum: 2401fa3f8129fb1093d9ae59680b1dc8e395016e48401f9e706861a6edd28cafc60b0ac7e001cc127ee544942ed16236881b969afd856c28ebfe5d77afa1f0c2
+  languageName: node
+  linkType: hard
+
 "unicode-canonical-property-names-ecmascript@npm:^2.0.0":
   version: 2.0.0
   resolution: "unicode-canonical-property-names-ecmascript@npm:2.0.0"
@@ -18453,6 +18601,15 @@ __metadata:
     mz: ^2.7.0
     unescape: ^1.0.1
   checksum: 7cf4a75fa9adebba0740aa5d3f19ed0fbbd99bb1e7a2d0c30152ae144ccf45f272febdbbf01564cc980582cacc300fa4843ac19a633a50fa6d8e5adfc74d0138
+  languageName: node
+  linkType: hard
+
+"uuid@npm:9":
+  version: 9.0.1
+  resolution: "uuid@npm:9.0.1"
+  bin:
+    uuid: dist/bin/uuid
+  checksum: 39931f6da74e307f51c0fb463dc2462807531dc80760a9bff1e35af4316131b4fc3203d16da60ae33f07fdca5b56f3f1dd662da0c99fea9aaeab2004780cc5f4
   languageName: node
   linkType: hard
 

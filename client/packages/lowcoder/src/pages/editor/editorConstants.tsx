@@ -90,6 +90,7 @@ export const CompStateIcon: {
   chat: <LeftChatIcon />,
   mermaid: <LeftChart />,
   videocomponent: <LeftMeeting />,
+  chatscomponent: <LeftMeeting />,
   sharingcomponent: <LeftMeeting />,
   controlButton: <LeftButton />,
   tabbedContainer: <LeftContainer />,

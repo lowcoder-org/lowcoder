@@ -58,6 +58,7 @@ export type UICompType =
   | "textArea"
   | "chart"
   | "meeting"
+  | "chatscomponent"
   | "chat"
   | "videocomponent"
   | "sharingcomponent"

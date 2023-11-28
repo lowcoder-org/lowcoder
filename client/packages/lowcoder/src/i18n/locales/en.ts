@@ -1453,6 +1453,9 @@ export const en = {
     credentials: "Matrix Credentials",
     password: "Password",
     roomalias: "Room name or room ID",
+    roomData: "Room data",
+    chatCommentsCompName: "Chats",
+    chatCommentsCompKeywords: "",
   },
   //END
   meeting: {
@@ -1504,7 +1507,6 @@ export const en = {
     meetingCompDesc: "Meeting component",
     meetingCompControls: "Meeting control",
     meetingCompKeywords: "",
-
     //END
     iconSize: "Icon Size",
     userId: "userId",

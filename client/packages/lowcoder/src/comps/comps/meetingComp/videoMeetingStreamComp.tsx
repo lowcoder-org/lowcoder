@@ -39,7 +39,6 @@ import {
   hiddenPropertyView,
   stringExposingStateControl,
 } from "@lowcoder-ee/index.sdk";
-import { BoolShareVideoControl } from "./meetingControlerUtils";
 
 const FormLabel = styled(CommonBlueLabel)`
   font-size: 13px;
