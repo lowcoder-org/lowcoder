@@ -16,6 +16,7 @@ import { createContext, useState } from "react";
 import { SystemConfig } from "constants/configConstants";
 import {
   AuthInviteInfo,
+  AuthSearchParamsType,
   AuthSessionStoreParams,
   ThirdPartyAuthGoal,
   ThirdPartyAuthType,
@@ -185,3 +186,21 @@ export const getRedirectUrl = (authType: ThirdPartyAuthType) => {
     `${window.location.origin}${authType === "CAS" ? CAS_AUTH_REDIRECT : OAUTH_REDIRECT}`
   );
 };
+
+const AuthSearchParamStorageKey = "_temp_auth_search_params_";
+
+export const saveAuthSearchParams = (
+  authSearchParams: AuthSearchParamsType
+) => {
+  sessionStorage.setItem(AuthSearchParamStorageKey, JSON.stringify(authSearchParams));
+}
+
+export const loadAuthSearchParams = ():AuthSearchParamsType | null => {
+  const authParams = sessionStorage.getItem(AuthSearchParamStorageKey);
+  if (!authParams) return null;
+  return JSON.parse(authParams);
+}
+
+export const clearAuthSearchParams = () => {
+  sessionStorage.removeItem(AuthSearchParamStorageKey);
+}
