@@ -539,7 +539,7 @@ export const TableToolbarComp = (function () {
     showDownload: BoolControl,
     showFilter: BoolControl,
     columnSetting: BoolControl,
-    searchText: StringControl,
+    // searchText: StringControl,
     filter: stateComp<TableFilter>({ stackType: "and", filters: [] }),
     position: dropdownControl(positionOptions, "below"),
   };
@@ -567,11 +567,11 @@ export const TableToolbarComp = (function () {
       children.showRefresh.propertyView({ label: trans("table.showRefresh") }),
       children.showDownload.propertyView({ label: trans("table.showDownload") }),
       children.columnSetting.propertyView({ label: trans("table.columnSetting") }),
-      children.searchText.propertyView({
+      /* children.searchText.propertyView({
         label: trans("table.searchText"),
         tooltip: trans("table.searchTextTooltip"),
         placeholder: "{{input1.value}}",
-      }),
+      }), */
     ])
     .build();
 })();
