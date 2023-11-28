@@ -39,7 +39,7 @@ export abstract class AbstractAuthenticator {
         authRespValidate(
           resp,
           this.needInfoCheck(this.authParams.sourceType),
-          this.authParams.afterLoginRedirect,
+          getSafeAuthRedirectURL(this.authParams.afterLoginRedirect),
           onAuthSuccess,
         );
       })

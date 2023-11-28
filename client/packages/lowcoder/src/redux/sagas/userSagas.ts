@@ -133,15 +133,10 @@ export function* logoutSaga(action: LogoutActionType) {
   try {
     let redirectURL = AUTH_LOGIN_URL;
     if (action.payload.notAuthorised) {
-      const currentUrl = window.location.href;
-      // redirectURL = `${AUTH_LOGIN_URL}`;
-      // redirectURL = `${AUTH_LOGIN_URL}?redirectUrl=${encodeURIComponent(currentUrl)}`;
+      const currentUrl = window.location.href
       const urlObj = new URL(currentUrl);
       // Add loginType param for auto login jump
       const loginType = urlObj.searchParams.get(AuthSearchParams.loginType);
-      // if (loginType) {
-      //   redirectURL = redirectURL + `&${AuthSearchParams.loginType}=${loginType}`;
-      // }
       saveAuthSearchParams({
         [AuthSearchParams.redirectUrl]: encodeURIComponent(currentUrl),
         [AuthSearchParams.loginType]: loginType

@@ -63,9 +63,6 @@ export function useRedirectUrl() {
   const authSearchParams = loadAuthSearchParams()
   const redirectUrl = authSearchParams && authSearchParams.redirectUrl
   return redirectUrl && decodeURIComponent(redirectUrl);
-  // const location = useLocation();
-  // const queryParams = new URLSearchParams(location.search);
-  // return queryParams.get(AuthSearchParams.redirectUrl);
 }
 
 export function useFixedDelay(callback: () => Promise<unknown>, delay: number | null) {

@@ -3,7 +3,6 @@ import {
   BASE_URL,
   CAS_AUTH_REDIRECT,
   OAUTH_REDIRECT,
-  USER_INFO_COMPLETION,
 } from "constants/routesURL";
 import { AxiosPromise, AxiosResponse } from "axios";
 import { ApiResponse } from "api/apiResponses";
@@ -80,12 +79,7 @@ export function authRespValidate(
 ) {
   let replaceUrl = redirectUrl || BASE_URL;
   const baseUrl = `${window.location.protocol}//${window.location.host}`;
-  if (infoCompleteCheck) {
-    // need complete info
-    replaceUrl = redirectUrl
-      ? `${USER_INFO_COMPLETION}?redirectUrl=${redirectUrl}`
-      : USER_INFO_COMPLETION;
-  }
+
   if (doValidResponse(resp)) {
     onAuthSuccess?.();
     history.replace(replaceUrl.replace(baseUrl, ''));
