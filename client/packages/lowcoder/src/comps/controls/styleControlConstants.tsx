@@ -935,7 +935,7 @@ export const CommentStyle = [
   {
     name: "background",
     label: trans("style.background"),
-    depTheme: "canvas",
+    depTheme: "primarySurface",
     depType: DEP_TYPE.SELF,
     transformer: toSelf,
   },

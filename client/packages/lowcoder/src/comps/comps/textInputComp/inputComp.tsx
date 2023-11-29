@@ -31,6 +31,9 @@ import { hasIcon } from "comps/utils";
 import { InputRef } from "antd";
 import { RefControl } from "comps/controls/refControl";
 
+import React, { useContext } from "react";
+import { EditorContext } from "comps/editorState";
+
 /**
  * Input Comp
  */
@@ -73,23 +76,27 @@ export const InputComp = new UICompBuilder(childrenMap, (props) => {
       <>
         <TextInputBasicSection {...children} />
         <FormDataPropertyView {...children} />
-        {children.label.getPropertyView()}
 
-        <TextInputInteractionSection {...children} />
-
-        <Section name={sectionNames.advanced}>
-          {children.showCount.propertyView({ label: trans("prop.showCount") })}
-          {allowClearPropertyView(children)}
-          {readOnlyPropertyView(children)}
-          {children.prefixIcon.propertyView({ label: trans("button.prefixIcon") })}
-          {children.suffixIcon.propertyView({ label: trans("button.suffixIcon") })}
-        </Section>
-
-        <TextInputValidationSection {...children} />
-
-        <Section name={sectionNames.layout}>{hiddenPropertyView(children)}</Section>
-
-        <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
+        {useContext(EditorContext).editorModeStatus === "layout" && (
+          children.label.getPropertyView()
+        )}
+        
+        {useContext(EditorContext).editorModeStatus !== "layout" && (
+          <><TextInputInteractionSection {...children} />
+          <Section name={sectionNames.layout}>{hiddenPropertyView(children)}</Section>
+          <Section name={sectionNames.advanced}>
+            {children.prefixIcon.propertyView({ label: trans("button.prefixIcon") })}
+            {children.suffixIcon.propertyView({ label: trans("button.suffixIcon") })}
+            {children.showCount.propertyView({ label: trans("prop.showCount") })}
+            {allowClearPropertyView(children)}
+            {readOnlyPropertyView(children)}
+          </Section>
+          <TextInputValidationSection {...children} />
+          </>
+        )}
+        {useContext(EditorContext).editorModeStatus === "layout" && (
+          <><Section name={sectionNames.style}>{children.style.getPropertyView()}</Section></>
+        )}
       </>
     );
   })

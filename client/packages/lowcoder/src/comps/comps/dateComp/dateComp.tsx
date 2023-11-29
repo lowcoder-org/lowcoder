@@ -37,7 +37,7 @@ import {
 } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { DATE_FORMAT, DATE_TIME_FORMAT, DateParser, PickerMode } from "util/dateTimeUtils";
-import React, { ReactNode } from "react";
+import React, { ReactNode, useContext } from "react";
 import { IconControl } from "comps/controls/iconControl";
 import { hasIcon } from "comps/utils";
 import { Section, sectionNames } from "components/Section";
@@ -47,6 +47,8 @@ import { useIsMobile } from "util/hooks";
 import { RefControl } from "comps/controls/refControl";
 import { CommonPickerMethods } from "antd/es/date-picker/generatePicker/interface";
 import { DateRangeUIView } from "comps/comps/dateComp/dateRangeUIView";
+
+import { EditorContext } from "comps/editorState";
 
 const EventOptions = [changeEvent, focusEvent, blurEvent] as const;
 
@@ -60,6 +62,7 @@ const validationChildren = {
 };
 const commonChildren = {
   label: LabelControl,
+  placeholder: withDefault(StringControl, trans("date.placeholder")),
   format: StringControl,
   disabled: BoolCodeControl,
   onEvent: eventHandlerControl(EventOptions),
@@ -76,7 +79,7 @@ const commonChildren = {
 type CommonChildrenType = RecordConstructorToComp<typeof commonChildren>;
 
 const datePickerProps = (props: RecordConstructorToView<typeof commonChildren>) =>
-  _.pick(props, "format", "showTime", "use12Hours", "hourStep", "minuteStep", "secondStep");
+  _.pick(props, "format", "showTime", "use12Hours", "hourStep", "minuteStep", "secondStep", "placeholder");
 
 const timeFields = (children: CommonChildrenType, isMobile?: boolean) => [
   children.showTime.propertyView({ label: trans("date.showTime") }),
@@ -151,6 +154,7 @@ export type DateCompViewProps = Pick<
   $style: DateTimeStyleType;
   disabledTime: () => ReturnType<typeof disabledTime>;
   suffixIcon: ReactNode;
+  placeholder?: string | [string, string];
 };
 
 export const datePickerControl = new UICompBuilder(childrenMap, (props) => {
@@ -170,6 +174,7 @@ export const datePickerControl = new UICompBuilder(childrenMap, (props) => {
         {...datePickerProps(props)}
         minDate={props.minDate}
         maxDate={props.maxDate}
+        placeholder={props.placeholder}
         value={time.isValid() ? time : null}
         onChange={(time) => {
           handleDateChange(
@@ -199,37 +204,50 @@ export const datePickerControl = new UICompBuilder(childrenMap, (props) => {
           {children.value.propertyView({
             label: trans("prop.defaultValue"),
             placeholder: "2022-04-07 21:39:59",
-            tooltip: trans("date.formatTip"),
+            tooltip: trans("date.formatTip")
           })}
-          {formatPropertyView({ children })}
-          {timeFields(children, isMobile)}
         </Section>
 
         <FormDataPropertyView {...children} />
 
-        {children.label.getPropertyView()}
-
-        <Section name={sectionNames.interaction}>
-          {children.onEvent.getPropertyView()}
-          {disabledPropertyView(children)}
-        </Section>
-
-        <Section name={sectionNames.validation}>
-          {requiredPropertyView(children)}
-          {dateValidationFields(children)}
-          {timeValidationFields(children)}
-          {children.customRule.propertyView({})}
-        </Section>
+        {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
+          <><Section name={sectionNames.validation}>
+              {requiredPropertyView(children)}
+              {dateValidationFields(children)}
+              {timeValidationFields(children)}
+              {children.customRule.propertyView({})}
+            </Section>
+            <Section name={sectionNames.interaction}>
+              {children.onEvent.getPropertyView()}
+              {disabledPropertyView(children)}
+              {hiddenPropertyView(children)}
+            </Section>
+          </>
+        )}
 
         {/*{commonAdvanceSection(children, children.dateType.value === "date")}*/}
-        {!isMobile && commonAdvanceSection(children)}
+        {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && children.label.getPropertyView()}
 
-        <Section name={sectionNames.layout}>
-          {children.suffixIcon.propertyView({ label: trans("button.suffixIcon") })}
-          {hiddenPropertyView(children)}
-        </Section>
+        {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
+          <Section name={sectionNames.layout}>
+            {formatPropertyView({ children })}
+            {children.placeholder.propertyView({ label: trans("date.placeholderText") })}
+          </Section>
+        )}
+        
+        {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
+           <><Section name={sectionNames.advanced}>
+            {timeFields(children, isMobile)}
+            {children.suffixIcon.propertyView({ label: trans("button.suffixIcon") })}
+          </Section></>
+        )}
+        {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && !isMobile && commonAdvanceSection(children)}
 
-        <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
+        {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
+          <Section name={sectionNames.style}>
+            {children.style.getPropertyView()}
+          </Section>
+        )}
       </>
     );
   })
@@ -263,6 +281,7 @@ export const dateRangeControl = (function () {
         end={end.isValid() ? end : null}
         minDate={props.minDate}
         maxDate={props.maxDate}
+        placeholder={[props.placeholder, props.placeholder]}
         disabledTime={() => disabledTime(props.minTime, props.maxTime)}
         onChange={(start, end) => {
           props.start.onChange(
@@ -314,32 +333,46 @@ export const dateRangeControl = (function () {
               placeholder: "2022-04-07 21:39:59",
               tooltip: trans("date.formatTip"),
             })}
-            {formatPropertyView({ children })}
-            {timeFields(children, isMobile)}
           </Section>
 
-          {children.label.getPropertyView()}
+          {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
+            <><Section name={sectionNames.validation}>
+                {requiredPropertyView(children)}
+                {dateValidationFields(children)}
+                {timeValidationFields(children)}
+                {children.customRule.propertyView({})}
+              </Section>
+              <Section name={sectionNames.interaction}>
+                {children.onEvent.getPropertyView()}
+                {disabledPropertyView(children)}
+                {hiddenPropertyView(children)}
+              </Section>
+            </>
+          )}
 
-          <Section name={sectionNames.interaction}>
-            {children.onEvent.getPropertyView()}
-            {disabledPropertyView(children)}
-          </Section>
+          {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && children.label.getPropertyView()}
 
-          <Section name={sectionNames.validation}>
-            {requiredPropertyView(children)}
-            {dateValidationFields(children)}
-            {timeValidationFields(children)}
-            {children.customRule.propertyView({})}
-          </Section>
+          {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
+            <Section name={sectionNames.layout}>
+              {formatPropertyView({ children })}
+              {children.placeholder.propertyView({ label: trans("date.placeholderText") })}
+            </Section>
+          )}
+          
+          {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
+            <><Section name={sectionNames.advanced}>
+              {timeFields(children, isMobile)}
+              {children.suffixIcon.propertyView({ label: trans("button.suffixIcon") })}
+            </Section></>
+          )}
+          {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && commonAdvanceSection(children)}
 
-          {commonAdvanceSection(children)}
+          {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
+            <Section name={sectionNames.style}>
+              {children.style.getPropertyView()}
+            </Section>
+          )}
 
-          <Section name={sectionNames.layout}>
-            {children.suffixIcon.propertyView({ label: trans("button.suffixIcon") })}
-            {hiddenPropertyView(children)}
-          </Section>
-
-          <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
         </>
       );
     })

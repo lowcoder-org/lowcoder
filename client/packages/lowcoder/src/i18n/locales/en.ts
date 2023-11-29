@@ -151,6 +151,7 @@ export const en = {
     style: "Style",
     inputs: "Inputs",
     meta: "Meta data",
+    data: "Data",
     hide: "Hidden",
     loading: "Loading",
     disabled: "Disabled",
@@ -178,7 +179,7 @@ export const en = {
     manual: "Manual",
     map: "Mapped",
     json: "JSON",
-    use12Hours: "Use 12-hours",
+    use12Hours: "Use 12-hours for Time Selector",
     hourStep: "Hour step",
     minuteStep: "Minute step",
     secondStep: "Second step",
@@ -362,6 +363,7 @@ export const en = {
     containerfooterpadding: "Footer Padding",
     containerbodypadding: "Body Padding",
     minWidth: "Minimum Width",
+    aspectRatio: "Aspect Ratio",
     textSize: "Text size",
   },
   export: {
@@ -1053,7 +1055,7 @@ export const en = {
       "The auto column layout automatically rearranges the order as space permits and displays as multiple columns",
   },
   cascader: {
-    options: "Structure",
+    options: "Data",
   },
   selectInput: {
     valueDesc: "Currently selected value",
@@ -1107,6 +1109,7 @@ export const en = {
     clearAllDesc: "Clear all",
     resetAllDesc: "Reset all",
     placeholder: "Select date",
+    placeholderText: "Placeholder",
     startDate: "Start date",
     endDate: "End date",
   },
@@ -1114,13 +1117,17 @@ export const en = {
     start: "Start time",
     end: "End time",
     formatTip: "Support:\n" + "HH:mm:ss\nTimestamp",
+    format: "Format",
     placeholder: "Select Time",
+    placeholderText: "Placeholder",
     startTime: "Start time",
     endTime: "End time",
   },
   button: {
     prefixIcon: "Prefix icon",
     suffixIcon: "Suffix icon",
+    icon: "Icon",
+    iconSize: "Icon size",
     button: "Button",
     formToSubmit: "Form to submit",
     default: "Default",
@@ -1146,7 +1153,7 @@ export const en = {
     errTip: "Please use this component under https or localhost",
   },
   dropdown: {
-    onlyMenu: "Only menu",
+    onlyMenu: "Display with Label only",
     textDesc: "Text currently displayed on button",
   },
   textShow: {
@@ -1350,9 +1357,9 @@ export const en = {
   },
   jsonExplorer: {
     indent: "Indent",
-    expandToggle: "Expand toggle",
+    expandToggle: "Expand JSON Tree",
     theme: "Theme",
-    valueDesc: "Current json Data",
+    valueDesc: "Current JSON Data",
     default: "Default",
     defaultDark: "Default dark",
     neutralLight: "Neutral light",
@@ -1362,7 +1369,7 @@ export const en = {
   },
   audio: {
     src: "Audio URL",
-    defaultSrcUrl: "https://cdn-files.lowcoder.cloud/canon-excerpt.mp3",
+    defaultSrcUrl: "https://cdn.pixabay.com/audio/2023/07/06/audio_e12e5bea9d.mp3",
     autoPlay: "Autoplay",
     loop: "Loop",
     srcDesc: "Current audio URL",
@@ -1454,6 +1461,7 @@ export const en = {
     height: "Drawer height",
   },
   meeting: {
+
     logLevel: "Agora SDK Log Level",
     placement: "Meeting placement",
     meeting: "Meeting Settings",
@@ -1477,7 +1485,7 @@ export const en = {
     userName: "Host User Name",
     rtmToken: "Agora RTM Token",
     rtcToken: "Agora RTC Token",
-    videoCompText: "No video Text",
+    noVideo: "No video",
     profileImageUrl: "Profile Image Url",
     right: "Right",
     bottom: "Bottom",
@@ -2084,6 +2092,9 @@ export const en = {
     preview: "Preview",
     editError: "History preview mode, no operation is supported.",
     clone: "Clone",
+    editorMode_layout: "Layout",
+    editorMode_logic: "Logic",
+    editorMode_both: "Both",
   },
   userAuth: {
     registerByEmail: "Sign up",
@@ -2665,7 +2676,7 @@ export const en = {
     placeholderDec: "placeholder",
     buttonTextDec: "button title",
     buttonText: "comment",
-    mentionList: "mention list data",
+    mentionList: "Mention list data",
     mentionListDec: "key-Mention keywords;value-Mention list data",
     userInfo: "user info",
     dateErr: "date error",
@@ -2682,7 +2693,7 @@ export const en = {
     helpcreatedAt: "create date",
   },
   mention: {
-    mentionList: "mention list",
+    mentionList: "Mention list data",
   },
   autoComplete: {
     value: "auto complete value",

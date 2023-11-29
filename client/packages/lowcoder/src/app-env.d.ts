@@ -42,4 +42,4 @@ declare var REACT_APP_BUNDLE_TYPE: "sdk" | "app";
 declare var REACT_APP_DISABLE_JS_SANDBOX: string;
 declare var REACT_APP_BUNDLE_BUILTIN_PLUGIN: string;
 
-declare module "weixin-js-sdk";
+// declare module "weixin-js-sdk";

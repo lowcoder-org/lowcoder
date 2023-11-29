@@ -24,6 +24,7 @@ export const en = {
     layout: "Layout",
     style: "Style",
     meetings : "Meeting Settings",
+    data: "Data",
   },
   passwordInput: {
     label: "Password:",
