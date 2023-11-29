@@ -11,6 +11,7 @@ import { AppView } from "./AppView";
 import { API_STATUS_CODES } from "constants/apiConstants";
 import { AUTH_LOGIN_URL } from "constants/routesURL";
 import { AuthSearchParams } from "constants/authConstants";
+import { saveAuthSearchParams } from "@lowcoder-ee/pages/userAuth/authUtils";
 
 export type OutputChangeHandler<O> = (output: O) => void;
 export type EventTriggerHandler = (eventName: string) => void;
@@ -71,9 +72,11 @@ export class AppViewInstance<I = any, O = any> {
         .then((i) => i.data)
         .catch((e) => {
           if (e.response?.status === API_STATUS_CODES.REQUEST_NOT_AUTHORISED) {
-            window.location.href = `${webUrl}${AUTH_LOGIN_URL}?${
-              AuthSearchParams.redirectUrl
-            }=${encodeURIComponent(window.location.href)}`;
+            saveAuthSearchParams({
+              [AuthSearchParams.redirectUrl]: encodeURIComponent(window.location.href),
+              [AuthSearchParams.loginType]: null,
+            })
+            window.location.href = `${webUrl}${AUTH_LOGIN_URL}`;
           }
         });
 
