@@ -84,6 +84,9 @@ const SectionWrapper = styled.div`
   .section-header {
     margin-left: 0;
   }
+  &:not(:last-child){
+    border-bottom: 1px solid #e1e3eb;
+  }
 `;
 
 const stateCompName = 'UICompSections';
