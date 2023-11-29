@@ -8,7 +8,6 @@ import { draggingUtils } from "layout";
 import { isEmpty } from "lodash";
 import { language } from "i18n";
 import {
-  ComListTitle,
   CompIconDiv,
   EmptyCompContent,
   RightPanelContentWrapper,
@@ -16,14 +15,12 @@ import {
 import { tableDragClassName } from "pages/tutorials/tutorialsConstant";
 import React, { useContext, useMemo } from "react";
 import styled from "styled-components";
-import { labelCss } from "lowcoder-design";
+import {
+  BaseSection,
+  labelCss,
+} from "lowcoder-design";
 import { TransparentImg } from "../../../util/commonUtils";
 import { RightContext } from "./rightContext";
-
-const GrayLabel = (props: { label: string }) => {
-  const { label } = props;
-  return <ComListTitle>{label}</ComListTitle>;
-};
 
 const CompDiv = styled.div`
   display: flex;
@@ -80,12 +77,10 @@ const InsertContain = styled.div`
   gap: 8px;
 `;
 
-const CategoryLabel = styled(GrayLabel)`
-  margin: 0;
-`;
-
 const SectionWrapper = styled.div`
-  margin-bottom: 16px;
+  .section-header {
+    margin-left: 0;
+  }
 `;
 
 export const UICompPanel = () => {
@@ -122,26 +117,31 @@ export const UICompPanel = () => {
 
           return (
             <SectionWrapper key={index}>
-              <CategoryLabel label={uiCompCategoryNames[key as UICompCategory]} />
-              <InsertContain>
-                {infos.map((info) => (
-                  <CompDiv key={info[0]} className={info[0] === "table" ? tableDragClassName : ""}>
-                    <HovDiv
-                      draggable
-                      onDragStart={(e) => {
-                        e.dataTransfer.setData("compType", info[0]);
-                        e.dataTransfer.setDragImage(TransparentImg, 0, 0);
-                        draggingUtils.setData("compType", info[0]);
-                        onDrag(info[0]);
-                      }}
-                    >
-                      <IconContain Icon={info[1].icon}></IconContain>
-                    </HovDiv>
-                    <CompNameLabel>{info[1].name}</CompNameLabel>
-                    {language !== "en" && <CompEnNameLabel>{info[1].enName}</CompEnNameLabel>}
-                  </CompDiv>
-                ))}
-              </InsertContain>
+              <BaseSection
+                noMargin
+                width={288}
+                name={uiCompCategoryNames[key as UICompCategory]}
+              >
+                <InsertContain>
+                  {infos.map((info) => (
+                    <CompDiv key={info[0]} className={info[0] === "table" ? tableDragClassName : ""}>
+                      <HovDiv
+                        draggable
+                        onDragStart={(e) => {
+                          e.dataTransfer.setData("compType", info[0]);
+                          e.dataTransfer.setDragImage(TransparentImg, 0, 0);
+                          draggingUtils.setData("compType", info[0]);
+                          onDrag(info[0]);
+                        }}
+                      >
+                        <IconContain Icon={info[1].icon}></IconContain>
+                      </HovDiv>
+                      <CompNameLabel>{info[1].name}</CompNameLabel>
+                      {language !== "en" && <CompEnNameLabel>{info[1].enName}</CompEnNameLabel>}
+                    </CompDiv>
+                  ))}
+                </InsertContain>
+              </BaseSection>
             </SectionWrapper>
           );
         })
