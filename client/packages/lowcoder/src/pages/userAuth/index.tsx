@@ -3,7 +3,7 @@ import { Redirect, Route, Switch, useLocation, useParams } from "react-router-do
 import React, { useEffect, useMemo } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { selectSystemConfig } from "redux/selectors/configSelectors";
-import { AuthContext } from "pages/userAuth/authUtils";
+import { AuthContext, clearAuthSearchParams } from "pages/userAuth/authUtils";
 import { AuthRoutes } from "@lowcoder-ee/constants/authConstants";
 import { AuthLocationState } from "constants/authConstants";
 import { ProductLoading } from "components/ProductLoading";
@@ -37,6 +37,7 @@ export default function UserAuth() {
 
   const fetchUserAfterAuthSuccess = () => {
     dispatch(fetchUserAction());
+    clearAuthSearchParams();
   }
 
   return (
