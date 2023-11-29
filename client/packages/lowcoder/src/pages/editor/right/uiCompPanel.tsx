@@ -13,10 +13,13 @@ import {
   RightPanelContentWrapper,
 } from "pages/editor/right/styledComponent";
 import { tableDragClassName } from "pages/tutorials/tutorialsConstant";
-import React, { useContext, useMemo } from "react";
+import React, { useContext, useMemo, useState } from "react";
 import styled from "styled-components";
 import {
   BaseSection,
+  PropertySectionContext,
+  PropertySectionContextType,
+  PropertySectionState,
   labelCss,
 } from "lowcoder-design";
 import { TransparentImg } from "../../../util/commonUtils";
@@ -83,8 +86,16 @@ const SectionWrapper = styled.div`
   }
 `;
 
+const stateCompName = 'UICompSections';
+const initialState: PropertySectionState = { [stateCompName]: {}};
+Object.keys(uiCompCategoryNames).forEach((cat) => {
+  const key = uiCompCategoryNames[cat as UICompCategory];
+  initialState[stateCompName][key] = key === uiCompCategoryNames.common
+})
+
 export const UICompPanel = () => {
   const { onDrag, searchValue } = useContext(RightContext);
+  const [propertySectionState, setPropertySectionState] = useState<PropertySectionState>(initialState);
 
   const categories = useMemo(() => {
     const cats: Record<string, [string, UICompManifest][]> = Object.fromEntries(
@@ -97,6 +108,22 @@ export const UICompPanel = () => {
     });
     return cats;
   }, []);
+
+  const propertySectionContextValue = useMemo<PropertySectionContextType>(() => {
+    return {
+      compName: stateCompName,
+      state: propertySectionState,
+      toggle: (compName: string, sectionName: string) => {
+        setPropertySectionState((oldState) => {
+          const nextSectionState: PropertySectionState = { ...oldState };
+          const compState = nextSectionState[compName] || {};
+          compState[sectionName] = compState[sectionName] === false;
+          nextSectionState[compName] = compState;
+          return nextSectionState;
+        });
+      },
+    };
+  }, [propertySectionState]);
 
   const compList = useMemo(
     () =>
@@ -149,9 +176,20 @@ export const UICompPanel = () => {
     [categories, searchValue, onDrag]
   );
 
+  if(!compList.length) return (
+    <RightPanelContentWrapper>
+      <EmptyCompContent />
+    </RightPanelContentWrapper>
+  )
+
   return (
     <RightPanelContentWrapper>
-      {compList.length > 0 ? compList : <EmptyCompContent />}
+      {/* {compList.length > 0 ? compList : <EmptyCompContent />} */}
+      <PropertySectionContext.Provider
+        value={propertySectionContextValue}
+      >
+        {compList}
+      </PropertySectionContext.Provider>
     </RightPanelContentWrapper>
   );
 };
