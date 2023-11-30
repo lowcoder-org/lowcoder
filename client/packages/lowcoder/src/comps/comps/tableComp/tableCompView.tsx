@@ -158,7 +158,8 @@ const TableWrapper = styled.div<{
   $rowStyle: TableRowStyleType;
   toolbarPosition: "above" | "below" | "close";
 }>`
-  overflow: hidden;
+  max-height: 100%;
+  overflow-y: auto;
   background: white;
   border: 1px solid #d7d9e0;
 
@@ -364,7 +365,7 @@ type CustomTableProps<RecordType> = Omit<TableProps<RecordType>, "components" | 
   rowColorFn: RowColorViewType;
   columnsStyle: TableColumnStyleType;
   fixedHeader: boolean;
-  maxHeight: string;
+  height?: number;
 };
 
 function TableCellView(props: {
@@ -538,7 +539,7 @@ function ResizeableTable<RecordType extends object>(props: CustomTableProps<Reco
       columns={columns}
       scroll={{
         x: COL_MIN_WIDTH * columns.length,
-        y: props.fixedHeader ? props.maxHeight : undefined,
+        y: props.fixedHeader && props.height ? `${props.height - 100}px` : undefined,
       }}
     ></Table>
   );
@@ -552,10 +553,10 @@ export function TableCompView(props: {
   onDownload: (fileName: string) => void;
 }) {
   const editorState = useContext(EditorContext);
-  const { width, ref } = useResizeDetector({
+  const { width, height, ref } = useResizeDetector({
     refreshMode: "debounce",
     refreshRate: 600,
-    handleHeight: false,
+    handleHeight: true,
   });
   const viewMode = useUserViewMode();
   const compName = useContext(CompNameContext);
@@ -671,8 +672,8 @@ export function TableCompView(props: {
 
   return (
     <BackgroundColorContext.Provider value={style.background}>
+      <div ref={ref} style={{height: '100%'}}>
       <TableWrapper
-        ref={ref}
         $style={style}
         $rowStyle={rowStyle}
         toolbarPosition={toolbar.position}
@@ -697,13 +698,13 @@ export function TableCompView(props: {
           }}
           showHeader={!compChildren.hideHeader.getView()}
           fixedHeader={compChildren.fixedHeader.getView()}
-          maxHeight={compChildren.maxHeight.getView()}
           columns={antdColumns}
           columnsStyle={columnsStyle}
           viewModeResizable={compChildren.viewModeResizable.getView()}
           dataSource={pageDataInfo.data}
           size={compChildren.size.getView()}
           tableLayout="fixed"
+          height={height}
           loading={
             loading ||
             // fixme isLoading type
@@ -717,6 +718,7 @@ export function TableCompView(props: {
           {expansion.expandModalView}
         </SlotConfigContext.Provider>
       </TableWrapper>
+      </div>
     </BackgroundColorContext.Provider>
   );
 }

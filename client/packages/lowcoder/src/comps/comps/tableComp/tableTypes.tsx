@@ -33,6 +33,7 @@ import { JSONObject } from "util/jsonTypes";
 import { ExpansionControl } from "./expansionControl";
 import { PaginationControl } from "./paginationControl";
 import { SelectionControl } from "./selectionControl";
+import { AutoHeightControl } from "comps/controls/autoHeightControl";
 
 const sizeOptions = [
   {
@@ -136,7 +137,7 @@ const tableChildrenMap = {
   hideBordered: BoolControl,
   hideHeader: BoolControl,
   fixedHeader: BoolControl,
-  maxHeight: withDefault(RadiusControl, '300px'),
+  autoHeight: withDefault(AutoHeightControl, "auto"),
   data: withIsLoadingMethod(JSONObjectArrayControl),
   showDataLoadSpinner: withDefault(BoolPureControl, true),
   columns: ColumnListComp,

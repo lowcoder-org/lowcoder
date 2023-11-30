@@ -1176,8 +1176,6 @@ table: {
     hideHeader: "隐藏表头",
     fixedHeader: "固定表头",
     fixedHeaderTooltip: "垂直滚动表格的标题将被固定",
-    maxHeight: "最大限度。高度",
-    maxHeightTooltip: "设置最大值使表格可滚动的高度",
     hideBordered: "隐藏列边框",
     deleteColumn: "删除列",
     confirmDeleteColumn: "确认删除列:",
