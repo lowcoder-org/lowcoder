@@ -40,11 +40,16 @@ function useScreenInfo() {
   }
 
   const getScreenInfo = useCallback(() => {
-    const { width, height } = window.screen;
+    const { innerWidth, innerHeight } = window;
     const deviceType = getDeviceType();
     const flags = getFlagsByDeviceType(deviceType);
     
-    return { width, height, deviceType, ...flags };
+    return {
+      width: innerWidth,
+      height: innerHeight,
+      deviceType,
+      ...flags
+    };
   }, [])
 
   const [screenInfo, setScreenInfo] = useState<ScreenInfo>({});
