@@ -58,6 +58,10 @@ export class TableImplComp extends TableInitComp implements IContainer {
   readonly filterData: RecordType[] = [];
   readonly columnAggrData: ColumnsAggrData = {};
 
+  override autoHeight(): boolean {
+    return this.children.autoHeight.getView();
+  }
+  
   private getSlotContainer() {
     return this.children.expansion.children.slot.getSelectedComp().getComp().children.container;
   }

@@ -429,6 +429,7 @@ export function compTablePropertyView<T extends MultiBaseComp<TableChildrenType>
       <Section name={trans("prop.columns")}>{columnPropertyView(comp)}</Section>
       <Section name={sectionNames.layout}>
         {comp.children.expansion.getPropertyView()}
+        {comp.children.autoHeight.getPropertyView()}
         {hiddenPropertyView(comp.children)}
       </Section>
       <Section name={trans("prop.rowSelection")}>
@@ -455,11 +456,15 @@ export function compTablePropertyView<T extends MultiBaseComp<TableChildrenType>
           label: trans("table.tableSize"),
           radioButton: true,
         })}
+        {comp.children.hideBordered.propertyView({
+          label: trans("table.hideBordered"),
+        })}
         {comp.children.hideHeader.propertyView({
           label: trans("table.hideHeader"),
         })}
-        {comp.children.hideBordered.propertyView({
-          label: trans("table.hideBordered"),
+        {comp.children.fixedHeader.propertyView({
+          label: trans("table.fixedHeader"),
+          tooltip: trans("table.fixedHeaderTooltip")
         })}
       </Section>
       <Section name={"Row Style"}>

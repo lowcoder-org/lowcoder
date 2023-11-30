@@ -158,7 +158,8 @@ const TableWrapper = styled.div<{
   $rowStyle: TableRowStyleType;
   toolbarPosition: "above" | "below" | "close";
 }>`
-  overflow: hidden;
+  max-height: 100%;
+  overflow-y: auto;
   background: white;
   border: 1px solid #d7d9e0;
 
@@ -275,6 +276,7 @@ const TableTd = styled.td<{
   border-color: ${(props) => props.$style.border} !important;
   border-width: ${(props) => props.$style.borderWidth} !important;
   border-radius: ${(props) => props.$style.radius};
+  padding: 0 !important;
 
   > div > div {
     color: ${(props) => props.$style.text};
@@ -362,6 +364,9 @@ type CustomTableProps<RecordType> = Omit<TableProps<RecordType>, "components" | 
   viewModeResizable: boolean;
   rowColorFn: RowColorViewType;
   columnsStyle: TableColumnStyleType;
+  fixedHeader: boolean;
+  height?: number;
+  autoHeight?: boolean;
 };
 
 function TableCellView(props: {
@@ -533,7 +538,12 @@ function ResizeableTable<RecordType extends object>(props: CustomTableProps<Reco
       {...props}
       pagination={false}
       columns={columns}
-      scroll={{ x: COL_MIN_WIDTH * columns.length }}
+      scroll={{
+        x: COL_MIN_WIDTH * columns.length,
+        y: props.fixedHeader && props.height && !props.autoHeight
+          ? `${props.height - 100}px`
+          : undefined,
+      }}
     ></Table>
   );
 }
@@ -546,10 +556,10 @@ export function TableCompView(props: {
   onDownload: (fileName: string) => void;
 }) {
   const editorState = useContext(EditorContext);
-  const { width, ref } = useResizeDetector({
+  const { width, height, ref } = useResizeDetector({
     refreshMode: "debounce",
     refreshRate: 600,
-    handleHeight: false,
+    handleHeight: true,
   });
   const viewMode = useUserViewMode();
   const compName = useContext(CompNameContext);
@@ -574,6 +584,7 @@ export function TableCompView(props: {
     () => compChildren.dynamicColumnConfig.getView(),
     [compChildren.dynamicColumnConfig]
   );
+  const autoHeight = compChildren.autoHeight.getView();
   const columnsAggrData = comp.columnAggrData;
   const expansion = useMemo(() => compChildren.expansion.getView(), [compChildren.expansion]);
   const antdColumns = useMemo(
@@ -665,8 +676,8 @@ export function TableCompView(props: {
 
   return (
     <BackgroundColorContext.Provider value={style.background}>
+      <div ref={ref} style={{height: '100%'}}>
       <TableWrapper
-        ref={ref}
         $style={style}
         $rowStyle={rowStyle}
         toolbarPosition={toolbar.position}
@@ -690,12 +701,15 @@ export function TableCompView(props: {
             onTableChange(pagination, filters, sorter, extra, comp.dispatch, onEvent);
           }}
           showHeader={!compChildren.hideHeader.getView()}
+          fixedHeader={compChildren.fixedHeader.getView()}
           columns={antdColumns}
           columnsStyle={columnsStyle}
           viewModeResizable={compChildren.viewModeResizable.getView()}
           dataSource={pageDataInfo.data}
           size={compChildren.size.getView()}
           tableLayout="fixed"
+          height={height}
+          autoHeight={autoHeight}
           loading={
             loading ||
             // fixme isLoading type
@@ -709,6 +723,7 @@ export function TableCompView(props: {
           {expansion.expandModalView}
         </SlotConfigContext.Provider>
       </TableWrapper>
+      </div>
     </BackgroundColorContext.Provider>
   );
 }
