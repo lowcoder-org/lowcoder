@@ -6,6 +6,7 @@ import {
   BoolCodeControl,
   ColorOrBoolCodeControl,
   JSONObjectArrayControl,
+  RadiusControl,
   StringControl,
 } from "comps/controls/codeControl";
 import { dropdownControl } from "comps/controls/dropdownControl";
@@ -33,6 +34,7 @@ import { JSONObject } from "util/jsonTypes";
 import { ExpansionControl } from "./expansionControl";
 import { PaginationControl } from "./paginationControl";
 import { SelectionControl } from "./selectionControl";
+import { AutoHeightControl } from "comps/controls/autoHeightControl";
 
 const sizeOptions = [
   {
@@ -135,6 +137,8 @@ export type RowColorViewType = (param: {
 const tableChildrenMap = {
   hideBordered: BoolControl,
   hideHeader: BoolControl,
+  fixedHeader: BoolControl,
+  autoHeight: withDefault(AutoHeightControl, "auto"),
   data: withIsLoadingMethod(JSONObjectArrayControl),
   showDataLoadSpinner: withDefault(BoolPureControl, true),
   columns: ColumnListComp,
