@@ -24,7 +24,7 @@ import { EditorContext } from "comps/editorState";
 import React, { useContext } from "react";
 
 const Link = styled(Button)<{ $style: LinkStyleType }>`
-  ${(props) => `color: ${props.$style.text}; margin: ${props.$style.margin}; padding: ${props.$style.padding};`}
+  ${(props) => `color: ${props.$style.text}; margin: ${props.$style.margin}; padding: ${props.$style.padding}; font-size: ${props.$style.textSize};`}
   &.ant-btn {
     display: inline-flex;
     align-items: center;

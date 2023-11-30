@@ -9,6 +9,11 @@ import { NameConfig, NameConfigHidden, withExposingConfigs } from "../generators
 import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 
+import { useContext } from "react";
+import { EditorContext } from "comps/editorState";
+
+// TODO: after Update of ANTd, introduce Size attribute to ProgressCircle
+
 const getStyle = (style: ProgressStyleType) => {
   return css`
     width: ${widthCalculator(style.margin)};	
@@ -74,8 +79,18 @@ let ProgressCircleTmpComp = (function () {
               tooltip: trans("progress.valueTooltip"),
             })}
           </Section>
-          <Section name={sectionNames.layout}>{hiddenPropertyView(children)}</Section>
-          <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
+
+          {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+            <Section name={sectionNames.interaction}>
+              {hiddenPropertyView(children)}
+            </Section>
+          )}
+
+          {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+            <Section name={sectionNames.style}>
+              {children.style.getPropertyView()}
+            </Section>
+          )}
         </>
       );
     })
