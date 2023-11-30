@@ -13,7 +13,7 @@ import {
   RightPanelContentWrapper,
 } from "pages/editor/right/styledComponent";
 import { tableDragClassName } from "pages/tutorials/tutorialsConstant";
-import React, { useContext, useMemo, useState } from "react";
+import React, { useContext, useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
 import {
   BaseSection,
@@ -99,6 +99,7 @@ Object.keys(uiCompCategoryNames).forEach((cat) => {
 export const UICompPanel = () => {
   const { onDrag, searchValue } = useContext(RightContext);
   const [propertySectionState, setPropertySectionState] = useState<PropertySectionState>(initialState);
+  const [searchedPropertySectionState, setSearchedPropertySectionState] = useState<PropertySectionState>({});
 
   const categories = useMemo(() => {
     const cats: Record<string, [string, UICompManifest][]> = Object.fromEntries(
@@ -113,11 +114,18 @@ export const UICompPanel = () => {
   }, []);
 
   const propertySectionContextValue = useMemo<PropertySectionContextType>(() => {
+    const state = searchValue
+      ? searchedPropertySectionState
+      : propertySectionState;
+    const setStateFn = searchValue
+      ? setSearchedPropertySectionState
+      : setPropertySectionState;
+
     return {
       compName: stateCompName,
-      state: propertySectionState,
+      state,
       toggle: (compName: string, sectionName: string) => {
-        setPropertySectionState((oldState) => {
+        setStateFn((oldState) => {
           const nextSectionState: PropertySectionState = { ...oldState };
           const compState = nextSectionState[compName] || {};
           compState[sectionName] = compState[sectionName] === false;
@@ -126,7 +134,13 @@ export const UICompPanel = () => {
         });
       },
     };
-  }, [propertySectionState]);
+  }, [searchValue, propertySectionState, searchedPropertySectionState]);
+
+  useEffect(() => {
+    if(!searchValue) {
+      setSearchedPropertySectionState({})
+    }
+  }, [searchValue])
 
   const compList = useMemo(
     () =>
@@ -187,7 +201,6 @@ export const UICompPanel = () => {
 
   return (
     <RightPanelContentWrapper>
-      {/* {compList.length > 0 ? compList : <EmptyCompContent />} */}
       <PropertySectionContext.Provider
         value={propertySectionContextValue}
       >
