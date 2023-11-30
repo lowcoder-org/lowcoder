@@ -366,6 +366,7 @@ type CustomTableProps<RecordType> = Omit<TableProps<RecordType>, "components" | 
   columnsStyle: TableColumnStyleType;
   fixedHeader: boolean;
   height?: number;
+  autoHeight?: boolean;
 };
 
 function TableCellView(props: {
@@ -539,7 +540,9 @@ function ResizeableTable<RecordType extends object>(props: CustomTableProps<Reco
       columns={columns}
       scroll={{
         x: COL_MIN_WIDTH * columns.length,
-        y: props.fixedHeader && props.height ? `${props.height - 100}px` : undefined,
+        y: props.fixedHeader && props.height && !props.autoHeight
+          ? `${props.height - 100}px`
+          : undefined,
       }}
     ></Table>
   );
@@ -581,6 +584,7 @@ export function TableCompView(props: {
     () => compChildren.dynamicColumnConfig.getView(),
     [compChildren.dynamicColumnConfig]
   );
+  const autoHeight = compChildren.autoHeight.getView();
   const columnsAggrData = comp.columnAggrData;
   const expansion = useMemo(() => compChildren.expansion.getView(), [compChildren.expansion]);
   const antdColumns = useMemo(
@@ -705,6 +709,7 @@ export function TableCompView(props: {
           size={compChildren.size.getView()}
           tableLayout="fixed"
           height={height}
+          autoHeight={autoHeight}
           loading={
             loading ||
             // fixme isLoading type
