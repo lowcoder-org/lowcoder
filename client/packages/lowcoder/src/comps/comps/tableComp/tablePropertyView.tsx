@@ -455,12 +455,22 @@ export function compTablePropertyView<T extends MultiBaseComp<TableChildrenType>
           label: trans("table.tableSize"),
           radioButton: true,
         })}
-        {comp.children.hideHeader.propertyView({
-          label: trans("table.hideHeader"),
-        })}
         {comp.children.hideBordered.propertyView({
           label: trans("table.hideBordered"),
         })}
+        {comp.children.hideHeader.propertyView({
+          label: trans("table.hideHeader"),
+        })}
+        {comp.children.fixedHeader.propertyView({
+          label: trans("table.fixedHeader"),
+          tooltip: trans("table.fixedHeaderTooltip")
+        })}
+        {comp.children.fixedHeader.getView() &&
+          comp.children.maxHeight.propertyView({
+            label: trans("table.maxHeight"),
+            tooltip: trans("table.maxHeightTooltip")
+          })
+        }
       </Section>
       <Section name={"Row Style"}>
         {comp.children.rowStyle.getPropertyView()}

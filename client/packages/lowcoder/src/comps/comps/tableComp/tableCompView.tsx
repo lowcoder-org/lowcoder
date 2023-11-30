@@ -275,6 +275,7 @@ const TableTd = styled.td<{
   border-color: ${(props) => props.$style.border} !important;
   border-width: ${(props) => props.$style.borderWidth} !important;
   border-radius: ${(props) => props.$style.radius};
+  padding: 0 !important;
 
   > div > div {
     color: ${(props) => props.$style.text};
@@ -362,6 +363,8 @@ type CustomTableProps<RecordType> = Omit<TableProps<RecordType>, "components" | 
   viewModeResizable: boolean;
   rowColorFn: RowColorViewType;
   columnsStyle: TableColumnStyleType;
+  fixedHeader: boolean;
+  maxHeight: string;
 };
 
 function TableCellView(props: {
@@ -533,7 +536,10 @@ function ResizeableTable<RecordType extends object>(props: CustomTableProps<Reco
       {...props}
       pagination={false}
       columns={columns}
-      scroll={{ x: COL_MIN_WIDTH * columns.length }}
+      scroll={{
+        x: COL_MIN_WIDTH * columns.length,
+        y: props.fixedHeader ? props.maxHeight : undefined,
+      }}
     ></Table>
   );
 }
@@ -690,6 +696,8 @@ export function TableCompView(props: {
             onTableChange(pagination, filters, sorter, extra, comp.dispatch, onEvent);
           }}
           showHeader={!compChildren.hideHeader.getView()}
+          fixedHeader={compChildren.fixedHeader.getView()}
+          maxHeight={compChildren.maxHeight.getView()}
           columns={antdColumns}
           columnsStyle={columnsStyle}
           viewModeResizable={compChildren.viewModeResizable.getView()}

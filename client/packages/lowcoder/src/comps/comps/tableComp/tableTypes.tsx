@@ -6,6 +6,7 @@ import {
   BoolCodeControl,
   ColorOrBoolCodeControl,
   JSONObjectArrayControl,
+  RadiusControl,
 } from "comps/controls/codeControl";
 import { dropdownControl } from "comps/controls/dropdownControl";
 import { eventHandlerControl } from "comps/controls/eventHandlerControl";
@@ -134,6 +135,8 @@ export type RowColorViewType = (param: {
 const tableChildrenMap = {
   hideBordered: BoolControl,
   hideHeader: BoolControl,
+  fixedHeader: BoolControl,
+  maxHeight: withDefault(RadiusControl, '300px'),
   data: withIsLoadingMethod(JSONObjectArrayControl),
   showDataLoadSpinner: withDefault(BoolPureControl, true),
   columns: ColumnListComp,
