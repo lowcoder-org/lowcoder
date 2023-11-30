@@ -393,6 +393,7 @@ export const TextStyle = [
     transformer: toSelf,
   },
   TEXT,
+  BORDER,
   MARGIN,	
   PADDING,
   {
@@ -402,6 +403,8 @@ export const TextStyle = [
     depType: DEP_TYPE.SELF,
     transformer: toSelf,
   },
+  RADIUS,
+  BORDER_WIDTH
 ] as const;
 
 export const MarginStyle = [	
@@ -729,9 +732,10 @@ export const FileViewerStyle = [
   RADIUS,
   MARGIN,	
   PADDING,
+  BORDER_WIDTH
 ] as const;
 
-export const IframeStyle = [getBackground(), getStaticBorder("#00000000"), RADIUS, MARGIN, PADDING] as const;
+export const IframeStyle = [getBackground(), getStaticBorder("#00000000"), RADIUS, BORDER_WIDTH, MARGIN, PADDING] as const;
 
 export const DateTimeStyle = [
   LABEL,
@@ -752,6 +756,7 @@ export const LinkStyle = [
   },
   MARGIN,	
   PADDING,
+  TEXT_SIZE
 ] as const;
 
 export const DividerStyle = [
@@ -768,6 +773,8 @@ export const DividerStyle = [
   },
   MARGIN,	
   PADDING,
+  TEXT_SIZE,
+  BORDER_WIDTH
 ] as const;
 
 export const ProgressStyle = [
@@ -800,7 +807,7 @@ export const NavigationStyle = [
   PADDING,
 ] as const;
 
-export const ImageStyle = [getStaticBorder("#00000000"), RADIUS, MARGIN, PADDING] as const;
+export const ImageStyle = [getStaticBorder("#00000000"), RADIUS, BORDER_WIDTH, MARGIN, PADDING] as const;
 
 export const ListViewStyle = BG_STATIC_BORDER_RADIUS;
 
@@ -815,6 +822,9 @@ export const QRCodeStyle = [
   },
   MARGIN,	
   PADDING,
+  BORDER,
+  RADIUS,
+  BORDER_WIDTH
 ] as const;
 
 export const TimeLineStyle = [
@@ -916,6 +926,7 @@ export const SignatureStyle = [
   },
   MARGIN,	
   PADDING,
+  BORDER_WIDTH
 ] as const;
 
 // Added by Aqib Mirza
@@ -1010,7 +1021,7 @@ export const NavLayoutItemActiveStyle = [
 
 export const CarouselStyle = [getBackground("canvas")] as const;
 
-export const RichTextEditorStyle = [getStaticBorder(), RADIUS] as const;
+export const RichTextEditorStyle = [getStaticBorder(), getBackground("canvas"), RADIUS, BORDER_WIDTH] as const;
 export type InputLikeStyleType = StyleConfigType<typeof InputLikeStyle>;
 export type ButtonStyleType = StyleConfigType<typeof ButtonStyle>;
 export type ToggleButtonStyleType = StyleConfigType<typeof ToggleButtonStyle>;

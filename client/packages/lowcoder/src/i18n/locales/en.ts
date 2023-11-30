@@ -789,7 +789,7 @@ export const en = {
     toggleButtonCompName: "Toggle Button",
     toggleButtonCompDesc: "Toggle Button component",
     toggleButtonCompKeywords: "",
-    textCompName: "Text",
+    textCompName: "Text Display",
     textCompDesc: "Text component",
     textCompKeywords: "",
     tableCompName: "Table",
@@ -874,8 +874,8 @@ export const en = {
     chartCompName: "Chart",
     chartCompDesc: "Chart component",
     chartCompKeywords: "",
-    carouselCompName: "Carousel",
-    carouselCompDesc: "Carousel component",
+    carouselCompName: "Image Carousel",
+    carouselCompDesc: "Image Carousel component",
     carouselCompKeywords: "",
     imageEditorCompName: "Image Editor",
     imageEditorCompDesc: "Image Editor component",
@@ -1008,6 +1008,8 @@ export const en = {
     visibilityToggle: "Show visibility toggle",
   },
   richTextEditor: {
+    toolbar: "Customine Toolbar",
+    toolbarDescription: "you can customize the toolbar. Plase refer to: https://quilljs.com/docs/modules/toolbar/ for more details.",
     placeholder: "Please input...",
     hideToolbar: "Hide toolbar",
     content: "Content",
@@ -1033,7 +1035,7 @@ export const en = {
   },
   rating: {
     max: "Max rating",
-    allowHalf: "Allow half",
+    allowHalf: "Allow half rating points",
   },
   optionsControl: {
     optionList: "Options",
@@ -1712,7 +1714,7 @@ export const en = {
     valueDesc: "Current switch status",
   },
   signature: {
-    tips: "Tips",
+    tips: "Hint Text",
     signHere: "Sign here",
     showUndo: "Show undo",
     showClear: "Show clear",
@@ -2272,7 +2274,7 @@ export const en = {
     createNavigation: "Create Navigation",
   },
   carousel: {
-    dotPosition: "Dots position",
+    dotPosition: "Navigation Dots position",
     autoPlay: "AutoPlay",
     showDots: "Show dots",
   },
