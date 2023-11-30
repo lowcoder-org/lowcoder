@@ -458,6 +458,11 @@ export function compTablePropertyView<T extends MultiBaseComp<TableChildrenType>
               label: trans("table.tableSize"),
               radioButton: true,
             })}
+            {comp.children.autoHeight.getPropertyView()}
+            {comp.children.fixedHeader.propertyView({
+              label: trans("table.fixedHeader"),
+              tooltip: trans("table.fixedHeaderTooltip")
+            })}
             {comp.children.hideHeader.propertyView({
               label: trans("table.hideHeader"),
             })}
