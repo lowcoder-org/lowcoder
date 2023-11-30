@@ -7,6 +7,7 @@ import {
   ColorOrBoolCodeControl,
   JSONObjectArrayControl,
   RadiusControl,
+  StringControl,
 } from "comps/controls/codeControl";
 import { dropdownControl } from "comps/controls/dropdownControl";
 import { eventHandlerControl } from "comps/controls/eventHandlerControl";
@@ -148,6 +149,7 @@ const tableChildrenMap = {
   toolbar: TableToolbarComp,
   style: styleControl(TableStyle),
   rowStyle: styleControl(TableRowStyle),
+  searchText: StringControl,
   columnsStyle: withDefault(styleControl(TableColumnStyle), {radius: '0px'}),
   viewModeResizable: BoolControl,
   // sample data for regenerating columns

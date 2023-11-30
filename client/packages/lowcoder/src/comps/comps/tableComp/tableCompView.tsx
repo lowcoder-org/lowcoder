@@ -471,7 +471,7 @@ function ResizeableTable<RecordType extends object>(props: CustomTableProps<Reco
     const resizeWidth = (resizeData.index === index ? resizeData.width : col.width) ?? 0;
     let colWidth: number | string = "auto";
     let minWidth: number | string = COL_MIN_WIDTH;
-    if (resizeWidth > 0) {
+    if (typeof resizeWidth === "number" && resizeWidth > 0) {
       minWidth = "unset";
       colWidth = resizeWidth;
     } else {
