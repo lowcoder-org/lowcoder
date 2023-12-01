@@ -779,7 +779,7 @@ const uiCompMap: Registry = {
       .toString(),
     comp: AutoCompleteComp,
     layoutInfo: {
-      w: 7,
+      w: 6,
       h: 5,
     },
   },
@@ -794,6 +794,10 @@ const uiCompMap: Registry = {
     icon: ProgressCompIcon,
     keywords: trans("uiComp.progressCompKeywords"),
     comp: ProgressComp,
+    layoutInfo: {
+      w: 6,
+      h: 5,
+    },
   },
   progressCircle: {
     name: trans("uiComp.progressCircleCompName"),
@@ -804,8 +808,8 @@ const uiCompMap: Registry = {
     keywords: trans("uiComp.progressCircleCompKeywords"),
     comp: ProgressCircleComp,
     layoutInfo: {
-      w: 4,
-      h: 19,
+      w: 6,
+      h: 20,
     },
   },  
 
@@ -820,6 +824,10 @@ const uiCompMap: Registry = {
     icon: UploadCompIcon,
     keywords: trans("uiComp.fileUploadCompKeywords"),
     comp: FileComp,
+    layoutInfo: {
+      w: 6,
+      h: 5,
+    },
   },
   fileViewer: {
     name: trans("uiComp.fileViewerCompName"),
@@ -829,6 +837,10 @@ const uiCompMap: Registry = {
     icon: FileViewerCompIcon,
     keywords: trans("uiComp.fileViewerCompKeywords"),
     comp: FileViewerComp,
+    layoutInfo: {
+      w: 12,
+      h: 40,
+    },
   },
   
   // Multimedia
@@ -842,8 +854,8 @@ const uiCompMap: Registry = {
     keywords: trans("uiComp.imageCompKeywords"),
     comp: ImageComp,
     layoutInfo: {
-      w: 5,
-      h: 24,
+      w: 12,
+      h: 40,
     },
   },
   carousel: {
@@ -857,7 +869,7 @@ const uiCompMap: Registry = {
     withoutLoading: true,
     layoutInfo: {
       w: 12,
-      h: 25,
+      h: 40,
     },
   },
   audio: {
@@ -869,7 +881,7 @@ const uiCompMap: Registry = {
     keywords: trans("uiComp.audioCompKeywords"),
     comp: AudioComp,
     layoutInfo: {
-      w: 10,
+      w: 6,
       h: 5,
     },
   },
@@ -882,7 +894,7 @@ const uiCompMap: Registry = {
     keywords: trans("uiComp.videoCompKeywords"),
     comp: VideoComp,
     layoutInfo: {
-      w: 15,
+      w: 12,
       h: 40,
     },
   },
@@ -895,8 +907,8 @@ const uiCompMap: Registry = {
     keywords: trans("uiComp.jsonLottieCompKeywords"),
     comp: JsonLottieComp,
     layoutInfo: {
-      w: 10,
-      h: 47,
+      w: 12,
+      h: 40,
     },
   },
   imageEditor: {
@@ -908,8 +920,8 @@ const uiCompMap: Registry = {
     icon: imageEditorIcon,
     keywords: trans("uiComp.imageEditorCompKeywords"),
     layoutInfo: {
-      w: 15,
-      h: 60,
+      w: 12,
+      h: 40,
     },
   },
 
@@ -924,8 +936,8 @@ const uiCompMap: Registry = {
     keywords: trans("uiComp.qrCodeCompKeywords"),
     comp: QRCodeComp,
     layoutInfo: {
-      w: 4,
-      h: 19,
+      w: 6,
+      h: 20,
     },
   },
   scanner: {
@@ -946,8 +958,8 @@ const uiCompMap: Registry = {
     keywords: trans("uiComp.signatureCompKeywords"),
     comp: SignatureComp,
     layoutInfo: {
-      w: 9,
-      h: 35,
+      w: 12,
+      h: 40,
     },
   },
   select: {
@@ -958,6 +970,10 @@ const uiCompMap: Registry = {
     icon: SelectCompIcon,
     keywords: trans("uiComp.selectCompKeywords"),
     comp: SelectComp,
+    layoutInfo: {
+      w: 6,
+      h: 5,
+    },
   },
   multiSelect: {
     name: trans("uiComp.multiSelectCompName"),
@@ -981,8 +997,8 @@ const uiCompMap: Registry = {
     keywords: trans("uiComp.treeCompKeywords"),
     comp: TreeComp,
     layoutInfo: {
-      w: 11,
-      h: 35,
+      w: 12,
+      h: 40,
     },
   },
   treeSelect: {
@@ -994,7 +1010,7 @@ const uiCompMap: Registry = {
     keywords: trans("uiComp.treeSelectCompKeywords"),
     comp: TreeSelectComp,
     layoutInfo: {
-      w: 9,
+      w: 12,
       h: 5,
     },
   },
@@ -1010,8 +1026,8 @@ const uiCompMap: Registry = {
     keywords: trans("uiComp.iframeCompKeywords"),
     comp: IFrameComp,
     layoutInfo: {
-      w: 13,
-      h: 52,
+      w: 12,
+      h: 60,
     },
   },
   custom: {
@@ -1023,8 +1039,8 @@ const uiCompMap: Registry = {
     keywords: trans("uiComp.customCompKeywords"),
     comp: CustomComp,
     layoutInfo: {
-      w: 9,
-      h: 26,
+      w: 12,
+      h: 40,
     },
   },
   module: {
@@ -1036,8 +1052,8 @@ const uiCompMap: Registry = {
     keywords: trans("uiComp.moduleCompKeywords"),
     comp: ModuleComp,
     layoutInfo: {
-      w: 9,
-      h: 26,
+      w: 12,
+      h: 40,
     },
   },
 
@@ -1051,6 +1067,10 @@ const uiCompMap: Registry = {
     icon: TextCompIcon,
     keywords: trans("uiComp.textCompKeywords"),
     comp: TextComp,
+    layoutInfo: {
+      w: 6,
+      h: 24,
+    },
   },
   
 };
