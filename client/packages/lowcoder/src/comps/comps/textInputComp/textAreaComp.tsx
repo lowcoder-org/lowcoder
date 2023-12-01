@@ -7,7 +7,7 @@ import {
 import { Section, sectionNames } from "lowcoder-design";
 import { BoolControl } from "../../controls/boolControl";
 import { AutoHeightControl } from "../../controls/autoHeightControl";
-import { UICompBuilder } from "../../generators";
+import { UICompBuilder, withDefault } from "../../generators";
 import { FormDataPropertyView } from "../formComp/formDataConstants";
 import {
   getStyle,
@@ -45,15 +45,19 @@ const TextAreaStyled = styled(TextArea)<{
 const Wrapper = styled.div<{
   $style: InputLikeStyleType;
 }>`
-  height: 100%;
+  height: 100% !important;
+
+  .ant-input { 
+    height:100% !important;
+  }
 
   .ant-input-clear-icon {
-    opacity: 0.45;
+    opacity: 0.75;
     color: ${(props) => props.$style.text};
     top: 10px;
 
     &:hover {
-      opacity: 0.65;
+      opacity: 0.9;
       color: ${(props) => props.$style.text};
     }
   }
@@ -64,7 +68,7 @@ let TextAreaTmpComp = (function () {
     ...textInputChildren,
     viewRef: RefControl<TextAreaRef>,
     allowClear: BoolControl,
-    autoHeight: AutoHeightControl,
+    autoHeight: withDefault(AutoHeightControl, "fixed"),
     style: styleControl(InputLikeStyle),
   };
   return new UICompBuilder(childrenMap, (props) => {
@@ -73,12 +77,11 @@ let TextAreaTmpComp = (function () {
       required: props.required,
       children: (
         <Wrapper $style={props.style}>
-          <TextAreaStyled
+          <TextAreaStyled 
             {...inputProps}
             ref={props.viewRef}
             allowClear={props.allowClear}
-            autoSize={props.autoHeight}
-            style={{ height: "100%", maxHeight: "100%", resize: "none" }}
+            style={{ height: "100% !important", resize: "vertical" }}
             $style={props.style}
           />
         </Wrapper>
@@ -105,7 +108,8 @@ let TextAreaTmpComp = (function () {
           <Section name={sectionNames.advanced}>
             {allowClearPropertyView(children)}
             {readOnlyPropertyView(children)}
-          </Section><TextInputValidationSection {...children} /></>
+          </Section>
+          <TextInputValidationSection {...children} /></>
         )}
 
         {useContext(EditorContext).editorModeStatus === "layout" && (

@@ -23,16 +23,16 @@ export interface UICompLayoutInfo {
 }
 
 export const uiCompCategoryNames = {
-  common: trans("uiCompCategory.common"),
-  meeting: trans("meeting.meeting"),
-  dataInputText: trans("uiCompCategory.dataInputText"),
-  dataInputNumber: trans("uiCompCategory.dataInputNumber"),
-  dataInputSelect: trans("uiCompCategory.dataInputSelect"),
-  dataInputDate: trans("uiCompCategory.dataInputDate"),
-  button: trans("uiCompCategory.button"),
-  dataDisplay: trans("uiCompCategory.dataDisplay"),
-  container: trans("uiCompCategory.container"),
-  other: trans("uiCompCategory.other"),
+  dashboards: trans("uiCompCategory.dashboards"),
+  layout: trans("uiCompCategory.layout"),
+  forms: trans("uiCompCategory.forms"),
+  collaboration: trans("uiCompCategory.collaboration"),
+  projectmanagement: trans("uiCompCategory.projectmanagement"),
+  scheduling: trans("uiCompCategory.scheduling"),
+  documents: trans("uiCompCategory.documents"),
+  itemHandling: trans("uiCompCategory.itemHandling"),
+  multimedia: trans("uiCompCategory.multimedia"),
+  integration: trans("uiCompCategory.integration"),
 };
 
 export type UICompCategory = keyof typeof uiCompCategoryNames;
@@ -119,10 +119,10 @@ export type UICompType =
   | "calendar"
   | "signature"
   | "jsonLottie" //Added By Aqib Mirza
-  | "timeline"
-  | "comment"
-  | "mention"
-  | "autocomplete"
+  | "timeline" //Added By Mousheng
+  | "comment" //Added By Mousheng
+  | "mention" //Added By Mousheng
+  | "autocomplete" //Added By Mousheng
   | "responsiveLayout";
 
 export const uiCompRegistry = {} as Record<UICompType | string, UICompManifest>;
