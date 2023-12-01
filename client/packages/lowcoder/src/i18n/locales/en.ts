@@ -47,7 +47,7 @@ export const en = {
   copyError: "Copy error",
   api: {
     publishSuccess: "Published",
-    recoverFailed: "Recover failed",
+    recoverFailed: "Recovery failed",
     needUpdate:
       "Your current version is too old, please upgrade to the latest version.",
   },
@@ -56,9 +56,9 @@ export const en = {
     fold: "Fold",
   },
   exportMethod: {
-    setDesc: "Set property: {property}",
-    clearDesc: "Clear property: {property}",
-    resetDesc: "Reset property: {property} to default value",
+    setDesc: "Set Property: {property}",
+    clearDesc: "Clear Property: {property}",
+    resetDesc: "Reset Property: {property} to default value",
   },
   method: {
     focus: "Set focus",
@@ -79,16 +79,16 @@ export const en = {
   },
   errorBoundary: {
     encounterError:
-      "Loading component failed. Please check your configuration. ",
+      "Component loading failed. Please check your configuration. ",
     clickToReload: "Click to reload",
     errorMsg: "Error: ",
   },
   imgUpload: {
-    notSupportError: "Only support upload {types} image",
-    exceedSizeError: "Image size should not exceeds {size}",
+    notSupportError: "Only supports uploading {types} image",
+    exceedSizeError: "Image size should not exceed {size}",
   },
   gridCompOperator: {
-    notSupport: "Not support",
+    notSupport: "Not supported",
     selectAtLeastOneComponent: "Please select at least one component",
     selectCompFirst: "Please select components before copy",
     noContainerSelected: "[bug] No selected container",
