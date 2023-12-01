@@ -63,91 +63,64 @@ const getStyle = (
   const alternateBackground = genLinerGradient(rowStyle.alternateBackground);
 
   return css`
-    border-color: ${style.border};
-    border-radius: ${style.radius};
-
-    & > div > div > div > .ant-table > .ant-table-container > .ant-table-content > table {
-      > thead > tr > th,
-      > tbody > tr > td {
-        border-color: ${style.border};
-      }
-
-      > .ant-table-thead > tr > th::before {
-        background-color: ${style.border};
-      }
-
-      > .ant-table-thead {
-        > tr > th {
-          background-color: ${style.headerBackground};
-          border-color: ${style.border};
-          color: ${style.headerText};
-
-          &.ant-table-column-has-sorters:hover {
-            background-color: ${darkenColor(style.headerBackground, 0.05)};
-          }
-
-          > .ant-table-column-sorters > .ant-table-column-sorter {
-            color: ${style.headerText === defaultTheme.textDark ? "#bfbfbf" : style.headerText};
-          }
+    .ant-table-body {
+      background: white;
+    }
+    .ant-table-tbody {
+      > tr:nth-of-type(2n + 1) {
+        &,
+        > td {
+          background: ${genLinerGradient(rowStyle.background)};
         }
       }
 
-      > .ant-table-tbody {
-        > tr:nth-of-type(2n + 1) {
-          &,
-          > td {
-            background: ${genLinerGradient(rowStyle.background)};
-          }
+      > tr:nth-of-type(2n) {
+        &,
+        > td {
+          background: ${alternateBackground};
+        }
+      }
+
+      // selected row
+      > tr:nth-of-type(2n + 1).ant-table-row-selected {
+        > td {
+          background: ${selectedRowBackground}, ${rowStyle.background} !important;
         }
 
-        > tr:nth-of-type(2n) {
-          &,
-          > td {
-            background: ${alternateBackground};
-          }
+        > td.ant-table-cell-row-hover,
+        &:hover > td {
+          background: ${hoverRowBackground}, ${selectedRowBackground}, ${rowStyle.background} !important;
+        }
+      }
+
+      > tr:nth-of-type(2n).ant-table-row-selected {
+        > td {
+          background: ${selectedRowBackground}, ${alternateBackground} !important;
         }
 
-        // selected row
-        > tr:nth-of-type(2n + 1).ant-table-row-selected {
-          > td {
-            background: ${selectedRowBackground}, ${rowStyle.background} !important;
-          }
-
-          > td.ant-table-cell-row-hover,
-          &:hover > td {
-            background: ${hoverRowBackground}, ${selectedRowBackground}, ${rowStyle.background} !important;
-          }
+        > td.ant-table-cell-row-hover,
+        &:hover > td {
+          background: ${hoverRowBackground}, ${selectedRowBackground}, ${alternateBackground} !important;
         }
+      }
 
-        > tr:nth-of-type(2n).ant-table-row-selected {
-          > td {
-            background: ${selectedRowBackground}, ${alternateBackground} !important;
-          }
-
-          > td.ant-table-cell-row-hover,
-          &:hover > td {
-            background: ${hoverRowBackground}, ${selectedRowBackground}, ${alternateBackground} !important;
-          }
+      // hover row
+      > tr:nth-of-type(2n + 1) > td.ant-table-cell-row-hover {
+        &,
+        > div:nth-of-type(2) {
+          background: ${hoverRowBackground}, ${rowStyle.background} !important;
         }
+      }
 
-        // hover row
-        > tr:nth-of-type(2n + 1) > td.ant-table-cell-row-hover {
-          &,
-          > div:nth-of-type(2) {
-            background: ${hoverRowBackground}, ${rowStyle.background} !important;
-          }
+      > tr:nth-of-type(2n) > td.ant-table-cell-row-hover {
+        &,
+        > div:nth-of-type(2) {
+          background: ${hoverRowBackground}, ${alternateBackground} !important;
         }
+      }
 
-        > tr:nth-of-type(2n) > td.ant-table-cell-row-hover {
-          &,
-          > div:nth-of-type(2) {
-            background: ${hoverRowBackground}, ${alternateBackground} !important;
-          }
-        }
-
-        > tr.ant-table-expanded-row > td {
-          background: ${background};
-        }
+      > tr.ant-table-expanded-row > td {
+        background: ${background};
       }
     }
   `;
@@ -157,11 +130,13 @@ const TableWrapper = styled.div<{
   $style: TableStyleType;
   $rowStyle: TableRowStyleType;
   toolbarPosition: "above" | "below" | "close";
+  fixedHeader: boolean;
 }>`
   max-height: 100%;
-  overflow-y: auto;
+  overflow-y: ${(props) => (props.fixedHeader ? "hidden" : "auto")};
   background: white;
-  border: 1px solid #d7d9e0;
+  border: ${(props) => `1px solid ${props.$style.border}`};
+  border-radius: ${(props) => props.$style.radius};
 
   .ant-table-wrapper {
     border-top: ${(props) => (props.toolbarPosition === "above" ? "1px solid" : "unset")};
@@ -193,64 +168,91 @@ const TableWrapper = styled.div<{
       border-top: none !important;
       border-inline-start: none !important;
 
-      .ant-table-content {
-        // A table expand row contains table
-        .ant-table-tbody .ant-table-wrapper:only-child .ant-table {
-          margin: 0;
-        }
+      // A table expand row contains table
+      .ant-table-tbody .ant-table-wrapper:only-child .ant-table {
+        margin: 0;
+      }
 
-        table {
-          border-top: unset;
+      table {
+        border-top: unset;
 
-          td {
-            padding: 0px 0px;
-          }
+        > .ant-table-thead {
+          > tr > th {
+            background-color: ${(props) => props.$style.headerBackground};
+            border-color: ${(props) => props.$style.border};
+            color: ${(props) => props.$style.headerText};
+            border-inline-end: ${(props) => `1px solid ${props.$style.border}`} !important;
+            
+            &:last-child {
+              border-inline-end: none !important;
+            }
+            &.ant-table-column-has-sorters:hover {
+              background-color: ${(props) => darkenColor(props.$style.headerBackground, 0.05)};
+            }
+  
+            > .ant-table-column-sorters > .ant-table-column-sorter {
+              color: ${(props) => props.$style.headerText === defaultTheme.textDark ? "#bfbfbf" : props.$style.headerText};
+            }
 
-          thead > tr:first-child {
-            th:last-child {
-              border-right: unset;
+            &::before {
+              background-color: ${(props) => props.$style.border};
             }
           }
+        }
 
-          tbody > tr > td:last-child {
+        > thead > tr > th,
+        > tbody > tr > td {
+          border-color: ${(props) => props.$style.border};
+        }
+
+        td {
+          padding: 0px 0px;
+        }
+
+        thead > tr:first-child {
+          th:last-child {
             border-right: unset;
           }
-
-          .ant-empty-img-simple-g {
-            fill: #fff;
-          }
-
-          > thead > tr:first-child {
-            th:first-child {
-              border-top-left-radius: 0px;
-            }
-
-            th:last-child {
-              border-top-right-radius: 0px;
-            }
-          }
-
-          // hide the bottom border of the last row
-          ${(props) =>
-            props.toolbarPosition !== "below" &&
-            `
-              tbody > tr:last-child > td {
-                border-bottom: unset;
-              }
-          `}
         }
 
-        .ant-table-expanded-row-fixed:after {
-          border-right: unset !important;
+        tbody > tr > td:last-child {
+          border-right: unset;
         }
+
+        .ant-empty-img-simple-g {
+          fill: #fff;
+        }
+
+        > thead > tr:first-child {
+          th:first-child {
+            border-top-left-radius: 0px;
+          }
+
+          th:last-child {
+            border-top-right-radius: 0px;
+          }
+        }
+
+        // hide the bottom border of the last row
+        ${(props) =>
+          props.toolbarPosition !== "below" &&
+          `
+            tbody > tr:last-child > td {
+              border-bottom: unset;
+            }
+        `}
+      }
+
+      .ant-table-expanded-row-fixed:after {
+        border-right: unset !important;
       }
     }
   }
-
+  
   ${(props) => 
     props.$style && getStyle(props.$style, props.$rowStyle)}
 `;
-
+  
 const TableTh = styled.th<{ width?: number }>`
   overflow: hidden;
 
@@ -272,6 +274,11 @@ const TableTd = styled.td<{
   .ant-table-row-indent {
     display: ${(props) => (props.$isEditing ? "none" : "initial")};
   }
+  &.ant-table-row-expand-icon-cell {
+    background: ${(props) => props.background};
+    border-color: ${(props) => props.$style.border};
+  }
+
   background: ${(props) => props.background} !important;
   border-color: ${(props) => props.$style.border} !important;
   border-width: ${(props) => props.$style.borderWidth} !important;
@@ -681,6 +688,7 @@ export function TableCompView(props: {
         $style={style}
         $rowStyle={rowStyle}
         toolbarPosition={toolbar.position}
+        fixedHeader={compChildren.fixedHeader.getView()}
       >
         {toolbar.position === "above" && toolbarView}
         <ResizeableTable<RecordType>

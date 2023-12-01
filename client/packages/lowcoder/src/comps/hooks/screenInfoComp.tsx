@@ -20,8 +20,8 @@ type ScreenInfo = {
 
 function useScreenInfo() {
   const getDeviceType = () => {
-    if (window.screen.width < 768) return ScreenTypes.Mobile;
-    if (window.screen.width < 889) return ScreenTypes.Tablet;
+    if (window.innerWidth < 768) return ScreenTypes.Mobile;
+    if (window.innerWidth < 889) return ScreenTypes.Tablet;
     return ScreenTypes.Desktop;
   }
   const getFlagsByDeviceType = (deviceType: ScreenType) => {
