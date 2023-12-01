@@ -168,7 +168,7 @@ const childrenMap = {
   value: stringExposingStateControl("value"),
   hideToolbar: BoolControl,
   readOnly: BoolControl,
-  autoHeight: AutoHeightControl,
+  autoHeight: withDefault(AutoHeightControl, "fixed"),
   placeholder: withDefault(StringControl, trans("richTextEditor.placeholder")),
   toolbar: withDefault(StringControl, JSON.stringify(toolbarOptions)),
   onEvent: ChangeEventHandlerControl,
@@ -327,7 +327,7 @@ const RichTextEditorCompBase = new UICompBuilder(childrenMap, (props) => {
           </Section>
         )}
 
-        {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+        {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
           <>
             <Section name={sectionNames.layout}>
               {children.autoHeight.getPropertyView()}

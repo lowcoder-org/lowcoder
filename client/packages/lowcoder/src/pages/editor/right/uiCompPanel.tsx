@@ -93,7 +93,7 @@ const stateCompName = 'UICompSections';
 const initialState: PropertySectionState = { [stateCompName]: {}};
 Object.keys(uiCompCategoryNames).forEach((cat) => {
   const key = uiCompCategoryNames[cat as UICompCategory];
-  initialState[stateCompName][key] = key === uiCompCategoryNames.common
+  initialState[stateCompName][key] = key === uiCompCategoryNames.dashboards
 })
 
 export const UICompPanel = () => {
@@ -145,7 +145,7 @@ export const UICompPanel = () => {
   const compList = useMemo(
     () =>
       Object.entries(categories)
-        .filter(([key]) => !(!isEmpty(searchValue) && (key as UICompCategory) === "common"))
+        .filter(([key]) => !(!isEmpty(searchValue) && (key as UICompCategory) === "dashboards"))
         .map(([key, value], index) => {
           let infos = value;
           if (!isEmpty(searchValue)) {

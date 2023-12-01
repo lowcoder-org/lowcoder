@@ -18,7 +18,7 @@ type CompInfo = UICompManifest & { key: string };
 const groups: Partial<Record<UICompCategory, CompInfo[]>> = {};
 
 Object.entries(uiCompRegistry).forEach(([key, comp]) => {
-  const cat = comp.categories.find((c) => c !== "common");
+  const cat = comp.categories.find((c) => c !== "dashboards");
   if (cat === undefined) {
     return;
   }
