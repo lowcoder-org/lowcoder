@@ -107,7 +107,7 @@ let VideoCompBuilder = (function (props) {
         client.on(
           "user-unpublished",
           (user: IAgoraRTCRemoteUser, mediaType: "video" | "audio") => {
-            console.log("user-unpublished");
+            // console.log("user-unpublished");
 
             if (mediaType === "audio") {
               if (
@@ -140,7 +140,7 @@ let VideoCompBuilder = (function (props) {
       }
     }, [props.userId.value]);
 
-    console.log(props.userId);
+    // console.log(props.userId);
     
 
     return (

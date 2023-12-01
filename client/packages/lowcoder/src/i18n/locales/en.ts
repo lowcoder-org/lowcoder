@@ -2,10 +2,8 @@ import table from "./componentDocExtra/table.md?url";
 
 export const en = {
   productName: "Lowcoder",
-  productDesc:
-    "Create software applications for your Company and your Customers with minimal coding experience. Lowcoder is the best Retool, Appsmith or Tooljet Alternative.",
-  notSupportedBrowser:
-    "Your current browser may have compatibility issues. For a better user experience, it is recommended to use the latest version of the Chrome browser.",
+  productDesc: "Create software applications for your Company and your Customers with minimal coding experience. Lowcoder is the best Retool, Appsmith or Tooljet Alternative.",
+  notSupportedBrowser: "Your current browser may have compatibility issues. For a better user experience, it is recommended to use the latest version of the Chrome browser.",
   create: "Create",
   move: "Move",
   addItem: "Add",
@@ -48,8 +46,7 @@ export const en = {
   api: {
     publishSuccess: "Published",
     recoverFailed: "Recovery failed",
-    needUpdate:
-      "Your current version is too old, please upgrade to the latest version.",
+    needUpdate: "Your current version is too old, please upgrade to the latest version.",
   },
   codeEditor: {
     notSupportAutoFormat: "Current code editor not supports auto formatting",
@@ -66,20 +63,16 @@ export const en = {
     blur: "Remove focus",
     click: "Click",
     select: "Select all the text",
-    setSelectionRange:
-      "Set the start and end positions of the current text selection",
+    setSelectionRange: "Set the start and end positions of the current text selection",
     selectionStart: "The 0-based index of the first selected character.",
-    selectionEnd:
-      "The 0-based index of the character after the last selected character.",
+    selectionEnd: "The 0-based index of the character after the last selected character.",
     setRangeText: "Replace a range of text",
     replacement: "The string to insert.",
     replaceStart: "The 0-based index of the first character to replace.",
-    replaceEnd:
-      "The 0-based index of the character after the last character to replace.",
+    replaceEnd: "The 0-based index of the character after the last character to replace.",
   },
   errorBoundary: {
-    encounterError:
-      "Component loading failed. Please check your configuration. ",
+    encounterError: "Component loading failed. Please check your configuration. ",
     clickToReload: "Click to reload",
     errorMsg: "Error: ",
   },
@@ -94,10 +87,8 @@ export const en = {
     noContainerSelected: "[bug] No selected container",
     deleteCompsSuccess: "Delete success. You can use {undoKey} to undo.",
     deleteCompsTitle: "Delete components",
-    deleteCompsBody:
-      "Are you sure you want to delete {compNum} selected components?",
-    cutCompsSuccess:
-      "Cut success. You can use {pasteKey} to paste, or use {undoKey} to undo.",
+    deleteCompsBody: "Are you sure you want to delete {compNum} selected components?",
+    cutCompsSuccess: "Cut success. You can use {pasteKey} to paste, or use {undoKey} to undo.",
   },
   leftPanel: {
     queries: "Queries",
@@ -115,6 +106,9 @@ export const en = {
     expandTip: "Click to expand {component}'s data",
     collapseTip: "Click to collapse {component}'s data",
   },
+
+  // second part
+
   bottomPanel: {
     title: "Queries",
     run: "Run",
@@ -161,8 +155,7 @@ export const en = {
     defaultValue: "Default value",
     required: "Required field",
     readOnly: "Read only",
-    readOnlyTooltip:
-      "Read only component looks same as normal component, it is focusable and selectable but cannot be modified",
+    readOnlyTooltip: "Read only component looks same as normal component, it is focusable and selectable but cannot be modified",
     minimum: "Minimum",
     maximum: "Maximum",
     regex: "Regex",
@@ -174,8 +167,7 @@ export const en = {
     showCount: "Show count",
     textType: "Text type",
     customRule: "Custom rule",
-    customRuleTooltip:
-      "If the result is non-empty string, it is an error message. If empty or null, the validation passes. Example: ",
+    customRuleTooltip: "If the result is non-empty string, it is an error message. If empty or null, the validation passes. Example: ",
     manual: "Manual",
     map: "Mapped",
     json: "JSON",
@@ -207,9 +199,11 @@ export const en = {
     top: "Top",
     align: "Alignment",
     width: "Width",
-    widthTooltip:
-      "Width of the label. It supports percentage of the component width (%), pixels (px)",
+    widthTooltip: "Width of the label. It supports percentage of the component width (%), pixels (px)",
   },
+
+  // third part
+
   eventHandler: {
     eventHandlers: "Event handlers",
     emptyEventHandlers: "No event handlers",
@@ -236,8 +230,7 @@ export const en = {
     text: "Text",
     level: "Level",
     duration: "Duration",
-    notifyDurationTooltip:
-      "Time unit can be s(second, default), ms (millisecond). Max duration is {max} seconds",
+    notifyDurationTooltip: "Time unit can be s(second, default), ms (millisecond). Max duration is {max} seconds",
     goToURL: "Go to URL",
     openInNewTab: "Open in a new tab",
     copyToClipboard: "Copy to clipboard",
@@ -245,16 +238,13 @@ export const en = {
     export: "Export data",
     exportNoFileType: "No select (optional)",
     fileName: "File name",
-    fileNameTooltip:
-      "Support extension to specify the file type, like image.png.",
+    fileNameTooltip: "Support extension to specify the file type, like image.png.",
     fileType: "File type",
     condition: "Only run when",
-    conditionTooltip:
-      "Only run the event handler when this condition evaluates to 'true'",
+    conditionTooltip: "Only run the event handler when this condition evaluates to 'true'",
     debounce: "Debounce",
     throttle: "Throttle",
-    slowdownTooltip:
-      "Use debounce or throttle to control how often the action is triggered. Time unit can be ms (millisecond, default), s (second).",
+    slowdownTooltip: "Use debounce or throttle to control how often the action is triggered. Time unit can be ms (millisecond, default), s (second).",
     notHandledError: "Not handled",
     currentApp: "Current",
   },
@@ -290,8 +280,7 @@ export const en = {
     canvas: "Canvas color",
     canvasDesc: "The default background color of the app",
     primarySurface: "Container color",
-    primarySurfaceDesc:
-      "The default background color for components such as tables",
+    primarySurfaceDesc: "The default background color for components such as tables",
     borderRadius: "Border radius",
     borderRadiusDesc: "Most components use the default border radius",
     chart: "Chart style",
@@ -302,16 +291,15 @@ export const en = {
     padding: "Padding",
     paddingDesc: "The default padding is typically used for most components",
     containerheaderpadding: "Header Padding",
-    containerheaderpaddingDesc:
-      "The default headerpadding is typically used for most components",
-    //Added By Aqib Mirza
+    containerheaderpaddingDesc: "The default headerpadding is typically used for most components",
     gridColumns: "Grid Columns",
-    gridColumnsDesc:
-      "The default number of columns is typically used for most containers",
+    gridColumnsDesc: "The default number of columns is typically used for most containers",
   },
+
+  // fourth part
+
   style: {
-    resetTooltip:
-      "Reset styles. Delete the input's value to reset an individual field.",
+    resetTooltip: "Reset styles. Delete the input's value to reset an individual field.",
     textColor: "Text color",
     contrastText: "Contrast text color",
     generated: "Generated",
@@ -368,8 +356,7 @@ export const en = {
   },
   export: {
     hiddenDesc: "If true, the component is hidden",
-    disabledDesc:
-      "If true, the component will be greyed out and non-interactive",
+    disabledDesc: "If true, the component will be greyed out and non-interactive",
     visibleDesc: "If true, the component is visible",
     inputValueDesc: "Current value of the input",
     invalidDesc: "Whether the value is invalid",
@@ -388,52 +375,40 @@ export const en = {
     ratingValueDesc: "The currently selected score",
     ratingMaxDesc: "The maximum score currently set",
     datePickerValueDesc: "Currently selected date",
-    datePickerFormattedValueDesc:
-      "Formatted selected date according to the specified format",
+    datePickerFormattedValueDesc: "Formatted selected date according to the specified format",
     datePickerTimestampDesc: "The currently selected timestamp of the date (s)",
     dateRangeStartDesc: "Currently selected start date",
     dateRangeEndDesc: "Currently selected end date",
-    dateRangeStartTimestampDesc:
-      "The currently selected timestamp of the start date (s)",
-    dateRangeEndTimestampDesc:
-      "The currently selected timestamp of the end date (s)",
-    dateRangeFormattedValueDesc:
-      "Formatted selected date according to the specified format",
-    dateRangeFormattedStartValueDesc:
-      "Formatted start date according to the specified format",
-    dateRangeFormattedEndValueDesc:
-      "Formatted end date according to the specified format",
+    dateRangeStartTimestampDesc: "The currently selected timestamp of the start date (s)",
+    dateRangeEndTimestampDesc: "The currently selected timestamp of the end date (s)",
+    dateRangeFormattedValueDesc: "Formatted selected date according to the specified format",
+    dateRangeFormattedStartValueDesc: "Formatted start date according to the specified format",
+    dateRangeFormattedEndValueDesc: "Formatted end date according to the specified format",
     timePickerValueDesc: "Currently selected time",
-    timePickerFormattedValueDesc:
-      "Formatted selected time according to the specified format",
+    timePickerFormattedValueDesc: "Formatted selected time according to the specified format",
     timeRangeStartDesc: "Currently selected start time",
     timeRangeEndDesc: "Currently selected end time",
-    timeRangeFormattedValueDesc:
-      "Formatted selected time according to the specified format",
-    timeRangeFormattedStartValueDesc:
-      "Formatted start time according to the specified format",
-    timeRangeFormattedEndValueDesc:
-      "Formatted end time according to the specified format",
+    timeRangeFormattedValueDesc: "Formatted selected time according to the specified format",
+    timeRangeFormattedStartValueDesc: "Formatted start time according to the specified format",
+    timeRangeFormattedEndValueDesc: "Formatted end time according to the specified format",
   },
   validationDesc: {
     email: "Please enter a valid email address",
     url: "Please enter a valid URL",
     regex: "Please enter the content that matches the regex",
-    maxLength:
-      "Excessive number of characters, current length {length}, maximum length {maxLength}",
-    minLength:
-      "Insufficient number of characters, current length {length}, minimum length {minLength}",
+    maxLength: "Excessive number of characters, current length {length}, maximum length {maxLength}",
+    minLength: "Insufficient number of characters, current length {length}, minimum length {minLength}",
     maxValue: "Greater than the maximum, current {value}, maximum {max}",
     minValue: "Less than the minimum, current {value}, minimum {min}",
-    maxTime:
-      "Greater than the maximum time, current time {time}, the maximum time {maxTime}",
-    minTime:
-      "Less than the minimum time, current time {time}, the minimum time {minTime}",
-    maxDate:
-      "Greater than maximum date, current time {date}, maximum date {maxDate}",
-    minDate:
-      "Less than minimum date, current time {date}, minimum date {minDate}",
+    maxTime: "Greater than the maximum time, current time {time}, the maximum time {maxTime}",
+    minTime: "Less than the minimum time, current time {time}, the minimum time {minTime}",
+    maxDate: "Greater than maximum date, current time {date}, maximum date {maxDate}",
+    minDate: "Less than minimum date, current time {date}, minimum date {minDate}",
   },
+
+
+  // fifth part
+
   query: {
     noQueries: "No queries available. ",
     queryTutorialButton: "View {value} documents",
@@ -444,16 +419,13 @@ export const en = {
     advancedTab: "Advanced",
     showFailNotification: "Show notification on failure",
     failCondition: "Failure conditions",
-    failConditionTooltip1:
-      "Customizes failure condition and corresponding notification.",
-    failConditionTooltip2:
-      "If any condition returns true, the query will be marked as failure and triggers corresponding notification.",
+    failConditionTooltip1: "Customizes failure condition and corresponding notification.",
+    failConditionTooltip2: "If any condition returns true, the query will be marked as failure and triggers corresponding notification.",
     showSuccessNotification: "Show notification on success",
     successMessageLabel: "Success message",
     successMessage: "Run success",
     notifyDuration: "Duration",
-    notifyDurationTooltip:
-      "Notification duration. Time unit can be s(second, default), ms(millisecond). Default value is {default}s. Maximum is {max}s.",
+    notifyDurationTooltip: "Notification duration. Time unit can be s(second, default), ms(millisecond). Default value is {default}s. Maximum is {max}s.",
     successMessageWithName: "{name} run success",
     failMessageWithName: "{name} run failed: {result}",
     showConfirmationModal: "Show a confirmation modal before running",
@@ -481,32 +453,18 @@ export const en = {
     chooseDataSource: "Data source",
     method: "Method",
     updateExceptionDataSourceTitle: "Update failing data source",
-    updateExceptionDataSourceContent:
-      "Update the following query with the same failing data source:",
+    updateExceptionDataSourceContent: "Update the following query with the same failing data source:",
     update: "Update",
     disablePreparedStatement: "Disable prepared statements",
-    disablePreparedStatementTooltip:
-      "Disabling prepared statements can generate SQL dynamically, but risks SQL injection",
+    disablePreparedStatementTooltip: "Disabling prepared statements can generate SQL dynamically, but risks SQL injection",
     timeout: "Timeout after",
-    timeoutTooltip:
-      "Default unit: ms, supported input units: ms, s.\n" +
-      "Default value: {defaultSeconds} seconds\n" +
-      "Maximum value: {maxSeconds} seconds.\n" +
-      "\n" +
-      "E.g. 300 (i.e. 300ms), 800ms, 5s.",
+    timeoutTooltip: "Default unit: ms, supported input units: ms, s.\n Default value: {defaultSeconds} seconds\n Maximum value: {maxSeconds} seconds.\n\n E.g. 300 (i.e. 300ms), 800ms, 5s.",
     periodic: "Run this query periodically",
     periodicTime: "Period",
-    periodicTimeTooltip:
-      "Period between successive executions. \n" +
-      "Default unit: ms, supported input units: ms, s.\n" +
-      "Minimum value: 100ms, periodical execution will be disabled for values below that.\n" +
-      "\n" +
-      "E.g. 300 (i.e. 300ms), 800ms, 5s.",
+    periodicTimeTooltip: "Period between successive executions. \n Default unit: ms, supported input units: ms, s.\n Minimum value: 100ms, periodical execution will be disabled for values below that.\n\n E.g. 300 (i.e. 300ms), 800ms, 5s.",
     cancelPrevious: "Ignore the results of previous uncompleted executions.",
     cancelPreviousTooltip: "",
-
-    dataSourceStatusError:
-      "If a new execution is triggered, the result of the previous uncompleted executions will be ignored if the previous executions did not complete, and the ignored executions will not trigger the event list of the query.",
+    dataSourceStatusError: "If a new execution is triggered, the result of the previous uncompleted executions will be ignored if the previous executions did not complete, and the ignored executions will not trigger the event list of the query.",
     success: "Success",
     fail: "Failure",
     successDesc: "Triggered when the execution success",
@@ -515,8 +473,7 @@ export const en = {
     execSuccess: "run success",
     execFail: "run failed",
     execIgnored: "The results of this query was ignored.",
-    deleteSuccessMessage:
-      "Successfully deleted. You can use {undoKey} to undo.",
+    deleteSuccessMessage: "Successfully deleted. You can use {undoKey} to undo.",
     dataExportDesc: "Data obtained by the current query",
     codeExportDesc: "Current query status code",
     successExportDesc: "Whether the current query was executed successfully",
@@ -561,20 +518,16 @@ export const en = {
     sslCertVerificationTypeDisabled: "Disabled",
     selfSignedCert: "Self-signed Cert",
     selfSignedCertRequireMsg: "Please enter your Certificate",
-    enableTurnOffPreparedStatement:
-      "Enable toggling prepared statements for queries",
-    enableTurnOffPreparedStatementTooltip:
-      "You can enable or disable prepared statements in query Advanced tab",
+    enableTurnOffPreparedStatement: "Enable toggling prepared statements for queries",
+    enableTurnOffPreparedStatementTooltip: "You can enable or disable prepared statements in query Advanced tab",
     serviceName: "Service name",
     serviceNameRequiredMessage: "Please enter your service name",
     useSID: "Use SID",
     connectSuccessfully: "Connection successful",
     saveSuccessfully: "Saved",
     database: "Database",
-    cloudHosting:
-      "Cloud-hosted Lowcoder cannot access your local services with 127.0.0.1 or localhost. Try to connect public network data sources or use a reverse proxy fronting your private services.",
-    notCloudHosting:
-      "For docker hosted deployment, Lowcoder uses bridge networks, so 127.0.0.1 and localhost are invalid for host addresses. To visit data sources on your local machine, please refer to this",
+    cloudHosting: "Cloud-hosted Lowcoder cannot access your local services with 127.0.0.1 or localhost. Try to connect public network data sources or use a reverse proxy fronting your private services.",
+    notCloudHosting: "For docker hosted deployment, Lowcoder uses bridge networks, so 127.0.0.1 and localhost are invalid for host addresses. To visit data sources on your local machine, please refer to this",
     howToAccessHostDocLink: "How do I access the host API/DB",
     returnList: "Return",
     chooseDatasourceType: "Choose data source type",
@@ -582,8 +535,7 @@ export const en = {
     testConnection: "Test connection",
     save: "Save",
     whitelist: "Allowlist",
-    whitelistTooltip:
-      "Add the following IP addresses of Lowcoder to your data source allowlist when needed.",
+    whitelistTooltip: "Add the following IP addresses of Lowcoder to your data source allowlist when needed.",
     address: "Address: ",
     nameExists: "Name {name} already exist",
     jsQueryDocLink: "About JavaScript query",
@@ -591,19 +543,21 @@ export const en = {
     dynamicDataSourceConfigErrText: "Fail to load extra datasource config.",
     retry: "Retry",
   },
+
+
+  // sixth part
+
   sqlQuery: {
     keyValuePairs: "Key-value pairs",
     object: "Object",
     allowMultiModify: "Allow modify multi-row",
-    allowMultiModifyTooltip:
-      "If this parameter is selected, all rows that meet the conditions are operated. Otherwise, only the first row that meets the conditions is operated",
+    allowMultiModifyTooltip: "If this parameter is selected, all rows that meet the conditions are operated. Otherwise, only the first row that meets the conditions is operated",
     array: "Array",
     insertList: "Insert list",
     insertListTooltip: "Value inserted when it does not exist",
     filterRule: "Filter rule",
     updateList: "Update list",
-    updateListTooltip:
-      "Values updated as they exist can be overridden by the same insertion list values",
+    updateListTooltip: "Values updated as they exist can be overridden by the same insertion list values",
     sqlMode: "SQL mode",
     guiMode: "GUI mode",
     operation: "Operation",
@@ -650,13 +604,11 @@ export const en = {
     publish: "Publish",
     historyVersion: "History version",
     deleteQueryLabel: "Delete query",
-    deleteQueryContent:
-      "The query can't be recovered after being deleted. Delete the query?",
+    deleteQueryContent: "The query can't be recovered after being deleted. Delete the query?",
     run: "Run",
     readOnly: "Read only",
     exit: "Exit",
-    recoverAppSnapshotContent:
-      "Restore the current query to the version {version}",
+    recoverAppSnapshotContent: "Restore the current query to the version {version}",
     searchPlaceholder: "Search query",
     allQuery: "All queries",
     deleteQueryTitle: "Delete query",
@@ -679,21 +631,17 @@ export const en = {
     queryTutorial: "View Redis Commands documents",
   },
   httpQuery: {
-    bodyFormDataTooltip:
-      "If you select {type}, the format of value should be {object}. Example: {example}",
+    bodyFormDataTooltip: "If you select {type}, the format of value should be {object}. Example: {example}",
     text: "Text",
     file: "File",
-    extraBodyTooltip:
-      "Key values in Extra body will be appended in body with JSON or Form Data types",
+    extraBodyTooltip: "Key values in Extra body will be appended in body with JSON or Form Data types",
     forwardCookies: "Forward cookies",
     forwardAllCookies: "Forward all cookies",
   },
   smtpQuery: {
     attachment: "Attachment",
-    attachmentTooltip:
-      "Can use with file upload component, need convert data to: ",
-    MIMETypeUrl:
-      "https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types",
+    attachmentTooltip: "Can use with file upload component, need convert data to: ",
+    MIMETypeUrl: "https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types",
     sender: "Sender",
     recipient: "Recipient",
     carbonCopy: "Carbon copy",
@@ -702,6 +650,9 @@ export const en = {
     content: "Content",
     contentTooltip: "Support for input text or HTML",
   },
+
+  // seventh part
+
   uiCompCategory: {
     dashboards: "Dashboards & Reporting",
     layout: "Layout & Navigation",
@@ -892,11 +843,9 @@ export const en = {
     signatureCompName: "Signature",
     signatureCompDesc: "Signature component",
     signatureCompKeywords: "",
-    //Added By Aqib Mirza
     jsonLottieCompName: "Lottie Animation",
     jsonLottieCompDesc: "Lottie Animation",
     jsonLottieCompKeywords: "",
-    /////////////////////
     timelineCompName: "Time Line",
     timelineCompDesc: "Time Line",
     timelineCompKeywords: "",
@@ -911,21 +860,23 @@ export const en = {
     responsiveLayoutCompDesc: "Responsive Layout",
     responsiveLayoutCompKeywords: "",
   },
+
+
+  // eighth part
+
+
   comp: {
     menuViewDocs: "View documentation",
     menuViewPlayground: "View playground",
     menuUpgradeToLatest: "Upgrade to latest version",
     nameNotEmpty: "Can not be empty",
-    nameRegex:
-      "Must start with a letter and contain only letters, digits, and underscores (_)",
+    nameRegex: "Must start with a letter and contain only letters, digits, and underscores (_)",
     nameJSKeyword: "Can not be a Javascript keyword",
     nameGlobalVariable: "Can not be global variable name",
     nameExists: "Name {name} already exist",
-    getLatestVersionMetaError:
-      "Failed to fetch latest version, please try later.",
+    getLatestVersionMetaError: "Failed to fetch latest version, please try later.",
     needNotUpgrade: "Current version is already latest.",
-    compNotFoundInLatestVersion:
-      "Current component not found in the latest version.",
+    compNotFoundInLatestVersion: "Current component not found in the latest version.",
     upgradeSuccess: "Successfully upgraded to latest version.",
     searchProp: "Search",
   },
@@ -970,8 +921,7 @@ export const en = {
     showChild: "Only child nodes",
     autoExpandParent: "Auto expand parent",
     checkStrictly: "Check strictly",
-    checkStrictlyTooltip:
-      "Check treeNode precisely; parent treeNode and children treeNodes are not associated",
+    checkStrictlyTooltip: "Check treeNode precisely; parent treeNode and children treeNodes are not associated",
     treeData: "Tree data",
     treeDataDesc: "Current tree data",
     value: "Default values",
@@ -1020,6 +970,11 @@ export const en = {
     edit: "Edit",
     remove: "Remove",
   },
+
+
+  // ninth part
+
+
   numberInput: {
     formatter: "Format",
     precision: "Precision",
@@ -1048,27 +1003,22 @@ export const en = {
   radio: {
     options: "Options",
     horizontal: "Horizontal",
-    horizontalTooltip:
-      "The horizontal layout wraps itself when it runs out of space",
+    horizontalTooltip: "The horizontal layout wraps itself when it runs out of space",
     vertical: "Vertical",
-    verticalTooltip:
-      "The vertical layout will always be displayed in a single column",
+    verticalTooltip: "The vertical layout will always be displayed in a single column",
     autoColumns: "Auto column",
-    autoColumnsTooltip:
-      "The auto column layout automatically rearranges the order as space permits and displays as multiple columns",
+    autoColumnsTooltip: "The auto column layout automatically rearranges the order as space permits and displays as multiple columns",
   },
   cascader: {
     options: "Data",
   },
   selectInput: {
     valueDesc: "Currently selected value",
-    selectedIndexDesc:
-      "The index of the currently selected value, or -1 if no value is selected",
+    selectedIndexDesc: "The index of the currently selected value, or -1 if no value is selected",
     selectedLabelDesc: "The label of the currently selected value",
   },
   file: {
-    typeErrorMsg:
-      "Must be a number with a valid file size unit, or a unitless number of bytes.",
+    typeErrorMsg: "Must be a number with a valid file size unit, or a unitless number of bytes.",
     fileEmptyErrorMsg: "upload failed. The file size is empty.",
     fileSizeExceedErrorMsg: "upload failed. The file size exceeds the limit.",
     minSize: "Min size",
@@ -1081,21 +1031,17 @@ export const en = {
     upload: "Browse",
     fileType: "File types",
     reference: "Please refer to",
-    fileTypeTooltipUrl:
-      "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/file#unique_file_type_specifiers",
+    fileTypeTooltipUrl: "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/file#unique_file_type_specifiers",
     fileTypeTooltip: "unique file type specifiers",
     uploadType: "Upload type",
     showUploadList: "Show upload list",
     maxFiles: "Max files",
-    filesValueDesc:
-      "The contents of the currently uploaded file are Base64 encoded",
+    filesValueDesc: "The contents of the currently uploaded file are Base64 encoded",
     filesDesc: "List of the current uploaded files. For details, refer to",
     clearValueDesc: "Clear all files",
     parseFiles: "Parse files",
-    parsedValueTooltip1:
-      "If parseFiles is true, upload files will parse to object, array, or string. Parsed data can be accessed via the parsedValue array.",
-    parsedValueTooltip2:
-      "Supports Excel, JSON, CSV, and text files. Other formats will return null.",
+    parsedValueTooltip1: "If parseFiles is true, upload files will parse to object, array, or string. Parsed data can be accessed via the parsedValue array.",
+    parsedValueTooltip2: "Supports Excel, JSON, CSV, and text files. Other formats will return null.",
   },
   date: {
     format: "Format",
@@ -1136,15 +1082,13 @@ export const en = {
     default: "Default",
     submit: "Submit",
     textDesc: "Text currently displayed on button",
-    loadingDesc:
-      "Is the button in loading state? If true the current button is loading",
+    loadingDesc: "Is the button in loading state? If true the current button is loading",
     formButtonEvent: "event",
   },
   link: {
     link: "Link",
     textDesc: "Text currently displayed on link",
-    loadingDesc:
-      "Is the link in loading state? If true the current link is loading",
+    loadingDesc: "Is the link in loading state? If true the current link is loading",
   },
   scanner: {
     text: "Click scan",
@@ -1162,12 +1106,16 @@ export const en = {
   textShow: {
     // eslint-disable-next-line only-ascii/only-ascii
     text: "### 👋 hello, {name}",
-    valueTooltip:
-      "Markdown supports most HTML tags and attributes. iframe, script, and other tags are disabled for security reasons.",
+    valueTooltip: "Markdown supports most HTML tags and attributes. iframe, script, and other tags are disabled for security reasons.",
     verticalAlignment: "Vertical alignment",
     horizontalAlignment: "Horizontal alignment",
     textDesc: "Text displayed in the current text box",
   },
+
+
+  // tenth part
+
+
   table: {
     editable: "Editable",
     columnNum: "Columns",
@@ -1185,8 +1133,7 @@ export const en = {
     pageSizeOptions: "Page size options",
     pageSize: "Page size",
     total: "Total row count",
-    totalTooltip:
-      "The default value is the number of current data items, which can be obtained from the query, for example: '{{query1.data[0].count}}'",
+    totalTooltip: "The default value is the number of current data items, which can be obtained from the query, for example: '{{query1.data[0].count}}'",
     filter: "Filter",
     filterRule: "Filter rule",
     chooseColumnName: "Choose column",
@@ -1208,17 +1155,13 @@ export const en = {
     lessThanOrEquals: "less than or equals",
     action: "Action",
     columnValue: "Column value",
-    columnValueTooltip:
-      "'{{currentCell}}': current cell data\n" +
-      "'{{currentRow}}': current row data\n" +
-      "'{{currentIndex}}': current data index(starting from 0)\n" +
-      "Example: '{{currentCell * 5}}' show 5 times the original value data.",
+    columnValueTooltip: "'{{currentCell}}': current cell data\n '{{currentRow}}': current row data\n '{{currentIndex}}': current data index(starting from 0)\n Example: '{{currentCell * 5}}' show 5 times the original value data.",
     imageSrc: "Image source",
     imageSize: "Image size",
     columnTitle: "Title",
     sortable: "Sortable",
     align: "Alignment",
-    fixedColumn: "Fixed column", // draft
+    fixedColumn: "Fixed column",
     autoWidth: "Auto width",
     customColumn: "Custom column",
     auto: "Auto",
@@ -1244,8 +1187,7 @@ export const en = {
     optionList: "Operation list",
     option1: "Operation 1",
     status: "Status",
-    statusTooltip:
-      "Optional values: success, error, default, warning, processing",
+    statusTooltip: "Optional values: success, error, default, warning, processing",
     primaryButton: "Primary",
     defaultButton: "Default",
     type: "Type",
@@ -1261,19 +1203,15 @@ export const en = {
     small: "S",
     middle: "M",
     large: "L",
-    refreshButtonTooltip:
-      "The current data changes, click to regenerate the column.",
-    changeSetDesc:
-      "An object representing changes to an editable table, only contains the changed cell. Rows go first and columns go second.",
-    selectedRowDesc:
-      "Provides data for the currently selected row, indicating the row that triggers a click event if the user clicks a button/link on the row",
+    refreshButtonTooltip: "The current data changes, click to regenerate the column.",
+    changeSetDesc: "An object representing changes to an editable table, only contains the changed cell. Rows go first and columns go second.",
+    selectedRowDesc: "Provides data for the currently selected row, indicating the row that triggers a click event if the user clicks a button/link on the row",
     selectedRowsDesc: "Useful in multiple selection mode, same as selectedRow",
     pageNoDesc: "Current display page, starting from 1",
     pageSizeDesc: "How many rows per page",
     sortColumnDesc: "The name of the currently selected sorted column",
     sortDesc: "Whether the current row is in descending order",
-    pageOffsetDesc:
-      "The current start of paging, used for paging to get data. Example: select * from users limit '{{table1.pageSize}}' offset '{{table1.pageOffset}}'",
+    pageOffsetDesc: "The current start of paging, used for paging to get data. Example: select * from users limit '{{table1.pageSize}}' offset '{{table1.pageOffset}}'",
     displayDataDesc: "Data displayed in the current table",
     selectedIndexDesc: "Selected index in display data",
     filterDesc: "Table Filtering Parameters",
@@ -1288,36 +1226,30 @@ export const en = {
     pageChange: "Page change",
     refresh: "Refresh",
     rowColor: "Conditional row color",
-    rowColorDesc:
-      "Conditionally set the row color based on the optional variables:\n" +
-      "currentRow, currentOriginalIndex, currentIndex, columnTitle. \n" +
-      "For example:\n" +
-      `'{{ currentRow.id > 3 ? "green" : "red" }}'`,
+    rowColorDesc: "Conditionally set the row color based on the optional variables:\n currentRow, currentOriginalIndex, currentIndex, columnTitle.\n For example:\n" + `'{{ currentRow.id > 3 ? "green" : "red" }}'`,
     cellColor: "Conditional cell color",
-    cellColorDesc:
-      "Conditionally set the cell color based on the cell value using currentCell:\n" +
-      "For example:\n" +
-      `'{{ currentCell == 3 ? "green" : "red" }}'`,
-    saveChangesNotBind:
-      "No event handler configured for saving changes. Please bind at least one event handler before click.",
+    cellColorDesc: "Conditionally set the cell color based on the cell value using currentCell:\n For example:\n" + `'{{ currentCell == 3 ? "green" : "red" }}'`,
+    saveChangesNotBind: "No event handler configured for saving changes. Please bind at least one event handler before click.",
     dynamicColumn: "Use dynamic column setting",
     dynamicColumnConfig: "Column Setting",
-    dynamicColumnConfigDesc:
-      "Dynamic column settings. Accepts an array of column names. All columns are visible by default.\n" +
-      `Example: ["id", "name"]`,
+    dynamicColumnConfigDesc: "Dynamic column settings. Accepts an array of column names. All columns are visible by default.\n" + `Example: ["id", "name"]`,
     position: "Position",
     showDataLoadSpinner: "Show spinner during data loading",
     showValue: "Show Value",
     expandable: "Expandable",
     configExpandedView: "Configure expanded view",
-    toUpdateRowsDesc:
-      "An array of objects for rows to be updated in editable tables.",
+    toUpdateRowsDesc: "An array of objects for rows to be updated in editable tables.",
     empty: "Empty",
     falseValues: "Text when false",
     allColumn: "All",
     visibleColumn: "Visible",
     emptyColumns: "No columns are currently visible",
   },
+
+
+  // eleventh part
+
+
   image: {
     src: "Image source",
     srcDesc: "The image source",
@@ -1334,8 +1266,7 @@ export const en = {
   fileViewer: {
     invalidURL: "A valid URL was not provided",
     src: "File URI",
-    srcTooltip:
-      "Preview provided link content by embedding HTML, base64 encoded data can also be supported, for example: data:application/pdf; base64,AAA... CCC",
+    srcTooltip: "Preview provided link content by embedding HTML, base64 encoded data can also be supported, for example: data:application/pdf; base64,AAA... CCC",
     srcDesc: "The file URI",
   },
   divider: {
@@ -1350,8 +1281,7 @@ export const en = {
     value: "Value",
     valueTooltip: "The value contains a maximum of 2953 characters",
     level: "Fault tolerance level",
-    levelTooltip:
-      "Refers to the QR code is blocked part, can still be scanned out. The higher the level, the more complex the code, and the more blocked it is, the more it can be scanned",
+    levelTooltip: "Refers to the QR code is blocked part, can still be scanned out. The higher the level, the more complex the code, and the more blocked it is, the more it can be scanned",
     includeMargin: "Show margin",
     image: "Image",
     valueDesc: "The qrCode value",
@@ -1359,8 +1289,7 @@ export const en = {
     M: "M (Medium)",
     Q: "Q (Quartile)",
     H: "H (High)",
-    maxLength:
-      "The content is too long. Set the length to less than 2953 characters",
+    maxLength: "The content is too long. Set the length to less than 2953 characters",
   },
   jsonExplorer: {
     indent: "Indent",
@@ -1398,10 +1327,8 @@ export const en = {
     volume: "Volume",
     playbackRate: "Playback rate",
     posterTooltip: "The default value is the first frame of the video",
-    autoPlayTooltip:
-      "After the video is loaded, it will play automatically. Changing this value from true to false will pause the video. (If a poster is set, it will be played by the poster button)",
-    controlsTooltip:
-      "Hide video playback controls. May not be fully supported by every video source.",
+    autoPlayTooltip: "After the video is loaded, it will play automatically. Changing this value from true to false will pause the video. (If a poster is set, it will be played by the poster button)",
+    controlsTooltip: "Hide video playback controls. May not be fully supported by every video source.",
     volumeTooltip: "Set the volume of the player, between 0 and 1",
     playbackRateTooltip: "Set the rate of the player, between 1 and 2",
     srcDesc: "Current video URL",
@@ -1419,10 +1346,8 @@ export const en = {
   media: {
     playDesc: "Begins playback of the media.",
     pauseDesc: "Pauses the media playback.",
-    loadDesc:
-      "Resets the media to the beginning and restart selecting the media resource.",
-    seekTo:
-      "Seek to the given number of seconds, or fraction if amount is between 0 and 1",
+    loadDesc: "Resets the media to the beginning and restart selecting the media resource.",
+    seekTo: "Seek to the given number of seconds, or fraction if amount is between 0 and 1",
     seekToAmount: "Number of seconds, or fraction if it is between 0 and 1",
     showPreview: "Show preview",
   },
@@ -1430,19 +1355,21 @@ export const en = {
     start: "Start value",
     end: "End value",
     step: "Step size",
-    stepTooltip:
-      "The slider's granularity, the value must be greater than 0 and divisible by (max-min)",
+    stepTooltip: "The slider's granularity, the value must be greater than 0 and divisible by (max-min)",
   },
   iconControl: {
     selectIcon: "Select an icon",
     insertIcon: "insert an icon",
     insertImage: "Insert an image or ",
   },
+
+
+  // twelfth part
+
+
   millisecondsControl: {
-    timeoutTypeError:
-      "Please enter the correct timeout period, the current input is: {value}",
-    timeoutLessThanMinError:
-      "Input must greater than {left}, the current input is: {value}",
+    timeoutTypeError: "Please enter the correct timeout period, the current input is: {value}",
+    timeoutLessThanMinError: "Input must greater than {left}, the current input is: {value}",
   },
   selectionControl: {
     single: "Single",
@@ -1468,7 +1395,6 @@ export const en = {
     height: "Drawer height",
   },
   meeting: {
-
     logLevel: "Agora SDK Log Level",
     placement: "Meeting placement",
     meeting: "Meeting Settings",
@@ -1508,7 +1434,6 @@ export const en = {
     actionBtnDesc: "Action Button",
     broadCast: "BroadCast Messages",
     title: "Meeting Title",
-    //ADDED BY FRED
     meetingCompName: "Agora Meeting Controller",
     sharingCompName: "Screen share Stream",
     videoCompName: "Camera Stream",
@@ -1517,7 +1442,6 @@ export const en = {
     meetingCompDesc: "Meeting Component",
     meetingCompControls: "Meeting Control",
     meetingCompKeywords: "Agora Meeting, Web Meeting, Collaboration",
-    //END
     iconSize: "Icon Size",
     userId: "userId",
     roomId: "roomId",
@@ -1539,6 +1463,11 @@ export const en = {
     environments: "Environments",
     premium: "Premium",
   },
+
+
+  // thirteenth part
+
+
   memberSettings: {
     admin: "Admin",
     adminGroupRoleInfo: "Admin can manage group members and resources",
@@ -1551,8 +1480,7 @@ export const en = {
     newGroupPrefix: "New group ",
     allMembers: "All members",
     deleteModalTitle: "Delete this group",
-    deleteModalContent:
-      "The deleted group cannot be restored. Are you sure to delete the group?",
+    deleteModalContent: "The deleted group cannot be restored. Are you sure to delete the group?",
     addMember: "Add members",
     nameColumn: "User name",
     joinTimeColumn: "Joining time",
@@ -1564,38 +1492,31 @@ export const en = {
     exitOrg: "Leave",
     exitOrgDesc: "Are you sure you want to leave this workspace.",
     moveOutOrg: "Remove",
-    moveOutOrgDescSaasMode:
-      "Are you sure you want to remove user {name} from this workspace?",
-    moveOutOrgDesc:
-      "Are you sure you want to remove user {name}? This action cannot be recovered.",
-    devGroupTip:
-      "Members of the developer group have privileges to create apps and data sources.",
+    moveOutOrgDescSaasMode: "Are you sure you want to remove user {name} from this workspace?",
+    moveOutOrgDesc: "Are you sure you want to remove user {name}? This action cannot be recovered.",
+    devGroupTip: "Members of the developer group have privileges to create apps and data sources.",
     lastAdminQuit: "The last administrator cannot exit.",
     organizationNotExist: "The current workspace does not exist",
     inviteUserHelp: "You can copy the invitation link to send to the user",
     inviteUserLabel: "Invitation link:",
     inviteCopyLink: "Copy Link",
-    inviteText:
-      '{userName} invites you to join the workspace "{organization}", Click on the link to join: {inviteLink}',
+    inviteText: '{userName} invites you to join the workspace "{organization}", Click on the link to join: {inviteLink}',
     groupName: "Group name",
     createTime: "Create time",
     manageBtn: "Manage",
     userDetail: "Detail",
     syncDeleteTip: "This group has been deleted from the address book source",
-    syncGroupTip:
-      "This group is an address book synchronization group and cannot be edited",
+    syncGroupTip: "This group is an address book synchronization group and cannot be edited",
   },
   orgSettings: {
     newOrg: "New workspace",
     title: "Workspace",
     createOrg: "Create workspace",
     deleteModalTitle: "Are you sure to delete this workspace?",
-    deleteModalContent:
-      "You are about to delete this workspace {permanentlyDelete}. Once deleted, the workspace {notRestored}.",
+    deleteModalContent: "You are about to delete this workspace {permanentlyDelete}. Once deleted, the workspace {notRestored}.",
     permanentlyDelete: "permanently",
     notRestored: "cannot be restored",
-    deleteModalLabel:
-      "Please enter workspace name{name}to confirm the operation:",
+    deleteModalLabel: "Please enter workspace name{name}to confirm the operation:",
     deleteModalTip: "Please enter workspace name",
     deleteModalErr: "Workspace name is incorrect",
     deleteModalBtn: "Delete",
@@ -1641,16 +1562,12 @@ export const en = {
     noTableSelected: "No table selected",
     noColumn: "No column",
     noColumnSelected: "No column selected",
-    noDataSourceFound:
-      "No supported data source found. Create a new data source",
-    noTableFound:
-      "No tables were found in this data source, please select another data source",
-    noColumnFound:
-      "No supported column was found in this table. Please select another table",
+    noDataSourceFound: "No supported data source found. Create a new data source",
+    noTableFound: "No tables were found in this data source, please select another data source",
+    noColumnFound: "No supported column was found in this table. Please select another table",
     formTitle: "Form title",
     name: "Name",
-    nameTooltip:
-      "The attribute name in the data of the form, when left blank, defaults to the component name",
+    nameTooltip: "The attribute name in the data of the form, when left blank, defaults to the component name",
     notSupportMethod: " Not supported methods: ",
     notValidForm: "The form is not valid",
     resetDesc: "Reset form data to default value",
@@ -1661,6 +1578,11 @@ export const en = {
     dataDesc: "Current form data",
     loadingDesc: "Whether the form is loading?",
   },
+
+
+  // fourteenth part
+
+
   modalComp: {
     close: "Close",
     closeDesc: "Triggered when the dialog box is closed",
@@ -1674,19 +1596,15 @@ export const en = {
   },
   listView: {
     noOfRows: "Row count",
-    noOfRowsTooltip:
-      "Number of rows in the list - This is usually set to a variable (for example, '{{query1.data.length}}') if you need to present the results of a query.",
+    noOfRowsTooltip: "Number of rows in the list - This is usually set to a variable (for example, '{{query1.data.length}}') if you need to present the results of a query.",
     noOfColumns: "Column count",
     itemIndexName: "Item index name",
-    itemIndexNameDesc:
-      "the variable name refer to the item's index, default as {default}",
+    itemIndexNameDesc: "the variable name refer to the item's index, default as {default}",
     itemDataName: "Item data name",
-    itemDataNameDesc:
-      "the variable name refer to the item's data object, default as {default}",
+    itemDataNameDesc: "the variable name refer to the item's data object, default as {default}",
     itemsDesc: "Exposing data of Comps in list",
     dataDesc: "The raw data used in the current list",
-    dataTooltip:
-      "If evaluated as Number, this field will be regarded as row count, and the data will be regarded as empty.",
+    dataTooltip: "If evaluated as Number, this field will be regarded as row count, and the data will be regarded as empty.",
   },
   navigation: {
     addText: "Add submenu item",
@@ -1752,24 +1670,25 @@ export const en = {
   },
   temporaryState: {
     value: "Init value",
-    valueTooltip:
-      "The initial Value stored in the temporary state can be any valid JSON Value.",
+    valueTooltip: "The initial Value stored in the temporary state can be any valid JSON Value.",
     docLink: "About temporary state",
     pathTypeError: "Path must be either a string or an array of values",
     unStructuredError: "Unstructured data {prev} can't be updated by {path}",
     valueDesc: "Temporary state value",
-    deleteMessage:
-      "The temporary state is deleted successfully. You can use {undoKey} to undo.",
+    deleteMessage: "The temporary state is deleted successfully. You can use {undoKey} to undo.",
   },
   dataResponder: {
     data: "Data",
     dataDesc: "Data of current data responder",
-    dataTooltip:
-      "When this data is changed, it will trigger subsequent actions.",
+    dataTooltip: "When this data is changed, it will trigger subsequent actions.",
     docLink: "About the Data responder",
-    deleteMessage:
-      "The data responder is deleted successfully. You can use {undoKey} to undo.",
+    deleteMessage: "The data responder is deleted successfully. You can use {undoKey} to undo.",
   },
+
+
+  // fifteenth part
+
+
   theme: {
     title: "Themes",
     createTheme: "Create theme",
@@ -1806,8 +1725,7 @@ export const en = {
     defaultTheme: "Default",
     yellow: "Yellow",
     green: "Green",
-    previewTitle:
-      "Theme preview\nExample components that use your theme colors",
+    previewTitle: "Theme preview\nExample components that use your theme colors",
     dateColumn: "Date",
     emailColumn: "Email",
     phoneColumn: "Phone",
@@ -1845,8 +1763,7 @@ export const en = {
   pluginSetting: {
     title: "Plugins",
     npmPluginTitle: "npm plugins",
-    npmPluginDesc:
-      "Set up npm plugins for all applications in the current workspace.",
+    npmPluginDesc: "Set up npm plugins for all applications in the current workspace.",
     npmPluginEmpty: "No npm plugins were added.",
     npmPluginAddButton: "Add a npm plugin",
     saveSuccess: "Saved successfully",
@@ -1854,26 +1771,27 @@ export const en = {
   advanced: {
     title: "Advanced",
     defaultHomeTitle: "Default homepage",
-    defaultHomeHelp:
-      "The homepage is the app all non-developers will see by default when they log in. Note: Make sure the selected app is accessible to non-developers.",
+    defaultHomeHelp: "The homepage is the app all non-developers will see by default when they log in. Note: Make sure the selected app is accessible to non-developers.",
     defaultHomePlaceholder: "Select the default homepage",
     saveBtn: "Save",
     preloadJSTitle: "Preload JavaScript",
-    preloadJSHelp:
-      "Set up preloaded JavaScript code for all apps in the current workspace.",
+    preloadJSHelp: "Set up preloaded JavaScript code for all apps in the current workspace.",
     preloadCSSTitle: "Preload CSS",
-    preloadCSSHelp:
-      " Set up preloaded CSS code for all apps in the current workspace.",
+    preloadCSSHelp: "Set up preloaded CSS code for all apps in the current workspace.",
     preloadCSSApply: "Apply to the homepage of the workspace",
     preloadLibsTitle: "JavaScript library",
-    preloadLibsHelp:
-      "Set up preloaded JavaScript libraries for all applications in the current workspace, and the system has built-in lodash, day.js, uuid, numbro for direct use. JavaScript libraries are loaded before the app is initialized, so there is a certain impact on app performance.",
+    preloadLibsHelp: "Set up preloaded JavaScript libraries for all applications in the current workspace, and the system has built-in lodash, day.js, uuid, numbro for direct use. JavaScript libraries are loaded before the app is initialized, so there is a certain impact on app performance.",
     preloadLibsEmpty: "No JavaScript libraries were added",
     preloadLibsAddBtn: "Add a library",
     saveSuccess: "Saved successfully",
     AuthOrgTitle: "Workspace welcome Screen",
     AuthOrgDescrition: "The URL for your users to Sign in to the current workspace.",
   },
+
+
+  // sixteenth part
+
+
   branding: {
     title: "Branding",
     logoTitle: "Logo",
@@ -1907,8 +1825,7 @@ export const en = {
   },
   module: {
     emptyText: "No data",
-    circularReference:
-      "Circular reference, current module/application cannot be used!",
+    circularReference: "Circular reference, current module/application cannot be used!",
     emptyTestInput: "The current module has no input to test",
     emptyTestMethod: "The current module has no method to test",
     name: "Name",
@@ -1931,8 +1848,7 @@ export const en = {
     output: "Output",
     nameExists: "Name {name} already exist",
     eventTriggered: "Event {name} is triggered",
-    globalPromptWhenEventTriggered:
-      "Displays a global prompt when an event is triggered",
+    globalPromptWhenEventTriggered: "Displays a global prompt when an event is triggered",
     emptyEventTest: "The current module has no events to test",
     emptyEvent: "No event has been added",
     event: "Event",
@@ -1949,8 +1865,7 @@ export const en = {
   apiMessage: {
     authenticationFail: "User authentication failed, please sign in again",
     verifyAccount: "Need to verify account",
-    functionNotSupported:
-      "The current version does not support this function. Please contact the Lowcoder business team to upgrade your account",
+    functionNotSupported: "The current version does not support this function. Please contact the Lowcoder business team to upgrade your account",
   },
   globalErrorMessage: {
     createCompFail: "Create component {comp} failed",
@@ -1966,6 +1881,11 @@ export const en = {
     tabBar: "Tab bar",
     emptyTabTooltip: "Configure this page on the right pane",
   },
+
+
+  // seventeenth part
+
+
   appSetting: {
     title: "App settings",
     450: "450px (Phone)",
@@ -2064,14 +1984,17 @@ export const en = {
     formatting: "Format",
     openInLeftPanel: "Open in left pane",
   },
+
+
+  // eighteenth part
+
+
   help: {
     videoText: "Overview",
     onBtnText: "OK",
     // eslint-disable-next-line only-ascii/only-ascii
-    permissionDenyTitle:
-      "💡 Unable to create a new application or data source?",
-    permissionDenyContent:
-      "You don't have permission to create the application and data source. Please contact the administrator to join the developer group.",
+    permissionDenyTitle: "💡 Unable to create a new application or data source?",
+    permissionDenyContent: "You don't have permission to create the application and data source. Please contact the administrator to join the developer group.",
     appName: "Tutorial application",
     chat: "Chat with us",
     docs: "View documentation",
@@ -2085,8 +2008,7 @@ export const en = {
     nameCheckMessage: "The name cannot be empty",
     viewOnly: "View only",
     recoverAppSnapshotTitle: "Restore this version?",
-    recoverAppSnapshotContent:
-      "Restore current app to the version created at {time}.",
+    recoverAppSnapshotContent: "Restore current app to the version created at {time}.",
     recoverAppSnapshotMessage: "Restore this version",
     returnEdit: "Return to editor",
     deploy: "Publish",
@@ -2130,20 +2052,16 @@ export const en = {
     inputAccount: "Please enter your account",
     ldapLogin: "LDAP Sign in",
     resetPassword: "Reset Password",
-    resetPasswordDesc:
-      "Reset user {name}'s password. A new password will be generated after reset.",
+    resetPasswordDesc: "Reset user {name}'s password. A new password will be generated after reset.",
     resetSuccess: "Reset succeeded",
-    resetSuccessDesc:
-      "Password reset succeeded. The new password is: {password}",
+    resetSuccessDesc: "Password reset succeeded. The new password is: {password}",
     copyPassword: "Copy password",
     poweredByLowcoder: "Powered by Lowcoder.cloud",
   },
   preLoad: {
-    jsLibraryHelpText:
-      "Add JavaScript libraries to your current application via URL addresses. lodash, day.js, uuid, numbro are built into the system for immediate use.  JavaScript libraries are loaded before the application is initialized, which can have an impact on application performance.",
+    jsLibraryHelpText: "Add JavaScript libraries to your current application via URL addresses. lodash, day.js, uuid, numbro are built into the system for immediate use.  JavaScript libraries are loaded before the application is initialized, which can have an impact on application performance.",
     exportedAs: "Exported as",
-    urlTooltip:
-      "URL address of the JavaScript library, [unpkg.com](https://unpkg.com/) or [jsdelivr.net](https://www.jsdelivr.com/) is recommended",
+    urlTooltip: "URL address of the JavaScript library, [unpkg.com](https://unpkg.com/) or [jsdelivr.net](https://www.jsdelivr.com/) is recommended",
     recommended: "Recommended",
     viewJSLibraryDocument: "Document",
     jsLibraryURLError: "Invalid URL",
@@ -2152,23 +2070,19 @@ export const en = {
     jsLibraryDownloadError: "JavaScript library download error",
     jsLibraryInstallSuccess: "JavaScript library installed successfully",
     jsLibraryInstallFailed: "JavaScript library installation failed",
-    jsLibraryInstallFailedCloud:
-      "Perhaps the library is not available in the sandbox, [Documentation](https://docs.lowcoder.cloud/build-apps/write-javascript/use-third-party-libraries#manually-import-libraries)\n{message}",
+    jsLibraryInstallFailedCloud: "Perhaps the library is not available in the sandbox, [Documentation](https://docs.lowcoder.cloud/build-apps/write-javascript/use-third-party-libraries#manually-import-libraries)\n{message}",
     jsLibraryInstallFailedHost: "{message}",
     add: "Add New",
     jsHelpText: "Add a global method or variable to the current application.",
-    cssHelpText:
-      "Add styles to the current application. The DOM structure may change as the system iterates. Try to modify styles through component properties.",
+    cssHelpText: "Add styles to the current application. The DOM structure may change as the system iterates. Try to modify styles through component properties.",
     scriptsAndStyles: "Scripts and styles",
     jsLibrary: "JavaScript library",
   },
   editorTutorials: {
     component: "Component",
-    componentContent:
-      "The right component area has tables, buttons, input boxes, selectors, and other components that can be dragged onto the canvas for use.",
+    componentContent: "The right component area has tables, buttons, input boxes, selectors, and other components that can be dragged onto the canvas for use.",
     canvas: "Canvas",
-    canvasContent:
-      "What you see on the canvas is what you get, and you can adjust component layout and size by dragging and dropping, and delete/copy/paste components with keyboard shortcuts.",
+    canvasContent: "What you see on the canvas is what you get, and you can adjust component layout and size by dragging and dropping, and delete/copy/paste components with keyboard shortcuts.",
     queryData: "Query data",
     queryDataContent: `Create a new query here and connect to your MySQL, MongoDB, Redis, Airtable, and other data sources. After configuring the query, click "Run" to obtain the data.`,
     compProperties: "Component properties",
@@ -2178,6 +2092,11 @@ export const en = {
     createAppContent: `🎉 Welcome to {productName}, click "App" and start to create your first application.`,
     createAppTitle: "Create app",
   },
+
+
+  // nineteenth part
+
+
   history: {
     layout: "'{0}' layout adjustment",
     upgrade: "Upgrade '{0}'",
@@ -2228,8 +2147,7 @@ export const en = {
     resCardSubTitle: "{time} by {creator}",
     trashEmpty: "Trash is empty.",
     projectEmpty: "Nothing here.",
-    projectEmptyCanAdd:
-      "You don't have any apps yet. Click New to get started.",
+    projectEmptyCanAdd: "You don't have any apps yet. Click New to get started.",
     name: "Name",
     type: "Type",
     creator: "Created by",
@@ -2241,8 +2159,7 @@ export const en = {
     nameCheckMessage: "The name cannot be empty",
     deleteElementTitle: "Delete permanently",
     moveToTrashSubTitle: "{type} {name} will be moved to trash.",
-    deleteElementSubTitle:
-      "Delete {type} {name} permanently, it cannot be recovered.",
+    deleteElementSubTitle: "Delete {type} {name} permanently, it cannot be recovered.",
     deleteSuccessMsg: "Deleted successfully",
     deleteErrorMsg: "Deleted error",
     recoverSuccessMsg: "Recovered successfully",
@@ -2281,6 +2198,11 @@ export const en = {
     autoPlay: "AutoPlay",
     showDots: "Show dots",
   },
+
+
+  // twentieth part
+
+
   npm: {
     invalidNpmPackageName: "Invalid npm package name or url.",
     pluginExisted: "This npm plugin already existed",
@@ -2315,15 +2237,11 @@ export const en = {
     aboutUs: "https://lowcoder.cloud/about",
     changeLog: "https://github.com/lowcoder-org/lowcoder/releases",
     introVideo: "",
-    devNpmPlugin:
-      "https://docs.lowcoder.cloud/lowcoder-extension/develop-data-source-plugins",
+    devNpmPlugin: "https://docs.lowcoder.cloud/lowcoder-extension/develop-data-source-plugins",
     devNpmPluginText: "How to develop npm plugin",
-    useHost:
-      "https://docs.lowcoder.cloud/setup-and-run/self-hosting/access-local-database-or-api",
-    eventHandlerSlowdown:
-      "https://docs.lowcoder.cloud/build-applications/app-interaction/event-handlers",
-    thirdLib:
-      "https://docs.lowcoder.cloud/lowcoder-extension/use-third-party-libraries-in-apps",
+    useHost: "https://docs.lowcoder.cloud/setup-and-run/self-hosting/access-local-database-or-api",
+    eventHandlerSlowdown: "https://docs.lowcoder.cloud/build-applications/app-interaction/event-handlers",
+    thirdLib: "https://docs.lowcoder.cloud/lowcoder-extension/use-third-party-libraries-in-apps",
     thirdLibUrlText: "Use third-party libraries",
   },
   datasourceTutorial: {
@@ -2337,10 +2255,8 @@ export const en = {
   },
   queryTutorial: {
     js: "",
-    transformer:
-      "https://docs.lowcoder.cloud/business-logic-in-apps/write-javascript/transformers",
-    tempState:
-      "https://docs.lowcoder.cloud/business-logic-in-apps/write-javascript/temporary-state",
+    transformer: "https://docs.lowcoder.cloud/business-logic-in-apps/write-javascript/transformers",
+    tempState: "https://docs.lowcoder.cloud/business-logic-in-apps/write-javascript/temporary-state",
   },
   customComponent: {
     entryUrl: "https://sdk.lowcoder.cloud/custom_component.html",
@@ -2352,11 +2268,14 @@ export const en = {
     createIssue: "https://github.com/lowcoder-org/lowcoder/issues",
     discord: "https://discord.com/invite/qMG9uTmAx2",
   },
+
+
+  // twenty-first part
+
+
   componentDoc: {
-    markdownDemoText:
-      "**Lowcoder** | Create software applications for your Company and your Customers with minimal coding experience. Lowcoder is the best Retool, Appsmith or Tooljet Alternative.",
-    demoText:
-      "Lowcoder | Create software applications for your Company and your Customers with minimal coding experience. Lowcoder is the best Retool, Appsmith or Tooljet Alternative.",
+    markdownDemoText: "**Lowcoder** | Create software applications for your Company and your Customers with minimal coding experience. Lowcoder is the best Retool, Appsmith or Tooljet Alternative.",
+    demoText: "Lowcoder | Create software applications for your Company and your Customers with minimal coding experience. Lowcoder is the best Retool, Appsmith or Tooljet Alternative.",
     submit: "Submit",
     style: "style",
     danger: "Danger",
@@ -2377,8 +2296,7 @@ export const en = {
     componentNotFound: "Component does not exist",
     example: "Examples",
     defaultMethodDesc: "Set the value of property {name}",
-    propertyUsage:
-      "You can read component-related information by accessing component properties by component name anywhere you can write JavaScript.",
+    propertyUsage: "You can read component-related information by accessing component properties by component name anywhere you can write JavaScript.",
     property: "Properties",
     propertyName: "Property Name",
     propertyType: "Type",
@@ -2387,8 +2305,7 @@ export const en = {
     eventName: "event name",
     eventDesc: "Description",
     mehtod: "Methods",
-    methodUsage:
-      "You can interact with components through their methods, and you can call them by their name anywhere you can write JavaScript. Or you can call them through the 'Control component' action of an event.",
+    methodUsage: "You can interact with components through their methods, and you can call them by their name anywhere you can write JavaScript. Or you can call them through the 'Control component' action of an event.",
     methodName: "Method Name",
     methodDesc: "Description",
     showBorder: "Show Border",
@@ -2410,8 +2327,7 @@ export const en = {
     defaultStartDateValue: "Default Start Date",
     defaultEndDateValue: "Default End Date",
     basicUsage: "Basic Usage",
-    basicDemoDescription:
-      "The following examples show the basic usage of the component.",
+    basicDemoDescription: "The following examples show the basic usage of the component.",
     noDefaultValue: "No Default Value",
     forbid: "Forbidden",
     placeholder: "Placeholder",
@@ -2483,8 +2399,7 @@ export const en = {
     styleColor: "Font color",
     selectionMode: "Row selection mode",
     paginationSetting: "Pagination setting",
-    paginationShowSizeChanger:
-      "Support users to modify the number of entries per page",
+    paginationShowSizeChanger: "Support users to modify the number of entries per page",
     paginationShowSizeChangerButton: "Show size changer button",
     paginationShowQuickJumper: "Show quick jumper",
     paginationHideOnSinglePage: "Hide when there is only one page",
@@ -2569,6 +2484,11 @@ export const en = {
     bottom: "Bottom",
     justify: "Justify both ends",
   },
+
+
+  // twenty-second part
+
+
   playground: {
     url: "https://app.lowcoder.cloud/playground/{compType}/1",
     data: "Data",
@@ -2578,8 +2498,7 @@ export const en = {
     executeMethods: "Execute methods",
     noMethods: "No methods.",
     methodParams: "Method params",
-    methodParamsHelp:
-      "Input method params use JSON, for example, you can set setValue's params with: [1] or 1",
+    methodParamsHelp: "Input method params use JSON, for example, you can set setValue's params with: [1] or 1",
   },
   calendar: {
     headerBtnBackground: "Button background",
@@ -2610,25 +2529,20 @@ export const en = {
     formSelectPlaceholder: "Please select the {label}",
     saveSuccess: "Saved successfully",
     dangerLabel: "Danger Zone",
-    dangerTip:
-      "Disabling this ID provider may result in some users being unable to log in. Proceed with caution.",
+    dangerTip: "Disabling this ID provider may result in some users being unable to log in. Proceed with caution.",
     disable: "Disable",
     disableSuccess: "Disabled successfully",
     encryptedServer: "-------- Encrypted on the server side --------",
     disableTip: "Tips",
-    disableContent:
-      "Disabling this ID provider may result in some users being unable to log in. Are you sure to proceed?",
+    disableContent: "Disabling this ID provider may result in some users being unable to log in. Are you sure to proceed?",
     manualTip: "",
-    lockTip:
-      "The content is locked. To make changes, please click the{icon}to unlock.",
-    lockModalContent:
-      "Changing the 'ID attribute' field can have significant impacts on user identification. Please confirm that you understand the implications of this change before proceeding.",
+    lockTip: "The content is locked. To make changes, please click the{icon}to unlock.",
+    lockModalContent: "Changing the 'ID attribute' field can have significant impacts on user identification. Please confirm that you understand the implications of this change before proceeding.",
     payUserTag: "Premium",
   },
   slotControl: {
     configSlotView: "Configure slot view",
   },
-  //Added By Aqib Mirza
   jsonLottie: {
     lottieJson: "Lottie JSON",
     speed: "Speed",
@@ -2644,7 +2558,6 @@ export const en = {
     endlessLoop: "Endless Loop",
     keepLastFrame: "Keep Last Frame",
   },
-  /////////////////////
   timeLine: {
     titleColor: "Title color",
     subTitleColor: "Subtitle color",
@@ -2654,8 +2567,7 @@ export const en = {
     left: "Content right",
     right: "Content left",
     alternate: "Alternate content order",
-    modeTooltip:
-      "Set the content to appear left/right or alternately on both sides of the timeline",
+    modeTooltip: "Set the content to appear left/right or alternately on both sides of the timeline",
     reverse: "Newest events first",
     pending: "Pending node text",
     pendingDescription: "When set, then an last node with the text and a waiting indicator will be displayed.",
@@ -2675,6 +2587,11 @@ export const en = {
     clickedObjectDesc: "clicked item data",
     clickedIndexDesc: "clicked item index",
   },
+
+
+  // twenty-third part
+
+
   comment: {
     value: "comment list data",
     showSendButton: "Allowing Comments",
@@ -2757,3 +2674,10 @@ export const en = {
     navItemStyle: "Menu Item Style",
   }
 };
+
+// const jsonString = JSON.stringify(en, null, 2);
+// console.log(jsonString);
+
+// If you want to write this to a file, you can use the fs module
+// const fs = require('fs');
+// fs.writeFileSync('output.json', jsonString, 'utf8');
