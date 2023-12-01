@@ -941,7 +941,7 @@ const uiCompMap: Registry = {
     comp: QRCodeComp,
     layoutInfo: {
       w: 6,
-      h: 20,
+      h: 32,
     },
   },
   scanner: {
@@ -952,6 +952,10 @@ const uiCompMap: Registry = {
     icon: ScannerIcon,
     keywords: trans("uiComp.scannerCompKeywords"),
     comp: ScannerComp,
+    layoutInfo: {
+      w: 6,
+      h: 5,
+    },
   },
   signature: {
     name: trans("uiComp.signatureCompName"),
@@ -1031,7 +1035,7 @@ const uiCompMap: Registry = {
     comp: IFrameComp,
     layoutInfo: {
       w: 12,
-      h: 60,
+      h: 40,
     },
   },
   custom: {
