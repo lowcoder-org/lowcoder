@@ -196,7 +196,7 @@ const uiCompMap: Registry = {
     keywords: trans("uiComp.tableCompKeywords"),
     comp: TableComp,
     layoutInfo: {
-      w: 15,
+      w: 12,
       h: 40,
     },
     defaultDataFn: defaultTableData,
@@ -211,7 +211,7 @@ const uiCompMap: Registry = {
     keywords: trans("uiComp.sliderCompKeywords"),
     comp: SliderComp,
     layoutInfo: {
-      w: 8,
+      w: 6,
       h: 5,
     },
   },
@@ -224,7 +224,7 @@ const uiCompMap: Registry = {
     keywords: trans("uiComp.rangeSliderCompKeywords"),
     comp: RangeSliderComp,
     layoutInfo: {
-      w: 8,
+      w: 6,
       h: 5,
     },
   },
@@ -380,6 +380,10 @@ const uiCompMap: Registry = {
     icon: LinkCompIcon,
     keywords: trans("uiComp.linkCompKeywords"),
     comp: LinkComp,
+    layoutInfo: {
+      w: 6,
+      h: 5,
+    },
   },
   divider: {
     name: trans("uiComp.dividerCompName"),
@@ -406,7 +410,7 @@ const uiCompMap: Registry = {
     keywords: trans("uiComp.calendarCompKeywords"),
     comp: remoteComp({ ...builtInRemoteComps, compName: "calendar" }),
     layoutInfo: {
-      w: 24,
+      w: 19,
       h: 60,
     },
   },
@@ -937,7 +941,7 @@ const uiCompMap: Registry = {
     comp: QRCodeComp,
     layoutInfo: {
       w: 6,
-      h: 20,
+      h: 32,
     },
   },
   scanner: {
@@ -948,6 +952,10 @@ const uiCompMap: Registry = {
     icon: ScannerIcon,
     keywords: trans("uiComp.scannerCompKeywords"),
     comp: ScannerComp,
+    layoutInfo: {
+      w: 6,
+      h: 5,
+    },
   },
   signature: {
     name: trans("uiComp.signatureCompName"),
@@ -1027,7 +1035,7 @@ const uiCompMap: Registry = {
     comp: IFrameComp,
     layoutInfo: {
       w: 12,
-      h: 60,
+      h: 40,
     },
   },
   custom: {
