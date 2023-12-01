@@ -131,9 +131,10 @@ const TableWrapper = styled.div<{
   $rowStyle: TableRowStyleType;
   toolbarPosition: "above" | "below" | "close";
   fixedHeader: boolean;
+  fixedToolbar: boolean;
 }>`
   max-height: 100%;
-  overflow-y: ${(props) => (props.fixedHeader ? "hidden" : "auto")};
+  overflow-y: auto;
   background: white;
   border: ${(props) => `1px solid ${props.$style.border}`};
   border-radius: ${(props) => props.$style.radius};
@@ -168,6 +169,10 @@ const TableWrapper = styled.div<{
       border-top: none !important;
       border-inline-start: none !important;
 
+      .ant-table-content {
+        overflow: unset !important;
+      }
+
       // A table expand row contains table
       .ant-table-tbody .ant-table-wrapper:only-child .ant-table {
         margin: 0;
@@ -182,7 +187,15 @@ const TableWrapper = styled.div<{
             border-color: ${(props) => props.$style.border};
             color: ${(props) => props.$style.headerText};
             border-inline-end: ${(props) => `1px solid ${props.$style.border}`} !important;
-            
+            ${(props) => 
+              props.fixedHeader && `
+                position: sticky;
+                position: -webkit-sticky;
+                top: ${props.fixedToolbar ? '47px' : '0'};
+                z-index: 99;
+              `
+            }
+
             &:last-child {
               border-inline-end: none !important;
             }
@@ -371,9 +384,6 @@ type CustomTableProps<RecordType> = Omit<TableProps<RecordType>, "components" | 
   viewModeResizable: boolean;
   rowColorFn: RowColorViewType;
   columnsStyle: TableColumnStyleType;
-  fixedHeader: boolean;
-  height?: number;
-  autoHeight?: boolean;
 };
 
 function TableCellView(props: {
@@ -547,9 +557,7 @@ function ResizeableTable<RecordType extends object>(props: CustomTableProps<Reco
       columns={columns}
       scroll={{
         x: COL_MIN_WIDTH * columns.length,
-        y: props.fixedHeader && props.height && !props.autoHeight
-          ? `${props.height - 100}px`
-          : undefined,
+        y: undefined,
       }}
     ></Table>
   );
@@ -563,10 +571,10 @@ export function TableCompView(props: {
   onDownload: (fileName: string) => void;
 }) {
   const editorState = useContext(EditorContext);
-  const { width, height, ref } = useResizeDetector({
+  const { width, ref } = useResizeDetector({
     refreshMode: "debounce",
     refreshRate: 600,
-    handleHeight: true,
+    handleHeight: false,
   });
   const viewMode = useUserViewMode();
   const compName = useContext(CompNameContext);
@@ -591,7 +599,6 @@ export function TableCompView(props: {
     () => compChildren.dynamicColumnConfig.getView(),
     [compChildren.dynamicColumnConfig]
   );
-  const autoHeight = compChildren.autoHeight.getView();
   const columnsAggrData = comp.columnAggrData;
   const expansion = useMemo(() => compChildren.expansion.getView(), [compChildren.expansion]);
   const antdColumns = useMemo(
@@ -689,6 +696,7 @@ export function TableCompView(props: {
         $rowStyle={rowStyle}
         toolbarPosition={toolbar.position}
         fixedHeader={compChildren.fixedHeader.getView()}
+        fixedToolbar={toolbar.fixedToolbar && toolbar.position === 'above'}
       >
         {toolbar.position === "above" && toolbarView}
         <ResizeableTable<RecordType>
@@ -709,15 +717,12 @@ export function TableCompView(props: {
             onTableChange(pagination, filters, sorter, extra, comp.dispatch, onEvent);
           }}
           showHeader={!compChildren.hideHeader.getView()}
-          fixedHeader={compChildren.fixedHeader.getView()}
           columns={antdColumns}
           columnsStyle={columnsStyle}
           viewModeResizable={compChildren.viewModeResizable.getView()}
           dataSource={pageDataInfo.data}
           size={compChildren.size.getView()}
           tableLayout="fixed"
-          height={height}
-          autoHeight={autoHeight}
           loading={
             loading ||
             // fixme isLoading type

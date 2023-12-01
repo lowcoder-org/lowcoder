@@ -1253,6 +1253,8 @@ export const en = {
     hideHeader: "Hide table header",
     fixedHeader: "Fixed table header",
     fixedHeaderTooltip: "Header will be fixed for vertically scrollable table",
+    fixedToolbar: "Fixed toolbar",
+    fixedToolbarTooltip: "Toolbaar will be fixed for vertically scrollable table based on position",
     hideBordered: "Hide column border",
     deleteColumn: "Delete column",
     confirmDeleteColumn: "Confirm delete column: ",
