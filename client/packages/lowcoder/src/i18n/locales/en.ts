@@ -1279,7 +1279,7 @@ export const en = {
     "displayDataDesc": "Data Displayed in the Current Table",
     "selectedIndexDesc": "Selected Index in Display Data",
     "filterDesc": "Table Filtering Parameters",
-    "dataDesc": "The Raw Data Used in the Current Table",
+    "dataDesc": "The JSON Data for the Table",
     "saveChanges": "Save Changes",
     "cancelChanges": "Cancel Changes",
     "rowSelectChange": "Row Select Change",
@@ -2147,11 +2147,11 @@ export const en = {
   },
   "editorTutorials": {
     "component": "Component",
-    "componentContent": "The Right Component Area Has Tables, Buttons, Input Boxes, Selectors, and Other Components That Can Be Dragged onto the Canvas for Use.",
+    "componentContent": "The Right Component Panel offers you many ready made Application Blocks (Components). These Can Be Dragged onto the Canvas for Use. You Can Also Create Your Own Components with a little coding knowledge.",
     "canvas": "Canvas",
-    "canvasContent": "What You See on the Canvas is What You Get, and You Can Adjust Component Layout and Size by Dragging and Dropping, and Delete/Copy/Paste Components with Keyboard Shortcuts.",
+    "canvasContent": "Build your apps on the Canvas with a 'What You See Is What You Get' approach. Simply drag and drop components to design your layout, and use keyboard shortcuts for quick editing like delete, copy, and paste. Once a component is selected, you can fine-tune every detail—from styling and layout to data binding and logical behavior. Plus, enjoy the added benefit of responsive design, ensuring your apps look great on any device.",
     "queryData": "Query Data",
-    "queryDataContent": "Create a New Query Here and Connect to Your MySQL, MongoDB, Redis, Airtable, and Other Data Sources. After Configuring the Query, Click 'Run' to Obtain the Data.",
+    "queryDataContent": "You can create Data Queries Here and Connect to Your MySQL, MongoDB, Redis, Airtable, and many Other Data Sources. After Configuring the Query, Click 'Run' to Obtain the Data and continue the Tutorial.",
     "compProperties": "Component Properties"
   },
   "homeTutorials": {

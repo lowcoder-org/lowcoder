@@ -115,16 +115,14 @@ export const enObj: I18nObjects = {
     mockDataUrl: "https://6523073ef43b179384152c4f.mockapi.io/api/lowcoder/users",
     data: (code) => (
       <>
-        The component and query data are listed here, which can be referenced through
-        {code("{{ }}")}. For example: {code("{{table1.selectedRow}}")}.
+        The current State of the Component with all Settings and Data listed here. You can reference to this data with the handlebar expression.
+        For example: {code("{{table1.selectedRow}}")}.
       </>
     ),
     compProperties: (code) => (
       <>
-        When the component is selected, its properties are displayed on the right
-        {code("{{query1.data}}")}. Reference the data just queried, you can use in the input box
-        {code("{{ }}")}
-        write JavaScript.
+        When the component is selected, its properties are displayed on the right. Now you can set a Data Binding. Please delete all static Data and enter the following handlebar expression:
+        {code("{{query1.data}}")}. With this, you bind the data of the query to the table. The table will automatically display the data returned by the query. If the query updates the data, the table will also update the data automatically.
       </>
     ),
   },

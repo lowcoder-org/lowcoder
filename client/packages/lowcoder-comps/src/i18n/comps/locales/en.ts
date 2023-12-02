@@ -62,7 +62,7 @@ export const en = {
     selectDesc: "Triggered when the user selects part of the data in the chart",
     unselectDesc: "Triggered when the user unselects part of the data in the chart",
     selectedPointsDesc: "Selected points",
-    dataDesc: "The raw data used in the current chart",
+    dataDesc: "The JSON data for the chart",
     titleDesc: "Current chart title",
     scatterShape: "Scatter shape",
     circle: "Circle",
