@@ -313,7 +313,7 @@ const RichTextEditorCompBase = new UICompBuilder(childrenMap, (props) => {
     return (
       <>
         <Section name={sectionNames.basic}>
-          {children.value.propertyView({ label: trans("prop.defaultValue") })}
+          {children.value.propertyView({ label: trans("richTextEditor.defaultValue") })}
           {placeholderPropertyView(children)}
         </Section>
 

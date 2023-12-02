@@ -225,8 +225,8 @@ const CustomCompBase = new UICompBuilder(childrenMap, (props, dispatch) => {
       <>
         {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
           <><Section name={sectionNames.interaction}>
-              {children.model.propertyView({ label: trans("data") })}
-              {children.code.propertyView({ label: trans("code"), language: "html" })}
+              {children.model.propertyView({ label: trans("customComp.data") })}
+              {children.code.propertyView({ label: trans("customComp.code"), language: "html" })}
               {hiddenPropertyView(children)}
             </Section>
           </>

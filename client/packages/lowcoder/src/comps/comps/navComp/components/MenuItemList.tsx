@@ -36,7 +36,7 @@ interface IMenuItemListProps {
   onMoveItem: (path: number[], from: number, to: number) => void;
 }
 
-const menuItemLabel = trans("menuItem");
+const menuItemLabel = trans("navigation.itemsDesc");
 
 function MenuItemList(props: IMenuItemListProps) {
   const { items, onAddItem, onDeleteItem, onMoveItem, onAddSubItem } = props;
