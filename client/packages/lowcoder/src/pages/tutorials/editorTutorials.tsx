@@ -205,6 +205,7 @@ export default function EditorTutorials() {
   useEffect(() => {
     setRun(true);
   }, []);
+  
   const querySize = editorState.getQueriesComp().getView().length;
   const uiCompSize = editorState.uiCompInfoList().length;
   useEffect(() => {
@@ -222,7 +223,7 @@ export default function EditorTutorials() {
     // auto execute new query
     setTimeout(() => {
       query?.dispatch(executeQueryAction({}));
-    }, 1000);
+    }, 1000); 
   }, [querySize]);
 
   const openTableData = () => {
@@ -254,17 +255,19 @@ export default function EditorTutorials() {
       return;
     }
     if (index === 0 && action === ACTIONS.NEXT) {
-      setStepIndex(nextIndex);
       setTimeout(() => addTable(editorState), 0);
+      setStepIndex(nextIndex);
     } else if (index === 1 && action === ACTIONS.NEXT) {
       // re-try to add table in case of the deletion in the prev step
       addTable(editorState);
-      addQuery(editorState, datasourceInfos);
       // select table in advance
       editorState.setSelectedCompNames(new Set(["table1"]));
+      // only works when addQuery is set in setTimeout
+      setTimeout(() => addQuery(editorState, datasourceInfos), 500);
       setStepIndex(nextIndex);
     } else if (index === 2 && action === ACTIONS.NEXT) {
       // change data
+      editorState.setSelectedCompNames(new Set(["table1"]));
       openTableData();
       setStepIndex(nextIndex);
     } else if (index === 1 && action === ACTIONS.PREV) {
