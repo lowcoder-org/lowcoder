@@ -974,6 +974,7 @@ export const en = {
     "code": "Code of your Custom Component",
   },
   "tree": {
+    "placeholder": "Please Select",
     "selectType": "Select Type",
     "noSelect": "No Select",
     "singleSelect": "Single Select",
@@ -1893,6 +1894,8 @@ export const en = {
   },
   "module": {
     "emptyText": "No Data",
+    "docLink": "Read More About Modules...",
+    "documentationText" : "Lowcoder Modules are complete Applications, that can get included and repeated in other Lowcoder Applications and it functions just like a single component. As modules can get embedded, they need to be able to interact with your outside apps or websites. This four settings help to support communication with a Module.",
     "circularReference": "Circular Reference, Current Module/Application Cannot Be Used!",
     "emptyTestInput": "The Current Module Has No Input to Test",
     "emptyTestMethod": "The Current Module Has No Method to Test",
@@ -2294,49 +2297,6 @@ export const en = {
     "alignment": "Alignment",
     "showBorder": "Show Border"
   },
-  docUrls: {
-    docHome: "https://docs.lowcoder.cloud/",
-    components: "https://app.lowcoder.cloud/components/{compType}",
-    module: "https://docs.lowcoder.cloud/lowcoder-documentation/build-applications/create-a-new-app/modules",
-    optionList: "",
-    terms: "https://lowcoder.cloud/terms",
-    privacy: "https://lowcoder.cloud/privacy",
-    aboutUs: "https://lowcoder.cloud/about",
-    changeLog: "https://github.com/lowcoder-org/lowcoder/releases",
-    introVideo: "",
-    devNpmPlugin: "https://docs.lowcoder.cloud/lowcoder-extension/develop-data-source-plugins",
-    devNpmPluginText: "How to develop npm plugin",
-    useHost: "https://docs.lowcoder.cloud/setup-and-run/self-hosting/access-local-database-or-api",
-    eventHandlerSlowdown: "https://docs.lowcoder.cloud/build-applications/app-interaction/event-handlers",
-    thirdLib: "https://docs.lowcoder.cloud/lowcoder-extension/use-third-party-libraries-in-apps",
-    thirdLibUrlText: "Use third-party libraries",
-  },
-  datasourceTutorial: {
-    mysql: "",
-    mongodb: "",
-    postgres: "",
-    redis: "",
-    es: "",
-    smtp: "",
-    clickHouse: "",
-  },
-  queryTutorial: {
-    js: "",
-    transformer: "https://docs.lowcoder.cloud/business-logic-in-apps/write-javascript/transformers",
-    tempState: "https://docs.lowcoder.cloud/business-logic-in-apps/write-javascript/temporary-state",
-    dataResponder: "https://docs.lowcoder.cloud/lowcoder-documentation/business-logic-in-apps/write-javascript/data-responder",
-  },
-  customComponent: {
-    entryUrl: "https://sdk.lowcoder.cloud/custom_component.html",
-  },
-  template: {
-    cloneUrl: "/apps/template-import/",
-  },
-  lowcoderUrl: {
-    createIssue: "https://github.com/lowcoder-org/lowcoder/issues",
-    discord: "https://discord.com/invite/qMG9uTmAx2",
-  },
-
 
   // twenty-first part
 
@@ -2560,7 +2520,7 @@ export const en = {
   "playground": {
     "url": "https://app.lowcoder.cloud/playground/{compType}/1",
     "data": "Current Data State",
-    "preview": "Preview",
+    "preview": "Preview (please mind, that your Editor-Layout/Logic Mode is active here too. You can set it to 'Both' in the App Editor to see all properties here too)",
     "property": "Properties",
     "console": "Visual Script Console",
     "executeMethods": "Execute Methods",
@@ -2740,7 +2700,51 @@ export const en = {
     "widthTooltip": "Pixel or Percentage, e.g. 520, 60%",
     "navStyle": "Menu Style",
     "navItemStyle": "Menu Item Style"
-  }
+  },
+
+  docUrls: {
+    docHome: "https://docs.lowcoder.cloud/",
+    components: "https://app.lowcoder.cloud/components/{compType}",
+    module: "https://docs.lowcoder.cloud/lowcoder-documentation/build-applications/create-a-new-app/modules",
+    optionList: "",
+    terms: "https://lowcoder.cloud/terms",
+    privacy: "https://lowcoder.cloud/privacy",
+    aboutUs: "https://lowcoder.cloud/about",
+    changeLog: "https://github.com/lowcoder-org/lowcoder/releases",
+    introVideo: "",
+    devNpmPlugin: "https://docs.lowcoder.cloud/lowcoder-extension/develop-data-source-plugins",
+    devNpmPluginText: "How to develop npm plugin",
+    useHost: "https://docs.lowcoder.cloud/setup-and-run/self-hosting/access-local-database-or-api",
+    eventHandlerSlowdown: "https://docs.lowcoder.cloud/build-applications/app-interaction/event-handlers",
+    thirdLib: "https://docs.lowcoder.cloud/lowcoder-extension/use-third-party-libraries-in-apps",
+    thirdLibUrlText: "Use third-party libraries",
+  },
+  datasourceTutorial: {
+    mysql: "",
+    mongodb: "",
+    postgres: "",
+    redis: "",
+    es: "",
+    smtp: "",
+    clickHouse: "",
+  },
+  queryTutorial: {
+    js: "",
+    transformer: "https://docs.lowcoder.cloud/business-logic-in-apps/write-javascript/transformers",
+    tempState: "https://docs.lowcoder.cloud/business-logic-in-apps/write-javascript/temporary-state",
+    dataResponder: "https://docs.lowcoder.cloud/lowcoder-documentation/business-logic-in-apps/write-javascript/data-responder",
+  },
+  customComponent: {
+    entryUrl: "https://sdk.lowcoder.cloud/custom_component.html",
+  },
+  template: {
+    cloneUrl: "/apps/template-import/",
+  },
+  lowcoderUrl: {
+    createIssue: "https://github.com/lowcoder-org/lowcoder/issues",
+    discord: "https://discord.com/invite/qMG9uTmAx2",
+  },
+
 };
 
 // const jsonString = JSON.stringify(en, null, 2);

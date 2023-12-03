@@ -107,23 +107,23 @@ export const expandSection = (children: TreeCommonComp, other?: ControlNode) => 
   </Section>
 );
 
-export const intersectSection = (children: TreeCommonComp, onEvent?: ControlNode) => (
+{/* export const intersectSection = (children: TreeCommonComp, onEvent?: ControlNode) => (
   <Section name={sectionNames.interaction}>
     {onEvent}
-    {disabledPropertyView(children)}
+    {disabledPropertyView(children)} 
   </Section>
-);
+);*/} 
 
 export const advancedSection = (children: TreeCommonComp, other?: ControlNode) => (
   <>
-    <Section name={sectionNames.advanced}>
+    {/* <Section name={sectionNames.advanced}>
       {children.showLine.propertyView({ label: trans("tree.showLine") })}
       {children.showLine.getView() &&
         children.showLeafIcon.propertyView({ label: trans("tree.showLeafIcon") })}
       {other}
     </Section>
     <SelectInputValidationSection {...children} />
-    <Section name={sectionNames.layout}>{hiddenPropertyView(children)}</Section>
+    <Section name={sectionNames.layout}>{hiddenPropertyView(children)}</Section> */}
   </>
 );
 
