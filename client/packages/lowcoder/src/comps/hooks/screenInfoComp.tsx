@@ -34,7 +34,7 @@ function useScreenInfo() {
       return { ...flags, isMobile: true };
     }
     if(deviceType === ScreenTypes.Tablet) {
-      return { ...flags, Tablet: true };
+      return { ...flags, isTablet: true };
     }
     return { ...flags, isDesktop: true };
   }
