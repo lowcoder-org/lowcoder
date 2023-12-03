@@ -97,11 +97,11 @@ export class StreamQuery extends StreamTmpQuery {
         
         this.socket = new WebSocket(socketUrl);
         this.socket.onopen = () => {
-          console.log("[WebSocket] Connection established");
+          // console.log("[WebSocket] Connection established");
         }
 
         this.socket.onmessage = (event) => {
-          console.log(`[WebSocket] Data received from server`);
+          // console.log(`[WebSocket] Data received from server`);
           if(typeof JSON.parse(event.data) === 'object') {
             const result = createSuccessResponse(JSON.parse(event.data))
             p?.callback?.(result);
@@ -109,7 +109,7 @@ export class StreamQuery extends StreamTmpQuery {
         }
 
         this.socket.onclose = () => {
-          console.log(`[WebSocket] Connection closed`);
+          // console.log(`[WebSocket] Connection closed`);
         }
 
         this.socket.onerror = (error) => {

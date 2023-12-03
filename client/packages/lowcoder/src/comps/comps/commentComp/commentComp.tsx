@@ -1,25 +1,24 @@
-import React, { useEffect, useState, useRef } from "react";
-// 渲染组件到编辑器
+import React, { useEffect, useState, useRef, useContext } from "react";
+// Render the component to the editor
 import {
   changeChildAction,
   CompAction,
   RecordConstructorToView,
 } from "lowcoder-core";
-// 文字国际化转换api
+// Text internationalisation conversion api
 import { trans } from "i18n";
-// 右侧属性栏总框架
+// General frame of the right property bar
 import { UICompBuilder, withDefault } from "../../generators";
-// 右侧属性子框架
+// Right-side attribute subframe
 import { Section, sectionNames } from "lowcoder-design";
-// 指示组件是否隐藏的开关
+// Switch indicating whether the component is hidden or not
 import { hiddenPropertyView } from "comps/utils/propertyUtils";
-// 右侧属性开关
-
+// Right property switch
 import { BoolControl } from "comps/controls/boolControl";
 import { styleControl } from "comps/controls/styleControl"; //样式输入框
 import { jsonValueExposingStateControl } from "comps/controls/codeStateControl";
 import { jsonControl, StringControl } from "comps/controls/codeControl";
-// 事件控制
+// Event Control
 import {
   clickEvent,
   submitEvent,
@@ -28,15 +27,17 @@ import {
   mentionEvent,
 } from "comps/controls/eventHandlerControl";
 
-// 引入样式
+import { EditorContext } from "comps/editorState";
+
+// Introducing styles
 import {
   CommentStyle,
   heightCalculator,
   widthCalculator,
 } from "comps/controls/styleControlConstants";
-// 初始化暴露值
+// Initialise exposed values
 import { stateComp, valueComp } from "comps/generators/simpleGenerators";
-// 组件对外暴露属性的api
+// The component's api for exposing properties externally
 import {
   NameConfig,
   NameConfigHidden,
@@ -57,11 +58,19 @@ import VirtualList, { ListRef } from "rc-virtual-list";
 import _ from "lodash";
 import relativeTime from "dayjs/plugin/relativeTime";
 import dayjs from "dayjs";
-import "dayjs/locale/zh-cn";
+// import "dayjs/locale/zh-cn";
 import { getInitialsAndColorCode } from "util/stringUtils";
 import { CloseOutlined } from "@ant-design/icons";
 dayjs.extend(relativeTime);
-dayjs.locale("zh-cn");
+// dayjs.locale("zh-cn");
+
+// TODO: Fixed header
+// TODO: scroll area only for messages - but not including commend input and button
+// TODO: free positioning of the comment input and button (eventually to adapt from Container component?)
+// TODO: extens styling for chat messages
+// TODO: add reactions to messages
+// TODO: add attachments to messages
+// TODO: add replies to messages
 
 const EventOptions = [
   clickEvent,
@@ -114,12 +123,12 @@ const CommentCompBase = (
     deleteAble,
   } = props;
   type PrefixType = "@" | keyof typeof mentionList;
-  // 用于保存整合后的提及列表
+  // Used to save the consolidated list of mentions
   const [MentionListData, setMentionList] = useState<typeof mentionList>([]);
   const [commentListData, setCommentListData] = useState<commentDataTYPE[]>([]);
   const [prefix, setPrefix] = useState<PrefixType>("@");
   const [context, setContext] = useState<string>("");
-  // 将评论列表与原提及列表中的名字进行整合
+  // Integrate the comment list with the names in the original mention list
   const mergeAllMentionList = (mentionList: any) => {
     setMentionList(
       _.merge(mentionList, {
@@ -152,16 +161,16 @@ const CommentCompBase = (
     }, 50);
   }, [commentListData]);
 
-  // 获取提及搜索关键字
+  // Get mentions of search keywords
   const onSearch = (_: string, newPrefix: PrefixType) => {
     setPrefix(newPrefix);
   };
-  // 生成评论头像
+  // Generate comment avatars
   const generateCommentAvatar = (item: commentDataTYPE) => {
     return (
       <Avatar
         onClick={() => props.onEvent("click")}
-        // 如果有头像，则不设置背景色，如果displayName不为空，则使用getInitialsAndColorCode调用displayName
+        // If there is an avatar, no background colour is set, and if displayName is not null, displayName is called using getInitialsAndColorCode
         style={{
           backgroundColor: item?.user?.avatar
             ? ""
@@ -359,40 +368,52 @@ let CommentBasicComp = (function () {
           {children.title.propertyView({
             label: trans("comment.title"),
           })}
-          {children.value.propertyView({
-            label: trans("comment.value"),
-            tooltip: CommentDataTooltip,
-            placeholder: "[]",
-          })}
-          {children.userInfo.propertyView({
-            label: trans("comment.userInfo"),
-            tooltip: CommentUserDataTooltip,
-          })}
-          {children.mentionList.propertyView({
-            label: trans("comment.mentionList"),
-            tooltip: trans("comment.mentionListDec"),
-          })}
-          {children.sendCommentAble.propertyView({
-            label: trans("comment.showSendButton"),
-          })}
-          {children.sendCommentAble.getView() &&
-            children.buttonText.propertyView({
-              label: trans("comment.buttonTextDec"),
+        </Section>
+
+        {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
+          <>
+          <Section name={sectionNames.data}>
+            {children.value.propertyView({
+              label: trans("comment.value"),
+              tooltip: CommentDataTooltip,
+              placeholder: "[]",
             })}
-          {children.placeholder.propertyView({
-            label: trans("comment.placeholderDec"),
-          })}
-          {children.deleteAble.propertyView({
-            label: trans("comment.deleteAble"),
-          })}
-        </Section>
-        <Section name={sectionNames.layout}>
-          {children.onEvent.getPropertyView()}
-          {hiddenPropertyView(children)}
-        </Section>
-        <Section name={sectionNames.style}>
-          {children.style.getPropertyView()}
-        </Section>
+            {children.userInfo.propertyView({
+              label: trans("comment.userInfo"),
+              tooltip: CommentUserDataTooltip,
+            })}
+            {children.mentionList.propertyView({
+              label: trans("comment.mentionList"),
+              tooltip: trans("comment.mentionListDec"),
+            })}
+          </Section>
+          <Section name={sectionNames.interaction}>
+              {children.onEvent.getPropertyView()}
+              {hiddenPropertyView(children)}
+              {children.sendCommentAble.propertyView({
+                label: trans("comment.showSendButton"),
+              })}
+              {children.deleteAble.propertyView({
+                label: trans("comment.deleteAble"),
+              })}
+            </Section>
+          </>
+        )}
+
+        {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
+          <><Section name={sectionNames.layout}>
+            {children.sendCommentAble.getView() &&
+              children.buttonText.propertyView({
+                label: trans("comment.buttonTextDec"),
+              })}
+            {children.placeholder.propertyView({
+              label: trans("comment.placeholderDec"),
+            })}
+          </Section><Section name={sectionNames.style}>
+              {children.style.getPropertyView()}
+            </Section></>
+        )}
+
       </>
     ))
     .build();

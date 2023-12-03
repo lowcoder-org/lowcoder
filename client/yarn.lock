@@ -2594,12 +2594,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@fullcalendar/list@npm:^6.1.6":
-  version: 6.1.8
-  resolution: "@fullcalendar/list@npm:6.1.8"
+"@fullcalendar/list@npm:^6.1.9":
+  version: 6.1.9
+  resolution: "@fullcalendar/list@npm:6.1.9"
   peerDependencies:
-    "@fullcalendar/core": ~6.1.8
-  checksum: b5c397040e0ed9566f0bdbe2c6377a3656f2db823b38085bf45bfb50c6415ecc854411e496b81d5932a5c77a1a9abfa8b582d67bad1e4dc562f41b6b14621dae
+    "@fullcalendar/core": ~6.1.9
+  checksum: 978dd54b7131369d023e4d8a0e97b986a89a986b94a0d71dc6e9782e60e6c268184f2c596dcc7fa0580b143bfd39390a40ea4c9114afd1fa2eca5c48a7b0aaab
   languageName: node
   linkType: hard
 
@@ -4122,10 +4122,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/intl@npm:^1.2.0":
-  version: 1.2.0
-  resolution: "@types/intl@npm:1.2.0"
-  checksum: 95348313fee4949c6feba98bb35be45c0930ff816d7fedee8afd003282cbc004bf682ff94e6a662af5987c8fcc98bb4e8f93a4919d1ef6bbd9ce83577bd77fa6
+"@types/intl@npm:^1.2.1":
+  version: 1.2.1
+  resolution: "@types/intl@npm:1.2.1"
+  checksum: 5e1c93792a0c61f55c21384d8a64e521deae878cb5ff730008aca43790b2a6e91d96ab5779c390014ec9184246e2420835455c261645a8877a2500c96646a49e
   languageName: node
   linkType: hard
 
@@ -11940,7 +11940,7 @@ __metadata:
     "@fullcalendar/core": ^6.1.6
     "@fullcalendar/daygrid": ^6.1.6
     "@fullcalendar/interaction": ^6.1.6
-    "@fullcalendar/list": ^6.1.6
+    "@fullcalendar/list": ^6.1.9
     "@fullcalendar/moment": ^6.1.6
     "@fullcalendar/react": ^6.1.6
     "@fullcalendar/timegrid": ^6.1.6
@@ -12096,7 +12096,7 @@ __metadata:
     "@rjsf/utils": ^5.10.0
     "@rjsf/validator-ajv8": ^5.10.0
     "@types/core-js": ^2.5.5
-    "@types/intl": ^1.2.0
+    "@types/intl": ^1.2.1
     "@types/lodash": ^4.14.194
     "@types/node": ^16.7.13
     "@types/papaparse": ^5.3.5
@@ -12189,7 +12189,6 @@ __metadata:
     vite-plugin-svgr: ^2.2.2
     vite-tsconfig-paths: ^3.6.0
     web-vitals: ^2.1.0
-    weixin-js-sdk: ^1.6.0
     xlsx: ^0.18.5
   languageName: unknown
   linkType: soft
@@ -19017,13 +19016,6 @@ __metadata:
   dependencies:
     sdp: ^3.0.2
   checksum: 67221eac0f01c35f32235b0b988ed27b7e850d03315050a4432f6dc2ff47b8e0535732dfbe5d9718f6a27d46eddc527ca1465e509ba628fdd4c968013fdacb86
-  languageName: node
-  linkType: hard
-
-"weixin-js-sdk@npm:^1.6.0":
-  version: 1.6.0
-  resolution: "weixin-js-sdk@npm:1.6.0"
-  checksum: 274755aaad99dff7a4bedc009798b1d37638c575df221988d05e5e776be9e8399369e374653848da8d16a6d940751482736ac7c88289cd349d39d556dbbf1b69
   languageName: node
   linkType: hard
 

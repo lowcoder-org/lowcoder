@@ -13,7 +13,13 @@ import { migrateOldData } from "comps/generators/simpleGenerators";
 import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 
+import { useContext } from "react";
+import { EditorContext } from "comps/editorState";
+
 type IProps = DividerProps & { $style: DividerStyleType; dashed: boolean };
+
+// TODO: find out how to set border style when text is active
+// TODO: enable type "vertical" https://ant.design/components/divider
 
 const StyledDivider = styled(Divider)<IProps>`
   margin-top: 3.5px;
@@ -21,6 +27,7 @@ const StyledDivider = styled(Divider)<IProps>`
     height: 32px;
     display: flex;
     align-items: center;
+    font-size: ${(props) => props.$style.textSize};
   }
   min-width: 0;	
   width: ${(props) => {	
@@ -33,7 +40,14 @@ const StyledDivider = styled(Divider)<IProps>`
     return props.$style.margin;	
   }};	
   padding: ${(props) => props.$style.padding};
-  border-top: 1px ${(props) => (props.dashed ? "dashed" : "solid")} ${(props) => props.$style.color};
+  
+  border-top: ${(props) => (props.$style.borderWidth ? props.$style.borderWidth : "1px")} ${(props) => (props.dashed ? "dashed" : "solid")} ${(props) => props.$style.color};
+
+  .ant-divider-inner-text::before, .ant-divider-inner-text::after {
+    border-block-start: ${(props) => (props.$style.borderWidth ? props.$style.borderWidth : "1px")} ${(props) => (props.dashed ? "dashed" : "solid")} ${(props) => props.$style.color} !important;
+    border-block-start-color: inherit;
+    border-block-end: 0;
+  }
 
   &.ant-divider-horizontal.ant-divider-with-text {
     margin: 0;
@@ -76,17 +90,29 @@ export const DividerComp = migrateOldData(
         <>
           <Section name={sectionNames.basic}>
             {children.title.propertyView({ label: trans("divider.title") })}
-            {!_.isEmpty(children.title.getView()) &&
-              children.align.propertyView({
-                label: trans("divider.align"),
-                radioButton: true,
-              })}
           </Section>
-          <Section name={sectionNames.layout}>{hiddenPropertyView(children)}</Section>
-          <Section name={sectionNames.style}>
-            {children.dashed.propertyView({ label: trans("divider.dashed") })}
-            {children.style.getPropertyView()}
-          </Section>
+
+          {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+            <Section name={sectionNames.interaction}>
+              {hiddenPropertyView(children)}
+            </Section>
+          )}
+
+          {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+            <>
+              <Section name={sectionNames.layout}>
+                {!_.isEmpty(children.title.getView()) &&
+                  children.align.propertyView({
+                    label: trans("divider.align"),
+                    radioButton: true,
+                  })}
+              </Section>
+              <Section name={sectionNames.style}>
+                {children.dashed.propertyView({ label: trans("divider.dashed") })}
+                {children.style.getPropertyView()}
+              </Section>
+            </>
+          )}
         </>
       );
     })

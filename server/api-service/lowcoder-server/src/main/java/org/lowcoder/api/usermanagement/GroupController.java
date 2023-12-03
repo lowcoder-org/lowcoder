@@ -19,28 +19,19 @@ import org.lowcoder.api.util.BusinessEventPublisher;
 import org.lowcoder.domain.group.service.GroupMemberService;
 import org.lowcoder.domain.group.service.GroupService;
 import org.lowcoder.domain.organization.model.MemberRole;
-import org.lowcoder.infra.constant.NewUrl;
-import org.lowcoder.infra.constant.Url;
 import org.lowcoder.sdk.exception.BizError;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
 
-@Slf4j
 @RestController
-@RequestMapping(value = {Url.GROUP_URL, NewUrl.GROUP_URL})
-public class GroupController {
+public class GroupController implements GroupEndpoints
+{
 
     @Autowired
     private GroupApiService groupApiService;
@@ -53,7 +44,7 @@ public class GroupController {
     @Autowired
     private GroupService groupService;
 
-    @PostMapping
+    @Override
     public Mono<ResponseView<GroupView>> create(@Valid @RequestBody CreateGroupRequest newGroup) {
         return groupApiService.create(newGroup)
                 .delayUntil(group -> businessEventPublisher.publishGroupCreateEvent(group))
@@ -61,7 +52,7 @@ public class GroupController {
                 .map(ResponseView::success);
     }
 
-    @PutMapping("{groupId}/update")
+    @Override
     public Mono<ResponseView<Boolean>> update(@PathVariable String groupId,
             @Valid @RequestBody UpdateGroupRequest updateGroupRequest) {
         return groupService.getById(groupId)
@@ -70,7 +61,7 @@ public class GroupController {
                 .map(tuple -> ResponseView.success(tuple.getT2()));
     }
 
-    @DeleteMapping("/{groupId}")
+    @Override
     public Mono<ResponseView<Boolean>> delete(@PathVariable String groupId) {
         return groupService.getById(groupId)
                 .zipWhen(group -> groupApiService.deleteGroup(groupId))
@@ -78,14 +69,14 @@ public class GroupController {
                 .map(tuple -> ResponseView.success(tuple.getT2()));
     }
 
-    @GetMapping("/list")
+    @Override
     public Mono<ResponseView<List<GroupView>>> getOrgGroups() {
         return groupApiService.getGroups()
                 .map(ResponseView::success);
     }
 
 
-    @GetMapping("/{groupId}/members")
+    @Override
     public Mono<ResponseView<GroupMemberAggregateView>> getGroupMembers(@PathVariable String groupId,
             @RequestParam(name = "page", required = false, defaultValue = "1") int page,
             @RequestParam(name = "count", required = false, defaultValue = "100") int count) {
@@ -93,7 +84,7 @@ public class GroupController {
                 .map(ResponseView::success);
     }
 
-    @PostMapping("/{groupId}/addMember")
+    @Override
     public Mono<ResponseView<Boolean>> addGroupMember(@PathVariable String groupId,
             @RequestBody AddMemberRequest addMemberRequest) {
         if (StringUtils.isBlank(groupId)) {
@@ -110,7 +101,7 @@ public class GroupController {
                 .map(ResponseView::success);
     }
 
-    @PutMapping("/{groupId}/role")
+    @Override
     public Mono<ResponseView<Boolean>> updateRoleForMember(@RequestBody UpdateRoleRequest updateRoleRequest,
             @PathVariable String groupId) {
         return groupMemberService.getGroupMember(groupId, updateRoleRequest.getUserId())
@@ -121,7 +112,7 @@ public class GroupController {
                 .map(ResponseView::success);
     }
 
-    @DeleteMapping("/{groupId}/leave")
+    @Override
     public Mono<ResponseView<Boolean>> leaveGroup(@PathVariable String groupId) {
         return sessionUserService.getVisitorOrgMemberCache()
                 .flatMap(orgMember -> groupMemberService.getGroupMember(groupId, orgMember.getUserId()))
@@ -131,7 +122,7 @@ public class GroupController {
                 .map(ResponseView::success);
     }
 
-    @DeleteMapping("/{groupId}/remove")
+    @Override
     public Mono<ResponseView<Boolean>> removeUser(@PathVariable String groupId,
             @RequestParam String userId) {
         if (StringUtils.isBlank(userId)) {

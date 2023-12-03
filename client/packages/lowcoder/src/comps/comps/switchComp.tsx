@@ -17,6 +17,9 @@ import { RefControl } from "comps/controls/refControl";
 import { refMethods } from "comps/generators/withMethodExposing";
 import { blurMethod, clickMethod, focusWithOptions } from "comps/utils/methodUtils";
 
+import { useContext } from "react";
+import { EditorContext } from "comps/editorState";
+
 const EventOptions = [
   changeEvent,
   {
@@ -114,19 +117,28 @@ let SwitchTmpComp = (function () {
       return (
         <>
           <Section name={sectionNames.basic}>
-            {children.value.propertyView({ label: trans("prop.defaultValue") })}
+            {children.value.propertyView({ label: trans("switchComp.defaultValue") })}
           </Section>
+
           <FormDataPropertyView {...children} />
-          {children.label.getPropertyView()}
 
-          <Section name={sectionNames.interaction}>
-            {children.onEvent.getPropertyView()}
-            {disabledPropertyView(children)}
-          </Section>
+          {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+            <Section name={sectionNames.interaction}>
+              {children.onEvent.getPropertyView()}
+              {disabledPropertyView(children)}
+              {hiddenPropertyView(children)}
+            </Section>
+          )}
 
-          <Section name={sectionNames.layout}>{hiddenPropertyView(children)}</Section>
+          {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+            children.label.getPropertyView()
+          )}
 
-          <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
+          {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+            <Section name={sectionNames.style}>
+              {children.style.getPropertyView()}
+            </Section>
+          )}
         </>
       );
     })

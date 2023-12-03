@@ -17,7 +17,8 @@
     "test": "jest && yarn workspace lowcoder-comps test",
     "prepare": "yarn workspace lowcoder prepare",
     "build:core": "yarn workspace lowcoder-core build",
-    "test:core": "yarn workspace lowcoder-core test"
+    "test:core": "yarn workspace lowcoder-core test",
+    "lint": "eslint . --fix"
   },
   "devDependencies": {
     "@babel/preset-env": "^7.20.2",

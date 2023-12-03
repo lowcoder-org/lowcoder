@@ -1,7 +1,7 @@
 import { Rate } from "antd";
 import styled, { css } from "styled-components";
 import { Section, sectionNames } from "lowcoder-design";
-import { NumberControl } from "../controls/codeControl";
+import { NumberControl, BoolCodeControl } from "../controls/codeControl";
 import { BoolControl } from "../controls/boolControl";
 import { changeEvent, eventHandlerControl } from "../controls/eventHandlerControl";
 import { LabelControl } from "../controls/labelControl";
@@ -14,6 +14,9 @@ import { RatingStyle, RatingStyleType } from "comps/controls/styleControlConstan
 import { migrateOldData } from "comps/generators/simpleGenerators";
 import { disabledPropertyView, hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
+
+import { useContext } from "react";
+import { EditorContext } from "comps/editorState";
 
 const EventOptions = [changeEvent] as const;
 
@@ -37,7 +40,7 @@ const RatingBasicComp = (function () {
     max: withDefault(NumberControl, "5"),
     label: LabelControl,
     allowHalf: BoolControl,
-    disabled: BoolControl,
+    disabled: BoolCodeControl,
     onEvent: eventHandlerControl(EventOptions),
     style: migrateOldData(styleControl(RatingStyle), fixOldData),
     ...formDataChildren,
@@ -68,23 +71,33 @@ const RatingBasicComp = (function () {
             {children.max.propertyView({
               label: trans("rating.max"),
             })}
-            {children.allowHalf.propertyView({
-              label: trans("rating.allowHalf"),
-            })}
           </Section>
 
           <FormDataPropertyView {...children} />
 
-          {children.label.getPropertyView()}
+          {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+            <><Section name={sectionNames.interaction}>
+                {children.onEvent.getPropertyView()}
+                {disabledPropertyView(children)}
+                {hiddenPropertyView(children)}
+              </Section>
+              <Section name={sectionNames.advanced}>
+              {children.allowHalf.propertyView({
+                label: trans("rating.allowHalf"),
+              })}
+              </Section>
+            </>
+          )}
 
-          <Section name={sectionNames.interaction}>
-            {children.onEvent.getPropertyView()}
-            {disabledPropertyView(children)}
-          </Section>
+          {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+            children.label.getPropertyView()
+          )}
 
-          <Section name={sectionNames.layout}>{hiddenPropertyView(children)}</Section>
-
-          <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
+          {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+            <Section name={sectionNames.style}>
+              {children.style.getPropertyView()}
+            </Section>
+          )}
         </>
       );
     })

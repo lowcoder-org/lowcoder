@@ -32,7 +32,7 @@ export default function FormLogin(props: FormLoginProps) {
   const [account, setAccount] = useState("");
   const [password, setPassword] = useState("");
   const redirectUrl = useRedirectUrl();
-  const { systemConfig, inviteInfo } = useContext(AuthContext);
+  const { systemConfig, inviteInfo, fetchUserAfterAuthSuccess } = useContext(AuthContext);
   const invitationId = inviteInfo?.invitationId;
   const authId = systemConfig?.form.id;
   const location = useLocation();
@@ -46,10 +46,12 @@ export default function FormLogin(props: FormLoginProps) {
         password: password,
         invitationId: invitationId,
         source: UserConnectionSource.email,
+        orgId: props.organizationId,
         authId,
       }),
     false,
-    redirectUrl
+    redirectUrl,
+    fetchUserAfterAuthSuccess,
   );
 
   return (

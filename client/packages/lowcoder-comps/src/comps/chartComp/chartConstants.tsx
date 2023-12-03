@@ -1,10 +1,21 @@
-import { jsonControl, JSONObject, stateComp, toJSONObjectArray, toObject } from "lowcoder-sdk";
-import { withDefault, BooleanControl, StringControl, NumberControl, JSONObjectControl, FunctionControl } from "lowcoder-sdk";
-import { dropdownControl } from "lowcoder-sdk";
-import { eventHandlerControl } from "lowcoder-sdk";
-import { valueComp, withType } from "lowcoder-sdk";
-import { ValueFromOption } from "lowcoder-sdk";
-import { uiChildren } from "lowcoder-sdk";
+import {
+  jsonControl,
+  JSONObject,
+  stateComp,
+  toJSONObjectArray,
+  toObject,
+  BoolControl,
+  withDefault,
+  StringControl,
+  NumberControl,
+  FunctionControl,
+  dropdownControl,
+  eventHandlerControl,
+  valueComp,
+  withType,
+  ValueFromOption,
+  uiChildren,
+} from "lowcoder-sdk";
 import { RecordConstructorToComp, RecordConstructorToView } from "lowcoder-core";
 import { BarChartConfig } from "./chartConfigs/barChartConfig";
 import { XAxisConfig, YAxisConfig } from "./chartConfigs/cartesianAxisConfig";
@@ -50,7 +61,7 @@ const chartModeOptions = [
   },
 ] as const;
 
-export const EventOptions = [
+export const UIEventOptions = [
   {
     label: trans("chart.select"),
     value: "select",
@@ -61,6 +72,24 @@ export const EventOptions = [
     label: trans("chart.unSelect"),
     value: "unselect",
     description: trans("chart.unselectDesc"),
+  },
+] as const;
+
+export const MapEventOptions = [
+  {
+    label: trans("chart.mapReady"),
+    value: "mapReady",
+    description: trans("chart.mapReadyDesc"),
+  },
+  {
+    label: trans("chart.zoomLevelChange"),
+    value: "zoomLevelChange",
+    description: trans("chart.zoomLevelChangeDesc"),
+  },
+  {
+    label: trans("chart.centerPositionChange"),
+    value: "centerPositionChange",
+    description: trans("chart.centerPositionChangeDesc"),
   },
 ] as const;
 
@@ -220,8 +249,8 @@ export const chartUiModeChildren = {
   xConfig: XAxisConfig,
   yConfig: YAxisConfig,
   legendConfig: LegendConfig,
-  onEvent: eventHandlerControl(EventOptions),
   chartConfig: ChartOptionComp,
+  onUIEvent: eventHandlerControl(UIEventOptions),
 };
 
 const chartMapModeChildren = {
@@ -232,6 +261,8 @@ const chartMapModeChildren = {
   mapCenterLng: withDefault(NumberControl, 15.932644),
   mapCenterLat: withDefault(NumberControl, 50.942063),
   mapOptions: jsonControl(toObject, i18nObjs.defaultMapJsonOption),
+  onMapEvent: eventHandlerControl(MapEventOptions),
+  showCharts: withDefault(BoolControl, true),
 }
 
 export const chartChildrenMap = {

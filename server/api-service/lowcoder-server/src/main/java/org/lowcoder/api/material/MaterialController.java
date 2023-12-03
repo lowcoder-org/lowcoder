@@ -1,48 +1,33 @@
 package org.lowcoder.api.material;
 
-import static org.lowcoder.infra.constant.NewUrl.MATERIAL_URL;
-
 import java.time.Duration;
 import java.util.List;
 
 import org.lowcoder.api.framework.view.ResponseView;
-import org.lowcoder.domain.material.model.MaterialType;
 import org.lowcoder.domain.material.service.meta.MaterialMetaService;
 import org.lowcoder.sdk.exception.BizError;
 import org.lowcoder.sdk.exception.BizException;
 import org.lowcoder.sdk.util.MediaTypeUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.CacheControl;
 import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.server.reactive.ServerHttpResponse;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import lombok.Builder;
-import lombok.Data;
-import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
+@RequiredArgsConstructor
 @RestController
-@RequestMapping(MATERIAL_URL)
-public class MaterialController {
+public class MaterialController implements MaterialEndpoints 
+{
+    private final MaterialApiService materialApiService;
+    private final MaterialMetaService materialMetaService;
 
-    private static final String DOWNLOAD_TYPE = "download";
-    private static final String PREVIEW_TYPE = "preview";
-
-    @Autowired
-    private MaterialApiService materialApiService;
-    @Autowired
-    private MaterialMetaService materialMetaService;
-
-    @PostMapping
+    @Override
     public Mono<ResponseView<MaterialView>> upload(@RequestBody UploadMaterialRequestDTO uploadMaterialRequestDTO) {
         return materialApiService.upload(uploadMaterialRequestDTO.getFilename(), uploadMaterialRequestDTO.getContent(),
                         uploadMaterialRequestDTO.getType())
@@ -58,7 +43,7 @@ public class MaterialController {
     /**
      * @param type {@link #DOWNLOAD_TYPE,#PREVIEW_TYPE}
      */
-    @GetMapping("/{id}")
+    @Override
     public Mono<Void> download(@PathVariable String id,
             @RequestParam(value = "type", defaultValue = DOWNLOAD_TYPE) String type,
             ServerHttpResponse serverHttpResponse) {
@@ -78,30 +63,15 @@ public class MaterialController {
                 .then();
     }
 
-    @GetMapping("/list")
+    @Override
     public Mono<ResponseView<List<MaterialView>>> getFileList() {
         return materialApiService.list()
                 .map(ResponseView::success);
     }
 
-    @DeleteMapping("/{id}")
+    @Override
     public Mono<ResponseView<Boolean>> delete(@PathVariable String id) {
         return materialApiService.delete(id)
                 .thenReturn(ResponseView.success(true));
-    }
-
-    @Getter
-    @Builder
-    public static class MaterialView {
-        private String id;
-        private String filename;
-    }
-
-    @Data
-    public static class UploadMaterialRequestDTO {
-
-        private String filename;
-        private String content;// in base64
-        private MaterialType type;
     }
 }

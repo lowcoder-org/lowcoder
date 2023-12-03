@@ -86,8 +86,8 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
     private JWTUtils jwtUtils;
 
     @Override
-    public Mono<AuthUser> authenticateByForm(String loginId, String password, String source, boolean register, String authId) {
-        return authenticate(authId, source, new FormAuthRequestContext(loginId, password, register));
+    public Mono<AuthUser> authenticateByForm(String loginId, String password, String source, boolean register, String authId, String orgId) {
+        return authenticate(authId, source, new FormAuthRequestContext(loginId, password, register, orgId));
     }
 
     @Override
@@ -105,7 +105,13 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
                 })
                 .doOnNext(findAuthConfig -> {
                     context.setAuthConfig(findAuthConfig.authConfig());
-                    context.setOrgId(Optional.ofNullable(findAuthConfig.organization()).map(Organization::getId).orElse(null));
+                    if (findAuthConfig.authConfig().getSource().equals("EMAIL")) {
+                        if(StringUtils.isBlank(context.getOrgId())) {
+                            context.setOrgId(Optional.ofNullable(findAuthConfig.organization()).map(Organization::getId).orElse(null));
+                        }
+                    } else {
+                        context.setOrgId(Optional.ofNullable(findAuthConfig.organization()).map(Organization::getId).orElse(null));
+                    }
                 })
                 .then(authRequestFactory.build(context))
                 .flatMap(authRequest -> authRequest.auth(context))
@@ -273,7 +279,7 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
                     String token = jwtUtils.createToken(user);
                     APIKey apiKey = new APIKey(apiKeyRequest.getId(), apiKeyRequest.getName(), apiKeyRequest.getDescription(), token);
                     addAPIKey(user, apiKey);
-                    return Pair.of(token, user);
+                    return Pair.of(APIKey.builder().id(apiKey.getId()).token(token).build(), user);
                 })
                 .flatMap(pair -> userService.update(pair.getRight().getId(), pair.getRight()).thenReturn(pair.getKey()))
                 .map(APIKeyVO::from);

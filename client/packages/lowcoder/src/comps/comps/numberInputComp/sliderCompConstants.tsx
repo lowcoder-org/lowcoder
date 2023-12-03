@@ -13,6 +13,9 @@ import { disabledPropertyView, hiddenPropertyView } from "comps/utils/propertyUt
 import { IconControl } from "comps/controls/iconControl";
 import { trans } from "i18n";
 
+import { useContext } from "react";
+import { EditorContext } from "comps/editorState";
+
 const getStyle = (style: SliderStyleType) => {
   return css`
     &.ant-slider:not(.ant-slider-disabled) {
@@ -72,19 +75,28 @@ export const SliderPropertyView = (
   children: RecordConstructorToComp<typeof SliderChildren & { hidden: typeof BoolCodeControl }>
 ) => (
   <>
-    {children.label.getPropertyView()}
 
-    <Section name={sectionNames.interaction}>
-      {children.onEvent.getPropertyView()}
-      {disabledPropertyView(children)}
-    </Section>
+    {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+      <Section name={sectionNames.interaction}>
+        {children.onEvent.getPropertyView()}
+        {disabledPropertyView(children)}
+        {hiddenPropertyView(children)}
+      </Section>
+    )}
 
-    <Section name={sectionNames.layout}>
-      {children.prefixIcon.propertyView({ label: trans("button.prefixIcon") })}
-      {children.suffixIcon.propertyView({ label: trans("button.suffixIcon") })}
-      {hiddenPropertyView(children)}
-    </Section>
+    {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+      children.label.getPropertyView()
+    )}
 
-    <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
+    {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+      <><Section name={sectionNames.layout}>
+          {children.prefixIcon.propertyView({ label: trans("button.prefixIcon") })}
+          {children.suffixIcon.propertyView({ label: trans("button.suffixIcon") })}
+        </Section>
+        <Section name={sectionNames.style}>
+          {children.style.getPropertyView()}
+        </Section>
+      </>
+    )}
   </>
 );

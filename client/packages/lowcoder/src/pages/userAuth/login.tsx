@@ -131,20 +131,15 @@ function Login() {
     loginCardView = thirdPartyLoginView;
   }
 
-  const loginHeading = organizationId && LOWCODER_CUSTOM_AUTH_WELCOME_TEXT !== ""
-    ? LOWCODER_CUSTOM_AUTH_WELCOME_TEXT
-    : getLoginTitle(inviteInfo?.createUserName, systemConfig?.branding?.brandName)
-
-  const loginSubHeading = organizationId && LOWCODER_CUSTOM_AUTH_WELCOME_TEXT !== ""
-    ? trans("userAuth.poweredByLowcoder")
-    : ''
+  const loginHeading = getLoginTitle(inviteInfo?.createUserName, systemConfig?.branding?.brandName)
+  const loginSubHeading = '' // REACT_APP_LOWCODER_CUSTOM_AUTH_WELCOME_TEXT !== "" ? trans("userAuth.poweredByLowcoder") : ''
 
   return (
     <AuthContainer
       heading={loginHeading}
       subHeading={loginSubHeading}
     >
-      {loginCardView}
+      <FormLogin organizationId={organizationId} />
     </AuthContainer>
   );
 }

@@ -3,11 +3,12 @@ import { Redirect, Route, Switch, useLocation, useParams } from "react-router-do
 import React, { useEffect, useMemo } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { selectSystemConfig } from "redux/selectors/configSelectors";
-import { AuthContext } from "pages/userAuth/authUtils";
+import { AuthContext, clearAuthSearchParams } from "pages/userAuth/authUtils";
 import { AuthRoutes } from "@lowcoder-ee/constants/authConstants";
 import { AuthLocationState } from "constants/authConstants";
 import { ProductLoading } from "components/ProductLoading";
 import { fetchConfigAction } from "redux/reduxActions/configActions";
+import { fetchUserAction } from "redux/reduxActions/userActions";
 import _ from "lodash";
 
 export default function UserAuth() {
@@ -34,12 +35,18 @@ export default function UserAuth() {
     return <ProductLoading hideHeader />;
   }
 
+  const fetchUserAfterAuthSuccess = () => {
+    dispatch(fetchUserAction());
+    clearAuthSearchParams();
+  }
+
   return (
     <AuthContext.Provider
       value={{
         systemConfig: systemConfig,
         inviteInfo: location.state?.inviteInfo,
         thirdPartyAuthError: location.state?.thirdPartyAuthError,
+        fetchUserAfterAuthSuccess,
       }}
     >
       <Switch location={location}>

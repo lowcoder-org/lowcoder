@@ -17,42 +17,28 @@ import org.lowcoder.domain.application.service.ApplicationService;
 import org.lowcoder.domain.permission.model.ResourceAction;
 import org.lowcoder.domain.permission.service.ResourcePermissionService;
 import org.lowcoder.domain.user.service.UserService;
-import org.lowcoder.infra.constant.NewUrl;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.google.common.collect.ImmutableMap;
 
-import lombok.extern.slf4j.Slf4j;
+import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
-@Slf4j
+@RequiredArgsConstructor
 @RestController
-@RequestMapping(value = {NewUrl.APPLICATION_HISTORY_URL})
-public class ApplicationHistorySnapshotController {
+public class ApplicationHistorySnapshotController implements ApplicationHistorySnapshotEndpoints
+{
 
-    @Autowired
-    private ResourcePermissionService resourcePermissionService;
+    private final ResourcePermissionService resourcePermissionService;
+    private final ApplicationHistorySnapshotService applicationHistorySnapshotService;
+    private final SessionUserService sessionUserService;
+    private final UserService userService;
+    private final ApplicationService applicationService;
 
-    @Autowired
-    private ApplicationHistorySnapshotService applicationHistorySnapshotService;
-
-    @Autowired
-    private SessionUserService sessionUserService;
-
-    @Autowired
-    private UserService userService;
-
-    @Autowired
-    private ApplicationService applicationService;
-
-    @PostMapping
+    @Override
     public Mono<ResponseView<Boolean>> create(@RequestBody ApplicationHistorySnapshotRequest request) {
         return sessionUserService.getVisitorId()
                 .delayUntil(visitor -> resourcePermissionService.checkResourcePermissionWithError(visitor, request.applicationId(),
@@ -65,7 +51,7 @@ public class ApplicationHistorySnapshotController {
                 .map(ResponseView::success);
     }
 
-    @GetMapping("/{applicationId}")
+    @Override
     public Mono<ResponseView<Map<String, Object>>> listAllHistorySnapshotBriefInfo(@PathVariable String applicationId,
             @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
 
@@ -98,7 +84,7 @@ public class ApplicationHistorySnapshotController {
                 .map(ResponseView::success);
     }
 
-    @GetMapping("/{applicationId}/{snapshotId}")
+    @Override
     public Mono<ResponseView<HistorySnapshotDslView>> getHistorySnapshotDsl(@PathVariable String applicationId,
             @PathVariable String snapshotId) {
         return sessionUserService.getVisitorId()
@@ -119,13 +105,4 @@ public class ApplicationHistorySnapshotController {
                 })
                 .map(ResponseView::success);
     }
-
-    private record ApplicationHistorySnapshotBriefInfo(String snapshotId, Map<String, Object> context,
-                                                       String userId, String userName,
-                                                       String userAvatar, long createTime) {
-    }
-
-    private record ApplicationHistorySnapshotRequest(String applicationId, Map<String, Object> dsl, Map<String, Object> context) {
-    }
-
 }
