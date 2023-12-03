@@ -339,7 +339,7 @@ let MTComp = (function () {
         }
       }, [userLeft]);
 
-      console.log("sharing", props.sharing);
+      // console.log("sharing", props.sharing);
 
       useEffect(() => {
         if (updateVolume.userid) {

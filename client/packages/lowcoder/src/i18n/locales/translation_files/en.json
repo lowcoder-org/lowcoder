@@ -1,6 +1,4 @@
-import table from "./componentDocExtra/table.md?url";
-
-export const en = {
+{
   "productName": "Lowcoder",
   "productDesc": "Create software applications for your company and customers with minimal coding experience. Lowcoder is an excellent alternative to Retool, Appsmith, and Tooljet.",
   "notSupportedBrowser": "Your current browser may have compatibility issues. For an optimal user experience, please use the latest version of Chrome.",
@@ -106,10 +104,6 @@ export const en = {
     "expandTip": "Click to Expand {component}'s Data",
     "collapseTip": "Click to Collapse {component}'s Data"
   },
-
-  // second part
-
-  
   "bottomPanel": {
     "title": "Data Queries",
     "run": "Run",
@@ -202,9 +196,6 @@ export const en = {
     "width": "Width",
     "widthTooltip": "Label width supports percentages (%) and pixels (px)."
   },
-
-  // third part
-
   "eventHandler": {
     "eventHandlers": "Event Handlers",
     "emptyEventHandlers": "No Event Handlers",
@@ -296,9 +287,6 @@ export const en = {
     "gridColumns": "Grid Columns",
     "gridColumnsDesc": "Default number of columns typically used for most containers"
   },
-
-  // fourth part
-
   "style": {
     "resetTooltip": "Reset styles. Clear the input field to reset an individual style.",
     "textColor": "Text Color",
@@ -406,9 +394,6 @@ export const en = {
     "maxDate": "Date exceeds maximum, current: {date}, maximum: {maxDate}",
     "minDate": "Date below minimum, current: {date}, minimum: {minDate}"
   },
-
-  // fifth part
-
   "query": {
     "noQueries": "No Data Queries available.",
     "queryTutorialButton": "View {value} documents",
@@ -543,10 +528,6 @@ export const en = {
     "dynamicDataSourceConfigErrText": "Failed to load extra datasource configuration.",
     "retry": "Retry"
   },
-
-
-  // sixth part
-
   "sqlQuery": {
     "keyValuePairs": "Key-Value Pairs",
     "object": "Object",
@@ -650,9 +631,6 @@ export const en = {
     "content": "Content",
     "contentTooltip": "Supports input text or HTML"
   },
-
-  // seventh part
-
   "uiCompCategory": {
     "dashboards": "Dashboards & Reporting",
     "layout": "Layout & Navigation",
@@ -922,11 +900,6 @@ export const en = {
     "responsiveLayoutCompDesc": "A layout component designed to adapt and respond to different screen sizes and devices, ensuring a consistent user experience.",
     "responsiveLayoutCompKeywords": "responsive, layout, adapt, screen size"
   },
-
-
-  // eighth part
-
-
   "comp": {
     "menuViewDocs": "View Documentation",
     "menuViewPlayground": "View interactive Playground",
@@ -971,10 +944,9 @@ export const en = {
     "updateText": "I'm Also in a Good Mood to Develop now my own Custom Component with Lowcoder!",
     "sdkGlobalVarName": "Lowcoder",
     "data": "Data you want to pass to the Custom Component",
-    "code": "Code of your Custom Component",
+    "code": "Code of your Custom Component"
   },
   "tree": {
-    "placeholder": "Please Select",
     "selectType": "Select Type",
     "noSelect": "No Select",
     "singleSelect": "Single Select",
@@ -1036,11 +1008,6 @@ export const en = {
     "remove": "Remove",
     "defaultValue" : "Base Content"
   },
-
-
-  // ninth part
-
-
   "numberInput": {
     "formatter": "Format",
     "precision": "Precision",
@@ -1076,7 +1043,7 @@ export const en = {
     "autoColumnsTooltip": "The Auto Column Layout Automatically Rearranges the Order as Space Permits and Displays as Multiple Columns"
   },
   "cascader": {
-    "options": "JSON Data to show cascading selections",
+    "options": "JSON Data to show cascading selections"
   },
   "selectInput": {
     "valueDesc": "Currently Selected Value",
@@ -1176,11 +1143,6 @@ export const en = {
     "horizontalAlignment": "Horizontal Alignment",
     "textDesc": "Text Displayed in the Current Text Box"
   },
-
-
-  // tenth part
-
-
   "table": {
     "editable": "Editable",
     "columnNum": "Columns",
@@ -1310,11 +1272,6 @@ export const en = {
     "visibleColumn": "Visible",
     "emptyColumns": "No Columns Are Currently Visible"
   },
-
-
-  // eleventh part
-
-
   "image": {
     "src": "Image Source",
     "srcDesc": "The Image Source. Can be an URL, Path or Base64 String. for Example: data:image/png;base64, AAA... CCC",
@@ -1427,11 +1384,6 @@ export const en = {
     "insertIcon": "Insert an Icon",
     "insertImage": "Insert an Image or "
   },
-
-
-  // twelfth part
-
-
   "millisecondsControl": {
     "timeoutTypeError": "Please Enter the Correct Timeout Period in ms, the Current Input is: {value}",
     "timeoutLessThanMinError": "Input Must Be Greater Than {left}, the Current Input is: {value}"
@@ -1528,11 +1480,6 @@ export const en = {
     "environments": "Environments",
     "premium": "Premium"
   },
-
-
-  // thirteenth part
-
-
   "memberSettings": {
     "admin": "Admin",
     "adminGroupRoleInfo": "Admin Can Manage Group Members and Resources",
@@ -1643,11 +1590,6 @@ export const en = {
     "dataDesc": "Current Form Data",
     "loadingDesc": "Whether the Form is Loading?"
   },
-
-
-  // fourteenth part
-
-
   "modalComp": {
     "close": "Close",
     "closeDesc": "Triggered When the Modal Dialog Box is Closed",
@@ -1753,11 +1695,6 @@ export const en = {
     "deleteMessage": "The Data Responder is Deleted Successfully. You Can Use {undoKey} to Undo.",
     "documentationText" : "When developing an app, you can assign events to components to monitor changes in specific data. For instance, a Table component might have events like \"Row select change\", \"Filter change\", \"Sort change\", and \"Page change\" to track changes in the selectedRow property. However, for changes in temporary states, transformers, or query results, where standard events are not available, Data responders are utilized. They enable you to detect and react to any data modifications."
   },
-
-
-  // fifteenth part
-
-
   "theme": {
     "title": "Themes",
     "createTheme": "Create Theme",
@@ -1856,11 +1793,6 @@ export const en = {
     "AuthOrgTitle": "Workspace Welcome Screen",
     "AuthOrgDescrition": "The URL for Your Users to Sign In to the Current Workspace."
   },
-
-
-  // sixteenth part
-
-
   "branding": {
     "title": "Branding",
     "logoTitle": "Logo",
@@ -1894,8 +1826,6 @@ export const en = {
   },
   "module": {
     "emptyText": "No Data",
-    "docLink": "Read More About Modules...",
-    "documentationText" : "Lowcoder Modules are complete Applications, that can get included and repeated in other Lowcoder Applications and it functions just like a single component. As modules can get embedded, they need to be able to interact with your outside apps or websites. This four settings help to support communication with a Module.",
     "circularReference": "Circular Reference, Current Module/Application Cannot Be Used!",
     "emptyTestInput": "The Current Module Has No Input to Test",
     "emptyTestMethod": "The Current Module Has No Method to Test",
@@ -1952,11 +1882,6 @@ export const en = {
     "tabBar": "Tab Bar",
     "emptyTabTooltip": "Configure This Page on the Right Pane"
   },
-
-
-  // seventeenth part
-
-
   "appSetting": {
     "title": "General App Settings",
     "450": "450px (Phone)",
@@ -2055,15 +1980,9 @@ export const en = {
     "formatting": "Format",
     "openInLeftPanel": "Open in Left Pane"
   },
-
-
-  // eighteenth part
-  
-
   "help": {
     "videoText": "Overview",
     "onBtnText": "OK",
-    // eslint-disable-next-line only-ascii/only-ascii
     "permissionDenyTitle": "💡 Unable to Create a New Application or Data Source?",
     "permissionDenyContent": "You Don't Have Permission to Create the Application and Data Source. Please Contact the Administrator to Join the Developer Group.",
     "appName": "Tutorial Application",
@@ -2158,14 +2077,9 @@ export const en = {
     "compProperties": "Component Properties"
   },
   "homeTutorials": {
-    // eslint-disable-next-line only-ascii/only-ascii
     "createAppContent": "🎉 Welcome to {productName}, Click 'App' and Start to Create Your First Application.",
     "createAppTitle": "Create App"
   },
-
-
-  // nineteenth part
-
 
   "history": {
     "layout": "'{0}' layout adjustment",
@@ -2212,7 +2126,7 @@ export const en = {
     "createFolderSubTitle": "Folder name:",
     "moveToFolder": "Move to folder",
     "moveToTrash": "Move to trash",
-    "moveToFolderSubTitle": 'Move "{name}" to:',
+    "moveToFolderSubTitle": "Move to:",
     "folderName": "Folder name:",
     "resCardSubTitle": "{time} by {creator}",
     "trashEmpty": "Trash is empty.",
@@ -2256,7 +2170,7 @@ export const en = {
     "addPermissionPlaceholder": "Please enter a name to search members",
     "searchMemberOrGroup": "Search for members or groups: ",
     "addPermissionErrorMessage": "Failed to add permission, {message}",
-    "copyModalTitle": 'Clone "{name}"',
+    "copyModalTitle": "Clone It",
     "copyNameLabel": "{type} name",
     "copyModalfolderLabel": "Add to folder",
     "copyNamePlaceholder": "Please enter a {type} name",
@@ -2268,11 +2182,6 @@ export const en = {
     "autoPlay": "AutoPlay",
     "showDots": "Show Navigation Dots"
   },
-
-
-  // twentieth part
-
-
   "npm": {
     "invalidNpmPackageName": "Invalid npm Package Name or URL.",
     "pluginExisted": "This npm Plugin Already Existed",
@@ -2297,10 +2206,6 @@ export const en = {
     "alignment": "Alignment",
     "showBorder": "Show Border"
   },
-
-  // twenty-first part
-
-
   "componentDoc": {
     "markdownDemoText": "**Lowcoder** | Create software applications for your Company and your Customers with minimal coding experience. Lowcoder is the best Retool, Appsmith or Tooljet Alternative.",
     "demoText": "Lowcoder | Create software applications for your Company and your Customers with minimal coding experience. Lowcoder is the best Retool, Appsmith or Tooljet Alternative.",
@@ -2373,13 +2278,6 @@ export const en = {
     "pleaseSelectCity": "Please Select a City",
     "advanced": "Advanced",
     "showClearIcon": "Show Clear Icon",
-/* eslint-disable only-ascii/only-ascii */
-    appleOptionLabel: "🍎 Apple",
-    waterMelonOptionLabel: "🍉 Watermelon",
-    berryOptionLabel: "🍓 Strawberry",
-    lemonOptionLabel: "🍋 Lemon",
-    coconutOptionLabel: "🥥 Coconut",
-/* eslint-enable only-ascii/only-ascii */
     "likedFruits": "Favorites",
     "option": "Option",
     "singleFileUpload": "Single File Upload",
@@ -2512,15 +2410,10 @@ export const en = {
     "bottom": "Bottom",
     "justify": "Justify Both Ends"
   },
-
-
-  // twenty-second part
-
-
   "playground": {
     "url": "https://app.lowcoder.cloud/playground/{compType}/1",
     "data": "Current Data State",
-    "preview": "Preview (please mind, that your Editor-Layout/Logic Mode is active here too. You can set it to 'Both' in the App Editor to see all properties here too)",
+    "preview": "Preview",
     "property": "Properties",
     "console": "Visual Script Console",
     "executeMethods": "Execute Methods",
@@ -2615,11 +2508,6 @@ export const en = {
     "clickedObjectDesc": "Clicked Item Data",
     "clickedIndexDesc": "Clicked Item Index"
   },
-
-
-  // twenty-third part
-
-
   "comment": {
     "value": "Comment List Data",
     "showSendButton": "Allowing Comments",
@@ -2700,56 +2588,5 @@ export const en = {
     "widthTooltip": "Pixel or Percentage, e.g. 520, 60%",
     "navStyle": "Menu Style",
     "navItemStyle": "Menu Item Style"
-  },
-
-  docUrls: {
-    docHome: "https://docs.lowcoder.cloud/",
-    components: "https://app.lowcoder.cloud/components/{compType}",
-    module: "https://docs.lowcoder.cloud/lowcoder-documentation/build-applications/create-a-new-app/modules",
-    optionList: "",
-    terms: "https://lowcoder.cloud/terms",
-    privacy: "https://lowcoder.cloud/privacy",
-    aboutUs: "https://lowcoder.cloud/about",
-    changeLog: "https://github.com/lowcoder-org/lowcoder/releases",
-    introVideo: "",
-    devNpmPlugin: "https://docs.lowcoder.cloud/lowcoder-extension/develop-data-source-plugins",
-    devNpmPluginText: "How to develop npm plugin",
-    useHost: "https://docs.lowcoder.cloud/setup-and-run/self-hosting/access-local-database-or-api",
-    eventHandlerSlowdown: "https://docs.lowcoder.cloud/build-applications/app-interaction/event-handlers",
-    thirdLib: "https://docs.lowcoder.cloud/lowcoder-extension/use-third-party-libraries-in-apps",
-    thirdLibUrlText: "Use third-party libraries",
-  },
-  datasourceTutorial: {
-    mysql: "",
-    mongodb: "",
-    postgres: "",
-    redis: "",
-    es: "",
-    smtp: "",
-    clickHouse: "",
-  },
-  queryTutorial: {
-    js: "",
-    transformer: "https://docs.lowcoder.cloud/business-logic-in-apps/write-javascript/transformers",
-    tempState: "https://docs.lowcoder.cloud/business-logic-in-apps/write-javascript/temporary-state",
-    dataResponder: "https://docs.lowcoder.cloud/lowcoder-documentation/business-logic-in-apps/write-javascript/data-responder",
-  },
-  customComponent: {
-    entryUrl: "https://sdk.lowcoder.cloud/custom_component.html",
-  },
-  template: {
-    cloneUrl: "/apps/template-import/",
-  },
-  lowcoderUrl: {
-    createIssue: "https://github.com/lowcoder-org/lowcoder/issues",
-    discord: "https://discord.com/invite/qMG9uTmAx2",
-  },
-
-};
-
-// const jsonString = JSON.stringify(en, null, 2);
-// console.log(jsonString);
-
-// If you want to write this to a file, you can use the fs module
-// const fs = require('fs');
-// fs.writeFileSync('output.json', jsonString, 'utf8');
+  }
+}

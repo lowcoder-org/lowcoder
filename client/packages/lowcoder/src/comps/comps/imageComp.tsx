@@ -102,7 +102,7 @@ const ContainerImg = (props: RecordConstructorToView<typeof childrenMap>) => {
 
   // on safari
   const setStyle = (height: string, width: string) => {
-    console.log(width, height);
+    // console.log(width, height);
 
     const img = imgRef.current;
     const imgDiv = img?.getElementsByTagName("div")[0];

@@ -112,6 +112,7 @@ let VideoBasicComp = (function () {
           <Section name={sectionNames.basic}>
             {children.src.propertyView({
               label: trans("video.src"),
+              tooltip: trans("video.srcDesc"),
             })}
           </Section>
 
