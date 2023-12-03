@@ -1895,7 +1895,7 @@ export const en = {
   "module": {
     "emptyText": "No Data",
     "docLink": "Read More About Modules...",
-    "documentationText" : "Lowcoder Modules are complete Applications, that can get included and repeated in other Lowcoder Applications. You can insert a module into an app or other modules (referred to as external apps in the rest of this document) and it functions just like a single component. As modules can get embedded, they need to be able to interact with your outside apps or websites. This four settings help to support communication with a Module.",
+    "documentationText" : "Lowcoder Modules are complete Applications, that can get included and repeated in other Lowcoder Applications and it functions just like a single component. As modules can get embedded, they need to be able to interact with your outside apps or websites. This four settings help to support communication with a Module.",
     "circularReference": "Circular Reference, Current Module/Application Cannot Be Used!",
     "emptyTestInput": "The Current Module Has No Input to Test",
     "emptyTestMethod": "The Current Module Has No Method to Test",
