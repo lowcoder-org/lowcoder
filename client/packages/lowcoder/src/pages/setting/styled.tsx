@@ -1,5 +1,5 @@
 import { GreyTextColor } from "constants/style";
-import { TacoButton } from "lowcoder-design";
+import { TacoButton, CustomModal, TacoInput } from "lowcoder-design";
 import styled from "styled-components";
 
 export const TwoColumnSettingPageContent = styled.div`
@@ -57,4 +57,33 @@ export const SettingContent = styled.div`
 
 export const SaveButton = styled(TacoButton)`
   min-width: 76px;
+`;
+
+export const ModalNameDiv = styled.div`
+  display: flex;
+  align-items: center;
+  padding: 3.5px 0;
+  svg {
+    margin-right: 4px;
+  }
+`;
+
+export const CustomModalStyled = styled(CustomModal)`
+  button {
+    margin-top: 20px;
+  }
+`;
+
+export const TacoInputStyled = styled(TacoInput)`
+  margin-bottom: 5px;
+  height: 32px;
+  > input {
+    height: 100%;
+  }
+  .ant-input-suffix {
+    color: #999;
+  }
+  &.exceed .input-length {
+    color: #f73131;
+  }
 `;

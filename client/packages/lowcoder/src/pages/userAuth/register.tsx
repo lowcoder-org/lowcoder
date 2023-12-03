@@ -41,9 +41,9 @@ function UserRegister() {
   const [password, setPassword] = useState("");
   const redirectUrl = useRedirectUrl();
   const location = useLocation();
-  const { systemConfig, inviteInfo } = useContext(AuthContext);
+  const { systemConfig, inviteInfo, fetchUserAfterAuthSuccess } = useContext(AuthContext);
   const invitationId = inviteInfo?.invitationId;
-  // const invitedOrganizationId = inviteInfo?.invitedOrganizationId;
+
   const orgId = useParams<any>().orgId;
   const organizationId = useMemo(() => {
     if(inviteInfo?.invitedOrganizationId) {
@@ -53,6 +53,7 @@ function UserRegister() {
   }, [ inviteInfo, orgId ])
 
   const authId = systemConfig?.form.id;
+
   const { loading, onSubmit } = useAuthSubmit(
     () =>
       UserApi.formLogin({
@@ -64,20 +65,12 @@ function UserRegister() {
         authId,
       }),
     false,
-    redirectUrl
+    redirectUrl,
+    fetchUserAfterAuthSuccess,
   );
 
-  if (!systemConfig || !systemConfig?.form.enableRegister) {
-    return null;
-  }
-
-  const registerHeading = organizationId && LOWCODER_CUSTOM_AUTH_WELCOME_TEXT !== ""
-    ? LOWCODER_CUSTOM_AUTH_WELCOME_TEXT
-    : trans("userAuth.register")
-
-  const registerSubHeading = organizationId && LOWCODER_CUSTOM_AUTH_WELCOME_TEXT !== ""
-    ? trans("userAuth.poweredByLowcoder")
-    : ''
+  const registerHeading = trans("userAuth.register") // REACT_APP_LOWCODER_CUSTOM_AUTH_WELCOME_TEXT !== "" ? REACT_APP_LOWCODER_CUSTOM_AUTH_WELCOME_TEXT : trans("userAuth.register")
+  const registerSubHeading = '' // REACT_APP_LOWCODER_CUSTOM_AUTH_WELCOME_TEXT !== "" ? trans("userAuth.poweredByLowcoder") : ''
 
   return (
     <AuthContainer

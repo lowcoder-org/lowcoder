@@ -69,7 +69,6 @@ const LabelWrapper = styled.div<{
 }>`
   display: flex;
   align-items: center;
-  line-height: 100%;
   margin-right: 8px;
   margin-bottom: ${(props) => (props.position === "row" ? 0 : "3.5px")};
   justify-content: ${(props) => (props.align === "left" ? "start" : "end")};

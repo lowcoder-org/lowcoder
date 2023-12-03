@@ -11,7 +11,13 @@ import Login, { ThirdPartyBindCard } from "pages/userAuth/login";
 import UserRegister from "pages/userAuth/register";
 import { AuthRedirect } from "pages/userAuth/thirdParty/authRedirect";
 import React from "react";
-import { GoogleLoginIcon, GithubLoginIcon, EmailLoginIcon } from "assets/icons";
+import {
+  GoogleLoginIcon,
+  GithubLoginIcon,
+  OryLoginIcon,
+  KeyCloakLoginIcon,
+  EmailLoginIcon
+} from "assets/icons";
 
 export type AuthInviteInfo = InviteInfo & { invitationId: string };
 export type AuthLocationState = { inviteInfo?: AuthInviteInfo; thirdPartyAuthError?: boolean };
@@ -79,7 +85,7 @@ export const AuthRoutes: Array<{ path: string; component: React.ComponentType<an
   { path: ORG_AUTH_REGISTER_URL, component: UserRegister },
 ];
 
-export type ServerAuthType = "GOOGLE" | "GITHUB" | "FORM";
+export type ServerAuthType = "GOOGLE" | "GITHUB" | "FORM" | "KEYCLOAK" | "ORY";
 
 export type ServerAuthTypeInfoValueType = { logo: string; isOAuth2?: boolean };
 export const ServerAuthTypeInfo: { [key in ServerAuthType]?: ServerAuthTypeInfoValueType } = {
@@ -87,7 +93,18 @@ export const ServerAuthTypeInfo: { [key in ServerAuthType]?: ServerAuthTypeInfoV
     logo: GoogleLoginIcon,
     isOAuth2: true,
   },
-  GITHUB: { logo: GithubLoginIcon, isOAuth2: true },
+  GITHUB: {
+    logo: GithubLoginIcon,
+    isOAuth2: true
+  },
+  KEYCLOAK: {
+    logo: KeyCloakLoginIcon,
+    isOAuth2: true
+  },
+  ORY: {
+    logo: OryLoginIcon,
+    isOAuth2: true
+  },
   FORM: { logo: EmailLoginIcon },
 };
 

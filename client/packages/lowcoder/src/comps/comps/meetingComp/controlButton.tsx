@@ -179,6 +179,7 @@ let ButtonTmpComp = (function () {
     iconSize: withDefault(StringControl, "20px"),
     type: dropdownControl(typeOptions, ""),
     autoHeight: withDefault(AutoHeightControl, "fixed"),
+    aspectRatio: withDefault(StringControl, "1 / 1"),
     onEvent: ButtonEventHandlerControl,
     disabled: BoolCodeControl,
     loading: BoolCodeControl,
@@ -244,8 +245,16 @@ let ButtonTmpComp = (function () {
                   loading={props.loading}
                   style={
                     props.autoHeight
-                      ? { width: "100%", height: "100%" }
-                      : undefined
+                      ? { 
+                        width: "100%", 
+                        height: "100%",
+                        aspectRatio: props.aspectRatio,
+                        borderRadius: props.style.radius,
+                      }
+                      : {
+                        aspectRatio: props.aspectRatio,
+                        borderRadius: props.style.radius,
+                      }
                   }
                   disabled={
                     props.disabled ||
@@ -304,6 +313,9 @@ let ButtonTmpComp = (function () {
         </Section>
         <Section name={sectionNames.style}>
           {children.style.getPropertyView()}
+          {children.aspectRatio.propertyView({
+            label: "Video Aspect Ratio",
+          })}
         </Section>
       </>
     ))

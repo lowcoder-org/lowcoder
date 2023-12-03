@@ -13,9 +13,7 @@ import static org.lowcoder.sdk.util.LocaleUtils.getLocale;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
-import java.util.Set;
 
-import javax.annotation.Nullable;
 import javax.validation.Valid;
 
 import org.apache.commons.collections4.CollectionUtils;
@@ -28,79 +26,44 @@ import org.lowcoder.domain.datasource.model.Datasource;
 import org.lowcoder.domain.datasource.service.DatasourceService;
 import org.lowcoder.domain.datasource.service.DatasourceStructureService;
 import org.lowcoder.domain.permission.model.ResourceRole;
-import org.lowcoder.domain.plugin.client.DatasourcePluginClient;
 import org.lowcoder.domain.plugin.client.dto.GetPluginDynamicConfigRequestDTO;
-import org.lowcoder.infra.constant.NewUrl;
-import org.lowcoder.infra.constant.Url;
-import org.lowcoder.sdk.config.SerializeConfig.JsonViews;
 import org.lowcoder.sdk.exception.BizError;
 import org.lowcoder.sdk.models.DatasourceStructure;
 import org.lowcoder.sdk.models.DatasourceTestResult;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.fasterxml.jackson.annotation.JsonView;
-
-import lombok.extern.slf4j.Slf4j;
+import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
-@Slf4j
+@RequiredArgsConstructor
 @RestController
-@RequestMapping(value = {Url.DATASOURCE_URL, NewUrl.DATASOURCE_URL})
-public class DatasourceController {
-
+public class DatasourceController implements DatasourceEndpoints
+{
     private final DatasourceStructureService datasourceStructureService;
     private final DatasourceApiService datasourceApiService;
     private final UpsertDatasourceRequestMapper upsertDatasourceRequestMapper;
     private final BusinessEventPublisher businessEventPublisher;
     private final DatasourceService datasourceService;
-    private final DatasourcePluginClient datasourcePluginClient;
 
-    @Autowired
-    public DatasourceController(
-            DatasourceStructureService datasourceStructureService,
-            DatasourceApiService datasourceApiService,
-            UpsertDatasourceRequestMapper upsertDatasourceRequestMapper,
-            BusinessEventPublisher businessEventPublisher,
-            DatasourceService datasourceService, DatasourcePluginClient datasourcePluginClient) {
-        this.datasourceStructureService = datasourceStructureService;
-        this.datasourceApiService = datasourceApiService;
-        this.upsertDatasourceRequestMapper = upsertDatasourceRequestMapper;
-        this.businessEventPublisher = businessEventPublisher;
-        this.datasourceService = datasourceService;
-        this.datasourcePluginClient = datasourcePluginClient;
-    }
-
-    @JsonView(JsonViews.Public.class)
-    @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public Mono<ResponseView<Datasource>> create(@Valid @RequestBody UpsertDatasourceRequest request) {
+    @Override
+	public Mono<ResponseView<Datasource>> create(@Valid @RequestBody UpsertDatasourceRequest request) {
         return datasourceApiService.create(upsertDatasourceRequestMapper.resolve(request))
                 .delayUntil(datasourceService::removePasswordTypeKeysFromJsDatasourcePluginConfig)
                 .delayUntil(datasource -> businessEventPublisher.publishDatasourceEvent(datasource, DATA_SOURCE_CREATE))
                 .map(ResponseView::success);
     }
 
-    @JsonView(JsonViews.Public.class)
-    @GetMapping("/{id}")
+    @Override
     public Mono<ResponseView<Datasource>> getById(@PathVariable String id) {
         return datasourceApiService.findByIdWithPermission(id)
                 .delayUntil(datasourceService::removePasswordTypeKeysFromJsDatasourcePluginConfig)
                 .map(ResponseView::success);
     }
 
-    @JsonView(JsonViews.Public.class)
-    @PutMapping("/{id}")
+    @Override
     public Mono<ResponseView<Datasource>> update(@PathVariable String id,
             @RequestBody UpsertDatasourceRequest request) {
         Datasource resolvedDatasource = upsertDatasourceRequestMapper.resolve(request);
@@ -110,7 +73,7 @@ public class DatasourceController {
                 .map(ResponseView::success);
     }
 
-    @DeleteMapping("/{id}")
+    @Override
     public Mono<ResponseView<Boolean>> delete(@PathVariable String id) {
         return datasourceApiService.delete(id)
                 .delayUntil(result -> {
@@ -122,7 +85,7 @@ public class DatasourceController {
                 .map(ResponseView::success);
     }
 
-    @PostMapping("/test")
+    @Override
     public Mono<ResponseView<Boolean>> testDatasource(@RequestBody UpsertDatasourceRequest request) {
         Datasource resolvedDatasource = upsertDatasourceRequestMapper.resolve(request);
         return Mono.deferContextual(ctx -> {
@@ -139,7 +102,7 @@ public class DatasourceController {
         return ResponseView.error(500, datasourceTestResult.getInvalidMessage(locale));
     }
 
-    @GetMapping("/{datasourceId}/structure")
+    @Override
     public Mono<ResponseView<DatasourceStructure>> getStructure(@PathVariable String datasourceId,
             @RequestParam(required = false, defaultValue = "false") boolean ignoreCache) {
         return datasourceStructureService.getStructure(datasourceId, ignoreCache)
@@ -150,7 +113,7 @@ public class DatasourceController {
      * Returns the information of all the js data source plugins by the org id which we get by the applicationId, including the data source id,
      * name, type... and the plugin definition of it, excluding the detail configs such as the connection uri, password...
      */
-    @GetMapping("/jsDatasourcePlugins")
+    @Override
     public Mono<ResponseView<List<Datasource>>> listJsDatasourcePlugins(@RequestParam("appId") String applicationId) {
         return datasourceApiService.listJsDatasourcePlugins(applicationId)
                 .collectList()
@@ -161,7 +124,7 @@ public class DatasourceController {
      * Proxy the request to the node service, besides, add the "extra" information from the data source config stored in the mongodb if exists to
      * the request dto. And then return the response from the node service.
      */
-    @PostMapping("/getPluginDynamicConfig")
+    @Override
     public Mono<ResponseView<List<Object>>> getPluginDynamicConfig(
             @RequestBody List<GetPluginDynamicConfigRequestDTO> getPluginDynamicConfigRequestDTOS) {
         if (CollectionUtils.isEmpty(getPluginDynamicConfigRequestDTOS)) {
@@ -171,8 +134,7 @@ public class DatasourceController {
                 .map(ResponseView::success);
     }
 
-    @JsonView(JsonViews.Public.class)
-    @GetMapping("/listByOrg")
+    @Override
     public Mono<ResponseView<List<DatasourceView>>> listOrgDataSources(@RequestParam(name = "orgId") String orgId) {
         if (StringUtils.isBlank(orgId)) {
             return ofError(BizError.INVALID_PARAMETER, "ORG_ID_EMPTY");
@@ -182,9 +144,7 @@ public class DatasourceController {
                 .map(ResponseView::success);
     }
 
-    @Deprecated
-    @JsonView(JsonViews.Public.class)
-    @GetMapping("/listByApp")
+    @Override
     public Mono<ResponseView<List<DatasourceView>>> listAppDataSources(@RequestParam(name = "appId") String applicationId) {
         if (StringUtils.isBlank(applicationId)) {
             return ofError(BizError.INVALID_PARAMETER, "INVALID_APP_ID");
@@ -194,13 +154,13 @@ public class DatasourceController {
                 .map(ResponseView::success);
     }
 
-    @GetMapping("/{datasourceId}/permissions")
+    @Override
     public Mono<ResponseView<CommonPermissionView>> getPermissions(@PathVariable("datasourceId") String datasourceId) {
         return datasourceApiService.getPermissions(datasourceId)
                 .map(ResponseView::success);
     }
 
-    @PutMapping("/{datasourceId}/permissions")
+    @Override
     public Mono<ResponseView<Boolean>> grantPermission(@PathVariable String datasourceId,
             @RequestBody BatchAddPermissionRequest request) {
         ResourceRole role = ResourceRole.fromValue(request.role());
@@ -210,7 +170,7 @@ public class DatasourceController {
         return datasourceApiService.grantPermission(datasourceId, request.userIds(), request.groupIds(), role)
                 .delayUntil(result -> {
                     if (BooleanUtils.isTrue(result)) {
-                        return businessEventPublisher.publishDatasourcePermissionEvent(datasourceId, request.userIds,
+                        return businessEventPublisher.publishDatasourcePermissionEvent(datasourceId, request.userIds(),
                                 request.groupIds(), request.role(), DATA_SOURCE_PERMISSION_GRANT);
                     }
                     return Mono.empty();
@@ -218,7 +178,7 @@ public class DatasourceController {
                 .map(ResponseView::success);
     }
 
-    @PutMapping("/permissions/{permissionId}")
+    @Override
     public Mono<ResponseView<Boolean>> updatePermission(@PathVariable("permissionId") String permissionId,
             @RequestBody UpdatePermissionRequest request) {
         if (request.getResourceRole() == null) {
@@ -234,26 +194,16 @@ public class DatasourceController {
                 .map(ResponseView::success);
     }
 
-    @DeleteMapping("/permissions/{permissionId}")
+    @Override
     public Mono<ResponseView<Boolean>> deletePermission(@PathVariable("permissionId") String permissionId) {
         return businessEventPublisher.publishDatasourcePermissionEvent(permissionId, DATA_SOURCE_PERMISSION_DELETE)
                 .then(datasourceApiService.deletePermission(permissionId))
                 .map(ResponseView::success);
     }
 
-    @GetMapping("/info")
+    @Override
     public Mono<ResponseView<Object>> info(@RequestParam(required = false) String datasourceId) {
         return Mono.just(ResponseView.success(datasourceApiService.info(datasourceId)));
     }
 
-    private record BatchAddPermissionRequest(String role, Set<String> userIds, Set<String> groupIds) {
-    }
-
-    private record UpdatePermissionRequest(String role) {
-
-        @Nullable
-        private ResourceRole getResourceRole() {
-            return ResourceRole.fromValue(role());
-        }
-    }
 }

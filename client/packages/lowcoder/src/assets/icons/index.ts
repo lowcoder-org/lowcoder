@@ -1,5 +1,7 @@
 import GoogleLoginIcon from "./icon-login-google.svg";
 import GithubLoginIcon from "./icon-login-github.svg";
+import OryLoginIcon from "./icon-login-ory.svg";
+import KeyCloakLoginIcon from "./icon-login-keycloak.svg";
 import GeneralLoginIcon from "./icon-login-general.svg";
 import EmailLoginIcon from "./icon-login-email.svg";
 
@@ -10,4 +12,11 @@ export { ReactComponent as DocIcon } from "./view-doc.svg";
 export { ReactComponent as TutorialIcon } from "./tutorial.svg";
 export { ReactComponent as ShortcutIcon } from "./icon-help-shortcut.svg";
 
-export { GoogleLoginIcon, GithubLoginIcon, GeneralLoginIcon, EmailLoginIcon };
+export {
+  GoogleLoginIcon,
+  GithubLoginIcon,
+  OryLoginIcon,
+  KeyCloakLoginIcon,
+  GeneralLoginIcon,
+  EmailLoginIcon
+};

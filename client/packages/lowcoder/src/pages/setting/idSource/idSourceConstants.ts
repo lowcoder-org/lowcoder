@@ -5,9 +5,17 @@ export enum AuthType {
   Form = "FORM",
   Google = "GOOGLE",
   Github = "GITHUB",
+  Ory = "ORY",
+  KeyCloak = "KEYCLOAK",
 }
 
-export const IdSource = [AuthType.Google, AuthType.Github, AuthType.Form];
+export const IdSource = [
+  AuthType.Google,
+  AuthType.Github,
+  AuthType.Form,
+  AuthType.Ory,
+  AuthType.KeyCloak,
+];
 
 export const validatorOptions = [];
 
@@ -22,19 +30,41 @@ export const clientIdandSecretConfig = {
 export const authConfig = {
   [AuthType.Form]: {
     sourceName: trans("idSource.form"),
+    sourceValue: AuthType.Form,
     form: {},
   },
   [AuthType.Github]: {
     sourceName: "GitHub",
+    sourceValue: AuthType.Github,
     form: clientIdandSecretConfig,
   },
   [AuthType.Google]: {
     sourceName: "Google",
+    sourceValue: AuthType.Google,
     form: clientIdandSecretConfig,
   },
-} as { [key: string]: { sourceName: string; form: FormItemType } };
+  [AuthType.Ory]: {
+    sourceName: "Ory",
+    sourceValue: AuthType.Ory,
+    form: {
+      ...clientIdandSecretConfig,
+      baseUrl: "Base URL",
+      scope: "Scope",
+    },
+  },
+  [AuthType.KeyCloak]: {
+    sourceName: "KeyCloak",
+    sourceValue: AuthType.KeyCloak,
+    form: {
+      ...clientIdandSecretConfig,
+      baseUrl: "Base URL",
+      realm: "Realm",
+      scope: "Scope",
+    },
+  },
+} as { [key: string]: { sourceName: string; sourceValue: AuthType, form: FormItemType } };
 
-export const FreeTypes = [AuthType.Google, AuthType.Github, AuthType.Form];
+export const FreeTypes = [AuthType.Google, AuthType.Github, AuthType.Form, AuthType.Ory, AuthType.KeyCloak];
 
 export const authTypeDisabled = (type: AuthType, enableEnterpriseLogin?: boolean) => {
   return !FreeTypes.includes(type);
@@ -77,5 +107,7 @@ export type FormItemType = {
   authServerId?: string;
   publicKey?: ItemType;
   domain?: string;
+  baseUrl?: string;
   realm?: string;
+  scope?: string;
 };

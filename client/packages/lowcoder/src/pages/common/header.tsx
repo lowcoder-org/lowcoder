@@ -290,9 +290,8 @@ export default function Header(props: HeaderProps) {
   const headerStart = (
     <>
       <StyledLink onClick={() => history.push(ALL_APPLICATIONS_URL)}>
-      {LOWCODER_SHOW_BRAND === 'true' ? 
-      LOWCODER_CUSTOM_LOGO_SQUARE !== "" ? <img src={LOWCODER_CUSTOM_LOGO_SQUARE } height={24} width={24} alt="logo" /> :<LogoIcon /> : 
-      <LogoHome />}
+        {/* {REACT_APP_LOWCODER_SHOW_BRAND === 'true' ? REACT_APP_LOWCODER_CUSTOM_LOGO_SQUARE !== "" ? <img src={REACT_APP_LOWCODER_CUSTOM_LOGO_SQUARE } height={24} width={24} alt="logo" /> :<LogoIcon /> :  <LogoHome />} */}
+        <LogoHome />
       </StyledLink>
       {editName ? (
         <Wrapper>
@@ -434,9 +433,8 @@ export function AppHeader() {
   const brandingConfig = useSelector(getBrandingConfig);
   const headerStart = (
     <StyledLink onClick={() => history.push(ALL_APPLICATIONS_URL)}>
-      {LOWCODER_SHOW_BRAND === 'true' ? 
-      LOWCODER_CUSTOM_LOGO !== "" ? <img src={LOWCODER_CUSTOM_LOGO}  height={28} alt="logo" /> :<LogoWithName branding={!user.orgDev} /> : 
-      <LogoHome />}
+      {/* {REACT_APP_LOWCODER_SHOW_BRAND === 'true' ?  REACT_APP_LOWCODER_CUSTOM_LOGO !== "" ? <img src={REACT_APP_LOWCODER_CUSTOM_LOGO}  height={28} alt="logo" /> :<LogoWithName branding={!user.orgDev} /> : <LogoHome />} */}
+      <LogoHome />
     </StyledLink>
   );
   const headerEnd = <HeaderProfile user={user} />;

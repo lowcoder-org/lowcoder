@@ -21,11 +21,13 @@ import {
   ThirdPartyAuthType,
   ThirdPartyConfigType,
 } from "constants/authConstants";
+import history from "util/history";
 
 export const AuthContext = createContext<{
   systemConfig?: SystemConfig;
   inviteInfo?: AuthInviteInfo;
   thirdPartyAuthError?: boolean;
+  fetchUserAfterAuthSuccess?: () => void;
 }>(undefined as any);
 
 export const getSafeAuthRedirectURL = (redirectUrl: string | null) => {
@@ -39,7 +41,8 @@ export const getSafeAuthRedirectURL = (redirectUrl: string | null) => {
 export function useAuthSubmit(
   requestFunc: () => AxiosPromise<ApiResponse>,
   infoCompleteCheck: boolean,
-  redirectUrl: string | null
+  redirectUrl: string | null,
+  onAuthSuccess?: () => void,
 ) {
   const [loading, setLoading] = useState(false);
   return {
@@ -47,7 +50,12 @@ export function useAuthSubmit(
     onSubmit: () => {
       setLoading(true);
       requestFunc()
-        .then((resp) => authRespValidate(resp, infoCompleteCheck, redirectUrl))
+        .then((resp) => authRespValidate(
+          resp,
+          infoCompleteCheck,
+          redirectUrl,
+          onAuthSuccess,
+        ))
         .catch((e) => {
           messageInstance.error(e.message);
         })
@@ -66,9 +74,11 @@ export function useAuthSubmit(
 export function authRespValidate(
   resp: AxiosResponse<ApiResponse>,
   infoCompleteCheck: boolean,
-  redirectUrl: string | null
+  redirectUrl: string | null,
+  onAuthSuccess?: () => void
 ) {
   let replaceUrl = redirectUrl || BASE_URL;
+  const baseUrl = `${window.location.protocol}//${window.location.host}`;
   if (infoCompleteCheck) {
     // need complete info
     replaceUrl = redirectUrl
@@ -76,7 +86,8 @@ export function authRespValidate(
       : USER_INFO_COMPLETION;
   }
   if (doValidResponse(resp)) {
-    window.location.replace(replaceUrl);
+    onAuthSuccess?.();
+    history.replace(replaceUrl.replace(baseUrl, ''));
   } else if (
     resp.data.code === SERVER_ERROR_CODES.EXCEED_MAX_USER_ORG_COUNT ||
     resp.data.code === SERVER_ERROR_CODES.ALREADY_IN_ORGANIZATION

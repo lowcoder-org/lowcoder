@@ -14,11 +14,15 @@ import {
   authTypeDisabled,
   IdSource,
 } from "@lowcoder-ee/pages/setting/idSource/idSourceConstants";
-import { SpanStyled, StatusSpan, TableStyled } from "pages/setting/idSource/styledComponents";
-import { genQueryId } from "comps/utils/idGenerator";
+import {
+  SpanStyled,
+  StatusSpan,
+  TableStyled,
+  CreateButton,
+} from "pages/setting/idSource/styledComponents";
 import FreeLimitTag from "pages/common/freeLimitTag";
 import history from "util/history";
-import { IDSOURCE_DETAIL } from "constants/routesURL";
+import { OAUTH_PROVIDER_DETAIL } from "constants/routesURL";
 import { selectSystemConfig } from "redux/selectors/configSelectors";
 import { isEnterpriseMode, isSelfDomain } from "util/envUtils";
 import { Badge } from "antd";
@@ -26,22 +30,41 @@ import { validateResponse } from "api/apiUtils";
 import { ServerAuthTypeInfo } from "@lowcoder-ee/constants/authConstants";
 import { GeneralLoginIcon } from "assets/icons";
 import { FreeTypes } from "pages/setting/idSource/idSourceConstants";
-import { messageInstance } from "lowcoder-design";
+import { messageInstance, AddIcon } from "lowcoder-design";
+import { currentOrgAdmin } from "../../../util/permissionUtils";
+import CreateModal from "./createModal";
+import _ from "lodash";
+import { HelpText } from "components/HelpText";
 
-export const IdSourceList = () => {
+export const IdSourceList = (props: any) => {
   const user = useSelector(getUser);
   const config = useSelector(selectSystemConfig);
-  const orgId = user.currentOrgId;
-  const [configs, setConfigs] = useState<ConfigItem[]>();
+  const { currentOrgId}  = user;
+  const [configs, setConfigs] = useState<ConfigItem[]>([]);
   const [fetching, setFetching] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
   const enableEnterpriseLogin = useSelector(selectSystemConfig)?.featureFlag?.enableEnterpriseLogin;
+
+  let protocol = window.location.protocol;
+  const port = window.location.port;
+  let currentDomain = window.location.hostname;
+
+  // Show port only if it is not a standard port
+  if (port && port !== '80' && port !== '443') {
+    currentDomain += `:${port}`;
+  }
+
+  const redirectUrl = encodeURIComponent(`${protocol}//${currentDomain}/apps`);
+  const loginUrl = `${protocol}//${currentDomain}/org/${currentOrgId}/auth/login?redirectUrl=${encodeURIComponent(redirectUrl)}`;
+
   useEffect(() => {
-    if (!orgId || (!isSelfDomain(config) && !isEnterpriseMode(config))) {
+    if (!currentOrgId) {
       return;
     }
     getConfigs();
-  }, [orgId]);
-  if (!orgId || (!isSelfDomain(config) && !isEnterpriseMode(config))) {
+  }, [currentOrgId]);
+  
+  if (!currentOrgId) {
     return null;
   }
 
@@ -50,34 +73,11 @@ export const IdSourceList = () => {
     IdSourceApi.getConfigs()
       .then((resp) => {
         if (validateResponse(resp)) {
-          const res: ConfigItem[] = resp.data.data.filter((item: ConfigItem) =>
+          let res: ConfigItem[] = resp.data.data.filter((item: ConfigItem) =>
             IdSource.includes(item.authType)
           );
-          const data = IdSource.map((item: AuthType) => {
-            const config = res.find((config) => config.authType === item);
-            if (config) {
-              return config;
-            } else {
-              const form: { [key: string]: string | undefined } = {};
-              Object.keys(authConfig[item].form).forEach((key: string) => {
-                form[key] =
-                  key === "source" || key === "sourceName"
-                    ? item
-                    : key === "authServerId"
-                    ? "default"
-                    : undefined;
-              });
-              return {
-                authType: item,
-                enable: false,
-                ifLocal: true,
-                id: genQueryId(),
-                enableRegister: true,
-                ...form,
-              };
-            }
-          });
-          setConfigs(data);
+          res = _.uniqBy(res, 'authType');
+          setConfigs(res);
         }
       })
       .catch((e) => {
@@ -89,70 +89,100 @@ export const IdSourceList = () => {
   };
 
   return (
-    <Level1SettingPageContentWithList>
-      <Level1SettingPageTitleWithBtn>{trans("idSource.title")}</Level1SettingPageTitleWithBtn>
-      <TableStyled
-        tableLayout={"auto"}
-        scroll={{ x: "100%" }}
-        pagination={false}
-        rowKey="id"
-        loading={fetching}
-        dataSource={configs}
-        rowClassName={(record, index) => {
-          return authTypeDisabled((record as ConfigItem).authType, enableEnterpriseLogin)
-            ? "row-disabled"
-            : "";
-        }}
-        onRow={(record) => ({
-          onClick: () => {
-            if (authTypeDisabled((record as ConfigItem).authType, enableEnterpriseLogin)) {
-              return;
-            }
-            history.push({
-              pathname: IDSOURCE_DETAIL,
-              state: record,
-            });
-          },
-        })}
-      >
-        <Column
-          title={trans("idSource.loginType")}
-          dataIndex="authType"
-          key="authType"
-          render={(value, record: ConfigItem) => (
-            <SpanStyled disabled={authTypeDisabled(value, enableEnterpriseLogin)}>
-              {
-                <img
-                  src={ServerAuthTypeInfo[value as AuthType]?.logo || GeneralLoginIcon}
-                  alt={value}
-                />
+    <>
+      <Level1SettingPageContentWithList>
+        <Level1SettingPageTitleWithBtn>
+          {trans("idSource.title")}
+          {currentOrgAdmin(user) && (
+            <CreateButton
+              type="primary"
+              icon={<AddIcon />}
+              onClick={() =>
+                setModalVisible(true)
               }
-              <span>{authConfig[value as AuthType].sourceName}</span>
-              {!FreeTypes.includes(value) && (
-                <FreeLimitTag
-                  text={
-                    enableEnterpriseLogin ? trans("idSource.payUserTag") : trans("idSource.pay")
-                  }
-                />
-              )}
-            </SpanStyled>
+            >
+              {"Add OAuth Provider"}
+            </CreateButton>
           )}
-        />
-        <Column
-          title={trans("idSource.status")}
-          dataIndex="enable"
-          key="enable"
-          render={(value, record: ConfigItem) => (
-            <StatusSpan>
-              {value ? (
-                <Badge status="success" text={trans("idSource.enable")} />
-              ) : (
-                <Badge status="default" text={trans("idSource.unEnable")} />
-              )}
-            </StatusSpan>
-          )}
-        />
-      </TableStyled>
-    </Level1SettingPageContentWithList>
+        </Level1SettingPageTitleWithBtn>
+        <TableStyled
+          tableLayout={"auto"}
+          scroll={{ x: "100%" }}
+          pagination={false}
+          rowKey="id"
+          loading={fetching}
+          dataSource={configs}
+          rowClassName={(record, index) => {
+            return authTypeDisabled((record as ConfigItem).authType, enableEnterpriseLogin)
+              ? "row-disabled"
+              : "";
+          }}
+          onRow={(record) => ({
+            onClick: () => {
+              if (authTypeDisabled((record as ConfigItem).authType, enableEnterpriseLogin)) {
+                return;
+              }
+              history.push({
+                pathname: OAUTH_PROVIDER_DETAIL,
+                state: record,
+              });
+            },
+          })}
+        >
+          <Column
+            title={trans("idSource.loginType")}
+            dataIndex="authType"
+            key="authType"
+            render={(value, record: ConfigItem) => (
+              <SpanStyled disabled={authTypeDisabled(value, enableEnterpriseLogin)}>
+                {
+                  <img
+                    src={ServerAuthTypeInfo[value as AuthType]?.logo || GeneralLoginIcon}
+                    alt={value}
+                  />
+                }
+                <span>{authConfig[value as AuthType].sourceName}</span>
+                {!FreeTypes.includes(value) && (
+                  <FreeLimitTag
+                    text={
+                      enableEnterpriseLogin ? trans("idSource.payUserTag") : trans("idSource.pay")
+                    }
+                  />
+                )}
+              </SpanStyled>
+            )}
+          />
+          <Column
+            title={trans("idSource.status")}
+            dataIndex="enable"
+            key="enable"
+            render={(value, record: ConfigItem) => (
+              <StatusSpan>
+                {value ? (
+                  <Badge status="success" text={trans("idSource.enable")} />
+                ) : (
+                  <Badge status="default" text={trans("idSource.unEnable")} />
+                )}
+              </StatusSpan>
+            )}
+          />
+        </TableStyled>
+
+        <div style={{ marginTop: 20, marginLeft: 12 }} className="section-title">{trans("advanced.AuthOrgTitle")}</div>
+        <HelpText style={{ marginBottom: 12, marginLeft: 12 }}>{trans("advanced.AuthOrgDescrition") + ": "}</HelpText>
+        <HelpText style={{ marginBottom: 12, marginLeft: 12 }}><a href={loginUrl} target="blank">{loginUrl}</a></HelpText> 
+
+      </Level1SettingPageContentWithList>
+      <CreateModal
+        modalVisible={modalVisible}
+        oauthProvidersList={configs.map(config => config.authType)}
+        closeModal={() => setModalVisible(false)}
+        onConfigCreate={() => {
+          setModalVisible(false);
+          getConfigs();
+        }}
+      />
+    </>
   );
 };
+

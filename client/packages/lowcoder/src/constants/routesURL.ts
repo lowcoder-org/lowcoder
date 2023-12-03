@@ -13,8 +13,8 @@ export const THEME_SETTING = "/setting/theme";
 export const PLUGINS_SETTING = "/setting/plugins";
 export const THEME_DETAIL = "/setting/theme/detail";
 
-export const IDSOURCE_SETTING = "/setting/idsource";
-export const IDSOURCE_DETAIL = "/setting/idsource/detail";
+export const OAUTH_PROVIDER_SETTING = "/setting/oauth-provider";
+export const OAUTH_PROVIDER_DETAIL = "/setting/oauth-provider/detail";
 
 export const PERMISSION_SETTING_DETAIL = `${PERMISSION_SETTING}/:groupId`;
 export const ORGANIZATION_SETTING_DETAIL = `${ORGANIZATION_SETTING}/:orgId`;

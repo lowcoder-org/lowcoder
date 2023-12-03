@@ -20,40 +20,61 @@ import { enableCustomBrand } from "util/featureFlagUtils";
 import FreeLimitTag from "pages/common/freeLimitTag";
 
 enum SettingPageEnum {
-  Member = "permission",
+  UserGroups = "permission",
   Organization = "organization",
   Audit = "audit",
   Theme = "theme",
   Branding = "branding",
   Advanced = "advanced",
-  IdSource = "idsource",
+  OAuthProvider = "oauth-provider",
+  AppUsage = "app-usage",
+  Environments = "environments",
 }
 
 export function SettingHome() {
   const user = useSelector(getUser);
   const config = useSelector(selectSystemConfig);
-  const selectKey = useParams<{ setting: string }>().setting || SettingPageEnum.Member;
+  const selectKey = useParams<{ setting: string }>().setting || SettingPageEnum.UserGroups;
 
   const items = [
     {
-      key: SettingPageEnum.Member,
-      label: trans("settings.member"),
+      key: SettingPageEnum.UserGroups,
+      label: trans("settings.userGroups"),
     },
     {
       key: SettingPageEnum.Organization,
       label: trans("settings.organization"),
     },
     {
-      key: SettingPageEnum.IdSource,
+      key: SettingPageEnum.Theme,
+      label: trans("settings.theme"),
+    },
+    {
+      key: SettingPageEnum.OAuthProvider,
+      label: (
+         <span className="text">{trans("settings.oauthProviders")}</span>
+      ),
+      disabled: !currentOrgAdmin(user),
+    },
+    {
+      key: SettingPageEnum.Environments,
       label: (
         <span>
-          <span className="text">{trans("settings.idSource")}</span>
-          {(!currentOrgAdmin(user) || (!isSelfDomain(config) && !isEnterpriseMode(config))) && (
-            <FreeLimitTag text={trans("settings.premium")} />
-          )}
+          <span className="text">{trans("settings.environments")}</span>
+          <FreeLimitTag text={trans("settings.premium")} />
         </span>
       ),
-      disabled: !currentOrgAdmin(user) || (!isSelfDomain(config) && !isEnterpriseMode(config)),
+      disabled: true,
+    },
+    {
+      key: SettingPageEnum.AppUsage,
+      label: (
+        <span>
+          <span className="text">{trans("settings.appUsage")}</span>
+          <FreeLimitTag text={trans("settings.premium")} />
+        </span>
+      ),
+      disabled: true,
     },
     {
       key: SettingPageEnum.Audit,
@@ -66,10 +87,6 @@ export function SettingHome() {
         </span>
       ),
       disabled: !showAuditLog(config) || !currentOrgAdmin(user),
-    },
-    {
-      key: SettingPageEnum.Theme,
-      label: trans("settings.theme"),
     },
     {
       key: SettingPageEnum.Branding,
@@ -108,13 +125,13 @@ export function SettingHome() {
           items={items}
         />
       </SubSideBar>
-      {selectKey === SettingPageEnum.Member && <PermissionSetting />}
+      {selectKey === SettingPageEnum.UserGroups && <PermissionSetting />}
       {selectKey === SettingPageEnum.Organization && <Organization />}
-      {selectKey === SettingPageEnum.Audit && <AuditSetting />}
       {selectKey === SettingPageEnum.Theme && <ThemeHome />}
+      {selectKey === SettingPageEnum.OAuthProvider && <IdSourceHome />}
+      {selectKey === SettingPageEnum.Audit && <AuditSetting />}
       {selectKey === SettingPageEnum.Branding && <BrandingSetting />}
       {selectKey === SettingPageEnum.Advanced && <AdvancedSetting />}
-      {selectKey === SettingPageEnum.IdSource && <IdSourceHome />}
     </TwoColumnSettingPageContent>
   );
 }
