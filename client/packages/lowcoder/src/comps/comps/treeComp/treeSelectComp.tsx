@@ -25,7 +25,7 @@ import { StringControl } from "comps/controls/codeControl";
 import { SelectEventHandlerControl } from "comps/controls/eventHandlerControl";
 import { selectInputValidate } from "../selectInputComp/selectInputConstants";
 import { BoolControl } from "comps/controls/boolControl";
-import { stateComp } from "comps/generators/simpleGenerators";
+import { stateComp, withDefault } from "comps/generators/simpleGenerators";
 import { trans } from "i18n";
 import {
   allowClearPropertyView,
@@ -59,7 +59,7 @@ const childrenMap = {
   selectType: dropdownControl(selectTypeOptions, "single"),
   checkedStrategy: dropdownControl(checkedStrategyOptions, "parent"),
   label: LabelControl,
-  placeholder: StringControl,
+  placeholder: withDefault(StringControl, trans("tree.placeholder")),
   // TODO: more event
   onEvent: SelectEventHandlerControl,
   allowClear: BoolControl,
