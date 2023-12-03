@@ -68,7 +68,7 @@ export const HomeTableView = (props: { resources: HomeRes[] }) => {
         pagination={false}
         onRow={(record) => ({
           onClick: (e) => {
-            console.log(e.target);
+            // console.log(e.target);
             const item = record as HomeRes;
             if (needRenameRes?.id === item.id || needDuplicateRes?.id === item.id) {
               return;

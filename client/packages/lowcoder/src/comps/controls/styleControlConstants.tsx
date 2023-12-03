@@ -1021,7 +1021,13 @@ export const NavLayoutItemActiveStyle = [
 
 export const CarouselStyle = [getBackground("canvas")] as const;
 
-export const RichTextEditorStyle = [getStaticBorder(), getBackground("canvas"), RADIUS, BORDER_WIDTH] as const;
+export const RichTextEditorStyle = [
+  getStaticBorder(), 
+  getBackground("primarySurface"), 
+  RADIUS, 
+  BORDER_WIDTH
+] as const;
+
 export type InputLikeStyleType = StyleConfigType<typeof InputLikeStyle>;
 export type ButtonStyleType = StyleConfigType<typeof ButtonStyle>;
 export type ToggleButtonStyleType = StyleConfigType<typeof ToggleButtonStyle>;

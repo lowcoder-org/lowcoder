@@ -62,8 +62,6 @@ export class EditorState {
     this.rootComp = rootComp;
     this.setEditorState = setEditorState;
     this.editorModeStatus = initialEditorModeStatus;
-
-    console.log("initialEditorModeStatus,", initialEditorModeStatus);
   }
 
   /**

@@ -117,7 +117,7 @@ let SwitchTmpComp = (function () {
       return (
         <>
           <Section name={sectionNames.basic}>
-            {children.value.propertyView({ label: trans("prop.defaultValue") })}
+            {children.value.propertyView({ label: trans("switchComp.defaultValue") })}
           </Section>
 
           <FormDataPropertyView {...children} />

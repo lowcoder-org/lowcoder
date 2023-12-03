@@ -37,7 +37,7 @@ function CreateModal(props: CreateModalProp) {
 
   const handleOk = () => {
     form.validateFields().then(values => {
-      console.log(values)
+      // console.log(values)
       saveAuthProvider(values)
     })
   }

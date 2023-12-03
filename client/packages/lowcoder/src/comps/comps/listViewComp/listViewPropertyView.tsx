@@ -17,7 +17,7 @@ export function listPropertyView(compType: ListCompType) {
       <>
         <Section name={sectionNames.basic}>
           {children.noOfRows.propertyView({
-            label: trans("data"),
+            label: trans("listView.dataDesc"),
             tooltip: trans("listView.dataTooltip"),
           })}
           {compType === "grid" &&

@@ -42,7 +42,7 @@ const tourSteps: Step[] = [
     placement: "left",
     styles: {
       options: {
-        width: 408,
+        width: 500,
       },
     },
     target: `.${tableDragClassName}`,
@@ -55,7 +55,7 @@ const tourSteps: Step[] = [
     spotlightClicks: true,
     styles: {
       options: {
-        width: 480,
+        width: 600,
       },
     },
     target: `.${editorContentClassName}`,
@@ -68,7 +68,7 @@ const tourSteps: Step[] = [
     spotlightClicks: true,
     styles: {
       options: {
-        width: 480,
+        width: 500,
       },
     },
     target: `.${editorBottomClassName}`,
@@ -84,7 +84,7 @@ const tourSteps: Step[] = [
     spotlightPadding: 8,
     styles: {
       options: {
-        width: 408,
+        width: 500,
       },
     },
     target: `.${tableDataDivClassName}`,
@@ -103,7 +103,7 @@ const tourSteps: Step[] = [
     spotlightClicks: true,
     styles: {
       options: {
-        width: 408,
+        width: 500,
       },
     },
     target: `.${leftCompListClassName}`,
@@ -134,8 +134,8 @@ function addTable(editorState: EditorState) {
           {
             [key]: {
               i: key,
-              x: 0,
-              y: 0,
+              x: 6,
+              y: 25,
               ...defaultLayout(compType),
             },
           },
@@ -237,6 +237,7 @@ export default function EditorTutorials() {
     const { status, index, action, type } = data;
     const finishedStatuses: string[] = [STATUS.FINISHED, STATUS.SKIPPED];
     const nextIndex = index + (action === ACTIONS.PREV ? -1 : 1);
+
     if (finishedStatuses.includes(status)) {
       dispatch(markUserStatus("newUserGuidance", true));
       history.replace({
@@ -265,9 +266,6 @@ export default function EditorTutorials() {
     } else if (index === 2 && action === ACTIONS.NEXT) {
       // change data
       openTableData();
-      const tableComp = editorState.getUICompByName("table1");
-      tableComp &&
-        tableComp.children.comp.children.data.dispatchChangeValueAction("{{query1.data}}");
       setStepIndex(nextIndex);
     } else if (index === 1 && action === ACTIONS.PREV) {
       // cancel select
