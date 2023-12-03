@@ -16,16 +16,23 @@ import {
   advancedSection,
   expandSection,
   formSection,
-  intersectSection,
+  // intersectSection,
   treeCommonChildren,
   treeDataPropertyView,
   TreeNameConfigs,
   useTree,
   valuePropertyView,
 } from "./treeUtils";
+import {
+  SelectInputInvalidConfig,
+  SelectInputValidationChildren,
+  SelectInputValidationSection,
+} from "../selectInputComp/selectInputConstants";
 import { selectInputValidate } from "../selectInputComp/selectInputConstants";
 import { SelectEventHandlerControl } from "comps/controls/eventHandlerControl";
 import { trans } from "i18n";
+import { useContext } from "react";
+import { EditorContext } from "comps/editorState";
 
 type TreeStyleType = StyleConfigType<typeof TreeStyle>;
 
@@ -140,23 +147,40 @@ let TreeBasicComp = (function () {
       <>
         <Section name={sectionNames.basic}>
           {treeDataPropertyView(children)}
-          {children.selectType.propertyView({ label: trans("tree.selectType") })}
-          {children.selectType.getView() !== "none" && valuePropertyView(children)}
-          {children.selectType.getView() === "check" &&
-            children.checkStrictly.propertyView({
-              label: trans("tree.checkStrictly"),
-              tooltip: trans("tree.checkStrictlyTooltip"),
-            })}
         </Section>
-        {formSection(children)}
-        {children.label.getPropertyView()}
-        {expandSection(
-          children,
-          children.autoExpandParent.propertyView({ label: trans("tree.autoExpandParent") })
+
+        {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+          <><SelectInputValidationSection {...children} />
+            {formSection(children)}
+            <Section name={sectionNames.interaction}>
+              {children.onEvent.getPropertyView()}
+              {children.hidden.propertyView({ label: trans("prop.hide") })}
+              {children.disabled.propertyView({ label: trans("prop.disabled") })}
+              {children.selectType.propertyView({ label: trans("tree.selectType") })}
+              {children.selectType.getView() !== "none" && valuePropertyView(children)}
+              {children.selectType.getView() === "check" &&
+                children.checkStrictly.propertyView({
+                  label: trans("tree.checkStrictly"),
+                  tooltip: trans("tree.checkStrictlyTooltip"),
+                })}
+            </Section>
+          </>
         )}
-        {intersectSection(children, children.onEvent.getPropertyView())}
-        {advancedSection(children)}
-        <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
+      
+        {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+          <Section name={sectionNames.layout}>
+            {children.expanded.propertyView({ label: trans("tree.expanded") })}
+            {children.defaultExpandAll.propertyView({ label: trans("tree.defaultExpandAll") })}
+            {children.showLine.propertyView({ label: trans("tree.showLine") })}
+            {children.showLine.getView() && children.showLeafIcon.propertyView({ label: trans("tree.showLeafIcon") })}
+          </Section>
+        )}
+
+        {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && ( children.label.getPropertyView() )}
+
+        {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+          <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
+        )}
       </>
     ))
     .build();

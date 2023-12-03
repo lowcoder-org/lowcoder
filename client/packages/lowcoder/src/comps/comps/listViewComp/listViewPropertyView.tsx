@@ -2,6 +2,8 @@ import { trans, transToNode } from "i18n";
 import { Section, sectionNames } from "lowcoder-design";
 import { ListViewImplComp } from "./listViewComp";
 import { ListCompType } from "./listViewUtils";
+import { useContext } from "react";
+import { EditorContext } from "comps/editorState";
 
 type Props = {
   comp: InstanceType<typeof ListViewImplComp>;
@@ -15,7 +17,7 @@ export function listPropertyView(compType: ListCompType) {
       <>
         <Section name={sectionNames.basic}>
           {children.noOfRows.propertyView({
-            label: trans("data"),
+            label: trans("listView.dataDesc"),
             tooltip: trans("listView.dataTooltip"),
           })}
           {compType === "grid" &&
@@ -43,12 +45,22 @@ export function listPropertyView(compType: ListCompType) {
             }),
           })}
         </Section>
-        <Section name={trans("prop.pagination")}>
-          {comp.children.pagination.getPropertyView()}
-        </Section>
-        <Section name={sectionNames.layout}>{children.autoHeight.getPropertyView()}</Section>
-        {/* <Section name={sectionNames.style}>{children.showBorder.propertyView({ label: "" })}</Section> */}
-        <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
+
+        {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
+          <Section name={trans("prop.pagination")}>
+            {comp.children.pagination.getPropertyView()}
+          </Section>
+        )}
+
+        {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
+          <><Section name={sectionNames.layout}>
+              {children.autoHeight.getPropertyView()}
+            </Section>
+            <Section name={sectionNames.style}>
+              {children.style.getPropertyView()}
+            </Section></>
+        )}
+   
       </>
     );
   };

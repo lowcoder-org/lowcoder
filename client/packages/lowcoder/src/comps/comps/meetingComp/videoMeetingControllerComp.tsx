@@ -43,6 +43,9 @@ import { NameConfig, withExposingConfigs } from "../../generators/withExposing";
 
 import { v4 as uuidv4 } from "uuid";
 
+import { useContext } from "react";
+import { EditorContext } from "comps/editorState";
+
 // import axios from "axios";
 
 import AgoraRTC, {
@@ -219,7 +222,7 @@ const rtmInit = async (appId: any, uid: any, token: any, channel: any) => {
 };
 
 export const meetingControllerChildren = {
-  visible: withDefault(BooleanStateControl, "visible"),
+  visible: withDefault(BooleanStateControl, "false"),
   onEvent: eventHandlerControl(EventOptions),
   width: StringControl,
   height: StringControl,
@@ -336,7 +339,7 @@ let MTComp = (function () {
         }
       }, [userLeft]);
 
-      console.log("sharing", props.sharing);
+      // console.log("sharing", props.sharing);
 
       useEffect(() => {
         if (updateVolume.userid) {
@@ -559,55 +562,63 @@ let MTComp = (function () {
   )
     .setPropertyViewFn((children) => (
       <>
-        <Section name={sectionNames.basic}>
-          {children.placement.propertyView({
-            label: trans("drawer.placement"),
-            radioButton: true,
-          })}
-          {["top", "bottom"].includes(children.placement.getView())
-            ? children.autoHeight.getPropertyView()
-            : children.width.propertyView({
-                label: trans("drawer.width"),
-                tooltip: trans("drawer.widthTooltip"),
+        {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
+          <><Section name={sectionNames.meetings}>
+              {children.appId.propertyView({
+                label: trans("meeting.appid"),
+              })}
+              {children.meetingName.propertyView({
+                label: trans("meeting.meetingName"),
+              })}
+              {children.localUserID.propertyView({
+                label: trans("meeting.localUserID"),
+              })}
+              {children.rtmToken.propertyView({
+                label: trans("meeting.rtmToken"),
+              })}
+              {children.rtcToken.propertyView({
+                label: trans("meeting.rtcToken"),
+              })}
+            </Section>
+            <Section name={sectionNames.interaction}>
+              {children.onEvent.getPropertyView()}
+            </Section>
+          </>
+        )}
+
+        {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
+          <><Section name={sectionNames.layout}>
+            {children.placement.propertyView({
+              label: trans("drawer.placement"),
+              radioButton: true,
+            })}
+            {["top", "bottom"].includes(children.placement.getView())
+              ? children.autoHeight.getPropertyView()
+              : children.width.propertyView({
+                  label: trans("drawer.width"),
+                  tooltip: trans("drawer.widthTooltip"),
+                  placeholder: DEFAULT_SIZE + "",
+                })}
+            {!children.autoHeight.getView() &&
+              ["top", "bottom"].includes(children.placement.getView()) &&
+              children.height.propertyView({
+                label: trans("drawer.height"),
+                tooltip: trans("drawer.heightTooltip"),
                 placeholder: DEFAULT_SIZE + "",
               })}
-          {!children.autoHeight.getView() &&
-            ["top", "bottom"].includes(children.placement.getView()) &&
-            children.height.propertyView({
-              label: trans("drawer.height"),
-              tooltip: trans("drawer.heightTooltip"),
-              placeholder: DEFAULT_SIZE + "",
+            {children.maskClosable.propertyView({
+              label: trans("prop.maskClosable"),
             })}
-          {children.maskClosable.propertyView({
-            label: trans("prop.maskClosable"),
-          })}
-          {children.showMask.propertyView({
-            label: trans("prop.showMask"),
-          })}
-        </Section>
-        <Section name={sectionNames.meetings}>
-          {children.appId.propertyView({
-            label: trans("meeting.appid"),
-          })}
-          {children.meetingName.propertyView({
-            label: trans("meeting.meetingName"),
-          })}
-          {children.localUserID.propertyView({
-            label: trans("meeting.localUserID"),
-          })}
-          {children.rtmToken.propertyView({
-            label: trans("meeting.rtmToken"),
-          })}
-          {children.rtcToken.propertyView({
-            label: trans("meeting.rtcToken"),
-          })}
-        </Section>
-        <Section name={sectionNames.interaction}>
-          {children.onEvent.getPropertyView()}
-        </Section>
-        <Section name={sectionNames.style}>
-          {children.style.getPropertyView()}
-        </Section>
+            {children.showMask.propertyView({
+              label: trans("prop.showMask"),
+            })}
+          </Section>
+
+          <Section name={sectionNames.style}>
+            
+            {children.style.getPropertyView()}
+          </Section></>
+        )}
       </>
     ))
     .build();

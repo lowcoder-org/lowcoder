@@ -1,15 +1,9 @@
 import { BoolCodeControl } from "comps/controls/codeControl";
-import { dropdownControl } from "comps/controls/dropdownControl";
-// import { IconControl } from "comps/controls/iconControl";
-import { CompNameContext, EditorContext, EditorState } from "comps/editorState";
+import { EditorContext } from "comps/editorState";
 import { withDefault } from "comps/generators";
 import { UICompBuilder } from "comps/generators/uiCompBuilder";
 import ReactResizeDetector from "react-resize-detector";
-// import _ from "lodash";
 import {
-  CommonBlueLabel,
-  controlItem,
-  Dropdown,
   Section,
   sectionNames,
 } from "lowcoder-design";
@@ -21,8 +15,6 @@ import {
   NameConfig,
   withExposingConfigs,
 } from "../../generators/withExposing";
-import { IForm } from "../formComp/formDataConstants";
-import { SimpleNameComp } from "../simpleNameComp";
 import { ButtonStyleControl } from "./videobuttonCompConstants";
 import { RefControl } from "comps/controls/refControl";
 import { useEffect, useRef, useState } from "react";
@@ -35,26 +27,12 @@ import { IAgoraRTCRemoteUser } from "agora-rtc-sdk-ng";
 import {
   MeetingEventHandlerControl,
   StringControl,
-  StringStateControl,
   hiddenPropertyView,
   stringExposingStateControl,
 } from "@lowcoder-ee/index.sdk";
 import { BoolShareVideoControl } from "./meetingControlerUtils";
 
-const FormLabel = styled(CommonBlueLabel)`
-  font-size: 13px;
-  margin-right: 4px;
-`;
-
-function getFormOptions(editorState: EditorState) {
-  return editorState
-    .uiCompInfoList()
-    .filter((info) => info.type === "form")
-    .map((info) => ({
-      label: info.name,
-      value: info.name,
-    }));
-}
+import { useContext } from "react";
 
 const VideoContainer = styled.video`
   height: 100%;
@@ -64,97 +42,18 @@ const VideoContainer = styled.video`
   justify-content: space-around;
 `;
 
-function getForm(editorState: EditorState, formName: string) {
-  const comp = editorState?.getUICompByName(formName);
-  if (comp && comp.children.compType.getView() === "form") {
-    return comp.children.comp as unknown as IForm;
-  }
-}
-
-function getFormEventHandlerPropertyView(
-  editorState: EditorState,
-  formName: string
-) {
-  const form = getForm(editorState, formName);
-  if (!form) {
-    return undefined;
-  }
-
-  return (
-    <CompNameContext.Provider value={formName}>
-      {form.onEventPropertyView(
-        <>
-          <FormLabel
-            onClick={() =>
-              editorState.setSelectedCompNames(
-                new Set([formName]),
-                "rightPanel"
-              )
-            }
-          >
-            {formName}
-          </FormLabel>
-          {trans("button.formButtonEvent")}
-        </>
-      )}
-    </CompNameContext.Provider>
-  );
-}
-
-class SelectFormControl extends SimpleNameComp {
-  override getPropertyView() {
-    const label = trans("button.formToSubmit");
-    return controlItem(
-      { filterText: label },
-      <EditorContext.Consumer>
-        {(editorState) => (
-          <>
-            <Dropdown
-              label={label}
-              value={this.value}
-              options={getFormOptions(editorState)}
-              onChange={(value) => this.dispatchChangeValueAction(value)}
-              allowClear={true}
-            />
-            {getFormEventHandlerPropertyView(editorState, this.value)}
-          </>
-        )}
-      </EditorContext.Consumer>
-    );
-  }
-}
-
-const typeOptions = [
-  {
-    label: trans("button.default"),
-    value: "",
-  },
-  {
-    label: trans("button.submit"),
-    value: "submit",
-  },
-] as const;
-
 export const meetingStreamChildren = {
   autoHeight: withDefault(AutoHeightControl, "fixed"),
   profilePadding: withDefault(StringControl, "0px"),
   profileBorderRadius: withDefault(StringControl, "0px"),
-  videoAspectRatio: withDefault(StringControl, "1 / 1"),
-  type: dropdownControl(typeOptions, ""),
+  videoAspectRatio: withDefault(StringControl, ""),
   onEvent: MeetingEventHandlerControl,
   disabled: BoolCodeControl,
   loading: BoolCodeControl,
-  form: SelectFormControl,
-  // prefixIcon: IconControl,
-  // suffixIcon: IconControl,
   style: ButtonStyleControl,
   viewRef: RefControl<HTMLElement>,
-  userId: stringExposingStateControl(""),
-  profileImageUrl: withDefault(
-    StringStateControl,
-    "https://api.dicebear.com/7.x/fun-emoji/svg?seed=Peanut&radius=50&backgroundColor=transparent&randomizeIds=true&eyes=wink,sleepClose"
-  ),
-  noVideoText: stringExposingStateControl("No Video"),
+  userId: withDefault(stringExposingStateControl(""), "{{meeting1.localUser}}"),
+  noVideoText: stringExposingStateControl(trans("meeting.noVideo")),
 };
 
 let SharingCompBuilder = (function (props) {
@@ -205,7 +104,7 @@ let SharingCompBuilder = (function (props) {
         client.on(
           "user-unpublished",
           (user: IAgoraRTCRemoteUser, mediaType: "video" | "audio") => {
-            console.log("user-unpublished");
+            // console.log("user-unpublished");
 
             if (mediaType === "audio") {
               if (
@@ -271,7 +170,7 @@ let SharingCompBuilder = (function (props) {
               ) : (
                 <></>
               )}
-              <div
+              {/* <div
                 style={{
                   flexDirection: "column",
                   alignItems: "center",
@@ -290,7 +189,7 @@ let SharingCompBuilder = (function (props) {
                   src={props.profileImageUrl.value}
                 />
                 <p style={{ margin: "0" }}>{userName ?? ""}</p>
-              </div>
+              </div> */}
             </div>
           </ReactResizeDetector>
         )}
@@ -301,31 +200,33 @@ let SharingCompBuilder = (function (props) {
       <>
         <Section name={sectionNames.basic}>
           {children.userId.propertyView({ label: trans("meeting.videoId") })}
-          {children.autoHeight.getPropertyView()}
-          {children.profileImageUrl.propertyView({
-            label: trans("meeting.profileImageUrl"),
-            placeholder: "https://via.placeholder.com/120",
-          })}
         </Section>
 
-        <Section name={sectionNames.interaction}>
-          {children.onEvent.getPropertyView()}
-        </Section>
-        <Section name={sectionNames.layout}>
-          {hiddenPropertyView(children)}
-        </Section>
-        <Section name={sectionNames.style}>
-          {children.profilePadding.propertyView({
-            label: "Profile Image Padding",
-          })}
-          {children.profileBorderRadius.propertyView({
-            label: "Profile Image Border Radius",
-          })}
-          {children.videoAspectRatio.propertyView({
-            label: "Video Aspect Ratio",
-          })}
-          {children.style.getPropertyView()}
-        </Section>
+        {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
+          <Section name={sectionNames.interaction}>
+            {children.onEvent.getPropertyView()}
+            {hiddenPropertyView(children)}
+          </Section>
+        )}
+
+        {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
+          <><Section name={sectionNames.layout}>
+              {children.autoHeight.getPropertyView()}
+            </Section>
+            <Section name={sectionNames.style}>
+              {children.profilePadding.propertyView({
+                label: "Profile Image Padding",
+              })}
+              {children.profileBorderRadius.propertyView({
+                label: "Profile Image Border Radius",
+              })}
+              {children.videoAspectRatio.propertyView({
+                label: "Video Aspect Ratio",
+              })}
+              {children.style.getPropertyView()}
+            </Section>
+          </>
+        )}
       </>
     ))
     .build();
@@ -339,7 +240,5 @@ SharingCompBuilder = class extends SharingCompBuilder {
 
 export const VideoSharingStreamComp = withExposingConfigs(SharingCompBuilder, [
   new NameConfig("loading", trans("button.loadingDesc")),
-  new NameConfig("profileImageUrl", trans("meeting.profileImageUrl")),
-
   ...CommonNameConfig,
 ]);

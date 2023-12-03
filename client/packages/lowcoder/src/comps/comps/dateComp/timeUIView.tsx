@@ -26,6 +26,8 @@ export interface TimeUIViewProps extends TimeCompViewProps {
 export const TimeUIView = (props: TimeUIViewProps) => {
   const editorState = useContext(EditorContext);
 
+  const placeholder = Array.isArray(props.placeholder) ? props.placeholder[0] : props.placeholder;
+
   return useUIView(
     <TimeMobileUIView {...props} />,
     <TimePickerStyled
@@ -33,6 +35,7 @@ export const TimeUIView = (props: TimeUIViewProps) => {
       ref={props.viewRef}
       hideDisabledOptions
       inputReadOnly={checkIsMobile(editorState?.getAppSettings().maxWidth)}
+      placeholder={placeholder}
     />
   );
 };

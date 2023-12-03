@@ -1,4 +1,5 @@
 import { PanelStatus } from "pages/common/header";
+import { EditorModeStatus } from "pages/common/header";
 import log from "loglevel";
 import { JSONValue } from "util/jsonTypes";
 
@@ -17,6 +18,8 @@ export const DefaultPanelStatus: PanelStatus = {
   bottom: true,
   right: true,
 };
+
+
 const DefaultPanelStyle: PanelStyle = {
   bottom: {
     h: 285,
@@ -37,6 +40,20 @@ export function getPanelStatus(): PanelStatus {
     return DefaultPanelStatus;
   }
   return { ...DefaultPanelStatus, ...JSON.parse(str) };
+}
+
+
+export function saveEditorModeStatus(editorModeStatus: EditorModeStatus) {
+  localStorage.setItem("editor_mode_status", editorModeStatus);
+}
+
+export const DefaultEditorModeStatus: EditorModeStatus = "both"; 
+export function getEditorModeStatus(): EditorModeStatus {
+  const str = localStorage.getItem("editor_mode_status");
+  if (!str) {
+    return DefaultEditorModeStatus;
+  }
+  return str as EditorModeStatus;
 }
 
 export function savePanelStyle(panelStyle: PanelStyle) {

@@ -10,11 +10,14 @@ import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import log from "loglevel";
 
+import { useContext } from "react";
+import { EditorContext } from "comps/editorState";
+
 const Wrapper = styled.div<{ $style: IframeStyleType }>`
   width: 100%;
   height: 100%;
   overflow: hidden;
-  border: 1px solid ${(props) => props.$style.border};
+  border: ${(props) => (props.$style.borderWidth ? props.$style.borderWidth : "1px")} solid ${(props) => props.$style.border};
   border-radius: calc(min(${(props) => props.$style.radius}, 20px));
 
   iframe {
@@ -61,19 +64,25 @@ let IFrameCompBase = new UICompBuilder(
   .setPropertyViewFn((children) => (
     <>
       <Section name={sectionNames.basic}>
-        {children.url.propertyView({ label: "URL", placeholder: "https://example.com" })}
+        {children.url.propertyView({ label: "Source URL", placeholder: "https://example.com", tooltip: trans("iframe.URLDesc") })}
       </Section>
 
-      <Section name={sectionNames.advanced}>
-        {children.allowDownload.propertyView({ label: trans("iframe.allowDownload") })}
-        {children.allowSubmitForm.propertyView({ label: trans("iframe.allowSubmitForm") })}
-        {children.allowMicrophone.propertyView({ label: trans("iframe.allowMicrophone") })}
-        {children.allowCamera.propertyView({ label: trans("iframe.allowCamera") })}
-        {children.allowPopup.propertyView({ label: trans("iframe.allowPopup") })}
-      </Section>
+      {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+        <Section name={sectionNames.interaction}>
+          {hiddenPropertyView(children)}
+          {children.allowDownload.propertyView({ label: trans("iframe.allowDownload") })}
+          {children.allowSubmitForm.propertyView({ label: trans("iframe.allowSubmitForm") })}
+          {children.allowMicrophone.propertyView({ label: trans("iframe.allowMicrophone") })}
+          {children.allowCamera.propertyView({ label: trans("iframe.allowCamera") })}
+          {children.allowPopup.propertyView({ label: trans("iframe.allowPopup") })}
+        </Section>
+      )}
 
-      <Section name={sectionNames.layout}>{hiddenPropertyView(children)}</Section>
-      <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
+      {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+        <Section name={sectionNames.style}>
+          {children.style.getPropertyView()}
+        </Section>
+      )}
     </>
   ))
   .build();

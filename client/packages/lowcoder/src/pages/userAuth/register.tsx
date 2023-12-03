@@ -62,6 +62,7 @@ function UserRegister() {
         password: password,
         invitationId,
         source: UserConnectionSource.email,
+        orgId: organizationId,
         authId,
       }),
     false,

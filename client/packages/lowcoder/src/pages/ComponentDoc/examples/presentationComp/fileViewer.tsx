@@ -18,7 +18,7 @@ export default function FileViewerExample() {
           blackListConfig={blackListConfig}
           hideSettings={true}
           config={{
-            src: "https://majiang-files.oss-cn-hangzhou.aliyuncs.com/quick-tutorial.pdf",
+            src: "https://pdfa.org/wp-content/uploads/2021/06/The-Low-Code-Revolution-and-PDF.pdf",
           }}
           compFactory={FileViewerComp}
         />

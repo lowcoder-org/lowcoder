@@ -37,6 +37,8 @@ import { trans } from "i18n";
 import { IconControl } from "comps/controls/iconControl";
 import { hasIcon } from "comps/utils";
 import { RefControl } from "comps/controls/refControl";
+import React, { useContext } from "react";
+import { EditorContext } from "comps/editorState";
 
 const PasswordStyle = styled(Input.Password)<{
   $style: InputLikeStyleType;
@@ -76,29 +78,32 @@ const PasswordTmpComp = (function () {
         <>
           <TextInputBasicSection {...children} />
           <FormDataPropertyView {...children} />
-          {children.label.getPropertyView()}
 
-          <TextInputInteractionSection {...children} />
+          {useContext(EditorContext).editorModeStatus === "layout" && (
+            children.label.getPropertyView()
+          )}
 
-          <Section name={sectionNames.advanced}>
-            {children.visibilityToggle.propertyView({
-              label: trans("password.visibilityToggle"),
-            })}
-            {readOnlyPropertyView(children)}
-            {children.prefixIcon.propertyView({ label: trans("button.prefixIcon") })}
-          </Section>
+          {useContext(EditorContext).editorModeStatus !== "layout" && (
+            <><TextInputInteractionSection {...children} />
+            <Section name={sectionNames.layout}>{hiddenPropertyView(children)}</Section>
+            <Section name={sectionNames.advanced}>
+              {children.visibilityToggle.propertyView({
+                label: trans("password.visibilityToggle"),
+              })}
+              {readOnlyPropertyView(children)}
+              {children.prefixIcon.propertyView({ label: trans("button.prefixIcon") })}
+            </Section><Section name={sectionNames.validation}>
+                {requiredPropertyView(children)}
+                {regexPropertyView(children)}
+                {minLengthPropertyView(children)}
+                {maxLengthPropertyView(children)}
+                {children.customRule.propertyView({})}
+            </Section></>
+          )}
 
-          <Section name={sectionNames.validation}>
-            {requiredPropertyView(children)}
-            {regexPropertyView(children)}
-            {minLengthPropertyView(children)}
-            {maxLengthPropertyView(children)}
-            {children.customRule.propertyView({})}
-          </Section>
-
-          <Section name={sectionNames.layout}>{hiddenPropertyView(children)}</Section>
-
-          <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
+          {useContext(EditorContext).editorModeStatus === "layout" && (
+            <><Section name={sectionNames.style}>{children.style.getPropertyView()}</Section></>
+          )}
         </>
       );
     })
