@@ -74,7 +74,8 @@ let AudioBasicComp = (function () {
         <>
           <Section name={sectionNames.basic}>
             {children.src.propertyView({
-              label: trans("audio.src"),
+              label: trans("audio.src"), 
+              tooltip: trans("audio.srcDesc"),
             })}
           </Section>
 
