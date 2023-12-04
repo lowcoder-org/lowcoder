@@ -279,7 +279,7 @@ const TEXT_SIZE = {
   name: "textSize",
   label: trans("style.textSize"),	
   textSize: "textSize",	
-} as const;	
+} as const;
 
 const CONTAINERHEADERPADDING = {	
   name: "containerheaderpadding",	

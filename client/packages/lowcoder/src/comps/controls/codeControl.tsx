@@ -472,6 +472,26 @@ export const RadiusControl = codeControl<string>(
   }
 );
 
+export const HeightOrBoolCodeControl = codeControl<string>(
+  (value: unknown) => {
+    const valueString = toString(value);
+    if (valueString === "true") {
+      // true default 40px
+      return "40px";
+    }
+    if (valueString === "" || valueString === "false") {
+      return "";
+    }
+    if (/^[0-9]+(px|%)?$/.test(valueString)) {
+      return valueString;
+    }
+    throw new Error(`the argument must be a number(4), a number of pixels (4px), or a percent (50%).`);
+  },
+  {
+    expectedType: "CSS",
+  }
+);
+
 export const FunctionControl = codeControl<CodeFunction>(
   (value) => {
     if (typeof value === "function") {

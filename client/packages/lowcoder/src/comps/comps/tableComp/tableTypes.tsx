@@ -5,6 +5,7 @@ import {
   ArrayStringControl,
   BoolCodeControl,
   ColorOrBoolCodeControl,
+  HeightOrBoolCodeControl,
   JSONObjectArrayControl,
   RadiusControl,
   StringControl,
@@ -108,7 +109,9 @@ const TableEventControl = eventHandlerControl(TableEventOptions);
 
 const rowColorLabel = trans("table.rowColor");
 const RowColorTempComp = withContext(
-  new MultiCompBuilder({ color: ColorOrBoolCodeControl }, (props) => props.color)
+  new MultiCompBuilder({
+    color: ColorOrBoolCodeControl,
+  }, (props) => props.color)
     .setPropertyViewFn((children) =>
       children.color.propertyView({
         label: rowColorLabel,
@@ -128,6 +131,36 @@ export class RowColorComp extends RowColorTempComp {
 
 // fixme, should be infer from RowColorComp, but withContext type incorrect
 export type RowColorViewType = (param: {
+  currentRow: any;
+  currentIndex: number;
+  currentOriginalIndex: number | string;
+  columnTitle: string;
+}) => string;
+
+const rowHeightLabel = "Conditional Row Height"; //trans("table.rowColor");
+const RowHeightTempComp = withContext(
+  new MultiCompBuilder({
+    height: HeightOrBoolCodeControl,
+  }, (props) => props.height)
+    .setPropertyViewFn((children) =>
+      children.height.propertyView({
+        label: rowHeightLabel,
+        tooltip: trans("table.rowColorDesc"),
+      })
+    )
+    .build(),
+  ["currentRow", "currentIndex", "currentOriginalIndex", "columnTitle"] as const
+);
+
+// @ts-ignore
+export class RowHeightComp extends RowHeightTempComp {
+  override getPropertyView() {
+    return controlItem({ filterText: rowHeightLabel }, super.getPropertyView());
+  }
+}
+
+// fixme, should be infer from RowHeightComp, but withContext type incorrect
+export type RowHeightViewType = (param: {
   currentRow: any;
   currentIndex: number;
   currentOriginalIndex: number | string;
@@ -157,6 +190,7 @@ const tableChildrenMap = {
   onEvent: TableEventControl,
   loading: BoolCodeControl,
   rowColor: RowColorComp,
+  rowHeight: RowHeightComp,
   dynamicColumn: BoolPureControl,
   // todo: support object config
   dynamicColumnConfig: ArrayStringControl,

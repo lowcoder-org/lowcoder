@@ -510,6 +510,7 @@ export function compTablePropertyView<T extends MultiBaseComp<TableChildrenType>
           <Section name={"Row Style"}>
             {comp.children.rowStyle.getPropertyView()}
             {comp.children.rowColor.getPropertyView()}
+            {comp.children.rowHeight.getPropertyView()}
           </Section>
           <Section name={"Column Style"}>
             {comp.children.columnsStyle.getPropertyView()}

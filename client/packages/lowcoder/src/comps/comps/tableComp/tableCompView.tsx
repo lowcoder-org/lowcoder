@@ -2,7 +2,7 @@ import { Table } from "antd";
 import { TableProps } from "antd/es/table";
 import { TableCellContext, TableRowContext } from "comps/comps/tableComp/tableContext";
 import { TableToolbar } from "comps/comps/tableComp/tableToolbarComp";
-import { RowColorViewType } from "comps/comps/tableComp/tableTypes";
+import { RowColorViewType, RowHeightViewType } from "comps/comps/tableComp/tableTypes";
 import {
   COL_MIN_WIDTH,
   COLUMN_CHILDREN_KEY,
@@ -284,7 +284,7 @@ const TableTh = styled.th<{ width?: number }>`
 
 const TableTd = styled.td<{
   background: string;
-  $style: TableColumnStyleType;
+  $style: TableColumnStyleType & {height?: string};
   $isEditing: boolean;
 }>`
   .ant-table-row-expand-icon,
@@ -295,8 +295,8 @@ const TableTd = styled.td<{
     background: ${(props) => props.background};
     border-color: ${(props) => props.$style.border};
   }
-
   background: ${(props) => props.background} !important;
+  height: ${(props) => props.$style.height}; 
   border-color: ${(props) => props.$style.border} !important;
   border-width: ${(props) => props.$style.borderWidth} !important;
   border-radius: ${(props) => props.$style.radius};
@@ -387,6 +387,7 @@ type CustomTableProps<RecordType> = Omit<TableProps<RecordType>, "components" | 
   columns: CustomColumnType<RecordType>[];
   viewModeResizable: boolean;
   rowColorFn: RowColorViewType;
+  rowHeightFn: RowHeightViewType;
   columnsStyle: TableColumnStyleType;
 };
 
@@ -394,6 +395,7 @@ function TableCellView(props: {
   record: RecordType;
   title: string;
   rowColorFn: RowColorViewType;
+  rowHeightFn: RowHeightViewType;
   cellColorFn: CellColorViewType;
   rowIndex: number;
   children: any;
@@ -405,6 +407,7 @@ function TableCellView(props: {
     title,
     rowIndex,
     rowColorFn,
+    rowHeightFn,
     cellColorFn,
     children,
     columnsStyle,
@@ -423,17 +426,24 @@ function TableCellView(props: {
       currentOriginalIndex: record[OB_ROW_ORI_INDEX],
       columnTitle: title,
     });
+    const rowHeight = rowHeightFn({
+      currentRow: record,
+      currentIndex: rowIndex,
+      currentOriginalIndex: record[OB_ROW_ORI_INDEX],
+      columnTitle: title,
+    });
     const cellColor = cellColorFn({
       currentCell: record[title.toLowerCase()],
     });
   
-    const style: TableColumnStyleType = {
+    const style = {
       background: cellColor || rowColor || columnStyle.background || columnsStyle.background,
       text: columnStyle.text || columnsStyle.text,
       border: columnStyle.border || columnsStyle.border,
       radius: columnStyle.radius || columnsStyle.radius,
       borderWidth: columnStyle.borderWidth || columnsStyle.borderWidth,
       textSize: columnStyle.textSize || columnsStyle.textSize,
+      height: rowHeight,
     }
     let { background } = style;
     if (rowContext.selected) {
@@ -515,6 +525,7 @@ function ResizeableTable<RecordType extends object>(props: CustomTableProps<Reco
         record,
         title: col.titleText,
         rowColorFn: props.rowColorFn,
+        rowHeightFn: props.rowHeightFn,
         cellColorFn: cellColorFn,
         rowIndex: rowIndex,
         columnsStyle: props.columnsStyle,
@@ -715,6 +726,7 @@ export function TableCompView(props: {
             }
           }}
           rowColorFn={compChildren.rowColor.getView() as any}
+          rowHeightFn={compChildren.rowHeight.getView() as any}
           {...compChildren.selection.getView()(onEvent)}
           bordered={!compChildren.hideBordered.getView()}
           onChange={(pagination, filters, sorter, extra) => {
