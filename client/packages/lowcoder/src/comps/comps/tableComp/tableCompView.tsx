@@ -169,6 +169,10 @@ const TableWrapper = styled.div<{
       border-top: none !important;
       border-inline-start: none !important;
 
+      &::after {
+        box-shadow: none !important;
+      }
+
       .ant-table-content {
         overflow: unset !important;
       }
