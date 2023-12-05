@@ -137,7 +137,7 @@ export type RowColorViewType = (param: {
   columnTitle: string;
 }) => string;
 
-const rowHeightLabel = "Conditional Row Height"; //trans("table.rowColor");
+const rowHeightLabel = trans("table.rowHeight");
 const RowHeightTempComp = withContext(
   new MultiCompBuilder({
     height: HeightOrBoolCodeControl,

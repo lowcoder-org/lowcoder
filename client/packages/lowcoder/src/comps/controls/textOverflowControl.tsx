@@ -4,11 +4,11 @@ import { dropdownAbstractControl } from "./dropdownControl";
 
 const overflowOptions = [
   {
-    label: "Ellipsis", // trans("autoHeightProp.auto"),
+    label: trans("textOverflowProp.ellipsis"),
     value: "ellipsis",
   },
   {
-    label: "Wrap", // trans("autoHeightProp.fixed"),
+    label: trans("textOverflowProp.wrap"),
     value: "wrap",
   },
 ] as const;
@@ -20,7 +20,7 @@ export class TextOverflowControl extends TextOverflowTmpControl {
   }
 
   override getPropertyView() {
-    return this.propertyView({ label: "Text Overflow"/*trans("prop.height")*/ });
+    return this.propertyView({ label: trans("prop.textOverflow") });
   }
 
   override propertyView(params: ControlParams) {
