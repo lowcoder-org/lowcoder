@@ -1,6 +1,6 @@
 import path from "node:path";
-import { buildVars } from "lowcoder-dev-utils/buildVars.js";
-import { currentDirName } from "lowcoder-dev-utils/util.js";
+import { buildVars } from "../../packages/lowcoder-dev-utils/buildVars.js";
+import { currentDirName } from "../../packages/lowcoder-dev-utils/util.js";
 
 const globals = {};
 buildVars.forEach(({ name, defaultValue }) => {
