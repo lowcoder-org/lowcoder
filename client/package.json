@@ -1,6 +1,6 @@
 {
-  "name": "taco-fe",
-  "version": "0.1.0",
+  "name": "lowcoder-root",
+  "version": "2.2.0",
   "type": "module",
   "private": true,
   "workspaces": [

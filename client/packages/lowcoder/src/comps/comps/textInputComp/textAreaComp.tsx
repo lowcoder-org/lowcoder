@@ -95,11 +95,11 @@ let TextAreaTmpComp = (function () {
         <TextInputBasicSection {...children} />
         <FormDataPropertyView {...children} />
 
-        {useContext(EditorContext).editorModeStatus === "layout" && (
+        {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
           children.label.getPropertyView()
         )}
 
-        {useContext(EditorContext).editorModeStatus !== "layout" && (
+        {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
           <><TextInputInteractionSection {...children} />
           <Section name={sectionNames.layout}>
             {children.autoHeight.getPropertyView()}
@@ -112,7 +112,7 @@ let TextAreaTmpComp = (function () {
           <TextInputValidationSection {...children} /></>
         )}
 
-        {useContext(EditorContext).editorModeStatus === "layout" && (
+        {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
           <><Section name={sectionNames.style}>{children.style.getPropertyView()}</Section></>
         )}
       </>

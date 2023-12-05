@@ -24,7 +24,7 @@ import { EditorContext } from "comps/editorState";
 const getStyle = (style: TextStyleType) => {
   return css`
     border-radius: ${(style.radius ? style.radius : "4px")};
-    border: ${(style.borderWidth ? style.borderWidth : "1px")} solid ${style.border};
+    border: ${(style.borderWidth ? style.borderWidth : "0px")} solid ${style.border};
     color: ${style.text};
     background-color: ${style.background};
     .markdown-body a {

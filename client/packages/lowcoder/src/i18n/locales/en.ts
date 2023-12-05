@@ -186,11 +186,16 @@ export const en = {
     "showBody": "Show Body",
     "showFooter": "Show Footer",
     "maskClosable": "Click Outside to Close",
-    "showMask": "Show Mask"
+    "showMask": "Show Mask",
+    "textOverflow": "Text Overflow",
   },
   "autoHeightProp": {
     "auto": "Auto",
     "fixed": "Fixed"
+  },
+  "textOverflowProp": {
+    "ellipsis": "Ellipsis",
+    "wrap": "Wrap"
   },
   "labelProp": {
     "text": "Label",
@@ -1290,9 +1295,11 @@ export const en = {
     "sortChange": "Sort Change",
     "pageChange": "Page Change",
     "refresh": "Refresh",
-    "rowColor": "Conditional Row Color",
+    "rowColor": "Conditional row color",
     "rowColorDesc": "Conditionally Set the Row Color Based on the Optional Variables: CurrentRow, CurrentOriginalIndex, CurrentIndex, ColumnTitle. For Example: '{{ currentRow.id > 3 ? \"green\" : \"red\" }}'",
-    "cellColor": "Conditional Cell Color",
+    "rowHeight": "Conditional row height",
+    "rowHeightDesc": "Conditionally Set the Row Height Based on the Optional Variables: CurrentRow, CurrentOriginalIndex, CurrentIndex, ColumnTitle. For Example: '{{ currentRow.id > 3 ? \"60px\" : \"40px\" }}'",
+    "cellColor": "Conditional cell color",
     "cellColorDesc": "Conditionally Set the Cell Color Based on the Cell Value Using CurrentCell. For Example: '{{ currentCell == 3 ? \"green\" : \"red\" }}'",
     "saveChangesNotBind": "No Event Handler Configured for Saving Changes. Please Bind at Least One Event Handler Before Click.",
     "dynamicColumn": "Use Dynamic Column Setting",
