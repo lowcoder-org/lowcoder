@@ -51,7 +51,7 @@ import { lastValueIfEqual, shallowEqual } from "util/objectUtils";
 import { IContainer } from "../containerBase";
 import { getSelectedRowKeys } from "./selectionControl";
 import { compTablePropertyView } from "./tablePropertyView";
-import { RowColorComp, TableChildrenView, TableInitComp } from "./tableTypes";
+import { RowColorComp, RowHeightComp, TableChildrenView, TableInitComp } from "./tableTypes";
 
 import { useContext } from "react";
 import { EditorContext } from "comps/editorState";
@@ -189,6 +189,17 @@ export class TableImplComp extends TableInitComp implements IContainer {
           "rowColor",
           comp.children.rowColor.reduce(
             RowColorComp.changeContextDataAction({
+              currentRow: nextRowExample,
+              currentIndex: 0,
+              currentOriginalIndex: 0,
+              columnTitle: nextRowExample ? Object.keys(nextRowExample)[0] : undefined,
+            })
+          )
+        );
+        comp = comp.setChild(
+          "rowHeight",
+          comp.children.rowHeight.reduce(
+            RowHeightComp.changeContextDataAction({
               currentRow: nextRowExample,
               currentIndex: 0,
               currentOriginalIndex: 0,

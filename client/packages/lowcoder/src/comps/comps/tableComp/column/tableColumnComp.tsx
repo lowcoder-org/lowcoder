@@ -26,6 +26,7 @@ import { ColumnTypeComp, ColumnTypeCompMap } from "./columnTypeComp";
 import { ColorControl } from "comps/controls/colorControl";
 import { JSONValue } from "util/jsonTypes";
 import styled from "styled-components";
+import { TextOverflowControl } from "comps/controls/textOverflowControl";
 
 export type Render = ReturnType<ConstructorToComp<typeof RenderComp>["getOriginalComp"]>;
 export const RenderComp = withSelectedMultiContext(ColumnTypeComp);
@@ -103,7 +104,8 @@ export const columnChildrenMap = {
   borderWidth: withDefault(RadiusControl, ""),
   radius: withDefault(RadiusControl, ""),
   textSize: withDefault(RadiusControl, ""),
-  cellColor: CellColorComp, 
+  cellColor: CellColorComp,
+  textOverflow: withDefault(TextOverflowControl, "ellipsis"),
 };
 
 const StyledIcon = styled.span`
@@ -228,6 +230,7 @@ export class ColumnComp extends ColumnInitComp {
           preInputNode: <StyledIcon as={TextSizeIcon} title="" />,	
           placeholder: '14px',
         })}
+        {this.children.textOverflow.getPropertyView()}
         {this.children.cellColor.getPropertyView()}
       </>
     );
