@@ -145,7 +145,7 @@ const RowHeightTempComp = withContext(
     .setPropertyViewFn((children) =>
       children.height.propertyView({
         label: rowHeightLabel,
-        tooltip: trans("table.rowColorDesc"),
+        tooltip: trans("table.rowHeightDesc"),
       })
     )
     .build(),

@@ -4,8 +4,7 @@
   "type": "module",
   "private": true,
   "workspaces": [
-    "packages/*",
-    "packages/lowcoder-dev-utils"
+    "packages/*"
   ],
   "engines": {
     "node": "^14.18.0 || >=16.0.0"
