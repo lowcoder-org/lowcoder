@@ -34,6 +34,7 @@ export interface CellProps {
   size?: string;
   candidateTags?: string[];
   candidateStatus?: { text: string; status: StatusType }[];
+  textOverflow?: boolean;
 }
 
 export type CellViewReturn = (props: CellProps) => ReactNode;
@@ -42,17 +43,6 @@ export type EditViewFn<T> = (props: {
   onChange: (value: T) => void;
   onChangeEnd: () => void;
 }) => ReactNode;
-
-export const SizeWrapper = styled.div<{ $size?: string }>`
-  ${(props) =>
-    props.$size &&
-    `padding: ${
-      props.$size === "small" ? "8.5px 8px" : props.$size === "large" ? "16.5px 16px" : "12.5px 8px"
-    };
-    line-height: 21px;
-    min-height: ${props.$size === "small" ? "39px" : props.$size === "large" ? "55px" : "47px"};
-    `}
-`;
 
 const BorderDiv = styled.div`
   position: absolute;
@@ -127,11 +117,15 @@ export function EditableCell<T extends JSONValue>(props: EditableCellProps<T>) {
   }
 
   return (
-    <ColumnTypeView>
+    <ColumnTypeView
+      textOverflow={props.textOverflow}
+    >
       {status === "toSave" && !isEditing && <EditableChip />}
-      <SizeWrapper $size={props.size} onDoubleClick={enterEditFn}>
+      <div
+        onDoubleClick={enterEditFn}
+      >
         {normalView}
-      </SizeWrapper>
+      </div>
     </ColumnTypeView>
   );
 }

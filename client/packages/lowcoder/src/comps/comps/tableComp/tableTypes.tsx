@@ -190,6 +190,7 @@ const tableChildrenMap = {
   onEvent: TableEventControl,
   loading: BoolCodeControl,
   rowColor: RowColorComp,
+  rowAutoHeight: withDefault(AutoHeightControl, "auto"),
   rowHeight: RowHeightComp,
   dynamicColumn: BoolPureControl,
   // todo: support object config
