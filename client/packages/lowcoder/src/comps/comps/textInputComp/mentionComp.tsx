@@ -209,7 +209,7 @@ let MentionTmpComp = (function () {
           {children.placeholder.propertyView({
             label: trans("prop.placeholder"),
           })}
-          {useContext(EditorContext).editorModeStatus !== "layout" && (
+          {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
             children.mentionList.propertyView({
               label: trans("mention.mentionList"),
             })
@@ -217,11 +217,11 @@ let MentionTmpComp = (function () {
         </Section>
         <FormDataPropertyView {...children} />
 
-        {useContext(EditorContext).editorModeStatus === "layout" && (
+        {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
           children.label.getPropertyView()
         )}
 
-        {useContext(EditorContext).editorModeStatus !== "layout" && (
+        {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
         <><Section name={sectionNames.interaction}>
             {children.onEvent.getPropertyView()}
             {disabledPropertyView(children)}
@@ -240,11 +240,11 @@ let MentionTmpComp = (function () {
             </Section></>
         )}
 
-      {useContext(EditorContext).editorModeStatus === "layout" && (
+        {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
         <><Section name={sectionNames.style}>
               {children.style.getPropertyView()}
             </Section></>
-      )}
+        )}
       </>
     ))
     .build();
