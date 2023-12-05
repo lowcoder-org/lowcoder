@@ -15,6 +15,9 @@ import { NavigationStyle } from "comps/controls/styleControlConstants";
 import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 
+import { useContext } from "react";
+import { EditorContext } from "comps/editorState";
+
 type IProps = {
   justify: boolean;
   bgColor: string;
@@ -189,19 +192,38 @@ const NavCompBase = new UICompBuilder(childrenMap, (props) => {
   .setPropertyViewFn((children) => {
     return (
       <>
-        <Section name={trans("prop.logo")}>
-          {children.logoUrl.propertyView({ label: trans("navigation.logoURL") })}
-          {children.logoUrl.getView() && children.logoEvent.propertyView({ inline: true })}
-        </Section>
-        <Section name={trans("menu")}>
+        <Section name={sectionNames.basic}>
           {menuPropertyView(children.items)}
-          {children.horizontalAlignment.propertyView({
-            label: trans("navigation.horizontalAlignment"),
-            radioButton: true,
-          })}
         </Section>
-        <Section name={sectionNames.layout}>{hiddenPropertyView(children)}</Section>
-        <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
+
+        {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
+          <Section name={sectionNames.interaction}>
+            {hiddenPropertyView(children)}
+          </Section>
+        )}
+
+        {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
+          <Section name={sectionNames.layout}>
+            {children.horizontalAlignment.propertyView({
+              label: trans("navigation.horizontalAlignment"),
+              radioButton: true,
+            })}
+            {hiddenPropertyView(children)}
+          </Section>
+        )}
+
+        {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
+          <Section name={sectionNames.advanced}>
+            {children.logoUrl.propertyView({ label: trans("navigation.logoURL"), tooltip: trans("navigation.logoURLDesc") })}
+            {children.logoUrl.getView() && children.logoEvent.propertyView({ inline: true })}
+          </Section>
+        )}
+
+        {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (  
+          <Section name={sectionNames.style}>
+            {children.style.getPropertyView()}
+          </Section>
+        )}
       </>
     );
   })

@@ -62,17 +62,13 @@ function UserRegister() {
         password: password,
         invitationId,
         source: UserConnectionSource.email,
+        orgId: organizationId,
         authId,
       }),
     false,
     redirectUrl,
     fetchUserAfterAuthSuccess,
   );
-
-
-  if (!systemConfig || !systemConfig?.form.enableRegister) {
-    return null;
-  }
 
   const registerHeading = trans("userAuth.register") // REACT_APP_LOWCODER_CUSTOM_AUTH_WELCOME_TEXT !== "" ? REACT_APP_LOWCODER_CUSTOM_AUTH_WELCOME_TEXT : trans("userAuth.register")
   const registerSubHeading = '' // REACT_APP_LOWCODER_CUSTOM_AUTH_WELCOME_TEXT !== "" ? trans("userAuth.poweredByLowcoder") : ''

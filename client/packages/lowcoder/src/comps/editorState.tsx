@@ -13,6 +13,7 @@ import { NameAndExposingInfo } from "./utils/exposingTypes";
 import { checkName } from "./utils/rename";
 import { trans } from "i18n";
 import { UiLayoutType } from "./comps/uiComp";
+import { getEditorModeStatus } from "util/localStorageUtil";
 
 type RootComp = InstanceType<typeof RootCompTmp>;
 
@@ -41,6 +42,7 @@ export class EditorState {
   readonly rootComp: RootComp;
   readonly showPropertyPane: boolean = false;
   readonly selectedCompNames: Set<string> = new Set();
+  readonly editorModeStatus: string = "";
   readonly isDragging: boolean = false;
   readonly draggingCompType: string = "button";
   readonly forceShowGrid: boolean = false; // show grid lines
@@ -54,10 +56,12 @@ export class EditorState {
 
   constructor(
     rootComp: RootComp,
-    setEditorState: (fn: (editorState: EditorState) => EditorState) => void
+    setEditorState: (fn: (editorState: EditorState) => EditorState) => void,
+    initialEditorModeStatus: string = getEditorModeStatus()
   ) {
     this.rootComp = rootComp;
     this.setEditorState = setEditorState;
+    this.editorModeStatus = initialEditorModeStatus;
   }
 
   /**
@@ -309,6 +313,10 @@ export class EditorState {
 
   getAppSettings() {
     return this.getAppSettingsComp().getView();
+  }
+
+  setEditorModeStatus(newEditorModeStatus: string) {
+    this.changeState({ editorModeStatus: newEditorModeStatus });
   }
 
   setDragging(dragging: boolean) {

@@ -13,7 +13,6 @@ import {
   advancedSection,
   expandSection,
   formSection,
-  intersectSection,
   treeCommonChildren,
   treeDataPropertyView,
   TreeNameConfigs,
@@ -21,11 +20,12 @@ import {
   valuePropertyView,
 } from "./treeUtils";
 import { baseSelectRefMethods, getStyle } from "../selectInputComp/selectCompConstants";
-import { useSelectInputValidate } from "../selectInputComp/selectInputConstants";
+import { useSelectInputValidate, SelectInputValidationSection } from "../selectInputComp/selectInputConstants";
 import { StringControl } from "comps/controls/codeControl";
 import { SelectEventHandlerControl } from "comps/controls/eventHandlerControl";
+import { selectInputValidate } from "../selectInputComp/selectInputConstants";
 import { BoolControl } from "comps/controls/boolControl";
-import { stateComp } from "comps/generators/simpleGenerators";
+import { stateComp, withDefault } from "comps/generators/simpleGenerators";
 import { trans } from "i18n";
 import {
   allowClearPropertyView,
@@ -34,6 +34,8 @@ import {
 } from "comps/utils/propertyUtils";
 import { BaseSelectRef } from "rc-select";
 import { RefControl } from "comps/controls/refControl";
+import { useContext } from "react";
+import { EditorContext } from "comps/editorState";
 
 const StyledTreeSelect = styled(TreeSelect)<{ $style: TreeSelectStyleType }>`
   width: 100%;
@@ -57,7 +59,7 @@ const childrenMap = {
   selectType: dropdownControl(selectTypeOptions, "single"),
   checkedStrategy: dropdownControl(checkedStrategyOptions, "parent"),
   label: LabelControl,
-  placeholder: StringControl,
+  placeholder: withDefault(StringControl, trans("tree.placeholder")),
   // TODO: more event
   onEvent: SelectEventHandlerControl,
   allowClear: BoolControl,
@@ -144,21 +146,43 @@ let TreeBasicComp = (function () {
       <>
         <Section name={sectionNames.basic}>
           {treeDataPropertyView(children)}
-          {children.selectType.propertyView({ label: trans("tree.selectType") })}
-          {valuePropertyView(children)}
-          {children.selectType.getView() === "check" &&
-            children.checkedStrategy.propertyView({ label: trans("tree.checkedStrategy") })}
           {placeholderPropertyView(children)}
         </Section>
-        {formSection(children)}
-        {children.label.getPropertyView()}
-        {expandSection(children)}
-        {intersectSection(children, children.onEvent.getPropertyView())}
-        {advancedSection(children, [
-          allowClearPropertyView(children),
-          showSearchPropertyView(children),
-        ])}
-        <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
+
+        {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+          <><SelectInputValidationSection {...children} />
+            {formSection(children)}
+            <Section name={sectionNames.interaction}>
+              {children.onEvent.getPropertyView()}
+              {children.hidden.propertyView({ label: trans("prop.hide") })}
+              {children.disabled.propertyView({ label: trans("prop.disabled") })}
+              {children.selectType.propertyView({ label: trans("tree.selectType") })}
+              {valuePropertyView(children)}
+              {children.selectType.getView() === "check" &&
+                children.checkedStrategy.propertyView({ label: trans("tree.checkedStrategy") })}
+              {allowClearPropertyView(children)}
+              {showSearchPropertyView(children)}
+            </Section>
+          </>
+        )}
+      
+        {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+          <Section name={sectionNames.layout}>
+            {children.expanded.propertyView({ label: trans("tree.expanded") })}
+            {children.defaultExpandAll.propertyView({ label: trans("tree.defaultExpandAll") })}
+            {children.showLine.propertyView({ label: trans("tree.showLine") })}
+            {children.showLine.getView() && children.showLeafIcon.propertyView({ label: trans("tree.showLeafIcon") })}
+          </Section>
+        )}
+
+        {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && ( children.label.getPropertyView() )}
+
+        {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+          <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
+        )}
+
+
+
       </>
     ))
     .setExposeMethodConfigs(baseSelectRefMethods)

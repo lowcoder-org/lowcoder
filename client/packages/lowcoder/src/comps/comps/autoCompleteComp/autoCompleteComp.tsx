@@ -103,7 +103,7 @@ const childrenMap = {
   searchCompletePY: BoolControl,
   searchLabelOnly: BoolControl.DEFAULT_TRUE,
   valueOrLabel: dropdownControl(valueOrLabelOption, "label"),
-  autoCompleteType: dropdownControl(autoCompleteType, "AntDesign"),
+  autoCompleteType: dropdownControl(autoCompleteType, "normal"),
   autocompleteIconColor: dropdownControl(autocompleteIconColor, "blue"),
   componentSize: dropdownControl(componentSize, "small"),
   valueInItems: booleanExposingStateControl("valueInItems"),

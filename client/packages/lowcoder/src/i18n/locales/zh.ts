@@ -167,6 +167,7 @@ prop: {
     customRuleTooltip: "如果结果是非空字符串,则为错误消息.如果为空或null,则验证通过.\n示例:",
     manual: "手动",
     map: "映射",
+    json: "JSON",
     use12Hours: "使用12小时制",
     hourStep: "小时步长",
     minuteStep: "分钟步长",
@@ -292,14 +293,16 @@ themeDetail: {
 },
 style: {
     resetTooltip: "重置样式.删除输入框的值以重置单个字段.",
+    textColor: "文字颜色",
     contrastText: "对比文本颜色",
     generated: "已生成",
     customize: "自定义",
     staticText: "静态文本",
     accent: "强调色",
     validate: "验证消息",
-    border: "边框",
+    border: "边框颜色",
     borderRadius: "边框半径",
+    borderWidth: "边框宽度",
     background: "背景",
     headerBackground: "头部背景",
     footerBackground: "底部背景",
@@ -341,6 +344,7 @@ style: {
     containerfooterpadding: "下内边距",
     containerbodypadding: "内边距",
     minWidth: "最小宽度",
+    textSize: "字体大小",
 },
 export: {
     hiddenDesc: "如果为true,则隐藏组件",
@@ -852,6 +856,7 @@ uiComp: {
 },
 comp: {
     menuViewDocs: "查看文档",
+    menuViewPlayground: "查看组件游乐场",
     menuUpgradeToLatest: "升级到最新版本",
     nameNotEmpty: "不能为空",
     nameRegex: "必须以字母开头,只能包含字母、数字和下划线(_)",
@@ -1169,6 +1174,10 @@ table: {
     type: "类型",
     tableSize: "表格尺寸",
     hideHeader: "隐藏表头",
+    fixedHeader: "固定表头",
+    fixedHeaderTooltip: "垂直滚动表格的标题将被固定",
+    fixedToolbar: "固定工具栏",
+    fixedToolbarTooltip: "工具栏将根据所选位置固定为垂直滚动表格",
     hideBordered: "隐藏列边框",
     deleteColumn: "删除列",
     confirmDeleteColumn: "确认删除列:",
@@ -1195,15 +1204,20 @@ table: {
     cancelChanges: "取消更改",
     rowSelectChange: "行选中变化",
     rowClick: "行点击",
+    rowExpand: "行展开",
     filterChange: "筛选变化",
     sortChange: "排序变化",
     pageChange: "分页变化",
     refresh: "刷新",
-    rowColor: "行颜色",
+    rowColor: "条件行颜色",
     rowColorDesc:
         "基于可选变量条件设置行颜色:\n" +
         "currentRow, currentOriginalIndex, currentIndex, columnTitle.\n" +
         "例如:'{{ currentRow.id > 3 ? \"green\" : \"red\" }}'",
+    cellColor: "条件单元格颜色",
+    cellColorDesc:
+        "使用 currentCell 根据单元格值有条件地设置单元格颜色:\n" +
+        "例如:'{{ currentCell == 3 ? \"green\" : \"red\" }}'",
     saveChangesNotBind:
         "未配置保存更改的事件处理程序.请在点击之前绑定至少一个事件处理程序.",
     dynamicColumn: "使用动态列设置",
@@ -1279,7 +1293,7 @@ jsonExplorer: {
 },
 audio: {
     src: "音频链接",
-    defaultSrcUrl: "https://cdn-files.lowcoder.cloud/canon-excerpt.mp3",
+    defaultSrcUrl: "https://cdn.pixabay.com/audio/2023/07/06/audio_e12e5bea9d.mp3",
     autoPlay: "自动播放",
     loop: "循环播放",
     srcDesc: "当前音频链接",
@@ -2106,7 +2120,7 @@ toggleButton: {
 },
 docUrls: {
     docHome: "https://docs.lowcoder.cloud/",
-    components: "https://app.lowcoder.cloud/components?n={compType}",
+    components: "https://app.lowcoder.cloud/components/{compType}",
     module: "",
     optionList: "",
     terms: "",
@@ -2391,6 +2405,7 @@ componentDoc: {
     justify: "两端对齐",
 },
 playground: {
+    url: "https://app.lowcoder.cloud/playground/{compType}/1",
     data: "数据",
     preview: "预览",
     property: "属性",
@@ -2557,6 +2572,15 @@ timeLine: {
         matchColumnsHeight: "匹配列高度",
         rowLayout: "行布局",
         columnsLayout: "栏目布局",
+    },
+    navLayout: {
+        mode: "模式",
+        modeInline: "排队",
+        modeVertical: "垂直的",
+        width: "宽度",
+        widthTooltip: "数字或百分比,例如 520,60%",
+        navStyle: "菜单风格",
+        navItemStyle: "菜单项样式",
     }
 };
 

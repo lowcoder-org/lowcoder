@@ -103,7 +103,7 @@ const useAgora = () => {
       const videoHeight = videoSettings.height;
       setWidth(videoWidth!);
       setHeight(videoHeight!);
-      console.log(`Video width: ${videoWidth}px, height: ${videoHeight}px`);
+      // console.log(`Video width: ${videoWidth}px, height: ${videoHeight}px`);
     } else {
       console.error("Media stream track not found");
     }

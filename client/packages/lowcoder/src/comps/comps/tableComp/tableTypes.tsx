@@ -6,11 +6,13 @@ import {
   BoolCodeControl,
   ColorOrBoolCodeControl,
   JSONObjectArrayControl,
+  RadiusControl,
+  StringControl,
 } from "comps/controls/codeControl";
 import { dropdownControl } from "comps/controls/dropdownControl";
 import { eventHandlerControl } from "comps/controls/eventHandlerControl";
 import { styleControl } from "comps/controls/styleControl";
-import { TableStyle } from "comps/controls/styleControlConstants";
+import { TableColumnStyle, TableRowStyle, TableStyle } from "comps/controls/styleControlConstants";
 import {
   MultiCompBuilder,
   stateComp,
@@ -32,6 +34,7 @@ import { JSONObject } from "util/jsonTypes";
 import { ExpansionControl } from "./expansionControl";
 import { PaginationControl } from "./paginationControl";
 import { SelectionControl } from "./selectionControl";
+import { AutoHeightControl } from "comps/controls/autoHeightControl";
 
 const sizeOptions = [
   {
@@ -68,6 +71,11 @@ export const TableEventOptions = [
     label: trans("table.rowClick"),
     value: "rowClick",
     description: trans("table.rowClick"),
+  },
+  {
+    label: trans("table.rowExpand"),
+    value: "rowExpand",
+    description: trans("table.rowExpand"),
   },
   {
     label: trans("table.filterChange"),
@@ -129,6 +137,8 @@ export type RowColorViewType = (param: {
 const tableChildrenMap = {
   hideBordered: BoolControl,
   hideHeader: BoolControl,
+  fixedHeader: BoolControl,
+  autoHeight: withDefault(AutoHeightControl, "auto"),
   data: withIsLoadingMethod(JSONObjectArrayControl),
   showDataLoadSpinner: withDefault(BoolPureControl, true),
   columns: ColumnListComp,
@@ -138,6 +148,9 @@ const tableChildrenMap = {
   sort: valueComp<Array<SortValue>>([]),
   toolbar: TableToolbarComp,
   style: styleControl(TableStyle),
+  rowStyle: styleControl(TableRowStyle),
+  searchText: StringControl,
+  columnsStyle: withDefault(styleControl(TableColumnStyle), {radius: '0px'}),
   viewModeResizable: BoolControl,
   // sample data for regenerating columns
   dataRowExample: stateComp<JSONObject | null>(null),

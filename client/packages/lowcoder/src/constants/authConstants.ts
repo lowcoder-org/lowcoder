@@ -22,9 +22,14 @@ import {
 export type AuthInviteInfo = InviteInfo & { invitationId: string };
 export type AuthLocationState = { inviteInfo?: AuthInviteInfo; thirdPartyAuthError?: boolean };
 
-export const AuthSearchParams = {
-  loginType: "loginType",
-  redirectUrl: "redirectUrl",
+export enum AuthSearchParams {
+  loginType = "loginType",
+  redirectUrl = "redirectUrl",
+};
+
+export type AuthSearchParamsType = {
+  loginType: string | null,
+  redirectUrl: string | null,
 };
 
 export type OauthRequestParam = {

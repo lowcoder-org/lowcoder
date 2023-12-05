@@ -13,6 +13,7 @@ import { BottomResComp, BottomResCompResult, BottomResTypeEnum } from "types/bot
 import { JSONObject } from "util/jsonTypes";
 import { QueryTutorials } from "util/tutorialUtils";
 import { SimpleNameComp } from "./simpleNameComp";
+import { markdownCompCss, TacoMarkDown } from "lowcoder-design";
 
 const TemporaryStateItemCompBase = new MultiCompBuilder(
   {
@@ -34,9 +35,9 @@ const TemporaryStateItemCompBase = new MultiCompBuilder(
               tooltip: trans("temporaryState.valueTooltip"),
               placement: "bottom",
               extraChildren: QueryTutorials.tempState && (
-                <DocLink style={{ marginTop: 8 }} href={QueryTutorials.tempState}>
+                <><br/><TacoMarkDown>{trans("temporaryState.documentationText")}</TacoMarkDown><br/><DocLink style={{ marginTop: 8 }} href={QueryTutorials.tempState} title={trans("temporaryState.documentationText")}>
                   {trans("temporaryState.docLink")}
-                </DocLink>
+                </DocLink></>
               ),
             }),
           },

@@ -5,7 +5,7 @@ import { spawn } from "cross-spawn";
 import { writeFileSync, existsSync } from "node:fs";
 import chalk from "chalk";
 import { createCommand } from "commander";
-import { readJson, currentDirName } from "lowcoder-dev-utils/util.js";
+import { readJson, currentDirName } from "../lowcoder-dev-utils/util.js";
 
 const currentDir = currentDirName(import.meta.url);
 const pkg = readJson(path.resolve(currentDir, "./package.json"));

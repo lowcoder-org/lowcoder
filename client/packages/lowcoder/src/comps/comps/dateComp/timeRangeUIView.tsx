@@ -23,11 +23,21 @@ const TimeRangeMobileUIView = React.lazy(() =>
 export interface TimeRangeUIViewProps extends TimeCompViewProps {
   start: dayjs.Dayjs | null;
   end: dayjs.Dayjs | null;
+  placeholder?: string | [string, string];
   onChange: (start?: dayjs.Dayjs | null, end?: dayjs.Dayjs | null) => void;
 }
 
 export const TimeRangeUIView = (props: TimeRangeUIViewProps) => {
   const editorState = useContext(EditorContext);
+
+  // Extract or compute the placeholder values
+  let placeholders: [string, string];
+  if (Array.isArray(props.placeholder)) {
+    placeholders = props.placeholder;
+  } else {
+    // Use the same placeholder for both start and end if it's a single string
+    placeholders = [props.placeholder || 'Start Date', props.placeholder || 'End Date'];
+  }
 
   return useUIView(
     <TimeRangeMobileUIView {...props} />,
@@ -41,6 +51,7 @@ export const TimeRangeUIView = (props: TimeRangeUIViewProps) => {
       }}
       inputReadOnly={checkIsMobile(editorState?.getAppSettings().maxWidth)}
       suffixIcon={hasIcon(props.suffixIcon) && props.suffixIcon}
+      placeholder={placeholders}
     />
   );
 };

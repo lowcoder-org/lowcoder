@@ -37,7 +37,7 @@ function CreateModal(props: CreateModalProp) {
 
   const handleOk = () => {
     form.validateFields().then(values => {
-      console.log(values)
+      // console.log(values)
       saveAuthProvider(values)
     })
   }
@@ -176,39 +176,6 @@ function CreateModal(props: CreateModalProp) {
             </div>
           );
         })}
-        {/* <Form.Item
-          name="clientId"
-          label="Client ID"
-          rules={[{ required: true }]}
-        >
-          <Input
-            placeholder={trans("idSource.formPlaceholder", {
-              label: 'Client ID',
-            })}
-            autoComplete="off"
-          />
-        </Form.Item>
-        <Form.Item
-          name="clientSecret"
-          label={
-            <PasswordLabel>
-              <span>{"Client secret"}:</span>
-              <CloseEyeIcon />
-            </PasswordLabel>
-          }
-          rules={[{
-            required: true,
-            message: trans("idSource.formPlaceholder", {
-              label: 'Client secret',
-            })
-          }]}
-        >
-          <Input
-            type="password"
-            placeholder={trans("idSource.encryptedServer")}
-            autoComplete="off"
-          />
-        </Form.Item> */}
       </FormStyled>
     </CustomModalStyled>
   );

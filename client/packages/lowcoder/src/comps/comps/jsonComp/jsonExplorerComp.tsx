@@ -9,6 +9,8 @@ import { dropdownControl } from "comps/controls/dropdownControl";
 import { ArrayOrJSONObjectControl, NumberControl } from "comps/controls/codeControl";
 import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
+import { EditorContext } from "comps/editorState";
+import { useContext } from "react";
 
 /**
  * JsonExplorer Comp
@@ -64,20 +66,29 @@ let JsonExplorerTmpComp = (function () {
       return (
         <>
           <Section name={sectionNames.basic}>
-            {children.value.propertyView({
-              label: trans("data"),
-            })}
-            {children.indent.propertyView({ label: trans("jsonExplorer.indent") })}
-            {children.expandToggle.propertyView({ label: trans("jsonExplorer.expandToggle") })}
+            {children.value.propertyView({ label: trans("export.jsonEditorDesc") })}
           </Section>
 
-          <Section name={sectionNames.style}>
-            {children.theme.propertyView({
-              label: trans("jsonExplorer.theme"),
-            })}
-          </Section>
+          {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
+            <Section name={sectionNames.interaction}>
+              {hiddenPropertyView(children)}
+              {children.expandToggle.propertyView({ label: trans("jsonExplorer.expandToggle") })}
+            </Section>
+          )}
 
-          <Section name={sectionNames.layout}>{hiddenPropertyView(children)}</Section>
+          {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
+            <Section name={sectionNames.advanced}>
+              {children.indent.propertyView({ label: trans("jsonExplorer.indent") })}
+            </Section>
+          )}
+
+          {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
+            <Section name={sectionNames.style}>
+              {children.theme.propertyView({
+                label: trans("jsonExplorer.theme"),
+              })}
+            </Section>
+          )}
         </>
       );
     })

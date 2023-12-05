@@ -43,7 +43,6 @@ import {
   textInputValidate,
 } from "../textInputComp/textInputConstants";
 import { jsonControl } from "@lowcoder-ee/comps/controls/codeControl";
-// 事件控制
 import {
   submitEvent,
   eventHandlerControl,
@@ -52,6 +51,9 @@ import {
   blurEvent,
   changeEvent
 } from "comps/controls/eventHandlerControl";
+
+import React, { useContext } from "react";
+import { EditorContext } from "comps/editorState";
 
 const Wrapper = styled.div<{
   $style: InputLikeStyleType;
@@ -99,8 +101,7 @@ let MentionTmpComp = (function () {
     const [activationFlag, setActivationFlag] = useState(false);
     const [prefix, setPrefix] = useState<PrefixType>("@");
     type PrefixType = "@" | keyof typeof mentionList;
-
-    // 获取提及搜索关键字
+    
     const onSearch = (_: string, newPrefix: PrefixType) => {
       setPrefix(newPrefix);
     };
@@ -204,44 +205,46 @@ let MentionTmpComp = (function () {
     .setPropertyViewFn((children) => (
       <>
         <Section name={sectionNames.basic}>
-          {children.mentionList.propertyView({
-            label: trans("mention.mentionList"),
-          })}
           {children.value.propertyView({ label: trans("prop.defaultValue") })}
           {children.placeholder.propertyView({
             label: trans("prop.placeholder"),
           })}
+          {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+            children.mentionList.propertyView({
+              label: trans("mention.mentionList"),
+            })
+          )}
         </Section>
         <FormDataPropertyView {...children} />
-        {children.label.getPropertyView()}
 
-        <Section name={sectionNames.interaction}>
-          {children.onEvent.getPropertyView()}
-          {disabledPropertyView(children)}
-        </Section>
+        {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+          children.label.getPropertyView()
+        )}
 
-        <Section name={sectionNames.advanced}>
-          {readOnlyPropertyView(children)}
-        </Section>
+        {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+        <><Section name={sectionNames.interaction}>
+            {children.onEvent.getPropertyView()}
+            {disabledPropertyView(children)}
+          </Section>
+          <Section name={sectionNames.layout}>{hiddenPropertyView(children)}</Section>
+          <Section name={sectionNames.advanced}>
+              {readOnlyPropertyView(children)}
+            </Section><Section name={sectionNames.validation}>
+              {requiredPropertyView(children)}
+              {children.validationType.propertyView({
+                label: trans("prop.textType"),
+              })}
+              {minLengthPropertyView(children)}
+              {maxLengthPropertyView(children)}
+              {children.customRule.propertyView({})}
+            </Section></>
+        )}
 
-        <Section name={sectionNames.validation}>
-          {requiredPropertyView(children)}
-          {children.validationType.propertyView({
-            label: trans("prop.textType"),
-          })}
-          {minLengthPropertyView(children)}
-          {maxLengthPropertyView(children)}
-          {children.customRule.propertyView({})}
-        </Section>
-
-        <Section name={sectionNames.layout}>
-          {children.autoHeight.getPropertyView()}
-          {hiddenPropertyView(children)}
-        </Section>
-
-        <Section name={sectionNames.style}>
-          {children.style.getPropertyView()}
-        </Section>
+        {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+        <><Section name={sectionNames.style}>
+              {children.style.getPropertyView()}
+            </Section></>
+        )}
       </>
     ))
     .build();

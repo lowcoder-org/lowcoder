@@ -19,6 +19,8 @@ import { ToggleButtonStyle } from "comps/controls/styleControlConstants";
 import { styleControl } from "comps/controls/styleControl";
 import { BoolControl } from "comps/controls/boolControl";
 import { RefControl } from "comps/controls/refControl";
+import React, { useContext } from "react";
+import { EditorContext } from "comps/editorState"; 
 
 const IconWrapper = styled.div`
   display: flex;
@@ -90,38 +92,43 @@ const ToggleTmpComp = (function () {
             label: trans("prop.defaultValue"),
             tooltip: trans("toggleButton.valueDesc"),
           })}
-          {children.showText.propertyView({ label: trans("toggleButton.showText") })}
-          {children.showText.getView() &&
-            children.trueText.propertyView({ label: trans("toggleButton.trueLabel") })}
-          {children.showText.getView() &&
-            children.falseText.propertyView({ label: trans("toggleButton.falseLabel") })}
         </Section>
 
-        <Section name={sectionNames.interaction}>
-          {children.onEvent.getPropertyView()}
-          {disabledPropertyView(children)}
-          {loadingPropertyView(children)}
-        </Section>
+        {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
+          <><Section name={sectionNames.interaction}>
+              {children.onEvent.getPropertyView()}
+              {disabledPropertyView(children)}
+              {hiddenPropertyView(children)}
+              {loadingPropertyView(children)}
+            </Section>
+            <Section name={sectionNames.advanced}>
+              {children.showText.propertyView({ label: trans("toggleButton.showText") })}
+              {children.showText.getView() && 
+                children.trueText.propertyView({ label: trans("toggleButton.trueLabel") })}
+              {children.showText.getView() &&
+                children.falseText.propertyView({ label: trans("toggleButton.falseLabel") })}
+              {children.trueIcon.propertyView({ label: trans("toggleButton.trueIconLabel") })}
+              {children.falseIcon.propertyView({ label: trans("toggleButton.falseIconLabel") })}
+              {children.showText.getView() &&
+                children.iconPosition.propertyView({
+                  label: trans("toggleButton.iconPosition"),
+                  radioButton: true,
+              })}
+              {children.alignment.propertyView({
+                label: trans("toggleButton.alignment"),
+                radioButton: true,
+              })}
+            </Section>
+          </>
+        )}
 
-        <Section name={sectionNames.layout}>
-          {children.trueIcon.propertyView({ label: trans("toggleButton.trueIconLabel") })}
-          {children.falseIcon.propertyView({ label: trans("toggleButton.falseIconLabel") })}
-          {children.showText.getView() &&
-            children.iconPosition.propertyView({
-              label: trans("toggleButton.iconPosition"),
-              radioButton: true,
-            })}
-          {children.alignment.propertyView({
-            label: trans("toggleButton.alignment"),
-            radioButton: true,
-          })}
-          {hiddenPropertyView(children)}
-        </Section>
+        {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
+          <><Section name={sectionNames.style}>
+            {children.showBorder.propertyView({ label: trans("toggleButton.showBorder") })}
+            {children.style.getPropertyView()}
+          </Section></>
+        )}
 
-        <Section name={sectionNames.style}>
-          {children.showBorder.propertyView({ label: trans("toggleButton.showBorder") })}
-          {children.style.getPropertyView()}
-        </Section>
       </>
     ))
     .setExposeMethodConfigs(buttonRefMethods)

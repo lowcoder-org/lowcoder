@@ -50,6 +50,9 @@ import {
   setSelectionRangeMethod,
 } from "comps/utils/methodUtils";
 
+import { useContext } from "react";
+import { EditorContext } from "comps/editorState";
+
 const getStyle = (style: InputLikeStyleType) => {
   return css`
     border-radius: ${style.radius};
@@ -363,39 +366,48 @@ const NumberInputTmpComp = (function () {
           {children.value.propertyView({ label: trans("prop.defaultValue") })}
           {placeholderPropertyView(children)}
           {children.formatter.propertyView({ label: trans("numberInput.formatter") })}
-          {children.precision.propertyView({ label: trans("numberInput.precision") })}
-          {children.allowNull.propertyView({ label: trans("numberInput.allowNull") })}
-          {children.thousandsSeparator.propertyView({
-            label: trans("numberInput.thousandsSeparator"),
-          })}
-          {children.controls.propertyView({ label: trans("numberInput.controls") })}
         </Section>
 
         <FormDataPropertyView {...children} />
 
-        {children.label.getPropertyView()}
+        {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
+          <><Section name={sectionNames.validation}>
+            {requiredPropertyView(children)}
+            {children.min.propertyView({ label: trans("prop.minimum") })}
+            {children.max.propertyView({ label: trans("prop.maximum") })}
+            {children.customRule.propertyView({})}
+          </Section>
+          <Section name={sectionNames.interaction}>
+            {children.onEvent.getPropertyView()}
+            {disabledPropertyView(children)}
+            {hiddenPropertyView(children)}
+          </Section>
+          </>
+        )}
+ 
+        {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && ( 
+          children.label.getPropertyView()
+        )}
 
-        <Section name={sectionNames.interaction}>
-          {children.onEvent.getPropertyView()}
-          {disabledPropertyView(children)}
-        </Section>
+        {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
+          <Section name={sectionNames.advanced}>
+            {children.step.propertyView({ label: trans("numberInput.step") })}
+            {children.precision.propertyView({ label: trans("numberInput.precision") })}
+            {children.prefixIcon.propertyView({ label: trans("button.prefixIcon") })}
+            {children.allowNull.propertyView({ label: trans("numberInput.allowNull") })}
+            {children.thousandsSeparator.propertyView({
+              label: trans("numberInput.thousandsSeparator"),
+            })}
+            {children.controls.propertyView({ label: trans("numberInput.controls") })}
+            {readOnlyPropertyView(children)}
+          </Section>
+        )}
 
-        <Section name={sectionNames.advanced}>
-          {children.step.propertyView({ label: trans("numberInput.step") })}
-          {readOnlyPropertyView(children)}
-          {children.prefixIcon.propertyView({ label: trans("button.prefixIcon") })}
-        </Section>
-
-        <Section name={sectionNames.validation}>
-          {requiredPropertyView(children)}
-          {children.min.propertyView({ label: trans("prop.minimum") })}
-          {children.max.propertyView({ label: trans("prop.maximum") })}
-          {children.customRule.propertyView({})}
-        </Section>
-
-        <Section name={sectionNames.layout}>{hiddenPropertyView(children)}</Section>
-
-        <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
+        {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
+          <Section name={sectionNames.style}>
+            {children.style.getPropertyView()}
+          </Section>
+        )}
       </>
     ))
     .build();

@@ -47,6 +47,7 @@ export interface ThemeDetail {
   margin?: string;	
   padding?: string;
   gridColumns?: string; //Added By Aqib Mirza
+  textSize?: string;
 }
 
 export function getThemeDetailName(key: keyof ThemeDetail) {
@@ -70,6 +71,8 @@ export function getThemeDetailName(key: keyof ThemeDetail) {
     //Added By Aqib Mirza
     case "gridColumns":
       return trans("themeDetail.gridColumns");
+    case "textSize":
+      return trans("style.textSize");
   }
   return "";
 }
@@ -84,6 +87,7 @@ export function isThemeColorKey(key: string) {
     case "margin":	
     case "padding":
     case "gridColumns": //Added By Aqib Mirza
+    case "textSize":
       return true;
   }
   return false;

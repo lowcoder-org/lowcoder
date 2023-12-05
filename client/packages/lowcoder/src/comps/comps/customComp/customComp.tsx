@@ -5,12 +5,17 @@ import { jsonObjectStateControl } from "comps/controls/codeStateControl";
 import { UICompBuilder, withDefault } from "comps/generators";
 import { NameConfig, NameConfigHidden, withExposingConfigs } from "comps/generators/withExposing";
 import { Section, sectionNames } from "lowcoder-design";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useContext } from "react";
 import styled from "styled-components";
 import { getPromiseAfterDispatch } from "util/promiseUtils";
 import { EventData, EventTypeEnum } from "./types";
 import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
+import { EditorContext } from "comps/editorState";
+
+// TODO: eventually to embedd in container so we have styling?
+// TODO: support different starter templates for different frameworks (react, ANT, Flutter, Angular, etc)
+// TODO: use modern version of ANTd
 
 const defaultModel = {
   name: "{{currentUser.name}}",
@@ -218,11 +223,14 @@ const CustomCompBase = new UICompBuilder(childrenMap, (props, dispatch) => {
   .setPropertyViewFn((children) => {
     return (
       <>
-        <Section name={sectionNames.basic}>
-          {children.model.propertyView({ label: trans("data") })}
-          {children.code.propertyView({ label: trans("code"), language: "html" })}
-        </Section>
-        <Section name={sectionNames.layout}>{hiddenPropertyView(children)}</Section>
+        {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
+          <><Section name={sectionNames.interaction}>
+              {children.model.propertyView({ label: trans("customComp.data") })}
+              {children.code.propertyView({ label: trans("customComp.code"), language: "html" })}
+              {hiddenPropertyView(children)}
+            </Section>
+          </>
+        )}  
       </>
     );
   })

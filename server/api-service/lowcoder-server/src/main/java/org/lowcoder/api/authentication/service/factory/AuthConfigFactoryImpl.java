@@ -71,7 +71,8 @@ public class AuthConfigFactoryImpl implements AuthConfigFactory {
                 org.lowcoder.sdk.constants.AuthSourceConstants.ORY_NAME,
                 requireNonNull(authConfigRequest.getClientId(), "clientId can not be null."),
                 authConfigRequest.getClientSecret(),
-                authConfigRequest.getInstanceId(),
+                authConfigRequest.getString("baseUrl"),
+                authConfigRequest.getString("scope"),
                 authConfigRequest.getAuthType());
     }
     
@@ -84,8 +85,9 @@ public class AuthConfigFactoryImpl implements AuthConfigFactory {
                 org.lowcoder.sdk.constants.AuthSourceConstants.KEYCLOAK_NAME,
                 requireNonNull(authConfigRequest.getClientId(), "clientId can not be null."),
                 authConfigRequest.getClientSecret(),
-                authConfigRequest.getInstanceId(),
+                authConfigRequest.getString("baseUrl"),
                 authConfigRequest.getString("realm"),
+                authConfigRequest.getString("scope"),
                 authConfigRequest.getAuthType());
     }
     

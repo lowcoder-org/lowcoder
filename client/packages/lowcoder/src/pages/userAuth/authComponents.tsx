@@ -203,11 +203,11 @@ export const TermsAndPrivacyInfo = (props: { onCheckChange: (e: CheckboxChangeEv
     <TermsAndPrivacyContent>
       <CheckBox defaultChecked onChange={(e) => props.onCheckChange(e)} />
       <TermsAndPrivacyLabel>
-        {trans("userAuth.registerHint")}
+        {trans("userAuth.registerHint")}{`: `}
         <StyledLink href={termsUrl} target="_blank">
           {trans("userAuth.terms")}
         </StyledLink>
-        {` `}
+        {` & `}
         <StyledLink href={privacyUrl} target="_blank">
           {trans("userAuth.privacy")}
         </StyledLink>

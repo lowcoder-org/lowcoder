@@ -23,12 +23,22 @@ const DateRangeMobileUIView = React.lazy(() =>
 export interface DateRangeUIViewProps extends DateCompViewProps {
   start: dayjs.Dayjs | null;
   end: dayjs.Dayjs | null;
+  placeholder?: string | [string, string];
   onChange: (start?: dayjs.Dayjs | null, end?: dayjs.Dayjs | null) => void;
   onPanelChange: (value: any, mode: [string, string]) => void;
 }
 
 export const DateRangeUIView = (props: DateRangeUIViewProps) => {
   const editorState = useContext(EditorContext);
+
+  // Extract or compute the placeholder values
+  let placeholders: [string, string];
+  if (Array.isArray(props.placeholder)) {
+    placeholders = props.placeholder;
+  } else {
+    // Use the same placeholder for both start and end if it's a single string
+    placeholders = [props.placeholder || 'Start Date', props.placeholder || 'End Date'];
+  }
 
   return useUIView(
     <DateRangeMobileUIView {...props} />,
@@ -42,6 +52,7 @@ export const DateRangeUIView = (props: DateRangeUIViewProps) => {
       }}
       inputReadOnly={checkIsMobile(editorState?.getAppSettings().maxWidth)}
       suffixIcon={hasIcon(props.suffixIcon) && props.suffixIcon}
+      placeholder={placeholders}
     />
   );
 };

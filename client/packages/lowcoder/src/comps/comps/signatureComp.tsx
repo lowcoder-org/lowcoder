@@ -25,12 +25,15 @@ import { UICompBuilder } from "../generators";
 import { NameConfig, NameConfigHidden, withExposingConfigs } from "../generators/withExposing";
 import { formDataChildren, FormDataPropertyView } from "./formComp/formDataConstants";
 
+import { useContext } from "react";
+import { EditorContext } from "comps/editorState";
+
 const Wrapper = styled.div<{ $style: SignatureStyleType; isEmpty: boolean }>`
   height: 100%;
   display: flex;
   flex-direction: column;
   position: relative;
-  border: 1px solid ${(props) => props.$style.border};
+  border: ${(props) => (props.$style.borderWidth ? props.$style.borderWidth : "1px")} solid ${(props) => props.$style.border};
   border-radius: ${(props) => props.$style.radius};
   overflow: hidden;
   width: 100%;
@@ -198,15 +201,27 @@ let SignatureTmpComp = (function () {
           <Section name={sectionNames.basic}>
             {children.tips.propertyView({ label: trans("signature.tips") })}
           </Section>
+
           <FormDataPropertyView {...children} />
-          {children.label.getPropertyView()}
-          <Section name={sectionNames.interaction}>{children.onEvent.getPropertyView()}</Section>
-          <Section name={sectionNames.layout}>
-            {children.showUndo.propertyView({ label: trans("signature.showUndo") })}
-            {children.showClear.propertyView({ label: trans("signature.showClear") })}
-            {hiddenPropertyView(children)}
-          </Section>
-          <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
+
+          {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+            <Section name={sectionNames.interaction}>
+              {children.onEvent.getPropertyView()}
+              {hiddenPropertyView(children)}
+              {children.showUndo.propertyView({ label: trans("signature.showUndo") })}
+              {children.showClear.propertyView({ label: trans("signature.showClear") })}
+            </Section>
+          )}
+
+          {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+            children.label.getPropertyView()
+          )}
+
+          {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+            <Section name={sectionNames.style}>
+              {children.style.getPropertyView()}
+            </Section>
+          )}
         </>
       );
     })

@@ -62,6 +62,9 @@ import { Timeline } from "antd";
 
 import { ANTDICON } from "./antIcon"; // todo: select icons to not import all icons
 
+import { useContext } from "react";
+import { EditorContext } from "comps/editorState"; 
+
 const EventOptions = [
   clickEvent,
 ] as const;
@@ -167,24 +170,34 @@ let TimeLineBasicComp = (function () {
             tooltip: TimelineDataTooltip,
             placeholder: "[]",
           })}
-          {children.mode.propertyView({
-            label: trans("timeLine.mode"),
-            tooltip: trans("timeLine.modeTooltip"),
-          })}
-          {children.reverse.propertyView({
-            label: trans("timeLine.reverse"),
-          })}
-          {children.pending.propertyView({
-            label: trans("timeLine.pending"),
-          })}
         </Section>
-        <Section name={sectionNames.layout}>
-          {children.onEvent.getPropertyView()}
-          {hiddenPropertyView(children)}
-        </Section>
-        <Section name={sectionNames.style}>
-          {children.style.getPropertyView()}
-        </Section>
+
+        {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+          <Section name={sectionNames.interaction}>
+            {children.onEvent.getPropertyView()}
+            {hiddenPropertyView(children)}
+          </Section>
+        )}
+
+        {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+          <><Section name={sectionNames.layout}>
+              {children.mode.propertyView({
+                label: trans("timeLine.mode"),
+                tooltip: trans("timeLine.modeTooltip"),
+              })}
+              {children.pending.propertyView({
+                label: trans("timeLine.pending"),
+                tooltip: trans("timeLine.pendingDescription"),
+              })}
+              {children.reverse.propertyView({
+                label: trans("timeLine.reverse"),
+              })}
+            </Section>
+            <Section name={sectionNames.style}>
+              {children.style.getPropertyView()}
+            </Section>
+          </>
+        )}
       </>
     ))
     .build();
