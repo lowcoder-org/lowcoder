@@ -3838,14 +3838,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@testing-library/user-event@npm:^13.2.1":
-  version: 13.5.0
-  resolution: "@testing-library/user-event@npm:13.5.0"
-  dependencies:
-    "@babel/runtime": ^7.12.5
+"@testing-library/user-event@npm:^14.5.1":
+  version: 14.5.1
+  resolution: "@testing-library/user-event@npm:14.5.1"
   peerDependencies:
     "@testing-library/dom": ">=7.21.4"
-  checksum: 16319de685fbb7008f1ba667928f458b2d08196918002daca56996de80ef35e6d9de26e9e1ece7d00a004692b95a597cf9142fff0dc53f2f51606a776584f549
+  checksum: 3e6bc9fd53dfe2f3648190193ed2fd4bca2a1bfb47f68810df3b33f05412526e5fd5c4ef9dc5375635e0f4cdf1859916867b597eed22bda1321e04242ea6c519
   languageName: node
   linkType: hard
 
@@ -11952,7 +11950,7 @@ __metadata:
     "@rollup/plugin-typescript": ^8.5.0
     "@testing-library/jest-dom": ^5.16.5
     "@testing-library/react": ^12.0.0
-    "@testing-library/user-event": ^13.2.1
+    "@testing-library/user-event": ^14.5.1
     "@types/ali-oss": ^6.16.4
     "@types/file-saver": ^2.0.5
     "@types/jest": ^29.2.2
