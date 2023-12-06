@@ -1,14 +1,4 @@
 ##
-## Create custom JRE for running Lowcoder server application
-##
-FROM eclipse-temurin:17-jdk-jammy AS jre-build
-RUN jlink --add-modules java.base,java.compiler,java.datatransfer,java.desktop,java.instrument,java.logging,java.management,java.management.rmi,java.naming,java.net.http,java.prefs,java.rmi,java.scripting,java.se,java.security.jgss,java.security.sasl,java.smartcardio,java.sql,java.sql.rowset,java.transaction.xa,java.xml,java.xml.crypto,jdk.accessibility,jdk.charsets,jdk.crypto.cryptoki,jdk.crypto.ec,jdk.dynalink,jdk.httpserver,jdk.incubator.foreign,jdk.incubator.vector,jdk.internal.vm.ci,jdk.jdwp.agent,jdk.jfr,jdk.jsobject,jdk.localedata,jdk.management,jdk.management.agent,jdk.management.jfr,jdk.naming.dns,jdk.naming.rmi,jdk.net,jdk.nio.mapmode,jdk.sctp,jdk.security.auth,jdk.security.jgss,jdk.unsupported,jdk.xml.dom,jdk.zipfs,jdk.attach \
-          --output /build/jre \
-          --no-man-pages \
-          --no-header-files \
-          --compress=2
-
-##
 ## Build Lowcoder api-service application
 ##
 FROM maven:3.9-eclipse-temurin-17 AS build-api-service
@@ -22,9 +12,6 @@ RUN mkdir -p /lowcoder/api-service/plugins /lowcoder/api-service/config /lowcode
 # Define lowcoder main jar and plugin jars
 ARG JAR_FILE=/lowcoder-server/lowcoder-server/target/lowcoder-server-*.jar
 ARG PLUGIN_JARS=/lowcoder-server/lowcoder-plugins/*/target/*.jar
-
-# Copy Java runtime for running server
-COPY --from=jre-build /build/jre /lowcoder/api-service/jre
 
 # Copy lowcoder server application and plugins
 RUN cp ${JAR_FILE} /lowcoder/api-service/server.jar \
@@ -45,7 +32,7 @@ RUN chmod +x /lowcoder/api-service/*.sh
 ## To create a separate image out of it, build it with:
 ##   DOCKER_BUILDKIT=1 docker build -f deploy/docker/Dockerfile -t lowcoderorg/lowcoder-ce-api-service --target lowcoder-ce-api-service .
 ##
-FROM ubuntu:jammy as lowcoder-ce-api-service
+FROM eclipse-temurin:17-jammy as lowcoder-ce-api-service
 LABEL maintainer="lowcoder"
 
 RUN apt-get update && apt-get install -y --no-install-recommends gosu \
@@ -207,6 +194,7 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install --no-instal
       supervisor \
       gosu \
       nodejs \
+      openjdk-17-jdk-headless \
   && npm install -g yarn \
   && rm -rf /var/cache/apt/lists
 
