@@ -52,7 +52,7 @@
     "lint-staged": "^13.0.1",
     "lowcoder-dev-utils": "workspace:^",
     "mq-polyfill": "^1.1.8",
-    "prettier": "3.1.0",
+    "prettier": "^3.1.0",
     "rimraf": "^3.0.2",
     "rollup": "^2.79.0",
     "shelljs": "^0.8.5",
