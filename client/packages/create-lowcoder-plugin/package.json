@@ -10,6 +10,9 @@
     "fs-extra": "^10.1.0",
     "lowcoder-dev-utils": "workspace:^"
   },
+  "devDependencies": {
+    "lowcoder-dev-utils": "workspace:^"
+  },
   "license": "MIT",
   "keywords": [
     "lowcoder"

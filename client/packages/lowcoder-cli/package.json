@@ -39,8 +39,8 @@
   },
   "devDependencies": {
     "@types/axios": "^0.14.0",
-    "typescript": "^4.8.4",
-    "lowcoder-dev-utils": "workspace:^"
+    "lowcoder-dev-utils": "workspace:^",
+    "typescript": "^4.8.4"
   },
   "peerDependencies": {
     "lowcoder-sdk": "*"
