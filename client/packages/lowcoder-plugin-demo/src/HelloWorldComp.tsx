@@ -9,7 +9,9 @@ import {
   NameConfig,
   eventHandlerControl,
   withMethodExposing,
+  EditorContext,
 } from "lowcoder-sdk";
+import React, { useContext } from "react";
 
 import styles from "./styles.module.css";
 
@@ -58,7 +60,9 @@ const HelloWorldCompBase = new UICompBuilder(childrenMap, (props: any) => {
           {children.value.propertyView({ label: "Initial Value" })}
           {children.step.propertyView({ label: "Step" })}
         </Section>
-        <Section name="Interaction">{children.onEvent.propertyView()}</Section>
+        {/* {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && ( */}
+          <Section name="Interaction">{children.onEvent.propertyView()}</Section>
+        {/* {[ )} */}
       </>
     );
   })
