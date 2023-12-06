@@ -135,7 +135,7 @@ function calcColors<ColorMap extends Record<string, string>>(
       res[name] = themeWithDefault[config.radius];
     }
     if (isBorderWidthConfig(config)) {
-      res[name] = '1px';
+      res[name] = '0px';
     }
     if (isTextSizeConfig(config)) {
       // TODO: remove default textSize after added in theme in backend.

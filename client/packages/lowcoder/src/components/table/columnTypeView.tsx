@@ -1,13 +1,17 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import styled from "styled-components";
 
-const ColumnTypeViewWrapper = styled.div`
-  div {
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    word-break: keep-all;
-  }
+const ColumnTypeViewWrapper = styled.div<{
+  textOverflow?: boolean
+}>`
+  ${props => !props.textOverflow && `
+    div {
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      word-break: keep-all;
+    }
+  `}
 `;
 
 const ColumnTypeHoverView = styled.div<{
@@ -62,7 +66,10 @@ function childIsOverflow(nodes: HTMLCollection): boolean {
   return false;
 }
 
-export default function ColumnTypeView(props: { children: React.ReactNode }) {
+export default function ColumnTypeView(props: {
+  children: React.ReactNode,
+  textOverflow?: boolean,
+}) {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const hoverViewRef = useRef<HTMLDivElement>(null);
   const [isHover, setIsHover] = useState(false);
@@ -161,6 +168,7 @@ export default function ColumnTypeView(props: { children: React.ReactNode }) {
     <>
       <ColumnTypeViewWrapper
         ref={wrapperRef}
+        textOverflow={props.textOverflow}
         onMouseEnter={() => {
           delayMouseEnter();
         }}
@@ -171,7 +179,7 @@ export default function ColumnTypeView(props: { children: React.ReactNode }) {
       >
         {props.children}
       </ColumnTypeViewWrapper>
-      {isHover && hasOverflow && wrapperRef.current && (
+      {isHover && hasOverflow && wrapperRef.current && !props.textOverflow && (
         <ColumnTypeHoverView
           ref={hoverViewRef}
           visible={adjustedPosition.done}

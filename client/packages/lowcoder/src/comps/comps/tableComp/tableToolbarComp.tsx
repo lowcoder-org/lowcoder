@@ -54,14 +54,12 @@ const getStyle = (
   return css`
     background-color: ${style.toolbarBackground};
     // Implement horizontal scrollbar and vertical page number selection is not blocked
-    // padding: ${position === "above" ? "13px 16px 313px 16px" : "313px 16px 13px 16px"};
-    // margin: ${position === "above" ? "0 0 -300px 0" : "-300px 0 0 0"};
     padding: 13px 12px;
-    ${fixedToolbar && `
-      position: sticky;
-      postion: -webkit-sticky;
-      z-index: 99;
-    `};
+    position: sticky;
+    postion: -webkit-sticky;
+    left: 0;
+
+    ${fixedToolbar && `z-index: 99;`};
     ${fixedToolbar && position === 'below' && `bottom: 0;`};
     ${fixedToolbar && position === 'above' && `top: 0;` };
 

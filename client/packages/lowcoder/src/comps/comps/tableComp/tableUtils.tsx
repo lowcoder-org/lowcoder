@@ -267,7 +267,7 @@ export function columnsToAntdFormat(
   size: string,
   dynamicColumn: boolean,
   dynamicColumnConfig: Array<string>,
-  columnsAggrData: ColumnsAggrData
+  columnsAggrData: ColumnsAggrData,
 ): Array<CustomColumnType<RecordType>> {
   const sortMap: Map<string | undefined, SortOrder> = new Map(
     sort.map((s) => [s.column, s.desc ? "descend" : "ascend"])
@@ -338,7 +338,12 @@ export function columnsToAntdFormat(
             String(record[OB_ROW_ORI_INDEX])
           )
           .getView()
-          .view({ editable: column.editable, size, candidateTags: tags, candidateStatus: status });
+          .view({
+            editable: column.editable,
+            size, candidateTags: tags,
+            candidateStatus: status,
+            textOverflow: column.textOverflow,
+          });
       },
       ...(column.sortable
         ? {

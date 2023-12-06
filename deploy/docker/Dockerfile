@@ -128,6 +128,8 @@ COPY ./client /lowcoder-client
 WORKDIR /lowcoder-client
 RUN yarn --immutable
 
+# TODO: build lowcoder-comps
+
 # curl is required for yarn build to succeed, because it calls it while building client
 RUN apt-get update && apt-get install -y --no-install-recommends curl ca-certificates
 
