@@ -111,8 +111,8 @@ public class UserServiceImpl implements UserService {
         return repository.findByConnections_SourceAndConnections_RawId(source, sourceUuid);
     }
 
-    public Flux<User> findByRawId(String rawUuid) {
-        return repository.findByConnections_RawId(rawUuid);
+    public Mono<User> findByName(String rawUuid) {
+        return repository.findByName(rawUuid);
     }
 
     @Override
@@ -152,8 +152,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Flux<User> findByAuthUserRawId(AuthUser authUser) {
-        return findByRawId(authUser.getUid());
+    public Mono<User> findByAuthUserRawId(AuthUser authUser) {
+        return findByName(authUser.getUsername());
     }
 
     @Override

@@ -116,7 +116,7 @@ public class KeycloakRequest extends AbstractOauth2Request<Oauth2KeycloakAuthCon
                     }
                     AuthUser authUser = AuthUser.builder()
                             .uid(MapUtils.getString(map, "sub"))
-                            .username(MapUtils.getString(map, "name"))
+                            .username(MapUtils.getString(map, "email"))
                             .rawUserInfo(map)
                             .build();
                     return Mono.just(authUser);

@@ -34,7 +34,7 @@ public interface UserService {
 
     Mono<User> findByAuthUserSourceAndRawId(AuthUser authUser);
 
-    Flux<User> findByAuthUserRawId(AuthUser authUser);
+    Mono<User> findByAuthUserRawId(AuthUser authUser);
 
     Mono<User> createNewUserByAuthUser(AuthUser authUser);
 

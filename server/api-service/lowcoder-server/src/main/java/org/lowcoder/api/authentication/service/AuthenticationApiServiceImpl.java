@@ -208,8 +208,8 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
     }
 
     protected Mono<FindByAuthUser> findByAuthUserRawId(AuthUser authUser) {
-        return userService.findByAuthUserRawId(authUser).collectList()
-                .map(user -> new FindByAuthUser(true, user.stream().findFirst().get()))
+        return userService.findByAuthUserRawId(authUser)
+                .map(user -> new FindByAuthUser(true, user))
                 .defaultIfEmpty(new FindByAuthUser(false, null));
     }
 
