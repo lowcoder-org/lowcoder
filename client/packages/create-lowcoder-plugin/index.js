@@ -53,8 +53,6 @@ async function isDirEmpty(dir) {
 async function install(dependencies) {
   return new Promise((resolve, reject) => {
 
-    console.log("install dependencies:", dependencies);
-
     let cmd = "npm";
     let args = ["install", "--no-audit", "--save", "--save-exact", "--loglevel", "error"];
     if (isUsingYarn) {
@@ -68,8 +66,6 @@ async function install(dependencies) {
     args.push(...dependencies);
 
     const child = spawn(cmd, args, { stdio: "inherit" });
-
-    console.log("spawn child process: ", child);
 
     child.on("close", (code) => {
       if (code !== 0) {
@@ -125,8 +121,6 @@ async function createProject(projectName, options) {
     }
   }
 
-  console.log("is using yarn:", isUsingYarn);
-
   const packageJsonFile = path.resolve(root, "package.json");
   fs.ensureDirSync(root);
   process.chdir(root);
@@ -153,9 +147,6 @@ async function createProject(projectName, options) {
     "@types/react-dom@17",
     "vite",
   ]);
-
-  console.log("install packages done");
-  console.log("Now executeNodeScript");
 
   await executeNodeScript(
     {
