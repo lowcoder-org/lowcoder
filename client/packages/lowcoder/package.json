@@ -129,7 +129,7 @@
     "lowcoder-dev-utils": "workspace:^",
     "rollup-plugin-visualizer": "^5.9.2",
     "typescript": "^4.8.4",
-    "vite": "^4.3.9",
+    "vite": "^4.5.1",
     "vite-plugin-checker": "^0.5.1",
     "vite-plugin-html": "^3.2.0",
     "vite-plugin-svgr": "^2.2.2",

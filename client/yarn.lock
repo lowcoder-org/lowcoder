@@ -11905,7 +11905,7 @@ __metadata:
     lowcoder-dev-utils: "workspace:^"
     lowcoder-sdk: "workspace:^"
     typescript: ^4.8.4
-    vite: ^4.3.9
+    vite: ^4.5.1
   languageName: unknown
   linkType: soft
 
@@ -11926,7 +11926,7 @@ __metadata:
     react-json-view: ^1.21.3
     rollup-plugin-external-globals: ^0.7.1
     typescript: ^4.8.4
-    vite: ^4.3.9
+    vite: ^4.5.1
     vite-plugin-css-injected-by-js: ^2.1.1
     vite-plugin-svgr: ^2.2.2
   peerDependencies:
@@ -11960,7 +11960,7 @@ __metadata:
     react: 17
     react-dom: 17
     typescript: 4.8.4
-    vite: ^4.3.9
+    vite: ^4.5.1
     vite-tsconfig-paths: ^3.6.0
   languageName: unknown
   linkType: soft
@@ -12038,7 +12038,7 @@ __metadata:
     react: 17
     react-dom: 17
     typescript: 4.8.4
-    vite: ^4.3.9
+    vite: ^4.5.1
   languageName: unknown
   linkType: soft
 
@@ -12081,7 +12081,7 @@ __metadata:
     lowcoder-dev-utils: "workspace:^"
     mq-polyfill: ^1.1.8
     number-precision: ^1.6.0
-    prettier: 3.1.0
+    prettier: ^3.1.0
     react-player: ^2.11.0
     rimraf: ^3.0.2
     rollup: ^2.79.0
@@ -12115,7 +12115,7 @@ __metadata:
     rollup-plugin-typescript: ^1.0.1
     typedoc: ^0.25.4
     typescript: ^4.8.4
-    vite: ^4.3.9
+    vite: ^4.5.1
     vite-plugin-svgr: ^2.2.2
     vite-tsconfig-paths: ^3.6.0
   peerDependencies:
@@ -12240,7 +12240,7 @@ __metadata:
     typescript-collections: ^1.3.3
     ua-parser-js: ^1.0.33
     uuid: ^9.0.0
-    vite: ^4.3.9
+    vite: ^4.5.1
     vite-plugin-checker: ^0.5.1
     vite-plugin-html: ^3.2.0
     vite-plugin-svgr: ^2.2.2
@@ -14136,7 +14136,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prettier@npm:3.1.0":
+"prettier@npm:3.1.0, prettier@npm:^3.1.0":
   version: 3.1.0
   resolution: "prettier@npm:3.1.0"
   bin:
@@ -18802,7 +18802,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vite@npm:^4.3.9":
+"vite@npm:^4.5.1":
   version: 4.5.1
   resolution: "vite@npm:4.5.1"
   dependencies:

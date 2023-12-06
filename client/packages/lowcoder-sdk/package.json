@@ -43,8 +43,9 @@
     "rollup-plugin-polyfill-node": "^0.10.2",
     "rollup-plugin-terser": "^7.0.2",
     "rollup-plugin-typescript": "^1.0.1",
+    "typedoc": "^0.25.4",
     "typescript": "^4.8.4",
-    "vite": "^4.3.9",
+    "vite": "^4.5.1",
     "vite-plugin-svgr": "^2.2.2",
     "vite-tsconfig-paths": "^3.6.0"
   },
