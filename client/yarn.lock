@@ -12078,9 +12078,10 @@ __metadata:
     jest: ^29.5.0
     jest-environment-jsdom: ^29.5.0
     lint-staged: ^13.0.1
+    lowcoder-dev-utils: "workspace:^"
     mq-polyfill: ^1.1.8
     number-precision: ^1.6.0
-    prettier: ^2.7.0
+    prettier: 3.1.0
     react-player: ^2.11.0
     rimraf: ^3.0.2
     rollup: ^2.79.0
@@ -12197,6 +12198,7 @@ __metadata:
     moment: ^2.29.4
     numbro: ^2.3.6
     papaparse: ^5.3.2
+    prettier: 3.1.0
     qrcode.react: ^3.1.0
     rc-trigger: ^5.3.1
     react: ^17.0.2
@@ -14134,12 +14136,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prettier@npm:^2.7.0":
-  version: 2.8.8
-  resolution: "prettier@npm:2.8.8"
+"prettier@npm:3.1.0":
+  version: 3.1.0
+  resolution: "prettier@npm:3.1.0"
   bin:
-    prettier: bin-prettier.js
-  checksum: b49e409431bf129dd89238d64299ba80717b57ff5a6d1c1a8b1a28b590d998a34e083fa13573bc732bb8d2305becb4c9a4407f8486c81fa7d55100eb08263cf8
+    prettier: bin/prettier.cjs
+  checksum: 44b556bd56f74d7410974fbb2418bb4e53a894d3e7b42f6f87779f69f27a6c272fa7fc27cec0118cd11730ef3246478052e002cbd87e9a253f9cd04a56aa7d9b
   languageName: node
   linkType: hard
 
