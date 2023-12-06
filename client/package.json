@@ -52,7 +52,7 @@
     "lint-staged": "^13.0.1",
     "lowcoder-dev-utils": "workspace:^",
     "mq-polyfill": "^1.1.8",
-    "prettier": "^2.7.0",
+    "prettier": "3.1.0",
     "rimraf": "^3.0.2",
     "rollup": "^2.79.0",
     "shelljs": "^0.8.5",
@@ -65,7 +65,7 @@
     "**/*.{mjs,ts,tsx,json,md,html}": "prettier --write --ignore-unknown",
     "**/*.svg": "svgo"
   },
-  "packageManager": "yarn@3.2.4",
+  "packageManager": "yarn@3.6.4",
   "resolutions": {
     "@types/react": "^17",
     "moment": "2.29.2",

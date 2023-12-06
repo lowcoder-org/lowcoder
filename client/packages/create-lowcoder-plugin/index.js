@@ -10,9 +10,11 @@ import { readJson, currentDirName } from "../lowcoder-dev-utils/util.js";
 const currentDir = currentDirName(import.meta.url);
 const pkg = readJson(path.resolve(currentDir, "./package.json"));
 
-const isUsingYarn = (process.env.npm_config_user_agent || "").indexOf("yarn") === 0;
+const isUsingYarn = true;
+// const isUsingYarn = (process.env.npm_config_user_agent || "").indexOf("yarn") === 0;
 const cliPackageName = "lowcoder-cli";
 const sdkPackageName = "lowcoder-sdk";
+const devPackageName = "lowcoder-dev-utils";
 
 let verbose = false;
 let registry;
@@ -36,6 +38,10 @@ function writePackageJson(file, content) {
   writeFileSync(file, JSON.stringify(content, null, 2));
 }
 
+function writeYarnFile() {
+  writeFileSync("yarn.lock", "");
+}
+
 async function isDirEmpty(dir) {
   if (!existsSync(dir)) {
     return true;
@@ -46,17 +52,21 @@ async function isDirEmpty(dir) {
 
 async function install(dependencies) {
   return new Promise((resolve, reject) => {
+
     let cmd = "npm";
     let args = ["install", "--no-audit", "--save", "--save-exact", "--loglevel", "error"];
     if (isUsingYarn) {
       cmd = "yarn";
       args = ["add"];
     }
+
     if (registry) {
       args.push("--registry", registry);
     }
     args.push(...dependencies);
+
     const child = spawn(cmd, args, { stdio: "inherit" });
+
     child.on("close", (code) => {
       if (code !== 0) {
         reject({
@@ -111,8 +121,6 @@ async function createProject(projectName, options) {
     }
   }
 
-  console.log("is using yarn:", isUsingYarn);
-
   const packageJsonFile = path.resolve(root, "package.json");
   fs.ensureDirSync(root);
   process.chdir(root);
@@ -123,12 +131,16 @@ async function createProject(projectName, options) {
     type: "module",
     license: "MIT",
   };
+
+  // now we prepare the files
   writePackageJson(packageJsonFile, initialPackageJson);
-  console.log("initial package.json generated");
+  // without empty yarn file the setup will fail
+  writeYarnFile();
 
   await install([
-    cliPackageName,
+    // cliPackageName,
     sdkPackageName,
+    devPackageName,
     "react@17",
     "react-dom@17",
     "@types/react@17",

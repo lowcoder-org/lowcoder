@@ -1,11 +1,37 @@
 # create-lowcoder-plugin
 
-## Usage
+## How to build a Component Plugin
+
+This script helps you to create a skeleton Lowcoder Component, which you can then publish on npm and use it as imported Plugin in any app. 
+
+1) Navigate your terminal or bash to /client and install general dependencies
+```bash
+cd client
+yarn install
+```
+1) execute the Plugin Builder Script. PLease name your plugin with the prefix lowcoder-comp-
 
 ```bash
-yarn create lowcoder-plugin my-lowcoder-plugin
+npm create lowcoder-plugin lowcoder-comp-my-plugin
+```
+3) Navigate your terminal or bash to the newly created Plugin folder
+```bash
+cd lowcoder-comp-my-plugin
+```
+4) install all dependencies:
+```bash
+yarn install
+```
+Now you can start your Plugin in the playground, so during development you have a realtime preview.
+4) install all dependencies:
+```bash
+yarn start
+```
+This will start the local development server and open a browser on http://localhost:9000 
 
-# or
+## How to publish a Component Plugin
 
-npm create lowcoder-plugin my-lowcoder-plugin
+With the following command you can publish the script to the NPM repository:
+```bash
+yarn build --publish
 ```

@@ -1,0 +1,11 @@
+➤ YN0000: ┌ Resolution step
+➤ YN0001: │ Error: lowcoder-dev-utils@workspace:^: Workspace not found (lowcoder-dev-utils@workspace:^)
+    at je.getWorkspaceByDescriptor (/Users/falkwolskyadmin/Development/Lowcoder/Development/lowcoder/client/.yarn/releases/yarn-3.6.4.cjs:439:3260)
+    at cC.getCandidates (/Users/falkwolskyadmin/Development/Lowcoder/Development/lowcoder/client/.yarn/releases/yarn-3.6.4.cjs:390:29582)
+    at kf.getCandidates (/Users/falkwolskyadmin/Development/Lowcoder/Development/lowcoder/client/.yarn/releases/yarn-3.6.4.cjs:391:1264)
+    at kf.getCandidates (/Users/falkwolskyadmin/Development/Lowcoder/Development/lowcoder/client/.yarn/releases/yarn-3.6.4.cjs:391:1264)
+    at /Users/falkwolskyadmin/Development/Lowcoder/Development/lowcoder/client/.yarn/releases/yarn-3.6.4.cjs:439:8033
+    at df (/Users/falkwolskyadmin/Development/Lowcoder/Development/lowcoder/client/.yarn/releases/yarn-3.6.4.cjs:390:11070)
+    at ge (/Users/falkwolskyadmin/Development/Lowcoder/Development/lowcoder/client/.yarn/releases/yarn-3.6.4.cjs:439:8013)
+➤ YN0000: └ Completed in 0s 878ms
+➤ YN0000: Failed with errors in 0s 882ms

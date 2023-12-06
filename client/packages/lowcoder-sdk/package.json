@@ -48,6 +48,9 @@
     "vite-plugin-svgr": "^2.2.2",
     "vite-tsconfig-paths": "^3.6.0"
   },
+  "dependencies": {
+    "typedoc": "^0.25.4"
+  },
   "peerDependencies": {
     "react": ">=17",
     "react-dom": ">=17"

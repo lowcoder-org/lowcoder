@@ -17,12 +17,13 @@
   },
   "devDependencies": {
     "lowcoder-cli": "workspace:^",
+    "lowcoder-dev-utils": "workspace:^",
     "lowcoder-sdk": "workspace:^",
     "typescript": "^4.8.4",
     "vite": "^4.3.9"
   },
   "keywords": [
-    "lowcoder"
+    "Lowcoder, Component, Template, Plugin"
   ],
   "license": "MIT"
 }
