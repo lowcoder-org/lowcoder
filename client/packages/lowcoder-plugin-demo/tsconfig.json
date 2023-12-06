@@ -16,19 +16,7 @@
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react-jsx",
-    "baseUrl": "src",
-    "paths": {
-      "lowcoder-sdk": [
-        "../../lowcoder/src/index.sdk.ts",
-        "../node_modules/lowcoder-sdk/src/lowcoder/index.sdk.ts"
-      ],
-      "*": [
-        "*",
-        "../../lowcoder/src/*",
-        "../../lowcoder-sdk/src/*",
-        "../node_modules/lowcoder-sdk/src/lowcoder/*"
-      ]
-    }
+    "baseUrl": "src"
   },
   "include": ["src", "index.tsx"]
 }

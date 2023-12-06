@@ -1,24 +1,82 @@
 import {
+  antd,
   UICompBuilder,
-  stringExposingStateControl,
+  numberExposingStateControl,
   Section,
+  withDefault,
   withExposingConfigs,
+  NumberControl,
   NameConfig,
+  eventHandlerControl,
+  withMethodExposing,
 } from "lowcoder-sdk";
 
-import styles from "./style.module.css";
+import styles from "./styles.module.css";
+
+const { Button } = antd;
 
 const childrenMap = {
-  text: stringExposingStateControl("text", "world"),
+  value: numberExposingStateControl("value", 10),
+  step: withDefault(NumberControl, 1),
+  onEvent: eventHandlerControl([
+    {
+      label: "onChange",
+      value: "change",
+      description: "",
+    },
+  ]),
 };
 
 const HelloWorldCompBase = new UICompBuilder(childrenMap, (props: any) => {
-  const text = props.text.value;
-  return <div className={styles.wrapper}>Hello {text}</div>;
+  const currentValue = props.value.value;
+  return (
+    <div className={styles.wrapper}>
+      <Button
+        onClick={() => {
+          props.value.onChange(currentValue - props.step);
+          props.onEvent("change");
+        }}
+      >
+        -
+      </Button>
+      <span style={{ padding: "0 8px" }}>{currentValue}</span>
+      <Button
+        onClick={() => {
+          props.value.onChange(currentValue + props.step);
+          props.onEvent("change");
+        }}
+      >
+        +
+      </Button>
+    </div>
+  );
 })
   .setPropertyViewFn((children: any) => {
-    return <Section name="Basic">{children.text.propertyView({ label: "Text" })}</Section>;
+    return (
+      <>
+        <Section name="Basic">
+          {children.value.propertyView({ label: "Initial Value" })}
+          {children.step.propertyView({ label: "Step" })}
+        </Section>
+        <Section name="Interaction">{children.onEvent.propertyView()}</Section>
+      </>
+    );
   })
   .build();
 
-export default withExposingConfigs(HelloWorldCompBase, [new NameConfig("text", "")]);
+const HelloWorldCompTemp = withMethodExposing(HelloWorldCompBase, [
+  {
+    method: {
+      name: "random",
+      params: [],
+    },
+    execute(comp: any) {
+      comp.children.value.getView().onChange(Math.floor(Math.random() * 100));
+    },
+  },
+]);
+
+export default withExposingConfigs(HelloWorldCompTemp, [
+  new NameConfig("value", ""),
+  new NameConfig("step", ""),
+]);
