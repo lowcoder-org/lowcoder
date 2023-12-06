@@ -6,7 +6,7 @@ This script helps you to create a skeleton Lowcoder Component, which you can the
 
 1) Navigate your terminal or bash to /client and install general dependencies
 ```bash
-cd /client
+cd client
 yarn install
 ```
 1) execute the Plugin Builder Script. PLease name your plugin with the prefix lowcoder-comp-
@@ -16,7 +16,7 @@ npm create lowcoder-plugin lowcoder-comp-my-plugin
 ```
 3) Navigate your terminal or bash to the newly created Plugin folder
 ```bash
-cd /lowcoder-comp-my-plugin
+cd lowcoder-comp-my-plugin
 ```
 4) install all dependencies:
 ```bash
