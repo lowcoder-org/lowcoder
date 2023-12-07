@@ -127,7 +127,6 @@ export const CodeEditorPanel = (props: {
       zIndex={Layers.codeEditorPanel}
       popupStyle={{ opacity: 1, display: visible ? "block" : "none" }}
       maskClosable={true}
-      onPopupVisibleChange={(visible) => setVisible(visible)}
       afterPopupVisibleChange={(visible) => props.onVisibleChange(visible)}
       popup={() => (
         <Draggable
