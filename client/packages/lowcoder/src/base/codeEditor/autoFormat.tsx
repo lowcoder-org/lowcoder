@@ -130,7 +130,7 @@ async function formatJsonWithJsSnippetsImpl(text: string) {
     return segment;
   }));
   
-  return (await formattedJSON).replace(/("{{\d+}}")|({{\d+}})|(\\\\{\\\\{\d+\\\\}\\\\})/g, (s) => {
+  return (await formattedJSON).replace(/("{{\d+}}")|({{\d+}})|(\\\\{\\\\{\d+\\\\}\\\\})/g, (s: string) => {
     const index = parseInt(
       s.startsWith('"{{') ? s.slice(3, -3) : s.startsWith("{{") ? s.slice(2, -2) : s.slice(6, -6)
     );
