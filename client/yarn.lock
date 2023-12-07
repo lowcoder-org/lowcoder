@@ -12270,10 +12270,12 @@ __metadata:
     jest: 29.3.0
     jest-canvas-mock: ^2.5.2
     lowcoder-cli: "workspace:^"
+    lowcoder-core: "workspace:^"
     lowcoder-sdk: "workspace:^"
     mermaid: ^10.2.4
     react: 17
     react-dom: 17
+    react-resize-detector: ^7.0.0
     typescript: 4.8.4
     vite: ^4.5.1
     vite-tsconfig-paths: ^3.6.0
@@ -12379,6 +12381,7 @@ __metadata:
     jest: ^29.5.0
     jest-environment-jsdom: ^29.5.0
     lint-staged: ^13.0.1
+    lowcoder-cli: "workspace:^"
     lowcoder-dev-utils: "workspace:^"
     mq-polyfill: ^1.1.8
     number-precision: ^1.6.0
@@ -12391,7 +12394,6 @@ __metadata:
     tui-image-editor: ^3.15.3
     typescript: ^4.8.4
     whatwg-fetch: ^3.6.2
-    yarn: ^1.22.19
   languageName: unknown
   linkType: soft
 
@@ -19835,16 +19837,6 @@ __metadata:
     y18n: ^5.0.5
     yargs-parser: ^21.1.1
   checksum: 73b572e863aa4a8cbef323dd911d79d193b772defd5a51aab0aca2d446655216f5002c42c5306033968193bdbf892a7a4c110b0d77954a7fdf563e653967b56a
-  languageName: node
-  linkType: hard
-
-"yarn@npm:^1.22.19":
-  version: 1.22.21
-  resolution: "yarn@npm:1.22.21"
-  bin:
-    yarn: bin/yarn.js
-    yarnpkg: bin/yarn.js
-  checksum: 791fab07ad55351049361686bcdd25c64a46e2afe2f2fc7587e666aa4f758d7eef80235b921aa09415557ac580ab23305c0181c1b43fed45f357a0c7a77322a1
   languageName: node
   linkType: hard
 
