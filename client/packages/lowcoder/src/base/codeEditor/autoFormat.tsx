@@ -5,26 +5,26 @@ import { format as formatSQL } from "sql-formatter";
 import { Language } from "./codeEditorTypes";
 
 export async function cssFormatter(text: string) {
-  const prettier = await import("prettier/standalone");
+  const prettier = await require("prettier/standalone");
   const parserPlugin = await require("prettier/parser-postcss");
   return (await prettier.format(text, { parser: "css", plugins: [parserPlugin], semi: false })).trim();
 }
 
 export async function htmlFormatter(text: string) {
-  const prettier = await import("prettier/standalone");
+  const prettier = await require("prettier/standalone");
   const parserPlugin = await require("prettier/parser-html");
   return (await prettier.format(text, { parser: "html", plugins: [parserPlugin], semi: false })).trim();
 }
 
 async function getJavascriptFormatter() {
-  const prettier = await import("prettier/standalone");
+  const prettier = await require("prettier/standalone");
   const parserBabel = await require("prettier/parser-babel");
   return async (text: string) =>
     (await prettier.format(text, { parser: "babel", plugins: [parserBabel], semi: false })).trim();
 }
 
 export async function getJsonFormatter() {
-  const prettier = await import("prettier/standalone");
+  const prettier = await require("prettier/standalone");
   const parserBabel = await require("prettier/parser-babel");
   return async (text: string) => (await prettier.format(text, { parser: "json", plugins: [parserBabel] })).trim();
 }
