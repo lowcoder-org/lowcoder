@@ -39,10 +39,10 @@
   },
   "devDependencies": {
     "@types/axios": "^0.14.0",
-    "lowcoder-dev-utils": "workspace:^",
     "typescript": "^4.8.4"
   },
   "peerDependencies": {
+    "lowcoder-dev-utils": "*",
     "lowcoder-sdk": "*"
   },
   "keywords": [

@@ -82,20 +82,20 @@ __metadata:
   linkType: hard
 
 "@ant-design/cssinjs@npm:^1.10.1":
-  version: 1.18.0
-  resolution: "@ant-design/cssinjs@npm:1.18.0"
+  version: 1.18.1
+  resolution: "@ant-design/cssinjs@npm:1.18.1"
   dependencies:
     "@babel/runtime": ^7.11.1
     "@emotion/hash": ^0.8.0
     "@emotion/unitless": ^0.7.5
     classnames: ^2.3.1
-    csstype: ^3.0.10
+    csstype: 3.1.2
     rc-util: ^5.35.0
     stylis: ^4.0.13
   peerDependencies:
     react: ">=16.0.0"
     react-dom: ">=16.0.0"
-  checksum: 7ca236ef2f1dfc4c8aa1f98f6db728f3eb11b585242738f547d2715e9e3caccdfc2ab727eb74617c3c6cef862071e9af0855a55ee1e777cc5b8ebf7333383a77
+  checksum: 69a46791ef18a66fabe6569e58ad97feff9f4366c6653a2ae1360aca21607c6ce448595dd26c72d2e387352d6bafe5f1ff4339c956798c19a7de69f09c4f2818
   languageName: node
   linkType: hard
 
@@ -4412,18 +4412,18 @@ __metadata:
   linkType: hard
 
 "@types/node@npm:*":
-  version: 20.10.3
-  resolution: "@types/node@npm:20.10.3"
+  version: 20.10.4
+  resolution: "@types/node@npm:20.10.4"
   dependencies:
     undici-types: ~5.26.4
-  checksum: 34a329494f0ea239af05eeb6f00f396963725b3eb9a2f79c5e6a6d37e823f2ab85e1079c2ee56723a37d8b89e7bbe2bd050c97144e5bb06dab93fd1cace65c97
+  checksum: 054b296417e771ab524bea63cf3289559c6bdf290d45428f7cc68e9b00030ff7a0ece47b8c99a26b4f47a443919813bcf42beadff2f0bea7d8125fa541d92eb0
   languageName: node
   linkType: hard
 
-"@types/node@npm:^16.7.13":
-  version: 16.18.67
-  resolution: "@types/node@npm:16.18.67"
-  checksum: 36a763d1fe4d36ac75a28d1925f7e92808724f41b5a6d336c604554952a95a1eb8005fb4d57ad1ce2ba5c081f54b1ea2824ad8f0ede193d01b60b96ce807179c
+"@types/node@npm:16, @types/node@npm:^16.7.13":
+  version: 16.18.68
+  resolution: "@types/node@npm:16.18.68"
+  checksum: 094ae9ed80eed2af4bd34d551467e307f2ecb6efb0f8b872feebfb9da5ea4b446c5883c9abe2349f8ea2b78bdacd8726a946c27c2a246676c4c330e41ccb9284
   languageName: node
   linkType: hard
 
@@ -6958,7 +6958,10 @@ __metadata:
     commander: ^9.4.1
     cross-spawn: ^7.0.3
     fs-extra: ^10.1.0
-    lowcoder-dev-utils: "workspace:^"
+  peerDependencies:
+    lowcoder-cli: "*"
+    lowcoder-dev-utils: "*"
+    lowcoder-sdk: "*"
   bin:
     create-lowcoder-plugin: ./index.js
   languageName: unknown
@@ -7162,10 +7165,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"csstype@npm:^3.0.10, csstype@npm:^3.0.2, csstype@npm:^3.1.2":
+"csstype@npm:3.1.2":
   version: 3.1.2
   resolution: "csstype@npm:3.1.2"
   checksum: e1a52e6c25c1314d6beef5168da704ab29c5186b877c07d822bd0806717d9a265e8493a2e35ca7e68d0f5d472d43fac1cdce70fd79fd0853dff81f3028d857b5
+  languageName: node
+  linkType: hard
+
+"csstype@npm:^3.0.2, csstype@npm:^3.1.2":
+  version: 3.1.3
+  resolution: "csstype@npm:3.1.3"
+  checksum: 8db785cc92d259102725b3c694ec0c823f5619a84741b5c7991b8ad135dfaa66093038a1cc63e03361a6cd28d122be48f2106ae72334e067dd619a51f49eddf7
   languageName: node
   linkType: hard
 
@@ -8115,9 +8125,9 @@ __metadata:
   linkType: hard
 
 "electron-to-chromium@npm:^1.4.601":
-  version: 1.4.605
-  resolution: "electron-to-chromium@npm:1.4.605"
-  checksum: 2d42afd5d8cfc053d68944891f02fb007931fae85c0a19bc4f458bb3430e793b8a76664b058e1b06ab99e784f73e4c6b56493eaede2ff6012dbcaf8781fec4a7
+  version: 1.4.607
+  resolution: "electron-to-chromium@npm:1.4.607"
+  checksum: cc31233eaf2a6bb6268f97365861a4411db6823bec59126658245d4aec742cfeacb09135ada6321d27cfe74f1b72f04ff53cf2f5ac675c1b81deab035f97ab28
   languageName: node
   linkType: hard
 
@@ -9052,13 +9062,6 @@ __metadata:
     signal-exit: ^3.0.3
     strip-final-newline: ^2.0.0
   checksum: fba9022c8c8c15ed862847e94c252b3d946036d7547af310e344a527e59021fd8b6bb0723883ea87044dc4f0201f949046993124a42ccb0855cae5bf8c786343
-  languageName: node
-  linkType: hard
-
-"exenv@npm:^1.2.2":
-  version: 1.2.2
-  resolution: "exenv@npm:1.2.2"
-  checksum: a894f3b60ab8419e0b6eec99c690a009c8276b4c90655ccaf7d28faba2de3a6b93b3d92210f9dc5efd36058d44f04098f6bbccef99859151104bfd49939904dc
   languageName: node
   linkType: hard
 
@@ -12216,11 +12219,12 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "lowcoder-cli-template-typescript@workspace:packages/lowcoder-cli-template-typescript"
   dependencies:
-    lowcoder-cli: "workspace:^"
-    lowcoder-dev-utils: "workspace:^"
-    lowcoder-sdk: "workspace:^"
     typescript: ^4.8.4
     vite: ^4.5.1
+  peerDependencies:
+    lowcoder-cli: "*"
+    lowcoder-dev-utils: "*"
+    lowcoder-sdk: "*"
   languageName: unknown
   linkType: soft
 
@@ -12235,7 +12239,6 @@ __metadata:
     commander: ^9.4.1
     cross-spawn: ^7.0.3
     fs-extra: ^10.1.0
-    lowcoder-dev-utils: "workspace:^"
     react: ^17
     react-dom: ^17
     react-json-view: ^1.21.3
@@ -12245,6 +12248,7 @@ __metadata:
     vite-plugin-css-injected-by-js: ^2.1.1
     vite-plugin-svgr: ^2.2.2
   peerDependencies:
+    lowcoder-dev-utils: "*"
     lowcoder-sdk: "*"
   bin:
     lowcoder-cli: ./index.js
@@ -12269,9 +12273,6 @@ __metadata:
     echarts-wordcloud: ^2.1.0
     jest: 29.3.0
     jest-canvas-mock: ^2.5.2
-    lowcoder-cli: "workspace:^"
-    lowcoder-core: "workspace:^"
-    lowcoder-sdk: "workspace:^"
     mermaid: ^10.2.4
     react: 17
     react-dom: 17
@@ -12279,6 +12280,10 @@ __metadata:
     typescript: 4.8.4
     vite: ^4.5.1
     vite-tsconfig-paths: ^3.6.0
+  peerDependencies:
+    lowcoder-cli: "*"
+    lowcoder-dev-utils: "*"
+    lowcoder-sdk: "*"
   languageName: unknown
   linkType: soft
 
@@ -12324,7 +12329,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"lowcoder-dev-utils@^0.0.6, lowcoder-dev-utils@workspace:^, lowcoder-dev-utils@workspace:packages/lowcoder-dev-utils":
+"lowcoder-dev-utils@workspace:^, lowcoder-dev-utils@workspace:packages/lowcoder-dev-utils":
   version: 0.0.0-use.local
   resolution: "lowcoder-dev-utils@workspace:packages/lowcoder-dev-utils"
   languageName: unknown
@@ -12334,14 +12339,18 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "lowcoder-plugin-demo@workspace:packages/lowcoder-plugin-demo"
   dependencies:
+    "@types/node": 16
     "@types/react": 17
     "@types/react-dom": 17
-    lowcoder-dev-utils: ^0.0.6
-    lowcoder-sdk: ^2.1.9
+    lowcoder-sdk: 2.1.9
     react: 17
     react-dom: 17
     typescript: 5.3.3
     vite: ^5.0.6
+  peerDependencies:
+    lowcoder-cli: "*"
+    lowcoder-dev-utils: "*"
+    lowcoder-sdk: "*"
   languageName: unknown
   linkType: soft
 
@@ -12397,7 +12406,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"lowcoder-sdk@^2.1.9, lowcoder-sdk@workspace:^, lowcoder-sdk@workspace:packages/lowcoder-sdk":
+"lowcoder-sdk@2.1.9, lowcoder-sdk@workspace:packages/lowcoder-sdk":
   version: 0.0.0-use.local
   resolution: "lowcoder-sdk@workspace:packages/lowcoder-sdk"
   dependencies:
@@ -12408,7 +12417,6 @@ __metadata:
     "@rollup/plugin-url": ^7.0.0
     "@svgr/rollup": ^6.3.1
     "@vitejs/plugin-react": ^2.2.0
-    lowcoder-dev-utils: "workspace:^"
     rollup: ^2
     rollup-plugin-cleaner: ^1.0.0
     rollup-plugin-node-builtins: ^2.1.2
@@ -12422,6 +12430,8 @@ __metadata:
     vite-plugin-svgr: ^2.2.2
     vite-tsconfig-paths: ^3.6.0
   peerDependencies:
+    lowcoder-cli: "*"
+    lowcoder-dev-utils: "*"
     react: ">=17"
     react-dom: ">=17"
   languageName: unknown
@@ -15765,20 +15775,18 @@ __metadata:
   linkType: hard
 
 "react-floater@npm:^0.7.6":
-  version: 0.7.7
-  resolution: "react-floater@npm:0.7.7"
+  version: 0.7.8
+  resolution: "react-floater@npm:0.7.8"
   dependencies:
     deepmerge: ^4.3.1
-    exenv: ^1.2.2
     is-lite: ^1.2.0
     popper.js: ^1.16.0
     prop-types: ^15.8.1
-    react-proptype-conditional-require: ^1.0.4
     tree-changes: ^0.11.2
   peerDependencies:
     react: 15 - 18
     react-dom: 15 - 18
-  checksum: ec1c1d939b5ed624dfc8ffaaf633b866733b5a2c4c4facad8727e8a0e364aef8597e928e017899310ae64ec98f8c47d13b228d9038fc3d3677642cf8975c59be
+  checksum: 2104777704a1df3237c5a00e89d65ed2e0c303f407454b1afc4ab96ab5b79e8c384b78eb74f067483522180bda4ff66bc59458505243221909503d647f0b089a
   languageName: node
   linkType: hard
 
@@ -15927,13 +15935,6 @@ __metadata:
   peerDependencies:
     react: ">=16.6.0"
   checksum: 7e0e69e0ac37227ab5bfdda73991d4f5d4741585562f3ad9cfb787ae2c427510b69ddf6ef3f23f319d699b790af852fca57f3e9b1dae94f385d545a3db200d67
-  languageName: node
-  linkType: hard
-
-"react-proptype-conditional-require@npm:^1.0.4":
-  version: 1.0.4
-  resolution: "react-proptype-conditional-require@npm:1.0.4"
-  checksum: 78f82d15b2c77c14fd8fbcbbed279850df3a856984aacd519ee6c2162e034b114b8ac47c00157b84ef7c98c0711d933a0177d9d54555629cf381f54341bb0e8f
   languageName: node
   linkType: hard
 
@@ -18033,8 +18034,8 @@ __metadata:
   linkType: hard
 
 "terser@npm:^5.0.0, terser@npm:^5.10.0":
-  version: 5.25.0
-  resolution: "terser@npm:5.25.0"
+  version: 5.26.0
+  resolution: "terser@npm:5.26.0"
   dependencies:
     "@jridgewell/source-map": ^0.3.3
     acorn: ^8.8.2
@@ -18042,7 +18043,7 @@ __metadata:
     source-map-support: ~0.5.20
   bin:
     terser: bin/terser
-  checksum: ddc5ba020060cea976105ea83f5832385297f5091198f10143c1224e35bbb4ad9dfc40ee95d51a8f1290d0a4c7910d66e0ecc4b596402e94ba829bfc58022151
+  checksum: 02a9bb896f04df828025af8f0eced36c315d25d310b6c2418e7dad2bed19ddeb34a9cea9b34e7c24789830fa51e1b6a9be26679980987a9c817a7e6d9cd4154b
   languageName: node
   linkType: hard
 

@@ -16,9 +16,6 @@
     "big.js": "^6.2.1",
     "echarts-extension-gmap": "^1.6.0",
     "echarts-wordcloud": "^2.1.0",
-    "lowcoder-cli": "workspace:^",
-    "lowcoder-core": "workspace:^",
-    "lowcoder-sdk": "workspace:^",
     "mermaid": "^10.2.4",
     "react": "17",
     "react-dom": "17",
@@ -74,5 +71,10 @@
     "jest-canvas-mock": "^2.5.2",
     "vite": "^4.5.1",
     "vite-tsconfig-paths": "^3.6.0"
+  },
+  "peerDependencies": {
+    "lowcoder-cli": "*",
+    "lowcoder-dev-utils": "*",
+    "lowcoder-sdk": "*"
   }
 }

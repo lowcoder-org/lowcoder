@@ -6,12 +6,25 @@
   "dependencies": {
     "@types/react": "17",
     "@types/react-dom": "17",
-    "lowcoder-dev-utils": "^0.0.6",
-    "lowcoder-sdk": "^2.1.9",
+    "lowcoder-sdk": "2.1.9",
     "react": "17",
     "react-dom": "17",
     "typescript": "5.3.3",
     "vite": "^5.0.6"
+  },
+  "devDependencies": {
+    "@types/node": "16",
+    "@types/react": "17",
+    "@types/react-dom": "17",
+    "react": "17",
+    "react-dom": "17",
+    "typescript": "5.3.3",
+    "vite": "^5.0.6"
+  },
+  "peerDependencies": {
+    "lowcoder-cli": "*",
+    "lowcoder-dev-utils": "*",
+    "lowcoder-sdk": "*"
   },
   "lowcoder": {
     "description": "",

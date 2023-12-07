@@ -286,6 +286,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/node@npm:16":
+  version: 16.18.68
+  resolution: "@types/node@npm:16.18.68"
+  checksum: 094ae9ed80eed2af4bd34d551467e307f2ecb6efb0f8b872feebfb9da5ea4b446c5883c9abe2349f8ea2b78bdacd8726a946c27c2a246676c4c330e41ccb9284
+  languageName: node
+  linkType: hard
+
 "@types/prop-types@npm:*":
   version: 15.7.11
   resolution: "@types/prop-types@npm:15.7.11"
@@ -785,29 +792,26 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lowcoder-dev-utils@npm:^0.0.6":
-  version: 0.0.6
-  resolution: "lowcoder-dev-utils@npm:0.0.6"
-  checksum: 3a4c6445d9c277e842cb67606d4f492b00cba396fe7781e21183551d5c765bfe225b33de5b28460d4fbf090817483e49b9db31b9c18d4309b54254bcdaedb5cf
-  languageName: node
-  linkType: hard
-
 "lowcoder-plugin-demo@workspace:.":
   version: 0.0.0-use.local
   resolution: "lowcoder-plugin-demo@workspace:."
   dependencies:
+    "@types/node": 16
     "@types/react": 17
     "@types/react-dom": 17
-    lowcoder-dev-utils: ^0.0.6
-    lowcoder-sdk: ^2.1.9
+    lowcoder-sdk: 2.1.9
     react: 17
     react-dom: 17
     typescript: 5.3.3
     vite: ^5.0.6
+  peerDependencies:
+    lowcoder-cli: "*"
+    lowcoder-dev-utils: "*"
+    lowcoder-sdk: "*"
   languageName: unknown
   linkType: soft
 
-"lowcoder-sdk@npm:^2.1.9":
+"lowcoder-sdk@npm:2.1.9":
   version: 2.1.9
   resolution: "lowcoder-sdk@npm:2.1.9"
   peerDependencies:
