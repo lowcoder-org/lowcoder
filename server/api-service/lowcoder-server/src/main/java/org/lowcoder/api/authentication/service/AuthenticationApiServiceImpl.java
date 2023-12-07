@@ -161,12 +161,24 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
     }
 
     private Mono<User> updateOrCreateUser(AuthUser authUser) {
-        return findByAuthUser(authUser)
-                .flatMap(findByAuthUser -> {
-                    if (findByAuthUser.userExist()) {
-                        User user = findByAuthUser.user();
+        return findByAuthUserSourceAndRawId(authUser).zipWith(findByAuthUserRawId(authUser))
+                .flatMap(tuple -> {
+
+                    FindByAuthUser findByAuthUserFirst = tuple.getT1();
+                    FindByAuthUser findByAuthUserSecond = tuple.getT2();
+
+                    // If the user is found for the same auth source and id, just update the connection
+                    if (findByAuthUserFirst.userExist()) {
+                        User user = findByAuthUserFirst.user();
                         updateConnection(authUser, user);
                         return userService.update(user.getId(), user);
+                    }
+
+                    //If the user connection is not found with login id, but the user is
+                    // found for the same id in some different connection, then just add a new connection to the user
+                    if(findByAuthUserSecond.userExist()) {
+                        User user = findByAuthUserSecond.user();
+                        return userService.addNewConnectionAndReturnUser(user.getId(), authUser.toAuthConnection());
                     }
 
                     // if the user is logging/registering via OAuth provider for the first time,
@@ -189,8 +201,14 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
                 });
     }
 
-    protected Mono<FindByAuthUser> findByAuthUser(AuthUser authUser) {
-        return userService.findByAuthUser(authUser)
+    protected Mono<FindByAuthUser> findByAuthUserSourceAndRawId(AuthUser authUser) {
+        return userService.findByAuthUserSourceAndRawId(authUser)
+                .map(user -> new FindByAuthUser(true, user))
+                .defaultIfEmpty(new FindByAuthUser(false, null));
+    }
+
+    protected Mono<FindByAuthUser> findByAuthUserRawId(AuthUser authUser) {
+        return userService.findByAuthUserRawId(authUser)
                 .map(user -> new FindByAuthUser(true, user))
                 .defaultIfEmpty(new FindByAuthUser(false, null));
     }

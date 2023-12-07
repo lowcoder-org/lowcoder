@@ -18,4 +18,5 @@ public interface UserRepository extends ReactiveMongoRepository<User, String> {
 
     Flux<User> findByConnections_SourceAndConnections_RawIdIn(String source, Collection<String> rawIds);
 
+    Mono<User> findByName(String rawUuid);
 }
