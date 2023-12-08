@@ -183,7 +183,7 @@ const tableChildrenMap = {
   style: styleControl(TableStyle),
   rowStyle: styleControl(TableRowStyle),
   searchText: StringControl,
-  columnsStyle: withDefault(styleControl(TableColumnStyle), {radius: '0px'}),
+  columnsStyle: withDefault(styleControl(TableColumnStyle), {borderWidth: '1px', radius: '0px'}),
   viewModeResizable: BoolControl,
   // sample data for regenerating columns
   dataRowExample: stateComp<JSONObject | null>(null),
