@@ -227,6 +227,7 @@ function useCodeMirror(
     ...props,
     showLineNum,
     onChange: handleChange,
+    tooltipContainer: container.current,
   });
   useEffect(() => reconfigure(viewRef.current), [reconfigure]);
   useEffect(() => {
@@ -385,24 +386,26 @@ export function CodeEditor(props: CodeEditorProps) {
   const { expandable = true, ...editorProps } = props;
   const [disabled, setDisabled] = useState(false);
   return (
-    <CodeEditorCommon {...editorProps} editor={editor} disabled={disabled}>
-      <Container
-        styleName={props.styleName}
-        bordered={props.bordered}
-        disabled={disabled}
-        error={props.hasError}
-        ref={editor as MutableRefObject<HTMLDivElement>}
-        enableClickCompName={props.enableClickCompName}
-      >
-        {expandable && (
-          <CodeEditorPanel
-            breadcrumb={[props.label ?? ""]}
-            editor={<CodeEditorForPanel {...props} styleName="window" showLineNum />}
-            onVisibleChange={(visible) => setDisabled(visible)}
-          />
-        )}
-      </Container>
-    </CodeEditorCommon>
+    <CodeEditorTooltipContainer>
+      <CodeEditorCommon {...editorProps} editor={editor} disabled={disabled}>
+        <Container
+          styleName={props.styleName}
+          bordered={props.bordered}
+          disabled={disabled}
+          error={props.hasError}
+          ref={editor as MutableRefObject<HTMLDivElement>}
+          enableClickCompName={props.enableClickCompName}
+        >
+          {expandable && (
+            <CodeEditorPanel
+              breadcrumb={[props.label ?? ""]}
+              editor={<CodeEditorForPanel {...props} styleName="window" showLineNum />}
+              onVisibleChange={(visible) => setDisabled(visible)}
+            />
+          )}
+        </Container>
+      </CodeEditorCommon>
+    </CodeEditorTooltipContainer>
   );
 }
 
