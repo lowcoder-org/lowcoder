@@ -35,6 +35,7 @@
     "@rollup/plugin-url": "^7.0.0",
     "@svgr/rollup": "^6.3.1",
     "@vitejs/plugin-react": "^2.2.0",
+    "lowcoder-dev-utils": "workspace:^",
     "rollup": "^2",
     "rollup-plugin-cleaner": "^1.0.0",
     "rollup-plugin-node-builtins": "^2.1.2",
@@ -42,18 +43,12 @@
     "rollup-plugin-polyfill-node": "^0.10.2",
     "rollup-plugin-terser": "^7.0.2",
     "rollup-plugin-typescript": "^1.0.1",
-    "typedoc": "^0.25.4",
     "typescript": "^4.8.4",
-    "vite": "^4.5.1",
+    "vite": "^4.3.9",
     "vite-plugin-svgr": "^2.2.2",
     "vite-tsconfig-paths": "^3.6.0"
   },
-  "dependencies": {
-    "typedoc": "^0.25.4"
-  },
   "peerDependencies": {
-    "lowcoder-cli": "*",
-    "lowcoder-dev-utils": "*",
     "react": ">=17",
     "react-dom": ">=17"
   },

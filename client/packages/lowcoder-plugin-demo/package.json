@@ -1,42 +1,40 @@
 {
   "name": "lowcoder-plugin-demo",
-  "version": "0.0.1",
+  "version": "0.0.4",
   "type": "module",
   "license": "MIT",
   "dependencies": {
-    "@types/react": "17",
-    "@types/react-dom": "17",
-    "lowcoder-sdk": "2.1.9",
+    "lowcoder-core": "^0.0.1",
+    "lowcoder-design": "^0.0.1",
     "react": "17",
-    "react-dom": "17",
-    "typescript": "5.3.3",
-    "vite": "^5.0.6"
+    "react-dom": "17"
   },
-  "devDependencies": {
-    "@types/node": "16",
-    "@types/react": "17",
-    "@types/react-dom": "17",
-    "react": "17",
-    "react-dom": "17",
-    "typescript": "5.3.3",
-    "vite": "^5.0.6"
-  },
-  "peerDependencies": {
-    "lowcoder-cli": "*",
-    "lowcoder-dev-utils": "*",
-    "lowcoder-sdk": "*"
+  "publishConfig": {
+    "registry": "https://registry.npmjs.com"
   },
   "lowcoder": {
     "description": "",
     "comps": {
       "hello_world": {
-        "name": "__i18n_helloWorldCompName__",
-        "icon": "./icons/demo-icon.svg"
+        "name": "Hello World",
+        "icon": "./icons/demo-icon.png"
+      },
+      "counter": {
+        "name": "Counter",
+        "icon": "./icons/demo-icon.png"
       }
     }
   },
   "scripts": {
     "start": "vite",
     "build": "lowcoder-cli build"
+  },
+  "devDependencies": {
+    "@types/react": "17",
+    "@types/react-dom": "17",
+    "lowcoder-cli": "workspace:^",
+    "lowcoder-sdk": "workspace:^",
+    "typescript": "4.8.4",
+    "vite": "^4.3.9"
   }
 }

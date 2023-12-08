@@ -16,10 +16,11 @@
     "big.js": "^6.2.1",
     "echarts-extension-gmap": "^1.6.0",
     "echarts-wordcloud": "^2.1.0",
+    "lowcoder-cli": "workspace:^",
+    "lowcoder-sdk": "workspace:^",
     "mermaid": "^10.2.4",
     "react": "17",
     "react-dom": "17",
-    "react-resize-detector": "^7.0.0",
     "typescript": "4.8.4"
   },
   "lowcoder": {
@@ -69,12 +70,7 @@
   "devDependencies": {
     "jest": "29.3.0",
     "jest-canvas-mock": "^2.5.2",
-    "vite": "^4.5.1",
+    "vite": "^4.3.9",
     "vite-tsconfig-paths": "^3.6.0"
-  },
-  "peerDependencies": {
-    "lowcoder-cli": "*",
-    "lowcoder-dev-utils": "*",
-    "lowcoder-sdk": "*"
   }
 }
