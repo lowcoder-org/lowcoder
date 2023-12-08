@@ -121,7 +121,7 @@ function validate(
     return { validateStatus: "error", help: props.customRule };
   }
 
-  const currentDateTime = dayjs(props.value.value, DATE_TIME_FORMAT);
+  const currentDateTime = dayjs(dayjs(props.value.value), DATE_TIME_FORMAT);
 
   if (props.required && !currentDateTime.isValid()) {
     return { validateStatus: "error", help: trans("prop.required") };
