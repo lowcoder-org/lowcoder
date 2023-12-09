@@ -16,13 +16,10 @@
     }
   },
   "devDependencies": {
+    "lowcoder-cli": "workspace:^",
+    "lowcoder-sdk": "workspace:^",
     "typescript": "^4.8.4",
-    "vite": "^4.5.1"
-  },
-  "peerDependencies": {
-    "lowcoder-cli": "*",
-    "lowcoder-dev-utils": "*",
-    "lowcoder-sdk": "*"
+    "vite": "^4.3.9"
   },
   "keywords": [
     "Lowcoder, Component, Template, Plugin"

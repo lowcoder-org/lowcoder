@@ -51,6 +51,7 @@ const SimplePopover = (props: {
   setVisible?: (vis: boolean) => void;
   children: JSX.Element | React.ReactNode;
   content: JSX.Element | React.ReactNode;
+  scrollable?: boolean;
 }) => {
   const { visible, setVisible } = props;
   const contentWithBox = (
@@ -58,6 +59,7 @@ const SimplePopover = (props: {
       title={props.title}
       onClose={() => setVisible?.(false)}
       content={props.content}
+      scrollable={props.scrollable}
     />
   );
   return (
@@ -66,7 +68,7 @@ const SimplePopover = (props: {
       align={{
         offset: [-12, 0, 0, 0],
       }}
-      destroyTooltipOnHide
+      // destroyTooltipOnHide
       content={contentWithBox}
       trigger="click"
       open={visible}

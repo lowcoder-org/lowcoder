@@ -1,86 +1,24 @@
 import {
-  antd,
   UICompBuilder,
-  numberExposingStateControl,
+  stringExposingStateControl,
   Section,
-  withDefault,
   withExposingConfigs,
-  NumberControl,
   NameConfig,
-  eventHandlerControl,
-  withMethodExposing,
-  EditorContext,
 } from "lowcoder-sdk";
-import React, { useContext } from "react";
 
-import styles from "./styles.module.css";
-
-const { Button } = antd;
+import styles from "./style.module.css";
 
 const childrenMap = {
-  value: numberExposingStateControl("value", 10),
-  step: withDefault(NumberControl, 1),
-  onEvent: eventHandlerControl([
-    {
-      label: "onChange",
-      value: "change",
-      description: "",
-    },
-  ]),
+  text: stringExposingStateControl("text", "world"),
 };
 
 const HelloWorldCompBase = new UICompBuilder(childrenMap, (props: any) => {
-  const currentValue = props.value.value;
-  return (
-    <div className={styles.wrapper}>
-      <Button
-        onClick={() => {
-          props.value.onChange(currentValue - props.step);
-          props.onEvent("change");
-        }}
-      >
-        -
-      </Button>
-      <span style={{ padding: "0 8px" }}>{currentValue}</span>
-      <Button
-        onClick={() => {
-          props.value.onChange(currentValue + props.step);
-          props.onEvent("change");
-        }}
-      >
-        +
-      </Button>
-    </div>
-  );
+  const text = props.text.value;
+  return <div className={styles.wrapper}>Hello {text}</div>;
 })
   .setPropertyViewFn((children: any) => {
-    return (
-      <>
-        <Section name="Basic">
-          {children.value.propertyView({ label: "Initial Value" })}
-          {children.step.propertyView({ label: "Step" })}
-        </Section>
-        {/* {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && ( */}
-          <Section name="Interaction">{children.onEvent.propertyView()}</Section>
-        {/* {[ )} */}
-      </>
-    );
+    return <Section name="Basic">{children.text.propertyView({ label: "Text" })}</Section>;
   })
   .build();
 
-const HelloWorldCompTemp = withMethodExposing(HelloWorldCompBase, [
-  {
-    method: {
-      name: "random",
-      params: [],
-    },
-    execute(comp: any) {
-      comp.children.value.getView().onChange(Math.floor(Math.random() * 100));
-    },
-  },
-]);
-
-export default withExposingConfigs(HelloWorldCompTemp, [
-  new NameConfig("value", ""),
-  new NameConfig("step", ""),
-]);
+export default withExposingConfigs(HelloWorldCompBase, [new NameConfig("text", "")]);

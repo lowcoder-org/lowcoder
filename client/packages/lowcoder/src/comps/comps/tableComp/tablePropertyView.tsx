@@ -390,6 +390,7 @@ function ColumnPropertyView<T extends MultiBaseComp<TableChildrenType>>(props: {
           comp.children.columns.dispatch(action);
         }}
         dataIndex={(column) => column.getView().dataIndex}
+        scrollable={true}
       />
     </>
   );

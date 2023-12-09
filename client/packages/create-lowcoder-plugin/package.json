@@ -7,12 +7,8 @@
     "chalk": "4",
     "commander": "^9.4.1",
     "cross-spawn": "^7.0.3",
-    "fs-extra": "^10.1.0"
-  },
-  "peerDependencies": {
-    "lowcoder-cli": "*",
-    "lowcoder-dev-utils": "*",
-    "lowcoder-sdk": "*"
+    "fs-extra": "^10.1.0",
+    "lowcoder-dev-utils": "workspace:^"
   },
   "license": "MIT",
   "keywords": [

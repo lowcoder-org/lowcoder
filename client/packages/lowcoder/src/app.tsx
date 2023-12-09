@@ -159,7 +159,6 @@ class AppIndex extends React.Component<AppIndexProps, any> {
             )}
           </Switch>
         </Router>
-        <CodeEditorTooltipContainer />
       </Wrapper>
     );
   }
