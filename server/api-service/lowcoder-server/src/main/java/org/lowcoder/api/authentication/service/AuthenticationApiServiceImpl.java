@@ -130,8 +130,8 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
 
     @Override
     public Mono<Void> loginOrRegister(AuthUser authUser, ServerWebExchange exchange,
-            String invitationId) {
-        return updateOrCreateUser(authUser)
+                                      String invitationId, boolean linKExistingUser) {
+        return updateOrCreateUser(authUser, linKExistingUser)
                 .delayUntil(user -> ReactiveSecurityContextHolder.getContext()
                         .doOnNext(securityContext -> securityContext.setAuthentication(AuthenticationUtils.toAuthentication(user))))
                 // save token and set cookie
@@ -160,7 +160,13 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
                 .then(businessEventPublisher.publishUserLoginEvent(authUser.getSource()));
     }
 
-    private Mono<User> updateOrCreateUser(AuthUser authUser) {
+    private Mono<User> updateOrCreateUser(AuthUser authUser, boolean linkExistingUser) {
+
+        if(linkExistingUser) {
+            return sessionUserService.getVisitor()
+                    .flatMap(user -> userService.addNewConnectionAndReturnUser(user.getId(), authUser.toAuthConnection()));
+        }
+
         return findByAuthUserSourceAndRawId(authUser).zipWith(findByAuthUserRawId(authUser))
                 .flatMap(tuple -> {
 
