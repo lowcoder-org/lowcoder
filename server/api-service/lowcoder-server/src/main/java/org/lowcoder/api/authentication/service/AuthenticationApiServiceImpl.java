@@ -29,6 +29,7 @@ import org.lowcoder.domain.organization.service.OrganizationService;
 import org.lowcoder.domain.user.model.*;
 import org.lowcoder.domain.user.service.UserService;
 import org.lowcoder.sdk.auth.AbstractAuthConfig;
+import org.lowcoder.sdk.config.AuthProperties;
 import org.lowcoder.sdk.exception.BizError;
 import org.lowcoder.sdk.exception.BizException;
 import org.lowcoder.sdk.util.CookieHelper;
@@ -84,6 +85,9 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
 
     @Autowired
     private JWTUtils jwtUtils;
+
+    @Autowired
+    private AuthProperties authProperties;
 
     @Override
     public Mono<AuthUser> authenticateByForm(String loginId, String password, String source, boolean register, String authId, String orgId) {
@@ -142,7 +146,9 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
                 })
                 // after register
                 .delayUntil(user -> {
-                    if (user.getIsNewUser()) {
+                    boolean createWorkspace =
+                            authUser.getOrgId() == null && StringUtils.isBlank(invitationId) && authProperties.getWorkspaceCreation();
+                    if (user.getIsNewUser() && createWorkspace) {
                         return onUserRegister(user);
                     }
                     return Mono.empty();
