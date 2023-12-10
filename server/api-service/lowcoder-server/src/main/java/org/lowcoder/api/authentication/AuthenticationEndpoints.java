@@ -69,6 +69,24 @@ public interface AuthenticationEndpoints
             @RequestParam String orgId,
             ServerWebExchange exchange);
 
+	/**
+	 * Link current account with third party auth provider
+	 */
+	@Operation(
+			tags = TAG_AUTHENTICATION,
+			operationId = "linkAccountWithTP",
+			summary = "Link current account with third party auth provider",
+			description = "Authenticate a Lowcoder User using third-party login credentials and link to the existing session/account"
+	)
+	@PostMapping("/tp/link")
+	public Mono<ResponseView<Boolean>> linkAccountWithThirdParty(
+			@RequestParam(required = false) String authId,
+			@RequestParam(required = false) String source,
+			@RequestParam String code,
+			@RequestParam String redirectUrl,
+			@RequestParam String orgId,
+			ServerWebExchange exchange);
+
 	@Operation(
 			tags = TAG_AUTHENTICATION,
 		    operationId = "logout",
