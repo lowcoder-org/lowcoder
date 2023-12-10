@@ -139,7 +139,8 @@ LABEL maintainer="lowcoder"
 # Change default nginx user into lowcoder user and remove default nginx config
 RUN usermod --login lowcoder --uid 9001 nginx \
   && groupmod --new-name lowcoder --gid 9001 nginx \
-  && rm -f /etc/nginx/nginx.conf
+  && rm -f /etc/nginx/nginx.conf \
+  && mkdir -p /lowcoder/assets
 
 # Copy lowcoder client data
 COPY --chown=lowcoder:lowcoder --from=build-client /lowcoder-client/packages/lowcoder/build/ /lowcoder/client
@@ -196,7 +197,8 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install --no-instal
       nodejs \
       openjdk-17-jdk-headless \
   && npm install -g yarn \
-  && rm -rf /var/cache/apt/lists
+  && rm -rf /var/cache/apt/lists \
+  && mkdir -p /lowcoder/assets
 
 # Add lowcoder api-service
 COPY --chown=lowcoder:lowcoder --from=lowcoder-ce-api-service /lowcoder/api-service /lowcoder/api-service
