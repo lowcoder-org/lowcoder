@@ -29,6 +29,7 @@ import org.lowcoder.domain.organization.service.OrganizationService;
 import org.lowcoder.domain.user.model.*;
 import org.lowcoder.domain.user.service.UserService;
 import org.lowcoder.sdk.auth.AbstractAuthConfig;
+import org.lowcoder.sdk.config.AuthProperties;
 import org.lowcoder.sdk.exception.BizError;
 import org.lowcoder.sdk.exception.BizException;
 import org.lowcoder.sdk.util.CookieHelper;
@@ -85,6 +86,9 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
     @Autowired
     private JWTUtils jwtUtils;
 
+    @Autowired
+    private AuthProperties authProperties;
+
     @Override
     public Mono<AuthUser> authenticateByForm(String loginId, String password, String source, boolean register, String authId, String orgId) {
         return authenticate(authId, source, new FormAuthRequestContext(loginId, password, register, orgId));
@@ -130,8 +134,8 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
 
     @Override
     public Mono<Void> loginOrRegister(AuthUser authUser, ServerWebExchange exchange,
-            String invitationId) {
-        return updateOrCreateUser(authUser)
+                                      String invitationId, boolean linKExistingUser) {
+        return updateOrCreateUser(authUser, linKExistingUser)
                 .delayUntil(user -> ReactiveSecurityContextHolder.getContext()
                         .doOnNext(securityContext -> securityContext.setAuthentication(AuthenticationUtils.toAuthentication(user))))
                 // save token and set cookie
@@ -142,7 +146,9 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
                 })
                 // after register
                 .delayUntil(user -> {
-                    if (user.getIsNewUser()) {
+                    boolean createWorkspace =
+                            authUser.getOrgId() == null && StringUtils.isBlank(invitationId) && authProperties.getWorkspaceCreation();
+                    if (user.getIsNewUser() && createWorkspace) {
                         return onUserRegister(user);
                     }
                     return Mono.empty();
@@ -160,7 +166,13 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
                 .then(businessEventPublisher.publishUserLoginEvent(authUser.getSource()));
     }
 
-    private Mono<User> updateOrCreateUser(AuthUser authUser) {
+    private Mono<User> updateOrCreateUser(AuthUser authUser, boolean linkExistingUser) {
+
+        if(linkExistingUser) {
+            return sessionUserService.getVisitor()
+                    .flatMap(user -> userService.addNewConnectionAndReturnUser(user.getId(), authUser.toAuthConnection()));
+        }
+
         return findByAuthUserSourceAndRawId(authUser).zipWith(findByAuthUserRawId(authUser))
                 .flatMap(tuple -> {
 
