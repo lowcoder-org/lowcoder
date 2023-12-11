@@ -13,7 +13,7 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: secret123
     # Uncomment to save database data into local 'mongodata' folder
     # volumes:
-    #   - ./mogodata:/data/db
+    #   - ./mongodata:/data/db
     restart: unless-stopped
 
   redis:
@@ -95,4 +95,7 @@ services:
     depends_on:
       - lowcoder-node-service
       - lowcoder-api-service
+    # Uncomment to serve local files as static assets
+    # volumes:
+    #   - ./static-assets:/lowcoder/assets
 
