@@ -29,7 +29,6 @@
     "commander": "^9.4.1",
     "cross-spawn": "^7.0.3",
     "fs-extra": "^10.1.0",
-    "lowcoder-dev-utils": "workspace:^",
     "react": "^17",
     "react-dom": "^17",
     "react-json-view": "^1.21.3",
