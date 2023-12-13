@@ -1,6 +1,6 @@
 {
   "name": "lowcoder-comps",
-  "version": "0.0.21",
+  "version": "0.0.22",
   "type": "module",
   "license": "MIT",
   "dependencies": {
@@ -61,7 +61,7 @@
     }
   },
   "scripts": {
-    "start": "vite",
+    "start": "NODE_OPTIONS=--max_old_space_size=6144 vite",
     "build": "yarn test && lowcoder-cli build",
     "build_only": "lowcoder-cli build",
     "build_publish": "lowcoder-cli build --publish",
