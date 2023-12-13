@@ -1,6 +1,6 @@
 import path, { dirname } from "node:path";
 import { fileURLToPath } from "node:url";
-import { buildVars } from "./buildVars.js";
+import { buildVars } from "../../scripts/buildVars.js";
 
 export function currentDirName(importMetaUrl) {
   return dirname(fileURLToPath(importMetaUrl));
