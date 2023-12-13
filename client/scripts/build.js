@@ -4,8 +4,8 @@ import https from "node:https";
 import shell from "shelljs";
 import chalk from "chalk";
 import axios from "axios";
-import { buildVars } from "lowcoder-dev-utils/buildVars.js";
-import { currentDirName, readJson } from "lowcoder-dev-utils/util.js";
+import { buildVars } from "../dev-utils/buildVars.js";
+import { currentDirName, readJson } from "../dev-utils/util.js";
 
 const builtinPlugins = ["lowcoder-comps"];
 const curDirName = currentDirName(import.meta.url);
