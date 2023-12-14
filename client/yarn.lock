@@ -4274,14 +4274,14 @@ __metadata:
   linkType: hard
 
 "@types/react-redux@npm:^7.1.20":
-  version: 7.1.32
-  resolution: "@types/react-redux@npm:7.1.32"
+  version: 7.1.33
+  resolution: "@types/react-redux@npm:7.1.33"
   dependencies:
     "@types/hoist-non-react-statics": ^3.3.0
     "@types/react": "*"
     hoist-non-react-statics: ^3.3.0
     redux: ^4.0.0
-  checksum: f09eeb27956914ce40451c2581db3dc18cabe50bebbe111230b45635894e93c6547dead5589319bf66e7e99cc1687497020bddc5c9fd336041e0eac3f9a966dd
+  checksum: 063e98c0d8cdc7cc2da1663716260ffb8d504b2f8be2d92cabb630cae31eb05aa0e389175265caa9a160bb7c4b66646d4a4171d4aa2dc292722088dcf593cdc3
   languageName: node
   linkType: hard
 
@@ -4345,13 +4345,13 @@ __metadata:
   linkType: hard
 
 "@types/react@npm:^17":
-  version: 17.0.71
-  resolution: "@types/react@npm:17.0.71"
+  version: 17.0.73
+  resolution: "@types/react@npm:17.0.73"
   dependencies:
     "@types/prop-types": "*"
     "@types/scheduler": "*"
     csstype: ^3.0.2
-  checksum: c72dbebdced882fa39de867b0179ed91259331172458d69250ff30fdb3c61e3d1f3373dacca3771c3de4b19162fd65758179252b17961729213496a016b918d7
+  checksum: 08107645acdd734c8ddb4d26f1b43dfa0d75f7a8d268eaacb897337e103eaa620fe8c3c6972dab9860aaa47bbee1da587cf06b11bb4e655588e38485daf48a6c
   languageName: node
   linkType: hard
 
@@ -5123,8 +5123,8 @@ __metadata:
   linkType: hard
 
 "antd-mobile@npm:^5.28.0":
-  version: 5.33.0
-  resolution: "antd-mobile@npm:5.33.0"
+  version: 5.33.1
+  resolution: "antd-mobile@npm:5.33.1"
   dependencies:
     "@floating-ui/dom": ^1.4.2
     "@rc-component/mini-decimal": ^1.1.0
@@ -5145,7 +5145,7 @@ __metadata:
     use-sync-external-store: ^1.2.0
   peerDependencies:
     react: ^16.8.0 || ^17.0.0 || ^18.0.0
-  checksum: 9d44affe8331a2f802a8525c6d3d3c94d656f6d2a0ae410b5fd73081063c0bc66befe832a7511c3e5f0e657b73841a364501aefdb442d455fa784546da6f5402
+  checksum: e57c563460ea5cc89a7e4d0a97d78c53a5532d7f5100c3766054b3a51c229e324bf111c51448b3e7b5dc019cbd26d59f8e2f467e322cfbd53228286db3da92ac
   languageName: node
   linkType: hard
 
@@ -6087,9 +6087,9 @@ __metadata:
   linkType: hard
 
 "caniuse-lite@npm:^1.0.30001565":
-  version: 1.0.30001568
-  resolution: "caniuse-lite@npm:1.0.30001568"
-  checksum: 7092aaa246dc8531fbca5b47be91e92065db7e5c04cc9e3d864e848f8f1be769ac6754429e843a5e939f7331a771e8b0a1bc3b13495c66b748c65e2f5bdb1220
+  version: 1.0.30001570
+  resolution: "caniuse-lite@npm:1.0.30001570"
+  checksum: 460be2c7a9b1c8a83b6aae4226661c276d9dada6c84209dee547699cf4b28030b9d1fc29ddd7626acee77412b6401993878ea0ef3eadbf3a63ded9034896ae20
   languageName: node
   linkType: hard
 
@@ -6713,19 +6713,6 @@ __metadata:
   checksum: 1427d49458adcd88547ef6fa39041e1fe9033a661293aa8d2c3aa1b4967cb5bf4f0c00436c7a61816558f28ba2ba81a94d5c962e8022ea9a883978fc8e1f2945
   languageName: node
   linkType: hard
-
-"create-lowcoder-plugin@workspace:packages/create-lowcoder-plugin":
-  version: 0.0.0-use.local
-  resolution: "create-lowcoder-plugin@workspace:packages/create-lowcoder-plugin"
-  dependencies:
-    chalk: 4
-    commander: ^9.4.1
-    cross-spawn: ^7.0.3
-    fs-extra: ^10.1.0
-  bin:
-    create-lowcoder-plugin: ./index.js
-  languageName: unknown
-  linkType: soft
 
 "crelt@npm:^1.0.5":
   version: 1.0.6
@@ -7885,9 +7872,9 @@ __metadata:
   linkType: hard
 
 "electron-to-chromium@npm:^1.4.601":
-  version: 1.4.610
-  resolution: "electron-to-chromium@npm:1.4.610"
-  checksum: 30e57a1483717e6e27882e7e35b167258b669f44a4e66f4f40460825b77c12646140d220f5e1f95668890fc76dd511c93fa73c6374cbf443fc78077d9634864d
+  version: 1.4.612
+  resolution: "electron-to-chromium@npm:1.4.612"
+  checksum: fbb044289dcea34246254520b05245549013c68c7cc25ce69604ebd496a59d3b41defd10be4a2fca2d5e6e46d92481736e3d1498093e28c96cbe86e48d19634b
   languageName: node
   linkType: hard
 
@@ -18995,9 +18982,9 @@ __metadata:
   linkType: hard
 
 "whatwg-fetch@npm:^3.6.2":
-  version: 3.6.19
-  resolution: "whatwg-fetch@npm:3.6.19"
-  checksum: 2896bc9ca867ea514392c73e2a272f65d5c4916248fe0837a9df5b1b92f247047bc76cf7c29c28a01ac6c5fb4314021d2718958c8a08292a96d56f72b2f56806
+  version: 3.6.20
+  resolution: "whatwg-fetch@npm:3.6.20"
+  checksum: c58851ea2c4efe5c2235f13450f426824cf0253c1d45da28f45900290ae602a20aff2ab43346f16ec58917d5562e159cd691efa368354b2e82918c2146a519c5
   languageName: node
   linkType: hard
 
@@ -19211,8 +19198,8 @@ __metadata:
   linkType: hard
 
 "ws@npm:^8.11.0":
-  version: 8.15.0
-  resolution: "ws@npm:8.15.0"
+  version: 8.15.1
+  resolution: "ws@npm:8.15.1"
   peerDependencies:
     bufferutil: ^4.0.1
     utf-8-validate: ">=5.0.2"
@@ -19221,7 +19208,7 @@ __metadata:
       optional: true
     utf-8-validate:
       optional: true
-  checksum: ca15c590aa49bc0197223b8ab7d15e7362ae6c4011d91ed0e5cd5867cdd5497fd71470ea36314833b4b078929fe64dc4ba7748b1e58e50a0f8e41f147db2b464
+  checksum: 8c67365f6e6134278ad635d558bfce466d7ef7543a043baea333aaa430429f0af8a130c0c36e7dd78f918d68167a659ba9b5067330b77c4b279e91533395952b
   languageName: node
   linkType: hard
 
