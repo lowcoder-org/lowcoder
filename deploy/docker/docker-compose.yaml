@@ -52,5 +52,6 @@ services:
       LOWCODER_MAX_QUERY_TIMEOUT: 120
     volumes:
       - ./lowcoder-stacks:/lowcoder-stacks
+      - ./lowcoder-stacks/assets:/lowcoder/assets
     restart: unless-stopped
 

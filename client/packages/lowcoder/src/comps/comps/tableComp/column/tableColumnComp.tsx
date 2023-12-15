@@ -27,6 +27,8 @@ import { ColorControl } from "comps/controls/colorControl";
 import { JSONValue } from "util/jsonTypes";
 import styled from "styled-components";
 import { TextOverflowControl } from "comps/controls/textOverflowControl";
+import { TableColumnLinkStyle, styleControl } from "@lowcoder-ee/index.sdk";
+import { Divider } from "antd";
 
 export type Render = ReturnType<ConstructorToComp<typeof RenderComp>["getOriginalComp"]>;
 export const RenderComp = withSelectedMultiContext(ColumnTypeComp);
@@ -106,6 +108,9 @@ export const columnChildrenMap = {
   textSize: withDefault(RadiusControl, ""),
   cellColor: CellColorComp,
   textOverflow: withDefault(TextOverflowControl, "ellipsis"),
+  linkColor: withDefault(ColorControl, "#3377ff"),
+  linkHoverColor: withDefault(ColorControl, ""),
+  linkActiveColor: withDefault(ColorControl, ""),
 };
 
 const StyledIcon = styled.span`
@@ -201,15 +206,36 @@ export class ColumnComp extends ColumnInitComp {
         })}
         {this.children.autoWidth.getView() === "fixed" &&
           this.children.width.propertyView({ label: trans("prop.width") })}
+        
+        {(columnType === 'link' || columnType === 'links') && (
+          <>
+            <Divider style={{margin: '12px 0'}} />
+            {controlItem({}, (
+              <div>
+                <b>{"Link Style"}</b>
+              </div>
+            ))}
+            {this.children.linkColor.propertyView({
+              label: trans('text') // trans('style.background'),
+            })}
+            {this.children.linkHoverColor.propertyView({
+              label: "Hover text", // trans('style.background'),
+            })}
+            {this.children.linkActiveColor.propertyView({
+              label: "Active text", // trans('style.background'),
+            })}
+          </>
+        )}
+        <Divider style={{margin: '12px 0'}} />
         {controlItem({}, (
-          <div style={{marginTop: '8px'}}>
-            <b>{"Style"}</b>
+          <div>
+             <b>{"Column Style"}</b>
           </div>
         ))}
         {this.children.background.propertyView({
           label: trans('style.background'),
         })}
-        {this.children.text.propertyView({
+        {columnType !== 'link' && this.children.text.propertyView({
           label: trans('text'),
         })}
         {this.children.border.propertyView({

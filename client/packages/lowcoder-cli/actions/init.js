@@ -78,6 +78,7 @@ export default async function initAction(options) {
   appPackageJson.scripts = {
     start: "vite",
     build: "lowcoder-cli build",
+    build_publish: "lowcoder-cli build --publish",
   };
   fs.writeFileSync(paths.appPackageJson, JSON.stringify(appPackageJson, null, 2));
   console.log("package.json updated");

@@ -153,8 +153,9 @@ const OptionItem = (props: {
   popoverTitle?: string;
   draggable?: boolean;
   optionExtra?: React.ReactNode;
+  scrollable?: boolean;
 }) => {
-  const { content, config, title, popoverTitle, draggable = true, optionExtra } = props;
+  const { content, config, title, popoverTitle, draggable = true, optionExtra, scrollable } = props;
   const [visible, setVisible] = useState(false);
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({
     id: config.dataIndex,
@@ -182,6 +183,7 @@ const OptionItem = (props: {
       setVisible={(vis) => {
         setVisible(vis);
       }}
+      scrollable={scrollable}
     >
       {optionRow}
     </SimplePopover>
@@ -204,6 +206,7 @@ function Option<T extends ConstructorToComp<MultiCompConstructor>>(props: {
   optionToolbar?: React.ReactNode;
   headerItem?: React.ReactNode;
   itemExtra?: (comp: T) => React.ReactNode;
+  scrollable?: boolean;
 }) {
   const { items, uniqVal, headerItem, optionToolbar, itemExtra } = props;
   const itemsDistinctValCount = uniqVal
@@ -286,6 +289,7 @@ function Option<T extends ConstructorToComp<MultiCompConstructor>>(props: {
                     title={props.itemTitle(item)}
                     config={{ dataIndex: dataIndex }}
                     optionExtra={optionExtra}
+                    scrollable={props.scrollable}
                   />
                 );
               })}

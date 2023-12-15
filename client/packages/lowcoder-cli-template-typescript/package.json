@@ -1,10 +1,11 @@
 {
   "name": "lowcoder-cli-template-typescript",
-  "version": "0.0.12",
+  "version": "0.0.14",
   "type": "module",
   "scripts": {
     "start": "vite",
-    "build": "lowcoder-cli build"
+    "build": "lowcoder-cli build",
+    "build_publish": "lowcoder-cli build --publish"
   },
   "lowcoder": {
     "description": "",
@@ -22,7 +23,7 @@
     "vite": "^4.3.9"
   },
   "keywords": [
-    "lowcoder"
+    "Lowcoder, Component, Template, Plugin"
   ],
   "license": "MIT"
 }

@@ -1,11 +1,19 @@
 import fs from "node:fs";
-import path from "node:path";
+import path, { dirname } from "node:path";
 import https from "node:https";
+import { fileURLToPath } from "node:url";
 import shell from "shelljs";
 import chalk from "chalk";
 import axios from "axios";
-import { buildVars } from "lowcoder-dev-utils/buildVars.js";
-import { currentDirName, readJson } from "lowcoder-dev-utils/util.js";
+import { buildVars } from "./buildVars.js";
+
+export function readJson(file) {
+  return JSON.parse(fs.readFileSync(file).toString());
+}
+
+export function currentDirName(importMetaUrl) {
+  return dirname(fileURLToPath(importMetaUrl));
+}
 
 const builtinPlugins = ["lowcoder-comps"];
 const curDirName = currentDirName(import.meta.url);

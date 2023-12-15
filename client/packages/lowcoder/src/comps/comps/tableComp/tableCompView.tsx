@@ -17,6 +17,7 @@ import {
   defaultTheme,
   handleToHoverRow,
   handleToSelectedRow,
+  TableColumnLinkStyleType,
   TableColumnStyleType,
   TableRowStyleType,
   TableStyleType,
@@ -285,6 +286,7 @@ const TableTh = styled.th<{ width?: number }>`
 const TableTd = styled.td<{
   background: string;
   $style: TableColumnStyleType & {rowHeight?: string};
+  $linkStyle?: TableColumnLinkStyleType;
   $isEditing: boolean;
   $tableSize?: string;
   $autoHeight?: boolean;
@@ -333,9 +335,9 @@ const TableTd = styled.td<{
       `};
     `};
 
-    &,
-    > .ant-badge > .ant-badge-status-text,
-    > div > .markdown-body {
+    
+    > div > .ant-badge > .ant-badge-status-text,
+    > div > div > .markdown-body {
       color: ${(props) => props.$style.text};
     }
 
@@ -345,11 +347,15 @@ const TableTd = styled.td<{
 
     // dark link|links color
     > a,
-    > div > a {
-      color: ${(props) => isDarkColor(props.background) && "#A6FFFF"};
+    > div  a {
+      color: ${(props) => props.$linkStyle?.text};
 
       &:hover {
-        color: ${(props) => isDarkColor(props.background) && "#2EE6E6"};
+        color: ${(props) => props.$linkStyle?.hoverText};
+      }
+
+      &:active {
+        color: ${(props) => props.$linkStyle?.activeText}};
       }
     }
   }
@@ -431,6 +437,7 @@ function TableCellView(props: {
   children: any;
   columnsStyle: TableColumnStyleType;
   columnStyle: TableColumnStyleType;
+  linkStyle: TableColumnLinkStyleType;
   tableSize?: string;
   autoHeight?: boolean;
 }) {
@@ -444,6 +451,7 @@ function TableCellView(props: {
     children,
     columnsStyle,
     columnStyle,
+    linkStyle,
     tableSize,
     autoHeight,
     ...restProps
@@ -492,6 +500,7 @@ function TableCellView(props: {
         {...restProps}
         background={background}
         $style={style}
+        $linkStyle={linkStyle}
         $isEditing={editing}
         $tableSize={tableSize}
         $autoHeight={autoHeight}
@@ -535,7 +544,7 @@ function ResizeableTable<RecordType extends object>(props: CustomTableProps<Reco
   });
   let allColumnFixed = true;
   const columns = props.columns.map((col, index) => {
-    const { width, style, cellColorFn, ...restCol } = col;
+    const { width, style, linkStyle, cellColorFn, ...restCol } = col;
     const resizeWidth = (resizeData.index === index ? resizeData.width : col.width) ?? 0;
     let colWidth: number | string = "auto";
     let minWidth: number | string = COL_MIN_WIDTH;
@@ -567,6 +576,7 @@ function ResizeableTable<RecordType extends object>(props: CustomTableProps<Reco
         rowIndex: rowIndex,
         columnsStyle: props.columnsStyle,
         columnStyle: style,
+        linkStyle,
         tableSize: props.size,
         autoHeight: props.rowAutoHeight,
       }),
