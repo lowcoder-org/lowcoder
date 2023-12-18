@@ -660,6 +660,28 @@ export const SegmentStyle = [
   PADDING,
 ] as const;
 
+const LinkTextStyle = [
+  {
+    name: "text",
+    label: trans("text"),
+    depTheme: "primary",
+    depType: DEP_TYPE.SELF,
+    transformer: toSelf,
+  },
+  {
+    name: "hoverText",
+    label: "Hover text", // trans("style.hoverRowBackground"),
+    depName: "text",
+    transformer: handleToHoverLink,
+  },
+  {
+    name: "activeText",
+    label: "Active text", // trans("style.hoverRowBackground"),
+    depName: "text",
+    transformer: handleToHoverLink,
+  },
+] as const;
+
 export const TableStyle = [
   ...BG_STATIC_BORDER_RADIUS,
   {
@@ -724,6 +746,10 @@ export const TableColumnStyle = [
   TEXT_SIZE,
 ] as const;
 
+export const TableColumnLinkStyle = [
+  ...LinkTextStyle,
+] as const;
+
 export const FileStyle = [...getStaticBgBorderRadiusByBg(SURFACE_COLOR), TEXT, ACCENT, MARGIN, PADDING] as const;
 
 export const FileViewerStyle = [
@@ -746,14 +772,16 @@ export const DateTimeStyle = [
   ...ACCENT_VALIDATE,
 ] as const;
 
+function handleToHoverLink(color: string) {
+  if (isDarkColor(color)) {
+    return "#FFFFFF23";
+  } else {
+    return "#00000007";
+  }
+}
+
 export const LinkStyle = [
-  {
-    name: "text",
-    label: trans("text"),
-    depTheme: "primary",
-    depType: DEP_TYPE.SELF,
-    transformer: toSelf,
-  },
+  ...LinkTextStyle,
   MARGIN,	
   PADDING,
   TEXT_SIZE
@@ -1047,6 +1075,7 @@ export type SegmentStyleType = StyleConfigType<typeof SegmentStyle>;
 export type TableStyleType = StyleConfigType<typeof TableStyle>;
 export type TableRowStyleType = StyleConfigType<typeof TableRowStyle>;
 export type TableColumnStyleType = StyleConfigType<typeof TableColumnStyle>;
+export type TableColumnLinkStyleType = StyleConfigType<typeof TableColumnLinkStyle>;
 export type FileStyleType = StyleConfigType<typeof FileStyle>;
 export type FileViewerStyleType = StyleConfigType<typeof FileViewerStyle>;
 export type IframeStyleType = StyleConfigType<typeof IframeStyle>;

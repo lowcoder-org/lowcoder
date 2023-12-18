@@ -50,6 +50,9 @@ export class ColumnTypeCompBuilder<
   private propertyViewFn?: PropertyViewFnTypeForComp<
     RecordConstructorToComp<NewChildrenCtorMap<ChildrenCtorMap, T>>
   >;
+  private stylePropertyViewFn?: PropertyViewFnTypeForComp<
+    RecordConstructorToComp<NewChildrenCtorMap<ChildrenCtorMap, T>>
+  >;
   private editViewFn?: EditViewFn<T>;
 
   constructor(
@@ -74,6 +77,15 @@ export class ColumnTypeCompBuilder<
     >
   ) {
     this.propertyViewFn = propertyViewFn;
+    return this;
+  }
+
+  setStylePropertyViewFn(
+    stylePropertyViewFn: PropertyViewFnTypeForComp<
+      RecordConstructorToComp<NewChildrenCtorMap<ChildrenCtorMap, T>>
+    >
+  ) {
+    this.stylePropertyViewFn = stylePropertyViewFn;
     return this;
   }
 
