@@ -8,7 +8,7 @@
   "dependencies": {
     "@ant-design/icons": "^4.7.0",
     "@ant-design/pro-form": "^1.52.9",
-    "@ant-design/pro-table": "^2.62.7",
+    "@ant-design/pro-table": "^3.13.11",
     "@codemirror/autocomplete": "^0.20.3",
     "@codemirror/basic-setup": "^0.20.0",
     "@codemirror/lang-css": "0.20",
