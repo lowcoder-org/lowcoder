@@ -210,7 +210,7 @@ export function resolveParsedValue(files: UploadFile[]) {
           .then((a) => {
             const ext = mime.getExtension(f.originFileObj?.type ?? "");
             if (ext === "xlsx" || ext === "csv") {
-              const workbook = XLSX.read(a, { raw: true });
+              const workbook = XLSX.read(a, { raw: true, codepage: 65001 });
               return XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], {
                 raw: false,
               });
