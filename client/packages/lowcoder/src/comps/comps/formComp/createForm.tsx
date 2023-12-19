@@ -669,7 +669,7 @@ export const CreateForm = (props: { onCreate: CreateHandler }) => {
           onCancel={() => setVisible(false)}
           width="600px"
           children={<CreateFormBody {...props} />}
-          bodyStyle={{ padding: 0 }}
+          styles={{ body: {padding: 0} }}
         />
       </div>
     </>

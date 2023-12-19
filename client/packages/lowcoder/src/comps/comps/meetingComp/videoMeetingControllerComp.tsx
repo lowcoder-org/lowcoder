@@ -508,9 +508,11 @@ let MTComp = (function () {
                   : {}
               }
               contentWrapperStyle={{ maxHeight: "100%", maxWidth: "100%" }}
-              bodyStyle={{
-                padding: 0,
-                backgroundColor: props.style.background,
+              styles={{
+                body: {
+                  padding: 0,
+                  backgroundColor: props.style.background,
+                }
               }}
               closable={false}
               placement={props.placement}

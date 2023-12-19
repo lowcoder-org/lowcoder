@@ -113,7 +113,7 @@ let TmpModalComp = (function () {
               focusTriggerAfterClose={false}
               getContainer={() => document.querySelector(`#${CanvasContainerID}`) || document.body}
               footer={null}
-              bodyStyle={bodyStyle}
+              styles={{body: bodyStyle}}
               width={width}
               onCancel={(e) => {
                 props.visible.onChange(false);
