@@ -31,10 +31,11 @@ export function CopyModal(props: CopyModalProps) {
     )?.folderId || ""
   );
   const { visible, close, name, type, id } = props;
-
+  const appName = name.length > 25 ? `${name.substring(0, 25)}...` : name;
+  
   return (
     <CustomModal
-      title={trans("home.copyModalTitle", { name })}
+      title={trans("home.copyModalTitle", {name: appName})}
       open={visible}
       okButtonProps={{ disabled: !copyName }}
       destroyOnClose={true}

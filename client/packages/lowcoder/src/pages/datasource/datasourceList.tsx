@@ -109,7 +109,7 @@ export const DatasourceList = () => {
   return (
     <DatasourceWrapper>
       <StepModal
-       open={isCreateFormShow}
+        open={isCreateFormShow}
         onCancel={() => showCreateForm(false)}
         activeStepKey={"type"}
         destroyOnClose={true}
