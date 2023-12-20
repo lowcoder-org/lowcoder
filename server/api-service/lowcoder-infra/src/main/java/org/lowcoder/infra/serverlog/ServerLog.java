@@ -15,6 +15,7 @@ import lombok.Getter;
 @Builder
 public class ServerLog {
     private String userId;
+    private String orgId;
     private String urlPath;
     private String httpMethod;
     private String requestBody;
@@ -22,8 +23,9 @@ public class ServerLog {
     private long createTime;
 
     @JsonCreator
-    private ServerLog(String userId, String urlPath, String httpMethod, String requestBody, Map<String, String> queryParameters, long createTime) {
+    private ServerLog(String userId, String orgId, String urlPath, String httpMethod, String requestBody, Map<String, String> queryParameters, long createTime) {
         this.userId = userId;
+        this.orgId = orgId;
         this.urlPath = urlPath;
         this.createTime = createTime;
         this.httpMethod = httpMethod;
