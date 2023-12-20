@@ -7,7 +7,7 @@ import {
   doValidResponse,
   validateResponse,
 } from "./apiUtils";
-import { AxiosResponse } from "axios";
+import { AxiosHeaders, AxiosResponse } from "axios";
 import { ApiResponse } from "./apiResponses";
 import {
   createMessage,
@@ -23,8 +23,14 @@ beforeAll(() => {
   jest.spyOn(log, "error").mockImplementation(() => {});
 });
 
+const headers = new AxiosHeaders({
+  "Content-Type": "application/json",
+});
+
 test("apiRequestInterceptor", () => {
-  expect(apiRequestInterceptor({})).toHaveProperty("timer");
+  expect(apiRequestInterceptor({
+    headers,
+  })).toHaveProperty("timer");
 });
 
 test("apiSuccessResponseInterceptor", () => {
@@ -132,8 +138,8 @@ test("validateResponse", () => {
       status: 500,
       data: { success: false, code: 1, message: "fail", data: "" },
       statusText: "",
-      headers: [],
-      config: {},
+      headers,
+      config: { headers },
     })
   ).toThrowError(Error("fail"));
   expect(
@@ -141,8 +147,8 @@ test("validateResponse", () => {
       status: 500,
       data: { success: true, code: 1, message: "", data: "" },
       statusText: "",
-      headers: [],
-      config: {},
+      headers,
+      config: { headers },
     })
   ).toEqual(true);
 });
@@ -171,8 +177,8 @@ test("doValidResponse", () => {
       status: 500,
       data: { success: false, code: 1, message: "fail", data: "" },
       statusText: "",
-      headers: [],
-      config: {},
+      headers,
+      config: { headers },
     })
   ).toEqual(false);
   expect(
@@ -180,8 +186,8 @@ test("doValidResponse", () => {
       status: 500,
       data: { success: true, code: 1, message: "", data: "" },
       statusText: "",
-      headers: [],
-      config: {},
+      headers,
+      config: { headers },
     })
   ).toEqual(true);
 });

@@ -10,7 +10,7 @@ import {
 import { AUTH_BIND_URL, OAUTH_REDIRECT } from "constants/routesURL";
 import log from "loglevel";
 import history from "util/history";
-import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from "axios";
+import axios, { AxiosError, AxiosRequestConfig, AxiosResponse, InternalAxiosRequestConfig } from "axios";
 import { trans } from "i18n";
 import StoreRegistry from "redux/store/storeRegistry";
 import { logoutAction } from "redux/reduxActions/userActions";
@@ -20,7 +20,7 @@ const executeActionRegex = /query\/execute/;
 const timeoutErrorRegex = /timeout of (\d+)ms exceeded/;
 export const axiosConnectionAbortedCode = "ECONNABORTED";
 
-type AxiosRequestConfigWithTimer = AxiosRequestConfig & { timer: number };
+type AxiosRequestConfigWithTimer = InternalAxiosRequestConfig & { timer: number };
 
 export type AxiosResponseWithTimer = AxiosResponse<ApiResponse> & {
   config: AxiosRequestConfigWithTimer;
@@ -37,7 +37,7 @@ export type AxiosErrorWithTimer = AxiosError<ApiResponse> & {
 };
 
 function isAxiosErrorWithTimer(error: any): error is AxiosErrorWithTimer {
-  return axios.isAxiosError(error) && error?.config && "timer" in error.config;
+  return Boolean(axios.isAxiosError(error) && error?.config && "timer" in error.config);
 }
 
 const makeExecuteActionResponse = (response: any) => {
@@ -68,7 +68,7 @@ const notNeedBindPath = () => {
   return pathName === AUTH_BIND_URL || pathName === OAUTH_REDIRECT;
 };
 
-export const apiRequestInterceptor = (config: AxiosRequestConfig): AxiosRequestConfigWithTimer => ({
+export const apiRequestInterceptor = (config: InternalAxiosRequestConfig): AxiosRequestConfigWithTimer => ({
   ...config,
   timer: performance.now(),
 });
