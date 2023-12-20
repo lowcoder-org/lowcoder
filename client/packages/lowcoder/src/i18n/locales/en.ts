@@ -194,7 +194,7 @@ export const en = {
     "fixed": "Fixed"
   },
   "textOverflowProp": {
-    "ellipsis": "Ellipsis",
+    "ellipsis": "Mouseover",
     "wrap": "Wrap"
   },
   "labelProp": {
