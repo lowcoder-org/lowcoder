@@ -3728,17 +3728,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@testing-library/user-event@npm:^13.2.1":
-  version: 13.5.0
-  resolution: "@testing-library/user-event@npm:13.5.0"
-  dependencies:
-    "@babel/runtime": ^7.12.5
-  peerDependencies:
-    "@testing-library/dom": ">=7.21.4"
-  checksum: 16319de685fbb7008f1ba667928f458b2d08196918002daca56996de80ef35e6d9de26e9e1ece7d00a004692b95a597cf9142fff0dc53f2f51606a776584f549
-  languageName: node
-  linkType: hard
-
 "@tootallnate/once@npm:2":
   version: 2.0.0
   resolution: "@tootallnate/once@npm:2.0.0"
@@ -11463,7 +11452,7 @@ __metadata:
     jest-canvas-mock: ^2.5.2
     lowcoder-cli: "workspace:^"
     lowcoder-sdk: "workspace:^"
-    mermaid: ^10.2.4
+    mermaid: ^10.6.1
     react: 17
     react-dom: 17
     typescript: 4.8.4
@@ -11554,7 +11543,6 @@ __metadata:
     "@rollup/plugin-typescript": ^8.5.0
     "@testing-library/jest-dom": ^5.16.5
     "@testing-library/react": ^12.0.0
-    "@testing-library/user-event": ^13.2.1
     "@types/file-saver": ^2.0.5
     "@types/jest": ^29.2.2
     "@types/mime": ^2.0.3
@@ -12143,7 +12131,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mermaid@npm:^10.2.4":
+"mermaid@npm:^10.6.1":
   version: 10.6.1
   resolution: "mermaid@npm:10.6.1"
   dependencies:
