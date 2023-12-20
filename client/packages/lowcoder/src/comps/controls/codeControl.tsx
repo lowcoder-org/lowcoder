@@ -1,4 +1,4 @@
-import { EditorState } from "@codemirror/basic-setup";
+import { EditorState } from "@codemirror/state";
 import { isThemeColorKey } from "api/commonSettingApi";
 import { CodeEditor } from "base/codeEditor";
 import { Language } from "base/codeEditor/codeEditorTypes";
