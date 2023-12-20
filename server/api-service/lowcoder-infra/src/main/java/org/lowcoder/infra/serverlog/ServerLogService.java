@@ -2,6 +2,9 @@ package org.lowcoder.infra.serverlog;
 
 import static org.lowcoder.infra.perf.PerfEvent.SERVER_LOG_BATCH_INSERT;
 
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.temporal.TemporalAdjusters;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.TimeUnit;
@@ -13,6 +16,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import io.micrometer.core.instrument.Tags;
+import reactor.core.publisher.Mono;
 
 @Service
 public class ServerLogService {
@@ -42,4 +46,14 @@ public class ServerLogService {
                     perfHelper.count(SERVER_LOG_BATCH_INSERT, Tags.of("size", String.valueOf(result.size())));
                 });
     }
+
+    public Mono<Long> getApiUsageCount(String orgId, Boolean lastMonthOnly) {
+        if(lastMonthOnly != null && lastMonthOnly) {
+            Long startMonthEpoch = LocalDateTime.now().minusMonths(1).with(TemporalAdjusters.firstDayOfMonth()).toEpochSecond(ZoneOffset.UTC)*1000;
+            Long endMonthEpoch = LocalDateTime.now().minusMonths(1).with(TemporalAdjusters.lastDayOfMonth()).toEpochSecond(ZoneOffset.UTC)*1000;
+            return serverLogRepository.countByOrgIdAndCreateTimeBetween(orgId, startMonthEpoch, endMonthEpoch);
+        }
+        return serverLogRepository.countByOrgId(orgId);
+    }
+
 }

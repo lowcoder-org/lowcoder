@@ -38,6 +38,7 @@ import org.lowcoder.domain.organization.service.OrganizationService;
 import org.lowcoder.domain.user.model.Connection;
 import org.lowcoder.domain.user.model.User;
 import org.lowcoder.domain.user.service.UserService;
+import org.lowcoder.infra.serverlog.ServerLogService;
 import org.lowcoder.sdk.auth.AbstractAuthConfig;
 import org.lowcoder.sdk.config.CommonConfig;
 import org.lowcoder.sdk.config.CommonConfig.Workspace;
@@ -75,6 +76,9 @@ public class OrgApiServiceImpl implements OrgApiService {
     private GroupService groupService;
     @Autowired
     private AuthenticationService authenticationService;
+
+    @Autowired
+    private ServerLogService serverLogService;
 
     @Override
     public Mono<OrgMemberListView> getOrganizationMembers(String orgId, int page, int count) {
@@ -371,6 +375,12 @@ public class OrgApiServiceImpl implements OrgApiService {
                             .cookieName(commonConfig.getCookieName())
                             .build();
                 });
+    }
+
+    @Override
+    public Mono<Long> getApiUsageCount(String orgId, Boolean lastMonthOnly) {
+        return checkVisitorAdminRole(orgId)
+                .flatMap(orgMember -> serverLogService.getApiUsageCount(orgId, lastMonthOnly));
     }
 
     private Mono<Void> checkIfSaasMode() {

@@ -188,7 +188,6 @@ function ToolTipLabel(
       placement="top"
       defaultOpen={false}
       trigger="hover"
-      popupVisible={!!title}
       style={tooltipStyle}
       {...restProps}
     >

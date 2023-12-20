@@ -405,7 +405,14 @@ export function UserDetailPopup(props: { userId: string; title: string }) {
       </OperationLink>
       <CustomModal
         width={550}
-        bodyStyle={{ maxHeight: "500px", overflow: "auto", maxWidth: "550px", width: "550px" }}
+        styles={{ 
+          body: {
+            maxHeight: "500px",
+            overflow: "auto",
+            maxWidth: "550px",
+            width: "550px"
+          }
+        }}
         open={visible}
         onCancel={() => setVisible(false)}
         title={title}
