@@ -69,7 +69,6 @@
   },
   "devDependencies": {
     "jest": "29.3.0",
-    "jest-canvas-mock": "^2.5.2",
     "vite": "^4.3.9",
     "vite-tsconfig-paths": "^3.6.0"
   }

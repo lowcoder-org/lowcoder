@@ -36,7 +36,7 @@ export default {
     path.resolve(currentDir, "../../packages/lowcoder-design/src"),
   ],
   setupFiles: [path.resolve(currentDir, "./jest.setup.js")],
-  setupFilesAfterEnv: [path.resolve(currentDir, "./jest.setup-after-env.js")],
+  setupFilesAfterEnv: [path.resolve(currentDir, "./jest.setup-after-env.js"), 'jest-canvas-mock'],
   transform: {
     "^.+\\.(js|jsx|mjs|cjs|ts|tsx)$": path.resolve(currentDir, "./transform/babelTransform.js"),
     "^.+\\.css$": path.resolve(currentDir, "./transform/cssTransform.js"),
