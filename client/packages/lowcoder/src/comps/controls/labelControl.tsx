@@ -178,7 +178,6 @@ export const LabelControl = (function () {
               }}
               placement="top"
               color="#2c2c2c"
-              popupVisible={!!props.tooltip}
               getPopupContainer={(node: any) => node.closest(".react-grid-item")}
             >
               <Label border={!!props.tooltip}>{props.text}</Label>

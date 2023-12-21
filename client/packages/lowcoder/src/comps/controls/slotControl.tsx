@@ -65,7 +65,7 @@ function ModalConfigView(props: {
         onCancel={onCancel}
         getContainer={() => document.querySelector(`#${CanvasContainerID}`) || document.body}
         footer={null}
-        bodyStyle={{ padding: "0" }}
+        styles={{ body: {padding: "0"} }}
         zIndex={Layers.modal}
         modalRender={(node) => (
           <ModalStyled $background={background} onClick={() => {}}>

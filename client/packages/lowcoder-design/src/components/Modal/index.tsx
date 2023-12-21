@@ -32,7 +32,7 @@ export function Modal(props: ModalProps) {
     resizeHandles,
     width: modalWidth,
     height: modalHeight,
-    bodyStyle,
+    styles,
     children,
     ...otherProps
   } = props;
@@ -53,7 +53,12 @@ export function Modal(props: ModalProps) {
   return (
     <AntdModal
       width={width ?? modalWidth}
-      bodyStyle={{ height: height ?? modalHeight, ...bodyStyle }}
+      styles={{ 
+        body: {
+          height: height ?? modalHeight,
+          ...styles?.body,
+        }
+      }}
       {...otherProps}
     >
       <Resizable

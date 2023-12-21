@@ -39,6 +39,7 @@ function ThemeList(props: ThemeListProp) {
   }
   return (
     <TableStyled
+      id="theme-list-table"
       ref={tableRef}
       rowKey="id"
       pagination={false}
@@ -153,7 +154,7 @@ function ThemeList(props: ThemeListProp) {
               <ListDropdown onClick={(e) => e.stopPropagation()}>
                 <Dropdown
                   trigger={["click"]}
-                  getPopupContainer={() => tableRef.current!}
+                  getPopupContainer={() => document.getElementById("theme-list-table")!}
                   dropdownRender={() => (
                     <Menu
                       onClick={(params) => {

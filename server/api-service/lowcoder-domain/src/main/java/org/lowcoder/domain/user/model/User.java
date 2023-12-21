@@ -46,6 +46,8 @@ public class User extends HasIdAndAuditing implements BeforeMongodbWrite, AfterM
 
     private Boolean isEnabled = true;
 
+    private String activeAuthId;
+
     // used in form login
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;

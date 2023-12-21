@@ -292,11 +292,13 @@ export default function BottomMetaDrawer(props: BottomMetaDrawerProps) {
           zIndex: 2,
         }}
         title={<DrawerTitleView />}
-        headerStyle={headerWrapperStyle}
-        bodyStyle={{
-          padding: "0 0 0 8px",
-          scrollbarGutter: "stable",
-          overflowX: "hidden",
+        styles={{
+          header: headerWrapperStyle,
+          body: {
+            padding: "0 0 0 8px",
+            overflowX: "hidden",
+            scrollbarGutter: "stable",
+          }
         }}
         placement="bottom"
         closable={false}

@@ -64,9 +64,10 @@ function toDataView(value: any, name: string, desc?: ReactNode) {
   } else if (_.isPlainObject(value)) {
     return <CollapseView name={name} desc={descRecord} data={value} key={name} />;
   }
+
   return (
     <PadDiv key={name}>
-      <Tooltip title={desc} placement={"right"} popupVisible={!!desc}>
+      <Tooltip title={desc} placement={"right"}>
         <Label label={name} />
         &#8203;
       </Tooltip>
@@ -150,7 +151,6 @@ const CollapseView = React.memo(
               <Tooltip
                 title={props.desc?.[props.name]}
                 placement={"right"}
-                popupVisible={!!props.desc?.[props.name]}
               >
                 <CollapseTitleWrapper onClick={() => props.onClick && props.onClick(props.name)}>
                   <Title
