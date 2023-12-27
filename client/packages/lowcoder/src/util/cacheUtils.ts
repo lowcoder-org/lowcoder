@@ -27,7 +27,7 @@ export function memo(target: any, propertyKey: string, descriptor: PropertyDescr
  */
 export const profilerCallback = (
   id: string,
-  phase: "mount" | "update",
+  phase: "mount" | "update" | "nested-update",
   actualDuration: number,
   baseDuration: number,
   startTime: number,

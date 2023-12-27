@@ -83,7 +83,7 @@ export const SelectionControl = (function () {
         selectedRowKeys: props.selectedRowKeys,
         preserveSelectedRowKeys: true,
         onChange: (selectedRowKeys) => {
-          dispatch(changeChildAction("selectedRowKeys", selectedRowKeys, false));
+          dispatch(changeChildAction("selectedRowKeys", selectedRowKeys as string[], false));
           onEvent("rowSelectChange");
         },
         // click checkbox also trigger row click event

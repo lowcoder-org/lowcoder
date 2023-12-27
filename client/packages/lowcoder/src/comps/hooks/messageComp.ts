@@ -15,7 +15,7 @@ const showMessage = (params: EvalParamType[], level: "info" | "success" | "warni
   const text = params?.[0];
   const options = params?.[1] as JSONObject;
   const duration = options?.["duration"] ?? 3;
-  text && messageInstance[level](text, duration as number);
+  text && messageInstance[level](text as any, duration as number);
 };
 
 const MessageCompBase = simpleMultiComp({});

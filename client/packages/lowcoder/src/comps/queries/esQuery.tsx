@@ -255,7 +255,9 @@ const EsQueryPropertyView = (props: {
             {children.esMethod.getView() === "RAW" ? (
               children.path.propertyView({})
             ) : (
-              <ReadOnlyField>{children.path.toJsonValue()}</ReadOnlyField>
+              <ReadOnlyField>
+                <>{children.path.toJsonValue()}</>
+              </ReadOnlyField>
             )}
           </InputField>
 

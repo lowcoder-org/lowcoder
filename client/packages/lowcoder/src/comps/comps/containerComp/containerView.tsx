@@ -356,7 +356,9 @@ export function InnerGrid(props: ViewPropsWithSelect) {
 
   const dispatchPositionParamsTimerRef = useRef(0);
   const onResize = useCallback(
-    (width, height) => {
+    (width?: number, height?: number) => {
+      if(!width || !height) return;
+
       if (width !== positionParams.containerWidth) {
         const newPositionParams: PositionParams = {
           margin: [0, 0],
@@ -426,7 +428,10 @@ export function InnerGrid(props: ViewPropsWithSelect) {
   }, [props.items]);
 
   const clickItem = useCallback(
-    (e, name) => selectItem(e, name, canAddSelect, containerSelectNames, setSelectedNames),
+    (
+      e: React.MouseEvent<HTMLDivElement,
+      globalThis.MouseEvent>, name: string
+    ) => selectItem(e, name, canAddSelect, containerSelectNames, setSelectedNames),
     [canAddSelect, containerSelectNames, setSelectedNames]
   );
 

@@ -291,8 +291,8 @@ export default function ApplicationHome() {
       const path = FOLDER_URL_PREFIX + `/${folder.folderId}`;
       return {
         onSelected: (_, currentPath) => currentPath === path,
-        text: (props: { selected: boolean }) => (
-          <FolderNameWrapper selected={props.selected}>
+        text: (props: { selected?: boolean }) => (
+          <FolderNameWrapper selected={Boolean(props.selected)}>
             <FolderName name={folder.name} id={folder.folderId} />
           </FolderNameWrapper>
         ),
@@ -309,8 +309,8 @@ export default function ApplicationHome() {
     folderItems = [
       ...folderItems,
       {
-        text: (props: { selected: boolean }) => (
-          <MoreFoldersWrapper selected={props.selected}>{trans("more")}</MoreFoldersWrapper>
+        text: (props: { selected?: boolean }) => (
+          <MoreFoldersWrapper selected={Boolean(props.selected)}>{trans("more")}</MoreFoldersWrapper>
         ),
         routePath: FOLDERS_URL,
         routeComp: RootFolderListView,

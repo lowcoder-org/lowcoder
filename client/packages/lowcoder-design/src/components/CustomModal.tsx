@@ -218,24 +218,26 @@ function CustomModalRender(props: CustomModalProps & ModalFuncProps) {
   return (
     <Draggable handle=".handle" disabled={!props.draggable}>
       <ModalWrapper width={props.width}>
-        <ModalHeaderWrapper className="handle" $draggable={props.draggable}>
-          <ModalHeader
-            title={props.title}
-            onCancel={props.onCancel}
-            showBackLink={props.showBackLink}
-            onBack={props.onBack}
-          />
-        </ModalHeaderWrapper>
+        <>
+          <ModalHeaderWrapper className="handle" $draggable={props.draggable}>
+            <ModalHeader
+              title={props.title}
+              onCancel={props.onCancel}
+              showBackLink={props.showBackLink}
+              onBack={props.onBack}
+            />
+          </ModalHeaderWrapper>
 
-        <div style={{ padding: "0 16px", ...props.styles?.body }}>{props.children}</div>
+          <div style={{ padding: "0 16px", ...props.styles?.body }}>{props.children}</div>
 
-        {props.footer === null || props.footer ? (
-          props.footer
-        ) : (
-          <ModalFooterWrapper>
-            <ModalFooter {...props} />
-          </ModalFooterWrapper>
-        )}
+          {props.footer === null || props.footer ? (
+            props.footer
+          ) : (
+            <ModalFooterWrapper>
+              <ModalFooter {...props} />
+            </ModalFooterWrapper>
+          )}
+        </>
       </ModalWrapper>
     </Draggable>
   );

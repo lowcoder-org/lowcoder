@@ -176,7 +176,7 @@ export const DatasourceEditPage = () => {
   const { testLoading, createLoading, form, genRequest, resolveTest, resolveCreate } =
     useDatasourceForm();
 
-  const handleFormReadyStatusChange = useCallback((isReady) => {
+  const handleFormReadyStatusChange = useCallback((isReady: boolean) => {
     setIsReady(isReady);
   }, []);
 
