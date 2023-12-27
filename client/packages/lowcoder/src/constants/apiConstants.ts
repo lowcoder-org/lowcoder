@@ -1,3 +1,4 @@
+import { RawAxiosRequestHeaders } from "axios";
 import { trans } from "i18n";
 
 export const DEFAULT_VERIFY_CODE_INTERVAL_SECONDS = 10;
@@ -47,7 +48,7 @@ export type PaginationParam = {
   size: number;
 };
 
-export const API_REQUEST_HEADERS: APIHeaders = {
+export const API_REQUEST_HEADERS: RawAxiosRequestHeaders = {
   "Content-Type": "application/json",
 };
 export const SERVER_HOST = `${REACT_APP_API_HOST ?? ""}`;

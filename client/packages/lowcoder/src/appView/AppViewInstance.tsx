@@ -4,7 +4,7 @@ import { RootComp } from "comps/comps/rootComp";
 import { setGlobalSettings } from "comps/utils/globalSettings";
 import { sdkConfig } from "constants/sdkConfig";
 import _ from "lodash";
-import ReactDOM from "react-dom";
+import { createRoot } from "react-dom/client";
 import { StyleSheetManager } from "styled-components";
 import { ModuleDSL, ModuleDSLIoInput } from "types/dsl";
 import { AppView } from "./AppView";
@@ -137,7 +137,8 @@ export class AppViewInstance<I = any, O = any> {
 
   private async render() {
     const data = await this.dataPromise;
-    ReactDOM.render(
+    const root = createRoot(this.node);
+    root.render(
       <StyleSheetManager target={this.node as HTMLElement}>
         <AppView
           appId={this.appId}
@@ -147,8 +148,7 @@ export class AppViewInstance<I = any, O = any> {
           onCompChange={(comp) => this.handleCompChange(comp)}
           onModuleEventTriggered={(eventName) => this.emit("moduleEventTriggered", [eventName])}
         />
-      </StyleSheetManager>,
-      this.node
+      </StyleSheetManager>
     );
   }
 

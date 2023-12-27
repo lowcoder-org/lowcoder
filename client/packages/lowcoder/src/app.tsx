@@ -21,7 +21,7 @@ import {
   USER_AUTH_URL,
 } from "constants/routesURL";
 import React from "react";
-import ReactDOM from "react-dom";
+import { createRoot } from "react-dom/client";
 import { Helmet } from "react-helmet";
 import { connect, Provider } from "react-redux";
 import { Redirect, Route, Router, Switch } from "react-router-dom";
@@ -187,10 +187,11 @@ const AppIndexWithProps = connect(mapStateToProps, mapDispatchToProps)(AppIndex)
 export function bootstrap() {
   initApp();
   loadComps();
-  ReactDOM.render(
+  const container = document.getElementById("root");
+  const root = createRoot(container!);
+  root.render(
     <Provider store={reduxStore}>
       <AppIndexWithProps />
-    </Provider>,
-    document.getElementById("root")
+    </Provider>
   );
 }

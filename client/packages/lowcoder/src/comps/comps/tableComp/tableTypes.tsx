@@ -100,6 +100,8 @@ export const TableEventOptions = [
   },
 ] as const;
 
+export type TableEventOptionValues = typeof TableEventOptions[number]['value'];
+
 export type SortValue = {
   column?: string;
   desc?: boolean;

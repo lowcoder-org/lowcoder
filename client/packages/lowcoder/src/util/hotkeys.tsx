@@ -21,6 +21,7 @@ export interface IReactHotkeysProps {
   splitKey?: string;
   global?: boolean;
   wrapperStyle?: CSSProperties;
+  children?: React.ReactNode;
 }
 
 export default class ReactHotkeys extends React.Component<

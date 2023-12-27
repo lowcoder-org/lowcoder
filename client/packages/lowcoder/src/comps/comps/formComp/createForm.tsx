@@ -421,7 +421,10 @@ const CustomEditText = (props: {
 
 const DragHandle = SortableHandle(() => <StyledDragIcon />);
 
-const SortableItem = SortableElement((props: { item: RowItem; form: FormInstance }) => {
+const SortableItem = SortableElement<{
+  item: RowItem,
+  form: FormInstance,
+}>((props: { item: RowItem; form: FormInstance }) => {
   const { item, form } = props;
   const { columnName, columnType, compItems } = item;
   const disabled = !Form.useWatch(["columns", columnName, "enabled"], form);
@@ -474,12 +477,22 @@ const SortableItem = SortableElement((props: { item: RowItem; form: FormInstance
   );
 });
 
-const SortableBody = SortableContainer((props: { items: RowItem[]; form: FormInstance }) => {
+const SortableBody = SortableContainer<{
+  items: RowItem[],
+  form: FormInstance,
+}>((props: { items: RowItem[]; form: FormInstance }) => {
   return (
     <DataBody>
       {props.items.map((t, index) => {
         // Use the column name as the key here to ensure that the useState is correct when dragging
-        return <SortableItem key={t.columnName} index={index} item={t} form={props.form} />;
+        return (
+          <SortableItem
+            key={t.columnName}
+            index={index}
+            item={t}
+            form={props.form} 
+          />
+        );
       })}
     </DataBody>
   );
