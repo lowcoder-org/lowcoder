@@ -67,6 +67,8 @@ import { VideoMeetingStreamComp } from "./comps/meetingComp/videoMeetingStreamCo
 import { ControlButton } from "./comps/meetingComp/controlButton";
 import { VideoMeetingControllerComp } from "./comps/meetingComp/videoMeetingControllerComp";
 import { VideoSharingStreamComp } from "./comps/meetingComp/videoSharingStreamComp";
+import { ChatControllerComp } from "./comps/chatroom/chatControllerComp";
+import { ChatsComp } from "./comps/chatroom/chatsComp";
 
 import {
   AudioCompIcon,
@@ -145,7 +147,6 @@ const builtInRemoteComps: Omit<RemoteCompInfo, "compName"> = {
 };
 
 const uiCompMap: Registry = {
-
   // Dashboards
 
   chart: {
@@ -427,9 +428,9 @@ const uiCompMap: Registry = {
     comp: VideoSharingStreamComp,
     withoutLoading: true,
     layoutInfo: {
-      w: 12, 
+      w: 12,
       h: 50,
-    }
+    },
   },
   videocomponent: {
     name: trans("meeting.videoCompName"),
@@ -441,9 +442,9 @@ const uiCompMap: Registry = {
     comp: VideoMeetingStreamComp,
     withoutLoading: true,
     layoutInfo: {
-      w: 6, 
+      w: 6,
       h: 32,
-    }
+    },
   },
   meeting: {
     name: trans("meeting.meetingCompName"),
@@ -459,7 +460,7 @@ const uiCompMap: Registry = {
     name: trans("uiComp.commentCompName"),
     enName: "comment",
     description: trans("uiComp.commentCompDesc"),
-    categories: ["forms","collaboration"],
+    categories: ["forms", "collaboration"],
     icon: CommentIcon,
     keywords: trans("uiComp.commentCompKeywords"),
     comp: CommentComp,
@@ -472,10 +473,23 @@ const uiCompMap: Registry = {
     name: trans("uiComp.mentionCompName"),
     enName: "mention",
     description: trans("uiComp.mentionCompDesc"),
-    categories: ["forms","collaboration"],
+    categories: ["forms", "collaboration"],
     icon: MentionIcon,
     keywords: trans("uiComp.mentionCompKeywords"),
     comp: MentionComp,
+  },
+
+  //Chats
+
+  chat: {
+    name: trans("chat.chatCompName"),
+    enName: "Drawer",
+    description: trans("chat.chatCompDesc"),
+    categories: ["chat"],
+    icon: DrawerCompIcon,
+    keywords: trans("chat.chatCompKeywords"),
+    comp: ChatControllerComp,
+    withoutLoading: true,
   },
 
   // Forms
@@ -558,9 +572,9 @@ const uiCompMap: Registry = {
     keywords: trans("uiComp.inputCompKeywords"),
     comp: InputComp,
     layoutInfo: {
-      w: 6, 
+      w: 6,
       h: 6,
-    }
+    },
   },
   password: {
     name: trans("uiComp.passwordCompName"),
@@ -571,9 +585,9 @@ const uiCompMap: Registry = {
     keywords: trans("uiComp.passwordCompKeywords"),
     comp: PasswordComp,
     layoutInfo: {
-      w: 6, 
+      w: 6,
       h: 6,
-    }
+    },
   },
   numberInput: {
     name: trans("uiComp.numberInputCompName"),
@@ -584,9 +598,9 @@ const uiCompMap: Registry = {
     keywords: trans("uiComp.numberInputCompKeywords"),
     comp: NumberInputComp,
     layoutInfo: {
-      w: 6, 
+      w: 6,
       h: 6,
-    }
+    },
   },
   textArea: {
     name: trans("uiComp.textAreaCompName"),
@@ -597,9 +611,9 @@ const uiCompMap: Registry = {
     keywords: trans("uiComp.textAreaCompKeywords"),
     comp: TextAreaComp,
     layoutInfo: {
-      w: 6, 
+      w: 6,
       h: 12,
-    }
+    },
   },
   switch: {
     name: trans("uiComp.switchCompName"),
@@ -610,9 +624,9 @@ const uiCompMap: Registry = {
     keywords: trans("uiComp.switchCompKeywords"),
     comp: SwitchComp,
     layoutInfo: {
-      w: 6, 
+      w: 6,
       h: 6,
-    }
+    },
   },
   checkbox: {
     name: trans("uiComp.checkboxCompName"),
@@ -768,15 +782,15 @@ const uiCompMap: Registry = {
     keywords: trans("uiComp.ratingCompKeywords"),
     comp: RatingComp,
     layoutInfo: {
-      w: 6, 
+      w: 6,
       h: 6,
-    }
+    },
   },
   autocomplete: {
     name: trans("uiComp.autoCompleteCompName"),
     enName: "autoComplete",
     description: trans("uiComp.autoCompleteCompDesc"),
-    categories: ["forms","collaboration"],
+    categories: ["forms", "collaboration"],
     icon: AutoCompleteCompIcon,
     keywords: cnchar
       .spell(trans("uiComp.autoCompleteCompName"), "first", "low")
@@ -815,11 +829,10 @@ const uiCompMap: Registry = {
       w: 6,
       h: 20,
     },
-  },  
-
+  },
 
   // Document handling
-  
+
   file: {
     name: trans("uiComp.fileUploadCompName"),
     enName: "File Upload",
@@ -846,7 +859,7 @@ const uiCompMap: Registry = {
       h: 40,
     },
   },
-  
+
   // Multimedia
 
   image: {
@@ -1080,7 +1093,6 @@ const uiCompMap: Registry = {
       h: 24,
     },
   },
-  
 };
 
 export function loadComps() {

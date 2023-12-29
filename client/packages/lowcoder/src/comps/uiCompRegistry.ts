@@ -4,7 +4,7 @@ import { NameGenerator } from "./utils/nameGenerator";
 import { JSONValue } from "util/jsonTypes";
 import { EditorState } from "./editorState";
 import { trans } from "i18n";
-
+  
 export type ExposingMultiCompConstructor = ReturnType<
   typeof withExposingConfigs
 >;
