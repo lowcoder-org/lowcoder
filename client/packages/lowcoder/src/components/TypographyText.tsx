@@ -10,7 +10,7 @@ const AntdTypographyText = styled(Typography.Text)`
   text-overflow: ellipsis;
   display: block;
 
-  :is(.ant-typography-edit-content) {
+  &:is(.ant-typography-edit-content) {
     color: red;
     padding: unset;
     margin: unset !important;
@@ -33,7 +33,7 @@ const AntdTypographyText = styled(Typography.Text)`
     color: #333333;
     line-height: 14px;
 
-    ::-webkit-scrollbar {
+    &::-webkit-scrollbar {
       display: none;
     }
   }

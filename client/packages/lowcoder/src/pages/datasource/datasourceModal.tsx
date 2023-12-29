@@ -30,12 +30,12 @@ const EditButton = styled(Button)`
   margin-right: 12px;
   padding: 4px;
 
-  :hover {
+  &:hover {
     color: #315efb;
     background-color: #edeff2;
   }
 
-  :focus {
+  &:focus {
     color: #315efb;
     background-color: #edeff2;
   }
@@ -64,13 +64,13 @@ const CreateButton = styled(Button)`
     fill: #315efb;
   }
 
-  :hover {
+  &:hover {
     color: #333333;
     background-color: #f2f7fc;
     border-color: #c2d6ff;
   }
 
-  :focus {
+  &:focus {
     color: #333333;
     background-color: #f2f7fc;
     border-color: #c2d6ff;
@@ -91,13 +91,13 @@ const TutorialButton = styled(Button)`
   padding: 0 7px;
   flex-shrink: 0;
 
-  :hover {
+  &:hover {
     background-color: #f5f5f6;
     border: 1px solid #d7d9e0;
     color: #333333;
   }
 
-  :focus {
+  &:focus {
     background-color: #f5f5f6;
     border: 1px solid #d7d9e0;
     color: #333333;

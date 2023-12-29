@@ -44,7 +44,7 @@ const VideoContainer = styled.video`
   justify-content: space-around;
 `;
 
-export const meetingStreamChildren = {
+const meetingStreamChildren = {
   autoHeight: withDefault(AutoHeightControl, "auto"),
   profilePadding: withDefault(StringControl, "0px"),
   profileBorderRadius: withDefault(StringControl, "0px"),

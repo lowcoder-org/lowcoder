@@ -7,7 +7,7 @@ export const labelCss: any = css`
   font-size: 13px;
   color: #222222;
 
-  :hover {
+  &:hover {
     cursor: default;
   }
 `;
@@ -67,21 +67,21 @@ export const BlockLabel = (props: IBlocklabel) => {
 
 // Title text in each line of Collapse
 const LeftTitle = styled.span<{
-  color?: string;
-  line?: number;
-  hasChild?: boolean;
+  $color?: string;
+  $line?: number;
+  $hasChild?: boolean;
 }>`
   word-wrap: break-word;
   word-break: break-all;
   white-space: pre-wrap;
   user-select: none;
   font-size: 13px;
-  line-height: ${(props) => (props.line ? props.line : 23)}px;
-  color: ${(props) => (props.color ? props.color : "#333333")};
+  line-height: ${(props) => (props.$line ? props.$line : 23)}px;
+  color: ${(props) => (props.$color ? props.$color : "#333333")};
   margin-right: 8px;
-  font-weight: ${(props) => (props.hasChild ? "600" : "normal")};
+  font-weight: ${(props) => (props.$hasChild ? "600" : "normal")};
 
-  :hover {
+  &:hover {
     cursor: pointer;
   }
 `;
@@ -97,7 +97,7 @@ interface ICollapseTitle {
 export const CollapseTitle = (props: ICollapseTitle) => {
   const { color, label, lineHeight, hasChild } = props;
   return (
-    <LeftTitle style={props.style} color={color} line={lineHeight} hasChild={hasChild}>
+    <LeftTitle style={props.style} $color={color} $line={lineHeight} $hasChild={hasChild}>
       {label}
     </LeftTitle>
   );
@@ -140,16 +140,16 @@ export const CommonGrayLabel = styled.p`
   margin: 0;
 `;
 
-export const CommonErrorLabel = styled.p<{ fontSize?: number }>`
-  font-size: ${(props) => (props.fontSize ? props.fontSize : 12)}px;
-  line-height: ${(props) => (props.fontSize ? props.fontSize : 12)}px;
+export const CommonErrorLabel = styled.p<{ $fontSize?: number }>`
+  font-size: ${(props) => (props.$fontSize ? props.$fontSize : 12)}px;
+  line-height: ${(props) => (props.$fontSize ? props.$fontSize : 12)}px;
   color: #f73131;
   margin: 0;
 `;
 
 export const CommonBlueLabel = styled.span`
   ${labelCss}
-  :hover {
+  &:hover {
     cursor: pointer;
   }
 

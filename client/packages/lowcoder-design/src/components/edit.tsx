@@ -14,13 +14,13 @@ const Prefix = styled.div`
   top: 6px;
 `;
 
-export const EditTextWrapper = styled.div<{ disabled?: boolean; hasPrefix?: boolean }>`
+export const EditTextWrapper = styled.div<{ disabled?: boolean; $hasPrefix?: boolean }>`
   font-weight: 500;
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 0 8px 0 4px;
-  padding-left: ${(props) => (props.hasPrefix ? "28px" : "4px")};
+  padding-left: ${(props) => (props.$hasPrefix ? "28px" : "4px")};
   border-radius: 4px;
   width: 220px;
   height: 28px;
@@ -29,7 +29,7 @@ export const EditTextWrapper = styled.div<{ disabled?: boolean; hasPrefix?: bool
   font-size: 14px;
   cursor: ${(props) => !props.disabled && "pointer"};
 
-  :hover {
+  &:hover {
     background-color: ${(props) => !props.disabled && "#8b8fa34c"};
   }
 
@@ -72,7 +72,7 @@ const TextInput = styled(Input)<InputProps & { $hasPrefix?: boolean }>`
   line-height: 28px;
   font-size: 14px;
 
-  :focus {
+  &:focus {
     box-shadow: none;
   }
 `;
@@ -123,7 +123,7 @@ export const EditText = (props: EditTextProps) => {
         <EditTextWrapper
           style={props.style}
           disabled={props.disabled}
-          hasPrefix={!!props.prefixIcon}
+          $hasPrefix={!!props.prefixIcon}
           className="taco-edit-text-wrapper"
           onClick={() => !props.disabled && !props.forceClickIcon && setEditing(true)}
         >

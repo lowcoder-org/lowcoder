@@ -29,7 +29,7 @@ import DataSourceIcon from "components/DataSourceIcon";
 import { messageInstance } from "lowcoder-design";
 
 const OpenDialogButton = styled.span`
-  :hover {
+  &:hover {
     cursor: pointer;
   }
 
@@ -115,11 +115,11 @@ const DataBody = styled.div`
   overflow: auto;
   height: 263px;
 
-  ::-webkit-scrollbar {
+  &::-webkit-scrollbar {
     width: 14px;
   }
 
-  ::-webkit-scrollbar-thumb {
+  &::-webkit-scrollbar-thumb {
     border: 4px solid transparent;
     background-clip: content-box;
     border-radius: 9999px;
@@ -140,23 +140,23 @@ const DataRow = styled.div<{ disabled?: boolean }>`
   color: ${(props) => (props.disabled ? "#B8B9BF" : "#333333")};
   line-height: 13px;
 `;
-const CellName = styled.div<{ head?: boolean }>`
+const CellName = styled.div<{ $head?: boolean }>`
   width: 176px;
-  padding-left: ${(props) => (props.head ? "16px" : "10px")};
+  padding-left: ${(props) => (props.$head ? "16px" : "10px")};
 `;
-const CellType = styled.div<{ head?: boolean }>`
+const CellType = styled.div<{ $head?: boolean }>`
   width: 128px;
   padding-left: 16px;
 `;
-const CellLabel = styled.div<{ head?: boolean }>`
+const CellLabel = styled.div<{ $head?: boolean }>`
   width: 104px;
-  padding-left: ${(props) => (props.head ? "16px" : "10px")};
+  padding-left: ${(props) => (props.$head ? "16px" : "10px")};
 `;
-const CellComp = styled.div<{ head?: boolean }>`
+const CellComp = styled.div<{ $head?: boolean }>`
   width: 126px;
   padding-left: 16px;
 `;
-const CellRequired = styled.div<{ head?: boolean }>`
+const CellRequired = styled.div<{ $head?: boolean }>`
   /* width: 52px; */
   padding-left: 16px;
 `;
@@ -183,7 +183,7 @@ const EditTextWrapper = styled.div<{ disabled?: boolean }>`
     color: ${(props) => (props.disabled ? "#B8B9BF" : "#333333")};
     line-height: 13px;
 
-    :hover {
+    &:hover {
       background-color: #f5f5f6;
     }
   }
@@ -209,7 +209,7 @@ const EditTextWrapper = styled.div<{ disabled?: boolean }>`
     background-color: #ffffff;
     border: 1px solid #315efb;
 
-    :focus {
+    &:focus {
       border-color: #315efb;
       box-shadow: 0 0 0 2px #d6e4ff;
     }
@@ -221,7 +221,7 @@ const CompFormItem = styled(FormItem)`
     color: #333333;
     line-height: 13px;
 
-    :hover {
+    &:hover {
       color: #315efb;
     }
   }
@@ -625,11 +625,11 @@ const CreateFormBody = (props: { onCreate: CreateHandler }) => {
         ) : (
           <>
             <HeaderRow>
-              <CellName head={true}>{trans("formComp.columnName")}</CellName>
-              <CellType head={true}>{trans("formComp.dataType")}</CellType>
-              <CellLabel head={true}>{trans("label")}</CellLabel>
-              <CellComp head={true}>{trans("formComp.compType")}</CellComp>
-              <CellRequired head={true}>{trans("formComp.required")}</CellRequired>
+              <CellName $head={true}>{trans("formComp.columnName")}</CellName>
+              <CellType $head={true}>{trans("formComp.dataType")}</CellType>
+              <CellLabel $head={true}>{trans("label")}</CellLabel>
+              <CellComp $head={true}>{trans("formComp.compType")}</CellComp>
+              <CellRequired $head={true}>{trans("formComp.required")}</CellRequired>
             </HeaderRow>
             <SortableBody
               items={items}

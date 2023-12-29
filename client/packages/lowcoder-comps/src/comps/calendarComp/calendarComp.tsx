@@ -290,11 +290,11 @@ let CalendarBasicComp = (function () {
     return (
       <Wrapper
         ref={ref}
-        editable={editable}
+        $editable={editable}
         $style={style}
-        theme={theme?.theme}
+        $theme={theme?.theme}
         onDoubleClick={handleDbClick}
-        left={left}
+        $left={left}
         key={initialDate ? defaultView + initialDate : defaultView}
       >
         <FullCalendar

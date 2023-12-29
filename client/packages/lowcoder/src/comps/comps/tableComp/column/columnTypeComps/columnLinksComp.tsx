@@ -27,7 +27,7 @@ const MenuLinkWrapper = styled.div`
   > a {
     color: ${PrimaryColor} !important;
 
-    :hover {
+    &:hover {
       color: ${LightActiveTextColor} !important;
     }
   }

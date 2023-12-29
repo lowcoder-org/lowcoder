@@ -29,31 +29,31 @@ const Wrapper = styled.div<{ $style: ContainerStyleType }>`
   ${(props) => props.$style && getStyle(props.$style)}
 `;
 
-const HeaderInnerGrid = styled(InnerGrid)<{ backgroundColor: string }>`
+const HeaderInnerGrid = styled(InnerGrid)<{ $backgroundColor: string }>`
   overflow: visible;
-  ${(props) => props.backgroundColor && `background-color: ${props.backgroundColor};`}
+  ${(props) => props.$backgroundColor && `background-color: ${props.$backgroundColor};`}
   border-radius: 0;
 `;
 
 const BodyInnerGrid = styled(InnerGrid)<{
-  showBorder: boolean;
-  backgroundColor: string;
-  borderColor: string;
+  $showBorder: boolean;
+  $backgroundColor: string;
+  $borderColor: string;
 }>`
-  border-top: ${(props) => `${props.showBorder ? 1 : 0}px solid ${props.borderColor}`};
+  border-top: ${(props) => `${props.$showBorder ? 1 : 0}px solid ${props.$borderColor}`};
   flex: 1;
-  ${(props) => props.backgroundColor && `background-color: ${props.backgroundColor};`}
+  ${(props) => props.$backgroundColor && `background-color: ${props.$backgroundColor};`}
   border-radius: 0;
 `;
 
 const FooterInnerGrid = styled(InnerGrid)<{
-  showBorder: boolean;
-  backgroundColor: string;
-  borderColor: string;
+  $showBorder: boolean;
+  $backgroundColor: string;
+  $borderColor: string;
 }>`
-  border-top: ${(props) => `${props.showBorder ? 1 : 0}px solid ${props.borderColor}`};
+  border-top: ${(props) => `${props.$showBorder ? 1 : 0}px solid ${props.$borderColor}`};
   overflow: visible;
-  ${(props) => props.backgroundColor && `background-color: ${props.backgroundColor};`}
+  ${(props) => props.$backgroundColor && `background-color: ${props.$backgroundColor};`}
   border-radius: 0;
 `;
 
@@ -90,7 +90,7 @@ export function TriContainer(props: TriContainerProps) {
             minHeight="46px"
             containerPadding={[paddingWidth, 3]}
             showName={{ bottom: showBody || showFooter ? 20 : 0 }}
-            backgroundColor={style?.headerBackground}
+            $backgroundColor={style?.headerBackground}
             style={{padding: style.containerheaderpadding}}
           />
         </BackgroundColorContext.Provider>
@@ -98,7 +98,7 @@ export function TriContainer(props: TriContainerProps) {
       {showBody && (
         <BackgroundColorContext.Provider value={container.style.background}>
           <BodyInnerGrid
-            showBorder={showHeader}
+            $showBorder={showHeader}
             {...otherBodyProps}
             items={gridItemCompToGridItems(bodyItems)}
             autoHeight={container.autoHeight}
@@ -108,8 +108,8 @@ export function TriContainer(props: TriContainerProps) {
               (showHeader && showFooter) || showHeader ? [paddingWidth, 11.5] : [paddingWidth, 11]
             }
             hintPlaceholder={props.hintPlaceholder ?? HintPlaceHolder}
-            backgroundColor={style?.background}
-            borderColor={style?.border}
+            $backgroundColor={style?.background}
+            $borderColor={style?.border}
             style={{padding: style.containerbodypadding}}
           />
         </BackgroundColorContext.Provider>
@@ -117,7 +117,7 @@ export function TriContainer(props: TriContainerProps) {
       {showFooter && (
         <BackgroundColorContext.Provider value={container.style.footerBackground}>
           <FooterInnerGrid
-            showBorder={showHeader || showBody}
+            $showBorder={showHeader || showBody}
             {...otherFooterProps}
             items={gridItemCompToGridItems(footerItems)}
             autoHeight={true}
@@ -125,8 +125,8 @@ export function TriContainer(props: TriContainerProps) {
             minHeight={showBody ? "47px" : "46px"}
             containerPadding={showBody || showHeader ? [paddingWidth, 3.5] : [paddingWidth, 3]}
             showName={{ top: showHeader || showBody ? 20 : 0 }}
-            backgroundColor={style?.footerBackground}
-            borderColor={style?.border}
+            $backgroundColor={style?.footerBackground}
+            $borderColor={style?.border}
             style={{padding: style.containerfooterpadding}}
           />
         </BackgroundColorContext.Provider>

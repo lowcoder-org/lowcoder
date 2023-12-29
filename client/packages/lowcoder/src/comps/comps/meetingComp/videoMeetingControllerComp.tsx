@@ -221,7 +221,7 @@ const rtmInit = async (appId: any, uid: any, token: any, channel: any) => {
   await rtmChannelResponse.join();
 };
 
-export const meetingControllerChildren = {
+const meetingControllerChildren = {
   visible: withDefault(BooleanStateControl, "false"),
   onEvent: eventHandlerControl(EventOptions),
   width: StringControl,

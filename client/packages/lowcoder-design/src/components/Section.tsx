@@ -5,8 +5,8 @@ import { ReactComponent as Packup } from "icons/icon-Pack-up.svg";
 import { labelCss } from "./Label";
 import { controlItem, ControlNode } from "./control";
 
-const SectionItem = styled.div<{ width?: number }>`
-  width: ${(props) => (props.width ? props.width : 312)}px;
+const SectionItem = styled.div<{ $width?: number }>`
+  width: ${(props) => (props.$width ? props.$width : 312)}px;
   border-bottom: 1px solid #e1e3eb;
 
   &:last-child {
@@ -21,7 +21,7 @@ const SectionLabel = styled.div`
   line-height: 46px;
   font-weight: 600;
 
-  :hover {
+  &:hover {
     cursor: pointer;
   }
 `;
@@ -39,7 +39,7 @@ const PackupIcon = styled(Packup)<Irotate>`
   color: #8b8fa3;
   transform: ${(props) => props.deg};
 
-  :hover {
+  &:hover {
     cursor: pointer;
   }
 `;
@@ -50,7 +50,7 @@ const SectionLabelDiv = styled.div`
   height: 46px;
   margin-left: 16px;
 
-  :hover {
+  &:hover {
     cursor: pointer;
   }
 
@@ -63,14 +63,14 @@ const SectionLabelDiv = styled.div`
   }
 `;
 
-const ShowChildren = styled.div<{ show?: string; noMargin?: boolean }>`
-  display: ${(props) => props.show || "none"};
+const ShowChildren = styled.div<{ $show?: string; $noMargin?: boolean }>`
+  display: ${(props) => props.$show || "none"};
   flex-direction: column;
   gap: 8px;
   transition: all 3s;
-  margin-left: ${(props) => (props.noMargin ? 0 : 16)}px;
+  margin-left: ${(props) => (props.$noMargin ? 0 : 16)}px;
   padding-bottom: 16px;
-  padding-right: ${(props) => (props.noMargin ? 0 : "16px")};
+  padding-right: ${(props) => (props.$noMargin ? 0 : "16px")};
 `;
 
 interface ISectionConfig<T> {
@@ -113,7 +113,7 @@ export const BaseSection = (props: ISectionConfig<ReactNode>) => {
   };
 
   return (
-    <SectionItem width={props.width} style={props.style}>
+    <SectionItem $width={props.width} style={props.style}>
       {props.name && (
         <SectionLabelDiv onClick={handleToggle} className={"section-header"}>
           <SectionLabel>{props.name}</SectionLabel>
@@ -123,7 +123,7 @@ export const BaseSection = (props: ISectionConfig<ReactNode>) => {
           </div>
         </SectionLabelDiv>
       )}
-      <ShowChildren show={open ? "flex" : "none"} noMargin={props.noMargin}>
+      <ShowChildren $show={open ? "flex" : "none"} $noMargin={props.noMargin}>
         {props.children}
       </ShowChildren>
     </SectionItem>

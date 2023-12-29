@@ -54,11 +54,11 @@ const HookCompContainer = styled.div`
   z-index: ${Layers.hooksCompContainer};
 `;
 
-const ViewBody = styled.div<{ hideBodyHeader?: boolean; height?: number }>`
+const ViewBody = styled.div<{ $hideBodyHeader?: boolean; $height?: number }>`
   height: ${(props) => `calc(${
-    props.height ? props.height + "px" : "100vh"
+    props.$height ? props.$height + "px" : "100vh"
   } - env(safe-area-inset-bottom) -
-      ${props.hideBodyHeader ? "0px" : TopHeaderHeight}
+      ${props.$hideBodyHeader ? "0px" : TopHeaderHeight}
   )`};
 `;
 
@@ -290,7 +290,7 @@ function EditorView(props: EditorViewProps) {
         <Helmet>{application && <title>{application.name}</title>}</Helmet>
         {!hideBodyHeader && <PreviewHeader />}
         <EditorContainerWithViewMode>
-          <ViewBody hideBodyHeader={hideBodyHeader} height={height}>
+          <ViewBody $hideBodyHeader={hideBodyHeader} $height={height}>
             {uiComp.getView()}
           </ViewBody>
           <div style={{ zIndex: Layers.hooksCompContainer }}>{hookCompViews}</div>
@@ -303,7 +303,7 @@ function EditorView(props: EditorViewProps) {
   let uiCompView;
   if (showAppSnapshot) {
     uiCompView = (
-      <ViewBody hideBodyHeader={hideBodyHeader} height={height}>
+      <ViewBody $hideBodyHeader={hideBodyHeader} $height={height}>
         <EditorContainer>{uiComp.getView()}</EditorContainer>
       </ViewBody>
     );

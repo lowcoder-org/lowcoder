@@ -19,11 +19,11 @@ const KeyValueWrapper = styled.div`
   }
 `;
 
-const KeyWrapper = styled.div<{ flexBasics?: number }>`
+const KeyWrapper = styled.div<{ $flexBasics?: number }>`
   display: flex;
   margin-right: 8px;
   flex: 1;
-  flex-basis: ${(props) => (props.flexBasics ? props.flexBasics + "px" : "0%")};
+  flex-basis: ${(props) => (props.$flexBasics ? props.$flexBasics + "px" : "0%")};
 
   & > div:first-child {
     flex-grow: 1;
@@ -37,9 +37,9 @@ const TypeWrapper = styled.div`
   flex-shrink: 0;
 `;
 
-const ValueWrapper = styled.div<{ flexBasics?: number }>`
+const ValueWrapper = styled.div<{ $flexBasics?: number }>`
   flex: 1;
-  flex-basis: ${(props) => (props.flexBasics ? props.flexBasics + "px" : "0%")};
+  flex-basis: ${(props) => (props.$flexBasics ? props.$flexBasics + "px" : "0%")};
 `;
 
 export type KeyValueControlParams = ControlParams & {
@@ -81,7 +81,7 @@ function keyValueControl<T extends OptionsType>(
     propertyView(params: KeyValueControlParams) {
       return (
         <KeyValueWrapper>
-          <KeyWrapper flexBasics={params.keyFlexBasics}>
+          <KeyWrapper $flexBasics={params.keyFlexBasics}>
             {this.children.key.propertyView({ placeholder: "key", indentWithTab: false })}
             {hasType && params.showType && (
               <TypeWrapper>
@@ -93,7 +93,7 @@ function keyValueControl<T extends OptionsType>(
               </TypeWrapper>
             )}
           </KeyWrapper>
-          <ValueWrapper flexBasics={params.valueFlexBasics}>
+          <ValueWrapper $flexBasics={params.valueFlexBasics}>
             {this.children.value.propertyView({
               placeholder: "value",
               indentWithTab: false,

@@ -45,7 +45,7 @@ const BackBtn = styled.div`
   cursor: pointer;
   height: 24px;
 
-  :hover {
+  &:hover {
     color: #4965f2;
   }
 
@@ -56,7 +56,7 @@ const BackBtn = styled.div`
     margin-right: 4px;
   }
 
-  :hover svg g path {
+  &:hover svg g path {
     fill: #4965f2;
   }
 `;
@@ -128,13 +128,13 @@ const TutorialButton = styled(Button)`
   justify-content: center;
   padding: 0 10px;
 
-  :hover {
+  &:hover {
     background-color: #f5f5f6;
     border: 1px solid #d7d9e0;
     color: #333333;
   }
 
-  :focus {
+  &:focus {
     background-color: #f5f5f6;
     border: 1px solid #d7d9e0;
     color: #333333;

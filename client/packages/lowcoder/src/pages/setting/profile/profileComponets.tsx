@@ -165,7 +165,7 @@ const ProfileImageMask = styled.div`
   opacity: 0;
   cursor: pointer;
 
-  :hover {
+  &:hover {
     opacity: 1;
     background: rgba(0, 0, 0, 0.5);
     border: 1px solid rgba(0, 0, 0, 0.1);

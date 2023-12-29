@@ -42,7 +42,7 @@ const VideoContainer = styled.video`
   justify-content: space-around;
 `;
 
-export const meetingStreamChildren = {
+const sharingStreamChildren = {
   autoHeight: withDefault(AutoHeightControl, "fixed"),
   profilePadding: withDefault(StringControl, "0px"),
   profileBorderRadius: withDefault(StringControl, "0px"),
@@ -57,7 +57,7 @@ export const meetingStreamChildren = {
 };
 
 let SharingCompBuilder = (function (props) {
-  return new UICompBuilder(meetingStreamChildren, (props) => {
+  return new UICompBuilder(sharingStreamChildren, (props) => {
     const videoRef = useRef<HTMLVideoElement>(null);
     const conRef = useRef<HTMLDivElement>(null);
     const [userId, setUserId] = useState();

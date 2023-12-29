@@ -86,7 +86,7 @@ const StyledCloseIcon = styled(CloseIcon)`
   margin-left: auto;
   cursor: pointer;
 
-  :hover {
+  &:hover {
     g line {
       stroke: #4965f2;
     }

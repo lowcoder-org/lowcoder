@@ -211,14 +211,14 @@ export const PluginDataSourceForm = (props: DatasourceFormProps) => {
       <Form.Item noStyle name="dynamicParamsDef">
         <Input hidden />
       </Form.Item>
-      <FormSection size={props.size}>
+      <FormSection $size={props.size}>
         <DatasourceNameFormInputItem
           placeholder="My DataSource 1"
           initialValue={datasource?.name}
         />
       </FormSection>
 
-      <FormSection size={props.size}>
+      <FormSection $size={props.size}>
         {hasGeneralSettings && <GeneralSettingFormSectionLabel />}
         {(dataSourceConfig.params || []).map((field) => {
           return (

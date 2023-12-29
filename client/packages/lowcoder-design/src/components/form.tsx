@@ -86,13 +86,13 @@ const StartIcon = styled(Star)`
   margin-right: 4px;
   flex-shrink: 0;
 `;
-const LabelDiv = styled.div<{ width?: number }>`
+const LabelDiv = styled.div<{ $width?: number }>`
   display: flex;
   justify-content: flex-start;
   flex-wrap: nowrap;
   align-items: center;
   margin-right: 8px;
-  width: ${(props) => props.width || 122}px;
+  width: ${(props) => props.$width || 122}px;
   flex-shrink: 0;
 `;
 const FormItemContain = styled.div`
@@ -132,11 +132,11 @@ export const FormSectionLabel = styled.label`
   overflow: hidden;
   max-width: 100px;
 `;
-export const FormSection = styled.div<{ size?: FormSize }>`
+export const FormSection = styled.div<{ $size?: FormSize }>`
   width: 100%;
 
   .taco-form-item-wrapper {
-    padding-left: ${(props) => (props.size === "middle" ? "24px" : "0")};
+    padding-left: ${(props) => (props.$size === "middle" ? "24px" : "0")};
   }
 `;
 
@@ -153,7 +153,7 @@ const FormItemLabel = (props: Partial<FormItemProps>) => {
   const isRequired =
     props.required || !!props.rules?.find((i) => typeof i === "object" && i.required);
   return (
-    <LabelDiv width={props.labelWidth}>
+    <LabelDiv $width={props.labelWidth}>
       <StartIcon style={{ visibility: isRequired ? "visible" : "hidden" }} />
       <ToolTipLabel title={props.help} label={props.label} labelStyle={{ fontSize: "14px" }} />
     </LabelDiv>
@@ -263,7 +263,7 @@ const CustomCheckbox = (props: any) => {
 export const FormCheckboxItem = (props: FormItemProps) => {
   return (
     <FormItemContain className={"taco-form-item-wrapper"}>
-      <LabelDiv width={props.labelWidth} />
+      <LabelDiv $width={props.labelWidth} />
       <FormItem
         rules={props.rules}
         name={props.name}

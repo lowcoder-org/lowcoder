@@ -109,12 +109,12 @@ export const QueryConfigItemWrapper = styled.div<{ direction?: "row" | "column" 
 
 type TutorialStyle = "dropdownRight" | "begin";
 
-const TutorialButtonWrapper = styled.div<{ styleName: TutorialStyle }>`
+const TutorialButtonWrapper = styled.div<{ $styleName: TutorialStyle }>`
   height: 100%;
   display: flex;
   align-items: center;
   ${(props) => {
-    if (props.styleName === "dropdownRight") {
+    if (props.$styleName === "dropdownRight") {
       return css`
         padding-left: 8px;
         width: 264px;
@@ -134,7 +134,7 @@ export const QueryTutorialButton = ({
   styleName: "dropdownRight" | "begin";
 }) =>
   url ? (
-    <TutorialButtonWrapper styleName={styleName}>
+    <TutorialButtonWrapper $styleName={styleName}>
       <DocLink href={url}>{label}</DocLink>
     </TutorialButtonWrapper>
   ) : (

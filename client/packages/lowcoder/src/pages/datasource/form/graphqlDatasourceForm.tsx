@@ -95,7 +95,7 @@ export const GraphqlDatasourceForm = (props: DatasourceFormProps) => {
 
   return (
     <DatasourceForm form={form} preserve={false}>
-      <FormSection size={props.size}>
+      <FormSection $size={props.size}>
         <DatasourceNameFormInputItem
           placeholder={"My Graphql1"}
           initialValue={datasource?.name}
@@ -103,7 +103,7 @@ export const GraphqlDatasourceForm = (props: DatasourceFormProps) => {
         />
       </FormSection>
 
-      <FormSection size={props.size}>
+      <FormSection $size={props.size}>
         <GeneralSettingFormSectionLabel />
         <FormInputItem
           name={"url"}
@@ -128,7 +128,7 @@ export const GraphqlDatasourceForm = (props: DatasourceFormProps) => {
         />
       </FormSection>
 
-      <FormSection size={props.size}>
+      <FormSection $size={props.size}>
         <FormSectionLabel>{trans("query.authentication")}</FormSectionLabel>
         <FormSelectItem
           name={"authConfigType"}
@@ -141,7 +141,7 @@ export const GraphqlDatasourceForm = (props: DatasourceFormProps) => {
         {showAuthItem(authType as AuthType)}
       </FormSection>
 
-      <FormSection size={props.size}>
+      <FormSection $size={props.size}>
         <AdvancedSettingFormSectionLabel />
         <CertValidationFormItem datasource={props.datasource} />
         <ForwardCookiesFormItem datasource={props.datasource} />

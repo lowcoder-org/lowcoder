@@ -64,8 +64,8 @@ const AllData = styled.span`
   margin: 0 0 7px 8px;
 `;
 
-const DrawerIcon = styled(PackUpIcon)<{ deg: string }>`
-  transform: ${(props) => props.deg};
+const DrawerIcon = styled(PackUpIcon)<{ $deg: string }>`
+  transform: ${(props) => props.$deg};
 `;
 
 const DrawerTitle = styled.div`
@@ -76,7 +76,7 @@ const DrawerTitle = styled.div`
   font-size: 13px;
   font-weight: 500;
 
-  :hover {
+  &:hover {
     cursor: pointer;
 
     svg g path {
@@ -263,7 +263,7 @@ export default function BottomMetaDrawer(props: BottomMetaDrawerProps) {
     <div style={props.style}>
       <DrawerTitle onClick={() => setVisible(!visible)}>
         {trans("bottomPanel.metaData")}
-        <DrawerIcon deg={visible ? "rotate(180deg)" : "rotate(0deg)"} />
+        <DrawerIcon $deg={visible ? "rotate(180deg)" : "rotate(0deg)"} />
       </DrawerTitle>
     </div>
   );

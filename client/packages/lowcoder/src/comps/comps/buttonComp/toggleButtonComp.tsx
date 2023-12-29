@@ -27,17 +27,17 @@ const IconWrapper = styled.div`
 `;
 
 const ButtonCompWrapperStyled = styled(ButtonCompWrapper)<{
-  align: "left" | "center" | "right" | "stretch";
-  showBorder: boolean;
+  $align: "left" | "center" | "right" | "stretch";
+  $showBorder: boolean;
 }>`
   width: 100%;
   display: flex;
-  justify-content: ${(props) => props.align};
+  justify-content: ${(props) => props.$align};
 
   > button {
-    width: ${(props) => props.align !== "stretch" && "auto"};
-    border: ${(props) => !props.showBorder && "none"};
-    box-shadow: ${(props) => !props.showBorder && "none"};
+    width: ${(props) => props.$align !== "stretch" && "auto"};
+    border: ${(props) => !props.$showBorder && "none"};
+    box-shadow: ${(props) => !props.$showBorder && "none"};
   }
 `;
 
@@ -65,8 +65,8 @@ const ToggleTmpComp = (function () {
     return (
       <ButtonCompWrapperStyled
         disabled={props.disabled}
-        align={props.alignment}
-        showBorder={props.showBorder}
+        $align={props.alignment}
+        $showBorder={props.showBorder}
       >
         <Button100
           ref={props.viewRef}

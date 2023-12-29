@@ -87,7 +87,7 @@ function ThemeList(props: ThemeListProp) {
         render={(value, theme: ThemeType) => {
           return (
             <ColumnName>
-              <TagDesc theme={theme.theme}>
+              <TagDesc $theme={theme.theme}>
                 <div className="left" />
                 <div className="right" />
               </TagDesc>

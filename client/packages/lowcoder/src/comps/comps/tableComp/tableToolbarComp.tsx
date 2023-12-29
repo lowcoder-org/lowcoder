@@ -73,7 +73,7 @@ const getStyle = (
         }
 
         &:hover * {
-          stroke: ${theme.primary};
+          stroke: ${theme?.primary};
         }
       }
 
@@ -89,7 +89,7 @@ const getStyle = (
         }
 
         &:hover * {
-          stroke: ${theme.primary};
+          stroke: ${theme?.primary};
         }
       }
 
@@ -101,7 +101,7 @@ const getStyle = (
         }
 
         &:hover * {
-          stroke: ${theme.primary};
+          stroke: ${theme?.primary};
         }
       }
     }
@@ -114,7 +114,7 @@ const getStyle = (
 
       svg:hover {
         path {
-          fill: ${theme.primary};
+          fill: ${theme?.primary};
         }
       }
     }
@@ -135,7 +135,7 @@ const getStyle = (
       color: ${style.toolbarText};
 
       &:hover {
-        color: ${theme.primary};
+        color: ${theme?.primary};
       }
     }
 
@@ -144,7 +144,7 @@ const getStyle = (
       .ant-select-selector,
     .ant-pagination-options-quick-jumper input:hover,
     .ant-pagination-options-quick-jumper input:focus {
-      border-color: ${theme.primary};
+      border-color: ${theme?.primary};
     }
   `;
 };
@@ -152,17 +152,17 @@ const getStyle = (
 const ToolbarWrapper = styled.div<{
   $style: TableStyleType;
   $filtered: boolean;
-  theme: ThemeDetail;
-  position: ToolbarRowType["position"];
-  fixedToolbar: boolean;
+  $theme: ThemeDetail;
+  $position: ToolbarRowType["position"];
+  $fixedToolbar: boolean;
 }>`
   // overflow: auto;
   ${(props) => props.$style && getStyle(
     props.$style,
     props.$filtered,
-    props.theme,
-    props.position,
-    props.fixedToolbar,
+    props.$theme,
+    props.$position,
+    props.$fixedToolbar,
   )}
 `;
 
@@ -744,10 +744,10 @@ export function TableToolbar(props: {
   return (
     <ToolbarWrapper
       $style={props.$style}
-      theme={theme}
+      $theme={theme || defaultTheme}
       $filtered={toolbar.filter.filters.length > 0}
-      position={toolbar.position}
-      fixedToolbar={toolbar.fixedToolbar}
+      $position={toolbar.position}
+      $fixedToolbar={toolbar.fixedToolbar}
     >
       <ToolbarWrapper2>
         <ToolbarIcons className="toolbar-icons">

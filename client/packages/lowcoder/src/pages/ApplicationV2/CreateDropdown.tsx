@@ -31,7 +31,6 @@ const Dropdown = styled(AntdDropdown)`
 
 const CreateDropdownMenu = styled(AntdMenu)`
 &&& {
-
   width: fit-content;
   min-width: 110px;
   padding: 8px;
@@ -44,12 +43,10 @@ const CreateDropdownMenu = styled(AntdMenu)`
     padding: 8px;
     display: flex;
     align-items: center;
-  }
-
-  .ant-dropdown-menu-item:hover,
-  .ant-dropdown-menu-submenu-title:hover {
-    background: #f2f7fc;
-    border-radius: 4px;
+    &:hover {
+      background: #f2f7fc;
+      border-radius: 4px;
+    }
   }
 
   .ant-dropdown-menu-title-content {
@@ -104,7 +101,7 @@ const LayoutItemWrapper = styled.div`
   align-items: center;
   flex-direction: column;
 
-  :hover {
+  &:hover {
     border: 1px solid ${ActiveTextColor};
 
     ${CommonTextLabel} {

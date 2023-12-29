@@ -26,9 +26,9 @@ const EdgeHandle = css`
   }
 `;
 
-const HorizontalHandle = css<{ axis: string }>`
+const HorizontalHandle = css<{ $axis: string }>`
   ${EdgeHandle}
-  ${(props) => (props.axis === "s" ? "bottom: -10px;" : "top: -10px;")}
+  ${(props) => (props.$axis === "s" ? "bottom: -10px;" : "top: -10px;")}
   /* left: -4px; */
   height: 12px !important;
   /* width: calc(100% + 8px) !important; */
@@ -42,9 +42,9 @@ const HorizontalHandle = css<{ axis: string }>`
   }
 `;
 
-const VerticalHandleStyles = css<{ axis: string }>`
+const VerticalHandleStyles = css<{ $axis: string }>`
   ${EdgeHandle}
-  ${(props) => (props.axis === "e" ? "right: -10px;" : "left: -10px;")}
+  ${(props) => (props.$axis === "e" ? "right: -10px;" : "left: -10px;")}
   width: 12px !important;
   top: 0px;
   /* height: calc(100% + 8px) !important; */
@@ -58,7 +58,7 @@ const VerticalHandleStyles = css<{ axis: string }>`
   }
 `;
 
-const CornerHandle = css<{ axis: string }>`
+const CornerHandle = css<{ $axis: string }>`
   position: absolute;
   z-index: 3;
   width: 10px !important;
@@ -68,23 +68,23 @@ const CornerHandle = css<{ axis: string }>`
     height: 10px !important;
     border: none !important;
   }
-  cursor: ${(props) => props.axis + "-resize"} !important;
-  ${(props) => (["nw", "ne"].indexOf(props.axis) >= 0 ? "top: -5px;" : "")};
-  ${(props) => (["sw", "se"].indexOf(props.axis) >= 0 ? "bottom: -5px;" : "")};
-  ${(props) => (["sw", "nw"].indexOf(props.axis) >= 0 ? "left: -5px;" : "")};
-  ${(props) => (["se", "ne"].indexOf(props.axis) >= 0 ? "right: -5px;" : "")};
+  cursor: ${(props) => props.$axis + "-resize"} !important;
+  ${(props) => (["nw", "ne"].indexOf(props.$axis) >= 0 ? "top: -5px;" : "")};
+  ${(props) => (["sw", "se"].indexOf(props.$axis) >= 0 ? "bottom: -5px;" : "")};
+  ${(props) => (["sw", "nw"].indexOf(props.$axis) >= 0 ? "left: -5px;" : "")};
+  ${(props) => (["se", "ne"].indexOf(props.$axis) >= 0 ? "right: -5px;" : "")};
 `;
 
-const ResizeHandle = styled.div<{ axis: string }>`
+const ResizeHandle = styled.div<{ $axis: string }>`
   position: absolute;
   background-image: none;
-  ${(props) => (["s", "n"].indexOf(props.axis) >= 0 ? HorizontalHandle : "")};
-  ${(props) => (["w", "e"].indexOf(props.axis) >= 0 ? VerticalHandleStyles : "")};
-  ${(props) => (["sw", "nw", "se", "ne"].indexOf(props.axis) >= 0 ? CornerHandle : "")};
+  ${(props) => (["s", "n"].indexOf(props.$axis) >= 0 ? HorizontalHandle : "")};
+  ${(props) => (["w", "e"].indexOf(props.$axis) >= 0 ? VerticalHandleStyles : "")};
+  ${(props) => (["sw", "nw", "se", "ne"].indexOf(props.$axis) >= 0 ? CornerHandle : "")};
 `;
 
 const Handle = (axis: ResizeHandleAxis, ref: ReactRef<HTMLDivElement>) => {
-  return <ResizeHandle ref={ref} axis={axis} className={`react-resizable-handle`}></ResizeHandle>;
+  return <ResizeHandle ref={ref} $axis={axis} className={`react-resizable-handle`}></ResizeHandle>;
 };
 
 export default Handle;

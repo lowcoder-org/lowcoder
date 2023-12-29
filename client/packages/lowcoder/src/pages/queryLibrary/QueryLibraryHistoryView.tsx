@@ -23,19 +23,19 @@ const RevertButton = styled(TacoButton)`
   height: 32px;
   border: none;
 
-  :hover {
+  &:hover {
     padding: 0 11px;
     border: none;
     box-shadow: none;
   }
 
-  :focus {
+  &:focus {
     padding: 0 11px;
     border: none;
     box-shadow: none;
   }
 
-  :after {
+  &:after {
     content: "";
   }
 `;
@@ -45,17 +45,17 @@ const ExitButton = styled(TacoButton)`
   width: 80px;
   height: 32px;
 
-  :hover {
+  &:hover {
     padding: 0;
     box-shadow: none;
   }
 
-  :focus {
+  &:focus {
     padding: 0;
     box-shadow: none;
   }
 
-  :after {
+  &:after {
     content: "";
   }
 `;

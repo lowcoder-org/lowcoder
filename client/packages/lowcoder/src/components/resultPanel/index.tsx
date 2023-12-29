@@ -57,7 +57,7 @@ const CloseIconWrapper = styled.div`
 
   color: ${GreyTextColor};
 
-  :hover {
+  &:hover {
     color: ${DarkActiveTextColor};
   }
 `;

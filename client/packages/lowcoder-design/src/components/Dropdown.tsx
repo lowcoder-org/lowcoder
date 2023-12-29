@@ -10,11 +10,11 @@ import { Tooltip, ToolTipLabel } from "./toolTip";
 
 type ControlPlacement = "bottom" | "right" | "modal";
 
-export const DropdownContainer = styled.div<{ placement: ControlPlacement }>`
+export const DropdownContainer = styled.div<{ $placement: ControlPlacement }>`
   display: flex;
   height: 32px;
   width: ${(props) =>
-    props.placement === "right"
+    props.$placement === "right"
       ? "calc(100% - 96px)"
       : "bottom"
       ? "calc(100% - 112px)"
@@ -35,18 +35,18 @@ export const DropdownContainer = styled.div<{ placement: ControlPlacement }>`
   }
 
   > div {
-    width: 100%;
+    width: 100% !important;
   }
 
   ${(props) =>
-    props.placement === "bottom" &&
+    props.$placement === "bottom" &&
     `
     > div {
       width: 184px;
       flex-grow: 1;
     }
     
-    ::after {
+    &::after {
       content: "";
       width: 264px;
       flex-grow: 1;
@@ -60,21 +60,21 @@ const DropDownItemLabel = styled.div`
   line-height: 15px;
 `;
 
-const SegmentedWrapper = styled.div<{ placement: ControlPlacement }>`
+const SegmentedWrapper = styled.div<{ $placement: ControlPlacement }>`
   display: flex;
   height: 28px;
-  width: ${(props) => (props.placement === "right" ? "calc(100% - 96px)" : "100% - 112px")};
+  width: ${(props) => (props.$placement === "right" ? "calc(100% - 96px)" : "100% - 112px")};
   flex-grow: 1;
 
   ${(props) =>
-    props.placement === "bottom" &&
+    props.$placement === "bottom" &&
     `
     > div {
       width: 184px;
       flex-grow: 1;
     }
     
-    ::after {
+    &::after {
       content: "";
       width: 264px;
       flex-grow: 1;
@@ -120,9 +120,9 @@ const FlexDiv = styled.div`
   align-items: center;
 `;
 
-const LabelWrapper = styled.div<{ placement: ControlPlacement }>`
+const LabelWrapper = styled.div<{ $placement: ControlPlacement }>`
   flex-shrink: 0;
-  width: ${(props) => (props.placement === "right" ? "96px" : "bottom" ? "112px" : "136px")};
+  width: ${(props) => (props.$placement === "right" ? "96px" : "bottom" ? "112px" : "136px")};
 `;
 
 export type OptionType = {
@@ -159,14 +159,14 @@ export function Dropdown<T extends OptionsType>(props: DropdownProps<T>) {
   return (
     <FlexDiv style={props.style} className={props.className}>
       {props.label && (
-        <LabelWrapper placement={placement} style={props.labelStyle}>
+        <LabelWrapper $placement={placement} style={props.labelStyle}>
           <ToolTipLabel title={props.toolTip} label={props.label} />
         </LabelWrapper>
       )}
 
       {!props.radioButton && (
         <Tooltip title={!props.label ? props.toolTip : undefined}>
-          <DropdownContainer placement={placement} style={props.dropdownStyle}>
+          <DropdownContainer $placement={placement} style={props.dropdownStyle}>
             <CustomSelect
               open={props.open}
               listHeight={props.lineHeight}
@@ -231,7 +231,7 @@ export function Dropdown<T extends OptionsType>(props: DropdownProps<T>) {
       )}
 
       {props.radioButton && (
-        <SegmentedWrapper placement={placement}>
+        <SegmentedWrapper $placement={placement}>
           <Segmented
             block={true}
             onChange={(value) => props.onChange(value.toString())}

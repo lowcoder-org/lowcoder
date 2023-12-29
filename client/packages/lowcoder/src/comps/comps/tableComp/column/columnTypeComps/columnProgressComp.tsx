@@ -55,7 +55,7 @@ const InputNumberStyled = styled(InputNumber)`
       position: unset;
       transform: none;
     }
-    :hover {
+    &:hover {
       &:not(.ant-input-number-handler-up-disabled):not(.ant-input-number-handler-down-disabled)
         path {
         fill: #315efb;

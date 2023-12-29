@@ -14,7 +14,7 @@ const SearchInput = styled(Input)`
   user-select: none;
   overflow: hidden;
 
-  :focus {
+  &:focus {
     outline: none;
     box-shadow: 0 0 0 3px #daecfc;
   }

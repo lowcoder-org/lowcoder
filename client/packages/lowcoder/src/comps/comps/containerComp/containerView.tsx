@@ -278,9 +278,9 @@ type ViewPropsWithSelect = ContainerBaseProps & {
   dragSelectedComps?: Set<string>;
 };
 
-const ItemWrapper = styled.div<{ disableInteract?: boolean }>`
+const ItemWrapper = styled.div<{ $disableInteract?: boolean }>`
   height: 100%;
-  pointer-events: ${(props) => (props.disableInteract ? "none" : "unset")};
+  pointer-events: ${(props) => (props.$disableInteract ? "none" : "unset")};
 `;
 
 const GridItemWrapper = React.forwardRef(
@@ -291,7 +291,7 @@ const GridItemWrapper = React.forwardRef(
     const editorState = useContext(EditorContext);
     const { children, ...divProps } = props;
     return (
-      <ItemWrapper ref={ref} disableInteract={editorState.disableInteract} {...divProps}>
+      <ItemWrapper ref={ref} $disableInteract={editorState.disableInteract} {...divProps}>
         {props.children}
       </ItemWrapper>
     );

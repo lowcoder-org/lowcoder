@@ -144,7 +144,7 @@ const getDropdownStyle = (style: MultiSelectStyleType) => {
       margin: 0 8px;
       padding: 5px 8px;
 
-      :hover {
+      &:hover {
         background-color: rgb(242, 247, 252);
       }
 

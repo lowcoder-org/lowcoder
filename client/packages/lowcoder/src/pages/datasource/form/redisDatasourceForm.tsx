@@ -23,7 +23,7 @@ export const RedisDatasourceForm = (props: DatasourceFormProps) => {
 
   return (
     <DatasourceForm form={form} preserve={false}>
-      <FormSection size={props.size}>
+      <FormSection $size={props.size}>
         <DatasourceNameFormInputItem placeholder={"My Redis1"} initialValue={datasource?.name} />
         <FormSelectItem
           name={"usingUri"}

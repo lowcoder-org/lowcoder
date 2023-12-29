@@ -73,7 +73,7 @@ const Icon = styled(PointIcon)`
   }
 `;
 
-const JSLibraryCollapse = styled(Collapse)<{ mode: "row" | "column" }>`
+const JSLibraryCollapse = styled(Collapse)<{ $mode: "row" | "column" }>`
   margin-bottom: 12px;
 
   cursor: inherit;
@@ -84,7 +84,7 @@ const JSLibraryCollapse = styled(Collapse)<{ mode: "row" | "column" }>`
   }
 
   ${(props) =>
-    props.mode === "row"
+    props.$mode === "row"
       ? css`
           width: 284px;
 
@@ -176,7 +176,7 @@ export const JSLibraryTree = (props: {
 
   return (
     <JSLibraryCollapse
-      mode={props.mode}
+      $mode={props.mode}
       isSelected={false}
       isOpen={false}
       config={finalMetas.map((meta, idx) => {

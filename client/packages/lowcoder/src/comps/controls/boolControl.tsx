@@ -61,16 +61,16 @@ function parseValue(value?: any) {
   return { useCodeEditor, value: useCodeEditor ? value : value ? "true" : "false" };
 }
 
-const Wrapper = styled.div<{ hasLabel: boolean }>`
+const Wrapper = styled.div<{ $hasLabel: boolean }>`
   display: flex;
-  flex-direction: ${(props) => (props.hasLabel ? "column" : "row")};
-  height: ${(props) => (props.hasLabel ? "auto" : "32px")};
-  align-items: ${(props) => (props.hasLabel ? "auto" : "center")};
+  flex-direction: ${(props) => (props.$hasLabel ? "column" : "row")};
+  height: ${(props) => (props.$hasLabel ? "auto" : "32px")};
+  align-items: ${(props) => (props.$hasLabel ? "auto" : "center")};
   gap: 4px;
 `;
 
-const CodeEditorWrapper = styled.div<{ hasLabel: boolean }>`
-  ${(props) => (!props.hasLabel ? "flex: 1" : "")}
+const CodeEditorWrapper = styled.div<{ $hasLabel: boolean }>`
+  ${(props) => (!props.$hasLabel ? "flex: 1" : "")}
 `;
 
 /**
@@ -118,7 +118,7 @@ class BoolControl extends AbstractComp<boolean, DataType, Node<ValueAndMsg<boole
     const hasLabel = !!params.label;
     return controlItem(
       { filterText: params.label },
-      <Wrapper hasLabel={hasLabel}>
+      <Wrapper $hasLabel={hasLabel}>
         <SwitchWrapper
           label={params.label}
           tooltip={params.tooltip}
@@ -133,7 +133,7 @@ class BoolControl extends AbstractComp<boolean, DataType, Node<ValueAndMsg<boole
         </SwitchWrapper>
 
         {this.useCodeEditor && (
-          <CodeEditorWrapper hasLabel={hasLabel}>
+          <CodeEditorWrapper $hasLabel={hasLabel}>
             {this.codeControl.codeEditor(params)}
           </CodeEditorWrapper>
         )}

@@ -107,7 +107,7 @@ const StyledCreateBtn = styled.button`
   cursor: pointer;
   height: 40px;
 
-  :hover {
+  &:hover {
     color: #315efb;
 
     svg g path {
