@@ -485,7 +485,7 @@ const uiCompMap: Registry = {
     name: trans("chat.chatCompName"),
     enName: "Drawer",
     description: trans("chat.chatCompDesc"),
-    categories: ["chat"],
+    categories: ["chats"],
     icon: DrawerCompIcon,
     keywords: trans("chat.chatCompKeywords"),
     comp: ChatControllerComp,

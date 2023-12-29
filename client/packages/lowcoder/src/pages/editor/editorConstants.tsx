@@ -104,6 +104,7 @@ export const CompStateIcon: {
   audio: <LeftAudio />,
   video: <LeftVideo />,
   drawer: <LeftDrawer />,
+  chat: <LeftDrawer />,
   carousel: <LeftImage />,
   toggleButton: <LeftButton />,
   imageEditor: <LeftImage />,

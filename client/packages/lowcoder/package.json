@@ -60,6 +60,7 @@
     "loglevel": "^1.8.0",
     "lowcoder-core": "workspace:^",
     "lowcoder-design": "workspace:^",
+    "matrix-js-sdk": "^30.3.0",
     "mime": "^3.0.0",
     "moment": "^2.29.4",
     "numbro": "^2.3.6",

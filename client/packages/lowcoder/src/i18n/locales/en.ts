@@ -1662,6 +1662,21 @@ export const en = {
     meetingActive: "Ongoing Meeting",
     messages: "Broadcasted Messages",
   },
+
+  chat: {
+    chatCompName: "Chat Controller",
+    chatCompDesc: "Chat component",
+    chatCompKeywords: "",
+    chat: "Chat Settings",
+    username: "Username",
+    credentials: "Matrix Credentials",
+    password: "Password",
+    roomalias: "Room name or room ID",
+    roomData: "Room data",
+    chatCommentsCompName: "Chats",
+    chatCommentsCompKeywords: "",
+  },
+
   settings: {
     title: "Settings",
     userGroups: "User Groups",

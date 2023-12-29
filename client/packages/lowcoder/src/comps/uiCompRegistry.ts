@@ -27,6 +27,7 @@ export const uiCompCategoryNames = {
   layout: trans("uiCompCategory.layout"),
   forms: trans("uiCompCategory.forms"),
   collaboration: trans("uiCompCategory.collaboration"),
+  chats: trans("uiCompCategory.chats"),
   projectmanagement: trans("uiCompCategory.projectmanagement"),
   scheduling: trans("uiCompCategory.scheduling"),
   documents: trans("uiCompCategory.documents"),
