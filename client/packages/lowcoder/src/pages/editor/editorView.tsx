@@ -8,9 +8,21 @@ import { Layers } from "constants/Layers";
 import { TopHeaderHeight } from "constants/style";
 import { trans } from "i18n";
 import { draggingUtils } from "layout";
-import { LeftPreloadIcon, LeftSettingIcon, LeftStateIcon, ScrollBar } from "lowcoder-design";
+import {
+  LeftPreloadIcon,
+  LeftSettingIcon,
+  LeftStateIcon,
+  ScrollBar,
+} from "lowcoder-design";
 import { useTemplateViewMode } from "util/hooks";
-import Header, { PanelStatus, TogglePanel, EditorModeStatus, ToggleEditorModeStatus } from "pages/common/header";
+import Header, {
+  PanelStatus,
+  TogglePanel,
+  EditorModeStatus,
+  ToggleEditorModeStatus,
+  EnabledCollissionStatus,
+  ToggleCollissionStatus,
+} from "pages/common/header";
 import { HelpDropdown } from "pages/common/help";
 import { PreviewHeader } from "pages/common/previewHeader";
 import {
@@ -28,8 +40,19 @@ import {
 } from "pages/editor/editorHotKeys";
 import RightPanel from "pages/editor/right/RightPanel";
 import EditorTutorials from "pages/tutorials/editorTutorials";
-import { editorContentClassName, UserGuideLocationState } from "pages/tutorials/tutorialsConstant";
-import React, { useCallback, useContext, useEffect, useLayoutEffect, useMemo, useState } from "react";
+import {
+  CollisionState,
+  editorContentClassName,
+  UserGuideLocationState,
+} from "pages/tutorials/tutorialsConstant";
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useState,
+} from "react";
 import { Helmet } from "react-helmet";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
@@ -38,7 +61,17 @@ import { currentApplication } from "redux/selectors/applicationSelector";
 import { showAppSnapshotSelector } from "redux/selectors/appSnapshotSelector";
 import styled from "styled-components";
 import { ExternalEditorContext } from "util/context/ExternalEditorContext";
-import { DefaultPanelStatus, getPanelStatus, savePanelStatus, DefaultEditorModeStatus, getEditorModeStatus, saveEditorModeStatus } from "util/localStorageUtil";
+import {
+  DefaultPanelStatus,
+  getPanelStatus,
+  savePanelStatus,
+  DefaultEditorModeStatus,
+  getEditorModeStatus,
+  saveEditorModeStatus,
+  saveEnableCollissionStatus,
+  getCollissionStatus,
+  DefaultCollissionStatus,
+} from "util/localStorageUtil";
 import Bottom from "./bottom/BottomPanel";
 import { LeftContent } from "./LeftContent";
 import { isAggregationApp } from "util/appUtils";
@@ -179,14 +212,15 @@ const items = [
   },
 ];
 
-
 function EditorView(props: EditorViewProps) {
   const { uiComp } = props;
   const editorState = useContext(EditorContext);
   const { readOnly, hideHeader } = useContext(ExternalEditorContext);
   const application = useSelector(currentApplication);
   const locationState = useLocation<UserGuideLocationState>().state;
+  const collisionState = useLocation<CollisionState>().state;
   const showNewUserGuide = locationState?.showNewUserGuide;
+  const showCollission = collisionState?.collission;
   const showAppSnapshot = useSelector(showAppSnapshotSelector);
   const [showShortcutList, setShowShortcutList] = useState(false);
   const toggleShortcutList = useCallback(
@@ -201,8 +235,9 @@ function EditorView(props: EditorViewProps) {
     return showNewUserGuide ? DefaultPanelStatus : getPanelStatus();
   });
 
-  const [prePanelStatus, setPrePanelStatus] = useState<PanelStatus>(DefaultPanelStatus);
-  
+  const [prePanelStatus, setPrePanelStatus] =
+    useState<PanelStatus>(DefaultPanelStatus);
+
   const togglePanel: TogglePanel = useCallback(
     (key) => {
       let newPanelStatus;
@@ -223,23 +258,32 @@ function EditorView(props: EditorViewProps) {
     [panelStatus, prePanelStatus]
   );
 
+  // added by Fred  to set comp collision state
+  const [collisionStatus, setCollisionStatus] = useState(() => {
+    return showCollission ? DefaultCollissionStatus : getCollissionStatus();
+  });
+
+  const toggleCollissionStatus: ToggleCollissionStatus = useCallback(
+    (value) => {
+      setCollisionStatus(value ? value : "false");
+      saveEnableCollissionStatus(value ? value : "false");
+    },
+    [collisionStatus]
+  );
 
   // added by Falk Wolsky to support a Layout and Logic Mode in Lowcoder
   const [editorModeStatus, setEditorModeStatus] = useState(() => {
     return showNewUserGuide ? DefaultEditorModeStatus : getEditorModeStatus();
   });
-  
-  const toggleEditorModeStatus: ToggleEditorModeStatus = useCallback( (value) => {
 
-      setEditorModeStatus(value ? value : "both" as EditorModeStatus);
-      saveEditorModeStatus(value ? value : "both" as EditorModeStatus);
-        
+  const toggleEditorModeStatus: ToggleEditorModeStatus = useCallback(
+    (value) => {
+      setEditorModeStatus(value ? value : ("both" as EditorModeStatus));
+      saveEditorModeStatus(value ? value : ("both" as EditorModeStatus));
     },
     [editorModeStatus]
   );
 
-
-  
   const onCompDrag = useCallback(
     (dragCompKey: string) => {
       editorState.setDraggingCompType(dragCompKey);
@@ -267,7 +311,8 @@ function EditorView(props: EditorViewProps) {
       setHeight(window.innerHeight);
     }
 
-    const eventType = "orientationchange" in window ? "orientationchange" : "resize";
+    const eventType =
+      "orientationchange" in window ? "orientationchange" : "resize";
     window.addEventListener(eventType, updateSize);
     updateSize();
     return () => window.removeEventListener(eventType, updateSize);
@@ -293,7 +338,9 @@ function EditorView(props: EditorViewProps) {
           <ViewBody hideBodyHeader={hideBodyHeader} height={height}>
             {uiComp.getView()}
           </ViewBody>
-          <div style={{ zIndex: Layers.hooksCompContainer }}>{hookCompViews}</div>
+          <div style={{ zIndex: Layers.hooksCompContainer }}>
+            {hookCompViews}
+          </div>
         </EditorContainerWithViewMode>
       </CustomShortcutWrapper>
     );
@@ -329,7 +376,14 @@ function EditorView(props: EditorViewProps) {
         draggingUtils.clearData();
       }}
     >
-      <Header togglePanel={togglePanel} panelStatus={panelStatus} toggleEditorModeStatus={toggleEditorModeStatus} editorModeStatus={editorModeStatus}  />
+      <Header
+        togglePanel={togglePanel}
+        panelStatus={panelStatus}
+        toggleEditorModeStatus={toggleEditorModeStatus}
+        toggleCollissionStatus={toggleCollissionStatus}
+        editorModeStatus={editorModeStatus}
+        collissionStatus={collisionStatus}
+      />
       <Helmet>{application && <title>{application.name}</title>}</Helmet>
       {showNewUserGuide && <EditorTutorials />}
       <EditorGlobalHotKeys
@@ -369,7 +423,9 @@ function EditorView(props: EditorViewProps) {
                 <SettingsDiv>
                   <ScrollBar>
                     {application &&
-                      !isAggregationApp(AppUILayoutType[application.applicationType]) && (
+                      !isAggregationApp(
+                        AppUILayoutType[application.applicationType]
+                      ) && (
                         <>
                           {appSettingsComp.getPropertyView()}
                           <Divider />
@@ -379,7 +435,11 @@ function EditorView(props: EditorViewProps) {
                     {props.preloadComp.getPropertyView()}
                     <PreloadDiv
                       onClick={() =>
-                        dispatch(setEditorExternalStateAction({ showScriptsAndStyleModal: true }))
+                        dispatch(
+                          setEditorExternalStateAction({
+                            showScriptsAndStyleModal: true,
+                          })
+                        )
                       }
                     >
                       <LeftPreloadIcon />

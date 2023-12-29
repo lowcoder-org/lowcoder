@@ -31,3 +31,8 @@ export const defaultJoyrideFloaterProps: FloaterType = {
 export type UserGuideLocationState = {
   showNewUserGuide?: boolean;
 };
+
+export type CollisionState = {
+  showNewUserGuide?: boolean;
+  collission?: boolean;
+};
