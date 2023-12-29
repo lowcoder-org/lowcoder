@@ -94,11 +94,12 @@ export interface PropertySectionContextType {
   state: PropertySectionState;
 }
 
-export const PropertySectionContext = React.createContext<PropertySectionContextType>({
-  toggle: () => {},
-  compName: "",
-  state: {},
-});
+export const PropertySectionContext =
+  React.createContext<PropertySectionContextType>({
+    toggle: () => {},
+    compName: "",
+    state: {},
+  });
 
 export const BaseSection = (props: ISectionConfig<ReactNode>) => {
   const { name } = props;
@@ -131,7 +132,10 @@ export const BaseSection = (props: ISectionConfig<ReactNode>) => {
 };
 
 export function Section(props: ISectionConfig<ControlNode>) {
-  return controlItem({ filterText: props.name, searchChild: true }, <BaseSection {...props} />);
+  return controlItem(
+    { filterText: props.name, searchChild: true },
+    <BaseSection {...props} />
+  );
 }
 
 // common section names
@@ -143,5 +147,6 @@ export const sectionNames = {
   layout: trans("prop.layout"),
   style: trans("prop.style"),
   data: trans("prop.data"),
-  meetings : trans("prop.meetings"), // added by Falk Wolsky
+  meetings: trans("prop.meetings"), // added by Falk Wolsky
+  chats: trans("prop.chats"), // added by Fred
 };
