@@ -218,24 +218,26 @@ function CustomModalRender(props: CustomModalProps & ModalFuncProps) {
   return (
     <Draggable handle=".handle" disabled={!props.draggable}>
       <ModalWrapper width={props.width}>
-        <ModalHeaderWrapper className="handle" $draggable={props.draggable}>
-          <ModalHeader
-            title={props.title}
-            onCancel={props.onCancel}
-            showBackLink={props.showBackLink}
-            onBack={props.onBack}
-          />
-        </ModalHeaderWrapper>
+        <>
+          <ModalHeaderWrapper className="handle" $draggable={props.draggable}>
+            <ModalHeader
+              title={props.title}
+              onCancel={props.onCancel}
+              showBackLink={props.showBackLink}
+              onBack={props.onBack}
+            />
+          </ModalHeaderWrapper>
 
-        <div style={{ padding: "0 16px", ...props.bodyStyle }}>{props.children}</div>
+          <div style={{ padding: "0 16px", ...props.styles?.body }}>{props.children}</div>
 
-        {props.footer === null || props.footer ? (
-          props.footer
-        ) : (
-          <ModalFooterWrapper>
-            <ModalFooter {...props} />
-          </ModalFooterWrapper>
-        )}
+          {props.footer === null || props.footer ? (
+            props.footer
+          ) : (
+            <ModalFooterWrapper>
+              <ModalFooter {...props} />
+            </ModalFooterWrapper>
+          )}
+        </>
       </ModalWrapper>
     </Draggable>
   );
@@ -280,13 +282,15 @@ CustomModal.confirm = (props: {
     ...DEFAULT_PROPS,
     okText: trans("ok"),
     cancelText: trans("cancel"),
-    bodyStyle: {
-      fontSize: "14px",
-      color: "#333333",
-      lineHeight: "22px",
-      minHeight: "72px",
-      marginTop: "24px",
-    },
+    styles: {
+      body: {
+        fontSize: "14px",
+        color: "#333333",
+        lineHeight: "22px",
+        minHeight: "72px",
+        marginTop: "24px",
+      }
+    }
   };
   // create model
   const model = modalInstance.confirm({
@@ -321,7 +325,12 @@ CustomModal.confirm = (props: {
         title={title}
         okButtonType={props.confirmBtnType}
         okText={props.okText}
-        bodyStyle={{ ...defaultConfirmProps.bodyStyle, ...props.bodyStyle }}
+        styles={{
+          body: {
+            ...defaultConfirmProps.styles?.body,
+            ...props.bodyStyle,
+          }
+        }}
         footer={props.footer}
         width={props.width}
       />

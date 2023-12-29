@@ -144,4 +144,6 @@ export const sectionNames = {
   style: trans("prop.style"),
   meetings: trans("prop.meetings"), // added by Falk Wolsky
   chats: trans("prop.chats"), // added by Fred
+  data: trans("prop.data"),
+  meetings : trans("prop.meetings"), // added by Falk Wolsky
 };

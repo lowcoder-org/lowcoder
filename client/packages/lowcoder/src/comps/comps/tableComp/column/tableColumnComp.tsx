@@ -1,7 +1,7 @@
 import { BoolControl } from "comps/controls/boolControl";
-import { NumberControl, StringControl } from "comps/controls/codeControl";
+import { ColorOrBoolCodeControl, NumberControl, RadiusControl, StringControl } from "comps/controls/codeControl";
 import { dropdownControl, HorizontalAlignmentControl } from "comps/controls/dropdownControl";
-import { MultiCompBuilder, stateComp, valueComp } from "comps/generators";
+import { MultiCompBuilder, stateComp, valueComp, withContext, withDefault } from "comps/generators";
 import { withSelectedMultiContext } from "comps/generators/withSelectedMultiContext";
 import { genRandomKey } from "comps/utils/idGenerator";
 import { trans } from "i18n";
@@ -9,6 +9,8 @@ import _ from "lodash";
 import {
   changeChildAction,
   changeValueAction,
+  CompAction,
+  CompActionTypes,
   ConstructorToComp,
   ConstructorToDataType,
   ConstructorToNodeType,
@@ -19,8 +21,14 @@ import {
   withFunction,
   wrapChildAction,
 } from "lowcoder-core";
-import { AlignClose, AlignLeft, AlignRight } from "lowcoder-design";
+import { AlignClose, AlignLeft, AlignRight, IconRadius, TextSizeIcon, controlItem } from "lowcoder-design";
 import { ColumnTypeComp, ColumnTypeCompMap } from "./columnTypeComp";
+import { ColorControl } from "comps/controls/colorControl";
+import { JSONValue } from "util/jsonTypes";
+import styled from "styled-components";
+import { TextOverflowControl } from "comps/controls/textOverflowControl";
+import { TableColumnLinkStyle, styleControl } from "@lowcoder-ee/index.sdk";
+import { Divider } from "antd";
 
 export type Render = ReturnType<ConstructorToComp<typeof RenderComp>["getOriginalComp"]>;
 export const RenderComp = withSelectedMultiContext(ColumnTypeComp);
@@ -51,6 +59,31 @@ const columnFixOptions = [
   },
 ] as const;
 
+const cellColorLabel = trans("table.cellColor");
+const CellColorTempComp = withContext(
+  new MultiCompBuilder({ color: ColorOrBoolCodeControl }, (props) => props.color)
+    .setPropertyViewFn((children) =>
+      children.color.propertyView({
+        label: cellColorLabel,
+        tooltip: trans("table.cellColorDesc"),
+      })
+    )
+    .build(),
+  ["currentCell"] as const
+);
+
+// @ts-ignore
+export class CellColorComp extends CellColorTempComp {
+  override getPropertyView() {
+    return controlItem({ filterText: cellColorLabel }, super.getPropertyView());
+  }
+}
+
+// fixme, should be infer from RowColorComp, but withContext type incorrect
+export type CellColorViewType = (param: {
+  currentCell: JSONValue | undefined; //number | string;
+}) => string;
+
 export const columnChildrenMap = {
   // column title
   title: StringControl,
@@ -67,7 +100,22 @@ export const columnChildrenMap = {
   tempHide: stateComp<boolean>(false),
   fixed: dropdownControl(columnFixOptions, "close"),
   editable: BoolControl,
+  background: withDefault(ColorControl, ""),
+  text: withDefault(ColorControl, ""),
+  border: withDefault(ColorControl, ""),
+  borderWidth: withDefault(RadiusControl, ""),
+  radius: withDefault(RadiusControl, ""),
+  textSize: withDefault(RadiusControl, ""),
+  cellColor: CellColorComp,
+  textOverflow: withDefault(TextOverflowControl, "ellipsis"),
+  linkColor: withDefault(ColorControl, "#3377ff"),
+  linkHoverColor: withDefault(ColorControl, ""),
+  linkActiveColor: withDefault(ColorControl, ""),
 };
+
+const StyledIcon = styled.span`
+  margin: 0 4px 0 14px;
+`;
 
 /**
  * export for test.
@@ -90,6 +138,21 @@ const ColumnInitComp = new MultiCompBuilder(columnChildrenMap, (props, dispatch)
   .build();
 
 export class ColumnComp extends ColumnInitComp {
+  override reduce(action: CompAction) {
+    let comp = super.reduce(action);
+    if (action.type === CompActionTypes.UPDATE_NODES_V2) {
+      comp = comp.setChild(
+        "cellColor",
+        comp.children.cellColor.reduce(
+          CellColorComp.changeContextDataAction({
+            currentCell: undefined,
+          })
+        )
+      );
+    }
+    return comp;
+  }
+
   override getView() {
     const superView = super.getView();
     const columnType = this.children.render.getSelectedComp().getComp().children.compType.getView();
@@ -143,6 +206,58 @@ export class ColumnComp extends ColumnInitComp {
         })}
         {this.children.autoWidth.getView() === "fixed" &&
           this.children.width.propertyView({ label: trans("prop.width") })}
+        
+        {(columnType === 'link' || columnType === 'links') && (
+          <>
+            <Divider style={{margin: '12px 0'}} />
+            {controlItem({}, (
+              <div>
+                <b>{"Link Style"}</b>
+              </div>
+            ))}
+            {this.children.linkColor.propertyView({
+              label: trans('text') // trans('style.background'),
+            })}
+            {this.children.linkHoverColor.propertyView({
+              label: "Hover text", // trans('style.background'),
+            })}
+            {this.children.linkActiveColor.propertyView({
+              label: "Active text", // trans('style.background'),
+            })}
+          </>
+        )}
+        <Divider style={{margin: '12px 0'}} />
+        {controlItem({}, (
+          <div>
+             <b>{"Column Style"}</b>
+          </div>
+        ))}
+        {this.children.background.propertyView({
+          label: trans('style.background'),
+        })}
+        {columnType !== 'link' && this.children.text.propertyView({
+          label: trans('text'),
+        })}
+        {this.children.border.propertyView({
+          label: trans('style.border')
+        })}
+        {this.children.borderWidth.propertyView({
+          label: trans('style.borderWidth'),
+          preInputNode: <StyledIcon as={IconRadius} title="" />,	
+          placeholder: '1px',
+        })}
+        {this.children.radius.propertyView({
+          label: trans('style.borderRadius'),
+          preInputNode: <StyledIcon as={IconRadius} title="" />,	
+          placeholder: '3px',
+        })}
+        {this.children.textSize.propertyView({
+          label: trans('style.textSize'),
+          preInputNode: <StyledIcon as={TextSizeIcon} title="" />,	
+          placeholder: '14px',
+        })}
+        {this.children.textOverflow.getPropertyView()}
+        {this.children.cellColor.getPropertyView()}
       </>
     );
   }

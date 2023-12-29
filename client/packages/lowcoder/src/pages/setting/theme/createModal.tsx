@@ -121,7 +121,7 @@ function CreateModal(props: CreateModalProp) {
       <ScrollBarStyled
         style={{
           height: themeList?.length ? (themeList?.length > 3 ? "363px" : "313px") : "156px",
-          marginBottom: (!!themeList?.length && themeList?.length) > 3 ? "4px" : "0",
+          marginBottom: (!!themeList?.length && themeList?.length > 3) ? "4px" : "0",
         }}
       >
         <SelectTitle>{trans("theme.defaultThemeTip")}</SelectTitle>

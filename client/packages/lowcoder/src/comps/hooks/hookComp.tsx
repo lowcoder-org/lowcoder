@@ -34,6 +34,7 @@ import UrlParamsHookComp from "./UrlParamsHookComp";
 import { UtilsComp } from "./utilsComp";
 import { VideoMeetingControllerComp } from "../comps/meetingComp/videoMeetingControllerComp";
 import { ChatControllerComp } from "../comps/chatroom/chatControllerComp";
+import { ScreenInfoHookComp } from "./screenInfoComp";
 
 window._ = _;
 window.dayjs = dayjs;
@@ -99,6 +100,7 @@ const HookMap: HookCompMapRawType = {
   meeting: VideoMeetingControllerComp,
   chat: ChatControllerComp,
   currentUser: CurrentUserHookComp,
+  screenInfo: ScreenInfoHookComp,
   urlParams: UrlParamsHookComp,
   drawer: DrawerComp,
   theme: ThemeComp,

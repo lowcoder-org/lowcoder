@@ -9,8 +9,10 @@ export GROUP_ID="${PGID:=9001}"
 echo "Initializing api-service..."
 /lowcoder/api-service/init.sh
 
+if [ -z $JAVA_HOME ]; then
+    JAVA_HOME=`dirname $(dirname $(readlink -f $(which javac)))`
+fi;
 APP_JAR="${APP_JAR:=/lowcoder/api-service/server.jar}"
-JAVA_HOME=/lowcoder/api-service/jre
 JAVA_OPTS="${JAVA_OPTS:=}"
 CUSTOM_APP_PROPERTIES="${APP_PROPERTIES}"
 CONTEXT_PATH=${CONTEXT_PATH:=/}

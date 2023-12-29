@@ -15,6 +15,7 @@ const AllHookComp = [
   "message",
   "localStorage",
   "currentUser",
+  "screenInfo",
   "urlParams",
   "theme",
 ] as const;

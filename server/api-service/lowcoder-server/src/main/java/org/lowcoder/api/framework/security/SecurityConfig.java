@@ -10,6 +10,7 @@ import org.lowcoder.api.home.SessionUserService;
 import org.lowcoder.domain.authentication.AuthenticationService;
 import org.lowcoder.domain.authentication.context.AuthRequestContext;
 import org.lowcoder.domain.user.model.User;
+import org.lowcoder.domain.user.service.UserService;
 import org.lowcoder.infra.constant.NewUrl;
 import org.lowcoder.sdk.config.CommonConfig;
 import org.lowcoder.sdk.util.CookieHelper;
@@ -49,6 +50,9 @@ public class SecurityConfig {
 
     @Autowired
     private SessionUserService sessionUserService;
+
+    @Autowired
+    private UserService userService;
 
     @Autowired
     private AccessDeniedHandler accessDeniedHandler;
@@ -153,7 +157,7 @@ public class SecurityConfig {
                 .accessDeniedHandler(accessDeniedHandler)
         );
 
-        http.addFilterBefore(new UserSessionPersistenceFilter(sessionUserService, cookieHelper, authenticationService, authenticationApiService, authRequestFactory), SecurityWebFiltersOrder.AUTHENTICATION);
+        http.addFilterBefore(new UserSessionPersistenceFilter(sessionUserService, userService, cookieHelper, authenticationService, authenticationApiService, authRequestFactory), SecurityWebFiltersOrder.AUTHENTICATION);
         http.addFilterBefore(new APIKeyAuthFilter(sessionUserService, cookieHelper, jwtUtils), SecurityWebFiltersOrder.AUTHENTICATION);
 
         return http.build();

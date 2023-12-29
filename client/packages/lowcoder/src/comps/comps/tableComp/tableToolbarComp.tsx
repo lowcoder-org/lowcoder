@@ -48,13 +48,20 @@ const getStyle = (
   style: TableStyleType,
   filtered: boolean,
   theme: ThemeDetail,
-  position: ToolbarRowType["position"]
+  position: ToolbarRowType["position"],
+  fixedToolbar: boolean,
 ) => {
   return css`
     background-color: ${style.toolbarBackground};
     // Implement horizontal scrollbar and vertical page number selection is not blocked
-    padding: ${position === "above" ? "13px 16px 313px 16px" : "313px 16px 13px 16px"};
-    margin: ${position === "above" ? "0 0 -300px 0" : "-300px 0 0 0"};
+    padding: 13px 12px;
+    position: sticky;
+    postion: -webkit-sticky;
+    left: 0;
+
+    ${fixedToolbar && `z-index: 99;`};
+    ${fixedToolbar && position === 'below' && `bottom: 0;`};
+    ${fixedToolbar && position === 'above' && `top: 0;` };
 
     .toolbar-icons {
       .refresh,
@@ -147,9 +154,16 @@ const ToolbarWrapper = styled.div<{
   $filtered: boolean;
   theme: ThemeDetail;
   position: ToolbarRowType["position"];
+  fixedToolbar: boolean;
 }>`
-  overflow: auto;
-  ${(props) => props.$style && getStyle(props.$style, props.$filtered, props.theme, props.position)}
+  // overflow: auto;
+  ${(props) => props.$style && getStyle(
+    props.$style,
+    props.$filtered,
+    props.theme,
+    props.position,
+    props.fixedToolbar,
+  )}
 `;
 
 const ToolbarWrapper2 = styled.div`
@@ -539,7 +553,8 @@ export const TableToolbarComp = (function () {
     showDownload: BoolControl,
     showFilter: BoolControl,
     columnSetting: BoolControl,
-    searchText: StringControl,
+    fixedToolbar: BoolControl,
+    // searchText: StringControl,
     filter: stateComp<TableFilter>({ stackType: "and", filters: [] }),
     position: dropdownControl(positionOptions, "below"),
   };
@@ -563,15 +578,19 @@ export const TableToolbarComp = (function () {
   })
     .setPropertyViewFn((children) => [
       children.position.propertyView({ label: trans("table.position"), radioButton: true }),
+      children.fixedToolbar.propertyView({
+        label: trans("table.fixedToolbar"),
+        tooltip: trans("table.fixedToolbarTooltip")
+      }),
       children.showFilter.propertyView({ label: trans("table.showFilter") }),
       children.showRefresh.propertyView({ label: trans("table.showRefresh") }),
       children.showDownload.propertyView({ label: trans("table.showDownload") }),
       children.columnSetting.propertyView({ label: trans("table.columnSetting") }),
-      children.searchText.propertyView({
+      /* children.searchText.propertyView({
         label: trans("table.searchText"),
         tooltip: trans("table.searchTextTooltip"),
         placeholder: "{{input1.value}}",
-      }),
+      }), */
     ])
     .build();
 })();
@@ -728,6 +747,7 @@ export function TableToolbar(props: {
       theme={theme}
       $filtered={toolbar.filter.filters.length > 0}
       position={toolbar.position}
+      fixedToolbar={toolbar.fixedToolbar}
     >
       <ToolbarWrapper2>
         <ToolbarIcons className="toolbar-icons">

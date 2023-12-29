@@ -13,6 +13,7 @@ auth:
   email:
     enable: ${LOGIN_CHANNEL_EMAIL:true}
     enable-register: ${ENABLE_USER_SIGN_UP:true}
+  workspace-creation: ${LOWCODER_CREATE_SIGNUP_WORKSPACE:true}
 
 spring:
   data:

@@ -3,9 +3,9 @@ import react from "@vitejs/plugin-react";
 import viteTsconfigPaths from "vite-tsconfig-paths";
 import svgrPlugin from "vite-plugin-svgr";
 import path from "path";
-import { ensureLastSlash } from "lowcoder-dev-utils/util";
-import { buildVars } from "lowcoder-dev-utils/buildVars";
-import { globalDepPlugin } from "lowcoder-dev-utils/globalDepPlguin";
+import { ensureLastSlash } from "./src/dev-utils/util";
+import { buildVars } from "./src/dev-utils/buildVars";
+import { globalDepPlugin } from "./src/dev-utils/globalDepPlguin";
 
 const define = {};
 buildVars.forEach(({ name, defaultValue }) => {

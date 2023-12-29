@@ -180,7 +180,7 @@ function ToolTipLabel(
   return (
     <AntdTooltip
       color="#2c2c2c"
-      title={title && <TooltipTitleWrapper>{title}</TooltipTitleWrapper>}
+      title={title && <TooltipTitleWrapper><>{title}</></TooltipTitleWrapper>}
       overlayInnerStyle={{ maxWidth: "232px", whiteSpace: "break-spaces" }}
       arrow={{
         pointAtCenter: true
@@ -188,7 +188,6 @@ function ToolTipLabel(
       placement="top"
       defaultOpen={false}
       trigger="hover"
-      popupVisible={!!title}
       style={tooltipStyle}
       {...restProps}
     >

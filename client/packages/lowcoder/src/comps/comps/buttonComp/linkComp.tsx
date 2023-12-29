@@ -20,8 +20,22 @@ import { IconControl } from "comps/controls/iconControl";
 import { hasIcon } from "comps/utils";
 import { RefControl } from "comps/controls/refControl";
 
+import { EditorContext } from "comps/editorState";
+import React, { useContext } from "react";
+
 const Link = styled(Button)<{ $style: LinkStyleType }>`
-  ${(props) => `color: ${props.$style.text};margin: ${props.$style.margin}; padding: ${props.$style.padding};`}
+  ${(props) => `
+    color: ${props.$style.text};
+    margin: ${props.$style.margin};
+    padding: ${props.$style.padding};
+    font-size: ${props.$style.textSize};
+    &:hover {
+      color: ${props.$style.hoverText} !important;
+    }
+    &:active {
+      color: ${props.$style.activeText} !important;
+    }
+  `}
   &.ant-btn {
     display: inline-flex;
     align-items: center;
@@ -93,19 +107,22 @@ const LinkTmpComp = (function () {
             {children.text.propertyView({ label: trans("text") })}
           </Section>
 
-          <Section name={sectionNames.interaction}>
-            {children.onEvent.getPropertyView()}
-            {disabledPropertyView(children)}
-            {loadingPropertyView(children)}
-          </Section>
+          {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
+            <><Section name={sectionNames.interaction}>
+              {children.onEvent.getPropertyView()}
+              {disabledPropertyView(children)}
+              {hiddenPropertyView(children)}
+              {loadingPropertyView(children)}
+            </Section>
+            <Section name={sectionNames.advanced}>
+              {children.prefixIcon.propertyView({ label: trans("button.prefixIcon") })}
+              {children.suffixIcon.propertyView({ label: trans("button.suffixIcon") })}
+            </Section></>
+          )}
 
-          <Section name={sectionNames.layout}>
-            {children.prefixIcon.propertyView({ label: trans("button.prefixIcon") })}
-            {children.suffixIcon.propertyView({ label: trans("button.suffixIcon") })}
-            {hiddenPropertyView(children)}
-          </Section>
-
-          <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
+        {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
+          <><Section name={sectionNames.style}>{children.style.getPropertyView()}</Section></>
+        )}
         </>
       );
     })

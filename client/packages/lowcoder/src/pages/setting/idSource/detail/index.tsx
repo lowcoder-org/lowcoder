@@ -157,7 +157,7 @@ export const IdSourceDetail = (props: IdSourceDetailProps) => {
             required = valueObject ? valueObject.isRequire ?? required : required;
             const hasLock = valueObject && valueObject?.hasLock;
             const tip = valueObject && valueObject.tip;
-            const label = valueObject ? valueObject.label : value;
+            const label = valueObject ? valueObject.label : value as string;
             const isList = valueObject && valueObject.isList;
             const isPassword = valueObject && valueObject.isPassword;
             return (

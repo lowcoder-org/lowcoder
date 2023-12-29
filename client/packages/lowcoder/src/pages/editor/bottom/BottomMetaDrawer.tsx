@@ -140,7 +140,7 @@ export const DataSourceStructureTree = (props: {
   datasourceType: string;
 }) => {
   const { dataSourceId, datasourceType } = props;
-  const [expandedKeys, setExpandedKeys] = useState<Array<string | number>>([]);
+  const [expandedKeys, setExpandedKeys] = useState<Array<React.Key>>([]);
   const [searchValue, setSearchValue] = useState("");
   const [structure, setStructure] = useState<DataNode[]>([]);
 
@@ -292,11 +292,13 @@ export default function BottomMetaDrawer(props: BottomMetaDrawerProps) {
           zIndex: 2,
         }}
         title={<DrawerTitleView />}
-        headerStyle={headerWrapperStyle}
-        bodyStyle={{
-          padding: "0 0 0 8px",
-          scrollbarGutter: "stable",
-          overflowX: "hidden",
+        styles={{
+          header: headerWrapperStyle,
+          body: {
+            padding: "0 0 0 8px",
+            overflowX: "hidden",
+            scrollbarGutter: "stable",
+          }
         }}
         placement="bottom"
         closable={false}

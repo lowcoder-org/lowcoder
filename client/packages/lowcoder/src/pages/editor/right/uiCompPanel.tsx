@@ -8,22 +8,22 @@ import { draggingUtils } from "layout";
 import { isEmpty } from "lodash";
 import { language } from "i18n";
 import {
-  ComListTitle,
   CompIconDiv,
   EmptyCompContent,
   RightPanelContentWrapper,
 } from "pages/editor/right/styledComponent";
 import { tableDragClassName } from "pages/tutorials/tutorialsConstant";
-import React, { useContext, useMemo } from "react";
+import React, { useContext, useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
-import { labelCss } from "lowcoder-design";
+import {
+  BaseSection,
+  PropertySectionContext,
+  PropertySectionContextType,
+  PropertySectionState,
+  labelCss,
+} from "lowcoder-design";
 import { TransparentImg } from "../../../util/commonUtils";
 import { RightContext } from "./rightContext";
-
-const GrayLabel = (props: { label: string }) => {
-  const { label } = props;
-  return <ComListTitle>{label}</ComListTitle>;
-};
 
 const CompDiv = styled.div`
   display: flex;
@@ -80,16 +80,26 @@ const InsertContain = styled.div`
   gap: 8px;
 `;
 
-const CategoryLabel = styled(GrayLabel)`
-  margin: 0;
+const SectionWrapper = styled.div`
+  .section-header {
+    margin-left: 0;
+  }
+  &:not(:last-child){
+    border-bottom: 1px solid #e1e3eb;
+  }
 `;
 
-const SectionWrapper = styled.div`
-  margin-bottom: 16px;
-`;
+const stateCompName = 'UICompSections';
+const initialState: PropertySectionState = { [stateCompName]: {}};
+Object.keys(uiCompCategoryNames).forEach((cat) => {
+  const key = uiCompCategoryNames[cat as UICompCategory];
+  initialState[stateCompName][key] = key === uiCompCategoryNames.dashboards
+})
 
 export const UICompPanel = () => {
   const { onDrag, searchValue } = useContext(RightContext);
+  const [propertySectionState, setPropertySectionState] = useState<PropertySectionState>(initialState);
+  const [searchedPropertySectionState, setSearchedPropertySectionState] = useState<PropertySectionState>({});
 
   const categories = useMemo(() => {
     const cats: Record<string, [string, UICompManifest][]> = Object.fromEntries(
@@ -103,10 +113,39 @@ export const UICompPanel = () => {
     return cats;
   }, []);
 
+  const propertySectionContextValue = useMemo<PropertySectionContextType>(() => {
+    const state = searchValue
+      ? searchedPropertySectionState
+      : propertySectionState;
+    const setStateFn = searchValue
+      ? setSearchedPropertySectionState
+      : setPropertySectionState;
+
+    return {
+      compName: stateCompName,
+      state,
+      toggle: (compName: string, sectionName: string) => {
+        setStateFn((oldState) => {
+          const nextSectionState: PropertySectionState = { ...oldState };
+          const compState = nextSectionState[compName] || {};
+          compState[sectionName] = compState[sectionName] === false;
+          nextSectionState[compName] = compState;
+          return nextSectionState;
+        });
+      },
+    };
+  }, [searchValue, propertySectionState, searchedPropertySectionState]);
+
+  useEffect(() => {
+    if(!searchValue) {
+      setSearchedPropertySectionState({})
+    }
+  }, [searchValue])
+
   const compList = useMemo(
     () =>
       Object.entries(categories)
-        .filter(([key]) => !(!isEmpty(searchValue) && (key as UICompCategory) === "common"))
+        .filter(([key]) => !(!isEmpty(searchValue) && (key as UICompCategory) === "dashboards"))
         .map(([key, value], index) => {
           let infos = value;
           if (!isEmpty(searchValue)) {
@@ -122,26 +161,31 @@ export const UICompPanel = () => {
 
           return (
             <SectionWrapper key={index}>
-              <CategoryLabel label={uiCompCategoryNames[key as UICompCategory]} />
-              <InsertContain>
-                {infos.map((info) => (
-                  <CompDiv key={info[0]} className={info[0] === "table" ? tableDragClassName : ""}>
-                    <HovDiv
-                      draggable
-                      onDragStart={(e) => {
-                        e.dataTransfer.setData("compType", info[0]);
-                        e.dataTransfer.setDragImage(TransparentImg, 0, 0);
-                        draggingUtils.setData("compType", info[0]);
-                        onDrag(info[0]);
-                      }}
-                    >
-                      <IconContain Icon={info[1].icon}></IconContain>
-                    </HovDiv>
-                    <CompNameLabel>{info[1].name}</CompNameLabel>
-                    {language !== "en" && <CompEnNameLabel>{info[1].enName}</CompEnNameLabel>}
-                  </CompDiv>
-                ))}
-              </InsertContain>
+              <BaseSection
+                noMargin
+                width={288}
+                name={uiCompCategoryNames[key as UICompCategory]}
+              >
+                <InsertContain>
+                  {infos.map((info) => (
+                    <CompDiv key={info[0]} className={info[0] === "table" ? tableDragClassName : ""}>
+                      <HovDiv
+                        draggable
+                        onDragStart={(e) => {
+                          e.dataTransfer.setData("compType", info[0]);
+                          e.dataTransfer.setDragImage(TransparentImg, 0, 0);
+                          draggingUtils.setData("compType", info[0]);
+                          onDrag(info[0]);
+                        }}
+                      >
+                        <IconContain Icon={info[1].icon}></IconContain>
+                      </HovDiv>
+                      <CompNameLabel>{info[1].name}</CompNameLabel>
+                      {language !== "en" && <CompEnNameLabel>{info[1].enName}</CompEnNameLabel>}
+                    </CompDiv>
+                  ))}
+                </InsertContain>
+              </BaseSection>
             </SectionWrapper>
           );
         })
@@ -149,9 +193,19 @@ export const UICompPanel = () => {
     [categories, searchValue, onDrag]
   );
 
+  if(!compList.length) return (
+    <RightPanelContentWrapper>
+      <EmptyCompContent />
+    </RightPanelContentWrapper>
+  )
+
   return (
     <RightPanelContentWrapper>
-      {compList.length > 0 ? compList : <EmptyCompContent />}
+      <PropertySectionContext.Provider
+        value={propertySectionContextValue}
+      >
+        {compList}
+      </PropertySectionContext.Provider>
     </RightPanelContentWrapper>
   );
 };

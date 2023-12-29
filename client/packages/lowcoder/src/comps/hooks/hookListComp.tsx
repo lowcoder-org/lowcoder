@@ -21,6 +21,7 @@ const defaultHookListValue = [
   { compType: "message", name: "message" },
   { compType: "localStorage", name: "localStorage" },
   { compType: "currentUser", name: "currentUser" },
+  { compType: "screenInfo", name: "screenInfo" },
   { compType: "theme", name: "theme" },
 ] as const;
 

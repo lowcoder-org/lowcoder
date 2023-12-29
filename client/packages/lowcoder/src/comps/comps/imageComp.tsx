@@ -29,6 +29,9 @@ import { BoolControl } from "comps/controls/boolControl";
 import { Image as AntImage } from "antd";
 import { DEFAULT_IMG_URL } from "util/stringUtils";
 
+import { useContext } from "react";
+import { EditorContext } from "comps/editorState";
+
 const Container = styled.div<{ $style: ImageStyleType | undefined }>`
   height: 100%;
   width: 100%;
@@ -52,7 +55,7 @@ const Container = styled.div<{ $style: ImageStyleType | undefined }>`
 const getStyle = (style: ImageStyleType) => {
   return css`
     img {
-      border: 1px solid ${style.border};
+      border: ${(props) => (style.borderWidth ? style.borderWidth : "1px")} solid ${style.border};
       border-radius: ${style.radius};
       margin: ${style.margin};
       padding: ${style.padding};
@@ -99,7 +102,7 @@ const ContainerImg = (props: RecordConstructorToView<typeof childrenMap>) => {
 
   // on safari
   const setStyle = (height: string, width: string) => {
-    console.log(width, height);
+    // console.log(width, height);
 
     const img = imgRef.current;
     const imgDiv = img?.getElementsByTagName("div")[0];
@@ -169,24 +172,29 @@ let ImageBasicComp = new UICompBuilder(childrenMap, (props) => {
           {children.src.propertyView({
             label: trans("image.src"),
           })}
-          {children.supportPreview.propertyView({
-            label: trans("image.supportPreview"),
-            tooltip: trans("image.supportPreviewTip"),
-          })}
         </Section>
 
-        <Section name={sectionNames.interaction}>
-          {children.onEvent.getPropertyView()}
-        </Section>
+        {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+          <Section name={sectionNames.interaction}>
+            {children.onEvent.getPropertyView()}
+            {hiddenPropertyView(children)}
+            {children.supportPreview.propertyView({
+              label: trans("image.supportPreview"),
+              tooltip: trans("image.supportPreviewTip"),
+            })}
+          </Section>
+        )}
 
-        <Section name={sectionNames.layout}>
-          {children.autoHeight.getPropertyView()}
-          {hiddenPropertyView(children)}
-        </Section>
-
-        <Section name={sectionNames.style}>
-          {children.style.getPropertyView()}
-        </Section>
+        {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+          <>
+            <Section name={sectionNames.layout}>
+              {children.autoHeight.getPropertyView()}
+            </Section>
+            <Section name={sectionNames.style}>
+              {children.style.getPropertyView()}
+            </Section>
+          </>
+        )}
       </>
     );
   })

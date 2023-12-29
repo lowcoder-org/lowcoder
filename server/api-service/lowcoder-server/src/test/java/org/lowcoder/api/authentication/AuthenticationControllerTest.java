@@ -64,7 +64,7 @@ public class AuthenticationControllerTest {
         MockServerHttpRequest request = MockServerHttpRequest.post("").build();
         MockServerWebExchange exchange = MockServerWebExchange.builder(request).build();
 
-        Mono<User> userMono = authenticationController.formLogin(formLoginRequest, null, exchange)
+        Mono<User> userMono = authenticationController.formLogin(formLoginRequest, null, null, exchange)
                 .then(userRepository.findByConnections_SourceAndConnections_RawId(source, email));
 
         StepVerifier.create(userMono)
@@ -115,8 +115,8 @@ public class AuthenticationControllerTest {
         MockServerHttpRequest loginRequest = MockServerHttpRequest.post("").build();
         MockServerWebExchange loginExchange = MockServerWebExchange.builder(loginRequest).build();
 
-        Mono<User> userMono = authenticationController.formLogin(formRegisterRequest, null, registerExchange)
-                .then(authenticationController.formLogin(formLoginRequest, null, loginExchange))
+        Mono<User> userMono = authenticationController.formLogin(formRegisterRequest, null,null, registerExchange)
+                .then(authenticationController.formLogin(formLoginRequest, null, null,loginExchange))
                 .then(userRepository.findByConnections_SourceAndConnections_RawId(source, email));
 
         StepVerifier.create(userMono)
@@ -163,8 +163,8 @@ public class AuthenticationControllerTest {
         MockServerHttpRequest request = MockServerHttpRequest.post("").build();
         MockServerWebExchange exchange = MockServerWebExchange.builder(request).build();
 
-        Mono<ResponseView<Boolean>> loginMono = authenticationController.formLogin(formLoginRequest, null, exchange)
-                .then(authenticationController.formLogin(formLoginRequest, null, exchange));
+        Mono<ResponseView<Boolean>> loginMono = authenticationController.formLogin(formLoginRequest, null, null,exchange)
+                .then(authenticationController.formLogin(formLoginRequest, null,null, exchange));
         StepVerifier.create(loginMono)
                 .verifyErrorMatches(throwable -> {
                     BizException bizException = (BizException) throwable;
@@ -184,7 +184,7 @@ public class AuthenticationControllerTest {
         MockServerHttpRequest request = MockServerHttpRequest.post("").build();
         MockServerWebExchange exchange = MockServerWebExchange.builder(request).build();
 
-        Mono<ResponseView<Boolean>> loginMono = authenticationController.formLogin(formLoginRequest, null, exchange);
+        Mono<ResponseView<Boolean>> loginMono = authenticationController.formLogin(formLoginRequest, null, null, exchange);
         StepVerifier.create(loginMono)
                 .verifyErrorMatches(throwable -> {
                     BizException bizException = (BizException) throwable;

@@ -12,6 +12,7 @@ import { NameGenerator } from "comps/utils";
 import { CompTree, IContainer } from "../containerBase";
 import { SimpleContainerComp } from "../containerBase/simpleContainerComp";
 import { TriContainerComp } from "./triContainerComp";
+import { ReactNode } from "react";
 
 export type ContainerChildren<ChildrenCompMap extends Record<string, Comp<unknown>>> =
   UiChildren<ChildrenCompMap> & {
@@ -56,7 +57,7 @@ export class ContainerCompBuilder<
     }
     const newChildrenMap = containerChildren(this.childrenMap);
     const TmpComp = new UICompBuilder(newChildrenMap, (props, dispatch) => {
-      return this.viewFn(props as any, dispatch);
+      return this.viewFn(props as any, dispatch) as ReactNode;
     })
       .setPropertyViewFn(this.propertyViewFn as any)
       .build();

@@ -129,6 +129,7 @@ export const CodeEditorPanel = (props: {
       maskClosable={true}
       onPopupVisibleChange={(visible) => setVisible(visible)}
       afterPopupVisibleChange={(visible) => props.onVisibleChange(visible)}
+      getPopupContainer={(node: any) => node.parentNode.parentNode}
       popup={() => (
         <Draggable
           positionOffset={{ x: "-50%", y: "-50%" }}

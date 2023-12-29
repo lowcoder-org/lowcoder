@@ -101,9 +101,11 @@ const DebugComp = withViewFn(simpleMultiComp(childrenMap), (debugComp) => {
         </Menu>
       </Layout.Sider>
       <Layout.Content>
-        <div>CANVAS:</div>
-        {comp && comp.getView()}
-        {compDataToString(comp)}
+        <>
+          <div>CANVAS:</div>
+          {comp && comp.getView()}
+          {compDataToString(comp)}
+        </>
       </Layout.Content>
       <Layout.Sider theme="light" width={300}>
         <div>PROPERTY PANE:</div>

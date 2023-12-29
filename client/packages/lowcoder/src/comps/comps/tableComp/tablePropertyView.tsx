@@ -390,6 +390,7 @@ function ColumnPropertyView<T extends MultiBaseComp<TableChildrenType>>(props: {
           comp.children.columns.dispatch(action);
         }}
         dataIndex={(column) => column.getView().dataIndex}
+        scrollable={true}
       />
     </>
   );
@@ -397,72 +398,126 @@ function ColumnPropertyView<T extends MultiBaseComp<TableChildrenType>>(props: {
 
 function columnPropertyView<T extends MultiBaseComp<TableChildrenType>>(comp: T) {
   const columnLabel = trans("table.columnNum");
-  const dynamicColumn = comp.children.dynamicColumn.getView();
+  // const dynamicColumn = comp.children.dynamicColumn.getView();
   return [
     controlItem(
       { filterText: columnLabel },
       <ColumnPropertyView comp={comp} columnLabel={columnLabel} />
     ),
-    comp.children.dynamicColumn.propertyView({ label: trans("table.dynamicColumn") }),
+    /* comp.children.dynamicColumn.propertyView({ label: trans("table.dynamicColumn") }),
     dynamicColumn &&
       comp.children.dynamicColumnConfig.propertyView({
         label: trans("table.dynamicColumnConfig"),
         tooltip: trans("table.dynamicColumnConfigDesc"),
-      }),
+      }), */
   ];
 }
 
-export function compTablePropertyView<T extends MultiBaseComp<TableChildrenType>>(comp: T) {
+export function compTablePropertyView<T extends MultiBaseComp<TableChildrenType> & { editorModeStatus: string }>(comp: T) {
+  const editorModeStatus = comp.editorModeStatus;
   const dataLabel = trans("data");
   return (
     <>
-      <Section name={trans("data")}>
-        {controlItem(
-          { filterText: dataLabel },
-          <div className={tableDataDivClassName}>
-            {comp.children.data.propertyView({
-              label: dataLabel,
+      {["logic", "both"].includes(editorModeStatus) && (
+        <Section name={trans("table.dataDesc")}>
+          {controlItem(
+            { filterText: dataLabel },
+            <div className={tableDataDivClassName}>
+              {comp.children.data.propertyView({
+                label: dataLabel,
+              })}
+            </div>
+          )}
+        </Section>
+      )}
+
+      {["layout", "both"].includes(editorModeStatus) && (
+        <Section name={trans("prop.columns")}>
+          {columnPropertyView(comp)}
+        </Section>
+      )}
+
+      {["logic", "both"].includes(editorModeStatus) && (
+        <>
+          <Section name={sectionNames.interaction}>
+            {comp.children.onEvent.getPropertyView()}
+            {comp.children.selection.getPropertyView()}
+            {hiddenPropertyView(comp.children)}
+            {loadingPropertyView(comp.children)}
+          </Section>
+
+          <Section name={trans("prop.toolbar")}>
+            {comp.children.toolbar.getPropertyView()}
+          </Section>
+        </>
+      )}
+
+      {["layout", "both"].includes(editorModeStatus) && (
+        <>
+          <Section name={sectionNames.layout}>
+            {comp.children.size.propertyView({
+              label: trans("table.tableSize"),
+              radioButton: true,
             })}
-          </div>
-        )}
-      </Section>
-      <Section name={trans("prop.columns")}>{columnPropertyView(comp)}</Section>
-      <Section name={sectionNames.layout}>
-        {comp.children.expansion.getPropertyView()}
-        {hiddenPropertyView(comp.children)}
-      </Section>
-      <Section name={trans("prop.rowSelection")}>
-        {comp.children.selection.getPropertyView()}
-      </Section>
-      <Section name={trans("prop.toolbar")}>{comp.children.toolbar.getPropertyView()}</Section>
-      <Section name={trans("prop.pagination")}>
-        {comp.children.pagination.getPropertyView()}
-      </Section>
-      <Section name={sectionNames.interaction}>
-        {comp.children.onEvent.getPropertyView()}
-        {loadingPropertyView(comp.children)}
-        {comp.children.showDataLoadSpinner.propertyView({
-          label: trans("table.showDataLoadSpinner"),
-        })}
-        {comp.children.viewModeResizable.propertyView({
-          label: trans("table.viewModeResizable"),
-          tooltip: trans("table.viewModeResizableTooltip"),
-        })}
-      </Section>
-      <Section name={sectionNames.style}>
-        {comp.children.style.getPropertyView()}
-        {comp.children.rowColor.getPropertyView()}
-        {comp.children.size.propertyView({
-          label: trans("table.tableSize"),
-          radioButton: true,
-        })}
-        {comp.children.hideHeader.propertyView({
-          label: trans("table.hideHeader"),
-        })}
-        {comp.children.hideBordered.propertyView({
-          label: trans("table.hideBordered"),
-        })}
-      </Section>
+            {comp.children.autoHeight.getPropertyView()}
+            {comp.children.fixedHeader.propertyView({
+              label: trans("table.fixedHeader"),
+              tooltip: trans("table.fixedHeaderTooltip")
+            })}
+            {comp.children.hideHeader.propertyView({
+              label: trans("table.hideHeader"),
+            })}
+            {comp.children.hideBordered.propertyView({
+              label: trans("table.hideBordered"),
+            })}
+            {comp.children.viewModeResizable.propertyView({
+              label: trans("table.viewModeResizable"),
+              tooltip: trans("table.viewModeResizableTooltip"),
+            })}
+          </Section>
+          <Section name={trans("prop.pagination")}>
+            {comp.children.pagination.getPropertyView()}
+          </Section>
+        </>
+      )}
+
+      {["logic", "both"].includes(editorModeStatus) && (
+        <>
+          <Section name={sectionNames.advanced}>
+            {comp.children.expansion.getPropertyView()}
+            {comp.children.showDataLoadSpinner.propertyView({
+              label: trans("table.showDataLoadSpinner"),
+            })}
+            {comp.children.dynamicColumn.propertyView({ label: trans("table.dynamicColumn") })}
+            {comp.children.dynamicColumn.getView() &&
+              comp.children.dynamicColumnConfig.propertyView({
+                label: trans("table.dynamicColumnConfig"),
+                tooltip: trans("table.dynamicColumnConfigDesc"),
+            })}
+            {comp.children.searchText.propertyView({
+              label: trans("table.searchText"),
+              tooltip: trans("table.searchTextTooltip"),
+              placeholder: "{{input1.value}}",
+            })}
+          </Section>
+        </>
+      )}
+
+      {["layout", "both"].includes(editorModeStatus) && (
+        <><Section name={"Table Style"}>
+            {comp.children.style.getPropertyView()}  
+          </Section>
+          <Section name={"Row Style"}>
+            {comp.children.rowStyle.getPropertyView()}
+            {comp.children.rowAutoHeight.getPropertyView()}
+            {comp.children.rowHeight.getPropertyView()}
+            {comp.children.rowColor.getPropertyView()}
+          </Section>
+          <Section name={"Column Style"}>
+            {comp.children.columnsStyle.getPropertyView()}
+          </Section>
+        </>
+      )}
     </>
   );
 }

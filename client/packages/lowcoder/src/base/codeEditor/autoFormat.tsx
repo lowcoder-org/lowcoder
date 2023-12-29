@@ -5,37 +5,37 @@ import { format as formatSQL } from "sql-formatter";
 import { Language } from "./codeEditorTypes";
 
 export async function cssFormatter(text: string) {
-  const prettier = await import("prettier/standalone");
-  const parserPlugin = await import("prettier/parser-postcss");
-  return prettier.format(text, { parser: "css", plugins: [parserPlugin], semi: false }).trim();
+  const prettier = await require("prettier/standalone");
+  const parserPlugin = await require("prettier/parser-postcss");
+  return (await prettier.format(text, { parser: "css", plugins: [parserPlugin], semi: false })).trim();
 }
 
 export async function htmlFormatter(text: string) {
-  const prettier = await import("prettier/standalone");
-  const parserPlugin = await import("prettier/parser-html");
-  return prettier.format(text, { parser: "html", plugins: [parserPlugin], semi: false }).trim();
+  const prettier = await require("prettier/standalone");
+  const parserPlugin = await require("prettier/parser-html");
+  return (await prettier.format(text, { parser: "html", plugins: [parserPlugin], semi: false })).trim();
 }
 
 async function getJavascriptFormatter() {
-  const prettier = await import("prettier/standalone");
-  const parserBabel = await import("prettier/parser-babel");
-  return (text: string) =>
-    prettier.format(text, { parser: "babel", plugins: [parserBabel], semi: false }).trim();
+  const prettier = await require("prettier/standalone");
+  const parserBabel = await require("prettier/parser-babel");
+  return async (text: string) =>
+    (await prettier.format(text, { parser: "babel", plugins: [parserBabel], semi: false })).trim();
 }
 
 export async function getJsonFormatter() {
-  const prettier = await import("prettier/standalone");
-  const parserBabel = await import("prettier/parser-babel");
-  return (text: string) => prettier.format(text, { parser: "json", plugins: [parserBabel] }).trim();
+  const prettier = await require("prettier/standalone");
+  const parserBabel = await require("prettier/parser-babel");
+  return async (text: string) => (await prettier.format(text, { parser: "json", plugins: [parserBabel] })).trim();
 }
 
-function formatJsSegment(formatter: (text: string) => string, script: string) {
+async function formatJsSegment(formatter: (text: string) => Promise<string>, script: string): Promise<string> {
   try {
-    const s = formatter(script);
+    const s = await formatter(script);
     return s.startsWith(";") ? s.slice(1) : s;
   } catch (e1) {
     try {
-      const s = formatter(`return (${script}\n);`); // same as evalScript()
+      const s = await formatter(`return (${script}\n);`); // same as evalScript()
       return s.startsWith("return ") ? s.slice(7) : s;
     } catch (e2) {
       throw e1;
@@ -45,7 +45,9 @@ function formatJsSegment(formatter: (text: string) => string, script: string) {
 
 async function getJsSegmentFormatter() {
   const formatter = await getJavascriptFormatter();
-  return (segment: string) => "{{" + formatJsSegment(formatter, segment.slice(2, -2)) + "}}";
+  return async (segment: string) => {
+    return "{{" + formatJsSegment(formatter, segment.slice(2, -2)) + "}}";
+  };
 }
 
 export async function formatStringWithJsSnippets(text: string): Promise<string> {
@@ -75,14 +77,26 @@ export async function formatSqlWithJsSnippets(text: string) {
   if (jsSegments.length === 0) {
     return newText;
   }
-  return newText.replace(/{ { \d+ } }/g, (s) => {
+  const replacements: Promise<string>[] = [];
+  const replacedText = newText.replace(/{ { \d+ } }/g, (s) => {
     const index = parseInt(s.slice(4, -4));
     if (index >= 0 && index < jsSegments.length) {
-      return jsSegmentFormatter(jsSegments[index]);
+      const replacement = jsSegmentFormatter(jsSegments[index]);
+      replacements.push(replacement);
+      return s; // Return the original placeholder for now
     }
     return s;
   });
+
+  const formattedSegments = await Promise.all(replacements);
+  let finalText = replacedText;
+  formattedSegments.forEach((formattedSegment, index) => {
+    finalText = finalText.replace(`{ { ${index} } }`, formattedSegment);
+  });
+
+  return finalText;
 }
+
 
 async function formatJsonWithJsSnippetsImpl(text: string) {
   if (!text || text.trim().length === 0) {
@@ -108,15 +122,20 @@ async function formatJsonWithJsSnippetsImpl(text: string) {
   // here are 3 cases.
   // - when the original "{{}}" is not in quotes as the single key or value, the whole "{{ index }}" should be replaced.
   // - when the original "{{}}" is for concatenating strings, "{{ index }}" or "\\{\\{ index \\}\\}" should be replaced.
-  return formattedJSON.replace(/("{{\d+}}")|({{\d+}})|(\\\\{\\\\{\d+\\\\}\\\\})/g, (s) => {
+  const formattedSegments = await Promise.all(segments.map(async (segment) => {
+    if (isDynamicSegment(segment)) {
+      const formattedSegment = await jsSegmentFormatter(segment);
+      return formattedSegment;
+    }
+    return segment;
+  }));
+  
+  return (await formattedJSON).replace(/("{{\d+}}")|({{\d+}})|(\\\\{\\\\{\d+\\\\}\\\\})/g, (s: string) => {
     const index = parseInt(
       s.startsWith('"{{') ? s.slice(3, -3) : s.startsWith("{{") ? s.slice(2, -2) : s.slice(6, -6)
     );
-    if (index >= 0 && index < segments.length) {
-      const segment = segments[index];
-      if (isDynamicSegment(segment)) {
-        return jsSegmentFormatter(segment);
-      }
+    if (index >= 0 && index < formattedSegments.length) {
+      return formattedSegments[index];
     }
     return s;
   });
