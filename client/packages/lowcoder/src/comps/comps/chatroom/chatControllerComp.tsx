@@ -24,7 +24,7 @@ import { BackgroundColorContext } from "comps/utils/backgroundColorContext";
 import { CanvasContainerID } from "constants/domLocators";
 import { Layers } from "constants/Layers";
 import { trans } from "i18n";
-import { changeChildAction } from "lowcoder-core";
+import { changeChildAction, CompAction } from "lowcoder-core";
 import {
   Drawer,
   HintPlaceHolder,
@@ -42,15 +42,15 @@ import * as sdk from "matrix-js-sdk";
 
 import { JSONValue, stateComp, withDefault } from "@lowcoder-ee/index.sdk";
 import { getData } from "../listViewComp/listViewUtils";
+import { MatrixClient } from "matrix-js-sdk";
 
 const EventOptions = [closeEvent] as const;
 
 const DEFAULT_SIZE = 378;
 const DEFAULT_PADDING = 16;
 
-export const matrixClient = sdk.createClient({
-  baseUrl: "https://matrix.org",
-  accessToken: "syt_ZnJlZGR5MjU0_DJVCzackXaImNUceaeUY_2Q2zwg",
+export const matrixClient: MatrixClient = sdk.createClient({
+  baseUrl: "https://matrix.safiricabs.com",
 });
 
 const DrawerWrapper = styled.div`
@@ -109,6 +109,7 @@ export const meetingControllerChildren = {
   roomData: jsonObjectExposingStateControl(""),
   messages: stateComp<JSONValue>([]),
   participants: stateComp<JSONValue>([]),
+  matrixAuthData: jsonObjectExposingStateControl(""),
 };
 let MTComp = (function () {
   return new ContainerCompBuilder(
@@ -134,244 +135,257 @@ let MTComp = (function () {
       );
 
       useEffect(() => {
-        var roomList: any = [];
-        var viewingRoom: any = null;
-        var numMessagesToShow = 20;
-
-        // show the room list after syncing.
-        matrixClient.on(
-          "sync" as sdk.EmittedEvents,
-          function (state: any, prevState: any, data: any) {
-            switch (state) {
-              case "PREPARED":
-                setRoomList();
-                printRoomList();
-                break;
-            }
-          }
+        console.log(
+          "props.matrixInitialised.value",
+          props.matrixAuthData.value
         );
+        if (props.matrixAuthData.value.access_token == null) return;
+        handleMatrixOperations();
+      }, [props.matrixAuthData.value]);
+      var roomList: any = [];
 
-        matrixClient.on("Room" as sdk.EmittedEvents, function () {
-          setRoomList();
-          if (!viewingRoom) {
-            printRoomList();
-          }
-        });
+      // const _initResources = () => {
+      //   var viewingRoom: any = null;
+      //   var numMessagesToShow = 20;
 
-        // print incoming messages.
-        matrixClient.on(
-          "Room.timeline" as sdk.EmittedEvents,
-          function (event: any, room: any, toStartOfTimeline: any) {
-            if (toStartOfTimeline) {
-              return; // don't print paginated results
-            }
-            if (!viewingRoom || viewingRoom.roomId !== room.roomId) {
-              return; // not viewing a room or viewing the wrong room.
-            }
-          }
-        );
+      //   // show the room list after syncing.
+      //   matrixClient.on(
+      //     "sync" as sdk.EmittedEvents,
+      //     function (state: any, prevState: any, data: any) {
+      //       switch (state) {
+      //         case "PREPARED":
+      //           setRoomList();
+      //           printRoomList();
+      //           break;
+      //       }
+      //     }
+      //   );
 
-        function setRoomList() {
-          roomList = matrixClient.getRooms();
-          roomList.sort(function (a: any, b: any) {
-            // < 0 = a comes first (lower index) - we want high indexes = newer
-            var aMsg = a.timeline[a.timeline.length - 1];
-            if (!aMsg) {
-              return -1;
-            }
-            var bMsg = b.timeline[b.timeline.length - 1];
-            if (!bMsg) {
-              return 1;
-            }
-            if (aMsg.getTs() > bMsg.getTs()) {
-              return 1;
-            } else if (aMsg.getTs() < bMsg.getTs()) {
-              return -1;
-            }
-            return 0;
-          });
-        }
+      //   matrixClient.on("Room" as sdk.EmittedEvents, function () {
+      //     setRoomList();
+      //     if (!viewingRoom) {
+      //       printRoomList();
+      //     }
+      //   });
 
-        function printRoomList() {
-          console.log("Room List:");
-         
-          for (var i = 0; i < roomList.length; i++) {
-            var msg = roomList[i].timeline[roomList[i].timeline.length - 1];
-            var dateStr = "---";
-            var fmt;
-            if (msg) {
-              dateStr = new Date(msg.getTs())
-                .toISOString()
-                .replace(/T/, " ")
-                .replace(/\..+/, "");
-            }
-            var myMembership = roomList[i].getMyMembership();
-            
-            
-          }
-        }
-
-
-
-        matrixClient.startClient(
-          
-        ); // messages for each room.
-      }, []);
+      //   // print incoming messages.
+      //   matrixClient.on(
+      //     "Room.timeline" as sdk.EmittedEvents,
+      //     function (event: any, room: any, toStartOfTimeline: any) {
+      //       if (toStartOfTimeline) {
+      //         return; // don't print paginated results
+      //       }
+      //       if (!viewingRoom || viewingRoom.roomId !== room.roomId) {
+      //         return; // not viewing a room or viewing the wrong room.
+      //       }
+      //     }
+      //   );
+      //   //  matrixClient.publicRooms((err: any, data: any) => {
+      //   //    if (err) {
+      //   //      console.error(err);
+      //   //    } else {
+      //   //      console.log("Public Rooms: %s", JSON.stringify(data));
+      //   //    }
+      //   //  });
+      // };
 
       // useEffect(() => {
-      //   let handleMatrixOperations = async () => {
-      //     try {
-      //       //check if room alias is available
-      //       if (props.roomAlias)
-      //         //init matrix client with username and password
-      //         //TO BE CHANGED WITH THE SERVER TOKEN
-      matrixClient
-        .login("m.login.password", {
-          user: props.username, 
-          password: props.password,
-        })
-        .then(async (response) => { console.log(response);
-         })
-      //             matrixClient
-      //               .joinRoom(`#${props.roomAlias}:matrix.org`)
-      //               .then(async (room) => {
-      //                 props.roomData.onChange({ roomId: room.roomId });
-      //                 let members = room.getMembers();
-      //                 console.log(members);
-      //                 console.log("RoomState.members", members);
+      //   var roomList: any = [];
+      //   var viewingRoom: any = null;
+      //   var numMessagesToShow = 20;
 
-      //                 console.log(room);
-
-      //               })
-      //               .catch((e) => console.log(e));
-      //             let messagesdata: any = [];
-
-      //             matrixClient.on(
-      //               "Room.timeline" as sdk.EmittedEvents,
-      //               function (event: any, room: any, toStartOfTimeline: any) {
-      //                 if (toStartOfTimeline) {
-      //                   return;
-      //                 }
-      //                 if (event.getType() !== "m.room.message") {
-      //                   return;
-      //                 }
-      //                 messagesdata.push({
-      //                   user: {
-      //                     name: event.getSender(),
-      //                     avatar:
-      //                       "https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png",
-      //                   },
-      //                   value: event.getContent().body,
-      //                   createdAt: new Date(event.localTimestamp).toISOString(),
-      //                   key: event.localTimestamp + "_" + Math.random(),
-      //                 });
-      //                 dispatch(
-      //                   changeChildAction(
-      //                     "messages",
-      //                     getData(
-      //                       [...messagesdata].sort(
-      //                         (b: { key: any }, a: { key: any }) =>
-      //                           b.key.toString().split("_")[0] -
-      //                           a.key.toString().split("_")[0]
-      //                       )
-      //                     ).data,
-      //                     false
-      //                   )
-      //                 );
-      //               }
-      //             );
-      //                 matrixClient.on(
-      //                   "RoomState.members" as sdk.EmittedEvents,
-      //                   function (event: any, state: any, member: any) {
-      //                     // console.log("participants", room.roomId);
-
-      //                     // const roomm = matrixClient.getRoom(room.roomId);
-      //                     // console.log("participants", roomm);
-      //                     // if (!roomm) {
-      //                     //   return;
-      //                     // }
-      //                     // const memberList = state.getMembers();
-      //                     // console.log("participants", memberList);
-      //                     // let participants: any = [];
-      //                     // console.log(roomm.name);
-      //                     // console.log(Array(roomm.name.length + 1).join("=")); // underline
-      //                     // for (var i = 0; i < memberList.length; i++) {
-      //                     //   console.log(
-      //                     //     "(%s) %s",
-      //                     //     memberList[i].membership,
-      //                     //     memberList[i].name
-      //                     //   );
-
-      //                     //   participants.push({
-      //                     //     user: memberList[i].membership,
-      //                     //     name: memberList[i].name,
-      //                     //     // key: event.localTimestamp + "_" + Math.random(),
-      //                     //   });
-      //                     // }
-      //                     // console.log("participants", memberList);
-      //                     // console.log("participants", participants);
-
-      //                     // dispatch(
-      //                     //   changeChildAction(
-      //                     //     "participants",
-      //                     //     getData([...participants]).data,
-      //                     //     false
-      //                     //   )
-      //                     // );
-      //                   }
-      //                 );
-
-      //             matrixClient.startClient();
-      //           });
-
-      //       // Step 2: Log in to the created account
-      //       //   const loginDetails = {
-      //       //     user: "freddy254",
-      //       //     password: "1122,.Fred",
-      //       //   };
-
-      //       //   const loginResponse = await client.login(
-      //       //     "m.login.password",
-      //       //     loginDetails
-      //       //   );
-
-      //       //   const accessToken = loginResponse.access_token;
-      //       //   console.log("Access Token:", accessToken);
-
-      //       //   // Step 2: Get public room information
-      //       //   const publicRoomAlias = "#fredtestung254:matrix.org"; // Replace with your desired public room alias or ID
-
-      //       //   try {
-      //       //     await client.joinRoom(publicRoomAlias);
-      //       //   } catch (joinError) {
-      //       //     console.error("Error joining room:", joinError);
-      //       //     return;
-      //       //   }
-
-      //       //   const publicRoom = client.getRoom(publicRoomAlias);
-      //       //   console.log("publicRoom", publicRoom);
-
-      //       //   if (publicRoom) {
-      //       //     console.log("Public Room ID:", publicRoom.roomId);
-      //       //     console.log(
-      //       //       "Public Room Members:",
-      //       //       publicRoom.getJoinedMembers()
-      //       //     );
-      //       //     console.log(
-      //       //       "Public Room Messages:",
-      //       //       publicRoom.getLiveTimeline().getEvents()
-      //       //     );
-      //       //   } else {
-      //       //     console.error("Public room not found.");
-      //       //   }
-      //     } catch (error) {
-      //       console.error("Matrix operation error:", error);
+      //   // show the room list after syncing.
+      //   matrixClient.on(
+      //     "sync" as sdk.EmittedEvents,
+      //     function (state: any, prevState: any, data: any) {
+      //       switch (state) {
+      //         case "PREPARED":
+      //           setRoomList();
+      //           printRoomList();
+      //           break;
+      //       }
       //     }
-      //   };
+      //   );
 
-      //   // Call the Matrix operations function
-      //   handleMatrixOperations();
-      // }, [matrixClient]);
+      //   matrixClient.on("Room" as sdk.EmittedEvents, function () {
+      //     setRoomList();
+      //     if (!viewingRoom) {
+      //       printRoomList();
+      //     }
+      //   });
+
+      //   // print incoming messages.
+      //   matrixClient.on(
+      //     "Room.timeline" as sdk.EmittedEvents,
+      //     function (event: any, room: any, toStartOfTimeline: any) {
+      //       if (toStartOfTimeline) {
+      //         return; // don't print paginated results
+      //       }
+      //       if (!viewingRoom || viewingRoom.roomId !== room.roomId) {
+      //         return; // not viewing a room or viewing the wrong room.
+      //       }
+      //     }
+      //   );
+
+      // function setRoomList() {
+      //   roomList = matrixClient.getRooms();
+      //   roomList.sort(function (a: any, b: any) {
+      //     // < 0 = a comes first (lower index) - we want high indexes = newer
+      //     var aMsg = a.timeline[a.timeline.length - 1];
+      //     if (!aMsg) {
+      //       return -1;
+      //     }
+      //     var bMsg = b.timeline[b.timeline.length - 1];
+      //     if (!bMsg) {
+      //       return 1;
+      //     }
+      //     if (aMsg.getTs() > bMsg.getTs()) {
+      //       return 1;
+      //     } else if (aMsg.getTs() < bMsg.getTs()) {
+      //       return -1;
+      //     }
+      //     return 0;
+      //   });
+      // }
+
+      // function printRoomList() {
+      //   console.log("Room List:");
+
+      //   for (var i = 0; i < roomList.length; i++) {
+      //     var msg = roomList[i].timeline[roomList[i].timeline.length - 1];
+      //     var dateStr = "---";
+      //     var fmt;
+      //     if (msg) {
+      //       dateStr = new Date(msg.getTs())
+      //         .toISOString()
+      //         .replace(/T/, " ")
+      //         .replace(/\..+/, "");
+      //     }
+      //     var myMembership = roomList[i].getMyMembership();
+      //   }
+      // }
+
+      //   matrixClient.startClient(
+
+      //   ); // messages for each room.
+      // }, []);
+
+      let handleMatrixOperations = async () => {
+        try {
+          if (props.roomAlias)
+            matrixClient
+              .joinRoom(`#${props.roomAlias}:matrix.safiricabs.com`)
+              .then(async (room) => {
+                props.roomData.onChange({ roomId: room.roomId });
+                let members = room.getMembers();
+                console.log(members);
+                console.log("RoomState.members", members);
+              })
+              .catch((e) => console.log(e));
+          let messagesdata: any = [];
+
+          matrixClient.on(
+            "Room.timeline" as sdk.EmittedEvents,
+            function (event: any, room: any, toStartOfTimeline: any) {
+              if (toStartOfTimeline) {
+                return;
+              }
+              if (event.getType() !== "m.room.message") {
+                return;
+              }
+              messagesdata.push({
+                user: {
+                  name: event.getSender(),
+                  avatar:
+                    "https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png",
+                },
+                value: event.getContent().body,
+                createdAt: new Date(event.localTimestamp).toISOString(),
+                key: event.localTimestamp + "_" + Math.random(),
+              });
+              dispatch(
+                changeChildAction(
+                  "messages",
+                  getData(
+                    [...messagesdata].sort(
+                      (b: { key: any }, a: { key: any }) =>
+                        b.key.toString().split("_")[0] -
+                        a.key.toString().split("_")[0]
+                    )
+                  ).data,
+                  false
+                )
+              );
+            }
+          );
+          matrixClient.on(
+            "RoomState.members" as sdk.EmittedEvents,
+            function (event: any, state: any, member: any) {
+              // console.log("participants", room.roomId);
+              // const roomm = matrixClient.getRoom(room.roomId);
+              // console.log("participants", roomm);
+              // if (!roomm) {
+              //   return;
+              // }
+              // const memberList = state.getMembers();
+              // console.log("participants", memberList);
+              // let participants: any = [];
+              // console.log(roomm.name);
+              // console.log(Array(roomm.name.length + 1).join("=")); // underline
+              // for (var i = 0; i < memberList.length; i++) {
+              //   console.log(
+              //     "(%s) %s",
+              //     memberList[i].membership,
+              //     memberList[i].name
+              //   );
+              //   participants.push({
+              //     user: memberList[i].membership,
+              //     name: memberList[i].name,
+              //     // key: event.localTimestamp + "_" + Math.random(),
+              //   });
+              // }
+              // console.log("participants", memberList);
+              // console.log("participants", participants);
+              // dispatch(
+              //   changeChildAction(
+              //     "participants",
+              //     getData([...participants]).data,
+              //     false
+              //   )
+              // );
+            }
+          );
+
+          // Step 2: Get public room information
+          // const publicRoomAlias = "#fredtestung254:matrix.org"; // Replace with your desired public room alias or ID
+
+          // try {
+          //   await matrixClient.joinRoom(publicRoomAlias);
+          // } catch (joinError) {
+          //   console.error("Error joining room:", joinError);
+          //   return;
+          // }
+
+          // const publicRoom = matrixClient.getRoom(publicRoomAlias);
+          // console.log("publicRoom", publicRoom);
+
+          // if (publicRoom) {
+          //   console.log("Public Room ID:", publicRoom.roomId);
+          //   console.log(
+          //     "Public Room Members:",
+          //     publicRoom.getJoinedMembers()
+          //   );
+          //   console.log(
+          //     "Public Room Messages:",
+          //     publicRoom.getLiveTimeline().getEvents()
+          //   );
+          // } else {
+          //   console.error("Public room not found.");
+          // }
+        } catch (error) {
+          console.error("Matrix operation error:", error);
+        }
+      };
 
       return (
         <BackgroundColorContext.Provider value={props.style.background}>
@@ -504,16 +518,23 @@ MTComp = withMethodExposing(MTComp, [
       comp.children.visible.getView().onChange(true);
     },
   },
-  // {
-  //   method: {
-  //     name: "sendMessage",
-  //     description: trans("drawer.openDrawerDesc"),
-  //     params: [],
-  //   },
-  //   execute: (comp, values) => {
-  //     comp.children.visible.getView().onChange(true);
-  //   },
-  // },
+  {
+    method: {
+      name: "initMatrix",
+      description: trans("drawer.openDrawerDesc"),
+      params: [],
+    },
+    execute: async (comp, values) => {
+      let response = await matrixClient.login("org.matrix.login.jwt", {
+        token: values[0],
+      });
+      await matrixClient.startClient();
+      comp.children.matrixAuthData.change({
+        access_token: response.access_token,
+        user_id: response.user_id,
+      });
+    },
+  },
   {
     method: {
       name: "closeDrawer",

@@ -125,6 +125,7 @@ export type UICompType =
   | "mention" //Added By Mousheng
   | "autocomplete" //Added By Mousheng
   | "chat" //Added By Fred
+  | "chatscomponent" //Added By Fred
   | "responsiveLayout";
 
 export const uiCompRegistry = {} as Record<UICompType | string, UICompManifest>;

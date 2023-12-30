@@ -105,6 +105,7 @@ export const CompStateIcon: {
   video: <LeftVideo />,
   drawer: <LeftDrawer />,
   chat: <LeftDrawer />,
+  chatscomponent: <LeftDrawer />,
   carousel: <LeftImage />,
   toggleButton: <LeftButton />,
   imageEditor: <LeftImage />,
