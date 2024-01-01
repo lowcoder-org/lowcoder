@@ -117,13 +117,12 @@ public class ApplicationQueryApiService {
 
                     Mono<List<Property>> paramsAndHeadersInheritFromLogin = Mono.empty();
 
-                    if (datasource.isRestApi()) {
-                        // then check if oauth inherited from login and save token
-                        if(datasource.getDetailConfig() instanceof RestApiDatasourceConfig restApiDatasourceConfig
-                                && restApiDatasourceConfig.isOauth2InheritFromLogin()) {
-                            paramsAndHeadersInheritFromLogin = getAuthParamsAndHeadersInheritFromLogin(tuple.getT1(), ((OAuthInheritAuthConfig)restApiDatasourceConfig.getAuthConfig()).getAuthId());
 
-                        }
+                    // Check if oauth inherited from login and save token
+                    if(datasource.getDetailConfig() instanceof RestApiDatasourceConfig restApiDatasourceConfig
+                            && restApiDatasourceConfig.isOauth2InheritFromLogin()) {
+                        paramsAndHeadersInheritFromLogin = getAuthParamsAndHeadersInheritFromLogin(tuple.getT1(), ((OAuthInheritAuthConfig)restApiDatasourceConfig.getAuthConfig()).getAuthId());
+
                     }
 
                     QueryVisitorContext queryVisitorContext = new QueryVisitorContext(userId, app.getOrganizationId(), port, cookies, paramsAndHeadersInheritFromLogin, commonConfig.getDisallowedHosts());
