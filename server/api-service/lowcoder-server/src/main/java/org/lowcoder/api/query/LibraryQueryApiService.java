@@ -346,6 +346,9 @@ public class LibraryQueryApiService {
     }
 
     protected Mono<List<Property>> getParamsAndHeadersInheritFromLogin(User user, String authId) {
+        if(authId == null) {
+            return Mono.empty();
+        }
         Optional<Connection> activeConnectionOptional = user.getConnections()
                 .stream()
                 .filter(connection -> connection.getAuthId().equals(authId))
