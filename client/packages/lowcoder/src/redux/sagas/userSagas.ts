@@ -109,7 +109,11 @@ export function* getRawCurrentUserSaga() {
       });
     }
   } catch (error: any) {
-    messageInstance.error(error instanceof Error ? error.message : error);
+    messageInstance.error(
+      error instanceof Error
+        ? (error.message) as string
+        : error as string
+    );
     log.error("getRawCurrentUser error:", error);
   }
 }

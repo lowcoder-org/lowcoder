@@ -2,7 +2,7 @@ import { Table } from "antd";
 import { TableProps } from "antd/es/table";
 import { TableCellContext, TableRowContext } from "comps/comps/tableComp/tableContext";
 import { TableToolbar } from "comps/comps/tableComp/tableToolbarComp";
-import { RowColorViewType, RowHeightViewType } from "comps/comps/tableComp/tableTypes";
+import { RowColorViewType, RowHeightViewType, TableEventOptionValues } from "comps/comps/tableComp/tableTypes";
 import {
   COL_MIN_WIDTH,
   COLUMN_CHILDREN_KEY,
@@ -584,11 +584,19 @@ function ResizeableTable<RecordType extends object>(props: CustomTableProps<Reco
         width: resizeWidth,
         title: col.titleText,
         viewModeResizable: props.viewModeResizable,
-        onResize: (width: number) => {
+        // onResize: (width: number) => {
+        //   if (width) {
+        //     setResizeData({
+        //       index: index,
+        //       width: width,
+        //     });
+        //   }
+        // },
+        onResize: (width: React.SyntheticEvent) => {
           if (width) {
             setResizeData({
               index: index,
-              width: width,
+              width: width as unknown as number,
             });
           }
         },
@@ -714,7 +722,7 @@ export function TableCompView(props: {
   }, [pagination, data]);
 
   const handleChangeEvent = useCallback(
-    (eventName) => {
+    (eventName: TableEventOptionValues) => {
       if (eventName === "saveChanges" && !compChildren.onEvent.isBind(eventName)) {
         !viewMode && messageInstance.warning(trans("table.saveChangesNotBind"));
         return;

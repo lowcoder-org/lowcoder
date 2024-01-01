@@ -1,7 +1,7 @@
-import { Tree } from "antd";
+import DirectoryTree from "antd/es/tree/DirectoryTree";
 import styled from "styled-components";
 
-export const DirectoryTreeStyle = styled(Tree.DirectoryTree)`
+export const DirectoryTreeStyle = styled(DirectoryTree)`
   font-size: 13px;
   color: #333;
   .ant-tree-treenode {

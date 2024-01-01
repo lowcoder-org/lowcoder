@@ -140,7 +140,7 @@ export const DataSourceStructureTree = (props: {
   datasourceType: string;
 }) => {
   const { dataSourceId, datasourceType } = props;
-  const [expandedKeys, setExpandedKeys] = useState<Array<string | number>>([]);
+  const [expandedKeys, setExpandedKeys] = useState<Array<React.Key>>([]);
   const [searchValue, setSearchValue] = useState("");
   const [structure, setStructure] = useState<DataNode[]>([]);
 

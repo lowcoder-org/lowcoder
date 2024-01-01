@@ -144,7 +144,7 @@ const builtInRemoteComps: Omit<RemoteCompInfo, "compName"> = {
   packageName: "lowcoder-comps",
 };
 
-const uiCompMap: Registry = {
+var uiCompMap: Registry = {
 
   // Dashboards
 
@@ -1084,6 +1084,7 @@ const uiCompMap: Registry = {
 };
 
 export function loadComps() {
+  if(!uiCompMap) return;
   const entries = Object.entries(uiCompMap);
   for (const [compType, manifest] of entries) {
     registerComp(compType as UICompType, manifest);

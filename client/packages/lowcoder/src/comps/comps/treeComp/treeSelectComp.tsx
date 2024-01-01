@@ -115,7 +115,7 @@ const TreeCompView = (
         // fix expand issue when searching
         treeExpandedKeys={inputValue ? undefined : expanded.value}
         onTreeExpand={(keys) => {
-          expanded.onChange(keys);
+          expanded.onChange(keys as (string | number)[]);
         }}
         onChange={(keys) => {
           const nextValue = Array.isArray(keys) ? keys : keys !== undefined ? [keys] : [];

@@ -158,7 +158,7 @@ export function childrenToProps<ChildrenCompMap extends Record<string, Comp<unkn
 export function simpleMultiComp<ChildrenCompMap extends Record<string, Comp<unknown>>>(
   childrenMap: ToConstructor<ChildrenCompMap>
 ) {
-  return new MultiCompBuilder(childrenMap, () => null as ReactNode)
+  return new MultiCompBuilder(childrenMap, () => null as any)
     .setPropertyViewFn(() => <></>)
     .build();
 }
