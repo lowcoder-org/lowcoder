@@ -90,7 +90,7 @@
     "regenerator-runtime": "^0.13.9",
     "rehype-raw": "^6.1.1",
     "rehype-sanitize": "^5.0.1",
-    "remark-gfm": "^3.0.1",
+    "remark-gfm": "^4.0.0",
     "resize-observer-polyfill": "^1.5.1",
     "simplebar-react": "2.3.6",
     "sql-formatter": "^8.2.0",
