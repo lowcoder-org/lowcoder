@@ -35,7 +35,7 @@
     "@types/react-router-dom": "^5.3.2",
     "@types/shelljs": "^0.8.11",
     "@types/styled-components": "^5.1.19",
-    "@types/stylis": "^4.0.2",
+    "@types/stylis": "^4.2.5",
     "@types/tern": "0.23.4",
     "@types/ua-parser-js": "^0.7.36",
     "@welldone-software/why-did-you-render": "^6.2.3",
