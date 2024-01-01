@@ -122,6 +122,11 @@ public class Datasource extends HasIdAndAuditing {
     }
 
     @JsonIgnore
+    public boolean isRestApi() {
+        return REST_API.equals(type);
+    }
+
+    @JsonIgnore
     public boolean isLegacyLowcoderApi() {
         return !REST_API.equals(type) && creationSource == LEGACY_WORKSPACE_PREDEFINED.getValue();
     }
