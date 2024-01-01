@@ -28,7 +28,7 @@
     "chalk": "4",
     "commander": "^9.4.1",
     "cross-spawn": "^7.0.3",
-    "fs-extra": "^10.1.0",
+    "fs-extra": "^11.2.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-json-view": "^1.21.3",
