@@ -1,4 +1,4 @@
-import { Typography } from "antd";
+import { default as Typography } from "antd/es/typography";
 import React from "react";
 import styled from "styled-components";
 

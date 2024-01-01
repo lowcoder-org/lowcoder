@@ -10,7 +10,7 @@ import { getDefaultTheme, getThemeList } from "redux/selectors/commonSettingSele
 import styled, { css } from "styled-components";
 import { trans } from "i18n";
 import { GreyTextColor } from "constants/style";
-import { Divider } from "antd";
+import { default as Divider } from "antd/es/divider";
 import { THEME_SETTING } from "constants/routesURL";
 import { CustomShortcutsComp } from "./customShortcutsComp";
 import { DEFAULT_THEMEID } from "comps/utils/themeUtil";

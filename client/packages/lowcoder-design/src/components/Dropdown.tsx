@@ -1,4 +1,5 @@
-import { Segmented as AntdSegmented, SelectProps } from "antd";
+import { default as AntdSegmented } from "antd/es/segmented";
+import { SelectProps } from "antd/es/select";
 import { GreyTextColor } from "constants/style";
 import _ from "lodash";
 import { ReactNode } from "react";

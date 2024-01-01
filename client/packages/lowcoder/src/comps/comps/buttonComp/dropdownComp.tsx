@@ -1,4 +1,5 @@
-import { Dropdown, Menu } from "antd";
+import { default as Menu } from "antd/es/menu";
+import { default as Dropdown } from "antd/es/dropdown";
 import { BoolControl } from "comps/controls/boolControl";
 import { BoolCodeControl, StringControl } from "comps/controls/codeControl";
 import { ButtonStyleType } from "comps/controls/styleControlConstants";

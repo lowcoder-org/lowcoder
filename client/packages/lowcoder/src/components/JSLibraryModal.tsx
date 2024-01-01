@@ -5,7 +5,7 @@ import { trans } from "i18n";
 import { DocLink } from "components/ExternalLink";
 import { Input } from "components/Input";
 import { TacoButton } from "components/button";
-import { Spin } from "antd";
+import { default as Spin } from "antd/es/spin";
 import { useDispatch, useSelector } from "react-redux";
 import { recommendJSLibrarySelector } from "redux/selectors/jsLibrarySelector";
 import { JSLibraryInfo, JSLibraryLabel } from "components/JSLibraryTree";

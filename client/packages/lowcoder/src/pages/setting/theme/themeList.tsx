@@ -1,4 +1,9 @@
-import { Button, Dropdown, Empty, Menu, Table, Typography } from "antd";
+import { default as Button } from "antd/es/button";
+import { default as Dropdown } from "antd/es/dropdown";
+import { default as Empty } from "antd/es/empty";
+import { default as Menu } from "antd/es/menu";
+import { default as Table } from "antd/es/table";
+import { default as Typography } from "antd/es/typography";
 import { timestampToHumanReadable } from "util/dateTimeUtils";
 import { MENU_TYPE } from "./themeConstant";
 import React, { useState } from "react";

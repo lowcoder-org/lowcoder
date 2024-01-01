@@ -11,11 +11,12 @@ import {
   TacoButton,
 } from "lowcoder-design";
 import React, { FunctionComponent, useState } from "react";
-import { ItemType } from "antd/lib/menu/hooks/useItems";
+import { ItemType } from "antd/es/menu/hooks/useItems";
 import { HomeResInfo } from "../../util/homeResUtils";
 import { createAppItemClass } from "../tutorials/HomeTutorialsV2";
 import styled from "styled-components";
-import { Dropdown as AntdDropdown, Menu as AntdMenu } from "antd";
+import { default as AntdDropdown } from "antd/es/dropdown";
+import { default as AntdMenu } from "antd/es/menu";
 import { HomeLayoutMode } from "./HomeLayout";
 import { useSelector } from "react-redux";
 import { getUser } from "../../redux/selectors/usersSelectors";

@@ -15,7 +15,7 @@ import { CanvasContainerID } from "constants/domLocators";
 import { EditorContainer, EmptyContent } from "pages/common/styledComponent";
 import { Layers } from "constants/Layers";
 import { ExternalEditorContext } from "util/context/ExternalEditorContext";
-import { Skeleton } from "antd";
+import { default as Skeleton } from "antd/es/skeleton";
 import { hiddenPropertyView } from "comps/utils/propertyUtils";
 
 const TabBar = React.lazy(() => import("antd-mobile/es/components/tab-bar"));

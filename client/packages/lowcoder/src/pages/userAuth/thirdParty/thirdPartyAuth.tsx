@@ -13,7 +13,7 @@ import { messageInstance } from "lowcoder-design";
 import styled from "styled-components";
 import { trans } from "i18n";
 import { geneAuthStateAndSaveParam, getAuthUrl, getRedirectUrl } from "pages/userAuth/authUtils";
-import { Divider } from "antd";
+import { default as Divider } from "antd/es/divider";
 import { useRedirectUrl } from "util/hooks";
 
 const ThirdPartyLoginButtonWrapper = styled.div`

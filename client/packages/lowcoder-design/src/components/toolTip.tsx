@@ -1,5 +1,5 @@
-import { Button, Tooltip as AntdTooltip } from "antd";
-import { TooltipProps } from "antd/lib/tooltip";
+import { default as Button } from "antd/es/button";
+import { default as AntdTooltip, TooltipProps } from "antd/es/tooltip";
 import { CSSProperties, ReactNode } from "react";
 import styled, { css } from "styled-components";
 import { labelCss } from "components/Label";

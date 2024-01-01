@@ -1,6 +1,6 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import type { IconDefinition } from "@fortawesome/free-regular-svg-icons";
-import { Popover } from "antd";
+import { default as Popover } from "antd/es/popover";
 import { ActionType } from '@rc-component/trigger/lib/interface';
 import { TacoInput } from "components/tacoInput";
 import { Tooltip } from "components/toolTip";
@@ -8,7 +8,7 @@ import { trans } from "i18n/design";
 import _ from "lodash";
 import { ReactNode, useEffect, useCallback, useMemo, useRef, useState } from "react";
 import Draggable from "react-draggable";
-import { List, ListRowProps } from "react-virtualized";
+import { default as List, ListRowProps } from "react-virtualized/dist/es/List";
 import styled from "styled-components";
 import { CloseIcon, SearchIcon } from "icons";
 

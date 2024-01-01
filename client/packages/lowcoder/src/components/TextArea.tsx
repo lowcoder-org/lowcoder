@@ -1,10 +1,9 @@
 import styled from "styled-components";
-import { Input as AntdInput } from "antd";
+import { default as AntdInput } from "antd/es/input";
+import { TextAreaRef, TextAreaProps as AntdTextAreaProps } from "antd/es/input/TextArea";
 import { ChangeEvent, useEffect, useRef, useState } from "react";
 import _ from "lodash";
 import React from "react";
-import { TextAreaProps as AntdTextAreaProps } from "antd/lib/input";
-import { TextAreaRef } from "antd/lib/input/TextArea";
 import { INPUT_DEFAULT_ONCHANGE_DEBOUNCE } from "constants/perf";
 
 const StyledTextArea = styled(AntdInput.TextArea)``;

@@ -1,6 +1,6 @@
 import { NumberControl } from "comps/controls/codeControl";
 import { trans } from "i18n";
-import { InputNumber } from "antd";
+import { default as InputNumber } from "antd/es/input-number";
 import { ColumnTypeCompBuilder, ColumnTypeViewFn } from "../columnTypeCompBuilder";
 import { ColumnValueTooltip } from "../simpleColumnTypeComps";
 import { ProgressStyle } from "comps/controls/styleControlConstants";

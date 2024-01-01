@@ -9,7 +9,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { parseJSLibraryURL } from "util/jsLibraryUtils";
 import { jsLibrarySelector } from "redux/selectors/jsLibrarySelector";
 import { fetchJSLibraryMetasAction } from "redux/reduxActions/jsLibraryActions";
-import { Typography } from "antd";
+import { default as TypographyParagraph } from "antd/es/typography/Paragraph";
 
 const InfoWrapper = styled.div`
   color: #8b8fa3;
@@ -30,7 +30,7 @@ const ExportWrapper = styled.div`
   height: 20px;
   line-height: 20px;
 `;
-const DescWrapper = styled(Typography.Paragraph)`
+const DescWrapper = styled(TypographyParagraph)`
   line-height: 1.5em;
   font-size: 13px;
   color: #8b8fa3;

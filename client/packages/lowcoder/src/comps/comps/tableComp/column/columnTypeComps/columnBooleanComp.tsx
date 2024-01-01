@@ -1,6 +1,6 @@
 import { BoolCodeControl } from "comps/controls/codeControl";
 import { trans } from "i18n";
-import { Checkbox } from "antd";
+import { default as Checkbox } from "antd/es/checkbox";
 import { ColumnTypeCompBuilder, ColumnTypeViewFn } from "../columnTypeCompBuilder";
 import { ColumnValueTooltip } from "../simpleColumnTypeComps";
 import { getStyle } from "comps/comps/selectInputComp/checkboxComp";

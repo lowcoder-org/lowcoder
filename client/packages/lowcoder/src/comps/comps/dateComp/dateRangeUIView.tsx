@@ -7,7 +7,7 @@ import React, { useContext } from "react";
 import styled from "styled-components";
 import type { DateTimeStyleType } from "../../controls/styleControlConstants";
 import { EditorContext } from "../../editorState";
-import { DatePicker } from "antd";
+import { default as DatePicker } from "antd/es/date-picker";
 import { hasIcon } from "comps/utils";
 import { omit } from "lodash";
 

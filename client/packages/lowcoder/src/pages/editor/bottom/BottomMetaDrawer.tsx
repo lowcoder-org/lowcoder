@@ -1,7 +1,7 @@
-import { DataNode } from "antd/lib/tree";
+import { DataNode } from "antd/es/tree";
 import { CopyTextButton, CustomTree, labelCss, PackUpIcon, Search } from "lowcoder-design";
 import _ from "lodash";
-import { Drawer as AntdDrawer } from "antd";
+import { default as AntdDrawer } from "antd/es/drawer";
 import { CSSProperties, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchDatasourceStructure } from "redux/reduxActions/datasourceActions";

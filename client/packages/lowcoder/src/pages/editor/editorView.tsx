@@ -1,5 +1,6 @@
-import { Divider, Menu } from "antd";
-import Sider from "antd/lib/layout/Sider";
+import { default as Divider } from "antd/es/divider";
+import { default as Menu } from "antd/es/menu";
+import { default as Sider} from "antd/es/layout/Sider";
 import { PreloadComp } from "comps/comps/preLoadComp";
 import UIComp from "comps/comps/uiComp";
 import { EditorContext } from "comps/editorState";

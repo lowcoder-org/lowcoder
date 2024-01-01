@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { TimePicker } from "antd";
+import { default as TimePicker } from "antd/es/time-picker";
 import { DateTimeStyleType } from "../../controls/styleControlConstants";
 import { getStyle } from "comps/comps/dateComp/dateCompUtil";
 import { useUIView } from "../../utils/useUIView";

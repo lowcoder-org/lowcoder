@@ -20,6 +20,14 @@ export default {
   testEnvironment: "jsdom",
   moduleNameMapper: {
     "react-markdown": path.resolve(currentDir, "./mocks/react-markdown.js"),
+    "react-redux": path.resolve(currentDir, "./mocks/react-redux.js"),
+    "react-draggable": path.resolve(currentDir, "./mocks/react-draggable.js"),
+    "react-resize-detector": path.resolve(currentDir, "./mocks/react-resize-detector.js"),
+    "react-virtualized": path.resolve(currentDir, "./mocks/react-virtualized.js"),
+    "@dnd-kit/sortable": path.resolve(currentDir, "./mocks/dnd-kit-sortable.js"),
+    "@dnd-kit/core": path.resolve(currentDir, "./mocks/dnd-kit-core.js"),
+    "antd": path.resolve(currentDir, "./mocks/antd.js"),
+    "history": path.resolve(currentDir, "./mocks/history.js"),
     "\\.md\\?url$": path.resolve(currentDir, "./mocks/markdown-url-module.js"),
     "^@lowcoder-ee(.*)$": path.resolve(
       currentDir,
@@ -35,6 +43,13 @@ export default {
     path.resolve(currentDir, "../../packages/lowcoder-comps/src"),
     path.resolve(currentDir, "../../packages/lowcoder-design/src"),
   ],
+  // moduleDirectories: [
+  //   "<rootDir>/client/node_modules",
+  //   path.resolve(currentDir, "../../node_modules"),
+  //   path.resolve(currentDir, "../../packages/lowcoder/node_modules"),
+  //   path.resolve(currentDir, "../../packages/lowcoder-comps/node_modules"),
+  //   path.resolve(currentDir, "../../packages/lowcoder-design/node_modules"),
+  // ],
   setupFiles: [path.resolve(currentDir, "./jest.setup.js")],
   setupFilesAfterEnv: [path.resolve(currentDir, "./jest.setup-after-env.js"), 'jest-canvas-mock'],
   transform: {

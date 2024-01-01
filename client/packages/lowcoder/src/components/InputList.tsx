@@ -1,4 +1,4 @@
-import { Form } from "antd";
+import { default as Form } from "antd/es/form";
 import { FormListProps, Rule } from "antd/lib/form";
 import { TacoButton } from "lowcoder-design";
 import { Input } from "lowcoder-design";

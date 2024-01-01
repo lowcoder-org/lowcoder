@@ -1,4 +1,6 @@
-import { Button, Divider, Table } from "antd";
+import { default as Button } from "antd/es/button";
+import { default as Divider } from "antd/es/divider";
+import { default as Table } from "antd/es/table";
 import { ThemeDetail } from "api/commonSettingApi";
 import {
   CustomModal,

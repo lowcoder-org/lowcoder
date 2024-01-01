@@ -1,4 +1,4 @@
-import { Button } from "antd";
+import { default as Button } from "antd/es/button";
 import { ButtonCompWrapper, buttonRefMethods } from "comps/comps/buttonComp/buttonCompConstants";
 import { BoolCodeControl, StringControl } from "comps/controls/codeControl";
 import { ButtonEventHandlerControl } from "comps/controls/eventHandlerControl";

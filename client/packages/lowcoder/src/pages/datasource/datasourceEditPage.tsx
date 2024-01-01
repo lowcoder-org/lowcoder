@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import history from "../../util/history";
-import { Button } from "antd";
+import { default as Button } from "antd/es/button";
 import { useCallback, useMemo, useState } from "react";
 import { CopyTextButton, DocIcon, PackUpIcon, TacoButton } from "lowcoder-design";
 import { useDatasourceForm } from "./form/useDatasourceForm";

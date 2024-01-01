@@ -17,7 +17,7 @@ import {
   isAppSnapshotDslFetching,
   isAppSnapshotsFetching,
 } from "redux/selectors/appSnapshotSelector";
-import { Skeleton } from "antd";
+import { default as Skeleton } from "antd/es/skeleton";
 import { TacoPagination } from "lowcoder-design";
 import { AppSnapshotContext, AppSnapshotList } from "constants/applicationConstants";
 import { ExtraActionType } from "lowcoder-core";

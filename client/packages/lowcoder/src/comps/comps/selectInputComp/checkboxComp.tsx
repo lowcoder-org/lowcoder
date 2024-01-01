@@ -1,4 +1,4 @@
-import { Checkbox } from "antd";
+import { default as Checkbox } from "antd/es/checkbox";
 import { SelectInputOptionControl } from "comps/controls/optionsControl";
 import { BoolCodeControl } from "../../controls/codeControl";
 import { arrayStringExposingStateControl } from "../../controls/codeStateControl";

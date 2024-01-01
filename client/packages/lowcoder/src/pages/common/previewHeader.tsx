@@ -1,4 +1,4 @@
-import { Skeleton } from "antd";
+import { default as Skeleton } from "antd/es/skeleton";
 import Header from "components/layout/Header";
 import { SHARE_TITLE } from "constants/apiConstants";
 import { ALL_APPLICATIONS_URL, APPLICATION_VIEW_URL, AUTH_LOGIN_URL } from "constants/routesURL";

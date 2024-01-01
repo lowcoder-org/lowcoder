@@ -21,7 +21,7 @@ import {
 } from "./commonComponents";
 import { getInitialsAndColorCode } from "util/stringUtils";
 import { CustomTagProps } from "rc-select/lib/BaseSelect";
-import { Tag } from "antd";
+import { default as Tag } from "antd/es/tag";
 import { User } from "constants/userConstants";
 import { getUser } from "redux/selectors/usersSelectors";
 import { EmptyContent } from "pages/common/styledComponent";

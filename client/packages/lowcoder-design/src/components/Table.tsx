@@ -1,4 +1,4 @@
-import { Table } from "antd";
+import { default as Table } from "antd/es/table";
 import styled from "styled-components";
 
 const { Column } = Table;

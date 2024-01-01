@@ -1,4 +1,4 @@
-import { Input, InputRef } from "antd";
+import { default as Input, InputRef } from "antd/es/input";
 import {
   NameConfig,
   NameConfigPlaceHolder,

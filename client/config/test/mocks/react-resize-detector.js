@@ -1,0 +1,1 @@
+export default jest.mock('react-resize-detector');

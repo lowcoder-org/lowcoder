@@ -1,4 +1,5 @@
-import { Alert, Card } from "antd";
+import { default as Alert } from "antd/es/alert";
+import { default as Card } from "antd/es/card";
 import { CopyTextButton } from "./copyTextButton";
 import { CSSProperties, ReactNode, useState } from "react";
 import styled from "styled-components";

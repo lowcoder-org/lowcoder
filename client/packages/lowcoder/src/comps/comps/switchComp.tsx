@@ -1,4 +1,4 @@
-import { Switch } from "antd";
+import { default as Switch } from "antd/es/switch";
 import { BoolCodeControl } from "comps/controls/codeControl";
 import { booleanExposingStateControl } from "comps/controls/codeStateControl";
 import { changeEvent, eventHandlerControl } from "comps/controls/eventHandlerControl";

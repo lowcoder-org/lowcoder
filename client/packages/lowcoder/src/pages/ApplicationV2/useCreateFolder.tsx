@@ -2,13 +2,13 @@ import { CustomModal, DatasourceForm, FormInputItem, FormSection } from "lowcode
 import { RuleObject, StoreValue } from "rc-field-form/lib/interface";
 import { createFolder } from "../../redux/reduxActions/folderActions";
 import React, { useCallback, useMemo } from "react";
-import { Form } from "antd";
+import { default as Form } from "antd/es/form";
 import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 import { getUser } from "../../redux/selectors/usersSelectors";
 import { trans } from "../../i18n";
 import { foldersSelector } from "../../redux/selectors/folderSelector";
-import { ModalFunc } from "antd/lib/modal/confirm";
+import { ModalFunc } from "antd/es/modal/confirm";
 
 const CreateFolderLabel = styled.div`
   font-size: 13px;

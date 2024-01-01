@@ -20,7 +20,7 @@ import {
 } from "comps/utils/propertyUtils";
 import _ from "lodash";
 import { trans } from "i18n";
-import { Skeleton } from "antd";
+import { default as Skeleton } from "antd/es/skeleton";
 import { styleControl } from "comps/controls/styleControl";
 import { RichTextEditorStyle, RichTextEditorStyleType } from "comps/controls/styleControlConstants";
 

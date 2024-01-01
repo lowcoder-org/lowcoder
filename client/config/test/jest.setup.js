@@ -1,3 +1,3 @@
-if (typeof window !== "undefined") {
-  require("whatwg-fetch");
-}
+// if (typeof window !== "undefined") {
+//   require("whatwg-fetch");
+// }

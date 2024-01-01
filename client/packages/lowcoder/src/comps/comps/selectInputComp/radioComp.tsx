@@ -1,4 +1,4 @@
-import { Radio as AntdRadio } from "antd";
+import { default as AntdRadio } from "antd/es/radio";
 import { RadioStyleType } from "comps/controls/styleControlConstants";
 import styled, { css } from "styled-components";
 import { UICompBuilder } from "../../generators";

@@ -1,5 +1,6 @@
-import { Button, Pagination, Popover } from "antd";
-import { PaginationProps } from "antd/lib/pagination/Pagination";
+import { default as Button } from "antd/es/button";
+import { default as Pagination, PaginationProps } from "antd/es/pagination";
+import { default as Popover } from "antd/es/popover";
 import { ThemeDetail } from "api/commonSettingApi";
 import { ColumnCompType } from "comps/comps/tableComp/column/tableColumnComp";
 import { TableOnEventView } from "comps/comps/tableComp/tableTypes";

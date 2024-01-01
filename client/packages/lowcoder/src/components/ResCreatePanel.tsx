@@ -19,7 +19,7 @@ import {
   QUICK_REST_API_ID,
 } from "../constants/datasourceConstants";
 import { ResourceType } from "@lowcoder-ee/constants/queryConstants";
-import { Upload } from "antd";
+import { default as Upload } from "antd/es/upload";
 import { useSelector } from "react-redux";
 import { getUser } from "../redux/selectors/usersSelectors";
 import DataSourceIcon from "./DataSourceIcon";

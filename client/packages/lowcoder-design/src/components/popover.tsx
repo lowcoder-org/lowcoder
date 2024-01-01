@@ -1,5 +1,5 @@
 import { SuspensionBox } from "./SuspensionBox";
-import { Popover, PopoverProps } from "antd";
+import { default as Popover, PopoverProps } from "antd/es/popover";
 import { Children, cloneElement, MouseEvent, ReactNode, useState } from "react";
 import styled from "styled-components";
 import { ActiveTextColor, GreyTextColor } from "constants/style";

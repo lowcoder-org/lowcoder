@@ -24,7 +24,7 @@ import {
   SlotLabelContentArg,
   ViewContentArg,
 } from "@fullcalendar/core";
-import { Form } from "antd";
+import { default as Form } from "antd/es/form";
 
 export const Wrapper = styled.div<{
   $editable: boolean;

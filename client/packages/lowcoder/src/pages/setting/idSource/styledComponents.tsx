@@ -1,6 +1,8 @@
 import styled, { css } from "styled-components";
 import { Table } from "components/Table";
-import { Button, Checkbox, Form } from "antd";
+import { default as Button } from "antd/es/button";
+import { default as Checkbox} from "antd/es/checkbox";
+import { default as Form } from "antd/es/form";
 import { UnderlineCss } from "lowcoder-design";
 
 const btnLoadingCss = css`

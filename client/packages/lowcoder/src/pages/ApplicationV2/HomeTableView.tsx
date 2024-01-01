@@ -13,7 +13,7 @@ import { HomeResTypeEnum } from "../../types/homeRes";
 import React, { useState } from "react";
 import { updateFolder } from "../../redux/reduxActions/folderActions";
 import { updateAppMetaAction } from "../../redux/reduxActions/applicationActions";
-import { Typography } from "antd";
+import { default as Typography } from "antd/es/typography";
 import { HomeRes } from "./HomeLayout";
 import { HomeResOptions } from "./HomeResOptions";
 import { MoveToFolderModal } from "./MoveToFolderModal";

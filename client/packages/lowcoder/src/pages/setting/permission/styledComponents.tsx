@@ -1,4 +1,5 @@
-import { Popover, Table as AntdTable } from "antd";
+import { default as Popover } from "antd/es/popover";
+import { default as AntdTable } from "antd/es/table";
 import {
   CustomModal,
   LockIcon,

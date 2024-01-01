@@ -1,6 +1,6 @@
 import { trans } from "i18n";
 import { green, red, yellow } from "@ant-design/colors";
-import { FormItemProps } from "antd";
+import { FormItemProps } from "antd/es/form/FormItem";
 import { BoolControl } from "comps/controls/boolControl";
 import { NumberControl, StringControl } from "comps/controls/codeControl";
 import { dropdownControl } from "comps/controls/dropdownControl";

@@ -1,5 +1,5 @@
 import { Route, Switch } from "react-router-dom";
-import { Layout as AntdLayout } from "antd";
+import { default as AntdLayout } from "antd/es/layout";
 import { AppHeader } from "pages/common/header";
 import * as React from "react";
 import { ReactElement } from "react";

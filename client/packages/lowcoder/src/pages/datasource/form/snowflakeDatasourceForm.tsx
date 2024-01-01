@@ -10,7 +10,7 @@ import {
   PasswordFormInputItem,
   UserNameFormInputItem,
 } from "../form";
-import { FormInstance } from "antd";
+import { FormInstance } from "antd/es/form";
 import { fromPairs, omit, pick, toPairs } from "lodash";
 import { trans } from "i18n";
 

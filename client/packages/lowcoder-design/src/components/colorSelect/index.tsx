@@ -1,5 +1,5 @@
 import { RgbaStringColorPicker } from "react-colorful";
-import { Popover } from "antd";
+import { default as Popover } from "antd/es/popover";
 import { ActionType } from '@rc-component/trigger/lib/interface';
 import {
   alphaOfRgba,

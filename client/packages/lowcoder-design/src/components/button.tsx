@@ -1,4 +1,4 @@
-import { Button, ButtonProps } from "antd";
+import Button, { ButtonProps } from "antd/es/button";
 import styled, { css } from "styled-components";
 import { Loading } from "./Loading";
 import * as React from "react";

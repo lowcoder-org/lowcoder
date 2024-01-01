@@ -3,7 +3,9 @@ import { Layers } from "constants/Layers";
 import { HelpIcon, LeftHelpIcon, HelpGithubIcon, HelpDiscordIcon } from "lowcoder-design";
 import { VideoIcon, ChatIcon, DocIcon, TutorialIcon, ShortcutIcon } from "assets/icons";
 import TutorialVideoPic from "assets/images/tutorialVideoThumbnail.png";
-import { Dropdown, Popover, Tooltip } from "antd";
+import { default as Dropdown } from "antd/es/dropdown";
+import { default as Popover } from "antd/es/popover";
+import { default as Tooltip } from "antd/es/tooltip";
 import {
   customerService,
   showCustomerServicePanel,

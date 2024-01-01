@@ -1,4 +1,4 @@
-import { Table as AntdTable } from "antd";
+import { default as AntdTable } from "antd/es/table";
 import styled from "styled-components";
 
 export const Table = styled(AntdTable)`

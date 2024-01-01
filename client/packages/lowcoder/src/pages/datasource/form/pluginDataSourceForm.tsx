@@ -35,7 +35,9 @@ import { trans } from "i18n";
 import { Datasource } from "constants/datasourceConstants";
 import { DatasourceApi } from "api/datasourceApi";
 import { FieldData } from "rc-field-form/es/interface";
-import { Alert, Form, Input } from "antd";
+import { default as Alert } from "antd/es/alert";
+import { default as Form } from "antd/es/form";
+import { default as Input } from "antd/es/input";
 
 const TooltipWrapper = styled.div`
   .markdown-body {

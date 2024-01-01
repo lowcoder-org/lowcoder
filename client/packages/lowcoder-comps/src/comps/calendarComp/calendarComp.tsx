@@ -22,7 +22,8 @@ import {
   CalendarDeleteIcon,
   Tooltip,
 } from "lowcoder-sdk";
-import { Input, Form } from "antd";
+import { default as Form } from "antd/es/form";
+import { default as Input } from "antd/es/input";
 import { trans, getCalendarLocale } from "../../i18n/comps";
 import { createRef, useContext, useRef, useState } from "react";
 import FullCalendar from "@fullcalendar/react";

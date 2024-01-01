@@ -1,4 +1,4 @@
-import { Input as AntdInput, InputRef } from "antd";
+import { default as AntdInput, InputRef } from "antd/es/input";
 import { ReactComponent as MustFillStar } from "icons/icon-must-fill-star.svg";
 import { trans } from "i18n/design";
 import { CSSProperties, Ref, useEffect, useRef, useState } from "react";

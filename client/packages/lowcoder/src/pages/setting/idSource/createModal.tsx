@@ -10,7 +10,10 @@ import {
   SpanStyled,
   PasswordLabel
 } from "./styledComponents";
-import { Form, Input, Select, Tooltip } from "antd";
+import { default as Form } from "antd/es/form";
+import { default as Input } from "antd/es/input";
+import { default as Select } from "antd/es/select";
+import { default as Tooltip } from "antd/es/tooltip";
 import IdSourceApi, { ConfigItem } from "api/idSourceApi";
 import { validateResponse } from "api/apiUtils";
 import { authConfig, AuthType, clientIdandSecretConfig, ItemType } from "./idSourceConstants";

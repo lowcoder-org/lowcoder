@@ -1,4 +1,4 @@
-import { Tabs } from "antd";
+import { default as Tabs } from "antd/es/tabs";
 import { JSONObject, JSONValue } from "util/jsonTypes";
 import { CompAction, CompActionTypes, deleteCompAction, wrapChildAction } from "lowcoder-core";
 import { DispatchType, RecordConstructorToView, wrapDispatch } from "lowcoder-core";

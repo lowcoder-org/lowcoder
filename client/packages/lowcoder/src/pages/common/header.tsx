@@ -1,4 +1,6 @@
-import { Dropdown, Skeleton, Radio, RadioChangeEvent } from "antd";
+import { default as Dropdown } from "antd/es/dropdown";
+import { default as Skeleton } from "antd/es/skeleton";
+import { default as Radio, RadioChangeEvent } from "antd/es/radio";
 import LayoutHeader from "components/layout/Header";
 import { SHARE_TITLE } from "constants/apiConstants";
 import { AppTypeEnum } from "constants/applicationConstants";

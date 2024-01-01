@@ -53,7 +53,11 @@ import {
   checkUserInfoData,
   checkMentionListData,
 } from "./commentConstants";
-import { Avatar, List, Button, Mentions, Tooltip } from "antd";
+import { default as Avatar } from "antd/es/avatar";
+import { default as List } from "antd/es/list";
+import { default as Button } from "antd/es/button";
+import { default as Mentions } from "antd/es/mentions";
+import { default as Tooltip } from "antd/es/tooltip";
 import VirtualList, { ListRef } from "rc-virtual-list";
 import _ from "lodash";
 import relativeTime from "dayjs/plugin/relativeTime";

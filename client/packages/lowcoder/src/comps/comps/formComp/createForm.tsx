@@ -1,4 +1,5 @@
-import { Form, FormInstance, Select } from "antd";
+import { default as Form, FormInstance } from "antd/es/form";
+import { default as Select } from "antd/es/select";
 import {
   CheckBox,
   CustomModal,
