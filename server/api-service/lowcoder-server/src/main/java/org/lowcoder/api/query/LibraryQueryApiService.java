@@ -42,6 +42,7 @@ import org.lowcoder.sdk.exception.BizError;
 import org.lowcoder.sdk.exception.PluginCommonError;
 import org.lowcoder.sdk.models.Property;
 import org.lowcoder.sdk.models.QueryExecutionResult;
+import org.lowcoder.sdk.plugin.graphql.GraphQLDatasourceConfig;
 import org.lowcoder.sdk.plugin.restapi.RestApiDatasourceConfig;
 import org.lowcoder.sdk.plugin.restapi.auth.OAuthInheritAuthConfig;
 import org.lowcoder.sdk.query.QueryVisitorContext;
@@ -310,10 +311,14 @@ public class LibraryQueryApiService {
 
 
                     // check if oauth inherited from login and save token
-                    if(datasource.getDetailConfig() instanceof RestApiDatasourceConfig restApiDatasourceConfig
-                            && restApiDatasourceConfig.isOauth2InheritFromLogin()) {
+                    if(datasource.getDetailConfig() instanceof RestApiDatasourceConfig restApiDatasourceConfig && restApiDatasourceConfig.isOauth2InheritFromLogin()) {
                         paramsAndHeadersInheritFromLogin = getParamsAndHeadersInheritFromLogin
                                 (user, ((OAuthInheritAuthConfig)restApiDatasourceConfig.getAuthConfig()).getAuthId());
+                    }
+
+                    if(datasource.getDetailConfig() instanceof GraphQLDatasourceConfig graphQLDatasourceConfig && graphQLDatasourceConfig.isOauth2InheritFromLogin()) {
+                        paramsAndHeadersInheritFromLogin = getParamsAndHeadersInheritFromLogin
+                                (user, ((OAuthInheritAuthConfig)graphQLDatasourceConfig.getAuthConfig()).getAuthId());
                     }
 
                     QueryVisitorContext queryVisitorContext = new QueryVisitorContext(userId, orgId, port, cookies, paramsAndHeadersInheritFromLogin,
