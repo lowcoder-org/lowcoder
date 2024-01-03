@@ -110,6 +110,13 @@ public class GraphQLDatasourceConfig implements DatasourceConnectionConfig {
         return forwardAllCookies;
     }
 
+    public boolean isOauth2InheritFromLogin() {
+        if (this.authConfig != null) {
+            return this.authConfig.getType().name().equals(RestApiAuthType.OAUTH2_INHERIT_FROM_LOGIN.name());
+        }
+        return false;
+    }
+
     @Override
     public DatasourceConnectionConfig mergeWithUpdatedConfig(DatasourceConnectionConfig updatedConfig) {
         if (!(updatedConfig instanceof GraphQLDatasourceConfig updatedApiConfig)) {

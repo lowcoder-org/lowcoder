@@ -23,6 +23,7 @@ import org.lowcoder.sdk.config.CommonConfig;
 import org.lowcoder.sdk.exception.BizError;
 import org.lowcoder.sdk.models.Property;
 import org.lowcoder.sdk.models.QueryExecutionResult;
+import org.lowcoder.sdk.plugin.graphql.GraphQLDatasourceConfig;
 import org.lowcoder.sdk.plugin.restapi.RestApiDatasourceConfig;
 import org.lowcoder.sdk.plugin.restapi.auth.OAuthInheritAuthConfig;
 import org.lowcoder.sdk.query.QueryVisitorContext;
@@ -122,7 +123,11 @@ public class ApplicationQueryApiService {
                     if(datasource.getDetailConfig() instanceof RestApiDatasourceConfig restApiDatasourceConfig
                             && restApiDatasourceConfig.isOauth2InheritFromLogin()) {
                         paramsAndHeadersInheritFromLogin = getAuthParamsAndHeadersInheritFromLogin(tuple.getT1(), ((OAuthInheritAuthConfig)restApiDatasourceConfig.getAuthConfig()).getAuthId());
+                    }
 
+                    if(datasource.getDetailConfig() instanceof GraphQLDatasourceConfig graphQLDatasourceConfig
+                            && graphQLDatasourceConfig.isOauth2InheritFromLogin()) {
+                        paramsAndHeadersInheritFromLogin = getAuthParamsAndHeadersInheritFromLogin(tuple.getT1(), ((OAuthInheritAuthConfig)graphQLDatasourceConfig.getAuthConfig()).getAuthId());
                     }
 
                     QueryVisitorContext queryVisitorContext = new QueryVisitorContext(userId, app.getOrganizationId(), port, cookies, paramsAndHeadersInheritFromLogin, commonConfig.getDisallowedHosts());
