@@ -1664,8 +1664,8 @@ export const en = {
   },
 
   chat: {
-    chatCompName: "Chat Controller",
-    chatCompDesc: "Chat component",
+    chatCompName: "Matrix Chat Controlle",
+    chatCompDesc: "Matrix Chat",
     chatCompKeywords: "",
     chat: "Chat Settings",
     username: "Username",
