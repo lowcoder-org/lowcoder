@@ -63,6 +63,10 @@ export function useDatasourceForm() {
         case "graphql":
           config = {
             ...config,
+            authConfig: {
+              type: form.getFieldsValue()["authConfigType"],
+              authId: form.getFieldsValue()["authId"],
+            },
             sslConfig: {
               sslCertVerificationType: form.getFieldValue("sslCertVerificationType"),
               selfSignedCert: form.getFieldValue("selfSignedCert"),

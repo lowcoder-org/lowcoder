@@ -82,7 +82,7 @@ shell.env["REACT_APP_COMMIT_ID"] = shell.env["REACT_APP_COMMIT_ID"] || shell.exe
 
 // Treating warnings as errors when process.env.CI = true.
 shell.env["CI"] = false;
-shell.env["NODE_OPTIONS"] = "--max_old_space_size=4096";
+shell.env["NODE_OPTIONS"] = "--max_old_space_size=8192";
 shell.env["NODE_ENV"] = "production";
 shell.env["REACT_APP_LOG_LEVEL"] = "error";
 shell.env["REACT_APP_BUNDLE_BUILTIN_PLUGIN"] = "true";

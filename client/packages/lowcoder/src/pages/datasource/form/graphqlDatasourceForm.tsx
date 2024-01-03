@@ -21,11 +21,14 @@ import {
 } from "../form";
 import { DatasourceFormProps } from "./datasourceFormRegistry";
 import { useHostCheck } from "./useHostCheck";
+import { useSelector } from "react-redux";
+import { getUser } from "redux/selectors/usersSelectors";
 
 const AuthTypeOptions = [
   { label: "None", value: "NO_AUTH" },
   { label: "Basic", value: "BASIC_AUTH" },
-  { label: "Digest", value: "DIGEST_AUTH" },
+  { label: "Digest", value: "DIGEST_AUTH" }, 
+  { label: "OAuth 2.0 (Inherit from login)", value: "OAUTH2_INHERIT_FROM_LOGIN" },
 ] as const;
 
 type AuthType = ValueFromOption<typeof AuthTypeOptions>;
@@ -46,7 +49,15 @@ export const GraphqlDatasourceForm = (props: DatasourceFormProps) => {
   const { form, datasource } = props;
   const datasourceConfig = datasource?.datasourceConfig as HttpConfig;
 
+  // here we get the Auth Sources from a user to enable user impersonation
+  const userAuthSources = useSelector(getUser).connections?.filter(authSource => authSource.source !== "EMAIL");;
+  const userAuthSourcesOptions = userAuthSources?.map(item => ({
+    label: item.source,
+    value: item.authId
+  })) || [];
+
   const [authType, setAuthType] = useState(datasourceConfig?.authConfig?.type);
+  const [authId, setAuthId] = useState(datasourceConfig?.authConfig?.authId);
 
   const hostRule = useHostCheck();
 
@@ -91,6 +102,22 @@ export const GraphqlDatasourceForm = (props: DatasourceFormProps) => {
           </>
         );
     }
+  };
+
+  const showUserAuthSourceSelector = () => {
+    if (authType === "OAUTH2_INHERIT_FROM_LOGIN") {
+      return (
+        <FormSelectItem
+          name={"authId"}
+          label="User Authentication Source"
+          options={userAuthSourcesOptions}
+          initialValue={datasourceConfig?.authConfig?authId : null}
+          afterChange={(value) => setAuthId(value) }
+          labelWidth={142}
+        />
+      );
+    }
+    return null;
   };
 
   return (
@@ -138,6 +165,7 @@ export const GraphqlDatasourceForm = (props: DatasourceFormProps) => {
           afterChange={(value) => setAuthType(value)}
           labelWidth={142}
         />
+        {showUserAuthSourceSelector()}
         {showAuthItem(authType as AuthType)}
       </FormSection>
 
