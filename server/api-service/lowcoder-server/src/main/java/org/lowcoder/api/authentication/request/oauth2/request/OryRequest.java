@@ -113,7 +113,7 @@ public class OryRequest extends AbstractOauth2Request<Oauth2OryAuthConfig> {
                     }
                     AuthUser authUser = AuthUser.builder()
                             .uid(MapUtils.getString(map, "sub"))
-                            .username(MapUtils.getString(map, "name"))
+                            .username(MapUtils.getString(map, "email"))
                             .avatar(MapUtils.getString(map, "picture"))
                             .rawUserInfo(map)
                             .build();

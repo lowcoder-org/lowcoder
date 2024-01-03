@@ -62,4 +62,4 @@ auth:
   email:
     enable: true
     enable-register: true
-  workspace-creation: false
+  workspace-creation: true
