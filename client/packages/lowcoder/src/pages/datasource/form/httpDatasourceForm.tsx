@@ -1,5 +1,5 @@
 import { Rule } from "antd/lib/form";
-import { HttpConfig } from "api/datasourceApi";
+import { HttpConfig, OAuthConfig } from "api/datasourceApi";
 import {
   DatasourceForm,
   FormInputItem,
@@ -21,12 +21,14 @@ import {
 } from "../form";
 import { DatasourceFormProps } from "./datasourceFormRegistry";
 import { useHostCheck } from "./useHostCheck";
+import { useSelector } from "react-redux";
+import { getUser } from "redux/selectors/usersSelectors";
 
 const AuthTypeOptions = [
   { label: "None", value: "NO_AUTH" },
   { label: "Basic", value: "BASIC_AUTH" },
   { label: "Digest", value: "DIGEST_AUTH" },
-  { label: "OAuth 2.0(Inherit from login)", value: "OAUTH2_INHERIT_FROM_LOGIN" },
+  { label: "OAuth 2.0 (Inherit from login)", value: "OAUTH2_INHERIT_FROM_LOGIN" },
   // { label: "OAuth 2.0", value: "oAuth2" },
 ] as const;
 
@@ -50,7 +52,16 @@ export const HttpDatasourceForm = (props: DatasourceFormProps) => {
   const datasourceConfig = datasource?.datasourceConfig as HttpConfig;
   // const oauthConfig = datasourceConfig?.authConfig as OAuthConfig;
 
+  // here we get the Auth Sources from a user to enable user impersonation
+  const userAuthSources = useSelector(getUser).connections?.filter(authSource => authSource.source !== "EMAIL");;
+  const userAuthSourcesOptions = userAuthSources?.map(item => ({
+    label: item.source,
+    value: item.authId
+  })) || [];
+
   const [authType, setAuthType] = useState(datasourceConfig?.authConfig?.type);
+  const [authId, setAuthId] = useState(datasourceConfig?.authConfig?.authId);
+  
   // const [grantType, setGrantType] = useState(oauthConfig?.grantType ?? "authorization_code");
 
   const hostRule = useHostCheck();
@@ -96,6 +107,22 @@ export const HttpDatasourceForm = (props: DatasourceFormProps) => {
           </>
         );
     }
+  };
+
+  const showUserAuthSourceSelector = () => {
+    if (authType === "OAUTH2_INHERIT_FROM_LOGIN") {
+      return (
+        <FormSelectItem
+          name={"authId"}
+          label="User Authentication Source"
+          options={userAuthSourcesOptions}
+          initialValue={datasourceConfig?.authConfig?authId : null}
+          afterChange={(value) => setAuthId(value) }
+          labelWidth={142}
+        />
+      );
+    }
+    return null;
   };
 
   return (
@@ -149,6 +176,7 @@ export const HttpDatasourceForm = (props: DatasourceFormProps) => {
           afterChange={(value) => setAuthType(value)}
           labelWidth={142}
         />
+        {showUserAuthSourceSelector()}
         {showAuthItem(authType)}
       </FormSection>
 
