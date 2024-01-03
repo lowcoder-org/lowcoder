@@ -50,6 +50,7 @@ export function useDatasourceForm() {
             ...config,
             authConfig: {
               type: form.getFieldsValue()["authConfigType"],
+              authId: form.getFieldsValue()["authId"],
               username: form.getFieldsValue()["username"],
               password: form.getFieldsValue()["password"],
             },
