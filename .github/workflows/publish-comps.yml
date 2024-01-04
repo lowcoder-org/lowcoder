@@ -36,11 +36,6 @@ jobs:
         with:
           node-version: 16
           registry-url: https://registry.npmjs.org/
-      # Use this GitHub Action
-      - name: Check package version
-        uses: technote-space/package-version-check-action@v1
-        with:
-          COMMIT_DISABLED: 1
       # - run: cat .npmrc
       - run: echo ${{ secrets }}
       - name: Install dependencies
@@ -48,10 +43,21 @@ jobs:
         with:
           cmd: install
           dir: client/packages/lowcoder-comps
-      - name: Publish
+      - name: Run tests
         uses: borales/actions-yarn@v4.2.0
+        with:
+          cmd: test
+          dir: client/packages/lowcoder-comps
+      - name: Publish
+        uses: JS-DevTools/npm-publish@v3
         with:
           cmd: build_publish
           dir: client/packages/lowcoder-comps
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          token: ${{ secrets.NPM_TOKEN }}
+      # - name: Publish
+      #   uses: borales/actions-yarn@v4.2.0
+      #   with:
+      #     cmd: build_publish
+      #     dir: client/packages/lowcoder-comps
+      #   env:
+      #     NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
