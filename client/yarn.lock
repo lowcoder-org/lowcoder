@@ -13725,6 +13725,34 @@ __metadata:
   languageName: node
   linkType: hard
 
+"raheel-test-comps@workspace:packages/lowcoder-comps":
+  version: 0.0.0-use.local
+  resolution: "raheel-test-comps@workspace:packages/lowcoder-comps"
+  dependencies:
+    "@fullcalendar/core": ^6.1.6
+    "@fullcalendar/daygrid": ^6.1.6
+    "@fullcalendar/interaction": ^6.1.6
+    "@fullcalendar/list": ^6.1.9
+    "@fullcalendar/moment": ^6.1.6
+    "@fullcalendar/react": ^6.1.6
+    "@fullcalendar/timegrid": ^6.1.6
+    "@types/react": ^18.2.45
+    "@types/react-dom": ^18.2.18
+    big.js: ^6.2.1
+    echarts-extension-gmap: ^1.6.0
+    echarts-wordcloud: ^2.1.0
+    jest: 29.3.0
+    lowcoder-cli: "workspace:^"
+    lowcoder-sdk: "workspace:^"
+    mermaid: ^10.6.1
+    react: ^18.2.0
+    react-dom: ^18.2.0
+    typescript: 4.8.4
+    vite: ^4.3.9
+    vite-tsconfig-paths: ^3.6.0
+  languageName: unknown
+  linkType: soft
+
 "randombytes@npm:^2.0.0, randombytes@npm:^2.0.1, randombytes@npm:^2.0.5, randombytes@npm:^2.1.0":
   version: 2.1.0
   resolution: "randombytes@npm:2.1.0"
@@ -16559,34 +16587,6 @@ __metadata:
   checksum: 02a9bb896f04df828025af8f0eced36c315d25d310b6c2418e7dad2bed19ddeb34a9cea9b34e7c24789830fa51e1b6a9be26679980987a9c817a7e6d9cd4154b
   languageName: node
   linkType: hard
-
-"test-comps@workspace:packages/lowcoder-comps":
-  version: 0.0.0-use.local
-  resolution: "test-comps@workspace:packages/lowcoder-comps"
-  dependencies:
-    "@fullcalendar/core": ^6.1.6
-    "@fullcalendar/daygrid": ^6.1.6
-    "@fullcalendar/interaction": ^6.1.6
-    "@fullcalendar/list": ^6.1.9
-    "@fullcalendar/moment": ^6.1.6
-    "@fullcalendar/react": ^6.1.6
-    "@fullcalendar/timegrid": ^6.1.6
-    "@types/react": ^18.2.45
-    "@types/react-dom": ^18.2.18
-    big.js: ^6.2.1
-    echarts-extension-gmap: ^1.6.0
-    echarts-wordcloud: ^2.1.0
-    jest: 29.3.0
-    lowcoder-cli: "workspace:^"
-    lowcoder-sdk: "workspace:^"
-    mermaid: ^10.6.1
-    react: ^18.2.0
-    react-dom: ^18.2.0
-    typescript: 4.8.4
-    vite: ^4.3.9
-    vite-tsconfig-paths: ^3.6.0
-  languageName: unknown
-  linkType: soft
 
 "test-exclude@npm:^6.0.0":
   version: 6.0.0
