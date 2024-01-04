@@ -1,4 +1,5 @@
 import { default as Layout } from "antd/es/layout";
+import { default as LayoutSider } from "antd/es/layout/Sider";
 import { default as AntdMenu, MenuProps } from "antd/es/menu";
 import { default as Segmented } from "antd/es/segmented";
 import MainContent from "components/layout/MainContent";
@@ -43,7 +44,7 @@ import {
 const DEFAULT_WIDTH = 240;
 type MenuItemStyleOptionValue = "normal" | "hover" | "active";
 
-const StyledSide = styled(Layout.Sider)`
+const StyledSide = styled(LayoutSider)`
   max-height: calc(100vh - ${TopHeaderHeight});
   overflow: auto;
 

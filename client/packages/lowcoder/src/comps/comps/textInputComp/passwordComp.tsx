@@ -1,4 +1,5 @@
-import { default as Input, InputRef } from "antd/es/input";
+import { default as InputPassword } from "antd/es/input/Password";
+import { InputRef } from "antd/es/input";
 import {
   NameConfig,
   NameConfigPlaceHolder,
@@ -40,7 +41,7 @@ import { RefControl } from "comps/controls/refControl";
 import React, { useContext } from "react";
 import { EditorContext } from "comps/editorState";
 
-const PasswordStyle = styled(Input.Password)<{
+const PasswordStyle = styled(InputPassword)<{
   $style: InputLikeStyleType;
 }>`
   ${(props) => props.$style && getStyle(props.$style)}

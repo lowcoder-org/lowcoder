@@ -27,6 +27,7 @@ export default {
     "@dnd-kit/sortable": path.resolve(currentDir, "./mocks/dnd-kit-sortable.js"),
     "@dnd-kit/core": path.resolve(currentDir, "./mocks/dnd-kit-core.js"),
     "antd": path.resolve(currentDir, "./mocks/antd.js"),
+    "@rjsf/antd": path.resolve(currentDir, "./mocks/rjsf-antd.js"),
     "history": path.resolve(currentDir, "./mocks/history.js"),
     "\\.md\\?url$": path.resolve(currentDir, "./mocks/markdown-url-module.js"),
     "^@lowcoder-ee(.*)$": path.resolve(

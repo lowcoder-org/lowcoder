@@ -27,6 +27,7 @@ import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { useContext } from "react";
 import { EditorContext } from "comps/editorState";
 
+console.log('THEME', Theme);
 Theme.widgets.DateWidget = DateWidget(false);
 Theme.widgets.DateTimeWidget = DateWidget(true);
 const Form = withTheme(Theme);

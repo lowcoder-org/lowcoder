@@ -1,4 +1,4 @@
-import { default as Checkbox } from "antd/es/checkbox";
+import { default as AntdCheckboxGroup } from "antd/es/checkbox/Group";
 import { SelectInputOptionControl } from "comps/controls/optionsControl";
 import { BoolCodeControl } from "../../controls/codeControl";
 import { arrayStringExposingStateControl } from "../../controls/codeStateControl";
@@ -73,7 +73,7 @@ export const getStyle = (style: CheckboxStyleType) => {
   `;
 };
 
-const CheckboxGroup = styled(Checkbox.Group)<{
+const CheckboxGroup = styled(AntdCheckboxGroup)<{
   $style: CheckboxStyleType;
   $layout: ValueFromOption<typeof RadioLayoutOptions>;
 }>`

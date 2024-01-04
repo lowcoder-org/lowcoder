@@ -11,7 +11,9 @@ import { default as DatePicker } from "antd/es/date-picker";
 import { hasIcon } from "comps/utils";
 import { omit } from "lodash";
 
-const RangePickerStyled = styled(DatePicker.RangePicker)<{ $style: DateTimeStyleType }>`
+const { RangePicker } = DatePicker;
+
+const RangePickerStyled = styled((props: any) => <RangePicker {...props} />)<{ $style: DateTimeStyleType }>`
   width: 100%;
   ${(props) => props.$style && getStyle(props.$style)}
 `;
@@ -46,8 +48,8 @@ export const DateRangeUIView = (props: DateRangeUIViewProps) => {
       {...omit(props, "onChange")}
       ref={props.viewRef as any}
       value={[props.start, props.end]}
-      disabledDate={(current) => disabledDate(current, props.minDate, props.maxDate)}
-      onCalendarChange={(time) => {
+      disabledDate={(current: any) => disabledDate(current, props.minDate, props.maxDate)}
+      onCalendarChange={(time: any) => {
         props.onChange(time?.[0], time?.[1]);
       }}
       inputReadOnly={checkIsMobile(editorState?.getAppSettings().maxWidth)}

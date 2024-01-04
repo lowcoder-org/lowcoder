@@ -1,4 +1,4 @@
-import { default as AntdRadio } from "antd/es/radio";
+import { default as AntdRadioGroup } from "antd/es/radio/group";
 import { RadioStyleType } from "comps/controls/styleControlConstants";
 import styled, { css } from "styled-components";
 import { UICompBuilder } from "../../generators";
@@ -52,7 +52,7 @@ const getStyle = (style: RadioStyleType) => {
   `;
 };
 
-const Radio = styled(AntdRadio.Group)<{
+const Radio = styled(AntdRadioGroup)<{
   $style: RadioStyleType;
   $layout: ValueFromOption<typeof RadioLayoutOptions>;
 }>`
