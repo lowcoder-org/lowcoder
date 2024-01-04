@@ -22,9 +22,6 @@ window.ResizeObserver = function () {
   };
 };
 
-// window.ImageData = {}
-// window.MediaStreamTrack = {}
-// window.URL.createObjectURL = () => {}
 Object.defineProperty(window, 'ImageData', { value: 'yourValue' });
 Object.defineProperty(window, 'MediaStreamTrack', { value: 'yourValue' });
 Object.defineProperty(window, 'URL', {
