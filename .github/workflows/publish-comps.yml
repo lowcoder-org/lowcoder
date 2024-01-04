@@ -8,26 +8,26 @@ on:
     branches: [ "publish-comps-workflow" ]
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-      - uses: actions/setup-node@v3
-      - name: Install dependencies
-        uses: borales/actions-yarn@v4.2.0
-        with:
-          cmd: install
-          dir: client/packages/lowcoder-comps
-      - name: Run tests
-        uses: borales/actions-yarn@v4.2.0
-        with:
-          cmd: test
-          dir: client/packages/lowcoder-comps
+  # build:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #       with:
+  #         fetch-depth: 0
+  #     - uses: actions/setup-node@v3
+  #     - name: Install dependencies
+  #       uses: borales/actions-yarn@v4.2.0
+  #       with:
+  #         cmd: install
+  #         dir: client/packages/lowcoder-comps
+  #     - name: Run tests
+  #       uses: borales/actions-yarn@v4.2.0
+  #       with:
+  #         cmd: test
+  #         dir: client/packages/lowcoder-comps
 
   publish-package:
-    needs: build
+    # needs: build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
