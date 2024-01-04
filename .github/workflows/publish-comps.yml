@@ -36,6 +36,11 @@ jobs:
         with:
           node-version: 16
           registry-url: https://registry.npmjs.org/
+      # Use this GitHub Action
+      - name: Check package version
+        uses: technote-space/package-version-check-action@v1
+        with:
+          COMMIT_DISABLED: 1
       # - run: cat .npmrc
       - run: echo ${{ secrets }}
       - name: Install dependencies
