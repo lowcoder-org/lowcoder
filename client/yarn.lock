@@ -3189,7 +3189,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@rjsf/antd@npm:^5.10.0":
+"@rjsf/antd@npm:^5.15.1":
   version: 5.15.1
   resolution: "@rjsf/antd@npm:5.15.1"
   dependencies:
@@ -3208,7 +3208,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@rjsf/core@npm:^5.10.0":
+"@rjsf/core@npm:^5.15.1":
   version: 5.15.1
   resolution: "@rjsf/core@npm:5.15.1"
   dependencies:
@@ -3224,7 +3224,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@rjsf/utils@npm:^5.10.0":
+"@rjsf/utils@npm:^5.15.1":
   version: 5.15.1
   resolution: "@rjsf/utils@npm:5.15.1"
   dependencies:
@@ -3239,7 +3239,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@rjsf/validator-ajv8@npm:^5.10.0":
+"@rjsf/validator-ajv8@npm:^5.15.1":
   version: 5.15.1
   resolution: "@rjsf/validator-ajv8@npm:5.15.1"
   dependencies:
@@ -11626,10 +11626,10 @@ __metadata:
     "@fortawesome/free-solid-svg-icons": ^6.4.0
     "@fortawesome/react-fontawesome": latest
     "@manaflair/redux-batch": ^1.0.0
-    "@rjsf/antd": ^5.10.0
-    "@rjsf/core": ^5.10.0
-    "@rjsf/utils": ^5.10.0
-    "@rjsf/validator-ajv8": ^5.10.0
+    "@rjsf/antd": ^5.15.1
+    "@rjsf/core": ^5.15.1
+    "@rjsf/utils": ^5.15.1
+    "@rjsf/validator-ajv8": ^5.15.1
     "@types/core-js": ^2.5.5
     "@types/intl": ^1.2.1
     "@types/lodash": ^4.14.194
@@ -11891,11 +11891,11 @@ __metadata:
   linkType: hard
 
 "markdown-to-jsx@npm:^7.3.2":
-  version: 7.3.2
-  resolution: "markdown-to-jsx@npm:7.3.2"
+  version: 7.4.0
+  resolution: "markdown-to-jsx@npm:7.4.0"
   peerDependencies:
     react: ">= 0.14.0"
-  checksum: 8885c6343b71570b0a7ec16cd85a49b853a830234790ee7430e2517ea5d8d361ff138bd52147f650790f3e7b3a28a15c755fc16f8856dd01ddf09a6161782e06
+  checksum: 59959d14d7927ed8a97e42d39771e2b445b90fa098477fb6ab040f044d230517dc4a95ba38a4f924cfc965a96b32211d93def150a6184f0e51d2cefdc8cb415d
   languageName: node
   linkType: hard
 

@@ -27,7 +27,6 @@ import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { useContext } from "react";
 import { EditorContext } from "comps/editorState";
 
-console.log('THEME', Theme);
 Theme.widgets.DateWidget = DateWidget(false);
 Theme.widgets.DateTimeWidget = DateWidget(true);
 const Form = withTheme(Theme);
@@ -321,11 +320,9 @@ let FormBasicComp = (function () {
           )}
 
           {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
-            <>
-              <Section name={sectionNames.style}>
-                {children.style.getPropertyView()}
-              </Section>
-            </>
+            <Section name={sectionNames.style}>
+              {children.style.getPropertyView()}
+            </Section>
           )}
 
         </>

@@ -1,4 +1,5 @@
 import { default as Form, FormInstance } from "antd/es/form";
+import { default as AntdFormItem } from "antd/es/form/FormItem";
 import { default as Select } from "antd/es/select";
 import {
   CheckBox,
@@ -76,7 +77,7 @@ const SelectOptionWrapper = styled.div`
   width: 100%;
   align-items: center;
 `;
-const FormItem = styled(Form.Item)`
+const FormItem = styled(AntdFormItem)`
   margin: 0;
   line-height: 13px;
   width: 100%;

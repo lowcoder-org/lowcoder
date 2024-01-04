@@ -40,6 +40,8 @@ Object.defineProperty(window, "navigator", {
       enumerateDevices: jest.fn(),
     },
     userAgent: '',
+    language: '',
+    browserLanguage: '',
   },
 });
 
