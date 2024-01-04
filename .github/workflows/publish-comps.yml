@@ -36,7 +36,7 @@ jobs:
           node-version: 16
           registry-url: https://registry.npmjs.org/
       # - run: cat .npmrc
-      # - run: echo ${{ secrets.NPM_TOKEN }}
+      - run: echo ${{ secrets.NPM_TOKEN }}
       - name: Install dependencies
         uses: borales/actions-yarn@v4.2.0
         with:
@@ -48,4 +48,4 @@ jobs:
           cmd: build_publish
           dir: client/packages/lowcoder-comps
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
