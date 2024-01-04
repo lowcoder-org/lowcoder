@@ -31,12 +31,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      # Setup .npmrc file to publish to npm
       - uses: actions/setup-node@v3
         with:
           node-version: 16
           registry-url: https://registry.npmjs.org/
       # - run: cat .npmrc
-      - run: echo ${{ secrets.NPM_TOKEN }}
+      - run: echo ${{ secrets }}
       - name: Install dependencies
         uses: borales/actions-yarn@v4.2.0
         with:
@@ -48,4 +49,4 @@ jobs:
           cmd: build_publish
           dir: client/packages/lowcoder-comps
         env:
-          NPM_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
