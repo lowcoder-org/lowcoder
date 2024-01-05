@@ -40,6 +40,9 @@ jobs:
       - name: Check version changes
         uses: EndBug/version-check@v1
         id: check
+        with:
+          diff-search: true
+          file-name: client/packages/lowcoder-comps/package.json
 
       - name: Version update detected
         if: steps.check.outputs.changed == 'true'
