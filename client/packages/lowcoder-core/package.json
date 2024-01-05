@@ -1,6 +1,6 @@
 {
-  "name": "lowcoder-core",
-  "version": "0.0.10",
+  "name": "raheel-lc-core",
+  "version": "0.0.11",
   "type": "module",
   "scripts": {
     "start": "rollup -c rollup.config.js --watch",

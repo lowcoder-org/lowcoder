@@ -39,11 +39,9 @@ jobs:
           cmd: install
           dir: client/packages/lowcoder-core
 
-      - name: Publish
+      - name: Publish package to NPM
         if: steps.check.outputs.changed == 'true'
-        uses: borales/actions-yarn@v4.2.0
-        with:
-          cmd: build_publish
-          dir: client/packages/lowcoder-core
+        run: npm publish
+        working-directory: client/packages/lowcoder-core
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
