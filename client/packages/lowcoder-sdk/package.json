@@ -1,6 +1,6 @@
 {
-  "name": "lowcoder-sdk",
-  "version": "2.1.11",
+  "name": "raheel-lc-sdk",
+  "version": "2.1.12",
   "type": "module",
   "files": [
     "src",
