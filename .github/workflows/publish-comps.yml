@@ -30,15 +30,30 @@ jobs:
     # needs: build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      # Setup .npmrc file to publish to npm
-      - uses: actions/setup-node@v3
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      # # Setup .npmrc file to publish to npm
+      # - uses: actions/setup-node@v3
+      #   with:
+      #     node-version: 16
+      #     registry-url: https://registry.npmjs.org/
+      - name: Check version changes
+        uses: EndBug/version-check@v1
+        id: check
+
+      - name: Version update detected
+        if: steps.check.outputs.changed == 'true'
+        run: 'echo "Version change found! New version: ${{ steps.check.outputs.version }} (${{ steps.check.outputs.type }})"'
+      
+      - name: Set up Node.js for NPM
+        if: steps.check.outputs.changed == 'true'
+        uses: actions/setup-node@v3
         with:
           node-version: 16
           registry-url: https://registry.npmjs.org/
-      # - run: cat .npmrc
-      - run: echo ${{ secrets }}
+
       - name: Install dependencies
+        if: steps.check.outputs.changed == 'true'
         uses: borales/actions-yarn@v4.2.0
         with:
           cmd: install
@@ -55,6 +70,7 @@ jobs:
       #     package: client/packages/lowcoder-comps
       #     token: ${{ secrets.NPM_TOKEN }}
       - name: Publish
+        if: steps.check.outputs.changed == 'true'
         uses: borales/actions-yarn@v4.2.0
         with:
           cmd: build_publish
