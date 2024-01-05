@@ -43,7 +43,7 @@ jobs:
         if: steps.check.outputs.changed == 'true'
         uses: borales/actions-yarn@v4.2.0
         with:
-          cmd: npm publish
+          cmd: publish
           dir: client/packages/lowcoder-cli
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
