@@ -1,7 +1,7 @@
 {
-  "name": "lowcoder-cli",
+  "name": "raheel-lc-cli",
   "description": "CLI tool used to start build publish lowcoder components",
-  "version": "0.0.27",
+  "version": "0.0.28",
   "license": "MIT",
   "bin": "./index.js",
   "type": "module",
