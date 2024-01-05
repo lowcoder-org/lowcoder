@@ -37,7 +37,7 @@ jobs:
         uses: borales/actions-yarn@v4.2.0
         with:
           cmd: install
-          dir: client/packages/lowcoder-comps
+          dir: client/packages/lowcoder-cli
 
       - name: Publish
         if: steps.check.outputs.changed == 'true'
