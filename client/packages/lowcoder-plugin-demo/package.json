@@ -33,7 +33,7 @@
     "@types/react": "^18.2.45",
     "@types/react-dom": "^18.2.18",
     "lowcoder-cli": "workspace:^",
-    "raheel-lc-sdk": "workspace:^",
+    "lowcoder-sdk": "workspace:^",
     "typescript": "4.8.4",
     "vite": "^4.3.9"
   }
