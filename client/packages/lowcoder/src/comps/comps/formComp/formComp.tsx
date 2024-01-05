@@ -40,7 +40,7 @@ import {
 import { TriContainer } from "../triContainerComp/triContainer";
 import { traverseCompTree } from "../containerBase/utils";
 import { IForm } from "./formDataConstants";
-import { Spin } from "antd";
+import { default as Spin } from "antd/es/spin";
 import { BoolControl } from "comps/controls/boolControl";
 import { BottomResTypeEnum } from "types/bottomRes";
 import { BoolCodeControl, JSONObjectControl } from "comps/controls/codeControl";

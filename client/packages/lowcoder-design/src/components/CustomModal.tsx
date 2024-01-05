@@ -1,5 +1,5 @@
-import { ButtonProps, Modal as AntdModal } from "antd";
-import { ModalFuncProps, ModalProps as AntdModalProps } from "antd/lib/modal";
+import { ButtonProps } from "antd/es/button";
+import { default as AntdModal, ModalFuncProps, ModalProps as AntdModalProps } from "antd/es/modal";
 import { ReactComponent as PackUpIcon } from "icons/icon-Pack-up.svg";
 import React, { ReactNode, useState } from "react";
 import styled from "styled-components";
@@ -11,7 +11,7 @@ import { trans } from "i18n/design";
 import { modalInstance } from "components/GlobalInstances";
 
 type ModalWrapperProps = {
-  width?: string | number;
+  $width?: string | number;
 };
 
 type Model = {
@@ -22,7 +22,7 @@ type Model = {
 const ModalWrapper = styled.div<ModalWrapperProps>`
   display: flex;
   flex-direction: column;
-  width: ${(props) => (props.width ? props.width : "368px")};
+  width: ${(props) => (props.$width ? props.$width : "368px")};
   height: fit-content;
   background: #ffffff;
   box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
@@ -217,7 +217,7 @@ const DEFAULT_PROPS = {
 function CustomModalRender(props: CustomModalProps & ModalFuncProps) {
   return (
     <Draggable handle=".handle" disabled={!props.draggable}>
-      <ModalWrapper width={props.width}>
+      <ModalWrapper $width={props.width}>
         <>
           <ModalHeaderWrapper className="handle" $draggable={props.draggable}>
             <ModalHeader

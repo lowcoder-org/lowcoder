@@ -13,7 +13,7 @@ import { HomeResTypeEnum } from "../../types/homeRes";
 import React, { useState } from "react";
 import { updateFolder } from "../../redux/reduxActions/folderActions";
 import { updateAppMetaAction } from "../../redux/reduxActions/applicationActions";
-import { Typography } from "antd";
+import { default as AntdTypographyText } from "antd/es/typography/Text";
 import { HomeRes } from "./HomeLayout";
 import { HomeResOptions } from "./HomeResOptions";
 import { MoveToFolderModal } from "./MoveToFolderModal";
@@ -44,7 +44,7 @@ const EditBtn = styled(TacoButton)`
   height: 24px;
 `;
 
-const TypographyText = styled(Typography.Text)`
+const TypographyText = styled(AntdTypographyText)`
   margin: 0 !important;
   left: 0 !important;
   width: 100%;

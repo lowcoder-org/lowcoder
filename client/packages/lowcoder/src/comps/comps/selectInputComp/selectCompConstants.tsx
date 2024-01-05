@@ -19,7 +19,7 @@ import {
 } from "lowcoder-design";
 import { SelectOptionControl } from "../../controls/optionsControl";
 import { SelectEventHandlerControl } from "../../controls/eventHandlerControl";
-import { Select as AntdSelect } from "antd";
+import { default as AntdSelect } from "antd/es/select";
 import { ControlParams } from "../../controls/controlParams";
 import { ReactNode } from "react";
 import styled, { css } from "styled-components";
@@ -144,7 +144,7 @@ const getDropdownStyle = (style: MultiSelectStyleType) => {
       margin: 0 8px;
       padding: 5px 8px;
 
-      :hover {
+      &:hover {
         background-color: rgb(242, 247, 252);
       }
 

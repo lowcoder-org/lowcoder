@@ -1,4 +1,4 @@
-import { Form } from "antd";
+import { default as Form } from "antd/es/form";
 import { DatasourceApi } from "../../../api/datasourceApi";
 import _ from "lodash";
 import { useState } from "react";

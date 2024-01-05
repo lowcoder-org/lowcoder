@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { Button } from "antd";
+import { default as Button } from "antd/es/button";
 import { EventConfigType } from "lowcoder-sdk";
 import { trans } from "i18n/comps";
 

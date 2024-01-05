@@ -1,5 +1,4 @@
-import { Table } from "antd";
-import { TableProps } from "antd/es/table";
+import { default as Table, TableProps } from "antd/es/table";
 import { TableCellContext, TableRowContext } from "comps/comps/tableComp/tableContext";
 import { TableToolbar } from "comps/comps/tableComp/tableToolbarComp";
 import { RowColorViewType, RowHeightViewType, TableEventOptionValues } from "comps/comps/tableComp/tableTypes";
@@ -130,9 +129,9 @@ const getStyle = (
 const TableWrapper = styled.div<{
   $style: TableStyleType;
   $rowStyle: TableRowStyleType;
-  toolbarPosition: "above" | "below" | "close";
-  fixedHeader: boolean;
-  fixedToolbar: boolean;
+  $toolbarPosition: "above" | "below" | "close";
+  $fixedHeader: boolean;
+  $fixedToolbar: boolean;
 }>`
   max-height: 100%;
   overflow-y: auto;
@@ -141,7 +140,7 @@ const TableWrapper = styled.div<{
   border-radius: ${(props) => props.$style.radius};
 
   .ant-table-wrapper {
-    border-top: ${(props) => (props.toolbarPosition === "above" ? "1px solid" : "unset")};
+    border-top: ${(props) => (props.$toolbarPosition === "above" ? "1px solid" : "unset")};
     border-color: inherit;
   }
 
@@ -193,10 +192,10 @@ const TableWrapper = styled.div<{
             color: ${(props) => props.$style.headerText};
             border-inline-end: ${(props) => `1px solid ${props.$style.border}`} !important;
             ${(props) => 
-              props.fixedHeader && `
+              props.$fixedHeader && `
                 position: sticky;
                 position: -webkit-sticky;
-                top: ${props.fixedToolbar ? '47px' : '0'};
+                top: ${props.$fixedToolbar ? '47px' : '0'};
                 z-index: 99;
               `
             }
@@ -253,7 +252,7 @@ const TableWrapper = styled.div<{
 
         // hide the bottom border of the last row
         ${(props) =>
-          props.toolbarPosition !== "below" &&
+          props.$toolbarPosition !== "below" &&
           `
             tbody > tr:last-child > td {
               border-bottom: unset;
@@ -284,7 +283,7 @@ const TableTh = styled.th<{ width?: number }>`
 `;
 
 const TableTd = styled.td<{
-  background: string;
+  $background: string;
   $style: TableColumnStyleType & {rowHeight?: string};
   $linkStyle?: TableColumnLinkStyleType;
   $isEditing: boolean;
@@ -296,10 +295,10 @@ const TableTd = styled.td<{
     display: ${(props) => (props.$isEditing ? "none" : "initial")};
   }
   &.ant-table-row-expand-icon-cell {
-    background: ${(props) => props.background};
+    background: ${(props) => props.$background};
     border-color: ${(props) => props.$style.border};
   }
-  background: ${(props) => props.background} !important;
+  background: ${(props) => props.$background} !important;
   border-color: ${(props) => props.$style.border} !important;
   border-width: ${(props) => props.$style.borderWidth} !important;
   border-radius: ${(props) => props.$style.radius};
@@ -498,7 +497,7 @@ function TableCellView(props: {
     tdView = (
       <TableTd
         {...restProps}
-        background={background}
+        $background={background}
         $style={style}
         $linkStyle={linkStyle}
         $isEditing={editing}
@@ -767,9 +766,9 @@ export function TableCompView(props: {
       <TableWrapper
         $style={style}
         $rowStyle={rowStyle}
-        toolbarPosition={toolbar.position}
-        fixedHeader={compChildren.fixedHeader.getView()}
-        fixedToolbar={toolbar.fixedToolbar && toolbar.position === 'above'}
+        $toolbarPosition={toolbar.position}
+        $fixedHeader={compChildren.fixedHeader.getView()}
+        $fixedToolbar={toolbar.fixedToolbar && toolbar.position === 'above'}
       >
         {toolbar.position === "above" && toolbarView}
         <ResizeableTable<RecordType>

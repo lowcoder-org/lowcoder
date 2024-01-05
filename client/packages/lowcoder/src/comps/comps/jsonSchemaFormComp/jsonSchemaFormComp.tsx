@@ -2,7 +2,7 @@ import { withTheme } from '@rjsf/core';
 import { RJSFValidationError, ErrorListProps, UISchemaSubmitButtonOptions } from "@rjsf/utils";
 import validator from "@rjsf/validator-ajv8";
 // import Ajv from "@rjsf/validator-ajv8";
-import { Button } from "antd";
+import { default as Button } from "antd/es/button";
 import { BoolControl } from "comps/controls/boolControl";
 import { jsonObjectExposingStateControl } from "comps/controls/codeStateControl";
 import { styleControl } from "comps/controls/styleControl";
@@ -320,11 +320,9 @@ let FormBasicComp = (function () {
           )}
 
           {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
-            <>
-              <Section name={sectionNames.style}>
-                {children.style.getPropertyView()}
-              </Section>
-            </>
+            <Section name={sectionNames.style}>
+              {children.style.getPropertyView()}
+            </Section>
           )}
 
         </>

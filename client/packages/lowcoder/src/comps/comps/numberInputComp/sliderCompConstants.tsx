@@ -7,7 +7,7 @@ import { RecordConstructorToComp } from "lowcoder-core";
 import { styleControl } from "comps/controls/styleControl";
 import { SliderStyle, SliderStyleType } from "comps/controls/styleControlConstants";
 import styled, { css } from "styled-components";
-import { Slider } from "antd";
+import { default as Slider } from "antd/es/slider";
 import { darkenColor, fadeColor } from "lowcoder-design";
 import { disabledPropertyView, hiddenPropertyView } from "comps/utils/propertyUtils";
 import { IconControl } from "comps/controls/iconControl";

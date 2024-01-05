@@ -392,7 +392,7 @@ export const LeftContent = (props: LeftContentProps) => {
             ))}
         </span>
         {info?.show && data && (
-          <CollapseWrapper title="" clientX={info?.clientX} onClick={(e) => e.stopPropagation()}>
+          <CollapseWrapper title="" $clientX={info?.clientX} onClick={(e) => e.stopPropagation()}>
             <ScrollBar style={{ maxHeight: "400px" }}>
               <CollapseView
                 key={data.name}

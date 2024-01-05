@@ -1,4 +1,4 @@
-import { Spin } from "antd";
+import { default as Spin } from "antd/es/spin";
 import { GreyTextColor } from "constants/style";
 import styled from "styled-components";
 

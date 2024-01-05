@@ -105,14 +105,14 @@ export const Node = styled.span`
   }
 `;
 
-export const CollapseWrapper = styled.div<{ clientX?: number }>`
+export const CollapseWrapper = styled.div<{ $clientX?: number }>`
   width: 256px;
   border: 1px solid #E1E3EB;
   border-radius: 4px;
   overflow: hidden;
   background: #fff;
   padding: 4px 0;
-  margin: 4px -16px 4px ${(props) => props.clientX && `calc(-${props.clientX}px + 16px)`};
+  margin: 4px -16px 4px ${(props) => props.$clientX && `calc(-${props.$clientX}px + 16px)`};
   .simplebar-content > div {
     > .ant-collapse > .ant-collapse-item {
       > .ant-collapse-header {

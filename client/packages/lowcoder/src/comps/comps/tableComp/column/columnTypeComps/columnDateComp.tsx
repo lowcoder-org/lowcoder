@@ -1,4 +1,4 @@
-import { DatePicker } from "antd";
+import { default as DatePicker } from "antd/es/date-picker";
 import {
   ColumnTypeCompBuilder,
   ColumnTypeViewFn,

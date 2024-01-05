@@ -1,5 +1,5 @@
 import { CloseOutlined } from "@ant-design/icons";
-import { Button } from "antd";
+import { default as Button } from "antd/es/button";
 import { ContainerCompBuilder } from "comps/comps/containerBase/containerCompBuilder";
 import { gridItemCompToGridItems, InnerGrid } from "comps/comps/containerComp/containerView";
 import { AutoHeightControl } from "comps/controls/autoHeightControl";

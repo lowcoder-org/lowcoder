@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Menu } from "antd";
+import { default as Menu } from "antd/es/menu";
 import { CompPlayground } from "./CompPlayground";
 import styled from "styled-components";
 import { UICompLayoutInfo } from "comps/uiCompRegistry";

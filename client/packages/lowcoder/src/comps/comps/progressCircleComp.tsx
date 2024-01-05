@@ -1,4 +1,4 @@
-import { Progress } from "antd";
+import { default as Progress } from "antd/es/progress";
 import { styleControl } from "comps/controls/styleControl";
 import { ProgressStyle, ProgressStyleType, heightCalculator, widthCalculator } from "comps/controls/styleControlConstants";
 import styled, { css } from "styled-components";

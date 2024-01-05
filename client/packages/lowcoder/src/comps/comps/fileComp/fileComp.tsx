@@ -1,6 +1,6 @@
-import { Button, Upload as AntdUpload } from "antd";
-import { UploadChangeParam } from "antd/lib/upload";
-import { UploadFile, UploadProps } from "antd/lib/upload/interface";
+import { default as Button } from "antd/es/button";
+import { default as AntdUpload } from "antd/es/upload";
+import { UploadFile, UploadProps, UploadChangeParam } from "antd/es/upload/interface";
 import { Buffer } from "buffer";
 import { darkenColor } from "components/colorSelect/colorUtils";
 import { Section, sectionNames } from "components/Section";

@@ -1,4 +1,4 @@
-  import { Input } from "antd";
+  import { default as Input } from "antd/es/input";
 import { NumberControl, StringControl } from "comps/controls/codeControl";
 import { BoolControl } from "comps/controls/boolControl";
 import { trans } from "i18n";

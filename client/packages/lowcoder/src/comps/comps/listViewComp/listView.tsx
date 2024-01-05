@@ -1,4 +1,4 @@
-import { Pagination } from "antd";
+import { default as Pagination } from "antd/es/pagination";
 import { EditorContext } from "comps/editorState";
 import { BackgroundColorContext } from "comps/utils/backgroundColorContext";
 import _ from "lodash";

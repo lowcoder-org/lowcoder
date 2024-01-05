@@ -18,7 +18,7 @@ export const OracleDatasourceForm = (props: DatasourceFormProps) => {
 
   return (
     <DatasourceForm form={form} preserve={false} style={{ gap: "12px" }}>
-      <FormSection size={props.size}>
+      <FormSection $size={props.size}>
         <FormInputItem
           className={"ets"}
           name={"name"}
@@ -30,7 +30,7 @@ export const OracleDatasourceForm = (props: DatasourceFormProps) => {
         />
       </FormSection>
 
-      <FormSection size={props.size}>
+      <FormSection $size={props.size}>
         <GeneralSettingFormSectionLabel />
         <HostFormInputItem initialValue={datasourceConfig?.host} />
         <PortFormInputItem initialValue={"1521"} port={datasourceConfig?.port} />

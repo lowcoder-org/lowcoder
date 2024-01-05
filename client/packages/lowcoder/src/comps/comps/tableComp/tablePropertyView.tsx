@@ -51,7 +51,7 @@ const StyledRefreshIcon = styled(RefreshIcon)`
   height: 16px;
   cursor: pointer;
 
-  :hover {
+  &:hover {
     g g {
       stroke: #4965f2;
     }
@@ -63,7 +63,7 @@ const eyeIconCss = css`
   width: 16px;
   display: inline-block;
 
-  :hover {
+  &:hover {
     cursor: pointer;
   }
 

@@ -22,7 +22,7 @@ const PopoverIcon = styled(PointIcon)`
     fill: #8b8fa3;
   }
 
-  :hover {
+  &:hover {
     background-color: #e1e3eb;
     border-radius: 4px;
     cursor: pointer;

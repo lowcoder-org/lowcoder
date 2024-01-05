@@ -1,13 +1,10 @@
-import {
-  Form,
-  Input,
-  InputNumber,
-  InputNumberProps,
-  InputProps,
-  Radio,
-  Select,
-  SelectProps,
-} from "antd";
+import { default as Form } from "antd/es/form";
+import { default as AntdFormItem, FormItemProps as AntdFormItemProps } from "antd/es/form/FormItem";
+import { default as Input, InputProps } from "antd/es/input";
+import { default as TextArea, TextAreaProps } from "antd/es/input/TextArea";
+import { default as InputNumber, InputNumberProps } from "antd/es/input-number";
+import { default as Radio, RadioGroupProps } from "antd/es/radio";
+import { default as Select, SelectProps } from "antd/es/select";
 import { ReactNode } from "react";
 import { CheckBox } from "./checkBox";
 import { CustomSelect } from "./customSelect";
@@ -15,16 +12,13 @@ import { EllipsisTextCss, labelCss } from "./Label";
 import { ToolTipLabel } from "./toolTip";
 import styled from "styled-components";
 import { ReactComponent as Star } from "icons/icon-star.svg";
-import { FormItemProps as AntdFormItemProps } from "antd/lib/form/FormItem";
 import _ from "lodash";
 import { KeyValueList } from "./keyValueList";
 import { OptionsType, ValueFromOption } from "./Dropdown";
-import { RadioGroupProps } from "antd/lib/radio/interface";
-import { TextAreaProps } from "antd/lib/input";
 
 export type FormSize = "middle" | "small";
 
-const FormItem = styled(Form.Item)`
+const FormItem = styled(AntdFormItem)`
   min-width: 0;
   flex-grow: 1;
   margin: 0;
@@ -69,7 +63,7 @@ const FormInputPassword = styled(Input)`
   border-radius: 4px;
 `;
 
-const FormTextArea = styled(Input.TextArea)`
+const FormTextArea = styled(TextArea)`
   background: #ffffff;
 `;
 
@@ -86,13 +80,13 @@ const StartIcon = styled(Star)`
   margin-right: 4px;
   flex-shrink: 0;
 `;
-const LabelDiv = styled.div<{ width?: number }>`
+const LabelDiv = styled.div<{ $width?: number }>`
   display: flex;
   justify-content: flex-start;
   flex-wrap: nowrap;
   align-items: center;
   margin-right: 8px;
-  width: ${(props) => props.width || 122}px;
+  width: ${(props) => props.$width || 122}px;
   flex-shrink: 0;
 `;
 const FormItemContain = styled.div`
@@ -132,11 +126,11 @@ export const FormSectionLabel = styled.label`
   overflow: hidden;
   max-width: 100px;
 `;
-export const FormSection = styled.div<{ size?: FormSize }>`
+export const FormSection = styled.div<{ $size?: FormSize }>`
   width: 100%;
 
   .taco-form-item-wrapper {
-    padding-left: ${(props) => (props.size === "middle" ? "24px" : "0")};
+    padding-left: ${(props) => (props.$size === "middle" ? "24px" : "0")};
   }
 `;
 
@@ -153,7 +147,7 @@ const FormItemLabel = (props: Partial<FormItemProps>) => {
   const isRequired =
     props.required || !!props.rules?.find((i) => typeof i === "object" && i.required);
   return (
-    <LabelDiv width={props.labelWidth}>
+    <LabelDiv $width={props.labelWidth}>
       <StartIcon style={{ visibility: isRequired ? "visible" : "hidden" }} />
       <ToolTipLabel title={props.help} label={props.label} labelStyle={{ fontSize: "14px" }} />
     </LabelDiv>
@@ -263,7 +257,7 @@ const CustomCheckbox = (props: any) => {
 export const FormCheckboxItem = (props: FormItemProps) => {
   return (
     <FormItemContain className={"taco-form-item-wrapper"}>
-      <LabelDiv width={props.labelWidth} />
+      <LabelDiv $width={props.labelWidth} />
       <FormItem
         rules={props.rules}
         name={props.name}

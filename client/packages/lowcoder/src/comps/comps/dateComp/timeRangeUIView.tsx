@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { TimePicker } from "antd";
+import { default as TimePicker } from "antd/es/time-picker";
 import { DateTimeStyleType } from "../../controls/styleControlConstants";
 import { getStyle } from "comps/comps/dateComp/dateCompUtil";
 import { useUIView } from "../../utils/useUIView";
@@ -11,7 +11,9 @@ import dayjs from "dayjs";
 import { hasIcon } from "comps/utils";
 import { omit } from "lodash";
 
-const RangePickerStyled = styled(TimePicker.RangePicker)<{ $style: DateTimeStyleType }>`
+const { RangePicker } = TimePicker;
+
+const RangePickerStyled = styled((props: any) => <RangePicker {...props} />)<{ $style: DateTimeStyleType }>`
   width: 100%;
   ${(props) => props.$style && getStyle(props.$style)}
 `;
@@ -46,7 +48,7 @@ export const TimeRangeUIView = (props: TimeRangeUIViewProps) => {
       value={[props.start, props.end]}
       order={true}
       hideDisabledOptions
-      onCalendarChange={(time) => {
+      onCalendarChange={(time: any) => {
         props.onChange(time?.[0], time?.[1]);
       }}
       inputReadOnly={checkIsMobile(editorState?.getAppSettings().maxWidth)}

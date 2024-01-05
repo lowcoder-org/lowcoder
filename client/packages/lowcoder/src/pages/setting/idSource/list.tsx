@@ -4,7 +4,7 @@ import {
   Level1SettingPageContentWithList,
   Level1SettingPageTitleWithBtn,
 } from "pages/setting/styled";
-import Column from "antd/lib/table/Column";
+import { default as Column } from "antd/es/table/Column";
 import { useSelector } from "react-redux";
 import { getUser } from "redux/selectors/usersSelectors";
 import IdSourceApi, { ConfigItem } from "api/idSourceApi";
@@ -25,7 +25,7 @@ import history from "util/history";
 import { OAUTH_PROVIDER_DETAIL } from "constants/routesURL";
 import { selectSystemConfig } from "redux/selectors/configSelectors";
 import { isEnterpriseMode, isSelfDomain } from "util/envUtils";
-import { Badge } from "antd";
+import { default as Badge } from "antd/es/badge";
 import { validateResponse } from "api/apiUtils";
 import { ServerAuthTypeInfo } from "@lowcoder-ee/constants/authConstants";
 import { GeneralLoginIcon } from "assets/icons";

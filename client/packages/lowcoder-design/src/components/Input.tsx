@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { Input as AntdInput, InputProps as AntdInputProps, InputRef } from "antd";
+import { default as AntdInput, InputProps as AntdInputProps, InputRef } from "antd/es/input";
 import { BorderActiveColor, BorderColor, BorderRadius, GreyTextColor } from "constants/style";
 import { ChangeEvent, useEffect, useRef, useState } from "react";
 import _ from "lodash";

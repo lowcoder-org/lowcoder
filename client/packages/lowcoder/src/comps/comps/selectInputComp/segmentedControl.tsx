@@ -1,4 +1,4 @@
-import { Segmented as AntdSegmented } from "antd";
+import { default as AntdSegmented } from "antd/es/segmented";
 import { BoolCodeControl } from "comps/controls/codeControl";
 import { stringExposingStateControl } from "comps/controls/codeStateControl";
 import { ChangeEventHandlerControl } from "comps/controls/eventHandlerControl";

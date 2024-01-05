@@ -66,7 +66,7 @@ const HovDiv = styled.div`
 const IconContain = (props: { Icon: React.FunctionComponent<React.SVGProps<SVGSVGElement>> }) => {
   const { Icon } = props;
   return (
-    <CompIconDiv w={64} h={64}>
+    <CompIconDiv $w={64} $h={64}>
       <Icon />
     </CompIconDiv>
   );

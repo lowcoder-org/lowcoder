@@ -25,31 +25,31 @@ const PermissionLi = styled.li`
   padding: 8px 8px;
   width: 424px;
 
-  :hover {
+  &:hover {
     background: #f2f7fc;
     border-radius: 4px;
   }
 `;
 
-const UserPermissionUl = styled.ul<{ height: number }>`
+const UserPermissionUl = styled.ul<{ $height: number }>`
   padding: 0;
-  height: ${(props) => props.height}px;
+  height: ${(props) => props.$height}px;
   overflow-y: overlay !important;
   overflow-x: hidden;
   margin: 0 -16px 0 -8px;
 
-  ::-webkit-scrollbar {
+  &::-webkit-scrollbar {
     width: 16px;
   }
 
-  ::-webkit-scrollbar-thumb {
+  &::-webkit-scrollbar-thumb {
     border: 5px solid transparent;
     background-clip: content-box;
     border-radius: 9999px;
     background-color: rgba(139, 143, 163, 0.12);
   }
 
-  ::-webkit-scrollbar-thumb:hover {
+  &::-webkit-scrollbar-thumb:hover {
     background-color: rgba(139, 143, 163, 0.25);
   }
 `;
@@ -101,7 +101,7 @@ function PermissionLiItem(props: {
         side={32}
         userName={permissionItem.name}
         source={permissionItem.avatar && ASSETS_URI(permissionItem.avatar)}
-        svg={SvgIcon && <SvgIcon color={getInitialsAndColorCode(permissionItem.name)[1]} />}
+        svg={SvgIcon && <SvgIcon $color={getInitialsAndColorCode(permissionItem.name)[1]} />}
       />
       <PermissionItemName title={permissionItem.name}>
         {permissionItem.type === "GROUP" && trans("home.groupWithSquareBrackets")}
@@ -145,7 +145,7 @@ function PermissionLiItem(props: {
             value="delete"
             permissionid={permissionItem.permissionId}
           >
-            <CommonErrorLabel fontSize={13}>{trans("remove")}</CommonErrorLabel>
+            <CommonErrorLabel $fontSize={13}>{trans("remove")}</CommonErrorLabel>
           </CustomSelect.Option>
         </StyledRoleSelect>
       )}
@@ -165,7 +165,7 @@ export const PermissionList = (props: {
     <CommonTextLabel style={{ marginBottom: "4px" }}>
       {trans("home.memberPermissionList")}
     </CommonTextLabel>
-    <UserPermissionUl height={201}>
+    <UserPermissionUl $height={201}>
       {props.permissionItems.map((item, index) => (
         <PermissionLiItem
           key={index}

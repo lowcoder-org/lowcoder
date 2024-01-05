@@ -1,4 +1,5 @@
-import { App, ConfigProvider } from "antd";
+import { default as App } from "antd/es/app";
+import { default as ConfigProvider } from "antd/es/config-provider";
 import {
   ALL_APPLICATIONS_URL,
   APP_EDITOR_URL,

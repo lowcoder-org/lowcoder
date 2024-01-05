@@ -1,4 +1,4 @@
-import { Table } from "antd";
+import { default as Table } from "antd/es/table";
 import { Comp } from "lowcoder-core";
 import { UICompType } from "comps/uiCompRegistry";
 import { EventConfigsType } from "comps/controls/eventHandlerControl";

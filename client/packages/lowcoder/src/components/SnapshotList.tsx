@@ -1,11 +1,11 @@
 import styled from "styled-components";
 
-const SnapshotItemDiv = styled.div<{ selected?: boolean }>`
+const SnapshotItemDiv = styled.div<{ $selected?: boolean }>`
   padding: 10px 16px 12px 0;
   border-left: 4px solid transparent;
   cursor: pointer;
   ${(props) =>
-    props.selected &&
+    props.$selected &&
     `
       background: #f2f7fc;
       border-radius: 4px;
@@ -16,7 +16,7 @@ const SnapshotItemDiv = styled.div<{ selected?: boolean }>`
       }
   `};
 
-  :hover {
+  &:hover {
     background: #f2f7fc;
     border-radius: 4px;
   }
@@ -81,7 +81,7 @@ export interface SnapshotItemProps {
 }
 
 const SnapshotItem = (props: SnapshotItemProps) => (
-  <SnapshotItemDiv onClick={props.onClick} tabIndex={0} selected={props.selected}>
+  <SnapshotItemDiv onClick={props.onClick} tabIndex={0} $selected={props.selected}>
     <ItemTitle>
       <Dot className="snapshot-item-dot" />
       <span title={props.title}>{props.title}</span>

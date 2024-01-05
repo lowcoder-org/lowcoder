@@ -24,7 +24,7 @@ const DelIcon = styled(Bin)<{
     ${(props) => props.$forbidden && "stroke: #D7D9E0;"}
   }
 
-  :hover {
+  &:hover {
     cursor: ${(props) => (props.$forbidden ? "default" : "pointer")};
   }
 
@@ -50,13 +50,13 @@ const AddBtn = styled(TacoButton)`
   box-shadow: none;
   margin-bottom: 2px;
 
-  :hover {
+  &:hover {
     color: #315efb;
     border: none;
     background-color: #ffffff;
   }
 
-  :focus {
+  &:focus {
     color: #315efb;
     border: none;
     background-color: #ffffff;

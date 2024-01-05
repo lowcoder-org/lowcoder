@@ -127,7 +127,7 @@ export const HttpDatasourceForm = (props: DatasourceFormProps) => {
 
   return (
     <DatasourceForm form={form} preserve={false}>
-      <FormSection size={props.size}>
+      <FormSection $size={props.size}>
         <DatasourceNameFormInputItem
           placeholder={"My RestAPI1"}
           initialValue={datasource?.name}
@@ -135,7 +135,7 @@ export const HttpDatasourceForm = (props: DatasourceFormProps) => {
         />
       </FormSection>
 
-      <FormSection size={props.size}>
+      <FormSection $size={props.size}>
         <GeneralSettingFormSectionLabel />
         <FormInputItem
           name={"url"}
@@ -166,7 +166,7 @@ export const HttpDatasourceForm = (props: DatasourceFormProps) => {
         />
       </FormSection>
 
-      <FormSection size={props.size}>
+      <FormSection $size={props.size}>
         <FormSectionLabel>{trans("query.authentication")}</FormSectionLabel>
         <FormSelectItem
           name={"authConfigType"}
@@ -180,7 +180,7 @@ export const HttpDatasourceForm = (props: DatasourceFormProps) => {
         {showAuthItem(authType)}
       </FormSection>
 
-      <FormSection size={props.size}>
+      <FormSection $size={props.size}>
         <AdvancedSettingFormSectionLabel />
         <CertValidationFormItem datasource={props.datasource} />
         <ForwardCookiesFormItem datasource={props.datasource} />

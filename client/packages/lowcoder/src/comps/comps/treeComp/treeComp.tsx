@@ -2,7 +2,7 @@ import { RecordConstructorToView } from "lowcoder-core";
 import { UICompBuilder } from "comps/generators/uiCompBuilder";
 import { withExposingConfigs } from "comps/generators/withExposing";
 import { Section, sectionNames } from "lowcoder-design";
-import { Tree } from "antd";
+import { default as Tree } from "antd/es/tree";
 import { useEffect, useState } from "react";
 import styled from "styled-components";
 import ReactResizeDetector from "react-resize-detector";

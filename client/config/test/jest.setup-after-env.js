@@ -22,9 +22,25 @@ window.ResizeObserver = function () {
   };
 };
 
-window.ImageData = {}
-window.MediaStreamTrack = {}
-window.URL.createObjectURL = () => {}
+Object.defineProperty(window, 'ImageData', { value: 'yourValue' });
+Object.defineProperty(window, 'MediaStreamTrack', { value: 'yourValue' });
+Object.defineProperty(window, 'URL', {
+  writable: true,
+  value: {
+    createObjectURL: jest.fn(),
+  }
+});
+Object.defineProperty(window, "navigator", {
+  writable: true,
+  value: {
+    mediaDevices: {
+      enumerateDevices: jest.fn(),
+    },
+    userAgent: '',
+    language: '',
+    browserLanguage: '',
+  },
+});
 
 class Worker {
   constructor(stringUrl) {
@@ -36,4 +52,5 @@ class Worker {
     this.onmessage(msg);
   }
 }
+
 window.Worker = Worker;

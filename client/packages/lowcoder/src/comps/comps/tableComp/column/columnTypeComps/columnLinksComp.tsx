@@ -1,5 +1,6 @@
 import { EllipsisOutlined } from "@ant-design/icons";
-import { Dropdown, Menu } from "antd";
+import { default as Dropdown} from "antd/es/dropdown";
+import { default as Menu } from "antd/es/menu";
 import { ColumnTypeCompBuilder } from "comps/comps/tableComp/column/columnTypeCompBuilder";
 import { ActionSelectorControlInContext } from "comps/controls/actionSelector/actionSelectorControl";
 import { BoolCodeControl, StringControl } from "comps/controls/codeControl";
@@ -27,7 +28,7 @@ const MenuLinkWrapper = styled.div`
   > a {
     color: ${PrimaryColor} !important;
 
-    :hover {
+    &:hover {
       color: ${LightActiveTextColor} !important;
     }
   }

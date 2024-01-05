@@ -1,4 +1,4 @@
-import { Modal as AntdModal, ModalProps as AntdModalProps } from "antd";
+import { default as AntdModal, ModalProps as AntdModalProps } from "antd/es/modal";
 import { useEffect, useState } from "react";
 import { Resizable, ResizeHandle } from "react-resizable";
 import { useResizeDetector } from "react-resize-detector";

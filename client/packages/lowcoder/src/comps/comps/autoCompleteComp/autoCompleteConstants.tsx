@@ -1,7 +1,7 @@
 import { trans } from "i18n";
 import { check } from "util/convertUtils";
 import { refMethods } from "comps/generators/withMethodExposing";
-import { InputRef } from "antd";
+import { InputRef } from "antd/es/input";
 
 
 import {

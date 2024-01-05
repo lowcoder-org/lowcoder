@@ -31,25 +31,25 @@ const RowText = styled.span`
   margin-left: 4px;
   max-width: calc(100% - 56px);
 
-  :hover {
+  &:hover {
     cursor: pointer;
   }
 `;
 
-const OptionRow = styled.div<{ selected?: boolean }>`
+const OptionRow = styled.div<{ $selected?: boolean }>`
   color: #ffffff;
   width: 100%;
   height: 32px;
   border-bottom: 1px solid #d7d9e0;
   display: flex;
 
-  :hover {
+  &:hover {
     background-color: #fafafa;
     cursor: pointer;
   }
 
   ${(props) => {
-    if (props.selected) {
+    if (props.$selected) {
       return css`
         background-color: #fafafa;
 
@@ -59,7 +59,7 @@ const OptionRow = styled.div<{ selected?: boolean }>`
       `;
     }
   }}
-  :last-child {
+  &:last-child {
     border-bottom: none;
     height: 31px;
   }
@@ -76,7 +76,7 @@ const IconCss = css`
   height: 16px;
   width: 16px;
 
-  :hover {
+  &:hover {
     cursor: pointer;
   }
 `;
@@ -109,12 +109,12 @@ const StyledDragIcon = styled(DragIcon)`
   margin-left: 8px;
   color: #8b8fa3;
 
-  :hover {
+  &:hover {
     cursor: grab;
     outline: none;
   }
 
-  :focus {
+  &:focus {
     cursor: grab;
     outline: none;
   }
@@ -165,7 +165,7 @@ const OptionItem = (props: {
     transition,
   };
   const optionRow = (
-    <OptionRow ref={setNodeRef} style={style} selected={visible}>
+    <OptionRow ref={setNodeRef} style={style} $selected={visible}>
       {draggable && <StyledDragIcon {...attributes} {...listeners} />}
       <RowText>{title}</RowText>
       <OptionItemExtraWrapper>{optionExtra}</OptionItemExtraWrapper>

@@ -1,8 +1,8 @@
-import { Layout, SiderProps } from "antd";
+import { default as LayoutSider, SiderProps } from "antd/es/layout/Sider";
 import { TopHeaderHeight } from "constants/style";
 import styled from "styled-components";
 
-const Sider = styled(Layout.Sider)`
+const Sider = styled(LayoutSider)`
   height: calc(100vh - ${TopHeaderHeight});
   background: #f9f9fa;
   padding: 0 24px 0 24px;
