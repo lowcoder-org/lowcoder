@@ -17,8 +17,8 @@
     }
   },
   "devDependencies": {
+    "lowcoder-cli": "workspace:^",
     "lowcoder-sdk": "workspace:^",
-    "raheel-lc-cli": "workspace:^",
     "typescript": "^4.8.4",
     "vite": "^4.3.9"
   },
