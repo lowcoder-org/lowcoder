@@ -5,7 +5,7 @@ name: Publish Lowcoder Comps
 
 on:
   push:
-    branches: [ "publish-comps-workflow" ]
+    branches: [ "dev" ]
 
 jobs:
   publish-package:
@@ -46,4 +46,4 @@ jobs:
           cmd: build_publish
           dir: client/packages/lowcoder-comps
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.LOWCODERNPMBOT }}
