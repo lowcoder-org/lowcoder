@@ -1,6 +1,6 @@
 {
-  "name": "raheel-test-comps",
-  "version": "0.0.26",
+  "name": "lowcoder-comps",
+  "version": "0.0.23",
   "type": "module",
   "license": "MIT",
   "dependencies": {
