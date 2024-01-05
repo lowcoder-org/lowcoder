@@ -38,6 +38,13 @@ jobs:
         with:
           cmd: install
           dir: client/packages/lowcoder-sdk
+      
+      - name: Build Package
+        if: steps.check.outputs.changed == 'true'
+        uses: borales/actions-yarn@v4.2.0
+        with:
+          cmd: build
+          dir: client/packages/lowcoder-sdk
 
       - name: Publish package to NPM
         if: steps.check.outputs.changed == 'true'
