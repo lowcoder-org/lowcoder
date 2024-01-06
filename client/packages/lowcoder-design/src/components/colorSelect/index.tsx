@@ -45,7 +45,7 @@ export const ColorSelect = (props: ColorSelectProps) => {
           <div style={{ position: "relative" }}>
             <RgbaStringColorPicker color={pickerColor.current} onChange={throttleChange} />
             <AlphaDiv color={color?.substring(0, 7)}>
-              <BackDiv $color={alphaOfRgba(toRGBA(color))}></BackDiv>
+              <BackDiv color={alphaOfRgba(toRGBA(color))}></BackDiv>
             </AlphaDiv>
           </div>
           <ConstantDiv>
@@ -66,7 +66,7 @@ export const ColorSelect = (props: ColorSelectProps) => {
       }
     >
       <ColorBlock $color={color?.substring(0, 7)}>
-        <BackDiv $color={alphaOfRgba(toRGBA(color))}></BackDiv>
+        <BackDiv color={alphaOfRgba(toRGBA(color))}></BackDiv>
       </ColorBlock>
     </Popover>
   );
