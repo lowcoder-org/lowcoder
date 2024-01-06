@@ -96,4 +96,4 @@ You can access Lowcoder from [cloud-hosted version](https://app.lowcoder.cloud/)
 Accelerate the growth of Lowcoder and unleash its potential with your Sponsorship – together, we're shaping the future of Lowcode for everyone!
 [Be a Sponsor](https://github.com/sponsors/lowcoder-org)
 
-Like ... @CHSchuepfer. Thank you very much!
+Like ... @CHSchuepfer & @spacegoats-io. Thank you very much!!
