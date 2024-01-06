@@ -1,6 +1,6 @@
 {
   "name": "lowcoder-cli-template-typescript",
-  "version": "0.0.15",
+  "version": "0.0.16",
   "type": "module",
   "scripts": {
     "start": "vite",
