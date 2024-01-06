@@ -33,6 +33,7 @@ import React, { useMemo, useState } from "react";
 import { GreyTextColor } from "constants/style";
 import { alignOptions } from "comps/controls/dropdownControl";
 import { ColumnTypeCompMap } from "comps/comps/tableComp/column/columnTypeComp";
+import { changeChildAction } from "lowcoder-core";
 
 const InsertDiv = styled.div`
   display: flex;
@@ -265,13 +266,14 @@ function ColumnPropertyView<T extends MultiBaseComp<TableChildrenType>>(props: {
     <InsertDiv>
       <div style={{ display: "flex", alignItems: "center", marginRight: "auto" }}>
         <TextLabel label={props.columnLabel} />
-        <Graylabel>{"(" + columns.length + ")"}</Graylabel>
+        <Graylabel>{" (" + columns.length + ")"}</Graylabel>
       </div>
       {rowExample && (
         <ToolTipLabel title={trans("table.refreshButtonTooltip")}>
           <StyledRefreshIcon
             onClick={() => {
-              const actions = [
+              console.log("comp", comp);
+              comp.dispatch(
                 wrapChildAction(
                   "columns",
                   comp.children.columns.dataChangedAction({
@@ -280,10 +282,10 @@ function ColumnPropertyView<T extends MultiBaseComp<TableChildrenType>>(props: {
                     dynamicColumn: dynamicColumn,
                     data: data,
                   })
-                ),
-                comp.changeChildAction("dataRowExample", null),
-              ];
-              actions.forEach((action) => comp.dispatch(deferAction(action)));
+                )
+              );
+              // the function below is not working
+              // comp.dispatch(comp.changeChildAction("dataRowExample", null));
             }}
           />
         </ToolTipLabel>
