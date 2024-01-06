@@ -18,13 +18,17 @@
     }
   },
   "devDependencies": {
+    "@observablehq/runtime": "^4.8.2",
+    "@types/react": "^18.2.45",
+    "@types/react-dom": "^18.2.18",
     "lowcoder-cli": "^0.0.30",
     "lowcoder-sdk": "^2.1.10",
+    "prop-types": "^15.7.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-resize-detector": "^7.0.0",
     "typescript": "5.3.3",
-    "vite": "^4.3.9"
+    "vite": "^5.0.10"
   },
   "keywords": [
     "Lowcoder, Component, Template, Plugin, Demonstrator"
