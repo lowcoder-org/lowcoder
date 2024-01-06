@@ -101,7 +101,7 @@ export default async function buildAction(options) {
   });
 
   // copy readme file
-  const readmePath = findReadmeFileName(paths.appPath);
+  const readmePath = findReadmeFileName(paths.appPath + '/src');
   if (readmePath) {
     const destinationPath = resolve(paths.appOutPath, 'readme.md');
     copySync(readmePath, destinationPath);
