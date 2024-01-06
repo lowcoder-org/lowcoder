@@ -130,7 +130,7 @@ const ChatsCompBase = (
         "@": _.union(
           _.concat(
             mentionList["@"],
-            _.map(commentListData, (item, index) => {
+            _.map(commentListData, (item, _index) => {
               return item?.user?.name;
             })
           )
@@ -182,8 +182,8 @@ const ChatsCompBase = (
         {item?.user?.displayName
           ? item?.user?.displayName
           : /^([\u4e00-\u9fa5]{2,4})$/gi.test(item?.user?.name)
-          ? item?.user?.name.slice(-2)
-          : item?.user?.name[0]}
+            ? item?.user?.name.slice(-2)
+            : item?.user?.name[0]}
       </Avatar>
     );
   };
@@ -207,14 +207,7 @@ const ChatsCompBase = (
       displayname: userInfo.name,
     };
     let roomData = JSON.parse(props.roomData.value);
-    await matrixClient.sendEvent(
-      roomData.roomId,
-      "m.room.message",
-      content,
-      (err: any, res: any) => {
-        console.log("err", err);
-      }
-    );
+    await matrixClient.sendMessage(roomData.roomId, content);
     setContext("");
     props.onEvent("submit");
   };
