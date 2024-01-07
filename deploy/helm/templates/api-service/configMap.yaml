@@ -17,13 +17,19 @@ data:
   {{- else }}
   REDIS_URL: {{ .Values.redis.externalUrl | quote }}
   {{- end }}
-  {{- if .Values.apiService.nodeServiceUrl }}
-  LOWCODER_NODE_SERVICE_URL: {{ .Values.apiService.nodeServiceUrl | quote }}
+  {{- if .Values.global.config.nodeServiceUrl }}
+  LOWCODER_NODE_SERVICE_URL: {{ .Values.global.config.nodeServiceUrl | quote }}
   {{- else }}
   LOWCODER_NODE_SERVICE_URL: "http://{{ $name }}-node-service:{{ .Values.nodeService.service.port }}"
   {{- end }}
-  PUID: {{ .Values.apiService.config.userId | default "9001" | quote }}
-  PGID: {{ .Values.apiService.config.groupId | default "9001" | quote }}
-  CORS_ALLOWED_DOMAINS: {{ .Values.apiService.config.corsAllowedDomains | default  "*" | quote }}
-  ENABLE_USER_SIGN_UP: {{ .Values.apiService.config.enableUserSignUp | default "true" | quote }}
+  PUID: {{ .Values.global.config.userId | default "9001" | quote }}
+  PGID: {{ .Values.global.config.groupId | default "9001" | quote }}
+  CORS_ALLOWED_DOMAINS: {{ .Values.global.config.corsAllowedDomains | default  "*" | quote }}
+  ENABLE_USER_SIGN_UP: {{ .Values.global.config.enableUserSignUp | default "true" | quote }}
+  LOWCODER_MAX_QUERY_TIMEOUT: {{ .Values.global.config.maxQueryTimeout | default "120" | quote }}
+  DEFAULT_ORGS_PER_USER: {{ .Values.global.defaults.maxOrgsPerUser | default "100" | quote }}
+  DEFAULT_ORG_MEMBER_COUNT: {{ .Values.global.defaults.maxMembersPerOrg | default "1000" | quote }}
+  DEFAULT_ORG_GROUP_COUNT: {{ .Values.global.defaults.maxGroupsPerOrg | default "100" | quote }}
+  DEFAULT_ORG_APP_COUNT: {{ .Values.global.defaults.maxAppsPerOrg | default "1000" | quote }}
+  DEFAULT_DEVELOPER_COUNT: {{ .Values.global.defaults.maxDevelopers | default "50" | quote }}
 
