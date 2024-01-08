@@ -32,7 +32,7 @@ const AuthCard = styled.div`
   }
 `;
 
-const AuthCardHeading = styled.div<{ type?: string }>`
+const AuthCardHeading = styled.div<{ $type?: string }>`
   font-weight: 600;
   font-size: 28px;
   color: #222222;
@@ -47,7 +47,7 @@ const AuthCardHeading = styled.div<{ type?: string }>`
   @media screen and (max-width: 640px) {
     font-size: 23px;
     line-height: 23px;
-    ${(props) => props.type === "large" && "margin-top: 32px"}
+    ${(props) => props.$type === "large" && "margin-top: 32px"}
   }
 `;
 
@@ -70,8 +70,8 @@ const AuthBottom = styled.div`
 
   > button:first-child {
     // over 5 children, hide the button label
-    :nth-last-child(n + 5),
-    :nth-last-child(n + 5) ~ button {
+    &:nth-last-child(n + 5),
+    &:nth-last-child(n + 5) ~ button {
       margin-right: 16px;
 
       .auth-label {
@@ -131,7 +131,7 @@ export const AuthContainer = (props: {
   return (
     <AuthCardContainer>
       <AuthCardHeading
-        type={props.type}
+        $type={props.type}
       >
         {props.heading || ""}
       </AuthCardHeading>
@@ -267,7 +267,7 @@ export const StyledRouteLink = styled(Link)`
   line-height: 16px;
   margin-left: auto;
 
-  :hover {
+  &:hover {
     color: #315efb;
   }
 `;

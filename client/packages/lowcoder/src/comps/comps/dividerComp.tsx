@@ -1,4 +1,4 @@
-import { Divider, DividerProps } from "antd";
+import { default as Divider, DividerProps } from "antd/es/divider";
 import { StringControl } from "comps/controls/codeControl";
 import { BoolControl } from "comps/controls/boolControl";
 import { alignControl } from "comps/controls/alignControl";

@@ -9,11 +9,11 @@ const HeaderWrapper = styled.header<IHeaderProps>`
   height: ${TopHeaderHeight};
   background-color: #2c2c2c;
   /* filter: drop-shadow(0px 1px 0px #ebebeb); */
-  padding: ${(props) => (props.isEditViewPreview ? "8px 24px 8px 8px" : "8px 24px")};
+  padding: ${(props) => (props.$isEditViewPreview ? "8px 24px 8px 8px" : "8px 24px")};
   justify-content: space-between;
 
   > div:nth-of-type(1) svg {
-    max-width: ${(props) => props.isEditViewPreview && "24px"};
+    max-width: ${(props) => props.$isEditViewPreview && "24px"};
   }
 `;
 
@@ -39,7 +39,7 @@ export interface IHeaderProps {
   headerStart?: ReactNode;
   headerMiddle?: ReactNode;
   headerEnd?: ReactNode;
-  isEditViewPreview?: boolean;
+  $isEditViewPreview?: boolean;
 }
 
 export default function Header(props: IHeaderProps) {
@@ -49,7 +49,7 @@ export default function Header(props: IHeaderProps) {
   return (
     <HeaderWrapper
       className={CNSiteHeader}
-      isEditViewPreview={isEditViewPreview}
+      $isEditViewPreview={isEditViewPreview}
       style={props.style}
     >
       <HeaderStart>{headerStart}</HeaderStart>

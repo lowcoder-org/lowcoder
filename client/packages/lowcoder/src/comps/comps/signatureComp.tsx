@@ -1,5 +1,5 @@
 import { DeleteOutlined } from "@ant-design/icons";
-import { Skeleton } from "antd";
+import { default as Skeleton } from "antd/es/skeleton";
 import { BoolControl } from "comps/controls/boolControl";
 import { StringControl } from "comps/controls/codeControl";
 import { ChangeEventHandlerControl } from "comps/controls/eventHandlerControl";
@@ -28,7 +28,7 @@ import { formDataChildren, FormDataPropertyView } from "./formComp/formDataConst
 import { useContext } from "react";
 import { EditorContext } from "comps/editorState";
 
-const Wrapper = styled.div<{ $style: SignatureStyleType; isEmpty: boolean }>`
+const Wrapper = styled.div<{ $style: SignatureStyleType; $isEmpty: boolean }>`
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -48,7 +48,7 @@ const Wrapper = styled.div<{ $style: SignatureStyleType; isEmpty: boolean }>`
   padding: ${(props) => props.$style.padding};
   .signature {
     background-color: ${(props) => props.$style.background};
-    opacity: ${(props) => (props.isEmpty ? 0 : 1)};
+    opacity: ${(props) => (props.$isEmpty ? 0 : 1)};
     width: 100%;
     height: 100%;
   }
@@ -138,7 +138,7 @@ let SignatureTmpComp = (function () {
               e.preventDefault();
             }}
             $style={props.style}
-            isEmpty={!props.value && !isBegin}
+            $isEmpty={!props.value && !isBegin}
           >
             <div className="signature">
               <Suspense fallback={<Skeleton />}>

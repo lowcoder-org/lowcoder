@@ -1,4 +1,4 @@
-import { Progress } from "antd";
+import { default as Progress } from "antd/es/progress";
 import { Section, sectionNames } from "lowcoder-design";
 import { numberExposingStateControl } from "../controls/codeStateControl";
 import { BoolControl } from "../controls/boolControl";

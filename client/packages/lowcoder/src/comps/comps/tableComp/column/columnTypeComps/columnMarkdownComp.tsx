@@ -1,4 +1,4 @@
-import { Input } from "antd";
+import { default as Input } from "antd/es/input";
 import {
   ColumnTypeCompBuilder,
   ColumnTypeViewFn,

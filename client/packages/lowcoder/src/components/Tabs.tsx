@@ -1,4 +1,4 @@
-import { Tabs as AntdTabs } from "antd";
+import { default as AntdTabs } from "antd/es/tabs";
 import { GreyTextColor, TabActiveColor } from "constants/style";
 import { ReactNode } from "react";
 import styled from "styled-components";

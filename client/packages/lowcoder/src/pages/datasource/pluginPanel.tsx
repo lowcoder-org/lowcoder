@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { Button as AntdButton } from "antd";
+import { default as AntdButton } from "antd/es/button";
 import { useSelector } from "react-redux";
 import { getDataSourceTypes } from "../../redux/selectors/datasourceSelectors";
 import { getBottomResIcon } from "@lowcoder-ee/util/bottomResUtils";

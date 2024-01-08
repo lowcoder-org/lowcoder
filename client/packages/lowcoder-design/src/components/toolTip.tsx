@@ -1,5 +1,5 @@
-import { Button, Tooltip as AntdTooltip } from "antd";
-import { TooltipProps } from "antd/lib/tooltip";
+import { default as Button } from "antd/es/button";
+import { default as AntdTooltip, TooltipProps } from "antd/es/tooltip";
 import { CSSProperties, ReactNode } from "react";
 import styled, { css } from "styled-components";
 import { labelCss } from "components/Label";
@@ -71,13 +71,13 @@ const PreButton = styled(Button)`
   ${buttonCss};
 
   &,
-  :focus {
+  &:focus {
     background-color: #6179f2;
     border-color: #6179f2;
     color: #ffffff;
   }
 
-  :hover {
+  &:hover {
     background-color: #798df2;
     border-color: #798df2;
     color: #ffffff;
@@ -88,13 +88,13 @@ const NextButton = styled(Button)`
   ${buttonCss};
 
   &,
-  :focus {
+  &:focus {
     color: #4965f2;
     border-color: #ffffff;
     background-color: #ffffff;
   }
 
-  :hover {
+  &:hover {
     color: #4965f2;
     border-color: #e6eaff;
     background-color: #e6eaff;
@@ -129,8 +129,8 @@ export const TooltipCodeBlock = (props: { text: string }) => {
 
 export const TooltipLink = styled.a`
   &,
-  :hover,
-  :focus {
+  &:hover,
+  &:focus {
     color: #ffffff;
     text-decoration: underline;
   }
@@ -158,10 +158,10 @@ function Tooltip(props: TooltipProps) {
   return <AntdTooltip color="#2c2c2c2" overlayInnerStyle={overlayInnerCss} {...props} />;
 }
 
-const Label = styled.div<{ border?: boolean }>`
+const Label = styled.div<{ $border?: boolean }>`
   span {
-    ${(props) => props.border && UnderlineCss}
-    line-height: ${(props) => props.border && "18px"};
+    ${(props) => props.$border && UnderlineCss}
+    line-height: ${(props) => props.$border ? "18px" : undefined};
   }
   ${labelCss};
   margin: 0;
@@ -180,7 +180,7 @@ function ToolTipLabel(
   return (
     <AntdTooltip
       color="#2c2c2c"
-      title={title && <TooltipTitleWrapper>{title}</TooltipTitleWrapper>}
+      title={title && <TooltipTitleWrapper><>{title}</></TooltipTitleWrapper>}
       overlayInnerStyle={{ maxWidth: "232px", whiteSpace: "break-spaces" }}
       arrow={{
         pointAtCenter: true
@@ -192,7 +192,7 @@ function ToolTipLabel(
       {...restProps}
     >
       {label ? (
-        <Label style={labelStyle} border={!!title} className="tooltipLabel">
+        <Label style={labelStyle} $border={!!title} className="tooltipLabel">
           <span>{label}</span>
         </Label>
       ) : (

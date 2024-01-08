@@ -6,9 +6,9 @@ import { EditorContext } from "../../comps/editorState";
 import { Layers } from "constants/Layers";
 import { HeaderWrapper, useResultPanel } from "./index";
 
-const Wrapper = styled.div<{ bottom?: number }>`
+const Wrapper = styled.div<{ $bottom?: number }>`
   right: calc(313px + 4px); // FIXME: don't rely on the width of the right panel
-  bottom: ${(props) => (props.bottom ? props.bottom + 4 + "px" : 285 + 4 + "px")};
+  bottom: ${(props) => (props.$bottom ? props.$bottom + 4 + "px" : 285 + 4 + "px")};
   position: fixed;
   z-index: ${Layers.queryResultPanel};
 
@@ -72,7 +72,7 @@ export const BottomResultPanel = (props: BottomResultPanelProps) => {
         });
       }}
     >
-      <Wrapper bottom={bottom} ref={draggableRef}>
+      <Wrapper $bottom={bottom} ref={draggableRef}>
         <HeaderWrapper
           onMouseOver={() => setUnDraggable(false)}
           onMouseOut={() => setUnDraggable(true)}

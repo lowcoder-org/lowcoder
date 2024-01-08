@@ -68,7 +68,7 @@ StreamTmpQuery = withMethodExposing(StreamTmpQuery, [
     },
     execute: (comp, params) => {
       return new Promise((resolve, reject) => {
-        const tmpComp = (comp as StreamQuery);
+        const tmpComp = (comp as unknown as StreamQuery);
         if(!tmpComp.getSocket()) {
           return reject('Socket message send failed')
         }

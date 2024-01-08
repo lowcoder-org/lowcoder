@@ -102,6 +102,7 @@ export interface HttpConfig {
 
   authConfig: {
     type: AuthType;
+    authId?: string;
   } & (
     | {
         username: string; // basic auth

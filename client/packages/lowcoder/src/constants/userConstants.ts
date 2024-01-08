@@ -11,6 +11,7 @@ export const UserConnectionSource = {
 };
 
 export type UserConnection = {
+  authId: any;
   source: string;
   name: string;
   rawUserInfo?: JSONObject;

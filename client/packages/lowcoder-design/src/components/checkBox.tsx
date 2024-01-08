@@ -1,4 +1,4 @@
-import { Checkbox as AntdCheckBox } from "antd";
+import { default as AntdCheckBox } from "antd/es/checkbox";
 import styled from "styled-components";
 
 const CheckBox = styled(AntdCheckBox)`

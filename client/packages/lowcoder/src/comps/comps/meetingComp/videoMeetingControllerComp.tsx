@@ -1,5 +1,5 @@
 import { CloseOutlined } from "@ant-design/icons";
-import { Button } from "antd";
+import { default as Button } from "antd/es/button";
 import { ContainerCompBuilder } from "comps/comps/containerBase/containerCompBuilder";
 import {
   gridItemCompToGridItems,
@@ -221,7 +221,7 @@ const rtmInit = async (appId: any, uid: any, token: any, channel: any) => {
   await rtmChannelResponse.join();
 };
 
-export const meetingControllerChildren = {
+const meetingControllerChildren = {
   visible: withDefault(BooleanStateControl, "false"),
   onEvent: eventHandlerControl(EventOptions),
   width: StringControl,

@@ -28,7 +28,11 @@ export function* fetchCommonSettingsSaga(action: ReduxAction<FetchCommonSettingP
       });
     }
   } catch (error) {
-    messageInstance.error(error instanceof Error ? error.message : error);
+    messageInstance.error(
+      error instanceof Error
+        ? (error.message) as string
+        : error as string
+    );
     log.debug("fetch event type error: ", error);
   }
 }
@@ -50,7 +54,11 @@ export function* setCommonSettingsSaga(action: ReduxAction<SetCommonSettingPaylo
       });
     }
   } catch (error) {
-    messageInstance.error(error instanceof Error ? error.message : error);
+    messageInstance.error(
+      error instanceof Error
+        ? (error.message) as string
+        : error as string
+    );
     log.debug("fetch event type error: ", error);
   }
 }

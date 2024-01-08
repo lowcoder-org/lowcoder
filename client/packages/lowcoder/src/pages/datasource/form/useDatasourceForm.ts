@@ -1,4 +1,4 @@
-import { Form } from "antd";
+import { default as Form } from "antd/es/form";
 import { DatasourceApi } from "../../../api/datasourceApi";
 import _ from "lodash";
 import { useState } from "react";
@@ -50,6 +50,7 @@ export function useDatasourceForm() {
             ...config,
             authConfig: {
               type: form.getFieldsValue()["authConfigType"],
+              authId: form.getFieldsValue()["authId"],
               username: form.getFieldsValue()["username"],
               password: form.getFieldsValue()["password"],
             },
@@ -62,6 +63,10 @@ export function useDatasourceForm() {
         case "graphql":
           config = {
             ...config,
+            authConfig: {
+              type: form.getFieldsValue()["authConfigType"],
+              authId: form.getFieldsValue()["authId"],
+            },
             sslConfig: {
               sslCertVerificationType: form.getFieldValue("sslCertVerificationType"),
               selfSignedCert: form.getFieldValue("selfSignedCert"),

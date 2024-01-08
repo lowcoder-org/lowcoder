@@ -1,4 +1,4 @@
-import { Tooltip } from "antd";
+import { default as Tooltip } from "antd/es/tooltip";
 import { getThemeDetailName, isThemeColorKey, ThemeDetail } from "api/commonSettingApi";
 import { ControlItemCompBuilder } from "comps/generators/controlCompBuilder";
 import { childrenToProps, ToConstructor } from "comps/generators/multi";

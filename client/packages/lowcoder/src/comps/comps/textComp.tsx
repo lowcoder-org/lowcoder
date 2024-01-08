@@ -66,13 +66,13 @@ const getStyle = (style: TextStyleType) => {
   `;
 };
 
-const TextContainer = styled.div<{ type: string; styleConfig: TextStyleType }>`
+const TextContainer = styled.div<{ $type: string; $styleConfig: TextStyleType }>`
   height: 100%;
   overflow: auto;
   margin: 0;
   ${(props) =>
-    props.type === "text" && "white-space:break-spaces;line-height: 1.9;"};
-  ${(props) => props.styleConfig && getStyle(props.styleConfig)}
+    props.$type === "text" && "white-space:break-spaces;line-height: 1.9;"};
+  ${(props) => props.$styleConfig && getStyle(props.$styleConfig)}
   display: flex;
   font-size: 13px;
   ${markdownCompCss};
@@ -127,8 +127,8 @@ let TextTmpComp = (function () {
     const value = props.text.value;
     return (
       <TextContainer
-        type={props.type}
-        styleConfig={props.style}
+        $type={props.type}
+        $styleConfig={props.style}
         style={{
           justifyContent: props.horizontalAlignment,
           alignItems: props.autoHeight ? "center" : props.verticalAlignment,

@@ -69,8 +69,8 @@ const Wrapper = styled.div`
     }
   }
 `;
-const ColorLump = styled.div<{ inputColor: string }>`
-  background-color: ${(props) => props.inputColor};
+const ColorLump = styled.div<{ $inputColor: string }>`
+  background-color: ${(props) => props.$inputColor};
   border: 1px;
   border-radius: 5px;
   width: 16px;
@@ -172,7 +172,7 @@ function SettingValue(props: { value: React.ReactNode }) {
   if (Regex(content, /#[0-9a-zA-Z]{6,6}/)) {
     content = (
       <>
-        <ColorLump inputColor={String(value)} />
+        <ColorLump $inputColor={String(value)} />
         <div> {String(value)}</div>
       </>
     );

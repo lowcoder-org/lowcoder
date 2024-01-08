@@ -1,4 +1,4 @@
-import { Input as AntdInput, InputRef } from "antd";
+import { default as AntdInput, InputRef } from "antd/es/input";
 import { ReactComponent as MustFillStar } from "icons/icon-must-fill-star.svg";
 import { trans } from "i18n/design";
 import { CSSProperties, Ref, useEffect, useRef, useState } from "react";
@@ -17,15 +17,15 @@ const TacoInput = styled(AntdInput)`
   line-height: 13px;
   height: 32px;
 
-  :hover {
+  &:hover {
     border: 1px solid #8b8fa3;
   }
 
-  :focus {
+  &:focus {
     border: 1px solid #3377ff;
   }
 
-  ::placeholder {
+  &::placeholder {
     font-size: 13px;
     color: #b8b9bf;
     line-height: 13px;
@@ -93,7 +93,7 @@ const OptInputWrapper = styled.div`
   border: 1px solid #d7d9e0;
   border-radius: 8px;
 
-  :hover {
+  &:hover {
     border: 1px solid #8b8fa3;
   }
 
@@ -107,8 +107,8 @@ const OtpInput = styled(TacoInput)`
   border: none;
   box-shadow: none;
 
-  :focus,
-  :hover {
+  &:focus,
+  &:hover {
     border: none;
     box-shadow: none;
   }
@@ -122,12 +122,12 @@ const OtpSplit = styled.span`
   transform: scaleX(0.8);
 `;
 
-const StyledOtpButton = styled.button<{ isTiming: boolean }>`
+const StyledOtpButton = styled.button<{ $isTiming: boolean }>`
   flex-shrink: 0;
   width: 124px;
 
   font-size: 16px;
-  color: ${(props) => (props.isTiming ? "#8B8FA3" : "#4965f2")};
+  color: ${(props) => (props.$isTiming ? "#8B8FA3" : "#4965f2")};
   line-height: 16px;
   border: none;
   cursor: pointer;
@@ -208,11 +208,11 @@ const PhoneNumberInputWrapper = styled.div`
   border-radius: 4px;
   height: 40px;
 
-  :hover {
+  &:hover {
     border: 1px solid #8b8fa3;
   }
 
-  :focus-within {
+  &:focus-within {
     box-shadow: 0 0 0 2px rgb(24 144 255 / 20%);
     border: 1px solid #3377ff;
   }
@@ -227,7 +227,7 @@ const StyledPhoneNumberInput = styled(AntdInput)`
   border: unset;
   border-radius: 4px !important;
 
-  :focus {
+  &:focus {
     box-shadow: unset;
   }
 `;
@@ -513,7 +513,7 @@ const OtpFormInput = (props: {
             setTiming(true);
             onOtpSend();
           }}
-          isTiming={timing}
+          $isTiming={timing}
         >
           {timing ? `${count}s` : trans("verifyCodeInput.sendCode")}
         </StyledOtpButton>

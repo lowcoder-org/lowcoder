@@ -2,7 +2,7 @@ import { RecordConstructorToView } from "lowcoder-core";
 import { UICompBuilder } from "comps/generators/uiCompBuilder";
 import { withExposingConfigs } from "comps/generators/withExposing";
 import { Section, sectionNames } from "lowcoder-design";
-import { Tree } from "antd";
+import { default as Tree } from "antd/es/tree";
 import { useEffect, useState } from "react";
 import styled from "styled-components";
 import ReactResizeDetector from "react-resize-detector";
@@ -122,15 +122,15 @@ const TreeCompView = (props: RecordConstructorToView<typeof childrenMap>) => {
             expandedKeys={expanded.value}
             autoExpandParent={props.autoExpandParent}
             onSelect={(keys) => {
-              value.onChange(keys);
+              value.onChange(keys as (string | number)[]);
               props.onEvent("change");
             }}
             onCheck={(keys) => {
-              value.onChange(Array.isArray(keys) ? keys : keys.checked);
+              value.onChange(Array.isArray(keys) ? keys as (string | number)[] : keys.checked as (string | number)[]);
               props.onEvent("change");
             }}
             onExpand={(keys) => {
-              expanded.onChange(keys);
+              expanded.onChange(keys as (string | number)[]);
             }}
             onFocus={() => props.onEvent("focus")}
             onBlur={() => props.onEvent("blur")}

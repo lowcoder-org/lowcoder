@@ -100,7 +100,7 @@ const PopoverIcon = styled(PointIcon)`
     fill: #8b8fa3;
   }
 
-  :hover {
+  &:hover {
     background: #eef0f3;
     border-radius: 4px;
     cursor: pointer;
@@ -121,20 +121,20 @@ const AddButton = styled(TacoButton)`
   align-items: center;
   box-shadow: none;
 
-  :hover {
+  &:hover {
     color: #315efb;
     background-color: #f5faff;
     border-color: #c2d6ff;
   }
 
-  :focus {
+  &:focus {
     color: #315efb;
     background-color: #f5faff;
     border-color: #c2d6ff;
   }
 
-  :disabled,
-  :disabled:hover {
+  &:disabled,
+  &:disabled:hover {
     background: #f9fbff;
     border: 1px solid #dee9ff;
     border-radius: 4px;

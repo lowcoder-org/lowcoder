@@ -1,4 +1,4 @@
-import { Modal } from "antd";
+import { default as Modal } from "antd/es/modal";
 import { SimpleContainerComp } from "comps/comps/containerBase/simpleContainerComp";
 import {
   ContainerBaseProps,

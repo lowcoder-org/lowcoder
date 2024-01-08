@@ -15,7 +15,7 @@ import { CanvasContainerID } from "constants/domLocators";
 import { EditorContainer, EmptyContent } from "pages/common/styledComponent";
 import { Layers } from "constants/Layers";
 import { ExternalEditorContext } from "util/context/ExternalEditorContext";
-import { Skeleton } from "antd";
+import { default as Skeleton } from "antd/es/skeleton";
 import { hiddenPropertyView } from "comps/utils/propertyUtils";
 
 const TabBar = React.lazy(() => import("antd-mobile/es/components/tab-bar"));
@@ -43,7 +43,7 @@ const TabLayoutViewContainer = styled.div`
   height: calc(100% - ${TabBarHeight}px);
 `;
 
-const TabBarWrapper = styled.div<{ readOnly: boolean }>`
+const TabBarWrapper = styled.div<{ $readOnly: boolean }>`
   max-width: inherit;
   background: white;
   margin: 0 auto;
@@ -51,7 +51,7 @@ const TabBarWrapper = styled.div<{ readOnly: boolean }>`
   bottom: 0;
   left: 0;
   right: 0;
-  width: ${(props) => (props.readOnly ? "100%" : "418px")};
+  width: ${(props) => (props.$readOnly ? "100%" : "418px")};
   z-index: ${Layers.tabBar};
   padding-bottom: env(safe-area-inset-bottom, 0);
 
@@ -75,7 +75,7 @@ type TabBarProps = {
 function TabBarView(props: TabBarProps) {
   return (
     <Suspense fallback={<Skeleton />}>
-      <TabBarWrapper readOnly={props.readOnly}>
+      <TabBarWrapper $readOnly={props.readOnly}>
         <TabBar
           onChange={(key: string) => {
             if (key) {
@@ -201,7 +201,7 @@ MobileTabLayoutTmp = withViewFn(MobileTabLayoutTmp, (comp) => {
   }
 
   return (
-    <CanvasContainer maxWidth={MaxWidth} id={CanvasContainerID}>
+    <CanvasContainer $maxWidth={MaxWidth} id={CanvasContainerID}>
       <EditorContainer>{appView}</EditorContainer>
       {tabBarView}
     </CanvasContainer>

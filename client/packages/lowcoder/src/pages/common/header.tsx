@@ -1,4 +1,6 @@
-import { Dropdown, Skeleton, Radio, RadioChangeEvent } from "antd";
+import { default as Dropdown } from "antd/es/dropdown";
+import { default as Skeleton } from "antd/es/skeleton";
+import { default as Radio, RadioChangeEvent } from "antd/es/radio";
 import LayoutHeader from "components/layout/Header";
 import { SHARE_TITLE } from "constants/apiConstants";
 import { AppTypeEnum } from "constants/applicationConstants";
@@ -54,7 +56,7 @@ const LogoIcon = styled(Logo)`
   max-width: 24px;
 `;
 
-const IconCss = css<{ $show: boolean }>`
+const IconCss = css<{ $show?: boolean }>`
   &:hover {
     background-color: #8b8fa34c;
   }
@@ -133,8 +135,8 @@ const RecoverSnapshotBtn = styled(TacoButton)`
   padding: 4px 7px;
   height: 28px;
 
-  :disabled,
-  :disabled:hover {
+  &:disabled,
+  &:disabled:hover {
     background: #4965f2;
     border: 1px solid #4965f2;
     color: #ffffff;

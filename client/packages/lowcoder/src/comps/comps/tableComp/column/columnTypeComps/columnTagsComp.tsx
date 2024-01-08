@@ -1,4 +1,4 @@
-import { Tag } from "antd";
+import { default as Tag } from "antd/es/tag";
 import { PresetStatusColorTypes } from "antd/lib/_util/colors";
 import { TagsContext } from "components/table/EditableCell";
 import {
