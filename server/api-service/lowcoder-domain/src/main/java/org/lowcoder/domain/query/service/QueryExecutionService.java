@@ -10,6 +10,8 @@ import org.lowcoder.domain.query.util.QueryTimeoutUtils;
 import org.lowcoder.sdk.config.CommonConfig;
 import org.lowcoder.sdk.exception.BizException;
 import org.lowcoder.sdk.exception.PluginException;
+import org.lowcoder.sdk.models.JsDatasourceConnectionConfig;
+import org.lowcoder.sdk.models.Property;
 import org.lowcoder.sdk.models.QueryExecutionResult;
 import org.lowcoder.sdk.query.QueryExecutionContext;
 import org.lowcoder.sdk.query.QueryVisitorContext;
@@ -18,6 +20,7 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
 import java.time.Duration;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeoutException;
@@ -94,6 +97,28 @@ public class QueryExecutionService {
                 .collect(Collectors.toList());
         context.addAll(cookies);
 
-        return datasourcePluginClient.executeQuery(datasource.getType(), queryConfig, context, datasource.getDetailConfig());
+        // forward oauth2 access token in case of oauth2(inherit from login)
+
+        if(datasource.getDetailConfig() instanceof JsDatasourceConnectionConfig jsDatasourceConnectionConfig
+                && jsDatasourceConnectionConfig.isOauth2InheritFromLogin()) {
+            return Mono.defer(() -> injectOauth2Token(queryVisitorContext, context))
+                    .then(Mono.defer(() -> datasourcePluginClient.executeQuery(datasource.getType(), queryConfig, context, datasource.getDetailConfig())));
+        } else {
+            return datasourcePluginClient.executeQuery(datasource.getType(), queryConfig, context, datasource.getDetailConfig());
+        }
+
+
+    }
+
+    private Mono<Void> injectOauth2Token(QueryVisitorContext queryVisitorContext, List<Map<String, Object>> context) {
+        return queryVisitorContext.getAuthTokenMono()
+                .doOnNext(properties -> {
+                    HashMap<String, Object> hashMap = new HashMap<>();
+                    for (Property property : properties) {
+                        hashMap.put(property.getKey(), property.getValue());
+                    }
+                    context.add(hashMap);
+                })
+                .then();
     }
 }
