@@ -32,4 +32,4 @@ data:
   DEFAULT_ORG_GROUP_COUNT: {{ .Values.global.defaults.maxGroupsPerOrg | default "100" | quote }}
   DEFAULT_ORG_APP_COUNT: {{ .Values.global.defaults.maxAppsPerOrg | default "1000" | quote }}
   DEFAULT_DEVELOPER_COUNT: {{ .Values.global.defaults.maxDevelopers | default "50" | quote }}
-
+  COMMON_WORKSPACE_MODE: {{ .Values.global.config.workspaceMode | default "SAAS" | quote }}

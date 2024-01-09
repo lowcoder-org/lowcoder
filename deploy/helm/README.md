@@ -42,6 +42,7 @@ $ helm delete -n lowcoder my-lowcoder
 
 | Name                                    | Description                                                                       | Value          |
 | --------------------------------------- | --------------------------------------------------------------------------------- | -------------- |
+| `global.config.workspaceMode`           | Sets the workspace mode. Possible types are: SAAS, ENTERPRISE                     | `SAAS`         |
 | `global.config.userId`                  | User ID of user running Lowcoder server application in container                  | `9001`         |
 | `global.config.groupId`                 | Group ID of user running Lowcoder server application in container                 | `9001`         |
 | `global.config.corsAllowedDomains`      | CORS allowed domains                                                              | `*`            |
