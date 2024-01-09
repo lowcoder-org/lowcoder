@@ -23,17 +23,8 @@ export interface UICompLayoutInfo {
 }
 
 export const uiCompCategoryNames = {
-  common: trans("uiCompCategory.common"),
   meeting: trans("meeting.meeting"),
   chat: trans("chat.chat"),
-  dataInputText: trans("uiCompCategory.dataInputText"),
-  dataInputNumber: trans("uiCompCategory.dataInputNumber"),
-  dataInputSelect: trans("uiCompCategory.dataInputSelect"),
-  dataInputDate: trans("uiCompCategory.dataInputDate"),
-  button: trans("uiCompCategory.button"),
-  dataDisplay: trans("uiCompCategory.dataDisplay"),
-  container: trans("uiCompCategory.container"),
-  other: trans("uiCompCategory.other"),
   dashboards: trans("uiCompCategory.dashboards"),
   layout: trans("uiCompCategory.layout"),
   forms: trans("uiCompCategory.forms"),

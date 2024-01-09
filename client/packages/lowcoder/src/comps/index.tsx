@@ -67,6 +67,8 @@ import { VideoMeetingStreamComp } from "./comps/meetingComp/videoMeetingStreamCo
 import { ControlButton } from "./comps/meetingComp/controlButton";
 import { VideoMeetingControllerComp } from "./comps/meetingComp/videoMeetingControllerComp";
 import { VideoSharingStreamComp } from "./comps/meetingComp/videoSharingStreamComp";
+import { ChatControllerComp } from "./comps/chatroom/chatControllerComp";
+import { ChatsComp } from "./comps/chatroom/chatsComp";
 
 import {
   AudioCompIcon,
@@ -133,8 +135,6 @@ import {
   ResponsiveLayoutCompIcon,
   MermaidIcon,
 } from "lowcoder-design";
-import { ChatControllerComp } from "./comps/chatroom/chatControllerComp";
-import { ChatsComp } from "./comps/chatroom/chatsComp";
 
 type Registry = {
   [key in UICompType]?: UICompManifest;
@@ -265,37 +265,6 @@ var uiCompMap: Registry = {
     },
     defaultDataFn: defaultContainerData,
   },
-  videocomponent: {
-    name: trans("meeting.videoCompName"),
-    enName: "Video",
-    description: trans("meeting.videoCompName"),
-    categories: ["meeting"],
-    icon: VideoCompIcon,
-    keywords: trans("meeting.meetingCompKeywords"),
-    comp: VideoMeetingStreamComp,
-    withoutLoading: true,
-  },
-  chatscomponent: {
-    name: trans("chat.chatCommentsCompName"),
-    enName: "Chat",
-    description: trans("chat.chatCommentsCompName"),
-    categories: ["chat"],
-    icon: CommentIcon,
-    keywords: trans("chat.chatCommentsCompKeywords"),
-    comp: ChatsComp,
-    withoutLoading: true,
-  },
-  controlButton: {
-    name: trans("meeting.meetingControlCompName"),
-    enName: "Controls",
-    description: trans("meeting.meetingCompDesc"),
-    categories: ["meeting"],
-    icon: ButtonCompIcon,
-    keywords: trans("meeting.meetingCompKeywords"),
-    comp: ControlButton,
-    withoutLoading: true,
-  },
-  //END
   tabbedContainer: {
     name: trans("uiComp.tabbedContainerCompName"),
     enName: "Tabbed Container",
@@ -448,6 +417,46 @@ var uiCompMap: Registry = {
     },
   },
 
+  // Collaboration
+
+  sharingcomponent: {
+    name: trans("meeting.sharingCompName"),
+    enName: "Sharing",
+    description: trans("meeting.sharingCompName"),
+    categories: ["collaboration"],
+    icon: VideoCompIcon,
+    keywords: trans("meeting.meetingCompKeywords"),
+    comp: VideoSharingStreamComp,
+    withoutLoading: true,
+    layoutInfo: {
+      w: 12, 
+      h: 50,
+    }
+  },
+  videocomponent: {
+    name: trans("meeting.videoCompName"),
+    enName: "Video",
+    description: trans("meeting.videoCompName"),
+    categories: ["collaboration"],
+    icon: VideoCompIcon,
+    keywords: trans("meeting.meetingCompKeywords"),
+    comp: VideoMeetingStreamComp,
+    withoutLoading: true,
+    layoutInfo: {
+      w: 6, 
+      h: 32,
+    }
+  },
+  chatscomponent: {
+    name: trans("chat.chatCommentsCompName"),
+    enName: "Chat",
+    description: trans("chat.chatCommentsCompName"),
+    categories: ["chat"],
+    icon: CommentIcon,
+    keywords: trans("chat.chatCommentsCompKeywords"),
+    comp: ChatsComp,
+    withoutLoading: true,
+  },
   meeting: {
     name: trans("meeting.meetingCompName"),
     enName: "Drawer",
@@ -468,70 +477,6 @@ var uiCompMap: Registry = {
     comp: ChatControllerComp,
     withoutLoading: true,
   },
-  carousel: {
-    name: trans("uiComp.carouselCompName"),
-    enName: "Carousel",
-    description: trans("uiComp.carouselCompDesc"),
-    categories: ["dataDisplay"],
-    icon: CarouselCompIcon,
-    keywords: trans("uiComp.drawerCompKeywords"),
-    comp: CarouselComp,
-    withoutLoading: true,
-    layoutInfo: {
-      w: 11,
-      h: 25,
-    },
-  },
-  imageEditor: {
-    name: trans("uiComp.imageEditorCompName"),
-    enName: "Image Editor",
-    comp: remoteComp({ ...builtInRemoteComps, compName: "imageEditor" }),
-    description: trans("uiComp.imageEditorCompDesc"),
-    categories: ["dataDisplay"],
-    icon: imageEditorIcon,
-    keywords: trans("uiComp.imageEditorCompKeywords"),
-    layoutInfo: {
-      w: 15,
-      h: 60,
-    },
-  },
-  scanner: {
-    name: trans("uiComp.scannerCompName"),
-    enName: "Scanner",
-    description: trans("uiComp.scannerCompDesc"),
-    categories: ["dataInputSelect"],
-    icon: ScannerIcon,
-    keywords: trans("uiComp.scannerCompKeywords"),
-    comp: ScannerComp,
-  },
-  signature: {
-    name: trans("uiComp.signatureCompName"),
-    enName: "Signature",
-    description: trans("uiComp.signatureCompDesc"),
-    categories: ["dataInputSelect"],
-    icon: SignatureIcon,
-    keywords: trans("uiComp.signatureCompKeywords"),
-    comp: SignatureComp,
-    layoutInfo: {
-      w: 9,
-      h: 35,
-    },
-  },
-  //Added by Aqib Mirza
-  jsonLottie: {
-    name: trans("uiComp.jsonLottieCompName"),
-    enName: "Lottie Animation",
-    description: trans("uiComp.jsonLottieCompDesc"),
-    categories: ["dataDisplay"],
-    icon: LottieIcon,
-    keywords: trans("uiComp.jsonLottieCompKeywords"),
-    comp: JsonLottieComp,
-    layoutInfo: {
-      w: 10,
-      h: 47,
-    },
-  },
-
   comment: {
     name: trans("uiComp.commentCompName"),
     enName: "comment",
@@ -783,6 +728,20 @@ var uiCompMap: Registry = {
     },
     withoutLoading: true,
   },
+  controlButton: {
+    name: trans("meeting.meetingControlCompName"),
+    enName: "Controls",
+    description: trans("meeting.meetingCompDesc"),
+    categories: ["forms", "collaboration"],
+    icon: ButtonCompIcon,
+    keywords: trans("meeting.meetingCompKeywords"),
+    comp: ControlButton,
+    withoutLoading: true,
+    layoutInfo: {
+      w: 3,
+      h: 6,
+    },
+  },
   dropdown: {
     name: trans("uiComp.dropdownCompName"),
     enName: "Dropdown",
@@ -925,6 +884,20 @@ var uiCompMap: Registry = {
       h: 40,
     },
   },
+  carousel: {
+    name: trans("uiComp.carouselCompName"),
+    enName: "Carousel",
+    description: trans("uiComp.carouselCompDesc"),
+    categories: ["multimedia"],
+    icon: CarouselCompIcon,
+    keywords: trans("uiComp.drawerCompKeywords"),
+    comp: CarouselComp,
+    withoutLoading: true,
+    layoutInfo: {
+      w: 12,
+      h: 40,
+    },
+  },
   audio: {
     name: trans("uiComp.audioCompName"),
     enName: "Audio",
@@ -951,6 +924,33 @@ var uiCompMap: Registry = {
       h: 40,
     },
   },
+  jsonLottie: {
+    name: trans("uiComp.jsonLottieCompName"),
+    enName: "Lottie Animation",
+    description: trans("uiComp.jsonLottieCompDesc"),
+    categories: ["multimedia"],
+    icon: LottieIcon,
+    keywords: trans("uiComp.jsonLottieCompKeywords"),
+    comp: JsonLottieComp,
+    layoutInfo: {
+      w: 12,
+      h: 40,
+    },
+  },
+  imageEditor: {
+    name: trans("uiComp.imageEditorCompName"),
+    enName: "Image Editor",
+    comp: remoteComp({ ...builtInRemoteComps, compName: "imageEditor" }),
+    description: trans("uiComp.imageEditorCompDesc"),
+    categories: ["multimedia"],
+    icon: imageEditorIcon,
+    keywords: trans("uiComp.imageEditorCompKeywords"),
+    layoutInfo: {
+      w: 12,
+      h: 40,
+    },
+  },
+
   // item Handling
 
   qrCode: {
@@ -964,6 +964,32 @@ var uiCompMap: Registry = {
     layoutInfo: {
       w: 6,
       h: 32,
+    },
+  },
+  scanner: {
+    name: trans("uiComp.scannerCompName"),
+    enName: "Scanner",
+    description: trans("uiComp.scannerCompDesc"),
+    categories: ["itemHandling"],
+    icon: ScannerIcon,
+    keywords: trans("uiComp.scannerCompKeywords"),
+    comp: ScannerComp,
+    layoutInfo: {
+      w: 6,
+      h: 5,
+    },
+  },
+  signature: {
+    name: trans("uiComp.signatureCompName"),
+    enName: "Signature",
+    description: trans("uiComp.signatureCompDesc"),
+    categories: ["itemHandling"],
+    icon: SignatureIcon,
+    keywords: trans("uiComp.signatureCompKeywords"),
+    comp: SignatureComp,
+    layoutInfo: {
+      w: 12,
+      h: 40,
     },
   },
   select: {
