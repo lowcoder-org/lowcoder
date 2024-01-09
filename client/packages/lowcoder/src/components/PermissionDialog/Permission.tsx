@@ -21,7 +21,7 @@ import {
 } from "./commonComponents";
 import { getInitialsAndColorCode } from "util/stringUtils";
 import { CustomTagProps } from "rc-select/lib/BaseSelect";
-import { Tag } from "antd";
+import { default as Tag } from "antd/es/tag";
 import { User } from "constants/userConstants";
 import { getUser } from "redux/selectors/usersSelectors";
 import { EmptyContent } from "pages/common/styledComponent";
@@ -62,18 +62,18 @@ const AddPermissionDropDown = styled.div`
     .rc-virtual-list-holder {
       overflow-y: overlay !important;
 
-      ::-webkit-scrollbar {
+      &::-webkit-scrollbar {
         width: 16px;
       }
 
-      ::-webkit-scrollbar-thumb {
+      &::-webkit-scrollbar-thumb {
         border: 5px solid transparent;
         background-clip: content-box;
         border-radius: 9999px;
         background-color: rgba(139, 143, 163, 0.12);
       }
 
-      ::-webkit-scrollbar-thumb:hover {
+      &::-webkit-scrollbar-thumb:hover {
         background-color: rgba(139, 143, 163, 0.25);
       }
     }
@@ -94,11 +94,11 @@ const PermissionSelectWrapper = styled.div`
     line-height: 13px;
   }
 
-  :hover {
+  &:hover {
     outline: 1px solid #8b8fa3;
   }
 
-  :focus-within {
+  &:focus-within {
     outline: 1px solid #315efb;
     border-radius: 4px;
     box-shadow: 0 0 0 3px rgb(24 144 255 / 20%);
@@ -117,7 +117,7 @@ const AddPermissionsSelect = styled(CustomSelect)`
   overflow-y: scroll;
   overflow-x: hidden;
 
-  ::-webkit-scrollbar {
+  &::-webkit-scrollbar {
     display: none;
   }
 
@@ -165,7 +165,7 @@ const StyledTag = styled(Tag)`
     align-items: center;
     margin-left: 8px;
 
-    :hover svg g line {
+    &:hover svg g line {
       stroke: #222222;
     }
   }
@@ -241,7 +241,7 @@ function getPermissionOptionView(
 function PermissionSelectorOption(props: { optionView: AddAppOptionView }) {
   const { optionView } = props;
   const groupIcon = optionView.type === "GROUP" && (
-    <StyledGroupIcon color={getInitialsAndColorCode(optionView.name)[1]} />
+    <StyledGroupIcon $color={getInitialsAndColorCode(optionView.name)[1]} />
   );
   return (
     <OptionViewWrapper>
@@ -259,7 +259,7 @@ function PermissionSelectorOption(props: { optionView: AddAppOptionView }) {
 function PermissionSelectorLabel(props: { view: AddAppOptionView }) {
   const { view } = props;
   const groupIcon = view.type === "GROUP" && (
-    <StyledGroupIcon color={getInitialsAndColorCode(view.name)[1]} side={9} />
+    <StyledGroupIcon $color={getInitialsAndColorCode(view.name)[1]} $side={9} />
   );
   return (
     <div style={{ display: "flex", alignItems: "center" }}>

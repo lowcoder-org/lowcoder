@@ -19,7 +19,7 @@ import {
 } from "lowcoder-design";
 import { SelectOptionControl } from "../../controls/optionsControl";
 import { SelectEventHandlerControl } from "../../controls/eventHandlerControl";
-import { Select as AntdSelect } from "antd";
+import { default as AntdSelect } from "antd/es/select";
 import { ControlParams } from "../../controls/controlParams";
 import { ReactNode } from "react";
 import styled, { css } from "styled-components";
@@ -50,6 +50,9 @@ import { RefControl } from "comps/controls/refControl";
 import { BaseSelectRef } from "rc-select";
 import { refMethods } from "comps/generators/withMethodExposing";
 import { blurMethod, focusMethod } from "comps/utils/methodUtils";
+
+import { useContext } from "react";
+import { EditorContext } from "comps/editorState";
 
 export const getStyle = (
   style: SelectStyleType | MultiSelectStyleType | CascaderStyleType | TreeSelectStyleType
@@ -141,7 +144,7 @@ const getDropdownStyle = (style: MultiSelectStyleType) => {
       margin: 0 8px;
       padding: 5px 8px;
 
-      :hover {
+      &:hover {
         background-color: rgb(242, 247, 252);
       }
 
@@ -272,23 +275,34 @@ export const SelectPropertyView = (
       {children.value.propertyView({ label: trans("prop.defaultValue") })}
       {placeholderPropertyView(children)}
     </Section>
-    <FormDataPropertyView {...children} />
-    {children.label.getPropertyView()}
 
-    <Section name={sectionNames.interaction}>
-      {children.onEvent.getPropertyView()}
-      {disabledPropertyView(children)}
-    </Section>
+    {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+      <><>
+        <SelectInputValidationSection {...children} />
+        <FormDataPropertyView {...children} />
+      </><Section name={sectionNames.interaction}>
+          {children.onEvent.getPropertyView()}
+          {disabledPropertyView(children)}
+          {hiddenPropertyView(children)}
+        </Section></>
+    )}
 
-    <Section name={sectionNames.advanced}>
-      {allowClearPropertyView(children)}
-      {showSearchPropertyView(children)}
-    </Section>
+    {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+      children.label.getPropertyView()
+    )}
 
-    <SelectInputValidationSection {...children} />
+    {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+      <Section name={sectionNames.advanced}>
+        {allowClearPropertyView(children)}
+        {showSearchPropertyView(children)}
+      </Section>
+    )}
 
-    <Section name={sectionNames.layout}>{hiddenPropertyView(children)}</Section>
-    <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
+    {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+      <Section name={sectionNames.style}>
+        {children.style.getPropertyView()}
+      </Section>
+    )}
   </>
 );
 

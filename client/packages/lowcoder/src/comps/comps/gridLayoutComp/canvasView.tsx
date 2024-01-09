@@ -20,17 +20,17 @@ import { checkIsMobile } from "util/commonUtils";
 import { CanvasContainerID } from "constants/domLocators";
 import { CNRootContainer } from "constants/styleSelectors";
 
-const UICompContainer = styled.div<{ maxWidth?: number; readOnly?: boolean; bgColor: string }>`
+const UICompContainer = styled.div<{ $maxWidth?: number; readOnly?: boolean; $bgColor: string }>`
   height: 100%;
   margin: 0 auto;
-  max-width: ${(props) => props.maxWidth || 1600}px;
-  background-color: ${(props) => props.bgColor};
+  max-width: ${(props) => props.$maxWidth || 1600}px;
+  background-color: ${(props) => props.$bgColor};
 `;
 
 // modal/drawer container
-export const CanvasContainer = styled.div<{ maxWidth: number }>`
-  max-width: ${(props) => props.maxWidth}px;
-  min-width: min(${(props) => props.maxWidth}px, 718px);
+export const CanvasContainer = styled.div<{ $maxWidth: number }>`
+  max-width: ${(props) => props.$maxWidth}px;
+  min-width: min(${(props) => props.$maxWidth}px, 718px);
   margin: 0 auto;
   height: 100%;
   contain: paint;
@@ -106,10 +106,10 @@ export function CanvasView(props: ContainerBaseProps) {
   if (readOnly) {
     return (
       <UICompContainer
-        maxWidth={maxWidth}
+        $maxWidth={maxWidth}
         readOnly={true}
         className={CNRootContainer}
-        bgColor={bgColor}
+        $bgColor={bgColor}
       >
         <div>
           <Profiler id="Panel" onRender={profilerCallback}>
@@ -129,9 +129,9 @@ export function CanvasView(props: ContainerBaseProps) {
   }
 
   return (
-    <CanvasContainer maxWidth={maxWidth} id={CanvasContainerID}>
+    <CanvasContainer $maxWidth={maxWidth} id={CanvasContainerID}>
       <EditorContainer ref={scrollContainerRef}>
-        <UICompContainer maxWidth={maxWidth} className={CNRootContainer} bgColor={bgColor}>
+        <UICompContainer $maxWidth={maxWidth} className={CNRootContainer} $bgColor={bgColor}>
           <DragSelector
             onMouseDown={() => {
               setDragSelectedComp(EmptySet);

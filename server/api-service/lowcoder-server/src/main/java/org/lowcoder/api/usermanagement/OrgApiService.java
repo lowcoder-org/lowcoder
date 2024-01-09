@@ -13,6 +13,7 @@ import org.springframework.http.codec.multipart.Part;
 
 import reactor.core.publisher.Mono;
 
+
 public interface OrgApiService {
 
     Mono<Boolean> leaveOrganization(String orgId);
@@ -45,5 +46,7 @@ public interface OrgApiService {
     Mono<Boolean> tryAddUserToOrgAndSwitchOrg(String orgId, String userId);
 
     Mono<ConfigView> getOrganizationConfigs(String orgId);
+
+    Mono<Long> getApiUsageCount(String orgId, Boolean lastMonthOnly);
 }
 

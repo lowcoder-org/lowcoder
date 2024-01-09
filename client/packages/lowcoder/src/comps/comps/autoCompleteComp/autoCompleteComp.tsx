@@ -33,12 +33,10 @@ import {
 import { trans } from "i18n";
 import { IconControl } from "comps/controls/iconControl";
 import { hasIcon } from "comps/utils";
-import {
-  ConfigProvider,
-  InputRef,
-  AutoComplete,
-  Input as AntInput,
-} from "antd";
+import { InputRef } from "antd/es/input";
+import { default as  AntInputSearch } from "antd/es/input/Search";
+import { default as ConfigProvider } from "antd/es/config-provider";
+import { default as AutoComplete } from "antd/es/auto-complete";
 import { RefControl } from "comps/controls/refControl";
 import {
   booleanExposingStateControl,
@@ -72,7 +70,7 @@ const InputStyle = styled(Input)<{ $style: InputLikeStyleType }>`
   `}
 `;
 
-const CustomStyledSearch = styled(AntInput.Search)<{ $style: InputLikeStyleType }>`
+const CustomStyledSearch = styled(AntInputSearch)<{ $style: InputLikeStyleType }>`
   ${(props) => css`
     padding: 0;
     input.ant-input {
@@ -103,7 +101,7 @@ const childrenMap = {
   searchCompletePY: BoolControl,
   searchLabelOnly: BoolControl.DEFAULT_TRUE,
   valueOrLabel: dropdownControl(valueOrLabelOption, "label"),
-  autoCompleteType: dropdownControl(autoCompleteType, "AntDesign"),
+  autoCompleteType: dropdownControl(autoCompleteType, "normal"),
   autocompleteIconColor: dropdownControl(autocompleteIconColor, "blue"),
   componentSize: dropdownControl(componentSize, "small"),
   valueInItems: booleanExposingStateControl("valueInItems"),

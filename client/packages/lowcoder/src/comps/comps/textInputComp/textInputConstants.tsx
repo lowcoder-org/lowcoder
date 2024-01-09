@@ -34,7 +34,7 @@ import {
 import { trans } from "i18n";
 import { ChangeEvent, useRef, useState } from "react";
 import { refMethods } from "comps/generators/withMethodExposing";
-import { InputRef } from "antd";
+import { InputRef } from "antd/es/input";
 import {
   blurMethod,
   clickMethod,

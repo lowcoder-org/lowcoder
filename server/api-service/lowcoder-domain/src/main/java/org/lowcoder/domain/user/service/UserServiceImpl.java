@@ -111,6 +111,10 @@ public class UserServiceImpl implements UserService {
         return repository.findByConnections_SourceAndConnections_RawId(source, sourceUuid);
     }
 
+    public Mono<User> findByName(String rawUuid) {
+        return repository.findByName(rawUuid);
+    }
+
     @Override
     public Mono<Boolean> saveProfilePhoto(Part filePart, User user) {
         String prevAvatar = ObjectUtils.defaultIfNull(user.getAvatar(), "");
@@ -143,8 +147,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Mono<User> findByAuthUser(AuthUser authUser) {
+    public Mono<User> findByAuthUserSourceAndRawId(AuthUser authUser) {
         return findBySourceAndId(authUser.getSource(), authUser.getUid());
+    }
+
+    @Override
+    public Mono<User> findByAuthUserRawId(AuthUser authUser) {
+        return findByName(authUser.getUsername());
     }
 
     @Override
@@ -196,6 +205,16 @@ public class UserServiceImpl implements UserService {
                 .doOnNext(user -> user.getConnections().add(connection))
                 .flatMap(repository::save)
                 .then(Mono.just(true));
+    }
+
+    @Override
+    public Mono<User> addNewConnectionAndReturnUser(String userId, Connection connection) {
+        return findById(userId)
+                .doOnNext(user -> {
+                    user.getConnections().add(connection);
+                    user.setActiveAuthId(connection.getAuthId());
+                })
+                .flatMap(repository::save);
     }
 
     @Override

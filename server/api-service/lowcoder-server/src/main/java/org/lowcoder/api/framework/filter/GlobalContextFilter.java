@@ -71,18 +71,7 @@ public class GlobalContextFilter implements WebFilter, Ordered {
     public Mono<Void> filter(@Nonnull ServerWebExchange exchange, @Nonnull WebFilterChain chain) {
 
         return sessionUserService.getVisitorId()
-                .doOnNext(visitorId -> {
-                    if (isAnonymousUser(visitorId)) {
-                        return;
-                    }
-                    ServerLog serverLog = ServerLog.builder()
-                            .userId(visitorId)
-                            .urlPath(exchange.getRequest().getPath().toString())
-                            .httpMethod(Optional.ofNullable(exchange.getRequest().getMethod()).map(HttpMethod::name).orElse(""))
-                            .createTime(System.currentTimeMillis())
-                            .build();
-                    serverLogService.record(serverLog);
-                })
+                .flatMap(visitorId -> saveServerLog(exchange, visitorId))
                 .flatMap(visitorId -> chain.filter(exchange)
                         .contextWrite(ctx -> {
                             Map<String, Object> contextMap = buildContextMap(exchange, visitorId);
@@ -93,6 +82,27 @@ public class GlobalContextFilter implements WebFilter, Ordered {
                             }
                             return ctx.put(CONTEXT_MAP, contextMap);
                         }));
+    }
+
+    private Mono<String> saveServerLog(ServerWebExchange exchange, String visitorId) {
+        if (isAnonymousUser(visitorId)) {
+            return Mono.just(visitorId);
+        }
+
+        return orgMemberService
+                .getCurrentOrgMember(visitorId)
+                .map(orgMember -> {
+                    ServerLog serverLog = ServerLog.builder()
+                            .orgId(orgMember.getOrgId())
+                            .userId(visitorId)
+                            .urlPath(exchange.getRequest().getPath().toString())
+                            .httpMethod(Optional.ofNullable(exchange.getRequest().getMethod()).map(HttpMethod::name).orElse(""))
+                            .createTime(System.currentTimeMillis())
+                            .build();
+                    serverLogService.record(serverLog);
+                    return visitorId;
+                });
+
     }
 
     private Map<String, Object> buildContextMap(ServerWebExchange serverWebExchange, String visitorId) {

@@ -25,7 +25,7 @@ import { Comp } from "lowcoder-core";
 import { LibraryQuery } from "../../api/queryLibraryApi";
 import { NameGenerator } from "../../comps/utils";
 import { QueryLibraryHistoryView } from "./QueryLibraryHistoryView";
-import { Form } from "antd";
+import { default as Form } from "antd/es/form";
 import {
   CustomModal,
   DatasourceForm,
@@ -34,7 +34,7 @@ import {
   FormSection,
   TacoButton,
 } from "lowcoder-design";
-import { CheckboxOptionType } from "antd/lib/checkbox/Group";
+import { CheckboxOptionType } from "antd/es/checkbox/Group";
 import { trans } from "i18n";
 import { getDataSource } from "../../redux/selectors/datasourceSelectors";
 import {

@@ -7,7 +7,7 @@ import React, { useContext } from "react";
 import styled from "styled-components";
 import type { DateTimeStyleType } from "../../controls/styleControlConstants";
 import { EditorContext } from "../../editorState";
-import { DatePicker } from "antd";
+import { default as DatePicker } from "antd/es/date-picker";
 
 const DatePickerStyled = styled(DatePicker)<{ $style: DateTimeStyleType }>`
   width: 100%;
@@ -27,6 +27,8 @@ const DateMobileUIView = React.lazy(() =>
 export const DateUIView = (props: DataUIViewProps) => {
   const editorState = useContext(EditorContext);
 
+  const placeholder = Array.isArray(props.placeholder) ? props.placeholder[0] : props.placeholder;
+
   return useUIView(
     <DateMobileUIView {...props} />,
     <DatePickerStyled
@@ -35,6 +37,7 @@ export const DateUIView = (props: DataUIViewProps) => {
       disabledDate={(current) => disabledDate(current, props.minDate, props.maxDate)}
       picker={"date"}
       inputReadOnly={checkIsMobile(editorState?.getAppSettings().maxWidth)}
+      placeholder={placeholder}
     />
   );
 };

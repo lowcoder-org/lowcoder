@@ -1,5 +1,6 @@
-import { Divider, Menu } from "antd";
-import Sider from "antd/lib/layout/Sider";
+import { default as Divider } from "antd/es/divider";
+import { default as Menu } from "antd/es/menu";
+import { default as Sider} from "antd/es/layout/Sider";
 import { PreloadComp } from "comps/comps/preLoadComp";
 import UIComp from "comps/comps/uiComp";
 import { EditorContext } from "comps/editorState";
@@ -10,7 +11,7 @@ import { trans } from "i18n";
 import { draggingUtils } from "layout";
 import { LeftPreloadIcon, LeftSettingIcon, LeftStateIcon, ScrollBar } from "lowcoder-design";
 import { useTemplateViewMode } from "util/hooks";
-import Header, { PanelStatus, TogglePanel } from "pages/common/header";
+import Header, { PanelStatus, TogglePanel, EditorModeStatus, ToggleEditorModeStatus } from "pages/common/header";
 import { HelpDropdown } from "pages/common/help";
 import { PreviewHeader } from "pages/common/previewHeader";
 import {
@@ -29,7 +30,7 @@ import {
 import RightPanel from "pages/editor/right/RightPanel";
 import EditorTutorials from "pages/tutorials/editorTutorials";
 import { editorContentClassName, UserGuideLocationState } from "pages/tutorials/tutorialsConstant";
-import React, { useCallback, useContext, useLayoutEffect, useMemo, useState } from "react";
+import React, { useCallback, useContext, useEffect, useLayoutEffect, useMemo, useState } from "react";
 import { Helmet } from "react-helmet";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
@@ -38,7 +39,7 @@ import { currentApplication } from "redux/selectors/applicationSelector";
 import { showAppSnapshotSelector } from "redux/selectors/appSnapshotSelector";
 import styled from "styled-components";
 import { ExternalEditorContext } from "util/context/ExternalEditorContext";
-import { DefaultPanelStatus, getPanelStatus, savePanelStatus } from "util/localStorageUtil";
+import { DefaultPanelStatus, getPanelStatus, savePanelStatus, DefaultEditorModeStatus, getEditorModeStatus, saveEditorModeStatus } from "util/localStorageUtil";
 import Bottom from "./bottom/BottomPanel";
 import { LeftContent } from "./LeftContent";
 import { isAggregationApp } from "util/appUtils";
@@ -54,11 +55,11 @@ const HookCompContainer = styled.div`
   z-index: ${Layers.hooksCompContainer};
 `;
 
-const ViewBody = styled.div<{ hideBodyHeader?: boolean; height?: number }>`
+const ViewBody = styled.div<{ $hideBodyHeader?: boolean; $height?: number }>`
   height: ${(props) => `calc(${
-    props.height ? props.height + "px" : "100vh"
+    props.$height ? props.$height + "px" : "100vh"
   } - env(safe-area-inset-bottom) -
-      ${props.hideBodyHeader ? "0px" : TopHeaderHeight}
+      ${props.$hideBodyHeader ? "0px" : TopHeaderHeight}
   )`};
 `;
 
@@ -179,6 +180,7 @@ const items = [
   },
 ];
 
+
 function EditorView(props: EditorViewProps) {
   const { uiComp } = props;
   const editorState = useContext(EditorContext);
@@ -199,8 +201,9 @@ function EditorView(props: EditorViewProps) {
   const [panelStatus, setPanelStatus] = useState(() => {
     return showNewUserGuide ? DefaultPanelStatus : getPanelStatus();
   });
-  const [prePanelStatus, setPrePanelStatus] = useState<PanelStatus>(DefaultPanelStatus);
 
+  const [prePanelStatus, setPrePanelStatus] = useState<PanelStatus>(DefaultPanelStatus);
+  
   const togglePanel: TogglePanel = useCallback(
     (key) => {
       let newPanelStatus;
@@ -221,6 +224,23 @@ function EditorView(props: EditorViewProps) {
     [panelStatus, prePanelStatus]
   );
 
+
+  // added by Falk Wolsky to support a Layout and Logic Mode in Lowcoder
+  const [editorModeStatus, setEditorModeStatus] = useState(() => {
+    return showNewUserGuide ? DefaultEditorModeStatus : getEditorModeStatus();
+  });
+  
+  const toggleEditorModeStatus: ToggleEditorModeStatus = useCallback( (value) => {
+
+      setEditorModeStatus(value ? value : "both" as EditorModeStatus);
+      saveEditorModeStatus(value ? value : "both" as EditorModeStatus);
+        
+    },
+    [editorModeStatus]
+  );
+
+
+  
   const onCompDrag = useCallback(
     (dragCompKey: string) => {
       editorState.setDraggingCompType(dragCompKey);
@@ -271,7 +291,7 @@ function EditorView(props: EditorViewProps) {
         <Helmet>{application && <title>{application.name}</title>}</Helmet>
         {!hideBodyHeader && <PreviewHeader />}
         <EditorContainerWithViewMode>
-          <ViewBody hideBodyHeader={hideBodyHeader} height={height}>
+          <ViewBody $hideBodyHeader={hideBodyHeader} $height={height}>
             {uiComp.getView()}
           </ViewBody>
           <div style={{ zIndex: Layers.hooksCompContainer }}>{hookCompViews}</div>
@@ -284,7 +304,7 @@ function EditorView(props: EditorViewProps) {
   let uiCompView;
   if (showAppSnapshot) {
     uiCompView = (
-      <ViewBody hideBodyHeader={hideBodyHeader} height={height}>
+      <ViewBody $hideBodyHeader={hideBodyHeader} $height={height}>
         <EditorContainer>{uiComp.getView()}</EditorContainer>
       </ViewBody>
     );
@@ -310,7 +330,7 @@ function EditorView(props: EditorViewProps) {
         draggingUtils.clearData();
       }}
     >
-      <Header togglePanel={togglePanel} panelStatus={panelStatus} />
+      <Header togglePanel={togglePanel} panelStatus={panelStatus} toggleEditorModeStatus={toggleEditorModeStatus} editorModeStatus={editorModeStatus}  />
       <Helmet>{application && <title>{application.name}</title>}</Helmet>
       {showNewUserGuide && <EditorTutorials />}
       <EditorGlobalHotKeys
@@ -343,7 +363,7 @@ function EditorView(props: EditorViewProps) {
             </Sider>
           </SiderWrapper>
 
-          {panelStatus.left && (
+          {panelStatus.left && editorModeStatus !== "layout" && (
             <LeftPanel>
               {menuKey === SiderKey.State && <LeftContent uiComp={uiComp} />}
               {menuKey === SiderKey.Setting && (
@@ -382,7 +402,7 @@ function EditorView(props: EditorViewProps) {
                 </EditorContainerWithViewMode>
               </EditorHotKeys>
             </EditorWrapper>
-            {panelStatus.bottom && <Bottom />}
+            {panelStatus.bottom && editorModeStatus !== "layout" && <Bottom />}
           </MiddlePanel>
           {showRight && (
             <RightPanel

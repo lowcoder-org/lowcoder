@@ -1,5 +1,6 @@
 import { StringControl } from "comps/controls/codeControl";
 import { BoolControl } from "comps/controls/boolControl";
+import { BoolCodeControl } from "../controls/codeControl";
 import { stringExposingStateControl } from "comps/controls/codeStateControl";
 import { AutoHeightControl } from "comps/controls/autoHeightControl";
 import { ChangeEventHandlerControl } from "comps/controls/eventHandlerControl";
@@ -19,9 +20,12 @@ import {
 } from "comps/utils/propertyUtils";
 import _ from "lodash";
 import { trans } from "i18n";
-import { Skeleton } from "antd";
+import { default as Skeleton } from "antd/es/skeleton";
 import { styleControl } from "comps/controls/styleControl";
 import { RichTextEditorStyle, RichTextEditorStyleType } from "comps/controls/styleControlConstants";
+
+import { useContext } from "react";
+import { EditorContext } from "comps/editorState";
 
 const localizeStyle = css`
   & .ql-snow {
@@ -90,14 +94,18 @@ const commonStyle = (style: RichTextEditorStyleType) => css`
     &.ql-container,
     &.ql-toolbar {
       border-color: ${style.border};
-      background-color: #ffffff;
+      background-color: ${style.background};
+      
     }
   }
   & .ql-toolbar {
     border-radius: ${style.radius} ${style.radius} 0 0;
+    border-width: ${style.borderWidth ? style.borderWidth : "1px"};
   }
   & .ql-container {
     border-radius: 0 0 ${style.radius} ${style.radius};
+    background-color: ${style.background};
+    border-width: ${style.borderWidth ? style.borderWidth : "1px"};
   }
 `;
 
@@ -116,7 +124,7 @@ const hideToolbarStyle = (style: RichTextEditorStyleType) => css`
 `;
 
 interface Props {
-  hideToolbar: boolean;
+  $hideToolbar: boolean;
   $style: RichTextEditorStyleType;
 }
 
@@ -126,7 +134,7 @@ const AutoHeightReactQuill = styled.div<Props>`
   & .ql-container .ql-editor {
     min-height: 125px;
   }
-  ${(props) => (props.hideToolbar ? hideToolbarStyle(props.$style) : "")};
+  ${(props) => (props.$hideToolbar ? hideToolbarStyle(props.$style) : "")};
 `;
 
 const FixHeightReactQuill = styled.div<Props>`
@@ -143,20 +151,8 @@ const FixHeightReactQuill = styled.div<Props>`
       overflow: auto;
     }
   }
-  ${(props) => (props.hideToolbar ? hideToolbarStyle(props.$style) : "")};
+  ${(props) => (props.$hideToolbar ? hideToolbarStyle(props.$style) : "")};
 `;
-
-const childrenMap = {
-  value: stringExposingStateControl("value"),
-  hideToolbar: BoolControl,
-  readOnly: BoolControl,
-  autoHeight: AutoHeightControl,
-  placeholder: withDefault(StringControl, trans("richTextEditor.placeholder")),
-  onEvent: ChangeEventHandlerControl,
-  style: styleControl(RichTextEditorStyle),
-
-  ...formDataChildren,
-};
 
 const toolbarOptions = [
   [{ header: [1, 2, 3, false] }],
@@ -168,9 +164,25 @@ const toolbarOptions = [
   ["clean"],
 ];
 
+const childrenMap = {
+  value: stringExposingStateControl("value"),
+  hideToolbar: BoolControl,
+  readOnly: BoolControl,
+  autoHeight: withDefault(AutoHeightControl, "fixed"),
+  placeholder: withDefault(StringControl, trans("richTextEditor.placeholder")),
+  toolbar: withDefault(StringControl, JSON.stringify(toolbarOptions)),
+  onEvent: ChangeEventHandlerControl,
+  style: styleControl(RichTextEditorStyle),
+
+  ...formDataChildren,
+};
+
+
+
 interface IProps {
   value: string;
   placeholder: string;
+  toolbar: string;
   hideToolbar: boolean;
   readOnly: boolean;
   autoHeight: boolean;
@@ -256,7 +268,7 @@ function RichTextEditor(props: IProps) {
       id={id}
       onClick={handleClickWrapper}
       ref={wrapperRef}
-      hideToolbar={props.hideToolbar}
+      $hideToolbar={props.hideToolbar}
       $style={props.$style}
     >
       <Suspense fallback={<Skeleton />}>
@@ -265,7 +277,7 @@ function RichTextEditor(props: IProps) {
           ref={editorRef}
           bounds={`#${id}`}
           modules={{
-            toolbar: toolbarOptions,
+            toolbar: JSON.parse(props.toolbar),
           }}
           theme="snow"
           value={content}
@@ -288,6 +300,7 @@ const RichTextEditorCompBase = new UICompBuilder(childrenMap, (props) => {
     <RichTextEditor
       autoHeight={props.autoHeight}
       hideToolbar={props.hideToolbar}
+      toolbar={props.toolbar}
       readOnly={props.readOnly}
       value={props.value.value}
       placeholder={props.placeholder}
@@ -300,20 +313,32 @@ const RichTextEditorCompBase = new UICompBuilder(childrenMap, (props) => {
     return (
       <>
         <Section name={sectionNames.basic}>
-          {children.value.propertyView({ label: trans("prop.defaultValue") })}
+          {children.value.propertyView({ label: trans("richTextEditor.defaultValue") })}
           {placeholderPropertyView(children)}
         </Section>
+
         <FormDataPropertyView {...children} />
-        <Section name={sectionNames.interaction}>
-          {children.onEvent.getPropertyView()}
-          {readOnlyPropertyView(children)}
-        </Section>
-        <Section name={sectionNames.layout}>
-          {children.hideToolbar.propertyView({ label: trans("richTextEditor.hideToolbar") })}
-          {children.autoHeight.getPropertyView()}
-          {hiddenPropertyView(children)}
-        </Section>
-        <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
+
+        {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+          <Section name={sectionNames.interaction}>
+            {children.onEvent.getPropertyView()}
+            {hiddenPropertyView(children)}
+            {readOnlyPropertyView(children)}
+          </Section>
+        )}
+
+        {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+          <>
+            <Section name={sectionNames.layout}>
+              {children.autoHeight.getPropertyView()}
+              {children.toolbar.propertyView({ label: trans("richTextEditor.toolbar"), tooltip: trans("richTextEditor.toolbarDescription") })}
+              {children.hideToolbar.propertyView({ label: trans("richTextEditor.hideToolbar") })}
+            </Section>
+            <Section name={sectionNames.style}>
+              {children.style.getPropertyView()}
+            </Section>
+          </>
+        )}
       </>
     );
   })

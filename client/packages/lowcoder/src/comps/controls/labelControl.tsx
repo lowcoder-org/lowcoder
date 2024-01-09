@@ -1,6 +1,6 @@
 import { trans } from "i18n";
 import { green, red, yellow } from "@ant-design/colors";
-import { FormItemProps } from "antd";
+import { FormItemProps } from "antd/es/form/FormItem";
 import { BoolControl } from "comps/controls/boolControl";
 import { NumberControl, StringControl } from "comps/controls/codeControl";
 import { dropdownControl } from "comps/controls/dropdownControl";
@@ -48,37 +48,37 @@ const LabelViewWrapper = styled.div<{ $style: any }>`
 `;
 
 const MainWrapper = styled.div<{
-  position: PositionOptionsValue;
-  hasLabel: boolean;
+  $position: PositionOptionsValue;
+  $hasLabel: boolean;
 }>`
-  flex-direction: ${(props) => props.position};
+  flex-direction: ${(props) => props.$position};
   flex-grow: 1;
   width: 100%;
-  margin-top: ${(props) => (props.position === "column" && props.hasLabel ? "4px" : 0)};
+  margin-top: ${(props) => (props.$position === "column" && props.$hasLabel ? "4px" : 0)};
   height: ${(props) =>
-    props.position === "column" && props.hasLabel ? "calc(100% - 4px)" : "100%"};
+    props.$position === "column" && props.$hasLabel ? "calc(100% - 4px)" : "100%"};
   display: flex;
-  align-items: ${(props) => (props.position === "row" ? "center" : "start")};
+  align-items: ${(props) => (props.$position === "row" ? "center" : "start")};
   flex-shrink: 0;
 `;
 
 const LabelWrapper = styled.div<{
-  align: AlignOptionsValue;
-  position: PositionOptionsValue;
-  hasToolTip: boolean;
+  $align: AlignOptionsValue;
+  $position: PositionOptionsValue;
+  $hasToolTip: boolean;
 }>`
   display: flex;
   align-items: center;
   margin-right: 8px;
-  margin-bottom: ${(props) => (props.position === "row" ? 0 : "3.5px")};
-  justify-content: ${(props) => (props.align === "left" ? "start" : "end")};
-  max-width: ${(props) => (props.position === "row" ? "80%" : "100%")};
+  margin-bottom: ${(props) => (props.$position === "row" ? 0 : "3.5px")};
+  justify-content: ${(props) => (props.$align === "left" ? "start" : "end")};
+  max-width: ${(props) => (props.$position === "row" ? "80%" : "100%")};
   flex-shrink: 0;
 `;
 
-const Label = styled.span<{ border: boolean }>`
+const Label = styled.span<{ $border: boolean }>`
   ${labelCss};
-  ${(props) => props.border && UnderlineCss};
+  ${(props) => props.$border && UnderlineCss};
   width: fit-content;
   user-select: text;
   white-space: nowrap;
@@ -93,13 +93,13 @@ const ChildrenWrapper = styled.div`
 `;
 
 const HelpWrapper = styled.div<{
-  marginLeft: string;
-  color?: string;
+  $marginLeft: string;
+  $color?: string;
 }>`
   ${labelCss};
   margin-top: 4px;
-  margin-left: ${(props) => props.marginLeft};
-  color: ${(props) => props.color};
+  margin-left: ${(props) => props.$marginLeft};
+  color: ${(props) => props.$color};
   display: block;
   font-size: 13px;
 `;
@@ -147,8 +147,8 @@ export const LabelControl = (function () {
   return new MultiCompBuilder(childrenMap, (props) => (args: LabelViewProps) => (
     <LabelViewWrapper $style={args.style}>
       <MainWrapper	
-        position={props.position}	
-        hasLabel={!!props.text}	
+        $position={props.position}	
+        $hasLabel={!!props.text}	
         style={{	
           margin: args && args.style ? args?.style?.margin : 0,	
           // padding: args && args.style ? args?.style?.padding : 0,	
@@ -162,14 +162,14 @@ export const LabelControl = (function () {
       >
         {!props.hidden && !isEmpty(props.text) && (
           <LabelWrapper
-            align={props.align}
+            $align={props.align}
             style={{
               width:
                 props.position === "row" ? getLabelWidth(props.width, props.widthUnit) : "100%",
               maxWidth: props.position === "row" ? "70%" : "100%",
             }}
-            position={props.position}
-            hasToolTip={!!props.tooltip}
+            $position={props.position}
+            $hasToolTip={!!props.tooltip}
           >
             <Tooltip
               title={props.tooltip && <TooltipWrapper>{props.tooltip}</TooltipWrapper>}
@@ -178,10 +178,9 @@ export const LabelControl = (function () {
               }}
               placement="top"
               color="#2c2c2c"
-              popupVisible={!!props.tooltip}
               getPopupContainer={(node: any) => node.closest(".react-grid-item")}
             >
-              <Label border={!!props.tooltip}>{props.text}</Label>
+              <Label $border={!!props.tooltip}>{props.text}</Label>
             </Tooltip>
             {args.required && <StyledStarIcon />}
           </LabelWrapper>
@@ -201,12 +200,12 @@ export const LabelControl = (function () {
 
       {args.help && (
         <HelpWrapper
-          marginLeft={
+          $marginLeft={
             props.position === "column" || isEmpty(props.text) || props.hidden
               ? "0"
               : `calc(min(${getLabelWidth(props.width, props.widthUnit)} , 70%) + 8px)`
           }
-          color={
+          $color={
             args.validateStatus === "error"
               ? red.primary
               : args.validateStatus === "warning"

@@ -3,7 +3,9 @@ import { Layers } from "constants/Layers";
 import { HelpIcon, LeftHelpIcon, HelpGithubIcon, HelpDiscordIcon } from "lowcoder-design";
 import { VideoIcon, ChatIcon, DocIcon, TutorialIcon, ShortcutIcon } from "assets/icons";
 import TutorialVideoPic from "assets/images/tutorialVideoThumbnail.png";
-import { Dropdown, Popover, Tooltip } from "antd";
+import { default as Dropdown } from "antd/es/dropdown";
+import { default as Popover } from "antd/es/popover";
+import { default as Tooltip } from "antd/es/tooltip";
 import {
   customerService,
   showCustomerServicePanel,
@@ -76,7 +78,7 @@ const HelpDiv = styled.div`
   width: 40px;
   cursor: pointer;
 
-  :hover {
+  &:hover {
     background: #315efb;
   }
 
@@ -131,7 +133,7 @@ const VersionDivEdit = styled.div`
   }
 `;
 
-const SpanStyled = styled.span<{ selected?: boolean }>`
+const SpanStyled = styled.span<{ $selected?: boolean }>`
   display: block;
   width: 26px;
   height: 26px;
@@ -147,7 +149,7 @@ const SpanStyled = styled.span<{ selected?: boolean }>`
       border-radius: 4px;
     }
     ${(props) =>
-      props.selected &&
+      props.$selected &&
       `
         background: #8b8fa37f;
         border-radius: 4px;
@@ -432,7 +434,7 @@ export function HelpDropdown(props: HelpDropdownProps) {
         onOpenChange={(open: boolean) => setShowDropdown(open)}
       >
         {props.isEdit ? (
-          <SpanStyled selected={showDropdown}>
+          <SpanStyled $selected={showDropdown}>
             <LeftHelpIcon />
           </SpanStyled>
         ) : (

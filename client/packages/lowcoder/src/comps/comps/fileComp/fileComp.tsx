@@ -1,6 +1,6 @@
-import { Button, Upload as AntdUpload } from "antd";
-import { UploadChangeParam } from "antd/lib/upload";
-import { UploadFile, UploadProps } from "antd/lib/upload/interface";
+import { default as Button } from "antd/es/button";
+import { default as AntdUpload } from "antd/es/upload";
+import { UploadFile, UploadProps, UploadChangeParam } from "antd/es/upload/interface";
 import { Buffer } from "buffer";
 import { darkenColor } from "components/colorSelect/colorUtils";
 import { Section, sectionNames } from "components/Section";
@@ -39,6 +39,9 @@ import { stateComp, UICompBuilder, withDefault } from "../../generators";
 import { CommonNameConfig, NameConfig, withExposingConfigs } from "../../generators/withExposing";
 import { formDataChildren, FormDataPropertyView } from "../formComp/formDataConstants";
 import { messageInstance } from "lowcoder-design";
+
+import React, { useContext } from "react";
+import { EditorContext } from "comps/editorState";
 
 const FileSizeControl = codeControl((value) => {
   if (typeof value === "number") {
@@ -207,7 +210,7 @@ export function resolveParsedValue(files: UploadFile[]) {
           .then((a) => {
             const ext = mime.getExtension(f.originFileObj?.type ?? "");
             if (ext === "xlsx" || ext === "csv") {
-              const workbook = XLSX.read(a, { raw: true });
+              const workbook = XLSX.read(a, { raw: true, codepage: 65001 });
               return XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], {
                 raw: false,
               });
@@ -370,47 +373,49 @@ let FileTmpComp = new UICompBuilder(childrenMap, (props, dispatch) => (
         {children.text.propertyView({
           label: trans("text"),
         })}
-        {children.fileType.propertyView({
-          label: trans("file.fileType"),
-          placeholder: '[".png"]',
-          tooltip: (
-            <>
-              {trans("file.reference")}{" "}
-              <a href={trans("file.fileTypeTooltipUrl")} target="_blank" rel="noreferrer">
-                {trans("file.fileTypeTooltip")}
-              </a>
-            </>
-          ),
-        })}
         {children.uploadType.propertyView({ label: trans("file.uploadType") })}
-        {children.showUploadList.propertyView({ label: trans("file.showUploadList") })}
-        {children.parseFiles.propertyView({
-          label: trans("file.parseFiles"),
-          tooltip: ParseFileTooltip,
-          placement: "right",
-        })}
       </Section>
 
       <FormDataPropertyView {...children} />
 
-      <Section name={sectionNames.interaction}>
-        {children.onEvent.getPropertyView()}
-        {disabledPropertyView(children)}
-      </Section>
+      {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
+        <><Section name={sectionNames.validation}>
+          {children.uploadType.getView() !== "single" && children.maxFiles.propertyView({ label: trans("file.maxFiles") })}
+          {commonValidationFields(children)}
+        </Section>
+        <Section name={sectionNames.interaction}>
+            {children.onEvent.getPropertyView()}
+            {disabledPropertyView(children)}
+            {hiddenPropertyView(children)}
+          </Section>
+          <Section name={sectionNames.advanced}>
+              {children.fileType.propertyView({
+              label: trans("file.fileType"),
+              placeholder: '[".png"]',
+              tooltip: (
+                <>
+                  {trans("file.reference")}{" "}
+                  <a href={trans("file.fileTypeTooltipUrl")} target="_blank" rel="noreferrer">
+                    {trans("file.fileTypeTooltip")}
+                  </a>
+                </>
+              ),
+            })}
+            {children.prefixIcon.propertyView({ label: trans("button.prefixIcon") })}
+            {children.suffixIcon.propertyView({ label: trans("button.suffixIcon") })}
+            {children.showUploadList.propertyView({ label: trans("file.showUploadList") })}
+            {children.parseFiles.propertyView({
+              label: trans("file.parseFiles"),
+              tooltip: ParseFileTooltip,
+              placement: "right",
+            })}
+          </Section>
+        </>
+      )}
 
-      <Section name={sectionNames.validation}>
-        {children.uploadType.getView() !== "single" &&
-          children.maxFiles.propertyView({ label: trans("file.maxFiles") })}
-        {commonValidationFields(children)}
-      </Section>
-
-      <Section name={sectionNames.layout}>
-        {children.prefixIcon.propertyView({ label: trans("button.prefixIcon") })}
-        {children.suffixIcon.propertyView({ label: trans("button.suffixIcon") })}
-        {hiddenPropertyView(children)}
-      </Section>
-
-      <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
+      {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
+        <><Section name={sectionNames.style}>{children.style.getPropertyView()}</Section></>
+      )}
     </>
   ))
   .build();

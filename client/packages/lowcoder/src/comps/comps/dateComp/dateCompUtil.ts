@@ -100,7 +100,8 @@ export const getStyle = (style: DateTimeStyleType) => {
       }
 
       .ant-picker-clear {
-        inset-inline-end: 18px
+        inset-inline-end: 1px;
+        font-size: 16px;
       }
 
       .ant-picker-clear:hover {

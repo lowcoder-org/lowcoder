@@ -16,14 +16,14 @@ export const EsDatasourceForm = (props: DatasourceFormProps) => {
 
   return (
     <DatasourceForm form={form} preserve={false}>
-      <FormSection size={props.size}>
+      <FormSection $size={props.size}>
         <DatasourceNameFormInputItem
           placeholder={"My Elasticsearch1"}
           initialValue={datasource?.name}
         />
       </FormSection>
 
-      <FormSection size={props.size}>
+      <FormSection $size={props.size}>
         <GeneralSettingFormSectionLabel />
         <FormInputItem
           name={"connectionString"}

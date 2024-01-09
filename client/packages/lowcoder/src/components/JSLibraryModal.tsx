@@ -5,7 +5,7 @@ import { trans } from "i18n";
 import { DocLink } from "components/ExternalLink";
 import { Input } from "components/Input";
 import { TacoButton } from "components/button";
-import { Spin } from "antd";
+import { default as Spin } from "antd/es/spin";
 import { useDispatch, useSelector } from "react-redux";
 import { recommendJSLibrarySelector } from "redux/selectors/jsLibrarySelector";
 import { JSLibraryInfo, JSLibraryLabel } from "components/JSLibraryTree";
@@ -53,7 +53,7 @@ const StyledDocIcon = styled(DocBoldIcon)`
   cursor: pointer;
   color: ${GreyTextColor};
 
-  :hover {
+  &:hover {
     & > g > g {
       stroke: ${ActiveTextColor};
     }
@@ -62,7 +62,7 @@ const StyledDocIcon = styled(DocBoldIcon)`
 const StyledDownloadIcon = styled(DownloadBoldIcon)`
   cursor: pointer;
 
-  :hover {
+  &:hover {
     & > g > g {
       stroke: ${ActiveTextColor};
     }
@@ -169,20 +169,20 @@ const ErrorWrapper = styled.div`
       color: #8b8fa3;
       display: none;
 
-      :hover {
+      &:hover {
         color: #000000;
       }
     }
   }
 
-  :hover {
+  &:hover {
     .close-button {
       display: block;
     }
   }
 
   .error-description a {
-    :hover {
+    &:hover {
       color: #315efb;
     }
   }

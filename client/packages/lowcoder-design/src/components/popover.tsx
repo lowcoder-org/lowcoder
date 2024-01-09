@@ -1,5 +1,5 @@
 import { SuspensionBox } from "./SuspensionBox";
-import { Popover, PopoverProps } from "antd";
+import { default as Popover, PopoverProps } from "antd/es/popover";
 import { Children, cloneElement, MouseEvent, ReactNode, useState } from "react";
 import styled from "styled-components";
 import { ActiveTextColor, GreyTextColor } from "constants/style";
@@ -11,9 +11,9 @@ const Wedge = styled.div`
   /* width: 88px; */
   min-width: 110px;
 `;
-const HandleText = styled.span<{ color?: string }>`
+const HandleText = styled.span<{ $color?: string }>`
   font-size: 13px;
-  color: ${(props) => (props.color ? props.color : "#333333")};
+  color: ${(props) => (props.$color ? props.$color : "#333333")};
   line-height: 13px;
   display: block;
 `;
@@ -29,7 +29,7 @@ const Handle = styled.div`
   padding: 0 8px;
   cursor: pointer;
 
-  :hover {
+  &:hover {
     background-color: #f2f7fc;
     border-radius: 4px;
     cursor: pointer;
@@ -51,6 +51,7 @@ const SimplePopover = (props: {
   setVisible?: (vis: boolean) => void;
   children: JSX.Element | React.ReactNode;
   content: JSX.Element | React.ReactNode;
+  scrollable?: boolean;
 }) => {
   const { visible, setVisible } = props;
   const contentWithBox = (
@@ -58,6 +59,7 @@ const SimplePopover = (props: {
       title={props.title}
       onClose={() => setVisible?.(false)}
       content={props.content}
+      scrollable={props.scrollable}
     />
   );
   return (
@@ -66,7 +68,7 @@ const SimplePopover = (props: {
       align={{
         offset: [-12, 0, 0, 0],
       }}
-      destroyTooltipOnHide
+      // destroyTooltipOnHide
       content={contentWithBox}
       trigger="click"
       open={visible}
@@ -179,7 +181,7 @@ const EditPopover = (props: EditPopoverProps) => {
                 hide();
               }}
             >
-              <HandleText color={item.type === "delete" ? "#F73131" : "#333333"}>
+              <HandleText $color={item.type === "delete" ? "#F73131" : "#333333"}>
                 {item.text}
               </HandleText>
             </Handle>
@@ -236,7 +238,7 @@ const EditPopover = (props: EditPopoverProps) => {
                 hide();
               }}
             >
-              <HandleText color={"#F73131"}>{trans("delete")}</HandleText>
+              <HandleText $color={"#F73131"}>{trans("delete")}</HandleText>
             </Handle>
           )}
           <Wedge />

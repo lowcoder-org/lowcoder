@@ -1,4 +1,4 @@
-import { Progress } from "antd";
+import { default as Progress } from "antd/es/progress";
 import { Section, sectionNames } from "lowcoder-design";
 import { numberExposingStateControl } from "../controls/codeStateControl";
 import { BoolControl } from "../controls/boolControl";
@@ -9,6 +9,9 @@ import { ProgressStyle, ProgressStyleType, heightCalculator, widthCalculator } f
 import styled, { css } from "styled-components";
 import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
+
+import { useContext } from "react";
+import { EditorContext } from "comps/editorState";
 
 const getStyle = (style: ProgressStyleType) => {
   return css`
@@ -64,12 +67,22 @@ const ProgressBasicComp = (function () {
               label: trans("progress.value"),
               tooltip: trans("progress.valueTooltip"),
             })}
-            {children.showInfo.propertyView({
-              label: trans("progress.showInfo"),
-            })}
           </Section>
-          <Section name={sectionNames.layout}>{hiddenPropertyView(children)}</Section>
-          <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
+
+          {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+            <Section name={sectionNames.interaction}>
+              {hiddenPropertyView(children)}
+              {children.showInfo.propertyView({
+                label: trans("progress.showInfo"),
+              })}
+            </Section>
+          )}
+
+          {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+            <Section name={sectionNames.style}>
+              {children.style.getPropertyView()}
+            </Section>
+          )}
         </>
       );
     })

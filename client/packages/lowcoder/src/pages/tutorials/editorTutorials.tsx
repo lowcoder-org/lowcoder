@@ -42,7 +42,7 @@ const tourSteps: Step[] = [
     placement: "left",
     styles: {
       options: {
-        width: 408,
+        width: 500,
       },
     },
     target: `.${tableDragClassName}`,
@@ -55,7 +55,7 @@ const tourSteps: Step[] = [
     spotlightClicks: true,
     styles: {
       options: {
-        width: 480,
+        width: 600,
       },
     },
     target: `.${editorContentClassName}`,
@@ -68,7 +68,7 @@ const tourSteps: Step[] = [
     spotlightClicks: true,
     styles: {
       options: {
-        width: 480,
+        width: 500,
       },
     },
     target: `.${editorBottomClassName}`,
@@ -84,7 +84,7 @@ const tourSteps: Step[] = [
     spotlightPadding: 8,
     styles: {
       options: {
-        width: 408,
+        width: 500,
       },
     },
     target: `.${tableDataDivClassName}`,
@@ -103,7 +103,7 @@ const tourSteps: Step[] = [
     spotlightClicks: true,
     styles: {
       options: {
-        width: 408,
+        width: 500,
       },
     },
     target: `.${leftCompListClassName}`,
@@ -134,8 +134,8 @@ function addTable(editorState: EditorState) {
           {
             [key]: {
               i: key,
-              x: 0,
-              y: 0,
+              x: 6,
+              y: 25,
               ...defaultLayout(compType),
             },
           },
@@ -205,6 +205,7 @@ export default function EditorTutorials() {
   useEffect(() => {
     setRun(true);
   }, []);
+  
   const querySize = editorState.getQueriesComp().getView().length;
   const uiCompSize = editorState.uiCompInfoList().length;
   useEffect(() => {
@@ -222,7 +223,7 @@ export default function EditorTutorials() {
     // auto execute new query
     setTimeout(() => {
       query?.dispatch(executeQueryAction({}));
-    }, 1000);
+    }, 1000); 
   }, [querySize]);
 
   const openTableData = () => {
@@ -237,6 +238,7 @@ export default function EditorTutorials() {
     const { status, index, action, type } = data;
     const finishedStatuses: string[] = [STATUS.FINISHED, STATUS.SKIPPED];
     const nextIndex = index + (action === ACTIONS.PREV ? -1 : 1);
+
     if (finishedStatuses.includes(status)) {
       dispatch(markUserStatus("newUserGuidance", true));
       history.replace({
@@ -253,21 +255,20 @@ export default function EditorTutorials() {
       return;
     }
     if (index === 0 && action === ACTIONS.NEXT) {
-      setStepIndex(nextIndex);
       setTimeout(() => addTable(editorState), 0);
+      setStepIndex(nextIndex);
     } else if (index === 1 && action === ACTIONS.NEXT) {
       // re-try to add table in case of the deletion in the prev step
       addTable(editorState);
-      addQuery(editorState, datasourceInfos);
       // select table in advance
       editorState.setSelectedCompNames(new Set(["table1"]));
+      // only works when addQuery is set in setTimeout
+      setTimeout(() => addQuery(editorState, datasourceInfos), 500);
       setStepIndex(nextIndex);
     } else if (index === 2 && action === ACTIONS.NEXT) {
       // change data
+      editorState.setSelectedCompNames(new Set(["table1"]));
       openTableData();
-      const tableComp = editorState.getUICompByName("table1");
-      tableComp &&
-        tableComp.children.comp.children.data.dispatchChangeValueAction("{{query1.data}}");
       setStepIndex(nextIndex);
     } else if (index === 1 && action === ACTIONS.PREV) {
       // cancel select

@@ -1,4 +1,4 @@
-import { Skeleton } from "antd";
+import { default as Skeleton } from "antd/es/skeleton";
 import { simpleMultiComp } from "comps/generators";
 import { withExposingConfigs } from "comps/generators/withExposing";
 import { GreyTextColor } from "constants/style";

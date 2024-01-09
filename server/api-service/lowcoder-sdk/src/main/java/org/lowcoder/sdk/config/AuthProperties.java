@@ -28,6 +28,7 @@ public class AuthProperties {
     private Oauth2Simple google = new Oauth2Simple();
     private Oauth2Simple github = new Oauth2Simple();
     private ApiKey apiKey = new ApiKey();
+    private Boolean workspaceCreation;
 
     @Getter
     @Setter

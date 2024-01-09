@@ -1,4 +1,4 @@
-import { Button } from "antd";
+import { default as Button } from "antd/es/button";
 import { DeleteWrapper } from "pages/setting/idSource/styledComponents";
 import { trans } from "i18n";
 import { useState } from "react";

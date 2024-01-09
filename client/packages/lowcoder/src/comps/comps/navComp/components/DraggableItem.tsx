@@ -3,7 +3,7 @@ import React, { Ref } from "react";
 import { HTMLAttributes, ReactNode } from "react";
 import styled from "styled-components";
 
-const Wrapper = styled.div<{ dragging: boolean; isOver: boolean; dropInAsSub: boolean }>`
+const Wrapper = styled.div<{ $dragging: boolean; $isOver: boolean; $dropInAsSub: boolean }>`
   position: relative;
   width: 100%;
   height: 30px;
@@ -14,15 +14,15 @@ const Wrapper = styled.div<{ dragging: boolean; isOver: boolean; dropInAsSub: bo
   padding: 0 8px;
   background-color: #ffffff;
   align-items: center;
-  opacity: ${(props) => (props.dragging ? "0.5" : 1)};
+  opacity: ${(props) => (props.$dragging ? "0.5" : 1)};
 
   &::after {
     content: "";
-    display: ${(props) => (props.isOver ? "block" : "none")};
+    display: ${(props) => (props.$isOver ? "block" : "none")};
     height: 4px;
     border-radius: 4px;
     position: absolute;
-    left: ${(props) => (props.dropInAsSub ? "15px" : "-1px")};
+    left: ${(props) => (props.$dropInAsSub ? "15px" : "-1px")};
     right: 0;
     background-color: #315efb;
     bottom: -5px;
@@ -93,7 +93,7 @@ function DraggableItem(props: IProps, ref: Ref<HTMLDivElement>) {
     ...divProps
   } = props;
   return (
-    <Wrapper isOver={isOver} dragging={dragging} dropInAsSub={dropInAsSub} ref={ref} {...divProps}>
+    <Wrapper $isOver={isOver} $dragging={dragging} $dropInAsSub={dropInAsSub} ref={ref} {...divProps}>
       <div className="draggable-handle-icon">
         <DragIcon {...dragListeners} />
       </div>

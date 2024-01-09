@@ -33,13 +33,15 @@ import {
   ButtonStyleControl,
 } from "./videobuttonCompConstants";
 import { RefControl } from "comps/controls/refControl";
+import { AutoHeightControl } from "comps/controls/autoHeightControl";
 import {
-  AutoHeightControl,
   heightCalculator,
   widthCalculator,
-} from "@lowcoder-ee/index.sdk";
+} from "comps/controls/styleControlConstants";
 import { useEffect, useRef, useState } from "react";
 import ReactResizeDetector from "react-resize-detector";
+
+import { useContext } from "react";
 
 const Container = styled.div<{ $style: any }>`
   height: 100%;
@@ -174,21 +176,21 @@ function submitForm(editorState: EditorState, formName: string) {
   }
 }
 
-let ButtonTmpComp = (function () {
-  const childrenMap = {
-    iconSize: withDefault(StringControl, "20px"),
-    type: dropdownControl(typeOptions, ""),
-    autoHeight: withDefault(AutoHeightControl, "fixed"),
-    aspectRatio: withDefault(StringControl, "1 / 1"),
-    onEvent: ButtonEventHandlerControl,
-    disabled: BoolCodeControl,
-    loading: BoolCodeControl,
-    form: SelectFormControl,
-    prefixIcon: IconControl,
-    style: ButtonStyleControl,
-    viewRef: RefControl<HTMLElement>,
-  };
+const childrenMap = {
+  iconSize: withDefault(StringControl, "20px"),
+  type: dropdownControl(typeOptions, ""),
+  autoHeight: withDefault(AutoHeightControl, "fixed"),
+  aspectRatio: withDefault(StringControl, "1 / 1"),
+  onEvent: ButtonEventHandlerControl,
+  disabled: BoolCodeControl,
+  loading: BoolCodeControl,
+  form: SelectFormControl,
+  prefixIcon: IconControl,
+  style: ButtonStyleControl,
+  viewRef: RefControl<HTMLElement>,
+};
 
+let ButtonTmpComp = (function () {
   return new UICompBuilder(childrenMap, (props) => {
     const [width, setWidth] = useState(120);
     const [height, setHeight] = useState(0);
@@ -286,37 +288,35 @@ let ButtonTmpComp = (function () {
     .setPropertyViewFn((children) => (
       <>
         <Section name={sectionNames.basic}>
-          {children.autoHeight.getPropertyView()}
-        </Section>
-        <Section name={sectionNames.interaction}>
-          {children.type.propertyView({
-            label: trans("prop.type"),
-            radioButton: true,
+          {children.prefixIcon.propertyView({
+            label: trans("button.icon"),
           })}
-          {isDefault(children.type.getView())
-            ? [
-                children.onEvent.getPropertyView(),
-                disabledPropertyView(children),
-                loadingPropertyView(children),
-              ]
-            : children.form.getPropertyView()}
         </Section>
 
-        <Section name={sectionNames.layout}>
-          {children.prefixIcon.propertyView({
-            label: trans("button.prefixIcon"),
-          })}
-          {children.iconSize.propertyView({
-            label: trans("meeting.iconSize"),
-          })}
-          {hiddenPropertyView(children)}
-        </Section>
-        <Section name={sectionNames.style}>
-          {children.style.getPropertyView()}
-          {children.aspectRatio.propertyView({
-            label: "Video Aspect Ratio",
-          })}
-        </Section>
+
+        {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
+          <Section name={sectionNames.interaction}>
+            {children.onEvent.getPropertyView()}
+            {disabledPropertyView(children)}
+            {hiddenPropertyView(children)}
+            {loadingPropertyView(children)}
+          </Section>
+        )}
+
+        {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
+          <><Section name={sectionNames.layout}>
+              {children.autoHeight.getPropertyView()}
+              {children.iconSize.propertyView({
+                label: trans("button.iconSize"),
+              })}
+            </Section>
+            <Section name={sectionNames.style}>
+                {children.style.getPropertyView()}
+                {children.aspectRatio.propertyView({
+                  label: trans("style.aspectRatio"),
+                })}
+            </Section></>
+        )}
       </>
     ))
     .build();

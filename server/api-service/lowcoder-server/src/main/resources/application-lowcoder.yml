@@ -3,7 +3,7 @@ spring:
     mongodb:
       authentication-database: admin
       auto-index-creation: false
-      uri: mongodb://lowcoder:secret123@localhost:27017/lowcoder?authSource=admin
+      uri: mongodb://localhost:27017/lowcoder?authSource=admin
     redis:
       url: redis://localhost:6379
   main:
@@ -62,3 +62,4 @@ auth:
   email:
     enable: true
     enable-register: true
+  workspace-creation: true

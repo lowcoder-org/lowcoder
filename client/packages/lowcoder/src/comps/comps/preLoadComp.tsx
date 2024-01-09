@@ -291,7 +291,7 @@ const AddJSLibraryButton = styled.div`
     stroke: #8b8fa3;
   }
 
-  :hover {
+  &:hover {
     g g {
       stroke: #222222;
     }

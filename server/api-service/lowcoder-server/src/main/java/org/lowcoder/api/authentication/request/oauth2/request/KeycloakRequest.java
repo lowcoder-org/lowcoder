@@ -94,6 +94,7 @@ public class KeycloakRequest extends AbstractOauth2Request<Oauth2KeycloakAuthCon
                             .accessToken(MapUtils.getString(map, "access_token"))
                             .expireIn(MapUtils.getIntValue(map, "expires_in"))
                             .refreshToken(MapUtils.getString(map, "refresh_token"))
+                            .refreshTokenExpireIn(MapUtils.getIntValue(map, "refresh_expires_in"))
                             .build();
                     return Mono.just(authToken);
                 });
@@ -116,7 +117,7 @@ public class KeycloakRequest extends AbstractOauth2Request<Oauth2KeycloakAuthCon
                     }
                     AuthUser authUser = AuthUser.builder()
                             .uid(MapUtils.getString(map, "sub"))
-                            .username(MapUtils.getString(map, "name"))
+                            .username(MapUtils.getString(map, "email"))
                             .rawUserInfo(map)
                             .build();
                     return Mono.just(authUser);

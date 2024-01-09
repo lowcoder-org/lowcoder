@@ -8,6 +8,7 @@
   },
   "dependencies": {
     "colord": "^2.9.3",
+    "react-fontawesome": "^0.2.0",
     "react-markdown": "^8.0.0",
     "react-virtualized": "^9.22.3",
     "rehype-raw": "^6.1.1",

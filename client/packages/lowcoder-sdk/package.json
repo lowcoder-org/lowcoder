@@ -1,6 +1,6 @@
 {
   "name": "lowcoder-sdk",
-  "version": "2.1.8",
+  "version": "2.1.11",
   "type": "module",
   "files": [
     "src",
@@ -35,7 +35,6 @@
     "@rollup/plugin-url": "^7.0.0",
     "@svgr/rollup": "^6.3.1",
     "@vitejs/plugin-react": "^2.2.0",
-    "lowcoder-dev-utils": "workspace:^",
     "rollup": "^2",
     "rollup-plugin-cleaner": "^1.0.0",
     "rollup-plugin-node-builtins": "^2.1.2",
@@ -49,11 +48,14 @@
     "vite-tsconfig-paths": "^3.6.0"
   },
   "peerDependencies": {
-    "react": ">=17",
-    "react-dom": ">=17"
+    "react": ">=18",
+    "react-dom": ">=18"
   },
   "keywords": [
     "lowcoder"
   ],
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "prettier": "^3.1.1"
+  }
 }

@@ -51,13 +51,20 @@ import { lastValueIfEqual, shallowEqual } from "util/objectUtils";
 import { IContainer } from "../containerBase";
 import { getSelectedRowKeys } from "./selectionControl";
 import { compTablePropertyView } from "./tablePropertyView";
-import { RowColorComp, TableChildrenView, TableInitComp } from "./tableTypes";
+import { RowColorComp, RowHeightComp, TableChildrenView, TableInitComp } from "./tableTypes";
+
+import { useContext } from "react";
+import { EditorContext } from "comps/editorState";
 
 export class TableImplComp extends TableInitComp implements IContainer {
   private prevUnevaledValue?: string;
   readonly filterData: RecordType[] = [];
   readonly columnAggrData: ColumnsAggrData = {};
 
+  override autoHeight(): boolean {
+    return this.children.autoHeight.getView();
+  }
+  
   private getSlotContainer() {
     return this.children.expansion.children.slot.getSelectedComp().getComp().children.container;
   }
@@ -189,6 +196,17 @@ export class TableImplComp extends TableInitComp implements IContainer {
             })
           )
         );
+        comp = comp.setChild(
+          "rowHeight",
+          comp.children.rowHeight.reduce(
+            RowHeightComp.changeContextDataAction({
+              currentRow: nextRowExample,
+              currentIndex: 0,
+              currentOriginalIndex: 0,
+              columnTitle: nextRowExample ? Object.keys(nextRowExample)[0] : undefined,
+            })
+          )
+        );
       }
 
       if (dataChanged) {
@@ -294,7 +312,7 @@ export class TableImplComp extends TableInitComp implements IContainer {
   filterNode() {
     const nodes = {
       data: this.sortDataNode(),
-      searchValue: this.children.toolbar.children.searchText.node(),
+      searchValue: this.children.searchText.node(),
       filter: this.children.toolbar.children.filter.node(),
       showFilter: this.children.toolbar.children.showFilter.node(),
     };
@@ -439,7 +457,20 @@ let TableTmpComp = withViewFn(TableImplComp, (comp) => {
   );
 });
 
-TableTmpComp = withPropertyViewFn(TableTmpComp, compTablePropertyView);
+
+const withEditorModeStatus = (Component:any) => (props:any) => {
+  const editorModeStatus = useContext(EditorContext).editorModeStatus;
+  return <Component {...props} editorModeStatus={editorModeStatus} />;
+};
+
+// Use this HOC when defining TableTmpComp
+TableTmpComp = withPropertyViewFn(TableTmpComp, (comp) => withEditorModeStatus(compTablePropertyView)(comp));
+
+// TableTmpComp = withPropertyViewFn(TableTmpComp, compTablePropertyView);
+
+
+
+
 
 /**
  * Hijack children's execution events and ensure that selectedRow is modified first (you can also add a triggeredRow field).

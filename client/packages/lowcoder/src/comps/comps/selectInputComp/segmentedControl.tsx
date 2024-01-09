@@ -1,4 +1,4 @@
-import { Segmented as AntdSegmented } from "antd";
+import { default as AntdSegmented } from "antd/es/segmented";
 import { BoolCodeControl } from "comps/controls/codeControl";
 import { stringExposingStateControl } from "comps/controls/codeStateControl";
 import { ChangeEventHandlerControl } from "comps/controls/eventHandlerControl";
@@ -22,6 +22,9 @@ import { hiddenPropertyView, disabledPropertyView } from "comps/utils/propertyUt
 import { trans } from "i18n";
 import { hasIcon } from "comps/utils";
 import { RefControl } from "comps/controls/refControl";
+
+import { useContext } from "react";
+import { EditorContext } from "comps/editorState";
 
 const getStyle = (style: SegmentStyleType) => {
   return css`
@@ -108,18 +111,26 @@ const SegmentedControlBasicComp = (function () {
           {children.options.propertyView({})}
           {children.value.propertyView({ label: trans("prop.defaultValue") })}
         </Section>
-        <FormDataPropertyView {...children} />
-        {children.label.getPropertyView()}
 
-        <Section name={sectionNames.interaction}>
-          {children.onEvent.getPropertyView()}
-          {disabledPropertyView(children)}
-        </Section>
+        {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+          <><SelectInputValidationSection {...children} />
+          <FormDataPropertyView {...children} />
+          <Section name={sectionNames.interaction}>
+            {children.onEvent.getPropertyView()}
+            {disabledPropertyView(children)}
+            {hiddenPropertyView(children)}
+          </Section></>
+        )}
 
-        <SelectInputValidationSection {...children} />
+        {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+          children.label.getPropertyView()
+        )}
 
-        <Section name={sectionNames.layout}>{hiddenPropertyView(children)}</Section>
-        <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
+        {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+          <Section name={sectionNames.style}>
+            {children.style.getPropertyView()}
+          </Section>
+        )}
       </>
     ))
     .setExposeMethodConfigs(selectDivRefMethods)

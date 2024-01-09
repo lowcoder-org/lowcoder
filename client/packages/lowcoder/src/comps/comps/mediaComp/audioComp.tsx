@@ -13,6 +13,8 @@ import { withDefault } from "../../generators/simpleGenerators";
 import { trans } from "i18n";
 import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { mediaCommonChildren, mediaMethods } from "./mediaUtils";
+import { useContext } from "react";
+import { EditorContext } from "comps/editorState";
 
 const Container = styled.div`
   height: 100%;
@@ -72,19 +74,24 @@ let AudioBasicComp = (function () {
         <>
           <Section name={sectionNames.basic}>
             {children.src.propertyView({
-              label: trans("audio.src"),
-            })}
-            {children.autoPlay.propertyView({
-              label: trans("audio.autoPlay"),
-            })}
-            {children.loop.propertyView({
-              label: trans("audio.loop"),
+              label: trans("audio.src"), 
+              tooltip: trans("audio.srcDesc"),
             })}
           </Section>
 
-          <Section name={sectionNames.interaction}>{children.onEvent.getPropertyView()}</Section>
+          {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
+            <Section name={sectionNames.interaction}>
+              {children.onEvent.getPropertyView()}
+              {hiddenPropertyView(children)}
+              {children.autoPlay.propertyView({
+                label: trans("audio.autoPlay"),
+              })}
+              {children.loop.propertyView({
+                label: trans("audio.loop"),
+              })}
+            </Section>
+          )}
 
-          <Section name={sectionNames.layout}>{hiddenPropertyView(children)}</Section>
         </>
       );
     })

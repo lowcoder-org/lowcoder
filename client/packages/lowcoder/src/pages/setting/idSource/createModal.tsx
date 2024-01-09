@@ -10,7 +10,10 @@ import {
   SpanStyled,
   PasswordLabel
 } from "./styledComponents";
-import { Form, Input, Select, Tooltip } from "antd";
+import { default as Form } from "antd/es/form";
+import { default as Input } from "antd/es/input";
+import { default as Select } from "antd/es/select";
+import { default as Tooltip } from "antd/es/tooltip";
 import IdSourceApi, { ConfigItem } from "api/idSourceApi";
 import { validateResponse } from "api/apiUtils";
 import { authConfig, AuthType, clientIdandSecretConfig, ItemType } from "./idSourceConstants";
@@ -37,7 +40,7 @@ function CreateModal(props: CreateModalProp) {
 
   const handleOk = () => {
     form.validateFields().then(values => {
-      console.log(values)
+      // console.log(values)
       saveAuthProvider(values)
     })
   }
@@ -176,39 +179,6 @@ function CreateModal(props: CreateModalProp) {
             </div>
           );
         })}
-        {/* <Form.Item
-          name="clientId"
-          label="Client ID"
-          rules={[{ required: true }]}
-        >
-          <Input
-            placeholder={trans("idSource.formPlaceholder", {
-              label: 'Client ID',
-            })}
-            autoComplete="off"
-          />
-        </Form.Item>
-        <Form.Item
-          name="clientSecret"
-          label={
-            <PasswordLabel>
-              <span>{"Client secret"}:</span>
-              <CloseEyeIcon />
-            </PasswordLabel>
-          }
-          rules={[{
-            required: true,
-            message: trans("idSource.formPlaceholder", {
-              label: 'Client secret',
-            })
-          }]}
-        >
-          <Input
-            type="password"
-            placeholder={trans("idSource.encryptedServer")}
-            autoComplete="off"
-          />
-        </Form.Item> */}
       </FormStyled>
     </CustomModalStyled>
   );

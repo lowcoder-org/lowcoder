@@ -1,6 +1,7 @@
 package org.lowcoder.sdk.auth;
 
 import static org.lowcoder.sdk.auth.constants.Oauth2Constants.BASE_URL_PLACEHOLDER;
+import static org.lowcoder.sdk.auth.constants.Oauth2Constants.SCOPE_PLACEHOLDER;
 
 import javax.annotation.Nullable;
 
@@ -15,6 +16,7 @@ import lombok.Getter;
 public class Oauth2OryAuthConfig extends Oauth2SimpleAuthConfig {
 
     protected String baseUrl;
+    protected String scope;
 
     @JsonCreator
     public Oauth2OryAuthConfig(
@@ -26,13 +28,17 @@ public class Oauth2OryAuthConfig extends Oauth2SimpleAuthConfig {
             String clientId,
             String clientSecret,
             String baseUrl,
+            String scope,
             String authType) {
         super(id, enable, enableRegister, source, sourceName, clientId, clientSecret, authType);
         this.baseUrl = baseUrl;
+        this.scope = scope;
     }
 
     @Override
     public String replaceAuthUrlClientIdPlaceholder(String url) {
-        return super.replaceAuthUrlClientIdPlaceholder(url).replace(BASE_URL_PLACEHOLDER, baseUrl);
+        return super.replaceAuthUrlClientIdPlaceholder(url)
+        		.replace(BASE_URL_PLACEHOLDER, baseUrl)
+        		.replace(SCOPE_PLACEHOLDER, scope);
     }
 }

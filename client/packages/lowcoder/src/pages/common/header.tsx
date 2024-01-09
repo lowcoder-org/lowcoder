@@ -1,4 +1,6 @@
-import { Dropdown, Skeleton } from "antd";
+import { default as Dropdown } from "antd/es/dropdown";
+import { default as Skeleton } from "antd/es/skeleton";
+import { default as Radio, RadioChangeEvent } from "antd/es/radio";
 import LayoutHeader from "components/layout/Header";
 import { SHARE_TITLE } from "constants/apiConstants";
 import { AppTypeEnum } from "constants/applicationConstants";
@@ -9,6 +11,7 @@ import {
   CustomModal,
   DropdownMenu,
   EditText,
+  Layout,
   Left,
   Middle,
   ModuleIcon,
@@ -39,6 +42,8 @@ import { HeaderStartDropdown } from "./headerStartDropdown";
 import { AppPermissionDialog } from "../../components/PermissionDialog/AppPermissionDialog";
 import { getBrandingConfig } from "../../redux/selectors/configSelectors";
 import { messageInstance } from "lowcoder-design";
+import { EditorContext } from  "../../comps/editorState";
+
 
 const StyledLink = styled.a`
   display: flex;
@@ -51,7 +56,7 @@ const LogoIcon = styled(Logo)`
   max-width: 24px;
 `;
 
-const IconCss = css<{ $show: boolean }>`
+const IconCss = css<{ $show?: boolean }>`
   &:hover {
     background-color: #8b8fa34c;
   }
@@ -65,6 +70,9 @@ const IconCss = css<{ $show: boolean }>`
   }
 
   cursor: pointer;
+`;
+const LayoutIcon = styled(Layout)`
+  ${IconCss}
 `;
 const LeftIcon = styled(Left)`
   ${IconCss}
@@ -127,8 +135,8 @@ const RecoverSnapshotBtn = styled(TacoButton)`
   padding: 4px 7px;
   height: 28px;
 
-  :disabled,
-  :disabled:hover {
+  &:disabled,
+  &:disabled:hover {
     background: #4965f2;
     border: 1px solid #4965f2;
     color: #ffffff;
@@ -265,14 +273,21 @@ function HeaderProfile(props: { user: User }) {
 
 export type PanelStatus = { left: boolean; bottom: boolean; right: boolean };
 export type TogglePanel = (panel?: keyof PanelStatus) => void;
+export type EditorModeStatus = "layout" | "logic" | "both";
+export type ToggleEditorModeStatus = (editorModeStatus?: EditorModeStatus) => void;
+
 type HeaderProps = {
-  togglePanel: TogglePanel;
   panelStatus: PanelStatus;
+  togglePanel: TogglePanel;
+  editorModeStatus: EditorModeStatus;
+  toggleEditorModeStatus: ToggleEditorModeStatus;
 };
 
 // header in editor page
 export default function Header(props: HeaderProps) {
+  const editorState = useContext(EditorContext);
   const { togglePanel } = props;
+  const { toggleEditorModeStatus } = props;
   const { left, bottom, right } = props.panelStatus;
   const user = useSelector(getUser);
   const application = useSelector(currentApplication);
@@ -287,6 +302,17 @@ export default function Header(props: HeaderProps) {
 
   const isModule = appType === AppTypeEnum.Module;
 
+  const editorModeOptions = [
+    { label: trans("header.editorMode_layout"), key: "editorModeSelector_layout", value: "layout" },
+    { label: trans("header.editorMode_logic"), key: "editorModeSelector_logic", value: "logic" },
+    { label: trans("header.editorMode_both"), key: "editorModeSelector_both", value: "both" },
+  ];
+  
+  const onEditorStateValueChange = ({ target: { value } }: RadioChangeEvent) => {
+    toggleEditorModeStatus(value);
+    editorState.setEditorModeStatus(value);
+  };
+  
   const headerStart = (
     <>
       <StyledLink onClick={() => history.push(ALL_APPLICATIONS_URL)}>
@@ -323,8 +349,17 @@ export default function Header(props: HeaderProps) {
     </>
   );
 
+  // key={option.key}
+
   const headerMiddle = (
-    <>
+    <> 
+      <Radio.Group onChange={onEditorStateValueChange} value={props.editorModeStatus} optionType="button" buttonStyle="solid" size="small">
+        {editorModeOptions.map((option) => (
+          <Radio.Button key={option.key} value={option.value}>
+            {option.label}
+          </Radio.Button>
+        ))}
+      </Radio.Group>
       <IconRadius>
         <LeftIcon onClick={() => togglePanel("left")} $show={left} />
       </IconRadius>

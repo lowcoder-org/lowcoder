@@ -18,9 +18,13 @@ import { alignWithJustifyControl } from "comps/controls/alignControl";
 import { MarginControl } from "../controls/marginControl";
 import { PaddingControl } from "../controls/paddingControl";
 
+import React, { useContext } from "react";
+import { EditorContext } from "comps/editorState";
+
 const getStyle = (style: TextStyleType) => {
   return css`
-    border-radius: 4px;
+    border-radius: ${(style.radius ? style.radius : "4px")};
+    border: ${(style.borderWidth ? style.borderWidth : "0px")} solid ${style.border};
     color: ${style.text};
     background-color: ${style.background};
     .markdown-body a {
@@ -62,13 +66,13 @@ const getStyle = (style: TextStyleType) => {
   `;
 };
 
-const TextContainer = styled.div<{ type: string; styleConfig: TextStyleType }>`
+const TextContainer = styled.div<{ $type: string; $styleConfig: TextStyleType }>`
   height: 100%;
   overflow: auto;
   margin: 0;
   ${(props) =>
-    props.type === "text" && "white-space:break-spaces;line-height: 1.9;"};
-  ${(props) => props.styleConfig && getStyle(props.styleConfig)}
+    props.$type === "text" && "white-space:break-spaces;line-height: 1.9;"};
+  ${(props) => props.$styleConfig && getStyle(props.$styleConfig)}
   display: flex;
   font-size: 13px;
   ${markdownCompCss};
@@ -103,7 +107,9 @@ const VerticalAlignmentOptions = [
   { label: <AlignBottom />, value: "flex-end" },
 ] as const;
 
-let TextTmpComp = (function () {
+
+let TextTmpComp = (function () {  
+
   const childrenMap = {
     text: stringExposingStateControl(
       "text",
@@ -121,8 +127,8 @@ let TextTmpComp = (function () {
     const value = props.text.value;
     return (
       <TextContainer
-        type={props.type}
-        styleConfig={props.style}
+        $type={props.type}
+        $styleConfig={props.style}
         style={{
           justifyContent: props.horizontalAlignment,
           alignItems: props.autoHeight ? "center" : props.verticalAlignment,
@@ -136,6 +142,7 @@ let TextTmpComp = (function () {
     .setPropertyViewFn((children) => {
       return (
         <>
+        
           <Section name={sectionNames.basic}>
             {children.type.propertyView({
               label: trans("value"),
@@ -145,21 +152,31 @@ let TextTmpComp = (function () {
             {children.text.propertyView({})}
           </Section>
 
-          <Section name={sectionNames.layout}>
-            {children.autoHeight.getPropertyView()}
-            {!children.autoHeight.getView() &&
-              children.verticalAlignment.propertyView({
-                label: trans("textShow.verticalAlignment"),
-                radioButton: true,
-              })}
-            {children.horizontalAlignment.propertyView({
-              label: trans("textShow.horizontalAlignment"),
-              radioButton: true,
-            })}
-            {hiddenPropertyView(children)}
-          </Section>
-
-          <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
+          {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+            <Section name={sectionNames.interaction}>
+              {hiddenPropertyView(children)}
+            </Section>
+          )}
+        
+          {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+            <>
+              <Section name={sectionNames.layout}>
+                {children.autoHeight.getPropertyView()}
+                {!children.autoHeight.getView() &&
+                  children.verticalAlignment.propertyView({
+                    label: trans("textShow.verticalAlignment"),
+                    radioButton: true,
+                  })}
+                {children.horizontalAlignment.propertyView({
+                  label: trans("textShow.horizontalAlignment"),
+                  radioButton: true,
+                })}
+              </Section>
+              <Section name={sectionNames.style}>
+                {children.style.getPropertyView()}
+              </Section>
+            </>
+          )}
         </>
       );
     })

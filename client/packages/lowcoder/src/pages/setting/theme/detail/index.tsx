@@ -1,4 +1,5 @@
-import { InputRef, message } from "antd";
+import { InputRef } from "antd/es/input";
+import { default as message } from "antd/es/message";
 import {
   CommonSettingResponseData,
   SetCommonSettingPayload,

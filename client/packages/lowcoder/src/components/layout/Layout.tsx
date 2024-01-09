@@ -1,5 +1,5 @@
 import { Route, Switch } from "react-router-dom";
-import { Layout as AntdLayout } from "antd";
+import { default as AntdLayout } from "antd/es/layout";
 import { AppHeader } from "pages/common/header";
 import * as React from "react";
 import { ReactElement } from "react";
@@ -15,7 +15,7 @@ type LayoutProps = {
 };
 
 const SideBarV2 = styled(SideBar)`
-  background-color: #f7f9fc;
+  background: #f7f9fc !important;
   padding: 28px 10px;
   border-right: 1px solid #ebebeb;
 
@@ -24,7 +24,7 @@ const SideBarV2 = styled(SideBar)`
     display: block;
     width: 204px;
     height: 1px;
-    background-color: #ebebeb;
+    background: #ebebeb !important;
     margin: 0 auto 4px;
   }
 `;

@@ -8,7 +8,7 @@ export const editorContentClassName = "joyride-editor-content";
 export const tableDataDivClassName = "joyride-table-data-div";
 export const editorBottomClassName = "joyride-editor-bottom";
 
-export const defaultJoyrideStyles: Styles = {
+export const defaultJoyrideStyles: Partial<Styles> = {
   options: {
     arrowColor: "#4965F2",
     overlayColor: "rgba(0, 0, 0, 0.4)",

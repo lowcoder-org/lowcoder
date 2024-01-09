@@ -9,7 +9,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { parseJSLibraryURL } from "util/jsLibraryUtils";
 import { jsLibrarySelector } from "redux/selectors/jsLibrarySelector";
 import { fetchJSLibraryMetasAction } from "redux/reduxActions/jsLibraryActions";
-import { Typography } from "antd";
+import { default as TypographyParagraph } from "antd/es/typography/Paragraph";
 
 const InfoWrapper = styled.div`
   color: #8b8fa3;
@@ -30,7 +30,7 @@ const ExportWrapper = styled.div`
   height: 20px;
   line-height: 20px;
 `;
-const DescWrapper = styled(Typography.Paragraph)`
+const DescWrapper = styled(TypographyParagraph)`
   line-height: 1.5em;
   font-size: 13px;
   color: #8b8fa3;
@@ -73,7 +73,7 @@ const Icon = styled(PointIcon)`
   }
 `;
 
-const JSLibraryCollapse = styled(Collapse)<{ mode: "row" | "column" }>`
+const JSLibraryCollapse = styled(Collapse)<{ $mode: "row" | "column" }>`
   margin-bottom: 12px;
 
   cursor: inherit;
@@ -84,7 +84,7 @@ const JSLibraryCollapse = styled(Collapse)<{ mode: "row" | "column" }>`
   }
 
   ${(props) =>
-    props.mode === "row"
+    props.$mode === "row"
       ? css`
           width: 284px;
 
@@ -176,7 +176,7 @@ export const JSLibraryTree = (props: {
 
   return (
     <JSLibraryCollapse
-      mode={props.mode}
+      $mode={props.mode}
       isSelected={false}
       isOpen={false}
       config={finalMetas.map((meta, idx) => {

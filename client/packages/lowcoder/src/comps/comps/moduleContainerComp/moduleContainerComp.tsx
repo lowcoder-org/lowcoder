@@ -14,8 +14,8 @@ import {
   InnerGrid,
 } from "../containerComp/containerView";
 
-const StyledInnerGrid = styled(InnerGrid)<ContainerBaseProps & { bordered: boolean }>`
-  border: ${(props) => (!props.bordered ? "0px" : `1px solid ${BorderColor}`)};
+const StyledInnerGrid = styled(InnerGrid)<ContainerBaseProps & { $bordered: boolean }>`
+  border: ${(props) => (!props.$bordered ? "0px" : `1px solid ${BorderColor}`)};
   height: 100%;
 `;
 
@@ -36,7 +36,7 @@ function ModuleContainerView(props: ContainerBaseProps) {
       overflow="hidden"
       containerPadding={readOnly ? [0, 0] : [4, 4]}
       hintPlaceholder={HintPlaceHolder}
-      bordered={!readOnly}
+      $bordered={!readOnly}
       isDraggable={!readOnly}
       isDroppable={!readOnly}
       isSelectable={!readOnly}

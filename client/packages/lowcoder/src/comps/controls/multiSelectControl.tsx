@@ -8,9 +8,9 @@ import styled from "styled-components";
 import { EllipsisTextCss } from "components/Label";
 import _ from "lodash";
 
-const LabelWrapper = styled.div<{ placement: ControlPlacement }>`
+const LabelWrapper = styled.div<{ $placement: ControlPlacement }>`
   flex-shrink: 0;
-  width: ${(props) => (props.placement === "right" ? "96px" : "bottom" ? "112px" : "136px")};
+  width: ${(props) => (props.$placement === "right" ? "96px" : "bottom" ? "112px" : "136px")};
 `;
 
 const DropDownItemLabel = styled.div`
@@ -60,13 +60,13 @@ export function multiSelectControl<T extends OptionsType>(
       return (
         <FlexDiv>
           {params.label && (
-            <LabelWrapper placement={placement}>
+            <LabelWrapper $placement={placement}>
               <ToolTipLabel title={params.tooltip} label={params.label} />
             </LabelWrapper>
           )}
 
           <Tooltip title={!params.label ? params.tooltip : undefined}>
-            <DropdownContainer placement={placement}>
+            <DropdownContainer $placement={placement}>
               <CustomSelect
                 mode={"multiple"}
                 popupClassName="ob-dropdown-control-select"

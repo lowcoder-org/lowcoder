@@ -4,6 +4,7 @@ auth:
   email:
     enable: true
     enable-register: ${ENABLE_USER_SIGN_UP:true}
+  workspace-creation: ${LOWCODER_CREATE_SIGNUP_WORKSPACE:true}
 
 spring:
   data:

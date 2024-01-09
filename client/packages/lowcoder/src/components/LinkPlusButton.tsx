@@ -22,7 +22,7 @@ const Btn = styled(TacoButton)`
     line-height: 13px;
     box-shadow: none;
 
-    :hover {
+    &:hover {
       color: #315efb;
       border: none;
       background-color: #ffffff;

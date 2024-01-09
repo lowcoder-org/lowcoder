@@ -40,7 +40,7 @@ import {
 import { TriContainer } from "../triContainerComp/triContainer";
 import { traverseCompTree } from "../containerBase/utils";
 import { IForm } from "./formDataConstants";
-import { Spin } from "antd";
+import { default as Spin } from "antd/es/spin";
 import { BoolControl } from "comps/controls/boolControl";
 import { BottomResTypeEnum } from "types/bottomRes";
 import { BoolCodeControl, JSONObjectControl } from "comps/controls/codeControl";
@@ -185,20 +185,42 @@ const FormBaseComp = (function () {
       return (
         <>
           <Section name={sectionNames.basic}>
-            {false && children.initialData.propertyView({ label: trans("formComp.initialData") })}
             {children.resetAfterSubmit.propertyView({ label: trans("formComp.resetAfterSubmit") })}
           </Section>
-          <Section name={sectionNames.interaction}>
-            {children.onEvent.getPropertyView()}
-            {disabledPropertyView(children)}
-            {children.disableSubmit.propertyView({ label: trans("formComp.disableSubmit") })}
-            {loadingPropertyView(children)}
-          </Section>
-          <Section name={sectionNames.layout}>
-            {children.container.getPropertyView()}
-            {hiddenPropertyView(children)}
-          </Section>
-          <Section name={sectionNames.style}>{children.container.stylePropertyView()}</Section>
+
+          {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
+            <><Section name={sectionNames.interaction}>
+                {children.onEvent.getPropertyView()}
+                {disabledPropertyView(children)}
+                {children.disableSubmit.propertyView({ label: trans("formComp.disableSubmit") })}
+                {hiddenPropertyView(children)}
+                {loadingPropertyView(children)}
+              </Section>
+            </>
+          )}
+
+          {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
+            <>
+              <Section name={sectionNames.layout}>
+                {children.container.getPropertyView()}
+              </Section>
+            </>
+          )}
+
+          {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
+            <Section name={sectionNames.advanced}>
+              {children.initialData.propertyView({ label: trans("formComp.initialData") })}
+            </Section>
+          )}
+
+          {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
+            <>
+              <Section name={sectionNames.style}>
+                {children.container.stylePropertyView()}
+              </Section>
+            </>
+          )}
+          
         </>
       );
     })

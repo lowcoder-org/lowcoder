@@ -1,4 +1,7 @@
-import { Button, Dropdown, Menu, Skeleton } from "antd";
+import { default as Button } from "antd/es/button";
+import { default as Dropdown } from "antd/es/dropdown";
+import { default as Menu } from "antd/es/menu";
+import { default as Skeleton } from "antd/es/skeleton";
 import {
   Button100,
   ButtonCompWrapper,
@@ -15,11 +18,12 @@ import styled from "styled-components";
 import { CommonNameConfig, NameConfig, withExposingConfigs } from "../../generators/withExposing";
 import { hiddenPropertyView, disabledPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
-import React, { Suspense, useEffect, useRef, useState } from "react";
+import React, { Suspense, useEffect, useRef, useState, useContext } from "react";
 import { arrayStringExposingStateControl } from "comps/controls/codeStateControl";
 import { BoolControl } from "comps/controls/boolControl";
 import { ItemType } from "antd/lib/menu/hooks/useItems";
 import { RefControl } from "comps/controls/refControl";
+import { EditorContext } from "comps/editorState"; 
 
 const Error = styled.div`
   color: #f5222d;
@@ -212,20 +216,26 @@ const ScannerTmpComp = (function () {
         <>
           <Section name={sectionNames.basic}>
             {children.text.propertyView({ label: trans("text") })}
-            {children.continuous.propertyView({ label: trans("scanner.continuous") })}
-            {children.continuous.getView() &&
+          </Section>
+
+          {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
+            <><Section name={sectionNames.interaction}>
+                {children.onEvent.getPropertyView()}
+                {disabledPropertyView(children)}
+                {hiddenPropertyView(children)}
+              </Section>
+              <Section name={sectionNames.advanced}>
+              {children.continuous.propertyView({ label: trans("scanner.continuous") })}
+              {children.continuous.getView() &&
               children.uniqueData.propertyView({ label: trans("scanner.uniqueData") })}
-            {children.maskClosable.propertyView({ label: trans("scanner.maskClosable") })}
-          </Section>
+              {children.maskClosable.propertyView({ label: trans("scanner.maskClosable") })}
+            </Section>
+            </>
+          )}
 
-          <Section name={sectionNames.interaction}>
-            {children.onEvent.getPropertyView()}
-            {disabledPropertyView(children)}
-          </Section>
-
-          <Section name={sectionNames.layout}>{hiddenPropertyView(children)}</Section>
-
-          <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
+          {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
+            <><Section name={sectionNames.style}>{children.style.getPropertyView()}</Section></>
+          )}
         </>
       );
     })

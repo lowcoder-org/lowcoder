@@ -16,6 +16,7 @@ import { checkIsMobile } from "util/commonUtils";
 import { EditorContext } from "comps/editorState";
 import { getDataSourceStructures } from "redux/selectors/datasourceSelectors";
 import { DatasourceStructure } from "api/datasourceApi";
+import { loadAuthSearchParams } from "pages/userAuth/authUtils";
 
 export const ForceViewModeContext = React.createContext<boolean>(false);
 
@@ -59,9 +60,9 @@ export function useApplicationId() {
 }
 
 export function useRedirectUrl() {
-  const location = useLocation();
-  const queryParams = new URLSearchParams(location.search);
-  return queryParams.get(AuthSearchParams.redirectUrl);
+  const authSearchParams = loadAuthSearchParams()
+  const redirectUrl = authSearchParams && authSearchParams.redirectUrl
+  return redirectUrl && decodeURIComponent(redirectUrl);
 }
 
 export function useFixedDelay(callback: () => Promise<unknown>, delay: number | null) {

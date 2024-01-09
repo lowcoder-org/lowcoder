@@ -40,10 +40,10 @@ const QueryLibrary = styled(QueryLibraryIcon)`
   }
 `;
 
-export const IconWrapper = styled.div<{ isRestApi?: boolean }>`
+export const IconWrapper = styled.div<{ $isRestApi?: boolean }>`
   display: flex;
-  width: ${(props) => (props.isRestApi ? "26px" : "16px")};
-  height: ${(props) => (props.isRestApi ? "13px" : "16px")};
+  width: ${(props) => (props.$isRestApi ? "26px" : "16px")};
+  height: ${(props) => (props.$isRestApi ? "13px" : "16px")};
   border-radius: 2px;
   flex-shrink: 0;
   margin-right: 4px;
@@ -51,13 +51,13 @@ export const IconWrapper = styled.div<{ isRestApi?: boolean }>`
 `;
 
 export const LargeBottomResIconWrapper = styled(IconWrapper)`
-  width: ${(props) => (props.isRestApi ? "32px" : "20px")};
-  height: ${(props) => (props.isRestApi ? "16px" : "20px")};
+  width: ${(props) => (props.$isRestApi ? "32px" : "20px")};
+  height: ${(props) => (props.$isRestApi ? "16px" : "20px")};
   margin-right: 8px;
 
   svg {
-    width: ${(props) => (props.isRestApi ? "32px" : "20px")};
-    height: ${(props) => (props.isRestApi ? "16px" : "20px")};
+    width: ${(props) => (props.$isRestApi ? "32px" : "20px")};
+    height: ${(props) => (props.$isRestApi ? "16px" : "20px")};
   }
 `;
 
@@ -146,8 +146,8 @@ export const getBottomResIcon = (
   };
   const isRestApi = type === "restApi" && !!httpMethod;
   return size === "large" ? (
-    <LargeBottomResIconWrapper isRestApi={isRestApi}>{getIcon()}</LargeBottomResIconWrapper>
+    <LargeBottomResIconWrapper $isRestApi={isRestApi}>{getIcon()}</LargeBottomResIconWrapper>
   ) : (
-    <IconWrapper isRestApi={isRestApi}>{getIcon()}</IconWrapper>
+    <IconWrapper $isRestApi={isRestApi}>{getIcon()}</IconWrapper>
   );
 };

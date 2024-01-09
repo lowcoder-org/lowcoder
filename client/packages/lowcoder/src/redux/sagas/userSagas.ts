@@ -23,6 +23,7 @@ import { defaultUser } from "constants/userConstants";
 import { messageInstance } from "lowcoder-design";
 
 import { AuthSearchParams } from "constants/authConstants";
+import { saveAuthSearchParams } from "pages/userAuth/authUtils";
 
 function validResponseData(response: AxiosResponse<ApiResponse>) {
   return response && response.data && response.data.data;
@@ -108,7 +109,11 @@ export function* getRawCurrentUserSaga() {
       });
     }
   } catch (error: any) {
-    messageInstance.error(error instanceof Error ? error.message : error);
+    messageInstance.error(
+      error instanceof Error
+        ? (error.message) as string
+        : error as string
+    );
     log.error("getRawCurrentUser error:", error);
   }
 }
@@ -132,14 +137,14 @@ export function* logoutSaga(action: LogoutActionType) {
   try {
     let redirectURL = AUTH_LOGIN_URL;
     if (action.payload.notAuthorised) {
-      const currentUrl = window.location.href;
-      redirectURL = `${AUTH_LOGIN_URL}?redirectUrl=${encodeURIComponent(currentUrl)}`;
+      const currentUrl = window.location.href
       const urlObj = new URL(currentUrl);
       // Add loginType param for auto login jump
       const loginType = urlObj.searchParams.get(AuthSearchParams.loginType);
-      if (loginType) {
-        redirectURL = redirectURL + `&${AuthSearchParams.loginType}=${loginType}`;
-      }
+      saveAuthSearchParams({
+        [AuthSearchParams.redirectUrl]: encodeURIComponent(currentUrl),
+        [AuthSearchParams.loginType]: loginType
+      });
     }
     let isValidResponse = true;
     if (!action.payload.notAuthorised) {

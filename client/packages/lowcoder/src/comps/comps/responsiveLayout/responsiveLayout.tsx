@@ -1,4 +1,5 @@
-import { Row, Col } from "antd";
+import { default as Row } from "antd/es/row";
+import { default as Col } from "antd/es/col";
 import { JSONObject, JSONValue } from "util/jsonTypes";
 import { CompAction, CompActionTypes, deleteCompAction, wrapChildAction } from "lowcoder-core";
 import { DispatchType, RecordConstructorToView, wrapDispatch } from "lowcoder-core";
@@ -33,6 +34,9 @@ import { trans } from "i18n";
 import { messageInstance } from "lowcoder-design";
 import { BoolControl } from "comps/controls/boolControl";
 import { NumberControl } from "comps/controls/codeControl";
+
+import { useContext } from "react";
+import { EditorContext } from "comps/editorState";
 
 const RowWrapper = styled(Row)<{$style: ResponsiveLayoutRowStyleType}>`
   height: 100%;
@@ -183,49 +187,56 @@ export const ResponsiveLayoutBaseComp = (function () {
               title: trans("responsiveLayout.column"),
               newOptionLabel: "Column",
             })}
-            {children.autoHeight.getPropertyView()}
           </Section>
-          <Section name={trans("responsiveLayout.rowLayout")}>
-            {children.rowBreak.propertyView({
-              label: trans("responsiveLayout.rowBreak")
-            })}
-            {controlItem({}, (
-              <div style={{marginTop: '8px'}}>
-                {trans("responsiveLayout.columnsPerRow")}
-              </div>
-            ))}
-            {children.columnPerRowLG.propertyView({
-              label: trans("responsiveLayout.desktop")
-            })}
-            {children.columnPerRowMD.propertyView({
-              label: trans("responsiveLayout.tablet")
-            })}
-            {children.columnPerRowSM.propertyView({
-              label: trans("responsiveLayout.mobile")
-            })}
-          </Section>
-          <Section name={trans("responsiveLayout.columnsLayout")}>
-            {children.matchColumnsHeight.propertyView({
-              label: trans("responsiveLayout.matchColumnsHeight")
-            })}
-            {controlItem({}, (
-              <div style={{marginTop: '8px'}}>
-                {trans("responsiveLayout.columnsSpacing")}
-              </div>
-            ))}
-            {children.horizontalSpacing.propertyView({
-              label: trans("responsiveLayout.horizontal")
-            })}
-            {children.verticalSpacing.propertyView({
-              label: trans("responsiveLayout.vertical")
-            })}
-          </Section>
-          <Section name={trans("responsiveLayout.rowStyle")}>
-            {children.rowStyle.getPropertyView()}
-          </Section>
-          <Section name={trans("responsiveLayout.columnStyle")}>
-            {children.columnStyle.getPropertyView()}
-          </Section>
+
+          {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+            <>
+            <Section name={sectionNames.layout}>
+              {children.autoHeight.getPropertyView()}
+            </Section>
+            <Section name={trans("responsiveLayout.rowLayout")}>
+              {children.rowBreak.propertyView({
+                label: trans("responsiveLayout.rowBreak")
+              })}
+              {controlItem({}, (
+                <div style={{ marginTop: '8px' }}>
+                  {trans("responsiveLayout.columnsPerRow")}
+                </div>
+              ))}
+              {children.columnPerRowLG.propertyView({
+                label: trans("responsiveLayout.desktop")
+              })}
+              {children.columnPerRowMD.propertyView({
+                label: trans("responsiveLayout.tablet")
+              })}
+              {children.columnPerRowSM.propertyView({
+                label: trans("responsiveLayout.mobile")
+              })}
+            </Section>
+            <Section name={trans("responsiveLayout.columnsLayout")}>
+              {children.matchColumnsHeight.propertyView({
+                label: trans("responsiveLayout.matchColumnsHeight")
+              })}
+              {controlItem({}, (
+                <div style={{ marginTop: '8px' }}>
+                  {trans("responsiveLayout.columnsSpacing")}
+                </div>
+              ))}
+              {children.horizontalSpacing.propertyView({
+                label: trans("responsiveLayout.horizontal")
+              })}
+              {children.verticalSpacing.propertyView({
+                label: trans("responsiveLayout.vertical")
+              })}
+            </Section>
+            <Section name={trans("responsiveLayout.rowStyle")}>
+              {children.rowStyle.getPropertyView()}
+            </Section>
+            <Section name={trans("responsiveLayout.columnStyle")}>
+              {children.columnStyle.getPropertyView()}
+            </Section>
+            </>
+          )}
         </>
       );
     })
@@ -277,7 +288,8 @@ class ResponsiveLayoutImplComp extends ResponsiveLayoutBaseComp implements ICont
           },
         } as CompAction;
       }
-      if (value.type === "delete" && columns.length <= 1) {
+      const { path } = action;
+      if (value.type === "delete" && path[0] === 'columns' && columns.length <= 1) {
         messageInstance.warning(trans("responsiveLayout.atLeastOneColumnError"));
         // at least one column
         return this;
