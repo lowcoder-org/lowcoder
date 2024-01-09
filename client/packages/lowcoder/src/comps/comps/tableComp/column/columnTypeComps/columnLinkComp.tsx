@@ -1,4 +1,4 @@
-import { Input } from "antd";
+import { default as Input } from "antd/es/input";
 import {
   ColumnTypeCompBuilder,
   ColumnTypeViewFn,
@@ -22,7 +22,7 @@ const childrenMap = {
 
 const disableCss = css`
   &,
-  :hover {
+  &:hover {
     cursor: not-allowed;
     color: rgba(0, 0, 0, 0.25) !important;
   }

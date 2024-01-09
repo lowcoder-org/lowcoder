@@ -15,8 +15,8 @@ const BottomWrapper = styled.div`
 
 const AddPermissionButton = styled(TacoButton)`
   &,
-  :hover,
-  :focus {
+  &:hover,
+  &:focus {
     border: none;
     box-shadow: none;
     padding: 0;
@@ -32,7 +32,7 @@ const AddPermissionButton = styled(TacoButton)`
     margin-right: 4px;
   }
 
-  :hover {
+  &:hover {
     color: #315efb;
 
     svg g path {

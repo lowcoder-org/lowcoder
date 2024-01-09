@@ -17,11 +17,11 @@ export const SMTPDatasourceForm = (props: DatasourceFormProps) => {
 
   return (
     <DatasourceForm form={form} preserve={false}>
-      <FormSection size={props.size}>
+      <FormSection $size={props.size}>
         <DatasourceNameFormInputItem placeholder={"My SMTP1"} initialValue={datasource?.name} />
       </FormSection>
 
-      <FormSection size={props.size}>
+      <FormSection $size={props.size}>
         <GeneralSettingFormSectionLabel />
         <HostFormInputItem initialValue={datasourceConfig?.host} />
         <PortFormInputItem initialValue={"25"} port={datasourceConfig?.port} />

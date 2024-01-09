@@ -1,4 +1,4 @@
-import { Badge } from "antd";
+import { default as Badge } from "antd/es/badge";
 import {
   ColumnTypeCompBuilder,
   ColumnTypeViewFn,
@@ -9,7 +9,7 @@ import { DropdownStyled, Wrapper } from "./columnTagsComp";
 import { ReactNode, useContext, useState } from "react";
 import { StatusContext } from "components/table/EditableCell";
 import { CustomSelect, PackUpIcon, ScrollBar } from "lowcoder-design";
-import { PresetStatusColorType } from "antd/lib/_util/colors";
+import { PresetStatusColorType } from "antd/es/_util/colors";
 
 export const ColumnValueTooltip = trans("table.columnValueTooltip");
 

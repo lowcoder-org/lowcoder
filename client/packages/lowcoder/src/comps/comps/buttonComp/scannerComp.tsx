@@ -1,4 +1,7 @@
-import { Button, Dropdown, Menu, Skeleton } from "antd";
+import { default as Button } from "antd/es/button";
+import { default as Dropdown } from "antd/es/dropdown";
+import { default as Menu } from "antd/es/menu";
+import { default as Skeleton } from "antd/es/skeleton";
 import {
   Button100,
   ButtonCompWrapper,

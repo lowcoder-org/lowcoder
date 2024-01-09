@@ -1,4 +1,5 @@
-import { Row, Col } from "antd";
+import { default as Row } from "antd/es/row";
+import { default as Col } from "antd/es/col";
 import { JSONObject, JSONValue } from "util/jsonTypes";
 import { CompAction, CompActionTypes, deleteCompAction, wrapChildAction } from "lowcoder-core";
 import { DispatchType, RecordConstructorToView, wrapDispatch } from "lowcoder-core";

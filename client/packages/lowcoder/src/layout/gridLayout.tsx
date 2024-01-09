@@ -70,10 +70,10 @@ const DELAY_HIGHER_MS = 5;
 export const FLY_START_INFO = "flyStartInfo";
 export const FLY_OVER_INFO = "flyOverInfo";
 
-const DragPlaceHolder = styled.div<{ compType: UICompType }>`
+const DragPlaceHolder = styled.div<{ $compType: UICompType }>`
   height: 100%;
   background-color: ${(props) =>
-    props.compType === "module" ? ModulePrimaryColor : PrimaryColor} !important;
+    props.$compType === "module" ? ModulePrimaryColor : PrimaryColor} !important;
 `;
 
 /**
@@ -399,7 +399,7 @@ class GridLayout extends React.Component<GridLayoutProps, GridLayoutState> {
     const draggingExtraLayout = draggingUtils.getData<FlyStartInfo>(FLY_START_INFO)?.flyExtraLayout;
     const extraItem = this.props.extraLayout?.[item.i] ?? draggingExtraLayout?.[item.i];
     const child = item.placeholder ? (
-      <DragPlaceHolder compType={extraItem?.compType} className="react-grid-placeholder" />
+      <DragPlaceHolder $compType={extraItem?.compType} className="react-grid-placeholder" />
     ) : (
       childrenMap[item.i]
     );
@@ -1006,10 +1006,10 @@ class GridLayout extends React.Component<GridLayoutProps, GridLayoutState> {
         ref={this.ref}
         className={mergedClassName}
         style={style}
-        bgColor={this.props.bgColor}
-        radius={this.props.radius}
-        autoHeight={this.props.autoHeight}
-        overflow={this.props.overflow}
+        $bgColor={this.props.bgColor}
+        $radius={this.props.radius}
+        $autoHeight={this.props.autoHeight}
+        $overflow={this.props.overflow}
         tabIndex={-1}
         onDrop={isDroppable ? this.onDrop : _.noop}
         onDragLeave={isDroppable ? this.onDragLeave : _.noop}
@@ -1036,20 +1036,20 @@ class GridLayout extends React.Component<GridLayoutProps, GridLayoutState> {
 }
 
 const LayoutContainer = styled.div<{
-  bgColor?: string;
-  autoHeight?: boolean;
-  overflow?: string;
-  radius?: string;
+  $bgColor?: string;
+  $autoHeight?: boolean;
+  $overflow?: string;
+  $radius?: string;
 }>`
-  border-radius: ${(props) => props.radius ?? "4px"};
-  background-color: ${(props) => props.bgColor ?? "#f5f5f6"};
+  border-radius: ${(props) => props.$radius ?? "4px"};
+  background-color: ${(props) => props.$bgColor ?? "#f5f5f6"};
   /* height: 100%; */
-  height: ${(props) => (props.autoHeight ? "auto" : "100%")};
+  height: ${(props) => (props.$autoHeight ? "auto" : "100%")};
 
   overflow: auto;
-  overflow: ${(props) => props.overflow ?? "overlay"};
+  overflow: ${(props) => props.$overflow ?? "overlay"};
   ${(props) =>
-    props.autoHeight &&
+    props.$autoHeight &&
     `::-webkit-scrollbar {
     display: none;
   }`}

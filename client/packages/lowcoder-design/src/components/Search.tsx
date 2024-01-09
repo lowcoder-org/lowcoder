@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { Input, InputProps } from "antd";
+import { default as Input, InputProps } from "antd/es/input";
 import { ReactComponent as Icon } from "icons/icon-Search.svg";
 import React, { CSSProperties } from "react";
 
@@ -14,7 +14,7 @@ const SearchInput = styled(Input)`
   user-select: none;
   overflow: hidden;
 
-  :focus {
+  &:focus {
     outline: none;
     box-shadow: 0 0 0 3px #daecfc;
   }

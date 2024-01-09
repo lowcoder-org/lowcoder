@@ -9,10 +9,10 @@ import { ThemeContext } from "comps/utils/themeContext";
 import { defaultTheme } from "comps/controls/styleControlConstants";
 import styled from "styled-components";
 
-const FlowContainerWrapper = styled.div<{ bgColor: string; maxWidth?: number; minHeight: string }>`
-  background-color: ${(props) => props.bgColor};
-  max-width: ${(props) => props.maxWidth}px;
-  min-height: ${(props) => props.minHeight};
+const FlowContainerWrapper = styled.div<{ $bgColor: string; $maxWidth?: number; $minHeight: string }>`
+  background-color: ${(props) => props.$bgColor};
+  max-width: ${(props) => props.$maxWidth}px;
+  min-height: ${(props) => props.$minHeight};
   display: flex;
   flex-direction: column;
 
@@ -40,7 +40,7 @@ export function FlowContainerView(
   const bgColor = (useContext(ThemeContext)?.theme || defaultTheme).canvas;
 
   return (
-    <FlowContainerWrapper bgColor={bgColor} maxWidth={maxWidth} minHeight={minHeight}>
+    <FlowContainerWrapper $bgColor={bgColor} $maxWidth={maxWidth} $minHeight={minHeight}>
       {layouts.map((layout, index) => {
         const comp = props.items[layout.i];
         if (!comp) {

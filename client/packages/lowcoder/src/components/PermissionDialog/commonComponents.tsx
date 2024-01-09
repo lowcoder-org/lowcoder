@@ -42,23 +42,23 @@ export const RoleSelectOptionWrapper = styled.div`
 `;
 
 export const StyledGroupIcon = styled(GroupIcon)<{
-  color: string;
-  side?: number;
+  $color: string;
+  $side?: number;
 }>`
-  width: ${(props) => props.side ?? 16}px;
-  height: ${(props) => props.side ?? 16}px;
+  width: ${(props) => props.$side ?? 16}px;
+  height: ${(props) => props.$side ?? 16}px;
 
   g g {
-    fill: ${(props) => props.color};
+    fill: ${(props) => props.$color};
   }
 `;
 
-export const StyledAdminIcon = styled(AdminIcon)<{ color: string }>`
+export const StyledAdminIcon = styled(AdminIcon)<{ $color: string }>`
   width: 16px;
   height: 16px;
 
   g path {
-    fill: ${(props) => props.color};
+    fill: ${(props) => props.$color};
   }
 `;
 

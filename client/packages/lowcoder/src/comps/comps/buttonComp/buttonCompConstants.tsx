@@ -1,4 +1,4 @@
-import { Button } from "antd";
+import { default as Button } from "antd/es/button";
 import { styleControl } from "comps/controls/styleControl";
 import { ButtonStyleType, ButtonStyle } from "comps/controls/styleControlConstants";
 import { migrateOldData } from "comps/generators/simpleGenerators";

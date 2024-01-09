@@ -33,11 +33,11 @@ import {
   ButtonStyleControl,
 } from "./videobuttonCompConstants";
 import { RefControl } from "comps/controls/refControl";
+import { AutoHeightControl } from "comps/controls/autoHeightControl";
 import {
-  AutoHeightControl,
   heightCalculator,
   widthCalculator,
-} from "@lowcoder-ee/index.sdk";
+} from "comps/controls/styleControlConstants";
 import { useEffect, useRef, useState } from "react";
 import ReactResizeDetector from "react-resize-detector";
 
@@ -176,21 +176,21 @@ function submitForm(editorState: EditorState, formName: string) {
   }
 }
 
-let ButtonTmpComp = (function () {
-  const childrenMap = {
-    iconSize: withDefault(StringControl, "20px"),
-    type: dropdownControl(typeOptions, ""),
-    autoHeight: withDefault(AutoHeightControl, "fixed"),
-    aspectRatio: withDefault(StringControl, "1 / 1"),
-    onEvent: ButtonEventHandlerControl,
-    disabled: BoolCodeControl,
-    loading: BoolCodeControl,
-    form: SelectFormControl,
-    prefixIcon: IconControl,
-    style: ButtonStyleControl,
-    viewRef: RefControl<HTMLElement>,
-  };
+const childrenMap = {
+  iconSize: withDefault(StringControl, "20px"),
+  type: dropdownControl(typeOptions, ""),
+  autoHeight: withDefault(AutoHeightControl, "fixed"),
+  aspectRatio: withDefault(StringControl, "1 / 1"),
+  onEvent: ButtonEventHandlerControl,
+  disabled: BoolCodeControl,
+  loading: BoolCodeControl,
+  form: SelectFormControl,
+  prefixIcon: IconControl,
+  style: ButtonStyleControl,
+  viewRef: RefControl<HTMLElement>,
+};
 
+let ButtonTmpComp = (function () {
   return new UICompBuilder(childrenMap, (props) => {
     const [width, setWidth] = useState(120);
     const [height, setHeight] = useState(0);

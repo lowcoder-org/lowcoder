@@ -1,4 +1,4 @@
-import { Segmented as AntdSegmented } from "antd";
+import { default as AntdSegmented } from "antd/es/segmented";
 import styled from "styled-components";
 
 type PropsType<T extends React.ForwardRefExoticComponent<any>> =

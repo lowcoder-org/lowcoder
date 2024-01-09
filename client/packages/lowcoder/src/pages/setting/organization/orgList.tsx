@@ -18,7 +18,8 @@ import { Level1SettingPageContentWithList, Level1SettingPageTitleWithBtn } from 
 import { timestampToHumanReadable } from "util/dateTimeUtils";
 import { isSaasMode } from "util/envUtils";
 import { selectSystemConfig } from "redux/selectors/configSelectors";
-import { Form, Input } from "antd";
+import { default as Form } from "antd/es/form";
+import { default as Input } from "antd/es/input";
 import { getUser } from "redux/selectors/usersSelectors";
 import { getOrgCreateStatus } from "redux/selectors/orgSelectors";
 

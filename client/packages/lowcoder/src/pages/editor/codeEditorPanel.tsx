@@ -68,7 +68,7 @@ const OpenButton = styled.div`
     margin: auto;
   }
 
-  :hover {
+  &:hover {
     svg g g {
       stroke: #222222;
     }
@@ -90,7 +90,7 @@ const CloseButton = styled.div`
   //margin-bottom: auto;
   cursor: pointer;
 
-  :hover {
+  &:hover {
     background: #f5f5f6;
 
     svg g g {

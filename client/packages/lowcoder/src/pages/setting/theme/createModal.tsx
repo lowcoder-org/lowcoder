@@ -54,7 +54,7 @@ function CreateModal(props: CreateModalProp) {
     return (
       <ThemeBtn
         key={theme.id}
-        theme={theme.theme}
+        $theme={theme.theme}
         onClick={() => setSelectId(theme.id)}
         className={selectId === theme.id ? "selected" : ""}
       >

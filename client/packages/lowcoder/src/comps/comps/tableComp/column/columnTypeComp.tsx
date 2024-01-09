@@ -14,6 +14,7 @@ import { ProgressComp } from "./columnTypeComps/columnProgressComp";
 import { RatingComp } from "./columnTypeComps/columnRatingComp";
 import { BadgeStatusComp } from "./columnTypeComps/columnStatusComp";
 import { ColumnTagsComp } from "./columnTypeComps/columnTagsComp";
+import { ColumnSelectComp } from "./columnTypeComps/columnSelectComp";
 import { SimpleTextComp } from "./columnTypeComps/simpleTextComp";
 import { ColumnNumberComp } from "./columnTypeComps/ColumnNumberComp";
 
@@ -37,6 +38,10 @@ const actionOptions = [
   {
     label: trans("table.tag"),
     value: "tag",
+  },
+  {
+    label: trans("table.select"),
+    value: "select",
   },
   {
     label: trans("table.badgeStatus"),
@@ -83,6 +88,7 @@ export const ColumnTypeCompMap = {
   badgeStatus: BadgeStatusComp,
   link: LinkComp,
   tag: ColumnTagsComp,
+  select: ColumnSelectComp,
   links: ColumnLinksComp,
   image: ImageComp,
   markdown: ColumnMarkdownComp,

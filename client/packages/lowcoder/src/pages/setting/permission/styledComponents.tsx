@@ -1,4 +1,5 @@
-import { Popover, Table as AntdTable } from "antd";
+import { default as Popover } from "antd/es/popover";
+import { default as AntdTable } from "antd/es/table";
 import {
   CustomModal,
   LockIcon,
@@ -48,11 +49,11 @@ export const StyledTable = styled(AntdTable)`
   }
 
   .ant-table-body {
-    ::-webkit-scrollbar {
+    &::-webkit-scrollbar {
       width: 16px;
     }
 
-    ::-webkit-scrollbar-thumb {
+    &::-webkit-scrollbar-thumb {
       border: 5px solid transparent;
       background-clip: content-box;
       border-radius: 9999px;
@@ -172,7 +173,7 @@ export const PermissionHeaderWrapper = styled.div`
     padding: 7px 12px;
     white-space: nowrap;
 
-    ::-webkit-scrollbar {
+    &::-webkit-scrollbar {
       display: none;
     }
   }
@@ -294,7 +295,7 @@ export const PopoverIcon = styled(PointIcon)`
     fill: #8b8fa3;
   }
 
-  :hover {
+  &:hover {
     background-color: #e1e3eb;
     border-radius: 4px;
     cursor: pointer;

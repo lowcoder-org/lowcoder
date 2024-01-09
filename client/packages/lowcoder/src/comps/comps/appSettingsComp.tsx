@@ -10,7 +10,7 @@ import { getDefaultTheme, getThemeList } from "redux/selectors/commonSettingSele
 import styled, { css } from "styled-components";
 import { trans } from "i18n";
 import { GreyTextColor } from "constants/style";
-import { Divider } from "antd";
+import { default as Divider } from "antd/es/divider";
 import { THEME_SETTING } from "constants/routesURL";
 import { CustomShortcutsComp } from "./customShortcutsComp";
 import { DEFAULT_THEMEID } from "comps/utils/themeUtil";
@@ -25,9 +25,9 @@ const ItemSpan = styled.span`
   max-width: 218px;
 `;
 
-const getTagStyle = (theme: ThemeDetail) => {
+const getTagStyle = (theme?: ThemeDetail) => {
   return css`
-    background-color: ${theme.canvas};
+    background-color: ${theme?.canvas};
     padding: 3px 4px;
     .left,
     .right {
@@ -35,17 +35,17 @@ const getTagStyle = (theme: ThemeDetail) => {
       border: 1px solid rgba(0, 0, 0, 0.1);
     }
     .left {
-      background-color: ${theme.primary};
+      background-color: ${theme?.primary};
       border-radius: 2px 0 0 2px;
     }
     .right {
-      background-color: ${theme.primarySurface};
+      background-color: ${theme?.primarySurface};
       border-radius: 0 2px 2px 0;
     }
   `;
 };
 
-export const TagDesc = styled.span<{ theme: ThemeDetail }>`
+export const TagDesc = styled.span<{ $theme?: ThemeDetail }>`
   display: inline-flex;
   margin-right: 8px;
   height: 22px;
@@ -53,7 +53,7 @@ export const TagDesc = styled.span<{ theme: ThemeDetail }>`
   border-radius: 2px;
   border: 1px solid rgba(0, 0, 0, 0.1);
   font-size: 13px;
-  ${(props) => getTagStyle(props.theme)}
+  ${(props) => getTagStyle(props.$theme)}
 `;
 
 export const DefaultSpan = styled.span`
@@ -168,7 +168,7 @@ function AppSettingsModal(props: ChildrenInstance) {
     const themeItem = themeList.find((theme) => theme.id === params.value);
     return (
       <ItemSpan>
-        <TagDesc theme={themeItem?.theme}>
+        <TagDesc $theme={themeItem?.theme}>
           <div className="left" />
           <div className="right" />
         </TagDesc>

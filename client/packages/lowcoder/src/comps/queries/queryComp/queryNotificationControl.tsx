@@ -131,7 +131,7 @@ const QueryNotificationTmpControl = new MultiCompBuilder(
 
       // Execute system notification when triggered manually and without custom notification and query is successful
       if (result.success && !hasNoticed) {
-        messageInstance.success(trans("query.successMessageWithName", { name }), duration);
+        messageInstance?.success(trans("query.successMessageWithName", { name }), duration);
       }
     }
   }

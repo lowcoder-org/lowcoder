@@ -22,14 +22,14 @@ import { DatasourceType } from "@lowcoder-ee/constants/queryConstants";
 import { saveAs } from "file-saver";
 import DataSourceIcon from "components/DataSourceIcon";
 
-const Wrapper = styled.div<{ readOnly?: boolean }>`
+const Wrapper = styled.div<{ $readOnly?: boolean }>`
   display: flex;
   flex-direction: column;
   width: 264px;
   height: 100%;
   border-right: 1px solid #e1e3eb;
   ${(props) => {
-    if (props.readOnly) {
+    if (props.$readOnly) {
       return css`
         color: #8b8fa3;
       `;
@@ -50,21 +50,21 @@ const AddIcon = styled(BluePlusIcon)`
   width: 12px;
   margin-right: 2px;
 `;
-const CreateBtn = styled(TacoButton)<{ readOnly?: boolean }>`
+const CreateBtn = styled(TacoButton)<{ $readOnly?: boolean }>`
   min-height: 24px;
   width: 70px;
   padding: 4px 12px;
   display: flex;
   align-items: center;
   box-shadow: none;
-  opacity: ${(props) => (props.readOnly ? 0.5 : 1)};
+  opacity: ${(props) => (props.$readOnly ? 0.5 : 1)};
 
   &:hover ${AddIcon} g {
     stroke: #315efb;
   }
 
-  :disabled,
-  :disabled:hover {
+  &:disabled,
+  &:disabled:hover {
     ${AddIcon} g {
       stroke: #4965f230;
     }
@@ -89,15 +89,15 @@ const Title = styled.div`
 const SelectListWrapper = styled.div`
   height: calc(100% - 19px);
 `;
-const SelectItem = styled.div<{ selected: boolean; readOnly?: boolean }>`
+const SelectItem = styled.div<{ $selected: boolean; $readOnly?: boolean }>`
   height: 80px;
   padding: 0 16px;
   background-color: ${(props) =>
-    props.selected ? (props.readOnly ? "#EFEFF1" : "#F2F7FC") : "unset"};
+    props.$selected ? (props.$readOnly ? "#EFEFF1" : "#F2F7FC") : "unset"};
   cursor: pointer;
 
-  :hover {
-    background-color: ${(props) => !props.selected && "#f2f7fc80"};
+  &:hover {
+    background-color: ${(props) => !props.$selected && "#f2f7fc80"};
   }
 `;
 
@@ -141,7 +141,7 @@ const PopoverIcon = styled(PointIcon)`
     fill: #8b8fa3;
   }
 
-  :hover {
+  &:hover {
     background: #eef0f3;
     border-radius: 4px;
     cursor: pointer;
@@ -165,7 +165,7 @@ export const LeftNav = (props: {
 
   return (
     <ReadOnlyMask readOnly={!!props.readOnly}>
-      <Wrapper readOnly={props.readOnly}>
+      <Wrapper $readOnly={props.readOnly}>
         <Header>
           <Search
             disabled={props.readOnly}
@@ -174,7 +174,7 @@ export const LeftNav = (props: {
             onChange={(e) => setSearchValue(e.target.value)}
             style={{ width: "154px", height: "32px", margin: "0" }}
           />
-          <CreateBtn buttonType={"blue"} onClick={props.addQuery} readOnly={props.readOnly}>
+          <CreateBtn buttonType={"blue"} onClick={props.addQuery} $readOnly={props.readOnly}>
             <AddIcon />
             {trans("newItem")}
           </CreateBtn>
@@ -200,8 +200,8 @@ export const LeftNav = (props: {
                   .map((q) => (
                     <SelectItem
                       key={q.id}
-                      selected={q.id === props.selectedQuery}
-                      readOnly={props.readOnly}
+                      $selected={q.id === props.selectedQuery}
+                      $readOnly={props.readOnly}
                       onClick={() => props.onSelect(q.id)}
                     >
                       <Content>

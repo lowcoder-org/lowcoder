@@ -1,2 +1,4 @@
 *.tgz
-/node_modules
+.DS_Store
+node_modules
+*.zip

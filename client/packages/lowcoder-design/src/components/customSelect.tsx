@@ -1,9 +1,9 @@
-import { Select as AntdSelect, SelectProps as AntdSelectProps } from "antd";
+import { default as AntdSelect, SelectProps as AntdSelectProps } from "antd/es/select";
 import { ReactComponent as PackUpIcon } from "icons/icon-Pack-up.svg";
 import styled from "styled-components";
 import React from "react";
 
-const SelectWrapper = styled.div<{ border?: boolean }>`
+const SelectWrapper = styled.div<{ $border?: boolean }>`
   .ant-select-open {
     .ant-select-arrow {
       transform: rotate(0deg);
@@ -15,9 +15,9 @@ const SelectWrapper = styled.div<{ border?: boolean }>`
   }
 
   .ant-select .ant-select-selector {
-    border: ${(props) => (props.border ? "1px solid transparent" : "1px solid #d7d9e0")};
+    border: ${(props) => (props.$border ? "1px solid transparent" : "1px solid #d7d9e0")};
     border-radius: 4px;
-    padding: ${(props) => (props.border ? "0px" : "0 0 0 12px")};
+    padding: ${(props) => (props.$border ? "0px" : "0 0 0 12px")};
     height: 100%;
     align-items: center;
     margin-right: 8px;
@@ -30,16 +30,16 @@ const SelectWrapper = styled.div<{ border?: boolean }>`
 
   .ant-select-focused.ant-select.ant-select-show-arrow {
     .ant-select-selector {
-      border: ${(props) => (props.border ? "1px solid transparent" : "1px solid #3377ff")};
+      border: ${(props) => (props.$border ? "1px solid transparent" : "1px solid #3377ff")};
       border-radius: 4px;
-      box-shadow: 0 0 0 2px ${(props) => (props.border ? "transparent" : "rgba(51,119,255,0.20)")};
+      box-shadow: 0 0 0 2px ${(props) => (props.$border ? "transparent" : "rgba(51,119,255,0.20)")};
     }
   }
 
   .ant-select:hover,
   .ant-select-disabled:hover {
     .ant-select-selector {
-      border: ${(props) => (props.border ? "1px solid transparent" : "1px solid #8b8fa3")};
+      border: ${(props) => (props.$border ? "1px solid transparent" : "1px solid #8b8fa3")};
       border-radius: 4px;
     }
   }
@@ -56,7 +56,7 @@ const SelectWrapper = styled.div<{ border?: boolean }>`
 
   .ant-select-disabled.ant-select {
     .ant-select-selector {
-      background: ${(props) => (props.border ? "#ffffff" : "#fdfdfd")};
+      background: ${(props) => (props.$border ? "#ffffff" : "#fdfdfd")};
       border-radius: 4px;
       color: #b8b9bf;
     }
@@ -93,7 +93,7 @@ const CustomSelect = React.forwardRef<HTMLDivElement, CustomSelectProps>((
     ...restProps
   } = props;
   return (
-    <SelectWrapper className={className} ref={ref} border={border}>
+    <SelectWrapper className={className} ref={ref} $border={border}>
       <AntdSelect
         popupClassName={popupClassName}
         popupMatchSelectWidth={false}

@@ -1,4 +1,5 @@
-import { Layout, Skeleton } from "antd";
+import { default as Layout } from "antd/es/layout";
+import { default as Skeleton } from "antd/es/skeleton";
 import MainContent from "components/layout/MainContent";
 import SideBar from "components/layout/SideBar";
 import Header from "./layout/Header";

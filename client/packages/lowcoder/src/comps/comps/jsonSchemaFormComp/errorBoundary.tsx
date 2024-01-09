@@ -1,4 +1,4 @@
-import { Button } from "antd";
+import { default as Button } from "antd/es/button";
 import { trans } from "i18n";
 import React from "react";
 

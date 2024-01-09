@@ -26,7 +26,7 @@ import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { AutoHeightControl } from "comps/controls/autoHeightControl";
 import { BoolControl } from "comps/controls/boolControl";
-import { Image as AntImage } from "antd";
+import { default as AntImage } from "antd/es/image";
 import { DEFAULT_IMG_URL } from "util/stringUtils";
 
 import { useContext } from "react";

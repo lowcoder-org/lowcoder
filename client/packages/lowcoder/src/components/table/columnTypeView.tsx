@@ -2,9 +2,9 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import styled from "styled-components";
 
 const ColumnTypeViewWrapper = styled.div<{
-  textOverflow?: boolean
+  $textOverflow?: boolean
 }>`
-  ${props => !props.textOverflow && `
+  ${props => !props.$textOverflow && `
     div {
       overflow: hidden;
       white-space: nowrap;
@@ -15,33 +15,33 @@ const ColumnTypeViewWrapper = styled.div<{
 `;
 
 const ColumnTypeHoverView = styled.div<{
-  adjustLeft?: number;
-  adjustTop?: number;
-  adjustWidth?: number;
-  adjustHeight?: number;
-  minWidth?: number;
-  padding: string;
-  visible: boolean;
+  $adjustLeft?: number;
+  $adjustTop?: number;
+  $adjustWidth?: number;
+  $adjustHeight?: number;
+  $minWidth?: number;
+  $padding: string;
+  $visible: boolean;
 }>`
   position: absolute;
-  height: ${(props) => (props.adjustHeight ? `${props.adjustHeight}px` : "max-content")};
-  width: ${(props) => (props.adjustWidth ? `${props.adjustWidth}px` : "max-content")};
-  visibility: ${(props) => (props.visible ? "visible" : "hidden")};
-  min-width: ${(props) => (props.minWidth ? `${props.minWidth}px` : "unset")};
+  height: ${(props) => (props.$adjustHeight ? `${props.$adjustHeight}px` : "max-content")};
+  width: ${(props) => (props.$adjustWidth ? `${props.$adjustWidth}px` : "max-content")};
+  visibility: ${(props) => (props.$visible ? "visible" : "hidden")};
+  min-width: ${(props) => (props.$minWidth ? `${props.$minWidth}px` : "unset")};
   max-height: 150px;
   max-width: 300px;
   overflow: auto;
   background: inherit;
   z-index: 3;
-  padding: ${(props) => props.padding};
-  top: ${(props) => `${props.adjustTop || 0}px`};
-  left: ${(props) => `${props.adjustLeft || 0}px`};
+  padding: ${(props) => props.$padding};
+  top: ${(props) => `${props.$adjustTop || 0}px`};
+  left: ${(props) => `${props.$adjustLeft || 0}px`};
 
-  ::-webkit-scrollbar {
+  &::-webkit-scrollbar {
     width: 16px;
   }
 
-  ::-webkit-scrollbar-thumb {
+  &::-webkit-scrollbar-thumb {
     border: 5px solid transparent;
     background-clip: content-box;
     border-radius: 9999px;
@@ -49,7 +49,7 @@ const ColumnTypeHoverView = styled.div<{
     min-height: 30px;
   }
 
-  ::-webkit-scrollbar-thumb:hover {
+  &::-webkit-scrollbar-thumb:hover {
     background-color: rgba(139, 143, 163, 0.5);
   }
 `;
@@ -168,7 +168,7 @@ export default function ColumnTypeView(props: {
     <>
       <ColumnTypeViewWrapper
         ref={wrapperRef}
-        textOverflow={props.textOverflow}
+        $textOverflow={props.textOverflow}
         onMouseEnter={() => {
           delayMouseEnter();
         }}
@@ -182,13 +182,13 @@ export default function ColumnTypeView(props: {
       {isHover && hasOverflow && wrapperRef.current && !props.textOverflow && (
         <ColumnTypeHoverView
           ref={hoverViewRef}
-          visible={adjustedPosition.done}
-          minWidth={wrapperRef.current.offsetParent?.clientWidth}
-          adjustWidth={adjustedPosition.width}
-          adjustHeight={adjustedPosition.height}
-          adjustLeft={adjustedPosition.left}
-          adjustTop={adjustedPosition.top}
-          padding={`${wrapperRef.current.offsetTop}px ${wrapperRef.current.offsetLeft}px`}
+          $visible={adjustedPosition.done}
+          $minWidth={wrapperRef.current.offsetParent?.clientWidth}
+          $adjustWidth={adjustedPosition.width}
+          $adjustHeight={adjustedPosition.height}
+          $adjustLeft={adjustedPosition.left}
+          $adjustTop={adjustedPosition.top}
+          $padding={`${wrapperRef.current.offsetTop}px ${wrapperRef.current.offsetLeft}px`}
           onMouseEnter={() => {
             setIsHover(true);
           }}

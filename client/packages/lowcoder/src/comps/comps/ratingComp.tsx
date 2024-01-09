@@ -1,4 +1,4 @@
-import { Rate } from "antd";
+import { default as Rate } from "antd/es/rate";
 import styled, { css } from "styled-components";
 import { Section, sectionNames } from "lowcoder-design";
 import { NumberControl, BoolCodeControl } from "../controls/codeControl";

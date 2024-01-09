@@ -17,21 +17,21 @@ import { showAppSnapshotSelector } from "redux/selectors/appSnapshotSelector";
 import { BottomResTypeEnum } from "types/bottomRes";
 import { trans } from "i18n";
 
-const Span = styled.span<{ border: boolean }>`
+const Span = styled.span<{ $border: boolean }>`
   ${labelCss};
   font-weight: 500;
   line-height: 40px;
   position: relative;
   display: inline-block;
   z-index: 0;
-  color: ${(props) => (props.border ? "#222222" : "#8B8FA3")};
+  color: ${(props) => (props.$border ? "#222222" : "#8B8FA3")};
 
-  :hover {
+  &:hover {
     cursor: pointer;
     color: #222222;
   }
 
-  ::before {
+  &::before {
     content: "";
     position: absolute;
     z-index: -1;
@@ -39,19 +39,19 @@ const Span = styled.span<{ border: boolean }>`
     right: 0;
     bottom: 0;
     height: 0;
-    color: ${(props) => (props.border ? "#222222" : "transparent")};
-    border: 1px solid ${(props) => (props.border ? "#222222" : "transparent")};
-    background-color: ${(props) => (props.border ? "#222222" : "transparent")};
+    color: ${(props) => (props.$border ? "#222222" : "transparent")};
+    border: 1px solid ${(props) => (props.$border ? "#222222" : "transparent")};
+    background-color: ${(props) => (props.$border ? "#222222" : "transparent")};
     border-radius: 2px;
   }
 `;
-const TabDiv = styled.div<{ cursor?: string | number }>`
+const TabDiv = styled.div<{ $cursor?: string | number }>`
   height: 40px;
   background-color: #ffffff;
   text-align: center;
   display: inline-block;
   min-width: 26px;
-  cursor: ${(props) => (props.cursor ? "pointer" : "default")};
+  cursor: ${(props) => (props.$cursor ? "pointer" : "default")};
 `;
 const TabContainer = styled.div`
   height: 40px;
@@ -85,7 +85,7 @@ const TabContainer = styled.div`
     font-size: 16px;
     margin-left: 0;
 
-    :hover {
+    &:hover {
       background-color: #f5f5f6;
     }
   }
@@ -102,7 +102,7 @@ const TabContainer = styled.div`
     margin-left: 0;
     background-color: #ffffff;
 
-    :focus {
+    &:focus {
       border-color: #3377ff;
       box-shadow: 0 0 0 2px #d6e4ff;
     }
@@ -114,19 +114,19 @@ const RunButton = styled(TacoButton)`
   height: 24px;
   border: none;
 
-  :hover {
+  &:hover {
     padding: 0 11px;
     border: none;
     box-shadow: none;
   }
 
-  :focus {
+  &:focus {
     padding: 0 11px;
     border: none;
     box-shadow: none;
   }
 
-  :after {
+  &:after {
     content: "";
   }
 `;
@@ -139,29 +139,29 @@ const DisconnectButton = styled(TacoButton)`
   border-color: #079968;
   background-color: #079968;
 
-  :hover, :focus, :disabled, :disabled:hover {
+  &:hover, &:focus, &:disabled, &:disabled:hover {
     padding: 0 11px;
     border: none;
     box-shadow: none;
   }
   
-  :disabled,
-  :disabled:hover {
+  &:disabled,
+  &:disabled:hover {
     background-color: #bbdecd !important;
     border-color: #bbdecd;
   }
 
-  :hover {
+  &:hover {
     background-color: #07714e;
     border-color: #07714e;
   }
 
-  :focus {
+  &:focus {
     background-color: #07714e;
     border-color: #07714e;
   }
 
-  :after {
+  &:after {
     content: "";
   }
 `;
@@ -258,8 +258,8 @@ export function BottomTabs<T extends TabsConfigType>(props: {
         {tabsConfig &&
           tabsConfig.map((item, index) => (
             <React.Fragment key={index}>
-              <TabDiv onClick={() => setKey(item.key)} cursor={item.key}>
-                <Span key={item.key} border={key === item.key}>
+              <TabDiv onClick={() => setKey(item.key)} $cursor={item.key}>
+                <Span key={item.key} $border={key === item.key}>
                   {item.title}
                 </Span>
               </TabDiv>

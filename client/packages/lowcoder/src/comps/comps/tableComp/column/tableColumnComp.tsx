@@ -28,8 +28,7 @@ import { JSONValue } from "util/jsonTypes";
 import styled from "styled-components";
 import { TextOverflowControl } from "comps/controls/textOverflowControl";
 import { TableColumnLinkStyle, styleControl } from "@lowcoder-ee/index.sdk";
-import { Divider } from "antd";
-
+import { default as Divider } from "antd/es/divider";
 export type Render = ReturnType<ConstructorToComp<typeof RenderComp>["getOriginalComp"]>;
 export const RenderComp = withSelectedMultiContext(ColumnTypeComp);
 

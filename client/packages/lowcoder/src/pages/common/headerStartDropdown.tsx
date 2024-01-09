@@ -1,4 +1,4 @@
-import { Dropdown } from "antd";
+import { default as Dropdown } from "antd/es/dropdown";
 import { BASE_URL } from "constants/routesURL";
 import {
   CommonTextLabel,

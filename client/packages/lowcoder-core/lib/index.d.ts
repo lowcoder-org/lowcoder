@@ -664,7 +664,7 @@ declare class Translator<Messages extends object> {
     readonly language: string;
     constructor(fileData: object, filterLocales?: string, locales?: string[]);
     trans(key: NestedKey<Messages> | GlobalMessageKey, variables?: Record<string, VariableValue>): string;
-    transToNode(key: NestedKey<Messages> | GlobalMessageKey, variables?: Record<string, VariableValue>): {};
+    transToNode(key: NestedKey<Messages> | GlobalMessageKey, variables?: Record<string, VariableValue>): ReactNode;
     private getMessage;
 }
 declare function getI18nObjects<I18nObjects>(fileData: object, filterLocales?: string): I18nObjects;

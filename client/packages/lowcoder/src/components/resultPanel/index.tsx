@@ -6,7 +6,7 @@ import { isArray, isObject, isObjectLike, isPlainObject } from "lodash";
 import ReactJson from "react-json-view";
 import { trans } from "../../i18n";
 import { DarkActiveTextColor, GreyTextColor } from "../../constants/style";
-import { Table as AntdTable } from "antd";
+import { default as AntdTable } from "antd/es/table";
 import { Switch } from "components/Switch";
 import { CloseIcon, ErrorIcon, SuccessIcon } from "icons";
 
@@ -57,7 +57,7 @@ const CloseIconWrapper = styled.div`
 
   color: ${GreyTextColor};
 
-  :hover {
+  &:hover {
     color: ${DarkActiveTextColor};
   }
 `;

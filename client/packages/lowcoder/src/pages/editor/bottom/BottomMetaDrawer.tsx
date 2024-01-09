@@ -1,7 +1,7 @@
-import { DataNode } from "antd/lib/tree";
+import { DataNode } from "antd/es/tree";
 import { CopyTextButton, CustomTree, labelCss, PackUpIcon, Search } from "lowcoder-design";
 import _ from "lodash";
-import { Drawer as AntdDrawer } from "antd";
+import { default as AntdDrawer } from "antd/es/drawer";
 import { CSSProperties, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchDatasourceStructure } from "redux/reduxActions/datasourceActions";
@@ -64,8 +64,8 @@ const AllData = styled.span`
   margin: 0 0 7px 8px;
 `;
 
-const DrawerIcon = styled(PackUpIcon)<{ deg: string }>`
-  transform: ${(props) => props.deg};
+const DrawerIcon = styled(PackUpIcon)<{ $deg: string }>`
+  transform: ${(props) => props.$deg};
 `;
 
 const DrawerTitle = styled.div`
@@ -76,7 +76,7 @@ const DrawerTitle = styled.div`
   font-size: 13px;
   font-weight: 500;
 
-  :hover {
+  &:hover {
     cursor: pointer;
 
     svg g path {
@@ -140,7 +140,7 @@ export const DataSourceStructureTree = (props: {
   datasourceType: string;
 }) => {
   const { dataSourceId, datasourceType } = props;
-  const [expandedKeys, setExpandedKeys] = useState<Array<string | number>>([]);
+  const [expandedKeys, setExpandedKeys] = useState<Array<React.Key>>([]);
   const [searchValue, setSearchValue] = useState("");
   const [structure, setStructure] = useState<DataNode[]>([]);
 
@@ -263,7 +263,7 @@ export default function BottomMetaDrawer(props: BottomMetaDrawerProps) {
     <div style={props.style}>
       <DrawerTitle onClick={() => setVisible(!visible)}>
         {trans("bottomPanel.metaData")}
-        <DrawerIcon deg={visible ? "rotate(180deg)" : "rotate(0deg)"} />
+        <DrawerIcon $deg={visible ? "rotate(180deg)" : "rotate(0deg)"} />
       </DrawerTitle>
     </div>
   );
