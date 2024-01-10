@@ -15,7 +15,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Hello
-        run: 'echo "${{ github }}"'
+        run: 'echo "${{ github.repositoryUrl }}"'
 
       - name: Check version changes
         uses: EndBug/version-check@v1
