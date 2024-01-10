@@ -198,6 +198,7 @@ export const en = {
     maskClosable: "Click Outside to Close",
     showMask: "Show Mask",
     textOverflow: "Text Overflow",
+    matrixServerUrl: "Matrix Server Url",
   },
   autoHeightProp: {
     auto: "Auto",

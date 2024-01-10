@@ -54,9 +54,7 @@ const EventOptions = [closeEvent] as const;
 const DEFAULT_SIZE = 378;
 const DEFAULT_PADDING = 16;
 
-export const matrixClient: MatrixClient = sdk.createClient({
-  baseUrl: "https://matrix.safiricabs.com",
-});
+export let matrixClient: any = null;
 
 const DrawerWrapper = styled.div`
   // Shield the mouse events of the lower layer, the mask can be closed in the edit mode to prevent the lower layer from sliding
@@ -109,6 +107,7 @@ export const meetingControllerChildren = {
   showMask: withDefault(BoolControl, true),
   credentials: withDefault(StringControl, trans("chat.credentials")),
   roomAlias: withDefault(StringControl, ""),
+  matrixServerUrl: withDefault(StringControl, ""),
   roomData: jsonObjectExposingStateControl(""),
   messages: stateComp<JSONValue>([]),
   participants: stateComp<JSONValue>([]),
@@ -140,8 +139,6 @@ let MTComp = (function () {
         [dispatch, isTopBom]
       );
 
-
-
       useEffect(() => {
         if (props.matrixAuthData.value.access_token == null) return;
         resourcesInit();
@@ -150,8 +147,8 @@ let MTComp = (function () {
       useEffect(() => {
         if (props.roomData.value.roomId) {
           matrixClient
-            .joinRoom(`${props.roomData.value.roomId}`)
-            .then(async (room) => {
+            ?.joinRoom(`${props.roomData.value.roomId}`)
+            .then(async (room: { getMembers: () => any }) => {
               let members = room.getMembers();
               let participants: any = [];
               members.forEach((element: sdk.RoomMember) => {
@@ -169,7 +166,13 @@ let MTComp = (function () {
               );
 
               matrixClient.scrollback(room, 10).then(
-                function (room) {
+                function (room: {
+                  getLiveTimeline: () => {
+                    (): any;
+                    new (): any;
+                    getEvents: { (): any; new (): any };
+                  };
+                }) {
                   let messagesdata: any = [];
                   var events = room.getLiveTimeline().getEvents();
                   for (var i = 0; i < events.length; i++) {
@@ -207,12 +210,12 @@ let MTComp = (function () {
 
                   dispatchMessages(messagesdata);
                 },
-                function (err) {
+                function (err: any) {
                   console.log("/more Error: %s", err);
                 }
               );
             })
-            .catch((e) => console.log(e));
+            .catch((e: any) => console.log(e));
           let messagesdata: any = [];
           matrixClient.on(
             "Room.timeline" as sdk.EmittedEvents,
@@ -238,7 +241,6 @@ let MTComp = (function () {
           );
         }
       }, [props.roomData.value]);
-
 
       let resourcesInit = () => {
         // show the room list after syncing.
@@ -276,7 +278,6 @@ let MTComp = (function () {
           )
         );
       };
-
 
       return (
         <BackgroundColorContext.Provider value={props.style.background}>
@@ -340,7 +341,7 @@ let MTComp = (function () {
           </DrawerWrapper>
         </BackgroundColorContext.Provider>
       );
-    } 
+    }
   )
     .setPropertyViewFn((children) => (
       <>
@@ -368,6 +369,9 @@ let MTComp = (function () {
           })}
           {children.showMask.propertyView({
             label: trans("prop.showMask"),
+          })}
+          {children.matrixServerUrl.propertyView({
+            label: trans("prop.matrixServerUrl"),
           })}
         </Section>
         <Section name={sectionNames.chats}>
@@ -410,15 +414,14 @@ MTComp = withMethodExposing(MTComp, [
       params: [],
     },
     execute: async (comp, values) => {
-        console.log(values);
+      console.log(values);
       if (values && values.length > 0) {
         const firstValue = values[0];
         if (
           typeof firstValue === "object" &&
           firstValue !== null &&
           "name" in firstValue
-        ) { 
-          console.log(firstValue);
+        ) {
           const name: any = firstValue.name;
           const topic: any = firstValue.topic;
           // Create a room
@@ -428,11 +431,10 @@ MTComp = withMethodExposing(MTComp, [
               name: name,
               topic: topic,
             })
-            .then((response) => {
+            .then((response: { room_id: any }) => {
               const roomId = response.room_id;
-              console.log(`Created room: ${roomId}`); 
             })
-            .catch((error) => {
+            .catch((error: { message: any }) => {
               console.error(`Failed to create room: ${error.message}`);
             });
         } else {
@@ -466,7 +468,7 @@ MTComp = withMethodExposing(MTComp, [
             .then(() => {
               console.log(`Left room: ${name}`);
             })
-            .catch((error) => {
+            .catch((error: { message: any }) => {
               console.error(`Failed to leave room: ${error.message}`);
             });
         } else {
@@ -515,27 +517,39 @@ MTComp = withMethodExposing(MTComp, [
       params: [],
     },
     execute: async (comp, values) => {
-      let response = await matrixClient.login("org.matrix.login.jwt", {
-        token: values[0],
-      });
-      await matrixClient.startClient(); 
-
-      let allRooms = await matrixClient.publicRooms();
-      
-      let rooms: any = [];
-      allRooms.chunk.forEach((room) => {
-        rooms.push({
-          name: room.name,
-          roomId: room.room_id,
-          membersCount: room.num_joined_members.toString(),
+      let url = `https://${comp.children.matrixServerUrl.getView()}`;
+      if (comp.children.matrixServerUrl.getView()) {
+        matrixClient = sdk.createClient({
+          baseUrl: url,
         });
-      });
+        let response = await matrixClient.login("org.matrix.login.jwt", {
+          token: values[0],
+        });
+        await matrixClient.startClient();
 
-      comp.children.matrixAuthData.change({
-        access_token: response.access_token,
-        user_id: response.user_id,
-        rooms,
-      });
+        let allRooms = await matrixClient.publicRooms();
+
+        let rooms: any = [];
+        allRooms.chunk.forEach(
+          (room: {
+            name: any;
+            room_id: any;
+            num_joined_members: { toString: () => any };
+          }) => {
+            rooms.push({
+              name: room.name,
+              roomId: room.room_id,
+              membersCount: room.num_joined_members.toString(),
+            });
+          }
+        );
+
+        comp.children.matrixAuthData.change({
+          access_token: response.access_token,
+          user_id: response.user_id,
+          rooms,
+        });
+      }
     },
   },
   {
@@ -557,4 +571,5 @@ export const ChatControllerComp = withExposingConfigs(MTComp, [
   new NameConfig("messages", ""),
   new NameConfig("participants", ""),
   new NameConfig("roomLists", ""),
+  new NameConfig("matrixServerUrl", ""),
 ]);

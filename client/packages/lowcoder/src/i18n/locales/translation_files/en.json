@@ -180,7 +180,8 @@
     "showBody": "Show Body",
     "showFooter": "Show Footer",
     "maskClosable": "Click Outside to Close",
-    "showMask": "Show Mask"
+    "showMask": "Show Mask",
+    "matrixServerUrl": "Matrix Server Url"
   },
   "autoHeightProp": {
     "auto": "Auto",
