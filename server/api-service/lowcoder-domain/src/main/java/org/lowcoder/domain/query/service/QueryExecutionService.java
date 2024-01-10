@@ -113,11 +113,9 @@ public class QueryExecutionService {
     private Mono<Void> injectOauth2Token(QueryVisitorContext queryVisitorContext, List<Map<String, Object>> context) {
         return queryVisitorContext.getAuthTokenMono()
                 .doOnNext(properties -> {
-                    HashMap<String, Object> hashMap = new HashMap<>();
                     for (Property property : properties) {
-                        hashMap.put(property.getKey(), property.getValue());
+                        context.add(Map.of("key" , property.getKey(), "value", property.getValue()));
                     }
-                    context.add(hashMap);
                 })
                 .then();
     }
