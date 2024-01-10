@@ -5,7 +5,7 @@ name: Publish Lowcoder SDK
 
 on:
   push:
-    branches: [ "worflows-updates" ]
+    branches: [ "dev" ]
 
 jobs:
   publish-package:

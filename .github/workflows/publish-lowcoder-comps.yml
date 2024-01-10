@@ -5,11 +5,11 @@ name: Publish Lowcoder Comps
 
 on:
   push:
-    branches: [ "worflows-updates" ]
+    branches: [ "dev" ]
 
 jobs:
   publish-package:
-    if: ${{ github.repositoryUrl == 'git@github.com:lowcoder-org/lowcoder.git' }}
+    if: ${{ github.repositoryUrl == 'git://github.com/lowcoder/lowcoder.git'}}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
