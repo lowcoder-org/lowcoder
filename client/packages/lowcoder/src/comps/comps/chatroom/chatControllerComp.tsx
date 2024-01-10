@@ -140,41 +140,7 @@ let MTComp = (function () {
         [dispatch, isTopBom]
       );
 
-      function printRoomInfo(room: { currentState: { events: any } }) {
-        var eventMap = room.currentState.events;
-        var eTypeHeader = "    Event Type(state_key)    ";
-        var sendHeader = "        Sender        ";
-        // pad content to 100
-        var restCount =
-          100 -
-          "Content".length -
-          " | ".length -
-          " | ".length -
-          eTypeHeader.length -
-          sendHeader.length;
-        var padSide = new Array(Math.floor(restCount / 2)).join(" ");
-        var contentHeader = padSide + "Content" + padSide;
-        console.log(eTypeHeader + sendHeader + contentHeader);
-        console.log(new Array(100).join("-"));
-        eventMap.keys().forEach(function (eventType: string) {
-          if (eventType === "m.room.member") {
-            return;
-          } // use /members instead.
-          var eventEventMap = eventMap.get(eventType);
-          eventEventMap.keys().forEach(function (stateKey: string | any[]) {
-            var typeAndKey =
-              eventType + (stateKey.length > 0 ? "(" + stateKey + ")" : "");
-            var typeStr = fixWidth(typeAndKey, eTypeHeader.length);
-            var event = eventEventMap.get(stateKey);
-            var sendStr = fixWidth(event.getSender(), sendHeader.length);
-            var contentStr = fixWidth(
-              JSON.stringify(event.getContent()),
-              contentHeader.length
-            );
-            console.log(typeStr + " | " + sendStr + " | " + contentStr);
-          });
-        });
-      }
+
 
       useEffect(() => {
         if (props.matrixAuthData.value.access_token == null) return;
@@ -187,7 +153,6 @@ let MTComp = (function () {
             .joinRoom(`${props.roomData.value.roomId}`)
             .then(async (room) => {
               let members = room.getMembers();
-              console.log("members ", members);
               let participants: any = [];
               members.forEach((element: sdk.RoomMember) => {
                 participants.push({
@@ -274,9 +239,6 @@ let MTComp = (function () {
         }
       }, [props.roomData.value]);
 
-      var roomList: any = [];
-      var CLEAR_CONSOLE = "\x1B[2J";
-      var viewingRoom: any = null;
 
       let resourcesInit = () => {
         // show the room list after syncing.
@@ -297,166 +259,8 @@ let MTComp = (function () {
             }
           }
         );
-
-        // matrixClient.on("Room" as sdk.EmittedEvents, function () {
-        //   // setRoomList();
-        //   if (!viewingRoom) {
-        //     // printRoomList();
-        //   }
-        // });
-        // matrixClient.on(
-        //   "Room.timeline" as sdk.EmittedEvents,
-        //   function (event: any, room: { roomId: any }, toStartOfTimeline: any) {
-        //     if (toStartOfTimeline) {
-        //       return; // don't print paginated results
-        //     }
-        //     // printLine(event);
-        //   }
-        // );
       };
 
-      // let messagesdata: any = [];
-      function printLine(event: {
-        sender: { name: any };
-        getSender: () => any;
-        getTs: () => string | number | Date;
-        status: sdk.EventStatus;
-        getType: () => string;
-        getContent: () => { (): any; new (): any; body: string };
-        isState: () => any;
-        getStateKey: () => string;
-      }) {
-        var name = event.sender ? event.sender.name : event.getSender();
-        var maxNameWidth = 15;
-        if (name.length > maxNameWidth) {
-          name = name.slice(0, maxNameWidth - 1) + "\u2026";
-        }
-        // messagesdata.push({
-        //   user: {
-        //     name: name,
-        //     avatar:
-        //       "https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png",
-        //   },
-        //   value: name,
-        //   createdAt: new Date(event.getTs()).toISOString(),
-        //   key: event.getTs() + "_" + Math.random(),
-        // });
-        // console.log("messagesdata", messagesdata);
-        // dispatchMessages(messagesdata);
-      }
-
-      function setRoomList() {
-        roomList = matrixClient.getRooms();
-        console.log("roomList one", roomList.length);
-        roomList.sort(function (
-          a: { timeline: string | any[] },
-          b: { timeline: string | any[] }
-        ) {
-          // < 0 = a comes first (lower index) - we want high indexes = newer
-          var aMsg = a.timeline[a.timeline.length - 1];
-          if (!aMsg) {
-            return -1;
-          }
-          var bMsg = b.timeline[b.timeline.length - 1];
-          if (!bMsg) {
-            return 1;
-          }
-          if (aMsg.getTs() > bMsg.getTs()) {
-            return 1;
-          } else if (aMsg.getTs() < bMsg.getTs()) {
-            return -1;
-          }
-          return 0;
-        });
-      }
-
-      function printRoomList() {
-        console.log(CLEAR_CONSOLE);
-        console.log("Room List:");
-        let rooms = [];
-        for (var i = 0; i < roomList.length; i++) {
-          var msg = roomList[i].timeline[roomList[i].timeline.length - 1];
-          var dateStr = "---";
-          var fmt;
-          if (msg) {
-            dateStr = new Date(msg.getTs())
-              .toISOString()
-              .replace(/T/, " ")
-              .replace(/\..+/, "");
-          }
-          var myMembership = roomList[i].getMyMembership();
-          if (myMembership) {
-            // fmt = fmts[myMembership];
-          }
-          var roomName = fixWidth(roomList[i].name, 25);
-          console.log(
-            "[%s] %s (%s members)  %s",
-            i,
-            roomName,
-            roomList[i].getJoinedMembers().length,
-            dateStr
-          );
-          rooms.push({
-            roomName: roomName,
-            membersCount: roomList[i].getJoinedMembers().length,
-          });
-        }
-        if (roomList.length > 0) {
-          viewingRoom = roomList[0];
-          props.currentRoomData.onChange({ roomName: roomList[0].name });
-        }
-
-        console.log(rooms);
-        dispatch(changeChildAction("roomLists", getData(rooms).data, false));
-      }
-      function fixWidth(str: string, len: number) {
-        if (str.length > len) {
-          return str.substring(0, len - 2) + "\u2026";
-        } else if (str.length < len) {
-          return str + new Array(len - str.length).join(" ");
-        }
-        return str;
-      }
-
-      function printHelp() {
-        // var hlp = clc.italic.white;
-        console.log("Global commands:");
-        console.log("  '/help' : Show this help.");
-        console.log("Room list index commands:");
-        console.log("  '/join <index>' Join a room, e.g. '/join 5'");
-        console.log("Room commands:");
-        console.log("  '/exit' Return to the room list index.");
-        console.log("  '/members' Show the room member list.");
-        console.log("  '/invite @foo:bar' Invite @foo:bar to the room.");
-        console.log("  '/more 15' Scrollback 15 events");
-        console.log(
-          "  '/resend' Resend the oldest event which failed to send."
-        );
-        console.log("  '/roominfo' Display room info e.g. name, topic.");
-      }
-
-      let handleMatrixOperations = async (room: any) => {
-        matrixClient
-          .joinRoom(`#${room}:matrix.safiricabs.com`)
-          .then(async (room) => {
-            props.roomData.onChange({ roomId: room.roomId });
-            let members = room.getMembers();
-          })
-          .catch((e) => console.log(e));
-        let messagesdata: any = [];
-
-        matrixClient.on(
-          "RoomState.members" as sdk.EmittedEvents,
-          function (event: any, state: any, member: any) {
-            const roomm = matrixClient.getRoom(room.roomId);
-            if (!roomm) {
-              return;
-            }
-            const memberList = state.getMembers();
-            getMembers(memberList);
-          }
-        );
-      };
       const dispatchMessages = (messagesdata: any) => {
         dispatch(
           changeChildAction(
@@ -473,25 +277,6 @@ let MTComp = (function () {
         );
       };
 
-      const getMembers = (memberList: any) => {
-        let participants: any = [];
-        for (var i = 0; i < memberList.length; i++) {
-          console.log("(%s) %s", memberList[i].membership, memberList[i].name);
-          participants.push({
-            user: memberList[i].membership,
-            name: memberList[i].name,
-            // key: event.localTimestamp + "_" + Math.random(),
-          });
-        }
-
-        dispatch(
-          changeChildAction(
-            "participants",
-            getData([...participants]).data,
-            false
-          )
-        );
-      };
 
       return (
         <BackgroundColorContext.Provider value={props.style.background}>
@@ -555,7 +340,7 @@ let MTComp = (function () {
           </DrawerWrapper>
         </BackgroundColorContext.Provider>
       );
-    }
+    } 
   )
     .setPropertyViewFn((children) => (
       <>
@@ -632,7 +417,7 @@ MTComp = withMethodExposing(MTComp, [
           typeof firstValue === "object" &&
           firstValue !== null &&
           "name" in firstValue
-        ) {
+        ) { 
           console.log(firstValue);
           const name: any = firstValue.name;
           const topic: any = firstValue.topic;
