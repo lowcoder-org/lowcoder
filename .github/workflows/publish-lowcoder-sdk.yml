@@ -9,11 +9,13 @@ on:
 
 jobs:
   publish-package:
-    if: ${{ github.repositoryUrl == 'git@github.com:raheeliftikhar5/lowcoder.git' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+
+      - name: Hello
+        run: 'echo "${{ github }}"'
 
       - name: Check version changes
         uses: EndBug/version-check@v1
