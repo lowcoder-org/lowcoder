@@ -159,18 +159,31 @@ export class Translator<Messages extends object> {
   }
 
   private getMessage(key: NestedKey<Messages> | GlobalMessageKey) {
-    const value = this.messages[key];
-    if (value !== undefined) {
-      return value;
+    let message = this.getNestedMessage(this.messages, key);
+  
+    // Fallback to English if the message is not found
+    if (message === undefined) {
+      message = this.getNestedMessage(localeData.en, key); // Assuming localeData.en contains English translations
     }
-    let obj: any = this.messages;
-    for (const k of (key as string).split(".")) {
+  
+    // If still not found, return a default message or the key itself
+    if (message === undefined) {
+      console.warn(`Translation missing for key: ${key}`);
+      `oups! ${key}`;
+    }
+  
+    return message;
+  }
+
+  private getNestedMessage(obj: any, key: string) {
+    for (const k of key.split(".")) {
       if (obj !== undefined) {
         obj = obj[k];
       }
     }
     return obj;
   }
+
 }
 
 export function getI18nObjects<I18nObjects>(fileData: object, filterLocales?: string) {

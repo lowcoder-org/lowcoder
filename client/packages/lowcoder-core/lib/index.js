@@ -11583,40 +11583,57 @@ var globalMessages = Object.fromEntries(Object.entries(getDataByLocale(localeDat
     ];
 }));
 var Translator = /** @class */ (function () {
-    function Translator(fileData, filterLocales, locales) {
-        var _a = getDataByLocale(fileData, "", filterLocales, locales), data = _a.data, language = _a.language;
-        this.messages = Object.assign({}, data, globalMessages);
-        this.language = language;
-        this.trans = this.trans.bind(this);
-        this.transToNode = this.transToNode.bind(this);
-    }
-    Translator.prototype.trans = function (key, variables) {
-        return this.transToNode(key, variables).toString();
-    };
-    Translator.prototype.transToNode = function (key, variables) {
-        var message = this.getMessage(key);
-        var node = new IntlMessageFormat(message, i18n.locale).format(variables);
-        if (Array.isArray(node)) {
-            return node.map(function (n, i) { return jsxRuntimeExports.jsx(reactExports.Fragment, { children: n }, i); });
-        }
-        return node;
-    };
-    Translator.prototype.getMessage = function (key) {
-        var value = this.messages[key];
-        if (value !== undefined) {
-            return value;
-        }
-        var obj = this.messages;
-        for (var _i = 0, _a = key.split("."); _i < _a.length; _i++) {
-            var k = _a[_i];
-            if (obj !== undefined) {
-                obj = obj[k];
-            }
-        }
-        return obj;
-    };
-    return Translator;
+  function Translator(fileData, filterLocales, locales) {
+      var _a = getDataByLocale(fileData, "", filterLocales, locales), data = _a.data, language = _a.language;
+      this.messages = Object.assign({}, data, globalMessages);
+      this.language = language;
+      this.trans = this.trans.bind(this);
+      this.transToNode = this.transToNode.bind(this);
+  }
+
+  Translator.prototype.trans = function (key, variables) {
+      return this.transToNode(key, variables).toString();
+  };
+
+  Translator.prototype.transToNode = function (key, variables) {
+      var message = this.getMessage(key);
+      var node = new IntlMessageFormat(message, i18n.locale).format(variables);
+      if (Array.isArray(node)) {
+          return node.map(function (n, i) { return jsxRuntimeExports.jsx(reactExports.Fragment, { children: n }, i); });
+      }
+      return node;
+  };
+
+  Translator.prototype.getMessage = function (key) {
+      var value = this.getNestedMessage(this.messages, key);
+      
+      // Fallback to English if the message is not found
+      if (value === undefined) {
+          value = this.getNestedMessage(localeData.en, key); // Assuming localeData.en contains English translations
+      }
+
+      // If still not found, return a default message or the key itself
+      if (value === undefined) {
+          console.warn(`Translation missing for key: ${key}`);
+          return `oups! ${key}`; // or simply return the key
+      }
+
+      return value;
+  };
+
+  Translator.prototype.getNestedMessage = function (obj, key) {
+      for (var _i = 0, _a = key.split("."); _i < _a.length; _i++) {
+          var k = _a[_i];
+          if (obj !== undefined) {
+              obj = obj[k];
+          }
+      }
+      return obj;
+  };
+
+  return Translator;
 }());
+
 function getI18nObjects(fileData, filterLocales) {
     return getDataByLocale(fileData, "Obj", filterLocales).data;
 }
