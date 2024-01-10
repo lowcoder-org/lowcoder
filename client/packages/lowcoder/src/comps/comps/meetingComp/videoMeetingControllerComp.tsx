@@ -170,7 +170,9 @@ const shareScreen = async (sharing: boolean) => {
 };
 const leaveChannel = async () => {
   //stops local sharing video
-  screenShareStream.close();
+  if (screenShareStream) {
+    screenShareStream.close();
+  }
 
   //stops local video streaming and puts off the camera
   if (videoTrack) {
