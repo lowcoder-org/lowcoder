@@ -5,10 +5,11 @@ name: Publish Lowcoder SDK
 
 on:
   push:
-    branches: [ "dev" ]
+    branches: [ "worflows-updates" ]
 
 jobs:
   publish-package:
+    if: ${{ github.repositoryUrl == 'git@github.com:lowcoder-org/lowcoder.git' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -19,7 +20,9 @@ jobs:
         id: check
         with:
           diff-search: true
+          static-checking: localIsNew
           file-name: client/packages/lowcoder-sdk/package.json
+          file-url: https://unpkg.com/lowcoder-sdk@latest/package.json
 
       - name: Version update detected
         if: steps.check.outputs.changed == 'true'
