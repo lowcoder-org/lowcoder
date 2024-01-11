@@ -609,7 +609,7 @@ function ColumnSetting(props: {
       allChecked = false;
     }
     return (
-      <ColumnCheckItem>
+      <ColumnCheckItem key={columnView.dataIndex}>
         <CheckBox
           checked={checked}
           onChange={(e) => {
@@ -677,6 +677,7 @@ function ToolbarPopover(props: {
     <Popover
       open={visible}
       overlayStyle={{ pointerEvents: "auto" }}
+      overlayInnerStyle={{ padding: '0' }}
       content={
         <div
           ref={popOverRef}
