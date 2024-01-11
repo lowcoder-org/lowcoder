@@ -1229,6 +1229,8 @@ export const en = {
     "imageSrc": "Image Source",
     "imageSize": "Image Size",
     "columnTitle": "Title",
+    "showTitle": "Show Title",
+    "showTitleTooltip": "Show/Hide column title in table header",
     "sortable": "Sortable",
     "align": "Alignment",
     "fixedColumn": "Fixed Column",

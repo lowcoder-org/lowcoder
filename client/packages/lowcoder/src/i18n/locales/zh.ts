@@ -1200,6 +1200,8 @@ table: {
     imageSrc: "图片链接",
     imageSize: "图片尺寸",
     columnTitle: "标题",
+    showTitle: "显示标题",
+    showTitleTooltip: "显示/隐藏表标题中的列标题",
     sortable: "可排序",
     align: "对齐方式",
     fixedColumn: "固定列",

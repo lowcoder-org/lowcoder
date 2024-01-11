@@ -101,7 +101,6 @@ export class ColumnListComp extends ColumnListTmpComp {
     dynamicColumn: boolean;
     data: Array<JSONObject>;
   }) {
-    console.log("dataChangedAction", param);
     return customAction<ActionDataType>(
       {
         type: "dataChanged",

@@ -311,7 +311,7 @@ export function columnsToAntdFormat(
     }[];
     const title = renderTitle({ title: column.title, editable: column.editable });
     return {
-      title: title,
+      title: column.showTitle ? title : '',
       titleText: column.title,
       dataIndex: column.dataIndex,
       align: column.align,

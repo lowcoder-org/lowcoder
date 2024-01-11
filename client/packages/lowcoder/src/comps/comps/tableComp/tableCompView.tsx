@@ -553,11 +553,6 @@ function ResizeableTable<RecordType extends object>(props: CustomTableProps<Reco
     } else {
       allColumnFixed = false;
     }
-    if (allColumnFixed && index === props.columns.length - 1) {
-      // all column fixed, the last column fill extra space
-      colWidth = "auto";
-      minWidth = resizeWidth;
-    }
     return {
       ...restCol,
       RC_TABLE_INTERNAL_COL_DEFINE: {
@@ -583,14 +578,6 @@ function ResizeableTable<RecordType extends object>(props: CustomTableProps<Reco
         width: resizeWidth,
         title: col.titleText,
         viewModeResizable: props.viewModeResizable,
-        // onResize: (width: number) => {
-        //   if (width) {
-        //     setResizeData({
-        //       index: index,
-        //       width: width,
-        //     });
-        //   }
-        // },
         onResize: (width: React.SyntheticEvent) => {
           if (width) {
             setResizeData({
