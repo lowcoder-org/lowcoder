@@ -13,7 +13,7 @@ import {
 import { dropdownControl } from "comps/controls/dropdownControl";
 import { eventHandlerControl } from "comps/controls/eventHandlerControl";
 import { styleControl } from "comps/controls/styleControl";
-import { TableColumnStyle, TableRowStyle, TableStyle } from "comps/controls/styleControlConstants";
+import { TableColumnStyle, TableRowStyle, TableStyle, TableToolbarStyle, TableHeaderStyle } from "comps/controls/styleControlConstants";
 import {
   MultiCompBuilder,
   stateComp,
@@ -184,6 +184,8 @@ const tableChildrenMap = {
   toolbar: TableToolbarComp,
   style: styleControl(TableStyle),
   rowStyle: styleControl(TableRowStyle),
+  toolbarStyle: styleControl(TableToolbarStyle),
+  headerStyle: styleControl(TableHeaderStyle),
   searchText: StringControl,
   columnsStyle: withDefault(styleControl(TableColumnStyle), {borderWidth: '1px', radius: '0px'}),
   viewModeResizable: BoolControl,

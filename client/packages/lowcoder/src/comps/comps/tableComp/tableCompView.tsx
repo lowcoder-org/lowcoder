@@ -18,8 +18,10 @@ import {
   handleToSelectedRow,
   TableColumnLinkStyleType,
   TableColumnStyleType,
+  TableHeaderStyleType,
   TableRowStyleType,
   TableStyleType,
+  TableToolbarStyleType,
 } from "comps/controls/styleControlConstants";
 import { CompNameContext, EditorContext } from "comps/editorState";
 import { BackgroundColorContext } from "comps/utils/backgroundColorContext";
@@ -56,6 +58,8 @@ function genLinerGradient(color: string) {
 const getStyle = (
   style: TableStyleType,
   rowStyle: TableRowStyleType,
+  headerStyle: TableHeaderStyleType,
+  toolbarStyle: TableToolbarStyleType
 ) => {
   const background = genLinerGradient(style.background);
   const selectedRowBackground = genLinerGradient(rowStyle.selectedRowBackground);
@@ -128,6 +132,8 @@ const getStyle = (
 
 const TableWrapper = styled.div<{
   $style: TableStyleType;
+  $headerStyle: TableHeaderStyleType;
+  $toolbarStyle: TableToolbarStyleType;
   $rowStyle: TableRowStyleType;
   $toolbarPosition: "above" | "below" | "close";
   $fixedHeader: boolean;
@@ -136,7 +142,7 @@ const TableWrapper = styled.div<{
   max-height: 100%;
   overflow-y: auto;
   background: white;
-  border: ${(props) => `1px solid ${props.$style.border}`};
+  border: ${(props) => `${props.$style.borderWidth} solid ${props.$style.border}`};
   border-radius: ${(props) => props.$style.radius};
 
   .ant-table-wrapper {
@@ -187,10 +193,12 @@ const TableWrapper = styled.div<{
 
         > .ant-table-thead {
           > tr > th {
-            background-color: ${(props) => props.$style.headerBackground};
+            background-color: ${(props) => props.$headerStyle.headerBackground};
             border-color: ${(props) => props.$style.border};
+            border-width: ${(props) => props.$headerStyle.borderWidth};
             color: ${(props) => props.$style.headerText};
-            border-inline-end: ${(props) => `1px solid ${props.$style.border}`} !important;
+            font-size: ${(props) => props.$headerStyle.textSize};
+            border-inline-end: ${(props) => `${props.$headerStyle.borderWidth} solid ${props.$style.border}`} !important;
             ${(props) => 
               props.$fixedHeader && `
                 position: sticky;
@@ -267,7 +275,7 @@ const TableWrapper = styled.div<{
   }
   
   ${(props) => 
-    props.$style && getStyle(props.$style, props.$rowStyle)}
+    props.$style && getStyle(props.$style, props.$rowStyle, props.$headerStyle, props.$toolbarStyle)}
 `;
   
 const TableTh = styled.th<{ width?: number }>`
@@ -641,6 +649,8 @@ export function TableCompView(props: {
   const compChildren = comp.children;
   const style = compChildren.style.getView();
   const rowStyle = compChildren.rowStyle.getView();
+  const headerStyle = compChildren.headerStyle.getView();
+  const toolbarStyle = compChildren.toolbarStyle.getView();
   const rowAutoHeight = compChildren.rowAutoHeight.getView();
   const columnsStyle = compChildren.columnsStyle.getView();
   const changeSet = useMemo(() => compChildren.columns.getChangeSet(), [compChildren.columns]);
@@ -753,6 +763,8 @@ export function TableCompView(props: {
       <TableWrapper
         $style={style}
         $rowStyle={rowStyle}
+        $headerStyle={headerStyle}
+        $toolbarStyle={toolbarStyle}
         $toolbarPosition={toolbar.position}
         $fixedHeader={compChildren.fixedHeader.getView()}
         $fixedToolbar={toolbar.fixedToolbar && toolbar.position === 'above'}

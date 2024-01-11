@@ -507,10 +507,17 @@ export function compTablePropertyView<T extends MultiBaseComp<TableChildrenType>
 
       {["layout", "both"].includes(editorModeStatus) && (
         <><Section name={"Table Style"}>
-            {comp.children.style.getPropertyView()}  
+            {comp.children.style.getPropertyView()} 
+          </Section>
+          <Section name={"Header Style"}>
+            {comp.children.headerStyle.getPropertyView()}
+          </Section>
+          <Section name={"Toolbar Style"}>
+            {comp.children.toolbarStyle.getPropertyView()}
           </Section>
           <Section name={"Row Style"}>
             {comp.children.rowStyle.getPropertyView()}
+            
             {comp.children.rowAutoHeight.getPropertyView()}
             {comp.children.rowHeight.getPropertyView()}
             {comp.children.rowColor.getPropertyView()}

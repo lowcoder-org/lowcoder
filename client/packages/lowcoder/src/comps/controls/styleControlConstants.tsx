@@ -685,6 +685,11 @@ const LinkTextStyle = [
 export const TableStyle = [
   ...BG_STATIC_BORDER_RADIUS,
   {
+    name: "borderWidth",
+    label: trans("style.borderWidth"),
+    borderWidth: "borderWidth",
+  },
+  {
     name: "headerBackground",
     label: trans("style.tableHeaderBackground"),
     depName: "background",
@@ -711,6 +716,45 @@ export const TableStyle = [
     depType: DEP_TYPE.CONTRAST_TEXT,
     transformer: contrastText,
   },
+] as const;
+
+export const TableToolbarStyle = [
+  {
+    name: "toolbarBackground",
+    label: trans("style.toolbarBackground"),
+    depName: "background",
+    depType: DEP_TYPE.SELF,
+    transformer: toSelf,
+  },
+  {
+    name: "toolbarText",
+    label: trans("style.toolbarText"),
+    depName: "toolbarBackground",
+    depType: DEP_TYPE.CONTRAST_TEXT,
+    transformer: contrastText,
+  },
+] as const;
+
+export const TableHeaderStyle = [
+  {
+    name: "borderWidth",
+    label: trans("style.borderWidth"),
+    borderWidth: "borderWidth",
+  },
+  {
+    name: "headerBackground",
+    label: trans("style.tableHeaderBackground"),
+    depName: "background",
+    transformer: handleToHeadBg,
+  },
+  {
+    name: "headerText",
+    label: trans("style.tableHeaderText"),
+    depName: "headerBackground",
+    depType: DEP_TYPE.CONTRAST_TEXT,
+    transformer: contrastText,
+  },
+  TEXT_SIZE,
 ] as const;
 
 export const TableRowStyle = [
@@ -1073,6 +1117,8 @@ export type CheckboxStyleType = StyleConfigType<typeof CheckboxStyle>;
 export type RadioStyleType = StyleConfigType<typeof RadioStyle>;
 export type SegmentStyleType = StyleConfigType<typeof SegmentStyle>;
 export type TableStyleType = StyleConfigType<typeof TableStyle>;
+export type TableHeaderStyleType = StyleConfigType<typeof TableHeaderStyle>;
+export type TableToolbarStyleType = StyleConfigType<typeof TableToolbarStyle>;
 export type TableRowStyleType = StyleConfigType<typeof TableRowStyle>;
 export type TableColumnStyleType = StyleConfigType<typeof TableColumnStyle>;
 export type TableColumnLinkStyleType = StyleConfigType<typeof TableColumnLinkStyle>;
