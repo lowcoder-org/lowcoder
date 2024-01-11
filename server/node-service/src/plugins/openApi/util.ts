@@ -81,7 +81,8 @@ interface NormalizedParams {
   requestBody?: any;
 }
 
-export function extractSecurityParams(config: any, spec: OpenAPI.Document) {
+export function extractSecurityParams(datasourceConfig: any, spec: OpenAPI.Document) {
+  const config = datasourceConfig.dynamicParamsConfig;
   if (!config) {
     return {};
   }
@@ -96,6 +97,18 @@ export function extractSecurityParams(config: any, spec: OpenAPI.Document) {
     names = Object.keys(swagger2Spec.securityDefinitions || {});
   }
   const authorized = _.pick(authData, names);
+
+  let oauthAccessToken = datasourceConfig["OAUTH_ACCESS_TOKEN"];
+
+  if(oauthAccessToken) {
+    return {
+      authorized: {
+        OAUTH_ACCESS_TOKEN: { value: oauthAccessToken }
+      },
+      specSecurity: []
+    };
+  }
+
   return { authorized, specSecurity: spec.security };
 }
 

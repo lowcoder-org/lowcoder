@@ -1,7 +1,7 @@
 import { extractSecurityParams, getSchemaExample, extractLevelData, parseUrl } from "./util";
 
 test("extractSecurityParams", () => {
-  const params = extractSecurityParams({ "ApiKeyAuth.value": "hello", ApiKeyAuth: null }, {
+  const params = extractSecurityParams({"dynamicParamsConfig":{ "ApiKeyAuth.value": "hello", ApiKeyAuth: null }}, {
     openapi: "3.0",
     components: {
       securitySchemes: {
