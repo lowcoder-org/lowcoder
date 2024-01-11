@@ -40,6 +40,7 @@ import org.lowcoder.domain.user.service.UserService;
 import org.lowcoder.sdk.config.CommonConfig;
 import org.lowcoder.sdk.exception.BizError;
 import org.lowcoder.sdk.exception.PluginCommonError;
+import org.lowcoder.sdk.models.JsDatasourceConnectionConfig;
 import org.lowcoder.sdk.models.Property;
 import org.lowcoder.sdk.models.QueryExecutionResult;
 import org.lowcoder.sdk.plugin.graphql.GraphQLDatasourceConfig;
@@ -263,7 +264,7 @@ public class LibraryQueryApiService {
                     Datasource datasource = tuple.getT3();
                     User user = tuple.getT4();
                     Mono<List<Property>> paramsAndHeadersInheritFromLogin = orgMember.isInvalid()
-                                                                            ? Mono.empty() : getParamsAndHeadersInheritFromLogin(user, null);
+                                                                            ? Mono.empty() : getParamsAndHeadersInheritFromLogin(user, null, false);
 
                     QueryVisitorContext queryVisitorContext = new QueryVisitorContext(userId, orgId, port,
                             exchange.getRequest().getCookies(),
@@ -313,12 +314,18 @@ public class LibraryQueryApiService {
                     // check if oauth inherited from login and save token
                     if(datasource.getDetailConfig() instanceof RestApiDatasourceConfig restApiDatasourceConfig && restApiDatasourceConfig.isOauth2InheritFromLogin()) {
                         paramsAndHeadersInheritFromLogin = getParamsAndHeadersInheritFromLogin
-                                (user, ((OAuthInheritAuthConfig)restApiDatasourceConfig.getAuthConfig()).getAuthId());
+                                (user, ((OAuthInheritAuthConfig)restApiDatasourceConfig.getAuthConfig()).getAuthId(), false);
                     }
 
                     if(datasource.getDetailConfig() instanceof GraphQLDatasourceConfig graphQLDatasourceConfig && graphQLDatasourceConfig.isOauth2InheritFromLogin()) {
                         paramsAndHeadersInheritFromLogin = getParamsAndHeadersInheritFromLogin
-                                (user, ((OAuthInheritAuthConfig)graphQLDatasourceConfig.getAuthConfig()).getAuthId());
+                                (user, ((OAuthInheritAuthConfig)graphQLDatasourceConfig.getAuthConfig()).getAuthId(), false);
+                    }
+
+                    if(datasource.getDetailConfig() instanceof JsDatasourceConnectionConfig jsDatasourceConnectionConfig
+                            && jsDatasourceConnectionConfig.isOauth2InheritFromLogin()) {
+                        paramsAndHeadersInheritFromLogin = getParamsAndHeadersInheritFromLogin
+                                (user, jsDatasourceConnectionConfig.getAuthId(), true);
                     }
 
                     QueryVisitorContext queryVisitorContext = new QueryVisitorContext(userId, orgId, port, cookies, paramsAndHeadersInheritFromLogin,
@@ -348,7 +355,7 @@ public class LibraryQueryApiService {
                 .map(LibraryQueryRecord::getQuery);
     }
 
-    protected Mono<List<Property>> getParamsAndHeadersInheritFromLogin(User user, String authId) {
+    protected Mono<List<Property>> getParamsAndHeadersInheritFromLogin(User user, String authId, boolean isJsQuery) {
         if(authId == null) {
             return Mono.empty();
         }
@@ -359,7 +366,11 @@ public class LibraryQueryApiService {
         if(!activeConnectionOptional.isPresent() || activeConnectionOptional.get().getAuthConnectionAuthToken() == null) {
             return Mono.empty();
         }
-        return Mono.just(Collections.singletonList(new Property("Authorization","Bearer " + activeConnectionOptional.get().getAuthConnectionAuthToken().getAccessToken(),"header")));
+        if(isJsQuery) {
+            return Mono.just(Collections.singletonList(new Property("OAUTH_ACCESS_TOKEN",activeConnectionOptional.get().getAuthConnectionAuthToken().getAccessToken(),"header")));
+        } else {
+            return Mono.just(Collections.singletonList(new Property("Authorization","Bearer " + activeConnectionOptional.get().getAuthConnectionAuthToken().getAccessToken(),"header")));
+        }
     }
 
     protected void onNextOrError(QueryExecutionRequest queryExecutionRequest, QueryVisitorContext queryVisitorContext, BaseQuery baseQuery,

@@ -21,6 +21,7 @@ import org.lowcoder.domain.user.model.User;
 import org.lowcoder.infra.util.TupleUtils;
 import org.lowcoder.sdk.config.CommonConfig;
 import org.lowcoder.sdk.exception.BizError;
+import org.lowcoder.sdk.models.JsDatasourceConnectionConfig;
 import org.lowcoder.sdk.models.Property;
 import org.lowcoder.sdk.models.QueryExecutionResult;
 import org.lowcoder.sdk.plugin.graphql.GraphQLDatasourceConfig;
@@ -122,12 +123,18 @@ public class ApplicationQueryApiService {
                     // Check if oauth inherited from login and save token
                     if(datasource.getDetailConfig() instanceof RestApiDatasourceConfig restApiDatasourceConfig
                             && restApiDatasourceConfig.isOauth2InheritFromLogin()) {
-                        paramsAndHeadersInheritFromLogin = getAuthParamsAndHeadersInheritFromLogin(tuple.getT1(), ((OAuthInheritAuthConfig)restApiDatasourceConfig.getAuthConfig()).getAuthId());
+                        paramsAndHeadersInheritFromLogin = getAuthParamsAndHeadersInheritFromLogin(tuple.getT1(), ((OAuthInheritAuthConfig)restApiDatasourceConfig.getAuthConfig()).getAuthId(), false);
                     }
 
                     if(datasource.getDetailConfig() instanceof GraphQLDatasourceConfig graphQLDatasourceConfig
                             && graphQLDatasourceConfig.isOauth2InheritFromLogin()) {
-                        paramsAndHeadersInheritFromLogin = getAuthParamsAndHeadersInheritFromLogin(tuple.getT1(), ((OAuthInheritAuthConfig)graphQLDatasourceConfig.getAuthConfig()).getAuthId());
+                        paramsAndHeadersInheritFromLogin = getAuthParamsAndHeadersInheritFromLogin(tuple.getT1(), ((OAuthInheritAuthConfig)graphQLDatasourceConfig.getAuthConfig()).getAuthId(), false);
+                    }
+
+
+                    if(datasource.getDetailConfig() instanceof JsDatasourceConnectionConfig jsDatasourceConnectionConfig
+                            && jsDatasourceConnectionConfig.isOauth2InheritFromLogin()) {
+                        paramsAndHeadersInheritFromLogin = getAuthParamsAndHeadersInheritFromLogin(tuple.getT1(), jsDatasourceConnectionConfig.getAuthId(), true);
                     }
 
                     QueryVisitorContext queryVisitorContext = new QueryVisitorContext(userId, app.getOrganizationId(), port, cookies, paramsAndHeadersInheritFromLogin, commonConfig.getDisallowedHosts());
@@ -196,7 +203,7 @@ public class ApplicationQueryApiService {
                 .map(LibraryQueryRecord::getQuery);
     }
 
-    protected Mono<List<Property>> getAuthParamsAndHeadersInheritFromLogin(User user, String authId) {
+    protected Mono<List<Property>> getAuthParamsAndHeadersInheritFromLogin(User user, String authId, boolean isJsQuery) {
         if(authId == null) {
             return Mono.empty();
         }
@@ -207,7 +214,11 @@ public class ApplicationQueryApiService {
         if(!activeConnectionOptional.isPresent() || activeConnectionOptional.get().getAuthConnectionAuthToken() == null) {
             return Mono.empty();
         }
-        return Mono.just(Collections.singletonList(new Property("Authorization","Bearer " + activeConnectionOptional.get().getAuthConnectionAuthToken().getAccessToken(),"header")));
+        if(isJsQuery) {
+            return Mono.just(Collections.singletonList(new Property("OAUTH_ACCESS_TOKEN",activeConnectionOptional.get().getAuthConnectionAuthToken().getAccessToken(),"header")));
+        } else {
+            return Mono.just(Collections.singletonList(new Property("Authorization","Bearer " + activeConnectionOptional.get().getAuthConnectionAuthToken().getAccessToken(),"header")));
+        }
     }
 
     protected void onNextOrError(QueryExecutionRequest queryExecutionRequest, QueryVisitorContext queryVisitorContext,
