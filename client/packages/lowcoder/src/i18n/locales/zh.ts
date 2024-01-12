@@ -1210,6 +1210,8 @@ table: {
     auto: "自动",
     fixed: "固定",
     columnType: "列类型",
+    numberStep: "步",
+    numberStepTooltip: "当前值增加或减少的数量。它可以是整数或小数",
     float: "分数",
     prefix: "字首",
     suffix: "后缀",
