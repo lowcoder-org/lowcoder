@@ -680,6 +680,7 @@ export function TableCompView(props: {
         dynamicColumn,
         dynamicColumnConfig,
         columnsAggrData,
+        onEvent,
       ),
     [
       columnViews,

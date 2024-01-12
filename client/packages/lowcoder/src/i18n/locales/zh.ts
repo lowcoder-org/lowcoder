@@ -1270,6 +1270,7 @@ table: {
     rowShrink: "行收缩",
     search: "搜索",
     download: "下载",
+    columnEdited: "栏目已编辑",
     filterChange: "筛选变化",
     sortChange: "排序变化",
     pageChange: "分页变化",

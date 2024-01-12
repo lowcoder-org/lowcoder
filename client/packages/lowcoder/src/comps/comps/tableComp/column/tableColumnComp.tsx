@@ -323,7 +323,6 @@ export function newPrimaryColumn(
   title?: string,
   isTag?: boolean
 ): ConstructorToDataType<typeof ColumnComp> {
-  console.log('newPrimaryColumn', title);
   return {
     title: title ?? key,
     dataIndex: key,

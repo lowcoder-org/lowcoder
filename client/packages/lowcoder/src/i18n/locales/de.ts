@@ -1194,6 +1194,7 @@ export const de = {
       "rowShrink": "Zeilenverkleinerung",
       "search": "Suchen",
       "download": "Herunterladen",
+      "columnEdited": "Spalte bearbeitet",
       "filterChange": "Filterwechsel",
       "sortChange": "Sortieren Ändern",
       "pageChange": "Seitenwechsel",

@@ -84,8 +84,13 @@ export const TableEventOptions = [
     description: trans("table.rowShrink"),
   },
   {
+    label: trans("table.columnEdited"),
+    value: "columnEdited",
+    description: trans("table.columnEdited"),
+  },
+  {
     label: trans("table.search"),
-    value: "search",
+    value: "dataSearch",
     description: trans("table.search"),
   },
   {

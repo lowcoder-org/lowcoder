@@ -1299,6 +1299,7 @@ export const en = {
     "rowShrink": "Row Shrink",
     "search": "Search",
     "download": "Download",
+    "columnEdited": "Column Edited",
     "filterChange": "Filter Change",
     "sortChange": "Sort Change",
     "pageChange": "Page Change",
