@@ -683,6 +683,8 @@ const LinkTextStyle = [
 ] as const;
 
 export const TableStyle = [
+  MARGIN,
+  PADDING,
   ...BG_STATIC_BORDER_RADIUS,
   {
     name: "borderWidth",
@@ -719,6 +721,8 @@ export const TableStyle = [
 ] as const;
 
 export const TableToolbarStyle = [
+  MARGIN,
+  PADDING,
   {
     name: "toolbarBackground",
     label: trans("style.toolbarBackground"),
@@ -737,15 +741,17 @@ export const TableToolbarStyle = [
 
 export const TableHeaderStyle = [
   {
-    name: "borderWidth",
-    label: trans("style.borderWidth"),
-    borderWidth: "borderWidth",
-  },
-  {
     name: "headerBackground",
     label: trans("style.tableHeaderBackground"),
     depName: "background",
     transformer: handleToHeadBg,
+  },
+  MARGIN,
+  getStaticBorder(),
+  {
+    name: "borderWidth",
+    label: trans("style.borderWidth"),
+    borderWidth: "borderWidth",
   },
   {
     name: "headerText",
@@ -784,6 +790,7 @@ export const TableRowStyle = [
 export const TableColumnStyle = [
   getStaticBackground("#00000000"),
   getStaticBorder(),
+  MARGIN,
   BORDER_WIDTH,
   RADIUS,
   TEXT,

@@ -141,9 +141,11 @@ const TableWrapper = styled.div<{
 }>`
   max-height: 100%;
   overflow-y: auto;
-  background: white;
+  background: ${(props) => props.$style.background};
   border: ${(props) => `${props.$style.borderWidth} solid ${props.$style.border}`};
   border-radius: ${(props) => props.$style.radius};
+  padding: ${(props) => props.$style.padding};
+  margin: ${(props) => props.$style.margin};
 
   .ant-table-wrapper {
     border-top: ${(props) => (props.$toolbarPosition === "above" ? "1px solid" : "unset")};
@@ -194,11 +196,11 @@ const TableWrapper = styled.div<{
         > .ant-table-thead {
           > tr > th {
             background-color: ${(props) => props.$headerStyle.headerBackground};
-            border-color: ${(props) => props.$style.border};
+            border-color: ${(props) => props.$headerStyle.border};
             border-width: ${(props) => props.$headerStyle.borderWidth};
-            color: ${(props) => props.$style.headerText};
+            color: ${(props) => props.$headerStyle.headerText};
             font-size: ${(props) => props.$headerStyle.textSize};
-            border-inline-end: ${(props) => `${props.$headerStyle.borderWidth} solid ${props.$style.border}`} !important;
+            border-inline-end: ${(props) => `${props.$headerStyle.borderWidth} solid ${props.$headerStyle.border}`} !important;
             ${(props) => 
               props.$fixedHeader && `
                 position: sticky;
@@ -208,19 +210,23 @@ const TableWrapper = styled.div<{
               `
             }
 
+            > div {
+              margin: ${(props) => props.$headerStyle.margin};
+            }
+
             &:last-child {
               border-inline-end: none !important;
             }
             &.ant-table-column-has-sorters:hover {
-              background-color: ${(props) => darkenColor(props.$style.headerBackground, 0.05)};
+              background-color: ${(props) => darkenColor(props.$headerStyle.headerBackground, 0.05)};
             }
   
             > .ant-table-column-sorters > .ant-table-column-sorter {
-              color: ${(props) => props.$style.headerText === defaultTheme.textDark ? "#bfbfbf" : props.$style.headerText};
+              color: ${(props) => props.$headerStyle.headerText === defaultTheme.textDark ? "#bfbfbf" : props.$headerStyle.headerText};
             }
 
             &::before {
-              background-color: ${(props) => props.$style.border};
+              background-color: ${(props) => props.$headerStyle.border};
             }
           }
         }
@@ -310,6 +316,8 @@ const TableTd = styled.td<{
   border-color: ${(props) => props.$style.border} !important;
   border-width: ${(props) => props.$style.borderWidth} !important;
   border-radius: ${(props) => props.$style.radius};
+  margin: ${(props) => props.$style.margin};
+
   padding: 0 !important;
 
   > div {
@@ -488,6 +496,7 @@ function TableCellView(props: {
   
     const style = {
       background: cellColor || rowColor || columnStyle.background || columnsStyle.background,
+      margin: columnStyle.margin || columnsStyle.margin,
       text: columnStyle.text || columnsStyle.text,
       border: columnStyle.border || columnsStyle.border,
       radius: columnStyle.radius || columnsStyle.radius,
