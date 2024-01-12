@@ -1137,6 +1137,7 @@ export const de = {
       "columnType": "Säule Typ",
       "numberStep": "Schritt",
       "numberStepTooltip": "Die Zahl, auf die der aktuelle Wert erhöht oder verringert wird. Es kann eine ganze Zahl oder eine Dezimalzahl sein",
+      "precision": "Präzision",
       "float": "Schwimmer",
       "prefix": "Präfix",
       "suffix": "Nachsilbe",

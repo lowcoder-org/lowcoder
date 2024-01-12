@@ -1241,6 +1241,7 @@ export const en = {
     "columnType": "Column Type",
     "numberStep": "Step",
     "numberStepTooltip": "The number to which the current value is increased or decreased. It can be an integer or decimal",
+    "precision": "Precision",
     "float": "Float",
     "prefix": "Prefix",
     "suffix": "Suffix",

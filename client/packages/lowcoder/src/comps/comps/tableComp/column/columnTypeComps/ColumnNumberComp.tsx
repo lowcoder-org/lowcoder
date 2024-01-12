@@ -1,5 +1,5 @@
   import { default as InputNumber } from "antd/es/input-number";
-import { NumberControl, StringControl } from "comps/controls/codeControl";
+import { NumberControl, RangeControl, StringControl } from "comps/controls/codeControl";
 import { BoolControl } from "comps/controls/boolControl";
 import { trans } from "i18n";
 import { ColumnTypeCompBuilder, ColumnTypeViewFn } from "../columnTypeCompBuilder";
@@ -25,6 +25,7 @@ const InputNumberWrapper = styled.div`
 const childrenMap = {
   text: NumberControl,
   step: withDefault(NumberControl, 1),
+  precision: RangeControl.closed(0, 20, 0),
   float: BoolControl,
   prefix: StringControl,
   suffix: StringControl,
@@ -32,6 +33,8 @@ const childrenMap = {
 
 let float = false;
 let step = 1;
+let precision = 0;
+
 const getBaseValue: ColumnTypeViewFn<typeof childrenMap, number, number> = (
   props
 ) => {
@@ -44,8 +47,13 @@ export const ColumnNumberComp = (function () {
     (props, dispatch) => {
       float = props.float;
       step = props.step;
-      const value = !float ? Math.floor(props.changeValue ?? getBaseValue(props, dispatch)) : props.changeValue ?? getBaseValue(props, dispatch);
-      return props.prefix + value + props.suffix;
+      precision = props.precision;
+      const value = props.changeValue ?? getBaseValue(props, dispatch);
+      let formattedValue: string | number = !float ? Math.floor(value) : value;
+      if(float) {
+        formattedValue = formattedValue.toPrecision(precision + 1);
+      }
+      return props.prefix + formattedValue + props.suffix;
     },
     (nodeValue) => nodeValue.text.value,
     getBaseValue,
@@ -62,6 +70,7 @@ export const ColumnNumberComp = (function () {
             value = value ?? 0;
             props.onChange(!float ? Math.floor(value) : value);
           }}
+          precision={float ? precision : 0}
           onBlur={props.onChangeEnd}
           onPressEnter={props.onChangeEnd}
         />
@@ -86,6 +95,11 @@ export const ColumnNumberComp = (function () {
               }
             }
           })}
+          {float && (
+            children.precision.propertyView({
+              label: trans("table.precision"),
+            })
+          )}
           {children.prefix.propertyView({
             label: trans("table.prefix"),
           })}
