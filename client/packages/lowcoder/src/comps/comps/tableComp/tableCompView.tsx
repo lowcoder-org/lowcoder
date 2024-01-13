@@ -680,6 +680,7 @@ export function TableCompView(props: {
         dynamicColumn,
         dynamicColumnConfig,
         columnsAggrData,
+        onEvent,
       ),
     [
       columnViews,
@@ -745,7 +746,10 @@ export function TableCompView(props: {
           setLoading
         )
       }
-      onDownload={() => onDownload(`${compName}-data`)}
+      onDownload={() => {
+        handleChangeEvent("download");
+        onDownload(`${compName}-data`)
+      }}
       hasChange={hasChange}
       onSaveChanges={() => handleChangeEvent("saveChanges")}
       onCancelChanges={() => handleChangeEvent("cancelChanges")}
@@ -778,7 +782,11 @@ export function TableCompView(props: {
               : "OB_CHILDREN_KEY_PLACEHOLDER",
             fixed: "left",
             onExpand: (expanded) => {
-              if(expanded) handleChangeEvent('rowExpand')
+              if(expanded) {
+                handleChangeEvent('rowExpand')
+              } else {
+                handleChangeEvent('rowShrink')
+              }
             }
           }}
           rowColorFn={compChildren.rowColor.getView() as any}
