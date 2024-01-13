@@ -1239,6 +1239,8 @@ table: {
     fixedHeader: "固定表头",
     fixedHeaderTooltip: "垂直滚动表格的标题将被固定",
     hideBordered: "隐藏列边框",
+    "showHeaderGridBorder": "显示标题网格边框",
+    "showRowGridBorder": "显示行网格边框",
     deleteColumn: "删除列",
     confirmDeleteColumn: "确认删除列:",
     small: "小",

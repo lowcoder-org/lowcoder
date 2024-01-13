@@ -170,7 +170,9 @@ export type RowHeightViewType = (param: {
 }) => string;
 
 const tableChildrenMap = {
-  hideBordered: BoolControl,
+  // hideBordered: BoolControl,
+  showHeaderGridBorder: BoolControl,
+  showRowGridBorder: BoolControl,
   hideHeader: BoolControl,
   fixedHeader: BoolControl,
   autoHeight: withDefault(AutoHeightControl, "auto"),

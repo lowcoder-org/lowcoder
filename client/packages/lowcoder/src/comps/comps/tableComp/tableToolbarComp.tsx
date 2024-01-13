@@ -58,7 +58,7 @@ const getStyle = (
     padding: 13px 12px;
     position: sticky;
     postion: -webkit-sticky;
-    left: 0;
+    left: 0px !important;
 
     ${fixedToolbar && `z-index: 99;`};
     ${fixedToolbar && position === 'below' && `bottom: 0;`};

@@ -684,7 +684,6 @@ const LinkTextStyle = [
 
 export const TableStyle = [
   MARGIN,
-  PADDING,
   ...BG_STATIC_BORDER_RADIUS,
   {
     name: "borderWidth",
@@ -721,8 +720,6 @@ export const TableStyle = [
 ] as const;
 
 export const TableToolbarStyle = [
-  MARGIN,
-  PADDING,
   {
     name: "toolbarBackground",
     label: trans("style.toolbarBackground"),
@@ -1205,3 +1202,5 @@ export function marginCalculator(margin: string) {
     return parseInt(marginArr[0]?.replace(/[^\d.]/g, "") || "0") + parseInt(marginArr[2]?.replace(/[^\d.]/g, "") || "0")
   }
 }
+export type { ThemeDetail };
+

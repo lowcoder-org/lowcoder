@@ -469,9 +469,6 @@ export function compTablePropertyView<T extends MultiBaseComp<TableChildrenType>
             {comp.children.hideHeader.propertyView({
               label: trans("table.hideHeader"),
             })}
-            {comp.children.hideBordered.propertyView({
-              label: trans("table.hideBordered"),
-            })}
             {comp.children.viewModeResizable.propertyView({
               label: trans("table.viewModeResizable"),
               tooltip: trans("table.viewModeResizableTooltip"),
@@ -510,14 +507,19 @@ export function compTablePropertyView<T extends MultiBaseComp<TableChildrenType>
             {comp.children.style.getPropertyView()} 
           </Section>
           <Section name={"Header Style"}>
+            {comp.children.showHeaderGridBorder.propertyView({
+              label: trans("table.showHeaderGridBorder"),
+            })}
             {comp.children.headerStyle.getPropertyView()}
           </Section>
           <Section name={"Toolbar Style"}>
             {comp.children.toolbarStyle.getPropertyView()}
           </Section>
           <Section name={"Row Style"}>
+            {comp.children.showRowGridBorder.propertyView({
+              label: trans("table.showRowGridBorder"),
+            })}
             {comp.children.rowStyle.getPropertyView()}
-            
             {comp.children.rowAutoHeight.getPropertyView()}
             {comp.children.rowHeight.getPropertyView()}
             {comp.children.rowColor.getPropertyView()}
