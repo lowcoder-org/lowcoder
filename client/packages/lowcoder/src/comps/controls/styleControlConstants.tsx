@@ -157,7 +157,10 @@ export function handleToSelectedRow(color: string, primary: string = defaultThem
 // return table header background color
 export function handleToHeadBg(color: string) {
   if (toHex(color) === SURFACE_COLOR) {
-    return "#FAFAFA";
+    return darkenColor(color, 0.06);
+  }
+  if (toHex(color) === "#000000") {
+    return SECOND_SURFACE_COLOR;
   }
   if (isDarkColor(color)) {
     return darkenColor(color, 0.06);
@@ -683,12 +686,41 @@ const LinkTextStyle = [
 ] as const;
 
 export const TableStyle = [
+  MARGIN,
   ...BG_STATIC_BORDER_RADIUS,
+  {
+    name: "borderWidth",
+    label: trans("style.borderWidth"),
+    borderWidth: "borderWidth",
+  },
+] as const;
+
+export const TableToolbarStyle = [
+  MARGIN,
+  getBackground(),
+  getStaticBorder(),
+  {
+    name: "toolbarText",
+    label: trans("style.toolbarText"),
+    depName: "toolbarBackground",
+    depType: DEP_TYPE.CONTRAST_TEXT,
+    transformer: toSelf,
+  },
+] as const;
+
+export const TableHeaderStyle = [
+  MARGIN,
   {
     name: "headerBackground",
     label: trans("style.tableHeaderBackground"),
-    depName: "background",
+    depName: "headerBackground",
     transformer: handleToHeadBg,
+  },
+  getStaticBorder(),
+  {
+    name: "borderWidth",
+    label: trans("style.borderWidth"),
+    borderWidth: "borderWidth",
   },
   {
     name: "headerText",
@@ -697,20 +729,7 @@ export const TableStyle = [
     depType: DEP_TYPE.CONTRAST_TEXT,
     transformer: contrastText,
   },
-  {
-    name: "toolbarBackground",
-    label: trans("style.toolbarBackground"),
-    depName: "background",
-    depType: DEP_TYPE.SELF,
-    transformer: toSelf,
-  },
-  {
-    name: "toolbarText",
-    label: trans("style.toolbarText"),
-    depName: "toolbarBackground",
-    depType: DEP_TYPE.CONTRAST_TEXT,
-    transformer: contrastText,
-  },
+  TEXT_SIZE,
 ] as const;
 
 export const TableRowStyle = [
@@ -740,6 +759,7 @@ export const TableRowStyle = [
 export const TableColumnStyle = [
   getStaticBackground("#00000000"),
   getStaticBorder(),
+  MARGIN,
   BORDER_WIDTH,
   RADIUS,
   TEXT,
@@ -1073,6 +1093,8 @@ export type CheckboxStyleType = StyleConfigType<typeof CheckboxStyle>;
 export type RadioStyleType = StyleConfigType<typeof RadioStyle>;
 export type SegmentStyleType = StyleConfigType<typeof SegmentStyle>;
 export type TableStyleType = StyleConfigType<typeof TableStyle>;
+export type TableHeaderStyleType = StyleConfigType<typeof TableHeaderStyle>;
+export type TableToolbarStyleType = StyleConfigType<typeof TableToolbarStyle>;
 export type TableRowStyleType = StyleConfigType<typeof TableRowStyle>;
 export type TableColumnStyleType = StyleConfigType<typeof TableColumnStyle>;
 export type TableColumnLinkStyleType = StyleConfigType<typeof TableColumnLinkStyle>;
@@ -1152,3 +1174,5 @@ export function marginCalculator(margin: string) {
     return parseInt(marginArr[0]?.replace(/[^\d.]/g, "") || "0") + parseInt(marginArr[2]?.replace(/[^\d.]/g, "") || "0")
   }
 }
+export type { ThemeDetail };
+

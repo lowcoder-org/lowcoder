@@ -1,5 +1,3 @@
-import { EllipsisOutlined } from "@ant-design/icons";
-import { default as Dropdown} from "antd/es/dropdown";
 import { default as Menu } from "antd/es/menu";
 import { ColumnTypeCompBuilder } from "comps/comps/tableComp/column/columnTypeCompBuilder";
 import { ActionSelectorControlInContext } from "comps/controls/actionSelector/actionSelectorControl";
@@ -12,18 +10,6 @@ import styled from "styled-components";
 import { ColumnLink } from "comps/comps/tableComp/column/columnTypeComps/columnLinkComp";
 import { LightActiveTextColor, PrimaryColor } from "constants/style";
 
-const LinksWrapper = styled.div`
-  white-space: nowrap;
-
-  > a {
-    margin-right: 8px;
-  }
-
-  > a:last-child {
-    margin-right: 0;
-  }
-`;
-
 const MenuLinkWrapper = styled.div`
   > a {
     color: ${PrimaryColor} !important;
@@ -32,6 +18,22 @@ const MenuLinkWrapper = styled.div`
       color: ${LightActiveTextColor} !important;
     }
   }
+`;
+
+const MenuWrapper = styled.div`
+  ul {
+    background: transparent !important;
+    border-bottom: 0;
+
+    li {
+      padding: 0 10px 0 0 !important;
+      line-height: normal !important;
+
+      &::after {
+        content: none !important;
+      }
+    }
+  }  
 `;
 
 const OptionItem = new MultiCompBuilder(
@@ -69,48 +71,28 @@ export const ColumnLinksComp = (function () {
   return new ColumnTypeCompBuilder(
     childrenMap,
     (props) => {
-      const menu = props.options.length > 3 && (
-        <Menu>
-          {props.options
-            .filter((o) => !o.hidden)
-            .slice(3)
-            .map((option, index) => (
-              <Menu.Item key={index}>
-                <MenuLinkWrapper>
-                  <ColumnLink
-                    disabled={option.disabled}
-                    label={option.label}
-                    onClick={option.onClick}
-                  />
-                </MenuLinkWrapper>
-              </Menu.Item>
-            ))}
-        </Menu>
-      );
+      const menuItems = props.options
+        .filter((o) => !o.hidden)
+        .map((option, index) => (
+          {
+            key: index,
+            label: (
+              <MenuLinkWrapper>
+                <ColumnLink
+                  disabled={option.disabled}
+                  label={option.label}
+                  onClick={option.onClick}
+                />
+              </MenuLinkWrapper>
+            )
+          }
+        ));
 
       return (
-        <LinksWrapper>
-          {props.options
-            .filter((o) => !o.hidden)
-            .slice(0, 3)
-            .map((option, i) => (
-              <ColumnLink
-                key={i}
-                disabled={option.disabled}
-                label={option.label}
-                onClick={option.onClick}
-              />
-            ))}
-          {menu && (
-            <Dropdown
-              trigger={["hover"]}
-              dropdownRender={() => menu}
-            >
-              <EllipsisOutlined onClick={(e) => e.preventDefault()} />
-            </Dropdown>
-          )}
-        </LinksWrapper>
-      );
+        <MenuWrapper>
+          <Menu mode="horizontal" items={menuItems}  />
+        </MenuWrapper>
+      )
     },
     () => ""
   )

@@ -4,7 +4,7 @@ description: A Helm chart for Kubernetes for installing lowcoder
 
 type: application
 # Chart version (change every time you make changes to the chart)
-version: 0.1.0
+version: 1.0.0
 
 # Lowcoder version
 appVersion: "latest"

@@ -27,7 +27,6 @@ import { ColorControl } from "comps/controls/colorControl";
 import { JSONValue } from "util/jsonTypes";
 import styled from "styled-components";
 import { TextOverflowControl } from "comps/controls/textOverflowControl";
-import { TableColumnLinkStyle, styleControl } from "@lowcoder-ee/index.sdk";
 import { default as Divider } from "antd/es/divider";
 export type Render = ReturnType<ConstructorToComp<typeof RenderComp>["getOriginalComp"]>;
 export const RenderComp = withSelectedMultiContext(ColumnTypeComp);
@@ -86,6 +85,7 @@ export type CellColorViewType = (param: {
 export const columnChildrenMap = {
   // column title
   title: StringControl,
+  showTitle: withDefault(BoolControl, true),
   // a custom column or a data column
   isCustom: valueComp<boolean>(false),
   // If it is a data column, it must be the name of the column and cannot be duplicated as a react key
@@ -100,6 +100,7 @@ export const columnChildrenMap = {
   fixed: dropdownControl(columnFixOptions, "close"),
   editable: BoolControl,
   background: withDefault(ColorControl, ""),
+  margin: withDefault(RadiusControl, ""),
   text: withDefault(ColorControl, ""),
   border: withDefault(ColorControl, ""),
   borderWidth: withDefault(RadiusControl, ""),
@@ -149,6 +150,13 @@ export class ColumnComp extends ColumnInitComp {
         )
       );
     }
+    if(action.type === CompActionTypes.CHANGE_VALUE) {
+      const title = comp.children.title.unevaledValue;
+      const dataIndex = comp.children.dataIndex.getView();
+      if(!Boolean(title)) {
+        comp.children.title.dispatchChangeValueAction(dataIndex);
+      }
+    }
     return comp;
   }
 
@@ -180,9 +188,14 @@ export class ColumnComp extends ColumnInitComp {
       <>
         {this.children.title.propertyView({
           label: trans("table.columnTitle"),
+          placeholder: this.children.dataIndex.getView(),
         })}
         {/* FIXME: cast type currently, return type of withContext should be corrected later */}
         {this.children.render.getPropertyView()}
+        {this.children.showTitle.propertyView({
+          label: trans("table.showTitle"),
+          tooltip: trans("table.showTitleTooltip"),
+        })}
         {ColumnTypeCompMap[columnType].canBeEditable() &&
           this.children.editable.propertyView({ label: trans("table.editable") })}
         {this.children.sortable.propertyView({

@@ -102,7 +102,7 @@ export async function runOpenApi(
 
   try {
     const { parameters, requestBody } = normalizeParams(otherActionData, operation, isOas3Spec);
-    const securities = extractSecurityParams(dataSourceConfig.dynamicParamsConfig, definition);
+    let securities = extractSecurityParams(dataSourceConfig, definition);
     const response = await SwaggerClient.execute({
       spec: definition,
       operationId: realOperationId,

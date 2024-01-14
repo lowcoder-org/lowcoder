@@ -269,6 +269,7 @@ export function columnsToAntdFormat(
   dynamicColumn: boolean,
   dynamicColumnConfig: Array<string>,
   columnsAggrData: ColumnsAggrData,
+  onTableEvent: (eventName: any) => void,
 ): Array<CustomColumnType<RecordType>> {
   const sortMap: Map<string | undefined, SortOrder> = new Map(
     sort.map((s) => [s.column, s.desc ? "descend" : "ascend"])
@@ -311,7 +312,7 @@ export function columnsToAntdFormat(
     }[];
     const title = renderTitle({ title: column.title, editable: column.editable });
     return {
-      title: title,
+      title: column.showTitle ? title : '',
       titleText: column.title,
       dataIndex: column.dataIndex,
       align: column.align,
@@ -319,6 +320,7 @@ export function columnsToAntdFormat(
       fixed: column.fixed === "close" ? false : column.fixed,
       style: {
         background: column.background,
+        margin: column.margin,
         text: column.text,
         border: column.border,
         radius: column.radius,
@@ -346,9 +348,11 @@ export function columnsToAntdFormat(
           .getView()
           .view({
             editable: column.editable,
-            size, candidateTags: tags,
+            size,
+            candidateTags: tags,
             candidateStatus: status,
             textOverflow: column.textOverflow,
+            onTableEvent,
           });
       },
       ...(column.sortable

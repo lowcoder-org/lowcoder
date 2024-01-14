@@ -38,6 +38,28 @@ $ helm delete -n lowcoder my-lowcoder
 
 ## Parameters
 
+## Global
+
+| Name                                    | Description                                                                       | Value          |
+| --------------------------------------- | --------------------------------------------------------------------------------- | -------------- |
+| `global.config.workspaceMode`           | Sets the workspace mode. Possible types are: SAAS, ENTERPRISE                     | `SAAS`         |
+| `global.config.userId`                  | User ID of user running Lowcoder server application in container                  | `9001`         |
+| `global.config.groupId`                 | Group ID of user running Lowcoder server application in container                 | `9001`         |
+| `global.config.corsAllowedDomains`      | CORS allowed domains                                                              | `*`            |
+| `global.config.enableUserSignUp`        | Enable users signing up to lowcoder via login page                                | `true`         |
+| `global.config.encryption.password`     | Encryption password  - CHANGE IT!                                                 | `lowcoder.org` |
+| `global.config.encryption.salt`         | Encryption salt      - CHANGE IT!                                                 | `lowcoder.org` |
+| `global.config.apiKeySecret`            | API-KEY secret, should be a string of at least 32 random characters - CHANGE IT   | `5a41b090758b39b226603177ef48d73ae9839dd458ccb7e66f7e7cc028d5a50b` |
+| `global.config.maxQueryTimeout`         | Maximum query timeout in seconds                                                  | `120`          |
+| `global.config.maxRequestSize`          | Maximum request size                                                              | `20m`          |
+| `global.config.nodeServiceUrl`          | URL to node-service server if using external one (disabled by default)            |                |
+| `global.config.apiServiceUrl`           | URL to api-service server if using external one (disabled by default)             |                |
+| `global.defaults.maxOrgsPerUser`        | Maximum allowed organizations per user                                            | `100`          |
+| `global.defaults.maxMembersPerOrg`      | Maximum allowed members per organization                                          | `1000`         |
+| `global.defaults.maxGroupsPerOrg`       | Maximum groups allowed per organization                                           | `100`          |
+| `global.defaults.maxAppsPerOrg`         | Maximum allowed applications per organization                                     | `1000`         |
+| `global.defaults.maxDevelopers`         | Maximum allowed developer accounts                                                | `100`          |
+
 ### Redis
 
 | Name                                 | Description                                                                 | Value            |
@@ -55,33 +77,4 @@ All available parameters can be found in [Bitnami Redis Chart](https://github.co
 | `mongodb.externalUrl`                | External mongo database connection string when `mongodb.enabled` is `false` | `""`             |
 
 All available parameters can be found in [Bitnami MongoDB Chart](https://github.com/bitnami/charts/tree/main/bitnami/mongodb/#parameters)
-
-### Lowcoder server api-service
-
-| Name                                    | Description                                                                 | Value            |
-| --------------------------------------- | --------------------------------------------------------------------------- | ---------------- |
-| `apiService.config.userId`              | User ID of user running Lowcoder server application in container          | `9001`           |
-| `apiService.config.groupId`             | Group ID of user running Lowcoder server application in container         | `9001`           |
-| `apiService.config.corsAllowedDomains`  | CORS allowed domains                                                        | `*`              |
-| `apiService.config.encryption.password` | Encryption password                                                         | `lowcoder.org` |
-| `apiService.config.encryption.salt`     | Encryption salt                                                             | `lowcoder.org` |
-| `apiService.config.enableUserSignUp`    | Enable users signing up to lowcoder via login page                        | `true`           |
-| `apiService.config.nodeServiceUrl`      | URL to node-service server if using external Lowcoder server              |                  |
-
-### Lowcoder server node-service
-
-| Name                                    | Description                                                                 | Value            |
-| --------------------------------------- | --------------------------------------------------------------------------- | ---------------- |
-| `nodeService.config.userId`             | User ID of user running Lowcoder service application in container         | `9001`           |
-| `nodeService.config.groupId`            | Group ID of user running Lowcoder service application in container        | `9001`           |
-| `nodeService.config.apiServiceUrl`      | URL to api-service server if using external Lowcoder server               |                  |
-
-### Lowcoder frontend (client)
-
-| Name                                    | Description                                                                 | Value            |
-| --------------------------------------- | --------------------------------------------------------------------------- | ---------------- |
-| `frontend.config.userId`                | User ID of nginx user running Lowcoder client application in container    | `9001`           |
-| `frontend.config.groupId`               | Group ID of nginx user running Lowcoder client application in container   | `9001`           |
-| `frontend.config.apiServiceUrl`         | URL to api-service server if using external Lowcoder server               | `""`             |
-| `frontend.config.nodeServiceUrl`        | URL to node-service server if using external Lowcoder server              |                  |
 

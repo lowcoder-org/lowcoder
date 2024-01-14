@@ -64,6 +64,10 @@ export class TableImplComp extends TableInitComp implements IContainer {
   override autoHeight(): boolean {
     return this.children.autoHeight.getView();
   }
+
+  getTableAutoHeight() {
+    return this.children.autoHeight.getView();
+  }
   
   private getSlotContainer() {
     return this.children.expansion.children.slot.getSelectedComp().getComp().children.container;
@@ -176,7 +180,6 @@ export class TableImplComp extends TableInitComp implements IContainer {
 
   override reduce(action: CompAction): this {
     let comp = super.reduce(action);
-
     let dataChanged = false;
     if (action.type === CompActionTypes.UPDATE_NODES_V2) {
       const nextRowExample = tableDataRowExample(comp.children.data.getView());
@@ -316,10 +319,18 @@ export class TableImplComp extends TableInitComp implements IContainer {
       filter: this.children.toolbar.children.filter.node(),
       showFilter: this.children.toolbar.children.showFilter.node(),
     };
+    let context = this;
     const filteredDataNode = withFunction(fromRecord(nodes), (input) => {
       const { data, searchValue, filter, showFilter } = input;
       const filteredData = filterData(data, searchValue.value, filter, showFilter.value);
       // console.info("filterNode. data: ", data, " filter: ", filter, " filteredData: ", filteredData);
+      // if data is changed on search then trigger event
+      if(Boolean(searchValue.value) && data.length !== filteredData.length) {
+        const onEvent = context.children.onEvent.getView();
+        setTimeout(() => {
+          onEvent("dataSearch");
+        });
+      }
       return filteredData.map((row) => tranToTableRecord(row, row[OB_ROW_ORI_INDEX]));
     });
     return lastValueIfEqual(this, "filteredDataNode", [filteredDataNode, nodes] as const, (a, b) =>

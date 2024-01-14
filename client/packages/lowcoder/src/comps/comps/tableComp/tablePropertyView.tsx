@@ -469,12 +469,13 @@ export function compTablePropertyView<T extends MultiBaseComp<TableChildrenType>
             {comp.children.hideHeader.propertyView({
               label: trans("table.hideHeader"),
             })}
-            {comp.children.hideBordered.propertyView({
-              label: trans("table.hideBordered"),
-            })}
             {comp.children.viewModeResizable.propertyView({
               label: trans("table.viewModeResizable"),
               tooltip: trans("table.viewModeResizableTooltip"),
+            })}
+            {comp.children.visibleResizables.propertyView({
+              label: trans("table.visibleResizables"),
+              tooltip: trans("table.visibleResizablesTooltip"),
             })}
           </Section>
           <Section name={trans("prop.pagination")}>
@@ -507,9 +508,21 @@ export function compTablePropertyView<T extends MultiBaseComp<TableChildrenType>
 
       {["layout", "both"].includes(editorModeStatus) && (
         <><Section name={"Table Style"}>
-            {comp.children.style.getPropertyView()}  
+            {comp.children.style.getPropertyView()} 
+          </Section>
+          <Section name={"Header Style"}>
+            {comp.children.headerStyle.getPropertyView()}
+          </Section>
+          <Section name={"Toolbar Style"}>
+            {comp.children.toolbarStyle.getPropertyView()}
           </Section>
           <Section name={"Row Style"}>
+            {comp.children.showRowGridBorder.propertyView({
+              label: trans("table.showVerticalRowGridBorder"),
+            })}
+            {comp.children.showHRowGridBorder.propertyView({
+              label: trans("table.showHorizontalRowGridBorder"),
+            })}
             {comp.children.rowStyle.getPropertyView()}
             {comp.children.rowAutoHeight.getPropertyView()}
             {comp.children.rowHeight.getPropertyView()}

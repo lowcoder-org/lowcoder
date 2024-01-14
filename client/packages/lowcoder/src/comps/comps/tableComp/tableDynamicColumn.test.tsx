@@ -36,6 +36,7 @@ const expectColumn = (
   // with dynamic config
   const dynamicColumnConfig = comp.children.dynamicColumnConfig.getView();
   if (dynamicColumnConfig?.length > 0) {
+    const onEvent = (eventName: any) => {};
     const antdColumns = columnsToAntdFormat(
       columnViews,
       comp.children.sort.getView(),
@@ -43,7 +44,8 @@ const expectColumn = (
       comp.children.size.getView(),
       comp.children.dynamicColumn.getView(),
       dynamicColumnConfig,
-      comp.columnAggrData
+      comp.columnAggrData,
+      onEvent,
     );
     expect(columnViews.length).toBeGreaterThanOrEqual(antdColumns.length);
     antdColumns.forEach((column) => {

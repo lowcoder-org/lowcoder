@@ -7,7 +7,7 @@ import { TableOnEventView } from "comps/comps/tableComp/tableTypes";
 import { BoolControl } from "comps/controls/boolControl";
 import { StringControl } from "comps/controls/codeControl";
 import { dropdownControl } from "comps/controls/dropdownControl";
-import { defaultTheme, TableStyleType } from "comps/controls/styleControlConstants";
+import { defaultTheme, TableToolbarStyleType } from "comps/controls/styleControlConstants";
 import { stateComp } from "comps/generators";
 import { genRandomKey } from "comps/utils/idGenerator";
 import { ThemeContext } from "comps/utils/themeContext";
@@ -46,19 +46,20 @@ const SaveChangeButtons = styled.div`
 `;
 
 const getStyle = (
-  style: TableStyleType,
+  style: TableToolbarStyleType,
   filtered: boolean,
   theme: ThemeDetail,
   position: ToolbarRowType["position"],
   fixedToolbar: boolean,
 ) => {
   return css`
-    background-color: ${style.toolbarBackground};
+    background-color: ${style.background};
     // Implement horizontal scrollbar and vertical page number selection is not blocked
     padding: 13px 12px;
     position: sticky;
     postion: -webkit-sticky;
-    left: 0;
+    left: 0px !important;
+    margin: ${style.margin} !important;
 
     ${fixedToolbar && `z-index: 99;`};
     ${fixedToolbar && position === 'below' && `bottom: 0;`};
@@ -125,7 +126,7 @@ const getStyle = (
     }
 
     .ant-pagination-item-active {
-      border-color: ${theme?.primary};
+      border-color: ${style.border || theme?.primary};
 
       a {
         color: ${theme?.textDark};
@@ -145,13 +146,13 @@ const getStyle = (
       .ant-select-selector,
     .ant-pagination-options-quick-jumper input:hover,
     .ant-pagination-options-quick-jumper input:focus {
-      border-color: ${theme?.primary};
+      border-color: ${style.border || theme?.primary};
     }
   `;
 };
 
 const ToolbarWrapper = styled.div<{
-  $style: TableStyleType;
+  $style: TableToolbarStyleType;
   $filtered: boolean;
   $theme: ThemeDetail;
   $position: ToolbarRowType["position"];
@@ -609,7 +610,7 @@ function ColumnSetting(props: {
       allChecked = false;
     }
     return (
-      <ColumnCheckItem>
+      <ColumnCheckItem key={columnView.dataIndex}>
         <CheckBox
           checked={checked}
           onChange={(e) => {
@@ -677,6 +678,7 @@ function ToolbarPopover(props: {
     <Popover
       open={visible}
       overlayStyle={{ pointerEvents: "auto" }}
+      overlayInnerStyle={{ padding: '0' }}
       content={
         <div
           ref={popOverRef}
@@ -710,7 +712,7 @@ type ToolbarRowType = ConstructorToView<typeof TableToolbarComp>;
 
 export function TableToolbar(props: {
   toolbar: ToolbarRowType;
-  $style: TableStyleType;
+  $style: TableToolbarStyleType;
   pagination: PaginationProps;
   columns: Array<ColumnCompType>;
   onRefresh: () => void;
