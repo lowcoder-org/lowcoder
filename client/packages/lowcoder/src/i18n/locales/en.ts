@@ -1191,6 +1191,8 @@ export const en = {
     "columnNum": "Columns",
     "viewModeResizable": "Column Width Adjusted by User",
     "viewModeResizableTooltip": "Whether Users Can Adjust Column Width.",
+    "visibleResizables": "Show Resize Handles",
+    "visibleResizablesTooltip": "Display visible Resize Handles in the Table Header.",
     "showFilter": "Show Filter Button",
     "showRefresh": "Show Refresh Button",
     "showDownload": "Show Download Button",

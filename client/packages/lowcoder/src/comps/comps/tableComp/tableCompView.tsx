@@ -57,7 +57,6 @@ const getStyle = (
   const selectedRowBackground = genLinerGradient(rowStyle.selectedRowBackground);
   const hoverRowBackground = genLinerGradient(rowStyle.hoverRowBackground);
   const alternateBackground = genLinerGradient(rowStyle.alternateBackground);
-  // const tableAutoHeight = 
 
   return css`
     .ant-table-body {
@@ -123,7 +122,9 @@ const getStyle = (
   `;
 };
 
-const TitleResizeHandle = styled.span`
+const TitleResizeHandle = styled.span<{
+  $visibleResizables: boolean;
+}>`
   position: absolute;
   top: 0;
   right: -5px;
@@ -135,10 +136,9 @@ const TitleResizeHandle = styled.span`
 
 const BackgroundWrapper = styled.div<{
   $style: TableStyleType;
-  $tableAutoHeight?: boolean;
+  $tableAutoHeight: boolean;
 }>`  
-  ${(props) => !props.$tableAutoHeight && ` height: calc(100% - ${props.$style.margin} - ${props.$style.margin}) !important`};
-  ${(props) => props.$tableAutoHeight && ` height: calc(100% + ${props.$style.margin}`};
+  ${(props) => !props.$tableAutoHeight && `height: calc(100% - ${props.$style.margin} - ${props.$style.margin});`}
   background: ${(props) => props.$style.background} !important;
   border: ${(props) => `${props.$style.borderWidth} solid ${props.$style.border} !important`};
   border-radius: ${(props) => props.$style.radius} !important;
@@ -435,7 +435,8 @@ const ResizeableTitle = (props: any) => {
       draggableOpts={{ enableUserSelectHack: false }}
       handle={(axis: ResizeHandleAxis, ref: ReactRef<HTMLDivElement>) => (
         <TitleResizeHandle
-          ref={ref}
+          ref={ref} 
+          $visibleResizables={props.visibleResizables}
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
@@ -451,6 +452,7 @@ const ResizeableTitle = (props: any) => {
 type CustomTableProps<RecordType> = Omit<TableProps<RecordType>, "components" | "columns"> & {
   columns: CustomColumnType<RecordType>[];
   viewModeResizable: boolean;
+  visibleResizables: boolean;
   rowColorFn: RowColorViewType;
   rowHeightFn: RowHeightViewType;
   columnsStyle: TableColumnStyleType;
@@ -673,12 +675,13 @@ export function TableCompView(props: {
   const [loading, setLoading] = useState(false);
   const { comp, onDownload, onRefresh } = props;
   const compChildren = comp.children;
-  const tableAutoHeight = compChildren.autoHeight.getView();
   const style = compChildren.style.getView();
   const rowStyle = compChildren.rowStyle.getView();
   const headerStyle = compChildren.headerStyle.getView();
   const toolbarStyle = compChildren.toolbarStyle.getView();
   const rowAutoHeight = compChildren.rowAutoHeight.getView();
+  const tableAutoHeight = comp.getTableAutoHeight();
+  const visibleResizables = compChildren.visibleResizables.getView();
   const columnsStyle = compChildren.columnsStyle.getView();
   const changeSet = useMemo(() => compChildren.columns.getChangeSet(), [compChildren.columns]);
   const hasChange = useMemo(() => !_.isEmpty(changeSet), [changeSet]);
@@ -785,11 +788,9 @@ export function TableCompView(props: {
   }
 
   return (
-    <BackgroundColorContext.Provider value={style.background}>
+    <BackgroundColorContext.Provider value={style.background} >
       
-      <BackgroundWrapper ref={ref} $style={style}
-        $tableAutoHeight={compChildren.autoHeight.getView()}
-      >
+      <BackgroundWrapper ref={ref} $style={style} $tableAutoHeight={tableAutoHeight}>
         {toolbar.position === "above" && toolbarView}
         <TableWrapper
           $style={style}
@@ -800,8 +801,6 @@ export function TableCompView(props: {
           $fixedHeader={compChildren.fixedHeader.getView()}
           $fixedToolbar={toolbar.fixedToolbar && toolbar.position === 'above'}
         >
-          
-          
           <ResizeableTable<RecordType>
             expandable={{
               ...expansion.expandableConfig,
@@ -824,6 +823,7 @@ export function TableCompView(props: {
             columns={antdColumns}
             columnsStyle={columnsStyle}
             viewModeResizable={compChildren.viewModeResizable.getView()}
+            visibleResizables={compChildren.visibleResizables.getView()}
             dataSource={pageDataInfo.data}
             size={compChildren.size.getView()}
             rowAutoHeight={rowAutoHeight}

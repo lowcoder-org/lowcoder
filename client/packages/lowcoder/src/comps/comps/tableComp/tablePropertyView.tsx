@@ -473,6 +473,10 @@ export function compTablePropertyView<T extends MultiBaseComp<TableChildrenType>
               label: trans("table.viewModeResizable"),
               tooltip: trans("table.viewModeResizableTooltip"),
             })}
+            {comp.children.visibleResizables.propertyView({
+              label: trans("table.visibleResizables"),
+              tooltip: trans("table.visibleResizablesTooltip"),
+            })}
           </Section>
           <Section name={trans("prop.pagination")}>
             {comp.children.pagination.getPropertyView()}
