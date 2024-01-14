@@ -190,7 +190,10 @@ export type RowHeightViewType = (param: {
 }) => string;
 
 const tableChildrenMap = {
-  hideBordered: BoolControl,
+  // hideBordered: BoolControl,
+  showHeaderGridBorder: BoolControl,
+  showRowGridBorder: BoolControl,
+  showHRowGridBorder: BoolControl,
   hideHeader: BoolControl,
   fixedHeader: BoolControl,
   autoHeight: withDefault(AutoHeightControl, "auto"),
@@ -209,12 +212,14 @@ const tableChildrenMap = {
   searchText: StringControl,
   columnsStyle: withDefault(styleControl(TableColumnStyle), {borderWidth: '1px', radius: '0px'}),
   viewModeResizable: BoolControl,
+  visibleResizables: BoolControl,
   // sample data for regenerating columns
   dataRowExample: stateComp<JSONObject | null>(null),
   onEvent: TableEventControl,
   loading: BoolCodeControl,
   rowColor: RowColorComp,
   rowAutoHeight: withDefault(AutoHeightControl, "auto"),
+  tableAutoHeight: withDefault(AutoHeightControl, "auto"),
   rowHeight: RowHeightComp,
   dynamicColumn: BoolPureControl,
   // todo: support object config

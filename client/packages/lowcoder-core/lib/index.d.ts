@@ -659,6 +659,7 @@ type AddPrefix<T, P extends string> = {
 declare const globalMessages: AddPrefix<{}, "@">;
 type GlobalMessageKey = NestedKey<typeof globalMessages>;
 type VariableValue = string | number | boolean | Date | React.ReactNode;
+
 declare class Translator<Messages extends object> {
     private readonly messages;
     readonly language: string;

@@ -320,6 +320,7 @@ export function columnsToAntdFormat(
       fixed: column.fixed === "close" ? false : column.fixed,
       style: {
         background: column.background,
+        margin: column.margin,
         text: column.text,
         border: column.border,
         radius: column.radius,

@@ -100,6 +100,7 @@ export const columnChildrenMap = {
   fixed: dropdownControl(columnFixOptions, "close"),
   editable: BoolControl,
   background: withDefault(ColorControl, ""),
+  margin: withDefault(RadiusControl, ""),
   text: withDefault(ColorControl, ""),
   border: withDefault(ColorControl, ""),
   borderWidth: withDefault(RadiusControl, ""),
