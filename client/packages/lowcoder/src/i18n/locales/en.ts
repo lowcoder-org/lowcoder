@@ -358,7 +358,8 @@ export const en = {
     "containerbodypadding": "Body Padding",
     "minWidth": "Minimum Width",
     "aspectRatio": "Aspect Ratio",
-    "textSize": "Text Size"
+    "textSize": "Text Size",
+    "textWeight": "Text Weight",
   },
   "export": {
     "hiddenDesc": "If true, the component is hidden",

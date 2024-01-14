@@ -13,7 +13,7 @@ import {
   ExpandIcon,
   CompressIcon,
   TextSizeIcon,
-  PencilIcon,
+  TypographyIcon,
   ShowBorderIcon,
 } from "lowcoder-design";
 import { useContext } from "react";
@@ -31,8 +31,10 @@ import {
   MarginConfig,
   PaddingConfig,
   TextSizeConfig,
+  TextWeightConfig,
   BorderWidthConfig,
 } from "./styleControlConstants";
+import { faTextWidth } from "@fortawesome/free-solid-svg-icons";
 
 function isSimpleColorConfig(config: SingleColorConfig): config is SimpleColorConfig {
   return config.hasOwnProperty("color");
@@ -52,6 +54,10 @@ function isBorderWidthConfig(config: SingleColorConfig): config is BorderWidthCo
 
 function isTextSizeConfig(config: SingleColorConfig): config is TextSizeConfig {
   return config.hasOwnProperty("textSize");
+}
+
+function isTextWeightConfig(config: SingleColorConfig): config is TextWeightConfig {
+  return config.hasOwnProperty("textWeight");
 }
 
 function isMarginConfig(config: SingleColorConfig): config is MarginConfig {	
@@ -79,6 +85,9 @@ function isEmptyBorderWidth(borderWidth: string) {
 }
 function isEmptyTextSize(textSize: string) {
   return _.isEmpty(textSize);
+}
+function isEmptyTextWeight(textWeight: string) {
+  return _.isEmpty(textWeight);
 }
 
 function isEmptyMargin(margin: string) {	
@@ -114,6 +123,10 @@ function calcColors<ColorMap extends Record<string, string>>(
       res[name] = props[name];	
       return;	
     }	
+    if (!isEmptyTextWeight(props[name]) && isTextWeightConfig(config)) {	
+      res[name] = props[name];	
+      return;	
+    }	
     if (!isEmptyMargin(props[name]) && isMarginConfig(config)) {	
       res[name] = props[name];	
       return;	
@@ -142,6 +155,10 @@ function calcColors<ColorMap extends Record<string, string>>(
     if (isTextSizeConfig(config)) {
       // TODO: remove default textSize after added in theme in backend.
       res[name] = themeWithDefault[config.textSize] || '14px';
+    }
+    if (isTextWeightConfig(config)) {
+      // TODO: remove default textWeight after added in theme in backend.
+      res[name] = themeWithDefault[config.textWeight] || 'regular';
     }
     if (isMarginConfig(config)) {	
       res[name] = themeWithDefault[config.margin];	
@@ -257,6 +274,8 @@ const BorderIcon = styled(ShowBorderIcon)` margin: 0px 10px 0 3px;`;
 const MarginIcon = styled(ExpandIcon)` margin: 0 8px 0 2px;`;	
 const PaddingIcon = styled(CompressIcon)`	margin: 0 8px 0 2px;`;
 const StyledTextSizeIcon = styled(TextSizeIcon)` margin: 0 8px 0 0px;`;
+const StyledTextWeightIcon = styled(TypographyIcon)` margin: 0 8px 0 0px;`;
+
 const ResetIcon = styled(IconReset)`
   &:hover g g {
     stroke: #315efb;
@@ -272,7 +291,8 @@ export function styleControl<T extends readonly SingleColorConfig[]>(colorConfig
       name === "radius" ||
       name === "borderWidth" ||
       name === "cardRadius" ||
-      name === "textSize"
+      name === "textSize" || 
+      name === "textWeight"
     ) {	
       childrenMap[name] = StringControl;	
     } else if (name === "margin" || name === "padding" || name==="containerheaderpadding" || name==="containerfooterpadding" || name==="containerbodypadding") {	
@@ -401,9 +421,17 @@ export function styleControl<T extends readonly SingleColorConfig[]>(colorConfig
                           children[name] as InstanceType<typeof StringControl>	
                         ).propertyView({	
                           label: config.label,	
-                          preInputNode: <StyledTextSizeIcon title="" />,	
+                          preInputNode: <StyledTextSizeIcon title="Font Size" />,	
                           placeholder: props[name],	
                         })
+                        : name === "textWeight"
+                        ? (	
+                            children[name] as InstanceType<typeof StringControl>	
+                          ).propertyView({	
+                            label: config.label,	
+                            preInputNode: <StyledTextWeightIcon title="Font Weight" />,	
+                            placeholder: props[name],	
+                          })
                       : children[name].propertyView({	
                           label: config.label,	
                           panelDefaultColor: props[name],	

@@ -1,7 +1,7 @@
 import { ThemeDetail } from "api/commonSettingApi";
 import { darkenColor, isDarkColor, lightenColor, toHex } from "lowcoder-design";
 import { trans } from "i18n";
-import { StyleConfigType } from "./styleControl";
+import { StyleConfigType } from "./styleControl"; 
 
 type SupportPlatform = "pc" | "mobile";
 
@@ -23,6 +23,10 @@ export type BorderWidthConfig = CommonColorConfig & {
 
 export type TextSizeConfig = CommonColorConfig & {
   readonly textSize: string;
+};
+
+export type TextWeightConfig = CommonColorConfig & {
+  readonly textWeight: string;
 };
 
 export type ContainerHeaderPaddigConfig = CommonColorConfig & {
@@ -50,7 +54,7 @@ export type DepColorConfig = CommonColorConfig & {
   readonly depType?: DEP_TYPE;
   transformer: (color: string, ...rest: string[]) => string;
 };
-export type SingleColorConfig = SimpleColorConfig | DepColorConfig | RadiusConfig | BorderWidthConfig | TextSizeConfig | MarginConfig | PaddingConfig | ContainerHeaderPaddigConfig | ContainerFooterPaddigConfig | ContainerBodyPaddigConfig;
+export type SingleColorConfig = SimpleColorConfig | DepColorConfig | RadiusConfig | BorderWidthConfig | TextSizeConfig | TextWeightConfig | MarginConfig | PaddingConfig | ContainerHeaderPaddigConfig | ContainerFooterPaddigConfig | ContainerBodyPaddigConfig;
 
 export const defaultTheme: ThemeDetail = {
   primary: "#3377FF",
@@ -284,6 +288,12 @@ const TEXT_SIZE = {
   textSize: "textSize",	
 } as const;
 
+const TEXT_WEIGHT = {	
+  name: "textWeight",
+  label: trans("style.textWeight"),	
+  textWeight: "textWeight",	
+} as const;
+
 const CONTAINERHEADERPADDING = {	
   name: "containerheaderpadding",	
   label: trans("style.containerheaderpadding"),	
@@ -370,11 +380,20 @@ function getStaticBackground(color: string) {
   } as const;
 }
 
-export const ButtonStyle = [...getBgBorderRadiusByBg("primary"), TEXT, MARGIN, PADDING] as const;
+export const ButtonStyle = [
+  ...getBgBorderRadiusByBg("primary"), 
+  TEXT, 
+  TEXT_SIZE,
+  TEXT_WEIGHT,
+  MARGIN, 
+  PADDING
+] as const;
 
 export const ToggleButtonStyle = [
   getBackground("canvas"),
   TEXT,
+  TEXT_SIZE,
+  TEXT_WEIGHT,
   {
     name: "border",
     label: trans("style.border"),
