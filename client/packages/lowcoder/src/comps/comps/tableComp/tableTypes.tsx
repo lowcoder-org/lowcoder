@@ -173,6 +173,7 @@ const tableChildrenMap = {
   // hideBordered: BoolControl,
   showHeaderGridBorder: BoolControl,
   showRowGridBorder: BoolControl,
+  showHRowGridBorder: BoolControl,
   hideHeader: BoolControl,
   fixedHeader: BoolControl,
   autoHeight: withDefault(AutoHeightControl, "auto"),

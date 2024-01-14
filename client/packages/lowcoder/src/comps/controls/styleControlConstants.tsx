@@ -157,7 +157,10 @@ export function handleToSelectedRow(color: string, primary: string = defaultThem
 // return table header background color
 export function handleToHeadBg(color: string) {
   if (toHex(color) === SURFACE_COLOR) {
-    return "#FAFAFA";
+    return darkenColor(color, 0.06);
+  }
+  if (toHex(color) === "#000000") {
+    return SECOND_SURFACE_COLOR;
   }
   if (isDarkColor(color)) {
     return darkenColor(color, 0.06);
@@ -690,60 +693,29 @@ export const TableStyle = [
     label: trans("style.borderWidth"),
     borderWidth: "borderWidth",
   },
-  {
-    name: "headerBackground",
-    label: trans("style.tableHeaderBackground"),
-    depName: "background",
-    transformer: handleToHeadBg,
-  },
-  {
-    name: "headerText",
-    label: trans("style.tableHeaderText"),
-    depName: "headerBackground",
-    depType: DEP_TYPE.CONTRAST_TEXT,
-    transformer: contrastText,
-  },
-  {
-    name: "toolbarBackground",
-    label: trans("style.toolbarBackground"),
-    depName: "background",
-    depType: DEP_TYPE.SELF,
-    transformer: toSelf,
-  },
-  {
-    name: "toolbarText",
-    label: trans("style.toolbarText"),
-    depName: "toolbarBackground",
-    depType: DEP_TYPE.CONTRAST_TEXT,
-    transformer: contrastText,
-  },
 ] as const;
 
 export const TableToolbarStyle = [
-  {
-    name: "toolbarBackground",
-    label: trans("style.toolbarBackground"),
-    depName: "background",
-    depType: DEP_TYPE.SELF,
-    transformer: toSelf,
-  },
+  MARGIN,
+  getBackground(),
+  getStaticBorder(),
   {
     name: "toolbarText",
     label: trans("style.toolbarText"),
     depName: "toolbarBackground",
     depType: DEP_TYPE.CONTRAST_TEXT,
-    transformer: contrastText,
+    transformer: toSelf,
   },
 ] as const;
 
 export const TableHeaderStyle = [
+  MARGIN,
   {
     name: "headerBackground",
     label: trans("style.tableHeaderBackground"),
-    depName: "background",
+    depName: "headerBackground",
     transformer: handleToHeadBg,
   },
-  MARGIN,
   getStaticBorder(),
   {
     name: "borderWidth",

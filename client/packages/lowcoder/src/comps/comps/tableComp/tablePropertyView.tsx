@@ -511,9 +511,6 @@ export function compTablePropertyView<T extends MultiBaseComp<TableChildrenType>
             {comp.children.style.getPropertyView()} 
           </Section>
           <Section name={"Header Style"}>
-            {comp.children.showHeaderGridBorder.propertyView({
-              label: trans("table.showHeaderGridBorder"),
-            })}
             {comp.children.headerStyle.getPropertyView()}
           </Section>
           <Section name={"Toolbar Style"}>
@@ -521,7 +518,10 @@ export function compTablePropertyView<T extends MultiBaseComp<TableChildrenType>
           </Section>
           <Section name={"Row Style"}>
             {comp.children.showRowGridBorder.propertyView({
-              label: trans("table.showRowGridBorder"),
+              label: trans("table.showVerticalRowGridBorder"),
+            })}
+            {comp.children.showHRowGridBorder.propertyView({
+              label: trans("table.showHorizontalRowGridBorder"),
             })}
             {comp.children.rowStyle.getPropertyView()}
             {comp.children.rowAutoHeight.getPropertyView()}

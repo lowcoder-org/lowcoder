@@ -122,9 +122,7 @@ const getStyle = (
   `;
 };
 
-const TitleResizeHandle = styled.span<{
-  $visibleResizables: boolean;
-}>`
+const TitleResizeHandle = styled.span`
   position: absolute;
   top: 0;
   right: -5px;
@@ -157,6 +155,8 @@ const TableWrapper = styled.div<{
   $toolbarPosition: "above" | "below" | "close";
   $fixedHeader: boolean;
   $fixedToolbar: boolean;
+  $visibleResizables: boolean;
+  $showHRowGridBorder?: boolean;
 }>`
   overflow: unset !important;
 
@@ -240,13 +240,15 @@ const TableWrapper = styled.div<{
 
             &::before {
               background-color: ${(props) => props.$headerStyle.border};
+              width: ${(props) => (props.$visibleResizables ? "1px" : "0px")} !important;
             }
           }
         }
 
         > thead > tr > th,
         > tbody > tr > td {
-          border-color: ${(props) => props.$style.border};
+          border-color: ${(props) => props.$headerStyle.border};
+          ${(props) => !props.$showHRowGridBorder && `border-bottom: 0px;`}
         }
 
         td {
@@ -436,7 +438,6 @@ const ResizeableTitle = (props: any) => {
       handle={(axis: ResizeHandleAxis, ref: ReactRef<HTMLDivElement>) => (
         <TitleResizeHandle
           ref={ref} 
-          $visibleResizables={props.visibleResizables}
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
@@ -682,6 +683,7 @@ export function TableCompView(props: {
   const rowAutoHeight = compChildren.rowAutoHeight.getView();
   const tableAutoHeight = comp.getTableAutoHeight();
   const visibleResizables = compChildren.visibleResizables.getView();
+  const showHRowGridBorder = compChildren.showHRowGridBorder.getView();
   const columnsStyle = compChildren.columnsStyle.getView();
   const changeSet = useMemo(() => compChildren.columns.getChangeSet(), [compChildren.columns]);
   const hasChange = useMemo(() => !_.isEmpty(changeSet), [changeSet]);
@@ -762,7 +764,7 @@ export function TableCompView(props: {
   const toolbarView = (
     <TableToolbar
       toolbar={toolbar}
-      $style={style}
+      $style={toolbarStyle}
       pagination={{
         ...pagination,
         total: pageDataInfo.total,
@@ -800,6 +802,8 @@ export function TableCompView(props: {
           $toolbarPosition={toolbar.position}
           $fixedHeader={compChildren.fixedHeader.getView()}
           $fixedToolbar={toolbar.fixedToolbar && toolbar.position === 'above'}
+          $visibleResizables={visibleResizables}
+          $showHRowGridBorder={showHRowGridBorder}
         >
           <ResizeableTable<RecordType>
             expandable={{
@@ -815,7 +819,7 @@ export function TableCompView(props: {
             rowColorFn={compChildren.rowColor.getView() as any}
             rowHeightFn={compChildren.rowHeight.getView() as any}
             {...compChildren.selection.getView()(onEvent)}
-            bordered={compChildren.showHeaderGridBorder.getView()}
+            bordered={compChildren.showRowGridBorder.getView()}
             onChange={(pagination, filters, sorter, extra) => {
               onTableChange(pagination, filters, sorter, extra, comp.dispatch, onEvent);
             }}
