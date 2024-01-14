@@ -13,6 +13,8 @@ import {
   ExpandIcon,
   CompressIcon,
   TextSizeIcon,
+  PencilIcon,
+  ShowBorderIcon,
 } from "lowcoder-design";
 import { useContext } from "react";
 import styled from "styled-components";
@@ -250,19 +252,11 @@ const StyleContent = styled.div`
   }
 `;
 
-const RadiusIcon = styled(IconRadius)`
-  margin: 0 8px 0 -2px;
-`;
-
-const MarginIcon = styled(ExpandIcon)`	
-margin: 0 8px 0 -2px;	
-`;	
-const PaddingIcon = styled(CompressIcon)`	
-margin: 0 8px 0 -2px;	
-`;
-const StyledTextSizeIcon = styled(TextSizeIcon)`	
-margin: 0 8px 0 -2px;	
-`;
+const RadiusIcon = styled(IconRadius)` margin: 0 8px 0 -2px;`;
+const BorderIcon = styled(ShowBorderIcon)` margin: 0px 10px 0 3px;`;
+const MarginIcon = styled(ExpandIcon)` margin: 0 8px 0 2px;`;	
+const PaddingIcon = styled(CompressIcon)`	margin: 0 8px 0 2px;`;
+const StyledTextSizeIcon = styled(TextSizeIcon)` margin: 0 8px 0 0px;`;
 const ResetIcon = styled(IconReset)`
   &:hover g g {
     stroke: #315efb;
@@ -366,22 +360,29 @@ export function styleControl<T extends readonly SingleColorConfig[]>(colorConfig
                   { filterText: config.label },
                   <div key={index}>	
                     {(name === "radius" ||
-                    name === "borderWidth" ||
                     name === "gap" ||	
                     name === "cardRadius")
                       ? (	
                           children[name] as InstanceType<typeof StringControl>	
                         ).propertyView({	
                           label: config.label,	
-                          preInputNode: <RadiusIcon title="" />,	
+                          preInputNode: <RadiusIcon title="Radius" />,	
                           placeholder: props[name],	
-                        })	
+                        })
+                        : name === "borderWidth"
+                        ? (	
+                            children[name] as InstanceType<typeof StringControl>	
+                          ).propertyView({	
+                            label: config.label,	
+                            preInputNode: <BorderIcon title="Border-Width" />,	
+                            placeholder: props[name],	
+                          })
                       : name === "margin"	
                       ? (	
                           children[name] as InstanceType<typeof StringControl>	
                         ).propertyView({	
                           label: config.label,	
-                          preInputNode: <MarginIcon title="" />,	
+                          preInputNode: <MarginIcon title="Margin" />,	
                           placeholder: props[name],	
                         })	
                       : (name === "padding" ||
@@ -392,7 +393,7 @@ export function styleControl<T extends readonly SingleColorConfig[]>(colorConfig
                           children[name] as InstanceType<typeof StringControl>	
                         ).propertyView({	
                           label: config.label,	
-                          preInputNode: <PaddingIcon title="" />,	
+                          preInputNode: <PaddingIcon title="Padding" />,	
                           placeholder: props[name],	
                         })	
                       : name === "textSize"
