@@ -35,6 +35,7 @@ export interface CellProps {
   candidateTags?: string[];
   candidateStatus?: { text: string; status: StatusType }[];
   textOverflow?: boolean;
+  onTableEvent?: (eventName: any) => void;
 }
 
 export type CellViewReturn = (props: CellProps) => ReactNode;
@@ -71,6 +72,7 @@ export function EditableCell<T extends JSONValue>(props: EditableCellProps<T>) {
     baseValue,
     candidateTags,
     candidateStatus,
+    onTableEvent,
   } = props;
   const status = _.isNil(changeValue) ? "normal" : "toSave";
   const editable = editViewFn ? props.editable : false;
@@ -96,6 +98,9 @@ export function EditableCell<T extends JSONValue>(props: EditableCellProps<T>) {
         false
       )
     );
+    if(!_.isEqual(tmpValue, value)) {
+      onTableEvent?.('columnEdited');
+    }
   }, [dispatch, baseValue, tmpValue]);
   const editView = useMemo(
     () => editViewFn?.({ value, onChange, onChangeEnd }) ?? <></>,

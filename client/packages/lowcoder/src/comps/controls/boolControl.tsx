@@ -106,7 +106,7 @@ class BoolControl extends AbstractComp<boolean, DataType, Node<ValueAndMsg<boole
     return customAction<ChangeModeAction>({ useCodeEditor: !this.useCodeEditor }, true);
   }
 
-  propertyView(params: ControlParams) {
+  propertyView(params: ControlParams & {onChange?: (changed: boolean) => void}) {
     const changeModeIcon = (
       <SwitchJsIcon
         checked={this.useCodeEditor}
@@ -127,7 +127,10 @@ class BoolControl extends AbstractComp<boolean, DataType, Node<ValueAndMsg<boole
           {!this.useCodeEditor && (
             <Switch
               value={this.getView()}
-              onChange={(x) => this.dispatchChangeValueAction(x)}
+              onChange={(x) => {
+                this.dispatchChangeValueAction(x);
+                params?.onChange?.(x);
+              }}
             ></Switch>
           )}
         </SwitchWrapper>

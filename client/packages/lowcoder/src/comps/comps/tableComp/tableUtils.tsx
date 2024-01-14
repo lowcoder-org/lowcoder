@@ -269,6 +269,7 @@ export function columnsToAntdFormat(
   dynamicColumn: boolean,
   dynamicColumnConfig: Array<string>,
   columnsAggrData: ColumnsAggrData,
+  onTableEvent: (eventName: any) => void,
 ): Array<CustomColumnType<RecordType>> {
   const sortMap: Map<string | undefined, SortOrder> = new Map(
     sort.map((s) => [s.column, s.desc ? "descend" : "ascend"])
@@ -347,9 +348,11 @@ export function columnsToAntdFormat(
           .getView()
           .view({
             editable: column.editable,
-            size, candidateTags: tags,
+            size,
+            candidateTags: tags,
             candidateStatus: status,
             textOverflow: column.textOverflow,
+            onTableEvent,
           });
       },
       ...(column.sortable
