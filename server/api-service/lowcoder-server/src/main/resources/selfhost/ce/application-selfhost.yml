@@ -1,23 +1,15 @@
 common:
   encrypt:
-    password: ${ENCRYPTION_PASSWORD:lowcoder.org}
-    salt: ${ENCRYPTION_SALT:lowcoder.org}
+    password: ${LOWCODER_DB_ENCRYPTION_PASSWORD:lowcoder.org}
+    salt: ${LOWCODER_DB_ENCRYPTION_SALT:lowcoder.org}
   security:
-    corsAllowedDomainString: ${CORS_ALLOWED_DOMAINS:*}
+    corsAllowedDomainString: ${LOWCODER_CORS_DOMAINS:*}
   workspace:
-    mode: ENTERPRISE
-
-auth:
-  api-key:
-    secret: ${LOWCODER_API_KEY_SECRET:123456789101112131415123456789101112131415123456789101112131415123456789101112131415}
-  email:
-    enable: ${LOGIN_CHANNEL_EMAIL:true}
-    enable-register: ${ENABLE_USER_SIGN_UP:true}
-  workspace-creation: ${LOWCODER_CREATE_SIGNUP_WORKSPACE:true}
+    mode: ${LOWCODER_WORKSPACE_MODE:SAAS}
 
 spring:
   data:
     mongodb:
-      uri: ${MONGODB_URL:mongodb://localhost:27017/lowcoder?socketTimeoutMS=5000}
+      uri: ${LOWCODER_MONGODB_URL:mongodb://localhost:27017/lowcoder?socketTimeoutMS=5000}
     redis:
-      url: ${REDIS_URL:redis://localhost:6379}
+      url: ${LOWCODER_REDIS_URL:redis://localhost:6379}

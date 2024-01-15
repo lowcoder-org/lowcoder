@@ -212,6 +212,7 @@ COPY --chown=lowcoder:lowcoder deploy/docker/all-in-one/etc /lowcoder/etc
 # Add startup script
 COPY --chown=lowcoder:lowcoder deploy/docker/all-in-one/entrypoint.sh /lowcoder/entrypoint.sh
 
+EXPOSE 27017
 EXPOSE 3000
 EXPOSE 3443
 
