@@ -31,7 +31,6 @@ export const ColorSelect = (props: ColorSelectProps) => {
     }, 200),
     [dispatch]
   );
-
   return (
     <Popover
       trigger={trigger}
@@ -170,7 +169,7 @@ const BackDiv = styled.div.attrs<{ $color: string }>((props: { $color: string })
 `;
 // main block
 const ColorBlock = styled.div<{ $color: string }>`
-  background-color: ${(props) => (isValidColor(props.$color) ? props.color : "#FFFFFF")};
+  background-color: ${(props) => (isValidColor(props.$color) ? props.$color : "#FFFFFF")};
   border: 1px solid rgba(0, 0, 0, 0.1);
   border-radius: 4px;
   height: 24px;
