@@ -19,10 +19,10 @@ fi;
 
 # Update host on which mongo is supposed to listen
 # If LOWCODER_MONGODB_EXPOSED is true, it will isten on all interfaces
-if [[ "${LOWCODER_MONGODB_EXPOSED}" =~ [Tt][Rr][Uu][Ee] ]]; then
+if [ "${LOWCODER_MONGODB_EXPOSED}" = "true" ]; then
     export MONGO_LISTEN_HOST="0.0.0.0"
 else
-    export MONGO_LISTEN_HOST="localhost"
+    export MONGO_LISTEN_HOST="127.0.0.1"
 fi;
 
 LOGS="/lowcoder-stacks/logs"
