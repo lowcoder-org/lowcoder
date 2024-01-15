@@ -15,11 +15,12 @@ import {
   TextSizeIcon,
   TypographyIcon,
   ShowBorderIcon,
+  ImageCompIcon,
 } from "lowcoder-design";
 import { useContext } from "react";
 import styled from "styled-components";
 import { useIsMobile } from "util/hooks";
-import { RadiusControl, StringControl } from "./codeControl";
+import { CSSCodeControl, ObjectControl, RadiusControl, StringControl } from "./codeControl";
 import { ColorControl } from "./colorControl";
 import {
   defaultTheme,
@@ -33,8 +34,25 @@ import {
   TextSizeConfig,
   TextWeightConfig,
   BorderWidthConfig,
+  BackgroundImageConfig,
+  BackgroundImageRepeatConfig,
+  BackgroundImageSizeConfig,
+  BackgroundImagePositionConfig,
+  BackgroundImageOriginConfig,
+  HeaderBackgroundImageConfig,
+  HeaderBackgroundImageRepeatConfig,
+  HeaderBackgroundImageSizeConfig,
+  HeaderBackgroundImagePositionConfig,
+  HeaderBackgroundImageOriginConfig,
+  FooterBackgroundImageConfig,
+  FooterBackgroundImageRepeatConfig,
+  FooterBackgroundImageSizeConfig,
+  FooterBackgroundImagePositionConfig,
+  FooterBackgroundImageOriginConfig,
+
 } from "./styleControlConstants";
 import { faTextWidth } from "@fortawesome/free-solid-svg-icons";
+import appSelectControl from "./appSelectControl";
 
 function isSimpleColorConfig(config: SingleColorConfig): config is SimpleColorConfig {
   return config.hasOwnProperty("color");
@@ -50,6 +68,57 @@ function isRadiusConfig(config: SingleColorConfig): config is RadiusConfig {
 
 function isBorderWidthConfig(config: SingleColorConfig): config is BorderWidthConfig {
   return config.hasOwnProperty("borderWidth");
+}
+
+function isBackgroundImageConfig(config: SingleColorConfig): config is BackgroundImageConfig {
+  return config.hasOwnProperty("backgroundImage");
+}
+
+function isBackgroundImageRepeatConfig(config: SingleColorConfig): config is BackgroundImageRepeatConfig {
+  return config.hasOwnProperty("backgroundImageRepeat");
+}
+
+function isBackgroundImageSizeConfig(config: SingleColorConfig): config is BackgroundImageSizeConfig {
+  return config.hasOwnProperty("backgroundImageSize");
+}
+
+function isBackgroundImagePositionConfig(config: SingleColorConfig): config is BackgroundImagePositionConfig {
+  return config.hasOwnProperty("backgroundImagePosition");
+}
+
+function isBackgroundImageOriginConfig(config: SingleColorConfig): config is BackgroundImageOriginConfig {
+  return config.hasOwnProperty("backgroundImageOrigin");
+}
+
+function isHeaderBackgroundImageConfig(config: SingleColorConfig): config is HeaderBackgroundImageConfig {
+  return config.hasOwnProperty("headerBackgroundImage");
+}
+function isHeaderBackgroundImageRepeatConfig(config: SingleColorConfig): config is HeaderBackgroundImageRepeatConfig {
+  return config.hasOwnProperty("headerBackgroundImageRepeat");
+}
+function isHeaderBackgroundImageSizeConfig(config: SingleColorConfig): config is HeaderBackgroundImageSizeConfig {
+  return config.hasOwnProperty("headerBackgroundImageSize");
+}
+function isHeaderBackgroundImagePositionConfig(config: SingleColorConfig): config is HeaderBackgroundImagePositionConfig {
+  return config.hasOwnProperty("headerBackgroundImagePosition");
+}
+function isHeaderBackgroundImageOriginConfig(config: SingleColorConfig): config is HeaderBackgroundImageOriginConfig {
+  return config.hasOwnProperty("headerBackgroundImageOrigin");
+}
+function isFooterBackgroundImageConfig(config: SingleColorConfig): config is FooterBackgroundImageConfig {
+  return config.hasOwnProperty("footerBackgroundImage");
+}
+function isFooterBackgroundImageRepeatConfig(config: SingleColorConfig): config is FooterBackgroundImageRepeatConfig {
+  return config.hasOwnProperty("footerBackgroundImageRepeat");
+}
+function isFooterBackgroundImageSizeConfig(config: SingleColorConfig): config is FooterBackgroundImageSizeConfig {
+  return config.hasOwnProperty("footerBackgroundImageSize");
+}
+function isFooterBackgroundImagePositionConfig(config: SingleColorConfig): config is FooterBackgroundImagePositionConfig {
+  return config.hasOwnProperty("footerBackgroundImagePosition");
+}
+function isFooterBackgroundImageOriginConfig(config: SingleColorConfig): config is FooterBackgroundImageOriginConfig {
+  return config.hasOwnProperty("footerBackgroundImageOrigin");
 }
 
 function isTextSizeConfig(config: SingleColorConfig): config is TextSizeConfig {
@@ -83,6 +152,52 @@ function isEmptyRadius(radius: string) {
 function isEmptyBorderWidth(borderWidth: string) {
   return _.isEmpty(borderWidth);
 }
+function isEmptyBackgroundImageConfig(backgroundImage: string) {
+  return _.isEmpty(backgroundImage);
+}
+function isEmptyBackgroundImageRepeatConfig(backgroundImageRepeat: string) {
+  return _.isEmpty(backgroundImageRepeat);
+}
+function isEmptyBackgroundImageSizeConfig(backgroundImageSize: string) {
+  return _.isEmpty(backgroundImageSize);
+}
+function isEmptyBackgroundImagePositionConfig(backgroundImagePosition: string) {
+  return _.isEmpty(backgroundImagePosition);
+}
+function isEmptyBackgroundImageOriginConfig(backgroundImageOrigin: string) {
+  return _.isEmpty(backgroundImageOrigin);
+}
+function isEmptyHeaderBackgroundImageConfig(headerBackgroundImage: string) {
+  return _.isEmpty(headerBackgroundImage);
+}
+function isEmptyHeaderBackgroundImageRepeatConfig(headerBackgroundImageRepeat: string) {
+  return _.isEmpty(headerBackgroundImageRepeat);
+}
+function isEmptyHeaderBackgroundImageSizeConfig(headerBackgroundImageSize: string) {
+  return _.isEmpty(headerBackgroundImageSize);
+}
+function isEmptyHeaderBackgroundImagePositionConfig(headerBackgroundImagePosition: string) {
+  return _.isEmpty(headerBackgroundImagePosition);
+}
+function isEmptyHeaderBackgroundImageOriginConfig(headerBackgroundImageOrigin: string) {
+  return _.isEmpty(headerBackgroundImageOrigin);
+}
+function isEmptyFooterBackgroundImageConfig(footerBackgroundImage: string) {
+  return _.isEmpty(footerBackgroundImage);
+}
+function isEmptyFooterBackgroundImageRepeatConfig(footerBackgroundImageRepeat: string) {
+  return _.isEmpty(footerBackgroundImageRepeat);
+}
+function isEmptyFooterBackgroundImageSizeConfig(footerBackgroundImageSize: string) {
+  return _.isEmpty(footerBackgroundImageSize);
+}
+function isEmptyFooterBackgroundImagePositionConfig(footerBackgroundImagePosition: string) {
+  return _.isEmpty(footerBackgroundImagePosition);
+}
+function isEmptyFooterBackgroundImageOriginConfig(footerBackgroundImageOrigin: string) {
+  return _.isEmpty(footerBackgroundImageOrigin);
+}
+
 function isEmptyTextSize(textSize: string) {
   return _.isEmpty(textSize);
 }
@@ -119,6 +234,66 @@ function calcColors<ColorMap extends Record<string, string>>(
       res[name] = props[name];	
       return;	
     }
+    if (!isEmptyBackgroundImageConfig(props[name]) && isBackgroundImageConfig(config)) {	
+      res[name] = props[name];	
+      return;	
+    }
+    if (!isEmptyBackgroundImageRepeatConfig(props[name]) && isBackgroundImageRepeatConfig(config)) {	
+      res[name] = props[name];	
+      return;	
+    }
+    if (!isEmptyBackgroundImageSizeConfig(props[name]) && isBackgroundImageSizeConfig(config)) {	
+      res[name] = props[name];	
+      return;	
+    }
+    if (!isEmptyBackgroundImagePositionConfig(props[name]) && isBackgroundImagePositionConfig(config)) {	
+      res[name] = props[name];	
+      return;	
+    }
+    if (!isEmptyBackgroundImageOriginConfig(props[name]) && isBackgroundImageOriginConfig(config)) {	
+      res[name] = props[name];	
+      return;	
+    }
+    if (!isEmptyHeaderBackgroundImageConfig(props[name]) && isHeaderBackgroundImageConfig(config)) {	
+      res[name] = props[name];	
+      return;	
+    }
+    if (!isEmptyHeaderBackgroundImageRepeatConfig(props[name]) && isHeaderBackgroundImageRepeatConfig(config)) {	
+      res[name] = props[name];	
+      return;	
+    }
+    if (!isEmptyHeaderBackgroundImageSizeConfig(props[name]) && isHeaderBackgroundImageSizeConfig(config)) {	
+      res[name] = props[name];	
+      return;	
+    }
+    if (!isEmptyHeaderBackgroundImagePositionConfig(props[name]) && isHeaderBackgroundImagePositionConfig(config)) {	
+      res[name] = props[name];	
+      return;	
+    }
+    if (!isEmptyHeaderBackgroundImageOriginConfig(props[name]) && isHeaderBackgroundImageOriginConfig(config)) {	
+      res[name] = props[name];	
+      return;	
+    }
+    if (!isEmptyFooterBackgroundImageConfig(props[name]) && isFooterBackgroundImageConfig(config)) {	
+      res[name] = props[name];	
+      return;	
+    }
+    if (!isEmptyFooterBackgroundImageRepeatConfig(props[name]) && isFooterBackgroundImageRepeatConfig(config)) {	
+      res[name] = props[name];	
+      return;	
+    }
+    if (!isEmptyFooterBackgroundImageSizeConfig(props[name]) && isFooterBackgroundImageSizeConfig(config)) {	
+      res[name] = props[name];	
+      return;	
+    }
+    if (!isEmptyFooterBackgroundImagePositionConfig(props[name]) && isFooterBackgroundImagePositionConfig(config)) {	
+      res[name] = props[name];	
+      return;	
+    }
+    if (!isEmptyFooterBackgroundImageOriginConfig(props[name]) && isFooterBackgroundImageOriginConfig(config)) {	
+      res[name] = props[name];	
+      return;	
+    }
     if (!isEmptyTextSize(props[name]) && isTextSizeConfig(config)) {	
       res[name] = props[name];	
       return;	
@@ -151,6 +326,51 @@ function calcColors<ColorMap extends Record<string, string>>(
     }
     if (isBorderWidthConfig(config)) {
       res[name] = '0px';
+    }
+    if (isBackgroundImageConfig(config)) {
+      res[name] = '';
+    }
+    if (isBackgroundImageRepeatConfig(config)) {
+      res[name] = 'no-repeat';
+    }
+    if (isBackgroundImageSizeConfig(config)) {
+      res[name] = 'cover';
+    }
+    if (isBackgroundImagePositionConfig(config)) {
+      res[name] = 'center';
+    }
+    if (isBackgroundImageOriginConfig(config)) {
+      res[name] = 'padding-box';
+    }
+    if (isHeaderBackgroundImageConfig(config)) {
+      res[name] = '';
+    }
+    if (isHeaderBackgroundImageRepeatConfig(config)) {
+      res[name] = 'no-repeat';
+    }
+    if (isHeaderBackgroundImageSizeConfig(config)) {
+      res[name] = 'cover';
+    }
+    if (isHeaderBackgroundImagePositionConfig(config)) {
+      res[name] = 'center';
+    }
+    if (isHeaderBackgroundImageOriginConfig(config)) {
+      res[name] = 'padding-box';
+    }
+    if (isFooterBackgroundImageConfig(config)) {
+      res[name] = '';
+    }
+    if (isFooterBackgroundImageRepeatConfig(config)) {
+      res[name] = 'no-repeat';
+    }
+    if (isFooterBackgroundImageSizeConfig(config)) {
+      res[name] = 'cover';
+    }
+    if (isFooterBackgroundImagePositionConfig(config)) {
+      res[name] = 'center';
+    }
+    if (isFooterBackgroundImageOriginConfig(config)) {
+      res[name] = 'padding-box';
     }
     if (isTextSizeConfig(config)) {
       // TODO: remove default textSize after added in theme in backend.
@@ -275,6 +495,7 @@ const MarginIcon = styled(ExpandIcon)` margin: 0 8px 0 2px;`;
 const PaddingIcon = styled(CompressIcon)`	margin: 0 8px 0 2px;`;
 const StyledTextSizeIcon = styled(TextSizeIcon)` margin: 0 8px 0 0px;`;
 const StyledTextWeightIcon = styled(TypographyIcon)` margin: 0 8px 0 0px;`;
+const StyledBackgroundImageIcon = styled(ImageCompIcon)` margin: 0 0px 0 -12px;`;
 
 const ResetIcon = styled(IconReset)`
   &:hover g g {
@@ -292,12 +513,30 @@ export function styleControl<T extends readonly SingleColorConfig[]>(colorConfig
       name === "borderWidth" ||
       name === "cardRadius" ||
       name === "textSize" || 
-      name === "textWeight"
+      name === "textWeight" ||
+      name === "backgroundImage" ||
+      name === "backgroundImageRepeat" ||
+      name === "backgroundImageSize" ||
+      name === "backgroundImagePosition" ||
+      name === "backgroundImageOrigin" ||
+      name === "headerBackgroundImage" ||
+      name === "headerBackgroundImageRepeat" ||
+      name === "headerBackgroundImageSize" ||
+      name === "headerBackgroundImagePosition" ||
+      name === "headerBackgroundImageOrigin" ||
+      name === "footerBackgroundImage" ||
+      name === "footerBackgroundImageRepeat" ||
+      name === "footerBackgroundImageSize" ||
+      name === "footerBackgroundImagePosition" ||
+      name === "footerBackgroundImageOrigin" ||
+      name === "margin" || 
+      name === "padding" || 
+      name === "containerheaderpadding" || 
+      name === "containerfooterpadding" || 
+      name === "containerbodypadding"
     ) {	
       childrenMap[name] = StringControl;	
-    } else if (name === "margin" || name === "padding" || name==="containerheaderpadding" || name==="containerfooterpadding" || name==="containerbodypadding") {	
-      childrenMap[name] = StringControl;	
-    } else {	
+    }  else {	
       childrenMap[name] = ColorControl;	
     }
   });
@@ -338,9 +577,25 @@ export function styleControl<T extends readonly SingleColorConfig[]>(colorConfig
                       name === "radius" ||	
                       name === "margin" ||	
                       name === "padding" ||
-                      name==="containerheaderpadding"	||
-                      name==="containerfooterpadding"	||
-                      name==="containerbodypadding"
+                      name === "containerheaderpadding"	||
+                      name === "containerfooterpadding"	||
+                      name === "containerbodypadding" ||
+                      name === "borderWidth" ||
+                      name === "backgroundImage" ||
+                      name === "backgroundImageRepeat" ||
+                      name === "backgroundImageSize" ||
+                      name === "backgroundImagePosition" ||
+                      name === "backgroundImageOrigin" ||
+                      name === "headerBackgroundImage" ||
+                      name === "headerBackgroundImageRepeat" ||
+                      name === "headerBackgroundImageSize" ||
+                      name === "headerBackgroundImagePosition" ||
+                      name === "headerBackgroundImageOrigin" ||
+                      name === "footerBackgroundImage" ||
+                      name === "footerBackgroundImageRepeat" ||
+                      name === "footerBackgroundImageSize" ||
+                      name === "footerBackgroundImagePosition" ||
+                      name === "footerBackgroundImageOrigin"
                     ) {
                       children[name]?.dispatchChangeValueAction("");
                     } else {
@@ -424,14 +679,54 @@ export function styleControl<T extends readonly SingleColorConfig[]>(colorConfig
                           preInputNode: <StyledTextSizeIcon title="Font Size" />,	
                           placeholder: props[name],	
                         })
-                        : name === "textWeight"
-                        ? (	
-                            children[name] as InstanceType<typeof StringControl>	
-                          ).propertyView({	
-                            label: config.label,	
-                            preInputNode: <StyledTextWeightIcon title="Font Weight" />,	
-                            placeholder: props[name],	
-                          })
+                      : name === "textWeight"
+                      ? (	
+                          children[name] as InstanceType<typeof StringControl>	
+                        ).propertyView({	
+                          label: config.label,	
+                          preInputNode: <StyledTextWeightIcon title="Font Weight" />,	
+                          placeholder: props[name],	
+                        })
+                      : name === "backgroundImage" || name === "headerBackgroundImage" || name === "footerBackgroundImage"
+                      ? (	
+                          children[name] as InstanceType<typeof StringControl>	
+                        ).propertyView({	
+                          label: config.label,	
+                          preInputNode: <StyledBackgroundImageIcon title="Background Image" />,	
+                          placeholder: props[name],	
+                        })
+                      : name === "backgroundImageRepeat" || name === "headerBackgroundImageRepeat" || name === "footerBackgroundImageRepeat"
+                      ? (	
+                          children[name] as InstanceType<typeof StringControl>	
+                        ).propertyView({	
+                          label: config.label,	
+                          preInputNode: <StyledBackgroundImageIcon title="Background Image Repeat" />,	
+                          placeholder: props[name],	
+                        })
+                      : name === "backgroundImageSize" || name === "headerBackgroundImageSize" || name === "footerBackgroundImageSize"
+                      ? (	
+                          children[name] as InstanceType<typeof StringControl>	
+                        ).propertyView({	
+                          label: config.label,	
+                          preInputNode: <StyledBackgroundImageIcon title="Background Image Size" />,	
+                          placeholder: props[name],	
+                        })
+                      : name === "backgroundImagePosition" || name === "headerBackgroundImagePosition" || name === "footerBackgroundImagePosition"
+                      ? (	
+                          children[name] as InstanceType<typeof StringControl>	
+                        ).propertyView({	
+                          label: config.label,	
+                          preInputNode: <StyledBackgroundImageIcon title="Background Image Position" />,	
+                          placeholder: props[name],	
+                        })
+                      : name === "backgroundImageOrigin" || name === "headerBackgroundImageOrigin" || name === "footerBackgroundImageOrigin"
+                      ? (	
+                          children[name] as InstanceType<typeof StringControl>	
+                        ).propertyView({	
+                          label: config.label,	
+                          preInputNode: <StyledBackgroundImageIcon title="Background Image Origin" />,	
+                          placeholder: props[name],	
+                        })
                       : children[name].propertyView({	
                           label: config.label,	
                           panelDefaultColor: props[name],	

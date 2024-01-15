@@ -30,7 +30,6 @@ const childrenMap = {
     0: { view: { layout: {}, items: {} } },
   }),
   footer: SimpleContainerComp,
-
   showHeader: BoolControl.DEFAULT_TRUE,
   showBody: BoolControl.DEFAULT_TRUE,
   showFooter: BoolControl,
@@ -108,7 +107,7 @@ export class TriContainerComp extends TriContainerBaseComp implements IContainer
     return lastValueIfEqual(this, "exposing_node", fromRecord(allNodes), checkEquals);
   }
 
-  getPropertyView(): ControlNode {
+  getPropertyView(): ControlNode {    
     return [this.areaPropertyView(), this.heightPropertyView()];
   }
 
@@ -127,6 +126,7 @@ export class TriContainerComp extends TriContainerBaseComp implements IContainer
   stylePropertyView() {
     return this.children.style.getPropertyView();
   }
+
 }
 
 function checkEquals(node1: Node<unknown>, node2: Node<unknown>): boolean {

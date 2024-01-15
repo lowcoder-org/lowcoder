@@ -26,15 +26,15 @@ export function getButtonStyle(buttonStyle: ButtonStyleType) {
         margin: ${buttonStyle.margin};	
         padding: ${buttonStyle.padding};
   
-        :hover,
-        :focus {
+        &:hover,
+        &:focus {
           color: ${buttonStyle.text};
           background-color: ${hoverColor};
           border-color: ${buttonStyle.border === buttonStyle.background
             ? hoverColor
             : buttonStyle.border} !important;
         }
-        :active {
+        &:active {
           color: ${buttonStyle.text};
           background-color: ${activeColor};
           border-color: ${buttonStyle.border === buttonStyle.background
@@ -55,15 +55,6 @@ export const Button100 = styled(Button)<{ $buttonStyle?: ButtonStyleType }>`
   align-items: center;
   overflow: hidden;
   gap: 6px; 
-  &:not(:disabled) {
-    &:hover,
-    &:focus {
-      background-color: ${(props) => props.$buttonStyle ? genHoverColor(props.$buttonStyle.background) : ''} !important;
-    }
-    :active {
-      background-color: ${(props) => props.$buttonStyle ? genActiveColor(props.$buttonStyle.background) : ''} !important;
-    }
-  }
   span {
     overflow: hidden;
     text-overflow: ellipsis;
