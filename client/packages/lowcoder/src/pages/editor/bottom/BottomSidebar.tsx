@@ -320,6 +320,7 @@ export function BottomSidebar(props: BottomSidebarProps) {
 }
 
 const HighlightBorder = styled.div<{ $active: boolean; $foldable: boolean; $level: number }>`
+  max-width: 100%;
   flex: 1;
   display: flex;
   padding-left: ${(props) => props.$level * 20 + (props.$foldable ? 0 : 14)}px;
