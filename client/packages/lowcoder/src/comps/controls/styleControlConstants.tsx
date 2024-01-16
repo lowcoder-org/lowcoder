@@ -489,45 +489,52 @@ export const MarginStyle = [
 
 
 export const ContainerStyle = [
-  ...BG_STATIC_BORDER_RADIUS,
+  // ...BG_STATIC_BORDER_RADIUS,
+  getStaticBorder(),
+  RADIUS,
   BORDER_WIDTH,
-  HEADER_BACKGROUND,
-  {
-    name: "footerBackground",
-    label: trans("style.footerBackground"),
-    depName: "background",
-    depType: DEP_TYPE.SELF,
-    transformer: toSelf,
-  },
   MARGIN,	
   PADDING,
+] as const;
+
+export const ContainerHeaderStyle = [
   CONTAINERHEADERPADDING,
-  CONTAINERFOOTERPADDING,
-  CONTAINERBODYPADDING,
+  HEADER_BACKGROUND,
   {
     name: "headerBackgroundImage",
-    label: trans("style.headerBackgroundImage"),
+    label: trans("style.backgroundImage"),
     headerBackgroundImage: "headerBackgroundImage",
   },
   {
     name: "headerBackgroundImageRepeat",
-    label: trans("style.headerBackgroundImageRepeat"),
+    label: trans("style.backgroundImageRepeat"),
     headerBackgroundImageRepeat: "headerBackgroundImageRepeat",
   },
   {
     name: "headerBackgroundImageSize",
-    label: trans("style.headerBackgroundImageSize"),
+    label: trans("style.backgroundImageSize"),
     headerBackgroundImageSize: "headerBackgroundImageSize",
   },
   {
     name: "headerBackgroundImagePosition",
-    label: trans("style.headerBackgroundImagePosition"),
+    label: trans("style.backgroundImagePosition"),
     headerBackgroundImagePosition: "headerBackgroundImagePosition",
   }
   ,{
     name: "headerBackgroundImageOrigin",
-    label: trans("style.headerBackgroundImageOrigin"),
+    label: trans("style.backgroundImageOrigin"),
     headerBackgroundImageOrigin: "headerBackgroundImageOrigin",
+  },
+] as const;
+
+export const ContainerBodyStyle = [
+  CONTAINERBODYPADDING,
+  {
+    name: "background",
+    label: trans("style.background"),
+    depName: "background",
+    depType: DEP_TYPE.SELF,
+    transformer: toSelf,
   },
   {
     name: "backgroundImage",
@@ -554,29 +561,40 @@ export const ContainerStyle = [
     label: trans("style.backgroundImageOrigin"),
     backgroundImageOrigin: "backgroundImageOrigin",
   },
+] as const;
+
+export const ContainerFooterStyle = [
+  CONTAINERFOOTERPADDING,
+  {
+    name: "footerBackground",
+    label: trans("style.background"),
+    depName: "background",
+    depType: DEP_TYPE.SELF,
+    transformer: toSelf,
+  },
   {
     name: "footerBackgroundImage",
-    label: trans("style.footerBackgroundImage"),
+    label: trans("style.backgroundImage"),
     footerBackgroundImage: "footerBackgroundImage",
   },
   {
     name: "footerBackgroundImageRepeat",
-    label: trans("style.footerBackgroundImageRepeat"),
+    label: trans("style.backgroundImageRepeat"),
     footerBackgroundImageRepeat: "footerBackgroundImageRepeat",
   },
   {
     name: "footerBackgroundImageSize",
-    label: trans("style.footerBackgroundImageSize"),
+    label: trans("style.backgroundImageSize"),
     footerBackgroundImageSize: "footerBackgroundImageSize",
   },
   {
     name: "footerBackgroundImagePosition",
-    label: trans("style.footerBackgroundImagePosition"),
+    label: trans("style.backgroundImagePosition"),
     footerBackgroundImagePosition: "footerBackgroundImagePosition",
   }
   ,{
     name: "footerBackgroundImageOrigin",
-    label: trans("style.footerBackgroundImageOrigin"),
+    label: trans("style.backgroundImageOrigin"),
     footerBackgroundImageOrigin: "footerBackgroundImageOrigin",
   }
 ] as const;
@@ -1312,6 +1330,9 @@ export type ButtonStyleType = StyleConfigType<typeof ButtonStyle>;
 export type ToggleButtonStyleType = StyleConfigType<typeof ToggleButtonStyle>;
 export type TextStyleType = StyleConfigType<typeof TextStyle>;
 export type ContainerStyleType = StyleConfigType<typeof ContainerStyle>;
+export type ContainerHeaderStyleType = StyleConfigType<typeof ContainerHeaderStyle>;
+export type ContainerBodyStyleType = StyleConfigType<typeof ContainerBodyStyle>;
+export type ContainerFooterStyleType = StyleConfigType<typeof ContainerFooterStyle>;
 export type SliderStyleType = StyleConfigType<typeof SliderStyle>;
 export type RatingStyleType = StyleConfigType<typeof RatingStyle>;
 export type SwitchStyleType = StyleConfigType<typeof SwitchStyle>;
