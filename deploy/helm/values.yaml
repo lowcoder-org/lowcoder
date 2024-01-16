@@ -13,10 +13,12 @@ global:
   config:
     # This setting sets workspace mode. Possible values: SAAS, ENTERPRISE
     workspaceMode: SAAS
+    createWorkspaceOnSignup: true
     # ID of user and group runnning the service within the container
     userId: 9001
     groupId: 9001
     corsAllowedDomains: "*"
+    enableEmailAuth: true
     enableUserSignUp: true
     encryption:
       password: "lowcoder.org"

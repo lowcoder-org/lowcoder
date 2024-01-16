@@ -2,8 +2,8 @@
 
 set -e
 
-USER_ID=${PUID:=9001}
-GROUP_ID=${PGID:=9001}
+USER_ID=${LOWCODER_PUID:=9001}
+GROUP_ID=${LOWCODER_PGID:=9001}
 CLIENT_ROOT=/lowcoder/client
 
 # Update ID of lowcoder user if required

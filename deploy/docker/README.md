@@ -23,30 +23,30 @@ Image can be configured by setting environment variables.
 
 | Environment variable            | Description                                                         | Value                                                 |
 | --------------------------------| --------------------------------------------------------------------| ----------------------------------------------------- |
-| `REDIS_ENABLED`                 | If **true** redis server is started in the container                | `true`                                                |
-| `MONGODB_ENABLED`               | If **true** mongo database is started in the container              | `true`                                                |
-| `API_SERVICE_ENABLED`           | If **true** lowcoder api-service is started in the container        | `true`                                                |
-| `NODE_SERVICE_ENABLED`          | If **true** lowcoder node-service is started in the container       | `true`                                                |
-| `FRONTEND_ENABLED`              | If **true** lowcoder web frontend is started in the container       | `true`                                                |
-| `PUID`                          | ID of user running services. It will own all created logs and data. | `9001`                                                |
-| `PGID`                          | ID of group of the user running services.                           | `9001`                                                |
-| `MONGODB_URL`                   | Mongo database connection string                                    | `mongodb://localhost:27017/lowcoder?authSource=admin` |
-| `REDIS_URL`                     | Redis server URL                                                    | `redis://localhost:6379`                              |
-| `ENCRYPTION_PASSWORD`           | Encryption password                                                 | `lowcoder.org`                                        |
-| `ENCRYPTION_SALT`               | Salt used for encrypting password                                   | `lowcoder.org`                                        |
-| `CORS_ALLOWED_DOMAINS`          | CORS allowed domains                                                | `*`                                                   |
+| `LOWCODER_REDIS_ENABLED`        | If **true** redis server is started in the container                | `true`                                                |
+| `LOWCODER_MONGODB_ENABLED`      | If **true** mongo database is started in the container              | `true`                                                |
+| `LOWCODER_API_SERVICE_ENABLED`  | If **true** lowcoder api-service is started in the container        | `true`                                                |
+| `LOWCODER_NODE_SERVICE_ENABLED` | If **true** lowcoder node-service is started in the container       | `true`                                                |
+| `LOWCODER_FRONTEND_ENABLED`     | If **true** lowcoder web frontend is started in the container       | `true`                                                |
+| `LOWCODER_PUID`                 | ID of user running services. It will own all created logs and data. | `9001`                                                |
+| `LOWCODER_PGID`                 | ID of group of the user running services.                           | `9001`                                                |
+| `LOWCODER_MONGODB_URL`          | Mongo database connection string                                    | `mongodb://localhost:27017/lowcoder?authSource=admin` |
+| `LOWCODER_REDIS_URL`            | Redis server URL                                                    | `redis://localhost:6379`                              |
+| `LOWCODER_DB_ENCRYPTION_PASSWORD`           | Encryption password                                                 | `lowcoder.org`                                        |
+| `LOWCODER_DB_ENCRYPTION_SALT`               | Salt used for encrypting password                                   | `lowcoder.org`                                        |
+| `LOWCODER_CORS_DOMAINS`         | CORS allowed domains                                                | `*`                                                   |
 | `LOWCODER_MAX_REQUEST_SIZE`     | Lowcoder max request size                                           | `20m`                                                 |
 | `LOWCODER_MAX_QUERY_TIMEOUT`    | Lowcoder max query timeout (in seconds)                             | `120`                                                 |
 | `LOWCODER_API_SERVICE_URL`      | Lowcoder API service URL                                            | `http://localhost:8080`                               |
 | `LOWCODER_NODE_SERVICE_URL`     | Lowcoder Node service (js executor) URL                             | `http://localhost:6060`                               |
-| `DEFAULT_ORGS_PER_USER`         | Default maximum organizations per user                              | `100`                                                 |
-| `DEFAULT_ORG_MEMBER_COUNT`      | Default maximum members per organization                            | `1000`                                                |
-| `DEFAULT_ORG_GROUP_COUNT`       | Default maximum groups per organization                             | `100`                                                 |
-| `DEFAULT_ORG_APP_COUNT`         | Default maximum applications per organization                       | `1000`                                                |
-| `DEFAULT_DEVELOPER_COUNT`       | Default maximum developers                                          | `100`                                                 |
-| `COMMON_WORKSPACE_MODE`         | SAAS to activate, ENTERPRISE to switch off - Workspaces             | `SAAS`                                                |
-| `ENABLE_USER_SIGN_UP`           | Control if users create their own Workspace automatic when Sign Up  | `true`                                                |
-| `AUTH_EMAIL_ENABLE`             | Control to show the eMail Login after Admin user is set             | `true`                                                |
+| `LOWCODER_MAX_ORGS_PER_USER`    | Default maximum organizations per user                              | `100`                                                 |
+| `LOWCODER_MAX_MEMBERS_PER_ORG`  | Default maximum members per organization                            | `1000`                                                |
+| `LOWCODER_MAX_GROUPS_PER_ORG`   | Default maximum groups per organization                             | `100`                                                 |
+| `LOWCODER_MAX_APPS_PER_ORG`     | Default maximum applications per organization                       | `1000`                                                |
+| `LOWCODER_MAX_DEVELOPERS`       | Default maximum developers                                          | `100`                                                 |
+| `LOWCODER_WORKSPACE_MODE`       | SAAS to activate, ENTERPRISE to switch off - Workspaces             | `SAAS`                                                |
+| `LOWCODER_EMAIL_SIGNUP_ENABLED` | Control if users create their own Workspace automatic when Sign Up  | `true`                                                |
+| `LOWCODER_EMAIL_AUTH_ENABLED`   | Control to show the eMail Login after Admin user is set             | `true`                                                |
 
 
 ## Building api-service image
@@ -67,24 +67,23 @@ Image can be configured by setting environment variables.
 
 | Environment variable            | Description                                                         | Value                                                 |
 | --------------------------------| --------------------------------------------------------------------| ------------------------------------------------------|
-| `PUID`                          | ID of user running services. It will own all created logs and data. | `9001`                                                |
-| `PGID`                          | ID of group of the user running services.                           | `9001`                                                |
-| `MONGODB_URL`                   | Mongo database connection string                                    | `mongodb://localhost:27017/lowcoder?authSource=admin` |
-| `REDIS_URL`                     | Redis server URL                                                    | `redis://localhost:6379`                              |
-| `ENABLE_USER_SIGN_UP`           | Enable registration of new users                                    | `true`                                                |
-| `ENCRYPTION_PASSWORD`           | Encryption password                                                 | `lowcoder.org`                                        |
-| `ENCRYPTION_SALT`               | Salt used for encrypting password                                   | `lowcoder.org`                                        |
-| `CORS_ALLOWED_DOMAINS`          | CORS allowed domains                                                | `*`                                                   |
-| `DEFAULT_ORGS_PER_USER`         | Default maximum organizations per user                              | `100`                                                 |
-| `DEFAULT_ORG_MEMBER_COUNT`      | Default maximum members per organization                            | `1000`                                                |
-| `DEFAULT_ORG_GROUP_COUNT`       | Default maximum groups per organization                             | `100`                                                 |
-| `DEFAULT_ORG_APP_COUNT`         | Default maximum applications per organization                       | `1000`                                                |
-| `DEFAULT_DEVELOPER_COUNT`       | Default maximum developers                                          | `100`                                                 |
+| `LOWCODER_PUID`                 | ID of user running services. It will own all created logs and data. | `9001`                                                |
+| `LOWCODER_PGID`                 | ID of group of the user running services.                           | `9001`                                                |
+| `LOWCODER_MONGODB_URL`          | Mongo database connection string                                    | `mongodb://localhost:27017/lowcoder?authSource=admin` |
+| `LOWCODER_REDIS_URL`            | Redis server URL                                                    | `redis://localhost:6379`                              |
+| `LOWCODER_DB_ENCRYPTION_PASSWORD`           | Encryption password                                                 | `lowcoder.org`                                        |
+| `LOWCODER_DB_ENCRYPTION_SALT`               | Salt used for encrypting password                                   | `lowcoder.org`                                        |
+| `LOWCODER_CORS_DOMAINS`         | CORS allowed domains                                                | `*`                                                   |
+| `LOWCODER_MAX_ORGS_PER_USER`    | Default maximum organizations per user                              | `100`                                                 |
+| `LOWCODER_MAX_MEMBERS_PER_ORG`  | Default maximum members per organization                            | `1000`                                                |
+| `LOWCODER_MAX_GROUPS_PER_ORG`   | Default maximum groups per organization                             | `100`                                                 |
+| `LOWCODER_MAX_APPS_PER_ORG`     | Default maximum applications per organization                       | `1000`                                                |
+| `LOWCODER_MAX_DEVELOPERS`       | Default maximum developers                                          | `100`                                                 |
 | `LOWCODER_MAX_QUERY_TIMEOUT`    | Lowcoder max query timeout (in seconds)                             | `120`                                                 |
 | `LOWCODER_MAX_REQUEST_SIZE`     | Lowcoder max request size                                           | `20m`                                                 |
-| `COMMON_WORKSPACE_MODE`         | SAAS to activate, ENTERPRISE to switch off - Workspaces             | `SAAS`                                                |
-| `ENABLE_USER_SIGN_UP`           | Control is users can create their own Workspace when Sign Up        | `true`                                                |
-| `AUTH_EMAIL_ENABLE`             | Control to show the eMail Login after Admin user is set             | `true`                                                |
+| `LOWCODER_WORKSPACE_MODE`       | SAAS to activate, ENTERPRISE to switch off - Workspaces             | `SAAS`                                                |
+| `LOWCODER_EMAIL_SIGNUP_ENABLED` | Control is users can create their own Workspace when Sign Up        | `true`                                                |
+| `LOWCODER_EMAIL_AUTH_ENABLED`   | Control to show the eMail Login after Admin user is set             | `true`                                                |
 
 ## Building node-service image
 
@@ -104,8 +103,8 @@ Image can be configured by setting environment variables.
 
 | Environment variable            | Description                                                         | Value                                                   |
 | --------------------------------| --------------------------------------------------------------------| ------------------------------------------------------- |
-| `PUID`                          | ID of user running services. It will own all created logs and data. | `9001`                                                  |
-| `PGID`                          | ID of group of the user running services.                           | `9001`                                                  |
+| `LOWCODER_PUID`                 | ID of user running services. It will own all created logs and data. | `9001`                                                  |
+| `LOWCODER_PGID`                 | ID of group of the user running services.                           | `9001`                                                  |
 | `LOWCODER_API_SERVICE_URL`      | Lowcoder API service URL                                            | `http://localhost:8080`                                 |
 
 ## Building web frontend image
@@ -126,8 +125,8 @@ Image can be configured by setting environment variables.
 
 | Environment variable            | Description                                                         | Value                                                   |
 | --------------------------------| --------------------------------------------------------------------| ------------------------------------------------------- |
-| `PUID`                          | ID of user running services. It will own all created logs and data. | `9001`                                                  |
-| `PGID`                          | ID of group of the user running services.                           | `9001`                                                  |
+| `LOWCODER_PUID`                 | ID of user running services. It will own all created logs and data. | `9001`                                                  |
+| `LOWCODER_PGID`                 | ID of group of the user running services.                           | `9001`                                                  |
 | `LOWCODER_MAX_QUERY_TIMEOUT`    | Lowcoder max query timeout (in seconds)                             | `120`                                                 |
 | `LOWCODER_MAX_REQUEST_SIZE`     | Lowcoder max request size                                           | `20m`                                                   |
 | `LOWCODER_API_SERVICE_URL`      | Lowcoder API service URL                                            | `http://localhost:8080`                                 |

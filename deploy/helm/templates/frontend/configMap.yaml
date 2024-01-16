@@ -11,8 +11,8 @@ metadata:
     {{- toYaml . | nindent 4 }}
   {{- end }}
 data:
-  PUID: {{ .Values.global.config.userId | default "9001" | quote }}
-  PGID: {{ .Values.global.config.groupId | default "9001" | quote }}
+  LOWCODER_PUID: {{ .Values.global.config.userId | default "9001" | quote }}
+  LOWCODER_PGID: {{ .Values.global.config.groupId | default "9001" | quote }}
   {{- if .Values.global.config.apiServiceUrl }}
   LOWCODER_API_SERVICE_URL: {{ .Values.global.config.apiServiceUrl | trimSuffix "/" | quote }}
   {{- else }}
