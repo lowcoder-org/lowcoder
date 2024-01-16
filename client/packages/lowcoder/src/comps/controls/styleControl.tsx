@@ -13,8 +13,10 @@ import {
   ExpandIcon,
   CompressIcon,
   TextSizeIcon,
-  TypographyIcon,
+  FontFamilyIcon,
+  TextWeigthIcon,
   ShowBorderIcon,
+  BorderWidthIcon,
   ImageCompIcon,
 } from "lowcoder-design";
 import { useContext } from "react";
@@ -33,6 +35,7 @@ import {
   PaddingConfig,
   TextSizeConfig,
   TextWeightConfig,
+  FontFamilyConfig,
   BorderWidthConfig,
   BackgroundImageConfig,
   BackgroundImageRepeatConfig,
@@ -49,6 +52,7 @@ import {
   FooterBackgroundImageSizeConfig,
   FooterBackgroundImagePositionConfig,
   FooterBackgroundImageOriginConfig,
+
 
 } from "./styleControlConstants";
 import { faTextWidth } from "@fortawesome/free-solid-svg-icons";
@@ -129,6 +133,10 @@ function isTextWeightConfig(config: SingleColorConfig): config is TextWeightConf
   return config.hasOwnProperty("textWeight");
 }
 
+function isFontFamilyConfig(config: SingleColorConfig): config is FontFamilyConfig {
+  return config.hasOwnProperty("fontFamily");
+}
+
 function isMarginConfig(config: SingleColorConfig): config is MarginConfig {	
   return config.hasOwnProperty("margin");	
 }	
@@ -203,6 +211,9 @@ function isEmptyTextSize(textSize: string) {
 }
 function isEmptyTextWeight(textWeight: string) {
   return _.isEmpty(textWeight);
+}
+function isEmptyFontFamily(fontFamily: string) {
+  return _.isEmpty(fontFamily);
 }
 
 function isEmptyMargin(margin: string) {	
@@ -302,6 +313,10 @@ function calcColors<ColorMap extends Record<string, string>>(
       res[name] = props[name];	
       return;	
     }	
+    if (!isEmptyFontFamily(props[name]) && isFontFamilyConfig(config)) {	
+      res[name] = props[name];	
+      return;	
+    }
     if (!isEmptyMargin(props[name]) && isMarginConfig(config)) {	
       res[name] = props[name];	
       return;	
@@ -379,6 +394,9 @@ function calcColors<ColorMap extends Record<string, string>>(
     if (isTextWeightConfig(config)) {
       // TODO: remove default textWeight after added in theme in backend.
       res[name] = themeWithDefault[config.textWeight] || 'regular';
+    }
+    if (isFontFamilyConfig(config)) {
+      res[name] = themeWithDefault[config.fontFamily] || 'sans-serif';
     }
     if (isMarginConfig(config)) {	
       res[name] = themeWithDefault[config.margin];	
@@ -490,11 +508,12 @@ const StyleContent = styled.div`
 `;
 
 const RadiusIcon = styled(IconRadius)` margin: 0 8px 0 -2px;`;
-const BorderIcon = styled(ShowBorderIcon)` margin: 0px 10px 0 3px;`;
+const BorderIcon = styled(BorderWidthIcon)` margin: 0 8px 0 -3px; padding: 3px;`;
 const MarginIcon = styled(ExpandIcon)` margin: 0 8px 0 2px;`;	
 const PaddingIcon = styled(CompressIcon)`	margin: 0 8px 0 2px;`;
-const StyledTextSizeIcon = styled(TextSizeIcon)` margin: 0 8px 0 0px;`;
-const StyledTextWeightIcon = styled(TypographyIcon)` margin: 0 8px 0 0px;`;
+const StyledTextSizeIcon = styled(TextSizeIcon)` margin: 0 8px 0 -3px; padding: 3px;`;
+const StyledFontFamilyIcon = styled(FontFamilyIcon)` margin: 0 8px 0 -3px; padding: 3px;`;
+const StyledTextWeightIcon = styled(TextWeigthIcon)` margin: 0 8px 0 -3px; padding: 3px;`;
 const StyledBackgroundImageIcon = styled(ImageCompIcon)` margin: 0 0px 0 -12px;`;
 
 const ResetIcon = styled(IconReset)`
@@ -514,6 +533,7 @@ export function styleControl<T extends readonly SingleColorConfig[]>(colorConfig
       name === "cardRadius" ||
       name === "textSize" || 
       name === "textWeight" ||
+      name === "fontFamily" ||
       name === "backgroundImage" ||
       name === "backgroundImageRepeat" ||
       name === "backgroundImageSize" ||
@@ -685,6 +705,14 @@ export function styleControl<T extends readonly SingleColorConfig[]>(colorConfig
                         ).propertyView({	
                           label: config.label,	
                           preInputNode: <StyledTextWeightIcon title="Font Weight" />,	
+                          placeholder: props[name],	
+                        })
+                      : name === "fontFamily"
+                      ? (	
+                          children[name] as InstanceType<typeof StringControl>	
+                        ).propertyView({	
+                          label: config.label,
+                          preInputNode: <StyledFontFamilyIcon title="Font Family" />,	
                           placeholder: props[name],	
                         })
                       : name === "backgroundImage" || name === "headerBackgroundImage" || name === "footerBackgroundImage"

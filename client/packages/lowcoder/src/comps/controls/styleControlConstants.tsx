@@ -47,6 +47,10 @@ export type TextWeightConfig = CommonColorConfig & {
   readonly textWeight: string;
 };
 
+export type FontFamilyConfig = CommonColorConfig & {
+  readonly fontFamily: string;
+};
+
 export type ContainerHeaderPaddigConfig = CommonColorConfig & {
   readonly containerheaderpadding: string;
 };
@@ -72,7 +76,7 @@ export type DepColorConfig = CommonColorConfig & {
   readonly depType?: DEP_TYPE;
   transformer: (color: string, ...rest: string[]) => string;
 };
-export type SingleColorConfig = SimpleColorConfig | DepColorConfig | RadiusConfig | BorderWidthConfig | BackgroundImageConfig | BackgroundImageRepeatConfig | BackgroundImageSizeConfig | BackgroundImagePositionConfig | BackgroundImageOriginConfig | TextSizeConfig | TextWeightConfig | MarginConfig | PaddingConfig | ContainerHeaderPaddigConfig | ContainerFooterPaddigConfig | ContainerBodyPaddigConfig | HeaderBackgroundImageConfig | HeaderBackgroundImageRepeatConfig | HeaderBackgroundImageSizeConfig | HeaderBackgroundImagePositionConfig | HeaderBackgroundImageOriginConfig | FooterBackgroundImageConfig | FooterBackgroundImageRepeatConfig | FooterBackgroundImageSizeConfig | FooterBackgroundImagePositionConfig | FooterBackgroundImageOriginConfig;
+export type SingleColorConfig = SimpleColorConfig | DepColorConfig | RadiusConfig | BorderWidthConfig | BackgroundImageConfig | BackgroundImageRepeatConfig | BackgroundImageSizeConfig | BackgroundImagePositionConfig | BackgroundImageOriginConfig | TextSizeConfig | TextWeightConfig | FontFamilyConfig | MarginConfig | PaddingConfig | ContainerHeaderPaddigConfig | ContainerFooterPaddigConfig | ContainerBodyPaddigConfig | HeaderBackgroundImageConfig | HeaderBackgroundImageRepeatConfig | HeaderBackgroundImageSizeConfig | HeaderBackgroundImagePositionConfig | HeaderBackgroundImageOriginConfig | FooterBackgroundImageConfig | FooterBackgroundImageRepeatConfig | FooterBackgroundImageSizeConfig | FooterBackgroundImagePositionConfig | FooterBackgroundImageOriginConfig;
 
 export const defaultTheme: ThemeDetail = {
   primary: "#3377FF",
@@ -342,6 +346,12 @@ const TEXT_WEIGHT = {
   textWeight: "textWeight",	
 } as const;
 
+const FONT_FAMILY = {	
+  name: "fontFamily",
+  label: trans("style.fontFamily"),	
+  fontFamily: "fontFamily",	
+} as const;
+
 const CONTAINERHEADERPADDING = {	
   name: "containerheaderpadding",	
   label: trans("style.containerheaderpadding"),	
@@ -430,18 +440,17 @@ function getStaticBackground(color: string) {
 
 export const ButtonStyle = [
   ...getBgBorderRadiusByBg("primary"), 
+  BORDER_WIDTH,
   TEXT, 
   TEXT_SIZE,
   TEXT_WEIGHT,
+  FONT_FAMILY,
   MARGIN, 
   PADDING
 ] as const;
 
 export const ToggleButtonStyle = [
   getBackground("canvas"),
-  TEXT,
-  TEXT_SIZE,
-  TEXT_WEIGHT,
   {
     name: "border",
     label: trans("style.border"),
@@ -450,6 +459,11 @@ export const ToggleButtonStyle = [
     transformer: toSelf,
   },
   RADIUS,
+  BORDER_WIDTH,
+  TEXT,
+  TEXT_SIZE,
+  TEXT_WEIGHT,
+  FONT_FAMILY,
   MARGIN,	
   PADDING,
 ] as const;
@@ -465,6 +479,7 @@ export const TextStyle = [
   TEXT,
   TEXT_SIZE,
   TEXT_WEIGHT,
+  FONT_FAMILY,
   BORDER,
   MARGIN,	
   PADDING,
@@ -622,7 +637,11 @@ export const SliderStyle = [
 export const InputLikeStyle = [
   LABEL,
   ...getStaticBgBorderRadiusByBg(SURFACE_COLOR),
+  BORDER_WIDTH,
   TEXT,
+  TEXT_SIZE,
+  TEXT_WEIGHT,
+  FONT_FAMILY,
   MARGIN,	
   PADDING,
   ...ACCENT_VALIDATE,
@@ -979,6 +998,8 @@ export const TableHeaderStyle = [
     transformer: contrastText,
   },
   TEXT_SIZE,
+  TEXT_WEIGHT,
+  FONT_FAMILY,
 ] as const;
 
 export const TableRowStyle = [
@@ -1013,6 +1034,8 @@ export const TableColumnStyle = [
   RADIUS,
   TEXT,
   TEXT_SIZE,
+  TEXT_WEIGHT,
+  FONT_FAMILY
 ] as const;
 
 export const TableColumnLinkStyle = [
@@ -1062,16 +1085,18 @@ export const DividerStyle = [
     label: trans("color"),
     color: lightenColor(SECOND_SURFACE_COLOR, 0.05),
   },
+  BORDER_WIDTH,
+  MARGIN,	
+  PADDING,
   {
     name: "text",
     label: trans("text"),
     depName: "color",
     transformer: handleToDividerText,
   },
-  MARGIN,	
-  PADDING,
   TEXT_SIZE,
-  BORDER_WIDTH
+  TEXT_WEIGHT,
+  FONT_FAMILY
 ] as const;
 
 export const ProgressStyle = [

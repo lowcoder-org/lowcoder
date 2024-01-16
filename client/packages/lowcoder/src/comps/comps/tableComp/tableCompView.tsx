@@ -213,6 +213,8 @@ const TableWrapper = styled.div<{
             border-width: ${(props) => props.$headerStyle.borderWidth};
             color: ${(props) => props.$headerStyle.headerText};
             font-size: ${(props) => props.$headerStyle.textSize};
+            font-weight: ${(props) => props.$headerStyle.textWeight};
+            font-family: ${(props) => props.$headerStyle.fontFamily};
             border-inline-end: ${(props) => `${props.$headerStyle.borderWidth} solid ${props.$headerStyle.border}`} !important;
             ${(props) => 
               props.$fixedHeader && `
@@ -338,6 +340,8 @@ const TableTd = styled.td<{
   > div {
     margin: ${(props) => props.$style.margin};
     color: ${(props) => props.$style.text};
+    font-weight: ${(props) => props.$style.textWeight};
+    font-family: ${(props) => props.$style.fontFamily};
     
     ${(props) => props.$tableSize === 'small' && `
       padding: 1px 8px;
@@ -521,6 +525,8 @@ function TableCellView(props: {
       radius: columnStyle.radius || columnsStyle.radius,
       borderWidth: columnStyle.borderWidth || columnsStyle.borderWidth,
       textSize: columnStyle.textSize || columnsStyle.textSize,
+      textWeight: columnStyle.textWeight || columnsStyle.textWeight,
+      fontFamily: columnStyle.fontFamily || columnsStyle.fontFamily,
       rowHeight: rowHeight,
     }
     let { background } = style;

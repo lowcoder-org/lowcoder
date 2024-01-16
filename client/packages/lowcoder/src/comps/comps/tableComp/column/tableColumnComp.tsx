@@ -106,6 +106,8 @@ export const columnChildrenMap = {
   borderWidth: withDefault(RadiusControl, ""),
   radius: withDefault(RadiusControl, ""),
   textSize: withDefault(RadiusControl, ""),
+  textWeight: withDefault(RadiusControl, "regular"),
+  fontFamily: withDefault(RadiusControl, "sans-serif"),
   cellColor: CellColorComp,
   textOverflow: withDefault(TextOverflowControl, "ellipsis"),
   linkColor: withDefault(ColorControl, "#3377ff"),

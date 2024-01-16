@@ -325,6 +325,8 @@ export function columnsToAntdFormat(
         border: column.border,
         radius: column.radius,
         textSize: column.textSize,
+        textWeight: column.textWeight,
+        fontFamily: column.fontFamily,
         borderWidth: column.borderWidth,
       },
       linkStyle: {
