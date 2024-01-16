@@ -55,7 +55,7 @@ const childrenMap = {
   autoHeight: AutoHeightControl,
   onEvent: eventHandlerControl(EVENT_OPTIONS),
   disabled: BoolCodeControl,
-  showHeader: BooleanStateControl,
+  showHeader: withDefault(BooleanStateControl, "true"),
   style: styleControl(TabContainerStyle),
 };
 

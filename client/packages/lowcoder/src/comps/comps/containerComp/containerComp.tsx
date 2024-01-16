@@ -82,7 +82,7 @@ function convertOldContainerParams(params: CompParams<any>) {
         ...tempParams,
         value: {
           container: {
-            showHeader: false,
+            showHeader: true,
             body: { 0: { view: container } },
             showBody: true,
             showFooter: false,
