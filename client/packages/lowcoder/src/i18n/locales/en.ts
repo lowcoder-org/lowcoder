@@ -360,6 +360,7 @@ export const en = {
     "aspectRatio": "Aspect Ratio",
     "textSize": "Text Size",
     "textWeight": "Text Weight",
+    "fontFamily": "Font Family",
     "backgroundImage": "BG Image",
     "backgroundImageRepeat": "BG Repeat",
     "backgroundImageSize": "BG Size",

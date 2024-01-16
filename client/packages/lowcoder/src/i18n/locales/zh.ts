@@ -350,6 +350,7 @@ style: {
     minWidth: "最小宽度",
     textSize: "字体大小",
     textWeight: "字体粗细",
+    "fontFamily": "字体",
     "backgroundImage": "背景图片",
     "backgroundImageRepeat" : "背景图片重复",
     "backgroundImageSize" : "背景图片大小",

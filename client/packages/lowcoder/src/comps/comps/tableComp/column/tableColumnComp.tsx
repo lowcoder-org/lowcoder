@@ -21,7 +21,7 @@ import {
   withFunction,
   wrapChildAction,
 } from "lowcoder-core";
-import { AlignClose, AlignLeft, AlignRight, IconRadius, TextSizeIcon, controlItem } from "lowcoder-design";
+import { AlignClose, AlignLeft, AlignRight, IconRadius, BorderWidthIcon, TextSizeIcon, FontFamilyIcon, TextWeigthIcon, ImageCompIcon, controlItem } from "lowcoder-design";
 import { ColumnTypeComp, ColumnTypeCompMap } from "./columnTypeComp";
 import { ColorControl } from "comps/controls/colorControl";
 import { JSONValue } from "util/jsonTypes";
@@ -106,6 +106,8 @@ export const columnChildrenMap = {
   borderWidth: withDefault(RadiusControl, ""),
   radius: withDefault(RadiusControl, ""),
   textSize: withDefault(RadiusControl, ""),
+  textWeight: withDefault(StringControl, "regular"),
+  fontFamily: withDefault(StringControl, "sans-serif"),
   cellColor: CellColorComp,
   textOverflow: withDefault(TextOverflowControl, "ellipsis"),
   linkColor: withDefault(ColorControl, "#3377ff"),
@@ -113,9 +115,12 @@ export const columnChildrenMap = {
   linkActiveColor: withDefault(ColorControl, ""),
 };
 
-const StyledIcon = styled.span`
-  margin: 0 4px 0 14px;
-`;
+const StyledBorderRadiusIcon = styled(IconRadius)` width: 24px; margin: 0 8px 0 -3px; padding: 3px;`;
+const StyledBorderIcon = styled(BorderWidthIcon)` width: 24px; margin: 0 8px 0 -3px; padding: 3px;`;
+const StyledTextSizeIcon = styled(TextSizeIcon)` width: 24px; margin: 0 8px 0 -3px; padding: 3px;`;
+const StyledFontFamilyIcon = styled(FontFamilyIcon)` width: 24px; margin: 0 8px 0 -3px; padding: 3px;`;
+const StyledTextWeightIcon = styled(TextWeigthIcon)` width: 24px; margin: 0 8px 0 -3px; padding: 3px;`;
+const StyledBackgroundImageIcon = styled(ImageCompIcon)` width: 24px; margin: 0 0px 0 -12px;`;
 
 /**
  * export for test.
@@ -255,18 +260,28 @@ export class ColumnComp extends ColumnInitComp {
         })}
         {this.children.borderWidth.propertyView({
           label: trans('style.borderWidth'),
-          preInputNode: <StyledIcon as={IconRadius} title="" />,	
+          preInputNode: <StyledBorderIcon as={BorderWidthIcon} title="" />,	
           placeholder: '1px',
         })}
         {this.children.radius.propertyView({
           label: trans('style.borderRadius'),
-          preInputNode: <StyledIcon as={IconRadius} title="" />,	
+          preInputNode: <StyledBorderRadiusIcon as={IconRadius} title="" />,	
           placeholder: '3px',
         })}
         {this.children.textSize.propertyView({
           label: trans('style.textSize'),
-          preInputNode: <StyledIcon as={TextSizeIcon} title="" />,	
+          preInputNode: <StyledTextSizeIcon as={TextSizeIcon} title="" />,	
           placeholder: '14px',
+        })}
+        {this.children.textWeight.propertyView({
+          label: trans('style.textWeight'),
+          preInputNode: <StyledTextWeightIcon as={TextWeigthIcon} title="" />,	
+          placeholder: 'regular',
+        })}
+        {this.children.fontFamily.propertyView({
+          label: trans('style.fontFamily'),
+          preInputNode: <StyledFontFamilyIcon as={FontFamilyIcon} title="" />,	
+          placeholder: 'sans-serif',
         })}
         {this.children.textOverflow.getPropertyView()}
         {this.children.cellColor.getPropertyView()}

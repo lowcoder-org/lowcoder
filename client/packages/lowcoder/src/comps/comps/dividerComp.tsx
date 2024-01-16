@@ -28,6 +28,8 @@ const StyledDivider = styled(Divider)<IProps>`
     display: flex;
     align-items: center;
     font-size: ${(props) => props.$style.textSize};
+    font-weight: ${(props) => props.$style.textWeight};
+    font-family: ${(props) => props.$style.fontFamily};
   }
   min-width: 0;	
   width: ${(props) => {	

@@ -21,6 +21,7 @@ export function getButtonStyle(buttonStyle: ButtonStyleType) {
         color: ${buttonStyle.text};
         font-size: ${buttonStyle.textSize};
         font-weight: ${buttonStyle.textWeight};
+        font-family: ${buttonStyle.fontFamily};
         background-color: ${buttonStyle.background};
         border-radius: ${buttonStyle.radius};
         margin: ${buttonStyle.margin};	

@@ -2,9 +2,9 @@ auth:
   api-key:
     secret: ${LOWCODER_API_KEY_SECRET:5a41b090758b39b226603177ef48d73ae9839dd458ccb7e66f7e7cc028d5a50b}
   email:
-    enable: true
-    enable-register: ${ENABLE_USER_SIGN_UP:true}
-  workspace-creation: ${LOWCODER_CREATE_SIGNUP_WORKSPACE:true}
+    enable: ${LOWCODER_EMAIL_AUTH_ENABLED:true}
+    enable-register: ${LOWCODER_EMAIL_SIGNUP_ENABLED:true}
+  workspace-creation: ${LOWCODER_CREATE_WORKSPACE_ON_SIGNUP:true}
 
 spring:
   data:
@@ -29,12 +29,12 @@ server:
   shutdown: graceful
 
 default:
-  orgs-per-user: 100
-  org-member-count: 1000
-  org-group-count: 100
-  org-app-count: 1000
-  developer-count: 50
-  api-rate-limit: 50
+  orgs-per-user: ${LOWCODER_MAX_ORGS_PER_USER:100}
+  org-member-count: ${LOWCODER_MAX_MEMBERS_PER_ORG:1000}
+  org-group-count: ${LOWCODER_MAX_GROUPS_PER_ORG:100}
+  org-app-count: ${LOWCODER_MAX_APPS_PER_ORG:1000}
+  developer-count: ${LOWCODER_MAX_DEVELOPERS:50}
+  api-rate-limit: ${LOWCODER_API_RATE_LIMIT:50}
 
 common:
   cookie-name: LOWCODER_CE_SELFHOST_TOKEN
@@ -51,6 +51,8 @@ common:
   max-query-response-size: ${LOWCODER_MAX_REQUEST_SIZE:20m}
   max-upload-size: ${LOWCODER_MAX_REQUEST_SIZE:20m}
   max-query-timeout: ${LOWCODER_MAX_QUERY_TIMEOUT:120}
+  workspace:
+    mode: ${LOWCODER_WORKSPACE_MODE:SAAS}
 
 material:
   mongodb-grid-fs:
