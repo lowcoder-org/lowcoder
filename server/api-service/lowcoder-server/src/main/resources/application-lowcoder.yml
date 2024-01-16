@@ -3,9 +3,9 @@ spring:
     mongodb:
       authentication-database: admin
       auto-index-creation: false
-      uri: mongodb://192.168.8.103:27017/lowcoder?authSource=admin
+      uri: mongodb://localhost:27017/lowcoder?authSource=admin
     redis:
-      url: redis://192.168.8.103:6379
+      url: redis://localhost:6379
   main:
     allow-bean-definition-overriding: true
     allow-circular-references: true
@@ -62,4 +62,4 @@ auth:
   email:
     enable: true
     enable-register: true
-  workspace-creation: false
+  workspace-creation: true

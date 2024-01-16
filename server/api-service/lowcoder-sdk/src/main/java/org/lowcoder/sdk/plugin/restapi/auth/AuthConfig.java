@@ -17,7 +17,7 @@ import lombok.Getter;
         @Type(value = BasicAuthConfig.class, name = "DIGEST_AUTH"),
         @Type(value = BasicAuthConfig.class, name = "BASIC_AUTH"),
         @Type(value = NoneAuthConfig.class, name = "NO_AUTH"),
-        @Type(value = DefaultAuthConfig.class, name = "OAUTH2_INHERIT_FROM_LOGIN")
+        @Type(value = OAuthInheritAuthConfig.class, name = "OAUTH2_INHERIT_FROM_LOGIN")
 })
 public abstract class AuthConfig implements Encrypt {
 

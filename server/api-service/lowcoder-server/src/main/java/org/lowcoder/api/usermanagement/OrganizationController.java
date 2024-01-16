@@ -126,4 +126,10 @@ public class OrganizationController implements OrganizationEndpoints
                 .map(ResponseView::success);
     }
 
+    @Override
+    public Mono<ResponseView<Long>> getOrgApiUsageCount(String orgId, Boolean lastMonthOnly) {
+        return orgApiService.getApiUsageCount(orgId, lastMonthOnly)
+                .map(ResponseView::success);
+    }
+
 }

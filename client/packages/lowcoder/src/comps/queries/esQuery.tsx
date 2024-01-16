@@ -1,4 +1,4 @@
-import { Tag } from "antd";
+import { default as Tag } from "antd/es/tag";
 import { trans } from "i18n";
 import _, { includes, isEmpty, pick } from "lodash";
 import {
@@ -255,7 +255,9 @@ const EsQueryPropertyView = (props: {
             {children.esMethod.getView() === "RAW" ? (
               children.path.propertyView({})
             ) : (
-              <ReadOnlyField>{children.path.toJsonValue()}</ReadOnlyField>
+              <ReadOnlyField>
+                <>{children.path.toJsonValue()}</>
+              </ReadOnlyField>
             )}
           </InputField>
 

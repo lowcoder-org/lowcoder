@@ -218,7 +218,7 @@ const PopoverButton = styled.div`
   border: 1px solid #d7d9e0;
   border-radius: 4px;
 
-  :hover {
+  &:hover {
     background-color: #f5f5f6;
     border: 1px solid #d7d9e0;
 
@@ -239,19 +239,19 @@ const RunButton = styled(TacoButton)`
   height: 32px;
   border: none;
 
-  :hover {
+  &:hover {
     padding: 0;
     border: none;
     box-shadow: none;
   }
 
-  :focus {
+  &:focus {
     padding: 0;
     border: none;
     box-shadow: none;
   }
 
-  :after {
+  &:after {
     content: "";
   }
 `;

@@ -1,4 +1,4 @@
-import { InputNumber as AntdInputNumber } from "antd";
+import { default as AntdInputNumber } from "antd/es/input-number";
 import {
   BoolCodeControl,
   codeControl,

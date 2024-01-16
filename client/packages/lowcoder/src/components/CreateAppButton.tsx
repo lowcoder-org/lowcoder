@@ -18,7 +18,7 @@ const CreateSpan = styled.span`
   cursor: pointer;
   color: ${LightActiveTextColor};
 
-  :hover {
+  &:hover {
     color: ${ActiveTextColor};
   }
 `;

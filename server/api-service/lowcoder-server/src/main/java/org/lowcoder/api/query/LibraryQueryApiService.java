@@ -6,9 +6,7 @@ import static org.lowcoder.sdk.exception.BizError.LIBRARY_QUERY_AND_ORG_NOT_MATC
 import static org.lowcoder.sdk.util.ExceptionUtils.deferredError;
 import static org.lowcoder.sdk.util.ExceptionUtils.ofError;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -23,6 +21,7 @@ import org.lowcoder.api.query.view.UpsertLibraryQueryRequest;
 import org.lowcoder.api.usermanagement.OrgDevChecker;
 import org.lowcoder.api.util.BusinessEventPublisher;
 import org.lowcoder.api.util.ViewBuilder;
+import org.lowcoder.domain.authentication.AuthenticationService;
 import org.lowcoder.domain.datasource.model.Datasource;
 import org.lowcoder.domain.datasource.service.DatasourceService;
 import org.lowcoder.domain.organization.model.OrgMember;
@@ -35,13 +34,18 @@ import org.lowcoder.domain.query.model.LibraryQueryRecord;
 import org.lowcoder.domain.query.service.LibraryQueryRecordService;
 import org.lowcoder.domain.query.service.LibraryQueryService;
 import org.lowcoder.domain.query.service.QueryExecutionService;
+import org.lowcoder.domain.user.model.Connection;
 import org.lowcoder.domain.user.model.User;
 import org.lowcoder.domain.user.service.UserService;
 import org.lowcoder.sdk.config.CommonConfig;
 import org.lowcoder.sdk.exception.BizError;
 import org.lowcoder.sdk.exception.PluginCommonError;
+import org.lowcoder.sdk.models.JsDatasourceConnectionConfig;
 import org.lowcoder.sdk.models.Property;
 import org.lowcoder.sdk.models.QueryExecutionResult;
+import org.lowcoder.sdk.plugin.graphql.GraphQLDatasourceConfig;
+import org.lowcoder.sdk.plugin.restapi.RestApiDatasourceConfig;
+import org.lowcoder.sdk.plugin.restapi.auth.OAuthInheritAuthConfig;
 import org.lowcoder.sdk.query.QueryVisitorContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -86,6 +90,9 @@ public class LibraryQueryApiService {
 
     @Autowired
     private CommonConfig commonConfig;
+
+    @Autowired
+    private AuthenticationService authenticationService;
 
     @Value("${server.port}")
     private int port;
@@ -245,15 +252,19 @@ public class LibraryQueryApiService {
 
         Mono<OrgMember> visitorOrgMemberCache = sessionUserService.getVisitorOrgMemberCache()
                 .onErrorReturn(NOT_EXIST);
-        return Mono.zip(visitorOrgMemberCache, baseQueryMono, datasourceMono)
+
+        Mono<User> userMono = sessionUserService.getVisitor();
+
+        return Mono.zip(visitorOrgMemberCache, baseQueryMono, datasourceMono, userMono)
                 .flatMap(tuple -> {
                     OrgMember orgMember = tuple.getT1();
                     String orgId = orgMember.getOrgId();
                     String userId = orgMember.getUserId();
                     BaseQuery baseQuery = tuple.getT2();
                     Datasource datasource = tuple.getT3();
+                    User user = tuple.getT4();
                     Mono<List<Property>> paramsAndHeadersInheritFromLogin = orgMember.isInvalid()
-                                                                            ? Mono.empty() : getParamsAndHeadersInheritFromLogin(userId, orgId);
+                                                                            ? Mono.empty() : getParamsAndHeadersInheritFromLogin(user, null, false);
 
                     QueryVisitorContext queryVisitorContext = new QueryVisitorContext(userId, orgId, port,
                             exchange.getRequest().getCookies(),
@@ -284,17 +295,39 @@ public class LibraryQueryApiService {
         Mono<Datasource> datasourceMono = baseQueryMono.flatMap(query -> datasourceService.getById(query.getDatasourceId())
                 .switchIfEmpty(deferredError(BizError.DATASOURCE_NOT_FOUND, "DATASOURCE_NOT_FOUND", query.getDatasourceId()))).cache();
 
+        Mono<User> userMono = sessionUserService.getVisitor();
+
         return orgDevChecker.checkCurrentOrgDev()
                 .then(Mono.zip(sessionUserService.getVisitorOrgMemberCache(),
-                        baseQueryMono, datasourceMono))
+                        baseQueryMono, datasourceMono, userMono))
                 .flatMap(tuple -> {
                     OrgMember orgMember = tuple.getT1();
                     String orgId = orgMember.getOrgId();
                     String userId = orgMember.getUserId();
                     BaseQuery baseQuery = tuple.getT2();
                     Datasource datasource = tuple.getT3();
-                    Mono<List<Property>> paramsAndHeadersInheritFromLogin =
-                            getParamsAndHeadersInheritFromLogin(userId, orgId);
+                    User user = tuple.getT4();
+
+                    Mono<List<Property>> paramsAndHeadersInheritFromLogin = Mono.empty();
+
+
+                    // check if oauth inherited from login and save token
+                    if(datasource.getDetailConfig() instanceof RestApiDatasourceConfig restApiDatasourceConfig && restApiDatasourceConfig.isOauth2InheritFromLogin()) {
+                        paramsAndHeadersInheritFromLogin = getParamsAndHeadersInheritFromLogin
+                                (user, ((OAuthInheritAuthConfig)restApiDatasourceConfig.getAuthConfig()).getAuthId(), false);
+                    }
+
+                    if(datasource.getDetailConfig() instanceof GraphQLDatasourceConfig graphQLDatasourceConfig && graphQLDatasourceConfig.isOauth2InheritFromLogin()) {
+                        paramsAndHeadersInheritFromLogin = getParamsAndHeadersInheritFromLogin
+                                (user, ((OAuthInheritAuthConfig)graphQLDatasourceConfig.getAuthConfig()).getAuthId(), false);
+                    }
+
+                    if(datasource.getDetailConfig() instanceof JsDatasourceConnectionConfig jsDatasourceConnectionConfig
+                            && jsDatasourceConnectionConfig.isOauth2InheritFromLogin()) {
+                        paramsAndHeadersInheritFromLogin = getParamsAndHeadersInheritFromLogin
+                                (user, jsDatasourceConnectionConfig.getAuthId(), true);
+                    }
+
                     QueryVisitorContext queryVisitorContext = new QueryVisitorContext(userId, orgId, port, cookies, paramsAndHeadersInheritFromLogin,
                             commonConfig.getDisallowedHosts());
                     Map<String, Object> queryConfig = baseQuery.getQueryConfig();
@@ -322,8 +355,22 @@ public class LibraryQueryApiService {
                 .map(LibraryQueryRecord::getQuery);
     }
 
-    protected Mono<List<Property>> getParamsAndHeadersInheritFromLogin(String userId, String orgId) {
-        return Mono.empty();
+    protected Mono<List<Property>> getParamsAndHeadersInheritFromLogin(User user, String authId, boolean isJsQuery) {
+        if(authId == null) {
+            return Mono.empty();
+        }
+        Optional<Connection> activeConnectionOptional = user.getConnections()
+                .stream()
+                .filter(connection -> connection.getAuthId().equals(authId))
+                .findFirst();
+        if(!activeConnectionOptional.isPresent() || activeConnectionOptional.get().getAuthConnectionAuthToken() == null) {
+            return Mono.empty();
+        }
+        if(isJsQuery) {
+            return Mono.just(Collections.singletonList(new Property("OAUTH_ACCESS_TOKEN",activeConnectionOptional.get().getAuthConnectionAuthToken().getAccessToken(),"header")));
+        } else {
+            return Mono.just(Collections.singletonList(new Property("Authorization","Bearer " + activeConnectionOptional.get().getAuthConnectionAuthToken().getAccessToken(),"header")));
+        }
     }
 
     protected void onNextOrError(QueryExecutionRequest queryExecutionRequest, QueryVisitorContext queryVisitorContext, BaseQuery baseQuery,

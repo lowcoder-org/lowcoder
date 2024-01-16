@@ -1,4 +1,4 @@
-import { BoolCodeControl } from "comps/controls/codeControl";
+import { BoolCodeControl, StringControl } from "comps/controls/codeControl";
 import { EditorContext } from "comps/editorState";
 import { withDefault } from "comps/generators";
 import { UICompBuilder } from "comps/generators/uiCompBuilder";
@@ -8,8 +8,7 @@ import {
   sectionNames,
 } from "lowcoder-design";
 import { trans } from "i18n";
-
-import styled, { css } from "styled-components";
+import styled from "styled-components";
 import {
   CommonNameConfig,
   NameConfig,
@@ -18,21 +17,13 @@ import {
 import { ButtonStyleControl } from "./videobuttonCompConstants";
 import { RefControl } from "comps/controls/refControl";
 import { useEffect, useRef, useState } from "react";
-
 import { AutoHeightControl } from "comps/controls/autoHeightControl";
 import { client } from "./videoMeetingControllerComp";
-
 import { IAgoraRTCRemoteUser } from "agora-rtc-sdk-ng";
-
-import {
-  MeetingEventHandlerControl,
-  StringControl,
-  hiddenPropertyView,
-  stringExposingStateControl,
-} from "@lowcoder-ee/index.sdk";
-import { BoolShareVideoControl } from "./meetingControlerUtils";
-
 import { useContext } from "react";
+import { MeetingEventHandlerControl } from "comps/controls/eventHandlerControl";
+import { stringExposingStateControl } from "comps/controls/codeStateControl";
+import { hiddenPropertyView } from "comps/utils/propertyUtils";
 
 const VideoContainer = styled.video`
   height: 100%;
@@ -42,7 +33,7 @@ const VideoContainer = styled.video`
   justify-content: space-around;
 `;
 
-export const meetingStreamChildren = {
+const sharingStreamChildren = {
   autoHeight: withDefault(AutoHeightControl, "fixed"),
   profilePadding: withDefault(StringControl, "0px"),
   profileBorderRadius: withDefault(StringControl, "0px"),
@@ -56,8 +47,8 @@ export const meetingStreamChildren = {
   noVideoText: stringExposingStateControl(trans("meeting.noVideo")),
 };
 
-let SharingCompBuilder = (function (props) {
-  return new UICompBuilder(meetingStreamChildren, (props) => {
+let SharingCompBuilder = (function () {
+  return new UICompBuilder(sharingStreamChildren, (props) => {
     const videoRef = useRef<HTMLVideoElement>(null);
     const conRef = useRef<HTMLDivElement>(null);
     const [userId, setUserId] = useState();

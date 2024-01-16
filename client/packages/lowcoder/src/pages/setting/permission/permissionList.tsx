@@ -1,4 +1,4 @@
-import { Typography } from "antd";
+import { default as Typography } from "antd/es/typography";
 import OrgApi from "api/orgApi";
 import { buildGroupId } from "constants/routesURL";
 import { AddIcon, CustomModal, EditPopover } from "lowcoder-design";

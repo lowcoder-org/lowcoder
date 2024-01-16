@@ -1,16 +1,5 @@
 package org.lowcoder.api.query;
 
-import static org.lowcoder.domain.permission.model.ResourceAction.READ_APPLICATIONS;
-import static org.lowcoder.sdk.exception.BizError.DATASOURCE_AND_APP_ORG_NOT_MATCH;
-import static org.lowcoder.sdk.exception.BizError.INVALID_PARAMETER;
-import static org.lowcoder.sdk.util.ExceptionUtils.deferredError;
-import static org.lowcoder.sdk.util.ExceptionUtils.ofError;
-
-import java.util.List;
-import java.util.stream.Collectors;
-
-import javax.annotation.Nullable;
-
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.lowcoder.api.home.SessionUserService;
@@ -27,11 +16,17 @@ import org.lowcoder.domain.query.model.LibraryQueryRecord;
 import org.lowcoder.domain.query.service.LibraryQueryRecordService;
 import org.lowcoder.domain.query.service.LibraryQueryService;
 import org.lowcoder.domain.query.service.QueryExecutionService;
+import org.lowcoder.domain.user.model.Connection;
+import org.lowcoder.domain.user.model.User;
 import org.lowcoder.infra.util.TupleUtils;
 import org.lowcoder.sdk.config.CommonConfig;
 import org.lowcoder.sdk.exception.BizError;
+import org.lowcoder.sdk.models.JsDatasourceConnectionConfig;
 import org.lowcoder.sdk.models.Property;
 import org.lowcoder.sdk.models.QueryExecutionResult;
+import org.lowcoder.sdk.plugin.graphql.GraphQLDatasourceConfig;
+import org.lowcoder.sdk.plugin.restapi.RestApiDatasourceConfig;
+import org.lowcoder.sdk.plugin.restapi.auth.OAuthInheritAuthConfig;
 import org.lowcoder.sdk.query.QueryVisitorContext;
 import org.lowcoder.sdk.util.ExceptionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,9 +35,20 @@ import org.springframework.http.HttpCookie;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.server.ServerWebExchange;
-
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.Timed;
+
+import javax.annotation.Nullable;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import static org.lowcoder.domain.permission.model.ResourceAction.READ_APPLICATIONS;
+import static org.lowcoder.sdk.exception.BizError.DATASOURCE_AND_APP_ORG_NOT_MATCH;
+import static org.lowcoder.sdk.exception.BizError.INVALID_PARAMETER;
+import static org.lowcoder.sdk.util.ExceptionUtils.deferredError;
+import static org.lowcoder.sdk.util.ExceptionUtils.ofError;
 
 @Service
 public class ApplicationQueryApiService {
@@ -93,12 +99,13 @@ public class ApplicationQueryApiService {
         Mono<Datasource> datasourceMono = baseQueryMono.flatMap(query -> datasourceService.getById(query.getDatasourceId())
                         .switchIfEmpty(deferredError(BizError.DATASOURCE_NOT_FOUND, "DATASOURCE_NOT_FOUND", query.getDatasourceId())))
                 .cache();
-        return sessionUserService.getVisitorId()
-                .delayUntil(userId -> checkExecutePermission(userId, queryExecutionRequest.getPath(), appId,
+
+        return sessionUserService.getVisitor()
+                .delayUntil(user -> checkExecutePermission(user.getId(), queryExecutionRequest.getPath(), appId,
                         queryExecutionRequest.isViewMode()))
                 .zipWhen(visitorId -> Mono.zip(appMono, appQueryMono, baseQueryMono, datasourceMono), TupleUtils::merge)
                 .flatMap(tuple -> {
-                    String userId = tuple.getT1();
+                    String userId = tuple.getT1().getId();
                     Application app = tuple.getT2();
                     ApplicationQuery appQuery = tuple.getT3();
                     BaseQuery baseQuery = tuple.getT4();
@@ -109,8 +116,28 @@ public class ApplicationQueryApiService {
                     }
 
                     MultiValueMap<String, HttpCookie> cookies = exchange.getRequest().getCookies();
-                    QueryVisitorContext queryVisitorContext = new QueryVisitorContext(userId, app.getOrganizationId(), port, cookies,
-                            getAuthParamsAndHeadersInheritFromLogin(userId, app.getOrganizationId()), commonConfig.getDisallowedHosts());
+
+                    Mono<List<Property>> paramsAndHeadersInheritFromLogin = Mono.empty();
+
+
+                    // Check if oauth inherited from login and save token
+                    if(datasource.getDetailConfig() instanceof RestApiDatasourceConfig restApiDatasourceConfig
+                            && restApiDatasourceConfig.isOauth2InheritFromLogin()) {
+                        paramsAndHeadersInheritFromLogin = getAuthParamsAndHeadersInheritFromLogin(tuple.getT1(), ((OAuthInheritAuthConfig)restApiDatasourceConfig.getAuthConfig()).getAuthId(), false);
+                    }
+
+                    if(datasource.getDetailConfig() instanceof GraphQLDatasourceConfig graphQLDatasourceConfig
+                            && graphQLDatasourceConfig.isOauth2InheritFromLogin()) {
+                        paramsAndHeadersInheritFromLogin = getAuthParamsAndHeadersInheritFromLogin(tuple.getT1(), ((OAuthInheritAuthConfig)graphQLDatasourceConfig.getAuthConfig()).getAuthId(), false);
+                    }
+
+
+                    if(datasource.getDetailConfig() instanceof JsDatasourceConnectionConfig jsDatasourceConnectionConfig
+                            && jsDatasourceConnectionConfig.isOauth2InheritFromLogin()) {
+                        paramsAndHeadersInheritFromLogin = getAuthParamsAndHeadersInheritFromLogin(tuple.getT1(), jsDatasourceConnectionConfig.getAuthId(), true);
+                    }
+
+                    QueryVisitorContext queryVisitorContext = new QueryVisitorContext(userId, app.getOrganizationId(), port, cookies, paramsAndHeadersInheritFromLogin, commonConfig.getDisallowedHosts());
                     return queryExecutionService.executeQuery(datasource, baseQuery.getQueryConfig(), queryExecutionRequest.paramMap(),
                                     appQuery.getTimeoutStr(), queryVisitorContext
                             )
@@ -176,8 +203,22 @@ public class ApplicationQueryApiService {
                 .map(LibraryQueryRecord::getQuery);
     }
 
-    protected Mono<List<Property>> getAuthParamsAndHeadersInheritFromLogin(String userId, String orgId) {
-        return Mono.empty();
+    protected Mono<List<Property>> getAuthParamsAndHeadersInheritFromLogin(User user, String authId, boolean isJsQuery) {
+        if(authId == null) {
+            return Mono.empty();
+        }
+        Optional<Connection> activeConnectionOptional = user.getConnections()
+                .stream()
+                .filter(connection -> connection.getAuthId().equals(authId))
+                .findFirst();
+        if(!activeConnectionOptional.isPresent() || activeConnectionOptional.get().getAuthConnectionAuthToken() == null) {
+            return Mono.empty();
+        }
+        if(isJsQuery) {
+            return Mono.just(Collections.singletonList(new Property("OAUTH_ACCESS_TOKEN",activeConnectionOptional.get().getAuthConnectionAuthToken().getAccessToken(),"header")));
+        } else {
+            return Mono.just(Collections.singletonList(new Property("Authorization","Bearer " + activeConnectionOptional.get().getAuthConnectionAuthToken().getAccessToken(),"header")));
+        }
     }
 
     protected void onNextOrError(QueryExecutionRequest queryExecutionRequest, QueryVisitorContext queryVisitorContext,

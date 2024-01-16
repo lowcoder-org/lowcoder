@@ -2,7 +2,7 @@ import { changeChildAction, DispatchType, RecordConstructorToView } from "lowcod
 import { UICompBuilder } from "comps/generators/uiCompBuilder";
 import { NameConfig, withExposingConfigs } from "comps/generators/withExposing";
 import { Section, sectionNames, ValueFromOption } from "lowcoder-design";
-import { TreeSelect } from "antd";
+import { default as TreeSelect } from "antd/es/tree-select";
 import { useEffect } from "react";
 import styled from "styled-components";
 import { styleControl } from "comps/controls/styleControl";
@@ -115,7 +115,7 @@ const TreeCompView = (
         // fix expand issue when searching
         treeExpandedKeys={inputValue ? undefined : expanded.value}
         onTreeExpand={(keys) => {
-          expanded.onChange(keys);
+          expanded.onChange(keys as (string | number)[]);
         }}
         onChange={(keys) => {
           const nextValue = Array.isArray(keys) ? keys : keys !== undefined ? [keys] : [];

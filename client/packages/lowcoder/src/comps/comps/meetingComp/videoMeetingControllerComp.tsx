@@ -1,5 +1,5 @@
 import { CloseOutlined } from "@ant-design/icons";
-import { Button } from "antd";
+import { default as Button } from "antd/es/button";
 import { ContainerCompBuilder } from "comps/comps/containerBase/containerCompBuilder";
 import {
   gridItemCompToGridItems,
@@ -170,7 +170,9 @@ const shareScreen = async (sharing: boolean) => {
 };
 const leaveChannel = async () => {
   //stops local sharing video
-  screenShareStream.close();
+  if (screenShareStream) {
+    screenShareStream.close();
+  }
 
   //stops local video streaming and puts off the camera
   if (videoTrack) {
@@ -221,7 +223,7 @@ const rtmInit = async (appId: any, uid: any, token: any, channel: any) => {
   await rtmChannelResponse.join();
 };
 
-export const meetingControllerChildren = {
+const meetingControllerChildren = {
   visible: withDefault(BooleanStateControl, "false"),
   onEvent: eventHandlerControl(EventOptions),
   width: StringControl,
@@ -508,9 +510,11 @@ let MTComp = (function () {
                   : {}
               }
               contentWrapperStyle={{ maxHeight: "100%", maxWidth: "100%" }}
-              bodyStyle={{
-                padding: 0,
-                backgroundColor: props.style.background,
+              styles={{
+                body: {
+                  padding: 0,
+                  backgroundColor: props.style.background,
+                }
               }}
               closable={false}
               placement={props.placement}

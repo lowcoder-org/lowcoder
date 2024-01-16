@@ -48,8 +48,8 @@ import { dateRefMethods, disabledTime, handleDateChange } from "comps/comps/date
 import { TimeUIView } from "./timeUIView";
 import { TimeRangeUIView } from "comps/comps/dateComp/timeRangeUIView";
 import { RefControl } from "comps/controls/refControl";
-import { CommonPickerMethods } from "antd/lib/date-picker/generatePicker/interface";
-import { TimePickerProps } from "antd";
+import { CommonPickerMethods } from "antd/es/date-picker/generatePicker/interface";
+import { TimePickerProps } from "antd/es/time-picker";
 
 import { EditorContext } from "comps/editorState";
 

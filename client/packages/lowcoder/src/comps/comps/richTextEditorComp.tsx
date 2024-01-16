@@ -20,7 +20,7 @@ import {
 } from "comps/utils/propertyUtils";
 import _ from "lodash";
 import { trans } from "i18n";
-import { Skeleton } from "antd";
+import { default as Skeleton } from "antd/es/skeleton";
 import { styleControl } from "comps/controls/styleControl";
 import { RichTextEditorStyle, RichTextEditorStyleType } from "comps/controls/styleControlConstants";
 
@@ -124,7 +124,7 @@ const hideToolbarStyle = (style: RichTextEditorStyleType) => css`
 `;
 
 interface Props {
-  hideToolbar: boolean;
+  $hideToolbar: boolean;
   $style: RichTextEditorStyleType;
 }
 
@@ -134,7 +134,7 @@ const AutoHeightReactQuill = styled.div<Props>`
   & .ql-container .ql-editor {
     min-height: 125px;
   }
-  ${(props) => (props.hideToolbar ? hideToolbarStyle(props.$style) : "")};
+  ${(props) => (props.$hideToolbar ? hideToolbarStyle(props.$style) : "")};
 `;
 
 const FixHeightReactQuill = styled.div<Props>`
@@ -151,7 +151,7 @@ const FixHeightReactQuill = styled.div<Props>`
       overflow: auto;
     }
   }
-  ${(props) => (props.hideToolbar ? hideToolbarStyle(props.$style) : "")};
+  ${(props) => (props.$hideToolbar ? hideToolbarStyle(props.$style) : "")};
 `;
 
 const toolbarOptions = [
@@ -268,7 +268,7 @@ function RichTextEditor(props: IProps) {
       id={id}
       onClick={handleClickWrapper}
       ref={wrapperRef}
-      hideToolbar={props.hideToolbar}
+      $hideToolbar={props.hideToolbar}
       $style={props.$style}
     >
       <Suspense fallback={<Skeleton />}>

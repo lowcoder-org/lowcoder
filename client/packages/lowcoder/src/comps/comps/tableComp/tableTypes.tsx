@@ -13,7 +13,7 @@ import {
 import { dropdownControl } from "comps/controls/dropdownControl";
 import { eventHandlerControl } from "comps/controls/eventHandlerControl";
 import { styleControl } from "comps/controls/styleControl";
-import { TableColumnStyle, TableRowStyle, TableStyle } from "comps/controls/styleControlConstants";
+import { TableColumnStyle, TableRowStyle, TableStyle, TableToolbarStyle, TableHeaderStyle } from "comps/controls/styleControlConstants";
 import {
   MultiCompBuilder,
   stateComp,
@@ -79,6 +79,26 @@ export const TableEventOptions = [
     description: trans("table.rowExpand"),
   },
   {
+    label: trans("table.rowShrink"),
+    value: "rowShrink",
+    description: trans("table.rowShrink"),
+  },
+  {
+    label: trans("table.columnEdited"),
+    value: "columnEdited",
+    description: trans("table.columnEdited"),
+  },
+  {
+    label: trans("table.search"),
+    value: "dataSearch",
+    description: trans("table.search"),
+  },
+  {
+    label: trans("table.download"),
+    value: "download",
+    description: trans("table.download"),
+  },
+  {
     label: trans("table.filterChange"),
     value: "filterChange",
     description: trans("table.filterChange"),
@@ -99,6 +119,8 @@ export const TableEventOptions = [
     description: trans("table.refresh"),
   },
 ] as const;
+
+export type TableEventOptionValues = typeof TableEventOptions[number]['value'];
 
 export type SortValue = {
   column?: string;
@@ -168,7 +190,10 @@ export type RowHeightViewType = (param: {
 }) => string;
 
 const tableChildrenMap = {
-  hideBordered: BoolControl,
+  // hideBordered: BoolControl,
+  showHeaderGridBorder: BoolControl,
+  showRowGridBorder: BoolControl,
+  showHRowGridBorder: BoolControl,
   hideHeader: BoolControl,
   fixedHeader: BoolControl,
   autoHeight: withDefault(AutoHeightControl, "auto"),
@@ -182,15 +207,19 @@ const tableChildrenMap = {
   toolbar: TableToolbarComp,
   style: styleControl(TableStyle),
   rowStyle: styleControl(TableRowStyle),
+  toolbarStyle: styleControl(TableToolbarStyle),
+  headerStyle: styleControl(TableHeaderStyle),
   searchText: StringControl,
   columnsStyle: withDefault(styleControl(TableColumnStyle), {borderWidth: '1px', radius: '0px'}),
   viewModeResizable: BoolControl,
+  visibleResizables: BoolControl,
   // sample data for regenerating columns
   dataRowExample: stateComp<JSONObject | null>(null),
   onEvent: TableEventControl,
   loading: BoolCodeControl,
   rowColor: RowColorComp,
   rowAutoHeight: withDefault(AutoHeightControl, "auto"),
+  tableAutoHeight: withDefault(AutoHeightControl, "auto"),
   rowHeight: RowHeightComp,
   dynamicColumn: BoolPureControl,
   // todo: support object config

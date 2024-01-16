@@ -17,7 +17,7 @@ import { tryToNumber } from "util/convertUtils";
 import { JSONObject, JSONValue } from "util/jsonTypes";
 import { StatusType } from "./column/columnTypeComps/columnStatusComp";
 import { ColumnListComp, tableDataRowExample } from "./column/tableColumnListComp";
-import { TableColumnStyleType } from "comps/controls/styleControlConstants";
+import { TableColumnLinkStyleType, TableColumnStyleType } from "comps/controls/styleControlConstants";
 
 export const COLUMN_CHILDREN_KEY = "children";
 export const OB_ROW_ORI_INDEX = "__ob_origin_index";
@@ -254,6 +254,7 @@ export type CustomColumnType<RecordType> = ColumnType<RecordType> & {
   onWidthResize?: (width: number) => void;
   titleText: string;
   style: TableColumnStyleType;
+  linkStyle: TableColumnLinkStyleType;
   cellColorFn: CellColorViewType;
 };
 
@@ -268,6 +269,7 @@ export function columnsToAntdFormat(
   dynamicColumn: boolean,
   dynamicColumnConfig: Array<string>,
   columnsAggrData: ColumnsAggrData,
+  onTableEvent: (eventName: any) => void,
 ): Array<CustomColumnType<RecordType>> {
   const sortMap: Map<string | undefined, SortOrder> = new Map(
     sort.map((s) => [s.column, s.desc ? "descend" : "ascend"])
@@ -310,7 +312,7 @@ export function columnsToAntdFormat(
     }[];
     const title = renderTitle({ title: column.title, editable: column.editable });
     return {
-      title: title,
+      title: column.showTitle ? title : '',
       titleText: column.title,
       dataIndex: column.dataIndex,
       align: column.align,
@@ -318,11 +320,17 @@ export function columnsToAntdFormat(
       fixed: column.fixed === "close" ? false : column.fixed,
       style: {
         background: column.background,
+        margin: column.margin,
         text: column.text,
         border: column.border,
         radius: column.radius,
         textSize: column.textSize,
         borderWidth: column.borderWidth,
+      },
+      linkStyle: {
+        text: column.linkColor,
+        hoverText: column.linkHoverColor,
+        activeText: column.linkActiveColor,
       },
       cellColorFn: column.cellColor,
       onWidthResize: column.onWidthResize,
@@ -340,9 +348,11 @@ export function columnsToAntdFormat(
           .getView()
           .view({
             editable: column.editable,
-            size, candidateTags: tags,
+            size,
+            candidateTags: tags,
             candidateStatus: status,
             textOverflow: column.textOverflow,
+            onTableEvent,
           });
       },
       ...(column.sortable

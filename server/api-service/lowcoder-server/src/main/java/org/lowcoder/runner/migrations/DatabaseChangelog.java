@@ -175,6 +175,13 @@ public class DatabaseChangelog {
         completeAuthType.complete();
     }
 
+    @ChangeSet(order = "019", id = "add-org-id-index-on-server-log", author = "")
+    public void addOrgIdIndexOnServerLog(MongockTemplate mongoTemplate) {
+        ensureIndexes(mongoTemplate, ServerLog.class,
+                makeIndex("orgId")
+        );
+    }
+
     public static Index makeIndex(String... fields) {
         if (fields.length == 1) {
             return new Index(fields[0], Sort.Direction.ASC).named(fields[0]);

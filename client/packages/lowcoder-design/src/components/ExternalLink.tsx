@@ -9,7 +9,7 @@ export const ExternalLink = styled.a`
   display: inline-flex;
   align-items: center;
 
-  :hover {
+  &:hover {
     color: ${ActiveTextColor};
   }
 `;

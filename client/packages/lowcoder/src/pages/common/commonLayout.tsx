@@ -1,5 +1,5 @@
 import { Route, Switch, useLocation } from "react-router-dom";
-import { Layout } from "antd";
+import { default as Layout } from "antd/es/layout";
 import { AppHeader } from "pages/common/header";
 import { Menu } from "lowcoder-design";
 import history from "util/history";

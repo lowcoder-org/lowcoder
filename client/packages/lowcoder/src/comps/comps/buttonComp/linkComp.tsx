@@ -1,4 +1,4 @@
-import { Button } from "antd";
+import { default as Button } from "antd/es/button";
 import { ButtonCompWrapper, buttonRefMethods } from "comps/comps/buttonComp/buttonCompConstants";
 import { BoolCodeControl, StringControl } from "comps/controls/codeControl";
 import { ButtonEventHandlerControl } from "comps/controls/eventHandlerControl";
@@ -24,7 +24,18 @@ import { EditorContext } from "comps/editorState";
 import React, { useContext } from "react";
 
 const Link = styled(Button)<{ $style: LinkStyleType }>`
-  ${(props) => `color: ${props.$style.text}; margin: ${props.$style.margin}; padding: ${props.$style.padding}; font-size: ${props.$style.textSize};`}
+  ${(props) => `
+    color: ${props.$style.text};
+    margin: ${props.$style.margin};
+    padding: ${props.$style.padding};
+    font-size: ${props.$style.textSize};
+    &:hover {
+      color: ${props.$style.hoverText} !important;
+    }
+    &:active {
+      color: ${props.$style.activeText} !important;
+    }
+  `}
   &.ant-btn {
     display: inline-flex;
     align-items: center;

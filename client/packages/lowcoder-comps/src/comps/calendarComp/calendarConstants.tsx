@@ -24,13 +24,13 @@ import {
   SlotLabelContentArg,
   ViewContentArg,
 } from "@fullcalendar/core";
-import { Form } from "antd";
+import { default as Form } from "antd/es/form";
 
 export const Wrapper = styled.div<{
-  editable: boolean;
+  $editable: boolean;
   $style: CalendarStyleType;
-  theme?: ThemeDetail;
-  left?: number;
+  $theme?: ThemeDetail;
+  $left?: number;
 }>`
   position: relative;
   height: 100%;
@@ -205,9 +205,9 @@ export const Wrapper = styled.div<{
       flex-direction: inherit;
     }
     .fc-day-today .fc-daygrid-day-number {
-      background-color: ${(props) => props.theme.primary};
+      background-color: ${(props) => props.$theme.primary};
       color: ${(props) =>
-        contrastText(props.theme.primary || "", props.theme.textDark, props.theme.textLight)};
+        contrastText(props.$theme.primary || "", props.$theme.textDark, props.$theme.textLight)};
     }
     .fc-daygrid-day-events {
       padding: 1px 0 5px 0;
@@ -261,7 +261,7 @@ export const Wrapper = styled.div<{
     border-radius: 4px;
     box-shadow: 0 0px 10px 4px rgba(0, 0, 0, 0.25);
     overflow: hidden;
-    left: ${(props) => `min(${props.left}px, calc(100% - 210px)) !important`};
+    left: ${(props) => `min(${props.$left}px, calc(100% - 210px)) !important`};
     .fc-popover-body {
       padding: 4px 0;
       min-width: 200px;
@@ -368,7 +368,7 @@ export const Wrapper = styled.div<{
     }
     &:hover {
       .event-remove {
-        opacity: ${(props) => props.editable && 1};
+        opacity: ${(props) => props.$editable ? 1 : undefined};
       }
     }
   }
@@ -585,10 +585,10 @@ export const Wrapper = styled.div<{
     }
     .fc-day-today.fc-col-header-cell {
       background-color: ${(props) =>
-        isDarkColor(props.$style.background) ? "#ffffff19" : toHex(props.theme.primary!) + "19"};
+        isDarkColor(props.$style.background) ? "#ffffff19" : toHex(props.$theme.primary!) + "19"};
       a {
         color: ${(props) =>
-          !isDarkColor(props.$style.background) && darkenColor(props.theme.primary!, 0.1)};
+          !isDarkColor(props.$style.background) && darkenColor(props.$theme.primary!, 0.1)};
       }
     }
     .fc-col-header-cell-cushion {

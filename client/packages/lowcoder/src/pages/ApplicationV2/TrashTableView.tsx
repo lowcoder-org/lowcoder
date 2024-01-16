@@ -27,7 +27,8 @@ const NameWrapper = styled.div`
 
 const EditBtn = styled(TacoButton)`
   opacity: 0;
-  width: 52px;
+  min-width: 52px !important;
+  width: auto !important;
   height: 24px;
 `;
 

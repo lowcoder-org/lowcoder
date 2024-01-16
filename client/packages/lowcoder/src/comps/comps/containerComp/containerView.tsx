@@ -278,9 +278,9 @@ type ViewPropsWithSelect = ContainerBaseProps & {
   dragSelectedComps?: Set<string>;
 };
 
-const ItemWrapper = styled.div<{ disableInteract?: boolean }>`
+const ItemWrapper = styled.div<{ $disableInteract?: boolean }>`
   height: 100%;
-  pointer-events: ${(props) => (props.disableInteract ? "none" : "unset")};
+  pointer-events: ${(props) => (props.$disableInteract ? "none" : "unset")};
 `;
 
 const GridItemWrapper = React.forwardRef(
@@ -291,7 +291,7 @@ const GridItemWrapper = React.forwardRef(
     const editorState = useContext(EditorContext);
     const { children, ...divProps } = props;
     return (
-      <ItemWrapper ref={ref} disableInteract={editorState.disableInteract} {...divProps}>
+      <ItemWrapper ref={ref} $disableInteract={editorState.disableInteract} {...divProps}>
         {props.children}
       </ItemWrapper>
     );
@@ -318,7 +318,7 @@ export function InnerGrid(props: ViewPropsWithSelect) {
   const defaultGrid =
     useContext(ThemeContext)?.theme?.gridColumns ||
     defaultTheme?.gridColumns ||
-    "24";
+    "12";
   /////////////////////
   const isDroppable =
     useContext(IsDroppable) && (_.isNil(props.isDroppable) || props.isDroppable) && !readOnly;
@@ -356,7 +356,9 @@ export function InnerGrid(props: ViewPropsWithSelect) {
 
   const dispatchPositionParamsTimerRef = useRef(0);
   const onResize = useCallback(
-    (width, height) => {
+    (width?: number, height?: number) => {
+      if(!width || !height) return;
+
       if (width !== positionParams.containerWidth) {
         const newPositionParams: PositionParams = {
           margin: [0, 0],
@@ -426,7 +428,10 @@ export function InnerGrid(props: ViewPropsWithSelect) {
   }, [props.items]);
 
   const clickItem = useCallback(
-    (e, name) => selectItem(e, name, canAddSelect, containerSelectNames, setSelectedNames),
+    (
+      e: React.MouseEvent<HTMLDivElement,
+      globalThis.MouseEvent>, name: string
+    ) => selectItem(e, name, canAddSelect, containerSelectNames, setSelectedNames),
     [canAddSelect, containerSelectNames, setSelectedNames]
   );
 

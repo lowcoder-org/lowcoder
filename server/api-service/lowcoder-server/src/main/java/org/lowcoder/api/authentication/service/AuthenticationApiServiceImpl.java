@@ -242,6 +242,8 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
         oldConnection.setAuthConnectionAuthToken(
                 Optional.ofNullable(authUser.getAuthToken()).map(ConnectionAuthToken::of).orElse(null));
         oldConnection.setRawUserInfo(authUser.getRawUserInfo());
+
+        user.setActiveAuthId(oldConnection.getAuthId());
     }
 
     @SuppressWarnings("OptionalGetWithoutIsPresent")

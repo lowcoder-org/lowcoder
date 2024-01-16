@@ -266,8 +266,8 @@ export function getSelectedPoints(param: any, option: any) {
   return [];
 }
 
-export function loadGoogleMapsScript(apiKey?: string) {
-  const mapsUrl = `${googleMapsApiUrl}&key=${apiKey}`;
+export function loadGoogleMapsScript(apiKey: string) {
+  const mapsUrl = `${googleMapsApiUrl}?key=${apiKey}`;
   const scripts = document.getElementsByTagName('script');
   // is script already loaded
   let scriptIndex = _.findIndex(scripts, (script) => script.src.endsWith(mapsUrl));

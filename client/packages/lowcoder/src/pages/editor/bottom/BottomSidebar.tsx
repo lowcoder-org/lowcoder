@@ -94,13 +94,13 @@ const AddBtn = styled(TacoButton)`
     align-items: center;
     box-shadow: none;
   
-    :hover {
+    &:hover {
       color: #315efb;
       background-color: #f5faff;
       border-color: #c2d6ff;
     }
   
-    :focus {
+    &:focus {
       color: #315efb;
       background-color: #f5faff;
       border-color: #c2d6ff;
@@ -110,8 +110,8 @@ const AddBtn = styled(TacoButton)`
       stroke: #315efb;
     }
   
-    :disabled,
-    :disabled:hover {
+    &:disabled,
+    &:disabled:hover {
       background: #f9fbff;
       border: 1px solid #dee9ff;
       border-radius: 4px;
@@ -319,19 +319,20 @@ export function BottomSidebar(props: BottomSidebarProps) {
   );
 }
 
-const HighlightBorder = styled.div<{ active: boolean; foldable: boolean; level: number }>`
+const HighlightBorder = styled.div<{ $active: boolean; $foldable: boolean; $level: number }>`
+  max-width: 100%;
   flex: 1;
   display: flex;
-  padding-left: ${(props) => props.level * 20 + (props.foldable ? 0 : 14)}px;
+  padding-left: ${(props) => props.$level * 20 + (props.$foldable ? 0 : 14)}px;
   border-radius: 4px;
-  border: 1px solid ${(props) => (props.active ? BorderActiveColor : "transparent")};
+  border: 1px solid ${(props) => (props.$active ? BorderActiveColor : "transparent")};
   align-items: center;
   justify-content: center;
 `;
 
 interface ColumnDivProps {
   $color?: boolean;
-  isOverlay: boolean;
+  $isOverlay: boolean;
 }
 
 const ColumnDiv = styled.div<ColumnDivProps>`
@@ -343,13 +344,13 @@ const ColumnDiv = styled.div<ColumnDivProps>`
   padding-right: 15px;
   /* background-color: #ffffff; */
   /* margin: 2px 0; */
-  background-color: ${(props) => (props.isOverlay ? "rgba(255, 255, 255, 0.11)" : "")};
+  background-color: ${(props) => (props.$isOverlay ? "rgba(255, 255, 255, 0.11)" : "")};
 
   &&& {
-    background-color: ${(props) => (props.$color && !props.isOverlay ? "#f2f7fc" : null)};
+    background-color: ${(props) => (props.$color && !props.$isOverlay ? "#f2f7fc" : null)};
   }
 
-  :hover {
+  &:hover {
     background-color: #f2f7fc80;
     cursor: pointer;
   }
@@ -363,7 +364,7 @@ const ColumnDiv = styled.div<ColumnDivProps>`
     font-size: 13px;
     padding-left: 0;
 
-    :hover {
+    &:hover {
       background-color: transparent;
     }
   }
@@ -379,7 +380,7 @@ const ColumnDiv = styled.div<ColumnDivProps>`
     border: 1px solid #3377ff;
     border-radius: 2px;
 
-    :focus {
+    &:focus {
       border-color: #3377ff;
       box-shadow: 0 0 0 2px #d6e4ff;
     }
@@ -472,8 +473,8 @@ function BottomSidebarItem(props: BottomSidebarItemProps) {
   };
 
   return (
-    <ColumnDiv onClick={handleClickItem} $color={isSelected} isOverlay={isOverlay}>
-      <HighlightBorder active={isOver && isFolder} level={level} foldable={isFolder}>
+    <ColumnDiv onClick={handleClickItem} $color={isSelected} $isOverlay={isOverlay}>
+      <HighlightBorder $active={isOver && isFolder} $level={level} $foldable={isFolder}>
         {isFolder && <FoldIconBtn>{!isFolded ? <FoldedIcon /> : <UnfoldIcon />}</FoldIconBtn>}
         {icon}
         <div style={{ flexGrow: 1, marginRight: "8px", width: "calc(100% - 62px)" }}>

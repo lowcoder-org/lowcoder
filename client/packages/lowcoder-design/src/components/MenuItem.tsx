@@ -4,14 +4,14 @@ import { PointIcon, DragIcon, PencilIcon } from "icons";
 import { labelCss } from "./Label";
 
 interface IItem {
-  width?: number;
-  colorChange?: number;
+  $width?: number;
+  $colorChange?: number;
 }
 const Item = styled.div<IItem>`
-  width: ${(props) => (props.width ? props.width : 280)}px;
+  width: ${(props) => (props.$width ? props.$width : 280)}px;
   height: 32px;
   background: #f5f5f6;
-  background: ${(props) => (props.colorChange ? "#E1E3EB" : "#f5f5f6")};
+  background: ${(props) => (props.$colorChange ? "#E1E3EB" : "#f5f5f6")};
   border-radius: 4px;
   float: right;
   margin-right: 16px;
@@ -22,7 +22,7 @@ const IconCss = css`
   height: 16px;
   width: 16px;
   color: #8b8fa3;
-  :hover {
+  &:hover {
     cursor: pointer;
   }
 `;
@@ -49,7 +49,7 @@ interface IMenuItem {
 export const MenuItem = (props: IMenuItem) => {
   const { label, width, colorChange } = props;
   return (
-    <Item width={width} colorChange={colorChange}>
+    <Item $width={width} $colorChange={colorChange}>
       <StyledDragIcon />
       <Text>{label}</Text>
     </Item>

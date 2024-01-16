@@ -14,27 +14,27 @@ import { getComponentDocUrl } from "comps/utils/compDocUtil";
 import { getComponentPlaygroundUrl } from "comps/utils/compDocUtil";
 import { parseCompType } from "comps/utils/remote";
 
-const CompDiv = styled.div<{ width?: number; hasSearch?: boolean; showSearch?: boolean }>`
-  width: ${(props) => (props.width ? props.width : 312)}px;
-  height: ${(props) => (props.showSearch ? 45 : 46)}px;
+const CompDiv = styled.div<{ $width?: number; $hasSearch?: boolean; $showSearch?: boolean }>`
+  width: ${(props) => (props.$width ? props.$width : 312)}px;
+  height: ${(props) => (props.$showSearch ? 45 : 46)}px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-bottom: ${(props) => (props.showSearch ? 0 : 1)}px solid #e1e3eb;
+  border-bottom: ${(props) => (props.$showSearch ? 0 : 1)}px solid #e1e3eb;
 
   .taco-edit-text-wrapper {
-    width: ${(props) => (props.hasSearch ? 226 : 252)}px;
+    width: ${(props) => (props.$hasSearch ? 226 : 252)}px;
     color: #222222;
     font-size: 16px;
     margin-left: 8px;
 
-    :hover {
+    &:hover {
       background-color: #f5f5f6;
     }
   }
 
   .taco-edit-text-input {
-    width: ${(props) => (props.hasSearch ? 226 : 252)}px;
+    width: ${(props) => (props.$hasSearch ? 226 : 252)}px;
     color: #222222;
     font-size: 16px;
     background-color: #f5f5f6;
@@ -126,7 +126,7 @@ export const CompName = (props: Iprops) => {
     setShowSearch(false);
   }, [props.name]);
   const compName = (
-    <CompDiv width={props.width} hasSearch={!!search} showSearch={showSearch}>
+    <CompDiv $width={props.width} $hasSearch={!!search} $showSearch={showSearch}>
       <div>
         <EditText
           text={props.name}

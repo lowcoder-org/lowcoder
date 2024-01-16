@@ -33,6 +33,7 @@ import React, { useMemo, useState } from "react";
 import { GreyTextColor } from "constants/style";
 import { alignOptions } from "comps/controls/dropdownControl";
 import { ColumnTypeCompMap } from "comps/comps/tableComp/column/columnTypeComp";
+import { changeChildAction } from "lowcoder-core";
 
 const InsertDiv = styled.div`
   display: flex;
@@ -51,7 +52,7 @@ const StyledRefreshIcon = styled(RefreshIcon)`
   height: 16px;
   cursor: pointer;
 
-  :hover {
+  &:hover {
     g g {
       stroke: #4965f2;
     }
@@ -63,7 +64,7 @@ const eyeIconCss = css`
   width: 16px;
   display: inline-block;
 
-  :hover {
+  &:hover {
     cursor: pointer;
   }
 
@@ -265,13 +266,14 @@ function ColumnPropertyView<T extends MultiBaseComp<TableChildrenType>>(props: {
     <InsertDiv>
       <div style={{ display: "flex", alignItems: "center", marginRight: "auto" }}>
         <TextLabel label={props.columnLabel} />
-        <Graylabel>{"(" + columns.length + ")"}</Graylabel>
+        <Graylabel>{" (" + columns.length + ")"}</Graylabel>
       </div>
       {rowExample && (
         <ToolTipLabel title={trans("table.refreshButtonTooltip")}>
           <StyledRefreshIcon
             onClick={() => {
-              const actions = [
+              console.log("comp", comp);
+              comp.dispatch(
                 wrapChildAction(
                   "columns",
                   comp.children.columns.dataChangedAction({
@@ -280,10 +282,10 @@ function ColumnPropertyView<T extends MultiBaseComp<TableChildrenType>>(props: {
                     dynamicColumn: dynamicColumn,
                     data: data,
                   })
-                ),
-                comp.changeChildAction("dataRowExample", null),
-              ];
-              actions.forEach((action) => comp.dispatch(deferAction(action)));
+                )
+              );
+              // the function below is not working
+              // comp.dispatch(comp.changeChildAction("dataRowExample", null));
             }}
           />
         </ToolTipLabel>
@@ -467,12 +469,13 @@ export function compTablePropertyView<T extends MultiBaseComp<TableChildrenType>
             {comp.children.hideHeader.propertyView({
               label: trans("table.hideHeader"),
             })}
-            {comp.children.hideBordered.propertyView({
-              label: trans("table.hideBordered"),
-            })}
             {comp.children.viewModeResizable.propertyView({
               label: trans("table.viewModeResizable"),
               tooltip: trans("table.viewModeResizableTooltip"),
+            })}
+            {comp.children.visibleResizables.propertyView({
+              label: trans("table.visibleResizables"),
+              tooltip: trans("table.visibleResizablesTooltip"),
             })}
           </Section>
           <Section name={trans("prop.pagination")}>
@@ -505,9 +508,21 @@ export function compTablePropertyView<T extends MultiBaseComp<TableChildrenType>
 
       {["layout", "both"].includes(editorModeStatus) && (
         <><Section name={"Table Style"}>
-            {comp.children.style.getPropertyView()}  
+            {comp.children.style.getPropertyView()} 
+          </Section>
+          <Section name={"Header Style"}>
+            {comp.children.headerStyle.getPropertyView()}
+          </Section>
+          <Section name={"Toolbar Style"}>
+            {comp.children.toolbarStyle.getPropertyView()}
           </Section>
           <Section name={"Row Style"}>
+            {comp.children.showRowGridBorder.propertyView({
+              label: trans("table.showVerticalRowGridBorder"),
+            })}
+            {comp.children.showHRowGridBorder.propertyView({
+              label: trans("table.showHorizontalRowGridBorder"),
+            })}
             {comp.children.rowStyle.getPropertyView()}
             {comp.children.rowAutoHeight.getPropertyView()}
             {comp.children.rowHeight.getPropertyView()}

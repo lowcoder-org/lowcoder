@@ -1,6 +1,6 @@
-import { Button, Upload as AntdUpload } from "antd";
-import { UploadChangeParam } from "antd/lib/upload";
-import { UploadFile, UploadProps } from "antd/lib/upload/interface";
+import { default as Button } from "antd/es/button";
+import { default as AntdUpload } from "antd/es/upload";
+import { UploadFile, UploadProps, UploadChangeParam } from "antd/es/upload/interface";
 import { Buffer } from "buffer";
 import { darkenColor } from "components/colorSelect/colorUtils";
 import { Section, sectionNames } from "components/Section";
@@ -210,7 +210,7 @@ export function resolveParsedValue(files: UploadFile[]) {
           .then((a) => {
             const ext = mime.getExtension(f.originFileObj?.type ?? "");
             if (ext === "xlsx" || ext === "csv") {
-              const workbook = XLSX.read(a, { raw: true });
+              const workbook = XLSX.read(a, { raw: true, codepage: 65001 });
               return XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], {
                 raw: false,
               });

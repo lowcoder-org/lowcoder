@@ -160,6 +160,15 @@ public interface OrganizationEndpoints
     @PutMapping("/{orgId}/common-settings")
     public Mono<ResponseView<Boolean>> updateOrgCommonSettings(@PathVariable String orgId, @RequestBody UpdateOrgCommonSettingsRequest request);
 
+	@Operation(
+			tags = TAG_ORGANIZATION_MANAGEMENT,
+			operationId = "getOrgApiUsageCount",
+			summary = "Get the api usage count for the org",
+			description = "Calculate the used api calls for this organization and return the count"
+	)
+	@GetMapping("/{orgId}/api-usage")
+	public Mono<ResponseView<Long>> getOrgApiUsageCount(@PathVariable String orgId, @RequestParam(required = false) Boolean lastMonthOnly);
+
     public record UpdateOrgCommonSettingsRequest(String key, Object value) {
 
     }

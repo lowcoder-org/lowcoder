@@ -1,4 +1,4 @@
-import { Button } from "antd";
+import { default as Button } from "antd/es/button";
 import { styleControl } from "comps/controls/styleControl";
 import {
   ButtonStyleType,
@@ -32,8 +32,8 @@ export function getButtonStyle(buttonStyle: ButtonStyleType) {
         margin: ${buttonStyle.margin};
         padding: ${buttonStyle.padding};
 
-        :hover,
-        :focus {
+        &:hover,
+        &:focus {
           color: ${buttonStyle.text};
           background-color: ${hoverColor};
           border-color: ${buttonStyle.border === buttonStyle.background
@@ -41,7 +41,7 @@ export function getButtonStyle(buttonStyle: ButtonStyleType) {
             : buttonStyle.border};
         }
 
-        :active {
+        &:active {
           color: ${buttonStyle.text};
           background-color: ${activeColor};
           border-color: ${buttonStyle.border === buttonStyle.background

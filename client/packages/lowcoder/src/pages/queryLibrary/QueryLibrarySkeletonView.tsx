@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import { Spin } from "antd";
+import { default as Spin } from "antd/es/spin";
 
 const StyledSpin = styled(Spin)`
   display: flex;

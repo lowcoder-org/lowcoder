@@ -19,20 +19,20 @@ import {
   QUICK_REST_API_ID,
 } from "../constants/datasourceConstants";
 import { ResourceType } from "@lowcoder-ee/constants/queryConstants";
-import { Upload } from "antd";
+import { default as Upload } from "antd/es/upload";
 import { useSelector } from "react-redux";
 import { getUser } from "../redux/selectors/usersSelectors";
 import DataSourceIcon from "./DataSourceIcon";
 import { genRandomKey } from "comps/utils/idGenerator";
 
-const Wrapper = styled.div<{ placement: PageType }>`
+const Wrapper = styled.div<{ $placement: PageType }>`
   width: 100%;
   height: 100%;
   position: absolute;
   background-color: white;
 
   ${(props) => {
-    return props.placement === "editor"
+    return props.$placement === "editor"
       ? css`
           top: 0;
         `
@@ -57,16 +57,16 @@ const Wrapper = styled.div<{ placement: PageType }>`
   }
 `;
 
-const Title = styled.div<{ shadow: boolean; placement: PageType }>`
+const Title = styled.div<{ $shadow: boolean; $placement: PageType }>`
   height: 40px;
   display: flex;
   padding: 0 16px;
   justify-content: space-between;
-  align-items: ${(props) => (props.placement === "editor" ? "center" : "flex-start")};
+  align-items: ${(props) => (props.$placement === "editor" ? "center" : "flex-start")};
 
-  ${(props) => (props.shadow ? `box-shadow: ${BottomShadow};` : "")}
+  ${(props) => (props.$shadow ? `box-shadow: ${BottomShadow};` : "")}
   .title-text {
-    font-size: ${(props) => (props.placement === "editor" ? 16 : 18)}px;
+    font-size: ${(props) => (props.$placement === "editor" ? 16 : 18)}px;
     font-weight: 500;
   }
 
@@ -90,9 +90,9 @@ const InnerContent = styled.div`
   padding: 8px 16px 24px;
 `;
 
-const DataSourceListWrapper = styled.div<{ placement?: PageType }>`
+const DataSourceListWrapper = styled.div<{ $placement?: PageType }>`
   display: flex;
-  gap: ${(props) => (props.placement === "queryLibrary" ? 12 : 8)}px;
+  gap: ${(props) => (props.$placement === "queryLibrary" ? 12 : 8)}px;
   flex-wrap: wrap;
 `;
 
@@ -243,8 +243,8 @@ export function ResCreatePanel(props: ResCreateModalProps) {
   }, 100);
 
   return (
-    <Wrapper placement={placement}>
-      <Title shadow={isScrolling} placement={placement}>
+    <Wrapper $placement={placement}>
+      <Title $shadow={isScrolling} $placement={placement}>
         <div onScroll={handleScroll} className="title-text">
           {trans("query.newQuery")}
         </div>
@@ -257,7 +257,7 @@ export function ResCreatePanel(props: ResCreateModalProps) {
           <InnerContent>
             <div className="section-title">{trans("query.recentlyUsed")}</div>
             <div ref={ref} className="section">
-              <DataSourceListWrapper placement={placement}>
+              <DataSourceListWrapper $placement={placement}>
                 {_.uniq(recentlyUsed)
                   .slice(0, count)
                   .map((id, idx) => (
@@ -270,7 +270,7 @@ export function ResCreatePanel(props: ResCreateModalProps) {
               <>
                 <div className="section-title">{trans("code")}</div>
                 <div className="section">
-                  <DataSourceListWrapper placement={placement}>
+                  <DataSourceListWrapper $placement={placement}>
                     <ResButton
                       size={buttonSize}
                       identifier={BottomResTypeEnum.TempState}
@@ -302,7 +302,7 @@ export function ResCreatePanel(props: ResCreateModalProps) {
               <>
                 <div className="section-title">{trans("home.import")}</div>
                 <div className="section">
-                  <DataSourceListWrapper placement={placement}>
+                  <DataSourceListWrapper $placement={placement}>
                     <Upload
                       accept=".json"
                       showUploadList={false}
@@ -323,7 +323,7 @@ export function ResCreatePanel(props: ResCreateModalProps) {
 
             <div className="section-title">{trans("query.datasource")}</div>
             <div className="section">
-              <DataSourceListWrapper placement={placement}>
+              <DataSourceListWrapper $placement={placement}>
                 <ResButton size={buttonSize} identifier={"restApi"} onSelect={onSelect} />
                 <ResButton size={buttonSize} identifier={"streamApi"} onSelect={onSelect} />
                 <ResButton size={buttonSize} identifier={"graphql"} onSelect={onSelect} />

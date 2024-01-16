@@ -270,8 +270,8 @@ function clickCompNameCss(enableClickCompName?: boolean) {
 }
 
 const CodeEditorPanelContainer = styled.div<{
-  styleName?: StyleName;
-  enableClickCompName?: boolean;
+  $styleName?: StyleName;
+  $enableClickCompName?: boolean;
 }>`
   height: 100%;
   max-height: 100%;
@@ -326,7 +326,7 @@ const CodeEditorPanelContainer = styled.div<{
     padding-right: 16px;
   }
 
-  ${(props) => clickCompNameCss(props.enableClickCompName)}
+  ${(props) => clickCompNameCss(props.$enableClickCompName)}
 `;
 
 const CodeEditorWrapper = styled.div`
@@ -370,9 +370,9 @@ function CodeEditorForPanel(props: CodeEditorProps) {
   return (
     <CodeEditorCommon {...props} editor={editor} cardStyle={{ borderRadius: "8px" }}>
       <CodeEditorPanelContainer
-        styleName={props.styleName}
+        $styleName={props.styleName}
         ref={editor as MutableRefObject<HTMLDivElement>}
-        enableClickCompName={props.enableClickCompName}
+        $enableClickCompName={props.enableClickCompName}
       />
     </CodeEditorCommon>
   );
@@ -389,12 +389,12 @@ export function CodeEditor(props: CodeEditorProps) {
     <CodeEditorTooltipContainer>
       <CodeEditorCommon {...editorProps} editor={editor} disabled={disabled}>
         <Container
-          styleName={props.styleName}
-          bordered={props.bordered}
+          $styleName={props.styleName}
+          $bordered={props.bordered}
           disabled={disabled}
-          error={props.hasError}
+          $error={props.hasError}
           ref={editor as MutableRefObject<HTMLDivElement>}
-          enableClickCompName={props.enableClickCompName}
+          $enableClickCompName={props.enableClickCompName}
         >
           {expandable && (
             <CodeEditorPanel
@@ -411,32 +411,32 @@ export function CodeEditor(props: CodeEditorProps) {
 
 const Container = styled.div<{
   disabled?: boolean;
-  error?: boolean;
-  bordered?: boolean;
-  styleName?: StyleName;
-  enableClickCompName?: boolean;
+  $error?: boolean;
+  $bordered?: boolean;
+  $styleName?: StyleName;
+  $enableClickCompName?: boolean;
 }>`
   position: relative;
   height: 100%;
 
-  :hover {
+  &:hover {
     .code-editor-panel-open-button {
       display: block;
     }
   }
 
   .cm-editor:hover {
-    border: 1px solid ${(props) => (props.error ? "#f73131" : "#8B8FA3")};
+    border: 1px solid ${(props) => (props.$error ? "#f73131" : "#8B8FA3")};
   }
 
   .cm-editor.cm-focused {
-    border: 1px solid ${(props) => (props.error ? "#f73131" : "#3377ff")};
-    box-shadow: 0 0 0 2px ${(props) => (props.error ? "#feeaea" : "#d6e4ff")};
+    border: 1px solid ${(props) => (props.$error ? "#f73131" : "#3377ff")};
+    box-shadow: 0 0 0 2px ${(props) => (props.$error ? "#feeaea" : "#d6e4ff")};
   }
 
   .cm-editor {
-    border: 1px solid ${(props) => (props.error ? "#f73131" : "#d7d9e0")};
-    border-radius: ${(props) => (props.bordered ? "4px" : "")};
+    border: 1px solid ${(props) => (props.$error ? "#f73131" : "#d7d9e0")};
+    border-radius: ${(props) => (props.$bordered ? "4px" : "")};
   }
 
   .cm-line {
@@ -444,17 +444,17 @@ const Container = styled.div<{
   }
 
   .cm-editor {
-    min-height: ${(props) => getStyle(props.styleName).minHeight};
+    min-height: ${(props) => getStyle(props.$styleName).minHeight};
   }
   .cm-content,
   .cm-gutter {
-    min-height: ${(props) => getStyle(props.styleName).minHeight};
-    min-height: calc(${(props) => getStyle(props.styleName).minHeight} - 2px);
+    min-height: ${(props) => getStyle(props.$styleName).minHeight};
+    min-height: calc(${(props) => getStyle(props.$styleName).minHeight} - 2px);
   }
 
   .cm-editor {
     overflow: hidden;
-    max-height: ${(props) => getStyle(props.styleName).maxHeight};
+    max-height: ${(props) => getStyle(props.$styleName).maxHeight};
   }
 
   ${(props) => {
@@ -469,5 +469,5 @@ const Container = styled.div<{
       `;
     }
   }}
-  ${(props) => clickCompNameCss(props.enableClickCompName)}
+  ${(props) => clickCompNameCss(props.$enableClickCompName)}
 `;

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Button } from "antd";
+import { default as Button } from "antd/es/button";
 // 渲染组件到编辑器
 import {
   changeChildAction,
@@ -58,7 +58,7 @@ import {
 
 import { timelineDate, timelineNode, TimelineDataTooltip } from "./timelineConstants";
 import { convertTimeLineData } from "./timelineUtils";
-import { Timeline } from "antd";
+import { default as Timeline } from "antd/es/timeline";
 
 import { ANTDICON } from "./antIcon"; // todo: select icons to not import all icons
 

@@ -27,20 +27,20 @@ const SwitchStyle: any = styled.input`
   transform: translateY(0);
   /* transition: all 0.4s ease; */
 
-  :hover {
+  &:hover {
     cursor: pointer;
   }
 
-  :checked {
+  &:checked {
     border-color: #636775;
     background-color: #636775;
   }
 
-  :checked::before {
+  &:checked::before {
     left: 10px;
   }
 
-  ::before {
+  &::before {
     content: "";
     left: 0;
     transition: left 0.4s;
@@ -55,13 +55,13 @@ const SwitchStyle: any = styled.input`
 `;
 
 const SwitchDiv = styled.div<{
-  placement?: ControlPlacement;
+  $placement?: ControlPlacement;
 }>`
   min-height: 21px;
   display: flex;
   align-items: center;
   ${(props) => {
-    if (props.placement === "bottom") {
+    if (props.$placement === "bottom") {
       return css`
         margin-left: 112px;
       `;
@@ -82,7 +82,7 @@ const IconCss = css`
   width: 20px;
   margin-top: 1px;
 
-  :hover {
+  &:hover {
     cursor: pointer;
   }
 
@@ -137,7 +137,7 @@ export const SwitchWrapper = (props: {
   const tooltip = props.tooltip;
   const label = props.label;
   return (
-    <SwitchDiv placement={props.placement}>
+    <SwitchDiv $placement={props.placement}>
       {props.children}
       {label ? (
         <LabelDiv>

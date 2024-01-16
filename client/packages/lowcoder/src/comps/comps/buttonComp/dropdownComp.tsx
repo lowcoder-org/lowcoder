@@ -1,4 +1,6 @@
-import { Dropdown, Menu } from "antd";
+import { default as Menu } from "antd/es/menu";
+import { default as Dropdown } from "antd/es/dropdown";
+import { default as DropdownButton } from "antd/es/dropdown/dropdown-button";
 import { BoolControl } from "comps/controls/boolControl";
 import { BoolCodeControl, StringControl } from "comps/controls/codeControl";
 import { ButtonStyleType } from "comps/controls/styleControlConstants";
@@ -21,7 +23,7 @@ import {
 } from "./buttonCompConstants";
 
 
-const DropdownButton = styled(Dropdown.Button)`
+const StyledDropdownButton = styled(DropdownButton)`
   width: 100%;
   .ant-btn-group {
     width: 100%;
@@ -103,7 +105,7 @@ const DropdownTmpComp = (function () {
             </Button100>
           </Dropdown>
         ) : (
-          <DropdownButton
+          <StyledDropdownButton
             disabled={props.disabled}
             dropdownRender={() => menu}
             onClick={() => props.onEvent("click")}
@@ -122,7 +124,7 @@ const DropdownTmpComp = (function () {
           >
             {/* Avoid button disappearing */}
             {!props.text || props.text?.length === 0 ? " " : props.text}
-          </DropdownButton>
+          </StyledDropdownButton>
         )}
       </ButtonCompWrapper>
     );
