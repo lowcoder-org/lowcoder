@@ -26,6 +26,8 @@ const getStyle = (style: TextStyleType) => {
     border-radius: ${(style.radius ? style.radius : "4px")};
     border: ${(style.borderWidth ? style.borderWidth : "0px")} solid ${style.border};
     color: ${style.text};
+    font-size: ${style.textSize} !important;
+    font-weight: ${style.textWeight} !important;
     background-color: ${style.background};
     .markdown-body a {
       color: ${style.links};

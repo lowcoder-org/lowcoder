@@ -41,7 +41,11 @@ export const ContainerBaseComp = (function () {
           {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
             <><Section name={sectionNames.layout}>
               {children.container.getPropertyView()}
-            </Section><Section name={sectionNames.style}>{children.container.stylePropertyView()}</Section></>
+            </Section>
+            <Section name={sectionNames.style}>
+              { children.container.stylePropertyView() }
+            </Section>
+            </>
           )}
         </>
       );
