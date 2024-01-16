@@ -194,9 +194,14 @@ function Chart(props) {
       // Render an updated chart
       runtime.module(define, Inspector.into(chartRef), 'chart');
     }
-  }, [chartRef, props.data]);
+  }, [chartRef, props.data, props.width, props.height]);
 
-  return <div ref={useChartRef} style={{ height: "100%" }} />;
+  return (
+    <div
+      ref={useChartRef}
+      style={{ height: "100%" }}
+    />
+  );
 }
 
 

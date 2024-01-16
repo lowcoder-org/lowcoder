@@ -1,9 +1,9 @@
 {
   "name": "lowcoder-cli-template-typescript",
-  "version": "0.0.16",
+  "version": "0.0.20",
   "type": "module",
   "scripts": {
-    "start": "vite",
+    "start": "NODE_OPTIONS=--max_old_space_size=6144 vite",
     "build": "lowcoder-cli build",
     "build_publish": "lowcoder-cli build --publish"
   },
@@ -13,11 +13,15 @@
       "hillcharts": {
         "name": "Hillcharts Demo",
         "icon": "./icons/hills.svg",
-        "description": "Hillchart Plugin Demo Component"
+        "description": "Hillchart Plugin Demo Component",
+        "layoutInfo": {
+          "w": 10,
+          "h": 40
+        }
       }
     }
   },
-  "devDependencies": {
+  "dependencies": {
     "@observablehq/runtime": "^4.8.2",
     "@types/react": "^18.2.45",
     "@types/react-dom": "^18.2.18",
