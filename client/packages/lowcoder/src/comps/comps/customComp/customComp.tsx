@@ -12,7 +12,6 @@ import { EventData, EventTypeEnum } from "./types";
 import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { EditorContext } from "comps/editorState";
-import * as ReactDOMClient from 'react-dom/client';
 
 // TODO: eventually to embedd in container so we have styling?
 // TODO: support different starter templates for different frameworks (react, ANT, Flutter, Angular, etc)
@@ -60,8 +59,7 @@ const defaultCode = `
   );
   
   const ConnectedComponent = ${trans("customComp.sdkGlobalVarName")}.connect(MyCustomComponent);
-  const container = document.getElementById('root');
-  const root = ReactDOMClient.createRoot(container);
+  const root = ReactDOM.createRoot(document.getElementById("root"));
   root.render(<ConnectedComponent />);
   
   </script>
