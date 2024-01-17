@@ -2573,7 +2573,7 @@ export const en = {
     "selectBackground": "Selected Background"
   },
   "componentDocExtra": {
-    "table": "Additional Documentation for Table Component"
+    table,
   },
   "idSource": {
     "title": "OAuth Providers",
