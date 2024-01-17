@@ -17,7 +17,7 @@
     <name>lowcoder-root</name>
 
     <properties>
-        <revision>2.0.1-SNAPSHOT</revision>
+        <revision>2.3.0-SNAPSHOT</revision>
         <java.version>17</java.version>
         <javadoc.disabled>true</javadoc.disabled>
         <deploy.disabled>true</deploy.disabled>

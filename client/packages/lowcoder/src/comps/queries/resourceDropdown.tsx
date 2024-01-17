@@ -39,7 +39,7 @@ const SelectOptionContains = styled.div`
   align-items: center;
   width: 99%;
 `;
-const SelectOption = styled((props: OptionProps) => <Option {...props} />)`
+const SelectOption = styled(Option)`
   display: flex;
   justify-content: space-between;
 

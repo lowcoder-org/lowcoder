@@ -318,7 +318,7 @@ export function InnerGrid(props: ViewPropsWithSelect) {
   const defaultGrid =
     useContext(ThemeContext)?.theme?.gridColumns ||
     defaultTheme?.gridColumns ||
-    "24";
+    "12";
   /////////////////////
   const isDroppable =
     useContext(IsDroppable) && (_.isNil(props.isDroppable) || props.isDroppable) && !readOnly;

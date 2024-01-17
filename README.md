@@ -3,17 +3,18 @@
 
 <div align="center">
     <h1 style="border-bottom: none; margin-bottom: 0">Lowcoder</h1>
-    <h3 style="margin-top: 0">Lowcoder is the best Retool, Appsmith or Tooljet Alternative.</h3>
+    <h3 style="margin-top: 0">This is the only Platform, which closes the gap between App Development, Website Development and Slide-Presentations.</h3>
     <p>
-        Create internal and external software applications for your Company and your Customers with minimal coding experience. 
+        Create software applications (internal and customer-facing!) and Meeting/Collaboration tools for your Company and your Customers with minimal coding experience. 
     </p>
+    <h3 style="margin-top: 0">Lowcoder is the best Retool, Appsmith or Tooljet Alternative.</h3>
 </div>
 
 <img src="https://1167272343-files.gitbook.io/~/files/v0/b/gitbook-x-prod.appspot.com/o/spaces%2FjNgeI0mUzgw6Re92iTOw%2Fuploads%2FnwXJC1XBqP2MvTQitPyo%2FApp%20Editor%20%7C%20Main%20Screeen%20clean.png?alt=media&token=e5fba81b-82a7-4c0e-a15d-baa781d5b13a"/>
 
 ## 📢 Use Lowcoder in 3 steps
 1. Connect to any data sources or APIs.
-2. Build UI with 50+ components.
+2. Build UI with 60+ components.
 3. Share with colleagues and customers.
 
 ## 💡 Why Lowcoder
@@ -52,7 +53,7 @@ Lowcoder wants to take a step forward. More specifically, Lowcoder is:
 - build a Meeting tool with peace in mind. Blue buttons - ok. Red corners or circle Videostream - ok too.
 - embedd applications in your Video-Meetings, so attendees can enjoy collaborative "anything". From shopping to working and gaming...
 ### Lowcoder vs Powerapps
-- build a apps way faster than in Power Apps. Save up to 50& of the time at least.
+- build a apps way faster than in Power Apps. Save up to 50& of the time and costs at least.
 - Use self-hosting to keep all apps and data under your control for example at the own baremetals.
 ### Lowcoder vs Retool
 - Lowcoder is open-source. You don't need to worry about vendor lock-in or being stuck with an outdated version of the software.
@@ -84,7 +85,7 @@ And we mean it... Day by day!
 🔎 Submit an issue here on [GitHub](https://github.com/lowcoder-org/lowcoder/issues)
 
 ## 💻 Deployment Options
-You can access Lowcoder from [cloud-hosted version](https://app.lowcoder.cloud/) at any time, or use the following resources for deploying Lowcoder on different platforms:
+You can access Lowcoder from [cloud-hosted version](https://app.lowcoder.cloud/) at any time, or use the following resources for self-host Lowcoder on different platforms:
 - [Docker](https://docs.lowcoder.cloud/lowcoder-documentation/setup-and-run/self-hosting)
 
 ## 💪 Contributing

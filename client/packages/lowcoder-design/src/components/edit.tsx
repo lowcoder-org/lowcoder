@@ -53,7 +53,7 @@ export const TextWrapper = styled.div`
   white-space: nowrap;
 `;
 const EditIcon = styled(Edit)`
-  visibility: hidden;
+  // visibility: hidden;
   margin-left: 8px;
   flex-shrink: 0;
 `;
@@ -130,13 +130,15 @@ export const EditText = (props: EditTextProps) => {
           <TextWrapper className={"taco-edit-text-body"} title={props.text}>
             {props.text}
           </TextWrapper>
-          <EditIcon
-            onClick={(e) => {
-              e.stopPropagation();
-              !props.disabled && setEditing(true);
-            }}
-            className={"taco-edit-text-icon"}
-          />
+          {props.forceClickIcon && !props.disabled && (
+            <EditIcon
+              onClick={(e) => {
+                e.stopPropagation();
+                !props.disabled && setEditing(true);
+              }}
+              className={"taco-edit-text-icon"}
+            />
+          )}
         </EditTextWrapper>
       )}
       {props.prefixIcon && <Prefix>{props.prefixIcon}</Prefix>}

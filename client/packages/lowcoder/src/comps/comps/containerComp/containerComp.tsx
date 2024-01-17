@@ -41,7 +41,26 @@ export const ContainerBaseComp = (function () {
           {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
             <><Section name={sectionNames.layout}>
               {children.container.getPropertyView()}
-            </Section><Section name={sectionNames.style}>{children.container.stylePropertyView()}</Section></>
+            </Section>
+            <Section name={sectionNames.style}>
+              { children.container.stylePropertyView() }
+            </Section>
+            {children.container.children.showHeader.getView() && (
+              <Section name={"Header Style"}>
+                { children.container.headerStylePropertyView() }
+              </Section>
+            )}
+            {children.container.children.showBody.getView() && (
+              <Section name={"Body Style"}>
+                { children.container.bodyStylePropertyView() }
+              </Section>
+            )}
+            {children.container.children.showFooter.getView() && (
+              <Section name={"Footer Style"}>
+                { children.container.footerStylePropertyView() }
+              </Section>
+            )}
+            </>
           )}
         </>
       );
@@ -63,7 +82,7 @@ function convertOldContainerParams(params: CompParams<any>) {
         ...tempParams,
         value: {
           container: {
-            showHeader: false,
+            showHeader: true,
             body: { 0: { view: container } },
             showBody: true,
             showFooter: false,

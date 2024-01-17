@@ -26,6 +26,10 @@ const Container = styled.div<{ $optColor?: boolean; $simple?: boolean }>`
     line-height: 23px;
     user-select: none;
     cursor: pointer;
+
+    .ant-collapse-header-text {
+      min-width: 0;
+    }
   }
 
   .ant-collapse-ghost > .ant-collapse-item > .ant-collapse-content > .ant-collapse-content-box {

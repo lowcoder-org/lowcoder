@@ -3,7 +3,7 @@ import { JSONObject, JSONValue } from "util/jsonTypes";
 import { CompAction, CompActionTypes, deleteCompAction, wrapChildAction } from "lowcoder-core";
 import { DispatchType, RecordConstructorToView, wrapDispatch } from "lowcoder-core";
 import { AutoHeightControl } from "comps/controls/autoHeightControl";
-import { stringExposingStateControl } from "comps/controls/codeStateControl";
+import { BooleanStateControl, booleanExposingStateControl, stringExposingStateControl } from "comps/controls/codeStateControl";
 import { eventHandlerControl } from "comps/controls/eventHandlerControl";
 import { TabsOptionControl } from "comps/controls/optionsControl";
 import { styleControl } from "comps/controls/styleControl";
@@ -12,7 +12,7 @@ import { sameTypeMap, UICompBuilder, withDefault } from "comps/generators";
 import { addMapChildAction } from "comps/generators/sameTypeMap";
 import { NameConfig, NameConfigHidden, withExposingConfigs } from "comps/generators/withExposing";
 import { NameGenerator } from "comps/utils";
-import { Section, sectionNames } from "lowcoder-design";
+import { ControlNode, Section, sectionNames } from "lowcoder-design";
 import { HintPlaceHolder } from "lowcoder-design";
 import _ from "lodash";
 import React, { useCallback, useContext } from "react";
@@ -33,6 +33,9 @@ import { DisabledContext } from "comps/generators/uiCompBuilder";
 import { EditorContext } from "comps/editorState";
 import { checkIsMobile } from "util/commonUtils";
 import { messageInstance } from "lowcoder-design";
+import { show } from "antd-mobile/es/components/dialog/show";
+import { BoolControl } from "@lowcoder-ee/index.sdk";
+import { Switch } from "antd";
 
 const EVENT_OPTIONS = [
   {
@@ -52,27 +55,40 @@ const childrenMap = {
   autoHeight: AutoHeightControl,
   onEvent: eventHandlerControl(EVENT_OPTIONS),
   disabled: BoolCodeControl,
+  showHeader: withDefault(BooleanStateControl, "true"),
   style: styleControl(TabContainerStyle),
 };
 
 type ViewProps = RecordConstructorToView<typeof childrenMap>;
 type TabbedContainerProps = ViewProps & { dispatch: DispatchType };
-
+ 
 const getStyle = (style: TabContainerStyleType) => {
   return css`
     &.ant-tabs {
-      border: 1px solid ${style.border};
+      border: ${style.borderWidth} solid ${style.border};
       border-radius: ${style.radius};
       overflow: hidden;
-      padding: ${style.padding};	
+      padding: ${style.padding};
 
       > .ant-tabs-content-holder > .ant-tabs-content > div > .react-grid-layout {
         background-color: ${style.background};
         border-radius: 0;
+        
+        background-image: ${style.backgroundImage};
+        background-repeat: ${style.backgroundImageRepeat};
+        background-size: ${style.backgroundImageSize};
+        background-position: ${style.backgroundImagePosition};
+        background-origin: ${style.backgroundImageOrigin};
+        
       }
 
       > .ant-tabs-nav {
         background-color: ${style.headerBackground};
+        background-image: ${style.headerBackgroundImage};
+        background-repeat: ${style.headerBackgroundImageRepeat};
+        background-size: ${style.headerBackgroundImageSize};
+        background-position: ${style.headerBackgroundImagePosition};
+        background-origin: ${style.headerBackgroundImageOrigin};
 
         .ant-tabs-tab {
           div {
@@ -96,7 +112,11 @@ const getStyle = (style: TabContainerStyleType) => {
   `;
 };
 
-const StyledTabs = styled(Tabs)<{ $style: TabContainerStyleType; $isMobile?: boolean }>`
+const StyledTabs = styled(Tabs)<{ 
+  $style: TabContainerStyleType; 
+  $isMobile?: boolean; 
+  $showHeader?: boolean;
+}>`
   &.ant-tabs {
     height: 100%;
   }
@@ -111,6 +131,7 @@ const StyledTabs = styled(Tabs)<{ $style: TabContainerStyleType; $isMobile?: boo
   }
 
   .ant-tabs-nav {
+    display: ${(props) => (props.$showHeader ? "block" : "none")};
     padding: 0 ${(props) => (props.$isMobile ? 16 : 24)}px;
     background: white;
     margin: 0px;
@@ -158,12 +179,10 @@ const TabbedContainer = (props: TabbedContainerProps) => {
   const editorState = useContext(EditorContext);
   const maxWidth = editorState.getAppSettings().maxWidth;
   const isMobile = checkIsMobile(maxWidth);
-  const paddingWidth = isMobile ? 8 : 20;
-
-  // log.debug("TabbedContainer. props: ", props);
+  const showHeader = props.showHeader.value;
+  const paddingWidth = isMobile ? 8 : 0;
 
   const tabItems = visibleTabs.map((tab) => {
-    // log.debug("Tab. tab: ", tab, " containers: ", containers);
     const id = String(tab.id);
     const childDispatch = wrapDispatch(wrapDispatch(dispatch, "containers"), id);
     const containerProps = containers[id].children;
@@ -203,6 +222,7 @@ const TabbedContainer = (props: TabbedContainerProps) => {
     <StyledTabs
       activeKey={activeKey}
       $style={style}
+      $showHeader={showHeader}
       onChange={(key) => {
         if (key !== props.selectedTabKey.value) {
           props.selectedTabKey.onChange(key);
@@ -219,6 +239,7 @@ const TabbedContainer = (props: TabbedContainerProps) => {
     </div>
   );
 };
+
 
 export const TabbedContainerBaseComp = (function () {
   return new UICompBuilder(childrenMap, (props, dispatch) => {
@@ -238,11 +259,12 @@ export const TabbedContainerBaseComp = (function () {
             })}
             {children.selectedTabKey.propertyView({ label: trans("prop.defaultValue") })}
           </Section>
-
+        
           {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
             <Section name={sectionNames.interaction}>
               {children.onEvent.getPropertyView()}
               {disabledPropertyView(children)}
+              {children.showHeader.propertyView({ label: trans("prop.showHeader") })}
               {hiddenPropertyView(children)}
             </Section>
           )}
@@ -364,6 +386,8 @@ class TabbedContainerImplComp extends TabbedContainerBaseComp implements IContai
   override autoHeight(): boolean {
     return this.children.autoHeight.getView();
   }
+
+
 }
 
 export const TabbedContainerComp = withExposingConfigs(TabbedContainerImplComp, [
