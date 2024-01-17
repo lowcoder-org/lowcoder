@@ -2371,7 +2371,7 @@ export const en = {
     "eventName": "Event Name",
     "eventDesc": "Description",
     "mehtod": "Methods",
-    "methodUsage": "You Can Interact with Components Through Their Methods, and You Can Call Them by Their Name Anywhere You Can Write JavaScript. Or You Can Call Them Through the 'Control Component' Action of an Event.",
+    "methodUsage": "You have the capability to engage with components via their respective methods, which can be accessed by their designated names within any segment where JavaScript is utilized. Additionally, these components can be activated through the 'Control Component' action, which is triggered in response to specific events",
     "methodName": "Method Name",
     "methodDesc": "Description",
     "showBorder": "Show Border",
