@@ -57,6 +57,29 @@ const columnFixOptions = [
   },
 ] as const;
 
+const columnValueOptions = [
+  {
+    label: "ID",
+    value: "{{currentRow.id}}",
+  },
+  {
+    label: "Name",
+    value: "{{currentRow.name}}",
+  },
+  {
+    label: "Department",
+    value: "{{currentRow.department}}",
+  },
+  {
+    label: "Date",
+    value: "{{currentRow.date}}",
+  },
+  {
+    label: "Other",
+    value: "",
+  },
+] as const;
+
 const cellColorLabel = trans("table.cellColor");
 const CellColorTempComp = withContext(
   new MultiCompBuilder({ color: ColorOrBoolCodeControl }, (props) => props.color)
@@ -94,6 +117,7 @@ export const columnChildrenMap = {
   sortable: BoolControl,
   width: NumberControl,
   autoWidth: dropdownControl(columnWidthOptions, "auto"),
+  columnMapping: dropdownControl(columnValueOptions, ""),
   render: RenderComp,
   align: HorizontalAlignmentControl,
   tempHide: stateComp<boolean>(false),
@@ -194,6 +218,21 @@ export class ColumnComp extends ColumnInitComp {
         {this.children.title.propertyView({
           label: trans("table.columnTitle"),
           placeholder: this.children.dataIndex.getView(),
+        })}
+        {this.children.columnMapping.propertyView({
+          label: "Data Mapping",
+          onChange: (value) => {
+            console.log(value)
+            const comp = this.children.render.getSelectedComp().getComp();
+            // let textRawData = "{{currentCell}}";
+            // if (comp.children.hasOwnProperty("text")) {
+            //   textRawData = (comp.children as any).text.toJsonValue();
+            // }
+            this.children.render.dispatchChangeValueAction({
+              compType: columnType,
+              comp: { text: value },
+            } as any);
+          }
         })}
         {/* FIXME: cast type currently, return type of withContext should be corrected later */}
         {this.children.render.getPropertyView()}

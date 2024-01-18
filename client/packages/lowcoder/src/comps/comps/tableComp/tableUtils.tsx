@@ -271,6 +271,7 @@ export function columnsToAntdFormat(
   columnsAggrData: ColumnsAggrData,
   onTableEvent: (eventName: any) => void,
 ): Array<CustomColumnType<RecordType>> {
+  console.log(columnsAggrData);
   const sortMap: Map<string | undefined, SortOrder> = new Map(
     sort.map((s) => [s.column, s.desc ? "descend" : "ascend"])
   );
