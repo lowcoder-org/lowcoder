@@ -57,6 +57,17 @@ import log from "loglevel";
 import { DisabledContext } from "comps/generators/uiCompBuilder";
 import { LoadingOutlined } from "@ant-design/icons";
 import { messageInstance } from "lowcoder-design";
+import { styled } from "styled-components";
+
+const FormWrapper = styled.div`
+  height: 100%;
+  .ant-spin-nested-loading {
+    height: 100%;
+    .ant-spin-container {
+      height: 100%;
+    }
+  }
+`;
 
 const eventOptions = [submitEvent] as const;
 
@@ -172,12 +183,18 @@ const FormBaseComp = (function () {
   return new ContainerCompBuilder(childrenMap, (props, dispatch) => {
     return (
       <DisabledContext.Provider value={props.disabled}>
-        <Spin indicator={loadingIcon} spinning={props.loading}>
-          <TriContainer
-            {...props}
-            hintPlaceholder={<BodyPlaceholder {...props} dispatch={dispatch} />}
-          />
-        </Spin>
+        <FormWrapper>
+          <Spin
+            indicator={loadingIcon}
+            spinning={props.loading}
+            style={{height: '100%'}}
+          >
+            <TriContainer
+              {...props}
+              hintPlaceholder={<BodyPlaceholder {...props} dispatch={dispatch} />}
+            />
+          </Spin>
+        </FormWrapper>
       </DisabledContext.Provider>
     );
   })
