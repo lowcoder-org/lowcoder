@@ -4,7 +4,7 @@ import { RootComp } from "comps/comps/rootComp";
 import { setGlobalSettings } from "comps/utils/globalSettings";
 import { sdkConfig } from "constants/sdkConfig";
 import _ from "lodash";
-import { createRoot } from "react-dom/client";
+import { Root } from "react-dom/client";
 import { StyleSheetManager } from "styled-components";
 import { ModuleDSL, ModuleDSLIoInput } from "types/dsl";
 import { AppView } from "./AppView";
@@ -40,7 +40,7 @@ export class AppViewInstance<I = any, O = any> {
     webUrl: "https://app.lowcoder.cloud",
   };
 
-  constructor(private appId: string, private node: Element, options: AppViewInstanceOptions = {}) {
+  constructor(private appId: string, private node: Element, private root: Root, options: AppViewInstanceOptions = {}) {
     Object.assign(this.options, options);
     if (this.options.baseUrl) {
       sdkConfig.baseURL = this.options.baseUrl;
@@ -137,8 +137,7 @@ export class AppViewInstance<I = any, O = any> {
 
   private async render() {
     const data = await this.dataPromise;
-    const root = createRoot(this.node);
-    root.render(
+    this.root.render(
       <StyleSheetManager target={this.node as HTMLElement}>
         <AppView
           appId={this.appId}
