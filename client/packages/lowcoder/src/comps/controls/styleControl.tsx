@@ -393,7 +393,7 @@ function calcColors<ColorMap extends Record<string, string>>(
     }
     if (isTextWeightConfig(config)) {
       // TODO: remove default textWeight after added in theme in backend.
-      res[name] = themeWithDefault[config.textWeight] || 'regular';
+      res[name] = themeWithDefault[config.textWeight] || 'normal';
     }
     if (isFontFamilyConfig(config)) {
       res[name] = themeWithDefault[config.fontFamily] || 'sans-serif';
