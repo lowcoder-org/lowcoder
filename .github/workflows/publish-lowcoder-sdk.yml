@@ -9,7 +9,7 @@ on:
 
 jobs:
   publish-package:
-    if: ${{ github.repositoryUrl == 'git://github.com/lowcoder/lowcoder.git'}}
+    if: ${{ github.repositoryUrl == 'git://github.com/lowcoder-org/lowcoder.git'}}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository

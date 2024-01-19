@@ -106,7 +106,7 @@ export const columnChildrenMap = {
   borderWidth: withDefault(RadiusControl, ""),
   radius: withDefault(RadiusControl, ""),
   textSize: withDefault(RadiusControl, ""),
-  textWeight: withDefault(StringControl, "regular"),
+  textWeight: withDefault(StringControl, "normal"),
   fontFamily: withDefault(StringControl, "sans-serif"),
   cellColor: CellColorComp,
   textOverflow: withDefault(TextOverflowControl, "ellipsis"),
@@ -276,7 +276,7 @@ export class ColumnComp extends ColumnInitComp {
         {this.children.textWeight.propertyView({
           label: trans('style.textWeight'),
           preInputNode: <StyledTextWeightIcon as={TextWeigthIcon} title="" />,	
-          placeholder: 'regular',
+          placeholder: 'normal',
         })}
         {this.children.fontFamily.propertyView({
           label: trans('style.fontFamily'),

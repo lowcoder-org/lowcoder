@@ -510,6 +510,38 @@ export const ContainerStyle = [
   BORDER_WIDTH,
   MARGIN,	
   PADDING,
+  {
+    name: "background",
+    label: trans("style.background"),
+    depName: "background",
+    depType: DEP_TYPE.SELF,
+    transformer: toSelf,
+  },
+  {
+    name: "backgroundImage",
+    label: trans("style.backgroundImage"),
+    backgroundImage: "backgroundImage",
+  },
+  {
+    name: "backgroundImageRepeat",
+    label: trans("style.backgroundImageRepeat"),
+    backgroundImageRepeat: "backgroundImageRepeat",
+  },
+  {
+    name: "backgroundImageSize",
+    label: trans("style.backgroundImageSize"),
+    backgroundImageSize: "backgroundImageSize",
+  },
+  {
+    name: "backgroundImagePosition",
+    label: trans("style.backgroundImagePosition"),
+    backgroundImagePosition: "backgroundImagePosition",
+  },
+  {
+    name: "backgroundImageOrigin",
+    label: trans("style.backgroundImageOrigin"),
+    backgroundImageOrigin: "backgroundImageOrigin",
+  },
 ] as const;
 
 export const ContainerHeaderStyle = [
@@ -732,9 +764,6 @@ export const MultiSelectStyle = [
 ] as const;
 
 export const TabContainerStyle = [
-  ...BG_STATIC_BORDER_RADIUS,
-  BORDER_WIDTH,
-  HEADER_BACKGROUND,
   {
     name: "tabText",
     label: trans("style.tabText"),
@@ -749,83 +778,7 @@ export const TabContainerStyle = [
     depType: DEP_TYPE.SELF,
     transformer: toSelf,
   },
-  MARGIN,	
-  PADDING,
-  {
-    name: "headerBackgroundImage",
-    label: trans("style.headerBackgroundImage"),
-    headerBackgroundImage: "headerBackgroundImage",
-  },
-  {
-    name: "headerBackgroundImageRepeat",
-    label: trans("style.headerBackgroundImageRepeat"),
-    headerBackgroundImageRepeat: "headerBackgroundImageRepeat",
-  },
-  {
-    name: "headerBackgroundImageSize",
-    label: trans("style.headerBackgroundImageSize"),
-    headerBackgroundImageSize: "headerBackgroundImageSize",
-  },
-  {
-    name: "headerBackgroundImagePosition",
-    label: trans("style.headerBackgroundImagePosition"),
-    headerBackgroundImagePosition: "headerBackgroundImagePosition",
-  }
-  ,{
-    name: "headerBackgroundImageOrigin",
-    label: trans("style.headerBackgroundImageOrigin"),
-    headerBackgroundImageOrigin: "headerBackgroundImageOrigin",
-  },
-  {
-    name: "backgroundImage",
-    label: trans("style.backgroundImage"),
-    backgroundImage: "backgroundImage",
-  },
-  {
-    name: "backgroundImageRepeat",
-    label: trans("style.backgroundImageRepeat"),
-    backgroundImageRepeat: "backgroundImageRepeat",
-  },
-  {
-    name: "backgroundImageSize",
-    label: trans("style.backgroundImageSize"),
-    backgroundImageSize: "backgroundImageSize",
-  },
-  {
-    name: "backgroundImagePosition",
-    label: trans("style.backgroundImagePosition"),
-    backgroundImagePosition: "backgroundImagePosition",
-  },
-  {
-    name: "backgroundImageOrigin",
-    label: trans("style.backgroundImageOrigin"),
-    backgroundImageOrigin: "backgroundImageOrigin",
-  },
-  {
-    name: "footerBackgroundImage",
-    label: trans("style.footerBackgroundImage"),
-    footerBackgroundImage: "footerBackgroundImage",
-  },
-  {
-    name: "footerBackgroundImageRepeat",
-    label: trans("style.footerBackgroundImageRepeat"),
-    footerBackgroundImageRepeat: "footerBackgroundImageRepeat",
-  },
-  {
-    name: "footerBackgroundImageSize",
-    label: trans("style.footerBackgroundImageSize"),
-    footerBackgroundImageSize: "footerBackgroundImageSize",
-  },
-  {
-    name: "footerBackgroundImagePosition",
-    label: trans("style.footerBackgroundImagePosition"),
-    footerBackgroundImagePosition: "footerBackgroundImagePosition",
-  }
-  ,{
-    name: "footerBackgroundImageOrigin",
-    label: trans("style.footerBackgroundImageOrigin"),
-    footerBackgroundImageOrigin: "footerBackgroundImageOrigin",
-  }
+  ...ContainerStyle,
 ] as const;
 
 export const ModalStyle = [
