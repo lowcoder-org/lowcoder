@@ -18,6 +18,12 @@ const getStyle = (style: ContainerStyleType) => {
     padding: ${style.padding};	
     // width: ${widthCalculator(style.margin)};	
     // height: ${heightCalculator(style.margin)};
+    ${style.background && `background-color: ${style.background};`}
+    ${style.backgroundImage && `background-image: ${style.backgroundImage};`}
+    ${style.backgroundImageRepeat && `background-repeat: ${style.backgroundImageRepeat};`}
+    ${style.backgroundImageSize && `background-size: ${style.backgroundImageSize};`}
+    ${style.backgroundImagePosition && `background-position: ${style.backgroundImagePosition};`}
+    ${style.backgroundImageOrigin && `background-origin: ${style.backgroundImageOrigin};`}
   `;
 };
 
@@ -130,7 +136,7 @@ export function TriContainer(props: TriContainerProps) {
             minHeight="46px"
             containerPadding={[paddingWidth, 3]}
             showName={{ bottom: showBody || showFooter ? 20 : 0 }}
-            $backgroundColor={headerStyle?.headerBackground}
+            $backgroundColor={headerStyle?.headerBackground || 'transparent'}
             $headerBackgroundImage={headerStyle?.headerBackgroundImage}
             $headerBackgroundImageRepeat={headerStyle?.headerBackgroundImageRepeat}
             $headerBackgroundImageSize={headerStyle?.headerBackgroundImageSize}
@@ -154,7 +160,7 @@ export function TriContainer(props: TriContainerProps) {
               (showHeader && showFooter) || showHeader ? [paddingWidth, 11.5] : [paddingWidth, 11]
             }
             hintPlaceholder={props.hintPlaceholder ?? HintPlaceHolder}
-            $backgroundColor={bodyStyle?.background}
+            $backgroundColor={bodyStyle?.background || 'transparent'}
             $borderColor={style?.border}
             $borderWidth={style?.borderWidth}
             $backgroundImage={bodyStyle?.backgroundImage}
@@ -177,7 +183,7 @@ export function TriContainer(props: TriContainerProps) {
             minHeight={showBody ? "47px" : "46px"}
             containerPadding={showBody || showHeader ? [paddingWidth, 3.5] : [paddingWidth, 3]}
             showName={{ top: showHeader || showBody ? 20 : 0 }}
-            $backgroundColor={footerStyle?.footerBackground}
+            $backgroundColor={footerStyle?.footerBackground || 'transparent'}
             $footerBackgroundImage={footerStyle?.footerBackgroundImage}
             $footerBackgroundImageRepeat={footerStyle?.footerBackgroundImageRepeat}
             $footerBackgroundImageSize={footerStyle?.footerBackgroundImageSize}

@@ -212,9 +212,6 @@ const TableWrapper = styled.div<{
             border-color: ${(props) => props.$headerStyle.border};
             border-width: ${(props) => props.$headerStyle.borderWidth};
             color: ${(props) => props.$headerStyle.headerText};
-            font-size: ${(props) => props.$headerStyle.textSize};
-            font-weight: ${(props) => props.$headerStyle.textWeight};
-            font-family: ${(props) => props.$headerStyle.fontFamily};
             border-inline-end: ${(props) => `${props.$headerStyle.borderWidth} solid ${props.$headerStyle.border}`} !important;
             ${(props) => 
               props.$fixedHeader && `
@@ -227,6 +224,12 @@ const TableWrapper = styled.div<{
 
             > div {
               margin: ${(props) => props.$headerStyle.margin};
+
+              &, .ant-table-column-title > div {
+                font-size: ${(props) => props.$headerStyle.textSize};
+                font-weight: ${(props) => props.$headerStyle.textWeight};
+                font-family: ${(props) => props.$headerStyle.fontFamily};
+              }
             }
 
             &:last-child {
@@ -516,7 +519,7 @@ function TableCellView(props: {
     const cellColor = cellColorFn({
       currentCell: record[title.toLowerCase()],
     });
-  
+    
     const style = {
       background: cellColor || rowColor || columnStyle.background || columnsStyle.background,
       margin: columnStyle.margin || columnsStyle.margin,

@@ -7,7 +7,7 @@ import { BooleanStateControl, booleanExposingStateControl, stringExposingStateCo
 import { eventHandlerControl } from "comps/controls/eventHandlerControl";
 import { TabsOptionControl } from "comps/controls/optionsControl";
 import { styleControl } from "comps/controls/styleControl";
-import { TabContainerStyle, TabContainerStyleType, heightCalculator, widthCalculator } from "comps/controls/styleControlConstants";
+import { ContainerBodyStyle, ContainerBodyStyleType, ContainerHeaderStyle, ContainerHeaderStyleType, TabContainerStyle, TabContainerStyleType, heightCalculator, widthCalculator } from "comps/controls/styleControlConstants";
 import { sameTypeMap, UICompBuilder, withDefault } from "comps/generators";
 import { addMapChildAction } from "comps/generators/sameTypeMap";
 import { NameConfig, NameConfigHidden, withExposingConfigs } from "comps/generators/withExposing";
@@ -33,9 +33,6 @@ import { DisabledContext } from "comps/generators/uiCompBuilder";
 import { EditorContext } from "comps/editorState";
 import { checkIsMobile } from "util/commonUtils";
 import { messageInstance } from "lowcoder-design";
-import { show } from "antd-mobile/es/components/dialog/show";
-import { BoolControl } from "@lowcoder-ee/index.sdk";
-import { Switch } from "antd";
 
 const EVENT_OPTIONS = [
   {
@@ -57,38 +54,52 @@ const childrenMap = {
   disabled: BoolCodeControl,
   showHeader: withDefault(BooleanStateControl, "true"),
   style: styleControl(TabContainerStyle),
+  headerStyle: styleControl(ContainerHeaderStyle),
+  bodyStyle: styleControl(ContainerBodyStyle),
 };
 
 type ViewProps = RecordConstructorToView<typeof childrenMap>;
 type TabbedContainerProps = ViewProps & { dispatch: DispatchType };
  
-const getStyle = (style: TabContainerStyleType) => {
+const getStyle = (
+  style: TabContainerStyleType,
+  headerStyle: ContainerHeaderStyleType,
+  bodyStyle: ContainerBodyStyleType,
+) => {
   return css`
     &.ant-tabs {
+      overflow: hidden;
       border: ${style.borderWidth} solid ${style.border};
       border-radius: ${style.radius};
-      overflow: hidden;
       padding: ${style.padding};
+      background-color: ${style.background};
+      background-image: ${style.backgroundImage};
+      background-repeat: ${style.backgroundImageRepeat};
+      background-size: ${style.backgroundImageSize};
+      background-position: ${style.backgroundImagePosition};
+      background-origin: ${style.backgroundImageOrigin};
 
-      > .ant-tabs-content-holder > .ant-tabs-content > div > .react-grid-layout {
-        background-color: ${style.background};
-        border-radius: 0;
-        
-        background-image: ${style.backgroundImage};
-        background-repeat: ${style.backgroundImageRepeat};
-        background-size: ${style.backgroundImageSize};
-        background-position: ${style.backgroundImagePosition};
-        background-origin: ${style.backgroundImageOrigin};
-        
+      > .ant-tabs-content-holder > .ant-tabs-content > .ant-tabs-tabpane {
+        height: 100%;
+        .react-grid-layout {
+          border-radius: 0;
+          background-color: ${bodyStyle.background || 'transparent'};
+          background-image: ${bodyStyle.backgroundImage};
+          background-repeat: ${bodyStyle.backgroundImageRepeat};
+          background-size: ${bodyStyle.backgroundImageSize};
+          background-position: ${bodyStyle.backgroundImagePosition};
+          background-origin: ${bodyStyle.backgroundImageOrigin};
+
+        }
       }
 
       > .ant-tabs-nav {
-        background-color: ${style.headerBackground};
-        background-image: ${style.headerBackgroundImage};
-        background-repeat: ${style.headerBackgroundImageRepeat};
-        background-size: ${style.headerBackgroundImageSize};
-        background-position: ${style.headerBackgroundImagePosition};
-        background-origin: ${style.headerBackgroundImageOrigin};
+        background-color: ${headerStyle.headerBackground || 'transparent'};
+        background-image: ${headerStyle.headerBackgroundImage};
+        background-repeat: ${headerStyle.headerBackgroundImageRepeat};
+        background-size: ${headerStyle.headerBackgroundImageSize};
+        background-position: ${headerStyle.headerBackgroundImagePosition};
+        background-origin: ${headerStyle.headerBackgroundImageOrigin};
 
         .ant-tabs-tab {
           div {
@@ -113,7 +124,9 @@ const getStyle = (style: TabContainerStyleType) => {
 };
 
 const StyledTabs = styled(Tabs)<{ 
-  $style: TabContainerStyleType; 
+  $style: TabContainerStyleType;
+  $headerStyle: ContainerHeaderStyleType;
+  $bodyStyle: ContainerBodyStyleType;
   $isMobile?: boolean; 
   $showHeader?: boolean;
 }>`
@@ -145,7 +158,11 @@ const StyledTabs = styled(Tabs)<{
     margin-right: -24px;
   }
 
-  ${(props) => props.$style && getStyle(props.$style)}
+  ${(props) => props.$style && getStyle(
+    props.$style,
+    props.$headerStyle,
+    props.$bodyStyle,
+  )}
 `;
 
 const ContainerInTab = (props: ContainerBaseProps) => {
@@ -155,7 +172,14 @@ const ContainerInTab = (props: ContainerBaseProps) => {
 };
 
 const TabbedContainer = (props: TabbedContainerProps) => {
-  let { tabs, containers, dispatch, style } = props;
+  let {
+    tabs,
+    containers,
+    dispatch,
+    style,
+    headerStyle,
+    bodyStyle,
+  } = props;
 
   const visibleTabs = tabs.filter((tab) => !tab.hidden);
   const selectedTab = visibleTabs.find((tab) => tab.key === props.selectedTabKey.value);
@@ -203,7 +227,7 @@ const TabbedContainer = (props: TabbedContainerProps) => {
       key: tab.key,
       forceRender: true,
       children: (
-        <BackgroundColorContext.Provider value={props.style.background}>
+        <BackgroundColorContext.Provider value={bodyStyle.background}>
           <ContainerInTab
             layout={containerProps.layout.getView()}
             items={gridItemCompToGridItems(containerProps.items.getView())}
@@ -222,6 +246,8 @@ const TabbedContainer = (props: TabbedContainerProps) => {
     <StyledTabs
       activeKey={activeKey}
       $style={style}
+      $headerStyle={headerStyle}
+      $bodyStyle={bodyStyle}
       $showHeader={showHeader}
       onChange={(key) => {
         if (key !== props.selectedTabKey.value) {
@@ -276,6 +302,14 @@ export const TabbedContainerBaseComp = (function () {
               </Section>
               <Section name={sectionNames.style}>
                 {children.style.getPropertyView()}
+              </Section>
+              {children.showHeader.getView() && (
+                <Section name={"Header Style"}>
+                  { children.headerStyle.getPropertyView() }
+                </Section>
+              )}
+              <Section name={"Body Style"}>
+                { children.bodyStyle.getPropertyView() }
               </Section>
             </>
           )}
