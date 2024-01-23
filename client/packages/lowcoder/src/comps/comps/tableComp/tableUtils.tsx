@@ -250,6 +250,18 @@ function renderTitle(props: { title: string; editable: boolean }) {
   );
 }
 
+function getInitialColumns(columnsAggrData: ColumnsAggrData) {
+  const initialColumns = Object.keys(columnsAggrData).map(column => ({
+    label: <span style={{textTransform: 'capitalize'}}>{column}</span>,
+    value: `{{currentRow.${column}}}`
+  }))
+  initialColumns.push({
+    label: <span>Select with handlebars</span>,
+    value: '{{currentCell}}',
+  })
+  return initialColumns;
+}
+
 export type CustomColumnType<RecordType> = ColumnType<RecordType> & {
   onWidthResize?: (width: number) => void;
   titleText: string;
@@ -271,6 +283,7 @@ export function columnsToAntdFormat(
   columnsAggrData: ColumnsAggrData,
   onTableEvent: (eventName: any) => void,
 ): Array<CustomColumnType<RecordType>> {
+  const initialColumns = getInitialColumns(columnsAggrData);
   const sortMap: Map<string | undefined, SortOrder> = new Map(
     sort.map((s) => [s.column, s.desc ? "descend" : "ascend"])
   );
@@ -344,6 +357,7 @@ export function columnsToAntdFormat(
               currentRow: _.omit(record, OB_ROW_ORI_INDEX),
               currentIndex: index,
               currentOriginalIndex: tryToNumber(record[OB_ROW_ORI_INDEX]),
+              initialColumns,
             },
             String(record[OB_ROW_ORI_INDEX])
           )

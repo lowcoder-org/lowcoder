@@ -1258,6 +1258,7 @@ export const en = {
     "auto": "Auto",
     "fixed": "Fixed",
     "columnType": "Column Type",
+    "dataMapping": "Data Mapping",
     "numberStep": "Step",
     "numberStepTooltip": "The number to which the current value is increased or decreased. It can be an integer or decimal",
     "precision": "Precision",
@@ -2573,7 +2574,7 @@ export const en = {
     "selectBackground": "Selected Background"
   },
   "componentDocExtra": {
-    table,
+    "table": table,
   },
   "idSource": {
     "title": "OAuth Providers",
