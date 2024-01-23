@@ -21,7 +21,7 @@ import {
   withFunction,
   wrapChildAction,
 } from "lowcoder-core";
-import { AlignClose, AlignLeft, AlignRight, IconRadius, BorderWidthIcon, TextSizeIcon, FontFamilyIcon, TextWeigthIcon, ImageCompIcon, controlItem } from "lowcoder-design";
+import { AlignClose, AlignLeft, AlignRight, IconRadius, BorderWidthIcon, TextSizeIcon, FontFamilyIcon, TextWeigthIcon, ImageCompIcon, controlItem, Dropdown, OptionType } from "lowcoder-design";
 import { ColumnTypeComp, ColumnTypeCompMap } from "./columnTypeComp";
 import { ColorControl } from "comps/controls/colorControl";
 import { JSONValue } from "util/jsonTypes";
@@ -54,29 +54,6 @@ const columnFixOptions = [
   {
     label: <AlignRight />,
     value: "right",
-  },
-] as const;
-
-const columnValueOptions = [
-  {
-    label: "ID",
-    value: "{{currentRow.id}}",
-  },
-  {
-    label: "Name",
-    value: "{{currentRow.name}}",
-  },
-  {
-    label: "Department",
-    value: "{{currentRow.department}}",
-  },
-  {
-    label: "Date",
-    value: "{{currentRow.date}}",
-  },
-  {
-    label: "Other",
-    value: "",
   },
 ] as const;
 
@@ -113,11 +90,11 @@ export const columnChildrenMap = {
   isCustom: valueComp<boolean>(false),
   // If it is a data column, it must be the name of the column and cannot be duplicated as a react key
   dataIndex: valueComp<string>(""),
+  columnsList: valueComp<Array<JSONValue>>([]),
   hide: BoolControl,
   sortable: BoolControl,
   width: NumberControl,
   autoWidth: dropdownControl(columnWidthOptions, "auto"),
-  columnMapping: dropdownControl(columnValueOptions, ""),
   render: RenderComp,
   align: HorizontalAlignmentControl,
   tempHide: stateComp<boolean>(false),
@@ -213,27 +190,39 @@ export class ColumnComp extends ColumnInitComp {
 
   propertyView(key: string) {
     const columnType = this.children.render.getSelectedComp().getComp().children.compType.getView();
+    const initialColumns = this.children.render.getSelectedComp().getParams()?.initialColumns as OptionType[] || [];
+    const column = this.children.render.getSelectedComp().getComp().toJsonValue();
+    let columnValue = '{{currentCell}}';
+    if (column.comp?.hasOwnProperty('src')) {
+      columnValue = (column.comp as any).src;
+    } else if (column.comp?.hasOwnProperty('text')) {
+      columnValue = (column.comp as any).text;
+    }
+
     return (
       <>
         {this.children.title.propertyView({
           label: trans("table.columnTitle"),
           placeholder: this.children.dataIndex.getView(),
         })}
-        {this.children.columnMapping.propertyView({
-          label: "Data Mapping",
-          onChange: (value) => {
-            console.log(value)
-            const comp = this.children.render.getSelectedComp().getComp();
-            // let textRawData = "{{currentCell}}";
-            // if (comp.children.hasOwnProperty("text")) {
-            //   textRawData = (comp.children as any).text.toJsonValue();
-            // }
+        <Dropdown
+          showSearch={true}
+          value={columnValue}
+          options={initialColumns}
+          label={trans("table.dataMapping")}
+          onChange={(value) => {
+            // Keep the previous text value, some components do not have text, the default value is currentCell
+            const compType = columnType;
+            let comp: Record<string, string> = { text: value};
+            if(columnType === 'image') {
+              comp = { src: value };
+            }
             this.children.render.dispatchChangeValueAction({
-              compType: columnType,
-              comp: { text: value },
+              compType,
+              comp,
             } as any);
-          }
-        })}
+          }}
+        />
         {/* FIXME: cast type currently, return type of withContext should be corrected later */}
         {this.children.render.getPropertyView()}
         {this.children.showTitle.propertyView({

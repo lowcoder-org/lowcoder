@@ -1,7 +1,7 @@
 import { CellProps } from "components/table/EditableCell";
 import { DateTimeComp } from "comps/comps/tableComp/column/columnTypeComps/columnDateTimeComp";
 import { ButtonComp } from "comps/comps/tableComp/column/simpleColumnTypeComps";
-import { MultiCompBuilder, withDefault, withType } from "comps/generators";
+import { withType } from "comps/generators";
 import { trans } from "i18n";
 import { Dropdown } from "lowcoder-design";
 import { BooleanComp } from "./columnTypeComps/columnBooleanComp";
@@ -17,31 +17,6 @@ import { ColumnTagsComp } from "./columnTypeComps/columnTagsComp";
 import { ColumnSelectComp } from "./columnTypeComps/columnSelectComp";
 import { SimpleTextComp } from "./columnTypeComps/simpleTextComp";
 import { ColumnNumberComp } from "./columnTypeComps/ColumnNumberComp";
-import { useState } from "react";
-import { dropdownControl } from "@lowcoder-ee/index.sdk";
-
-const columnValueOptions = [
-  {
-    label: "ID",
-    value: "{{currentRow.id}}",
-  },
-  {
-    label: "Name",
-    value: "{{currentRow.name}}",
-  },
-  {
-    label: "Department",
-    value: "{{currentRow.department}}",
-  },
-  {
-    label: "Date",
-    value: "{{currentRow.date}}",
-  },
-  {
-    label: "Other",
-    value: "",
-  },
-] as const;
 
 const actionOptions = [
   {
@@ -128,15 +103,6 @@ type ColumnTypeMapType = typeof ColumnTypeCompMap;
 export type ColumnTypeKeys = keyof ColumnTypeMapType;
 
 const TypedColumnTypeComp = withType(ColumnTypeCompMap, "text");
-
-const childrenMap = {
-  comp: TypedColumnTypeComp,
-  valueMap: dropdownControl(columnValueOptions, "")
-};
-
-const TmpColumnTypeComp = new MultiCompBuilder(childrenMap, (props) => {
-  return props;
-}).build();
 
 export class ColumnTypeComp extends TypedColumnTypeComp {
   override getView() {
