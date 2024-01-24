@@ -167,6 +167,7 @@ export const LabelControl = (function () {
               width:
                 props.position === "row" ? getLabelWidth(props.width, props.widthUnit) : "100%",
               maxWidth: props.position === "row" ? "70%" : "100%",
+              fontSize: args && args.style ? args?.style?.textSize : "14px",
             }}
             $position={props.position}
             $hasToolTip={!!props.tooltip}

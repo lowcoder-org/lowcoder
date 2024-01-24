@@ -53,14 +53,14 @@ const StatusEdit = (props: StatusEditPropsType) => {
       <CustomSelect
         autoFocus
         defaultOpen
-        bordered={false}
+        variant="borderless"
         optionLabelProp="children"
         open={open}
         defaultValue={props.value.value}
         style={{ width: "100%" }}
         suffixIcon={<PackUpIcon />}
         showSearch
-        onSearch={(value) => {
+        onSearch={(value: string) => {
           if (defaultStatus.findIndex((item) => item.text.includes(value)) < 0) {
             setStatus([
               ...defaultStatus,
@@ -77,7 +77,7 @@ const StatusEdit = (props: StatusEditPropsType) => {
             status: status.find((item) => item.text === value)?.status || "none",
           });
         }}
-        onChange={(value) => {
+        onChange={(value: string) => {
           props.onChange({
             value,
             status: status.find((item) => item.text === value)?.status || "none",

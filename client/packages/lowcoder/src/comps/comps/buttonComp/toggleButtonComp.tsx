@@ -55,7 +55,7 @@ const ToggleTmpComp = (function () {
     iconPosition: LeftRightControl,
     alignment: AlignWithStretchControl,
     style: styleControl(ToggleButtonStyle),
-    showBorder: withDefault(BoolControl, true),
+    showBorder: withDefault(BoolControl, true), 
     viewRef: RefControl<HTMLElement>,
   };
   return new UICompBuilder(childrenMap, (props) => {

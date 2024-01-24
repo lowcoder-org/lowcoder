@@ -350,6 +350,7 @@ style: {
     minWidth: "最小宽度",
     textSize: "字体大小",
     textWeight: "字体粗细",
+    "fontFamily": "字体",
     "backgroundImage": "背景图片",
     "backgroundImageRepeat" : "背景图片重复",
     "backgroundImageSize" : "背景图片大小",
@@ -1220,6 +1221,7 @@ table: {
     imageSrc: "图片链接",
     imageSize: "图片尺寸",
     columnTitle: "标题",
+    dataMapping: "数据映射",
     showTitle: "显示标题",
     showTitleTooltip: "显示/隐藏表标题中的列标题",
     sortable: "可排序",
@@ -2520,7 +2522,7 @@ calendar: {
     selectBackground: "选中背景",
 },
 componentDocExtra: {
-    table,
+    table: table,
 },
 idSource: {
     title: "OAuth 提供商",

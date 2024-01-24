@@ -57,6 +57,17 @@ import log from "loglevel";
 import { DisabledContext } from "comps/generators/uiCompBuilder";
 import { LoadingOutlined } from "@ant-design/icons";
 import { messageInstance } from "lowcoder-design";
+import { styled } from "styled-components";
+
+const FormWrapper = styled.div`
+  height: 100%;
+  .ant-spin-nested-loading {
+    height: 100%;
+    .ant-spin-container {
+      height: 100%;
+    }
+  }
+`;
 
 const eventOptions = [submitEvent] as const;
 
@@ -172,12 +183,18 @@ const FormBaseComp = (function () {
   return new ContainerCompBuilder(childrenMap, (props, dispatch) => {
     return (
       <DisabledContext.Provider value={props.disabled}>
-        <Spin indicator={loadingIcon} spinning={props.loading}>
-          <TriContainer
-            {...props}
-            hintPlaceholder={<BodyPlaceholder {...props} dispatch={dispatch} />}
-          />
-        </Spin>
+        <FormWrapper>
+          <Spin
+            indicator={loadingIcon}
+            spinning={props.loading}
+            style={{height: '100%'}}
+          >
+            <TriContainer
+              {...props}
+              hintPlaceholder={<BodyPlaceholder {...props} dispatch={dispatch} />}
+            />
+          </Spin>
+        </FormWrapper>
       </DisabledContext.Provider>
     );
   })
@@ -218,6 +235,21 @@ const FormBaseComp = (function () {
               <Section name={sectionNames.style}>
                 {children.container.stylePropertyView()}
               </Section>
+              {children.container.children.showHeader.getView() && (
+                <Section name={"Header Style"}>
+                  { children.container.headerStylePropertyView() }
+                </Section>
+              )}
+              {children.container.children.showBody.getView() && (
+                <Section name={"Body Style"}>
+                  { children.container.bodyStylePropertyView() }
+                </Section>
+              )}
+              {children.container.children.showFooter.getView() && (
+                <Section name={"Footer Style"}>
+                  { children.container.footerStylePropertyView() }
+                </Section>
+              )}
             </>
           )}
           

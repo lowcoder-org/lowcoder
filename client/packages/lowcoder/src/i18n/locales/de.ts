@@ -1135,6 +1135,7 @@ export const de = {
       "auto": "Auto",
       "fixed": "Festgelegt",
       "columnType": "Säule Typ",
+      "dataMapping": "Datenzuordnung",
       "numberStep": "Schritt",
       "numberStepTooltip": "Die Zahl, auf die der aktuelle Wert erhöht oder verringert wird. Es kann eine ganze Zahl oder eine Dezimalzahl sein",
       "precision": "Präzision",
@@ -2375,7 +2376,7 @@ export const de = {
       "selectBackground": "Ausgewählter Hintergrund"
   },
   "componentDocExtra": {
-      "table": "Zusätzliche Dokumentation für die Tabellenkomponente"
+      "table": table,
   },
   "idSource": {
       "title": "OAuth-Anbieter",

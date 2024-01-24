@@ -20,23 +20,23 @@
     }
   },
   "env": {
-    "ENCRYPTION_PASSWORD": {
+    "LOWCODER_DB_ENCRYPTION_PASSWORD": {
       "description": "The encryption password used to encrypt all sensitive credentials in the database. You can use any random string (eg abcd).",
       "required": false
     },
-    "ENCRYPTION_SALT": {
+    "LOWCODER_DB_ENCRYPTION_SALT": {
       "description": "The encryption salt used to encrypt all sensitive credentials in the database. You can use any random string (eg abcd).",
       "required": false
     },
-    "CORS_ALLOWED_DOMAINS": {
+    "LOWCODER_CORS_DOMAINS": {
       "description": "The domains supported for CORS requests. All domains are allowed by default. If there are multiple domains, please separate them with commas.",
       "required": false
     },
-    "MONGODB_URL": {
+    "LOWCODER_MONGODB_URL": {
       "description": "Your Mongo Database URL.",
       "required": false
     },
-    "REDIS_URL": {
+    "LOWCODER_REDIS_URL": {
       "description": "Your Redis Database URL.",
       "required": false
     }

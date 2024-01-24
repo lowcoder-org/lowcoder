@@ -59,7 +59,7 @@ export const LinkComp = (function () {
       <Input
         defaultValue={props.value}
         autoFocus
-        bordered={false}
+        variant="borderless"
         onChange={(e) => {
           const value = e.target.value;
           props.onChange(value);

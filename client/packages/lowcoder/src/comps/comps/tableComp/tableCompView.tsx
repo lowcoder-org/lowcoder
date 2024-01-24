@@ -212,7 +212,6 @@ const TableWrapper = styled.div<{
             border-color: ${(props) => props.$headerStyle.border};
             border-width: ${(props) => props.$headerStyle.borderWidth};
             color: ${(props) => props.$headerStyle.headerText};
-            font-size: ${(props) => props.$headerStyle.textSize};
             border-inline-end: ${(props) => `${props.$headerStyle.borderWidth} solid ${props.$headerStyle.border}`} !important;
             ${(props) => 
               props.$fixedHeader && `
@@ -225,6 +224,12 @@ const TableWrapper = styled.div<{
 
             > div {
               margin: ${(props) => props.$headerStyle.margin};
+
+              &, .ant-table-column-title > div {
+                font-size: ${(props) => props.$headerStyle.textSize};
+                font-weight: ${(props) => props.$headerStyle.textWeight};
+                font-family: ${(props) => props.$headerStyle.fontFamily};
+              }
             }
 
             &:last-child {
@@ -338,6 +343,8 @@ const TableTd = styled.td<{
   > div {
     margin: ${(props) => props.$style.margin};
     color: ${(props) => props.$style.text};
+    font-weight: ${(props) => props.$style.textWeight};
+    font-family: ${(props) => props.$style.fontFamily};
     
     ${(props) => props.$tableSize === 'small' && `
       padding: 1px 8px;
@@ -512,7 +519,7 @@ function TableCellView(props: {
     const cellColor = cellColorFn({
       currentCell: record[title.toLowerCase()],
     });
-  
+    
     const style = {
       background: cellColor || rowColor || columnStyle.background || columnsStyle.background,
       margin: columnStyle.margin || columnsStyle.margin,
@@ -521,6 +528,8 @@ function TableCellView(props: {
       radius: columnStyle.radius || columnsStyle.radius,
       borderWidth: columnStyle.borderWidth || columnsStyle.borderWidth,
       textSize: columnStyle.textSize || columnsStyle.textSize,
+      textWeight: columnStyle.textWeight || columnsStyle.textWeight,
+      fontFamily: columnStyle.fontFamily || columnsStyle.fontFamily,
       rowHeight: rowHeight,
     }
     let { background } = style;

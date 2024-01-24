@@ -28,6 +28,7 @@ const getStyle = (style: TextStyleType) => {
     color: ${style.text};
     font-size: ${style.textSize} !important;
     font-weight: ${style.textWeight} !important;
+    font-family: ${style.fontFamily} !important;
     background-color: ${style.background};
     .markdown-body a {
       color: ${style.links};

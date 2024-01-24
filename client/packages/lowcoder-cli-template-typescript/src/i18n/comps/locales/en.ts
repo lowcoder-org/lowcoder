@@ -27,4 +27,9 @@ export const en = {
   "component": {
     "data": "Hillchart Data",
   },
+  "methods": {
+    "setPoint": "Set Point",
+    "invalidInput": "Invalid Input",
+    "requiredField": "{field} is required",
+  }
 };

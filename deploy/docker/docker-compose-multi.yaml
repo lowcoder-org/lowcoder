@@ -31,33 +31,35 @@ services:
     # ports:
     #   - "8080:8080"
     environment:
-      PUID: "9001"
-      PGID: "9001"
-      MONGODB_URL: "mongodb://lowcoder:secret123@mongodb/lowcoder?authSource=admin"
-      REDIS_URL: "redis://redis:6379"
+      LOWCODER_PUID: "9001"
+      LOWCODER_PGID: "9001"
+      LOWCODER_MONGODB_URL: "mongodb://lowcoder:secret123@mongodb/lowcoder?authSource=admin"
+      LOWCODER_REDIS_URL: "redis://redis:6379"
       LOWCODER_NODE_SERVICE_URL: "http://lowcoder-node-service:6060"
       LOWCODER_MAX_QUERY_TIMEOUT: 120
-      ENABLE_USER_SIGN_UP: "true"
+      LOWCODER_EMAIL_AUTH_ENABLED: "true"
+      LOWCODER_EMAIL_SIGNUP_ENABLED: "true"
+      LOWCODER_CREATE_WORKSPACE_ON_SIGNUP: "true"
       #
       # ! PLEASE CHANGE THESE TO SOMETHING UNIQUE !
       # 
-      #    ENCRYPTION_PASSWORD and ENCRYPTION_SALT is used to encrypt sensitive 
-      #    data in database so it is important to change the defaults
+      #    LOWCODER_DB_ENCRYPTION_PASSWORD and LOWCODER_DB_ENCRYPTION_SALT is used 
+      #    to encrypt sensitive data in database so it is important to change the defaults
       #
-      ENCRYPTION_PASSWORD: "lowcoder.org"
-      ENCRYPTION_SALT: "lowcoder.org"
-      CORS_ALLOWED_DOMAINS: "*"
-      DEFAULT_ORGS_PER_USER: 100
-      DEFAULT_ORG_MEMBER_COUNT: 1000
-      DEFAULT_ORG_GROUP_COUNT: 100
-      DEFAULT_ORG_APP_COUNT: 1000
-      DEFAULT_DEVELOPER_COUNT: 50
+      LOWCODER_DB_ENCRYPTION_PASSWORD: "lowcoder.org"
+      LOWCODER_DB_ENCRYPTION_SALT: "lowcoder.org"
+      LOWCODER_CORS_DOMAINS: "*"
+      LOWCODER_MAX_ORGS_PER_USER: 100
+      LOWCODER_MAX_MEMBERS_PER_ORG: 1000
+      LOWCODER_MAX_GROUPS_PER_ORG: 100
+      LOWCODER_MAX_APPS_PER_ORG: 1000
+      LOWCODER_MAX_DEVELOPERS: 50
       #
       # API-KEY secret - should be a string of at least 32 random characters
       #    - on linux/mac, generate one eg. with: head /dev/urandom | head -c 30 | shasum -a 256
       #
       LOWCODER_API_KEY_SECRET: "5a41b090758b39b226603177ef48d73ae9839dd458ccb7e66f7e7cc028d5a50b"
-      COMMON_WORKSPACE_MODE: SAAS
+      LOWCODER_WORKSPACE_MODE: SAAS
     restart: unless-stopped
     depends_on:
       - mongodb
@@ -70,8 +72,8 @@ services:
     # ports:
     #   - "6060:6060"
     environment:
-      PUID: "9001"
-      PGID: "9001"
+      LOWCODER_PUID: "9001"
+      LOWCODER_PGID: "9001"
       LOWCODER_API_SERVICE_URL: "http://lowcoder-api-service:8080"
     restart: unless-stopped
     depends_on:
@@ -86,8 +88,8 @@ services:
     ports:
       - "3000:3000"
     environment:
-      PUID: "9001"
-      PGID: "9001"
+      LOWCODER_PUID: "9001"
+      LOWCODER_PGID: "9001"
       LOWCODER_MAX_REQUEST_SIZE: 20m
       LOWCODER_MAX_QUERY_TIMEOUT: 120
       LOWCODER_API_SERVICE_URL: "http://lowcoder-api-service:8080"
