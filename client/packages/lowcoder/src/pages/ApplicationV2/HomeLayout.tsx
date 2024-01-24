@@ -365,9 +365,9 @@ export function HomeLayout(props: HomeLayoutProps) {
       <OperationWrapper>
         {mode !== "folders" && mode !== "module" && (
           <FilterDropdown
-            bordered={false}
+            variant="borderless"
             value={filterBy}
-            onChange={(value) => setFilterBy(value as HomeResKey)}
+            onChange={(value: any) => setFilterBy(value as HomeResKey)}
             options={[
               getFilterMenuItem(HomeResTypeEnum.All),
               getFilterMenuItem(HomeResTypeEnum.Application),
@@ -375,7 +375,7 @@ export function HomeLayout(props: HomeLayoutProps) {
               getFilterMenuItem(HomeResTypeEnum.Navigation),
               ...(mode !== "trash" ? [getFilterMenuItem(HomeResTypeEnum.Folder)] : []),
             ]}
-            getPopupContainer={(node) => node}
+            getPopupContainer={(node: any) => node}
             suffixIcon={<ArrowSolidIcon />}
           />
         )}
