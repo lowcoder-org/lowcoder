@@ -2,7 +2,7 @@ import { isContainer } from "comps/comps/containerBase";
 import { RootComp as RootCompTmp } from "comps/comps/rootComp";
 import { PositionParams } from "layout";
 import _ from "lodash";
-import React, { ReactNode, useContext } from "react";
+import React, { ReactNode } from "react";
 import {
   BottomResComp,
   BottomResListComp,

@@ -20,9 +20,7 @@ import Header, {
   PanelStatus,
   TogglePanel,
   EditorModeStatus,
-  ToggleEditorModeStatus,
-  EnabledCollissionStatus,
-  ToggleCollissionStatus,
+  ToggleEditorModeStatus
 } from "pages/common/header";
 import { HelpDropdown } from "pages/common/help";
 import { PreviewHeader } from "pages/common/previewHeader";
@@ -76,6 +74,8 @@ import {
 import Bottom from "./bottom/BottomPanel";
 import { LeftContent } from "./LeftContent";
 import { isAggregationApp } from "util/appUtils";
+import { Switch } from "antd";
+import { SwitchChangeEventHandler } from "antd/es/switch";
 
 const HookCompContainer = styled.div`
   pointer-events: none;
@@ -141,6 +141,16 @@ const HelpDiv = styled.div`
     }
   }
 `;
+
+const LayoutMenuDiv = styled.div`
+  > div {
+    left: 6px;
+    right: auto;
+    height: 28px;
+    top: 15px;
+  }
+`;
+
 const SettingsDiv = styled.div`
   display: flex;
   flex-direction: column;
@@ -200,6 +210,7 @@ interface EditorViewProps {
 enum SiderKey {
   State = "state",
   Setting = "setting",
+  Layout = "layout",
 }
 
 const items = [
@@ -211,7 +222,17 @@ const items = [
     key: SiderKey.Setting,
     icon: <LeftSettingIcon />,
   },
+  {
+    key: SiderKey.Layout,
+    icon: <LeftSettingIcon />,
+  },
 ];
+
+  // added by Fred to set comp collision state
+export type EnabledCollissionStatus = "true" | "false"; // "true" means collission is enabled, "false" means collission is disabled
+export  type ToggleCollissionStatus = (
+    collissionStatus?: EnabledCollissionStatus
+  ) => void;
 
 function EditorView(props: EditorViewProps) {
   const { uiComp } = props;
@@ -259,7 +280,7 @@ function EditorView(props: EditorViewProps) {
     [panelStatus, prePanelStatus]
   );
 
-  // added by Fred  to set comp collision state
+
   const [collisionStatus, setCollisionStatus] = useState(() => {
     return showCollission ? DefaultCollissionStatus : getCollissionStatus();
   });
@@ -381,9 +402,7 @@ function EditorView(props: EditorViewProps) {
         togglePanel={togglePanel}
         panelStatus={panelStatus}
         toggleEditorModeStatus={toggleEditorModeStatus}
-        toggleCollissionStatus={toggleCollissionStatus}
-        editorModeStatus={editorModeStatus}
-        collissionStatus={collisionStatus}
+        editorModeStatus={editorModeStatus} 
       />
       <Helmet>{application && <title>{application.name}</title>}</Helmet>
       {showNewUserGuide && <EditorTutorials />}
@@ -395,7 +414,8 @@ function EditorView(props: EditorViewProps) {
       >
         <Body>
           <SiderWrapper>
-            <Sider width={40}>
+            <Sider width={40} >
+              
               <Menu
                 theme="dark"
                 mode="inline"
@@ -404,7 +424,9 @@ function EditorView(props: EditorViewProps) {
                 items={items}
                 disabled={showAppSnapshot}
                 onClick={(params) => clickMenu(params)}
-              />
+              >
+              </Menu>
+              
               {!showAppSnapshot && (
                 <HelpDiv>
                   <HelpDropdown
@@ -451,6 +473,23 @@ function EditorView(props: EditorViewProps) {
                   {props.preloadComp.getJSLibraryPropertyView()}
                 </SettingsDiv>
               )}
+
+              
+
+              {menuKey === SiderKey.Layout && (
+                <SettingsDiv>
+                  <Switch
+                    checked={editorState.collissionStatus == "true"}
+                    disabled={false}
+                    onChange={(value: any) => {
+                      toggleCollissionStatus(value == true ? "true" : "false");
+                      editorState.setCollissionStatus(value == true ? "true" : "false");
+                    }}
+                  />
+                   <Divider />            
+                </SettingsDiv>
+              )}
+
             </LeftPanel>
           )}
           <MiddlePanel>

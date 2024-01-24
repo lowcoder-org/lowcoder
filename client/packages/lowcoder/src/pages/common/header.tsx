@@ -287,29 +287,34 @@ function HeaderProfile(props: { user: User }) {
 
 export type PanelStatus = { left: boolean; bottom: boolean; right: boolean };
 export type TogglePanel = (panel?: keyof PanelStatus) => void;
-export type EnabledCollissionStatus = "true" | "false";
+
 export type EditorModeStatus = "layout" | "logic" | "both";
 export type ToggleEditorModeStatus = (
   editorModeStatus?: EditorModeStatus
 ) => void;
+
+/* 
+// export type EnabledCollissionStatus = "true" | "false";
 export type ToggleCollissionStatus = (
   collissionStatus?: EnabledCollissionStatus
-) => void;
+) => void; 
+*/
 
 type HeaderProps = {
   panelStatus: PanelStatus;
   togglePanel: TogglePanel;
   editorModeStatus: EditorModeStatus;
   toggleEditorModeStatus: ToggleEditorModeStatus;
-  collissionStatus: EnabledCollissionStatus;
-  toggleCollissionStatus: ToggleCollissionStatus;
+  // collissionStatus: EnabledCollissionStatus;
+  // toggleCollissionStatus: ToggleCollissionStatus;
 };
 
 // header in editor page
 export default function Header(props: HeaderProps) {
   const editorState = useContext(EditorContext);
   const { togglePanel } = props;
-  const { toggleEditorModeStatus, toggleCollissionStatus } = props;
+  const { toggleEditorModeStatus } = props;
+  // const { toggleCollissionStatus } = props;
   const { left, bottom, right } = props.panelStatus;
   const user = useSelector(getUser);
   const application = useSelector(currentApplication);
@@ -413,18 +418,7 @@ export default function Header(props: HeaderProps) {
 
   const headerMiddle = (
     <>
-      <>
-        <p style={{ color: "#ffffff", marginTop: "10px" }}>
-          Layers 
-        </p>
-        <Switch
-          checked={props.collissionStatus == "true"}
-          disabled={false}
-          onChange={(value: any) => {
-            toggleCollissionStatus(value == true ? "true" : "false");
-            editorState.setCollissionStatus(value == true ? "true" : "false");
-          }}
-        />
+      <>      
       </>
       <Radio.Group
         onChange={onEditorStateValueChange}

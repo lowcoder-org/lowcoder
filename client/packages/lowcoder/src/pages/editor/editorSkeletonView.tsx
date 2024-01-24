@@ -63,15 +63,16 @@ export default function EditorSkeletonView() {
         <Header
           panelStatus={panelStatus}
           togglePanel={_.noop}
-          collissionStatus={collissionStatus}
-          toggleCollissionStatus={_.noop}
           editorModeStatus={editorModeStatus}
           toggleEditorModeStatus={_.noop}
         />
         <Body>
           <SiderStyled />
           {panelStatus.left && (
-            <LeftPanel>
+            <LeftPanel
+              collissionStatus={collissionStatus}
+              toggleCollissionStatus={_.noop}
+            >
               <StyledSkeleton active paragraph={{ rows: 10 }} />
             </LeftPanel>
           )}
