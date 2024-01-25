@@ -15,7 +15,7 @@ import {
   UnfoldIcon,
   UnShow,
 } from "lowcoder-design";
-import React, { ReactNode, useCallback, useContext, useMemo, useState } from "react";
+import React, { ReactNode, useCallback, useContext, useMemo, useState, useEffect } from "react";
 import { hookCompCategory } from "comps/hooks/hookCompTypes";
 import _ from "lodash";
 import styled from "styled-components";
@@ -32,6 +32,7 @@ import { UICompType } from "comps/uiCompRegistry";
 import { CollapseWrapper, DirectoryTreeStyle, Node } from "./styledComponents";
 import { DataNode, EventDataNode } from "antd/lib/tree";
 import { isAggregationApp } from "util/appUtils";
+import cloneDeep from 'lodash/cloneDeep';
 
 const CollapseTitleWrapper = styled.div`
   display: flex;
@@ -408,17 +409,94 @@ export const LeftContent = (props: LeftContentProps) => {
     );
   };
 
-  const getTreeUI = (type: TreeUIKey) => {
-    const uiCompInfos = _.sortBy(editorState.uiCompInfoList(), [(x) => x.name]);
+  const [componentTreeData, setComponentTreeData] = useState<NodeItem[]>([]);
+  const [modalsTreeData, setModalsTreeData] = useState<NodeItem[]>([]);
+
+  useEffect(() => {
+    const compData = getTreeUIData(TreeUIKey.Components);
+    setComponentTreeData(compData);
+  }, [editorState]);
+  
+  useEffect(() => {
+    const modalsData = getTreeUIData(TreeUIKey.Modals);
+    setModalsTreeData(modalsData);
+  }, [editorState]);
+
+  const getTreeUIData = (type: TreeUIKey) => {
     const tree =
       type === TreeUIKey.Components
         ? editorState.getUIComp().getTree()
         : editorState.getHooksComp().getUITree();
     const explorerData: NodeItem[] = getTree(tree, []);
+    return explorerData;
+  }
+
+  interface DropInfo {
+    node: { key: string; pos: string };
+    dragNode: { key: string; pos: string };
+  }
+
+  const handleDragEnter = (info: { node?: any; expandedKeys?: any; }) => {
+    // Assuming 'info' has a property 'expandedKeys' which is an array of keys
+    const { expandedKeys } = info;
+    if (!expandedKeys.includes(info.node.key)) {
+      setExpandedKeys(expandedKeys);
+    }
+  };
+
+  const handleDrop = (info: { node: { key: any; pos: string; }; dragNode: { key: any; pos: string; }; }, type: TreeUIKey) => {
+    const dropPos = info.node.pos.split('-');
+    const dragPos = info.dragNode.pos.split('-');
+
+    if (dropPos.length === dragPos.length) {
+      setComponentTreeData(prevData => {
+        let newTreeData = cloneDeep(prevData);
+        const dropIndex = Number(dropPos[dropPos.length - 1]);
+        const dragIndex = Number(dragPos[dragPos.length - 1]);
+        const parentNodePos = dropPos.slice(0, -1).join('-');
+
+        // TODO: handle drag and drop for childen of root (container components for example)
+        // findNodeByPos does not work yet
+        const parentNode = parentNodePos === "0" ? { children: newTreeData } : findNodeByPos(newTreeData, parentNodePos);
+  
+        console.log('parentNode', parentNode);
+  
+        if (parentNode && parentNode.children) {
+          const draggedNodeIndex = parentNode.children.findIndex(node => node.key === info.dragNode.key);
+          if (draggedNodeIndex !== -1) {
+            const [draggedNode] = parentNode.children.splice(draggedNodeIndex, 1);
+            parentNode.children.splice(dropIndex > dragIndex ? dropIndex - 1 : dropIndex, 0, draggedNode);
+          }
+        }
+        
+        return newTreeData;
+      });
+    }
+  };
+  
+  const findNodeByPos = (nodes: NodeItem[], pos: string): { children: NodeItem[] } => {
+    const posArr = pos.split('-').map(p => Number(p));
+    let currentNode = { children: nodes };
+    for (let i = 0; i < posArr.length; i++) {
+      currentNode = currentNode.children[posArr[i]];
+    }
+    return currentNode;
+  };
+
+  const getTreeUI = (type: TreeUIKey) => {
+    // here the components get sorted by name
+    // TODO: sort by category
+    // TODO: sort by Types etc.
+    const uiCompInfos = _.sortBy(editorState.uiCompInfoList(), [(x) => x.name]);
+    /* const tree =
+      type === TreeUIKey.Components
+        ? editorState.getUIComp().getTree()
+        : editorState.getHooksComp().getUITree();
+    const explorerData: NodeItem[] = getTree(tree, []); */
     let selectedKeys = [];
     if (editorState.selectedCompNames.size === 1) {
       const key = Object.keys(editorState.selectedComps())[0];
-      const parentKeys = getParentNodeKeysByKey(explorerData, key);
+      const parentKeys = getParentNodeKeysByKey(type === TreeUIKey.Components ? componentTreeData : modalsTreeData, key);
       if (parentKeys && parentKeys.length) {
         let needSet = false;
         parentKeys.forEach((key) => {
@@ -433,12 +511,11 @@ export const LeftContent = (props: LeftContentProps) => {
 
     return (
       <DirectoryTreeStyle
-        treeData={explorerData}
-        // icon={(props: NodeItem) => props.type && (CompStateIcon[props.type] || <LeftCommon />)}
+        draggable={type === TreeUIKey.Components ? true : false}
+        onDragEnter={handleDragEnter}
+        onDrop={(info) => handleDrop(info, type)}
+        treeData={type === TreeUIKey.Components ? componentTreeData : modalsTreeData}
         icon={(props: any) => props.type && (CompStateIcon[props.type as UICompType] || <LeftCommon />)}
-        // switcherIcon={({ expanded }: { expanded: boolean }) =>
-        //   expanded ? <FoldedIcon /> : <UnfoldIcon />
-        // }
         switcherIcon={(props: any) =>
           props.expanded ? <FoldedIcon /> : <UnfoldIcon />
         }
@@ -455,15 +532,15 @@ export const LeftContent = (props: LeftContentProps) => {
     if (isAggregationApp(editorState.getAppType())) {
       return;
     }
-    return getTreeUI(TreeUIKey.Components);
-  }, [editorState, uiCollapseClick, expandedKeys, showData]);
-
+    return getTreeUI(TreeUIKey.Components); // Pass componentTreeData
+  }, [editorState, uiCollapseClick, expandedKeys, showData, componentTreeData]);
+  
   const modalsCollapse = useMemo(() => {
     if (isAggregationApp(editorState.getAppType())) {
       return;
     }
-    return getTreeUI(TreeUIKey.Modals);
-  }, [editorState, uiCollapseClick, expandedKeys, showData]);
+    return getTreeUI(TreeUIKey.Modals); // Pass modalsTreeData
+  }, [editorState, uiCollapseClick, expandedKeys, showData, modalsTreeData]);
 
   const bottomResCollapse = useMemo(() => {
     return editorState

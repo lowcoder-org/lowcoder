@@ -1,5 +1,5 @@
 import { PanelStatus } from "pages/common/header";
-import { EnabledCollissionStatus } from "pages/editor/editorView";
+import { DisabledCollisionStatus as DisabledCollisionStatus } from "pages/editor/editorView";
 import { EditorModeStatus } from "pages/common/header";
 import log from "loglevel";
 import { JSONValue } from "util/jsonTypes";
@@ -45,20 +45,20 @@ export function getPanelStatus(): PanelStatus {
 export function saveEditorModeStatus(editorModeStatus: EditorModeStatus) {
   localStorage.setItem("editor_mode_status", editorModeStatus);
 }
-//ADDED BY FRED TO SAVE enabledCollission
-export function saveEnableCollissionStatus(
-  collisionStatus: EnabledCollissionStatus
+//ADDED BY FRED TO SAVE enabledCollision
+export function saveCollisionStatus(
+  collisionStatus: DisabledCollisionStatus
 ) {
-  localStorage.setItem("enable_collission", collisionStatus);
+  localStorage.setItem("disable_collision", collisionStatus);
 }
 
-export const DefaultCollissionStatus: EnabledCollissionStatus = "true";
-export function getCollissionStatus(): EnabledCollissionStatus {
-  const str = localStorage.getItem("enable_collission");
+export const DefaultCollisionStatus: DisabledCollisionStatus = "true";
+export function getCollisionStatus(): DisabledCollisionStatus {
+  const str = localStorage.getItem("disable_collision");
   if (!str) {
-    return DefaultCollissionStatus;
+    return DefaultCollisionStatus;
   }
-  return str as EnabledCollissionStatus;
+  return str as DisabledCollisionStatus;
 }
 
 export const DefaultEditorModeStatus: EditorModeStatus = "both";

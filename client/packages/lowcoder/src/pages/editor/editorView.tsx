@@ -40,7 +40,6 @@ import {
 import RightPanel from "pages/editor/right/RightPanel";
 import EditorTutorials from "pages/tutorials/editorTutorials";
 import {
-  CollisionState,
   editorContentClassName,
   UserGuideLocationState,
 } from "pages/tutorials/tutorialsConstant";
@@ -67,15 +66,13 @@ import {
   DefaultEditorModeStatus,
   getEditorModeStatus,
   saveEditorModeStatus,
-  saveEnableCollissionStatus,
-  getCollissionStatus,
-  DefaultCollissionStatus,
+  saveCollisionStatus,
+  getCollisionStatus,
 } from "util/localStorageUtil";
 import Bottom from "./bottom/BottomPanel";
 import { LeftContent } from "./LeftContent";
 import { isAggregationApp } from "util/appUtils";
 import { Switch } from "antd";
-import { SwitchChangeEventHandler } from "antd/es/switch";
 
 const HookCompContainer = styled.div`
   pointer-events: none;
@@ -229,9 +226,9 @@ const items = [
 ];
 
   // added by Fred to set comp collision state
-export type EnabledCollissionStatus = "true" | "false"; // "true" means collission is enabled, "false" means collission is disabled
-export  type ToggleCollissionStatus = (
-    collissionStatus?: EnabledCollissionStatus
+export type DisabledCollisionStatus = "true" | "false"; // "true" means collision is not enabled - Layering works, "false" means collision is enabled - Layering does not work
+export  type ToggleCollisionStatus = (
+    collisionStatus?: DisabledCollisionStatus
   ) => void;
 
 function EditorView(props: EditorViewProps) {
@@ -240,9 +237,7 @@ function EditorView(props: EditorViewProps) {
   const { readOnly, hideHeader } = useContext(ExternalEditorContext);
   const application = useSelector(currentApplication);
   const locationState = useLocation<UserGuideLocationState>().state;
-  const collisionState = useLocation<CollisionState>().state;
   const showNewUserGuide = locationState?.showNewUserGuide;
-  const showCollission = collisionState?.collission;
   const showAppSnapshot = useSelector(showAppSnapshotSelector);
   const [showShortcutList, setShowShortcutList] = useState(false);
   const toggleShortcutList = useCallback(
@@ -280,22 +275,23 @@ function EditorView(props: EditorViewProps) {
     [panelStatus, prePanelStatus]
   );
 
-
+  // added by Falk Wolsky to support a Layers in Lowcoder
   const [collisionStatus, setCollisionStatus] = useState(() => {
-    return showCollission ? DefaultCollissionStatus : getCollissionStatus();
+    return getCollisionStatus();
   });
 
-  const toggleCollissionStatus: ToggleCollissionStatus = useCallback(
+  const toggleCollisionStatus: ToggleCollisionStatus = useCallback(
     (value) => {
-      setCollisionStatus(value ? value : "false");
-      saveEnableCollissionStatus(value ? value : "false");
+      setCollisionStatus(value ? value : ("false" as DisabledCollisionStatus));
+      saveCollisionStatus(value ? value : ("false" as DisabledCollisionStatus));
     },
     [collisionStatus]
   );
 
+
   // added by Falk Wolsky to support a Layout and Logic Mode in Lowcoder
   const [editorModeStatus, setEditorModeStatus] = useState(() => {
-    return showNewUserGuide ? DefaultEditorModeStatus : getEditorModeStatus();
+    return getEditorModeStatus();
   });
 
   const toggleEditorModeStatus: ToggleEditorModeStatus = useCallback(
@@ -479,11 +475,11 @@ function EditorView(props: EditorViewProps) {
               {menuKey === SiderKey.Layout && (
                 <SettingsDiv>
                   <Switch
-                    checked={editorState.collissionStatus == "true"}
+                    checked={editorState.collisionStatus == "true"}
                     disabled={false}
                     onChange={(value: any) => {
-                      toggleCollissionStatus(value == true ? "true" : "false");
-                      editorState.setCollissionStatus(value == true ? "true" : "false");
+                      toggleCollisionStatus(value == true ? "true" : "false");
+                      editorState.setCollisionStatus(value == true ? "true" : "false");
                     }}
                   />
                    <Divider />            

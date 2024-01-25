@@ -17,7 +17,7 @@ import { NameAndExposingInfo } from "./utils/exposingTypes";
 import { checkName } from "./utils/rename";
 import { trans } from "i18n";
 import { UiLayoutType } from "./comps/uiComp";
-import { getCollissionStatus, getEditorModeStatus } from "util/localStorageUtil";
+import { getCollisionStatus, getEditorModeStatus } from "util/localStorageUtil";
 
 type RootComp = InstanceType<typeof RootCompTmp>;
 
@@ -47,7 +47,7 @@ export class EditorState {
   readonly showPropertyPane: boolean = false;
   readonly selectedCompNames: Set<string> = new Set();
   readonly editorModeStatus: string = "";
-  readonly collissionStatus: string = "";
+  readonly collisionStatus: string = "";
   readonly isDragging: boolean = false;
   readonly draggingCompType: string = "button";
   readonly forceShowGrid: boolean = false; // show grid lines
@@ -65,12 +65,12 @@ export class EditorState {
     rootComp: RootComp,
     setEditorState: (fn: (editorState: EditorState) => EditorState) => void,
     initialEditorModeStatus: string = getEditorModeStatus(),
-    initialCollissionStatus: string = getCollissionStatus()
+    initialCollisionStatus: string = getCollisionStatus()
   ) {
     this.rootComp = rootComp;
     this.setEditorState = setEditorState;
     this.editorModeStatus = initialEditorModeStatus;
-    this.collissionStatus = initialCollissionStatus;
+    this.collisionStatus = initialCollisionStatus;
   }
 
   /**
@@ -134,12 +134,13 @@ export class EditorState {
 
   uiCompInfoList(): Array<CompInfo> {
     const compMap = this.getAllUICompMap();
-    return Object.values(compMap).map((item) => {
+    return Object.entries(compMap).map(([key, item]) => {
       return {
         name: item.children.name.getView(),
         type: item.children.compType.getView(),
         data: item.children.comp.exposingValues,
         dataDesc: item.children.comp.exposingInfo().propertyDesc,
+        key: key,
       };
     });
   }
@@ -355,8 +356,8 @@ export class EditorState {
     this.changeState({ editorModeStatus: newEditorModeStatus });
   }
 
-  setCollissionStatus(newCollissionStatus: string) {
-    this.changeState({ collissionStatus: newCollissionStatus });
+  setCollisionStatus(newCollisionStatus: string) {
+    this.changeState({ collisionStatus: newCollisionStatus });
   }
 
   setDragging(dragging: boolean) {
@@ -512,9 +513,10 @@ export class EditorState {
   getAppType(): UiLayoutType {
     return this.getUIComp().children.compType.getView();
   }
-  getCollissionStatus(): string {
-    return this.collissionStatus;
+  getCollisionStatus(): string {
+    return this.collisionStatus;
   }
+  
 }
 export const EditorContext = React.createContext<EditorState>(undefined as any);
 

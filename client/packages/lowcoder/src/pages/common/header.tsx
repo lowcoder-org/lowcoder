@@ -10,7 +10,6 @@ import {
   preview,
 } from "constants/routesURL";
 import { User } from "constants/userConstants";
-import { Switch } from "antd";
 import {
   CommonTextLabel,
   CustomModal,
@@ -54,7 +53,6 @@ import { AppPermissionDialog } from "../../components/PermissionDialog/AppPermis
 import { getBrandingConfig } from "../../redux/selectors/configSelectors";
 import { messageInstance } from "lowcoder-design";
 import { EditorContext } from "../../comps/editorState";
-import { SwitchChangeEventHandler } from "antd/es/switch";
 
 const StyledLink = styled.a`
   display: flex;
@@ -293,20 +291,11 @@ export type ToggleEditorModeStatus = (
   editorModeStatus?: EditorModeStatus
 ) => void;
 
-/* 
-// export type EnabledCollissionStatus = "true" | "false";
-export type ToggleCollissionStatus = (
-  collissionStatus?: EnabledCollissionStatus
-) => void; 
-*/
-
 type HeaderProps = {
   panelStatus: PanelStatus;
   togglePanel: TogglePanel;
   editorModeStatus: EditorModeStatus;
   toggleEditorModeStatus: ToggleEditorModeStatus;
-  // collissionStatus: EnabledCollissionStatus;
-  // toggleCollissionStatus: ToggleCollissionStatus;
 };
 
 // header in editor page
@@ -314,7 +303,6 @@ export default function Header(props: HeaderProps) {
   const editorState = useContext(EditorContext);
   const { togglePanel } = props;
   const { toggleEditorModeStatus } = props;
-  // const { toggleCollissionStatus } = props;
   const { left, bottom, right } = props.panelStatus;
   const user = useSelector(getUser);
   const application = useSelector(currentApplication);
@@ -346,24 +334,6 @@ export default function Header(props: HeaderProps) {
       value: "both",
     },
   ];
-
-  // const collissionOptions = [
-  //   {
-  //     label: trans("header.editorMode_layout"),
-  //     key: "editorModeSelector_layout",
-  //     value: "tru",
-  //   },
-  //   {
-  //     label: trans("header.editorMode_logic"),
-  //     key: "editorModeSelector_logic",
-  //     value: "logic", 
-  //   },
-  //   {
-  //     label: trans("header.editorMode_both"),
-  //     key: "editorModeSelector_both",
-  //     value: "both",
-  //   },
-  // ];
 
   const onEditorStateValueChange = ({
     target: { value },

@@ -7,7 +7,7 @@ import {
   LeftPanel,
   MiddlePanel,
 } from "pages/common/styledComponent";
-import { getPanelStatus, getEditorModeStatus, getPanelStyle, getCollissionStatus } from "util/localStorageUtil";
+import { getPanelStatus, getEditorModeStatus, getPanelStyle, getCollisionStatus } from "util/localStorageUtil";
 import { BottomSkeleton } from "pages/editor/bottom/BottomContent";
 import RightPanel from "pages/editor/right/RightPanel";
 import _ from "lodash";
@@ -48,7 +48,7 @@ export const EditorLoadingSpin = (props: { height?: string | number }) => {
 export default function EditorSkeletonView() {
   const panelStatus = getPanelStatus();
   const editorModeStatus = getEditorModeStatus();
-  const collissionStatus = getCollissionStatus();
+  const collisionStatus = getCollisionStatus();
   const panelStyle = getPanelStyle();
   const isUserViewMode = useUserViewMode();
   const isTemplate = useTemplateViewMode();
@@ -70,8 +70,8 @@ export default function EditorSkeletonView() {
           <SiderStyled />
           {panelStatus.left && (
             <LeftPanel
-              collissionStatus={collissionStatus}
-              toggleCollissionStatus={_.noop}
+              collisionStatus={collisionStatus}
+              toggleCollisionStatus={_.noop}
             >
               <StyledSkeleton active paragraph={{ rows: 10 }} />
             </LeftPanel>
