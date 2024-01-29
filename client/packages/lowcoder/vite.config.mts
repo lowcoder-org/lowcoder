@@ -1,5 +1,5 @@
 import dotenv from "dotenv";
-import { defineConfig, ServerOptions, UserConfig } from "vite";
+import { defineConfig, PluginOption, ServerOptions, UserConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import viteTsconfigPaths from "vite-tsconfig-paths";
 import svgrPlugin from "vite-plugin-svgr";
@@ -21,7 +21,7 @@ const edition = process.env.REACT_APP_EDITION;
 const isEEGlobal = edition === "enterprise-global";
 const isEE = edition === "enterprise" || isEEGlobal;
 const isDev = nodeEnv === "development";
-const isVisualizerEnabled = !!process.env.ENABLE_VISUALIZER;
+const isVisualizerEnabled = true; //!!process.env.ENABLE_VISUALIZER;
 // the file was never created
 // const browserCheckFileName = `browser-check-${process.env.REACT_APP_COMMIT_ID}.js`;
 const browserCheckFileName = `browser-check.js`;
@@ -74,9 +74,15 @@ export const viteConfig: UserConfig = {
     outDir: "build",
     assetsDir: "static",
     emptyOutDir: false,
+    chunkSizeWarningLimit: 100,
     rollupOptions: {
       output: {
         chunkFileNames: "[hash].js",
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+              return id.toString().split('node_modules/')[1].split('/')[0].toString();
+          }
+        }
       },
     },
     commonjsOptions: {
@@ -146,7 +152,13 @@ export const viteConfig: UserConfig = {
         },
       },
     }),
-    isVisualizerEnabled && visualizer(),
+    isVisualizerEnabled && visualizer({
+      template: "treemap", // or sunburst
+      open: true,
+      gzipSize: true,
+      brotliSize: true,
+      filename: "analyse.html"
+    }) as PluginOption,
   ].filter(Boolean),
 };
 

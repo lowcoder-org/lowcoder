@@ -9,7 +9,7 @@ import {
   setShowAppSnapshot,
 } from "redux/reduxActions/appSnapshotActions";
 import dayjs from "dayjs";
-import { useCallback, useEffect, useState } from "react";
+import { Suspense, lazy, useCallback, useEffect, useState } from "react";
 import { currentApplication } from "redux/selectors/applicationSelector";
 import {
   appSnapshotCountSelector,
@@ -32,10 +32,19 @@ import FreeLimitTag from "pages/common/freeLimitTag";
 import { AppSnapshotDslInfo } from "api/appSnapshotApi";
 import { EmptyContent } from "components/EmptyContent";
 import { AppSummaryInfo } from "redux/reduxActions/applicationActions";
-import { AppEditorInternalView, useRootCompInstance } from "pages/editor/appEditorInternal";
+import { useRootCompInstance } from "pages/editor/useRootCompInstance";
 import { TopHeaderHeight } from "constants/style";
 import { SnapshotItemProps, SnapshotList } from "../../components/SnapshotList";
 import { trans } from "i18n";
+import EditorSkeletonView from "./editorSkeletonView";
+
+const AppEditorInternalView = lazy(() => {
+  return Promise.all([
+    import("pages/editor/appEditorInternal"),
+    new Promise(resolve => setTimeout(resolve))
+  ])
+  .then(([moduleExports]) => moduleExports);
+});
 
 const AppSnapshotPanel = styled(RightPanelWrapper)`
   position: fixed;
@@ -129,7 +138,7 @@ const PAGE_SIZE = 10;
 const CURRENT_ITEM_KEY = "current_key";
 const TIME_FORMAT = trans("history.timeFormat");
 
-export function AppSnapshot(props: { currentAppInfo: AppSummaryInfo }) {
+export default function AppSnapshot(props: { currentAppInfo: AppSummaryInfo }) {
   const { currentAppInfo } = props;
   const currentDsl = currentAppInfo.dsl;
   const dispatch = useDispatch();
@@ -249,39 +258,41 @@ export function AppSnapshot(props: { currentAppInfo: AppSummaryInfo }) {
 
   return (
     <>
-      <AppEditorInternalView
-        appInfo={appInfo}
-        loading={isSnapshotDslLoading}
-        readOnly={true}
-        compInstance={compInstance}
-      />
-      <AppSnapshotPanel>
-        <SnapshotHeader>
-          <StyledSnapshotIcon />
-          <span>{trans("history.history")}</span>
-          <StyledCloseIcon
-            onClick={() => {
-              dispatch(setShowAppSnapshot(false));
-            }}
-          />
-        </SnapshotHeader>
-        <ScrollBar height={`calc(100% - ${headerHeight + footerHeight}px)`}>
-          <SnapshotContent>{snapShotContent}</SnapshotContent>
-        </ScrollBar>
-        <SnapshotFooter>
-          <TacoPagination
-            current={currentPage}
-            showLessItems
-            onChange={(page) => {
-              setCurrentPage(page);
-              fetchSnapshotList(page);
-            }}
-            total={totalCount}
-            pageSize={PAGE_SIZE}
-            showSizeChanger={false}
-          />
-        </SnapshotFooter>
-      </AppSnapshotPanel>
+      <Suspense fallback={<EditorSkeletonView />}>
+        <AppEditorInternalView
+          appInfo={appInfo}
+          loading={isSnapshotDslLoading}
+          readOnly={true}
+          compInstance={compInstance}
+        />
+        <AppSnapshotPanel>
+          <SnapshotHeader>
+            <StyledSnapshotIcon />
+            <span>{trans("history.history")}</span>
+            <StyledCloseIcon
+              onClick={() => {
+                dispatch(setShowAppSnapshot(false));
+              }}
+            />
+          </SnapshotHeader>
+          <ScrollBar height={`calc(100% - ${headerHeight + footerHeight}px)`}>
+            <SnapshotContent>{snapShotContent}</SnapshotContent>
+          </ScrollBar>
+          <SnapshotFooter>
+            <TacoPagination
+              current={currentPage}
+              showLessItems
+              onChange={(page) => {
+                setCurrentPage(page);
+                fetchSnapshotList(page);
+              }}
+              total={totalCount}
+              pageSize={PAGE_SIZE}
+              showSizeChanger={false}
+            />
+          </SnapshotFooter>
+        </AppSnapshotPanel>
+      </Suspense>
     </>
   );
 }

@@ -1,4 +1,4 @@
-import { defineConfig, UserConfig } from "vite";
+import { defineConfig, PluginOption, UserConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import viteTsconfigPaths from "vite-tsconfig-paths";
 import svgrPlugin from "vite-plugin-svgr";
@@ -6,6 +6,9 @@ import path from "path";
 import { ensureLastSlash } from "./src/dev-utils/util";
 import { buildVars } from "./src/dev-utils/buildVars";
 import { globalDepPlugin } from "./src/dev-utils/globalDepPlguin";
+import { visualizer } from "rollup-plugin-visualizer";
+
+const isVisualizerEnabled = true; //!!process.env.ENABLE_VISUALIZER;
 
 const define = {};
 buildVars.forEach(({ name, defaultValue }) => {
@@ -40,6 +43,11 @@ export const viteConfig: UserConfig = {
       external: ["react", "react-dom"],
       output: {
         chunkFileNames: "[hash].js",
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+              return id.toString().split('node_modules/')[1].split('/')[0].toString();
+          }
+        }
       },
     },
     commonjsOptions: {
@@ -97,6 +105,13 @@ export const viteConfig: UserConfig = {
         ref: true,
       },
     }),
+    isVisualizerEnabled && visualizer({
+      template: "treemap", // or sunburst
+      open: true,
+      gzipSize: true,
+      brotliSize: true,
+      filename: "analyse.html"
+    }) as PluginOption,
   ],
 };
 

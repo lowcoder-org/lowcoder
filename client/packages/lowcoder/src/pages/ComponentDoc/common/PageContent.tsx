@@ -4,8 +4,9 @@ import examples from "../examples";
 import { Section, Title1 } from "./Styled";
 import styled from "styled-components";
 import Extra from "./Extra";
-import { UICompType, UICompManifest } from "comps/uiCompRegistry";
+import { UICompType, UICompManifest, ExposingMultiCompConstructor } from "comps/uiCompRegistry";
 import { trans } from "i18n";
+import { useEffect, useState } from "react";
 
 interface IProps {
   name: UICompType;
@@ -21,6 +22,21 @@ const Wrapper = styled.div`
 export default function PageContent(props: IProps) {
   const { name, compInfo, showBasicInfo = true, showExamples = true } = props;
   const Example = examples[name];
+  const [comp, setComp] = useState<ExposingMultiCompConstructor>();
+  
+  useEffect(() => {
+    if(compInfo.lazyLoad) {
+      return setComp(compInfo.comp);
+    }
+
+    async function loadComp() {
+      const c = await import(compInfo.compPath!);
+      setComp(c);
+    }
+    loadComp();
+  }, [compInfo])
+  
+  // const comp = compInfo.lazyLoad ? await import(compInfo.compPath!) : compInfo.comp!;
   return (
     <Wrapper>
       {/* comps basic info */}
@@ -35,7 +51,7 @@ export default function PageContent(props: IProps) {
       )}
 
       {/* comps exposing info */}
-      <Exposing compName={name} compFactory={compInfo.comp} />
+      { comp && <Exposing compName={name} compFactory={comp} /> }
 
       {/* extra info via Markdown */}
       <Extra compName={name} />

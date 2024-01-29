@@ -23,6 +23,7 @@ import { profilerCallback } from "util/cacheUtils";
 import { setFieldsNoTypeCheck, shallowEqual } from "util/objectUtils";
 import { remoteComp } from "./remoteComp/remoteComp";
 import { SimpleNameComp } from "./simpleNameComp";
+import { lazyLoadComp } from "./lazyLoadComp/lazyLoadComp";
 
 export function defaultLayout(compType: UICompType): UICompLayoutInfo {
   return uiCompRegistry[compType]?.layoutInfo ?? { w: 5, h: 5 };
@@ -37,6 +38,7 @@ const TmpComp = withTypeAndChildren<
   ToInstanceType<typeof childrenMap>
 >(
   (type) => {
+    console.log('type', type);
     const compInfo = parseCompType(type);
     if (compInfo.isRemote) {
       return remoteComp(compInfo);
@@ -46,8 +48,15 @@ const TmpComp = withTypeAndChildren<
       if (name !== type) {
         continue;
       }
-      const comp = manifest.withoutLoading ? manifest.comp : withIsLoading(manifest.comp);
-      return withErrorBoundary(comp) as ExposingMultiCompConstructor;
+      console.log(manifest);
+      if(manifest.lazyLoad) {
+        return lazyLoadComp(
+          manifest.compName,
+          manifest.compPath,
+        );
+      }
+      const comp = manifest.withoutLoading ? manifest.comp : withIsLoading(manifest.comp!);
+      return withErrorBoundary(comp!) as ExposingMultiCompConstructor;
     }
   },
   "button",
