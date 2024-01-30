@@ -228,7 +228,7 @@ const onDrop = async (
 
     let defaultDataFn = undefined;
     if(defaultDataFnName && defaultDataFnPath) {
-      const module = await import(defaultDataFnPath);
+      const module = await import(`../../${defaultDataFnPath}`);
       defaultDataFn = module[defaultDataFnName];
     }
     console.log(defaultDataFn);

@@ -3,7 +3,7 @@ import { simpleMultiComp } from "comps/generators";
 import { withExposingConfigs } from "comps/generators/withExposing";
 import { GreyTextColor } from "constants/style";
 import log from "loglevel";
-import { Comp, CompAction, CompParams, customAction, isCustomAction } from "lowcoder-core";
+import { Comp, CompAction, CompConstructor, CompParams, customAction, isCustomAction } from "lowcoder-core";
 import { WhiteLoading } from "lowcoder-design";
 import { useState } from "react";
 import { useMount } from "react-use";
@@ -82,9 +82,12 @@ function RemoteCompView(props: React.PropsWithChildren<RemoteCompViewProps>) {
   );
 }
 
+export type LazyloadCompLoader<T = RemoteCompInfo> = () => Promise<CompConstructor | null>;
+
 export function lazyLoadComp(
   compName?: string,
   compPath?: string,
+  loader?: LazyloadCompLoader,
   loadingElement?: () => React.ReactNode
 ) {
   class LazyLoadComp extends simpleMultiComp({}) {
@@ -100,17 +103,15 @@ export function lazyLoadComp(
       if (!compPath) {
         return;
       }
-      // let finalLoader = loader;
-      // if (!loader) {
-      //   finalLoader = loaders[remoteInfo.source];
-      // }
-      // if (!finalLoader) {
-      //   log.error("loader not found, remote info:", compPath);
-      //   return;
-      // }
-      const module = await import(compPath);
-      const RemoteExportedComp = module[compName!];
+      let RemoteExportedComp;
+      if (!loader) {
+        const module = await import(`../../${compPath}`);
+        RemoteExportedComp = module[compName!];
+      } else {
+        RemoteExportedComp = await loader();
+      }
       if (!RemoteExportedComp) {
+        log.error("loader not found, lazy load info:", compPath);
         return;
       }
 
@@ -135,7 +136,7 @@ export function lazyLoadComp(
 
     getView() {
       // const key = `${remoteInfo?.packageName}-${remoteInfo?.packageVersion}-${remoteInfo?.compName}`;
-      const key = `${compPath}`;
+      const key = `${compName}`;
       return (
         <RemoteCompView key={key} loadComp={() => this.load()} loadingElement={loadingElement} />
       );

@@ -1,5 +1,5 @@
 import "comps";
-import { loadComps } from "comps";
+import { loadComps } from "comps/index-test";
 import { ExecuteAction } from "comps/controls/actionSelector/executeCompTypes";
 import { getCompContainer } from "comps/utils/useCompInstance";
 import { ModuleLayoutCompName } from "constants/compConstants";
@@ -298,19 +298,15 @@ function afterInitModule(callback: (ret: InitModuleReturn) => void) {
 }
 
 beforeAll(async () => {
-  jest.setTimeout(30000);
   await loadComps();
 });
 
 describe("module comp", () => {
   test("init module to ready", (done) => {
     afterInitModule(({ module, text1, text2 }) => {
-      console.log('module', module());
-      console.log('text1', text1());
-      console.log('text2', text2());
       // outputs
       expect(Object.keys(module().getOutputNodes())).toStrictEqual(["out"]);
-      expect(module().exposingValues.out).toBe("");
+      expect(module().exposingValues.out).toBe("hello");
 
       // inputs
       expect(Object.keys(module().children.inputs.getInputNodes())).toStrictEqual([]);

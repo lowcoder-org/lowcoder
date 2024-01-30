@@ -123,10 +123,10 @@ async function addTable(editorState: EditorState) {
     defaultDataFnName,
     defaultDataFnPath,
   } = uiCompRegistry[compType as UICompType];
-  
+
   let defaultDataFn = undefined;
   if(defaultDataFnName && defaultDataFnPath) {
-    const module = await import(defaultDataFnPath);
+    const module = await import(`../../comps/${defaultDataFnPath}`);
     defaultDataFn = module[defaultDataFnName];
   }
   console.log(defaultDataFn);

@@ -136,10 +136,6 @@ export async function registerComp(
   compType: UICompType | string,
   manifest: UICompManifest
 ) {
-  if(manifest.lazyLoad) {
-    const module = await import(manifest.compPath!);
-    manifest.comp = module[manifest.compName!];
-  }
   uiCompRegistry[compType] = {
     ...manifest,
     keywords: [manifest.name, manifest.enName, manifest.keywords]

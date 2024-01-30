@@ -65,7 +65,8 @@ const COMPS_MAP = {
 
 Object.entries(uiCompRegistry).forEach(async ([key, value]) => {
   if(value.lazyLoad) {
-    COMPS_MAP["ui_" + key] = await import(value.compPath!);
+    const module = await import(`../${value.compPath}`!);
+    COMPS_MAP["ui_" + key] = module[value.compName!];
   } else {
     COMPS_MAP["ui_" + key] = value.comp!;
   }
