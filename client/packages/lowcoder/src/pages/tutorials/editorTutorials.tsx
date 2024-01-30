@@ -129,7 +129,6 @@ async function addTable(editorState: EditorState) {
     const module = await import(`../../comps/${defaultDataFnPath}`);
     defaultDataFn = module[defaultDataFnName];
   }
-  console.log(defaultDataFn);
 
   const widgetValue: GridItemDataType = {
     compType,

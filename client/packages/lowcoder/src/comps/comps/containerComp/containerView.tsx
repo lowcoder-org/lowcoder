@@ -231,7 +231,6 @@ const onDrop = async (
       const module = await import(`../../${defaultDataFnPath}`);
       defaultDataFn = module[defaultDataFnName];
     }
-    console.log(defaultDataFn);
 
     const widgetValue: GridItemDataType = {
       compType,

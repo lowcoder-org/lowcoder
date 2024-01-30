@@ -7,12 +7,10 @@ import { fetchDataSourceByApp, fetchDataSourceTypes } from "redux/reduxActions/d
 import { getUser } from "redux/selectors/usersSelectors";
 import { useUserViewMode } from "util/hooks";
 import "comps/uiCompRegistry";
-// import { AppSnapshot } from "pages/editor/appSnapshot";
 import { showAppSnapshotSelector } from "redux/selectors/appSnapshotSelector";
 import { setShowAppSnapshot } from "redux/reduxActions/appSnapshotActions";
 import { fetchGroupsAction } from "redux/reduxActions/orgActions";
 import { getFetchOrgGroupsFinished } from "redux/selectors/orgSelectors";
-// import { AppEditorInternalView, useRootCompInstance } from "pages/editor/appEditorInternal";
 import { useRootCompInstance } from "pages/editor/useRootCompInstance";
 import { getIsCommonSettingFetching } from "redux/selectors/commonSettingSelectors";
 import {
@@ -31,11 +29,6 @@ import { DatasourceApi } from "api/datasourceApi";
 import ErrorBoundary from "antd/es/alert/ErrorBoundary";
 import EditorSkeletonView from "./editorSkeletonView";
 
-// const AppSnapshot = lazy(() => {
-//     return new Promise(resolve => {
-//     setTimeout(() => resolve(import("pages/editor/appSnapshot")), 3000);
-//   });
-// });
 const AppSnapshot = lazy(() => {
   return Promise.all([
     import("pages/editor/appSnapshot"),
@@ -43,8 +36,7 @@ const AppSnapshot = lazy(() => {
   ])
   .then(([moduleExports]) => moduleExports);
 });
-// import('pages/editor/appSnapshot'));
-// const AppEditorInternalView = lazy(() => import('pages/editor/appEditorInternal'));
+
 const AppEditorInternalView = lazy(() => {
   return Promise.all([
     import("pages/editor/appEditorInternal"),
