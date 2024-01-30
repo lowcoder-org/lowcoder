@@ -4,7 +4,6 @@ import { simpleMultiComp } from "comps/generators";
 import { HookListComp } from "comps/hooks/hookListComp";
 import { QueryListComp } from "comps/queries/queryComp";
 import { NameAndExposingInfo } from "comps/utils/exposingTypes";
-// import EditorView from "pages/editor/editorView";
 import { handlePromiseAndDispatch } from "util/promiseUtils";
 import { HTMLAttributes, Suspense, lazy, useContext, useEffect, useMemo, useState } from "react";
 import { setFieldsNoTypeCheck } from "util/objectUtils";

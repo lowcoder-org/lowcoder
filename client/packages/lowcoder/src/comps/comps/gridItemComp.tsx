@@ -38,7 +38,6 @@ const TmpComp = withTypeAndChildren<
   ToInstanceType<typeof childrenMap>
 >(
   (type) => {
-    console.log('type', type);
     const compInfo = parseCompType(type);
     if (compInfo.isRemote) {
       return remoteComp(compInfo);
@@ -48,7 +47,6 @@ const TmpComp = withTypeAndChildren<
       if (name !== type) {
         continue;
       }
-      console.log(manifest);
       if(manifest.lazyLoad) {
         return lazyLoadComp(
           manifest.compName,

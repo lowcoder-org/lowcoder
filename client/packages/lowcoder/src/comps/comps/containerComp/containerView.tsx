@@ -220,7 +220,7 @@ const onDrop = async (
     const nameGenerator = editorState.getNameGenerator();
     const compInfo = parseCompType(compType);
     const compName = nameGenerator.genItemName(compInfo.compName);
-    // const defaultDataFn = uiCompRegistry[compType as UICompType]?.defaultDataFn;
+
     const {
       defaultDataFnName,
       defaultDataFnPath,

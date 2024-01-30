@@ -5,6 +5,8 @@ import { registerComp, UICompManifest, UICompType } from "./uiCompRegistry";
 import { trans } from "i18n";
 import { remoteComp } from "./comps/remoteComp/remoteComp";
 import { RemoteCompInfo } from "types/remoteComp";
+import { defaultTableData } from "./comps/tableComp/mockTableComp";
+import { TableComp } from "./comps/tableComp";
 
 import {
   AudioCompIcon,

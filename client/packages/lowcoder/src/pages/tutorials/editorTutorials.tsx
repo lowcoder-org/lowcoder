@@ -118,7 +118,7 @@ async function addTable(editorState: EditorState) {
     return;
   }
   const key = genRandomKey();
-  // const defaultDataFn = uiCompRegistry[compType as UICompType]?.defaultDataFn;
+
   const {
     defaultDataFnName,
     defaultDataFnPath,
