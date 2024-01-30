@@ -21,7 +21,7 @@ const edition = process.env.REACT_APP_EDITION;
 const isEEGlobal = edition === "enterprise-global";
 const isEE = edition === "enterprise" || isEEGlobal;
 const isDev = nodeEnv === "development";
-const isVisualizerEnabled = true; //!!process.env.ENABLE_VISUALIZER;
+const isVisualizerEnabled = !!process.env.ENABLE_VISUALIZER;
 // the file was never created
 // const browserCheckFileName = `browser-check-${process.env.REACT_APP_COMMIT_ID}.js`;
 const browserCheckFileName = `browser-check.js`;

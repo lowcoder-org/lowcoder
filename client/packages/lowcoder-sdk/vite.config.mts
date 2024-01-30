@@ -8,7 +8,7 @@ import { buildVars } from "./src/dev-utils/buildVars";
 import { globalDepPlugin } from "./src/dev-utils/globalDepPlguin";
 import { visualizer } from "rollup-plugin-visualizer";
 
-const isVisualizerEnabled = true; //!!process.env.ENABLE_VISUALIZER;
+const isVisualizerEnabled = !!process.env.ENABLE_VISUALIZER;
 
 const define = {};
 buildVars.forEach(({ name, defaultValue }) => {
