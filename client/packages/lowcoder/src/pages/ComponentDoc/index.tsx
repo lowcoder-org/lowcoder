@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import styled from "styled-components";
 import PageContent from "./common/PageContent";
-import "comps";
+// import "comps";
 import {
   UICompType,
   UICompManifest,
@@ -91,7 +91,7 @@ export default function ComponentDoc() {
     }
 
     async function loadComp() {
-      const module = await import(`../../comps/${manifest.compPath}`);
+      const module = await import(`../../comps/${manifest.compPath}.tsx`);
       const comp = module[manifest.compName!];
 ;
       setCompManifest({

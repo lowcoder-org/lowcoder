@@ -5,8 +5,6 @@ import { registerComp, UICompManifest, UICompType } from "./uiCompRegistry";
 import { trans } from "i18n";
 import { remoteComp } from "./comps/remoteComp/remoteComp";
 import { RemoteCompInfo } from "types/remoteComp";
-import { defaultTableData } from "./comps/tableComp/mockTableComp";
-import { TableComp } from "./comps/tableComp";
 
 import {
   AudioCompIcon,
@@ -138,13 +136,12 @@ var uiCompMap: Registry = {
     keywords: trans("uiComp.tableCompKeywords"),
     lazyLoad: true,
     compName: 'TableComp',
-    compPath: 'comps/tableComp',
+    compPath: 'comps/tableComp/index',
     layoutInfo: {
       w: 12,
       h: 40,
     },
     withoutLoading: true,
-    // defaultDataFn: defaultTableData,
     defaultDataFnName: 'defaultTableData',
     defaultDataFnPath: 'comps/tableComp/mockTableComp'
   },
@@ -190,7 +187,7 @@ var uiCompMap: Registry = {
     keywords: trans("uiComp.responsiveLayoutCompKeywords"),
     lazyLoad: true,
     compName: 'ResponsiveLayoutComp',
-    compPath: 'comps/responsiveLayout',
+    compPath: 'comps/responsiveLayout/index',
     withoutLoading: true,
     layoutInfo: {
       w: 24,
@@ -215,7 +212,6 @@ var uiCompMap: Registry = {
       // static: true,
       delayCollision: true,
     },
-    // defaultDataFn: defaultContainerData,
     defaultDataFnName: 'defaultContainerData',
     defaultDataFnPath: 'comps/containerComp/containerComp'
   },
@@ -228,7 +224,7 @@ var uiCompMap: Registry = {
     keywords: trans("uiComp.tabbedContainerCompKeywords"),
     lazyLoad: true,
     compName: 'TabbedContainerComp',
-    compPath: 'comps/tabs',
+    compPath: 'comps/tabs/index',
     withoutLoading: true,
     layoutInfo: {
       w: 12,
@@ -254,7 +250,6 @@ var uiCompMap: Registry = {
       // static: true,
       delayCollision: true,
     },
-    // defaultDataFn: defaultCollapsibleContainerData,
     defaultDataFnName: 'defaultCollapsibleContainerData',
     defaultDataFnPath: 'comps/containerComp/collapsibleContainerComp',
   },
@@ -267,15 +262,14 @@ var uiCompMap: Registry = {
     keywords: trans("uiComp.listViewCompKeywords"),
     lazyLoad: true,
     compName: 'ListViewComp',
-    compPath: 'comps/listViewComp',
+    compPath: 'comps/listViewComp/index',
     layoutInfo: {
       w: 12,
       h: 40,
       delayCollision: true,
     },
-    // defaultDataFn: defaultListViewData,
     defaultDataFnName: 'defaultListViewData',
-    defaultDataFnPath: 'comps/listViewComp',
+    defaultDataFnPath: 'comps/listViewComp/index',
   },
   grid: {
     name: trans("uiComp.gridCompName"),
@@ -286,15 +280,14 @@ var uiCompMap: Registry = {
     keywords: trans("uiComp.gridCompKeywords"),
     lazyLoad: true,
     compName: 'GridComp',
-    compPath: 'comps/listViewComp',
+    compPath: 'comps/listViewComp/index',
     layoutInfo: {
       w: 12,
       h: 40,
       delayCollision: true,
     },
-    // defaultDataFn: defaultGridData,
     defaultDataFnName: 'defaultGridData',
-    defaultDataFnPath: 'comps/listViewComp',
+    defaultDataFnPath: 'comps/listViewComp/index',
   },
   modal: {
     name: trans("uiComp.modalCompName"),
@@ -489,7 +482,6 @@ var uiCompMap: Registry = {
       // static: true,
       delayCollision: true,
     },
-    // defaultDataFn: defaultFormData,
     defaultDataFnName: 'defaultFormData',
     defaultDataFnPath: 'comps/formComp/formComp',
   },

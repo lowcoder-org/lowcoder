@@ -3487,6 +3487,24 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@rollup/plugin-dynamic-import-vars@npm:^2.1.2":
+  version: 2.1.2
+  resolution: "@rollup/plugin-dynamic-import-vars@npm:2.1.2"
+  dependencies:
+    "@rollup/pluginutils": ^5.0.1
+    astring: ^1.8.5
+    estree-walker: ^2.0.2
+    fast-glob: ^3.2.12
+    magic-string: ^0.30.3
+  peerDependencies:
+    rollup: ^1.20.0||^2.0.0||^3.0.0||^4.0.0
+  peerDependenciesMeta:
+    rollup:
+      optional: true
+  checksum: 355dfc42cf1b0ddd009393927cdb9ea1d24cb674a9cdda732d0cb1320bb747c2f6d8e68f4dcb8507e37314ac916e8859e722f583371228bede140b5b83b67549
+  languageName: node
+  linkType: hard
+
 "@rollup/plugin-inject@npm:^4.0.0":
   version: 4.0.4
   resolution: "@rollup/plugin-inject@npm:4.0.4"
@@ -5469,6 +5487,15 @@ __metadata:
   version: 0.0.8
   resolution: "ast-types-flow@npm:0.0.8"
   checksum: 0a64706609a179233aac23817837abab614f3548c252a2d3d79ea1e10c74aa28a0846e11f466cf72771b6ed8713abc094dcf8c40c3ec4207da163efa525a94a8
+  languageName: node
+  linkType: hard
+
+"astring@npm:^1.8.5":
+  version: 1.8.6
+  resolution: "astring@npm:1.8.6"
+  bin:
+    astring: bin/astring
+  checksum: 6f034d2acef1dac8bb231e7cc26c573d3c14e1975ea6e04f20312b43d4f462f963209bc64187d25d477a182dc3c33277959a0156ab7a3617aa79b1eac4d88e1f
   languageName: node
   linkType: hard
 
@@ -8807,7 +8834,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fast-glob@npm:^3.2.11, fast-glob@npm:^3.2.7, fast-glob@npm:^3.2.9":
+"fast-glob@npm:^3.2.11, fast-glob@npm:^3.2.12, fast-glob@npm:^3.2.7, fast-glob@npm:^3.2.9":
   version: 3.3.2
   resolution: "fast-glob@npm:3.3.2"
   dependencies:
@@ -12019,6 +12046,7 @@ __metadata:
     "@rjsf/core": ^5.15.1
     "@rjsf/utils": ^5.15.1
     "@rjsf/validator-ajv8": ^5.15.1
+    "@rollup/plugin-dynamic-import-vars": ^2.1.2
     "@types/core-js": ^2.5.5
     "@types/intl": ^1.2.1
     "@types/lodash": ^4.14.194

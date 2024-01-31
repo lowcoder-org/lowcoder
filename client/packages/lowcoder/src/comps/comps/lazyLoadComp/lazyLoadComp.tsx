@@ -105,7 +105,7 @@ export function lazyLoadComp(
       }
       let RemoteExportedComp;
       if (!loader) {
-        const module = await import(`../../${compPath}`);
+        const module = await import(`../../${compPath}.tsx`);
         RemoteExportedComp = module[compName!];
       } else {
         RemoteExportedComp = await loader();

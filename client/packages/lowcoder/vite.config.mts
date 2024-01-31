@@ -5,6 +5,8 @@ import viteTsconfigPaths from "vite-tsconfig-paths";
 import svgrPlugin from "vite-plugin-svgr";
 import checker from "vite-plugin-checker";
 import { visualizer } from "rollup-plugin-visualizer";
+import dynamicImportVars from "@rollup/plugin-dynamic-import-vars";
+// import resolve from "@rollup/plugin-node-resolve";
 import path from "path";
 import chalk from "chalk";
 import { createHtmlPlugin } from "vite-plugin-html";
@@ -76,13 +78,25 @@ export const viteConfig: UserConfig = {
     emptyOutDir: false,
     chunkSizeWarningLimit: 100,
     rollupOptions: {
+      plugins: [
+        // resolve() as PluginOption,
+        dynamicImportVars({
+          exclude: ['src/comps/comps/remoteComp/loaders.tsx'],
+        }) as PluginOption
+      ],
       output: {
-        chunkFileNames: "[hash].js",
-        manualChunks(id) {
-          if (id.includes('node_modules')) {
-              return id.toString().split('node_modules/')[1].split('/')[0].toString();
-          }
+        chunkFileNames: "[name].js",
+      //   manualChunks: (id) => {
+      //     if (id.includes('node_modules')) {
+      //       return id.toString().split('node_modules/')[1].split('/')[0].toString();
+      //     }
+      //   },
+      },
+      onwarn: (warning, warn) => {
+        if (warning.code === 'MODULE_LEVEL_DIRECTIVE') {
+          return
         }
+        warn(warning)
       },
     },
     commonjsOptions: {
@@ -174,7 +188,8 @@ const browserCheckConfig: UserConfig = {
     copyPublicDir: false,
     emptyOutDir: true,
     lib: {
-      formats: ["iife"],
+      // formats: ["iife"],
+      formats: ['iife'],
       name: "BrowserCheck",
       entry: "./src/browser-check.ts",
       fileName: () => {

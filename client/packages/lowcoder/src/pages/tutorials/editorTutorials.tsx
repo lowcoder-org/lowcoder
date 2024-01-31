@@ -126,7 +126,7 @@ async function addTable(editorState: EditorState) {
 
   let defaultDataFn = undefined;
   if(defaultDataFnName && defaultDataFnPath) {
-    const module = await import(`../../comps/${defaultDataFnPath}`);
+    const module = await import(`../../comps/${defaultDataFnPath}.tsx`);
     defaultDataFn = module[defaultDataFnName];
   }
 

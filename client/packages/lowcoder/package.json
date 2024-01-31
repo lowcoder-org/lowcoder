@@ -111,6 +111,7 @@
     "prepare": "husky install"
   },
   "devDependencies": {
+    "@rollup/plugin-dynamic-import-vars": "^2.1.2",
     "@types/core-js": "^2.5.5",
     "@types/intl": "^1.2.1",
     "@types/papaparse": "^5.3.5",

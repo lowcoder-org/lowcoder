@@ -1,6 +1,6 @@
 import { useParams } from "react-router-dom";
 import styled from "styled-components";
-import "comps";
+// import "comps";
 import { UICompType, UICompManifest, uiCompRegistry, UICompCategory } from "comps/uiCompRegistry";
 import { CompPlayground } from "ide/CompPlayground";
 import { Comp } from "lowcoder-core";
@@ -64,7 +64,7 @@ export default function ComponentPlayground() {
     }
 
     async function loadComp() {
-      const module = await import(`../../comps/${manifest.compPath}`);
+      const module = await import(`../../comps/${manifest.compPath}.tsx`);
       const comp = module[manifest.compName!];
 ;
       setCompManifest({

@@ -37,9 +37,20 @@ export default defineConfig({
       fileName: "index",
     },
     rollupOptions: {
-      external: getLibNames(),
+      // external: getLibNames(),
       output: {
         chunkFileNames: "[hash].js",
+        manualChunks: (id) => {
+          if (id.includes('node_modules')) {
+            return id.toString().split('node_modules/')[1].split('/')[0].toString();
+          }
+        },
+      },
+      onwarn: (warning, warn) => {
+        if (warning.code === 'MODULE_LEVEL_DIRECTIVE') {
+          return
+        }
+        warn(warning)
       },
     },
   },
