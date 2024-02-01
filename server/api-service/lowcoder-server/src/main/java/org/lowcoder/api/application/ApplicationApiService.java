@@ -141,7 +141,7 @@ public class ApplicationApiService {
                 createApplicationRequest.applicationType(),
                 NORMAL,
                 createApplicationRequest.publishedApplicationDSL(),
-                false, createApplicationRequest.editingApplicationDSL());
+                false, false, createApplicationRequest.editingApplicationDSL());
 
         if (StringUtils.isBlank(application.getOrganizationId())) {
             return deferredError(INVALID_PARAMETER, "ORG_ID_EMPTY");
@@ -429,6 +429,7 @@ public class ApplicationApiService {
                                         .creatorId(creatorId)
                                         .orgName(organization.getName())
                                         .publicToAll(application.isPublicToAll())
+                                        .publicToMarketplace(application.isPublicToMarketplace())
                                         .build();
                             });
                 });
@@ -485,6 +486,7 @@ public class ApplicationApiService {
                 .applicationStatus(application.getApplicationStatus())
                 .folderId(folderId)
                 .publicToAll(application.isPublicToAll())
+                .publicToMarketplace(application.isPublicToMarketplace())
                 .build();
     }
 
@@ -496,6 +498,12 @@ public class ApplicationApiService {
         return checkCurrentUserApplicationPermission(applicationId, ResourceAction.SET_APPLICATIONS_PUBLIC)
                 .then(checkApplicationStatus(applicationId, NORMAL))
                 .then(applicationService.setApplicationPublicToAll(applicationId, publicToAll));
+    }
+
+    public Mono<Boolean> setApplicationPublicToMarketplace(String applicationId, boolean publicToMarketplace) {
+        return checkCurrentUserApplicationPermission(applicationId, ResourceAction.SET_APPLICATIONS_PUBLIC_TO_MARKETPLACE)
+                .then(checkApplicationStatus(applicationId, NORMAL))
+                .then(applicationService.setApplicationPublicToMarketplace(applicationId, publicToMarketplace));
     }
 
     private Map<String, Object> sanitizeDsl(Map<String, Object> applicationDsl) {

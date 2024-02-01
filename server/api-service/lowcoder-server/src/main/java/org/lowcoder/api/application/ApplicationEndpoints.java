@@ -10,6 +10,7 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.lowcoder.api.application.view.ApplicationInfoView;
 import org.lowcoder.api.application.view.ApplicationPermissionView;
 import org.lowcoder.api.application.view.ApplicationView;
+import org.lowcoder.api.application.view.MarketplaceApplicationInfoView;
 import org.lowcoder.api.framework.view.ResponseView;
 import org.lowcoder.api.home.UserHomepageView;
 import org.lowcoder.domain.application.model.Application;
@@ -150,6 +151,15 @@ public interface ApplicationEndpoints
             @RequestParam(defaultValue = "true") boolean withContainerSize);
 
 	@Operation(
+			tags = TAG_APPLICATION_MANAGEMENT,
+			operationId = "listMarketplaceApplications",
+			summary = "List marketplace Applications",
+			description = "Retrieve a list of Lowcoder Applications that are published to the marketplace"
+	)
+	@GetMapping("/marketplace-apps")
+	public Mono<ResponseView<List<MarketplaceApplicationInfoView>>> getMarketplaceApplications(@RequestParam(required = false) Integer applicationType);
+
+	@Operation(
 			tags = TAG_APPLICATION_PERMISSIONS,
 		    operationId = "updateApplicationPermissions",
 		    summary = "Update Application permissions",
@@ -202,8 +212,18 @@ public interface ApplicationEndpoints
     public Mono<ResponseView<Boolean>> setApplicationPublicToAll(@PathVariable String applicationId,
             @RequestBody ApplicationPublicToAllRequest request);
 
-    
-    public record BatchAddPermissionRequest(String role, Set<String> userIds, Set<String> groupIds) {
+	@Operation(
+			tags = TAG_APPLICATION_MANAGEMENT,
+			operationId = "setApplicationAsPublicToMarketplace",
+			summary = "Set Application as publicly available on marketplace but to only logged in users",
+			description = "Set a Lowcoder Application identified by its ID as publicly available on marketplace but to only logged in users."
+	)
+	@PutMapping("/{applicationId}/public-to-marketplace")
+	public Mono<ResponseView<Boolean>> setApplicationPublicToMarketplace(@PathVariable String applicationId,
+																  @RequestBody ApplicationPublicToMarketplaceRequest request);
+
+
+	public record BatchAddPermissionRequest(String role, Set<String> userIds, Set<String> groupIds) {
     }
 
     public record ApplicationPublicToAllRequest(Boolean publicToAll) {
@@ -212,6 +232,13 @@ public interface ApplicationEndpoints
             return BooleanUtils.isTrue(publicToAll);
         }
     }
+
+	public record ApplicationPublicToMarketplaceRequest(Boolean publicToMarketplace) {
+		@Override
+		public Boolean publicToMarketplace() {
+			return BooleanUtils.isTrue(publicToMarketplace);
+		}
+	}
 
     public record UpdatePermissionRequest(String role) {
     }

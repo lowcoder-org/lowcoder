@@ -15,6 +15,7 @@ import java.util.List;
 import org.lowcoder.api.application.view.ApplicationInfoView;
 import org.lowcoder.api.application.view.ApplicationPermissionView;
 import org.lowcoder.api.application.view.ApplicationView;
+import org.lowcoder.api.application.view.MarketplaceApplicationInfoView;
 import org.lowcoder.api.framework.view.ResponseView;
 import org.lowcoder.api.home.UserHomeApiService;
 import org.lowcoder.api.home.UserHomepageView;
@@ -128,6 +129,14 @@ public class ApplicationController implements ApplicationEndpoints {
     }
 
     @Override
+    public Mono<ResponseView<List<MarketplaceApplicationInfoView>>> getMarketplaceApplications(@RequestParam(required = false) Integer applicationType) {
+        ApplicationType applicationTypeEnum = applicationType == null ? null : ApplicationType.fromValue(applicationType);
+        return userHomeApiService.getAllMarketplaceApplications(applicationTypeEnum)
+                .collectList()
+                .map(ResponseView::success);
+    }
+
+    @Override
     public Mono<ResponseView<Boolean>> updatePermission(@PathVariable String applicationId,
             @PathVariable String permissionId,
             @RequestBody UpdatePermissionRequest updatePermissionRequest) {
@@ -175,6 +184,13 @@ public class ApplicationController implements ApplicationEndpoints {
     public Mono<ResponseView<Boolean>> setApplicationPublicToAll(@PathVariable String applicationId,
             @RequestBody ApplicationPublicToAllRequest request) {
         return applicationApiService.setApplicationPublicToAll(applicationId, request.publicToAll())
+                .map(ResponseView::success);
+    }
+
+    @Override
+    public Mono<ResponseView<Boolean>> setApplicationPublicToMarketplace(@PathVariable String applicationId,
+                                                                         @RequestBody ApplicationPublicToMarketplaceRequest request) {
+        return applicationApiService.setApplicationPublicToMarketplace(applicationId, request.publicToMarketplace())
                 .map(ResponseView::success);
     }
 }

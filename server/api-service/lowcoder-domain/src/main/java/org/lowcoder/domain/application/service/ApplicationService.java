@@ -103,6 +103,10 @@ public class ApplicationService {
         return repository.findByOrganizationId(organizationId);
     }
 
+    public Flux<Application> findAllMarketplaceApps() {
+        return repository.findByPublicToAllIsTrueAndPublicToMarketplaceIsTrue();
+    }
+
     public Mono<Long> countByOrganizationId(String orgId, ApplicationStatus applicationStatus) {
         return repository.countByOrganizationIdAndApplicationStatus(orgId, applicationStatus);
     }
@@ -143,6 +147,13 @@ public class ApplicationService {
     public Mono<Boolean> setApplicationPublicToAll(String applicationId, boolean publicToAll) {
         Application application = Application.builder()
                 .publicToAll(publicToAll)
+                .build();
+        return mongoUpsertHelper.updateById(application, applicationId);
+    }
+
+    public Mono<Boolean> setApplicationPublicToMarketplace(String applicationId, boolean publicToMarketplace) {
+        Application application = Application.builder()
+                .publicToMarketplace(publicToMarketplace)
                 .build();
         return mongoUpsertHelper.updateById(application, applicationId);
     }
