@@ -12,12 +12,21 @@ RUN jlink --add-modules java.base,java.compiler,java.datatransfer,java.desktop,j
 ## Build Lowcoder api-service application
 ##
 FROM maven:3.9-eclipse-temurin-17 AS build-api-service
+
+# Clone and build lowcoder-plugin-api
+RUN mkdir -p /build/plugin-api \
+  && cd /build/plugin-api \
+  && git clone https://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@github.com/Lowcoder-Pro/lowcoder-plugin-api.git .
+
+WORKDIR /build/plugin-api
+RUN --mount=type=cache,target=/root/.m2 mvn -f pom.xml clean install -DskipTests
+
 COPY ./server/api-service /lowcoder-server
 WORKDIR /lowcoder-server
 RUN --mount=type=cache,target=/root/.m2 mvn -f pom.xml clean package -DskipTests
 
 # Create required folder structure
-RUN mkdir -p /lowcoder/api-service/plugins /lowcoder/api-service/config /lowcoder/api-service/logs
+RUN mkdir -p /lowcoder/api-service/plugins /lowcoder/api-service/config /lowcoder/api-service/logs /lowcoder/plugins
 
 # Define lowcoder main jar and plugin jars
 ARG JAR_FILE=/lowcoder-server/lowcoder-server/target/lowcoder-server-*.jar
@@ -210,6 +219,8 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install --no-instal
 
 # Add lowcoder api-service
 COPY --chown=lowcoder:lowcoder --from=lowcoder-ce-api-service /lowcoder/api-service /lowcoder/api-service
+RUN mkdir -p /lowcoder/plugins/ && chown lowcoder:lowcoder /lowcoder/plugins/
+COPY --chown=lowcoder:lowcoder enterprise-plugin-0.0.1.jar /lowcoder/plugins/enterprise-plugin-0.0.1.jar
 
 # Add lowcoder node-service
 COPY --chown=lowcoder:lowcoder --from=lowcoder-ce-node-service /lowcoder/node-service /lowcoder/node-service

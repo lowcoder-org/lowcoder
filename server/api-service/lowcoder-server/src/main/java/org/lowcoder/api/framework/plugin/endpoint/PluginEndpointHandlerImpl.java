@@ -40,8 +40,7 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 @Component
 public class PluginEndpointHandlerImpl implements PluginEndpointHandler
-{
-	private static final String PLUGINS_BASE_URL = "/plugins/";
+{	
 	private List<RouterFunction<ServerResponse>> routes = new ArrayList<>();
 	
 	private final ApplicationContext applicationContext;
@@ -54,7 +53,6 @@ public class PluginEndpointHandlerImpl implements PluginEndpointHandler
 		
 		if (CollectionUtils.isNotEmpty(endpoints))
 		{
-			List<EndpointExtension> toAuthorize = new ArrayList<>();
 			for (PluginEndpoint endpoint : endpoints)
 			{
 				Method[] handlers = endpoint.getClass().getDeclaredMethods();
@@ -62,16 +60,12 @@ public class PluginEndpointHandlerImpl implements PluginEndpointHandler
 				{
 					for (Method handler : handlers)
 					{
-						toAuthorize.addAll(registerEndpointHandler(urlPrefix, endpoint, handler));
+						registerEndpointHandler(urlPrefix, endpoint, handler);
 					}
 				}
 			}
 			
 			((ReloadableRouterFunctionMapping)beanFactory.getBean("routerFunctionMapping")).reloadFunctionMappings();
-			if (!toAuthorize.isEmpty())
-			{
-				// TODO: ludomikula: finish endpoint authorization
-			}
 		}
 	}
 	
@@ -81,10 +75,8 @@ public class PluginEndpointHandlerImpl implements PluginEndpointHandler
 		return routes;
 	}
 
-	private List<EndpointExtension> registerEndpointHandler(String urlPrefix, PluginEndpoint endpoint, Method handler)
+	private void registerEndpointHandler(String urlPrefix, PluginEndpoint endpoint, Method handler)
 	{
-		List<EndpointExtension> toAuthorize = new ArrayList<>();
-		
 		if (handler.isAnnotationPresent(EndpointExtension.class))
 		{
 			if (checkHandlerMethod(handler))
@@ -108,12 +100,7 @@ public class PluginEndpointHandlerImpl implements PluginEndpointHandler
 				});				
 				routes.add(routerFunction);				
 				registerRouterFunctionMapping(endpointName, routerFunction);
-				
-				if (endpointMeta.authenticated())
-				{
-					toAuthorize.add(endpointMeta);
-				}
-				
+
 				log.info("Registered endpoint: {} -> {}: {}", endpoint.getClass().getSimpleName(), endpointMeta.method(), urlPrefix + endpointMeta.uri());
 			}
 			else
@@ -121,8 +108,6 @@ public class PluginEndpointHandlerImpl implements PluginEndpointHandler
 				log.error("Cannot register plugin endpoint: {} -> {}! Handler method must be defined as: public Mono<ServerResponse> {}(ServerRequest request)", endpoint.getClass().getSimpleName(), handler.getName(), handler.getName());
 			}
 		}
-		
-		return toAuthorize;
 	}
 	
 	private void registerRouterFunctionMapping(String endpointName, RouterFunction<ServerResponse> routerFunction)
