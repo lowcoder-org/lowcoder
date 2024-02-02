@@ -34,6 +34,7 @@ type GridItemCallback<Data extends GridDragEvent | GridResizeEvent> = (
   arg3: Data
 ) => void;
 export type GridItemProps = {
+  zIndex: number;
   children: ReactElement;
   cols: number;
   containerWidth: number;
@@ -81,7 +82,8 @@ export type GridItemProps = {
 
 export const IsDroppable = React.createContext(true);
 
-const ResizableStyled = styled(Resizable)`
+const ResizableStyled = styled(Resizable)<{ $zIndex: number }>`
+  z-index: ${props => props.$zIndex};
   &:hover {
     z-index: 1;
   }
@@ -151,7 +153,8 @@ export function GridItem(props: GridItemProps) {
   const mixinResizable = (
     child: ReactElement,
     position: Position,
-    isResizable: boolean
+    isResizable: boolean,
+    zIndex: number,
   ): ReactElement => {
     const { cols, x, minW, minH, maxW, maxH, resizeHandles } = props;
     // This is the max possible width - doesn't go to infinity because of the width of the window
@@ -179,6 +182,7 @@ export function GridItem(props: GridItemProps) {
         onResizeStop={onResizeStop}
         resizeHandles={resizeHandles}
         handle={Handle}
+        $zIndex={zIndex}
       >
         {child}
       </ResizableStyled>
@@ -397,7 +401,7 @@ export function GridItem(props: GridItemProps) {
     return { width, height, top, left };
   }, [dragging, position.height, position.left, position.top, position.width, resizing]);
 
-  const { isDraggable, isResizable, layoutHide, children, isSelected, clickItem } = props;
+  const { isDraggable, isResizable, layoutHide, children, isSelected, clickItem, zIndex } = props;
   const pos = calcPosition();
   const render = () => {
     let child = React.Children.only(children);
@@ -433,7 +437,7 @@ export function GridItem(props: GridItemProps) {
       },
     });
     // Resizable support. This is usually on but the user can toggle it off.
-    newChild = mixinResizable(newChild, pos, isResizable);
+    newChild = mixinResizable(newChild, pos, isResizable, zIndex);
     // Draggable support. This is always on, except for with placeholders.
     newChild = mixinDraggable(newChild, isDraggable);
     return newChild;

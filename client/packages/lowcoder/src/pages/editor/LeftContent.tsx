@@ -33,6 +33,9 @@ import { CollapseWrapper, DirectoryTreeStyle, Node } from "./styledComponents";
 import { DataNode, EventDataNode } from "antd/lib/tree";
 import { isAggregationApp } from "util/appUtils";
 import cloneDeep from 'lodash/cloneDeep';
+import { useDispatch } from "react-redux";
+import { useApplicationId } from "util/hooks";
+import { updateApplication } from "redux/reduxActions/applicationActions";
 
 const CollapseTitleWrapper = styled.div`
   display: flex;
@@ -209,6 +212,8 @@ type NodeItem = {
   title: string;
   type?: UICompType;
   children: NodeItem[];
+  pos?: number;
+  disabled?: boolean;
 };
 
 type NodeInfo = {
@@ -243,12 +248,14 @@ export const LeftContent = (props: LeftContentProps) => {
   const editorState = useContext(EditorContext);
   const [expandedKeys, setExpandedKeys] = useState<Array<React.Key>>([]);
   const [showData, setShowData] = useState<NodeInfo[]>([]);
+  const dispatch = useDispatch();
+  const applicationId = useApplicationId();
 
   const getTree = (tree: CompTree, result: NodeItem[], key?: string) => {
     const { items, children } = tree;
     if (Object.keys(items).length) {
       for (const i in items) {
-        const info = {
+        const info: NodeItem = {
           title: items[i].children.name.getView(),
           type: items[i].children.compType.getView() as UICompType,
           key: i,
@@ -256,12 +263,13 @@ export const LeftContent = (props: LeftContentProps) => {
         };
         if (key) {
           const parent = getTreeNodeByKey(result, key);
+          info.disabled = true;
           parent?.children.push(info);
         } else {
           result.push(info);
         }
       }
-      result = _.sortBy(result, [(x) => x.title]);
+      // result = _.sortBy(result, [(x) => x.title]);
     }
     if (Object.keys(children).length) {
       for (const i in children) {
@@ -428,6 +436,20 @@ export const LeftContent = (props: LeftContentProps) => {
         ? editorState.getUIComp().getTree()
         : editorState.getHooksComp().getUITree();
     const explorerData: NodeItem[] = getTree(tree, []);
+    // TODO: handle sorting inside modals/drawers
+    if(type === TreeUIKey.Modals)  return explorerData;
+    
+    const dsl = editorState.rootComp.toJsonValue();
+    explorerData.forEach(data => {
+      data['pos'] = dsl.ui.layout[data.key].pos;
+    })
+    explorerData.sort((a, b) => {
+      const aPos = a?.pos || 0;
+      const bPos = b?.pos || 0;
+      if (aPos < bPos) return -1;
+      if (aPos > bPos) return 1;
+      return 0;
+    });
     return explorerData;
   }
 
@@ -468,7 +490,34 @@ export const LeftContent = (props: LeftContentProps) => {
             parentNode.children.splice(dropIndex > dragIndex ? dropIndex - 1 : dropIndex, 0, draggedNode);
           }
         }
+
+        const dsl = editorState.rootComp.toJsonValue();
+        let layout: any = {};
+        parentNode.children.forEach((data, index) => {
+          layout[data.key] = {
+            ...dsl.ui.layout[data.key],
+            pos: index,
+          };
+        })
         
+        if ( type === TreeUIKey.Modals) return newTreeData;
+
+        dispatch(
+          updateApplication({
+            applicationId: applicationId,
+            editingApplicationDSL: {
+              ...dsl,
+              ui: {
+                ...dsl.ui,
+                layout,
+              }
+            } as object,
+          })
+        );
+        editorState.rootComp.children.ui.dispatchChangeValueAction({
+          ...dsl.ui,
+          layout,
+        })
         return newTreeData;
       });
     }

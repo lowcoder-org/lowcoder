@@ -58,6 +58,11 @@ export const DirectoryTreeStyle = styled(DirectoryTree)`
     .ant-tree-node-content-wrapper.ant-tree-node-selected {
       color: #333;
     }
+    .ant-tree-treenode-disabled {
+      .ant-tree-node-content-wrapper {
+        color: inherit;
+      }
+    }
   }
 `;
 

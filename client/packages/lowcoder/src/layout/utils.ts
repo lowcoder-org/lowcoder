@@ -14,6 +14,7 @@ export type LayoutItem = {
   x: number;
   y: number;
   i: string;
+  pos?: number;
   minW?: number;
   minH?: number;
   maxW?: number;

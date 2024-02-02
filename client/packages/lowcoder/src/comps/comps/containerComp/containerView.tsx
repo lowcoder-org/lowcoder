@@ -230,6 +230,14 @@ const onDrop = (
     };
     const key = genRandomKey();
     const layoutItem = Object.values(items)[0];
+    // calculate postion of newly added comp
+    // should have last position in the comps list
+    let itemPos = 0;
+    if (!Object.keys(layout).length) {
+      itemPos = 0;
+    } else {
+      itemPos = Math.max(...Object.values(layout).map(l => l.pos || 0)) + 1;      
+    }
     // log.debug("layout: onDrop. widgetValue: ", widgetValue, " layoutItem: ", layoutItem);
     dispatch(
       wrapActionExtraInfo(
@@ -237,7 +245,12 @@ const onDrop = (
           layout: changeValueAction(
             {
               ...layout,
-              [key]: { ...layoutItem, i: key, placeholder: undefined },
+              [key]: {
+                ...layoutItem,
+                i: key,
+                placeholder: undefined,
+                pos: itemPos,
+              },
             },
             true
           ),
@@ -463,6 +476,7 @@ export function InnerGrid(props: ViewPropsWithSelect) {
       layout={props.layout}
       extraLayout={extraLayout}
       onDropDragOver={(e) => {
+        
         const compType = draggingUtils.getData<UICompType>("compType");
         const compLayout = draggingUtils.getData<UICompLayoutInfo>("compLayout");
         if (compType) {
