@@ -31,6 +31,9 @@ export const DirectoryTreeStyle = styled(DirectoryTree)`
       align-items: center;
     }
   }
+  .ant-tree-checkbox+span {
+    padding-left: 0;
+  }
   .ant-tree-treenode {
     padding: 0;
     max-width: 288px;
@@ -110,14 +113,17 @@ export const Node = styled.span`
   }
 `;
 
+// margin: 4px -16px 4px ${(props) => props.$clientX && `calc(-${props.$clientX}px + 16px)`};
+//  width: 256px;
 export const CollapseWrapper = styled.div<{ $clientX?: number }>`
-  width: 256px;
+  width: 100%; 
   border: 1px solid #E1E3EB;
   border-radius: 4px;
   overflow: hidden;
   background: #fff;
-  padding: 4px 0;
-  margin: 4px -16px 4px ${(props) => props.$clientX && `calc(-${props.$clientX}px + 16px)`};
+  padding: 0px;
+  position: relative;
+  margin: 4px 0px 4px 0};
   .simplebar-content > div {
     > .ant-collapse > .ant-collapse-item {
       > .ant-collapse-header {

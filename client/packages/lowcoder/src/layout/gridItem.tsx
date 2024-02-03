@@ -82,11 +82,18 @@ export type GridItemProps = {
 
 export const IsDroppable = React.createContext(true);
 
-const ResizableStyled = styled(Resizable)<{ $zIndex: number }>`
-  z-index: ${props => props.$zIndex};
-  &:hover {
-    z-index: 1;
-  }
+/* const ResizableStyled = styled(Resizable)<{ $zIndex: number, isDroppable : boolean}>`
+  z-index: ${props => props.$zIndex * 10};
+  ${props => props.isDroppable && `
+    &:hover {
+      z-index: 1;
+    }
+  `}
+`; */
+
+// changed to remove &:hover { z-index: 1; as it lead into flickering
+const ResizableStyled = styled(Resizable)<{ $zIndex: number, isDroppable : boolean}>`
+  z-index: ${props => props.$zIndex * 10};
 `;
 
 /**
@@ -183,6 +190,7 @@ export function GridItem(props: GridItemProps) {
         resizeHandles={resizeHandles}
         handle={Handle}
         $zIndex={zIndex}
+        isDroppable={draggingUtils.getData("i") !== props.i}
       >
         {child}
       </ResizableStyled>

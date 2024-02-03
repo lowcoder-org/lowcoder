@@ -66,13 +66,12 @@ import {
   DefaultEditorModeStatus,
   getEditorModeStatus,
   saveEditorModeStatus,
-  saveCollisionStatus,
-  getCollisionStatus,
 } from "util/localStorageUtil";
 import Bottom from "./bottom/BottomPanel";
 import { LeftContent } from "./LeftContent";
+import { LeftLayersContent } from "./LeftLayersContent";
 import { isAggregationApp } from "util/appUtils";
-import { Switch } from "antd";
+
 
 const HookCompContainer = styled.div`
   pointer-events: none;
@@ -225,11 +224,6 @@ const items = [
   },
 ];
 
-  // added by Fred to set comp collision state
-export type DisabledCollisionStatus = "true" | "false"; // "true" means collision is not enabled - Layering works, "false" means collision is enabled - Layering does not work
-export  type ToggleCollisionStatus = (
-    collisionStatus?: DisabledCollisionStatus
-  ) => void;
 
 function EditorView(props: EditorViewProps) {
   const { uiComp } = props;
@@ -274,20 +268,6 @@ function EditorView(props: EditorViewProps) {
     },
     [panelStatus, prePanelStatus]
   );
-
-  // added by Falk Wolsky to support a Layers in Lowcoder
-  const [collisionStatus, setCollisionStatus] = useState(() => {
-    return getCollisionStatus();
-  });
-
-  const toggleCollisionStatus: ToggleCollisionStatus = useCallback(
-    (value) => {
-      setCollisionStatus(value ? value : ("false" as DisabledCollisionStatus));
-      saveCollisionStatus(value ? value : ("false" as DisabledCollisionStatus));
-    },
-    [collisionStatus]
-  );
-
 
   // added by Falk Wolsky to support a Layout and Logic Mode in Lowcoder
   const [editorModeStatus, setEditorModeStatus] = useState(() => {
@@ -386,6 +366,7 @@ function EditorView(props: EditorViewProps) {
     setMenuKey(params.key);
   };
   const appSettingsComp = editorState.getAppSettingsComp();
+
   return (
     <Height100Div
       onDragEnd={(e) => {
@@ -437,7 +418,7 @@ function EditorView(props: EditorViewProps) {
 
           {panelStatus.left && editorModeStatus !== "layout" && (
             <LeftPanel>
-              {menuKey === SiderKey.State && <LeftContent uiComp={uiComp} />}
+              {menuKey === SiderKey.State && <LeftContent uiComp={uiComp}/>}
               {menuKey === SiderKey.Setting && (
                 <SettingsDiv>
                   <ScrollBar>
@@ -470,20 +451,8 @@ function EditorView(props: EditorViewProps) {
                 </SettingsDiv>
               )}
 
-              
-
               {menuKey === SiderKey.Layout && (
-                <SettingsDiv>
-                  <Switch
-                    checked={editorState.collisionStatus == "true"}
-                    disabled={false}
-                    onChange={(value: any) => {
-                      toggleCollisionStatus(value == true ? "true" : "false");
-                      editorState.setCollisionStatus(value == true ? "true" : "false");
-                    }}
-                  />
-                   <Divider />            
-                </SettingsDiv>
+                <LeftLayersContent uiComp={uiComp} />
               )}
 
             </LeftPanel>

@@ -6,9 +6,9 @@ import {
   CollapseTitle as Title,
   CopyTextButton,
   FoldedIcon,
-  LeftClose,
   LeftCommon,
-  LeftOpen,
+  LeftInfoFill,
+  LeftInfoLine,
   PadDiv,
   ScrollBar,
   Tooltip,
@@ -36,6 +36,7 @@ import cloneDeep from 'lodash/cloneDeep';
 import { useDispatch } from "react-redux";
 import { useApplicationId } from "util/hooks";
 import { updateApplication } from "redux/reduxActions/applicationActions";
+import { Divider } from "antd";
 
 const CollapseTitleWrapper = styled.div`
   display: flex;
@@ -195,6 +196,8 @@ const CollapseView = React.memo(
 
 interface LeftContentProps {
   uiComp: InstanceType<typeof UIComp>;
+  checkable?: boolean;
+  isDraggable?: boolean;
 }
 
 enum LeftTabKey {
@@ -250,6 +253,8 @@ export const LeftContent = (props: LeftContentProps) => {
   const [showData, setShowData] = useState<NodeInfo[]>([]);
   const dispatch = useDispatch();
   const applicationId = useApplicationId();
+  const checkable = props.checkable || false;
+  const isDraggable = props.isDraggable || false;
 
   const getTree = (tree: CompTree, result: NodeItem[], key?: string) => {
     const { items, children } = tree;
@@ -362,7 +367,7 @@ export const LeftContent = (props: LeftContentProps) => {
                     setShowData(newData);
                   }}
                 >
-                  <LeftOpen />
+                  <LeftInfoLine/>
                 </div>
               </Tooltip>
             ) : (
@@ -395,7 +400,7 @@ export const LeftContent = (props: LeftContentProps) => {
                     setShowData(newData);
                   }}
                 >
-                  <LeftClose />
+                  <LeftInfoFill />
                 </div>
               </Tooltip>
             ))}
@@ -438,7 +443,7 @@ export const LeftContent = (props: LeftContentProps) => {
     const explorerData: NodeItem[] = getTree(tree, []);
     // TODO: handle sorting inside modals/drawers
     if(type === TreeUIKey.Modals)  return explorerData;
-    
+
     const dsl = editorState.rootComp.toJsonValue();
     explorerData.forEach(data => {
       data['pos'] = dsl.ui.layout[data.key].pos;
@@ -452,85 +457,7 @@ export const LeftContent = (props: LeftContentProps) => {
     });
     return explorerData;
   }
-
-  interface DropInfo {
-    node: { key: string; pos: string };
-    dragNode: { key: string; pos: string };
-  }
-
-  const handleDragEnter = (info: { node?: any; expandedKeys?: any; }) => {
-    // Assuming 'info' has a property 'expandedKeys' which is an array of keys
-    const { expandedKeys } = info;
-    if (!expandedKeys.includes(info.node.key)) {
-      setExpandedKeys(expandedKeys);
-    }
-  };
-
-  const handleDrop = (info: { node: { key: any; pos: string; }; dragNode: { key: any; pos: string; }; }, type: TreeUIKey) => {
-    const dropPos = info.node.pos.split('-');
-    const dragPos = info.dragNode.pos.split('-');
-
-    if (dropPos.length === dragPos.length) {
-      setComponentTreeData(prevData => {
-        let newTreeData = cloneDeep(prevData);
-        const dropIndex = Number(dropPos[dropPos.length - 1]);
-        const dragIndex = Number(dragPos[dragPos.length - 1]);
-        const parentNodePos = dropPos.slice(0, -1).join('-');
-
-        // TODO: handle drag and drop for childen of root (container components for example)
-        // findNodeByPos does not work yet
-        const parentNode = parentNodePos === "0" ? { children: newTreeData } : findNodeByPos(newTreeData, parentNodePos);
   
-        console.log('parentNode', parentNode);
-  
-        if (parentNode && parentNode.children) {
-          const draggedNodeIndex = parentNode.children.findIndex(node => node.key === info.dragNode.key);
-          if (draggedNodeIndex !== -1) {
-            const [draggedNode] = parentNode.children.splice(draggedNodeIndex, 1);
-            parentNode.children.splice(dropIndex > dragIndex ? dropIndex - 1 : dropIndex, 0, draggedNode);
-          }
-        }
-
-        const dsl = editorState.rootComp.toJsonValue();
-        let layout: any = {};
-        parentNode.children.forEach((data, index) => {
-          layout[data.key] = {
-            ...dsl.ui.layout[data.key],
-            pos: index,
-          };
-        })
-        
-        if ( type === TreeUIKey.Modals) return newTreeData;
-
-        dispatch(
-          updateApplication({
-            applicationId: applicationId,
-            editingApplicationDSL: {
-              ...dsl,
-              ui: {
-                ...dsl.ui,
-                layout,
-              }
-            } as object,
-          })
-        );
-        editorState.rootComp.children.ui.dispatchChangeValueAction({
-          ...dsl.ui,
-          layout,
-        })
-        return newTreeData;
-      });
-    }
-  };
-  
-  const findNodeByPos = (nodes: NodeItem[], pos: string): { children: NodeItem[] } => {
-    const posArr = pos.split('-').map(p => Number(p));
-    let currentNode = { children: nodes };
-    for (let i = 0; i < posArr.length; i++) {
-      currentNode = currentNode.children[posArr[i]];
-    }
-    return currentNode;
-  };
 
   const getTreeUI = (type: TreeUIKey) => {
     // here the components get sorted by name
@@ -559,21 +486,22 @@ export const LeftContent = (props: LeftContentProps) => {
     }
 
     return (
-      <DirectoryTreeStyle
-        draggable={type === TreeUIKey.Components ? true : false}
-        onDragEnter={handleDragEnter}
-        onDrop={(info) => handleDrop(info, type)}
+      <><DirectoryTreeStyle
         treeData={type === TreeUIKey.Components ? componentTreeData : modalsTreeData}
-        icon={(props: any) => props.type && (CompStateIcon[props.type as UICompType] || <LeftCommon />)}
-        switcherIcon={(props: any) =>
-          props.expanded ? <FoldedIcon /> : <UnfoldIcon />
-        }
+        icon={(props: any) => props.type && (
+          <div style={{ margin: '3px 0 0 -3px'}}> {/* Adjust the margin as needed */}
+            {CompStateIcon[props.type as UICompType] || <LeftCommon />}
+          </div>
+        )}
+        switcherIcon={(props: any) => props.expanded ? <FoldedIcon /> : <UnfoldIcon />}
         expandedKeys={expandedKeys}
         onExpand={(keys) => setExpandedKeys(keys)}
         onClick={(e, node) => handleNodeClick(e, node, uiCompInfos)}
         selectedKeys={selectedKeys}
-        titleRender={(nodeData) => getTreeNode(nodeData as NodeItem, uiCompInfos)}
-      />
+        titleRender={(nodeData) => getTreeNode(nodeData as NodeItem, uiCompInfos)} />
+        <Divider />
+        <div></div>
+        </>
     );
   };
 
@@ -623,6 +551,7 @@ export const LeftContent = (props: LeftContentProps) => {
   }, [editorState]);
 
   const moduleLayoutComp = uiComp.getModuleLayoutComp();
+
   const stateContent = (
     <ScrollBar>
       <div style={{ paddingBottom: 80 }}>
