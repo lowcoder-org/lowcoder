@@ -6,16 +6,16 @@ import {
   CollapseTitle as Title,
   CopyTextButton,
   FoldedIcon,
+  LeftClose,
   LeftCommon,
-  LeftInfoFill,
-  LeftInfoLine,
+  LeftOpen,
   PadDiv,
   ScrollBar,
   Tooltip,
   UnfoldIcon,
   UnShow,
 } from "lowcoder-design";
-import React, { ReactNode, useCallback, useContext, useMemo, useState, useEffect } from "react";
+import React, { ReactNode, useCallback, useContext, useMemo, useState } from "react";
 import { hookCompCategory } from "comps/hooks/hookCompTypes";
 import _ from "lodash";
 import styled from "styled-components";
@@ -32,11 +32,6 @@ import { UICompType } from "comps/uiCompRegistry";
 import { CollapseWrapper, DirectoryTreeStyle, Node } from "./styledComponents";
 import { DataNode, EventDataNode } from "antd/lib/tree";
 import { isAggregationApp } from "util/appUtils";
-import cloneDeep from 'lodash/cloneDeep';
-import { useDispatch } from "react-redux";
-import { useApplicationId } from "util/hooks";
-import { updateApplication } from "redux/reduxActions/applicationActions";
-import { Divider } from "antd";
 
 const CollapseTitleWrapper = styled.div`
   display: flex;
@@ -196,8 +191,6 @@ const CollapseView = React.memo(
 
 interface LeftContentProps {
   uiComp: InstanceType<typeof UIComp>;
-  checkable?: boolean;
-  isDraggable?: boolean;
 }
 
 enum LeftTabKey {
@@ -215,8 +208,6 @@ type NodeItem = {
   title: string;
   type?: UICompType;
   children: NodeItem[];
-  pos?: number;
-  disabled?: boolean;
 };
 
 type NodeInfo = {
@@ -251,16 +242,12 @@ export const LeftContent = (props: LeftContentProps) => {
   const editorState = useContext(EditorContext);
   const [expandedKeys, setExpandedKeys] = useState<Array<React.Key>>([]);
   const [showData, setShowData] = useState<NodeInfo[]>([]);
-  const dispatch = useDispatch();
-  const applicationId = useApplicationId();
-  const checkable = props.checkable || false;
-  const isDraggable = props.isDraggable || false;
 
   const getTree = (tree: CompTree, result: NodeItem[], key?: string) => {
     const { items, children } = tree;
     if (Object.keys(items).length) {
       for (const i in items) {
-        const info: NodeItem = {
+        const info = {
           title: items[i].children.name.getView(),
           type: items[i].children.compType.getView() as UICompType,
           key: i,
@@ -268,13 +255,12 @@ export const LeftContent = (props: LeftContentProps) => {
         };
         if (key) {
           const parent = getTreeNodeByKey(result, key);
-          info.disabled = true;
           parent?.children.push(info);
         } else {
           result.push(info);
         }
       }
-      // result = _.sortBy(result, [(x) => x.title]);
+      result = _.sortBy(result, [(x) => x.title]);
     }
     if (Object.keys(children).length) {
       for (const i in children) {
@@ -367,7 +353,7 @@ export const LeftContent = (props: LeftContentProps) => {
                     setShowData(newData);
                   }}
                 >
-                  <LeftInfoLine/>
+                  <LeftOpen />
                 </div>
               </Tooltip>
             ) : (
@@ -400,7 +386,7 @@ export const LeftContent = (props: LeftContentProps) => {
                     setShowData(newData);
                   }}
                 >
-                  <LeftInfoFill />
+                  <LeftClose />
                 </div>
               </Tooltip>
             ))}
@@ -422,57 +408,17 @@ export const LeftContent = (props: LeftContentProps) => {
     );
   };
 
-  const [componentTreeData, setComponentTreeData] = useState<NodeItem[]>([]);
-  const [modalsTreeData, setModalsTreeData] = useState<NodeItem[]>([]);
-
-  useEffect(() => {
-    const compData = getTreeUIData(TreeUIKey.Components);
-    setComponentTreeData(compData);
-  }, [editorState]);
-  
-  useEffect(() => {
-    const modalsData = getTreeUIData(TreeUIKey.Modals);
-    setModalsTreeData(modalsData);
-  }, [editorState]);
-
-  const getTreeUIData = (type: TreeUIKey) => {
+  const getTreeUI = (type: TreeUIKey) => {
+    const uiCompInfos = _.sortBy(editorState.uiCompInfoList(), [(x) => x.name]);
     const tree =
       type === TreeUIKey.Components
         ? editorState.getUIComp().getTree()
         : editorState.getHooksComp().getUITree();
     const explorerData: NodeItem[] = getTree(tree, []);
-    // TODO: handle sorting inside modals/drawers
-    if(type === TreeUIKey.Modals)  return explorerData;
-
-    const dsl = editorState.rootComp.toJsonValue();
-    explorerData.forEach(data => {
-      data['pos'] = dsl.ui.layout[data.key].pos;
-    })
-    explorerData.sort((a, b) => {
-      const aPos = a?.pos || 0;
-      const bPos = b?.pos || 0;
-      if (aPos < bPos) return -1;
-      if (aPos > bPos) return 1;
-      return 0;
-    });
-    return explorerData;
-  }
-  
-
-  const getTreeUI = (type: TreeUIKey) => {
-    // here the components get sorted by name
-    // TODO: sort by category
-    // TODO: sort by Types etc.
-    const uiCompInfos = _.sortBy(editorState.uiCompInfoList(), [(x) => x.name]);
-    /* const tree =
-      type === TreeUIKey.Components
-        ? editorState.getUIComp().getTree()
-        : editorState.getHooksComp().getUITree();
-    const explorerData: NodeItem[] = getTree(tree, []); */
     let selectedKeys = [];
     if (editorState.selectedCompNames.size === 1) {
       const key = Object.keys(editorState.selectedComps())[0];
-      const parentKeys = getParentNodeKeysByKey(type === TreeUIKey.Components ? componentTreeData : modalsTreeData, key);
+      const parentKeys = getParentNodeKeysByKey(explorerData, key);
       if (parentKeys && parentKeys.length) {
         let needSet = false;
         parentKeys.forEach((key) => {
@@ -486,22 +432,22 @@ export const LeftContent = (props: LeftContentProps) => {
     }
 
     return (
-      <><DirectoryTreeStyle
-        treeData={type === TreeUIKey.Components ? componentTreeData : modalsTreeData}
-        icon={(props: any) => props.type && (
-          <div style={{ margin: '3px 0 0 -3px'}}> {/* Adjust the margin as needed */}
-            {CompStateIcon[props.type as UICompType] || <LeftCommon />}
-          </div>
-        )}
-        switcherIcon={(props: any) => props.expanded ? <FoldedIcon /> : <UnfoldIcon />}
+      <DirectoryTreeStyle
+        treeData={explorerData}
+        // icon={(props: NodeItem) => props.type && (CompStateIcon[props.type] || <LeftCommon />)}
+        icon={(props: any) => props.type && (CompStateIcon[props.type as UICompType] || <LeftCommon />)}
+        // switcherIcon={({ expanded }: { expanded: boolean }) =>
+        //   expanded ? <FoldedIcon /> : <UnfoldIcon />
+        // }
+        switcherIcon={(props: any) =>
+          props.expanded ? <FoldedIcon /> : <UnfoldIcon />
+        }
         expandedKeys={expandedKeys}
         onExpand={(keys) => setExpandedKeys(keys)}
         onClick={(e, node) => handleNodeClick(e, node, uiCompInfos)}
         selectedKeys={selectedKeys}
-        titleRender={(nodeData) => getTreeNode(nodeData as NodeItem, uiCompInfos)} />
-        <Divider />
-        <div></div>
-        </>
+        titleRender={(nodeData) => getTreeNode(nodeData as NodeItem, uiCompInfos)}
+      />
     );
   };
 
@@ -509,15 +455,15 @@ export const LeftContent = (props: LeftContentProps) => {
     if (isAggregationApp(editorState.getAppType())) {
       return;
     }
-    return getTreeUI(TreeUIKey.Components); // Pass componentTreeData
-  }, [editorState, uiCollapseClick, expandedKeys, showData, componentTreeData]);
-  
+    return getTreeUI(TreeUIKey.Components);
+  }, [editorState, uiCollapseClick, expandedKeys, showData]);
+
   const modalsCollapse = useMemo(() => {
     if (isAggregationApp(editorState.getAppType())) {
       return;
     }
-    return getTreeUI(TreeUIKey.Modals); // Pass modalsTreeData
-  }, [editorState, uiCollapseClick, expandedKeys, showData, modalsTreeData]);
+    return getTreeUI(TreeUIKey.Modals);
+  }, [editorState, uiCollapseClick, expandedKeys, showData]);
 
   const bottomResCollapse = useMemo(() => {
     return editorState
@@ -551,7 +497,6 @@ export const LeftContent = (props: LeftContentProps) => {
   }, [editorState]);
 
   const moduleLayoutComp = uiComp.getModuleLayoutComp();
-
   const stateContent = (
     <ScrollBar>
       <div style={{ paddingBottom: 80 }}>

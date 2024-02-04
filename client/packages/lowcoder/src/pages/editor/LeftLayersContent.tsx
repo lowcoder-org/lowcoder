@@ -4,54 +4,56 @@ import {
   Collapse,
   CollapseLabel as Label,
   CollapseTitle as Title,
-  CopyTextButton,
   FoldedIcon,
   LeftCommon,
-  LeftInfoFill,
-  LeftInfoLine,
-  PadDiv,
   ScrollBar,
   Tooltip,
   UnfoldIcon,
-  UnShow,
+  LeftLayersIcon,
+  GridIcon,
+  LeftShow,
+  LeftHide,
+  LeftLock,
+  LeftUnlock,
 } from "lowcoder-design";
 import React, { ReactNode, useCallback, useContext, useMemo, useState, useEffect } from "react";
-import { hookCompCategory } from "comps/hooks/hookCompTypes";
-import _ from "lodash";
+import _, { get } from "lodash";
 import styled from "styled-components";
 import { leftCompListClassName } from "pages/tutorials/tutorialsConstant";
 import UIComp from "comps/comps/uiComp";
-import { BottomResTypeEnum } from "types/bottomRes";
 import { getParentNodeKeysByKey, getTreeNodeByKey, safeJSONStringify } from "util/objectUtils";
-import { Tabs, TabTitle } from "components/Tabs";
 import { BackgroundColor, TopHeaderHeight } from "constants/style";
 import { trans } from "i18n";
 import { CompTree } from "comps/comps/containerBase";
 import { CompStateIcon } from "./editorConstants";
 import { UICompType } from "comps/uiCompRegistry";
-import { CollapseWrapper, DirectoryTreeStyle, Node } from "./styledComponents";
-import { DataNode, EventDataNode } from "antd/lib/tree";
+import { DirectoryTreeStyle, Node } from "./styledComponents";
 import { isAggregationApp } from "util/appUtils";
 import cloneDeep from 'lodash/cloneDeep';
 import { useDispatch } from "react-redux";
 import { useApplicationId } from "util/hooks";
 import { updateApplication } from "redux/reduxActions/applicationActions";
-import { Divider } from "antd";
+import { Button, Divider, Dropdown, Flex, Input, MenuProps, Space } from "antd";
 import { Switch } from "antd";
 import {
   saveCollisionStatus,
   getCollisionStatus,
 } from "util/localStorageUtil";
+import { check, withViewFn } from "@lowcoder-ee/index.sdk";
+import { DownOutlined } from "@ant-design/icons";
+import { ItemType } from "antd/es/menu/hooks/useItems";
 
 
 export type DisabledCollisionStatus = "true" | "false"; // "true" means collision is not enabled - Layering works, "false" means collision is enabled - Layering does not work
-export  type ToggleCollisionStatus = (
-    collisionStatus?: DisabledCollisionStatus
-  ) => void;
+export type ToggleCollisionStatus = (collisionStatus?: DisabledCollisionStatus) => void;
 
 interface LeftLayersContentProps {
   uiComp: InstanceType<typeof UIComp>;
 }
+
+const DropdownLeftShow = () => (
+  <LeftShow viewBox="0 0 256 256" /> // Setting custom viewBox
+);
 
 type NodeItem = {
   key: string;
@@ -65,6 +67,14 @@ type NodeItem = {
 
 const LeftLayersContentWrapper = styled.div`
   height: calc(100vh - ${TopHeaderHeight});
+`;
+
+const CustomDropdown = styled(Dropdown)`
+  .ant-dropdown-menu-item-icon {
+    width: 14px !important;
+    height: 14px !important; 
+    max-width: 14px !important;
+  }
 `;
 
 export const LeftLayersContent = (props: LeftLayersContentProps) => {
@@ -129,25 +139,35 @@ export const LeftLayersContent = (props: LeftLayersContentProps) => {
         <span>
           <span>{node.title}</span>
         </span>
-        
       </Node>
     );
   };
 
   const [componentTreeData, setComponentTreeData] = useState<NodeItem[]>([]);
 
+  // update component tree data when editor state changes
   useEffect(() => {
     const compData = getTreeUIData();
     setComponentTreeData(compData);
   }, [editorState]);
-  
+
+
   const getTreeUIData = () => {
     const tree = editorState.getUIComp().getTree();
     const explorerData: NodeItem[] = getTree(tree, []);
     const dsl = editorState.rootComp.toJsonValue();
-    explorerData.forEach(data => {
-      data['pos'] = dsl.ui.layout[data.key].pos;
-    })
+
+    if (dsl.ui.compType === "module") {
+      explorerData.forEach(data => {
+        data['pos'] = dsl.ui.comp.container.layout[data.key].pos;
+      })
+    }
+    else {
+      explorerData.forEach(data => {
+        data['pos'] = dsl.ui.layout[data.key].pos;
+      })
+    }
+
     explorerData.sort((a, b) => {
       const aPos = a?.pos || 0;
       const bPos = b?.pos || 0;
@@ -155,6 +175,7 @@ export const LeftLayersContent = (props: LeftLayersContentProps) => {
       if (aPos > bPos) return 1;
       return 0;
     });
+
     return explorerData;
   }
 
@@ -233,73 +254,163 @@ export const LeftLayersContent = (props: LeftLayersContentProps) => {
     return currentNode;
   };
 
+  // here we handle the checked keys of the component tree
+
   const [checkedKeys, setCheckedKeys] = useState<string[]>([]);
+  const [actionValue, setActionValue] = useState<string>("");
+
+  const handleActionValueChange = (e: any) => {
+    setActionValue(e.target.value);
+  }
+
+  // sync selected components with checked keys
+  useEffect(() => {
+    setCheckedKeys([]);
+    const selectedComponentsOnCanvas: string[] = [];
+    const compTree = editorState.getUIComp().getTree();
+    const explorerData: NodeItem[] = getTree(compTree, []);
+    for (let value of editorState.selectedCompNames) {
+      for (let key of explorerData) {
+        if (key.title === value) {
+          selectedComponentsOnCanvas.push(key.key);
+        }
+      }
+    }
+    setCheckedKeys(selectedComponentsOnCanvas);
+  }, [editorState]);
 
   const onCheck = (checkedKeys: any, e: any) => {
     setCheckedKeys(checkedKeys);
-    console.log('onCheck', checkedKeys);
+    const checkedComponents = new Set<string>();
+    for (let key of e.checkedNodes){
+      checkedComponents.add(key.title);
+    }
+    editorState.setSelectedCompNames(checkedComponents, "leftPanel");
   }
+
+  const getCheckedKeys = () => {
+    return checkedKeys;
+  }
+
+  const getActionValue = () => {
+    return actionValue;
+  }
+
+  const handleComponentsActions = (actionType : string) => {
+    for (let key of getCheckedKeys()) {
+      const node = getTreeNodeByKey(componentTreeData, key);
+      const comp = editorState.getUICompByName(node.title);
+      if (comp != undefined) {
+        if (actionType === "hidden") {
+          comp.children.comp.dispatchChangeValueAction({ hidden: getActionValue() });
+        }
+        else if (actionType === "disable") {
+          comp.children.comp.dispatchChangeValueAction({ disabled: getActionValue() });
+        }
+        else if (actionType === "background") {
+          comp.children.comp.dispatchChangeValueAction({ BackgroundColor : getActionValue() });
+        }
+        else {
+          comp.children.comp.dispatchChangeValueAction({ actionType: getActionValue() });
+        }
+      }
+    }
+  }
+
+  /* 
+
+  dispatch(
+        multiChangeAction({
+          width: changeValueAction(width, true),
+          autoWidth: changeValueAction("fixed", true),
+        })
+      );
+
+  */
+
+  const layerActions: ItemType[] = [
+    {
+      label: 'Hide Component',
+      key: 'hide',
+      onClick: () => handleComponentsActions("hidden"),
+    },
+    {
+      label: 'Disable Component',
+      key: 'background',
+      onClick: () => handleComponentsActions("disable"),
+    },
+    {
+      label: 'Component Background',
+      key: '3',
+      onClick: () => handleComponentsActions("background"),
+    },
+    {
+      label: 'Unlock',
+      key: '4',
+    },
+  ];
 
   const getTreeUI = () => {
     // here the components get sorted by name
     // TODO: sort by category
     // TODO: sort by Types etc.
     const uiCompInfos = _.sortBy(editorState.uiCompInfoList(), [(x) => x.name]);
-    
-    /* const tree =
-      type === TreeUIKey.Components
-        ? editorState.getUIComp().getTree()
-        : editorState.getHooksComp().getUITree();
-    const explorerData: NodeItem[] = getTree(tree, []); */
-    
-    let selectedKeys = [];
-    if (editorState.selectedCompNames.size === 1) {
-      const key = Object.keys(editorState.selectedComps())[0];
-      const parentKeys = getParentNodeKeysByKey(componentTreeData, key);
-      if (parentKeys && parentKeys.length) {
-        let needSet = false;
-        parentKeys.forEach((key) => {
-          if (!expandedKeys.includes(key)) {
-            needSet = true;
-          }
-        });
-        needSet && setExpandedKeys(_.union(expandedKeys, parentKeys));
-      }
-      selectedKeys.push(key);
-    }
-
     const isDraggable = editorState.collisionStatus === "true" ? true : false;
 
     return (
       <>
-        <Switch
+      <div style={{margin:"0px 16px"}}>
+        <div style={{marginBottom:"10px"}}>
+          {trans("leftPanel.activatelayers")}
+          <Switch 
+          style={{margin : "0px 10px"}}
+          size="small"
           checked={editorState.collisionStatus == "true"}
           disabled={false}
           onChange={(value: any) => {
             toggleCollisionStatus(value == true ? "true" : "false");
             editorState.setCollisionStatus(value == true ? "true" : "false");
-          } } />
-      <DirectoryTreeStyle
-        checkable={true}
-        onCheck={onCheck}
-        draggable={isDraggable}
-        onDragEnter={handleDragEnter}
-        onDrop={(info) => handleDrop(info)}
-        treeData={componentTreeData}
-        icon={(props: any) => props.type && (
-          <div style={{ margin: '3px 0 0 -3px'}}> {/* Adjust the margin as needed */}
-            {CompStateIcon[props.type as UICompType] || <LeftCommon />}
-          </div>
-        )}
-        switcherIcon={(props: any) => props.expanded ? <FoldedIcon /> : <UnfoldIcon />}
-        expandedKeys={expandedKeys}
-        onExpand={(keys) => setExpandedKeys(keys)}
-        // onClick={(e, node) => handleNodeClick(e, node, uiCompInfos)}
-        selectedKeys={selectedKeys}
-        titleRender={(nodeData) => getTreeNode(nodeData as NodeItem, uiCompInfos)} />
-        <Divider />
-        <div></div>
-        </>
+          } } /></div>
+
+        <DirectoryTreeStyle
+          checkable={true}
+          onCheck={onCheck}
+          selectable={false}
+          checkedKeys={checkedKeys}
+          draggable={isDraggable}
+          onDragEnter={handleDragEnter}
+          onDrop={(info) => handleDrop(info)}
+          treeData={componentTreeData}
+          icon={(props: any) => props.type && (
+            <div style={{ margin: '3px 0 0 -3px'}}> {/* Adjust the margin as needed */}
+              {CompStateIcon[props.type as UICompType] || <LeftCommon />}
+            </div>
+          )}
+          switcherIcon={(props: any) => props.expanded ? <FoldedIcon /> : <UnfoldIcon />}
+          expandedKeys={expandedKeys}
+          onExpand={(keys) => setExpandedKeys(keys)}
+          titleRender={(nodeData) => getTreeNode(nodeData as NodeItem, uiCompInfos)} />
+
+        <div style={{margin:"10px 0px"}}> 
+          <Flex gap="small" vertical>
+            {trans("leftPanel.selectedComponents")}<br/>
+            {trans("leftPanel.displayComponents")}
+            <Input placeholder="Action Value" onChange={handleActionValueChange}/>
+            <CustomDropdown menu={{ items: layerActions }}>
+              <Button size={"small"}>
+                <Space>
+                  Action
+                  <DownOutlined />
+                </Space>
+              </Button>
+            </CustomDropdown>
+          </Flex>
+        </div>
+
+      </div>
+     
+      <Divider />
+      </>
     );
   };
 
@@ -313,8 +424,8 @@ export const LeftLayersContent = (props: LeftLayersContentProps) => {
   const layerControlContent = (
     <ScrollBar>
       <div style={{ paddingBottom: 80 }}>
-        <BaseSection name={trans("leftPanel.components")} width={288} noMargin>
-          <span className={leftCompListClassName}>{uiCollapse}</span>
+        <BaseSection name={trans("leftPanel.layers")} width={288} noMargin>
+          <div className={leftCompListClassName}>{uiCollapse}</div>
         </BaseSection>
       </div>
     </ScrollBar>

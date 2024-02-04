@@ -13,6 +13,7 @@ import {
   LeftPreloadIcon,
   LeftSettingIcon,
   LeftStateIcon,
+  LeftLayersIcon,
   ScrollBar,
 } from "lowcoder-design";
 import { useTemplateViewMode } from "util/hooks";
@@ -209,7 +210,7 @@ enum SiderKey {
   Layout = "layout",
 }
 
-const items = [
+const standardSiderItems = [
   {
     key: SiderKey.State,
     icon: <LeftStateIcon />,
@@ -220,10 +221,20 @@ const items = [
   },
   {
     key: SiderKey.Layout,
-    icon: <LeftSettingIcon />,
+    icon: <LeftLayersIcon />,
   },
 ];
 
+const aggregationSiderItems = [
+  {
+    key: SiderKey.State,
+    icon: <LeftStateIcon />,
+  },
+  {
+    key: SiderKey.Setting,
+    icon: <LeftSettingIcon />,
+  }
+];
 
 function EditorView(props: EditorViewProps) {
   const { uiComp } = props;
@@ -392,13 +403,15 @@ function EditorView(props: EditorViewProps) {
         <Body>
           <SiderWrapper>
             <Sider width={40} >
-              
               <Menu
                 theme="dark"
                 mode="inline"
                 defaultSelectedKeys={[SiderKey.State]}
                 selectedKeys={panelStatus.left ? [menuKey] : [""]}
-                items={items}
+                items={application &&
+                  !isAggregationApp(
+                    AppUILayoutType[application.applicationType]
+                  ) ? standardSiderItems : aggregationSiderItems}
                 disabled={showAppSnapshot}
                 onClick={(params) => clickMenu(params)}
               >
