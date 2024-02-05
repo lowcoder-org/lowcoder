@@ -246,7 +246,7 @@ public class FolderApiService {
                             if (folderInfoView == null) {
                                 return;
                             }
-                            folderInfoView.setManageable(orgMember.isAdmin() || orgMember.getUserId().equals(folderInfoView.getCreateBy()));
+                            folderInfoView.setManageable(orgMember.isAdmin() || orgMember.isSuperAdmin() ||  orgMember.getUserId().equals(folderInfoView.getCreateBy()));
 
                             List<FolderInfoView> folderInfoViews = folderNode.getFolderChildren().stream().filter(FolderInfoView::isVisible).toList();
                             folderInfoView.setSubFolders(folderInfoViews);
@@ -340,7 +340,7 @@ public class FolderApiService {
     private Mono<OrgMember> checkManagePermission(String folderId) {
         return sessionUserService.getVisitorOrgMemberCache()
                 .flatMap(orgMember -> {
-                    if (orgMember.isAdmin()) {
+                    if (orgMember.isAdmin() || orgMember.isSuperAdmin()) {
                         return Mono.just(orgMember);
                     }
                     return isCreator(folderId)

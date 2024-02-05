@@ -45,6 +45,9 @@ public class ServerApplication {
 
     public static void main(String[] args) {
 
+    	/** Disable Java Flight Recorder for Redis Lettuce driver **/
+    	System.setProperty("io.lettuce.core.jfr", "false");
+    	
         Schedulers.enableMetrics();
 
         new SpringApplicationBuilder(ServerApplication.class)

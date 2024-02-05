@@ -52,6 +52,10 @@ public class OrgMember {
         return role;
     }
 
+    public boolean isSuperAdmin() {
+        return role == MemberRole.SUPER_ADMIN;
+    }
+
     public boolean isAdmin() {
         return role == MemberRole.ADMIN;
     }

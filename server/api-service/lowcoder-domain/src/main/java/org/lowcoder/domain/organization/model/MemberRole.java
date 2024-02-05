@@ -7,7 +7,8 @@ import java.util.stream.Collectors;
 public enum MemberRole {
 
     MEMBER("member"),
-    ADMIN("admin");
+    ADMIN("admin"),
+    SUPER_ADMIN("super_admin");
 
     private static final Map<String, MemberRole> VALUE_MAP;
 

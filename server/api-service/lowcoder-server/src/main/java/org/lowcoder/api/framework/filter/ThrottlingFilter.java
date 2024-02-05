@@ -48,7 +48,7 @@ public class ThrottlingFilter implements WebFilter, Ordered {
     @PostConstruct
     private void init() {
         urlRateLimiter = configCenter.threshold().ofMap("urlRateLimiter", String.class, Integer.class, emptyMap());
-        log.info("API rate limit filter enabled with default rate limit set to: {} requests per second");
+        log.info("API rate limit filter enabled with default rate limit set to: {} requests per second", defaultApiRateLimit);
     }
 
     @Nonnull
