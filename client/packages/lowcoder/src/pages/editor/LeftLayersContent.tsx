@@ -33,7 +33,7 @@ import cloneDeep from 'lodash/cloneDeep';
 import { useDispatch } from "react-redux";
 import { useApplicationId } from "util/hooks";
 import { updateApplication } from "redux/reduxActions/applicationActions";
-import { Button, Divider, Dropdown, Flex, Input, MenuProps, Space } from "antd";
+import { Button, Divider, Dropdown, Flex, Input, Menu, MenuProps, Space } from "antd";
 import { Switch } from "antd";
 import {
   saveCollisionStatus,
@@ -223,19 +223,7 @@ export const LeftLayersContent = (props: LeftLayersContentProps) => {
             pos: index,
           };
         })
-        
-        dispatch(
-          updateApplication({
-            applicationId: applicationId,
-            editingApplicationDSL: {
-              ...dsl,
-              ui: {
-                ...dsl.ui,
-                layout,
-              }
-            } as object,
-          })
-        );
+
         editorState.rootComp.children.ui.dispatchChangeValueAction({
           ...dsl.ui,
           layout,
@@ -292,30 +280,32 @@ export const LeftLayersContent = (props: LeftLayersContentProps) => {
     return checkedKeys;
   }
 
+  useEffect(() => {
+    console.log('onChange', actionValue);
+  }, [actionValue])
+  
   const getActionValue = () => {
     return actionValue;
   }
 
-  const handleComponentsActions = (actionType : string) => {
+  const handleComponentsActions = useCallback((actionType: string) => {
+    const value = getActionValue();
     for (let key of getCheckedKeys()) {
       const node = getTreeNodeByKey(componentTreeData, key);
       const comp = editorState.getUICompByName(node.title);
-      if (comp != undefined) {
-        if (actionType === "hidden") {
-          comp.children.comp.dispatchChangeValueAction({ hidden: getActionValue() });
+      if(comp) {
+        const { children } = comp.children.comp
+        const types = actionType.split('.');
+
+        if(types.length === 1) { // e.g hidden, disabled
+          children[types[0]]?.dispatchChangeValueAction(value);
         }
-        else if (actionType === "disable") {
-          comp.children.comp.dispatchChangeValueAction({ disabled: getActionValue() });
-        }
-        else if (actionType === "background") {
-          comp.children.comp.dispatchChangeValueAction({ BackgroundColor : getActionValue() });
-        }
-        else {
-          comp.children.comp.dispatchChangeValueAction({ actionType: getActionValue() });
+        else if(types.length === 2) { // nested object e.g. style.background
+          children[types[0]][types[1]]?.dispatchChangeValueAction(value);
         }
       }
     }
-  }
+  }, [getActionValue, getCheckedKeys]);
 
   /* 
 
@@ -331,18 +321,15 @@ export const LeftLayersContent = (props: LeftLayersContentProps) => {
   const layerActions: ItemType[] = [
     {
       label: 'Hide Component',
-      key: 'hide',
-      onClick: () => handleComponentsActions("hidden"),
+      key: 'hidden',
     },
     {
       label: 'Disable Component',
-      key: 'background',
-      onClick: () => handleComponentsActions("disable"),
+      key: 'disable',
     },
     {
       label: 'Component Background',
-      key: '3',
-      onClick: () => handleComponentsActions("background"),
+      key: 'style.background',
     },
     {
       label: 'Unlock',
@@ -396,7 +383,14 @@ export const LeftLayersContent = (props: LeftLayersContentProps) => {
             {trans("leftPanel.selectedComponents")}<br/>
             {trans("leftPanel.displayComponents")}
             <Input placeholder="Action Value" onChange={handleActionValueChange}/>
-            <CustomDropdown menu={{ items: layerActions }}>
+            <CustomDropdown
+              dropdownRender={() => (
+                <Menu
+                  items={layerActions}
+                  onClick={({key}) => handleComponentsActions(key)}
+                />
+              )}
+            >
               <Button size={"small"}>
                 <Space>
                   Action
