@@ -1,11 +1,12 @@
 package org.lowcoder.api.application;
 
 import static org.apache.commons.collections4.SetUtils.emptyIfNull;
-import static org.lowcoder.infra.event.EventType.APPLICATION_CREATE;
-import static org.lowcoder.infra.event.EventType.APPLICATION_DELETE;
-import static org.lowcoder.infra.event.EventType.APPLICATION_RECYCLED;
-import static org.lowcoder.infra.event.EventType.APPLICATION_RESTORE;
-import static org.lowcoder.infra.event.EventType.APPLICATION_UPDATE;
+import static org.lowcoder.plugin.api.event.LowcoderEvent.EventType.APPLICATION_CREATE;
+import static org.lowcoder.plugin.api.event.LowcoderEvent.EventType.APPLICATION_DELETE;
+import static org.lowcoder.plugin.api.event.LowcoderEvent.EventType.APPLICATION_RECYCLED;
+import static org.lowcoder.plugin.api.event.LowcoderEvent.EventType.APPLICATION_RESTORE;
+import static org.lowcoder.plugin.api.event.LowcoderEvent.EventType.APPLICATION_UPDATE;
+import static org.lowcoder.plugin.api.event.LowcoderEvent.EventType.APPLICATION_VIEW;
 import static org.lowcoder.sdk.exception.BizError.INVALID_PARAMETER;
 import static org.lowcoder.sdk.util.ExceptionUtils.ofError;
 
@@ -93,12 +94,11 @@ public class ApplicationController implements ApplicationEndpoints {
                 .map(ResponseView::success);
     }
 
-    // will call the check in ApplicationApiService and ApplicationService
     @Override
     public Mono<ResponseView<ApplicationView>> getPublishedApplication(@PathVariable String applicationId) {
         return applicationApiService.getPublishedApplication(applicationId, ApplicationRequestType.PUBLIC_TO_ALL)
                 .delayUntil(applicationView -> applicationApiService.updateUserApplicationLastViewTime(applicationId))
-                .delayUntil(applicationView -> businessEventPublisher.publishApplicationCommonEvent(applicationView, EventType.VIEW))
+                .delayUntil(applicationView -> businessEventPublisher.publishApplicationCommonEvent(applicationView, APPLICATION_VIEW))
                 .map(ResponseView::success);
     }
 
