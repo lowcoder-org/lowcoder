@@ -98,6 +98,14 @@ public class ApplicationController implements ApplicationEndpoints {
     }
 
     @Override
+    public Mono<ResponseView<ApplicationView>> getPublishedMarketPlaceApplication(@PathVariable String applicationId) {
+        return applicationApiService.getPublishedApplication(applicationId)
+                .delayUntil(applicationView -> applicationApiService.updateUserApplicationLastViewTime(applicationId))
+                .delayUntil(applicationView -> businessEventPublisher.publishApplicationCommonEvent(applicationView, VIEW))
+                .map(ResponseView::success);
+    }
+
+    @Override
     public Mono<ResponseView<ApplicationView>> update(@PathVariable String applicationId,
             @RequestBody Application newApplication) {
         return applicationApiService.update(applicationId, newApplication)

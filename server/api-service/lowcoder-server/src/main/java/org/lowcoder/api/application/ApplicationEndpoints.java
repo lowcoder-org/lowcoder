@@ -113,6 +113,15 @@ public interface ApplicationEndpoints
 
 	@Operation(
 			tags = TAG_APPLICATION_MANAGEMENT,
+			operationId = "getMarketplaceApplicationDataInViewMode",
+			summary = "Get Marketplace Application data in view mode",
+			description = "Retrieve the DSL data of a Lowcoder Application in view-mode by its ID for the marketplace."
+	)
+	@GetMapping("/{applicationId}/view_marketplace")
+	public Mono<ResponseView<ApplicationView>> getPublishedMarketPlaceApplication(@PathVariable String applicationId);
+
+	@Operation(
+			tags = TAG_APPLICATION_MANAGEMENT,
 		    operationId = "updateApplication",
 		    summary = "Update Application by ID",
 		    description = "Update a Lowcoder Application identified by its ID."

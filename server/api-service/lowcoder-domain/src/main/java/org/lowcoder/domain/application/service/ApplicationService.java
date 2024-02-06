@@ -160,9 +160,10 @@ public class ApplicationService {
 
     @NonEmptyMono
     @SuppressWarnings("ReactiveStreamsNullableInLambdaInTransform")
-    public Mono<Set<String>> getPublicApplicationIds(Collection<String> applicationIds) {
-        return repository.findByPublicToAllIsTrueAndIdIn(applicationIds)
+    public Mono<Set<String>> getPublicApplicationIds(Collection<String> applicationIds, Boolean isAnonymous) {
+        return repository.findByPublicToAllIsTrueAndPublicToMarketplaceAndIdIn(applicationIds, !isAnonymous)
                 .map(HasIdAndAuditing::getId)
                 .collect(Collectors.toSet());
+
     }
 }
