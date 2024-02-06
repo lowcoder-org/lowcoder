@@ -2,6 +2,7 @@ import { defineConfig, PluginOption, UserConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import viteTsconfigPaths from "vite-tsconfig-paths";
 import svgrPlugin from "vite-plugin-svgr";
+import dynamicImport from 'vite-plugin-dynamic-import';
 import path from "path";
 import { ensureLastSlash } from "./src/dev-utils/util";
 import { buildVars } from "./src/dev-utils/buildVars";
@@ -42,7 +43,7 @@ export const viteConfig: UserConfig = {
     rollupOptions: {
       external: ["react", "react-dom"],
       output: {
-        chunkFileNames: "[hash].js",
+        chunkFileNames: "[name].js",
         manualChunks: (id) => {
           if (id.includes('node_modules')) {
             return id.toString().split('node_modules/')[1].split('/')[0].toString();
@@ -118,6 +119,7 @@ export const viteConfig: UserConfig = {
       brotliSize: true,
       filename: "analyse.html"
     }) as PluginOption,
+    dynamicImport(),
   ],
 };
 

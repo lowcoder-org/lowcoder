@@ -4,6 +4,8 @@ import react from "@vitejs/plugin-react";
 import viteTsconfigPaths from "vite-tsconfig-paths";
 import svgrPlugin from "vite-plugin-svgr";
 import checker from "vite-plugin-checker";
+import dynamicImport from 'vite-plugin-dynamic-import';
+import { nodePolyfills } from 'vite-plugin-node-polyfills';
 import { visualizer } from "rollup-plugin-visualizer";
 import dynamicImportVars from "@rollup/plugin-dynamic-import-vars";
 // import resolve from "@rollup/plugin-node-resolve";
@@ -78,19 +80,20 @@ export const viteConfig: UserConfig = {
     emptyOutDir: false,
     chunkSizeWarningLimit: 100,
     rollupOptions: {
-      plugins: [
-        // resolve() as PluginOption,
-        dynamicImportVars({
-          exclude: ['src/comps/comps/remoteComp/loaders.tsx'],
-        }) as PluginOption
-      ],
+      // plugins: [
+      //   // resolve() as PluginOption,
+      //   dynamicImportVars({
+      //     exclude: ['src/comps/comps/remoteComp/loaders.tsx'],
+      //   }) as PluginOption
+      // ],
       output: {
         chunkFileNames: "[name].js",
-      //   manualChunks: (id) => {
-      //     if (id.includes('node_modules')) {
-      //       return id.toString().split('node_modules/')[1].split('/')[0].toString();
-      //     }
-      //   },
+        inlineDynamicImports: false,
+        manualChunks: (id) => {
+          if (id.includes('node_modules')) {
+            return id.toString().split('node_modules/')[1].split('/')[0].toString();
+          }
+        },
       },
       onwarn: (warning, warn) => {
         if (warning.code === 'MODULE_LEVEL_DIRECTIVE') {
@@ -173,6 +176,21 @@ export const viteConfig: UserConfig = {
       brotliSize: true,
       filename: "analyse.html"
     }) as PluginOption,
+    dynamicImport({
+      // filter(id) {
+      //   console.log(id);
+      //   if (id.includes('src/comps/comps/remoteComp/loaders.tsx')) {
+      //     return false
+      //   }
+      //   if(id.includes('src/comps/comps/fileComp/fileComp.test.tsx')) return true;
+      // }
+    }),
+    // nodePolyfills({
+    //   include: ['fs'],
+    //   overrides: {
+    //     fs: 'memfs',
+    //   },
+    // }),
   ].filter(Boolean),
 };
 
@@ -189,7 +207,7 @@ const browserCheckConfig: UserConfig = {
     emptyOutDir: true,
     lib: {
       // formats: ["iife"],
-      formats: ['iife'],
+      formats: ['es'],
       name: "BrowserCheck",
       entry: "./src/browser-check.ts",
       fileName: () => {
