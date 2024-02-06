@@ -32,7 +32,7 @@ import {
   requiredPropertyView,
 } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
-import { ChangeEvent, useRef, useState } from "react";
+import { ChangeEvent, useEffect, useRef, useState } from "react";
 import { refMethods } from "comps/generators/withMethodExposing";
 import { InputRef } from "antd/es/input";
 import {
@@ -168,17 +168,22 @@ export const useTextInputProps = (props: RecordConstructorToView<typeof textInpu
   const propsRef = useRef<RecordConstructorToView<typeof textInputChildren>>(props);
   propsRef.current = props;
 
-  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    props.value.onChange(e.target.value);
-    propsRef.current.onEvent("change");
+  const inputValue = props.value.value;
+
+  useEffect(() => {
     setValidateState(
       textInputValidate({
         ...propsRef.current,
         value: {
-          value: e.target.value,
+          value: inputValue,
         },
       })
     );
+  }, [inputValue]);
+
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    props.value.onChange(e.target.value);
+    propsRef.current.onEvent("change");
   };
   return [
     {
