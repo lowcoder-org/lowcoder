@@ -250,13 +250,21 @@ function renderTitle(props: { title: string; editable: boolean }) {
   );
 }
 
-function getInitialColumns(columnsAggrData: ColumnsAggrData) {
-  const initialColumns = Object.keys(columnsAggrData).map(column => ({
-    label: <span style={{textTransform: 'capitalize'}}>{column}</span>,
-    value: `{{currentRow.${column}}}`
-  }))
+function getInitialColumns(
+  columnsAggrData: ColumnsAggrData,
+  customColumns: string[],
+) {
+  let initialColumns = [];
+  Object.keys(columnsAggrData).forEach(column => {
+    if(customColumns.includes(column)) return;
+    initialColumns.push({
+      // label: <span style={{textTransform: 'capitalize'}}>{column}</span>,
+      label: column,
+      value: `{{currentRow.${column}}}`
+    });
+  });
   initialColumns.push({
-    label: <span>Select with handlebars</span>,
+    label: 'Select with handlebars',
     value: '{{currentCell}}',
   })
   return initialColumns;
@@ -283,7 +291,8 @@ export function columnsToAntdFormat(
   columnsAggrData: ColumnsAggrData,
   onTableEvent: (eventName: any) => void,
 ): Array<CustomColumnType<RecordType>> {
-  const initialColumns = getInitialColumns(columnsAggrData);
+  const customColumns = columns.filter(col => col.isCustom).map(col => col.dataIndex);
+  const initialColumns = getInitialColumns(columnsAggrData, customColumns);
   const sortMap: Map<string | undefined, SortOrder> = new Map(
     sort.map((s) => [s.column, s.desc ? "descend" : "ascend"])
   );
