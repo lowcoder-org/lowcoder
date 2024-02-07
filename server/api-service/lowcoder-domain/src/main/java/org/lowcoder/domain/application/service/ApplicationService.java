@@ -103,6 +103,10 @@ public class ApplicationService {
         return repository.findByOrganizationId(organizationId);
     }
 
+    public Flux<Application> findAllMarketplaceApps() {
+        return repository.findByPublicToAllIsTrueAndPublicToMarketplaceIsTrue();
+    }
+
     public Mono<Long> countByOrganizationId(String orgId, ApplicationStatus applicationStatus) {
         return repository.countByOrganizationIdAndApplicationStatus(orgId, applicationStatus);
     }
@@ -147,11 +151,19 @@ public class ApplicationService {
         return mongoUpsertHelper.updateById(application, applicationId);
     }
 
+    public Mono<Boolean> setApplicationPublicToMarketplace(String applicationId, boolean publicToMarketplace) {
+        Application application = Application.builder()
+                .publicToMarketplace(publicToMarketplace)
+                .build();
+        return mongoUpsertHelper.updateById(application, applicationId);
+    }
+
     @NonEmptyMono
     @SuppressWarnings("ReactiveStreamsNullableInLambdaInTransform")
-    public Mono<Set<String>> getPublicApplicationIds(Collection<String> applicationIds) {
-        return repository.findByPublicToAllIsTrueAndIdIn(applicationIds)
+    public Mono<Set<String>> getPublicApplicationIds(Collection<String> applicationIds, Boolean isAnonymous) {
+        return repository.findByPublicToAllIsTrueAndPublicToMarketplaceIsAndIdIn(!isAnonymous, applicationIds)
                 .map(HasIdAndAuditing::getId)
                 .collect(Collectors.toSet());
+
     }
 }
