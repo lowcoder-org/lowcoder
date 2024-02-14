@@ -47,7 +47,6 @@ import {
   withDefault,
 } from "@lowcoder-ee/index.sdk";
 import { getData } from "../listViewComp/listViewUtils";
-import { MatrixClient } from "matrix-js-sdk";
 
 const EventOptions = [closeEvent] as const;
 
@@ -241,7 +240,7 @@ let MTComp = (function () {
           );
         }
       }, [props.roomData.value]);
-
+ 
       let resourcesInit = () => {
         // show the room list after syncing.
         matrixClient.on(
@@ -463,6 +462,7 @@ MTComp = withMethodExposing(MTComp, [
         ) {
           console.log(firstValue);
           const name: any = firstValue.roomId;
+          
           matrixClient
             .leave(name)
             .then(() => {
@@ -528,9 +528,9 @@ MTComp = withMethodExposing(MTComp, [
         await matrixClient.startClient();
 
         let allRooms = await matrixClient.publicRooms();
-
+ 
         let rooms: any = [];
-        allRooms.chunk.forEach(
+        allRooms.chunk.forEach( 
           (room: {
             name: any;
             room_id: any;
