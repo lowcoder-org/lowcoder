@@ -248,6 +248,19 @@ public class ApplicationApiService {
         return Mono.error(new BizException(BizError.UNSUPPORTED_OPERATION, "BAD_REQUEST"));
     }
 
+    private Mono<Void> checkApplicationViewRequest(Application application, ApplicationEndpoints.ApplicationRequestType expected) {
+        if (expected == ApplicationEndpoints.ApplicationRequestType.PUBLIC_TO_ALL && application.isPublicToAll()) {
+            return Mono.empty();
+        }
+        if (expected == ApplicationEndpoints.ApplicationRequestType.PUBLIC_TO_MARKETPLACE && application.isPublicToMarketplace()) {
+            return Mono.empty();
+        }
+        if (expected == ApplicationEndpoints.ApplicationRequestType.AGENCY_PROFILE && application.agencyProfile()) {
+            return Mono.empty();
+        }
+        return Mono.error(new BizException(BizError.UNSUPPORTED_OPERATION, "BAD_REQUEST"));
+    }
+
     private Mono<Boolean> updateApplicationStatus(String applicationId, ApplicationStatus applicationStatus) {
         return checkCurrentUserApplicationPermission(applicationId, MANAGE_APPLICATIONS)
                 .then(Mono.defer(() -> {
@@ -280,10 +293,11 @@ public class ApplicationApiService {
                 });
     }
 
-    public Mono<ApplicationView> getPublishedApplication(String applicationId) {
+    public Mono<ApplicationView> getPublishedApplication(String applicationId, ApplicationEndpoints.ApplicationRequestType requestType) {
         return checkPermissionWithReadableErrorMsg(applicationId, READ_APPLICATIONS)
                 .zipWhen(permission -> applicationService.findById(applicationId)
-                        .delayUntil(application -> checkApplicationStatus(application, NORMAL)))
+                        .delayUntil(application -> checkApplicationStatus(application, NORMAL))
+                        .delayUntil(application -> checkApplicationViewRequest(application, requestType)))
                 .zipWhen(tuple -> applicationService.getAllDependentModulesFromApplication(tuple.getT2(), true), TupleUtils::merge)
                 .zipWhen(tuple -> organizationService.getOrgCommonSettings(tuple.getT2().getOrganizationId()), TupleUtils::merge)
                 .zipWith(getTemplateIdFromApplicationId(applicationId), TupleUtils::merge)
