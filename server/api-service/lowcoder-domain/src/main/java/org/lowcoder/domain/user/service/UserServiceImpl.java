@@ -40,6 +40,8 @@ import reactor.core.publisher.Mono;
 
 import javax.annotation.Nonnull;
 import java.security.SecureRandom;
+import java.time.Duration;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -259,6 +261,14 @@ public class UserServiceImpl implements UserService {
                     user.setPassword(encryptionService.encryptPassword(randomStr));
                     return repository.save(user)
                             .thenReturn(randomStr);
+                });
+    }
+
+    @Override
+    public Mono<String> lostPassword(String userEmail) {
+        return findByName(userEmail)
+                .flatMap(user -> {
+                    return Mono.justOrEmpty(user.getName());
                 });
     }
 
