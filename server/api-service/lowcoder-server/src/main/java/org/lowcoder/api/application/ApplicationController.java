@@ -106,6 +106,14 @@ public class ApplicationController implements ApplicationEndpoints {
     }
 
     @Override
+    public Mono<ResponseView<ApplicationView>> getAgencyProfileApplication(@PathVariable String applicationId) {
+        return applicationApiService.getPublishedApplication(applicationId)
+                .delayUntil(applicationView -> applicationApiService.updateUserApplicationLastViewTime(applicationId))
+                .delayUntil(applicationView -> businessEventPublisher.publishApplicationCommonEvent(applicationView, VIEW))
+                .map(ResponseView::success);
+    }
+
+    @Override
     public Mono<ResponseView<ApplicationView>> update(@PathVariable String applicationId,
             @RequestBody Application newApplication) {
         return applicationApiService.update(applicationId, newApplication)
@@ -138,6 +146,14 @@ public class ApplicationController implements ApplicationEndpoints {
 
     @Override
     public Mono<ResponseView<List<MarketplaceApplicationInfoView>>> getMarketplaceApplications(@RequestParam(required = false) Integer applicationType) {
+        ApplicationType applicationTypeEnum = applicationType == null ? null : ApplicationType.fromValue(applicationType);
+        return userHomeApiService.getAllMarketplaceApplications(applicationTypeEnum)
+                .collectList()
+                .map(ResponseView::success);
+    }
+
+    @Override
+    public Mono<ResponseView<List<MarketplaceApplicationInfoView>>> getAgencyProfileApplications(@RequestParam(required = false) Integer applicationType) {
         ApplicationType applicationTypeEnum = applicationType == null ? null : ApplicationType.fromValue(applicationType);
         return userHomeApiService.getAllMarketplaceApplications(applicationTypeEnum)
                 .collectList()
@@ -201,4 +217,13 @@ public class ApplicationController implements ApplicationEndpoints {
         return applicationApiService.setApplicationPublicToMarketplace(applicationId, request.publicToMarketplace())
                 .map(ResponseView::success);
     }
+
+    @Override
+    public Mono<ResponseView<Boolean>> setApplicationAsAgencyProfile(@PathVariable String applicationId,
+                                                                     @RequestBody ApplicationAsAgencyProfileRequest request) {
+        return applicationApiService.setApplicationAsAgencyProfile(applicationId, request.agencyProfile())
+                .map(ResponseView::success);
+    }
+
+
 }

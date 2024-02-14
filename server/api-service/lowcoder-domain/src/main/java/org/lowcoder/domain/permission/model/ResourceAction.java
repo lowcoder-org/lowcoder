@@ -25,6 +25,7 @@ public enum ResourceAction {
 
     SET_APPLICATIONS_PUBLIC(ResourceRole.EDITOR, ResourceType.APPLICATION),
     SET_APPLICATIONS_PUBLIC_TO_MARKETPLACE(ResourceRole.EDITOR, ResourceType.APPLICATION),
+    SET_APPLICATIONS_AS_AGENCY_PROFILE(ResourceRole.EDITOR, ResourceType.APPLICATION),
 
     // datasource action
     MANAGE_DATASOURCES(ResourceRole.OWNER, ResourceType.DATASOURCE),
