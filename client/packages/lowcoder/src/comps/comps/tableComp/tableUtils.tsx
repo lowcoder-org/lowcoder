@@ -258,7 +258,6 @@ function getInitialColumns(
   Object.keys(columnsAggrData).forEach(column => {
     if(customColumns.includes(column)) return;
     initialColumns.push({
-      // label: <span style={{textTransform: 'capitalize'}}>{column}</span>,
       label: column,
       value: `{{currentRow.${column}}}`
     });

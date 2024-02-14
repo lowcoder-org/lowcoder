@@ -134,6 +134,7 @@ const TextInputInvalidConfig = depsConfig<TextInputComp, ChildrenTypeToDepsKeys<
 export const TextInputConfigs = [TextInputInvalidConfig, ...CommonNameConfig];
 
 export const textInputChildren = {
+  defaultValue: stringExposingStateControl("defaultValue"),
   value: stringExposingStateControl("value"),
   disabled: BoolCodeControl,
   label: LabelControl,
@@ -156,6 +157,7 @@ export const textInputProps = (props: RecordConstructorToView<typeof textInputCh
   disabled: props.disabled,
   readOnly: props.readOnly,
   placeholder: props.placeholder,
+  defaultValue: props.defaultValue.value,
   value: props.value.value,
   onFocus: () => props.onEvent("focus"),
   onBlur: () => props.onEvent("blur"),
@@ -164,13 +166,21 @@ export const textInputProps = (props: RecordConstructorToView<typeof textInputCh
 
 export const useTextInputProps = (props: RecordConstructorToView<typeof textInputChildren>) => {
   const [validateState, setValidateState] = useState({});
+  const changeRef = useRef(false)
 
   const propsRef = useRef<RecordConstructorToView<typeof textInputChildren>>(props);
   propsRef.current = props;
 
-  const inputValue = props.value.value;
+  const defaultValue = { ...props.defaultValue }.value;
+  const inputValue = { ...props.value }.value;
 
   useEffect(() => {
+    props.value.onChange(defaultValue)
+  }, [defaultValue]);
+
+  useEffect(() => {
+    if (!changeRef.current) return;
+
     setValidateState(
       textInputValidate({
         ...propsRef.current,
@@ -179,12 +189,15 @@ export const useTextInputProps = (props: RecordConstructorToView<typeof textInpu
         },
       })
     );
+    propsRef.current.onEvent("change");
+    changeRef.current = false;
   }, [inputValue]);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     props.value.onChange(e.target.value);
-    propsRef.current.onEvent("change");
+    changeRef.current = true;
   };
+
   return [
     {
       ...textInputProps(props),
@@ -198,7 +211,7 @@ type TextInputComp = RecordConstructorToComp<typeof textInputChildren>;
 
 export const TextInputBasicSection = (children: TextInputComp) => (
   <Section name={sectionNames.basic}>
-    {children.value.propertyView({ label: trans("prop.defaultValue") })}
+    {children.defaultValue.propertyView({ label: trans("prop.defaultValue") })}
     {placeholderPropertyView(children)}
   </Section>
 );

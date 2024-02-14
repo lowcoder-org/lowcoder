@@ -85,7 +85,11 @@ const TreeCompView = (
 ) => {
   const { treeData, selectType, value, expanded, style, inputValue } = props;
   const isSingle = selectType === "single";
-  const [validateState, handleValidate] = useSelectInputValidate(props);
+  const [
+    validateState,
+    handleChange,
+  ] = useSelectInputValidate(props);
+
   useEffect(() => {
     if (isSingle && value.value.length > 1) {
       value.onChange(value.value.slice(0, 1));
@@ -119,9 +123,7 @@ const TreeCompView = (
         }}
         onChange={(keys) => {
           const nextValue = Array.isArray(keys) ? keys : keys !== undefined ? [keys] : [];
-          handleValidate(nextValue);
-          value.onChange(nextValue);
-          props.onEvent("change");
+          handleChange(nextValue);
         }}
         showSearch={props.showSearch}
         // search label

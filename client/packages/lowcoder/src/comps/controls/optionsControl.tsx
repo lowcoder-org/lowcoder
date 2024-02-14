@@ -331,6 +331,7 @@ export function mapOptionsControl<T extends OptionsControlType>(
             return comp.updateContext(dataExample);
           }
         }
+        return comp;
       }
       return super.reduce(action);
     }
