@@ -37,6 +37,7 @@ import { ContextContainerComp } from "./contextContainerComp";
 import { ListView } from "./listView";
 import { listPropertyView } from "./listViewPropertyView";
 import { getData } from "./listViewUtils";
+import { withMethodExposing } from "comps/generators/withMethodExposing";
 
 const childrenMap = {
   noOfRows: withIsLoadingMethod(NumberOrJSONObjectArrayControl), // FIXME: migrate "noOfRows" to "data"
@@ -151,11 +152,11 @@ export class ListViewImplComp extends ListViewTmpComp implements IContainer {
 
 const ListViewRenderComp = withViewFn(ListViewImplComp, (comp) => <ListView comp={comp} />);
 const ListPropertyView = listPropertyView("listView");
-const ListViewPropertyComp = withPropertyViewFn(ListViewRenderComp, (comp) => {
+let ListViewPropertyComp = withPropertyViewFn(ListViewRenderComp, (comp) => {
   return <ListPropertyView comp={comp} />;
 });
 
-export const ListViewComp = withExposingConfigs(ListViewPropertyComp, [
+ListViewPropertyComp = withExposingConfigs(ListViewPropertyComp, [
   new CompDepsConfig(
     "items",
     (comp) => ({ data: comp.itemsNode() }),
@@ -179,6 +180,22 @@ export const ListViewComp = withExposingConfigs(ListViewPropertyComp, [
   // ),
   NameConfigHidden,
 ]);
+
+export const ListViewComp = withMethodExposing(ListViewPropertyComp, [
+  {
+    method: {
+      name: "setPage",
+      description: "",
+      params: [{ name: "page", type: "number" }],
+    },
+    execute: (comp, values) => {
+      const page = values[0] as number;
+      if (page && page > 0) {
+        comp.children.pagination.children.pageNo.dispatchChangeValueAction(page);
+      }
+    },
+  },
+])
 
 export function defaultListViewData(compName: string, nameGenerator: NameGenerator) {
   return {
