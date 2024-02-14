@@ -96,7 +96,6 @@ export function dropdownAbstractControl<T extends OptionsType>(
           value={this.value}
           options={finalOptions}
           onChange={(value) => {
-            console.log(value);
             if (!params.disableDispatchValueChange) {
               this.dispatchChangeValueAction(value);
             }
