@@ -106,7 +106,10 @@ leftPanel: {
     components: "组件",
     modals: "对话框",
     expandTip: "点击展开 {component} 的数据",
-    collapseTip: "点击折叠 {component} 的数据"
+    collapseTip: "点击折叠 {component} 的数据",
+    layers: "图层",
+    activatelayers: "激活图层",
+    selectedComponents: "已选组件",
 },
 bottomPanel: {
     title: "查询",
