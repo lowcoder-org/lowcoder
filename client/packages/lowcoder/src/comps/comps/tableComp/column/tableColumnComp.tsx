@@ -90,7 +90,6 @@ export const columnChildrenMap = {
   isCustom: valueComp<boolean>(false),
   // If it is a data column, it must be the name of the column and cannot be duplicated as a react key
   dataIndex: valueComp<string>(""),
-  columnsList: valueComp<Array<JSONValue>>([]),
   hide: BoolControl,
   sortable: BoolControl,
   width: NumberControl,
@@ -207,7 +206,7 @@ export class ColumnComp extends ColumnInitComp {
         })}
         <Dropdown
           showSearch={true}
-          value={columnValue}
+          defaultValue={columnValue}
           options={initialColumns}
           label={trans("table.dataMapping")}
           onChange={(value) => {

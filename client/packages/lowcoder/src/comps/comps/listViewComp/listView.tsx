@@ -176,7 +176,10 @@ export function ListView(props: Props) {
               return <div key={itemIdx} style={{ flex: "auto" }}></div>;
             }
             const containerProps = containerFn(
-              { [itemIndexName]: itemIdx, [itemDataName]: getCurrentItemParams(data, itemIdx) },
+              {
+                [itemIndexName]: itemIdx,
+                [itemDataName]: getCurrentItemParams(data, itemIdx)
+              },
               String(itemIdx)
             ).getView();
             const unMountFn = () => {
