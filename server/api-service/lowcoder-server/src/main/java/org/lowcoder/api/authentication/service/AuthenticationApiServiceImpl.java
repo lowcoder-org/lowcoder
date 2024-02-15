@@ -141,8 +141,12 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
                 // save token and set cookie
                 .delayUntil(user -> {
                     String token = CookieHelper.generateCookieToken();
+                    Integer accessTokenExpiryEpoch = null;
+                    if(authUser.getAuthToken() != null && authUser.getAuthToken().getExpireIn() != 0) {
+                        accessTokenExpiryEpoch = authUser.getAuthToken().getExpireIn();
+                    }
                     return sessionUserService.saveUserSession(token, user, authUser.getSource())
-                            .then(Mono.fromRunnable(() -> cookieHelper.saveCookie(token, exchange)));
+                            .then(Mono.fromRunnable(() -> cookieHelper.saveCookie(token, exchange, accessTokenExpiryEpoch)));
                 })
                 // after register
                 .delayUntil(user -> {

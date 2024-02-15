@@ -53,6 +53,8 @@ common:
   max-query-timeout: ${LOWCODER_MAX_QUERY_TIMEOUT:120}
   workspace:
     mode: ${LOWCODER_WORKSPACE_MODE:SAAS}
+  cookie:
+    max-age-in-seconds: ${LOWCODER_SESSION_TIMEOUT:1800}
 
 material:
   mongodb-grid-fs:

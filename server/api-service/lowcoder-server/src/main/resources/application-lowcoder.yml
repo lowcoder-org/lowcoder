@@ -44,6 +44,8 @@ common:
   block-hound-enable: false
   js-executor:
     host: http://127.0.0.1:6060
+  cookie:
+    max-age-in-seconds: 1800
 
 material:
   mongodb-grid-fs:

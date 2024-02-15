@@ -27,7 +27,7 @@ public class CookieHelper {
     @Autowired
     private CommonConfig commonConfig;
 
-    public void saveCookie(String token, ServerWebExchange exchange) {
+    public void saveCookie(String token, ServerWebExchange exchange, Integer accessTokenExpiryEpoch) {
         boolean isUsingHttps = Optional.ofNullable(getRefererURI(exchange.getRequest()))
                 .map(a -> "https".equalsIgnoreCase(a.getScheme()))
                 .orElse(false);
@@ -37,10 +37,17 @@ public class CookieHelper {
                 .secure(isUsingHttps)
                 .sameSite(isUsingHttps ? "None" : "Lax");
         // set cookie max-age
-        Cookie cookie = commonConfig.getCookie();
-        if (cookie.getMaxAgeInSeconds() >= 0) {
-            builder.maxAge(cookie.getMaxAgeInSeconds());
+
+        if(accessTokenExpiryEpoch != null) {
+            long maxAgeInSeconds = accessTokenExpiryEpoch - (System.currentTimeMillis()/1000);
+            builder.maxAge(maxAgeInSeconds);
+        } else {
+            Cookie cookie = commonConfig.getCookie();
+            if (cookie.getMaxAgeInSeconds() >= 0) {
+                builder.maxAge(cookie.getMaxAgeInSeconds());
+            }
         }
+
 
         if (commonConfig.isCloud()) {
             String topPrivateDomain = UriUtils.getTopPrivateDomain(exchange);
