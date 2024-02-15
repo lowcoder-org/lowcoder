@@ -210,7 +210,7 @@ const tableChildrenMap = {
   toolbarStyle: styleControl(TableToolbarStyle),
   headerStyle: styleControl(TableHeaderStyle),
   searchText: StringControl,
-  columnsStyle: withDefault(styleControl(TableColumnStyle), {borderWidth: '1px', radius: '0px'}),
+  columnsStyle: withDefault(styleControl(TableColumnStyle), {borderWidth: '1px', radius: '0px',fontStyle:'italic'}),
   viewModeResizable: BoolControl,
   visibleResizables: BoolControl,
   // sample data for regenerating columns
