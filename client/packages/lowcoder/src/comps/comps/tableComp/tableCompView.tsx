@@ -535,9 +535,9 @@ function TableCellView(props: {
       radius: columnStyle.radius || columnsStyle.radius,
       borderWidth: columnStyle.borderWidth || columnsStyle.borderWidth,
       textSize: columnStyle.textSize || columnsStyle.textSize,
-      textWeight: columnStyle.textWeight || columnsStyle.textWeight,
-      fontFamily: columnStyle.fontFamily || columnsStyle.fontFamily,
-      fontStyle: columnStyle.fontStyle || columnsStyle.fontStyle,
+      textWeight: columnsStyle.textWeight || columnStyle.textWeight,
+      fontFamily: columnsStyle.fontFamily || columnStyle.fontFamily,
+      fontStyle: columnsStyle.fontStyle || columnStyle.fontStyle,
       rowHeight: rowHeight,
     }
     let { background } = style;
