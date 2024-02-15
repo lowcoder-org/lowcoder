@@ -279,10 +279,6 @@ export const LeftLayersContent = (props: LeftLayersContentProps) => {
   const getCheckedKeys = () => {
     return checkedKeys;
   }
-
-  useEffect(() => {
-    console.log('onChange', actionValue);
-  }, [actionValue])
   
   const getActionValue = () => {
     return actionValue;
@@ -350,14 +346,16 @@ export const LeftLayersContent = (props: LeftLayersContentProps) => {
         <div style={{marginBottom:"10px"}}>
           {trans("leftPanel.activatelayers")}
           <Switch 
-          style={{margin : "0px 10px"}}
-          size="small"
-          checked={editorState.collisionStatus == "true"}
-          disabled={false}
-          onChange={(value: any) => {
-            toggleCollisionStatus(value == true ? "true" : "false");
-            editorState.setCollisionStatus(value == true ? "true" : "false");
-          } } /></div>
+            style={{margin : "0px 10px"}}
+            size="small"
+            checked={editorState.collisionStatus == "true"}
+            disabled={false}
+            onChange={(value: any) => {
+              toggleCollisionStatus(value == true ? "true" : "false");
+              editorState.setCollisionStatus(value == true ? "true" : "false");
+            }}
+          />
+        </div>
 
         <DirectoryTreeStyle
           checkable={true}
@@ -376,7 +374,8 @@ export const LeftLayersContent = (props: LeftLayersContentProps) => {
           switcherIcon={(props: any) => props.expanded ? <FoldedIcon /> : <UnfoldIcon />}
           expandedKeys={expandedKeys}
           onExpand={(keys) => setExpandedKeys(keys)}
-          titleRender={(nodeData) => getTreeNode(nodeData as NodeItem, uiCompInfos)} />
+          titleRender={(nodeData) => getTreeNode(nodeData as NodeItem, uiCompInfos)}
+        />
 
         <div style={{margin:"10px 0px"}}> 
           <Flex gap="small" vertical>
@@ -400,7 +399,6 @@ export const LeftLayersContent = (props: LeftLayersContentProps) => {
             </CustomDropdown>
           </Flex>
         </div>
-
       </div>
      
       <Divider />
@@ -413,7 +411,7 @@ export const LeftLayersContent = (props: LeftLayersContentProps) => {
       return;
     }
     return getTreeUI();
-  }, [editorState, uiCollapseClick, expandedKeys, componentTreeData]);
+  }, [editorState, uiCollapseClick, expandedKeys, componentTreeData, actionValue]);
   
   const layerControlContent = (
     <ScrollBar>
