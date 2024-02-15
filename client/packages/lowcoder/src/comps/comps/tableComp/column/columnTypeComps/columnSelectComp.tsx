@@ -23,13 +23,14 @@ type SelectEditProps = {
   options: any[];
 };
 
-const SelectEdit = (props: SelectEditProps) => {
+const SelectEdit = (
+  props: SelectEditProps,
+) => {
   const [currentValue, setCurrentValue] = useState(props.initialValue);
-
   return (
     <SelectUIView 
       value={currentValue}
-      options={options}
+      options={props.options}
       onChange={(val) => {
         props.onChange(val);
         setCurrentValue(val)
