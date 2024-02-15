@@ -34,9 +34,12 @@ public interface ApplicationRepository extends ReactiveMongoRepository<Applicati
 
     Flux<Application> findByIdIn(List<String> ids);
 
-    @Query(fields = "{_id : 1}")
-    Flux<Application> findByPublicToAllIsTrueAndPublicToMarketplaceIsAndIdIn(Boolean publicToMarketplace, Collection<String> ids);
+    @Query(value = "{$and:[{'publicToAll':true},{'$or':[{'publicToMarketplace':?0},{'agencyProfile':?1}]}, {'_id': { $in: ?2}}]}", fields = "{_id : 1}")
+    Flux<Application> findByPublicToAllIsTrueAndPublicToMarketplaceIsOrAgencyProfileIsAndIdIn
+            (Boolean publicToMarketplace, Boolean agencyProfile, Collection<String> ids);
 
     Flux<Application> findByPublicToAllIsTrueAndPublicToMarketplaceIsTrue();
+
+    Flux<Application> findByPublicToAllIsTrueAndAgencyProfileIsTrue();
 
 }

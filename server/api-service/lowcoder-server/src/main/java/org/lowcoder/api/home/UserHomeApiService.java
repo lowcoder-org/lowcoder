@@ -25,4 +25,6 @@ public interface UserHomeApiService {
             @Nullable ApplicationStatus applicationStatus, boolean withContainerSize);
 
     public Flux<MarketplaceApplicationInfoView> getAllMarketplaceApplications(@Nullable ApplicationType applicationType);
+
+    public Flux<MarketplaceApplicationInfoView> getAllAgencyProfileApplications(@Nullable ApplicationType applicationType);
 }

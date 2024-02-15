@@ -122,6 +122,15 @@ public interface ApplicationEndpoints
 
 	@Operation(
 			tags = TAG_APPLICATION_MANAGEMENT,
+			operationId = "getAgencyProfileApplicationDataInViewMode",
+			summary = "Get Agency profile Application data in view mode",
+			description = "Retrieve the DSL data of a Lowcoder Application in view-mode by its ID marked as agency profile."
+	)
+	@GetMapping("/{applicationId}/view_agency")
+	public Mono<ResponseView<ApplicationView>> getAgencyProfileApplication(@PathVariable String applicationId);
+
+	@Operation(
+			tags = TAG_APPLICATION_MANAGEMENT,
 		    operationId = "updateApplication",
 		    summary = "Update Application by ID",
 		    description = "Update a Lowcoder Application identified by its ID."
@@ -167,6 +176,15 @@ public interface ApplicationEndpoints
 	)
 	@GetMapping("/marketplace-apps")
 	public Mono<ResponseView<List<MarketplaceApplicationInfoView>>> getMarketplaceApplications(@RequestParam(required = false) Integer applicationType);
+
+	@Operation(
+			tags = TAG_APPLICATION_MANAGEMENT,
+			operationId = "listAgencyProfileApplications",
+			summary = "List agency profile Applications",
+			description = "Retrieve a list of Lowcoder Applications that are set as agency profiles"
+	)
+	@GetMapping("/agency-profiles")
+	public Mono<ResponseView<List<MarketplaceApplicationInfoView>>> getAgencyProfileApplications(@RequestParam(required = false) Integer applicationType);
 
 	@Operation(
 			tags = TAG_APPLICATION_PERMISSIONS,
@@ -231,6 +249,16 @@ public interface ApplicationEndpoints
 	public Mono<ResponseView<Boolean>> setApplicationPublicToMarketplace(@PathVariable String applicationId,
 																  @RequestBody ApplicationPublicToMarketplaceRequest request);
 
+	@Operation(
+			tags = TAG_APPLICATION_MANAGEMENT,
+			operationId = "setApplicationAsAgencyProfile",
+			summary = "Set Application as agency profile",
+			description = "Set a Lowcoder Application identified by its ID as as agency profile but to only logged in users."
+	)
+	@PutMapping("/{applicationId}/agency-profile")
+	public Mono<ResponseView<Boolean>> setApplicationAsAgencyProfile(@PathVariable String applicationId,
+																	 @RequestBody ApplicationAsAgencyProfileRequest request);
+
 
 	public record BatchAddPermissionRequest(String role, Set<String> userIds, Set<String> groupIds) {
     }
@@ -247,6 +275,19 @@ public interface ApplicationEndpoints
 		public Boolean publicToMarketplace() {
 			return BooleanUtils.isTrue(publicToMarketplace);
 		}
+	}
+
+	public record ApplicationAsAgencyProfileRequest(Boolean agencyProfile) {
+		@Override
+		public Boolean agencyProfile() {
+			return BooleanUtils.isTrue(agencyProfile);
+		}
+	}
+
+	public enum ApplicationRequestType {
+		PUBLIC_TO_ALL,
+		PUBLIC_TO_MARKETPLACE,
+		AGENCY_PROFILE,
 	}
 
     public record UpdatePermissionRequest(String role) {
