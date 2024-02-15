@@ -35,6 +35,8 @@ public interface ApplicationRepository extends ReactiveMongoRepository<Applicati
     Flux<Application> findByIdIn(List<String> ids);
 
     @Query(fields = "{_id : 1}")
-    Flux<Application> findByPublicToAllIsTrueAndIdIn(Collection<String> ids);
+    Flux<Application> findByPublicToAllIsTrueAndPublicToMarketplaceIsAndIdIn(Boolean publicToMarketplace, Collection<String> ids);
+
+    Flux<Application> findByPublicToAllIsTrueAndPublicToMarketplaceIsTrue();
 
 }

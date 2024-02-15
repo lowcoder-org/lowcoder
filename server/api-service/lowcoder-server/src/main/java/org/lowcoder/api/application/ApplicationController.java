@@ -15,6 +15,7 @@ import java.util.List;
 import org.lowcoder.api.application.view.ApplicationInfoView;
 import org.lowcoder.api.application.view.ApplicationPermissionView;
 import org.lowcoder.api.application.view.ApplicationView;
+import org.lowcoder.api.application.view.MarketplaceApplicationInfoView;
 import org.lowcoder.api.framework.view.ResponseView;
 import org.lowcoder.api.home.UserHomeApiService;
 import org.lowcoder.api.home.UserHomepageView;
@@ -97,6 +98,14 @@ public class ApplicationController implements ApplicationEndpoints {
     }
 
     @Override
+    public Mono<ResponseView<ApplicationView>> getPublishedMarketPlaceApplication(@PathVariable String applicationId) {
+        return applicationApiService.getPublishedApplication(applicationId)
+                .delayUntil(applicationView -> applicationApiService.updateUserApplicationLastViewTime(applicationId))
+                .delayUntil(applicationView -> businessEventPublisher.publishApplicationCommonEvent(applicationView, VIEW))
+                .map(ResponseView::success);
+    }
+
+    @Override
     public Mono<ResponseView<ApplicationView>> update(@PathVariable String applicationId,
             @RequestBody Application newApplication) {
         return applicationApiService.update(applicationId, newApplication)
@@ -123,6 +132,14 @@ public class ApplicationController implements ApplicationEndpoints {
             @RequestParam(defaultValue = "true") boolean withContainerSize) {
         ApplicationType applicationTypeEnum = applicationType == null ? null : ApplicationType.fromValue(applicationType);
         return userHomeApiService.getAllAuthorisedApplications4CurrentOrgMember(applicationTypeEnum, applicationStatus, withContainerSize)
+                .collectList()
+                .map(ResponseView::success);
+    }
+
+    @Override
+    public Mono<ResponseView<List<MarketplaceApplicationInfoView>>> getMarketplaceApplications(@RequestParam(required = false) Integer applicationType) {
+        ApplicationType applicationTypeEnum = applicationType == null ? null : ApplicationType.fromValue(applicationType);
+        return userHomeApiService.getAllMarketplaceApplications(applicationTypeEnum)
                 .collectList()
                 .map(ResponseView::success);
     }
@@ -175,6 +192,13 @@ public class ApplicationController implements ApplicationEndpoints {
     public Mono<ResponseView<Boolean>> setApplicationPublicToAll(@PathVariable String applicationId,
             @RequestBody ApplicationPublicToAllRequest request) {
         return applicationApiService.setApplicationPublicToAll(applicationId, request.publicToAll())
+                .map(ResponseView::success);
+    }
+
+    @Override
+    public Mono<ResponseView<Boolean>> setApplicationPublicToMarketplace(@PathVariable String applicationId,
+                                                                         @RequestBody ApplicationPublicToMarketplaceRequest request) {
+        return applicationApiService.setApplicationPublicToMarketplace(applicationId, request.publicToMarketplace())
                 .map(ResponseView::success);
     }
 }

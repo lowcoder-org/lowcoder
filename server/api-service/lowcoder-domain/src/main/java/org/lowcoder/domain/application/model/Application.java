@@ -39,6 +39,8 @@ public class Application extends HasIdAndAuditing {
     private final Map<String, Object> publishedApplicationDSL;
 
     private final Boolean publicToAll;
+    private final Boolean publicToMarketplace;
+
     private Map<String, Object> editingApplicationDSL;
 
     @Transient
@@ -75,6 +77,7 @@ public class Application extends HasIdAndAuditing {
             @JsonProperty("applicationStatus") ApplicationStatus applicationStatus,
             @JsonProperty("publishedApplicationDSL") Map<String, Object> publishedApplicationDSL,
             @JsonProperty("publicToAll") Boolean publicToAll,
+            @JsonProperty("publicToMarketplace") Boolean publicToMarketplace,
             @JsonProperty("editingApplicationDSL") Map<String, Object> editingApplicationDSL) {
         this.organizationId = organizationId;
         this.name = name;
@@ -82,6 +85,7 @@ public class Application extends HasIdAndAuditing {
         this.applicationStatus = applicationStatus;
         this.publishedApplicationDSL = publishedApplicationDSL;
         this.publicToAll = publicToAll;
+        this.publicToMarketplace = publicToMarketplace;
         this.editingApplicationDSL = editingApplicationDSL;
     }
 
@@ -103,6 +107,10 @@ public class Application extends HasIdAndAuditing {
 
     public boolean isPublicToAll() {
         return BooleanUtils.toBooleanDefaultIfNull(publicToAll, false);
+    }
+
+    public boolean isPublicToMarketplace() {
+        return BooleanUtils.toBooleanDefaultIfNull(publicToMarketplace, false);
     }
 
     public ApplicationQuery getQueryByViewModeAndQueryId(boolean isViewMode, String queryId) {
