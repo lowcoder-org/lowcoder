@@ -685,6 +685,7 @@ export const InputLikeStyle = [
   TEXT_SIZE,
   TEXT_WEIGHT,
   FONT_FAMILY,
+  FONT_STYLE,
   MARGIN,
   PADDING,
   ...ACCENT_VALIDATE,
