@@ -14,18 +14,24 @@ import { SelectInputInvalidConfig, useSelectInputValidate } from "./selectInputC
 
 import { PaddingControl } from "../../controls/paddingControl";	
 import { MarginControl } from "../../controls/marginControl";
+import { useEffect, useRef } from "react";
 
 const MultiSelectBasicComp = (function () {
   const childrenMap = {
     ...SelectChildrenMap,
-    value: arrayStringExposingStateControl("value", ["1", "2"]),
+    defaultValue: arrayStringExposingStateControl("defaultValue", ["1", "2"]),
+    value: arrayStringExposingStateControl("value"),
     style: styleControl(MultiSelectStyle),
     margin: MarginControl,	
     padding: PaddingControl,
   };
   return new UICompBuilder(childrenMap, (props, dispatch) => {
     const valueSet = new Set<any>(props.options.map((o) => o.value)); // Filter illegal default values entered by the user
-    const [validateState, handleValidate] = useSelectInputValidate(props);
+    const [
+      validateState,
+      handleChange,
+    ] = useSelectInputValidate(props);
+    
     return props.label({
       required: props.required,
       style: props.style,
@@ -34,11 +40,7 @@ const MultiSelectBasicComp = (function () {
           {...props}
           mode={"multiple"}
           value={props.value.value.filter?.((v) => valueSet.has(v))}
-          onChange={(value) => {
-            handleValidate(value);
-            props.value.onChange(value);
-            props.onEvent("change");
-          }}
+          onChange={handleChange}
           dispatch={dispatch}
         />
       ),

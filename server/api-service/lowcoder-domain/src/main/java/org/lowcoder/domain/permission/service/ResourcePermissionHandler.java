@@ -94,6 +94,16 @@ abstract class ResourcePermissionHandler {
             return publicResourcePermissionMono;
         }
 
+        Mono<UserPermissionOnResourceStatus> nonAnonymousPublicResourcePermissionMono = getNonAnonymousUserPublicResourcePermissions(singletonList(resourceId), resourceAction)
+                .map(it -> it.getOrDefault(resourceId, emptyList()))
+                .map(it -> {
+                    if (!it.isEmpty()) {
+                        return UserPermissionOnResourceStatus.success(it.get(0));
+                    }
+                    return isAnonymousUser(userId) ? UserPermissionOnResourceStatus.anonymousUser() : UserPermissionOnResourceStatus.notInOrg();
+                });
+
+
         Mono<UserPermissionOnResourceStatus> orgUserPermissionMono = getOrgId(resourceId)
                 .flatMap(orgId -> orgMemberService.getOrgMember(orgId, userId))
                 .flatMap(orgMember -> {
@@ -107,12 +117,16 @@ abstract class ResourcePermissionHandler {
                 })
                 .defaultIfEmpty(UserPermissionOnResourceStatus.notInOrg());
 
-        return Mono.zip(publicResourcePermissionMono, orgUserPermissionMono)
+        return Mono.zip(publicResourcePermissionMono, nonAnonymousPublicResourcePermissionMono, orgUserPermissionMono)
                 .map(tuple -> {
                     UserPermissionOnResourceStatus publicResourcePermission = tuple.getT1();
-                    UserPermissionOnResourceStatus orgUserPermission = tuple.getT2();
+                    UserPermissionOnResourceStatus nonAnonymousPublicResourcePermission = tuple.getT2();
+                    UserPermissionOnResourceStatus orgUserPermission = tuple.getT3();
                     if (orgUserPermission.hasPermission()) {
                         return orgUserPermission;
+                    }
+                    if(nonAnonymousPublicResourcePermission.hasPermission()) {
+                        return nonAnonymousPublicResourcePermission;
                     }
                     if (publicResourcePermission.hasPermission()) {
                         return publicResourcePermission;
@@ -131,6 +145,9 @@ abstract class ResourcePermissionHandler {
 
     protected abstract Mono<Map<String, List<ResourcePermission>>> getAnonymousUserPermissions(Collection<String> resourceIds,
             ResourceAction resourceAction);
+
+    protected abstract Mono<Map<String, List<ResourcePermission>>> getNonAnonymousUserPublicResourcePermissions
+            (Collection<String> resourceIds, ResourceAction resourceAction);
 
     private Mono<Map<String, List<ResourcePermission>>> getAllMatchingPermissions0(String userId, String orgId, ResourceType resourceType,
             Collection<String> resourceIds,
