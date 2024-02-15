@@ -25,11 +25,17 @@ export const DirectoryTreeStyle = styled(DirectoryTree)`
     position: unset;
     .ant-tree-iconEle {
       width: 16px;
-      height: 26px;
-      margin-right: 4px;
+      height: 16px;
+      margin: 0px 0px 0px 4px;
       display: flex;
       align-items: center;
+      svg {
+        width: 16px;
+        height: 16px;
+        stroke: #000;
+      }
     }
+
   }
   .ant-tree-checkbox+span {
     padding-left: 0;

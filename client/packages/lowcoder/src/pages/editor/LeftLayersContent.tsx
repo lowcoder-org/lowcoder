@@ -1,28 +1,21 @@
 import { CompInfo, EditorContext } from "comps/editorState";
 import {
   BaseSection,
-  Collapse,
   CollapseLabel as Label,
   CollapseTitle as Title,
   FoldedIcon,
   LeftCommon,
   ScrollBar,
-  Tooltip,
   UnfoldIcon,
-  LeftLayersIcon,
-  GridIcon,
   LeftShow,
-  LeftHide,
-  LeftLock,
-  LeftUnlock,
 } from "lowcoder-design";
-import React, { ReactNode, useCallback, useContext, useMemo, useState, useEffect } from "react";
+import React, { useCallback, useContext, useMemo, useState, useEffect, useRef } from "react";
 import _, { get } from "lodash";
 import styled from "styled-components";
 import { leftCompListClassName } from "pages/tutorials/tutorialsConstant";
 import UIComp from "comps/comps/uiComp";
-import { getParentNodeKeysByKey, getTreeNodeByKey, safeJSONStringify } from "util/objectUtils";
-import { BackgroundColor, TopHeaderHeight } from "constants/style";
+import { getTreeNodeByKey } from "util/objectUtils";
+import { TopHeaderHeight } from "constants/style";
 import { trans } from "i18n";
 import { CompTree } from "comps/comps/containerBase";
 import { CompStateIcon } from "./editorConstants";
@@ -32,7 +25,6 @@ import { isAggregationApp } from "util/appUtils";
 import cloneDeep from 'lodash/cloneDeep';
 import { useDispatch } from "react-redux";
 import { useApplicationId } from "util/hooks";
-import { updateApplication } from "redux/reduxActions/applicationActions";
 import { Button, Divider, Dropdown, Flex, Input, Menu, MenuProps, Space } from "antd";
 import { Switch } from "antd";
 import {
@@ -42,6 +34,7 @@ import {
 import { check, withViewFn } from "@lowcoder-ee/index.sdk";
 import { DownOutlined } from "@ant-design/icons";
 import { ItemType } from "antd/es/menu/hooks/useItems";
+import ColorPicker, { configChangeParams } from "components/ColorPicker";
 
 
 export type DisabledCollisionStatus = "true" | "false"; // "true" means collision is not enabled - Layering works, "false" means collision is enabled - Layering does not work
@@ -246,10 +239,47 @@ export const LeftLayersContent = (props: LeftLayersContentProps) => {
 
   const [checkedKeys, setCheckedKeys] = useState<string[]>([]);
   const [actionValue, setActionValue] = useState<string>("");
+  const [selectedActionKey, setSelectedActionKey] = useState<string | null>(null);
+  const [placeholderText, setPlaceholderText] = useState<string>("");
+  const [color, setColor] = useState<string>("");
 
-  const handleActionValueChange = (e: any) => {
+  const handleColorChange = (color: string | undefined, actionType: string) => {
+    const newColor = color || '#ffffff';
+
+    for (let key of getCheckedKeys()) {
+      const node = getTreeNodeByKey(componentTreeData, key);
+      const comp = editorState.getUICompByName(node.title);
+      if(comp) {
+        const { children } = comp.children.comp;
+        const compType = comp.children.compType.getView();
+        const types = actionType.split('.');
+        if(types.length === 1) { // e.g hidden, disabled
+          children[types[0]]?.dispatchChangeValueAction(color);
+        }
+        else if(types.length === 2) { // nested object e.g. style.background
+          console.log(children[types[0]]);
+          if (!children[types[0]]) {
+            if (children[compType].children[types[0]]?.children[types[1]]) {
+              children[compType].children[types[0]].children[types[1]]?.dispatchChangeValueAction(color);
+            }
+          }
+          else {
+            if (children[types[0]].children[types[1]]) {
+              children[types[0]].children[types[1]]?.dispatchChangeValueAction(color);
+            }
+            else {
+              children[types[0]][types[1]]?.dispatchChangeValueAction(color);
+            }
+          }
+        }
+      }
+    }
+  };
+
+
+  /* const handleActionValueChange = (e: any) => {
     setActionValue(e.target.value);
-  }
+  } */
 
   // sync selected components with checked keys
   useEffect(() => {
@@ -266,6 +296,12 @@ export const LeftLayersContent = (props: LeftLayersContentProps) => {
     }
     setCheckedKeys(selectedComponentsOnCanvas);
   }, [editorState]);
+
+  // make sure to handle the selectedActionKey for the changed input fields
+  useEffect(() => {
+    setActionValue('');
+    setColor('#ffffff');
+  }, [selectedActionKey, placeholderText]);
 
   const onCheck = (checkedKeys: any, e: any) => {
     setCheckedKeys(checkedKeys);
@@ -290,29 +326,36 @@ export const LeftLayersContent = (props: LeftLayersContentProps) => {
       const node = getTreeNodeByKey(componentTreeData, key);
       const comp = editorState.getUICompByName(node.title);
       if(comp) {
-        const { children } = comp.children.comp
+        const { children } = comp.children.comp;
+        const compType = comp.children.compType.getView();
         const types = actionType.split('.');
-
         if(types.length === 1) { // e.g hidden, disabled
           children[types[0]]?.dispatchChangeValueAction(value);
         }
         else if(types.length === 2) { // nested object e.g. style.background
-          children[types[0]][types[1]]?.dispatchChangeValueAction(value);
+          console.log(children[types[0]]);
+          if (!children[types[0]]) {
+            if (children[compType].children[types[0]]?.children[types[1]]) {
+              children[compType].children[types[0]].children[types[1]]?.dispatchChangeValueAction(value);
+            }
+          }
+          else {
+            if (children[types[0]].children[types[1]]) {
+              children[types[0]].children[types[1]]?.dispatchChangeValueAction(value);
+            }
+            else {
+              children[types[0]][types[1]]?.dispatchChangeValueAction(value);
+            }
+          }
         }
       }
     }
   }, [getActionValue, getCheckedKeys]);
 
-  /* 
-
-  dispatch(
-        multiChangeAction({
-          width: changeValueAction(width, true),
-          autoWidth: changeValueAction("fixed", true),
-        })
-      );
-
-  */
+  const handleActionSelection = useCallback((key: string) => {
+    setSelectedActionKey(key);
+    setPlaceholderText(getPlaceholderText(key));
+  }, [handleComponentsActions]);
 
   const layerActions: ItemType[] = [
     {
@@ -324,15 +367,63 @@ export const LeftLayersContent = (props: LeftLayersContentProps) => {
       key: 'disable',
     },
     {
-      label: 'Component Background',
-      key: 'style.background',
+      label: 'Margin',
+      key: 'style.margin',
     },
     {
-      label: 'Unlock',
-      key: '4',
+      label: 'Padding',
+      key: 'style.padding',
     },
+    {
+      label: 'Border Radius',
+      key: 'style.radius',
+    },
+    {
+      label: 'Border Width',
+      key: 'style.borderWidth',
+    },
+    {
+      label: 'Font Size',
+      key: 'style.textSize',
+    },
+    {
+      label: 'Font Weight',
+      key: 'style.textWeight',
+    },
+    {
+      label: 'Font Family',
+      key: 'style.fontFamily',
+    }
   ];
 
+
+  const getPlaceholderText = (key: string) => {
+    switch (key) {
+      case 'hidden':
+      case 'disable':
+        return 'true | false';
+      case 'style.background':
+      case 'style.text':
+      case 'style.border':
+        return 'e.g., #ffffff'; // Indicate example format
+      case 'style.radius':
+        return 'e.g., 4px'; // Indicate example format
+      case 'style.borderWidth':
+        return 'e.g., 2px'; // Indicate example format
+      case 'style.textSize':
+        return 'e.g., 16px'; // Indicate example format
+      case 'style.textWeight':
+        return 'bold | 900';
+      case 'style.fontFamily':
+        return 'Arial, sans-serif';
+      case 'style.margin':
+      case 'style.padding':
+        return 'e.g., 4px 8px 16px 32px'; // Indicate example format
+      default:
+        return 'Action Value';
+    }
+  };  
+  
   const getTreeUI = () => {
     // here the components get sorted by name
     // TODO: sort by category
@@ -367,7 +458,7 @@ export const LeftLayersContent = (props: LeftLayersContentProps) => {
           onDrop={(info) => handleDrop(info)}
           treeData={componentTreeData}
           icon={(props: any) => props.type && (
-            <div style={{ margin: '3px 0 0 -3px'}}> {/* Adjust the margin as needed */}
+            <div style={{ margin: '3px 4px 0 -4px'}}> {/* Adjust the margin as needed */}
               {CompStateIcon[props.type as UICompType] || <LeftCommon />}
             </div>
           )}
@@ -379,14 +470,11 @@ export const LeftLayersContent = (props: LeftLayersContentProps) => {
 
         <div style={{margin:"10px 0px"}}> 
           <Flex gap="small" vertical>
-            {trans("leftPanel.selectedComponents")}<br/>
-            {trans("leftPanel.displayComponents")}
-            <Input placeholder="Action Value" onChange={handleActionValueChange}/>
             <CustomDropdown
               dropdownRender={() => (
                 <Menu
                   items={layerActions}
-                  onClick={({key}) => handleComponentsActions(key)}
+                  onClick={({key}) => handleActionSelection(key)}
                 />
               )}
             >
@@ -397,6 +485,37 @@ export const LeftLayersContent = (props: LeftLayersContentProps) => {
                 </Space>
               </Button>
             </CustomDropdown>
+            <Input 
+              value={actionValue} // Use actionValue for the default case as well
+              onChange={(e) => setActionValue(e.target.value)} // Handle changes to update actionValue
+              placeholder={placeholderText}
+            />
+            <Button 
+              type="primary"
+              disabled={!selectedActionKey}
+              onClick={() => selectedActionKey && handleComponentsActions(selectedActionKey)}
+            >
+              Apply Action
+            </Button>
+            <br/>
+            <ColorPicker
+                colorKey={"background"}
+                name={trans("componentDoc.styleBackgroundColor")}
+                color={"#ffffff"}
+                configChange={(params) => handleColorChange(params.color, "style.background")}
+            />
+            <ColorPicker
+                colorKey={"border"}
+                name={trans("componentDoc.styleBorderColor")}
+                color={"#ffffff"}
+                configChange={(params) => handleColorChange(params.color, "style.border")}
+            />
+            <ColorPicker
+                colorKey={"text"}
+                name={trans("style.textColor")}
+                color={"#ffffff"}
+                configChange={(params) => handleColorChange(params.color, "style.text")}
+            />
           </Flex>
         </div>
       </div>
