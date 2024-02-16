@@ -48,6 +48,7 @@ const childrenMap = {
   heightUnitOfRow: withDefault(NumberControl, 1),
   container: ContextContainerComp,
   autoHeight: AutoHeightControl,
+  scrollbars: withDefault(BoolControl, false),
   showBorder: BoolControl,
   pagination: withDefault(PaginationControl, { pageSize: "6" }),
   style: styleControl(ListViewStyle),

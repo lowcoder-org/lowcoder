@@ -185,7 +185,8 @@ prop: {
     showBody: "显示表体",
     showFooter: "显示表尾",
     maskClosable: "点击蒙层关闭",
-    showMask: "显示蒙层"
+    showMask: "显示蒙层",
+    scrollbar: "滚动条",
 },
 autoHeightProp: {
     auto: "自动",
