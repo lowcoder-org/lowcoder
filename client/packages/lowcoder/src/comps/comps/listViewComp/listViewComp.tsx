@@ -172,12 +172,12 @@ ListViewPropertyComp = withExposingConfigs(ListViewPropertyComp, [
       return data;
     },
   }),
-  // new CompDepsConfig(
-  //   "index",
-  //   (comp) => ({index: comp.children.itemIndexName.node() }),
-  //   (input) => input.index.value,
-  //   "index", // trans("listView.itemsDesc")
-  // ),
+  new CompDepsConfig(
+    "pageNo",
+    (comp) => ({index: comp.children.pagination.children.pageNo.exposingNode() }),
+    (input) => input.index,
+    "Page Number", // trans("listView.itemsDesc")
+  ),
   NameConfigHidden,
 ]);
 
