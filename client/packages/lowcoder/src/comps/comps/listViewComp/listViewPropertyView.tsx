@@ -62,9 +62,11 @@ export function listPropertyView(compType: ListCompType) {
         {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
           <><Section name={sectionNames.layout}>
               {children.autoHeight.getPropertyView()}
-              {children.scrollbars.propertyView({
-              label: trans("prop.scrollbar"),
-            })}
+              {!children.autoHeight.getView() && 
+                children.scrollbars.propertyView({
+                label: trans("prop.scrollbar"),
+               }  
+              )}
             </Section>
             <Section name={sectionNames.style}>
               {children.style.getPropertyView()}

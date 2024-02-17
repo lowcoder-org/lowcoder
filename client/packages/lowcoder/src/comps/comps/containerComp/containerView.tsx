@@ -5,6 +5,7 @@ import { hookCompCategory, HookCompType } from "comps/hooks/hookCompTypes";
 import { UICompLayoutInfo, uiCompRegistry, UICompType } from "comps/uiCompRegistry";
 import { genRandomKey } from "comps/utils/idGenerator";
 import { parseCompType } from "comps/utils/remote";
+import { ScrollBar } from "lowcoder-design";
 import {
   DEFAULT_POSITION_PARAMS,
   draggingUtils,
@@ -102,6 +103,7 @@ type ExtraProps = {
   rowCount?: number;
   isRowCountLocked?: boolean;
   autoHeight?: boolean;
+  scrollbars?: boolean;
   minHeight?: string;
   emptyRows?: number;
   extraHeight?: string;

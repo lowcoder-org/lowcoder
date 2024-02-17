@@ -113,20 +113,19 @@ export function CanvasView(props: ContainerBaseProps) {
         $bgColor={bgColor}
       >
         <div>
-          <ScrollBar style={{ height: "100%", margin: "0px", padding: "0px" }}>
+          {/* <ScrollBar style={{ height: "100%", margin: "0px", padding: "0px" }}> */}
             <Profiler id="Panel" onRender={profilerCallback}>
-            <InnerGrid
-              containerPadding={rootContainerPadding}
-              overflow={rootContainerOverflow}
-              {...props}
-              positionParams={positionParams} // Added By Aqib Mirza
-              {...gridLayoutCanvasProps}
-              bgColor={bgColor}
-              radius="0px"
-            />
-          </Profiler>
-          </ScrollBar>
-          
+              <InnerGrid
+                containerPadding={rootContainerPadding}
+                overflow={rootContainerOverflow}
+                {...props}
+                positionParams={positionParams} // Added By Aqib Mirza
+                {...gridLayoutCanvasProps}
+                bgColor={bgColor}
+                radius="0px"
+              />
+            </Profiler>
+          {/*</ScrollBar> */}
         </div>
       </UICompContainer>
     );
