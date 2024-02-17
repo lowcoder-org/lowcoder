@@ -229,6 +229,7 @@ export function getStyle(style: InputLikeStyleType) {
       font-size: ${style.textSize};
       font-weight: ${style.textWeight};
       font-family: ${style.fontFamily};
+      font-style:${style.fontStyle};
       background-color: ${style.background};
       border-color: ${style.border};
 
@@ -275,10 +276,10 @@ export const inputRefMethods = [
 ];
 
 export function checkMentionListData(data: any) {
-  if(data === "") return {}
-  for(const key in data) {
-    check(data[key], ["array"], key,(node)=>{
-      check(node, ["string"], );
+  if (data === "") return {}
+  for (const key in data) {
+    check(data[key], ["array"], key, (node) => {
+      check(node, ["string"],);
       return node
     })
   }
