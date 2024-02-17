@@ -435,7 +435,11 @@ export const LeftContent = (props: LeftContentProps) => {
       <DirectoryTreeStyle
         treeData={explorerData}
         // icon={(props: NodeItem) => props.type && (CompStateIcon[props.type] || <LeftCommon />)}
-        icon={(props: any) => props.type && (CompStateIcon[props.type as UICompType] || <LeftCommon />)}
+        icon={(props: any) => props.type && (
+          <div style={{ margin: '16px 4px 0 -4px'}}> 
+            {CompStateIcon[props.type as UICompType] || <LeftCommon />}
+          </div>
+        )}
         // switcherIcon={({ expanded }: { expanded: boolean }) =>
         //   expanded ? <FoldedIcon /> : <UnfoldIcon />
         // }
