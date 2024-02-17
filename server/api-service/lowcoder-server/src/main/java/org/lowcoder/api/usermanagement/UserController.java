@@ -147,7 +147,7 @@ public class UserController implements UserEndpoints
     }
 
     @Override
-    public Mono<ResponseView<String>> lostPassword(@RequestBody LostPasswordRequest request) {
+    public Mono<ResponseView<Void>> lostPassword(@RequestBody LostPasswordRequest request) {
         if (StringUtils.isBlank(request.userEmail())) {
             return ofError(BizError.INVALID_PARAMETER, "INVALID_USER_EMAIL");
         }

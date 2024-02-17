@@ -44,6 +44,7 @@ public class CommonConfig {
     private Cookie cookie = new Cookie();
     private JsExecutor jsExecutor = new JsExecutor();
     private Set<String> disallowedHosts = new HashSet<>();
+    private SMTP smtp = new SMTP();
 
     public boolean isSelfHost() {
         return !isCloud();
@@ -143,6 +144,13 @@ public class CommonConfig {
     @Data
     public static class JsExecutor {
         private String host;
+    }
+
+    @Data
+    public static class SMTP {
+        private String email;
+        private String host;
+        private String port;
     }
 
 

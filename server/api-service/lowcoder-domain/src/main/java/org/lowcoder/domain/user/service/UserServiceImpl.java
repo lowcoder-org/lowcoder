@@ -29,6 +29,7 @@ import org.lowcoder.sdk.constants.FieldName;
 import org.lowcoder.sdk.constants.WorkspaceMode;
 import org.lowcoder.sdk.exception.BizError;
 import org.lowcoder.sdk.exception.BizException;
+import org.lowcoder.sdk.util.HashUtils;
 import org.lowcoder.sdk.util.LocaleUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
@@ -41,7 +42,9 @@ import reactor.core.publisher.Mono;
 import javax.annotation.Nonnull;
 import java.security.SecureRandom;
 import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -76,7 +79,8 @@ public class UserServiceImpl implements UserService {
     private CommonConfig commonConfig;
     @Autowired
     private AuthenticationService authenticationService;
-
+    @Autowired
+    private EmailCommunicationService emailCommunicationService;
     private Conf<Integer> avatarMaxSizeInKb;
 
     @PostConstruct
@@ -265,10 +269,18 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Mono<String> lostPassword(String userEmail) {
+    public Mono<Void> lostPassword(String userEmail) {
         return findByName(userEmail)
                 .flatMap(user -> {
-                    return Mono.justOrEmpty(user.getName());
+                    String token = generateNewRandomPwd();
+                    Instant tokenExpiry = Instant.now().plus(12, ChronoUnit.HOURS);
+                    // TODO - IRFAN this is just a dummy email.
+                    if (!emailCommunicationService.sendMail("notify@lowcoder.org", token, "Click Here")) {
+                        return ofError(BizError.USER_NOT_EXIST, "SENDING_EMAIL_FAILED");
+                    }
+                    user.setPasswordResetToken(HashUtils.hash(token.getBytes()));
+                    user.setPasswordResetTokenExpiry(tokenExpiry);
+                    return Mono.empty();
                 });
     }
 

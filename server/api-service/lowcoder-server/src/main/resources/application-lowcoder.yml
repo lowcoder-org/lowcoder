@@ -9,6 +9,18 @@ spring:
   main:
     allow-bean-definition-overriding: true
     allow-circular-references: true
+  mail:
+#    TODO - IRFAN this is just  a test email to check the email sending.
+    username: "irfan.ayub@ikhwatech.com"
+    password: "abcd"
+    host: "smtp.freesmtpservers.com"
+    port: 25
+#    properties:
+#      mail:
+#        smtp:
+#          starttls:
+#            enable: true
+#          auth: true
 
 server:
   compression:

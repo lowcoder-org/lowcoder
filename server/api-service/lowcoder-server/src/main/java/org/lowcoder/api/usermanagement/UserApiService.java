@@ -65,7 +65,7 @@ public class UserApiService {
                 .then(userService.resetPassword(userId));
     }
 
-    public Mono<String> lostPassword(String userEmail) {
+    public Mono<Void> lostPassword(String userEmail) {
         return userService.lostPassword(userEmail);
     }
 
