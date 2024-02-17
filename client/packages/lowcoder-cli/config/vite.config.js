@@ -3,6 +3,7 @@ import svgrPlugin from "vite-plugin-svgr";
 import global from "rollup-plugin-external-globals";
 import { buildVars } from "../dev-utils/buildVars.js";
 import injectCss from "vite-plugin-css-injected-by-js";
+import dynamicImport from 'vite-plugin-dynamic-import';
 import { getLibNames, getAllLibGlobalVarNames } from "../dev-utils/external.js";
 import paths from "./paths.js";
 import { defineConfig } from "vite";
@@ -39,7 +40,19 @@ export default defineConfig({
     rollupOptions: {
       external: getLibNames(),
       output: {
-        chunkFileNames: "[hash].js",
+        chunkFileNames: "[name].js",
+        inlineDynamicImports: false,
+        manualChunks: (id) => {
+          if (id.includes('node_modules')) {
+            return id.toString().split('node_modules/')[1].split('/')[0].toString();
+          }
+        },
+      },
+      onwarn: (warning, warn) => {
+        if (warning.code === 'MODULE_LEVEL_DIRECTIVE') {
+          return
+        }
+        warn(warning)
       },
     },
   },
@@ -61,6 +74,7 @@ export default defineConfig({
         ref: true,
       },
     }),
+    dynamicImport(),
     isProduction && global(getAllLibGlobalVarNames(), { exclude: [/\.css$/] }),
     isProduction && injectCss({ styleId: `${packageJson.name}-${packageJson.version}` }),
   ].filter(Boolean),

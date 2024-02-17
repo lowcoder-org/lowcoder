@@ -85,11 +85,11 @@ const TextOverflowEllipis = styled.div`
   text-overflow: ellipsis;
 `;
 interface IBoundProps {
-  show: boolean;
+  $show: boolean;
 }
 const Bound = styled.div<IBoundProps>`
   padding: 5px;
-  border: ${({ show }) => `1px dashed ${show ? "rgb(51, 119, 255)" : "transparent"}`};
+  border: ${(props) => `1px dashed ${props.$show ? "rgb(51, 119, 255)" : "transparent"}`};
 `;
 
 const StyledBorderIcon = styled(ShowBorderIcon)`
@@ -115,14 +115,14 @@ const OperationWrapper = styled.div`
   transition: opacity 200ms ease-in-out;
 `;
 
-const OperationBtn = styled.a<{ active?: boolean }>`
+const OperationBtn = styled.a<{ $active?: boolean }>`
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 13px;
   line-height: 1;
   margin-right: 16px;
-  color: ${({ active }) => (active ? "rgb(51, 119, 255)" : "#8B8FA3")};
+  color: ${(props) => (props.$active ? "rgb(51, 119, 255)" : "#8B8FA3")};
   cursor: pointer;
 `;
 
@@ -232,7 +232,7 @@ export default function Example(props: IProps) {
         <div className="left">
           <OperationWrapper className="operations">
             <OperationBtn
-              active={isBorderShow}
+              $active={(isBorderShow)}
               onClick={(e) => {
                 e.preventDefault();
                 showBorder((i: any) => !i);
@@ -249,7 +249,7 @@ export default function Example(props: IProps) {
               {trans("componentDoc.haveTry")}
             </OperationBtn>
           </OperationWrapper>
-          <Bound show={isBorderShow} style={{ width, height }}>
+          <Bound $show={isBorderShow} style={{ width, height }}>
             <EditorContext.Provider value={editorState}>{view}</EditorContext.Provider>
           </Bound>
         </div>

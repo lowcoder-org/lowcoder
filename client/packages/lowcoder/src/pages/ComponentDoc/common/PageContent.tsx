@@ -21,6 +21,7 @@ const Wrapper = styled.div`
 export default function PageContent(props: IProps) {
   const { name, compInfo, showBasicInfo = true, showExamples = true } = props;
   const Example = examples[name];
+
   return (
     <Wrapper>
       {/* comps basic info */}
@@ -35,7 +36,7 @@ export default function PageContent(props: IProps) {
       )}
 
       {/* comps exposing info */}
-      <Exposing compName={name} compFactory={compInfo.comp} />
+      { compInfo.comp && <Exposing compName={name} compFactory={compInfo.comp} /> }
 
       {/* extra info via Markdown */}
       <Extra compName={name} />

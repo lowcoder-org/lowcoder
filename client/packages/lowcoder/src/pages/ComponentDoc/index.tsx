@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import styled from "styled-components";
 import PageContent from "./common/PageContent";
-import "comps";
+// import "comps";
 import {
   UICompType,
   UICompManifest,
@@ -82,7 +82,25 @@ const Wrapper = styled.div`
 export default function ComponentDoc() {
   const params = useParams<{ name: UICompType }>();
   const [search, setSearch] = useState("");
-  const compManifest = uiCompRegistry[params.name];
+  const [compManifest, setCompManifest] = useState<UICompManifest>();
+
+  useEffect(() => {
+    const manifest = uiCompRegistry[params.name];
+    if(!manifest.lazyLoad) {
+      return setCompManifest(manifest);
+    }
+
+    async function loadComp() {
+      const module = await import(`../../comps/${manifest.compPath}.tsx`);
+      const comp = module[manifest.compName!];
+;
+      setCompManifest({
+        ...manifest,
+        comp,
+      });
+    }
+    loadComp();
+  }, [params.name]);
 
   useEffect(() => {
     const isInIFrame = window !== window.top;

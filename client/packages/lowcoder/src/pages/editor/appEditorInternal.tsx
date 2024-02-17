@@ -1,7 +1,7 @@
 import { AppSummaryInfo, updateApplication } from "redux/reduxActions/applicationActions";
 import { useDispatch, useSelector } from "react-redux";
 import { getExternalEditorState } from "redux/selectors/configSelectors";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   ExternalEditorContext,
   ExternalEditorContextState,
@@ -9,19 +9,15 @@ import {
 import { setEditorExternalStateAction } from "redux/reduxActions/configActions";
 import { AppTypeEnum } from "constants/applicationConstants";
 import EditorSkeletonView from "pages/editor/editorSkeletonView";
-import { useThrottle, useUnmount } from "react-use";
+import { useThrottle } from "react-use";
 import { Comp } from "lowcoder-core";
 import { localEnv } from "util/envUtils";
 import { saveMainComp } from "util/localStorageUtil";
-import { RootComp } from "comps/comps/rootComp";
-import { useAppHistory } from "util/editoryHistory";
-import { useCompInstance } from "comps/utils/useCompInstance";
-import { MarkAppInitialized, perfMark } from "util/perfUtils";
 import { default as ConfigProvider } from "antd/es/config-provider";
 import { default as message } from "antd/es/message";
 import { getAntdLocale } from "i18n/antdLocale";
 import { useUserViewMode } from "../../util/hooks";
-import { QueryApi } from "api/queryApi";
+import { RootCompInstanceType } from "./useRootCompInstance";
 
 /**
  * FIXME: optimize the logic of saving comps
@@ -68,41 +64,6 @@ function useSaveComp(
   }, [comp, applicationId, prevComp, prevJsonStr, readOnly, dispatch]);
 }
 
-export function useRootCompInstance(appInfo: AppSummaryInfo, readOnly: boolean, isReady: boolean) {
-  const appId = appInfo.id;
-  const params = useMemo(() => {
-    return {
-      Comp: RootComp,
-      initialValue: appInfo.dsl,
-      reduceContext: {
-        applicationId: appId,
-        parentApplicationPath: [],
-        moduleDSL: appInfo.moduleDsl || {},
-        readOnly,
-      },
-      initHandler: async (comp: RootComp) => {
-        const root = await comp.preload(`app-${appId}`);
-        perfMark(MarkAppInitialized);
-        return root;
-      },
-      isReady,
-    };
-  }, [appId, appInfo.dsl, appInfo.moduleDsl, isReady, readOnly]);
-  const [comp, container] = useCompInstance(params);
-  const history = useAppHistory(container, readOnly, appId);
-
-  useUnmount(() => {
-    comp?.clearPreload();
-    QueryApi.cancelAllQuery();
-  });
-
-  return useMemo(() => {
-    return { comp, history, appId };
-  }, [appId, comp, history]);
-}
-
-export type RootCompInstanceType = ReturnType<typeof useRootCompInstance>;
-
 interface AppEditorInternalViewProps {
   readOnly: boolean;
   appInfo: AppSummaryInfo;
@@ -110,7 +71,7 @@ interface AppEditorInternalViewProps {
   compInstance: RootCompInstanceType;
 }
 
-export function AppEditorInternalView(props: AppEditorInternalViewProps) {
+export default function AppEditorInternalView(props: AppEditorInternalViewProps) {
   const isUserViewMode = useUserViewMode();
   const extraExternalEditorState = useSelector(getExternalEditorState);
   const dispatch = useDispatch();

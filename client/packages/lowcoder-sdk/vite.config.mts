@@ -1,11 +1,15 @@
-import { defineConfig, UserConfig } from "vite";
+import { defineConfig, PluginOption, UserConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import viteTsconfigPaths from "vite-tsconfig-paths";
 import svgrPlugin from "vite-plugin-svgr";
+import dynamicImport from 'vite-plugin-dynamic-import';
 import path from "path";
 import { ensureLastSlash } from "./src/dev-utils/util";
 import { buildVars } from "./src/dev-utils/buildVars";
 import { globalDepPlugin } from "./src/dev-utils/globalDepPlguin";
+import { visualizer } from "rollup-plugin-visualizer";
+
+const isVisualizerEnabled = !!process.env.ENABLE_VISUALIZER;
 
 const define = {};
 buildVars.forEach(({ name, defaultValue }) => {
@@ -39,7 +43,18 @@ export const viteConfig: UserConfig = {
     rollupOptions: {
       external: ["react", "react-dom"],
       output: {
-        chunkFileNames: "[hash].js",
+        chunkFileNames: "[name].js",
+        manualChunks: (id) => {
+          if (id.includes('node_modules')) {
+            return id.toString().split('node_modules/')[1].split('/')[0].toString();
+          }
+        },
+      },
+      onwarn: (warning, warn) => {
+        if (warning.code === 'MODULE_LEVEL_DIRECTIVE') {
+          return
+        }
+        warn(warning)
       },
     },
     commonjsOptions: {
@@ -97,6 +112,14 @@ export const viteConfig: UserConfig = {
         ref: true,
       },
     }),
+    isVisualizerEnabled && visualizer({
+      template: "treemap", // or sunburst
+      open: true,
+      gzipSize: true,
+      brotliSize: true,
+      filename: "analyse.html"
+    }) as PluginOption,
+    dynamicImport(),
   ],
 };
 

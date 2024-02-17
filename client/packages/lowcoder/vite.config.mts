@@ -1,10 +1,14 @@
 import dotenv from "dotenv";
-import { defineConfig, ServerOptions, UserConfig } from "vite";
+import { defineConfig, PluginOption, ServerOptions, UserConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import viteTsconfigPaths from "vite-tsconfig-paths";
 import svgrPlugin from "vite-plugin-svgr";
 import checker from "vite-plugin-checker";
+import dynamicImport from 'vite-plugin-dynamic-import';
+import { nodePolyfills } from 'vite-plugin-node-polyfills';
 import { visualizer } from "rollup-plugin-visualizer";
+import dynamicImportVars from "@rollup/plugin-dynamic-import-vars";
+// import resolve from "@rollup/plugin-node-resolve";
 import path from "path";
 import chalk from "chalk";
 import { createHtmlPlugin } from "vite-plugin-html";
@@ -74,9 +78,28 @@ export const viteConfig: UserConfig = {
     outDir: "build",
     assetsDir: "static",
     emptyOutDir: false,
+    chunkSizeWarningLimit: 100,
     rollupOptions: {
+      // plugins: [
+      //   // resolve() as PluginOption,
+      //   dynamicImportVars({
+      //     exclude: ['src/comps/comps/remoteComp/loaders.tsx'],
+      //   }) as PluginOption
+      // ],
       output: {
-        chunkFileNames: "[hash].js",
+        chunkFileNames: "[name].js",
+        inlineDynamicImports: false,
+        manualChunks: (id) => {
+          if (id.includes('node_modules')) {
+            return id.toString().split('node_modules/')[1].split('/')[0].toString();
+          }
+        },
+      },
+      onwarn: (warning, warn) => {
+        if (warning.code === 'MODULE_LEVEL_DIRECTIVE') {
+          return
+        }
+        warn(warning)
       },
     },
     commonjsOptions: {
@@ -146,7 +169,28 @@ export const viteConfig: UserConfig = {
         },
       },
     }),
-    isVisualizerEnabled && visualizer(),
+    isVisualizerEnabled && visualizer({
+      template: "treemap", // or sunburst
+      open: true,
+      gzipSize: true,
+      brotliSize: true,
+      filename: "analyse.html"
+    }) as PluginOption,
+    dynamicImport({
+      // filter(id) {
+      //   console.log(id);
+      //   if (id.includes('src/comps/comps/remoteComp/loaders.tsx')) {
+      //     return false
+      //   }
+      //   if(id.includes('src/comps/comps/fileComp/fileComp.test.tsx')) return true;
+      // }
+    }),
+    // nodePolyfills({
+    //   include: ['fs'],
+    //   overrides: {
+    //     fs: 'memfs',
+    //   },
+    // }),
   ].filter(Boolean),
 };
 
@@ -162,7 +206,8 @@ const browserCheckConfig: UserConfig = {
     copyPublicDir: false,
     emptyOutDir: true,
     lib: {
-      formats: ["iife"],
+      // formats: ["iife"],
+      formats: ['es'],
       name: "BrowserCheck",
       entry: "./src/browser-check.ts",
       fileName: () => {

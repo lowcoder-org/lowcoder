@@ -36,7 +36,6 @@ import LazyRoute from "components/LazyRoute";
 import AppFromTemplate from "pages/ApplicationV2/AppFromTemplate";
 import AppEditor from "pages/editor/AppEditor";
 import { getAntdLocale } from "i18n/antdLocale";
-import { CodeEditorTooltipContainer } from "base/codeEditor/codeEditor";
 import { ProductLoading } from "components/ProductLoading";
 import { language, trans } from "i18n";
 import { loadComps } from "comps";

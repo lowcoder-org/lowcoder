@@ -76,6 +76,8 @@ let CalendarBasicComp = (function () {
     const [form] = Form.useForm();
     const [left, setLeft] = useState<number | undefined>(undefined);
 
+    console.log(theme);
+
     const events = props.events.value.map((item: EventType) => {
       return {
         title: item.title,

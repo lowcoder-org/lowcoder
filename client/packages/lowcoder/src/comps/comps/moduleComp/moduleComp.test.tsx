@@ -1,5 +1,5 @@
 import "comps";
-import { loadComps } from "comps";
+import { loadComps } from "comps/index-test";
 import { ExecuteAction } from "comps/controls/actionSelector/executeCompTypes";
 import { getCompContainer } from "comps/utils/useCompInstance";
 import { ModuleLayoutCompName } from "constants/compConstants";
