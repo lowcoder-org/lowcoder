@@ -35,7 +35,7 @@
     "rollup-plugin-external-globals": "^0.7.1",
     "vite": "^4.3.9",
     "vite-plugin-css-injected-by-js": "^2.1.1",
-    "vite-plugin-svgr": "^2.2.2"
+    "vite-plugin-svgr": "^4.2.0"
   },
   "devDependencies": {
     "@types/axios": "^0.14.0",
