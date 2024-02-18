@@ -29,6 +29,10 @@ const Link = styled(Button)<{ $style: LinkStyleType }>`
     margin: ${props.$style.margin};
     padding: ${props.$style.padding};
     font-size: ${props.$style.textSize};
+    font-style:${props.$style.fontStyle};
+    font-family:${props.$style.fontFamily};
+    border: ${props.$style.borderWidth} solid ${props.$style.border};
+    background-color: ${props.$style.background};
     &:hover {
       color: ${props.$style.hoverText} !important;
     }

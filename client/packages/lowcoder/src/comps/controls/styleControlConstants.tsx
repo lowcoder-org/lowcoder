@@ -455,6 +455,7 @@ export const ButtonStyle = [
   TEXT_SIZE,
   TEXT_WEIGHT,
   FONT_FAMILY,
+  FONT_STYLE,
   MARGIN,
   PADDING
 ] as const;
@@ -474,6 +475,7 @@ export const ToggleButtonStyle = [
   TEXT_SIZE,
   TEXT_WEIGHT,
   FONT_FAMILY,
+  FONT_STYLE,
   MARGIN,
   PADDING,
 ] as const;
@@ -1045,8 +1047,19 @@ function handleToHoverLink(color: string) {
 
 export const LinkStyle = [
   ...LinkTextStyle,
+  {
+    name: "background",
+    label: trans("style.background"),
+    depTheme: "canvas",
+    depType: DEP_TYPE.SELF,
+    transformer: toSelf,
+  },
   MARGIN,
   PADDING,
+  FONT_FAMILY,
+  FONT_STYLE,
+  BORDER,
+  BORDER_WIDTH,
   TEXT_SIZE
 ] as const;
 
@@ -1067,7 +1080,8 @@ export const DividerStyle = [
   },
   TEXT_SIZE,
   TEXT_WEIGHT,
-  FONT_FAMILY
+  FONT_FAMILY,
+  FONT_STYLE
 ] as const;
 
 export const ProgressStyle = [
@@ -1098,6 +1112,11 @@ export const NavigationStyle = [
   getStaticBorder("#FFFFFF00"),
   MARGIN,
   PADDING,
+  FONT_FAMILY,
+  FONT_STYLE,
+  TEXT_WEIGHT,
+  TEXT_SIZE,
+  BORDER_WIDTH
 ] as const;
 
 export const ImageStyle = [getStaticBorder("#00000000"), RADIUS, BORDER_WIDTH, MARGIN, PADDING] as const;
