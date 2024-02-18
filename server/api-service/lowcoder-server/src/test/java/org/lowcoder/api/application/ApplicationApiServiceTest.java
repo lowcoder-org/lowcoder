@@ -8,6 +8,7 @@ import java.util.Set;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.lowcoder.api.application.ApplicationEndpoints.ApplicationRequestType;
 import org.lowcoder.api.application.ApplicationEndpoints.CreateApplicationRequest;
 import org.lowcoder.api.application.view.ApplicationPermissionView;
 import org.lowcoder.api.application.view.ApplicationView;
@@ -133,7 +134,7 @@ public class ApplicationApiServiceTest {
                 .verifyComplete();
 
         // published dsl before publish
-        StepVerifier.create(applicationIdMono.flatMap(id -> applicationApiService.getPublishedApplication(id)))
+        StepVerifier.create(applicationIdMono.flatMap(id -> applicationApiService.getPublishedApplication(id, ApplicationRequestType.PUBLIC_TO_ALL)))
                 .assertNext(applicationView -> Assert.assertEquals(Map.of("comp", "table"), applicationView.getApplicationDSL()))
                 .verifyComplete();
 
@@ -147,7 +148,7 @@ public class ApplicationApiServiceTest {
                 .verifyComplete();
 
         // published dsl after publish
-        StepVerifier.create(applicationIdMono.flatMap(id -> applicationApiService.getPublishedApplication(id)))
+        StepVerifier.create(applicationIdMono.flatMap(id -> applicationApiService.getPublishedApplication(id, ApplicationRequestType.PUBLIC_TO_ALL)))
                 .assertNext(applicationView -> Assert.assertEquals(Map.of("comp", "list"), applicationView.getApplicationDSL()))
                 .verifyComplete();
     }

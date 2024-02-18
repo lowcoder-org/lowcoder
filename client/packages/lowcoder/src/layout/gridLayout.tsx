@@ -393,6 +393,7 @@ class GridLayout extends React.Component<GridLayoutProps, GridLayoutState> {
   };
 
   processGridItem(
+    zIndex: number,
     item: LayoutItem,
     childrenMap: _.Dictionary<React.ReactElement>
   ): React.ReactElement | undefined {
@@ -464,6 +465,7 @@ class GridLayout extends React.Component<GridLayoutProps, GridLayoutState> {
           top: showName?.top ?? 0,
           bottom: (showName?.bottom ?? 0) + (this.ref.current?.scrollHeight ?? 0),
         }}
+        zIndex={zIndex}
       >
         {child}
       </GridItem>
@@ -863,7 +865,6 @@ class GridLayout extends React.Component<GridLayoutProps, GridLayoutState> {
       // move the logic to onDragEnd function when dragging from the canvas
       return;
     }
-
     let layout = this.getUILayout();
     const ops = layoutOpUtils.push(this.state.ops, deleteItemOp(droppingKey));
     const items = _.pick(layout, droppingKey);
@@ -1001,6 +1002,7 @@ class GridLayout extends React.Component<GridLayoutProps, GridLayoutState> {
     this.ref = this.props.innerRef ?? this.innerRef;
 
     // log.debug("GridLayout render. layout: ", layout, " oriLayout: ", this.state.layout, " extraLayout: ", this.props.extraLayout);
+    const layouts = Object.values(layout);
     return (
       <LayoutContainer
         ref={this.ref}
@@ -1026,7 +1028,13 @@ class GridLayout extends React.Component<GridLayoutProps, GridLayoutState> {
           <div style={contentStyle}>
             {showGridLines && this.gridLines()}
             {mounted &&
-              Object.values(layout).map((item) => this.processGridItem(item, childrenMap))}
+              layouts.map((item) => {
+                const zIndex = item.pos !== undefined
+                  ? layouts.length - item.pos
+                  : 1;
+                return this.processGridItem(zIndex, item, childrenMap)
+              })
+            }
             {this.hintPlaceholder()}
           </div>
         </ReactResizeDetector>

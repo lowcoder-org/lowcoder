@@ -15,6 +15,7 @@ import java.util.List;
 import org.lowcoder.api.application.view.ApplicationInfoView;
 import org.lowcoder.api.application.view.ApplicationPermissionView;
 import org.lowcoder.api.application.view.ApplicationView;
+import org.lowcoder.api.application.view.MarketplaceApplicationInfoView;
 import org.lowcoder.api.framework.view.ResponseView;
 import org.lowcoder.api.home.UserHomeApiService;
 import org.lowcoder.api.home.UserHomepageView;
@@ -90,7 +91,23 @@ public class ApplicationController implements ApplicationEndpoints {
 
     @Override
     public Mono<ResponseView<ApplicationView>> getPublishedApplication(@PathVariable String applicationId) {
-        return applicationApiService.getPublishedApplication(applicationId)
+        return applicationApiService.getPublishedApplication(applicationId, ApplicationRequestType.PUBLIC_TO_ALL)
+                .delayUntil(applicationView -> applicationApiService.updateUserApplicationLastViewTime(applicationId))
+                .delayUntil(applicationView -> businessEventPublisher.publishApplicationCommonEvent(applicationView, VIEW))
+                .map(ResponseView::success);
+    }
+
+    @Override
+    public Mono<ResponseView<ApplicationView>> getPublishedMarketPlaceApplication(@PathVariable String applicationId) {
+        return applicationApiService.getPublishedApplication(applicationId, ApplicationRequestType.PUBLIC_TO_MARKETPLACE)
+                .delayUntil(applicationView -> applicationApiService.updateUserApplicationLastViewTime(applicationId))
+                .delayUntil(applicationView -> businessEventPublisher.publishApplicationCommonEvent(applicationView, VIEW))
+                .map(ResponseView::success);
+    }
+
+    @Override
+    public Mono<ResponseView<ApplicationView>> getAgencyProfileApplication(@PathVariable String applicationId) {
+        return applicationApiService.getPublishedApplication(applicationId, ApplicationRequestType.AGENCY_PROFILE)
                 .delayUntil(applicationView -> applicationApiService.updateUserApplicationLastViewTime(applicationId))
                 .delayUntil(applicationView -> businessEventPublisher.publishApplicationCommonEvent(applicationView, VIEW))
                 .map(ResponseView::success);
@@ -123,6 +140,22 @@ public class ApplicationController implements ApplicationEndpoints {
             @RequestParam(defaultValue = "true") boolean withContainerSize) {
         ApplicationType applicationTypeEnum = applicationType == null ? null : ApplicationType.fromValue(applicationType);
         return userHomeApiService.getAllAuthorisedApplications4CurrentOrgMember(applicationTypeEnum, applicationStatus, withContainerSize)
+                .collectList()
+                .map(ResponseView::success);
+    }
+
+    @Override
+    public Mono<ResponseView<List<MarketplaceApplicationInfoView>>> getMarketplaceApplications(@RequestParam(required = false) Integer applicationType) {
+        ApplicationType applicationTypeEnum = applicationType == null ? null : ApplicationType.fromValue(applicationType);
+        return userHomeApiService.getAllMarketplaceApplications(applicationTypeEnum)
+                .collectList()
+                .map(ResponseView::success);
+    }
+
+    @Override
+    public Mono<ResponseView<List<MarketplaceApplicationInfoView>>> getAgencyProfileApplications(@RequestParam(required = false) Integer applicationType) {
+        ApplicationType applicationTypeEnum = applicationType == null ? null : ApplicationType.fromValue(applicationType);
+        return userHomeApiService.getAllMarketplaceApplications(applicationTypeEnum)
                 .collectList()
                 .map(ResponseView::success);
     }
@@ -177,4 +210,20 @@ public class ApplicationController implements ApplicationEndpoints {
         return applicationApiService.setApplicationPublicToAll(applicationId, request.publicToAll())
                 .map(ResponseView::success);
     }
+
+    @Override
+    public Mono<ResponseView<Boolean>> setApplicationPublicToMarketplace(@PathVariable String applicationId,
+                                                                         @RequestBody ApplicationPublicToMarketplaceRequest request) {
+        return applicationApiService.setApplicationPublicToMarketplace(applicationId, request.publicToMarketplace())
+                .map(ResponseView::success);
+    }
+
+    @Override
+    public Mono<ResponseView<Boolean>> setApplicationAsAgencyProfile(@PathVariable String applicationId,
+                                                                     @RequestBody ApplicationAsAgencyProfileRequest request) {
+        return applicationApiService.setApplicationAsAgencyProfile(applicationId, request.agencyProfile())
+                .map(ResponseView::success);
+    }
+
+
 }

@@ -15,7 +15,7 @@ import { migrateOldData } from "comps/generators/simpleGenerators";
 import { disabledPropertyView, hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 
-import { useContext } from "react";
+import { useContext, useEffect, useRef } from "react";
 import { EditorContext } from "comps/editorState";
 
 const EventOptions = [changeEvent] as const;
@@ -36,6 +36,7 @@ function fixOldData(oldData: any) {
 
 const RatingBasicComp = (function () {
   const childrenMap = {
+    defaultValue: numberExposingStateControl("defaultValue"),
     value: numberExposingStateControl("value"),
     max: withDefault(NumberControl, "5"),
     label: LabelControl,
@@ -46,6 +47,21 @@ const RatingBasicComp = (function () {
     ...formDataChildren,
   };
   return new UICompBuilder(childrenMap, (props) => {
+    const defaultValue = { ...props.defaultValue }.value;
+    const value = { ...props.value }.value;
+    const changeRef = useRef(false)
+
+    useEffect(() => {
+      props.value.onChange(defaultValue);
+    }, [defaultValue]);
+
+    useEffect(() => {
+      if (!changeRef.current) return;
+
+      props.onEvent("change");
+      changeRef.current = false;
+    }, [value]);
+
     return props.label({
       style: props.style,
       children: (
@@ -54,7 +70,7 @@ const RatingBasicComp = (function () {
           value={props.value.value}
           onChange={(e) => {
             props.value.onChange(e);
-            props.onEvent("change");
+            changeRef.current = true;
           }}
           allowHalf={props.allowHalf}
           disabled={props.disabled}
@@ -67,7 +83,7 @@ const RatingBasicComp = (function () {
       return (
         <>
           <Section name={sectionNames.basic}>
-            {children.value.propertyView({ label: trans("prop.defaultValue") })}
+            {children.defaultValue.propertyView({ label: trans("prop.defaultValue") })}
             {children.max.propertyView({
               label: trans("rating.max"),
             })}
