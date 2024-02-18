@@ -280,11 +280,6 @@ export default function BottomMetaDrawer(props: BottomMetaDrawerProps) {
       <Drawer
         $vis={visible}
         mask={false}
-        contentWrapperStyle={{
-          height: "100%",
-          boxShadow: "none",
-          borderRadius: "0",
-        }}
         rootStyle={{
           position: "absolute",
           height: "100%",
@@ -294,6 +289,11 @@ export default function BottomMetaDrawer(props: BottomMetaDrawerProps) {
         title={<DrawerTitleView />}
         styles={{
           header: headerWrapperStyle,
+          wrapper: {
+            height: "100%",
+            boxShadow: "none",
+            borderRadius: "0",
+          },
           body: {
             padding: "0 0 0 8px",
             overflowX: "hidden",

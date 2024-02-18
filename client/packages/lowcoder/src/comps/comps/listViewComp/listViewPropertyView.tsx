@@ -4,6 +4,7 @@ import { ListViewImplComp } from "./listViewComp";
 import { ListCompType } from "./listViewUtils";
 import { useContext } from "react";
 import { EditorContext } from "comps/editorState";
+import { disabledPropertyView, hiddenPropertyView } from "comps/utils/propertyUtils";
 
 type Props = {
   comp: InstanceType<typeof ListViewImplComp>;
@@ -52,9 +53,20 @@ export function listPropertyView(compType: ListCompType) {
           </Section>
         )}
 
+        {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
+          <Section name={sectionNames.interaction}>
+            {hiddenPropertyView(children)}
+          </Section>
+        )}
+
         {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
           <><Section name={sectionNames.layout}>
               {children.autoHeight.getPropertyView()}
+              {!children.autoHeight.getView() && 
+                children.scrollbars.propertyView({
+                label: trans("prop.scrollbar"),
+               }  
+              )}
             </Section>
             <Section name={sectionNames.style}>
               {children.style.getPropertyView()}

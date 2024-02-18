@@ -265,6 +265,7 @@ export const SelectPropertyView = (
       hidden: typeof BoolCodeControl;
     }
   > & {
+    defaultValue: { propertyView: (params: ControlParams) => ControlNode };
     value: { propertyView: (params: ControlParams) => ControlNode };
     style: { getPropertyView: () => ControlNode };
   }
@@ -272,7 +273,7 @@ export const SelectPropertyView = (
   <>
     <Section name={sectionNames.basic}>
       {children.options.propertyView({})}
-      {children.value.propertyView({ label: trans("prop.defaultValue") })}
+      {children.defaultValue.propertyView({ label: trans("prop.defaultValue") })}
       {placeholderPropertyView(children)}
     </Section>
 

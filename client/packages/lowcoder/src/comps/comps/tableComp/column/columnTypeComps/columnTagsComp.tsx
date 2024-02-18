@@ -170,14 +170,14 @@ const TagEdit = (props: TagEditPropsType) => {
       <CustomSelect
         autoFocus
         defaultOpen
-        bordered={false}
+        variant="borderless"
         optionLabelProp="children"
         showSearch
         defaultValue={props.value}
         style={{ width: "100%" }}
         open={open}
         suffixIcon={<PackUpIcon />}
-        onSearch={(value) => {
+        onSearch={(value: string) => {
           if (defaultTags.findIndex((item) => item.includes(value)) < 0) {
             setTags([...defaultTags, value]);
           } else {
@@ -185,7 +185,7 @@ const TagEdit = (props: TagEditPropsType) => {
           }
           props.onChange(value);
         }}
-        onChange={(value) => {
+        onChange={(value: string | string[]) => {
           props.onChange(value);
         }}
         dropdownRender={(originNode: ReactNode) => (

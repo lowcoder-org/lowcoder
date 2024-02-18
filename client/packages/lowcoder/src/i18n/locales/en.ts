@@ -104,7 +104,12 @@ export const en = {
     "components": "Active Components",
     "modals": "in-App Modals",
     "expandTip": "Click to Expand {component}'s Data",
-    "collapseTip": "Click to Collapse {component}'s Data"
+    "collapseTip": "Click to Collapse {component}'s Data",
+    "layers": "Layers",
+    "activatelayers": "Use Layers in this App",
+    "selectedComponents": "Selected Components...",
+    "displayComponents": "control Display",
+    "lockComponents": "control Position",
   },
 
   // second part
@@ -188,6 +193,7 @@ export const en = {
     "maskClosable": "Click Outside to Close",
     "showMask": "Show Mask",
     "textOverflow": "Text Overflow",
+    "scrollbar" : "Show Scrollbars",
   },
   "autoHeightProp": {
     "auto": "Auto",
@@ -1258,6 +1264,7 @@ export const en = {
     "auto": "Auto",
     "fixed": "Fixed",
     "columnType": "Column Type",
+    "dataMapping": "Data Mapping",
     "numberStep": "Step",
     "numberStepTooltip": "The number to which the current value is increased or decreased. It can be an integer or decimal",
     "precision": "Precision",
@@ -2573,7 +2580,7 @@ export const en = {
     "selectBackground": "Selected Background"
   },
   "componentDocExtra": {
-    table,
+    "table": table,
   },
   "idSource": {
     "title": "OAuth Providers",

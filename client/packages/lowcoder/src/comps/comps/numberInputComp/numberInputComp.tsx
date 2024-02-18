@@ -10,7 +10,7 @@ import {
 import { BoolControl } from "comps/controls/boolControl";
 import { dropdownControl } from "comps/controls/dropdownControl";
 import { LabelControl } from "comps/controls/labelControl";
-import { numberExposingStateControl } from "comps/controls/codeStateControl";
+import { numberExposingStateControl, stringExposingStateControl } from "comps/controls/codeStateControl";
 import NP from "number-precision";
 
 import {
@@ -234,6 +234,7 @@ const UndefinedNumberControl = codeControl<number | undefined>((value: any) => {
 });
 
 const childrenMap = {
+  defaultValue: stringExposingStateControl("defaultValue"), // It is more convenient for string to handle various states, save raw input here
   value: numberExposingStateControl("value"), // It is more convenient for string to handle various states, save raw input here
   placeholder: StringControl,
   disabled: BoolCodeControl,
@@ -261,6 +262,17 @@ const childrenMap = {
 
 const CustomInputNumber = (props: RecordConstructorToView<typeof childrenMap>) => {
   const ref = useRef<HTMLInputElement | null>(null);
+  const defaultValue = props.defaultValue.value;
+
+  useEffect(() => {
+    let value = 0;
+    if (defaultValue === 'null' && props.allowNull) {
+      value = NaN;
+    } else if (!isNaN(Number(defaultValue))) {
+      value = Number(defaultValue);
+    }
+    props.value.onChange(value);
+  }, [defaultValue]);
 
   const formatFn = (value: number) =>
     format(value, props.allowNull, props.formatter, props.precision, props.thousandsSeparator);
@@ -271,7 +283,9 @@ const CustomInputNumber = (props: RecordConstructorToView<typeof childrenMap>) =
     const oldValue = props.value.value;
     const newValue = parseNumber(tmpValue, props.allowNull);
     props.value.onChange(newValue);
-    oldValue !== newValue && props.onEvent("change");
+    if((oldValue !== newValue)) {
+      props.onEvent("change");
+    }
   };
 
   useEffect(() => {
@@ -363,7 +377,7 @@ const NumberInputTmpComp = (function () {
     .setPropertyViewFn((children) => (
       <>
         <Section name={sectionNames.basic}>
-          {children.value.propertyView({ label: trans("prop.defaultValue") })}
+          {children.defaultValue.propertyView({ label: trans("prop.defaultValue") })}
           {placeholderPropertyView(children)}
           {children.formatter.propertyView({ label: trans("numberInput.formatter") })}
         </Section>
