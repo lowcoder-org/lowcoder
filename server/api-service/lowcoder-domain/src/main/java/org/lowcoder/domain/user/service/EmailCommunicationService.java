@@ -30,7 +30,7 @@ public class EmailCommunicationService {
             mimeMessageHelper.setSubject(subject);
 
             // Construct the message with the token link
-            String resetLink = "http://localhost:8080/lost-password?token=" + token;
+            String resetLink = "http://localhost:8080/api/users/lost-password/" + token;
             String messageWithLink = message + "\n\nReset your password here: " + resetLink;
             mimeMessageHelper.setText(messageWithLink, true); // Set HTML to true to allow links
 

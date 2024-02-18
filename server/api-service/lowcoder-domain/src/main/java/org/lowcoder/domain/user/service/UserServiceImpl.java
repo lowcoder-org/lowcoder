@@ -280,7 +280,30 @@ public class UserServiceImpl implements UserService {
                     }
                     user.setPasswordResetToken(HashUtils.hash(token.getBytes()));
                     user.setPasswordResetTokenExpiry(tokenExpiry);
-                    return Mono.empty();
+                    return repository.save(user).then(Mono.empty());
+                });
+    }
+
+    @Override
+    public Mono<Void> resetLostPassword(String userEmail, String token, String newPassword) {
+        return findByName(userEmail)
+                .flatMap(user -> {
+                    if (Instant.now().until(user.getPasswordResetTokenExpiry(), ChronoUnit.MINUTES) <= 0) {
+                        return ofError(BizError.LOGIN_EXPIRED, "TOKEN_EXPIRED");
+                    }
+
+                    if (!StringUtils.equals(HashUtils.hash(token.getBytes()), user.getPasswordResetToken())) {
+                        return ofError(BizError.INVALID_PASSWORD, "INVALID_TOKEN");
+                    }
+
+                    if (StringUtils.isBlank(newPassword)) {
+                        return ofError(BizError.INVALID_PASSWORD, "PASSWORD_NOT_SET_YET");
+                    }
+
+                    user.setPassword(encryptionService.encryptPassword(newPassword));
+                    user.setPasswordResetToken(StringUtils.EMPTY);
+                    user.setPasswordResetTokenExpiry(Instant.now());
+                    return repository.save(user).then(Mono.empty());
                 });
     }
 

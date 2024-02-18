@@ -52,6 +52,8 @@ public interface UserService {
 
     Mono<Void> lostPassword(String userEmail);
 
+    Mono<Void> resetLostPassword(String userEmail, String token, String newPassword);
+
     Mono<Boolean> setPassword(String userId, String password);
 
     Mono<UserDetail> buildUserDetail(User user, boolean withoutDynamicGroups);
