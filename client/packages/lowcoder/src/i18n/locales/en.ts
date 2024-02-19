@@ -106,7 +106,7 @@ export const en = {
     "expandTip": "Click to Expand {component}'s Data",
     "collapseTip": "Click to Collapse {component}'s Data",
     "layers": "Layers",
-    "activatelayers": "Use Layers in this App",
+    "activatelayers": "Use dynamic Layers",
     "selectedComponents": "Selected Components...",
     "displayComponents": "control Display",
     "lockComponents": "control Position",
