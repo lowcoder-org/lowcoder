@@ -46,6 +46,9 @@ const getStyle = (style: ModalStyleType) => {
         background-color: ${style.background};
       }
     }
+    .ant-modal-close {
+      inset-inline-end: 7px !important;
+    }
   `;
 };
 
