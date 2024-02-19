@@ -27,7 +27,7 @@ public class CookieHelper {
     @Autowired
     private CommonConfig commonConfig;
 
-    public void saveCookie(String token, ServerWebExchange exchange, Integer accessTokenExpiryEpoch) {
+    public void saveCookie(String token, ServerWebExchange exchange, Long accessTokenExpiryEpoch) {
         boolean isUsingHttps = Optional.ofNullable(getRefererURI(exchange.getRequest()))
                 .map(a -> "https".equalsIgnoreCase(a.getScheme()))
                 .orElse(false);
