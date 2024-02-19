@@ -162,19 +162,20 @@ let AutoCompleteCompBase = (function () {
               },
             }}
           >
-            <AutoComplete
+            <AutoComplete 
               disabled={props.disabled}
               value={searchtext}
-              options={items}
+              options={items} 
+              style={{ width: "100%" }}
               onChange={(value: string, option) => {
                 props.valueInItems.onChange(false);
                 setvalidateState(textInputValidate(getTextInputValidate()));
                 setsearchtext(value);
                 props.value.onChange(value); 
                 props.onEvent("change")
-              }}
+              }} 
               onFocus={() => {
-                setActivationFlag(true)
+                setActivationFlag(true) 
                 props.onEvent("focus")
               }}
               onBlur={() => props.onEvent("blur")}
@@ -275,8 +276,8 @@ let AutoCompleteCompBase = (function () {
           </ConfigProvider>
         </>
       ),
-      style: props.style,
-      ...validateState,
+      // style: props.style,
+      // ...validateState,
     });
   })
     .setPropertyViewFn((children) => {
