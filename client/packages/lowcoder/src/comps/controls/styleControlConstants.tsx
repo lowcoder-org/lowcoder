@@ -506,17 +506,11 @@ export const MarginStyle = [
 export const ContainerStyle = [
   // ...BG_STATIC_BORDER_RADIUS,
   getStaticBorder(),
+  getBackground(),
   RADIUS,
   BORDER_WIDTH,
   MARGIN,	
   PADDING,
-  {
-    name: "background",
-    label: trans("style.background"),
-    depName: "background",
-    depType: DEP_TYPE.SELF,
-    transformer: toSelf,
-  },
   {
     name: "backgroundImage",
     label: trans("style.backgroundImage"),
