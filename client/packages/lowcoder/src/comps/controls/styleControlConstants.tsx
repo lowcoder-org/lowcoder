@@ -397,6 +397,18 @@ const HEADER_BACKGROUND = {
 } as const;
 
 const BG_STATIC_BORDER_RADIUS = [getBackground(), getStaticBorder(), RADIUS] as const;
+const STYLING_FIELDS_SEQUENCE = [
+  TEXT,
+  TEXT_SIZE,
+  TEXT_WEIGHT,
+  FONT_FAMILY,
+  FONT_STYLE,
+  BORDER,
+  MARGIN,
+  PADDING,
+  RADIUS,
+  BORDER_WIDTH,
+]
 
 const FILL = {
   name: "fill",
@@ -450,34 +462,23 @@ function getStaticBackground(color: string) {
 
 export const ButtonStyle = [
   ...getBgBorderRadiusByBg("primary"),
-  BORDER_WIDTH,
-  TEXT,
-  TEXT_SIZE,
-  TEXT_WEIGHT,
-  FONT_FAMILY,
-  FONT_STYLE,
-  MARGIN,
-  PADDING
+  ...STYLING_FIELDS_SEQUENCE
 ] as const;
 
 export const ToggleButtonStyle = [
   getBackground("canvas"),
-  {
-    name: "border",
-    label: trans("style.border"),
-    depName: "text",
-    depType: DEP_TYPE.SELF,
-    transformer: toSelf,
-  },
-  RADIUS,
-  BORDER_WIDTH,
-  TEXT,
-  TEXT_SIZE,
-  TEXT_WEIGHT,
-  FONT_FAMILY,
-  FONT_STYLE,
-  MARGIN,
-  PADDING,
+  ...STYLING_FIELDS_SEQUENCE.map((style) => {
+    if (style.name === 'border') {
+      return {
+        ...style,
+        depType: DEP_TYPE.SELF,
+        transformer: toSelf
+      }
+    }
+    return {
+      ...style
+    }
+  })
 ] as const;
 
 export const TextStyle = [
@@ -488,14 +489,7 @@ export const TextStyle = [
     depType: DEP_TYPE.SELF,
     transformer: toSelf,
   },
-  TEXT,
-  TEXT_SIZE,
-  TEXT_WEIGHT,
-  FONT_FAMILY,
-  FONT_STYLE,
-  BORDER,
-  MARGIN,
-  PADDING,
+  ...STYLING_FIELDS_SEQUENCE,
   {
     name: "links",
     label: trans("style.links"),
@@ -503,8 +497,6 @@ export const TextStyle = [
     depType: DEP_TYPE.SELF,
     transformer: toSelf,
   },
-  RADIUS,
-  BORDER_WIDTH,
 ] as const;
 
 export const MarginStyle = [
@@ -681,15 +673,16 @@ export const SliderStyle = [
 
 export const InputLikeStyle = [
   LABEL,
-  ...getStaticBgBorderRadiusByBg(SURFACE_COLOR),
-  BORDER_WIDTH,
-  TEXT,
-  TEXT_SIZE,
-  TEXT_WEIGHT,
-  FONT_FAMILY,
-  FONT_STYLE,
-  MARGIN,
-  PADDING,
+  getStaticBackground(SURFACE_COLOR),
+  // TEXT,
+  // TEXT_SIZE,
+  // TEXT_WEIGHT,
+  // FONT_FAMILY,
+  // FONT_STYLE,
+  // MARGIN,
+  // PADDING,
+  // BORDER_WIDTH,
+  ...STYLING_FIELDS_SEQUENCE,
   ...ACCENT_VALIDATE,
 ] as const;
 
@@ -1046,7 +1039,7 @@ function handleToHoverLink(color: string) {
 }
 
 export const LinkStyle = [
-  ...LinkTextStyle,
+
   {
     name: "background",
     label: trans("style.background"),
@@ -1054,13 +1047,8 @@ export const LinkStyle = [
     depType: DEP_TYPE.SELF,
     transformer: toSelf,
   },
-  MARGIN,
-  PADDING,
-  FONT_FAMILY,
-  FONT_STYLE,
-  BORDER,
-  BORDER_WIDTH,
-  TEXT_SIZE
+  ...LinkTextStyle,
+  ...STYLING_FIELDS_SEQUENCE.filter((style) => style.name !== 'text')
 ] as const;
 
 export const DividerStyle = [
@@ -1069,19 +1057,17 @@ export const DividerStyle = [
     label: trans("color"),
     color: lightenColor(SECOND_SURFACE_COLOR, 0.05),
   },
-  BORDER_WIDTH,
-  MARGIN,
-  PADDING,
-  {
-    name: "text",
-    label: trans("text"),
-    depName: "color",
-    transformer: handleToDividerText,
-  },
-  TEXT_SIZE,
-  TEXT_WEIGHT,
-  FONT_FAMILY,
-  FONT_STYLE
+  ...STYLING_FIELDS_SEQUENCE.map((style) => {
+    if (style.name === 'text') {
+      return {
+        name: "text",
+        label: trans("text"),
+        depName: "color",
+        transformer: handleToDividerText,
+      }
+    }
+    return style
+  })
 ] as const;
 
 export const ProgressStyle = [
