@@ -948,7 +948,11 @@ export const en = {
 
     "responsiveLayoutCompName": "Responsive Layout",
     "responsiveLayoutCompDesc": "A layout component designed to adapt and respond to different screen sizes and devices, ensuring a consistent user experience.",
-    "responsiveLayoutCompKeywords": "responsive, layout, adapt, screen size"
+    "responsiveLayoutCompKeywords": "responsive, layout, adapt, screen size",
+
+    "iconCompName": "Icons",
+    "iconCompDesc": "Use various Icons to enhance the visual appeal and user experience of your application.",
+    "iconCompKeywords": "Icons, pictograms, symbols, shapes",
   },
 
 
