@@ -56,6 +56,7 @@ common:
   block-hound-enable: false
   js-executor:
     host: http://127.0.0.1:6060
+  lowcoder_public_url: http://localhost:8080
 
 material:
   mongodb-grid-fs:

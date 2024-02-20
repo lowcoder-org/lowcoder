@@ -16,6 +16,7 @@ import org.lowcoder.domain.group.service.GroupMemberService;
 import org.lowcoder.domain.group.service.GroupService;
 import org.lowcoder.domain.organization.model.OrgMember;
 import org.lowcoder.domain.organization.service.OrgMemberService;
+import org.lowcoder.domain.organization.service.OrganizationService;
 import org.lowcoder.domain.user.model.*;
 import org.lowcoder.domain.user.model.User.TransformedUserInfo;
 import org.lowcoder.domain.user.repository.UserRepository;
@@ -73,6 +74,8 @@ public class UserServiceImpl implements UserService {
     private GroupMemberService groupMemberService;
     @Autowired
     private OrgMemberService orgMemberService;
+    @Autowired
+    private OrganizationService organizationService;
     @Autowired
     private GroupService groupService;
     @Autowired
@@ -269,14 +272,20 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Mono<Void> lostPassword(String userEmail) {
+    public Mono<Boolean> lostPassword(String userEmail) {
         return findByName(userEmail)
-                .flatMap(user -> {
+                .zipWhen(user -> orgMemberService.getCurrentOrgMember(user.getId())
+                .flatMap(orgMember -> organizationService.getById(orgMember.getOrgId()))
+                .map(organization -> organization.getCommonSettings().get("PASSWORD_RESET_EMAIL_TEMPLATE")))
+                .flatMap(tuple -> {
+                    User user = tuple.getT1();
+                    String emailTemplate = (String)tuple.getT2();
+
                     String token = generateNewRandomPwd();
                     Instant tokenExpiry = Instant.now().plus(12, ChronoUnit.HOURS);
-                    // TODO - IRFAN this is just a dummy email.
-                    if (!emailCommunicationService.sendMail("notify@lowcoder.org", token, "Click Here")) {
-                        return ofError(BizError.USER_NOT_EXIST, "SENDING_EMAIL_FAILED");
+
+                    if (!emailCommunicationService.sendMail(userEmail, token, emailTemplate)) {
+                        return ofError(BizError.AUTH_ERROR, "SENDING_EMAIL_FAILED");
                     }
                     user.setPasswordResetToken(HashUtils.hash(token.getBytes()));
                     user.setPasswordResetTokenExpiry(tokenExpiry);
@@ -285,7 +294,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Mono<Void> resetLostPassword(String userEmail, String token, String newPassword) {
+    public Mono<Boolean> resetLostPassword(String userEmail, String token, String newPassword) {
         return findByName(userEmail)
                 .flatMap(user -> {
                     if (Instant.now().until(user.getPasswordResetTokenExpiry(), ChronoUnit.MINUTES) <= 0) {
@@ -303,7 +312,8 @@ public class UserServiceImpl implements UserService {
                     user.setPassword(encryptionService.encryptPassword(newPassword));
                     user.setPasswordResetToken(StringUtils.EMPTY);
                     user.setPasswordResetTokenExpiry(Instant.now());
-                    return repository.save(user).then(Mono.empty());
+                    return repository.save(user)
+                            .thenReturn(true);
                 });
     }
 

@@ -65,11 +65,11 @@ public class UserApiService {
                 .then(userService.resetPassword(userId));
     }
 
-    public Mono<Void> lostPassword(String userEmail) {
+    public Mono<Boolean> lostPassword(String userEmail) {
         return userService.lostPassword(userEmail);
     }
 
-    public Mono<Void> resetLostPassword(String userEmail, String token, String newPassword) {
+    public Mono<Boolean> resetLostPassword(String userEmail, String token, String newPassword) {
         return userService.resetLostPassword(userEmail, token, newPassword);
     }
 

@@ -20,7 +20,7 @@ public class EmailCommunicationService {
 
     public boolean sendMail(String to, String token, String message) {
         try {
-            String subject = "Lost Password Email";
+            String subject = "Reset Your Password";
             MimeMessage mimeMessage = javaMailSender.createMimeMessage();
 
             MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, true);
@@ -30,7 +30,7 @@ public class EmailCommunicationService {
             mimeMessageHelper.setSubject(subject);
 
             // Construct the message with the token link
-            String resetLink = "http://localhost:8080/api/users/lost-password/" + token;
+            String resetLink = lowcoderPublicUrl + "/api/users/lost-password/" + token;
             String messageWithLink = message + "\n\nReset your password here: " + resetLink;
             mimeMessageHelper.setText(messageWithLink, true); // Set HTML to true to allow links
 
