@@ -1068,7 +1068,11 @@ export const en = {
 
   // ninth part
 
-
+  "iconComp": {
+    "icon": "Icon",
+    "autoSize": "Icon AutoSize",
+    "iconSize": "Icon Size",
+  },
   "numberInput": {
     "formatter": "Format",
     "precision": "Precision",
