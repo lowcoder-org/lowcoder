@@ -8,6 +8,7 @@ import { User } from "constants/userConstants";
 import {
   DeleteOrgUserPayload,
   GroupUsersPayload,
+  OrgAPIUsagePayload,
   OrgUsersPayload,
   RemoveGroupUserPayload,
 } from "redux/reduxActions/orgActions";
@@ -24,6 +25,7 @@ const initialState: OrgReduxState = {
   groupUsersFetching: true,
   fetchOrgGroupsFinished: false,
   orgCreateStatus: "init",
+  apiUsage: 0,
 };
 
 const orgReducer = createImmerReducer(initialState, {
@@ -104,6 +106,13 @@ const orgReducer = createImmerReducer(initialState, {
     ...state,
     orgCreateStatus: "error",
   }),
+  [ReduxActionTypes.FETCH_ORG_API_USAGE_SUCCESS]: (
+    state: OrgReduxState,
+    action: ReduxAction<OrgAPIUsagePayload>
+  ): OrgReduxState => ({
+    ...state,
+    apiUsage: action.payload.apiUsage,
+  })
 });
 
 export interface OrgReduxState {
@@ -115,6 +124,7 @@ export interface OrgReduxState {
   groupUsersFetching: boolean;
   fetchOrgGroupsFinished: boolean;
   orgCreateStatus: ApiRequestStatus;
+  apiUsage: number;
 }
 
 export default orgReducer;
