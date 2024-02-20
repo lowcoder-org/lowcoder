@@ -205,7 +205,7 @@ export function getCompContainer<T extends CompConstructor>(params: GetContainer
       const reduceFn = wrapWithPromiseHandling((act: CompAction) => {
         let action = act;
         if (reduceContext && reduceContext.readOnly && action.editDSL) {
-          log.error("editDSL should be false in view mode, action: ", action);
+          log.info("editDSL should be false in view mode, action: ", action);
           action = { ...action, editDSL: false };
         }
 

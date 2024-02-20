@@ -10,36 +10,57 @@ services:
     ports:
       - "3000:3000"
       - "3443:3443"
+    #  - "27017:27017"
     environment:
       # enable services
-      REDIS_ENABLED: "true"
-      MONGODB_ENABLED: "true"
-      API_SERVICE_ENABLED: "true"
-      NODE_SERVICE_ENABLED: "true"
-      FRONTEND_ENABLED: "true"
+      LOWCODER_REDIS_ENABLED: "true"
+      LOWCODER_MONGODB_ENABLED: "true"
+      # 
+      # Set LOWCODER_MONGODB_EXPOSED to "true" and uncomment mongodb port
+      # to make internal mongo database accessible from host
+      #
+      LOWCODER_MONGODB_EXPOSED: "false"
+      LOWCODER_API_SERVICE_ENABLED: "true"
+      LOWCODER_NODE_SERVICE_ENABLED: "true"
+      LOWCODER_FRONTEND_ENABLED: "true"
       # generic parameters
-      PUID: "1000"
-      PGID: "1000"
+      LOWCODER_PUID: "1000"
+      LOWCODER_PGID: "1000"
       # api-service parameters
-      DEFAULT_ORGS_PER_USER: 100
-      DEFAULT_ORG_MEMBER_COUNT: 1000
-      DEFAULT_ORG_GROUP_COUNT: 100
-      DEFAULT_ORG_APP_COUNT: 1000
-      DEFAULT_DEVELOPER_COUNT: 50
-      #MONGODB_URL: "mongodb://lowcoder:secret123@mongodb/lowcoder?authSource=admin"
-      MONGODB_URL: "mongodb://localhost:27017/lowcoder?authSource=admin"
-      REDIS_URL: "redis://localhost:6379"
-      ENABLE_USER_SIGN_UP: "true"
-      ENCRYPTION_PASSWORD: "lowcoder.org"
-      ENCRYPTION_SALT: "lowcoder.org"
-      CORS_ALLOWED_DOMAINS: "*"
+      LOWCODER_MAX_ORGS_PER_USER: 100
+      LOWCODER_MAX_MEMBERS_PER_ORG: 1000
+      LOWCODER_MAX_GROUPS_PER_ORG: 100
+      LOWCODER_MAX_APPS_PER_ORG: 1000
+      LOWCODER_MAX_DEVELOPERS: 50
+      #LOWCODER_MONGODB_URL: "mongodb://lowcoder:secret123@mongodb/lowcoder?authSource=admin"
+      LOWCODER_MONGODB_URL: "mongodb://localhost:27017/lowcoder?authSource=admin"
+      LOWCODER_REDIS_URL: "redis://localhost:6379"
+      LOWCODER_EMAIL_SIGNUP_ENABLED: "true"
+      LOWCODER_EMAIL_AUTH_ENABLED: "true"
+      LOWCODER_CREATE_WORKSPACE_ON_SIGNUP: "true"
+      #
+      # ! PLEASE CHANGE THESE TO SOMETHING UNIQUE !
+      # 
+      #    LOWCODER_DB_ENCRYPTION_PASSWORD and LOWCODER_DB_ENCRYPTION_SALT is used 
+      #    to encrypt sensitive data in database so it is important to change the defaults
+      #
+      LOWCODER_DB_ENCRYPTION_PASSWORD: "lowcoder.org"
+      LOWCODER_DB_ENCRYPTION_SALT: "lowcoder.org"
+      LOWCODER_CORS_DOMAINS: "*"
+      #
+      # API-KEY secret - should be a string of at least 32 random characters
+      #    - on linux/mac, generate one eg. with: head /dev/urandom | head -c 30 | shasum -a 256
+      #
+      LOWCODER_API_KEY_SECRET: "5a41b090758b39b226603177ef48d73ae9839dd458ccb7e66f7e7cc028d5a50b"
       # api and node service parameters
       LOWCODER_API_SERVICE_URL: "http://localhost:8080"
       LOWCODER_NODE_SERVICE_URL: "http://localhost:6060"
       # frontend parameters
       LOWCODER_MAX_REQUEST_SIZE: 20m
       LOWCODER_MAX_QUERY_TIMEOUT: 120
+      LOWCODER_WORKSPACE_MODE: SAAS
     volumes:
       - ./lowcoder-stacks:/lowcoder-stacks
+      - ./lowcoder-stacks/assets:/lowcoder/assets
     restart: unless-stopped
 

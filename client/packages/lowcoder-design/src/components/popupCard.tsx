@@ -1,13 +1,14 @@
-import { Alert, Card } from "antd";
+import { default as Alert } from "antd/es/alert";
+import { default as Card } from "antd/es/card";
 import { CopyTextButton } from "./copyTextButton";
 import { CSSProperties, ReactNode, useState } from "react";
 import styled from "styled-components";
 import { ErrorIcon, SuccessIcon } from "icons";
 
-const StyledCard = styled(Card)<{ backcolor: string }>`
+const StyledCard = styled(Card)<{ $backcolor: string }>`
   z-index: 3;
   margin-top: 4px;
-  background-color: ${(props) => (props.backcolor ? props.backcolor : "#eff9f6")};
+  background-color: ${(props) => (props.$backcolor ? props.$backcolor : "#eff9f6")};
   border-color: #82bf99;
   color: #3b734f;
   border: none;
@@ -119,7 +120,7 @@ export function PopupCard(props: PopupCardProps) {
         <Contain>
           <StyledCard
             style={props.cardStyle}
-            backcolor={props.hasError ? "#FFF3F1" : "#EFF9F6"}
+            $backcolor={props.hasError ? "#FFF3F1" : "#EFF9F6"}
             title={
               <Alert
                 message={props.title}

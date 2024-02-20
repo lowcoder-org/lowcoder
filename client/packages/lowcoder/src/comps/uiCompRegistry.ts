@@ -5,7 +5,9 @@ import { JSONValue } from "util/jsonTypes";
 import { EditorState } from "./editorState";
 import { trans } from "i18n";
 
-export type ExposingMultiCompConstructor = ReturnType<typeof withExposingConfigs>;
+export type ExposingMultiCompConstructor = ReturnType<
+  typeof withExposingConfigs
+>;
 // Required when the container generates default child comps
 type CompDefaultDataFunction = (
   compName: string,
@@ -21,15 +23,16 @@ export interface UICompLayoutInfo {
 }
 
 export const uiCompCategoryNames = {
-  common: trans("uiCompCategory.common"),
-  dataInputText: trans("uiCompCategory.dataInputText"),
-  dataInputNumber: trans("uiCompCategory.dataInputNumber"),
-  dataInputSelect: trans("uiCompCategory.dataInputSelect"),
-  dataInputDate: trans("uiCompCategory.dataInputDate"),
-  button: trans("uiCompCategory.button"),
-  dataDisplay: trans("uiCompCategory.dataDisplay"),
-  container: trans("uiCompCategory.container"),
-  other: trans("uiCompCategory.other"),
+  dashboards: trans("uiCompCategory.dashboards"),
+  layout: trans("uiCompCategory.layout"),
+  forms: trans("uiCompCategory.forms"),
+  collaboration: trans("uiCompCategory.collaboration"),
+  projectmanagement: trans("uiCompCategory.projectmanagement"),
+  scheduling: trans("uiCompCategory.scheduling"),
+  documents: trans("uiCompCategory.documents"),
+  itemHandling: trans("uiCompCategory.itemHandling"),
+  multimedia: trans("uiCompCategory.multimedia"),
+  integration: trans("uiCompCategory.integration"),
 };
 
 export type UICompCategory = keyof typeof uiCompCategoryNames;
@@ -53,6 +56,10 @@ export type UICompType =
   | "moduleContainer"
   | "textArea"
   | "chart"
+  | "meeting"
+  | "videocomponent"
+  | "sharingcomponent"
+  | "controlButton"
   | "imageEditor"
   | "calendar"
   | "password"
@@ -83,6 +90,7 @@ export type UICompType =
   | "progress"
   | "progressCircle"
   | "chart"
+  | "mermaid" //Added By Falk Wolsky
   | "fileViewer"
   | "divider"
   | "qrCode"
@@ -111,14 +119,20 @@ export type UICompType =
   | "calendar"
   | "signature"
   | "jsonLottie" //Added By Aqib Mirza
-  | "timeline"
-  | "mention"
-  | "autocomplete"
-  | "icon"
+  | "icon" //Added By Mousheng
+  | "timeline" //Added By Mousheng
+  | "comment" //Added By Mousheng
+  | "mention" //Added By Mousheng
+  | "autocomplete" //Added By Mousheng
+  | "responsiveLayout";
+
 
 export const uiCompRegistry = {} as Record<UICompType | string, UICompManifest>;
 
-export function registerComp(compType: UICompType | string, manifest: UICompManifest) {
+export function registerComp(
+  compType: UICompType | string,
+  manifest: UICompManifest
+) {
   uiCompRegistry[compType] = {
     ...manifest,
     keywords: [manifest.name, manifest.enName, manifest.keywords]

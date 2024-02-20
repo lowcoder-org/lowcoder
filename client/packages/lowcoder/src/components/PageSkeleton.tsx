@@ -1,4 +1,5 @@
-import { Layout, Skeleton } from "antd";
+import { default as Layout } from "antd/es/layout";
+import { default as Skeleton } from "antd/es/skeleton";
 import MainContent from "components/layout/MainContent";
 import SideBar from "components/layout/SideBar";
 import Header from "./layout/Header";
@@ -78,15 +79,13 @@ export default function PageSkeleton(props: IProps) {
     </SkeletonWrapper>
   );
 
+  // {/* headerStart={REACT_APP_LOWCODER_SHOW_BRAND === 'true' ? REACT_APP_LOWCODER_CUSTOM_LOGO !== "" ? <img src={REACT_APP_LOWCODER_CUSTOM_LOGO} alt="logo" /> :<StyledLogoWithName branding={true} /> : <StyledLogoHome branding={true} />} */}
+
   return (
     <Layout>
       {!hideHeader && isHeaderReady && (
-        <Header
-          headerStart={
-            LOWCODER_SHOW_BRAND === 'true' ? 
-            LOWCODER_CUSTOM_LOGO !== "" ? <img src={LOWCODER_CUSTOM_LOGO} alt="logo" /> :<StyledLogoWithName branding={true} /> : 
-            <StyledLogoHome branding={true} />
-          }
+        <Header 
+          headerStart={<StyledLogoWithName branding={true} />}
           style={{ backgroundColor: brandingConfig?.headerColor, ...props.headStyle }}
         />
       )}
@@ -95,5 +94,6 @@ export default function PageSkeleton(props: IProps) {
         <MainContent>{!hideContent && skeleton}</MainContent>
       </Layout>
     </Layout>
+    
   );
 }

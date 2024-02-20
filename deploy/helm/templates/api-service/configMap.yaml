@@ -13,17 +13,25 @@ metadata:
   {{- end }}
 data:
   {{- if .Values.redis.enabled }}
-  REDIS_URL: "redis://{{ $name }}-redis-master.{{ $nameSpace }}.svc.cluster.local:6379"
+  LOWCODER_REDIS_URL: "redis://{{ $name }}-redis-master.{{ $nameSpace }}.svc.cluster.local:6379"
   {{- else }}
-  REDIS_URL: {{ .Values.redis.externalUrl | quote }}
+  LOWCODER_REDIS_URL: {{ .Values.redis.externalUrl | quote }}
   {{- end }}
-  {{- if .Values.apiService.nodeServiceUrl }}
-  LOWCODER_NODE_SERVICE_URL: {{ .Values.apiService.nodeServiceUrl | quote }}
+  {{- if .Values.global.config.nodeServiceUrl }}
+  LOWCODER_NODE_SERVICE_URL: {{ .Values.global.config.nodeServiceUrl | quote }}
   {{- else }}
   LOWCODER_NODE_SERVICE_URL: "http://{{ $name }}-node-service:{{ .Values.nodeService.service.port }}"
   {{- end }}
-  PUID: {{ .Values.apiService.config.userId | default "9001" | quote }}
-  PGID: {{ .Values.apiService.config.groupId | default "9001" | quote }}
-  CORS_ALLOWED_DOMAINS: {{ .Values.apiService.config.corsAllowedDomains | default  "*" | quote }}
-  ENABLE_USER_SIGN_UP: {{ .Values.apiService.config.enableUserSignUp | default "true" | quote }}
-
+  LOWCODER_PUID: {{ .Values.global.config.userId | default "9001" | quote }}
+  LOWCODER_PGID: {{ .Values.global.config.groupId | default "9001" | quote }}
+  LOWCODER_CORS_DOMAINS: {{ .Values.global.config.corsAllowedDomains | default  "*" | quote }}
+  LOWCODER_EMAIL_AUTH_ENABLED: {{ .Values.global.config.enableEmailAuth | default "true" | quote }}
+  LOWCODER_EMAIL_SIGNUP_ENABLED: {{ .Values.global.config.enableUserSignUp | default "true" | quote }}
+  LOWCODER_MAX_QUERY_TIMEOUT: {{ .Values.global.config.maxQueryTimeout | default "120" | quote }}
+  LOWCODER_MAX_ORGS_PER_USER: {{ .Values.global.defaults.maxOrgsPerUser | default "100" | quote }}
+  LOWCODER_MAX_MEMBERS_PER_ORG: {{ .Values.global.defaults.maxMembersPerOrg | default "1000" | quote }}
+  LOWCODER_MAX_GROUPS_PER_ORG: {{ .Values.global.defaults.maxGroupsPerOrg | default "100" | quote }}
+  LOWCODER_MAX_APPS_PER_ORG: {{ .Values.global.defaults.maxAppsPerOrg | default "1000" | quote }}
+  LOWCODER_MAX_DEVELOPERS: {{ .Values.global.defaults.maxDevelopers | default "50" | quote }}
+  LOWCODER_WORKSPACE_MODE: {{ .Values.global.config.workspaceMode | default "SAAS" | quote }}
+  LOWCODER_CREATE_WORKSPACE_ON_SIGNUP: {{ .Values.global.config.createWorkspaceOnSignup | default "true" | quote }}

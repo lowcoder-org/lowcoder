@@ -1,4 +1,4 @@
-import { Alert as AntAlert, AlertProps } from "antd";
+import { default as AntAlert, AlertProps } from "antd/es/alert";
 import styled from "styled-components";
 
 const Container = styled.div`

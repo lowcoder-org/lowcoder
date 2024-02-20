@@ -1,11 +1,16 @@
 {
   "name": "lowcoder",
-  "description": "Lowcoder is a developer-friendly open-source low code platform to build internal apps within minutes.",
+  "description": "An all-in-one IDE to create internal or customer-facing apps. · Visual UI builder with 50+ built-in components",
   "repository": "https://github.com/lowcoder-org/lowcoder",
-  "logo": "https://cdn-files.openblocks.dev/logo.png",
+  "logo": "https://lowcoder.cloud/images/webclip.png",
   "keywords": [
-    "low code",
-    "develop tool"
+    "LowCode",
+    "Low code",
+    "develop tool",
+    "Fast Application Development",
+    "Rapid development",
+    "Collaboration tool",
+    "Video conferencing"
   ],
   "stack": "container",
   "formation": {
@@ -15,23 +20,23 @@
     }
   },
   "env": {
-    "ENCRYPTION_PASSWORD": {
+    "LOWCODER_DB_ENCRYPTION_PASSWORD": {
       "description": "The encryption password used to encrypt all sensitive credentials in the database. You can use any random string (eg abcd).",
       "required": false
     },
-    "ENCRYPTION_SALT": {
+    "LOWCODER_DB_ENCRYPTION_SALT": {
       "description": "The encryption salt used to encrypt all sensitive credentials in the database. You can use any random string (eg abcd).",
       "required": false
     },
-    "CORS_ALLOWED_DOMAINS": {
+    "LOWCODER_CORS_DOMAINS": {
       "description": "The domains supported for CORS requests. All domains are allowed by default. If there are multiple domains, please separate them with commas.",
       "required": false
     },
-    "MONGODB_URL": {
+    "LOWCODER_MONGODB_URL": {
       "description": "Your Mongo Database URL.",
       "required": false
     },
-    "REDIS_URL": {
+    "LOWCODER_REDIS_URL": {
       "description": "Your Redis Database URL.",
       "required": false
     }

@@ -91,9 +91,10 @@ public class GithubRequest extends AbstractOauth2Request<Oauth2SimpleAuthConfig>
                     if (map.containsKey("error")) {
                         return Mono.error(new AuthException(JsonUtils.toJson(map)));
                     }
+                    String username = MapUtils.getString(map, "email");
                     AuthUser authUser = AuthUser.builder()
                             .uid(map.get("id").toString())
-                            .username(MapUtils.getString(map, "login"))
+                            .username(username == null ? MapUtils.getString(map, "login") : username)
                             .avatar(MapUtils.getString(map, "avatar_url"))
                             .rawUserInfo(map)
                             .build();

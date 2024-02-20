@@ -1,18 +1,18 @@
-import { Tabs } from "antd";
+import { default as Tabs } from "antd/es/tabs";
 import { JSONObject, JSONValue } from "util/jsonTypes";
 import { CompAction, CompActionTypes, deleteCompAction, wrapChildAction } from "lowcoder-core";
 import { DispatchType, RecordConstructorToView, wrapDispatch } from "lowcoder-core";
 import { AutoHeightControl } from "comps/controls/autoHeightControl";
-import { stringExposingStateControl } from "comps/controls/codeStateControl";
+import { BooleanStateControl, booleanExposingStateControl, stringExposingStateControl } from "comps/controls/codeStateControl";
 import { eventHandlerControl } from "comps/controls/eventHandlerControl";
 import { TabsOptionControl } from "comps/controls/optionsControl";
 import { styleControl } from "comps/controls/styleControl";
-import { TabContainerStyle, TabContainerStyleType, heightCalculator, widthCalculator } from "comps/controls/styleControlConstants";
+import { ContainerBodyStyle, ContainerBodyStyleType, ContainerHeaderStyle, ContainerHeaderStyleType, TabContainerStyle, TabContainerStyleType, heightCalculator, widthCalculator } from "comps/controls/styleControlConstants";
 import { sameTypeMap, UICompBuilder, withDefault } from "comps/generators";
 import { addMapChildAction } from "comps/generators/sameTypeMap";
 import { NameConfig, NameConfigHidden, withExposingConfigs } from "comps/generators/withExposing";
 import { NameGenerator } from "comps/utils";
-import { Section, sectionNames } from "lowcoder-design";
+import { ControlNode, Section, sectionNames } from "lowcoder-design";
 import { HintPlaceHolder } from "lowcoder-design";
 import _ from "lodash";
 import React, { useCallback, useContext } from "react";
@@ -52,27 +52,54 @@ const childrenMap = {
   autoHeight: AutoHeightControl,
   onEvent: eventHandlerControl(EVENT_OPTIONS),
   disabled: BoolCodeControl,
+  showHeader: withDefault(BooleanStateControl, "true"),
   style: styleControl(TabContainerStyle),
+  headerStyle: styleControl(ContainerHeaderStyle),
+  bodyStyle: styleControl(ContainerBodyStyle),
 };
 
 type ViewProps = RecordConstructorToView<typeof childrenMap>;
 type TabbedContainerProps = ViewProps & { dispatch: DispatchType };
-
-const getStyle = (style: TabContainerStyleType) => {
+ 
+const getStyle = (
+  style: TabContainerStyleType,
+  headerStyle: ContainerHeaderStyleType,
+  bodyStyle: ContainerBodyStyleType,
+) => {
   return css`
     &.ant-tabs {
-      border: 1px solid ${style.border};
-      border-radius: ${style.radius};
       overflow: hidden;
-      padding: ${style.padding};	
+      border: ${style.borderWidth} solid ${style.border};
+      border-radius: ${style.radius};
+      padding: ${style.padding};
+      background-color: ${style.background};
+      background-image: ${style.backgroundImage};
+      background-repeat: ${style.backgroundImageRepeat};
+      background-size: ${style.backgroundImageSize};
+      background-position: ${style.backgroundImagePosition};
+      background-origin: ${style.backgroundImageOrigin};
 
-      > .ant-tabs-content-holder > .ant-tabs-content > div > .react-grid-layout {
-        background-color: ${style.background};
-        border-radius: 0;
+      > .ant-tabs-content-holder > .ant-tabs-content > .ant-tabs-tabpane {
+        height: 100%;
+        .react-grid-layout {
+          border-radius: 0;
+          background-color: ${bodyStyle.background || 'transparent'};
+          background-image: ${bodyStyle.backgroundImage};
+          background-repeat: ${bodyStyle.backgroundImageRepeat};
+          background-size: ${bodyStyle.backgroundImageSize};
+          background-position: ${bodyStyle.backgroundImagePosition};
+          background-origin: ${bodyStyle.backgroundImageOrigin};
+
+        }
       }
 
       > .ant-tabs-nav {
-        background-color: ${style.headerBackground};
+        background-color: ${headerStyle.headerBackground || 'transparent'};
+        background-image: ${headerStyle.headerBackgroundImage};
+        background-repeat: ${headerStyle.headerBackgroundImageRepeat};
+        background-size: ${headerStyle.headerBackgroundImageSize};
+        background-position: ${headerStyle.headerBackgroundImagePosition};
+        background-origin: ${headerStyle.headerBackgroundImageOrigin};
 
         .ant-tabs-tab {
           div {
@@ -96,7 +123,13 @@ const getStyle = (style: TabContainerStyleType) => {
   `;
 };
 
-const StyledTabs = styled(Tabs)<{ $style: TabContainerStyleType; $isMobile?: boolean }>`
+const StyledTabs = styled(Tabs)<{ 
+  $style: TabContainerStyleType;
+  $headerStyle: ContainerHeaderStyleType;
+  $bodyStyle: ContainerBodyStyleType;
+  $isMobile?: boolean; 
+  $showHeader?: boolean;
+}>`
   &.ant-tabs {
     height: 100%;
   }
@@ -111,6 +144,7 @@ const StyledTabs = styled(Tabs)<{ $style: TabContainerStyleType; $isMobile?: boo
   }
 
   .ant-tabs-nav {
+    display: ${(props) => (props.$showHeader ? "block" : "none")};
     padding: 0 ${(props) => (props.$isMobile ? 16 : 24)}px;
     background: white;
     margin: 0px;
@@ -124,7 +158,11 @@ const StyledTabs = styled(Tabs)<{ $style: TabContainerStyleType; $isMobile?: boo
     margin-right: -24px;
   }
 
-  ${(props) => props.$style && getStyle(props.$style)}
+  ${(props) => props.$style && getStyle(
+    props.$style,
+    props.$headerStyle,
+    props.$bodyStyle,
+  )}
 `;
 
 const ContainerInTab = (props: ContainerBaseProps) => {
@@ -134,7 +172,14 @@ const ContainerInTab = (props: ContainerBaseProps) => {
 };
 
 const TabbedContainer = (props: TabbedContainerProps) => {
-  let { tabs, containers, dispatch, style } = props;
+  let {
+    tabs,
+    containers,
+    dispatch,
+    style,
+    headerStyle,
+    bodyStyle,
+  } = props;
 
   const visibleTabs = tabs.filter((tab) => !tab.hidden);
   const selectedTab = visibleTabs.find((tab) => tab.key === props.selectedTabKey.value);
@@ -158,12 +203,10 @@ const TabbedContainer = (props: TabbedContainerProps) => {
   const editorState = useContext(EditorContext);
   const maxWidth = editorState.getAppSettings().maxWidth;
   const isMobile = checkIsMobile(maxWidth);
-  const paddingWidth = isMobile ? 8 : 20;
-
-  // log.debug("TabbedContainer. props: ", props);
+  const showHeader = props.showHeader.value;
+  const paddingWidth = isMobile ? 8 : 0;
 
   const tabItems = visibleTabs.map((tab) => {
-    // log.debug("Tab. tab: ", tab, " containers: ", containers);
     const id = String(tab.id);
     const childDispatch = wrapDispatch(wrapDispatch(dispatch, "containers"), id);
     const containerProps = containers[id].children;
@@ -184,7 +227,7 @@ const TabbedContainer = (props: TabbedContainerProps) => {
       key: tab.key,
       forceRender: true,
       children: (
-        <BackgroundColorContext.Provider value={props.style.background}>
+        <BackgroundColorContext.Provider value={bodyStyle.background}>
           <ContainerInTab
             layout={containerProps.layout.getView()}
             items={gridItemCompToGridItems(containerProps.items.getView())}
@@ -196,20 +239,6 @@ const TabbedContainer = (props: TabbedContainerProps) => {
         </BackgroundColorContext.Provider>
       )
     }
-    // return (
-    //   <TabPane tab={label} key={tab.key} forceRender>
-    //     <BackgroundColorContext.Provider value={props.style.background}>
-    //       <ContainerInTab
-    //         layout={containerProps.layout.getView()}
-    //         items={gridItemCompToGridItems(containerProps.items.getView())}
-    //         positionParams={containerProps.positionParams.getView()}
-    //         dispatch={childDispatch}
-    //         autoHeight={props.autoHeight}
-    //         containerPadding={[paddingWidth, 20]}
-    //       />
-    //     </BackgroundColorContext.Provider>
-    //   </TabPane>
-    // );
   })
 
   return (
@@ -217,6 +246,9 @@ const TabbedContainer = (props: TabbedContainerProps) => {
     <StyledTabs
       activeKey={activeKey}
       $style={style}
+      $headerStyle={headerStyle}
+      $bodyStyle={bodyStyle}
+      $showHeader={showHeader}
       onChange={(key) => {
         if (key !== props.selectedTabKey.value) {
           props.selectedTabKey.onChange(key);
@@ -233,6 +265,7 @@ const TabbedContainer = (props: TabbedContainerProps) => {
     </div>
   );
 };
+
 
 export const TabbedContainerBaseComp = (function () {
   return new UICompBuilder(childrenMap, (props, dispatch) => {
@@ -251,14 +284,35 @@ export const TabbedContainerBaseComp = (function () {
               newOptionLabel: "Tab",
             })}
             {children.selectedTabKey.propertyView({ label: trans("prop.defaultValue") })}
-            {children.autoHeight.getPropertyView()}
           </Section>
-          <Section name={sectionNames.interaction}>
-            {children.onEvent.getPropertyView()}
-            {disabledPropertyView(children)}
-          </Section>
-          <Section name={sectionNames.layout}>{hiddenPropertyView(children)}</Section>
-          <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
+        
+          {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+            <Section name={sectionNames.interaction}>
+              {children.onEvent.getPropertyView()}
+              {disabledPropertyView(children)}
+              {children.showHeader.propertyView({ label: trans("prop.showHeader") })}
+              {hiddenPropertyView(children)}
+            </Section>
+          )}
+
+          {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+            <>
+              <Section name={sectionNames.layout}>
+                {children.autoHeight.getPropertyView()}
+              </Section>
+              <Section name={sectionNames.style}>
+                {children.style.getPropertyView()}
+              </Section>
+              {children.showHeader.getView() && (
+                <Section name={"Header Style"}>
+                  { children.headerStyle.getPropertyView() }
+                </Section>
+              )}
+              <Section name={"Body Style"}>
+                { children.bodyStyle.getPropertyView() }
+              </Section>
+            </>
+          )}
         </>
       );
     })
@@ -366,6 +420,8 @@ class TabbedContainerImplComp extends TabbedContainerBaseComp implements IContai
   override autoHeight(): boolean {
     return this.children.autoHeight.getView();
   }
+
+
 }
 
 export const TabbedContainerComp = withExposingConfigs(TabbedContainerImplComp, [

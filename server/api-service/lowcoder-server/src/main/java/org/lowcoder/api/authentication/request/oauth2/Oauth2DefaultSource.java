@@ -1,5 +1,7 @@
 package org.lowcoder.api.authentication.request.oauth2;
 
+import org.lowcoder.sdk.auth.constants.Oauth2Constants;
+
 public enum Oauth2DefaultSource implements Oauth2Source {
 
     GITHUB {
@@ -15,7 +17,7 @@ public enum Oauth2DefaultSource implements Oauth2Source {
 
         @Override
         public String refresh() {
-            return "https://www.googleapis.com/oauth2/v4/token";
+            return "https://github.com/login/oauth/access_token";
         }
 
     },
@@ -35,5 +37,42 @@ public enum Oauth2DefaultSource implements Oauth2Source {
             return "https://www.googleapis.com/oauth2/v4/token";
         }
 
+    },
+
+    ORY {
+        @Override
+        public String accessToken() {
+            return Oauth2Constants.BASE_URL_PLACEHOLDER + "/oauth2/token";
+        }
+
+        @Override
+        public String userInfo() {
+            return Oauth2Constants.BASE_URL_PLACEHOLDER + "/userinfo";
+        }
+
+        @Override
+        public String refresh() {
+            return Oauth2Constants.BASE_URL_PLACEHOLDER + "/oauth2/token";
+        }
+
+    },
+    
+    KEYCLOAK {
+
+        @Override
+        public String accessToken() {
+            return Oauth2Constants.BASE_URL_PLACEHOLDER + "/realms/" + Oauth2Constants.REALM_PLACEHOLDER + "/protocol/openid-connect/token";
+        }
+
+        @Override
+        public String userInfo() {
+            return Oauth2Constants.BASE_URL_PLACEHOLDER + "/realms/" + Oauth2Constants.REALM_PLACEHOLDER + "/protocol/openid-connect/userinfo";
+        }
+
+        @Override
+        public String refresh() {
+        	return Oauth2Constants.BASE_URL_PLACEHOLDER + "/realms/" + Oauth2Constants.REALM_PLACEHOLDER + "/protocol/openid-connect/token";
+        }
+    	
     }
 }

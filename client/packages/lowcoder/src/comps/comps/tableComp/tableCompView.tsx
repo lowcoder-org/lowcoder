@@ -1,8 +1,7 @@
-import { Table } from "antd";
-import { TableProps } from "antd/es/table";
+import { default as Table, TableProps } from "antd/es/table";
 import { TableCellContext, TableRowContext } from "comps/comps/tableComp/tableContext";
 import { TableToolbar } from "comps/comps/tableComp/tableToolbarComp";
-import { RowColorViewType } from "comps/comps/tableComp/tableTypes";
+import { RowColorViewType, RowHeightViewType, TableEventOptionValues } from "comps/comps/tableComp/tableTypes";
 import {
   COL_MIN_WIDTH,
   COLUMN_CHILDREN_KEY,
@@ -17,7 +16,13 @@ import {
   defaultTheme,
   handleToHoverRow,
   handleToSelectedRow,
+  TableColumnLinkStyleType,
+  TableColumnStyleType,
+  TableHeaderStyleType,
+  TableRowStyleType,
   TableStyleType,
+  ThemeDetail,
+  TableToolbarStyleType,
 } from "comps/controls/styleControlConstants";
 import { CompNameContext, EditorContext } from "comps/editorState";
 import { BackgroundColorContext } from "comps/utils/backgroundColorContext";
@@ -25,7 +30,7 @@ import { PrimaryColor } from "constants/style";
 import { trans } from "i18n";
 import _ from "lodash";
 import { darkenColor, isDarkColor } from "lowcoder-design";
-import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
+import React, { Children, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { Resizable } from "react-resizable";
 import styled, { css } from "styled-components";
 import { useUserViewMode } from "util/hooks";
@@ -34,6 +39,88 @@ import { useResizeDetector } from "react-resize-detector";
 import { SlotConfigContext } from "comps/controls/slotControl";
 import { EmptyContent } from "pages/common/styledComponent";
 import { messageInstance } from "lowcoder-design";
+import { ReactRef, ResizeHandleAxis } from "layout/gridLayoutPropTypes";
+import { CellColorViewType } from "./column/tableColumnComp";
+
+
+function genLinerGradient(color: string) {
+  return `linear-gradient(${color}, ${color})`;
+}
+
+const getStyle = (
+  style: TableStyleType,
+  rowStyle: TableRowStyleType,
+  headerStyle: TableHeaderStyleType,
+  toolbarStyle: TableToolbarStyleType
+) => {
+  const background = genLinerGradient(style.background);
+  const selectedRowBackground = genLinerGradient(rowStyle.selectedRowBackground);
+  const hoverRowBackground = genLinerGradient(rowStyle.hoverRowBackground);
+  const alternateBackground = genLinerGradient(rowStyle.alternateBackground);
+
+  return css`
+    .ant-table-body {
+      background: ${genLinerGradient(style.background)};
+    }
+    .ant-table-tbody {
+      > tr:nth-of-type(2n + 1) {
+        &,
+        > td {
+          background: ${genLinerGradient(rowStyle.background)};
+        }
+      }
+
+      > tr:nth-of-type(2n) {
+        &,
+        > td {
+          background: ${alternateBackground};
+        }
+      }
+
+      // selected row
+      > tr:nth-of-type(2n + 1).ant-table-row-selected {
+        > td {
+          background: ${selectedRowBackground}, ${rowStyle.background} !important;
+        }
+
+        > td.ant-table-cell-row-hover,
+        &:hover > td {
+          background: ${hoverRowBackground}, ${selectedRowBackground}, ${rowStyle.background} !important;
+        }
+      }
+
+      > tr:nth-of-type(2n).ant-table-row-selected {
+        > td {
+          background: ${selectedRowBackground}, ${alternateBackground} !important;
+        }
+
+        > td.ant-table-cell-row-hover,
+        &:hover > td {
+          background: ${hoverRowBackground}, ${selectedRowBackground}, ${alternateBackground} !important;
+        }
+      }
+
+      // hover row
+      > tr:nth-of-type(2n + 1) > td.ant-table-cell-row-hover {
+        &,
+        > div:nth-of-type(2) {
+          background: ${hoverRowBackground}, ${rowStyle.background} !important;
+        }
+      }
+
+      > tr:nth-of-type(2n) > td.ant-table-cell-row-hover {
+        &,
+        > div:nth-of-type(2) {
+          background: ${hoverRowBackground}, ${alternateBackground} !important;
+        }
+      }
+
+      > tr.ant-table-expanded-row > td {
+        background: ${background};
+      }
+    }
+  `;
+};
 
 const TitleResizeHandle = styled.span`
   position: absolute;
@@ -45,158 +132,36 @@ const TitleResizeHandle = styled.span`
   z-index: 1;
 `;
 
-function genLinerGradient(color: string) {
-  return `linear-gradient(${color}, ${color})`;
-}
+const BackgroundWrapper = styled.div<{
+  $style: TableStyleType;
+  $tableAutoHeight: boolean;
+}>`  
+  ${(props) => !props.$tableAutoHeight && `height: calc(100% - ${props.$style.margin} - ${props.$style.margin});`}
+  background: ${(props) => props.$style.background} !important;
+  border: ${(props) => `${props.$style.borderWidth} solid ${props.$style.border} !important`};
+  border-radius: ${(props) => props.$style.radius} !important;
+  padding: unset !important;
+  margin: ${(props) => props.$style.margin} !important;
+  overflow: scroll !important;
+  ${(props) => props.$style}
+`;
 
-const getStyle = (style: TableStyleType) => {
-  const background = genLinerGradient(style.background);
-  const selectedRowBackground = genLinerGradient(style.selectedRowBackground);
-  const hoverRowBackground = genLinerGradient(style.hoverRowBackground);
-  const alternateBackground = genLinerGradient(style.alternateBackground);
-  const isDark = isDarkColor(style.background);
-  return css`
-    border-color: ${style.border};
-    border-radius: ${style.radius};
-
-    & > div > div > div > .ant-table > .ant-table-container > .ant-table-content > table {
-      > thead > tr > th,
-      > tbody > tr > td {
-        border-color: ${style.border};
-      }
-
-      > .ant-table-thead > tr > th::before {
-        background-color: ${style.border};
-      }
-
-      > .ant-table-thead {
-        > tr > th {
-          background-color: ${style.headerBackground};
-          color: ${style.headerText};
-
-          &.ant-table-column-has-sorters:hover {
-            background-color: ${darkenColor(style.headerBackground, 0.05)};
-          }
-
-          > .ant-table-column-sorters > .ant-table-column-sorter {
-            color: ${style.headerText === defaultTheme.textDark ? "#bfbfbf" : style.headerText};
-          }
-        }
-      }
-
-      > .ant-table-tbody {
-        > tr:nth-of-type(2n + 1) {
-          &,
-          > td {
-            background: ${background};
-            color: ${style.cellText};
-            // Column type view and edit color
-            > div > div {
-              &,
-              > .ant-badge > .ant-badge-status-text,
-              > div > .markdown-body {
-                color: ${style.cellText};
-              }
-
-              > div > svg g {
-                stroke: ${style.cellText};
-              }
-
-              // dark link|links color
-              > a,
-              > div > a {
-                color: ${isDark && "#A6FFFF"};
-
-                &:hover {
-                  color: ${isDark && "#2EE6E6"};
-                }
-              }
-            }
-          }
-        }
-
-        > tr:nth-of-type(2n) {
-          &,
-          > td {
-            background: ${alternateBackground};
-            color: ${style.cellText};
-            // Column type view and edit color
-            > div > div {
-              &,
-              > .ant-badge > .ant-badge-status-text,
-              > div > .markdown-body {
-                color: ${style.cellText};
-              }
-
-              > div > svg g {
-                stroke: ${style.cellText};
-              }
-
-              // dark link|links color
-              > a,
-              > div > a {
-                color: ${isDark && "#A6FFFF"};
-
-                &:hover {
-                  color: ${isDark && "#2EE6E6"};
-                }
-              }
-            }
-          }
-        }
-
-        // selected row
-        > tr:nth-of-type(2n + 1).ant-table-row-selected {
-          > td {
-            background: ${selectedRowBackground}, ${background};
-          }
-
-          > td.ant-table-cell-row-hover,
-          &:hover > td {
-            background: ${hoverRowBackground}, ${selectedRowBackground}, ${background};
-          }
-        }
-
-        > tr:nth-of-type(2n).ant-table-row-selected {
-          > td {
-            background: ${selectedRowBackground}, ${alternateBackground};
-          }
-
-          > td.ant-table-cell-row-hover,
-          &:hover > td {
-            background: ${hoverRowBackground}, ${selectedRowBackground}, ${alternateBackground};
-          }
-        }
-
-        // hover row
-        > tr:nth-of-type(2n + 1) > td.ant-table-cell-row-hover {
-          &,
-          > div:nth-of-type(2) {
-            background: ${hoverRowBackground}, ${background};
-          }
-        }
-
-        > tr:nth-of-type(2n) > td.ant-table-cell-row-hover {
-          &,
-          > div:nth-of-type(2) {
-            background: ${hoverRowBackground}, ${alternateBackground};
-          }
-        }
-      }
-    }
-  `;
-};
-
+// TODO: find a way to limit the calc function for max-height only to first Margin value
 const TableWrapper = styled.div<{
   $style: TableStyleType;
-  toolbarPosition: "above" | "below" | "close";
+  $headerStyle: TableHeaderStyleType;
+  $toolbarStyle: TableToolbarStyleType;
+  $rowStyle: TableRowStyleType;
+  $toolbarPosition: "above" | "below" | "close";
+  $fixedHeader: boolean;
+  $fixedToolbar: boolean;
+  $visibleResizables: boolean;
+  $showHRowGridBorder?: boolean;
 }>`
-  overflow: hidden;
-  background: white;
-  border: 1px solid #d7d9e0;
+  overflow: unset !important;
 
   .ant-table-wrapper {
-    border-top: ${(props) => (props.toolbarPosition === "above" ? "1px solid" : "unset")};
+    border-top: unset;
     border-color: inherit;
   }
 
@@ -219,66 +184,126 @@ const TableWrapper = styled.div<{
   }
 
   .ant-table {
+    background: ${(props) => props.$style.background};
     .ant-table-container {
       border-left: unset;
+      border-top: none !important;
+      border-inline-start: none !important;
+
+      &::after {
+        box-shadow: none !important;
+      }
 
       .ant-table-content {
-        // A table expand row contains table
-        .ant-table-tbody .ant-table-wrapper:only-child .ant-table {
-          margin: 0;
-        }
+        overflow: unset !important;
+      }
 
-        table {
-          border-top: unset;
+      // A table expand row contains table
+      .ant-table-tbody .ant-table-wrapper:only-child .ant-table {
+        margin: 0;
+      }
 
-          td {
-            padding: 0px 0px;
-          }
+      table {
+        border-top: unset;
 
-          thead > tr:first-child {
-            th:last-child {
-              border-right: unset;
+        > .ant-table-thead {
+          > tr > th {
+            background-color: ${(props) => props.$headerStyle.headerBackground};
+            border-color: ${(props) => props.$headerStyle.border};
+            border-width: ${(props) => props.$headerStyle.borderWidth};
+            color: ${(props) => props.$headerStyle.headerText};
+            border-inline-end: ${(props) => `${props.$headerStyle.borderWidth} solid ${props.$headerStyle.border}`} !important;
+            ${(props) => 
+              props.$fixedHeader && `
+                position: sticky;
+                position: -webkit-sticky;
+                top: ${props.$fixedToolbar ? '47px' : '0'};
+                z-index: 99;
+              `
+            }
+
+            > div {
+              margin: ${(props) => props.$headerStyle.margin};
+
+              &, .ant-table-column-title > div {
+                font-size: ${(props) => props.$headerStyle.textSize};
+                font-weight: ${(props) => props.$headerStyle.textWeight};
+                font-family: ${(props) => props.$headerStyle.fontFamily};
+              }
+            }
+
+            &:last-child {
+              border-inline-end: none !important;
+            }
+            &.ant-table-column-has-sorters:hover {
+              background-color: ${(props) => darkenColor(props.$headerStyle.headerBackground, 0.05)};
+            }
+  
+            > .ant-table-column-sorters > .ant-table-column-sorter {
+              color: ${(props) => props.$headerStyle.headerText === defaultTheme.textDark ? "#bfbfbf" : props.$headerStyle.headerText};
+            }
+
+            &::before {
+              background-color: ${(props) => props.$headerStyle.border};
+              width: ${(props) => (props.$visibleResizables ? "1px" : "0px")} !important;
             }
           }
+        }
 
-          tbody > tr > td:last-child {
+        > thead > tr > th,
+        > tbody > tr > td {
+          border-color: ${(props) => props.$headerStyle.border};
+          ${(props) => !props.$showHRowGridBorder && `border-bottom: 0px;`}
+        }
+
+        td {
+          padding: 0px 0px;
+        }
+
+        thead > tr:first-child {
+          th:last-child {
             border-right: unset;
           }
-
-          .ant-empty-img-simple-g {
-            fill: #fff;
-          }
-
-          > thead > tr:first-child {
-            th:first-child {
-              border-top-left-radius: 0px;
-            }
-
-            th:last-child {
-              border-top-right-radius: 0px;
-            }
-          }
-
-          // hide the bottom border of the last row
-          ${(props) =>
-            props.toolbarPosition !== "below" &&
-            `
-              tbody > tr:last-child > td {
-                border-bottom: unset;
-              }
-          `}
         }
 
-        .ant-table-expanded-row-fixed:after {
-          border-right: unset !important;
+        tbody > tr > td:last-child {
+          border-right: unset;
         }
+
+        .ant-empty-img-simple-g {
+          fill: #fff;
+        }
+
+        > thead > tr:first-child {
+          th:first-child {
+            border-top-left-radius: 0px;
+          }
+
+          th:last-child {
+            border-top-right-radius: 0px;
+          }
+        }
+
+        // hide the bottom border of the last row
+        ${(props) =>
+          props.$toolbarPosition !== "below" &&
+          `
+            tbody > tr:last-child > td {
+              border-bottom: unset;
+            }
+        `}
+      }
+
+      .ant-table-expanded-row-fixed:after {
+        border-right: unset !important;
       }
     }
   }
-
-  ${(props) => props.$style && getStyle(props.$style)}
+  
+  ${(props) => 
+    props.$style && getStyle(props.$style, props.$rowStyle, props.$headerStyle, props.$toolbarStyle)}
 `;
-
+  
 const TableTh = styled.th<{ width?: number }>`
   overflow: hidden;
 
@@ -291,17 +316,89 @@ const TableTh = styled.th<{ width?: number }>`
   ${(props) => props.width && `width: ${props.width}px`};
 `;
 
-const TableTd = styled.td<{ background: string; $isEditing: boolean }>`
+const TableTd = styled.td<{
+  $background: string;
+  $style: TableColumnStyleType & {rowHeight?: string};
+  $defaultThemeDetail: ThemeDetail;
+  $linkStyle?: TableColumnLinkStyleType;
+  $isEditing: boolean;
+  $tableSize?: string;
+  $autoHeight?: boolean;
+}>`
   .ant-table-row-expand-icon,
   .ant-table-row-indent {
     display: ${(props) => (props.$isEditing ? "none" : "initial")};
   }
+  &.ant-table-row-expand-icon-cell {
+    background: ${(props) => props.$background};
+    border-color: ${(props) => props.$style.border};
+  }
+  background: ${(props) => props.$background} !important;
+  border-color: ${(props) => props.$style.border} !important;
+  border-width: ${(props) => props.$style.borderWidth} !important;
+  border-radius: ${(props) => props.$style.radius};
 
-  ${(props) =>
-    props.background &&
-    `
-      background: ${props.background} !important;
-   `};
+  padding: 0 !important;
+
+  > div {
+    margin: ${(props) => props.$style.margin};
+    color: ${(props) => props.$style.text};
+    font-weight: ${(props) => props.$style.textWeight};
+    font-family: ${(props) => props.$style.fontFamily};
+    
+    ${(props) => props.$tableSize === 'small' && `
+      padding: 1px 8px;
+      font-size: ${props.$defaultThemeDetail.textSize == props.$style.textSize ? '14px !important' : props.$style.textSize + ' !important' };
+      min-height: ${props.$style.rowHeight || '14px'};
+      line-height: 20px;
+      ${!props.$autoHeight && `
+        overflow-y: auto;
+        max-height: ${props.$style.rowHeight || '28px'};
+      `};
+    `};
+    ${(props) => props.$tableSize === 'middle' && `
+      padding: 8px 8px;
+      font-size: ${props.$defaultThemeDetail.textSize == props.$style.textSize ? '16px !important' : props.$style.textSize + ' !important' };
+      min-height: ${props.$style.rowHeight || '24px'};
+      line-height: 24px;
+      ${!props.$autoHeight && `
+        overflow-y: auto;
+        max-height: ${props.$style.rowHeight || '48px'};
+      `};
+    `};
+    ${(props) => props.$tableSize === 'large' && `
+      padding: 16px 16px;
+      font-size: ${props.$defaultThemeDetail.textSize == props.$style.textSize ? '18px !important' : props.$style.textSize + ' !important' };
+      min-height: ${props.$style.rowHeight || '48px'};
+      ${!props.$autoHeight && `
+        overflow-y: auto;
+        max-height: ${props.$style.rowHeight || '96px'};
+      `};
+    `};
+    
+    > div > .ant-badge > .ant-badge-status-text,
+    > div > div > .markdown-body {
+      color: ${(props) => props.$style.text};
+    }
+
+    > div > svg g {
+      stroke: ${(props) => props.$style.text};
+    }
+
+    // dark link|links color
+    > a,
+    > div  a {
+      color: ${(props) => props.$linkStyle?.text};
+
+      &:hover {
+        color: ${(props) => props.$linkStyle?.hoverText};
+      }
+
+      &:active {
+        color: ${(props) => props.$linkStyle?.activeText}};
+      }
+    }
+  }
 `;
 
 const ResizeableTitle = (props: any) => {
@@ -345,8 +442,9 @@ const ResizeableTitle = (props: any) => {
       }}
       onResizeStop={onResizeStop}
       draggableOpts={{ enableUserSelectHack: false }}
-      handle={() => (
+      handle={(axis: ResizeHandleAxis, ref: ReactRef<HTMLDivElement>) => (
         <TitleResizeHandle
+          ref={ref} 
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
@@ -362,41 +460,96 @@ const ResizeableTitle = (props: any) => {
 type CustomTableProps<RecordType> = Omit<TableProps<RecordType>, "components" | "columns"> & {
   columns: CustomColumnType<RecordType>[];
   viewModeResizable: boolean;
-  rowColor: RowColorViewType;
+  visibleResizables: boolean;
+  rowColorFn: RowColorViewType;
+  rowHeightFn: RowHeightViewType;
+  columnsStyle: TableColumnStyleType;
+  size?: string;
+  rowAutoHeight?: boolean;
 };
 
 function TableCellView(props: {
   record: RecordType;
   title: string;
-  rowColor: RowColorViewType;
+  rowColorFn: RowColorViewType;
+  rowHeightFn: RowHeightViewType;
+  cellColorFn: CellColorViewType;
   rowIndex: number;
   children: any;
+  columnsStyle: TableColumnStyleType;
+  columnStyle: TableColumnStyleType;
+  linkStyle: TableColumnLinkStyleType;
+  tableSize?: string;
+  autoHeight?: boolean;
 }) {
-  const { record, title, rowIndex, rowColor, children, ...restProps } = props;
+  const {
+    record,
+    title,
+    rowIndex,
+    rowColorFn,
+    rowHeightFn,
+    cellColorFn,
+    children,
+    columnsStyle,
+    columnStyle,
+    linkStyle,
+    tableSize,
+    autoHeight,
+    ...restProps
+  } = props;
+
   const [editing, setEditing] = useState(false);
   const rowContext = useContext(TableRowContext);
   let tdView;
   if (!record) {
     tdView = <td {...restProps}>{children}</td>;
   } else {
-    const color = rowColor({
+    const rowColor = rowColorFn({
       currentRow: record,
       currentIndex: rowIndex,
       currentOriginalIndex: record[OB_ROW_ORI_INDEX],
       columnTitle: title,
     });
-    let background = "";
-    if (color) {
-      background = genLinerGradient(color);
+    const rowHeight = rowHeightFn({
+      currentRow: record,
+      currentIndex: rowIndex,
+      currentOriginalIndex: record[OB_ROW_ORI_INDEX],
+      columnTitle: title,
+    });
+    const cellColor = cellColorFn({
+      currentCell: record[title.toLowerCase()],
+    });
+    
+    const style = {
+      background: cellColor || rowColor || columnStyle.background || columnsStyle.background,
+      margin: columnStyle.margin || columnsStyle.margin,
+      text: columnStyle.text || columnsStyle.text,
+      border: columnStyle.border || columnsStyle.border,
+      radius: columnStyle.radius || columnsStyle.radius,
+      borderWidth: columnStyle.borderWidth || columnsStyle.borderWidth,
+      textSize: columnStyle.textSize || columnsStyle.textSize,
+      textWeight: columnStyle.textWeight || columnsStyle.textWeight,
+      fontFamily: columnStyle.fontFamily || columnsStyle.fontFamily,
+      rowHeight: rowHeight,
     }
-    if (color && rowContext.selected) {
-      background = genLinerGradient(handleToSelectedRow(color)) + "," + background;
+    let { background } = style;
+    if (rowContext.selected) {
+      background = genLinerGradient(handleToSelectedRow(background)) + "," + background;
     }
-    if (color && rowContext.hover) {
-      background = genLinerGradient(handleToHoverRow(color)) + "," + background;
+    if (rowContext.hover) {
+      background = genLinerGradient(handleToHoverRow(background)) + "," + background;
     }
     tdView = (
-      <TableTd {...restProps} background={background} $isEditing={editing}>
+      <TableTd
+        {...restProps}
+        $background={background}
+        $style={style}
+        $defaultThemeDetail={defaultTheme}
+        $linkStyle={linkStyle}
+        $isEditing={editing}
+        $tableSize={tableSize}
+        $autoHeight={autoHeight}
+      >
         {children}
       </TableTd>
     );
@@ -436,20 +589,15 @@ function ResizeableTable<RecordType extends object>(props: CustomTableProps<Reco
   });
   let allColumnFixed = true;
   const columns = props.columns.map((col, index) => {
-    const { width, ...restCol } = col;
+    const { width, style, linkStyle, cellColorFn, ...restCol } = col;
     const resizeWidth = (resizeData.index === index ? resizeData.width : col.width) ?? 0;
     let colWidth: number | string = "auto";
     let minWidth: number | string = COL_MIN_WIDTH;
-    if (resizeWidth > 0) {
+    if (typeof resizeWidth === "number" && resizeWidth > 0) {
       minWidth = "unset";
       colWidth = resizeWidth;
     } else {
       allColumnFixed = false;
-    }
-    if (allColumnFixed && index === props.columns.length - 1) {
-      // all column fixed, the last column fill extra space
-      colWidth = "auto";
-      minWidth = resizeWidth;
     }
     return {
       ...restCol,
@@ -462,18 +610,25 @@ function ResizeableTable<RecordType extends object>(props: CustomTableProps<Reco
       onCell: (record: RecordType, rowIndex: any) => ({
         record,
         title: col.titleText,
-        rowColor: props.rowColor,
+        rowColorFn: props.rowColorFn,
+        rowHeightFn: props.rowHeightFn,
+        cellColorFn: cellColorFn,
         rowIndex: rowIndex,
+        columnsStyle: props.columnsStyle,
+        columnStyle: style,
+        linkStyle,
+        tableSize: props.size,
+        autoHeight: props.rowAutoHeight,
       }),
       onHeaderCell: () => ({
         width: resizeWidth,
         title: col.titleText,
         viewModeResizable: props.viewModeResizable,
-        onResize: (width: number) => {
+        onResize: (width: React.SyntheticEvent) => {
           if (width) {
             setResizeData({
               index: index,
-              width: width,
+              width: width as unknown as number,
             });
           }
         },
@@ -504,7 +659,10 @@ function ResizeableTable<RecordType extends object>(props: CustomTableProps<Reco
       {...props}
       pagination={false}
       columns={columns}
-      scroll={{ x: COL_MIN_WIDTH * columns.length }}
+      scroll={{
+        x: COL_MIN_WIDTH * columns.length,
+        y: undefined,
+      }}
     ></Table>
   );
 }
@@ -528,6 +686,14 @@ export function TableCompView(props: {
   const { comp, onDownload, onRefresh } = props;
   const compChildren = comp.children;
   const style = compChildren.style.getView();
+  const rowStyle = compChildren.rowStyle.getView();
+  const headerStyle = compChildren.headerStyle.getView();
+  const toolbarStyle = compChildren.toolbarStyle.getView();
+  const rowAutoHeight = compChildren.rowAutoHeight.getView();
+  const tableAutoHeight = comp.getTableAutoHeight();
+  const visibleResizables = compChildren.visibleResizables.getView();
+  const showHRowGridBorder = compChildren.showHRowGridBorder.getView();
+  const columnsStyle = compChildren.columnsStyle.getView();
   const changeSet = useMemo(() => compChildren.columns.getChangeSet(), [compChildren.columns]);
   const hasChange = useMemo(() => !_.isEmpty(changeSet), [changeSet]);
   const columns = useMemo(() => compChildren.columns.getView(), [compChildren.columns]);
@@ -554,7 +720,8 @@ export function TableCompView(props: {
         size,
         dynamicColumn,
         dynamicColumnConfig,
-        columnsAggrData
+        columnsAggrData,
+        onEvent,
       ),
     [
       columnViews,
@@ -593,7 +760,7 @@ export function TableCompView(props: {
   }, [pagination, data]);
 
   const handleChangeEvent = useCallback(
-    (eventName) => {
+    (eventName: TableEventOptionValues) => {
       if (eventName === "saveChanges" && !compChildren.onEvent.isBind(eventName)) {
         !viewMode && messageInstance.warning(trans("table.saveChangesNotBind"));
         return;
@@ -607,7 +774,7 @@ export function TableCompView(props: {
   const toolbarView = (
     <TableToolbar
       toolbar={toolbar}
-      $style={style}
+      $style={toolbarStyle}
       pagination={{
         ...pagination,
         total: pageDataInfo.total,
@@ -620,7 +787,10 @@ export function TableCompView(props: {
           setLoading
         )
       }
-      onDownload={() => onDownload(`${compName}-data`)}
+      onDownload={() => {
+        handleChangeEvent("download");
+        onDownload(`${compName}-data`)
+      }}
       hasChange={hasChange}
       onSaveChanges={() => handleChangeEvent("saveChanges")}
       onCancelChanges={() => handleChangeEvent("cancelChanges")}
@@ -633,42 +803,68 @@ export function TableCompView(props: {
   }
 
   return (
-    <BackgroundColorContext.Provider value={style.background}>
-      <TableWrapper ref={ref} $style={style} toolbarPosition={toolbar.position}>
+    <BackgroundColorContext.Provider value={style.background} >
+      
+      <BackgroundWrapper ref={ref} $style={style} $tableAutoHeight={tableAutoHeight}>
         {toolbar.position === "above" && toolbarView}
-        <ResizeableTable<RecordType>
-          expandable={{
-            ...expansion.expandableConfig,
-            childrenColumnName: supportChildren
-              ? COLUMN_CHILDREN_KEY
-              : "OB_CHILDREN_KEY_PLACEHOLDER",
-            fixed: "left",
-          }}
-          rowColor={compChildren.rowColor.getView() as any}
-          {...compChildren.selection.getView()(onEvent)}
-          bordered={!compChildren.hideBordered.getView()}
-          onChange={(pagination, filters, sorter, extra) => {
-            onTableChange(pagination, filters, sorter, extra, comp.dispatch, onEvent);
-          }}
-          showHeader={!compChildren.hideHeader.getView()}
-          columns={antdColumns}
-          viewModeResizable={compChildren.viewModeResizable.getView()}
-          dataSource={pageDataInfo.data}
-          size={compChildren.size.getView()}
-          tableLayout="fixed"
-          loading={
-            loading ||
-            // fixme isLoading type
-            (compChildren.showDataLoadSpinner.getView() &&
-              (compChildren.data as any).isLoading()) ||
-            compChildren.loading.getView()
-          }
-        />
+        <TableWrapper
+          $style={style}
+          $rowStyle={rowStyle}
+          $headerStyle={headerStyle}
+          $toolbarStyle={toolbarStyle}
+          $toolbarPosition={toolbar.position}
+          $fixedHeader={compChildren.fixedHeader.getView()}
+          $fixedToolbar={toolbar.fixedToolbar && toolbar.position === 'above'}
+          $visibleResizables={visibleResizables}
+          $showHRowGridBorder={showHRowGridBorder}
+        >
+          <ResizeableTable<RecordType>
+            expandable={{
+              ...expansion.expandableConfig,
+              childrenColumnName: supportChildren
+                ? COLUMN_CHILDREN_KEY
+                : "OB_CHILDREN_KEY_PLACEHOLDER",
+              fixed: "left",
+              onExpand: (expanded) => {
+              if(expanded) {
+                handleChangeEvent('rowExpand')
+              } else {
+                handleChangeEvent('rowShrink')
+              }
+              }
+            }}
+            rowColorFn={compChildren.rowColor.getView() as any}
+            rowHeightFn={compChildren.rowHeight.getView() as any}
+            {...compChildren.selection.getView()(onEvent)}
+            bordered={compChildren.showRowGridBorder.getView()}
+            onChange={(pagination, filters, sorter, extra) => {
+              onTableChange(pagination, filters, sorter, extra, comp.dispatch, onEvent);
+            }}
+            showHeader={!compChildren.hideHeader.getView()}
+            columns={antdColumns}
+            columnsStyle={columnsStyle}
+            viewModeResizable={compChildren.viewModeResizable.getView()}
+            visibleResizables={compChildren.visibleResizables.getView()}
+            dataSource={pageDataInfo.data}
+            size={compChildren.size.getView()}
+            rowAutoHeight={rowAutoHeight}
+            tableLayout="fixed"
+            loading={
+              loading ||
+              // fixme isLoading type
+              (compChildren.showDataLoadSpinner.getView() &&
+                (compChildren.data as any).isLoading()) ||
+              compChildren.loading.getView()
+            }
+          />
+          
+          <SlotConfigContext.Provider value={{ modalWidth: width && Math.max(width, 300) }}>
+            {expansion.expandModalView}
+          </SlotConfigContext.Provider>
+        </TableWrapper>
         {toolbar.position === "below" && toolbarView}
-        <SlotConfigContext.Provider value={{ modalWidth: width && Math.max(width, 300) }}>
-          {expansion.expandModalView}
-        </SlotConfigContext.Provider>
-      </TableWrapper>
+      </BackgroundWrapper>
+      
     </BackgroundColorContext.Provider>
   );
 }

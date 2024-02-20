@@ -14,12 +14,18 @@ import { ProgressComp } from "./columnTypeComps/columnProgressComp";
 import { RatingComp } from "./columnTypeComps/columnRatingComp";
 import { BadgeStatusComp } from "./columnTypeComps/columnStatusComp";
 import { ColumnTagsComp } from "./columnTypeComps/columnTagsComp";
+import { ColumnSelectComp } from "./columnTypeComps/columnSelectComp";
 import { SimpleTextComp } from "./columnTypeComps/simpleTextComp";
+import { ColumnNumberComp } from "./columnTypeComps/ColumnNumberComp";
 
 const actionOptions = [
   {
     label: trans("table.text"),
     value: "text",
+  },
+  {
+    label: trans("table.number"),
+    value: "number",
   },
   {
     label: trans("table.link"),
@@ -32,6 +38,10 @@ const actionOptions = [
   {
     label: trans("table.tag"),
     value: "tag",
+  },
+  {
+    label: trans("table.select"),
+    value: "select",
   },
   {
     label: trans("table.badgeStatus"),
@@ -73,10 +83,12 @@ const actionOptions = [
 
 export const ColumnTypeCompMap = {
   text: SimpleTextComp,
+  number: ColumnNumberComp,
   button: ButtonComp,
   badgeStatus: BadgeStatusComp,
   link: LinkComp,
   tag: ColumnTagsComp,
+  select: ColumnSelectComp,
   links: ColumnLinksComp,
   image: ImageComp,
   markdown: ColumnMarkdownComp,

@@ -93,6 +93,7 @@ export function dropdownAbstractControl<T extends OptionsType>(
       return controlItem(
         { filterText: params.label },
         <DropdownPropertyView<T>
+          {...params}
           value={this.value}
           options={finalOptions}
           onChange={(value) => {
@@ -101,7 +102,6 @@ export function dropdownAbstractControl<T extends OptionsType>(
             }
             params.onChange?.(value);
           }}
-          {...params}
         />
       );
     }

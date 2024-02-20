@@ -1,6 +1,6 @@
-import { Button, ButtonProps } from "antd";
+import Button, { ButtonProps } from "antd/es/button";
 import styled, { css } from "styled-components";
-import { LightLoading, Loading } from "./Loading";
+import { Loading } from "./Loading";
 import * as React from "react";
 import { CSSProperties, forwardRef } from "react";
 
@@ -12,13 +12,13 @@ const buttonStyleConfig = {
     color: #333333;
     /* padding: 4px; */
 
-    :focus {
+    &:focus {
       background: #f5f5f6;
       border: 1px solid #d7d9e0;
       color: #333333;
     }
 
-    :hover {
+    &:hover {
       background: #f5f5f6;
       border: 1px solid #d7d9e0;
       color: #333333;
@@ -35,33 +35,33 @@ const buttonStyleConfig = {
         color: #4965f2;
         border-color: #c9d1fc;
 
-        :hover {
+        &:hover {
           color: #315efb;
           background-color: #f5faff;
           border-color: #c2d6ff;
         }
 
-        :focus {
+        &:focus {
           color: #315efb;
           background-color: #f5faff;
           border-color: #c2d6ff;
         }
       }
 
-      :focus {
+      &:focus {
         background: #4965f2;
         border: 1px solid #4965f2;
         color: #ffffff;
       }
 
-      :hover {
+      &:hover {
         border: 1px solid #315efb;
         background: #315efb;
         color: #ffffff;
       }
 
       :disabled {
-        :hover {
+        &:hover {
           border: 1px solid #dbe1fd;
           background: #dbe1fd;
           color: #ffffff;
@@ -80,13 +80,13 @@ const buttonStyleConfig = {
     color: #4965f2;
     border-color: #c9d1fc;
 
-    :hover {
+    &:hover {
       color: #315efb;
       background-color: #f5faff;
       border-color: #c2d6ff;
     }
 
-    :focus {
+    &:focus {
       color: #315efb;
       background-color: #f5faff;
       border-color: #c2d6ff;
@@ -277,7 +277,7 @@ const StyledAddButton = styled.button`
   user-select: none;
   padding: 0;
 
-  :hover {
+  &:hover {
     color: #315efb;
     background: white;
 
@@ -286,7 +286,7 @@ const StyledAddButton = styled.button`
     }
   }
 
-  :focus {
+  &:focus {
     background: white;
     color: #315efb;
   }

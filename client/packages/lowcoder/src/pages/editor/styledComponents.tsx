@@ -1,7 +1,7 @@
-import { Tree } from "antd";
+import DirectoryTree from "antd/es/tree/DirectoryTree";
 import styled from "styled-components";
 
-export const DirectoryTreeStyle = styled(Tree.DirectoryTree)`
+export const DirectoryTreeStyle = styled(DirectoryTree)`
   font-size: 13px;
   color: #333;
   .ant-tree-treenode {
@@ -25,11 +25,20 @@ export const DirectoryTreeStyle = styled(Tree.DirectoryTree)`
     position: unset;
     .ant-tree-iconEle {
       width: 16px;
-      height: 26px;
-      margin-right: 4px;
+      height: 16px;
+      margin: 0px 0px 0px 4px;
       display: flex;
       align-items: center;
+      svg {
+        width: 16px;
+        height: 16px;
+        stroke: #000;
+      }
     }
+
+  }
+  .ant-tree-checkbox+span {
+    padding-left: 0;
   }
   .ant-tree-treenode {
     padding: 0;
@@ -57,6 +66,11 @@ export const DirectoryTreeStyle = styled(Tree.DirectoryTree)`
     }
     .ant-tree-node-content-wrapper.ant-tree-node-selected {
       color: #333;
+    }
+    .ant-tree-treenode-disabled {
+      .ant-tree-node-content-wrapper {
+        color: inherit;
+      }
     }
   }
 `;
@@ -105,14 +119,17 @@ export const Node = styled.span`
   }
 `;
 
-export const CollapseWrapper = styled.div<{ clientX?: number }>`
-  width: 256px;
+// margin: 4px -16px 4px ${(props) => props.$clientX && `calc(-${props.$clientX}px + 16px)`};
+//  width: 256px;
+export const CollapseWrapper = styled.div<{ $clientX?: number }>`
+  width: 100%; 
   border: 1px solid #E1E3EB;
   border-radius: 4px;
   overflow: hidden;
   background: #fff;
-  padding: 4px 0;
-  margin: 4px -16px 4px ${(props) => props.clientX && `calc(-${props.clientX}px + 16px)`};
+  padding: 0px;
+  position: relative;
+  margin: 4px 0px 4px 0};
   .simplebar-content > div {
     > .ant-collapse > .ant-collapse-item {
       > .ant-collapse-header {

@@ -130,7 +130,7 @@ function OrgUsersPermission(props: UsersPermissionProp) {
     <>
       <PermissionHeaderWrapper>
         <HeaderBack>
-          <span onClick={() => history.push(PERMISSION_SETTING)}>{trans("settings.member")}</span>
+          <span onClick={() => history.push(PERMISSION_SETTING)}>{trans("settings.userGroups")}</span>
           <ArrowIcon />
           <span>{trans("memberSettings.allMembers")}</span>
         </HeaderBack>

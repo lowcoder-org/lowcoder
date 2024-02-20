@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from "react";
-import { Modal } from "antd";
+import { default as Modal } from "antd/es/modal";
 import { CloseIcon } from "lowcoder-design";
 import styled from "styled-components";
 import { Layers } from "constants/Layers";

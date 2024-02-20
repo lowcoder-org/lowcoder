@@ -1,4 +1,4 @@
-import { Input } from "antd";
+import { default as Input } from "antd/es/input";
 import { StringOrNumberControl } from "comps/controls/codeControl";
 import { trans } from "i18n";
 import { ColumnTypeCompBuilder, ColumnTypeViewFn } from "../columnTypeCompBuilder";
@@ -26,7 +26,7 @@ export const SimpleTextComp = (function () {
       <Input
         defaultValue={props.value}
         autoFocus
-        bordered={false}
+        variant="borderless"
         onChange={(e) => {
           const value = e.target.value;
           props.onChange(value);

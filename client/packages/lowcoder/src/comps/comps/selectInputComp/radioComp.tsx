@@ -1,4 +1,4 @@
-import { Radio as AntdRadio } from "antd";
+import { default as AntdRadioGroup } from "antd/es/radio/group";
 import { RadioStyleType } from "comps/controls/styleControlConstants";
 import styled, { css } from "styled-components";
 import { UICompBuilder } from "../../generators";
@@ -52,7 +52,7 @@ const getStyle = (style: RadioStyleType) => {
   `;
 };
 
-const Radio = styled(AntdRadio.Group)<{
+const Radio = styled(AntdRadioGroup)<{
   $style: RadioStyleType;
   $layout: ValueFromOption<typeof RadioLayoutOptions>;
 }>`
@@ -83,7 +83,10 @@ const Radio = styled(AntdRadio.Group)<{
 
 const RadioBasicComp = (function () {
   return new UICompBuilder(RadioChildrenMap, (props) => {
-    const [validateState, handleValidate] = useSelectInputValidate(props);
+    const [
+      validateState,
+      handleChange,
+    ] = useSelectInputValidate(props);
     return props.label({
       required: props.required,
       style: props.style,
@@ -95,9 +98,7 @@ const RadioBasicComp = (function () {
           $style={props.style}
           $layout={props.layout}
           onChange={(e) => {
-            handleValidate(e.target.value);
-            props.value.onChange(e.target.value);
-            props.onEvent("change");
+            handleChange(e.target.value);
           }}
           options={props.options
             .filter((option) => option.value !== undefined && !option.hidden)

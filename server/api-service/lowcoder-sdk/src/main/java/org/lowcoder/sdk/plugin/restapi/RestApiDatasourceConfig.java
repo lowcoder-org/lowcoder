@@ -108,6 +108,13 @@ public class RestApiDatasourceConfig implements DatasourceConnectionConfig {
         return RestApiAuthType.NO_AUTH;
     }
 
+    public boolean isOauth2InheritFromLogin() {
+        if (this.authConfig != null) {
+            return this.authConfig.getType().name().equals(RestApiAuthType.OAUTH2_INHERIT_FROM_LOGIN.name());
+        }
+        return false;
+    }
+
     public Set<String> getForwardCookies() {
         return SetUtils.emptyIfNull(forwardCookies);
     }

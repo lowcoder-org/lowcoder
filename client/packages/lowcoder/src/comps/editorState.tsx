@@ -3,7 +3,11 @@ import { RootComp as RootCompTmp } from "comps/comps/rootComp";
 import { PositionParams } from "layout";
 import _ from "lodash";
 import React, { ReactNode } from "react";
-import { BottomResComp, BottomResListComp, BottomResTypeEnum } from "types/bottomRes";
+import {
+  BottomResComp,
+  BottomResListComp,
+  BottomResTypeEnum,
+} from "types/bottomRes";
 import { setFields } from "util/objectUtils";
 import { OptionalComp, renameAction } from "lowcoder-core";
 import { GridItemComp } from "./comps/gridItemComp";
@@ -13,6 +17,7 @@ import { NameAndExposingInfo } from "./utils/exposingTypes";
 import { checkName } from "./utils/rename";
 import { trans } from "i18n";
 import { UiLayoutType } from "./comps/uiComp";
+import { getCollisionStatus, getEditorModeStatus } from "util/localStorageUtil";
 
 type RootComp = InstanceType<typeof RootCompTmp>;
 
@@ -41,6 +46,8 @@ export class EditorState {
   readonly rootComp: RootComp;
   readonly showPropertyPane: boolean = false;
   readonly selectedCompNames: Set<string> = new Set();
+  readonly editorModeStatus: string = "";
+  readonly collisionStatus: string = "";
   readonly isDragging: boolean = false;
   readonly draggingCompType: string = "button";
   readonly forceShowGrid: boolean = false; // show grid lines
@@ -50,14 +57,20 @@ export class EditorState {
   readonly showResultCompName: string = "";
   readonly selectSource?: SelectSourceType; // the source of select type
 
-  private readonly setEditorState: (fn: (editorState: EditorState) => EditorState) => void;
+  private readonly setEditorState: (
+    fn: (editorState: EditorState) => EditorState
+  ) => void;
 
   constructor(
     rootComp: RootComp,
-    setEditorState: (fn: (editorState: EditorState) => EditorState) => void
+    setEditorState: (fn: (editorState: EditorState) => EditorState) => void,
+    initialEditorModeStatus: string = getEditorModeStatus(),
+    initialCollisionStatus: string = getCollisionStatus()
   ) {
     this.rootComp = rootComp;
     this.setEditorState = setEditorState;
+    this.editorModeStatus = initialEditorModeStatus;
+    this.collisionStatus = initialCollisionStatus;
   }
 
   /**
@@ -75,7 +88,10 @@ export class EditorState {
   }
 
   getAllCompMap() {
-    return { ...this.getAllHooksCompMap(), ...this.getUIComp().getAllCompItems() };
+    return {
+      ...this.getAllHooksCompMap(),
+      ...this.getUIComp().getAllCompItems(),
+    };
   }
 
   getAllUICompMap() {
@@ -100,7 +116,9 @@ export class EditorState {
    */
   getUICompByName(name: string) {
     const compMap = this.getAllUICompMap();
-    return Object.values(compMap).find((item) => item.children.name.getView() === name);
+    return Object.values(compMap).find(
+      (item) => item.children.name.getView() === name
+    );
   }
 
   getNameGenerator() {
@@ -116,17 +134,22 @@ export class EditorState {
 
   uiCompInfoList(): Array<CompInfo> {
     const compMap = this.getAllUICompMap();
-    return Object.values(compMap).map((item) => {
+    return Object.entries(compMap).map(([key, item]) => {
       return {
         name: item.children.name.getView(),
         type: item.children.compType.getView(),
         data: item.children.comp.exposingValues,
         dataDesc: item.children.comp.exposingInfo().propertyDesc,
+        key: key,
       };
     });
   }
 
-  getCompInfo(nameAndExposingInfo: NameAndExposingInfo, name: string, type: string): CompInfo {
+  getCompInfo(
+    nameAndExposingInfo: NameAndExposingInfo,
+    name: string,
+    type: string
+  ): CompInfo {
     return {
       name,
       type,
@@ -153,7 +176,11 @@ export class EditorState {
     const exposingInfo = listComp.nameAndExposingInfo();
     return listComp.getView().map((item) => {
       const name = item.children.name.getView();
-      return this.getCompInfo(exposingInfo, name, BottomResTypeEnum.DateResponder);
+      return this.getCompInfo(
+        exposingInfo,
+        name,
+        BottomResTypeEnum.DateResponder
+      );
     });
   }
 
@@ -171,7 +198,11 @@ export class EditorState {
     const exposingInfo = listComp.nameAndExposingInfo();
     return listComp.getView().map((item) => {
       const name = item.children.name.getView();
-      return this.getCompInfo(exposingInfo, name, BottomResTypeEnum.Transformer);
+      return this.getCompInfo(
+        exposingInfo,
+        name,
+        BottomResTypeEnum.Transformer
+      );
     });
   }
 
@@ -218,7 +249,10 @@ export class EditorState {
   }
 
   selectedQueryComp() {
-    if (this.selectedBottomResType !== BottomResTypeEnum.Query || !this.selectedBottomResName) {
+    if (
+      this.selectedBottomResType !== BottomResTypeEnum.Query ||
+      !this.selectedBottomResName
+    ) {
       return undefined;
     }
     return this.getQueriesComp()
@@ -229,7 +263,9 @@ export class EditorState {
   }
 
   showResultComp(): BottomResComp | undefined {
-    const bottomResComps = Object.values(BottomResTypeEnum).reduce<BottomResComp[]>((a, b) => {
+    const bottomResComps = Object.values(BottomResTypeEnum).reduce<
+      BottomResComp[]
+    >((a, b) => {
       const items = this.getBottomResListComp(b).items();
       return a.concat(items);
     }, []);
@@ -275,7 +311,10 @@ export class EditorState {
       return this.getUIComp().getComp();
     }
     const [key, comp] = _.toPairs(selectedComps)[0];
-    if (_.size(selectedComps) === 1 && isContainer((comp as GridItemComp)?.children?.comp)) {
+    if (
+      _.size(selectedComps) === 1 &&
+      isContainer((comp as GridItemComp)?.children?.comp)
+    ) {
       return comp.children.comp;
     }
 
@@ -303,12 +342,22 @@ export class EditorState {
   isCompSelected(compName: string): OptionalComp {
     const compMap = this.getAllCompMap();
     return Object.values(compMap).find(
-      (item) => item.children.name.getView() === compName && this.selectedCompNames.has(compName)
+      (item) =>
+        item.children.name.getView() === compName &&
+        this.selectedCompNames.has(compName)
     );
   }
 
   getAppSettings() {
     return this.getAppSettingsComp().getView();
+  }
+
+  setEditorModeStatus(newEditorModeStatus: string) {
+    this.changeState({ editorModeStatus: newEditorModeStatus });
+  }
+
+  setCollisionStatus(newCollisionStatus: string) {
+    this.changeState({ collisionStatus: newCollisionStatus });
   }
 
   setDragging(dragging: boolean) {
@@ -348,7 +397,10 @@ export class EditorState {
     });
   }
 
-  setSelectedCompNames(selectedCompNames: Set<string>, selectSource?: SelectSourceType) {
+  setSelectedCompNames(
+    selectedCompNames: Set<string>,
+    selectSource?: SelectSourceType
+  ) {
     if (selectedCompNames.size === 0 && this.selectedCompNames.size === 0) {
       return;
     }
@@ -398,7 +450,9 @@ export class EditorState {
   }
 
   getBottomResComp(name: string): BottomResComp | undefined {
-    const bottomResComps = Object.values(BottomResTypeEnum).reduce<BottomResComp[]>((a, b) => {
+    const bottomResComps = Object.values(BottomResTypeEnum).reduce<
+      BottomResComp[]
+    >((a, b) => {
       const items = this.getBottomResListComp(b).items();
       return a.concat(items);
     }, []);
@@ -459,8 +513,11 @@ export class EditorState {
   getAppType(): UiLayoutType {
     return this.getUIComp().children.compType.getView();
   }
+  getCollisionStatus(): string {
+    return this.collisionStatus;
+  }
+  
 }
-
 export const EditorContext = React.createContext<EditorState>(undefined as any);
 
 // current comp name

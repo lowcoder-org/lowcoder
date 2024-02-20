@@ -16,7 +16,7 @@ export default function OrgImage(props: {
   const backgroundColor = shouldRenderImage ? "transparent" : initialsAndColorCode[1];
 
   return (
-    <ImgWrapper backgroundColor={backgroundColor} className={props.className} side={props.side}>
+    <ImgWrapper $backgroundColor={backgroundColor} className={props.className} $side={props.side}>
       {!shouldRenderImage ? (
         <span>{initialsAndColorCode[0]}</span>
       ) : (

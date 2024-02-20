@@ -15,7 +15,7 @@ import {
   useState,
 } from "react";
 import Draggable from "react-draggable";
-import { List, ListRowProps } from "react-virtualized";
+import { default as List, ListRowProps } from "react-virtualized/dist/es/List";
 import styled from "styled-components";
 import { CloseIcon, SearchIcon } from "icons";
 import { ANTDICON } from "../../../../lowcoder/src/comps/comps/timelineComp/antIcon";
@@ -70,17 +70,17 @@ const IconListWrapper = styled.div`
 const IconList = styled(List)`
   scrollbar-gutter: stable;
 
-  ::-webkit-scrollbar {
+  &::-webkit-scrollbar {
     width: 6px;
   }
 
-  ::-webkit-scrollbar-thumb {
+  &::-webkit-scrollbar-thumb {
     background-clip: content-box;
     border-radius: 9999px;
     background-color: rgba(139, 143, 163, 0.2);
   }
 
-  ::-webkit-scrollbar-thumb:hover {
+  &::-webkit-scrollbar-thumb:hover {
     background-color: rgba(139, 143, 163, 0.36);
   }
 `;
@@ -90,7 +90,7 @@ const IconRow = styled.div`
   align-items: center;
   justify-content: space-between;
 
-  :last-child {
+  &:last-child {
     gap: 8px;
     justify-content: flex-start;
   }

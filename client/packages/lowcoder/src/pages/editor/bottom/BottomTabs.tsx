@@ -17,21 +17,21 @@ import { showAppSnapshotSelector } from "redux/selectors/appSnapshotSelector";
 import { BottomResTypeEnum } from "types/bottomRes";
 import { trans } from "i18n";
 
-const Span = styled.span<{ border: boolean }>`
+const Span = styled.span<{ $border: boolean }>`
   ${labelCss};
   font-weight: 500;
   line-height: 40px;
   position: relative;
   display: inline-block;
   z-index: 0;
-  color: ${(props) => (props.border ? "#222222" : "#8B8FA3")};
+  color: ${(props) => (props.$border ? "#222222" : "#8B8FA3")};
 
-  :hover {
+  &:hover {
     cursor: pointer;
     color: #222222;
   }
 
-  ::before {
+  &::before {
     content: "";
     position: absolute;
     z-index: -1;
@@ -39,19 +39,19 @@ const Span = styled.span<{ border: boolean }>`
     right: 0;
     bottom: 0;
     height: 0;
-    color: ${(props) => (props.border ? "#222222" : "transparent")};
-    border: 1px solid ${(props) => (props.border ? "#222222" : "transparent")};
-    background-color: ${(props) => (props.border ? "#222222" : "transparent")};
+    color: ${(props) => (props.$border ? "#222222" : "transparent")};
+    border: 1px solid ${(props) => (props.$border ? "#222222" : "transparent")};
+    background-color: ${(props) => (props.$border ? "#222222" : "transparent")};
     border-radius: 2px;
   }
 `;
-const TabDiv = styled.div<{ cursor?: string | number }>`
+const TabDiv = styled.div<{ $cursor?: string | number }>`
   height: 40px;
   background-color: #ffffff;
   text-align: center;
   display: inline-block;
   min-width: 26px;
-  cursor: ${(props) => (props.cursor ? "pointer" : "default")};
+  cursor: ${(props) => (props.$cursor ? "pointer" : "default")};
 `;
 const TabContainer = styled.div`
   height: 40px;
@@ -85,7 +85,7 @@ const TabContainer = styled.div`
     font-size: 16px;
     margin-left: 0;
 
-    :hover {
+    &:hover {
       background-color: #f5f5f6;
     }
   }
@@ -102,31 +102,66 @@ const TabContainer = styled.div`
     margin-left: 0;
     background-color: #ffffff;
 
-    :focus {
+    &:focus {
       border-color: #3377ff;
       box-shadow: 0 0 0 2px #d6e4ff;
     }
   }
 `;
-const Button = styled(TacoButton)`
+const RunButton = styled(TacoButton)`
   padding: 0 11px;
   flex: 0 0 64px;
   height: 24px;
   border: none;
 
-  :hover {
+  &:hover {
     padding: 0 11px;
     border: none;
     box-shadow: none;
   }
 
-  :focus {
+  &:focus {
     padding: 0 11px;
     border: none;
     box-shadow: none;
   }
 
-  :after {
+  &:after {
+    content: "";
+  }
+`;
+const DisconnectButton = styled(TacoButton)`
+  padding: 0 11px;
+  flex: 0 0 64px;
+  height: 24px;
+  border: none;
+  color: white;
+  border-color: #079968;
+  background-color: #079968;
+
+  &:hover, &:focus, &:disabled, &:disabled:hover {
+    padding: 0 11px;
+    border: none;
+    box-shadow: none;
+  }
+  
+  &:disabled,
+  &:disabled:hover {
+    background-color: #bbdecd !important;
+    border-color: #bbdecd;
+  }
+
+  &:hover {
+    background-color: #07714e;
+    border-color: #07714e;
+  }
+
+  &:focus {
+    background-color: #07714e;
+    border-color: #07714e;
+  }
+
+  &:after {
     content: "";
   }
 `;
@@ -137,7 +172,7 @@ const ButtonLabel = styled.span`
   text-align: center;
   line-height: 24px;
 `;
-const Icon = styled(UnfoldWhiteIcon)`
+const RunIcon = styled(UnfoldWhiteIcon)`
   transform: rotate(-90deg);
   display: inline-block;
   padding-right: 2px;
@@ -165,6 +200,9 @@ export function BottomTabs<T extends TabsConfigType>(props: {
   status?: "" | "error";
   message?: string;
   runButtonText?: string;
+  isStreamQuery?: boolean;
+  isSocketConnected?: boolean;
+  disconnectSocket?: () => void;
 }) {
   const {
     type,
@@ -175,6 +213,9 @@ export function BottomTabs<T extends TabsConfigType>(props: {
     status,
     message,
     runButtonText = trans("bottomPanel.run"),
+    isStreamQuery = false,
+    isSocketConnected = false,
+    disconnectSocket,
   } = props;
   const [key, setKey] = useState<TabsConfigKeyType<typeof tabsConfig>>("general");
   const [error, setError] = useState<string | undefined>(undefined);
@@ -186,14 +227,39 @@ export function BottomTabs<T extends TabsConfigType>(props: {
 
   useEffect(() => setKey("general"), [editorState.selectedBottomResName]);
 
+  const RunButtonWrapper = () => (
+    <RunButton
+      onClick={onRunBtnClick}
+      loading={btnLoading}
+      buttonType="primary"
+      disabled={readOnly}
+    >
+      <RunIcon />
+      <ButtonLabel>{runButtonText}</ButtonLabel>
+    </RunButton>
+  )
+
+  const DisconnectButtonWrapper = () => (
+    <DisconnectButton
+      onClick={disconnectSocket}
+      loading={btnLoading}
+      buttonType="normal"
+      disabled={readOnly}
+    >
+      <ButtonLabel>
+        {'Disconnect'}
+      </ButtonLabel>
+    </DisconnectButton>
+  )
+
   return (
     <>
       <TabContainer>
         {tabsConfig &&
           tabsConfig.map((item, index) => (
             <React.Fragment key={index}>
-              <TabDiv onClick={() => setKey(item.key)} cursor={item.key}>
-                <Span key={item.key} border={key === item.key}>
+              <TabDiv onClick={() => setKey(item.key)} $cursor={item.key}>
+                <Span key={item.key} $border={key === item.key}>
                   {item.title}
                 </Span>
               </TabDiv>
@@ -220,16 +286,11 @@ export function BottomTabs<T extends TabsConfigType>(props: {
             hasError={!!error}
           />
         </div>
-        {onRunBtnClick && (
-          <Button
-            onClick={onRunBtnClick}
-            loading={btnLoading}
-            buttonType="primary"
-            disabled={readOnly}
-          >
-            <Icon />
-            <ButtonLabel>{runButtonText}</ButtonLabel>
-          </Button>
+        {!isSocketConnected && onRunBtnClick && (
+          <RunButtonWrapper />
+        )}
+        {isSocketConnected && onRunBtnClick && disconnectSocket &&  (
+          <DisconnectButtonWrapper /> 
         )}
       </TabContainer>
 
@@ -246,9 +307,9 @@ export function BottomTabs<T extends TabsConfigType>(props: {
 
 export const EmptyTab = (
   <TabContainer>
-    <Button disabled={true} style={{ marginLeft: "auto" }}>
-      <Icon></Icon>
+    <RunButton disabled={true} style={{ marginLeft: "auto" }}>
+      <RunIcon />
       <ButtonLabel>{trans("bottomPanel.run")}</ButtonLabel>
-    </Button>
+    </RunButton>
   </TabContainer>
 );

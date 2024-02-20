@@ -10,7 +10,7 @@ import {
   PasswordFormInputItem,
   UserNameFormInputItem,
 } from "../form";
-import { FormInstance } from "antd";
+import { FormInstance } from "antd/es/form";
 import { fromPairs, omit, pick, toPairs } from "lodash";
 import { trans } from "i18n";
 
@@ -22,14 +22,14 @@ export const SnowflakeDatasourceForm = (props: DatasourceFormProps) => {
 
   return (
     <DatasourceForm form={form} preserve={false}>
-      <FormSection size={props.size}>
+      <FormSection $size={props.size}>
         <DatasourceNameFormInputItem
           placeholder={"My Snowflake1"}
           initialValue={datasource?.name}
         />
       </FormSection>
 
-      <FormSection size={props.size}>
+      <FormSection $size={props.size}>
         <GeneralSettingFormSectionLabel />
         <HostFormInputItem
           initialValue={datasourceConfig?.host}

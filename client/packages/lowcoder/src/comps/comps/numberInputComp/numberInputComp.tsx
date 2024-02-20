@@ -1,4 +1,4 @@
-import { InputNumber as AntdInputNumber } from "antd";
+import { default as AntdInputNumber } from "antd/es/input-number";
 import {
   BoolCodeControl,
   codeControl,
@@ -10,7 +10,7 @@ import {
 import { BoolControl } from "comps/controls/boolControl";
 import { dropdownControl } from "comps/controls/dropdownControl";
 import { LabelControl } from "comps/controls/labelControl";
-import { numberExposingStateControl } from "comps/controls/codeStateControl";
+import { numberExposingStateControl, stringExposingStateControl } from "comps/controls/codeStateControl";
 import NP from "number-precision";
 
 import {
@@ -49,6 +49,9 @@ import {
   setRangeTextMethod,
   setSelectionRangeMethod,
 } from "comps/utils/methodUtils";
+
+import { useContext } from "react";
+import { EditorContext } from "comps/editorState";
 
 const getStyle = (style: InputLikeStyleType) => {
   return css`
@@ -231,6 +234,7 @@ const UndefinedNumberControl = codeControl<number | undefined>((value: any) => {
 });
 
 const childrenMap = {
+  defaultValue: stringExposingStateControl("defaultValue"), // It is more convenient for string to handle various states, save raw input here
   value: numberExposingStateControl("value"), // It is more convenient for string to handle various states, save raw input here
   placeholder: StringControl,
   disabled: BoolCodeControl,
@@ -258,6 +262,17 @@ const childrenMap = {
 
 const CustomInputNumber = (props: RecordConstructorToView<typeof childrenMap>) => {
   const ref = useRef<HTMLInputElement | null>(null);
+  const defaultValue = props.defaultValue.value;
+
+  useEffect(() => {
+    let value = 0;
+    if (defaultValue === 'null' && props.allowNull) {
+      value = NaN;
+    } else if (!isNaN(Number(defaultValue))) {
+      value = Number(defaultValue);
+    }
+    props.value.onChange(value);
+  }, [defaultValue]);
 
   const formatFn = (value: number) =>
     format(value, props.allowNull, props.formatter, props.precision, props.thousandsSeparator);
@@ -268,7 +283,9 @@ const CustomInputNumber = (props: RecordConstructorToView<typeof childrenMap>) =
     const oldValue = props.value.value;
     const newValue = parseNumber(tmpValue, props.allowNull);
     props.value.onChange(newValue);
-    oldValue !== newValue && props.onEvent("change");
+    if((oldValue !== newValue)) {
+      props.onEvent("change");
+    }
   };
 
   useEffect(() => {
@@ -360,42 +377,51 @@ const NumberInputTmpComp = (function () {
     .setPropertyViewFn((children) => (
       <>
         <Section name={sectionNames.basic}>
-          {children.value.propertyView({ label: trans("prop.defaultValue") })}
+          {children.defaultValue.propertyView({ label: trans("prop.defaultValue") })}
           {placeholderPropertyView(children)}
           {children.formatter.propertyView({ label: trans("numberInput.formatter") })}
-          {children.precision.propertyView({ label: trans("numberInput.precision") })}
-          {children.allowNull.propertyView({ label: trans("numberInput.allowNull") })}
-          {children.thousandsSeparator.propertyView({
-            label: trans("numberInput.thousandsSeparator"),
-          })}
-          {children.controls.propertyView({ label: trans("numberInput.controls") })}
         </Section>
 
         <FormDataPropertyView {...children} />
 
-        {children.label.getPropertyView()}
+        {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
+          <><Section name={sectionNames.validation}>
+            {requiredPropertyView(children)}
+            {children.min.propertyView({ label: trans("prop.minimum") })}
+            {children.max.propertyView({ label: trans("prop.maximum") })}
+            {children.customRule.propertyView({})}
+          </Section>
+          <Section name={sectionNames.interaction}>
+            {children.onEvent.getPropertyView()}
+            {disabledPropertyView(children)}
+            {hiddenPropertyView(children)}
+          </Section>
+          </>
+        )}
+ 
+        {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && ( 
+          children.label.getPropertyView()
+        )}
 
-        <Section name={sectionNames.interaction}>
-          {children.onEvent.getPropertyView()}
-          {disabledPropertyView(children)}
-        </Section>
+        {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
+          <Section name={sectionNames.advanced}>
+            {children.step.propertyView({ label: trans("numberInput.step") })}
+            {children.precision.propertyView({ label: trans("numberInput.precision") })}
+            {children.prefixIcon.propertyView({ label: trans("button.prefixIcon") })}
+            {children.allowNull.propertyView({ label: trans("numberInput.allowNull") })}
+            {children.thousandsSeparator.propertyView({
+              label: trans("numberInput.thousandsSeparator"),
+            })}
+            {children.controls.propertyView({ label: trans("numberInput.controls") })}
+            {readOnlyPropertyView(children)}
+          </Section>
+        )}
 
-        <Section name={sectionNames.advanced}>
-          {children.step.propertyView({ label: trans("numberInput.step") })}
-          {readOnlyPropertyView(children)}
-          {children.prefixIcon.propertyView({ label: trans("button.prefixIcon") })}
-        </Section>
-
-        <Section name={sectionNames.validation}>
-          {requiredPropertyView(children)}
-          {children.min.propertyView({ label: trans("prop.minimum") })}
-          {children.max.propertyView({ label: trans("prop.maximum") })}
-          {children.customRule.propertyView({})}
-        </Section>
-
-        <Section name={sectionNames.layout}>{hiddenPropertyView(children)}</Section>
-
-        <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
+        {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
+          <Section name={sectionNames.style}>
+            {children.style.getPropertyView()}
+          </Section>
+        )}
       </>
     ))
     .build();

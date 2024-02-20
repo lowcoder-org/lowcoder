@@ -4,21 +4,27 @@ import { CompConstructor } from "lowcoder-core";
 import { RemoteCompInfo, RemoteCompLoader, RemoteCompSource } from "types/remoteComp";
 
 async function npmLoader(remoteInfo: RemoteCompInfo): Promise<CompConstructor | null> {
-  // log.info("load npm plugin:", remoteInfo);
   const { packageName, packageVersion = "latest", compName } = remoteInfo;
   const entry = `${NPM_PLUGIN_ASSETS_BASE_URL}/${packageName}@${packageVersion}/index.js`;
-  const module = await import(/* @vite-ignore */ entry);
-  const comp = module.default?.[compName];
-  if (!comp) {
+  // console.log("Entry", entry);
+  try {
+    const module = await import(/* webpackIgnore: true */ entry);
+    // console.log("Entry 1", module);
+    const comp = module.default?.[compName];
+    if (!comp) {
+      throw new Error(trans("npm.compNotFound", { compName }));
+    }
+    return comp;
+  } catch (e) {
+    console.log("Error during remote component loading", e);
     throw new Error(trans("npm.compNotFound", { compName }));
   }
-  return comp;
 }
 
 async function bundleLoader(remoteInfo: RemoteCompInfo): Promise<CompConstructor | null> {
   const { packageName, packageVersion = "latest", compName } = remoteInfo;
   const entry = `/${packageName}/${packageVersion}/index.js?v=${REACT_APP_COMMIT_ID}`;
-  const module = await import(/* @vite-ignore */ entry);
+  const module = await import(/* webpackIgnore: true */ entry);
   const comp = module.default?.[compName];
   if (!comp) {
     throw new Error(trans("npm.compNotFound", { compName }));

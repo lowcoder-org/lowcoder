@@ -1,28 +1,41 @@
 {
   "name": "lowcoder-cli-template-typescript",
-  "version": "0.0.12",
+  "version": "0.0.20",
   "type": "module",
   "scripts": {
-    "start": "vite",
-    "build": "lowcoder-cli build"
+    "start": "NODE_OPTIONS=--max_old_space_size=6144 vite",
+    "build": "lowcoder-cli build",
+    "build_publish": "lowcoder-cli build --publish"
   },
   "lowcoder": {
-    "description": "",
+    "description": "A Demo Hillchart Component Plugin",
     "comps": {
-      "hello_world": {
-        "name": "__i18n_helloWorldCompName__",
-        "icon": "./icons/demo-icon.svg"
+      "hillcharts": {
+        "name": "Hillcharts Demo",
+        "icon": "./icons/hills.svg",
+        "description": "Hillchart Plugin Demo Component",
+        "layoutInfo": {
+          "w": 10,
+          "h": 40
+        }
       }
     }
   },
-  "devDependencies": {
-    "lowcoder-cli": "workspace:^",
-    "lowcoder-sdk": "workspace:^",
-    "typescript": "^4.8.4",
-    "vite": "^4.3.9"
+  "dependencies": {
+    "@observablehq/runtime": "^4.8.2",
+    "@types/react": "^18.2.45",
+    "@types/react-dom": "^18.2.18",
+    "lowcoder-cli": "^0.0.30",
+    "lowcoder-sdk": "^2.1.10",
+    "prop-types": "^15.7.2",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-resize-detector": "^7.0.0",
+    "typescript": "5.3.3",
+    "vite": "^4.5.2"
   },
   "keywords": [
-    "lowcoder"
+    "Lowcoder, Component, Template, Plugin, Demonstrator"
   ],
   "license": "MIT"
 }

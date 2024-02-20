@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Button } from "antd";
+import { default as Button } from "antd/es/button";
 // 渲染组件到编辑器
 import {
   changeChildAction,
@@ -58,8 +58,12 @@ import {
 
 import { timelineDate, timelineNode, TimelineDataTooltip } from "./timelineConstants";
 import { convertTimeLineData } from "./timelineUtils";
-import { Timeline } from "antd";
-import { ANTDICON } from "./antIcon";
+import { default as Timeline } from "antd/es/timeline";
+
+import { ANTDICON } from "./antIcon"; // todo: select icons to not import all icons
+
+import { useContext } from "react";
+import { EditorContext } from "comps/editorState"; 
 
 const EventOptions = [
   clickEvent,
@@ -129,14 +133,13 @@ const TimelineComp = (
     <div
       style={{
         margin: style.margin ?? '3px',
-        padding: style.padding ?? '3px',
+        padding: style.padding !== '3px' ? style.padding : '20px 10px 0px 10px',
         width: widthCalculator(style.margin ?? '3px'),
         height: heightCalculator(style.margin ?? '3px'),
         background: style.background,
         overflow: "auto",
         overflowX: "hidden",
         borderRadius: style.radius,
-        //height: '100%'
       }}
     >
       <Timeline
@@ -167,24 +170,34 @@ let TimeLineBasicComp = (function () {
             tooltip: TimelineDataTooltip,
             placeholder: "[]",
           })}
-          {children.mode.propertyView({
-            label: trans("timeLine.mode"),
-            tooltip: trans("timeLine.modeTooltip"),
-          })}
-          {children.reverse.propertyView({
-            label: trans("timeLine.reverse"),
-          })}
-          {children.pending.propertyView({
-            label: trans("timeLine.pending"),
-          })}
         </Section>
-        <Section name={sectionNames.layout}>
-          {children.onEvent.getPropertyView()}
-          {hiddenPropertyView(children)}
-        </Section>
-        <Section name={sectionNames.style}>
-          {children.style.getPropertyView()}
-        </Section>
+
+        {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+          <Section name={sectionNames.interaction}>
+            {children.onEvent.getPropertyView()}
+            {hiddenPropertyView(children)}
+          </Section>
+        )}
+
+        {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+          <><Section name={sectionNames.layout}>
+              {children.mode.propertyView({
+                label: trans("timeLine.mode"),
+                tooltip: trans("timeLine.modeTooltip"),
+              })}
+              {children.pending.propertyView({
+                label: trans("timeLine.pending"),
+                tooltip: trans("timeLine.pendingDescription"),
+              })}
+              {children.reverse.propertyView({
+                label: trans("timeLine.reverse"),
+              })}
+            </Section>
+            <Section name={sectionNames.style}>
+              {children.style.getPropertyView()}
+            </Section>
+          </>
+        )}
       </>
     ))
     .build();

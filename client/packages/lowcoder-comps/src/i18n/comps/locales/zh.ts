@@ -56,6 +56,8 @@ export const zh = {
         echartsOptionLabel: "选项",
         echartsOptionTooltip: "ECharts选项",
         echartsOptionExamples: "ECharts示例",
+        echartsMapOptionTooltip: "ECharts地图选项",
+        echartsMapOptionExamples: "ECharts地图示例",
         selectDesc: "当用户选择图表中的部分数据时触发",
         unselectDesc: "当用户取消选择图表中的部分数据时触发",
         selectedPointsDesc: "已选中的数据点",
@@ -70,6 +72,12 @@ export const zh = {
         arrow: "箭头",
         pointColorLabel: "数据点颜色",
         pointColorTooltip: `根据系列名称和当前数据点值设置数据点颜色,可选变量:seriesName、value.示例:'{{value < 25000 ? "red" : "green"}}'`,
+        mapReady: "地图就绪",
+        mapReadyDesc: "地图准备好时触发",
+        zoomLevelChange: "缩放级别更改",
+        zoomLevelChangeDesc: "地图缩放级别更改时触发",
+        centerPositionChange: "中心位置变化",
+        centerPositionChangeDesc: "地图中心位置改变时触发"
     },
     imageEditor: {
         defaultSrc: "",

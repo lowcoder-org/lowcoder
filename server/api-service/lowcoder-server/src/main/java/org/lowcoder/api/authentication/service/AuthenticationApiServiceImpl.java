@@ -3,15 +3,19 @@ package org.lowcoder.api.authentication.service;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
+import org.lowcoder.api.authentication.dto.APIKeyRequest;
 import org.lowcoder.api.authentication.dto.AuthConfigRequest;
 import org.lowcoder.api.authentication.request.AuthRequestFactory;
 import org.lowcoder.api.authentication.request.oauth2.OAuth2RequestContext;
 import org.lowcoder.api.authentication.service.factory.AuthConfigFactory;
 import org.lowcoder.api.authentication.util.AuthenticationUtils;
+import org.lowcoder.api.authentication.util.JWTUtils;
 import org.lowcoder.api.home.SessionUserService;
 import org.lowcoder.api.usermanagement.InvitationApiService;
 import org.lowcoder.api.usermanagement.OrgApiService;
 import org.lowcoder.api.usermanagement.UserApiService;
+import org.lowcoder.api.usermanagement.view.APIKeyVO;
 import org.lowcoder.api.util.BusinessEventPublisher;
 import org.lowcoder.domain.authentication.AuthenticationService;
 import org.lowcoder.domain.authentication.FindAuthConfig;
@@ -22,12 +26,10 @@ import org.lowcoder.domain.organization.model.Organization;
 import org.lowcoder.domain.organization.model.OrganizationDomain;
 import org.lowcoder.domain.organization.service.OrgMemberService;
 import org.lowcoder.domain.organization.service.OrganizationService;
-import org.lowcoder.domain.user.model.AuthUser;
-import org.lowcoder.domain.user.model.Connection;
-import org.lowcoder.domain.user.model.ConnectionAuthToken;
-import org.lowcoder.domain.user.model.User;
+import org.lowcoder.domain.user.model.*;
 import org.lowcoder.domain.user.service.UserService;
 import org.lowcoder.sdk.auth.AbstractAuthConfig;
+import org.lowcoder.sdk.config.AuthProperties;
 import org.lowcoder.sdk.exception.BizError;
 import org.lowcoder.sdk.exception.BizException;
 import org.lowcoder.sdk.util.CookieHelper;
@@ -41,6 +43,7 @@ import reactor.core.publisher.Mono;
 import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static org.lowcoder.sdk.exception.BizError.*;
@@ -80,9 +83,15 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
     @Autowired
     private OrgMemberService orgMemberService;
 
+    @Autowired
+    private JWTUtils jwtUtils;
+
+    @Autowired
+    private AuthProperties authProperties;
+
     @Override
-    public Mono<AuthUser> authenticateByForm(String loginId, String password, String source, boolean register, String authId) {
-        return authenticate(authId, source, new FormAuthRequestContext(loginId, password, register));
+    public Mono<AuthUser> authenticateByForm(String loginId, String password, String source, boolean register, String authId, String orgId) {
+        return authenticate(authId, source, new FormAuthRequestContext(loginId, password, register, orgId));
     }
 
     @Override
@@ -100,7 +109,13 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
                 })
                 .doOnNext(findAuthConfig -> {
                     context.setAuthConfig(findAuthConfig.authConfig());
-                    context.setOrgId(Optional.ofNullable(findAuthConfig.organization()).map(Organization::getId).orElse(null));
+                    if (findAuthConfig.authConfig().getSource().equals("EMAIL")) {
+                        if(StringUtils.isBlank(context.getOrgId())) {
+                            context.setOrgId(Optional.ofNullable(findAuthConfig.organization()).map(Organization::getId).orElse(null));
+                        }
+                    } else {
+                        context.setOrgId(Optional.ofNullable(findAuthConfig.organization()).map(Organization::getId).orElse(null));
+                    }
                 })
                 .then(authRequestFactory.build(context))
                 .flatMap(authRequest -> authRequest.auth(context))
@@ -119,8 +134,8 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
 
     @Override
     public Mono<Void> loginOrRegister(AuthUser authUser, ServerWebExchange exchange,
-            String invitationId) {
-        return updateOrCreateUser(authUser)
+                                      String invitationId, boolean linKExistingUser) {
+        return updateOrCreateUser(authUser, linKExistingUser)
                 .delayUntil(user -> ReactiveSecurityContextHolder.getContext()
                         .doOnNext(securityContext -> securityContext.setAuthentication(AuthenticationUtils.toAuthentication(user))))
                 // save token and set cookie
@@ -131,7 +146,9 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
                 })
                 // after register
                 .delayUntil(user -> {
-                    if (user.getIsNewUser()) {
+                    boolean createWorkspace =
+                            authUser.getOrgId() == null && StringUtils.isBlank(invitationId) && authProperties.getWorkspaceCreation();
+                    if (user.getIsNewUser() && createWorkspace) {
                         return onUserRegister(user);
                     }
                     return Mono.empty();
@@ -149,13 +166,31 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
                 .then(businessEventPublisher.publishUserLoginEvent(authUser.getSource()));
     }
 
-    private Mono<User> updateOrCreateUser(AuthUser authUser) {
-        return findByAuthUser(authUser)
-                .flatMap(findByAuthUser -> {
-                    if (findByAuthUser.userExist()) {
-                        User user = findByAuthUser.user();
+    private Mono<User> updateOrCreateUser(AuthUser authUser, boolean linkExistingUser) {
+
+        if(linkExistingUser) {
+            return sessionUserService.getVisitor()
+                    .flatMap(user -> userService.addNewConnectionAndReturnUser(user.getId(), authUser.toAuthConnection()));
+        }
+
+        return findByAuthUserSourceAndRawId(authUser).zipWith(findByAuthUserRawId(authUser))
+                .flatMap(tuple -> {
+
+                    FindByAuthUser findByAuthUserFirst = tuple.getT1();
+                    FindByAuthUser findByAuthUserSecond = tuple.getT2();
+
+                    // If the user is found for the same auth source and id, just update the connection
+                    if (findByAuthUserFirst.userExist()) {
+                        User user = findByAuthUserFirst.user();
                         updateConnection(authUser, user);
                         return userService.update(user.getId(), user);
+                    }
+
+                    //If the user connection is not found with login id, but the user is
+                    // found for the same id in some different connection, then just add a new connection to the user
+                    if(findByAuthUserSecond.userExist()) {
+                        User user = findByAuthUserSecond.user();
+                        return userService.addNewConnectionAndReturnUser(user.getId(), authUser.toAuthConnection());
                     }
 
                     // if the user is logging/registering via OAuth provider for the first time,
@@ -178,8 +213,14 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
                 });
     }
 
-    protected Mono<FindByAuthUser> findByAuthUser(AuthUser authUser) {
-        return userService.findByAuthUser(authUser)
+    protected Mono<FindByAuthUser> findByAuthUserSourceAndRawId(AuthUser authUser) {
+        return userService.findByAuthUserSourceAndRawId(authUser)
+                .map(user -> new FindByAuthUser(true, user))
+                .defaultIfEmpty(new FindByAuthUser(false, null));
+    }
+
+    protected Mono<FindByAuthUser> findByAuthUserRawId(AuthUser authUser) {
+        return userService.findByAuthUserRawId(authUser)
                 .map(user -> new FindByAuthUser(true, user))
                 .defaultIfEmpty(new FindByAuthUser(false, null));
     }
@@ -201,6 +242,8 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
         oldConnection.setAuthConnectionAuthToken(
                 Optional.ofNullable(authUser.getAuthToken()).map(ConnectionAuthToken::of).orElse(null));
         oldConnection.setRawUserInfo(authUser.getRawUserInfo());
+
+        user.setActiveAuthId(oldConnection.getAuthId());
     }
 
     @SuppressWarnings("OptionalGetWithoutIsPresent")
@@ -239,12 +282,12 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
     }
 
     @Override
-    public Mono<Boolean> disableAuthConfig(String authId) {
+    public Mono<Boolean> disableAuthConfig(String authId, boolean delete) {
         return checkIfAdmin()
                 .then(checkIfOnlyEffectiveCurrentUserConnections(authId))
                 .then(sessionUserService.getVisitorOrgMemberCache())
                 .flatMap(orgMember -> organizationService.getById(orgMember.getOrgId()))
-                .doOnNext(organization -> disableAuthConfig(organization, authId))
+                .doOnNext(organization -> disableAuthConfig(organization, authId, delete))
                 .flatMap(organization -> organizationService.update(organization.getId(), organization))
                 .delayUntil(result -> {
                     if (result) {
@@ -259,6 +302,51 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
         return checkIfAdmin().
                 then(sessionUserService.getVisitorOrgMemberCache())
                 .flatMapMany(orgMember -> authenticationService.findAllAuthConfigs(orgMember.getOrgId(),false));
+    }
+
+    @Override
+    public Mono<APIKeyVO> createAPIKey(APIKeyRequest apiKeyRequest) {
+        return sessionUserService.getVisitor()
+                .map(user -> {
+                    String token = jwtUtils.createToken(user);
+                    APIKey apiKey = new APIKey(apiKeyRequest.getId(), apiKeyRequest.getName(), apiKeyRequest.getDescription(), token);
+                    addAPIKey(user, apiKey);
+                    return Pair.of(APIKey.builder().id(apiKey.getId()).token(token).build(), user);
+                })
+                .flatMap(pair -> userService.update(pair.getRight().getId(), pair.getRight()).thenReturn(pair.getKey()))
+                .map(APIKeyVO::from);
+    }
+
+    private void addAPIKey(User user, APIKey newApiKey) {
+        Map<String, APIKey> apiKeyMap = user.getApiKeysList()
+                .stream()
+                .collect(Collectors.toMap(APIKey::getId, Function.identity()));
+        apiKeyMap.put(newApiKey.getId(), newApiKey);
+        user.setApiKeysList(new ArrayList<>(apiKeyMap.values()));
+    }
+
+    @Override
+    public Mono<Void> deleteAPIKey(String apiKeyId) {
+        return sessionUserService.getVisitor()
+                .doOnNext(user -> deleteAPIKey(user, apiKeyId))
+                .flatMap(user -> userService.update(user.getId(), user))
+                .then();
+    }
+
+    private void deleteAPIKey(User user, String apiKeyId) {
+        List<APIKey> apiKeys = Optional.of(user)
+                .map(User::getApiKeysList)
+                .orElse(Collections.emptyList());
+        apiKeys.removeIf(apiKey -> Objects.equals(apiKey.getId(), apiKeyId));
+        user.setApiKeysList(apiKeys);
+    }
+
+    @Override
+    public Flux<APIKey> findAPIKeys() {
+        return sessionUserService.getVisitor()
+                .flatMapIterable(user ->
+                        new ArrayList<>(user.getApiKeysList())
+                );
     }
 
 
@@ -309,13 +397,28 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
                 .then();
     }
 
-    private void disableAuthConfig(Organization organization, String authId) {
-        Optional.of(organization)
-                .map(Organization::getAuthConfigs)
-                .orElse(Collections.emptyList())
-                .stream()
-                .filter(abstractAuthConfig -> Objects.equals(abstractAuthConfig.getId(), authId))
-                .forEach(abstractAuthConfig -> abstractAuthConfig.setEnable(false));
+    private void disableAuthConfig(Organization organization, String authId, boolean delete) {
+
+        Predicate<AbstractAuthConfig> authConfigPredicate = abstractAuthConfig -> Objects.equals(abstractAuthConfig.getId(), authId);
+
+        if(delete) {
+            List<AbstractAuthConfig> abstractAuthConfigs = Optional.of(organization)
+                    .map(Organization::getAuthConfigs)
+                    .orElse(Collections.emptyList());
+
+            abstractAuthConfigs.removeIf(authConfigPredicate);
+
+            organization.getOrganizationDomain().setConfigs(abstractAuthConfigs);
+
+        } else {
+            Optional.of(organization)
+                    .map(Organization::getAuthConfigs)
+                    .orElse(Collections.emptyList()).stream()
+                    .filter(authConfigPredicate)
+                    .forEach(abstractAuthConfig -> {
+                        abstractAuthConfig.setEnable(false);
+                    });
+        }
     }
 
     /**

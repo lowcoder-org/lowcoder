@@ -77,7 +77,7 @@ const FolderCountLabel = styled.span`
   color: #b8b9bf;
 `;
 
-const FolderNameWrapper = styled.div<{ selected: boolean }>`
+const FolderNameWrapper = styled.div<{ $selected: boolean }>`
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -86,7 +86,7 @@ const FolderNameWrapper = styled.div<{ selected: boolean }>`
   height: 100%;
 
   ${(props) => {
-    if (props.selected) {
+    if (props.$selected) {
       return css`
         font-weight: 500;
 
@@ -101,7 +101,7 @@ const FolderNameWrapper = styled.div<{ selected: boolean }>`
     line-height: 16px;
   }
 
-  :hover {
+  &:hover {
     svg {
       display: inline-block;
     }
@@ -133,9 +133,9 @@ const FolderName = (props: { id: string; name: string }) => {
   );
 };
 
-const MoreFoldersWrapper = styled.div<{ selected: boolean }>`
+const MoreFoldersWrapper = styled.div<{ $selected: boolean }>`
   ${(props) => {
-    if (props.selected) {
+    if (props.$selected) {
       return css`
         font-weight: 500;
       `;
@@ -143,12 +143,12 @@ const MoreFoldersWrapper = styled.div<{ selected: boolean }>`
   }}
 `;
 
-const MoreFoldersIcon = styled(PointIcon)<{ selected: boolean }>`
+const MoreFoldersIcon = styled(PointIcon)<{ $selected: boolean }>`
   cursor: pointer;
   flex-shrink: 0;
 
   g {
-    fill: ${(props) => (props.selected ? "#4965f2" : "#8b8fa3")};
+    fill: ${(props) => (props.$selected ? "#4965f2" : "#8b8fa3")};
   }
 `;
 
@@ -161,7 +161,7 @@ const PopoverIcon = styled(PointIcon)`
     fill: #8b8fa3;
   }
 
-  :hover {
+  &:hover {
     background-color: #e1e3eb;
     border-radius: 4px;
     cursor: pointer;
@@ -183,7 +183,7 @@ const InviteUser = styled.div`
   cursor: pointer;
   width: 219px;
 
-  :hover {
+  &:hover {
     color: #315efb;
 
     svg g g {
@@ -202,7 +202,7 @@ const CreateFolderIcon = styled.div`
   justify-content: center;
   border-radius: 4px;
 
-  :hover {
+  &:hover {
     g {
       stroke: #315efb;
     }
@@ -291,8 +291,8 @@ export default function ApplicationHome() {
       const path = FOLDER_URL_PREFIX + `/${folder.folderId}`;
       return {
         onSelected: (_, currentPath) => currentPath === path,
-        text: (props: { selected: boolean }) => (
-          <FolderNameWrapper selected={props.selected}>
+        text: (props: { selected?: boolean }) => (
+          <FolderNameWrapper $selected={Boolean(props.selected)}>
             <FolderName name={folder.name} id={folder.folderId} />
           </FolderNameWrapper>
         ),
@@ -309,8 +309,8 @@ export default function ApplicationHome() {
     folderItems = [
       ...folderItems,
       {
-        text: (props: { selected: boolean }) => (
-          <MoreFoldersWrapper selected={props.selected}>{trans("more")}</MoreFoldersWrapper>
+        text: (props: { selected?: boolean }) => (
+          <MoreFoldersWrapper $selected={Boolean(props.selected)}>{trans("more")}</MoreFoldersWrapper>
         ),
         routePath: FOLDERS_URL,
         routeComp: RootFolderListView,

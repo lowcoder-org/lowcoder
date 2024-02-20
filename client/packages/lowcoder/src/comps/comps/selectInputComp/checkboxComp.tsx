@@ -1,4 +1,4 @@
-import { Checkbox } from "antd";
+import { default as AntdCheckboxGroup } from "antd/es/checkbox/Group";
 import { SelectInputOptionControl } from "comps/controls/optionsControl";
 import { BoolCodeControl } from "../../controls/codeControl";
 import { arrayStringExposingStateControl } from "../../controls/codeStateControl";
@@ -73,7 +73,7 @@ export const getStyle = (style: CheckboxStyleType) => {
   `;
 };
 
-const CheckboxGroup = styled(Checkbox.Group)<{
+const CheckboxGroup = styled(AntdCheckboxGroup)<{
   $style: CheckboxStyleType;
   $layout: ValueFromOption<typeof RadioLayoutOptions>;
 }>`
@@ -102,7 +102,8 @@ const CheckboxGroup = styled(Checkbox.Group)<{
 
 const CheckboxBasicComp = (function () {
   const childrenMap = {
-    value: arrayStringExposingStateControl("value", ["1"]),
+    defaultValue: arrayStringExposingStateControl("defaultValue"),
+    value: arrayStringExposingStateControl("value"),
     label: LabelControl,
     disabled: BoolCodeControl,
     onEvent: ChangeEventHandlerControl,
@@ -115,7 +116,10 @@ const CheckboxBasicComp = (function () {
     ...formDataChildren,
   };
   return new UICompBuilder(childrenMap, (props) => {
-    const [validateState, handleValidate] = useSelectInputValidate(props);
+    const [
+      validateState,
+      handleChange,
+    ] = useSelectInputValidate(props);
     return props.label({
       required: props.required,
       style: props.style,
@@ -134,9 +138,7 @@ const CheckboxBasicComp = (function () {
               disabled: option.disabled,
             }))}
           onChange={(values) => {
-            handleValidate(values as string[]);
-            props.value.onChange(values as string[]);
-            props.onEvent("change");
+            handleChange(values as string[]);
           }}
         />
       ),

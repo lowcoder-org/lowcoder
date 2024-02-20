@@ -11,6 +11,9 @@ import { NameConfig, NameConfigHidden, withExposingConfigs } from "../generators
 import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 
+import { useContext } from "react";
+import { EditorContext } from "comps/editorState";
+
 const getStyle = (style: FileViewerStyleType) => {
   return css`
     width: ${widthCalculator(style.margin)};	
@@ -20,7 +23,7 @@ const getStyle = (style: FileViewerStyleType) => {
 
     overflow: hidden;
     background-color: ${style.background};
-    border: 1px solid ${style.border};
+    border: ${(props) => (style.borderWidth ? style.borderWidth : "1px")} solid ${style.border};
     border-radius: calc(min(${style.radius}, 20px));
   `;
 };
@@ -78,14 +81,22 @@ let FileViewerBasicComp = (function () {
             {children.src.propertyView({
               label: trans("fileViewer.src"),
               tooltip: (
-                <span style={{ wordBreak: "break-all" }}>{trans("fileViewer.srcTooltip")}</span>
+                <span>{trans("fileViewer.srcTooltip")}</span>
               ),
             })}
           </Section>
 
-          <Section name={sectionNames.layout}>{hiddenPropertyView(children)}</Section>
+          {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+            <Section name={sectionNames.interaction}>
+              {hiddenPropertyView(children)}
+            </Section>
+          )}
 
-          <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
+          {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+            <Section name={sectionNames.style}>
+              {children.style.getPropertyView()}
+            </Section>
+          )}
         </>
       );
     })

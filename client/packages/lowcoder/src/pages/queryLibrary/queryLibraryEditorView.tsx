@@ -33,7 +33,7 @@ const HeaderLeft = styled.div`
     font-weight: 500;
     margin-left: -8px;
 
-    :hover {
+    &:hover {
       background-color: #f5f5f6;
     }
   }
@@ -47,7 +47,7 @@ const HeaderLeft = styled.div`
     border: 1px solid #3377ff;
     margin-left: -8px;
 
-    :focus {
+    &:focus {
       border-color: #3377ff;
       box-shadow: 0 0 0 2px #d6e4ff;
     }

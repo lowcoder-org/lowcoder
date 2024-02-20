@@ -17,6 +17,7 @@ export const Layers = {
   modal: 950,
   //
   drawer: 950,
+  meeting: 950,
   tabBar: 800,
   //
   historySnapshotPanel: 555,
@@ -29,7 +30,7 @@ export const Layers = {
   // comp selection wrapper
   dragSelectBox: 399,
   //
-  compHover: 300,
+  compHover: 100,
   //
   compSelected: 200,
   //

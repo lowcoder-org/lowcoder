@@ -1,4 +1,4 @@
-import { Button } from "antd";
+import { default as Button } from "antd/es/button";
 import { DeleteWrapper } from "pages/setting/idSource/styledComponents";
 import { trans } from "i18n";
 import { useState } from "react";
@@ -6,7 +6,7 @@ import { validateResponse } from "api/apiUtils";
 import IdSourceApi from "api/idSourceApi";
 import { DangerIcon, CustomModal } from "lowcoder-design";
 import history from "util/history";
-import { IDSOURCE_SETTING } from "constants/routesURL";
+import { OAUTH_PROVIDER_SETTING } from "constants/routesURL";
 import { messageInstance } from "lowcoder-design";
 
 export const DeleteConfig = (props: { id: string }) => {
@@ -21,7 +21,7 @@ export const DeleteConfig = (props: { id: string }) => {
           .then((resp) => {
             if (validateResponse(resp)) {
               messageInstance.success(trans("idSource.disableSuccess"), 0.8, () =>
-                history.push(IDSOURCE_SETTING)
+                history.push(OAUTH_PROVIDER_SETTING)
               );
             }
           })

@@ -1,11 +1,12 @@
-import { Divider, Select } from "antd";
+import { default as Divider } from "antd/es/divider";
+import { OptionProps, default as Select } from "antd/es/select";
 import { useSelector } from "react-redux";
 import React, { useContext, useMemo, useState } from "react";
 import { DataSourceTypeInfo } from "api/datasourceApi";
 import styled from "styled-components";
 import { CustomSelect, EllipsisTextCss } from "lowcoder-design";
 import { DatasourceModal } from "pages/datasource/datasourceModal";
-import { InputStatus } from "antd/lib/_util/statusUtils";
+import { InputStatus } from "antd/es/_util/statusUtils";
 import { getDataSource, getDataSourceTypes } from "redux/selectors/datasourceSelectors";
 import { getUser } from "redux/selectors/usersSelectors";
 import { getBottomResIcon } from "@lowcoder-ee/util/bottomResUtils";
@@ -24,6 +25,8 @@ import {
 import { QueryContext } from "util/context/QueryContext";
 import { messageInstance } from "lowcoder-design";
 
+const { Option } = Select;
+
 const SelectOptionLabel = styled.div`
   font-size: 13px;
   display: inline-block;
@@ -36,7 +39,7 @@ const SelectOptionContains = styled.div`
   align-items: center;
   width: 99%;
 `;
-const SelectOption = styled(Select.Option)`
+const SelectOption = styled(Option)`
   display: flex;
   justify-content: space-between;
 
@@ -89,6 +92,11 @@ const LibraryQueryOptionValue: ResourceOptionValue = {
 const QuickRestAPIValue: ResourceOptionValue = {
   id: QUICK_REST_API_ID,
   type: "restApi",
+};
+
+const QuickStreamAPIValue: ResourceOptionValue = {
+  id: "",
+  type: "streamApi",
 };
 
 const QuickGraphqlValue: ResourceOptionValue = {
@@ -251,6 +259,17 @@ export const ResourceDropdown = (props: ResourceDropdownProps) => {
           <SelectOptionContains>
             {getBottomResIcon("restApi")}
             <SelectOptionLabel>{trans("query.quickRestAPI")} </SelectOptionLabel>
+          </SelectOptionContains>
+        </SelectOption>
+
+        <SelectOption
+          key={JSON.stringify(QuickStreamAPIValue)}
+          label={trans("query.quickStreamAPI")}
+          value={JSON.stringify(QuickStreamAPIValue)}
+        >
+          <SelectOptionContains>
+            {getBottomResIcon("restApi")}
+            <SelectOptionLabel>{trans("query.quickStreamAPI")} </SelectOptionLabel>
           </SelectOptionContains>
         </SelectOption>
 

@@ -117,7 +117,7 @@ return queryByName.run().then(
 
 ### Pass in parameters
 
-You can pass parametes in the `run()` method to decouple query implementation from its parameters.
+You can pass parameters in the `run()` method to decouple query implementation from its parameters.
 
 ```javascript
 query.run({
@@ -188,9 +188,9 @@ function isMultiple(num1, num2) {
       return num1 % num2 === 0;
    }
    
-// Call the moment library to return the current date
+// Call the day.js library to return the current date
 function getCurrentDate() {
-      return moment().format("YYYY-MM-DD");
+      return dayjs().format("YYYY-MM-DD");
 }
 ```
 

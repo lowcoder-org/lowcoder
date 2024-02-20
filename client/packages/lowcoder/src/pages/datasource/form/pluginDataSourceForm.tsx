@@ -35,7 +35,9 @@ import { trans } from "i18n";
 import { Datasource } from "constants/datasourceConstants";
 import { DatasourceApi } from "api/datasourceApi";
 import { FieldData } from "rc-field-form/es/interface";
-import { Alert, Form, Input } from "antd";
+import { default as Alert } from "antd/es/alert";
+import { default as Form } from "antd/es/form";
+import { default as Input } from "antd/es/input";
 
 const TooltipWrapper = styled.div`
   .markdown-body {
@@ -211,14 +213,14 @@ export const PluginDataSourceForm = (props: DatasourceFormProps) => {
       <Form.Item noStyle name="dynamicParamsDef">
         <Input hidden />
       </Form.Item>
-      <FormSection size={props.size}>
+      <FormSection $size={props.size}>
         <DatasourceNameFormInputItem
           placeholder="My DataSource 1"
           initialValue={datasource?.name}
         />
       </FormSection>
 
-      <FormSection size={props.size}>
+      <FormSection $size={props.size}>
         {hasGeneralSettings && <GeneralSettingFormSectionLabel />}
         {(dataSourceConfig.params || []).map((field) => {
           return (

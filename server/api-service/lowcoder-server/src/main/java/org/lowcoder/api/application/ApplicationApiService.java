@@ -15,7 +15,10 @@ import static org.lowcoder.sdk.util.ExceptionUtils.deferredError;
 import static org.lowcoder.sdk.util.ExceptionUtils.ofError;
 
 import java.time.Instant;
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
@@ -24,7 +27,7 @@ import javax.annotation.Nullable;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.SetUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.lowcoder.api.application.ApplicationController.CreateApplicationRequest;
+import org.lowcoder.api.application.ApplicationEndpoints.CreateApplicationRequest;
 import org.lowcoder.api.application.view.ApplicationInfoView;
 import org.lowcoder.api.application.view.ApplicationPermissionView;
 import org.lowcoder.api.application.view.ApplicationView;
@@ -138,7 +141,7 @@ public class ApplicationApiService {
                 createApplicationRequest.applicationType(),
                 NORMAL,
                 createApplicationRequest.publishedApplicationDSL(),
-                false, createApplicationRequest.editingApplicationDSL());
+                false, false, false, createApplicationRequest.editingApplicationDSL());
 
         if (StringUtils.isBlank(application.getOrganizationId())) {
             return deferredError(INVALID_PARAMETER, "ORG_ID_EMPTY");
@@ -245,6 +248,19 @@ public class ApplicationApiService {
         return Mono.error(new BizException(BizError.UNSUPPORTED_OPERATION, "BAD_REQUEST"));
     }
 
+    private Mono<Void> checkApplicationViewRequest(Application application, ApplicationEndpoints.ApplicationRequestType expected) {
+        if (expected == ApplicationEndpoints.ApplicationRequestType.PUBLIC_TO_ALL && application.isPublicToAll()) {
+            return Mono.empty();
+        }
+        if (expected == ApplicationEndpoints.ApplicationRequestType.PUBLIC_TO_MARKETPLACE && application.isPublicToMarketplace()) {
+            return Mono.empty();
+        }
+        if (expected == ApplicationEndpoints.ApplicationRequestType.AGENCY_PROFILE && application.agencyProfile()) {
+            return Mono.empty();
+        }
+        return Mono.error(new BizException(BizError.UNSUPPORTED_OPERATION, "BAD_REQUEST"));
+    }
+
     private Mono<Boolean> updateApplicationStatus(String applicationId, ApplicationStatus applicationStatus) {
         return checkCurrentUserApplicationPermission(applicationId, MANAGE_APPLICATIONS)
                 .then(Mono.defer(() -> {
@@ -277,10 +293,11 @@ public class ApplicationApiService {
                 });
     }
 
-    public Mono<ApplicationView> getPublishedApplication(String applicationId) {
+    public Mono<ApplicationView> getPublishedApplication(String applicationId, ApplicationEndpoints.ApplicationRequestType requestType) {
         return checkPermissionWithReadableErrorMsg(applicationId, READ_APPLICATIONS)
                 .zipWhen(permission -> applicationService.findById(applicationId)
-                        .delayUntil(application -> checkApplicationStatus(application, NORMAL)))
+                        .delayUntil(application -> checkApplicationStatus(application, NORMAL))
+                        .delayUntil(application -> checkApplicationViewRequest(application, requestType)))
                 .zipWhen(tuple -> applicationService.getAllDependentModulesFromApplication(tuple.getT2(), true), TupleUtils::merge)
                 .zipWhen(tuple -> organizationService.getOrgCommonSettings(tuple.getT2().getOrganizationId()), TupleUtils::merge)
                 .zipWith(getTemplateIdFromApplicationId(applicationId), TupleUtils::merge)
@@ -426,6 +443,7 @@ public class ApplicationApiService {
                                         .creatorId(creatorId)
                                         .orgName(organization.getName())
                                         .publicToAll(application.isPublicToAll())
+                                        .publicToMarketplace(application.isPublicToMarketplace())
                                         .build();
                             });
                 });
@@ -482,6 +500,7 @@ public class ApplicationApiService {
                 .applicationStatus(application.getApplicationStatus())
                 .folderId(folderId)
                 .publicToAll(application.isPublicToAll())
+                .publicToMarketplace(application.isPublicToMarketplace())
                 .build();
     }
 
@@ -493,6 +512,18 @@ public class ApplicationApiService {
         return checkCurrentUserApplicationPermission(applicationId, ResourceAction.SET_APPLICATIONS_PUBLIC)
                 .then(checkApplicationStatus(applicationId, NORMAL))
                 .then(applicationService.setApplicationPublicToAll(applicationId, publicToAll));
+    }
+
+    public Mono<Boolean> setApplicationPublicToMarketplace(String applicationId, boolean publicToMarketplace) {
+        return checkCurrentUserApplicationPermission(applicationId, ResourceAction.SET_APPLICATIONS_PUBLIC_TO_MARKETPLACE)
+                .then(checkApplicationStatus(applicationId, NORMAL))
+                .then(applicationService.setApplicationPublicToMarketplace(applicationId, publicToMarketplace));
+    }
+
+    public Mono<Boolean> setApplicationAsAgencyProfile(String applicationId, boolean agencyProfile) {
+        return checkCurrentUserApplicationPermission(applicationId, ResourceAction.SET_APPLICATIONS_AS_AGENCY_PROFILE)
+                .then(checkApplicationStatus(applicationId, NORMAL))
+                .then(applicationService.setApplicationAsAgencyProfile(applicationId, agencyProfile));
     }
 
     private Map<String, Object> sanitizeDsl(Map<String, Object> applicationDsl) {

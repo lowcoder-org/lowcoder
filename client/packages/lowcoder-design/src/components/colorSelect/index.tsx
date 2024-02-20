@@ -1,5 +1,5 @@
 import { RgbaStringColorPicker } from "react-colorful";
-import { Popover } from "antd";
+import { default as Popover } from "antd/es/popover";
 import { ActionType } from '@rc-component/trigger/lib/interface';
 import {
   alphaOfRgba,
@@ -31,7 +31,6 @@ export const ColorSelect = (props: ColorSelectProps) => {
     }, 200),
     [dispatch]
   );
-
   return (
     <Popover
       trigger={trigger}
@@ -45,7 +44,7 @@ export const ColorSelect = (props: ColorSelectProps) => {
           <div style={{ position: "relative" }}>
             <RgbaStringColorPicker color={pickerColor.current} onChange={throttleChange} />
             <AlphaDiv color={color?.substring(0, 7)}>
-              <BackDiv color={alphaOfRgba(toRGBA(color))}></BackDiv>
+              <BackDiv $color={alphaOfRgba(toRGBA(color))}></BackDiv>
             </AlphaDiv>
           </div>
           <ConstantDiv>
@@ -65,8 +64,8 @@ export const ColorSelect = (props: ColorSelectProps) => {
         </PopoverContainer>
       }
     >
-      <ColorBlock color={color?.substring(0, 7)}>
-        <BackDiv color={alphaOfRgba(toRGBA(color))}></BackDiv>
+      <ColorBlock $color={color?.substring(0, 7)}>
+        <BackDiv $color={alphaOfRgba(toRGBA(color))}></BackDiv>
       </ColorBlock>
     </Popover>
   );
@@ -80,7 +79,7 @@ const ConstantDiv = styled.div`
   flex-wrap: wrap;
 `;
 const ConstantBlock = styled.div.attrs<{ color: string }>((props) => ({
-  tabIndex: "0",
+  tabIndex: 0,
   style: {
     backgroundColor: props.color,
   },
@@ -159,9 +158,9 @@ const AlphaDiv = styled.div.attrs((props) => ({
   background-clip: content-box;
 `;
 
-const BackDiv = styled.div.attrs<{ color: string }>((props: { color: string }) => ({
+const BackDiv = styled.div.attrs<{ $color: string }>((props: { $color: string }) => ({
   style: {
-    opacity: 1 - parseFloat(props.color ? props.color : "1"),
+    opacity: 1 - parseFloat(props.$color ? props.$color : "1"),
   },
 }))`
   height: 100%;
@@ -169,8 +168,8 @@ const BackDiv = styled.div.attrs<{ color: string }>((props: { color: string }) =
   background: url("data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyB3aWR0aD0iMjRweCIgaGVpZ2h0PSIyNHB4IiB2aWV3Qm94PSIwIDAgMjQgMjQiIHZlcnNpb249IjEuMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayI+CiAgICA8ZGVmcz4KICAgICAgICA8cGF0dGVybiBpZD0icGF0dGVybi0xIiBwYXR0ZXJuVW5pdHM9Im9iamVjdEJvdW5kaW5nQm94IiB4PSIwJSIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSI+CiAgICAgICAgICAgIDx1c2UgeGxpbms6aHJlZj0iI2ltYWdlLTIiIHRyYW5zZm9ybT0ic2NhbGUoMC41LDAuNSkiPjwvdXNlPgogICAgICAgIDwvcGF0dGVybj4KICAgICAgICA8aW1hZ2UgaWQ9ImltYWdlLTIiIHdpZHRoPSI0OCIgaGVpZ2h0PSI0OCIgeGxpbms6aHJlZj0iZGF0YTppbWFnZS9wbmc7YmFzZTY0LGlWQk9SdzBLR2dvQUFBQU5TVWhFVWdBQUFEQUFBQUF3Q0FZQUFBQlhBdm1IQUFBQUFYTlNSMElBcnM0YzZRQUFBTE5KUkVGVWFBWHRtRUVLd3pBTUJPUCt5ZjkvZ0IvVjB1TWV4WkJ0QTVPYndKTGlHUXVNMTk3N2ZRMitjODRhTEwvdXJ2K2EvTXcvcm5VRHY3YWlBUTFBQWg0aENCQ25hd0FqaEFVZWIyQjByL25DdXZ0dU02My9lQU51QU00Z1R0Y0FSZ2dMYUFBQ3hPa2F3QWhoQVExQWdEaDlUZThldmd0aDVsbkFHVWdlL1VnRGZlYlpVUVBKb3g5cG9NODhPMm9nZWZRajM0WDZ6TE9qTTVBOCtwRUcrc3l6b3dhU1J6L1NRSjk1ZHRSQTh1aEhIeHRKRzVsckREVTlBQUFBQUVsRlRrU3VRbUNDIj48L2ltYWdlPgogICAgPC9kZWZzPgogICAgPGcgaWQ9Iumhtemdoi0xIiBzdHJva2U9Im5vbmUiIHN0cm9rZS13aWR0aD0iMSIgZmlsbD0ibm9uZSIgZmlsbC1ydWxlPSJldmVub2RkIj4KICAgICAgICA8ZyBpZD0i572R5qC85bqV6ImyIj4KICAgICAgICAgICAgPHBvbHlnb24gaWQ9Iue7hOS7ti3ovpPlhaXmoYYiIGZpbGw9IiNGRkZGRkYiIHBvaW50cz0iLTkuMjgyNTc3MzdlLTE1IDAgMjQgMCAyNCAyNCAtOS4yODI1NzczN2UtMTUgMjQiPjwvcG9seWdvbj4KICAgICAgICAgICAgPHBvbHlnb24gaWQ9Iue7hOS7ti3ovpPlhaXmoYYiIGZpbGwtb3BhY2l0eT0iMC4yIiBmaWxsPSJ1cmwoI3BhdHRlcm4tMSkiIHBvaW50cz0iLTkuMjgyNTc3MzdlLTE1IDAgMjQgMCAyNCAyNCAtOS4yODI1NzczN2UtMTUgMjQiPjwvcG9seWdvbj4KICAgICAgICA8L2c+CiAgICA8L2c+Cjwvc3ZnPg==");
 `;
 // main block
-const ColorBlock = styled.div<{ color: string }>`
-  background-color: ${(props) => (isValidColor(props.color) ? props.color : "#FFFFFF")};
+const ColorBlock = styled.div<{ $color: string }>`
+  background-color: ${(props) => (isValidColor(props.$color) ? props.$color : "#FFFFFF")};
   border: 1px solid rgba(0, 0, 0, 0.1);
   border-radius: 4px;
   height: 24px;

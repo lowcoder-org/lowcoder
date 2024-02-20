@@ -3,7 +3,6 @@ import {
   BASE_URL,
   CAS_AUTH_REDIRECT,
   OAUTH_REDIRECT,
-  USER_INFO_COMPLETION,
 } from "constants/routesURL";
 import { AxiosPromise, AxiosResponse } from "axios";
 import { ApiResponse } from "api/apiResponses";
@@ -16,16 +15,19 @@ import { createContext, useState } from "react";
 import { SystemConfig } from "constants/configConstants";
 import {
   AuthInviteInfo,
+  AuthSearchParamsType,
   AuthSessionStoreParams,
   ThirdPartyAuthGoal,
   ThirdPartyAuthType,
   ThirdPartyConfigType,
 } from "constants/authConstants";
+import history from "util/history";
 
 export const AuthContext = createContext<{
-  systemConfig: SystemConfig;
+  systemConfig?: SystemConfig;
   inviteInfo?: AuthInviteInfo;
   thirdPartyAuthError?: boolean;
+  fetchUserAfterAuthSuccess?: () => void;
 }>(undefined as any);
 
 export const getSafeAuthRedirectURL = (redirectUrl: string | null) => {
@@ -39,7 +41,8 @@ export const getSafeAuthRedirectURL = (redirectUrl: string | null) => {
 export function useAuthSubmit(
   requestFunc: () => AxiosPromise<ApiResponse>,
   infoCompleteCheck: boolean,
-  redirectUrl: string | null
+  redirectUrl: string | null,
+  onAuthSuccess?: () => void,
 ) {
   const [loading, setLoading] = useState(false);
   return {
@@ -47,7 +50,12 @@ export function useAuthSubmit(
     onSubmit: () => {
       setLoading(true);
       requestFunc()
-        .then((resp) => authRespValidate(resp, infoCompleteCheck, redirectUrl))
+        .then((resp) => authRespValidate(
+          resp,
+          infoCompleteCheck,
+          redirectUrl,
+          onAuthSuccess,
+        ))
         .catch((e) => {
           messageInstance.error(e.message);
         })
@@ -66,17 +74,15 @@ export function useAuthSubmit(
 export function authRespValidate(
   resp: AxiosResponse<ApiResponse>,
   infoCompleteCheck: boolean,
-  redirectUrl: string | null
+  redirectUrl: string | null,
+  onAuthSuccess?: () => void
 ) {
   let replaceUrl = redirectUrl || BASE_URL;
-  if (infoCompleteCheck) {
-    // need complete info
-    replaceUrl = redirectUrl
-      ? `${USER_INFO_COMPLETION}?redirectUrl=${redirectUrl}`
-      : USER_INFO_COMPLETION;
-  }
+  const baseUrl = `${window.location.protocol}//${window.location.host}`;
+
   if (doValidResponse(resp)) {
-    window.location.replace(replaceUrl);
+    onAuthSuccess?.();
+    history.replace(replaceUrl.replace(baseUrl, ''));
   } else if (
     resp.data.code === SERVER_ERROR_CODES.EXCEED_MAX_USER_ORG_COUNT ||
     resp.data.code === SERVER_ERROR_CODES.ALREADY_IN_ORGANIZATION
@@ -125,7 +131,8 @@ export const geneAuthStateAndSaveParam = (
   authGoal: ThirdPartyAuthGoal,
   config: ThirdPartyConfigType,
   afterLoginRedirect: string | null,
-  invitationId?: string
+  invitationId?: string,
+  invitedOrganizationId?: string,
 ) => {
   const state = Math.floor(Math.random() * 0xffffffff).toString(16);
   const params: AuthSessionStoreParams = {
@@ -135,6 +142,7 @@ export const geneAuthStateAndSaveParam = (
     afterLoginRedirect: afterLoginRedirect || null,
     sourceType: config.sourceType,
     invitationId: invitationId,
+    invitedOrganizationId: invitedOrganizationId,
     routeLink: config.routeLink,
     name: config.name,
     authId: config.id,
@@ -172,3 +180,21 @@ export const getRedirectUrl = (authType: ThirdPartyAuthType) => {
     `${window.location.origin}${authType === "CAS" ? CAS_AUTH_REDIRECT : OAUTH_REDIRECT}`
   );
 };
+
+const AuthSearchParamStorageKey = "_temp_auth_search_params_";
+
+export const saveAuthSearchParams = (
+  authSearchParams: AuthSearchParamsType
+) => {
+  sessionStorage.setItem(AuthSearchParamStorageKey, JSON.stringify(authSearchParams));
+}
+
+export const loadAuthSearchParams = ():AuthSearchParamsType | null => {
+  const authParams = sessionStorage.getItem(AuthSearchParamStorageKey);
+  if (!authParams) return null;
+  return JSON.parse(authParams);
+}
+
+export const clearAuthSearchParams = () => {
+  sessionStorage.removeItem(AuthSearchParamStorageKey);
+}

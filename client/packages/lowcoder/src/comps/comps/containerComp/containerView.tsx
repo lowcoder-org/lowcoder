@@ -5,6 +5,7 @@ import { hookCompCategory, HookCompType } from "comps/hooks/hookCompTypes";
 import { UICompLayoutInfo, uiCompRegistry, UICompType } from "comps/uiCompRegistry";
 import { genRandomKey } from "comps/utils/idGenerator";
 import { parseCompType } from "comps/utils/remote";
+import { ScrollBar } from "lowcoder-design";
 import {
   DEFAULT_POSITION_PARAMS,
   draggingUtils,
@@ -102,6 +103,7 @@ type ExtraProps = {
   rowCount?: number;
   isRowCountLocked?: boolean;
   autoHeight?: boolean;
+  scrollbars?: boolean;
   minHeight?: string;
   emptyRows?: number;
   extraHeight?: string;
@@ -230,6 +232,14 @@ const onDrop = (
     };
     const key = genRandomKey();
     const layoutItem = Object.values(items)[0];
+    // calculate postion of newly added comp
+    // should have last position in the comps list
+    let itemPos = 0;
+    if (!Object.keys(layout).length) {
+      itemPos = 0;
+    } else {
+      itemPos = Math.max(...Object.values(layout).map(l => l.pos || 0)) + 1;      
+    }
     // log.debug("layout: onDrop. widgetValue: ", widgetValue, " layoutItem: ", layoutItem);
     dispatch(
       wrapActionExtraInfo(
@@ -237,7 +247,12 @@ const onDrop = (
           layout: changeValueAction(
             {
               ...layout,
-              [key]: { ...layoutItem, i: key, placeholder: undefined },
+              [key]: {
+                ...layoutItem,
+                i: key,
+                placeholder: undefined,
+                pos: itemPos,
+              },
             },
             true
           ),
@@ -278,9 +293,9 @@ type ViewPropsWithSelect = ContainerBaseProps & {
   dragSelectedComps?: Set<string>;
 };
 
-const ItemWrapper = styled.div<{ disableInteract?: boolean }>`
+const ItemWrapper = styled.div<{ $disableInteract?: boolean }>`
   height: 100%;
-  pointer-events: ${(props) => (props.disableInteract ? "none" : "unset")};
+  pointer-events: ${(props) => (props.$disableInteract ? "none" : "unset")};
 `;
 
 const GridItemWrapper = React.forwardRef(
@@ -291,7 +306,7 @@ const GridItemWrapper = React.forwardRef(
     const editorState = useContext(EditorContext);
     const { children, ...divProps } = props;
     return (
-      <ItemWrapper ref={ref} disableInteract={editorState.disableInteract} {...divProps}>
+      <ItemWrapper ref={ref} $disableInteract={editorState.disableInteract} {...divProps}>
         {props.children}
       </ItemWrapper>
     );
@@ -318,7 +333,7 @@ export function InnerGrid(props: ViewPropsWithSelect) {
   const defaultGrid =
     useContext(ThemeContext)?.theme?.gridColumns ||
     defaultTheme?.gridColumns ||
-    "24";
+    "12";
   /////////////////////
   const isDroppable =
     useContext(IsDroppable) && (_.isNil(props.isDroppable) || props.isDroppable) && !readOnly;
@@ -356,7 +371,9 @@ export function InnerGrid(props: ViewPropsWithSelect) {
 
   const dispatchPositionParamsTimerRef = useRef(0);
   const onResize = useCallback(
-    (width, height) => {
+    (width?: number, height?: number) => {
+      if(!width || !height) return;
+
       if (width !== positionParams.containerWidth) {
         const newPositionParams: PositionParams = {
           margin: [0, 0],
@@ -389,7 +406,7 @@ export function InnerGrid(props: ViewPropsWithSelect) {
         setRowHeight(nextRowHeight);
       }
     },
-    [
+    [ defaultGrid,
       currentRowCount,
       currentRowHeight,
       isRowCountLocked,
@@ -426,7 +443,10 @@ export function InnerGrid(props: ViewPropsWithSelect) {
   }, [props.items]);
 
   const clickItem = useCallback(
-    (e, name) => selectItem(e, name, canAddSelect, containerSelectNames, setSelectedNames),
+    (
+      e: React.MouseEvent<HTMLDivElement,
+      globalThis.MouseEvent>, name: string
+    ) => selectItem(e, name, canAddSelect, containerSelectNames, setSelectedNames),
     [canAddSelect, containerSelectNames, setSelectedNames]
   );
 
@@ -458,6 +478,7 @@ export function InnerGrid(props: ViewPropsWithSelect) {
       layout={props.layout}
       extraLayout={extraLayout}
       onDropDragOver={(e) => {
+        
         const compType = draggingUtils.getData<UICompType>("compType");
         const compLayout = draggingUtils.getData<UICompLayoutInfo>("compLayout");
         if (compType) {

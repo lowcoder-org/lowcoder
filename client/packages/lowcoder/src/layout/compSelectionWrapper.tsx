@@ -24,32 +24,32 @@ export type DragHandleName = "w" | "e" | "nw" | "ne" | "sw" | "se";
 type NamePos = "top" | "bottom" | "bottomInside";
 
 const NameDiv = styled.div<{
-  isSelected: boolean;
-  position: NamePos;
-  compType: UICompType;
-  isDraggable: boolean;
+  $isSelected: boolean;
+  $position: NamePos;
+  $compType: UICompType;
+  $isDraggable: boolean;
 }>`
   background: ${(props) => {
-    if (props.isSelected) {
-      return props.compType === "module" ? ModulePrimaryColor : PrimaryColor;
+    if (props.$isSelected) {
+      return props.$compType === "module" ? ModulePrimaryColor : PrimaryColor;
     }
     return "#B8B9BF";
   }};
-  border-radius: ${(props) => (props.position === "top" ? "2px 2px 0 0" : "0 0 2px 2px")};
+  border-radius: ${(props) => (props.$position === "top" ? "2px 2px 0 0" : "0 0 2px 2px")};
   font-weight: 500;
   color: #ffffff;
   position: absolute;
   font-size: 12px;
   line-height: 16px;
-  top: ${(props) => (props.position === "top" ? "-16px" : "unset")};
+  top: ${(props) => (props.$position === "top" ? "-16px" : "unset")};
   bottom: ${(props) =>
-    props.position === "top" ? "unset" : props.position === "bottom" ? "-16px" : "0px"};
+    props.$position === "top" ? "unset" : props.$position === "bottom" ? "-16px" : "0px"};
   height: 16px;
   right: 0;
   padding-right: 5px;
-  padding-left: ${(props) => (props.isDraggable ? 0 : "5px")};
+  padding-left: ${(props) => (props.$isDraggable ? 0 : "5px")};
   display: flex;
-  cursor: ${(props) => (props.isDraggable ? "grab" : "pointer")};
+  cursor: ${(props) => (props.$isDraggable ? "grab" : "pointer")};
   z-index: 10;
 `;
 const NameLabel = styled.span`
@@ -97,12 +97,12 @@ function getLineStyle(
 
 // padding: ${props => props.hover || props.showDashline ? 3 : 4}px;
 const SelectableDiv = styled.div<{
-  hover: boolean;
-  showDashLine: boolean;
-  isSelected: boolean;
-  compType: UICompType;
-  isHidden: boolean;
-  needResizeDetector: boolean;
+  $hover?: boolean;
+  $showDashLine: boolean;
+  $isSelected: boolean;
+  $compType: UICompType;
+  $isHidden: boolean;
+  $needResizeDetector: boolean;
 }>`
   width: 100%;
   height: 100%;
@@ -110,19 +110,19 @@ const SelectableDiv = styled.div<{
 
   ${(props) =>
     `${getLineStyle(
-      props.hover,
-      props.showDashLine,
-      props.isSelected,
-      props.compType,
-      props.isHidden
+      Boolean(props.$hover),
+      props.$showDashLine,
+      props.$isSelected,
+      props.$compType,
+      props.$isHidden
     )}`}
   & .module-wrapper {
     margin: ${-GRID_ITEM_BORDER_WIDTH}px;
   }
 
   ${(props) =>
-    props.compType === "image" &&
-    props.needResizeDetector &&
+    props.$compType === "image" &&
+    props.$needResizeDetector &&
     `
     display: inline-flex;
     align-items: center;
@@ -293,16 +293,16 @@ export const CompSelectionWrapper = (props: {
         onMouseOver,
         onMouseOut,
         onClick: props.onClick,
-        hover: hover,
-        showDashLine: editorState.showGridLines() || props.hidden,
-        isSelected: props.isSelected,
-        isHidden: props.hidden,
+        $hover: hover || undefined,
+        $showDashLine: editorState.showGridLines() || props.hidden,
+        $isSelected: props.isSelected,
+        $isHidden: props.hidden,
       }
     : {
-        hover: false,
-        showDashLine: false,
-        isSelected: false,
-        isHidden: false,
+        $hover: undefined,
+        $showDashLine: false,
+        $isSelected: false,
+        $isHidden: false,
       };
 
   const zIndex = props.isSelected
@@ -325,16 +325,16 @@ export const CompSelectionWrapper = (props: {
     <div id={props.id} style={{ ...props.style, zIndex }} className={props.className}>
       <SelectableDiv
         {...selectableDivProps}
-        compType={props.compType}
+        $compType={props.compType}
         ref={wrapperRef}
-        needResizeDetector={needResizeDetector}
+        $needResizeDetector={needResizeDetector}
       >
         {props.isSelectable && nameConfig.show && (hover || props.isSelected || props.hidden) && (
           <NameDiv
-            compType={props.compType}
-            isSelected={hover || props.isSelected}
-            position={nameConfig.pos}
-            isDraggable={props.isDraggable}
+            $compType={props.compType}
+            $isSelected={hover || props.isSelected}
+            $position={nameConfig.pos}
+            $isDraggable={props.isDraggable}
             ref={nameDivRef}
           >
             {props.isDraggable && <DragWhiteIcon />}

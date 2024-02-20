@@ -23,21 +23,21 @@ const Content = styled.div`
   overflow: hidden scroll;
   scrollbar-gutter: stable;
   padding-right: 2px;
-  ::-webkit-scrollbar {
+  &::-webkit-scrollbar {
     width: 14px;
   }
-  ::-webkit-scrollbar-thumb {
+  &::-webkit-scrollbar-thumb {
     border: 4px solid transparent;
     background-clip: content-box;
     border-radius: 9999px;
     background-color: rgba(139, 143, 163, 0);
   }
-  :hover {
+  &:hover {
     ::-webkit-scrollbar-thumb {
       background-color: rgba(139, 143, 163, 0.24);
     }
   }
-  ::-webkit-scrollbar-thumb:hover {
+  &::-webkit-scrollbar-thumb:hover {
     background-color: rgba(139, 143, 163, 0.36);
   }
 `;
@@ -60,7 +60,7 @@ const CloseIconWrapper = styled.div`
   cursor: pointer;
   color: #7a7c80;
 
-  :hover svg g line {
+  &:hover svg g line {
     stroke: #ffffff;
   }
 `;
@@ -98,9 +98,9 @@ const ShortcutKey = styled.span`
   align-items: center;
 `;
 
-const ShortcutKeyItem = styled.div<{ autoWidth?: boolean }>`
-  ${(props) => (props.autoWidth ? "min-width" : "width")}: 20px;
-  ${(props) => (props.autoWidth ? "padding: 0 3px;" : "")}
+const ShortcutKeyItem = styled.div<{ $autoWidth?: boolean }>`
+  ${(props) => (props.$autoWidth ? "min-width" : "width")}: 20px;
+  ${(props) => (props.$autoWidth ? "padding: 0 3px;" : "")}
   height: 20px;
   background: #f9f9fa;
   border: 1px solid #d7d9e0;
@@ -167,7 +167,7 @@ export function ShortcutListPopup(props: { setShowShortcutList: (v: boolean) => 
                           {k.alt && <ShortcutKeyItem>⌥</ShortcutKeyItem>}
                           {k.shift && <ShortcutKeyItem>⇧</ShortcutKeyItem>}
                           {k.key && (
-                            <ShortcutKeyItem autoWidth={getKeyItemString(k.key).length > 1}>
+                            <ShortcutKeyItem $autoWidth={getKeyItemString(k.key).length > 1}>
                               {getKeyItemString(k.key)}
                             </ShortcutKeyItem>
                           )}

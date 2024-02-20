@@ -126,6 +126,13 @@ public class OrgMemberServiceImpl implements OrgMemberService {
     }
 
     @Override
+    public Mono<Boolean> doesAtleastOneAdminExist() {
+        return biRelationService.countByRelation(ORG_MEMBER, MemberRole.ADMIN.getValue())
+                .single()
+                .map(count -> count != 0);
+    }
+
+    @Override
     public Mono<Boolean> addMember(String orgId, String userId, MemberRole memberRole) {
         return biRelationService.addBiRelation(ORG_MEMBER, orgId,
                         userId, memberRole.getValue(), OrgMemberState.NORMAL.getValue())

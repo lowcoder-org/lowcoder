@@ -182,7 +182,7 @@ export default function ColorPicker(props: ColorConfigProps) {
       )} 
       {colorKey === "borderRadius" && (
         <div className="config-input">
-          <Radius radius={defaultRadius || "0"}>
+          <Radius $radius={defaultRadius || "0"}>
             <div>
               <div />
             </div>
@@ -197,7 +197,7 @@ export default function ColorPicker(props: ColorConfigProps) {
       )}
       {colorKey === "margin" && (	
         <div className="config-input">	
-          <Margin margin={defaultMargin || "3px"}>	
+          <Margin $margin={defaultMargin || "4px"}>	
             <div>	
               <ExpandIcon title="" />	
             </div>	
@@ -215,7 +215,7 @@ export default function ColorPicker(props: ColorConfigProps) {
       )}	
       {colorKey === "padding" && (	
         <div className="config-input">	
-          <Padding padding={defaultPadding || "3px"}>	
+          <Padding $padding={defaultPadding || "4px"}>	
             <div>	
               <CompressIcon title="" />	
             </div>	
@@ -233,7 +233,7 @@ export default function ColorPicker(props: ColorConfigProps) {
         )}
       {colorKey === "gridColumns" && (
         <div className="config-input">
-          <GridColumns gridColumns={defaultGridColumns || "24"}>
+          <GridColumns $gridColumns={defaultGridColumns || "24"}>
             <div>
               <GridIcon title="" />
             </div>

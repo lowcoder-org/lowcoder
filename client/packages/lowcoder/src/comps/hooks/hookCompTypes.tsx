@@ -3,6 +3,7 @@ import { withExposingRaw } from "comps/generators/withExposing";
 const AllHookComp = [
   "modal",
   "drawer",
+  "meeting",
   "title",
   "windowSize",
   "currentTime",
@@ -13,11 +14,12 @@ const AllHookComp = [
   "message",
   "localStorage",
   "currentUser",
+  "screenInfo",
   "urlParams",
   "theme",
 ] as const;
 
-export type HookCompType = typeof AllHookComp[number];
+export type HookCompType = (typeof AllHookComp)[number];
 
 const AllHookCompSet = new Set(AllHookComp);
 export const isHookComp = (compType: string) => {
@@ -38,6 +40,10 @@ const HookCompConfig: Record<
     singleton: false,
   },
   drawer: {
+    category: "ui",
+    singleton: false,
+  },
+  meeting: {
     category: "ui",
     singleton: false,
   },

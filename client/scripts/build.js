@@ -1,11 +1,19 @@
 import fs from "node:fs";
-import path from "node:path";
+import path, { dirname } from "node:path";
 import https from "node:https";
+import { fileURLToPath } from "node:url";
 import shell from "shelljs";
 import chalk from "chalk";
 import axios from "axios";
-import { buildVars } from "lowcoder-dev-utils/buildVars.js";
-import { currentDirName, readJson } from "lowcoder-dev-utils/util.js";
+import { buildVars } from "./buildVars.js";
+
+export function readJson(file) {
+  return JSON.parse(fs.readFileSync(file).toString());
+}
+
+export function currentDirName(importMetaUrl) {
+  return dirname(fileURLToPath(importMetaUrl));
+}
 
 const builtinPlugins = ["lowcoder-comps"];
 const curDirName = currentDirName(import.meta.url);
@@ -74,7 +82,7 @@ shell.env["REACT_APP_COMMIT_ID"] = shell.env["REACT_APP_COMMIT_ID"] || shell.exe
 
 // Treating warnings as errors when process.env.CI = true.
 shell.env["CI"] = false;
-shell.env["NODE_OPTIONS"] = "--max_old_space_size=4096";
+shell.env["NODE_OPTIONS"] = "--max_old_space_size=8192";
 shell.env["NODE_ENV"] = "production";
 shell.env["REACT_APP_LOG_LEVEL"] = "error";
 shell.env["REACT_APP_BUNDLE_BUILTIN_PLUGIN"] = "true";

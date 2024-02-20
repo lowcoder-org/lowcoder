@@ -1,4 +1,4 @@
-import { Progress } from "antd";
+import { default as Progress } from "antd/es/progress";
 import { styleControl } from "comps/controls/styleControl";
 import { ProgressStyle, ProgressStyleType, heightCalculator, widthCalculator } from "comps/controls/styleControlConstants";
 import styled, { css } from "styled-components";
@@ -8,6 +8,11 @@ import { UICompBuilder } from "../generators";
 import { NameConfig, NameConfigHidden, withExposingConfigs } from "../generators/withExposing";
 import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
+
+import { useContext } from "react";
+import { EditorContext } from "comps/editorState";
+
+// TODO: after Update of ANTd, introduce Size attribute to ProgressCircle
 
 const getStyle = (style: ProgressStyleType) => {
   return css`
@@ -74,8 +79,18 @@ let ProgressCircleTmpComp = (function () {
               tooltip: trans("progress.valueTooltip"),
             })}
           </Section>
-          <Section name={sectionNames.layout}>{hiddenPropertyView(children)}</Section>
-          <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
+
+          {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+            <Section name={sectionNames.interaction}>
+              {hiddenPropertyView(children)}
+            </Section>
+          )}
+
+          {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+            <Section name={sectionNames.style}>
+              {children.style.getPropertyView()}
+            </Section>
+          )}
         </>
       );
     })

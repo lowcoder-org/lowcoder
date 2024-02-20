@@ -68,7 +68,7 @@ const OpenButton = styled.div`
     margin: auto;
   }
 
-  :hover {
+  &:hover {
     svg g g {
       stroke: #222222;
     }
@@ -90,7 +90,7 @@ const CloseButton = styled.div`
   //margin-bottom: auto;
   cursor: pointer;
 
-  :hover {
+  &:hover {
     background: #f5f5f6;
 
     svg g g {
@@ -129,6 +129,7 @@ export const CodeEditorPanel = (props: {
       maskClosable={true}
       onPopupVisibleChange={(visible) => setVisible(visible)}
       afterPopupVisibleChange={(visible) => props.onVisibleChange(visible)}
+      getPopupContainer={(node: any) => node.parentNode.parentNode}
       popup={() => (
         <Draggable
           positionOffset={{ x: "-50%", y: "-50%" }}

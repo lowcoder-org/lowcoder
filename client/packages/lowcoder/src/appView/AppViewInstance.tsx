@@ -4,13 +4,14 @@ import { RootComp } from "comps/comps/rootComp";
 import { setGlobalSettings } from "comps/utils/globalSettings";
 import { sdkConfig } from "constants/sdkConfig";
 import _ from "lodash";
-import ReactDOM from "react-dom";
+import { Root } from "react-dom/client";
 import { StyleSheetManager } from "styled-components";
 import { ModuleDSL, ModuleDSLIoInput } from "types/dsl";
 import { AppView } from "./AppView";
 import { API_STATUS_CODES } from "constants/apiConstants";
 import { AUTH_LOGIN_URL } from "constants/routesURL";
 import { AuthSearchParams } from "constants/authConstants";
+import { saveAuthSearchParams } from "@lowcoder-ee/pages/userAuth/authUtils";
 
 export type OutputChangeHandler<O> = (output: O) => void;
 export type EventTriggerHandler = (eventName: string) => void;
@@ -35,11 +36,11 @@ export class AppViewInstance<I = any, O = any> {
   private events = new Map<keyof EventHandlerMap, EventHandlerMap<O>[keyof EventHandlerMap]>();
   private dataPromise: Promise<{ appDsl: any; moduleDslMap: any }>;
   private options: AppViewInstanceOptions = {
-    baseUrl: "https://api.lowcoder.dev",
-    webUrl: "https://cloud.lowcoder.dev",
+    baseUrl: "https://api-service.lowcoder.cloud",
+    webUrl: "https://app.lowcoder.cloud",
   };
 
-  constructor(private appId: string, private node: Element, options: AppViewInstanceOptions = {}) {
+  constructor(private appId: string, private node: Element, private root: Root, options: AppViewInstanceOptions = {}) {
     Object.assign(this.options, options);
     if (this.options.baseUrl) {
       sdkConfig.baseURL = this.options.baseUrl;
@@ -71,9 +72,11 @@ export class AppViewInstance<I = any, O = any> {
         .then((i) => i.data)
         .catch((e) => {
           if (e.response?.status === API_STATUS_CODES.REQUEST_NOT_AUTHORISED) {
-            window.location.href = `${webUrl}${AUTH_LOGIN_URL}?${
-              AuthSearchParams.redirectUrl
-            }=${encodeURIComponent(window.location.href)}`;
+            saveAuthSearchParams({
+              [AuthSearchParams.redirectUrl]: encodeURIComponent(window.location.href),
+              [AuthSearchParams.loginType]: null,
+            })
+            window.location.href = `${webUrl}${AUTH_LOGIN_URL}`;
           }
         });
 
@@ -134,7 +137,7 @@ export class AppViewInstance<I = any, O = any> {
 
   private async render() {
     const data = await this.dataPromise;
-    ReactDOM.render(
+    this.root.render(
       <StyleSheetManager target={this.node as HTMLElement}>
         <AppView
           appId={this.appId}
@@ -144,8 +147,7 @@ export class AppViewInstance<I = any, O = any> {
           onCompChange={(comp) => this.handleCompChange(comp)}
           onModuleEventTriggered={(eventName) => this.emit("moduleEventTriggered", [eventName])}
         />
-      </StyleSheetManager>,
-      this.node
+      </StyleSheetManager>
     );
   }
 

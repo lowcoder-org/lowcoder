@@ -1,14 +1,21 @@
-import { Dropdown, Skeleton } from "antd";
+import { default as Dropdown } from "antd/es/dropdown";
+import { default as Skeleton } from "antd/es/skeleton";
+import { default as Radio, RadioChangeEvent } from "antd/es/radio";
 import LayoutHeader from "components/layout/Header";
 import { SHARE_TITLE } from "constants/apiConstants";
 import { AppTypeEnum } from "constants/applicationConstants";
-import { ALL_APPLICATIONS_URL, AUTH_LOGIN_URL, preview } from "constants/routesURL";
+import {
+  ALL_APPLICATIONS_URL,
+  AUTH_LOGIN_URL,
+  preview,
+} from "constants/routesURL";
 import { User } from "constants/userConstants";
 import {
   CommonTextLabel,
   CustomModal,
   DropdownMenu,
   EditText,
+  Layout,
   Left,
   Middle,
   ModuleIcon,
@@ -20,8 +27,14 @@ import { trans } from "i18n";
 import dayjs from "dayjs";
 import { useContext, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { publishApplication, updateAppMetaAction } from "redux/reduxActions/applicationActions";
-import { recoverSnapshotAction, setShowAppSnapshot } from "redux/reduxActions/appSnapshotActions";
+import {
+  publishApplication,
+  updateAppMetaAction,
+} from "redux/reduxActions/applicationActions";
+import {
+  recoverSnapshotAction,
+  setShowAppSnapshot,
+} from "redux/reduxActions/appSnapshotActions";
 import { currentApplication } from "redux/selectors/applicationSelector";
 import {
   getSelectedAppSnapshot,
@@ -39,6 +52,7 @@ import { HeaderStartDropdown } from "./headerStartDropdown";
 import { AppPermissionDialog } from "../../components/PermissionDialog/AppPermissionDialog";
 import { getBrandingConfig } from "../../redux/selectors/configSelectors";
 import { messageInstance } from "lowcoder-design";
+import { EditorContext } from "../../comps/editorState";
 
 const StyledLink = styled.a`
   display: flex;
@@ -51,7 +65,7 @@ const LogoIcon = styled(Logo)`
   max-width: 24px;
 `;
 
-const IconCss = css<{ $show: boolean }>`
+const IconCss = css<{ $show?: boolean }>`
   &:hover {
     background-color: #8b8fa34c;
   }
@@ -65,6 +79,9 @@ const IconCss = css<{ $show: boolean }>`
   }
 
   cursor: pointer;
+`;
+const LayoutIcon = styled(Layout)`
+  ${IconCss}
 `;
 const LeftIcon = styled(Left)`
   ${IconCss}
@@ -127,8 +144,8 @@ const RecoverSnapshotBtn = styled(TacoButton)`
   padding: 4px 7px;
   height: 28px;
 
-  :disabled,
-  :disabled:hover {
+  &:disabled,
+  &:disabled:hover {
     background: #4965f2;
     border: 1px solid #4965f2;
     color: #ffffff;
@@ -151,13 +168,13 @@ const GrayBtn = styled(TacoButton)`
     margin-right: 8px;
     cursor: pointer;
     --antd-wave-shadow-color: #8b8fa34c;
-  
+
     &:hover {
       background: #666666;
       color: #ffffff;
       border: none;
     }
-  
+
     &:focus {
       background: #666666;
       color: #ffffff;
@@ -253,7 +270,10 @@ function HeaderProfile(props: { user: User }) {
   return (
     <div>
       {user.isAnonymous ? (
-        <LoginBtn buttonType="primary" onClick={() => history.push(AUTH_LOGIN_URL)}>
+        <LoginBtn
+          buttonType="primary"
+          onClick={() => history.push(AUTH_LOGIN_URL)}
+        >
           {trans("userAuth.login")}
         </LoginBtn>
       ) : (
@@ -265,14 +285,24 @@ function HeaderProfile(props: { user: User }) {
 
 export type PanelStatus = { left: boolean; bottom: boolean; right: boolean };
 export type TogglePanel = (panel?: keyof PanelStatus) => void;
+
+export type EditorModeStatus = "layout" | "logic" | "both";
+export type ToggleEditorModeStatus = (
+  editorModeStatus?: EditorModeStatus
+) => void;
+
 type HeaderProps = {
-  togglePanel: TogglePanel;
   panelStatus: PanelStatus;
+  togglePanel: TogglePanel;
+  editorModeStatus: EditorModeStatus;
+  toggleEditorModeStatus: ToggleEditorModeStatus;
 };
 
 // header in editor page
 export default function Header(props: HeaderProps) {
+  const editorState = useContext(EditorContext);
   const { togglePanel } = props;
+  const { toggleEditorModeStatus } = props;
   const { left, bottom, right } = props.panelStatus;
   const user = useSelector(getUser);
   const application = useSelector(currentApplication);
@@ -287,12 +317,37 @@ export default function Header(props: HeaderProps) {
 
   const isModule = appType === AppTypeEnum.Module;
 
+  const editorModeOptions = [
+    {
+      label: trans("header.editorMode_layout"),
+      key: "editorModeSelector_layout",
+      value: "layout",
+    },
+    {
+      label: trans("header.editorMode_logic"),
+      key: "editorModeSelector_logic",
+      value: "logic",
+    },
+    {
+      label: trans("header.editorMode_both"),
+      key: "editorModeSelector_both",
+      value: "both",
+    },
+  ];
+
+  const onEditorStateValueChange = ({
+    target: { value },
+  }: RadioChangeEvent) => {
+    toggleEditorModeStatus(value);
+    editorState.setEditorModeStatus(value);
+  };
+
+
   const headerStart = (
     <>
       <StyledLink onClick={() => history.push(ALL_APPLICATIONS_URL)}>
-      {LOWCODER_SHOW_BRAND === 'true' ? 
-      LOWCODER_CUSTOM_LOGO_SQUARE !== "" ? <img src={LOWCODER_CUSTOM_LOGO_SQUARE } height={24} width={24} alt="logo" /> :<LogoIcon /> : 
-      <LogoHome />}
+        {/* {REACT_APP_LOWCODER_SHOW_BRAND === 'true' ? REACT_APP_LOWCODER_CUSTOM_LOGO_SQUARE !== "" ? <img src={REACT_APP_LOWCODER_CUSTOM_LOGO_SQUARE } height={24} width={24} alt="logo" /> :<LogoIcon /> :  <LogoHome />} */}
+        <LogoHome />
       </StyledLink>
       {editName ? (
         <Wrapper>
@@ -307,7 +362,12 @@ export default function Header(props: HeaderProps) {
                 messageInstance.warning(trans("header.nameCheckMessage"));
                 return;
               }
-              dispatch(updateAppMetaAction({ applicationId: applicationId, name: value }));
+              dispatch(
+                updateAppMetaAction({
+                  applicationId: applicationId,
+                  name: value,
+                })
+              );
               setEditName(false);
             }}
           />
@@ -320,12 +380,29 @@ export default function Header(props: HeaderProps) {
           }}
         />
       )}
-      {showAppSnapshot && <ViewOnlyLabel>{trans("header.viewOnly")}</ViewOnlyLabel>}
+      {showAppSnapshot && (
+        <ViewOnlyLabel>{trans("header.viewOnly")}</ViewOnlyLabel>
+      )}
     </>
   );
 
   const headerMiddle = (
     <>
+      <>      
+      </>
+      <Radio.Group
+        onChange={onEditorStateValueChange}
+        value={props.editorModeStatus}
+        optionType="button"
+        buttonStyle="solid"
+        size="small"
+      >
+        {editorModeOptions.map((option) => (
+          <Radio.Button key={option.key} value={option.value}>
+            {option.label}
+          </Radio.Button>
+        ))}
+      </Radio.Group>
       <IconRadius>
         <LeftIcon onClick={() => togglePanel("left")} $show={left} />
       </IconRadius>
@@ -345,7 +422,9 @@ export default function Header(props: HeaderProps) {
               CustomModal.confirm({
                 title: trans("header.recoverAppSnapshotTitle"),
                 content: trans("header.recoverAppSnapshotContent", {
-                  time: dayjs(selectedSnapshot.createTime).format("YYYY-MM-DD HH:mm"),
+                  time: dayjs(selectedSnapshot.createTime).format(
+                    "YYYY-MM-DD HH:mm"
+                  ),
                 }),
                 onConfirm: () => {
                   dispatch(
@@ -377,11 +456,15 @@ export default function Header(props: HeaderProps) {
         <AppPermissionDialog
           applicationId={applicationId}
           visible={permissionDialogVisible}
-          onVisibleChange={(visible) => !visible && setPermissionDialogVisible(false)}
+          onVisibleChange={(visible) =>
+            !visible && setPermissionDialogVisible(false)
+          }
         />
       )}
       {canManageApp(user, application) && (
-        <GrayBtn onClick={() => setPermissionDialogVisible(true)}>{SHARE_TITLE}</GrayBtn>
+        <GrayBtn onClick={() => setPermissionDialogVisible(true)}>
+          {SHARE_TITLE}
+        </GrayBtn>
       )}
       <PreviewBtn buttonType="primary" onClick={() => preview(applicationId)}>
         {trans("header.preview")}
@@ -404,11 +487,15 @@ export default function Header(props: HeaderProps) {
             items={[
               {
                 key: "deploy",
-                label: <CommonTextLabel>{trans("header.deploy")}</CommonTextLabel>,
+                label: (
+                  <CommonTextLabel>{trans("header.deploy")}</CommonTextLabel>
+                ),
               },
               {
                 key: "snapshot",
-                label: <CommonTextLabel>{trans("header.snapshot")}</CommonTextLabel>,
+                label: (
+                  <CommonTextLabel>{trans("header.snapshot")}</CommonTextLabel>
+                ),
               },
             ]}
           />
@@ -424,7 +511,11 @@ export default function Header(props: HeaderProps) {
   );
 
   return (
-    <LayoutHeader headerStart={headerStart} headerMiddle={headerMiddle} headerEnd={headerEnd} />
+    <LayoutHeader
+      headerStart={headerStart}
+      headerMiddle={headerMiddle}
+      headerEnd={headerEnd}
+    />
   );
 }
 
@@ -434,9 +525,8 @@ export function AppHeader() {
   const brandingConfig = useSelector(getBrandingConfig);
   const headerStart = (
     <StyledLink onClick={() => history.push(ALL_APPLICATIONS_URL)}>
-      {LOWCODER_SHOW_BRAND === 'true' ? 
-      LOWCODER_CUSTOM_LOGO !== "" ? <img src={LOWCODER_CUSTOM_LOGO}  height={28} alt="logo" /> :<LogoWithName branding={!user.orgDev} /> : 
-      <LogoHome />}
+      {/* {REACT_APP_LOWCODER_SHOW_BRAND === 'true' ?  REACT_APP_LOWCODER_CUSTOM_LOGO !== "" ? <img src={REACT_APP_LOWCODER_CUSTOM_LOGO}  height={28} alt="logo" /> :<LogoWithName branding={!user.orgDev} /> : <LogoHome />} */}
+      <LogoHome />
     </StyledLink>
   );
   const headerEnd = <HeaderProfile user={user} />;
@@ -444,7 +534,9 @@ export function AppHeader() {
     <LayoutHeader
       headerStart={headerStart}
       headerEnd={headerEnd}
-      style={user.orgDev ? {} : { backgroundColor: brandingConfig?.headerColor }}
+      style={
+        user.orgDev ? {} : { backgroundColor: brandingConfig?.headerColor }
+      }
     />
   );
 }

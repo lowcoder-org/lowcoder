@@ -1,8 +1,7 @@
-import ReactDOM from "react-dom";
+import { createRoot } from 'react-dom/client';
 import { CompIDE } from "lowcoder-sdk";
 import { name, version, lowcoder } from "./package.json";
 import compMap from "./src/index";
-
 import "lowcoder-sdk/dist/style.css";
 
 function CompDevApp() {
@@ -15,5 +14,6 @@ function CompDevApp() {
     />
   );
 }
-
-ReactDOM.render(<CompDevApp />, document.querySelector("#root"));
+const container = document.querySelector("#root") as Element | DocumentFragment;
+const root = createRoot(container);
+root.render(<CompDevApp />);

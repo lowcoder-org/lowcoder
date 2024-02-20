@@ -1,4 +1,4 @@
-import { Badge } from "antd";
+import { default as Badge } from "antd/es/badge";
 import {
   ColumnTypeCompBuilder,
   ColumnTypeViewFn,
@@ -9,7 +9,7 @@ import { DropdownStyled, Wrapper } from "./columnTagsComp";
 import { ReactNode, useContext, useState } from "react";
 import { StatusContext } from "components/table/EditableCell";
 import { CustomSelect, PackUpIcon, ScrollBar } from "lowcoder-design";
-import { PresetStatusColorType } from "antd/lib/_util/colors";
+import { PresetStatusColorType } from "antd/es/_util/colors";
 
 export const ColumnValueTooltip = trans("table.columnValueTooltip");
 
@@ -53,14 +53,14 @@ const StatusEdit = (props: StatusEditPropsType) => {
       <CustomSelect
         autoFocus
         defaultOpen
-        bordered={false}
+        variant="borderless"
         optionLabelProp="children"
         open={open}
         defaultValue={props.value.value}
         style={{ width: "100%" }}
         suffixIcon={<PackUpIcon />}
         showSearch
-        onSearch={(value) => {
+        onSearch={(value: string) => {
           if (defaultStatus.findIndex((item) => item.text.includes(value)) < 0) {
             setStatus([
               ...defaultStatus,
@@ -77,7 +77,7 @@ const StatusEdit = (props: StatusEditPropsType) => {
             status: status.find((item) => item.text === value)?.status || "none",
           });
         }}
-        onChange={(value) => {
+        onChange={(value: string) => {
           props.onChange({
             value,
             status: status.find((item) => item.text === value)?.status || "none",

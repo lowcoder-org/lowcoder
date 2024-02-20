@@ -24,6 +24,8 @@ public interface OrgMemberService {
 
     Mono<Long> getOrgMemberCount(String orgId);
 
+    Mono<Boolean> doesAtleastOneAdminExist();
+
     Mono<Long> countAllActiveOrgs(String userId);
 
     Mono<OrgMember> getOrgMember(String orgId, String userId);

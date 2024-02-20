@@ -25,3 +25,13 @@ yarn build
 
 npm run build
 ```
+
+## Publish
+To publish your plugin on NPM, use following command.
+```bash
+yarn build_publish
+
+# or
+
+npm run build_publish
+```

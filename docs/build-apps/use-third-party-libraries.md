@@ -9,7 +9,7 @@ Lowcoder provides some JavaScript built-in libraries for use.
 | Library   | Docs                                                                 | Version                    |
 | --------- | -------------------------------------------------------------------- | -------------------------- |
 | lodash    | [https://lodash.com/docs/](https://lodash.com/docs/)                 | 4.17.21                    |
-| moment    | [https://momentjs.com/docs/](https://momentjs.com/docs/)             | 2.29.3                     |
+| day.js    | [https://day.js.org/docs](https://day.js.org/docs/)                  | 2.29.3                     |
 | uuid      | [https://github.com/uuidjs/uuid](https://github.com/uuidjs/uuid)     | 8.3.2（Support v1/v3/v4/v5） |
 | numbro    | [https://numbrojs.com/format.html](https://numbrojs.com/format.html) | 2.3.6                      |
 | papaparse | [https://www.papaparse.com/docs](https://www.papaparse.com/docs)     | 5.3.2                      |

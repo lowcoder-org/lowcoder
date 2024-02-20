@@ -1,4 +1,4 @@
-import { Input } from "antd";
+import { default as Input } from "antd/es/input";
 import {
   ColumnTypeCompBuilder,
   ColumnTypeViewFn,
@@ -8,6 +8,8 @@ import { BoolCodeControl, StringControl } from "comps/controls/codeControl";
 import { trans } from "i18n";
 import { disabledPropertyView } from "comps/utils/propertyUtils";
 import styled, { css } from "styled-components";
+import { styleControl } from "comps/controls/styleControl";
+import { TableColumnLinkStyle } from "comps/controls/styleControlConstants";
 
 export const ColumnValueTooltip = trans("table.columnValueTooltip");
 
@@ -15,11 +17,12 @@ const childrenMap = {
   text: StringControl,
   onClick: ActionSelectorControlInContext,
   disabled: BoolCodeControl,
+  style: styleControl(TableColumnLinkStyle),
 };
 
 const disableCss = css`
   &,
-  :hover {
+  &:hover {
     cursor: not-allowed;
     color: rgba(0, 0, 0, 0.25) !important;
   }
@@ -56,7 +59,7 @@ export const LinkComp = (function () {
       <Input
         defaultValue={props.value}
         autoFocus
-        bordered={false}
+        variant="borderless"
         onChange={(e) => {
           const value = e.target.value;
           props.onChange(value);
@@ -76,6 +79,11 @@ export const LinkComp = (function () {
           label: trans("table.action"),
           placement: "table",
         })}
+      </>
+    ))
+    .setStylePropertyViewFn((children) => (
+      <>
+        {children.style.getPropertyView()}
       </>
     ))
     .build();

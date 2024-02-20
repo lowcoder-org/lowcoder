@@ -12,6 +12,12 @@ import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { StringControl } from "comps/controls/codeControl";
 
+import { useContext } from "react";
+import { EditorContext } from "comps/editorState";
+
+// TODO: add styling for image (size)
+// TODO: add styling for bouding box (individual backround)
+
 const levelOptions = [
   { label: trans("QRCode.L"), value: "L" },
   { label: trans("QRCode.M"), value: "M" },
@@ -41,6 +47,10 @@ const QRCodeView = (props: RecordConstructorToView<typeof childrenMap>) => {
         width: widthCalculator(props.style.margin),
         height: heightCalculator(props.style.margin),
         background: props.style.background,
+        borderRadius: props.style.radius,
+        border: `${props.style.borderWidth ? props.style.borderWidth : "1px"} solid ${
+          props.style.border
+        }`,
       }}
     >
       <QRCodeSVG
@@ -69,20 +79,31 @@ let QRCodeBasicComp = (function () {
             tooltip: trans("QRCode.valueTooltip"),
             placeholder: "https://example.com",
           })}
-          {children.level.propertyView({
-            label: trans("QRCode.level"),
-            tooltip: trans("QRCode.levelTooltip"),
-          })}
         </Section>
-        <Section name={sectionNames.layout}>
-          {children.includeMargin.propertyView({ label: trans("QRCode.includeMargin") })}
-          {children.image.propertyView({
-            label: trans("QRCode.image"),
-            placeholder: "http://logo.jpg",
-          })}
-          {hiddenPropertyView(children)}
-        </Section>
-        <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
+
+        {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+          <><Section name={sectionNames.interaction}>
+              {hiddenPropertyView(children)}
+            </Section>
+            <Section name={sectionNames.advanced}>
+              {children.level.propertyView({
+                label: trans("QRCode.level"),
+                tooltip: trans("QRCode.levelTooltip"),
+              })}
+              {children.image.propertyView({
+                label: trans("QRCode.image"),
+                placeholder: "http://logo.jpg",
+              })}
+            </Section>
+          </>
+        )}
+
+        {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+          <Section name={sectionNames.style}>
+            {children.style.getPropertyView()}
+            {children.includeMargin.propertyView({ label: trans("QRCode.includeMargin") })}
+          </Section>
+        )}
       </>
     ))
     .build();

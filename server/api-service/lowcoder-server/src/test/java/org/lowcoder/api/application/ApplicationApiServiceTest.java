@@ -1,11 +1,15 @@
 package org.lowcoder.api.application;
 
 
-import lombok.extern.slf4j.Slf4j;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.lowcoder.api.application.ApplicationController.CreateApplicationRequest;
+import org.lowcoder.api.application.ApplicationEndpoints.ApplicationRequestType;
+import org.lowcoder.api.application.ApplicationEndpoints.CreateApplicationRequest;
 import org.lowcoder.api.application.view.ApplicationPermissionView;
 import org.lowcoder.api.application.view.ApplicationView;
 import org.lowcoder.api.common.mockuser.WithMockUser;
@@ -23,12 +27,10 @@ import org.lowcoder.sdk.exception.BizException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
+
+import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 @SpringBootTest
 @RunWith(SpringRunner.class)
 @Slf4j(topic = "ApplicationApiServiceTest")
@@ -132,7 +134,7 @@ public class ApplicationApiServiceTest {
                 .verifyComplete();
 
         // published dsl before publish
-        StepVerifier.create(applicationIdMono.flatMap(id -> applicationApiService.getPublishedApplication(id)))
+        StepVerifier.create(applicationIdMono.flatMap(id -> applicationApiService.getPublishedApplication(id, ApplicationRequestType.PUBLIC_TO_ALL)))
                 .assertNext(applicationView -> Assert.assertEquals(Map.of("comp", "table"), applicationView.getApplicationDSL()))
                 .verifyComplete();
 
@@ -146,7 +148,7 @@ public class ApplicationApiServiceTest {
                 .verifyComplete();
 
         // published dsl after publish
-        StepVerifier.create(applicationIdMono.flatMap(id -> applicationApiService.getPublishedApplication(id)))
+        StepVerifier.create(applicationIdMono.flatMap(id -> applicationApiService.getPublishedApplication(id, ApplicationRequestType.PUBLIC_TO_ALL)))
                 .assertNext(applicationView -> Assert.assertEquals(Map.of("comp", "list"), applicationView.getApplicationDSL()))
                 .verifyComplete();
     }

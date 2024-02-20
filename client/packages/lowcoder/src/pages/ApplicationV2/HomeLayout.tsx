@@ -5,7 +5,9 @@ import { ApplicationMeta, FolderMeta } from "constants/applicationConstants";
 import { ALL_APPLICATIONS_URL } from "constants/routesURL";
 import history from "util/history";
 import dayjs from "dayjs";
-import { Breadcrumb as AntdBreadcrumb, Select, Skeleton } from "antd";
+import { default as AntdBreadcrumb } from "antd/es/breadcrumb";
+import { default as Select } from "antd/es/select";
+import { default as Skeleton } from "antd/es/skeleton";
 import React, { useEffect, useState } from "react";
 import {
   ArrowIcon,
@@ -208,7 +210,7 @@ const LayoutSwitcher = styled.div`
   align-items: center;
   justify-content: center;
 
-  :hover {
+  &:hover {
     background-color: #f5f5f6;
   }
 
@@ -363,9 +365,9 @@ export function HomeLayout(props: HomeLayoutProps) {
       <OperationWrapper>
         {mode !== "folders" && mode !== "module" && (
           <FilterDropdown
-            bordered={false}
+            variant="borderless"
             value={filterBy}
-            onChange={(value) => setFilterBy(value as HomeResKey)}
+            onChange={(value: any) => setFilterBy(value as HomeResKey)}
             options={[
               getFilterMenuItem(HomeResTypeEnum.All),
               getFilterMenuItem(HomeResTypeEnum.Application),
@@ -373,7 +375,7 @@ export function HomeLayout(props: HomeLayoutProps) {
               getFilterMenuItem(HomeResTypeEnum.Navigation),
               ...(mode !== "trash" ? [getFilterMenuItem(HomeResTypeEnum.Folder)] : []),
             ]}
-            getPopupContainer={(node) => node}
+            getPopupContainer={(node: any) => node}
             suffixIcon={<ArrowSolidIcon />}
           />
         )}

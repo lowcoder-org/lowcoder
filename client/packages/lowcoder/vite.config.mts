@@ -8,9 +8,9 @@ import { visualizer } from "rollup-plugin-visualizer";
 import path from "path";
 import chalk from "chalk";
 import { createHtmlPlugin } from "vite-plugin-html";
-import { ensureLastSlash } from "lowcoder-dev-utils/util";
-import { buildVars } from "lowcoder-dev-utils/buildVars";
-import { globalDepPlugin } from "lowcoder-dev-utils/globalDepPlguin";
+import { ensureLastSlash } from "./src/dev-utils/util";
+import { buildVars } from "./src/dev-utils/buildVars";
+import { globalDepPlugin } from "./src/dev-utils/globalDepPlguin";
 
 dotenv.config();
 
@@ -22,7 +22,9 @@ const isEEGlobal = edition === "enterprise-global";
 const isEE = edition === "enterprise" || isEEGlobal;
 const isDev = nodeEnv === "development";
 const isVisualizerEnabled = !!process.env.ENABLE_VISUALIZER;
-const browserCheckFileName = `browser-check-${process.env.REACT_APP_COMMIT_ID}.js`;
+// the file was never created
+// const browserCheckFileName = `browser-check-${process.env.REACT_APP_COMMIT_ID}.js`;
+const browserCheckFileName = `browser-check.js`;
 const base = ensureLastSlash(process.env.PUBLIC_URL);
 
 if (!apiProxyTarget && isDev) {

@@ -1,5 +1,6 @@
 import { useRef } from "react";
 import ReactDOM, { flushSync } from "react-dom";
+import { createRoot } from "react-dom/client";
 import { AppViewInstance, bootstrapAppAt, LowcoderAppView } from "./src/index";
 
 const url = new URL(location.href);
@@ -70,7 +71,9 @@ async function bootstrap() {
   });
 
   // React
-  ReactDOM.render(<ReactDemoApp />, document.querySelector("#app2"));
+  const container = document.querySelector("#app2");
+  const root = createRoot(container!);
+  root.render(<ReactDemoApp />);
 }
 
 bootstrap();

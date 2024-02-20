@@ -29,14 +29,14 @@ export const sqlDatasourceForm =
 
     return (
       <DatasourceForm form={form} preserve={false}>
-        <FormSection size={props.size}>
+        <FormSection $size={props.size}>
           <DatasourceNameFormInputItem
             placeholder={config.placeholder}
             initialValue={datasource?.name}
           />
         </FormSection>
 
-        <FormSection size={props.size}>
+        <FormSection $size={props.size}>
           <GeneralSettingFormSectionLabel />
           <HostFormInputItem initialValue={datasourceConfig?.host} />
           <PortFormInputItem initialValue={config.port} port={datasourceConfig?.port} />

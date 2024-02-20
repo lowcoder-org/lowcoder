@@ -6,6 +6,7 @@ import {
   LeftCheckbox,
   LeftCommon,
   LeftContainer,
+  LeftMeeting,
   LeftDate,
   LeftDivider,
   LeftDrawer,
@@ -37,9 +38,12 @@ import {
   LeftVideo,
   LeftSignature,
   TimeLineIcon,
+  CommentIcon,
   MentionIcon,
   AutoCompleteCompIcon,
   IconCompIcon,
+  ResponsiveLayoutCompIcon,
+
 } from "lowcoder-design";
 
 export const CompStateIcon: {
@@ -83,6 +87,11 @@ export const CompStateIcon: {
   form: <LeftForm />,
   jsonSchemaForm: <LeftJsonEditor />,
   container: <LeftContainer />,
+  meeting: <LeftMeeting />,
+  mermaid: <LeftChart />,
+  videocomponent: <LeftMeeting />,
+  sharingcomponent: <LeftMeeting />,
+  controlButton: <LeftButton />,
   tabbedContainer: <LeftContainer />,
   modal: <LeftModal />,
   listView: <LeftListView />,
@@ -106,7 +115,10 @@ export const CompStateIcon: {
   signature: <LeftSignature />,
   jsonLottie: <LeftJsonEditor />, //Added By Aqib Mirza
   timeline: <TimeLineIcon />,
-  mention: <MentionIcon/>,
+  comment: <CommentIcon />,
+  mention: <MentionIcon />,
   autocomplete: <AutoCompleteCompIcon />,
   icon: <IconCompIcon />,
+  responsiveLayout: <ResponsiveLayoutCompIcon />,
+
 };

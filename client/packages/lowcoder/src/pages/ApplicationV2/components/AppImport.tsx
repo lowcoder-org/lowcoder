@@ -1,4 +1,4 @@
-import { Upload as AntUpload } from "antd";
+import { default as AntUpload } from "antd/es/upload";
 import React from "react";
 import ApplicationApi from "api/applicationApi";
 import { validateResponse } from "api/apiUtils";

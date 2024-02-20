@@ -11,6 +11,8 @@ import { trans } from "i18n";
 import { ModuleEventListItemComp } from "./moduleEventListItemComp";
 import { ConfigViewSection } from "./styled";
 import { messageInstance } from "lowcoder-design";
+import { DocLink } from "lowcoder-design";
+import { markdownCompCss, TacoMarkDown } from "lowcoder-design";
 
 const ModuleEventListComp = list(ModuleEventListItemComp);
 
@@ -73,6 +75,9 @@ export class ModuleEventComp extends simpleMultiComp({
           onDelete={(i) => this.handleDelete(i)}
           items={children}
         />
+         <><br/><TacoMarkDown>{trans("module.documentationText")}</TacoMarkDown><br/><DocLink style={{ marginTop: 8 }} href={trans("docUrls.module")} title={trans("module.documentationText")}>
+            {trans("module.docLink")}
+          </DocLink></>
       </ConfigViewSection>
     );
   }

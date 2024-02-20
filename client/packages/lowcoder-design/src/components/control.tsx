@@ -15,17 +15,17 @@ type ControlPlacement = "bottom" | "right" | "modal"; // set propertyView's posi
 // place common comps of control comps
 
 const Wrapper = styled.div<{
-  layout: ControlLayout;
-  placement: ControlPlacement;
+  $layout: ControlLayout;
+  $placement: ControlPlacement;
 }>`
   width: 100%;
   ${(props) => {
-    switch (props.layout) {
+    switch (props.$layout) {
       case "horizontal":
         return css`
           display: flex;
           flex-direction: row;
-          align-items: ${props.placement === "bottom" ? "baseline" : "center"};
+          align-items: ${props.$placement === "bottom" ? "baseline" : "center"};
           justify-content: space-between;
         `;
       case "vertical":
@@ -57,15 +57,15 @@ function getWidth(placement: ControlPlacement) {
 }
 
 const LabelWrapper = styled.div<{
-  layout: ControlLayout;
-  placement: ControlPlacement;
-  labelEllipsis?: boolean;
+  $layout: ControlLayout;
+  $placement: ControlPlacement;
+  $labelEllipsis?: boolean;
 }>`
   ${(props) => {
-    switch (props.layout) {
+    switch (props.$layout) {
       case "horizontal":
         return css`
-          flex: 0 0 ${getWidth(props.placement)}px;
+          flex: 0 0 ${getWidth(props.$placement)}px;
         `;
       case "vertical":
         return css`
@@ -74,10 +74,10 @@ const LabelWrapper = styled.div<{
     }
   }}
   ${(props) => {
-    if (props.labelEllipsis && props.layout === "horizontal") {
+    if (props.$labelEllipsis && props.$layout === "horizontal") {
       return css`
         .tooltipLabel {
-          width: ${getWidth(props.placement)}px;
+          width: ${getWidth(props.$placement)}px;
           padding-right: 2px;
           text-overflow: ellipsis;
           overflow: hidden;
@@ -87,10 +87,10 @@ const LabelWrapper = styled.div<{
     }
   }}
 `;
-const ChildrenWrapper = styled.div<{ layout: ControlLayout }>`
+const ChildrenWrapper = styled.div<{ $layout: ControlLayout }>`
   min-width: 0;
   ${(props) => {
-    switch (props.layout) {
+    switch (props.$layout) {
       case "horizontal":
         return `
             flex:1 1 auto;
@@ -148,12 +148,12 @@ export const ControlPropertyViewWrapper = (
   } = props;
 
   return (
-    <Wrapper layout={layout} placement={placement}>
+    <Wrapper $layout={layout} $placement={placement}>
       {label && (
         <LabelWrapper
-          layout={layout}
-          placement={placement}
-          labelEllipsis={labelEllipsis}
+          $layout={layout}
+          $placement={placement}
+          $labelEllipsis={labelEllipsis}
           style={labelStyle}
         >
           <ToolTipLabel
@@ -164,7 +164,7 @@ export const ControlPropertyViewWrapper = (
         </LabelWrapper>
       )}
       {preInputNode}
-      <ChildrenWrapper style={childrenWrapperStyle} layout={layout}>
+      <ChildrenWrapper style={childrenWrapperStyle} $layout={layout}>
         {children}
         {extraChildren}
       </ChildrenWrapper>

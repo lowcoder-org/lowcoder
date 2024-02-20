@@ -1,4 +1,4 @@
-import { Button } from "antd";
+import { default as Button } from "antd/es/button";
 import { styleControl } from "comps/controls/styleControl";
 import { ButtonStyleType, ButtonStyle } from "comps/controls/styleControlConstants";
 import { migrateOldData } from "comps/generators/simpleGenerators";
@@ -16,30 +16,31 @@ export function getButtonStyle(buttonStyle: ButtonStyleType) {
       margin: ${buttonStyle.margin};	
       padding: ${buttonStyle.padding};
       &:not(:disabled) {
-        // click animation color
         --antd-wave-shadow-color: ${buttonStyle.border};
         border-color: ${buttonStyle.border};
         color: ${buttonStyle.text};
+        font-size: ${buttonStyle.textSize};
+        font-weight: ${buttonStyle.textWeight};
+        font-family: ${buttonStyle.fontFamily};
         background-color: ${buttonStyle.background};
         border-radius: ${buttonStyle.radius};
         margin: ${buttonStyle.margin};	
         padding: ${buttonStyle.padding};
   
-        :hover,
-        :focus {
+        &:hover,
+        &:focus {
           color: ${buttonStyle.text};
           background-color: ${hoverColor};
           border-color: ${buttonStyle.border === buttonStyle.background
             ? hoverColor
-            : buttonStyle.border};
+            : buttonStyle.border} !important;
         }
-  
-        :active {
+        &:active {
           color: ${buttonStyle.text};
           background-color: ${activeColor};
           border-color: ${buttonStyle.border === buttonStyle.background
             ? activeColor
-            : buttonStyle.border};
+            : buttonStyle.border} !important;
         }
       }
     }
@@ -54,11 +55,11 @@ export const Button100 = styled(Button)<{ $buttonStyle?: ButtonStyleType }>`
   justify-content: center;
   align-items: center;
   overflow: hidden;
+  gap: 6px; 
   span {
     overflow: hidden;
     text-overflow: ellipsis;
   }
-  gap: 6px;
 `;
 
 export const ButtonCompWrapper = styled.div<{ disabled: boolean }>`

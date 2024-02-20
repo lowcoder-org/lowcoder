@@ -15,7 +15,7 @@ const IconCss = css`
   margin-bottom: 12px;
 `;
 
-const IconAndName = styled.div<{ isActive: boolean }>`
+const IconAndName = styled.div<{ $isActive: boolean }>`
   padding: 0;
   display: inline-block;
   margin-left: 17px;
@@ -24,7 +24,7 @@ const IconAndName = styled.div<{ isActive: boolean }>`
   vertical-align: top;
   height: 40px;
   transition: all 0.2s ease;
-  border-bottom: 2px solid ${(props) => (props.isActive ? "#222222" : "transparent")};
+  border-bottom: 2px solid ${(props) => (props.$isActive ? "#222222" : "transparent")};
 
   &:hover path {
     transition: all 0.2s ease;
@@ -40,13 +40,13 @@ const IconAndName = styled.div<{ isActive: boolean }>`
     ${IconCss};
 
     path {
-      fill: ${(props) => (props.isActive ? "#222222" : "#8b8fa3")};
+      fill: ${(props) => (props.$isActive ? "#222222" : "#8b8fa3")};
     }
   }
 `;
 
 const Text = styled.p<{
-  color: string;
+  $color: string;
 }>`
   user-select: none;
   display: inline-block;
@@ -56,7 +56,7 @@ const Text = styled.p<{
   line-height: 40px;
   margin-left: 5px;
   margin-bottom: 0;
-  color: ${(props) => props.color || "#222222"};
+  color: ${(props) => props.$color || "#222222"};
   vertical-align: top;
 `;
 
@@ -89,9 +89,9 @@ const Tabs = (props: ITabs) => {
         {props.tabsConfig.map((tab) => {
           const isActive = activeTab.key === tab.key;
           return (
-            <IconAndName key={tab.key} onClick={() => onChange(tab.key)} isActive={isActive}>
+            <IconAndName key={tab.key} onClick={() => onChange(tab.key)} $isActive={isActive}>
               {tab.icon}
-              <Text color={isActive ? "#222222" : "#8b8fa3"}>{tab.title}</Text>
+              <Text $color={isActive ? "#222222" : "#8b8fa3"}>{tab.title}</Text>
             </IconAndName>
           );
         })}

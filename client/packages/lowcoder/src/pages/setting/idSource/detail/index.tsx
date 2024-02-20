@@ -12,7 +12,7 @@ import {
   CloseEyeIcon,
 } from "lowcoder-design";
 import history from "util/history";
-import { IDSOURCE_SETTING } from "constants/routesURL";
+import { OAUTH_PROVIDER_SETTING } from "constants/routesURL";
 import {
   authConfig,
   AuthType,
@@ -20,7 +20,11 @@ import {
 } from "@lowcoder-ee/pages/setting/idSource/idSourceConstants";
 import { Manual } from "pages/setting/idSource/detail/manual";
 import { DeleteConfig } from "pages/setting/idSource/detail/deleteConfig";
-import { Divider, Form, Input, Tooltip } from "antd";
+import { default as Divider } from "antd/es/divider";
+import { default as Form } from "antd/es/form";
+import { useForm } from "antd/es/form/Form";
+import { default as Input } from "antd/es/input";
+import { default as Tooltip } from "antd/es/tooltip";
 import {
   SaveButton,
   CheckboxStyled,
@@ -31,7 +35,6 @@ import {
 } from "pages/setting/idSource/styledComponents";
 import { validateResponse } from "api/apiUtils";
 import { ItemType } from "pages/setting/idSource/idSourceConstants";
-import { useForm } from "antd/es/form/Form";
 import _ from "lodash";
 import { messageInstance } from "lowcoder-design";
 
@@ -59,7 +62,7 @@ export const IdSourceDetail = (props: IdSourceDetailProps) => {
   });
   const configDetail = props.location.state;
   const goList = () => {
-    history.push(IDSOURCE_SETTING);
+    history.push(OAUTH_PROVIDER_SETTING);
   };
   if (!configDetail) {
     goList();
@@ -157,7 +160,7 @@ export const IdSourceDetail = (props: IdSourceDetailProps) => {
             required = valueObject ? valueObject.isRequire ?? required : required;
             const hasLock = valueObject && valueObject?.hasLock;
             const tip = valueObject && valueObject.tip;
-            const label = valueObject ? valueObject.label : value;
+            const label = valueObject ? valueObject.label : value as string;
             const isList = valueObject && valueObject.isList;
             const isPassword = valueObject && valueObject.isPassword;
             return (
@@ -231,9 +234,9 @@ export const IdSourceDetail = (props: IdSourceDetailProps) => {
               </div>
             );
           })}
-          <Form.Item className="register" name="enableRegister" valuePropName="checked">
+          {/* <Form.Item className="register" name="enableRegister" valuePropName="checked">
             <CheckboxStyled>{trans("idSource.enableRegister")}</CheckboxStyled>
-          </Form.Item>
+          </Form.Item> */}
 
           <Form.Item>
             <SaveButton loading={saveLoading} disabled={saveDisable} htmlType="submit">

@@ -1,4 +1,6 @@
-import { Dropdown, Menu } from "antd";
+import { default as Menu } from "antd/es/menu";
+import { default as Dropdown } from "antd/es/dropdown";
+import { default as DropdownButton } from "antd/es/dropdown/dropdown-button";
 import { BoolControl } from "comps/controls/boolControl";
 import { BoolCodeControl, StringControl } from "comps/controls/codeControl";
 import { ButtonStyleType } from "comps/controls/styleControlConstants";
@@ -7,7 +9,8 @@ import { UICompBuilder } from "comps/generators/uiCompBuilder";
 import { disabledPropertyView, hiddenPropertyView } from "comps/utils/propertyUtils";
 import { Section, sectionNames } from "lowcoder-design";
 import { trans } from "i18n";
-import React, { ReactElement } from "react";
+import React, { ReactElement, useContext } from "react";
+import { EditorContext } from "comps/editorState";
 import styled from "styled-components";
 import { ButtonEventHandlerControl } from "../../controls/eventHandlerControl";
 import { DropdownOptionControl } from "../../controls/optionsControl";
@@ -19,16 +22,16 @@ import {
   getButtonStyle,
 } from "./buttonCompConstants";
 
-const DropdownButton = styled(Dropdown.Button)`
-  width: 100%;
 
+const StyledDropdownButton = styled(DropdownButton)`
+  width: 100%;
   .ant-btn-group {
     width: 100%;
   }
 `;
 
 const LeftButtonWrapper = styled.div<{ $buttonStyle: ButtonStyleType }>`
-  width: calc(100% - 32px);
+  width: calc(100%);
   ${(props) => `margin: ${props.$buttonStyle.margin};`}
   margin-right: 0;
   .ant-btn {
@@ -66,7 +69,7 @@ const DropdownTmpComp = (function () {
     options: DropdownOptionControl,
     disabled: BoolCodeControl,
     onEvent: ButtonEventHandlerControl,
-    style: withDefault(ButtonStyleControl, { background: "#FFFFFF" }),
+    style: ButtonStyleControl,
   };
   return new UICompBuilder(childrenMap, (props) => {
     const hasIcon =
@@ -80,19 +83,21 @@ const DropdownTmpComp = (function () {
         key: option.label + " - " + index,
         disabled: option.disabled,
         icon: hasIcon && <span>{option.prefixIcon}</span>,
-        onEvent: option.onEvent,
+        index,
       }));
 
     const menu = (
       <Menu
         items={items}
-        onClick={({ key }) => items.find((o) => o.key === key)?.onEvent("click")}
+        onClick={({ key }) => {
+          const item = items.find((o) => o.key === key);
+          item && props.options[item.index]?.onEvent("click");
+        }}
       />
     );
 
     return (
       <ButtonCompWrapper disabled={props.disabled}>
-        {console.log("props,", props)}
         {props.onlyMenu ? (
           <Dropdown
             disabled={props.disabled}
@@ -103,7 +108,7 @@ const DropdownTmpComp = (function () {
             </Button100>
           </Dropdown>
         ) : (
-          <DropdownButton
+          <StyledDropdownButton
             disabled={props.disabled}
             dropdownRender={() => menu}
             onClick={() => props.onEvent("click")}
@@ -122,7 +127,7 @@ const DropdownTmpComp = (function () {
           >
             {/* Avoid button disappearing */}
             {!props.text || props.text?.length === 0 ? " " : props.text}
-          </DropdownButton>
+          </StyledDropdownButton>
         )}
       </ButtonCompWrapper>
     );
@@ -131,18 +136,26 @@ const DropdownTmpComp = (function () {
       <>
         <Section name={sectionNames.basic}>
           {children.options.propertyView({})}
-          {children.text.propertyView({ label: trans("text") })}
-          {children.onlyMenu.propertyView({ label: trans("dropdown.onlyMenu") })}
         </Section>
 
-        <Section name={sectionNames.interaction}>
-          {disabledPropertyView(children)}
-          {!children.onlyMenu.getView() && children.onEvent.getPropertyView()}
-        </Section>
+        {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
+          <><Section name={sectionNames.interaction}>
+              {!children.onlyMenu.getView() && children.onEvent.getPropertyView()}
+              {disabledPropertyView(children)}
+              {hiddenPropertyView(children)}
+            </Section>
+          </>
+        )}
 
-        <Section name={sectionNames.layout}>{hiddenPropertyView(children)}</Section>
-
-        <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
+        {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
+          <>
+            <Section name={sectionNames.layout}>
+              {children.text.propertyView({ label: trans("label") })}
+              {children.onlyMenu.propertyView({ label: trans("dropdown.onlyMenu") })}
+            </Section>
+            <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
+          </>
+        )}
       </>
     ))
     .build();

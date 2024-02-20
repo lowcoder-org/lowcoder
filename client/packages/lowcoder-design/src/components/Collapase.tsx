@@ -1,26 +1,20 @@
-import { Collapse as AntdCollapse, CollapseProps } from "antd";
+import { default as AntdCollapse, CollapseProps } from "antd/es/collapse";
 import { ReactComponent as UnFold } from "icons/icon-unfold.svg";
 import { ReactComponent as Folded } from "icons/icon-folded.svg";
 import { ReactComponent as Omit } from "icons/icon-omit.svg";
 import styled, { css } from "styled-components";
 import React, { ReactNode } from "react";
 
-const Panel = styled(AntdCollapse.Panel)`
-  .ant-collapse-header-text {
-    max-width: calc(100% - 14px);
-  }
-`;
-
-const Container = styled.div<{ optColor?: boolean; simple?: boolean }>`
+const Container = styled.div<{ $optColor?: boolean; $simple?: boolean }>`
   &&& {
-    background: ${(props) => (props.optColor ? "#f2f7fc" : null)};
+    background: ${(props) => (props.$optColor ? "#f2f7fc" : null)};
   }
 
   cursor: pointer;
-  padding-left: ${(props) => (props.simple ? 0 : "2px")};
+  padding-left: ${(props) => (props.$simple ? 0 : "2px")};
 
   &:hover {
-    background-color: ${(props) => (props.simple ? "#FFFFFF" : "#f2f7fc80")};
+    background-color: ${(props) => (props.$simple ? "#FFFFFF" : "#f2f7fc80")};
   }
 
   .ant-collapse > .ant-collapse-item > .ant-collapse-header {
@@ -32,6 +26,10 @@ const Container = styled.div<{ optColor?: boolean; simple?: boolean }>`
     line-height: 23px;
     user-select: none;
     cursor: pointer;
+
+    .ant-collapse-header-text {
+      min-width: 0;
+    }
   }
 
   .ant-collapse-ghost > .ant-collapse-item > .ant-collapse-content > .ant-collapse-content-box {
@@ -39,12 +37,12 @@ const Container = styled.div<{ optColor?: boolean; simple?: boolean }>`
     font-weight: 500;
     font-size: 13px;
     line-height: 13px;
-    padding-left: ${(props) => (props.simple ? 0 : "6px")};
+    padding-left: ${(props) => (props.$simple ? 0 : "6px")};
     user-select: none;
   }
 
   .ant-collapse > .ant-collapse-item > .ant-collapse-header .ant-collapse-arrow {
-    margin-right: ${(props) => (props.simple ? 0 : "2px")};
+    margin-right: ${(props) => (props.$simple ? 0 : "2px")};
   }
 `;
 
@@ -106,7 +104,7 @@ export const Collapse = (props: Iprops) => {
 
   return (
     // <Contain $color={props.isSelected || Color!==""}>
-    <Container optColor={props.isSelected} simple={props.simple} className={props.className}>
+    <Container $optColor={props.isSelected} $simple={props.simple} className={props.className}>
       <AntdCollapse
         ghost
         expandIcon={getExpandIcon}

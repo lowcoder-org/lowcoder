@@ -11,25 +11,25 @@ const NoShake = css`
   transform-style: preserve-3d;
 `;
 
-export const CompIconDiv = styled.div<{ h: number; w: number }>`
+export const CompIconDiv = styled.div<{ $h: number; $w: number }>`
   ${NoShake};
   padding: 3px;
   background: #ffffff;
   border: 1px solid #d7d9e0;
   border-radius: 4px;
-  height: ${(props) => props.h}px;
-  width: ${(props) => props.w}px;
+  height: ${(props) => props.$h}px;
+  width: ${(props) => props.$w}px;
   display: flex;
   justify-content: center;
   align-items: center;
   cursor: grab;
   transition: all 0.2s ease-in-out;
 
-  :active {
+  &:active {
     background: #f2f4f8;
   }
 
-  :hover {
+  &:hover {
     ${NoShake};
     padding: 0;
     transform: scale(1.05);

@@ -1,4 +1,4 @@
-import { Typography } from "antd";
+import { default as Typography } from "antd/es/typography";
 import OrgApi from "api/orgApi";
 import { buildGroupId } from "constants/routesURL";
 import { AddIcon, CustomModal, EditPopover } from "lowcoder-design";
@@ -118,7 +118,7 @@ export default function PermissionSetting() {
   return (
     <Level1SettingPageContentWithList>
       <Level1SettingPageTitleWithBtn>
-        {trans("settings.member")}
+        {trans("settings.userGroups")}
         {currentOrgAdmin(user) && (
           <CreateButton
             loading={groupCreating}

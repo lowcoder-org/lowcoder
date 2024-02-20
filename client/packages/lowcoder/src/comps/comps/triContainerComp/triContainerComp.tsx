@@ -2,7 +2,12 @@ import { JSONValue } from "util/jsonTypes";
 import { AutoHeightControl } from "comps/controls/autoHeightControl";
 import { BoolControl } from "comps/controls/boolControl";
 import { styleControl } from "comps/controls/styleControl";
-import { ContainerStyle } from "comps/controls/styleControlConstants";
+import {
+  ContainerStyle,
+  ContainerHeaderStyle,
+  ContainerBodyStyle,
+  ContainerFooterStyle,
+} from "comps/controls/styleControlConstants";
 import { MultiCompBuilder, sameTypeMap, withDefault } from "comps/generators";
 import { migrateOldData } from "comps/generators/simpleGenerators";
 import { NameGenerator } from "comps/utils";
@@ -30,13 +35,15 @@ const childrenMap = {
     0: { view: { layout: {}, items: {} } },
   }),
   footer: SimpleContainerComp,
-
   showHeader: BoolControl.DEFAULT_TRUE,
   showBody: BoolControl.DEFAULT_TRUE,
   showFooter: BoolControl,
   autoHeight: AutoHeightControl,
-
+  scrollbars: withDefault(BoolControl, false),
   style: styleControl(ContainerStyle),
+  headerStyle: styleControl(ContainerHeaderStyle),
+  bodyStyle: styleControl(ContainerBodyStyle),
+  footerStyle: styleControl(ContainerFooterStyle),
 };
 
 // Compatible with old style data 2022-8-15
@@ -48,6 +55,7 @@ const TriContainerBaseComp = migrateOldData(
 );
 
 export class TriContainerComp extends TriContainerBaseComp implements IContainer {
+  scrollbars: any;
   private allContainers() {
     return [
       this.children.header,
@@ -108,7 +116,7 @@ export class TriContainerComp extends TriContainerBaseComp implements IContainer
     return lastValueIfEqual(this, "exposing_node", fromRecord(allNodes), checkEquals);
   }
 
-  getPropertyView(): ControlNode {
+  getPropertyView(): ControlNode {    
     return [this.areaPropertyView(), this.heightPropertyView()];
   }
 
@@ -117,6 +125,7 @@ export class TriContainerComp extends TriContainerBaseComp implements IContainer
       this.children.showHeader.propertyView({ label: trans("prop.showHeader") }),
       this.children.showBody.propertyView({ label: trans("prop.showBody") }),
       this.children.showFooter.propertyView({ label: trans("prop.showFooter") }),
+      (!this.children.autoHeight.getView()) && this.children.scrollbars.propertyView({ label: trans("prop.scrollbar") }),
     ];
   }
 
@@ -126,6 +135,18 @@ export class TriContainerComp extends TriContainerBaseComp implements IContainer
 
   stylePropertyView() {
     return this.children.style.getPropertyView();
+  }
+
+  headerStylePropertyView() {
+    return this.children.headerStyle.getPropertyView();
+  }
+
+  bodyStylePropertyView() {
+    return this.children.bodyStyle.getPropertyView();
+  }
+
+  footerStylePropertyView() {
+    return this.children.footerStyle.getPropertyView();
   }
 }
 

@@ -9,6 +9,7 @@ export interface CommonLoginParam {
   invitationId?: string;
   authId?: string;
   source?: string;
+  orgId?: string;
 }
 
 export interface CommonBindParam {
@@ -17,8 +18,8 @@ export interface CommonBindParam {
   source?: string;
 }
 
-interface ThirdPartyAuthRequest {
-  state: string;
+export interface ThirdPartyAuthRequest {
+  state?: string;
   code: string;
   redirectUrl: string;
 }
@@ -28,6 +29,7 @@ interface FormLoginRequest extends CommonLoginParam {
   password: string;
   register: boolean;
   authId?: string;
+  orgId?: string;
 }
 
 export interface GetUserResponse extends ApiResponse {

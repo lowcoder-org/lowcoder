@@ -13,8 +13,8 @@ export const THEME_SETTING = "/setting/theme";
 export const PLUGINS_SETTING = "/setting/plugins";
 export const THEME_DETAIL = "/setting/theme/detail";
 
-export const IDSOURCE_SETTING = "/setting/idsource";
-export const IDSOURCE_DETAIL = "/setting/idsource/detail";
+export const OAUTH_PROVIDER_SETTING = "/setting/oauth-provider";
+export const OAUTH_PROVIDER_DETAIL = "/setting/oauth-provider/detail";
 
 export const PERMISSION_SETTING_DETAIL = `${PERMISSION_SETTING}/:groupId`;
 export const ORGANIZATION_SETTING_DETAIL = `${ORGANIZATION_SETTING}/:orgId`;
@@ -39,8 +39,9 @@ export const QR_CODE_OAUTH_URL = `${USER_AUTH_URL}/oauth/qrcode`;
 export const OAUTH_REDIRECT = `${USER_AUTH_URL}/oauth/redirect`;
 export const CAS_AUTH_REDIRECT = `${USER_AUTH_URL}/cas/redirect`;
 export const LDAP_AUTH_LOGIN_URL = `${USER_AUTH_URL}/ldap/login`;
-export const USER_INFO_COMPLETION = `${USER_AUTH_URL}/completion`;
 export const INVITE_LANDING_URL = "/invite/:invitationId";
+export const ORG_AUTH_LOGIN_URL = `/org/:orgId/auth/login`;
+export const ORG_AUTH_REGISTER_URL = `/org/:orgId/auth/register`;
 
 export const APPLICATION_VIEW_URL = (appId: string, viewMode: AppViewMode) =>
   `${ALL_APPLICATIONS_URL}/${appId}/${viewMode}`;
@@ -49,6 +50,8 @@ export const isAuthUnRequired = (pathname: string): boolean => {
   return (
     pathname.startsWith("/invite/") ||
     pathname.startsWith(USER_AUTH_URL) ||
+    pathname.endsWith('/auth/login') ||
+    pathname.endsWith('/auth/register') ||
     pathname.startsWith(COMPONENT_DOC_URL)
   );
 };

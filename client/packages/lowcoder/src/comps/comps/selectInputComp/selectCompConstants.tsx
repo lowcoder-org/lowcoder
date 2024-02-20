@@ -7,7 +7,7 @@ import {
 import { BoolControl } from "../../controls/boolControl";
 import { LabelControl } from "../../controls/labelControl";
 import { BoolCodeControl, StringControl } from "../../controls/codeControl";
-import { PaddingControl } from "../../controls/paddingControl";	
+import { PaddingControl } from "../../controls/paddingControl";
 import { MarginControl } from "../../controls/marginControl";
 import {
   ControlNode,
@@ -19,7 +19,7 @@ import {
 } from "lowcoder-design";
 import { SelectOptionControl } from "../../controls/optionsControl";
 import { SelectEventHandlerControl } from "../../controls/eventHandlerControl";
-import { Select as AntdSelect } from "antd";
+import { default as AntdSelect } from "antd/es/select";
 import { ControlParams } from "../../controls/controlParams";
 import { ReactNode } from "react";
 import styled, { css } from "styled-components";
@@ -27,14 +27,17 @@ import {
   SelectInputValidationChildren,
   SelectInputValidationSection,
 } from "./selectInputConstants";
-import { formDataChildren, FormDataPropertyView } from "../formComp/formDataConstants";
+import {
+  formDataChildren,
+  FormDataPropertyView,
+} from "../formComp/formDataConstants";
 import {
   CascaderStyleType,
   MultiSelectStyleType,
   SelectStyleType,
   TreeSelectStyleType,
   widthCalculator,
-  heightCalculator
+  heightCalculator,
 } from "comps/controls/styleControlConstants";
 import { stateComp, withDefault } from "../../generators";
 import {
@@ -51,35 +54,43 @@ import { BaseSelectRef } from "rc-select";
 import { refMethods } from "comps/generators/withMethodExposing";
 import { blurMethod, focusMethod } from "comps/utils/methodUtils";
 
+import { useContext } from "react";
+import { EditorContext } from "comps/editorState";
+
 export const getStyle = (
-  style: SelectStyleType | MultiSelectStyleType | CascaderStyleType | TreeSelectStyleType
+  style:
+    | SelectStyleType
+    | MultiSelectStyleType
+    | CascaderStyleType
+    | TreeSelectStyleType
 ) => {
   return css`
     &.ant-select .ant-select-selector,
     &.ant-select-multiple .ant-select-selection-item {
       border-radius: ${style.radius};
-      padding: ${style.padding};	
-      height: auto;	
-    }	
-    .ant-select-selection-search {	
-      padding: ${style.padding};	
-    }	
-    .ant-select-selector::after,	
-    .ant-select-selection-placeholder,	
-    .ant-select-selection-item {	
+      padding: ${style.padding};
+      height: auto;
+    }
+    .ant-select-selection-search {
+      padding: ${style.padding};
+    }
+    .ant-select-selector::after,
+    .ant-select-selection-placeholder,
+    .ant-select-selection-item {
       line-height: 1.5715 !important;
     }
 
     &.ant-select:not(.ant-select-disabled) {
       color: ${style.text};
-      .ant-select-selection-placeholder,	
-      .ant-select-selection-item {	
-        line-height: 1.5715 !important;	
+      .ant-select-selection-placeholder,
+      .ant-select-selection-item {
+        line-height: 1.5715 !important;
       }
       .ant-select-selection-placeholder,
       &.ant-select-single.ant-select-open .ant-select-selection-item {
         color: ${style.text};
         opacity: 0.4;
+        width: 100%;
       }
 
       .ant-select-selector {
@@ -100,16 +111,16 @@ export const getStyle = (
         color: ${style.text === "#222222"
           ? "#8B8FA3"
           : isDarkColor(style.text)
-          ? lightenColor(style.text, 0.2)
-          : style.text};
+            ? lightenColor(style.text, 0.2)
+            : style.text};
       }
 
       .ant-select-clear:hover {
         color: ${style.text === "#222222"
           ? "#8B8FA3"
           : isDarkColor(style.text)
-          ? lightenColor(style.text, 0.1)
-          : style.text};
+            ? lightenColor(style.text, 0.1)
+            : style.text};
       }
 
       &.ant-select-multiple .ant-select-selection-item {
@@ -141,7 +152,7 @@ const getDropdownStyle = (style: MultiSelectStyleType) => {
       margin: 0 8px;
       padding: 5px 8px;
 
-      :hover {
+      &:hover {
         background-color: rgb(242, 247, 252);
       }
 
@@ -157,7 +168,9 @@ const getDropdownStyle = (style: MultiSelectStyleType) => {
   `;
 };
 
-const Select = styled(AntdSelect)<{ $style: SelectStyleType & MultiSelectStyleType }>`
+const Select = styled(AntdSelect)<{
+  $style: SelectStyleType & MultiSelectStyleType;
+}>`
   width: 100%;
 
   ${(props) => props.$style && getStyle(props.$style)}
@@ -166,7 +179,7 @@ const Select = styled(AntdSelect)<{ $style: SelectStyleType & MultiSelectStyleTy
 const DropdownStyled = styled.div<{ $style: MultiSelectStyleType }>`
   ${(props) => props.$style && getDropdownStyle(props.$style)}
   .ant-select-item-option-content {
-    ${(props) => `padding: ${props.$style.padding}`};	
+    ${(props) => `padding: ${props.$style.padding}`};
   }
   .option-label img {
     min-width: 14px;
@@ -194,7 +207,7 @@ export const SelectChildrenMap = {
   inputValue: stateComp<string>(""), // user's input value when search
   showSearch: BoolControl.DEFAULT_TRUE,
   viewRef: RefControl<BaseSelectRef>,
-  margin: MarginControl,	
+  margin: MarginControl,
   padding: PaddingControl,
   ...SelectInputValidationChildren,
   ...formDataChildren,
@@ -218,9 +231,13 @@ export const SelectUIView = (
     placeholder={props.placeholder}
     value={props.value}
     showSearch={props.showSearch}
-    filterOption={(input, option) => option?.label.toLowerCase().includes(input.toLowerCase())}
+    filterOption={(input, option) =>
+      option?.label.toLowerCase().includes(input.toLowerCase())
+    }
     dropdownRender={(originNode: ReactNode) => (
-      <DropdownStyled $style={props.style as MultiSelectStyleType}>{originNode}</DropdownStyled>
+      <DropdownStyled $style={props.style as MultiSelectStyleType}>
+        {originNode}
+      </DropdownStyled>
     )}
     dropdownStyle={{
       padding: 0,
@@ -247,8 +264,8 @@ export const SelectUIView = (
           key={option.value}
         >
           <Wrapper className="option-label">
-            {props.options.findIndex((option) => hasIcon(option.prefixIcon)) > -1 &&
-              option.prefixIcon}
+            {props.options.findIndex((option) => hasIcon(option.prefixIcon)) >
+              -1 && option.prefixIcon}
             {<span>{option.label}</span>}
           </Wrapper>
         </Select.Option>
@@ -262,6 +279,7 @@ export const SelectPropertyView = (
       hidden: typeof BoolCodeControl;
     }
   > & {
+    defaultValue: { propertyView: (params: ControlParams) => ControlNode };
     value: { propertyView: (params: ControlParams) => ControlNode };
     style: { getPropertyView: () => ControlNode };
   }
@@ -269,27 +287,47 @@ export const SelectPropertyView = (
   <>
     <Section name={sectionNames.basic}>
       {children.options.propertyView({})}
-      {children.value.propertyView({ label: trans("prop.defaultValue") })}
+      {children.defaultValue.propertyView({
+        label: trans("prop.defaultValue"),
+      })}
       {placeholderPropertyView(children)}
     </Section>
-    <FormDataPropertyView {...children} />
-    {children.label.getPropertyView()}
 
-    <Section name={sectionNames.interaction}>
-      {children.onEvent.getPropertyView()}
-      {disabledPropertyView(children)}
-    </Section>
+    {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+      <>
+        <>
+          <SelectInputValidationSection {...children} />
+          <FormDataPropertyView {...children} />
+        </>
+        <Section name={sectionNames.interaction}>
+          {children.onEvent.getPropertyView()}
+          {disabledPropertyView(children)}
+          {hiddenPropertyView(children)}
+        </Section>
+      </>
+    )}
 
-    <Section name={sectionNames.advanced}>
-      {allowClearPropertyView(children)}
-      {showSearchPropertyView(children)}
-    </Section>
+    {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) &&
+      children.label.getPropertyView()}
 
-    <SelectInputValidationSection {...children} />
+    {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+      <Section name={sectionNames.advanced}>
+        {allowClearPropertyView(children)}
+        {showSearchPropertyView(children)}
+      </Section>
+    )}
 
-    <Section name={sectionNames.layout}>{hiddenPropertyView(children)}</Section>
-    <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
+    {["layout", "both"].includes(
+      useContext(EditorContext).editorModeStatus
+    ) && (
+      <Section name={sectionNames.style}>
+        {children.style.getPropertyView()}
+      </Section>
+    )}
   </>
 );
 
-export const baseSelectRefMethods = refMethods<BaseSelectRef>([focusMethod, blurMethod]);
+export const baseSelectRefMethods = refMethods<BaseSelectRef>([
+  focusMethod,
+  blurMethod,
+]);

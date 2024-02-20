@@ -2,14 +2,14 @@ import { useLocation } from "react-router-dom";
 import { AuthSessionStoreParams } from "constants/authConstants";
 import { messageInstance } from "lowcoder-design";
 
-import { AUTH_LOGIN_URL, BASE_URL } from "constants/routesURL";
+import { AUTH_LOGIN_URL, AUTH_REGISTER_URL, BASE_URL } from "constants/routesURL";
 import history from "util/history";
 import PageSkeleton from "components/PageSkeleton";
 import { trans } from "i18n";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { getAuthenticator } from "@lowcoder-ee/pages/userAuth/thirdParty/authenticator";
 import { AuthRedirectUrlParams } from "pages/userAuth/thirdParty/authenticator";
-import { loadAuthParams } from "pages/userAuth/authUtils";
+import { AuthContext, loadAuthParams } from "pages/userAuth/authUtils";
 
 function getUrlParams(queryParams: URLSearchParams): AuthRedirectUrlParams {
   const ticket = queryParams.get("ticket");
@@ -35,7 +35,13 @@ function validateParam(authParams: AuthSessionStoreParams, urlParam: AuthRedirec
     return true;
   } else {
     messageInstance.error(trans("userAuth.invalidThirdPartyParam"));
-    history.push(authParams.authGoal === "login" ? AUTH_LOGIN_URL : BASE_URL, {
+    let redirectUrl = BASE_URL;
+    if(authParams.authGoal === "login") {
+      redirectUrl = AUTH_LOGIN_URL;
+    } else if(authParams.authGoal === "register") {
+      redirectUrl = AUTH_REGISTER_URL;
+    }
+    history.push(redirectUrl, {
       thirdPartyAuthError: true,
     });
     return false;
@@ -47,6 +53,8 @@ export function AuthRedirect() {
   const queryParams = new URLSearchParams(location.search);
   const urlParam = getUrlParams(queryParams);
   const [authParams, setAuthParam] = useState<AuthSessionStoreParams>();
+  const { fetchUserAfterAuthSuccess } = useContext(AuthContext);
+
   useEffect(() => {
     const localAuthParams = loadAuthParams();
     if (!localAuthParams) {
@@ -55,8 +63,9 @@ export function AuthRedirect() {
       setAuthParam(localAuthParams);
     }
   }, []);
+
   if (authParams && validateParam(authParams, urlParam)) {
-    getAuthenticator(authParams, urlParam).doAuth();
+    getAuthenticator(authParams, urlParam).doAuth(fetchUserAfterAuthSuccess);
   }
   return <PageSkeleton hideSideBar />;
 }
