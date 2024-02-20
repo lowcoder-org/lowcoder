@@ -1,4 +1,5 @@
 import { PanelStatus } from "pages/common/header";
+import { DisabledCollisionStatus as DisabledCollisionStatus } from "pages/editor/LeftLayersContent";
 import { EditorModeStatus } from "pages/common/header";
 import log from "loglevel";
 import { JSONValue } from "util/jsonTypes";
@@ -18,7 +19,6 @@ export const DefaultPanelStatus: PanelStatus = {
   bottom: true,
   right: true,
 };
-
 
 const DefaultPanelStyle: PanelStyle = {
   bottom: {
@@ -42,12 +42,26 @@ export function getPanelStatus(): PanelStatus {
   return { ...DefaultPanelStatus, ...JSON.parse(str) };
 }
 
-
 export function saveEditorModeStatus(editorModeStatus: EditorModeStatus) {
   localStorage.setItem("editor_mode_status", editorModeStatus);
 }
+//ADDED BY FRED TO SAVE enabledCollision
+export function saveCollisionStatus(
+  collisionStatus: DisabledCollisionStatus
+) {
+  localStorage.setItem("disable_collision", collisionStatus);
+}
 
-export const DefaultEditorModeStatus: EditorModeStatus = "both"; 
+export const DefaultCollisionStatus: DisabledCollisionStatus = "true";
+export function getCollisionStatus(): DisabledCollisionStatus {
+  const str = localStorage.getItem("disable_collision");
+  if (!str) {
+    return DefaultCollisionStatus;
+  }
+  return str as DisabledCollisionStatus;
+}
+
+export const DefaultEditorModeStatus: EditorModeStatus = "both";
 export function getEditorModeStatus(): EditorModeStatus {
   const str = localStorage.getItem("editor_mode_status");
   if (!str) {

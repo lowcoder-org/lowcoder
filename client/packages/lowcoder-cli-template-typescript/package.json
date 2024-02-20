@@ -32,7 +32,7 @@
     "react-dom": "^18.2.0",
     "react-resize-detector": "^7.0.0",
     "typescript": "5.3.3",
-    "vite": "^5.0.10"
+    "vite": "^4.5.2"
   },
   "keywords": [
     "Lowcoder, Component, Template, Plugin, Demonstrator"

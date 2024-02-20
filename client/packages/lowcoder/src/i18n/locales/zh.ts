@@ -106,7 +106,10 @@ leftPanel: {
     components: "组件",
     modals: "对话框",
     expandTip: "点击展开 {component} 的数据",
-    collapseTip: "点击折叠 {component} 的数据"
+    collapseTip: "点击折叠 {component} 的数据",
+    layers: "图层",
+    activatelayers: "激活图层",
+    selectedComponents: "已选组件",
 },
 bottomPanel: {
     title: "查询",
@@ -182,7 +185,8 @@ prop: {
     showBody: "显示表体",
     showFooter: "显示表尾",
     maskClosable: "点击蒙层关闭",
-    showMask: "显示蒙层"
+    showMask: "显示蒙层",
+    scrollbar: "滚动条",
 },
 autoHeightProp: {
     auto: "自动",
