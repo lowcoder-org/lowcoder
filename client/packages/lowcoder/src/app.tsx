@@ -33,14 +33,14 @@ import { reduxStore } from "redux/store/store";
 import { developEnv } from "util/envUtils";
 import history from "util/history";
 import LazyRoute from "components/LazyRoute";
-import AppFromTemplate from "pages/ApplicationV2/AppFromTemplate";
-import AppEditor from "pages/editor/AppEditor";
+// import AppFromTemplate from "pages/ApplicationV2/AppFromTemplate";
+// import AppEditor from "pages/editor/AppEditor";
 import { getAntdLocale } from "i18n/antdLocale";
 import { ProductLoading } from "components/ProductLoading";
 import { language, trans } from "i18n";
 import { loadComps } from "comps";
 import { initApp } from "util/commonUtils";
-import ApplicationHome from "./pages/ApplicationV2";
+// import ApplicationHome from "./pages/ApplicationV2";
 import { favicon } from "@lowcoder-ee/assets/images";
 import { hasQueryParam } from "util/urlUtils";
 import { isFetchUserFinished } from "redux/selectors/usersSelectors";
@@ -53,6 +53,9 @@ const LazyUserAuthComp = React.lazy(() => import("pages/userAuth"));
 const LazyInviteLanding = React.lazy(() => import("pages/common/inviteLanding"));
 const LazyComponentDoc = React.lazy(() => import("pages/ComponentDoc"));
 const LazyComponentPlayground = React.lazy(() => import("pages/ComponentPlayground"));
+const LazyAppEditor = React.lazy(() => import("pages/editor/AppEditor"));
+const LazyAppFromTemplate = React.lazy(() => import("pages/ApplicationV2/AppFromTemplate"));
+const LazyApplicationHome = React.lazy(() => import("pages/ApplicationV2"));
 const LazyDebugComp = React.lazy(() => import("./debug"));
 const LazyDebugNewComp = React.lazy(() => import("./debugNew"));
 
@@ -124,9 +127,9 @@ class AppIndex extends React.Component<AppIndexProps, any> {
                 to={APPLICATION_VIEW_URL(this.props.defaultHomePage, "view")}
               />
             )}
-            <Route exact path={IMPORT_APP_FROM_TEMPLATE_URL} component={AppFromTemplate} />
-            <Route path={APP_EDITOR_URL} component={AppEditor} />
-            <Route
+            <LazyRoute exact path={IMPORT_APP_FROM_TEMPLATE_URL} component={LazyAppFromTemplate} />
+            <LazyRoute path={APP_EDITOR_URL} component={LazyAppEditor} />
+            <LazyRoute
               path={[
                 ALL_APPLICATIONS_URL,
                 DATASOURCE_CREATE_URL,
@@ -139,7 +142,7 @@ class AppIndex extends React.Component<AppIndexProps, any> {
                 SETTING,
               ]}
               // component={ApplicationListPage}
-              component={ApplicationHome}
+              component={LazyApplicationHome}
             />
             <LazyRoute path={USER_AUTH_URL} component={LazyUserAuthComp} />
             <LazyRoute path={ORG_AUTH_LOGIN_URL} component={LazyUserAuthComp} />
@@ -153,7 +156,7 @@ class AppIndex extends React.Component<AppIndexProps, any> {
               <>
                 <LazyRoute path="/debug_comp/:name" component={LazyDebugComp} />
                 <LazyRoute exact path="/debug_comp" component={LazyDebugComp} />
-                <Route path="/debug_editor" component={AppEditor} />
+                <LazyRoute path="/debug_editor" component={LazyAppEditor} />
                 <LazyRoute path="/debug_new" component={LazyDebugNewComp} />
               </>
             )}

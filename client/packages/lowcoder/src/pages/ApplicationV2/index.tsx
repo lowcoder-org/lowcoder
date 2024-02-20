@@ -34,27 +34,51 @@ import {
 import React, { useEffect, useState } from "react";
 import { fetchAllApplications, fetchHomeData } from "redux/reduxActions/applicationActions";
 import { getHomeOrg, normalAppListSelector } from "redux/selectors/applicationSelector";
-import { DatasourceHome } from "../datasource";
+// import { DatasourceHome } from "../datasource";
 import { clearStyleEval, evalStyle } from "lowcoder-core";
-import { QueryLibraryEditor } from "../queryLibrary/QueryLibraryEditor";
+// import { QueryLibraryEditor } from "../queryLibrary/QueryLibraryEditor";
 import { ProductLoading } from "components/ProductLoading";
 import { Layout } from "../../components/layout/Layout";
-import { HomeView } from "./HomeView";
+// import { HomeView } from "./HomeView";
 import styled, { css } from "styled-components";
 import history from "../../util/history";
-import { FolderView } from "./FolderView";
-import { TrashView } from "./TrashView";
+// import { FolderView } from "./FolderView";
+// import { TrashView } from "./TrashView";
 import { SideBarItemType } from "../../components/layout/SideBarSection";
-import { RootFolderListView } from "./RootFolderListView";
+// import { RootFolderListView } from "./RootFolderListView";
 import InviteDialog from "../common/inviteDialog";
 import { fetchFolderElements, updateFolder } from "../../redux/reduxActions/folderActions";
-import { ModuleView } from "./ModuleView";
+// import { ModuleView } from "./ModuleView";
 import { useCreateFolder } from "./useCreateFolder";
 import { trans } from "../../i18n";
 import { foldersSelector } from "../../redux/selectors/folderSelector";
-import Setting from "pages/setting";
+// import Setting from "pages/setting";
 import { TypographyText } from "../../components/TypographyText";
 import { messageInstance } from "lowcoder-design";
+
+const LazyFolderView = React.lazy(
+  () => import("./FolderView").then(module => ({default: module.FolderView}))
+);
+const LazyRootFolderListView = React.lazy(
+  () => import("./RootFolderListView").then(module => ({default: module.RootFolderListView}))
+);
+const LazyTrashView = React.lazy(
+  () => import("./TrashView").then(module => ({default: module.TrashView}))
+);
+const LazyModuleView = React.lazy(
+  () => import("./ModuleView").then(module => ({default: module.ModuleView}))
+);
+const LazyHomeView = React.lazy(
+  () => import("./HomeView").then(module => ({default: module.HomeView}))
+);
+const LazyDatasourceHome = React.lazy(
+  () => import("../datasource").then(module => ({default: module.DatasourceHome}))
+);
+const LazyQueryLibraryEditor = React.lazy(
+  () => import("../queryLibrary/QueryLibraryEditor").then(module => ({default: module.QueryLibraryEditor}))
+);
+const LazySetting = React.lazy(() => import("pages/setting"));
+
 
 const TabLabel = styled.div`
   font-weight: 500;
@@ -298,7 +322,8 @@ export default function ApplicationHome() {
         ),
         routePath: FOLDER_URL,
         routePathExact: false,
-        routeComp: FolderView,
+        // routeComp: FolderView,
+        routeComp: LazyFolderView,
         icon: FolderIcon,
         size: "small",
         onClick: (currentPath) => currentPath !== path && history.push(path),
@@ -313,7 +338,7 @@ export default function ApplicationHome() {
           <MoreFoldersWrapper $selected={Boolean(props.selected)}>{trans("more")}</MoreFoldersWrapper>
         ),
         routePath: FOLDERS_URL,
-        routeComp: RootFolderListView,
+        routeComp: LazyRootFolderListView,
         icon: MoreFoldersIcon,
         size: "small",
       },
@@ -336,14 +361,14 @@ export default function ApplicationHome() {
               {
                 text: <TabLabel>{trans("home.allApplications")}</TabLabel>,
                 routePath: ALL_APPLICATIONS_URL,
-                routeComp: HomeView,
+                routeComp: LazyHomeView,
                 icon: ({ selected, ...otherProps }) =>
                   selected ? <HomeActiveIcon {...otherProps} /> : <HomeIcon {...otherProps} />,
               },
               {
                 text: <TabLabel>{trans("home.modules")}</TabLabel>,
                 routePath: MODULE_APPLICATIONS_URL,
-                routeComp: ModuleView,
+                routeComp: LazyModuleView,
                 icon: ({ selected, ...otherProps }) =>
                   selected ? (
                     <HomeModuleActiveIcon {...otherProps} />
@@ -355,7 +380,8 @@ export default function ApplicationHome() {
               {
                 text: <TabLabel>{trans("home.trash")}</TabLabel>,
                 routePath: TRASH_URL,
-                routeComp: TrashView,
+                // routeComp: TrashView,
+                routeComp: LazyTrashView,
                 icon: ({ selected, ...otherProps }) =>
                   selected ? (
                     <RecyclerActiveIcon {...otherProps} />
@@ -388,7 +414,7 @@ export default function ApplicationHome() {
               {
                 text: <TabLabel>{trans("home.queryLibrary")}</TabLabel>,
                 routePath: QUERY_LIBRARY_URL,
-                routeComp: QueryLibraryEditor,
+                routeComp: LazyQueryLibraryEditor,
                 icon: ({ selected, ...otherProps }) =>
                   selected ? (
                     <HomeQueryLibraryActiveIcon {...otherProps} />
@@ -401,7 +427,7 @@ export default function ApplicationHome() {
                 text: <TabLabel>{trans("home.datasource")}</TabLabel>,
                 routePath: DATASOURCE_URL,
                 routePathExact: false,
-                routeComp: DatasourceHome,
+                routeComp: LazyDatasourceHome,
                 icon: ({ selected, ...otherProps }) =>
                   selected ? (
                     <HomeDataSourceActiveIcon {...otherProps} />
@@ -415,7 +441,7 @@ export default function ApplicationHome() {
                 text: <TabLabel>{trans("settings.title")}</TabLabel>,
                 routePath: SETTING,
                 routePathExact: false,
-                routeComp: Setting,
+                routeComp: LazySetting,
                 icon: ({ selected, ...otherProps }) =>
                   selected ? (
                     <HomeSettingsActiveIcon {...otherProps} />
