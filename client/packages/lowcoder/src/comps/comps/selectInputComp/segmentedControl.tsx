@@ -79,7 +79,6 @@ const SegmentedControlBasicComp = (function () {
   return new UICompBuilder(SegmentChildrenMap, (props) => {
     const [
       validateState,
-      handleValidate,
       handleChange,
     ] = useSelectInputValidate(props);
     return props.label({
