@@ -34,7 +34,6 @@ import { trans } from "i18n";
 import { IconControl } from "comps/controls/iconControl";
 import { hasIcon } from "comps/utils";
 import { InputRef } from "antd/es/input";
-import { default as  AntInputSearch } from "antd/es/input/Search";
 import { default as ConfigProvider } from "antd/es/config-provider";
 import { default as AutoComplete } from "antd/es/auto-complete";
 import { RefControl } from "comps/controls/refControl";
@@ -54,39 +53,20 @@ import {
   componentSize,
 } from "./autoCompleteConstants";
 
-// const InputStyle = styled(Input)<{ $style: InputLikeStyleType }>`
-//   ${(props) => props.$style && getStyle(props.$style) }
-// `;
+
 
 const InputStyle = styled(Input)<{ $style: InputLikeStyleType }>`
   ${(props) => css`
     ${getStyle(props.$style)}
-    .ant-select-selection-search-input {
-      height: 100%;
-    }
     input {
-      padding: ${props.style?.padding}
+      padding: ${props.style?.padding};
+    }
+    .ant-select-single {
+      width: 100% !important;
     }
   `}
 `;
 
-const CustomStyledSearch = styled(AntInputSearch)<{ $style: InputLikeStyleType }>`
-  ${(props) => css`
-    padding: 0;
-    input.ant-input {
-      padding: ${props.$style?.padding};
-    }
-    .ant-btn.ant-input-search-button {
-      height: 100%;
-      padding: ${props.$style?.padding} !important;
-      padding-left: 15px !important;
-      padding-right: 15px !important;
-      .ant-btn-icon {
-        line-height: 28px;
-      }
-    }
-  `}
-`;
 
 const childrenMap = {
   ...textInputChildren,
@@ -131,6 +111,7 @@ let AutoCompleteCompBase = (function () {
       autocompleteIconColor,
       componentSize,
     } = props;
+    
 
     const getTextInputValidate = () => {
       return {
@@ -181,19 +162,20 @@ let AutoCompleteCompBase = (function () {
               },
             }}
           >
-            <AutoComplete
+            <AutoComplete 
               disabled={props.disabled}
               value={searchtext}
-              options={items}
+              options={items} 
+              style={{ width: "100%" }}
               onChange={(value: string, option) => {
                 props.valueInItems.onChange(false);
                 setvalidateState(textInputValidate(getTextInputValidate()));
                 setsearchtext(value);
-                props.value.onChange(value);
+                props.value.onChange(value); 
                 props.onEvent("change")
-              }}
+              }} 
               onFocus={() => {
-                setActivationFlag(true)
+                setActivationFlag(true) 
                 props.onEvent("focus")
               }}
               onBlur={() => props.onEvent("blur")}
@@ -280,22 +262,7 @@ let AutoCompleteCompBase = (function () {
                 return false;
               }}
             >
-              {autoCompleteType === "AntDesign" ? (
-                <CustomStyledSearch
-                  placeholder={placeholder}
-                  enterButton={autocompleteIconColor === "blue"}
-                  allowClear={props.allowClear}
-                  ref={props.viewRef}
-                  onPressEnter={undefined}
-                  status={getValidate(validateState)}
-                  onSubmit={() => props.onEvent("submit")}
-                  $style={props.style}
-                />
-              ) : (
                 <InputStyle
-                  // style={{
-                  //   height: componentSize === "small" ? "30px" : "38px",
-                  // }}
                   ref={props.viewRef}
                   placeholder={placeholder}
                   allowClear={props.allowClear}
@@ -305,29 +272,18 @@ let AutoCompleteCompBase = (function () {
                   status={getValidate(validateState)}
                   onPressEnter={undefined}
                 />
-              )}
             </AutoComplete>
           </ConfigProvider>
         </>
       ),
-      style: props.style,
-      ...validateState,
+      // style: props.style,
+      // ...validateState,
     });
   })
     .setPropertyViewFn((children) => {
       return (
         <>
-          <Section name={trans("autoComplete.ComponentType")}>
-            {children.autoCompleteType.propertyView({
-              label: trans("autoComplete.type"),
-              radioButton: true,
-            })}
-            {children.autoCompleteType.getView() === "AntDesign" &&
-              children.autocompleteIconColor.propertyView({
-                label: trans("button.prefixIcon"),
-                radioButton: true,
-              })}
-
+          <Section>
             {children.autoCompleteType.getView() === "normal" &&
               children.prefixIcon.propertyView({
                 label: trans("button.prefixIcon"),
@@ -403,6 +359,6 @@ export const AutoCompleteComp = withExposingConfigs(AutoCompleteCompBase, [
   new NameConfig("value", trans("export.inputValueDesc")),
   new NameConfig("valueInItems", trans("autoComplete.valueInItems")),
   NameConfigPlaceHolder,
-  NameConfigRequired,
+  NameConfigRequired, 
   ...TextInputConfigs,
 ]);

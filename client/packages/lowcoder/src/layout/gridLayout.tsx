@@ -1003,6 +1003,7 @@ class GridLayout extends React.Component<GridLayoutProps, GridLayoutState> {
 
     // log.debug("GridLayout render. layout: ", layout, " oriLayout: ", this.state.layout, " extraLayout: ", this.props.extraLayout);
     const layouts = Object.values(layout);
+    const maxLayoutPos = Math.max(...layouts.map(l => l.pos || 0))
     return (
       <LayoutContainer
         ref={this.ref}
@@ -1027,10 +1028,10 @@ class GridLayout extends React.Component<GridLayoutProps, GridLayoutState> {
         >
           <div style={contentStyle}>
             {showGridLines && this.gridLines()}
-            {mounted &&
+            {mounted && 
               layouts.map((item) => {
                 const zIndex = item.pos !== undefined
-                  ? layouts.length - item.pos
+                  ? (maxLayoutPos - item.pos) + 1
                   : 1;
                 return this.processGridItem(zIndex, item, childrenMap)
               })

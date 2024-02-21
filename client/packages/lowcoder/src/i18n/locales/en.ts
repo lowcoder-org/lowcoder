@@ -106,7 +106,7 @@ export const en = {
     "expandTip": "Click to Expand {component}'s Data",
     "collapseTip": "Click to Collapse {component}'s Data",
     "layers": "Layers",
-    "activatelayers": "Use Layers in this App",
+    "activatelayers": "Use dynamic Layers",
     "selectedComponents": "Selected Components...",
     "displayComponents": "control Display",
     "lockComponents": "control Position",
@@ -948,7 +948,11 @@ export const en = {
 
     "responsiveLayoutCompName": "Responsive Layout",
     "responsiveLayoutCompDesc": "A layout component designed to adapt and respond to different screen sizes and devices, ensuring a consistent user experience.",
-    "responsiveLayoutCompKeywords": "responsive, layout, adapt, screen size"
+    "responsiveLayoutCompKeywords": "responsive, layout, adapt, screen size",
+
+    "iconCompName": "Icons",
+    "iconCompDesc": "Use various Icons to enhance the visual appeal and user experience of your application.",
+    "iconCompKeywords": "Icons, pictograms, symbols, shapes",
   },
 
 
@@ -1068,7 +1072,11 @@ export const en = {
 
   // ninth part
 
-
+  "iconComp": {
+    "icon": "Icon",
+    "autoSize": "Icon AutoSize",
+    "iconSize": "Icon Size",
+  },
   "numberInput": {
     "formatter": "Format",
     "precision": "Precision",

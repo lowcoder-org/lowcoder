@@ -879,6 +879,9 @@ uiComp: {
     responsiveLayoutCompName: "响应式布局",
     responsiveLayoutCompDesc: "响应式布局",
     responsiveLayoutCompKeywords: "",
+    iconCompName: "图标",
+    iconCompDesc: "图标",
+    iconCompKeywords: "tb",
 },
 comp: {
     menuViewDocs: "查看文档",
@@ -2629,6 +2632,11 @@ timeLine: {
         helpdisplayName: "头像文字(低优先)",
         helpvalue: "评论内容",
         helpcreatedAt: "创建时间",
+      },
+      iconComp: {
+        icon: "图标",
+        autoSize: "图标自动大小",
+        iconSize: "图标大小",
       },
     mention:{
         mentionList: "提及列表",
