@@ -197,12 +197,33 @@ function AppShareView(props: {
 }) {
   const { applicationId, permissionInfo, isModule } = props;
   const [isPublic, setPublic] = useState(permissionInfo.publicToAll);
+  const [isPublicToMarketplace, setPublicToMarketplace] = useState(permissionInfo.publicToMarketplace);
   const dispatch = useDispatch();
   useEffect(() => {
     setPublic(permissionInfo.publicToAll);
   }, [permissionInfo.publicToAll]);
+  useEffect(() => {
+    setPublicToMarketplace(permissionInfo.publicToMarketplace);
+  }, [permissionInfo.publicToMarketplace]);
   return (
     <div style={{ marginBottom: "22px" }}>
+      <PermissionSwitchWrapper>
+        <TacoSwitch
+          checked={isPublicToMarketplace}
+          onChange={(checked) => {
+            setPublicToMarketplace(checked);
+            ApplicationApi.publicToMarketplace(applicationId, checked)
+              .then((resp) => {
+                validateResponse(resp);
+                dispatch(updateAppPermissionInfo({ publicToMarketplace: checked }));
+              })
+              .catch((e) => {
+                messageInstance.error(e.message);
+              });
+          }}
+          label={isModule ? 'Public module to marketplace' : 'Public app to marketplace'}
+        />
+      </PermissionSwitchWrapper>
       <PermissionSwitchWrapper>
         <TacoSwitch
           checked={isPublic}

@@ -33,7 +33,7 @@ export default function AppEditor() {
   const isUserViewMode = useUserViewMode();
   const params = useParams<AppPathParams>();
   const applicationId = params.applicationId;
-  const viewMode = params.viewMode === "view" ? "published" : "editing";
+  const viewMode = params.viewMode === "view" ? "published" : params.viewMode === "view_marketplace" ? "view_marketplace" : "editing";
   const currentUser = useSelector(getUser);
   const dispatch = useDispatch();
   const fetchOrgGroupsFinished = useSelector(getFetchOrgGroupsFinished);

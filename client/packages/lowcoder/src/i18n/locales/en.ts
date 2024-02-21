@@ -2244,6 +2244,7 @@ export const en = {
     "modules": "Modules",
     "module": "Module",
     "trash": "Trash",
+    "marketplace": "Marketplace",
     "queryLibrary": "Query Library",
     "datasource": "Data Sources",
     "selectDatasourceType": "Select Data Source Type",

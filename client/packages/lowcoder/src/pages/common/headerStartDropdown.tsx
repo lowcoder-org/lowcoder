@@ -11,7 +11,7 @@ import {
 } from "lowcoder-design";
 import { trans, transToNode } from "i18n";
 import { exportApplicationAsJSONFile } from "pages/ApplicationV2/components/AppImport";
-import { useContext, useState } from "react";
+import { useContext, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { currentApplication } from "redux/selectors/applicationSelector";
 import { showAppSnapshotSelector } from "redux/selectors/appSnapshotSelector";
@@ -23,6 +23,8 @@ import { recycleApplication } from "redux/reduxActions/applicationActions";
 import { CopyModal } from "./copyModal";
 import { ExternalEditorContext } from "util/context/ExternalEditorContext";
 import { messageInstance } from "lowcoder-design";
+import { getUser } from "redux/selectors/usersSelectors";
+import { canEditApp } from "util/permissionUtils";
 
 const PackUpIconStyled = styled(PackUpIcon)`
   transform: rotate(180deg);
@@ -68,6 +70,7 @@ export const TypeName = {
 };
 
 export function HeaderStartDropdown(props: { setEdit: () => void }) {
+  const user = useSelector(getUser);
   const showAppSnapshot = useSelector(showAppSnapshotSelector);
   const applicationId = useApplicationId();
   const application = useSelector(currentApplication);
@@ -75,6 +78,37 @@ export function HeaderStartDropdown(props: { setEdit: () => void }) {
   const dispatch = useDispatch();
   const { appType } = useContext(ExternalEditorContext);
   const isModule = appType === AppTypeEnum.Module;
+
+  const isEditable = canEditApp(user, application);
+
+  const menuItems = useMemo(() => ([
+    {
+      key: "edit",
+      label: <CommonTextLabel>{trans("header.editName")}</CommonTextLabel>,
+      visible: isEditable,
+    },
+    {
+      key: "export",
+      label: <CommonTextLabel>{trans("header.export")}</CommonTextLabel>,
+      visible: true,
+    },
+    {
+      key: "duplicate",
+      label: (
+        <CommonTextLabel>
+          {trans("header.duplicate", {
+            type: TypeName[application?.applicationType!]?.toLowerCase(),
+          })}
+        </CommonTextLabel>
+      ),
+      visible: true,
+    },
+    {
+      key: "delete",
+      label: <CommonTextLabelDelete>{trans("home.moveToTrash")}</CommonTextLabelDelete>,
+      visible: isEditable,
+    },
+  ]), [isEditable]);
 
   return (
     <>
@@ -115,30 +149,7 @@ export function HeaderStartDropdown(props: { setEdit: () => void }) {
                 });
               }
             }}
-            items={[
-              {
-                key: "edit",
-                label: <CommonTextLabel>{trans("header.editName")}</CommonTextLabel>,
-              },
-              {
-                key: "export",
-                label: <CommonTextLabel>{trans("header.export")}</CommonTextLabel>,
-              },
-              {
-                key: "duplicate",
-                label: (
-                  <CommonTextLabel>
-                    {trans("header.duplicate", {
-                      type: TypeName[application?.applicationType!]?.toLowerCase(),
-                    })}
-                  </CommonTextLabel>
-                ),
-              },
-              {
-                key: "delete",
-                label: <CommonTextLabelDelete>{trans("home.moveToTrash")}</CommonTextLabelDelete>,
-              },
-            ]}
+            items={menuItems.filter(item => item.visible)}
           />
         )}
       >

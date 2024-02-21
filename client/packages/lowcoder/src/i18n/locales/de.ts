@@ -2053,6 +2053,7 @@ export const de = {
       "modules": "Module",
       "module": "Modul",
       "trash": "Papierkorb",
+      "marketplace": "Marktplatz",
       "queryLibrary": "Abfragebibliothek",
       "datasource": "Datenquellen",
       "selectDatasourceType": "Datenquellentyp auswählen",

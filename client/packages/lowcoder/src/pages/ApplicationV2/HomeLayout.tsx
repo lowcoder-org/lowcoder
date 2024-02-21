@@ -238,11 +238,12 @@ export interface HomeRes {
   isEditable?: boolean;
   isManageable: boolean;
   isDeletable: boolean;
+  isMarketplace?: boolean;
 }
 
 export type HomeBreadcrumbType = { text: string; path: string };
 
-export type HomeLayoutMode = "view" | "trash" | "module" | "folder" | "folders";
+export type HomeLayoutMode = "view" | "trash" | "module" | "folder" | "folders" | "marketplace";
 
 export interface HomeLayoutProps {
   breadcrumb?: HomeBreadcrumbType[];
@@ -306,11 +307,12 @@ export function HomeLayout(props: HomeLayoutProps) {
             id: e.applicationId,
             name: e.name,
             type: HomeResTypeEnum[HomeResTypeEnum[e.applicationType] as HomeResKey],
-            creator: e.createBy,
+            creator: e?.creatorEmail ?? e.createBy,
             lastModifyTime: e.lastModifyTime,
-            isEditable: canEditApp(user, e),
-            isManageable: canManageApp(user, e),
-            isDeletable: canEditApp(user, e),
+            isEditable: mode !== 'marketplace' && canEditApp(user, e),
+            isManageable: mode !== 'marketplace' && canManageApp(user, e),
+            isDeletable: mode !== 'marketplace' && canEditApp(user, e),
+            isMarketplace: mode === 'marketplace',
           }
     );
 
@@ -387,7 +389,7 @@ export function HomeLayout(props: HomeLayoutProps) {
             onChange={(e) => setSearchValue(e.target.value)}
             style={{ width: "192px", height: "32px", margin: "0" }}
           />
-          {mode !== "trash" && user.orgDev && (
+          {mode !== "trash" && mode !== "marketplace" && user.orgDev && (
             <CreateDropdown defaultVisible={showNewUserGuide(user)} mode={mode} />
           )}
         </OperationRightWrapper>
@@ -421,11 +423,13 @@ export function HomeLayout(props: HomeLayoutProps) {
                 <div style={{ marginBottom: "16px" }}>
                   {mode === "trash"
                     ? trans("home.trashEmpty")
+                    : mode === "marketplace"
+                    ? "No apps in marketplace yet"
                     : user.orgDev
                     ? trans("home.projectEmptyCanAdd")
                     : trans("home.projectEmpty")}
                 </div>
-                {mode !== "trash" && user.orgDev && <CreateDropdown mode={mode} />}
+                {mode !== "trash" && mode !== "marketplace" && user.orgDev && <CreateDropdown mode={mode} />}
               </EmptyView>
             )}
           </>

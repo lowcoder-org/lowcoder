@@ -24,6 +24,7 @@ const initialState: ApplicationReduxState = {
   applicationList: [],
   modules: [],
   recycleList: [],
+  marketplace: [],
   loadingStatus: {
     isFetchingHomeData: false,
     fetchHomeDataFinished: false,
@@ -97,6 +98,13 @@ const usersReducer = createReducer(initialState, {
   ): ApplicationReduxState => ({
     ...state,
     recycleList: action.payload,
+  }),
+  [ReduxActionTypes.FETCH_ALL_MARKETPLACE_APPS_SUCCESS]: (
+    state: ApplicationReduxState,
+    action: ReduxAction<ApplicationMeta[]>
+  ): ApplicationReduxState => ({
+    ...state,
+    marketplace: action.payload,
   }),
   [ReduxActionTypes.CREATE_APPLICATION_INIT]: (
     state: ApplicationReduxState
@@ -336,6 +344,7 @@ export interface ApplicationReduxState {
   applicationList: ApplicationMeta[];
   modules: ApplicationMeta[];
   recycleList: ApplicationMeta[];
+  marketplace: ApplicationMeta[];
   appPermissionInfo?: AppPermissionInfo;
   currentApplication?: ApplicationMeta;
   templateId?: string;
