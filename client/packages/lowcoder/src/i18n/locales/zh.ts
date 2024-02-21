@@ -2120,6 +2120,7 @@ home: {
     modules: "模块",
     module: "模块",
     trash: "回收站",
+    marketplace: "市场",
     queryLibrary: "查询管理",
     datasource: "数据源",
     selectDatasourceType: "选择数据源类型",
