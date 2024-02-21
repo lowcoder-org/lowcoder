@@ -23,7 +23,7 @@ import { RefControl } from "comps/controls/refControl";
 import { EditorContext } from "comps/editorState";
 import React, { useContext } from "react";
 
-const Link = styled(Button)<{ $style: LinkStyleType }>`
+const Link = styled(Button) <{ $style: LinkStyleType }>`
   ${(props) => `
     color: ${props.$style.text};
     margin: ${props.$style.margin};
@@ -31,6 +31,7 @@ const Link = styled(Button)<{ $style: LinkStyleType }>`
     font-size: ${props.$style.textSize};
     font-style:${props.$style.fontStyle};
     font-family:${props.$style.fontFamily};
+    font-weight:${props.$style.textWeight};
     border: ${props.$style.borderWidth} solid ${props.$style.border};
     background-color: ${props.$style.background};
     &:hover {
@@ -118,15 +119,15 @@ const LinkTmpComp = (function () {
               {hiddenPropertyView(children)}
               {loadingPropertyView(children)}
             </Section>
-            <Section name={sectionNames.advanced}>
-              {children.prefixIcon.propertyView({ label: trans("button.prefixIcon") })}
-              {children.suffixIcon.propertyView({ label: trans("button.suffixIcon") })}
-            </Section></>
+              <Section name={sectionNames.advanced}>
+                {children.prefixIcon.propertyView({ label: trans("button.prefixIcon") })}
+                {children.suffixIcon.propertyView({ label: trans("button.suffixIcon") })}
+              </Section></>
           )}
 
-        {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
-          <><Section name={sectionNames.style}>{children.style.getPropertyView()}</Section></>
-        )}
+          {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
+            <><Section name={sectionNames.style}>{children.style.getPropertyView()}</Section></>
+          )}
         </>
       );
     })
