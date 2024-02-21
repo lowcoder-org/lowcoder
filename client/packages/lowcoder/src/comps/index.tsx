@@ -67,6 +67,7 @@ import { VideoMeetingStreamComp } from "./comps/meetingComp/videoMeetingStreamCo
 import { ControlButton } from "./comps/meetingComp/controlButton";
 import { VideoMeetingControllerComp } from "./comps/meetingComp/videoMeetingControllerComp";
 import { VideoSharingStreamComp } from "./comps/meetingComp/videoSharingStreamComp";
+import { IconComp } from "./comps/iconComp";
 
 import {
   AudioCompIcon,
@@ -130,43 +131,9 @@ import {
   CommentIcon,
   MentionIcon,
   AutoCompleteCompIcon,
-
-  IconCompIcon,
-} from "lowcoder-design";
-// from Mousheng
-import { defaultFormData, FormComp } from "./comps/formComp/formComp";
-import { IFrameComp } from "./comps/iframeComp";
-import { defaultGridData, defaultListViewData, GridComp, ListViewComp } from "./comps/listViewComp";
-import { ModuleComp } from "./comps/moduleComp/moduleComp";
-import { NavComp } from "./comps/navComp/navComp";
-import { TableComp } from "./comps/tableComp";
-import { registerComp, UICompManifest, UICompType } from "./uiCompRegistry";
-import { QRCodeComp } from "./comps/qrCodeComp";
-import { JsonExplorerComp } from "./comps/jsonComp/jsonExplorerComp";
-import { JsonEditorComp } from "./comps/jsonComp/jsonEditorComp";
-import { TreeComp } from "./comps/treeComp/treeComp";
-import { TreeSelectComp } from "./comps/treeComp/treeSelectComp";
-import { trans } from "i18n";
-import { remoteComp } from "./comps/remoteComp/remoteComp";
-import { AudioComp } from "./comps/mediaComp/audioComp";
-import { VideoComp } from "./comps/mediaComp/videoComp";
-import { DrawerComp } from "./hooks/drawerComp";
-import { CarouselComp } from "./comps/carouselComp";
-import { ToggleButtonComp } from "./comps/buttonComp/toggleButtonComp";
-import { defaultCollapsibleContainerData } from "./comps/containerComp/collapsibleContainerComp";
-import { RemoteCompInfo } from "types/remoteComp";
-import { ScannerComp } from "./comps/buttonComp/scannerComp";
-import { SignatureComp } from "./comps/signatureComp";
-import { TimeLineComp } from "./comps/timelineComp/timelineComp";
-import { MentionComp } from "./comps/textInputComp/mentionComp";
-import { AutoCompleteComp } from "./comps/autoCompleteComp/autoCompleteComp"
-import { IconComp } from "./comps/iconComp";
-// from Mousheng
-
-//Added by Aqib Mirza
-import { JsonLottieComp } from "./comps/jsonComp/jsonLottieComp";
   ResponsiveLayoutCompIcon,
   MermaidIcon,
+  IconCompIcon,
 } from "lowcoder-design";
 
 type Registry = {
@@ -950,6 +917,19 @@ var uiCompMap: Registry = {
       h: 40,
     },
   },
+  icon: {
+    name: trans("uiComp.iconCompName"),
+    enName: "icon",
+    description: trans("uiComp.iconCompDesc"),
+    categories: ["multimedia"],
+    icon: IconCompIcon,
+    keywords: trans("uiComp.iconCompKeywords"),
+    comp: IconComp,
+    layoutInfo: {
+      w: 2,
+      h: 10,
+    },
+  },
   imageEditor: {
     name: trans("uiComp.imageEditorCompName"),
     enName: "Image Editor",
@@ -1057,23 +1037,6 @@ var uiCompMap: Registry = {
       h: 5,
     },
   },
-
-// from Mousheng
-  icon: {
-    name: trans("uiComp.iconCompName"),
-    enName: "icon",
-    description: trans("uiComp.iconCompDesc"),
-    categories: ["dataDisplay"],
-    icon: IconCompIcon,
-    keywords: trans("uiComp.iconCompKeywords"),
-    comp: IconComp,
-    layoutInfo: {
-      w: 2,
-      h: 10,
-    },
-  },
-
-// from Mousheng
 
   // Integration
 

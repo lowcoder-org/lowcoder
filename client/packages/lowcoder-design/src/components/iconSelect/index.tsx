@@ -1,5 +1,6 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import type { IconDefinition } from "@fortawesome/free-regular-svg-icons";
+import type { IconDefinition as IconDefinitionBrands } from "@fortawesome/free-brands-svg-icons";
 import { Popover } from "antd";
 import { ActionType } from "@rc-component/trigger/lib/interface";
 import { TacoInput } from "components/tacoInput";
@@ -147,6 +148,7 @@ async function getAllIcons() {
   const [{ far }, { fas }] = await Promise.all([
     import("@fortawesome/free-regular-svg-icons"),
     import("@fortawesome/free-solid-svg-icons"),
+    // import("@fontawesome/free-brands-svg-icons"),
   ]);
   const ret: Record<string, Icon> = {};
   for (const [type, pack] of Object.entries({ solid: fas, regular: far })) {

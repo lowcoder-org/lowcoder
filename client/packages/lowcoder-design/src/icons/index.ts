@@ -278,28 +278,7 @@ export { ReactComponent as SignatureIcon } from "./icon-signature.svg";
 export { ReactComponent as ManualIcon } from "./icon-manual.svg";
 export { ReactComponent as WarnIcon } from "./icon-warn.svg";
 export { ReactComponent as SyncManualIcon } from "./icon-sync-manual.svg";
-
-export { ReactComponent as DangerIcon } from "icons/icon-danger.svg";
-export { ReactComponent as TableMinusIcon } from "icons/icon-table-minus.svg";
-export { ReactComponent as TablePlusIcon } from "icons/icon-table-plus.svg";
-export { ReactComponent as MobileAppIcon } from "icons/icon-mobile-app.svg";
-export { ReactComponent as MobileNavIcon } from "icons/icon-navigation-mobile.svg";
-export { ReactComponent as PcNavIcon } from "icons/icon-navigation-pc.svg";
-export { ReactComponent as UnLockIcon } from "icons/icon-unlock.svg";
-export { ReactComponent as CalendarDeleteIcon } from "icons/icon-calendar-delete.svg";
-export { ReactComponent as TableCheckedIcon } from "icons/icon-table-checked.svg";
-export { ReactComponent as TableUnCheckedIcon } from "icons/icon-table-boolean-false.svg";
-export { ReactComponent as FileFolderIcon } from "icons/icon-editor-folder.svg";
-export { ReactComponent as ExpandIcon } from "icons/icon-expand.svg";
-export { ReactComponent as CompressIcon } from "icons/icon-compress.svg";
-export { ReactComponent as TableCellsIcon } from "icons/icon-table-cells.svg"; // Added By Aqib Mirza
-export { ReactComponent as TimeLineIcon } from "icons/icon-timeline-comp.svg"
-export { ReactComponent as LottieIcon } from "icons/icon-lottie.svg";
-export { ReactComponent as MentionIcon } from "icons/icon-mention-comp.svg";
-export { ReactComponent as AutoCompleteCompIcon } from "icons/icon-autocomplete-comp.svg";
-
 export { ReactComponent as IconCompIcon } from "icons/IconCompIcon.svg";
-
 export { ReactComponent as DangerIcon } from "./icon-danger.svg";
 export { ReactComponent as TableMinusIcon } from "./icon-table-minus.svg";
 export { ReactComponent as TablePlusIcon } from "./icon-table-plus.svg";
