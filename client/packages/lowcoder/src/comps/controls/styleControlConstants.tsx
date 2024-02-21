@@ -460,6 +460,21 @@ function getStaticBackground(color: string) {
   } as const;
 }
 
+
+function replaceAndMergeMultipleStyles(originalArray: any[], styleToReplace: string, replacingStyles: any[]): any[] {
+  let temp = []
+  let foundIndex = originalArray.findIndex((element) => element.name === styleToReplace)
+
+  if (foundIndex !== -1) {
+    let elementsBeforeFoundIndex = originalArray.filter((item, index) => index < foundIndex)
+    let elementsAfterFoundIndex = originalArray.filter((item, index) => index > foundIndex)
+    temp = [...elementsBeforeFoundIndex, ...replacingStyles, ...elementsAfterFoundIndex]
+  } else
+    temp = [...originalArray]
+
+  return temp
+}
+
 export const ButtonStyle = [
   ...getBgBorderRadiusByBg("primary"),
   ...STYLING_FIELDS_SEQUENCE
@@ -674,14 +689,6 @@ export const SliderStyle = [
 export const InputLikeStyle = [
   LABEL,
   getStaticBackground(SURFACE_COLOR),
-  // TEXT,
-  // TEXT_SIZE,
-  // TEXT_WEIGHT,
-  // FONT_FAMILY,
-  // FONT_STYLE,
-  // MARGIN,
-  // PADDING,
-  // BORDER_WIDTH,
   ...STYLING_FIELDS_SEQUENCE,
   ...ACCENT_VALIDATE,
 ] as const;
@@ -1047,8 +1054,7 @@ export const LinkStyle = [
     depType: DEP_TYPE.SELF,
     transformer: toSelf,
   },
-  ...LinkTextStyle,
-  ...STYLING_FIELDS_SEQUENCE.filter((style) => style.name !== 'text')
+  ...replaceAndMergeMultipleStyles(STYLING_FIELDS_SEQUENCE, 'text', [...LinkTextStyle])
 ] as const;
 
 export const DividerStyle = [
@@ -1070,19 +1076,18 @@ export const DividerStyle = [
   })
 ] as const;
 
+// Hidden border and borderWidth properties as AntD doesnt allow these properties for progress bar
 export const ProgressStyle = [
-  {
+  ...replaceAndMergeMultipleStyles(STYLING_FIELDS_SEQUENCE, 'text', [{
     name: "text",
     label: trans("text"),
     depTheme: "canvas",
     depType: DEP_TYPE.CONTRAST_TEXT,
     transformer: contrastText,
-  },
+  }]).filter((style)=> ['border','borderWidth'].includes(style.name) === false),
   TRACK,
   FILL,
   SUCCESS,
-  MARGIN,
-  PADDING,
 ] as const;
 
 export const NavigationStyle = [
