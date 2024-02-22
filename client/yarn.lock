@@ -1982,15 +1982,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@dnd-kit/modifiers@npm:^5.0.0":
-  version: 5.0.0
-  resolution: "@dnd-kit/modifiers@npm:5.0.0"
+"@dnd-kit/modifiers@npm:^7.0.0":
+  version: 7.0.0
+  resolution: "@dnd-kit/modifiers@npm:7.0.0"
   dependencies:
-    "@dnd-kit/utilities": ^3.1.0
+    "@dnd-kit/utilities": ^3.2.2
     tslib: ^2.0.0
   peerDependencies:
-    "@dnd-kit/core": ^5.0.0
-  checksum: 93889b8cfc3ba787f8bddaddd4428c121065a02752a5f8dfa38774441c3466b7a9f24555144aced93e2c051087deb01bd073d91654ff1eda28e564591bf700aa
+    "@dnd-kit/core": ^6.1.0
+    react: ">=16.8.0"
+  checksum: 176f76a552a2692a205f7fe647c836aa7ded7f0fdc3370407f3633c153139fe838cb85e59cbc3b156377cc8fe3fb7b72af15b97ed3de15cec904eae35f0c36e6
   languageName: node
   linkType: hard
 
@@ -2007,7 +2008,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@dnd-kit/utilities@npm:^3.1.0":
+"@dnd-kit/utilities@npm:^3.1.0, @dnd-kit/utilities@npm:^3.2.2":
   version: 3.2.2
   resolution: "@dnd-kit/utilities@npm:3.2.2"
   dependencies:
@@ -12024,7 +12025,7 @@ __metadata:
     "@codemirror/lang-sql": ^6.5.4
     "@codemirror/search": ^6.5.5
     "@dnd-kit/core": ^5.0.1
-    "@dnd-kit/modifiers": ^5.0.0
+    "@dnd-kit/modifiers": ^7.0.0
     "@dnd-kit/sortable": ^6.0.0
     "@dnd-kit/utilities": ^3.1.0
     "@fortawesome/fontawesome-svg-core": ^6.5.1
