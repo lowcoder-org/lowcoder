@@ -1091,6 +1091,8 @@ export const ProgressStyle = [
   SUCCESS,
 ] as const;
 
+export const CircleProgressStyle = [...ProgressStyle.filter((style) => style.name !== 'radius')]
+
 export const NavigationStyle = [
   ...replaceAndMergeMultipleStyles(STYLING_FIELDS_SEQUENCE, 'text', [
     {
@@ -1375,6 +1377,7 @@ export type DateTimeStyleType = StyleConfigType<typeof DateTimeStyle>;
 export type LinkStyleType = StyleConfigType<typeof LinkStyle>;
 export type DividerStyleType = StyleConfigType<typeof DividerStyle>;
 export type ProgressStyleType = StyleConfigType<typeof ProgressStyle>;
+export type CircleProgressType = StyleConfigType<typeof CircleProgressStyle>;
 export type NavigationStyleType = StyleConfigType<typeof NavigationStyle>;
 export type ImageStyleType = StyleConfigType<typeof ImageStyle>;
 export type ListViewStyleType = StyleConfigType<typeof ListViewStyle>;

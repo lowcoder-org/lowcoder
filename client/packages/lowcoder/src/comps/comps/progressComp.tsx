@@ -21,6 +21,7 @@ const getStyle = (style: ProgressStyleType) => {
       font-style:${style.fontStyle};
         font-family:${style.fontFamily};
         font-weight:${style.textWeight};
+        font-size:${style.textSize};
     }
     width: ${widthCalculator(style.margin)};	
     height: ${heightCalculator(style.margin)};	
