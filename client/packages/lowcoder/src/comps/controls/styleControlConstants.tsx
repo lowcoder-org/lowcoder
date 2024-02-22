@@ -1078,8 +1078,14 @@ export const NavigationStyle = [
 
 export const ImageStyle = [getStaticBorder("#00000000"), RADIUS, BORDER_WIDTH, MARGIN, PADDING] as const;
 
-export const IconStyle = [getStaticBackground("#00000000"),
-  getStaticBorder("#00000000"), FILL, RADIUS, MARGIN, PADDING] as const;
+export const IconStyle = [
+  getStaticBackground("#00000000"),
+  getStaticBorder("#00000000"), 
+  FILL,
+  RADIUS,
+  BORDER_WIDTH,
+  MARGIN, 
+  PADDING] as const;
 
 
 export const ListViewStyle = BG_STATIC_BORDER_RADIUS;

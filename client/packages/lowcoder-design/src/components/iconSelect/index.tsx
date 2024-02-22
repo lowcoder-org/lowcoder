@@ -1,6 +1,6 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import type { IconDefinition } from "@fortawesome/free-regular-svg-icons";
-import type { IconDefinition as IconDefinitionBrands } from "@fortawesome/free-brands-svg-icons";
+// import type { IconDefinition as IconDefinitionBrands } from "@fortawesome/free-brands-svg-icons";
 import { Popover } from "antd";
 import { ActionType } from "@rc-component/trigger/lib/interface";
 import { TacoInput } from "components/tacoInput";
@@ -19,10 +19,11 @@ import Draggable from "react-draggable";
 import { default as List, ListRowProps } from "react-virtualized/dist/es/List";
 import styled from "styled-components";
 import { CloseIcon, SearchIcon } from "icons";
-import { ANTDICON } from "../../../../lowcoder/src/comps/comps/timelineComp/antIcon";
+import { ANTDICON } from "icons/antIcon";
+import { Divider } from "antd-mobile";
 
 const PopupContainer = styled.div`
-  width: 408px;
+  width: 580px;
   background: #ffffff;
   box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
   border-radius: 8px;
@@ -85,10 +86,11 @@ const IconList = styled(List)`
     background-color: rgba(139, 143, 163, 0.36);
   }
 `;
+
 const IconRow = styled.div`
   padding: 0 6px;
   display: flex;
-  align-items: center;
+  align-items: flex-start; /* Align items to the start to allow different heights */
   justify-content: space-between;
 
   &:last-child {
@@ -96,14 +98,16 @@ const IconRow = styled.div`
     justify-content: flex-start;
   }
 `;
+
 const IconItemContainer = styled.div`
-  width: 40px;
-  height: 40px;
+  width: 60px;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center; 
+  justify-content: flex-start; 
   cursor: pointer;
-  font-size: 20px;
+  font-size: 28px;
+  margin-bottom: 24px; 
 
   &:hover {
     border: 1px solid #315efb;
@@ -115,6 +119,22 @@ const IconItemContainer = styled.div`
     border-radius: 4px;
     box-shadow: 0 0 0 2px #d6e4ff;
   }
+`;
+
+const IconWrapper = styled.div`
+  height: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+const IconKeyDisplay = styled.div`
+  font-size: 8px;
+  color: #8b8fa3;
+  margin-top: 4px; /* Space between the icon and the text */
+  text-align: center;
+  word-wrap: break-word; /* Ensure text wraps */
+  width: 100%; /* Ensure the container can grow */
 `;
 
 class Icon {
@@ -133,7 +153,7 @@ class Icon {
       return (
         <FontAwesomeIcon
           icon={this.def}
-          style={{ width: "1em", height: "1em" }}
+          style={{ width: "1em", height: "1em"}}
         />
       );
   }
@@ -254,6 +274,10 @@ const IconPopup = (props: {
     getAllIcons().then(setAllIcons);
   }, []);
 
+  const smallTextStyle = {
+    fontSize: '8px'
+  };
+
   const rowRenderer = useCallback(
     (p: ListRowProps) => (
       <IconRow key={p.key} style={p.style}>
@@ -262,7 +286,7 @@ const IconPopup = (props: {
           .map(([key, icon]) => (
             <Tooltip
               key={key}
-              title={icon.title}
+              title={icon.title + ", Key: " + key}
               placement="bottom"
               align={{ offset: [0, -7, 0, 0] }}
               destroyTooltipOnHide
@@ -273,7 +297,8 @@ const IconPopup = (props: {
                   onChangeIcon(key);
                 }}
               >
-                {icon.getView()}
+                <IconWrapper>{icon.getView()}</IconWrapper>
+                <IconKeyDisplay>{key}</IconKeyDisplay>
               </IconItemContainer>
             </Tooltip>
           ))}
@@ -299,9 +324,9 @@ const IconPopup = (props: {
         </SearchDiv>
         <IconListWrapper>
           <IconList
-            width={394}
-            height={312}
-            rowHeight={48}
+            width={550}
+            height={400}
+            rowHeight={80}
             rowCount={Math.ceil(searchResults.length / columnNum)}
             rowRenderer={rowRenderer}
           />
