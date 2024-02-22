@@ -18,6 +18,7 @@ export interface ControlParams extends CodeEditorControlParams {
   preInputNode?: ReactNode;
   childrenWrapperStyle?: CSSProperties;
   extraChildren?: ReactNode;
+  IconType?: "OnlyAntd" | "All" | "default" | undefined;
 }
 
 export interface ControlType {

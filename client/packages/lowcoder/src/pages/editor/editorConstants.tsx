@@ -41,7 +41,9 @@ import {
   CommentIcon,
   MentionIcon,
   AutoCompleteCompIcon,
+  IconCompIcon,
   ResponsiveLayoutCompIcon,
+
 } from "lowcoder-design";
 
 export const CompStateIcon: {
@@ -116,5 +118,7 @@ export const CompStateIcon: {
   comment: <CommentIcon />,
   mention: <MentionIcon />,
   autocomplete: <AutoCompleteCompIcon />,
+  icon: <IconCompIcon />,
   responsiveLayout: <ResponsiveLayoutCompIcon />,
+
 };

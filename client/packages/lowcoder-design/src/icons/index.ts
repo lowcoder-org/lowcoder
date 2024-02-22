@@ -280,6 +280,7 @@ export { ReactComponent as SignatureIcon } from "./icon-signature.svg";
 export { ReactComponent as ManualIcon } from "./icon-manual.svg";
 export { ReactComponent as WarnIcon } from "./icon-warn.svg";
 export { ReactComponent as SyncManualIcon } from "./icon-sync-manual.svg";
+export { ReactComponent as IconCompIcon } from "icons/IconCompIcon.svg";
 export { ReactComponent as DangerIcon } from "./icon-danger.svg";
 export { ReactComponent as TableMinusIcon } from "./icon-table-minus.svg";
 export { ReactComponent as TablePlusIcon } from "./icon-table-plus.svg";
@@ -615,3 +616,4 @@ export { ReactComponent as AutoCompleteCompIcon } from "./icon-autocomplete-comp
 export { ReactComponent as WidthIcon } from "./icon-width.svg";
 export { ReactComponent as ResponsiveLayoutCompIcon } from "./remix/layout-column-line.svg"; // Closest match for responsive layout component
 export { ReactComponent as TextSizeIcon } from "./icon-text-size.svg"; */
+
