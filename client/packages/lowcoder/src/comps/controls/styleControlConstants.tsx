@@ -1016,7 +1016,12 @@ export const TableColumnLinkStyle = [
   ...LinkTextStyle,
 ] as const;
 
-export const FileStyle = [...getStaticBgBorderRadiusByBg(SURFACE_COLOR), TEXT, ACCENT, MARGIN, PADDING] as const;
+export const FileStyle = [
+  // ...getStaticBgBorderRadiusByBg(SURFACE_COLOR), 
+  getStaticBackground(SURFACE_COLOR),
+  ...replaceAndMergeMultipleStyles(STYLING_FIELDS_SEQUENCE,'border',[getStaticBorder('#00000000')]),
+  // TEXT, ACCENT, MARGIN, PADDING
+] as const;
 
 export const FileViewerStyle = [
   getStaticBackground("#FFFFFF"),
