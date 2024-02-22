@@ -88,6 +88,8 @@ And we mean it... Day by day!
 You can access Lowcoder from [cloud-hosted version](https://app.lowcoder.cloud/) at any time, or use the following resources for self-host Lowcoder on different platforms:
 - [Docker](https://docs.lowcoder.cloud/lowcoder-documentation/setup-and-run/self-hosting)
 
+[![Deploy to AWS using Stitch](https://img.shields.io/badge/deploy_with-Stitch-%23E369F7?logo=amazonaws&color=%23E369F7)](https://deploy.stitch.tech/lowcoder/lowcoder)
+
 ## 💪 Contributing
 - Language support: If you have experience with a language that isn't currently supported by our product, send us a pull request.
 - Create and share components or demos: If you've created something that might be useful to others, add the link here.
