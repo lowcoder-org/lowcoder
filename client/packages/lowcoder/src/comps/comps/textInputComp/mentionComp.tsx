@@ -192,7 +192,17 @@ let MentionTmpComp = (function () {
                 label: value,
               }))}
               autoSize={props.autoHeight}
-              style={{ height: "100%", maxHeight: "100%", resize: "none", padding: props.style.padding, fontStyle: props.style.fontStyle, fontFamily: props.style.fontFamily, borderWidth: props.style.borderWidth, fontWeight: props.style.textWeight }}
+              style={{
+                height: "100%",
+                maxHeight: "100%",
+                resize: "none",
+                padding: props.style.padding,
+                fontStyle: props.style.fontStyle,
+                fontFamily: props.style.fontFamily,
+                borderWidth: props.style.borderWidth,
+                fontWeight: props.style.textWeight,
+                fontSize: props.style.textSize
+              }}
               readOnly={props.readOnly}
             />
           </ConfigProvider>

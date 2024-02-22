@@ -476,7 +476,8 @@ function replaceAndMergeMultipleStyles(originalArray: any[], styleToReplace: str
 }
 
 export const ButtonStyle = [
-  ...getBgBorderRadiusByBg("primary"),
+  // ...getBgBorderRadiusByBg("primary"),
+  getBackground('primary'),
   ...STYLING_FIELDS_SEQUENCE
 ] as const;
 
@@ -1084,30 +1085,41 @@ export const ProgressStyle = [
     depTheme: "canvas",
     depType: DEP_TYPE.CONTRAST_TEXT,
     transformer: contrastText,
-  }]).filter((style)=> ['border','borderWidth'].includes(style.name) === false),
+  }]).filter((style) => ['border', 'borderWidth'].includes(style.name) === false),
   TRACK,
   FILL,
   SUCCESS,
 ] as const;
 
 export const NavigationStyle = [
-  {
-    name: "text",
-    label: trans("text"),
-    depName: "background",
-    depType: DEP_TYPE.CONTRAST_TEXT,
-    transformer: contrastText,
-  },
-  ACCENT,
-  getStaticBackground("#FFFFFF00"),
-  getStaticBorder("#FFFFFF00"),
-  MARGIN,
-  PADDING,
-  FONT_FAMILY,
-  FONT_STYLE,
-  TEXT_WEIGHT,
-  TEXT_SIZE,
-  BORDER_WIDTH
+  ...replaceAndMergeMultipleStyles(STYLING_FIELDS_SEQUENCE, 'text', [
+    {
+      name: "text",
+      label: trans("text"),
+      depName: "background",
+      depType: DEP_TYPE.CONTRAST_TEXT,
+      transformer: contrastText,
+    },
+    ACCENT,
+    getStaticBackground("#FFFFFF00")
+  ])
+  // {
+  //   name: "text",
+  //   label: trans("text"),
+  //   depName: "background",
+  //   depType: DEP_TYPE.CONTRAST_TEXT,
+  //   transformer: contrastText,
+  // },
+  // ACCENT,
+  // getStaticBackground("#FFFFFF00"),
+  // getStaticBorder("#FFFFFF00"),
+  // MARGIN,
+  // PADDING,
+  // FONT_FAMILY,
+  // FONT_STYLE,
+  // TEXT_WEIGHT,
+  // TEXT_SIZE,
+  // BORDER_WIDTH
 ] as const;
 
 export const ImageStyle = [getStaticBorder("#00000000"), RADIUS, BORDER_WIDTH, MARGIN, PADDING] as const;
