@@ -18,7 +18,10 @@ public class EmailCommunicationService {
     @Value("${spring.mail.username}")
     private String fromEmail;
 
-    public boolean sendMail(String to, String token, String message) {
+    @Value("${common.lowcoder_public_url}")
+    private String lowcoderPublicUrl;
+
+    public boolean sendPasswordResetEmail(String to, String token, String message) {
         try {
             String subject = "Reset Your Password";
             MimeMessage mimeMessage = javaMailSender.createMimeMessage();
@@ -31,8 +34,8 @@ public class EmailCommunicationService {
 
             // Construct the message with the token link
             String resetLink = lowcoderPublicUrl + "/api/users/lost-password/" + token;
-            String messageWithLink = message + "\n\nReset your password here: " + resetLink;
-            mimeMessageHelper.setText(messageWithLink, true); // Set HTML to true to allow links
+            String formattedMessage = String.format(message, to, resetLink);
+            mimeMessageHelper.setText(formattedMessage, true); // Set HTML to true to allow links
 
             javaMailSender.send(mimeMessage);
 

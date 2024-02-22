@@ -42,9 +42,7 @@ import reactor.core.publisher.Mono;
 
 import javax.annotation.Nonnull;
 import java.security.SecureRandom;
-import java.time.Duration;
 import java.time.Instant;
-import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.function.Function;
@@ -283,8 +281,7 @@ public class UserServiceImpl implements UserService {
 
                     String token = generateNewRandomPwd();
                     Instant tokenExpiry = Instant.now().plus(12, ChronoUnit.HOURS);
-
-                    if (!emailCommunicationService.sendMail(userEmail, token, emailTemplate)) {
+                    if (!emailCommunicationService.sendPasswordResetEmail(userEmail, token, emailTemplate)) {
                         return ofError(BizError.AUTH_ERROR, "SENDING_EMAIL_FAILED");
                     }
                     user.setPasswordResetToken(HashUtils.hash(token.getBytes()));
