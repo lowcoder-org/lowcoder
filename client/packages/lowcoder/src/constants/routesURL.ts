@@ -21,6 +21,7 @@ export const ORGANIZATION_SETTING_DETAIL = `${ORGANIZATION_SETTING}/:orgId`;
 
 export const ALL_APPLICATIONS_URL = "/apps";
 export const MODULE_APPLICATIONS_URL = "/apps/module";
+export const MARKETPLACE_URL = `/marketplace`;
 export const DATASOURCE_URL = `/datasource`;
 export const DATASOURCE_CREATE_URL = `${DATASOURCE_URL}/new/:datasourceType`;
 export const DATASOURCE_EDIT_URL = `${DATASOURCE_URL}/:datasourceId`;

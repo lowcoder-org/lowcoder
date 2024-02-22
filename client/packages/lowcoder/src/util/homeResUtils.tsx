@@ -58,4 +58,6 @@ export const handleAppEditClick = (e: any, id: string): void => {
 
 export const handleAppViewClick = (id: string) => window.open(APPLICATION_VIEW_URL(id, "view"));
 
+export const handleMarketplaceAppViewClick = (id: string) => window.open(APPLICATION_VIEW_URL(id, "view_marketplace"));
+
 export const handleFolderViewClick = (id: string) => history.push(buildFolderUrl(id));
