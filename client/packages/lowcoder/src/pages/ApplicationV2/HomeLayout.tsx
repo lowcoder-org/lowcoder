@@ -32,6 +32,7 @@ import { CreateDropdown } from "./CreateDropdown";
 import { trans } from "../../i18n";
 import { isFetchingFolderElements } from "../../redux/selectors/folderSelector";
 import { checkIsMobile } from "util/commonUtils";
+import MarketplaceHeaderImage from "assets/images/marketplaceHeaderImage.jpg";
 
 const Wrapper = styled.div`
   display: flex;
@@ -62,6 +63,23 @@ const OperationWrapper = styled.div`
   margin: 8px 0 20px 0;
   @media screen and (max-width: 500px) {
     padding: 0 24px;
+  }
+`;
+
+const MarketplaceHeader = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  height: 200px;
+  padding: 0 36px;
+  margin: 8px 0 20px 0;
+  @media screen and (max-width: 500px) {
+    padding: 0 24px;
+  }
+  > img { 
+    width: 100%;
+    object-fit: cover;
   }
 `;
 
@@ -364,6 +382,10 @@ export function HomeLayout(props: HomeLayoutProps) {
       {showNewUserGuide(user) && <HomepageTourV2 />}
       {/*<HomepageTourV2 />*/}
 
+      {mode === "marketplace" && (
+       <MarketplaceHeader><img src={MarketplaceHeaderImage} alt="Lowcoder Application Marketplace"/></MarketplaceHeader>
+      )}
+
       <OperationWrapper>
         {mode !== "folders" && mode !== "module" && (
           <FilterDropdown
@@ -374,8 +396,9 @@ export function HomeLayout(props: HomeLayoutProps) {
               getFilterMenuItem(HomeResTypeEnum.All),
               getFilterMenuItem(HomeResTypeEnum.Application),
               getFilterMenuItem(HomeResTypeEnum.Module),
-              getFilterMenuItem(HomeResTypeEnum.Navigation),
-              ...(mode !== "trash" ? [getFilterMenuItem(HomeResTypeEnum.Folder)] : []),
+              ...(mode !== "marketplace" ? [getFilterMenuItem(HomeResTypeEnum.Navigation)] : []),
+              ...(mode !== "trash" && mode !== "marketplace" ? [getFilterMenuItem(HomeResTypeEnum.Folder)] : []),
+  
             ]}
             getPopupContainer={(node: any) => node}
             suffixIcon={<ArrowSolidIcon />}
@@ -396,6 +419,8 @@ export function HomeLayout(props: HomeLayoutProps) {
       </OperationWrapper>
 
       <ContentWrapper>
+
+        
         {isFetching && resList.length === 0 ? (
           <SkeletonStyle active paragraph={{ rows: 8, width: 648 }} title={false} />
         ) : (
@@ -424,7 +449,7 @@ export function HomeLayout(props: HomeLayoutProps) {
                   {mode === "trash"
                     ? trans("home.trashEmpty")
                     : mode === "marketplace"
-                    ? "No apps in marketplace yet"
+                    ? trans("home.noMarketplaceApps")
                     : user.orgDev
                     ? trans("home.projectEmptyCanAdd")
                     : trans("home.projectEmpty")}

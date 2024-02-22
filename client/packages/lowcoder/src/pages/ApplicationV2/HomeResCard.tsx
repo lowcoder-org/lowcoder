@@ -168,7 +168,6 @@ export function HomeResCard(props: { res: HomeRes; onMove: (res: HomeRes) => voi
         )}
         <CardInfo
           onClick={(e) => {
-            console.log(res.isMarketplace);
             if (appNameEditing) {
               return;
             }

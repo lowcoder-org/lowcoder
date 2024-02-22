@@ -345,7 +345,7 @@ export default function ApplicationHome() {
                   selected ? <HomeActiveIcon {...otherProps} /> : <HomeIcon {...otherProps} />,
               },
               {
-                text: <TabLabel>{trans("home.modules")}</TabLabel>,
+                text: <TabLabel>{trans("home.allModules")}</TabLabel>,
                 routePath: MODULE_APPLICATIONS_URL,
                 routeComp: ModuleView,
                 icon: ({ selected, ...otherProps }) =>
@@ -353,6 +353,19 @@ export default function ApplicationHome() {
                     <HomeModuleActiveIcon {...otherProps} />
                   ) : (
                     <HomeModuleIcon {...otherProps} />
+                  ),
+                visible: ({ user }) => user.orgDev,
+              },
+              {
+                text: <TabLabel>{trans("home.marketplace")}</TabLabel>,
+                routePath: MARKETPLACE_URL,
+                routePathExact: false,
+                routeComp: MarketplaceView,
+                icon: ({ selected, ...otherProps }) =>
+                  selected ? (
+                    <MarketplaceActiveIcon {...otherProps} />
+                  ) : (
+                    <MarketplaceIcon {...otherProps} />
                   ),
                 visible: ({ user }) => user.orgDev,
               },
@@ -414,19 +427,6 @@ export default function ApplicationHome() {
                   ),
                 visible: ({ user }) => user.orgDev,
                 onSelected: (_, currentPath) => currentPath.split("/")[1] === "datasource",
-              },
-              {
-                text: <TabLabel>{trans("home.marketplace")}</TabLabel>,
-                routePath: MARKETPLACE_URL,
-                routePathExact: false,
-                routeComp: MarketplaceView,
-                icon: ({ selected, ...otherProps }) =>
-                  selected ? (
-                    <MarketplaceActiveIcon {...otherProps} />
-                  ) : (
-                    <MarketplaceIcon {...otherProps} />
-                  ),
-                visible: ({ user }) => user.orgDev,
               },
               {
                 text: <TabLabel>{trans("settings.title")}</TabLabel>,
