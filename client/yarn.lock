@@ -3387,6 +3387,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@remixicon/react@npm:^4.1.1":
+  version: 4.1.1
+  resolution: "@remixicon/react@npm:4.1.1"
+  peerDependencies:
+    react: ">=18.2.0"
+  checksum: 59b05b91ad9335ae531b2927ceb7c5930ec5afcdabb5d96461d3181e1f794ddbdd4a899e85eb66f1a5341f55132898b6f680f51643bd7bd7244a741f44beb0b7
+  languageName: node
+  linkType: hard
+
 "@rjsf/antd@npm:^5.15.1":
   version: 5.15.1
   resolution: "@rjsf/antd@npm:5.15.1"
@@ -11921,6 +11930,7 @@ __metadata:
     "@babel/preset-env": ^7.20.2
     "@babel/preset-typescript": ^7.18.6
     "@lottiefiles/react-lottie-player": ^3.5.3
+    "@remixicon/react": ^4.1.1
     "@rollup/plugin-typescript": ^8.5.0
     "@testing-library/jest-dom": ^5.16.5
     "@testing-library/react": ^14.1.2
