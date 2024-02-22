@@ -24,18 +24,19 @@ type IProps = {
   $bgColor: string;
   $borderColor: string;
   $borderWidth: string;
+  $borderRadius: string;
 };
 
-const Wrapper = styled("div") <Pick<IProps, "$bgColor" | "$borderColor" | "$borderWidth">>`
+const Wrapper = styled("div") <Pick<IProps, "$bgColor" | "$borderColor" | "$borderWidth" | "$borderRadius">>`
   height: 100%;
-  border-radius: 2px;
+  border-radius: ${(props) => props.$borderRadius ? props.$borderRadius : '2px'};
   box-sizing: border-box;
   border: ${(props) => props.$borderWidth ? `${props.$borderWidth}` : '1px'} solid ${(props) => props.$borderColor};
   background-color: ${(props) => props.$bgColor};
 `;
 
 const NavInner = styled("div") <Pick<IProps, "$justify">>`
-  margin: 0 -16px;
+  // margin: 0 -16px;
   height: 100%;
   display: flex;
   justify-content: ${(props) => (props.$justify ? "space-between" : "left")};
@@ -49,17 +50,19 @@ const Item = styled.div<{
   $fontStyle: string;
   $textWeight: string;
   $textSize: string;
+  $margin: string;
+  $padding: string;
 }>`
   height: 30px;
   line-height: 30px;
-  padding: 0 16px;
+  padding: ${(props) => props.$padding ? props.$padding : '0 16px'};
   color: ${(props) => (props.$active ? props.$activeColor : props.$color)};
   font-weight: ${(props) => (props.$textWeight ? props.$textWeight : 500)};
   font-family:${(props) => (props.$fontFamily ? props.$fontFamily : 'sans-serif')};
   font-style:${(props) => (props.$fontStyle ? props.$fontStyle : 'normal')};
-  font-size:${(props) => (props.$textSize ? props.$textSize : '14px')}
-
-
+  font-size:${(props) => (props.$textSize ? props.$textSize : '14px')};
+  margin:${(props) => props.$margin ? props.$margin : '0px'};
+  
   &:hover {
     color: ${(props) => props.$activeColor};
     cursor: pointer;
@@ -157,6 +160,8 @@ const NavCompBase = new UICompBuilder(childrenMap, (props) => {
             $fontStyle={props.style.fontStyle}
             $textWeight={props.style.textWeight}
             $textSize={props.style.textSize}
+            $padding={props.style.padding}
+            $margin={props.style.margin}
             onClick={() => onEvent("click")}
           >
             {label}
@@ -195,6 +200,7 @@ const NavCompBase = new UICompBuilder(childrenMap, (props) => {
       $borderColor={props.style.border}
       $bgColor={props.style.background}
       $borderWidth={props.style.borderWidth}
+      $borderRadius={props.style.borderRadius}
     >
       <NavInner $justify={justify}>
         {props.logoUrl && (

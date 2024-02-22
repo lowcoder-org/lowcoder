@@ -13,6 +13,7 @@ export function getButtonStyle(buttonStyle: ButtonStyleType) {
   return css`
     &&& {
       border-radius: ${buttonStyle.radius};
+      border-width:${buttonStyle.borderWidth};
       margin: ${buttonStyle.margin};	
       padding: ${buttonStyle.padding};
       &:not(:disabled) {

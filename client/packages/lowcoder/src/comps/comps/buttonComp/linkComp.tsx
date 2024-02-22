@@ -33,6 +33,7 @@ const Link = styled(Button) <{ $style: LinkStyleType }>`
     font-family:${props.$style.fontFamily};
     font-weight:${props.$style.textWeight};
     border: ${props.$style.borderWidth} solid ${props.$style.border};
+    border-radius:${props.$style.radius ? props.$style.radius:'0px'};
     background-color: ${props.$style.background};
     &:hover {
       color: ${props.$style.hoverText} !important;
@@ -41,7 +42,8 @@ const Link = styled(Button) <{ $style: LinkStyleType }>`
       color: ${props.$style.activeText} !important;
     }
   `}
-  &.ant-btn {
+
+  &.ant-btn { 
     display: inline-flex;
     align-items: center;
     > span {
