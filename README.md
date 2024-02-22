@@ -1,6 +1,8 @@
 > **Note**  
 > Lowcoder continues from the abandoned Openblocks project. For more information [read our manifesto](MANIFESTO.md).
 
+[![Deploy to AWS using Stitch](https://img.shields.io/badge/deploy_with-Stitch-%23E369F7?logo=amazonaws&color=%23E369F7)](https://deploy.stitch.tech/lowcoder/lowcoder)
+
 <div align="center">
     <h1 style="border-bottom: none; margin-bottom: 0">Lowcoder</h1>
     <h3 style="margin-top: 0">This is the only Platform, which closes the gap between App Development, Website Development and Slide-Presentations.</h3>
@@ -85,10 +87,10 @@ And we mean it... Day by day!
 🔎 Submit an issue here on [GitHub](https://github.com/lowcoder-org/lowcoder/issues)
 
 ## 💻 Deployment Options
+[![Deploy to AWS using Stitch](https://img.shields.io/badge/deploy_with-Stitch-%23E369F7?logo=amazonaws&color=%23E369F7)](https://deploy.stitch.tech/lowcoder/lowcoder)
+
 You can access Lowcoder from [cloud-hosted version](https://app.lowcoder.cloud/) at any time, or use the following resources for self-host Lowcoder on different platforms:
 - [Docker](https://docs.lowcoder.cloud/lowcoder-documentation/setup-and-run/self-hosting)
-
-[![Deploy to AWS using Stitch](https://img.shields.io/badge/deploy_with-Stitch-%23E369F7?logo=amazonaws&color=%23E369F7)](https://deploy.stitch.tech/lowcoder/lowcoder)
 
 ## 💪 Contributing
 - Language support: If you have experience with a language that isn't currently supported by our product, send us a pull request.
