@@ -198,10 +198,24 @@ public class ApplicationService {
 
     @NonEmptyMono
     @SuppressWarnings("ReactiveStreamsNullableInLambdaInTransform")
-    public Mono<Set<String>> getPublicApplicationIds(Collection<String> applicationIds, Boolean isAnonymous) {
-        return repository.findByPublicToAllIsTrueAndPublicToMarketplaceIsOrAgencyProfileIsAndIdIn(!isAnonymous, !isAnonymous, applicationIds)
-                .map(HasIdAndAuditing::getId)
-                .collect(Collectors.toSet());
+    public Mono<Set<String>> getPublicApplicationIds(Collection<String> applicationIds, Boolean isAnonymous, Boolean isPrivateMarketplace) {
+
+        if(isAnonymous) {
+            if(isPrivateMarketplace) {
+                return repository.findByPublicToAllIsTrueAndPublicToMarketplaceIsAndAgencyProfileIsAndIdIn(false, false, applicationIds)
+                        .map(HasIdAndAuditing::getId)
+                        .collect(Collectors.toSet());
+            } else {
+                return repository.findByPublicToAllIsTrueAndPublicToMarketplaceIsAndAgencyProfileIsAndIdIn(true, false, applicationIds)
+                        .map(HasIdAndAuditing::getId)
+                        .collect(Collectors.toSet());
+            }
+        } else {
+                return repository.findByPublicToAllIsTrueAndPublicToMarketplaceIsOrAgencyProfileIsAndIdIn(true, true, applicationIds)
+                        .map(HasIdAndAuditing::getId)
+                        .collect(Collectors.toSet());
+        }
+
 
     }
 }

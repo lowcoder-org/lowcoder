@@ -292,7 +292,7 @@ public class UserHomeApiServiceImpl implements UserHomeApiService {
                                 Application application = tuple.getT1();
                                 Map<String, User> userMap = tuple.getT2();
                                 Map<String, Organization> orgMap = tuple.getT3();
-                                return MarketplaceApplicationInfoView.builder()
+                                MarketplaceApplicationInfoView marketplaceApplicationInfoView = MarketplaceApplicationInfoView.builder()
                                         .applicationId(application.getId())
                                         .name(application.getName())
                                         .applicationType(application.getApplicationType())
@@ -305,6 +305,16 @@ public class UserHomeApiServiceImpl implements UserHomeApiService {
                                         .createAt(application.getCreatedAt().toEpochMilli())
                                         .createBy(application.getCreatedBy())
                                         .build();
+
+                                // marketplace specific fields
+                                Map<String, Object> marketplaceMeta = (Map<String, Object>)
+                                        ((Map<String, Object>)application.getEditingApplicationDSL().get("ui")).get("marketplaceMeta");
+                                marketplaceApplicationInfoView.setTitle((String)marketplaceMeta.get("title"));
+                                marketplaceApplicationInfoView.setCategory((String)marketplaceMeta.get("category"));
+                                marketplaceApplicationInfoView.setDescription((String)marketplaceMeta.get("description"));
+
+                                return marketplaceApplicationInfoView;
+
                             });
 
                 });

@@ -44,6 +44,7 @@ public class CommonConfig {
     private Cookie cookie = new Cookie();
     private JsExecutor jsExecutor = new JsExecutor();
     private Set<String> disallowedHosts = new HashSet<>();
+    private Marketplace marketplace = new Marketplace();
 
     public boolean isSelfHost() {
         return !isCloud();
@@ -143,6 +144,12 @@ public class CommonConfig {
     @Data
     public static class JsExecutor {
         private String host;
+    }
+
+    @Data
+    public static class Marketplace {
+
+        private boolean privateMode = Boolean.TRUE;
     }
 
 

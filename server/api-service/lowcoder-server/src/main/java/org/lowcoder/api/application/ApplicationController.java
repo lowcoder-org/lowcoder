@@ -155,7 +155,7 @@ public class ApplicationController implements ApplicationEndpoints {
     @Override
     public Mono<ResponseView<List<MarketplaceApplicationInfoView>>> getAgencyProfileApplications(@RequestParam(required = false) Integer applicationType) {
         ApplicationType applicationTypeEnum = applicationType == null ? null : ApplicationType.fromValue(applicationType);
-        return userHomeApiService.getAllMarketplaceApplications(applicationTypeEnum)
+        return userHomeApiService.getAllAgencyProfileApplications(applicationTypeEnum)
                 .collectList()
                 .map(ResponseView::success);
     }
