@@ -7,7 +7,7 @@ import {
 import { BoolControl } from "../../controls/boolControl";
 import { LabelControl } from "../../controls/labelControl";
 import { BoolCodeControl, StringControl } from "../../controls/codeControl";
-import { PaddingControl } from "../../controls/paddingControl";	
+import { PaddingControl } from "../../controls/paddingControl";
 import { MarginControl } from "../../controls/marginControl";
 import {
   ControlNode,
@@ -65,8 +65,15 @@ export const getStyle = (
       height: auto;	
     }	
     .ant-select-selection-search {	
-      padding: ${style.padding};	
+      padding: ${style.padding};
     }	
+    .ant-select-selection-search-input {
+      font-family:${(style as SelectStyleType).fontFamily} !important;
+      font-size:${(style as SelectStyleType).textSize} !important;
+      font-weight:${(style as SelectStyleType).textWeight};
+      color:${(style as SelectStyleType).text} !important;
+      font-style:${(style as SelectStyleType).fontStyle};
+    }
     .ant-select-selector::after,	
     .ant-select-selection-placeholder,	
     .ant-select-selection-item {	
@@ -88,6 +95,7 @@ export const getStyle = (
       .ant-select-selector {
         background-color: ${style.background};
         border-color: ${style.border};
+        border-width:${(style as SelectStyleType).borderWidth};
       }
 
       &.ant-select-focused,
@@ -101,18 +109,18 @@ export const getStyle = (
       .ant-select-clear {
         background-color: ${style.background};
         color: ${style.text === "#222222"
-          ? "#8B8FA3"
-          : isDarkColor(style.text)
-          ? lightenColor(style.text, 0.2)
-          : style.text};
+      ? "#8B8FA3"
+      : isDarkColor(style.text)
+        ? lightenColor(style.text, 0.2)
+        : style.text};
       }
 
       .ant-select-clear:hover {
         color: ${style.text === "#222222"
-          ? "#8B8FA3"
-          : isDarkColor(style.text)
-          ? lightenColor(style.text, 0.1)
-          : style.text};
+      ? "#8B8FA3"
+      : isDarkColor(style.text)
+        ? lightenColor(style.text, 0.1)
+        : style.text};
       }
 
       &.ant-select-multiple .ant-select-selection-item {
@@ -160,7 +168,7 @@ const getDropdownStyle = (style: MultiSelectStyleType) => {
   `;
 };
 
-const Select = styled(AntdSelect)<{ $style: SelectStyleType & MultiSelectStyleType }>`
+const Select = styled(AntdSelect) <{ $style: SelectStyleType & MultiSelectStyleType }>`
   width: 100%;
 
   ${(props) => props.$style && getStyle(props.$style)}
@@ -197,7 +205,7 @@ export const SelectChildrenMap = {
   inputValue: stateComp<string>(""), // user's input value when search
   showSearch: BoolControl.DEFAULT_TRUE,
   viewRef: RefControl<BaseSelectRef>,
-  margin: MarginControl,	
+  margin: MarginControl,
   padding: PaddingControl,
   ...SelectInputValidationChildren,
   ...formDataChildren,
@@ -235,8 +243,8 @@ export const SelectUIView = (
     onSearch={
       props.showSearch
         ? (value) => {
-            props.dispatch(changeChildAction("inputValue", value, false));
-          }
+          props.dispatch(changeChildAction("inputValue", value, false));
+        }
         : undefined
     }
   >
@@ -248,6 +256,7 @@ export const SelectUIView = (
           label={option.label}
           disabled={option.disabled}
           key={option.value}
+          style={{fontFamily:"Montserrat"}}
         >
           <Wrapper className="option-label">
             {props.options.findIndex((option) => hasIcon(option.prefixIcon)) > -1 &&

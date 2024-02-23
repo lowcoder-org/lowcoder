@@ -23,19 +23,21 @@ type SelectEditProps = {
   options: any[];
 };
 
+const defaultProps: any = {}
 const SelectEdit = (props: SelectEditProps) => {
   const [currentValue, setCurrentValue] = useState(props.initialValue);
 
   return (
-    <SelectUIView 
+    <SelectUIView
+      {...defaultProps}
       value={currentValue}
       options={options}
       onChange={(val) => {
         props.onChange(val);
         setCurrentValue(val)
       }}
-      onEvent={async (eventName)=>{
-        if(eventName==="blur"){
+      onEvent={async (eventName) => {
+        if (eventName === "blur") {
           props.onChangeEnd()
         }
         return []
@@ -66,7 +68,8 @@ export const ColumnSelectComp = (function () {
           onChange={props.onChange}
           onChangeEnd={props.onChangeEnd}
         />
-    )})
+      )
+    })
     .setPropertyViewFn((children) => {
       return (
         <>

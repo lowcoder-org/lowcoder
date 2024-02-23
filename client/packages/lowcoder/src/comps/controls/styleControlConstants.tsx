@@ -735,20 +735,23 @@ export const SwitchStyle = [
 ] as const;
 
 export const SelectStyle = [
-  LABEL,
-  ...getStaticBgBorderRadiusByBg(SURFACE_COLOR, "pc"),
-  TEXT,
-  MARGIN,
-  PADDING,
+  // LABEL,
+  ...replaceAndMergeMultipleStyles(STYLING_FIELDS_SEQUENCE, 'border', [...getStaticBgBorderRadiusByBg(SURFACE_COLOR, "pc")]),
+
+  // ...getStaticBgBorderRadiusByBg(SURFACE_COLOR, "pc"),
+  // TEXT,
+  // MARGIN,
+  // PADDING,
   ...ACCENT_VALIDATE,
 ] as const;
 
 const multiSelectCommon = [
-  LABEL,
-  ...getStaticBgBorderRadiusByBg(SURFACE_COLOR, "pc"),
-  TEXT,
-  MARGIN,
-  PADDING,
+  ...replaceAndMergeMultipleStyles(STYLING_FIELDS_SEQUENCE, 'border', [...getStaticBgBorderRadiusByBg(SURFACE_COLOR, "pc")]),
+  // LABEL,
+  // ...getStaticBgBorderRadiusByBg(SURFACE_COLOR, "pc"),
+  // TEXT,
+  // MARGIN,
+  // PADDING,
   {
     name: "tags",
     label: trans("style.tags"),
@@ -841,7 +844,8 @@ function checkAndUncheck() {
 }
 
 export const CheckboxStyle = [
-  LABEL,
+  // LABEL,
+  ...replaceAndMergeMultipleStyles(STYLING_FIELDS_SEQUENCE, 'text', [LABEL, STATIC_TEXT, VALIDATE]).filter((style) => style.name !== 'border'),
   ...checkAndUncheck(),
   {
     name: "checked",
@@ -850,15 +854,16 @@ export const CheckboxStyle = [
     depType: DEP_TYPE.CONTRAST_TEXT,
     transformer: contrastText,
   },
-  RADIUS,
-  STATIC_TEXT,
-  VALIDATE,
-  MARGIN,
-  PADDING,
+  // RADIUS,
+  // STATIC_TEXT,
+  // VALIDATE,
+  // MARGIN,
+  // PADDING,
 ] as const;
 
 export const RadioStyle = [
-  LABEL,
+  // LABEL,
+  ...replaceAndMergeMultipleStyles(STYLING_FIELDS_SEQUENCE, 'text', [LABEL, STATIC_TEXT, VALIDATE]).filter((style) => style.name !== 'border' && style.name !== 'radius'),
   ...checkAndUncheck(),
   {
     name: "checked",
@@ -867,10 +872,10 @@ export const RadioStyle = [
     depType: DEP_TYPE.SELF,
     transformer: toSelf,
   },
-  STATIC_TEXT,
-  VALIDATE,
-  MARGIN,
-  PADDING,
+  // STATIC_TEXT,
+  // VALIDATE,
+  // MARGIN,
+  // PADDING,
 ] as const;
 
 export const SegmentStyle = [
@@ -1019,7 +1024,7 @@ export const TableColumnLinkStyle = [
 export const FileStyle = [
   // ...getStaticBgBorderRadiusByBg(SURFACE_COLOR), 
   getStaticBackground(SURFACE_COLOR),
-  ...replaceAndMergeMultipleStyles(STYLING_FIELDS_SEQUENCE,'border',[getStaticBorder('#00000000')]),
+  ...replaceAndMergeMultipleStyles(STYLING_FIELDS_SEQUENCE, 'border', [getStaticBorder('#00000000')]),
   // TEXT, ACCENT, MARGIN, PADDING
 ] as const;
 
