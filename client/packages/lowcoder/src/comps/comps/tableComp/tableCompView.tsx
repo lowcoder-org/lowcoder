@@ -517,7 +517,7 @@ function TableCellView(props: {
       columnTitle: title,
     });
     const cellColor = cellColorFn({
-      currentCell: record[title.toLowerCase()],
+      currentCell: record[title],
     });
     
     const style = {

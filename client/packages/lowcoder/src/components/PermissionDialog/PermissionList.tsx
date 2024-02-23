@@ -119,7 +119,7 @@ function PermissionLiItem(props: {
             width: "100px",
           }}
           defaultValue={permissionItem.role}
-          bordered={false}
+          variant="borderless"
           optionLabelProp="label"
           onSelect={(value: any, option: any) => {
             if (option.key === "delete") {

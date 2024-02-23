@@ -7,7 +7,7 @@ import {
   LeftPanel,
   MiddlePanel,
 } from "pages/common/styledComponent";
-import { getPanelStatus, getEditorModeStatus, getPanelStyle } from "util/localStorageUtil";
+import { getPanelStatus, getEditorModeStatus, getPanelStyle, getCollisionStatus } from "util/localStorageUtil";
 import { BottomSkeleton } from "pages/editor/bottom/BottomContent";
 import RightPanel from "pages/editor/right/RightPanel";
 import _ from "lodash";
@@ -48,6 +48,7 @@ export const EditorLoadingSpin = (props: { height?: string | number }) => {
 export default function EditorSkeletonView() {
   const panelStatus = getPanelStatus();
   const editorModeStatus = getEditorModeStatus();
+  const collisionStatus = getCollisionStatus();
   const panelStyle = getPanelStyle();
   const isUserViewMode = useUserViewMode();
   const isTemplate = useTemplateViewMode();
@@ -59,11 +60,19 @@ export default function EditorSkeletonView() {
   return (
     <>
       <Height100Div>
-        <Header panelStatus={panelStatus} togglePanel={_.noop} editorModeStatus={editorModeStatus} toggleEditorModeStatus={_.noop} />
+        <Header
+          panelStatus={panelStatus}
+          togglePanel={_.noop}
+          editorModeStatus={editorModeStatus}
+          toggleEditorModeStatus={_.noop}
+        />
         <Body>
           <SiderStyled />
           {panelStatus.left && (
-            <LeftPanel>
+            <LeftPanel
+              collisionStatus={collisionStatus}
+              toggleCollisionStatus={_.noop}
+            >
               <StyledSkeleton active paragraph={{ rows: 10 }} />
             </LeftPanel>
           )}
@@ -78,7 +87,11 @@ export default function EditorSkeletonView() {
             )}
           </MiddlePanel>
           {panelStatus.right && (
-            <RightPanel showPropertyPane={false} onCompDrag={_.noop} onTabChange={_.noop} />
+            <RightPanel
+              showPropertyPane={false}
+              onCompDrag={_.noop}
+              onTabChange={_.noop}
+            />
           )}
         </Body>
       </Height100Div>

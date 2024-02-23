@@ -78,6 +78,7 @@ class ApplicationApi extends Api {
   static newURLPrefix = "/applications";
   static fetchHomeDataURL = "/v1/applications/home";
   static createApplicationURL = "/v1/applications";
+  static fetchAllMarketplaceAppsURL = "/v1/applications/marketplace-apps";
   static deleteApplicationURL = (applicationId: string) => `/v1/applications/${applicationId}`;
   static getAppPublishInfoURL = (applicationId: string) => `/v1/applications/${applicationId}/view`;
   static getAppEditingInfoURL = (applicationId: string) => `/v1/applications/${applicationId}`;
@@ -92,6 +93,9 @@ class ApplicationApi extends Api {
     `/v1/applications/${applicationId}/permissions/${permissionId}`;
   static createFromTemplateURL = `/v1/applications/createFromTemplate`;
   static publicToAllURL = (applicationId: string) => `/applications/${applicationId}/public-to-all`;
+  static publicToMarketplaceURL = (applicationId: string) => `/v1/applications/${applicationId}/public-to-marketplace`;
+  static getMarketplaceAppURL = (applicationId: string) => `/v1/applications/${applicationId}/view_marketplace`;
+
 
   static fetchHomeData(request: HomeDataPayload): AxiosPromise<HomeDataResponse> {
     return Api.get(ApplicationApi.fetchHomeDataURL, request);
@@ -167,7 +171,9 @@ class ApplicationApi extends Api {
     const url =
       type === "published"
         ? ApplicationApi.getAppPublishInfoURL(applicationId)
-        : ApplicationApi.getAppEditingInfoURL(applicationId);
+        : type === "view_marketplace"
+          ? ApplicationApi.getMarketplaceAppURL(applicationId)
+          : ApplicationApi.getAppEditingInfoURL(applicationId);
     return Api.get(url);
   }
 
@@ -210,6 +216,20 @@ class ApplicationApi extends Api {
     return Api.put(ApplicationApi.publicToAllURL(appId), {
       publicToAll: publicToAll,
     });
+  }
+
+  static publicToMarketplace(appId: string, publicToMarketplace: boolean) {
+    return Api.put(ApplicationApi.publicToMarketplaceURL(appId), {
+      publicToMarketplace,
+    });
+  }
+
+  static fetchAllMarketplaceApps() {
+    return Api.get(ApplicationApi.fetchAllMarketplaceAppsURL);
+  }
+
+  static getMarketplaceApp(appId: string) {
+    return Api.get(ApplicationApi.getMarketplaceAppURL(appId));
   }
 }
 

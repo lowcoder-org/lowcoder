@@ -38,6 +38,8 @@ public class ApplicationInfoView {
 
     private final boolean publicToAll;
 
+    private final boolean publicToMarketplace;
+
     public long getLastViewTime() {
         return lastViewTime == null ? 0 : lastViewTime.toEpochMilli();
     }

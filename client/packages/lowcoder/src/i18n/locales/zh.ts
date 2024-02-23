@@ -106,7 +106,10 @@ leftPanel: {
     components: "组件",
     modals: "对话框",
     expandTip: "点击展开 {component} 的数据",
-    collapseTip: "点击折叠 {component} 的数据"
+    collapseTip: "点击折叠 {component} 的数据",
+    layers: "图层",
+    activatelayers: "激活图层",
+    selectedComponents: "已选组件",
 },
 bottomPanel: {
     title: "查询",
@@ -182,7 +185,8 @@ prop: {
     showBody: "显示表体",
     showFooter: "显示表尾",
     maskClosable: "点击蒙层关闭",
-    showMask: "显示蒙层"
+    showMask: "显示蒙层",
+    scrollbar: "滚动条",
 },
 autoHeightProp: {
     auto: "自动",
@@ -875,6 +879,9 @@ uiComp: {
     responsiveLayoutCompName: "响应式布局",
     responsiveLayoutCompDesc: "响应式布局",
     responsiveLayoutCompKeywords: "",
+    iconCompName: "图标",
+    iconCompDesc: "图标",
+    iconCompKeywords: "tb",
 },
 comp: {
     menuViewDocs: "查看文档",
@@ -1221,6 +1228,7 @@ table: {
     imageSrc: "图片链接",
     imageSize: "图片尺寸",
     columnTitle: "标题",
+    dataMapping: "数据映射",
     showTitle: "显示标题",
     showTitleTooltip: "显示/隐藏表标题中的列标题",
     sortable: "可排序",
@@ -2115,6 +2123,7 @@ home: {
     modules: "模块",
     module: "模块",
     trash: "回收站",
+    marketplace: "市场",
     queryLibrary: "查询管理",
     datasource: "数据源",
     selectDatasourceType: "选择数据源类型",
@@ -2174,6 +2183,10 @@ home: {
     copyLink: "复制链接",
     appPublicMessage: "将应用设为公开,任何人都可以查看.",
     modulePublicMessage: "将模块设为公开,任何人都可以查看.",
+    "appMarketplaceMessage": "发布您的应用程序到Lowcoder市场.任何人都可以在那里查看和复制它.",
+    "moduleMarketplaceMessage": "发布您的模块到Lowcoder市场.任何人都可以在那里查看和复制它.",
+    "marketplaceGoodPublishing": "请确保您的应用程序命名准确、易于使用。发布前请删除任何敏感信息。此外，移除本地数据源，代之以静态内置临时数据",
+    "noMarketplaceApps": "市场上还没有应用程序",
     memberPermissionList: "成员权限:",
     orgName: "{orgName}管理员",
     addMember: "添加成员",
@@ -2521,7 +2534,7 @@ calendar: {
     selectBackground: "选中背景",
 },
 componentDocExtra: {
-    table,
+    table: table,
 },
 idSource: {
     title: "OAuth 提供商",
@@ -2624,6 +2637,11 @@ timeLine: {
         helpdisplayName: "头像文字(低优先)",
         helpvalue: "评论内容",
         helpcreatedAt: "创建时间",
+      },
+      iconComp: {
+        icon: "图标",
+        autoSize: "图标自动大小",
+        iconSize: "图标大小",
       },
     mention:{
         mentionList: "提及列表",

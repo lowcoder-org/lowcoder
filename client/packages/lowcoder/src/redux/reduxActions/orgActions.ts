@@ -151,3 +151,25 @@ export const updateOrgSuccess = (payload: UpdateOrgPayload) => {
     payload: payload,
   };
 };
+
+export type OrgAPIUsagePayload = {
+  apiUsage: number,
+};
+
+export const fetchAPIUsageAction = (
+  orgId: string,
+  lastMonthOnly?: boolean,
+) => ({
+  type: ReduxActionTypes.FETCH_ORG_API_USAGE,
+  payload: {
+    orgId,
+    lastMonthOnly,
+  },
+});
+
+export const fetchAPIUsageSuccessAction = (apiUsage: number) => ({
+  type: ReduxActionTypes.FETCH_ORG_API_USAGE_SUCCESS,
+  payload: {
+    apiUsage,
+  },
+});

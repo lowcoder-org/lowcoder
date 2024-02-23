@@ -117,7 +117,7 @@ return queryByName.run().then(
 
 ### Pass in parameters
 
-You can pass parametes in the `run()` method to decouple query implementation from its parameters.
+You can pass parameters in the `run()` method to decouple query implementation from its parameters.
 
 ```javascript
 query.run({

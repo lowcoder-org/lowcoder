@@ -369,10 +369,10 @@ const PermissionSelector = (props: {
             width: "fit-content",
           }}
           $isVisible={roleSelectVisible}
-          bordered={false}
+          variant="borderless"
           defaultValue={props.supportRoles[0]}
           optionLabelProp="label"
-          onChange={(value) => setSelectRole(value)}
+          onChange={(value: string) => setSelectRole(value as ApplicationRoleType)}
         >
           {props.supportRoles.map((role) => (
             <CustomSelect.Option key={role.value} value={role.value} label={role.label}>
