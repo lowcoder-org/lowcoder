@@ -103,6 +103,7 @@ let CalendarBasicComp = (function () {
       style,
       firstDay,
       editable,
+      licenceKey,
     } = props;
 
     function renderEventContent(eventInfo: EventContentArg) {
@@ -309,6 +310,8 @@ let CalendarBasicComp = (function () {
       initialDate = undefined;
     }
 
+    
+
     return (
       <Wrapper
         ref={ref}
@@ -359,7 +362,7 @@ let CalendarBasicComp = (function () {
             setLeft(left);
           }}
           buttonText={buttonText}
-          schedulerLicenseKey={props.licenceKey.value}
+          schedulerLicenseKey={licenceKey}
           views={views}
           eventClassNames={() => (!showEventTime ? "no-time" : "")}
           slotLabelFormat={slotLabelFormat}
