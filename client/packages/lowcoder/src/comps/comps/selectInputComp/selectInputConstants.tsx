@@ -91,7 +91,7 @@ export const useSelectInputValidate = (props: ValidationParams) => {
 
   return [
     validateState,
-    handleValidate,
+    // handleValidate,
     handleChange,
   ] as const;
 };

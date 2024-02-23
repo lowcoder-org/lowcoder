@@ -119,11 +119,13 @@ export type UICompType =
   | "calendar"
   | "signature"
   | "jsonLottie" //Added By Aqib Mirza
+  | "icon" //Added By Mousheng
   | "timeline" //Added By Mousheng
   | "comment" //Added By Mousheng
   | "mention" //Added By Mousheng
   | "autocomplete" //Added By Mousheng
   | "responsiveLayout";
+
 
 export const uiCompRegistry = {} as Record<UICompType | string, UICompManifest>;
 

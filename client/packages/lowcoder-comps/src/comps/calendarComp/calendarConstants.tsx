@@ -205,9 +205,9 @@ export const Wrapper = styled.div<{
       flex-direction: inherit;
     }
     .fc-day-today .fc-daygrid-day-number {
-      background-color: ${(props) => props.$theme?.primary};
+      background-color: ${(props) => props.$theme?.primary ? props.$theme.primary : props.$style.background};
       color: ${(props) =>
-        contrastText(props.$theme?.primary || "", props.$theme?.textDark, props.$theme?.textLight)};
+        contrastText(props.$theme?.primary || "", props.$theme?.textDark || "#000000", props.$theme?.textLight || "#ffffff")};
     }
     .fc-daygrid-day-events {
       padding: 1px 0 5px 0;
