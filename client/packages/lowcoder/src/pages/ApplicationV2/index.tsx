@@ -4,6 +4,7 @@ import {
   FOLDER_URL,
   FOLDER_URL_PREFIX,
   FOLDERS_URL,
+  MARKETPLACE_URL,
   MODULE_APPLICATIONS_URL,
   QUERY_LIBRARY_URL,
   SETTING,
@@ -30,6 +31,8 @@ import {
   PointIcon,
   RecyclerActiveIcon,
   RecyclerIcon,
+  MarketplaceIcon,
+  MarketplaceActiveIcon,
 } from "lowcoder-design";
 import React, { useEffect, useState } from "react";
 import { fetchAllApplications, fetchHomeData } from "redux/reduxActions/applicationActions";
@@ -44,6 +47,7 @@ import styled, { css } from "styled-components";
 import history from "../../util/history";
 import { FolderView } from "./FolderView";
 import { TrashView } from "./TrashView";
+import { MarketplaceView } from "./MarketplaceView";
 import { SideBarItemType } from "../../components/layout/SideBarSection";
 import { RootFolderListView } from "./RootFolderListView";
 import InviteDialog from "../common/inviteDialog";
@@ -341,7 +345,7 @@ export default function ApplicationHome() {
                   selected ? <HomeActiveIcon {...otherProps} /> : <HomeIcon {...otherProps} />,
               },
               {
-                text: <TabLabel>{trans("home.modules")}</TabLabel>,
+                text: <TabLabel>{trans("home.allModules")}</TabLabel>,
                 routePath: MODULE_APPLICATIONS_URL,
                 routeComp: ModuleView,
                 icon: ({ selected, ...otherProps }) =>
@@ -349,6 +353,19 @@ export default function ApplicationHome() {
                     <HomeModuleActiveIcon {...otherProps} />
                   ) : (
                     <HomeModuleIcon {...otherProps} />
+                  ),
+                visible: ({ user }) => user.orgDev,
+              },
+              {
+                text: <TabLabel>{trans("home.marketplace")}</TabLabel>,
+                routePath: MARKETPLACE_URL,
+                routePathExact: false,
+                routeComp: MarketplaceView,
+                icon: ({ selected, ...otherProps }) =>
+                  selected ? (
+                    <MarketplaceActiveIcon {...otherProps} />
+                  ) : (
+                    <MarketplaceIcon {...otherProps} />
                   ),
                 visible: ({ user }) => user.orgDev,
               },

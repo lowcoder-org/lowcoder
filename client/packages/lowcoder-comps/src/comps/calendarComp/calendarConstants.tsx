@@ -205,9 +205,9 @@ export const Wrapper = styled.div<{
       flex-direction: inherit;
     }
     .fc-day-today .fc-daygrid-day-number {
-      background-color: ${(props) => props.$theme.primary};
+      background-color: ${(props) => props.$theme?.primary ? props.$theme.primary : props.$style.background};
       color: ${(props) =>
-        contrastText(props.$theme.primary || "", props.$theme.textDark, props.$theme.textLight)};
+        contrastText(props.$theme?.primary || "", props.$theme?.textDark || "#000000", props.$theme?.textLight || "#ffffff")};
     }
     .fc-daygrid-day-events {
       padding: 1px 0 5px 0;
@@ -585,10 +585,10 @@ export const Wrapper = styled.div<{
     }
     .fc-day-today.fc-col-header-cell {
       background-color: ${(props) =>
-        isDarkColor(props.$style.background) ? "#ffffff19" : toHex(props.$theme.primary!) + "19"};
+        isDarkColor(props.$style.background) ? "#ffffff19" : toHex(props.$theme?.primary!) + "19"};
       a {
         color: ${(props) =>
-          !isDarkColor(props.$style.background) && darkenColor(props.$theme.primary!, 0.1)};
+          !isDarkColor(props.$style.background) && darkenColor(props.$theme?.primary!, 0.1)};
       }
     }
     .fc-col-header-cell-cushion {

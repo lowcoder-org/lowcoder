@@ -7,6 +7,7 @@ import {
   handleAppEditClick,
   handleAppViewClick,
   handleFolderViewClick,
+  handleMarketplaceAppViewClick,
   HomeResInfo,
 } from "../../util/homeResUtils";
 import { HomeResTypeEnum } from "../../types/homeRes";
@@ -75,6 +76,8 @@ export const HomeTableView = (props: { resources: HomeRes[] }) => {
             }
             if (item.type === HomeResTypeEnum.Folder) {
               handleFolderViewClick(item.id);
+            } else if(item.isMarketplace) {
+              handleMarketplaceAppViewClick(item.id);
             } else {
               item.isEditable ? handleAppEditClick(e, item.id) : handleAppViewClick(item.id);
             }
@@ -209,6 +212,8 @@ export const HomeTableView = (props: { resources: HomeRes[] }) => {
                       e.stopPropagation();
                       return item.type === HomeResTypeEnum.Folder
                         ? handleFolderViewClick(item.id)
+                        : item.isMarketplace
+                        ? handleMarketplaceAppViewClick(item.id)
                         : handleAppViewClick(item.id);
                     }}
                     style={{ marginRight: "52px" }}

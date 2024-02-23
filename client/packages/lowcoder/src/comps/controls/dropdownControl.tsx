@@ -28,6 +28,7 @@ interface DropdownControlParams<T extends OptionsType> extends ControlParams {
   showSearch?: boolean;
   dropdownStyle?: React.CSSProperties;
   labelStyle?: React.CSSProperties;
+  IconType?: "OnlyAntd" | "All" | "default" | undefined;
 }
 
 interface DropdownPropertyViewProps<T extends OptionsType>
