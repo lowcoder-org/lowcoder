@@ -1,4 +1,66 @@
-import {
+import React, { useState, useEffect } from 'react';
+
+
+// Function to dynamically import icons
+/* export const loadAntDIcon = async (iconName: string) => {
+  if (!iconName) return null;
+
+  try {
+    const module = await import(`@ant-design/icons`);
+    const IconComponent = (module as any)[iconName];
+    if (IconComponent) {
+      // Return the icon component if found
+      return <IconComponent />;
+    } else {
+      console.error(`Icon ${iconName} not found in @ant-design/icons`);
+      return null;
+    }
+  } catch (error) {
+    console.error(`Error loading icon ${iconName}:`, error);
+    return null;
+  }
+}; */
+
+interface DynamicIconComponentProps {
+  iconName: string;
+  iconSet?: string;
+}
+
+const loadDynamicIcon: React.FC<DynamicIconComponentProps> = ({ iconName, ...props }) => {
+  const [Icon, setIcon] = useState<React.ElementType>(() => null);
+
+  useEffect(() => {
+    const importIcon = async () => {
+      if (props.iconSet === 'remixicon') {
+        try {
+          const module = await import(`@remixicon/react/${iconName}`);
+          setIcon(() => module.default);
+        } catch (error) {
+          console.error(`Could not load icon ${iconName}:`, error);
+        }
+      }
+      if (props.iconSet === 'ant') {
+        try {
+          const module = await import(`@ant-design/icons`);
+          const IconComponent = (module as any)[iconName];
+          setIcon(() => IconComponent);
+        } catch (error) {
+          console.error(`Could not load icon ${iconName}:`, error);
+        }
+      }
+    };
+
+    importIcon();
+  }, [iconName]);
+
+  return Icon ? <Icon {...props} /> : null;
+};
+
+export default loadDynamicIcon;
+
+/// 
+
+/* import {
   AccountBookFilled,
   AccountBookOutlined,
   AccountBookTwoTone,
@@ -1580,4 +1642,4 @@ export const ANTDICON = {
   zhihusquarefilled: <ZhihuSquareFilled />,
   zoominoutlined: <ZoomInOutlined />,
   zoomoutoutlined: <ZoomOutOutlined />,
-};
+}; */

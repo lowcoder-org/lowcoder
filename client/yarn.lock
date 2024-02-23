@@ -11970,7 +11970,6 @@ __metadata:
     number-precision: ^1.6.0
     prettier: ^3.1.0
     react-player: ^2.11.0
-    remixicon-react: ^1.0.0
     rimraf: ^3.0.2
     rollup: ^2.79.0
     shelljs: ^0.8.5
@@ -15583,15 +15582,6 @@ __metadata:
     mdast-util-to-hast: ^12.1.0
     unified: ^10.0.0
   checksum: b9ac8acff3383b204dfdc2599d0bdf86e6ca7e837033209584af2e6aaa6a9013e519a379afa3201299798cab7298c8f4b388de118c312c67234c133318aec084
-  languageName: node
-  linkType: hard
-
-"remixicon-react@npm:^1.0.0":
-  version: 1.0.0
-  resolution: "remixicon-react@npm:1.0.0"
-  peerDependencies:
-    react: ">=0.14.0"
-  checksum: be7abfb3558c9ed18ccfff5a28bd66dbee4207887682ae7a00c697e6051eadecad0da83f1e83910ed6ddebe7f2ab73e488f0f4c604897605bbb3d8f519f416ed
   languageName: node
   linkType: hard
 
