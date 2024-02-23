@@ -1,34 +1,66 @@
 import { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
 import { HomeLayout } from "./HomeLayout";
-import { MARKETPLACE_URL } from "constants/routesURL";
-import { marketplaceSelector } from "redux/selectors/applicationSelector";
-import { fetchAllMarketplaceApps } from "redux/reduxActions/applicationActions";
+import { MARKETPLACE_TYPE_URL, MARKETPLACE_URL } from "constants/routesURL";
 import { trans } from "../../i18n";
+import axios, { AxiosResponse } from "axios";
+import ApplicationApi from "@lowcoder-ee/api/applicationApi";
+import { ApplicationMeta, MarketplaceType } from "@lowcoder-ee/constants/applicationConstants";
+import { GenericApiResponse } from "@lowcoder-ee/api/apiResponses";
+import { validateResponse } from "@lowcoder-ee/api/apiUtils";
+import { messageInstance } from "lowcoder-design";
+import { matchPath } from "react-router";
+import log from "loglevel";
 
 export function MarketplaceView() {
-  const [haveFetchedApps, setHaveFetchApps] = useState<boolean>(false);
+  const [ marketplaceApps, setMarketplaceApps ] = useState<Array<ApplicationMeta>>([]);
+  const marketplaceType = matchPath<{marketplaceType?: MarketplaceType}>(window.location.pathname, MARKETPLACE_TYPE_URL)?.params
+    .marketplaceType;
+  const isLowcoderMarketplace = marketplaceType === 'lowcoder';
+  const marketplaceBreadcrumbText = !marketplaceType?.length
+    ? trans("home.marketplace")
+    : marketplaceType === 'lowcoder'
+    ? `${trans("home.marketplace")} (Lowcoder)`
+    : `${trans("home.marketplace")} (Local)`;
 
-  const dispatch = useDispatch();
-  const marketplaceApps = useSelector(marketplaceSelector);
+  const fetchLowcoderMarketplaceApps = () => {
+    const http = axios.create({
+      baseURL: 'https://api-service.lowcoder.cloud',
+      withCredentials: false,
+    });
+    return http.get(`/api/v1/applications/marketplace-apps`);
+  };
+
+  const fetchLocalMarketplaceApps = () => {
+    return ApplicationApi.fetchAllMarketplaceApps()
+  }
+
+  const fetchMarketplaceApps = async () => {
+    try {
+      let response: AxiosResponse<GenericApiResponse<ApplicationMeta[]>>;
+      if(isLowcoderMarketplace) {
+        response = await fetchLowcoderMarketplaceApps();
+      } else {
+        response = await fetchLocalMarketplaceApps();
+      }
+
+      const isValidResponse: boolean = validateResponse(response);
+      if (isValidResponse) {
+        setMarketplaceApps(response.data.data);
+      }
+    } catch (error: any) {
+      messageInstance.error(error.message);
+      log.debug("fetch marketplace apps error: ", error);
+    }
+  }
 
   useEffect(() => {
-    if (!marketplaceApps.length && !haveFetchedApps) {
-      dispatch(fetchAllMarketplaceApps());
-      setHaveFetchApps(true);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (marketplaceApps.length) {
-      setHaveFetchApps(true);
-    }
-  }, [marketplaceApps])
+    fetchMarketplaceApps();
+  }, [marketplaceType]);
 
   return (
     <HomeLayout
       elements={marketplaceApps}
-      breadcrumb={[{ text: trans("home.marketplace"), path: MARKETPLACE_URL }]}
+      breadcrumb={[{ text: marketplaceBreadcrumbText, path: MARKETPLACE_URL }]}
       mode={"marketplace"}
     />
   );
