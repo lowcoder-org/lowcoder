@@ -735,20 +735,23 @@ export const SwitchStyle = [
 ] as const;
 
 export const SelectStyle = [
-  LABEL,
-  ...getStaticBgBorderRadiusByBg(SURFACE_COLOR, "pc"),
-  TEXT,
-  MARGIN,
-  PADDING,
+  // LABEL,
+  ...replaceAndMergeMultipleStyles(STYLING_FIELDS_SEQUENCE, 'border', [...getStaticBgBorderRadiusByBg(SURFACE_COLOR, "pc")]),
+
+  // ...getStaticBgBorderRadiusByBg(SURFACE_COLOR, "pc"),
+  // TEXT,
+  // MARGIN,
+  // PADDING,
   ...ACCENT_VALIDATE,
 ] as const;
 
 const multiSelectCommon = [
-  LABEL,
-  ...getStaticBgBorderRadiusByBg(SURFACE_COLOR, "pc"),
-  TEXT,
-  MARGIN,
-  PADDING,
+  ...replaceAndMergeMultipleStyles(STYLING_FIELDS_SEQUENCE, 'border', [...getStaticBgBorderRadiusByBg(SURFACE_COLOR, "pc")]),
+  // LABEL,
+  // ...getStaticBgBorderRadiusByBg(SURFACE_COLOR, "pc"),
+  // TEXT,
+  // MARGIN,
+  // PADDING,
   {
     name: "tags",
     label: trans("style.tags"),
