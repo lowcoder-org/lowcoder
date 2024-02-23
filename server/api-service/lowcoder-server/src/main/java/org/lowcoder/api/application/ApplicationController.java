@@ -214,7 +214,7 @@ public class ApplicationController implements ApplicationEndpoints {
     @Override
     public Mono<ResponseView<Boolean>> setApplicationPublicToMarketplace(@PathVariable String applicationId,
                                                                          @RequestBody ApplicationPublicToMarketplaceRequest request) {
-        return applicationApiService.setApplicationPublicToMarketplace(applicationId, request.publicToMarketplace())
+        return applicationApiService.setApplicationPublicToMarketplace(applicationId, request)
                 .map(ResponseView::success);
     }
 

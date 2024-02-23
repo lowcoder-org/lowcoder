@@ -514,10 +514,10 @@ public class ApplicationApiService {
                 .then(applicationService.setApplicationPublicToAll(applicationId, publicToAll));
     }
 
-    public Mono<Boolean> setApplicationPublicToMarketplace(String applicationId, boolean publicToMarketplace) {
+    public Mono<Boolean> setApplicationPublicToMarketplace(String applicationId, ApplicationEndpoints.ApplicationPublicToMarketplaceRequest request) {
         return checkCurrentUserApplicationPermission(applicationId, ResourceAction.SET_APPLICATIONS_PUBLIC_TO_MARKETPLACE)
                 .then(checkApplicationStatus(applicationId, NORMAL))
-                .then(applicationService.setApplicationPublicToMarketplace(applicationId, publicToMarketplace));
+                .then(applicationService.setApplicationPublicToMarketplace(applicationId, request.publicToMarketplace(), request.title(), request.category(), request.description()));
     }
 
     public Mono<Boolean> setApplicationAsAgencyProfile(String applicationId, boolean agencyProfile) {

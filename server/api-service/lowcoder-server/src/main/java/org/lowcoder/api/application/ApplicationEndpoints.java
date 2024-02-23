@@ -270,11 +270,27 @@ public interface ApplicationEndpoints
         }
     }
 
-	public record ApplicationPublicToMarketplaceRequest(Boolean publicToMarketplace) {
+	public record ApplicationPublicToMarketplaceRequest(Boolean publicToMarketplace, String title, String description, String category) {
 		@Override
 		public Boolean publicToMarketplace() {
 			return BooleanUtils.isTrue(publicToMarketplace);
 		}
+
+		@Override
+		public String title() {
+			return title;
+		}
+
+		@Override
+		public String description() {
+			return description;
+		}
+
+		@Override
+		public String category() {
+			return category;
+		}
+
 	}
 
 	public record ApplicationAsAgencyProfileRequest(Boolean agencyProfile) {
