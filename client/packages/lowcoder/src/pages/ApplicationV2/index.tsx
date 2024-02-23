@@ -5,6 +5,7 @@ import {
   FOLDER_URL_PREFIX,
   FOLDERS_URL,
   MARKETPLACE_URL,
+  MARKETPLACE_URL_BY_TYPE,
   MODULE_APPLICATIONS_URL,
   QUERY_LIBRARY_URL,
   SETTING,
@@ -33,6 +34,8 @@ import {
   RecyclerIcon,
   MarketplaceIcon,
   MarketplaceActiveIcon,
+  LowcoderMarketplaceActiveIcon,
+  LowcoderMarketplaceIcon,
 } from "lowcoder-design";
 import React, { useEffect, useState } from "react";
 import { fetchAllApplications, fetchHomeData } from "redux/reduxActions/applicationActions";
@@ -245,6 +248,7 @@ export default function ApplicationHome() {
   const allAppCount = allApplications.length;
   const allFoldersCount = allFolders.length;
   const orgHomeId = "root";
+  const isSelfHost = window.location.host !== 'app.lowcoder.cloud';
 
   const handleFolderCreate = useCreateFolder();
 
@@ -357,8 +361,16 @@ export default function ApplicationHome() {
                 visible: ({ user }) => user.orgDev,
               },
               {
-                text: <TabLabel>{trans("home.marketplace")}</TabLabel>,
-                routePath: MARKETPLACE_URL,
+                text: (
+                  <TabLabel>
+                    {
+                      isSelfHost
+                        ? `${trans("home.marketplace")} (Local)`
+                        : trans("home.marketplace")
+                    }
+                  </TabLabel>
+                ),
+                routePath: isSelfHost ? MARKETPLACE_URL_BY_TYPE('local') : MARKETPLACE_URL,
                 routePathExact: false,
                 routeComp: MarketplaceView,
                 icon: ({ selected, ...otherProps }) =>
@@ -368,6 +380,19 @@ export default function ApplicationHome() {
                     <MarketplaceIcon {...otherProps} />
                   ),
                 visible: ({ user }) => user.orgDev,
+              },
+              {
+                text: <TabLabel>{`${trans("home.marketplace")} (Lowcoder)`}</TabLabel>,
+                routePath: MARKETPLACE_URL_BY_TYPE('lowcoder'),
+                routePathExact: false,
+                routeComp: MarketplaceView,
+                icon: ({ selected, ...otherProps }) =>
+                  selected ? (
+                    <LowcoderMarketplaceActiveIcon {...otherProps} />
+                  ) : (
+                    <LowcoderMarketplaceIcon {...otherProps} />
+                  ),
+                visible: ({ user }) => user.orgDev && isSelfHost,
               },
               {
                 text: <TabLabel>{trans("home.trash")}</TabLabel>,
