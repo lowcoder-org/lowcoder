@@ -1,8 +1,6 @@
 > **Note**  
 > Lowcoder continues from the abandoned Openblocks project. For more information [read our manifesto](MANIFESTO.md).
 
-[![Deploy to AWS using Stitch](https://img.shields.io/badge/deploy_with-Stitch-%23E369F7?logo=amazonaws&color=%23E369F7)](https://deploy.stitch.tech/lowcoder/lowcoder)
-
 <div align="center">
     <h1 style="border-bottom: none; margin-bottom: 0">Lowcoder</h1>
     <h3 style="margin-top: 0">This is the only Platform, which closes the gap between App Development, Website Development and Slide-Presentations.</h3>
