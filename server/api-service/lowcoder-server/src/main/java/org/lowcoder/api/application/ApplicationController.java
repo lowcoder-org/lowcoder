@@ -17,6 +17,7 @@ import org.lowcoder.api.application.view.ApplicationPermissionView;
 import org.lowcoder.api.application.view.ApplicationView;
 import org.lowcoder.api.application.view.MarketplaceApplicationInfoView;
 import org.lowcoder.api.framework.view.ResponseView;
+import org.lowcoder.api.home.SessionUserService;
 import org.lowcoder.api.home.UserHomeApiService;
 import org.lowcoder.api.home.UserHomepageView;
 import org.lowcoder.api.util.BusinessEventPublisher;
@@ -39,6 +40,7 @@ public class ApplicationController implements ApplicationEndpoints {
     private final UserHomeApiService userHomeApiService;
     private final ApplicationApiService applicationApiService;
     private final BusinessEventPublisher businessEventPublisher;
+    private final SessionUserService sessionUserService;
 
     @Override
     public Mono<ResponseView<ApplicationView>> create(@RequestBody CreateApplicationRequest createApplicationRequest) {
