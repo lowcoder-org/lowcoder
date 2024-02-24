@@ -2238,8 +2238,8 @@ export const en = {
     "history": "History"
   },
   "home": {
-    "allApplications": "All Apps",
-    "allModules": "All Modules",
+    "allApplications": "Your Apps",
+    "allModules": "Your Modules",
     "allFolders": "All Folders",
     "modules": "Modules",
     "module": "Module",
@@ -2304,6 +2304,10 @@ export const en = {
     "copyLink": "Copy link",
     "appPublicMessage": "Make the app public. Anyone can view.",
     "modulePublicMessage": "Make the module public. Anyone can view.",
+    "appMarketplaceMessage": "Publish your App on Lowcoder Marketplace. Anyone can view and copy it from there.",
+    "moduleMarketplaceMessage": "Publish your Module on Lowcoder Marketplace. Anyone can view and copy it from there.",
+    "marketplaceGoodPublishing": "Please make sure your app is well-named and easy to use. Remove any sensitive information before publishing. Also, remove local datasources and replace by static built-in temporary data.",
+    "noMarketplaceApps": "No apps yet in the marketplace",
     "memberPermissionList": "Member permissions: ",
     "orgName": "{orgName} admins",
     "addMember": "Add members",

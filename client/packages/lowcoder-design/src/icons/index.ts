@@ -177,12 +177,14 @@ export { ReactComponent as HomeQueryLibraryIcon } from "./icon-application-query
 export { ReactComponent as HomeDataSourceIcon } from "./icon-application-datasource.svg";
 export { ReactComponent as RecyclerIcon } from "./icon-application-recycler.svg";
 export { ReactComponent as MarketplaceIcon } from "./icon-application-marketplace.svg";
+export { ReactComponent as LowcoderMarketplaceIcon } from "./icon-lowcoder-marketplace.svg";
 export { ReactComponent as HomeActiveIcon } from "./icon-application-home-active.svg";
 export { ReactComponent as HomeModuleActiveIcon } from "./icon-application-module-active.svg";
 export { ReactComponent as HomeQueryLibraryActiveIcon } from "./icon-application-query-library-active.svg";
 export { ReactComponent as HomeDataSourceActiveIcon } from "./icon-application-datasource-active.svg";
 export { ReactComponent as RecyclerActiveIcon } from "./icon-application-recycler-active.svg";
 export { ReactComponent as MarketplaceActiveIcon } from "./icon-application-marketplace-active.svg";
+export { ReactComponent as  LowcoderMarketplaceActiveIcon } from "./icon-lowcoder-marketplace-active.svg";
 export { ReactComponent as FavoritesIcon } from "./icon-application-favorites.svg";
 export { ReactComponent as HomeSettingIcon } from "./icon-application-setting.svg";
 export { ReactComponent as FolderIcon } from "./icon-application-folder.svg";
@@ -280,6 +282,7 @@ export { ReactComponent as SignatureIcon } from "./icon-signature.svg";
 export { ReactComponent as ManualIcon } from "./icon-manual.svg";
 export { ReactComponent as WarnIcon } from "./icon-warn.svg";
 export { ReactComponent as SyncManualIcon } from "./icon-sync-manual.svg";
+export { ReactComponent as IconCompIcon } from "icons/IconCompIcon.svg";
 export { ReactComponent as DangerIcon } from "./icon-danger.svg";
 export { ReactComponent as TableMinusIcon } from "./icon-table-minus.svg";
 export { ReactComponent as TablePlusIcon } from "./icon-table-plus.svg";
@@ -615,3 +618,4 @@ export { ReactComponent as AutoCompleteCompIcon } from "./icon-autocomplete-comp
 export { ReactComponent as WidthIcon } from "./icon-width.svg";
 export { ReactComponent as ResponsiveLayoutCompIcon } from "./remix/layout-column-line.svg"; // Closest match for responsive layout component
 export { ReactComponent as TextSizeIcon } from "./icon-text-size.svg"; */
+

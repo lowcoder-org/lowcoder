@@ -115,3 +115,5 @@ export type AppSnapshotList = {
   count: number; // total count
   list: AppSnapshot[];
 };
+
+export type MarketplaceType = "local" | "lowcoder";
