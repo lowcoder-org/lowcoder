@@ -363,14 +363,10 @@ export default function ApplicationHome() {
               {
                 text: (
                   <TabLabel>
-                    {
-                      isSelfHost
-                        ? `${trans("home.marketplace")} (Local)`
-                        : trans("home.marketplace")
-                    }
+                    {trans("home.marketplace")}
                   </TabLabel>
                 ),
-                routePath: isSelfHost ? MARKETPLACE_URL_BY_TYPE('local') : MARKETPLACE_URL,
+                routePath: MARKETPLACE_URL,
                 routePathExact: false,
                 routeComp: MarketplaceView,
                 icon: ({ selected, ...otherProps }) =>
@@ -380,19 +376,6 @@ export default function ApplicationHome() {
                     <MarketplaceIcon {...otherProps} />
                   ),
                 visible: ({ user }) => user.orgDev,
-              },
-              {
-                text: <TabLabel>{`${trans("home.marketplace")} (Lowcoder)`}</TabLabel>,
-                routePath: MARKETPLACE_URL_BY_TYPE('lowcoder'),
-                routePathExact: false,
-                routeComp: MarketplaceView,
-                icon: ({ selected, ...otherProps }) =>
-                  selected ? (
-                    <LowcoderMarketplaceActiveIcon {...otherProps} />
-                  ) : (
-                    <LowcoderMarketplaceIcon {...otherProps} />
-                  ),
-                visible: ({ user }) => user.orgDev && isSelfHost,
               },
               {
                 text: <TabLabel>{trans("home.trash")}</TabLabel>,

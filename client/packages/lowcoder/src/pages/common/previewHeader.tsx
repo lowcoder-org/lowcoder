@@ -144,9 +144,8 @@ export const PreviewHeader = () => {
       </StyledLink>
       {isViewMarketplaceMode && (
         <HeaderStartDropdown
-          setEdit={() => {
-            
-          }}
+          setEdit={() => { }}
+          isViewMarketplaceMode={isViewMarketplaceMode}
         />
       )}
       {!isViewMarketplaceMode && (

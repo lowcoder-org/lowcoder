@@ -13,6 +13,40 @@ export enum AppTypeEnum {
   MobileTabLayout = 6,
 }
 
+export enum ApplicationCategoriesEnum {
+  BUSINESS = "Business",
+  DASHBOARD = "Dashboards & Reporting",
+  SLIDES = "Slides & Presentations",
+  WEBSITE = "Website",
+  SHOPPING = "Shopping & Ecommerce",
+  TOOLS = "Tools & Internal Apps",
+  COMMUNICATION = "Communication",
+  PRODUCTIVITY = "Productivity",
+  EDUCATION = "Education",
+  SOCIAL_MEDIA = "Social Media",
+  ENTERTAINMENT = "Entertainment",
+  FINANCE = "Finance",
+  HEALTH_FITNESS = "Health & Fitness",
+  LIFESTYLE = "Lifestyle",
+  NEWS_MAGAZINES = "News & Magazines",
+  PERSONALIZATION = "Personalization",
+  PHOTOGRAPHY = "Photography",
+  SPORTS = "Sports",
+  TRAVEL_LOCAL = "Travel & Local",
+  WEATHER = "Weather",
+  MEDICAL = "Medical",
+  MUSIC_AUDIO = "Music & Audio",
+  AUTO_VEHICLES = "Auto & Vehicles",
+  ART_DESIGN = "Art & Design",
+  BEAUTY = "Beauty",
+  DATING = "Dating",
+  EVENTS = "Events",
+  FOOD_DRINK = "Food & Drink",
+  HOUSE_HOME = "House & Home",
+  PARENTING = "Parenting",
+  MAPS_NAVIGATION = "Maps & Navigation",
+};
+
 export const AppUILayoutType: Record<AppTypeEnum, UiLayoutType> = {
   [AppTypeEnum.Application]: "normal",
   [AppTypeEnum.Module]: "module",
@@ -37,6 +71,11 @@ export interface ApplicationMeta {
   createBy: string;
   createAt: number;
   creatorEmail?: string;
+  title?: string;
+  description?: string;
+  icon?: string;
+  category?: ApplicationCategoriesEnum;
+  showheader?: boolean;
   orgId: string;
   role: ApplicationRoleType;
   extra: ApplicationExtra;
@@ -44,6 +83,7 @@ export interface ApplicationMeta {
   lastViewTime: number;
   folderId: string;
   folder: false;
+  isLocalMarketplace?: boolean;
   applicationStatus: "NORMAL" | "RECYCLED" | "DELETED";
 }
 

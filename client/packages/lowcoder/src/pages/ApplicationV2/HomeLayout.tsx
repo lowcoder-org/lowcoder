@@ -33,6 +33,8 @@ import { trans } from "../../i18n";
 import { isFetchingFolderElements } from "../../redux/selectors/folderSelector";
 import { checkIsMobile } from "util/commonUtils";
 import MarketplaceHeaderImage from "assets/images/marketplaceHeaderImage.jpg";
+import { Divider } from "antd";
+import { Margin } from "../setting/theme/styledComponents";
 
 const Wrapper = styled.div`
   display: flex;
@@ -257,6 +259,7 @@ export interface HomeRes {
   isManageable: boolean;
   isDeletable: boolean;
   isMarketplace?: boolean;
+  isLocalMarketplace?: boolean;
 }
 
 export type HomeBreadcrumbType = { text: string; path: string };
@@ -266,11 +269,13 @@ export type HomeLayoutMode = "view" | "trash" | "module" | "folder" | "folders" 
 export interface HomeLayoutProps {
   breadcrumb?: HomeBreadcrumbType[];
   elements: Array<ApplicationMeta | FolderMeta>;
+  localMarketplaceApps?: Array<ApplicationMeta>;
+  globalMarketplaceApps?: Array<ApplicationMeta>;
   mode: HomeLayoutMode;
 }
 
 export function HomeLayout(props: HomeLayoutProps) {
-  const { breadcrumb = [], elements = [], mode } = props;
+  const { breadcrumb = [], elements = [], localMarketplaceApps = [], globalMarketplaceApps = [],mode } = props;
   const user = useSelector(getUser);
   const isFetching = useSelector(isFetchingFolderElements);
 
@@ -288,7 +293,17 @@ export function HomeLayout(props: HomeLayoutProps) {
     return null;
   }
 
-  const resList: HomeRes[] = elements
+  var displayElements = elements;
+  if (mode === "marketplace") {
+    const markedLocalApps = localMarketplaceApps.map(app => ({ ...app, isLocalMarketplace: true }));
+    const markedGlobalApps = globalMarketplaceApps.map(app => ({ ...app, isLocalMarketplace: false }));
+    // Merge local and global apps into the elements array
+    displayElements = [...markedLocalApps, ...markedGlobalApps];
+  }
+
+  console.log("HomeLayout: displayElements", displayElements);
+
+  const resList: HomeRes[] = displayElements
     .filter((e) =>
       searchValue
         ? e.name.toLocaleLowerCase().includes(searchValue) ||
@@ -331,6 +346,7 @@ export function HomeLayout(props: HomeLayoutProps) {
             isManageable: mode !== 'marketplace' && canManageApp(user, e),
             isDeletable: mode !== 'marketplace' && canEditApp(user, e),
             isMarketplace: mode === 'marketplace',
+            isLocalMarketplace: e.isLocalMarketplace,
           }
     );
 
@@ -420,7 +436,6 @@ export function HomeLayout(props: HomeLayoutProps) {
 
       <ContentWrapper>
 
-        
         {isFetching && resList.length === 0 ? (
           <SkeletonStyle active paragraph={{ rows: 8, width: 648 }} title={false} />
         ) : (
@@ -434,11 +449,38 @@ export function HomeLayout(props: HomeLayoutProps) {
                     <LayoutSwitcher onClick={() => setLayout(layout === "list" ? "card" : "list")}>
                       {layout === "list" ? <HomeCardIcon /> : <HomeListIcon />}
                     </LayoutSwitcher>
-                    {layout === "list" ? (
-                      <HomeTableView resources={resList} />
-                    ) : (
-                      <HomeCardView resources={resList} />
+                  
+                    {mode === "marketplace" && (
+                      <>
+                        {layout === "list" ? (
+                          <>
+                            <h2 style={{padding: "0 36px"}}>{trans("home.localMarketplaceTitle")}</h2>
+                            <HomeTableView resources={resList.filter(app => app.isLocalMarketplace)} />
+                            <Divider style={{padding: "0 36px", margin: "0 36px", width: "calc(100% - 72px) !important"}}/>
+                            <h2 style={{padding: "0 36px"}}>{trans("home.globalMarketplaceTitle")}</h2>
+                            <HomeTableView resources={resList.filter(app => !app.isLocalMarketplace)} />
+                          </>
+                        ) : (
+                          <>
+                            <h2 style={{padding: "0 36px"}}>{trans("home.localMarketplaceTitle")}</h2>
+                            <HomeCardView resources={resList.filter(app => app.isLocalMarketplace)} />
+                            <Divider style={{padding: "0 36px", margin: "12px 36px", width: "calc(100% - 72px) !important"}}/>
+                            <h2 style={{padding: "0 36px"}}>{trans("home.globalMarketplaceTitle")}</h2>
+                            <HomeCardView resources={resList.filter(app => !app.isLocalMarketplace)} />
+                          </>
+                        )}
+                      </>
                     )}
+                    {mode !== "marketplace" && (
+                      <>
+                        {layout === "list" ? (
+                          <HomeTableView resources={resList} />
+                        ) : (
+                          <HomeCardView resources={resList} />
+                        )}
+                      </>
+                    )}
+
                   </>
                 )}
               </>

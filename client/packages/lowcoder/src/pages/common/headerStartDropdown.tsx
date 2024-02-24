@@ -69,7 +69,7 @@ export const TypeName = {
   [AppTypeEnum.MobileTabLayout]: trans("home.mobileTabLayout"),
 };
 
-export function HeaderStartDropdown(props: { setEdit: () => void }) {
+export function HeaderStartDropdown(props: { setEdit: () => void, isViewMarketplaceMode?: boolean}) {
   const user = useSelector(getUser);
   const showAppSnapshot = useSelector(showAppSnapshotSelector);
   const applicationId = useApplicationId();
@@ -80,35 +80,49 @@ export function HeaderStartDropdown(props: { setEdit: () => void }) {
   const isModule = appType === AppTypeEnum.Module;
 
   const isEditable = canEditApp(user, application);
+  const isMarketplace = props.isViewMarketplaceMode;
 
-  const menuItems = useMemo(() => ([
-    {
-      key: "edit",
-      label: <CommonTextLabel>{trans("header.editName")}</CommonTextLabel>,
-      visible: isEditable,
-    },
-    {
-      key: "export",
-      label: <CommonTextLabel>{trans("header.export")}</CommonTextLabel>,
-      visible: true,
-    },
-    {
-      key: "duplicate",
-      label: (
-        <CommonTextLabel>
-          {trans("header.duplicate", {
-            type: TypeName[application?.applicationType!]?.toLowerCase(),
-          })}
-        </CommonTextLabel>
-      ),
-      visible: true,
-    },
-    {
-      key: "delete",
-      label: <CommonTextLabelDelete>{trans("home.moveToTrash")}</CommonTextLabelDelete>,
-      visible: isEditable,
-    },
-  ]), [isEditable]);
+  const menuItems = useMemo(() => {
+    // Define a base array with items that are always visible
+    const items = [
+      {
+        key: "export",
+        label: <CommonTextLabel>{trans("header.export")}</CommonTextLabel>,
+        visible: true,
+      },
+      {
+        key: "duplicate",
+        label: (
+          <CommonTextLabel>
+            {trans("header.duplicate", {
+              type: TypeName[application?.applicationType!]?.toLowerCase(),
+            })}
+          </CommonTextLabel>
+        ),
+        visible: true,
+      },
+    ];
+  
+    // Conditionally add items based on isEditable and isMarketplace flags
+    if (!isMarketplace) {
+      items.unshift(
+        {
+          key: "edit",
+          label: <CommonTextLabel>{trans("header.editName")}</CommonTextLabel>,
+          visible: isEditable,
+        },
+        {
+          key: "delete",
+          label: <CommonTextLabelDelete>{trans("home.moveToTrash")}</CommonTextLabelDelete>,
+          visible: isEditable,
+        }
+      );
+    }
+  
+    return items;
+  }, [isEditable, isMarketplace]);
+
+
 
   return (
     <>
