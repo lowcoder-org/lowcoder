@@ -270,7 +270,8 @@ public interface ApplicationEndpoints
         }
     }
 
-	public record ApplicationPublicToMarketplaceRequest(Boolean publicToMarketplace, String title, String description, String category) {
+	public record ApplicationPublicToMarketplaceRequest(Boolean publicToMarketplace, String title,
+														String description, String category, String image) {
 		@Override
 		public Boolean publicToMarketplace() {
 			return BooleanUtils.isTrue(publicToMarketplace);
@@ -289,6 +290,11 @@ public interface ApplicationEndpoints
 		@Override
 		public String category() {
 			return category;
+		}
+
+		@Override
+		public String image() {
+			return image;
 		}
 
 	}

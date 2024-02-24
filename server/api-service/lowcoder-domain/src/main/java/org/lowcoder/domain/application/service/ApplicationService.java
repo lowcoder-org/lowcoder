@@ -152,7 +152,8 @@ public class ApplicationService {
         return mongoUpsertHelper.updateById(application, applicationId);
     }
 
-    public Mono<Boolean> setApplicationPublicToMarketplace(String applicationId, Boolean publicToMarketplace, String title, String category, String description) {
+    public Mono<Boolean> setApplicationPublicToMarketplace(String applicationId, Boolean publicToMarketplace,
+                                                           String title, String category, String description, String image) {
 
         return findById(applicationId)
                 .map(application -> {
@@ -165,6 +166,7 @@ public class ApplicationService {
                             marketplaceMeta.put("title", title);
                             marketplaceMeta.put("description", description);
                             marketplaceMeta.put("category", category);
+                            marketplaceMeta.put("image", image);
                             if (dataObject.containsKey("marketplaceMeta")) {
                                 dataObject.replace("marketplaceMeta", marketplaceMeta);
                             } else {

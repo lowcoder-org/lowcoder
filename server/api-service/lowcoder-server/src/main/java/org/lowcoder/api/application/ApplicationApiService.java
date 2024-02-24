@@ -517,7 +517,8 @@ public class ApplicationApiService {
     public Mono<Boolean> setApplicationPublicToMarketplace(String applicationId, ApplicationEndpoints.ApplicationPublicToMarketplaceRequest request) {
         return checkCurrentUserApplicationPermission(applicationId, ResourceAction.SET_APPLICATIONS_PUBLIC_TO_MARKETPLACE)
                 .then(checkApplicationStatus(applicationId, NORMAL))
-                .then(applicationService.setApplicationPublicToMarketplace(applicationId, request.publicToMarketplace(), request.title(), request.category(), request.description()));
+                .then(applicationService.setApplicationPublicToMarketplace
+                        (applicationId, request.publicToMarketplace(), request.title(), request.category(), request.description(), request.image()));
     }
 
     public Mono<Boolean> setApplicationAsAgencyProfile(String applicationId, boolean agencyProfile) {

@@ -14,6 +14,7 @@ public class MarketplaceApplicationInfoView {
     private String title;
     private String description;
     private String category;
+    private String image;
 
     // org details
     private final String orgId;

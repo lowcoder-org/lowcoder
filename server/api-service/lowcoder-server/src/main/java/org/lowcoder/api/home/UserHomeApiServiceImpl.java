@@ -321,6 +321,7 @@ public class UserHomeApiServiceImpl implements UserHomeApiService {
                                 marketplaceApplicationInfoView.setTitle((String)marketplaceMeta.get("title"));
                                 marketplaceApplicationInfoView.setCategory((String)marketplaceMeta.get("category"));
                                 marketplaceApplicationInfoView.setDescription((String)marketplaceMeta.get("description"));
+                                marketplaceApplicationInfoView.setImage((String)marketplaceMeta.get("image"));
 
                                 return marketplaceApplicationInfoView;
 
