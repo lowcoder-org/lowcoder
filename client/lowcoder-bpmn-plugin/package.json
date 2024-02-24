@@ -1,0 +1,39 @@
+{
+  "name": "lowcoder-bpmn-plugin",
+  "version": "0.0.1",
+  "type": "module",
+  "license": "MIT",
+  "dependencies": {
+    "@observablehq/runtime": "^5.9.7",
+    "@types/react": "18",
+    "@types/react-dom": "18",
+    "bpmn-js": "^17.0.2",
+    "lowcoder-cli": "^0.0.30",
+    "lowcoder-sdk": "^2.3.1",
+    "prop-types": "^15.8.1",
+    "react": "18",
+    "react-dom": "18",
+    "react-resize-detector": "^10.0.1",
+    "typescript": "^5.3.3",
+    "vite": "^5.1.4"
+  },
+  "lowcoder": {
+    "description": "A https://bpmn.io Lowcoder Component Plugin",
+    "comps": {
+      "bpmn": {
+        "name": "bpmn",
+        "icon": "./icons/bpmn.svg",
+        "description": "BPMN Component",
+        "layoutInfo": {
+          "w": 10,
+          "h": 40
+        }
+      }
+    }
+  },
+  "scripts": {
+    "start": "vite",
+    "build": "lowcoder-cli build",
+    "build_publish": "lowcoder-cli build --publish"
+  }
+}
