@@ -1,19 +1,29 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import type { IconDefinition } from "@fortawesome/free-regular-svg-icons";
-import { default as Popover } from "antd/es/popover";
-import { ActionType } from '@rc-component/trigger/lib/interface';
+// import type { IconDefinition as IconDefinitionBrands } from "@fortawesome/free-brands-svg-icons";
+import { Popover } from "antd";
+import { ActionType } from "@rc-component/trigger/lib/interface";
 import { TacoInput } from "components/tacoInput";
 import { Tooltip } from "components/toolTip";
 import { trans } from "i18n/design";
 import _ from "lodash";
-import { ReactNode, useEffect, useCallback, useMemo, useRef, useState } from "react";
+import {
+  ReactNode,
+  useEffect,
+  useCallback,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import Draggable from "react-draggable";
 import { default as List, ListRowProps } from "react-virtualized/dist/es/List";
 import styled from "styled-components";
 import { CloseIcon, SearchIcon } from "icons";
+import { ANTDICON } from "icons/antIcon";
+import { Divider } from "antd-mobile";
 
 const PopupContainer = styled.div`
-  width: 408px;
+  width: 580px;
   background: #ffffff;
   box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
   border-radius: 8px;
@@ -76,10 +86,11 @@ const IconList = styled(List)`
     background-color: rgba(139, 143, 163, 0.36);
   }
 `;
+
 const IconRow = styled.div`
   padding: 0 6px;
   display: flex;
-  align-items: center;
+  align-items: flex-start; /* Align items to the start to allow different heights */
   justify-content: space-between;
 
   &:last-child {
@@ -87,14 +98,16 @@ const IconRow = styled.div`
     justify-content: flex-start;
   }
 `;
+
 const IconItemContainer = styled.div`
-  width: 40px;
-  height: 40px;
+  width: 60px;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center; 
+  justify-content: flex-start; 
   cursor: pointer;
-  font-size: 20px;
+  font-size: 28px;
+  margin-bottom: 24px; 
 
   &:hover {
     border: 1px solid #315efb;
@@ -108,13 +121,41 @@ const IconItemContainer = styled.div`
   }
 `;
 
+const IconWrapper = styled.div`
+  height: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+const IconKeyDisplay = styled.div`
+  font-size: 8px;
+  color: #8b8fa3;
+  margin-top: 4px; /* Space between the icon and the text */
+  text-align: center;
+  word-wrap: break-word; /* Ensure text wraps */
+  width: 100%; /* Ensure the container can grow */
+`;
+
 class Icon {
   readonly title: string;
-  constructor(readonly def: IconDefinition, readonly names: string[]) {
-    this.title = def.iconName.split("-").map(_.upperFirst).join(" ");
+  constructor(readonly def: IconDefinition | any, readonly names: string[]) {
+    if (def?.iconName) {
+      this.title = def.iconName.split("-").map(_.upperFirst).join(" ");
+    } else {
+      this.title = names[0].slice(5);
+      this.def = def;
+    }
   }
   getView() {
-    return <FontAwesomeIcon icon={this.def} style={{ width: "1em", height: "1em" }} />;
+    if (this.names[0]?.startsWith("antd/")) return this.def;
+    else
+      return (
+        <FontAwesomeIcon
+          icon={this.def}
+          style={{ width: "1em", height: "1em"}}
+        />
+      );
   }
 }
 
@@ -127,6 +168,7 @@ async function getAllIcons() {
   const [{ far }, { fas }] = await Promise.all([
     import("@fortawesome/free-regular-svg-icons"),
     import("@fortawesome/free-solid-svg-icons"),
+    // import("@fontawesome/free-brands-svg-icons"),
   ]);
   const ret: Record<string, Icon> = {};
   for (const [type, pack] of Object.entries({ solid: fas, regular: far })) {
@@ -144,6 +186,13 @@ async function getAllIcons() {
       }
     }
   }
+  //append ant icon
+  for (let key of Object.keys(ANTDICON)) {
+    ret["antd/" + key] = new Icon(
+      ANTDICON[key.toLowerCase() as keyof typeof ANTDICON],
+      ["antd/" + key]
+    );
+  }
   allIcons = ret;
   return ret;
 }
@@ -151,7 +200,11 @@ async function getAllIcons() {
 export const iconPrefix = "/icon:";
 
 export function removeQuote(value?: string) {
-  return value ? (value.startsWith('"') && value.endsWith('"') ? value.slice(1, -1) : value) : "";
+  return value
+    ? value.startsWith('"') && value.endsWith('"')
+      ? value.slice(1, -1)
+      : value
+    : "";
 }
 
 function getIconKey(value?: string) {
@@ -171,7 +224,8 @@ export function useIcon(value?: string) {
 function search(
   allIcons: Record<string, Icon>,
   searchText: string,
-  searchKeywords?: Record<string, string>
+  searchKeywords?: Record<string, string>,
+  IconType?: "OnlyAntd" | "All" | "default" | undefined
 ) {
   const tokens = searchText
     .toLowerCase()
@@ -182,6 +236,8 @@ function search(
       if (icon.names.length === 0) {
         return false;
       }
+      if (IconType === "OnlyAntd" && !key.startsWith("antd/")) return false;
+      if (IconType === "default" && key.startsWith("antd/")) return false;
       let text = icon.names
         .flatMap((name) => [name, searchKeywords?.[name]])
         .filter((t) => t)
@@ -198,43 +254,54 @@ const IconPopup = (props: {
   label?: ReactNode;
   onClose: () => void;
   searchKeywords?: Record<string, string>;
+  IconType?: "OnlyAntd" | "All" | "default" | undefined;
 }) => {
   const [searchText, setSearchText] = useState("");
   const [allIcons, setAllIcons] = useState<Record<string, Icon>>({});
   const searchResults = useMemo(
-    () => search(allIcons, searchText, props.searchKeywords),
+    () => search(allIcons, searchText, props.searchKeywords, props.IconType),
     [searchText, allIcons]
   );
   const onChangeRef = useRef(props.onChange);
   onChangeRef.current = props.onChange;
-  const onChangeIcon = useCallback((key: string) => onChangeRef.current(iconPrefix + key), []);
+  const onChangeIcon = useCallback(
+    (key: string) => onChangeRef.current(iconPrefix + key),
+    []
+  );
   const columnNum = 8;
 
   useEffect(() => {
     getAllIcons().then(setAllIcons);
   }, []);
 
+  const smallTextStyle = {
+    fontSize: '8px'
+  };
+
   const rowRenderer = useCallback(
     (p: ListRowProps) => (
       <IconRow key={p.key} style={p.style}>
-        {searchResults.slice(p.index * columnNum, (p.index + 1) * columnNum).map(([key, icon]) => (
-          <Tooltip
-            key={key}
-            title={icon.title}
-            placement="bottom"
-            align={{ offset: [0, -7, 0, 0] }}
-            destroyTooltipOnHide
-          >
-            <IconItemContainer
-              tabIndex={0}
-              onClick={() => {
-                onChangeIcon(key);
-              }}
+        {searchResults
+          .slice(p.index * columnNum, (p.index + 1) * columnNum)
+          .map(([key, icon]) => (
+            <Tooltip
+              key={key}
+              title={icon.title + ", Key: " + key}
+              placement="bottom"
+              align={{ offset: [0, -7, 0, 0] }}
+              destroyTooltipOnHide
             >
-              {icon.getView()}
-            </IconItemContainer>
-          </Tooltip>
-        ))}
+              <IconItemContainer
+                tabIndex={0}
+                onClick={() => {
+                  onChangeIcon(key);
+                }}
+              >
+                <IconWrapper>{icon.getView()}</IconWrapper>
+                <IconKeyDisplay>{key}</IconKeyDisplay>
+              </IconItemContainer>
+            </Tooltip>
+          ))}
       </IconRow>
     ),
     [searchResults, allIcons, onChangeIcon]
@@ -257,9 +324,9 @@ const IconPopup = (props: {
         </SearchDiv>
         <IconListWrapper>
           <IconList
-            width={394}
-            height={312}
-            rowHeight={48}
+            width={550}
+            height={400}
+            rowHeight={80}
             rowCount={Math.ceil(searchResults.length / columnNum)}
             rowRenderer={rowRenderer}
           />
@@ -279,6 +346,7 @@ export const IconSelectBase = (props: {
   leftOffset?: number;
   parent?: HTMLElement | null;
   searchKeywords?: Record<string, string>;
+  IconType?: "OnlyAntd" | "All" | "default" | undefined;
 }) => {
   const { setVisible, parent } = props;
   return (
@@ -290,7 +358,11 @@ export const IconSelectBase = (props: {
       onOpenChange={setVisible}
       getPopupContainer={parent ? () => parent : undefined}
       // hide the original background when dragging the popover is allowed
-      overlayInnerStyle={{ border: "none", boxShadow: "none", background: "transparent" }}
+      overlayInnerStyle={{
+        border: "none",
+        boxShadow: "none",
+        background: "transparent",
+      }}
       // when dragging is allowed, always re-location to avoid the popover exceeds the screen
       destroyTooltipOnHide
       content={
@@ -299,6 +371,7 @@ export const IconSelectBase = (props: {
           label={props.label}
           onClose={() => setVisible?.(false)}
           searchKeywords={props.searchKeywords}
+          IconType={props.IconType}
         />
       }
     >
@@ -312,6 +385,7 @@ export const IconSelect = (props: {
   label?: ReactNode;
   children?: ReactNode;
   searchKeywords?: Record<string, string>;
+  IconType?: "OnlyAntd" | "All" | "default" | undefined;
 }) => {
   const [visible, setVisible] = useState(false);
   return (

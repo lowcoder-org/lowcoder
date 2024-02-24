@@ -29,6 +29,7 @@ import { StyledLoading } from "./commonComponents";
 import { PermissionRole } from "./Permission";
 import { SHARE_TITLE } from "../../constants/apiConstants";
 import { messageInstance } from "lowcoder-design";
+import { Divider } from "antd";
 
 export const AppPermissionDialog = (props: {
   applicationId: string;
@@ -197,12 +198,17 @@ function AppShareView(props: {
 }) {
   const { applicationId, permissionInfo, isModule } = props;
   const [isPublic, setPublic] = useState(permissionInfo.publicToAll);
+  const [isPublicToMarketplace, setPublicToMarketplace] = useState(permissionInfo.publicToMarketplace);
   const dispatch = useDispatch();
   useEffect(() => {
     setPublic(permissionInfo.publicToAll);
   }, [permissionInfo.publicToAll]);
+  useEffect(() => {
+    setPublicToMarketplace(permissionInfo.publicToMarketplace);
+  }, [permissionInfo.publicToMarketplace]);
   return (
     <div style={{ marginBottom: "22px" }}>
+      
       <PermissionSwitchWrapper>
         <TacoSwitch
           checked={isPublic}
@@ -220,6 +226,27 @@ function AppShareView(props: {
           label={isModule ? trans("home.modulePublicMessage") : trans("home.appPublicMessage")}
         />
       </PermissionSwitchWrapper>
+      {isPublic &&
+        <PermissionSwitchWrapper>
+          <TacoSwitch
+            checked={isPublicToMarketplace}
+            onChange={(checked) => {
+              setPublicToMarketplace(checked);
+              ApplicationApi.publicToMarketplace(applicationId, checked)
+                .then((resp) => {
+                  validateResponse(resp);
+                  dispatch(updateAppPermissionInfo({ publicToMarketplace: checked }));
+                })
+                .catch((e) => {
+                  messageInstance.error(e.message);
+                });
+            } }
+            label={isModule ? trans("home.moduleMarketplaceMessage") : trans("home.appMarketplaceMessage")} />
+        </PermissionSwitchWrapper> }
+        { isPublicToMarketplace && <><div style={{ margin: "10px 22px 22px 22px" }}>
+          {trans("home.marketplaceGoodPublishing")}
+        </div><Divider/></>}
+
       {isPublic && <AppInviteView appId={applicationId} />}
     </div>
   );

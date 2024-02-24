@@ -75,6 +75,7 @@ const IconPicker = (props: {
   value: string;
   onChange: (value: string) => void;
   label?: ReactNode;
+  IconType?: "OnlyAntd" | "All" | "default" | undefined;
 }) => {
   const icon = useIcon(props.value);
   return (
@@ -82,6 +83,7 @@ const IconPicker = (props: {
       onChange={props.onChange}
       label={props.label}
       searchKeywords={i18nObjs.iconSearchKeywords}
+      IconType={props.IconType}
     >
       <TacoButton style={{ width: "100%" }}>
         {icon ? (
@@ -251,7 +253,7 @@ export class IconControl extends AbstractComp<ReactNode, string, Node<ValueAndMs
         { filterText: params.label },
         <Wrapper>
           <SwitchWrapper label={params.label} tooltip={params.tooltip} lastNode={jsContent} />
-          {this.useCodeEditor && <IconCodeEditor codeControl={this.codeControl} params={params} />}
+          {this.useCodeEditor && <IconCodeEditor codeControl={this.codeControl} params={params}/>}
         </Wrapper>
       );
     }
@@ -262,6 +264,7 @@ export class IconControl extends AbstractComp<ReactNode, string, Node<ValueAndMs
             value={this.codeControl.getView()}
             onChange={(x) => this.dispatchChangeValueAction(x)}
             label={params.label}
+            IconType={params.IconType}
           />
         )}
       </ControlPropertyViewWrapper>

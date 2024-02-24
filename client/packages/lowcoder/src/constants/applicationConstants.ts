@@ -20,7 +20,7 @@ export const AppUILayoutType: Record<AppTypeEnum, UiLayoutType> = {
   [AppTypeEnum.MobileTabLayout]: "mobileTabLayout",
 };
 
-export type ApplicationDSLType = "editing" | "published";
+export type ApplicationDSLType = "editing" | "published" | "view_marketplace";
 export type ApplicationRoleType = "viewer" | "editor" | "owner";
 export type ApplicationPermissionType = "USER" | "GROUP" | "ORG_ADMIN";
 
@@ -36,6 +36,7 @@ export interface ApplicationMeta {
   containerSize?: { height: number; width: number };
   createBy: string;
   createAt: number;
+  creatorEmail?: string;
   orgId: string;
   role: ApplicationRoleType;
   extra: ApplicationExtra;
@@ -80,9 +81,10 @@ export interface AppPermissionInfo {
   permissions: PermissionItem[];
   invitationCodes: AppInviteInfo[];
   publicToAll: boolean;
+  publicToMarketplace: boolean;
 }
 
-export type AppViewMode = "edit" | "preview" | "view";
+export type AppViewMode = "edit" | "preview" | "view" | "view_marketplace";
 
 export type AppPathParams = {
   viewMode: AppViewMode;
@@ -113,3 +115,5 @@ export type AppSnapshotList = {
   count: number; // total count
   list: AppSnapshot[];
 };
+
+export type MarketplaceType = "local" | "lowcoder";
