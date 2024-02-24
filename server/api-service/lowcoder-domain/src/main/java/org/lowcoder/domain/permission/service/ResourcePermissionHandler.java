@@ -26,6 +26,7 @@ import org.lowcoder.domain.permission.model.ResourcePermission;
 import org.lowcoder.domain.permission.model.ResourceRole;
 import org.lowcoder.domain.permission.model.ResourceType;
 import org.lowcoder.domain.permission.model.UserPermissionOnResourceStatus;
+import org.lowcoder.sdk.config.CommonConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.google.common.collect.Maps;
@@ -43,6 +44,9 @@ abstract class ResourcePermissionHandler {
 
     @Autowired
     private OrgMemberService orgMemberService;
+
+    @Autowired
+    protected CommonConfig config;
 
     public Mono<Map<String, List<ResourcePermission>>> getAllMatchingPermissions(String userId,
             Collection<String> resourceIds,

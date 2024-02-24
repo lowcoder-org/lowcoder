@@ -53,6 +53,8 @@ common:
   max-query-timeout: ${LOWCODER_MAX_QUERY_TIMEOUT:120}
   workspace:
     mode: ${LOWCODER_WORKSPACE_MODE:SAAS}
+  marketplace:
+    private-mode: ${MARKETPLACE_PRIVATE_MODE:true}
 
 material:
   mongodb-grid-fs:

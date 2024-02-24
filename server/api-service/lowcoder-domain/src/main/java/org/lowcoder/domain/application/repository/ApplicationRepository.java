@@ -38,6 +38,8 @@ public interface ApplicationRepository extends ReactiveMongoRepository<Applicati
     Flux<Application> findByPublicToAllIsTrueAndPublicToMarketplaceIsOrAgencyProfileIsAndIdIn
             (Boolean publicToMarketplace, Boolean agencyProfile, Collection<String> ids);
 
+    Flux<Application> findByPublicToAllIsTrueAndPublicToMarketplaceIsAndAgencyProfileIsAndIdIn(Boolean publicToMarketplace, Boolean agencyProfile, Collection<String> ids);
+
     Flux<Application> findByPublicToAllIsTrueAndPublicToMarketplaceIsTrue();
 
     Flux<Application> findByPublicToAllIsTrueAndAgencyProfileIsTrue();

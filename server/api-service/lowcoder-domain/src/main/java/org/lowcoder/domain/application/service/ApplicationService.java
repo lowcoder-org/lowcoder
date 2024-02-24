@@ -3,10 +3,7 @@ package org.lowcoder.domain.application.service;
 
 import static org.lowcoder.domain.application.ApplicationUtil.getDependentModulesFromDsl;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import org.lowcoder.domain.application.model.Application;
@@ -155,11 +152,43 @@ public class ApplicationService {
         return mongoUpsertHelper.updateById(application, applicationId);
     }
 
-    public Mono<Boolean> setApplicationPublicToMarketplace(String applicationId, boolean publicToMarketplace) {
-        Application application = Application.builder()
-                .publicToMarketplace(publicToMarketplace)
-                .build();
-        return mongoUpsertHelper.updateById(application, applicationId);
+    public Mono<Boolean> setApplicationPublicToMarketplace(String applicationId, Boolean publicToMarketplace,
+                                                           String title, String category, String description, String image) {
+
+        return findById(applicationId)
+                .map(application -> {
+                    Map<String, Object> applicationDsl = application.getEditingApplicationDSL();
+                    if (applicationDsl.containsKey("ui")) {
+                        Map<String, Object> dataObject = (Map<String, Object>) applicationDsl.get("ui");
+
+                        if(publicToMarketplace) {
+                            Map<String, Object> marketplaceMeta = new HashMap<>();
+                            marketplaceMeta.put("title", title);
+                            marketplaceMeta.put("description", description);
+                            marketplaceMeta.put("category", category);
+                            marketplaceMeta.put("image", image);
+                            if (dataObject.containsKey("marketplaceMeta")) {
+                                dataObject.replace("marketplaceMeta", marketplaceMeta);
+                            } else {
+                                dataObject.put("marketplaceMeta", marketplaceMeta);
+                            }
+                        } else {
+                            dataObject.remove("marketplaceMeta");
+                        }
+
+                        applicationDsl.replace("ui", dataObject);
+
+                    }
+
+                    return Application.builder()
+                            .publicToMarketplace(publicToMarketplace)
+                            .editingApplicationDSL(applicationDsl)
+                            .build();
+
+                })
+                .flatMap(application -> mongoUpsertHelper.updateById(application, applicationId));
+
+
     }
 
     public Mono<Boolean> setApplicationAsAgencyProfile(String applicationId, boolean agencyProfile) {
@@ -171,10 +200,24 @@ public class ApplicationService {
 
     @NonEmptyMono
     @SuppressWarnings("ReactiveStreamsNullableInLambdaInTransform")
-    public Mono<Set<String>> getPublicApplicationIds(Collection<String> applicationIds, Boolean isAnonymous) {
-        return repository.findByPublicToAllIsTrueAndPublicToMarketplaceIsOrAgencyProfileIsAndIdIn(!isAnonymous, !isAnonymous, applicationIds)
-                .map(HasIdAndAuditing::getId)
-                .collect(Collectors.toSet());
+    public Mono<Set<String>> getPublicApplicationIds(Collection<String> applicationIds, Boolean isAnonymous, Boolean isPrivateMarketplace) {
+
+        if(isAnonymous) {
+            if(isPrivateMarketplace) {
+                return repository.findByPublicToAllIsTrueAndPublicToMarketplaceIsAndAgencyProfileIsAndIdIn(false, false, applicationIds)
+                        .map(HasIdAndAuditing::getId)
+                        .collect(Collectors.toSet());
+            } else {
+                return repository.findByPublicToAllIsTrueAndPublicToMarketplaceIsAndAgencyProfileIsAndIdIn(true, false, applicationIds)
+                        .map(HasIdAndAuditing::getId)
+                        .collect(Collectors.toSet());
+            }
+        } else {
+                return repository.findByPublicToAllIsTrueAndPublicToMarketplaceIsOrAgencyProfileIsAndIdIn(true, true, applicationIds)
+                        .map(HasIdAndAuditing::getId)
+                        .collect(Collectors.toSet());
+        }
+
 
     }
 }
