@@ -2775,7 +2775,7 @@ export const en = {
     aboutUs: "https://lowcoder.cloud/about",
     changeLog: "https://github.com/lowcoder-org/lowcoder/releases",
     introVideo: "",
-    devNpmPlugin: "https://docs.lowcoder.cloud/lowcoder-extension/develop-data-source-plugins",
+    devNpmPlugin: "https://github.com/lowcoder-org/lowcoder-create-component-plugin",
     devNpmPluginText: "How to develop npm plugin",
     useHost: "https://docs.lowcoder.cloud/setup-and-run/self-hosting/access-local-database-or-api",
     eventHandlerSlowdown: "https://docs.lowcoder.cloud/build-applications/app-interaction/event-handlers",
