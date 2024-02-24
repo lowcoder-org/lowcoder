@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="20px" height="20px" viewBox="0 0 23 23" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="icon-lowcoder-marketplace-active_svg__a" x1="50%" y1="1.89576049%" x2="50%" y2="94.4251638%">
+      <stop stop-color="#6D83F2" offset="0%"/>
+      <stop stop-color="#4965F2" offset="100%"/>
+    </linearGradient>
+  </defs>
+  <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+    <path d="M10.2721 2.524h3.7795v13.2283h-3.7795zm-7.559 18.8977v-3.7795h7.5591v3.7795zm11.3386-.0001v-3.7795h7.5591v3.7795z" fill="url(#icon-lowcoder-marketplace-active_svg__a)" fill-rule="nonzero"/>
+  </g>
+</svg>

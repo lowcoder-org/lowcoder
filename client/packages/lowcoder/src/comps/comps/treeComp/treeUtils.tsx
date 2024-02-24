@@ -68,6 +68,7 @@ function expandAll(data: TreeDataNode[]) {
 export const treeCommonChildren = {
   // TODO: support loading mode
   treeData: jsonControl(convertTreeData, defaultTreeData),
+  defaultValue: jsonExposingStateControl("value", checkNodeValues, []),
   value: jsonExposingStateControl("value", checkNodeValues, []),
   expanded: jsonStateControl(checkNodeValues, []),
   defaultExpandAll: BoolControl,
@@ -94,8 +95,9 @@ type TreeCommonComp = NewChildren<RecordConstructorToComp<typeof treeCommonChild
 export const treeDataPropertyView = (children: TreeCommonComp) =>
   children.treeData.propertyView({ label: trans("tree.treeData"), tooltip: treeDataTooltip });
 
-export const valuePropertyView = (children: TreeCommonComp) =>
-  children.value.propertyView({ label: trans("tree.value") });
+export const valuePropertyView = (children: TreeCommonComp) => {
+  return children.defaultValue.propertyView({ label: trans("tree.value") });
+}
 
 export const formSection = (children: TreeCommonComp) => <FormDataPropertyView {...children} />;
 

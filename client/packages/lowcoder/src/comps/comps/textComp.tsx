@@ -38,7 +38,7 @@ const getStyle = (style: TextStyleType) => {
       margin: ${style.margin} !important;	
       padding: ${style.padding};	
       width: ${widthCalculator(style.margin)};	
-      height: ${heightCalculator(style.margin)};
+      // height: ${heightCalculator(style.margin)};
       h1 {
         line-height: 1.5;
       }

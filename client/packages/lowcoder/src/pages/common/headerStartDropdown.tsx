@@ -11,7 +11,7 @@ import {
 } from "lowcoder-design";
 import { trans, transToNode } from "i18n";
 import { exportApplicationAsJSONFile } from "pages/ApplicationV2/components/AppImport";
-import { useContext, useState } from "react";
+import { useContext, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { currentApplication } from "redux/selectors/applicationSelector";
 import { showAppSnapshotSelector } from "redux/selectors/appSnapshotSelector";
@@ -23,6 +23,8 @@ import { recycleApplication } from "redux/reduxActions/applicationActions";
 import { CopyModal } from "./copyModal";
 import { ExternalEditorContext } from "util/context/ExternalEditorContext";
 import { messageInstance } from "lowcoder-design";
+import { getUser } from "redux/selectors/usersSelectors";
+import { canEditApp } from "util/permissionUtils";
 
 const PackUpIconStyled = styled(PackUpIcon)`
   transform: rotate(180deg);
@@ -67,7 +69,8 @@ export const TypeName = {
   [AppTypeEnum.MobileTabLayout]: trans("home.mobileTabLayout"),
 };
 
-export function HeaderStartDropdown(props: { setEdit: () => void }) {
+export function HeaderStartDropdown(props: { setEdit: () => void, isViewMarketplaceMode?: boolean}) {
+  const user = useSelector(getUser);
   const showAppSnapshot = useSelector(showAppSnapshotSelector);
   const applicationId = useApplicationId();
   const application = useSelector(currentApplication);
@@ -75,6 +78,51 @@ export function HeaderStartDropdown(props: { setEdit: () => void }) {
   const dispatch = useDispatch();
   const { appType } = useContext(ExternalEditorContext);
   const isModule = appType === AppTypeEnum.Module;
+
+  const isEditable = canEditApp(user, application);
+  const isMarketplace = props.isViewMarketplaceMode;
+
+  const menuItems = useMemo(() => {
+    // Define a base array with items that are always visible
+    const items = [
+      {
+        key: "export",
+        label: <CommonTextLabel>{trans("header.export")}</CommonTextLabel>,
+        visible: true,
+      },
+      {
+        key: "duplicate",
+        label: (
+          <CommonTextLabel>
+            {trans("header.duplicate", {
+              type: TypeName[application?.applicationType!]?.toLowerCase(),
+            })}
+          </CommonTextLabel>
+        ),
+        visible: true,
+      },
+    ];
+  
+    // Conditionally add items based on isEditable and isMarketplace flags
+    if (!isMarketplace) {
+      items.unshift(
+        {
+          key: "edit",
+          label: <CommonTextLabel>{trans("header.editName")}</CommonTextLabel>,
+          visible: isEditable,
+        },
+        {
+          key: "delete",
+          label: <CommonTextLabelDelete>{trans("home.moveToTrash")}</CommonTextLabelDelete>,
+          visible: isEditable,
+        }
+      );
+    }
+  
+    return items;
+  }, [isEditable, isMarketplace]);
+
+
 
   return (
     <>
@@ -115,35 +163,12 @@ export function HeaderStartDropdown(props: { setEdit: () => void }) {
                 });
               }
             }}
-            items={[
-              {
-                key: "edit",
-                label: <CommonTextLabel>{trans("header.editName")}</CommonTextLabel>,
-              },
-              {
-                key: "export",
-                label: <CommonTextLabel>{trans("header.export")}</CommonTextLabel>,
-              },
-              {
-                key: "duplicate",
-                label: (
-                  <CommonTextLabel>
-                    {trans("header.duplicate", {
-                      type: TypeName[application?.applicationType!]?.toLowerCase(),
-                    })}
-                  </CommonTextLabel>
-                ),
-              },
-              {
-                key: "delete",
-                label: <CommonTextLabelDelete>{trans("home.moveToTrash")}</CommonTextLabelDelete>,
-              },
-            ]}
+            items={menuItems.filter(item => item.visible)}
           />
         )}
       >
         <EditTextWrapper
-          style={{ width: "fit-content", maxWidth: "288px", padding: "0 8px" }}
+          style={{ width: "fit-content", maxWidth: "288px", padding: "0 8px"}}
           disabled={showAppSnapshot}
         >
           {isModule && (

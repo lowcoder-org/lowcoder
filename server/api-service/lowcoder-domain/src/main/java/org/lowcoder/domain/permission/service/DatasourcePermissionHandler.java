@@ -1,7 +1,6 @@
 package org.lowcoder.domain.permission.service;
 
 import static org.lowcoder.domain.permission.model.ResourceHolder.USER;
-import static org.lowcoder.sdk.constants.Authentication.ANONYMOUS_USER_ID;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -36,6 +35,11 @@ class DatasourcePermissionHandler extends ResourcePermissionHandler {
 
     @Override
     protected Mono<Map<String, List<ResourcePermission>>> getAnonymousUserPermissions(Collection<String> resourceIds, ResourceAction resourceAction) {
+        return Mono.just(Collections.emptyMap());
+    }
+
+    @Override
+    protected Mono<Map<String, List<ResourcePermission>>> getNonAnonymousUserPublicResourcePermissions(Collection<String> resourceIds, ResourceAction resourceAction) {
         return Mono.just(Collections.emptyMap());
     }
 

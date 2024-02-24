@@ -13,7 +13,7 @@ import { omit } from "lodash";
 
 const { RangePicker } = DatePicker;
 
-const RangePickerStyled = styled((props: any) => <RangePicker {...props} />)<{ $style: DateTimeStyleType }>`
+const RangePickerStyled = styled(RangePicker)<{ $style: DateTimeStyleType }>`
   width: 100%;
   ${(props) => props.$style && getStyle(props.$style)}
 `;

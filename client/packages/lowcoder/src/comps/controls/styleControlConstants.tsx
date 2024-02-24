@@ -527,17 +527,11 @@ export const MarginStyle = [
 export const ContainerStyle = [
   // ...BG_STATIC_BORDER_RADIUS,
   getStaticBorder(),
+  getBackground(),
   RADIUS,
   BORDER_WIDTH,
   MARGIN,
   PADDING,
-  {
-    name: "background",
-    label: trans("style.background"),
-    depName: "background",
-    depType: DEP_TYPE.SELF,
-    transformer: toSelf,
-  },
   {
     name: "backgroundImage",
     label: trans("style.backgroundImage"),
@@ -1136,6 +1130,16 @@ export const NavigationStyle = [
 
 export const ImageStyle = [getStaticBorder("#00000000"), RADIUS, BORDER_WIDTH, MARGIN, PADDING] as const;
 
+export const IconStyle = [
+  getStaticBackground("#00000000"),
+  getStaticBorder("#00000000"), 
+  FILL,
+  RADIUS,
+  BORDER_WIDTH,
+  MARGIN, 
+  PADDING] as const;
+
+
 export const ListViewStyle = BG_STATIC_BORDER_RADIUS;
 
 export const JsonSchemaFormStyle = BG_STATIC_BORDER_RADIUS;
@@ -1390,6 +1394,7 @@ export type ProgressStyleType = StyleConfigType<typeof ProgressStyle>;
 export type CircleProgressType = StyleConfigType<typeof CircleProgressStyle>;
 export type NavigationStyleType = StyleConfigType<typeof NavigationStyle>;
 export type ImageStyleType = StyleConfigType<typeof ImageStyle>;
+export type IconStyleType = StyleConfigType<typeof IconStyle>;
 export type ListViewStyleType = StyleConfigType<typeof ListViewStyle>;
 export type JsonSchemaFormStyleType = StyleConfigType<typeof JsonSchemaFormStyle>;
 export type TreeSelectStyleType = StyleConfigType<typeof TreeSelectStyle>;

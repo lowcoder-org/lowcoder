@@ -27,14 +27,17 @@ import {
   SelectInputValidationChildren,
   SelectInputValidationSection,
 } from "./selectInputConstants";
-import { formDataChildren, FormDataPropertyView } from "../formComp/formDataConstants";
+import {
+  formDataChildren,
+  FormDataPropertyView,
+} from "../formComp/formDataConstants";
 import {
   CascaderStyleType,
   MultiSelectStyleType,
   SelectStyleType,
   TreeSelectStyleType,
   widthCalculator,
-  heightCalculator
+  heightCalculator,
 } from "comps/controls/styleControlConstants";
 import { stateComp, withDefault } from "../../generators";
 import {
@@ -55,7 +58,11 @@ import { useContext } from "react";
 import { EditorContext } from "comps/editorState";
 
 export const getStyle = (
-  style: SelectStyleType | MultiSelectStyleType | CascaderStyleType | TreeSelectStyleType
+  style:
+    | SelectStyleType
+    | MultiSelectStyleType
+    | CascaderStyleType
+    | TreeSelectStyleType
 ) => {
   return css`
     &.ant-select .ant-select-selector,
@@ -82,14 +89,15 @@ export const getStyle = (
 
     &.ant-select:not(.ant-select-disabled) {
       color: ${style.text};
-      .ant-select-selection-placeholder,	
-      .ant-select-selection-item {	
-        line-height: 1.5715 !important;	
+      .ant-select-selection-placeholder,
+      .ant-select-selection-item {
+        line-height: 1.5715 !important;
       }
       .ant-select-selection-placeholder,
       &.ant-select-single.ant-select-open .ant-select-selection-item {
         color: ${style.text};
         opacity: 0.4;
+        width: 100%;
       }
 
       .ant-select-selector {
@@ -177,7 +185,7 @@ const Select = styled(AntdSelect) <{ $style: SelectStyleType & MultiSelectStyleT
 const DropdownStyled = styled.div<{ $style: MultiSelectStyleType }>`
   ${(props) => props.$style && getDropdownStyle(props.$style)}
   .ant-select-item-option-content {
-    ${(props) => `padding: ${props.$style.padding}`};	
+    ${(props) => `padding: ${props.$style.padding}`};
   }
   .option-label img {
     min-width: 14px;
@@ -229,9 +237,13 @@ export const SelectUIView = (
     placeholder={props.placeholder}
     value={props.value}
     showSearch={props.showSearch}
-    filterOption={(input, option) => option?.label.toLowerCase().includes(input.toLowerCase())}
+    filterOption={(input, option) =>
+      option?.label.toLowerCase().includes(input.toLowerCase())
+    }
     dropdownRender={(originNode: ReactNode) => (
-      <DropdownStyled $style={props.style as MultiSelectStyleType}>{originNode}</DropdownStyled>
+      <DropdownStyled $style={props.style as MultiSelectStyleType}>
+        {originNode}
+      </DropdownStyled>
     )}
     dropdownStyle={{
       padding: 0,
@@ -259,8 +271,8 @@ export const SelectUIView = (
           style={{fontFamily:"Montserrat"}}
         >
           <Wrapper className="option-label">
-            {props.options.findIndex((option) => hasIcon(option.prefixIcon)) > -1 &&
-              option.prefixIcon}
+            {props.options.findIndex((option) => hasIcon(option.prefixIcon)) >
+              -1 && option.prefixIcon}
             {<span>{option.label}</span>}
           </Wrapper>
         </Select.Option>
@@ -274,6 +286,7 @@ export const SelectPropertyView = (
       hidden: typeof BoolCodeControl;
     }
   > & {
+    defaultValue: { propertyView: (params: ControlParams) => ControlNode };
     value: { propertyView: (params: ControlParams) => ControlNode };
     style: { getPropertyView: () => ControlNode };
   }
@@ -281,24 +294,28 @@ export const SelectPropertyView = (
   <>
     <Section name={sectionNames.basic}>
       {children.options.propertyView({})}
-      {children.value.propertyView({ label: trans("prop.defaultValue") })}
+      {children.defaultValue.propertyView({
+        label: trans("prop.defaultValue"),
+      })}
       {placeholderPropertyView(children)}
     </Section>
 
     {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
-      <><>
-        <SelectInputValidationSection {...children} />
-        <FormDataPropertyView {...children} />
-      </><Section name={sectionNames.interaction}>
+      <>
+        <>
+          <SelectInputValidationSection {...children} />
+          <FormDataPropertyView {...children} />
+        </>
+        <Section name={sectionNames.interaction}>
           {children.onEvent.getPropertyView()}
           {disabledPropertyView(children)}
           {hiddenPropertyView(children)}
-        </Section></>
+        </Section>
+      </>
     )}
 
-    {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
-      children.label.getPropertyView()
-    )}
+    {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) &&
+      children.label.getPropertyView()}
 
     {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
       <Section name={sectionNames.advanced}>
@@ -307,7 +324,9 @@ export const SelectPropertyView = (
       </Section>
     )}
 
-    {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+    {["layout", "both"].includes(
+      useContext(EditorContext).editorModeStatus
+    ) && (
       <Section name={sectionNames.style}>
         {children.style.getPropertyView()}
       </Section>
@@ -315,4 +334,7 @@ export const SelectPropertyView = (
   </>
 );
 
-export const baseSelectRefMethods = refMethods<BaseSelectRef>([focusMethod, blurMethod]);
+export const baseSelectRefMethods = refMethods<BaseSelectRef>([
+  focusMethod,
+  blurMethod,
+]);

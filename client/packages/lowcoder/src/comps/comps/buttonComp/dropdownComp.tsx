@@ -88,13 +88,16 @@ const DropdownTmpComp = (function () {
         key: option.label + " - " + index,
         disabled: option.disabled,
         icon: hasIcon && <span>{option.prefixIcon}</span>,
-        onEvent: option.onEvent,
+        index,
       }));
 
     const menu = (
       <Menu
         items={items}
-        onClick={({ key }) => items.find((o) => o.key === key)?.onEvent("click")}
+        onClick={({ key }) => {
+          const item = items.find((o) => o.key === key);
+          item && props.options[item.index]?.onEvent("click");
+        }}
       />
     );
 
