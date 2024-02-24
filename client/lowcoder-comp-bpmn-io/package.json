@@ -1,5 +1,5 @@
 {
-  "name": "lowcoder-bpmn-plugin",
+  "name": "lowcoder-comp-bpmn-io",
   "version": "0.0.1",
   "type": "module",
   "license": "MIT",
@@ -25,8 +25,8 @@
         "icon": "./icons/bpmn.svg",
         "description": "BPMN Component",
         "layoutInfo": {
-          "w": 10,
-          "h": 40
+          "w": 24,
+          "h": 70
         }
       }
     }

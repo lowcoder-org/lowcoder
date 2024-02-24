@@ -8,7 +8,6 @@ Properties explained
 * **Image Download**: When enabled you can download the image as svg
 * **Download Name**: The name of the image to download
 * **onChange**: The event triggers in designer mode when the xml has changed
-* **Show BPMN.io Logo**: Enables you to turn of the logo
 
 ![bpmn-js](bpmn-js.gif)
 

@@ -9,7 +9,6 @@ import 'bpmn-js/dist/assets/bpmn-js.css';
 import 'bpmn-js/dist/assets/bpmn-font/css/bpmn-embedded.css';
 import Modeler from 'bpmn-js/lib/Modeler';
 import Viewer from 'bpmn-js/lib/Viewer';
-import { prototype } from 'react-grid-layout';
 
 function Bpmn(props) {
   const [bpmnRef, setBpmnRef] = React.useState();
@@ -130,7 +129,7 @@ function Bpmn(props) {
         dLink.onclick =downloadBPMNImage
       }
     }
-  }, [bpmnRef, props.xml,props.values,props.svgDownload,
+  }, [bpmnRef, props.xml,props.values,props.svgDownload,props.width, props.height,
                props.imageName,props.designer,props.showLogo,props.onDataChange]);
 
   return (
@@ -143,6 +142,8 @@ function Bpmn(props) {
 
 
 Bpmn.propTypes = {
+  width: PropTypes.number,
+  height: PropTypes.number,
   xml: PropTypes.string,
   values: PropTypes.object,
   svgDownload : PropTypes.bool,

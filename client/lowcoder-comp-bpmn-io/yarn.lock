@@ -2194,25 +2194,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lowcoder-bpmn-plugin@workspace:.":
-  version: 0.0.0-use.local
-  resolution: "lowcoder-bpmn-plugin@workspace:."
-  dependencies:
-    "@observablehq/runtime": ^5.9.7
-    "@types/react": 18
-    "@types/react-dom": 18
-    bpmn-js: ^17.0.2
-    lowcoder-cli: ^0.0.30
-    lowcoder-sdk: ^2.3.1
-    prop-types: ^15.8.1
-    react: 18
-    react-dom: 18
-    react-resize-detector: ^10.0.1
-    typescript: ^5.3.3
-    vite: ^5.1.4
-  languageName: unknown
-  linkType: soft
-
 "lowcoder-cli@npm:^0.0.30":
   version: 0.0.30
   resolution: "lowcoder-cli@npm:0.0.30"
@@ -2237,6 +2218,25 @@ __metadata:
   checksum: b7c20e6561311936a6113252f25d544d708d7bc4e5e08773d89e5e60094859c3ac4d9e666750a76873933a8f25c599165bc9d959aa3471ec206f22241e507114
   languageName: node
   linkType: hard
+
+"lowcoder-comp-bpmn-io@workspace:.":
+  version: 0.0.0-use.local
+  resolution: "lowcoder-comp-bpmn-io@workspace:."
+  dependencies:
+    "@observablehq/runtime": ^5.9.7
+    "@types/react": 18
+    "@types/react-dom": 18
+    bpmn-js: ^17.0.2
+    lowcoder-cli: ^0.0.30
+    lowcoder-sdk: ^2.3.1
+    prop-types: ^15.8.1
+    react: 18
+    react-dom: 18
+    react-resize-detector: ^10.0.1
+    typescript: ^5.3.3
+    vite: ^5.1.4
+  languageName: unknown
+  linkType: soft
 
 "lowcoder-sdk@npm:^2.3.1":
   version: 2.3.1
