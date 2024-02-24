@@ -367,6 +367,7 @@ export const en = {
     "textSize": "Text Size",
     "textWeight": "Text Weight",
     "fontFamily": "Font Family",
+    "fontStyle":"Font Style",
     "backgroundImage": "BG Image",
     "backgroundImageRepeat": "BG Repeat",
     "backgroundImageSize": "BG Size",

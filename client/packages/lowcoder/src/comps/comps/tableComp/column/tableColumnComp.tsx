@@ -108,6 +108,7 @@ export const columnChildrenMap = {
   textSize: withDefault(RadiusControl, ""),
   textWeight: withDefault(StringControl, "normal"),
   fontFamily: withDefault(StringControl, "sans-serif"),
+  fontStyle: withDefault(StringControl, 'normal'),
   cellColor: CellColorComp,
   textOverflow: withDefault(TextOverflowControl, "ellipsis"),
   linkColor: withDefault(ColorControl, "#3377ff"),
@@ -155,10 +156,10 @@ export class ColumnComp extends ColumnInitComp {
         )
       );
     }
-    if(action.type === CompActionTypes.CHANGE_VALUE) {
+    if (action.type === CompActionTypes.CHANGE_VALUE) {
       const title = comp.children.title.unevaledValue;
       const dataIndex = comp.children.dataIndex.getView();
-      if(!Boolean(title)) {
+      if (!Boolean(title)) {
         comp.children.title.dispatchChangeValueAction(dataIndex);
       }
     }
@@ -250,10 +251,10 @@ export class ColumnComp extends ColumnInitComp {
         })}
         {this.children.autoWidth.getView() === "fixed" &&
           this.children.width.propertyView({ label: trans("prop.width") })}
-        
+
         {(columnType === 'link' || columnType === 'links') && (
           <>
-            <Divider style={{margin: '12px 0'}} />
+            <Divider style={{ margin: '12px 0' }} />
             {controlItem({}, (
               <div>
                 <b>{"Link Style"}</b>
@@ -270,10 +271,10 @@ export class ColumnComp extends ColumnInitComp {
             })}
           </>
         )}
-        <Divider style={{margin: '12px 0'}} />
+        <Divider style={{ margin: '12px 0' }} />
         {controlItem({}, (
           <div>
-             <b>{"Column Style"}</b>
+            <b>{"Column Style"}</b>
           </div>
         ))}
         {this.children.background.propertyView({
@@ -287,28 +288,33 @@ export class ColumnComp extends ColumnInitComp {
         })}
         {this.children.borderWidth.propertyView({
           label: trans('style.borderWidth'),
-          preInputNode: <StyledBorderIcon as={BorderWidthIcon} title="" />,	
+          preInputNode: <StyledBorderIcon as={BorderWidthIcon} title="" />,
           placeholder: '1px',
         })}
         {this.children.radius.propertyView({
           label: trans('style.borderRadius'),
-          preInputNode: <StyledBorderRadiusIcon as={IconRadius} title="" />,	
+          preInputNode: <StyledBorderRadiusIcon as={IconRadius} title="" />,
           placeholder: '3px',
         })}
         {this.children.textSize.propertyView({
           label: trans('style.textSize'),
-          preInputNode: <StyledTextSizeIcon as={TextSizeIcon} title="" />,	
+          preInputNode: <StyledTextSizeIcon as={TextSizeIcon} title="" />,
           placeholder: '14px',
         })}
         {this.children.textWeight.propertyView({
           label: trans('style.textWeight'),
-          preInputNode: <StyledTextWeightIcon as={TextWeigthIcon} title="" />,	
+          preInputNode: <StyledTextWeightIcon as={TextWeigthIcon} title="" />,
           placeholder: 'normal',
         })}
         {this.children.fontFamily.propertyView({
           label: trans('style.fontFamily'),
-          preInputNode: <StyledFontFamilyIcon as={FontFamilyIcon} title="" />,	
+          preInputNode: <StyledFontFamilyIcon as={FontFamilyIcon} title="" />,
           placeholder: 'sans-serif',
+        })}
+        {this.children.fontStyle.propertyView({
+          label: trans('style.fontStyle'),
+          preInputNode: <StyledFontFamilyIcon as={FontFamilyIcon} title="" />,
+          placeholder: 'normal'
         })}
         {this.children.textOverflow.getPropertyView()}
         {this.children.cellColor.getPropertyView()}
