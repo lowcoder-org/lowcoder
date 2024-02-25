@@ -10,17 +10,8 @@ spring:
     allow-bean-definition-overriding: true
     allow-circular-references: true
   mail:
-#    TODO - IRFAN this is just  a test email to check the email sending.
-    username: "irfan.ayub@ikhwatech.com"
-    password: "abcd"
-    host: "smtp.freesmtpservers.com"
+    host: smtp.freesmtpservers.com
     port: 25
-#    properties:
-#      mail:
-#        smtp:
-#          starttls:
-#            enable: true
-#          auth: true
 
 server:
   compression:
@@ -58,7 +49,8 @@ common:
     host: http://127.0.0.1:6060
   marketplace:
     private-mode: false
-  lowcoder_public_url: http://localhost:8080
+  lowcoder-public-url: http://localhost:8080
+  lost-password-email-sender: business@ikhwatech.com
 
 material:
   mongodb-grid-fs:

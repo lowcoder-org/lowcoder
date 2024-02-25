@@ -2,8 +2,8 @@ package org.lowcoder.domain.user.service;
 
 import jakarta.mail.internet.MimeMessage;
 import lombok.extern.slf4j.Slf4j;
+import org.lowcoder.sdk.config.CommonConfig;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -15,25 +15,22 @@ public class EmailCommunicationService {
     @Autowired
     private JavaMailSender javaMailSender;
 
-    @Value("${spring.mail.username}")
-    private String fromEmail;
-
-    @Value("${common.lowcoder_public_url}")
-    private String lowcoderPublicUrl;
+    @Autowired
+    private CommonConfig config;
 
     public boolean sendPasswordResetEmail(String to, String token, String message) {
         try {
-            String subject = "Reset Your Password";
+            String subject = "Reset Your Lost Password";
             MimeMessage mimeMessage = javaMailSender.createMimeMessage();
 
             MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, true);
 
-            mimeMessageHelper.setFrom(fromEmail);
+            mimeMessageHelper.setFrom(config.getLostPasswordEmailSender());
             mimeMessageHelper.setTo(to);
             mimeMessageHelper.setSubject(subject);
 
             // Construct the message with the token link
-            String resetLink = lowcoderPublicUrl + "/api/users/lost-password/" + token;
+            String resetLink = config.getLowcoderPublicUrl() + "lost-password?token=" + token;
             String formattedMessage = String.format(message, to, resetLink);
             mimeMessageHelper.setText(formattedMessage, true); // Set HTML to true to allow links
 
@@ -42,7 +39,7 @@ public class EmailCommunicationService {
             return true;
 
         } catch (Exception e) {
-            log.error("Failed to send mail to: {}, Exception: {}", to, e);
+            log.error("Failed to send mail to: {}, Exception: ", to, e);
             return false;
         }
 

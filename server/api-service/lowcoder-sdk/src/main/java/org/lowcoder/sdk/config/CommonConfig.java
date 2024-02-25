@@ -45,7 +45,8 @@ public class CommonConfig {
     private JsExecutor jsExecutor = new JsExecutor();
     private Set<String> disallowedHosts = new HashSet<>();
     private Marketplace marketplace = new Marketplace();
-    private SMTP smtp = new SMTP();
+    private String lowcoderPublicUrl;
+    private String lostPasswordEmailSender;
 
     public boolean isSelfHost() {
         return !isCloud();
@@ -145,13 +146,6 @@ public class CommonConfig {
     @Data
     public static class JsExecutor {
         private String host;
-    }
-
-    @Data
-    public static class SMTP {
-        private String email;
-        private String host;
-        private String port;
     }
 
     @Data
