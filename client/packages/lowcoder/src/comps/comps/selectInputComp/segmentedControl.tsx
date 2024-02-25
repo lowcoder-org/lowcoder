@@ -62,6 +62,7 @@ const Segmented = styled(AntdSegmented)<{ $style: SegmentStyleType }>`
 `;
 
 const SegmentChildrenMap = {
+  defaultValue: stringExposingStateControl("value"),
   value: stringExposingStateControl("value"),
   label: LabelControl,
   disabled: BoolCodeControl,
@@ -76,7 +77,10 @@ const SegmentChildrenMap = {
 
 const SegmentedControlBasicComp = (function () {
   return new UICompBuilder(SegmentChildrenMap, (props) => {
-    const [validateState, handleValidate] = useSelectInputValidate(props);
+    const [
+      validateState,
+      handleChange,
+    ] = useSelectInputValidate(props);
     return props.label({
       required: props.required,
       style: props.style,
@@ -88,9 +92,7 @@ const SegmentedControlBasicComp = (function () {
           value={props.value.value}
           $style={props.style}
           onChange={(value) => {
-            handleValidate(value.toString());
-            props.value.onChange(value.toString());
-            props.onEvent("change");
+            handleChange(value.toString());
           }}
           options={props.options
             .filter((option) => option.value !== undefined && !option.hidden)
@@ -109,7 +111,7 @@ const SegmentedControlBasicComp = (function () {
       <>
         <Section name={sectionNames.basic}>
           {children.options.propertyView({})}
-          {children.value.propertyView({ label: trans("prop.defaultValue") })}
+          {children.defaultValue.propertyView({ label: trans("prop.defaultValue") })}
         </Section>
 
         {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (

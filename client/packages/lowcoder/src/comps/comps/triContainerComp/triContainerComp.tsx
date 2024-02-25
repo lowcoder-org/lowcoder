@@ -39,7 +39,7 @@ const childrenMap = {
   showBody: BoolControl.DEFAULT_TRUE,
   showFooter: BoolControl,
   autoHeight: AutoHeightControl,
-
+  scrollbars: withDefault(BoolControl, false),
   style: styleControl(ContainerStyle),
   headerStyle: styleControl(ContainerHeaderStyle),
   bodyStyle: styleControl(ContainerBodyStyle),
@@ -55,6 +55,7 @@ const TriContainerBaseComp = migrateOldData(
 );
 
 export class TriContainerComp extends TriContainerBaseComp implements IContainer {
+  scrollbars: any;
   private allContainers() {
     return [
       this.children.header,
@@ -124,6 +125,7 @@ export class TriContainerComp extends TriContainerBaseComp implements IContainer
       this.children.showHeader.propertyView({ label: trans("prop.showHeader") }),
       this.children.showBody.propertyView({ label: trans("prop.showBody") }),
       this.children.showFooter.propertyView({ label: trans("prop.showFooter") }),
+      (!this.children.autoHeight.getView()) && this.children.scrollbars.propertyView({ label: trans("prop.scrollbar") }),
     ];
   }
 

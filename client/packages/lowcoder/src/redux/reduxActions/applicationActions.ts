@@ -32,6 +32,10 @@ export const fetchApplicationRecycleList = () => ({
   type: ReduxActionTypes.FETCH_APPLICATION_RECYCLE_LIST_INIT,
 });
 
+export const fetchAllMarketplaceApps = () => ({
+  type: ReduxActionTypes.FETCH_ALL_MARKETPLACE_APPS,
+});
+
 export type CreateApplicationPayload = {
   applicationName: string;
   applicationType: AppTypeEnum;

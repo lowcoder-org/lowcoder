@@ -29,6 +29,10 @@ export interface CreateOrgResponse extends ApiResponse {
   data: { orgId: string };
 }
 
+export interface OrgAPIUsageResponse extends ApiResponse {
+  data: number;
+}
+
 export class OrgApi extends Api {
   static createGroupURL = "/v1/groups";
   static updateGroupURL = (groupId: string) => `/v1/groups/${groupId}/update`;
@@ -47,6 +51,7 @@ export class OrgApi extends Api {
   static createOrgURL = "/v1/organizations";
   static deleteOrgURL = (orgId: string) => `/v1/organizations/${orgId}`;
   static updateOrgURL = (orgId: string) => `/v1/organizations/${orgId}/update`;
+  static fetchUsage = (orgId: string) => `/v1/organizations/${orgId}/api-usage`;
 
   static createGroup(request: { name: string }): AxiosPromise<GenericApiResponse<OrgGroup>> {
     return Api.post(OrgApi.createGroupURL, request);
@@ -127,6 +132,15 @@ export class OrgApi extends Api {
   static updateOrg(request: UpdateOrgPayload): AxiosPromise<ApiResponse> {
     return Api.put(OrgApi.updateOrgURL(request.id), request);
   }
+
+  static fetchAPIUsage(orgId: string): AxiosPromise<ApiResponse> {
+    return Api.get(OrgApi.fetchUsage(orgId));
+  }
+
+  static fetchLastMonthAPIUsage(orgId: string): AxiosPromise<ApiResponse> {
+    return Api.get(OrgApi.fetchUsage(orgId), { lastMonthOnly: true });
+  }
+
 }
 
 export default OrgApi;

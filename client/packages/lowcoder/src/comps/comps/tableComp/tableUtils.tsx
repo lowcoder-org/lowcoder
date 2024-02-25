@@ -250,6 +250,25 @@ function renderTitle(props: { title: string; editable: boolean }) {
   );
 }
 
+function getInitialColumns(
+  columnsAggrData: ColumnsAggrData,
+  customColumns: string[],
+) {
+  let initialColumns = [];
+  Object.keys(columnsAggrData).forEach(column => {
+    if(customColumns.includes(column)) return;
+    initialColumns.push({
+      label: column,
+      value: `{{currentRow.${column}}}`
+    });
+  });
+  initialColumns.push({
+    label: 'Select with handlebars',
+    value: '{{currentCell}}',
+  })
+  return initialColumns;
+}
+
 export type CustomColumnType<RecordType> = ColumnType<RecordType> & {
   onWidthResize?: (width: number) => void;
   titleText: string;
@@ -271,6 +290,8 @@ export function columnsToAntdFormat(
   columnsAggrData: ColumnsAggrData,
   onTableEvent: (eventName: any) => void,
 ): Array<CustomColumnType<RecordType>> {
+  const customColumns = columns.filter(col => col.isCustom).map(col => col.dataIndex);
+  const initialColumns = getInitialColumns(columnsAggrData, customColumns);
   const sortMap: Map<string | undefined, SortOrder> = new Map(
     sort.map((s) => [s.column, s.desc ? "descend" : "ascend"])
   );
@@ -311,6 +332,7 @@ export function columnsToAntdFormat(
       status: StatusType;
     }[];
     const title = renderTitle({ title: column.title, editable: column.editable });
+   
     return {
       title: column.showTitle ? title : '',
       titleText: column.title,
@@ -326,6 +348,7 @@ export function columnsToAntdFormat(
         radius: column.radius,
         textSize: column.textSize,
         textWeight: column.textWeight,
+        fontStyle:column.fontStyle,
         fontFamily: column.fontFamily,
         borderWidth: column.borderWidth,
       },
@@ -344,6 +367,7 @@ export function columnsToAntdFormat(
               currentRow: _.omit(record, OB_ROW_ORI_INDEX),
               currentIndex: index,
               currentOriginalIndex: tryToNumber(record[OB_ROW_ORI_INDEX]),
+              initialColumns,
             },
             String(record[OB_ROW_ORI_INDEX])
           )

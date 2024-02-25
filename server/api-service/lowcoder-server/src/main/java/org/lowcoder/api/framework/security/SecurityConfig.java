@@ -108,6 +108,9 @@ public class SecurityConfig {
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, CONFIG_URL), // system config
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, CONFIG_URL + "/deploymentId"), // system config
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, APPLICATION_URL + "/*/view"), // application view
+                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, APPLICATION_URL + "/*/view_marketplace"), // application view
+                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, APPLICATION_URL + "/marketplace-apps"), // marketplace apps
+
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, USER_URL + "/me"),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, USER_URL + "/currentUser"),
 
@@ -132,6 +135,8 @@ public class SecurityConfig {
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, NewUrl.CONFIG_URL + "/deploymentId"),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.HEAD, NewUrl.STATE_URL + "/healthCheck"),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, NewUrl.APPLICATION_URL + "/*/view"),
+                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, NewUrl.APPLICATION_URL + "/*/view_marketplace"),
+                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, NewUrl.APPLICATION_URL + "/marketplace-apps"), // marketplace apps
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, NewUrl.USER_URL + "/me"),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, NewUrl.USER_URL + "/currentUser"),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, NewUrl.GROUP_URL + "/list"),
@@ -177,6 +182,8 @@ public class SecurityConfig {
         source.registerCorsConfiguration(GROUP_URL + "/list", skipCheckCorsForAll);
         source.registerCorsConfiguration(QUERY_URL + "/execute", skipCheckCorsForAll);
         source.registerCorsConfiguration(APPLICATION_URL + "/*/view", skipCheckCorsForAll);
+        source.registerCorsConfiguration(APPLICATION_URL + "/*/view_marketplace", skipCheckCorsForAll);
+        source.registerCorsConfiguration(APPLICATION_URL + "/marketplace-apps", skipCheckCorsForAll);
         source.registerCorsConfiguration(GITHUB_STAR, skipCheckCorsForAll);
         source.registerCorsConfiguration(ORGANIZATION_URL + "/*/datasourceTypes", skipCheckCorsForAll);
         source.registerCorsConfiguration(DATASOURCE_URL + "/jsDatasourcePlugins", skipCheckCorsForAll);
@@ -186,6 +193,8 @@ public class SecurityConfig {
         source.registerCorsConfiguration(NewUrl.GROUP_URL + "/list", skipCheckCorsForAll);
         source.registerCorsConfiguration(NewUrl.QUERY_URL + "/execute", skipCheckCorsForAll);
         source.registerCorsConfiguration(NewUrl.APPLICATION_URL + "/*/view", skipCheckCorsForAll);
+        source.registerCorsConfiguration(NewUrl.APPLICATION_URL + "/*/view_marketplace", skipCheckCorsForAll);
+        source.registerCorsConfiguration(NewUrl.APPLICATION_URL + "/marketplace-apps", skipCheckCorsForAll);
         source.registerCorsConfiguration(NewUrl.ORGANIZATION_URL + "/*/datasourceTypes", skipCheckCorsForAll);
         source.registerCorsConfiguration(NewUrl.DATASOURCE_URL + "/jsDatasourcePlugins", skipCheckCorsForAll);
 

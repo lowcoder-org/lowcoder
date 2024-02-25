@@ -44,6 +44,7 @@ public class CommonConfig {
     private Cookie cookie = new Cookie();
     private JsExecutor jsExecutor = new JsExecutor();
     private Set<String> disallowedHosts = new HashSet<>();
+    private Marketplace marketplace = new Marketplace();
     private SMTP smtp = new SMTP();
 
     public boolean isSelfHost() {
@@ -151,6 +152,12 @@ public class CommonConfig {
         private String email;
         private String host;
         private String port;
+    }
+
+    @Data
+    public static class Marketplace {
+
+        private boolean privateMode = Boolean.TRUE;
     }
 
 

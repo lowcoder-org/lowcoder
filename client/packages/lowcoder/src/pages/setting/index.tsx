@@ -8,6 +8,7 @@ import SettingHome from "./settingHome";
 
 export function Setting() {
   const user = useSelector(getUser);
+
   if (!currentOrgAdminOrDev(user)) {
     history.push(BASE_URL);
   }

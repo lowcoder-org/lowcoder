@@ -67,6 +67,7 @@ import { VideoMeetingStreamComp } from "./comps/meetingComp/videoMeetingStreamCo
 import { ControlButton } from "./comps/meetingComp/controlButton";
 import { VideoMeetingControllerComp } from "./comps/meetingComp/videoMeetingControllerComp";
 import { VideoSharingStreamComp } from "./comps/meetingComp/videoSharingStreamComp";
+import { IconComp } from "./comps/iconComp";
 
 import {
   AudioCompIcon,
@@ -132,6 +133,7 @@ import {
   AutoCompleteCompIcon,
   ResponsiveLayoutCompIcon,
   MermaidIcon,
+  IconCompIcon,
 } from "lowcoder-design";
 
 type Registry = {
@@ -913,6 +915,19 @@ var uiCompMap: Registry = {
     layoutInfo: {
       w: 12,
       h: 40,
+    },
+  },
+  icon: {
+    name: trans("uiComp.iconCompName"),
+    enName: "icon",
+    description: trans("uiComp.iconCompDesc"),
+    categories: ["multimedia"],
+    icon: IconCompIcon,
+    keywords: trans("uiComp.iconCompKeywords"),
+    comp: IconComp,
+    layoutInfo: {
+      w: 2,
+      h: 10,
     },
   },
   imageEditor: {

@@ -46,7 +46,22 @@ class ApplicationPermissionHandler extends ResourcePermissionHandler {
         }
 
         Set<String> applicationIds = newHashSet(resourceIds);
-        return Mono.zip(applicationService.getPublicApplicationIds(applicationIds),
+        return Mono.zip(applicationService.getPublicApplicationIds(applicationIds, Boolean.TRUE, config.getMarketplace().isPrivateMode()),
+                        templateSolution.getTemplateApplicationIds(applicationIds))
+                .map(tuple -> {
+                    Set<String> publicAppIds = tuple.getT1();
+                    Set<String> templateAppIds = tuple.getT2();
+                    return collectMap(union(publicAppIds, templateAppIds), identity(), this::getAnonymousUserPermission);
+                });
+    }
+
+    // This is for PTM apps that are public but only available to logged-in users
+    @Override
+    protected Mono<Map<String, List<ResourcePermission>>> getNonAnonymousUserPublicResourcePermissions
+            (Collection<String> resourceIds, ResourceAction resourceAction) {
+
+        Set<String> applicationIds = newHashSet(resourceIds);
+        return Mono.zip(applicationService.getPublicApplicationIds(applicationIds, Boolean.FALSE, config.getMarketplace().isPrivateMode()),
                         templateSolution.getTemplateApplicationIds(applicationIds))
                 .map(tuple -> {
                     Set<String> publicAppIds = tuple.getT1();

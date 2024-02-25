@@ -49,3 +49,5 @@ export * from "./components/toolTip";
 export * from "./components/video";
 
 export * from "./icons";
+
+export * from "./icons/antIcon";

@@ -32,7 +32,7 @@ import {
   requiredPropertyView,
 } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
-import { ChangeEvent, useRef, useState } from "react";
+import { ChangeEvent, useEffect, useRef, useState } from "react";
 import { refMethods } from "comps/generators/withMethodExposing";
 import { InputRef } from "antd/es/input";
 import {
@@ -134,6 +134,7 @@ const TextInputInvalidConfig = depsConfig<TextInputComp, ChildrenTypeToDepsKeys<
 export const TextInputConfigs = [TextInputInvalidConfig, ...CommonNameConfig];
 
 export const textInputChildren = {
+  defaultValue: stringExposingStateControl("defaultValue"),
   value: stringExposingStateControl("value"),
   disabled: BoolCodeControl,
   label: LabelControl,
@@ -156,6 +157,7 @@ export const textInputProps = (props: RecordConstructorToView<typeof textInputCh
   disabled: props.disabled,
   readOnly: props.readOnly,
   placeholder: props.placeholder,
+  defaultValue: props.defaultValue.value,
   value: props.value.value,
   onFocus: () => props.onEvent("focus"),
   onBlur: () => props.onEvent("blur"),
@@ -164,22 +166,38 @@ export const textInputProps = (props: RecordConstructorToView<typeof textInputCh
 
 export const useTextInputProps = (props: RecordConstructorToView<typeof textInputChildren>) => {
   const [validateState, setValidateState] = useState({});
+  const changeRef = useRef(false)
 
   const propsRef = useRef<RecordConstructorToView<typeof textInputChildren>>(props);
   propsRef.current = props;
 
-  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    props.value.onChange(e.target.value);
-    propsRef.current.onEvent("change");
+  const defaultValue = { ...props.defaultValue }.value;
+  const inputValue = { ...props.value }.value;
+
+  useEffect(() => {
+    props.value.onChange(defaultValue)
+  }, [defaultValue]);
+
+  useEffect(() => {
+    if (!changeRef.current) return;
+
     setValidateState(
       textInputValidate({
         ...propsRef.current,
         value: {
-          value: e.target.value,
+          value: inputValue,
         },
       })
     );
+    propsRef.current.onEvent("change");
+    changeRef.current = false;
+  }, [inputValue]);
+
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    props.value.onChange(e.target.value);
+    changeRef.current = true;
   };
+
   return [
     {
       ...textInputProps(props),
@@ -193,7 +211,7 @@ type TextInputComp = RecordConstructorToComp<typeof textInputChildren>;
 
 export const TextInputBasicSection = (children: TextInputComp) => (
   <Section name={sectionNames.basic}>
-    {children.value.propertyView({ label: trans("prop.defaultValue") })}
+    {children.defaultValue.propertyView({ label: trans("prop.defaultValue") })}
     {placeholderPropertyView(children)}
   </Section>
 );
@@ -229,6 +247,7 @@ export function getStyle(style: InputLikeStyleType) {
       font-size: ${style.textSize};
       font-weight: ${style.textWeight};
       font-family: ${style.fontFamily};
+      font-style:${style.fontStyle};
       background-color: ${style.background};
       border-color: ${style.border};
 
@@ -275,10 +294,10 @@ export const inputRefMethods = [
 ];
 
 export function checkMentionListData(data: any) {
-  if(data === "") return {}
-  for(const key in data) {
-    check(data[key], ["array"], key,(node)=>{
-      check(node, ["string"], );
+  if (data === "") return {}
+  for (const key in data) {
+    check(data[key], ["array"], key, (node) => {
+      check(node, ["string"],);
       return node
     })
   }

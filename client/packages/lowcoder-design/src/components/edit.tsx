@@ -68,7 +68,7 @@ const TextInput = styled(Input)<InputProps & { $hasPrefix?: boolean }>`
   border: none;
   padding: 0 8px 0 4px;
   padding-left: ${(props) => (props.$hasPrefix ? "28px" : "4px")};
-  color: #ffffff;
+  color: #444444;
   line-height: 28px;
   font-size: 14px;
 

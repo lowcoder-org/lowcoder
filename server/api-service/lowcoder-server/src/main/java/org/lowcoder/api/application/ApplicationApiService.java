@@ -141,7 +141,7 @@ public class ApplicationApiService {
                 createApplicationRequest.applicationType(),
                 NORMAL,
                 createApplicationRequest.publishedApplicationDSL(),
-                false, createApplicationRequest.editingApplicationDSL());
+                false, false, false, createApplicationRequest.editingApplicationDSL());
 
         if (StringUtils.isBlank(application.getOrganizationId())) {
             return deferredError(INVALID_PARAMETER, "ORG_ID_EMPTY");
@@ -248,6 +248,19 @@ public class ApplicationApiService {
         return Mono.error(new BizException(BizError.UNSUPPORTED_OPERATION, "BAD_REQUEST"));
     }
 
+    private Mono<Void> checkApplicationViewRequest(Application application, ApplicationEndpoints.ApplicationRequestType expected) {
+        if (expected == ApplicationEndpoints.ApplicationRequestType.PUBLIC_TO_ALL && application.isPublicToAll()) {
+            return Mono.empty();
+        }
+        if (expected == ApplicationEndpoints.ApplicationRequestType.PUBLIC_TO_MARKETPLACE && application.isPublicToMarketplace()) {
+            return Mono.empty();
+        }
+        if (expected == ApplicationEndpoints.ApplicationRequestType.AGENCY_PROFILE && application.agencyProfile()) {
+            return Mono.empty();
+        }
+        return Mono.error(new BizException(BizError.UNSUPPORTED_OPERATION, "BAD_REQUEST"));
+    }
+
     private Mono<Boolean> updateApplicationStatus(String applicationId, ApplicationStatus applicationStatus) {
         return checkCurrentUserApplicationPermission(applicationId, MANAGE_APPLICATIONS)
                 .then(Mono.defer(() -> {
@@ -280,10 +293,11 @@ public class ApplicationApiService {
                 });
     }
 
-    public Mono<ApplicationView> getPublishedApplication(String applicationId) {
+    public Mono<ApplicationView> getPublishedApplication(String applicationId, ApplicationEndpoints.ApplicationRequestType requestType) {
         return checkPermissionWithReadableErrorMsg(applicationId, READ_APPLICATIONS)
                 .zipWhen(permission -> applicationService.findById(applicationId)
-                        .delayUntil(application -> checkApplicationStatus(application, NORMAL)))
+                        .delayUntil(application -> checkApplicationStatus(application, NORMAL))
+                        .delayUntil(application -> checkApplicationViewRequest(application, requestType)))
                 .zipWhen(tuple -> applicationService.getAllDependentModulesFromApplication(tuple.getT2(), true), TupleUtils::merge)
                 .zipWhen(tuple -> organizationService.getOrgCommonSettings(tuple.getT2().getOrganizationId()), TupleUtils::merge)
                 .zipWith(getTemplateIdFromApplicationId(applicationId), TupleUtils::merge)
@@ -429,6 +443,7 @@ public class ApplicationApiService {
                                         .creatorId(creatorId)
                                         .orgName(organization.getName())
                                         .publicToAll(application.isPublicToAll())
+                                        .publicToMarketplace(application.isPublicToMarketplace())
                                         .build();
                             });
                 });
@@ -485,6 +500,7 @@ public class ApplicationApiService {
                 .applicationStatus(application.getApplicationStatus())
                 .folderId(folderId)
                 .publicToAll(application.isPublicToAll())
+                .publicToMarketplace(application.isPublicToMarketplace())
                 .build();
     }
 
@@ -496,6 +512,19 @@ public class ApplicationApiService {
         return checkCurrentUserApplicationPermission(applicationId, ResourceAction.SET_APPLICATIONS_PUBLIC)
                 .then(checkApplicationStatus(applicationId, NORMAL))
                 .then(applicationService.setApplicationPublicToAll(applicationId, publicToAll));
+    }
+
+    public Mono<Boolean> setApplicationPublicToMarketplace(String applicationId, ApplicationEndpoints.ApplicationPublicToMarketplaceRequest request) {
+        return checkCurrentUserApplicationPermission(applicationId, ResourceAction.SET_APPLICATIONS_PUBLIC_TO_MARKETPLACE)
+                .then(checkApplicationStatus(applicationId, NORMAL))
+                .then(applicationService.setApplicationPublicToMarketplace
+                        (applicationId, request.publicToMarketplace(), request.title(), request.category(), request.description(), request.image()));
+    }
+
+    public Mono<Boolean> setApplicationAsAgencyProfile(String applicationId, boolean agencyProfile) {
+        return checkCurrentUserApplicationPermission(applicationId, ResourceAction.SET_APPLICATIONS_AS_AGENCY_PROFILE)
+                .then(checkApplicationStatus(applicationId, NORMAL))
+                .then(applicationService.setApplicationAsAgencyProfile(applicationId, agencyProfile));
     }
 
     private Map<String, Object> sanitizeDsl(Map<String, Object> applicationDsl) {
