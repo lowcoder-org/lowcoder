@@ -33,11 +33,12 @@ import {
 import styled from "styled-components";
 import { lastValueIfEqual } from "util/objectUtils";
 import { getNextEntityName } from "util/stringUtils";
-import { JSONValue } from "util/jsonTypes";
+import { JSONObject, JSONValue } from "util/jsonTypes";
 import { ButtonEventHandlerControl } from "./eventHandlerControl";
 import { ControlItemCompBuilder } from "comps/generators/controlCompBuilder";
 import { ColorControl } from "./colorControl";
 import { StringStateControl } from "./codeStateControl";
+import { reduceInContext } from "../utils/reduceContext";
 
 const OptionTypes = [
   {
@@ -312,8 +313,16 @@ export function mapOptionsControl<T extends OptionsControlType>(
     }
 
     override reduce(action: CompAction) {
-      const comp = super.reduce(action);
+      // TODO: temporary solution condition to fix context issue in dropdown option's events
+      if (
+        action.type === CompActionTypes.CUSTOM
+        && (action.value as JSONObject).type === 'actionTriggered'
+      ) {
+        const comp = reduceInContext({ inEventContext: true }, () => super.reduce(action));
+        return comp;
+      } else
       if (action.type === CompActionTypes.UPDATE_NODES_V2) {
+        const comp = super.reduce(action)
         if (comp.children.data !== this.children.data) {
           const sourceArray = comp.children.data.getView();
           const dataExample = sourceArray ? sourceArray[0] : undefined;
@@ -322,8 +331,9 @@ export function mapOptionsControl<T extends OptionsControlType>(
             return comp.updateContext(dataExample);
           }
         }
+        return comp;
       }
-      return comp;
+      return super.reduce(action);
     }
 
     updateContext(dataExample: JSONValue) {

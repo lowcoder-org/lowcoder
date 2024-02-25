@@ -23,12 +23,18 @@ import { RefControl } from "comps/controls/refControl";
 import { EditorContext } from "comps/editorState";
 import React, { useContext } from "react";
 
-const Link = styled(Button)<{ $style: LinkStyleType }>`
+const Link = styled(Button) <{ $style: LinkStyleType }>`
   ${(props) => `
     color: ${props.$style.text};
     margin: ${props.$style.margin};
     padding: ${props.$style.padding};
     font-size: ${props.$style.textSize};
+    font-style:${props.$style.fontStyle};
+    font-family:${props.$style.fontFamily};
+    font-weight:${props.$style.textWeight};
+    border: ${props.$style.borderWidth} solid ${props.$style.border};
+    border-radius:${props.$style.radius ? props.$style.radius:'0px'};
+    background-color: ${props.$style.background};
     &:hover {
       color: ${props.$style.hoverText} !important;
     }
@@ -36,7 +42,8 @@ const Link = styled(Button)<{ $style: LinkStyleType }>`
       color: ${props.$style.activeText} !important;
     }
   `}
-  &.ant-btn {
+
+  &.ant-btn { 
     display: inline-flex;
     align-items: center;
     > span {
@@ -114,15 +121,15 @@ const LinkTmpComp = (function () {
               {hiddenPropertyView(children)}
               {loadingPropertyView(children)}
             </Section>
-            <Section name={sectionNames.advanced}>
-              {children.prefixIcon.propertyView({ label: trans("button.prefixIcon") })}
-              {children.suffixIcon.propertyView({ label: trans("button.suffixIcon") })}
-            </Section></>
+              <Section name={sectionNames.advanced}>
+                {children.prefixIcon.propertyView({ label: trans("button.prefixIcon") })}
+                {children.suffixIcon.propertyView({ label: trans("button.suffixIcon") })}
+              </Section></>
           )}
 
-        {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
-          <><Section name={sectionNames.style}>{children.style.getPropertyView()}</Section></>
-        )}
+          {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
+            <><Section name={sectionNames.style}>{children.style.getPropertyView()}</Section></>
+          )}
         </>
       );
     })

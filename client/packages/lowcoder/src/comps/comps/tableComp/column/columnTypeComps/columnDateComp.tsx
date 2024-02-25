@@ -170,7 +170,7 @@ export const DateEdit = (props: DateEditProps) => {
         superNextIcon={<IconSuperNext />}
         superPrevIcon={<SuperPrevIcon />}
         allowClear={false}
-        bordered={false}
+        variant="borderless"
         autoFocus
         defaultValue={value}
         showTime={props.showTime}

@@ -8,6 +8,8 @@ export const modulesSelector = (state: AppState): ApplicationMeta[] => state.ui.
 
 export const recycleListSelector = (state: AppState) => state.ui.application.recycleList;
 
+export const marketplaceSelector = (state: AppState) => state.ui.application.marketplace;
+
 export const getHomeOrg = (state: AppState) => state.ui.application.homeOrg;
 
 export const isFetchingHomeData = (state: AppState) =>

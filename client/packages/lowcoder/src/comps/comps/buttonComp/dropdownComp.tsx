@@ -42,6 +42,11 @@ const LeftButtonWrapper = styled.div<{ $buttonStyle: ButtonStyleType }>`
       margin: 0 !important;
       ${(props) => `border-radius: ${props.$buttonStyle.radius} 0 0 ${props.$buttonStyle.radius};`}
     }
+    ${(props) => `background-color: ${props.$buttonStyle.background};`}
+    ${(props) => `color: ${props.$buttonStyle.text};`}
+    ${(props) => `padding: ${props.$buttonStyle.padding};`}
+    ${(props) => `font-size: ${props.$buttonStyle.textSize};`}
+    ${(props) => `font-style: ${props.$buttonStyle.fontStyle};`}
     width: 100%;
   }
 `;
@@ -83,13 +88,16 @@ const DropdownTmpComp = (function () {
         key: option.label + " - " + index,
         disabled: option.disabled,
         icon: hasIcon && <span>{option.prefixIcon}</span>,
-        onEvent: option.onEvent,
+        index,
       }));
 
     const menu = (
       <Menu
         items={items}
-        onClick={({ key }) => items.find((o) => o.key === key)?.onEvent("click")}
+        onClick={({ key }) => {
+          const item = items.find((o) => o.key === key);
+          item && props.options[item.index]?.onEvent("click");
+        }}
       />
     );
 

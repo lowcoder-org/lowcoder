@@ -65,7 +65,7 @@ export const ColumnNumberComp = (function () {
           step={step}
           defaultValue={props.value}
           autoFocus
-          bordered={false}
+          variant="borderless"
           onChange={(value) => {
             value = value ?? 0;
             props.onChange(!float ? Math.floor(value) : value);

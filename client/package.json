@@ -1,6 +1,6 @@
 {
   "name": "lowcoder-root",
-  "version": "2.2.0",
+  "version": "2.3.1",
   "type": "module",
   "private": true,
   "workspaces": [
@@ -11,6 +11,7 @@
   },
   "scripts": {
     "start": "yarn workspace lowcoder start",
+    "start-win": "LOWCODER_API_SERVICE_URL=http://localhost:3000 yarn start",
     "start:ee": "REACT_APP_EDITION=enterprise yarn workspace lowcoder start",
     "start:ee-global": "REACT_APP_EDITION=enterprise-global yarn workspace lowcoder start",
     "build": "yarn node ./scripts/build.js",
@@ -70,6 +71,7 @@
   },
   "dependencies": {
     "@lottiefiles/react-lottie-player": "^3.5.3",
+    "@remixicon/react": "^4.1.1",
     "@testing-library/react": "^14.1.2",
     "@testing-library/user-event": "^14.5.1",
     "@types/styled-components": "^5.1.34",

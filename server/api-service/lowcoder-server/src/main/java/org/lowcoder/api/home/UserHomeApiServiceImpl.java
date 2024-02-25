@@ -18,6 +18,7 @@ import javax.annotation.Nullable;
 import org.apache.commons.lang3.StringUtils;
 import org.lowcoder.api.application.view.ApplicationInfoView;
 import org.lowcoder.api.application.view.ApplicationInfoView.ApplicationInfoViewBuilder;
+import org.lowcoder.api.application.view.MarketplaceApplicationInfoView;
 import org.lowcoder.api.usermanagement.OrgDevChecker;
 import org.lowcoder.api.usermanagement.view.OrgAndVisitorRoleView;
 import org.lowcoder.api.usermanagement.view.UserProfileView;
@@ -39,6 +40,7 @@ import org.lowcoder.domain.user.model.UserStatus;
 import org.lowcoder.domain.user.service.UserService;
 import org.lowcoder.domain.user.service.UserStatusService;
 import org.lowcoder.infra.util.NetworkUtils;
+import org.lowcoder.sdk.config.CommonConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
@@ -78,6 +80,9 @@ public class UserHomeApiServiceImpl implements UserHomeApiService {
     private FolderApiService folderApiService;
     @Autowired
     private UserApplicationInteractionService userApplicationInteractionService;
+
+    @Autowired
+    private CommonConfig config;
 
     @Override
     public Mono<UserProfileView> buildUserProfileView(User user, ServerWebExchange exchange) {
@@ -256,6 +261,128 @@ public class UserHomeApiServiceImpl implements UserHomeApiService {
                 });
     }
 
+    @Override
+    public Flux<MarketplaceApplicationInfoView> getAllMarketplaceApplications(@Nullable ApplicationType applicationType) {
+
+        return sessionUserService.isAnonymousUser()
+                .flatMapMany(isAnonymousUser -> {
+
+                    if(config.getMarketplace().isPrivateMode() && isAnonymousUser) {
+                        return Mono.empty();
+                    }
+
+                    // application flux
+                    Flux<Application> applicationFlux = Flux.defer(() -> applicationService.findAllMarketplaceApps())
+                            .filter(application -> isNull(applicationType) || application.getApplicationType() == applicationType.getValue())
+                            .cache();
+
+                    // user map
+                    Mono<Map<String, User>> userMapMono = applicationFlux
+                            .flatMap(application -> emptyIfNull(application.getCreatedBy()))
+                            .collectList()
+                            .flatMap(creatorIds -> userService.getByIds(creatorIds))
+                            .cache();
+
+                    // org map
+                    Mono<Map<String, Organization>> orgMapMono = applicationFlux
+                            .flatMap(application -> emptyIfNull(application.getOrganizationId()))
+                            .collectList()
+                            .flatMap(orgIds -> organizationService.getByIds(orgIds)
+                                    .collectList()
+                                    .map(it -> it.stream().collect(Collectors.toMap(Organization::getId, Function.identity())))
+                            )
+                            .cache();
+
+
+                    return applicationFlux
+                            .flatMap(application -> Mono.zip(Mono.just(application), userMapMono, orgMapMono))
+                            .map(tuple2 -> {
+                                // build view
+                                Application application = tuple2.getT1();
+                                Map<String, User> userMap = tuple2.getT2();
+                                Map<String, Organization> orgMap = tuple2.getT3();
+                                MarketplaceApplicationInfoView marketplaceApplicationInfoView = MarketplaceApplicationInfoView.builder()
+                                        .applicationId(application.getId())
+                                        .name(application.getName())
+                                        .applicationType(application.getApplicationType())
+                                        .applicationStatus(application.getApplicationStatus())
+                                        .orgId(application.getOrganizationId())
+                                        .orgName(orgMap.get(application.getOrganizationId()).getName())
+                                        .creatorEmail(Optional.ofNullable(userMap.get(application.getCreatedBy()))
+                                                .map(User::getName)
+                                                .orElse(""))
+                                        .createAt(application.getCreatedAt().toEpochMilli())
+                                        .createBy(application.getCreatedBy())
+                                        .build();
+
+                                // marketplace specific fields
+                                Map<String, Object> marketplaceMeta = (Map<String, Object>)
+                                        ((Map<String, Object>)application.getEditingApplicationDSL().get("ui")).get("marketplaceMeta");
+                                marketplaceApplicationInfoView.setTitle((String)marketplaceMeta.get("title"));
+                                marketplaceApplicationInfoView.setCategory((String)marketplaceMeta.get("category"));
+                                marketplaceApplicationInfoView.setDescription((String)marketplaceMeta.get("description"));
+                                marketplaceApplicationInfoView.setImage((String)marketplaceMeta.get("image"));
+
+                                return marketplaceApplicationInfoView;
+
+                            });
+
+                });
+    }
+
+    @Override
+    public Flux<MarketplaceApplicationInfoView> getAllAgencyProfileApplications(@Nullable ApplicationType applicationType) {
+
+        return sessionUserService.getVisitorOrgMemberCache()
+                .flatMapMany(orgMember -> {
+                    // application flux
+                    Flux<Application> applicationFlux = Flux.defer(() -> applicationService.findAllAgencyProfileApps())
+                            .filter(application -> isNull(applicationType) || application.getApplicationType() == applicationType.getValue())
+                            .cache();
+
+                    // user map
+                    Mono<Map<String, User>> userMapMono = applicationFlux
+                            .flatMap(application -> emptyIfNull(application.getCreatedBy()))
+                            .collectList()
+                            .flatMap(creatorIds -> userService.getByIds(creatorIds))
+                            .cache();
+
+                    // org map
+                    Mono<Map<String, Organization>> orgMapMono = applicationFlux
+                            .flatMap(application -> emptyIfNull(application.getOrganizationId()))
+                            .collectList()
+                            .flatMap(orgIds -> organizationService.getByIds(orgIds)
+                                    .collectList()
+                                    .map(it -> it.stream().collect(Collectors.toMap(Organization::getId, Function.identity())))
+                            )
+                            .cache();
+
+
+                    return applicationFlux
+                            .flatMap(application -> Mono.zip(Mono.just(application), userMapMono, orgMapMono))
+                            .map(tuple -> {
+                                // build view
+                                Application application = tuple.getT1();
+                                Map<String, User> userMap = tuple.getT2();
+                                Map<String, Organization> orgMap = tuple.getT3();
+                                return MarketplaceApplicationInfoView.builder()
+                                        .applicationId(application.getId())
+                                        .name(application.getName())
+                                        .applicationType(application.getApplicationType())
+                                        .applicationStatus(application.getApplicationStatus())
+                                        .orgId(application.getOrganizationId())
+                                        .orgName(orgMap.get(application.getOrganizationId()).getName())
+                                        .creatorEmail(Optional.ofNullable(userMap.get(application.getCreatedBy()))
+                                                .map(User::getName)
+                                                .orElse(""))
+                                        .createAt(application.getCreatedAt().toEpochMilli())
+                                        .createBy(application.getCreatedBy())
+                                        .build();
+                            });
+
+                });
+    }
+
     private ApplicationInfoView buildView(Application application, ResourceRole maxRole, Map<String, User> userMap, @Nullable Instant lastViewTime,
             boolean withContainerSize) {
         ApplicationInfoViewBuilder applicationInfoViewBuilder = ApplicationInfoView.builder()
@@ -271,7 +398,8 @@ public class UserHomeApiServiceImpl implements UserHomeApiService {
                 .applicationStatus(application.getApplicationStatus())
                 .lastModifyTime(application.getUpdatedAt())
                 .lastViewTime(lastViewTime)
-                .publicToAll(application.isPublicToAll());
+                .publicToAll(application.isPublicToAll())
+                .publicToMarketplace(application.isPublicToMarketplace());
         if (withContainerSize) {
             return applicationInfoViewBuilder
                     .containerSize(application.getLiveContainerSize())
