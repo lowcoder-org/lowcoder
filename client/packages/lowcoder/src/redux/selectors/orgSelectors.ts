@@ -19,3 +19,7 @@ export const getOrgCreateStatus = (state: AppState) => {
 export const getOrgApiUsage = (state: AppState) => {
   return state.ui.org.apiUsage;
 }
+
+export const getOrgLastMonthApiUsage = (state: AppState) => {
+  return state.ui.org.lastMonthApiUsage;
+}

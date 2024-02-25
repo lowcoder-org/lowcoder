@@ -21,6 +21,8 @@ import {
   UpdateGroupActionPayload,
   UpdateOrgPayload,
   updateOrgSuccess,
+  fetchAPIUsageActionSuccess,
+  fetchLastMonthAPIUsageActionSuccess,
   UpdateUserGroupRolePayload,
   UpdateUserOrgRolePayload,
 } from "redux/reduxActions/orgActions";
@@ -282,20 +284,34 @@ export function* updateOrgSaga(action: ReduxAction<UpdateOrgPayload>) {
 
 export function* fetchAPIUsageSaga(action: ReduxAction<{
   orgId: string,
-  lastMonthOnly?: boolean,
 }>) {
   try {
     const response: AxiosResponse<OrgAPIUsageResponse> = yield call(
       OrgApi.fetchAPIUsage,
       action.payload.orgId,
-      action.payload.lastMonthOnly,
     );
     const isValidResponse: boolean = validateResponse(response);
     if (isValidResponse) {
-      yield put({
-        type: ReduxActionTypes.FETCH_ORG_API_USAGE_SUCCESS,
-        payload: response.data.data,
-      });
+      yield put(fetchAPIUsageActionSuccess({apiUsage: response.data.data})
+      );
+    }
+  } catch (error) {
+    log.error(error);
+  }
+}
+
+export function* fetchLastMonthAPIUsageSaga(action: ReduxAction<{
+  orgId: string,
+}>) {
+  try {
+    const response: AxiosResponse<OrgAPIUsageResponse> = yield call(
+      OrgApi.fetchLastMonthAPIUsage,
+      action.payload.orgId,
+    );
+    const isValidResponse: boolean = validateResponse(response);
+    if (isValidResponse) {
+      yield put(fetchLastMonthAPIUsageActionSuccess({lastMonthApiUsage: response.data.data})
+      );
     }
   } catch (error) {
     log.error(error);
@@ -320,5 +336,6 @@ export default function* orgSagas() {
     takeLatest(ReduxActionTypes.DELETE_ORG, deleteOrgSaga),
     takeLatest(ReduxActionTypes.UPDATE_ORG, updateOrgSaga),
     takeLatest(ReduxActionTypes.FETCH_ORG_API_USAGE, fetchAPIUsageSaga),
+    takeLatest(ReduxActionTypes.FETCH_ORG_LAST_MONTH_API_USAGE, fetchLastMonthAPIUsageSaga),
   ]);
 }

@@ -1809,6 +1809,10 @@ advanced: {
     preloadLibsEmpty: "尚未添加 JavaScript 库",
     preloadLibsAddBtn: "添加库",
     saveSuccess: "保存成功",
+    "APIConsumption": "API 消耗",
+    "APIConsumptionDescription": "API 消耗是指当前工作空间中所有应用程序的 API 消耗情况,包括调用次数和调用时间.",
+    "overallAPIConsumption": "总体 API 消耗",
+    "apiCalls" : "API 调用次数",
 },
 branding: {
     title: "品牌",

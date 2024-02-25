@@ -133,9 +133,14 @@ export class OrgApi extends Api {
     return Api.put(OrgApi.updateOrgURL(request.id), request);
   }
 
-  static fetchAPIUsage(orgId: string, lastMonthOnly?: boolean): AxiosPromise<ApiResponse> {
-    return Api.get(OrgApi.fetchUsage(orgId), lastMonthOnly);
+  static fetchAPIUsage(orgId: string): AxiosPromise<ApiResponse> {
+    return Api.get(OrgApi.fetchUsage(orgId));
   }
+
+  static fetchLastMonthAPIUsage(orgId: string): AxiosPromise<ApiResponse> {
+    return Api.get(OrgApi.fetchUsage(orgId), { lastMonthOnly: true });
+  }
+
 }
 
 export default OrgApi;
