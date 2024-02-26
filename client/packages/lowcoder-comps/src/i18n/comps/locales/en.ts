@@ -127,6 +127,7 @@ export const en = {
     week: "Week",
     day: "Day",
     list: "List",
+    timeline: "TimeLine", //added by fred
     monday: "Monday",
     tuesday: "Tuesday",
     wednesday: "Wednesday",

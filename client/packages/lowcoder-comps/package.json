@@ -4,6 +4,7 @@
   "type": "module",
   "license": "MIT",
   "dependencies": {
+    "@fullcalendar/adaptive": "^6.1.11",
     "@fullcalendar/core": "^6.1.6",
     "@fullcalendar/daygrid": "^6.1.6",
     "@fullcalendar/interaction": "^6.1.6",
@@ -11,6 +12,7 @@
     "@fullcalendar/moment": "^6.1.6",
     "@fullcalendar/react": "^6.1.6",
     "@fullcalendar/resource": "^6.1.11",
+    "@fullcalendar/resource-timegrid": "^6.1.11",
     "@fullcalendar/resource-timeline": "^6.1.11",
     "@fullcalendar/timegrid": "^6.1.6",
     "@types/react": "^18.2.45",

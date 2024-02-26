@@ -27,6 +27,9 @@ import { default as Input } from "antd/es/input";
 import { trans, getCalendarLocale } from "../../i18n/comps";
 import { createRef, useContext, useRef, useState } from "react";
 import resourceTimelinePlugin from "@fullcalendar/resource-timeline";
+import resourceTimeGridPlugin from "@fullcalendar/resource-timegrid";
+import adaptivePlugin from "@fullcalendar/adaptive";
+
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
@@ -36,7 +39,8 @@ import allLocales from "@fullcalendar/core/locales-all";
 import { EventContentArg, DateSelectArg } from "@fullcalendar/core";
 import momentPlugin from "@fullcalendar/moment";
 import {
-  DefaultViewOptions,
+  DefaultWithFreeViewOptions,
+  DefaultWithPremiumViewOptions,
   FirstDayOptions,
   Wrapper,
   Event,
@@ -53,13 +57,20 @@ import {
 } from "./calendarConstants";
 import dayjs from "dayjs";
 
+function filterViews() {}
+
 const childrenMap = {
   events: jsonValueExposingStateControl("events", defaultData),
   onEvent: ChangeEventHandlerControl,
 
   editable: withDefault(BoolControl, true),
   defaultDate: withDefault(StringControl, "{{ new Date() }}"),
-  defaultView: dropdownControl(DefaultViewOptions, "timeGridWeek"),
+  defaultFreeView: dropdownControl(DefaultWithFreeViewOptions, "timeGridWeek"),
+  defaultPremiumView: dropdownControl(
+    DefaultWithPremiumViewOptions,
+    "timeGridWeek"
+  ),
+
   firstDay: dropdownControl(FirstDayOptions, "1"),
   showEventTime: withDefault(BoolControl, true),
   showWeekends: withDefault(BoolControl, true),
@@ -69,7 +80,7 @@ const childrenMap = {
   style: styleControl(CalendarStyle),
   licenceKey: withDefault(StringControl, ""),
 };
-  
+
 let CalendarBasicComp = (function () {
   return new UICompBuilder(childrenMap, (props) => {
     const theme = useContext(ThemeContext);
@@ -94,7 +105,8 @@ let CalendarBasicComp = (function () {
 
     const {
       defaultDate,
-      defaultView,
+      defaultFreeView,
+      defaultPremiumView,
       showEventTime,
       showWeekends,
       showAllDay,
@@ -309,8 +321,10 @@ let CalendarBasicComp = (function () {
     } catch (error) {
       initialDate = undefined;
     }
-
-    
+    let defaultView = defaultFreeView;
+    if (licenceKey != "") {
+      defaultView = defaultPremiumView;
+    }
 
     return (
       <Wrapper
@@ -337,6 +351,8 @@ let CalendarBasicComp = (function () {
             listPlugin,
             momentPlugin,
             resourceTimelinePlugin,
+            resourceTimeGridPlugin,
+            adaptivePlugin,
           ]}
           headerToolbar={headerToolbar}
           moreLinkClick={(info) => {
@@ -362,7 +378,7 @@ let CalendarBasicComp = (function () {
             setLeft(left);
           }}
           buttonText={buttonText}
-          schedulerLicenseKey={licenceKey}
+          schedulerLicenseKey={"CC-Attribution-NonCommercial-NoDerivatives"}
           views={views}
           eventClassNames={() => (!showEventTime ? "no-time" : "")}
           slotLabelFormat={slotLabelFormat}
@@ -422,6 +438,7 @@ let CalendarBasicComp = (function () {
     );
   })
     .setPropertyViewFn((children) => {
+      let licence = children.licenceKey.getView();
       return (
         <>
           <Section name={sectionNames.basic}>
@@ -435,16 +452,21 @@ let CalendarBasicComp = (function () {
           </Section>
           <Section name={sectionNames.advanced}>
             {children.editable.propertyView({
-              label: trans("calendar.editable"), 
-            })} 
+              label: trans("calendar.editable"),
+            })}
             {children.defaultDate.propertyView({
               label: trans("calendar.defaultDate"),
               tooltip: trans("calendar.defaultDateTooltip"),
             })}
-            {children.defaultView.propertyView({
-              label: trans("calendar.defaultView"),
-              tooltip: trans("calendar.defaultViewTooltip"),
-            })}
+            {licence == ""
+              ? children.defaultFreeView.propertyView({
+                  label: trans("calendar.defaultView"),
+                  tooltip: trans("calendar.defaultViewTooltip"),
+                })
+              : children.defaultPremiumView.propertyView({
+                  label: trans("calendar.defaultView"),
+                  tooltip: trans("calendar.defaultViewTooltip"),
+                })}
             {children.firstDay.propertyView({
               label: trans("calendar.startWeek"),
             })}
