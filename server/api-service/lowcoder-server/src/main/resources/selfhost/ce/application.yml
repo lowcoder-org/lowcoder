@@ -55,6 +55,8 @@ common:
     mode: ${LOWCODER_WORKSPACE_MODE:SAAS}
   marketplace:
     private-mode: ${MARKETPLACE_PRIVATE_MODE:true}
+  lowcoder-public-url: ${LOWCODER_PUBLIC_URL:http://localhost:8080}
+  lost-password-email-sender: ${LOWCODER_LOST_PASSWORD_EMAIL_SENDER:info@lowcoder.org}
 
 material:
   mongodb-grid-fs:
