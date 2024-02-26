@@ -47,7 +47,10 @@ Image can be configured by setting environment variables.
 | `LOWCODER_WORKSPACE_MODE`           | SAAS to activate, ENTERPRISE to switch off - Workspaces                 | `SAAS`                                                |
 | `LOWCODER_EMAIL_SIGNUP_ENABLED`     | Control if users create their own Workspace automatic when Sign Up      | `true`                                                |
 | `LOWCODER_EMAIL_AUTH_ENABLED`       | Control to show the eMail Login after Admin user is set                 | `true`                                                |
+| `LOWCODER_CREATE_WORKSPACE_ON_SIGNUP`       | IF LOWCODER_WORKSPACE_MODE = SAAS, controls if a own workspace is created for the user after sign up                 | `true`                                                |
 | `LOWCODER_MARKETPLACE_PRIVATE_MODE` | Control if not to show Apps on the local Marketplace to anonymous users | `true`                                                |
+
+
 
 
 ## Building api-service image
