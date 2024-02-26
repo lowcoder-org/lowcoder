@@ -54,7 +54,7 @@ common:
   workspace:
     mode: ${LOWCODER_WORKSPACE_MODE:SAAS}
   marketplace:
-    private-mode: ${MARKETPLACE_PRIVATE_MODE:true}
+    private-mode: ${LOWCODER_MARKETPLACE_PRIVATE_MODE:true}
 
 material:
   mongodb-grid-fs:

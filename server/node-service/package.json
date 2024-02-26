@@ -16,6 +16,7 @@
     "build": "rm -rf build/ && yarn test && tsc && yarn copy"
   },
   "devDependencies": {
+    "@types/ali-oss": "^6.16.11",
     "@types/jest": "^29.2.4",
     "commander": "^10.0.0",
     "copyfiles": "^2.4.1",
@@ -44,6 +45,7 @@
     "@types/morgan": "^1.9.3",
     "@types/node": "^20.1.1",
     "@types/node-fetch": "^2.6.2",
+    "ali-oss": "^6.20.0",
     "axios": "^1.2.0",
     "base64-arraybuffer": "^1.0.2",
     "dynamodb-data-types": "^4.0.1",
