@@ -29,9 +29,7 @@ import { Button, Divider, Dropdown, Flex, Input, Menu, MenuProps, Space } from "
 import { Switch } from "antd";
 import {
   saveCollisionStatus,
-  getCollisionStatus,
 } from "util/localStorageUtil";
-import { check, withViewFn } from "@lowcoder-ee/index.sdk";
 import { DownOutlined } from "@ant-design/icons";
 import { ItemType } from "antd/es/menu/hooks/useItems";
 import ColorPicker, { configChangeParams } from "components/ColorPicker";
@@ -78,17 +76,18 @@ export const LeftLayersContent = (props: LeftLayersContentProps) => {
   const applicationId = useApplicationId();
 
   // added by Falk Wolsky to support a Layers in Lowcoder
-  const [collisionStatus, setCollisionStatus] = useState(() => {
-    return getCollisionStatus();
-  });
+  const [collisionStatus, setCollisionStatus] = useState(editorState.getCollisionStatus());
 
-  const toggleCollisionStatus: ToggleCollisionStatus = useCallback(
-    (value) => {
-      setCollisionStatus(value ? value : ("false" as DisabledCollisionStatus));
-      saveCollisionStatus(value ? value : ("false" as DisabledCollisionStatus));
-    },
-    [collisionStatus]
-  );
+  useEffect(() => {
+    saveCollisionStatus(collisionStatus);
+  }, [collisionStatus])
+
+  const handleToggleLayer = (checked: boolean) => {
+    editorState.rootComp.children.settings.children.disableCollision.dispatchChangeValueAction(
+      checked
+    )
+    setCollisionStatus(checked);
+  }
 
   const getTree = (tree: CompTree, result: NodeItem[], key?: string) => {
     const { items, children } = tree;
@@ -429,7 +428,7 @@ export const LeftLayersContent = (props: LeftLayersContentProps) => {
     // TODO: sort by category
     // TODO: sort by Types etc.
     const uiCompInfos = _.sortBy(editorState.uiCompInfoList(), [(x) => x.name]);
-    const isDraggable = editorState.collisionStatus === "true" ? true : false;
+    const isDraggable = editorState.getCollisionStatus();
 
     return (
       <>
@@ -439,11 +438,10 @@ export const LeftLayersContent = (props: LeftLayersContentProps) => {
           <Switch 
             style={{margin : "0px 10px"}}
             size="small"
-            checked={editorState.collisionStatus == "true"}
+            defaultChecked={collisionStatus}
             disabled={false}
-            onChange={(value: any) => {
-              toggleCollisionStatus(value == true ? "true" : "false");
-              editorState.setCollisionStatus(value == true ? "true" : "false");
+            onChange={(value: boolean) => {
+              handleToggleLayer(value);
             }}
           />
         </div>

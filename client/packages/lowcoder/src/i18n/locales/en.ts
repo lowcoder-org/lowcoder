@@ -1500,6 +1500,7 @@ export const en = {
     "title": "Displayed Container Title"
   },
   "drawer": {
+    "closePosition": "Close Button Placement",
     "placement": "Drawer Placement",
     "size": "Size",
     "top": "Top",
