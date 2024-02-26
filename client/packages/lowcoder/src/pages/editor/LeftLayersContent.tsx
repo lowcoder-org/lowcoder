@@ -79,7 +79,6 @@ export const LeftLayersContent = (props: LeftLayersContentProps) => {
   const [collisionStatus, setCollisionStatus] = useState(editorState.getCollisionStatus());
 
   useEffect(() => {
-    console.log('useEffect', collisionStatus);
     saveCollisionStatus(collisionStatus);
   }, [collisionStatus])
 

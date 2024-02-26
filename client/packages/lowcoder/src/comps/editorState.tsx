@@ -17,7 +17,7 @@ import { NameAndExposingInfo } from "./utils/exposingTypes";
 import { checkName } from "./utils/rename";
 import { trans } from "i18n";
 import { UiLayoutType } from "./comps/uiComp";
-import { /* getCollisionStatus,*/ getEditorModeStatus, saveCollisionStatus } from "util/localStorageUtil";
+import { getEditorModeStatus, saveCollisionStatus } from "util/localStorageUtil";
 
 type RootComp = InstanceType<typeof RootCompTmp>;
 
