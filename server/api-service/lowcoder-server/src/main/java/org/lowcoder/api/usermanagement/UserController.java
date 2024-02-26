@@ -156,13 +156,13 @@ public class UserController implements UserEndpoints
     }
 
     @Override
-    public Mono<ResponseView<Boolean>> resetLostPassword(@PathVariable String token, @RequestBody ResetLostPasswordRequest request) {
-        if (StringUtils.isBlank(request.userEmail()) || StringUtils.isBlank(token)
+    public Mono<ResponseView<Boolean>> resetLostPassword(@RequestBody ResetLostPasswordRequest request) {
+        if (StringUtils.isBlank(request.userEmail()) || StringUtils.isBlank(request.token())
                 || StringUtils.isBlank(request.newPassword())) {
             return ofError(BizError.INVALID_PARAMETER, "INVALID_PARAMETER");
         }
 
-        return userApiService.resetLostPassword(request.userEmail(), token, request.newPassword())
+        return userApiService.resetLostPassword(request.userEmail(), request.token(), request.newPassword())
                 .map(ResponseView::success);
     }
 

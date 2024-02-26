@@ -30,7 +30,7 @@ public class EmailCommunicationService {
             mimeMessageHelper.setSubject(subject);
 
             // Construct the message with the token link
-            String resetLink = config.getLowcoderPublicUrl() + "lost-password?token=" + token;
+            String resetLink = config.getLowcoderPublicUrl() + "/lost-password?token=" + token;
             String formattedMessage = String.format(message, to, resetLink);
             mimeMessageHelper.setText(formattedMessage, true); // Set HTML to true to allow links
 

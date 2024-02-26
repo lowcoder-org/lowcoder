@@ -158,7 +158,8 @@ public class OrganizationServiceImpl implements OrganizationService {
                     if (organization == null || StringUtils.isNotBlank(organization.getId())) {
                         return Mono.error(new BizException(BizError.INVALID_PARAMETER, "INVALID_PARAMETER", FieldName.ORGANIZATION));
                     }
-                    organization.getCommonSettings().put(PASSWORD_RESET_EMAIL_TEMPLATE,
+                    organization.setCommonSettings(new OrganizationCommonSettings());
+                    organization.getCommonSettings().put("PASSWORD_RESET_EMAIL_TEMPLATE",
                             PASSWORD_RESET_EMAIL_TEMPLATE_DEFAULT);
                     organization.setState(ACTIVE);
                     return Mono.just(organization);

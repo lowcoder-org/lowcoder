@@ -124,8 +124,8 @@ public interface UserEndpoints
 	@PostMapping("/lost-password")
 	public Mono<ResponseView<Boolean>> lostPassword(@RequestBody LostPasswordRequest request);
 
-	@PostMapping("/lost-password/{token}")
-	public Mono<ResponseView<Boolean>> resetLostPassword(@PathVariable String token, @RequestBody ResetLostPasswordRequest request);
+	@PostMapping("/reset-lost-password")
+	public Mono<ResponseView<Boolean>> resetLostPassword(@RequestBody ResetLostPasswordRequest request);
 
 	@Operation(
 			tags = TAG_USER_PASSWORD_MANAGEMENT,
@@ -160,7 +160,7 @@ public interface UserEndpoints
 	public record LostPasswordRequest(String userEmail) {
 	}
 
-	public record ResetLostPasswordRequest(String userEmail, String newPassword) {
+	public record ResetLostPasswordRequest(String token, String userEmail, String newPassword) {
 	}
 
     public record UpdatePasswordRequest(String oldPassword, String newPassword) {

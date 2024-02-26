@@ -295,15 +295,11 @@ public class UserServiceImpl implements UserService {
         return findByName(userEmail)
                 .flatMap(user -> {
                     if (Instant.now().until(user.getPasswordResetTokenExpiry(), ChronoUnit.MINUTES) <= 0) {
-                        return ofError(BizError.LOGIN_EXPIRED, "TOKEN_EXPIRED");
+                        return ofError(BizError.INVALID_PARAMETER, "TOKEN_EXPIRED");
                     }
 
                     if (!StringUtils.equals(HashUtils.hash(token.getBytes()), user.getPasswordResetToken())) {
-                        return ofError(BizError.INVALID_PASSWORD, "INVALID_TOKEN");
-                    }
-
-                    if (StringUtils.isBlank(newPassword)) {
-                        return ofError(BizError.INVALID_PASSWORD, "PASSWORD_NOT_SET_YET");
+                        return ofError(BizError.INVALID_PARAMETER, "INVALID_TOKEN");
                     }
 
                     user.setPassword(encryptionService.encryptPassword(newPassword));
