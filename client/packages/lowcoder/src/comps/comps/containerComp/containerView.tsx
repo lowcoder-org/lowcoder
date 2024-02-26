@@ -478,7 +478,6 @@ export function InnerGrid(props: ViewPropsWithSelect) {
       layout={props.layout}
       extraLayout={extraLayout}
       onDropDragOver={(e) => {
-        
         const compType = draggingUtils.getData<UICompType>("compType");
         const compLayout = draggingUtils.getData<UICompLayoutInfo>("compLayout");
         if (compType) {

@@ -17,7 +17,7 @@ import { NameAndExposingInfo } from "./utils/exposingTypes";
 import { checkName } from "./utils/rename";
 import { trans } from "i18n";
 import { UiLayoutType } from "./comps/uiComp";
-import { getCollisionStatus, getEditorModeStatus } from "util/localStorageUtil";
+import { getEditorModeStatus, saveCollisionStatus } from "util/localStorageUtil";
 
 type RootComp = InstanceType<typeof RootCompTmp>;
 
@@ -47,7 +47,7 @@ export class EditorState {
   readonly showPropertyPane: boolean = false;
   readonly selectedCompNames: Set<string> = new Set();
   readonly editorModeStatus: string = "";
-  readonly collisionStatus: string = "";
+  readonly collisionStatus: boolean = false;
   readonly isDragging: boolean = false;
   readonly draggingCompType: string = "button";
   readonly forceShowGrid: boolean = false; // show grid lines
@@ -65,12 +65,13 @@ export class EditorState {
     rootComp: RootComp,
     setEditorState: (fn: (editorState: EditorState) => EditorState) => void,
     initialEditorModeStatus: string = getEditorModeStatus(),
-    initialCollisionStatus: string = getCollisionStatus()
   ) {
     this.rootComp = rootComp;
     this.setEditorState = setEditorState;
     this.editorModeStatus = initialEditorModeStatus;
-    this.collisionStatus = initialCollisionStatus;
+
+    // save collision status from app dsl to localstorage
+    saveCollisionStatus(this.getCollisionStatus());
   }
 
   /**
@@ -356,10 +357,6 @@ export class EditorState {
     this.changeState({ editorModeStatus: newEditorModeStatus });
   }
 
-  setCollisionStatus(newCollisionStatus: string) {
-    this.changeState({ collisionStatus: newCollisionStatus });
-  }
-
   setDragging(dragging: boolean) {
     if (this.isDragging === dragging) {
       return;
@@ -513,8 +510,9 @@ export class EditorState {
   getAppType(): UiLayoutType {
     return this.getUIComp().children.compType.getView();
   }
-  getCollisionStatus(): string {
-    return this.collisionStatus;
+  getCollisionStatus(): boolean {
+    const { disableCollision } = this.getAppSettings();
+    return disableCollision ?? false;
   }
   
 }

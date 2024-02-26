@@ -11,6 +11,8 @@ export enum AppTypeEnum {
   NavLayout = 3,
   // 4 folder, 5 mobile
   MobileTabLayout = 6,
+  // WorkflowScreen = 7,
+  // Slide = 8,
 }
 
 export enum ApplicationCategoriesEnum {
@@ -52,6 +54,8 @@ export const AppUILayoutType: Record<AppTypeEnum, UiLayoutType> = {
   [AppTypeEnum.Module]: "module",
   [AppTypeEnum.NavLayout]: "nav",
   [AppTypeEnum.MobileTabLayout]: "mobileTabLayout",
+  // [AppTypeEnum.WorkflowScreen]: "module",
+  // [AppTypeEnum.Slide]: "normal",
 };
 
 export type ApplicationDSLType = "editing" | "published" | "view_marketplace";
@@ -61,6 +65,7 @@ export type ApplicationPermissionType = "USER" | "GROUP" | "ORG_ADMIN";
 export interface ApplicationExtra {
   moduleHeight?: number;
   moduleWidth?: number;
+  layers?: boolean;
 }
 
 export interface ApplicationMeta {
