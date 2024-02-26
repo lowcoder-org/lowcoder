@@ -10,8 +10,19 @@ spring:
     allow-bean-definition-overriding: true
     allow-circular-references: true
   mail:
-    host: smtp.freesmtpservers.com
-    port: 25
+    host: smtp.gmail.com
+    port: 587
+    username: yourmail@gmail.com
+    password: yourpass
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+        transport:
+          protocol: smtp
 
 server:
   compression:
