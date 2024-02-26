@@ -25,7 +25,7 @@ import { useLocation } from "react-use";
 import { TrashTableView } from "./TrashTableView";
 import { HomepageTourV2 } from "../tutorials/HomeTutorialsV2";
 import { HomeCardView } from "./HomeCardView";
-import { getHomeLayout, HomeLayoutType, saveHomeLayout } from "../../util/localStorageUtil";
+import { getHomeLayout, HomeLayoutType, removeCollisionStatus, saveHomeLayout } from "../../util/localStorageUtil";
 import { HomeTableView } from "./HomeTableView";
 import { Layers } from "../../constants/Layers";
 import { CreateDropdown } from "./CreateDropdown";
@@ -287,6 +287,11 @@ export function HomeLayout(props: HomeLayoutProps) {
   );
 
   useEffect(() => saveHomeLayout(layout), [layout]);
+
+  useEffect(() => {
+    // remove collision status from localstorage
+    removeCollisionStatus();
+  }, []);
 
   const currentPath = useLocation().pathname;
 
