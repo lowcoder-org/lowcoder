@@ -1347,6 +1347,7 @@ export const de = {
       "title": "Angezeigter Container-Titel"
   },
   "drawer": {
+      "closePosition": "Platzierung der Verschlusses",
       "placement": "Platzierung der Schubladen",
       "size": "Größe",
       "top": "Top",

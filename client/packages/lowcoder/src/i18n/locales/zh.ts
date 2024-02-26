@@ -1469,6 +1469,7 @@ container: {
     title: "容器标题",
 },
 drawer: {
+    closePosition: "关闭位置",
     placement: "抽屉位置",
     size: "大小",
     top: "顶部",
