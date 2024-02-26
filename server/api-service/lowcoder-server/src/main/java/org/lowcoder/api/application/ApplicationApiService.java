@@ -249,7 +249,8 @@ public class ApplicationApiService {
     }
 
     private Mono<Void> checkApplicationViewRequest(Application application, ApplicationEndpoints.ApplicationRequestType expected) {
-        if (expected == ApplicationEndpoints.ApplicationRequestType.PUBLIC_TO_ALL && application.isPublicToAll()) {
+        // TODO: The check is correct ( logically ) but we need to provide some time for the users to adapt. Will bring it back in the next release
+        if (expected == ApplicationEndpoints.ApplicationRequestType.PUBLIC_TO_ALL /* && application.isPublicToAll() */) {
             return Mono.empty();
         }
         if (expected == ApplicationEndpoints.ApplicationRequestType.PUBLIC_TO_MARKETPLACE && application.isPublicToMarketplace()) {
