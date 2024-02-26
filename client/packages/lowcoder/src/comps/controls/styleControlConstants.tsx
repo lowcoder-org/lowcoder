@@ -350,6 +350,12 @@ const TEXT_WEIGHT = {
   textWeight: "textWeight",
 } as const;
 
+const HOVER_BACKGROUND_COLOR = {
+  name: "hoverBackground",
+  label: trans("style.hoverBackground"),
+  hoverBackground: "hoverBackground"
+}
+
 const FONT_FAMILY = {
   name: "fontFamily",
   label: trans("style.fontFamily"),
@@ -476,7 +482,6 @@ function replaceAndMergeMultipleStyles(originalArray: any[], styleToReplace: str
 }
 
 export const ButtonStyle = [
-  // ...getBgBorderRadiusByBg("primary"),
   getBackground('primary'),
   ...STYLING_FIELDS_SEQUENCE
 ] as const;
@@ -735,23 +740,12 @@ export const SwitchStyle = [
 ] as const;
 
 export const SelectStyle = [
-  // LABEL,
   ...replaceAndMergeMultipleStyles(STYLING_FIELDS_SEQUENCE, 'border', [...getStaticBgBorderRadiusByBg(SURFACE_COLOR, "pc")]),
-
-  // ...getStaticBgBorderRadiusByBg(SURFACE_COLOR, "pc"),
-  // TEXT,
-  // MARGIN,
-  // PADDING,
   ...ACCENT_VALIDATE,
 ] as const;
 
 const multiSelectCommon = [
   ...replaceAndMergeMultipleStyles(STYLING_FIELDS_SEQUENCE, 'border', [...getStaticBgBorderRadiusByBg(SURFACE_COLOR, "pc")]),
-  // LABEL,
-  // ...getStaticBgBorderRadiusByBg(SURFACE_COLOR, "pc"),
-  // TEXT,
-  // MARGIN,
-  // PADDING,
   {
     name: "tags",
     label: trans("style.tags"),
@@ -844,7 +838,6 @@ function checkAndUncheck() {
 }
 
 export const CheckboxStyle = [
-  // LABEL,
   ...replaceAndMergeMultipleStyles(STYLING_FIELDS_SEQUENCE, 'text', [LABEL, STATIC_TEXT, VALIDATE]).filter((style) => style.name !== 'border'),
   ...checkAndUncheck(),
   {
@@ -854,15 +847,10 @@ export const CheckboxStyle = [
     depType: DEP_TYPE.CONTRAST_TEXT,
     transformer: contrastText,
   },
-  // RADIUS,
-  // STATIC_TEXT,
-  // VALIDATE,
-  // MARGIN,
-  // PADDING,
+  HOVER_BACKGROUND_COLOR
 ] as const;
 
 export const RadioStyle = [
-  // LABEL,
   ...replaceAndMergeMultipleStyles(STYLING_FIELDS_SEQUENCE, 'text', [LABEL, STATIC_TEXT, VALIDATE]).filter((style) => style.name !== 'border' && style.name !== 'radius'),
   ...checkAndUncheck(),
   {
@@ -872,10 +860,6 @@ export const RadioStyle = [
     depType: DEP_TYPE.SELF,
     transformer: toSelf,
   },
-  // STATIC_TEXT,
-  // VALIDATE,
-  // MARGIN,
-  // PADDING,
 ] as const;
 
 export const SegmentStyle = [

@@ -51,12 +51,24 @@ export const getStyle = (style: CheckboxStyleType) => {
           border-radius: ${style.radius};
         }
       }
-
+      
       .ant-checkbox-inner {
         border-radius: ${style.radius};
         background-color: ${style.uncheckedBackground};
         border-color: ${style.uncheckedBorder};
         border-width:${!!style.borderWidth ? style.borderWidth : '2px'};
+      }
+    
+      &:hover .ant-checkbox-inner, 
+      .ant-checkbox:hover .ant-checkbox-inner,
+      .ant-checkbox-input + ant-checkbox-inner {
+        background-color:${style.hoverBackground ? style.hoverBackground :'#fff'};
+      }
+
+      &:hover .ant-checkbox-checked .ant-checkbox-inner, 
+      .ant-checkbox:hover .ant-checkbox-inner,
+      .ant-checkbox-input + ant-checkbox-inner {
+        background-color:${style.hoverBackground ? style.hoverBackground:'#ffff'};
       }
 
       &:hover .ant-checkbox-inner,
@@ -66,6 +78,8 @@ export const getStyle = (style: CheckboxStyleType) => {
         border-width:${!!style.borderWidth ? style.borderWidth : '2px'};
       }
     }
+
+    
 
     .ant-checkbox-group-item {
       font-family:${style.fontFamily};

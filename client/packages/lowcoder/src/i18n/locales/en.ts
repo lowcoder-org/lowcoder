@@ -339,6 +339,7 @@ export const en = {
     "tableCellText": "Cell Text",
     "selectedRowBackground": "Selected Row Background",
     "hoverRowBackground": "Hover Row Background",
+    "hoverBackground":"Hover Background",
     "alternateRowBackground": "Alternate Row Background",
     "tableHeaderBackground": "Header Background",
     "tableHeaderText": "Header Text",

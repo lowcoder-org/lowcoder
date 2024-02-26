@@ -324,6 +324,7 @@ export const de = {
       "tableCellText": "Zelle Text",
       "selectedRowBackground": "Ausgewählter Zeilenhintergrund",
       "hoverRowBackground": "Hover Row Hintergrund",
+      "hoverBackground":"Hover-Hintergrund",
       "alternateRowBackground": "Alternativer Reihenhintergrund",
       "tableHeaderBackground": "Kopfzeile Hintergrund",
       "tableHeaderText": "Überschrift Text",

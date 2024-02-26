@@ -330,6 +330,7 @@ style: {
     tableCellText: "单元格文本",
     selectedRowBackground: "选中行背景",
     hoverRowBackground: "悬停行背景",
+    hoverBackground:"悬停背景",
     alternateRowBackground: "交替行背景",
     tableHeaderBackground: "表头背景",
     tableHeaderText: "表头文本",
