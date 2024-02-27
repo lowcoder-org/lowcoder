@@ -5,7 +5,6 @@ import { DraggableEvent } from "react-draggable";
 import { PositionParams } from "./calculateUtils";
 import { draggingUtils } from "./draggingUtils";
 import { GridLayoutProps, ResizeHandleAxis } from "./gridLayoutPropTypes";
-
 import { getCollisionStatus } from "util/localStorageUtil";
 
 export type LayoutItem = {
@@ -172,12 +171,7 @@ export function collides(l1: LayoutItem, l2: LayoutItem): boolean {
   if (l1.y + l1.h <= l2.y) return false; // l1 is above l2
   if (l1.y >= l2.y + l2.h) return false; // l1 is below l2
 
-  if (getCollisionStatus() === "true") {
-    return false;
-  }
-  else {
-    return true; // boxes overlap
-  }
+  return !getCollisionStatus();
 }
 
 /**
