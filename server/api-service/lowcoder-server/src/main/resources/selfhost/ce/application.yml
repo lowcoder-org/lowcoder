@@ -18,6 +18,11 @@ spring:
     max-in-memory-size: 20MB
   webflux:
     context-path: /
+  mail:
+    host: ${LOWCODER_SMTP_HOST:smtp.gmail.com}
+    port: ${LOWCODER_SMTP_PORT:587}
+    username: ${LOWCODER_SMTP_USERNAME:yourmail@gmail.com}
+    password: ${LOWCODER_SMTP_PASSWORD:yourpass}
 
 server:
   compression:
