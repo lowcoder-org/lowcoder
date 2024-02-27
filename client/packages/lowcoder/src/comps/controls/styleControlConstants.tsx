@@ -888,6 +888,7 @@ export const RadioStyle = [
 
 export const SegmentStyle = [
   LABEL,
+  ...STYLING_FIELDS_SEQUENCE.filter((style)=> ['border','borderWidth'].includes(style.name) === false),
   {
     name: "indicatorBackground",
     label: trans("style.indicatorBackground"),
@@ -906,10 +907,7 @@ export const SegmentStyle = [
     depType: DEP_TYPE.CONTRAST_TEXT,
     transformer: contrastText,
   },
-  RADIUS,
   VALIDATE,
-  MARGIN,
-  PADDING,
 ] as const;
 
 const LinkTextStyle = [

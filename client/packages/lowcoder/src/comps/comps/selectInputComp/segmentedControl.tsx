@@ -52,6 +52,14 @@ const getStyle = (style: SegmentStyleType) => {
     .ant-segmented-item-selected {
       border-radius: ${style.radius};
     }
+    &.ant-segmented, .ant-segmented-item-label {
+      font-family:${style.fontFamily};
+      font-style:${style.fontStyle};
+      font-size:${style.textSize};
+      font-weight:${style.textWeight};
+      text-transform:${style.textTransform};
+      text-decoration:${style.textDecoration};
+    }
   `;
 };
 
