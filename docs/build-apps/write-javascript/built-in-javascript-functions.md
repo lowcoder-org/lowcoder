@@ -132,15 +132,15 @@ The id field can be used to update previous toasts. Or used to destroy the previ
 Destroy function used without an id will remove all toast.
 
 ```javascript
-// toast.open( title: string, options?: { message?: string, duration?: number = 3, id?: string, placement?: "top" | "topLeft" | "topRight" | "bottom" | "bottomRight", "bottomRight" = "bottomRight" } )
+// toast.open( title: string, options?: { message?: string, duration?: number = 3, id?: string, placement?: "top" | "topLeft" | "topRight" | "bottom" | "bottomRight", "bottomRight" = "bottomRight", dismissible?: boolean = true } )
 toast.open("This Is a Notification", {message: "I do not go away automatically.", duration: 0})
-// toast.info( title: string, options?: { message?: string, duration?: number = 3, id?: string, placement?: "top" | "topLeft" | "topRight" | "bottom" | "bottomRight", "bottomRight" = "bottomRight" } )
+// toast.info( title: string, options?: { message?: string, duration?: number = 3, id?: string, placement?: "top" | "topLeft" | "topRight" | "bottom" | "bottomRight", "bottomRight" = "bottomRight", dismissible?: boolean = true } )
 toast.info("Order #1519", {message: "Shipped out on Tuesday, Jan 3rd.", duration: 5})
-// toast.success( title: string, options?: { message?: string, duration?: number = 3, id?: string, placement?: "top" | "topLeft" | "topRight" | "bottom" | "bottomRight", "bottomRight" = "bottomRight" } )
+// toast.success( title: string, options?: { message?: string, duration?: number = 3, id?: string, placement?: "top" | "topLeft" | "topRight" | "bottom" | "bottomRight", "bottomRight" = "bottomRight", dismissible?: boolean = true } )
 toast.success("Query runs successfully", { duration: 10 })
-// toast.warn( title: string, options?: { message?: string, duration?: number = 3, id?: string, placement?: "top" | "topLeft" | "topRight" | "bottom" | "bottomRight", "bottomRight" = "bottomRight" } )
+// toast.warn( title: string, options?: { message?: string, duration?: number = 3, id?: string, placement?: "top" | "topLeft" | "topRight" | "bottom" | "bottomRight", "bottomRight" = "bottomRight", dismissible?: boolean = true } )
 toast.warn("Duplicate Action", {message: "The email was previously sent on Jan 3rd. Click the button again to send.", duration: 5})
-// toast.error( title: string, options?: { message?: string, duration?: number = 3, id?: string, placement?: "top" | "topLeft" | "topRight" | "bottom" | "bottomRight", "bottomRight" = "bottomRight" } )
+// toast.error( title: string, options?: { message?: string, duration?: number = 3, id?: string, placement?: "top" | "topLeft" | "topRight" | "bottom" | "bottomRight", "bottomRight" = "bottomRight", dismissible?: boolean = true } )
 toast.error("Your credentials were invalid", {message: "You have 5 tries left", duration: 5})
 //toast.destroy(id?: string)
 toast.destroy()

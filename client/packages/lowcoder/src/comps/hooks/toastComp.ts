@@ -19,17 +19,19 @@ const showNotification = (
   const text = params?.[0] as string;
   const options = params?.[1] as JSONObject;
 
-  const { message , duration, id, placement } = options;
+  const { message , duration, id, placement, dismissible } = options;
 
-  // Convert duration to a number or null, if it's not a valid number, default to null
+  const closeIcon: boolean | undefined = dismissible === true ? undefined : (dismissible === false ? false : undefined);
+
   const durationNumberOrNull: number | null = typeof duration === 'number' ? duration : null;
 
   const notificationArgs: ArgsProps = {
     message: text,
     description: message as React.ReactNode,
     duration: durationNumberOrNull ?? 3,
-    key: id as React.Key, // Ensure id is a valid React.Key
-    placement: placement as NotificationPlacement ?? "bottomRight", // Ensure placement is a valid NotificationPlacement or undefined
+    key: id as React.Key,
+    placement: placement as NotificationPlacement ?? "bottomRight",
+    closeIcon: closeIcon as boolean,
   };
 
   // Use notificationArgs to trigger the notification
