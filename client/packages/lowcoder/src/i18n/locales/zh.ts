@@ -1683,6 +1683,14 @@ utilsComp: {
 },
 messageComp: {
     info: "发送通知",
+    loading: "发送加载通知",
+    success: "发送成功通知",
+    warn: "发送警告通知",
+    error: "发送错误通知",
+},
+toastComp: {
+    info: "发送通知",
+    loading: "发送加载通知",
     success: "发送成功通知",
     warn: "发送警告通知",
     error: "发送错误通知",
