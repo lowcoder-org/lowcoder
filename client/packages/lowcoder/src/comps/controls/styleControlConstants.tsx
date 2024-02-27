@@ -554,6 +554,7 @@ export const MarginStyle = [
 export const ContainerStyle = [
   // ...BG_STATIC_BORDER_RADIUS,
   getStaticBorder(),
+  // ...STYLING_FIELDS_SEQUENCE.filter((style) => style.name !== 'border'),
   RADIUS,
   BORDER_WIDTH,
   MARGIN,
@@ -798,13 +799,14 @@ export const MultiSelectStyle = [
 ] as const;
 
 export const TabContainerStyle = [
-  {
+  // Keep background related properties of container as STYLING_FIELDS_SEQUENCE has rest of the properties
+  ...replaceAndMergeMultipleStyles([...ContainerStyle.filter((style)=> ['border','radius','borderWidth','margin','padding'].includes(style.name) === false),...STYLING_FIELDS_SEQUENCE], 'text', [{
     name: "tabText",
     label: trans("style.tabText"),
     depName: "headerBackground",
     depType: DEP_TYPE.CONTRAST_TEXT,
     transformer: contrastText,
-  },
+  },]),
   {
     name: "accent",
     label: trans("style.tabAccent"),
@@ -812,7 +814,6 @@ export const TabContainerStyle = [
     depType: DEP_TYPE.SELF,
     transformer: toSelf,
   },
-  ...ContainerStyle,
 ] as const;
 
 export const ModalStyle = [
@@ -1102,7 +1103,7 @@ export const ProgressStyle = [
     depTheme: "canvas",
     depType: DEP_TYPE.CONTRAST_TEXT,
     transformer: contrastText,
-  }]).filter((style) => ['border', 'borderWidth','textTransform','textDecoration'].includes(style.name) === false),
+  }]).filter((style) => ['border', 'borderWidth', 'textTransform', 'textDecoration'].includes(style.name) === false),
   TRACK,
   FILL,
   SUCCESS,

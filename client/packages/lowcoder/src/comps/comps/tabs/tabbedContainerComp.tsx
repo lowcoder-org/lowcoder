@@ -111,6 +111,14 @@ const getStyle = (
           }
         }
 
+        .ant-tabs-tab-btn {
+          font-family:${style.fontFamily};
+          font-weight:${style.textWeight};
+          text-transform:${style.textTransform};
+          text-decoration:${style.textDecoration};
+          font-style:${style.fontStyle};
+        }
+
         .ant-tabs-ink-bar {
           background-color: ${style.accent};
         }
