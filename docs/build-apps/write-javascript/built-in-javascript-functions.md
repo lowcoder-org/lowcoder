@@ -127,7 +127,9 @@ message.error("Query runs with error", { duration: 10 })
 
 Use `toast` methods to send a notification, which displays at the top of the screen and lasts for 3 seconds by default. Each of the following five methods supports a unique display style. After 3 toasts they will be stacked.
 
-The id field can be used to update previous toasts.
+The id field can be used to update previous toasts. Or used to destroy the previous toast.
+
+Destroy function used without an id will remove all toast.
 
 ```javascript
 // toast.open( title: string, options?: { message?: string, duration?: number = 3, id?: string, placement?: "top" | "topLeft" | "topRight" | "bottom" | "bottomRight", "bottomRight" = "bottomRight" } )
@@ -140,6 +142,8 @@ toast.success("Query runs successfully", { duration: 10 })
 toast.warn("Duplicate Action", {message: "The email was previously sent on Jan 3rd. Click the button again to send.", duration: 5})
 // toast.error( title: string, options?: { message?: string, duration?: number = 3, id?: string, placement?: "top" | "topLeft" | "topRight" | "bottom" | "bottomRight", "bottomRight" = "bottomRight" } )
 toast.error("Your credentials were invalid", {message: "You have 5 tries left", duration: 5})
+//toast.destroy(id?: string)
+toast.destroy()
 ```
 
 <figure><img src="../../.gitbook/assets/builtin-js-toasts.png" alt=""><figcaption></figcaption></figure>

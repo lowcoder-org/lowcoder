@@ -37,36 +37,27 @@ const showNotification = (
   text && notificationInstance[level](notificationArgs);
 };
 
+const destroy = (
+  params: EvalParamType[]
+) => {
+  // Extract the id from the params
+  const id = params[0] as React.Key;
+  
+  // Call notificationInstance.destroy with the provided id
+  notificationInstance.destroy(id);
+};
+
 //what we would like to expose: title, text, duration, id, btn-obj, onClose, placement
 
 const ToastCompBase = simpleMultiComp({});
 
 export let ToastComp = withExposingConfigs(ToastCompBase, []);
 
-/*
-export declare const NotificationPlacements: readonly ["top", "topLeft", "topRight", "bottom", "bottomLeft", "bottomRight"];
-export type NotificationPlacement = (typeof NotificationPlacements)[number];
-export type IconType = 'success' | 'info' | 'error' | 'warning';
-export interface ArgsProps {
-    message: React.ReactNode;
-    description?: React.ReactNode;
-    btn?: React.ReactNode;
-    key?: React.Key;
-    onClose?: () => void;
-    duration?: number | null;
-    icon?: React.ReactNode;
-    placement?: NotificationPlacement;
-    style?: React.CSSProperties;
-    className?: string;
-    readonly type?: IconType;
-    onClick?: () => void;
-    closeIcon?: React.ReactNode;
-    props?: DivProps;
-    role?: 'alert' | 'status';
-}
-*/
-
 ToastComp = withMethodExposing(ToastComp, [
+  {
+    method: { name: "destroy", description: trans("toastComp.destroy"), params: params },
+    execute: (comp, params) => destroy(params),
+  },
   {
     method: { name: "open", description: trans("toastComp.info"), params: params },
     execute: (comp, params) => {
