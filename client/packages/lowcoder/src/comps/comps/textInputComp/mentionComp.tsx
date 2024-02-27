@@ -62,6 +62,8 @@ const Wrapper = styled.div<{
   .rc-textarea {
     background-color:${(props) => props.$style.background};
     padding:${(props) => props.$style.padding};
+    text-transform:${(props)=>props.$style.textTransform};
+    text-decoration:${(props)=>props.$style.textDecoration};
     margin: 0px 3px 0px 3px !important;
   }
 

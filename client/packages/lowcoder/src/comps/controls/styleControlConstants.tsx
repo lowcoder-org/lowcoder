@@ -74,13 +74,21 @@ export type PaddingConfig = CommonColorConfig & {
   readonly padding: string;
 };
 
+export type TextTransformConfig = CommonColorConfig & {
+  readonly textTransform: string;
+}
+
+export type TextDecorationConfig = CommonColorConfig & {
+  readonly textDecoration: string;
+}
+
 export type DepColorConfig = CommonColorConfig & {
   readonly depName?: string;
   readonly depTheme?: keyof ThemeDetail;
   readonly depType?: DEP_TYPE;
   transformer: (color: string, ...rest: string[]) => string;
 };
-export type SingleColorConfig = SimpleColorConfig | DepColorConfig | RadiusConfig | BorderWidthConfig | BackgroundImageConfig | BackgroundImageRepeatConfig | BackgroundImageSizeConfig | BackgroundImagePositionConfig | BackgroundImageOriginConfig | TextSizeConfig | TextWeightConfig | FontFamilyConfig | FontStyleConfig | MarginConfig | PaddingConfig | ContainerHeaderPaddigConfig | ContainerFooterPaddigConfig | ContainerBodyPaddigConfig | HeaderBackgroundImageConfig | HeaderBackgroundImageRepeatConfig | HeaderBackgroundImageSizeConfig | HeaderBackgroundImagePositionConfig | HeaderBackgroundImageOriginConfig | FooterBackgroundImageConfig | FooterBackgroundImageRepeatConfig | FooterBackgroundImageSizeConfig | FooterBackgroundImagePositionConfig | FooterBackgroundImageOriginConfig;
+export type SingleColorConfig = SimpleColorConfig | DepColorConfig | RadiusConfig | BorderWidthConfig | BackgroundImageConfig | BackgroundImageRepeatConfig | BackgroundImageSizeConfig | BackgroundImagePositionConfig | BackgroundImageOriginConfig | TextSizeConfig | TextWeightConfig | TextTransformConfig | TextDecorationConfig | FontFamilyConfig | FontStyleConfig | MarginConfig | PaddingConfig | ContainerHeaderPaddigConfig | ContainerFooterPaddigConfig | ContainerBodyPaddigConfig | HeaderBackgroundImageConfig | HeaderBackgroundImageRepeatConfig | HeaderBackgroundImageSizeConfig | HeaderBackgroundImagePositionConfig | HeaderBackgroundImageOriginConfig | FooterBackgroundImageConfig | FooterBackgroundImageRepeatConfig | FooterBackgroundImageSizeConfig | FooterBackgroundImagePositionConfig | FooterBackgroundImageOriginConfig;
 
 export const defaultTheme: ThemeDetail = {
   primary: "#3377FF",
@@ -387,6 +395,18 @@ const CONTAINERBODYPADDING = {
   containerbodypadding: "padding",
 } as const;
 
+const TEXT_TRANSFORM = {
+  name: "textTransform",
+  label: trans("style.textTransform"),
+  textTransform: "textTransform"
+}
+
+const TEXT_DECORATION = {
+  name: "textDecoration",
+  label: trans("style.textDecoration"),
+  textDecoration: "textDecoration"
+}
+
 const getStaticBorder = (color: string = SECOND_SURFACE_COLOR) =>
 ({
   name: "border",
@@ -405,6 +425,8 @@ const HEADER_BACKGROUND = {
 const BG_STATIC_BORDER_RADIUS = [getBackground(), getStaticBorder(), RADIUS] as const;
 const STYLING_FIELDS_SEQUENCE = [
   TEXT,
+  TEXT_TRANSFORM,
+  TEXT_DECORATION,
   TEXT_SIZE,
   TEXT_WEIGHT,
   FONT_FAMILY,
@@ -860,6 +882,7 @@ export const RadioStyle = [
     depType: DEP_TYPE.SELF,
     transformer: toSelf,
   },
+  HOVER_BACKGROUND_COLOR
 ] as const;
 
 export const SegmentStyle = [
@@ -1079,7 +1102,7 @@ export const ProgressStyle = [
     depTheme: "canvas",
     depType: DEP_TYPE.CONTRAST_TEXT,
     transformer: contrastText,
-  }]).filter((style) => ['border', 'borderWidth'].includes(style.name) === false),
+  }]).filter((style) => ['border', 'borderWidth','textTransform','textDecoration'].includes(style.name) === false),
   TRACK,
   FILL,
   SUCCESS,

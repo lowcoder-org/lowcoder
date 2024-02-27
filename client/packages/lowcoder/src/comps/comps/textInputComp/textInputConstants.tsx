@@ -230,6 +230,8 @@ export function getStyle(style: InputLikeStyleType) {
       font-weight: ${style.textWeight};
       font-family: ${style.fontFamily};
       font-style:${style.fontStyle};
+      text-transform:${style.textTransform};
+      text-decoration:${style.textDecoration};
       background-color: ${style.background};
       border-color: ${style.border};
 

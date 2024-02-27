@@ -86,6 +86,8 @@ export const getStyle = (style: CheckboxStyleType) => {
       font-size:${style.textSize};
       font-weight:${style.textWeight};
       font-style:${style.fontStyle};
+      text-transform:${style.textTransform};
+      text-decoration:${style.textDecoration};
     }
     .ant-checkbox-wrapper {
       padding: ${style.padding};
