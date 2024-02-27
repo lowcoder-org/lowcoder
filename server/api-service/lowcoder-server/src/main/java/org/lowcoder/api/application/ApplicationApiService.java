@@ -249,7 +249,8 @@ public class ApplicationApiService {
     }
 
     private Mono<Void> checkApplicationViewRequest(Application application, ApplicationEndpoints.ApplicationRequestType expected) {
-        if (expected == ApplicationEndpoints.ApplicationRequestType.PUBLIC_TO_ALL && application.isPublicToAll()) {
+        // TODO: The check is correct ( logically ) but we need to provide some time for the users to adapt. Will bring it back in the next release
+        if (expected == ApplicationEndpoints.ApplicationRequestType.PUBLIC_TO_ALL /* && application.isPublicToAll() */) {
             return Mono.empty();
         }
         if (expected == ApplicationEndpoints.ApplicationRequestType.PUBLIC_TO_MARKETPLACE && application.isPublicToMarketplace()) {
@@ -514,10 +515,11 @@ public class ApplicationApiService {
                 .then(applicationService.setApplicationPublicToAll(applicationId, publicToAll));
     }
 
-    public Mono<Boolean> setApplicationPublicToMarketplace(String applicationId, boolean publicToMarketplace) {
+    public Mono<Boolean> setApplicationPublicToMarketplace(String applicationId, ApplicationEndpoints.ApplicationPublicToMarketplaceRequest request) {
         return checkCurrentUserApplicationPermission(applicationId, ResourceAction.SET_APPLICATIONS_PUBLIC_TO_MARKETPLACE)
                 .then(checkApplicationStatus(applicationId, NORMAL))
-                .then(applicationService.setApplicationPublicToMarketplace(applicationId, publicToMarketplace));
+                .then(applicationService.setApplicationPublicToMarketplace
+                        (applicationId, request.publicToMarketplace(), request.title(), request.category(), request.description(), request.image()));
     }
 
     public Mono<Boolean> setApplicationAsAgencyProfile(String applicationId, boolean agencyProfile) {

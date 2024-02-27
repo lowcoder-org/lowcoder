@@ -68,15 +68,22 @@ export const getStyle = (
     &.ant-select .ant-select-selector,
     &.ant-select-multiple .ant-select-selection-item {
       border-radius: ${style.radius};
+      padding: ${style.padding};	
+      height: auto;	
+    }	
+    .ant-select-selection-search {	
       padding: ${style.padding};
-      height: auto;
+    }	
+    .ant-select-selection-search-input {
+      font-family:${(style as SelectStyleType).fontFamily} !important;
+      font-size:${(style as SelectStyleType).textSize} !important;
+      font-weight:${(style as SelectStyleType).textWeight};
+      color:${(style as SelectStyleType).text} !important;
+      font-style:${(style as SelectStyleType).fontStyle};
     }
-    .ant-select-selection-search {
-      padding: ${style.padding};
-    }
-    .ant-select-selector::after,
-    .ant-select-selection-placeholder,
-    .ant-select-selection-item {
+    .ant-select-selector::after,	
+    .ant-select-selection-placeholder,	
+    .ant-select-selection-item {	
       line-height: 1.5715 !important;
     }
 
@@ -96,6 +103,7 @@ export const getStyle = (
       .ant-select-selector {
         background-color: ${style.background};
         border-color: ${style.border};
+        border-width:${(style as SelectStyleType).borderWidth};
       }
 
       &.ant-select-focused,
@@ -109,18 +117,18 @@ export const getStyle = (
       .ant-select-clear {
         background-color: ${style.background};
         color: ${style.text === "#222222"
-          ? "#8B8FA3"
-          : isDarkColor(style.text)
-            ? lightenColor(style.text, 0.2)
-            : style.text};
+      ? "#8B8FA3"
+      : isDarkColor(style.text)
+        ? lightenColor(style.text, 0.2)
+        : style.text};
       }
 
       .ant-select-clear:hover {
         color: ${style.text === "#222222"
-          ? "#8B8FA3"
-          : isDarkColor(style.text)
-            ? lightenColor(style.text, 0.1)
-            : style.text};
+      ? "#8B8FA3"
+      : isDarkColor(style.text)
+        ? lightenColor(style.text, 0.1)
+        : style.text};
       }
 
       &.ant-select-multiple .ant-select-selection-item {
@@ -168,9 +176,7 @@ const getDropdownStyle = (style: MultiSelectStyleType) => {
   `;
 };
 
-const Select = styled(AntdSelect)<{
-  $style: SelectStyleType & MultiSelectStyleType;
-}>`
+const Select = styled(AntdSelect) <{ $style: SelectStyleType & MultiSelectStyleType }>`
   width: 100%;
 
   ${(props) => props.$style && getStyle(props.$style)}
@@ -249,8 +255,8 @@ export const SelectUIView = (
     onSearch={
       props.showSearch
         ? (value) => {
-            props.dispatch(changeChildAction("inputValue", value, false));
-          }
+          props.dispatch(changeChildAction("inputValue", value, false));
+        }
         : undefined
     }
   >
@@ -262,6 +268,7 @@ export const SelectUIView = (
           label={option.label}
           disabled={option.disabled}
           key={option.value}
+          style={{fontFamily:"Montserrat"}}
         >
           <Wrapper className="option-label">
             {props.options.findIndex((option) => hasIcon(option.prefixIcon)) >

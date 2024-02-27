@@ -367,6 +367,7 @@ export const en = {
     "textSize": "Text Size",
     "textWeight": "Text Weight",
     "fontFamily": "Font Family",
+    "fontStyle":"Font Style",
     "backgroundImage": "BG Image",
     "backgroundImageRepeat": "BG Repeat",
     "backgroundImageSize": "BG Size",
@@ -1499,6 +1500,7 @@ export const en = {
     "title": "Displayed Container Title"
   },
   "drawer": {
+    "closePosition": "Close Button Placement",
     "placement": "Drawer Placement",
     "size": "Size",
     "top": "Top",
@@ -1907,7 +1909,11 @@ export const en = {
     "preloadLibsAddBtn": "Add a Library",
     "saveSuccess": "Saved Successfully",
     "AuthOrgTitle": "Workspace Welcome Screen",
-    "AuthOrgDescrition": "The URL for Your Users to Sign In to the Current Workspace."
+    "AuthOrgDescrition": "The URL for Your Users to Sign In to the Current Workspace.",
+    "APIConsumption": "API Consumption",
+    "APIConsumptionDescription": "Here you can see the API Consumption for All Apps in the Current Workspace.",
+    "overallAPIConsumption": "Overall API Consumption in this Workspace till now",
+    "lastMonthAPIConsumption": "Last Month API Consumption, in this Workspace"
   },
 
 
@@ -2304,10 +2310,14 @@ export const en = {
     "copyLink": "Copy link",
     "appPublicMessage": "Make the app public. Anyone can view.",
     "modulePublicMessage": "Make the module public. Anyone can view.",
+    "marketplaceURL": "https://api-service.lowcoder.cloud",
     "appMarketplaceMessage": "Publish your App on Lowcoder Marketplace. Anyone can view and copy it from there.",
     "moduleMarketplaceMessage": "Publish your Module on Lowcoder Marketplace. Anyone can view and copy it from there.",
     "marketplaceGoodPublishing": "Please make sure your app is well-named and easy to use. Remove any sensitive information before publishing. Also, remove local datasources and replace by static built-in temporary data.",
     "noMarketplaceApps": "No apps yet in the marketplace",
+    "errorMarketplaceApps": "Error while loading Marketplace Apps",
+    "localMarketplaceTitle": "Local Marketplace",
+    "globalMarketplaceTitle": "Lowcoder Marketplace",
     "memberPermissionList": "Member permissions: ",
     "orgName": "{orgName} admins",
     "addMember": "Add members",
@@ -2770,7 +2780,7 @@ export const en = {
     aboutUs: "https://lowcoder.cloud/about",
     changeLog: "https://github.com/lowcoder-org/lowcoder/releases",
     introVideo: "",
-    devNpmPlugin: "https://docs.lowcoder.cloud/lowcoder-extension/develop-data-source-plugins",
+    devNpmPlugin: "https://github.com/lowcoder-org/lowcoder-create-component-plugin",
     devNpmPluginText: "How to develop npm plugin",
     useHost: "https://docs.lowcoder.cloud/setup-and-run/self-hosting/access-local-database-or-api",
     eventHandlerSlowdown: "https://docs.lowcoder.cloud/build-applications/app-interaction/event-handlers",

@@ -47,18 +47,22 @@ export function saveEditorModeStatus(editorModeStatus: EditorModeStatus) {
 }
 //ADDED BY FRED TO SAVE enabledCollision
 export function saveCollisionStatus(
-  collisionStatus: DisabledCollisionStatus
+  collisionStatus: boolean
 ) {
-  localStorage.setItem("disable_collision", collisionStatus);
+  localStorage.setItem("disableCollision", String(collisionStatus));
 }
 
-export const DefaultCollisionStatus: DisabledCollisionStatus = "true";
-export function getCollisionStatus(): DisabledCollisionStatus {
-  const str = localStorage.getItem("disable_collision");
-  if (!str) {
-    return DefaultCollisionStatus;
+// export const DefaultCollisionStatus: DisabledCollisionStatus = "true";
+export function getCollisionStatus(): boolean {
+  const str = localStorage.getItem("disableCollision");
+  if (str === 'true') {
+    return true;
   }
-  return str as DisabledCollisionStatus;
+  return false;
+}
+
+export function removeCollisionStatus() {
+  localStorage.removeItem("disableCollision");
 }
 
 export const DefaultEditorModeStatus: EditorModeStatus = "both";

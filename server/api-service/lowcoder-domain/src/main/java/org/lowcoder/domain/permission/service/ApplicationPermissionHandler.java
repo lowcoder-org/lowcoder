@@ -46,7 +46,7 @@ class ApplicationPermissionHandler extends ResourcePermissionHandler {
         }
 
         Set<String> applicationIds = newHashSet(resourceIds);
-        return Mono.zip(applicationService.getPublicApplicationIds(applicationIds, Boolean.TRUE),
+        return Mono.zip(applicationService.getPublicApplicationIds(applicationIds, Boolean.TRUE, config.getMarketplace().isPrivateMode()),
                         templateSolution.getTemplateApplicationIds(applicationIds))
                 .map(tuple -> {
                     Set<String> publicAppIds = tuple.getT1();
@@ -61,7 +61,7 @@ class ApplicationPermissionHandler extends ResourcePermissionHandler {
             (Collection<String> resourceIds, ResourceAction resourceAction) {
 
         Set<String> applicationIds = newHashSet(resourceIds);
-        return Mono.zip(applicationService.getPublicApplicationIds(applicationIds, Boolean.FALSE),
+        return Mono.zip(applicationService.getPublicApplicationIds(applicationIds, Boolean.FALSE, config.getMarketplace().isPrivateMode()),
                         templateSolution.getTemplateApplicationIds(applicationIds))
                 .map(tuple -> {
                     Set<String> publicAppIds = tuple.getT1();

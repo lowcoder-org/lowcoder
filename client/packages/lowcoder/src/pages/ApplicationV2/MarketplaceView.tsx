@@ -13,54 +13,49 @@ import log from "loglevel";
 
 export function MarketplaceView() {
   const [ marketplaceApps, setMarketplaceApps ] = useState<Array<ApplicationMeta>>([]);
-  const marketplaceType = matchPath<{marketplaceType?: MarketplaceType}>(window.location.pathname, MARKETPLACE_TYPE_URL)?.params
-    .marketplaceType;
-  const isLowcoderMarketplace = marketplaceType === 'lowcoder';
-  const marketplaceBreadcrumbText = !marketplaceType?.length
-    ? trans("home.marketplace")
-    : marketplaceType === 'lowcoder'
-    ? `${trans("home.marketplace")} (Lowcoder)`
-    : `${trans("home.marketplace")} (Local)`;
-
-  const fetchLowcoderMarketplaceApps = () => {
-    const http = axios.create({
-      baseURL: 'https://api-service.lowcoder.cloud',
-      withCredentials: false,
-    });
-    return http.get(`/api/v1/applications/marketplace-apps`);
-  };
-
-  const fetchLocalMarketplaceApps = () => {
-    return ApplicationApi.fetchAllMarketplaceApps()
-  }
+  const [ localMarketplaceApps, setLocalMarketplaceApps ] = useState<Array<ApplicationMeta>>([]);
 
   const fetchMarketplaceApps = async () => {
     try {
       let response: AxiosResponse<GenericApiResponse<ApplicationMeta[]>>;
-      if(isLowcoderMarketplace) {
-        response = await fetchLowcoderMarketplaceApps();
-      } else {
-        response = await fetchLocalMarketplaceApps();
-      }
-
+      const http = axios.create({
+        baseURL: trans("home.marketplaceURL"),
+        withCredentials: false,
+      });
+      response = await http.get(`/api/v1/applications/marketplace-apps`);
       const isValidResponse: boolean = validateResponse(response);
       if (isValidResponse) {
         setMarketplaceApps(response.data.data);
       }
     } catch (error: any) {
-      messageInstance.error(error.message);
-      log.debug("fetch marketplace apps error: ", error);
+      messageInstance.error(trans("home.errorMarketplaceApps"));
+    }
+  }
+
+  const fetchLocalMarketplaceApps = async () => {
+    try {
+      let response: AxiosResponse<GenericApiResponse<ApplicationMeta[]>>;
+      response = await ApplicationApi.fetchAllMarketplaceApps();
+      const isValidResponse: boolean = validateResponse(response);
+      if (isValidResponse) {
+        setLocalMarketplaceApps(response.data.data);
+      }
+    } catch (error: any) {
+      messageInstance.error(trans("home.errorMarketplaceApps"));
     }
   }
 
   useEffect(() => {
     fetchMarketplaceApps();
-  }, [marketplaceType]);
+    fetchLocalMarketplaceApps();
+  }, []);
 
   return (
     <HomeLayout
-      elements={marketplaceApps}
-      breadcrumb={[{ text: marketplaceBreadcrumbText, path: MARKETPLACE_URL }]}
+      elements={[]}
+      localMarketplaceApps={localMarketplaceApps}
+      globalMarketplaceApps={marketplaceApps}
+      breadcrumb={[{ text: trans("home.marketplace"), path: MARKETPLACE_URL }]}
       mode={"marketplace"}
     />
   );

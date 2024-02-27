@@ -332,6 +332,7 @@ export function columnsToAntdFormat(
       status: StatusType;
     }[];
     const title = renderTitle({ title: column.title, editable: column.editable });
+   
     return {
       title: column.showTitle ? title : '',
       titleText: column.title,
@@ -347,6 +348,7 @@ export function columnsToAntdFormat(
         radius: column.radius,
         textSize: column.textSize,
         textWeight: column.textWeight,
+        fontStyle:column.fontStyle,
         fontFamily: column.fontFamily,
         borderWidth: column.borderWidth,
       },
