@@ -345,6 +345,9 @@ export const en = {
     "tableCellText": "Cell Text",
     "selectedRowBackground": "Selected Row Background",
     "hoverRowBackground": "Hover Row Background",
+    "hoverBackground":"Hover Background",
+    "textTransform":"Text Transform",
+    "textDecoration":"Text Decoration",
     "alternateRowBackground": "Alternate Row Background",
     "tableHeaderBackground": "Header Background",
     "tableHeaderText": "Header Text",
@@ -1775,6 +1778,15 @@ export const en = {
   },
   "messageComp": {
     "info": "Send a Notification",
+    "loading": "Send a Loading Notification",
+    "success": "Send a Success Notification",
+    "warn": "Send a Warning Notification",
+    "error": "Send an Error Notification"
+  },
+  "toastComp": {
+    "destroy": "close a Notification",
+    "info": "Send a Notification",
+    "loading": "Send a Loading Notification",
     "success": "Send a Success Notification",
     "warn": "Send a Warning Notification",
     "error": "Send an Error Notification"

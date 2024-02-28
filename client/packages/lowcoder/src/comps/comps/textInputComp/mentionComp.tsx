@@ -58,7 +58,14 @@ import { EditorContext } from "comps/editorState";
 const Wrapper = styled.div<{
   $style: InputLikeStyleType;
 }>`
-  height: 100%;
+  box-sizing:border-box;
+  .rc-textarea {
+    background-color:${(props) => props.$style.background};
+    padding:${(props) => props.$style.padding};
+    text-transform:${(props)=>props.$style.textTransform};
+    text-decoration:${(props)=>props.$style.textDecoration};
+    margin: 0px 3px 0px 3px !important;
+  }
 
   .ant-input-clear-icon {
     opacity: 0.45;
@@ -196,7 +203,7 @@ let MentionTmpComp = (function () {
                 height: "100%",
                 maxHeight: "100%",
                 resize: "none",
-                padding: props.style.padding,
+                // padding: props.style.padding,
                 fontStyle: props.style.fontStyle,
                 fontFamily: props.style.fontFamily,
                 borderWidth: props.style.borderWidth,

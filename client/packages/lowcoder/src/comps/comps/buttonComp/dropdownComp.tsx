@@ -25,8 +25,10 @@ import {
 
 const StyledDropdownButton = styled(DropdownButton)`
   width: 100%;
+  
   .ant-btn-group {
     width: 100%;
+   
   }
 `;
 
@@ -34,6 +36,11 @@ const LeftButtonWrapper = styled.div<{ $buttonStyle: ButtonStyleType }>`
   width: calc(100%);
   ${(props) => `margin: ${props.$buttonStyle.margin};`}
   margin-right: 0;
+  .ant-btn span {
+    ${(props) => `text-decoration: ${props.$buttonStyle.textDecoration};`}
+    ${(props) => `font-family: ${props.$buttonStyle.fontFamily};`}
+  }
+  
   .ant-btn {
     ${(props) => getButtonStyle(props.$buttonStyle)}
     margin: 0 !important;
@@ -41,14 +48,18 @@ const LeftButtonWrapper = styled.div<{ $buttonStyle: ButtonStyleType }>`
     &.ant-btn-default {
       margin: 0 !important;
       ${(props) => `border-radius: ${props.$buttonStyle.radius} 0 0 ${props.$buttonStyle.radius};`}
+      ${(props) => `text-transform: ${props.$buttonStyle.textTransform};`}
+      ${(props) => `font-weight: ${props.$buttonStyle.textWeight};`}
     }
     ${(props) => `background-color: ${props.$buttonStyle.background};`}
     ${(props) => `color: ${props.$buttonStyle.text};`}
     ${(props) => `padding: ${props.$buttonStyle.padding};`}
     ${(props) => `font-size: ${props.$buttonStyle.textSize};`}
     ${(props) => `font-style: ${props.$buttonStyle.fontStyle};`}
+
     width: 100%;
   }
+  
 `;
 
 const RightButtonWrapper = styled.div<{ $buttonStyle: ButtonStyleType }>`

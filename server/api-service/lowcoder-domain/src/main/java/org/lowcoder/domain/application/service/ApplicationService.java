@@ -220,4 +220,8 @@ public class ApplicationService {
 
 
     }
+
+    public Flux<Application> findAll() {
+        return repository.findAll();
+    }
 }

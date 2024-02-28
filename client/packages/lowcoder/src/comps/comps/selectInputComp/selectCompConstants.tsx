@@ -76,6 +76,8 @@ export const getStyle = (
     }	
     .ant-select-selection-search-input {
       font-family:${(style as SelectStyleType).fontFamily} !important;
+      text-transform:${(style as SelectStyleType).textTransform} !important;
+      text-decoration:${(style as SelectStyleType).textDecoration} !important;
       font-size:${(style as SelectStyleType).textSize} !important;
       font-weight:${(style as SelectStyleType).textWeight};
       color:${(style as SelectStyleType).text} !important;
@@ -268,7 +270,6 @@ export const SelectUIView = (
           label={option.label}
           disabled={option.disabled}
           key={option.value}
-          style={{fontFamily:"Montserrat"}}
         >
           <Wrapper className="option-label">
             {props.options.findIndex((option) => hasIcon(option.prefixIcon)) >
