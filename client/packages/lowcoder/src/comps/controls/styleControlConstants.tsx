@@ -798,7 +798,7 @@ export const MultiSelectStyle = [
   ...ACCENT_VALIDATE,
 ] as const;
 
-export const TabContainerStyle:any[] = [
+export const TabContainerStyle = [
   // Keep background related properties of container as STYLING_FIELDS_SEQUENCE has rest of the properties
   ...replaceAndMergeMultipleStyles([...ContainerStyle.filter((style)=> ['border','radius','borderWidth','margin','padding'].includes(style.name) === false),...STYLING_FIELDS_SEQUENCE], 'text', [{
     name: "tabText",
