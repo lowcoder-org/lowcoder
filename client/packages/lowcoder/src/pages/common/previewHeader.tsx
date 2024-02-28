@@ -17,6 +17,9 @@ import { Logo } from "@lowcoder-ee/assets/images";
 import { AppPermissionDialog } from "../../components/PermissionDialog/AppPermissionDialog";
 import { useState } from "react";
 import { getBrandingConfig } from "../../redux/selectors/configSelectors";
+import { HeaderStartDropdown } from "./headerStartDropdown";
+import { useParams } from "react-router";
+import { AppPathParams } from "constants/applicationConstants";
 
 const HeaderFont = styled.div<{ $bgColor: string }>`
   font-weight: 500;
@@ -125,21 +128,31 @@ export function HeaderProfile(props: { user: User }) {
 }
 
 export const PreviewHeader = () => {
+  const params = useParams<AppPathParams>();
   const user = useSelector(getUser);
   const application = useSelector(currentApplication);
   const applicationId = useApplicationId();
   const templateId = useSelector(getTemplateId);
   const brandingConfig = useSelector(getBrandingConfig);
   const [permissionDialogVisible, setPermissionDialogVisible] = useState(false);
+  const isViewMarketplaceMode = params.viewMode === 'view_marketplace';
 
   const headerStart = (
     <>
       <StyledLink onClick={() => history.push(ALL_APPLICATIONS_URL)}>
         <LogoIcon branding={true} />
       </StyledLink>
-      <HeaderFont $bgColor={brandingConfig?.headerColor ?? "#2c2c2c"}>
-        {application && application.name}
-      </HeaderFont>
+      {isViewMarketplaceMode && (
+        <HeaderStartDropdown
+          setEdit={() => { }}
+          isViewMarketplaceMode={isViewMarketplaceMode}
+        />
+      )}
+      {!isViewMarketplaceMode && (
+        <HeaderFont $bgColor={brandingConfig?.headerColor ?? "#2c2c2c"}>
+          {application && application.name}
+        </HeaderFont>
+      )}
     </>
   );
 

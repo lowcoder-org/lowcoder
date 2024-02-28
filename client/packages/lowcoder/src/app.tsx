@@ -14,6 +14,8 @@ import {
   IMPORT_APP_FROM_TEMPLATE_URL,
   INVITE_LANDING_URL,
   isAuthUnRequired,
+  MARKETPLACE_TYPE_URL,
+  MARKETPLACE_URL,
   ORG_AUTH_LOGIN_URL,
   ORG_AUTH_REGISTER_URL,
   QUERY_LIBRARY_URL,
@@ -138,6 +140,7 @@ class AppIndex extends React.Component<AppIndexProps, any> {
                 FOLDER_URL,
                 TRASH_URL,
                 SETTING,
+                MARKETPLACE_URL,
               ]}
               // component={ApplicationListPage}
               component={ApplicationHome}

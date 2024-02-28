@@ -1,4 +1,4 @@
-import { AppViewMode } from "constants/applicationConstants";
+import { AppViewMode, MarketplaceType } from "constants/applicationConstants";
 import { LocationDescriptor } from "history";
 import { UserGuideLocationState } from "pages/tutorials/tutorialsConstant";
 import { DatasourceType } from "@lowcoder-ee/constants/queryConstants";
@@ -21,6 +21,7 @@ export const ORGANIZATION_SETTING_DETAIL = `${ORGANIZATION_SETTING}/:orgId`;
 
 export const ALL_APPLICATIONS_URL = "/apps";
 export const MODULE_APPLICATIONS_URL = "/apps/module";
+export const MARKETPLACE_URL = `/marketplace`;
 export const DATASOURCE_URL = `/datasource`;
 export const DATASOURCE_CREATE_URL = `${DATASOURCE_URL}/new/:datasourceType`;
 export const DATASOURCE_EDIT_URL = `${DATASOURCE_URL}/:datasourceId`;
@@ -42,9 +43,13 @@ export const LDAP_AUTH_LOGIN_URL = `${USER_AUTH_URL}/ldap/login`;
 export const INVITE_LANDING_URL = "/invite/:invitationId";
 export const ORG_AUTH_LOGIN_URL = `/org/:orgId/auth/login`;
 export const ORG_AUTH_REGISTER_URL = `/org/:orgId/auth/register`;
+export const MARKETPLACE_TYPE_URL = `${MARKETPLACE_URL}/:marketplaceType`;
 
 export const APPLICATION_VIEW_URL = (appId: string, viewMode: AppViewMode) =>
   `${ALL_APPLICATIONS_URL}/${appId}/${viewMode}`;
+
+export const MARKETPLACE_URL_BY_TYPE = (type: MarketplaceType) =>
+  `${MARKETPLACE_URL}/${type}`;
 
 export const isAuthUnRequired = (pathname: string): boolean => {
   return (

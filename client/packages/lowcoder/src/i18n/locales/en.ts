@@ -104,7 +104,12 @@ export const en = {
     "components": "Active Components",
     "modals": "in-App Modals",
     "expandTip": "Click to Expand {component}'s Data",
-    "collapseTip": "Click to Collapse {component}'s Data"
+    "collapseTip": "Click to Collapse {component}'s Data",
+    "layers": "Layers",
+    "activatelayers": "Use dynamic Layers",
+    "selectedComponents": "Selected Components...",
+    "displayComponents": "control Display",
+    "lockComponents": "control Position",
   },
 
   // second part
@@ -188,6 +193,7 @@ export const en = {
     "maskClosable": "Click Outside to Close",
     "showMask": "Show Mask",
     "textOverflow": "Text Overflow",
+    "scrollbar" : "Show Scrollbars",
   },
   "autoHeightProp": {
     "auto": "Auto",
@@ -946,7 +952,11 @@ export const en = {
 
     "responsiveLayoutCompName": "Responsive Layout",
     "responsiveLayoutCompDesc": "A layout component designed to adapt and respond to different screen sizes and devices, ensuring a consistent user experience.",
-    "responsiveLayoutCompKeywords": "responsive, layout, adapt, screen size"
+    "responsiveLayoutCompKeywords": "responsive, layout, adapt, screen size",
+
+    "iconCompName": "Icons",
+    "iconCompDesc": "Use various Icons to enhance the visual appeal and user experience of your application.",
+    "iconCompKeywords": "Icons, pictograms, symbols, shapes",
   },
 
 
@@ -1066,7 +1076,11 @@ export const en = {
 
   // ninth part
 
-
+  "iconComp": {
+    "icon": "Icon",
+    "autoSize": "Icon AutoSize",
+    "iconSize": "Icon Size",
+  },
   "numberInput": {
     "formatter": "Format",
     "precision": "Precision",
@@ -1262,6 +1276,7 @@ export const en = {
     "auto": "Auto",
     "fixed": "Fixed",
     "columnType": "Column Type",
+    "dataMapping": "Data Mapping",
     "numberStep": "Step",
     "numberStepTooltip": "The number to which the current value is increased or decreased. It can be an integer or decimal",
     "precision": "Precision",
@@ -1488,6 +1503,7 @@ export const en = {
     "title": "Displayed Container Title"
   },
   "drawer": {
+    "closePosition": "Close Button Placement",
     "placement": "Drawer Placement",
     "size": "Size",
     "top": "Top",
@@ -1896,7 +1912,11 @@ export const en = {
     "preloadLibsAddBtn": "Add a Library",
     "saveSuccess": "Saved Successfully",
     "AuthOrgTitle": "Workspace Welcome Screen",
-    "AuthOrgDescrition": "The URL for Your Users to Sign In to the Current Workspace."
+    "AuthOrgDescrition": "The URL for Your Users to Sign In to the Current Workspace.",
+    "APIConsumption": "API Consumption",
+    "APIConsumptionDescription": "Here you can see the API Consumption for All Apps in the Current Workspace.",
+    "overallAPIConsumption": "Overall API Consumption in this Workspace till now",
+    "lastMonthAPIConsumption": "Last Month API Consumption, in this Workspace"
   },
 
 
@@ -2227,12 +2247,13 @@ export const en = {
     "history": "History"
   },
   "home": {
-    "allApplications": "All Apps",
-    "allModules": "All Modules",
+    "allApplications": "Your Apps",
+    "allModules": "Your Modules",
     "allFolders": "All Folders",
     "modules": "Modules",
     "module": "Module",
     "trash": "Trash",
+    "marketplace": "Marketplace",
     "queryLibrary": "Query Library",
     "datasource": "Data Sources",
     "selectDatasourceType": "Select Data Source Type",
@@ -2292,6 +2313,14 @@ export const en = {
     "copyLink": "Copy link",
     "appPublicMessage": "Make the app public. Anyone can view.",
     "modulePublicMessage": "Make the module public. Anyone can view.",
+    "marketplaceURL": "https://api-service.lowcoder.cloud",
+    "appMarketplaceMessage": "Publish your App on Lowcoder Marketplace. Anyone can view and copy it from there.",
+    "moduleMarketplaceMessage": "Publish your Module on Lowcoder Marketplace. Anyone can view and copy it from there.",
+    "marketplaceGoodPublishing": "Please make sure your app is well-named and easy to use. Remove any sensitive information before publishing. Also, remove local datasources and replace by static built-in temporary data.",
+    "noMarketplaceApps": "No apps yet in the marketplace",
+    "errorMarketplaceApps": "Error while loading Marketplace Apps",
+    "localMarketplaceTitle": "Local Marketplace",
+    "globalMarketplaceTitle": "Lowcoder Marketplace",
     "memberPermissionList": "Member permissions: ",
     "orgName": "{orgName} admins",
     "addMember": "Add members",
@@ -2577,7 +2606,7 @@ export const en = {
     "selectBackground": "Selected Background"
   },
   "componentDocExtra": {
-    table,
+    "table": table,
   },
   "idSource": {
     "title": "OAuth Providers",
@@ -2754,7 +2783,7 @@ export const en = {
     aboutUs: "https://lowcoder.cloud/about",
     changeLog: "https://github.com/lowcoder-org/lowcoder/releases",
     introVideo: "",
-    devNpmPlugin: "https://docs.lowcoder.cloud/lowcoder-extension/develop-data-source-plugins",
+    devNpmPlugin: "https://github.com/lowcoder-org/lowcoder-create-component-plugin",
     devNpmPluginText: "How to develop npm plugin",
     useHost: "https://docs.lowcoder.cloud/setup-and-run/self-hosting/access-local-database-or-api",
     eventHandlerSlowdown: "https://docs.lowcoder.cloud/build-applications/app-interaction/event-handlers",

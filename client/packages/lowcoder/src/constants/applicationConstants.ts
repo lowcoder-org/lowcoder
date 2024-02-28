@@ -11,22 +11,61 @@ export enum AppTypeEnum {
   NavLayout = 3,
   // 4 folder, 5 mobile
   MobileTabLayout = 6,
+  // WorkflowScreen = 7,
+  // Slide = 8,
 }
+
+export enum ApplicationCategoriesEnum {
+  BUSINESS = "Business",
+  DASHBOARD = "Dashboards & Reporting",
+  SLIDES = "Slides & Presentations",
+  WEBSITE = "Website",
+  SHOPPING = "Shopping & Ecommerce",
+  TOOLS = "Tools & Internal Apps",
+  COMMUNICATION = "Communication",
+  PRODUCTIVITY = "Productivity",
+  EDUCATION = "Education",
+  SOCIAL_MEDIA = "Social Media",
+  ENTERTAINMENT = "Entertainment",
+  FINANCE = "Finance",
+  HEALTH_FITNESS = "Health & Fitness",
+  LIFESTYLE = "Lifestyle",
+  NEWS_MAGAZINES = "News & Magazines",
+  PERSONALIZATION = "Personalization",
+  PHOTOGRAPHY = "Photography",
+  SPORTS = "Sports",
+  TRAVEL_LOCAL = "Travel & Local",
+  WEATHER = "Weather",
+  MEDICAL = "Medical",
+  MUSIC_AUDIO = "Music & Audio",
+  AUTO_VEHICLES = "Auto & Vehicles",
+  ART_DESIGN = "Art & Design",
+  BEAUTY = "Beauty",
+  DATING = "Dating",
+  EVENTS = "Events",
+  FOOD_DRINK = "Food & Drink",
+  HOUSE_HOME = "House & Home",
+  PARENTING = "Parenting",
+  MAPS_NAVIGATION = "Maps & Navigation",
+};
 
 export const AppUILayoutType: Record<AppTypeEnum, UiLayoutType> = {
   [AppTypeEnum.Application]: "normal",
   [AppTypeEnum.Module]: "module",
   [AppTypeEnum.NavLayout]: "nav",
   [AppTypeEnum.MobileTabLayout]: "mobileTabLayout",
+  // [AppTypeEnum.WorkflowScreen]: "module",
+  // [AppTypeEnum.Slide]: "normal",
 };
 
-export type ApplicationDSLType = "editing" | "published";
+export type ApplicationDSLType = "editing" | "published" | "view_marketplace";
 export type ApplicationRoleType = "viewer" | "editor" | "owner";
 export type ApplicationPermissionType = "USER" | "GROUP" | "ORG_ADMIN";
 
 export interface ApplicationExtra {
   moduleHeight?: number;
   moduleWidth?: number;
+  layers?: boolean;
 }
 
 export interface ApplicationMeta {
@@ -36,6 +75,12 @@ export interface ApplicationMeta {
   containerSize?: { height: number; width: number };
   createBy: string;
   createAt: number;
+  creatorEmail?: string;
+  title?: string;
+  description?: string;
+  icon?: string;
+  category?: ApplicationCategoriesEnum;
+  showheader?: boolean;
   orgId: string;
   role: ApplicationRoleType;
   extra: ApplicationExtra;
@@ -43,6 +88,7 @@ export interface ApplicationMeta {
   lastViewTime: number;
   folderId: string;
   folder: false;
+  isLocalMarketplace?: boolean;
   applicationStatus: "NORMAL" | "RECYCLED" | "DELETED";
 }
 
@@ -80,9 +126,10 @@ export interface AppPermissionInfo {
   permissions: PermissionItem[];
   invitationCodes: AppInviteInfo[];
   publicToAll: boolean;
+  publicToMarketplace: boolean;
 }
 
-export type AppViewMode = "edit" | "preview" | "view";
+export type AppViewMode = "edit" | "preview" | "view" | "view_marketplace";
 
 export type AppPathParams = {
   viewMode: AppViewMode;
@@ -113,3 +160,5 @@ export type AppSnapshotList = {
   count: number; // total count
   list: AppSnapshot[];
 };
+
+export type MarketplaceType = "local" | "lowcoder";

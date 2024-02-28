@@ -94,7 +94,7 @@ export const ProgressComp = (function () {
           max={100}
           defaultValue={props.value}
           autoFocus
-          bordered={false}
+          variant="borderless"
           controls={{ upIcon: <TablePlusIcon />, downIcon: <TableMinusIcon /> }}
           onChange={(value) => {
             props.onChange(Number(value));

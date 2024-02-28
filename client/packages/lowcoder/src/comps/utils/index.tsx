@@ -84,4 +84,4 @@ export function arrayMove<T>(data: Array<T>, start: number, end: number) {
   return result;
 }
 
-export const hasIcon = (icon: ReactNode) => (icon as ReactElement).props.value;
+export const hasIcon = (icon: ReactNode) => (icon as ReactElement).props?.value;

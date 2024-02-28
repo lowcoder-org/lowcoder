@@ -21,7 +21,7 @@ import {
   withFunction,
   wrapChildAction,
 } from "lowcoder-core";
-import { AlignClose, AlignLeft, AlignRight, IconRadius, BorderWidthIcon, TextSizeIcon, FontFamilyIcon, TextWeigthIcon, ImageCompIcon, controlItem } from "lowcoder-design";
+import { AlignClose, AlignLeft, AlignRight, IconRadius, BorderWidthIcon, TextSizeIcon, FontFamilyIcon, TextWeigthIcon, ImageCompIcon, controlItem, Dropdown, OptionType } from "lowcoder-design";
 import { ColumnTypeComp, ColumnTypeCompMap } from "./columnTypeComp";
 import { ColorControl } from "comps/controls/colorControl";
 import { JSONValue } from "util/jsonTypes";
@@ -190,12 +190,39 @@ export class ColumnComp extends ColumnInitComp {
 
   propertyView(key: string) {
     const columnType = this.children.render.getSelectedComp().getComp().children.compType.getView();
+    const initialColumns = this.children.render.getSelectedComp().getParams()?.initialColumns as OptionType[] || [];
+    const column = this.children.render.getSelectedComp().getComp().toJsonValue();
+    let columnValue = '{{currentCell}}';
+    if (column.comp?.hasOwnProperty('src')) {
+      columnValue = (column.comp as any).src;
+    } else if (column.comp?.hasOwnProperty('text')) {
+      columnValue = (column.comp as any).text;
+    }
+
     return (
       <>
         {this.children.title.propertyView({
           label: trans("table.columnTitle"),
           placeholder: this.children.dataIndex.getView(),
         })}
+        <Dropdown
+          showSearch={true}
+          defaultValue={columnValue}
+          options={initialColumns}
+          label={trans("table.dataMapping")}
+          onChange={(value) => {
+            // Keep the previous text value, some components do not have text, the default value is currentCell
+            const compType = columnType;
+            let comp: Record<string, string> = { text: value};
+            if(columnType === 'image') {
+              comp = { src: value };
+            }
+            this.children.render.dispatchChangeValueAction({
+              compType,
+              comp,
+            } as any);
+          }}
+        />
         {/* FIXME: cast type currently, return type of withContext should be corrected later */}
         {this.children.render.getPropertyView()}
         {this.children.showTitle.propertyView({

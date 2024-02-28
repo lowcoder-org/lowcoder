@@ -30,6 +30,7 @@ export const RadioLayoutOptions = [
 ] as const;
 
 export const RadioChildrenMap = {
+  defaultValue: stringExposingStateControl("value"),
   value: stringExposingStateControl("value"),
   label: LabelControl,
   disabled: BoolCodeControl,
@@ -46,6 +47,9 @@ export const RadioChildrenMap = {
 export const RadioPropertyView = (
   children: RecordConstructorToComp<
     typeof RadioChildrenMap & { hidden: typeof BoolCodeControl } & {
+      defaultValue:
+        | ReturnType<typeof stringExposingStateControl>
+        | ReturnType<typeof arrayStringExposingStateControl>;
       value:
         | ReturnType<typeof stringExposingStateControl>
         | ReturnType<typeof arrayStringExposingStateControl>;
@@ -55,7 +59,7 @@ export const RadioPropertyView = (
   <>
     <Section name={sectionNames.basic}>
       {children.options.propertyView({})}
-      {children.value.propertyView({ label: trans("prop.defaultValue") })}
+      {children.defaultValue.propertyView({ label: trans("prop.defaultValue") })}
     </Section>
 
     {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (

@@ -173,6 +173,7 @@ export class GridCompOperator {
       this.doDelete(editorState, compRecords) &&
       messageInstance.info(trans("gridCompOperator.deleteCompsSuccess", { undoKey }));
     };
+
     if (compNum > 1) {
       CustomModal.confirm({
         title: trans("gridCompOperator.deleteCompsTitle"),

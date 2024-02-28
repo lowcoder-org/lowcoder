@@ -138,6 +138,7 @@ const childrenMap = {
   maxWidth: dropdownInputSimpleControl(OPTIONS, USER_DEFINE, "1920"),
   themeId: valueComp<string>(DEFAULT_THEMEID),
   customShortcuts: CustomShortcutsComp,
+  disableCollision: valueComp<boolean>(false),
 };
 type ChildrenInstance = RecordConstructorToComp<typeof childrenMap> & {
   themeList: ThemeType[];
