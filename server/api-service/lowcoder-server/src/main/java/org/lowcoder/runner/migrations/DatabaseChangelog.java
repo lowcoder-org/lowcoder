@@ -18,6 +18,7 @@ import org.lowcoder.infra.birelation.BiRelation;
 import org.lowcoder.infra.config.model.ServerConfig;
 import org.lowcoder.infra.eventlog.EventLog;
 import org.lowcoder.infra.serverlog.ServerLog;
+import org.lowcoder.runner.migrations.job.AddPtmFieldsJob;
 import org.lowcoder.runner.migrations.job.CompleteAuthType;
 import org.lowcoder.runner.migrations.job.MigrateAuthConfigJob;
 import org.springframework.data.domain.Sort;
@@ -180,6 +181,11 @@ public class DatabaseChangelog {
         ensureIndexes(mongoTemplate, ServerLog.class,
                 makeIndex("orgId")
         );
+    }
+
+    @ChangeSet(order = "020", id = "add-ptm-fields-to-applications", author = "")
+    public void addPtmFieldsToApplicatgions(AddPtmFieldsJob addPtmFieldsJob) {
+        addPtmFieldsJob.migrateApplicationsToInitPtmFields();
     }
 
     public static Index makeIndex(String... fields) {

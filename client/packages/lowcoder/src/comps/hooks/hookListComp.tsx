@@ -19,6 +19,7 @@ const defaultHookListValue = [
   { compType: "lodashJsLib", name: "_" },
   { compType: "utils", name: "utils" },
   { compType: "message", name: "message" },
+  { compType: "toast", name: "toast" },
   { compType: "localStorage", name: "localStorage" },
   { compType: "currentUser", name: "currentUser" },
   { compType: "screenInfo", name: "screenInfo" },
