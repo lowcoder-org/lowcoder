@@ -30,6 +30,8 @@ const StyledDivider = styled(Divider) <IProps>`
     font-size: ${(props) => props.$style.textSize};
     font-weight: ${(props) => props.$style.textWeight};
     font-family: ${(props) => props.$style.fontFamily};
+    text-transform:${(props)=>props.$style.textTransform};
+    text-decoration:${(props)=>props.$style.textDecoration};
     font-style:${(props) => props.$style.fontStyle}
   }
   min-width: 0;	

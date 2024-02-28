@@ -52,6 +52,8 @@ const Item = styled.div<{
   $textSize: string;
   $margin: string;
   $padding: string;
+  $textTransform:string;
+  $textDecoration:string;
 }>`
   height: 30px;
   line-height: 30px;
@@ -61,6 +63,8 @@ const Item = styled.div<{
   font-family:${(props) => (props.$fontFamily ? props.$fontFamily : 'sans-serif')};
   font-style:${(props) => (props.$fontStyle ? props.$fontStyle : 'normal')};
   font-size:${(props) => (props.$textSize ? props.$textSize : '14px')};
+  text-transform:${(props) => (props.$textTransform ? props.$textTransform : '')};
+  text-decoration:${(props) => (props.$textDecoration ? props.$textDecoration : '')};
   margin:${(props) => props.$margin ? props.$margin : '0px'};
   
   &:hover {
@@ -161,6 +165,8 @@ const NavCompBase = new UICompBuilder(childrenMap, (props) => {
             $textWeight={props.style.textWeight}
             $textSize={props.style.textSize}
             $padding={props.style.padding}
+            $textTransform={props.style.textTransform}
+            $textDecoration={props.style.textDecoration}
             $margin={props.style.margin}
             onClick={() => onEvent("click")}
           >

@@ -30,6 +30,8 @@ const getStyle = (style: TextStyleType) => {
     font-weight: ${style.textWeight} !important;
     font-family: ${style.fontFamily} !important;
     font-style:${style.fontStyle} !important;
+    text-transform:${style.textTransform} !important;
+    text-decoration:${style.textDecoration} !important;
     background-color: ${style.background};
     .markdown-body a {
       color: ${style.links};
@@ -146,7 +148,6 @@ let TextTmpComp = (function () {
     .setPropertyViewFn((children) => {
       return (
         <>
-
           <Section name={sectionNames.basic}>
             {children.type.propertyView({
               label: trans("value"),
