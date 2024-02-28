@@ -66,10 +66,6 @@ public class ApplicationService {
             return Mono.error(new BizException(BizError.INVALID_PARAMETER, "INVALID_PARAMETER", FieldName.ID));
         }
 
-        log.info("inside mongoUpsertHelper ");
-
-        log.info("application: " + application);
-
         return mongoUpsertHelper.updateById(application, applicationId);
     }
 
