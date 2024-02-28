@@ -1778,6 +1778,15 @@ export const en = {
   },
   "messageComp": {
     "info": "Send a Notification",
+    "loading": "Send a Loading Notification",
+    "success": "Send a Success Notification",
+    "warn": "Send a Warning Notification",
+    "error": "Send an Error Notification"
+  },
+  "toastComp": {
+    "destroy": "close a Notification",
+    "info": "Send a Notification",
+    "loading": "Send a Loading Notification",
     "success": "Send a Success Notification",
     "warn": "Send a Warning Notification",
     "error": "Send an Error Notification"

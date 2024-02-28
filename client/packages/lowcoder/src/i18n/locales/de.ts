@@ -1615,10 +1615,18 @@ export const de = {
   },
   "messageComp": {
       "info": "Eine Benachrichtigung senden",
+      "loading": "Ladebestätigung senden",
       "success": "Erfolgsbenachrichtigung senden",
       "warn": "Eine Warnmeldung senden",
       "error": "Eine Fehlerbenachrichtigung senden"
   },
+  "tostComp": {
+    "info": "Eine Benachrichtigung senden",
+    "loading": "Ladebestätigung senden",
+    "success": "Erfolgsbenachrichtigung senden",
+    "warn": "Eine Warnmeldung senden",
+    "error": "Eine Fehlerbenachrichtigung senden"
+},
   "themeComp": {
       "switchTo": "Thema wechseln"
   },
