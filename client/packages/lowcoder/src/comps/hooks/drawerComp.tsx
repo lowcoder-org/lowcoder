@@ -35,6 +35,35 @@ const DrawerWrapper = styled.div`
   pointer-events: auto;
 `;
 
+const ButtonStyle = styled(Button)<{$closePosition?: string}>`
+  position: absolute;
+  ${(props) => props.$closePosition === "right" ? "right: 0;" : "left: 0;"}
+  top: 0;
+  z-index: 10;
+  font-weight: 700;
+  box-shadow: none;
+  color: rgba(0, 0, 0, 0.45);
+  height: 54px;
+  width: 54px;
+
+  svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  &,
+  :hover,
+  :focus {
+    background-color: transparent;
+    border: none;
+  }
+
+  :hover,
+  :focus {
+    color: rgba(0, 0, 0, 0.75);
+  }
+`;
+
 // If it is a number, use the px unit by default
 function transToPxSize(size: string | number) {
   return isNumeric(size) ? size + "px" : (size as string);
@@ -103,34 +132,6 @@ let TmpDrawerComp = (function () {
         },
         [dispatch, isTopBom]
       );
-      const ButtonStyle = styled(Button)`
-        position: absolute;
-        ${props.closePosition === "right" ? "right: 0;" : "left: 0;"}
-        top: 0;
-        z-index: 10;
-        font-weight: 700;
-        box-shadow: none;
-        color: rgba(0, 0, 0, 0.45);
-        height: 54px;
-        width: 54px;
-
-        svg {
-          width: 16px;
-          height: 16px;
-        }
-
-        &,
-        :hover,
-        :focus {
-          background-color: transparent;
-          border: none;
-        }
-
-        :hover,
-        :focus {
-          color: rgba(0, 0, 0, 0.75);
-        }
-      `;
       return (
         <BackgroundColorContext.Provider value={props.style.background}>
           <DrawerWrapper>
@@ -168,6 +169,7 @@ let TmpDrawerComp = (function () {
               mask={props.showMask}
             >
               <ButtonStyle
+                $closePosition={props.closePosition}
                 onClick={() => {
                   props.visible.onChange(false);
                 }}

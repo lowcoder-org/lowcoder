@@ -148,6 +148,6 @@ export const CollapseWrapper = styled.div<{ $clientX?: number }>`
     display: none;
   }
   .simplebar-content > div {
-    padding: 0;
+    // padding: 0;
   }
 `;
