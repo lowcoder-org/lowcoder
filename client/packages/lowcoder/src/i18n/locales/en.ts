@@ -2033,7 +2033,10 @@ export const en = {
     "maxWidthTip": "Max Width Should Be Greater Than or Equal to 350",
     "themeSetting": "Applied Style Theme",
     "themeSettingDefault": "Default",
-    "themeCreate": "Create Theme"
+    "themeCreate": "Create Theme",
+    "appTitle": "Title",
+    "appDescription": "Description",
+    "appCategory": "Category",
   },
   "customShortcut": {
     "title": "Custom Shortcuts",

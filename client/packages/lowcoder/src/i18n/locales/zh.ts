@@ -1922,6 +1922,9 @@ appSetting: {
     themeSetting: "主题设置",
     themeSettingDefault: "默认",
     themeCreate: "创建主题",
+    appTitle: "标题",
+    appDescription: "描述",
+    appCategory: "类别",
 },
 customShortcut: {
     title: "自定义快捷键",
