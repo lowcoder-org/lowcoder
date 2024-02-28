@@ -74,13 +74,21 @@ export type PaddingConfig = CommonColorConfig & {
   readonly padding: string;
 };
 
+export type TextTransformConfig = CommonColorConfig & {
+  readonly textTransform: string;
+}
+
+export type TextDecorationConfig = CommonColorConfig & {
+  readonly textDecoration: string;
+}
+
 export type DepColorConfig = CommonColorConfig & {
   readonly depName?: string;
   readonly depTheme?: keyof ThemeDetail;
   readonly depType?: DEP_TYPE;
   transformer: (color: string, ...rest: string[]) => string;
 };
-export type SingleColorConfig = SimpleColorConfig | DepColorConfig | RadiusConfig | BorderWidthConfig | BackgroundImageConfig | BackgroundImageRepeatConfig | BackgroundImageSizeConfig | BackgroundImagePositionConfig | BackgroundImageOriginConfig | TextSizeConfig | TextWeightConfig | FontFamilyConfig | FontStyleConfig | MarginConfig | PaddingConfig | ContainerHeaderPaddigConfig | ContainerFooterPaddigConfig | ContainerBodyPaddigConfig | HeaderBackgroundImageConfig | HeaderBackgroundImageRepeatConfig | HeaderBackgroundImageSizeConfig | HeaderBackgroundImagePositionConfig | HeaderBackgroundImageOriginConfig | FooterBackgroundImageConfig | FooterBackgroundImageRepeatConfig | FooterBackgroundImageSizeConfig | FooterBackgroundImagePositionConfig | FooterBackgroundImageOriginConfig;
+export type SingleColorConfig = SimpleColorConfig | DepColorConfig | RadiusConfig | BorderWidthConfig | BackgroundImageConfig | BackgroundImageRepeatConfig | BackgroundImageSizeConfig | BackgroundImagePositionConfig | BackgroundImageOriginConfig | TextSizeConfig | TextWeightConfig | TextTransformConfig | TextDecorationConfig | FontFamilyConfig | FontStyleConfig | MarginConfig | PaddingConfig | ContainerHeaderPaddigConfig | ContainerFooterPaddigConfig | ContainerBodyPaddigConfig | HeaderBackgroundImageConfig | HeaderBackgroundImageRepeatConfig | HeaderBackgroundImageSizeConfig | HeaderBackgroundImagePositionConfig | HeaderBackgroundImageOriginConfig | FooterBackgroundImageConfig | FooterBackgroundImageRepeatConfig | FooterBackgroundImageSizeConfig | FooterBackgroundImagePositionConfig | FooterBackgroundImageOriginConfig;
 
 export const defaultTheme: ThemeDetail = {
   primary: "#3377FF",
@@ -350,6 +358,12 @@ const TEXT_WEIGHT = {
   textWeight: "textWeight",
 } as const;
 
+const HOVER_BACKGROUND_COLOR = {
+  name: "hoverBackground",
+  label: trans("style.hoverBackground"),
+  hoverBackground: "hoverBackground"
+}
+
 const FONT_FAMILY = {
   name: "fontFamily",
   label: trans("style.fontFamily"),
@@ -381,6 +395,18 @@ const CONTAINERBODYPADDING = {
   containerbodypadding: "padding",
 } as const;
 
+const TEXT_TRANSFORM = {
+  name: "textTransform",
+  label: trans("style.textTransform"),
+  textTransform: "textTransform"
+}
+
+const TEXT_DECORATION = {
+  name: "textDecoration",
+  label: trans("style.textDecoration"),
+  textDecoration: "textDecoration"
+}
+
 const getStaticBorder = (color: string = SECOND_SURFACE_COLOR) =>
 ({
   name: "border",
@@ -399,6 +425,8 @@ const HEADER_BACKGROUND = {
 const BG_STATIC_BORDER_RADIUS = [getBackground(), getStaticBorder(), RADIUS] as const;
 const STYLING_FIELDS_SEQUENCE = [
   TEXT,
+  TEXT_TRANSFORM,
+  TEXT_DECORATION,
   TEXT_SIZE,
   TEXT_WEIGHT,
   FONT_FAMILY,
@@ -476,7 +504,6 @@ function replaceAndMergeMultipleStyles(originalArray: any[], styleToReplace: str
 }
 
 export const ButtonStyle = [
-  // ...getBgBorderRadiusByBg("primary"),
   getBackground('primary'),
   ...STYLING_FIELDS_SEQUENCE
 ] as const;
@@ -527,6 +554,7 @@ export const MarginStyle = [
 export const ContainerStyle = [
   // ...BG_STATIC_BORDER_RADIUS,
   getStaticBorder(),
+  // ...STYLING_FIELDS_SEQUENCE.filter((style) => style.name !== 'border'),
   getBackground(),
   RADIUS,
   BORDER_WIDTH,
@@ -729,23 +757,12 @@ export const SwitchStyle = [
 ] as const;
 
 export const SelectStyle = [
-  // LABEL,
   ...replaceAndMergeMultipleStyles(STYLING_FIELDS_SEQUENCE, 'border', [...getStaticBgBorderRadiusByBg(SURFACE_COLOR, "pc")]),
-
-  // ...getStaticBgBorderRadiusByBg(SURFACE_COLOR, "pc"),
-  // TEXT,
-  // MARGIN,
-  // PADDING,
   ...ACCENT_VALIDATE,
 ] as const;
 
 const multiSelectCommon = [
   ...replaceAndMergeMultipleStyles(STYLING_FIELDS_SEQUENCE, 'border', [...getStaticBgBorderRadiusByBg(SURFACE_COLOR, "pc")]),
-  // LABEL,
-  // ...getStaticBgBorderRadiusByBg(SURFACE_COLOR, "pc"),
-  // TEXT,
-  // MARGIN,
-  // PADDING,
   {
     name: "tags",
     label: trans("style.tags"),
@@ -776,13 +793,14 @@ export const MultiSelectStyle = [
 ] as const;
 
 export const TabContainerStyle = [
-  {
+  // Keep background related properties of container as STYLING_FIELDS_SEQUENCE has rest of the properties
+  ...replaceAndMergeMultipleStyles([...ContainerStyle.filter((style)=> ['border','radius','borderWidth','margin','padding'].includes(style.name) === false),...STYLING_FIELDS_SEQUENCE], 'text', [{
     name: "tabText",
     label: trans("style.tabText"),
     depName: "headerBackground",
     depType: DEP_TYPE.CONTRAST_TEXT,
     transformer: contrastText,
-  },
+  },]),
   {
     name: "accent",
     label: trans("style.tabAccent"),
@@ -790,7 +808,6 @@ export const TabContainerStyle = [
     depType: DEP_TYPE.SELF,
     transformer: toSelf,
   },
-  ...ContainerStyle,
 ] as const;
 
 export const ModalStyle = [
@@ -838,7 +855,6 @@ function checkAndUncheck() {
 }
 
 export const CheckboxStyle = [
-  // LABEL,
   ...replaceAndMergeMultipleStyles(STYLING_FIELDS_SEQUENCE, 'text', [LABEL, STATIC_TEXT, VALIDATE]).filter((style) => style.name !== 'border'),
   ...checkAndUncheck(),
   {
@@ -848,15 +864,10 @@ export const CheckboxStyle = [
     depType: DEP_TYPE.CONTRAST_TEXT,
     transformer: contrastText,
   },
-  // RADIUS,
-  // STATIC_TEXT,
-  // VALIDATE,
-  // MARGIN,
-  // PADDING,
+  HOVER_BACKGROUND_COLOR
 ] as const;
 
 export const RadioStyle = [
-  // LABEL,
   ...replaceAndMergeMultipleStyles(STYLING_FIELDS_SEQUENCE, 'text', [LABEL, STATIC_TEXT, VALIDATE]).filter((style) => style.name !== 'border' && style.name !== 'radius'),
   ...checkAndUncheck(),
   {
@@ -866,14 +877,12 @@ export const RadioStyle = [
     depType: DEP_TYPE.SELF,
     transformer: toSelf,
   },
-  // STATIC_TEXT,
-  // VALIDATE,
-  // MARGIN,
-  // PADDING,
+  HOVER_BACKGROUND_COLOR
 ] as const;
 
 export const SegmentStyle = [
   LABEL,
+  ...STYLING_FIELDS_SEQUENCE.filter((style)=> ['border','borderWidth'].includes(style.name) === false),
   {
     name: "indicatorBackground",
     label: trans("style.indicatorBackground"),
@@ -892,10 +901,7 @@ export const SegmentStyle = [
     depType: DEP_TYPE.CONTRAST_TEXT,
     transformer: contrastText,
   },
-  RADIUS,
   VALIDATE,
-  MARGIN,
-  PADDING,
 ] as const;
 
 const LinkTextStyle = [
@@ -1089,7 +1095,7 @@ export const ProgressStyle = [
     depTheme: "canvas",
     depType: DEP_TYPE.CONTRAST_TEXT,
     transformer: contrastText,
-  }]).filter((style) => ['border', 'borderWidth'].includes(style.name) === false),
+  }]).filter((style) => ['border', 'borderWidth', 'textTransform', 'textDecoration'].includes(style.name) === false),
   TRACK,
   FILL,
   SUCCESS,
