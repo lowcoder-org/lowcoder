@@ -16,6 +16,7 @@ export enum AppTypeEnum {
 }
 
 export enum ApplicationCategoriesEnum {
+  SUPPORT = "Support",
   BUSINESS = "Business",
   DASHBOARD = "Dashboards & Reporting",
   SLIDES = "Slides & Presentations",
