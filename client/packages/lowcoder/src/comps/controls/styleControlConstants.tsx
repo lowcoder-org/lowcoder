@@ -55,6 +55,10 @@ export type FontStyleConfig = CommonColorConfig & {
   readonly fontStyle: string;
 }
 
+export type borderStyleConfig = CommonColorConfig & {
+  readonly borderStyle: string;
+}
+
 export type ContainerHeaderPaddigConfig = CommonColorConfig & {
   readonly containerheaderpadding: string;
 };
@@ -88,7 +92,7 @@ export type DepColorConfig = CommonColorConfig & {
   readonly depType?: DEP_TYPE;
   transformer: (color: string, ...rest: string[]) => string;
 };
-export type SingleColorConfig = SimpleColorConfig | DepColorConfig | RadiusConfig | BorderWidthConfig | BackgroundImageConfig | BackgroundImageRepeatConfig | BackgroundImageSizeConfig | BackgroundImagePositionConfig | BackgroundImageOriginConfig | TextSizeConfig | TextWeightConfig | TextTransformConfig | TextDecorationConfig | FontFamilyConfig | FontStyleConfig | MarginConfig | PaddingConfig | ContainerHeaderPaddigConfig | ContainerFooterPaddigConfig | ContainerBodyPaddigConfig | HeaderBackgroundImageConfig | HeaderBackgroundImageRepeatConfig | HeaderBackgroundImageSizeConfig | HeaderBackgroundImagePositionConfig | HeaderBackgroundImageOriginConfig | FooterBackgroundImageConfig | FooterBackgroundImageRepeatConfig | FooterBackgroundImageSizeConfig | FooterBackgroundImagePositionConfig | FooterBackgroundImageOriginConfig;
+export type SingleColorConfig = SimpleColorConfig | DepColorConfig | RadiusConfig | BorderWidthConfig | borderStyleConfig | BackgroundImageConfig | BackgroundImageRepeatConfig | BackgroundImageSizeConfig | BackgroundImagePositionConfig | BackgroundImageOriginConfig | TextSizeConfig | TextWeightConfig | TextTransformConfig | TextDecorationConfig | FontFamilyConfig | FontStyleConfig | MarginConfig | PaddingConfig | ContainerHeaderPaddigConfig | ContainerFooterPaddigConfig | ContainerBodyPaddigConfig | HeaderBackgroundImageConfig | HeaderBackgroundImageRepeatConfig | HeaderBackgroundImageSizeConfig | HeaderBackgroundImagePositionConfig | HeaderBackgroundImageOriginConfig | FooterBackgroundImageConfig | FooterBackgroundImageRepeatConfig | FooterBackgroundImageSizeConfig | FooterBackgroundImagePositionConfig | FooterBackgroundImageOriginConfig;
 
 export const defaultTheme: ThemeDetail = {
   primary: "#3377FF",
@@ -399,13 +403,19 @@ const TEXT_TRANSFORM = {
   name: "textTransform",
   label: trans("style.textTransform"),
   textTransform: "textTransform"
-}
+} as const;
 
 const TEXT_DECORATION = {
   name: "textDecoration",
   label: trans("style.textDecoration"),
   textDecoration: "textDecoration"
-}
+} as const;
+
+const BORDER_STYLE = {
+  name: "borderStyle",
+  label: trans("style.borderStyle"),
+  borderStyle: "borderStyle"
+} as const;
 
 const getStaticBorder = (color: string = SECOND_SURFACE_COLOR) =>
 ({
@@ -432,6 +442,7 @@ const STYLING_FIELDS_SEQUENCE = [
   FONT_FAMILY,
   FONT_STYLE,
   BORDER,
+  BORDER_STYLE,
   MARGIN,
   PADDING,
   RADIUS,
@@ -716,11 +727,15 @@ export const SliderStyle = [
 ] as const;
 
 export const InputLikeStyle = [
-  LABEL,
+  // LABEL,
   getStaticBackground(SURFACE_COLOR),
   ...STYLING_FIELDS_SEQUENCE,
   ...ACCENT_VALIDATE,
 ] as const;
+
+export const LabelStyle = [
+  ...replaceAndMergeMultipleStyles([...InputLikeStyle], 'text', [LABEL]).filter((style) => style.name !== 'radius')
+]
 
 export const RatingStyle = [
   LABEL,
@@ -800,7 +815,7 @@ export const MultiSelectStyle = [
 
 export const TabContainerStyle = [
   // Keep background related properties of container as STYLING_FIELDS_SEQUENCE has rest of the properties
-  ...replaceAndMergeMultipleStyles([...ContainerStyle.filter((style)=> ['border','radius','borderWidth','margin','padding'].includes(style.name) === false),...STYLING_FIELDS_SEQUENCE], 'text', [{
+  ...replaceAndMergeMultipleStyles([...ContainerStyle.filter((style) => ['border', 'radius', 'borderWidth', 'margin', 'padding'].includes(style.name) === false), ...STYLING_FIELDS_SEQUENCE], 'text', [{
     name: "tabText",
     label: trans("style.tabText"),
     depName: "headerBackground",
@@ -888,7 +903,7 @@ export const RadioStyle = [
 
 export const SegmentStyle = [
   LABEL,
-  ...STYLING_FIELDS_SEQUENCE.filter((style)=> ['border','borderWidth'].includes(style.name) === false),
+  ...STYLING_FIELDS_SEQUENCE.filter((style) => ['border', 'borderWidth'].includes(style.name) === false),
   {
     name: "indicatorBackground",
     label: trans("style.indicatorBackground"),
@@ -1361,6 +1376,7 @@ export const RichTextEditorStyle = [
   BORDER_WIDTH
 ] as const;
 
+export type LabelStyleType = StyleConfigType<typeof LabelStyle>;
 export type InputLikeStyleType = StyleConfigType<typeof InputLikeStyle>;
 export type ButtonStyleType = StyleConfigType<typeof ButtonStyle>;
 export type ToggleButtonStyleType = StyleConfigType<typeof ToggleButtonStyle>;

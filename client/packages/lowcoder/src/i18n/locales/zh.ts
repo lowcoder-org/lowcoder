@@ -307,6 +307,7 @@ style: {
     border: "边框颜色",
     borderRadius: "边框半径",
     borderWidth: "边框宽度",
+    borderStyle:"边框样式",
     background: "背景",
     headerBackground: "头部背景",
     footerBackground: "底部背景",

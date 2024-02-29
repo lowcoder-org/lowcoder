@@ -550,6 +550,7 @@ export function styleControl<T extends readonly SingleColorConfig[]>(colorConfig
       name === "textTransform" ||
       name === "textDecoration" ||
       name === "fontFamily" ||
+      name === "borderStyle" ||
       name === "fontStyle" ||
       name === "backgroundImage" ||
       name === "backgroundImageRepeat" ||
@@ -688,6 +689,13 @@ export function styleControl<T extends readonly SingleColorConfig[]>(colorConfig
                           label: config.label,
                           preInputNode: <BorderIcon title="Border-Width" />,
                           placeholder: props[name],
+                        }): name === "borderStyle"
+                        ? (
+                          children[name] as InstanceType<typeof StringControl>
+                        ).propertyView({
+                          label: config.label,
+                          preInputNode: <BorderIcon title="Border-Style" />,
+                          placeholder: props[name],
                         })
                         : name === "margin"
                           ? (
@@ -730,6 +738,20 @@ export function styleControl<T extends readonly SingleColorConfig[]>(colorConfig
                                   ).propertyView({
                                     label: config.label,
                                     preInputNode: <StyledFontFamilyIcon title="Font Family" />,
+                                    placeholder: props[name],
+                                  }): name === "textDecoration"
+                                  ? (
+                                    children[name] as InstanceType<typeof StringControl>
+                                  ).propertyView({
+                                    label: config.label,
+                                    preInputNode: <StyledFontFamilyIcon title="Text Decoration" />,
+                                    placeholder: props[name],
+                                  }): name === "textTransform"
+                                  ? (
+                                    children[name] as InstanceType<typeof StringControl>
+                                  ).propertyView({
+                                    label: config.label,
+                                    preInputNode: <StyledFontFamilyIcon title="Text Transform" />,
                                     placeholder: props[name],
                                   })
                                   : name === "fontStyle"

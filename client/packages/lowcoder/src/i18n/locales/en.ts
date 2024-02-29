@@ -316,6 +316,7 @@ export const en = {
     "border": "Border Color",
     "borderRadius": "Border Radius",
     "borderWidth": "Border Width",
+    "borderStyle":"Border Style",
     "background": "Background",
     "headerBackground": "Header Background",
     "footerBackground": "Footer Background",
