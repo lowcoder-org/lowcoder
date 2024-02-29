@@ -152,13 +152,19 @@ public class ApplicationService {
         return mongoUpsertHelper.updateById(application, applicationId);
     }
 
-    public Mono<Boolean> setApplicationPublicToMarketplace(String applicationId, Boolean publicToMarketplace,
-                                                           String title, String category, String description, String image) {
+    // Falk: String title, String category, String description, String image will be set in Application Settings inside DSL by Frontend
+    public Mono<Boolean> setApplicationPublicToMarketplace(String applicationId, Boolean publicToMarketplace) {
 
         return findById(applicationId)
+
+                // Falk: question - do we need Map<String, Object> applicationDsl = application.getEditingApplicationDSL(); and  .editingApplicationDSL(applicationDsl) - or is .publicToMarketplace(publicToMarketplace).build(); enough?
+
                 .map(application -> {
+
                     Map<String, Object> applicationDsl = application.getEditingApplicationDSL();
-                    if (applicationDsl.containsKey("ui")) {
+                    
+                    // Falk: this logic is not needed anymore, because we set Meta Data in Settings in the UI already
+                    /* if (applicationDsl.containsKey("ui")) {
                         Map<String, Object> dataObject = (Map<String, Object>) applicationDsl.get("ui");
 
                         if(publicToMarketplace) {
@@ -178,7 +184,7 @@ public class ApplicationService {
 
                         applicationDsl.replace("ui", dataObject);
 
-                    }
+                    } */
 
                     return Application.builder()
                             .publicToMarketplace(publicToMarketplace)

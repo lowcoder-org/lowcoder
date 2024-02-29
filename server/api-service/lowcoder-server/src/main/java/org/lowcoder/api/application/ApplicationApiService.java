@@ -250,13 +250,20 @@ public class ApplicationApiService {
 
     private Mono<Void> checkApplicationViewRequest(Application application, ApplicationEndpoints.ApplicationRequestType expected) {
         // TODO: The check is correct ( logically ) but we need to provide some time for the users to adapt. Will bring it back in the next release
-        if (expected == ApplicationEndpoints.ApplicationRequestType.PUBLIC_TO_ALL /* && application.isPublicToAll() */) {
+
+        // Falk: switched && application.isPublicToAll() on again - seems here is the bug.
+        if (expected == ApplicationEndpoints.ApplicationRequestType.PUBLIC_TO_ALL && application.isPublicToAll()) {
             return Mono.empty();
         }
-        if (expected == ApplicationEndpoints.ApplicationRequestType.PUBLIC_TO_MARKETPLACE && application.isPublicToMarketplace()) {
-            return Mono.empty();
-        }
-        if (expected == ApplicationEndpoints.ApplicationRequestType.AGENCY_PROFILE && application.agencyProfile()) {
+
+        // Falk: here is to check the ENV Variable LOWCODER_MARKETPLACE_PRIVATE_MODE
+        // isPublicToMarketplace & isPublicToAll must be both true
+            if (expected == ApplicationEndpoints.ApplicationRequestType.PUBLIC_TO_MARKETPLACE && application.isPublicToMarketplace() && application.isPublicToAll()) {
+                return Mono.empty();
+            }
+        // 
+        // Falk: application.agencyProfile() & isPublicToAll must be both true
+        if (expected == ApplicationEndpoints.ApplicationRequestType.AGENCY_PROFILE && application.agencyProfile() && application.isPublicToAll()) {
             return Mono.empty();
         }
         return Mono.error(new BizException(BizError.UNSUPPORTED_OPERATION, "BAD_REQUEST"));
@@ -445,6 +452,7 @@ public class ApplicationApiService {
                                         .orgName(organization.getName())
                                         .publicToAll(application.isPublicToAll())
                                         .publicToMarketplace(application.isPublicToMarketplace())
+                                        .agencyProfile(application.agencyProfile())
                                         .build();
                             });
                 });
@@ -502,6 +510,7 @@ public class ApplicationApiService {
                 .folderId(folderId)
                 .publicToAll(application.isPublicToAll())
                 .publicToMarketplace(application.isPublicToMarketplace())
+                .agencyProfile(application.agencyProfile())
                 .build();
     }
 
@@ -519,13 +528,15 @@ public class ApplicationApiService {
         return checkCurrentUserApplicationPermission(applicationId, ResourceAction.SET_APPLICATIONS_PUBLIC_TO_MARKETPLACE)
                 .then(checkApplicationStatus(applicationId, NORMAL))
                 .then(applicationService.setApplicationPublicToMarketplace
-                        (applicationId, request.publicToMarketplace(), request.title(), request.category(), request.description(), request.image()));
+                        (applicationId, request.publicToMarketplace()));
     }
 
+    // Falk: why we have request.publicToMarketplace() - but here only agencyProfile? Not from request?
     public Mono<Boolean> setApplicationAsAgencyProfile(String applicationId, boolean agencyProfile) {
         return checkCurrentUserApplicationPermission(applicationId, ResourceAction.SET_APPLICATIONS_AS_AGENCY_PROFILE)
                 .then(checkApplicationStatus(applicationId, NORMAL))
-                .then(applicationService.setApplicationAsAgencyProfile(applicationId, agencyProfile));
+                .then(applicationService.setApplicationAsAgencyProfile
+                        (applicationId, agencyProfile));
     }
 
     private Map<String, Object> sanitizeDsl(Map<String, Object> applicationDsl) {

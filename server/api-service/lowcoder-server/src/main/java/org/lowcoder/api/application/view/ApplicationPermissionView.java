@@ -9,6 +9,7 @@ public class ApplicationPermissionView extends CommonPermissionView {
 
     private boolean publicToAll;
     private boolean publicToMarketplace;
+    private boolean agencyProfile;
 
     public boolean isPublicToAll() {
         return publicToAll;
@@ -16,5 +17,9 @@ public class ApplicationPermissionView extends CommonPermissionView {
 
     public boolean isPublicToMarketplace() {
         return publicToMarketplace;
+    }
+
+    public boolean isAgencyProfile() {
+        return agencyProfile;
     }
 }

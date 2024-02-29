@@ -399,7 +399,8 @@ public class UserHomeApiServiceImpl implements UserHomeApiService {
                 .lastModifyTime(application.getUpdatedAt())
                 .lastViewTime(lastViewTime)
                 .publicToAll(application.isPublicToAll())
-                .publicToMarketplace(application.isPublicToMarketplace());
+                .publicToMarketplace(application.isPublicToMarketplace())
+                .agencyProfile(application.agencyProfile());
         if (withContainerSize) {
             return applicationInfoViewBuilder
                     .containerSize(application.getLiveContainerSize())

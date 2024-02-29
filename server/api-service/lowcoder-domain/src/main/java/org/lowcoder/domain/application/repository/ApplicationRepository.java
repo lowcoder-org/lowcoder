@@ -34,6 +34,9 @@ public interface ApplicationRepository extends ReactiveMongoRepository<Applicati
 
     Flux<Application> findByIdIn(List<String> ids);
 
+
+    // Falk: Why to combine? Marketplace-List and Agency-List are different Endpoints
+
     @Query(value = "{$and:[{'publicToAll':true},{'$or':[{'publicToMarketplace':?0},{'agencyProfile':?1}]}, {'_id': { $in: ?2}}]}", fields = "{_id : 1}")
     Flux<Application> findByPublicToAllIsTrueAndPublicToMarketplaceIsOrAgencyProfileIsAndIdIn
             (Boolean publicToMarketplace, Boolean agencyProfile, Collection<String> ids);
