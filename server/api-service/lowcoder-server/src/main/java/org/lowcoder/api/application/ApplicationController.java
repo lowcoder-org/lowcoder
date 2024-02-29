@@ -16,6 +16,8 @@ import org.lowcoder.api.application.view.ApplicationInfoView;
 import org.lowcoder.api.application.view.ApplicationPermissionView;
 import org.lowcoder.api.application.view.ApplicationView;
 import org.lowcoder.api.application.view.MarketplaceApplicationInfoView;
+// should we not have a AgencyApplicationInfoView
+
 import org.lowcoder.api.framework.view.ResponseView;
 import org.lowcoder.api.home.SessionUserService;
 import org.lowcoder.api.home.UserHomeApiService;
@@ -91,6 +93,7 @@ public class ApplicationController implements ApplicationEndpoints {
                 .map(ResponseView::success);
     }
 
+    // will call the check in ApplicationApiService and ApplicationService
     @Override
     public Mono<ResponseView<ApplicationView>> getPublishedApplication(@PathVariable String applicationId) {
         return applicationApiService.getPublishedApplication(applicationId, ApplicationRequestType.PUBLIC_TO_ALL)

@@ -18,6 +18,7 @@ import reactor.core.publisher.Mono;
 @Repository
 public interface ApplicationRepository extends ReactiveMongoRepository<Application, String>, CustomApplicationRepository {
 
+    // publishedApplicationDSL : 0 -> excludes publishedApplicationDSL from the return
     @Query(fields = "{ publishedApplicationDSL : 0 , editingApplicationDSL : 0 }")
     Flux<Application> findByOrganizationId(String organizationId);
 
@@ -37,14 +38,20 @@ public interface ApplicationRepository extends ReactiveMongoRepository<Applicati
 
     // Falk: Why to combine? Marketplace-List and Agency-List are different Endpoints
 
-    @Query(value = "{$and:[{'publicToAll':true},{'$or':[{'publicToMarketplace':?0},{'agencyProfile':?1}]}, {'_id': { $in: ?2}}]}", fields = "{_id : 1}")
+    /* @Query(value = "{$and:[{'publicToAll':true},{'$or':[{'publicToMarketplace':?0},{'agencyProfile':?1}]}, {'_id': { $in: ?2}}]}", fields = "{_id : 1}")
     Flux<Application> findByPublicToAllIsTrueAndPublicToMarketplaceIsOrAgencyProfileIsAndIdIn
-            (Boolean publicToMarketplace, Boolean agencyProfile, Collection<String> ids);
+            (Boolean publicToMarketplace, Boolean agencyProfile, Collection<String> ids); */
 
-    Flux<Application> findByPublicToAllIsTrueAndPublicToMarketplaceIsAndAgencyProfileIsAndIdIn(Boolean publicToMarketplace, Boolean agencyProfile, Collection<String> ids);
+    // this we do not need
+    // Flux<Application> findByPublicToAllIsTrueAndPublicToMarketplaceIsAndAgencyProfileIsAndIdIn(Boolean publicToMarketplace, Boolean agencyProfile, Collection<String> ids);
 
+    // Find all Public Applications
+    Flux<Application> findByPublicToAllIsTrue();
+
+    // Find all Marketplace Apps
     Flux<Application> findByPublicToAllIsTrueAndPublicToMarketplaceIsTrue();
 
+    // Find all Agencies
     Flux<Application> findByPublicToAllIsTrueAndAgencyProfileIsTrue();
 
 }

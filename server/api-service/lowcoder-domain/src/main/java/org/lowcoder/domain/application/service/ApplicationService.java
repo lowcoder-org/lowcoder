@@ -204,9 +204,63 @@ public class ApplicationService {
         return mongoUpsertHelper.updateById(application, applicationId);
     }
 
+    // getPublicApplicationIds /view - publicToAll check
+    // getPublicMarketplaceApplicationIds / marketplace_view - publicToAll and publicToMarketplace check & isPrivateMarketplace check
+    // getPublicAgencyProfileApplicationIds / agency_profile_view - publicToAll and agencyProfile check
+
+    // marketplace_view [anonymous] publicToAll and publicToMarketplace check & isPrivateMarketplace false -> OK
+    
+    // marketplace_view [anonymous] publicToAll and publicToMarketplace check & isPrivateMarketplace true -> NOT OK
+
+    // marketplace_view [LoggedIn] publicToAll and publicToMarketplace check & isPrivateMarketplace true -> OK
+    // marketplace_view [LoggedIn] publicToAll and publicToMarketplace check & isPrivateMarketplace false -> OK
+
+
+    // will be extended by EndpointType
+    /*
+     * if (EndpointType == view)
+     * if (EndpointType == marketplace_view)
+     * if (EndpointType == agency_profile_view)
+     */
+
+    // is it needed?
     @NonEmptyMono
     @SuppressWarnings("ReactiveStreamsNullableInLambdaInTransform")
     public Mono<Set<String>> getPublicApplicationIds(Collection<String> applicationIds, Boolean isAnonymous, Boolean isPrivateMarketplace) {
+
+        return repository.findByPublicToAllIsTrue()
+                        .map(HasIdAndAuditing::getId)
+                        .collect(Collectors.toSet());
+    }
+
+    // for Marketplaces
+    @NonEmptyMono
+    @SuppressWarnings("ReactiveStreamsNullableInLambdaInTransform")
+    public Mono<Set<String>> getPublicMarketplaceApplicationIds(Collection<String> applicationIds, Boolean isAnonymous, Boolean isPrivateMarketplace) {
+
+        if(isAnonymous) {
+            if(isPrivateMarketplace) {
+                return repository.findByPublicToAllIsTrueAndPublicToMarketplaceIsTrue(false, false, applicationIds)
+                        .map(HasIdAndAuditing::getId)
+                        .collect(Collectors.toSet());
+            } else {
+                return repository.findByPublicToAllIsTrueAndPublicToMarketplaceIsTrue(true, false, applicationIds)
+                        .map(HasIdAndAuditing::getId)
+                        .collect(Collectors.toSet());
+            }
+        } else {
+                return repository.findByPublicToAllIsTrueAndPublicToMarketplaceIsTrue(true, true, applicationIds)
+                        .map(HasIdAndAuditing::getId)
+                        .collect(Collectors.toSet());
+        }
+
+
+    }
+
+    // for Agencies
+    @NonEmptyMono
+    @SuppressWarnings("ReactiveStreamsNullableInLambdaInTransform")
+    public Mono<Set<String>> getPublicAgencyApplicationIds(Collection<String> applicationIds, Boolean isAnonymous, Boolean isPrivateMarketplace) {
 
         if(isAnonymous) {
             if(isPrivateMarketplace) {
