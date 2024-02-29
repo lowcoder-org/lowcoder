@@ -11,7 +11,7 @@ import {
 } from "../../controls/codeStateControl";
 import { requiredPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { SelectInputOptionControl } from "../../controls/optionsControl";
 import { refMethods } from "comps/generators/withMethodExposing";
 import { blurMethod, focusWithOptions } from "comps/utils/methodUtils";
@@ -22,10 +22,18 @@ export const SelectInputValidationChildren = {
 };
 type ValidationComp = RecordConstructorToComp<typeof SelectInputValidationChildren>;
 
+type SelectValue = string | (string | number)[];
 type ValidationParams = {
-  value: { value: string | (string | number)[] };
+  defaultValue?: {
+    value: SelectValue,
+  };
+  value: {
+    value: SelectValue,
+    onChange?: (value: any) => Promise<unknown>,
+  };
   required: boolean;
   customRule: string;
+  onEvent?: (eventName: string) => Promise<unknown[]>,
 };
 
 export const selectInputValidate = (
@@ -45,10 +53,14 @@ export const selectInputValidate = (
 };
 
 export const useSelectInputValidate = (props: ValidationParams) => {
+  const [validateState, setValidateState] = useState({});
+  const changeRef = useRef(false)
   const propsRef = useRef<ValidationParams>(props);
   propsRef.current = props;
 
-  const [validateState, setValidateState] = useState({});
+  const selectValue = props.value.value;
+  const defaultValue = props.defaultValue?.value;
+
   const handleValidate = (value: string | (string | number)[]) => {
     setValidateState(
       selectInputValidate({
@@ -59,7 +71,29 @@ export const useSelectInputValidate = (props: ValidationParams) => {
       })
     );
   };
-  return [validateState, handleValidate] as const;
+
+  useEffect(() => {
+    props.value.onChange?.(defaultValue)
+  }, [defaultValue]);
+  
+  useEffect(() => {
+    if (!changeRef.current) return;
+
+    handleValidate(selectValue);
+    props.onEvent?.("change");
+    changeRef.current = false;
+  }, [selectValue]);
+
+  const handleChange = (value: any) => {
+    props.value.onChange?.(value);
+    changeRef.current = true;
+  };
+
+  return [
+    validateState,
+    // handleValidate,
+    handleChange,
+  ] as const;
 };
 
 type ValidationCompWithValue = ValidationComp & {

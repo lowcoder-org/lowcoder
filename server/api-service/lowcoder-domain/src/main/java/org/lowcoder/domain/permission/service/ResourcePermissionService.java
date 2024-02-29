@@ -214,7 +214,8 @@ public class ResourcePermissionService {
                 });
     }
 
-    public Mono<UserPermissionOnResourceStatus> checkUserPermissionStatusOnResource(String userId, String resourceId, ResourceAction resourceAction) {
+    public Mono<UserPermissionOnResourceStatus> checkUserPermissionStatusOnResource
+            (String userId, String resourceId, ResourceAction resourceAction) {
         ResourceType resourceType = resourceAction.getResourceType();
         var resourcePermissionHandler = getResourcePermissionHandler(resourceType);
         return resourcePermissionHandler.checkUserPermissionStatusOnResource(userId, resourceId, resourceAction);

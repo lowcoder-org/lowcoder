@@ -1,3 +1,4 @@
+
 {
   "productName": "Lowcoder",
   "productDesc": "Create software applications for your company and customers with minimal coding experience. Lowcoder is an excellent alternative to Retool, Appsmith, and Tooljet.",
@@ -1398,6 +1399,7 @@
     "title": "Displayed Container Title"
   },
   "drawer": {
+    "closePosition": "Close Button Placement",
     "placement": "Drawer Placement",
     "size": "Size",
     "top": "Top",

@@ -176,11 +176,15 @@ export { ReactComponent as HomeModuleIcon } from "./icon-application-module.svg"
 export { ReactComponent as HomeQueryLibraryIcon } from "./icon-application-query-library.svg";
 export { ReactComponent as HomeDataSourceIcon } from "./icon-application-datasource.svg";
 export { ReactComponent as RecyclerIcon } from "./icon-application-recycler.svg";
+export { ReactComponent as MarketplaceIcon } from "./icon-application-marketplace.svg";
+export { ReactComponent as LowcoderMarketplaceIcon } from "./icon-lowcoder-marketplace.svg";
 export { ReactComponent as HomeActiveIcon } from "./icon-application-home-active.svg";
 export { ReactComponent as HomeModuleActiveIcon } from "./icon-application-module-active.svg";
 export { ReactComponent as HomeQueryLibraryActiveIcon } from "./icon-application-query-library-active.svg";
 export { ReactComponent as HomeDataSourceActiveIcon } from "./icon-application-datasource-active.svg";
 export { ReactComponent as RecyclerActiveIcon } from "./icon-application-recycler-active.svg";
+export { ReactComponent as MarketplaceActiveIcon } from "./icon-application-marketplace-active.svg";
+export { ReactComponent as  LowcoderMarketplaceActiveIcon } from "./icon-lowcoder-marketplace-active.svg";
 export { ReactComponent as FavoritesIcon } from "./icon-application-favorites.svg";
 export { ReactComponent as HomeSettingIcon } from "./icon-application-setting.svg";
 export { ReactComponent as FolderIcon } from "./icon-application-folder.svg";
@@ -214,8 +218,9 @@ export { ReactComponent as ClickHouseIcon } from "./icon-query-ClickHouse.svg";
 export { ReactComponent as ResetIcon } from "./icon-style-reset.svg";
 export { ReactComponent as EditIcon } from "./icon-edit.svg";
 export { ReactComponent as EditableIcon } from "./icon-editable.svg";
-export { ReactComponent as LeftStateIcon } from "./icon-left-state.svg";
-export { ReactComponent as LeftSettingIcon } from "./icon-left-setting.svg";
+export { ReactComponent as LeftStateIcon } from "./remix/node-tree.svg";
+export { ReactComponent as LeftSettingIcon } from "./remix/tools-fill.svg";
+export { ReactComponent as LeftLayersIcon } from "./remix/stack-line.svg";
 export { ReactComponent as LeftHelpIcon } from "./icon-left-help.svg";
 export { ReactComponent as LeftPreloadIcon } from "./icon-left-preload.svg";
 export { ReactComponent as CollapsibleContainerCompIcon } from "./icon-collapsible-container.svg";
@@ -277,31 +282,38 @@ export { ReactComponent as SignatureIcon } from "./icon-signature.svg";
 export { ReactComponent as ManualIcon } from "./icon-manual.svg";
 export { ReactComponent as WarnIcon } from "./icon-warn.svg";
 export { ReactComponent as SyncManualIcon } from "./icon-sync-manual.svg";
-export { ReactComponent as DangerIcon } from "icons/icon-danger.svg";
-export { ReactComponent as TableMinusIcon } from "icons/icon-table-minus.svg";
-export { ReactComponent as TablePlusIcon } from "icons/icon-table-plus.svg";
-export { ReactComponent as MobileAppIcon } from "icons/icon-mobile-app.svg";
-export { ReactComponent as MobileNavIcon } from "icons/icon-navigation-mobile.svg";
-export { ReactComponent as PcNavIcon } from "icons/icon-navigation-pc.svg";
-export { ReactComponent as UnLockIcon } from "icons/icon-unlock.svg";
-export { ReactComponent as CalendarDeleteIcon } from "icons/icon-calendar-delete.svg";
-export { ReactComponent as TableCheckedIcon } from "icons/icon-table-checked.svg";
-export { ReactComponent as TableUnCheckedIcon } from "icons/icon-table-boolean-false.svg";
-export { ReactComponent as FileFolderIcon } from "icons/icon-editor-folder.svg";
-export { ReactComponent as ExpandIcon } from "icons/icon-expand.svg";
-export { ReactComponent as CompressIcon } from "icons/icon-compress.svg";
-export { ReactComponent as TableCellsIcon } from "icons/icon-table-cells.svg"; // Added By Aqib Mirza
-export { ReactComponent as TimeLineIcon } from "icons/icon-timeline-comp.svg"
-export { ReactComponent as LottieIcon } from "icons/icon-lottie.svg";
-export { ReactComponent as CommentIcon } from "icons/icon-comment-comp.svg";
-export { ReactComponent as MentionIcon } from "icons/icon-mention-comp.svg";
-export { ReactComponent as AutoCompleteCompIcon } from "icons/icon-autocomplete-comp.svg";
-export { ReactComponent as WidthIcon } from "icons/icon-width.svg";
-export { ReactComponent as ResponsiveLayoutCompIcon } from "icons/icon-responsive-layout-comp.svg";
+export { ReactComponent as IconCompIcon } from "icons/IconCompIcon.svg";
+export { ReactComponent as DangerIcon } from "./icon-danger.svg";
+export { ReactComponent as TableMinusIcon } from "./icon-table-minus.svg";
+export { ReactComponent as TablePlusIcon } from "./icon-table-plus.svg";
+export { ReactComponent as MobileAppIcon } from "./icon-mobile-app.svg";
+export { ReactComponent as MobileNavIcon } from "./icon-navigation-mobile.svg";
+export { ReactComponent as PcNavIcon } from "./icon-navigation-pc.svg";
+export { ReactComponent as UnLockIcon } from "./icon-unlock.svg";
+export { ReactComponent as CalendarDeleteIcon } from "./icon-calendar-delete.svg";
+export { ReactComponent as TableCheckedIcon } from "./icon-table-checked.svg";
+export { ReactComponent as TableUnCheckedIcon } from "./icon-table-boolean-false.svg";
+export { ReactComponent as FileFolderIcon } from "./icon-editor-folder.svg";
+export { ReactComponent as ExpandIcon } from "./icon-expand.svg";
+export { ReactComponent as CompressIcon } from "./icon-compress.svg";
+export { ReactComponent as TableCellsIcon } from "./icon-table-cells.svg"; // Added By Aqib Mirza
+export { ReactComponent as TimeLineIcon } from "./icon-timeline-comp.svg"
+export { ReactComponent as LottieIcon } from "./icon-lottie.svg";
+export { ReactComponent as CommentIcon } from "./icon-comment-comp.svg";
+export { ReactComponent as MentionIcon } from "./icon-mention-comp.svg";
+export { ReactComponent as AutoCompleteCompIcon } from "./icon-autocomplete-comp.svg";
+export { ReactComponent as WidthIcon } from "./icon-width.svg";
+export { ReactComponent as ResponsiveLayoutCompIcon } from "./icon-responsive-layout-comp.svg";
 export { ReactComponent as TextSizeIcon } from "./remix/font-size-2.svg";
 export { ReactComponent as FontFamilyIcon } from "./remix/font-sans-serif.svg";
 export { ReactComponent as TextWeigthIcon } from "./remix/bold.svg";
 export { ReactComponent as BorderWidthIcon } from "./remix/expand-width-line.svg";
+export { ReactComponent as LeftInfoLine } from "./remix/information-line.svg";
+export { ReactComponent as LeftInfoFill } from "./remix/information-fill.svg";
+export { ReactComponent as LeftShow } from "./remix/eye-off-line.svg";
+export { ReactComponent as LeftHide } from "./remix/eye-line.svg";
+export { ReactComponent as LeftLock } from "./remix/lock-line.svg";
+export { ReactComponent as LeftUnlock } from "./remix/lock-unlock-line.svg";
 
 
 // new
@@ -606,3 +618,4 @@ export { ReactComponent as AutoCompleteCompIcon } from "./icon-autocomplete-comp
 export { ReactComponent as WidthIcon } from "./icon-width.svg";
 export { ReactComponent as ResponsiveLayoutCompIcon } from "./remix/layout-column-line.svg"; // Closest match for responsive layout component
 export { ReactComponent as TextSizeIcon } from "./icon-text-size.svg"; */
+

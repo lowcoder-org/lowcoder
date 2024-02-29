@@ -30,7 +30,7 @@ export const Layers = {
   // comp selection wrapper
   dragSelectBox: 399,
   //
-  compHover: 300,
+  compHover: 100,
   //
   compSelected: 200,
   //

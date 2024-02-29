@@ -1,10 +1,11 @@
 import { UICompType } from "comps/uiCompRegistry";
 import _ from "lodash";
-import React, { ReactElement, SyntheticEvent } from "react";
+import React, { ReactElement, SyntheticEvent, useContext } from "react";
 import { DraggableEvent } from "react-draggable";
 import { PositionParams } from "./calculateUtils";
 import { draggingUtils } from "./draggingUtils";
 import { GridLayoutProps, ResizeHandleAxis } from "./gridLayoutPropTypes";
+import { getCollisionStatus } from "util/localStorageUtil";
 
 export type LayoutItem = {
   w: number;
@@ -12,6 +13,7 @@ export type LayoutItem = {
   x: number;
   y: number;
   i: string;
+  pos?: number;
   minW?: number;
   minH?: number;
   maxW?: number;
@@ -169,7 +171,7 @@ export function collides(l1: LayoutItem, l2: LayoutItem): boolean {
   if (l1.y + l1.h <= l2.y) return false; // l1 is above l2
   if (l1.y >= l2.y + l2.h) return false; // l1 is below l2
 
-  return true; // boxes overlap
+  return !getCollisionStatus();
 }
 
 /**

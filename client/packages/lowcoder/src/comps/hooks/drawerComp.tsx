@@ -1,4 +1,4 @@
-import { CloseOutlined } from "@ant-design/icons";
+import { CloseOutlined, PropertySafetyFilled } from "@ant-design/icons";
 import { default as Button } from "antd/es/button";
 import { ContainerCompBuilder } from "comps/comps/containerBase/containerCompBuilder";
 import { gridItemCompToGridItems, InnerGrid } from "comps/comps/containerComp/containerView";
@@ -6,7 +6,7 @@ import { AutoHeightControl } from "comps/controls/autoHeightControl";
 import { BoolControl } from "comps/controls/boolControl";
 import { StringControl } from "comps/controls/codeControl";
 import { booleanExposingStateControl } from "comps/controls/codeStateControl";
-import { PositionControl } from "comps/controls/dropdownControl";
+import { PositionControl, LeftRightControl } from "comps/controls/dropdownControl";
 import { closeEvent, eventHandlerControl } from "comps/controls/eventHandlerControl";
 import { styleControl } from "comps/controls/styleControl";
 import { DrawerStyle } from "comps/controls/styleControlConstants";
@@ -35,39 +35,21 @@ const DrawerWrapper = styled.div`
   pointer-events: auto;
 `;
 
-const ButtonStyle = styled(Button)`
-  position: absolute;
-  left: 0;
-  top: 0;
-  z-index: 10;
-  font-weight: 700;
-  box-shadow: none;
-  color: rgba(0, 0, 0, 0.45);
-  height: 54px;
-  width: 54px;
-
-  svg {
-    width: 16px;
-    height: 16px;
-  }
-
-  &,
-  :hover,
-  :focus {
-    background-color: transparent;
-    border: none;
-  }
-
-  :hover,
-  :focus {
-    color: rgba(0, 0, 0, 0.75);
-  }
-`;
-
 // If it is a number, use the px unit by default
 function transToPxSize(size: string | number) {
   return isNumeric(size) ? size + "px" : (size as string);
 }
+
+const ClosePlacementOptions = [
+  {
+    label: trans("drawer.left"),
+    value: "left",
+  },
+  {
+    label: trans("drawer.right"),
+    value: "right",
+  },
+] as const;
 
 const PlacementOptions = [
   {
@@ -88,6 +70,7 @@ const PlacementOptions = [
   },
 ] as const;
 
+
 let TmpDrawerComp = (function () {
   return new ContainerCompBuilder(
     {
@@ -98,6 +81,7 @@ let TmpDrawerComp = (function () {
       autoHeight: AutoHeightControl,
       style: styleControl(DrawerStyle),
       placement: PositionControl,
+      closePosition: withDefault(LeftRightControl, "left"),
       maskClosable: withDefault(BoolControl, true),
       showMask: withDefault(BoolControl, true),
     },
@@ -119,6 +103,34 @@ let TmpDrawerComp = (function () {
         },
         [dispatch, isTopBom]
       );
+      const ButtonStyle = styled(Button)`
+        position: absolute;
+        ${props.closePosition === "right" ? "right: 0;" : "left: 0;"}
+        top: 0;
+        z-index: 10;
+        font-weight: 700;
+        box-shadow: none;
+        color: rgba(0, 0, 0, 0.45);
+        height: 54px;
+        width: 54px;
+
+        svg {
+          width: 16px;
+          height: 16px;
+        }
+
+        &,
+        :hover,
+        :focus {
+          background-color: transparent;
+          border: none;
+        }
+
+        :hover,
+        :focus {
+          color: rgba(0, 0, 0, 0.75);
+        }
+      `;
       return (
         <BackgroundColorContext.Provider value={props.style.background}>
           <DrawerWrapper>
@@ -126,8 +138,11 @@ let TmpDrawerComp = (function () {
               resizable={resizable}
               onResizeStop={onResizeStop}
               rootStyle={props.visible.value ? { overflow: "auto", pointerEvents: "auto" } : {}}
-              contentWrapperStyle={{ maxHeight: "100%", maxWidth: "100%" }}
               styles={{
+                wrapper: {
+                  maxHeight: "100%",
+                  maxWidth: "100%",
+                },
                 body: {
                   padding: 0,
                   backgroundColor: props.style.background
@@ -178,6 +193,7 @@ let TmpDrawerComp = (function () {
     .setPropertyViewFn((children) => (
       <>
         <Section name={sectionNames.basic}>
+          {children.closePosition.propertyView({ label: trans("drawer.closePosition"), radioButton: true })}
           {children.placement.propertyView({ label: trans("drawer.placement"), radioButton: true })}
           {["top", "bottom"].includes(children.placement.getView())
             ? children.autoHeight.getPropertyView()

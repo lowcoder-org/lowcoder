@@ -7,7 +7,7 @@ import {
 } from "comps/controls/codeControl";
 import { styleControl } from "comps/controls/styleControl";
 import { ListViewStyle } from "comps/controls/styleControlConstants";
-import { UICompBuilder, withDefault, withPropertyViewFn, withViewFn } from "comps/generators";
+import { UICompBuilder, stateComp, valueComp, withDefault, withPropertyViewFn, withViewFn } from "comps/generators";
 import {
   CompDepsConfig,
   depsConfig,
@@ -37,6 +37,7 @@ import { ContextContainerComp } from "./contextContainerComp";
 import { ListView } from "./listView";
 import { listPropertyView } from "./listViewPropertyView";
 import { getData } from "./listViewUtils";
+import { withMethodExposing } from "comps/generators/withMethodExposing";
 
 const childrenMap = {
   noOfRows: withIsLoadingMethod(NumberOrJSONObjectArrayControl), // FIXME: migrate "noOfRows" to "data"
@@ -47,6 +48,7 @@ const childrenMap = {
   heightUnitOfRow: withDefault(NumberControl, 1),
   container: ContextContainerComp,
   autoHeight: AutoHeightControl,
+  scrollbars: withDefault(BoolControl, false),
   showBorder: BoolControl,
   pagination: withDefault(PaginationControl, { pageSize: "6" }),
   style: styleControl(ListViewStyle),
@@ -80,10 +82,10 @@ export class ListViewImplComp extends ListViewTmpComp implements IContainer {
   }
   override reduce(action: CompAction): this {
     // console.info("listView reduce. action: ", action);
-
     let comp = reduceInContext({ inEventContext: true }, () => super.reduce(action));
+
     if (action.type === CompActionTypes.UPDATE_NODES_V2) {
-      const { itemCount } = getData(comp.children.noOfRows.getView());
+      const { itemCount} = getData(comp.children.noOfRows.getView());
       const pagination = comp.children.pagination.getView();
       const total = pagination.total || itemCount;
       const offset = (pagination.current - 1) * pagination.pageSize;
@@ -151,11 +153,11 @@ export class ListViewImplComp extends ListViewTmpComp implements IContainer {
 
 const ListViewRenderComp = withViewFn(ListViewImplComp, (comp) => <ListView comp={comp} />);
 const ListPropertyView = listPropertyView("listView");
-const ListViewPropertyComp = withPropertyViewFn(ListViewRenderComp, (comp) => {
+let ListViewPropertyComp = withPropertyViewFn(ListViewRenderComp, (comp) => {
   return <ListPropertyView comp={comp} />;
 });
 
-export const ListViewComp = withExposingConfigs(ListViewPropertyComp, [
+ListViewPropertyComp = withExposingConfigs(ListViewPropertyComp, [
   new CompDepsConfig(
     "items",
     (comp) => ({ data: comp.itemsNode() }),
@@ -171,8 +173,30 @@ export const ListViewComp = withExposingConfigs(ListViewPropertyComp, [
       return data;
     },
   }),
+  new CompDepsConfig(
+    "pageNo",
+    (comp) => ({index: comp.children.pagination.children.pageNo.exposingNode() }),
+    (input) => input.index,
+    "Page Number", // trans("listView.itemsDesc")
+  ),
   NameConfigHidden,
 ]);
+
+export const ListViewComp = withMethodExposing(ListViewPropertyComp, [
+  {
+    method: {
+      name: "setPage",
+      description: "",
+      params: [{ name: "page", type: "number" }],
+    },
+    execute: (comp, values) => {
+      const page = values[0] as number;
+      if (page && page > 0) {
+        comp.children.pagination.children.pageNo.dispatchChangeValueAction(page);
+      }
+    },
+  },
+])
 
 export function defaultListViewData(compName: string, nameGenerator: NameGenerator) {
   return {
@@ -232,7 +256,7 @@ export function defaultListViewData(compName: string, nameGenerator: NameGenerat
           compType: "rating",
           name: nameGenerator.genItemName("rating"),
           comp: {
-            value: "{{currentItem.rate / 2}}",
+            defaultValue: "{{currentItem.rate / 2}}",
             max: "5",
             label: {
               text: "",

@@ -59,11 +59,19 @@ export default function EditorSkeletonView() {
   return (
     <>
       <Height100Div>
-        <Header panelStatus={panelStatus} togglePanel={_.noop} editorModeStatus={editorModeStatus} toggleEditorModeStatus={_.noop} />
+        <Header
+          panelStatus={panelStatus}
+          togglePanel={_.noop}
+          editorModeStatus={editorModeStatus}
+          toggleEditorModeStatus={_.noop}
+        />
         <Body>
           <SiderStyled />
           {panelStatus.left && (
-            <LeftPanel>
+            <LeftPanel
+              collisionStatus={false}
+              toggleCollisionStatus={_.noop}
+            >
               <StyledSkeleton active paragraph={{ rows: 10 }} />
             </LeftPanel>
           )}
@@ -78,7 +86,11 @@ export default function EditorSkeletonView() {
             )}
           </MiddlePanel>
           {panelStatus.right && (
-            <RightPanel showPropertyPane={false} onCompDrag={_.noop} onTabChange={_.noop} />
+            <RightPanel
+              showPropertyPane={false}
+              onCompDrag={_.noop}
+              onTabChange={_.noop}
+            />
           )}
         </Body>
       </Height100Div>

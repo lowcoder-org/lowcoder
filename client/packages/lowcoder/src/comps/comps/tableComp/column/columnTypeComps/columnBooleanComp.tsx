@@ -19,13 +19,13 @@ const Wrapper = styled.div`
   padding: 0 8px;
 `;
 
-const IconWrapper = styled.div<{ $style: CheckboxStyleType; ifChecked: boolean }>`
+const IconWrapper = styled.div<{ $style: CheckboxStyleType; $ifChecked: boolean }>`
   height: 22px;
   svg {
     width: 14px;
     height: 22px;
     g {
-      stroke: ${(props) => props.ifChecked && props.$style.checkedBackground} !important;
+      stroke: ${(props) => props.$ifChecked && props.$style.checkedBackground} !important;
     }
   }
 `;
@@ -87,7 +87,7 @@ export const BooleanComp = (function () {
       const CheckBoxComp = () => {
         const style = useStyle(CheckboxStyle);
         return (
-          <IconWrapper $style={style} ifChecked={value}>
+          <IconWrapper $style={style} $ifChecked={value}>
             {value ? (
               <TableCheckedIcon />
             ) : props.falseValues === "x" ? (

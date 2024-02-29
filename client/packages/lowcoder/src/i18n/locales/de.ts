@@ -1139,6 +1139,7 @@ export const de = {
       "auto": "Auto",
       "fixed": "Festgelegt",
       "columnType": "Säule Typ",
+      "dataMapping": "Datenzuordnung",
       "numberStep": "Schritt",
       "numberStepTooltip": "Die Zahl, auf die der aktuelle Wert erhöht oder verringert wird. Es kann eine ganze Zahl oder eine Dezimalzahl sein",
       "precision": "Präzision",
@@ -1350,6 +1351,7 @@ export const de = {
       "title": "Angezeigter Container-Titel"
   },
   "drawer": {
+      "closePosition": "Platzierung der Verschlusses",
       "placement": "Platzierung der Schubladen",
       "size": "Größe",
       "top": "Top",
@@ -2056,6 +2058,7 @@ export const de = {
       "modules": "Module",
       "module": "Modul",
       "trash": "Papierkorb",
+      "marketplace": "Marktplatz",
       "queryLibrary": "Abfragebibliothek",
       "datasource": "Datenquellen",
       "selectDatasourceType": "Datenquellentyp auswählen",
@@ -2113,8 +2116,12 @@ export const de = {
       "allPermissions": "Besitzer",
       "shareLink": "Link teilen: ",
       "copyLink": "Link kopieren",
-      "appPublicMessage": "Mach die App öffentlich. Jeder kann sie sehen.",
-      "modulePublicMessage": "Mach das Modul öffentlich. Jeder kann es sehen.",
+      "appPublicMessage": "App veröffentlichen. Auf dem Marktplatz für jeden zu sehen.",
+      "modulePublicMessage": "Module veröffentlichen. Auf dem Marktplatz für jeden zu sehen.",
+      "appMarketplaceMessage": "Veröffentlichen Sie Ihre App auf dem Lowcoder-Marktplatz. Jeder kann sie dort sehen und kopieren.",
+      "moduleMarketplaceMessage": "Veröffentlichen Sie Ihr Modul auf dem Lowcoder-Marktplatz. Jeder kann es dort sehen und kopieren.",
+      "marketplaceGoodPublishing": "Bitte stellen Sie sicher, dass Ihre App gut benannt und einfach zu bedienen ist. Entfernen Sie alle sensiblen Informationen vor der Veröffentlichung. Entfernen Sie außerdem lokale Datenquellen und ersetzen Sie sie durch statische, integrierte temporäre Daten.",
+      "noMarketplaceApps": "Noch sind keine Anwendungen auf dem Marktplatz.",
       "memberPermissionList": "Mitgliedschaftsberechtigungen: ",
       "orgName": "{orgName} admins",
       "addMember": "Mitglieder hinzufügen",
@@ -2379,7 +2386,7 @@ export const de = {
       "selectBackground": "Ausgewählter Hintergrund"
   },
   "componentDocExtra": {
-      "table": "Zusätzliche Dokumentation für die Tabellenkomponente"
+      "table": table,
   },
   "idSource": {
       "title": "OAuth-Anbieter",

@@ -19,6 +19,7 @@ import { defaultTheme } from "comps/controls/styleControlConstants";
 import { checkIsMobile } from "util/commonUtils";
 import { CanvasContainerID } from "constants/domLocators";
 import { CNRootContainer } from "constants/styleSelectors";
+import { ScrollBar } from "lowcoder-design";
 
 const UICompContainer = styled.div<{ $maxWidth?: number; readOnly?: boolean; $bgColor: string }>`
   height: 100%;
@@ -112,17 +113,19 @@ export function CanvasView(props: ContainerBaseProps) {
         $bgColor={bgColor}
       >
         <div>
-          <Profiler id="Panel" onRender={profilerCallback}>
-            <InnerGrid
-              containerPadding={rootContainerPadding}
-              overflow={rootContainerOverflow}
-              {...props}
-              positionParams={positionParams} // Added By Aqib Mirza
-              {...gridLayoutCanvasProps}
-              bgColor={bgColor}
-              radius="0px"
-            />
-          </Profiler>
+          {/* <ScrollBar style={{ height: "100%", margin: "0px", padding: "0px" }}> */}
+            <Profiler id="Panel" onRender={profilerCallback}>
+              <InnerGrid
+                containerPadding={rootContainerPadding}
+                overflow={rootContainerOverflow}
+                {...props}
+                positionParams={positionParams} // Added By Aqib Mirza
+                {...gridLayoutCanvasProps}
+                bgColor={bgColor}
+                radius="0px"
+              />
+            </Profiler>
+          {/*</ScrollBar> */}
         </div>
       </UICompContainer>
     );

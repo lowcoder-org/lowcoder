@@ -509,8 +509,11 @@ let MTComp = (function () {
                   ? { overflow: "auto", pointerEvents: "auto" }
                   : {}
               }
-              contentWrapperStyle={{ maxHeight: "100%", maxWidth: "100%" }}
               styles={{
+                wrapper: {
+                  maxHeight: "100%",
+                  maxWidth: "100%"
+                }, 
                 body: {
                   padding: 0,
                   backgroundColor: props.style.background,
