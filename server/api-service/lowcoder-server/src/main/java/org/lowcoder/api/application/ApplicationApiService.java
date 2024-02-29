@@ -39,6 +39,7 @@ import org.lowcoder.api.permission.PermissionHelper;
 import org.lowcoder.api.permission.view.PermissionItemView;
 import org.lowcoder.api.usermanagement.OrgDevChecker;
 import org.lowcoder.domain.application.model.Application;
+import org.lowcoder.domain.application.model.ApplicationRequestType;
 import org.lowcoder.domain.application.model.ApplicationStatus;
 import org.lowcoder.domain.application.model.ApplicationType;
 import org.lowcoder.domain.application.service.ApplicationService;
@@ -73,10 +74,12 @@ import org.springframework.stereotype.Service;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+@RequiredArgsConstructor
 @Service
 @Slf4j
 public class ApplicationApiService {
@@ -85,54 +88,25 @@ public class ApplicationApiService {
     private static final String JS_DATASOURCE_TYPE = "js";
     private static final String VIEW_DATASOURCE_TYPE = "view";
 
-    @Autowired
-    private ApplicationService applicationService;
+    private final ApplicationService applicationService;
+    private final ResourcePermissionService resourcePermissionService;
+    private final SessionUserService sessionUserService;
+    private final OrgMemberService orgMemberService;
+    private final OrganizationService organizationService;
 
-    @Autowired
-    private ResourcePermissionService resourcePermissionService;
-
-    @Autowired
-    private SessionUserService sessionUserService;
-
-    @Autowired
-    private OrgMemberService orgMemberService;
-
-    @Autowired
-    private GroupService groupService;
-
-    @Autowired
-    private OrganizationService organizationService;
-
-    @Autowired
-    private UserService userService;
-
-    @Autowired
-    private AbstractBizThresholdChecker bizThresholdChecker;
-
-    @Autowired
-    private TemplateSolution templateSolution;
-
-    @Autowired
-    private SuggestAppAdminSolution suggestAppAdminSolution;
-
-    @Autowired
-    private OrgDevChecker orgDevChecker;
-    @Autowired
-    private FolderApiService folderApiService;
-    @Autowired
-    private UserHomeApiService userHomeApiService;
-    @Autowired
-    private UserApplicationInteractionService userApplicationInteractionService;
-    @Autowired
-    private DatasourceMetaInfoService datasourceMetaInfoService;
-    @Autowired
-    private CompoundApplicationDslFilter compoundApplicationDslFilter;
-    @Autowired
-    private TemplateService templateService;
-    @Autowired
-    private PermissionHelper permissionHelper;
-    @Autowired
-    private DatasourceService datasourceService;
+    private final AbstractBizThresholdChecker bizThresholdChecker;
+    private final OrgDevChecker orgDevChecker;
+    private final TemplateSolution templateSolution;
+    private final SuggestAppAdminSolution suggestAppAdminSolution;
+    
+    private final FolderApiService folderApiService;
+    private final UserHomeApiService userHomeApiService;
+    private final UserApplicationInteractionService userApplicationInteractionService;
+    private final DatasourceMetaInfoService datasourceMetaInfoService;
+    private final CompoundApplicationDslFilter compoundApplicationDslFilter;
+    private final TemplateService templateService;
+    private final PermissionHelper permissionHelper;
+    private final DatasourceService datasourceService;
 
     public Mono<ApplicationView> create(CreateApplicationRequest createApplicationRequest) {
 
@@ -141,7 +115,8 @@ public class ApplicationApiService {
                 createApplicationRequest.applicationType(),
                 NORMAL,
                 createApplicationRequest.publishedApplicationDSL(),
-                false, false, false, createApplicationRequest.editingApplicationDSL());
+                createApplicationRequest.editingApplicationDSL(),
+                false, false, false);
 
         if (StringUtils.isBlank(application.getOrganizationId())) {
             return deferredError(INVALID_PARAMETER, "ORG_ID_EMPTY");
@@ -248,22 +223,22 @@ public class ApplicationApiService {
         return Mono.error(new BizException(BizError.UNSUPPORTED_OPERATION, "BAD_REQUEST"));
     }
 
-    private Mono<Void> checkApplicationViewRequest(Application application, ApplicationEndpoints.ApplicationRequestType expected) {
+    private Mono<Void> checkApplicationViewRequest(Application application, ApplicationRequestType expected) {
         // TODO: The check is correct ( logically ) but we need to provide some time for the users to adapt. Will bring it back in the next release
 
         // Falk: switched && application.isPublicToAll() on again - seems here is the bug.
-        if (expected == ApplicationEndpoints.ApplicationRequestType.PUBLIC_TO_ALL && application.isPublicToAll()) {
+        if (expected == ApplicationRequestType.PUBLIC_TO_ALL && application.isPublicToAll()) {
             return Mono.empty();
         }
 
         // Falk: here is to check the ENV Variable LOWCODER_MARKETPLACE_PRIVATE_MODE
         // isPublicToMarketplace & isPublicToAll must be both true
-            if (expected == ApplicationEndpoints.ApplicationRequestType.PUBLIC_TO_MARKETPLACE && application.isPublicToMarketplace() && application.isPublicToAll()) {
+            if (expected == ApplicationRequestType.PUBLIC_TO_MARKETPLACE && application.isPublicToMarketplace() && application.isPublicToAll()) {
                 return Mono.empty();
             }
         // 
         // Falk: application.agencyProfile() & isPublicToAll must be both true
-        if (expected == ApplicationEndpoints.ApplicationRequestType.AGENCY_PROFILE && application.agencyProfile() && application.isPublicToAll()) {
+        if (expected == ApplicationRequestType.AGENCY_PROFILE && application.agencyProfile() && application.isPublicToAll()) {
             return Mono.empty();
         }
         return Mono.error(new BizException(BizError.UNSUPPORTED_OPERATION, "BAD_REQUEST"));
@@ -301,8 +276,8 @@ public class ApplicationApiService {
                 });
     }
 
-    public Mono<ApplicationView> getPublishedApplication(String applicationId, ApplicationEndpoints.ApplicationRequestType requestType) {
-        return checkPermissionWithReadableErrorMsg(applicationId, READ_APPLICATIONS)
+    public Mono<ApplicationView> getPublishedApplication(String applicationId, ApplicationRequestType requestType) {
+        return checkApplicationPermissionWithReadableErrorMsg(applicationId, READ_APPLICATIONS, requestType)
                 .zipWhen(permission -> applicationService.findById(applicationId)
                         .delayUntil(application -> checkApplicationStatus(application, NORMAL))
                         .delayUntil(application -> checkApplicationViewRequest(application, requestType)))
@@ -493,6 +468,32 @@ public class ApplicationApiService {
                 });
     }
 
+    @Nonnull
+    public Mono<ResourcePermission> checkApplicationPermissionWithReadableErrorMsg(String applicationId, ResourceAction action, ApplicationRequestType requestType) {
+        return sessionUserService.getVisitorId()
+                .flatMap(visitorId -> resourcePermissionService.checkUserPermissionStatusOnApplication(visitorId, applicationId, action, requestType))
+                .flatMap(permissionStatus -> {
+                    if (!permissionStatus.hasPermission()) {
+                        if (permissionStatus.failByAnonymousUser()) {
+                            return ofError(USER_NOT_SIGNED_IN, "USER_NOT_SIGNED_IN");
+                        }
+
+                        if (permissionStatus.failByNotInOrg()) {
+                            return ofError(NO_PERMISSION_TO_REQUEST_APP, "INSUFFICIENT_PERMISSION");
+                        }
+
+                        return suggestAppAdminSolution.getSuggestAppAdminNames(applicationId)
+                                .flatMap(names -> {
+                                    String messageKey = action == EDIT_APPLICATIONS ? "NO_PERMISSION_TO_EDIT" : "NO_PERMISSION_TO_VIEW";
+                                    return ofError(NO_PERMISSION_TO_REQUEST_APP, messageKey, names);
+                                });
+                    }
+                    return Mono.just(permissionStatus.getPermission());
+                });
+    }
+    
+    
+    
     private ApplicationInfoView buildView(Application application, String role) {
         return buildView(application, role, null);
     }
