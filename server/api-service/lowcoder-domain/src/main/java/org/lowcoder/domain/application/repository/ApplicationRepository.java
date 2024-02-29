@@ -45,13 +45,28 @@ public interface ApplicationRepository extends ReactiveMongoRepository<Applicati
     // this we do not need
     // Flux<Application> findByPublicToAllIsTrueAndPublicToMarketplaceIsAndAgencyProfileIsAndIdIn(Boolean publicToMarketplace, Boolean agencyProfile, Collection<String> ids);
 
-    // Find all Public Applications
-    Flux<Application> findByPublicToAllIsTrue();
+    /**
+     * Filter public applications from list of supplied IDs
+     */
+    Flux<Application> findByPublicToAllIsTrueAndIdIn(Collection<String> ids);
 
-    // Find all Marketplace Apps
+    /**
+     * Filter marketplace applications from list of supplied IDs
+     */
+    Flux<Application> findByPublicToAllIsTrueAndPublicToMarketplaceIsTrueAndIdIn(Collection<String> ids);
+
+    /**
+     * Filter agency applications from list of supplied IDs
+     */
+    Flux<Application> findByPublicToAllIsTrueAndAgencyProfileIsTrueAndIdIn(Collection<String> ids);
+
+    /**
+     * Find all marketplace applications
+     */
     Flux<Application> findByPublicToAllIsTrueAndPublicToMarketplaceIsTrue();
-
-    // Find all Agencies
+    
+    /**
+     * Find all agency applications
+     */
     Flux<Application> findByPublicToAllIsTrueAndAgencyProfileIsTrue();
-
 }
