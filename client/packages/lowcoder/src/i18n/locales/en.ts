@@ -1581,7 +1581,7 @@ export const en = {
     "advanced": "Advanced",
     "lab": "Lab",
     "branding": "Branding",
-    "oauthProviders": "OAuth Providers",
+    "oauthProviders": "User Authentication",
     "appUsage": "App Usage Logs",
     "environments": "Environments",
     "premium": "Premium"
@@ -2621,7 +2621,7 @@ export const en = {
     "table": table,
   },
   "idSource": {
-    "title": "OAuth Providers",
+    "title": "User Authentication Provider",
     "form": "Email",
     "pay": "Premium",
     "enable": "Enable",

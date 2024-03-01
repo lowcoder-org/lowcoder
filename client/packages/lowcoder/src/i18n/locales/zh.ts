@@ -1496,7 +1496,7 @@ settings: {
     advanced: "高级",
     lab: "实验室",
     branding: "品牌",
-    oauthProviders: "OAuth 提供商",
+    oauthProviders: "User Authentication",
     appUsage: "应用程序使用日志",
     environments: "环境",
     premium: "高级版",
@@ -2560,7 +2560,7 @@ componentDocExtra: {
     table: table,
 },
 idSource: {
-    title: "OAuth 提供商",
+    title: "用户认证提供商", 
     form: "电子邮件",
     pay: "高级",
     enable: "启用",
