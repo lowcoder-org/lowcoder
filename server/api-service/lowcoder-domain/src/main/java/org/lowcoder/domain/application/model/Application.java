@@ -167,4 +167,8 @@ public class Application extends HasIdAndAuditing {
         return liveContainerSize.get();
     }
 
+	public Map<String, Object> getPublishedApplicationDSL() {
+		return publishedApplicationDSL;
+	}
+
 }
