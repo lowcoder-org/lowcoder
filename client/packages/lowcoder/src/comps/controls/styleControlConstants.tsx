@@ -728,7 +728,7 @@ export const InputLikeStyle = [
 ] as const;
 
 export const LabelStyle = [
-  ...replaceAndMergeMultipleStyles([...InputLikeStyle], 'text', [LABEL]).filter((style) => style.name !== 'radius')
+  ...replaceAndMergeMultipleStyles([...InputLikeStyle], 'text', [LABEL]).filter((style) => style.name !== 'radius' && style.name !== 'background')
 ]
 
 export const RatingStyle = [
@@ -1153,11 +1153,11 @@ export const ImageStyle = [getStaticBorder("#00000000"), RADIUS, BORDER_WIDTH, M
 
 export const IconStyle = [
   getStaticBackground("#00000000"),
-  getStaticBorder("#00000000"), 
+  getStaticBorder("#00000000"),
   FILL,
   RADIUS,
   BORDER_WIDTH,
-  MARGIN, 
+  MARGIN,
   PADDING] as const;
 
 

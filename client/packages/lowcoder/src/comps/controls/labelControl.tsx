@@ -76,17 +76,16 @@ const LabelWrapper = styled.div<{
   flex-shrink: 0;
 `;
 // ${(props) => props.$border && UnderlineCss};
-const Label = styled.span<{ $border: boolean, $labelStyle: LabelStyleType }>`
+const Label = styled.span<{ $border: boolean, $labelStyle: LabelStyleType, $validateStatus: "success" | "warning" | "error" | "validating" | null }>`
   ${labelCss};
-  
   font-family:${(props) => props.$labelStyle.fontFamily};
   font-weight:${(props) => props.$labelStyle.fontWeight};
   font-style:${(props) => props.$labelStyle.fontStyle};
   text-transform:${(props) => props.$labelStyle.textTransform};
   text-decoration:${(props) => props.$labelStyle.textDecoration};
   font-size:${(props) => props.$labelStyle.textSize};
-  color:${(props) => props.$labelStyle.text};
-  ${(props) => props.$border && `border-bottom:${props.$labelStyle.borderWidth} ${props.$labelStyle.borderStyle} ${props.$labelStyle.border};`}
+  color:${(props) => !!props.$validateStatus && props?.$validateStatus === 'error' ? props.$labelStyle.validate : props.$labelStyle.text} !important;
+  ${(props) => props.$border && `border-bottom:${props.$labelStyle.borderWidth} ${props.$labelStyle.borderStyle} ${!!props.$validateStatus && props?.$validateStatus === 'error' ? props.$labelStyle.validate : props.$labelStyle.border};`}
   border-radius:${(props) => props.$labelStyle.radius};
   padding:${(props) => props.$labelStyle.padding};
   width: fit-content;
@@ -194,6 +193,7 @@ export const LabelControl = (function () {
             >
               <Label
                 $border={!!props.tooltip}
+                $validateStatus={args && args.validateStatus ? args.validateStatus : null}
                 $labelStyle={{ ...args.style }}>
                 {props.text}
               </Label>
