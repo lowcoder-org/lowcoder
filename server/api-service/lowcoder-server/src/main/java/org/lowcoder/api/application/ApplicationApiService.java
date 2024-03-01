@@ -224,18 +224,18 @@ public class ApplicationApiService {
     }
 
     private Mono<Void> checkApplicationViewRequest(Application application, ApplicationRequestType expected) {
-        // TODO: The check is correct ( logically ) but we need to provide some time for the users to adapt. Will bring it back in the next release
 
-        // Falk: switched && application.isPublicToAll() on again - seems here is the bug.
-        if (expected == ApplicationRequestType.PUBLIC_TO_ALL && application.isPublicToAll()) {
+    	// TODO: check application.isPublicToAll() from v2.4.0
+    	if (expected == ApplicationRequestType.PUBLIC_TO_ALL) {
             return Mono.empty();
         }
 
         // Falk: here is to check the ENV Variable LOWCODER_MARKETPLACE_PRIVATE_MODE
         // isPublicToMarketplace & isPublicToAll must be both true
-            if (expected == ApplicationRequestType.PUBLIC_TO_MARKETPLACE && application.isPublicToMarketplace() && application.isPublicToAll()) {
-                return Mono.empty();
-            }
+        if (expected == ApplicationRequestType.PUBLIC_TO_MARKETPLACE && application.isPublicToMarketplace() && application.isPublicToAll()) {
+            return Mono.empty();
+        }
+        
         // 
         // Falk: application.agencyProfile() & isPublicToAll must be both true
         if (expected == ApplicationRequestType.AGENCY_PROFILE && application.agencyProfile() && application.isPublicToAll()) {

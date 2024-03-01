@@ -2,7 +2,6 @@ package org.lowcoder.domain.application.repository;
 
 
 import java.util.Collection;
-import java.util.List;
 
 import javax.annotation.Nonnull;
 
@@ -33,17 +32,7 @@ public interface ApplicationRepository extends ReactiveMongoRepository<Applicati
     @Query("{$or : [{'publishedApplicationDSL.queries.datasourceId':?0},{'editingApplicationDSL.queries.datasourceId':?0}]}")
     Flux<Application> findByDatasourceId(String datasourceId);
 
-    Flux<Application> findByIdIn(List<String> ids);
-
-
-    // Falk: Why to combine? Marketplace-List and Agency-List are different Endpoints
-
-    /* @Query(value = "{$and:[{'publicToAll':true},{'$or':[{'publicToMarketplace':?0},{'agencyProfile':?1}]}, {'_id': { $in: ?2}}]}", fields = "{_id : 1}")
-    Flux<Application> findByPublicToAllIsTrueAndPublicToMarketplaceIsOrAgencyProfileIsAndIdIn
-            (Boolean publicToMarketplace, Boolean agencyProfile, Collection<String> ids); */
-
-    // this we do not need
-    // Flux<Application> findByPublicToAllIsTrueAndPublicToMarketplaceIsAndAgencyProfileIsAndIdIn(Boolean publicToMarketplace, Boolean agencyProfile, Collection<String> ids);
+    Flux<Application> findByIdIn(Collection<String> ids);
 
     /**
      * Filter public applications from list of supplied IDs
