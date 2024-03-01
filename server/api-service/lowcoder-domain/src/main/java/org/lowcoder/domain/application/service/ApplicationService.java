@@ -206,12 +206,19 @@ public class ApplicationService {
 
     @NonEmptyMono
     @SuppressWarnings("ReactiveStreamsNullableInLambdaInTransform")
-    public Mono<Set<String>> getFilteredPublicApplicationIds(ApplicationRequestType requestType, Collection<String> applicationIds, Boolean isAnonymous, Boolean isPrivateMarketplace) {
+    public Mono<Set<String>> getFilteredPublicApplicationIds(ApplicationRequestType requestType, Collection<String> applicationIds, boolean isAnonymous, Boolean isPrivateMarketplace) {
 
     	switch(requestType)
     	{
 	    	case PUBLIC_TO_ALL:
-	    		return getPublicApplicationIds(applicationIds);
+	    		if (isAnonymous)
+	    		{
+	    			return getPublicApplicationIds(applicationIds);
+	    		}
+	    		else
+	    		{
+	    			return getPrivateApplicationIds(applicationIds);
+	    		}
 	    	case PUBLIC_TO_MARKETPLACE:
 	    		return getPublicMarketplaceApplicationIds(applicationIds, isAnonymous, isPrivateMarketplace);
 	    	case AGENCY_PROFILE:
@@ -235,6 +242,19 @@ public class ApplicationService {
     }
 
 
+    /**
+     * Find all private applications for viewing.
+     */
+    @NonEmptyMono
+    @SuppressWarnings("ReactiveStreamsNullableInLambdaInTransform")
+    public Mono<Set<String>> getPrivateApplicationIds(Collection<String> applicationIds) {
+    	// TODO: in 2.4.0 we need to check whether the app was published or not
+        return repository.findByIdIn(applicationIds)
+                        .map(HasIdAndAuditing::getId)
+                        .collect(Collectors.toSet());
+    }
+    
+    
     /**
      * Find all marketplace applications - filter based on whether user is anonymous and whether it's a private marketplace
      */
