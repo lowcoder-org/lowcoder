@@ -2210,6 +2210,7 @@ home: {
     "errorMarketplaceApps": "获取市场应用程序错误",
     "localMarketplaceTitle": "本地市场",
     "globalMarketplaceTitle": "Lowcoder 市场",
+    "allCategories": "所有类别",
     memberPermissionList: "成员权限:",
     orgName: "{orgName}管理员",
     addMember: "添加成员",

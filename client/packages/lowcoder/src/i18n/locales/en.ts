@@ -2266,6 +2266,7 @@ export const en = {
     "module": "Module",
     "trash": "Trash",
     "marketplace": "Marketplace",
+    "allCategories": "All Categories",
     "queryLibrary": "Query Library",
     "datasource": "Data Sources",
     "selectDatasourceType": "Select Data Source Type",

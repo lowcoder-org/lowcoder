@@ -172,7 +172,7 @@ const AppCategories = Object.keys(ApplicationCategoriesEnum).map(
     const value = ApplicationCategoriesEnum[cat as AppCategoriesEnumKey];
     return {
       label: value,
-      value,
+      value: cat
     }
   }
 )
