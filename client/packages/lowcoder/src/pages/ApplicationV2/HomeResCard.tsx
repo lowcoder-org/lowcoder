@@ -73,7 +73,7 @@ const Card = styled.div`
   align-items: center;
   height: 100%;
   width: 100%;
-  border-bottom: 1px solid #f5f5f6;
+  
   padding: 0 10px;
 
   button {

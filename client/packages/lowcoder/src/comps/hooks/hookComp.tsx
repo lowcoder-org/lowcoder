@@ -29,6 +29,7 @@ import { useInterval, useTitle, useWindowSize } from "react-use";
 import { useCurrentUser } from "util/currentUser";
 import { LocalStorageComp } from "./localStorageComp";
 import { MessageComp } from "./messageComp";
+import { ToastComp } from "./toastComp";
 import { ThemeComp } from "./themeComp";
 import UrlParamsHookComp from "./UrlParamsHookComp";
 import { UtilsComp } from "./utilsComp";
@@ -94,6 +95,7 @@ const HookMap: HookCompMapRawType = {
   momentJsLib: DayJsLib, // old components use this hook
   utils: UtilsComp,
   message: MessageComp,
+  toast: ToastComp,
   localStorage: LocalStorageComp,
   modal: ModalComp,
   meeting: VideoMeetingControllerComp,

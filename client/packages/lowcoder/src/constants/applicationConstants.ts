@@ -16,6 +16,7 @@ export enum AppTypeEnum {
 }
 
 export enum ApplicationCategoriesEnum {
+  SUPPORT = "Support",
   BUSINESS = "Business",
   DASHBOARD = "Dashboards & Reporting",
   SLIDES = "Slides & Presentations",
@@ -78,7 +79,7 @@ export interface ApplicationMeta {
   creatorEmail?: string;
   title?: string;
   description?: string;
-  icon?: string;
+  image?: string;
   category?: ApplicationCategoriesEnum;
   showheader?: boolean;
   orgId: string;
