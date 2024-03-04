@@ -13,8 +13,6 @@ export function MarketplaceView() {
   const [ marketplaceApps, setMarketplaceApps ] = useState<Array<ApplicationMeta>>([]);
   const [ localMarketplaceApps, setLocalMarketplaceApps ] = useState<Array<ApplicationMeta>>([]);
 
-  // console.log("localMarketplaceApps", localMarketplaceApps);
-
   const fetchMarketplaceApps = async () => {
     try {
       let response: AxiosResponse<GenericApiResponse<ApplicationMeta[]>>;
