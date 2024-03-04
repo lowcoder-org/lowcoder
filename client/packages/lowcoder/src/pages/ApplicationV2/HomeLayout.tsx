@@ -331,7 +331,6 @@ export function HomeLayout(props: HomeLayoutProps) {
   else if (mode === "marketplace" && !isSelfHost) {
     const markedLocalApps = localMarketplaceApps.map(app => ({ ...app, isLocalMarketplace: true }));
     displayElements = [...markedLocalApps];
-    console.log("displayElements: ", displayElements, markedLocalApps);
   }
 
   const resList: HomeRes[] = displayElements
