@@ -67,6 +67,7 @@ const Card = styled.div`
   display: flex;
   align-items: center;
   height: 100%;
+  min-height:100px;
   width: 100%;
   border-bottom: 1px solid #f5f5f6;
   padding: 0 10px;
