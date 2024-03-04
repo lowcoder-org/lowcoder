@@ -21,10 +21,11 @@ DOCKER_BUILDKIT=1 docker build -f deploy/docker/Dockerfile -t lowcoderorg/lowcod
 
 Image can be configured by setting environment variables.
 
-| Environment variable                | Description                                                             | Value                                                 |
+| Environment variable                | Description                                                             | Default-Value                                                 |
 |-------------------------------------| ----------------------------------------------------------------------- | ----------------------------------------------------- |
 | `LOWCODER_REDIS_ENABLED`            | If **true** redis server is started in the container                    | `true`                                                |
 | `LOWCODER_MONGODB_ENABLED`          | If **true** mongo database is started in the container                  | `true`                                                |
+| `LOWCODER_MONGODB_EXPOSED`          | If **true** mongo database accept connections from outside the docker   | `false`                                               |
 | `LOWCODER_API_SERVICE_ENABLED`      | If **true** lowcoder api-service is started in the container            | `true`                                                |
 | `LOWCODER_NODE_SERVICE_ENABLED`     | If **true** lowcoder node-service is started in the container           | `true`                                                |
 | `LOWCODER_FRONTEND_ENABLED`         | If **true** lowcoder web frontend is started in the container           | `true`                                                |
@@ -50,7 +51,12 @@ Image can be configured by setting environment variables.
 | `LOWCODER_CREATE_WORKSPACE_ON_SIGNUP`       | IF LOWCODER_WORKSPACE_MODE = SAAS, controls if a own workspace is created for the user after sign up                 | `true`                                                |
 | `LOWCODER_MARKETPLACE_PRIVATE_MODE` | Control if not to show Apps on the local Marketplace to anonymous users | `true`                                                |
 
+Also you should set the API-KEY secret, whcih should be a string of at least 32 random characters
+On linux/mac, generate one eg. with: head /dev/urandom | head -c 30 | shasum -a 256
 
+| Environment variable                | Description                                                             | Default-Value                                                 |
+|-------------------------------------| ----------------------------------------------------------------------- | ----------------------------------------------------- |
+| `LOWCODER_API_KEY_SECRET`           | String to encrypt/sign API Keys that users may create                   |                                                       |
 
 
 ## Building api-service image
@@ -69,7 +75,7 @@ DOCKER_BUILDKIT=1 docker build -f deploy/docker/Dockerfile -t lowcoderorg/lowcod
 
 Image can be configured by setting environment variables.
 
-| Environment variable            | Description                                                         | Value                                                 |
+| Environment variable            | Description                                                         | Default-Value                                                 |
 | --------------------------------| --------------------------------------------------------------------| ------------------------------------------------------|
 | `LOWCODER_PUID`                 | ID of user running services. It will own all created logs and data. | `9001`                                                |
 | `LOWCODER_PGID`                 | ID of group of the user running services.                           | `9001`                                                |
@@ -105,7 +111,7 @@ DOCKER_BUILDKIT=1 docker build -f deploy/docker/Dockerfile -t lowcoderorg/lowcod
 
 Image can be configured by setting environment variables.
 
-| Environment variable            | Description                                                         | Value                                                   |
+| Environment variable            | Description                                                         | Default-Value                                                   |
 | --------------------------------| --------------------------------------------------------------------| ------------------------------------------------------- |
 | `LOWCODER_PUID`                 | ID of user running services. It will own all created logs and data. | `9001`                                                  |
 | `LOWCODER_PGID`                 | ID of group of the user running services.                           | `9001`                                                  |
@@ -127,7 +133,7 @@ DOCKER_BUILDKIT=1 docker build -f deploy/docker/Dockerfile -t lowcoderorg/lowcod
 
 Image can be configured by setting environment variables.
 
-| Environment variable            | Description                                                         | Value                                                   |
+| Environment variable            | Description                                                         | Default-Value                                                   |
 | --------------------------------| --------------------------------------------------------------------| ------------------------------------------------------- |
 | `LOWCODER_PUID`                 | ID of user running services. It will own all created logs and data. | `9001`                                                  |
 | `LOWCODER_PGID`                 | ID of group of the user running services.                           | `9001`                                                  |

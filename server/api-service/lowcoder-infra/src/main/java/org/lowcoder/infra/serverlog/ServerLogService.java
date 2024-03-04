@@ -51,6 +51,8 @@ public class ServerLogService {
         if(lastMonthOnly != null && lastMonthOnly) {
             Long startMonthEpoch = LocalDateTime.now().minusMonths(1).with(TemporalAdjusters.firstDayOfMonth()).toEpochSecond(ZoneOffset.UTC)*1000;
             Long endMonthEpoch = LocalDateTime.now().minusMonths(1).with(TemporalAdjusters.lastDayOfMonth()).toEpochSecond(ZoneOffset.UTC)*1000;
+            System.out.println("startMonthEpoch is: " + startMonthEpoch);
+            System.out.println("endMonthEpoch is: " + endMonthEpoch);
             return serverLogRepository.countByOrgIdAndCreateTimeBetween(orgId, startMonthEpoch, endMonthEpoch);
         }
         return serverLogRepository.countByOrgId(orgId);

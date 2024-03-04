@@ -25,6 +25,8 @@ const getStyle = (style: RadioStyleType) => {
         font-size:${style.textSize};
         font-weight:${style.textWeight};
         font-style:${style.fontStyle};
+        text-transform:${style.textTransform};
+        text-decoration:${style.textDecoration};
       }
 
       .ant-radio-checked {
@@ -45,6 +47,12 @@ const getStyle = (style: RadioStyleType) => {
         &::after {
           background-color: ${style.checked};
         }
+      }
+
+      &:hover .ant-radio-inner, 
+      .ant-radio:hover .ant-radio-inner,
+      .ant-radio-input + ant-radio-inner {
+        background-color:${style.hoverBackground ? style.hoverBackground:'#ffff'};
       }
 
       &:hover .ant-radio-inner,

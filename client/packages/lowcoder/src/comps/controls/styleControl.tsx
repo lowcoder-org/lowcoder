@@ -547,6 +547,8 @@ export function styleControl<T extends readonly SingleColorConfig[]>(colorConfig
       name === "cardRadius" ||
       name === "textSize" ||
       name === "textWeight" ||
+      name === "textTransform" ||
+      name === "textDecoration" ||
       name === "fontFamily" ||
       name === "fontStyle" ||
       name === "backgroundImage" ||
