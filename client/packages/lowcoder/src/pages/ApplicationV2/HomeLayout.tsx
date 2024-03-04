@@ -334,6 +334,8 @@ export function HomeLayout(props: HomeLayoutProps) {
     displayElements = [...markedLocalApps];
   }
 
+  console.log("displayElements", displayElements, mode, window.location.host, isSelfHost);
+
   const resList: HomeRes[] = displayElements
     .filter((e) =>
       searchValue
@@ -420,14 +422,6 @@ export function HomeLayout(props: HomeLayoutProps) {
       onClick: () => currentPath !== b.path && history.push(b.path)
     }))
   ]
-
-  const testOptions = [
-    getFilterMenuItem(HomeResTypeEnum.All),
-    getFilterMenuItem(HomeResTypeEnum.Application),
-    getFilterMenuItem(HomeResTypeEnum.Module),
-    ...(mode !== "marketplace" ? [getFilterMenuItem(HomeResTypeEnum.Navigation)] : []),
-    ...(mode !== "trash" && mode !== "marketplace" ? [getFilterMenuItem(HomeResTypeEnum.Folder)] : []),
-  ];
 
   return (
     <Wrapper>
