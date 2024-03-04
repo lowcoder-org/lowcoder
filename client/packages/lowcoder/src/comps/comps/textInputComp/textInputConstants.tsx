@@ -9,7 +9,7 @@ import {
 } from "comps/controls/codeControl";
 import { stringExposingStateControl } from "comps/controls/codeStateControl";
 import { LabelControl } from "comps/controls/labelControl";
-import { InputLikeStyleType, heightCalculator, widthCalculator } from "comps/controls/styleControlConstants";
+import { InputLikeStyleType, LabelStyleType, heightCalculator, widthCalculator } from "comps/controls/styleControlConstants";
 import { Section, sectionNames, ValueFromOption } from "lowcoder-design";
 import _ from "lodash";
 import { css } from "styled-components";
@@ -235,7 +235,7 @@ export const TextInputValidationSection = (children: TextInputComp) => (
   </Section>
 );
 
-export function getStyle(style: InputLikeStyleType) {
+export function getStyle(style: InputLikeStyleType, labelStyle?: LabelStyleType) {
   return css`
     border-radius: ${style.radius};
     border-width: ${style.borderWidth};

@@ -15,7 +15,7 @@ import {
 } from "./selectInputConstants";
 import { formDataChildren } from "../formComp/formDataConstants";
 import { styleControl } from "comps/controls/styleControl";
-import { CheckboxStyle, CheckboxStyleType } from "comps/controls/styleControlConstants";
+import { CheckboxStyle, CheckboxStyleType, LabelStyle } from "comps/controls/styleControlConstants";
 import { RadioLayoutOptions, RadioPropertyView } from "./radioCompConstants";
 import { dropdownControl } from "../../controls/dropdownControl";
 import { ValueFromOption } from "lowcoder-design";
@@ -135,6 +135,7 @@ const CheckboxBasicComp = (function () {
     onEvent: ChangeEventHandlerControl,
     options: SelectInputOptionControl,
     style: styleControl(CheckboxStyle),
+    labelStyle:styleControl(LabelStyle),
     layout: dropdownControl(RadioLayoutOptions, "horizontal"),
     viewRef: RefControl<HTMLDivElement>,
 
@@ -148,7 +149,7 @@ const CheckboxBasicComp = (function () {
     ] = useSelectInputValidate(props);
     return props.label({
       required: props.required,
-      style: props.style,
+      style: props.labelStyle,
       children: (
         <CheckboxGroup
           ref={props.viewRef}

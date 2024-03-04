@@ -1,5 +1,5 @@
 import { styleControl } from "comps/controls/styleControl";
-import { SelectStyle } from "comps/controls/styleControlConstants";
+import { LabelStyle, SelectStyle } from "comps/controls/styleControlConstants";
 import { trans } from "i18n";
 import { stringExposingStateControl } from "../../controls/codeStateControl";
 import { UICompBuilder } from "../../generators";
@@ -24,6 +24,7 @@ const SelectBasicComp = (function () {
     defaultValue: stringExposingStateControl("defaultValue"),
     value: stringExposingStateControl("value"),
     style: styleControl(SelectStyle),
+    labelStyle: styleControl(LabelStyle)
   };
   return new UICompBuilder(childrenMap, (props, dispatch) => {
     const [
@@ -35,10 +36,10 @@ const SelectBasicComp = (function () {
     propsRef.current = props;
 
     const valueSet = new Set<any>(props.options.map((o) => o.value)); // Filter illegal default values entered by the user
-    
+
     return props.label({
       required: props.required,
-      style: props.style,
+      style: props.labelStyle,
       children: (
         <SelectUIView
           {...props}

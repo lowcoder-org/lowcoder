@@ -20,7 +20,7 @@ import { UICompBuilder, withDefault } from "../../generators";
 import { CommonNameConfig, depsConfig, withExposingConfigs } from "../../generators/withExposing";
 import { formDataChildren, FormDataPropertyView } from "../formComp/formDataConstants";
 import { styleControl } from "comps/controls/styleControl";
-import { DateTimeStyle, DateTimeStyleType } from "comps/controls/styleControlConstants";
+import { DateTimeStyle, DateTimeStyleType, LabelStyle } from "comps/controls/styleControlConstants";
 import { withMethodExposing } from "../../generators/withMethodExposing";
 import {
   disabledPropertyView,
@@ -72,6 +72,7 @@ const commonChildren = {
   minuteStep: RangeControl.closed(1, 60, 1),
   secondStep: RangeControl.closed(1, 60, 1),
   style: styleControl(DateTimeStyle),
+  labelStyle: styleControl(LabelStyle.filter((style) => ['accent', 'validate'].includes(style.name) === false)),
   suffixIcon: withDefault(IconControl, "/icon:regular/calendar"),
   ...validationChildren,
   viewRef: RefControl<CommonPickerMethods>,
@@ -159,12 +160,12 @@ export type DateCompViewProps = Pick<
 
 export const datePickerControl = new UICompBuilder(childrenMap, (props) => {
   let time = dayjs(null);
-  if(props.value.value !== '') {
+  if (props.value.value !== '') {
     time = dayjs(props.value.value, DateParser);
   }
   return props.label({
     required: props.required,
-    style: props.style,
+    style: props.labelStyle,
     children: (
       <DateUIView
         viewRef={props.viewRef}
@@ -212,11 +213,11 @@ export const datePickerControl = new UICompBuilder(childrenMap, (props) => {
 
         {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
           <><Section name={sectionNames.validation}>
-              {requiredPropertyView(children)}
-              {dateValidationFields(children)}
-              {timeValidationFields(children)}
-              {children.customRule.propertyView({})}
-            </Section>
+            {requiredPropertyView(children)}
+            {dateValidationFields(children)}
+            {timeValidationFields(children)}
+            {children.customRule.propertyView({})}
+          </Section>
             <Section name={sectionNames.interaction}>
               {children.onEvent.getPropertyView()}
               {disabledPropertyView(children)}
@@ -234,9 +235,9 @@ export const datePickerControl = new UICompBuilder(childrenMap, (props) => {
             {children.placeholder.propertyView({ label: trans("date.placeholderText") })}
           </Section>
         )}
-        
+
         {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
-           <><Section name={sectionNames.advanced}>
+          <><Section name={sectionNames.advanced}>
             {timeFields(children, isMobile)}
             {children.suffixIcon.propertyView({ label: trans("button.suffixIcon") })}
           </Section></>
@@ -244,9 +245,14 @@ export const datePickerControl = new UICompBuilder(childrenMap, (props) => {
         {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && !isMobile && commonAdvanceSection(children)}
 
         {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
-          <Section name={sectionNames.style}>
-            {children.style.getPropertyView()}
-          </Section>
+          <>
+            <Section name={sectionNames.style}>
+              {children.style.getPropertyView()}
+            </Section>
+            <Section name={sectionNames.labelStyle}>
+              {children.labelStyle.getPropertyView()}
+            </Section>
+          </>
         )}
       </>
     );
@@ -264,10 +270,10 @@ export const dateRangeControl = (function () {
   return new UICompBuilder(childrenMap, (props) => {
     let start = dayjs(null);
     let end = dayjs(null);
-    if(props.start.value !== '') {
+    if (props.start.value !== '') {
       start = dayjs(props.start.value, DateParser);
     }
-    if(props.end.value !== '') {
+    if (props.end.value !== '') {
       end = dayjs(props.end.value, DateParser);
     }
 
@@ -309,13 +315,13 @@ export const dateRangeControl = (function () {
 
     return props.label({
       required: props.required,
-      style: props.style,
+      style: props.labelStyle,
       children: children,
       ...(startResult.validateStatus !== "success"
         ? startResult
         : endResult.validateStatus !== "success"
-        ? endResult
-        : startResult),
+          ? endResult
+          : startResult),
     });
   })
     .setPropertyViewFn((children) => {
@@ -337,11 +343,11 @@ export const dateRangeControl = (function () {
 
           {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
             <><Section name={sectionNames.validation}>
-                {requiredPropertyView(children)}
-                {dateValidationFields(children)}
-                {timeValidationFields(children)}
-                {children.customRule.propertyView({})}
-              </Section>
+              {requiredPropertyView(children)}
+              {dateValidationFields(children)}
+              {timeValidationFields(children)}
+              {children.customRule.propertyView({})}
+            </Section>
               <Section name={sectionNames.interaction}>
                 {children.onEvent.getPropertyView()}
                 {disabledPropertyView(children)}
@@ -358,7 +364,7 @@ export const dateRangeControl = (function () {
               {children.placeholder.propertyView({ label: trans("date.placeholderText") })}
             </Section>
           )}
-          
+
           {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
             <><Section name={sectionNames.advanced}>
               {timeFields(children, isMobile)}
@@ -368,9 +374,14 @@ export const dateRangeControl = (function () {
           {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && commonAdvanceSection(children)}
 
           {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
-            <Section name={sectionNames.style}>
-              {children.style.getPropertyView()}
-            </Section>
+            <>
+              <Section name={sectionNames.style}>
+                {children.style.getPropertyView()}
+              </Section>
+              <Section name={sectionNames.labelStyle}>
+                {children.labelStyle.getPropertyView()}
+              </Section>
+            </>
           )}
 
         </>
