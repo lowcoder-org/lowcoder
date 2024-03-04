@@ -152,24 +152,43 @@ export const updateOrgSuccess = (payload: UpdateOrgPayload) => {
   };
 };
 
+
+// till now
 export type OrgAPIUsagePayload = {
   apiUsage: number,
 };
-
 export const fetchAPIUsageAction = (
   orgId: string,
-  lastMonthOnly?: boolean,
 ) => ({
   type: ReduxActionTypes.FETCH_ORG_API_USAGE,
   payload: {
     orgId,
-    lastMonthOnly,
   },
 });
 
-export const fetchAPIUsageSuccessAction = (apiUsage: number) => ({
-  type: ReduxActionTypes.FETCH_ORG_API_USAGE_SUCCESS,
+export const fetchAPIUsageActionSuccess = (payload: OrgAPIUsagePayload) => {
+  return {
+    type: ReduxActionTypes.FETCH_ORG_API_USAGE_SUCCESS,
+    payload: payload,
+  };
+};
+
+// last month
+export type OrgLastMonthAPIUsagePayload = {
+  lastMonthApiUsage: number,
+};
+export const fetchLastMonthAPIUsageAction = (
+  orgId: string,
+) => ({
+  type: ReduxActionTypes.FETCH_ORG_LAST_MONTH_API_USAGE,
   payload: {
-    apiUsage,
+    orgId,
   },
 });
+
+export const fetchLastMonthAPIUsageActionSuccess = (payload: OrgLastMonthAPIUsagePayload) => {
+  return {
+    type: ReduxActionTypes.FETCH_ORG_LAST_MONTH_API_USAGE_SUCCESS,
+    payload: payload,
+  };
+};

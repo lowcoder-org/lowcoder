@@ -1,6 +1,6 @@
 {
   "name": "lowcoder-root",
-  "version": "2.3.0",
+  "version": "2.3.1",
   "type": "module",
   "private": true,
   "workspaces": [
@@ -11,6 +11,7 @@
   },
   "scripts": {
     "start": "yarn workspace lowcoder start",
+    "start-win": "LOWCODER_API_SERVICE_URL=http://localhost:3000 yarn start",
     "start:ee": "REACT_APP_EDITION=enterprise yarn workspace lowcoder start",
     "start:ee-global": "REACT_APP_EDITION=enterprise-global yarn workspace lowcoder start",
     "build": "yarn node ./scripts/build.js",
@@ -78,7 +79,6 @@
     "chalk": "4",
     "number-precision": "^1.6.0",
     "react-player": "^2.11.0",
-    "remixicon-react": "^1.0.0",
     "tui-image-editor": "^3.15.3"
   }
 }

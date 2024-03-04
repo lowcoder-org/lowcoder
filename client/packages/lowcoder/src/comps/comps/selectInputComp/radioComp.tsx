@@ -21,6 +21,12 @@ const getStyle = (style: RadioStyleType) => {
       padding: ${style.padding};
       span:not(.ant-radio) {
         ${EllipsisTextCss};
+        font-family:${style.fontFamily};
+        font-size:${style.textSize};
+        font-weight:${style.textWeight};
+        font-style:${style.fontStyle};
+        text-transform:${style.textTransform};
+        text-decoration:${style.textDecoration};
       }
 
       .ant-radio-checked {
@@ -37,10 +43,16 @@ const getStyle = (style: RadioStyleType) => {
       .ant-radio-inner {
         background-color: ${style.uncheckedBackground};
         border-color: ${style.uncheckedBorder};
-
+        border-width:${style.borderWidth};
         &::after {
           background-color: ${style.checked};
         }
+      }
+
+      &:hover .ant-radio-inner, 
+      .ant-radio:hover .ant-radio-inner,
+      .ant-radio-input + ant-radio-inner {
+        background-color:${style.hoverBackground ? style.hoverBackground:'#ffff'};
       }
 
       &:hover .ant-radio-inner,

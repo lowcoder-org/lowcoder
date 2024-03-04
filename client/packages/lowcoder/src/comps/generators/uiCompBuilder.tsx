@@ -161,9 +161,6 @@ export const DisabledContext = React.createContext<boolean>(false);
  */
 function UIView(props: { comp: any; viewFn: any }) {
   const comp = props.comp;
-  console.log(comp);
-
-  console.log(comp.children);
 
   const childrenProps = childrenToProps(comp.children);
   const parentDisabled = useContext(DisabledContext);

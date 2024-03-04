@@ -58,7 +58,14 @@ import { EditorContext } from "comps/editorState";
 const Wrapper = styled.div<{
   $style: InputLikeStyleType;
 }>`
-  height: 100%;
+  box-sizing:border-box;
+  .rc-textarea {
+    background-color:${(props) => props.$style.background};
+    padding:${(props) => props.$style.padding};
+    text-transform:${(props)=>props.$style.textTransform};
+    text-decoration:${(props)=>props.$style.textDecoration};
+    margin: 0px 3px 0px 3px !important;
+  }
 
   .ant-input-clear-icon {
     opacity: 0.45;
@@ -101,7 +108,7 @@ let MentionTmpComp = (function () {
     const [activationFlag, setActivationFlag] = useState(false);
     const [prefix, setPrefix] = useState<PrefixType>("@");
     type PrefixType = "@" | keyof typeof mentionList;
-    
+
     const onSearch = (_: string, newPrefix: PrefixType) => {
       setPrefix(newPrefix);
     };
@@ -192,7 +199,17 @@ let MentionTmpComp = (function () {
                 label: value,
               }))}
               autoSize={props.autoHeight}
-              style={{ height: "100%", maxHeight: "100%", resize: "none", padding: props.style.padding }}
+              style={{
+                height: "100%",
+                maxHeight: "100%",
+                resize: "none",
+                // padding: props.style.padding,
+                fontStyle: props.style.fontStyle,
+                fontFamily: props.style.fontFamily,
+                borderWidth: props.style.borderWidth,
+                fontWeight: props.style.textWeight,
+                fontSize: props.style.textSize
+              }}
               readOnly={props.readOnly}
             />
           </ConfigProvider>
@@ -222,12 +239,12 @@ let MentionTmpComp = (function () {
         )}
 
         {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
-        <><Section name={sectionNames.interaction}>
+          <><Section name={sectionNames.interaction}>
             {children.onEvent.getPropertyView()}
             {disabledPropertyView(children)}
           </Section>
-          <Section name={sectionNames.layout}>{hiddenPropertyView(children)}</Section>
-          <Section name={sectionNames.advanced}>
+            <Section name={sectionNames.layout}>{hiddenPropertyView(children)}</Section>
+            <Section name={sectionNames.advanced}>
               {readOnlyPropertyView(children)}
             </Section><Section name={sectionNames.validation}>
               {requiredPropertyView(children)}
@@ -241,9 +258,9 @@ let MentionTmpComp = (function () {
         )}
 
         {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
-        <><Section name={sectionNames.style}>
-              {children.style.getPropertyView()}
-            </Section></>
+          <><Section name={sectionNames.style}>
+            {children.style.getPropertyView()}
+          </Section></>
         )}
       </>
     ))

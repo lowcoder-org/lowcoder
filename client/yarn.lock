@@ -1982,15 +1982,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@dnd-kit/modifiers@npm:^5.0.0":
-  version: 5.0.0
-  resolution: "@dnd-kit/modifiers@npm:5.0.0"
+"@dnd-kit/modifiers@npm:^7.0.0":
+  version: 7.0.0
+  resolution: "@dnd-kit/modifiers@npm:7.0.0"
   dependencies:
-    "@dnd-kit/utilities": ^3.1.0
+    "@dnd-kit/utilities": ^3.2.2
     tslib: ^2.0.0
   peerDependencies:
-    "@dnd-kit/core": ^5.0.0
-  checksum: 93889b8cfc3ba787f8bddaddd4428c121065a02752a5f8dfa38774441c3466b7a9f24555144aced93e2c051087deb01bd073d91654ff1eda28e564591bf700aa
+    "@dnd-kit/core": ^6.1.0
+    react: ">=16.8.0"
+  checksum: 176f76a552a2692a205f7fe647c836aa7ded7f0fdc3370407f3633c153139fe838cb85e59cbc3b156377cc8fe3fb7b72af15b97ed3de15cec904eae35f0c36e6
   languageName: node
   linkType: hard
 
@@ -2007,7 +2008,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@dnd-kit/utilities@npm:^3.1.0":
+"@dnd-kit/utilities@npm:^3.1.0, @dnd-kit/utilities@npm:^3.2.2":
   version: 3.2.2
   resolution: "@dnd-kit/utilities@npm:3.2.2"
   dependencies:
@@ -10122,9 +10123,9 @@ __metadata:
   linkType: hard
 
 "ip@npm:^2.0.0":
-  version: 2.0.0
-  resolution: "ip@npm:2.0.0"
-  checksum: cfcfac6b873b701996d71ec82a7dd27ba92450afdb421e356f44044ed688df04567344c36cbacea7d01b1c39a4c732dc012570ebe9bebfb06f27314bca625349
+  version: 2.0.1
+  resolution: "ip@npm:2.0.1"
+  checksum: d765c9fd212b8a99023a4cde6a558a054c298d640fec1020567494d257afd78ca77e37126b1a3ef0e053646ced79a816bf50621d38d5e768cdde0431fa3b0d35
   languageName: node
   linkType: hard
 
@@ -12089,7 +12090,6 @@ __metadata:
     number-precision: ^1.6.0
     prettier: ^3.1.0
     react-player: ^2.11.0
-    remixicon-react: ^1.0.0
     rimraf: ^3.0.2
     rollup: ^2.79.0
     shelljs: ^0.8.5
@@ -12143,7 +12143,7 @@ __metadata:
     "@codemirror/lang-sql": ^6.5.4
     "@codemirror/search": ^6.5.5
     "@dnd-kit/core": ^5.0.1
-    "@dnd-kit/modifiers": ^5.0.0
+    "@dnd-kit/modifiers": ^7.0.0
     "@dnd-kit/sortable": ^6.0.0
     "@dnd-kit/utilities": ^3.1.0
     "@fortawesome/fontawesome-svg-core": ^6.5.1
@@ -15702,15 +15702,6 @@ __metadata:
     mdast-util-to-hast: ^12.1.0
     unified: ^10.0.0
   checksum: b9ac8acff3383b204dfdc2599d0bdf86e6ca7e837033209584af2e6aaa6a9013e519a379afa3201299798cab7298c8f4b388de118c312c67234c133318aec084
-  languageName: node
-  linkType: hard
-
-"remixicon-react@npm:^1.0.0":
-  version: 1.0.0
-  resolution: "remixicon-react@npm:1.0.0"
-  peerDependencies:
-    react: ">=0.14.0"
-  checksum: be7abfb3558c9ed18ccfff5a28bd66dbee4207887682ae7a00c697e6051eadecad0da83f1e83910ed6ddebe7f2ab73e488f0f4c604897605bbb3d8f519f416ed
   languageName: node
   linkType: hard
 

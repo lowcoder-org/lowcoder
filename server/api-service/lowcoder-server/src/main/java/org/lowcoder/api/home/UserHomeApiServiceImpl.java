@@ -6,6 +6,7 @@ import static org.lowcoder.infra.util.MonoUtils.emptyIfNull;
 import static org.lowcoder.sdk.util.StreamUtils.collectList;
 
 import java.time.Instant;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -40,6 +41,7 @@ import org.lowcoder.domain.user.model.UserStatus;
 import org.lowcoder.domain.user.service.UserService;
 import org.lowcoder.domain.user.service.UserStatusService;
 import org.lowcoder.infra.util.NetworkUtils;
+import org.lowcoder.sdk.config.CommonConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
@@ -79,6 +81,9 @@ public class UserHomeApiServiceImpl implements UserHomeApiService {
     private FolderApiService folderApiService;
     @Autowired
     private UserApplicationInteractionService userApplicationInteractionService;
+
+    @Autowired
+    private CommonConfig config;
 
     @Override
     public Mono<UserProfileView> buildUserProfileView(User user, ServerWebExchange exchange) {
@@ -260,8 +265,13 @@ public class UserHomeApiServiceImpl implements UserHomeApiService {
     @Override
     public Flux<MarketplaceApplicationInfoView> getAllMarketplaceApplications(@Nullable ApplicationType applicationType) {
 
-        return sessionUserService.getVisitorOrgMemberCache()
-                .flatMapMany(orgMember -> {
+        return sessionUserService.isAnonymousUser()
+                .flatMapMany(isAnonymousUser -> {
+
+                    if(config.getMarketplace().isPrivateMode() && isAnonymousUser) {
+                        return Mono.empty();
+                    }
+
                     // application flux
                     Flux<Application> applicationFlux = Flux.defer(() -> applicationService.findAllMarketplaceApps())
                             .filter(application -> isNull(applicationType) || application.getApplicationType() == applicationType.getValue())
@@ -287,12 +297,12 @@ public class UserHomeApiServiceImpl implements UserHomeApiService {
 
                     return applicationFlux
                             .flatMap(application -> Mono.zip(Mono.just(application), userMapMono, orgMapMono))
-                            .map(tuple -> {
+                            .map(tuple2 -> {
                                 // build view
-                                Application application = tuple.getT1();
-                                Map<String, User> userMap = tuple.getT2();
-                                Map<String, Organization> orgMap = tuple.getT3();
-                                return MarketplaceApplicationInfoView.builder()
+                                Application application = tuple2.getT1();
+                                Map<String, User> userMap = tuple2.getT2();
+                                Map<String, Organization> orgMap = tuple2.getT3();
+                                MarketplaceApplicationInfoView marketplaceApplicationInfoView = MarketplaceApplicationInfoView.builder()
                                         .applicationId(application.getId())
                                         .name(application.getName())
                                         .applicationType(application.getApplicationType())
@@ -305,6 +315,21 @@ public class UserHomeApiServiceImpl implements UserHomeApiService {
                                         .createAt(application.getCreatedAt().toEpochMilli())
                                         .createBy(application.getCreatedBy())
                                         .build();
+
+                                // marketplace specific fields
+                                Map<String, Object> settings = new HashMap<>();
+                                if (application.getPublishedApplicationDSL() != null)
+                                {
+                                	settings.putAll((Map<String, Object>)application.getPublishedApplicationDSL().getOrDefault("settings", new HashMap<>()));
+                                }
+                                
+                                marketplaceApplicationInfoView.setTitle((String)settings.getOrDefault("title", application.getName()));
+                                marketplaceApplicationInfoView.setCategory((String)settings.get("category"));
+                                marketplaceApplicationInfoView.setDescription((String)settings.get("description"));
+                                marketplaceApplicationInfoView.setImage((String)settings.get("icon"));
+
+                                return marketplaceApplicationInfoView;
+
                             });
 
                 });
@@ -379,7 +404,8 @@ public class UserHomeApiServiceImpl implements UserHomeApiService {
                 .lastModifyTime(application.getUpdatedAt())
                 .lastViewTime(lastViewTime)
                 .publicToAll(application.isPublicToAll())
-                .publicToMarketplace(application.isPublicToMarketplace());
+                .publicToMarketplace(application.isPublicToMarketplace())
+                .agencyProfile(application.agencyProfile());
         if (withContainerSize) {
             return applicationInfoViewBuilder
                     .containerSize(application.getLiveContainerSize())

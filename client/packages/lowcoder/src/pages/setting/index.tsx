@@ -9,15 +9,6 @@ import SettingHome from "./settingHome";
 export function Setting() {
   const user = useSelector(getUser);
 
-  /* fetch Org's API usage
-
-  const apiUsage = useSelector(getOrgApiUsage);
-  useEffect(() => {
-    dispatch(fetchAPIUsageAction(user.currentOrgId));
-  }, [user.currentOrgId])
-
-  */
-
   if (!currentOrgAdminOrDev(user)) {
     history.push(BASE_URL);
   }
