@@ -701,7 +701,6 @@ export const ContainerFooterStyle = [
 ] as const;
 
 export const SliderStyle = [
-  LABEL,
   FILL,
   {
     name: "thumbBoder",
@@ -721,7 +720,6 @@ export const SliderStyle = [
 ] as const;
 
 export const InputLikeStyle = [
-  // LABEL,
   getStaticBackground(SURFACE_COLOR),
   ...STYLING_FIELDS_SEQUENCE,
   ...ACCENT_VALIDATE,
@@ -732,7 +730,6 @@ export const LabelStyle = [
 ]
 
 export const RatingStyle = [
-  LABEL,
   {
     name: "checked",
     label: trans("style.checked"),
@@ -748,7 +745,6 @@ export const RatingStyle = [
 ] as const;
 
 export const SwitchStyle = [
-  LABEL,
   {
     name: "handle",
     label: trans("style.handle"),
@@ -838,7 +834,6 @@ export const ModalStyle = [
 ] as const;
 
 export const CascaderStyle = [
-  LABEL,
   ...getStaticBgBorderRadiusByBg(SURFACE_COLOR, "pc"),
   TEXT,
   ACCENT,
@@ -870,7 +865,7 @@ function checkAndUncheck() {
 }
 
 export const CheckboxStyle = [
-  ...replaceAndMergeMultipleStyles(STYLING_FIELDS_SEQUENCE, 'text', [LABEL, STATIC_TEXT, VALIDATE]).filter((style) => style.name !== 'border'),
+  ...replaceAndMergeMultipleStyles(STYLING_FIELDS_SEQUENCE, 'text', [STATIC_TEXT, VALIDATE]).filter((style) => style.name !== 'border'),
   ...checkAndUncheck(),
   {
     name: "checked",
@@ -883,7 +878,7 @@ export const CheckboxStyle = [
 ] as const;
 
 export const RadioStyle = [
-  ...replaceAndMergeMultipleStyles(STYLING_FIELDS_SEQUENCE, 'text', [LABEL, STATIC_TEXT, VALIDATE]).filter((style) => style.name !== 'border' && style.name !== 'radius'),
+  ...replaceAndMergeMultipleStyles(STYLING_FIELDS_SEQUENCE, 'text', [STATIC_TEXT, VALIDATE]).filter((style) => style.name !== 'border' && style.name !== 'radius'),
   ...checkAndUncheck(),
   {
     name: "checked",
@@ -1055,7 +1050,6 @@ export const FileViewerStyle = [
 export const IframeStyle = [getBackground(), getStaticBorder("#00000000"), RADIUS, BORDER_WIDTH, MARGIN, PADDING] as const;
 
 export const DateTimeStyle = [
-  LABEL,
   ...getStaticBgBorderRadiusByBg(SURFACE_COLOR),
   TEXT,
   MARGIN,
@@ -1202,7 +1196,6 @@ export const TimeLineStyle = [
 ] as const;
 
 export const TreeStyle = [
-  LABEL,
   ...getStaticBgBorderRadiusByBg(SURFACE_COLOR),
   TEXT,
   VALIDATE,
@@ -1259,7 +1252,6 @@ export const CalendarStyle = [
 ] as const;
 
 export const SignatureStyle = [
-  LABEL,
   ...getBgBorderRadiusByBg(),
   {
     name: "pen",
