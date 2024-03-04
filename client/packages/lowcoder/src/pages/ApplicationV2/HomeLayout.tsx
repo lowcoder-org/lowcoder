@@ -307,7 +307,6 @@ export function HomeLayout(props: HomeLayoutProps) {
     checkIsMobile(window.innerWidth) ? "card" : getHomeLayout()
   );
 
-
   useEffect(() => saveHomeLayout(layout), [layout]);
 
   useEffect(() => {
@@ -329,12 +328,10 @@ export function HomeLayout(props: HomeLayoutProps) {
     // Merge local and global apps into the elements array
     displayElements = [...markedLocalApps, ...markedGlobalApps];
   }
-  else if (mode === "marketplace") {
+  else if (mode === "marketplace" && !isSelfHost) {
     const markedLocalApps = localMarketplaceApps.map(app => ({ ...app, isLocalMarketplace: true }));
     displayElements = [...markedLocalApps];
   }
-
-  console.log("displayElements", displayElements, mode, window.location.host, isSelfHost);
 
   const resList: HomeRes[] = displayElements
     .filter((e) =>

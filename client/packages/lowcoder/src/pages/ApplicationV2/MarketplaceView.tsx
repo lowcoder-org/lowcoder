@@ -46,9 +46,9 @@ export function MarketplaceView() {
   useEffect(() => {
     // Make sure we are fetching local marketplace apps for self-hosted environments
     if (window.location.host !== 'app.lowcoder.cloud') {
-      fetchLocalMarketplaceApps();
+      fetchMarketplaceApps();
     }
-    fetchMarketplaceApps();
+    fetchLocalMarketplaceApps();
   }, []);
 
   return (
