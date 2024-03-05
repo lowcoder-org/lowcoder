@@ -13,7 +13,7 @@
     "react-virtualized": "^9.22.3",
     "rehype-raw": "^6.1.1",
     "rehype-sanitize": "^5.0.1",
-    "remark-gfm": "^3.0.1"
+    "remark-gfm": "^4.0.0"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^23.0.2",
