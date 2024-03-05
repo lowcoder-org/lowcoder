@@ -377,7 +377,7 @@ let CalendarBasicComp = (function () {
             setLeft(left);
           }}
           buttonText={buttonText}
-          schedulerLicenseKey={"CC-Attribution-NonCommercial-NoDerivatives"}
+          schedulerLicenseKey={licenceKey}
           views={views}
           eventClassNames={() => (!showEventTime ? "no-time" : "")}
           slotLabelFormat={slotLabelFormat}
