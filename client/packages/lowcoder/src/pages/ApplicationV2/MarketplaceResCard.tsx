@@ -164,12 +164,8 @@ export function MarketplaceResCard(props: { res: HomeRes; }) {
         )}
         <CardInfo
           onClick={(e) => {
-            if (checkIsMobile(window.innerWidth)) {
-              history.push(APPLICATION_VIEW_URL(res.id, "view"));
-              return;
-            }
             if(res.isMarketplace) {
-              handleMarketplaceAppViewClick(res.id);
+              handleMarketplaceAppViewClick(res.id , res.isLocalMarketplace);
               return;
             }
           }}
@@ -185,7 +181,7 @@ export function MarketplaceResCard(props: { res: HomeRes; }) {
           }
         </CardInfo>
         <OperationWrapper>
-          <ExecButton onClick={() => handleMarketplaceAppViewClick(res.id)}>
+          <ExecButton onClick={() => handleMarketplaceAppViewClick(res.id, res.isLocalMarketplace)}>
             {trans("view")}
           </ExecButton>
         </OperationWrapper>
