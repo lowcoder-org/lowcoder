@@ -272,7 +272,7 @@ function ColumnPropertyView<T extends MultiBaseComp<TableChildrenType>>(props: {
         <ToolTipLabel title={trans("table.refreshButtonTooltip")}>
           <StyledRefreshIcon
             onClick={() => {
-              console.log("comp", comp);
+              // console.log("comp", comp);
               comp.dispatch(
                 wrapChildAction(
                   "columns",

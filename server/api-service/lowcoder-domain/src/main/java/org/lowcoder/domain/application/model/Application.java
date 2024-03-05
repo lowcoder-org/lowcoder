@@ -12,6 +12,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
 
+import lombok.Setter;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.lowcoder.domain.query.model.ApplicationQuery;
@@ -38,10 +39,12 @@ public class Application extends HasIdAndAuditing {
 
     private final Map<String, Object> publishedApplicationDSL;
 
-    private final Boolean publicToAll;
-    private final Boolean publicToMarketplace;
-
-    private final Boolean agencyProfile;
+    @Setter
+    private Boolean publicToAll;
+    @Setter
+    private Boolean publicToMarketplace;
+    @Setter
+    private Boolean agencyProfile;
 
     private Map<String, Object> editingApplicationDSL;
 
@@ -73,15 +76,17 @@ public class Application extends HasIdAndAuditing {
 
     @Builder
     @JsonCreator
-    public Application(@JsonProperty("orgId") String organizationId,
+    public Application(
+            @JsonProperty("orgId") String organizationId,
             @JsonProperty("name") String name,
             @JsonProperty("applicationType") Integer applicationType,
             @JsonProperty("applicationStatus") ApplicationStatus applicationStatus,
             @JsonProperty("publishedApplicationDSL") Map<String, Object> publishedApplicationDSL,
+            @JsonProperty("editingApplicationDSL") Map<String, Object> editingApplicationDSL,
             @JsonProperty("publicToAll") Boolean publicToAll,
             @JsonProperty("publicToMarketplace") Boolean publicToMarketplace,
-            @JsonProperty("agencyProfile") Boolean agencyProfile,
-            @JsonProperty("editingApplicationDSL") Map<String, Object> editingApplicationDSL) {
+            @JsonProperty("agencyProfile") Boolean agencyProfile
+        ) {
         this.organizationId = organizationId;
         this.name = name;
         this.applicationType = applicationType;
@@ -161,4 +166,9 @@ public class Application extends HasIdAndAuditing {
     public Object getLiveContainerSize() {
         return liveContainerSize.get();
     }
+
+	public Map<String, Object> getPublishedApplicationDSL() {
+		return publishedApplicationDSL;
+	}
+
 }

@@ -345,6 +345,9 @@ export const en = {
     "tableCellText": "Cell Text",
     "selectedRowBackground": "Selected Row Background",
     "hoverRowBackground": "Hover Row Background",
+    "hoverBackground":"Hover Background",
+    "textTransform":"Text Transform",
+    "textDecoration":"Text Decoration",
     "alternateRowBackground": "Alternate Row Background",
     "tableHeaderBackground": "Header Background",
     "tableHeaderText": "Header Text",
@@ -1500,6 +1503,7 @@ export const en = {
     "title": "Displayed Container Title"
   },
   "drawer": {
+    "closePosition": "Close Button Placement",
     "placement": "Drawer Placement",
     "size": "Size",
     "top": "Top",
@@ -1577,7 +1581,7 @@ export const en = {
     "advanced": "Advanced",
     "lab": "Lab",
     "branding": "Branding",
-    "oauthProviders": "OAuth Providers",
+    "oauthProviders": "User Authentication",
     "appUsage": "App Usage Logs",
     "environments": "Environments",
     "premium": "Premium"
@@ -1774,6 +1778,15 @@ export const en = {
   },
   "messageComp": {
     "info": "Send a Notification",
+    "loading": "Send a Loading Notification",
+    "success": "Send a Success Notification",
+    "warn": "Send a Warning Notification",
+    "error": "Send an Error Notification"
+  },
+  "toastComp": {
+    "destroy": "close a Notification",
+    "info": "Send a Notification",
+    "loading": "Send a Loading Notification",
     "success": "Send a Success Notification",
     "warn": "Send a Warning Notification",
     "error": "Send an Error Notification"
@@ -2032,7 +2045,10 @@ export const en = {
     "maxWidthTip": "Max Width Should Be Greater Than or Equal to 350",
     "themeSetting": "Applied Style Theme",
     "themeSettingDefault": "Default",
-    "themeCreate": "Create Theme"
+    "themeCreate": "Create Theme",
+    "appTitle": "Title",
+    "appDescription": "Description",
+    "appCategory": "Category",
   },
   "customShortcut": {
     "title": "Custom Shortcuts",
@@ -2250,6 +2266,7 @@ export const en = {
     "module": "Module",
     "trash": "Trash",
     "marketplace": "Marketplace",
+    "allCategories": "All Categories",
     "queryLibrary": "Query Library",
     "datasource": "Data Sources",
     "selectDatasourceType": "Select Data Source Type",
@@ -2605,7 +2622,7 @@ export const en = {
     "table": table,
   },
   "idSource": {
-    "title": "OAuth Providers",
+    "title": "User Authentication Provider",
     "form": "Email",
     "pay": "Premium",
     "enable": "Enable",

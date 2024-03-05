@@ -256,7 +256,7 @@ export const LeftLayersContent = (props: LeftLayersContentProps) => {
           children[types[0]]?.dispatchChangeValueAction(color);
         }
         else if(types.length === 2) { // nested object e.g. style.background
-          console.log(children[types[0]]);
+          // (children[types[0]]);
           if (!children[types[0]]) {
             if (children[compType].children[types[0]]?.children[types[1]]) {
               children[compType].children[types[0]].children[types[1]]?.dispatchChangeValueAction(color);
@@ -332,7 +332,7 @@ export const LeftLayersContent = (props: LeftLayersContentProps) => {
           children[types[0]]?.dispatchChangeValueAction(value);
         }
         else if(types.length === 2) { // nested object e.g. style.background
-          console.log(children[types[0]]);
+          // console.log(children[types[0]]);
           if (!children[types[0]]) {
             if (children[compType].children[types[0]]?.children[types[1]]) {
               children[compType].children[types[0]].children[types[1]]?.dispatchChangeValueAction(value);

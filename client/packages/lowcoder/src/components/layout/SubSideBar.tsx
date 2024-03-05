@@ -2,8 +2,8 @@ import { PropsWithChildren } from "react";
 import styled from "styled-components";
 
 const Wrapper = styled.div`
-  min-width: 232px;
-  width: 232px;
+  min-width: 280px;
+  width: 280px;
   height: 100%;
   background: #ffffff;
   border-right: 1px solid #f0f0f0;
@@ -17,6 +17,7 @@ const Wrapper = styled.div`
     color: #222222;
     margin: 0 0 20px 20px;
   }
+
   .ant-menu-inline .ant-menu-item {
     margin: 4px 0;
     padding: 10px 20px !important;

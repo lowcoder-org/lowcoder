@@ -109,17 +109,44 @@ utils.copyToClipboard( input1.value )
 Use `message` methods to send a global alert notification, which displays at the top of the screen and lasts for 3 seconds by default. Each of the following four methods supports a unique display style.
 
 ```javascript
-// messageInstance.info( text: string, options?: {duration: number = 3 } )
-messageInstance.info("Please confirm your information", { duration: 10 })
-// messageInstance.success( text: string, options?: {duration: number = 3 } )
-messageInstance.success("Query runs successfully", { duration: 10 })
-// messageInstance.warning( text: string, options?: {duration: number = 3 } )
-messageInstance.warning("Warning", { duration: 10 })
-// messageInstance.error( text: string, options?: {duration: number = 3 } )
-messageInstance.error("Query runs with error", { duration: 10 })
+// message.info( text: string, options?: {duration: number = 3 } )
+message.info("Please confirm your information", { duration: 10 })
+// message.loading( text: string, options?: {duration: number = 3 } )
+message.loading("Query is running", { duration: 5 })
+// message.success( text: string, options?: {duration: number = 3 } )
+message.success("Query runs successfully", { duration: 10 })
+// message.warning( text: string, options?: {duration: number = 3 } )
+message.warning("Warning", { duration: 10 })
+// message.error( text: string, options?: {duration: number = 3 } )
+message.error("Query runs with error", { duration: 10 })
 ```
 
 <figure><img src="../../.gitbook/assets/builtin-js-messages.png" alt=""><figcaption></figcaption></figure>
+
+## toast - dismissible stack-able notifications
+
+Use `toast` methods to send a notification, which displays at the top of the screen and lasts for 3 seconds by default. Each of the following five methods supports a unique display style. After 3 toasts they will be stacked.
+
+The id field can be used to update previous toasts. Or used to destroy the previous toast.
+
+Destroy function used without an id will remove all toast.
+
+```javascript
+// toast.open( title: string, options?: { message?: string, duration?: number = 3, id?: string, placement?: "top" | "topLeft" | "topRight" | "bottom" | "bottomRight", "bottomRight" = "bottomRight", dismissible?: boolean = true } )
+toast.open("This Is a Notification", {message: "I do not go away automatically.", duration: 0})
+// toast.info( title: string, options?: { message?: string, duration?: number = 3, id?: string, placement?: "top" | "topLeft" | "topRight" | "bottom" | "bottomRight", "bottomRight" = "bottomRight", dismissible?: boolean = true } )
+toast.info("Order #1519", {message: "Shipped out on Tuesday, Jan 3rd.", duration: 5})
+// toast.success( title: string, options?: { message?: string, duration?: number = 3, id?: string, placement?: "top" | "topLeft" | "topRight" | "bottom" | "bottomRight", "bottomRight" = "bottomRight", dismissible?: boolean = true } )
+toast.success("Query runs successfully", { duration: 10 })
+// toast.warn( title: string, options?: { message?: string, duration?: number = 3, id?: string, placement?: "top" | "topLeft" | "topRight" | "bottom" | "bottomRight", "bottomRight" = "bottomRight", dismissible?: boolean = true } )
+toast.warn("Duplicate Action", {message: "The email was previously sent on Jan 3rd. Click the button again to send.", duration: 5})
+// toast.error( title: string, options?: { message?: string, duration?: number = 3, id?: string, placement?: "top" | "topLeft" | "topRight" | "bottom" | "bottomRight", "bottomRight" = "bottomRight", dismissible?: boolean = true } )
+toast.error("Your credentials were invalid", {message: "You have 5 tries left", duration: 5})
+//toast.destroy(id?: string)
+toast.destroy()
+```
+
+<figure><img src="../../.gitbook/assets/builtin-js-toasts.png" alt=""><figcaption></figcaption></figure>
 
 ## localStorage
 
