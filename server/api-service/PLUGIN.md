@@ -1,4 +1,4 @@
-# Lowcoder plugin system (WIP)
+# Lowcoder backend plugin system
 
 This is an ongoing effort to refactor current plugin system based on pf4j library.
 
@@ -50,73 +50,14 @@ Plugin jar can be structured in any way you like. It can be a plain java project
 
 It is composed from several parts:
 - class(es) implementing **LowcoderPlugin** interface
-- class(es) implementing **LowcoderEndpoint** interface, containing endpoint handler functions marked with **@EndpointExtension** annotation. These functions must obey following format:
+- class(es) implementing **PluginEndpoint** interface, containing endpoint handler functions marked with **@EndpointExtension** annotation. These functions must obey following format:
 
 ```java
 	@EndpointExtension(uri = <endpoint uri>, method = <HTTP method>)
-	public Mono<ServerResponse> <handler name>(ServerRequest request) 
+	public EndpointResponse <handler name>(EndpointRequest request) 
 	{
 	   ... your endpoint logic implementation		
 	}
-
-    for example:
-
-	@EndpointExtension(uri = "/hello-world", method = Method.GET)
-	public Mono<ServerResponse> helloWorld(ServerRequest request) 
-	{		
-		return ServerResponse.ok().body(Mono.just(Hello.builder().message("Hello world!").build()), Hello.class);
-	}
 ```
 - TODO: class(es) impelemting **LowcoderDatasource** interface
-
-### LowcoderPlugin implementations
-
-Methods of interest:
-- **pluginId()** - unique plugin ID - if a plugin with such ID is already loaded, subsequent plugins whith this ID will be ignored
-- **description()** - short plugin description
-- **load(ApplicationContext parentContext)** - is called during plugin startup - this is the place where you should completely initialize your plugin. If initialization fails, return false
-- **unload()** - is called during lowcoder API server shutdown - this is the place where you should release all resources
-- **endpoints()** - needs to contain all initialized **PluginEndpoints** you want to expose, for example:
-
-```java
-	@Override
-	public List<PluginEndpoint> endpoints() 
-	{
-		List<PluginEndpoint> endpoints = new ArrayList<>();
-		
-		endpoints.add(new HelloWorldEndpoint());
-		
-		return endpoints;
-	}
-```
-- **pluginInfo()** - should return a record object with additional information about your plugin. It is serialized to JSON as part of the **/plugins** listing (see **"info"** object in this example):
-
-```json
-[
-    {
-        "id": "example-plugin",
-        "description": "Example plugin for lowcoder platform",
-        "info": {}
-    },
-    {
-        "id": "enterprise",
-        "description": "Lowcoder enterprise plugin",
-        "info": {
-            "enabledFeatures": [
-                "endpointApiUsage"
-            ]
-        }
-    }
-]
-```
-
-## TODOs
-
-1. Implement endpoint security - currently all plugin endpoints are public (probably by adding **security** attribute to **@EndpointExtension** and enforcing it)
-
-
-## QUESTIONS / CONSIDERATIONS
-
-1. currently the plugin endpoints are prefixed with **/plugin/{pluginId}/** - this is hardcoded, do we want to make it configurable?
-
 

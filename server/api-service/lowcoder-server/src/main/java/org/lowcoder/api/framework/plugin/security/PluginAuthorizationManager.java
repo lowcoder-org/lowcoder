@@ -5,7 +5,6 @@ import java.lang.reflect.Method;
 import org.aopalliance.intercept.MethodInvocation;
 import org.apache.commons.lang3.StringUtils;
 import org.lowcoder.plugin.api.EndpointExtension;
-import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.EvaluationException;
 import org.springframework.expression.Expression;
@@ -21,7 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
 @Slf4j
-@Component
+//@Component
 public class PluginAuthorizationManager implements ReactiveAuthorizationManager<MethodInvocation>
 {
 	private final MethodSecurityExpressionHandler expressionHandler;
@@ -34,10 +33,9 @@ public class PluginAuthorizationManager implements ReactiveAuthorizationManager<
 	@Override
 	public Mono<AuthorizationDecision> check(Mono<Authentication> authentication, MethodInvocation invocation) 
 	{
-		log.info("    invocation :: {}", invocation.getMethod());
+		log.info("Checking plugin reactive endpoint invocation security for {}", invocation.getMethod().getName());
 		
-		Method method = invocation.getMethod();
-		EndpointExtension endpointExtension = AnnotationUtils.findAnnotation(method, EndpointExtension.class);
+		EndpointExtension endpointExtension = (EndpointExtension)invocation.getArguments()[1];
 		if (endpointExtension == null || StringUtils.isBlank(endpointExtension.authorize()))
 		{
 			return Mono.empty();
