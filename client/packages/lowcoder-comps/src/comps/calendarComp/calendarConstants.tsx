@@ -792,6 +792,10 @@ export const DefaultWithPremiumViewOptions = [
     value: "timeGridWeek",
   },
   {
+    label: trans("calendar.resourceTimeGridDay"),
+    value: "resourceTimeGridDay",
+  },
+  {
     label: trans("calendar.timeline"),
     value: "resourceTimeline",
   },

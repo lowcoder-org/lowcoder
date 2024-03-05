@@ -57,7 +57,6 @@ import {
 } from "./calendarConstants";
 import dayjs from "dayjs";
 
-function filterViews() {}
 
 const childrenMap = {
   events: jsonValueExposingStateControl("events", defaultData),
@@ -378,7 +377,7 @@ let CalendarBasicComp = (function () {
             setLeft(left);
           }}
           buttonText={buttonText}
-          schedulerLicenseKey={licenceKey}
+          schedulerLicenseKey={"CC-Attribution-NonCommercial-NoDerivatives"}
           views={views}
           eventClassNames={() => (!showEventTime ? "no-time" : "")}
           slotLabelFormat={slotLabelFormat}
