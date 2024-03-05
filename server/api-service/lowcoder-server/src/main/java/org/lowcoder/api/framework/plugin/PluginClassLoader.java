@@ -1,7 +1,6 @@
 package org.lowcoder.api.framework.plugin;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -20,6 +19,11 @@ public class PluginClassLoader extends URLClassLoader
 	private static final ClassLoader baseClassLoader = ClassLoader.getPlatformClassLoader();
 	private final ClassLoader appClassLoader = Thread.currentThread().getContextClassLoader();
 	
+	private static final String[] excludedPaths = new String[] {
+			"org.lowcoder.plugin.api.",
+			"org/lowcoder/plugin/api/"
+	};
+	
 	public PluginClassLoader(String name, Path pluginPath) 
 	{
 		super(name, pathToURLs(pluginPath), baseClassLoader);
@@ -34,7 +38,7 @@ public class PluginClassLoader extends URLClassLoader
 			return clazz;
 		}
 		
-		if (name.startsWith("org.lowcoder.plugin.api."))
+		if (StringUtils.startsWithAny(name, excludedPaths))
 		{
 			try 
 			{
@@ -67,7 +71,7 @@ public class PluginClassLoader extends URLClassLoader
 	@Override
 	public URL getResource(String name) {
         Objects.requireNonNull(name);
-		if (StringUtils.startsWithAny(name, "org/lowcoder/plugin/api/", "org.lowcoder.plugin.api."))
+		if (StringUtils.startsWithAny(name, excludedPaths))
 		{
 			return appClassLoader.getResource(name);
 		}
@@ -79,7 +83,7 @@ public class PluginClassLoader extends URLClassLoader
 	public Enumeration<URL> getResources(String name) throws IOException 
 	{
 		Objects.requireNonNull(name);
-		if (StringUtils.startsWithAny(name, "org/lowcoder/plugin/api/", "org.lowcoder.plugin.api."))
+		if (StringUtils.startsWithAny(name, excludedPaths))
 		{
 			return appClassLoader.getResources(name);
 		}

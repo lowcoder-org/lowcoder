@@ -16,19 +16,23 @@ import java.util.List;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.lowcoder.api.framework.plugin.data.PluginServerRequest;
+import org.lowcoder.api.framework.plugin.security.SecuredEndpoint;
 import org.lowcoder.plugin.api.EndpointExtension;
 import org.lowcoder.plugin.api.PluginEndpoint;
 import org.lowcoder.plugin.api.data.EndpointRequest;
 import org.lowcoder.plugin.api.data.EndpointResponse;
 import org.lowcoder.sdk.exception.BaseException;
+import org.springframework.aop.TargetSource;
+import org.springframework.aop.framework.ProxyFactoryBean;
+import org.springframework.aop.target.SimpleBeanTargetSource;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.core.ResolvableType;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.stereotype.Component;
-import org.springframework.web.reactive.function.server.HandlerFunction;
 import org.springframework.web.reactive.function.server.RequestPredicate;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.ServerRequest;
@@ -80,48 +84,47 @@ public class PluginEndpointHandlerImpl implements PluginEndpointHandler
 
 	private void registerEndpointHandler(String urlPrefix, PluginEndpoint endpoint, Method handler)
 	{
-		if (handler.isAnnotationPresent(EndpointExtension.class))
+		if (!handler.isAnnotationPresent(EndpointExtension.class) || !checkHandlerMethod(handler))
 		{
-			if (checkHandlerMethod(handler))
+			if (handler.isAnnotationPresent(EndpointExtension.class))
 			{
-				
-				EndpointExtension endpointMeta = handler.getAnnotation(EndpointExtension.class);			
-				String endpointName = endpoint.getClass().getSimpleName() + "_" + handler.getName();
-				
-				RouterFunction<ServerResponse> routerFunction = route(createRequestPredicate(urlPrefix, endpointMeta), req -> 
-				{
-					Mono<ServerResponse> result = null;
-					try
-					{
-						EndpointResponse response = (EndpointResponse)handler.invoke(endpoint, PluginServerRequest.fromServerRequest(req));
-						result = createServerResponse(response);
-					}
-					catch (IllegalAccessException | InvocationTargetException cause) 
-					{
-						throw new BaseException("Error running handler for [ " + endpointMeta.method() + ": " + endpointMeta.uri() + "] !");
-					}
-					return result; 
-				});				
-				routes.add(routerFunction);				
-				registerRouterFunctionMapping(endpointName, routerFunction);
-
-				log.info("Registered endpoint: {} -> {}: {}", endpoint.getClass().getSimpleName(), endpointMeta.method(), urlPrefix + endpointMeta.uri());
+				log.debug("Not registering plugin endpoint method: {} -> {}! Handler method must be defined as: public EndpointResponse methodName(EndpointRequest request)", endpoint.getClass().getSimpleName(), handler.getName(), handler.getName());
 			}
-			else
-			{
-				log.error("Cannot register plugin endpoint: {} -> {}! Handler method must be defined as: public Mono<ServerResponse> {}(ServerRequest request)", endpoint.getClass().getSimpleName(), handler.getName(), handler.getName());
-			}
+			return;
 		}
+
+		EndpointExtension endpointMeta = handler.getAnnotation(EndpointExtension.class);			
+		String endpointName = endpoint.getClass().getSimpleName() + "_" + handler.getName();		
+		RouterFunction<ServerResponse> routerFunction = route(createRequestPredicate(urlPrefix, endpointMeta), req -> runPluginEndpointMethod(endpoint, endpointMeta, handler, req));				
+		routes.add(routerFunction);				
+		registerRouterFunctionMapping(endpointName, routerFunction);
+
+		log.info("Registered endpoint: {} -> {}: {}", endpoint.getClass().getSimpleName(), endpointMeta.method(), urlPrefix + endpointMeta.uri());
 	}
+	
+	@SecuredEndpoint
+	public Mono<ServerResponse> runPluginEndpointMethod(PluginEndpoint endpoint, EndpointExtension endpointMeta, Method handler, ServerRequest request)
+	{
+		Mono<ServerResponse> result = null;
+		try
+		{
+			log.info("Running plugin endpoint method {}\nRequest: {}", handler.getName(), request);
+
+			EndpointResponse response = (EndpointResponse)handler.invoke(endpoint, PluginServerRequest.fromServerRequest(request));
+			result = createServerResponse(response);
+		}
+		catch (IllegalAccessException | InvocationTargetException cause) 
+		{
+			throw new BaseException("Error running handler for [ " + endpointMeta.method() + ": " + endpointMeta.uri() + "] !");
+		}
+		return result; 		
+	}
+	
 	
 	private void registerRouterFunctionMapping(String endpointName, RouterFunction<ServerResponse> routerFunction)
 	{
 		String beanName = "pluginEndpoint_" + endpointName + "_" + System.currentTimeMillis();
-		
-		((GenericApplicationContext)applicationContext).registerBean(beanName, RouterFunction.class, () -> {
-			return routerFunction;
-		});
-		
+		((GenericApplicationContext)applicationContext).registerBean(beanName, RouterFunction.class, () -> routerFunction );
 		log.debug("Registering RouterFunction bean definition: {}", beanName);
 	}
 	
