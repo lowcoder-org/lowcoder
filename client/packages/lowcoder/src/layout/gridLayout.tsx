@@ -172,12 +172,25 @@ class GridLayout extends React.Component<GridLayoutProps, GridLayoutState> {
   }
 
   componentDidUpdate(prevProps: GridLayoutProps, prevState: GridLayoutState) {
-    const uiLayout = this.getUILayout();
     if (!draggingUtils.isDragging()) {
       // log.debug("render. clear ops. layout: ", uiLayout);
       // only change in changeHs, don't change state
       if (_.size(this.state.ops) > 0) {
-        this.setState({ layout: uiLayout, changedHs: undefined, ops: undefined });
+        // temporary fix for components becomes invisible in drawer/modal
+        // TODO: find a way to call DELETE_ITEM operation after layouts are updated in state
+        const ops = [...this.state.ops as any[]];
+        const [firstOp] = ops;
+        const { droppingItem } = this.props;
+        if(
+          ops.length === 1
+          && firstOp.type === 'DELETE_ITEM'
+          && firstOp.key === droppingItem?.i
+        ) {
+          this.setState({ changedHs: undefined, ops: undefined });
+        } else {
+          const uiLayout = this.getUILayout();
+          this.setState({ layout: uiLayout, changedHs: undefined, ops: undefined })
+        }
       }
     }
     if (!draggingUtils.isDragging() && _.isNil(this.state.ops)) {

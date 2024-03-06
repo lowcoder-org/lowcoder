@@ -6,6 +6,7 @@ import static org.lowcoder.infra.util.MonoUtils.emptyIfNull;
 import static org.lowcoder.sdk.util.StreamUtils.collectList;
 
 import java.time.Instant;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -316,12 +317,16 @@ public class UserHomeApiServiceImpl implements UserHomeApiService {
                                         .build();
 
                                 // marketplace specific fields
-                                Map<String, Object> marketplaceMeta = (Map<String, Object>)
-                                        ((Map<String, Object>)application.getEditingApplicationDSL().get("ui")).get("marketplaceMeta");
-                                marketplaceApplicationInfoView.setTitle((String)marketplaceMeta.get("title"));
-                                marketplaceApplicationInfoView.setCategory((String)marketplaceMeta.get("category"));
-                                marketplaceApplicationInfoView.setDescription((String)marketplaceMeta.get("description"));
-                                marketplaceApplicationInfoView.setImage((String)marketplaceMeta.get("image"));
+                                Map<String, Object> settings = new HashMap<>();
+                                if (application.getPublishedApplicationDSL() != null)
+                                {
+                                	settings.putAll((Map<String, Object>)application.getPublishedApplicationDSL().getOrDefault("settings", new HashMap<>()));
+                                }
+                                
+                                marketplaceApplicationInfoView.setTitle((String)settings.getOrDefault("title", application.getName()));
+                                marketplaceApplicationInfoView.setCategory((String)settings.get("category"));
+                                marketplaceApplicationInfoView.setDescription((String)settings.get("description"));
+                                marketplaceApplicationInfoView.setImage((String)settings.get("icon"));
 
                                 return marketplaceApplicationInfoView;
 
@@ -399,7 +404,8 @@ public class UserHomeApiServiceImpl implements UserHomeApiService {
                 .lastModifyTime(application.getUpdatedAt())
                 .lastViewTime(lastViewTime)
                 .publicToAll(application.isPublicToAll())
-                .publicToMarketplace(application.isPublicToMarketplace());
+                .publicToMarketplace(application.isPublicToMarketplace())
+                .agencyProfile(application.agencyProfile());
         if (withContainerSize) {
             return applicationInfoViewBuilder
                     .containerSize(application.getLiveContainerSize())

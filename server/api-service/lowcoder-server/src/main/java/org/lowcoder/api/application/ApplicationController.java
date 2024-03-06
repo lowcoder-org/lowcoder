@@ -6,7 +6,6 @@ import static org.lowcoder.infra.event.EventType.APPLICATION_DELETE;
 import static org.lowcoder.infra.event.EventType.APPLICATION_RECYCLED;
 import static org.lowcoder.infra.event.EventType.APPLICATION_RESTORE;
 import static org.lowcoder.infra.event.EventType.APPLICATION_UPDATE;
-import static org.lowcoder.infra.event.EventType.VIEW;
 import static org.lowcoder.sdk.exception.BizError.INVALID_PARAMETER;
 import static org.lowcoder.sdk.util.ExceptionUtils.ofError;
 
@@ -16,15 +15,18 @@ import org.lowcoder.api.application.view.ApplicationInfoView;
 import org.lowcoder.api.application.view.ApplicationPermissionView;
 import org.lowcoder.api.application.view.ApplicationView;
 import org.lowcoder.api.application.view.MarketplaceApplicationInfoView;
+// should we not have a AgencyApplicationInfoView
 import org.lowcoder.api.framework.view.ResponseView;
 import org.lowcoder.api.home.SessionUserService;
 import org.lowcoder.api.home.UserHomeApiService;
 import org.lowcoder.api.home.UserHomepageView;
 import org.lowcoder.api.util.BusinessEventPublisher;
 import org.lowcoder.domain.application.model.Application;
+import org.lowcoder.domain.application.model.ApplicationRequestType;
 import org.lowcoder.domain.application.model.ApplicationStatus;
 import org.lowcoder.domain.application.model.ApplicationType;
 import org.lowcoder.domain.permission.model.ResourceRole;
+import org.lowcoder.infra.event.EventType;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -91,11 +93,12 @@ public class ApplicationController implements ApplicationEndpoints {
                 .map(ResponseView::success);
     }
 
+    // will call the check in ApplicationApiService and ApplicationService
     @Override
     public Mono<ResponseView<ApplicationView>> getPublishedApplication(@PathVariable String applicationId) {
         return applicationApiService.getPublishedApplication(applicationId, ApplicationRequestType.PUBLIC_TO_ALL)
                 .delayUntil(applicationView -> applicationApiService.updateUserApplicationLastViewTime(applicationId))
-                .delayUntil(applicationView -> businessEventPublisher.publishApplicationCommonEvent(applicationView, VIEW))
+                .delayUntil(applicationView -> businessEventPublisher.publishApplicationCommonEvent(applicationView, EventType.VIEW))
                 .map(ResponseView::success);
     }
 
@@ -103,7 +106,7 @@ public class ApplicationController implements ApplicationEndpoints {
     public Mono<ResponseView<ApplicationView>> getPublishedMarketPlaceApplication(@PathVariable String applicationId) {
         return applicationApiService.getPublishedApplication(applicationId, ApplicationRequestType.PUBLIC_TO_MARKETPLACE)
                 .delayUntil(applicationView -> applicationApiService.updateUserApplicationLastViewTime(applicationId))
-                .delayUntil(applicationView -> businessEventPublisher.publishApplicationCommonEvent(applicationView, VIEW))
+                .delayUntil(applicationView -> businessEventPublisher.publishApplicationCommonEvent(applicationView, EventType.VIEW))
                 .map(ResponseView::success);
     }
 
@@ -111,7 +114,7 @@ public class ApplicationController implements ApplicationEndpoints {
     public Mono<ResponseView<ApplicationView>> getAgencyProfileApplication(@PathVariable String applicationId) {
         return applicationApiService.getPublishedApplication(applicationId, ApplicationRequestType.AGENCY_PROFILE)
                 .delayUntil(applicationView -> applicationApiService.updateUserApplicationLastViewTime(applicationId))
-                .delayUntil(applicationView -> businessEventPublisher.publishApplicationCommonEvent(applicationView, VIEW))
+                .delayUntil(applicationView -> businessEventPublisher.publishApplicationCommonEvent(applicationView, EventType.VIEW))
                 .map(ResponseView::success);
     }
 

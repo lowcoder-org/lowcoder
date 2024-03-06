@@ -1,11 +1,18 @@
 import { NPM_PLUGIN_ASSETS_BASE_URL } from "constants/npmPlugins";
 import { trans } from "i18n";
 import { CompConstructor } from "lowcoder-core";
-import { RemoteCompInfo, RemoteCompLoader, RemoteCompSource } from "types/remoteComp";
+import {
+  RemoteCompInfo,
+  RemoteCompLoader,
+  RemoteCompSource,
+} from "types/remoteComp";
 
-async function npmLoader(remoteInfo: RemoteCompInfo): Promise<CompConstructor | null> {
+async function npmLoader(
+  remoteInfo: RemoteCompInfo
+): Promise<CompConstructor | null> {
   const { packageName, packageVersion = "latest", compName } = remoteInfo;
   const entry = `${NPM_PLUGIN_ASSETS_BASE_URL}/${packageName}@${packageVersion}/index.js`;
+  // const entry = `../../../../../public/package/index.js`; 
   // console.log("Entry", entry);
   try {
     const module = await import(/* webpackIgnore: true */ entry);
@@ -21,7 +28,9 @@ async function npmLoader(remoteInfo: RemoteCompInfo): Promise<CompConstructor | 
   }
 }
 
-async function bundleLoader(remoteInfo: RemoteCompInfo): Promise<CompConstructor | null> {
+async function bundleLoader(
+  remoteInfo: RemoteCompInfo
+): Promise<CompConstructor | null> {
   const { packageName, packageVersion = "latest", compName } = remoteInfo;
   const entry = `/${packageName}/${packageVersion}/index.js?v=${REACT_APP_COMMIT_ID}`;
   const module = await import(/* webpackIgnore: true */ entry);

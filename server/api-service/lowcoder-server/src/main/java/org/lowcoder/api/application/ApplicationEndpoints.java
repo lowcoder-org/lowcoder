@@ -11,6 +11,9 @@ import org.lowcoder.api.application.view.ApplicationInfoView;
 import org.lowcoder.api.application.view.ApplicationPermissionView;
 import org.lowcoder.api.application.view.ApplicationView;
 import org.lowcoder.api.application.view.MarketplaceApplicationInfoView;
+
+//Falk: shouldn't be here ...?
+// import org.lowcoder.api.application.view.AgencyProfileApplicationView;
 import org.lowcoder.api.framework.view.ResponseView;
 import org.lowcoder.api.home.UserHomepageView;
 import org.lowcoder.domain.application.model.Application;
@@ -115,7 +118,7 @@ public interface ApplicationEndpoints
 			tags = TAG_APPLICATION_MANAGEMENT,
 			operationId = "getMarketplaceApplicationDataInViewMode",
 			summary = "Get Marketplace Application data in view mode",
-			description = "Retrieve the DSL data of a Lowcoder Application in view-mode by its ID for the marketplace."
+			description = "Retrieve the DSL data of a Lowcoder Application in view-mode by its ID for the Marketplace."
 	)
 	@GetMapping("/{applicationId}/view_marketplace")
 	public Mono<ResponseView<ApplicationView>> getPublishedMarketPlaceApplication(@PathVariable String applicationId);
@@ -124,7 +127,7 @@ public interface ApplicationEndpoints
 			tags = TAG_APPLICATION_MANAGEMENT,
 			operationId = "getAgencyProfileApplicationDataInViewMode",
 			summary = "Get Agency profile Application data in view mode",
-			description = "Retrieve the DSL data of a Lowcoder Application in view-mode by its ID marked as agency profile."
+			description = "Retrieve the DSL data of a Lowcoder Application in view-mode by its ID marked as Agency Profile."
 	)
 	@GetMapping("/{applicationId}/view_agency")
 	public Mono<ResponseView<ApplicationView>> getAgencyProfileApplication(@PathVariable String applicationId);
@@ -171,12 +174,13 @@ public interface ApplicationEndpoints
 	@Operation(
 			tags = TAG_APPLICATION_MANAGEMENT,
 			operationId = "listMarketplaceApplications",
-			summary = "List marketplace Applications",
-			description = "Retrieve a list of Lowcoder Applications that are published to the marketplace"
+			summary = "List Marketplace Applications",
+			description = "Retrieve a list of Lowcoder Applications that are published to the Marketplace"
 	)
 	@GetMapping("/marketplace-apps")
 	public Mono<ResponseView<List<MarketplaceApplicationInfoView>>> getMarketplaceApplications(@RequestParam(required = false) Integer applicationType);
 
+	// Falk: why we use MarketplaceApplicationInfoView for AgencyProfile?
 	@Operation(
 			tags = TAG_APPLICATION_MANAGEMENT,
 			operationId = "listAgencyProfileApplications",
@@ -270,31 +274,10 @@ public interface ApplicationEndpoints
         }
     }
 
-	public record ApplicationPublicToMarketplaceRequest(Boolean publicToMarketplace, String title,
-														String description, String category, String image) {
+	public record ApplicationPublicToMarketplaceRequest(Boolean publicToMarketplace) {
 		@Override
 		public Boolean publicToMarketplace() {
 			return BooleanUtils.isTrue(publicToMarketplace);
-		}
-
-		@Override
-		public String title() {
-			return title;
-		}
-
-		@Override
-		public String description() {
-			return description;
-		}
-
-		@Override
-		public String category() {
-			return category;
-		}
-
-		@Override
-		public String image() {
-			return image;
 		}
 
 	}
@@ -304,12 +287,6 @@ public interface ApplicationEndpoints
 		public Boolean agencyProfile() {
 			return BooleanUtils.isTrue(agencyProfile);
 		}
-	}
-
-	public enum ApplicationRequestType {
-		PUBLIC_TO_ALL,
-		PUBLIC_TO_MARKETPLACE,
-		AGENCY_PROFILE,
 	}
 
     public record UpdatePermissionRequest(String role) {
