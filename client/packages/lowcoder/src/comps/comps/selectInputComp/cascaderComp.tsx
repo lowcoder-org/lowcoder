@@ -20,7 +20,8 @@ let CascaderBasicComp = (function () {
 
   return new UICompBuilder(childrenMap, (props) => {
     return props.label({
-      style: props.labelStyle,
+      style: props.style,
+      labelStyle:props.labelStyle,
       children: (
         <CascaderStyle
           ref={props.viewRef}

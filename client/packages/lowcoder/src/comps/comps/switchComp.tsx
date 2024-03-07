@@ -90,14 +90,15 @@ let SwitchTmpComp = (function () {
     onEvent: eventHandlerControl(EventOptions),
     disabled: BoolCodeControl,
     style: migrateOldData(styleControl(SwitchStyle), fixOldData),
-    labelStyle: styleControl(LabelStyle),
+    labelStyle: styleControl(LabelStyle.filter((style) => ['accent', 'validate'].includes(style.name) === false)),
     viewRef: RefControl<HTMLElement>,
 
     ...formDataChildren,
   };
   return new UICompBuilder(childrenMap, (props) => {
     return props.label({
-      style: props.labelStyle,
+      style: props.style,
+      labelStyle:props.labelStyle,
       children: (
         <SwitchWrapper disabled={props.disabled} $style={props.style}>
           <Switch

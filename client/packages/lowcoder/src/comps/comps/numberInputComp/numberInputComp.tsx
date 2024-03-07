@@ -378,7 +378,8 @@ const NumberInputTmpComp = (function () {
     return props.label({
       required: props.required,
       children: <CustomInputNumber {...props} />,
-      style: props.labelStyle,
+      style: props.style,
+      labelStyle:props.labelStyle,
       ...validate(props),
     });
   })

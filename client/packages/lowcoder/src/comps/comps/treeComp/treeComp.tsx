@@ -96,7 +96,8 @@ const TreeCompView = (props: RecordConstructorToView<typeof childrenMap>) => {
   return props.label({
     required: props.required,
     ...selectInputValidate(props),
-    style: labelStyle,
+    style,
+    labelStyle,
     children: (
       <ReactResizeDetector onResize={(w, h) => setHeight(h)}>
         <Container {...style}>

@@ -71,7 +71,8 @@ const PasswordTmpComp = (function () {
           $style={props.style}
         />
       ),
-      style: props.labelStyle,
+      style: props.style,
+      labelStyle:props.labelStyle,
       ...validateState,
     });
   })

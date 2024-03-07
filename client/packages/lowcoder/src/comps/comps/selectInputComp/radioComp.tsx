@@ -101,7 +101,8 @@ const RadioBasicComp = (function () {
     ] = useSelectInputValidate(props);
     return props.label({
       required: props.required,
-      style: props.labelStyle,
+      style: props.style,
+      labelStyle:props.labelStyle,
       children: (
         <Radio
           ref={props.viewRef}

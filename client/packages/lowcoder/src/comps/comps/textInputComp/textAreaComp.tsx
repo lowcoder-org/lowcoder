@@ -46,7 +46,7 @@ const Wrapper = styled.div<{
   $style: InputLikeStyleType;
 }>`
   height: 100% !important;
-
+  
   .ant-input { 
     height:100% !important;
   }
@@ -87,7 +87,8 @@ let TextAreaTmpComp = (function () {
           />
         </Wrapper>
       ),
-      style: props.labelStyle,
+      style: props.style,
+      labelStyle: props.labelStyle,
       ...validateState,
     });
   })

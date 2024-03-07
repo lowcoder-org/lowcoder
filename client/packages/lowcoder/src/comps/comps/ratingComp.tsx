@@ -64,7 +64,8 @@ const RatingBasicComp = (function () {
     }, [value]);
 
     return props.label({
-      style: props.labelStyle,
+      style: props.style,
+      labelStyle: props.labelStyle,
       children: (
         <RateStyled
           count={props.max}

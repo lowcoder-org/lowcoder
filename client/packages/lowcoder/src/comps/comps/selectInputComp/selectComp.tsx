@@ -39,7 +39,8 @@ const SelectBasicComp = (function () {
 
     return props.label({
       required: props.required,
-      style: props.labelStyle,
+      style: props.style,
+      labelStyle:props.labelStyle,
       children: (
         <SelectUIView
           {...props}

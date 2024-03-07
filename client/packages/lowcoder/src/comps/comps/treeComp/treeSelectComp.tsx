@@ -100,7 +100,8 @@ const TreeCompView = (
   return props.label({
     required: props.required,
     ...validateState,
-    style: labelStyle,
+    style,
+    labelStyle,
     children: (
       <StyledTreeSelect
         ref={props.viewRef}

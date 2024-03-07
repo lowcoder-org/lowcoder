@@ -14,7 +14,8 @@ const RangeSliderBasicComp = (function () {
   };
   return new UICompBuilder(childrenMap, (props) => {
     return props.label({
-      style: props.labelStyle,
+      style: props.style,
+      labelStyle: props.labelStyle,
       children: (
         <SliderWrapper
           onMouseDown={(e: any) => {
@@ -28,7 +29,7 @@ const RangeSliderBasicComp = (function () {
             range={true}
             value={[props.start.value, props.end.value]}
             $style={props.style}
-            style={{margin: 0}}
+            style={{ margin: 0 }}
             onChange={([start, end]) => {
               props.start.onChange(start);
               props.end.onChange(end);

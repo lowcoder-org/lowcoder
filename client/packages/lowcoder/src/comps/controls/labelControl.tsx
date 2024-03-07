@@ -20,6 +20,7 @@ import { LabelStyleType, heightCalculator, widthCalculator } from "./styleContro
 type LabelViewProps = Pick<FormItemProps, "required" | "help" | "validateStatus"> & {
   children: ReactNode;
   style?: Record<string, string>;
+  labelStyle?: Record<string, string>;
 };
 
 const StyledStarIcon = styled(StarIcon)`
@@ -76,18 +77,21 @@ const LabelWrapper = styled.div<{
   flex-shrink: 0;
 `;
 // ${(props) => props.$border && UnderlineCss};
+// ${(props) => props.$border && `border-bottom:${props.$labelStyle.borderWidth} ${props.$labelStyle.borderStyle} ${!!props.$validateStatus && props?.$validateStatus === 'error' ? props.$labelStyle.validate : props.$labelStyle.border};`}
+
 const Label = styled.span<{ $border: boolean, $labelStyle: LabelStyleType, $validateStatus: "success" | "warning" | "error" | "validating" | null }>`
   ${labelCss};
   font-family:${(props) => props.$labelStyle.fontFamily};
-  font-weight:${(props) => props.$labelStyle.fontWeight};
+  font-weight:${(props) => props.$labelStyle.textWeight};
   font-style:${(props) => props.$labelStyle.fontStyle};
   text-transform:${(props) => props.$labelStyle.textTransform};
   text-decoration:${(props) => props.$labelStyle.textDecoration};
   font-size:${(props) => props.$labelStyle.textSize};
-  color:${(props) => !!props.$validateStatus && props?.$validateStatus === 'error' ? props.$labelStyle.validate : props.$labelStyle.text} !important;
-  ${(props) => props.$border && `border-bottom:${props.$labelStyle.borderWidth} ${props.$labelStyle.borderStyle} ${!!props.$validateStatus && props?.$validateStatus === 'error' ? props.$labelStyle.validate : props.$labelStyle.border};`}
+  color:${(props) => !!props.$validateStatus && props?.$validateStatus === 'error' ? props.$labelStyle.validate : props.$labelStyle.label} !important;
+  ${(props) => `border-bottom:${props.$labelStyle.borderWidth} ${props.$labelStyle.borderStyle} ${!!props.$validateStatus && props?.$validateStatus === 'error' ? props.$labelStyle.validate : props.$labelStyle.border};`}
   border-radius:${(props) => props.$labelStyle.radius};
   padding:${(props) => props.$labelStyle.padding};
+  margin:${(props) => props.$labelStyle.margin};
   width: fit-content;
   user-select: text;
   white-space: nowrap;
@@ -194,7 +198,7 @@ export const LabelControl = (function () {
               <Label
                 $border={!!props.tooltip}
                 $validateStatus={args && args.validateStatus ? args.validateStatus : null}
-                $labelStyle={{ ...args.style }}>
+                $labelStyle={{ ...args.labelStyle }}>
                 {props.text}
               </Label>
             </Tooltip>

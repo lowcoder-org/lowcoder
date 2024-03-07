@@ -62,13 +62,13 @@ export const getStyle = (style: CheckboxStyleType) => {
       &:hover .ant-checkbox-inner, 
       .ant-checkbox:hover .ant-checkbox-inner,
       .ant-checkbox-input + ant-checkbox-inner {
-        background-color:${style.hoverBackground ? style.hoverBackground :'#fff'};
+        background-color:${style.hoverBackground ? style.hoverBackground : '#fff'};
       }
 
       &:hover .ant-checkbox-checked .ant-checkbox-inner, 
       .ant-checkbox:hover .ant-checkbox-inner,
       .ant-checkbox-input + ant-checkbox-inner {
-        background-color:${style.hoverBackground ? style.hoverBackground:'#ffff'};
+        background-color:${style.hoverBackground ? style.hoverBackground : '#ffff'};
       }
 
       &:hover .ant-checkbox-inner,
@@ -135,7 +135,7 @@ const CheckboxBasicComp = (function () {
     onEvent: ChangeEventHandlerControl,
     options: SelectInputOptionControl,
     style: styleControl(CheckboxStyle),
-    labelStyle:styleControl(LabelStyle),
+    labelStyle: styleControl(LabelStyle.filter((style) => ['accent', 'validate'].includes(style.name) === false)),
     layout: dropdownControl(RadioLayoutOptions, "horizontal"),
     viewRef: RefControl<HTMLDivElement>,
 
@@ -149,7 +149,8 @@ const CheckboxBasicComp = (function () {
     ] = useSelectInputValidate(props);
     return props.label({
       required: props.required,
-      style: props.labelStyle,
+      style: props.style,
+      labelStyle: props.labelStyle,
       children: (
         <CheckboxGroup
           ref={props.viewRef}

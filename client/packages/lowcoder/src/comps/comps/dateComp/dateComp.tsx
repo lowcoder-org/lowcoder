@@ -165,7 +165,8 @@ export const datePickerControl = new UICompBuilder(childrenMap, (props) => {
   }
   return props.label({
     required: props.required,
-    style: props.labelStyle,
+    style: props.style,
+    labelStyle:props.labelStyle,
     children: (
       <DateUIView
         viewRef={props.viewRef}
@@ -315,7 +316,8 @@ export const dateRangeControl = (function () {
 
     return props.label({
       required: props.required,
-      style: props.labelStyle,
+      style: props.style,
+      labelStyle:props.labelStyle,
       children: children,
       ...(startResult.validateStatus !== "success"
         ? startResult

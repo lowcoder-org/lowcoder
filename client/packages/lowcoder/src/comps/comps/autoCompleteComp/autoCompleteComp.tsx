@@ -278,7 +278,8 @@ let AutoCompleteCompBase = (function () {
           </ConfigProvider>
         </>
       ),
-      style: props.labelStyle,
+      style: props.style,
+      labelStyle:props.labelStyle,
       ...validateState,
     });
   })

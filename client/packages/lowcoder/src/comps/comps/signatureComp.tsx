@@ -127,7 +127,8 @@ let SignatureTmpComp = (function () {
       }
     };
     return props.label({
-      style: props.labelStyle,
+      style: props.style,
+      labelStyle:props.labelStyle,
       children: (
         <ReactResizeDetector
           onResize={(width, height) => {

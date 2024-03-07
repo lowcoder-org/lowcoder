@@ -38,7 +38,7 @@ import { EditorContext } from "comps/editorState";
  * Input Comp
  */
 
-const InputStyle = styled(Input) <{ $style: InputLikeStyleType}>`
+const InputStyle = styled(Input) <{ $style: InputLikeStyleType }>`
   ${(props) => props.$style && getStyle(props.$style)}
 `;
 
@@ -68,7 +68,8 @@ export const InputComp = new UICompBuilder(childrenMap, (props) => {
         suffix={hasIcon(props.suffixIcon) && props.suffixIcon}
       />
     ),
-    style: props.labelStyle,
+    style: props.style,
+    labelStyle: props.labelStyle,
     ...validateState,
   });
 })
