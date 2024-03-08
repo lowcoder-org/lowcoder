@@ -248,6 +248,8 @@ export function getStyle(style: InputLikeStyleType) {
       font-weight: ${style.textWeight};
       font-family: ${style.fontFamily};
       font-style:${style.fontStyle};
+      text-transform:${style.textTransform};
+      text-decoration:${style.textDecoration};
       background-color: ${style.background};
       border-color: ${style.border};
 
@@ -302,4 +304,18 @@ export function checkMentionListData(data: any) {
     })
   }
   return data
+}
+
+// separate defaultValue and value for old components
+export function fixOldInputCompData(oldData: any) {
+  if (!oldData) return oldData;
+  if (Boolean(oldData.value) && !Boolean(oldData.defaultValue)) {
+    const value = oldData.value;
+    return {
+      ...oldData,
+      defaultValue: value,
+      value: '',
+    };
+  }
+  return oldData;
 }

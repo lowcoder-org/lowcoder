@@ -12,6 +12,7 @@ import { UICompBuilder } from "../../generators";
 import { FormDataPropertyView } from "../formComp/formDataConstants";
 import {
   checkMentionListData,
+  fixOldInputCompData,
   textInputChildren,
 } from "./textInputConstants";
 import {
@@ -42,7 +43,7 @@ import { blurMethod, focusWithOptions } from "comps/utils/methodUtils";
 import {
   textInputValidate,
 } from "../textInputComp/textInputConstants";
-import { jsonControl } from "@lowcoder-ee/comps/controls/codeControl";
+import { jsonControl } from "comps/controls/codeControl";
 import {
   submitEvent,
   eventHandlerControl,
@@ -54,11 +55,19 @@ import {
 
 import React, { useContext } from "react";
 import { EditorContext } from "comps/editorState";
+import { migrateOldData } from "comps/generators/simpleGenerators";
 
 const Wrapper = styled.div<{
   $style: InputLikeStyleType;
 }>`
-  height: 100%;
+  box-sizing:border-box;
+  .rc-textarea {
+    background-color:${(props) => props.$style.background};
+    padding:${(props) => props.$style.padding};
+    text-transform:${(props)=>props.$style.textTransform};
+    text-decoration:${(props)=>props.$style.textDecoration};
+    margin: 0px 3px 0px 3px !important;
+  }
 
   .ant-input-clear-icon {
     opacity: 0.45;
@@ -196,7 +205,7 @@ let MentionTmpComp = (function () {
                 height: "100%",
                 maxHeight: "100%",
                 resize: "none",
-                padding: props.style.padding,
+                // padding: props.style.padding,
                 fontStyle: props.style.fontStyle,
                 fontFamily: props.style.fontFamily,
                 borderWidth: props.style.borderWidth,
@@ -260,11 +269,14 @@ let MentionTmpComp = (function () {
     .build();
 })();
 
+
 MentionTmpComp = class extends MentionTmpComp {
   override autoHeight(): boolean {
     return this.children.autoHeight.getView();
   }
 };
+
+MentionTmpComp = migrateOldData(MentionTmpComp, fixOldInputCompData);
 
 const TextareaTmp2Comp = withMethodExposing(
   MentionTmpComp,

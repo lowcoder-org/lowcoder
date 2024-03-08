@@ -22,6 +22,8 @@ import { ValueFromOption } from "lowcoder-design";
 import { EllipsisTextCss } from "lowcoder-design";
 import { trans } from "i18n";
 import { RefControl } from "comps/controls/refControl";
+import { migrateOldData } from "comps/generators/simpleGenerators";
+import { fixOldInputCompData } from "../textInputComp/textInputConstants";
 
 export const getStyle = (style: CheckboxStyleType) => {
   return css`
@@ -51,12 +53,24 @@ export const getStyle = (style: CheckboxStyleType) => {
           border-radius: ${style.radius};
         }
       }
-
+      
       .ant-checkbox-inner {
         border-radius: ${style.radius};
         background-color: ${style.uncheckedBackground};
         border-color: ${style.uncheckedBorder};
         border-width:${!!style.borderWidth ? style.borderWidth : '2px'};
+      }
+    
+      &:hover .ant-checkbox-inner, 
+      .ant-checkbox:hover .ant-checkbox-inner,
+      .ant-checkbox-input + ant-checkbox-inner {
+        background-color:${style.hoverBackground ? style.hoverBackground :'#fff'};
+      }
+
+      &:hover .ant-checkbox-checked .ant-checkbox-inner, 
+      .ant-checkbox:hover .ant-checkbox-inner,
+      .ant-checkbox-input + ant-checkbox-inner {
+        background-color:${style.hoverBackground ? style.hoverBackground:'#ffff'};
       }
 
       &:hover .ant-checkbox-inner,
@@ -67,11 +81,15 @@ export const getStyle = (style: CheckboxStyleType) => {
       }
     }
 
+    
+
     .ant-checkbox-group-item {
       font-family:${style.fontFamily};
       font-size:${style.textSize};
       font-weight:${style.textWeight};
       font-style:${style.fontStyle};
+      text-transform:${style.textTransform};
+      text-decoration:${style.textDecoration};
     }
     .ant-checkbox-wrapper {
       padding: ${style.padding};
@@ -110,7 +128,7 @@ const CheckboxGroup = styled(AntdCheckboxGroup) <{
   }}
 `;
 
-const CheckboxBasicComp = (function () {
+let CheckboxBasicComp = (function () {
   const childrenMap = {
     defaultValue: arrayStringExposingStateControl("defaultValue"),
     value: arrayStringExposingStateControl("value"),
@@ -159,6 +177,8 @@ const CheckboxBasicComp = (function () {
     .setExposeMethodConfigs(selectDivRefMethods)
     .build();
 })();
+
+CheckboxBasicComp = migrateOldData(CheckboxBasicComp, fixOldInputCompData);
 
 export const CheckboxComp = withExposingConfigs(CheckboxBasicComp, [
   new NameConfig("value", trans("selectInput.valueDesc")),

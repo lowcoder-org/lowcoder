@@ -35,6 +35,7 @@ import { checkIsMobile } from "util/commonUtils";
 import MarketplaceHeaderImage from "assets/images/marketplaceHeaderImage.jpg";
 import { Divider } from "antd";
 import { Margin } from "../setting/theme/styledComponents"; 
+import { ApplicationCategoriesEnum } from "constants/applicationConstants";
 
 const Wrapper = styled.div`
   display: flex;
@@ -171,7 +172,7 @@ const FilterDropdown = styled(Select)`
 
 const FilterMenuItem = styled.div`
   display: flex;
-  align-items: center;
+  align-items: left;
   height: 29px;
   width: 100%;
 `;
@@ -253,6 +254,10 @@ export interface HomeRes {
   key: string;
   id: string;
   name: string;
+  title?: string;
+  description?: string;
+  category?: string;
+  icon?: string;
   type: HomeResTypeEnum;
   creator: string;
   lastModifyTime: number;
@@ -276,11 +281,27 @@ export interface HomeLayoutProps {
 }
 
 export function HomeLayout(props: HomeLayoutProps) {
+
+
   const { breadcrumb = [], elements = [], localMarketplaceApps = [], globalMarketplaceApps = [],mode } = props;
+
+  const categoryOptions = [
+    { label: <FilterMenuItem>{trans("home.allCategories")}</FilterMenuItem>, value: 'All' },
+    ...Object.entries(ApplicationCategoriesEnum).map(([key, value]) => ({
+      label: (
+        <FilterMenuItem>
+          {value}
+        </FilterMenuItem>
+      ),
+      value: key,
+    })),
+  ];
+
   const user = useSelector(getUser);
   const isFetching = useSelector(isFetchingFolderElements);
   const isSelfHost = window.location.host !== 'app.lowcoder.cloud';
-  const [filterBy, setFilterBy] = useState<HomeResKey>("All");
+  const [typeFilter, setTypeFilter] = useState<HomeResKey>("All");
+  const [categoryFilter, setCategoryFilter] = useState<ApplicationCategoriesEnum | "All">("All");
   const [searchValue, setSearchValue] = useState("");
   const [layout, setLayout] = useState<HomeLayoutType>(
     checkIsMobile(window.innerWidth) ? "card" : getHomeLayout()
@@ -289,7 +310,7 @@ export function HomeLayout(props: HomeLayoutProps) {
   useEffect(() => saveHomeLayout(layout), [layout]);
 
   useEffect(() => {
-    // remove collision status from localstorage
+    // remove collision status from localstorage, as the next selected app may have another collision status
     removeCollisionStatus();
   }, []);
 
@@ -300,13 +321,14 @@ export function HomeLayout(props: HomeLayoutProps) {
   }
 
   var displayElements = elements;
+
   if (mode === "marketplace" && isSelfHost) {
     const markedLocalApps = localMarketplaceApps.map(app => ({ ...app, isLocalMarketplace: true }));
     const markedGlobalApps = globalMarketplaceApps.map(app => ({ ...app, isLocalMarketplace: false }));
     // Merge local and global apps into the elements array
     displayElements = [...markedLocalApps, ...markedGlobalApps];
   }
-  else if (mode === "marketplace") {
+  else if (mode === "marketplace" && !isSelfHost) {
     const markedLocalApps = localMarketplaceApps.map(app => ({ ...app, isLocalMarketplace: true }));
     displayElements = [...markedLocalApps];
   }
@@ -319,18 +341,27 @@ export function HomeLayout(props: HomeLayoutProps) {
         : true
     )
     .filter((e) => {
-      if (HomeResTypeEnum[filterBy].valueOf() === HomeResTypeEnum.All) {
+      if (HomeResTypeEnum[typeFilter].valueOf() === HomeResTypeEnum.All) {
         return true;
       }
       if (e.folder) {
-        return HomeResTypeEnum[filterBy] === HomeResTypeEnum.Folder;
+        return HomeResTypeEnum[typeFilter] === HomeResTypeEnum.Folder;
       } else {
-        if (filterBy === "Navigation") {
+        if (typeFilter === "Navigation") {
           return NavigationTypes.map((t) => t.valueOf()).includes(e.applicationType);
         }
-        return HomeResTypeEnum[filterBy].valueOf() === e.applicationType;
+        return HomeResTypeEnum[typeFilter].valueOf() === e.applicationType;
       }
     })
+    .filter((e) => {
+      // If "All" is selected, do not filter out any elements based on category
+      if (categoryFilter === 'All' || !categoryFilter) {
+        return true;
+      }
+      // Otherwise, filter elements based on the selected category
+      return !e.folder && e.category === categoryFilter.toString();
+    })
+    
     .map((e) =>
       e.folder
         ? {
@@ -347,6 +378,10 @@ export function HomeLayout(props: HomeLayoutProps) {
             key: e.applicationId,
             id: e.applicationId,
             name: e.name,
+            title: e.title,
+            description: e.description,
+            category: e.category,
+            icon: e.image,
             type: HomeResTypeEnum[HomeResTypeEnum[e.applicationType] as HomeResKey],
             creator: e?.creatorEmail ?? e.createBy,
             lastModifyTime: e.lastModifyTime,
@@ -414,19 +449,27 @@ export function HomeLayout(props: HomeLayoutProps) {
         {mode !== "folders" && mode !== "module" && (
           <FilterDropdown
             variant="borderless"
-            value={filterBy}
-            onChange={(value: any) => setFilterBy(value as HomeResKey)}
+            value={typeFilter}
+            onChange={(value: any) => setTypeFilter(value as HomeResKey)}
             options={[
               getFilterMenuItem(HomeResTypeEnum.All),
               getFilterMenuItem(HomeResTypeEnum.Application),
               getFilterMenuItem(HomeResTypeEnum.Module),
               ...(mode !== "marketplace" ? [getFilterMenuItem(HomeResTypeEnum.Navigation)] : []),
               ...(mode !== "trash" && mode !== "marketplace" ? [getFilterMenuItem(HomeResTypeEnum.Folder)] : []),
-  
             ]}
             getPopupContainer={(node: any) => node}
-            suffixIcon={<ArrowSolidIcon />}
-          />
+            suffixIcon={<ArrowSolidIcon />} />
+        )}
+        {mode === "marketplace" && (
+          <FilterDropdown
+            style={{ minWidth: "220px" }}
+            variant="borderless"
+            value={categoryFilter}
+            onChange={(value: any) => setCategoryFilter(value as ApplicationCategoriesEnum)}
+            options={categoryOptions}
+            // getPopupContainer={(node) => node}
+            suffixIcon={<ArrowSolidIcon />} />
         )}
 
         <OperationRightWrapper>

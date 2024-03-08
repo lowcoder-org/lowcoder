@@ -11,6 +11,8 @@ import {
 } from "./selectInputConstants";
 import { EllipsisTextCss, ValueFromOption } from "lowcoder-design";
 import { trans } from "i18n";
+import { fixOldInputCompData } from "../textInputComp/textInputConstants";
+import { migrateOldData } from "comps/generators/simpleGenerators";
 
 const getStyle = (style: RadioStyleType) => {
   return css`
@@ -25,6 +27,8 @@ const getStyle = (style: RadioStyleType) => {
         font-size:${style.textSize};
         font-weight:${style.textWeight};
         font-style:${style.fontStyle};
+        text-transform:${style.textTransform};
+        text-decoration:${style.textDecoration};
       }
 
       .ant-radio-checked {
@@ -45,6 +49,12 @@ const getStyle = (style: RadioStyleType) => {
         &::after {
           background-color: ${style.checked};
         }
+      }
+
+      &:hover .ant-radio-inner, 
+      .ant-radio:hover .ant-radio-inner,
+      .ant-radio-input + ant-radio-inner {
+        background-color:${style.hoverBackground ? style.hoverBackground:'#ffff'};
       }
 
       &:hover .ant-radio-inner,
@@ -85,7 +95,7 @@ const Radio = styled(AntdRadioGroup)<{
   }}
 `;
 
-const RadioBasicComp = (function () {
+let RadioBasicComp = (function () {
   return new UICompBuilder(RadioChildrenMap, (props) => {
     const [
       validateState,
@@ -120,6 +130,8 @@ const RadioBasicComp = (function () {
     .setExposeMethodConfigs(selectDivRefMethods)
     .build();
 })();
+
+RadioBasicComp = migrateOldData(RadioBasicComp, fixOldInputCompData);
 
 export const RadioComp = withExposingConfigs(RadioBasicComp, [
   new NameConfig("value", trans("selectInput.valueDesc")),

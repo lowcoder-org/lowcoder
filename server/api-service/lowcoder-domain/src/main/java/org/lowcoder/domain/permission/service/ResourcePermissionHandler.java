@@ -18,6 +18,7 @@ import javax.annotation.Nonnull;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.ListUtils;
+import org.lowcoder.domain.application.model.ApplicationRequestType;
 import org.lowcoder.domain.group.service.GroupMemberService;
 import org.lowcoder.domain.organization.service.OrgMemberService;
 import org.lowcoder.domain.permission.model.ResourceAction;
@@ -153,6 +154,13 @@ abstract class ResourcePermissionHandler {
     protected abstract Mono<Map<String, List<ResourcePermission>>> getNonAnonymousUserPublicResourcePermissions
             (Collection<String> resourceIds, ResourceAction resourceAction);
 
+    protected abstract Mono<Map<String, List<ResourcePermission>>> getAnonymousUserApplicationPermissions(Collection<String> resourceIds,
+            ResourceAction resourceAction, ApplicationRequestType requestType);
+
+    protected abstract Mono<Map<String, List<ResourcePermission>>> getNonAnonymousUserApplicationPublicResourcePermissions
+            (Collection<String> resourceIds, ResourceAction resourceAction, ApplicationRequestType requestType);
+    
+    
     private Mono<Map<String, List<ResourcePermission>>> getAllMatchingPermissions0(String userId, String orgId, ResourceType resourceType,
             Collection<String> resourceIds,
             ResourceAction resourceAction) {
@@ -212,4 +220,63 @@ abstract class ResourcePermissionHandler {
     }
 
     protected abstract Mono<String> getOrgId(String resourceId);
+
+	public Mono<UserPermissionOnResourceStatus> checkUserPermissionStatusOnApplication(String userId, String resourceId,
+			ResourceAction resourceAction, ApplicationRequestType requestType) 
+	{
+        ResourceType resourceType = resourceAction.getResourceType();
+
+        Mono<UserPermissionOnResourceStatus> publicResourcePermissionMono = getAnonymousUserApplicationPermissions(singletonList(resourceId), resourceAction, requestType)
+                .map(it -> it.getOrDefault(resourceId, emptyList()))
+                .map(it -> {
+                    if (!it.isEmpty()) {
+                        return UserPermissionOnResourceStatus.success(it.get(0));
+                    }
+                    return isAnonymousUser(userId) ? UserPermissionOnResourceStatus.anonymousUser() : UserPermissionOnResourceStatus.notInOrg();
+                });
+
+        if (isAnonymousUser(userId)) {
+            return publicResourcePermissionMono;
+        }
+
+        Mono<UserPermissionOnResourceStatus> nonAnonymousPublicResourcePermissionMono = getNonAnonymousUserApplicationPublicResourcePermissions(singletonList(resourceId), resourceAction, requestType)
+                .map(it -> it.getOrDefault(resourceId, emptyList()))
+                .map(it -> {
+                    if (!it.isEmpty()) {
+                        return UserPermissionOnResourceStatus.success(it.get(0));
+                    }
+                    return isAnonymousUser(userId) ? UserPermissionOnResourceStatus.anonymousUser() : UserPermissionOnResourceStatus.notInOrg();
+                });
+
+
+        Mono<UserPermissionOnResourceStatus> orgUserPermissionMono = getOrgId(resourceId)
+                .flatMap(orgId -> orgMemberService.getOrgMember(orgId, userId))
+                .flatMap(orgMember -> {
+                    if (orgMember.isAdmin()) {
+                        return Mono.just(UserPermissionOnResourceStatus.success(buildAdminPermission(resourceType, resourceId, userId)));
+                    }
+                    return getAllMatchingPermissions0(userId, orgMember.getOrgId(), resourceType, Collections.singleton(resourceId), resourceAction)
+                            .map(it -> it.getOrDefault(resourceId, emptyList()))
+                            .map(permissions -> permissions.isEmpty() ? UserPermissionOnResourceStatus.notEnoughPermission()
+                                                                      : UserPermissionOnResourceStatus.success(getMaxPermission(permissions)));
+                })
+                .defaultIfEmpty(UserPermissionOnResourceStatus.notInOrg());
+
+        return Mono.zip(publicResourcePermissionMono, nonAnonymousPublicResourcePermissionMono, orgUserPermissionMono)
+                .map(tuple -> {
+                    UserPermissionOnResourceStatus publicResourcePermission = tuple.getT1();
+                    UserPermissionOnResourceStatus nonAnonymousPublicResourcePermission = tuple.getT2();
+                    UserPermissionOnResourceStatus orgUserPermission = tuple.getT3();
+                    if (orgUserPermission.hasPermission()) {
+                        return orgUserPermission;
+                    }
+                    if(nonAnonymousPublicResourcePermission.hasPermission()) {
+                        return nonAnonymousPublicResourcePermission;
+                    }
+                    if (publicResourcePermission.hasPermission()) {
+                        return publicResourcePermission;
+                    }
+                    return orgUserPermission;
+                });
+	}
 }

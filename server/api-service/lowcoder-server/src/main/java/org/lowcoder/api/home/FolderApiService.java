@@ -182,6 +182,11 @@ public class FolderApiService {
     public Mono<FolderInfoView> update(Folder folder) {
         Folder newFolder = new Folder();
         newFolder.setName(folder.getName());
+        newFolder.setTitle(folder.getTitle());
+        newFolder.setType(folder.getType());
+        newFolder.setCategory(folder.getCategory());
+        newFolder.setDescription(folder.getDescription());
+        newFolder.setImage(folder.getImage());
         return checkManagePermission(folder.getId())
                 .then(folderService.updateById(folder.getId(), newFolder))
                 .then(folderService.findById(folder.getId()))
@@ -421,6 +426,10 @@ public class FolderApiService {
                         .folderId(folder.getId())
                         .parentFolderId(folder.getParentFolderId())
                         .name(folder.getName())
+                        .description(folder.getDescription())
+                        .category(folder.getCategory())
+                        .type(folder.getType())
+                        .image(folder.getImage())
                         .createAt(folder.getCreatedAt() == null ? 0 : folder.getCreatedAt().toEpochMilli())
                         .createBy(user.getName())
                         .createTime(folder.getCreatedAt())
