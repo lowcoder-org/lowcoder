@@ -55,6 +55,8 @@ common:
     mode: ${LOWCODER_WORKSPACE_MODE:SAAS}
   marketplace:
     private-mode: ${LOWCODER_MARKETPLACE_PRIVATE_MODE:true}
+  cookie:
+    max-age-in-seconds: ${LOWCODER_SESSION_TIMEOUT:1800}
 
 material:
   mongodb-grid-fs:
