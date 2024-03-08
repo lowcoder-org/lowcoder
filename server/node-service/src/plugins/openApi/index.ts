@@ -99,7 +99,6 @@ export async function runOpenApi(
       id: "",
     }]
   }
-
   const { actionName, ...otherActionData } = actionData;
   const { serverURL } = dataSourceConfig;
 
