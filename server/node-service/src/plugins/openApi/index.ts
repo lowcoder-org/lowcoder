@@ -12,11 +12,10 @@ import {
   isFile,
 } from "./util";
 import { badRequest } from "../../common/error";
-import { safeJsonParse } from "../../common/util";
 import { OpenAPI, OpenAPIV2, OpenAPIV3 } from "openapi-types";
 import _ from "lodash";
 import { fetch } from "../../common/fetch";
-import { RequestInit, Response } from "node-fetch";
+import { RequestInit } from "node-fetch";
 
 const dataSourceConfig = {
   type: "dataSource",
