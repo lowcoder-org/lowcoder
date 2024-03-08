@@ -12,10 +12,11 @@ import {
   isFile,
 } from "./util";
 import { badRequest } from "../../common/error";
+import { safeJsonParse } from "../../common/util";
 import { OpenAPI, OpenAPIV2, OpenAPIV3 } from "openapi-types";
 import _ from "lodash";
 import { fetch } from "../../common/fetch";
-import { RequestInit } from "node-fetch";
+import { RequestInit, Response } from "node-fetch";
 
 const dataSourceConfig = {
   type: "dataSource",
@@ -79,26 +80,6 @@ export async function runOpenApi(
   defaultHeaders?: Record<string, string>,
   openApiSpecDereferenced?: OpenAPI.Document,
 ) {
-
-  const specList = Array.isArray(spec) ? spec : [{ spec, id: "" }];
-  let definitions;
-
-  if (!openApiSpecDereferenced) {
-    definitions = await Promise.all(
-      specList.map(async ({id, spec}) => {
-        const deRefedSpec = await SwaggerParser.dereference(spec);
-        return {
-          def: deRefedSpec,
-          id,
-        };
-      })
-    );
-  } else {
-    definitions = [{
-      def: openApiSpecDereferenced,
-      id: "",
-    }]
-  }
   const { actionName, ...otherActionData } = actionData;
   const { serverURL } = dataSourceConfig;
 
