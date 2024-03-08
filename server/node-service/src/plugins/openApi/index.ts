@@ -50,18 +50,18 @@ interface ActionDataType {
   [key: string]: any;
 }
 
-export async function runOpenApi(
-  actionData: ActionDataType,
-  dataSourceConfig: DataSourceDataType,
+async function getDefinitions(
   spec: OpenAPI.Document | MultiOpenApiSpecItem[],
-  defaultHeaders?: Record<string, string>,
   openApiSpecDereferenced?: OpenAPI.Document,
-) {
-  const specList = Array.isArray(spec) ? spec : [{ spec, id: "" }];
-  let definitions;
-
-  if (!openApiSpecDereferenced) {
-    definitions = await Promise.all(
+): Promise<{ def: OpenAPI.Document; id: string }[]> {
+  if (openApiSpecDereferenced) {
+    return [{
+      def: openApiSpecDereferenced,
+      id: "",
+    }]
+  } else {
+    const specList = Array.isArray(spec) ? spec : [{ spec, id: "" }];
+    return await Promise.all(
       specList.map(async ({id, spec}) => {
         const deRefedSpec = await SwaggerParser.dereference(spec);
         return {
@@ -70,20 +70,22 @@ export async function runOpenApi(
         };
       })
     );
-  } else {
-    definitions = [{
-      def: openApiSpecDereferenced,
-      id: "",
-    }]
   }
+}
+
+export async function runOpenApi(
+  actionData: ActionDataType,
+  dataSourceConfig: DataSourceDataType,
+  spec: OpenAPI.Document | MultiOpenApiSpecItem[],
+  defaultHeaders?: Record<string, string>,
+  openApiSpecDereferenced?: OpenAPI.Document,
+) {
   const { actionName, ...otherActionData } = actionData;
   const { serverURL } = dataSourceConfig;
 
-  let definition: OpenAPI.Document | undefined;
-  let operation;
-  let realOperationId;
+  let operation, realOperationId, definition: OpenAPI.Document | undefined;
 
-  for (const { id, def } of definitions) {
+  for (const {id, def} of await getDefinitions(spec, openApiSpecDereferenced)) {
     const ret = findOperation(actionName, def, id);
     if (ret) {
       definition = def;
