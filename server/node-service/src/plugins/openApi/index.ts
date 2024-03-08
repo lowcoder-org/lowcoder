@@ -54,18 +54,28 @@ export async function runOpenApi(
   actionData: ActionDataType,
   dataSourceConfig: DataSourceDataType,
   spec: OpenAPI.Document | MultiOpenApiSpecItem[],
-  defaultHeaders?: Record<string, string>
+  defaultHeaders?: Record<string, string>,
+  openApiSpecDereferenced?: OpenAPI.Document,
 ) {
   const specList = Array.isArray(spec) ? spec : [{ spec, id: "" }];
-  const definitions = await Promise.all(
-    specList.map(async ({ id, spec }) => {
-      const deRefedSpec = await SwaggerParser.dereference(spec);
-      return {
-        def: deRefedSpec,
-        id,
-      };
-    })
-  );
+  let definitions;
+
+  if (!openApiSpecDereferenced) {
+    definitions = await Promise.all(
+      specList.map(async ({id, spec}) => {
+        const deRefedSpec = await SwaggerParser.dereference(spec);
+        return {
+          def: deRefedSpec,
+          id,
+        };
+      })
+    );
+  } else {
+    definitions = [{
+      def: openApiSpecDereferenced,
+      id: "",
+    }]
+  }
   const { actionName, ...otherActionData } = actionData;
   const { serverURL } = dataSourceConfig;
 
