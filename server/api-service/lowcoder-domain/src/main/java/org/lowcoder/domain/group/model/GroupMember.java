@@ -36,6 +36,11 @@ public class GroupMember {
         return role == MemberRole.ADMIN;
     }
 
+    public boolean isSuperAdmin() {
+        return role == MemberRole.SUPER_ADMIN;
+    }
+
+
     @JsonIgnore
     public boolean isInvalid() {
         return this == NOT_EXIST || StringUtils.isBlank(groupId);

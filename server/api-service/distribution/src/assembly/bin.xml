@@ -1,0 +1,72 @@
+<assembly xmlns="http://maven.apache.org/ASSEMBLY/2.2.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/ASSEMBLY/2.2.0 http://maven.apache.org/xsd/assembly-2.2.0.xsd">
+	<id>bin</id>
+	<formats>
+		<format>dir</format>
+	</formats>
+	<includeBaseDirectory>false</includeBaseDirectory>
+
+	<files>
+		<file>
+			<source>src/assembly/set-classpath.sh</source>
+			<outputDirectory></outputDirectory>
+		</file>
+	</files>
+	<fileSets>
+        <fileSet>
+            <directory>${assembly.lib.directory}</directory>
+            <outputDirectory>dependencies</outputDirectory>
+			<excludes>
+				<exclude>${project.groupId}:*</exclude>
+			</excludes>
+        </fileSet>
+	</fileSets>
+
+	<moduleSets>
+		<!-- Main lowcoder API server application -->
+		<moduleSet>
+			<useAllReactorProjects>true</useAllReactorProjects>
+			<includes>
+				<include>org.lowcoder:lowcoder-server</include>
+			</includes>
+			<binaries>
+				<outputDirectory>app</outputDirectory>
+				<includeDependencies>false</includeDependencies>
+				<unpack>false</unpack>
+			</binaries>
+		</moduleSet>		
+
+		<!-- Lowcoder API server dependencies -->
+		<moduleSet>
+			<useAllReactorProjects>true</useAllReactorProjects>
+			<includes>
+				<include>org.lowcoder:lowcoder-domain</include>
+				<include>org.lowcoder:lowcoder-infra</include>
+				<include>org.lowcoder:lowcoder-sdk</include>
+			</includes>
+			<binaries>
+				<outputDirectory>libs</outputDirectory>
+				<includeDependencies>false</includeDependencies>
+				<unpack>false</unpack>
+			</binaries>
+		</moduleSet>
+
+		<!-- Lowcoder plugins -->		
+		<moduleSet>
+			<useAllReactorProjects>true</useAllReactorProjects>
+			<includeSubModules>true</includeSubModules>
+			<includes>
+				<include>org.lowcoder:*Plugin</include>
+			</includes>
+			<excludes>
+				<exclude>org.lowcoder:sqlBasedPlugin</exclude>
+			</excludes>
+			<binaries>
+				<outputDirectory>plugins</outputDirectory>
+				<includeDependencies>false</includeDependencies>
+				<unpack>false</unpack>
+			</binaries>
+		</moduleSet>		
+	</moduleSets>
+</assembly>

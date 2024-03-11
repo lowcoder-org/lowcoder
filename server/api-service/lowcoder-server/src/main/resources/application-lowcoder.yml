@@ -10,7 +10,14 @@ spring:
     allow-bean-definition-overriding: true
     allow-circular-references: true
 
+logging:
+  level:
+    root: info
+    web: debug
+
 server:
+  error:
+    includeStacktrace: ALWAYS
   compression:
     enabled: true
   forward-headers-strategy: NATIVE
@@ -44,6 +51,11 @@ common:
   block-hound-enable: false
   js-executor:
     host: http://127.0.0.1:6060
+  plugin-dirs:
+    - /tmp/plugins
+  super-admin:
+    username: test@lowcoder.pro
+    password: Password@123
   marketplace:
     private-mode: false
 

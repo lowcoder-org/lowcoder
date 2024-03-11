@@ -25,6 +25,9 @@ import { RefControl } from "comps/controls/refControl";
 
 import { useContext } from "react";
 import { EditorContext } from "comps/editorState";
+import { migrateOldData } from "comps/generators/simpleGenerators";
+import { fixOldInputCompData } from "../textInputComp/textInputConstants";
+
 
 const getStyle = (style: SegmentStyleType) => {
   return css`
@@ -83,7 +86,7 @@ const SegmentChildrenMap = {
   ...formDataChildren,
 };
 
-const SegmentedControlBasicComp = (function () {
+let SegmentedControlBasicComp = (function () {
   return new UICompBuilder(SegmentChildrenMap, (props) => {
     const [
       validateState,
@@ -146,6 +149,8 @@ const SegmentedControlBasicComp = (function () {
     .setExposeMethodConfigs(selectDivRefMethods)
     .build();
 })();
+
+SegmentedControlBasicComp = migrateOldData(SegmentedControlBasicComp, fixOldInputCompData);
 
 export const SegmentedControlComp = withExposingConfigs(SegmentedControlBasicComp, [
   new NameConfig("value", trans("selectInput.valueDesc")),
