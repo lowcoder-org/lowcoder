@@ -5,6 +5,7 @@ import { OpenAPIV3, OpenAPI } from "openapi-types";
 import { ConfigToType, DataSourcePlugin } from "lowcoder-sdk/dataSource";
 import { runOpenApi } from "../openApi";
 import { parseOpenApi, ParseOpenApiOptions } from "../openApi/parse";
+import SwaggerParser from "@apidevtools/swagger-parser";
 
 const spec = readYaml(path.join(__dirname, "./github.spec.yaml"));
 
@@ -34,6 +35,7 @@ const parseOptions: ParseOpenApiOptions = {
     return _.upperFirst(operation.operationId || "");
   },
 };
+const deRefedSpec = SwaggerParser.dereference(spec);
 
 type DataSourceConfigType = ConfigToType<typeof dataSourceConfig>;
 
@@ -55,13 +57,13 @@ const gitHubPlugin: DataSourcePlugin<any, DataSourceConfigType> = {
       actions,
     };
   },
-  run: function (actionData, dataSourceConfig): Promise<any> {
+  run: async function (actionData, dataSourceConfig, ctx): Promise<any> {
     const runApiDsConfig = {
       url: "",
       serverURL: "https://api.github.com",
       dynamicParamsConfig: dataSourceConfig,
     };
-    return runOpenApi(actionData, runApiDsConfig, spec as OpenAPIV3.Document);
+    return runOpenApi(actionData, runApiDsConfig, spec as OpenAPIV3.Document, undefined, await deRefedSpec);
   },
 };
 
