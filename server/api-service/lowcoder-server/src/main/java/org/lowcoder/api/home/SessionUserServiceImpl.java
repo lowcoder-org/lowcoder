@@ -1,6 +1,7 @@
 package org.lowcoder.api.home;
 
 import static org.lowcoder.sdk.constants.GlobalContext.CURRENT_ORG_MEMBER;
+import static org.lowcoder.sdk.constants.GlobalContext.VISITOR_TOKEN;
 import static org.lowcoder.sdk.exception.BizError.UNABLE_TO_FIND_VALID_ORG;
 import static org.lowcoder.sdk.util.ExceptionUtils.deferredError;
 import static org.lowcoder.sdk.util.JsonUtils.fromJsonQuietly;
@@ -72,6 +73,17 @@ public class SessionUserServiceImpl implements SessionUserService {
                     return Mono.empty();
                 })
                 .switchIfEmpty(deferredError(UNABLE_TO_FIND_VALID_ORG, "UNABLE_TO_FIND_VALID_ORG"));
+    }
+
+    @Override
+    public Mono<OrgMember> getVisitorOrgMemberCacheSilent() {
+        return Mono.deferContextual(contextView -> (Mono<OrgMember>) contextView.get(CURRENT_ORG_MEMBER))
+                .delayUntil(Mono::just);
+    }
+
+    @Override
+    public Mono<String> getVisitorToken() {
+        return Mono.deferContextual(contextView -> Mono.just(contextView.get(VISITOR_TOKEN)));
     }
 
     @Override

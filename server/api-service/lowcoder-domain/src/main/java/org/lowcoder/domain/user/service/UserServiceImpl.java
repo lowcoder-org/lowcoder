@@ -335,7 +335,7 @@ public class UserServiceImpl implements UserService {
             Locale locale) {
         String orgId = orgMember.getOrgId();
         Flux<Group> groups;
-        if (orgMember.isAdmin()) {
+        if (orgMember.isAdmin() || orgMember.isSuperAdmin()) {
             groups = groupService.getByOrgId(orgId).sort();
         } else {
             if (withoutDynamicGroups) {
