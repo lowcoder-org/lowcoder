@@ -781,7 +781,6 @@ export enum ViewType {
   TIMEGRID = "timeGridDay",
 }
 
-
 export const DefaultWithPremiumViewOptions = [
   {
     label: trans("calendar.month"),
@@ -860,6 +859,29 @@ export const FirstDayOptions = [
 ];
 
 export const defaultData = [
+  {
+    id: "1",
+    title: "Coding",
+    start: dayjs().hour(10).minute(0).second(0).format(DATE_TIME_FORMAT),
+    end: dayjs().hour(12).minute(30).second(0).format(DATE_TIME_FORMAT),
+    color: "#079968",
+  },
+  {
+    id: "2",
+    title: "Rest",
+    start: dayjs().hour(24).format(DATE_FORMAT),
+    end: dayjs().hour(48).format(DATE_FORMAT),
+    allDay: true,
+  },
+];
+
+export const resourcesDefaultData = [
+  {
+    resourceId: "a",
+    title: "event 1",
+    start: "2024-03-11",
+    end: "2024-03-13",
+  },
   {
     id: "1",
     title: "Coding",

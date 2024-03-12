@@ -57,7 +57,6 @@ import {
 } from "./calendarConstants";
 import dayjs from "dayjs";
 
-
 const childrenMap = {
   events: jsonValueExposingStateControl("events", defaultData),
   onEvent: ChangeEventHandlerControl,
@@ -77,7 +76,10 @@ const childrenMap = {
   dayMaxEvents: withDefault(NumberControl, 2),
   eventMaxStack: withDefault(NumberControl, 0),
   style: styleControl(CalendarStyle),
-  licenceKey: withDefault(StringControl, ""),
+  licenceKey: withDefault(
+    StringControl,
+    "CC-Attribution-NonCommercial-NoDerivatives"
+  ),
 };
 
 let CalendarBasicComp = (function () {
@@ -102,7 +104,7 @@ let CalendarBasicComp = (function () {
       };
     });
 
-    const {
+    let {
       defaultDate,
       defaultFreeView,
       defaultPremiumView,
@@ -324,6 +326,7 @@ let CalendarBasicComp = (function () {
     if (licenceKey != "") {
       defaultView = defaultPremiumView;
     }
+    licenceKey = "CC-Attribution-NonCommercial-NoDerivatives";
 
     return (
       <Wrapper
@@ -337,21 +340,52 @@ let CalendarBasicComp = (function () {
       >
         <FullCalendar
           slotEventOverlap={false}
-          events={events}
+          events={[
+            {
+              resourceId: "a",
+              title: "event 1",
+              start: "2024-03-11",
+              end: "2024-03-13",
+            },
+            {
+              resourceId: "b",
+              title: "event 3",
+              start: "2024-03-12T12:00:00+00:00",
+              end: "2024-03-13T06:00:00+00:00",
+            },
+            {
+              resourceId: "c",
+              title: "event 4",
+              start: "2024-03-12T07:30:00+00:00",
+              end: "2024-03-12T09:30:00+00:00",
+            },
+            {
+              resourceId: "d",
+              title: "event 5",
+              start: "2024-03-12T10:00:00+00:00",
+              end: "2024-03-12T15:00:00+00:00",
+            },
+            {
+              resourceId: "a",
+              title: "event 2",
+              start: "2024-03-12T09:00:00+00:00",
+              end: "2024-03-12T14:00:00+00:00",
+            },
+          ]}
           expandRows={true}
           height={"100%"}
           locale={getCalendarLocale()}
           locales={allLocales}
           firstDay={Number(firstDay)}
           plugins={[
-            dayGridPlugin,
-            timeGridPlugin,
-            interactionPlugin,
-            listPlugin,
-            momentPlugin,
+            // dayGridPlugin,
+            // timeGridPlugin,
+            // interactionPlugin,
+            // listPlugin,
+            // momentPlugin,
             resourceTimelinePlugin,
-            resourceTimeGridPlugin,
-            adaptivePlugin,
+            // resourceTimeGridPlugin,
+            // adaptivePlugin,
           ]}
           headerToolbar={headerToolbar}
           moreLinkClick={(info) => {
@@ -379,12 +413,131 @@ let CalendarBasicComp = (function () {
           buttonText={buttonText}
           schedulerLicenseKey={licenceKey}
           views={views}
+          resources={[
+            {
+              id: "a",
+              title: "Auditorium A",
+            },
+            {
+              id: "b",
+              title: "Auditorium B",
+              eventColor: "green",
+            },
+            {
+              id: "c",
+              title: "Auditorium C",
+              eventColor: "orange",
+            },
+            {
+              id: "d",
+              title: "Auditorium D",
+              children: [
+                {
+                  id: "d1",
+                  title: "Room D1",
+                },
+                {
+                  id: "d2",
+                  title: "Room D2",
+                },
+              ],
+            },
+            {
+              id: "e",
+              title: "Auditorium E",
+            },
+            {
+              id: "f",
+              title: "Auditorium F",
+              eventColor: "red",
+            },
+            {
+              id: "g",
+              title: "Auditorium G",
+            },
+            {
+              id: "h",
+              title: "Auditorium H",
+            },
+            {
+              id: "i",
+              title: "Auditorium I",
+            },
+            {
+              id: "j",
+              title: "Auditorium J",
+            },
+            {
+              id: "k",
+              title: "Auditorium K",
+            },
+            {
+              id: "l",
+              title: "Auditorium L",
+            },
+            {
+              id: "m",
+              title: "Auditorium M",
+            },
+            {
+              id: "n",
+              title: "Auditorium N",
+            },
+            {
+              id: "o",
+              title: "Auditorium O",
+            },
+            {
+              id: "p",
+              title: "Auditorium P",
+            },
+            {
+              id: "q",
+              title: "Auditorium Q",
+            },
+            {
+              id: "r",
+              title: "Auditorium R",
+            },
+            {
+              id: "s",
+              title: "Auditorium S",
+            },
+            {
+              id: "t",
+              title: "Auditorium T",
+            },
+            {
+              id: "u",
+              title: "Auditorium U",
+            },
+            {
+              id: "v",
+              title: "Auditorium V",
+            },
+            {
+              id: "w",
+              title: "Auditorium W",
+            },
+            {
+              id: "x",
+              title: "Auditorium X",
+            },
+            {
+              id: "y",
+              title: "Auditorium Y",
+            },
+            {
+              id: "z",
+              title: "Auditorium Z",
+            },
+          ]}
           eventClassNames={() => (!showEventTime ? "no-time" : "")}
           slotLabelFormat={slotLabelFormat}
           viewClassNames={viewClassNames}
           moreLinkText={trans("calendar.more")}
           initialDate={initialDate}
-          initialView={defaultView}
+          initialView="resourceTimeline"
           editable={editable}
           selectable={editable}
           selectMirror={false}
@@ -428,7 +581,7 @@ let CalendarBasicComp = (function () {
               }
             });
             if (needChange) {
-              props.events.onChange(changeEvents);
+              // props.events.onChange(changeEvents);
               props.onEvent("change");
             }
           }}
