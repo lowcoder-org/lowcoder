@@ -14,7 +14,7 @@ import {
   CompressIcon,
   TextSizeIcon,
   FontFamilyIcon,
-  TextWeigthIcon,
+  TextWeightIcon,
   ShowBorderIcon,
   BorderWidthIcon,
   ImageCompIcon,
@@ -569,7 +569,7 @@ const MarginIcon = styled(ExpandIcon)` margin: 0 8px 0 2px;`;
 const PaddingIcon = styled(CompressIcon)`	margin: 0 8px 0 2px;`;
 const StyledTextSizeIcon = styled(TextSizeIcon)` margin: 0 8px 0 -3px; padding: 3px;`;
 const StyledFontFamilyIcon = styled(FontFamilyIcon)` margin: 0 8px 0 -3px; padding: 3px;`;
-const StyledTextWeightIcon = styled(TextWeigthIcon)` margin: 0 8px 0 -3px; padding: 3px;`;
+const StyledTextWeightIcon = styled(TextWeightIcon)` margin: 0 8px 0 -3px; padding: 3px;`;
 const StyledBackgroundImageIcon = styled(ImageCompIcon)` margin: 0 0px 0 -12px;`;
 
 const ResetIcon = styled(IconReset)`
@@ -611,9 +611,9 @@ export function styleControl<T extends readonly SingleColorConfig[]>(colorConfig
       name === "footerBackgroundImageOrigin" ||
       name === "margin" ||
       name === "padding" ||
-      name === "containerheaderpadding" ||
-      name === "containerfooterpadding" ||
-      name === "containerbodypadding"
+      name === "containerHeaderPadding" ||
+      name === "containerFooterPadding" ||
+      name === "containerBodyPadding"
     ) {
       childrenMap[name] = StringControl;
     } else {
@@ -657,9 +657,9 @@ export function styleControl<T extends readonly SingleColorConfig[]>(colorConfig
                       name === "radius" ||
                       name === "margin" ||
                       name === "padding" ||
-                      name === "containerheaderpadding" ||
-                      name === "containerfooterpadding" ||
-                      name === "containerbodypadding" ||
+                      name === "containerHeaderPadding" ||
+                      name === "containerFooterPadding" ||
+                      name === "containerBodyPadding" ||
                       name === "borderWidth" ||
                       name === "backgroundImage" ||
                       name === "backgroundImageRepeat" ||
@@ -748,9 +748,9 @@ export function styleControl<T extends readonly SingleColorConfig[]>(colorConfig
                               placeholder: props[name],
                             })
                             : (name === "padding" ||
-                              name === "containerheaderpadding" ||
-                              name === "containerfooterpadding" ||
-                              name === "containerbodypadding")
+                              name === "containerHeaderPadding" ||
+                              name === "containerFooterPadding" ||
+                              name === "containerBodyPadding")
                               ? (
                                 children[name] as InstanceType<typeof StringControl>
                               ).propertyView({
@@ -847,7 +847,7 @@ export function styleControl<T extends readonly SingleColorConfig[]>(colorConfig
                                                     : children[name].propertyView({
                                                       label: config.label,
                                                       panelDefaultColor: props[name],
-                                                      // isDep: isDepColorConfig(config),	
+                                                      // isDep: isDepColorConfig(config),
                                                       isDep: true,
                                                       depMsg: depMsg,
                                                     })}

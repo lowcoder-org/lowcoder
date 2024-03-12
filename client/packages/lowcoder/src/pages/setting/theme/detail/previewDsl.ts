@@ -508,7 +508,7 @@ const dsl = {
                         style: {
                           label: "",
                           fill: "",
-                          thumbBoder: "",
+                          thumbBorder: "",
                           thumb: "",
                           track: "",
                         },
