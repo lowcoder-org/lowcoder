@@ -7,7 +7,7 @@ export type timelineNode = {
   dot?: string;
   subTitleColor?: string;
   titleColor?: string;
-  lableColor?: string;
+  labelColor?: string;
 };
 
 export const TimelineDataTooltip = (
@@ -28,7 +28,7 @@ export const TimelineDataTooltip = (
     <br />
     7. subTitleColor - {trans("timeLine.helpSubTitleColor")}
     <br />
-    8. lableColor - {trans("timeLine.helpLableColor")}
+    8. labelColor - {trans("timeLine.helpLabelColor")}
   </li>
 );
 
@@ -51,7 +51,7 @@ export const timelineDate=[
     color: 'red',
     titleColor: "red",
     subTitleColor: "red",
-    lableColor: "red",
+    labelColor: "red",
   },
   {
     title: "Lowcoder 2.0",

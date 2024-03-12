@@ -30,7 +30,7 @@ const getStyle = (style: SliderStyleType) => {
         }
         .ant-slider-handle {
           background-color: ${style.thumb};
-          border-color: ${style.thumbBoder};
+          border-color: ${style.thumbBorder};
         }
       }
       &:hover {
@@ -39,7 +39,7 @@ const getStyle = (style: SliderStyleType) => {
         }
       }
       .ant-slider-handle:focus {
-        box-shadow: 0 0 0 5px ${fadeColor(darkenColor(style.thumbBoder, 0.08), 0.12)};
+        box-shadow: 0 0 0 5px ${fadeColor(darkenColor(style.thumbBorder, 0.08), 0.12)};
       }
     }
   `;
