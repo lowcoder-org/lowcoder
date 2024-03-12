@@ -1,0 +1,84 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.lowcoder</groupId>
+		<artifactId>lowcoder-root</artifactId>
+		<version>${revision}</version>
+	</parent>
+
+	<artifactId>distribution</artifactId>
+	<packaging>pom</packaging>
+
+	<properties>
+	    <assembly.lib.directory>${project.build.directory}/dependencies</assembly.lib.directory>
+	</properties>
+
+
+	<!-- Dependency added here only to make sure this module is built after
+	everything alse was built -->
+	<dependencies>
+		<dependency>
+			<groupId>org.lowcoder</groupId>
+			<artifactId>lowcoder-sdk</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.lowcoder</groupId>
+			<artifactId>lowcoder-infra</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.lowcoder</groupId>
+			<artifactId>lowcoder-domain</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.lowcoder</groupId>
+			<artifactId>lowcoder-server</artifactId>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<finalName>lowcoder-api-service</finalName>
+		<plugins>
+	        <plugin>
+	            <groupId>org.apache.maven.plugins</groupId>
+	            <artifactId>maven-dependency-plugin</artifactId>
+	            <executions>
+	                <execution>
+	                    <id>copy-dependencies</id>
+	                    <phase>prepare-package</phase>
+	                    <goals>
+	                        <goal>copy-dependencies</goal>
+	                    </goals>
+	                    <configuration>
+	                        <outputDirectory>${assembly.lib.directory}</outputDirectory>
+	                        <overWriteReleases>false</overWriteReleases>
+	                        <overWriteSnapshots>false</overWriteSnapshots>
+	                        <overWriteIfNewer>true</overWriteIfNewer>
+	                        <prependGroupId>true</prependGroupId>
+	                    </configuration>
+	                </execution>
+	            </executions>
+	        </plugin>
+			<plugin>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>distro-assembly</id>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+						<configuration>
+							<attach>false</attach>
+							<descriptors>
+								<descriptor>src/assembly/bin.xml</descriptor>
+							</descriptors>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>

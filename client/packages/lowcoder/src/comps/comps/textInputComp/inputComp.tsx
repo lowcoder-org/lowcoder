@@ -11,6 +11,7 @@ import styled from "styled-components";
 import { UICompBuilder } from "../../generators";
 import { FormDataPropertyView } from "../formComp/formDataConstants";
 import {
+  fixOldInputCompData,
   getStyle,
   inputRefMethods,
   TextInputBasicSection,
@@ -30,6 +31,7 @@ import { IconControl } from "comps/controls/iconControl";
 import { hasIcon } from "comps/utils";
 import { InputRef } from "antd/es/input";
 import { RefControl } from "comps/controls/refControl";
+import { migrateOldData } from "comps/generators/simpleGenerators";
 
 import React, { useContext } from "react";
 import { EditorContext } from "comps/editorState";
@@ -53,7 +55,7 @@ const childrenMap = {
   suffixIcon: IconControl,
 };
 
-export const InputComp = new UICompBuilder(childrenMap, (props) => {
+let InputBasicComp = new UICompBuilder(childrenMap, (props) => {
   const [inputProps, validateState] = useTextInputProps(props);
   return props.label({
     required: props.required,
@@ -113,3 +115,8 @@ export const InputComp = new UICompBuilder(childrenMap, (props) => {
     ...TextInputConfigs,
   ])
   .build();
+
+
+const InputComp = migrateOldData(InputBasicComp, fixOldInputCompData);
+
+export { InputComp };

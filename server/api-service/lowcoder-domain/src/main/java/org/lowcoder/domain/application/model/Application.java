@@ -43,7 +43,6 @@ public class Application extends HasIdAndAuditing {
     private Boolean publicToAll;
     @Setter
     private Boolean publicToMarketplace;
-
     @Setter
     private Boolean agencyProfile;
 
@@ -77,15 +76,17 @@ public class Application extends HasIdAndAuditing {
 
     @Builder
     @JsonCreator
-    public Application(@JsonProperty("orgId") String organizationId,
+    public Application(
+            @JsonProperty("orgId") String organizationId,
             @JsonProperty("name") String name,
             @JsonProperty("applicationType") Integer applicationType,
             @JsonProperty("applicationStatus") ApplicationStatus applicationStatus,
             @JsonProperty("publishedApplicationDSL") Map<String, Object> publishedApplicationDSL,
+            @JsonProperty("editingApplicationDSL") Map<String, Object> editingApplicationDSL,
             @JsonProperty("publicToAll") Boolean publicToAll,
             @JsonProperty("publicToMarketplace") Boolean publicToMarketplace,
-            @JsonProperty("agencyProfile") Boolean agencyProfile,
-            @JsonProperty("editingApplicationDSL") Map<String, Object> editingApplicationDSL) {
+            @JsonProperty("agencyProfile") Boolean agencyProfile
+        ) {
         this.organizationId = organizationId;
         this.name = name;
         this.applicationType = applicationType;
@@ -165,5 +166,9 @@ public class Application extends HasIdAndAuditing {
     public Object getLiveContainerSize() {
         return liveContainerSize.get();
     }
+
+	public Map<String, Object> getPublishedApplicationDSL() {
+		return publishedApplicationDSL;
+	}
 
 }

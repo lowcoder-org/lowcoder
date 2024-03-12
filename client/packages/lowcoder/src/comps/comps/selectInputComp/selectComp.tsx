@@ -17,8 +17,10 @@ import {
 } from "./selectInputConstants";
 import { useRef } from "react";
 import { RecordConstructorToView } from "lowcoder-core";
+import { fixOldInputCompData } from "../textInputComp/textInputConstants";
+import { migrateOldData } from "comps/generators/simpleGenerators";
 
-const SelectBasicComp = (function () {
+let SelectBasicComp = (function () {
   const childrenMap = {
     ...SelectChildrenMap,
     defaultValue: stringExposingStateControl("defaultValue"),
@@ -56,6 +58,8 @@ const SelectBasicComp = (function () {
     .setExposeMethodConfigs(baseSelectRefMethods)
     .build();
 })();
+
+SelectBasicComp = migrateOldData(SelectBasicComp, fixOldInputCompData);
 
 export const SelectComp = withExposingConfigs(SelectBasicComp, [
   new NameConfig("value", trans("selectInput.valueDesc")),

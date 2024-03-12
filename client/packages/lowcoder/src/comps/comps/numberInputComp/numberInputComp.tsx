@@ -52,6 +52,8 @@ import {
 
 import { useContext } from "react";
 import { EditorContext } from "comps/editorState";
+import { migrateOldData } from "comps/generators/simpleGenerators";
+import { fixOldInputCompData } from "../textInputComp/textInputConstants";
 
 const getStyle = (style: InputLikeStyleType) => {
   return css`
@@ -373,7 +375,7 @@ const CustomInputNumber = (props: RecordConstructorToView<typeof childrenMap>) =
   );
 };
 
-const NumberInputTmpComp = (function () {
+let NumberInputTmpComp = (function () {
   return new UICompBuilder(childrenMap, (props) => {
     return props.label({
       required: props.required,
@@ -440,6 +442,8 @@ const NumberInputTmpComp = (function () {
     ))
     .build();
 })();
+
+NumberInputTmpComp = migrateOldData(NumberInputTmpComp, fixOldInputCompData);
 
 const NumberInputTmp2Comp = withMethodExposing(
   NumberInputTmpComp,

@@ -5,7 +5,7 @@
     <parent>
         <artifactId>lowcoder-root</artifactId>
         <groupId>org.lowcoder</groupId>
-	<version>${revision}</version>
+		<version>${revision}</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -186,6 +186,12 @@
         <dependency>
             <groupId>es.moki.ratelimitj</groupId>
             <artifactId>ratelimitj-redis</artifactId>
+            <exclusions>
+				<exclusion>
+					<groupId>io.lettuce</groupId>
+					<artifactId>lettuce-core</artifactId>
+				</exclusion>
+			</exclusions>
         </dependency>
 
         <dependency>
@@ -242,6 +248,18 @@
 
     <build>
         <plugins>
+			<plugin>
+	            <groupId>org.apache.maven.plugins</groupId>
+	            <artifactId>maven-compiler-plugin</artifactId>
+	            <configuration>
+					<source>${java.version}</source>
+					<target>${java.version}</target> 
+	                <compilerArgs>
+	                    <arg>-parameters</arg>
+	                </compilerArgs>
+	            </configuration>
+	        </plugin>
+			
             <plugin>
                 <groupId>com.mysema.maven</groupId>
                 <artifactId>apt-maven-plugin</artifactId>
@@ -268,9 +286,21 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+
         <java.version>17</java.version>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
     </properties>
+
+    <dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.lowcoder</groupId>
+				<artifactId>lowcoder-dependencies</artifactId>
+				<version>${revision}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>			
+		</dependencies>
+	</dependencyManagement>
 
 </project>

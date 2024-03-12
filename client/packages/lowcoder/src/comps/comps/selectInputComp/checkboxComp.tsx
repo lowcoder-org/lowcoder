@@ -22,6 +22,8 @@ import { ValueFromOption } from "lowcoder-design";
 import { EllipsisTextCss } from "lowcoder-design";
 import { trans } from "i18n";
 import { RefControl } from "comps/controls/refControl";
+import { migrateOldData } from "comps/generators/simpleGenerators";
+import { fixOldInputCompData } from "../textInputComp/textInputConstants";
 
 export const getStyle = (style: CheckboxStyleType) => {
   return css`
@@ -126,7 +128,7 @@ const CheckboxGroup = styled(AntdCheckboxGroup) <{
   }}
 `;
 
-const CheckboxBasicComp = (function () {
+let CheckboxBasicComp = (function () {
   const childrenMap = {
     defaultValue: arrayStringExposingStateControl("defaultValue"),
     value: arrayStringExposingStateControl("value"),
@@ -177,6 +179,8 @@ const CheckboxBasicComp = (function () {
     .setExposeMethodConfigs(selectDivRefMethods)
     .build();
 })();
+
+CheckboxBasicComp = migrateOldData(CheckboxBasicComp, fixOldInputCompData);
 
 export const CheckboxComp = withExposingConfigs(CheckboxBasicComp, [
   new NameConfig("value", trans("selectInput.valueDesc")),

@@ -10,6 +10,7 @@ import { AutoHeightControl } from "../../controls/autoHeightControl";
 import { UICompBuilder, withDefault } from "../../generators";
 import { FormDataPropertyView } from "../formComp/formDataConstants";
 import {
+  fixOldInputCompData,
   getStyle,
   TextInputBasicSection,
   textInputChildren,
@@ -35,6 +36,7 @@ import { blurMethod, focusWithOptions } from "comps/utils/methodUtils";
 
 import React, { useContext } from "react";
 import { EditorContext } from "comps/editorState";
+import { migrateOldData } from "comps/generators/simpleGenerators";
 
 const TextAreaStyled = styled(TextArea) <{
   $style: InputLikeStyleType;
@@ -130,6 +132,8 @@ TextAreaTmpComp = class extends TextAreaTmpComp {
     return this.children.autoHeight.getView();
   }
 };
+
+TextAreaTmpComp = migrateOldData(TextAreaTmpComp, fixOldInputCompData);
 
 const TextareaTmp2Comp = withMethodExposing(
   TextAreaTmpComp,

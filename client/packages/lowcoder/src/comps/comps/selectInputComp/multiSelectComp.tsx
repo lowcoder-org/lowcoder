@@ -14,9 +14,10 @@ import { SelectInputInvalidConfig, useSelectInputValidate } from "./selectInputC
 
 import { PaddingControl } from "../../controls/paddingControl";	
 import { MarginControl } from "../../controls/marginControl";
-import { useEffect, useRef } from "react";
+import { migrateOldData } from "comps/generators/simpleGenerators";
+import { fixOldInputCompData } from "../textInputComp/textInputConstants";
 
-const MultiSelectBasicComp = (function () {
+let MultiSelectBasicComp = (function () {
   const childrenMap = {
     ...SelectChildrenMap,
     defaultValue: arrayStringExposingStateControl("defaultValue", ["1", "2"]),
@@ -53,6 +54,8 @@ const MultiSelectBasicComp = (function () {
     .setExposeMethodConfigs(baseSelectRefMethods)
     .build();
 })();
+
+MultiSelectBasicComp = migrateOldData(MultiSelectBasicComp, fixOldInputCompData);
 
 export const MultiSelectComp = withExposingConfigs(MultiSelectBasicComp, [
   new NameConfig("value", trans("selectInput.valueDesc")),

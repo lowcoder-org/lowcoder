@@ -305,3 +305,17 @@ export function checkMentionListData(data: any) {
   }
   return data
 }
+
+// separate defaultValue and value for old components
+export function fixOldInputCompData(oldData: any) {
+  if (!oldData) return oldData;
+  if (Boolean(oldData.value) && !Boolean(oldData.defaultValue)) {
+    const value = oldData.value;
+    return {
+      ...oldData,
+      defaultValue: value,
+      value: '',
+    };
+  }
+  return oldData;
+}

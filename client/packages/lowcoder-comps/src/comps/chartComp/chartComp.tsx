@@ -120,7 +120,9 @@ ChartTmpComp = withViewFn(ChartTmpComp, (comp) => {
   
   const handleOnMapScriptLoad = () => {
     setMapScriptLoaded(true);
-    loadGoogleMapData();
+    setTimeout(() => {
+      loadGoogleMapData();
+    })
   }
 
   useEffect(() => {
