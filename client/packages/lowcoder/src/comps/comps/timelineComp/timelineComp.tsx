@@ -46,7 +46,7 @@ import {
 import { timelineDate, timelineNode, TimelineDataTooltip } from "./timelineConstants";
 import { convertTimeLineData } from "./timelineUtils";
 import { default as Timeline } from "antd/es/timeline";
-import { EditorContext } from "comps/editorState"; 
+import { EditorContext } from "comps/editorState";
 
 const EventOptions = [
   clickEvent,
@@ -108,7 +108,7 @@ const TimelineComp = (
     color: value?.color,
     dot: icons[index] || "",
     label: (
-      <span style={{ color: value?.lableColor || style?.lableColor }}>
+      <span style={{ color: value?.labelColor || style?.labelColor }}>
         {value?.label}
       </span>
     ),

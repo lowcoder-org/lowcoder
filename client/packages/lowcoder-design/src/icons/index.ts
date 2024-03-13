@@ -290,7 +290,7 @@ export { ReactComponent as WidthIcon } from "./icon-width.svg";
 export { ReactComponent as ResponsiveLayoutCompIcon } from "./icon-responsive-layout-comp.svg";
 export { ReactComponent as TextSizeIcon } from "./remix/font-size-2.svg";
 export { ReactComponent as FontFamilyIcon } from "./remix/font-sans-serif.svg";
-export { ReactComponent as TextWeigthIcon } from "./remix/bold.svg";
+export { ReactComponent as TextWeightIcon } from "./remix/bold.svg";
 export { ReactComponent as BorderWidthIcon } from "./remix/expand-width-line.svg";
 export { ReactComponent as LeftInfoLine } from "./remix/information-line.svg";
 export { ReactComponent as LeftInfoFill } from "./remix/information-fill.svg";
