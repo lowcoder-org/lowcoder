@@ -23,7 +23,15 @@ spring:
     port: ${LOWCODER_ADMIN_SMTP_PORT:587}
     username: ${LOWCODER_ADMIN_SMTP_USERNAME:yourmail@gmail.com}
     password: ${LOWCODER_ADMIN_SMTP_PASSWORD:yourpass}
-
+    properties:
+      mail:
+        smtp:
+          auth: ${LOWCODER_ADMIN_SMTP_AUTH:true}
+          starttls:
+            enable: ${LOWCODER_ADMIN_SMTP_STARTTLS_ENABLED:true}
+            required: ${LOWCODER_ADMIN_SMTP_STARTTLS_REQUIRED:true}
+        transport:
+          protocol: smtp
 server:
   compression:
     enabled: true
