@@ -874,27 +874,50 @@ export const defaultData = [
     allDay: true,
   },
 ];
+export const resourcesEventsDefaultData = [
+  {
+    resourceId: "d",
+    title: "event 1",
+    start: dayjs().hour(10).minute(0).second(0).format(DATE_TIME_FORMAT),
+    end: dayjs().hour(17).minute(30).second(0).format(DATE_TIME_FORMAT),
+  },
+  {
+    resourceId: "b",
+    title: "event 5",
+    start: dayjs().hour(8).minute(0).second(0).format(DATE_TIME_FORMAT),
+    end: dayjs().hour(16).minute(30).second(0).format(DATE_TIME_FORMAT),
+  },
+  {
+    resourceId: "a",
+    title: "event 3",
+    start: dayjs().hour(12).minute(0).second(0).format(DATE_TIME_FORMAT),
+    end: dayjs().hour(21).minute(30).second(0).format(DATE_TIME_FORMAT),
+  },
+];
 
 export const resourcesDefaultData = [
   {
-    resourceId: "a",
-    title: "event 1",
-    start: "2024-03-11",
-    end: "2024-03-13",
+    id: "a",
+    title: "Auditorium A",
   },
   {
-    id: "1",
-    title: "Coding",
-    start: dayjs().hour(10).minute(0).second(0).format(DATE_TIME_FORMAT),
-    end: dayjs().hour(12).minute(30).second(0).format(DATE_TIME_FORMAT),
-    color: "#079968",
+    id: "b",
+    title: "Auditorium B",
+    eventColor: "green",
   },
   {
-    id: "2",
-    title: "Rest",
-    start: dayjs().hour(24).format(DATE_FORMAT),
-    end: dayjs().hour(48).format(DATE_FORMAT),
-    allDay: true,
+    id: "d",
+    title: "Auditorium D",
+    children: [
+      {
+        id: "d1",
+        title: "Room D1",
+      },
+      {
+        id: "d2",
+        title: "Room D2",
+      },
+    ],
   },
 ];
 
