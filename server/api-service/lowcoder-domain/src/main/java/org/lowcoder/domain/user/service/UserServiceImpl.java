@@ -282,7 +282,7 @@ public class UserServiceImpl implements UserService {
                     String token = generateNewRandomPwd();
                     Instant tokenExpiry = Instant.now().plus(12, ChronoUnit.HOURS);
                     if (!emailCommunicationService.sendPasswordResetEmail(userEmail, token, emailTemplate)) {
-                        return ofError(BizError.AUTH_ERROR, "SENDING_EMAIL_FAILED");
+                        return Mono.empty();
                     }
                     user.setPasswordResetToken(HashUtils.hash(token.getBytes()));
                     user.setPasswordResetTokenExpiry(tokenExpiry);
