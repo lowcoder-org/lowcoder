@@ -1,6 +1,6 @@
 package org.lowcoder.api.home;
 
-import static org.lowcoder.infra.event.EventType.APPLICATION_MOVE;
+import static org.lowcoder.plugin.api.event.LowcoderEvent.EventType.APPLICATION_MOVE;
 import static org.lowcoder.sdk.exception.BizError.INVALID_PARAMETER;
 import static org.lowcoder.sdk.util.ExceptionUtils.ofError;
 
@@ -13,7 +13,11 @@ import org.lowcoder.domain.application.model.ApplicationType;
 import org.lowcoder.domain.folder.model.Folder;
 import org.lowcoder.domain.folder.service.FolderService;
 import org.lowcoder.domain.permission.model.ResourceRole;
-import org.lowcoder.infra.event.EventType;
+import org.lowcoder.infra.constant.NewUrl;
+import org.lowcoder.plugin.api.event.LowcoderEvent.EventType;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;

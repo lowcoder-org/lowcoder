@@ -17,7 +17,7 @@ spring:
   codec:
     max-in-memory-size: 20MB
   webflux:
-    context-path: /
+    base-path: /
   mail:
     host: ${LOWCODER_ADMIN_SMTP_HOST:smtp.gmail.com}
     port: ${LOWCODER_ADMIN_SMTP_PORT:587}
@@ -68,6 +68,8 @@ common:
   max-query-timeout: ${LOWCODER_MAX_QUERY_TIMEOUT:120}
   workspace:
     mode: ${LOWCODER_WORKSPACE_MODE:SAAS}
+  plugin-dirs:
+    - ${LOWCODER_PLUGINS_DIR:plugins}
   marketplace:
     private-mode: ${LOWCODER_MARKETPLACE_PRIVATE_MODE:true}
   lowcoder-public-url: ${LOWCODER_PUBLIC_URL:http://localhost:8080}
