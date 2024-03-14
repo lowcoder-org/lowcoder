@@ -27,6 +27,8 @@ spring:
       mail:
         smtp:
           auth: ${LOWCODER_ADMIN_SMTP_AUTH:true}
+          ssl:
+            enable: ${LOWCODER_ADMIN_SMTP_SSL_ENABLED:false}
           starttls:
             enable: ${LOWCODER_ADMIN_SMTP_STARTTLS_ENABLED:true}
             required: ${LOWCODER_ADMIN_SMTP_STARTTLS_REQUIRED:true}
