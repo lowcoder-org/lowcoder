@@ -63,7 +63,7 @@ common:
   marketplace:
     private-mode: false
   lowcoder-public-url: http://localhost:8080
-  lost-password-email-sender: info@lowcoder.org
+  notifications-email-sender: info@lowcoder.org
 
 material:
   mongodb-grid-fs:
