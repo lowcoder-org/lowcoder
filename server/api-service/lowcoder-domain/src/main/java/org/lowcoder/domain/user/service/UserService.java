@@ -50,6 +50,10 @@ public interface UserService {
 
     Mono<String> resetPassword(String userId);
 
+    Mono<Boolean> lostPassword(String userEmail);
+
+    Mono<Boolean> resetLostPassword(String userEmail, String token, String newPassword);
+
     Mono<Boolean> setPassword(String userId, String password);
 
     Mono<UserDetail> buildUserDetail(User user, boolean withoutDynamicGroups);

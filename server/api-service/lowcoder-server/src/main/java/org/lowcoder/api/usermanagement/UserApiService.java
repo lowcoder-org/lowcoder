@@ -65,6 +65,14 @@ public class UserApiService {
                 .then(userService.resetPassword(userId));
     }
 
+    public Mono<Boolean> lostPassword(String userEmail) {
+        return userService.lostPassword(userEmail);
+    }
+
+    public Mono<Boolean> resetLostPassword(String userEmail, String token, String newPassword) {
+        return userService.resetLostPassword(userEmail, token, newPassword);
+    }
+
     // ========================== TOKEN OPERATIONS START ==========================
 
     public Mono<Void> saveToken(String userId, String source, String token) {
