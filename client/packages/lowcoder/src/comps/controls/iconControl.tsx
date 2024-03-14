@@ -165,7 +165,7 @@ function IconCodeEditor(props: {
         visible={visible}
         setVisible={setVisible}
         trigger="contextMenu"
-        parent={document.querySelector<HTMLElement>(`${CodeEditorTooltipContainer}`)}
+        // parent={document.querySelector<HTMLElement>(`${CodeEditorTooltipContainer}`)}
         searchKeywords={i18nObjs.iconSearchKeywords}
       />
     ),
