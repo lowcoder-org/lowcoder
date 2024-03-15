@@ -7,12 +7,8 @@ import {
   HomeResInfo,
 } from "../../util/homeResUtils";
 import { trans } from "../../i18n";
-import { checkIsMobile } from "util/commonUtils";
-import history from "util/history";
-import { APPLICATION_VIEW_URL } from "constants/routesURL";
 import { TypographyText } from "../../components/TypographyText";
-import { messageInstance } from "lowcoder-design";
-import { Typography } from "antd";
+import { default as Typography } from "antd/es/typography";
 import { MultiIconDisplay } from "../../comps/comps/multiIconDisplay";
 
 const { Text } = Typography;

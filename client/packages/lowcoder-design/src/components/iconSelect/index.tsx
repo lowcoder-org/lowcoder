@@ -1,7 +1,7 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import type { IconDefinition } from "@fortawesome/free-regular-svg-icons";
 // import type { IconDefinition as IconDefinitionBrands } from "@fortawesome/free-brands-svg-icons";
-import { Popover } from "antd";
+import { Popover } from "antd/es/popover";
 import { ActionType } from "@rc-component/trigger/lib/interface";
 import { TacoInput } from "components/tacoInput";
 import { Tooltip } from "components/toolTip";
@@ -20,7 +20,6 @@ import { default as List, ListRowProps } from "react-virtualized/dist/es/List";
 import styled from "styled-components";
 import { CloseIcon, SearchIcon } from "icons";
 import { ANTDICON } from "icons/antIcon";
-import { Divider } from "antd-mobile";
 
 const PopupContainer = styled.div`
   width: 580px;

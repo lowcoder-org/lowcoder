@@ -1,4 +1,4 @@
-import { CloseOutlined } from "@ant-design/icons";
+import { default as CloseOutlined } from "@ant-design/icons/CloseOutlined";
 import { default as Button } from "antd/es/button";
 import { ContainerCompBuilder } from "comps/comps/containerBase/containerCompBuilder";
 import {
@@ -9,7 +9,6 @@ import { AutoHeightControl } from "comps/controls/autoHeightControl";
 import { BoolControl } from "comps/controls/boolControl";
 import { StringControl } from "comps/controls/codeControl";
 import {
-  booleanExposingStateControl,
   BooleanStateControl,
   jsonObjectExposingStateControl,
   stringStateControl,
@@ -57,7 +56,7 @@ import AgoraRTC, {
   ILocalVideoTrack,
 } from "agora-rtc-sdk-ng";
 
-import { JSONValue, NumberControl } from "@lowcoder-ee/index.sdk";
+import { JSONValue } from "util/jsonTypes";
 import { getData } from "../listViewComp/listViewUtils";
 import AgoraRTM, { RtmChannel, RtmClient } from "agora-rtm-sdk";
 

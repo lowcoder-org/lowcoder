@@ -1,13 +1,13 @@
 import { default as Form } from "antd/es/form";
 import { default as FormItem } from "antd/es/form/FormItem";
-import { FormListProps, Rule } from "antd/lib/form";
+import type { FormListProps, Rule } from "antd/es/form";
 import { TacoButton } from "lowcoder-design";
 import { Input } from "lowcoder-design";
 import styled from "styled-components";
 import LinkPlusButton from "./LinkPlusButton";
 import { BluePlusIcon } from "lowcoder-design";
 import { useEffect } from "react";
-import { useForm } from "antd/lib/form/Form";
+import { useForm } from "antd/es/form/Form";
 import { trans } from "i18n";
 
 const StyledItem = styled(FormItem)`

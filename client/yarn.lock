@@ -2503,29 +2503,29 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@floating-ui/core@npm:^1.4.2":
-  version: 1.5.2
-  resolution: "@floating-ui/core@npm:1.5.2"
+"@floating-ui/core@npm:^1.0.0":
+  version: 1.6.0
+  resolution: "@floating-ui/core@npm:1.6.0"
   dependencies:
-    "@floating-ui/utils": ^0.1.3
-  checksum: e22de0a5e8a703fe14d9cfb72aeb67c0056c4ae6aa241539934ecb2af56448534b434a7587ecb5de154c21c3c73e44c19249b05c6b67a58eae7861188c8e69ac
+    "@floating-ui/utils": ^0.2.1
+  checksum: 2e25c53b0c124c5c9577972f8ae21d081f2f7895e6695836a53074463e8c65b47722744d6d2b5a993164936da006a268bcfe87fe68fd24dc235b1cb86bed3127
   languageName: node
   linkType: hard
 
 "@floating-ui/dom@npm:^1.4.2":
-  version: 1.5.3
-  resolution: "@floating-ui/dom@npm:1.5.3"
+  version: 1.6.3
+  resolution: "@floating-ui/dom@npm:1.6.3"
   dependencies:
-    "@floating-ui/core": ^1.4.2
-    "@floating-ui/utils": ^0.1.3
-  checksum: 00053742064aac70957f0bd5c1542caafb3bfe9716588bfe1d409fef72a67ed5e60450d08eb492a77f78c22ed1ce4f7955873cc72bf9f9caf2b0f43ae3561c21
+    "@floating-ui/core": ^1.0.0
+    "@floating-ui/utils": ^0.2.0
+  checksum: 81cbb18ece3afc37992f436e469e7fabab2e433248e46fff4302d12493a175b0c64310f8a971e6e1eda7218df28ace6b70237b0f3c22fe12a21bba05b5579555
   languageName: node
   linkType: hard
 
-"@floating-ui/utils@npm:^0.1.3":
-  version: 0.1.6
-  resolution: "@floating-ui/utils@npm:0.1.6"
-  checksum: b34d4b5470869727f52e312e08272edef985ba5a450a76de0917ba0a9c6f5df2bdbeb99448e2c60f39b177fb8981c772ff1831424e75123471a27ebd5b52c1eb
+"@floating-ui/utils@npm:^0.2.0, @floating-ui/utils@npm:^0.2.1":
+  version: 0.2.1
+  resolution: "@floating-ui/utils@npm:0.2.1"
+  checksum: 9ed4380653c7c217cd6f66ae51f20fdce433730dbc77f95b5abfb5a808f5fdb029c6ae249b4e0490a816f2453aa6e586d9a873cd157fdba4690f65628efc6e06
   languageName: node
   linkType: hard
 
@@ -4643,7 +4643,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/js-cookie@npm:^2.2.6, @types/js-cookie@npm:^2.x.x":
+"@types/js-cookie@npm:^2.2.6":
   version: 2.2.7
   resolution: "@types/js-cookie@npm:2.2.7"
   checksum: 851f47e94ca1fc43661d8f51614d67a613e7810c91b876d0a3b311ce72f7df800107fd02a08cb6948184e12c120b4f058edca2f50424d8798bdcffd6627281e3
@@ -5677,20 +5677,11 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ahooks-v3-count@npm:^1.0.0":
-  version: 1.0.0
-  resolution: "ahooks-v3-count@npm:1.0.0"
-  checksum: 3974d94b7cbe0694e18811dee5cfe507a740ecc2875e4bca204d30dfcf0a637a2035d3c296a1b873fc25aa14c4134e805ecc64d4dc2f5d0fb645090bb826771d
-  languageName: node
-  linkType: hard
-
 "ahooks@npm:^3.7.6":
-  version: 3.7.8
-  resolution: "ahooks@npm:3.7.8"
+  version: 3.7.10
+  resolution: "ahooks@npm:3.7.10"
   dependencies:
     "@babel/runtime": ^7.21.0
-    "@types/js-cookie": ^2.x.x
-    ahooks-v3-count: ^1.0.0
     dayjs: ^1.9.1
     intersection-observer: ^0.12.0
     js-cookie: ^2.x.x
@@ -5700,7 +5691,7 @@ __metadata:
     tslib: ^2.4.1
   peerDependencies:
     react: ^16.8.0 || ^17.0.0 || ^18.0.0
-  checksum: f6473ba847b58e26851d36a35c36f661283aea343bae3384c9c8cc58bf5a9b479fabace5e435eda58b12b2980765d6c5d441a4e5519222f1f7c9890d05a231a9
+  checksum: 8b5a618a5745f39a9d40e689f8d52938276d03dfda9fcf6c57ff3dec13f7313cb70dc1b5a2d8ca8ddaec650e7045ce2b9bcab5e04f4ebeb41c4ff76318959cd8
   languageName: node
   linkType: hard
 
@@ -5840,7 +5831,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"antd-mobile@npm:^5.28.0":
+"antd-mobile@npm:^5.34.0":
   version: 5.34.0
   resolution: "antd-mobile@npm:5.34.0"
   dependencies:
@@ -12962,7 +12953,7 @@ __metadata:
     "@types/ua-parser-js": ^0.7.36
     "@welldone-software/why-did-you-render": ^6.2.3
     add: ^2.0.6
-    antd-mobile: ^5.28.0
+    antd-mobile: ^5.34.0
     babel-jest: ^29.3.0
     babel-preset-react-app: ^10.0.1
     chalk: 4
@@ -15904,7 +15895,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rc-util@npm:^5.0.1, rc-util@npm:^5.16.1, rc-util@npm:^5.17.0, rc-util@npm:^5.18.1, rc-util@npm:^5.19.2, rc-util@npm:^5.2.0, rc-util@npm:^5.20.1, rc-util@npm:^5.21.0, rc-util@npm:^5.24.4, rc-util@npm:^5.25.2, rc-util@npm:^5.26.0, rc-util@npm:^5.27.0, rc-util@npm:^5.28.0, rc-util@npm:^5.30.0, rc-util@npm:^5.31.1, rc-util@npm:^5.32.2, rc-util@npm:^5.34.1, rc-util@npm:^5.35.0, rc-util@npm:^5.36.0, rc-util@npm:^5.37.0, rc-util@npm:^5.38.0, rc-util@npm:^5.38.1, rc-util@npm:^5.8.0":
+"rc-util@npm:^5.0.1, rc-util@npm:^5.16.1, rc-util@npm:^5.17.0, rc-util@npm:^5.18.1, rc-util@npm:^5.19.2, rc-util@npm:^5.2.0, rc-util@npm:^5.20.1, rc-util@npm:^5.21.0, rc-util@npm:^5.24.4, rc-util@npm:^5.25.2, rc-util@npm:^5.26.0, rc-util@npm:^5.27.0, rc-util@npm:^5.28.0, rc-util@npm:^5.30.0, rc-util@npm:^5.31.1, rc-util@npm:^5.32.2, rc-util@npm:^5.34.1, rc-util@npm:^5.35.0, rc-util@npm:^5.36.0, rc-util@npm:^5.37.0, rc-util@npm:^5.38.0, rc-util@npm:^5.38.1":
   version: 5.38.1
   resolution: "rc-util@npm:5.38.1"
   dependencies:
@@ -15914,6 +15905,19 @@ __metadata:
     react: ">=16.9.0"
     react-dom: ">=16.9.0"
   checksum: 40d0411fb5d6b0a187e718ff16c18f3d68eae3d7e4def43a9a9b2690b89cfce639077a69d683aa01302f8132394dd633baf76b07e5a3b8438fb706b1abb31937
+  languageName: node
+  linkType: hard
+
+"rc-util@npm:^5.8.0":
+  version: 5.39.1
+  resolution: "rc-util@npm:5.39.1"
+  dependencies:
+    "@babel/runtime": ^7.18.3
+    react-is: ^18.2.0
+  peerDependencies:
+    react: ">=16.9.0"
+    react-dom: ">=16.9.0"
+  checksum: 67c53eea11fcdbca2b4a31853f1cedf6923ec7014eca90254ead5f4ef3317eb9b9df3434a5469c3cab3c45c3e5f4f2209cb3e9f4e8aa0413f4681475b7be6151
   languageName: node
   linkType: hard
 
@@ -17238,9 +17242,9 @@ __metadata:
   linkType: hard
 
 "runes2@npm:^1.1.2":
-  version: 1.1.3
-  resolution: "runes2@npm:1.1.3"
-  checksum: a5cba1706783ebf2f47821611b1fa6fb8e7230a0040512e2eab1dfe2245b46048f3f9f4e88f3032766c5113eb25c569fec925b9f49db52f1257eb410bca88cdd
+  version: 1.1.4
+  resolution: "runes2@npm:1.1.4"
+  checksum: 1c9d478005bf89258a3695f3bddcd46d732051a9fd2e06c020883de41315d331244c19c46c622fe858fbc7c5a827222b88100ebca397fbaaa080946588f785b6
   languageName: node
   linkType: hard
 

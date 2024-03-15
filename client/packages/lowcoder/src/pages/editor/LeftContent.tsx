@@ -30,7 +30,7 @@ import { CompTree } from "comps/comps/containerBase";
 import { CompStateIcon } from "./editorConstants";
 import { UICompType } from "comps/uiCompRegistry";
 import { CollapseWrapper, DirectoryTreeStyle, Node } from "./styledComponents";
-import { DataNode, EventDataNode } from "antd/lib/tree";
+import { DataNode, EventDataNode } from "antd/es/tree";
 import { isAggregationApp } from "util/appUtils";
 
 const CollapseTitleWrapper = styled.div`

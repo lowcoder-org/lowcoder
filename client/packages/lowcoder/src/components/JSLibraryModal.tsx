@@ -18,7 +18,7 @@ import {
   ErrorIcon,
 } from "icons";
 import { ActiveTextColor, GreyTextColor } from "constants/style";
-import { LoadingOutlined } from "@ant-design/icons";
+import { default as LoadingOutlined } from "@ant-design/icons/LoadingOutlined";
 import { RecommendedJSLibraryMeta } from "api/jsLibraryApi";
 import log from "loglevel";
 import { TacoMarkDown } from "components/markdown";

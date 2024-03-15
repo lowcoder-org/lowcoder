@@ -73,7 +73,7 @@ const childrenMap = {
 const loadIcon = async (iconName: string) => {
   if (!iconName) return null;
   try {
-    const module = await import(`@ant-design/icons`);
+    const module = await import(`@ant-design/icons/lib`);
     const IconComponent = (module as any)[iconName];
     return IconComponent ? <IconComponent /> : null;
   } catch (error) {

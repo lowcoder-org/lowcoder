@@ -108,7 +108,7 @@ export * from "appView/AppViewInstance";
 export * from "ide/CompIde";
 export * from "ide/CompPlayground";
 
-export * as antd from "antd";
+export * as antd from "antd/es";
 export const styled = { ...styledDefault, ...styledNameExports };
 
 window.numbro = numbro;

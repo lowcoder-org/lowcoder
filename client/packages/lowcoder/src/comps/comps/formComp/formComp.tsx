@@ -55,7 +55,7 @@ import {
 import { trans } from "i18n";
 import log from "loglevel";
 import { DisabledContext } from "comps/generators/uiCompBuilder";
-import { LoadingOutlined } from "@ant-design/icons";
+import { default as LoadingOutlined } from "@ant-design/icons/LoadingOutlined";
 import { messageInstance } from "lowcoder-design";
 import { styled } from "styled-components";
 

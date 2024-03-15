@@ -9,8 +9,8 @@ import { useResizeDetector } from "react-resize-detector";
 import styled, { css } from "styled-components";
 import { BottomResTypeEnum } from "types/bottomRes";
 import { LargeBottomResIconWrapper } from "util/bottomResUtils";
-import { PageType } from "../constants/pageConstants";
-import { SizeType } from "antd/lib/config-provider/SizeContext";
+import type { PageType } from "../constants/pageConstants";
+import type { SizeType } from "antd/es/config-provider/SizeContext";
 import { Datasource } from "@lowcoder-ee/constants/datasourceConstants";
 import {
   LOWCODER_API_ID,

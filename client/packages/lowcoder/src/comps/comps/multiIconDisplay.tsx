@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { findIconDefinition, library } from '@fortawesome/fontawesome-svg-core';
 import { fas } from '@fortawesome/free-solid-svg-icons';
 import { far } from '@fortawesome/free-regular-svg-icons';
-import * as AntdIcons from '@ant-design/icons';
+import * as AntdIcons from '@ant-design/icons/lib';
 
 library.add(far,fas);
 
