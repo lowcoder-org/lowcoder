@@ -6,19 +6,19 @@ export USER_ID=${LOWCODER_PUID:=9001}
 export GROUP_ID=${LOWCODER_PGID:=9001}
 
 # Update ID of lowcoder user if required
-if [ ! `id --user lowcoder` -eq ${USER_ID} ]; then
+if [ ! "$(id --user lowcoder)" -eq ${USER_ID} ]; then
     usermod --uid ${USER_ID} lowcoder
     echo "ID for lowcoder user changed to: ${USER_ID}"
 fi;
 
 # Update ID of lowcoder group if required
-if [ ! `id --group lowcoder` -eq ${GROUP_ID} ]; then
+if [ ! "$(id --group lowcoder)" -eq ${GROUP_ID} ]; then
     groupmod --gid ${GROUP_ID} lowcoder
     echo "ID for lowcoder group changed to: ${GROUP_ID}"
 fi;
 
 # Update host on which mongo is supposed to listen
-# If LOWCODER_MONGODB_EXPOSED is true, it will isten on all interfaces
+# If LOWCODER_MONGODB_EXPOSED is true, it will listen on all interfaces
 if [ "${LOWCODER_MONGODB_EXPOSED}" = "true" ]; then
     export MONGO_LISTEN_HOST="0.0.0.0"
 else
@@ -38,8 +38,10 @@ mkdir -p ${LOGS}/redis \
   ${DATA}/mongodb \
   ${CERT}
 
-# Update owner of logs and data
-chown -R ${USER_ID}:${GROUP_ID} /lowcoder-stacks/ /lowcoder/etc
+# Update owner of logs and data - do not try if not running as root (OpenShift)
+if [ "$(id -u)" -eq 0 ]; then
+  chown -R "${USER_ID}:${GROUP_ID}" /lowcoder-stacks/ /lowcoder/etc
+fi
 
 # Enable services
 SUPERVISOR_AVAILABLE="/lowcoder/etc/supervisord/conf-available"
@@ -73,8 +75,15 @@ fi;
 
 # Enable frontend if configured to run
 if [ "${LOWCODER_FRONTEND_ENABLED:=true}" = "true" ]; then
-   ln ${SUPERVISOR_AVAILABLE}/20-frontend.conf ${SUPERVISOR_ENABLED}/20-frontend.conf
+    ln ${SUPERVISOR_AVAILABLE}/20-frontend.conf ${SUPERVISOR_ENABLED}/20-frontend.conf
 fi;
+
+# disable user directive if image is running non-root (Openshift)
+if [ "$(id -u)" -ne 0 ]; then
+    for i in "${SUPERVISOR_ENABLED}"/*.conf; do
+        sed -Ei 's/^\s*user=.*$//' "$i"
+    done
+fi
 
 # Handle CMD command
 "$@"
