@@ -29,7 +29,7 @@ import { StyledLoading } from "./commonComponents";
 import { PermissionRole } from "./Permission";
 import { SHARE_TITLE } from "../../constants/apiConstants";
 import { messageInstance } from "lowcoder-design";
-import { Divider } from "antd";
+import { Divider } from "antd/es/divider";
 
 export const AppPermissionDialog = (props: {
   applicationId: string;

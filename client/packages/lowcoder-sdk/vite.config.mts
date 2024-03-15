@@ -4,7 +4,7 @@ import viteTsconfigPaths from "vite-tsconfig-paths";
 import svgrPlugin from "vite-plugin-svgr";
 import path from "path";
 import { ensureLastSlash } from "./src/dev-utils/util";
-import { buildVars } from "./src/dev-utils/buildVars";
+import { buildVars } from "./src/dev-utils/buildVars.mjs";
 import { globalDepPlugin } from "./src/dev-utils/globalDepPlguin";
 
 const define = {};
