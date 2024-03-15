@@ -33,6 +33,7 @@ import {
 import { DownOutlined } from "@ant-design/icons";
 import { ItemType } from "antd/es/menu/hooks/useItems";
 import ColorPicker, { configChangeParams } from "components/ColorPicker";
+import { ModuleLayoutComp } from "@lowcoder-ee/comps/comps/moduleContainerComp/moduleLayoutComp";
 
 
 export type DisabledCollisionStatus = "true" | "false"; // "true" means collision is not enabled - Layering works, "false" means collision is enabled - Layering does not work
@@ -209,17 +210,31 @@ export const LeftLayersContent = (props: LeftLayersContentProps) => {
 
         const dsl = editorState.rootComp.toJsonValue();
         let layout: any = {};
-        parentNode.children.forEach((data, index) => {
-          layout[data.key] = {
-            ...dsl.ui.layout[data.key],
-            pos: index,
-          };
-        })
-
-        editorState.rootComp.children.ui.dispatchChangeValueAction({
-          ...dsl.ui,
-          layout,
-        })
+        if(dsl.ui.compType === 'module') {
+          parentNode.children.forEach((data, index) => {
+            layout[data.key] = {
+              ...dsl.ui.comp.container.layout[data.key],
+              pos: index,
+            };
+          })
+          const moduleLayoutComp = editorState.rootComp.children.ui.getModuleLayoutComp();
+          moduleLayoutComp?.children.container.dispatchChangeValueAction({
+            ...dsl.ui.comp.container,
+            layout,
+          })
+        } else {
+          parentNode.children.forEach((data, index) => {
+            layout[data.key] = {
+              ...dsl.ui.layout[data.key],
+              pos: index,
+            };
+          })
+  
+          editorState.rootComp.children.ui.dispatchChangeValueAction({
+            ...dsl.ui,
+            layout,
+          })
+        }
         return newTreeData;
       });
     }
