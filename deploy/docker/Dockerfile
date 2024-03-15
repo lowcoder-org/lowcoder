@@ -32,7 +32,7 @@ RUN chmod +x /lowcoder/api-service/*.sh
 ## To create a separate image out of it, build it with:
 ##   DOCKER_BUILDKIT=1 docker build -f deploy/docker/Dockerfile -t lowcoderorg/lowcoder-ce-api-service --target lowcoder-ce-api-service .
 ##
-FROM eclipse-temurin:17-jammy as lowcoder-ce-api-service
+FROM eclipse-temurin:17-jammy AS lowcoder-ce-api-service
 LABEL maintainer="lowcoder"
 
 RUN apt-get update && apt-get install -y --no-install-recommends gosu \
@@ -51,7 +51,7 @@ CMD [ "sh" , "/lowcoder/api-service/entrypoint.sh" ]
 ##
 ## Build lowcoder node service
 ##
-FROM ubuntu:jammy as build-node-service
+FROM ubuntu:jammy AS build-node-service
 
 RUN apt update && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y curl ca-certificates build-essential gnupg
 
@@ -82,7 +82,7 @@ RUN chmod +x /lowcoder/node-service/*.sh
 ## To create a separate image out of it, build it with:
 ##   DOCKER_BUILDKIT=1 docker build -f deploy/docker/Dockerfile -t lowcoderorg/lowcoder-ce-node-service --target lowcoder-ce-node-service .
 ##
-FROM ubuntu:jammy as lowcoder-ce-node-service
+FROM ubuntu:jammy AS lowcoder-ce-node-service
 LABEL maintainer="lowcoder"
 
 RUN apt update && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y curl ca-certificates gnupg
@@ -133,7 +133,7 @@ RUN yarn build
 ## To create a separate image out of it, build it with:
 ##   DOCKER_BUILDKIT=1 docker build -f deploy/docker/Dockerfile -t lowcoderorg/lowcoder-ce-frontend --target lowcoder-ce-frontend .
 ##
-FROM nginx:1.25.1 as lowcoder-ce-frontend
+FROM nginx:1.25.1 AS lowcoder-ce-frontend
 LABEL maintainer="lowcoder"
 
 # Change default nginx user into lowcoder user and remove default nginx config
@@ -198,7 +198,9 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install --no-instal
       openjdk-17-jdk-headless \
   && npm install -g yarn \
   && rm -rf /var/cache/apt/lists \
-  && mkdir -p /lowcoder/assets
+  && mkdir -p /lowcoder/assets \
+  && apt-get clean \
+  && rm -rf /tmp/*
 
 # Add lowcoder api-service
 COPY --chown=lowcoder:lowcoder --from=lowcoder-ce-api-service /lowcoder/api-service /lowcoder/api-service
