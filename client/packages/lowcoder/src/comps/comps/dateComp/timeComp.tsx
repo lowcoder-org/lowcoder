@@ -1,4 +1,4 @@
-import _ from "lodash";
+import { pick } from "lodash";
 import dayjs from "dayjs";
 import { RecordConstructorToComp, RecordConstructorToView } from "lowcoder-core";
 import {
@@ -80,7 +80,7 @@ const commonChildren = {
 };
 
 const timePickerComps = (props: RecordConstructorToView<typeof commonChildren>) =>
-  _.pick(props, "format", "use12Hours", "minuteStep", "secondStep", "placeholder");
+  pick(props, "format", "use12Hours", "minuteStep", "secondStep", "placeholder");
 
 /* const commonBasicSection = (children: RecordConstructorToComp<typeof commonChildren>) => [
   formatPropertyView({ children }),

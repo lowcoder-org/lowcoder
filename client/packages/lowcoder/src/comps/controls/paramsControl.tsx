@@ -22,7 +22,7 @@ import {
   StringOrJSONObjectControl,
 } from "./codeControl";
 import { ControlParams, ControlType } from "./controlParams";
-import _ from "lodash";
+import { isNaN } from "lodash";
 import { millisecondsControl, MillisecondsControlProps } from "./millisecondControl";
 import { BoolControl } from "./boolControl";
 
@@ -137,7 +137,7 @@ export const ParamsPositiveNumberControl = codeControlToParamsControl(
       return value >= 0 ? value : 0;
     }
     const result = Number(value);
-    if (!_.isNaN(result)) {
+    if (!isNaN(result)) {
       return result >= 0 ? result : 0;
     }
     return 0;

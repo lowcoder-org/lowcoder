@@ -8,7 +8,7 @@ import {
   BorderColor,
   GreyTextColor,
 } from "constants/style";
-import { ModuleDocIcon } from "lowcoder-design";
+import { ModuleDocIcon } from "lowcoder-design/src/icons";
 import { trans } from "i18n";
 import { draggingUtils } from "layout/draggingUtils";
 import { useContext, useEffect } from "react";

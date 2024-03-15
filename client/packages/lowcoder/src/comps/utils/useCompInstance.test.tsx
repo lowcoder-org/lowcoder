@@ -1,5 +1,5 @@
 import { CompAction, changeValueAction, CompActionTypes } from "lowcoder-core";
-import _ from "lodash";
+import { range } from "lodash";
 import { actionHandlerGenerator, nestDispatchHandlerGenerator } from "./useCompInstance";
 
 it("test action handler", (done) => {
@@ -27,13 +27,13 @@ it("test action handler", (done) => {
   };
 
   // execute the normal action immediately
-  _.range(3).forEach(() => {
+  range(3).forEach(() => {
     actionHandler(addOne);
   });
   expect(cnt).toBe(3);
 
   // defer action not executed
-  _.range(3).forEach(() => {
+  range(3).forEach(() => {
     actionHandler(addOneDefer);
   });
 
@@ -46,7 +46,7 @@ it("test action handler", (done) => {
 
   // last defer action is not executed
   let size = 0;
-  _.range(3).forEach(() => {
+  range(3).forEach(() => {
     size = actionHandler(addOneDefer);
   });
 

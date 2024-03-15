@@ -18,7 +18,7 @@ import { NameConfigHidden, withExposingConfigs } from "comps/generators/withExpo
 import { NameGenerator } from "comps/utils";
 import { Section, controlItem, sectionNames } from "lowcoder-design";
 import { HintPlaceHolder } from "lowcoder-design";
-import _ from "lodash";
+import { isEmpty, mapValues } from "lodash";
 import React from "react";
 import styled from "styled-components";
 import { IContainer } from "../containerBase/iContainer";
@@ -31,7 +31,7 @@ import {
 } from "../containerComp/containerView";
 import { BackgroundColorContext } from "comps/utils/backgroundColorContext";
 import { trans } from "i18n";
-import { messageInstance } from "lowcoder-design";
+import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 import { BoolControl } from "comps/controls/boolControl";
 import { NumberControl } from "comps/controls/codeControl";
 
@@ -130,15 +130,15 @@ const ResponsiveLayout = (props: ResponsiveLayoutProps) => {
             const containerProps = containers[id].children;
 
             const columnCustomStyle = {
-              margin: !_.isEmpty(column.margin) ? column.margin : columnStyle.margin,
-              padding: !_.isEmpty(column.padding) ? column.padding : columnStyle.padding,
-              radius: !_.isEmpty(column.radius) ? column.radius : columnStyle.radius,
-              border: `1px solid ${!_.isEmpty(column.border) ? column.border : columnStyle.border}`,
-              background: !_.isEmpty(column.background) ? column.background : columnStyle.background,
+              margin: !isEmpty(column.margin) ? column.margin : columnStyle.margin,
+              padding: !isEmpty(column.padding) ? column.padding : columnStyle.padding,
+              radius: !isEmpty(column.radius) ? column.radius : columnStyle.radius,
+              border: `1px solid ${!isEmpty(column.border) ? column.border : columnStyle.border}`,
+              background: !isEmpty(column.background) ? column.background : columnStyle.background,
             }
             const noOfColumns = columns.length;
             let backgroundStyle = columnCustomStyle.background;
-            if(!_.isEmpty(column.backgroundImage))  {
+            if(!isEmpty(column.backgroundImage))  {
               backgroundStyle = `center / cover url('${column.backgroundImage}') no-repeat, ${backgroundStyle}`;
             }
             return (
@@ -279,7 +279,7 @@ class ResponsiveLayoutImplComp extends ResponsiveLayoutBaseComp implements ICont
       const value = action.value as JSONObject;
       if (value.type === "push") {
         const itemValue = value.value as JSONObject;
-        if (_.isEmpty(itemValue.key)) itemValue.key = itemValue.label;
+        if (isEmpty(itemValue.key)) itemValue.key = itemValue.label;
         action = {
           ...action,
           value: {
@@ -330,7 +330,7 @@ class ResponsiveLayoutImplComp extends ResponsiveLayoutBaseComp implements ICont
 
   getPasteValue(nameGenerator: NameGenerator): JSONValue {
     const containerMap = this.children.containers.getView();
-    const containerPasteValueMap = _.mapValues(containerMap, (container) =>
+    const containerPasteValueMap = mapValues(containerMap, (container) =>
       container.getPasteValue(nameGenerator)
     );
 

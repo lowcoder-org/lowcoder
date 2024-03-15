@@ -9,7 +9,7 @@ import {
   QueryPropertyViewWrapper,
   QuerySectionWrapper,
 } from "lowcoder-design";
-import _, { pick } from "lodash";
+import { pick, mapValues } from "lodash";
 import { ControlParams } from "../../controls/controlParams";
 import styled from "styled-components";
 import { BoolCodeControl, StringControl } from "../../controls/codeControl";
@@ -17,7 +17,7 @@ import { BoolPureControl } from "../../controls/boolControl";
 import { millisecondsControl } from "../../controls/millisecondControl";
 import { trans } from "i18n";
 import { CompAction, customAction, isMyCustomAction } from "lowcoder-core";
-import { messageInstance } from "lowcoder-design";
+import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 
 const SuccessMessageAction = new MultiCompBuilder(
   {
@@ -72,7 +72,7 @@ const SingleFailMessageAction = withContext(SingleFailMessageTmpAction, ["data"]
 const FailMessageAction = class extends list(SingleFailMessageAction) {
   updateContext(result: QueryResult) {
     return this.setChildren(
-      _.mapValues(this.children, (comp) => {
+      mapValues(this.children, (comp) => {
         return comp.reduce(SingleFailMessageAction.changeContextDataAction({ data: result.data }));
       })
     );

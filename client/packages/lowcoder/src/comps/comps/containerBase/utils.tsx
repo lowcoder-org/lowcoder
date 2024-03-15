@@ -1,5 +1,5 @@
 import { HookComp } from "comps/hooks/hookComp";
-import _ from "lodash";
+import {mapValues, omitBy, isNil, assign, omit} from "lodash";
 import { GridItemComp } from "../gridItemComp";
 
 type CompItemType = GridItemComp | HookComp;
@@ -11,11 +11,11 @@ export type CompTree = {
 };
 
 export function getCompTree(compMap: Record<string, CompItemType>): CompTree {
-  let children: Record<string, CompTree> = _.mapValues(
+  let children: Record<string, CompTree> = mapValues(
     compMap,
     (item) => (item.children.comp as any)?.getCompTree?.() ?? undefined
   );
-  children = _.omitBy(children, _.isNil);
+  children = omitBy(children, isNil);
   return { items: { ...compMap }, children };
 }
 
@@ -23,8 +23,8 @@ export function mergeCompTrees(compTrees: CompTree[]): CompTree {
   const items = {};
   const children = {};
   compTrees.forEach((compTree) => {
-    _.assign(items, compTree.items);
-    _.assign(children, compTree.children);
+    assign(items, compTree.items);
+    assign(children, compTree.children);
   });
   return { items, children };
 }
@@ -91,7 +91,7 @@ export function oldContainerParamsToNew(params: any): any {
     (params.value.hasOwnProperty("layout") || params.value.hasOwnProperty("items"))
   ) {
     const newValue = {
-      ..._.omit(params.value, ["layout", "items"]),
+      ...omit(params.value, ["layout", "items"]),
       container: { layout: params.value.layout, items: params.value.items },
     };
     const newParams = { ...params, value: newValue };

@@ -22,7 +22,7 @@ import {
   wrapChildAction,
 } from "lowcoder-core";
 import { NameGenerator } from "comps/utils";
-import _ from "lodash";
+import { upperFirst } from "lodash";
 import { CreateData, CreateForm } from "./createForm";
 import { defaultLayout, GridItemComp } from "../gridItemComp";
 import { ReactNode, useContext } from "react";
@@ -55,8 +55,8 @@ import {
 import { trans } from "i18n";
 import log from "loglevel";
 import { DisabledContext } from "comps/generators/uiCompBuilder";
-import { LoadingOutlined } from "@ant-design/icons";
-import { messageInstance } from "lowcoder-design";
+import { default as LoadingOutlined } from "@ant-design/icons/LoadingOutlined";
+import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 import { styled } from "styled-components";
 
 const FormWrapper = styled.div`
@@ -131,14 +131,14 @@ function onCreate(
   const { dispatch } = props;
   const nameGenerator = editorState.getNameGenerator();
   const infos = data.columns.map((column) => {
-    const compName = nameGenerator.genItemName("form" + _.upperFirst(column.comp.type));
+    const compName = nameGenerator.genItemName("form" + upperFirst(column.comp.type));
     return { column, compName };
   });
   dispatchAsyncAddCompsAction(props, infos);
 
   const tableName = data.tableName;
   const lastName = tableName.substring(tableName.lastIndexOf(".") + 1);
-  const queryNamePrefix = formName + "SubmitTo" + lastName.split("_").map(_.upperFirst).join("");
+  const queryNamePrefix = formName + "SubmitTo" + lastName.split("_").map(upperFirst).join("");
   const queryName = nameGenerator.genItemName(queryNamePrefix);
   dispatch(deferAction(wrapChildAction("onEvent", pushAction(onEventData(queryName)))));
 

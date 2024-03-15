@@ -32,7 +32,7 @@ import { withMethodExposing } from "comps/generators/withMethodExposing";
 import { MAP_KEY } from "comps/generators/withMultiContext";
 import { NameGenerator } from "comps/utils";
 import { trans } from "i18n";
-import _ from "lodash";
+import { isEmpty,  sortBy, isEqual,forEach, omit, isNil } from "lodash";
 import {
   changeChildAction,
   CompAction,
@@ -103,7 +103,7 @@ export class TableImplComp extends TableInitComp implements IContainer {
   refreshData(allQueryNames: Array<string>, setLoading: (loading: boolean) => void) {
     const deps: Array<string> = this.children.data.exposingNode().dependNames();
     const depsQueryNames = deps.map((d) => d.split(".")[0]);
-    if (_.isEmpty(depsQueryNames)) {
+    if (isEmpty(depsQueryNames)) {
       // Independent query, using local data, giving a fake loading effect
       setLoading(true);
       setTimeout(() => setLoading(false), 200);
@@ -119,7 +119,7 @@ export class TableImplComp extends TableInitComp implements IContainer {
 
   // only for test?
   getProps() {
-    return childrenToProps(_.omit(this.children, "style")) as TableChildrenView;
+    return childrenToProps(omit(this.children, "style")) as TableChildrenView;
   }
 
   shouldGenerateColumn(comp: this, nextRowExample?: JSONObject) {
@@ -162,9 +162,9 @@ export class TableImplComp extends TableInitComp implements IContainer {
       const toBeGenRow = comp.children.dataRowExample.getView();
       const columnKeyChanged =
         columnKeys.length !== nextRowKeys.length ||
-        !_.isEqual(_.sortBy(columnKeys), _.sortBy(nextRowKeys));
+        !isEqual(sortBy(columnKeys), sortBy(nextRowKeys));
       // The data has changed, but can't judge the auto generation
-      if (columnKeyChanged && !_.isEqual(toBeGenRow, nextRowExample)) {
+      if (columnKeyChanged && !isEqual(toBeGenRow, nextRowExample)) {
         setTimeout(() => {
           comp.children.dataRowExample.dispatchChangeValueAction(nextRowExample);
         });
@@ -185,7 +185,7 @@ export class TableImplComp extends TableInitComp implements IContainer {
       const nextRowExample = tableDataRowExample(comp.children.data.getView());
       dataChanged =
         comp.children.data !== this.children.data &&
-        !_.isEqual(this.children.data.getView(), comp.children.data.getView());
+        !isEqual(this.children.data.getView(), comp.children.data.getView());
       if (dataChanged) {
         // update rowColor context
         comp = comp.setChild(
@@ -252,9 +252,9 @@ export class TableImplComp extends TableInitComp implements IContainer {
     }
 
     let params = comp.children.expansion.children.slot.getCachedParams(newSelection);
-    if (selectionChanged || _.isNil(params) || dataChanged) {
+    if (selectionChanged || isNil(params) || dataChanged) {
       params =
-        _.isNil(params) || dataChanged
+        isNil(params) || dataChanged
           ? genSelectionParams(comp.filterData, newSelection)
           : undefined;
       comp = comp.setChild(
@@ -397,10 +397,10 @@ export class TableImplComp extends TableInitComp implements IContainer {
         .mapKeys((render, idx) => input.dataIndexes[idx])
         .value();
       const record: Record<string, Record<string, JSONValue>> = {};
-      _.forEach(dataIndexRenderDict, (render, dataIndex) => {
-        _.forEach(render[MAP_KEY], (value, key) => {
+      forEach(dataIndexRenderDict, (render, dataIndex) => {
+        forEach(render[MAP_KEY], (value, key) => {
           const changeValue = (value.comp as any).comp.changeValue;
-          if (!_.isNil(changeValue)) {
+          if (!isNil(changeValue)) {
             if (!record[key]) record[key] = {};
             record[key][dataIndex] = changeValue;
           }
@@ -423,7 +423,7 @@ export class TableImplComp extends TableInitComp implements IContainer {
       const res = _(input.changeSet)
         .map((changeValues, oriIndex) => {
           const idx = input.indexes[oriIndex];
-          const oriRow = _.omit(input.oriDisplayData[idx], OB_ROW_ORI_INDEX);
+          const oriRow = omit(input.oriDisplayData[idx], OB_ROW_ORI_INDEX);
           return { ...oriRow, ...changeValues };
         })
         .value();
@@ -492,7 +492,7 @@ TableTmpComp = withDispatchHook(TableTmpComp, (dispatch) => (action) => {
   }
   if (isTriggerAction(action)) {
     const context = action.value.context;
-    if (context && !_.isNil(context["currentOriginalIndex"])) {
+    if (context && !isNil(context["currentOriginalIndex"])) {
       const key = context["currentOriginalIndex"] + "";
       dispatch(wrapChildAction("selection", changeChildAction("selectedRowKey", key, false)));
     }

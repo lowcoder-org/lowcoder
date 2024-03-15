@@ -18,7 +18,7 @@ import {
   placeholderPropertyView,
   readOnlyPropertyView,
 } from "comps/utils/propertyUtils";
-import _ from "lodash";
+import { debounce as lodashDebounce } from "lodash";
 import { trans } from "i18n";
 import { default as Skeleton } from "antd/es/skeleton";
 import { styleControl } from "comps/controls/styleControl";
@@ -206,7 +206,7 @@ function RichTextEditor(props: IProps) {
 
   const onChangeRef = useRef(
     debounce > 0
-      ? _.debounce((v: string) => {
+      ? lodashDebounce((v: string) => {
           window.clearTimeout(isTypingRef.current);
           isTypingRef.current = window.setTimeout(() => (isTypingRef.current = 0), 100);
           originOnChangeRef.current?.(v);

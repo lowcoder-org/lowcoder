@@ -1,10 +1,10 @@
-import "comps/comps/layout/navLayout";
-import "comps/comps/layout/mobileTabLayout";
+// import "comps/comps/layout/navLayout";
+// import "comps/comps/layout/mobileTabLayout";
 import cnchar from "cnchar";
 import { registerComp, UICompManifest, UICompType } from "./uiCompRegistry";
 import { trans } from "i18n";
 import { remoteComp } from "./comps/remoteComp/remoteComp";
-import { RemoteCompInfo } from "types/remoteComp";
+import type { RemoteCompInfo } from "types/remoteComp";
 
 import {
   AudioCompIcon,
@@ -92,7 +92,8 @@ var uiCompMap: Registry = {
     description: trans("uiComp.chartCompDesc"),
     categories: ["dashboards"],
     icon: ChartCompIcon,
-    comp: remoteComp({ ...builtInRemoteComps, compName: "chart" }),
+    // comp: remoteComp({ ...builtInRemoteComps, compName: "chart" }),
+    comp: undefined,
     keywords: trans("uiComp.chartCompKeywords"),
     layoutInfo: {
       w: 12,
@@ -102,7 +103,8 @@ var uiCompMap: Registry = {
   mermaid: {
     name: trans("uiComp.mermaidCompName"),
     enName: "Mermaid Charts",
-    comp: remoteComp({ ...builtInRemoteComps, compName: "mermaid" }),
+    // comp: remoteComp({ ...builtInRemoteComps, compName: "mermaid" }),
+    comp: undefined,
     description: trans("uiComp.mermaidCompDesc"),
     categories: ["dashboards"],
     icon: MermaidIcon,
@@ -383,7 +385,8 @@ var uiCompMap: Registry = {
     categories: ["scheduling", "projectmanagement"],
     icon: CalendarCompIcon,
     keywords: trans("uiComp.calendarCompKeywords"),
-    comp: remoteComp({ ...builtInRemoteComps, compName: "calendar" }),
+    // comp: remoteComp({ ...builtInRemoteComps, compName: "calendar" }),
+    comp: undefined,
     layoutInfo: {
       w: 19,
       h: 60,
@@ -968,7 +971,8 @@ var uiCompMap: Registry = {
   imageEditor: {
     name: trans("uiComp.imageEditorCompName"),
     enName: "Image Editor",
-    comp: remoteComp({ ...builtInRemoteComps, compName: "imageEditor" }),
+    // comp: remoteComp({ ...builtInRemoteComps, compName: "imageEditor" }),
+    comp: undefined,
     description: trans("uiComp.imageEditorCompDesc"),
     categories: ["multimedia"],
     icon: imageEditorIcon,

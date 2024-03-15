@@ -1,4 +1,4 @@
-import { DragIcon } from "lowcoder-design";
+import { DragIcon } from "lowcoder-design/src/icons";
 import React, { Ref } from "react";
 import { HTMLAttributes, ReactNode } from "react";
 import styled from "styled-components";

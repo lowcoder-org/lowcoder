@@ -1,9 +1,9 @@
 import { Comp } from "lowcoder-core";
 import { evalAndReduceWithExposing } from "comps/utils";
-import _ from "lodash";
+import { isPlainObject } from "lodash";
 import React, { ReactNode, useContext, useEffect, useState } from "react";
 import styled from "styled-components";
-import { ShowBorderIcon, EditIcon } from "lowcoder-design";
+import { ShowBorderIcon, EditIcon } from "lowcoder-design/src/icons";
 import propNames from "../propNameText";
 import valueTranslate from "../propValueText";
 import { AppTypeEnum } from "constants/applicationConstants";
@@ -146,7 +146,7 @@ function propertiesListFromConfig(
   const walk = (subConfig: any, path: string[]) => {
     Object.entries(subConfig).forEach(([key, value]) => {
       const curPath = [...path, key];
-      if (_.isPlainObject(value)) {
+      if (isPlainObject(value)) {
         walk(value, curPath);
         return;
       }

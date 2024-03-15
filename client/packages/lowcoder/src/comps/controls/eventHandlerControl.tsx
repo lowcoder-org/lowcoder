@@ -2,7 +2,7 @@ import EmptyItem from "components/EmptyItem";
 import { CustomListAction, list } from "comps/generators/list";
 import { simpleMultiComp } from "comps/generators/multi";
 import { trans } from "i18n";
-import _ from "lodash";
+import { isEmpty } from "lodash";
 import { DispatchType } from "lowcoder-core";
 import {
   AddEventIcon,
@@ -118,7 +118,7 @@ class SingleEventHandlerControl<
           defaultVisible={props.popup}
         >
           <EventContent>
-            {!_.isEmpty(eventName) && <EventTitle>{eventName}</EventTitle>}
+            {!isEmpty(eventName) && <EventTitle>{eventName}</EventTitle>}
             <EventAction>{eventAction}</EventAction>
           </EventContent>
         </CustomPopover>

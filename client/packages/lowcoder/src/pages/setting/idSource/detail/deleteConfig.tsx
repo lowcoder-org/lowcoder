@@ -7,7 +7,7 @@ import IdSourceApi from "api/idSourceApi";
 import { DangerIcon, CustomModal } from "lowcoder-design";
 import history from "util/history";
 import { OAUTH_PROVIDER_SETTING } from "constants/routesURL";
-import { messageInstance } from "lowcoder-design";
+import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 
 export const DeleteConfig = (props: { id: string }) => {
   const [deleteLoading, setDeleteLoading] = useState(false);

@@ -1,4 +1,4 @@
-import Column from "antd/lib/table/Column";
+import Column from "antd/es/table/Column";
 import OrgApi from "api/orgApi";
 import { GroupUser, MEMBER_ROLE, OrgUser } from "constants/orgConstants";
 import { CheckBox, CustomModal } from "lowcoder-design";
@@ -11,7 +11,7 @@ import { StyledTable, UserTableCellWrapper } from "./styledComponents";
 import { formatTimestamp } from "util/dateTimeUtils";
 import ProfileImage from "pages/common/profileImage";
 import { isGroupAdmin } from "util/permissionUtils";
-import { SuperUserIcon } from "lowcoder-design";
+import { SuperUserIcon } from "lowcoder-design/src/icons";
 import { EmptyContent } from "pages/common/styledComponent";
 import { trans } from "i18n";
 

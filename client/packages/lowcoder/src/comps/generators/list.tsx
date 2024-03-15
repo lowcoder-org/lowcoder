@@ -1,5 +1,5 @@
 import { arrayMove, ToType } from "comps/utils";
-import _ from "lodash";
+import { range, size, omit, mapValues, isNil } from "lodash";
 import {
   CompAction,
   CompActionTypes,
@@ -90,8 +90,8 @@ export function list<ChildCompCtor extends CompConstructor<any, any>>(
     private __nextKey: number;
     constructor(params: CompParams<ListDataType<ChildCompCtor>>) {
       super(params);
-      this.childrenOrder = _.range(params.value ? params.value.length : 0);
-      this.__nextKey = _.size(this.childrenOrder);
+      this.childrenOrder = range(params.value ? params.value.length : 0);
+      this.__nextKey = size(this.childrenOrder);
     }
     override parseChildrenFromValue(params: CompParams<ListDataType<ChildCompCtor>>) {
       const value = params.value;
@@ -184,7 +184,7 @@ export function list<ChildCompCtor extends CompConstructor<any, any>>(
           const keyToDelete = this.childrenOrder[action.index];
           const newChildrenOrder = this.childrenOrder.filter((_, i) => i !== action.index);
           return setFieldsNoTypeCheck(this, {
-            children: _.omit(this.children, keyToDelete),
+            children: omit(this.children, keyToDelete),
             childrenOrder: newChildrenOrder,
           });
         case "arrayMove":
@@ -204,7 +204,7 @@ export function list<ChildCompCtor extends CompConstructor<any, any>>(
           return comp;
         }
         case "forEach": {
-          const newChildren = _.mapValues(this.children, (comp) => comp.reduce(action.action));
+          const newChildren = mapValues(this.children, (comp) => comp.reduce(action.action));
           return this.setChildren(newChildren);
         }
       }
@@ -291,7 +291,7 @@ export function list<ChildCompCtor extends CompConstructor<any, any>>(
     multiAction(actions: Array<CustomListAction<ChildCompCtor>>) {
       const editDSL = actions.some((action) => !!action.editDSL);
       console.assert(
-        actions.every((action) => !_.isNil(action.editDSL) && action.editDSL === editDSL),
+        actions.every((action) => !isNil(action.editDSL) && action.editDSL === editDSL),
         `list's multiAction: all actions should have the same editDSL. editDSL: ${editDSL}, actions:`,
         actions
       );

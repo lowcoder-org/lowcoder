@@ -17,7 +17,7 @@ import {
 } from "lowcoder-design";
 import React, { ReactNode, useCallback, useContext, useMemo, useState } from "react";
 import { hookCompCategory } from "comps/hooks/hookCompTypes";
-import _ from "lodash";
+import {isPlainObject, union, sortBy, noop} from "lodash";
 import styled from "styled-components";
 import { leftCompListClassName } from "pages/tutorials/tutorialsConstant";
 import UIComp from "comps/comps/uiComp";
@@ -30,7 +30,7 @@ import { CompTree } from "comps/comps/containerBase";
 import { CompStateIcon } from "./editorConstants";
 import { UICompType } from "comps/uiCompRegistry";
 import { CollapseWrapper, DirectoryTreeStyle, Node } from "./styledComponents";
-import { DataNode, EventDataNode } from "antd/lib/tree";
+import type { DataNode, EventDataNode } from "antd/es/tree";
 import { isAggregationApp } from "util/appUtils";
 
 const CollapseTitleWrapper = styled.div`
@@ -61,7 +61,7 @@ function toDataView(value: any, name: string, desc?: ReactNode) {
     return (
       <CollapseView name={name} desc={descRecord} data={dataChild} isArray={true} key={name} />
     );
-  } else if (_.isPlainObject(value)) {
+  } else if (isPlainObject(value)) {
     return <CollapseView name={name} desc={descRecord} data={value} key={name} />;
   }
 
@@ -260,7 +260,7 @@ export const LeftContent = (props: LeftContentProps) => {
           result.push(info);
         }
       }
-      result = _.sortBy(result, [(x) => x.title]);
+      result = sortBy(result, [(x) => x.title]);
     }
     if (Object.keys(children).length) {
       for (const i in children) {
@@ -409,7 +409,7 @@ export const LeftContent = (props: LeftContentProps) => {
   };
 
   const getTreeUI = (type: TreeUIKey) => {
-    const uiCompInfos = _.sortBy(editorState.uiCompInfoList(), [(x) => x.name]);
+    const uiCompInfos = sortBy(editorState.uiCompInfoList(), [(x) => x.name]);
     const tree =
       type === TreeUIKey.Components
         ? editorState.getUIComp().getTree()
@@ -426,7 +426,7 @@ export const LeftContent = (props: LeftContentProps) => {
             needSet = true;
           }
         });
-        needSet && setExpandedKeys(_.union(expandedKeys, parentKeys));
+        needSet && setExpandedKeys(union(expandedKeys, parentKeys));
       }
       selectedKeys.push(key);
     }
@@ -481,7 +481,7 @@ export const LeftContent = (props: LeftContentProps) => {
   }, [editorState, handleBottomResItemClick]);
 
   const hookCompsCollapse = useMemo(() => {
-    return _.sortBy(
+    return sortBy(
       editorState.hooksCompInfoList().filter((info) => hookCompCategory(info.type) === "hook"),
       [(x) => x.name]
     ).map((item) => (
@@ -491,7 +491,7 @@ export const LeftContent = (props: LeftContentProps) => {
         desc={item.dataDesc}
         data={item.data}
         isSelected={false}
-        onClick={_.noop}
+        onClick={noop}
       />
     ));
   }, [editorState]);

@@ -1,4 +1,4 @@
-import _ from "lodash";
+import { toPath } from "lodash";
 import { Node } from "../node";
 import { addDepends, addDepend } from "./dependMap";
 import { nodeIsRecord } from "./nodeUtils";
@@ -119,7 +119,7 @@ function parseDepends(
   const depends = new Map<Node<unknown>, Set<string>>();
   const identifiers = getIdentifiers(jsSnippet);
   identifiers.forEach((identifier) => {
-    const subpaths = _.toPath(identifier);
+    const subpaths = toPath(identifier);
     const depend = getDependNode(maxDepth ? subpaths.slice(0, maxDepth) : subpaths, exposingNodes);
     if (depend) {
       addDepend(depends, depend[0], [depend[1]]);

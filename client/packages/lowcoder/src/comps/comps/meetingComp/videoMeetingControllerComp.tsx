@@ -1,4 +1,4 @@
-import { CloseOutlined } from "@ant-design/icons";
+import { default as CloseOutlined } from "@ant-design/icons/CloseOutlined";
 import { default as Button } from "antd/es/button";
 import { ContainerCompBuilder } from "comps/comps/containerBase/containerCompBuilder";
 import {
@@ -48,7 +48,9 @@ import { EditorContext } from "comps/editorState";
 
 // import axios from "axios";
 
-import AgoraRTC, {
+import AgoraRTC from "agora-rtc-sdk-ng";
+
+import type {
   ICameraVideoTrack,
   IMicrophoneAudioTrack,
   IAgoraRTCClient,
@@ -57,9 +59,10 @@ import AgoraRTC, {
   ILocalVideoTrack,
 } from "agora-rtc-sdk-ng";
 
-import { JSONValue, NumberControl } from "@lowcoder-ee/index.sdk";
 import { getData } from "../listViewComp/listViewUtils";
-import AgoraRTM, { RtmChannel, RtmClient } from "agora-rtm-sdk";
+// import AgoraRTM from "agora-rtm-sdk";
+import type { RtmChannel, RtmClient } from "agora-rtm-sdk";
+import { JSONValue } from "util/jsonTypes";
 
 const EventOptions = [closeEvent] as const;
 
@@ -211,6 +214,7 @@ const sendPeerMessageRtm = (message: any, toId: string) => {
 };
 
 const rtmInit = async (appId: any, uid: any, token: any, channel: any) => {
+  const AgoraRTM = (await import('agora-rtm-sdk')).default;
   rtmClient = AgoraRTM.createInstance(appId);
   let options = {
     uid: String(uid),

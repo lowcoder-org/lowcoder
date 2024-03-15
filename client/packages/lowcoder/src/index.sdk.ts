@@ -37,10 +37,10 @@ export * from "util/uaUtils";
 export * from "util/urlUtils";
 export * from "util/context/ExternalEditorContext";
 
-// constant
+// // constant
 export { CanvasContainerID } from "constants/domLocators";
 
-// comps
+// // comps
 export * from "comps/index";
 export * from "comps/comps/rootComp";
 
@@ -53,10 +53,10 @@ export * from "comps/utils";
 export * from "comps/utils/themeContext";
 
 // design
-export * from "lowcoder-design";
+// export * from "lowcoder-design";
 export * from "lowcoder-core";
 
-// controls
+// // controls
 export * from "comps/controls/alignControl";
 export * from "comps/controls/appSelectControl";
 export * from "comps/controls/autoHeightControl";
@@ -108,7 +108,7 @@ export * from "appView/AppViewInstance";
 export * from "ide/CompIde";
 export * from "ide/CompPlayground";
 
-export * as antd from "antd";
+// export * as antd from "antd";
 export const styled = { ...styledDefault, ...styledNameExports };
 
 window.numbro = numbro;

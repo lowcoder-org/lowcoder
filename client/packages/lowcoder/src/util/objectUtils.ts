@@ -1,4 +1,4 @@
-import _ from "lodash";
+import { throttle, debounce, isObjectLike, size, every, isNil } from "lodash";
 import log from "loglevel";
 import { CACHE_PREFIX } from "./cacheUtils";
 
@@ -50,8 +50,8 @@ export function limitExecutor(
       mode: mode,
       func:
         mode === "throttle"
-          ? _.throttle((x) => x(), delay, { trailing: false })
-          : _.debounce((x) => x(), delay),
+          ? throttle((x) => x(), delay, { trailing: false })
+          : debounce((x) => x(), delay),
     },
     (a, b) => {
       return a.delay === b.delay && a.mode === b.mode;
@@ -86,7 +86,7 @@ export function containAllFields(obj: Record<string, any>, fields?: Record<strin
  * check equal with in depth
  * @param o1 Object1
  * @param o2 Object2
- * @param depth the with-in depth, the same as o1 === o2 when depth === 1, then same as _.isEqual(o1, o2) when depth === Infinity
+ * @param depth the with-in depth, the same as o1 === o2 when depth === 1, then same as isEqual(o1, o2) when depth === Infinity
  * @returns o1 equals o2 or not with in depth
  */
 export function depthEqual(o1: any, o2: any, depth: number = Infinity): boolean {
@@ -96,15 +96,15 @@ export function depthEqual(o1: any, o2: any, depth: number = Infinity): boolean 
   if (o1 === o2) {
     return true;
   }
-  if (!_.isObjectLike(o1) || !_.isObjectLike(o2)) {
+  if (!isObjectLike(o1) || !isObjectLike(o2)) {
     return false;
   }
-  const size1 = _.size(o1),
-    size2 = _.size(o2);
+  const size1 = size(o1),
+    size2 = size(o2);
   if (size1 !== size2) {
     return false;
   }
-  return _.every(o1, (v1, key) => depthEqual(v1, o2[key], depth - 1));
+  return every(o1, (v1, key) => depthEqual(v1, o2[key], depth - 1));
 }
 
 /**
@@ -229,7 +229,7 @@ export const getObjectId = (function () {
   let objectCurrentId = 0;
   const objectMap = new WeakMap();
   return (obj: object | undefined) => {
-    if (_.isNil(obj)) return 0;
+    if (isNil(obj)) return 0;
     if (objectMap.has(obj)) {
       return objectMap.get(obj);
     }

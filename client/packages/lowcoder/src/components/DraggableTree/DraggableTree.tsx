@@ -7,7 +7,7 @@ import {
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
-import _ from "lodash";
+import { isEqual } from "lodash";
 import { useContext, useMemo, useState } from "react";
 import styled from "styled-components";
 import { DraggableTreeContext, DraggableTreeContextValue } from "./DraggableTreeContext";
@@ -59,7 +59,7 @@ function MenuItemList(props: IMenuItemListProps) {
 
       if (
         sourcePath.length === targetPath.length &&
-        _.isEqual(sourcePath.slice(0, -1), targetPath.slice(0, -1))
+        isEqual(sourcePath.slice(0, -1), targetPath.slice(0, -1))
       ) {
         // same level move
         const from = sourcePath[sourcePath.length - 1];

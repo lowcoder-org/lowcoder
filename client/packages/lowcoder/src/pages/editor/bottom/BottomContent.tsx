@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from "react";
 import styled, { css } from "styled-components";
-import { NofileIcon } from "lowcoder-design";
+import { NofileIcon } from "lowcoder-design/src/icons";
 import { EmptyTab } from "./BottomTabs";
 import { CompNameContext, EditorContext } from "comps/editorState";
 import { BottomSidebar } from "./BottomSidebar";
@@ -13,7 +13,7 @@ import { ResCreatePanel } from "components/ResCreatePanel";
 import { trans } from "i18n";
 import { getDataSource } from "redux/selectors/datasourceSelectors";
 import { useMetaData } from "util/hooks";
-import { messageInstance } from "lowcoder-design";
+import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 
 const Container = styled.div`
   width: 100%;

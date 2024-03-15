@@ -1,5 +1,5 @@
 import { ValueAndMsg } from "../types/valueAndMsg";
-import _ from "lodash";
+import { find } from "lodash";
 import { getErrorMessage } from "./nodeUtils";
 import { evalFunc, evalScript, SandboxScope } from "./evalScript";
 import { getDynamicStringSegments, isDynamicSegment } from "./segmentUtils";
@@ -43,7 +43,7 @@ class DefaultParser {
       if (this.valueAndMsgs.length === 0) {
         return new ValueAndMsg(object);
       }
-      return new ValueAndMsg(object, _.find(this.valueAndMsgs, "msg")?.msg, {
+      return new ValueAndMsg(object, find(this.valueAndMsgs, "msg")?.msg, {
         segments: this.valueAndMsgs.flatMap((v) => v?.extra?.segments ?? []),
       });
     } catch (err) {

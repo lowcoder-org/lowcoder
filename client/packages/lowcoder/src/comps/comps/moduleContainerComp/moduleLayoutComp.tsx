@@ -6,7 +6,7 @@ import { trans } from "i18n";
 import { DEFAULT_POSITION_PARAMS, PositionParams } from "layout";
 import { ResizeHandleAxis } from "layout/gridLayoutPropTypes";
 import { Layout } from "layout/utils";
-import _ from "lodash";
+import { noop } from "lodash";
 import { CompAction, CompActionTypes } from "lowcoder-core";
 import { ReactElement, useContext } from "react";
 import { ExternalEditorContext } from "util/context/ExternalEditorContext";
@@ -99,7 +99,7 @@ function ModuleLayoutView(props: IProps) {
       items={items}
       positionParams={{ ...positionParams, cols: parseInt(defaultGrid) }}
       onPositionParamsChange={onPositionParamsChange}
-      dispatch={_.noop}
+      dispatch={noop}
       onLayoutChange={onLayoutChange}
       extraHeight="0px"
     />

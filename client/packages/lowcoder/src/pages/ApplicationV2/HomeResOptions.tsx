@@ -1,7 +1,9 @@
 import { HomeRes } from "./HomeLayout";
 import { HomeResTypeEnum } from "../../types/homeRes";
 import { exportApplicationAsJSONFile } from "./components/AppImport";
-import { CustomModal, EditPopover, EditPopoverItemType, PointIcon } from "lowcoder-design";
+import { PointIcon } from "lowcoder-design/src/icons";
+import { CustomModal } from "lowcoder-design/src/components/CustomModal";
+import { EditPopover, EditPopoverItemType } from "lowcoder-design/src/components/popover";
 import { HomeResInfo } from "../../util/homeResUtils";
 import { recycleApplication } from "../../redux/reduxActions/applicationActions";
 import { deleteFolder } from "../../redux/reduxActions/folderActions";
@@ -12,7 +14,7 @@ import { trans, transToNode } from "../../i18n";
 import { useParams } from "react-router-dom";
 import { AppTypeEnum } from "constants/applicationConstants";
 import { CopyModal } from "pages/common/copyModal";
-import { messageInstance } from "lowcoder-design";
+import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 
 const PopoverIcon = styled(PointIcon)`
   cursor: pointer;

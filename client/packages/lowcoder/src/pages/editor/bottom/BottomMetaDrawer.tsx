@@ -1,6 +1,6 @@
 import { DataNode } from "antd/es/tree";
 import { CopyTextButton, CustomTree, labelCss, PackUpIcon, Search } from "lowcoder-design";
-import _ from "lodash";
+import { isEmpty } from "lodash";
 import { default as AntdDrawer } from "antd/es/drawer";
 import { CSSProperties, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -206,7 +206,7 @@ export const DataSourceStructureTree = (props: {
                     (child) => child.key.toString().toLowerCase().indexOf(value) !== -1
                   );
                   return item.key.toString().toLowerCase().indexOf(value) !== -1 ||
-                    !_.isEmpty(children)
+                    !isEmpty(children)
                     ? {
                         ...item,
                         children: children,

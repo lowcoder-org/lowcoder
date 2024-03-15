@@ -1,5 +1,5 @@
 import { Player } from "@lottiefiles/react-lottie-player";
-import { hiddenPropertyView } from "@lowcoder-ee/index.sdk";
+import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import {
   ArrayOrJSONObjectControl,
   NumberControl,

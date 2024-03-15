@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
-import { messageInstance, CustomSelect, CloseEyeIcon } from "lowcoder-design";
+import { CloseEyeIcon } from "lowcoder-design/src/icons";
+import { CustomSelect } from "lowcoder-design/src/components/customSelect";
+import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 import {
   CustomModalStyled,
 } from "../styled";
@@ -19,7 +21,7 @@ import { validateResponse } from "api/apiUtils";
 import { authConfig, AuthType, clientIdandSecretConfig, ItemType } from "./idSourceConstants";
 import { ServerAuthTypeInfo } from "constants/authConstants";
 import { GeneralLoginIcon } from "assets/icons";
-import _ from "lodash";
+import { isObject } from "lodash";
 
 type CreateModalProp = {
   modalVisible: boolean;
@@ -131,7 +133,7 @@ function CreateModal(props: CreateModalProp) {
           </CustomSelect>
         </Form.Item>
         {Object.entries(authConfigForm).map(([key, value]) => {
-          const valueObject = _.isObject(value) ? (value as ItemType) : false;
+          const valueObject = isObject(value) ? (value as ItemType) : false;
           const required = true;
           const label = valueObject ? valueObject.label : value;
           const tip = valueObject && valueObject.tip;

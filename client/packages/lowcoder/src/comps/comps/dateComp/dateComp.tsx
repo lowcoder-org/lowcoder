@@ -1,4 +1,4 @@
-import _, { noop } from "lodash";
+import { pick, noop } from "lodash";
 import dayjs from "dayjs";
 import { RecordConstructorToComp, RecordConstructorToView } from "lowcoder-core";
 import {
@@ -79,7 +79,7 @@ const commonChildren = {
 type CommonChildrenType = RecordConstructorToComp<typeof commonChildren>;
 
 const datePickerProps = (props: RecordConstructorToView<typeof commonChildren>) =>
-  _.pick(props, "format", "showTime", "use12Hours", "hourStep", "minuteStep", "secondStep", "placeholder");
+  pick(props, "format", "showTime", "use12Hours", "hourStep", "minuteStep", "secondStep", "placeholder");
 
 const timeFields = (children: CommonChildrenType, isMobile?: boolean) => [
   children.showTime.propertyView({ label: trans("date.showTime") }),

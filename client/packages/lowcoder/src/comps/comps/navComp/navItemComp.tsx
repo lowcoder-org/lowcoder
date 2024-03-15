@@ -5,7 +5,7 @@ import { parseChildrenFromValueAndChildrenMap, ToViewReturn } from "comps/genera
 import { withDefault } from "comps/generators/simpleGenerators";
 import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
-import _ from "lodash";
+import { mapValues } from "lodash";
 import { fromRecord, MultiBaseComp, Node, RecordNode, RecordNodeToValue } from "lowcoder-core";
 import { ReactNode } from "react";
 
@@ -36,7 +36,7 @@ type ChildrenType = {
 
 export class NavItemComp extends MultiBaseComp<ChildrenType> {
   override getView() {
-    return _.mapValues(this.children, (c) => c.getView()) as ToViewReturn<ChildrenType>;
+    return mapValues(this.children, (c) => c.getView()) as ToViewReturn<ChildrenType>;
   }
 
   override getPropertyView(): ReactNode {

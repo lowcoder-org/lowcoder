@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import { default as AntdTextArea, TextAreaRef, TextAreaProps as AntdTextAreaProps } from "antd/es/input/TextArea";
 import { ChangeEvent, useEffect, useRef, useState } from "react";
-import _ from "lodash";
+import { debounce as lodashDebounce } from "lodash";
 import React from "react";
 import { INPUT_DEFAULT_ONCHANGE_DEBOUNCE } from "constants/perf";
 
@@ -21,7 +21,7 @@ function TacoTextArea(props: TextAreaProps, ref: React.Ref<TextAreaRef>) {
 
   const debouncedOnChangeRef = useRef(
     debounce > 0
-      ? _.debounce((e: ChangeEvent<HTMLTextAreaElement>) => {
+      ? lodashDebounce((e: ChangeEvent<HTMLTextAreaElement>) => {
           window.clearTimeout(isTypingRef.current);
           isTypingRef.current = window.setTimeout(() => (isTypingRef.current = 0), 100);
           originOnChangeRef.current?.(e);

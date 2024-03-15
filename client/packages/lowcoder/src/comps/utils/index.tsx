@@ -1,7 +1,7 @@
 import { updateNodesV2Action } from "lowcoder-core";
 import { Node } from "lowcoder-core";
 import { EvalMethods } from "lowcoder-core";
-import _ from "lodash";
+import { range } from "lodash";
 import { Comp } from "lowcoder-core";
 import { exposingInfoToNodes, exposingMethods } from "./exposingTypes";
 import { ReactNode, ReactElement } from "react";
@@ -78,7 +78,7 @@ const arrayMoveIndex = (fromIndex: number, toIndex: number, currentIndex: number
  */
 export function arrayMove<T>(data: Array<T>, start: number, end: number) {
   const result = Array(data.length);
-  _.range(data.length).forEach((x) => {
+  range(data.length).forEach((x) => {
     result[arrayMoveIndex(start, end, x)] = data[x];
   });
   return result;

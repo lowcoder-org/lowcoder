@@ -1,5 +1,5 @@
 import { AutocompleteDataType } from "base/codeEditor/completion/ternServer";
-import _ from "lodash";
+import { lowerCase, capitalize, isArray, isFunction } from "lodash";
 import { evalScript } from "lowcoder-core";
 import { checkCursorInBinding } from "../codeEditorUtils";
 import { Completion, CompletionContext, CompletionResult, EditorView } from "../codeMirror";
@@ -40,9 +40,9 @@ export class ExposingCompletionSource extends CompletionSource {
       const dataType = getDataType(currentData[key]);
       const isBoost = offset === 0 && this.boostExposingData?.hasOwnProperty(key);
       const result: Completion = {
-        type: _.lowerCase(dataType),
+        type: lowerCase(dataType),
         label: key,
-        detail: _.capitalize(dataType),
+        detail: capitalize(dataType),
         boost: isBoost
           ? 20
           : PRIORITY_PROPS.includes(key)
@@ -99,8 +99,8 @@ function getDataType(data: unknown): string {
   if (type === "number") return AutocompleteDataType.NUMBER;
   else if (type === "string") return AutocompleteDataType.STRING;
   else if (type === "boolean") return AutocompleteDataType.BOOLEAN;
-  else if (_.isArray(data)) return AutocompleteDataType.ARRAY;
-  else if (_.isFunction(data)) return AutocompleteDataType.FUNCTION;
+  else if (isArray(data)) return AutocompleteDataType.ARRAY;
+  else if (isFunction(data)) return AutocompleteDataType.FUNCTION;
   return AutocompleteDataType.OBJECT;
 }
 
@@ -111,9 +111,9 @@ function getPreCompletions(infoList: Record<string, any>, keys: string[]): Compl
       return PRIORITY_PROPS.filter((prop) => infoList[key].hasOwnProperty(prop)).map((prop) => {
         const dataType = getDataType(infoList[key][prop]);
         const result: Completion = {
-          type: _.lowerCase(dataType),
+          type: lowerCase(dataType),
           label: key + "." + prop,
-          detail: _.capitalize(dataType),
+          detail: capitalize(dataType),
           boost: 10,
         };
         return result;

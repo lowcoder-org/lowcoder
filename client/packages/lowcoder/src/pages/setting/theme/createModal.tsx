@@ -1,10 +1,10 @@
 import { ThemeType } from "api/commonSettingApi";
 import { useState } from "react";
 import { themeTemplateList } from "./themeConstant";
-import { RadioCheckedIcon } from "lowcoder-design";
-import { SwitchCheckedIcon } from "lowcoder-design";
-import { RequiredIcon } from "lowcoder-design";
-import { SuccessIcon } from "lowcoder-design";
+import { RadioCheckedIcon } from "lowcoder-design/src/icons";
+import { SwitchCheckedIcon } from "lowcoder-design/src/icons";
+import { RequiredIcon } from "lowcoder-design/src/icons";
+import { SuccessIcon } from "lowcoder-design/src/icons";
 import {
   CustomModalStyled,
   ModalNameDiv,

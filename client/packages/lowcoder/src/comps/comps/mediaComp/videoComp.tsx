@@ -9,7 +9,7 @@ import { styleControl } from "comps/controls/styleControl";
 import { ImageStyle, ImageStyleType } from "comps/controls/styleControlConstants";
 import { BoolControl } from "comps/controls/boolControl";
 import { withDefault } from "../../generators/simpleGenerators";
-import { Container, playIcon } from "lowcoder-design";
+import { playIcon, Container } from "lowcoder-design/src/components/video";
 import { RangeControl } from "../../controls/codeControl";
 import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";

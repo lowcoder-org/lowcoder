@@ -1,4 +1,4 @@
-import { CloseOutlined } from "@ant-design/icons";
+import { default as CloseOutlined } from "@ant-design/icons/CloseOutlined";
 import { default as Button } from "antd/es/button";
 import { ContainerCompBuilder } from "comps/comps/containerBase/containerCompBuilder";
 import { gridItemCompToGridItems, InnerGrid } from "comps/comps/containerComp/containerView";

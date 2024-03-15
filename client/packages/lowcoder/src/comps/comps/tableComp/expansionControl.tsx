@@ -9,7 +9,7 @@ import { withSelectedMultiContext } from "comps/generators";
 import { ControlItemCompBuilder } from "comps/generators/controlCompBuilder";
 import { BackgroundColorContext } from "comps/utils/backgroundColorContext";
 import { trans } from "i18n";
-import _ from "lodash";
+import { omit } from "lodash";
 import { ConstructorToView, wrapChildAction } from "lowcoder-core";
 import { useContext } from "react";
 import { tryToNumber } from "util/convertUtils";
@@ -78,7 +78,7 @@ export class ExpansionControl extends ExpansionControlTmp {
         expandedRowRender: (record: RecordType, index: number) => {
           const slotControl = this.children.slot.getView()(
             {
-              currentRow: _.omit(record, OB_ROW_ORI_INDEX),
+              currentRow: omit(record, OB_ROW_ORI_INDEX),
               currentIndex: index,
               currentOriginalIndex: tryToNumber(record[OB_ROW_ORI_INDEX]),
             },

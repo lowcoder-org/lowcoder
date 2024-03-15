@@ -2,7 +2,7 @@ import { DndContext, DragEndEvent, DragOverlay, DragStartEvent } from "@dnd-kit/
 import LinkPlusButton from "components/LinkPlusButton";
 import { BluePlusIcon, controlItem } from "lowcoder-design";
 import { trans } from "i18n";
-import _ from "lodash";
+import { isEqual } from "lodash";
 import { useState } from "react";
 import styled from "styled-components";
 import DraggableMenuItem from "./DroppableMenuItem";
@@ -58,7 +58,7 @@ function MenuItemList(props: IMenuItemListProps) {
 
       if (
         sourcePath.length === targetPath.length &&
-        _.isEqual(sourcePath.slice(0, -1), targetPath.slice(0, -1))
+        isEqual(sourcePath.slice(0, -1), targetPath.slice(0, -1))
       ) {
         // same level move
         const from = sourcePath[sourcePath.length - 1];

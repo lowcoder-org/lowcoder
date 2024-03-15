@@ -7,7 +7,7 @@ import {
 } from "comps/chartComp/chartConstants";
 import { getPieRadiusAndCenter } from "comps/chartComp/chartConfigs/pieChartConfig";
 import { EChartsOptionWithMap } from "./reactEcharts/types";
-import _ from "lodash";
+import { isArray, findIndex } from "lodash";
 import { chartColorPalette, isNumeric, JSONObject, loadScript } from "lowcoder-sdk";
 import { calcXYConfig } from "comps/chartComp/chartConfigs/cartesianAxisConfig";
 import Big from "big.js";
@@ -236,7 +236,7 @@ export function getEchartsConfig(props: EchartsConfigProps, chartSize?: ChartSiz
 
 export function getSelectedPoints(param: any, option: any) {
   const series = option.series;
-  const dataSource = _.isArray(option.dataset) && option.dataset[0]?.source;
+  const dataSource = isArray(option.dataset) && option.dataset[0]?.source;
   if (series && dataSource) {
     return param.selected.flatMap((selectInfo: any) => {
       const seriesInfo = series[selectInfo.seriesIndex];
@@ -270,12 +270,12 @@ export function loadGoogleMapsScript(apiKey: string) {
   const mapsUrl = `${googleMapsApiUrl}?key=${apiKey}`;
   const scripts = document.getElementsByTagName('script');
   // is script already loaded
-  let scriptIndex = _.findIndex(scripts, (script) => script.src.endsWith(mapsUrl));
+  let scriptIndex = findIndex(scripts, (script) => script.src.endsWith(mapsUrl));
   if(scriptIndex > -1) {
     return scripts[scriptIndex];
   }
   // is script loaded with diff api_key, remove the script and load again
-  scriptIndex = _.findIndex(scripts, (script) => script.src.startsWith(googleMapsApiUrl));
+  scriptIndex = findIndex(scripts, (script) => script.src.startsWith(googleMapsApiUrl));
   if(scriptIndex > -1) {
     scripts[scriptIndex].remove();
   }

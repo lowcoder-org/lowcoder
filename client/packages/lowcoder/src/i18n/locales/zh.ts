@@ -1,4 +1,4 @@
-import table from "./componentDocExtra/table.md?url";
+// import table from "./componentDocExtra/table.md?url";
 
 export const zh  = {
 productName: "Lowcoder",
@@ -2522,7 +2522,7 @@ calendar: {
     selectBackground: "选中背景",
 },
 componentDocExtra: {
-    table: table,
+    // table: table,
 },
 idSource: {
     title: "OAuth 提供商",

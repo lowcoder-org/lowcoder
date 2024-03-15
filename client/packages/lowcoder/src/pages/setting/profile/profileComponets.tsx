@@ -8,7 +8,7 @@ import {
   PasswordInput,
 } from "lowcoder-design";
 import { TacoButton } from "lowcoder-design";
-import { PackUpIcon } from "lowcoder-design";
+import { PackUpIcon } from "lowcoder-design/src/icons";
 import ProfileImage from "pages/common/profileImage";
 import { User } from "constants/userConstants";
 import { replaceMiddleWithStar } from "util/stringUtils";
@@ -19,7 +19,7 @@ import { updateUserAction, updateUserSuccess } from "redux/reduxActions/userActi
 import { default as Upload, UploadChangeParam } from "antd/es/upload";
 import { USER_HEAD_UPLOAD_URL } from "constants/apiConstants";
 import { trans } from "i18n";
-import { messageInstance } from "lowcoder-design";
+import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 
 const FormInputStyle = css`
   input {

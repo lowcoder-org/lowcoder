@@ -11,7 +11,7 @@ import {
   ToConstructor,
   ViewFnTypeForComp,
 } from "comps/generators/multi";
-import _ from "lodash";
+import { isNil } from "lodash";
 import {
   CompConstructor,
   ConstructorToNodeType,
@@ -147,7 +147,7 @@ export class ColumnTypeCompBuilder<
       }
 
       static canBeEditable() {
-        return !_.isNil(editViewFn);
+        return !isNil(editViewFn);
       }
     };
   }

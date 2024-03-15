@@ -1,4 +1,4 @@
-import _ from "lodash";
+import { throttle, isNil, debounce} from "lodash";
 import { CACHE_PREFIX } from "./cacheUtils";
 import log from "loglevel";
 
@@ -48,7 +48,7 @@ export function limitExecutor(
     {
       delay: delay,
       mode: mode,
-      func: (mode === "throttle" ? _.throttle : _.debounce)((x) => x(), delay),
+      func: (mode === "throttle" ? throttle : debounce)((x) => x(), delay),
     },
     (a, b) => {
       return a.delay === b.delay && a.mode === b.mode;
@@ -145,7 +145,7 @@ export const getObjectId = (function () {
   let objectCurrentId = 0;
   const objectMap = new WeakMap();
   return (obj: object | undefined) => {
-    if (_.isNil(obj)) return 0;
+    if (isNil(obj)) return 0;
     if (objectMap.has(obj)) {
       return objectMap.get(obj);
     }

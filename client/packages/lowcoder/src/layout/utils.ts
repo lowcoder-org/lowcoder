@@ -1,5 +1,7 @@
 import { UICompType } from "comps/uiCompRegistry";
-import _ from "lodash";
+import {
+  max, isEqual, assignIn, pickBy, fromPairs, pick, size, min, mapValues, sortBy, isNil
+} from "lodash";
 import React, { ReactElement, SyntheticEvent } from "react";
 import { DraggableEvent } from "react-draggable";
 import { PositionParams } from "./calculateUtils";
@@ -99,8 +101,8 @@ const isProduction = process.env.NODE_ENV === "production";
  * @return {Number}       Bottom coordinate.
  */
 export function bottom(layout: Layout): number {
-  const res = _.max(Object.values(layout).map((item) => item.y + item.h)) ?? 0;
-  return _.max([res, 0]) ?? 0;
+  const res = max(Object.values(layout).map((item) => item.y + item.h)) ?? 0;
+  return max([res, 0]) ?? 0;
 }
 
 // Modify a layoutItem inside a layout. Returns a new Layout,
@@ -119,7 +121,7 @@ export function withLayoutItem(
   if (!layout.hasOwnProperty(itemKey)) {
     return [layout, undefined];
   }
-  layout = _.mapValues(layout, (item) => (item.i === itemKey ? cb(cloneLayoutItem(item)) : item));
+  layout = mapValues(layout, (item) => (item.i === itemKey ? cb(cloneLayoutItem(item)) : item));
   return [layout, layout[itemKey]];
 }
 
@@ -134,7 +136,7 @@ export function cloneLayoutItem(layoutItem: LayoutItem): LayoutItem {
 export function childrenEqual(a: ReactElement[], b: ReactElement[]): boolean {
   const aKey = React.Children.map(a, (c) => c?.key);
   const bKey = React.Children.map(b, (c) => c?.key);
-  return _.isEqual(aKey, bKey);
+  return isEqual(aKey, bKey);
 }
 
 /**
@@ -155,7 +157,7 @@ export function gridLayoutPropsEquals(a: GridLayoutProps, b: GridLayoutProps) {
   if (a === b) {
     return true;
   }
-  return _.isEqual(a, b);
+  return isEqual(a, b);
 }
 
 /**
@@ -194,7 +196,7 @@ export function correctBounds(layout: Layout, cols: number): Layout {
  * @return {Array}        Array of static layout items..
  */
 export function getStatics(layout: Layout): Layout {
-  return _.pickBy(layout, (l) => l.static);
+  return pickBy(layout, (l) => l.static);
 }
 
 export function setTransform({ top, left, width, height }: Position): Record<string, any> {
@@ -277,24 +279,24 @@ export function synchronizeLayoutWithChildren(
  */
 export function cascade(layout: Layout, priorLayout: Layout = {}): Layout {
   // log.debug("layout: cascade begin. layout: ", layout, " priorLayout: ", priorLayout);
-  priorLayout = _.assignIn(
+  priorLayout = assignIn(
     priorLayout,
-    _.mapValues(
-      _.pickBy(layout, (item) => item.isDragging),
+    mapValues(
+      pickBy(layout, (item) => item.isDragging),
       (item) => ({ ...item, isDragging: undefined })
     )
   );
-  layout = _.mapValues(layout, (item) => ({ ...item, isDragging: undefined }));
+  layout = mapValues(layout, (item) => ({ ...item, isDragging: undefined }));
   let staticLayout = getStatics(layout);
   staticLayout = { ...staticLayout, ...priorLayout };
-  if (_.size(priorLayout) > 0) {
+  if (size(priorLayout) > 0) {
     staticLayout = cascade(staticLayout);
   }
 
   // sort items by y
-  const sortedItems: LayoutItem[] = _.sortBy(Object.values(layout), (item) => item.y);
+  const sortedItems: LayoutItem[] = sortBy(Object.values(layout), (item) => item.y);
   // sort static items also by y, and dynamically maintain the order
-  let sortedCollisionAreas: LayoutItem[] = _.sortBy(Object.values(staticLayout), (item) => item.y);
+  let sortedCollisionAreas: LayoutItem[] = sortBy(Object.values(staticLayout), (item) => item.y);
 
   const newLayout: Layout = {};
   for (const item of sortedItems) {
@@ -420,11 +422,11 @@ export function isOutOfBox(item: LayoutItem): boolean {
 }
 
 export function isItemDraggable(item: LayoutItem) {
-  return _.isNil(item.isDraggable) || item.isDraggable;
+  return isNil(item.isDraggable) || item.isDraggable;
 }
 
 export function isItemResizable(item: LayoutItem) {
-  return _.isNil(item.isResizable) || item.isResizable;
+  return isNil(item.isResizable) || item.isResizable;
 }
 
 function getResizeHandles(isSelected?: boolean, autoHeight?: boolean): Array<ResizeHandleAxis> {
@@ -432,7 +434,7 @@ function getResizeHandles(isSelected?: boolean, autoHeight?: boolean): Array<Res
 }
 
 export function getItemResizeHandles(item: LayoutItem, extraItem?: ExtraItem): ResizeHandleAxis[] {
-  return item.resizeHandles && _.size(item.resizeHandles) !== 0
+  return item.resizeHandles && size(item.resizeHandles) !== 0
     ? item.resizeHandles
     : getResizeHandles(extraItem?.isSelected, extraItem?.autoHeight);
 }
@@ -461,7 +463,7 @@ export function getStickyItemMap(layout: Layout): Record<string, Set<string>> {
       .map((stickyItem) => stickyItem.i);
     return [item.i, new Set<string>(stickyItems)];
   });
-  return _.fromPairs(pairs);
+  return fromPairs(pairs);
 }
 
 export function changeStickyItem(
@@ -517,9 +519,9 @@ function calcStickyMinY(layout: Layout, key: string) {
 }
 
 export function moveToZero(layout: Layout): Layout {
-  const minX = _.min(Object.values(layout).map((item) => item.x)) as number;
-  const minY = _.min(Object.values(layout).map((item) => item.y)) as number;
-  return _.mapValues(layout, (item) => ({
+  const minX = min(Object.values(layout).map((item) => item.x)) as number;
+  const minY = min(Object.values(layout).map((item) => item.y)) as number;
+  return mapValues(layout, (item) => ({
     ...item,
     x: item.x - minX,
     y: item.y - minY,
@@ -528,11 +530,11 @@ export function moveToZero(layout: Layout): Layout {
 
 // calculate the top-left coordinate of the paste item
 export function calcPasteBaseXY(layout: Layout, keys?: string[]): { x: number; y: number } {
-  const filterLayout = _.pick(layout, keys ?? []);
-  if (_.size(filterLayout) === 0) {
+  const filterLayout = pick(layout, keys ?? []);
+  if (size(filterLayout) === 0) {
     return { x: 0, y: bottom(layout) };
   }
-  const minX = _.min(Object.values(filterLayout).map((item) => item.x)) ?? 0;
+  const minX = min(Object.values(filterLayout).map((item) => item.x)) ?? 0;
   return { x: minX, y: bottom(filterLayout) };
 }
 
@@ -543,7 +545,7 @@ export function calcPasteBaseXY(layout: Layout, keys?: string[]): { x: number; y
  * brute-force implementation by O(n^2)
  */
 export function calcLeftAdjacentItems(layout: Layout): Record<string, string[]> {
-  return _.mapValues(layout, (item) => {
+  return mapValues(layout, (item) => {
     return Object.values(layout)
       .filter((leftItem) => {
         return (
@@ -634,7 +636,7 @@ export function narrow(item: LayoutItem, start: number = 0, end: number): Layout
 export function narrowItems(items: LayoutItem[], cols: number): LayoutItem[] {
   // log.debug("start narrowItems. items: ", items);
   // loop from the left
-  items = _.sortBy(items, (item) => item.x);
+  items = sortBy(items, (item) => item.x);
   let newItems: LayoutItem[] = [];
   items.forEach((item) => {
     const start = Math.max(
@@ -653,7 +655,7 @@ export function narrowItems(items: LayoutItem[], cols: number): LayoutItem[] {
   });
 
   // loop from the right
-  items = _.sortBy(newItems, (item) => -(item.x + item.w));
+  items = sortBy(newItems, (item) => -(item.x + item.w));
   newItems = [];
   items.forEach((item) => {
     const end = Math.min(

@@ -4,7 +4,7 @@ import { GridItemComp } from "../gridItemComp";
 import { IContainer, isContainer } from "./iContainer";
 import { CompTree, getCompTree } from "./utils";
 import { FlowLayout } from "layout/utils";
-import _ from "lodash";
+import { keyBy, isNil } from "lodash";
 import log from "loglevel";
 
 const children = {
@@ -24,7 +24,7 @@ export class SimpleFlowContainerComp extends SimpleFlowContainerTmpComp implemen
 
   getLayoutMap() {
     const layouts = this.children.layout.getView();
-    return _.keyBy(layouts, "i");
+    return keyBy(layouts, "i");
   }
 
   getCompTree(): CompTree {
@@ -54,7 +54,7 @@ export class SimpleFlowContainerComp extends SimpleFlowContainerTmpComp implemen
 
   realSimpleContainer(key?: string) {
     const compMap = this.children.items.children;
-    if (_.isNil(key) || compMap.hasOwnProperty(key)) {
+    if (isNil(key) || compMap.hasOwnProperty(key)) {
       return this;
     }
     return undefined;

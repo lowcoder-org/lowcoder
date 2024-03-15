@@ -1,4 +1,4 @@
-import { PopupCard } from "lowcoder-design";
+import { PopupCard } from "lowcoder-design/src/components/popupCard";
 import { Input } from "lowcoder-design";
 import { EditorContext } from "comps/editorState";
 import { valueComp } from "comps/generators";

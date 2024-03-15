@@ -14,7 +14,6 @@ import {
 } from "lowcoder-sdk";
 import { useRef } from "react";
 import ReactResizeDetector from "react-resize-detector";
-import _ from "lodash";
 import { RecordConstructorToView } from "lowcoder-core";
 import { Container, customTheme, EmbeddedButton, saveEvent } from "./imageEditorConstants";
 import { ImageEditor } from "./imageEditorClass";

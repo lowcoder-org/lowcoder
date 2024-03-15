@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
-import AgoraRTC, {
+import AgoraRTC from "agora-rtc-sdk-ng"; // Update the import with correct types
+import type {
   IAgoraRTCClient,
   IAgoraRTCRemoteUser,
   ICameraVideoTrack,
   IMicrophoneAudioTrack,
-} from "agora-rtc-sdk-ng"; // Update the import with correct types
+} from "agora-rtc-sdk-ng";
 import { v4 as uuidv4 } from "uuid";
 
 const useAgora = () => {

@@ -1,7 +1,7 @@
 import { default as AntdCollapse, CollapseProps } from "antd/es/collapse";
-import { ReactComponent as UnFold } from "icons/icon-unfold.svg";
-import { ReactComponent as Folded } from "icons/icon-folded.svg";
-import { ReactComponent as Omit } from "icons/icon-omit.svg";
+import { ReactComponent as UnFold } from "../icons/icon-unfold.svg";
+import { ReactComponent as Folded } from "../icons/icon-folded.svg";
+import { ReactComponent as Omit } from "../icons/icon-omit.svg";
 import styled, { css } from "styled-components";
 import React, { ReactNode } from "react";
 

@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { CloseIcon } from "lowcoder-design";
+import { CloseIcon } from "lowcoder-design/src/icons";
 import { allShortcutGroups } from "./shortcutConfigs";
 import { isMac } from "util/commonUtils";
 import { trans } from "i18n";

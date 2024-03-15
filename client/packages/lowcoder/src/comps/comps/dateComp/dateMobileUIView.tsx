@@ -7,7 +7,7 @@ import { CanvasContainerID } from "constants/domLocators";
 import { trans } from "i18n";
 import React from "react";
 import { DataUIViewProps } from "comps/comps/dateComp/dateUIView";
-import { SwapRightOutlined } from "@ant-design/icons";
+import { default as SwapRightOutlined } from "@ant-design/icons/SwapRightOutlined";
 import { DateRangeUIViewProps } from "comps/comps/dateComp/dateRangeUIView";
 import { DateCompViewProps } from "comps/comps/dateComp/dateComp";
 
@@ -20,35 +20,35 @@ const handleClick = async (
     onChange: (value: dayjs.Dayjs | null) => void;
   }
 ) => {
-  const MobileDatePicker = (await import("antd-mobile/es/components/date-picker")).default;
+  // const MobileDatePicker = (await import("antd-mobile/es/components/date-picker")).default;
 
-  const min = dayjs(params.minDate, DateParser);
-  const max = dayjs(params.maxDate, DateParser);
+  // const min = dayjs(params.minDate, DateParser);
+  // const max = dayjs(params.maxDate, DateParser);
 
-  const { disabledHours, disabledMinutes, disabledSeconds } = params.disabledTime();
+  // const { disabledHours, disabledMinutes, disabledSeconds } = params.disabledTime();
 
-  MobileDatePicker.prompt({
-    getContainer: () => document.querySelector(`#${CanvasContainerID}`) || document.body,
-    mouseWheel: true,
-    destroyOnClose: true,
-    closeOnMaskClick: true,
-    min: min.isValid() ? min.toDate() : undefined,
-    max: max.isValid() ? max.toDate() : undefined,
-    precision: params.showTime ? "second" : "day",
-    defaultValue: params.value ? params.value.toDate() : undefined,
-    filter: {
-      hour: (val) => !disabledHours().includes(val),
-      minute: (val, { date }) => !disabledMinutes(date.getHours()).includes(val),
-      second: (val, { date }) => !disabledSeconds(date.getHours(), date.getMinutes()).includes(val),
-    },
-    onConfirm: (value) => {
-      const time = dayjs(value);
-      params.onChange(time);
-    },
-    onClose: params.onBlur,
-  });
+  // MobileDatePicker.prompt({
+  //   getContainer: () => document.querySelector(`#${CanvasContainerID}`) || document.body,
+  //   mouseWheel: true,
+  //   destroyOnClose: true,
+  //   closeOnMaskClick: true,
+  //   min: min.isValid() ? min.toDate() : undefined,
+  //   max: max.isValid() ? max.toDate() : undefined,
+  //   precision: params.showTime ? "second" : "day",
+  //   defaultValue: params.value ? params.value.toDate() : undefined,
+  //   filter: {
+  //     hour: (val) => !disabledHours().includes(val),
+  //     minute: (val, { date }) => !disabledMinutes(date.getHours()).includes(val),
+  //     second: (val, { date }) => !disabledSeconds(date.getHours(), date.getMinutes()).includes(val),
+  //   },
+  //   onConfirm: (value) => {
+  //     const time = dayjs(value);
+  //     params.onChange(time);
+  //   },
+  //   onClose: params.onBlur,
+  // });
 
-  params.onFocus();
+  // params.onFocus();
 };
 
 const MobileView = styled.div<{

@@ -1,7 +1,7 @@
 import { default as AntdSegmented } from "antd/es/segmented";
 import { SelectProps } from "antd/es/select";
 import { GreyTextColor } from "constants/style";
-import _ from "lodash";
+import { fromPairs } from "lodash";
 import { ReactNode } from "react";
 import styled from "styled-components";
 import { CustomSelect } from "./customSelect";
@@ -156,7 +156,7 @@ interface DropdownProps<T extends OptionsType> extends Omit<SelectProps, "placem
 
 export function Dropdown<T extends OptionsType>(props: DropdownProps<T>) {
   const { placement = "right" } = props;
-  const valueInfoMap = _.fromPairs(props.options.map((option) => [option.value, option]));
+  const valueInfoMap = fromPairs(props.options.map((option) => [option.value, option]));
   return (
     <FlexDiv style={props.style} className={props.className}>
       {props.label && (

@@ -1,4 +1,4 @@
-import _ from "lodash";
+import { uniq } from "lodash";
 import { CompConstructor, CustomAction } from "lowcoder-core";
 import { evalAndReduce, isExposingMethodComp } from "lowcoder-sdk";
 import { ChartCompWithDefault } from "comps/chartComp/chartComp";
@@ -56,6 +56,6 @@ test("comp exposing method duplicate name", () => {
         }
       });
     const allMethodName = methods.flatMap((m) => m.map((methodConfig) => methodConfig.name));
-    expect(allMethodName.length).toEqual(_.uniq(allMethodName).length);
+    expect(allMethodName.length).toEqual(uniq(allMethodName).length);
   });
 });

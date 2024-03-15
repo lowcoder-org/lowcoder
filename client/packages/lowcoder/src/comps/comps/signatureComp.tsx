@@ -1,4 +1,4 @@
-import { DeleteOutlined } from "@ant-design/icons";
+import { default as DeleteOutlined } from "@ant-design/icons/DeleteOutlined";
 import { default as Skeleton } from "antd/es/skeleton";
 import { BoolControl } from "comps/controls/boolControl";
 import { StringControl } from "comps/controls/codeControl";
@@ -16,7 +16,8 @@ import { stateComp, withDefault } from "comps/generators/simpleGenerators";
 import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { changeValueAction, multiChangeAction } from "lowcoder-core";
-import { Section, sectionNames, UndoIcon } from "lowcoder-design";
+import { Section, sectionNames } from "lowcoder-design/src/components/Section";
+import { UndoIcon } from "lowcoder-design/src/icons";
 import React, { Suspense, useState } from "react";
 import ReactResizeDetector from "react-resize-detector";
 import type SignatureCanvasType from "react-signature-canvas";

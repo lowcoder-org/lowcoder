@@ -12,7 +12,7 @@ import { stateComp } from "comps/generators";
 import { genRandomKey } from "comps/utils/idGenerator";
 import { ThemeContext } from "comps/utils/themeContext";
 import { trans } from "i18n";
-import _, { isNil } from "lodash";
+import { gt, gte, isNil, isEqual } from "lodash";
 import { changeChildAction, ConstructorToView } from "lowcoder-core";
 import {
   AlignBottom,
@@ -336,25 +336,25 @@ export const tableFilterOperatorMap: Record<
   gt: {
     label: trans("table.greater"),
     filter: (value, data) => {
-      return _.gt(data, value);
+      return gt(data, value);
     },
   },
   gte: {
     label: trans("table.greaterThanOrEquals"),
     filter: (value, data) => {
-      return _.gte(data, value);
+      return gte(data, value);
     },
   },
   lt: {
     label: trans("table.lessThan"),
     filter: (value, data) => {
-      return _.gt(value, data);
+      return gt(value, data);
     },
   },
   lte: {
     label: trans("table.lessThanOrEquals"),
     filter: (value, data) => {
-      return _.gte(value, data);
+      return gte(value, data);
     },
   },
 } as const;
@@ -773,7 +773,7 @@ export function TableToolbar(props: {
                   tableFilter={toolbar.filter}
                   onFilterChange={(filters, stackType) => {
                     if (
-                      !_.isEqual(filters, toolbar.filter.filters) ||
+                      !isEqual(filters, toolbar.filter.filters) ||
                       stackType !== toolbar.filter.stackType
                     ) {
                       toolbar.onFilterChange(filters, stackType);

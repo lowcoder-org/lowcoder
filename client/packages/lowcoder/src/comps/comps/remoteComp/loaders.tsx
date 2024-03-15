@@ -9,7 +9,10 @@ async function npmLoader(remoteInfo: RemoteCompInfo): Promise<CompConstructor | 
   // console.log("Entry", entry);
   try {
     // const module = await import(/* webpackIgnore: true */ entry);
-    const module = await import(/* @vite-ignore */ entry);
+    const module = await import(
+      /* @vite-ignore */
+      /* webpackIgnore: true */
+      entry);
     // console.log("Entry 1", module);
     const comp = module.default?.[compName];
     if (!comp) {
@@ -26,7 +29,11 @@ async function bundleLoader(remoteInfo: RemoteCompInfo): Promise<CompConstructor
   const { packageName, packageVersion = "latest", compName } = remoteInfo;
   const entry = `/${packageName}/${packageVersion}/index.js?v=${REACT_APP_COMMIT_ID}`;
   // const module = await import(/* webpackIgnore: true */ entry);
-  const module = await import(/* @vite-ignore */ entry);
+  const module = await import(
+    /* @vite-ignore */
+    /* webpackIgnore: true */
+    entry
+  );
   const comp = module.default?.[compName];
   if (!comp) {
     throw new Error(trans("npm.compNotFound", { compName }));

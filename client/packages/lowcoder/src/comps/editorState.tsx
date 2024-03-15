@@ -1,7 +1,7 @@
 import { isContainer } from "comps/comps/containerBase";
 import { RootComp as RootCompTmp } from "comps/comps/rootComp";
 import { PositionParams } from "layout";
-import _ from "lodash";
+import { pickBy, size, toPairs } from "lodash";
 import React, { ReactNode } from "react";
 import { BottomResComp, BottomResListComp, BottomResTypeEnum } from "types/bottomRes";
 import { setFields } from "util/objectUtils";
@@ -266,7 +266,7 @@ export class EditorState {
 
   selectedComps() {
     const compMap = this.getAllCompMap();
-    const selectedComps = _.pickBy(compMap, (item) =>
+    const selectedComps = pickBy(compMap, (item) =>
       this.selectedCompNames.has(item.children.name.getView())
     );
     return selectedComps;
@@ -275,11 +275,11 @@ export class EditorState {
   selectedContainer() {
     const selectedComps = this.selectedComps();
     // log.debug("selectedContainer. selectedComps: ", selectedComps);
-    if (_.size(selectedComps) === 0) {
+    if (size(selectedComps) === 0) {
       return this.getUIComp().getComp();
     }
-    const [key, comp] = _.toPairs(selectedComps)[0];
-    if (_.size(selectedComps) === 1 && isContainer((comp as GridItemComp)?.children?.comp)) {
+    const [key, comp] = toPairs(selectedComps)[0];
+    if (size(selectedComps) === 1 && isContainer((comp as GridItemComp)?.children?.comp)) {
       return comp.children.comp;
     }
 

@@ -12,7 +12,7 @@ import { hasIcon } from "comps/utils";
 import { getComponentDocUrl } from "comps/utils/compDocUtil";
 import { disabledPropertyView, hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
-import _ from "lodash";
+import { isNaN, pick } from "lodash";
 import mime from "mime";
 import {
   changeValueAction,
@@ -38,7 +38,7 @@ import { changeEvent, eventHandlerControl } from "../../controls/eventHandlerCon
 import { stateComp, UICompBuilder, withDefault } from "../../generators";
 import { CommonNameConfig, NameConfig, withExposingConfigs } from "../../generators/withExposing";
 import { formDataChildren, FormDataPropertyView } from "../formComp/formDataConstants";
-import { messageInstance } from "lowcoder-design";
+import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 
 import React, { useContext } from "react";
 import { EditorContext } from "comps/editorState";
@@ -56,7 +56,7 @@ const FileSizeControl = codeControl((value) => {
     }
 
     const strInNum = Number(str);
-    if (!_.isNaN(strInNum)) {
+    if (!isNaN(strInNum)) {
       return strInNum;
     }
 
@@ -316,7 +316,7 @@ const Upload = (
                 value: changeValueAction([...props.value, ...value].slice(-maxFiles), false),
                 files: changeValueAction(
                   uploadedFiles
-                    .map((file) => _.pick(file, ["uid", "name", "type", "size", "lastModified"]))
+                    .map((file) => pick(file, ["uid", "name", "type", "size", "lastModified"]))
                     .slice(-maxFiles),
                   false
                 ),

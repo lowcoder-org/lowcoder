@@ -1,5 +1,5 @@
 import { PresetStatusColorType } from "antd/es/_util/colors";
-import _ from "lodash";
+import { isNil, isEqual} from "lodash";
 import { changeChildAction, DispatchType } from "lowcoder-core";
 import { constantColors } from "lowcoder-design";
 import React, { ReactNode, useCallback, useContext, useEffect, useMemo, useState } from "react";
@@ -74,7 +74,7 @@ export function EditableCell<T extends JSONValue>(props: EditableCellProps<T>) {
     candidateStatus,
     onTableEvent,
   } = props;
-  const status = _.isNil(changeValue) ? "normal" : "toSave";
+  const status = isNil(changeValue) ? "normal" : "toSave";
   const editable = editViewFn ? props.editable : false;
   const { isEditing, setIsEditing } = useContext(TableCellContext);
   const value = changeValue ?? baseValue!;
@@ -94,11 +94,11 @@ export function EditableCell<T extends JSONValue>(props: EditableCellProps<T>) {
     dispatch(
       changeChildAction(
         "changeValue",
-        _.isNil(tmpValue) || _.isEqual(tmpValue, baseValue) ? null : tmpValue,
+        isNil(tmpValue) || isEqual(tmpValue, baseValue) ? null : tmpValue,
         false
       )
     );
-    if(!_.isEqual(tmpValue, value)) {
+    if(!isEqual(tmpValue, value)) {
       onTableEvent?.('columnEdited');
     }
   }, [dispatch, baseValue, tmpValue]);

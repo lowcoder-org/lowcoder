@@ -23,7 +23,7 @@ import {
   DEFAULT_GRID_COLUMNS,
   DEFAULT_ROW_HEIGHT,
 } from "layout/calculateUtils";
-import _ from "lodash";
+import { omitBy, isUndefined, omit, pickBy, mapValues, isNil, isEqual, pick, size} from "lodash";
 import {
   ActionExtraInfo,
   changeChildAction,
@@ -68,7 +68,7 @@ const childrenMap = {
 };
 
 export function gridItemCompToGridItems(items: ViewPropsType["items"]) {
-  const gridItems: GridItemsType = _.mapValues(items, (i) => ({
+  const gridItems: GridItemsType = mapValues(items, (i) => ({
     comp: i,
     view: i.getView(),
     autoHeight: i.autoHeight(),
@@ -144,7 +144,7 @@ const onLayoutChange = (
   // ignore the dropping event
   const isDropping = newLayout["__dropping-elem__"];
   if (isDropping) return;
-  if (_.isEqual(currentLayout, newLayout)) return;
+  if (isEqual(currentLayout, newLayout)) return;
 
   const compInfos: ActionExtraInfo["compInfos"] = [];
   Object.keys(currentLayout).forEach((key) => {
@@ -152,9 +152,9 @@ const onLayoutChange = (
       // deleted
       return;
     } else if (
-      !_.isEqual(
-        _.omitBy(newLayout[key], _.isUndefined),
-        _.omitBy(currentLayout[key], _.isUndefined)
+      !isEqual(
+        omitBy(newLayout[key], isUndefined),
+        omitBy(currentLayout[key], isUndefined)
       )
     ) {
       const name = items[key]?.name;
@@ -177,7 +177,7 @@ const onFlyDrop = (layout: Layout, items: Layout, dispatch: DispatchType) => {
     const sourceLayoutFn = dragStartInfo.sourceLayoutFn;
 
     // 1. Delete old Comp
-    sourceDispatch(deferAction(changeChildAction("layout", _.omit(sourceLayoutFn(), keys), true)));
+    sourceDispatch(deferAction(changeChildAction("layout", omit(sourceLayoutFn(), keys), true)));
     keys.forEach((key) =>
       sourceDispatch(
         deferAction(wrapChildAction("items", wrapChildAction(key, deleteCompAction())))
@@ -269,8 +269,8 @@ const getExtraLayout = (
   selectedCompNames: Set<string>,
   dragSelectedNames?: Set<string>
 ): ExtraLayout => {
-  const validLayout = _.pickBy(layout, (layoutItem) => items.hasOwnProperty(layoutItem.i));
-  return _.mapValues(validLayout, (layoutItem: LayoutItem) => {
+  const validLayout = pickBy(layout, (layoutItem) => items.hasOwnProperty(layoutItem.i));
+  return mapValues(validLayout, (layoutItem: LayoutItem) => {
     const key = layoutItem.i;
     const item = items[key];
     const autoHeight = item.autoHeight;
@@ -332,10 +332,10 @@ export function InnerGrid(props: ViewPropsWithSelect) {
     "12";
   /////////////////////
   const isDroppable =
-    useContext(IsDroppable) && (_.isNil(props.isDroppable) || props.isDroppable) && !readOnly;
-  const isDraggable = !readOnly && (_.isNil(props.isDraggable) || props.isDraggable);
-  const isResizable = !readOnly && (_.isNil(props.isResizable) || props.isResizable);
-  const isSelectable = !readOnly && (_.isNil(props.isSelectable) || props.isSelectable);
+    useContext(IsDroppable) && (isNil(props.isDroppable) || props.isDroppable) && !readOnly;
+  const isDraggable = !readOnly && (isNil(props.isDraggable) || props.isDraggable);
+  const isResizable = !readOnly && (isNil(props.isResizable) || props.isResizable);
+  const isSelectable = !readOnly && (isNil(props.isSelectable) || props.isSelectable);
   const extraLayout = useMemo(
     () =>
       getExtraLayout(
@@ -355,13 +355,13 @@ export function InnerGrid(props: ViewPropsWithSelect) {
         .filter((info) => info.isSelected)
         .map((info) => info.name)
     );
-    if (!_.isEqual(selectedNames, containerSelectNames)) {
+    if (!isEqual(selectedNames, containerSelectNames)) {
       setContainerSelectNames(selectedNames);
     }
   }, [extraLayout, containerSelectNames]);
 
   const canAddSelect = useMemo(
-    () => _.size(containerSelectNames) === _.size(editorState.selectedCompNames),
+    () => size(containerSelectNames) === size(editorState.selectedCompNames),
     [containerSelectNames, editorState]
   );
 
@@ -379,7 +379,7 @@ export function InnerGrid(props: ViewPropsWithSelect) {
           rowHeight: currentRowHeight,
           maxRows: currentRowCount,
         };
-        if (!_.isEqual(newPositionParams, positionParams)) {
+        if (!isEqual(newPositionParams, positionParams)) {
           // log.log("onResize. position: ", newPositionParams, " lastPosition: ", positionParams);
           window.clearTimeout(dispatchPositionParamsTimerRef.current);
           dispatchPositionParamsTimerRef.current = window.setTimeout(() => {
@@ -495,7 +495,7 @@ export function InnerGrid(props: ViewPropsWithSelect) {
         onLayoutChange(props.layout, newLayout, props.dispatch, props.items, props.onLayoutChange);
       }}
       onFlyStart={(layout: Layout, layoutItems: Layout) => {
-        const items = _.pick(props.items, Object.keys(layoutItems));
+        const items = pick(props.items, Object.keys(layoutItems));
         draggingUtils.setData("sourceDispatch", props.dispatch);
         draggingUtils.setData<Record<string, GridItem>>("items", items);
         editorState.setDragging(true);
@@ -523,7 +523,7 @@ export function InnerGrid(props: ViewPropsWithSelect) {
       bgColor={props.bgColor}
       radius={props.radius}
       hintPlaceholder={!editorState.isDragging && !readOnly && props.hintPlaceholder}
-      selectedSize={_.size(containerSelectNames)}
+      selectedSize={size(containerSelectNames)}
       clickItem={clickItem}
       isCanvas={props.isCanvas}
       showName={props.showName}

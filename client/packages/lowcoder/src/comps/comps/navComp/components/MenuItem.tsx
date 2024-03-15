@@ -1,6 +1,6 @@
 import { ActiveTextColor, GreyTextColor } from "constants/style";
 import { EditPopover, SimplePopover } from "lowcoder-design";
-import { PointIcon } from "lowcoder-design";
+import { PointIcon } from "lowcoder-design/src/icons";
 import React, { HTMLAttributes, useState } from "react";
 import styled from "styled-components";
 import DraggableItem from "./DraggableItem";

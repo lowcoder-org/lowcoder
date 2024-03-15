@@ -24,7 +24,7 @@ import { currentOrgAdmin, isGroupAdmin } from "../../../util/permissionUtils";
 import { timestampToHumanReadable } from "../../../util/dateTimeUtils";
 import { usePermissionMenuItems } from "@lowcoder-ee/pages/setting/permission/permissionMenuItems";
 import { OrgGroup } from "constants/orgConstants";
-import { messageInstance } from "lowcoder-design";
+import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 
 const NEW_GROUP_PREFIX = trans("memberSettings.newGroupPrefix");
 

@@ -1,4 +1,4 @@
-import { messageInstance } from "lowcoder-design";
+import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 
 import { ApiResponse, GenericApiResponse } from "api/apiResponses";
 import OrgApi, { CreateOrgResponse, GroupUsersResponse, OrgUsersResponse } from "api/orgApi";

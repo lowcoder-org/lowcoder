@@ -1,5 +1,5 @@
 import { trans } from "../../i18n";
-import _ from "lodash";
+import { mapValues, groupBy } from "lodash";
 import { KeyConfig, configKeyString, eventKeyString, isFilterInputTarget } from "util/keyUtils";
 
 export type ShortcutTarget = "global" | "editor";
@@ -156,8 +156,8 @@ export const allShortcutGroups: ShortcutGroupConfig[] = [
     ],
   },
 ];
-const shortcutTargetKeyMap = _.mapValues(
-  _.groupBy(
+const shortcutTargetKeyMap = mapValues(
+  groupBy(
     allShortcutGroups.flatMap((group) => group.shortcuts).filter((s) => s.target && s.action),
     (s) => s.target
   ),

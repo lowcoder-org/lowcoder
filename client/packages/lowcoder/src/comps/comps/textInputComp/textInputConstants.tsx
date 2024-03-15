@@ -11,7 +11,7 @@ import { stringExposingStateControl } from "comps/controls/codeStateControl";
 import { LabelControl } from "comps/controls/labelControl";
 import { InputLikeStyleType, heightCalculator, widthCalculator } from "comps/controls/styleControlConstants";
 import { Section, sectionNames, ValueFromOption } from "lowcoder-design";
-import _ from "lodash";
+import { fromPairs } from "lodash";
 import { css } from "styled-components";
 import { EMAIL_PATTERN, URL_PATTERN } from "util/stringUtils";
 import { MultiBaseComp, RecordConstructorToComp, RecordConstructorToView } from "lowcoder-core";
@@ -83,7 +83,7 @@ type ValidationParams = {
   customRule: string;
 };
 
-const valueInfoMap = _.fromPairs(
+const valueInfoMap = fromPairs(
   TextInputValidationOptions.map((option) => [option.value, option])
 );
 

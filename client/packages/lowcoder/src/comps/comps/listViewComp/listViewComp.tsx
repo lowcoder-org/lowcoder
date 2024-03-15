@@ -18,7 +18,7 @@ import { withIsLoadingMethod } from "comps/generators/withIsLoading";
 import { NameGenerator } from "comps/utils";
 import { reduceInContext } from "comps/utils/reduceContext";
 import { trans } from "i18n";
-import _ from "lodash";
+import { chain, range } from "lodash";
 import {
   CompAction,
   CompActionTypes,
@@ -109,7 +109,7 @@ export class ListViewImplComp extends ListViewTmpComp implements IContainer {
     const dataExposingNode = this.children.noOfRows.exposingNode();
     const containerComp = this.children.container;
     // for each container expose each comps with params
-    const exposingRecord = _(_.range(0, itemCount))
+    const exposingRecord = chain(range(0, itemCount))
       .toPairs()
       .fromPairs()
       .mapValues((itemIdx) => {
@@ -117,7 +117,7 @@ export class ListViewImplComp extends ListViewTmpComp implements IContainer {
           containerComp.getCachedComp(String(itemIdx)) ?? containerComp.getOriginalComp();
         // FIXME: replace allComps as non-list-view comps
         const allComps = getAllCompItems(container.getComp().getCompTree());
-        const nodeRecord = _(allComps)
+        const nodeRecord = chain(allComps)
           .mapKeys((gridItemComp) => gridItemComp.children.name.getView())
           .mapValues((gridItemComp) => gridItemComp.children.comp.exposingNode())
           .value();
@@ -140,7 +140,7 @@ export class ListViewImplComp extends ListViewTmpComp implements IContainer {
       .value();
     // transform record to array
     const exposings = withFunction(fromRecord(exposingRecord), (record) => {
-      return _.range(0, itemCount).map((i) => record[i]);
+      return range(0, itemCount).map((i) => record[i]);
     });
 
     return lastValueIfEqual(this, "exposing_data", [exposings, exposingRecord] as const, (a, b) =>

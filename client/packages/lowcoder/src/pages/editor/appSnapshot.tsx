@@ -1,7 +1,7 @@
 import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
-import { CloseIcon } from "lowcoder-design";
-import { AppSnapshotIcon } from "lowcoder-design";
+import { CloseIcon } from "lowcoder-design/src/icons";
+import { AppSnapshotIcon } from "lowcoder-design/src/icons";
 import {
   fetchSnapshotDslAction,
   fetchSnapshotsAction,

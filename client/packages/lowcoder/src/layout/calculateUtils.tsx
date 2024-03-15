@@ -1,4 +1,4 @@
-import _ from "lodash";
+import { isNil } from "lodash";
 import { GridItemProps } from "./gridItem";
 import { GridLayoutProps } from "./gridLayoutPropTypes";
 import type { Position } from "./utils";
@@ -202,10 +202,10 @@ export function calcWH(
 
 // Similar to _.clamp
 export function clamp(num: number, lowerBound?: number, upperBound?: number): number {
-  if (!_.isNil(lowerBound)) {
+  if (!isNil(lowerBound)) {
     num = Math.max(num, lowerBound);
   }
-  if (!_.isNil(upperBound)) {
+  if (!isNil(upperBound)) {
     num = Math.min(num, upperBound);
   }
   return num;

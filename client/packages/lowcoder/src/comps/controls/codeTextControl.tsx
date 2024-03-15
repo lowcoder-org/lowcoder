@@ -5,7 +5,7 @@ import { valueComp } from "comps/generators";
 import { CompExposingContext } from "comps/generators/withContext";
 import { exposingDataForAutoComplete } from "comps/utils/exposingTypes";
 import { ControlPropertyViewWrapper } from "lowcoder-design";
-import _ from "lodash";
+import { debounce } from "lodash";
 import { ReactNode, useContext, useMemo } from "react";
 import { CodeEditorProps } from "base/codeEditor/codeEditorTypes";
 
@@ -53,7 +53,7 @@ export class CodeTextControl extends valueComp<string>("") {
     super(params);
 
     // make sure handleChange's reference only changes when the instance changes, avoid CodeEditor frequent reconfigure
-    this.handleChange = _.debounce((codeText: string) => {
+    this.handleChange = debounce((codeText: string) => {
       this.dispatchChangeValueAction(codeText);
     }, 50);
   }

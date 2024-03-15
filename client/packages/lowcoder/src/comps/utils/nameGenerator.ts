@@ -1,4 +1,4 @@
-import _ from "lodash";
+import { ceil } from "lodash";
 
 /**
  * name automatic generator, used to generate the default name of the component
@@ -44,7 +44,7 @@ export class NameGenerator {
       if (result) {
         const [, typeName, itemName] = result;
         if (typeName && itemName) {
-          this.update(typeName, _.ceil(+itemName));
+          this.update(typeName, ceil(+itemName));
         }
       }
     });

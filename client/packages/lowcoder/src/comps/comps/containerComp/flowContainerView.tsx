@@ -1,6 +1,6 @@
 import { DispatchType } from "lowcoder-core";
 import { GridItemsType } from "comps/comps/containerComp/containerView";
-import _ from "lodash";
+import { noop } from "lodash";
 import { FlowLayout } from "layout/utils";
 import { CompSelectionWrapper } from "layout/compSelectionWrapper";
 import { useContext } from "react";
@@ -54,8 +54,8 @@ export function FlowContainerView(
               isDraggable={false}
               isResizable={false}
               resizeIconSize="normal"
-              onInnerResize={_.noop}
-              onWrapperResize={_.noop}
+              onInnerResize={noop}
+              onWrapperResize={noop}
               nameConfig={{
                 show: true,
                 name: comp.name,

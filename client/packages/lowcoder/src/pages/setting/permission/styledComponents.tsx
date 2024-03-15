@@ -20,7 +20,6 @@ import UserApi from "api/userApi";
 import { validateResponse } from "api/apiUtils";
 import ReactJson from "react-json-view";
 import { StyledLink } from "pages/common/styledComponent";
-import _ from "lodash";
 
 export const StyledTable = styled(AntdTable)`
   .ant-table-cell {

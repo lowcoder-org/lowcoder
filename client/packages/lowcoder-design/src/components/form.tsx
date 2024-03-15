@@ -11,8 +11,8 @@ import { CustomSelect } from "./customSelect";
 import { EllipsisTextCss, labelCss } from "./Label";
 import { ToolTipLabel } from "./toolTip";
 import styled from "styled-components";
-import { ReactComponent as Star } from "icons/icon-star.svg";
-import _ from "lodash";
+import { ReactComponent as Star } from "../icons/icon-star.svg";
+import { isEmpty } from "lodash";
 import { KeyValueList } from "./keyValueList";
 import { OptionsType, ValueFromOption } from "./Dropdown";
 
@@ -379,7 +379,7 @@ const FormKeyValueList = (props: any) => {
   const { value, onChange } = props;
 
   let items = value;
-  if (_.isEmpty(items)) {
+  if (isEmpty(items)) {
     items = [{ key: "", value: "" }];
   }
   return (

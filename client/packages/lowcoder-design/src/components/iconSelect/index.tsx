@@ -5,7 +5,7 @@ import { ActionType } from '@rc-component/trigger/lib/interface';
 import { TacoInput } from "components/tacoInput";
 import { Tooltip } from "components/toolTip";
 import { trans } from "i18n/design";
-import _ from "lodash";
+import { upperFirst, sortBy } from "lodash";
 import { ReactNode, useEffect, useCallback, useMemo, useRef, useState } from "react";
 import Draggable from "react-draggable";
 import { default as List, ListRowProps } from "react-virtualized/dist/es/List";
@@ -111,7 +111,7 @@ const IconItemContainer = styled.div`
 class Icon {
   readonly title: string;
   constructor(readonly def: IconDefinition, readonly names: string[]) {
-    this.title = def.iconName.split("-").map(_.upperFirst).join(" ");
+    this.title = def.iconName.split("-").map(upperFirst).join(" ");
   }
   getView() {
     return <FontAwesomeIcon icon={this.def} style={{ width: "1em", height: "1em" }} />;
@@ -177,7 +177,7 @@ function search(
     .toLowerCase()
     .split(/\s+/g)
     .filter((t) => t);
-  return _.sortBy(
+  return sortBy(
     Object.entries(allIcons).filter(([key, icon]) => {
       if (icon.names.length === 0) {
         return false;

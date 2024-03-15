@@ -5,14 +5,14 @@ import {
   TableCurrentDataSource,
   TablePaginationConfig,
 } from "antd/es/table/interface";
-import { SortOrder } from "antd/lib/table/interface";
+import type { SortOrder } from "antd/es/table/interface";
 import { __COLUMN_DISPLAY_VALUE_FN } from "comps/comps/tableComp/column/columnTypeCompBuilder";
 import { CellColorViewType, RawColumnType, Render } from "comps/comps/tableComp/column/tableColumnComp";
 import { TableFilter, tableFilterOperatorMap } from "comps/comps/tableComp/tableToolbarComp";
 import { SortValue, TableOnEventView } from "comps/comps/tableComp/tableTypes";
-import _ from "lodash";
+import { orderBy, Dictionary, mapValues, sortBy, max, omit } from "lodash";
 import { changeChildAction, CompAction, NodeToValue } from "lowcoder-core";
-import { EditableIcon } from "lowcoder-design";
+import { EditableIcon } from "lowcoder-design/src/icons";
 import { tryToNumber } from "util/convertUtils";
 import { JSONObject, JSONValue } from "util/jsonTypes";
 import { StatusType } from "./column/columnTypeComps/columnStatusComp";
@@ -92,7 +92,7 @@ export function sortData(
       .map((s) => [s.column, s.desc ? "desc" : "asc"] as const)
       .unzip()
       .value() as [string[], ("desc" | "asc")[]];
-    resultData = _.orderBy(
+    resultData = orderBy(
       resultData,
       sortColumns.map((colName) => {
         return (obj) => {
@@ -158,7 +158,7 @@ export function getOriDisplayData(
       // if (!row.hasOwnProperty(col.dataIndex)) return;
       const node = col.render.wrap({
         currentCell: row[col.dataIndex],
-        currentRow: _.omit(row, OB_ROW_ORI_INDEX),
+        currentRow: omit(row, OB_ROW_ORI_INDEX),
         currentIndex: idx % pageSize,
         currentOriginalIndex: row[OB_ROW_ORI_INDEX],
       }) as any;
@@ -180,7 +180,7 @@ export function getOriDisplayData(
 
 export function transformDispalyData(
   oriDisplayData: JSONObject[],
-  dataIndexTitleDict: _.Dictionary<string>
+  dataIndexTitleDict: Dictionary<string>
 ): JSONObject[] {
   return oriDisplayData.map((row) => {
     const transData = _(row)
@@ -208,7 +208,7 @@ export function getColumnsAggr(
     ReturnType<InstanceType<typeof ColumnListComp>["withParamsNode"]>
   >
 ): ColumnsAggrData {
-  return _.mapValues(dataIndexWithParamsDict, (withParams, dataIndex) => {
+  return mapValues(dataIndexWithParamsDict, (withParams, dataIndex) => {
     const compType = (withParams.wrap() as any).compType;
     const res: Record<string, JSONValue> & { compType: string } = { compType };
     if (compType === "tag") {
@@ -287,7 +287,7 @@ export function columnsToAntdFormat(
   const sortMap: Map<string | undefined, SortOrder> = new Map(
     sort.map((s) => [s.column, s.desc ? "descend" : "ascend"])
   );
-  const sortedColumns = _.sortBy(columns, (c) => {
+  const sortedColumns = sortBy(columns, (c) => {
     if (c.fixed === "left") {
       return -1;
     } else if (c.fixed === "right") {
@@ -354,7 +354,7 @@ export function columnsToAntdFormat(
           .render(
             {
               currentCell: value,
-              currentRow: _.omit(record, OB_ROW_ORI_INDEX),
+              currentRow: omit(record, OB_ROW_ORI_INDEX),
               currentIndex: index,
               currentOriginalIndex: tryToNumber(record[OB_ROW_ORI_INDEX]),
               initialColumns,
@@ -421,7 +421,7 @@ export function calcColumnWidth(columnKey: string, data: Array<JSONObject>) {
     return str.length === byteLength ? str.length * 10 : str.length * 20;
   };
   const cellWidth =
-    _.max(
+    max(
       data.map((d) => {
         const cellValue = d[columnKey];
         if (!cellValue) {
@@ -444,7 +444,7 @@ export function genSelectionParams(
   }
   const currentRow = filterData[idx];
   return {
-    currentRow: _.omit(currentRow, OB_ROW_ORI_INDEX),
+    currentRow: omit(currentRow, OB_ROW_ORI_INDEX),
     currentIndex: idx,
     currentOriginalIndex: tryToNumber(currentRow[OB_ROW_ORI_INDEX]),
   };

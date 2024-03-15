@@ -1,5 +1,5 @@
 import clsx from "clsx";
-import _ from "lodash";
+import { isNil } from "lodash";
 import { UICompType } from "comps/uiCompRegistry";
 import React, {
   DragEvent,
@@ -287,7 +287,7 @@ export function GridItem(props: GridItemProps) {
   };
 
   const adjustWrapperHeight = (width?: number, height?: number, src?: string) => {
-    if (_.isNil(height)) return;
+    if (isNil(height)) return;
     if (!width) {
       width = position.width;
     }
@@ -308,7 +308,7 @@ export function GridItem(props: GridItemProps) {
    */
   const onInnerSizeChange = (width?: number, height?: number) => {
     // log.log("onInnerSizeChange. name: ", props.name, " width: ", width, " height: ", height);
-    if (!_.isNil(height)) {
+    if (!isNil(height)) {
       itemHeightRef.current = height;
     }
     adjustWrapperHeight(width, height);

@@ -1,5 +1,4 @@
 import { useRef } from "react";
-import ReactDOM, { flushSync } from "react-dom";
 import { createRoot } from "react-dom/client";
 import { AppViewInstance, bootstrapAppAt, LowcoderAppView } from "./src/index";
 

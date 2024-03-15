@@ -12,7 +12,7 @@ import { PreloadComp } from "./preLoadComp";
 import { TemporaryStateListComp } from "./temporaryStateComp";
 import { TransformerListComp } from "./transformerListComp";
 import UIComp from "./uiComp";
-import EditorSkeletonView from "pages/editor/editorSkeletonView";
+// import EditorSkeletonView from "pages/editor/editorSkeletonView";
 import { ThemeContext } from "comps/utils/themeContext";
 import { ModuleLayoutCompName } from "constants/compConstants";
 import { defaultTheme as localDefaultTheme } from "comps/controls/styleControlConstants";
@@ -27,6 +27,14 @@ import {
   PropertySectionState,
 } from "lowcoder-design";
 import RefTreeComp from "./refTreeComp";
+
+const EditorSkeletonView = lazy(() => {
+  return Promise.all([
+    import("pages/editor/editorSkeletonView"),
+    new Promise(resolve => setTimeout(resolve))
+  ])
+  .then(([moduleExports]) => moduleExports);
+});
 
 const EditorView = lazy(() => {
   return Promise.all([
@@ -54,12 +62,40 @@ const childrenMap = {
   preload: PreloadComp,
 };
 
+// let childrenMap = {};
+
+// (async () => {
+//   const UIComp = (await import('./uiComp')).default;
+//   const QueryListComp = (await import('comps/queries/queryComp')).QueryListComp
+//   const TemporaryStateListComp = (await import('./temporaryStateComp')).TemporaryStateListComp;
+//   const TransformerListComp = (await import('./transformerListComp')).TransformerListComp;
+//   const DataChangeResponderListComp = (await import('./dataChangeResponderComp')).DataChangeResponderListComp;
+//   const FolderListComp = (await import('./temporaryStateComp')).TemporaryStateListComp;
+//   const RefTreeComp = (await import('./refTreeComp')).default;
+//   const HookListComp = (await import('comps/hooks/hookListComp')).HookListComp;
+//   const AppSettingsComp = (await import('./appSettingsComp')).AppSettingsComp;
+//   const PreloadComp = (await import('./preLoadComp')).PreloadComp; 
+
+//   childrenMap = {
+//     ui: UIComp,
+//     queries: QueryListComp,
+//     tempStates: TemporaryStateListComp,
+//     transformers: TransformerListComp,
+//     dataResponders: DataChangeResponderListComp,
+//     folders: FolderListComp,
+//     refTree: RefTreeComp,
+//     hooks: HookListComp,
+//     settings: AppSettingsComp,
+//     preload: PreloadComp,
+//   };
+// })()
+
 function RootView(props: RootViewProps) {
   const previewTheme = useContext(ThemeContext);
   const { comp, isModuleRoot, ...divProps } = props;
   const [editorState, setEditorState] = useState<EditorState>();
   const [propertySectionState, setPropertySectionState] = useState<PropertySectionState>({});
-  const appThemeId = comp.children.settings.getView().themeId;
+  const appThemeId = comp.children.settings?.getView().themeId;
   const { orgCommonSettings } = getGlobalSettings();
   const themeList = orgCommonSettings?.themeList || [];
 
@@ -147,7 +183,13 @@ export class RootComp extends RootCompBase {
     if (!this.preloaded) {
       return null;
     }
-    return <RootView id={this.preloadId} comp={this} isModuleRoot={this.isModuleRoot} />;
+    return (
+      <RootView
+        id={this.preloadId}
+        comp={this}
+        isModuleRoot={this.isModuleRoot}
+      />
+    );
   }
 
   clearPreload() {

@@ -1,5 +1,7 @@
 import { getReduceContext, reduceInContext } from "comps/utils/reduceContext";
-import _ from "lodash";
+import {
+  mapValues, keyBy, isNil, noop, isEqual,
+} from "lodash";
 import {
   Comp,
   CompAction,
@@ -41,8 +43,8 @@ export function withParams<TCtor extends MultiCompConstructor>(
   VariantCompCtor: TCtor,
   paramNames: string[]
 ) {
-  const paramValues = _.mapValues(
-    _.keyBy(paramNames, (x) => x),
+  const paramValues = mapValues(
+    keyBy(paramNames, (x) => x),
     () => ""
   );
   return withParamsWithDefault(VariantCompCtor, paramValues);
@@ -127,7 +129,7 @@ export function withParamsWithDefault<TCtor extends MultiCompConstructor>(
     }
 
     override parseChildrenFromValue(params: CompParams): ChildrenType {
-      const dispatch = params.dispatch ?? _.noop;
+      const dispatch = params.dispatch ?? noop;
       const newParams = { ...params, dispatch: wrapDispatch(dispatch, "comp") };
 
       const comp = new VariantCompCtor(newParams) as unknown as ConstructorToComp<TCtor>;
@@ -211,7 +213,7 @@ export function withParamsWithDefault<TCtor extends MultiCompConstructor>(
 
     protected override childrenNode() {
       const compNode: ConstructorToNodeType<TCtor> = this.getComp().node();
-      if (_.isNil(compNode)) return {} as {};
+      if (isNil(compNode)) return {} as {};
       const paramNodes = this.getParamNodes();
       const originalNode = new WrapContextNodeV2(compNode, paramNodes);
       return { comp: originalNode };
@@ -219,7 +221,7 @@ export function withParamsWithDefault<TCtor extends MultiCompConstructor>(
 
     protected override extraNode() {
       const compNode: ConstructorToNodeType<TCtor> = this.getComp().node();
-      if (_.isNil(compNode)) return undefined;
+      if (isNil(compNode)) return undefined;
       const wrapNode = wrapContext(compNode);
       const result = {
         node: { wrap: wrapNode },
@@ -236,12 +238,12 @@ export function withParamsWithDefault<TCtor extends MultiCompConstructor>(
     }
 
     getParamNodes(): Record<keyof ParamValues, Node<unknown>> {
-      return _.mapValues(this.params, (param, name) => {
+      return mapValues(this.params, (param, name) => {
         const paramNode = lastValueIfEqual(
           this,
           "param_node_" + name,
           [fromValue(param), param] as const,
-          (a, b) => _.isEqual(a[1], b[1])
+          (a, b) => isEqual(a[1], b[1])
         )[0];
         return paramNode;
       });

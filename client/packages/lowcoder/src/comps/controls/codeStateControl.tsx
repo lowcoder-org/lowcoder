@@ -16,7 +16,7 @@ import {
   withMethodExposingBase,
 } from "comps/generators/withMethodExposing";
 import { trans } from "i18n";
-import _ from "lodash";
+import { upperFirst } from "lodash";
 import {
   AbstractComp,
   AbstractNode,
@@ -200,7 +200,7 @@ function stateControlMethodExposing<T extends ExposeMethodCompConstructor<Abstra
   return withMethodExposingBase(VariantComp, [
     {
       method: {
-        name: "set" + _.upperFirst(param.name),
+        name: "set" + upperFirst(param.name),
         description: trans("exportMethod.setDesc", { property: param.name }),
         params: [param],
       },
@@ -212,7 +212,7 @@ function stateControlMethodExposing<T extends ExposeMethodCompConstructor<Abstra
     },
     {
       method: {
-        name: "clear" + _.upperFirst(param.name),
+        name: "clear" + upperFirst(param.name),
         description: trans("exportMethod.clearDesc", { property: param.name }),
         params: [],
       },
@@ -223,7 +223,7 @@ function stateControlMethodExposing<T extends ExposeMethodCompConstructor<Abstra
     },
     {
       method: {
-        name: "reset" + _.upperFirst(param.name),
+        name: "reset" + upperFirst(param.name),
         description: trans("exportMethod.resetDesc", { property: param.name }),
         params: [],
       },

@@ -23,7 +23,7 @@ import { NameAndExposingInfo } from "comps/utils/exposingTypes";
 import { genQueryId, genRandomKey } from "comps/utils/idGenerator";
 import { getReduceContext } from "comps/utils/reduceContext";
 import { trans } from "i18n";
-import _ from "lodash";
+import { debounce, omit, isEqual } from "lodash";
 import {
   ChangeValueAction,
   CompAction,
@@ -74,7 +74,7 @@ import { QueryConfirmationModal } from "./queryComp/queryConfirmationModal";
 import { QueryNotificationControl } from "./queryComp/queryNotificationControl";
 import { QueryPropertyView } from "./queryComp/queryPropertyView";
 import { getTriggerType, onlyManualTrigger } from "./queryCompUtils";
-import { messageInstance } from "lowcoder-design";
+import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 
 const latestExecution: Record<string, string> = {};
 
@@ -186,7 +186,7 @@ QueryCompTmp = class extends QueryCompTmp {
 
   execute(target: any) {
     if (!target["debounceExecute"]) {
-      target["debounceExecute"] = _.debounce(
+      target["debounceExecute"] = debounce(
         () => {
           setTimeout(() => this.dispatchExecuteAction());
         },
@@ -199,7 +199,7 @@ QueryCompTmp = class extends QueryCompTmp {
 
   private runningDependNodes() {
     const childrenNodes = this.childrenNode();
-    return fromRecord(_.omit(childrenNodes, "onEvent"));
+    return fromRecord(omit(childrenNodes, "onEvent"));
   }
 
   override extraNode() {
@@ -246,8 +246,8 @@ QueryCompTmp = class extends QueryCompTmp {
       const preDepends = target[lastDependsKey];
       const preDsl = target[lastDslKey];
 
-      const dependsChanged = !_.isEqual(preDepends, depends);
-      const dslNotChanged = _.isEqual(preDsl, dsl);
+      const dependsChanged = !isEqual(preDepends, depends);
+      const dslNotChanged = isEqual(preDsl, dsl);
 
       // If the dsl has not changed, but the dependent node value has changed, then trigger the query execution
       // FIXME, this should be changed to a reference judgement, but for unknown reasons if the reference is modified once, it will change twice.

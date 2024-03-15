@@ -13,7 +13,7 @@ import {
 } from "../generators/withExposing";
 import { RecordConstructorToView } from "lowcoder-core";
 import { useEffect, useRef, useState } from "react";
-import _ from "lodash";
+import { divide } from "lodash";
 import ReactResizeDetector from "react-resize-detector";
 import { styleControl } from "comps/controls/styleControl";
 import {
@@ -123,8 +123,8 @@ const ContainerImg = (props: RecordConstructorToView<typeof childrenMap>) => {
     }
     // fixme border style bug on safari
     if (
-      (_.divide(container?.clientWidth!, container?.clientHeight!) || 0) >
-      (_.divide(Number(width), Number(height)) || 0)
+      (divide(container?.clientWidth!, container?.clientHeight!) || 0) >
+      (divide(Number(width), Number(height)) || 0)
     ) {
       setStyle("100%", "auto");
     } else {

@@ -7,7 +7,7 @@ import {
   ToInstanceType,
   ToViewReturn,
 } from "comps/generators/multi";
-import _ from "lodash";
+import { mapValues, omit, pick } from "lodash";
 import { ReactNode } from "react";
 import { IconControl } from "comps/controls/iconControl";
 import { hiddenPropertyView } from "comps/utils/propertyUtils";
@@ -34,7 +34,7 @@ type ChildrenType = ToInstanceType<typeof childrenMap> & {
  */
 export class LayoutMenuItemComp extends MultiBaseComp<ChildrenType> {
   override getView() {
-    return _.mapValues(this.children, (c) => c.getView()) as ToViewReturn<ChildrenType>;
+    return mapValues(this.children, (c) => c.getView()) as ToViewReturn<ChildrenType>;
   }
 
   override getPropertyView(): ReactNode {
@@ -78,8 +78,8 @@ export class LayoutMenuItemComp extends MultiBaseComp<ChildrenType> {
 const LayoutMenuItemCompMigrate = migrateOldData(LayoutMenuItemComp, (oldData: any) => {
   if (oldData && oldData.hasOwnProperty("app")) {
     const migrateKeys = ["app", "queryParam", "hashParam", "hideWhenNoPermission"];
-    const notChangeData = _.omit(oldData, migrateKeys);
-    const oldAppData = _.pick(oldData, migrateKeys);
+    const notChangeData = omit(oldData, migrateKeys);
+    const oldAppData = pick(oldData, migrateKeys);
     return {
       ...notChangeData,
       action: {

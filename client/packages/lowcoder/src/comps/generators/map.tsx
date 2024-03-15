@@ -1,4 +1,4 @@
-import _ from "lodash";
+import { mapValues, omit, pick } from "lodash";
 import {
   CompAction,
   CompConstructor,
@@ -73,7 +73,7 @@ export function map<ChildCompCtor extends CompConstructor<any, any>>(
   > {
     parseChildrenFromValue(params: CompParams<MapDataType>): Record<string, Comp> {
       const value = params.value;
-      return _.mapValues(value, (data, key) => newChild(this.dispatch, key, data));
+      return mapValues(value, (data, key) => newChild(this.dispatch, key, data));
     }
     getView(): Record<string, Comp> {
       return this.children;
@@ -84,11 +84,11 @@ export function map<ChildCompCtor extends CompConstructor<any, any>>(
     override reduce(action: CompAction): this {
       if (isMyCustomAction<BatchSetAction<DataType>>(action, "batchSet")) {
         const { value } = action.value;
-        const newComps = _.mapValues(value, (data, key) => newChild(this.dispatch, key, data));
+        const newComps = mapValues(value, (data, key) => newChild(this.dispatch, key, data));
         return this.setChildren({ ...this.children, ...newComps });
       } else if (isMyCustomAction<BatchSetCompAction<Comp>>(action, "batchSetComp")) {
         const { value } = action.value;
-        const newComps = _.mapValues(value, (comp, key) =>
+        const newComps = mapValues(value, (comp, key) =>
           comp.changeDispatch(wrapDispatch(this.dispatch, key))
         );
         return this.setChildren({ ...this.children, ...newComps });
@@ -96,19 +96,19 @@ export function map<ChildCompCtor extends CompConstructor<any, any>>(
         return this.setChildren({});
       } else if (isMyCustomAction<BatchDeleteAction>(action, "batchDelete")) {
         const { keys } = action.value;
-        return this.setChildren(_.omit(this.children, keys));
+        return this.setChildren(omit(this.children, keys));
       } else if (isMyCustomAction<FilterAction>(action, "filter")) {
         const { keys } = action.value;
-        return this.setChildren(_.pick(this.children, keys));
+        return this.setChildren(pick(this.children, keys));
       } else if (isMyCustomAction<ForEachAction>(action, "forEach")) {
-        const newChildren = _.mapValues(this.children, (comp) => comp.reduce(action.value.action));
+        const newChildren = mapValues(this.children, (comp) => comp.reduce(action.value.action));
         return this.setChildren(newChildren);
       }
       return super.reduce(action);
     }
     @memo
     exposingNode() {
-      const childrenExposingNodes = _.mapValues(this.children, (comp) =>
+      const childrenExposingNodes = mapValues(this.children, (comp) =>
         (comp as any).exposingNode()
       );
       return fromRecord(childrenExposingNodes);

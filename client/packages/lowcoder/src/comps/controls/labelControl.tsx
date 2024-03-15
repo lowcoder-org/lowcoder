@@ -13,7 +13,7 @@ import { ReactNode } from "react";
 import styled, { css } from "styled-components";
 import { AlignLeft } from "lowcoder-design";
 import { AlignRight } from "lowcoder-design";
-import { StarIcon } from "lowcoder-design";
+import { StarIcon } from "lowcoder-design/src/icons";
 
 import { heightCalculator, widthCalculator } from "./styleControlConstants";
 

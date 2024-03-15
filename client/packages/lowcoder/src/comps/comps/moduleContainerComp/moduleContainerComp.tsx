@@ -2,7 +2,7 @@ import { defaultTheme } from "comps/controls/styleControlConstants";
 import { ThemeContext } from "comps/utils/themeContext";
 import { BorderColor } from "constants/style";
 import { HintPlaceHolder } from "lowcoder-design";
-import _ from "lodash";
+import { debounce } from "lodash";
 import { useContext, useRef } from "react";
 import styled from "styled-components";
 import { ExternalEditorContext } from "util/context/ExternalEditorContext";
@@ -23,7 +23,7 @@ function ModuleContainerView(props: ContainerBaseProps) {
   const { onRowCountChange: onRowHeightChange, ...otherProps } = props;
   const { readOnly } = useContext(ExternalEditorContext);
   const rowHeightChangeRef = useRef(
-    _.debounce((rowHeight: number) => {
+    debounce((rowHeight: number) => {
       onRowHeightChange?.(rowHeight);
     }, 50)
   );

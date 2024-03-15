@@ -1,4 +1,4 @@
-import table from "./componentDocExtra/table.md?url";
+// import table from "./componentDocExtra/table.md?url";
 
 export const de = {
   "productName": "Lowcoder",
@@ -2376,7 +2376,7 @@ export const de = {
       "selectBackground": "Ausgewählter Hintergrund"
   },
   "componentDocExtra": {
-      "table": table,
+    //   "table": table,
   },
   "idSource": {
       "title": "OAuth-Anbieter",

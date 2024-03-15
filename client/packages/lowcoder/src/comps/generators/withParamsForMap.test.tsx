@@ -1,6 +1,6 @@
 import { NumberControl, StringControl } from "comps/controls/codeControl";
 import { evalAndReduce } from "comps/utils";
-import _ from "lodash";
+import { forEach, chain, range } from "lodash";
 import { updateNodesV2Action } from "lowcoder-core";
 import { getObjectId } from "util/objectUtils";
 import { cost } from "util/perfUtils";
@@ -28,7 +28,7 @@ const Comp = withParamsForMap(TestComp, ["a"]);
 function checkNode(comp: InstanceType<typeof Comp>, str: string) {
   const coreComp = comp.getOriginalComp().getComp();
   console.info(`---- checkNode ${str}. node id: `, getObjectId(coreComp.node()));
-  _.forEach(comp.getView(), (subComp, key) => {
+  forEach(comp.getView(), (subComp, key) => {
     if (subComp.getComp().node() !== coreComp.node()) {
       console.info("  diff node id: ", getObjectId(subComp.getComp().node()), " key: ", key);
     }
@@ -40,7 +40,7 @@ describe("withParamsForMap", () => {
     let comp = new Comp(testData);
     comp = evalAndReduce(comp);
     // checkNode(comp, "0");
-    const paramValues = _.chain(_.range(5000))
+    const paramValues = chain(range(5000))
       .map((idx) => [idx, { a: idx }] as const)
       .fromPairs()
       .value();

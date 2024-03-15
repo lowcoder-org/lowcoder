@@ -59,12 +59,14 @@ import { default as Button } from "antd/es/button";
 import { default as Mentions } from "antd/es/mentions";
 import { default as Tooltip } from "antd/es/tooltip";
 import VirtualList, { ListRef } from "rc-virtual-list";
-import _ from "lodash";
+import {
+  merge, union, concat, map, cloneDeep
+} from "lodash";
 import relativeTime from "dayjs/plugin/relativeTime";
 import dayjs from "dayjs";
 // import "dayjs/locale/zh-cn";
 import { getInitialsAndColorCode } from "util/stringUtils";
-import { CloseOutlined } from "@ant-design/icons";
+import { default as CloseOutlined } from "@ant-design/icons/CloseOutlined";
 dayjs.extend(relativeTime);
 // dayjs.locale("zh-cn");
 
@@ -135,11 +137,11 @@ const CommentCompBase = (
   // Integrate the comment list with the names in the original mention list
   const mergeAllMentionList = (mentionList: any) => {
     setMentionList(
-      _.merge(mentionList, {
-        "@": _.union(
-          _.concat(
+      merge(mentionList, {
+        "@": union(
+          concat(
             mentionList["@"],
-            _.map(commentListData, (item, index) => {
+            map(commentListData, (item, index) => {
               return item?.user?.name;
             })
           )
@@ -207,14 +209,14 @@ const CommentCompBase = (
       createdAt: dayjs().format(),
     };
     props.submitedItem.onChange(subObject);
-    setCommentListData(_.concat(commentListData, [subObject]));
+    setCommentListData(concat(commentListData, [subObject]));
     setContext("");
     mergeAllMentionList(mentionList);
     props.onEvent("submit");
   };
 
   const handleDelete = (index: number) => {
-    let temp = _.cloneDeep(commentListData);
+    let temp = cloneDeep(commentListData);
     props.deletedItem.onChange(temp.splice(index, 1));
     setCommentListData(temp);
     props.onEvent("delete");

@@ -1,4 +1,4 @@
-import { Picker } from "antd-mobile";
+// import { default as Picker } from "antd-mobile/es/components/picker";
 import { CanvasContainerID } from "constants/domLocators";
 import type { TimeCompViewProps } from "./timeComp";
 import dayjs from "dayjs";
@@ -10,7 +10,7 @@ import { getMobileStyle } from "comps/comps/dateComp/dateCompUtil";
 import { trans } from "i18n";
 import type { TimeUIViewProps } from "comps/comps/dateComp/timeUIView";
 import { TimeRangeUIViewProps } from "comps/comps/dateComp/timeRangeUIView";
-import { SwapRightOutlined } from "@ant-design/icons";
+import { default as SwapRightOutlined } from "@ant-design/icons/SwapRightOutlined";
 import React from "react";
 
 const HoursColumns = (step: number = 1) => [
@@ -50,7 +50,7 @@ const AmPm = [
   },
 ];
 
-const handleClick = (
+const handleClick = async (
   params: Pick<
     TimeCompViewProps,
     "hourStep" | "minuteStep" | "secondStep" | "use12Hours" | "disabledTime" | "onFocus" | "onBlur"
@@ -59,40 +59,41 @@ const handleClick = (
     onChange: (value: dayjs.Dayjs | null) => void;
   }
 ) => {
-  const { disabledHours, disabledMinutes, disabledSeconds } = params.disabledTime();
+  // const Picker = (await import("antd-mobile/es/components/picker")).default;
+  // const { disabledHours, disabledMinutes, disabledSeconds } = params.disabledTime();
 
-  Picker.prompt({
-    getContainer: () => document.querySelector(`#${CanvasContainerID}`) || document.body,
-    mouseWheel: true,
-    destroyOnClose: true,
-    closeOnMaskClick: true,
-    columns: (values) => {
-      const time = dayjs(values.join(":"), TimeParser);
-      return [
-        (params.use12Hours ? Hours12Columns : HoursColumns)(params.hourStep).filter(
-          ({ label, value }) =>
-            !disabledHours().includes(Number(value) + (values[3] === "pm" ? 12 : 0))
-        ),
-        MinuteColumns(params.minuteStep).filter(
-          ({ label, value }) => !disabledMinutes(time.hour()).includes(Number(value))
-        ),
-        MinuteColumns(params.secondStep).filter(
-          ({ label, value }) => !disabledSeconds(time.hour(), time.minute()).includes(Number(value))
-        ),
-        ...(params.use12Hours ? [AmPm] : []),
-      ];
-    },
-    defaultValue: params.value
-      ? params.value.format(params.use12Hours ? TIME_12_FORMAT : TIME_FORMAT).split(":")
-      : undefined,
-    onConfirm: (value) => {
-      const time = dayjs(value.join(":"), TimeParser);
-      params.onChange(time);
-    },
-    onClose: params.onBlur,
-  });
+  // Picker.prompt({
+  //   getContainer: () => document.querySelector(`#${CanvasContainerID}`) || document.body,
+  //   mouseWheel: true,
+  //   destroyOnClose: true,
+  //   closeOnMaskClick: true,
+  //   columns: (values) => {
+  //     const time = dayjs(values.join(":"), TimeParser);
+  //     return [
+  //       (params.use12Hours ? Hours12Columns : HoursColumns)(params.hourStep).filter(
+  //         ({ label, value }) =>
+  //           !disabledHours().includes(Number(value) + (values[3] === "pm" ? 12 : 0))
+  //       ),
+  //       MinuteColumns(params.minuteStep).filter(
+  //         ({ label, value }) => !disabledMinutes(time.hour()).includes(Number(value))
+  //       ),
+  //       MinuteColumns(params.secondStep).filter(
+  //         ({ label, value }) => !disabledSeconds(time.hour(), time.minute()).includes(Number(value))
+  //       ),
+  //       ...(params.use12Hours ? [AmPm] : []),
+  //     ];
+  //   },
+  //   defaultValue: params.value
+  //     ? params.value.format(params.use12Hours ? TIME_12_FORMAT : TIME_FORMAT).split(":")
+  //     : undefined,
+  //   onConfirm: (value) => {
+  //     const time = dayjs(value.join(":"), TimeParser);
+  //     params.onChange(time);
+  //   },
+  //   onClose: params.onBlur,
+  // });
 
-  params.onFocus();
+  // params.onFocus();
 };
 
 const MobileView = styled.div<{

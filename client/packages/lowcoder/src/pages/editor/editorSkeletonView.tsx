@@ -10,7 +10,7 @@ import {
 import { getPanelStatus, getEditorModeStatus, getPanelStyle } from "util/localStorageUtil";
 import { BottomSkeleton } from "pages/editor/bottom/BottomContent";
 import RightPanel from "pages/editor/right/RightPanel";
-import _ from "lodash";
+import { noop } from "lodash";
 import styled from "styled-components";
 import { default as Skeleton } from "antd/es/skeleton";
 import { default as Spin } from "antd/es/spin";
@@ -59,7 +59,7 @@ export default function EditorSkeletonView() {
   return (
     <>
       <Height100Div>
-        <Header panelStatus={panelStatus} togglePanel={_.noop} editorModeStatus={editorModeStatus} toggleEditorModeStatus={_.noop} />
+        <Header panelStatus={panelStatus} togglePanel={noop} editorModeStatus={editorModeStatus} toggleEditorModeStatus={noop} />
         <Body>
           <SiderStyled />
           {panelStatus.left && (
@@ -78,7 +78,7 @@ export default function EditorSkeletonView() {
             )}
           </MiddlePanel>
           {panelStatus.right && (
-            <RightPanel showPropertyPane={false} onCompDrag={_.noop} onTabChange={_.noop} />
+            <RightPanel showPropertyPane={false} onCompDrag={noop} onTabChange={noop} />
           )}
         </Body>
       </Height100Div>

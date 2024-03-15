@@ -11,7 +11,7 @@ import {
   isNumeric,
 } from "lowcoder-sdk";
 import { i18nObjs, trans } from "i18n/comps";
-import _, { isNil } from "lodash";
+import { min, max, isNil } from "lodash";
 import { xAxisTypeUrl } from "./chartUrls";
 
 const XAxisTypeOptions = [
@@ -222,7 +222,7 @@ function calcTimeInterval(xAxisData: Array<JSONValue | undefined>) {
       return 1;
     }
   });
-  return _.min(minIntervals);
+  return min(minIntervals);
 }
 
 let measureCanvas: HTMLCanvasElement;
@@ -257,7 +257,7 @@ export function calcXYConfig(
   if (resXConfig.type === "category" && chartSize) {
     const xAxisDataLenList = getXAxisDataLength(xAxisData);
     // get x-axis single data's max width
-    const maxDataWidth = _.max(xAxisDataLenList);
+    const maxDataWidth = max(xAxisDataLenList);
     const lastDataWidth = xAxisDataLenList[xAxisDataLenList.length - 1];
     // grid width
     let eachDataWidth = chartSize.w / xAxisData.length;

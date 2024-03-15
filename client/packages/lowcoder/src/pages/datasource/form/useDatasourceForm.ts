@@ -1,6 +1,6 @@
 import { default as Form } from "antd/es/form";
 import { DatasourceApi } from "../../../api/datasourceApi";
-import _ from "lodash";
+import { omit } from "lodash";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getUser } from "../../../redux/selectors/usersSelectors";
@@ -10,7 +10,7 @@ import { registryDataSourcePlugin } from "constants/queryConstants";
 import { DatasourceType } from "@lowcoder-ee/constants/queryConstants";
 import { Datasource } from "@lowcoder-ee/constants/datasourceConstants";
 import { getSnowflakeFormParams } from "pages/datasource/form/snowflakeDatasourceForm";
-import { messageInstance } from "lowcoder-design";
+import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 
 export function useDatasourceForm() {
   const [testLoading, setTestLoading] = useState(false);
@@ -35,7 +35,7 @@ export function useDatasourceForm() {
       datasourceType: DatasourceType;
     }): Partial<Datasource> => {
       let config = {
-        ...(_.omit(form.getFieldsValue(), ["name"]) as any),
+        ...(omit(form.getFieldsValue(), ["name"]) as any),
       };
       switch (datasourceType) {
         case "mongodb":

@@ -15,7 +15,8 @@ import { connect } from "react-redux";
 import { fetchCommonSettings, setCommonSettings } from "redux/reduxActions/commonSettingsActions";
 import { AppState } from "redux/reducers";
 import { DETAIL_TYPE } from "../themeConstant";
-import { ArrowIcon, CustomModal, ResetIcon } from "lowcoder-design";
+import { ArrowIcon, ResetIcon } from "lowcoder-design/src/icons";
+import { CustomModal } from "lowcoder-design/src/components/CustomModal";
 import {
   DetailContainer,
   DetailContent,
@@ -33,7 +34,7 @@ import { Prompt } from "react-router";
 import { HeaderBack } from "pages/setting/permission/styledComponents";
 import dsl from "./previewDsl";
 import chartDsl from "./chartPreviewDsl";
-import { messageInstance } from "lowcoder-design";
+import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 
 type LocationProp = {
   theme: ThemeDetail;

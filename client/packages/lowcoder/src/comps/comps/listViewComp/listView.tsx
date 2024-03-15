@@ -1,7 +1,7 @@
 import { default as Pagination } from "antd/es/pagination";
 import { EditorContext } from "comps/editorState";
 import { BackgroundColorContext } from "comps/utils/backgroundColorContext";
-import _ from "lodash";
+import { noop, isEmpty, range } from "lodash";
 import { ConstructorToView, deferAction } from "lowcoder-core";
 import { HintPlaceHolder, pageItemRender } from "lowcoder-design";
 import { RefObject, useContext, useEffect, useMemo, useRef } from "react";
@@ -85,7 +85,7 @@ function ListItem(props: ListItemProps) {
       items={gridItemCompToGridItems(containerProps.items)}
       positionParams={containerProps.positionParams}
       // all layout changes should only reflect on the commonContainer
-      dispatch={itemIdx === offset ? containerProps.dispatch : _.noop}
+      dispatch={itemIdx === offset ? containerProps.dispatch : noop}
       style={{ height: "100%", backgroundColor: "transparent", flex: "auto" }}
       autoHeight={autoHeight}
       isDroppable={itemIdx === offset}
@@ -146,7 +146,7 @@ export function ListView(props: Props) {
 
   const commonLayout = comp.realSimpleContainer()!.children.layout.getView();
   const isOneItem =
-    pageInfo.currentPageSize > 0 && (_.isEmpty(commonLayout) || editorState.isDragging);
+    pageInfo.currentPageSize > 0 && (isEmpty(commonLayout) || editorState.isDragging);
   const noOfRows = isOneItem
     ? 1
     : Math.floor((pageInfo.currentPageSize + noOfColumns - 1) / noOfColumns);
@@ -155,7 +155,7 @@ export function ListView(props: Props) {
   // minHeight is used to ensure that the container height will not shrink when dragging, and the current padding needs to be subtracted during calculation
   const minHeight = isDragging && autoHeight ? listHeight + "px" : "100%";
   // log.log("List. listHeight: ", listHeight, " minHeight: ", minHeight);
-  const renders = _.range(0, noOfRows).map((rowIdx) => {
+  const renders = range(0, noOfRows).map((rowIdx) => {
     // log.log("renders. i: ", i, "containerProps: ", containerProps, " text: ", Object.values(containerProps.items as Record<string, any>)[0].children.comp.children.text);
     const render = (
       <div
@@ -166,7 +166,7 @@ export function ListView(props: Props) {
         }}
       >
         <FlexWrapper>
-          {_.range(0, noOfColumns).map((colIdx) => {
+          {range(0, noOfColumns).map((colIdx) => {
             const itemIdx = rowIdx * noOfColumns + colIdx + pageInfo.offset;
             if (
               itemIdx >= pageInfo.total ||

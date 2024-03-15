@@ -1,4 +1,4 @@
-import _ from "lodash";
+import { has } from "lodash";
 import { memoized } from "util/memoize";
 import { FunctionNode, withFunction } from "./functionNode";
 import { AbstractNode, FetchInfo, FetchInfoOptions, Node } from "./node";
@@ -167,16 +167,16 @@ export class CodeNode extends AbstractNode<ValueAndMsg<unknown>> {
         const value = depend.evaluate(exposingNodes) as any;
         if (
           options?.ignoreManualDepReadyStatus &&
-          _.has(value, TRIGGER_TYPE_FIELD) &&
+          has(value, TRIGGER_TYPE_FIELD) &&
           value.triggerType === "manual"
         ) {
           return;
         }
 
-        if (_.has(value, IS_FETCHING_FIELD)) {
+        if (has(value, IS_FETCHING_FIELD)) {
           isFetching = isFetching || value.isFetching === true;
         }
-        if (_.has(value, LATEST_END_TIME_FIELD)) {
+        if (has(value, LATEST_END_TIME_FIELD)) {
           ready = ready && value.latestEndTime > 0;
         }
       });

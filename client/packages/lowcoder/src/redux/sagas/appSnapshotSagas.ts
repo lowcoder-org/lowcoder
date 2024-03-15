@@ -15,7 +15,7 @@ import {
 } from "redux/reduxActions/appSnapshotActions";
 import ApplicationApi, { ApplicationResp } from "api/applicationApi";
 import { ApiResponse } from "api/apiResponses";
-import { messageInstance } from "lowcoder-design";
+import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 
 import { trans } from "i18n";
 

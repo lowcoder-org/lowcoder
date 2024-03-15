@@ -1,4 +1,4 @@
-import _ from "lodash";
+import { isNil } from "lodash";
 import {
   CompAction,
   customAction,
@@ -28,7 +28,7 @@ export function withSelectedMultiContext<TCtor extends MultiCompConstructor>(
 
     protected override getComp(key: string) {
       let comp = super.getComp(key);
-      if (!_.isNil(comp) && key === this.selection) {
+      if (!isNil(comp) && key === this.selection) {
         const dispatch = lastValueIfEqual(
           this,
           "selectedDispatch",
@@ -59,17 +59,17 @@ export function withSelectedMultiContext<TCtor extends MultiCompConstructor>(
         if (selection !== this.selection) {
           comp = setFieldsNoTypeCheck(comp, { selection });
         }
-        if (!_.isNil(params) && !paramsEqual(params, selectedComp.getParams())) {
+        if (!isNil(params) && !paramsEqual(params, selectedComp.getParams())) {
           comp = comp.reduce(WithMultiContextComp.setCacheParamsAction({ [selection]: params }));
         }
-        if (!_.isNil(comp.cacheParamsMap.get(selection))) {
+        if (!isNil(comp.cacheParamsMap.get(selection))) {
           // sync params of selection and original comp
           comp = comp.setChild(
             COMP_KEY,
             comp.getOriginalComp().setParams(comp.cacheParamsMap.get(selection)!)
           );
         }
-      } else if (!action.editDSL || action.path[0] !== MAP_KEY || _.isNil(action.path[1])) {
+      } else if (!action.editDSL || action.path[0] !== MAP_KEY || isNil(action.path[1])) {
         if (action.path[0] === MAP_KEY && action.path[1] === SELECTED_KEY) {
           action.path[1] = this.selection;
         }

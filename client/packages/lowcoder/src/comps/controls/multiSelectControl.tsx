@@ -6,7 +6,7 @@ import { Tooltip, ToolTipLabel } from "components/toolTip";
 import { CustomSelect } from "components/customSelect";
 import styled from "styled-components";
 import { EllipsisTextCss } from "components/Label";
-import _ from "lodash";
+import { fromPairs } from "lodash";
 
 const LabelWrapper = styled.div<{ $placement: ControlPlacement }>`
   flex-shrink: 0;
@@ -55,7 +55,7 @@ export function multiSelectControl<T extends OptionsType>(
       }
     ): ReactNode {
       const { placement = "right" } = params;
-      const valueInfoMap = _.fromPairs(options.map((option) => [option.value, option]));
+      const valueInfoMap = fromPairs(options.map((option) => [option.value, option]));
 
       return (
         <FlexDiv>

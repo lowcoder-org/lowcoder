@@ -1,6 +1,6 @@
 import { ColumnComp } from "comps/comps/tableComp/column/tableColumnComp";
 import { evalAndReduce } from "comps/utils";
-import _ from "lodash";
+import { omit, map} from "lodash";
 import { fromValue } from "lowcoder-core";
 import { MemoryRouter } from "react-router-dom";
 import { MockTableComp } from "./mockTableComp";
@@ -120,8 +120,8 @@ test("test table data transform", () => {
     expect(data.length).toEqual(3);
     expect(displayData.length).toEqual(expectDisplayDataLen);
     // Remove the custom column, displayData is the same as tranFormData, if title is not defined
-    expect(displayData.map((d: any) => _.omit(d, "custom"))).toEqual(
-      _.map(filteredData, (row) => _.omit(row, OB_ROW_ORI_INDEX))
+    expect(displayData.map((d: any) => omit(d, "custom"))).toEqual(
+      map(filteredData, (row) => omit(row, OB_ROW_ORI_INDEX))
     );
     return { transformedData: filteredData, data, displayData };
   }

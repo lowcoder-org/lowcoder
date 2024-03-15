@@ -1,8 +1,8 @@
-import { FunctionComponent, ReactNode } from "react";
+import type { FunctionComponent, ReactNode } from "react";
 import { withExposingConfigs } from "comps/generators/withExposing";
-import { NameGenerator } from "./utils/nameGenerator";
-import { JSONValue } from "util/jsonTypes";
-import { EditorState } from "./editorState";
+import type { NameGenerator } from "./utils/nameGenerator";
+import type { JSONValue } from "util/jsonTypes";
+import type { EditorState } from "./editorState";
 import { trans } from "i18n";
 
 export type ExposingMultiCompConstructor = ReturnType<

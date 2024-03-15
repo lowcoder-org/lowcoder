@@ -1,7 +1,7 @@
 import { ApplicationDetail, AppTypeEnum } from "constants/applicationConstants";
 import { ActiveTextColor, LightActiveTextColor } from "constants/style";
 import { User } from "constants/userConstants";
-import _ from "lodash";
+import { noop } from "lodash";
 import { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppState } from "redux/reducers";
@@ -71,7 +71,7 @@ export function useCreateApp(type: AppTypeEnum, onSuccess?: (app: ApplicationDet
         applicationName: nextNewApplicationName,
         orgId: currentUser.currentOrgId,
         dsl,
-        onSuccess: onSuccess || _.noop,
+        onSuccess: onSuccess || noop,
       })
     );
   }, [

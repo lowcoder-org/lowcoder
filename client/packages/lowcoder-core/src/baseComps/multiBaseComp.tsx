@@ -7,7 +7,7 @@ import {
   wrapChildAction,
 } from "actions";
 import { fromRecord, Node } from "eval";
-import _ from "lodash";
+import { mapValues, isEqual, omit, omitBy } from "lodash";
 import log from "loglevel";
 import { CACHE_PREFIX } from "util/cacheUtils";
 import { JSONValue } from "util/jsonTypes";
@@ -86,7 +86,7 @@ export abstract class MultiBaseComp<
     // log.debug("reduceOrUndefined. action: ", action, " this: ", this);
     // must handle DELETE in the parent level
     if (action.type === CompActionTypes.DELETE_COMP && action.path.length === 1) {
-      return this.setChildren(_.omit(this.children, action.path[0]));
+      return this.setChildren(omit(this.children, action.path[0]));
     }
     if (action.type === CompActionTypes.REPLACE_COMP && action.path.length === 1) {
       const NextComp = action.compFactory;
@@ -121,7 +121,7 @@ export abstract class MultiBaseComp<
       case CompActionTypes.MULTI_CHANGE: {
         const { changes } = action;
         // handle DELETE in the parent level
-        let mcChildren = _.omitBy(this.children, (comp, childName) => {
+        let mcChildren = omitBy(this.children, (comp, childName) => {
           const innerAction = changes[childName];
           return (
             innerAction &&
@@ -130,7 +130,7 @@ export abstract class MultiBaseComp<
           );
         });
         // CHANGE
-        mcChildren = _.mapValues(mcChildren, (comp, childName) => {
+        mcChildren = mapValues(mcChildren, (comp, childName) => {
           const innerAction = changes[childName];
           if (innerAction) {
             return comp.reduce(innerAction);
@@ -150,7 +150,7 @@ export abstract class MultiBaseComp<
           // console.info("inside: UPDATE_NODE_V2 cache hit. action: ", action, "\nvalue: ", value, "\nthis: ", this);
           return this;
         }
-        const children = _.mapValues(this.children, (comp, childName) => {
+        const children = mapValues(this.children, (comp, childName) => {
           if (value.hasOwnProperty(childName)) {
             return comp.reduce(updateNodesV2Action(value[childName]));
           }
@@ -180,7 +180,7 @@ export abstract class MultiBaseComp<
       }
       case CompActionTypes.BROADCAST: {
         return this.setChildren(
-          _.mapValues(this.children, (comp) => {
+          mapValues(this.children, (comp) => {
             return comp.reduce(action);
           })
         );
@@ -240,7 +240,7 @@ export abstract class MultiBaseComp<
   }
 
   override changeDispatch(dispatch: DispatchType): this {
-    const newChildren = _.mapValues(this.children, (comp, childName) => {
+    const newChildren = mapValues(this.children, (comp, childName) => {
       return comp.changeDispatch(wrapDispatch(dispatch, childName));
     });
     return super.changeDispatch(dispatch).setChildren(newChildren, { keepCacheKeys: ["node"] });
@@ -261,7 +261,7 @@ export abstract class MultiBaseComp<
         return;
       }
       const value = comp.toJsonValue();
-      if (ignore && _.isEqual(value, (comp as any)["IGNORABLE_DEFAULT_VALUE"])) {
+      if (ignore && isEqual(value, (comp as any)["IGNORABLE_DEFAULT_VALUE"])) {
         return;
       }
       result[key] = value;

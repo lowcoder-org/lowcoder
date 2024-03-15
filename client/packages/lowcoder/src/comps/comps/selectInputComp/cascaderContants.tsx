@@ -16,7 +16,7 @@ import {
 } from "comps/utils/propertyUtils";
 import { i18nObjs, trans } from "i18n";
 import { RefControl } from "comps/controls/refControl";
-import { CascaderRef } from "antd/lib/cascader";
+import { CascaderRef } from "antd/es/cascader";
 
 import { MarginControl } from "../../controls/marginControl";	
 import { PaddingControl } from "../../controls/paddingControl";

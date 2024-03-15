@@ -5,7 +5,7 @@ import { childrenToProps, ToConstructor } from "comps/generators/multi";
 import { BackgroundColorContext } from "comps/utils/backgroundColorContext";
 import { ThemeContext } from "comps/utils/themeContext";
 import { trans } from "i18n";
-import _ from "lodash";
+import { isEmpty } from "lodash";
 import {
   controlItem,
   IconRadius,
@@ -151,76 +151,76 @@ export type StyleConfigType<T extends readonly SingleColorConfig[]> = { [K in Na
 
 // Options[number]["value"]
 function isEmptyColor(color: string) {
-  return _.isEmpty(color);
+  return isEmpty(color);
 }
 
 function isEmptyRadius(radius: string) {
-  return _.isEmpty(radius);
+  return isEmpty(radius);
 }
 function isEmptyBorderWidth(borderWidth: string) {
-  return _.isEmpty(borderWidth);
+  return isEmpty(borderWidth);
 }
 function isEmptyBackgroundImageConfig(backgroundImage: string) {
-  return _.isEmpty(backgroundImage);
+  return isEmpty(backgroundImage);
 }
 function isEmptyBackgroundImageRepeatConfig(backgroundImageRepeat: string) {
-  return _.isEmpty(backgroundImageRepeat);
+  return isEmpty(backgroundImageRepeat);
 }
 function isEmptyBackgroundImageSizeConfig(backgroundImageSize: string) {
-  return _.isEmpty(backgroundImageSize);
+  return isEmpty(backgroundImageSize);
 }
 function isEmptyBackgroundImagePositionConfig(backgroundImagePosition: string) {
-  return _.isEmpty(backgroundImagePosition);
+  return isEmpty(backgroundImagePosition);
 }
 function isEmptyBackgroundImageOriginConfig(backgroundImageOrigin: string) {
-  return _.isEmpty(backgroundImageOrigin);
+  return isEmpty(backgroundImageOrigin);
 }
 function isEmptyHeaderBackgroundImageConfig(headerBackgroundImage: string) {
-  return _.isEmpty(headerBackgroundImage);
+  return isEmpty(headerBackgroundImage);
 }
 function isEmptyHeaderBackgroundImageRepeatConfig(headerBackgroundImageRepeat: string) {
-  return _.isEmpty(headerBackgroundImageRepeat);
+  return isEmpty(headerBackgroundImageRepeat);
 }
 function isEmptyHeaderBackgroundImageSizeConfig(headerBackgroundImageSize: string) {
-  return _.isEmpty(headerBackgroundImageSize);
+  return isEmpty(headerBackgroundImageSize);
 }
 function isEmptyHeaderBackgroundImagePositionConfig(headerBackgroundImagePosition: string) {
-  return _.isEmpty(headerBackgroundImagePosition);
+  return isEmpty(headerBackgroundImagePosition);
 }
 function isEmptyHeaderBackgroundImageOriginConfig(headerBackgroundImageOrigin: string) {
-  return _.isEmpty(headerBackgroundImageOrigin);
+  return isEmpty(headerBackgroundImageOrigin);
 }
 function isEmptyFooterBackgroundImageConfig(footerBackgroundImage: string) {
-  return _.isEmpty(footerBackgroundImage);
+  return isEmpty(footerBackgroundImage);
 }
 function isEmptyFooterBackgroundImageRepeatConfig(footerBackgroundImageRepeat: string) {
-  return _.isEmpty(footerBackgroundImageRepeat);
+  return isEmpty(footerBackgroundImageRepeat);
 }
 function isEmptyFooterBackgroundImageSizeConfig(footerBackgroundImageSize: string) {
-  return _.isEmpty(footerBackgroundImageSize);
+  return isEmpty(footerBackgroundImageSize);
 }
 function isEmptyFooterBackgroundImagePositionConfig(footerBackgroundImagePosition: string) {
-  return _.isEmpty(footerBackgroundImagePosition);
+  return isEmpty(footerBackgroundImagePosition);
 }
 function isEmptyFooterBackgroundImageOriginConfig(footerBackgroundImageOrigin: string) {
-  return _.isEmpty(footerBackgroundImageOrigin);
+  return isEmpty(footerBackgroundImageOrigin);
 }
 
 function isEmptyTextSize(textSize: string) {
-  return _.isEmpty(textSize);
+  return isEmpty(textSize);
 }
 function isEmptyTextWeight(textWeight: string) {
-  return _.isEmpty(textWeight);
+  return isEmpty(textWeight);
 }
 function isEmptyFontFamily(fontFamily: string) {
-  return _.isEmpty(fontFamily);
+  return isEmpty(fontFamily);
 }
 
 function isEmptyMargin(margin: string) {	
-  return _.isEmpty(margin);	
+  return isEmpty(margin);	
 }	
 function isEmptyPadding(padding: string) {	
-  return _.isEmpty(padding);	
+  return isEmpty(padding);	
 }
 
 /**

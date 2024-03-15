@@ -1,4 +1,4 @@
-import _, { isObject } from "lodash";
+import { omit, isObject } from "lodash";
 import { QueryApi, QueryExecuteRequest } from "../../api/queryApi";
 import { QueryResult, TriggerType } from "./queryComp";
 import { Comp } from "lowcoder-core";
@@ -54,7 +54,7 @@ export function toQueryView(params: FunctionProperty[]) {
     return {
       ...response.data,
       code: response.data.queryCode,
-      extra: _.omit(response.data, ["code", "message", "data", "success", "runTime", "queryCode"]),
+      extra: omit(response.data, ["code", "message", "data", "success", "runTime", "queryCode"]),
     };
   };
 }

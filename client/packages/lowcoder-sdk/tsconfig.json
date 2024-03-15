@@ -30,7 +30,10 @@
       "@lowcoder-ee/*": ["../../lowcoder/src/*"]
     }
   },
-  "exclude": ["../lowcoder/src/ee/*"],
+  "exclude": [
+    "../lowcoder/src/ee/*",
+    "**/*.test.tsx",
+  ],
   "include": [
     "src",
     "index.tsx",

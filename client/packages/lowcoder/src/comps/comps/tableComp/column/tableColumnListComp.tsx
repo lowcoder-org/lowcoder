@@ -6,7 +6,7 @@ import {
 } from "comps/comps/tableComp/tableUtils";
 import { list } from "comps/generators/list";
 import { getReduceContext } from "comps/utils/reduceContext";
-import _ from "lodash";
+import { isNil } from "lodash";
 import {
   CompAction,
   customAction,
@@ -77,7 +77,7 @@ export class ColumnListComp extends ColumnListTmpComp {
       const columnChangeSet = column.getChangeSet();
       Object.keys(columnChangeSet).forEach((dataIndex) => {
         Object.keys(columnChangeSet[dataIndex]).forEach((key) => {
-          if (!_.isNil(columnChangeSet[dataIndex][key])) {
+          if (!isNil(columnChangeSet[dataIndex][key])) {
             if (!changeSet[key]) changeSet[key] = {};
             changeSet[key][dataIndex] = columnChangeSet[dataIndex][key];
           }

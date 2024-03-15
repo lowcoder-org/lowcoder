@@ -1,0 +1,24 @@
+{
+  "presets": ["@babel/preset-typescript", "@babel/preset-react", "@babel/preset-env"],
+  "plugins": [
+    ["@babel/transform-runtime"],
+    ["babel-plugin-styled-components"],
+    ["import", {
+        "libraryName": "antd",
+        "libraryDirectory": "es",
+        "style": true
+    }, "antd"],
+    ["import", {
+      "libraryName": "@ant-design/icons",
+      // "style": false,
+      "libraryDirectory": "es/icons",
+      "camel2DashComponentName": false
+    }, "@ant-design/icons"],
+    ["import", {
+      "libraryName": "antd-mobile"
+    }, "antd-mobile"],
+    ["import", {
+      "libraryName": "lodash"
+    }, "lodash"]
+  ]
+}

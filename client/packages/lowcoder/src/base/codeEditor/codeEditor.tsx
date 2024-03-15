@@ -9,7 +9,7 @@ import React, {
 import styled, { css } from "styled-components";
 import { EditorState, EditorView } from "./codeMirror";
 import { useExtensions } from "./extensions";
-import { PopupCard } from "lowcoder-design";
+import { PopupCard } from "lowcoder-design/src/components/popupCard";
 import { CodeEditorPanel } from "../../pages/editor/codeEditorPanel";
 import { CodeEditorProps, StyleName } from "./codeEditorTypes";
 import { useClickCompNameEffect } from "./clickCompName";

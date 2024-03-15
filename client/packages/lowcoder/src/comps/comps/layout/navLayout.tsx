@@ -29,7 +29,7 @@ import {
   NavLayoutItemActiveStyleType,
 } from "comps/controls/styleControlConstants";
 import { dropdownControl } from "comps/controls/dropdownControl";
-import _ from "lodash";
+import { isEmpty } from "lodash";
 import { check } from "util/convertUtils";
 import { genRandomKey } from "comps/utils/idGenerator";
 import history from "util/history";
@@ -543,7 +543,7 @@ NavTmpLayout = withViewFn(NavTmpLayout, (comp) => {
   }
 
   let backgroundStyle = navStyle.background;
-  if(!_.isEmpty(backgroundImage))  {
+  if(!isEmpty(backgroundImage))  {
     backgroundStyle = `center / cover url('${backgroundImage}') no-repeat, ${backgroundStyle}`;
   }
 

@@ -5,7 +5,7 @@ import { alignControl } from "comps/controls/alignControl";
 import { UICompBuilder } from "comps/generators";
 import { NameConfig, NameConfigHidden } from "comps/generators/withExposing";
 import { Section, sectionNames } from "lowcoder-design";
-import _ from "lodash";
+import { isEmpty } from "lodash";
 import styled from "styled-components";
 import { styleControl } from "comps/controls/styleControl";
 import { DividerStyle, DividerStyleType, heightCalculator, widthCalculator } from "comps/controls/styleControlConstants";
@@ -103,7 +103,7 @@ export const DividerComp = migrateOldData(
           {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
             <>
               <Section name={sectionNames.layout}>
-                {!_.isEmpty(children.title.getView()) &&
+                {!isEmpty(children.title.getView()) &&
                   children.align.propertyView({
                     label: trans("divider.align"),
                     radioButton: true,

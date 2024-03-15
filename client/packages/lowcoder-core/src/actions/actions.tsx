@@ -1,5 +1,5 @@
 import { CompConstructor } from "baseComps/comp";
-import _ from "lodash";
+import { get, isNil } from "lodash";
 import { JSONValue } from "util/jsonTypes";
 import {
   ActionContextType,
@@ -55,7 +55,7 @@ export function isMyCustomAction<T>(action: CompAction, type: string): action is
 }
 
 export function isCustomAction<T>(action: CompAction, type: string): action is CustomAction<T> {
-  return action.type === CompActionTypes.CUSTOM && _.get(action.value, "type") === type;
+  return action.type === CompActionTypes.CUSTOM && get(action.value, "type") === type;
 }
 
 /**
@@ -100,7 +100,7 @@ export function isBroadcastAction<T extends CompAction>(
   action: CompAction,
   type: T["type"]
 ): action is BroadcastAction<T> {
-  return action.type === CompActionTypes.BROADCAST && _.get(action.action, "type") === type;
+  return action.type === CompActionTypes.BROADCAST && get(action.action, "type") === type;
 }
 
 export function renameAction(oldName: string, name: string): BroadcastAction<RenameAction> {
@@ -133,7 +133,7 @@ export function multiChangeAction(changes: Record<string, CompAction>): MultiCha
   const editDSL = Object.values(changes).some((action) => !!action.editDSL);
   console.assert(
     Object.values(changes).every(
-      (action) => !_.isNil(action.editDSL) && action.editDSL === editDSL
+      (action) => !isNil(action.editDSL) && action.editDSL === editDSL
     ),
     `multiChangeAction should wrap actions with the same editDSL value in property. editDSL: ${editDSL}\nchanges:`,
     changes

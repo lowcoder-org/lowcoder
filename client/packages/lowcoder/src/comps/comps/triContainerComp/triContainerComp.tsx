@@ -13,7 +13,7 @@ import { migrateOldData } from "comps/generators/simpleGenerators";
 import { NameGenerator } from "comps/utils";
 import { fromRecord, Node } from "lowcoder-core";
 import { nodeIsRecord } from "lowcoder-core";
-import _ from "lodash";
+import { isNil, mapValues } from "lodash";
 import { ReactNode } from "react";
 import { lastValueIfEqual } from "util/objectUtils";
 import {
@@ -64,7 +64,7 @@ export class TriContainerComp extends TriContainerBaseComp implements IContainer
   }
   realSimpleContainer(key?: string): SimpleContainerComp | undefined {
     // FIXME: When the tab or step container supports header, footer, modify it to the current tab
-    if (_.isNil(key)) return this.children.body.getView()["0"].children.view;
+    if (isNil(key)) return this.children.body.getView()["0"].children.view;
     return this.allContainers().find((container) => container.realSimpleContainer(key));
   }
   getCompTree(): CompTree {
@@ -83,7 +83,7 @@ export class TriContainerComp extends TriContainerBaseComp implements IContainer
     return {
       ...this.toJsonValue(),
       header: this.children.header.getPasteValue(nameGenerator),
-      body: _.mapValues(this.children.body.getView(), (comp) => {
+      body: mapValues(this.children.body.getView(), (comp) => {
         return {
           ...comp.toJsonValue(),
           view: comp.children.view.getPasteValue(nameGenerator),

@@ -1,7 +1,7 @@
 import { AddIcon, CloseIcon, CustomModalProps, ImportIconV2, ScrollBar } from "lowcoder-design";
 import { BottomShadow, GreyTextColor, TabActiveColor } from "constants/style";
 import { trans } from "i18n";
-import _, { noop } from "lodash";
+import { uniq, throttle, noop } from "lodash";
 import { CreateDataSourceModal } from "pages/datasource/datasourceModal";
 import { DataSourceButton } from "pages/datasource/pluginPanel";
 import React, { useState } from "react";
@@ -10,7 +10,7 @@ import styled, { css } from "styled-components";
 import { BottomResTypeEnum } from "types/bottomRes";
 import { LargeBottomResIconWrapper } from "util/bottomResUtils";
 import { PageType } from "../constants/pageConstants";
-import { SizeType } from "antd/lib/config-provider/SizeContext";
+import { SizeType } from "antd/es/config-provider/SizeContext";
 import { Datasource } from "@lowcoder-ee/constants/datasourceConstants";
 import {
   LOWCODER_API_ID,
@@ -237,7 +237,7 @@ export function ResCreatePanel(props: ResCreateModalProps) {
 
   const buttonSize = placement !== "queryLibrary" ? "small" : "middle";
 
-  const handleScroll = _.throttle((e: any) => {
+  const handleScroll = throttle((e: any) => {
     const top = e.target.scrollTop;
     setScrolling(top > 0);
   }, 100);
@@ -258,7 +258,7 @@ export function ResCreatePanel(props: ResCreateModalProps) {
             <div className="section-title">{trans("query.recentlyUsed")}</div>
             <div ref={ref} className="section">
               <DataSourceListWrapper $placement={placement}>
-                {_.uniq(recentlyUsed)
+                {uniq(recentlyUsed)
                   .slice(0, count)
                   .map((id, idx) => (
                     <ResButton key={idx} size={buttonSize} identifier={id} onSelect={onSelect} />

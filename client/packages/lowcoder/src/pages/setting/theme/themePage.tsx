@@ -13,12 +13,12 @@ import CreateModal from "./createModal";
 import history from "util/history";
 import { THEME_DETAIL } from "constants/routesURL";
 import { currentOrgAdmin } from "util/permissionUtils";
-import { AddIcon } from "lowcoder-design";
+import { AddIcon } from "lowcoder-design/src/icons";
 import { CreateButton, ThemeContent } from "./styledComponents";
 import { genQueryId } from "comps/utils/idGenerator";
 import { trans } from "i18n";
 import { Level1SettingPageTitleWithBtn } from "../styled";
-import { messageInstance } from "lowcoder-design";
+import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 
 type ThemeProps = {
   setCommonSettings: (params: SetCommonSettingPayload) => void;

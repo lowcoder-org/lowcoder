@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import { Layers } from "constants/Layers";
-import { HelpIcon, LeftHelpIcon, HelpGithubIcon, HelpDiscordIcon } from "lowcoder-design";
+import { HelpIcon, LeftHelpIcon, HelpGithubIcon, HelpDiscordIcon } from "lowcoder-design/src/icons";
 import { VideoIcon, ChatIcon, DocIcon, TutorialIcon, ShortcutIcon } from "assets/icons";
 import TutorialVideoPic from "assets/images/tutorialVideoThumbnail.png";
 import { default as Dropdown } from "antd/es/dropdown";
@@ -24,7 +24,7 @@ import { CommonTipsOverlay } from "lowcoder-design";
 import { markUserStatus } from "redux/reduxActions/userActions";
 import { AppTypeEnum } from "constants/applicationConstants";
 import { ShortcutListPopup } from "./shortcutListPopup";
-import { QuestionIcon, UpgradeIcon } from "lowcoder-design";
+import { QuestionIcon, UpgradeIcon } from "lowcoder-design/src/icons";
 import { trans } from "i18n";
 import { localEnv } from "util/envUtils";
 

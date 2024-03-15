@@ -14,7 +14,7 @@ import { NameConfig, NameConfigHidden, withExposingConfigs } from "comps/generat
 import { NameGenerator } from "comps/utils";
 import { ControlNode, Section, sectionNames } from "lowcoder-design";
 import { HintPlaceHolder } from "lowcoder-design";
-import _ from "lodash";
+import { isEmpty, isNil, mapValues } from "lodash";
 import React, { useCallback, useContext } from "react";
 import styled, { css } from "styled-components";
 import { IContainer } from "../containerBase/iContainer";
@@ -32,7 +32,7 @@ import { BoolCodeControl } from "comps/controls/codeControl";
 import { DisabledContext } from "comps/generators/uiCompBuilder";
 import { EditorContext } from "comps/editorState";
 import { checkIsMobile } from "util/commonUtils";
-import { messageInstance } from "lowcoder-design";
+import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 
 const EVENT_OPTIONS = [
   {
@@ -355,7 +355,7 @@ class TabbedContainerImplComp extends TabbedContainerBaseComp implements IContai
       const value = action.value as JSONObject;
       if (value.type === "push") {
         const itemValue = value.value as JSONObject;
-        if (_.isEmpty(itemValue.key)) itemValue.key = itemValue.label;
+        if (isEmpty(itemValue.key)) itemValue.key = itemValue.label;
         action = {
           ...action,
           value: {
@@ -385,7 +385,7 @@ class TabbedContainerImplComp extends TabbedContainerBaseComp implements IContai
     const tabs = this.children.tabs.getView();
     const selectedTab = tabs.find((tab) => tab.key === selectedTabKey) ?? tabs[0];
     const id = String(selectedTab.id);
-    if (_.isNil(key)) return this.children.containers.children[id];
+    if (isNil(key)) return this.children.containers.children[id];
     return Object.values(this.children.containers.children).find((container) =>
       container.realSimpleContainer(key)
     );
@@ -410,7 +410,7 @@ class TabbedContainerImplComp extends TabbedContainerBaseComp implements IContai
 
   getPasteValue(nameGenerator: NameGenerator): JSONValue {
     const containerMap = this.children.containers.getView();
-    const containerPasteValueMap = _.mapValues(containerMap, (container) =>
+    const containerPasteValueMap = mapValues(containerMap, (container) =>
       container.getPasteValue(nameGenerator)
     );
 

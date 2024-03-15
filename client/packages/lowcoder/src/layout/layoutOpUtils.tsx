@@ -1,4 +1,6 @@
-import _ from "lodash";
+import {
+  isNil, omit, fromPairs, toPairs,
+} from "lodash";
 import { memoizeN } from "util/memoize/memoizeN";
 import { changeItemOp, LayoutOp, LayoutOpTypes, stickyItemOp } from "./layoutOp";
 import {
@@ -112,14 +114,14 @@ function reduce(layout: Layout, op: LayoutOp, stickyItemMap?: Record<string, Set
       break;
     }
     case LayoutOpTypes.DELETE_ITEM: {
-      newLayout = _.omit(layout, op.key);
+      newLayout = omit(layout, op.key);
       break;
     }
     case LayoutOpTypes.RENAME_ITEM: {
       const item = layout[op.sourceKey];
-      if (_.isNil(item)) break;
+      if (isNil(item)) break;
       newLayout = {
-        ..._.omit(layout, [op.sourceKey]),
+        ...omit(layout, [op.sourceKey]),
         [op.targetKey]: { ...item, i: op.targetKey },
       };
       break;
@@ -148,13 +150,13 @@ export let getUILayout = (
 ): Layout => {
   // log.log("getUILayout. layout: ", layout, " extraLayout: ", extraLayout, " changedHs: ", changedHs, " ops: ", ops);
   const stickyItemMap = getStickyItemMap(layout);
-  const hiddenItemHeight = _.fromPairs(
-    _.toPairs(extraLayout)
+  const hiddenItemHeight = fromPairs(
+    toPairs(extraLayout)
       .filter(([, extraItem]) => extraItem.hidden && !extraItem.isSelected)
       .map(([i]) => [i, layout[i].h])
   );
   const realOps = [
-    ..._.toPairs(changedHs)
+    ...toPairs(changedHs)
       .filter(([i]) => layout.hasOwnProperty(i))
       .map(([i, h]) => (layout[i].h > h ? stickyItemOp(i, { h }) : changeItemOp(i, { h }))),
     ...Object.keys(hiddenItemHeight).map((i) => stickyItemOp(i, { h: 0 })),
@@ -165,7 +167,7 @@ export let getUILayout = (
   });
   layout = cascade(layout);
   if (!setHiddenCompHeightZero) {
-    const recoverHiddenOps = _.toPairs(hiddenItemHeight).map(([i, h]) => changeItemOp(i, { h }));
+    const recoverHiddenOps = toPairs(hiddenItemHeight).map(([i, h]) => changeItemOp(i, { h }));
     recoverHiddenOps.forEach((op) => {
       layout = reduce(layout, op, stickyItemMap);
     });

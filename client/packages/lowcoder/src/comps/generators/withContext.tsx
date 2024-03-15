@@ -13,7 +13,7 @@ import {
 import { ConstructorToNodeType, ConstructorToView, MultiCompConstructor } from "lowcoder-core";
 import React from "react";
 import { lastValueIfEqual, setFieldsNoTypeCheck, shallowEqual } from "util/objectUtils";
-import _ from "lodash";
+import { isEqual } from "lodash";
 
 type NodeFnType<T> = ConstructorToNodeType<T> extends undefined
   ? undefined
@@ -102,7 +102,7 @@ export function withContext<ParamNames extends readonly string[], T extends Mult
     private refreshChildContextData(): this {
       if (this.contextData && this.valueV2) {
         const newValue = this.getContextValue(this.contextData);
-        if (!_.isEqual(this.prevContextVal, newValue)) {
+        if (!isEqual(this.prevContextVal, newValue)) {
           this.prevContextVal = newValue;
           return this.updateChildContextData(this.contextData);
         }

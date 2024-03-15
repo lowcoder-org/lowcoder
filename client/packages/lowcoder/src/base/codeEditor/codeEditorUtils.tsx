@@ -1,6 +1,6 @@
 import { CompInfo } from "comps/editorState";
 import { getDynamicStringSegments } from "lowcoder-core";
-import _ from "lodash";
+import {fromPairs} from "lodash";
 import { CompletionContext } from "./codeMirror";
 
 export function checkCursorInBinding(context: CompletionContext, isFunction?: boolean): boolean {
@@ -31,5 +31,5 @@ export function checkCursorInBinding(context: CompletionContext, isFunction?: bo
 }
 
 export function transformCompInfoIntoRecord(compInfo: Array<CompInfo>): Record<string, unknown> {
-  return _.fromPairs(compInfo.map((info) => [info.name, info.data]));
+  return fromPairs(compInfo.map((info) => [info.name, info.data]));
 }

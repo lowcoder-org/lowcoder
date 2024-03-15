@@ -40,6 +40,7 @@ const TmpComp = withTypeAndChildren<
   (type) => {
     const compInfo = parseCompType(type);
     if (compInfo.isRemote) {
+      console.log(compInfo);
       return remoteComp(compInfo);
     }
     const entries = Object.entries(uiCompRegistry);

@@ -1,13 +1,14 @@
 import React, { CSSProperties } from "react";
 import styled from "styled-components";
 
-import { CommonGrayLabel, EmptyDataIcon } from "lowcoder-design";
+import { EmptyDataIcon } from "lowcoder-design/src/icons";
+import { CommonGrayLabel } from "lowcoder-design/src/components/Label";
 import { Layers } from "constants/Layers";
-import _ from "lodash";
+import { throttle } from "lodash";
 import { useResizeDetector } from "react-resize-detector";
 import { EditorContainerPadding, TopHeaderHeight } from "constants/style";
 import { trans } from "i18n";
-import { messageInstance } from "lowcoder-design";
+import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 
 export const Height100Div = styled.div`
   height: 100%;
@@ -153,7 +154,7 @@ const ReadOnlyMaskDiv = styled.div`
   height: 100%;
   cursor: not-allowed;
 `;
-const readOnlyWarn = _.throttle(() => messageInstance.warning(trans("header.editError")), 3000, {
+const readOnlyWarn = throttle(() => messageInstance.warning(trans("header.editError")), 3000, {
   leading: true,
   trailing: false,
 });

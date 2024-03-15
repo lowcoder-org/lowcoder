@@ -5,7 +5,7 @@ import { MultiCompBuilder, stateComp, valueComp, withContext, withDefault } from
 import { withSelectedMultiContext } from "comps/generators/withSelectedMultiContext";
 import { genRandomKey } from "comps/utils/idGenerator";
 import { trans } from "i18n";
-import _ from "lodash";
+import { mapValues } from "lodash";
 import {
   changeChildAction,
   changeValueAction,
@@ -180,7 +180,7 @@ export class ColumnComp extends ColumnInitComp {
 
     const renderNode = withFunction(this.children.render.node(), (render) => ({
       wrap: render.__comp__.wrap,
-      map: _.mapValues(render.__map__, (value) => value.comp),
+      map: mapValues(render.__map__, (value) => value.comp),
     }));
     return fromRecord({
       dataIndex: dataIndexNode,
@@ -319,7 +319,7 @@ export class ColumnComp extends ColumnInitComp {
 
   getChangeSet() {
     const dataIndex = this.children.dataIndex.getView();
-    const changeSet = _.mapValues(this.children.render.getMap(), (value) =>
+    const changeSet = mapValues(this.children.render.getMap(), (value) =>
       value.getComp().children.comp.children.changeValue.getView()
     );
     return { [dataIndex]: changeSet };

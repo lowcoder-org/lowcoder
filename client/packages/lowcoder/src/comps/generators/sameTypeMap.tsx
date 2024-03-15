@@ -4,7 +4,7 @@ import { ToType } from "comps/utils";
 import React from "react";
 import { CompAction, CompActionTypes, customAction, CustomAction } from "lowcoder-core";
 import { CompConstructor, CompParams, MultiBaseComp, wrapDispatch } from "lowcoder-core";
-import _ from "lodash";
+import { isNil, mapValues } from "lodash";
 
 type MapAction<ChildDataType extends JSONValue = JSONValue> =
   | {
@@ -48,7 +48,7 @@ export function addMapCompChildAction(key: string, value: Comp) {
 export function multiMapAction(actions: Array<CustomAction>) {
   const editDSL = actions.some((action) => !!action.editDSL);
   console.assert(
-    actions.every((action) => !_.isNil(action.editDSL) && action.editDSL === editDSL),
+    actions.every((action) => !isNil(action.editDSL) && action.editDSL === editDSL),
     `sameTypeMap's multiMapAction: all actions should have the same editDSL. editDSL: ${editDSL} actions:`,
     actions
   );
@@ -81,7 +81,7 @@ export function sameTypeMap<ChildComp extends CompConstructor<any, any>>(
   class TEMP_CLASS extends MultiBaseComp<Record<string, ConstructorToComp<ChildComp>>> {
     override parseChildrenFromValue(params: CompParams) {
       const value = params.value ?? {};
-      return _.mapValues(
+      return mapValues(
         value as Record<string, JSONValue>,
         (childValue: JSONValue, childName: string) => {
           return newChild(this.dispatch, childName, childValue);
@@ -146,7 +146,7 @@ export function sameTypeMap<ChildComp extends CompConstructor<any, any>>(
     multiAction(actions: Array<CustomAction>) {
       const editDSL = actions.some((action) => !!action.editDSL);
       console.assert(
-        actions.every((action) => !_.isNil(action.editDSL) && action.editDSL === editDSL),
+        actions.every((action) => !isNil(action.editDSL) && action.editDSL === editDSL),
         `sameTypeMap's multiMapAction: all actions should have the same editDSL. editDSL: ${editDSL} actions:`,
         actions
       );

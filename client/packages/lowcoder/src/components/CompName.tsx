@@ -1,10 +1,12 @@
 import { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
-import { EditPopoverItemType, PointIcon, Search, SearchOutlinedIcon } from "lowcoder-design";
+import { PointIcon, SearchOutlinedIcon } from "lowcoder-design/src/icons";
+import type { EditPopoverItemType } from 'lowcoder-design/src/components/popover';
+import { Search } from 'lowcoder-design/src/components/Search';
 import { EditPopover } from "lowcoder-design";
 import { EditorContext } from "comps/editorState";
 import { GridCompOperator } from "comps/utils/gridCompOperator";
-import { PopupCard } from "lowcoder-design";
+import { PopupCard } from "lowcoder-design/src/components/popupCard";
 import { EditText } from "lowcoder-design";
 import { values } from "lodash";
 import { GreyTextColor } from "constants/style";

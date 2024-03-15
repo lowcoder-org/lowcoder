@@ -8,6 +8,8 @@ import { ensureLastSlash } from "./src/dev-utils/util";
 import { buildVars } from "./src/dev-utils/buildVars";
 import { globalDepPlugin } from "./src/dev-utils/globalDepPlguin";
 import { visualizer } from "rollup-plugin-visualizer";
+import peerDepsExternal from 'rollup-plugin-peer-deps-external';
+import resolve from '@rollup/plugin-node-resolve';
 
 const isVisualizerEnabled = !!process.env.ENABLE_VISUALIZER;
 
@@ -19,6 +21,7 @@ buildVars.forEach(({ name, defaultValue }) => {
 const apiBaseUrl = "http://localhost:8000";
 
 export const viteConfig: UserConfig = {
+  mode: 'production',
   define: {
     ...define,
     REACT_APP_API_HOST: JSON.stringify(apiBaseUrl),
@@ -41,15 +44,47 @@ export const viteConfig: UserConfig = {
       fileName: "lowcoder-sdk",
     },
     rollupOptions: {
-      external: ["react", "react-dom"],
+      input: {
+        'appView': '../lowcoder/src/appView/index.ts',
+        'lowcoder-sdk': './src/index.ts',
+      },
+      // external: ["react", "react-dom"],
+      external: (id) => {
+        const externalMods = ['react', 'react-dom'];
+        // if(externalMods.includes(id) || id.endsWith('.test.tsx')) {
+        if(externalMods.includes(id) || id.endsWith('.test.tsx') || id.endsWith('index-test.tsx')) {
+          // console.log(id);
+          return true;
+        }
+        return false;
+      },
       output: {
+        // inlineDynamicImports: true,
+        format: "esm",
+        entryFileNames: '[name].js',
         chunkFileNames: "[name].js",
+        // manualChunks: {
+        //   'lodash': ['lodash'],
+        //   'antd': ['antd'],
+        //   'antd-mobile': ['antd-mobile']
+        // }
         manualChunks: (id) => {
           if (id.includes('node_modules')) {
             return id.toString().split('node_modules/')[1].split('/')[0].toString();
+            // return 'vendor';
           }
+          // if(id.endsWith('.test.tsx')) {
+          //   const tokens = id.toString().split('/');
+          //   console.log(tokens[tokens.length - 1]);
+          //   return tokens[tokens.length - 1];
+          // }
         },
       },
+      plugins: [
+        peerDepsExternal(),
+        resolve() as PluginOption,
+        dynamicImport(),
+      ],
       onwarn: (warning, warn) => {
         if (warning.code === 'MODULE_LEVEL_DIRECTIVE') {
           return
@@ -119,7 +154,7 @@ export const viteConfig: UserConfig = {
       brotliSize: true,
       filename: "analyse.html"
     }) as PluginOption,
-    dynamicImport(),
+    // dynamicImport(),
   ],
 };
 

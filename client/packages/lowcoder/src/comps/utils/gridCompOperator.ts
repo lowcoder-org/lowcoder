@@ -12,7 +12,7 @@ import {
   PositionParams,
   switchLayoutWH,
 } from "layout";
-import _ from "lodash";
+import { pick, mapValues, size } from "lodash";
 import {
   ActionExtraInfo,
   Comp,
@@ -47,7 +47,7 @@ export class GridCompOperator {
 
     const compKeys = Object.keys(compRecords);
 
-    if (_.size(compRecords) <= 0) {
+    if (size(compRecords) <= 0) {
       messageInstance.info(trans("gridCompOperator.selectAtLeastOneComponent"));
       return false;
     }
@@ -57,16 +57,16 @@ export class GridCompOperator {
       return false;
     }
     const simpleContainer = container.realSimpleContainer(compKeys[0]);
-    let layout: Layout = _.pick(simpleContainer.children.layout.getView(), compKeys);
+    let layout: Layout = pick(simpleContainer.children.layout.getView(), compKeys);
     layout = moveToZero(layout);
 
-    const compMap = _.mapValues(compRecords, (comp, key) => ({
+    const compMap = mapValues(compRecords, (comp, key) => ({
       item: comp,
       layout: layout[key],
     }));
 
     const toCopyComps = Object.values(compMap).filter((item) => !!item.item && !!item.layout);
-    if (!toCopyComps || _.size(toCopyComps) <= 0) {
+    if (!toCopyComps || size(toCopyComps) <= 0) {
       messageInstance.info(trans("gridCompOperator.selectAtLeastOneComponent"));
       return false;
     }
@@ -78,7 +78,7 @@ export class GridCompOperator {
   }
 
   static pasteComp(editorState: EditorState) {
-    if (!this.copyComps || _.size(this.copyComps) <= 0 || !this.sourcePositionParams) {
+    if (!this.copyComps || size(this.copyComps) <= 0 || !this.sourcePositionParams) {
       messageInstance.info(trans("gridCompOperator.selectCompFirst"));
       return false;
     }
@@ -94,9 +94,9 @@ export class GridCompOperator {
     }
     const selectedComps = editorState.selectedComps();
     const isSelectingContainer =
-      _.size(selectedComps) === 1 &&
+      size(selectedComps) === 1 &&
       (Object.values(selectedComps)[0] as GridItemComp)?.children?.comp === selectedContainer;
-    if (_.size(this.copyComps) === 1) {
+    if (size(this.copyComps) === 1) {
       const { item } = this.copyComps[0];
       // Special case: To paste a container, and the container is currently selected, paste it outside the selected container
       if (isContainer((item as GridItemComp).children.comp) && isSelectingContainer) {
@@ -164,7 +164,7 @@ export class GridCompOperator {
   }
 
   static deleteComp(editorState: EditorState, compRecords: Record<string, Comp>): boolean {
-    const compNum = _.size(compRecords);
+    const compNum = size(compRecords);
     if (compNum <= 0) {
       return false;
     }

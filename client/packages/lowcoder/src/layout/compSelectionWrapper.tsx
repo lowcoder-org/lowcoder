@@ -3,9 +3,9 @@ import { UICompType } from "comps/uiCompRegistry";
 import { Layers } from "constants/Layers";
 import { ModulePrimaryColor, PrimaryColor } from "constants/style";
 import { fadeColor } from "lowcoder-design";
-import { CloseEyeIcon } from "lowcoder-design";
-import { DragWhiteIcon } from "lowcoder-design";
-import { WidthDragIcon } from "lowcoder-design";
+import { CloseEyeIcon } from "lowcoder-design/src/icons";
+import { DragWhiteIcon } from "lowcoder-design/src/icons";
+import { WidthDragIcon } from "lowcoder-design/src/icons";
 import React, {
   MouseEvent,
   MouseEventHandler,

@@ -35,8 +35,8 @@ import {
 } from "pages/setting/idSource/styledComponents";
 import { validateResponse } from "api/apiUtils";
 import { ItemType } from "pages/setting/idSource/idSourceConstants";
-import _ from "lodash";
-import { messageInstance } from "lowcoder-design";
+import { isObject } from "lodash";
+import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 
 type IdSourceDetailProps = {
   location: Location & { state: ConfigItem };
@@ -155,7 +155,7 @@ export const IdSourceDetail = (props: IdSourceDetailProps) => {
           }
         >
           {Object.entries(authConfig[configDetail.authType].form).map(([key, value]) => {
-            const valueObject = _.isObject(value) ? (value as ItemType) : false;
+            const valueObject = isObject(value) ? (value as ItemType) : false;
             let required = configDetail.ifLocal || (key !== "clientSecret" && key !== "publicKey");
             required = valueObject ? valueObject.isRequire ?? required : required;
             const hasLock = valueObject && valueObject?.hasLock;

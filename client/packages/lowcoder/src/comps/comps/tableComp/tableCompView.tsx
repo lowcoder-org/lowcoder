@@ -28,7 +28,7 @@ import { CompNameContext, EditorContext } from "comps/editorState";
 import { BackgroundColorContext } from "comps/utils/backgroundColorContext";
 import { PrimaryColor } from "constants/style";
 import { trans } from "i18n";
-import _ from "lodash";
+import { isEmpty, isNiil } from "lodash";
 import { darkenColor, isDarkColor } from "lowcoder-design";
 import React, { Children, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { Resizable } from "react-resizable";
@@ -38,7 +38,7 @@ import { TableImplComp } from "./tableComp";
 import { useResizeDetector } from "react-resize-detector";
 import { SlotConfigContext } from "comps/controls/slotControl";
 import { EmptyContent } from "pages/common/styledComponent";
-import { messageInstance } from "lowcoder-design";
+import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 import { ReactRef, ResizeHandleAxis } from "layout/gridLayoutPropTypes";
 import { CellColorViewType } from "./column/tableColumnComp";
 
@@ -423,7 +423,7 @@ const ResizeableTitle = (props: any) => {
   }, []);
 
   // the multi select column and expand column should not be resizable
-  const isNotDataColumn = _.isNil(restProps.title);
+  const isNotDataColumn = isNil(restProps.title);
   if ((isUserViewMode && !viewModeResizable) || isNotDataColumn) {
     return <TableTh ref={elementRef} {...restProps} width={width} />;
   }
@@ -695,7 +695,7 @@ export function TableCompView(props: {
   const showHRowGridBorder = compChildren.showHRowGridBorder.getView();
   const columnsStyle = compChildren.columnsStyle.getView();
   const changeSet = useMemo(() => compChildren.columns.getChangeSet(), [compChildren.columns]);
-  const hasChange = useMemo(() => !_.isEmpty(changeSet), [changeSet]);
+  const hasChange = useMemo(() => !isEmpty(changeSet), [changeSet]);
   const columns = useMemo(() => compChildren.columns.getView(), [compChildren.columns]);
   const columnViews = useMemo(() => columns.map((c) => c.getView()), [columns]);
   const data = comp.filterData;

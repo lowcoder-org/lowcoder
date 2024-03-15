@@ -1,5 +1,4 @@
 import { fromValue } from "eval/simpleNode";
-import _ from "lodash";
 import { changeDependName, filterDepends } from "./evaluate";
 
 describe("deps", () => {

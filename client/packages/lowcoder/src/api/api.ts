@@ -7,7 +7,7 @@ import {
 } from "api/apiUtils";
 import { API_REQUEST_HEADERS } from "constants/apiConstants";
 import { sdkConfig } from "constants/sdkConfig";
-import _ from "lodash";
+import { trimEnd } from "lodash";
 
 let axiosIns: AxiosInstance | null = null;
 
@@ -17,7 +17,7 @@ function getAxiosInstance() {
   }
 
   const apiRequestConfig: AxiosRequestConfig = {
-    baseURL: `${_.trimEnd(sdkConfig.baseURL || SERVER_HOST, "/")}/api/`,
+    baseURL: `${trimEnd(sdkConfig.baseURL || SERVER_HOST, "/")}/api/`,
     timeout: REQUEST_TIMEOUT_MS,
     headers: API_REQUEST_HEADERS,
     withCredentials: true,

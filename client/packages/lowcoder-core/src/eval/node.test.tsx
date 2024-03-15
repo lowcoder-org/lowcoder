@@ -7,7 +7,7 @@ import {
   SimpleNode,
   withFunction,
 } from "eval";
-import _ from "lodash";
+import { isEqual } from "lodash";
 
 it("simple test", () => {
   const n1 = fromValue("hi");
@@ -66,7 +66,7 @@ it("map deep compare test", () => {
   const map1 = new Map([[node1, new Set(["n"])]]);
   const map2 = new Map([[node2, new Set(["n"])]]);
   expect(node1 === node2).toBe(false);
-  expect(_.isEqual(map1, map2)).toBe(true);
+  expect(isEqual(map1, map2)).toBe(true);
   expect(dependingNodeMapEquals(map1, map2)).toBe(false);
   expect(dependingNodeMapEquals(map1, map1)).toBe(true);
 

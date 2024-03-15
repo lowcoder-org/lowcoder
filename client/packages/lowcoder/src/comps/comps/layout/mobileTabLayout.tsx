@@ -18,12 +18,12 @@ import { ExternalEditorContext } from "util/context/ExternalEditorContext";
 import { default as Skeleton } from "antd/es/skeleton";
 import { hiddenPropertyView } from "comps/utils/propertyUtils";
 
-const TabBar = React.lazy(() => import("antd-mobile/es/components/tab-bar"));
-const TabBarItem = React.lazy(() =>
-  import("antd-mobile/es/components/tab-bar/tab-bar").then((module) => ({
-    default: module.TabBarItem,
-  }))
-);
+// const TabBar = React.lazy(() => import("antd-mobile/es/components/tab-bar"));
+// const TabBarItem = React.lazy(() =>
+//   import("antd-mobile/es/components/tab-bar/tab-bar").then((module) => ({
+//     default: module.TabBarItem,
+//   }))
+// );
 
 const TabBarHeight = 56;
 const MaxWidth = 450;
@@ -76,7 +76,7 @@ function TabBarView(props: TabBarProps) {
   return (
     <Suspense fallback={<Skeleton />}>
       <TabBarWrapper $readOnly={props.readOnly}>
-        <TabBar
+        {/* <TabBar
           onChange={(key: string) => {
             if (key) {
               props.onChange(key);
@@ -90,7 +90,7 @@ function TabBarView(props: TabBarProps) {
               <TabBarItem key={tab.key} icon={tab.icon} title={tab.title} />
             );
           })}
-        </TabBar>
+        </TabBar> */}
       </TabBarWrapper>
     </Suspense>
   );

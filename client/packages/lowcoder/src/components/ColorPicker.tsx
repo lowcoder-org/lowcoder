@@ -1,12 +1,12 @@
-import _ from "lodash";
+import { debounce } from "lodash";
 import { useEffect, useState } from "react";
 import { ConfigItem, Radius, Margin, Padding, GridColumns } from "../pages/setting/theme/styledComponents";
 import { isValidColor, toHex } from "components/colorSelect/colorUtils";
 import { ColorSelect } from "components/colorSelect";
 import { TacoInput } from "components/tacoInput";
-import { TableCellsIcon as GridIcon } from "lowcoder-design"; //Added By Aqib Mirza
+import { TableCellsIcon as GridIcon } from "lowcoder-design/src/icons"; //Added By Aqib Mirza
 
-import { ExpandIcon, CompressIcon } from "lowcoder-design";
+import { ExpandIcon, CompressIcon } from "lowcoder-design/src/icons";
 
 export type configChangeParams = {
   colorKey: string;
@@ -45,7 +45,7 @@ export default function ColorPicker(props: ColorConfigProps) {
     padding: defaultPadding,
     gridColumns: defaultGridColumns, //Added By Aqib Mirza
   } = props;
-  const configChangeWithDebounce = _.debounce(configChange, 0);
+  const configChangeWithDebounce = debounce(configChange, 0);
   const [color, setColor] = useState(defaultColor);
   const [radius, setRadius] = useState(defaultRadius);
 
@@ -165,7 +165,7 @@ export default function ColorPicker(props: ColorConfigProps) {
       colorKey !== "gridColumns" && (
         <div className="config-input">
           <ColorSelect
-            changeColor={_.debounce(setColor, 500, {
+            changeColor={debounce(setColor, 500, {
               leading: true,
               trailing: true,
             })}

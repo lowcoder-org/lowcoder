@@ -1,4 +1,4 @@
-import _ from "lodash";
+import { noop, size } from "lodash";
 
 const SWITCH_PERF_ON = false;
 const COST_MS_PRINT_THR = 0;
@@ -42,10 +42,10 @@ class RecursivePerfUtil {
 
   perf<T>(obj: any, name: string, fn: (log: Log) => T): T {
     if (!SWITCH_PERF_ON) {
-      return fn(_.noop);
+      return fn(noop);
     }
     const curRecord = this.getRecordByStack();
-    const childrenSize = _.size(curRecord.childrenPerfInfo);
+    const childrenSize = size(curRecord.childrenPerfInfo);
     const nextPerfInfo = {
       obj,
       name,
@@ -82,7 +82,7 @@ class RecursivePerfUtil {
       record.info,
       `, obj: `,
       record.obj,
-      `, depth: ${record.depth}, size: ${_.size(record.childrenPerfInfo)}`
+      `, depth: ${record.depth}, size: ${size(record.childrenPerfInfo)}`
     );
     record.childrenPerfInfo.forEach((subRecord, idx) => {
       if (subRecord.costMs >= cost_ms_print_thr) {

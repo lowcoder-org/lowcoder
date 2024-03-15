@@ -1,5 +1,5 @@
 import { default as Tag } from "antd/es/tag";
-import { PresetStatusColorTypes } from "antd/lib/_util/colors";
+import { PresetStatusColorTypes } from "antd/es/_util/colors";
 import { TagsContext } from "components/table/EditableCell";
 import {
   ColumnTypeCompBuilder,
@@ -9,18 +9,19 @@ import { ColumnValueTooltip } from "comps/comps/tableComp/column/simpleColumnTyp
 import { codeControl } from "comps/controls/codeControl";
 import { trans } from "i18n";
 import styled from "styled-components";
-import _ from "lodash";
+import { isArray } from "lodash";
 import { ReactNode, useContext, useState } from "react";
 import { toJson } from "really-relaxed-json";
 import { hashToNum } from "util/stringUtils";
-import { CustomSelect, PackUpIcon } from "lowcoder-design";
+import { PackUpIcon } from "lowcoder-design/src/icons";
+import { CustomSelect } from "lowcoder-design/src/components/customSelect";
 import { ScrollBar } from "lowcoder-design";
 
 const colors = PresetStatusColorTypes;
 
 const isStringArray = (value: any) => {
   return (
-    _.isArray(value) &&
+    isArray(value) &&
     value.every((v) => {
       const type = typeof v;
       return type === "string" || type === "number" || type === "boolean";
@@ -228,7 +229,7 @@ export const ColumnTagsComp = (function () {
     (props, dispatch) => {
       let value = props.changeValue ?? getBaseValue(props, dispatch);
       value = typeof value === "string" && value.split(",")[1] ? value.split(",") : value;
-      const tags = _.isArray(value) ? value : [value];
+      const tags = isArray(value) ? value : [value];
       const view = tags.map((tag, index) => {
         // The actual eval value is of type number or boolean
         const tagText = String(tag);
@@ -242,13 +243,13 @@ export const ColumnTagsComp = (function () {
     },
     (nodeValue) => {
       const text = nodeValue.text.value;
-      return _.isArray(text) ? text.join(",") : text;
+      return isArray(text) ? text.join(",") : text;
     },
     getBaseValue
   )
     .setEditViewFn((props) => {
       const text = props.value;
-      const value = _.isArray(text) ? text.join(",") : text;
+      const value = isArray(text) ? text.join(",") : text;
       return <TagEdit value={value} onChange={props.onChange} onChangeEnd={props.onChangeEnd} />;
     })
     .setPropertyViewFn((children) => (

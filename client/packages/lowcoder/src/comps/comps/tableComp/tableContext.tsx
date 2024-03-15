@@ -1,5 +1,5 @@
 import React from "react";
-import _ from "lodash";
+import { noop } from "lodash";
 
 export const TableRowContext = React.createContext<{
   hover: boolean;
@@ -9,4 +9,4 @@ export const TableRowContext = React.createContext<{
 export const TableCellContext = React.createContext<{
   isEditing: boolean;
   setIsEditing: (e: boolean) => void;
-}>({ isEditing: false, setIsEditing: _.noop });
+}>({ isEditing: false, setIsEditing: noop });

@@ -5,7 +5,7 @@ import { MultiCompBuilder, valueComp } from "comps/generators";
 import { bottomResListComp } from "comps/generators/bottomResList";
 import { NameConfig, withExposingConfigs } from "comps/generators/withExposing";
 import { trans } from "i18n";
-import _ from "lodash";
+import { isEqual } from "lodash";
 import { CompAction, CompActionTypes } from "lowcoder-core";
 import {
   TacoMarkDown,
@@ -111,8 +111,8 @@ class DataChangeResponderAsBottomRes extends DataResponderItemCompBase implement
       const target = this as any;
       const preValue = target[lastDataValueKey];
       const preDsl = target[lastDataDslKey];
-      const valueChanged = !_.isEqual(preValue, value);
-      const dslNotChanged = _.isEqual(preDsl, dsl);
+      const valueChanged = !isEqual(preValue, value);
+      const dslNotChanged = isEqual(preDsl, dsl);
 
       if (valueChanged && dslNotChanged) {
         const onEvent = this.children.onEvent.getView();

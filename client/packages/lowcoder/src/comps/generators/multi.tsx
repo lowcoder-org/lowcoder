@@ -1,6 +1,6 @@
 import { JSONObject } from "util/jsonTypes";
 import { NodeToValue, RecordNode } from "lowcoder-core";
-import _ from "lodash";
+import { mapValues } from "lodash";
 import React, { ReactNode } from "react";
 import { CompAction } from "lowcoder-core";
 import { Comp, CompParams, MultiBaseComp, wrapDispatch } from "lowcoder-core";
@@ -76,7 +76,7 @@ export function parseChildrenFromValueAndChildrenMap<
     }
     return new VariantComp(newParams);
   };
-  return _.mapValues(childrenMap, genFn) as ChildrenCompMap;
+  return mapValues(childrenMap, genFn) as ChildrenCompMap;
 }
 
 /**
@@ -152,7 +152,7 @@ export function PropertyView(props: { comp: any; propertyViewFn: any }) {
 export function childrenToProps<ChildrenCompMap extends Record<string, Comp<unknown>>>(
   children: ChildrenCompMap
 ) {
-  return _.mapValues(children, (comp) => comp.getView());
+  return mapValues(children, (comp) => comp.getView());
 }
 
 export function simpleMultiComp<ChildrenCompMap extends Record<string, Comp<unknown>>>(

@@ -3,7 +3,7 @@ import { CompAction, CompActionTypes, isBroadcastAction, RenameAction } from "lo
 import { Comp } from "lowcoder-core";
 import { CompContainer } from "comps/utils/useCompInstance";
 import { AppSnapshotContext } from "constants/applicationConstants";
-import _ from "lodash";
+import { debounce } from "lodash";
 import { Dispatch, useMemo } from "react";
 import { useDispatch } from "react-redux";
 import { createSnapshotAction } from "redux/reduxActions/appSnapshotActions";
@@ -127,7 +127,7 @@ export class EditorHistory {
     return dslChanged;
   }
 
-  debounceAdd = _.debounce((comp: Comp) => {
+  debounceAdd = debounce((comp: Comp) => {
     this.add(comp);
   }, 300);
 
@@ -152,7 +152,7 @@ export class EditorHistory {
     this.setComp(lastComp);
   }
 
-  private doSaveSnapshot = _.debounce(
+  private doSaveSnapshot = debounce(
     (dsl: JSONValue, reduxDispatch: Dispatch<any>, applicationId: string) => {
       if (this.operationQueue.length <= 0) {
         return;

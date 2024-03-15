@@ -1,6 +1,6 @@
 import { withTypeAndChildrenAbstract } from "comps/generators/withType";
 import { trans } from "i18n";
-import _, { includes } from "lodash";
+import { fromPairs, includes } from "lodash";
 import { CompAction } from "lowcoder-core";
 import {
   Dropdown,
@@ -22,7 +22,7 @@ const CommandOptions = [
   { label: trans("googleSheets.deleteData"), value: "deleteData" },
   { label: trans("googleSheets.clearData"), value: "clearData" },
 ] as const;
-const valueInfoMap = _.fromPairs(CommandOptions.map((option) => [option.value, option]));
+const valueInfoMap = fromPairs(CommandOptions.map((option) => [option.value, option]));
 
 const IdChildren = {
   spreadsheetId: withPropertyViewFn(ParamsStringControl, (comp) =>

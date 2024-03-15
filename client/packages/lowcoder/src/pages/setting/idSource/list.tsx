@@ -30,10 +30,11 @@ import { validateResponse } from "api/apiUtils";
 import { ServerAuthTypeInfo } from "@lowcoder-ee/constants/authConstants";
 import { GeneralLoginIcon } from "assets/icons";
 import { FreeTypes } from "pages/setting/idSource/idSourceConstants";
-import { messageInstance, AddIcon } from "lowcoder-design";
+import { AddIcon } from "lowcoder-design/src/icons";
+import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 import { currentOrgAdmin } from "../../../util/permissionUtils";
 import CreateModal from "./createModal";
-import _ from "lodash";
+import { uniqBy } from "lodash";
 import { HelpText } from "components/HelpText";
 
 export const IdSourceList = (props: any) => {
@@ -75,7 +76,7 @@ export const IdSourceList = (props: any) => {
           let res: ConfigItem[] = resp.data.data.filter((item: ConfigItem) =>
             IdSource.includes(item.authType)
           );
-          res = _.uniqBy(res, 'authType');
+          res = uniqBy(res, 'authType');
           setConfigs(res);
         }
       })

@@ -2,7 +2,7 @@ import styled from "styled-components";
 import { default as AntdInput, InputProps as AntdInputProps, InputRef } from "antd/es/input";
 import { BorderActiveColor, BorderColor, BorderRadius, GreyTextColor } from "constants/style";
 import { ChangeEvent, useEffect, useRef, useState } from "react";
-import _ from "lodash";
+import { debounce as lodashDebounce} from "lodash";
 import React from "react";
 import { INPUT_DEFAULT_ONCHANGE_DEBOUNCE } from "constants/perf";
 
@@ -35,7 +35,7 @@ function TacoInput(props: InputProps, ref: React.Ref<InputRef>) {
 
   const debouncedOnChangeRef = useRef(
     debounce > 0
-      ? _.debounce((e: ChangeEvent<HTMLInputElement>) => {
+      ? lodashDebounce((e: ChangeEvent<HTMLInputElement>) => {
           window.clearTimeout(isTypingRef.current);
           isTypingRef.current = window.setTimeout(() => (isTypingRef.current = 0), 100);
           originOnChangeRef.current?.(e);

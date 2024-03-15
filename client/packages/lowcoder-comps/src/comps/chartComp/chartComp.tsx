@@ -8,7 +8,7 @@ import {
 import { AxisFormatterComp, EchartsAxisType } from "./chartConfigs/cartesianAxisConfig";
 import { chartChildrenMap, ChartSize, getDataKeys } from "./chartConstants";
 import { chartPropertyView } from "./chartPropertyView";
-import _ from "lodash";
+import { noop, omit, isEqual } from "lodash";
 import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import ReactResizeDetector from "react-resize-detector";
 import ReactECharts from "./reactEcharts";
@@ -79,7 +79,7 @@ ChartTmpComp = withViewFn(ChartTmpComp, (comp) => {
     // bind events
     const echartsCompInstance = echartsCompRef?.current?.getEchartsInstance();
     if (!echartsCompInstance) {
-      return _.noop;
+      return noop;
     }
     echartsCompInstance?.on("selectchanged", (param: any) => {
       const option: any = echartsCompInstance?.getOption();
@@ -96,7 +96,7 @@ ChartTmpComp = withViewFn(ChartTmpComp, (comp) => {
     return () => echartsCompInstance?.off("selectchanged");
   }, [mode, onUIEvent]);
 
-  const echartsConfigChildren = _.omit(comp.children, echartsConfigOmitChildren);
+  const echartsConfigChildren = omit(comp.children, echartsConfigOmitChildren);
   const option = useMemo(() => {
     return getEchartsConfig(
       childrenToProps(echartsConfigChildren) as ToViewReturn<typeof echartsConfigChildren>,
@@ -111,7 +111,7 @@ ChartTmpComp = withViewFn(ChartTmpComp, (comp) => {
   const loadGoogleMapData = () => {
     const echartsCompInstance = echartsCompRef?.current?.getEchartsInstance();
     if (!echartsCompInstance) {
-      return _.noop;
+      return noop;
     }
 
     comp.children.mapInstance.dispatch(changeValueAction(echartsCompInstance))
@@ -231,7 +231,7 @@ ChartTmpComp = class extends ChartTmpComp {
     };
     if (
       comp.children.chartConfig.children.comp.children.hasOwnProperty("itemColor") &&
-      !_.isEqual(colorContextVal, comp.lastColorContext)
+      !isEqual(colorContextVal, comp.lastColorContext)
     ) {
       comp.lastColorContext = colorContextVal;
       resultComp = resultComp.setChild(

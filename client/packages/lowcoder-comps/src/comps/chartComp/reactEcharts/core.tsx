@@ -2,7 +2,7 @@ import type { ECharts } from "echarts";
 import { PureComponent } from "react";
 import isEqual from "fast-deep-equal";
 import { EChartsReactProps, EChartsInstance } from "./types";
-import _ from "lodash";
+import { pick } from "lodash";
 import log from "loglevel";
 
 function isString(v: any): boolean {
@@ -75,7 +75,7 @@ export default class EChartsReactCore extends PureComponent<EChartsReactProps> {
 
     // when these props are not isEqual, update echarts
     const pickKeys = ["option", "notMerge", "lazyUpdate", "showLoading", "loadingOption"];
-    if (!isEqual(_.pick(this.props, pickKeys), _.pick(prevProps, pickKeys))) {
+    if (!isEqual(pick(this.props, pickKeys), pick(prevProps, pickKeys))) {
       this.updateEChartsOption();
     }
   }

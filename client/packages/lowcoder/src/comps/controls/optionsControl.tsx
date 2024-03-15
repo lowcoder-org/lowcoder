@@ -8,7 +8,7 @@ import { ToViewReturn } from "comps/generators/multi";
 import { genRandomKey } from "comps/utils/idGenerator";
 import { disabledPropertyView, hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
-import _, { mapValues } from "lodash";
+import { isEqual, mapValues } from "lodash";
 import {
   Comp,
   CompAction,
@@ -317,7 +317,7 @@ export function mapOptionsControl<T extends OptionsControlType>(
         if (comp.children.data !== this.children.data) {
           const sourceArray = comp.children.data.getView();
           const dataExample = sourceArray ? sourceArray[0] : undefined;
-          if (dataExample && !_.isEqual(comp.lastDataExample, dataExample)) {
+          if (dataExample && !isEqual(comp.lastDataExample, dataExample)) {
             comp.lastDataExample = dataExample;
             return comp.updateContext(dataExample);
           }

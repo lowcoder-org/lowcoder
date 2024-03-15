@@ -1,4 +1,4 @@
-import _ from "lodash";
+import { noop, cloneDeep, forEach, isNil, isEmpty } from "lodash";
 import {
   Comp,
   CompAction,
@@ -85,7 +85,7 @@ export function withMultiContext<TCtor extends MultiCompConstructor>(VariantComp
     protected readonly cacheParamsMap = new CacheParamsMap(); // WARNING: this is designed to be not pure functional
 
     override parseChildrenFromValue(params: CompParams): ChildrenType {
-      const dispatch = params.dispatch ?? _.noop;
+      const dispatch = params.dispatch ?? noop;
       const newParams = { ...params, dispatch: wrapDispatch(dispatch, COMP_KEY) };
 
       const comp: WithParamComp = new WithParamCompCtor(newParams) as unknown as WithParamComp;
@@ -109,7 +109,7 @@ export function withMultiContext<TCtor extends MultiCompConstructor>(VariantComp
     /** interactive comps may be cached */
     getCachedComp(key: string) {
       const params = this.cacheParamsMap.get(key);
-      if (_.isNil(params)) return undefined;
+      if (isNil(params)) return undefined;
       const mapComps = this.getMap();
       if (mapComps.hasOwnProperty(key) && paramsEqual(params, mapComps[key].getParams())) {
         return mapComps[key];
@@ -120,7 +120,7 @@ export function withMultiContext<TCtor extends MultiCompConstructor>(VariantComp
     protected getComp(key: string): WithParamComp | undefined {
       let comp = this.getCachedComp(key);
       const params = this.cacheParamsMap.get(key);
-      if (_.isNil(comp) && !_.isNil(params)) {
+      if (isNil(comp) && !isNil(params)) {
         const mapComps = this.getMap();
         if (mapComps.hasOwnProperty(key) && !paramsEqual(params, mapComps[key].getParams())) {
           // refresh the item, since params changed
@@ -146,8 +146,8 @@ export function withMultiContext<TCtor extends MultiCompConstructor>(VariantComp
         comp = setFieldsNoTypeCheck(comp, { cacheParamsMap: new CacheParamsMap() });
       } else if (isMyCustomAction<SetCacheParamsAction>(action, "setCacheParams")) {
         const { paramsMap } = action.value;
-        const cacheParamsMap = _.cloneDeep(comp.cacheParamsMap);
-        _.forEach(paramsMap, (params, key) => cacheParamsMap.set(key, params));
+        const cacheParamsMap = cloneDeep(comp.cacheParamsMap);
+        forEach(paramsMap, (params, key) => cacheParamsMap.set(key, params));
 
         if (!paramsEqual(cacheParamsMap.getMap(), comp.cacheParamsMap.getMap())) {
           comp = setFieldsNoTypeCheck(comp, { cacheParamsMap });
@@ -157,7 +157,7 @@ export function withMultiContext<TCtor extends MultiCompConstructor>(VariantComp
       } else if (
         isChildAction(action) &&
         action.path[0] === MAP_KEY &&
-        !_.isNil(action.path[1]) &&
+        !isNil(action.path[1]) &&
         !thisCompMap.hasOwnProperty(action.path[1])
       ) {
         /**
@@ -197,7 +197,7 @@ export function withMultiContext<TCtor extends MultiCompConstructor>(VariantComp
           !paramsEqual(mapComps[key].getParams(), this.cacheParamsMap.get(key))
       );
       let comp = this;
-      if (!_.isEmpty(toDeleteKeys)) {
+      if (!isEmpty(toDeleteKeys)) {
         comp = super.reduce(WithMultiContextComp.batchDeleteAction(toDeleteKeys));
       }
       return comp;

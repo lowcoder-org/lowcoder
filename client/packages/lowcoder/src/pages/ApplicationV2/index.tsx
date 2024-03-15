@@ -54,7 +54,7 @@ import { trans } from "../../i18n";
 import { foldersSelector } from "../../redux/selectors/folderSelector";
 // import Setting from "pages/setting";
 import { TypographyText } from "../../components/TypographyText";
-import { messageInstance } from "lowcoder-design";
+import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 
 const LazyFolderView = React.lazy(
   () => import("./FolderView").then(module => ({default: module.FolderView}))

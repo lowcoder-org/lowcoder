@@ -7,7 +7,7 @@ import { addMapChildAction, multiMapAction } from "comps/generators/sameTypeMap"
 import { NameGenerator } from "comps/utils";
 import { genRandomKey } from "comps/utils/idGenerator";
 import { DEFAULT_POSITION_PARAMS, Layout, LayoutItem, PositionParams } from "layout";
-import _ from "lodash";
+import { isNil, mapValues, mapKeys } from "lodash";
 import { GridItemComp, GridItemDataType } from "../gridItemComp";
 import { IContainer, isContainer } from "./iContainer";
 import { CompTree, getCompTree } from "./utils";
@@ -30,7 +30,7 @@ const SimpleContainerTmpComp = new MultiCompBuilder(children, (props, dispatch) 
 export class SimpleContainerComp extends SimpleContainerTmpComp implements IContainer {
   realSimpleContainer(key?: string): SimpleContainerComp | undefined {
     const compMap = this.children.items.children;
-    if (_.isNil(key) || compMap.hasOwnProperty(key)) {
+    if (isNil(key) || compMap.hasOwnProperty(key)) {
       return this;
     }
   }
@@ -56,13 +56,13 @@ export class SimpleContainerComp extends SimpleContainerTmpComp implements ICont
   getPasteValue(nameGenerator: NameGenerator): JSONValue {
     let compMap = this.children.items.children;
 
-    const keyMap = _.mapValues(compMap, () => genRandomKey());
+    const keyMap = mapValues(compMap, () => genRandomKey());
     let layout = this.children.layout.getView();
-    layout = _.mapKeys(layout, (_, key) => keyMap[key]);
-    layout = _.mapValues(layout, (item, key) => ({ ...item, i: key }));
-    compMap = _.mapKeys(compMap, (_, key) => keyMap[key]);
+    layout = mapKeys(layout, (_, key) => keyMap[key]);
+    layout = mapValues(layout, (item, key) => ({ ...item, i: key }));
+    compMap = mapKeys(compMap, (_, key) => keyMap[key]);
 
-    const newJSONValue = _.mapValues(compMap, (comp) => {
+    const newJSONValue = mapValues(compMap, (comp) => {
       const compValue = isContainer(comp.children.comp)
         ? (comp.children.comp as any).getPasteValue(nameGenerator)
         : comp.children.comp.toJsonValue();

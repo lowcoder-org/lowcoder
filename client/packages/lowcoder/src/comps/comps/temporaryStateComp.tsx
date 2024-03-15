@@ -5,7 +5,7 @@ import { bottomResListComp } from "comps/generators/bottomResList";
 import { NameConfig, withExposingConfigs } from "comps/generators/withExposing";
 import { withMethodExposing } from "comps/generators/withMethodExposing";
 import { trans } from "i18n";
-import _ from "lodash";
+import { isPlainObject, set, cloneDeep } from "lodash";
 import { DocLink } from "lowcoder-design";
 import { BottomTabs } from "pages/editor/bottom/BottomTabs";
 import { ReactNode } from "react";
@@ -107,7 +107,7 @@ const TemporaryStateItemCompWithMethodExpose = withMethodExposing(TemporaryState
       ) {
         throw new Error(trans("temporaryState.pathTypeError"));
       }
-      if (!_.isPlainObject(prev) && !Array.isArray(prev)) {
+      if (!isPlainObject(prev) && !Array.isArray(prev)) {
         throw new Error(
           trans("temporaryState.unStructuredError", {
             path: JSON.stringify(path),
@@ -115,7 +115,7 @@ const TemporaryStateItemCompWithMethodExpose = withMethodExposing(TemporaryState
           })
         );
       }
-      const nextValue = _.set(_.cloneDeep(prev as JSONObject), path as (string | number)[], value);
+      const nextValue = set(cloneDeep(prev as JSONObject), path as (string | number)[], value);
       onChange(nextValue);
     },
   },

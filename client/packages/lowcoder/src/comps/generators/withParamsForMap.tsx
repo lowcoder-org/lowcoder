@@ -1,4 +1,6 @@
-import _ from "lodash";
+import {
+  noop, mapValues, keyBy, 
+} from "lodash";
 import {
   Comp,
   CompAction,
@@ -27,8 +29,8 @@ export function withParamsForMap<T extends MultiCompConstructor>(
   VariantCompCtor: T,
   paramNames: string[]
 ) {
-  const paramValues = _.mapValues(
-    _.keyBy(paramNames, (x) => x),
+  const paramValues = mapValues(
+    keyBy(paramNames, (x) => x),
     () => ""
   );
   return withParamsForMapWithDefault(VariantCompCtor, paramValues);
@@ -61,7 +63,7 @@ export function withParamsForMapWithDefault<T extends MultiCompConstructor>(
     implements Comp<ViewReturn>
   {
     override parseChildrenFromValue(params: CompParams): ChildrenType {
-      const dispatch = params.dispatch ?? _.noop;
+      const dispatch = params.dispatch ?? noop;
       const newParams = { ...params, dispatch: wrapDispatch(dispatch, CHILD_KEY) };
 
       const comp: ParamComp = new WithParamsCompCtor(newParams) as unknown as ParamComp;
@@ -78,7 +80,7 @@ export function withParamsForMapWithDefault<T extends MultiCompConstructor>(
     }
 
     batchSet(paramValuesMap: Record<string, Record<string, unknown>>) {
-      const mapComp = _.mapValues(paramValuesMap, (values, key) => {
+      const mapComp = mapValues(paramValuesMap, (values, key) => {
         const comp = this.getOriginalComp().setParams(values);
         return comp;
       });
@@ -113,7 +115,7 @@ export function withParamsForMapWithDefault<T extends MultiCompConstructor>(
         action.path[0] === CHILD_KEY &&
         action.type !== CompActionTypes.UPDATE_NODES_V2
       ) {
-        const newMap = _.mapValues(this.getView(), (comp) => {
+        const newMap = mapValues(this.getView(), (comp) => {
           return comp.reduce(WithParamsCompCtor.setCompAction(newComp.getOriginalComp().getComp()));
         });
         newComp = newComp.setChild(

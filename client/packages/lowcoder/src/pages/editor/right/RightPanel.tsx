@@ -4,8 +4,8 @@ import PropertyView from "./PropertyView";
 import InsertView from "./InsertView";
 import UIComp, { UiLayoutType } from "comps/comps/uiComp";
 import { useEffect, useState } from "react";
-import { AttributeIcon } from "lowcoder-design";
-import { InsertIcon } from "lowcoder-design";
+import { AttributeIcon } from "lowcoder-design/src/icons";
+import { InsertIcon } from "lowcoder-design/src/icons";
 import { trans } from "i18n";
 import { isAggregationApp } from "util/appUtils";
 

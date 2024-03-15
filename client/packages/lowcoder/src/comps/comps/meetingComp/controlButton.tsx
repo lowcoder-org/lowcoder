@@ -5,7 +5,6 @@ import { IconControl } from "comps/controls/iconControl";
 import { CompNameContext, EditorContext, EditorState } from "comps/editorState";
 import { withDefault } from "comps/generators";
 import { UICompBuilder } from "comps/generators/uiCompBuilder";
-import _ from "lodash";
 import {
   disabledPropertyView,
   hiddenPropertyView,

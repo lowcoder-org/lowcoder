@@ -9,12 +9,12 @@ import { AuthLocationState } from "constants/authConstants";
 import { ProductLoading } from "components/ProductLoading";
 import { fetchConfigAction } from "redux/reduxActions/configActions";
 import { fetchUserAction } from "redux/reduxActions/userActions";
-import _ from "lodash";
+import { isEqual } from "lodash";
 
 export default function UserAuth() {
   const dispatch = useDispatch();
   const location = useLocation<AuthLocationState>();
-  const systemConfig = useSelector(selectSystemConfig, _.isEqual);
+  const systemConfig = useSelector(selectSystemConfig, isEqual);
   const orgId = useParams<any>().orgId;
   const inviteInfo = location.state?.inviteInfo;
   
