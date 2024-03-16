@@ -11,6 +11,8 @@ import {
 } from "./selectInputConstants";
 import { EllipsisTextCss, ValueFromOption } from "lowcoder-design";
 import { trans } from "i18n";
+import { fixOldInputCompData } from "../textInputComp/textInputConstants";
+import { migrateOldData } from "comps/generators/simpleGenerators";
 
 const getStyle = (style: RadioStyleType) => {
   return css`
@@ -93,7 +95,7 @@ const Radio = styled(AntdRadioGroup)<{
   }}
 `;
 
-const RadioBasicComp = (function () {
+let RadioBasicComp = (function () {
   return new UICompBuilder(RadioChildrenMap, (props) => {
     const [
       validateState,
@@ -102,6 +104,7 @@ const RadioBasicComp = (function () {
     return props.label({
       required: props.required,
       style: props.style,
+      labelStyle:props.labelStyle,
       children: (
         <Radio
           ref={props.viewRef}
@@ -128,6 +131,8 @@ const RadioBasicComp = (function () {
     .setExposeMethodConfigs(selectDivRefMethods)
     .build();
 })();
+
+RadioBasicComp = migrateOldData(RadioBasicComp, fixOldInputCompData);
 
 export const RadioComp = withExposingConfigs(RadioBasicComp, [
   new NameConfig("value", trans("selectInput.valueDesc")),

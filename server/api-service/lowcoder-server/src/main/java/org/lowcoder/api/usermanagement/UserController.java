@@ -147,6 +147,26 @@ public class UserController implements UserEndpoints
     }
 
     @Override
+    public Mono<ResponseView<Boolean>> lostPassword(@RequestBody LostPasswordRequest request) {
+        if (StringUtils.isBlank(request.userEmail())) {
+            return Mono.empty();
+        }
+        return userApiService.lostPassword(request.userEmail())
+                .map(ResponseView::success);
+    }
+
+    @Override
+    public Mono<ResponseView<Boolean>> resetLostPassword(@RequestBody ResetLostPasswordRequest request) {
+        if (StringUtils.isBlank(request.userEmail()) || StringUtils.isBlank(request.token())
+                || StringUtils.isBlank(request.newPassword())) {
+            return ofError(BizError.INVALID_PARAMETER, "INVALID_PARAMETER");
+        }
+
+        return userApiService.resetLostPassword(request.userEmail(), request.token(), request.newPassword())
+                .map(ResponseView::success);
+    }
+
+    @Override
     public Mono<ResponseView<Boolean>> setPassword(@RequestParam String password) {
         if (StringUtils.isBlank(password)) {
             return ofError(BizError.INVALID_PARAMETER, "PASSWORD_EMPTY");

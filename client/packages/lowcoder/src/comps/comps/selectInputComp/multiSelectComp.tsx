@@ -1,5 +1,5 @@
 import { styleControl } from "comps/controls/styleControl";
-import { MultiSelectStyle } from "comps/controls/styleControlConstants";
+import { LabelStyle, MultiSelectStyle } from "comps/controls/styleControlConstants";
 import { trans } from "i18n";
 import { arrayStringExposingStateControl } from "../../controls/codeStateControl";
 import { UICompBuilder } from "../../generators";
@@ -14,14 +14,16 @@ import { SelectInputInvalidConfig, useSelectInputValidate } from "./selectInputC
 
 import { PaddingControl } from "../../controls/paddingControl";	
 import { MarginControl } from "../../controls/marginControl";
-import { useEffect, useRef } from "react";
+import { migrateOldData } from "comps/generators/simpleGenerators";
+import { fixOldInputCompData } from "../textInputComp/textInputConstants";
 
-const MultiSelectBasicComp = (function () {
+let MultiSelectBasicComp = (function () {
   const childrenMap = {
     ...SelectChildrenMap,
     defaultValue: arrayStringExposingStateControl("defaultValue", ["1", "2"]),
     value: arrayStringExposingStateControl("value"),
     style: styleControl(MultiSelectStyle),
+    labelStyle:styleControl(LabelStyle),
     margin: MarginControl,	
     padding: PaddingControl,
   };
@@ -35,6 +37,7 @@ const MultiSelectBasicComp = (function () {
     return props.label({
       required: props.required,
       style: props.style,
+      labelStyle:props.labelStyle,
       children: (
         <SelectUIView
           {...props}
@@ -51,6 +54,8 @@ const MultiSelectBasicComp = (function () {
     .setExposeMethodConfigs(baseSelectRefMethods)
     .build();
 })();
+
+MultiSelectBasicComp = migrateOldData(MultiSelectBasicComp, fixOldInputCompData);
 
 export const MultiSelectComp = withExposingConfigs(MultiSelectBasicComp, [
   new NameConfig("value", trans("selectInput.valueDesc")),

@@ -290,6 +290,7 @@ export const SelectPropertyView = (
     defaultValue: { propertyView: (params: ControlParams) => ControlNode };
     value: { propertyView: (params: ControlParams) => ControlNode };
     style: { getPropertyView: () => ControlNode };
+    labelStyle: { getPropertyView: () => ControlNode };
   }
 ) => (
   <>
@@ -328,10 +329,15 @@ export const SelectPropertyView = (
     {["layout", "both"].includes(
       useContext(EditorContext).editorModeStatus
     ) && (
-      <Section name={sectionNames.style}>
-        {children.style.getPropertyView()}
-      </Section>
-    )}
+        <>
+          <Section name={sectionNames.style}>
+            {children.style.getPropertyView()}
+          </Section>
+          <Section name={sectionNames.labelStyle}>
+            {children.labelStyle.getPropertyView()}
+          </Section>
+        </>
+      )}
   </>
 );
 

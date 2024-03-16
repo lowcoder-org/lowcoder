@@ -11,7 +11,7 @@ import org.lowcoder.api.query.view.UpsertLibraryQueryRequest;
 import org.lowcoder.api.util.BusinessEventPublisher;
 import org.lowcoder.domain.query.model.LibraryQuery;
 import org.lowcoder.domain.query.service.LibraryQueryService;
-import org.lowcoder.infra.event.EventType;
+import org.lowcoder.plugin.api.event.LowcoderEvent.EventType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;

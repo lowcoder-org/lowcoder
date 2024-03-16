@@ -12,6 +12,7 @@ import { UICompBuilder } from "../../generators";
 import { FormDataPropertyView } from "../formComp/formDataConstants";
 import {
   checkMentionListData,
+  fixOldInputCompData,
   textInputChildren,
 } from "./textInputConstants";
 import {
@@ -42,7 +43,7 @@ import { blurMethod, focusWithOptions } from "comps/utils/methodUtils";
 import {
   textInputValidate,
 } from "../textInputComp/textInputConstants";
-import { jsonControl } from "@lowcoder-ee/comps/controls/codeControl";
+import { jsonControl } from "comps/controls/codeControl";
 import {
   submitEvent,
   eventHandlerControl,
@@ -54,6 +55,7 @@ import {
 
 import React, { useContext } from "react";
 import { EditorContext } from "comps/editorState";
+import { migrateOldData } from "comps/generators/simpleGenerators";
 
 const Wrapper = styled.div<{
   $style: InputLikeStyleType;
@@ -267,11 +269,14 @@ let MentionTmpComp = (function () {
     .build();
 })();
 
+
 MentionTmpComp = class extends MentionTmpComp {
   override autoHeight(): boolean {
     return this.children.autoHeight.getView();
   }
 };
+
+MentionTmpComp = migrateOldData(MentionTmpComp, fixOldInputCompData);
 
 const TextareaTmp2Comp = withMethodExposing(
   MentionTmpComp,
