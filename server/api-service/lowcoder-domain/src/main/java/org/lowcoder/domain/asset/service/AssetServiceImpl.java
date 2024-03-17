@@ -51,6 +51,8 @@ public class AssetServiceImpl implements AssetService {
         return repository.findById(id);
     }
 
+    // Falk TODO: Enable base64 upload
+
     @Override
     public Mono<Asset> upload(Part filePart, int maxFileSizeKB, boolean isThumbnail) {
         if (filePart == null) {
@@ -59,7 +61,7 @@ public class AssetServiceImpl implements AssetService {
 
         // The reason we restrict file types here is to avoid having to deal with dangerous image types such as SVG,
         // which can have arbitrary HTML/JS inside of them.
-        final MediaType contentType = filePart.headers().getContentType();
+            
         if (contentType == null || !ALLOWED_CONTENT_TYPES.contains(contentType)) {
             return Mono.error(new BizException(BizError.INVALID_PARAMETER, "INCORRECT_IMAGE_TYPE"));
         }

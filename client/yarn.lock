@@ -3100,13 +3100,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@juggle/resize-observer@npm:^3.3.1":
-  version: 3.4.0
-  resolution: "@juggle/resize-observer@npm:3.4.0"
-  checksum: 2505028c05cc2e17639fcad06218b1c4b60f932a4ebb4b41ab546ef8c157031ae377e3f560903801f6d01706dbefd4943b6c4704bf19ed86dfa1c62f1473a570
-  languageName: node
-  linkType: hard
-
 "@lezer/common@npm:^1.0.0, @lezer/common@npm:^1.0.2, @lezer/common@npm:^1.1.0, @lezer/common@npm:^1.2.0":
   version: 1.2.0
   resolution: "@lezer/common@npm:1.2.0"
@@ -4410,6 +4403,22 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/lodash-es@npm:^4.17.6":
+  version: 4.17.12
+  resolution: "@types/lodash-es@npm:4.17.12"
+  dependencies:
+    "@types/lodash": "*"
+  checksum: 990a99e2243bebe9505cb5ad19fbc172beb4a8e00f9075c99fc06c46c2801ffdb40bc2867271cf580d5f48994fc9fb076ec92cd60a20e621603bf22114e5b077
+  languageName: node
+  linkType: hard
+
+"@types/lodash@npm:*":
+  version: 4.17.0
+  resolution: "@types/lodash@npm:4.17.0"
+  checksum: 3f98c0b67a93994cbc3403d4fa9dbaf52b0b6bb7f07a764d73875c2dcd5ef91222621bd5bcf8eee7b417a74d175c2f7191b9f595f8603956fd06f0674c0cba93
+  languageName: node
+  linkType: hard
+
 "@types/lodash@npm:^4.14.194":
   version: 4.14.202
   resolution: "@types/lodash@npm:4.14.202"
@@ -4671,6 +4680,15 @@ __metadata:
   version: 2.3.6
   resolution: "@types/signature_pad@npm:2.3.6"
   checksum: dfb27dd2eea7895a8c0e971ec4f8f9b4ecf3cf2e9bca51d5bc3fe21617721a4cb755ad4ec743de56655159b8ade28ec3332ec784607f1911f7b36780afa41065
+  languageName: node
+  linkType: hard
+
+"@types/simplebar@npm:^5.3.3":
+  version: 5.3.3
+  resolution: "@types/simplebar@npm:5.3.3"
+  dependencies:
+    simplebar: "*"
+  checksum: db0dfe8e8dbbe9a98ffa840aeb9e14ee8a8d5d5cc3042f5348be470c5864d40278459636124ef631bd700e749aa9cdafc6844e43f805b28edf090ce24eb982f4
   languageName: node
   linkType: hard
 
@@ -6660,7 +6678,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"core-js@npm:^3.0.1, core-js@npm:^3.25.2":
+"core-js@npm:^3.25.2":
   version: 3.35.0
   resolution: "core-js@npm:3.35.0"
   checksum: 25c224aca3df012b98f08f13ccbd8171ef5852acd33fd5e58e106d27f5f0c97de2fdbc520f0b4364d26253caf2deb3e5d265310f57d2a66ae6cc922850e649f0
@@ -11807,13 +11825,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lodash.memoize@npm:^4.1.2":
-  version: 4.1.2
-  resolution: "lodash.memoize@npm:4.1.2"
-  checksum: 9ff3942feeccffa4f1fafa88d32f0d24fdc62fd15ded5a74a5f950ff5f0c6f61916157246744c620173dddf38d37095a92327d5fd3861e2063e736a5c207d089
-  languageName: node
-  linkType: hard
-
 "lodash.merge@npm:^4.6.2":
   version: 4.6.2
   resolution: "lodash.merge@npm:4.6.2"
@@ -11832,13 +11843,6 @@ __metadata:
   version: 4.7.0
   resolution: "lodash.sortby@npm:4.7.0"
   checksum: db170c9396d29d11fe9a9f25668c4993e0c1331bcb941ddbd48fb76f492e732add7f2a47cfdf8e9d740fa59ac41bbfaf931d268bc72aab3ab49e9f89354d718c
-  languageName: node
-  linkType: hard
-
-"lodash.throttle@npm:^4.1.1":
-  version: 4.1.1
-  resolution: "lodash.throttle@npm:4.1.1"
-  checksum: 129c0a28cee48b348aef146f638ef8a8b197944d4e9ec26c1890c19d9bf5a5690fe11b655c77a4551268819b32d27f4206343e30c78961f60b561b8608c8c805
   languageName: node
   linkType: hard
 
@@ -12017,6 +12021,7 @@ __metadata:
     "@rollup/plugin-typescript": ^9.0.2
     "@rollup/plugin-url": ^8.0.1
     "@svgr/rollup": ^6.5.1
+    "@types/simplebar": ^5.3.3
     colord: ^2.9.3
     react-fontawesome: ^0.2.0
     react-markdown: ^8.0.0
@@ -12028,6 +12033,8 @@ __metadata:
     rollup-plugin-cleaner: ^1.0.0
     rollup-plugin-polyfill-node: ^0.11.0
     rollup-plugin-terser: ^7.0.2
+    simplebar: ^6.2.5
+    simplebar-react: ^3.2.4
     typescript: ^4.8.4
   languageName: unknown
   linkType: soft
@@ -12070,6 +12077,7 @@ __metadata:
     "@types/react-resizable": ^3.0.5
     "@types/react-router-dom": ^5.3.2
     "@types/shelljs": ^0.8.11
+    "@types/simplebar": ^5.3.3
     "@types/styled-components": ^5.1.34
     "@types/stylis": ^4.0.2
     "@types/tern": 0.23.4
@@ -12090,9 +12098,11 @@ __metadata:
     number-precision: ^1.6.0
     prettier: ^3.1.0
     react-player: ^2.11.0
+    resize-observer-polyfill: ^1.5.1
     rimraf: ^3.0.2
     rollup: ^2.79.0
     shelljs: ^0.8.5
+    simplebar: ^6.2.5
     svgo: ^3.0.0
     tui-image-editor: ^3.15.3
     typescript: ^4.8.4
@@ -12232,7 +12242,7 @@ __metadata:
     remark-gfm: ^3.0.1
     resize-observer-polyfill: ^1.5.1
     rollup-plugin-visualizer: ^5.9.2
-    simplebar-react: 2.3.6
+    simplebar-react: ^3.2.4
     sql-formatter: ^8.2.0
     styled-components: ^6.1.6
     stylis: ^4.1.1
@@ -14154,7 +14164,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prop-types@npm:15.x, prop-types@npm:^15.0.0, prop-types@npm:^15.5.7, prop-types@npm:^15.6.1, prop-types@npm:^15.6.2, prop-types@npm:^15.7.2, prop-types@npm:^15.8.1":
+"prop-types@npm:15.x, prop-types@npm:^15.0.0, prop-types@npm:^15.5.7, prop-types@npm:^15.6.2, prop-types@npm:^15.7.2, prop-types@npm:^15.8.1":
   version: 15.8.1
   resolution: "prop-types@npm:15.8.1"
   dependencies:
@@ -16504,30 +16514,36 @@ __metadata:
   languageName: node
   linkType: hard
 
-"simplebar-react@npm:2.3.6":
-  version: 2.3.6
-  resolution: "simplebar-react@npm:2.3.6"
+"simplebar-core@npm:^1.2.4":
+  version: 1.2.4
+  resolution: "simplebar-core@npm:1.2.4"
   dependencies:
-    prop-types: ^15.6.1
-    simplebar: ^5.3.6
-  peerDependencies:
-    react: ^0.14.9 || ^15.3.0 || ^16.0.0-rc || ^16.0 || ^17.0
-    react-dom: ^0.14.9 || ^15.3.0 || ^16.0.0-rc || ^16.0 || ^17.0
-  checksum: 5487200fefd8f9f7aba349637b6f5f777aab4470239bc4f3fcb4e86ff4fa5d12dea68684df80e6cea644d9dffb062fbde7d9504762d9d82f7e5083cc260cf0c1
+    "@types/lodash-es": ^4.17.6
+    can-use-dom: ^0.1.0
+    lodash: ^4.17.21
+    lodash-es: ^4.17.21
+  checksum: 9bef0a29cc2ddba488776bc05eac6cbf3daa6e72fbcb54ff288cbbb2e64cadf22cc378ac3627f86c32c29ddf9f63d7accf8772e4013318aaba353625869ae866
   languageName: node
   linkType: hard
 
-"simplebar@npm:^5.3.6":
-  version: 5.3.9
-  resolution: "simplebar@npm:5.3.9"
+"simplebar-react@npm:^3.2.4":
+  version: 3.2.4
+  resolution: "simplebar-react@npm:3.2.4"
   dependencies:
-    "@juggle/resize-observer": ^3.3.1
+    simplebar-core: ^1.2.4
+  peerDependencies:
+    react: ">=16.8.0"
+  checksum: 0355a7ccb99114de99c84c7e548058f299c716d3fb2ac769bdb83138da19e75936f84698b9f4134d17be84322845a4290093f37b2f3c3ee2299e3bd8863c6196
+  languageName: node
+  linkType: hard
+
+"simplebar@npm:*, simplebar@npm:^6.2.5":
+  version: 6.2.5
+  resolution: "simplebar@npm:6.2.5"
+  dependencies:
     can-use-dom: ^0.1.0
-    core-js: ^3.0.1
-    lodash.debounce: ^4.0.8
-    lodash.memoize: ^4.1.2
-    lodash.throttle: ^4.1.1
-  checksum: 11918d02c946b4925068852b4fb2dcc5008e2fb91b7eeba6c27aed810f23b985de043b12fef674fbffbbfa6201904e09d8fbc29e9959562fa6a5cfb9935751d1
+    simplebar-core: ^1.2.4
+  checksum: 351b3757af18d4d49928fbd44793307ca7384e363c73a740a0e542307f6af75f4803ddbb9e0e595126a487a4ba6b5d98cd397880d7217c6b1b442eb5a6c509c5
   languageName: node
   linkType: hard
 
