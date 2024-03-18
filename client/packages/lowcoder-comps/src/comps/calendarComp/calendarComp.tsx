@@ -21,8 +21,7 @@ import {
   jsonValueExposingStateControl,
   CalendarDeleteIcon,
   jsonValueStateControl,
-  Tooltip,
-  JSONObjectControl,
+  Tooltip
 } from "lowcoder-sdk";
 import { default as Form } from "antd/es/form";
 import { default as Input } from "antd/es/input";
@@ -122,7 +121,6 @@ let CalendarBasicComp = (function () {
       firstDay,
       editable,
       licenceKey,
-      selectedView,
     } = props;
 
     function renderEventContent(eventInfo: EventContentArg) {
@@ -332,8 +330,6 @@ let CalendarBasicComp = (function () {
     if (licenceKey != "") {
       defaultView = defaultPremiumView;
     }
-    console.log("defaultView ", defaultView);
-    selectedView = defaultView;
 
     return (
       <Wrapper
@@ -348,7 +344,8 @@ let CalendarBasicComp = (function () {
         <FullCalendar
           slotEventOverlap={false}
           events={
-            defaultView == "resourceTimeline"
+            defaultView == "resourceTimeline" ||
+            defaultView == "resourceTimeGridDay"
               ? props.resourcesEvents.value
               : events
           }
@@ -394,7 +391,10 @@ let CalendarBasicComp = (function () {
           schedulerLicenseKey={licenceKey}
           views={views}
           resources={
-            defaultView == "resourceTimeline" ? props.resources.value : []
+            defaultView == "resourceTimeline" ||
+            defaultView == "resourceTimeGridDay"
+              ? props.resources.value
+              : []
           }
           eventClassNames={() => (!showEventTime ? "no-time" : "")}
           slotLabelFormat={slotLabelFormat}
