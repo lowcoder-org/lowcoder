@@ -5,7 +5,7 @@ import styled from "styled-components";
 import { DebouncedFunc } from 'lodash'; // Assuming you're using lodash's DebouncedFunc type
 
 
-const ScrollBarWrapper = styled.div`
+const ScrollBarWrapper = styled.div<{ hidePlaceholder?: boolean }>`
   min-height: 0;
   height: 100%;
   width: 100%;
@@ -37,11 +37,11 @@ const ScrollBarWrapper = styled.div`
     bottom: 10px;
   }
 
-  // added by Falk Wolsky to hide the placeholder - as it doubles the vertical space of a Module on a page
-  .simplebar-placeholder {
-    display: none !important;
-  }
-
+  ${props => props.hidePlaceholder && `
+    .simplebar-placeholder {
+      display: none !important;
+    }
+  `}
 `;
 
 // .simplebar-placeholder { added by Falk Wolsky to hide the placeholder - as it doubles the vertical space of a Module on a page
@@ -54,17 +54,24 @@ interface IProps {
   scrollableNodeProps?: {
     onScroll: DebouncedFunc<(e: any) => void>;
   };
+  hidePlaceholder?: boolean;
+  hideScrollbar?: boolean;
 }
 
-export const ScrollBar = ({ height = "100%", className, children, style, scrollableNodeProps, ...otherProps }: IProps) => {
+export const ScrollBar = ({ height = "100%", className, children, style, scrollableNodeProps, hideScrollbar, ...otherProps }: IProps) => {
   // You can now use the style prop directly or pass it to SimpleBar
   const combinedStyle = { ...style, height }; // Example of combining height with passed style
 
-  return (
+  return (hideScrollbar ?? false) ? (
     <ScrollBarWrapper className={className}>
       <SimpleBar style={combinedStyle} scrollableNodeProps={scrollableNodeProps} {...otherProps}>
         {children}
       </SimpleBar>
+    </ScrollBarWrapper>
+  )
+  : (
+    <ScrollBarWrapper className={className}>
+      {children}
     </ScrollBarWrapper>
   );
 };
