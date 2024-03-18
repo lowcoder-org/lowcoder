@@ -1,4 +1,4 @@
-import { CommonSettingResponseData } from "api/commonSettingApi";
+import type { CommonSettingResponseData } from "api/commonSettingApi";
 
 interface GlobalSettings {
   orgCommonSettings?: CommonSettingResponseData;

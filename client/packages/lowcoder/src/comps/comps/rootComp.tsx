@@ -4,16 +4,14 @@ import { simpleMultiComp } from "comps/generators";
 import { HookListComp } from "comps/hooks/hookListComp";
 import { QueryListComp } from "comps/queries/queryComp";
 import { NameAndExposingInfo } from "comps/utils/exposingTypes";
-import EditorView from "pages/editor/editorView";
 import { handlePromiseAndDispatch } from "util/promiseUtils";
-import { HTMLAttributes, useContext, useEffect, useMemo, useState } from "react";
+import { HTMLAttributes, Suspense, lazy, useContext, useEffect, useMemo, useState } from "react";
 import { setFieldsNoTypeCheck } from "util/objectUtils";
 import { AppSettingsComp } from "./appSettingsComp";
 import { PreloadComp } from "./preLoadComp";
 import { TemporaryStateListComp } from "./temporaryStateComp";
 import { TransformerListComp } from "./transformerListComp";
 import UIComp from "./uiComp";
-import EditorSkeletonView from "pages/editor/editorSkeletonView";
 import { ThemeContext } from "comps/utils/themeContext";
 import { ModuleLayoutCompName } from "constants/compConstants";
 import { defaultTheme as localDefaultTheme } from "comps/controls/styleControlConstants";
@@ -28,6 +26,14 @@ import {
   PropertySectionState,
 } from "lowcoder-design";
 import RefTreeComp from "./refTreeComp";
+
+const EditorSkeletonView = lazy(
+  () => import("pages/editor/editorSkeletonView")
+);
+
+const EditorView = lazy(
+  () => import("pages/editor/editorView"),
+);
 
 interface RootViewProps extends HTMLAttributes<HTMLDivElement> {
   comp: InstanceType<typeof RootComp>;
@@ -116,7 +122,9 @@ function RootView(props: RootViewProps) {
             {Object.keys(comp.children.queries.children).map((key) => (
               <div key={key}>{comp.children.queries.children[key].getView()}</div>
             ))}
-            <EditorView uiComp={comp.children.ui} preloadComp={comp.children.preload} />
+            <Suspense fallback={<EditorSkeletonView />}>
+              <EditorView uiComp={comp.children.ui} preloadComp={comp.children.preload} />
+            </Suspense>
           </EditorContext.Provider>
         </ThemeContext.Provider>
       </PropertySectionContext.Provider>

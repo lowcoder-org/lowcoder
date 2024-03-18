@@ -11,7 +11,7 @@ import { EditorState, EditorView } from "./codeMirror";
 import { useExtensions } from "./extensions";
 import { PopupCard } from "lowcoder-design";
 import { CodeEditorPanel } from "../../pages/editor/codeEditorPanel";
-import { CodeEditorProps, StyleName } from "./codeEditorTypes";
+import type { CodeEditorProps, StyleName } from "./codeEditorTypes";
 import { useClickCompNameEffect } from "./clickCompName";
 import { Layers } from "../../constants/Layers";
 

@@ -190,14 +190,17 @@ module.exports = {
     })],
     sideEffects: true,
     splitChunks: {
-      cacheGroups: {
-        vendor: {
-          test: /[\\/]node_modules[\\/]/,
-          name: 'vendors',
-          chunks: 'all',
-        },
-      },
+      chunks: 'all',
     },
+    // splitChunks: {
+    //   cacheGroups: {
+    //     vendor: {
+    //       test: /[\\/]node_modules[\\/]/,
+    //       name: 'vendors',
+    //       chunks: 'all',
+    //     },
+    //   },
+    // },
     // splitChunks: {
     //   chunks: 'all',
     //   minSize: 10000,
@@ -207,63 +210,42 @@ module.exports = {
     //   maxInitialRequests: 30,
     //   enforceSizeThreshold: 50000,
     //   cacheGroups: {
-    //     defaultVendors: {
-    //       test: /[\\/]node_modules[\\/]/,
-    //       priority: -10,
-    //       reuseExistingChunk: true,
-    //     },
     //     default: {
     //       minChunks: 2,
     //       priority: -20,
     //       reuseExistingChunk: true,
     //     },
+    //     defaultVendors: {
+    //       test: /[\\/]node_modules[\\/]/,
+    //       priority: -10,
+    //       reuseExistingChunk: true,
+    //       // name(module) {
+    //       //   // get the name. E.g. node_modules/packageName/not/this/part.js
+    //       //   // or node_modules/packageName
+    //       //   const packageName = module.context.match(/[\\/]node_modules[\\/](.*?)([\\/]|$)/)[1];
+    //       //   // if (packageName === 'antd') {
+    //       //   //   return 'antd';
+    //       //   // }
+    //       //   // if (packageName === 'antd-mobile') {
+    //       //   //   return 'antd-mobile';
+    //       //   // }
+    //       //   // if (packageName === 'lodash') {
+    //       //   //   return 'lodash';
+    //       //   // }
+    //       //   // if (packageName === 'moment') {
+    //       //   //   return 'moment';
+    //       //   // }
+    //       //   // if (packageName === 'dayjs') {
+    //       //   //   return 'dayjs';
+    //       //   // }
+    //       //   // npm package names are URL-safe, but some servers don't like @ symbols
+    //       //   // return `npm.${packageName.replace('@', '')}`;
+    //       //   // return `npm.${packageName.replace('@', '')}`;
+    //       //   return `vendor`;
+    //       // },
+    //     },
     //   },
     // },
-    splitChunks: {
-      chunks: 'all',
-      minSize: 10000,
-      minRemainingSize: 0,
-      minChunks: 1,
-      maxAsyncRequests: 30,
-      maxInitialRequests: 30,
-      enforceSizeThreshold: 50000,
-      cacheGroups: {
-        default: {
-          minChunks: 2,
-          priority: -20,
-          reuseExistingChunk: true,
-        },
-        defaultVendors: {
-          test: /[\\/]node_modules[\\/]/,
-          priority: -10,
-          reuseExistingChunk: true,
-          // name(module) {
-          //   // get the name. E.g. node_modules/packageName/not/this/part.js
-          //   // or node_modules/packageName
-          //   const packageName = module.context.match(/[\\/]node_modules[\\/](.*?)([\\/]|$)/)[1];
-          //   // if (packageName === 'antd') {
-          //   //   return 'antd';
-          //   // }
-          //   // if (packageName === 'antd-mobile') {
-          //   //   return 'antd-mobile';
-          //   // }
-          //   // if (packageName === 'lodash') {
-          //   //   return 'lodash';
-          //   // }
-          //   // if (packageName === 'moment') {
-          //   //   return 'moment';
-          //   // }
-          //   // if (packageName === 'dayjs') {
-          //   //   return 'dayjs';
-          //   // }
-          //   // npm package names are URL-safe, but some servers don't like @ symbols
-          //   // return `npm.${packageName.replace('@', '')}`;
-          //   // return `npm.${packageName.replace('@', '')}`;
-          //   return `vendor`;
-          // },
-        },
-      },
-    },
     runtimeChunk: 'single',
     // splitChunks: {
     //   chunks: 'all',

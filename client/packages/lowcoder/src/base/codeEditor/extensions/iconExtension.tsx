@@ -1,10 +1,10 @@
 import {
   Decoration,
-  DecorationSet,
+  type DecorationSet,
   EditorView,
   MatchDecorator,
   ViewPlugin,
-  ViewUpdate,
+  type ViewUpdate,
   WidgetType,
 } from "@codemirror/view";
 import { useIcon } from "lowcoder-design";

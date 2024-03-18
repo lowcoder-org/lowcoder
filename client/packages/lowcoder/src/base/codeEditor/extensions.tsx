@@ -30,7 +30,7 @@ import {
 import { defaultKeymap, history, historyKeymap, indentWithTab } from "@codemirror/commands";
 import { highlightSelectionMatches, searchKeymap } from "@codemirror/search";
 import { Diagnostic, linter, lintKeymap } from "@codemirror/lint";
-import { EditorState, Prec } from "@codemirror/state";
+import { type EditorState, Prec } from "@codemirror/state";
 import { TernServer } from "base/codeEditor/completion/ternServer";
 import {
   MutableRefObject,
@@ -41,15 +41,15 @@ import {
   useRef,
   useState,
 } from "react";
-import { CodeEditorProps, Language, MetaDataContext } from "./codeEditorTypes";
+import { type CodeEditorProps, type Language, MetaDataContext } from "./codeEditorTypes";
 import {
   Compartment,
   EditorView,
-  Extension,
+  type Extension,
   keymap,
   placeholder as extendPlaceholder,
-  StateEffect,
-  ViewUpdate,
+  type StateEffect,
+  type ViewUpdate,
 } from "./codeMirror";
 import { ExposingCompletionSource } from "./completion/exposingCompletionSource";
 import { SQLCompletionSource } from "./completion/sqlCompletionSource";

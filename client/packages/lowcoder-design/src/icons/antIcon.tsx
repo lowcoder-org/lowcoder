@@ -788,7 +788,7 @@ import {
   ZhihuSquareFilled,
   ZoomInOutlined,
   ZoomOutOutlined,
-} from "@ant-design/icons/es";
+} from "@ant-design/icons";
 
 export const ANTDICON = {
   accountbookfilled: <AccountBookFilled />,

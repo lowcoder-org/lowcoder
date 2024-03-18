@@ -1,12 +1,12 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import type { IconDefinition } from "@fortawesome/free-regular-svg-icons";
 // import type { IconDefinition as IconDefinitionBrands } from "@fortawesome/free-brands-svg-icons";
-import { Popover } from "antd/es/popover";
-import { ActionType } from "@rc-component/trigger/lib/interface";
+import { default as Popover } from "antd/es/popover";
+import type { ActionType } from "@rc-component/trigger/lib/interface";
 import { TacoInput } from "components/tacoInput";
 import { Tooltip } from "components/toolTip";
 import { trans } from "i18n/design";
-import _ from "lodash";
+import { upperFirst, sortBy } from "lodash";
 import {
   ReactNode,
   useEffect,
@@ -140,7 +140,7 @@ class Icon {
   readonly title: string;
   constructor(readonly def: IconDefinition | any, readonly names: string[]) {
     if (def?.iconName) {
-      this.title = def.iconName.split("-").map(_.upperFirst).join(" ");
+      this.title = def.iconName.split("-").map(upperFirst).join(" ");
     } else {
       this.title = names[0].slice(5);
       this.def = def;
@@ -230,7 +230,7 @@ function search(
     .toLowerCase()
     .split(/\s+/g)
     .filter((t) => t);
-  return _.sortBy(
+  return sortBy(
     Object.entries(allIcons).filter(([key, icon]) => {
       if (icon.names.length === 0) {
         return false;

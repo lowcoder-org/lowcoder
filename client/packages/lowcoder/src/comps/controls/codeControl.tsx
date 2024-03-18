@@ -1,7 +1,6 @@
-import { EditorState } from "@codemirror/state";
+import type { EditorState } from "@codemirror/state";
 import { isThemeColorKey } from "api/commonSettingApi";
-import { CodeEditor } from "base/codeEditor";
-import { Language } from "base/codeEditor/codeEditorTypes";
+import type { Language } from "base/codeEditor/codeEditorTypes";
 import { EditorContext } from "comps/editorState";
 import { withDefault } from "comps/generators/simpleGenerators";
 import { CompExposingContext } from "comps/generators/withContext";
@@ -31,7 +30,7 @@ import {
   toHex,
   wrapperToControlItem,
 } from "lowcoder-design";
-import { ReactNode } from "react";
+import { lazy, ReactNode } from "react";
 import {
   showTransform,
   toArrayJSONObject,
@@ -54,6 +53,11 @@ import { JSONObject, JSONValue } from "util/jsonTypes";
 import { setFieldsNoTypeCheck, shallowEqual, toType } from "util/objectUtils";
 import { toReadableString } from "util/stringUtils";
 import { ControlLayout, ControlParams } from "./controlParams";
+
+const CodeEditor = lazy(
+  () => import("base/codeEditor/codeEditor")
+    .then(module => ({default: module.CodeEditor}))
+)
 
 interface CodeControlParams<T> extends CodeNodeOptions {
   language?: Language;
