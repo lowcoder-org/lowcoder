@@ -284,7 +284,7 @@ export const de = {
       "marginDesc": "Standardmarge, die typischerweise für die meisten Komponenten verwendet wird",
       "padding": "Polsterung",
       "paddingDesc": "Standardpolsterung, die für die meisten Komponenten verwendet wird",
-      "containerheaderpadding": "Kopfzeilenpolsterung",
+      "containerHeaderPadding": "Kopfzeilenpolsterung",
       "containerheaderpaddingDesc": "Standard-Header-Padding, das für die meisten Komponenten verwendet wird",
       "gridColumns": "Rasterspalten",
       "gridColumnsDesc": "Standardanzahl von Spalten, die für die meisten Container verwendet wird"
@@ -301,6 +301,7 @@ export const de = {
       "border": "Farbe der Umrandung",
       "borderRadius": "Radius der Grenze",
       "borderWidth": "Breite des Randes",
+      "borderStyle":"Grenzstil",
       "background": "Hintergrund",
       "headerBackground": "Kopfzeile Hintergrund",
       "footerBackground": "Fußzeilen-Hintergrund",
@@ -324,6 +325,9 @@ export const de = {
       "tableCellText": "Zelle Text",
       "selectedRowBackground": "Ausgewählter Zeilenhintergrund",
       "hoverRowBackground": "Hover Row Hintergrund",
+      "hoverBackground":"Hover-Hintergrund",
+      "textTransform":"Texttransformation",
+      "textDecoration":"Textdekoration",
       "alternateRowBackground": "Alternativer Reihenhintergrund",
       "tableHeaderBackground": "Kopfzeile Hintergrund",
       "tableHeaderText": "Überschrift Text",
@@ -338,9 +342,9 @@ export const de = {
       "marginRight": "Rand rechts",
       "marginTop": "Marge oben",
       "marginBottom": "Marge Unten",
-      "containerheaderpadding": "Kopfzeilenpolsterung",
-      "containerfooterpadding": "Fußzeilenpolsterung",
-      "containerbodypadding": "Körperpolsterung",
+      "containerHeaderPadding": "Kopfzeilenpolsterung",
+      "containerFooterPadding": "Fußzeilenpolsterung",
+      "containerBodyPadding": "Körperpolsterung",
       "minWidth": "Mindestbreite",
       "aspectRatio": "Seitenverhältnis",
       "textSize": "Textgröße"
@@ -1347,6 +1351,7 @@ export const de = {
       "title": "Angezeigter Container-Titel"
   },
   "drawer": {
+      "closePosition": "Platzierung der Verschlusses",
       "placement": "Platzierung der Schubladen",
       "size": "Größe",
       "top": "Top",
@@ -1611,10 +1616,18 @@ export const de = {
   },
   "messageComp": {
       "info": "Eine Benachrichtigung senden",
+      "loading": "Ladebestätigung senden",
       "success": "Erfolgsbenachrichtigung senden",
       "warn": "Eine Warnmeldung senden",
       "error": "Eine Fehlerbenachrichtigung senden"
   },
+  "tostComp": {
+    "info": "Eine Benachrichtigung senden",
+    "loading": "Ladebestätigung senden",
+    "success": "Erfolgsbenachrichtigung senden",
+    "warn": "Eine Warnmeldung senden",
+    "error": "Eine Fehlerbenachrichtigung senden"
+},
   "themeComp": {
       "switchTo": "Thema wechseln"
   },
@@ -1848,7 +1861,10 @@ export const de = {
       "maxWidthTip": "Die maximale Breite sollte größer als oder gleich 350 sein",
       "themeSetting": "Angewandter Stil Thema",
       "themeSettingDefault": "Standard",
-      "themeCreate": "Thema erstellen"
+      "themeCreate": "Thema erstellen",
+      "appTitle": "Titel",
+      "appDescription": "Beschreibung",
+      "appCategory": "Kategorie",
   },
   "customShortcut": {
       "title": "Benutzerdefinierte Abkürzungen",
@@ -2435,7 +2451,7 @@ export const de = {
   "timeLine": {
       "titleColor": "Titel Farbe",
       "subTitleColor": "Untertitel Farbe",
-      "lableColor": "Etikett Farbe",
+      "labelColor": "Etikett Farbe",
       "value": "Zeitleiste Daten",
       "mode": "Bestellung anzeigen",
       "left": "Inhalt Rechts",
@@ -2456,7 +2472,7 @@ export const de = {
       "helpDot": "Timeline-Knoten als Ameisendesign-Symbole rendern",
       "helpTitleColor": "Individuell die Farbe des Knotentitels steuern",
       "helpSubTitleColor": "Individuelle Steuerung der Farbe der Knotenuntertitel",
-      "helpLableColor": "Individuelle Steuerung der Farbe des Knotensymbols",
+      "helpLabelColor": "Individuelle Steuerung der Farbe des Knotensymbols",
       "valueDesc": "Daten der Zeitleiste",
       "clickedObjectDesc": "Daten zum angeklickten Objekt",
       "clickedIndexDesc": "Index der angeklickten Objekte"

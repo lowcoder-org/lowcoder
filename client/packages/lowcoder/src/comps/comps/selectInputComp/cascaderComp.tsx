@@ -11,6 +11,7 @@ import { refMethods } from "comps/generators/withMethodExposing";
 
 const CascaderStyle = styled(Cascader)<{ $style: CascaderStyleType }>`
   width: 100%;
+  font-family:"Montserrat";
   ${(props) => props.$style && getStyle(props.$style)}
 `;
 
@@ -20,6 +21,7 @@ let CascaderBasicComp = (function () {
   return new UICompBuilder(childrenMap, (props) => {
     return props.label({
       style: props.style,
+      labelStyle:props.labelStyle,
       children: (
         <CascaderStyle
           ref={props.viewRef}

@@ -9,7 +9,7 @@ import {
 } from "comps/controls/codeControl";
 import { stringExposingStateControl } from "comps/controls/codeStateControl";
 import { LabelControl } from "comps/controls/labelControl";
-import { InputLikeStyleType, heightCalculator, widthCalculator } from "comps/controls/styleControlConstants";
+import { InputLikeStyleType, LabelStyleType, heightCalculator, widthCalculator } from "comps/controls/styleControlConstants";
 import { Section, sectionNames, ValueFromOption } from "lowcoder-design";
 import _ from "lodash";
 import { css } from "styled-components";
@@ -235,7 +235,7 @@ export const TextInputValidationSection = (children: TextInputComp) => (
   </Section>
 );
 
-export function getStyle(style: InputLikeStyleType) {
+export function getStyle(style: InputLikeStyleType, labelStyle?: LabelStyleType) {
   return css`
     border-radius: ${style.radius};
     border-width: ${style.borderWidth};
@@ -247,7 +247,10 @@ export function getStyle(style: InputLikeStyleType) {
       font-size: ${style.textSize};
       font-weight: ${style.textWeight};
       font-family: ${style.fontFamily};
-      background-color: ${style.background};
+      font-style:${style.fontStyle};
+      text-transform:${style.textTransform};
+      text-decoration:${style.textDecoration};
+      // background-color: ${style.background};
       border-color: ${style.border};
 
       &:focus,
@@ -293,12 +296,26 @@ export const inputRefMethods = [
 ];
 
 export function checkMentionListData(data: any) {
-  if(data === "") return {}
-  for(const key in data) {
-    check(data[key], ["array"], key,(node)=>{
-      check(node, ["string"], );
+  if (data === "") return {}
+  for (const key in data) {
+    check(data[key], ["array"], key, (node) => {
+      check(node, ["string"],);
       return node
     })
   }
   return data
+}
+
+// separate defaultValue and value for old components
+export function fixOldInputCompData(oldData: any) {
+  if (!oldData) return oldData;
+  if (Boolean(oldData.value) && !Boolean(oldData.defaultValue)) {
+    const value = oldData.value;
+    return {
+      ...oldData,
+      defaultValue: value,
+      value: '',
+    };
+  }
+  return oldData;
 }

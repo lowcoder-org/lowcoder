@@ -1581,24 +1581,3 @@ export const ANTDICON = {
   zoominoutlined: <ZoomInOutlined />,
   zoomoutoutlined: <ZoomOutOutlined />,
 };
-
-
-// Function to dynamically import icons
-export const loadAntDIcon = async (iconName: string) => {
-  if (!iconName) return null;
-
-  try {
-    const module = await import(`@ant-design/icons`);
-    const IconComponent = (module as any)[iconName];
-    if (IconComponent) {
-      // Return the icon component if found
-      return <IconComponent />;
-    } else {
-      console.error(`Icon ${iconName} not found in @ant-design/icons`);
-      return null;
-    }
-  } catch (error) {
-    console.error(`Error loading icon ${iconName}:`, error);
-    return null;
-  }
-};

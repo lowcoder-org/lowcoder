@@ -16,23 +16,17 @@ import {
   EditPopover,
   EllipsisTextCss,
   FolderIcon,
-  HomeActiveIcon,
-  HomeDataSourceActiveIcon,
   HomeDataSourceIcon,
   HomeIcon,
-  HomeModuleActiveIcon,
   HomeModuleIcon,
-  HomeQueryLibraryActiveIcon,
   HomeQueryLibraryIcon,
-  HomeSettingsActiveIcon,
-  HomeSettingsIcon,
+  HomeSettingIcon,
   InviteUserIcon,
   PlusIcon,
   PointIcon,
-  RecyclerActiveIcon,
   RecyclerIcon,
   MarketplaceIcon,
-  MarketplaceActiveIcon,
+  AppsIcon
 } from "lowcoder-design";
 import React, { useEffect, useState } from "react";
 import { fetchAllApplications, fetchHomeData } from "redux/reduxActions/applicationActions";
@@ -245,6 +239,7 @@ export default function ApplicationHome() {
   const allAppCount = allApplications.length;
   const allFoldersCount = allFolders.length;
   const orgHomeId = "root";
+  const isSelfHost = window.location.host !== 'app.lowcoder.cloud';
 
   const handleFolderCreate = useCreateFolder();
 
@@ -341,19 +336,13 @@ export default function ApplicationHome() {
                 text: <TabLabel>{trans("home.allApplications")}</TabLabel>,
                 routePath: ALL_APPLICATIONS_URL,
                 routeComp: HomeView,
-                icon: ({ selected, ...otherProps }) =>
-                  selected ? <HomeActiveIcon {...otherProps} /> : <HomeIcon {...otherProps} />,
+                icon: ({ selected, ...otherProps }) => selected ? <AppsIcon {...otherProps} width={"24px"}/> : <AppsIcon {...otherProps} width={"24px"}/>,
               },
               {
                 text: <TabLabel>{trans("home.allModules")}</TabLabel>,
                 routePath: MODULE_APPLICATIONS_URL,
                 routeComp: ModuleView,
-                icon: ({ selected, ...otherProps }) =>
-                  selected ? (
-                    <HomeModuleActiveIcon {...otherProps} />
-                  ) : (
-                    <HomeModuleIcon {...otherProps} />
-                  ),
+                icon: ({ selected, ...otherProps }) => selected ? <HomeModuleIcon {...otherProps} width={"24px"}/> : <HomeModuleIcon {...otherProps} width={"24px"}/>,
                 visible: ({ user }) => user.orgDev,
               },
               {
@@ -361,24 +350,14 @@ export default function ApplicationHome() {
                 routePath: MARKETPLACE_URL,
                 routePathExact: false,
                 routeComp: MarketplaceView,
-                icon: ({ selected, ...otherProps }) =>
-                  selected ? (
-                    <MarketplaceActiveIcon {...otherProps} />
-                  ) : (
-                    <MarketplaceIcon {...otherProps} />
-                  ),
+                icon: ({ selected, ...otherProps }) => selected ? <MarketplaceIcon {...otherProps} width={"24px"}/> : <MarketplaceIcon {...otherProps} width={"24px"}/>,
                 visible: ({ user }) => user.orgDev,
               },
               {
                 text: <TabLabel>{trans("home.trash")}</TabLabel>,
                 routePath: TRASH_URL,
                 routeComp: TrashView,
-                icon: ({ selected, ...otherProps }) =>
-                  selected ? (
-                    <RecyclerActiveIcon {...otherProps} />
-                  ) : (
-                    <RecyclerIcon {...otherProps} />
-                  ),
+                icon: ({ selected, ...otherProps }) => selected ? <RecyclerIcon {...otherProps} width={"24px"}/> : <RecyclerIcon {...otherProps} width={"24px"}/>,
                 visible: ({ user }) => user.orgDev,
               },
             ],
@@ -406,12 +385,7 @@ export default function ApplicationHome() {
                 text: <TabLabel>{trans("home.queryLibrary")}</TabLabel>,
                 routePath: QUERY_LIBRARY_URL,
                 routeComp: QueryLibraryEditor,
-                icon: ({ selected, ...otherProps }) =>
-                  selected ? (
-                    <HomeQueryLibraryActiveIcon {...otherProps} />
-                  ) : (
-                    <HomeQueryLibraryIcon {...otherProps} />
-                  ),
+                icon: ({ selected, ...otherProps }) => selected ? <HomeQueryLibraryIcon {...otherProps} width={"24px"}/> : <HomeQueryLibraryIcon {...otherProps} width={"24px"}/>,
                 visible: ({ user }) => user.orgDev,
               },
               {
@@ -419,12 +393,7 @@ export default function ApplicationHome() {
                 routePath: DATASOURCE_URL,
                 routePathExact: false,
                 routeComp: DatasourceHome,
-                icon: ({ selected, ...otherProps }) =>
-                  selected ? (
-                    <HomeDataSourceActiveIcon {...otherProps} />
-                  ) : (
-                    <HomeDataSourceIcon {...otherProps} />
-                  ),
+                icon: ({ selected, ...otherProps }) => selected ? <HomeDataSourceIcon {...otherProps} width={"24px"}/> : <HomeDataSourceIcon {...otherProps} width={"24px"}/>,
                 visible: ({ user }) => user.orgDev,
                 onSelected: (_, currentPath) => currentPath.split("/")[1] === "datasource",
               },
@@ -433,12 +402,7 @@ export default function ApplicationHome() {
                 routePath: SETTING,
                 routePathExact: false,
                 routeComp: Setting,
-                icon: ({ selected, ...otherProps }) =>
-                  selected ? (
-                    <HomeSettingsActiveIcon {...otherProps} />
-                  ) : (
-                    <HomeSettingsIcon {...otherProps} />
-                  ),
+                icon: ({ selected, ...otherProps }) => selected ? <HomeSettingIcon {...otherProps} width={"24px"}/> : <HomeSettingIcon {...otherProps} width={"24px"}/>,
                 visible: ({ user }) => user.orgDev,
                 onSelected: (_, currentPath) => currentPath.split("/")[1] === "setting",
               },

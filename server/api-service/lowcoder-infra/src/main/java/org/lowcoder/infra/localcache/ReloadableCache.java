@@ -83,7 +83,7 @@ public final class ReloadableCache<T> {
         private void startScheduledReloadTask(ReloadableCache<T> cache) {
             ScheduledExecutorService scheduledExecutor = newSingleThreadScheduledExecutor();
             scheduledExecutor.scheduleAtFixedRate(() -> {
-                log.debug("{} scheduled reload...", cacheName);
+                log.trace("{} scheduled reload...", cacheName);
                 try {
                     cache.cachedValue = factory.getValue().block();
                 } catch (Exception e) {

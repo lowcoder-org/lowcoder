@@ -44,6 +44,11 @@ public class CommonConfig {
     private Cookie cookie = new Cookie();
     private JsExecutor jsExecutor = new JsExecutor();
     private Set<String> disallowedHosts = new HashSet<>();
+    private List<String> pluginDirs = new ArrayList<>();
+    private SuperAdmin superAdmin = new SuperAdmin();
+    private Marketplace marketplace = new Marketplace();
+    private String lowcoderPublicUrl;
+    private String lostPasswordEmailSender;
 
     public boolean isSelfHost() {
         return !isCloud();
@@ -145,10 +150,22 @@ public class CommonConfig {
         private String host;
     }
 
+    @Data
+    public static class Marketplace {
+
+        private boolean privateMode = Boolean.TRUE;
+    }
+
 
     @Getter
     @Setter
     public static class Query {
         private long readStructureTimeout = 15000;
+    }
+
+    @Data
+    public static class SuperAdmin {
+        private String userName;
+        private String password;
     }
 }

@@ -39,6 +39,7 @@ const RightStyledCard = styled(Card)`
 
 export const LeftPanel = styled(StyledCard)`
   display: block;
+  z-index: ${Layers.rightPanel};
 `;
 export const RightPanelWrapper = styled(RightStyledCard)`
   display: flex;

@@ -1,11 +1,11 @@
 package org.lowcoder.api.datasource;
 
-import static org.lowcoder.infra.event.EventType.DATA_SOURCE_CREATE;
-import static org.lowcoder.infra.event.EventType.DATA_SOURCE_DELETE;
-import static org.lowcoder.infra.event.EventType.DATA_SOURCE_PERMISSION_DELETE;
-import static org.lowcoder.infra.event.EventType.DATA_SOURCE_PERMISSION_GRANT;
-import static org.lowcoder.infra.event.EventType.DATA_SOURCE_PERMISSION_UPDATE;
-import static org.lowcoder.infra.event.EventType.DATA_SOURCE_UPDATE;
+import static org.lowcoder.plugin.api.event.LowcoderEvent.EventType.DATA_SOURCE_CREATE;
+import static org.lowcoder.plugin.api.event.LowcoderEvent.EventType.DATA_SOURCE_DELETE;
+import static org.lowcoder.plugin.api.event.LowcoderEvent.EventType.DATA_SOURCE_PERMISSION_DELETE;
+import static org.lowcoder.plugin.api.event.LowcoderEvent.EventType.DATA_SOURCE_PERMISSION_GRANT;
+import static org.lowcoder.plugin.api.event.LowcoderEvent.EventType.DATA_SOURCE_PERMISSION_UPDATE;
+import static org.lowcoder.plugin.api.event.LowcoderEvent.EventType.DATA_SOURCE_UPDATE;
 import static org.lowcoder.sdk.exception.BizError.INVALID_PARAMETER;
 import static org.lowcoder.sdk.util.ExceptionUtils.ofError;
 import static org.lowcoder.sdk.util.LocaleUtils.getLocale;

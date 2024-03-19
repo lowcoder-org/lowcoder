@@ -11,7 +11,7 @@ const params: ParamsConfig = [
   { name: "options", type: "JSON" },
 ];
 
-const showMessage = (params: EvalParamType[], level: "info" | "success" | "warning" | "error") => {
+const showMessage = (params: EvalParamType[], level: "info" | "success" | "loading" | "warning" | "error") => {
   const text = params?.[0];
   const options = params?.[1] as JSONObject;
   const duration = options?.["duration"] ?? 3;
@@ -33,6 +33,12 @@ MessageComp = withMethodExposing(MessageComp, [
     method: { name: "success", description: trans("messageComp.success"), params: params },
     execute: (comp, params) => {
       showMessage(params, "success");
+    },
+  },
+  {
+    method: { name: "loading", description: trans("messageComp.loading"), params: params },
+    execute: (comp, params) => {
+      showMessage(params, "loading");
     },
   },
   {

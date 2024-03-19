@@ -270,7 +270,7 @@ public class OrgApiServiceImpl implements OrgApiService {
         return sessionUserService.getVisitorId()
                 .delayUntil(userId -> bizThresholdChecker.checkMaxOrgCount(userId))
                 .delayUntil(__ -> checkIfSaasMode())
-                .flatMap(userId -> organizationService.create(organization, userId))
+                .flatMap(userId -> organizationService.create(organization, userId, false))
                 .map(OrgView::new);
     }
 
