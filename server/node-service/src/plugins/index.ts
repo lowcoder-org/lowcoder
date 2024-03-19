@@ -31,9 +31,11 @@ import faunaPlugin from "./fauna";
 import huggingFaceInferencePlugin from "./huggingFaceInference";
 import didPlugin from "./did";
 import bigQueryPlugin from "./bigQuery";
+import ossPlugin from "./aliyunOss";
 
 let plugins: (DataSourcePlugin | DataSourcePluginFactory)[] = [
   s3Plugin,
+  ossPlugin,
   openApiPlugin,
   n8nPlugin,
   dynamoDBPlugin,
