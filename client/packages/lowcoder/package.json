@@ -39,7 +39,7 @@
     "agora-access-token": "^2.0.4",
     "agora-rtc-sdk-ng": "^4.19.0",
     "agora-rtm-sdk": "^1.5.1",
-    "antd": "^5.13.2",
+    "antd": "5.13.2",
     "axios": "^1.6.2",
     "buffer": "^6.0.3",
     "clsx": "^2.0.0",
