@@ -9661,7 +9661,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fast-glob@npm:^3.2.11, fast-glob@npm:^3.2.7, fast-glob@npm:^3.2.9":
+"fast-glob@npm:^3.2.11, fast-glob@npm:^3.2.12, fast-glob@npm:^3.2.7, fast-glob@npm:^3.2.9":
   version: 3.3.2
   resolution: "fast-glob@npm:3.3.2"
   dependencies:
@@ -13137,6 +13137,7 @@ __metadata:
     uuid: ^9.0.0
     vite: ^4.5.2
     vite-plugin-checker: ^0.5.1
+    vite-plugin-dynamic-import: ^1.5.0
     vite-plugin-html: ^3.2.0
     vite-plugin-svgr: ^2.2.2
     vite-tsconfig-paths: ^3.6.0
@@ -13235,6 +13236,15 @@ __metadata:
   dependencies:
     "@jridgewell/sourcemap-codec": ^1.4.13
   checksum: 273faaa50baadb7a2df6e442eac34ad611304fc08fe16e24fe2e472fd944bfcb73ffb50d2dc972dc04e92784222002af46868cb9698b1be181c81830fd95a13e
+  languageName: node
+  linkType: hard
+
+"magic-string@npm:^0.30.1":
+  version: 0.30.8
+  resolution: "magic-string@npm:0.30.8"
+  dependencies:
+    "@jridgewell/sourcemap-codec": ^1.4.15
+  checksum: 79922f4500d3932bb587a04440d98d040170decf432edc0f91c0bf8d41db16d364189bf800e334170ac740918feda62cd39dcc170c337dc18050cfcf00a5f232
   languageName: node
   linkType: hard
 
@@ -19352,6 +19362,18 @@ __metadata:
   peerDependencies:
     vite: ">2.0.0-0"
   checksum: f4cd84e9b552c2525e2f374371b3dd57c896bbea77c4e55bf136fbafa561543684c690c9c0bb74bc496f694b092e2229293cd2b9cde438f3bc9e33bab8f810b2
+  languageName: node
+  linkType: hard
+
+"vite-plugin-dynamic-import@npm:^1.5.0":
+  version: 1.5.0
+  resolution: "vite-plugin-dynamic-import@npm:1.5.0"
+  dependencies:
+    acorn: ^8.8.2
+    es-module-lexer: ^1.2.1
+    fast-glob: ^3.2.12
+    magic-string: ^0.30.1
+  checksum: 68efd897daa0c72a9f9d3481095dd3f7ec9a822be5a15eef60413734a4c894c5bbd1c1762f02daeef5df59cef212c9f1e7e056315e2a7780816ccafe5c74da6e
   languageName: node
   linkType: hard
 
