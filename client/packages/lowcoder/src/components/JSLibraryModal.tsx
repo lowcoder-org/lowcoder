@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import React, { ReactNode, useEffect, useState } from "react";
+import React, { ReactNode, lazy, useEffect, useState } from "react";
 import { CustomModal } from "components/CustomModal";
 import { trans } from "i18n";
 import { DocLink } from "components/ExternalLink";

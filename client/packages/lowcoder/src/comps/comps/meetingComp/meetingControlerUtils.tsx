@@ -1,7 +1,7 @@
 import { CheckBox, controlItem, Switch, SwitchWrapper } from "lowcoder-design";
 import { ReactNode } from "react";
 import { ControlParams } from "comps/controls/controlParams";
-import { SimpleComp } from "lowcoder-core/lib";
+import { SimpleComp } from "lowcoder-core";
 
 export class BoolShareVideoControl extends SimpleComp<boolean> {
   readonly IGNORABLE_DEFAULT_VALUE = false;

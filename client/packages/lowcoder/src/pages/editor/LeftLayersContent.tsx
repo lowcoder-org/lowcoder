@@ -13,13 +13,13 @@ import React, { useCallback, useContext, useMemo, useState, useEffect, useRef } 
 import _, { get } from "lodash";
 import styled from "styled-components";
 import { leftCompListClassName } from "pages/tutorials/tutorialsConstant";
-import UIComp from "comps/comps/uiComp";
+import type UIComp from "comps/comps/uiComp";
 import { getTreeNodeByKey } from "util/objectUtils";
 import { TopHeaderHeight } from "constants/style";
 import { trans } from "i18n";
 import { CompTree } from "comps/comps/containerBase";
 import { CompStateIcon } from "./editorConstants";
-import { UICompType } from "comps/uiCompRegistry";
+import type { UICompType } from "comps/uiCompRegistry";
 import { DirectoryTreeStyle, Node } from "./styledComponents";
 import { isAggregationApp } from "util/appUtils";
 import cloneDeep from 'lodash/cloneDeep';

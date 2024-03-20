@@ -8,6 +8,7 @@ import { visualizer } from "rollup-plugin-visualizer";
 import path from "path";
 import chalk from "chalk";
 import { createHtmlPlugin } from "vite-plugin-html";
+import dynamicImport from 'vite-plugin-dynamic-import';
 import { ensureLastSlash } from "./src/dev-utils/util";
 import { buildVars } from "./src/dev-utils/buildVars";
 import { globalDepPlugin } from "./src/dev-utils/globalDepPlguin";
@@ -74,6 +75,12 @@ export const viteConfig: UserConfig = {
       output: {
         chunkFileNames: "[hash].js",
       },
+      onwarn: (warning, warn) => {
+        if (warning.code === 'MODULE_LEVEL_DIRECTIVE') {
+          return
+        }
+        warn(warning)
+      },
     },
     commonjsOptions: {
       defaultIsModuleExports: (id) => {
@@ -83,6 +90,9 @@ export const viteConfig: UserConfig = {
         return "auto";
       },
     },
+  },
+  optimizeDeps: {
+    include: ['antd/**/*']
   },
   css: {
     preprocessorOptions: {
@@ -143,6 +153,7 @@ export const viteConfig: UserConfig = {
       },
     }),
     isVisualizerEnabled && visualizer(),
+    dynamicImport(),
   ].filter(Boolean),
 };
 

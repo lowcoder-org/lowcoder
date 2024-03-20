@@ -1,3 +1,4 @@
+// import { CodeEditor } from "base/codeEditor/codeEditor";
 import { CompParams } from "lowcoder-core";
 import { EditorContext } from "comps/editorState";
 import { valueComp } from "comps/generators";

@@ -1,5 +1,5 @@
 import { withTheme } from '@rjsf/core';
-import { RJSFValidationError, ErrorListProps, UISchemaSubmitButtonOptions } from "@rjsf/utils";
+import type { RJSFValidationError, ErrorListProps, UISchemaSubmitButtonOptions } from "@rjsf/utils";
 import validator from "@rjsf/validator-ajv8";
 // import Ajv from "@rjsf/validator-ajv8";
 import { default as Button } from "antd/es/button";
@@ -10,9 +10,8 @@ import { JsonSchemaFormStyle, JsonSchemaFormStyleType } from "comps/controls/sty
 import { depsConfig, NameConfigHidden, withExposingConfigs } from "comps/generators/withExposing";
 import { withMethodExposing } from "comps/generators/withMethodExposing";
 import { ValueFromOption } from "lowcoder-design";
-import { i18n } from "lowcoder-core";
 import { i18nObjs, trans } from "i18n";
-import { JSONSchema7 } from "json-schema";
+import type { JSONSchema7 } from "json-schema";
 import styled from "styled-components";
 import { toBoolean, toNumber, toString } from "util/convertUtils";
 import { Section, sectionNames } from "lowcoder-design";

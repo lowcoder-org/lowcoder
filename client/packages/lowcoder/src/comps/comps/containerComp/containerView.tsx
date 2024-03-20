@@ -195,7 +195,7 @@ const onFlyDrop = (layout: Layout, items: Layout, dispatch: DispatchType) => {
   }
 };
 
-const onDrop = (
+const onDrop = async (
   layout: Layout,
   items: Layout,
   event: DragEvent<HTMLElement>,
@@ -222,7 +222,17 @@ const onDrop = (
     const nameGenerator = editorState.getNameGenerator();
     const compInfo = parseCompType(compType);
     const compName = nameGenerator.genItemName(compInfo.compName);
-    const defaultDataFn = uiCompRegistry[compType as UICompType]?.defaultDataFn;
+    const {
+      defaultDataFnName,
+      defaultDataFnPath,
+    } = uiCompRegistry[compType as UICompType];
+
+    let defaultDataFn = undefined;
+    if(defaultDataFnName && defaultDataFnPath) {
+      const module = await import(`../../${defaultDataFnPath}.tsx`);
+      defaultDataFn = module[defaultDataFnName];
+    }
+
     const widgetValue: GridItemDataType = {
       compType,
       name: compName,

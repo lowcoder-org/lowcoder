@@ -48,17 +48,17 @@ import { EditorContext } from "comps/editorState";
 // import axios from "axios";
 
 import AgoraRTC, {
-  ICameraVideoTrack,
-  IMicrophoneAudioTrack,
-  IAgoraRTCClient,
-  IAgoraRTCRemoteUser,
-  UID,
-  ILocalVideoTrack,
+  type ICameraVideoTrack,
+  type IMicrophoneAudioTrack,
+  type IAgoraRTCClient,
+  type IAgoraRTCRemoteUser,
+  type UID,
+  type ILocalVideoTrack,
 } from "agora-rtc-sdk-ng";
 
-import { JSONValue } from "util/jsonTypes";
+import type { JSONValue } from "util/jsonTypes";
 import { getData } from "../listViewComp/listViewUtils";
-import AgoraRTM, { RtmChannel, RtmClient } from "agora-rtm-sdk";
+import type { RtmChannel, RtmClient } from "agora-rtm-sdk";
 
 const EventOptions = [closeEvent] as const;
 
@@ -210,6 +210,7 @@ const sendPeerMessageRtm = (message: any, toId: string) => {
 };
 
 const rtmInit = async (appId: any, uid: any, token: any, channel: any) => {
+  const AgoraRTM = (await import("agora-rtm-sdk")).default;
   rtmClient = AgoraRTM.createInstance(appId);
   let options = {
     uid: String(uid),
