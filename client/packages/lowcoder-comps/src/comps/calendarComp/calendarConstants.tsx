@@ -932,7 +932,8 @@ export const buttonText = {
 
 export const headerToolbar = {
   left: "title",
-  right: "prev today next dayGridMonth,timeGridWeek,timeGridDay,listWeek",
+  right:
+    "prev today next dayGridMonth,timeGridWeek,timeGridDay,listWeek",
 };
 
 const weekHeadContent = (info: DayHeaderContentArg) => {

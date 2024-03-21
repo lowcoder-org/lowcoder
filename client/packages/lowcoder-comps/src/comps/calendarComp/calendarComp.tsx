@@ -21,7 +21,7 @@ import {
   jsonValueExposingStateControl,
   CalendarDeleteIcon,
   jsonValueStateControl,
-  Tooltip
+  Tooltip,
 } from "lowcoder-sdk";
 import { default as Form } from "antd/es/form";
 import { default as Input } from "antd/es/input";
