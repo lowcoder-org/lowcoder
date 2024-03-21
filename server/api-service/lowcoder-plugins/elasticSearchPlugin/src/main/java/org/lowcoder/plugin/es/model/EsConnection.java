@@ -3,7 +3,7 @@ package org.lowcoder.plugin.es.model;
 import java.io.Closeable;
 import java.io.IOException;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 import org.lowcoder.plugin.es.ReactorRestClientAdaptor;
 
