@@ -3,10 +3,7 @@ import { EditorContext } from "comps/editorState";
 import { withDefault } from "comps/generators/simpleGenerators";
 import { UICompBuilder } from "comps/generators/uiCompBuilder";
 import ReactResizeDetector from "react-resize-detector";
-import {
-  Section,
-  sectionNames,
-} from "lowcoder-design";
+import { Section, sectionNames } from "lowcoder-design";
 import { trans } from "i18n";
 import styled from "styled-components";
 import {
@@ -22,7 +19,10 @@ import { client } from "./videoMeetingControllerComp";
 import { IAgoraRTCRemoteUser } from "agora-rtc-sdk-ng";
 import { useContext } from "react";
 import { MeetingEventHandlerControl } from "comps/controls/eventHandlerControl";
-import { StringStateControl, stringExposingStateControl } from "comps/controls/codeStateControl";
+import {
+  StringStateControl,
+  stringExposingStateControl,
+} from "comps/controls/codeStateControl";
 import { hiddenPropertyView } from "comps/utils/propertyUtils";
 
 const VideoContainer = styled.video`
@@ -44,7 +44,10 @@ const meetingStreamChildren = {
   style: ButtonStyleControl,
   viewRef: RefControl<HTMLElement>,
   userId: withDefault(stringExposingStateControl(""), "{{meeting1.localUser}}"),
-  profileImageUrl: withDefault(StringStateControl, "https://api.dicebear.com/7.x/fun-emoji/svg?seed=Peanut&radius=50&backgroundColor=transparent&randomizeIds=true&eyes=wink,sleepClose"),
+  profileImageUrl: withDefault(
+    StringStateControl,
+    "https://api.dicebear.com/7.x/fun-emoji/svg?seed=Peanut&radius=50&backgroundColor=transparent&randomizeIds=true&eyes=wink,sleepClose"
+  ),
   noVideoText: stringExposingStateControl(trans("meeting.noVideo")),
 };
 
@@ -72,6 +75,7 @@ let VideoCompBuilder = (function () {
               ) {
                 props.onEvent("videoOn");
               }
+              
               const element = document.getElementById(userId);
 
               if (element) {
@@ -130,7 +134,6 @@ let VideoCompBuilder = (function () {
     }, [props.userId.value]);
 
     // console.log(props.userId);
-    
 
     return (
       <EditorContext.Consumer>
@@ -195,22 +198,26 @@ let VideoCompBuilder = (function () {
       <>
         <Section name={sectionNames.basic}>
           {children.userId.propertyView({ label: trans("meeting.videoId") })}
-          
+
           {children.profileImageUrl.propertyView({
             label: trans("meeting.profileImageUrl"),
-            placeholder: "https://api.dicebear.com/7.x/fun-emoji/svg?seed=Peanut&radius=50&backgroundColor=transparent&randomizeIds=true&eyes=wink,sleepClose",
+            placeholder:
+              "https://api.dicebear.com/7.x/fun-emoji/svg?seed=Peanut&radius=50&backgroundColor=transparent&randomizeIds=true&eyes=wink,sleepClose",
           })}
         </Section>
 
-        {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
+        {(useContext(EditorContext).editorModeStatus === "logic" ||
+          useContext(EditorContext).editorModeStatus === "both") && (
           <Section name={sectionNames.interaction}>
             {children.onEvent.getPropertyView()}
             {hiddenPropertyView(children)}
           </Section>
         )}
 
-        {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
-          <><Section name={sectionNames.layout}>
+        {(useContext(EditorContext).editorModeStatus === "layout" ||
+          useContext(EditorContext).editorModeStatus === "both") && (
+          <>
+            <Section name={sectionNames.layout}>
               {children.autoHeight.getPropertyView()}
             </Section>
             <Section name={sectionNames.style}>

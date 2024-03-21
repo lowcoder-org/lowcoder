@@ -289,17 +289,25 @@ let MTComp = (function () {
 
       useEffect(() => {
         if (userJoined) {
-          let prevUsers: any[] = props.participants as [];
-          let userData = {
-            user: userJoined.uid,
-            audiostatus: userJoined.hasAudio,
-            streamingVideo: true,
-          };
-          setUserIds((userIds: any) => [...userIds, userData]);
+          const remoteUsers = client.remoteUsers;
+          let users: {
+            user: UID;
+            audiostatus: boolean;
+            streamingVideo: boolean;
+          }[] = [];
+          remoteUsers.forEach((user) => {
+            let userData = {
+              user: user.uid,
+              audiostatus: user.hasAudio,
+              streamingVideo: user.hasVideo,
+            };
+            users.push(userData);
+            setUserIds((userIds: any) => [...userIds, userData]);
+          });
           dispatch(
             changeChildAction(
               "participants",
-              removeDuplicates(getData([...prevUsers, userData]).data, "user"),
+              removeDuplicates(getData(users).data, "user"),
               false
             )
           );
@@ -341,8 +349,6 @@ let MTComp = (function () {
         }
       }, [userLeft]);
 
-      // console.log("sharing", props.sharing);
-
       useEffect(() => {
         if (updateVolume.userid) {
           let prevUsers: [] = props.participants as [];
@@ -363,7 +369,8 @@ let MTComp = (function () {
       }, [updateVolume]);
 
       useEffect(() => {
-        let prevUsers: [] = props.participants as [];
+        let prevUsers: any = props.participants as [];
+        if (prevUsers == "") return;
         const updatedItems = prevUsers.map((userInfo: any) => {
           if (userInfo.user === localUserVideo?.uid) {
             return { ...userInfo, streamingSharing: props.sharing.value };
@@ -385,7 +392,8 @@ let MTComp = (function () {
       }, [props.sharing.value]);
 
       useEffect(() => {
-        let prevUsers: [] = props.participants as [];
+        let prevUsers: any = props.participants as [];
+        if (prevUsers == "") return;
         const updatedItems = prevUsers.map((userInfo: any) => {
           if (userInfo.user === localUserVideo?.uid) {
             return { ...userInfo, streamingVideo: localUserVideo?.hasVideo };
@@ -512,12 +520,12 @@ let MTComp = (function () {
               styles={{
                 wrapper: {
                   maxHeight: "100%",
-                  maxWidth: "100%"
-                }, 
+                  maxWidth: "100%",
+                },
                 body: {
                   padding: 0,
                   backgroundColor: props.style.background,
-                }
+                },
               }}
               closable={false}
               placement={props.placement}
@@ -569,8 +577,10 @@ let MTComp = (function () {
   )
     .setPropertyViewFn((children) => (
       <>
-        {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
-          <><Section name={sectionNames.meetings}>
+        {(useContext(EditorContext).editorModeStatus === "logic" ||
+          useContext(EditorContext).editorModeStatus === "both") && (
+          <>
+            <Section name={sectionNames.meetings}>
               {children.appId.propertyView({
                 label: trans("meeting.appid"),
               })}
@@ -593,38 +603,40 @@ let MTComp = (function () {
           </>
         )}
 
-        {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
-          <><Section name={sectionNames.layout}>
-            {children.placement.propertyView({
-              label: trans("drawer.placement"),
-              radioButton: true,
-            })}
-            {["top", "bottom"].includes(children.placement.getView())
-              ? children.autoHeight.getPropertyView()
-              : children.width.propertyView({
-                  label: trans("drawer.width"),
-                  tooltip: trans("drawer.widthTooltip"),
+        {(useContext(EditorContext).editorModeStatus === "layout" ||
+          useContext(EditorContext).editorModeStatus === "both") && (
+          <>
+            <Section name={sectionNames.layout}>
+              {children.placement.propertyView({
+                label: trans("drawer.placement"),
+                radioButton: true,
+              })}
+              {["top", "bottom"].includes(children.placement.getView())
+                ? children.autoHeight.getPropertyView()
+                : children.width.propertyView({
+                    label: trans("drawer.width"),
+                    tooltip: trans("drawer.widthTooltip"),
+                    placeholder: DEFAULT_SIZE + "",
+                  })}
+              {!children.autoHeight.getView() &&
+                ["top", "bottom"].includes(children.placement.getView()) &&
+                children.height.propertyView({
+                  label: trans("drawer.height"),
+                  tooltip: trans("drawer.heightTooltip"),
                   placeholder: DEFAULT_SIZE + "",
                 })}
-            {!children.autoHeight.getView() &&
-              ["top", "bottom"].includes(children.placement.getView()) &&
-              children.height.propertyView({
-                label: trans("drawer.height"),
-                tooltip: trans("drawer.heightTooltip"),
-                placeholder: DEFAULT_SIZE + "",
+              {children.maskClosable.propertyView({
+                label: trans("prop.maskClosable"),
               })}
-            {children.maskClosable.propertyView({
-              label: trans("prop.maskClosable"),
-            })}
-            {children.showMask.propertyView({
-              label: trans("prop.showMask"),
-            })}
-          </Section>
+              {children.showMask.propertyView({
+                label: trans("prop.showMask"),
+              })}
+            </Section>
 
-          <Section name={sectionNames.style}>
-            
-            {children.style.getPropertyView()}
-          </Section></>
+            <Section name={sectionNames.style}>
+              {children.style.getPropertyView()}
+            </Section>
+          </>
         )}
       </>
     ))
@@ -720,24 +732,16 @@ MTComp = withMethodExposing(MTComp, [
         comp.children.localUserID.getView().value === ""
           ? uuidv4()
           : comp.children.localUserID.getView().value;
-      comp.children.localUser.change({
+      let user = {
         user: userId + "",
         audiostatus: false,
         speaking: false,
         streamingVideo: true,
-      });
+      };
+      comp.children.localUser.change(user);
 
       comp.children.localUser.children.value.dispatch(
-        changeChildAction(
-          "localUser",
-          {
-            user: userId + "",
-            audiostatus: false,
-            speaking: false,
-            streamingVideo: true,
-          },
-          false
-        )
+        changeChildAction("localUser", user, false)
       );
       comp.children.videoControl.change(true);
       await publishVideo(
