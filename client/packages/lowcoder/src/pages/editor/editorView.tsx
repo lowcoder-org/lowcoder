@@ -329,6 +329,9 @@ function EditorView(props: EditorViewProps) {
 
   const hideBodyHeader = useTemplateViewMode();
 
+  // we check if we are on the public cloud
+  const isLowCoderDomain = window.location.hostname === 'app.lowcoder.cloud';
+
   if (readOnly && hideHeader) {
     return (
       <CustomShortcutWrapper>
@@ -341,7 +344,23 @@ function EditorView(props: EditorViewProps) {
   if (readOnly && !showAppSnapshot) {
     return (
       <CustomShortcutWrapper>
-        <Helmet>{application && <title>{application.name}</title>}</Helmet>
+        <Helmet>
+          {application && <title>{application.name}</title>}
+          {isLowCoderDomain && (
+            <>
+              {/* setting Meta Attributes to be able for embedding via iframely */}
+              <meta property="iframely:title" content="Lowcoder" />
+              <meta property="iframely:description" content="Lowcoder | rapid App & VideoMeeting builder for everyone." />
+
+              <link rel="preconnect" href="https://fonts.googleapis.com"/>
+              <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous"/>
+              <link href="https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,700;1,400&display=swap" rel="stylesheet"/>
+              {/* embedding analytics of Cleabits */}
+              <script src="https://tag.clearbitscripts.com/v1/pk_931b51e405557300e6a7c470e8247d5f/tags.js" referrerPolicy="strict-origin-when-cross-origin"></script>
+            </>
+          )}
+          {application && <title>{application.name}</title>}
+        </Helmet>
         {!hideBodyHeader && <PreviewHeader />}
         <EditorContainerWithViewMode>
           <ViewBody $hideBodyHeader={hideBodyHeader} $height={height}>
