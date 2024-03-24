@@ -46,7 +46,7 @@ public class UserApiService {
     private Mono<Void> checkAdminPermissionAndUserBelongsToCurrentOrg(String userId) {
         return sessionUserService.getVisitorOrgMemberCache()
                 .flatMap(orgMember -> {
-                    if (!orgMember.isAdmin()) {
+                    if (!orgMember.isAdmin() && !orgMember.isSuperAdmin()) {
                         return ofError(UNSUPPORTED_OPERATION, "BAD_REQUEST");
                     }
                     return orgMemberService.getOrgMember(orgMember.getOrgId(), userId)

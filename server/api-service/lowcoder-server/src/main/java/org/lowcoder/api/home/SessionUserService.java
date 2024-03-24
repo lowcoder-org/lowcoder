@@ -18,6 +18,8 @@ public interface SessionUserService {
     @NonEmptyMono
     Mono<OrgMember> getVisitorOrgMemberCache();
 
+    Mono<OrgMember> getVisitorOrgMemberCacheSilent();
+
     Mono<OrgMember> getVisitorOrgMember();
 
     Mono<Boolean> isAnonymousUser();
@@ -33,4 +35,6 @@ public interface SessionUserService {
     Mono<User> resolveSessionUserForJWT(Claims claims, String token);
 
     Mono<Boolean> tokenExist(String token);
+
+    Mono<String> getVisitorToken();
 }

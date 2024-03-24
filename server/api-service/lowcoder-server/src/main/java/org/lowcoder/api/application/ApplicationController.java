@@ -1,11 +1,12 @@
 package org.lowcoder.api.application;
 
 import static org.apache.commons.collections4.SetUtils.emptyIfNull;
-import static org.lowcoder.infra.event.EventType.APPLICATION_CREATE;
-import static org.lowcoder.infra.event.EventType.APPLICATION_DELETE;
-import static org.lowcoder.infra.event.EventType.APPLICATION_RECYCLED;
-import static org.lowcoder.infra.event.EventType.APPLICATION_RESTORE;
-import static org.lowcoder.infra.event.EventType.APPLICATION_UPDATE;
+import static org.lowcoder.plugin.api.event.LowcoderEvent.EventType.APPLICATION_CREATE;
+import static org.lowcoder.plugin.api.event.LowcoderEvent.EventType.APPLICATION_DELETE;
+import static org.lowcoder.plugin.api.event.LowcoderEvent.EventType.APPLICATION_RECYCLED;
+import static org.lowcoder.plugin.api.event.LowcoderEvent.EventType.APPLICATION_RESTORE;
+import static org.lowcoder.plugin.api.event.LowcoderEvent.EventType.APPLICATION_UPDATE;
+import static org.lowcoder.plugin.api.event.LowcoderEvent.EventType.APPLICATION_VIEW;
 import static org.lowcoder.sdk.exception.BizError.INVALID_PARAMETER;
 import static org.lowcoder.sdk.util.ExceptionUtils.ofError;
 
@@ -26,7 +27,6 @@ import org.lowcoder.domain.application.model.ApplicationRequestType;
 import org.lowcoder.domain.application.model.ApplicationStatus;
 import org.lowcoder.domain.application.model.ApplicationType;
 import org.lowcoder.domain.permission.model.ResourceRole;
-import org.lowcoder.infra.event.EventType;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -93,12 +93,11 @@ public class ApplicationController implements ApplicationEndpoints {
                 .map(ResponseView::success);
     }
 
-    // will call the check in ApplicationApiService and ApplicationService
     @Override
     public Mono<ResponseView<ApplicationView>> getPublishedApplication(@PathVariable String applicationId) {
         return applicationApiService.getPublishedApplication(applicationId, ApplicationRequestType.PUBLIC_TO_ALL)
                 .delayUntil(applicationView -> applicationApiService.updateUserApplicationLastViewTime(applicationId))
-                .delayUntil(applicationView -> businessEventPublisher.publishApplicationCommonEvent(applicationView, EventType.VIEW))
+                .delayUntil(applicationView -> businessEventPublisher.publishApplicationCommonEvent(applicationView, APPLICATION_VIEW))
                 .map(ResponseView::success);
     }
 
@@ -106,7 +105,7 @@ public class ApplicationController implements ApplicationEndpoints {
     public Mono<ResponseView<ApplicationView>> getPublishedMarketPlaceApplication(@PathVariable String applicationId) {
         return applicationApiService.getPublishedApplication(applicationId, ApplicationRequestType.PUBLIC_TO_MARKETPLACE)
                 .delayUntil(applicationView -> applicationApiService.updateUserApplicationLastViewTime(applicationId))
-                .delayUntil(applicationView -> businessEventPublisher.publishApplicationCommonEvent(applicationView, EventType.VIEW))
+                .delayUntil(applicationView -> businessEventPublisher.publishApplicationCommonEvent(applicationView, APPLICATION_VIEW))
                 .map(ResponseView::success);
     }
 
@@ -114,7 +113,7 @@ public class ApplicationController implements ApplicationEndpoints {
     public Mono<ResponseView<ApplicationView>> getAgencyProfileApplication(@PathVariable String applicationId) {
         return applicationApiService.getPublishedApplication(applicationId, ApplicationRequestType.AGENCY_PROFILE)
                 .delayUntil(applicationView -> applicationApiService.updateUserApplicationLastViewTime(applicationId))
-                .delayUntil(applicationView -> businessEventPublisher.publishApplicationCommonEvent(applicationView, EventType.VIEW))
+                .delayUntil(applicationView -> businessEventPublisher.publishApplicationCommonEvent(applicationView, APPLICATION_VIEW))
                 .map(ResponseView::success);
     }
 

@@ -81,6 +81,14 @@
 		<dependencies>
 			<dependency>
 				<groupId>org.lowcoder</groupId>
+				<artifactId>lowcoder-dependencies</artifactId>
+				<version>${revision}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>			
+			
+			<dependency>
+				<groupId>org.lowcoder</groupId>
 				<artifactId>sqlBasedPlugin</artifactId>
 				<version>${revision}</version>
 			</dependency>

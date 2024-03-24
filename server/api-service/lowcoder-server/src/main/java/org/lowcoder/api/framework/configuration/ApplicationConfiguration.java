@@ -1,7 +1,10 @@
 package org.lowcoder.api.framework.configuration;
 
+import org.lowcoder.api.ServerApplication;
 import org.lowcoder.sdk.config.CommonConfig;
+import org.pf4j.spring.SpringPluginManager;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.system.ApplicationHome;
 import org.springframework.boot.web.servlet.MultipartConfigFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,6 +17,18 @@ public class ApplicationConfiguration
 {
 	@Autowired
 	private CommonConfig common;  
+	
+	@Bean("applicationHome")
+	public ApplicationHome applicatioHome()
+	{
+		return new ApplicationHome(ServerApplication.class);
+	}
+	
+	@Bean
+	public SpringPluginManager pluginManager()
+	{
+		return new SpringPluginManager();
+	}
 	
 	@Bean
 	public MultipartConfigElement multipartConfigElement() 
