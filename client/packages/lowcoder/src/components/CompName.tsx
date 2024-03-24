@@ -83,6 +83,7 @@ export const CompName = (props: Iprops) => {
 
   const items: EditPopoverItemType[] = [];
 
+  // Falk: TODO - Implement upgrade for individual Version functionality
   const handleUpgrade = async () => {
     if (upgrading) {
       return;
