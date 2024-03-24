@@ -147,7 +147,7 @@ export function TriContainer(props: TriContainerProps) {
       )}
       {showBody && (
         <BackgroundColorContext.Provider value={bodyStyle.background}>
-            <ScrollBar style={{ height: container.autoHeight ? "auto" : "100%", margin: "0px", padding: "0px" }} hideScrollbar={scrollbars}>
+            <ScrollBar style={{ height: container.autoHeight ? "auto" : "100%", margin: "0px", padding: "0px" }} hideScrollbar={!scrollbars}>
               <BodyInnerGrid
                 $showBorder={showHeader}
                 {...otherBodyProps}

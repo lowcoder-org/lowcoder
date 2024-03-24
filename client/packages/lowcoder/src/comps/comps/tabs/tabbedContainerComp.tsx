@@ -3,7 +3,7 @@ import { JSONObject, JSONValue } from "util/jsonTypes";
 import { CompAction, CompActionTypes, deleteCompAction, wrapChildAction } from "lowcoder-core";
 import { DispatchType, RecordConstructorToView, wrapDispatch } from "lowcoder-core";
 import { AutoHeightControl } from "comps/controls/autoHeightControl";
-import { BooleanStateControl, booleanExposingStateControl, stringExposingStateControl } from "comps/controls/codeStateControl";
+import { stringExposingStateControl } from "comps/controls/codeStateControl";
 import { eventHandlerControl } from "comps/controls/eventHandlerControl";
 import { TabsOptionControl } from "comps/controls/optionsControl";
 import { styleControl } from "comps/controls/styleControl";
@@ -12,7 +12,7 @@ import { sameTypeMap, UICompBuilder, withDefault } from "comps/generators";
 import { addMapChildAction } from "comps/generators/sameTypeMap";
 import { NameConfig, NameConfigHidden, withExposingConfigs } from "comps/generators/withExposing";
 import { NameGenerator } from "comps/utils";
-import { ControlNode, Section, sectionNames } from "lowcoder-design";
+import { ScrollBar, Section, sectionNames } from "lowcoder-design";
 import { HintPlaceHolder } from "lowcoder-design";
 import _ from "lodash";
 import React, { useCallback, useContext } from "react";
@@ -33,6 +33,7 @@ import { DisabledContext } from "comps/generators/uiCompBuilder";
 import { EditorContext } from "comps/editorState";
 import { checkIsMobile } from "util/commonUtils";
 import { messageInstance } from "lowcoder-design";
+import { BoolControl } from "comps/controls/boolControl";
 
 const EVENT_OPTIONS = [
   {
@@ -50,9 +51,10 @@ const childrenMap = {
     1: { layout: {}, items: {} },
   }),
   autoHeight: AutoHeightControl,
+  scrollbars: withDefault(BoolControl, false),
   onEvent: eventHandlerControl(EVENT_OPTIONS),
   disabled: BoolCodeControl,
-  showHeader: withDefault(BooleanStateControl, "true"),
+  showHeader: withDefault(BoolControl, true),
   style: styleControl(TabContainerStyle),
   headerStyle: styleControl(ContainerHeaderStyle),
   bodyStyle: styleControl(ContainerBodyStyle),
@@ -211,7 +213,7 @@ const TabbedContainer = (props: TabbedContainerProps) => {
   const editorState = useContext(EditorContext);
   const maxWidth = editorState.getAppSettings().maxWidth;
   const isMobile = checkIsMobile(maxWidth);
-  const showHeader = props.showHeader.value;
+  const showHeader = props.showHeader.valueOf();
   const paddingWidth = isMobile ? 8 : 0;
 
   const tabItems = visibleTabs.map((tab) => {
@@ -236,14 +238,16 @@ const TabbedContainer = (props: TabbedContainerProps) => {
       forceRender: true,
       children: (
         <BackgroundColorContext.Provider value={bodyStyle.background}>
-          <ContainerInTab
-            layout={containerProps.layout.getView()}
-            items={gridItemCompToGridItems(containerProps.items.getView())}
-            positionParams={containerProps.positionParams.getView()}
-            dispatch={childDispatch}
-            autoHeight={props.autoHeight}
-            containerPadding={[paddingWidth, 20]}
-          />
+          <ScrollBar style={{ height: props.autoHeight ? "100%" : "auto", margin: "0px", padding: "0px" }} hideScrollbar={!props.scrollbars}>
+            <ContainerInTab
+              layout={containerProps.layout.getView()}
+              items={gridItemCompToGridItems(containerProps.items.getView())}
+              positionParams={containerProps.positionParams.getView()}
+              dispatch={childDispatch}
+              autoHeight={props.autoHeight}
+              containerPadding={[paddingWidth, 20]}
+            />
+          </ScrollBar>
         </BackgroundColorContext.Provider>
       )
     }
@@ -307,6 +311,11 @@ export const TabbedContainerBaseComp = (function () {
             <>
               <Section name={sectionNames.layout}>
                 {children.autoHeight.getPropertyView()}
+                {!children.autoHeight.getView() && (
+                  children.scrollbars.propertyView({
+                    label: trans("prop.scrollbar"),
+                  })
+                )}
               </Section>
               <Section name={sectionNames.style}>
                 {children.style.getPropertyView()}
