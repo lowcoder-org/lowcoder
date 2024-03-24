@@ -329,6 +329,9 @@ function EditorView(props: EditorViewProps) {
 
   const hideBodyHeader = useTemplateViewMode();
 
+  // we check if we are on the public cloud
+  const isLowCoderDomain = window.location.hostname === 'app.lowcoder.cloud';
+
   if (readOnly && hideHeader) {
     return (
       <CustomShortcutWrapper>
@@ -341,7 +344,19 @@ function EditorView(props: EditorViewProps) {
   if (readOnly && !showAppSnapshot) {
     return (
       <CustomShortcutWrapper>
-        <Helmet>{application && <title>{application.name}</title>}</Helmet>
+        <Helmet>
+          {application && <title>{application.name}</title>}
+          {isLowCoderDomain && [
+            // Adding Support for iframely to be able to embedd the component explorer in the docu
+            <meta key="iframely:title" property="iframely:title" content="Lowcoder" />,
+            <meta key="iframely:description" property="iframely:description" content="Lowcoder | rapid App & VideoMeeting builder for everyone." />,
+            <link key="preconnect-googleapis" rel="preconnect" href="https://fonts.googleapis.com" />,
+            <link key="preconnect-gstatic" rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />,
+            <link key="font-ubuntu" href="https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,700;1,400&display=swap" rel="stylesheet" />,
+            // adding Clearbit Support for Analytics
+            <script key="clearbit-script" src="https://tag.clearbitscripts.com/v1/pk_931b51e405557300e6a7c470e8247d5f/tags.js" referrerPolicy="strict-origin-when-cross-origin" type="text/javascript"></script>
+          ]}
+        </Helmet>
         {!hideBodyHeader && <PreviewHeader />}
         <EditorContainerWithViewMode>
           <ViewBody $hideBodyHeader={hideBodyHeader} $height={height}>
@@ -354,6 +369,7 @@ function EditorView(props: EditorViewProps) {
       </CustomShortcutWrapper>
     );
   }
+  
   // history mode, display with the right panel, a little trick
   const showRight = panelStatus.right || showAppSnapshot;
   let uiCompView;
@@ -392,7 +408,19 @@ function EditorView(props: EditorViewProps) {
         toggleEditorModeStatus={toggleEditorModeStatus}
         editorModeStatus={editorModeStatus} 
       />
-      <Helmet>{application && <title>{application.name}</title>}</Helmet>
+      <Helmet>
+        {application && <title>{application.name}</title>}
+        {isLowCoderDomain && [
+            // Adding Support for iframely to be able to embedd the component explorer in the docu
+            <meta key="iframely:title" property="iframely:title" content="Lowcoder" />,
+            <meta key="iframely:description" property="iframely:description" content="Lowcoder | rapid App & VideoMeeting builder for everyone." />,
+            <link key="preconnect-googleapis" rel="preconnect" href="https://fonts.googleapis.com" />,
+            <link key="preconnect-gstatic" rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />,
+            <link key="font-ubuntu" href="https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,700;1,400&display=swap" rel="stylesheet" />,
+            // adding Clearbit Support for Analytics
+            <script key="clearbit-script" src="https://tag.clearbitscripts.com/v1/pk_931b51e405557300e6a7c470e8247d5f/tags.js" referrerPolicy="strict-origin-when-cross-origin" type="text/javascript"></script>
+        ]}
+      </Helmet>
       {showNewUserGuide && <EditorTutorials />}
       <EditorGlobalHotKeys
         disabled={readOnly}
