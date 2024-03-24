@@ -83,6 +83,7 @@ export const CompName = (props: Iprops) => {
 
   const items: EditPopoverItemType[] = [];
 
+  // Falk: TODO - Implement upgrade for individual Version functionality
   const handleUpgrade = async () => {
     if (upgrading) {
       return;
@@ -112,6 +113,13 @@ export const CompName = (props: Iprops) => {
 
 
   if (compInfo.isRemote) {
+    items.push({
+      text: trans("history.currentVersion") + ": " + compInfo.packageVersion,
+      onClick: () => {
+        
+      },
+    });
+
     items.push({
       text: trans("comp.menuUpgradeToLatest"),
       onClick: () => {

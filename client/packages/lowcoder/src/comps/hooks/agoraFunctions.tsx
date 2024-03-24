@@ -43,12 +43,12 @@ const useAgora = () => {
   const leaveChannel = async () => {
     if (isJoined) {
       if (!client) {
-        console.error("Agora client is not initialized");
+        // console.error("Agora client is not initialized");
         return;
       }
 
       if (!client.localTracks.length) {
-        console.error("No local tracks to unpublish");
+        // console.error("No local tracks to unpublish");
         return;
       }
 
@@ -105,7 +105,7 @@ const useAgora = () => {
       setHeight(videoHeight!);
       // console.log(`Video width: ${videoWidth}px, height: ${videoHeight}px`);
     } else {
-      console.error("Media stream track not found");
+      // console.error("Media stream track not found");
     }
   };
 

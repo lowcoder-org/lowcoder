@@ -31,6 +31,11 @@ logging:
     root: info
     web: debug
 
+logging:
+  level:
+    root: info
+    web: debug
+
 server:
   error:
     includeStacktrace: ALWAYS

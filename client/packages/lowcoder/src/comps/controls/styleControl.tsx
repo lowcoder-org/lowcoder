@@ -747,10 +747,11 @@ export function styleControl<T extends readonly SingleColorConfig[]>(colorConfig
                               preInputNode: <MarginIcon title="Margin" />,
                               placeholder: props[name],
                             })
-                            : (name === "padding" ||
+                            : name === "textSize" ||
+                              name === "padding" ||
                               name === "containerHeaderPadding" ||
                               name === "containerFooterPadding" ||
-                              name === "containerBodyPadding")
+                              name === "containerBodyPadding"
                               ? (
                                 children[name] as InstanceType<typeof StringControl>
                               ).propertyView({
@@ -820,37 +821,15 @@ export function styleControl<T extends readonly SingleColorConfig[]>(colorConfig
                                                 preInputNode: <StyledBackgroundImageIcon title="Background Image Repeat" />,
                                                 placeholder: props[name],
                                               })
-                                              : name === "backgroundImageSize" || name === "headerBackgroundImageSize" || name === "footerBackgroundImageSize"
-                                                ? (
-                                                  children[name] as InstanceType<typeof StringControl>
-                                                ).propertyView({
-                                                  label: config.label,
-                                                  preInputNode: <StyledBackgroundImageIcon title="Background Image Size" />,
-                                                  placeholder: props[name],
-                                                })
-                                                : name === "backgroundImagePosition" || name === "headerBackgroundImagePosition" || name === "footerBackgroundImagePosition"
-                                                  ? (
-                                                    children[name] as InstanceType<typeof StringControl>
-                                                  ).propertyView({
-                                                    label: config.label,
-                                                    preInputNode: <StyledBackgroundImageIcon title="Background Image Position" />,
-                                                    placeholder: props[name],
-                                                  })
-                                                  : name === "backgroundImageOrigin" || name === "headerBackgroundImageOrigin" || name === "footerBackgroundImageOrigin"
-                                                    ? (
-                                                      children[name] as InstanceType<typeof StringControl>
-                                                    ).propertyView({
-                                                      label: config.label,
-                                                      preInputNode: <StyledBackgroundImageIcon title="Background Image Origin" />,
-                                                      placeholder: props[name],
-                                                    })
-                                                    : children[name].propertyView({
-                                                      label: config.label,
-                                                      panelDefaultColor: props[name],
-                                                      // isDep: isDepColorConfig(config),
-                                                      isDep: true,
-                                                      depMsg: depMsg,
-                                                    })}
+                                              : children[name].propertyView({
+                                                label: config.label,
+                                                panelDefaultColor: props[name],
+                                                // isDep: isDepColorConfig(config),	
+                                                isDep: true,
+                                                depMsg: depMsg,
+                                              })
+
+                    }
                   </div>
                 );
               })}

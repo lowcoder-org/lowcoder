@@ -505,6 +505,7 @@ class ModuleTmpComp extends ModuleCompBase {
 const ModuleCompWithView = withViewFn(ModuleTmpComp, (comp) => {
   const appId = comp.children.appId.getView();
   const error = comp.children.error.getView();
+  const scrollbars = comp.children.scrollbars.getView();
 
   const moduleExternalState: ExternalEditorContextState = useMemo(
     () => ({
@@ -530,7 +531,7 @@ const ModuleCompWithView = withViewFn(ModuleTmpComp, (comp) => {
   if (comp.moduleRootComp && comp.isReady) {
     content = (
       <Wrapper className="module-wrapper">
-        <ScrollBar style={{ height: comp.children.scrollbars.getView() ? "100%" : "auto", margin: "0px", padding: "0px" }}>
+        <ScrollBar style={{ height: comp.autoHeight() ? "100%" : "auto", margin: "0px", padding: "0px" }} hideScrollbar={!scrollbars}>
           <ExternalEditorContext.Provider value={moduleExternalState}>
            {comp.moduleRootComp.getView()}
           </ExternalEditorContext.Provider>

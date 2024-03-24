@@ -58,18 +58,15 @@ interface IProps {
   hideScrollbar?: boolean;
 }
 
-export const ScrollBar = ({ height = "100%", className, children, style, scrollableNodeProps, hideScrollbar, ...otherProps }: IProps) => {
+export const ScrollBar = ({ height = "100%", className, children, style, scrollableNodeProps, hideScrollbar = false, ...otherProps }: IProps) => {
   // You can now use the style prop directly or pass it to SimpleBar
   const combinedStyle = { ...style, height }; // Example of combining height with passed style
 
-  return (hideScrollbar ?? false) ? (
+  return hideScrollbar ? (
     <ScrollBarWrapper className={className}>
-      <SimpleBar style={combinedStyle} scrollableNodeProps={scrollableNodeProps} {...otherProps}>
-        {children}
-      </SimpleBar>
+      {children}
     </ScrollBarWrapper>
-  )
-  : (
+  ) : (
     <ScrollBarWrapper className={className}>
       {children}
     </ScrollBarWrapper>
