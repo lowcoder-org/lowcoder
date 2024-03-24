@@ -1585,7 +1585,8 @@ export const en = {
     "oauthProviders": "User Authentication",
     "appUsage": "App Usage Logs",
     "environments": "Environments",
-    "premium": "Premium"
+    "premium": "Premium",
+    "AppUsage": "Global App Usage",
   },
 
 

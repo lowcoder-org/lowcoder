@@ -13,7 +13,6 @@
     "start": "yarn workspace lowcoder start",
     "start-win": "LOWCODER_API_SERVICE_URL=http://localhost:3000 yarn start",
     "start:ee": "REACT_APP_EDITION=enterprise yarn workspace lowcoder start",
-    "start:ee-global": "REACT_APP_EDITION=enterprise-global yarn workspace lowcoder start",
     "build": "yarn node ./scripts/build.js",
     "test": "jest && yarn workspace lowcoder-comps test",
     "prepare": "yarn workspace lowcoder prepare",
