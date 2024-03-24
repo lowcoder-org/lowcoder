@@ -215,17 +215,11 @@ export function ListView(props: Props) {
     <BackgroundColorContext.Provider value={style.background}>
       <ListViewWrapper $style={style} $paddingWidth={paddingWidth}>
         <BodyWrapper ref={ref} $autoHeight={autoHeight}>
-          {scrollbars ? (
-            <ScrollBar style={{ height: autoHeight ? "auto" : "100%", margin: "0px", padding: "0px" }}>
-              <>{<ReactResizeDetector onResize={(width?: number, height?: number) => { if (height) setListHeight(height); }} observerOptions={{ box: "border-box" }} >
-                <div style={{ height: autoHeight ? "auto" : "100%" }}>{renders}</div>
-              </ReactResizeDetector>}</>
-            </ScrollBar>
-          ) : (
+          <ScrollBar style={{ height: autoHeight ? "auto" : "100%", margin: "0px", padding: "0px" }} hideScrollbar={scrollbars}>
             <>{<ReactResizeDetector onResize={(width?: number, height?: number) => { if (height) setListHeight(height); }} observerOptions={{ box: "border-box" }} >
               <div style={{ height: autoHeight ? "auto" : "100%" }}>{renders}</div>
             </ReactResizeDetector>}</>
-          )}
+          </ScrollBar>
         </BodyWrapper>
         <FooterWrapper>
           <Pagination size="small" itemRender={pageItemRender} {...pageInfo.pagination} />
