@@ -120,6 +120,13 @@ export const CompName = (props: Iprops) => {
       },
     });
     items.push({
+      text: trans("history.currentVersion") + ": " + compInfo.packageVersion,
+      onClick: () => {
+        
+      },
+    });
+
+    items.push({
       text: trans("comp.menuUpgradeToLatest"),
       onClick: () => {
         handleUpgrade();
