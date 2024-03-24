@@ -17,9 +17,6 @@ dotenv.config();
 const apiProxyTarget = process.env.LOWCODER_API_SERVICE_URL;
 const nodeServiceApiProxyTarget = process.env.NODE_SERVICE_API_PROXY_TARGET;
 const nodeEnv = process.env.NODE_ENV ?? "development";
-const edition = process.env.REACT_APP_EDITION;
-const isEEGlobal = edition === "enterprise-global";
-const isEE = edition === "enterprise" || isEEGlobal;
 const isDev = nodeEnv === "development";
 const isVisualizerEnabled = !!process.env.ENABLE_VISUALIZER;
 // the file was never created
@@ -61,8 +58,7 @@ export const viteConfig: UserConfig = {
     extensions: [".mjs", ".js", ".ts", ".jsx", ".tsx", ".json"],
     alias: {
       "@lowcoder-ee": path.resolve(
-        __dirname,
-        isEE ? `../lowcoder/src/${isEEGlobal ? "ee-global" : "ee"}` : "../lowcoder/src"
+        __dirname, "../lowcoder/src"
       ),
     },
   },

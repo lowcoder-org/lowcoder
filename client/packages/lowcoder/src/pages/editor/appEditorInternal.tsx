@@ -132,6 +132,7 @@ export function AppEditorInternalView(props: AppEditorInternalViewProps) {
       readOnly,
       appType: appInfo.appType,
       applicationId: appInfo.id,
+      hideHeader: window.location.pathname.split("/")[3] === "admin",
       ...extraExternalEditorState,
     }));
   }, [compInstance?.history, extraExternalEditorState, readOnly, appInfo.appType, appInfo.id]);
@@ -146,8 +147,10 @@ export function AppEditorInternalView(props: AppEditorInternalViewProps) {
     !compInstance || !compInstance.comp || !compInstance.comp.preloaded || props.loading;
 
   return loading ? (
+    window.location.pathname.split("/")[3] === "admin" ? <div></div> : 
     <EditorSkeletonView />
   ) : (
+    // Falk - here we could add the language choise?
     <ConfigProvider locale={getAntdLocale()}>
       <ExternalEditorContext.Provider value={externalEditorState}>
         {compInstance?.comp?.getView()}

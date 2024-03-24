@@ -130,7 +130,8 @@ export interface AppPermissionInfo {
   publicToMarketplace: boolean;
 }
 
-export type AppViewMode = "edit" | "preview" | "view" | "view_marketplace";
+// adding viewMode for marketplace and adminMode for Admin area use
+export type AppViewMode = "edit" | "preview" | "view" | "view_marketplace" | "admin";
 
 export type AppPathParams = {
   viewMode: AppViewMode;

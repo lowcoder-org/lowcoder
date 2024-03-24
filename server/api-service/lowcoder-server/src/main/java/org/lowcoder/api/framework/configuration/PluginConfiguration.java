@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import org.lowcoder.api.framework.plugin.LowcoderPluginManager;
 import org.lowcoder.api.framework.plugin.endpoint.PluginEndpointHandler;
+// Falk: eventually not needed
 import org.lowcoder.api.framework.plugin.security.PluginAuthorizationManager;
 import org.lowcoder.plugin.api.EndpointExtension;
 import org.springframework.aop.Advisor;
@@ -21,7 +22,6 @@ import org.springframework.web.reactive.function.server.RouterFunctions;
 import org.springframework.web.reactive.function.server.ServerResponse;
 
 import reactor.core.publisher.Mono;
-
 
 @Configuration
 public class PluginConfiguration
@@ -44,6 +44,7 @@ public class PluginConfiguration
         return (endpoints == null) ? pluginsList : pluginsList.andOther(endpoints);
     }
     
+    // Falk: eventually not needed
     @Bean
     @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
     Advisor protectPluginEndpoints(PluginAuthorizationManager pluginAauthManager)
@@ -53,6 +54,4 @@ public class PluginConfiguration
     	interceptor.setOrder(AuthorizationInterceptorsOrder.PRE_AUTHORIZE.getOrder() -1);
     	return interceptor;
     }
-    
-   
 }

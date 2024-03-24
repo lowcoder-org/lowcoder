@@ -322,6 +322,7 @@ export const en = {
     "border": "Border Color",
     "borderRadius": "Border Radius",
     "borderWidth": "Border Width",
+    "borderStyle":"Border Style",
     "background": "Background",
     "headerBackground": "Header Background",
     "footerBackground": "Footer Background",
@@ -1584,7 +1585,8 @@ export const en = {
     "oauthProviders": "User Authentication",
     "appUsage": "App Usage Logs",
     "environments": "Environments",
-    "premium": "Premium"
+    "premium": "Premium",
+    "AppUsage": "Global App Usage",
   },
 
 

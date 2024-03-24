@@ -3,8 +3,8 @@ package org.lowcoder.api.datasource;
 import java.util.List;
 import java.util.Set;
 
-import javax.annotation.Nullable;
-import javax.validation.Valid;
+import jakarta.annotation.Nullable;
+import jakarta.validation.Valid;
 
 import org.lowcoder.api.framework.view.ResponseView;
 import org.lowcoder.api.permission.view.CommonPermissionView;

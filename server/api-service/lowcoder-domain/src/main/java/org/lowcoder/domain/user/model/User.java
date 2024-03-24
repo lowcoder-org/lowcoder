@@ -3,6 +3,7 @@ package org.lowcoder.domain.user.model;
 import static com.google.common.base.Suppliers.memoize;
 import static org.lowcoder.infra.util.AssetUtils.toAssetPath;
 
+import java.time.Instant;
 import java.util.*;
 import java.util.function.Supplier;
 
@@ -51,6 +52,10 @@ public class User extends HasIdAndAuditing implements BeforeMongodbWrite, AfterM
     // used in form login
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
+
+    private String passwordResetToken;
+
+    private Instant passwordResetTokenExpiry;
 
     @Transient
     Boolean isAnonymous = false;

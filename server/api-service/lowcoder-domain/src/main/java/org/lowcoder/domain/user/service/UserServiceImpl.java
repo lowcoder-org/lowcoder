@@ -16,6 +16,7 @@ import org.lowcoder.domain.group.service.GroupMemberService;
 import org.lowcoder.domain.group.service.GroupService;
 import org.lowcoder.domain.organization.model.OrgMember;
 import org.lowcoder.domain.organization.service.OrgMemberService;
+import org.lowcoder.domain.organization.service.OrganizationService;
 import org.lowcoder.domain.user.model.*;
 import org.lowcoder.domain.user.model.User.TransformedUserInfo;
 import org.lowcoder.domain.user.repository.UserRepository;
@@ -29,6 +30,7 @@ import org.lowcoder.sdk.constants.FieldName;
 import org.lowcoder.sdk.constants.WorkspaceMode;
 import org.lowcoder.sdk.exception.BizError;
 import org.lowcoder.sdk.exception.BizException;
+import org.lowcoder.sdk.util.HashUtils;
 import org.lowcoder.sdk.util.LocaleUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
@@ -40,6 +42,8 @@ import reactor.core.publisher.Mono;
 
 import javax.annotation.Nonnull;
 import java.security.SecureRandom;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -69,12 +73,15 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private OrgMemberService orgMemberService;
     @Autowired
+    private OrganizationService organizationService;
+    @Autowired
     private GroupService groupService;
     @Autowired
     private CommonConfig commonConfig;
     @Autowired
     private AuthenticationService authenticationService;
-
+    @Autowired
+    private EmailCommunicationService emailCommunicationService;
     private Conf<Integer> avatarMaxSizeInKb;
 
     @PostConstruct
@@ -259,6 +266,47 @@ public class UserServiceImpl implements UserService {
                     user.setPassword(encryptionService.encryptPassword(randomStr));
                     return repository.save(user)
                             .thenReturn(randomStr);
+                });
+    }
+
+    @Override
+    public Mono<Boolean> lostPassword(String userEmail) {
+        return findByName(userEmail)
+                .zipWhen(user -> orgMemberService.getCurrentOrgMember(user.getId())
+                .flatMap(orgMember -> organizationService.getById(orgMember.getOrgId()))
+                .map(organization -> organization.getCommonSettings().get("PASSWORD_RESET_EMAIL_TEMPLATE")))
+                .flatMap(tuple -> {
+                    User user = tuple.getT1();
+                    String emailTemplate = (String)tuple.getT2();
+
+                    String token = generateNewRandomPwd();
+                    Instant tokenExpiry = Instant.now().plus(12, ChronoUnit.HOURS);
+                    if (!emailCommunicationService.sendPasswordResetEmail(userEmail, token, emailTemplate)) {
+                        return Mono.empty();
+                    }
+                    user.setPasswordResetToken(HashUtils.hash(token.getBytes()));
+                    user.setPasswordResetTokenExpiry(tokenExpiry);
+                    return repository.save(user).then(Mono.empty());
+                });
+    }
+
+    @Override
+    public Mono<Boolean> resetLostPassword(String userEmail, String token, String newPassword) {
+        return findByName(userEmail)
+                .flatMap(user -> {
+                    if (Instant.now().until(user.getPasswordResetTokenExpiry(), ChronoUnit.MINUTES) <= 0) {
+                        return ofError(BizError.INVALID_PARAMETER, "TOKEN_EXPIRED");
+                    }
+
+                    if (!StringUtils.equals(HashUtils.hash(token.getBytes()), user.getPasswordResetToken())) {
+                        return ofError(BizError.INVALID_PARAMETER, "INVALID_TOKEN");
+                    }
+
+                    user.setPassword(encryptionService.encryptPassword(newPassword));
+                    user.setPasswordResetToken(StringUtils.EMPTY);
+                    user.setPasswordResetTokenExpiry(Instant.now());
+                    return repository.save(user)
+                            .thenReturn(true);
                 });
     }
 

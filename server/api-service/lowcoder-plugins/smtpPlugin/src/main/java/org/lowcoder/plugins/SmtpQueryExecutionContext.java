@@ -2,7 +2,7 @@ package org.lowcoder.plugins;
 
 import java.util.List;
 
-import javax.mail.internet.InternetAddress;
+import jakarta.mail.internet.InternetAddress;
 
 import org.lowcoder.sdk.query.QueryExecutionContext;
 

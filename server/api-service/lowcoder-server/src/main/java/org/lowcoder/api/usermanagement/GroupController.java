@@ -4,7 +4,7 @@ import static org.lowcoder.sdk.util.ExceptionUtils.ofError;
 
 import java.util.List;
 
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 
 import org.apache.commons.lang3.StringUtils;
 import org.lowcoder.api.framework.view.ResponseView;

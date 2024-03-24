@@ -47,6 +47,8 @@ public class CommonConfig {
     private List<String> pluginDirs = new ArrayList<>();
     private SuperAdmin superAdmin = new SuperAdmin();
     private Marketplace marketplace = new Marketplace();
+    private String lowcoderPublicUrl;
+    private String lostPasswordEmailSender;
 
     public boolean isSelfHost() {
         return !isCloud();

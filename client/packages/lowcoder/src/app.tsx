@@ -14,7 +14,6 @@ import {
   IMPORT_APP_FROM_TEMPLATE_URL,
   INVITE_LANDING_URL,
   isAuthUnRequired,
-  MARKETPLACE_TYPE_URL,
   MARKETPLACE_URL,
   ORG_AUTH_LOGIN_URL,
   ORG_AUTH_REGISTER_URL,
@@ -22,7 +21,9 @@ import {
   SETTING,
   TRASH_URL,
   USER_AUTH_URL,
+  ADMIN_APP_URL,
 } from "constants/routesURL";
+
 import React from "react";
 import { createRoot } from "react-dom/client";
 import { Helmet } from "react-helmet";
@@ -38,7 +39,7 @@ import LazyRoute from "components/LazyRoute";
 import AppFromTemplate from "pages/ApplicationV2/AppFromTemplate";
 import AppEditor from "pages/editor/AppEditor";
 import { getAntdLocale } from "i18n/antdLocale";
-import { CodeEditorTooltipContainer } from "base/codeEditor/codeEditor";
+// import { CodeEditorTooltipContainer } from "base/codeEditor/codeEditor";
 import { ProductLoading } from "components/ProductLoading";
 import { language, trans } from "i18n";
 import { loadComps } from "comps";
@@ -155,6 +156,7 @@ class AppIndex extends React.Component<AppIndexProps, any> {
                 TRASH_URL,
                 SETTING,
                 MARKETPLACE_URL,
+                ADMIN_APP_URL,
               ]}
               // component={ApplicationListPage}
               component={ApplicationHome}

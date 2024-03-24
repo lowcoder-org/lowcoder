@@ -173,9 +173,6 @@ dotenv.config();
 var apiProxyTarget = process.env.LOWCODER_API_SERVICE_URL;
 var nodeServiceApiProxyTarget = process.env.NODE_SERVICE_API_PROXY_TARGET;
 var nodeEnv = process.env.NODE_ENV ?? "development";
-var edition = process.env.REACT_APP_EDITION;
-var isEEGlobal = edition === "enterprise-global";
-var isEE = edition === "enterprise" || isEEGlobal;
 var isDev = nodeEnv === "development";
 var isVisualizerEnabled = !!process.env.ENABLE_VISUALIZER;
 var browserCheckFileName = `browser-check.js`;
@@ -209,8 +206,7 @@ var viteConfig = {
     extensions: [".mjs", ".js", ".ts", ".jsx", ".tsx", ".json"],
     alias: {
       "@lowcoder-ee": path.resolve(
-        __vite_injected_original_dirname,
-        isEE ? `../lowcoder/src/${isEEGlobal ? "ee-global" : "ee"}` : "../lowcoder/src"
+        __vite_injected_original_dirname, "../lowcoder/src"
       )
     }
   },

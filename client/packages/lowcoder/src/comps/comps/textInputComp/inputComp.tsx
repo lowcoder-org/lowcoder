@@ -1,7 +1,7 @@
 import { Input, Section, sectionNames } from "lowcoder-design";
 import { BoolControl } from "comps/controls/boolControl";
 import { styleControl } from "comps/controls/styleControl";
-import { InputLikeStyle, InputLikeStyleType } from "comps/controls/styleControlConstants";
+import { InputLikeStyle, InputLikeStyleType, LabelStyle, LabelStyleType } from "comps/controls/styleControlConstants";
 import {
   NameConfig,
   NameConfigPlaceHolder,
@@ -40,7 +40,7 @@ import { EditorContext } from "comps/editorState";
  * Input Comp
  */
 
-const InputStyle = styled(Input)<{ $style: InputLikeStyleType }>`
+const InputStyle = styled(Input) <{ $style: InputLikeStyleType }>`
   ${(props) => props.$style && getStyle(props.$style)}
 `;
 
@@ -50,6 +50,7 @@ const childrenMap = {
   showCount: BoolControl,
   allowClear: BoolControl,
   style: styleControl(InputLikeStyle),
+  labelStyle: styleControl(LabelStyle),
   prefixIcon: IconControl,
   suffixIcon: IconControl,
 };
@@ -70,6 +71,7 @@ let InputBasicComp = new UICompBuilder(childrenMap, (props) => {
       />
     ),
     style: props.style,
+    labelStyle: props.labelStyle,
     ...validateState,
   });
 })
@@ -82,22 +84,25 @@ let InputBasicComp = new UICompBuilder(childrenMap, (props) => {
         {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
           children.label.getPropertyView()
         )}
-        
+
         {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
           <><TextInputInteractionSection {...children} />
-          <Section name={sectionNames.layout}>{hiddenPropertyView(children)}</Section>
-          <Section name={sectionNames.advanced}>
-            {children.prefixIcon.propertyView({ label: trans("button.prefixIcon") })}
-            {children.suffixIcon.propertyView({ label: trans("button.suffixIcon") })}
-            {children.showCount.propertyView({ label: trans("prop.showCount") })}
-            {allowClearPropertyView(children)}
-            {readOnlyPropertyView(children)}
-          </Section>
-          <TextInputValidationSection {...children} />
+            <Section name={sectionNames.layout}>{hiddenPropertyView(children)}</Section>
+            <Section name={sectionNames.advanced}>
+              {children.prefixIcon.propertyView({ label: trans("button.prefixIcon") })}
+              {children.suffixIcon.propertyView({ label: trans("button.suffixIcon") })}
+              {children.showCount.propertyView({ label: trans("prop.showCount") })}
+              {allowClearPropertyView(children)}
+              {readOnlyPropertyView(children)}
+            </Section>
+            <TextInputValidationSection {...children} />
           </>
         )}
         {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
-          <><Section name={sectionNames.style}>{children.style.getPropertyView()}</Section></>
+          <>
+            <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
+            <Section name={sectionNames.labelStyle}>{children.labelStyle.getPropertyView()}</Section>
+          </>
         )}
       </>
     );

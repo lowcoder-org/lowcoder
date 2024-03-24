@@ -301,6 +301,7 @@ export const de = {
       "border": "Farbe der Umrandung",
       "borderRadius": "Radius der Grenze",
       "borderWidth": "Breite des Randes",
+      "borderStyle":"Grenzstil",
       "background": "Hintergrund",
       "headerBackground": "Kopfzeile Hintergrund",
       "footerBackground": "Fußzeilen-Hintergrund",

@@ -5,6 +5,7 @@ import { styleControl } from "comps/controls/styleControl";
 import {
   InputLikeStyle,
   InputLikeStyleType,
+  LabelStyle,
 } from "comps/controls/styleControlConstants";
 import {
   NameConfig,
@@ -73,6 +74,7 @@ const childrenMap = {
   viewRef: RefControl<InputRef>,
   allowClear: BoolControl.DEFAULT_TRUE,
   style: styleControl(InputLikeStyle),
+  labelStyle:styleControl(LabelStyle),
   prefixIcon: IconControl,
   suffixIcon: IconControl,
   items: jsonControl(convertAutoCompleteData, autoCompleteDate),
@@ -276,8 +278,9 @@ let AutoCompleteCompBase = (function () {
           </ConfigProvider>
         </>
       ),
-      // style: props.style,
-      // ...validateState,
+      style: props.style,
+      labelStyle:props.labelStyle,
+      ...validateState,
     });
   })
     .setPropertyViewFn((children) => {
@@ -334,6 +337,9 @@ let AutoCompleteCompBase = (function () {
 
           <Section name={sectionNames.style}>
             {children.style.getPropertyView()}
+          </Section>
+          <Section name={sectionNames.labelStyle}>
+            {children.labelStyle.getPropertyView()}
           </Section>
         </>
       );
