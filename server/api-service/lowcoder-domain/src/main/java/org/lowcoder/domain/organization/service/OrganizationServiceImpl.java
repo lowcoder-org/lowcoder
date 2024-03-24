@@ -1,6 +1,7 @@
 package org.lowcoder.domain.organization.service;
 
 import static org.lowcoder.domain.authentication.AuthenticationService.DEFAULT_AUTH_CONFIG;
+import static org.lowcoder.domain.organization.model.Organization.OrganizationCommonSettings.PASSWORD_RESET_EMAIL_TEMPLATE;
 import static org.lowcoder.domain.organization.model.OrganizationState.ACTIVE;
 import static org.lowcoder.domain.organization.model.OrganizationState.DELETED;
 import static org.lowcoder.domain.util.QueryDslUtils.fieldName;
@@ -55,6 +56,12 @@ import reactor.core.publisher.Mono;
 public class OrganizationServiceImpl implements OrganizationService {
 
     private final Conf<Integer> logoMaxSizeInKb;
+
+    private static final String PASSWORD_RESET_EMAIL_TEMPLATE_DEFAULT = "<p>Hi, %s<br/>" +
+            "Here is the link to reset your password: %s<br/>" +
+            "Please note that the link will expire after 12 hours.<br/><br/>" +
+            "Regards,<br/>" +
+            "The Lowcoder Team</p>";
 
     @Autowired
     private AssetRepository assetRepository;
@@ -151,6 +158,9 @@ public class OrganizationServiceImpl implements OrganizationService {
                     if (organization == null || StringUtils.isNotBlank(organization.getId())) {
                         return Mono.error(new BizException(BizError.INVALID_PARAMETER, "INVALID_PARAMETER", FieldName.ORGANIZATION));
                     }
+                    organization.setCommonSettings(new OrganizationCommonSettings());
+                    organization.getCommonSettings().put("PASSWORD_RESET_EMAIL_TEMPLATE",
+                            PASSWORD_RESET_EMAIL_TEMPLATE_DEFAULT);
                     organization.setState(ACTIVE);
                     return Mono.just(organization);
                 })

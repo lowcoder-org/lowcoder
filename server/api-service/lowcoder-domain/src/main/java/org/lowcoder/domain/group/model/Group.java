@@ -5,7 +5,6 @@ import java.util.Comparator;
 import java.util.Locale;
 
 import javax.annotation.Nonnull;
-import javax.validation.constraints.NotNull;
 
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -15,6 +14,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;

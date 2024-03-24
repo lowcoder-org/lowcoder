@@ -53,6 +53,9 @@ import {
   FooterBackgroundImageSizeConfig,
   FooterBackgroundImagePositionConfig,
   FooterBackgroundImageOriginConfig,
+  TextTransformConfig,
+  TextDecorationConfig,
+  borderStyleConfig,
 
 
 } from "./styleControlConstants";
@@ -140,6 +143,15 @@ function isFontFamilyConfig(config: SingleColorConfig): config is FontFamilyConf
 function isFontStyleConfig(config: SingleColorConfig): config is FontStyleConfig {
   return config.hasOwnProperty("fontStyle");
 }
+function isTextTransformConfig(config: SingleColorConfig): config is TextTransformConfig {
+  return config.hasOwnProperty("textTransform");
+}
+function isTextDecorationConfig(config: SingleColorConfig): config is TextDecorationConfig {
+  return config.hasOwnProperty("textDecoration");
+}
+function isBorderStyleConfig(config: SingleColorConfig): config is borderStyleConfig {
+  return config.hasOwnProperty("borderStyle");
+}
 
 function isMarginConfig(config: SingleColorConfig): config is MarginConfig {
   return config.hasOwnProperty("margin");
@@ -221,6 +233,15 @@ function isEmptyFontFamily(fontFamily: string) {
 }
 function isEmptyFontStyle(fontStyle: string) {
   return _.isEmpty(fontStyle);
+}
+function isEmptyTextTransform(textTransform: string) {
+  return _.isEmpty(textTransform);
+}
+function isEmptyTextDecoration(textDecoration: string) {
+  return _.isEmpty(textDecoration);
+}
+function isEmptyBorderStyle(borderStyle: string) {
+  return _.isEmpty(borderStyle);
 }
 
 function isEmptyMargin(margin: string) {
@@ -328,6 +349,18 @@ function calcColors<ColorMap extends Record<string, string>>(
       res[name] = props[name];
       return;
     }
+    if (!isEmptyTextTransform(props[name]) && isTextTransformConfig(config)) {
+      res[name] = props[name];
+      return;
+    }
+    if (!isEmptyTextDecoration(props[name]) && isTextDecorationConfig(config)) {
+      res[name] = props[name];
+      return;
+    }
+    if (!isEmptyBorderStyle(props[name]) && isBorderStyleConfig(config)) {
+      res[name] = props[name];
+      return;
+    }
     if (!isEmptyMargin(props[name]) && isMarginConfig(config)) {
       res[name] = props[name];
       return;
@@ -411,6 +444,15 @@ function calcColors<ColorMap extends Record<string, string>>(
     }
     if (isFontStyleConfig(config)) {
       res[name] = themeWithDefault[config.fontStyle] || 'normal'
+    }
+    if(isTextTransformConfig(config)){
+      res[name] = themeWithDefault[config.textTransform] || 'none'
+    }
+    if(isTextDecorationConfig(config)){
+      res[name] = themeWithDefault[config.textDecoration] || 'none'
+    }
+    if(isBorderStyleConfig(config)){
+      res[name] = themeWithDefault[config.borderStyle] || 'dashed'
     }
     if (isMarginConfig(config)) {
       res[name] = themeWithDefault[config.margin];
@@ -550,6 +592,7 @@ export function styleControl<T extends readonly SingleColorConfig[]>(colorConfig
       name === "textTransform" ||
       name === "textDecoration" ||
       name === "fontFamily" ||
+      name === "borderStyle" ||
       name === "fontStyle" ||
       name === "backgroundImage" ||
       name === "backgroundImageRepeat" ||
@@ -688,24 +731,20 @@ export function styleControl<T extends readonly SingleColorConfig[]>(colorConfig
                           label: config.label,
                           preInputNode: <BorderIcon title="Border-Width" />,
                           placeholder: props[name],
-                        })
-                        : name === "margin"
+                        }) : name === "borderStyle"
                           ? (
                             children[name] as InstanceType<typeof StringControl>
                           ).propertyView({
                             label: config.label,
-                            preInputNode: <MarginIcon title="Margin" />,
+                            preInputNode: <BorderIcon title="Border-Style" />,
                             placeholder: props[name],
                           })
-                          : (name === "padding" ||
-                            name === "containerheaderpadding" ||
-                            name === "containerfooterpadding" ||
-                            name === "containerbodypadding")
+                          : name === "margin"
                             ? (
                               children[name] as InstanceType<typeof StringControl>
                             ).propertyView({
                               label: config.label,
-                              preInputNode: <PaddingIcon title="Padding" />,
+                              preInputNode: <MarginIcon title="Margin" />,
                               placeholder: props[name],
                             })
                             : name === "textSize" ||
@@ -717,71 +756,69 @@ export function styleControl<T extends readonly SingleColorConfig[]>(colorConfig
                                 children[name] as InstanceType<typeof StringControl>
                               ).propertyView({
                                 label: config.label,
-                                preInputNode: <StyledTextSizeIcon title="Font Size" />,
+                                preInputNode: <PaddingIcon title="Padding" />,
                                 placeholder: props[name],
                               })
-                              : name === "textWeight"
+                              : name === "textSize"
                                 ? (
                                   children[name] as InstanceType<typeof StringControl>
                                 ).propertyView({
                                   label: config.label,
-                                  preInputNode: <StyledTextWeightIcon title="Font Weight" />,
+                                  preInputNode: <StyledTextSizeIcon title="Font Size" />,
                                   placeholder: props[name],
                                 })
-                                : name === "fontFamily"
+                                : name === "textWeight"
                                   ? (
                                     children[name] as InstanceType<typeof StringControl>
                                   ).propertyView({
                                     label: config.label,
-                                    preInputNode: <StyledFontFamilyIcon title="Font Family" />,
+                                    preInputNode: <StyledTextWeightIcon title="Font Weight" />,
                                     placeholder: props[name],
                                   })
-                                  : name === "fontStyle"
+                                  : name === "fontFamily"
                                     ? (
                                       children[name] as InstanceType<typeof StringControl>
                                     ).propertyView({
                                       label: config.label,
-                                      preInputNode: <StyledFontFamilyIcon title="Font Style" />,
+                                      preInputNode: <StyledFontFamilyIcon title="Font Family" />,
                                       placeholder: props[name],
-                                    })
-                                    : name === "backgroundImage" || name === "headerBackgroundImage" || name === "footerBackgroundImage"
+                                    }) : name === "textDecoration"
                                       ? (
                                         children[name] as InstanceType<typeof StringControl>
                                       ).propertyView({
                                         label: config.label,
-                                        preInputNode: <StyledBackgroundImageIcon title="Background Image" />,
+                                        preInputNode: <StyledFontFamilyIcon title="Text Decoration" />,
                                         placeholder: props[name],
-                                      })
-                                      : name === "backgroundImageRepeat" || name === "headerBackgroundImageRepeat" || name === "footerBackgroundImageRepeat"
+                                      }) : name === "textTransform"
                                         ? (
                                           children[name] as InstanceType<typeof StringControl>
                                         ).propertyView({
                                           label: config.label,
-                                          preInputNode: <StyledBackgroundImageIcon title="Background Image Repeat" />,
+                                          preInputNode: <StyledFontFamilyIcon title="Text Transform" />,
                                           placeholder: props[name],
                                         })
-                                        : name === "backgroundImageSize" || name === "headerBackgroundImageSize" || name === "footerBackgroundImageSize"
+                                        : name === "fontStyle"
                                           ? (
                                             children[name] as InstanceType<typeof StringControl>
                                           ).propertyView({
                                             label: config.label,
-                                            preInputNode: <StyledBackgroundImageIcon title="Background Image Size" />,
+                                            preInputNode: <StyledFontFamilyIcon title="Font Style" />,
                                             placeholder: props[name],
                                           })
-                                          : name === "backgroundImagePosition" || name === "headerBackgroundImagePosition" || name === "footerBackgroundImagePosition"
+                                          : name === "backgroundImage" || name === "headerBackgroundImage" || name === "footerBackgroundImage"
                                             ? (
                                               children[name] as InstanceType<typeof StringControl>
                                             ).propertyView({
                                               label: config.label,
-                                              preInputNode: <StyledBackgroundImageIcon title="Background Image Position" />,
+                                              preInputNode: <StyledBackgroundImageIcon title="Background Image" />,
                                               placeholder: props[name],
                                             })
-                                            : name === "backgroundImageOrigin" || name === "headerBackgroundImageOrigin" || name === "footerBackgroundImageOrigin"
+                                            : name === "backgroundImageRepeat" || name === "headerBackgroundImageRepeat" || name === "footerBackgroundImageRepeat"
                                               ? (
                                                 children[name] as InstanceType<typeof StringControl>
                                               ).propertyView({
                                                 label: config.label,
-                                                preInputNode: <StyledBackgroundImageIcon title="Background Image Origin" />,
+                                                preInputNode: <StyledBackgroundImageIcon title="Background Image Repeat" />,
                                                 placeholder: props[name],
                                               })
                                               : children[name].propertyView({
@@ -793,7 +830,6 @@ export function styleControl<T extends readonly SingleColorConfig[]>(colorConfig
                                               })
 
                     }
-
                   </div>
                 );
               })}
