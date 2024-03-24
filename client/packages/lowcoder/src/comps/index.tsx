@@ -361,6 +361,19 @@ var uiCompMap: Registry = {
       h: 5,
     },
   },
+  /*Layout: {
+    name: "navLayout",
+    enName: "navLayout",
+    description: trans("uiComp.navigationCompDesc"),
+    icon: NavComIcon,
+    categories: ["layout"],
+    keywords: trans("uiComp.navigationCompKeywords"),
+    comp: NavLayout,
+    layoutInfo: {
+      w: 24,
+      h: 5,
+    },
+  }, */
   cascader: {
     name: trans("uiComp.cascaderCompName"),
     enName: "Cascader",

@@ -15,7 +15,7 @@ function checkDataNodes(value: any, key?: string): timelineNode[] | undefined {
     check(node["color"], ["string", "undefined"], "color");
     check(node["titleColor"], ["string", "undefined"], "titleColor");
     check(node["subTitleColor"], ["string", "undefined"], "subTitleColor");
-    check(node["lableColor"], ["string", "undefined"], "lableColor");
+    check(node["labelColor"], ["string", "undefined"], "labelColor");
     check(node["dot"], ["string", "undefined"], "dot");
     return node;
   });

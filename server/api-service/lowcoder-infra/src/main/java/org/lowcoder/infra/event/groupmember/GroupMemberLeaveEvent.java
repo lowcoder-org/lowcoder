@@ -1,7 +1,5 @@
 package org.lowcoder.infra.event.groupmember;
 
-import org.lowcoder.infra.event.EventType;
-
 import lombok.experimental.SuperBuilder;
 
 @SuperBuilder

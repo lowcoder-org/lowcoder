@@ -44,7 +44,7 @@ public class OrgDevChecker {
     public Mono<Boolean> isCurrentOrgDev() {
         return sessionUserService.getVisitorOrgMemberCache()
                 .flatMap(orgMember -> {
-                    if (orgMember.isAdmin()) {
+                    if (orgMember.isAdmin() || orgMember.isSuperAdmin()) {
                         return Mono.just(true);
                     }
                     return inDevGroup(orgMember.getOrgId(), orgMember.getUserId());
