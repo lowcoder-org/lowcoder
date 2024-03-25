@@ -9,7 +9,7 @@ import { CommonTextLabel } from "lowcoder-design";
 import styled from "styled-components";
 import { trans } from "i18n";
 import { ERROR_CODES } from "constants/apiConstants";
-import { messageInstance } from "lowcoder-design";
+import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 
 const CreateDiv = styled.div`
   display: flex;

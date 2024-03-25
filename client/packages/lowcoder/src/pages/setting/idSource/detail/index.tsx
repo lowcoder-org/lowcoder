@@ -36,7 +36,7 @@ import {
 import { validateResponse } from "api/apiUtils";
 import { ItemType } from "pages/setting/idSource/idSourceConstants";
 import _ from "lodash";
-import { messageInstance } from "lowcoder-design";
+import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 
 type IdSourceDetailProps = {
   location: Location & { state: ConfigItem };

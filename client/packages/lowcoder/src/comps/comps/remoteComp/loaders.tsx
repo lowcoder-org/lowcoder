@@ -46,7 +46,7 @@ async function bundleLoader(
     /* webpackIgnore: true */
     entry
   );
-  const comp = module.default?.[compName];
+  const comp = module?.default?.[compName];
   if (!comp) {
     throw new Error(trans("npm.compNotFound", { compName }));
   }

@@ -92,7 +92,10 @@ export const viteConfig: UserConfig = {
     },
   },
   optimizeDeps: {
-    include: ['antd/**/*']
+    entries: ['./src/**/*.{js,jsx,ts,tsx}']
+    // include: ['antd/es/*'],
+    // include: ['antd/**/*'],
+    // force: true,
   },
   css: {
     preprocessorOptions: {

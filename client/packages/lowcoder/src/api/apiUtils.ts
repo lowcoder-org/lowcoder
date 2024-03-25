@@ -14,7 +14,7 @@ import axios, { AxiosError, AxiosRequestConfig, AxiosResponse, InternalAxiosRequ
 import { trans } from "i18n";
 import StoreRegistry from "redux/store/storeRegistry";
 import { logoutAction } from "redux/reduxActions/userActions";
-import { messageInstance } from "lowcoder-design";
+import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 
 const executeActionRegex = /query\/execute/;
 const timeoutErrorRegex = /timeout of (\d+)ms exceeded/;

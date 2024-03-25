@@ -17,7 +17,7 @@ import { BoolPureControl } from "../../controls/boolControl";
 import { millisecondsControl } from "../../controls/millisecondControl";
 import { trans } from "i18n";
 import { CompAction, customAction, isMyCustomAction } from "lowcoder-core";
-import { messageInstance } from "lowcoder-design";
+import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 
 const SuccessMessageAction = new MultiCompBuilder(
   {

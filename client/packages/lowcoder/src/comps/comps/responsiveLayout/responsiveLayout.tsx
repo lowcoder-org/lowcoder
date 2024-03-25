@@ -31,7 +31,7 @@ import {
 } from "../containerComp/containerView";
 import { BackgroundColorContext } from "comps/utils/backgroundColorContext";
 import { trans } from "i18n";
-import { messageInstance } from "lowcoder-design";
+import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 import { BoolControl } from "comps/controls/boolControl";
 import { NumberControl } from "comps/controls/codeControl";
 

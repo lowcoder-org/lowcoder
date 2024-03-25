@@ -28,7 +28,7 @@ import copy from "copy-to-clipboard";
 import { StyledLoading } from "./commonComponents";
 import { PermissionRole } from "./Permission";
 import { SHARE_TITLE } from "../../constants/apiConstants";
-import { messageInstance } from "lowcoder-design";
+import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 import { default as Divider } from "antd/es/divider";
 
 export const AppPermissionDialog = (props: {

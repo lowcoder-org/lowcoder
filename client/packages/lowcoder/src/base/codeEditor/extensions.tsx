@@ -64,7 +64,7 @@ import { highlightJsTheme, useHighlightJsExtension } from "./extensions/highligh
 import { trans } from "i18n";
 import log from "loglevel";
 import { highlightSyntaxExtension } from "./extensions/highlightSyntax";
-import { messageInstance } from "lowcoder-design";
+import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 
 // reference: https://github.com/codemirror/basic-setup/blob/main/src/codemirror.ts
 const basicSetup = [

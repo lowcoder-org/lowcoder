@@ -22,7 +22,7 @@ import { default as LoadingOutlined } from "@ant-design/icons/LoadingOutlined";
 import { RecommendedJSLibraryMeta } from "api/jsLibraryApi";
 import log from "loglevel";
 import { TacoMarkDown } from "components/markdown";
-import { messageInstance } from "lowcoder-design";
+import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 
 const ModalLabel = styled.div`
   display: flex;

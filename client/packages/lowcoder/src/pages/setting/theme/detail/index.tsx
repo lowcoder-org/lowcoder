@@ -31,7 +31,7 @@ import { Prompt } from "react-router";
 import { HeaderBack } from "pages/setting/permission/styledComponents";
 import dsl from "./previewDsl";
 import chartDsl from "./chartPreviewDsl";
-import { messageInstance } from "lowcoder-design";
+import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 
 const CodeEditor = lazy(
   () => import("base/codeEditor/codeEditor")

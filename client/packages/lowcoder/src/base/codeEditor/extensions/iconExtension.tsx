@@ -7,7 +7,7 @@ import {
   type ViewUpdate,
   WidgetType,
 } from "@codemirror/view";
-import { useIcon } from "lowcoder-design";
+import { useIcon } from "lowcoder-design/src/components/iconSelect";
 import { createRoot } from "react-dom/client";
 import styled from "styled-components";
 

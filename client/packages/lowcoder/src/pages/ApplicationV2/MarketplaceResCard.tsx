@@ -1,4 +1,4 @@
-import { TacoButton } from "lowcoder-design";
+import { TacoButton } from "lowcoder-design/src/components/button"
 import styled from "styled-components";
 import { timestampToHumanReadable } from "util/dateTimeUtils";
 import { HomeRes } from "./HomeLayout";

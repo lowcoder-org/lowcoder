@@ -1,6 +1,6 @@
 import { timestampToHumanReadable } from "../../util/dateTimeUtils";
 import { Table } from "../../components/Table";
-import { TacoButton } from "lowcoder-design";
+import { TacoButton } from "lowcoder-design/src/components/button"
 import styled from "styled-components";
 import { useDispatch } from "react-redux";
 import {
@@ -20,7 +20,7 @@ import { HomeResOptions } from "./HomeResOptions";
 import { MoveToFolderModal } from "./MoveToFolderModal";
 import { trans } from "../../i18n";
 import { useParams } from "react-router-dom";
-import { messageInstance } from "lowcoder-design";
+import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 
 const OperationWrapper = styled.div`
   display: flex;
