@@ -68,7 +68,9 @@ export const ScrollBar = ({ height = "100%", className, children, style, scrolla
     </ScrollBarWrapper>
   ) : (
     <ScrollBarWrapper className={className}>
-      {children}
+      <SimpleBar style={combinedStyle} scrollableNodeProps={scrollableNodeProps} {...otherProps}>
+        {children}
+      </SimpleBar>
     </ScrollBarWrapper>
   );
 };

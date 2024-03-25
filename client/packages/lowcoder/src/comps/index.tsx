@@ -6,6 +6,7 @@ import { ButtonComp } from "./comps/buttonComp/buttonComp";
 import { DropdownComp } from "./comps/buttonComp/dropdownComp";
 import { LinkComp } from "./comps/buttonComp/linkComp";
 import { ContainerComp, defaultContainerData } from "./comps/containerComp/containerComp";
+import { ContainerComp as FloatTextContainerComp } from "./comps/containerComp/textContainerComp";
 import { CustomComp } from "./comps/customComp/customComp";
 import { DatePickerComp, DateRangeComp } from "./comps/dateComp/dateComp";
 import { DividerComp } from "./comps/dividerComp";
@@ -265,6 +266,25 @@ var uiCompMap: Registry = {
     },
     defaultDataFn: defaultContainerData,
   },
+
+  floatTextContainer: {
+    name: trans("uiComp.floatTextContainerCompName"),
+    enName: "Container",
+    description: trans("uiComp.floatTextContainerCompDesc"),
+    categories: ["layout"],
+    icon: ContainerCompIcon,
+    keywords: trans("uiComp.floatTextContainerCompKeywords"),
+    comp: FloatTextContainerComp,
+    withoutLoading: true,
+    layoutInfo: {
+      w: 9,
+      h: 25,
+      // static: true,
+      delayCollision: true,
+    },
+    defaultDataFn: defaultContainerData,
+  },
+
   tabbedContainer: {
     name: trans("uiComp.tabbedContainerCompName"),
     enName: "Tabbed Container",

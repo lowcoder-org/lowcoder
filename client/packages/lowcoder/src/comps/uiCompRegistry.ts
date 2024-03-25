@@ -97,6 +97,7 @@ export type UICompType =
   | "form"
   | "jsonSchemaForm"
   | "container"
+  | "floatTextContainer"
   | "tabbedContainer"
   | "modal"
   | "listView"

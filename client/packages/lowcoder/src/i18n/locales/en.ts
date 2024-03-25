@@ -847,6 +847,10 @@ export const en = {
     "containerCompDesc": "A general-purpose container for layout and organization of UI elements.",
     "containerCompKeywords": "container, layout, organization, UI",
 
+    "floatTextContainerCompName": "Float Text Container",
+    "floatTextContainerCompDesc": "Float Text Container component",
+    "floatTextContainerCompKeywords": "container, layout, text, flow",
+
     "collapsibleContainerCompName": "Collapsible Container",
     "collapsibleContainerCompDesc": "A container that can be expanded or collapsed, ideal for managing content visibility.",
     "collapsibleContainerCompKeywords": "collapsible, container, expand, collapse",
@@ -1501,7 +1505,10 @@ export const en = {
     "mode": "Select Mode"
   },
   "container": {
-    "title": "Displayed Container Title"
+    "title": "Displayed Container Title",
+    "titleTooltip": "The Title of the Container",
+    "flowWidth": "Content Width",
+    "floatType": "Text Float Type",
   },
   "drawer": {
     "closePosition": "Close Button Placement",
