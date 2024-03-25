@@ -20,6 +20,7 @@ export const PERMISSION_SETTING_DETAIL = `${PERMISSION_SETTING}/:groupId`;
 export const ORGANIZATION_SETTING_DETAIL = `${ORGANIZATION_SETTING}/:orgId`;
 
 export const ALL_APPLICATIONS_URL = "/apps";
+export const ADMIN_APP_URL = "/ee/:applicationId/:viewMode";
 export const APPLICATION_MARKETPLACE_URL = `https://app.lowcoder.cloud/apps`;
 export const MODULE_APPLICATIONS_URL = "/apps/module";
 export const MARKETPLACE_URL = `/marketplace`;

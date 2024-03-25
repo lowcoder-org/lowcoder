@@ -13,6 +13,7 @@ export function developEnv(): boolean {
 /**
  * is enterprise edition
  */
+// Falk: TODO: check EE by API Call
 export function isEE(): boolean {
   return REACT_APP_EDITION === "enterprise" || REACT_APP_EDITION === "enterprise-global";
 }

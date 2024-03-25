@@ -30,10 +30,12 @@ import { DatasourceApi } from "api/datasourceApi";
 
 export default function AppEditor() {
   const showAppSnapshot = useSelector(showAppSnapshotSelector);
-  const isUserViewMode = useUserViewMode();
   const params = useParams<AppPathParams>();
-  const applicationId = params.applicationId;
-  const viewMode = params.viewMode === "view" ? "published" : params.viewMode === "view_marketplace" ? "view_marketplace" : "editing";
+  const isUserViewModeCheck = useUserViewMode();
+  const isUserViewMode = params.viewMode ? isUserViewModeCheck : true;
+  const applicationId = params.applicationId || window.location.pathname.split("/")[2];
+  const paramViewMode = params.viewMode || window.location.pathname.split("/")[3];
+  const viewMode = (paramViewMode === "view" || paramViewMode === "admin") ? "published" : paramViewMode === "view_marketplace" ? "view_marketplace" : "editing";
   const currentUser = useSelector(getUser);
   const dispatch = useDispatch();
   const fetchOrgGroupsFinished = useSelector(getFetchOrgGroupsFinished);
@@ -42,7 +44,7 @@ export default function AppEditor() {
   const firstRendered = useRef(false);
   const [isDataSourcePluginRegistered, setIsDataSourcePluginRegistered] = useState(false);
 
-  setGlobalSettings({ applicationId, isViewMode: params.viewMode === "view" });
+  setGlobalSettings({ applicationId, isViewMode: paramViewMode === "view" });
 
   if (!firstRendered.current) {
     perfClear();
@@ -69,19 +71,19 @@ export default function AppEditor() {
 
   // fetch dataSource and plugin
   useEffect(() => {
-    if (!orgId || params.viewMode !== "edit") {
+    if (!orgId || paramViewMode !== "edit") {
       return;
     }
     dispatch(fetchDataSourceTypes({ organizationId: orgId }));
     dispatch(fetchFolderElements({}));
-  }, [dispatch, orgId, params.viewMode]);
+  }, [dispatch, orgId, paramViewMode]);
 
   useEffect(() => {
-    if (applicationId && params.viewMode === "edit") {
+    if (applicationId && paramViewMode === "edit") {
       dispatch(fetchDataSourceByApp({ applicationId: applicationId }));
       dispatch(fetchQueryLibraryDropdown());
     }
-  }, [dispatch, applicationId, params.viewMode]);
+  }, [dispatch, applicationId, paramViewMode]);
 
   useEffect(() => {
     DatasourceApi.fetchJsDatasourceByApp(applicationId).then((res) => {

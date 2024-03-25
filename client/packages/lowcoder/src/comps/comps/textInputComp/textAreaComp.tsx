@@ -22,7 +22,7 @@ import {
 import { withMethodExposing, refMethods } from "../../generators/withMethodExposing";
 import { styleControl } from "comps/controls/styleControl";
 import styled from "styled-components";
-import { InputLikeStyle, InputLikeStyleType } from "comps/controls/styleControlConstants";
+import { InputLikeStyle, InputLikeStyleType, LabelStyle } from "comps/controls/styleControlConstants";
 import { TextArea } from "components/TextArea";
 import {
   allowClearPropertyView,
@@ -38,7 +38,7 @@ import React, { useContext } from "react";
 import { EditorContext } from "comps/editorState";
 import { migrateOldData } from "comps/generators/simpleGenerators";
 
-const TextAreaStyled = styled(TextArea)<{
+const TextAreaStyled = styled(TextArea) <{
   $style: InputLikeStyleType;
 }>`
   ${(props) => props.$style && getStyle(props.$style)}
@@ -48,7 +48,7 @@ const Wrapper = styled.div<{
   $style: InputLikeStyleType;
 }>`
   height: 100% !important;
-
+  
   .ant-input { 
     height:100% !important;
   }
@@ -72,6 +72,7 @@ let TextAreaTmpComp = (function () {
     allowClear: BoolControl,
     autoHeight: withDefault(AutoHeightControl, "fixed"),
     style: styleControl(InputLikeStyle),
+    labelStyle: styleControl(LabelStyle)
   };
   return new UICompBuilder(childrenMap, (props) => {
     const [inputProps, validateState] = useTextInputProps(props);
@@ -79,7 +80,7 @@ let TextAreaTmpComp = (function () {
       required: props.required,
       children: (
         <Wrapper $style={props.style}>
-          <TextAreaStyled 
+          <TextAreaStyled
             {...inputProps}
             ref={props.viewRef}
             allowClear={props.allowClear}
@@ -89,6 +90,7 @@ let TextAreaTmpComp = (function () {
         </Wrapper>
       ),
       style: props.style,
+      labelStyle: props.labelStyle,
       ...validateState,
     });
   })
@@ -103,19 +105,22 @@ let TextAreaTmpComp = (function () {
 
         {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
           <><TextInputInteractionSection {...children} />
-          <Section name={sectionNames.layout}>
-            {children.autoHeight.getPropertyView()}
-            {hiddenPropertyView(children)}
-          </Section>
-          <Section name={sectionNames.advanced}>
-            {allowClearPropertyView(children)}
-            {readOnlyPropertyView(children)}
-          </Section>
-          <TextInputValidationSection {...children} /></>
+            <Section name={sectionNames.layout}>
+              {children.autoHeight.getPropertyView()}
+              {hiddenPropertyView(children)}
+            </Section>
+            <Section name={sectionNames.advanced}>
+              {allowClearPropertyView(children)}
+              {readOnlyPropertyView(children)}
+            </Section>
+            <TextInputValidationSection {...children} /></>
         )}
 
         {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
-          <><Section name={sectionNames.style}>{children.style.getPropertyView()}</Section></>
+          <>
+            <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
+            <Section name={sectionNames.labelStyle}>{children.labelStyle.getPropertyView()}</Section>
+          </>
         )}
       </>
     ))

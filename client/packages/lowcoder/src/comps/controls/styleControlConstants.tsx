@@ -63,7 +63,6 @@ export type borderStyleConfig = CommonColorConfig & {
 
 export type ContainerHeaderPaddingConfig = CommonColorConfig & {
   readonly containerHeaderPadding: string;
-
 };
 
 export type ContainerBodyPaddingConfig = CommonColorConfig & {
@@ -407,13 +406,19 @@ const TEXT_TRANSFORM = {
   name: "textTransform",
   label: trans("style.textTransform"),
   textTransform: "textTransform"
-}
+} as const;
 
 const TEXT_DECORATION = {
   name: "textDecoration",
   label: trans("style.textDecoration"),
   textDecoration: "textDecoration"
-}
+} as const;
+
+const BORDER_STYLE = {
+  name: "borderStyle",
+  label: trans("style.borderStyle"),
+  borderStyle: "borderStyle"
+} as const;
 
 const getStaticBorder = (color: string = SECOND_SURFACE_COLOR) =>
 ({
@@ -440,6 +445,7 @@ const STYLING_FIELDS_SEQUENCE = [
   FONT_FAMILY,
   FONT_STYLE,
   BORDER,
+  BORDER_STYLE,
   MARGIN,
   PADDING,
   RADIUS,
@@ -696,7 +702,6 @@ export const ContainerFooterStyle = [
 ] as const;
 
 export const SliderStyle = [
-  LABEL,
   FILL,
   {
     name: "thumbBorder",
@@ -716,14 +721,16 @@ export const SliderStyle = [
 ] as const;
 
 export const InputLikeStyle = [
-  LABEL,
   getStaticBackground(SURFACE_COLOR),
   ...STYLING_FIELDS_SEQUENCE,
   ...ACCENT_VALIDATE,
 ] as const;
 
+export const LabelStyle = [
+  ...replaceAndMergeMultipleStyles([...InputLikeStyle], 'text', [LABEL]).filter((style) => style.name !== 'radius' && style.name !== 'background')
+]
+
 export const RatingStyle = [
-  LABEL,
   {
     name: "checked",
     label: trans("style.checked"),
@@ -739,7 +746,6 @@ export const RatingStyle = [
 ] as const;
 
 export const SwitchStyle = [
-  LABEL,
   {
     name: "handle",
     label: trans("style.handle"),
@@ -800,7 +806,7 @@ export const MultiSelectStyle = [
 
 export const TabContainerStyle = [
   // Keep background related properties of container as STYLING_FIELDS_SEQUENCE has rest of the properties
-  ...replaceAndMergeMultipleStyles([...ContainerStyle.filter((style)=> ['border','radius','borderWidth','margin','padding'].includes(style.name) === false),...STYLING_FIELDS_SEQUENCE], 'text', [{
+  ...replaceAndMergeMultipleStyles([...ContainerStyle.filter((style) => ['border', 'radius', 'borderWidth', 'margin', 'padding'].includes(style.name) === false), ...STYLING_FIELDS_SEQUENCE], 'text', [{
     name: "tabText",
     label: trans("style.tabText"),
     depName: "headerBackground",
@@ -829,7 +835,6 @@ export const ModalStyle = [
 ] as const;
 
 export const CascaderStyle = [
-  LABEL,
   ...getStaticBgBorderRadiusByBg(SURFACE_COLOR, "pc"),
   TEXT,
   ACCENT,
@@ -861,7 +866,7 @@ function checkAndUncheck() {
 }
 
 export const CheckboxStyle = [
-  ...replaceAndMergeMultipleStyles(STYLING_FIELDS_SEQUENCE, 'text', [LABEL, STATIC_TEXT, VALIDATE]).filter((style) => style.name !== 'border'),
+  ...replaceAndMergeMultipleStyles(STYLING_FIELDS_SEQUENCE, 'text', [STATIC_TEXT, VALIDATE]).filter((style) => style.name !== 'border'),
   ...checkAndUncheck(),
   {
     name: "checked",
@@ -874,7 +879,7 @@ export const CheckboxStyle = [
 ] as const;
 
 export const RadioStyle = [
-  ...replaceAndMergeMultipleStyles(STYLING_FIELDS_SEQUENCE, 'text', [LABEL, STATIC_TEXT, VALIDATE]).filter((style) => style.name !== 'border' && style.name !== 'radius'),
+  ...replaceAndMergeMultipleStyles(STYLING_FIELDS_SEQUENCE, 'text', [STATIC_TEXT, VALIDATE]).filter((style) => style.name !== 'border' && style.name !== 'radius'),
   ...checkAndUncheck(),
   {
     name: "checked",
@@ -888,7 +893,7 @@ export const RadioStyle = [
 
 export const SegmentStyle = [
   LABEL,
-  ...STYLING_FIELDS_SEQUENCE.filter((style)=> ['border','borderWidth'].includes(style.name) === false),
+  ...STYLING_FIELDS_SEQUENCE.filter((style) => ['border', 'borderWidth'].includes(style.name) === false),
   {
     name: "indicatorBackground",
     label: trans("style.indicatorBackground"),
@@ -1046,7 +1051,6 @@ export const FileViewerStyle = [
 export const IframeStyle = [getBackground(), getStaticBorder("#00000000"), RADIUS, BORDER_WIDTH, MARGIN, PADDING] as const;
 
 export const DateTimeStyle = [
-  LABEL,
   ...getStaticBgBorderRadiusByBg(SURFACE_COLOR),
   TEXT,
   MARGIN,
@@ -1144,11 +1148,11 @@ export const ImageStyle = [getStaticBorder("#00000000"), RADIUS, BORDER_WIDTH, M
 
 export const IconStyle = [
   getStaticBackground("#00000000"),
-  getStaticBorder("#00000000"), 
+  getStaticBorder("#00000000"),
   FILL,
   RADIUS,
   BORDER_WIDTH,
-  MARGIN, 
+  MARGIN,
   PADDING] as const;
 
 export const ListViewStyle = BG_STATIC_BORDER_RADIUS;
@@ -1192,7 +1196,6 @@ export const TimeLineStyle = [
 ] as const;
 
 export const TreeStyle = [
-  LABEL,
   ...getStaticBgBorderRadiusByBg(SURFACE_COLOR),
   TEXT,
   VALIDATE,
@@ -1249,7 +1252,6 @@ export const CalendarStyle = [
 ] as const;
 
 export const SignatureStyle = [
-  LABEL,
   ...getBgBorderRadiusByBg(),
   {
     name: "pen",
@@ -1371,6 +1373,7 @@ export const RichTextEditorStyle = [
   BORDER_WIDTH
 ] as const;
 
+export type LabelStyleType = StyleConfigType<typeof LabelStyle>;
 export type InputLikeStyleType = StyleConfigType<typeof InputLikeStyle>;
 export type ButtonStyleType = StyleConfigType<typeof ButtonStyle>;
 export type ToggleButtonStyleType = StyleConfigType<typeof ToggleButtonStyle>;

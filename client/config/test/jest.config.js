@@ -6,14 +6,10 @@ export function currentDirName(importMetaUrl) {
   return dirname(fileURLToPath(importMetaUrl));
 }
 
-
 const globals = {};
 buildVars.forEach(({ name, defaultValue }) => {
   globals[name] = process.env[name] || defaultValue;
 });
-const edition = process.env.REACT_APP_EDITION;
-const isEEGlobal = edition === "enterprise-global";
-const isEE = edition === "enterprise" || isEEGlobal;
 const currentDir = currentDirName(import.meta.url);
 
 export default {
@@ -22,8 +18,7 @@ export default {
     "react-markdown": path.resolve(currentDir, "./mocks/react-markdown.js"),
     "\\.md\\?url$": path.resolve(currentDir, "./mocks/markdown-url-module.js"),
     "^@lowcoder-ee(.*)$": path.resolve(
-      currentDir,
-      isEE ? "../../packages/lowcoder/src/ee/$1" : "../../packages/lowcoder/src/$1"
+      currentDir, "../../packages/lowcoder/src/$1"
     ),
     "lowcoder-sdk": path.resolve(currentDir, "../../packages/lowcoder/src/index.sdk"),
   },
