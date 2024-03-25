@@ -148,7 +148,8 @@ const turnOnMicrophone = async (flag?: boolean) => {
 };
 const shareScreen = async (sharing: boolean) => {
   try {
-    if (sharing === false) {
+    console.log("sharing ", sharing);
+    if (sharing === false && screenShareStream) {
       await client.unpublish(screenShareStream);
       screenShareStream.close();
       await client.publish(videoTrack);
@@ -237,7 +238,8 @@ const meetingControllerChildren = {
   audioControl: withDefault(BooleanStateControl, "false"),
   videoControl: withDefault(BooleanStateControl, "true"),
   endCall: withDefault(BooleanStateControl, "false"),
-  sharing: withDefault(BooleanStateControl, "false"),
+  sharingData: stateComp<JSONValue>([]), //withDefault(BooleanStateControl, "false"),
+  isSharing: withDefault(BooleanStateControl, "false"),
   appId: withDefault(StringControl, trans("meeting.appid")),
   participants: stateComp<JSONValue>([]),
   usersScreenShared: stateComp<JSONValue>([]),
@@ -286,7 +288,17 @@ let MTComp = (function () {
         useState<IAgoraRTCRemoteUser>();
       const [userJoined, setUserJoined] = useState<IAgoraRTCRemoteUser>();
       const [userLeft, setUserLeft] = useState<IAgoraRTCRemoteUser>();
-
+      const userSharigScreen = (userid: any) => {
+        //check if passed userid exists in the props.participants array and check if participants is null
+        let prevUsers: [] = props.participants as [];
+        let foundUsers: any = [];
+        prevUsers.forEach((user: any) => {
+          if (user.user === userid) {
+            foundUsers.push(user.user as any);
+          }
+        });
+        return foundUsers.length > 0;
+      };
       useEffect(() => {
         if (userJoined) {
           const remoteUsers = client.remoteUsers;
@@ -294,12 +306,14 @@ let MTComp = (function () {
             user: UID;
             audiostatus: boolean;
             streamingVideo: boolean;
+            sharingScreen: boolean;
           }[] = [];
           remoteUsers.forEach((user) => {
             let userData = {
               user: user.uid,
               audiostatus: user.hasAudio,
               streamingVideo: user.hasVideo,
+              sharingScreen: userSharigScreen(user.uid),
             };
             users.push(userData);
             setUserIds((userIds: any) => [...userIds, userData]);
@@ -369,27 +383,17 @@ let MTComp = (function () {
       }, [updateVolume]);
 
       useEffect(() => {
-        let prevUsers: any = props.participants as [];
-        if (prevUsers == "") return;
-        const updatedItems = prevUsers.map((userInfo: any) => {
-          if (userInfo.user === localUserVideo?.uid) {
-            return { ...userInfo, streamingSharing: props.sharing.value };
-          }
-          return userInfo;
-        });
-        dispatch(
-          changeChildAction("participants", getData(updatedItems).data, false)
-        );
-
-        let localObject = {
-          user: userId + "",
-          audiostatus: props.audioControl.value,
-          streamingVideo: props.videoControl.value,
-          streamingSharing: props.sharing.value,
-          speaking: localUserSpeaking,
+        if (rtmChannelResponse == null) return;
+        let data = {
+          uid: props.localUserID.value,
+          sharingScreen: props.isSharing.value,
         };
-        props.localUser.onChange(localObject);
-      }, [props.sharing.value]);
+
+        rtmChannelResponse.sendMessage({ text: JSON.stringify(data) });
+        dispatch(
+          changeChildAction("sharingData", props.isSharing.value ? data : {}, false)
+        );
+      }, [props.isSharing.value]);
 
       useEffect(() => {
         let prevUsers: any = props.participants as [];
@@ -441,23 +445,56 @@ let MTComp = (function () {
           });
 
           rtmChannelResponse.on("ChannelMessage", function (message, memberId) {
-            setRtmMessages((prevMessages: any[]) => {
-              // Check if the messages array exceeds the maximum limit
-              if (prevMessages.length >= 500) {
-                prevMessages.pop(); // Remove the oldest message
-              }
-              return [
-                ...prevMessages,
-                {
-                  channelmessage: JSON.parse(message.text + ""),
-                  from: memberId,
-                },
-              ];
-            });
+            let messageData = JSON.parse(message.text + "");
+            if (messageData.sharingScreen != null) {
+              dispatch(
+                changeChildAction(
+                  "sharingData",
+                  messageData.sharingScreen
+                    ? {
+                        uid: messageData.uid,
+                        sharingScreen: messageData.sharingScreen,
+                      }
+                    : {},
+                  false
+                )
+              );
+              let prevUsers: [] = props.participants as [];
 
-            dispatch(
-              changeChildAction("messages", getData(rtmMessages).data, false)
-            );
+              const updatedItems = prevUsers.map((userInfo: any) => {
+                if (userInfo.user === messageData.uid) {
+                  return {
+                    ...userInfo,
+                    sharingScreen: messageData.sharingScreen,
+                  };
+                }
+                return userInfo;
+              });
+              dispatch(
+                changeChildAction(
+                  "participants",
+                  getData(updatedItems).data,
+                  false
+                )
+              );
+            } else {
+              setRtmMessages((prevMessages: any[]) => {
+                // Check if the messages array exceeds the maximum limit
+                if (prevMessages.length >= 500) {
+                  prevMessages.pop(); // Remove the oldest message
+                }
+                return [
+                  ...prevMessages,
+                  {
+                    channelmessage: JSON.parse(message.text + ""),
+                    from: memberId,
+                  },
+                ];
+              });
+              dispatch(
+                changeChildAction("messages", getData(rtmMessages).data, false)
+              );
+            }
           });
         }
       }, [rtmChannelResponse]);
@@ -668,9 +705,14 @@ MTComp = withMethodExposing(MTComp, [
     },
     execute: async (comp, values) => {
       if (!comp.children.meetingActive.getView().value) return;
-      let sharing = !comp.children.sharing.getView().value;
+      let sharing = !comp.children.isSharing.getView().value;
+
+      comp.children.localUser.change({
+        sharingScreen: sharing,
+        ...comp.children.localUser.getView().value,
+      });
+      comp.children.isSharing.change(sharing);
       await shareScreen(sharing);
-      comp.children.sharing.change(sharing);
     },
   },
   {
@@ -872,4 +914,5 @@ export const VideoMeetingControllerComp = withExposingConfigs(MTComp, [
   new NameConfig("messages", trans("meeting.messages")),
   new NameConfig("rtmToken", trans("meeting.rtmToken")),
   new NameConfig("rtcToken", trans("meeting.rtcToken")),
+  new NameConfig("sharingData", trans("meeting.screenSharing")),
 ]);

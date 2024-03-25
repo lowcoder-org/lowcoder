@@ -1437,6 +1437,7 @@
     "userName": "Host User Name",
     "rtmToken": "Agora RTM Token",
     "rtcToken": "Agora RTC Token",
+    "screenSharing":"User Sharing Screen",
     "noVideo": "No Video",
     "profileImageUrl": "Profile Image URL",
     "right": "Right",
