@@ -3,13 +3,11 @@ package org.lowcoder.domain.application.service;
 
 import static org.lowcoder.domain.application.ApplicationUtil.getDependentModulesFromDsl;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import org.lowcoder.domain.application.model.Application;
+import org.lowcoder.domain.application.model.ApplicationRequestType;
 import org.lowcoder.domain.application.model.ApplicationStatus;
 import org.lowcoder.domain.application.repository.ApplicationRepository;
 import org.lowcoder.domain.permission.model.ResourceRole;
@@ -103,6 +101,14 @@ public class ApplicationService {
         return repository.findByOrganizationId(organizationId);
     }
 
+    public Flux<Application> findAllMarketplaceApps() {
+        return repository.findByPublicToAllIsTrueAndPublicToMarketplaceIsTrue();
+    }
+
+    public Flux<Application> findAllAgencyProfileApps() {
+        return repository.findByPublicToAllIsTrueAndAgencyProfileIsTrue();
+    }
+
     public Mono<Long> countByOrganizationId(String orgId, ApplicationStatus applicationStatus) {
         return repository.countByOrganizationIdAndApplicationStatus(orgId, applicationStatus);
     }
@@ -147,11 +153,137 @@ public class ApplicationService {
         return mongoUpsertHelper.updateById(application, applicationId);
     }
 
+    // Falk: String title, String category, String description, String image will be set in Application Settings inside DSL by Frontend
+    public Mono<Boolean> setApplicationPublicToMarketplace(String applicationId, Boolean publicToMarketplace) {
+
+        return findById(applicationId)
+
+                .map(application -> {
+
+                    Map<String, Object> applicationDsl = application.getEditingApplicationDSL();
+                    
+                    // Falk: this logic is not needed anymore, because we set Meta Data in Settings in the UI already
+                    /* if (applicationDsl.containsKey("ui")) {
+                        Map<String, Object> dataObject = (Map<String, Object>) applicationDsl.get("ui");
+
+                        if(publicToMarketplace) {
+                            Map<String, Object> marketplaceMeta = new HashMap<>();
+                            marketplaceMeta.put("title", title);
+                            marketplaceMeta.put("description", description);
+                            marketplaceMeta.put("category", category);
+                            marketplaceMeta.put("image", image);
+                            if (dataObject.containsKey("marketplaceMeta")) {
+                                dataObject.replace("marketplaceMeta", marketplaceMeta);
+                            } else {
+                                dataObject.put("marketplaceMeta", marketplaceMeta);
+                            }
+                        } else {
+                            dataObject.remove("marketplaceMeta");
+                        }
+
+                        applicationDsl.replace("ui", dataObject);
+
+                    } */
+
+                    return Application.builder()
+                            .publicToMarketplace(publicToMarketplace)
+                            .editingApplicationDSL(applicationDsl)
+                            .build();
+
+                })
+                .flatMap(application -> mongoUpsertHelper.updateById(application, applicationId));
+
+
+    }
+
+    public Mono<Boolean> setApplicationAsAgencyProfile(String applicationId, boolean agencyProfile) {
+        Application application = Application.builder()
+                .agencyProfile(agencyProfile)
+                .build();
+        return mongoUpsertHelper.updateById(application, applicationId);
+    }
+
+
+    @NonEmptyMono
+    @SuppressWarnings("ReactiveStreamsNullableInLambdaInTransform")
+    public Mono<Set<String>> getFilteredPublicApplicationIds(ApplicationRequestType requestType, Collection<String> applicationIds, boolean isAnonymous, Boolean isPrivateMarketplace) {
+
+    	switch(requestType)
+    	{
+	    	case PUBLIC_TO_ALL:
+	    		if (isAnonymous)
+	    		{
+	    			return getPublicApplicationIds(applicationIds);
+	    		}
+	    		else
+	    		{
+	    			return getPrivateApplicationIds(applicationIds);
+	    		}
+	    	case PUBLIC_TO_MARKETPLACE:
+	    		return getPublicMarketplaceApplicationIds(applicationIds, isAnonymous, isPrivateMarketplace);
+	    	case AGENCY_PROFILE:
+	    		return getPublicAgencyApplicationIds(applicationIds);
+	    	default:
+	    		return Mono.empty();
+    	}
+    }
+    
+    
+    /**
+     * Find all public applications - doesn't matter if user is anonymous, because these apps are public 
+     */
     @NonEmptyMono
     @SuppressWarnings("ReactiveStreamsNullableInLambdaInTransform")
     public Mono<Set<String>> getPublicApplicationIds(Collection<String> applicationIds) {
+
         return repository.findByPublicToAllIsTrueAndIdIn(applicationIds)
+                        .map(HasIdAndAuditing::getId)
+                        .collect(Collectors.toSet());
+    }
+
+
+    /**
+     * Find all private applications for viewing.
+     */
+    @NonEmptyMono
+    @SuppressWarnings("ReactiveStreamsNullableInLambdaInTransform")
+    public Mono<Set<String>> getPrivateApplicationIds(Collection<String> applicationIds) {
+    	// TODO: in 2.4.0 we need to check whether the app was published or not
+        return repository.findByIdIn(applicationIds)
+                        .map(HasIdAndAuditing::getId)
+                        .collect(Collectors.toSet());
+    }
+    
+    
+    /**
+     * Find all marketplace applications - filter based on whether user is anonymous and whether it's a private marketplace
+     */
+    @NonEmptyMono
+    @SuppressWarnings("ReactiveStreamsNullableInLambdaInTransform")
+    public Mono<Set<String>> getPublicMarketplaceApplicationIds(Collection<String> applicationIds, boolean isAnonymous, boolean isPrivateMarketplace) {
+
+    	if ((isAnonymous && !isPrivateMarketplace) || !isAnonymous)
+    	{
+            return repository.findByPublicToAllIsTrueAndPublicToMarketplaceIsTrueAndIdIn(applicationIds)
+                    .map(HasIdAndAuditing::getId)
+                    .collect(Collectors.toSet());
+    	}
+    	return Mono.empty();
+    }
+
+    /**
+     * Find all agency applications
+     */
+    @NonEmptyMono
+    @SuppressWarnings("ReactiveStreamsNullableInLambdaInTransform")
+    public Mono<Set<String>> getPublicAgencyApplicationIds(Collection<String> applicationIds) {
+
+        return repository.findByPublicToAllIsTrueAndAgencyProfileIsTrueAndIdIn(applicationIds)
                 .map(HasIdAndAuditing::getId)
                 .collect(Collectors.toSet());
+    }
+
+    public Flux<Application> findAll() {
+        return repository.findAll();
     }
 }

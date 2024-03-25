@@ -2,7 +2,6 @@ package org.lowcoder.domain.application.repository;
 
 
 import java.util.Collection;
-import java.util.List;
 
 import javax.annotation.Nonnull;
 
@@ -18,6 +17,7 @@ import reactor.core.publisher.Mono;
 @Repository
 public interface ApplicationRepository extends ReactiveMongoRepository<Application, String>, CustomApplicationRepository {
 
+    // publishedApplicationDSL : 0 -> excludes publishedApplicationDSL from the return
     @Query(fields = "{ publishedApplicationDSL : 0 , editingApplicationDSL : 0 }")
     Flux<Application> findByOrganizationId(String organizationId);
 
@@ -32,9 +32,30 @@ public interface ApplicationRepository extends ReactiveMongoRepository<Applicati
     @Query("{$or : [{'publishedApplicationDSL.queries.datasourceId':?0},{'editingApplicationDSL.queries.datasourceId':?0}]}")
     Flux<Application> findByDatasourceId(String datasourceId);
 
-    Flux<Application> findByIdIn(List<String> ids);
+    Flux<Application> findByIdIn(Collection<String> ids);
 
-    @Query(fields = "{_id : 1}")
+    /**
+     * Filter public applications from list of supplied IDs
+     */
     Flux<Application> findByPublicToAllIsTrueAndIdIn(Collection<String> ids);
 
+    /**
+     * Filter marketplace applications from list of supplied IDs
+     */
+    Flux<Application> findByPublicToAllIsTrueAndPublicToMarketplaceIsTrueAndIdIn(Collection<String> ids);
+
+    /**
+     * Filter agency applications from list of supplied IDs
+     */
+    Flux<Application> findByPublicToAllIsTrueAndAgencyProfileIsTrueAndIdIn(Collection<String> ids);
+
+    /**
+     * Find all marketplace applications
+     */
+    Flux<Application> findByPublicToAllIsTrueAndPublicToMarketplaceIsTrue();
+    
+    /**
+     * Find all agency applications
+     */
+    Flux<Application> findByPublicToAllIsTrueAndAgencyProfileIsTrue();
 }

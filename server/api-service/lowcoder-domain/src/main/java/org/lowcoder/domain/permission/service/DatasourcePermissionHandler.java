@@ -1,7 +1,6 @@
 package org.lowcoder.domain.permission.service;
 
 import static org.lowcoder.domain.permission.model.ResourceHolder.USER;
-import static org.lowcoder.sdk.constants.Authentication.ANONYMOUS_USER_ID;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -11,6 +10,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.lowcoder.domain.application.model.ApplicationRequestType;
 import org.lowcoder.domain.datasource.model.Datasource;
 import org.lowcoder.domain.datasource.service.DatasourceService;
 import org.lowcoder.domain.permission.model.ResourceAction;
@@ -40,6 +40,23 @@ class DatasourcePermissionHandler extends ResourcePermissionHandler {
     }
 
     @Override
+    protected Mono<Map<String, List<ResourcePermission>>> getNonAnonymousUserPublicResourcePermissions(Collection<String> resourceIds, ResourceAction resourceAction) {
+        return Mono.just(Collections.emptyMap());
+    }
+
+    @Override
+	protected Mono<Map<String, List<ResourcePermission>>> getAnonymousUserApplicationPermissions(
+			Collection<String> resourceIds, ResourceAction resourceAction, ApplicationRequestType requestType) {
+        return Mono.just(Collections.emptyMap());
+	}
+
+	@Override
+	protected Mono<Map<String, List<ResourcePermission>>> getNonAnonymousUserApplicationPublicResourcePermissions(
+			Collection<String> resourceIds, ResourceAction resourceAction, ApplicationRequestType requestType) {
+        return Mono.just(Collections.emptyMap());
+	}
+
+	@Override
     protected Mono<String> getOrgId(String resourceId) {
         return datasourceService.getById(resourceId)
                 .map(Datasource::getOrganizationId);

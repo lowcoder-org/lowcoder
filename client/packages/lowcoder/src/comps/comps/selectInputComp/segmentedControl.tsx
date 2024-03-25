@@ -25,6 +25,9 @@ import { RefControl } from "comps/controls/refControl";
 
 import { useContext } from "react";
 import { EditorContext } from "comps/editorState";
+import { migrateOldData } from "comps/generators/simpleGenerators";
+import { fixOldInputCompData } from "../textInputComp/textInputConstants";
+
 
 const getStyle = (style: SegmentStyleType) => {
   return css`
@@ -52,6 +55,14 @@ const getStyle = (style: SegmentStyleType) => {
     .ant-segmented-item-selected {
       border-radius: ${style.radius};
     }
+    &.ant-segmented, .ant-segmented-item-label {
+      font-family:${style.fontFamily};
+      font-style:${style.fontStyle};
+      font-size:${style.textSize};
+      font-weight:${style.textWeight};
+      text-transform:${style.textTransform};
+      text-decoration:${style.textDecoration};
+    }
   `;
 };
 
@@ -62,6 +73,7 @@ const Segmented = styled(AntdSegmented)<{ $style: SegmentStyleType }>`
 `;
 
 const SegmentChildrenMap = {
+  defaultValue: stringExposingStateControl("value"),
   value: stringExposingStateControl("value"),
   label: LabelControl,
   disabled: BoolCodeControl,
@@ -74,9 +86,12 @@ const SegmentChildrenMap = {
   ...formDataChildren,
 };
 
-const SegmentedControlBasicComp = (function () {
+let SegmentedControlBasicComp = (function () {
   return new UICompBuilder(SegmentChildrenMap, (props) => {
-    const [validateState, handleValidate] = useSelectInputValidate(props);
+    const [
+      validateState,
+      handleChange,
+    ] = useSelectInputValidate(props);
     return props.label({
       required: props.required,
       style: props.style,
@@ -88,9 +103,7 @@ const SegmentedControlBasicComp = (function () {
           value={props.value.value}
           $style={props.style}
           onChange={(value) => {
-            handleValidate(value.toString());
-            props.value.onChange(value.toString());
-            props.onEvent("change");
+            handleChange(value.toString());
           }}
           options={props.options
             .filter((option) => option.value !== undefined && !option.hidden)
@@ -109,7 +122,7 @@ const SegmentedControlBasicComp = (function () {
       <>
         <Section name={sectionNames.basic}>
           {children.options.propertyView({})}
-          {children.value.propertyView({ label: trans("prop.defaultValue") })}
+          {children.defaultValue.propertyView({ label: trans("prop.defaultValue") })}
         </Section>
 
         {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
@@ -136,6 +149,8 @@ const SegmentedControlBasicComp = (function () {
     .setExposeMethodConfigs(selectDivRefMethods)
     .build();
 })();
+
+SegmentedControlBasicComp = migrateOldData(SegmentedControlBasicComp, fixOldInputCompData);
 
 export const SegmentedControlComp = withExposingConfigs(SegmentedControlBasicComp, [
   new NameConfig("value", trans("selectInput.valueDesc")),

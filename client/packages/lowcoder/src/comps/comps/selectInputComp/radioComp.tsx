@@ -11,6 +11,8 @@ import {
 } from "./selectInputConstants";
 import { EllipsisTextCss, ValueFromOption } from "lowcoder-design";
 import { trans } from "i18n";
+import { fixOldInputCompData } from "../textInputComp/textInputConstants";
+import { migrateOldData } from "comps/generators/simpleGenerators";
 
 const getStyle = (style: RadioStyleType) => {
   return css`
@@ -21,6 +23,12 @@ const getStyle = (style: RadioStyleType) => {
       padding: ${style.padding};
       span:not(.ant-radio) {
         ${EllipsisTextCss};
+        font-family:${style.fontFamily};
+        font-size:${style.textSize};
+        font-weight:${style.textWeight};
+        font-style:${style.fontStyle};
+        text-transform:${style.textTransform};
+        text-decoration:${style.textDecoration};
       }
 
       .ant-radio-checked {
@@ -37,10 +45,16 @@ const getStyle = (style: RadioStyleType) => {
       .ant-radio-inner {
         background-color: ${style.uncheckedBackground};
         border-color: ${style.uncheckedBorder};
-
+        border-width:${style.borderWidth};
         &::after {
           background-color: ${style.checked};
         }
+      }
+
+      &:hover .ant-radio-inner, 
+      .ant-radio:hover .ant-radio-inner,
+      .ant-radio-input + ant-radio-inner {
+        background-color:${style.hoverBackground ? style.hoverBackground:'#ffff'};
       }
 
       &:hover .ant-radio-inner,
@@ -81,9 +95,12 @@ const Radio = styled(AntdRadioGroup)<{
   }}
 `;
 
-const RadioBasicComp = (function () {
+let RadioBasicComp = (function () {
   return new UICompBuilder(RadioChildrenMap, (props) => {
-    const [validateState, handleValidate] = useSelectInputValidate(props);
+    const [
+      validateState,
+      handleChange,
+    ] = useSelectInputValidate(props);
     return props.label({
       required: props.required,
       style: props.style,
@@ -95,9 +112,7 @@ const RadioBasicComp = (function () {
           $style={props.style}
           $layout={props.layout}
           onChange={(e) => {
-            handleValidate(e.target.value);
-            props.value.onChange(e.target.value);
-            props.onEvent("change");
+            handleChange(e.target.value);
           }}
           options={props.options
             .filter((option) => option.value !== undefined && !option.hidden)
@@ -115,6 +130,8 @@ const RadioBasicComp = (function () {
     .setExposeMethodConfigs(selectDivRefMethods)
     .build();
 })();
+
+RadioBasicComp = migrateOldData(RadioBasicComp, fixOldInputCompData);
 
 export const RadioComp = withExposingConfigs(RadioBasicComp, [
   new NameConfig("value", trans("selectInput.valueDesc")),

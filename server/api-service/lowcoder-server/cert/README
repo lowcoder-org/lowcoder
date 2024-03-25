@@ -1,0 +1,33 @@
+To generate the signing keys in PKCS#12 format:
+
+$ keytool -genkey -alias dev -keyalg RSA -keysize 4096 -validity 36500 -keystore signing.p12 -storetype pkcs12
+
+Enter keystore password:  
+Re-enter new password: 
+What is your first and last name?
+  [Unknown]:  dev.lowcoder.org
+What is the name of your organizational unit?
+  [Unknown]:  dev
+What is the name of your organization?
+  [Unknown]:  Lowcoder Software LTD
+What is the name of your City or Locality?
+  [Unknown]:  London
+What is the name of your State or Province?
+  [Unknown]:  United Kingdom
+What is the two-letter country code for this unit?
+  [Unknown]:  UK
+Is CN=dev.lowcoder.org, OU=dev, O=Lowcoder Software LTD, L=London, ST=United Kingdom, C=UK correct?
+  [no]:  yes
+
+Generating 4,096 bit RSA key pair and self-signed certificate (SHA384withRSA) with a validity of 36,500 days
+	for: CN=dev.lowcoder.org, OU=dev, O=Lowcoder Software LTD, L=London, ST=United Kingdom, C=UK
+
+
+
+To export the public key from generated key pair:
+
+$ openssl rsa -in signing.p12 -pubout -out lowcoder.pub
+
+Enter pass phrase for PKCS12 import pass phrase:
+writing RSA key
+

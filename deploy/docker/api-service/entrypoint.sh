@@ -27,12 +27,16 @@ ${JAVA_HOME}/bin/java -version
 echo
 
 cd /lowcoder/api-service
+source set-classpath.sh
+
 exec gosu ${USER_ID}:${GROUP_ID} ${JAVA_HOME}/bin/java \
+  -Djava.util.prefs.userRoot=/tmp \
   -Djava.security.egd=file:/dev/./urandom \
   -Dhttps.protocols=TLSv1.1,TLSv1.2 \
   -Dlog4j2.formatMsgNoLookups=true \
   -Dspring.config.location="file:///lowcoder/api-service/config/application.yml,file:///lowcoder/api-service/config/application-selfhost.yml" \
   --add-opens java.base/java.nio=ALL-UNNAMED \
+  -cp "${LOWCODER_CLASSPATH:=.}" \
   ${JAVA_OPTS} \
-  -jar "${APP_JAR}" --spring.webflux.base-path=${CONTEXT_PATH} ${CUSTOM_APP_PROPERTIES}
+  org.lowcoder.api.ServerApplication --spring.webflux.base-path=${CONTEXT_PATH} ${CUSTOM_APP_PROPERTIES}
 

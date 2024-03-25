@@ -14,7 +14,7 @@ import {
   CompressIcon,
   TextSizeIcon,
   FontFamilyIcon,
-  TextWeigthIcon,
+  TextWeightIcon,
   ShowBorderIcon,
   BorderWidthIcon,
   ImageCompIcon,
@@ -36,6 +36,7 @@ import {
   TextSizeConfig,
   TextWeightConfig,
   FontFamilyConfig,
+  FontStyleConfig,
   BorderWidthConfig,
   BackgroundImageConfig,
   BackgroundImageRepeatConfig,
@@ -136,13 +137,16 @@ function isTextWeightConfig(config: SingleColorConfig): config is TextWeightConf
 function isFontFamilyConfig(config: SingleColorConfig): config is FontFamilyConfig {
   return config.hasOwnProperty("fontFamily");
 }
+function isFontStyleConfig(config: SingleColorConfig): config is FontStyleConfig {
+  return config.hasOwnProperty("fontStyle");
+}
 
-function isMarginConfig(config: SingleColorConfig): config is MarginConfig {	
-  return config.hasOwnProperty("margin");	
-}	
+function isMarginConfig(config: SingleColorConfig): config is MarginConfig {
+  return config.hasOwnProperty("margin");
+}
 
-function isPaddingConfig(config: SingleColorConfig): config is PaddingConfig {	
-  return config.hasOwnProperty("padding");	
+function isPaddingConfig(config: SingleColorConfig): config is PaddingConfig {
+  return config.hasOwnProperty("padding");
 }
 
 // function styleControl(colorConfig: Array<SingleColorConfig>) {
@@ -215,12 +219,15 @@ function isEmptyTextWeight(textWeight: string) {
 function isEmptyFontFamily(fontFamily: string) {
   return _.isEmpty(fontFamily);
 }
+function isEmptyFontStyle(fontStyle: string) {
+  return _.isEmpty(fontStyle);
+}
 
-function isEmptyMargin(margin: string) {	
-  return _.isEmpty(margin);	
-}	
-function isEmptyPadding(padding: string) {	
-  return _.isEmpty(padding);	
+function isEmptyMargin(margin: string) {
+  return _.isEmpty(margin);
+}
+function isEmptyPadding(padding: string) {
+  return _.isEmpty(padding);
 }
 
 /**
@@ -237,93 +244,97 @@ function calcColors<ColorMap extends Record<string, string>>(
   let res: Record<string, string> = {};
   colorConfigs.forEach((config) => {
     const name = config.name;
-    if (!isEmptyRadius(props[name]) && isRadiusConfig(config)) {	
-      res[name] = props[name];	
-      return;	
+    if (!isEmptyRadius(props[name]) && isRadiusConfig(config)) {
+      res[name] = props[name];
+      return;
     }
-    if (!isEmptyBorderWidth(props[name]) && isBorderWidthConfig(config)) {	
-      res[name] = props[name];	
-      return;	
+    if (!isEmptyBorderWidth(props[name]) && isBorderWidthConfig(config)) {
+      res[name] = props[name];
+      return;
     }
-    if (!isEmptyBackgroundImageConfig(props[name]) && isBackgroundImageConfig(config)) {	
-      res[name] = props[name];	
-      return;	
+    if (!isEmptyBackgroundImageConfig(props[name]) && isBackgroundImageConfig(config)) {
+      res[name] = props[name];
+      return;
     }
-    if (!isEmptyBackgroundImageRepeatConfig(props[name]) && isBackgroundImageRepeatConfig(config)) {	
-      res[name] = props[name];	
-      return;	
+    if (!isEmptyBackgroundImageRepeatConfig(props[name]) && isBackgroundImageRepeatConfig(config)) {
+      res[name] = props[name];
+      return;
     }
-    if (!isEmptyBackgroundImageSizeConfig(props[name]) && isBackgroundImageSizeConfig(config)) {	
-      res[name] = props[name];	
-      return;	
+    if (!isEmptyBackgroundImageSizeConfig(props[name]) && isBackgroundImageSizeConfig(config)) {
+      res[name] = props[name];
+      return;
     }
-    if (!isEmptyBackgroundImagePositionConfig(props[name]) && isBackgroundImagePositionConfig(config)) {	
-      res[name] = props[name];	
-      return;	
+    if (!isEmptyBackgroundImagePositionConfig(props[name]) && isBackgroundImagePositionConfig(config)) {
+      res[name] = props[name];
+      return;
     }
-    if (!isEmptyBackgroundImageOriginConfig(props[name]) && isBackgroundImageOriginConfig(config)) {	
-      res[name] = props[name];	
-      return;	
+    if (!isEmptyBackgroundImageOriginConfig(props[name]) && isBackgroundImageOriginConfig(config)) {
+      res[name] = props[name];
+      return;
     }
-    if (!isEmptyHeaderBackgroundImageConfig(props[name]) && isHeaderBackgroundImageConfig(config)) {	
-      res[name] = props[name];	
-      return;	
+    if (!isEmptyHeaderBackgroundImageConfig(props[name]) && isHeaderBackgroundImageConfig(config)) {
+      res[name] = props[name];
+      return;
     }
-    if (!isEmptyHeaderBackgroundImageRepeatConfig(props[name]) && isHeaderBackgroundImageRepeatConfig(config)) {	
-      res[name] = props[name];	
-      return;	
+    if (!isEmptyHeaderBackgroundImageRepeatConfig(props[name]) && isHeaderBackgroundImageRepeatConfig(config)) {
+      res[name] = props[name];
+      return;
     }
-    if (!isEmptyHeaderBackgroundImageSizeConfig(props[name]) && isHeaderBackgroundImageSizeConfig(config)) {	
-      res[name] = props[name];	
-      return;	
+    if (!isEmptyHeaderBackgroundImageSizeConfig(props[name]) && isHeaderBackgroundImageSizeConfig(config)) {
+      res[name] = props[name];
+      return;
     }
-    if (!isEmptyHeaderBackgroundImagePositionConfig(props[name]) && isHeaderBackgroundImagePositionConfig(config)) {	
-      res[name] = props[name];	
-      return;	
+    if (!isEmptyHeaderBackgroundImagePositionConfig(props[name]) && isHeaderBackgroundImagePositionConfig(config)) {
+      res[name] = props[name];
+      return;
     }
-    if (!isEmptyHeaderBackgroundImageOriginConfig(props[name]) && isHeaderBackgroundImageOriginConfig(config)) {	
-      res[name] = props[name];	
-      return;	
+    if (!isEmptyHeaderBackgroundImageOriginConfig(props[name]) && isHeaderBackgroundImageOriginConfig(config)) {
+      res[name] = props[name];
+      return;
     }
-    if (!isEmptyFooterBackgroundImageConfig(props[name]) && isFooterBackgroundImageConfig(config)) {	
-      res[name] = props[name];	
-      return;	
+    if (!isEmptyFooterBackgroundImageConfig(props[name]) && isFooterBackgroundImageConfig(config)) {
+      res[name] = props[name];
+      return;
     }
-    if (!isEmptyFooterBackgroundImageRepeatConfig(props[name]) && isFooterBackgroundImageRepeatConfig(config)) {	
-      res[name] = props[name];	
-      return;	
+    if (!isEmptyFooterBackgroundImageRepeatConfig(props[name]) && isFooterBackgroundImageRepeatConfig(config)) {
+      res[name] = props[name];
+      return;
     }
-    if (!isEmptyFooterBackgroundImageSizeConfig(props[name]) && isFooterBackgroundImageSizeConfig(config)) {	
-      res[name] = props[name];	
-      return;	
+    if (!isEmptyFooterBackgroundImageSizeConfig(props[name]) && isFooterBackgroundImageSizeConfig(config)) {
+      res[name] = props[name];
+      return;
     }
-    if (!isEmptyFooterBackgroundImagePositionConfig(props[name]) && isFooterBackgroundImagePositionConfig(config)) {	
-      res[name] = props[name];	
-      return;	
+    if (!isEmptyFooterBackgroundImagePositionConfig(props[name]) && isFooterBackgroundImagePositionConfig(config)) {
+      res[name] = props[name];
+      return;
     }
-    if (!isEmptyFooterBackgroundImageOriginConfig(props[name]) && isFooterBackgroundImageOriginConfig(config)) {	
-      res[name] = props[name];	
-      return;	
+    if (!isEmptyFooterBackgroundImageOriginConfig(props[name]) && isFooterBackgroundImageOriginConfig(config)) {
+      res[name] = props[name];
+      return;
     }
-    if (!isEmptyTextSize(props[name]) && isTextSizeConfig(config)) {	
-      res[name] = props[name];	
-      return;	
-    }	
-    if (!isEmptyTextWeight(props[name]) && isTextWeightConfig(config)) {	
-      res[name] = props[name];	
-      return;	
-    }	
-    if (!isEmptyFontFamily(props[name]) && isFontFamilyConfig(config)) {	
-      res[name] = props[name];	
-      return;	
+    if (!isEmptyTextSize(props[name]) && isTextSizeConfig(config)) {
+      res[name] = props[name];
+      return;
     }
-    if (!isEmptyMargin(props[name]) && isMarginConfig(config)) {	
-      res[name] = props[name];	
-      return;	
-    }	
-    if (!isEmptyPadding(props[name]) && isPaddingConfig(config)) {	
-      res[name] = props[name];	
-      return;	
+    if (!isEmptyTextWeight(props[name]) && isTextWeightConfig(config)) {
+      res[name] = props[name];
+      return;
+    }
+    if (!isEmptyFontFamily(props[name]) && isFontFamilyConfig(config)) {
+      res[name] = props[name];
+      return;
+    }
+    if (!isEmptyFontStyle(props[name]) && isFontStyleConfig(config)) {
+      res[name] = props[name];
+      return;
+    }
+    if (!isEmptyMargin(props[name]) && isMarginConfig(config)) {
+      res[name] = props[name];
+      return;
+    }
+    if (!isEmptyPadding(props[name]) && isPaddingConfig(config)) {
+      res[name] = props[name];
+      return;
     }
     if (!isEmptyColor(props[name])) {
       if (isThemeColorKey(props[name])) {
@@ -398,11 +409,14 @@ function calcColors<ColorMap extends Record<string, string>>(
     if (isFontFamilyConfig(config)) {
       res[name] = themeWithDefault[config.fontFamily] || 'sans-serif';
     }
-    if (isMarginConfig(config)) {	
-      res[name] = themeWithDefault[config.margin];	
-    }	
-    if (isPaddingConfig(config)) {	
-      res[name] = themeWithDefault[config.padding];	
+    if (isFontStyleConfig(config)) {
+      res[name] = themeWithDefault[config.fontStyle] || 'normal'
+    }
+    if (isMarginConfig(config)) {
+      res[name] = themeWithDefault[config.margin];
+    }
+    if (isPaddingConfig(config)) {
+      res[name] = themeWithDefault[config.padding];
     }
   });
   // The second pass calculates dep
@@ -509,11 +523,11 @@ const StyleContent = styled.div`
 
 const RadiusIcon = styled(IconRadius)` margin: 0 8px 0 -2px;`;
 const BorderIcon = styled(BorderWidthIcon)` margin: 0 8px 0 -3px; padding: 3px;`;
-const MarginIcon = styled(ExpandIcon)` margin: 0 8px 0 2px;`;	
+const MarginIcon = styled(ExpandIcon)` margin: 0 8px 0 2px;`;
 const PaddingIcon = styled(CompressIcon)`	margin: 0 8px 0 2px;`;
 const StyledTextSizeIcon = styled(TextSizeIcon)` margin: 0 8px 0 -3px; padding: 3px;`;
 const StyledFontFamilyIcon = styled(FontFamilyIcon)` margin: 0 8px 0 -3px; padding: 3px;`;
-const StyledTextWeightIcon = styled(TextWeigthIcon)` margin: 0 8px 0 -3px; padding: 3px;`;
+const StyledTextWeightIcon = styled(TextWeightIcon)` margin: 0 8px 0 -3px; padding: 3px;`;
 const StyledBackgroundImageIcon = styled(ImageCompIcon)` margin: 0 0px 0 -12px;`;
 
 const ResetIcon = styled(IconReset)`
@@ -527,13 +541,16 @@ export function styleControl<T extends readonly SingleColorConfig[]>(colorConfig
   const childrenMap: any = {};
   colorConfigs.map((config) => {
     const name: Names<T> = config.name;
-    if (	
+    if (
       name === "radius" ||
       name === "borderWidth" ||
       name === "cardRadius" ||
-      name === "textSize" || 
+      name === "textSize" ||
       name === "textWeight" ||
+      name === "textTransform" ||
+      name === "textDecoration" ||
       name === "fontFamily" ||
+      name === "fontStyle" ||
       name === "backgroundImage" ||
       name === "backgroundImageRepeat" ||
       name === "backgroundImageSize" ||
@@ -549,15 +566,15 @@ export function styleControl<T extends readonly SingleColorConfig[]>(colorConfig
       name === "footerBackgroundImageSize" ||
       name === "footerBackgroundImagePosition" ||
       name === "footerBackgroundImageOrigin" ||
-      name === "margin" || 
-      name === "padding" || 
-      name === "containerheaderpadding" || 
-      name === "containerfooterpadding" || 
-      name === "containerbodypadding"
-    ) {	
-      childrenMap[name] = StringControl;	
-    }  else {	
-      childrenMap[name] = ColorControl;	
+      name === "margin" ||
+      name === "padding" ||
+      name === "containerHeaderPadding" ||
+      name === "containerFooterPadding" ||
+      name === "containerBodyPadding"
+    ) {
+      childrenMap[name] = StringControl;
+    } else {
+      childrenMap[name] = ColorControl;
     }
   });
   // [K in Names<T>]: new (params: CompParams<any>) => ColorControl;
@@ -593,13 +610,13 @@ export function styleControl<T extends readonly SingleColorConfig[]>(colorConfig
                 onClick={() => {
                   colorConfigs.map((item) => {
                     const name: Names<T> = item.name;
-                    if (	
-                      name === "radius" ||	
-                      name === "margin" ||	
+                    if (
+                      name === "radius" ||
+                      name === "margin" ||
                       name === "padding" ||
-                      name === "containerheaderpadding"	||
-                      name === "containerfooterpadding"	||
-                      name === "containerbodypadding" ||
+                      name === "containerHeaderPadding" ||
+                      name === "containerFooterPadding" ||
+                      name === "containerBodyPadding" ||
                       name === "borderWidth" ||
                       name === "backgroundImage" ||
                       name === "backgroundImageRepeat" ||
@@ -653,115 +670,130 @@ export function styleControl<T extends readonly SingleColorConfig[]>(colorConfig
                 }
                 return controlItem(
                   { filterText: config.label },
-                  <div key={index}>	
+                  <div key={index}>
                     {(name === "radius" ||
-                    name === "gap" ||	
-                    name === "cardRadius")
-                      ? (	
-                          children[name] as InstanceType<typeof StringControl>	
-                        ).propertyView({	
-                          label: config.label,	
-                          preInputNode: <RadiusIcon title="Radius" />,	
-                          placeholder: props[name],	
-                        })
-                        : name === "borderWidth"
-                        ? (	
-                            children[name] as InstanceType<typeof StringControl>	
-                          ).propertyView({	
-                            label: config.label,	
-                            preInputNode: <BorderIcon title="Border-Width" />,	
-                            placeholder: props[name],	
-                          })
-                      : name === "margin"	
-                      ? (	
-                          children[name] as InstanceType<typeof StringControl>	
-                        ).propertyView({	
-                          label: config.label,	
-                          preInputNode: <MarginIcon title="Margin" />,	
-                          placeholder: props[name],	
-                        })	
-                      : (name === "padding" ||
-                      name === "containerheaderpadding"	||
-                      name === "containerfooterpadding"	||
-                      name === "containerbodypadding")
-                      ? (	
-                          children[name] as InstanceType<typeof StringControl>	
-                        ).propertyView({	
-                          label: config.label,	
-                          preInputNode: <PaddingIcon title="Padding" />,	
-                          placeholder: props[name],	
-                        })	
-                      : name === "textSize"
-                      ? (	
-                          children[name] as InstanceType<typeof StringControl>	
-                        ).propertyView({	
-                          label: config.label,	
-                          preInputNode: <StyledTextSizeIcon title="Font Size" />,	
-                          placeholder: props[name],	
-                        })
-                      : name === "textWeight"
-                      ? (	
-                          children[name] as InstanceType<typeof StringControl>	
-                        ).propertyView({	
-                          label: config.label,	
-                          preInputNode: <StyledTextWeightIcon title="Font Weight" />,	
-                          placeholder: props[name],	
-                        })
-                      : name === "fontFamily"
-                      ? (	
-                          children[name] as InstanceType<typeof StringControl>	
-                        ).propertyView({	
+                      name === "gap" ||
+                      name === "cardRadius")
+                      ? (
+                        children[name] as InstanceType<typeof StringControl>
+                      ).propertyView({
+                        label: config.label,
+                        preInputNode: <RadiusIcon title="Radius" />,
+                        placeholder: props[name],
+                      })
+                      : name === "borderWidth"
+                        ? (
+                          children[name] as InstanceType<typeof StringControl>
+                        ).propertyView({
                           label: config.label,
-                          preInputNode: <StyledFontFamilyIcon title="Font Family" />,	
-                          placeholder: props[name],	
+                          preInputNode: <BorderIcon title="Border-Width" />,
+                          placeholder: props[name],
                         })
-                      : name === "backgroundImage" || name === "headerBackgroundImage" || name === "footerBackgroundImage"
-                      ? (	
-                          children[name] as InstanceType<typeof StringControl>	
-                        ).propertyView({	
-                          label: config.label,	
-                          preInputNode: <StyledBackgroundImageIcon title="Background Image" />,	
-                          placeholder: props[name],	
-                        })
-                      : name === "backgroundImageRepeat" || name === "headerBackgroundImageRepeat" || name === "footerBackgroundImageRepeat"
-                      ? (	
-                          children[name] as InstanceType<typeof StringControl>	
-                        ).propertyView({	
-                          label: config.label,	
-                          preInputNode: <StyledBackgroundImageIcon title="Background Image Repeat" />,	
-                          placeholder: props[name],	
-                        })
-                      : name === "backgroundImageSize" || name === "headerBackgroundImageSize" || name === "footerBackgroundImageSize"
-                      ? (	
-                          children[name] as InstanceType<typeof StringControl>	
-                        ).propertyView({	
-                          label: config.label,	
-                          preInputNode: <StyledBackgroundImageIcon title="Background Image Size" />,	
-                          placeholder: props[name],	
-                        })
-                      : name === "backgroundImagePosition" || name === "headerBackgroundImagePosition" || name === "footerBackgroundImagePosition"
-                      ? (	
-                          children[name] as InstanceType<typeof StringControl>	
-                        ).propertyView({	
-                          label: config.label,	
-                          preInputNode: <StyledBackgroundImageIcon title="Background Image Position" />,	
-                          placeholder: props[name],	
-                        })
-                      : name === "backgroundImageOrigin" || name === "headerBackgroundImageOrigin" || name === "footerBackgroundImageOrigin"
-                      ? (	
-                          children[name] as InstanceType<typeof StringControl>	
-                        ).propertyView({	
-                          label: config.label,	
-                          preInputNode: <StyledBackgroundImageIcon title="Background Image Origin" />,	
-                          placeholder: props[name],	
-                        })
-                      : children[name].propertyView({	
-                          label: config.label,	
-                          panelDefaultColor: props[name],	
-                          // isDep: isDepColorConfig(config),	
-                          isDep: true,	
-                          depMsg: depMsg,	
-                        })}	
+                        : name === "margin"
+                          ? (
+                            children[name] as InstanceType<typeof StringControl>
+                          ).propertyView({
+                            label: config.label,
+                            preInputNode: <MarginIcon title="Margin" />,
+                            placeholder: props[name],
+                          })
+                          : (name === "padding" ||
+                            name === "containerheaderpadding" ||
+                            name === "containerfooterpadding" ||
+                            name === "containerbodypadding")
+                            ? (
+                              children[name] as InstanceType<typeof StringControl>
+                            ).propertyView({
+                              label: config.label,
+                              preInputNode: <PaddingIcon title="Padding" />,
+                              placeholder: props[name],
+                            })
+                            : name === "textSize" ||
+                              name === "padding" ||
+                              name === "containerHeaderPadding" ||
+                              name === "containerFooterPadding" ||
+                              name === "containerBodyPadding"
+                              ? (
+                                children[name] as InstanceType<typeof StringControl>
+                              ).propertyView({
+                                label: config.label,
+                                preInputNode: <StyledTextSizeIcon title="Font Size" />,
+                                placeholder: props[name],
+                              })
+                              : name === "textWeight"
+                                ? (
+                                  children[name] as InstanceType<typeof StringControl>
+                                ).propertyView({
+                                  label: config.label,
+                                  preInputNode: <StyledTextWeightIcon title="Font Weight" />,
+                                  placeholder: props[name],
+                                })
+                                : name === "fontFamily"
+                                  ? (
+                                    children[name] as InstanceType<typeof StringControl>
+                                  ).propertyView({
+                                    label: config.label,
+                                    preInputNode: <StyledFontFamilyIcon title="Font Family" />,
+                                    placeholder: props[name],
+                                  })
+                                  : name === "fontStyle"
+                                    ? (
+                                      children[name] as InstanceType<typeof StringControl>
+                                    ).propertyView({
+                                      label: config.label,
+                                      preInputNode: <StyledFontFamilyIcon title="Font Style" />,
+                                      placeholder: props[name],
+                                    })
+                                    : name === "backgroundImage" || name === "headerBackgroundImage" || name === "footerBackgroundImage"
+                                      ? (
+                                        children[name] as InstanceType<typeof StringControl>
+                                      ).propertyView({
+                                        label: config.label,
+                                        preInputNode: <StyledBackgroundImageIcon title="Background Image" />,
+                                        placeholder: props[name],
+                                      })
+                                      : name === "backgroundImageRepeat" || name === "headerBackgroundImageRepeat" || name === "footerBackgroundImageRepeat"
+                                        ? (
+                                          children[name] as InstanceType<typeof StringControl>
+                                        ).propertyView({
+                                          label: config.label,
+                                          preInputNode: <StyledBackgroundImageIcon title="Background Image Repeat" />,
+                                          placeholder: props[name],
+                                        })
+                                        : name === "backgroundImageSize" || name === "headerBackgroundImageSize" || name === "footerBackgroundImageSize"
+                                          ? (
+                                            children[name] as InstanceType<typeof StringControl>
+                                          ).propertyView({
+                                            label: config.label,
+                                            preInputNode: <StyledBackgroundImageIcon title="Background Image Size" />,
+                                            placeholder: props[name],
+                                          })
+                                          : name === "backgroundImagePosition" || name === "headerBackgroundImagePosition" || name === "footerBackgroundImagePosition"
+                                            ? (
+                                              children[name] as InstanceType<typeof StringControl>
+                                            ).propertyView({
+                                              label: config.label,
+                                              preInputNode: <StyledBackgroundImageIcon title="Background Image Position" />,
+                                              placeholder: props[name],
+                                            })
+                                            : name === "backgroundImageOrigin" || name === "headerBackgroundImageOrigin" || name === "footerBackgroundImageOrigin"
+                                              ? (
+                                                children[name] as InstanceType<typeof StringControl>
+                                              ).propertyView({
+                                                label: config.label,
+                                                preInputNode: <StyledBackgroundImageIcon title="Background Image Origin" />,
+                                                placeholder: props[name],
+                                              })
+                                              : children[name].propertyView({
+                                                label: config.label,
+                                                panelDefaultColor: props[name],
+                                                // isDep: isDepColorConfig(config),	
+                                                isDep: true,
+                                                depMsg: depMsg,
+                                              })
+
+                    }
+
                   </div>
                 );
               })}

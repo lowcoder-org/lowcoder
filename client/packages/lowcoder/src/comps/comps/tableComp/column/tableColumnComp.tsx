@@ -21,7 +21,7 @@ import {
   withFunction,
   wrapChildAction,
 } from "lowcoder-core";
-import { AlignClose, AlignLeft, AlignRight, IconRadius, BorderWidthIcon, TextSizeIcon, FontFamilyIcon, TextWeigthIcon, ImageCompIcon, controlItem } from "lowcoder-design";
+import { AlignClose, AlignLeft, AlignRight, IconRadius, BorderWidthIcon, TextSizeIcon, FontFamilyIcon, TextWeightIcon, ImageCompIcon, controlItem, Dropdown, OptionType } from "lowcoder-design";
 import { ColumnTypeComp, ColumnTypeCompMap } from "./columnTypeComp";
 import { ColorControl } from "comps/controls/colorControl";
 import { JSONValue } from "util/jsonTypes";
@@ -108,6 +108,7 @@ export const columnChildrenMap = {
   textSize: withDefault(RadiusControl, ""),
   textWeight: withDefault(StringControl, "normal"),
   fontFamily: withDefault(StringControl, "sans-serif"),
+  fontStyle: withDefault(StringControl, 'normal'),
   cellColor: CellColorComp,
   textOverflow: withDefault(TextOverflowControl, "ellipsis"),
   linkColor: withDefault(ColorControl, "#3377ff"),
@@ -119,7 +120,7 @@ const StyledBorderRadiusIcon = styled(IconRadius)` width: 24px; margin: 0 8px 0 
 const StyledBorderIcon = styled(BorderWidthIcon)` width: 24px; margin: 0 8px 0 -3px; padding: 3px;`;
 const StyledTextSizeIcon = styled(TextSizeIcon)` width: 24px; margin: 0 8px 0 -3px; padding: 3px;`;
 const StyledFontFamilyIcon = styled(FontFamilyIcon)` width: 24px; margin: 0 8px 0 -3px; padding: 3px;`;
-const StyledTextWeightIcon = styled(TextWeigthIcon)` width: 24px; margin: 0 8px 0 -3px; padding: 3px;`;
+const StyledTextWeightIcon = styled(TextWeightIcon)` width: 24px; margin: 0 8px 0 -3px; padding: 3px;`;
 const StyledBackgroundImageIcon = styled(ImageCompIcon)` width: 24px; margin: 0 0px 0 -12px;`;
 
 /**
@@ -155,10 +156,10 @@ export class ColumnComp extends ColumnInitComp {
         )
       );
     }
-    if(action.type === CompActionTypes.CHANGE_VALUE) {
+    if (action.type === CompActionTypes.CHANGE_VALUE) {
       const title = comp.children.title.unevaledValue;
       const dataIndex = comp.children.dataIndex.getView();
-      if(!Boolean(title)) {
+      if (!Boolean(title)) {
         comp.children.title.dispatchChangeValueAction(dataIndex);
       }
     }
@@ -189,12 +190,39 @@ export class ColumnComp extends ColumnInitComp {
 
   propertyView(key: string) {
     const columnType = this.children.render.getSelectedComp().getComp().children.compType.getView();
+    const initialColumns = this.children.render.getSelectedComp().getParams()?.initialColumns as OptionType[] || [];
+    const column = this.children.render.getSelectedComp().getComp().toJsonValue();
+    let columnValue = '{{currentCell}}';
+    if (column.comp?.hasOwnProperty('src')) {
+      columnValue = (column.comp as any).src;
+    } else if (column.comp?.hasOwnProperty('text')) {
+      columnValue = (column.comp as any).text;
+    }
+
     return (
       <>
         {this.children.title.propertyView({
           label: trans("table.columnTitle"),
           placeholder: this.children.dataIndex.getView(),
         })}
+        <Dropdown
+          showSearch={true}
+          defaultValue={columnValue}
+          options={initialColumns}
+          label={trans("table.dataMapping")}
+          onChange={(value) => {
+            // Keep the previous text value, some components do not have text, the default value is currentCell
+            const compType = columnType;
+            let comp: Record<string, string> = { text: value};
+            if(columnType === 'image') {
+              comp = { src: value };
+            }
+            this.children.render.dispatchChangeValueAction({
+              compType,
+              comp,
+            } as any);
+          }}
+        />
         {/* FIXME: cast type currently, return type of withContext should be corrected later */}
         {this.children.render.getPropertyView()}
         {this.children.showTitle.propertyView({
@@ -223,10 +251,10 @@ export class ColumnComp extends ColumnInitComp {
         })}
         {this.children.autoWidth.getView() === "fixed" &&
           this.children.width.propertyView({ label: trans("prop.width") })}
-        
+
         {(columnType === 'link' || columnType === 'links') && (
           <>
-            <Divider style={{margin: '12px 0'}} />
+            <Divider style={{ margin: '12px 0' }} />
             {controlItem({}, (
               <div>
                 <b>{"Link Style"}</b>
@@ -243,10 +271,10 @@ export class ColumnComp extends ColumnInitComp {
             })}
           </>
         )}
-        <Divider style={{margin: '12px 0'}} />
+        <Divider style={{ margin: '12px 0' }} />
         {controlItem({}, (
           <div>
-             <b>{"Column Style"}</b>
+            <b>{"Column Style"}</b>
           </div>
         ))}
         {this.children.background.propertyView({
@@ -260,28 +288,33 @@ export class ColumnComp extends ColumnInitComp {
         })}
         {this.children.borderWidth.propertyView({
           label: trans('style.borderWidth'),
-          preInputNode: <StyledBorderIcon as={BorderWidthIcon} title="" />,	
+          preInputNode: <StyledBorderIcon as={BorderWidthIcon} title="" />,
           placeholder: '1px',
         })}
         {this.children.radius.propertyView({
           label: trans('style.borderRadius'),
-          preInputNode: <StyledBorderRadiusIcon as={IconRadius} title="" />,	
+          preInputNode: <StyledBorderRadiusIcon as={IconRadius} title="" />,
           placeholder: '3px',
         })}
         {this.children.textSize.propertyView({
           label: trans('style.textSize'),
-          preInputNode: <StyledTextSizeIcon as={TextSizeIcon} title="" />,	
+          preInputNode: <StyledTextSizeIcon as={TextSizeIcon} title="" />,
           placeholder: '14px',
         })}
         {this.children.textWeight.propertyView({
           label: trans('style.textWeight'),
-          preInputNode: <StyledTextWeightIcon as={TextWeigthIcon} title="" />,	
+          preInputNode: <StyledTextWeightIcon as={TextWeightIcon} title="" />,
           placeholder: 'normal',
         })}
         {this.children.fontFamily.propertyView({
           label: trans('style.fontFamily'),
-          preInputNode: <StyledFontFamilyIcon as={FontFamilyIcon} title="" />,	
+          preInputNode: <StyledFontFamilyIcon as={FontFamilyIcon} title="" />,
           placeholder: 'sans-serif',
+        })}
+        {this.children.fontStyle.propertyView({
+          label: trans('style.fontStyle'),
+          preInputNode: <StyledFontFamilyIcon as={FontFamilyIcon} title="" />,
+          placeholder: 'normal'
         })}
         {this.children.textOverflow.getPropertyView()}
         {this.children.cellColor.getPropertyView()}

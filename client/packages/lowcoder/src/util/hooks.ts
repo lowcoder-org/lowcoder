@@ -25,7 +25,7 @@ export function isUserViewMode(params?: AppPathParams) {
     return false;
   }
   const { viewMode } = params;
-  return viewMode === "preview" || viewMode === "view";
+  return viewMode === "preview" || viewMode === "view" || viewMode === "view_marketplace";
 }
 
 /**

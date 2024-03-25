@@ -14,6 +14,8 @@ import {
   IMPORT_APP_FROM_TEMPLATE_URL,
   INVITE_LANDING_URL,
   isAuthUnRequired,
+  MARKETPLACE_TYPE_URL,
+  MARKETPLACE_URL,
   ORG_AUTH_LOGIN_URL,
   ORG_AUTH_REGISTER_URL,
   QUERY_LIBRARY_URL,
@@ -94,6 +96,10 @@ class AppIndex extends React.Component<AppIndexProps, any> {
   render() {
     const isTemplate = hasQueryParam("template");
     const pathname = history.location.pathname;
+
+    // we check if we are on the public cloud
+    const isLowCoderDomain = window.location.hostname === 'app.lowcoder.cloud';
+
     // make sure all users in this app have checked login info
     if (!this.props.isFetchUserFinished) {
       const hideLoadingHeader = isTemplate || isAuthUnRequired(pathname);
@@ -105,6 +111,16 @@ class AppIndex extends React.Component<AppIndexProps, any> {
           {<title>{this.props.brandName}</title>}
           {<link rel="icon" href={this.props.favicon} />}
           <meta name="description" content={trans("productDesc")} />
+          {isLowCoderDomain && [
+            // Adding Support for iframely to be able to embedd the component explorer in the docu
+            <meta key="iframely:title" property="iframely:title" content="Lowcoder" />,
+            <meta key="iframely:description" property="iframely:description" content="Lowcoder | rapid App & VideoMeeting builder for everyone." />,
+            <link key="preconnect-googleapis" rel="preconnect" href="https://fonts.googleapis.com" />,
+            <link key="preconnect-gstatic" rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />,
+            <link key="font-ubuntu" href="https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,700;1,400&display=swap" rel="stylesheet" />,
+            // adding Clearbit Support for Analytics
+            <script key="clearbit-script" src="https://tag.clearbitscripts.com/v1/pk_931b51e405557300e6a7c470e8247d5f/tags.js" referrerPolicy="strict-origin-when-cross-origin" type="text/javascript"></script>
+          ]}
         </Helmet>
         <SystemWarning />
         <Router history={history}>
@@ -138,6 +154,7 @@ class AppIndex extends React.Component<AppIndexProps, any> {
                 FOLDER_URL,
                 TRASH_URL,
                 SETTING,
+                MARKETPLACE_URL,
               ]}
               // component={ApplicationListPage}
               component={ApplicationHome}

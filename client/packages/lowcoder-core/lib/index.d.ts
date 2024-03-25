@@ -454,7 +454,7 @@ declare enum CompActionTypes {
      * broadcast other actions in comp tree structure.
      * used for encapsulate MultiBaseComp
      */
-    BROADCAST = "BROADCAST"
+    BROADCAST = "BROADCAST",
 }
 type ExtraActionType = "layout" | "delete" | "add" | "modify" | "rename" | "recover" | "upgrade";
 type ActionExtraInfo = {

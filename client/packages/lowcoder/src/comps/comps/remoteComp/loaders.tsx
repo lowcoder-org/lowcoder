@@ -1,15 +1,25 @@
 import { NPM_PLUGIN_ASSETS_BASE_URL } from "constants/npmPlugins";
 import { trans } from "i18n";
 import { CompConstructor } from "lowcoder-core";
-import { RemoteCompInfo, RemoteCompLoader, RemoteCompSource } from "types/remoteComp";
+import {
+  RemoteCompInfo,
+  RemoteCompLoader,
+  RemoteCompSource,
+} from "types/remoteComp";
 
-async function npmLoader(remoteInfo: RemoteCompInfo): Promise<CompConstructor | null> {
-  const { packageName, packageVersion = "latest", compName } = remoteInfo;
-  const entry = `${NPM_PLUGIN_ASSETS_BASE_URL}/${packageName}@${packageVersion}/index.js`;
-  // console.log("Entry", entry);
+async function npmLoader(
+  remoteInfo: RemoteCompInfo
+): Promise<CompConstructor | null> {
+
+  console.log("remoteInfo: ", remoteInfo);
+
+  // Falk: removed "packageVersion = "latest" as default value fir packageVersion - to ensure no automatic version jumping.
+  const localPackageVersion = remoteInfo.packageVersion || "latest";
+  const { packageName, packageVersion, compName } = remoteInfo;
+  const entry = `${NPM_PLUGIN_ASSETS_BASE_URL}/${packageName}@${localPackageVersion}/index.js`;
+
   try {
     const module = await import(/* webpackIgnore: true */ entry);
-    // console.log("Entry 1", module);
     const comp = module.default?.[compName];
     if (!comp) {
       throw new Error(trans("npm.compNotFound", { compName }));
@@ -21,7 +31,9 @@ async function npmLoader(remoteInfo: RemoteCompInfo): Promise<CompConstructor | 
   }
 }
 
-async function bundleLoader(remoteInfo: RemoteCompInfo): Promise<CompConstructor | null> {
+async function bundleLoader(
+  remoteInfo: RemoteCompInfo
+): Promise<CompConstructor | null> {
   const { packageName, packageVersion = "latest", compName } = remoteInfo;
   const entry = `/${packageName}/${packageVersion}/index.js?v=${REACT_APP_COMMIT_ID}`;
   const module = await import(/* webpackIgnore: true */ entry);

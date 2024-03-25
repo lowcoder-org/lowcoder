@@ -104,12 +104,17 @@ export const en = {
     "components": "Active Components",
     "modals": "in-App Modals",
     "expandTip": "Click to Expand {component}'s Data",
-    "collapseTip": "Click to Collapse {component}'s Data"
+    "collapseTip": "Click to Collapse {component}'s Data",
+    "layers": "Layers",
+    "activatelayers": "Use dynamic Layers",
+    "selectedComponents": "Selected Components...",
+    "displayComponents": "control Display",
+    "lockComponents": "control Position",
   },
 
   // second part
 
-  
+
   "bottomPanel": {
     "title": "Data Queries",
     "run": "Run",
@@ -188,6 +193,7 @@ export const en = {
     "maskClosable": "Click Outside to Close",
     "showMask": "Show Mask",
     "textOverflow": "Text Overflow",
+    "scrollbar" : "Show Scrollbars",
   },
   "autoHeightProp": {
     "auto": "Auto",
@@ -296,7 +302,7 @@ export const en = {
     "marginDesc": "Default margin typically used for most components",
     "padding": "Padding",
     "paddingDesc": "Default padding typically used for most components",
-    "containerheaderpadding": "Header Padding",
+    "containerHeaderPadding": "Header Padding",
     "containerheaderpaddingDesc": "Default header padding typically used for most components",
     "gridColumns": "Grid Columns",
     "gridColumnsDesc": "Default number of columns typically used for most containers"
@@ -339,6 +345,9 @@ export const en = {
     "tableCellText": "Cell Text",
     "selectedRowBackground": "Selected Row Background",
     "hoverRowBackground": "Hover Row Background",
+    "hoverBackground":"Hover Background",
+    "textTransform":"Text Transform",
+    "textDecoration":"Text Decoration",
     "alternateRowBackground": "Alternate Row Background",
     "tableHeaderBackground": "Header Background",
     "tableHeaderText": "Header Text",
@@ -353,14 +362,15 @@ export const en = {
     "marginRight": "Margin Right",
     "marginTop": "Margin Top",
     "marginBottom": "Margin Bottom",
-    "containerheaderpadding": "Header Padding",
-    "containerfooterpadding": "Footer Padding",
-    "containerbodypadding": "Body Padding",
+    "containerHeaderPadding": "Header Padding",
+    "containerFooterPadding": "Footer Padding",
+    "containerBodyPadding": "Body Padding",
     "minWidth": "Minimum Width",
     "aspectRatio": "Aspect Ratio",
     "textSize": "Text Size",
     "textWeight": "Text Weight",
     "fontFamily": "Font Family",
+    "fontStyle":"Font Style",
     "backgroundImage": "BG Image",
     "backgroundImageRepeat": "BG Repeat",
     "backgroundImageSize": "BG Size",
@@ -691,119 +701,119 @@ export const en = {
     "autoCompleteCompName": "Auto Complete",
     "autoCompleteCompDesc": "An input field that provides suggestions as you type, enhancing user experience and accuracy.",
     "autoCompleteCompKeywords": "suggestions, autocomplete, typing, input",
-    
+
     "inputCompName": "Input",
     "inputCompDesc": "A basic text input field allowing users to enter and edit text.",
     "inputCompKeywords": "text, input, field, edit",
-    
+
     "textAreaCompName": "Text Area",
     "textAreaCompDesc": "A multi-line text input for longer form content, such as comments or descriptions.",
     "textAreaCompKeywords": "multiline, textarea, input, text",
-    
+
     "passwordCompName": "Password",
     "passwordCompDesc": "A secure field for password input, masking the characters for privacy.",
     "passwordCompKeywords": "password, security, input, hidden",
-    
+
     "richTextEditorCompName": "Rich Text Editor",
     "richTextEditorCompDesc": "An advanced text editor supporting rich formatting options like bold, italics, and lists.",
     "richTextEditorCompKeywords": "editor, text, formatting, rich content",
-    
+
     "numberInputCompName": "Number Input",
     "numberInputCompDesc": "A field specifically for numerical input, with controls for incrementing and decrementing values.",
     "numberInputCompKeywords": "number, input, increment, decrement",
-    
+
     "sliderCompName": "Slider",
     "sliderCompDesc": "A graphical slider component for selecting a value or range within a defined scale.",
     "sliderCompKeywords": "slider, range, input, graphical",
-    
+
     "rangeSliderCompName": "Range Slider",
     "rangeSliderCompDesc": "A dual-handle slider to select a range of values, useful for filtering or setting limits.",
     "rangeSliderCompKeywords": "range, slider, dual-handle, filter",
-    
+
     "ratingCompName": "Rating",
     "ratingCompDesc": "A component for capturing user ratings, displayed as stars.",
     "ratingCompKeywords": "rating, stars, feedback, input",
-    
+
     "switchCompName": "Switch",
     "switchCompDesc": "A toggle switch for on/off or yes/no type decisions.",
     "switchCompKeywords": "toggle, switch, on/off, control",
-    
+
     "selectCompName": "Select",
     "selectCompDesc": "A dropdown menu for selecting from a list of options.",
     "selectCompKeywords": "dropdown, select, options, menu",
-    
+
     "multiSelectCompName": "Multiselect",
     "multiSelectCompDesc": "A component that allows selection of multiple items from a dropdown list.",
     "multiSelectCompKeywords": "multiselect, multiple, dropdown, choices",
-    
+
     "cascaderCompName": "Cascader",
     "cascaderCompDesc": "A multi-level dropdown for hierarchical data selection, such as selecting a location.",
     "cascaderCompKeywords": "cascader, hierarchical, dropdown, levels",
-    
+
     "checkboxCompName": "Checkbox",
     "checkboxCompDesc": "A standard checkbox for options that can be selected or deselected.",
     "checkboxCompKeywords": "checkbox, options, select, toggle",
-    
+
     "radioCompName": "Radio",
     "radioCompDesc": "Radio buttons for selecting one option from a set, where only one choice is allowed.",
     "radioCompKeywords": "radio, buttons, select, single choice",
-    
+
     "segmentedControlCompName": "Segmented Control",
     "segmentedControlCompDesc": "A control with segmented options for quickly toggling between multiple choices.",
     "segmentedControlCompKeywords": "segmented, control, toggle, options",
-    
+
     "fileUploadCompName": "File Upload",
     "fileUploadCompDesc": "A component for uploading files, with support for drag-and-drop and file selection.",
     "fileUploadCompKeywords": "file, upload, drag and drop, select",
-    
+
     "dateCompName": "Date",
     "dateCompDesc": "A date picker component for selecting dates from a calendar interface.",
     "dateCompKeywords": "date, picker, calendar, select",
-    
+
     "dateRangeCompName": "Date Range",
     "dateRangeCompDesc": "A component for selecting a range of dates, useful for booking systems or filters.",
     "dateRangeCompKeywords": "daterange, select, booking, filter",
-    
+
     "timeCompName": "Time",
     "timeCompDesc": "A time selection component for choosing specific times of the day.",
     "timeCompKeywords": "time, picker, select, clock",
-    
+
     "timeRangeCompName": "Time Range",
     "timeRangeCompDesc": "A component for selecting a range of time, often used in scheduling applications.",
     "timeRangeCompKeywords": "timerange, select, scheduling, duration",
-    
+
     "buttonCompName": "Form Button",
     "buttonCompDesc": "A versatile button component for submitting forms, triggering actions, or navigating.",
     "buttonCompKeywords": "button, submit, action, navigate",
-    
+
     "linkCompName": "Link",
     "linkCompDesc": "A hyperlink display component for navigation or linking to external resources.",
     "linkCompKeywords": "link, hyperlink, navigation, external",
-    
+
     "scannerCompName": "Scanner",
     "scannerCompDesc": "A component for scanning barcodes, QR codes, and other similar data.",
     "scannerCompKeywords": "scanner, barcode, QR code, scan",
-    
+
     "dropdownCompName": "Dropdown",
     "dropdownCompDesc": "A dropdown menu for compactly displaying a list of options.",
     "dropdownCompKeywords": "dropdown, menu, options, select",
-    
+
     "toggleButtonCompName": "Toggle Button",
     "toggleButtonCompDesc": "A button that can toggle between two states or options.",
     "toggleButtonCompKeywords": "toggle, button, switch, state",
-    
+
     "textCompName": "Text Display",
     "textCompDesc": "A simple component for displaying static or dynamic text content inclusive Markdown formatting.",
     "textCompKeywords": "text, display, static, dynamic",
-    
+
     "tableCompName": "Table",
     "tableCompDesc": "A rich table component for displaying data in a structured table format, with options for sorting and filtering, tree Data display and extensible Rows.",
     "tableCompKeywords": "table, data, sorting, filtering",
-    
+
     "imageCompName": "Image",
     "imageCompDesc": "A component for displaying images, supporting various formats based on URI or Base64 Data.",
     "imageCompKeywords": "image, display, media, Base64",
-    
+
     "progressCompName": "Progress",
     "progressCompDesc": "A visual indicator of progress, typically used to show the completion status of a task.",
     "progressCompKeywords": "progress, indicator, status, task",
@@ -942,7 +952,11 @@ export const en = {
 
     "responsiveLayoutCompName": "Responsive Layout",
     "responsiveLayoutCompDesc": "A layout component designed to adapt and respond to different screen sizes and devices, ensuring a consistent user experience.",
-    "responsiveLayoutCompKeywords": "responsive, layout, adapt, screen size"
+    "responsiveLayoutCompKeywords": "responsive, layout, adapt, screen size",
+
+    "iconCompName": "Icons",
+    "iconCompDesc": "Use various Icons to enhance the visual appeal and user experience of your application.",
+    "iconCompKeywords": "Icons, pictograms, symbols, shapes",
   },
 
 
@@ -1062,7 +1076,11 @@ export const en = {
 
   // ninth part
 
-
+  "iconComp": {
+    "icon": "Icon",
+    "autoSize": "Icon AutoSize",
+    "iconSize": "Icon Size",
+  },
   "numberInput": {
     "formatter": "Format",
     "precision": "Precision",
@@ -1258,6 +1276,7 @@ export const en = {
     "auto": "Auto",
     "fixed": "Fixed",
     "columnType": "Column Type",
+    "dataMapping": "Data Mapping",
     "numberStep": "Step",
     "numberStepTooltip": "The number to which the current value is increased or decreased. It can be an integer or decimal",
     "precision": "Precision",
@@ -1484,6 +1503,7 @@ export const en = {
     "title": "Displayed Container Title"
   },
   "drawer": {
+    "closePosition": "Close Button Placement",
     "placement": "Drawer Placement",
     "size": "Size",
     "top": "Top",
@@ -1561,7 +1581,7 @@ export const en = {
     "advanced": "Advanced",
     "lab": "Lab",
     "branding": "Branding",
-    "oauthProviders": "OAuth Providers",
+    "oauthProviders": "User Authentication",
     "appUsage": "App Usage Logs",
     "environments": "Environments",
     "premium": "Premium"
@@ -1758,6 +1778,15 @@ export const en = {
   },
   "messageComp": {
     "info": "Send a Notification",
+    "loading": "Send a Loading Notification",
+    "success": "Send a Success Notification",
+    "warn": "Send a Warning Notification",
+    "error": "Send an Error Notification"
+  },
+  "toastComp": {
+    "destroy": "close a Notification",
+    "info": "Send a Notification",
+    "loading": "Send a Loading Notification",
     "success": "Send a Success Notification",
     "warn": "Send a Warning Notification",
     "error": "Send an Error Notification"
@@ -1892,7 +1921,11 @@ export const en = {
     "preloadLibsAddBtn": "Add a Library",
     "saveSuccess": "Saved Successfully",
     "AuthOrgTitle": "Workspace Welcome Screen",
-    "AuthOrgDescrition": "The URL for Your Users to Sign In to the Current Workspace."
+    "AuthOrgDescrition": "The URL for Your Users to Sign In to the Current Workspace.",
+    "APIConsumption": "API Consumption",
+    "APIConsumptionDescription": "Here you can see the API Consumption for All Apps in the Current Workspace.",
+    "overallAPIConsumption": "Overall API Consumption in this Workspace till now",
+    "lastMonthAPIConsumption": "Last Month API Consumption, in this Workspace"
   },
 
 
@@ -2012,7 +2045,10 @@ export const en = {
     "maxWidthTip": "Max Width Should Be Greater Than or Equal to 350",
     "themeSetting": "Applied Style Theme",
     "themeSettingDefault": "Default",
-    "themeCreate": "Create Theme"
+    "themeCreate": "Create Theme",
+    "appTitle": "Title",
+    "appDescription": "Description",
+    "appCategory": "Category",
   },
   "customShortcut": {
     "title": "Custom Shortcuts",
@@ -2096,7 +2132,7 @@ export const en = {
 
 
   // eighteenth part
-  
+
 
   "help": {
     "videoText": "Overview",
@@ -2223,12 +2259,14 @@ export const en = {
     "history": "History"
   },
   "home": {
-    "allApplications": "All Apps",
-    "allModules": "All Modules",
+    "allApplications": "Your Apps",
+    "allModules": "Your Modules",
     "allFolders": "All Folders",
     "modules": "Modules",
     "module": "Module",
     "trash": "Trash",
+    "marketplace": "Marketplace",
+    "allCategories": "All Categories",
     "queryLibrary": "Query Library",
     "datasource": "Data Sources",
     "selectDatasourceType": "Select Data Source Type",
@@ -2288,6 +2326,14 @@ export const en = {
     "copyLink": "Copy link",
     "appPublicMessage": "Make the app public. Anyone can view.",
     "modulePublicMessage": "Make the module public. Anyone can view.",
+    "marketplaceURL": "https://api-service.lowcoder.cloud",
+    "appMarketplaceMessage": "Publish your App on Lowcoder Marketplace. Anyone can view and copy it from there.",
+    "moduleMarketplaceMessage": "Publish your Module on Lowcoder Marketplace. Anyone can view and copy it from there.",
+    "marketplaceGoodPublishing": "Please make sure your app is well-named and easy to use. Remove any sensitive information before publishing. Also, remove local datasources and replace by static built-in temporary data.",
+    "noMarketplaceApps": "No apps yet in the marketplace",
+    "errorMarketplaceApps": "Error while loading Marketplace Apps",
+    "localMarketplaceTitle": "Local Marketplace",
+    "globalMarketplaceTitle": "Lowcoder Marketplace",
     "memberPermissionList": "Member permissions: ",
     "orgName": "{orgName} admins",
     "addMember": "Add members",
@@ -2573,10 +2619,10 @@ export const en = {
     "selectBackground": "Selected Background"
   },
   "componentDocExtra": {
-    table,
+    "table": table,
   },
   "idSource": {
-    "title": "OAuth Providers",
+    "title": "User Authentication Provider",
     "form": "Email",
     "pay": "Premium",
     "enable": "Enable",
@@ -2627,7 +2673,7 @@ export const en = {
   "timeLine": {
     "titleColor": "Title Color",
     "subTitleColor": "Subtitle Color",
-    "lableColor": "Label Color",
+    "labelColor": "Label Color",
     "value": "Timeline Data",
     "mode": "Display Order",
     "left": "Content Right",
@@ -2648,7 +2694,7 @@ export const en = {
     "helpDot": "Rendering Timeline Nodes as Ant Design Icons",
     "helpTitleColor": "Individually Control the Color of Node Title",
     "helpSubTitleColor": "Individually Control the Color of Node Subtitle",
-    "helpLableColor": "Individually Control the Color of Node Icon",
+    "helpLabelColor": "Individually Control the Color of Node Icon",
     "valueDesc": "Data of Timeline",
     "clickedObjectDesc": "Clicked Item Data",
     "clickedIndexDesc": "Clicked Item Index"
@@ -2750,7 +2796,7 @@ export const en = {
     aboutUs: "https://lowcoder.cloud/about",
     changeLog: "https://github.com/lowcoder-org/lowcoder/releases",
     introVideo: "",
-    devNpmPlugin: "https://docs.lowcoder.cloud/lowcoder-extension/develop-data-source-plugins",
+    devNpmPlugin: "https://github.com/lowcoder-org/lowcoder-create-component-plugin",
     devNpmPluginText: "How to develop npm plugin",
     useHost: "https://docs.lowcoder.cloud/setup-and-run/self-hosting/access-local-database-or-api",
     eventHandlerSlowdown: "https://docs.lowcoder.cloud/build-applications/app-interaction/event-handlers",

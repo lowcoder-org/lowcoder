@@ -1,7 +1,7 @@
 import { ContainerStyleType, heightCalculator, widthCalculator } from "comps/controls/styleControlConstants";
 import { EditorContext } from "comps/editorState";
 import { BackgroundColorContext } from "comps/utils/backgroundColorContext";
-import { HintPlaceHolder } from "lowcoder-design";
+import { HintPlaceHolder, ScrollBar } from "lowcoder-design";
 import { ReactNode, useContext } from "react";
 import styled, { css } from "styled-components";
 import { checkIsMobile } from "util/commonUtils";
@@ -9,15 +9,12 @@ import { gridItemCompToGridItems, InnerGrid } from "../containerComp/containerVi
 import { TriContainerViewProps } from "../triContainerComp/triContainerCompBuilder";
 
 const getStyle = (style: ContainerStyleType) => {
-  return css` 
+  return css`
     border-color: ${style.border};
     border-width: ${style.borderWidth};
     border-radius: ${style.radius};
     overflow: hidden;
-    // margin: ${style.margin};	
-    padding: ${style.padding};	
-    // width: ${widthCalculator(style.margin)};	
-    // height: ${heightCalculator(style.margin)};
+    padding: ${style.padding};
     ${style.background && `background-color: ${style.background};`}
     ${style.backgroundImage && `background-image: ${style.backgroundImage};`}
     ${style.backgroundImageRepeat && `background-repeat: ${style.backgroundImageRepeat};`}
@@ -36,7 +33,7 @@ const Wrapper = styled.div<{ $style: ContainerStyleType }>`
   ${(props) => props.$style && getStyle(props.$style)}
 `;
 
-const HeaderInnerGrid = styled(InnerGrid)<{ 
+const HeaderInnerGrid = styled(InnerGrid)<{
   $backgroundColor: string
   $headerBackgroundImage: string;
   $headerBackgroundImageRepeat: string;
@@ -107,6 +104,7 @@ export function TriContainer(props: TriContainerProps) {
   const { showHeader, showFooter } = container;
   // When the header and footer are not displayed, the body must be displayed
   const showBody = container.showBody || (!showHeader && !showFooter);
+  const scrollbars = container.scrollbars;
 
   const { items: headerItems, ...otherHeaderProps } = container.header;
   const { items: bodyItems, ...otherBodyProps } = container.body["0"].children.view.getView();
@@ -142,34 +140,36 @@ export function TriContainer(props: TriContainerProps) {
             $headerBackgroundImageSize={headerStyle?.headerBackgroundImageSize}
             $headerBackgroundImagePosition={headerStyle?.headerBackgroundImagePosition}
             $headerBackgroundImageOrigin={headerStyle?.headerBackgroundImageOrigin}
-            style={{padding: headerStyle.containerheaderpadding}}
+            style={{padding: headerStyle.containerHeaderPadding}}
 
           />
         </BackgroundColorContext.Provider>
       )}
       {showBody && (
         <BackgroundColorContext.Provider value={bodyStyle.background}>
-          <BodyInnerGrid
-            $showBorder={showHeader}
-            {...otherBodyProps}
-            items={gridItemCompToGridItems(bodyItems)}
-            autoHeight={container.autoHeight}
-            emptyRows={14}
-            minHeight={showHeader ? "143px" : "142px"}
-            containerPadding={
-              (showHeader && showFooter) || showHeader ? [paddingWidth, 11.5] : [paddingWidth, 11]
-            }
-            hintPlaceholder={props.hintPlaceholder ?? HintPlaceHolder}
-            $backgroundColor={bodyStyle?.background || 'transparent'}
-            $borderColor={style?.border}
-            $borderWidth={style?.borderWidth}
-            $backgroundImage={bodyStyle?.backgroundImage}
-            $backgroundImageRepeat={bodyStyle?.backgroundImageRepeat}
-            $backgroundImageSize={bodyStyle?.backgroundImageSize}
-            $backgroundImagePosition={bodyStyle?.backgroundImagePosition}
-            $backgroundImageOrigin={bodyStyle?.backgroundImageOrigin}
-            style={{padding: bodyStyle.containerbodypadding}}
-          />
+            <ScrollBar style={{ height: container.autoHeight ? "auto" : "100%", margin: "0px", padding: "0px" }} hideScrollbar={!scrollbars}>
+              <BodyInnerGrid
+                $showBorder={showHeader}
+                {...otherBodyProps}
+                items={gridItemCompToGridItems(bodyItems)}
+                autoHeight={container.autoHeight}
+                emptyRows={14}
+                minHeight={showHeader ? "143px" : "142px"}
+                containerPadding={
+                  (showHeader && showFooter) || showHeader ? [paddingWidth, 11.5] : [paddingWidth, 11]
+                }
+                hintPlaceholder={props.hintPlaceholder ?? HintPlaceHolder}
+                $backgroundColor={bodyStyle?.background || 'transparent'}
+                $borderColor={style?.border}
+                $borderWidth={style?.borderWidth}
+                $backgroundImage={bodyStyle?.backgroundImage}
+                $backgroundImageRepeat={bodyStyle?.backgroundImageRepeat}
+                $backgroundImageSize={bodyStyle?.backgroundImageSize}
+                $backgroundImagePosition={bodyStyle?.backgroundImagePosition}
+                $backgroundImageOrigin={bodyStyle?.backgroundImageOrigin}
+                style={{padding: bodyStyle.containerBodyPadding}}
+              />
+            </ScrollBar>
         </BackgroundColorContext.Provider>
       )}
       {showFooter && (
@@ -191,7 +191,7 @@ export function TriContainer(props: TriContainerProps) {
             $footerBackgroundImageOrigin={footerStyle?.footerBackgroundImageOrigin}
             $borderColor={style?.border}
             $borderWidth={style?.borderWidth}
-            style={{padding: footerStyle.containerfooterpadding}}
+            style={{padding: footerStyle.containerFooterPadding}}
           />
         </BackgroundColorContext.Provider>
       )}

@@ -19,6 +19,7 @@ import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.lowcoder.domain.application.model.ApplicationRequestType;
 import org.lowcoder.domain.permission.model.ResourceAction;
 import org.lowcoder.domain.permission.model.ResourceHolder;
 import org.lowcoder.domain.permission.model.ResourcePermission;
@@ -214,12 +215,21 @@ public class ResourcePermissionService {
                 });
     }
 
-    public Mono<UserPermissionOnResourceStatus> checkUserPermissionStatusOnResource(String userId, String resourceId, ResourceAction resourceAction) {
+    public Mono<UserPermissionOnResourceStatus> checkUserPermissionStatusOnResource
+            (String userId, String resourceId, ResourceAction resourceAction) {
         ResourceType resourceType = resourceAction.getResourceType();
         var resourcePermissionHandler = getResourcePermissionHandler(resourceType);
         return resourcePermissionHandler.checkUserPermissionStatusOnResource(userId, resourceId, resourceAction);
     }
 
+    public Mono<UserPermissionOnResourceStatus> checkUserPermissionStatusOnApplication
+		    (String userId, String resourceId, ResourceAction resourceAction, ApplicationRequestType requestType) {
+		ResourceType resourceType = resourceAction.getResourceType();
+		var resourcePermissionHandler = getResourcePermissionHandler(resourceType);
+		return resourcePermissionHandler.checkUserPermissionStatusOnApplication(userId, resourceId, resourceAction, requestType);
+}
+    
+    
     public Mono<Boolean> removeUserApplicationPermission(String appId, String userId) {
         return repository.removePermissionBy(ResourceType.APPLICATION, appId, ResourceHolder.USER, userId);
     }

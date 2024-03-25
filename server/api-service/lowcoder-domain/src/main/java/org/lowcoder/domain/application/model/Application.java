@@ -12,6 +12,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
 
+import lombok.Setter;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.lowcoder.domain.query.model.ApplicationQuery;
@@ -38,7 +39,13 @@ public class Application extends HasIdAndAuditing {
 
     private final Map<String, Object> publishedApplicationDSL;
 
-    private final Boolean publicToAll;
+    @Setter
+    private Boolean publicToAll;
+    @Setter
+    private Boolean publicToMarketplace;
+    @Setter
+    private Boolean agencyProfile;
+
     private Map<String, Object> editingApplicationDSL;
 
     @Transient
@@ -69,19 +76,25 @@ public class Application extends HasIdAndAuditing {
 
     @Builder
     @JsonCreator
-    public Application(@JsonProperty("orgId") String organizationId,
+    public Application(
+            @JsonProperty("orgId") String organizationId,
             @JsonProperty("name") String name,
             @JsonProperty("applicationType") Integer applicationType,
             @JsonProperty("applicationStatus") ApplicationStatus applicationStatus,
             @JsonProperty("publishedApplicationDSL") Map<String, Object> publishedApplicationDSL,
+            @JsonProperty("editingApplicationDSL") Map<String, Object> editingApplicationDSL,
             @JsonProperty("publicToAll") Boolean publicToAll,
-            @JsonProperty("editingApplicationDSL") Map<String, Object> editingApplicationDSL) {
+            @JsonProperty("publicToMarketplace") Boolean publicToMarketplace,
+            @JsonProperty("agencyProfile") Boolean agencyProfile
+        ) {
         this.organizationId = organizationId;
         this.name = name;
         this.applicationType = applicationType;
         this.applicationStatus = applicationStatus;
         this.publishedApplicationDSL = publishedApplicationDSL;
         this.publicToAll = publicToAll;
+        this.publicToMarketplace = publicToMarketplace;
+        this.agencyProfile = agencyProfile;
         this.editingApplicationDSL = editingApplicationDSL;
     }
 
@@ -103,6 +116,14 @@ public class Application extends HasIdAndAuditing {
 
     public boolean isPublicToAll() {
         return BooleanUtils.toBooleanDefaultIfNull(publicToAll, false);
+    }
+
+    public boolean isPublicToMarketplace() {
+        return BooleanUtils.toBooleanDefaultIfNull(publicToMarketplace, false);
+    }
+
+    public boolean agencyProfile() {
+        return BooleanUtils.toBooleanDefaultIfNull(agencyProfile, false);
     }
 
     public ApplicationQuery getQueryByViewModeAndQueryId(boolean isViewMode, String queryId) {
@@ -145,4 +166,9 @@ public class Application extends HasIdAndAuditing {
     public Object getLiveContainerSize() {
         return liveContainerSize.get();
     }
+
+	public Map<String, Object> getPublishedApplicationDSL() {
+		return publishedApplicationDSL;
+	}
+
 }

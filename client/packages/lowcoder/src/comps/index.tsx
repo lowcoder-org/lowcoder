@@ -67,6 +67,7 @@ import { VideoMeetingStreamComp } from "./comps/meetingComp/videoMeetingStreamCo
 import { ControlButton } from "./comps/meetingComp/controlButton";
 import { VideoMeetingControllerComp } from "./comps/meetingComp/videoMeetingControllerComp";
 import { VideoSharingStreamComp } from "./comps/meetingComp/videoSharingStreamComp";
+import { IconComp } from "./comps/iconComp";
 
 import {
   AudioCompIcon,
@@ -132,6 +133,7 @@ import {
   AutoCompleteCompIcon,
   ResponsiveLayoutCompIcon,
   MermaidIcon,
+  IconCompIcon,
 } from "lowcoder-design";
 
 type Registry = {
@@ -359,6 +361,19 @@ var uiCompMap: Registry = {
       h: 5,
     },
   },
+  /*Layout: {
+    name: "navLayout",
+    enName: "navLayout",
+    description: trans("uiComp.navigationCompDesc"),
+    icon: NavComIcon,
+    categories: ["layout"],
+    keywords: trans("uiComp.navigationCompKeywords"),
+    comp: NavLayout,
+    layoutInfo: {
+      w: 24,
+      h: 5,
+    },
+  }, */
   cascader: {
     name: trans("uiComp.cascaderCompName"),
     enName: "Cascader",
@@ -913,6 +928,19 @@ var uiCompMap: Registry = {
     layoutInfo: {
       w: 12,
       h: 40,
+    },
+  },
+  icon: {
+    name: trans("uiComp.iconCompName"),
+    enName: "icon",
+    description: trans("uiComp.iconCompDesc"),
+    categories: ["multimedia"],
+    icon: IconCompIcon,
+    keywords: trans("uiComp.iconCompKeywords"),
+    comp: IconComp,
+    layoutInfo: {
+      w: 2,
+      h: 10,
     },
   },
   imageEditor: {

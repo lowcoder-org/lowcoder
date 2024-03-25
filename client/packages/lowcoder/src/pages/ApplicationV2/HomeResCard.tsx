@@ -11,6 +11,7 @@ import {
   handleAppEditClick,
   handleAppViewClick,
   handleFolderViewClick,
+  handleMarketplaceAppViewClick,
   HomeResInfo,
 } from "../../util/homeResUtils";
 import { HomeResOptions } from "./HomeResOptions";
@@ -72,7 +73,7 @@ const Card = styled.div`
   align-items: center;
   height: 100%;
   width: 100%;
-  border-bottom: 1px solid #f5f5f6;
+  
   padding: 0 10px;
 
   button {
@@ -177,6 +178,10 @@ export function HomeResCard(props: { res: HomeRes; onMove: (res: HomeRes) => voi
                 history.push(APPLICATION_VIEW_URL(res.id, "view"));
                 return;
               }
+              if(res.isMarketplace) {
+                handleMarketplaceAppViewClick(res.id);
+                return;
+              }
               res.isEditable ? handleAppEditClick(e, res.id) : handleAppViewClick(res.id);
             }
           }}
@@ -211,6 +216,8 @@ export function HomeResCard(props: { res: HomeRes; onMove: (res: HomeRes) => voi
             onClick={() =>
               res.type === HomeResTypeEnum.Folder
                 ? handleFolderViewClick(res.id)
+                : res.isMarketplace
+                ? handleMarketplaceAppViewClick(res.id)
                 : handleAppViewClick(res.id)
             }
           >

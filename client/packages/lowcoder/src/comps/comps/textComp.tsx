@@ -29,6 +29,9 @@ const getStyle = (style: TextStyleType) => {
     font-size: ${style.textSize} !important;
     font-weight: ${style.textWeight} !important;
     font-family: ${style.fontFamily} !important;
+    font-style:${style.fontStyle} !important;
+    text-transform:${style.textTransform} !important;
+    text-decoration:${style.textDecoration} !important;
     background-color: ${style.background};
     .markdown-body a {
       color: ${style.links};
@@ -37,7 +40,7 @@ const getStyle = (style: TextStyleType) => {
       margin: ${style.margin} !important;	
       padding: ${style.padding};	
       width: ${widthCalculator(style.margin)};	
-      height: ${heightCalculator(style.margin)};
+      // height: ${heightCalculator(style.margin)};
       h1 {
         line-height: 1.5;
       }
@@ -111,7 +114,7 @@ const VerticalAlignmentOptions = [
 ] as const;
 
 
-let TextTmpComp = (function () {  
+let TextTmpComp = (function () {
 
   const childrenMap = {
     text: stringExposingStateControl(
@@ -123,7 +126,7 @@ let TextTmpComp = (function () {
     horizontalAlignment: alignWithJustifyControl(),
     verticalAlignment: dropdownControl(VerticalAlignmentOptions, "center"),
     style: styleControl(TextStyle),
-    margin: MarginControl,	
+    margin: MarginControl,
     padding: PaddingControl,
   };
   return new UICompBuilder(childrenMap, (props) => {
@@ -145,7 +148,6 @@ let TextTmpComp = (function () {
     .setPropertyViewFn((children) => {
       return (
         <>
-        
           <Section name={sectionNames.basic}>
             {children.type.propertyView({
               label: trans("value"),
@@ -160,7 +162,7 @@ let TextTmpComp = (function () {
               {hiddenPropertyView(children)}
             </Section>
           )}
-        
+
           {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
             <>
               <Section name={sectionNames.layout}>

@@ -1,5 +1,5 @@
 import { BoolControl } from "comps/controls/boolControl";
-import { stateComp, UICompBuilder, valueComp } from "comps/generators";
+import { stateComp, UICompBuilder, valueComp, withDefault } from "comps/generators";
 import { NameGenerator } from "comps/utils";
 import { NameAndExposingInfo } from "comps/utils/exposingTypes";
 import { trans } from "i18n";
@@ -11,7 +11,7 @@ import { CompAction, CompActionTypes } from "lowcoder-core";
 import { ReactElement, useContext } from "react";
 import { ExternalEditorContext } from "util/context/ExternalEditorContext";
 import { JSONValue } from "util/jsonTypes";
-import { Section, sectionNames } from "lowcoder-design";
+import { ScrollBar, Section, sectionNames } from "lowcoder-design";
 import { getAllCompItems, IContainer } from "../containerBase";
 import { SimpleContainerComp } from "../containerBase/simpleContainerComp";
 import { GridItemsType } from "../containerComp/containerView";
@@ -67,7 +67,9 @@ function ModuleLayoutView(props: IProps) {
 
   if (readOnly) {
     return (
-      <ModulePreviewWrapper className={CNRootContainer}>{props.containerView}</ModulePreviewWrapper>
+      <ScrollBar style={{ height: "100%", margin: "0px", padding: "0px" }}>
+        <ModulePreviewWrapper className={CNRootContainer}>{props.containerView}</ModulePreviewWrapper>
+      </ScrollBar>
     );
   }
 
@@ -113,26 +115,30 @@ export class ModuleLayoutComp extends ModuleLayoutCompBase implements IContainer
     const isRowCountLocked = this.children.autoScaleCompHeight.getView();
     const rowCount = this.children.containerRowCount.getView();
     return (
-      <ModuleLayoutView
-        positionParams={this.children.positionParams.getView()}
-        containerSize={this.children.containerSize.getView()}
-        containerView={this.children.container.containerView({
-          rowCount,
-          isRowCountLocked,
-          onRowCountChange: (rowCount) => {
-            this.children.containerRowCount.dispatchChangeValueAction(rowCount);
-          },
-        })}
-        onPositionParamsChange={(params) => {
-          setTimeout(() => this.children.positionParams.dispatchChangeValueAction(params));
-        }}
-        onLayoutChange={(layout) => {
-          this.children.containerSize.dispatchChangeValueAction({
-            height: layout[moduleContainerId].h,
-            width: layout[moduleContainerId].w,
-          });
-        }}
-      />
+      <div>
+        <ScrollBar style={{ height: "100%", margin: "0px", padding: "0px" }} hidePlaceholder={false}>
+          <ModuleLayoutView
+            positionParams={this.children.positionParams.getView()}
+            containerSize={this.children.containerSize.getView()}
+            containerView={this.children.container.containerView({
+              rowCount,
+              isRowCountLocked,
+              onRowCountChange: (rowCount) => {
+                this.children.containerRowCount.dispatchChangeValueAction(rowCount);
+              },
+            })}
+            onPositionParamsChange={(params) => {
+              setTimeout(() => this.children.positionParams.dispatchChangeValueAction(params));
+            }}
+            onLayoutChange={(layout) => {
+              this.children.containerSize.dispatchChangeValueAction({
+                height: layout[moduleContainerId].h,
+                width: layout[moduleContainerId].w,
+              });
+            }}
+          />
+        </ScrollBar>
+      </div>
     );
   }
   getPropertyView() {

@@ -16,6 +16,7 @@ import org.lowcoder.api.datasource.DatasourceApiService;
 import org.lowcoder.api.home.FolderApiService;
 import org.lowcoder.api.permission.view.PermissionItemView;
 import org.lowcoder.domain.application.model.Application;
+import org.lowcoder.domain.application.model.ApplicationRequestType;
 import org.lowcoder.domain.application.model.ApplicationStatus;
 import org.lowcoder.domain.application.model.ApplicationType;
 import org.lowcoder.domain.application.service.ApplicationService;
@@ -133,7 +134,7 @@ public class ApplicationApiServiceTest {
                 .verifyComplete();
 
         // published dsl before publish
-        StepVerifier.create(applicationIdMono.flatMap(id -> applicationApiService.getPublishedApplication(id)))
+        StepVerifier.create(applicationIdMono.flatMap(id -> applicationApiService.getPublishedApplication(id, ApplicationRequestType.PUBLIC_TO_ALL)))
                 .assertNext(applicationView -> Assert.assertEquals(Map.of("comp", "table"), applicationView.getApplicationDSL()))
                 .verifyComplete();
 
@@ -147,7 +148,7 @@ public class ApplicationApiServiceTest {
                 .verifyComplete();
 
         // published dsl after publish
-        StepVerifier.create(applicationIdMono.flatMap(id -> applicationApiService.getPublishedApplication(id)))
+        StepVerifier.create(applicationIdMono.flatMap(id -> applicationApiService.getPublishedApplication(id, ApplicationRequestType.PUBLIC_TO_ALL)))
                 .assertNext(applicationView -> Assert.assertEquals(Map.of("comp", "list"), applicationView.getApplicationDSL()))
                 .verifyComplete();
     }

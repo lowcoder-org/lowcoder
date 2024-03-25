@@ -51,7 +51,7 @@ const getStyle = (
   style: TableStyleType,
   rowStyle: TableRowStyleType,
   headerStyle: TableHeaderStyleType,
-  toolbarStyle: TableToolbarStyleType
+  toolbarStyle: TableToolbarStyleType,
 ) => {
   const background = genLinerGradient(style.background);
   const selectedRowBackground = genLinerGradient(rowStyle.selectedRowBackground);
@@ -140,7 +140,8 @@ const BackgroundWrapper = styled.div<{
   background: ${(props) => props.$style.background} !important;
   border: ${(props) => `${props.$style.borderWidth} solid ${props.$style.border} !important`};
   border-radius: ${(props) => props.$style.radius} !important;
-  padding: unset !important;
+  // padding: unset !important;
+  padding: ${(props) => props.$style.padding} !important
   margin: ${(props) => props.$style.margin} !important;
   overflow: scroll !important;
   ${(props) => props.$style}
@@ -209,18 +210,19 @@ const TableWrapper = styled.div<{
         > .ant-table-thead {
           > tr > th {
             background-color: ${(props) => props.$headerStyle.headerBackground};
+           
             border-color: ${(props) => props.$headerStyle.border};
             border-width: ${(props) => props.$headerStyle.borderWidth};
             color: ${(props) => props.$headerStyle.headerText};
             border-inline-end: ${(props) => `${props.$headerStyle.borderWidth} solid ${props.$headerStyle.border}`} !important;
-            ${(props) => 
-              props.$fixedHeader && `
+            ${(props) =>
+    props.$fixedHeader && `
                 position: sticky;
                 position: -webkit-sticky;
                 top: ${props.$fixedToolbar ? '47px' : '0'};
                 z-index: 99;
               `
-            }
+  }
 
             > div {
               margin: ${(props) => props.$headerStyle.margin};
@@ -229,6 +231,8 @@ const TableWrapper = styled.div<{
                 font-size: ${(props) => props.$headerStyle.textSize};
                 font-weight: ${(props) => props.$headerStyle.textWeight};
                 font-family: ${(props) => props.$headerStyle.fontFamily};
+                font-style: ${(props) => props.$headerStyle.fontStyle};
+                color:${(props) => props.$headerStyle.text}
               }
             }
 
@@ -286,8 +290,8 @@ const TableWrapper = styled.div<{
 
         // hide the bottom border of the last row
         ${(props) =>
-          props.$toolbarPosition !== "below" &&
-          `
+    props.$toolbarPosition !== "below" &&
+    `
             tbody > tr:last-child > td {
               border-bottom: unset;
             }
@@ -300,10 +304,10 @@ const TableWrapper = styled.div<{
     }
   }
   
-  ${(props) => 
+  ${(props) =>
     props.$style && getStyle(props.$style, props.$rowStyle, props.$headerStyle, props.$toolbarStyle)}
 `;
-  
+
 const TableTh = styled.th<{ width?: number }>`
   overflow: hidden;
 
@@ -318,7 +322,7 @@ const TableTh = styled.th<{ width?: number }>`
 
 const TableTd = styled.td<{
   $background: string;
-  $style: TableColumnStyleType & {rowHeight?: string};
+  $style: TableColumnStyleType & { rowHeight?: string };
   $defaultThemeDetail: ThemeDetail;
   $linkStyle?: TableColumnLinkStyleType;
   $isEditing: boolean;
@@ -348,7 +352,8 @@ const TableTd = styled.td<{
     
     ${(props) => props.$tableSize === 'small' && `
       padding: 1px 8px;
-      font-size: ${props.$defaultThemeDetail.textSize == props.$style.textSize ? '14px !important' : props.$style.textSize + ' !important' };
+      font-size: ${props.$defaultThemeDetail.textSize == props.$style.textSize ? '14px !important' : props.$style.textSize + ' !important'};
+    font-style:${props.$style.fontStyle} !important;
       min-height: ${props.$style.rowHeight || '14px'};
       line-height: 20px;
       ${!props.$autoHeight && `
@@ -358,7 +363,8 @@ const TableTd = styled.td<{
     `};
     ${(props) => props.$tableSize === 'middle' && `
       padding: 8px 8px;
-      font-size: ${props.$defaultThemeDetail.textSize == props.$style.textSize ? '16px !important' : props.$style.textSize + ' !important' };
+      font-size: ${props.$defaultThemeDetail.textSize == props.$style.textSize ? '16px !important' : props.$style.textSize + ' !important'};
+      font-style:${props.$style.fontStyle} !important;
       min-height: ${props.$style.rowHeight || '24px'};
       line-height: 24px;
       ${!props.$autoHeight && `
@@ -368,7 +374,8 @@ const TableTd = styled.td<{
     `};
     ${(props) => props.$tableSize === 'large' && `
       padding: 16px 16px;
-      font-size: ${props.$defaultThemeDetail.textSize == props.$style.textSize ? '18px !important' : props.$style.textSize + ' !important' };
+      font-size: ${props.$defaultThemeDetail.textSize == props.$style.textSize ? '18px !important' : props.$style.textSize + ' !important'};
+      font-style:${props.$style.fontStyle} !important;
       min-height: ${props.$style.rowHeight || '48px'};
       ${!props.$autoHeight && `
         overflow-y: auto;
@@ -444,7 +451,7 @@ const ResizeableTitle = (props: any) => {
       draggableOpts={{ enableUserSelectHack: false }}
       handle={(axis: ResizeHandleAxis, ref: ReactRef<HTMLDivElement>) => (
         <TitleResizeHandle
-          ref={ref} 
+          ref={ref}
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
@@ -517,9 +524,9 @@ function TableCellView(props: {
       columnTitle: title,
     });
     const cellColor = cellColorFn({
-      currentCell: record[title.toLowerCase()],
+      currentCell: record[title],
     });
-    
+
     const style = {
       background: cellColor || rowColor || columnStyle.background || columnsStyle.background,
       margin: columnStyle.margin || columnsStyle.margin,
@@ -528,8 +535,9 @@ function TableCellView(props: {
       radius: columnStyle.radius || columnsStyle.radius,
       borderWidth: columnStyle.borderWidth || columnsStyle.borderWidth,
       textSize: columnStyle.textSize || columnsStyle.textSize,
-      textWeight: columnStyle.textWeight || columnsStyle.textWeight,
-      fontFamily: columnStyle.fontFamily || columnsStyle.fontFamily,
+      textWeight: columnsStyle.textWeight || columnStyle.textWeight,
+      fontFamily: columnsStyle.fontFamily || columnStyle.fontFamily,
+      fontStyle: columnsStyle.fontStyle || columnStyle.fontStyle,
       rowHeight: rowHeight,
     }
     let { background } = style;
@@ -554,7 +562,7 @@ function TableCellView(props: {
       </TableTd>
     );
   }
-
+ 
   return (
     <TableCellContext.Provider value={{ isEditing: editing, setIsEditing: setEditing }}>
       {tdView}
@@ -804,7 +812,7 @@ export function TableCompView(props: {
 
   return (
     <BackgroundColorContext.Provider value={style.background} >
-      
+
       <BackgroundWrapper ref={ref} $style={style} $tableAutoHeight={tableAutoHeight}>
         {toolbar.position === "above" && toolbarView}
         <TableWrapper
@@ -826,11 +834,11 @@ export function TableCompView(props: {
                 : "OB_CHILDREN_KEY_PLACEHOLDER",
               fixed: "left",
               onExpand: (expanded) => {
-              if(expanded) {
-                handleChangeEvent('rowExpand')
-              } else {
-                handleChangeEvent('rowShrink')
-              }
+                if (expanded) {
+                  handleChangeEvent('rowExpand')
+                } else {
+                  handleChangeEvent('rowShrink')
+                }
               }
             }}
             rowColorFn={compChildren.rowColor.getView() as any}
@@ -857,14 +865,14 @@ export function TableCompView(props: {
               compChildren.loading.getView()
             }
           />
-          
+
           <SlotConfigContext.Provider value={{ modalWidth: width && Math.max(width, 300) }}>
             {expansion.expandModalView}
           </SlotConfigContext.Provider>
         </TableWrapper>
         {toolbar.position === "below" && toolbarView}
       </BackgroundWrapper>
-      
+
     </BackgroundColorContext.Provider>
   );
 }

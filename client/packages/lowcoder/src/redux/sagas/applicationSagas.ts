@@ -372,6 +372,24 @@ function* fetchApplicationRecycleListSaga() {
   }
 }
 
+function* fetchAllMarketplaceAppsSaga() {
+  try {
+    const response: AxiosResponse<GenericApiResponse<ApplicationMeta[]>> = yield call(
+      ApplicationApi.fetchAllMarketplaceApps
+    );
+    const isValidResponse: boolean = validateResponse(response);
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.FETCH_ALL_MARKETPLACE_APPS_SUCCESS,
+        payload: response.data.data,
+      });
+    }
+  } catch (error: any) {
+    messageInstance.error(error.message);
+    log.debug("fetch marketplace apps error: ", error);
+  }
+}
+
 export default function* applicationSagas() {
   yield all([
     takeLatest(ReduxActionTypes.FETCH_HOME_DATA, fetchHomeDataSaga),
@@ -392,6 +410,10 @@ export default function* applicationSagas() {
     takeLatest(
       ReduxActionTypes.FETCH_APPLICATION_RECYCLE_LIST_INIT,
       fetchApplicationRecycleListSaga
+    ),
+    takeLatest(
+      ReduxActionTypes.FETCH_ALL_MARKETPLACE_APPS,
+      fetchAllMarketplaceAppsSaga,
     ),
   ]);
 }
