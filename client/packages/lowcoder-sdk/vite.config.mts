@@ -1,11 +1,15 @@
-import { defineConfig, UserConfig } from "vite";
+import { defineConfig, UserConfig, PluginOption } from "vite";
 import react from "@vitejs/plugin-react";
 import viteTsconfigPaths from "vite-tsconfig-paths";
 import svgrPlugin from "vite-plugin-svgr";
 import path from "path";
 import { ensureLastSlash } from "./src/dev-utils/util";
-import { buildVars } from "./src/dev-utils/buildVars.mjs";
+import { buildVars } from "./src/dev-utils/buildVars";
 import { globalDepPlugin } from "./src/dev-utils/globalDepPlguin";
+import dynamicImport from 'vite-plugin-dynamic-import';
+import { visualizer } from "rollup-plugin-visualizer";
+
+const isVisualizerEnabled = !!process.env.ENABLE_VISUALIZER;
 
 const define = {};
 buildVars.forEach(({ name, defaultValue }) => {
@@ -37,9 +41,20 @@ export const viteConfig: UserConfig = {
       fileName: "lowcoder-sdk",
     },
     rollupOptions: {
+      input: {
+        'appView': '../lowcoder/src/appView/index.ts',
+        'lowcoder-sdk': './src/index.ts',
+      },
       external: ["react", "react-dom"],
       output: {
+        entryFileNames: '[hash].js',
         chunkFileNames: "[hash].js",
+      },
+      onwarn: (warning, warn) => {
+        if (warning.code === 'MODULE_LEVEL_DIRECTIVE') {
+          return
+        }
+        warn(warning)
       },
     },
     commonjsOptions: {
@@ -97,6 +112,14 @@ export const viteConfig: UserConfig = {
         ref: true,
       },
     }),
+    dynamicImport(),
+    isVisualizerEnabled && visualizer({
+      template: "treemap", // or sunburst
+      open: true,
+      gzipSize: true,
+      brotliSize: true,
+      filename: "analyse.html"
+    }) as PluginOption,
   ],
 };
 
