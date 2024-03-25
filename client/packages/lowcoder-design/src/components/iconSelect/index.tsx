@@ -1,7 +1,7 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import type { IconDefinition } from "@fortawesome/free-regular-svg-icons";
 // import type { IconDefinition as IconDefinitionBrands } from "@fortawesome/free-brands-svg-icons";
-import { default as Popover } from "antd/es/popover";
+import { default as Popover } from "antd/lib/popover";
 import type { ActionType } from "@rc-component/trigger/lib/interface";
 import { TacoInput } from "components/tacoInput";
 import { Tooltip } from "components/toolTip";
@@ -14,9 +14,10 @@ import {
   useMemo,
   useRef,
   useState,
+  Suspense
 } from "react";
 import Draggable from "react-draggable";
-import { default as List, ListRowProps } from "react-virtualized/dist/es/List";
+import { default as List, type ListRowProps } from "react-virtualized/dist/es/List";
 import styled from "styled-components";
 import { CloseIcon, SearchIcon } from "icons";
 import { ANTDICON } from "icons/antIcon";
@@ -296,7 +297,11 @@ const IconPopup = (props: {
                   onChangeIcon(key);
                 }}
               >
-                <IconWrapper>{icon.getView()}</IconWrapper>
+                <IconWrapper>
+                  <Suspense fallback={null}>
+                    {icon.getView()}
+                  </Suspense>
+                </IconWrapper>
                 <IconKeyDisplay>{key}</IconKeyDisplay>
               </IconItemContainer>
             </Tooltip>
