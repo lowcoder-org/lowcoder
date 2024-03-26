@@ -37,7 +37,7 @@ export default function PluginPanel() {
     [commonSettings?.npmPlugins]
   );
 
-  console.log("plugins: ", plugins);
+  // console.log("plugins: ", plugins);
 
   const handleSetNpmPlugins = (nextNpmPlugins: string[]) => {
     dispatch(
