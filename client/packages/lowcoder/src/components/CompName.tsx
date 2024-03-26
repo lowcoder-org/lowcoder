@@ -115,6 +115,12 @@ export const CompName = (props: Iprops) => {
 
 
   if (compInfo.isRemote) {
+    // Falk: Displaying the current version of the component
+    items.push({
+      text: trans("history.currentVersion") + ": " + compInfo.packageVersion,
+      onClick: () => {
+      },
+    });
     items.push({
       text: trans("history.currentVersion") + ": " + compInfo.packageVersion,
       onClick: () => {
@@ -127,6 +133,7 @@ export const CompName = (props: Iprops) => {
       onClick: () => {
         handleUpgrade();
       },
+      
     });
   }
 
