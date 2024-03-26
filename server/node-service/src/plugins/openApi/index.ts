@@ -143,6 +143,7 @@ export async function runOpenApi(
       return e.response.body;
     }
     if (e.status) {
+      logger.error(`Request failure: ${JSON.stringify(e.response)} ${e.status}`)
       throw badRequest(`status: ${e.status}`);
     }
     throw e;

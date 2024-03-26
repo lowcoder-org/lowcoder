@@ -44,6 +44,12 @@ const schemaToActionParamConfig = (
   const paramType = getOpenApiV3ParamType(type, schema.format || "", !!options);
   const defaultValue = example || getSchemaExample(schema);
   const shouldJsonStringify = type === "array" || type === "object";
+  // add an empty option for select lists for things that aren't required
+  if (paramType === "select") {
+    if (!options?.includes("")) {
+      options?.push("")
+    }
+  }
   const param: ActionParamConfig = {
     label: name,
     tooltip: desc || schema.description,

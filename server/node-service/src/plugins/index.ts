@@ -31,6 +31,7 @@ import faunaPlugin from "./fauna";
 import huggingFaceInferencePlugin from "./huggingFaceInference";
 import didPlugin from "./did";
 import bigQueryPlugin from "./bigQuery";
+import appConfigPlugin from "./appconfig";
 
 let plugins: (DataSourcePlugin | DataSourcePluginFactory)[] = [
   s3Plugin,
@@ -64,7 +65,8 @@ let plugins: (DataSourcePlugin | DataSourcePluginFactory)[] = [
   gitlabPlugin,
   faunaPlugin,
   didPlugin,
-  bigQueryPlugin
+  bigQueryPlugin,
+  appConfigPlugin
 ];
 
 try {
