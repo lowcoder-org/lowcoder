@@ -256,6 +256,7 @@ const TabbedContainer = (props: TabbedContainerProps) => {
   return (
     <div style={{padding: props.style.margin, height: '100%'}}>
     <StyledTabs
+      // FALK: TODO tabPosition="right"
       activeKey={activeKey}
       $style={style}
       $headerStyle={headerStyle}

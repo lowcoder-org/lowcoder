@@ -75,6 +75,7 @@ const ShowChildren = styled.div<{ $show?: string; $noMargin?: boolean }>`
 
 interface ISectionConfig<T> {
   name?: string;
+  open?: boolean;
   width?: number;
   noMargin?: boolean;
   style?: React.CSSProperties;
@@ -103,7 +104,9 @@ export const PropertySectionContext = React.createContext<PropertySectionContext
 export const BaseSection = (props: ISectionConfig<ReactNode>) => {
   const { name } = props;
   const { compName, state, toggle } = useContext(PropertySectionContext);
-  const open = name ? state[compName]?.[name] !== false : true;
+  const open = props.open !== undefined ? props.open : name ? state[compName]?.[name] !== false : true;
+
+  console.log("open", open, props.open);
 
   const handleToggle = () => {
     if (!name) {
