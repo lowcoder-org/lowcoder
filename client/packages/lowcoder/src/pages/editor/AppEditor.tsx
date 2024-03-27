@@ -136,7 +136,7 @@ export default function AppEditor() {
   return (
     <ErrorBoundary>
       {showAppSnapshot ? (
-        <Suspense fallback={<EditorSkeletonView />}>
+        <Suspense fallback={null}>
           <AppSnapshot
             currentAppInfo={{
               ...appInfo,
@@ -145,7 +145,7 @@ export default function AppEditor() {
           />
         </Suspense>
       ) : (
-        <Suspense fallback={<EditorSkeletonView />}>
+        <Suspense fallback={null}>
           <AppEditorInternalView
             appInfo={appInfo}
             readOnly={readOnly}

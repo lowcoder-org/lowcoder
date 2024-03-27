@@ -96,7 +96,7 @@ module.exports = {
   output: {
     path: path.resolve(__dirname, 'dist'),
     // publicPath: "https://sdk.lowcoder.cloud/",
-    publicPath: "/",
+    publicPath: "https://webviewer.lowcoder.cloud/",
     filename: '[name].bundle.js',
     clean: true,
   },
@@ -113,11 +113,11 @@ module.exports = {
       path: path.resolve(__dirname, 'bundle'),
       filename: 'bundle.js'
     }),
-    new CopyPlugin({
-      patterns: [
-        "./index.html",
-      ],
-    }),
+    // new CopyPlugin({
+    //   patterns: [
+    //     "./index.html",
+    //   ],
+    // }),
     isVisualizerEnabled && new BundleAnalyzerPlugin()
   ],
   optimization: {

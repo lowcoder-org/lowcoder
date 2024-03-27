@@ -110,12 +110,13 @@ function RootView(props: RootViewProps) {
     };
   }, [editorState, propertySectionState]);
 
-  if (!editorState) {
-    if (isModuleRoot) {
-      return <ModuleLoading />;
-    }
-    return <EditorSkeletonView />;
-  }
+  // if (!editorState) {
+  //   if (isModuleRoot) {
+  //     return <ModuleLoading />;
+  //   }
+  //   return <EditorSkeletonView />;
+  // }
+  if(!editorState) return <ModuleLoading />;
 
   return (
     <div {...divProps}>
@@ -125,7 +126,7 @@ function RootView(props: RootViewProps) {
             {Object.keys(comp.children.queries.children).map((key) => (
               <div key={key}>{comp.children.queries.children[key].getView()}</div>
             ))}
-            <Suspense fallback={<EditorSkeletonView />}>
+            <Suspense fallback={null}>
               <EditorView uiComp={comp.children.ui} preloadComp={comp.children.preload} />
             </Suspense>
           </EditorContext.Provider>
