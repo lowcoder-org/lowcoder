@@ -6,7 +6,7 @@ import { useState } from "react";
 import { validateResponse } from "api/apiUtils";
 import { AuthType } from "@lowcoder-ee/pages/setting/idSource/idSourceConstants";
 import IdSourceApi from "api/idSourceApi";
-import { messageInstance } from "lowcoder-design";
+import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 
 export const Manual = (props: { type: AuthType }) => {
   const [manualLoading, setManualLoading] = useState(false);

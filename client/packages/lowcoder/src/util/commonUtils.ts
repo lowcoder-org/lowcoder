@@ -1,7 +1,7 @@
 import log, { LogLevelDesc } from "loglevel";
 import dayjs from "dayjs";
 import { getDayJSLocale } from "i18n/dayjsLocale";
-import _ from "lodash";
+import { isNil } from "lodash";
 
 // https://github.com/vitejs/vite/discussions/7492#discussioncomment-2449310
 import "dayjs/locale/en-gb";
@@ -58,5 +58,5 @@ export async function loadScript(src: string) {
 }
 
 export function checkIsMobile(width?: number) {
-  return !_.isNil(width) && width <= 500;
+  return !isNil(width) && width <= 500;
 }

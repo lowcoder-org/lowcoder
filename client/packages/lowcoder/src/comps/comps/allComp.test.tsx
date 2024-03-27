@@ -63,9 +63,15 @@ const COMPS_MAP = {
   tableColumnRender: RenderComp,
 } as Record<string, CompConstructor>;
 
-Object.entries(uiCompRegistry).forEach(([key, value]) => {
-  COMPS_MAP["ui_" + key] = value.comp;
-});
+Object.entries(uiCompRegistry).forEach(async ([key, value]) => {
+  if(value.lazyLoad) {
+    const module = await import(`../${value.compPath}`!);
+    COMPS_MAP["ui_" + key] = module[value.compName!];
+  } else {
+    COMPS_MAP["ui_" + key] = value.comp!;
+  }
+})
+
 Object.keys(QueryMap).forEach((key) => {
   COMPS_MAP["query_" + key] = (QueryMap as Record<string, CompConstructor>)[key];
 });

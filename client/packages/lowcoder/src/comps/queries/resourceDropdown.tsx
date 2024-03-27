@@ -23,7 +23,7 @@ import {
   databasePlugins,
 } from "@lowcoder-ee/constants/datasourceConstants";
 import { QueryContext } from "util/context/QueryContext";
-import { messageInstance } from "lowcoder-design";
+import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 
 const { Option } = Select;
 

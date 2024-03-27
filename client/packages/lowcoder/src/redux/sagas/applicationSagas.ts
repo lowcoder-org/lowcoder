@@ -28,7 +28,7 @@ import {
 } from "redux/reduxActions/applicationActions";
 import { doValidResponse, validateResponse } from "api/apiUtils";
 import { APPLICATION_VIEW_URL, BASE_URL } from "constants/routesURL";
-import { messageInstance } from "lowcoder-design";
+import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 
 import { SERVER_ERROR_CODES } from "constants/apiConstants";
 import history from "util/history";

@@ -3,7 +3,7 @@ import { ReduxAction, ReduxActionTypes } from "constants/reduxActionConstants";
 import { AxiosResponse } from "axios";
 import { validateResponse } from "api/apiUtils";
 import log from "loglevel";
-import { messageInstance } from "lowcoder-design";
+import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 
 import CommonSettingApi, {
   CommonSettingResponseData,

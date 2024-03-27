@@ -4,7 +4,7 @@ import { all, put, takeLatest } from "redux-saga/effects";
 import { AxiosResponse } from "axios";
 import { validateResponse } from "api/apiUtils";
 import log from "loglevel";
-import { messageInstance } from "lowcoder-design";
+import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 
 import { JSLibraryApi, JSLibraryMeta, RecommendedJSLibraryMeta } from "api/jsLibraryApi";
 import { FetchJSLibraryMetasPayload } from "redux/reduxActions/jsLibraryActions";

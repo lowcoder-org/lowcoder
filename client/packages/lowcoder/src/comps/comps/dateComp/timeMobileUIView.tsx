@@ -1,4 +1,3 @@
-import { Picker } from "antd-mobile";
 import { CanvasContainerID } from "constants/domLocators";
 import type { TimeCompViewProps } from "./timeComp";
 import dayjs from "dayjs";
@@ -10,7 +9,7 @@ import { getMobileStyle } from "comps/comps/dateComp/dateCompUtil";
 import { trans } from "i18n";
 import type { TimeUIViewProps } from "comps/comps/dateComp/timeUIView";
 import { TimeRangeUIViewProps } from "comps/comps/dateComp/timeRangeUIView";
-import { SwapRightOutlined } from "@ant-design/icons";
+import { default as SwapRightOutlined } from "@ant-design/icons/SwapRightOutlined";
 import React from "react";
 
 const HoursColumns = (step: number = 1) => [
@@ -50,7 +49,7 @@ const AmPm = [
   },
 ];
 
-const handleClick = (
+const handleClick = async (
   params: Pick<
     TimeCompViewProps,
     "hourStep" | "minuteStep" | "secondStep" | "use12Hours" | "disabledTime" | "onFocus" | "onBlur"
@@ -59,6 +58,7 @@ const handleClick = (
     onChange: (value: dayjs.Dayjs | null) => void;
   }
 ) => {
+  const Picker = (await import("antd-mobile/es/components/picker")).default
   const { disabledHours, disabledMinutes, disabledSeconds } = params.disabledTime();
 
   Picker.prompt({

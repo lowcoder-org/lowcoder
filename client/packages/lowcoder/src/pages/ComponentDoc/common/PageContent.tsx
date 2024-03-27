@@ -35,7 +35,7 @@ export default function PageContent(props: IProps) {
       )}
 
       {/* comps exposing info */}
-      <Exposing compName={name} compFactory={compInfo.comp} />
+      { compInfo.comp && <Exposing compName={name} compFactory={compInfo.comp} /> }
 
       {/* extra info via Markdown */}
       <Extra compName={name} />

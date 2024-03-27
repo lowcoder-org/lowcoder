@@ -14,7 +14,7 @@ import {
   SettingContent,
 } from "./styled";
 import { trans } from "i18n";
-import { messageInstance } from "lowcoder-design";
+import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 
 export function PluginSetting() {
   const dispatch = useDispatch();

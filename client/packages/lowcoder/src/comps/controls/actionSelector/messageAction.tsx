@@ -4,7 +4,7 @@ import { MultiCompBuilder } from "comps/generators/multi";
 import { BranchDiv } from "lowcoder-design";
 import { trans } from "i18n";
 import { millisecondsControl } from "../millisecondControl";
-import { messageInstance } from "lowcoder-design";
+import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 
 const childrenMap = {
   text: StringControl,

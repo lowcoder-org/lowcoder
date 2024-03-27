@@ -1,6 +1,7 @@
-import { readFile } from "fs/promises";
+// import { readFile } from "fs/promises";
 import { resolveParsedValue } from "./fileComp";
 import mime from "mime";
+const { readFile } = require("node:fs/promises");
 
 global.TextDecoder = require("util").TextDecoder;
 
@@ -90,7 +91,7 @@ function toArrayBuffer(buf: Buffer) {
 }
 
 function getFile(path: string) {
-  return readFile(path).then((b) => ({
+  return readFile(path).then((b: Buffer) => ({
     originFileObj: {
       arrayBuffer: () => new Promise((resolve) => resolve(toArrayBuffer(b))),
       type: mime.getType(path.substring(path.lastIndexOf("."))),

@@ -1,5 +1,5 @@
 import { AppPathParams, AppTypeEnum } from "constants/applicationConstants";
-import { useEffect, useRef, useState } from "react";
+import { Suspense, lazy, useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router";
 import { AppSummaryInfo, fetchApplicationInfo } from "redux/reduxActions/applicationActions";
@@ -7,12 +7,10 @@ import { fetchDataSourceByApp, fetchDataSourceTypes } from "redux/reduxActions/d
 import { getUser } from "redux/selectors/usersSelectors";
 import { useUserViewMode } from "util/hooks";
 import "comps/uiCompRegistry";
-import { AppSnapshot } from "pages/editor/appSnapshot";
 import { showAppSnapshotSelector } from "redux/selectors/appSnapshotSelector";
 import { setShowAppSnapshot } from "redux/reduxActions/appSnapshotActions";
 import { fetchGroupsAction } from "redux/reduxActions/orgActions";
 import { getFetchOrgGroupsFinished } from "redux/selectors/orgSelectors";
-import { AppEditorInternalView, useRootCompInstance } from "pages/editor/appEditorInternal";
 import { getIsCommonSettingFetching } from "redux/selectors/commonSettingSelectors";
 import {
   MarkAppDSLLoaded,
@@ -27,6 +25,19 @@ import { clearGlobalSettings, setGlobalSettings } from "comps/utils/globalSettin
 import { fetchFolderElements } from "redux/reduxActions/folderActions";
 import { registryDataSourcePlugin } from "constants/queryConstants";
 import { DatasourceApi } from "api/datasourceApi";
+import { useRootCompInstance } from "./useRootCompInstance";
+import ErrorBoundary from "antd/es/alert/ErrorBoundary";
+import EditorSkeletonView from "./editorSkeletonView";
+
+const AppSnapshot = lazy(() => {
+  return import("pages/editor/appSnapshot")
+    .then(moduleExports => ({default: moduleExports.AppSnapshot}));
+});
+
+const AppEditorInternalView = lazy(
+  () => import("pages/editor/appEditorInternal")
+    .then(moduleExports => ({default: moduleExports.AppEditorInternalView}))
+);
 
 export default function AppEditor() {
   const showAppSnapshot = useSelector(showAppSnapshotSelector);
@@ -123,24 +134,28 @@ export default function AppEditor() {
   }, [viewMode, applicationId, dispatch]);
 
   return (
-    <>
+    <ErrorBoundary>
       {showAppSnapshot ? (
-        <AppSnapshot
-          currentAppInfo={{
-            ...appInfo,
-            dsl: compInstance.comp?.toJsonValue() || {},
-          }}
-        />
+        <Suspense fallback={null}>
+          <AppSnapshot
+            currentAppInfo={{
+              ...appInfo,
+              dsl: compInstance.comp?.toJsonValue() || {},
+            }}
+          />
+        </Suspense>
       ) : (
-        <AppEditorInternalView
-          appInfo={appInfo}
-          readOnly={readOnly}
-          loading={
-            !fetchOrgGroupsFinished || !isDataSourcePluginRegistered || isCommonSettingsFetching
-          }
-          compInstance={compInstance}
-        />
+        <Suspense fallback={null}>
+          <AppEditorInternalView
+            appInfo={appInfo}
+            readOnly={readOnly}
+            loading={
+              !fetchOrgGroupsFinished || !isDataSourcePluginRegistered || isCommonSettingsFetching
+            }
+            compInstance={compInstance}
+          />
+        </Suspense>
       )}
-    </>
+    </ErrorBoundary>
   );
 }

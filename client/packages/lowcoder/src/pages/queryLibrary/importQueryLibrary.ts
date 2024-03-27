@@ -1,7 +1,7 @@
 import { trans } from "../../i18n";
 import { createQueryLibrary } from "../../redux/reduxActions/queryLibraryActions";
 import { Dispatch } from "redux";
-import { messageInstance } from "lowcoder-design";
+import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 
 export const importQueryLibrary = (params: {
   dispatch: Dispatch;

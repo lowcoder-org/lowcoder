@@ -1,11 +1,11 @@
 import { isContainer } from "comps/comps/containerBase";
-import { RootComp as RootCompTmp } from "comps/comps/rootComp";
+import type { RootComp as RootCompTmp } from "comps/comps/rootComp";
 import { PositionParams } from "layout";
 import _ from "lodash";
 import React, { ReactNode } from "react";
 import {
-  BottomResComp,
-  BottomResListComp,
+  type BottomResComp,
+  type BottomResListComp,
   BottomResTypeEnum,
 } from "types/bottomRes";
 import { setFields } from "util/objectUtils";
@@ -16,7 +16,7 @@ import { NameGenerator } from "./utils";
 import { NameAndExposingInfo } from "./utils/exposingTypes";
 import { checkName } from "./utils/rename";
 import { trans } from "i18n";
-import { UiLayoutType } from "./comps/uiComp";
+import type { UiLayoutType } from "./comps/uiComp";
 import { getEditorModeStatus, saveCollisionStatus } from "util/localStorageUtil";
 
 type RootComp = InstanceType<typeof RootCompTmp>;

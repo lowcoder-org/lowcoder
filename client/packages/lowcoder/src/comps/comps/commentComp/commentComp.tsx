@@ -64,7 +64,7 @@ import relativeTime from "dayjs/plugin/relativeTime";
 import dayjs from "dayjs";
 // import "dayjs/locale/zh-cn";
 import { getInitialsAndColorCode } from "util/stringUtils";
-import { CloseOutlined } from "@ant-design/icons";
+import { default as CloseOutlined } from "@ant-design/icons/CloseOutlined";
 dayjs.extend(relativeTime);
 // dayjs.locale("zh-cn");
 

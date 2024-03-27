@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import React, { ReactNode, useEffect, useState } from "react";
+import React, { ReactNode, lazy, useEffect, useState } from "react";
 import { CustomModal } from "components/CustomModal";
 import { trans } from "i18n";
 import { DocLink } from "components/ExternalLink";
@@ -18,11 +18,11 @@ import {
   ErrorIcon,
 } from "icons";
 import { ActiveTextColor, GreyTextColor } from "constants/style";
-import { LoadingOutlined } from "@ant-design/icons";
+import { default as LoadingOutlined } from "@ant-design/icons/LoadingOutlined";
 import { RecommendedJSLibraryMeta } from "api/jsLibraryApi";
 import log from "loglevel";
 import { TacoMarkDown } from "components/markdown";
-import { messageInstance } from "lowcoder-design";
+import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 
 const ModalLabel = styled.div`
   display: flex;

@@ -1,4 +1,4 @@
-import { TacoButton } from "lowcoder-design";
+import { TacoButton } from "lowcoder-design/src/components/button"
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import { updateAppMetaAction } from "redux/reduxActions/applicationActions";
@@ -21,7 +21,7 @@ import history from "util/history";
 import { APPLICATION_VIEW_URL } from "constants/routesURL";
 import { TypographyText } from "../../components/TypographyText";
 import { useParams } from "react-router-dom";
-import { messageInstance } from "lowcoder-design";
+import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 
 const EditButton = styled(TacoButton)`
   width: 52px;

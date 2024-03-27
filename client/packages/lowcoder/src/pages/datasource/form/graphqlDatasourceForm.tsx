@@ -1,4 +1,4 @@
-import { Rule } from "antd/lib/form";
+import { Rule } from "antd/es/form";
 import { HttpConfig } from "api/datasourceApi";
 import {
   DatasourceForm,

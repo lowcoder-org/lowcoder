@@ -1,5 +1,5 @@
 import React, { useEffect, useImperativeHandle, useRef, useState } from "react";
-import {
+import type {
   AppViewInstance,
   AppViewInstanceOptions,
   EventTriggerHandler,

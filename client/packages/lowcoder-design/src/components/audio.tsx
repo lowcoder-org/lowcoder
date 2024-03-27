@@ -1,7 +1,9 @@
 import { CSSProperties } from "react";
-import { Ref } from "react";
-import ReactPlayer from "react-player";
+import { lazy, Ref } from "react";
+import type {default as ReactPlayerType} from "react-player";
 import styled from "styled-components";
+
+const ReactPlayer = lazy(() => import("react-player"));
 
 const Audio = styled(ReactPlayer)`
   height: 32px !important;
@@ -14,7 +16,7 @@ export function TacoAudio(props: {
   onEnded?: () => void;
   className?: string;
   style?: CSSProperties;
-  audioRef?: Ref<ReactPlayer>;
+  audioRef?: Ref<ReactPlayerType>;
   autoPlay?: boolean;
   loop?: boolean;
 }) {

@@ -51,7 +51,7 @@ import { Logo, LogoHome, LogoWithName } from "@lowcoder-ee/assets/images";
 import { HeaderStartDropdown } from "./headerStartDropdown";
 import { AppPermissionDialog } from "../../components/PermissionDialog/AppPermissionDialog";
 import { getBrandingConfig } from "../../redux/selectors/configSelectors";
-import { messageInstance } from "lowcoder-design";
+import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 import { EditorContext } from "../../comps/editorState";
 
 const StyledLink = styled.a`

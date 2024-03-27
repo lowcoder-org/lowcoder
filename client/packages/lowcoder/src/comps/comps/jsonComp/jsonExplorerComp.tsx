@@ -1,7 +1,7 @@
 import { Section, sectionNames } from "lowcoder-design";
 import { UICompBuilder, withDefault } from "../../generators";
 import { NameConfigHidden, NameConfig, withExposingConfigs } from "../../generators/withExposing";
-import ReactJson, { ThemeKeys } from "react-json-view";
+import ReactJson, { type ThemeKeys } from "react-json-view";
 import { defaultData } from "./jsonConstants";
 import styled from "styled-components";
 import { BoolControl } from "comps/controls/boolControl";

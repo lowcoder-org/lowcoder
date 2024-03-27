@@ -18,36 +18,19 @@ import {
 } from "lowcoder-design";
 import { useTemplateViewMode } from "util/hooks";
 import Header, {
-  PanelStatus,
-  TogglePanel,
-  EditorModeStatus,
-  ToggleEditorModeStatus
+  type PanelStatus,
+  type TogglePanel,
+  type EditorModeStatus,
+  type ToggleEditorModeStatus
 } from "pages/common/header";
-import { HelpDropdown } from "pages/common/help";
-import { PreviewHeader } from "pages/common/previewHeader";
-import {
-  Body,
-  EditorContainer,
-  EditorContainerWithViewMode,
-  Height100Div,
-  LeftPanel,
-  MiddlePanel,
-} from "pages/common/styledComponent";
-import {
-  CustomShortcutWrapper,
-  EditorGlobalHotKeys,
-  EditorHotKeys,
-} from "pages/editor/editorHotKeys";
-import RightPanel from "pages/editor/right/RightPanel";
-import EditorTutorials from "pages/tutorials/editorTutorials";
 import {
   editorContentClassName,
   UserGuideLocationState,
 } from "pages/tutorials/tutorialsConstant";
 import React, {
+  lazy,
   useCallback,
   useContext,
-  useEffect,
   useLayoutEffect,
   useMemo,
   useState,
@@ -64,15 +47,66 @@ import {
   DefaultPanelStatus,
   getPanelStatus,
   savePanelStatus,
-  DefaultEditorModeStatus,
   getEditorModeStatus,
   saveEditorModeStatus,
 } from "util/localStorageUtil";
-import Bottom from "./bottom/BottomPanel";
-import { LeftContent } from "./LeftContent";
-import { LeftLayersContent } from "./LeftLayersContent";
 import { isAggregationApp } from "util/appUtils";
 
+const LeftContent = lazy(
+  () => import('./LeftContent')
+    .then(module => ({default: module.LeftContent}))
+);
+const LeftLayersContent = lazy(
+  () => import('./LeftLayersContent')
+    .then(module => ({default: module.LeftLayersContent}))
+);
+const RightPanel = lazy(() => import('pages/editor/right/RightPanel'));
+const EditorTutorials = lazy(() => import('pages/tutorials/editorTutorials'));
+const Bottom = lazy(() => import('./bottom/BottomPanel'));
+const CustomShortcutWrapper = lazy(
+  () => import('pages/editor/editorHotKeys')
+    .then(module => ({default: module.CustomShortcutWrapper}))
+);
+const EditorGlobalHotKeys = lazy(
+  () => import('pages/editor/editorHotKeys')
+    .then(module => ({default: module.EditorGlobalHotKeys}))
+);
+const EditorHotKeys = lazy(
+  () => import('pages/editor/editorHotKeys')
+    .then(module => ({default: module.EditorHotKeys}))
+);
+const Body = lazy(
+  () => import('pages/common/styledComponent')
+    .then(module => ({default: module.Body}))
+);
+const EditorContainer = lazy(
+  () => import('pages/common/styledComponent')
+    .then(module => ({default: module.EditorContainer}))
+);
+const EditorContainerWithViewMode = lazy(
+  () => import('pages/common/styledComponent')
+    .then(module => ({default: module.EditorContainerWithViewMode}))
+);
+const Height100Div = lazy(
+  () => import('pages/common/styledComponent')
+    .then(module => ({default: module.Height100Div}))
+);
+const LeftPanel = lazy(
+  () => import('pages/common/styledComponent')
+    .then(module => ({default: module.LeftPanel}))
+);
+const MiddlePanel = lazy(
+  () => import('pages/common/styledComponent')
+    .then(module => ({default: module.MiddlePanel}))
+);
+const HelpDropdown = lazy(
+  () => import('pages/common/help')
+    .then(module => ({default: module.HelpDropdown}))
+);
+const PreviewHeader = lazy(
+  () => import('pages/common/previewHeader')
+    .then(module => ({default: module.PreviewHeader}))
+);
 
 const HookCompContainer = styled.div`
   pointer-events: none;

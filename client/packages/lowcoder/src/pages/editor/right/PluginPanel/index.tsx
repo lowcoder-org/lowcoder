@@ -10,7 +10,7 @@ import styled from "styled-components";
 import { getNpmPackageMeta, normalizeNpmPackage, validateNpmPackage } from "comps/utils/remote";
 import { ComListTitle, ExtensionContentWrapper } from "../styledComponent";
 import { EmptyContent } from "components/EmptyContent";
-import { messageInstance } from "lowcoder-design";
+import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 
 const Footer = styled.div`
   display: flex;

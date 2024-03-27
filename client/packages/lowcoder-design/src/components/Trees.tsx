@@ -1,7 +1,7 @@
 import styled, { css } from "styled-components";
 import { ReactComponent as Folded } from "icons/icon-folded.svg";
-import { DataNode, TreeProps } from "antd/lib/tree";
-import DirectoryTree from "antd/lib/tree/DirectoryTree";
+import { DataNode, TreeProps } from "antd/es/tree";
+import DirectoryTree from "antd/es/tree/DirectoryTree";
 
 export const Treediv = styled.div<{ $height?: number }>`
   padding-left: 24px;

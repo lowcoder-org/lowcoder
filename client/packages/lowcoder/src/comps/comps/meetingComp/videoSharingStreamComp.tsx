@@ -19,7 +19,7 @@ import { RefControl } from "comps/controls/refControl";
 import { useEffect, useRef, useState } from "react";
 import { AutoHeightControl } from "comps/controls/autoHeightControl";
 import { client } from "./videoMeetingControllerComp";
-import { IAgoraRTCRemoteUser } from "agora-rtc-sdk-ng";
+import type { IAgoraRTCRemoteUser } from "agora-rtc-sdk-ng";
 import { useContext } from "react";
 import { MeetingEventHandlerControl } from "comps/controls/eventHandlerControl";
 import { stringExposingStateControl } from "comps/controls/codeStateControl";

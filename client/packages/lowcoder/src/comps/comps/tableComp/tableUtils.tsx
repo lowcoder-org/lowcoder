@@ -5,7 +5,7 @@ import {
   TableCurrentDataSource,
   TablePaginationConfig,
 } from "antd/es/table/interface";
-import { SortOrder } from "antd/lib/table/interface";
+import type { SortOrder } from "antd/es/table/interface";
 import { __COLUMN_DISPLAY_VALUE_FN } from "comps/comps/tableComp/column/columnTypeCompBuilder";
 import { CellColorViewType, RawColumnType, Render } from "comps/comps/tableComp/column/tableColumnComp";
 import { TableFilter, tableFilterOperatorMap } from "comps/comps/tableComp/tableToolbarComp";

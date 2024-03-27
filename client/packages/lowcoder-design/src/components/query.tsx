@@ -1,7 +1,7 @@
 import styled, { css } from "styled-components";
 import { default as Alert } from "antd/es/alert";
 import { ReactNode } from "react";
-import { AlertProps } from "antd/lib/alert";
+import { AlertProps } from "antd/es/alert";
 import { ToolTipLabel } from "./toolTip";
 import { DocLink } from "components/ExternalLink";
 

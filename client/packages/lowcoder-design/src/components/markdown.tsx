@@ -1,9 +1,12 @@
 import { css } from "styled-components";
-import ReactMarkdown from "react-markdown";
+import { lazy } from "react";
+// import ReactMarkdown from "react-markdown";
 import rehypeRaw from "rehype-raw";
 import rehypeSanitize, { defaultSchema } from "rehype-sanitize";
 import remarkGfm from "remark-gfm";
-import { ReactMarkdownOptions } from "react-markdown/lib/react-markdown";
+import type { ReactMarkdownOptions } from "react-markdown/lib/react-markdown";
+
+const ReactMarkdown = lazy(() => import('react-markdown'));
 
 export const markdownCompCss = css`
   .markdown-body {

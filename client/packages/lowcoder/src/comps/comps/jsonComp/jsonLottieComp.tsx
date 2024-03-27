@@ -1,5 +1,4 @@
-import { Player } from "@lottiefiles/react-lottie-player";
-import { hiddenPropertyView } from "@lowcoder-ee/index.sdk";
+import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import {
   ArrayOrJSONObjectControl,
   NumberControl,
@@ -10,7 +9,7 @@ import { styleControl } from "comps/controls/styleControl";
 import { LottieStyle } from "comps/controls/styleControlConstants";
 import { trans } from "i18n";
 import { Section, sectionNames } from "lowcoder-design";
-import { useEffect, useState, useContext } from "react";  
+import { useContext, lazy } from "react";  
 import { UICompBuilder, withDefault } from "../../generators";
 import {
   NameConfig,
@@ -19,6 +18,11 @@ import {
 } from "../../generators/withExposing";
 import { defaultLottie } from "./jsonConstants";
 import { EditorContext } from "comps/editorState";
+
+const Player = lazy(
+  () => import('@lottiefiles/react-lottie-player')
+    .then(module => ({default: module.Player}))
+);
 
 /**
  * JsonLottie Comp

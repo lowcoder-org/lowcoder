@@ -1,5 +1,5 @@
-import en_GB from "antd/lib/locale/en_GB";
-import en_US from "antd/lib/locale/en_US";
+import en_GB from "antd/es/locale/en_GB";
+import en_US from "antd/es/locale/en_US";
 import zh_CN from "antd/es/locale/zh_CN";
 import zh_HK from "antd/es/locale/zh_HK";
 import zh_TW from "antd/es/locale/zh_TW";

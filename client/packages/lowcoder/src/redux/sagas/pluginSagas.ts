@@ -5,7 +5,7 @@ import { AxiosResponse } from "axios";
 import { DatasourceApi, DataSourceTypeInfo } from "api/datasourceApi";
 import { validateResponse } from "api/apiUtils";
 import log from "loglevel";
-import { messageInstance } from "lowcoder-design";
+import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 
 import { FetchDataSourceTypesActionPayload } from "redux/reduxActions/datasourceActions";
 

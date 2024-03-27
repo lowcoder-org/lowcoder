@@ -1,4 +1,4 @@
-import { default as LayoutSider, SiderProps } from "antd/es/layout/Sider";
+import { default as LayoutSider, type SiderProps } from "antd/es/layout/Sider";
 import { TopHeaderHeight } from "constants/style";
 import styled from "styled-components";
 

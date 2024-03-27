@@ -7,7 +7,7 @@ import ApplicationApi from "@lowcoder-ee/api/applicationApi";
 import { ApplicationMeta } from "@lowcoder-ee/constants/applicationConstants";
 import { GenericApiResponse } from "@lowcoder-ee/api/apiResponses";
 import { validateResponse } from "@lowcoder-ee/api/apiUtils";
-import { messageInstance } from "lowcoder-design";
+import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 
 export function MarketplaceView() {
   const [ marketplaceApps, setMarketplaceApps ] = useState<Array<ApplicationMeta>>([]);

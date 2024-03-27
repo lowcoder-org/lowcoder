@@ -18,7 +18,7 @@ import { CreateButton, ThemeContent } from "./styledComponents";
 import { genQueryId } from "comps/utils/idGenerator";
 import { trans } from "i18n";
 import { Level1SettingPageTitleWithBtn } from "../styled";
-import { messageInstance } from "lowcoder-design";
+import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 
 type ThemeProps = {
   setCommonSettings: (params: SetCommonSettingPayload) => void;

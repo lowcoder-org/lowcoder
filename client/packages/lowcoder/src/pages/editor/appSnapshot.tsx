@@ -9,7 +9,7 @@ import {
   setShowAppSnapshot,
 } from "redux/reduxActions/appSnapshotActions";
 import dayjs from "dayjs";
-import { useCallback, useEffect, useState } from "react";
+import { Suspense, lazy, useCallback, useEffect, useState } from "react";
 import { currentApplication } from "redux/selectors/applicationSelector";
 import {
   appSnapshotCountSelector,
@@ -28,14 +28,19 @@ import { RightPanelWrapper } from "pages/common/styledComponent";
 import { Layers } from "constants/Layers";
 import { useMount } from "react-use";
 import { timestampToHumanReadable } from "util/dateTimeUtils";
-import FreeLimitTag from "pages/common/freeLimitTag";
 import { AppSnapshotDslInfo } from "api/appSnapshotApi";
 import { EmptyContent } from "components/EmptyContent";
 import { AppSummaryInfo } from "redux/reduxActions/applicationActions";
-import { AppEditorInternalView, useRootCompInstance } from "pages/editor/appEditorInternal";
+import { useRootCompInstance } from "./useRootCompInstance";
 import { TopHeaderHeight } from "constants/style";
 import { SnapshotItemProps, SnapshotList } from "../../components/SnapshotList";
 import { trans } from "i18n";
+import EditorSkeletonView from "./editorSkeletonView";
+
+const AppEditorInternalView = lazy(
+  () => import("pages/editor/appEditorInternal")
+    .then((moduleExports) => ({default: moduleExports.AppEditorInternalView}))
+);
 
 const AppSnapshotPanel = styled(RightPanelWrapper)`
   position: fixed;
@@ -248,7 +253,7 @@ export function AppSnapshot(props: { currentAppInfo: AppSummaryInfo }) {
   }
 
   return (
-    <>
+    <Suspense fallback={<EditorSkeletonView />}>
       <AppEditorInternalView
         appInfo={appInfo}
         loading={isSnapshotDslLoading}
@@ -282,6 +287,6 @@ export function AppSnapshot(props: { currentAppInfo: AppSummaryInfo }) {
           />
         </SnapshotFooter>
       </AppSnapshotPanel>
-    </>
+    </Suspense>
   );
 }

@@ -1,4 +1,4 @@
-import { LoadingOutlined } from "@ant-design/icons";
+import { default as LoadingOutlined } from "@ant-design/icons/LoadingOutlined";
 import { default as Spin } from "antd/es/spin";
 import DataSourceIcon from "components/DataSourceIcon";
 import { ContextControlType, ContextJsonControl } from "comps/controls/contextCodeControl";

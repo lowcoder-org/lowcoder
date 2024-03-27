@@ -4,9 +4,9 @@ import { ConfigItem, Radius, Margin, Padding, GridColumns } from "../pages/setti
 import { isValidColor, toHex } from "components/colorSelect/colorUtils";
 import { ColorSelect } from "components/colorSelect";
 import { TacoInput } from "components/tacoInput";
-import { TableCellsIcon as GridIcon } from "lowcoder-design"; //Added By Aqib Mirza
+import { TableCellsIcon as GridIcon } from "lowcoder-design/src/icons"; //Added By Aqib Mirza
 
-import { ExpandIcon, CompressIcon } from "lowcoder-design";
+import { ExpandIcon, CompressIcon } from "lowcoder-design/src/icons";
 
 export type configChangeParams = {
   colorKey: string;

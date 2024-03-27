@@ -5,7 +5,7 @@ import { EvalParamType, ParamsConfig } from "../controls/actionSelector/executeC
 import { JSONObject } from "../../util/jsonTypes";
 import { trans } from "i18n";
 import { notificationInstance } from "lowcoder-design";
-import type { ArgsProps, NotificationPlacement } from 'antd/es/notification/interface';
+import type { ArgsProps, NotificationPlacement } from "antd/es/notification/interface";
 
 const params: ParamsConfig = [
   { name: "text", type: "string" },

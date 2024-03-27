@@ -1,4 +1,4 @@
-import { WidgetProps } from "@rjsf/utils";
+import type { WidgetProps } from "@rjsf/utils";
 import { default as DatePicker } from "antd/es/date-picker";
 import dayjs from "dayjs";
 

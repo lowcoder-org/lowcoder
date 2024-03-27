@@ -9,7 +9,7 @@ import { validateResponse } from "api/apiUtils";
 import { foldersSelector } from "redux/selectors/folderSelector";
 import { AppTypeEnum } from "constants/applicationConstants";
 import { TypeName } from "./headerStartDropdown";
-import { messageInstance } from "lowcoder-design";
+import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 
 type CopyModalProps = {
   visible: boolean;

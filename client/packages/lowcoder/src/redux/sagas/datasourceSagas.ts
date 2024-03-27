@@ -13,7 +13,7 @@ import {
 } from "redux/reduxActions/datasourceActions";
 import { validateResponse } from "api/apiUtils";
 import log from "loglevel";
-import { messageInstance } from "lowcoder-design";
+import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 
 import { Datasource } from "@lowcoder-ee/constants/datasourceConstants";
 

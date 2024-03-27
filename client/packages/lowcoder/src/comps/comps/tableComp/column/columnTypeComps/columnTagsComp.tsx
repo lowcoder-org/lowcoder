@@ -1,5 +1,5 @@
 import { default as Tag } from "antd/es/tag";
-import { PresetStatusColorTypes } from "antd/lib/_util/colors";
+import { PresetStatusColorTypes } from "antd/es/_util/colors";
 import { TagsContext } from "components/table/EditableCell";
 import {
   ColumnTypeCompBuilder,

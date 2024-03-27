@@ -1,8 +1,8 @@
-import { CodeType } from "lowcoder-core";
+import type { CodeType } from "lowcoder-core";
 import { relaxedJSONToJSON } from "lowcoder-core";
 import { getDynamicStringSegments, isDynamicSegment } from "lowcoder-core";
 import { format as formatSQL } from "sql-formatter";
-import { Language } from "./codeEditorTypes";
+import type { Language } from "./codeEditorTypes";
 
 export async function cssFormatter(text: string) {
   const prettier = await require("prettier/standalone");

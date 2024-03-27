@@ -111,14 +111,23 @@ const tourSteps: Step[] = [
   },
 ];
 
-function addTable(editorState: EditorState) {
+async function addTable(editorState: EditorState) {
   const tableCompName = "table1";
   const compType = "table";
   if (editorState.getUICompByName(tableCompName)) {
     return;
   }
   const key = genRandomKey();
-  const defaultDataFn = uiCompRegistry[compType as UICompType]?.defaultDataFn;
+  const {
+    defaultDataFnName,
+    defaultDataFnPath,
+  } = uiCompRegistry[compType as UICompType];
+
+  let defaultDataFn = undefined;
+  if(defaultDataFnName && defaultDataFnPath) {
+    const module = await import(`../../comps/${defaultDataFnPath}.tsx`);
+    defaultDataFn = module[defaultDataFnName];
+  }
   const widgetValue: GridItemDataType = {
     compType,
     name: tableCompName,

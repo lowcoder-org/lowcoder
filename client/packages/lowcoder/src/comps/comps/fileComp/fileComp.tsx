@@ -38,7 +38,7 @@ import { changeEvent, eventHandlerControl } from "../../controls/eventHandlerCon
 import { stateComp, UICompBuilder, withDefault } from "../../generators";
 import { CommonNameConfig, NameConfig, withExposingConfigs } from "../../generators/withExposing";
 import { formDataChildren, FormDataPropertyView } from "../formComp/formDataConstants";
-import { messageInstance } from "lowcoder-design";
+import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 
 import React, { useContext } from "react";
 import { EditorContext } from "comps/editorState";

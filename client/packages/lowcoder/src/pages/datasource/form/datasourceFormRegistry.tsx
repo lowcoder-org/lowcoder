@@ -2,7 +2,7 @@ import { HttpDatasourceForm } from "./httpDatasourceForm";
 import { RedisDatasourceForm } from "./redisDatasourceForm";
 import { EsDatasourceForm } from "./esDatasourceForm";
 import { SMTPDatasourceForm } from "./smtpDatasourceForm";
-import { FormInstance } from "antd";
+import { FormInstance } from "antd/es/form/hooks/useForm";
 import { MongoDatasourceForm } from "./mongoDatasourceForm";
 import { FormSize } from "lowcoder-design";
 import { GoogleSheetsDatasourceForm } from "./googleSheetsDatasourceForm";

@@ -10,7 +10,7 @@ import { validateResponse } from "api/apiUtils";
 import { fetchUserAction } from "redux/reduxActions/userActions";
 import { trans } from "i18n";
 import { checkPassWithMsg } from "pages/userAuth/authUtils";
-import { messageInstance } from "lowcoder-design";
+import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 
 function PasswordCard(props: { hasPass: boolean }) {
   const [oldPass, setOldPass] = useState("");

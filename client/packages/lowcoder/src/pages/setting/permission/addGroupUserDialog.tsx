@@ -1,4 +1,4 @@
-import Column from "antd/lib/table/Column";
+import Column from "antd/es/table/Column";
 import OrgApi from "api/orgApi";
 import { GroupUser, MEMBER_ROLE, OrgUser } from "constants/orgConstants";
 import { CheckBox, CustomModal } from "lowcoder-design";

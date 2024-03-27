@@ -1,6 +1,6 @@
-import { messageInstance } from "lowcoder-design";
+import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 
-import { RcFile } from "antd/lib/upload/interface";
+import { RcFile } from "antd/es/upload/interface";
 import { Buffer } from "buffer";
 import mime from "mime";
 import { saveAs } from "file-saver";

@@ -1,4 +1,4 @@
-import { DeleteOutlined } from "@ant-design/icons";
+import { default as DeleteOutlined } from "@ant-design/icons/DeleteOutlined";
 import { default as Skeleton } from "antd/es/skeleton";
 import { BoolControl } from "comps/controls/boolControl";
 import { StringControl } from "comps/controls/codeControl";

@@ -4,7 +4,7 @@ import { AxiosPromise } from "axios";
 import { ApiResponse } from "api/apiResponses";
 import history from "util/history";
 import { AUTH_BIND_URL, AUTH_LOGIN_URL } from "constants/routesURL";
-import { messageInstance } from "lowcoder-design";
+import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 
 import { WindowMessageTypes } from "constants/messages";
 import { validateResponse } from "api/apiUtils";

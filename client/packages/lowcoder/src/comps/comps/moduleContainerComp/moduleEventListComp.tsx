@@ -10,7 +10,7 @@ import { controlItem, Section, Switch, SwitchWrapper } from "lowcoder-design";
 import { trans } from "i18n";
 import { ModuleEventListItemComp } from "./moduleEventListItemComp";
 import { ConfigViewSection } from "./styled";
-import { messageInstance } from "lowcoder-design";
+import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 import { DocLink } from "lowcoder-design";
 import { markdownCompCss, TacoMarkDown } from "lowcoder-design";
 
