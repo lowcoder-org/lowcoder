@@ -57,7 +57,6 @@ import {
   FormWrapper,
   resourcesDefaultData,
   resourcesEventsDefaultData,
-  resourceHeaderToolbar,
   resourceTimeLineHeaderToolbar,
   resourceTimeGridHeaderToolbar,
 } from "./calendarConstants";
