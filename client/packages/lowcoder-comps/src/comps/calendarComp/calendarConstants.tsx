@@ -796,7 +796,7 @@ export const DefaultWithPremiumViewOptions = [
   },
   {
     label: trans("calendar.timeline"),
-    value: "resourceTimeline",
+    value: "resourceTimelineDay",
   },
   {
     label: trans("calendar.day"),
@@ -932,8 +932,17 @@ export const buttonText = {
 
 export const headerToolbar = {
   left: "title",
+  right: "prev today next dayGridMonth,timeGridWeek,timeGridDay,listWeek",
+};
+
+export const resourceTimeLineHeaderToolbar = {
+  left: "title",
   right:
-    "prev today next dayGridMonth,timeGridWeek,timeGridDay,listWeek",
+    "prev today next resourceTimelineMonth,resourceTimelineWeek,resourceTimelineDay",
+};
+export const resourceTimeGridHeaderToolbar = {
+  left: "title",
+  right: "prev today next",
 };
 
 const weekHeadContent = (info: DayHeaderContentArg) => {

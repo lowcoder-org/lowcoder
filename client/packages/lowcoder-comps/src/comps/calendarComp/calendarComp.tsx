@@ -57,6 +57,9 @@ import {
   FormWrapper,
   resourcesDefaultData,
   resourcesEventsDefaultData,
+  resourceHeaderToolbar,
+  resourceTimeLineHeaderToolbar,
+  resourceTimeGridHeaderToolbar,
 } from "./calendarConstants";
 import dayjs from "dayjs";
 
@@ -320,6 +323,20 @@ let CalendarBasicComp = (function () {
       });
     };
 
+    const toolBar = (defaultView: any) => {
+      switch (defaultView) {
+        case "resourceTimelineDay":
+          return resourceTimeLineHeaderToolbar;
+          break;
+        case "resourceTimeGridDay":
+          return resourceTimeGridHeaderToolbar;
+          break;
+        default:
+          return headerToolbar;
+          break;
+      }
+    };
+
     let initialDate = defaultDate;
     try {
       initialDate = new Date(defaultDate).toISOString();
@@ -344,7 +361,7 @@ let CalendarBasicComp = (function () {
         <FullCalendar
           slotEventOverlap={false}
           events={
-            defaultView == "resourceTimeline" ||
+            defaultView == "resourceTimelineDay" ||
             defaultView == "resourceTimeGridDay"
               ? props.resourcesEvents.value
               : events
@@ -364,7 +381,7 @@ let CalendarBasicComp = (function () {
             resourceTimeGridPlugin,
             adaptivePlugin,
           ]}
-          headerToolbar={headerToolbar}
+          headerToolbar={toolBar(defaultView)}
           moreLinkClick={(info) => {
             let left = 0;
             const ele = info.jsEvent.target as HTMLElement;
@@ -391,7 +408,7 @@ let CalendarBasicComp = (function () {
           schedulerLicenseKey={licenceKey}
           views={views}
           resources={
-            defaultView == "resourceTimeline" ||
+            defaultView == "resourceTimelineDay" ||
             defaultView == "resourceTimeGridDay"
               ? props.resources.value
               : []
