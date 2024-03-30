@@ -41,13 +41,8 @@ export const viteConfig: UserConfig = {
       fileName: "lowcoder-sdk",
     },
     rollupOptions: {
-      input: {
-        'appView': '../lowcoder/src/appView/index.ts',
-        'lowcoder-sdk': './src/index.ts',
-      },
       external: ["react", "react-dom"],
       output: {
-        entryFileNames: '[hash].js',
         chunkFileNames: "[hash].js",
       },
       onwarn: (warning, warn) => {
