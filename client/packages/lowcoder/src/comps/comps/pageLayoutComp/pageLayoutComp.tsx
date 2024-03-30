@@ -6,6 +6,7 @@ import {
   ContainerStyle,
   ContainerHeaderStyle,
   ContainerBodyStyle,
+  ContainerSiderStyle,
   ContainerFooterStyle,
 } from "comps/controls/styleControlConstants";
 import { MultiCompBuilder, sameTypeMap, withDefault } from "comps/generators";
@@ -14,7 +15,6 @@ import { NameGenerator } from "comps/utils";
 import { fromRecord, Node } from "lowcoder-core";
 import { nodeIsRecord } from "lowcoder-core";
 import _ from "lodash";
-import { ReactNode } from "react";
 import { lastValueIfEqual } from "util/objectUtils";
 import {
   CompTree,
@@ -27,44 +27,52 @@ import { SimpleContainerComp } from "../containerBase/simpleContainerComp";
 import { ContainerBodyChildComp } from "./containerBodyChildComp";
 import { trans } from "i18n";
 import { ControlNode } from "lowcoder-design";
+import { StringControl } from "@lowcoder-ee/index.sdk";
 
 const childrenMap = {
   header: SimpleContainerComp,
-  // Support future tab or step container expansion
+  sider: SimpleContainerComp,
   body: withDefault(sameTypeMap(ContainerBodyChildComp), {
     0: { view: { layout: {}, items: {} } },
   }),
+  showApp: BoolControl,
+  contentApp: StringControl,
   footer: SimpleContainerComp,
   showHeader: BoolControl.DEFAULT_TRUE,
-  showBody: BoolControl.DEFAULT_TRUE,
+  showSider: BoolControl.DEFAULT_TRUE,
+  innerSider: BoolControl.DEFAULT_TRUE,
+  siderRight: withDefault(BoolControl, false),
+  siderWidth: withDefault(StringControl, "20%"),
   showFooter: BoolControl,
   autoHeight: AutoHeightControl,
-  scrollbars: withDefault(BoolControl, false),
+  siderScrollbars: withDefault(BoolControl, false),
+  contentScrollbars: withDefault(BoolControl, false),
   style: styleControl(ContainerStyle),
   headerStyle: styleControl(ContainerHeaderStyle),
+  siderStyle: styleControl(ContainerSiderStyle),
   bodyStyle: styleControl(ContainerBodyStyle),
   footerStyle: styleControl(ContainerFooterStyle),
 };
 
 // Compatible with old style data 2022-8-15
-const LayoutBaseComp = migrateOldData(
+const layoutBaseComp = migrateOldData(
   new MultiCompBuilder(childrenMap, (props, dispatch) => {
     return { ...props, dispatch };
   }).build(),
   fixOldStyleData
 );
 
-export class LayoutComp extends LayoutBaseComp implements IContainer {
-  scrollbars: any;
+export class PageLayoutComp extends layoutBaseComp implements IContainer {
+  // scrollbars: any;
   private allContainers() {
     return [
       this.children.header,
+      this.children.sider,
       ...Object.values(this.children.body.getView()).map((c) => c.children.view),
       this.children.footer,
     ];
   }
   realSimpleContainer(key?: string): SimpleContainerComp | undefined {
-    // FIXME: When the tab or step container supports header, footer, modify it to the current tab
     if (_.isNil(key)) return this.children.body.getView()["0"].children.view;
     return this.allContainers().find((container) => container.realSimpleContainer(key));
   }
@@ -84,6 +92,7 @@ export class LayoutComp extends LayoutBaseComp implements IContainer {
     return {
       ...this.toJsonValue(),
       header: this.children.header.getPasteValue(nameGenerator),
+      sider: this.children.sider.getPasteValue(nameGenerator),
       body: _.mapValues(this.children.body.getView(), (comp) => {
         return {
           ...comp.toJsonValue(),
@@ -123,16 +132,26 @@ export class LayoutComp extends LayoutBaseComp implements IContainer {
   areaPropertyView() {
     return [
       this.children.showHeader.propertyView({ label: trans("prop.showHeader") }),
-      this.children.showBody.propertyView({ label: trans("prop.showBody") }),
+      this.children.showSider.propertyView({ label: trans("prop.showSider") }),
+      this.children.siderRight.propertyView({ label: trans("prop.siderRight") }),
+      this.children.innerSider.propertyView({ label: trans("prop.innerSider") }),
       this.children.showFooter.propertyView({ label: trans("prop.showFooter") }),
-      
+      this.children.siderWidth.propertyView({ label: trans("prop.siderWidth") }),
     ];
   }
 
   heightPropertyView() {
     return [
       this.children.autoHeight.getPropertyView(),
-      (!this.children.autoHeight.getView()) && this.children.scrollbars.propertyView({ label: trans("prop.scrollbar") })
+      this.children.siderScrollbars.propertyView({ label: trans("prop.siderScrollbar")}),
+      (!this.children.autoHeight.getView()) && this.children.contentScrollbars.propertyView({ label: trans("prop.contentScrollbar") }),
+    ];
+  }
+
+  appSelectorPropertyView() {
+    return [
+      this.children.showApp.propertyView({ label: trans("prop.showApp") }),
+      this.children.showApp.getView() && this.children.contentApp.propertyView({ label: trans("prop.appID") })
     ];
   }
 
@@ -142,6 +161,10 @@ export class LayoutComp extends LayoutBaseComp implements IContainer {
 
   headerStylePropertyView() {
     return this.children.headerStyle.getPropertyView();
+  }
+
+  siderStylePropertyView() {
+    return this.children.siderStyle.getPropertyView();
   }
 
   bodyStylePropertyView() {

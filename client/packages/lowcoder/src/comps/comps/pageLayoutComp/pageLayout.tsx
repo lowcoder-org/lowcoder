@@ -1,0 +1,358 @@
+import { ContainerStyleType, heightCalculator, widthCalculator } from "comps/controls/styleControlConstants";
+import { EditorContext } from "comps/editorState";
+import { BackgroundColorContext } from "comps/utils/backgroundColorContext";
+import { HintPlaceHolder, ScrollBar } from "lowcoder-design";
+import { ReactNode, useContext } from "react";
+import styled, { css } from "styled-components";
+import { checkIsMobile } from "util/commonUtils";
+import { gridItemCompToGridItems, InnerGrid } from "../containerComp/containerView";
+import { LayoutViewProps } from "./pageLayoutCompBuilder";
+import { Layout } from 'antd';
+
+import { LowcoderAppView } from "@lowcoder-ee/index.sdk";
+import { useRef } from "react";
+
+const { Header, Content, Footer, Sider } = Layout;
+
+const AppViewContainer = styled.div`
+  width: 100%;
+  top: 0;
+  max-width: inherit;
+  overflow: auto;
+  height: 100%;
+`;
+
+const getStyle = (style: ContainerStyleType) => {
+  return css`
+    border-color: ${style.border};
+    border-width: ${style.borderWidth};
+    border-radius: ${style.radius};
+    overflow: hidden;
+    padding: ${style.padding};
+    ${style.background && `background-color: ${style.background};`}
+    ${style.backgroundImage && `background-image: ${style.backgroundImage};`}
+    ${style.backgroundImageRepeat && `background-repeat: ${style.backgroundImageRepeat};`}
+    ${style.backgroundImageSize && `background-size: ${style.backgroundImageSize};`}
+    ${style.backgroundImagePosition && `background-position: ${style.backgroundImagePosition};`}
+    ${style.backgroundImageOrigin && `background-origin: ${style.backgroundImageOrigin};`}
+  `;
+};
+
+const Wrapper = styled.div<{ $style: ContainerStyleType }>`
+  display: flex;
+  flex-flow: column;
+  height: 100%;
+  border: 1px solid #d7d9e0;
+  border-radius: 4px;
+  ${(props) => props.$style && getStyle(props.$style)}
+`;
+
+const HeaderInnerGrid = styled(InnerGrid)<{
+  $backgroundColor: string
+  $headerBackgroundImage: string;
+  $headerBackgroundImageRepeat: string;
+  $headerBackgroundImageSize: string;
+  $headerBackgroundImagePosition: string;
+  $headerBackgroundImageOrigin: string;
+ }>`
+  overflow: visible;
+  ${(props) => props.$backgroundColor && `background-color: ${props.$backgroundColor};`}
+  border-radius: 0;
+  ${(props) => props.$headerBackgroundImage && `background-image: ${props.$headerBackgroundImage};`}
+  ${(props) => props.$headerBackgroundImageRepeat && `background-repeat: ${props.$headerBackgroundImageRepeat};`}
+  ${(props) => props.$headerBackgroundImageSize && `background-size: ${props.$headerBackgroundImageSize};`}
+  ${(props) => props.$headerBackgroundImagePosition && `background-position: ${props.$headerBackgroundImagePosition};`}
+  ${(props) => props.$headerBackgroundImageOrigin && `background-origin: ${props.$headerBackgroundImageOrigin};`}
+`;
+
+const SiderInnerGrid = styled(InnerGrid)<{
+  $backgroundColor: string
+  $siderBackgroundImage: string;
+  $siderBackgroundImageRepeat: string;
+  $siderBackgroundImageSize: string;
+  $siderBackgroundImagePosition: string;
+  $siderBackgroundImageOrigin: string;
+ }>`
+  overflow: auto;
+  ${(props) => props.$backgroundColor && `background-color: ${props.$backgroundColor};`}
+  border-radius: 0;
+  ${(props) => props.$siderBackgroundImage && `background-image: ${props.$siderBackgroundImage};`}
+  ${(props) => props.$siderBackgroundImageRepeat && `background-repeat: ${props.$siderBackgroundImageRepeat};`}
+  ${(props) => props.$siderBackgroundImageSize && `background-size: ${props.$siderBackgroundImageSize};`}
+  ${(props) => props.$siderBackgroundImagePosition && `background-position: ${props.$siderBackgroundImagePosition};`}
+  ${(props) => props.$siderBackgroundImageOrigin && `background-origin: ${props.$siderBackgroundImageOrigin};`}
+`;
+
+const BodyInnerGrid = styled(InnerGrid)<{
+  $showBorder: boolean;
+  $backgroundColor: string;
+  $borderColor: string;
+  $borderWidth: string;
+  $backgroundImage: string;
+  $backgroundImageRepeat: string;
+  $backgroundImageSize: string;
+  $backgroundImagePosition: string;
+  $backgroundImageOrigin: string;
+}>`
+  border-top: ${(props) => `${props.$showBorder ? props.$borderWidth : 0} solid ${props.$borderColor}`};
+  flex: 1;
+  ${(props) => props.$backgroundColor && `background-color: ${props.$backgroundColor};`}
+  border-radius: 0;
+  ${(props) => props.$backgroundImage && `background-image: ${props.$backgroundImage};`}
+  ${(props) => props.$backgroundImageRepeat && `background-repeat: ${props.$backgroundImageRepeat};`}
+  ${(props) => props.$backgroundImageSize && `background-size: ${props.$backgroundImageSize};`}
+  ${(props) => props.$backgroundImagePosition && `background-position: ${props.$backgroundImagePosition};`}
+  ${(props) => props.$backgroundImageOrigin && `background-origin: ${props.$backgroundImageOrigin};`}
+`;
+
+const FooterInnerGrid = styled(InnerGrid)<{
+  $showBorder: boolean;
+  $backgroundColor: string;
+  $borderColor: string;
+  $borderWidth: string;
+  $footerBackgroundImage: string;
+  $footerBackgroundImageRepeat: string;
+  $footerBackgroundImageSize: string;
+  $footerBackgroundImagePosition: string;
+  $footerBackgroundImageOrigin: string;
+}>`
+  border-top: ${(props) => `${props.$showBorder ? props.$borderWidth : 0} solid ${props.$borderColor}`};
+  overflow: visible;
+  ${(props) => props.$backgroundColor && `background-color: ${props.$backgroundColor};`}
+  border-radius: 0;
+  ${(props) => props.$footerBackgroundImage && `background-image: ${props.$footerBackgroundImage};`}
+  ${(props) => props.$footerBackgroundImageRepeat && `background-repeat: ${props.$footerBackgroundImageRepeat};`}
+  ${(props) => props.$footerBackgroundImageSize && `background-size: ${props.$footerBackgroundImageSize};`}
+  ${(props) => props.$footerBackgroundImagePosition && `background-position: ${props.$footerBackgroundImagePosition};`}
+  ${(props) => props.$footerBackgroundImageOrigin && `background-origin: ${props.$footerBackgroundImageOrigin};`}
+`;
+
+export type LayoutProps = LayoutViewProps & {
+  hintPlaceholder?: ReactNode;
+};
+
+
+export function PageLayout(props: LayoutProps) {
+  const { container } = props;
+  const { showHeader, showFooter, showSider } = container;
+  // When the header and footer are not displayed, the body must be displayed
+
+  const siderScrollbars = container.siderScrollbars;
+  const contentScrollbars = container.contentScrollbars;
+  const innerSider = container.innerSider || false;
+  const siderRight = container.siderRight || false;
+  const siderWidth = container.siderWidth || "20%";
+
+  const { items: headerItems, ...otherHeaderProps } = container.header;
+  const { items: bodyItems, ...otherBodyProps } = container.body["0"].children.view.getView();
+  const { items: footerItems, ...otherFooterProps } = container.footer;
+  const { items: siderItems, ...otherSiderProps } = container.sider;
+  const {
+    style,
+    headerStyle,
+    siderStyle,
+    bodyStyle,
+    footerStyle,
+  } = container; 
+
+  const editorState = useContext(EditorContext);
+  const maxWidth = editorState.getAppSettings().maxWidth;
+  const isMobile = checkIsMobile(maxWidth);
+  const appRef = useRef();
+
+  return (
+    <div style={{padding: style.margin, height: '100%'}}>
+    <Wrapper $style={style}>
+      <Layout style={{padding: "0px"}}>
+        {showSider && !innerSider && !siderRight && (
+          <><Sider width="20%" style={{ padding: "0px", margin: '0px' }}>
+              <ScrollBar style={{ height: container.autoHeight ? "auto" : "100%", margin: "0px", padding: "0px" }} hideScrollbar={!siderScrollbars}>
+                <SiderInnerGrid
+                  {...otherSiderProps}
+                  items={gridItemCompToGridItems(siderItems)}
+                  autoHeight={true}
+                  emptyRows={30}
+                  minHeight={`calc(100vh - ${style.padding}px)`}
+                  containerPadding={[0, 0]}
+                  showName={{ bottom: showFooter ? 20 : 0 }}
+                  $backgroundColor={siderStyle?.headerBackground || 'transparent'}
+                  $siderBackgroundImage={siderStyle?.siderBackgroundImage}
+                  $siderBackgroundImageRepeat={siderStyle?.siderBackgroundImageRepeat}
+                  $siderBackgroundImageSize={siderStyle?.siderBackgroundImageSize}
+                  $siderBackgroundImagePosition={siderStyle?.siderBackgroundImagePosition}
+                  $siderBackgroundImageOrigin={siderStyle?.siderBackgroundImageOrigin}
+                  style={{ padding: siderStyle.containerHeaderPadding }} />
+              </ScrollBar>
+            </Sider></>
+          )}
+            <Layout style={{ padding: "0px" }}>
+              {showHeader && (
+                <Header style={{ backgroundColor: headerStyle?.headerBackground || 'transparent', padding: '0px', margin: '0px' }}>
+                  <HeaderInnerGrid
+                    {...otherHeaderProps}
+                    items={gridItemCompToGridItems(headerItems)}
+                    autoHeight={true}
+                    emptyRows={5}
+                    minHeight="46px"
+                    containerPadding={[0, 0]}
+                    showName={{ bottom: showFooter ? 20 : 0 }}
+                    $backgroundColor={headerStyle?.headerBackground || 'transparent'}
+                    $headerBackgroundImage={headerStyle?.headerBackgroundImage}
+                    $headerBackgroundImageRepeat={headerStyle?.headerBackgroundImageRepeat}
+                    $headerBackgroundImageSize={headerStyle?.headerBackgroundImageSize}
+                    $headerBackgroundImagePosition={headerStyle?.headerBackgroundImagePosition}
+                    $headerBackgroundImageOrigin={headerStyle?.headerBackgroundImageOrigin}
+                    style={{ padding: headerStyle.containerHeaderPadding }} />
+                </Header>
+              )}
+                {showSider && innerSider ? (
+                <><Layout style={{ padding: '0px' }}>
+                  {showSider && !siderRight && (
+                    <Sider width="15%" style={{ padding: "0px", margin: '0px', marginTop: style.borderWidth }}>
+                      <ScrollBar style={{ height: container.autoHeight ? "auto" : "100%", margin: "0px", padding: "0px" }} hideScrollbar={!siderScrollbars}>
+                        <SiderInnerGrid
+                          {...otherSiderProps}
+                          items={gridItemCompToGridItems(siderItems)}
+                          autoHeight={true}
+                          emptyRows={30}
+                          minHeight={`calc(100vh - ${style.padding}px)`}
+                          containerPadding={[0, 0]}
+                          showName={{ bottom: showFooter ? 20 : 0 }}
+                          $backgroundColor={siderStyle?.headerBackground || 'transparent'}
+                          $siderBackgroundImage={siderStyle?.siderBackgroundImage}
+                          $siderBackgroundImageRepeat={siderStyle?.siderBackgroundImageRepeat}
+                          $siderBackgroundImageSize={siderStyle?.siderBackgroundImageSize}
+                          $siderBackgroundImagePosition={siderStyle?.siderBackgroundImagePosition}
+                          $siderBackgroundImageOrigin={siderStyle?.siderBackgroundImageOrigin}
+                          style={{ padding: siderStyle.containerHeaderPadding }} />
+                      </ScrollBar>
+                    </Sider>
+                    )}
+                    <Content style={{ padding: '0px', margin: '0px' }}>
+                      <ScrollBar style={{ height: container.autoHeight ? "auto" : "100%", margin: "0px", padding: "0px" }} hideScrollbar={!contentScrollbars}>
+                        {container.showApp && container.contentApp != "" ? (
+                          <AppViewContainer>
+                            <LowcoderAppView
+                              ref={appRef}
+                              appId={container.contentApp}
+                              baseUrl="http://localhost:3000"
+                            />
+                          </AppViewContainer>
+                        ) : (
+                          <BodyInnerGrid
+                          $showBorder={showHeader}
+                          {...otherBodyProps}
+                          items={gridItemCompToGridItems(bodyItems)}
+                          autoHeight={container.autoHeight}
+                          emptyRows={14}
+                          minHeight={showHeader ? "143px" : "142px"}
+                          containerPadding={[0, 0]}
+                          hintPlaceholder={props.hintPlaceholder ?? HintPlaceHolder}
+                          $backgroundColor={bodyStyle?.background || 'transparent'}
+                          $borderColor={style?.border}
+                          $borderWidth={style?.borderWidth}
+                          $backgroundImage={bodyStyle?.backgroundImage}
+                          $backgroundImageRepeat={bodyStyle?.backgroundImageRepeat}
+                          $backgroundImageSize={bodyStyle?.backgroundImageSize}
+                          $backgroundImagePosition={bodyStyle?.backgroundImagePosition}
+                          $backgroundImageOrigin={bodyStyle?.backgroundImageOrigin}
+                          style={{ padding: bodyStyle.containerBodyPadding }} />
+                        )}
+                      </ScrollBar>
+                    </Content>
+                    {showSider && siderRight && (
+                      <Sider width="15%" style={{ padding: "0px", margin: '0px' }}>
+                        <ScrollBar style={{ height: container.autoHeight ? "auto" : "100%", margin: "0px", padding: "0px" }} hideScrollbar={!siderScrollbars}>
+                          <SiderInnerGrid
+                            {...otherSiderProps}
+                            items={gridItemCompToGridItems(siderItems)}
+                            autoHeight={true}
+                            emptyRows={30}
+                            minHeight={`calc(100vh - ${style.padding}px)`}
+                            containerPadding={[0, 0]}
+                            showName={{ bottom: showFooter ? 20 : 0 }}
+                            $backgroundColor={siderStyle?.headerBackground || 'transparent'}
+                            $siderBackgroundImage={siderStyle?.siderBackgroundImage}
+                            $siderBackgroundImageRepeat={siderStyle?.siderBackgroundImageRepeat}
+                            $siderBackgroundImageSize={siderStyle?.siderBackgroundImageSize}
+                            $siderBackgroundImagePosition={siderStyle?.siderBackgroundImagePosition}
+                            $siderBackgroundImageOrigin={siderStyle?.siderBackgroundImageOrigin}
+                            style={{ padding: siderStyle.containerHeaderPadding }} />
+                        </ScrollBar>
+                      </Sider>
+                    )}
+                 </Layout></>
+                ) : (
+                  <Content style={{ padding: '0px', margin: '0px' }}>
+                    <ScrollBar style={{ height: container.autoHeight ? "auto" : "100%", margin: "0px", padding: "0px" }} hideScrollbar={!contentScrollbars}>
+                      <BodyInnerGrid
+                        $showBorder={showHeader}
+                        {...otherBodyProps}
+                        items={gridItemCompToGridItems(bodyItems)}
+                        autoHeight={container.autoHeight}
+                        emptyRows={14}
+                        minHeight={showHeader ? "143px" : "142px"}
+                        containerPadding={[0, 0]}
+                        hintPlaceholder={props.hintPlaceholder ?? HintPlaceHolder}
+                        $backgroundColor={bodyStyle?.background || 'transparent'}
+                        $borderColor={style?.border}
+                        $borderWidth={style?.borderWidth}
+                        $backgroundImage={bodyStyle?.backgroundImage}
+                        $backgroundImageRepeat={bodyStyle?.backgroundImageRepeat}
+                        $backgroundImageSize={bodyStyle?.backgroundImageSize}
+                        $backgroundImagePosition={bodyStyle?.backgroundImagePosition}
+                        $backgroundImageOrigin={bodyStyle?.backgroundImageOrigin}
+                        style={{ padding: bodyStyle.containerBodyPadding }} />
+                    </ScrollBar>
+                  </Content>
+                )}
+                {showFooter && (
+                  <Footer style={{ textAlign: 'center', padding: '0px', margin: '0px' }}>
+                    <FooterInnerGrid
+                      $showBorder={showHeader}
+                      {...otherFooterProps}
+                      items={gridItemCompToGridItems(footerItems)}
+                      autoHeight={true}
+                      emptyRows={5}
+                      minHeight={"48px"}
+                      containerPadding={[0, 0]}
+                      showName={{ top: showHeader ? 20 : 0 }}
+                      $backgroundColor={footerStyle?.footerBackground || 'transparent'}
+                      $footerBackgroundImage={footerStyle?.footerBackgroundImage}
+                      $footerBackgroundImageRepeat={footerStyle?.footerBackgroundImageRepeat}
+                      $footerBackgroundImageSize={footerStyle?.footerBackgroundImageSize}
+                      $footerBackgroundImagePosition={footerStyle?.footerBackgroundImagePosition}
+                      $footerBackgroundImageOrigin={footerStyle?.footerBackgroundImageOrigin}
+                      $borderColor={style?.border}
+                      $borderWidth={style?.borderWidth}
+                      style={{ padding: footerStyle.containerFooterPadding }} />
+                  </Footer>
+                )}
+              </Layout>
+          {showSider && !innerSider && siderRight && (
+            <><Sider width="15%" style={{ padding: "0px", margin: '0px' }}>
+                <ScrollBar style={{ height: container.autoHeight ? "auto" : "100%", margin: "0px", padding: "0px" }} hideScrollbar={!siderScrollbars}>
+                  <SiderInnerGrid
+                    {...otherSiderProps}
+                    items={gridItemCompToGridItems(siderItems)}
+                    autoHeight={true}
+                    emptyRows={30}
+                    minHeight={`calc(100vh - ${style.padding}px)`}
+                    containerPadding={[0, 0]}
+                    showName={{ bottom: showFooter ? 20 : 0 }}
+                    $backgroundColor={siderStyle?.headerBackground || 'transparent'}
+                    $siderBackgroundImage={siderStyle?.siderBackgroundImage}
+                    $siderBackgroundImageRepeat={siderStyle?.siderBackgroundImageRepeat}
+                    $siderBackgroundImageSize={siderStyle?.siderBackgroundImageSize}
+                    $siderBackgroundImagePosition={siderStyle?.siderBackgroundImagePosition}
+                    $siderBackgroundImageOrigin={siderStyle?.siderBackgroundImageOrigin}
+                    style={{ padding: siderStyle.containerHeaderPadding }} />
+                </ScrollBar>
+              </Sider>
+            </>
+          )}
+        </Layout>
+      </Wrapper>
+    </div>
+  );
+}

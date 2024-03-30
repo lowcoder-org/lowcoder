@@ -35,6 +35,12 @@ export type HeaderBackgroundImageSizeConfig = CommonColorConfig & { readonly hea
 export type HeaderBackgroundImagePositionConfig = CommonColorConfig & { readonly headerBackgroundImagePosition: string; };
 export type HeaderBackgroundImageOriginConfig = CommonColorConfig & { readonly headerBackgroundImageOrigin: string; };
 
+export type SiderBackgroundImageConfig = CommonColorConfig & { readonly siderBackgroundImage: string; };
+export type SiderBackgroundImageRepeatConfig = CommonColorConfig & { readonly siderBackgroundImageRepeat: string; };
+export type SiderBackgroundImageSizeConfig = CommonColorConfig & { readonly siderBackgroundImageSize: string; };
+export type SiderBackgroundImagePositionConfig = CommonColorConfig & { readonly siderBackgroundImagePosition: string; };
+export type SiderBackgroundImageOriginConfig = CommonColorConfig & { readonly siderBackgroundImageOrigin: string; };
+
 export type FooterBackgroundImageConfig = CommonColorConfig & { readonly footerBackgroundImage: string; };
 export type FooterBackgroundImageRepeatConfig = CommonColorConfig & { readonly footerBackgroundImageRepeat: string; };
 export type FooterBackgroundImageSizeConfig = CommonColorConfig & { readonly footerBackgroundImageSize: string; };
@@ -96,7 +102,7 @@ export type DepColorConfig = CommonColorConfig & {
   transformer: (color: string, ...rest: string[]) => string;
 };
 
-export type SingleColorConfig = SimpleColorConfig | DepColorConfig | RadiusConfig | BorderWidthConfig | borderStyleConfig | BackgroundImageConfig | BackgroundImageRepeatConfig | BackgroundImageSizeConfig | BackgroundImagePositionConfig | BackgroundImageOriginConfig | TextSizeConfig | TextWeightConfig | TextTransformConfig | TextDecorationConfig | FontFamilyConfig | FontStyleConfig | MarginConfig | PaddingConfig | ContainerHeaderPaddingConfig | ContainerFooterPaddingConfig | ContainerBodyPaddingConfig | HeaderBackgroundImageConfig | HeaderBackgroundImageRepeatConfig | HeaderBackgroundImageSizeConfig | HeaderBackgroundImagePositionConfig | HeaderBackgroundImageOriginConfig | FooterBackgroundImageConfig | FooterBackgroundImageRepeatConfig | FooterBackgroundImageSizeConfig | FooterBackgroundImagePositionConfig | FooterBackgroundImageOriginConfig;
+export type SingleColorConfig = SimpleColorConfig | DepColorConfig | RadiusConfig | BorderWidthConfig | borderStyleConfig | BackgroundImageConfig | BackgroundImageRepeatConfig | BackgroundImageSizeConfig | BackgroundImagePositionConfig | BackgroundImageOriginConfig | TextSizeConfig | TextWeightConfig | TextTransformConfig | TextDecorationConfig | FontFamilyConfig | FontStyleConfig | MarginConfig | PaddingConfig | ContainerHeaderPaddingConfig | ContainerFooterPaddingConfig | ContainerBodyPaddingConfig | HeaderBackgroundImageConfig | HeaderBackgroundImageRepeatConfig | HeaderBackgroundImageSizeConfig | HeaderBackgroundImagePositionConfig | HeaderBackgroundImageOriginConfig | FooterBackgroundImageConfig | FooterBackgroundImageRepeatConfig | FooterBackgroundImageSizeConfig | FooterBackgroundImagePositionConfig | FooterBackgroundImageOriginConfig | SiderBackgroundImageConfig | SiderBackgroundImageRepeatConfig | SiderBackgroundImageSizeConfig | SiderBackgroundImagePositionConfig | SiderBackgroundImageOriginConfig;
 
 export const defaultTheme: ThemeDetail = {
   primary: "#3377FF",
@@ -626,6 +632,36 @@ export const ContainerHeaderStyle = [
     name: "headerBackgroundImageOrigin",
     label: trans("style.backgroundImageOrigin"),
     headerBackgroundImageOrigin: "headerBackgroundImageOrigin",
+  },
+] as const;
+
+export const ContainerSiderStyle = [
+  CONTAINER_HEADER_PADDING,
+  HEADER_BACKGROUND,
+  {
+    name: "siderBackgroundImage",
+    label: trans("style.backgroundImage"),
+    siderBackgroundImage: "siderBackgroundImage",
+  },
+  {
+    name: "siderBackgroundImageRepeat",
+    label: trans("style.backgroundImageRepeat"),
+    siderBackgroundImageRepeat: "siderBackgroundImageRepeat",
+  },
+  {
+    name: "siderBackgroundImageSize",
+    label: trans("style.backgroundImageSize"),
+    siderBackgroundImageSize: "siderBackgroundImageSize",
+  },
+  {
+    name: "siderBackgroundImagePosition",
+    label: trans("style.backgroundImagePosition"),
+    siderBackgroundImagePosition: "siderBackgroundImagePosition",
+  }
+  , {
+    name: "siderBackgroundImageOrigin",
+    label: trans("style.backgroundImageOrigin"),
+    siderBackgroundImageOrigin: "siderBackgroundImageOrigin",
   },
 ] as const;
 
@@ -1381,6 +1417,7 @@ export type TextStyleType = StyleConfigType<typeof TextStyle>;
 export type ContainerStyleType = StyleConfigType<typeof ContainerStyle>;
 export type ContainerHeaderStyleType = StyleConfigType<typeof ContainerHeaderStyle>;
 export type ContainerBodyStyleType = StyleConfigType<typeof ContainerBodyStyle>;
+export type ContainerSiderStyleType = StyleConfigType<typeof ContainerSiderStyle>;
 export type ContainerFooterStyleType = StyleConfigType<typeof ContainerFooterStyle>;
 export type SliderStyleType = StyleConfigType<typeof SliderStyle>;
 export type RatingStyleType = StyleConfigType<typeof RatingStyle>;

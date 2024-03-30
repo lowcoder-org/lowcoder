@@ -191,6 +191,8 @@ MobileTabLayoutTmp = withViewFn(MobileTabLayoutTmp, (comp) => {
     />
   );
 
+  //console.log("appView", appView);
+
   if (readOnly) {
     return (
       <TabLayoutViewContainer>
