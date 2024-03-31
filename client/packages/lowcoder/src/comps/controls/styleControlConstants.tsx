@@ -864,16 +864,10 @@ export const TabContainerStyle = [
     name: "tabText",
     label: trans("style.tabText"),
     depName: "headerBackground",
-    depType: DEP_TYPE.CONTRAST_TEXT,
-    transformer: contrastText,
-  },]),
-  {
-    name: "accent",
-    label: trans("style.tabAccent"),
-    depTheme: "primary",
-    depType: DEP_TYPE.SELF,
+    depType: TEXT,
     transformer: toSelf,
-  },
+  },]),
+  ACCENT
 ] as const;
 
 export const ModalStyle = [

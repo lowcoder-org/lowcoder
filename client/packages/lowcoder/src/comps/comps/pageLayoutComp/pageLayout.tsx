@@ -440,10 +440,3 @@ export function PageLayout(props: LayoutProps & { siderCollapsed: boolean; setSi
     </div>
   );
 }
-
-/* 
-background-color: ${contrastBackground(container.siderStyle.siderBackground)};
-                > .anticon {
-                  color: ${contrastText(container.siderStyle.siderBackground, "black", "white")} !important;
-                }
-*/

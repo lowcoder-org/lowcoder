@@ -1684,13 +1684,19 @@ export const en = {
     "orgName": "Workspace Name"
   },
   "freeLimit": "Free Trial",
+
   "tabbedContainer": {
     "switchTab": "Switch Tab",
     "switchTabDesc": "Triggered When Switching Tabs",
     "tab": "Tabs",
     "atLeastOneTabError": "The Tab Container Keeps at Least One Tab",
     "selectedTabKeyDesc": "Currently Selected Tab",
-    "iconPosition": "Icon Position"
+    "iconPosition": "Icon Position",
+    "placement" : "Tabs Placement",
+    "showTabs": "Show Tabs",
+    "gutter" : "Gap",
+    "gutterTooltip" : "The distance between tabs in px",
+    "tabsCentered" : "Centered Tabs",
   },
   "formComp": {
     "containerPlaceholder": "Drag Components from the Right Pane or",
