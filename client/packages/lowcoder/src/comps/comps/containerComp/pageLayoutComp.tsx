@@ -1,6 +1,7 @@
 import { CompParams } from "lowcoder-core";
 import { ToDataType } from "comps/generators/multi";
-import { NameConfigHidden, withExposingConfigs } from "comps/generators/withExposing";
+import { NameConfigDisabled, NameConfigHidden, withExposingConfigs, NameConfig, CompDepsConfig } from "comps/generators/withExposing";
+import { withMethodExposing } from "comps/generators/withMethodExposing";
 import { NameGenerator } from "comps/utils/nameGenerator";
 import { Section, sectionNames } from "lowcoder-design";
 import { oldContainerParamsToNew } from "../containerBase";
@@ -9,7 +10,7 @@ import { disabledPropertyView, hiddenPropertyView } from "comps/utils/propertyUt
 import { trans } from "i18n";
 import { BoolCodeControl } from "comps/controls/codeControl";
 import { DisabledContext } from "comps/generators/uiCompBuilder";
-import React, { useContext } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { EditorContext } from "comps/editorState";
 
 import {
@@ -18,14 +19,19 @@ import {
 } from "../pageLayoutComp/pageLayoutCompBuilder";
 import { PageLayout } from "../pageLayoutComp/pageLayout";
 
+
 export const ContainerBaseComp = (function () {
-  const childrenMap = {
-    disabled: BoolCodeControl,
+  const childrenMap = { 
+    disabled: BoolCodeControl
   };
+
   return new ContainerCompBuilder(childrenMap, (props, dispatch) => {
+
+    const [siderCollapsed, setSiderCollapsed] = useState(false);
+
     return (
       <DisabledContext.Provider value={props.disabled}>
-        <PageLayout {...props} />
+        <PageLayout {...props} siderCollapsed={siderCollapsed} setSiderCollapsed={setSiderCollapsed} />
       </DisabledContext.Provider>
     );
   })
@@ -102,13 +108,41 @@ function convertOldContainerParams(params: CompParams<any>) {
   return tempParams;
 }
 
+
 class ContainerTmpComp extends ContainerBaseComp {
   constructor(params: CompParams<any>) {
     super(convertOldContainerParams(params));
   }
 }
 
-export const PageLayoutComp = withExposingConfigs(ContainerTmpComp, [NameConfigHidden]);
+const PageLayoutCompTmP = withExposingConfigs(ContainerTmpComp, [
+  NameConfigHidden,
+  NameConfigDisabled,
+
+  new NameConfig("container", trans("export.ratingValueDesc")),
+  new CompDepsConfig(
+    "siderCollapsed",
+    (comp) => ({ data : comp.children.container.children.siderCollapsed.nodeWithoutCache()}),
+    (input) => input.data.value, trans("listView.itemsDesc")
+  ),
+]);
+
+export const PageLayoutComp = withMethodExposing(PageLayoutCompTmP, [
+  
+  {
+    method: {
+      name: "setSiderCollapsed",
+      description: "Set the Sider of the PageLayout to be collapsed or not",
+      params: [{ name: "collapsed", type: "boolean" }],
+    },
+    execute: (comp, values) => {
+      const page = values[0] as number;
+      if (page && page > 0) {
+        // comp.children.pagination.children.pageNo.dispatchChangeValueAction(page);
+      }
+    },
+  }
+]);
 
 type ContainerDataType = ToDataType<ContainerChildren<{}>>;
 
@@ -121,10 +155,40 @@ export function defaultPageLayoutData(
       header: toSimpleContainerData([
         {
           item: {
-            compType: "text",
-            name: nameGenerator.genItemName("containerTitle"),
+            compType: "navigation",
+            name: nameGenerator.genItemName("pageNavigation"),
             comp: {
-              text: "## " + trans("container.title"),
+              logoUrl: "",
+              hidden: false,
+              items: [
+                {
+                  label: "Home",
+                  hidden: false,
+                  active: false,
+                },
+                {
+                  label: "Services",
+                  hidden: false,
+                  active: false,
+                  items: [
+                    {
+                      label: "Lowcode Platform",
+                      hidden: false,
+                      active: false,
+                    },
+                    {
+                      label: "App Development",
+                      hidden: false,
+                      active: false,
+                    },
+                  ],
+                },
+                {
+                  label: "About",
+                  hidden: false,
+                  active: false,
+                },
+              ],
             },
           },
           layoutItem: {

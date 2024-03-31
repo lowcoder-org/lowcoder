@@ -71,6 +71,10 @@ export type ContainerHeaderPaddingConfig = CommonColorConfig & {
   readonly containerHeaderPadding: string;
 };
 
+export type ContainerSiderPaddingConfig = CommonColorConfig & {
+  readonly containerSiderPadding: string;
+};
+
 export type ContainerBodyPaddingConfig = CommonColorConfig & {
   readonly containerBodyPadding: string;
 };
@@ -102,7 +106,7 @@ export type DepColorConfig = CommonColorConfig & {
   transformer: (color: string, ...rest: string[]) => string;
 };
 
-export type SingleColorConfig = SimpleColorConfig | DepColorConfig | RadiusConfig | BorderWidthConfig | borderStyleConfig | BackgroundImageConfig | BackgroundImageRepeatConfig | BackgroundImageSizeConfig | BackgroundImagePositionConfig | BackgroundImageOriginConfig | TextSizeConfig | TextWeightConfig | TextTransformConfig | TextDecorationConfig | FontFamilyConfig | FontStyleConfig | MarginConfig | PaddingConfig | ContainerHeaderPaddingConfig | ContainerFooterPaddingConfig | ContainerBodyPaddingConfig | HeaderBackgroundImageConfig | HeaderBackgroundImageRepeatConfig | HeaderBackgroundImageSizeConfig | HeaderBackgroundImagePositionConfig | HeaderBackgroundImageOriginConfig | FooterBackgroundImageConfig | FooterBackgroundImageRepeatConfig | FooterBackgroundImageSizeConfig | FooterBackgroundImagePositionConfig | FooterBackgroundImageOriginConfig | SiderBackgroundImageConfig | SiderBackgroundImageRepeatConfig | SiderBackgroundImageSizeConfig | SiderBackgroundImagePositionConfig | SiderBackgroundImageOriginConfig;
+export type SingleColorConfig = SimpleColorConfig | DepColorConfig | RadiusConfig | BorderWidthConfig | borderStyleConfig | BackgroundImageConfig | BackgroundImageRepeatConfig | BackgroundImageSizeConfig | BackgroundImagePositionConfig | BackgroundImageOriginConfig | TextSizeConfig | TextWeightConfig | TextTransformConfig | TextDecorationConfig | FontFamilyConfig | FontStyleConfig | MarginConfig | PaddingConfig | ContainerHeaderPaddingConfig | ContainerSiderPaddingConfig | ContainerFooterPaddingConfig | ContainerBodyPaddingConfig | HeaderBackgroundImageConfig | HeaderBackgroundImageRepeatConfig | HeaderBackgroundImageSizeConfig | HeaderBackgroundImagePositionConfig | HeaderBackgroundImageOriginConfig | FooterBackgroundImageConfig | FooterBackgroundImageRepeatConfig | FooterBackgroundImageSizeConfig | FooterBackgroundImagePositionConfig | FooterBackgroundImageOriginConfig | SiderBackgroundImageConfig | SiderBackgroundImageRepeatConfig | SiderBackgroundImageSizeConfig | SiderBackgroundImagePositionConfig | SiderBackgroundImageOriginConfig;
 
 export const defaultTheme: ThemeDetail = {
   primary: "#3377FF",
@@ -396,6 +400,12 @@ const CONTAINER_HEADER_PADDING = {
   containerHeaderPadding: "padding",
 } as const;
 
+const CONTAINER_SIDER_PADDING = {
+  name: "containerSiderPadding",
+  label: trans("style.containerSiderPadding"),
+  containerSiderPadding: "padding",
+} as const;
+
 const CONTAINER_FOOTER_PADDING = {
   name: "containerFooterPadding",
   label: trans("style.containerFooterPadding"),
@@ -436,6 +446,14 @@ const getStaticBorder = (color: string = SECOND_SURFACE_COLOR) =>
 const HEADER_BACKGROUND = {
   name: "headerBackground",
   label: trans("style.headerBackground"),
+  depName: "background",
+  depType: DEP_TYPE.SELF,
+  transformer: toSelf,
+} as const;
+
+const SIDER_BACKGROUND = {
+  name: "siderBackground",
+  label: trans("style.siderBackground"),
   depName: "background",
   depType: DEP_TYPE.SELF,
   transformer: toSelf,
@@ -636,8 +654,8 @@ export const ContainerHeaderStyle = [
 ] as const;
 
 export const ContainerSiderStyle = [
-  CONTAINER_HEADER_PADDING,
-  HEADER_BACKGROUND,
+  CONTAINER_SIDER_PADDING,
+  SIDER_BACKGROUND,
   {
     name: "siderBackgroundImage",
     label: trans("style.backgroundImage"),

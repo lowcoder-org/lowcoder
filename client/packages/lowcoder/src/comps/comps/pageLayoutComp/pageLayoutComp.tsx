@@ -27,7 +27,7 @@ import { SimpleContainerComp } from "../containerBase/simpleContainerComp";
 import { ContainerBodyChildComp } from "./containerBodyChildComp";
 import { trans } from "i18n";
 import { ControlNode } from "lowcoder-design";
-import { StringControl } from "@lowcoder-ee/index.sdk";
+import { StringControl } from "@lowcoder-ee/index.sdk"; 
 
 const childrenMap = {
   header: SimpleContainerComp,
@@ -37,12 +37,16 @@ const childrenMap = {
   }),
   showApp: BoolControl,
   contentApp: StringControl,
+  baseUrl: StringControl,
   footer: SimpleContainerComp,
   showHeader: BoolControl.DEFAULT_TRUE,
   showSider: BoolControl.DEFAULT_TRUE,
   innerSider: BoolControl.DEFAULT_TRUE,
+  siderCollapsible: withDefault(BoolControl, false),
+  siderCollapsed : withDefault(BoolControl, false),
   siderRight: withDefault(BoolControl, false),
   siderWidth: withDefault(StringControl, "20%"),
+  siderCollapsedWidth: withDefault(StringControl, "0"),
   showFooter: BoolControl,
   autoHeight: AutoHeightControl,
   siderScrollbars: withDefault(BoolControl, false),
@@ -135,8 +139,11 @@ export class PageLayoutComp extends layoutBaseComp implements IContainer {
       this.children.showSider.propertyView({ label: trans("prop.showSider") }),
       this.children.siderRight.propertyView({ label: trans("prop.siderRight") }),
       this.children.innerSider.propertyView({ label: trans("prop.innerSider") }),
+      this.children.siderCollapsible.propertyView({ label: trans("prop.siderCollapsible") }),
+      this.children.siderCollapsed.propertyView({ label: trans("prop.siderCollapsed") }),
       this.children.showFooter.propertyView({ label: trans("prop.showFooter") }),
-      this.children.siderWidth.propertyView({ label: trans("prop.siderWidth") }),
+      this.children.siderWidth.propertyView({ label: trans("prop.siderWidth"), tooltip : trans("prop.siderWidthTooltip") }),
+      this.children.siderCollapsedWidth.propertyView({ label: trans("prop.siderCollapsedWidth"), tooltip : trans("prop.siderCollapsedWidthTooltip") }),
     ];
   }
 
@@ -150,8 +157,9 @@ export class PageLayoutComp extends layoutBaseComp implements IContainer {
 
   appSelectorPropertyView() {
     return [
-      this.children.showApp.propertyView({ label: trans("prop.showApp") }),
-      this.children.showApp.getView() && this.children.contentApp.propertyView({ label: trans("prop.appID") })
+      this.children.showApp.propertyView({ label: trans("prop.showApp"), tooltip: trans("prop.showAppTooltip") }),
+      this.children.showApp.getView() && this.children.contentApp.propertyView({ label: trans("prop.appID") }), 
+      this.children.showApp.getView() && this.children.baseUrl.propertyView({ label: trans("prop.baseURL") }),
     ];
   }
 
