@@ -7,9 +7,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.Builder;
 import lombok.Getter;
+import lombok.extern.jackson.Jacksonized;
 
 @Getter
 @Builder
+@Jacksonized
 public class BaseQuery {
 
     private final String datasourceId;
@@ -22,11 +24,4 @@ public class BaseQuery {
     @JsonProperty(value = "timeout")
     private final String timeoutStr;
 
-    @JsonCreator
-    private BaseQuery(String datasourceId, Map<String, Object> queryConfig, String compType, String timeoutStr) {
-        this.datasourceId = datasourceId;
-        this.queryConfig = queryConfig;
-        this.compType = compType;
-        this.timeoutStr = timeoutStr;
-    }
 }

@@ -5,6 +5,7 @@ import static org.lowcoder.sdk.util.ExceptionUtils.ofException;
 
 import java.util.Map;
 
+import lombok.extern.jackson.Jacksonized;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.lowcoder.sdk.models.DatasourceConnectionConfig;
@@ -15,6 +16,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import lombok.experimental.SuperBuilder;
 
 @SuperBuilder
+@Jacksonized
 public class OracleDatasourceConfig extends SqlBasedDatasourceConnectionConfig {
     private final String sid;
     private final String serviceName;

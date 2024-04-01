@@ -7,6 +7,7 @@ import static org.lowcoder.sdk.util.LocaleUtils.getLocale;
 import java.util.Collection;
 import java.util.Locale;
 
+import lombok.RequiredArgsConstructor;
 import org.lowcoder.domain.group.event.GroupDeletedEvent;
 import org.lowcoder.domain.group.model.Group;
 import org.lowcoder.domain.group.repository.GroupRepository;
@@ -24,19 +25,13 @@ import reactor.core.publisher.Mono;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class GroupServiceImpl implements GroupService {
 
-    @Autowired
-    private GroupRepository repository;
-
-    @Autowired
-    private GroupMemberService groupMemberService;
-
-    @Autowired
-    private MongoUpsertHelper mongoUpsertHelper;
-
-    @Autowired
-    private ApplicationContext applicationContext;
+    private final GroupRepository repository;
+    private final GroupMemberService groupMemberService;
+    private final MongoUpsertHelper mongoUpsertHelper;
+    private final ApplicationContext applicationContext;
 
     @Override
     public Mono<Group> getById(String groupId) {
@@ -96,11 +91,12 @@ public class GroupServiceImpl implements GroupService {
     private Mono<Group> createSystemGroup(String organizationId, String type) {
         return Mono.deferContextual(contextView -> {
             Locale locale = getLocale(contextView);
-            Group group = new Group();
-            group.setOrganizationId(organizationId);
-            group.setName(SystemGroups.getName(type, locale));
-            group.setType(type);
-            group.setAllUsersGroup(type.equals(ALL_USER));
+            Group group = Group.builder()
+                    .organizationId(organizationId)
+                    .name(SystemGroups.getName(type, locale))
+                    .type(type)
+                    .allUsersGroup(type.equals(ALL_USER))
+                    .build();
             return repository.save(group);
         });
     }

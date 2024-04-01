@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import lombok.RequiredArgsConstructor;
 import org.lowcoder.api.bizthreshold.AbstractBizThresholdChecker;
 import org.lowcoder.api.home.SessionUserService;
 import org.lowcoder.api.usermanagement.view.CreateGroupRequest;
@@ -38,19 +39,15 @@ import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
 
 @Service
+@RequiredArgsConstructor
 public class GroupApiService {
 
     private static final String NOT_AUTHORIZED = "NOT_AUTHORIZED";
-    @Autowired
-    private SessionUserService sessionUserService;
-    @Autowired
-    private GroupMemberService groupMemberService;
-    @Autowired
-    private UserService userService;
-    @Autowired
-    private GroupService groupService;
-    @Autowired
-    private AbstractBizThresholdChecker bizThresholdChecker;
+    private final SessionUserService sessionUserService;
+    private final GroupMemberService groupMemberService;
+    private final UserService userService;
+    private final GroupService groupService;
+    private final AbstractBizThresholdChecker bizThresholdChecker;
 
     public Mono<GroupMemberAggregateView> getGroupMembers(String groupId, int page, int count) {
         Mono<Tuple2<GroupMember, OrgMember>> groupAndOrgMemberInfo = getGroupAndOrgMemberInfo(groupId).cache();

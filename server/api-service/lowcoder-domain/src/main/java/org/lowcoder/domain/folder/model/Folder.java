@@ -2,6 +2,7 @@ package org.lowcoder.domain.folder.model;
 
 import javax.annotation.Nullable;
 
+import lombok.NoArgsConstructor;
 import org.lowcoder.sdk.models.HasIdAndAuditing;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -11,6 +12,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Document
+@NoArgsConstructor
 public class Folder extends HasIdAndAuditing {
 
     private String organizationId;

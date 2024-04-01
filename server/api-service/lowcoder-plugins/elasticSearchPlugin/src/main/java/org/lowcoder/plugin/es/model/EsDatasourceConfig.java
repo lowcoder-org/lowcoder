@@ -5,6 +5,7 @@ import static org.lowcoder.sdk.util.ExceptionUtils.ofException;
 
 import java.util.function.Function;
 
+import lombok.extern.jackson.Jacksonized;
 import org.apache.commons.lang3.ObjectUtils;
 import org.lowcoder.sdk.config.SerializeConfig.JsonViews;
 import org.lowcoder.sdk.models.DatasourceConnectionConfig;
@@ -20,6 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 @Setter
 @Getter
 @Builder
+@Jacksonized
 public class EsDatasourceConfig implements DatasourceConnectionConfig {
 
     private String connectionString;

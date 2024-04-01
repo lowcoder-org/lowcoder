@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.Document;
 import org.lowcoder.domain.group.model.Group;
@@ -21,13 +22,11 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
 @Service
+@RequiredArgsConstructor
 public class GroupMemberServiceImpl implements GroupMemberService {
 
-    @Autowired
-    private BiRelationService biRelationService;
-
-    @Autowired
-    private MongoUpsertHelper mongoUpsertHelper;
+    private final BiRelationService biRelationService;
+    private final MongoUpsertHelper mongoUpsertHelper;
 
     @Override
     public Mono<List<GroupMember>> getGroupMembers(String groupId, int page, int count) {
@@ -102,7 +101,7 @@ public class GroupMemberServiceImpl implements GroupMemberService {
 
     @Override
     public Mono<List<GroupMember>> bulkAddMember(Collection<GroupMember> groupMembers) {
-        List<BiRelation> biRelations = groupMembers.stream()
+        List<BiRelation> biRelations = (List<BiRelation>)groupMembers.stream()
                 .map(groupMember -> BiRelation.builder()
                         .bizType(GROUP_MEMBER)
                         .sourceId(groupMember.getGroupId())

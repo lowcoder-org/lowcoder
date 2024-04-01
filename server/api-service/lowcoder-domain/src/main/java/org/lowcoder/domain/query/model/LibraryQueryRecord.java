@@ -5,6 +5,10 @@ import static com.google.common.base.Suppliers.memoize;
 import java.util.Map;
 import java.util.function.Supplier;
 
+import lombok.NoArgsConstructor;
+import lombok.Value;
+import lombok.experimental.SuperBuilder;
+import lombok.extern.jackson.Jacksonized;
 import org.lowcoder.sdk.models.HasIdAndAuditing;
 import org.lowcoder.sdk.util.JsonUtils;
 import org.springframework.data.annotation.Transient;
@@ -18,24 +22,15 @@ import lombok.Getter;
 
 @Document
 @Getter
-@Builder
+@SuperBuilder
+@Jacksonized
+@NoArgsConstructor
 public class LibraryQueryRecord extends HasIdAndAuditing {
 
-    private final String libraryQueryId;
-    private final String tag;
-    private final String commitMessage;
-    private final Map<String, Object> libraryQueryDSL;
-
-    @JsonCreator
-    public LibraryQueryRecord(@JsonProperty("libraryQueryId") String libraryQueryId,
-            @JsonProperty("tag") String tag,
-            @JsonProperty("commitMessage") String commitMessage,
-            @JsonProperty("libraryQueryDSL") Map<String, Object> libraryQueryDSL) {
-        this.libraryQueryId = libraryQueryId;
-        this.tag = tag;
-        this.commitMessage = commitMessage;
-        this.libraryQueryDSL = libraryQueryDSL;
-    }
+    private String libraryQueryId;
+    private String tag;
+    private String commitMessage;
+    private Map<String, Object> libraryQueryDSL;
 
     @Transient
     private final Supplier<BaseQuery> baseQuerySupplier = memoize(() ->

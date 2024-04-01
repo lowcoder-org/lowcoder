@@ -11,6 +11,11 @@ import java.util.Set;
 
 import javax.annotation.Nullable;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
+import lombok.extern.jackson.Jacksonized;
 import org.apache.commons.lang3.ObjectUtils;
 import org.lowcoder.domain.plugin.DatasourceMetaInfoConstants;
 import org.lowcoder.domain.plugin.client.dto.DatasourcePluginDefinition;
@@ -28,9 +33,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 @Getter
 @Setter
+@SuperBuilder
+@Jacksonized
+@NoArgsConstructor
 public class Datasource extends HasIdAndAuditing {
 
     private static final DatasourceStatus DEFAULT_STATUS = DatasourceStatus.NORMAL;

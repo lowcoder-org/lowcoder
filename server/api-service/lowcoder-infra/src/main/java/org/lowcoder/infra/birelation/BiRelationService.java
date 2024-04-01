@@ -7,6 +7,7 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
 import java.util.Collection;
 import java.util.List;
 
+import lombok.RequiredArgsConstructor;
 import org.lowcoder.infra.mongo.MongoUpsertHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
@@ -20,6 +21,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Service
+@RequiredArgsConstructor
 public class BiRelationService {
 
     private static final String BIZ_TYPE = "bizType";
@@ -27,11 +29,8 @@ public class BiRelationService {
     private static final String TARGET_ID = "targetId";
     private static final String RELATION = "relation";
 
-    @Autowired
-    private BiRelationRepository biRelationRepository;
-
-    @Autowired
-    private MongoUpsertHelper mongoUpsertHelper;
+    private final BiRelationRepository biRelationRepository;
+    private final MongoUpsertHelper mongoUpsertHelper;
 
     public Mono<BiRelation> addBiRelation(BiRelation biRelation) {
         return biRelationRepository.save(biRelation);
