@@ -97,6 +97,7 @@ export type UICompType =
   | "form"
   | "jsonSchemaForm"
   | "container"
+  | "pageLayout" // added by Falk Wolsky
   | "floatTextContainer"
   | "tabbedContainer"
   | "modal"

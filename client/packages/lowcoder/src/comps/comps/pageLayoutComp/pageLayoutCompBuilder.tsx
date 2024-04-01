@@ -11,18 +11,18 @@ import { NewChildren as UiChildren } from "comps/generators/uiCompBuilder";
 import { NameGenerator } from "comps/utils";
 import { CompTree, IContainer } from "../containerBase";
 import { SimpleContainerComp } from "../containerBase/simpleContainerComp";
-import { LayoutComp } from "./LayoutComp";
+import { PageLayoutComp } from "./pageLayoutComp";
 import { ReactNode } from "react";
 
 export type ContainerChildren<ChildrenCompMap extends Record<string, Comp<unknown>>> =
   UiChildren<ChildrenCompMap> & {
-    container: InstanceType<typeof LayoutComp>;
+    container: InstanceType<typeof PageLayoutComp>;
   };
 
 export function containerChildren<ChildrenCompMap extends Record<string, Comp<unknown>>>(
   childrenMap: ToConstructor<ChildrenCompMap>
 ): ToConstructor<ContainerChildren<ChildrenCompMap>> {
-  return { ...childrenMap, container: LayoutComp } as any;
+  return { ...childrenMap, container: PageLayoutComp } as any;
 }
 
 export type LayoutViewProps = ToViewReturn<ContainerChildren<{}>>;

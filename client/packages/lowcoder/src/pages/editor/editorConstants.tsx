@@ -93,6 +93,7 @@ export const CompStateIcon: {
   sharingcomponent: <LeftMeeting />,
   controlButton: <LeftButton />,
   tabbedContainer: <LeftContainer />,
+  pageLayout: <LeftContainer />,
   modal: <LeftModal />,
   listView: <LeftListView />,
   grid: <LeftListView />,

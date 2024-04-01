@@ -34,6 +34,8 @@ import { EditorContext } from "comps/editorState";
 import { checkIsMobile } from "util/commonUtils";
 import { messageInstance } from "lowcoder-design";
 import { BoolControl } from "comps/controls/boolControl";
+import { PositionControl } from "comps/controls/dropdownControl";
+import { NumberControl, StringControl } from "@lowcoder-ee/index.sdk";
 
 const EVENT_OPTIONS = [
   {
@@ -52,12 +54,15 @@ const childrenMap = {
   }),
   autoHeight: AutoHeightControl,
   scrollbars: withDefault(BoolControl, false),
+  placement: withDefault(PositionControl, "top"),
   onEvent: eventHandlerControl(EVENT_OPTIONS),
   disabled: BoolCodeControl,
   showHeader: withDefault(BoolControl, true),
   style: styleControl(TabContainerStyle),
   headerStyle: styleControl(ContainerHeaderStyle),
   bodyStyle: styleControl(ContainerBodyStyle),
+  tabsGutter: withDefault(NumberControl, 32),
+  tabsCentered: withDefault(BoolControl, false),
 };
 
 type ViewProps = RecordConstructorToView<typeof childrenMap>;
@@ -114,6 +119,7 @@ const getStyle = (
         }
 
         .ant-tabs-tab-btn {
+          font-size: ${style.textSize};
           font-family:${style.fontFamily};
           font-weight:${style.textWeight};
           text-transform:${style.textTransform};
@@ -177,7 +183,7 @@ const StyledTabs = styled(Tabs)<{
 
 const ContainerInTab = (props: ContainerBaseProps) => {
   return (
-    <InnerGrid {...props} emptyRows={15} bgColor={"white"} hintPlaceholder={HintPlaceHolder} />
+    <InnerGrid {...props} emptyRows={15} hintPlaceholder={HintPlaceHolder} />
   );
 };
 
@@ -254,28 +260,33 @@ const TabbedContainer = (props: TabbedContainerProps) => {
   })
 
   return (
-    <div style={{padding: props.style.margin, height: '100%'}}>
-    <StyledTabs
-      // FALK: TODO tabPosition="right"
-      activeKey={activeKey}
-      $style={style}
-      $headerStyle={headerStyle}
-      $bodyStyle={bodyStyle}
-      $showHeader={showHeader}
-      onChange={(key) => {
-        if (key !== props.selectedTabKey.value) {
-          props.selectedTabKey.onChange(key);
-          props.onEvent("change");
-        }
-      }}
-      onTabClick={onTabClick}
-      animated
-      $isMobile={isMobile}
-      // tabBarGutter={32}
-      items={tabItems}
-    >
-    </StyledTabs>
-    </div>
+    <ScrollBar style={{ height: props.autoHeight ? "100%" : "auto", margin: "0px", padding: "0px" }} hideScrollbar={!props.scrollbars}>
+      <div style={{padding: props.style.margin, height: props.autoHeight ? "100%" : "auto"}}>
+        <BackgroundColorContext.Provider value={headerStyle.headerBackground}>
+            <StyledTabs
+              tabPosition={props.placement}
+              activeKey={activeKey}
+              $style={style}
+              $headerStyle={headerStyle}
+              $bodyStyle={bodyStyle}
+              $showHeader={showHeader}
+              onChange={(key) => {
+                if (key !== props.selectedTabKey.value) {
+                  props.selectedTabKey.onChange(key);
+                  props.onEvent("change");
+                }
+              }}
+              onTabClick={onTabClick}
+              animated
+              $isMobile={isMobile}
+              items={tabItems}
+              tabBarGutter={props.tabsGutter}
+              centered={props.tabsCentered}
+            >
+          </StyledTabs>
+        </BackgroundColorContext.Provider>
+      </div>
+    </ScrollBar>
   );
 };
 
@@ -303,7 +314,7 @@ export const TabbedContainerBaseComp = (function () {
             <Section name={sectionNames.interaction}>
               {children.onEvent.getPropertyView()}
               {disabledPropertyView(children)}
-              {children.showHeader.propertyView({ label: trans("prop.showHeader") })}
+              {children.showHeader.propertyView({ label: trans("tabbedContainer.showTabs") })}
               {hiddenPropertyView(children)}
             </Section>
           )}
@@ -311,6 +322,9 @@ export const TabbedContainerBaseComp = (function () {
           {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
             <>
               <Section name={sectionNames.layout}>
+                {children.placement.propertyView({ label: trans("tabbedContainer.placement"), radioButton: true })}
+                {children.tabsCentered.propertyView({ label: trans("tabbedContainer.tabsCentered")})}
+                { children.tabsGutter.propertyView({ label: trans("tabbedContainer.gutter"), tooltip : trans("tabbedContainer.gutterTooltip") })}
                 {children.autoHeight.getPropertyView()}
                 {!children.autoHeight.getView() && (
                   children.scrollbars.propertyView({
