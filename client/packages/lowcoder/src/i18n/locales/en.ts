@@ -135,7 +135,7 @@ export const en = {
     "moduleListTitle": "Modules",
     "pluginListTitle": "Plugins",
     "emptyModules": "Modules are reusable Mikro-Apps. You can embed them in your App.",
-    "searchNotFound": "Can't find the right component? Submit an issue",
+    "searchNotFound": "Can't find the right component?",
     "emptyPlugins": "No Plugins Added",
     "contactUs": "Contact Us",
     "issueHere": "here."

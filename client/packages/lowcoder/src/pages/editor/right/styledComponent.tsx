@@ -58,7 +58,7 @@ export const EmptyCompContent = () => {
       text={
         <>
           {trans("rightPanel.searchNotFound")}
-          {aboutUsUrl && (
+          {aboutUsUrl && ( 
             <>
               <br />
               <StyledLink target="_blank" href={aboutUsUrl}>
@@ -66,10 +66,11 @@ export const EmptyCompContent = () => {
               </StyledLink>
             </>
           )}
+          <br /><br />
+          {trans("help.submitIssue")}
+          <br />
           {issueUrl && (
-            <StyledLink target="_blank" href={issueUrl}>
-              {trans("rightPanel.issueHere")}
-            </StyledLink>
+            <StyledLink target="_blank" href={issueUrl}>{trans("rightPanel.issueHere")}</StyledLink>
           )}
         </>
       }
