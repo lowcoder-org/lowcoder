@@ -23,7 +23,7 @@ const SuccessMessageAction = new MultiCompBuilder(
   {
     text: StringControl,
   },
-  (props) => (duration: number) => props.text && messageInstance.success(props.text, duration)
+  (props) => (duration: number) => props.text && messageInstance?.success(props.text, duration)
 )
   .setPropertyViewFn((children) => (
     <>
@@ -109,14 +109,14 @@ const QueryNotificationTmpControl = new MultiCompBuilder(
       props.fail.forEach((item) => {
         const props = (item.getView() as any)({ data: result.data });
         if (props.condition && props.text) {
-          messageInstance.error(props.text, duration);
+          messageInstance?.error(props.text, duration);
           hasNoticed = true;
         }
       });
 
       // Execute system notification if triggered manually without custom notification and query fails
       if (!result.success && !hasNoticed) {
-        hasNoticed = !!messageInstance.error(
+        hasNoticed = !!messageInstance?.error(
           trans("query.failMessageWithName", {
             name,
             result: JSON.stringify(pick(result, ["code", "message"])),

@@ -106,7 +106,7 @@ export const BaseSection = (props: ISectionConfig<ReactNode>) => {
   const { compName, state, toggle } = useContext(PropertySectionContext);
   const open = props.open !== undefined ? props.open : name ? state[compName]?.[name] !== false : true;
 
-  console.log("open", open, props.open);
+  // console.log("open", open, props.open);
 
   const handleToggle = () => {
     if (!name) {

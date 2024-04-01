@@ -282,7 +282,7 @@ function QueryView(props: QueryViewProps) {
     ) {
       setTimeout(() => {
         comp.dispatch(deferAction(executeQueryAction({})));
-      });
+      }, 100);
     }
   }, []);
 
