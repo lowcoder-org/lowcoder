@@ -612,6 +612,7 @@ export function styleControl<T extends readonly SingleColorConfig[]>(colorConfig
       name === "margin" ||
       name === "padding" ||
       name === "containerHeaderPadding" ||
+      name === "containerSiderPadding" ||
       name === "containerFooterPadding" ||
       name === "containerBodyPadding"
     ) {
@@ -658,6 +659,7 @@ export function styleControl<T extends readonly SingleColorConfig[]>(colorConfig
                       name === "margin" ||
                       name === "padding" ||
                       name === "containerHeaderPadding" ||
+                      name === "containerSiderPadding" ||
                       name === "containerFooterPadding" ||
                       name === "containerBodyPadding" ||
                       name === "borderWidth" ||
@@ -750,6 +752,7 @@ export function styleControl<T extends readonly SingleColorConfig[]>(colorConfig
                             : name === "textSize" ||
                               name === "padding" ||
                               name === "containerHeaderPadding" ||
+                              name === "containerSiderPadding" ||
                               name === "containerFooterPadding" ||
                               name === "containerBodyPadding"
                               ? (

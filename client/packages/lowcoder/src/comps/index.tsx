@@ -6,7 +6,9 @@ import { ButtonComp } from "./comps/buttonComp/buttonComp";
 import { DropdownComp } from "./comps/buttonComp/dropdownComp";
 import { LinkComp } from "./comps/buttonComp/linkComp";
 import { ContainerComp, defaultContainerData } from "./comps/containerComp/containerComp";
+import { defaultCollapsibleContainerData } from "./comps/containerComp/collapsibleContainerComp";
 import { ContainerComp as FloatTextContainerComp } from "./comps/containerComp/textContainerComp";
+import { PageLayoutComp, defaultPageLayoutData } from "./comps/containerComp/pageLayoutComp";
 import { CustomComp } from "./comps/customComp/customComp";
 import { DatePickerComp, DateRangeComp } from "./comps/dateComp/dateComp";
 import { DividerComp } from "./comps/dividerComp";
@@ -54,7 +56,7 @@ import { VideoComp } from "./comps/mediaComp/videoComp";
 import { DrawerComp } from "./hooks/drawerComp";
 import { CarouselComp } from "./comps/carouselComp";
 import { ToggleButtonComp } from "./comps/buttonComp/toggleButtonComp";
-import { defaultCollapsibleContainerData } from "./comps/containerComp/collapsibleContainerComp";
+
 import { RemoteCompInfo } from "types/remoteComp";
 import { ScannerComp } from "./comps/buttonComp/scannerComp";
 import { SignatureComp } from "./comps/signatureComp";
@@ -318,6 +320,24 @@ var uiCompMap: Registry = {
     },
     defaultDataFn: defaultCollapsibleContainerData,
   },
+  pageLayout: {
+    name: trans("uiComp.pageLayoutCompName"),
+    enName: "Page Layout Container",
+    description: trans("uiComp.pageLayoutCompDesc"),
+    categories: ["layout"],
+    icon: ContainerCompIcon,
+    keywords: trans("uiComp.pageLayoutCompKeywords"),
+    comp: PageLayoutComp,
+    withoutLoading: true,
+    layoutInfo: {
+      w: 12,
+      h: 50,
+      // static: true,
+      delayCollision: true,
+    },
+    defaultDataFn: defaultPageLayoutData,
+  },
+
   listView: {
     name: trans("uiComp.listViewCompName"),
     enName: "List View",
@@ -381,19 +401,6 @@ var uiCompMap: Registry = {
       h: 5,
     },
   },
-  /*Layout: {
-    name: "navLayout",
-    enName: "navLayout",
-    description: trans("uiComp.navigationCompDesc"),
-    icon: NavComIcon,
-    categories: ["layout"],
-    keywords: trans("uiComp.navigationCompKeywords"),
-    comp: NavLayout,
-    layoutInfo: {
-      w: 24,
-      h: 5,
-    },
-  }, */
   cascader: {
     name: trans("uiComp.cascaderCompName"),
     enName: "Cascader",
