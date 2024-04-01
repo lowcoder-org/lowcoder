@@ -1,4 +1,5 @@
 import {
+  TextStyleType,
   ContainerStyleType,
   heightCalculator,
   widthCalculator,
@@ -15,60 +16,140 @@ import {
 } from "../containerComp/containerView";
 import { TriContainerViewProps } from "../triContainerComp/triContainerCompBuilder";
 
-const getStyle = (style: ContainerStyleType) => {
+const getStyle = (style: TextStyleType) => {
   return css`
-    border-color: ${style.border};
-    border-radius: ${style.radius};
-    border-width: ${style.borderWidth};
-    overflow: hidden;
-    margin: ${style.margin};
-    padding: ${style.padding};
+    border-radius: ${(style.radius ? style.radius : "4px")};
+    border: ${(style.borderWidth ? style.borderWidth : "0px")} solid ${style.border};
+    color: ${style.text};
+    font-size: ${style.textSize} !important;
+    font-weight: ${style.textWeight} !important;
+    font-family: ${style.fontFamily} !important;
+    font-style:${style.fontStyle} !important;
+    text-transform:${style.textTransform} !important;
+    text-decoration:${style.textDecoration} !important;
+    background-color: ${style.background};
+    .markdown-body a {
+      color: ${style.links};
+    }
+    .markdown-body {
+      margin: ${style.margin} !important;	
+      padding: ${style.padding};	
+      width: ${widthCalculator(style.margin)};	
+      // height: ${heightCalculator(style.margin)};
+      h1 {
+        line-height: 1.5;
+      }
+      h5 {
+        line-height: 2.2;
+      }
+    }
 
-    width: ${widthCalculator(style.margin)};
-    height: ${heightCalculator(style.margin)};
+    .markdown-body {
+      &,
+      p,
+      div,
+      h1,
+      h2,
+      h3,
+      h4,
+      h5,
+      h6 {
+        color: ${style.text};
+      }
+      img,
+      pre {
+        background-color: ${style.background};
+        code {
+          color: #000000;
+        }
+      }
+    }
   `;
-};
+  }
 
 const Wrapper = styled.div<{ $style: ContainerStyleType }>`
   display: flex;
   flex-flow: column;
   height: 100%;
-  border: 1px solid #d7d9e0;
-  border-radius: 4px;
-  ${(props) => props.$style && getStyle(props.$style)}
+  border: ${(props) => props.$style.borderWidth} solid ${(props) => props.$style.border};
+  border-radius: ${(props) => props.$style.radius};
+  background-color: ${(props) => props.$style.background};
+  padding: ${(props) => props.$style.padding};
+  margin: ${(props) => props.$style.margin};
+  ${(props) => props.$style.backgroundImage && `background-image: ${props.$style.backgroundImage};`}
+  ${(props) => props.$style.backgroundImageRepeat && `background-repeat: ${props.$style.backgroundImageRepeat};`}
+  ${(props) => props.$style.backgroundImageSize && `background-size: ${props.$style.backgroundImageSize};`}
+  ${(props) => props.$style.backgroundImagePosition && `background-position: ${props.$style.backgroundImagePosition};`}
+  ${(props) => props.$style.backgroundImageOrigin && `background-origin: ${props.$style.backgroundImageOrigin};`}
 `;
 
-const HeaderInnerGrid = styled(InnerGrid)<{ backgroundColor: string }>`
+const FloatTextWrapper = styled.div<{ $style: TextStyleType, $horizontalAlignment : any }>`
+  ${(props) => props.$style && getStyle(props.$style)}
+  text-align: ${(props) => props.$horizontalAlignment};
+  padding: ${(props) => props.$style.padding};
+  margin: ${(props) => props.$style.margin};
+`;
+
+const HeaderInnerGrid = styled(InnerGrid)<{
+  $backgroundColor: string
+  $headerBackgroundImage: string;
+  $headerBackgroundImageRepeat: string;
+  $headerBackgroundImageSize: string;
+  $headerBackgroundImagePosition: string;
+  $headerBackgroundImageOrigin: string;
+ }>`
   overflow: visible;
-  ${(props) =>
-    props.backgroundColor && `background-color: ${props.backgroundColor};`}
+  ${(props) => props.$backgroundColor && `background-color: ${props.$backgroundColor};`}
   border-radius: 0;
+  ${(props) => props.$headerBackgroundImage && `background-image: ${props.$headerBackgroundImage};`}
+  ${(props) => props.$headerBackgroundImageRepeat && `background-repeat: ${props.$headerBackgroundImageRepeat};`}
+  ${(props) => props.$headerBackgroundImageSize && `background-size: ${props.$headerBackgroundImageSize};`}
+  ${(props) => props.$headerBackgroundImagePosition && `background-position: ${props.$headerBackgroundImagePosition};`}
+  ${(props) => props.$headerBackgroundImageOrigin && `background-origin: ${props.$headerBackgroundImageOrigin};`}
 `;
 
 const BodyInnerGrid = styled(InnerGrid)<{
-  showBorder: boolean;
-  backgroundColor: string;
-  borderColor: string;
+  $showBorder: boolean;
+  $backgroundColor: string;
+  $borderColor: string;
+  $borderWidth: string;
+  $backgroundImage: string;
+  $backgroundImageRepeat: string;
+  $backgroundImageSize: string;
+  $backgroundImagePosition: string;
+  $backgroundImageOrigin: string;
 }>`
-  border-top: ${(props) =>
-    `${props.showBorder ? 1 : 0}px solid ${props.borderColor}`};
+  border-top: ${(props) => `${props.$showBorder ? props.$borderWidth : 0} solid ${props.$borderColor}`};
   flex: 1;
-  ${(props) =>
-    props.backgroundColor && `background-color: ${props.backgroundColor};`}
+  ${(props) => props.$backgroundColor && `background-color: ${props.$backgroundColor};`}
   border-radius: 0;
+  ${(props) => props.$backgroundImage && `background-image: ${props.$backgroundImage};`}
+  ${(props) => props.$backgroundImageRepeat && `background-repeat: ${props.$backgroundImageRepeat};`}
+  ${(props) => props.$backgroundImageSize && `background-size: ${props.$backgroundImageSize};`}
+  ${(props) => props.$backgroundImagePosition && `background-position: ${props.$backgroundImagePosition};`}
+  ${(props) => props.$backgroundImageOrigin && `background-origin: ${props.$backgroundImageOrigin};`}
 `;
 
 const FooterInnerGrid = styled(InnerGrid)<{
-  showBorder: boolean;
-  backgroundColor: string;
-  borderColor: string;
+  $showBorder: boolean;
+  $backgroundColor: string;
+  $borderColor: string;
+  $borderWidth: string;
+  $footerBackgroundImage: string;
+  $footerBackgroundImageRepeat: string;
+  $footerBackgroundImageSize: string;
+  $footerBackgroundImagePosition: string;
+  $footerBackgroundImageOrigin: string;
 }>`
-  border-top: ${(props) =>
-    `${props.showBorder ? 1 : 0}px solid ${props.borderColor}`};
+  border-top: ${(props) => `${props.$showBorder ? props.$borderWidth : 0} solid ${props.$borderColor}`};
   overflow: visible;
-  ${(props) =>
-    props.backgroundColor && `background-color: ${props.backgroundColor};`}
+  ${(props) => props.$backgroundColor && `background-color: ${props.$backgroundColor};`}
   border-radius: 0;
+  ${(props) => props.$footerBackgroundImage && `background-image: ${props.$footerBackgroundImage};`}
+  ${(props) => props.$footerBackgroundImageRepeat && `background-repeat: ${props.$footerBackgroundImageRepeat};`}
+  ${(props) => props.$footerBackgroundImageSize && `background-size: ${props.$footerBackgroundImageSize};`}
+  ${(props) => props.$footerBackgroundImagePosition && `background-position: ${props.$footerBackgroundImagePosition};`}
+  ${(props) => props.$footerBackgroundImageOrigin && `background-origin: ${props.$footerBackgroundImageOrigin};`}
 `;
 
 export type TriContainerProps = TriContainerViewProps & {
@@ -79,6 +160,8 @@ export type TriContainerProps = TriContainerViewProps & {
   type: string;
   float: string;
   width: string;
+  style: TextStyleType;
+  horizontalAlignment: string;
 };
 
 export function TriContainer(props: TriContainerProps) {
@@ -91,12 +174,18 @@ export function TriContainer(props: TriContainerProps) {
   const { items: bodyItems, ...otherBodyProps } =
     container.body["0"].children.view.getView();
   const { items: footerItems, ...otherFooterProps } = container.footer;
-  const { style } = container;
 
   const editorState = useContext(EditorContext);
   const maxWidth = editorState.getAppSettings().maxWidth;
   const isMobile = checkIsMobile(maxWidth);
   const paddingWidth = isMobile ? 7 : 19;
+
+  const {
+    style,
+    headerStyle,
+    bodyStyle,
+    footerStyle,
+  } = container; 
 
   return (
     <Wrapper $style={style}>
@@ -105,15 +194,20 @@ export function TriContainer(props: TriContainerProps) {
           value={container.style.background}
         >
           <HeaderInnerGrid
-            {...otherHeaderProps}
-            items={gridItemCompToGridItems(headerItems)}
-            autoHeight={true}
-            emptyRows={5}
-            minHeight="46px"
-            containerPadding={[paddingWidth, 3]}
-            showName={{ bottom: showBody || showFooter ? 20 : 0 }}
-            backgroundColor={style?.background}
-          />
+              {...otherHeaderProps}
+              items={gridItemCompToGridItems(headerItems)}
+              autoHeight={true}
+              emptyRows={5}
+              minHeight="46px"
+              containerPadding={[0, 0]}
+              showName={{ bottom: showFooter ? 20 : 0 }}
+              $backgroundColor={headerStyle?.headerBackground || 'transparent'}
+              $headerBackgroundImage={headerStyle?.headerBackgroundImage}
+              $headerBackgroundImageRepeat={headerStyle?.headerBackgroundImageRepeat}
+              $headerBackgroundImageSize={headerStyle?.headerBackgroundImageSize}
+              $headerBackgroundImagePosition={headerStyle?.headerBackgroundImagePosition}
+              $headerBackgroundImageOrigin={headerStyle?.headerBackgroundImageOrigin}
+              style={{ padding: headerStyle.containerHeaderPadding }} />
         </BackgroundColorContext.Provider>
       )}
       {showBody && (
@@ -125,33 +219,41 @@ export function TriContainer(props: TriContainerProps) {
             }}
           >
             <BodyInnerGrid
-              showBorder={showHeader}
+              $showBorder={false}
               {...otherBodyProps}
               items={gridItemCompToGridItems(bodyItems)}
               autoHeight={container.autoHeight}
               emptyRows={14}
               minHeight={showHeader ? "143px" : "142px"}
-              containerPadding={
-                (showHeader && showFooter) || showHeader
-                  ? [paddingWidth, 11.5]
-                  : [paddingWidth, 11]
-              }
+              containerPadding={[0, 0]}
               hintPlaceholder={props.hintPlaceholder ?? HintPlaceHolder}
-              backgroundColor={style?.background}
-              borderColor={style?.border}
+              $backgroundColor={bodyStyle?.background || 'transparent'}
+              $borderColor={style?.border}
+              $borderWidth={style?.borderWidth}
+              $backgroundImage={bodyStyle?.backgroundImage}
+              $backgroundImageRepeat={bodyStyle?.backgroundImageRepeat}
+              $backgroundImageSize={bodyStyle?.backgroundImageSize}
+              $backgroundImagePosition={bodyStyle?.backgroundImagePosition}
+              $backgroundImageOrigin={bodyStyle?.backgroundImageOrigin}
               style={{
                 float: `${props.float}`,
                 width: `${props.float === "none" ? "100%" : `${props.width}%`}`,
                 height: "100%",
+                ...container.bodyStyle
               }}
-            />
-            <p style={{ textAlign: "justify", margin: "20px 30px" }}>
-              {props.type === "markdown" ? (
-                <TacoMarkDown>{text.value}</TacoMarkDown>
-              ) : (
-                text.value
-              )}
-            </p>
+              />
+            <FloatTextWrapper
+              $style={props.style}
+              $horizontalAlignment={props.horizontalAlignment}
+            >
+              <p>
+                {props.type === "markdown" ? (
+                  <TacoMarkDown>{text.value}</TacoMarkDown>
+                ) : (
+                  text.value
+                )}
+              </p>
+            </FloatTextWrapper>
           </div>
         </BackgroundColorContext.Provider>
       )}
@@ -160,19 +262,23 @@ export function TriContainer(props: TriContainerProps) {
           value={container.style.background}
         >
           <FooterInnerGrid
-            showBorder={showHeader || showBody}
+            $showBorder={showHeader}
             {...otherFooterProps}
             items={gridItemCompToGridItems(footerItems)}
             autoHeight={true}
             emptyRows={5}
-            minHeight={showBody ? "47px" : "46px"}
-            containerPadding={
-              showBody || showHeader ? [paddingWidth, 3.5] : [paddingWidth, 3]
-            }
-            showName={{ top: showHeader || showBody ? 20 : 0 }}
-            backgroundColor={style?.background}
-            borderColor={style?.border}
-          />
+            minHeight={"48px"}
+            containerPadding={[0, 0]}
+            showName={{ top: showHeader ? 20 : 0 }}
+            $backgroundColor={footerStyle?.footerBackground || 'transparent'}
+            $footerBackgroundImage={footerStyle?.footerBackgroundImage}
+            $footerBackgroundImageRepeat={footerStyle?.footerBackgroundImageRepeat}
+            $footerBackgroundImageSize={footerStyle?.footerBackgroundImageSize}
+            $footerBackgroundImagePosition={footerStyle?.footerBackgroundImagePosition}
+            $footerBackgroundImageOrigin={footerStyle?.footerBackgroundImageOrigin}
+            $borderColor={style?.border}
+            $borderWidth={style?.borderWidth}
+            style={{ padding: footerStyle.containerFooterPadding }} />
         </BackgroundColorContext.Provider>
       )}
     </Wrapper>

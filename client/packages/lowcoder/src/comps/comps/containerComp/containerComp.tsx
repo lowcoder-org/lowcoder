@@ -125,7 +125,7 @@ export function defaultContainerData(
           layoutItem: {
             i: "",
             h: 5,
-            w: 12,
+            w: 24,
             x: 0,
             y: 0,
           },

@@ -137,6 +137,9 @@ import {
   AutoCompleteCompIcon,
   ResponsiveLayoutCompIcon,
   MermaidIcon,
+  IconCompIcon,
+  LayoutCompIcon,
+  FloatingTextComp,
 } from "lowcoder-design";
 
 type Registry = {
@@ -288,19 +291,19 @@ export var uiCompMap: Registry = {
     enName: "Container",
     description: trans("uiComp.floatTextContainerCompDesc"),
     categories: ["layout"],
-    icon: ContainerCompIcon,
+    icon: FloatingTextComp,
     keywords: trans("uiComp.floatTextContainerCompKeywords"),
-    // comp: FloatTextContainerComp,
+    comp: FloatTextContainerComp,
     compName: 'ContainerComp',
     compPath: 'comps/containerComp/textContainerComp',
     withoutLoading: true,
     layoutInfo: {
-      w: 9,
+      w: 12,
       h: 25,
       // static: true,
       delayCollision: true,
     },
-    // defaultDataFn: defaultContainerData,
+    defaultDataFn: defaultContainerData,
     defaultDataFnName: 'defaultContainerData',
     defaultDataFnPath: 'comps/containerComp/containerComp'
   },
@@ -348,7 +351,7 @@ export var uiCompMap: Registry = {
     enName: "Page Layout Container",
     description: trans("uiComp.pageLayoutCompDesc"),
     categories: ["layout"],
-    icon: ContainerCompIcon,
+    icon: LayoutCompIcon,
     keywords: trans("uiComp.pageLayoutCompKeywords"),
     comp: PageLayoutComp,
     withoutLoading: true,
@@ -1071,6 +1074,19 @@ export var uiCompMap: Registry = {
     layoutInfo: {
       w: 12,
       h: 40,
+    },
+  },
+  icon: {
+    name: trans("uiComp.iconCompName"),
+    enName: "icon",
+    description: trans("uiComp.iconCompDesc"),
+    categories: ["multimedia"],
+    icon: IconCompIcon,
+    keywords: trans("uiComp.iconCompKeywords"),
+    comp: IconComp,
+    layoutInfo: {
+      w: 2,
+      h: 10,
     },
   },
   imageEditor: {
