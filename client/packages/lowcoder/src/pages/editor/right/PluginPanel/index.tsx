@@ -7,7 +7,7 @@ import { getUser } from "redux/selectors/usersSelectors";
 import { BluePlusIcon, CustomModal, DocLink, TacoButton, TacoInput } from "lowcoder-design";
 import { getCommonSettings } from "redux/selectors/commonSettingSelectors";
 import styled from "styled-components";
-import { normalizeNpmPackage, validateNpmPackage } from "comps/utils/remote";
+import { getNpmPackageMeta, normalizeNpmPackage, validateNpmPackage } from "comps/utils/remote";
 import { ComListTitle, ExtensionContentWrapper } from "../styledComponent";
 import { EmptyContent } from "components/EmptyContent";
 import { messageInstance } from "lowcoder-design";
@@ -36,6 +36,8 @@ export default function PluginPanel() {
       }),
     [commonSettings?.npmPlugins]
   );
+
+  // console.log("plugins: ", plugins);
 
   const handleSetNpmPlugins = (nextNpmPlugins: string[]) => {
     dispatch(

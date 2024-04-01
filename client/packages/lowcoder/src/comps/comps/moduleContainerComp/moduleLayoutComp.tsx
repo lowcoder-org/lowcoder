@@ -96,8 +96,7 @@ function ModuleLayoutView(props: IProps) {
   };
 
   return (
-    <ScrollBar style={{ height: "100%", margin: "0px", padding: "0px" }}>
-      <CanvasView
+    <CanvasView
       layout={layout}
       items={items}
       positionParams={{ ...positionParams, cols: parseInt(defaultGrid) }}
@@ -106,7 +105,6 @@ function ModuleLayoutView(props: IProps) {
       onLayoutChange={onLayoutChange}
       extraHeight="0px"
     />
-    </ScrollBar>
   );
 }
 
@@ -118,26 +116,28 @@ export class ModuleLayoutComp extends ModuleLayoutCompBase implements IContainer
     const rowCount = this.children.containerRowCount.getView();
     return (
       <div>
-        <ModuleLayoutView
-        positionParams={this.children.positionParams.getView()}
-        containerSize={this.children.containerSize.getView()}
-        containerView={this.children.container.containerView({
-          rowCount,
-          isRowCountLocked,
-          onRowCountChange: (rowCount) => {
-            this.children.containerRowCount.dispatchChangeValueAction(rowCount);
-          },
-        })}
-        onPositionParamsChange={(params) => {
-          setTimeout(() => this.children.positionParams.dispatchChangeValueAction(params));
-        }}
-        onLayoutChange={(layout) => {
-          this.children.containerSize.dispatchChangeValueAction({
-            height: layout[moduleContainerId].h,
-            width: layout[moduleContainerId].w,
-          });
-        }}
-      />
+        <ScrollBar style={{ height: "100%", margin: "0px", padding: "0px" }} hidePlaceholder={false}>
+          <ModuleLayoutView
+            positionParams={this.children.positionParams.getView()}
+            containerSize={this.children.containerSize.getView()}
+            containerView={this.children.container.containerView({
+              rowCount,
+              isRowCountLocked,
+              onRowCountChange: (rowCount) => {
+                this.children.containerRowCount.dispatchChangeValueAction(rowCount);
+              },
+            })}
+            onPositionParamsChange={(params) => {
+              setTimeout(() => this.children.positionParams.dispatchChangeValueAction(params));
+            }}
+            onLayoutChange={(layout) => {
+              this.children.containerSize.dispatchChangeValueAction({
+                height: layout[moduleContainerId].h,
+                width: layout[moduleContainerId].w,
+              });
+            }}
+          />
+        </ScrollBar>
       </div>
     );
   }

@@ -284,7 +284,7 @@ export const de = {
       "marginDesc": "Standardmarge, die typischerweise für die meisten Komponenten verwendet wird",
       "padding": "Polsterung",
       "paddingDesc": "Standardpolsterung, die für die meisten Komponenten verwendet wird",
-      "containerheaderpadding": "Kopfzeilenpolsterung",
+      "containerHeaderPadding": "Kopfzeilenpolsterung",
       "containerheaderpaddingDesc": "Standard-Header-Padding, das für die meisten Komponenten verwendet wird",
       "gridColumns": "Rasterspalten",
       "gridColumnsDesc": "Standardanzahl von Spalten, die für die meisten Container verwendet wird"
@@ -341,9 +341,9 @@ export const de = {
       "marginRight": "Rand rechts",
       "marginTop": "Marge oben",
       "marginBottom": "Marge Unten",
-      "containerheaderpadding": "Kopfzeilenpolsterung",
-      "containerfooterpadding": "Fußzeilenpolsterung",
-      "containerbodypadding": "Körperpolsterung",
+      "containerHeaderPadding": "Kopfzeilenpolsterung",
+      "containerFooterPadding": "Fußzeilenpolsterung",
+      "containerBodyPadding": "Körperpolsterung",
       "minWidth": "Mindestbreite",
       "aspectRatio": "Seitenverhältnis",
       "textSize": "Textgröße"
@@ -2450,7 +2450,7 @@ export const de = {
   "timeLine": {
       "titleColor": "Titel Farbe",
       "subTitleColor": "Untertitel Farbe",
-      "lableColor": "Etikett Farbe",
+      "labelColor": "Etikett Farbe",
       "value": "Zeitleiste Daten",
       "mode": "Bestellung anzeigen",
       "left": "Inhalt Rechts",
@@ -2471,7 +2471,7 @@ export const de = {
       "helpDot": "Timeline-Knoten als Ameisendesign-Symbole rendern",
       "helpTitleColor": "Individuell die Farbe des Knotentitels steuern",
       "helpSubTitleColor": "Individuelle Steuerung der Farbe der Knotenuntertitel",
-      "helpLableColor": "Individuelle Steuerung der Farbe des Knotensymbols",
+      "helpLabelColor": "Individuelle Steuerung der Farbe des Knotensymbols",
       "valueDesc": "Daten der Zeitleiste",
       "clickedObjectDesc": "Daten zum angeklickten Objekt",
       "clickedIndexDesc": "Index der angeklickten Objekte"

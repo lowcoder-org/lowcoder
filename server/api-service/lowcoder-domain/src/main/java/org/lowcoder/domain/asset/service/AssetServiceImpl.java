@@ -51,6 +51,8 @@ public class AssetServiceImpl implements AssetService {
         return repository.findById(id);
     }
 
+    // Falk TODO: Enable base64 upload
+
     @Override
     public Mono<Asset> upload(Part filePart, int maxFileSizeKB, boolean isThumbnail) {
         if (filePart == null) {

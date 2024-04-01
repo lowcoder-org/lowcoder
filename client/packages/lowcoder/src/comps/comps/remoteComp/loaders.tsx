@@ -10,13 +10,16 @@ import {
 async function npmLoader(
   remoteInfo: RemoteCompInfo
 ): Promise<CompConstructor | null> {
-  const { packageName, packageVersion = "latest", compName } = remoteInfo;
-  const entry = `${NPM_PLUGIN_ASSETS_BASE_URL}/${packageName}@${packageVersion}/index.js`;
-  // const entry = `../../../../../public/package/index.js`; 
-  // console.log("Entry", entry);
+
+  console.log("remoteInfo: ", remoteInfo);
+
+  // Falk: removed "packageVersion = "latest" as default value fir packageVersion - to ensure no automatic version jumping.
+
+  const localPackageVersion = remoteInfo.packageVersion || "latest";
+  const { packageName, packageVersion, compName } = remoteInfo;
+  const entry = `${NPM_PLUGIN_ASSETS_BASE_URL}/${packageName}@${localPackageVersion}/index.js`;
   try {
     const module = await import(/* webpackIgnore: true */ entry);
-    // console.log("Entry 1", module);
     const comp = module.default?.[compName];
     if (!comp) {
       throw new Error(trans("npm.compNotFound", { compName }));

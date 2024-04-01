@@ -72,7 +72,7 @@ Object.keys(QueryMap).forEach((key) => {
 
 function logDiff(comp: any, newComp: any, prefix?: string) {
   if (_.isNil(comp.children)) {
-    console.info(`diff. comp.${prefix}: `, comp, ` newComp.${prefix}: `, newComp);
+    // console.info(`diff. comp.${prefix}: `, comp, ` newComp.${prefix}: `, newComp);
     return;
   }
   Object.keys(comp.children).forEach((key) => {
