@@ -8,8 +8,12 @@ import javax.annotation.Nullable;
 import com.fasterxml.jackson.annotation.JsonCreator;
 
 import lombok.Getter;
+import lombok.experimental.SuperBuilder;
+import lombok.extern.jackson.Jacksonized;
 
 @Getter
+@SuperBuilder
+@Jacksonized
 public class EmailAuthConfig extends AbstractAuthConfig {
 
     @JsonCreator

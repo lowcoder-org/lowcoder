@@ -8,32 +8,19 @@ import javax.annotation.Nullable;
 import com.fasterxml.jackson.annotation.JsonCreator;
 
 import lombok.Getter;
+import lombok.experimental.SuperBuilder;
+import lombok.extern.jackson.Jacksonized;
 
 /**
  * OAuth2 ORY auth config.
  */
 @Getter
+@SuperBuilder
+@Jacksonized
 public class Oauth2OryAuthConfig extends Oauth2SimpleAuthConfig {
 
     protected String baseUrl;
     protected String scope;
-
-    @JsonCreator
-    public Oauth2OryAuthConfig(
-            @Nullable String id,
-            Boolean enable,
-            Boolean enableRegister,
-            String source,
-            String sourceName,
-            String clientId,
-            String clientSecret,
-            String baseUrl,
-            String scope,
-            String authType) {
-        super(id, enable, enableRegister, source, sourceName, clientId, clientSecret, authType);
-        this.baseUrl = baseUrl;
-        this.scope = scope;
-    }
 
     @Override
     public String replaceAuthUrlClientIdPlaceholder(String url) {

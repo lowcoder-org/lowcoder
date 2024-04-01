@@ -1,7 +1,8 @@
 package org.lowcoder.sdk.plugin.restapi.auth;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
 import lombok.Getter;
+import lombok.experimental.SuperBuilder;
+import lombok.extern.jackson.Jacksonized;
 
 import javax.annotation.Nullable;
 
@@ -9,15 +10,11 @@ import javax.annotation.Nullable;
  * oauth(inherit from login) auth config
  */
 @Getter
+@SuperBuilder
+@Jacksonized
 public final class OAuthInheritAuthConfig extends AuthConfig {
 
     private String authId;
-
-    @JsonCreator
-    public OAuthInheritAuthConfig(String authId, RestApiAuthType type) {
-        super(type);
-        this.authId = authId;
-    }
 
     @Override
     public AuthConfig mergeWithUpdatedConfig(@Nullable AuthConfig updatedConfig) {
@@ -26,7 +23,9 @@ public final class OAuthInheritAuthConfig extends AuthConfig {
             return updatedConfig;
         }
         // otherwise merge oauth auth config
-        return new OAuthInheritAuthConfig(oAuthInheritAuthConfig.getAuthId(),
-                oAuthInheritAuthConfig.getType());
+        return OAuthInheritAuthConfig.builder()
+                .authId(oAuthInheritAuthConfig.getAuthId())
+                .type(oAuthInheritAuthConfig.getType())
+                .build();
     }
 }

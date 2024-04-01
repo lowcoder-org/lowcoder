@@ -12,8 +12,7 @@ RUN --mount=type=cache,target=/root/.m2 mvn -f pom.xml clean package -DskipTests
 RUN mkdir -p /lowcoder/api-service/config /lowcoder/api-service/logs /lowcoder/plugins
 
 # Copy lowcoder server configuration
-COPY server/api-service/lowcoder-server/src/main/resources/selfhost/ce/application.yml /lowcoder/api-service/config/
-COPY server/api-service/lowcoder-server/src/main/resources/selfhost/ce/application-selfhost.yml /lowcoder/api-service/config/
+COPY server/api-service/lowcoder-server/src/main/resources/application.yaml /lowcoder/api-service/config/
 
 # Add bootstrapfile
 COPY deploy/docker/api-service/entrypoint.sh /lowcoder/api-service/entrypoint.sh

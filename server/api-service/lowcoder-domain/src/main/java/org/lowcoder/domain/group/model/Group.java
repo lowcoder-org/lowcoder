@@ -6,6 +6,9 @@ import java.util.Locale;
 
 import javax.annotation.Nonnull;
 
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
+import lombok.extern.jackson.Jacksonized;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.lowcoder.domain.group.util.SystemGroups;
@@ -22,6 +25,9 @@ import lombok.ToString;
 @Setter
 @ToString
 @Document
+@Jacksonized
+@SuperBuilder
+@NoArgsConstructor
 public class Group extends HasIdAndAuditing implements Comparable<Group> {
 
     private static final Comparator<Group> COMPARATOR = Comparator.comparingLong(group -> {

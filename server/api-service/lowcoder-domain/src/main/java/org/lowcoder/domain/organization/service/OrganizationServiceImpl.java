@@ -43,6 +43,7 @@ import org.lowcoder.sdk.exception.BizException;
 import org.lowcoder.sdk.util.UriUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.http.codec.multipart.Part;
 import org.springframework.stereotype.Service;
@@ -69,6 +70,7 @@ public class OrganizationServiceImpl implements OrganizationService {
     @Autowired
     private AssetService assetService;
 
+    @Lazy
     @Autowired
     private OrgMemberService orgMemberService;
 

@@ -18,8 +18,6 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
-		<java.version>17</java.version>
-
 		<skipTests>false</skipTests>
 		<skipUnitTests>${skipTests}</skipUnitTests>
 		<skipIntegrationTests>${skipTests}</skipIntegrationTests>
@@ -236,11 +234,6 @@
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-aspects</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-aspects</artifactId>
-		</dependency>
-
 	</dependencies>
 
 	<dependencyManagement>
@@ -258,19 +251,9 @@
 	<build>
 		<plugins>
 			<plugin>
-	            <groupId>org.apache.maven.plugins</groupId>
-	            <artifactId>maven-compiler-plugin</artifactId>
-	            <configuration>
-					<source>${java.version}</source>
-					<target>${java.version}</target> 
-	                <compilerArgs>
-	                    <arg>-parameters</arg>
-	                </compilerArgs>
-	            </configuration>
-	        </plugin>
-			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
+				<version>3.3.0</version>
 				<configuration>
 					<archive>
 						<manifest>
@@ -323,6 +306,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-failsafe-plugin</artifactId>
+				<version>3.2.5</version>
 				<configuration>
 					<skipTests>${skipIntegrationTests}</skipTests>
 					<includes>
