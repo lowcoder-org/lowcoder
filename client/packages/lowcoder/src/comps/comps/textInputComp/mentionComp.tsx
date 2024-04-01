@@ -36,9 +36,9 @@ import {
 import { booleanExposingStateControl } from "comps/controls/codeStateControl";
 import { trans } from "i18n";
 import { RefControl } from "comps/controls/refControl";
-import { TextAreaRef } from "antd/lib/input/TextArea";
+import { TextAreaRef } from "antd/es/input/TextArea";
 import { default as ConfigProvider } from "antd/es/config-provider";
-import { default as Mentions, MentionsOptionProps } from "antd/es/mentions";
+import { default as Mentions, type MentionsOptionProps } from "antd/es/mentions";
 import { blurMethod, focusWithOptions } from "comps/utils/methodUtils";
 import {
   textInputValidate,

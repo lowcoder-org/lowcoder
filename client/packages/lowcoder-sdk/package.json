@@ -16,6 +16,10 @@
       "import": "./dist/lowcoder-sdk.js",
       "require": "./dist/lowcoder-sdk.js"
     },
+    "./appView": {
+      "import": "./dist/appView.js",
+      "require": "./dist/appView.js"
+    },
     "./dataSource": {
       "types": "./dataSource.d.ts"
     },

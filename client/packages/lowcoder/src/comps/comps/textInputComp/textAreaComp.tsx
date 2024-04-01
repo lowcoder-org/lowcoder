@@ -31,7 +31,7 @@ import {
 } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { RefControl } from "comps/controls/refControl";
-import { TextAreaRef } from "antd/lib/input/TextArea";
+import { TextAreaRef } from "antd/es/input/TextArea";
 import { blurMethod, focusWithOptions } from "comps/utils/methodUtils";
 
 import React, { useContext } from "react";

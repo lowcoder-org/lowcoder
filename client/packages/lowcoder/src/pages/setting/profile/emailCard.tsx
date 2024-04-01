@@ -11,7 +11,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchUserAction } from "redux/reduxActions/userActions";
 import { trans } from "i18n";
 import { selectSystemConfig } from "redux/selectors/configSelectors";
-import { messageInstance } from "lowcoder-design";
+import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 
 function EmailCard() {
   const [email, setEmail] = useState("");

@@ -20,7 +20,7 @@ import { hookCompCategory } from "comps/hooks/hookCompTypes";
 import _ from "lodash";
 import styled from "styled-components";
 import { leftCompListClassName } from "pages/tutorials/tutorialsConstant";
-import UIComp from "comps/comps/uiComp";
+import type UIComp from "comps/comps/uiComp";
 import { BottomResTypeEnum } from "types/bottomRes";
 import { getParentNodeKeysByKey, getTreeNodeByKey, safeJSONStringify } from "util/objectUtils";
 import { Tabs, TabTitle } from "components/Tabs";
@@ -28,9 +28,9 @@ import { BackgroundColor, TopHeaderHeight } from "constants/style";
 import { trans } from "i18n";
 import { CompTree } from "comps/comps/containerBase";
 import { CompStateIcon } from "./editorConstants";
-import { UICompType } from "comps/uiCompRegistry";
+import type { UICompType } from "comps/uiCompRegistry";
 import { CollapseWrapper, DirectoryTreeStyle, Node } from "./styledComponents";
-import { DataNode, EventDataNode } from "antd/lib/tree";
+import { DataNode, EventDataNode } from "antd/es/tree";
 import { isAggregationApp } from "util/appUtils";
 
 const CollapseTitleWrapper = styled.div`

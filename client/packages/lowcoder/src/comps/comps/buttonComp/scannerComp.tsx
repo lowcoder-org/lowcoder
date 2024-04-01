@@ -21,7 +21,7 @@ import { trans } from "i18n";
 import React, { Suspense, useEffect, useRef, useState, useContext } from "react";
 import { arrayStringExposingStateControl } from "comps/controls/codeStateControl";
 import { BoolControl } from "comps/controls/boolControl";
-import { ItemType } from "antd/lib/menu/hooks/useItems";
+import type { ItemType } from "antd/es/menu/hooks/useItems";
 import { RefControl } from "comps/controls/refControl";
 import { EditorContext } from "comps/editorState"; 
 
