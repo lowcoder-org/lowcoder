@@ -2,11 +2,6 @@
 // import "comps/comps/layout/mobileTabLayout";
 import cnchar from "cnchar";
 
-import { registerComp, type UICompManifest, type UICompType } from "./uiCompRegistry";
-import { trans } from "i18n";
-import { remoteComp } from "./comps/remoteComp/remoteComp";
-import type { RemoteCompInfo } from "types/remoteComp";
-
 import { ModalComp } from "comps/hooks/modalComp";
 import { ButtonComp } from "./comps/buttonComp/buttonComp";
 import { DropdownComp } from "./comps/buttonComp/dropdownComp";
@@ -49,7 +44,6 @@ import { defaultGridData, defaultListViewData, GridComp, ListViewComp,} from "./
 import { ModuleComp } from "./comps/moduleComp/moduleComp";
 import { NavComp } from "./comps/navComp/navComp";
 import { TableComp } from "./comps/tableComp";
-import { registerComp, UICompManifest, UICompType } from "./uiCompRegistry";
 import { QRCodeComp } from "./comps/qrCodeComp";
 import { JsonExplorerComp } from "./comps/jsonComp/jsonExplorerComp";
 import { JsonEditorComp } from "./comps/jsonComp/jsonEditorComp";
@@ -57,6 +51,7 @@ import { TreeComp } from "./comps/treeComp/treeComp";
 import { TreeSelectComp } from "./comps/treeComp/treeSelectComp";
 import { trans } from "i18n";
 import { remoteComp } from "./comps/remoteComp/remoteComp";
+import { registerComp, type UICompManifest, type UICompType } from "./uiCompRegistry";
 import { AudioComp } from "./comps/mediaComp/audioComp";
 import { VideoComp } from "./comps/mediaComp/videoComp";
 import { DrawerComp } from "./hooks/drawerComp";
