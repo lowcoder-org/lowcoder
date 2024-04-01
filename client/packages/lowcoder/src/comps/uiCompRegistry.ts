@@ -44,10 +44,15 @@ export interface UICompManifest {
   categories: readonly UICompCategory[]; // Set to empty to hide from insertion panel
   keywords: string;
   icon: FunctionComponent<React.SVGProps<SVGSVGElement>>;
-  comp: ExposingMultiCompConstructor;
+  comp?: ExposingMultiCompConstructor;
   layoutInfo?: UICompLayoutInfo;
   withoutLoading?: boolean;
+  lazyLoad?: boolean;
+  compName?: string;
+  compPath?: string;
   defaultDataFn?: CompDefaultDataFunction;
+  defaultDataFnName?: string;
+  defaultDataFnPath?: string;
 }
 
 export type UICompType =
@@ -97,6 +102,8 @@ export type UICompType =
   | "form"
   | "jsonSchemaForm"
   | "container"
+  | "pageLayout" // added by Falk Wolsky
+  | "floatTextContainer"
   | "tabbedContainer"
   | "modal"
   | "listView"

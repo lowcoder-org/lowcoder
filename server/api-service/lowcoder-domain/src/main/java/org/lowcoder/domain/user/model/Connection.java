@@ -6,8 +6,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import javax.annotation.Nullable;
-import javax.validation.constraints.NotEmpty;
+import jakarta.annotation.Nullable;
+import jakarta.validation.constraints.NotEmpty;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.SetUtils;

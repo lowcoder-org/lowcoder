@@ -96,7 +96,7 @@ export function PluginCompItem(props: PluginCompItemProps) {
       </div>
       <div className="module-content">
         <div className="module-name">{compMeta.name}</div>
-        <div className="module-desc">{compMeta.description || "No description."}</div>
+        <div className="module-desc">{compMeta.description || "No description."} <span>v{packageVersion || ""}</span></div>
       </div>
     </ItemWrapper>
   );

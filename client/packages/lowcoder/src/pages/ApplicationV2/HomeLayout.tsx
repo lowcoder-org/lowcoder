@@ -33,8 +33,7 @@ import { trans } from "../../i18n";
 import { isFetchingFolderElements } from "../../redux/selectors/folderSelector";
 import { checkIsMobile } from "util/commonUtils";
 import MarketplaceHeaderImage from "assets/images/marketplaceHeaderImage.jpg";
-import { Divider } from "antd";
-import { Margin } from "../setting/theme/styledComponents"; 
+import { default as Divider } from "antd/es/divider";
 import { ApplicationCategoriesEnum } from "constants/applicationConstants";
 
 const Wrapper = styled.div`

@@ -2,7 +2,7 @@ import styled, { css } from "styled-components";
 import { StyledLink } from "pages/common/styledComponent";
 import { EmptyContent } from "components/EmptyContent";
 import { trans } from "i18n";
-import { labelCss } from "lowcoder-design";
+import { labelCss } from "lowcoder-design/src/components/Label";
 
 const NoShake = css`
   transform: translate3d(0, 0, 0);

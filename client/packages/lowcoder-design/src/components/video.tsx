@@ -1,6 +1,9 @@
-import ReactPlayer from "react-player";
+// import ReactPlayer from "react-player";
+import { lazy } from 'react';
 import styled from "styled-components";
 import { videoPlayTriangle } from "icons";
+
+const ReactPlayer = lazy(() => import("react-player"));
 
 export const Video = styled(ReactPlayer)`
   height: 100% !important;

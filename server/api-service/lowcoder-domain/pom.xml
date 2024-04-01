@@ -234,13 +234,13 @@
             <scope>test</scope>
         </dependency>
 
-        <dependency>
-            <groupId>javax.xml.bind</groupId>
-            <artifactId>jaxb-api</artifactId>
+		<dependency>
+		    <groupId>jakarta.xml.bind</groupId>
+		    <artifactId>jakarta.xml.bind-api</artifactId>
         </dependency>
-        <dependency>
-            <groupId>javax.activation</groupId>
-            <artifactId>activation</artifactId>
+		<dependency>
+		    <groupId>jakarta.activation</groupId>
+		    <artifactId>jakarta.activation-api</artifactId>
         </dependency>
         <!-- no more than 2.3.3-->
         <dependency>

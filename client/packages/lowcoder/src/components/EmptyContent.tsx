@@ -1,4 +1,4 @@
-import { labelCss } from "lowcoder-design";
+import { labelCss } from "lowcoder-design/src/components/Label";
 import { HTMLAttributes } from "react";
 import styled from "styled-components";
 
