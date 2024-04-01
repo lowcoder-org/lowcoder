@@ -1,7 +1,7 @@
 import { EditorContext } from "comps/editorState";
 import { MultiCompBuilder, valueComp } from "comps/generators";
 import { ControlPropertyViewWrapper } from "lowcoder-design";
-import { Dropdown } from "lowcoder-design";
+import { Dropdown } from "lowcoder-design/src/components/Dropdown";
 import { useContext } from "react";
 import { ControlParams } from "./controlParams";
 

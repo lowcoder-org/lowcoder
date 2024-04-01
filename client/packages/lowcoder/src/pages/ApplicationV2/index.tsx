@@ -54,7 +54,7 @@ import { trans } from "../../i18n";
 import { foldersSelector } from "../../redux/selectors/folderSelector";
 import Setting from "pages/setting";
 import { TypographyText } from "../../components/TypographyText";
-import { messageInstance } from "lowcoder-design";
+import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 import { isEE } from "util/envUtils";
 
 // adding App Editor, so we can show Apps inside the Admin Area

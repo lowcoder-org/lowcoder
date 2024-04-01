@@ -1,4 +1,4 @@
-import { TableRowSelection } from "antd/lib/table/interface";
+import { TableRowSelection } from "antd/es/table/interface";
 import { dropdownControl } from "comps/controls/dropdownControl";
 import { stateComp } from "comps/generators";
 import { trans } from "i18n";

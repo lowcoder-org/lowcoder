@@ -10,8 +10,8 @@ import { trans } from "i18n";
 import { useParams } from "react-router-dom";
 import { put } from "redux-saga/effects";
 import { ReduxActionTypes } from "../../../constants/reduxActionConstants";
-import { UiLayoutType } from "comps/comps/uiComp";
-import { messageInstance } from "lowcoder-design";
+import type { UiLayoutType } from "comps/comps/uiComp";
+import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 
 const Upload = styled(AntUpload)`
   .ant-upload-wrapper .ant-upload-select {

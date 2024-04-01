@@ -14,7 +14,7 @@ import { RangeControl } from "../../controls/codeControl";
 import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { Video } from "lowcoder-design";
-import ReactPlayer from "react-player";
+import type ReactPlayer from "react-player";
 import { mediaCommonChildren, mediaMethods } from "./mediaUtils";
 
 import { useContext } from "react";
