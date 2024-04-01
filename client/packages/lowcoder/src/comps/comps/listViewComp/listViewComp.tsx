@@ -52,6 +52,8 @@ const childrenMap = {
   showBorder: BoolControl,
   pagination: withDefault(PaginationControl, { pageSize: "6" }),
   style: styleControl(ListViewStyle),
+  horizontal: withDefault(BoolControl, false),
+  minHorizontalWidth: withDefault(NumberControl, 100),
 };
 
 const ListViewTmpComp = new UICompBuilder(childrenMap, () => <></>)
