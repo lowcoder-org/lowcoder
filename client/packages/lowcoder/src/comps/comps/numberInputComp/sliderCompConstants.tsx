@@ -49,6 +49,7 @@ export const SliderStyled = styled(Slider)<{ $style: SliderStyleType }>`
   ${(props) => props.$style && getStyle(props.$style)}
 `;
 
+// Falk TODO: height: 300px;
 export const SliderWrapper = styled.div`
   width: 100%;
   display: inline-flex;

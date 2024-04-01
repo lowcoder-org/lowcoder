@@ -116,7 +116,7 @@ export class ModuleLayoutComp extends ModuleLayoutCompBase implements IContainer
     const rowCount = this.children.containerRowCount.getView();
     return (
       <div>
-        <ScrollBar style={{ height: "100%", margin: "0px", padding: "0px" }} hidePlaceholder={false}>
+        <ScrollBar style={{ height: "100%", margin: "0px", padding: "0px" }} $hideplaceholder={false}>
           <ModuleLayoutView
             positionParams={this.children.positionParams.getView()}
             containerSize={this.children.containerSize.getView()}

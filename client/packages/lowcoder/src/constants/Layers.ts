@@ -1,10 +1,10 @@
 export const Layers = {
   // new user tutorials
-  tutorials: 10000,
+  tutorials: 3000,
   //
   videoDialog: 2010,
   //
-  codeEditorTooltip: 1110,
+  codeEditorTooltip: 3000,
   //
   codeEditorPanel: 1100,
   //

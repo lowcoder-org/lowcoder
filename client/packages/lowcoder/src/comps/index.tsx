@@ -1,10 +1,82 @@
 // import "comps/comps/layout/navLayout";
 // import "comps/comps/layout/mobileTabLayout";
 import cnchar from "cnchar";
+
 import { registerComp, type UICompManifest, type UICompType } from "./uiCompRegistry";
 import { trans } from "i18n";
 import { remoteComp } from "./comps/remoteComp/remoteComp";
 import type { RemoteCompInfo } from "types/remoteComp";
+
+import { ModalComp } from "comps/hooks/modalComp";
+import { ButtonComp } from "./comps/buttonComp/buttonComp";
+import { DropdownComp } from "./comps/buttonComp/dropdownComp";
+import { LinkComp } from "./comps/buttonComp/linkComp";
+import { ContainerComp, defaultContainerData } from "./comps/containerComp/containerComp";
+import { defaultCollapsibleContainerData } from "./comps/containerComp/collapsibleContainerComp";
+import { ContainerComp as FloatTextContainerComp } from "./comps/containerComp/textContainerComp";
+import { PageLayoutComp, defaultPageLayoutData } from "./comps/containerComp/pageLayoutComp";
+import { CustomComp } from "./comps/customComp/customComp";
+import { DatePickerComp, DateRangeComp } from "./comps/dateComp/dateComp";
+import { DividerComp } from "./comps/dividerComp";
+import { FileComp } from "./comps/fileComp/fileComp";
+import { FileViewerComp } from "./comps/fileViewerComp";
+import { ImageComp } from "./comps/imageComp";
+import { JsonSchemaFormComp } from "./comps/jsonSchemaFormComp/jsonSchemaFormComp";
+import { NumberInputComp } from "./comps/numberInputComp/numberInputComp";
+import { RangeSliderComp } from "./comps/numberInputComp/rangeSliderComp";
+import { SliderComp } from "./comps/numberInputComp/sliderComp";
+import { ProgressCircleComp } from "./comps/progressCircleComp";
+import { ProgressComp } from "./comps/progressComp";
+import { RatingComp } from "./comps/ratingComp";
+import { RichTextEditorComp } from "./comps/richTextEditorComp";
+import { CascaderWithDefault } from "./comps/selectInputComp/cascaderComp";
+import { CheckboxComp } from "./comps/selectInputComp/checkboxComp";
+import { MultiSelectComp } from "./comps/selectInputComp/multiSelectComp";
+import { RadioComp } from "./comps/selectInputComp/radioComp";
+import { SegmentedControlComp } from "./comps/selectInputComp/segmentedControl";
+import { SelectComp } from "./comps/selectInputComp/selectComp";
+import { SwitchComp } from "./comps/switchComp";
+import { defaultTableData } from "./comps/tableComp/mockTableComp";
+import { TabbedContainerComp } from "./comps/tabs";
+import { TextComp } from "./comps/textComp";
+import { InputComp } from "./comps/textInputComp/inputComp";
+import { PasswordComp } from "./comps/textInputComp/passwordComp";
+import { TextAreaComp } from "./comps/textInputComp/textAreaComp";
+import { TimePickerComp, TimeRangeComp } from "./comps/dateComp/timeComp";
+import { defaultFormData, FormComp } from "./comps/formComp/formComp";
+import { IFrameComp } from "./comps/iframeComp";
+import { defaultGridData, defaultListViewData, GridComp, ListViewComp,} from "./comps/listViewComp";
+import { ModuleComp } from "./comps/moduleComp/moduleComp";
+import { NavComp } from "./comps/navComp/navComp";
+import { TableComp } from "./comps/tableComp";
+import { registerComp, UICompManifest, UICompType } from "./uiCompRegistry";
+import { QRCodeComp } from "./comps/qrCodeComp";
+import { JsonExplorerComp } from "./comps/jsonComp/jsonExplorerComp";
+import { JsonEditorComp } from "./comps/jsonComp/jsonEditorComp";
+import { TreeComp } from "./comps/treeComp/treeComp";
+import { TreeSelectComp } from "./comps/treeComp/treeSelectComp";
+import { trans } from "i18n";
+import { remoteComp } from "./comps/remoteComp/remoteComp";
+import { AudioComp } from "./comps/mediaComp/audioComp";
+import { VideoComp } from "./comps/mediaComp/videoComp";
+import { DrawerComp } from "./hooks/drawerComp";
+import { CarouselComp } from "./comps/carouselComp";
+import { ToggleButtonComp } from "./comps/buttonComp/toggleButtonComp";
+
+import { RemoteCompInfo } from "types/remoteComp";
+import { ScannerComp } from "./comps/buttonComp/scannerComp";
+import { SignatureComp } from "./comps/signatureComp";
+import { TimeLineComp } from "./comps/timelineComp/timelineComp";
+import { CommentComp } from "./comps/commentComp/commentComp";
+import { MentionComp } from "./comps/textInputComp/mentionComp";
+import { AutoCompleteComp } from "./comps/autoCompleteComp/autoCompleteComp";
+import { JsonLottieComp } from "./comps/jsonComp/jsonLottieComp"; 
+import { ResponsiveLayoutComp } from "./comps/responsiveLayout";
+import { VideoMeetingStreamComp } from "./comps/meetingComp/videoMeetingStreamComp";
+import { ControlButton } from "./comps/meetingComp/controlButton";
+import { VideoMeetingControllerComp } from "./comps/meetingComp/videoMeetingControllerComp";
+import { VideoSharingStreamComp } from "./comps/meetingComp/videoSharingStreamComp";
+import { IconComp } from "./comps/iconComp";
 
 import {
   AudioCompIcon,
@@ -276,6 +348,24 @@ export var uiCompMap: Registry = {
     defaultDataFnName: 'defaultCollapsibleContainerData',
     defaultDataFnPath: 'comps/containerComp/collapsibleContainerComp',
   },
+  pageLayout: {
+    name: trans("uiComp.pageLayoutCompName"),
+    enName: "Page Layout Container",
+    description: trans("uiComp.pageLayoutCompDesc"),
+    categories: ["layout"],
+    icon: ContainerCompIcon,
+    keywords: trans("uiComp.pageLayoutCompKeywords"),
+    comp: PageLayoutComp,
+    withoutLoading: true,
+    layoutInfo: {
+      w: 12,
+      h: 50,
+      // static: true,
+      delayCollision: true,
+    },
+    defaultDataFn: defaultPageLayoutData,
+  },
+
   listView: {
     name: trans("uiComp.listViewCompName"),
     enName: "List View",
@@ -351,19 +441,6 @@ export var uiCompMap: Registry = {
       h: 5,
     },
   },
-  /*Layout: {
-    name: "navLayout",
-    enName: "navLayout",
-    description: trans("uiComp.navigationCompDesc"),
-    icon: NavComIcon,
-    categories: ["layout"],
-    keywords: trans("uiComp.navigationCompKeywords"),
-    comp: NavLayout,
-    layoutInfo: {
-      w: 24,
-      h: 5,
-    },
-  }, */
   cascader: {
     name: trans("uiComp.cascaderCompName"),
     enName: "Cascader",
