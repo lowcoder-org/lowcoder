@@ -315,6 +315,7 @@ export { ReactComponent as RecyclerIcon } from "./remix/delete-bin-line.svg";
 export { ReactComponent as MarketplaceIcon } from "./icon-application-marketplace.svg";
 export { ReactComponent as FavoritesIcon } from "./icon-application-favorites.svg";
 export { ReactComponent as HomeSettingIcon } from "./remix/settings-4-line.svg";
+export { ReactComponent as EnterpriseIcon } from "./remix/earth-line.svg";
 
 
 // new

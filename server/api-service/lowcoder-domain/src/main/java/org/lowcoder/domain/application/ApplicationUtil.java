@@ -5,11 +5,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.validation.constraints.NotNull;
 
 import org.apache.commons.lang3.StringUtils;
 
 import com.google.common.collect.Sets;
+
+import jakarta.validation.constraints.NotNull;
 
 public class ApplicationUtil {
 

@@ -7,7 +7,7 @@ import { ProfileInfoCard } from "@lowcoder-ee/pages/setting/profile/profileInfoC
 import { WindowMessageTypes } from "constants/messages";
 import { isProfileSettingModalVisible } from "redux/selectors/usersSelectors";
 import { trans } from "i18n";
-import { messageInstance } from "lowcoder-design";
+import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 
 export default function ProfileSettingModal() {
   const visible = useSelector(isProfileSettingModalVisible);

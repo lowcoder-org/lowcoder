@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import AgoraRTC, {
-  IAgoraRTCClient,
-  IAgoraRTCRemoteUser,
-  ICameraVideoTrack,
-  IMicrophoneAudioTrack,
+  type IAgoraRTCClient,
+  type IAgoraRTCRemoteUser,
+  type ICameraVideoTrack,
+  type IMicrophoneAudioTrack,
 } from "agora-rtc-sdk-ng"; // Update the import with correct types
 import { v4 as uuidv4 } from "uuid";
 
@@ -43,12 +43,12 @@ const useAgora = () => {
   const leaveChannel = async () => {
     if (isJoined) {
       if (!client) {
-        console.error("Agora client is not initialized");
+        // console.error("Agora client is not initialized");
         return;
       }
 
       if (!client.localTracks.length) {
-        console.error("No local tracks to unpublish");
+        // console.error("No local tracks to unpublish");
         return;
       }
 
@@ -105,7 +105,7 @@ const useAgora = () => {
       setHeight(videoHeight!);
       // console.log(`Video width: ${videoWidth}px, height: ${videoHeight}px`);
     } else {
-      console.error("Media stream track not found");
+      // console.error("Media stream track not found");
     }
   };
 

@@ -13,7 +13,7 @@ import { ResCreatePanel } from "components/ResCreatePanel";
 import { trans } from "i18n";
 import { getDataSource } from "redux/selectors/datasourceSelectors";
 import { useMetaData } from "util/hooks";
-import { messageInstance } from "lowcoder-design";
+import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 
 const Container = styled.div`
   width: 100%;

@@ -44,7 +44,7 @@ import {
 } from "@lowcoder-ee/constants/datasourceConstants";
 import { importQueryLibrary } from "./importQueryLibrary";
 import { registryDataSourcePlugin } from "constants/queryConstants";
-import { messageInstance } from "lowcoder-design";
+import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 
 const Wrapper = styled.div`
   display: flex;

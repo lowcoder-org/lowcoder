@@ -33,6 +33,7 @@ const SliderBasicComp = (function () {
             value={props.value.value}
             $style={props.style}
             style={{margin: 0}}
+            // FALK TODO : vertical={true}
             onChange={(e) => {
               props.value.onChange(e);
               props.onEvent("change");

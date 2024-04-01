@@ -1,4 +1,4 @@
-import { TacoButton } from "lowcoder-design";
+import { TacoButton } from "lowcoder-design/src/components/button"
 import { PropsWithChildren, ReactNode } from "react";
 import styled from "styled-components";
 

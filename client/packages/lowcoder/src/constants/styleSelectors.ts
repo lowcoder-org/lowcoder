@@ -7,4 +7,4 @@ export const CNSidebar = "sidebar";
 export const CNSidebarItem = "sidebar-item";
 export const CNSidebarSection = "sidebar-section";
 export const CNMainContent = "main-content";
-export const CNRootContainer = "root-container";
+export const CNRootContainer = "lowcoder-app-canvas";

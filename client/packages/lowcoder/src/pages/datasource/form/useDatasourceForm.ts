@@ -10,7 +10,7 @@ import { registryDataSourcePlugin } from "constants/queryConstants";
 import { DatasourceType } from "@lowcoder-ee/constants/queryConstants";
 import { Datasource } from "@lowcoder-ee/constants/datasourceConstants";
 import { getSnowflakeFormParams } from "pages/datasource/form/snowflakeDatasourceForm";
-import { messageInstance } from "lowcoder-design";
+import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 
 export function useDatasourceForm() {
   const [testLoading, setTestLoading] = useState(false);

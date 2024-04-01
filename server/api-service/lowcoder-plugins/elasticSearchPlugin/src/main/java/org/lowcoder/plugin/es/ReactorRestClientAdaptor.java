@@ -3,7 +3,7 @@ package org.lowcoder.plugin.es;
 import java.io.Closeable;
 import java.io.IOException;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 import org.elasticsearch.client.Request;
 import org.elasticsearch.client.Response;
