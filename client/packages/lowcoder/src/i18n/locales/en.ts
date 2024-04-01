@@ -209,6 +209,8 @@ export const en = {
     "showApp": "Show an App in the content area",
     "showAppTooltip": "You can display whole Lowcoder Apps in the content area. Please mind, that for Modules we do not support Inputs, Outputs Events and Methods.",
     "baseURL": "Lowcoder API Base URL",
+    "horizontal": "Horizontal",
+    "minHorizontalWidth": "Minimum Horizontal Width",
   },
   "autoHeightProp": {
     "auto": "Auto",

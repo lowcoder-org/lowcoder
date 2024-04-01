@@ -339,6 +339,7 @@ export function InnerGrid(props: ViewPropsWithSelect) {
   const editorState = useContext(EditorContext);
   const { readOnly } = useContext(ExternalEditorContext);
 
+  // Falk: TODO: Here we can define the inner grid columns dynamically
   //Added By Aqib Mirza
   const defaultGrid =
     useContext(ThemeContext)?.theme?.gridColumns ||
