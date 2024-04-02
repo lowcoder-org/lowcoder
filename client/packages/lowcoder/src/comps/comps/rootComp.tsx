@@ -19,6 +19,7 @@ import { ThemeContext } from "comps/utils/themeContext";
 import { ModuleLayoutCompName } from "constants/compConstants";
 import { defaultTheme as localDefaultTheme } from "comps/controls/styleControlConstants";
 import { ModuleLoading } from "components/ModuleLoading";
+import EditorSkeletonView from "pages/editor/editorSkeletonView";
 import { getGlobalSettings } from "comps/utils/globalSettings";
 import { getCurrentTheme } from "comps/utils/themeUtil";
 import { DataChangeResponderListComp } from "./dataChangeResponderComp";
@@ -29,10 +30,7 @@ import {
   PropertySectionState,
 } from "lowcoder-design";
 import RefTreeComp from "./refTreeComp";
-
-const EditorSkeletonView = lazy(
-  () => import("pages/editor/editorSkeletonView")
-);
+import { ExternalEditorContext } from "util/context/ExternalEditorContext";
 
 const EditorView = lazy(
   () => import("pages/editor/editorView"),
@@ -61,6 +59,7 @@ function RootView(props: RootViewProps) {
   const { comp, isModuleRoot, ...divProps } = props;
   const [editorState, setEditorState] = useState<EditorState>();
   const [propertySectionState, setPropertySectionState] = useState<PropertySectionState>({});
+  const { readOnly } = useContext(ExternalEditorContext);
   const appThemeId = comp.children.settings.getView().themeId;
   const { orgCommonSettings } = getGlobalSettings();
   const themeList = orgCommonSettings?.themeList || [];
@@ -110,13 +109,15 @@ function RootView(props: RootViewProps) {
     };
   }, [editorState, propertySectionState]);
 
-  // if (!editorState) {
-  //   if (isModuleRoot) {
-  //     return <ModuleLoading />;
-  //   }
-  //   return <EditorSkeletonView />;
-  // }
-  if(!editorState) return <ModuleLoading />;
+  if (!editorState && readOnly) {
+    return <ModuleLoading />;
+  }
+
+  const SuspenseFallback = isModuleRoot ? <ModuleLoading /> : <EditorSkeletonView />;
+
+  if (!editorState) {
+    return SuspenseFallback;
+  }
 
   return (
     <div {...divProps}>
@@ -126,7 +127,7 @@ function RootView(props: RootViewProps) {
             {Object.keys(comp.children.queries.children).map((key) => (
               <div key={key}>{comp.children.queries.children[key].getView()}</div>
             ))}
-            <Suspense fallback={null}>
+            <Suspense fallback={!readOnly && SuspenseFallback}>
               <EditorView uiComp={comp.children.ui} preloadComp={comp.children.preload} />
             </Suspense>
           </EditorContext.Provider>

@@ -6,7 +6,7 @@ import { CompExposingContext } from "comps/generators/withContext";
 import { exposingDataForAutoComplete } from "comps/utils/exposingTypes";
 import { ControlPropertyViewWrapper } from "lowcoder-design";
 import { debounce } from "lodash";
-import { ReactNode, lazy, useContext, useMemo } from "react";
+import { ReactNode, Suspense, lazy, useContext, useMemo } from "react";
 import type { CodeEditorProps } from "base/codeEditor/codeEditorTypes";
 
 const CodeEditor = lazy(
@@ -38,16 +38,18 @@ function CodeTextEditor(props: CodeTextEditorProps) {
   }, [compExposingData, editorState, enableExposingDataAutoCompletion]);
 
   return (
-    <CodeEditor
-      {...params}
-      bordered
-      disableCard
-      value={codeText}
-      exposingData={expsoingData}
-      boostExposingData={compExposingData}
-      onChange={(state) => onChange(state.doc.toString())}
-      enableClickCompName={editorState.forceShowGrid}
-    />
+    <Suspense fallback={null}>
+      <CodeEditor
+        {...params}
+        bordered
+        disableCard
+        value={codeText}
+        exposingData={expsoingData}
+        boostExposingData={compExposingData}
+        onChange={(state) => onChange(state.doc.toString())}
+        enableClickCompName={editorState.forceShowGrid}
+      />
+    </Suspense>
   );
 }
 
