@@ -15,6 +15,7 @@ import java.util.function.Function;
 
 import javax.annotation.Nullable;
 
+import lombok.extern.jackson.Jacksonized;
 import org.apache.commons.collections4.SetUtils;
 import org.lowcoder.sdk.exception.PluginCommonError;
 import org.lowcoder.sdk.models.DatasourceConnectionConfig;
@@ -29,6 +30,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Builder
+@Jacksonized
 public class GraphQLDatasourceConfig implements DatasourceConnectionConfig {
     public static final GraphQLDatasourceConfig EMPTY_CONFIG = GraphQLDatasourceConfig.builder().build();
 

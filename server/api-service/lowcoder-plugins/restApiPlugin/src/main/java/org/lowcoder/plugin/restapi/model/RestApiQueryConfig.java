@@ -8,6 +8,7 @@ import static org.lowcoder.sdk.util.JsonUtils.toJson;
 import java.util.List;
 import java.util.Map;
 
+import lombok.extern.jackson.Jacksonized;
 import org.lowcoder.sdk.exception.PluginException;
 import org.lowcoder.sdk.models.Property;
 import org.springframework.http.HttpMethod;
@@ -21,6 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Getter
 @Builder
+@Jacksonized
 public class RestApiQueryConfig {
 
     private final HttpMethod httpMethod;
@@ -31,19 +33,6 @@ public class RestApiQueryConfig {
     private final List<Property> headers;
     private final List<Property> bodyFormData;
     private final long timeoutMs;
-
-    @JsonCreator
-    private RestApiQueryConfig(HttpMethod httpMethod, boolean disableEncodingParams, String body, String path,
-            List<Property> params, List<Property> headers, List<Property> bodyFormData, long timeoutMs) {
-        this.httpMethod = httpMethod;
-        this.disableEncodingParams = disableEncodingParams;
-        this.body = body;
-        this.path = path;
-        this.params = params;
-        this.headers = headers;
-        this.bodyFormData = bodyFormData;
-        this.timeoutMs = timeoutMs;
-    }
 
     public static RestApiQueryConfig from(Map<String, Object> queryConfigs) {
         RestApiQueryConfig queryConfig = fromJson(toJson(queryConfigs), RestApiQueryConfig.class);

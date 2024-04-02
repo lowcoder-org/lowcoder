@@ -1,6 +1,8 @@
 package org.lowcoder.infra.config;
 
 import jakarta.annotation.PostConstruct;
+import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.lowcoder.infra.config.model.ServerConfig;
 import org.lowcoder.infra.config.repository.ServerConfigRepository;

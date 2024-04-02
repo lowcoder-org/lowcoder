@@ -203,6 +203,8 @@ prop: {
     "showApp": "在内容区域显示应用程序",
     "showAppTooltip": "您可以在内容区域显示整个 Lowcoder 应用程序。请注意，对于模块，我们不支持输入、输出事件和方法。",
     "baseURL": "Lowcoder API 基本 URL",
+    "horizontal": "水平",
+    "minHorizontalWidth": "最小水平宽度",
 },
 autoHeightProp: {
     auto: "自动",

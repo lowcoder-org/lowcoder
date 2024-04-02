@@ -34,7 +34,7 @@ exec gosu ${USER_ID}:${GROUP_ID} ${JAVA_HOME}/bin/java \
   -Djava.security.egd=file:/dev/./urandom \
   -Dhttps.protocols=TLSv1.1,TLSv1.2 \
   -Dlog4j2.formatMsgNoLookups=true \
-  -Dspring.config.location="file:///lowcoder/api-service/config/application.yml,file:///lowcoder/api-service/config/application-selfhost.yml" \
+  -Dspring.config.location="file:///lowcoder/api-service/config/application.yaml" \
   --add-opens java.base/java.nio=ALL-UNNAMED \
   -cp "${LOWCODER_CLASSPATH:=.}" \
   ${JAVA_OPTS} \

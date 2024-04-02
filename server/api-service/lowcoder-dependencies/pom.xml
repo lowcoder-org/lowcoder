@@ -44,7 +44,7 @@
 			<dependency>
 				<groupId>org.projectlombok</groupId>
 				<artifactId>lombok</artifactId>
-				<version>1.18.26</version>
+				<version>1.18.32</version>
 			</dependency>
 
 			<dependency>
@@ -63,9 +63,6 @@
 				<version>3.0.0</version>
 			</dependency>
 			<dependency>
-				<groupId>javax.el</groupId>
-				<artifactId>javax.el-api</artifactId>
-				<version>3.0.0</version>
 			    <groupId>jakarta.el</groupId>
 			    <artifactId>jakarta.el-api</artifactId>
 			    <version>5.0.1</version>
@@ -222,7 +219,5 @@
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
-
-
 </project>
 

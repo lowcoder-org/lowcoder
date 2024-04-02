@@ -17,7 +17,7 @@ import {
   TextWeightIcon,
   ShowBorderIcon,
   BorderWidthIcon,
-  ImageCompIcon,
+  ImageCompIconSmall,
 } from "lowcoder-design";
 import { useContext } from "react";
 import styled from "styled-components";
@@ -570,7 +570,7 @@ const PaddingIcon = styled(CompressIcon)`	margin: 0 8px 0 2px;`;
 const StyledTextSizeIcon = styled(TextSizeIcon)` margin: 0 8px 0 -3px; padding: 3px;`;
 const StyledFontFamilyIcon = styled(FontFamilyIcon)` margin: 0 8px 0 -3px; padding: 3px;`;
 const StyledTextWeightIcon = styled(TextWeightIcon)` margin: 0 8px 0 -3px; padding: 3px;`;
-const StyledBackgroundImageIcon = styled(ImageCompIcon)` margin: 0 0px 0 -12px;`;
+const StyledBackgroundImageIcon = styled(ImageCompIconSmall)` margin: 0 0px 0 -12px;`;
 
 const ResetIcon = styled(IconReset)`
   &:hover g g {

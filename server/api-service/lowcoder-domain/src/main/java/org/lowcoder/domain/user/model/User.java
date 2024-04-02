@@ -8,6 +8,9 @@ import java.util.*;
 import java.util.function.Supplier;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
+import lombok.extern.jackson.Jacksonized;
 import org.apache.commons.collections4.SetUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.lowcoder.domain.mongodb.AfterMongodbRead;
@@ -23,16 +26,15 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
-
 
 @Getter
 @Setter
 @ToString
 @Document
+@Jacksonized
+@SuperBuilder
 @JsonIgnoreProperties(ignoreUnknown = true)
+@NoArgsConstructor
 public class User extends HasIdAndAuditing implements BeforeMongodbWrite, AfterMongodbRead {
 
     private static final OrgTransformedUserInfo EMPTY_TRANSFORMED_USER_INFO = new OrgTransformedUserInfo();
@@ -45,6 +47,7 @@ public class User extends HasIdAndAuditing implements BeforeMongodbWrite, AfterM
 
     private UserState state;
 
+    @Builder.Default
     private Boolean isEnabled = true;
 
     private String activeAuthId;
@@ -57,11 +60,13 @@ public class User extends HasIdAndAuditing implements BeforeMongodbWrite, AfterM
 
     private Instant passwordResetTokenExpiry;
 
+    @Builder.Default
     @Transient
     Boolean isAnonymous = false;
 
     private Set<Connection> connections;
 
+    @Builder.Default
     @Setter
     @Getter
     @Transient
@@ -70,12 +75,14 @@ public class User extends HasIdAndAuditing implements BeforeMongodbWrite, AfterM
     /**
      * Only used for mongodb (de)serialization
      */
+    @Builder.Default
     private List<Object> apiKeys = new ArrayList<>();
 
     @Transient
     @JsonIgnore
     private Supplier<String> avatarUrl = memoize(() -> StringUtils.isNotBlank(avatar) ? toAssetPath(avatar) : tpAvatarLink);
 
+    @Builder.Default
     @Transient
     @JsonIgnore
     private Boolean isNewUser = false;
@@ -100,7 +107,7 @@ public class User extends HasIdAndAuditing implements BeforeMongodbWrite, AfterM
 
     @JsonIgnore
     public String getAvatarUrl() {
-        return avatarUrl.get();
+        return (avatarUrl == null) ? "" : avatarUrl.get();
     }
 
     public OrgTransformedUserInfo getOrgTransformedUserInfo() {

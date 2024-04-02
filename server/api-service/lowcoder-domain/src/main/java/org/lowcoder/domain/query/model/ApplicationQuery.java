@@ -2,6 +2,9 @@ package org.lowcoder.domain.query.model;
 
 import java.util.Map;
 
+import lombok.Builder;
+import lombok.Value;
+import lombok.extern.jackson.Jacksonized;
 import org.apache.commons.collections4.MapUtils;
 
 import com.fasterxml.jackson.annotation.JsonCreator;

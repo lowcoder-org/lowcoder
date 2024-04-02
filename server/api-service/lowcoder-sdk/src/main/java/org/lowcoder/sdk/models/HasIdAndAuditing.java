@@ -1,7 +1,10 @@
 package org.lowcoder.sdk.models;
 
+import java.io.Serializable;
 import java.time.Instant;
 
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
@@ -24,8 +27,10 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
+@SuperBuilder
 @JsonIgnoreProperties(ignoreUnknown = true)
-public abstract class HasIdAndAuditing implements Persistable<String>, VersionedModel {
+@NoArgsConstructor
+public abstract class HasIdAndAuditing implements Persistable<String>, VersionedModel, Serializable {
 
     private static final long serialVersionUID = 7459916000501322717L;
 

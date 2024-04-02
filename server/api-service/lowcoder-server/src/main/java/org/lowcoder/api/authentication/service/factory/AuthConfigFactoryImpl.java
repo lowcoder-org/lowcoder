@@ -51,44 +51,47 @@ public class AuthConfigFactoryImpl implements AuthConfigFactory {
 
     private Oauth2SimpleAuthConfig buildOauth2SimpleAuthConfig(String source, String sourceName, AuthConfigRequest authConfigRequest,
             boolean enable) {
-        return new Oauth2SimpleAuthConfig(
-                authConfigRequest.getId(),
-                enable,
-                authConfigRequest.isEnableRegister(),
-                source,
-                sourceName,
-                requireNonNull(authConfigRequest.getClientId(), "clientId can not be null."),
-                authConfigRequest.getClientSecret(),
-                authConfigRequest.getAuthType());
+        return Oauth2SimpleAuthConfig.builder()
+                .id(authConfigRequest.getId())
+                .enable(enable)
+                .enableRegister(authConfigRequest.isEnableRegister())
+                .source(source)
+                .sourceName(sourceName)
+                .clientId(requireNonNull(authConfigRequest.getClientId(), "clientId can not be null."))
+                .clientSecret(authConfigRequest.getClientSecret())
+                .authType(authConfigRequest.getAuthType())
+                .build();
     }
 
     private Oauth2SimpleAuthConfig buildOauth2OryAuthConfig(AuthConfigRequest authConfigRequest, boolean enable) {
-        return new Oauth2OryAuthConfig(
-                authConfigRequest.getId(),
-                enable,
-                authConfigRequest.isEnableRegister(),
-                AuthTypeConstants.ORY,
-                org.lowcoder.sdk.constants.AuthSourceConstants.ORY_NAME,
-                requireNonNull(authConfigRequest.getClientId(), "clientId can not be null."),
-                authConfigRequest.getClientSecret(),
-                authConfigRequest.getString("baseUrl"),
-                authConfigRequest.getString("scope"),
-                authConfigRequest.getAuthType());
+        return Oauth2OryAuthConfig.builder()
+                .id(authConfigRequest.getId())
+                .enable(enable)
+                .enableRegister(authConfigRequest.isEnableRegister())
+                .source(AuthTypeConstants.ORY)
+                .sourceName(org.lowcoder.sdk.constants.AuthSourceConstants.ORY_NAME)
+                .clientId(requireNonNull(authConfigRequest.getClientId(), "clientId can not be null."))
+                .clientSecret(authConfigRequest.getClientSecret())
+                .baseUrl(authConfigRequest.getString("baseUrl"))
+                .scope(authConfigRequest.getString("scope"))
+                .authType(authConfigRequest.getAuthType())
+                .build();
     }
     
     private Oauth2SimpleAuthConfig buildOauth2KeycloakAuthConfig(AuthConfigRequest authConfigRequest, boolean enable) {
-        return new Oauth2KeycloakAuthConfig(
-                authConfigRequest.getId(),
-                enable,
-                authConfigRequest.isEnableRegister(),
-                AuthTypeConstants.KEYCLOAK,
-                org.lowcoder.sdk.constants.AuthSourceConstants.KEYCLOAK_NAME,
-                requireNonNull(authConfigRequest.getClientId(), "clientId can not be null."),
-                authConfigRequest.getClientSecret(),
-                authConfigRequest.getString("baseUrl"),
-                authConfigRequest.getString("realm"),
-                authConfigRequest.getString("scope"),
-                authConfigRequest.getAuthType());
+        return Oauth2KeycloakAuthConfig.builder()
+                .id(authConfigRequest.getId())
+                .enable(enable)
+                .enableRegister(authConfigRequest.isEnableRegister())
+                .source(AuthTypeConstants.KEYCLOAK)
+                .sourceName(org.lowcoder.sdk.constants.AuthSourceConstants.KEYCLOAK_NAME)
+                .clientId(requireNonNull(authConfigRequest.getClientId(), "clientId can not be null."))
+                .clientSecret(authConfigRequest.getClientSecret())
+                .baseUrl(authConfigRequest.getString("baseUrl"))
+                .realm(authConfigRequest.getString("realm"))
+                .scope(authConfigRequest.getString("scope"))
+                .authType(authConfigRequest.getAuthType())
+                .build();
     }
     
 }
