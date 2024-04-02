@@ -12,8 +12,8 @@ import { BottomSkeleton } from "pages/editor/bottom/BottomContent";
 import RightPanel from "pages/editor/right/RightPanel";
 import _ from "lodash";
 import styled from "styled-components";
-import { default as Skeleton } from "antd/es/skeleton";
-import { default as Spin } from "antd/es/spin";
+import { default as Skeleton } from "antd/lib/skeleton";
+import { default as Spin } from "antd/lib/spin";
 import { useTemplateViewMode, useUserViewMode } from "util/hooks";
 import { ProductLoading } from "components/ProductLoading";
 

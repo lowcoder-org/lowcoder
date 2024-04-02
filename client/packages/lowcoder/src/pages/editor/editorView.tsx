@@ -393,15 +393,17 @@ function EditorView(props: EditorViewProps) {
             <script key="clearbit-script" src="https://tag.clearbitscripts.com/v1/pk_931b51e405557300e6a7c470e8247d5f/tags.js" referrerPolicy="strict-origin-when-cross-origin" type="text/javascript"></script>
           ]}
         </Helmet>
-        {!hideBodyHeader && <PreviewHeader />}
-        <EditorContainerWithViewMode>
-          <ViewBody $hideBodyHeader={hideBodyHeader} $height={height}>
-            {uiComp.getView()}
-          </ViewBody>
-          <div style={{ zIndex: Layers.hooksCompContainer }}>
-            {hookCompViews}
-          </div>
-        </EditorContainerWithViewMode>
+        <Suspense fallback={<EditorSkeletonView />}>
+          {!hideBodyHeader && <PreviewHeader />}
+          <EditorContainerWithViewMode>
+            <ViewBody $hideBodyHeader={hideBodyHeader} $height={height}>
+              {uiComp.getView()}
+            </ViewBody>
+            <div style={{ zIndex: Layers.hooksCompContainer }}>
+              {hookCompViews}
+            </div>
+          </EditorContainerWithViewMode>
+        </Suspense>
       </CustomShortcutWrapper>
     );
   }
