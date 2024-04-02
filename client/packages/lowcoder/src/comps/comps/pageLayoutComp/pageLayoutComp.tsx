@@ -27,7 +27,7 @@ import { SimpleContainerComp } from "../containerBase/simpleContainerComp";
 import { ContainerBodyChildComp } from "./containerBodyChildComp";
 import { trans } from "i18n";
 import { ControlNode } from "lowcoder-design";
-import { StringControl } from "@lowcoder-ee/index.sdk"; 
+import { StringControl } from "comps/controls/codeControl";
 
 const childrenMap = {
   header: SimpleContainerComp,

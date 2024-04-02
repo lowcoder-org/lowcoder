@@ -11,7 +11,7 @@ import { API_STATUS_CODES } from "constants/apiConstants";
 import { AUTH_LOGIN_URL } from "constants/routesURL";
 import { AuthSearchParams } from "constants/authConstants";
 import { saveAuthSearchParams } from "pages/userAuth/authUtils";
-import { lazy } from "react";
+import { Suspense, lazy } from "react";
 
 const AppView = lazy(
   () => import('./AppView')
@@ -144,14 +144,16 @@ export class AppViewInstance<I = any, O = any> {
     const data = await this.dataPromise;
     this.root.render(
       <StyleSheetManager target={this.node as HTMLElement}>
-        <AppView
-          appId={this.appId}
-          dsl={data.appDsl}
-          moduleDsl={data.moduleDslMap}
-          moduleInputs={this.options.moduleInputs}
-          onCompChange={(comp) => this.handleCompChange(comp)}
-          onModuleEventTriggered={(eventName) => this.emit("moduleEventTriggered", [eventName])}
-        />
+        <Suspense fallback={null}>
+          <AppView
+            appId={this.appId}
+            dsl={data.appDsl}
+            moduleDsl={data.moduleDslMap}
+            moduleInputs={this.options.moduleInputs}
+            onCompChange={(comp) => this.handleCompChange(comp)}
+            onModuleEventTriggered={(eventName) => this.emit("moduleEventTriggered", [eventName])}
+          />
+        </Suspense>
       </StyleSheetManager>
     );
   }

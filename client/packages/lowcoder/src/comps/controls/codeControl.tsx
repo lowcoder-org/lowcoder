@@ -30,7 +30,7 @@ import {
   toHex,
   wrapperToControlItem,
 } from "lowcoder-design";
-import { lazy, ReactNode } from "react";
+import { lazy, ReactNode, Suspense } from "react";
 import {
   showTransform,
   toArrayJSONObject,
@@ -192,7 +192,7 @@ export function codeControl<
           {(editorState) => (
             <CompExposingContext.Consumer>
               {(exposingData) => (
-                <>
+                <Suspense fallback={null}>
                   <CodeEditor
                     {...params}
                     bordered
@@ -213,7 +213,7 @@ export function codeControl<
                     boostExposingData={exposingData}
                     enableClickCompName={editorState?.forceShowGrid}
                   />
-                </>
+                </Suspense>
               )}
             </CompExposingContext.Consumer>
           )}

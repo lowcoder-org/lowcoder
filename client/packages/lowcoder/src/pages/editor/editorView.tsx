@@ -28,6 +28,7 @@ import {
   UserGuideLocationState,
 } from "pages/tutorials/tutorialsConstant";
 import React, {
+  Suspense,
   lazy,
   useCallback,
   useContext,
@@ -51,6 +52,7 @@ import {
   saveEditorModeStatus,
 } from "util/localStorageUtil";
 import { isAggregationApp } from "util/appUtils";
+import EditorSkeletonView from "./editorSkeletonView";
 
 const LeftContent = lazy(
   () => import('./LeftContent')
@@ -455,6 +457,7 @@ function EditorView(props: EditorViewProps) {
             <script key="clearbit-script" src="https://tag.clearbitscripts.com/v1/pk_931b51e405557300e6a7c470e8247d5f/tags.js" referrerPolicy="strict-origin-when-cross-origin" type="text/javascript"></script>
         ]}
       </Helmet>
+
       {showNewUserGuide && <EditorTutorials />}
       <EditorGlobalHotKeys
         disabled={readOnly}
