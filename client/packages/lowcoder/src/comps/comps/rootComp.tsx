@@ -31,6 +31,7 @@ import {
 } from "lowcoder-design";
 import RefTreeComp from "./refTreeComp";
 import { ExternalEditorContext } from "util/context/ExternalEditorContext";
+import { useUserViewMode } from "util/hooks";
 
 const EditorView = lazy(
   () => import("pages/editor/editorView"),
@@ -60,6 +61,7 @@ function RootView(props: RootViewProps) {
   const [editorState, setEditorState] = useState<EditorState>();
   const [propertySectionState, setPropertySectionState] = useState<PropertySectionState>({});
   const { readOnly } = useContext(ExternalEditorContext);
+  const isUserViewMode = useUserViewMode();
   const appThemeId = comp.children.settings.getView().themeId;
   const { orgCommonSettings } = getGlobalSettings();
   const themeList = orgCommonSettings?.themeList || [];
@@ -109,7 +111,7 @@ function RootView(props: RootViewProps) {
     };
   }, [editorState, propertySectionState]);
 
-  if (!editorState && readOnly) {
+  if (!editorState && !isUserViewMode && readOnly) {
     return <ModuleLoading />;
   }
 
@@ -127,7 +129,7 @@ function RootView(props: RootViewProps) {
             {Object.keys(comp.children.queries.children).map((key) => (
               <div key={key}>{comp.children.queries.children[key].getView()}</div>
             ))}
-            <Suspense fallback={!readOnly && SuspenseFallback}>
+            <Suspense fallback={!readOnly || isUserViewMode ? SuspenseFallback : null}>
               <EditorView uiComp={comp.children.ui} preloadComp={comp.children.preload} />
             </Suspense>
           </EditorContext.Provider>

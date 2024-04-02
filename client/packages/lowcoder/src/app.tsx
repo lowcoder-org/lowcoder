@@ -142,8 +142,9 @@ class AppIndex extends React.Component<AppIndexProps, any> {
               />
             )}
             <LazyRoute exact path={IMPORT_APP_FROM_TEMPLATE_URL} component={LazyAppFromTemplate} />
-            <LazyRoute path={APP_EDITOR_URL} component={LazyAppEditor} />
+            <LazyRoute fallback="layout" path={APP_EDITOR_URL} component={LazyAppEditor} />
             <LazyRoute
+              fallback="layout"
               path={[
                 ALL_APPLICATIONS_URL,
                 DATASOURCE_CREATE_URL,
