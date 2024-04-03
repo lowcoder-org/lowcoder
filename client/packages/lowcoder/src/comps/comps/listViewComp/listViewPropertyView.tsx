@@ -73,6 +73,7 @@ export function listPropertyView(compType: ListCompType) {
               {children.horizontal.getView() && (
                 children.minHorizontalWidth.propertyView({
                   label: trans("prop.minHorizontalWidth"),
+                  placeholder: '100px',
                 })
               )}
             </Section>
