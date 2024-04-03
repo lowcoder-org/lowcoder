@@ -3,6 +3,7 @@ import { BoolControl } from "comps/controls/boolControl";
 import {
   NumberControl,
   NumberOrJSONObjectArrayControl,
+  RadiusControl,
   StringControl,
 } from "comps/controls/codeControl";
 import { styleControl } from "comps/controls/styleControl";
@@ -53,7 +54,7 @@ const childrenMap = {
   pagination: withDefault(PaginationControl, { pageSize: "6" }),
   style: styleControl(ListViewStyle),
   horizontal: withDefault(BoolControl, false),
-  minHorizontalWidth: withDefault(NumberControl, 100),
+  minHorizontalWidth: withDefault(RadiusControl, '100px'),
 };
 
 const ListViewTmpComp = new UICompBuilder(childrenMap, () => <></>)

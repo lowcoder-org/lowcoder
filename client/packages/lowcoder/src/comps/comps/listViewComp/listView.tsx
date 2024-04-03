@@ -35,8 +35,6 @@ const FooterWrapper = styled.div`
 `;
 
 const BodyWrapper = styled.div<{ $autoHeight: boolean }>`
-  overflow: auto;
-  overflow: overlay;
   height: ${(props) => (props.$autoHeight ? "100%" : "calc(100% - 32px)")};
 `;
 
@@ -55,12 +53,23 @@ const ListOrientationWrapper = styled.div<{ $isHorizontal: boolean, $autoHeight 
   height: 100%;
 `;
 
-const MinHorizontalWidthContext = createContext(0);
+const MinHorizontalWidthContext = createContext({
+  horizontalWidth: '100%',
+  minHorizontalWidth: '100px',
+});
 
 const ContainerInListView = (props: ContainerBaseProps ) => {
-  const minHorizontalWidth = useContext(MinHorizontalWidthContext);
+  const {
+    horizontalWidth,
+    minHorizontalWidth
+  } = useContext(MinHorizontalWidthContext);
   return (
-    <div style={{ width: minHorizontalWidth > 0 ? `${minHorizontalWidth}px` : "100%"}}>
+    <div
+      style={{
+        width: horizontalWidth,
+        minWidth: minHorizontalWidth,
+      }}
+    >
       <InnerGrid
         {...props}
         emptyRows={15}
@@ -79,11 +88,23 @@ type ListItemProps = {
   scrollContainerRef?: RefObject<HTMLDivElement>;
   minHeight?: string;
   unMountFn?: () => void;
-  minHorizontalWidth: number;
+  minHorizontalWidth: string;
+  horizontalWidth: string;
 };
 
-function ListItem({ minHorizontalWidth, ...props }: ListItemProps) {
-  const { itemIdx, offset, containerProps, autoHeight, scrollContainerRef, minHeight } = props;
+function ListItem({
+  minHorizontalWidth,
+  horizontalWidth,
+  ...props
+}: ListItemProps) {
+  const {
+    itemIdx,
+    offset,
+    containerProps,
+    autoHeight,
+    scrollContainerRef,
+    minHeight
+  } = props;
 
   // disable the unmount function to save user's state with pagination
   // useEffect(() => {
@@ -94,14 +115,23 @@ function ListItem({ minHorizontalWidth, ...props }: ListItemProps) {
   // }, []);
 
   return (
-      <MinHorizontalWidthContext.Provider value={minHorizontalWidth}>
+      <MinHorizontalWidthContext.Provider
+        value={{
+          horizontalWidth,
+          minHorizontalWidth
+        }}
+      >
         <ContainerInListView
           layout={containerProps.layout}
           items={gridItemCompToGridItems(containerProps.items)}
           positionParams={containerProps.positionParams}
           // all layout changes should only reflect on the commonContainer
           dispatch={itemIdx === offset ? containerProps.dispatch : _.noop}
-          style={{ height: "100%", backgroundColor: "transparent", flex: "auto"}}
+          style={{
+            height: "100%",
+            backgroundColor: "transparent",
+            flex: "auto",
+          }}
           autoHeight={autoHeight}
           isDroppable={itemIdx === offset}
           isDraggable={itemIdx === offset}
@@ -181,8 +211,7 @@ export function ListView(props: Props) {
         key={rowIdx}
         style={{
           height: rowHeight,
-          width: 100 / noOfColumns + "%",
-          minWidth: minHorizontalWidth,
+          width: '100%',
         }}
       >
         <FlexWrapper>
@@ -217,7 +246,8 @@ export function ListView(props: Props) {
                 scrollContainerRef={ref}
                 minHeight={minHeight}
                 unMountFn={unMountFn}
-                minHorizontalWidth={horizontal ? minHorizontalWidth : 0}
+                horizontalWidth={`${100 / noOfColumns}%`}
+                minHorizontalWidth={horizontal ? minHorizontalWidth : '0px'}
               />
             );
           })}

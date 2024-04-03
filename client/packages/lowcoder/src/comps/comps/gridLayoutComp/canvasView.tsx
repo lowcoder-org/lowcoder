@@ -105,7 +105,6 @@ export function CanvasView(props: ContainerBaseProps) {
     cols: parseInt(defaultGrid),
   };
   //////////////////////
-
   if (readOnly) {
     return (
       <UICompContainer
