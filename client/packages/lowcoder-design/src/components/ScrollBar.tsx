@@ -1,9 +1,9 @@
 import React from "react";
 import SimpleBar from "simplebar-react";
-import 'simplebar-react/dist/simplebar.min.css';
 import styled from "styled-components";
 import { DebouncedFunc } from 'lodash'; // Assuming you're using lodash's DebouncedFunc type
 
+// import 'simplebar-react/dist/simplebar.min.css';
 
 const ScrollBarWrapper = styled.div<{ $hideplaceholder?: boolean }>`
   min-height: 0;
