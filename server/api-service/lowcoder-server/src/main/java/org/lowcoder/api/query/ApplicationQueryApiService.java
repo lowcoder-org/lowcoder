@@ -1,5 +1,7 @@
 package org.lowcoder.api.query;
 
+import jakarta.annotation.Nullable;
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.lowcoder.api.home.SessionUserService;
@@ -29,7 +31,6 @@ import org.lowcoder.sdk.plugin.restapi.RestApiDatasourceConfig;
 import org.lowcoder.sdk.plugin.restapi.auth.OAuthInheritAuthConfig;
 import org.lowcoder.sdk.query.QueryVisitorContext;
 import org.lowcoder.sdk.util.ExceptionUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpCookie;
 import org.springframework.stereotype.Service;
@@ -38,7 +39,6 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.Timed;
 
-import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -50,32 +50,18 @@ import static org.lowcoder.sdk.exception.BizError.INVALID_PARAMETER;
 import static org.lowcoder.sdk.util.ExceptionUtils.deferredError;
 import static org.lowcoder.sdk.util.ExceptionUtils.ofError;
 
+@RequiredArgsConstructor
 @Service
 public class ApplicationQueryApiService {
 
-    @Autowired
-    private SessionUserService sessionUserService;
-
-    @Autowired
-    private LibraryQueryService libraryQueryService;
-
-    @Autowired
-    private LibraryQueryRecordService libraryQueryRecordService;
-
-    @Autowired
-    private ApplicationService applicationService;
-
-    @Autowired
-    private ResourcePermissionService resourcePermissionService;
-
-    @Autowired
-    private DatasourceService datasourceService;
-
-    @Autowired
-    private QueryExecutionService queryExecutionService;
-
-    @Autowired
-    private CommonConfig commonConfig;
+    private final SessionUserService sessionUserService;
+    private final LibraryQueryService libraryQueryService;
+    private final LibraryQueryRecordService libraryQueryRecordService;
+    private final ApplicationService applicationService;
+    private final ResourcePermissionService resourcePermissionService;
+    private final DatasourceService datasourceService;
+    private final QueryExecutionService queryExecutionService;
+    private final CommonConfig commonConfig;
 
     @Value("${server.port}")
     private int port;

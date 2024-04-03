@@ -1,19 +1,13 @@
 package org.lowcoder.domain.user.model;
 
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-
-import javax.annotation.Nullable;
-
+import jakarta.annotation.Nullable;
+import lombok.*;
 import org.apache.commons.lang3.StringUtils;
 import org.lowcoder.domain.authentication.context.AuthRequestContext;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 @Setter
 @Getter

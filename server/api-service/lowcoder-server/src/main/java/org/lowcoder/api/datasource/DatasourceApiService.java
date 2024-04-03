@@ -1,19 +1,7 @@
 package org.lowcoder.api.datasource;
 
-import static org.lowcoder.domain.permission.model.ResourceAction.MANAGE_DATASOURCES;
-import static org.lowcoder.domain.permission.model.ResourceAction.READ_APPLICATIONS;
-import static org.lowcoder.domain.permission.model.ResourceAction.USE_DATASOURCES;
-import static org.lowcoder.sdk.exception.BizError.NOT_AUTHORIZED;
-import static org.lowcoder.sdk.util.ExceptionUtils.deferredError;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import javax.annotation.Nullable;
-
+import jakarta.annotation.Nullable;
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.lowcoder.api.application.ApplicationApiService;
@@ -48,49 +36,40 @@ import org.lowcoder.sdk.exception.ServerException;
 import org.lowcoder.sdk.models.DatasourceTestResult;
 import org.lowcoder.sdk.models.HasIdAndAuditing;
 import org.lowcoder.sdk.models.JsDatasourceConnectionConfig;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import static org.lowcoder.domain.permission.model.ResourceAction.*;
+import static org.lowcoder.sdk.exception.BizError.NOT_AUTHORIZED;
+import static org.lowcoder.sdk.util.ExceptionUtils.deferredError;
+
+@RequiredArgsConstructor
 @Service
 public class DatasourceApiService {
 
-    @Autowired
-    private SessionUserService sessionUserService;
+    private final SessionUserService sessionUserService;
+    private final OrgMemberService orgMemberService;
+    private final DatasourceService datasourceService;
+    private final ResourcePermissionService resourcePermissionService;
+    private final PermissionHelper permissionHelper;
+    private final OrgDevChecker orgDevChecker;
 
-    @Autowired
-    private OrgMemberService orgMemberService;
-
-    @Autowired
-    private DatasourceService datasourceService;
-
-    @Autowired
-    private ResourcePermissionService resourcePermissionService;
-    @Autowired
-    private PermissionHelper permissionHelper;
-    @Autowired
-    private OrgDevChecker orgDevChecker;
-
-    @Autowired
-    private UserService userService;
-    @Autowired
-    private DatasourceConnectionPool datasourceConnectionPool;
-    @Autowired
-    private OrganizationService organizationService;
-    @Autowired
-    private ApplicationService applicationService;
-    @Autowired
-    private JsDatasourceHelper jsDatasourceHelper;
-    @Autowired
-    private DatasourceMetaInfoService datasourceMetaInfoService;
-    @Autowired
-    private DatasourcePluginClient datasourcePluginClient;
-    @Autowired
-    private DatasourceRepository datasourceRepository;
-    @Autowired
-    private ApplicationApiService applicationApiService;
+    private final UserService userService;
+    private final DatasourceConnectionPool datasourceConnectionPool;
+    private final OrganizationService organizationService;
+    private final ApplicationService applicationService;
+    private final JsDatasourceHelper jsDatasourceHelper;
+    private final DatasourceMetaInfoService datasourceMetaInfoService;
+    private final DatasourcePluginClient datasourcePluginClient;
+    private final DatasourceRepository datasourceRepository;
+    private final ApplicationApiService applicationApiService;
 
     public Mono<Datasource> create(Datasource datasource) {
         return sessionUserService.getVisitorId()

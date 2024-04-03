@@ -1,6 +1,7 @@
 package org.lowcoder.domain.user.service;
 
 
+import jakarta.annotation.Nonnull;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,7 +34,6 @@ import org.lowcoder.sdk.exception.BizError;
 import org.lowcoder.sdk.exception.BizException;
 import org.lowcoder.sdk.util.HashUtils;
 import org.lowcoder.sdk.util.LocaleUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.codec.multipart.Part;
 import org.springframework.stereotype.Service;
@@ -41,7 +41,6 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import javax.annotation.Nonnull;
 import java.security.SecureRandom;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;

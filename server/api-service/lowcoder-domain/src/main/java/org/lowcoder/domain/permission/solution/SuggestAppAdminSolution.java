@@ -1,15 +1,7 @@
 package org.lowcoder.domain.permission.solution;
 
-import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Sets.newHashSet;
-
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import javax.annotation.Nonnull;
-
+import jakarta.annotation.Nonnull;
+import lombok.RequiredArgsConstructor;
 import org.lowcoder.domain.group.model.GroupMember;
 import org.lowcoder.domain.group.service.GroupMemberService;
 import org.lowcoder.domain.permission.model.ResourcePermission;
@@ -17,25 +9,27 @@ import org.lowcoder.domain.permission.model.ResourceRole;
 import org.lowcoder.domain.permission.service.ResourcePermissionService;
 import org.lowcoder.domain.user.model.User;
 import org.lowcoder.domain.user.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Sets.newHashSet;
+
+@RequiredArgsConstructor
 @Service
 public class SuggestAppAdminSolution {
 
     private static final int LIMIT_COUNT_FOR_DISPLAY_ADMIN_NAMES = 7;
 
-    @Autowired
-    private GroupMemberService groupMemberService;
-
-    @Autowired
-    private UserService userService;
-
-    @Autowired
-    private ResourcePermissionService resourcePermissionService;
+    private final GroupMemberService groupMemberService;
+    private final UserService userService;
+    private final ResourcePermissionService resourcePermissionService;
 
     public Mono<List<User>> getApplicationAdminUsers(String applicationId, int limit) {
         return resourcePermissionService.getByApplicationId(applicationId)

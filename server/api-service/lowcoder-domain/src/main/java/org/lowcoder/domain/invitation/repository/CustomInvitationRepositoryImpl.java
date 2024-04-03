@@ -2,6 +2,7 @@ package org.lowcoder.domain.invitation.repository;
 
 import static org.lowcoder.domain.util.QueryDslUtils.fieldName;
 
+import lombok.RequiredArgsConstructor;
 import org.lowcoder.domain.invitation.model.Invitation;
 import org.lowcoder.domain.invitation.model.QInvitation;
 import org.lowcoder.sdk.constants.FieldName;
@@ -17,10 +18,10 @@ import com.mongodb.client.result.UpdateResult;
 import reactor.core.publisher.Mono;
 
 @Repository
+@RequiredArgsConstructor
 public class CustomInvitationRepositoryImpl implements CustomInvitationRepository {
 
-    @Autowired
-    private ReactiveMongoTemplate mongoTemplate;
+    private final ReactiveMongoTemplate mongoTemplate;
 
     @Override
     public Mono<UpdateResult> addInvitedUser(String invitationId, String userId) {

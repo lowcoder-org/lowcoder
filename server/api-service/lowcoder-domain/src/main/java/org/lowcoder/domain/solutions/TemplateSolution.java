@@ -1,19 +1,7 @@
 package org.lowcoder.domain.solutions;
 
-import static java.util.Objects.isNull;
-import static org.lowcoder.sdk.exception.BizError.TEMPLATE_NOT_CORRECT;
-import static org.lowcoder.sdk.exception.BizError.TEMPLATE_NOT_EXIST;
-import static org.lowcoder.sdk.util.ExceptionUtils.deferredError;
-import static org.lowcoder.sdk.util.ExceptionUtils.ofError;
-
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import javax.annotation.Nonnull;
-
+import jakarta.annotation.Nonnull;
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.lowcoder.domain.application.model.Application;
@@ -28,27 +16,33 @@ import org.lowcoder.domain.template.service.TemplateService;
 import org.lowcoder.infra.annotation.NonEmptyMono;
 import org.lowcoder.infra.util.TupleUtils;
 import org.lowcoder.sdk.util.JsonUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
-
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import static java.util.Objects.isNull;
+import static org.lowcoder.sdk.exception.BizError.TEMPLATE_NOT_CORRECT;
+import static org.lowcoder.sdk.exception.BizError.TEMPLATE_NOT_EXIST;
+import static org.lowcoder.sdk.util.ExceptionUtils.deferredError;
+import static org.lowcoder.sdk.util.ExceptionUtils.ofError;
+
 @Lazy
+@RequiredArgsConstructor
 @Service
 public class TemplateSolution {
 
     private static final int RANDOM_LENGTH = 6;
 
-    @Autowired
-    private TemplateService templateService;
-
-    @Autowired
-    private DatasourceService datasourceService;
-
-    @Autowired
-    private ApplicationService applicationService;
+    private final TemplateService templateService;
+    private final DatasourceService datasourceService;
+    private final ApplicationService applicationService;
 
     public Mono<Application> createFromTemplate(String templateId, String orgId, String visitorId) {
         return templateService.getById(templateId)

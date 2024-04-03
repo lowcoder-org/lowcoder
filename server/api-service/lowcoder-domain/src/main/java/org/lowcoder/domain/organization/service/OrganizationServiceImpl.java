@@ -1,33 +1,14 @@
 package org.lowcoder.domain.organization.service;
 
-import static org.lowcoder.domain.authentication.AuthenticationService.DEFAULT_AUTH_CONFIG;
-import static org.lowcoder.domain.organization.model.Organization.OrganizationCommonSettings.PASSWORD_RESET_EMAIL_TEMPLATE;
-import static org.lowcoder.domain.organization.model.OrganizationState.ACTIVE;
-import static org.lowcoder.domain.organization.model.OrganizationState.DELETED;
-import static org.lowcoder.domain.util.QueryDslUtils.fieldName;
-import static org.lowcoder.sdk.exception.BizError.UNABLE_TO_FIND_VALID_ORG;
-import static org.lowcoder.sdk.util.ExceptionUtils.deferredError;
-import static org.lowcoder.sdk.util.ExceptionUtils.ofError;
-import static org.lowcoder.sdk.util.LocaleUtils.getLocale;
-import static org.lowcoder.sdk.util.LocaleUtils.getMessage;
-
-import java.util.Collection;
-import java.util.List;
-import java.util.Locale;
-
-import javax.annotation.Nonnull;
-
+import jakarta.annotation.Nonnull;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.lowcoder.domain.asset.model.Asset;
 import org.lowcoder.domain.asset.service.AssetRepository;
 import org.lowcoder.domain.asset.service.AssetService;
 import org.lowcoder.domain.group.service.GroupService;
 import org.lowcoder.domain.organization.event.OrgDeletedEvent;
-import org.lowcoder.domain.organization.model.MemberRole;
-import org.lowcoder.domain.organization.model.Organization;
-import org.lowcoder.domain.organization.model.OrganizationDomain;
-import org.lowcoder.domain.organization.model.OrganizationState;
-import org.lowcoder.domain.organization.model.QOrganization;
+import org.lowcoder.domain.organization.model.*;
 import org.lowcoder.domain.organization.model.Organization.OrganizationCommonSettings;
 import org.lowcoder.domain.organization.repository.OrganizationRepository;
 import org.lowcoder.domain.user.model.User;
@@ -47,10 +28,22 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.http.codec.multipart.Part;
 import org.springframework.stereotype.Service;
-
-import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.util.Collection;
+import java.util.List;
+import java.util.Locale;
+
+import static org.lowcoder.domain.authentication.AuthenticationService.DEFAULT_AUTH_CONFIG;
+import static org.lowcoder.domain.organization.model.OrganizationState.ACTIVE;
+import static org.lowcoder.domain.organization.model.OrganizationState.DELETED;
+import static org.lowcoder.domain.util.QueryDslUtils.fieldName;
+import static org.lowcoder.sdk.exception.BizError.UNABLE_TO_FIND_VALID_ORG;
+import static org.lowcoder.sdk.util.ExceptionUtils.deferredError;
+import static org.lowcoder.sdk.util.ExceptionUtils.ofError;
+import static org.lowcoder.sdk.util.LocaleUtils.getLocale;
+import static org.lowcoder.sdk.util.LocaleUtils.getMessage;
 
 @Slf4j
 @Service

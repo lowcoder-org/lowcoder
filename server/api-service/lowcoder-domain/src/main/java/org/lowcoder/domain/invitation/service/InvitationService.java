@@ -1,8 +1,7 @@
 package org.lowcoder.domain.invitation.service;
 
 
-import javax.annotation.Nonnull;
-
+import jakarta.annotation.Nonnull;
 import org.lowcoder.domain.invitation.model.Invitation;
 import org.lowcoder.domain.invitation.repository.InvitationRepository;
 import org.lowcoder.domain.organization.model.MemberRole;
@@ -10,7 +9,6 @@ import org.lowcoder.domain.organization.service.OrgMemberService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
-
 import reactor.core.publisher.Mono;
 
 @Lazy

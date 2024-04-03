@@ -74,6 +74,12 @@
 			</dependency>
 
 			<dependency>
+				<groupId>jakarta.persistence</groupId>
+				<artifactId>jakarta.persistence-api</artifactId>
+				<version>3.1.0</version>
+			</dependency>
+
+			<dependency>
 				<groupId>org.apache.commons</groupId>
 				<artifactId>commons-collections4</artifactId>
 				<version>4.4</version>
@@ -137,7 +143,22 @@
 			<dependency>
 				<groupId>com.querydsl</groupId>
 				<artifactId>querydsl-apt</artifactId>
+				<version>5.1.0</version>
+				<classifier>jakarta</classifier>
+			</dependency>
+
+			<dependency>
+				<groupId>com.querydsl</groupId>
+				<artifactId>querydsl-jpa</artifactId>
+				<version>5.1.0</version>
+				<classifier>jakarta</classifier>
+			</dependency>
+
+			<dependency>
+				<groupId>com.querydsl</groupId>
+				<artifactId>querydsl-mongodb</artifactId>
 				<version>5.0.0</version>
+				<classifier>jakarta</classifier>
 			</dependency>
 
 			<dependency>

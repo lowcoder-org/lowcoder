@@ -1,13 +1,8 @@
 package org.lowcoder.plugin.sql;
 
-import static org.lowcoder.sdk.exception.PluginCommonError.QUERY_EXECUTION_ERROR;
-
-import java.util.HashSet;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
-
-import javax.annotation.Nonnull;
-
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
+import jakarta.annotation.Nonnull;
 import org.apache.commons.lang3.StringUtils;
 import org.lowcoder.sdk.exception.PluginException;
 import org.lowcoder.sdk.models.DatasourceTestResult;
@@ -15,8 +10,11 @@ import org.lowcoder.sdk.plugin.common.BlockingDatasourceConnector;
 import org.lowcoder.sdk.plugin.common.sql.HikariPerfWrapper;
 import org.lowcoder.sdk.plugin.common.sql.SqlBasedDatasourceConnectionConfig;
 
-import com.zaxxer.hikari.HikariConfig;
-import com.zaxxer.hikari.HikariDataSource;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+
+import static org.lowcoder.sdk.exception.PluginCommonError.QUERY_EXECUTION_ERROR;
 
 public abstract class SqlBasedConnector<T extends SqlBasedDatasourceConnectionConfig> extends BlockingDatasourceConnector<HikariPerfWrapper, T> {
 

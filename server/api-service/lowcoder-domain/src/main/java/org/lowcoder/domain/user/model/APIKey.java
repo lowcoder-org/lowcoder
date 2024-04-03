@@ -1,10 +1,10 @@
 package org.lowcoder.domain.user.model;
 
+import jakarta.annotation.Nullable;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.annotation.Nullable;
 import java.util.function.Function;
 
 @Getter

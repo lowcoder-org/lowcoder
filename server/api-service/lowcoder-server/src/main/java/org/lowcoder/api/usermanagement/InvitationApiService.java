@@ -1,12 +1,7 @@
 package org.lowcoder.api.usermanagement;
 
-import static org.lowcoder.sdk.exception.BizError.INVITED_ORG_DELETED;
-import static org.lowcoder.sdk.exception.BizError.INVITER_NOT_FOUND;
-import static org.lowcoder.sdk.util.ExceptionUtils.deferredError;
-import static org.lowcoder.sdk.util.ExceptionUtils.ofException;
-
-import javax.annotation.Nonnull;
-
+import jakarta.annotation.Nonnull;
+import lombok.RequiredArgsConstructor;
 import org.lowcoder.api.bizthreshold.AbstractBizThresholdChecker;
 import org.lowcoder.api.home.SessionUserService;
 import org.lowcoder.api.usermanagement.view.InvitationVO;
@@ -19,34 +14,25 @@ import org.lowcoder.domain.user.model.User;
 import org.lowcoder.domain.user.service.UserService;
 import org.lowcoder.sdk.exception.BizError;
 import org.lowcoder.sdk.exception.BizException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import reactor.core.publisher.Mono;
 
+import static org.lowcoder.sdk.exception.BizError.INVITED_ORG_DELETED;
+import static org.lowcoder.sdk.exception.BizError.INVITER_NOT_FOUND;
+import static org.lowcoder.sdk.util.ExceptionUtils.deferredError;
+import static org.lowcoder.sdk.util.ExceptionUtils.ofException;
+
+@RequiredArgsConstructor
 @Service
 public class InvitationApiService {
 
-    @Autowired
-    private InvitationService invitationService;
-
-    @Autowired
-    private OrgApiService orgApiService;
-
-    @Autowired
-    private UserService userService;
-
-    @Autowired
-    private SessionUserService sessionUserService;
-
-    @Autowired
-    private OrganizationService organizationService;
-
-    @Autowired
-    private OrgMemberService orgMemberService;
-
-    @Autowired
-    private AbstractBizThresholdChecker bizThresholdChecker;
+    private final InvitationService invitationService;
+    private final OrgApiService orgApiService;
+    private final UserService userService;
+    private final SessionUserService sessionUserService;
+    private final OrganizationService organizationService;
+    private final OrgMemberService orgMemberService;
+    private final AbstractBizThresholdChecker bizThresholdChecker;
 
     public Mono<Boolean> inviteUser(String invitationId) {
         return sessionUserService.getVisitorId()
