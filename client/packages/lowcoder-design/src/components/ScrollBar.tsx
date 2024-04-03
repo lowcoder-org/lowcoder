@@ -59,7 +59,6 @@ interface IProps {
 }
 
 export const ScrollBar = ({
-  height = "100%",
   className,
   children,
   style,
@@ -68,6 +67,7 @@ export const ScrollBar = ({
   $hideplaceholder = false,
   ...otherProps
 }: IProps) => {
+  const height = style?.height ?? '100%';
   // You can now use the style prop directly or pass it to SimpleBar
   const combinedStyle = { ...style, height }; // Example of combining height with passed style
 

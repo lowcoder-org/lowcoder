@@ -122,7 +122,7 @@ function RootView(props: RootViewProps) {
   }
 
   return (
-    <div {...divProps}>
+    <div {...divProps} style={{height: '100%'}}>
       <PropertySectionContext.Provider value={propertySectionContextValue}>
         <ThemeContext.Provider value={themeContextValue}>
           <EditorContext.Provider value={editorState}>
