@@ -18,7 +18,7 @@ import {
 } from "../triContainerComp/triContainerCompBuilder";
 import { TriContainer } from "../triContainerComp/triFloatTextContainer";
 import { dropdownControl } from "comps/controls/dropdownControl";
-import { withDefault } from "@lowcoder-ee/index.sdk";
+import { withDefault } from "comps/generators/simpleGenerators";
 import { styleControl } from "comps/controls/styleControl";
 import { TextStyle } from "comps/controls/styleControlConstants";
 import { useContext } from "react";
