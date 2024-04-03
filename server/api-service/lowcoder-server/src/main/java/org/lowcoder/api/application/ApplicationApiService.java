@@ -1,29 +1,11 @@
 package org.lowcoder.api.application;
 
-import static org.lowcoder.domain.application.model.ApplicationStatus.NORMAL;
-import static org.lowcoder.domain.permission.model.ResourceAction.EDIT_APPLICATIONS;
-import static org.lowcoder.domain.permission.model.ResourceAction.MANAGE_APPLICATIONS;
-import static org.lowcoder.domain.permission.model.ResourceAction.PUBLISH_APPLICATIONS;
-import static org.lowcoder.domain.permission.model.ResourceAction.READ_APPLICATIONS;
-import static org.lowcoder.domain.permission.model.ResourceAction.USE_DATASOURCES;
-import static org.lowcoder.sdk.exception.BizError.ILLEGAL_APPLICATION_PERMISSION_ID;
-import static org.lowcoder.sdk.exception.BizError.INVALID_PARAMETER;
-import static org.lowcoder.sdk.exception.BizError.NOT_AUTHORIZED;
-import static org.lowcoder.sdk.exception.BizError.NO_PERMISSION_TO_REQUEST_APP;
-import static org.lowcoder.sdk.exception.BizError.USER_NOT_SIGNED_IN;
-import static org.lowcoder.sdk.util.ExceptionUtils.deferredError;
-import static org.lowcoder.sdk.util.ExceptionUtils.ofError;
-
-import java.time.Instant;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.SetUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -45,39 +27,39 @@ import org.lowcoder.domain.application.model.ApplicationType;
 import org.lowcoder.domain.application.service.ApplicationService;
 import org.lowcoder.domain.datasource.model.Datasource;
 import org.lowcoder.domain.datasource.service.DatasourceService;
-import org.lowcoder.domain.group.service.GroupService;
 import org.lowcoder.domain.interaction.UserApplicationInteractionService;
 import org.lowcoder.domain.organization.model.Organization;
 import org.lowcoder.domain.organization.service.OrgMemberService;
 import org.lowcoder.domain.organization.service.OrganizationService;
-import org.lowcoder.domain.permission.model.ResourceAction;
-import org.lowcoder.domain.permission.model.ResourceHolder;
-import org.lowcoder.domain.permission.model.ResourcePermission;
-import org.lowcoder.domain.permission.model.ResourceRole;
-import org.lowcoder.domain.permission.model.ResourceType;
+import org.lowcoder.domain.permission.model.*;
 import org.lowcoder.domain.permission.service.ResourcePermissionService;
 import org.lowcoder.domain.permission.solution.SuggestAppAdminSolution;
 import org.lowcoder.domain.plugin.service.DatasourceMetaInfoService;
 import org.lowcoder.domain.solutions.TemplateSolution;
 import org.lowcoder.domain.template.model.Template;
 import org.lowcoder.domain.template.service.TemplateService;
-import org.lowcoder.domain.user.service.UserService;
 import org.lowcoder.infra.util.TupleUtils;
 import org.lowcoder.sdk.constants.Authentication;
 import org.lowcoder.sdk.exception.BizError;
 import org.lowcoder.sdk.exception.BizException;
 import org.lowcoder.sdk.plugin.common.QueryExecutor;
 import org.lowcoder.sdk.util.ExceptionUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.time.Instant;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import static org.lowcoder.domain.application.model.ApplicationStatus.NORMAL;
+import static org.lowcoder.domain.permission.model.ResourceAction.*;
+import static org.lowcoder.sdk.exception.BizError.*;
+import static org.lowcoder.sdk.util.ExceptionUtils.deferredError;
+import static org.lowcoder.sdk.util.ExceptionUtils.ofError;
 
 @RequiredArgsConstructor
 @Service

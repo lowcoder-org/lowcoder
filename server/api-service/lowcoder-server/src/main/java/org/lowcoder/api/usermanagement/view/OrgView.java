@@ -1,7 +1,6 @@
 package org.lowcoder.api.usermanagement.view;
 
-import javax.annotation.Nonnull;
-
+import jakarta.annotation.Nonnull;
 import org.lowcoder.domain.organization.model.Organization;
 
 public class OrgView {

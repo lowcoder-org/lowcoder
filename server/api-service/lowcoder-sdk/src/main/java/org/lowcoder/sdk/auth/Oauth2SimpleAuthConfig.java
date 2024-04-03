@@ -1,10 +1,7 @@
 package org.lowcoder.sdk.auth;
 
-import java.util.function.Function;
-
-import javax.annotation.Nullable;
-
-import lombok.AllArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonView;
+import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.jackson.Jacksonized;
 import org.apache.commons.lang3.StringUtils;
@@ -12,10 +9,7 @@ import org.lowcoder.sdk.auth.constants.AuthTypeConstants;
 import org.lowcoder.sdk.auth.constants.Oauth2Constants;
 import org.lowcoder.sdk.config.SerializeConfig.JsonViews;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonView;
-
-import lombok.Getter;
+import java.util.function.Function;
 
 import static org.lowcoder.sdk.auth.constants.Oauth2Constants.CLIENT_ID_PLACEHOLDER;
 

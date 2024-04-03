@@ -1,25 +1,8 @@
 package org.lowcoder.api.home;
 
-import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
-import static org.lowcoder.infra.util.MonoUtils.emptyIfNull;
-import static org.lowcoder.sdk.exception.BizError.FOLDER_NOT_EXIST;
-import static org.lowcoder.sdk.exception.BizError.FOLDER_OPERATE_NO_PERMISSION;
-import static org.lowcoder.sdk.exception.BizError.ILLEGAL_FOLDER_PERMISSION_ID;
-import static org.lowcoder.sdk.util.ExceptionUtils.ofError;
-
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.Function;
-import java.util.function.ToLongFunction;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.lowcoder.api.application.view.ApplicationInfoView;
@@ -31,12 +14,7 @@ import org.lowcoder.domain.application.model.ApplicationStatus;
 import org.lowcoder.domain.application.model.ApplicationType;
 import org.lowcoder.domain.folder.model.Folder;
 import org.lowcoder.domain.folder.model.FolderElement;
-import org.lowcoder.domain.folder.service.ElementNode;
-import org.lowcoder.domain.folder.service.FolderElementRelationService;
-import org.lowcoder.domain.folder.service.FolderNode;
-import org.lowcoder.domain.folder.service.FolderService;
-import org.lowcoder.domain.folder.service.Node;
-import org.lowcoder.domain.folder.service.Tree;
+import org.lowcoder.domain.folder.service.*;
 import org.lowcoder.domain.group.service.GroupService;
 import org.lowcoder.domain.interaction.UserFolderInteraction;
 import org.lowcoder.domain.interaction.UserFolderInteractionService;
@@ -52,12 +30,21 @@ import org.lowcoder.domain.user.model.User;
 import org.lowcoder.domain.user.service.UserService;
 import org.lowcoder.sdk.exception.BizError;
 import org.lowcoder.sdk.exception.BizException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.time.Instant;
+import java.util.*;
+import java.util.function.Function;
+import java.util.function.ToLongFunction;
+
+import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
+import static org.lowcoder.infra.util.MonoUtils.emptyIfNull;
+import static org.lowcoder.sdk.exception.BizError.*;
+import static org.lowcoder.sdk.util.ExceptionUtils.ofError;
+
+@RequiredArgsConstructor
 @Service
 public class FolderApiService {
 
@@ -78,28 +65,17 @@ public class FolderApiService {
                         return ((FolderNode<ApplicationInfoView, FolderInfoView>) node).getSelf().getName();
                     });
 
-    @Autowired
-    private FolderService folderService;
-    @Autowired
-    private SessionUserService sessionUserService;
-    @Autowired
-    private OrgDevChecker orgDevChecker;
-    @Autowired
-    private UserHomeApiService userHomeApiService;
-    @Autowired
-    private FolderElementRelationService folderElementRelationService;
-    @Autowired
-    private ResourcePermissionService resourcePermissionService;
-    @Autowired
-    private PermissionHelper permissionHelper;
-    @Autowired
-    private GroupService groupService;
-    @Autowired
-    private UserService userService;
-    @Autowired
-    private OrganizationService organizationService;
-    @Autowired
-    private UserFolderInteractionService userFolderInteractionService;
+    private final FolderService folderService;
+    private final SessionUserService sessionUserService;
+    private final OrgDevChecker orgDevChecker;
+    private final UserHomeApiService userHomeApiService;
+    private final FolderElementRelationService folderElementRelationService;
+    private final ResourcePermissionService resourcePermissionService;
+    private final PermissionHelper permissionHelper;
+    private final GroupService groupService;
+    private final UserService userService;
+    private final OrganizationService organizationService;
+    private final UserFolderInteractionService userFolderInteractionService;
 
     public Mono<FolderInfoView> create(Folder folder) {
         if (StringUtils.isBlank(folder.getName())) {

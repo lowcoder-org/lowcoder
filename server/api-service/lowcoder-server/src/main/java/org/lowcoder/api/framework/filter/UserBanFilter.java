@@ -5,8 +5,7 @@ import static org.lowcoder.sdk.constants.Authentication.isAnonymousUser;
 import static org.lowcoder.sdk.exception.BizError.USER_BANNED;
 import static org.lowcoder.sdk.util.ExceptionUtils.ofError;
 
-import javax.annotation.Nonnull;
-
+import jakarta.annotation.Nonnull;
 import org.lowcoder.api.home.SessionUserService;
 import org.lowcoder.domain.user.model.UserStatus;
 import org.lowcoder.domain.user.service.UserStatusService;

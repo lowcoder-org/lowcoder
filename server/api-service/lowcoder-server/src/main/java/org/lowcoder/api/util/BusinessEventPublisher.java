@@ -1,6 +1,8 @@
 package org.lowcoder.api.util;
 
 import com.google.common.hash.Hashing;
+import jakarta.annotation.Nullable;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.lowcoder.api.application.view.ApplicationInfoView;
@@ -41,37 +43,28 @@ import org.lowcoder.infra.event.user.UserLogoutEvent;
 import org.lowcoder.plugin.api.event.LowcoderEvent.EventType;
 import org.lowcoder.sdk.constants.Authentication;
 import org.lowcoder.sdk.util.LocaleUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
-import javax.annotation.Nullable;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 import static org.lowcoder.domain.permission.model.ResourceHolder.USER;
 
 @Slf4j
+@RequiredArgsConstructor
 @Component
 public class BusinessEventPublisher {
 
-    @Autowired
-    private ApplicationEventPublisher applicationEventPublisher;
-    @Autowired
-    private SessionUserService sessionUserService;
-    @Autowired
-    private GroupService groupService;
-    @Autowired
-    private UserService userService;
-    @Autowired
-    private FolderService folderService;
-    @Autowired
-    private ApplicationService applicationService;
-    @Autowired
-    private DatasourceService datasourceService;
-    @Autowired
-    private ResourcePermissionService resourcePermissionService;
+    private final ApplicationEventPublisher applicationEventPublisher;
+    private final SessionUserService sessionUserService;
+    private final GroupService groupService;
+    private final UserService userService;
+    private final FolderService folderService;
+    private final ApplicationService applicationService;
+    private final DatasourceService datasourceService;
+    private final ResourcePermissionService resourcePermissionService;
 
     public Mono<Void> publishFolderCommonEvent(String folderId, String folderName, EventType eventType) {
 

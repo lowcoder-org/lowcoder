@@ -5,7 +5,7 @@
     <parent>
         <artifactId>lowcoder-root</artifactId>
         <groupId>org.lowcoder</groupId>
-		<version>${revision}</version>
+        <version>${revision}</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -39,6 +39,10 @@
                     <groupId>org.slf4j</groupId>
                     <artifactId>slf4j-log4j12</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>javax.annotation</groupId>
+                    <artifactId>javax.annotation-api</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
 
@@ -62,6 +66,10 @@
                 <exclusion>
                     <groupId>com.google.guava</groupId>
                     <artifactId>guava</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>javax.inject</groupId>
+                    <artifactId>javax.inject</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -140,6 +148,7 @@
         <dependency>
             <groupId>com.querydsl</groupId>
             <artifactId>querydsl-apt</artifactId>
+            <classifier>jakarta</classifier>
             <exclusions>
                 <exclusion>
                     <groupId>com.google.guava</groupId>
@@ -150,6 +159,11 @@
         <dependency>
             <groupId>com.querydsl</groupId>
             <artifactId>querydsl-jpa</artifactId>
+            <classifier>jakarta</classifier>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.persistence</groupId>
+            <artifactId>jakarta.persistence-api</artifactId>
         </dependency>
 
         <dependency>
@@ -191,11 +205,11 @@
             <groupId>es.moki.ratelimitj</groupId>
             <artifactId>ratelimitj-redis</artifactId>
             <exclusions>
-				<exclusion>
-					<groupId>io.lettuce</groupId>
-					<artifactId>lettuce-core</artifactId>
-				</exclusion>
-			</exclusions>
+                <exclusion>
+                    <groupId>io.lettuce</groupId>
+                    <artifactId>lettuce-core</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
@@ -234,13 +248,13 @@
             <scope>test</scope>
         </dependency>
 
-		<dependency>
-		    <groupId>jakarta.xml.bind</groupId>
-		    <artifactId>jakarta.xml.bind-api</artifactId>
+        <dependency>
+            <groupId>jakarta.xml.bind</groupId>
+            <artifactId>jakarta.xml.bind-api</artifactId>
         </dependency>
-		<dependency>
-		    <groupId>jakarta.activation</groupId>
-		    <artifactId>jakarta.activation-api</artifactId>
+        <dependency>
+            <groupId>jakarta.activation</groupId>
+            <artifactId>jakarta.activation-api</artifactId>
         </dependency>
         <!-- no more than 2.3.3-->
         <dependency>
@@ -262,17 +276,38 @@
                             <goal>process</goal>
                         </goals>
                         <configuration>
-                            <outputDirectory>target/generated-sources/java</outputDirectory>
-                            <processor>
-                                org.springframework.data.mongodb.repository.support.MongoAnnotationProcessor
-                            </processor>
-                            <options>
-                                <querydsl.listAccessors>true</querydsl.listAccessors>
-                            </options>
+                            <outputDirectory>target/generated-sources</outputDirectory>
+                            <processor>org.springframework.data.mongodb.repository.support.MongoAnnotationProcessor</processor>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
+        <!-- TODO: Use when querydsl-mongodb supports jakarta annotations
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>com.querydsl</groupId>
+                            <artifactId>querydsl-apt</artifactId>
+                            <version>5.1.0</version>
+                            <classifier>jakarta</classifier>
+                        </path>
+                        <path>
+                            <groupId>jakarta.persistence</groupId>
+                            <artifactId>jakarta.persistence-api</artifactId>
+                            <version>3.1.0</version>
+                        </path>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>1.18.32</version>
+                        </path>
+                    </annotationProcessorPaths>
+                </configuration>
+            </plugin>
+            -->
         </plugins>
     </build>
 
@@ -282,15 +317,15 @@
     </properties>
 
     <dependencyManagement>
-		<dependencies>
-			<dependency>
-				<groupId>org.lowcoder</groupId>
-				<artifactId>lowcoder-dependencies</artifactId>
-				<version>${revision}</version>
-				<type>pom</type>
-				<scope>import</scope>
-			</dependency>			
-		</dependencies>
-	</dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.lowcoder</groupId>
+                <artifactId>lowcoder-dependencies</artifactId>
+                <version>${revision}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
 </project>
