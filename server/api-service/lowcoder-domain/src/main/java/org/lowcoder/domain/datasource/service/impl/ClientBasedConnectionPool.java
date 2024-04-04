@@ -6,6 +6,7 @@ import io.micrometer.core.instrument.Tags;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.lowcoder.domain.datasource.model.ClientBasedDatasourceConnectionHolder;
@@ -42,6 +43,7 @@ import static org.lowcoder.sdk.plugin.common.QueryExecutionUtils.querySharedSche
  * and their status management, so these clients will be cached and invalidated once datasource is updated.
  */
 @Slf4j
+@RequiredArgsConstructor
 @Service
 public class ClientBasedConnectionPool implements DatasourceConnectionPool {
 
@@ -55,10 +57,8 @@ public class ClientBasedConnectionPool implements DatasourceConnectionPool {
     );
     private static final Map<ClientBasedDatasourceCacheKey, HikariPerfWrapper> HIKARI_PERF_WRAPPER_MAP = new ConcurrentHashMap<>();
 
-    @Autowired
-    private DatasourceMetaInfoService datasourceMetaInfoService;
-    @Autowired
-    private PerfHelper perfHelper;
+    private final DatasourceMetaInfoService datasourceMetaInfoService;
+    private final PerfHelper perfHelper;
 
     @PostConstruct
     public void init() {

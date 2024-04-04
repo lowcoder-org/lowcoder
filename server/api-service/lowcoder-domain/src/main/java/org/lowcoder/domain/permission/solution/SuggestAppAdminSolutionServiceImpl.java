@@ -23,7 +23,7 @@ import static com.google.common.collect.Sets.newHashSet;
 
 @RequiredArgsConstructor
 @Service
-public class SuggestAppAdminSolution {
+public class SuggestAppAdminSolutionServiceImpl implements SuggestAppAdminSolutionService {
 
     private static final int LIMIT_COUNT_FOR_DISPLAY_ADMIN_NAMES = 7;
 
@@ -31,6 +31,7 @@ public class SuggestAppAdminSolution {
     private final UserService userService;
     private final ResourcePermissionService resourcePermissionService;
 
+    @Override
     public Mono<List<User>> getApplicationAdminUsers(String applicationId, int limit) {
         return resourcePermissionService.getByApplicationId(applicationId)
                 .flatMap(permissions -> getSuggestAdminIds(limit, permissions))
@@ -76,6 +77,7 @@ public class SuggestAppAdminSolution {
                 });
     }
 
+    @Override
     public Mono<String> getSuggestAppAdminNames(String applicationId) {
         return getApplicationAdminUsers(applicationId, LIMIT_COUNT_FOR_DISPLAY_ADMIN_NAMES)
                 .map(users -> users.stream()

@@ -16,7 +16,6 @@ import org.lowcoder.domain.template.service.TemplateService;
 import org.lowcoder.infra.annotation.NonEmptyMono;
 import org.lowcoder.infra.util.TupleUtils;
 import org.lowcoder.sdk.util.JsonUtils;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -33,10 +32,9 @@ import static org.lowcoder.sdk.exception.BizError.TEMPLATE_NOT_EXIST;
 import static org.lowcoder.sdk.util.ExceptionUtils.deferredError;
 import static org.lowcoder.sdk.util.ExceptionUtils.ofError;
 
-@Lazy
 @RequiredArgsConstructor
 @Service
-public class TemplateSolution {
+public class TemplateSolutionServiceImpl implements TemplateSolutionService {
 
     private static final int RANDOM_LENGTH = 6;
 
@@ -44,6 +42,7 @@ public class TemplateSolution {
     private final DatasourceService datasourceService;
     private final ApplicationService applicationService;
 
+    @Override
     public Mono<Application> createFromTemplate(String templateId, String orgId, String visitorId) {
         return templateService.getById(templateId)
                 .switchIfEmpty(deferredError(TEMPLATE_NOT_EXIST, "TEMPLATE_NOT_EXIST"))
@@ -74,6 +73,7 @@ public class TemplateSolution {
     }
 
 
+    @Override
     @NonEmptyMono
     public Mono<Set<String>> getTemplateApplicationIds(Collection<String> applicationIds) {
         return templateService.getByApplicationIds(applicationIds)
