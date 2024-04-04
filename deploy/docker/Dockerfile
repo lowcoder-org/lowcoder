@@ -44,7 +44,7 @@ COPY --chown=lowcoder:lowcoder --from=build-api-service /lowcoder-server/distrib
 COPY --chown=lowcoder:lowcoder --from=build-api-service /lowcoder-server/distribution/target/lowcoder-api-service-bin/set-classpath.sh /lowcoder/api-service/set-classpath.sh
 
 EXPOSE 8080
-CMD [ "sh" , "/lowcoder/api-service/entrypoint.sh" ]
+CMD [ "/bin/bash" , "/lowcoder/api-service/entrypoint.sh" ]
 
 #############################################################################
 
