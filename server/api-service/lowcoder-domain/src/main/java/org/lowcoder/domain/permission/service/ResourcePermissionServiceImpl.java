@@ -1,5 +1,24 @@
 package org.lowcoder.domain.permission.service;
 
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
+import jakarta.annotation.Nullable;
+import jakarta.validation.constraints.NotNull;
+import lombok.RequiredArgsConstructor;
+import org.apache.commons.collections4.CollectionUtils;
+import org.lowcoder.domain.application.model.ApplicationRequestType;
+import org.lowcoder.domain.permission.model.*;
+import org.lowcoder.infra.annotation.NonEmptyMono;
+import org.lowcoder.infra.annotation.PossibleEmptyMono;
+import org.lowcoder.sdk.exception.BizException;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+
+import java.util.*;
+import java.util.Map.Entry;
+
 import static java.util.Collections.singleton;
 import static org.apache.commons.collections4.SetUtils.emptyIfNull;
 import static org.lowcoder.sdk.exception.BizError.INVALID_PERMISSION_OPERATION;
@@ -7,46 +26,15 @@ import static org.lowcoder.sdk.exception.BizError.NOT_AUTHORIZED;
 import static org.lowcoder.sdk.util.ExceptionUtils.ofError;
 import static org.lowcoder.sdk.util.ExceptionUtils.ofException;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-
-import jakarta.annotation.Nullable;
-import jakarta.validation.constraints.NotNull;
-
-import lombok.RequiredArgsConstructor;
-import org.apache.commons.collections4.CollectionUtils;
-import org.lowcoder.domain.application.model.ApplicationRequestType;
-import org.lowcoder.domain.permission.model.ResourceAction;
-import org.lowcoder.domain.permission.model.ResourceHolder;
-import org.lowcoder.domain.permission.model.ResourcePermission;
-import org.lowcoder.domain.permission.model.ResourceRole;
-import org.lowcoder.domain.permission.model.ResourceType;
-import org.lowcoder.domain.permission.model.UserPermissionOnResourceStatus;
-import org.lowcoder.infra.annotation.NonEmptyMono;
-import org.lowcoder.infra.annotation.PossibleEmptyMono;
-import org.lowcoder.sdk.exception.BizException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.stereotype.Service;
-
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Multimap;
-
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
-
 @RequiredArgsConstructor
 @Service
 public class ResourcePermissionServiceImpl implements ResourcePermissionService {
 
     private final ResourcePermissionRepository repository;
-    private final ApplicationPermissionHandler applicationPermissionHandler;
-    private final DatasourcePermissionHandler datasourcePermissionHandler;
+    @Qualifier("applicationPermissionHandler")
+    private final ResourcePermissionHandlerService applicationPermissionHandler;
+    @Qualifier("datasourcePermissionHandler")
+    private final ResourcePermissionHandlerService datasourcePermissionHandler;
 
     @Override
     public Mono<Map<String, Collection<ResourcePermission>>> getByResourceTypeAndResourceIds(ResourceType resourceType,
@@ -146,7 +134,7 @@ public class ResourcePermissionServiceImpl implements ResourcePermissionService 
         return resourcePermissionHandler.getAllMatchingPermissions(userId, resourceIds, resourceAction);
     }
 
-    private ResourcePermissionHandler getResourcePermissionHandler(ResourceType resourceType) {
+    private ResourcePermissionHandlerService getResourcePermissionHandler(ResourceType resourceType) {
         if (resourceType == ResourceType.DATASOURCE) {
             return datasourcePermissionHandler;
         }

@@ -30,6 +30,7 @@ import org.lowcoder.domain.user.model.User;
 import org.lowcoder.domain.user.service.UserService;
 import org.lowcoder.sdk.exception.BizError;
 import org.lowcoder.sdk.exception.BizException;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -68,6 +69,7 @@ public class FolderApiServiceImpl implements FolderApiService {
     private final FolderService folderService;
     private final SessionUserService sessionUserService;
     private final OrgDevChecker orgDevChecker;
+    @Lazy
     private final UserHomeApiService userHomeApiService;
     private final FolderElementRelationService folderElementRelationService;
     private final ResourcePermissionService resourcePermissionService;
