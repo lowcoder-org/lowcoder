@@ -16,6 +16,7 @@ import org.lowcoder.domain.template.service.TemplateService;
 import org.lowcoder.infra.annotation.NonEmptyMono;
 import org.lowcoder.infra.util.TupleUtils;
 import org.lowcoder.sdk.util.JsonUtils;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -40,6 +41,7 @@ public class TemplateSolutionServiceImpl implements TemplateSolutionService {
 
     private final TemplateService templateService;
     private final DatasourceService datasourceService;
+    @Lazy
     private final ApplicationService applicationService;
 
     @Override

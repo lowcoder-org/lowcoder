@@ -16,6 +16,7 @@ import org.lowcoder.domain.user.model.UserDetail;
 import org.lowcoder.domain.user.repository.UserRepository;
 import org.lowcoder.domain.user.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import lombok.extern.slf4j.Slf4j;
@@ -27,6 +28,7 @@ import reactor.core.publisher.Mono;
 @Slf4j
 public class UserApiServiceImpl implements UserApiService {
 
+    @Lazy
     private final SessionUserService sessionUserService;
     private final OrgMemberService orgMemberService;
     private final UserService userService;

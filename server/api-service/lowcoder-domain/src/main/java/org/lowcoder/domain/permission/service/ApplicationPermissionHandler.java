@@ -1,20 +1,5 @@
 package org.lowcoder.domain.permission.service;
 
-import static com.google.common.collect.Sets.newHashSet;
-import static java.util.Collections.emptyMap;
-import static java.util.function.Function.identity;
-import static org.apache.commons.collections4.SetUtils.union;
-import static org.lowcoder.domain.permission.model.ResourceHolder.USER;
-import static org.lowcoder.sdk.constants.Authentication.ANONYMOUS_USER_ID;
-import static org.lowcoder.sdk.util.StreamUtils.collectMap;
-
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import lombok.RequiredArgsConstructor;
 import org.lowcoder.domain.application.model.Application;
 import org.lowcoder.domain.application.model.ApplicationRequestType;
@@ -24,11 +9,19 @@ import org.lowcoder.domain.permission.model.ResourcePermission;
 import org.lowcoder.domain.permission.model.ResourceRole;
 import org.lowcoder.domain.permission.model.ResourceType;
 import org.lowcoder.domain.solutions.TemplateSolutionService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
-
 import reactor.core.publisher.Mono;
+
+import java.util.*;
+
+import static com.google.common.collect.Sets.newHashSet;
+import static java.util.Collections.emptyMap;
+import static java.util.function.Function.identity;
+import static org.apache.commons.collections4.SetUtils.union;
+import static org.lowcoder.domain.permission.model.ResourceHolder.USER;
+import static org.lowcoder.sdk.constants.Authentication.ANONYMOUS_USER_ID;
+import static org.lowcoder.sdk.util.StreamUtils.collectMap;
 
 @RequiredArgsConstructor
 @Component
@@ -36,6 +29,7 @@ class ApplicationPermissionHandler extends ResourcePermissionHandler {
 
     private static final ResourceRole ANONYMOUS_USER_ROLE = ResourceRole.VIEWER;
 
+    @Lazy
     private final ApplicationService applicationService;
     private final TemplateSolutionService templateSolutionService;
 

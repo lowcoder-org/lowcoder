@@ -23,6 +23,7 @@ import org.lowcoder.sdk.models.DatasourceConnectionConfig;
 import org.lowcoder.sdk.models.DatasourceTestResult;
 import org.lowcoder.sdk.models.JsDatasourceConnectionConfig;
 import org.lowcoder.sdk.util.LocaleUtils;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
@@ -49,6 +50,7 @@ public class DatasourceServiceImpl implements DatasourceService {
 
     private final DatasourceMetaInfoService datasourceMetaInfoService;
     private final ApplicationRepository applicationRepository;
+    @Lazy
     private final ResourcePermissionService resourcePermissionService;
     private final DatasourceRepository repository;
     private final DatasourcePluginClient datasourcePluginClient;

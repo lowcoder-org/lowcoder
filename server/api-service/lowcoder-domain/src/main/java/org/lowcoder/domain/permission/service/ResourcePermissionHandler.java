@@ -11,6 +11,7 @@ import org.lowcoder.domain.organization.service.OrgMemberService;
 import org.lowcoder.domain.permission.model.*;
 import org.lowcoder.sdk.config.CommonConfig;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import reactor.core.publisher.Mono;
 
 import java.util.*;
@@ -20,8 +21,9 @@ import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toMap;
 import static org.lowcoder.sdk.constants.Authentication.isAnonymousUser;
 
-abstract class ResourcePermissionHandler {
+abstract class ResourcePermissionHandler implements ResourcePermissionHandlerService {
 
+    @Lazy
     @Autowired
     private ResourcePermissionService resourcePermissionService;
 
@@ -34,9 +36,10 @@ abstract class ResourcePermissionHandler {
     @Autowired
     protected CommonConfig config;
 
+    @Override
     public Mono<Map<String, List<ResourcePermission>>> getAllMatchingPermissions(String userId,
-            Collection<String> resourceIds,
-            ResourceAction resourceAction) {
+                                                                                 Collection<String> resourceIds,
+                                                                                 ResourceAction resourceAction) {
 
         ResourceType resourceType = resourceAction.getResourceType();
 
@@ -66,8 +69,9 @@ abstract class ResourcePermissionHandler {
                 });
     }
 
+    @Override
     public Mono<UserPermissionOnResourceStatus> checkUserPermissionStatusOnResource(String userId,
-            String resourceId, ResourceAction resourceAction) {
+                                                                                    String resourceId, ResourceAction resourceAction) {
 
         ResourceType resourceType = resourceAction.getResourceType();
 
@@ -206,8 +210,9 @@ abstract class ResourcePermissionHandler {
 
     protected abstract Mono<String> getOrgId(String resourceId);
 
-	public Mono<UserPermissionOnResourceStatus> checkUserPermissionStatusOnApplication(String userId, String resourceId,
-			ResourceAction resourceAction, ApplicationRequestType requestType) 
+	@Override
+    public Mono<UserPermissionOnResourceStatus> checkUserPermissionStatusOnApplication(String userId, String resourceId,
+                                                                                       ResourceAction resourceAction, ApplicationRequestType requestType)
 	{
         ResourceType resourceType = resourceAction.getResourceType();
 
