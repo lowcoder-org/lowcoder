@@ -1,6 +1,6 @@
 import { useLocation } from "react-router-dom";
 import { AuthSessionStoreParams } from "constants/authConstants";
-import { messageInstance } from "lowcoder-design";
+import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 
 import { AUTH_LOGIN_URL, AUTH_REGISTER_URL, BASE_URL } from "constants/routesURL";
 import history from "util/history";

@@ -9,6 +9,7 @@ import {
   QUERY_LIBRARY_URL,
   SETTING,
   TRASH_URL,
+  ADMIN_APP_URL
 } from "constants/routesURL";
 import { getUser, isFetchingUser } from "redux/selectors/usersSelectors";
 import { useDispatch, useSelector } from "react-redux";
@@ -26,7 +27,8 @@ import {
   PointIcon,
   RecyclerIcon,
   MarketplaceIcon,
-  AppsIcon
+  AppsIcon,
+  EnterpriseIcon
 } from "lowcoder-design";
 import React, { useEffect, useState } from "react";
 import { fetchAllApplications, fetchHomeData } from "redux/reduxActions/applicationActions";
@@ -52,7 +54,11 @@ import { trans } from "../../i18n";
 import { foldersSelector } from "../../redux/selectors/folderSelector";
 import Setting from "pages/setting";
 import { TypographyText } from "../../components/TypographyText";
-import { messageInstance } from "lowcoder-design";
+import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
+import { isEE } from "util/envUtils";
+
+// adding App Editor, so we can show Apps inside the Admin Area
+import AppEditor from "../editor/AppEditor";
 
 const TabLabel = styled.div`
   font-weight: 500;
@@ -408,6 +414,18 @@ export default function ApplicationHome() {
               },
             ],
           },
+          isEE() ? {
+            items: [
+              {
+                text: <TabLabel>{trans("settings.AppUsage")}</TabLabel>,
+                routePath: "/ee/6600ae8724a23f365ba2ed4c/admin",
+                routePathExact: false,
+                routeComp: AppEditor,
+                icon: ({ selected, ...otherProps }) => selected ? ( <EnterpriseIcon {...otherProps} width={"24px"}/> ) : ( <EnterpriseIcon {...otherProps} width={"24px"}/> ),
+                visible: ({ user }) => user.orgDev,
+              },
+            ],
+          } : { items: [] },
         ]}
       />
       {user.orgDev && (

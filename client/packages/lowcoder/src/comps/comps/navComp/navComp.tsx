@@ -7,7 +7,7 @@ import { StringControl } from "comps/controls/codeControl";
 import { alignWithJustifyControl } from "comps/controls/alignControl";
 import { navListComp } from "./navItemComp";
 import { menuPropertyView } from "./components/MenuItemList";
-import { DownOutlined } from "@ant-design/icons";
+import { default as DownOutlined } from "@ant-design/icons/DownOutlined";
 import { default as Dropdown } from "antd/es/dropdown";
 import { default as Menu, MenuProps } from "antd/es/menu";
 import { migrateOldData } from "comps/generators/simpleGenerators";

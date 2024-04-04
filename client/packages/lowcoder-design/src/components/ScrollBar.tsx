@@ -1,11 +1,11 @@
 import React from "react";
 import SimpleBar from "simplebar-react";
-import 'simplebar-react/dist/simplebar.min.css';
 import styled from "styled-components";
 import { DebouncedFunc } from 'lodash'; // Assuming you're using lodash's DebouncedFunc type
 
+// import 'simplebar-react/dist/simplebar.min.css';
 
-const ScrollBarWrapper = styled.div<{ hidePlaceholder?: boolean }>`
+const ScrollBarWrapper = styled.div<{ $hideplaceholder?: boolean }>`
   min-height: 0;
   height: 100%;
   width: 100%;
@@ -37,7 +37,7 @@ const ScrollBarWrapper = styled.div<{ hidePlaceholder?: boolean }>`
     bottom: 10px;
   }
 
-  ${props => props.hidePlaceholder && `
+  ${props => Boolean(props.$hideplaceholder) && `
     .simplebar-placeholder {
       display: none !important;
     }
@@ -54,24 +54,32 @@ interface IProps {
   scrollableNodeProps?: {
     onScroll: DebouncedFunc<(e: any) => void>;
   };
-  hidePlaceholder?: boolean;
+  $hideplaceholder?: boolean;
   hideScrollbar?: boolean;
 }
 
-export const ScrollBar = ({ height = "100%", className, children, style, scrollableNodeProps, hideScrollbar, ...otherProps }: IProps) => {
+export const ScrollBar = ({
+  className,
+  children,
+  style,
+  scrollableNodeProps,
+  hideScrollbar = false,
+  $hideplaceholder = false,
+  ...otherProps
+}: IProps) => {
+  const height = style?.height ?? '100%';
   // You can now use the style prop directly or pass it to SimpleBar
   const combinedStyle = { ...style, height }; // Example of combining height with passed style
 
-  return (hideScrollbar ?? false) ? (
+  return hideScrollbar ? (
+    <ScrollBarWrapper className={className}>
+      {children}
+    </ScrollBarWrapper>
+  ) : (
     <ScrollBarWrapper className={className}>
       <SimpleBar style={combinedStyle} scrollableNodeProps={scrollableNodeProps} {...otherProps}>
         {children}
       </SimpleBar>
-    </ScrollBarWrapper>
-  )
-  : (
-    <ScrollBarWrapper className={className}>
-      {children}
     </ScrollBarWrapper>
   );
 };

@@ -1,4 +1,4 @@
-import { DefaultOptionType } from "antd/lib/select";
+import { DefaultOptionType } from "antd/es/select";
 import { trans } from "i18n";
 
 export enum AuthType {

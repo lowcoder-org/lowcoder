@@ -67,9 +67,7 @@ function ModuleLayoutView(props: IProps) {
 
   if (readOnly) {
     return (
-      <ScrollBar style={{ height: "100%", margin: "0px", padding: "0px" }}>
-        <ModulePreviewWrapper className={CNRootContainer}>{props.containerView}</ModulePreviewWrapper>
-      </ScrollBar>
+      <ModulePreviewWrapper className={CNRootContainer}>{props.containerView}</ModulePreviewWrapper>
     );
   }
 
@@ -115,30 +113,26 @@ export class ModuleLayoutComp extends ModuleLayoutCompBase implements IContainer
     const isRowCountLocked = this.children.autoScaleCompHeight.getView();
     const rowCount = this.children.containerRowCount.getView();
     return (
-      <div>
-        <ScrollBar style={{ height: "100%", margin: "0px", padding: "0px" }} hidePlaceholder={false}>
-          <ModuleLayoutView
-            positionParams={this.children.positionParams.getView()}
-            containerSize={this.children.containerSize.getView()}
-            containerView={this.children.container.containerView({
-              rowCount,
-              isRowCountLocked,
-              onRowCountChange: (rowCount) => {
-                this.children.containerRowCount.dispatchChangeValueAction(rowCount);
-              },
-            })}
-            onPositionParamsChange={(params) => {
-              setTimeout(() => this.children.positionParams.dispatchChangeValueAction(params));
-            }}
-            onLayoutChange={(layout) => {
-              this.children.containerSize.dispatchChangeValueAction({
-                height: layout[moduleContainerId].h,
-                width: layout[moduleContainerId].w,
-              });
-            }}
-          />
-        </ScrollBar>
-      </div>
+      <ModuleLayoutView
+        positionParams={this.children.positionParams.getView()}
+        containerSize={this.children.containerSize.getView()}
+        containerView={this.children.container.containerView({
+          rowCount,
+          isRowCountLocked,
+          onRowCountChange: (rowCount) => {
+            this.children.containerRowCount.dispatchChangeValueAction(rowCount);
+          },
+        })}
+        onPositionParamsChange={(params) => {
+          setTimeout(() => this.children.positionParams.dispatchChangeValueAction(params));
+        }}
+        onLayoutChange={(layout) => {
+          this.children.containerSize.dispatchChangeValueAction({
+            height: layout[moduleContainerId].h,
+            width: layout[moduleContainerId].w,
+          });
+        }}
+      />
     );
   }
   getPropertyView() {

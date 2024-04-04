@@ -8,7 +8,7 @@ import { AxiosPromise, AxiosResponse } from "axios";
 import { ApiResponse } from "api/apiResponses";
 import { doValidResponse } from "api/apiUtils";
 import { SERVER_ERROR_CODES } from "constants/apiConstants";
-import { messageInstance } from "lowcoder-design";
+import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 
 import { trans } from "i18n";
 import { createContext, useState } from "react";

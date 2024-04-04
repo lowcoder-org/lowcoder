@@ -1,4 +1,6 @@
-import { AddIcon, CloseIcon, CustomModalProps, ImportIconV2, ScrollBar } from "lowcoder-design";
+import { AddIcon, CloseIcon, ImportIconV2 } from "lowcoder-design/src/icons";
+import type { CustomModalProps } from "lowcoder-design/src/components/CustomModal";
+import { ScrollBar } from "lowcoder-design/src/components/ScrollBar";
 import { BottomShadow, GreyTextColor, TabActiveColor } from "constants/style";
 import { trans } from "i18n";
 import _, { noop } from "lodash";
@@ -9,16 +11,16 @@ import { useResizeDetector } from "react-resize-detector";
 import styled, { css } from "styled-components";
 import { BottomResTypeEnum } from "types/bottomRes";
 import { LargeBottomResIconWrapper } from "util/bottomResUtils";
-import { PageType } from "../constants/pageConstants";
-import { SizeType } from "antd/lib/config-provider/SizeContext";
-import { Datasource } from "@lowcoder-ee/constants/datasourceConstants";
+import type { PageType } from "../constants/pageConstants";
+import type { SizeType } from "antd/es/config-provider/SizeContext";
+import { Datasource } from "constants/datasourceConstants";
 import {
   LOWCODER_API_ID,
   LOWCODER_API_INFO,
   QUICK_GRAPHQL_ID,
   QUICK_REST_API_ID,
 } from "../constants/datasourceConstants";
-import { ResourceType } from "@lowcoder-ee/constants/queryConstants";
+import { ResourceType } from "constants/queryConstants";
 import { default as Upload } from "antd/es/upload";
 import { useSelector } from "react-redux";
 import { getUser } from "../redux/selectors/usersSelectors";

@@ -2,6 +2,7 @@ package org.lowcoder.sdk.plugin.common.ssl;
 
 import javax.annotation.Nullable;
 
+import lombok.experimental.SuperBuilder;
 import org.lowcoder.sdk.models.Encrypt;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
@@ -17,6 +18,7 @@ import lombok.Getter;
         @Type(value = DisableVerifySslConfig.class, name = "DISABLED"),
         @Type(value = VerifySelfSignedCertSslConfig.class, name = "VERIFY_SELF_SIGNED_CERT")
 })
+@SuperBuilder
 public abstract class SslConfig implements Encrypt {
 
     protected final SslCertVerificationType sslCertVerificationType;

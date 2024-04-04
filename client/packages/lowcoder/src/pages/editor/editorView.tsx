@@ -18,36 +18,20 @@ import {
 } from "lowcoder-design";
 import { useTemplateViewMode } from "util/hooks";
 import Header, {
-  PanelStatus,
-  TogglePanel,
-  EditorModeStatus,
-  ToggleEditorModeStatus
+  type PanelStatus,
+  type TogglePanel,
+  type EditorModeStatus,
+  type ToggleEditorModeStatus
 } from "pages/common/header";
-import { HelpDropdown } from "pages/common/help";
-import { PreviewHeader } from "pages/common/previewHeader";
-import {
-  Body,
-  EditorContainer,
-  EditorContainerWithViewMode,
-  Height100Div,
-  LeftPanel,
-  MiddlePanel,
-} from "pages/common/styledComponent";
-import {
-  CustomShortcutWrapper,
-  EditorGlobalHotKeys,
-  EditorHotKeys,
-} from "pages/editor/editorHotKeys";
-import RightPanel from "pages/editor/right/RightPanel";
-import EditorTutorials from "pages/tutorials/editorTutorials";
 import {
   editorContentClassName,
   UserGuideLocationState,
 } from "pages/tutorials/tutorialsConstant";
 import React, {
+  Suspense,
+  lazy,
   useCallback,
   useContext,
-  useEffect,
   useLayoutEffect,
   useMemo,
   useState,
@@ -64,15 +48,67 @@ import {
   DefaultPanelStatus,
   getPanelStatus,
   savePanelStatus,
-  DefaultEditorModeStatus,
   getEditorModeStatus,
   saveEditorModeStatus,
 } from "util/localStorageUtil";
-import Bottom from "./bottom/BottomPanel";
-import { LeftContent } from "./LeftContent";
-import { LeftLayersContent } from "./LeftLayersContent";
 import { isAggregationApp } from "util/appUtils";
+import EditorSkeletonView from "./editorSkeletonView";
 
+const LeftContent = lazy(
+  () => import('./LeftContent')
+    .then(module => ({default: module.LeftContent}))
+);
+const LeftLayersContent = lazy(
+  () => import('./LeftLayersContent')
+    .then(module => ({default: module.LeftLayersContent}))
+);
+const RightPanel = lazy(() => import('pages/editor/right/RightPanel'));
+const EditorTutorials = lazy(() => import('pages/tutorials/editorTutorials'));
+const Bottom = lazy(() => import('./bottom/BottomPanel'));
+const CustomShortcutWrapper = lazy(
+  () => import('pages/editor/editorHotKeys')
+    .then(module => ({default: module.CustomShortcutWrapper}))
+);
+const EditorGlobalHotKeys = lazy(
+  () => import('pages/editor/editorHotKeys')
+    .then(module => ({default: module.EditorGlobalHotKeys}))
+);
+const EditorHotKeys = lazy(
+  () => import('pages/editor/editorHotKeys')
+    .then(module => ({default: module.EditorHotKeys}))
+);
+const Body = lazy(
+  () => import('pages/common/styledComponent')
+    .then(module => ({default: module.Body}))
+);
+const EditorContainer = lazy(
+  () => import('pages/common/styledComponent')
+    .then(module => ({default: module.EditorContainer}))
+);
+const EditorContainerWithViewMode = lazy(
+  () => import('pages/common/styledComponent')
+    .then(module => ({default: module.EditorContainerWithViewMode}))
+);
+const Height100Div = lazy(
+  () => import('pages/common/styledComponent')
+    .then(module => ({default: module.Height100Div}))
+);
+const LeftPanel = lazy(
+  () => import('pages/common/styledComponent')
+    .then(module => ({default: module.LeftPanel}))
+);
+const MiddlePanel = lazy(
+  () => import('pages/common/styledComponent')
+    .then(module => ({default: module.MiddlePanel}))
+);
+const HelpDropdown = lazy(
+  () => import('pages/common/help')
+    .then(module => ({default: module.HelpDropdown}))
+);
+const PreviewHeader = lazy(
+  () => import('pages/common/previewHeader')
+    .then(module => ({default: module.PreviewHeader}))
+);
 
 const HookCompContainer = styled.div`
   pointer-events: none;
@@ -329,6 +365,9 @@ function EditorView(props: EditorViewProps) {
 
   const hideBodyHeader = useTemplateViewMode();
 
+  // we check if we are on the public cloud
+  const isLowCoderDomain = window.location.hostname === 'app.lowcoder.cloud';
+
   if (readOnly && hideHeader) {
     return (
       <CustomShortcutWrapper>
@@ -341,19 +380,34 @@ function EditorView(props: EditorViewProps) {
   if (readOnly && !showAppSnapshot) {
     return (
       <CustomShortcutWrapper>
-        <Helmet>{application && <title>{application.name}</title>}</Helmet>
-        {!hideBodyHeader && <PreviewHeader />}
-        <EditorContainerWithViewMode>
-          <ViewBody $hideBodyHeader={hideBodyHeader} $height={height}>
-            {uiComp.getView()}
-          </ViewBody>
-          <div style={{ zIndex: Layers.hooksCompContainer }}>
-            {hookCompViews}
-          </div>
-        </EditorContainerWithViewMode>
+        <Helmet>
+          {application && <title>{application.name}</title>}
+          {isLowCoderDomain && [
+            // Adding Support for iframely to be able to embedd the component explorer in the docu
+            <meta key="iframely:title" property="iframely:title" content="Lowcoder" />,
+            <meta key="iframely:description" property="iframely:description" content="Lowcoder | rapid App & VideoMeeting builder for everyone." />,
+            <link key="preconnect-googleapis" rel="preconnect" href="https://fonts.googleapis.com" />,
+            <link key="preconnect-gstatic" rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />,
+            <link key="font-ubuntu" href="https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,700;1,400&display=swap" rel="stylesheet" />,
+            // adding Clearbit Support for Analytics
+            <script key="clearbit-script" src="https://tag.clearbitscripts.com/v1/pk_931b51e405557300e6a7c470e8247d5f/tags.js" referrerPolicy="strict-origin-when-cross-origin" type="text/javascript"></script>
+          ]}
+        </Helmet>
+        <Suspense fallback={<EditorSkeletonView />}>
+          {!hideBodyHeader && <PreviewHeader />}
+          <EditorContainerWithViewMode>
+            <ViewBody $hideBodyHeader={hideBodyHeader} $height={height}>
+              {uiComp.getView()}
+            </ViewBody>
+            <div style={{ zIndex: Layers.hooksCompContainer }}>
+              {hookCompViews}
+            </div>
+          </EditorContainerWithViewMode>
+        </Suspense>
       </CustomShortcutWrapper>
     );
   }
+  
   // history mode, display with the right panel, a little trick
   const showRight = panelStatus.right || showAppSnapshot;
   let uiCompView;
@@ -392,7 +446,20 @@ function EditorView(props: EditorViewProps) {
         toggleEditorModeStatus={toggleEditorModeStatus}
         editorModeStatus={editorModeStatus} 
       />
-      <Helmet>{application && <title>{application.name}</title>}</Helmet>
+      <Helmet>
+        {application && <title>{application.name}</title>}
+        {isLowCoderDomain && [
+            // Adding Support for iframely to be able to embedd the component explorer in the docu
+            <meta key="iframely:title" property="iframely:title" content="Lowcoder" />,
+            <meta key="iframely:description" property="iframely:description" content="Lowcoder | rapid App & VideoMeeting builder for everyone." />,
+            <link key="preconnect-googleapis" rel="preconnect" href="https://fonts.googleapis.com" />,
+            <link key="preconnect-gstatic" rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />,
+            <link key="font-ubuntu" href="https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,700;1,400&display=swap" rel="stylesheet" />,
+            // adding Clearbit Support for Analytics
+            <script key="clearbit-script" src="https://tag.clearbitscripts.com/v1/pk_931b51e405557300e6a7c470e8247d5f/tags.js" referrerPolicy="strict-origin-when-cross-origin" type="text/javascript"></script>
+        ]}
+      </Helmet>
+
       {showNewUserGuide && <EditorTutorials />}
       <EditorGlobalHotKeys
         disabled={readOnly}

@@ -8,6 +8,8 @@ import static org.lowcoder.sdk.util.JsonUtils.toJson;
 import java.util.List;
 import java.util.Map;
 
+import lombok.Builder;
+import lombok.extern.jackson.Jacksonized;
 import org.lowcoder.sdk.exception.PluginException;
 import org.lowcoder.sdk.models.Property;
 import org.springframework.http.HttpMethod;
@@ -17,6 +19,8 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import lombok.Getter;
 
 @Getter
+@Builder
+@Jacksonized
 public class GraphQLQueryConfig {
     private final HttpMethod httpMethod = HttpMethod.POST;
     private final String body;

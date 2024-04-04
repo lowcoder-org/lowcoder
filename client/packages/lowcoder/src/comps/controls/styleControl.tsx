@@ -17,7 +17,7 @@ import {
   TextWeightIcon,
   ShowBorderIcon,
   BorderWidthIcon,
-  ImageCompIcon,
+  ImageCompIconSmall,
 } from "lowcoder-design";
 import { useContext } from "react";
 import styled from "styled-components";
@@ -570,7 +570,7 @@ const PaddingIcon = styled(CompressIcon)`	margin: 0 8px 0 2px;`;
 const StyledTextSizeIcon = styled(TextSizeIcon)` margin: 0 8px 0 -3px; padding: 3px;`;
 const StyledFontFamilyIcon = styled(FontFamilyIcon)` margin: 0 8px 0 -3px; padding: 3px;`;
 const StyledTextWeightIcon = styled(TextWeightIcon)` margin: 0 8px 0 -3px; padding: 3px;`;
-const StyledBackgroundImageIcon = styled(ImageCompIcon)` margin: 0 0px 0 -12px;`;
+const StyledBackgroundImageIcon = styled(ImageCompIconSmall)` margin: 0 0px 0 -12px;`;
 
 const ResetIcon = styled(IconReset)`
   &:hover g g {
@@ -612,6 +612,7 @@ export function styleControl<T extends readonly SingleColorConfig[]>(colorConfig
       name === "margin" ||
       name === "padding" ||
       name === "containerHeaderPadding" ||
+      name === "containerSiderPadding" ||
       name === "containerFooterPadding" ||
       name === "containerBodyPadding"
     ) {
@@ -658,6 +659,7 @@ export function styleControl<T extends readonly SingleColorConfig[]>(colorConfig
                       name === "margin" ||
                       name === "padding" ||
                       name === "containerHeaderPadding" ||
+                      name === "containerSiderPadding" ||
                       name === "containerFooterPadding" ||
                       name === "containerBodyPadding" ||
                       name === "borderWidth" ||
@@ -747,10 +749,12 @@ export function styleControl<T extends readonly SingleColorConfig[]>(colorConfig
                               preInputNode: <MarginIcon title="Margin" />,
                               placeholder: props[name],
                             })
-                            : (name === "padding" ||
+                            : name === "textSize" ||
+                              name === "padding" ||
                               name === "containerHeaderPadding" ||
+                              name === "containerSiderPadding" ||
                               name === "containerFooterPadding" ||
-                              name === "containerBodyPadding")
+                              name === "containerBodyPadding"
                               ? (
                                 children[name] as InstanceType<typeof StringControl>
                               ).propertyView({
@@ -820,37 +824,15 @@ export function styleControl<T extends readonly SingleColorConfig[]>(colorConfig
                                                 preInputNode: <StyledBackgroundImageIcon title="Background Image Repeat" />,
                                                 placeholder: props[name],
                                               })
-                                              : name === "backgroundImageSize" || name === "headerBackgroundImageSize" || name === "footerBackgroundImageSize"
-                                                ? (
-                                                  children[name] as InstanceType<typeof StringControl>
-                                                ).propertyView({
-                                                  label: config.label,
-                                                  preInputNode: <StyledBackgroundImageIcon title="Background Image Size" />,
-                                                  placeholder: props[name],
-                                                })
-                                                : name === "backgroundImagePosition" || name === "headerBackgroundImagePosition" || name === "footerBackgroundImagePosition"
-                                                  ? (
-                                                    children[name] as InstanceType<typeof StringControl>
-                                                  ).propertyView({
-                                                    label: config.label,
-                                                    preInputNode: <StyledBackgroundImageIcon title="Background Image Position" />,
-                                                    placeholder: props[name],
-                                                  })
-                                                  : name === "backgroundImageOrigin" || name === "headerBackgroundImageOrigin" || name === "footerBackgroundImageOrigin"
-                                                    ? (
-                                                      children[name] as InstanceType<typeof StringControl>
-                                                    ).propertyView({
-                                                      label: config.label,
-                                                      preInputNode: <StyledBackgroundImageIcon title="Background Image Origin" />,
-                                                      placeholder: props[name],
-                                                    })
-                                                    : children[name].propertyView({
-                                                      label: config.label,
-                                                      panelDefaultColor: props[name],
-                                                      // isDep: isDepColorConfig(config),
-                                                      isDep: true,
-                                                      depMsg: depMsg,
-                                                    })}
+                                              : children[name].propertyView({
+                                                label: config.label,
+                                                panelDefaultColor: props[name],
+                                                // isDep: isDepColorConfig(config),	
+                                                isDep: true,
+                                                depMsg: depMsg,
+                                              })
+
+                    }
                   </div>
                 );
               })}

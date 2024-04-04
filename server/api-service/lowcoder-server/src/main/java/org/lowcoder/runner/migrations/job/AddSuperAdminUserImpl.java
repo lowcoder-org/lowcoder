@@ -2,6 +2,7 @@ package org.lowcoder.runner.migrations.job;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.lowcoder.api.authentication.service.AuthenticationApiServiceImpl;
 import org.lowcoder.api.util.RandomPasswordGeneratorConfig;
 import org.lowcoder.domain.authentication.context.AuthRequestContext;
@@ -49,19 +50,19 @@ public class AddSuperAdminUserImpl implements AddSuperAdminUser {
                 .build();
     }
     private String formulateUserName() {
-        if(commonConfig.getSuperAdmin().getUserName() != null) {
+        if(StringUtils.isNotBlank(commonConfig.getSuperAdmin().getUserName())) {
             return commonConfig.getSuperAdmin().getUserName();
         }
-        return "admin@lowcoder.pro";
+        return "admin@lowcoder.org";
     }
 
     private String formulatePassword() {
-        if(commonConfig.getSuperAdmin().getPassword() != null) {
+        if(StringUtils.isNotBlank(commonConfig.getSuperAdmin().getPassword())) {
             return commonConfig.getSuperAdmin().getPassword();
         }
         RandomPasswordGeneratorConfig passGen = new RandomPasswordGeneratorConfig();
         String password = passGen.generatePassayPassword();
-        log.info("PASSWORD FOR SUPER-ADMIN is: {}", password);
+        log.info("\nPASSWORD FOR SUPER-ADMIN is: {}\n", password);
         return password;
     }
 }

@@ -12,7 +12,10 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
 
+import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.SuperBuilder;
+import lombok.extern.jackson.Jacksonized;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.lowcoder.domain.query.model.ApplicationQuery;
@@ -30,14 +33,18 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
 
 @Document
+@Jacksonized
+@SuperBuilder
+@NoArgsConstructor
 public class Application extends HasIdAndAuditing {
 
-    private final String organizationId;
-    private final String name;
-    private final Integer applicationType;
-    private final ApplicationStatus applicationStatus;
+    private String organizationId;
+    private String name;
+    private Integer applicationType;
+    private ApplicationStatus applicationStatus;
 
-    private final Map<String, Object> publishedApplicationDSL;
+    private Map<String, Object> publishedApplicationDSL;
+    private Map<String, Object> editingApplicationDSL;
 
     @Setter
     private Boolean publicToAll;
@@ -46,7 +53,27 @@ public class Application extends HasIdAndAuditing {
     @Setter
     private Boolean agencyProfile;
 
-    private Map<String, Object> editingApplicationDSL;
+    public Application(
+            @JsonProperty("orgId") String organizationId,
+            @JsonProperty("name") String name,
+            @JsonProperty("applicationType") Integer applicationType,
+            @JsonProperty("applicationStatus") ApplicationStatus applicationStatus,
+            @JsonProperty("publishedApplicationDSL") Map<String, Object> publishedApplicationDSL,
+            @JsonProperty("editingApplicationDSL") Map<String, Object> editingApplicationDSL,
+            @JsonProperty("publicToAll") Boolean publicToAll,
+            @JsonProperty("publicToMarketplace") Boolean publicToMarketplace,
+            @JsonProperty("agencyProfile") Boolean agencyProfile
+    ) {
+        this.organizationId = organizationId;
+        this.name = name;
+        this.applicationType = applicationType;
+        this.applicationStatus = applicationStatus;
+        this.publishedApplicationDSL = publishedApplicationDSL;
+        this.publicToAll = publicToAll;
+        this.publicToMarketplace = publicToMarketplace;
+        this.agencyProfile = agencyProfile;
+        this.editingApplicationDSL = editingApplicationDSL;
+    }
 
     @Transient
     private final Supplier<Set<ApplicationQuery>> editingQueries =
@@ -72,31 +99,6 @@ public class Application extends HasIdAndAuditing {
         }
         return getContainerSizeFromDSL(getLiveApplicationDsl());
     });
-
-
-    @Builder
-    @JsonCreator
-    public Application(
-            @JsonProperty("orgId") String organizationId,
-            @JsonProperty("name") String name,
-            @JsonProperty("applicationType") Integer applicationType,
-            @JsonProperty("applicationStatus") ApplicationStatus applicationStatus,
-            @JsonProperty("publishedApplicationDSL") Map<String, Object> publishedApplicationDSL,
-            @JsonProperty("editingApplicationDSL") Map<String, Object> editingApplicationDSL,
-            @JsonProperty("publicToAll") Boolean publicToAll,
-            @JsonProperty("publicToMarketplace") Boolean publicToMarketplace,
-            @JsonProperty("agencyProfile") Boolean agencyProfile
-        ) {
-        this.organizationId = organizationId;
-        this.name = name;
-        this.applicationType = applicationType;
-        this.applicationStatus = applicationStatus;
-        this.publishedApplicationDSL = publishedApplicationDSL;
-        this.publicToAll = publicToAll;
-        this.publicToMarketplace = publicToMarketplace;
-        this.agencyProfile = agencyProfile;
-        this.editingApplicationDSL = editingApplicationDSL;
-    }
 
     public Set<ApplicationQuery> getEditingQueries() {
         return editingQueries.get();

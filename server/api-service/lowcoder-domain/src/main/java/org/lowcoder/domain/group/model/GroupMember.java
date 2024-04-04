@@ -1,5 +1,8 @@
 package org.lowcoder.domain.group.model;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.extern.jackson.Jacksonized;
 import org.apache.commons.lang3.StringUtils;
 import org.lowcoder.domain.organization.model.MemberRole;
 import org.lowcoder.infra.birelation.BiRelation;
@@ -7,6 +10,9 @@ import org.lowcoder.infra.birelation.BiRelation;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+@Jacksonized
+@Builder
+@AllArgsConstructor
 public class GroupMember {
 
     private final String groupId;
@@ -16,15 +22,6 @@ public class GroupMember {
     private final long joinTime;
 
     public static final GroupMember NOT_EXIST = new GroupMember("", "", MemberRole.MEMBER, "", 0);
-
-    @JsonCreator
-    public GroupMember(String groupId, String userId, MemberRole role, String orgId, long joinTime) {
-        this.groupId = groupId;
-        this.userId = userId;
-        this.role = role;
-        this.orgId = orgId;
-        this.joinTime = joinTime;
-    }
 
     public static GroupMember from(BiRelation biRelation) {
         return new GroupMember(biRelation.getSourceId(), biRelation.getTargetId(),

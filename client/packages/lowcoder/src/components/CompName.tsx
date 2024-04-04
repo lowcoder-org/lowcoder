@@ -1,11 +1,13 @@
 import { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
-import { EditPopoverItemType, PointIcon, Search, SearchOutlinedIcon } from "lowcoder-design";
+import { PointIcon, SearchOutlinedIcon } from "lowcoder-design/src/icons";
+import type { EditPopoverItemType } from 'lowcoder-design/src/components/popover';
+import { Search } from 'lowcoder-design/src/components/Search';
 import { EditPopover } from "lowcoder-design";
 import { EditorContext } from "comps/editorState";
 import { GridCompOperator } from "comps/utils/gridCompOperator";
-import { PopupCard } from "lowcoder-design";
-import { EditText } from "lowcoder-design";
+import { PopupCard } from "lowcoder-design/src/components/popupCard";
+import { EditText } from "lowcoder-design/src/components/edit";
 import { values } from "lodash";
 import { GreyTextColor } from "constants/style";
 import { UICompType } from "comps/uiCompRegistry";
@@ -83,6 +85,7 @@ export const CompName = (props: Iprops) => {
 
   const items: EditPopoverItemType[] = [];
 
+  // Falk: TODO - Implement upgrade for individual Version functionality
   const handleUpgrade = async () => {
     if (upgrading) {
       return;
@@ -112,6 +115,13 @@ export const CompName = (props: Iprops) => {
 
 
   if (compInfo.isRemote) {
+    items.push({
+      text: trans("history.currentVersion") + ": " + compInfo.packageVersion,
+      onClick: () => {
+        
+      },
+    });
+
     items.push({
       text: trans("comp.menuUpgradeToLatest"),
       onClick: () => {

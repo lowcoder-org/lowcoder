@@ -131,8 +131,10 @@ export function GridItem(props: GridItemProps) {
 
   const mixinDraggable = (child: ReactElement, isDraggable: boolean): ReactElement => {
     const { i } = props as Required<GridItemProps>;
+    const testSelectorClass = `lowcoder-${props.compType}`;
     return (
       <div
+        className={testSelectorClass}
         ref={elementRef}
         draggable={isDraggable}
         onDragStart={isDraggable ? onDragStart : undefined}

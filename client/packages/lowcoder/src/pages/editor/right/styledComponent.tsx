@@ -2,7 +2,7 @@ import styled, { css } from "styled-components";
 import { StyledLink } from "pages/common/styledComponent";
 import { EmptyContent } from "components/EmptyContent";
 import { trans } from "i18n";
-import { labelCss } from "lowcoder-design";
+import { labelCss } from "lowcoder-design/src/components/Label";
 
 const NoShake = css`
   transform: translate3d(0, 0, 0);
@@ -58,7 +58,7 @@ export const EmptyCompContent = () => {
       text={
         <>
           {trans("rightPanel.searchNotFound")}
-          {aboutUsUrl && (
+          {aboutUsUrl && ( 
             <>
               <br />
               <StyledLink target="_blank" href={aboutUsUrl}>
@@ -66,10 +66,11 @@ export const EmptyCompContent = () => {
               </StyledLink>
             </>
           )}
+          <br /><br />
+          {trans("help.submitIssue")}
+          <br />
           {issueUrl && (
-            <StyledLink target="_blank" href={issueUrl}>
-              {trans("rightPanel.issueHere")}
-            </StyledLink>
+            <StyledLink target="_blank" href={issueUrl}>{trans("rightPanel.issueHere")}</StyledLink>
           )}
         </>
       }

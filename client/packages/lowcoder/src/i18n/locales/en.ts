@@ -135,7 +135,7 @@ export const en = {
     "moduleListTitle": "Modules",
     "pluginListTitle": "Plugins",
     "emptyModules": "Modules are reusable Mikro-Apps. You can embed them in your App.",
-    "searchNotFound": "Can't find the right component? Submit an issue",
+    "searchNotFound": "Can't find the right component?",
     "emptyPlugins": "No Plugins Added",
     "contactUs": "Contact Us",
     "issueHere": "here."
@@ -189,11 +189,28 @@ export const en = {
     "showLabel": "Show Label",
     "showHeader": "Show Header",
     "showBody": "Show Body",
+    "showSider": "Show Sider",
+    "innerSider" : "Inner Sider",
     "showFooter": "Show Footer",
     "maskClosable": "Click Outside to Close",
     "showMask": "Show Mask",
     "textOverflow": "Text Overflow",
     "scrollbar" : "Show Scrollbars",
+    "siderScrollbar" : "Show Scrollbars in Sider",
+    "siderRight" : "Show sider on the Right",
+    "siderWidth" : "Sider Width",
+    "siderWidthTooltip" : "Sider width supports percentages (%) and pixels (px).",
+    "siderCollapsedWidth" : "Sider Collapsed Width",
+    "siderCollapsedWidthTooltip" : "Sider collapsed width supports percentages (%) and pixels (px).",
+    "siderCollapsible" : "Sider Collapsible",
+    "siderCollapsed" : "Sider Collapsed",
+    "contentScrollbar" : "Show Scrollbars in Content",
+    "appID": "App Id",
+    "showApp": "Show an App in the content area",
+    "showAppTooltip": "You can display whole Lowcoder Apps in the content area. Please mind, that for Modules we do not support Inputs, Outputs Events and Methods.",
+    "baseURL": "Lowcoder API Base URL",
+    "horizontal": "Horizontal",
+    "minHorizontalWidth": "Minimum Horizontal Width",
   },
   "autoHeightProp": {
     "auto": "Auto",
@@ -325,6 +342,7 @@ export const en = {
     "borderStyle":"Border Style",
     "background": "Background",
     "headerBackground": "Header Background",
+    "siderBackground": "Sider Background",
     "footerBackground": "Footer Background",
     "fill": "Fill",
     "track": "Track",
@@ -365,6 +383,7 @@ export const en = {
     "marginBottom": "Margin Bottom",
     "containerHeaderPadding": "Header Padding",
     "containerFooterPadding": "Footer Padding",
+    "containerSiderPadding": "Sider Padding",
     "containerBodyPadding": "Body Padding",
     "minWidth": "Minimum Width",
     "aspectRatio": "Aspect Ratio",
@@ -847,6 +866,10 @@ export const en = {
     "containerCompDesc": "A general-purpose container for layout and organization of UI elements.",
     "containerCompKeywords": "container, layout, organization, UI",
 
+    "floatTextContainerCompName": "Float Text Container",
+    "floatTextContainerCompDesc": "Float Text Container component",
+    "floatTextContainerCompKeywords": "container, layout, text, flow",
+
     "collapsibleContainerCompName": "Collapsible Container",
     "collapsibleContainerCompDesc": "A container that can be expanded or collapsed, ideal for managing content visibility.",
     "collapsibleContainerCompKeywords": "collapsible, container, expand, collapse",
@@ -854,6 +877,10 @@ export const en = {
     "tabbedContainerCompName": "Tabbed Container",
     "tabbedContainerCompDesc": "A container with tabbed navigation for organizing content into separate panels.",
     "tabbedContainerCompKeywords": "tabbed, container, navigation, panels",
+
+    "pageLayoutCompName": "Layout Container",
+    "pageLayoutCompDesc": "A container which offers to create a layout with header, sider, footer and main content areas",
+    "pageLayoutCompKeywords": "layout, container, navigation, pages",
 
     "modalCompName": "Modal",
     "modalCompDesc": "A pop-up modal component for displaying content, alerts, or forms in focus.",
@@ -1501,7 +1528,10 @@ export const en = {
     "mode": "Select Mode"
   },
   "container": {
-    "title": "Displayed Container Title"
+    "title": "Displayed Container Title",
+    "titleTooltip": "The Title of the Container",
+    "flowWidth": "Content Width",
+    "floatType": "Text Float Type",
   },
   "drawer": {
     "closePosition": "Close Button Placement",
@@ -1585,7 +1615,8 @@ export const en = {
     "oauthProviders": "User Authentication",
     "appUsage": "App Usage Logs",
     "environments": "Environments",
-    "premium": "Premium"
+    "premium": "Premium",
+    "AppUsage": "Global App Usage",
   },
 
 
@@ -1655,13 +1686,19 @@ export const en = {
     "orgName": "Workspace Name"
   },
   "freeLimit": "Free Trial",
+
   "tabbedContainer": {
     "switchTab": "Switch Tab",
     "switchTabDesc": "Triggered When Switching Tabs",
     "tab": "Tabs",
     "atLeastOneTabError": "The Tab Container Keeps at Least One Tab",
     "selectedTabKeyDesc": "Currently Selected Tab",
-    "iconPosition": "Icon Position"
+    "iconPosition": "Icon Position",
+    "placement" : "Tabs Placement",
+    "showTabs": "Show Tabs",
+    "gutter" : "Gap",
+    "gutterTooltip" : "The distance between tabs in px",
+    "tabsCentered" : "Centered Tabs",
   },
   "formComp": {
     "containerPlaceholder": "Drag Components from the Right Pane or",

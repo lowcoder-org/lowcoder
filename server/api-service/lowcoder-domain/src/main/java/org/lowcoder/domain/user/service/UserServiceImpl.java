@@ -2,6 +2,7 @@ package org.lowcoder.domain.user.service;
 
 
 import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -56,32 +57,21 @@ import static org.lowcoder.sdk.util.ExceptionUtils.ofException;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
-    @Autowired
-    private AssetService assetService;
-    @Autowired
-    private ConfigCenter configCenter;
-    @Autowired
-    private EncryptionService encryptionService;
-    @Autowired
-    private MongoUpsertHelper mongoUpsertHelper;
-    @Autowired
-    private UserRepository repository;
-    @Autowired
-    private GroupMemberService groupMemberService;
-    @Autowired
-    private OrgMemberService orgMemberService;
-    @Autowired
-    private OrganizationService organizationService;
-    @Autowired
-    private GroupService groupService;
-    @Autowired
-    private CommonConfig commonConfig;
-    @Autowired
-    private AuthenticationService authenticationService;
-    @Autowired
-    private EmailCommunicationService emailCommunicationService;
+    private final AssetService assetService;
+    private final ConfigCenter configCenter;
+    private final EncryptionService encryptionService;
+    private final MongoUpsertHelper mongoUpsertHelper;
+    private final UserRepository repository;
+    private final GroupMemberService groupMemberService;
+    private final OrgMemberService orgMemberService;
+    private final OrganizationService organizationService;
+    private final GroupService groupService;
+    private final CommonConfig commonConfig;
+    private final AuthenticationService authenticationService;
+    private final EmailCommunicationService emailCommunicationService;
     private Conf<Integer> avatarMaxSizeInKb;
 
     @PostConstruct
@@ -138,8 +128,9 @@ public class UserServiceImpl implements UserService {
     }
 
     private Mono<Boolean> updateUserAvatar(Asset newAvatar, String userId) {
-        User user = new User();
-        user.setAvatar(newAvatar.getId());
+        User user = User.builder()
+                .avatar(newAvatar.getId())
+                .build();
         return mongoUpsertHelper.updateById(user, userId);
     }
 
@@ -165,15 +156,18 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Mono<User> createNewUserByAuthUser(AuthUser authUser) {
-        User newUser = new User();
-        newUser.setName(authUser.getUsername());
-        newUser.setState(UserState.ACTIVATED);
-        newUser.setIsEnabled(true);
-        newUser.setTpAvatarLink(authUser.getAvatar());
+         User.UserBuilder userBuilder = User.builder()
+                .name(authUser.getUsername())
+                .state(UserState.ACTIVATED)
+                .isEnabled(true)
+                .tpAvatarLink(authUser.getAvatar());
+
         if (AuthSourceConstants.EMAIL.equals(authUser.getSource())
                 && authUser.getAuthContext() instanceof FormAuthRequestContext formAuthRequestContext) {
-            newUser.setPassword(encryptionService.encryptPassword(formAuthRequestContext.getPassword()));
+            userBuilder.password(encryptionService.encryptPassword(formAuthRequestContext.getPassword()));
         }
+        User newUser = userBuilder.build();
+
         Set<Connection> connections = newHashSet();
         Connection connection = authUser.toAuthConnection();
         connections.add(connection);

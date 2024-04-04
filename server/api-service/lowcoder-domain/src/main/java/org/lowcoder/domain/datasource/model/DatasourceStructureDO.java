@@ -1,6 +1,7 @@
 package org.lowcoder.domain.datasource.model;
 
 
+import lombok.NoArgsConstructor;
 import org.lowcoder.sdk.models.DatasourceStructure;
 import org.lowcoder.sdk.models.HasIdAndAuditing;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -9,6 +10,7 @@ import com.querydsl.core.annotations.QueryExclude;
 
 @QueryExclude
 @Document(collection = "datasourceStructure")
+@NoArgsConstructor
 public class DatasourceStructureDO extends HasIdAndAuditing {
 
     private String datasourceId;
