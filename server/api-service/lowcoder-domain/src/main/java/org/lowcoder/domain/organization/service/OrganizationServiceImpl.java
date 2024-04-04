@@ -1,6 +1,8 @@
 package org.lowcoder.domain.organization.service;
 
 import jakarta.annotation.Nonnull;
+import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.lowcoder.domain.asset.model.Asset;
@@ -46,10 +48,11 @@ import static org.lowcoder.sdk.util.LocaleUtils.getLocale;
 import static org.lowcoder.sdk.util.LocaleUtils.getMessage;
 
 @Slf4j
+@RequiredArgsConstructor
 @Service
 public class OrganizationServiceImpl implements OrganizationService {
 
-    private final Conf<Integer> logoMaxSizeInKb;
+    private Conf<Integer> logoMaxSizeInKb;
 
     private static final String PASSWORD_RESET_EMAIL_TEMPLATE_DEFAULT = "<p>Hi, %s<br/>" +
             "Here is the link to reset your password: %s<br/>" +
@@ -57,33 +60,19 @@ public class OrganizationServiceImpl implements OrganizationService {
             "Regards,<br/>" +
             "The Lowcoder Team</p>";
 
-    @Autowired
-    private AssetRepository assetRepository;
+    private final AssetRepository assetRepository;
+    private final AssetService assetService;
+    private final OrgMemberService orgMemberService;
+    private final MongoUpsertHelper mongoUpsertHelper;
+    private final OrganizationRepository repository;
+    private final GroupService groupService;
+    private final ApplicationContext applicationContext;
+    private final CommonConfig commonConfig;
+    private final ConfigCenter configCenter;
 
-    @Autowired
-    private AssetService assetService;
-
-    @Lazy
-    @Autowired
-    private OrgMemberService orgMemberService;
-
-    @Autowired
-    private MongoUpsertHelper mongoUpsertHelper;
-
-    @Autowired
-    private OrganizationRepository repository;
-
-    @Autowired
-    private GroupService groupService;
-
-    @Autowired
-    private ApplicationContext applicationContext;
-
-    @Autowired
-    private CommonConfig commonConfig;
-
-    @Autowired
-    public OrganizationServiceImpl(ConfigCenter configCenter) {
+    @PostConstruct
+    private void init()
+    {
         logoMaxSizeInKb = configCenter.asset().ofInteger("logoMaxSizeInKb", 300);
     }
 

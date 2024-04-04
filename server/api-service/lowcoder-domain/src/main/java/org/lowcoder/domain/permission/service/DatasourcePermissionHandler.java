@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections4.CollectionUtils;
 import org.lowcoder.domain.application.model.ApplicationRequestType;
 import org.lowcoder.domain.datasource.model.Datasource;
@@ -25,14 +26,13 @@ import com.google.common.collect.Maps;
 
 import reactor.core.publisher.Mono;
 
-@Lazy
+@RequiredArgsConstructor
 @Component
 class DatasourcePermissionHandler extends ResourcePermissionHandler {
 
     private static final ResourceRole SYSTEM_STATIC_DATASOURCE_USER_ROLE = ResourceRole.OWNER;
 
-    @Autowired
-    private DatasourceService datasourceService;
+    private final DatasourceService datasourceService;
 
     @Override
     protected Mono<Map<String, List<ResourcePermission>>> getAnonymousUserPermissions(Collection<String> resourceIds, ResourceAction resourceAction) {

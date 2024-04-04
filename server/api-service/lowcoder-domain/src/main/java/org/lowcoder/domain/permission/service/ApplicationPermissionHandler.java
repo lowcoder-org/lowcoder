@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import lombok.RequiredArgsConstructor;
 import org.lowcoder.domain.application.model.Application;
 import org.lowcoder.domain.application.model.ApplicationRequestType;
 import org.lowcoder.domain.application.service.ApplicationService;
@@ -22,23 +23,21 @@ import org.lowcoder.domain.permission.model.ResourceAction;
 import org.lowcoder.domain.permission.model.ResourcePermission;
 import org.lowcoder.domain.permission.model.ResourceRole;
 import org.lowcoder.domain.permission.model.ResourceType;
-import org.lowcoder.domain.solutions.TemplateSolution;
+import org.lowcoder.domain.solutions.TemplateSolutionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import reactor.core.publisher.Mono;
 
-@Lazy
+@RequiredArgsConstructor
 @Component
 class ApplicationPermissionHandler extends ResourcePermissionHandler {
 
     private static final ResourceRole ANONYMOUS_USER_ROLE = ResourceRole.VIEWER;
-    @Autowired
-    private ApplicationService applicationService;
 
-    @Autowired
-    private TemplateSolution templateSolution;
+    private final ApplicationService applicationService;
+    private final TemplateSolutionService templateSolutionService;
 
     @Override
     protected Mono<Map<String, List<ResourcePermission>>> getAnonymousUserPermissions(Collection<String> resourceIds,
@@ -49,7 +48,7 @@ class ApplicationPermissionHandler extends ResourcePermissionHandler {
 
         Set<String> applicationIds = newHashSet(resourceIds);
         return Mono.zip(applicationService.getPublicApplicationIds(applicationIds),
-                        templateSolution.getTemplateApplicationIds(applicationIds))
+                        templateSolutionService.getTemplateApplicationIds(applicationIds))
                 .map(tuple -> {
                     Set<String> publicAppIds = tuple.getT1();
                     Set<String> templateAppIds = tuple.getT2();
@@ -64,7 +63,7 @@ class ApplicationPermissionHandler extends ResourcePermissionHandler {
 
         Set<String> applicationIds = newHashSet(resourceIds);
         return Mono.zip(applicationService.getPrivateApplicationIds(applicationIds),
-                        templateSolution.getTemplateApplicationIds(applicationIds))
+                        templateSolutionService.getTemplateApplicationIds(applicationIds))
                 .map(tuple -> {
                     Set<String> publicAppIds = tuple.getT1();
                     Set<String> templateAppIds = tuple.getT2();
@@ -84,7 +83,7 @@ class ApplicationPermissionHandler extends ResourcePermissionHandler {
         Set<String> applicationIds = newHashSet(resourceIds);
         return Mono.zip(applicationService.getFilteredPublicApplicationIds(requestType, applicationIds, Boolean.TRUE, config.getMarketplace().isPrivateMode())
         					.defaultIfEmpty(new HashSet<>()),
-                        templateSolution.getTemplateApplicationIds(applicationIds)
+                        templateSolutionService.getTemplateApplicationIds(applicationIds)
                         	.defaultIfEmpty(new HashSet<>())
                ).map(tuple -> {
                     Set<String> publicAppIds = tuple.getT1();
@@ -98,7 +97,7 @@ class ApplicationPermissionHandler extends ResourcePermissionHandler {
 			Collection<String> resourceIds, ResourceAction resourceAction, ApplicationRequestType requestType) {
         Set<String> applicationIds = newHashSet(resourceIds);
         return Mono.zip(applicationService.getFilteredPublicApplicationIds(requestType, applicationIds, Boolean.FALSE, config.getMarketplace().isPrivateMode()),
-                        templateSolution.getTemplateApplicationIds(applicationIds))
+                        templateSolutionService.getTemplateApplicationIds(applicationIds))
                 .map(tuple -> {
                     Set<String> publicAppIds = tuple.getT1();
                     Set<String> templateAppIds = tuple.getT2();

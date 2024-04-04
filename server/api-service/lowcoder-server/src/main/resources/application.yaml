@@ -13,10 +13,10 @@ spring:
       auto-index-creation: false
       uri: ${LOWCODER_MONGODB_URL:mongodb://localhost:27017/lowcoder?authSource=admin}
     redis:
-      url: ${LOWCODER_REDIS_URL:redis://127.0.0.1:16379}
+      url: ${LOWCODER_REDIS_URL:redis://localhost:6379}
   main:
-    allow-bean-definition-overriding: true
-    allow-circular-references: true
+    allow-bean-definition-overriding: false
+    allow-circular-references: false
   codec:
     max-in-memory-size: 20MB
   webflux:
