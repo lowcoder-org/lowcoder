@@ -95,7 +95,7 @@ module.exports = {
   },
   output: {
     path: path.resolve(__dirname, 'dist'),
-    publicPath: "https://sdk.lowcoder.cloud/",
+    publicPath: "https://sdk-v2.lowcoder.cloud/",
     filename: '[name].bundle.js',
     clean: true,
   },
