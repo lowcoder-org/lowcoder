@@ -11,8 +11,10 @@ import reactor.core.publisher.Mono;
 public class ReactiveRequestContextFilter implements WebFilter {
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
-        ServerHttpRequest request = exchange.getRequest();
-        return chain.filter(exchange)
-                .contextWrite(ctx -> ctx.put(ReactiveRequestContextHolder.SERVER_HTTP_REQUEST, request));
+        return Mono.deferContextual(contextView -> {
+            ServerHttpRequest request = exchange.getRequest();
+            return chain.filter(exchange)
+                    .contextWrite(context -> context.put(ReactiveRequestContextHolder.SERVER_HTTP_REQUEST, request));
+        });
     }
 }

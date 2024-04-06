@@ -18,7 +18,7 @@
 			<dependency>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-dependencies</artifactId>
-				<version>3.1.2</version>
+				<version>3.2.4</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
@@ -32,13 +32,13 @@
 			<dependency>
 				<groupId>org.pf4j</groupId>
 				<artifactId>pf4j</artifactId>
-				<version>3.5.0</version>
+				<version>3.11.0</version>
 			</dependency>
 
 			<dependency>
 				<groupId>org.json</groupId>
 				<artifactId>json</artifactId>
-				<version>20230227</version>
+				<version>20240303</version>
 			</dependency>
 
 			<dependency>
@@ -50,12 +50,12 @@
 			<dependency>
 				<groupId>org.apache.commons</groupId>
 				<artifactId>commons-text</artifactId>
-				<version>1.10.0</version>
+				<version>1.11.0</version>
 			</dependency>
 			<dependency>
 				<groupId>commons-io</groupId>
 				<artifactId>commons-io</artifactId>
-				<version>2.13.0</version>
+				<version>2.16.0</version>
 			</dependency>
 			<dependency>
 				<groupId>org.glassfish</groupId>
@@ -70,7 +70,7 @@
 			<dependency>
 				<groupId>org.eclipse.jgit</groupId>
 				<artifactId>org.eclipse.jgit</artifactId>
-				<version>6.5.0.202303070854-r</version>
+				<version>6.9.0.202403050737-r</version>
 			</dependency>
 
 			<dependency>
@@ -87,7 +87,7 @@
 			<dependency>
 				<groupId>com.google.guava</groupId>
 				<artifactId>guava</artifactId>
-				<version>30.0-jre</version>
+				<version>33.1.0-jre</version>
 			</dependency>
 
 			<dependency>
@@ -98,18 +98,18 @@
 			<dependency>
 				<groupId>org.jetbrains.kotlin</groupId>
 				<artifactId>kotlin-stdlib-jdk7</artifactId>
-				<version>1.6.21</version>
+				<version>1.9.23</version>
 			</dependency>
 
 			<dependency>
 				<groupId>com.jayway.jsonpath</groupId>
 				<artifactId>json-path</artifactId>
-				<version>2.7.0</version>
+				<version>2.9.0</version>
 			</dependency>
 			<dependency>
 				<groupId>com.github.ben-manes.caffeine</groupId>
 				<artifactId>caffeine</artifactId>
-				<version>3.0.5</version>
+				<version>3.1.8</version>
 			</dependency>
 			<dependency>
 				<groupId>es.moki.ratelimitj</groupId>
@@ -119,7 +119,7 @@
 			<dependency>
 				<groupId>com.github.spullara.mustache.java</groupId>
 				<artifactId>compiler</artifactId>
-				<version>0.9.6</version>
+				<version>0.9.11</version>
 			</dependency>
 
 			<dependency>
@@ -131,7 +131,7 @@
 			<dependency>
 				<groupId>io.projectreactor</groupId>
 				<artifactId>reactor-core</artifactId>
-				<version>3.4.29</version>
+				<version>3.6.4</version>
 			</dependency>
 
 			<dependency>
@@ -163,14 +163,14 @@
 
 			<dependency>
 				<groupId>io.sentry</groupId>
-				<artifactId>sentry-spring-boot-starter</artifactId>
-				<version>3.1.2</version>
+				<artifactId>sentry-spring-boot-starter-jakarta</artifactId>
+				<version>7.6.0</version>
 			</dependency>
 
 			<dependency>
 				<groupId>org.jgrapht</groupId>
 				<artifactId>jgrapht-core</artifactId>
-				<version>1.5.0</version>
+				<version>1.5.2</version>
 			</dependency>
 
 			<dependency>
@@ -193,17 +193,22 @@
 			</dependency>
 
 			<dependency>
-				<groupId>com.github.cloudyrock.mongock</groupId>
+				<groupId>io.mongock</groupId>
 				<artifactId>mongock-bom</artifactId>
-				<version>4.3.8</version>
+				<version>5.4.0</version>
 				<type>pom</type>
 				<scope>import</scope>
+			</dependency>
+			<dependency>
+				<groupId>io.mongock</groupId>
+				<artifactId>mongock-springboot</artifactId>
+				<version>5.4.0</version>
 			</dependency>
 
 			<dependency>
 				<groupId>io.projectreactor.tools</groupId>
 				<artifactId>blockhound</artifactId>
-				<version>1.0.6.RELEASE</version>
+				<version>1.0.8.RELEASE</version>
 			</dependency>
 
 			<dependency>
@@ -215,7 +220,7 @@
 			<dependency>
 				<groupId>io.projectreactor</groupId>
 				<artifactId>reactor-test</artifactId>
-				<version>3.3.5.RELEASE</version>
+				<version>3.6.4</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.httpcomponents</groupId>
@@ -225,7 +230,7 @@
 			<dependency>
 				<groupId>de.flapdoodle.embed</groupId>
 				<artifactId>de.flapdoodle.embed.mongo.spring30x</artifactId>
-				<version>4.7.0</version>
+				<version>4.11.0</version>
 			</dependency>
 			<dependency>
 				<groupId>org.mockito</groupId>
@@ -238,6 +243,12 @@
 			    <artifactId>jakarta.validation-api</artifactId>
 			    <version>3.0.2</version>
 			</dependency>
+			<dependency>
+				<groupId>org.springdoc</groupId>
+				<artifactId>springdoc-openapi-starter-webflux-ui</artifactId>
+				<version>2.5.0</version>
+			</dependency>
+
 		</dependencies>
 	</dependencyManagement>
 </project>

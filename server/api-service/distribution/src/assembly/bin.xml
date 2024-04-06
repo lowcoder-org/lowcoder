@@ -44,6 +44,7 @@
 				<include>org.lowcoder:lowcoder-domain</include>
 				<include>org.lowcoder:lowcoder-infra</include>
 				<include>org.lowcoder:lowcoder-sdk</include>
+				<include>org.lowcoder:sqlBasedPlugin</include>
 			</includes>
 			<binaries>
 				<outputDirectory>libs</outputDirectory>
