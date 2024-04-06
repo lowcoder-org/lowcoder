@@ -81,7 +81,7 @@ utils.downloadFile(query1.data, "users-data.xlsx")
 
 // Example: Download the results of query1 as a XLXS file named users-data.
 utils.downloadFile(restApiQuery.data, "users-data", {
-  fileType: "pdf",
+  fileType: "xlsx",
   dataType: "base64",
 })
 ```
