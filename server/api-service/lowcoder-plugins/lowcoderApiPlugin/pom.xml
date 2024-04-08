@@ -9,6 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
+    <groupId>org.lowcoder.plugins</groupId>
     <artifactId>lowcoderApiPlugin</artifactId>
 
     <properties>
