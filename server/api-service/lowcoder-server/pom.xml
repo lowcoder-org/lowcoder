@@ -17,6 +17,7 @@
 	<properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		<assembly.lib.directory>${project.build.directory}/app-libs</assembly.lib.directory>
 
 		<skipTests>false</skipTests>
 		<skipUnitTests>${skipTests}</skipUnitTests>
@@ -43,6 +44,11 @@
 		<dependency>
 			<groupId>org.lowcoder</groupId>
 			<artifactId>lowcoder-domain</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.lowcoder</groupId>
+			<artifactId>sqlBasedPlugin</artifactId>
+			<version>${revision}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.lowcoder.plugin</groupId>
@@ -251,12 +257,32 @@
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>copy-dependencies</id>
+						<phase>package</phase>
+						<goals>
+							<goal>copy-dependencies</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${assembly.lib.directory}</outputDirectory>
+							<includeScope>runtime</includeScope>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
 				<version>3.3.0</version>
 				<configuration>
+					<finalName>lowcoder-api-service</finalName>
 					<archive>
 						<manifest>
 							<mainClass>org.lowcoder.api.ServerApplication</mainClass>
+							<classpathPrefix>libs/</classpathPrefix>
+							<addClasspath>true</addClasspath>
 							<addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
 							<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
 							<addBuildEnvironmentEntries>true</addBuildEnvironmentEntries>
@@ -290,7 +316,6 @@
 					<keypass>${keystore.key.password}</keypass>
 				</configuration>
 			</plugin>
-
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
@@ -354,6 +379,24 @@
 						<goals>
 							<goal>run</goal>
 						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>distro-assembly</id>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+						<configuration>
+							<attach>false</attach>
+							<descriptors>
+								<descriptor>src/assembly/bin.xml</descriptor>
+							</descriptors>
+						</configuration>
 					</execution>
 				</executions>
 			</plugin>

@@ -37,11 +37,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends gosu \
 COPY --chown=lowcoder:lowcoder --from=build-api-service /lowcoder/api-service /lowcoder/api-service
 
 # Copy lowcoder api service app, dependencies and libs
-COPY --chown=lowcoder:lowcoder --from=build-api-service /lowcoder-server/distribution/target/lowcoder-api-service-bin/app /lowcoder/api-service/app
-COPY --chown=lowcoder:lowcoder --from=build-api-service /lowcoder-server/distribution/target/lowcoder-api-service-bin/dependencies /lowcoder/api-service/dependencies
+COPY --chown=lowcoder:lowcoder --from=build-api-service /lowcoder-server/distribution/target/lowcoder-api-service-bin/lowcoder-api-service.jar /lowcoder/api-service/lowcoder-api-service.jar
 COPY --chown=lowcoder:lowcoder --from=build-api-service /lowcoder-server/distribution/target/lowcoder-api-service-bin/libs /lowcoder/api-service/libs
 COPY --chown=lowcoder:lowcoder --from=build-api-service /lowcoder-server/distribution/target/lowcoder-api-service-bin/plugins /lowcoder/api-service/plugins
-COPY --chown=lowcoder:lowcoder --from=build-api-service /lowcoder-server/distribution/target/lowcoder-api-service-bin/set-classpath.sh /lowcoder/api-service/set-classpath.sh
 
 EXPOSE 8080
 CMD [ "/bin/bash" , "/lowcoder/api-service/entrypoint.sh" ]

@@ -157,7 +157,6 @@
 		<module>lowcoder-domain</module>
 		<module>lowcoder-plugins</module>
 		<module>lowcoder-server</module>
-		<module>distribution</module>
 	</modules>
 
 </project>

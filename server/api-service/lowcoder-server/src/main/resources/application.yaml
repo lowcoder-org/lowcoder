@@ -77,7 +77,7 @@ common:
   workspace:
     mode: ${LOWCODER_WORKSPACE_MODE:SAAS}
   plugin-dirs:
-    - ${LOWCODER_PLUGINS_DIR:plugins}
+    - ${LOWCODER_PLUGINS_DIR:../plugins}
   super-admin:
     username: ${LOWCODER_SUPERUSER_USERNAME:test@lowcoder.org}
     password: ${LOWCODER_SUPERUSER_PASSWORD:}

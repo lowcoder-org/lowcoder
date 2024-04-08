@@ -12,7 +12,7 @@ echo "Initializing api-service..."
 if [ -z $JAVA_HOME ]; then
     JAVA_HOME=`dirname $(dirname $(readlink -f $(which javac)))`
 fi;
-APP_JAR="${APP_JAR:=/lowcoder/api-service/server.jar}"
+APP_JAR="${APP_JAR:=/lowcoder/api-service/lowcoder-api-service.jar}"
 JAVA_OPTS="${JAVA_OPTS:=}"
 CUSTOM_APP_PROPERTIES="${APP_PROPERTIES}"
 CONTEXT_PATH=${CONTEXT_PATH:=/}
@@ -27,7 +27,6 @@ ${JAVA_HOME}/bin/java -version
 echo
 
 cd /lowcoder/api-service
-source set-classpath.sh
 
 exec gosu ${USER_ID}:${GROUP_ID} ${JAVA_HOME}/bin/java \
   -Djava.util.prefs.userRoot=/tmp \
@@ -36,7 +35,6 @@ exec gosu ${USER_ID}:${GROUP_ID} ${JAVA_HOME}/bin/java \
   -Dlog4j2.formatMsgNoLookups=true \
   -Dspring.config.location="file:///lowcoder/api-service/config/application.yaml" \
   --add-opens java.base/java.nio=ALL-UNNAMED \
-  -cp "${LOWCODER_CLASSPATH:=.}" \
   ${JAVA_OPTS} \
-  org.lowcoder.api.ServerApplication --spring.webflux.base-path=${CONTEXT_PATH} ${CUSTOM_APP_PROPERTIES}
+  -jar ${APP_JAR} --spring.webflux.base-path=${CONTEXT_PATH} ${CUSTOM_APP_PROPERTIES}
 

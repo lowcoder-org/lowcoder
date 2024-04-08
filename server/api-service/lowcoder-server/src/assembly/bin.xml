@@ -7,19 +7,10 @@
 	</formats>
 	<includeBaseDirectory>false</includeBaseDirectory>
 
-	<files>
-		<file>
-			<source>src/assembly/set-classpath.sh</source>
-			<outputDirectory></outputDirectory>
-		</file>
-	</files>
 	<fileSets>
         <fileSet>
             <directory>${assembly.lib.directory}</directory>
-            <outputDirectory>dependencies</outputDirectory>
-			<excludes>
-				<exclude>${project.groupId}:*</exclude>
-			</excludes>
+            <outputDirectory>libs</outputDirectory>
         </fileSet>
 	</fileSets>
 
@@ -31,43 +22,24 @@
 				<include>org.lowcoder:lowcoder-server</include>
 			</includes>
 			<binaries>
-				<outputDirectory>app</outputDirectory>
+				<outputDirectory>.</outputDirectory>
 				<includeDependencies>false</includeDependencies>
 				<unpack>false</unpack>
 			</binaries>
 		</moduleSet>		
 
-		<!-- Lowcoder API server dependencies -->
-		<moduleSet>
-			<useAllReactorProjects>true</useAllReactorProjects>
-			<includes>
-				<include>org.lowcoder:lowcoder-domain</include>
-				<include>org.lowcoder:lowcoder-infra</include>
-				<include>org.lowcoder:lowcoder-sdk</include>
-				<include>org.lowcoder:sqlBasedPlugin</include>
-			</includes>
-			<binaries>
-				<outputDirectory>libs</outputDirectory>
-				<includeDependencies>false</includeDependencies>
-				<unpack>false</unpack>
-			</binaries>
-		</moduleSet>
-
-		<!-- Lowcoder plugins -->		
+		<!-- Lowcoder plugins -->
 		<moduleSet>
 			<useAllReactorProjects>true</useAllReactorProjects>
 			<includeSubModules>true</includeSubModules>
 			<includes>
-				<include>org.lowcoder:*Plugin</include>
+				<include>org.lowcoder.plugins:*Plugin</include>
 			</includes>
-			<excludes>
-				<exclude>org.lowcoder:sqlBasedPlugin</exclude>
-			</excludes>
 			<binaries>
 				<outputDirectory>plugins</outputDirectory>
 				<includeDependencies>false</includeDependencies>
 				<unpack>false</unpack>
 			</binaries>
-		</moduleSet>		
+		</moduleSet>
 	</moduleSets>
 </assembly>
