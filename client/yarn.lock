@@ -5666,7 +5666,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"agora-rtc-sdk-ng@npm:^4.19.0":
+"agora-rtc-sdk-ng@npm:^4.20.2":
   version: 4.20.2
   resolution: "agora-rtc-sdk-ng@npm:4.20.2"
   dependencies:
@@ -13658,7 +13658,7 @@ __metadata:
     "@types/uuid": ^8.3.4
     "@vitejs/plugin-react": ^2.2.0
     agora-access-token: ^2.0.4
-    agora-rtc-sdk-ng: ^4.19.0
+    agora-rtc-sdk-ng: ^4.20.2
     agora-rtm-sdk: ^1.5.1
     antd: 5.13.2
     axios: ^1.6.2
