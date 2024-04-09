@@ -512,12 +512,12 @@ let MTComp = (function () {
               styles={{
                 wrapper: {
                   maxHeight: "100%",
-                  maxWidth: "100%"
-                }, 
+                  maxWidth: "100%",
+                },
                 body: {
                   padding: 0,
                   backgroundColor: props.style.background,
-                }
+                },
               }}
               closable={false}
               placement={props.placement}
@@ -569,8 +569,10 @@ let MTComp = (function () {
   )
     .setPropertyViewFn((children) => (
       <>
-        {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
-          <><Section name={sectionNames.meetings}>
+        {(useContext(EditorContext).editorModeStatus === "logic" ||
+          useContext(EditorContext).editorModeStatus === "both") && (
+          <>
+            <Section name={sectionNames.meetings}>
               {children.appId.propertyView({
                 label: trans("meeting.appid"),
               })}
@@ -593,38 +595,40 @@ let MTComp = (function () {
           </>
         )}
 
-        {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
-          <><Section name={sectionNames.layout}>
-            {children.placement.propertyView({
-              label: trans("drawer.placement"),
-              radioButton: true,
-            })}
-            {["top", "bottom"].includes(children.placement.getView())
-              ? children.autoHeight.getPropertyView()
-              : children.width.propertyView({
-                  label: trans("drawer.width"),
-                  tooltip: trans("drawer.widthTooltip"),
+        {(useContext(EditorContext).editorModeStatus === "layout" ||
+          useContext(EditorContext).editorModeStatus === "both") && (
+          <>
+            <Section name={sectionNames.layout}>
+              {children.placement.propertyView({
+                label: trans("drawer.placement"),
+                radioButton: true,
+              })}
+              {["top", "bottom"].includes(children.placement.getView())
+                ? children.autoHeight.getPropertyView()
+                : children.width.propertyView({
+                    label: trans("drawer.width"),
+                    tooltip: trans("drawer.widthTooltip"),
+                    placeholder: DEFAULT_SIZE + "",
+                  })}
+              {!children.autoHeight.getView() &&
+                ["top", "bottom"].includes(children.placement.getView()) &&
+                children.height.propertyView({
+                  label: trans("drawer.height"),
+                  tooltip: trans("drawer.heightTooltip"),
                   placeholder: DEFAULT_SIZE + "",
                 })}
-            {!children.autoHeight.getView() &&
-              ["top", "bottom"].includes(children.placement.getView()) &&
-              children.height.propertyView({
-                label: trans("drawer.height"),
-                tooltip: trans("drawer.heightTooltip"),
-                placeholder: DEFAULT_SIZE + "",
+              {children.maskClosable.propertyView({
+                label: trans("prop.maskClosable"),
               })}
-            {children.maskClosable.propertyView({
-              label: trans("prop.maskClosable"),
-            })}
-            {children.showMask.propertyView({
-              label: trans("prop.showMask"),
-            })}
-          </Section>
+              {children.showMask.propertyView({
+                label: trans("prop.showMask"),
+              })}
+            </Section>
 
-          <Section name={sectionNames.style}>
-            
-            {children.style.getPropertyView()}
-          </Section></>
+            <Section name={sectionNames.style}>
+              {children.style.getPropertyView()}
+            </Section>
+          </>
         )}
       </>
     ))
