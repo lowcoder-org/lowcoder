@@ -314,7 +314,7 @@ let CalendarBasicComp = (function () {
             }
             props.onEvent("change");
             form.resetFields();
-          });
+          }); //small change
         },
         onCancel: () => {
           form.resetFields();
