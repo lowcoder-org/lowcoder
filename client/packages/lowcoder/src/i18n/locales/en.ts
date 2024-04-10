@@ -2087,6 +2087,7 @@ export const en = {
     "appTitle": "Title",
     "appDescription": "Description",
     "appCategory": "Category",
+    "showPublicHeader": "Show header in public view"
   },
   "customShortcut": {
     "title": "Custom Shortcuts",
