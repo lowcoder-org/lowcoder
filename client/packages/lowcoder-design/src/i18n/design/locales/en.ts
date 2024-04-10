@@ -18,13 +18,14 @@ export const en = {
   },
   prop: {
     basic: "Basic",
+    resources: "Resources",
     interaction: "Interaction",
     advanced: "Advanced",
     validation: "Validation",
     layout: "Layout",
     labelStyle:"Label Style",
     style: "Style",
-    meetings : "Meeting Settings",
+    meetings: "Meeting Settings",
     data: "Data",
   },
   passwordInput: {

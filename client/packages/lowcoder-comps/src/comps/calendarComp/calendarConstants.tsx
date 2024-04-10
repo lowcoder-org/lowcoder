@@ -781,7 +781,6 @@ export enum ViewType {
   TIMEGRID = "timeGridDay",
 }
 
-
 export const DefaultWithPremiumViewOptions = [
   {
     label: trans("calendar.month"),
@@ -792,8 +791,12 @@ export const DefaultWithPremiumViewOptions = [
     value: "timeGridWeek",
   },
   {
+    label: trans("calendar.resourceTimeGridDay"),
+    value: "resourceTimeGridDay",
+  },
+  {
     label: trans("calendar.timeline"),
-    value: "resourceTimeline",
+    value: "resourceTimelineDay",
   },
   {
     label: trans("calendar.day"),
@@ -871,6 +874,52 @@ export const defaultData = [
     allDay: true,
   },
 ];
+export const resourcesEventsDefaultData = [
+  {
+    resourceId: "d",
+    title: "event 1",
+    start: dayjs().hour(10).minute(0).second(0).format(DATE_TIME_FORMAT),
+    end: dayjs().hour(17).minute(30).second(0).format(DATE_TIME_FORMAT),
+  },
+  {
+    resourceId: "b",
+    title: "event 5",
+    start: dayjs().hour(8).minute(0).second(0).format(DATE_TIME_FORMAT),
+    end: dayjs().hour(16).minute(30).second(0).format(DATE_TIME_FORMAT),
+  },
+  {
+    resourceId: "a",
+    title: "event 3",
+    start: dayjs().hour(12).minute(0).second(0).format(DATE_TIME_FORMAT),
+    end: dayjs().hour(21).minute(30).second(0).format(DATE_TIME_FORMAT),
+  },
+];
+
+export const resourcesDefaultData = [
+  {
+    id: "a",
+    title: "Auditorium A",
+  },
+  {
+    id: "b",
+    title: "Auditorium B",
+    eventColor: "green",
+  },
+  {
+    id: "d",
+    title: "Auditorium D",
+    children: [
+      {
+        id: "d1",
+        title: "Room D1",
+      },
+      {
+        id: "d2",
+        title: "Room D2",
+      },
+    ],
+  },
+];
 
 export const buttonText = {
   today: trans("calendar.today"),
@@ -884,6 +933,16 @@ export const buttonText = {
 export const headerToolbar = {
   left: "title",
   right: "prev today next dayGridMonth,timeGridWeek,timeGridDay,listWeek",
+};
+
+export const resourceTimeLineHeaderToolbar = {
+  left: "title",
+  right:
+    "prev today next resourceTimelineMonth,resourceTimelineWeek,resourceTimelineDay",
+};
+export const resourceTimeGridHeaderToolbar = {
+  left: "title",
+  right: "prev today next",
 };
 
 const weekHeadContent = (info: DayHeaderContentArg) => {

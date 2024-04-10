@@ -20,6 +20,7 @@ import {
   CustomModal,
   jsonValueExposingStateControl,
   CalendarDeleteIcon,
+  jsonValueStateControl,
   Tooltip,
 } from "lowcoder-sdk";
 import { default as Form } from "antd/es/form";
@@ -54,13 +55,17 @@ import {
   slotLabelFormat,
   viewClassNames,
   FormWrapper,
+  resourcesDefaultData,
+  resourcesEventsDefaultData,
+  resourceTimeLineHeaderToolbar,
+  resourceTimeGridHeaderToolbar,
 } from "./calendarConstants";
 import dayjs from "dayjs";
 
-function filterViews() {}
-
 const childrenMap = {
   events: jsonValueExposingStateControl("events", defaultData),
+  resourcesEvents: jsonValueStateControl(resourcesEventsDefaultData),
+  resources: jsonValueStateControl(resourcesDefaultData),
   onEvent: ChangeEventHandlerControl,
 
   editable: withDefault(BoolControl, true),
@@ -70,7 +75,6 @@ const childrenMap = {
     DefaultWithPremiumViewOptions,
     "timeGridWeek"
   ),
-
   firstDay: dropdownControl(FirstDayOptions, "1"),
   showEventTime: withDefault(BoolControl, true),
   showWeekends: withDefault(BoolControl, true),
@@ -78,7 +82,10 @@ const childrenMap = {
   dayMaxEvents: withDefault(NumberControl, 2),
   eventMaxStack: withDefault(NumberControl, 0),
   style: styleControl(CalendarStyle),
-  licenceKey: withDefault(StringControl, ""),
+  licenceKey: withDefault(
+    StringControl,
+    "CC-Attribution-NonCommercial-NoDerivatives"
+  ),
 };
 
 let CalendarBasicComp = (function () {
@@ -103,7 +110,7 @@ let CalendarBasicComp = (function () {
       };
     });
 
-    const {
+    let {
       defaultDate,
       defaultFreeView,
       defaultPremiumView,
@@ -307,12 +314,26 @@ let CalendarBasicComp = (function () {
             }
             props.onEvent("change");
             form.resetFields();
-          });
+          }); //small change
         },
         onCancel: () => {
           form.resetFields();
         },
       });
+    };
+
+    const toolBar = (defaultView: any) => {
+      switch (defaultView) {
+        case "resourceTimelineDay":
+          return resourceTimeLineHeaderToolbar;
+          break;
+        case "resourceTimeGridDay":
+          return resourceTimeGridHeaderToolbar;
+          break;
+        default:
+          return headerToolbar;
+          break;
+      }
     };
 
     let initialDate = defaultDate;
@@ -338,7 +359,12 @@ let CalendarBasicComp = (function () {
       >
         <FullCalendar
           slotEventOverlap={false}
-          events={events}
+          events={
+            defaultView == "resourceTimelineDay" ||
+            defaultView == "resourceTimeGridDay"
+              ? props.resourcesEvents.value
+              : events
+          }
           expandRows={true}
           height={"100%"}
           locale={getCalendarLocale()}
@@ -354,7 +380,7 @@ let CalendarBasicComp = (function () {
             resourceTimeGridPlugin,
             adaptivePlugin,
           ]}
-          headerToolbar={headerToolbar}
+          headerToolbar={toolBar(defaultView)}
           moreLinkClick={(info) => {
             let left = 0;
             const ele = info.jsEvent.target as HTMLElement;
@@ -380,6 +406,12 @@ let CalendarBasicComp = (function () {
           buttonText={buttonText}
           schedulerLicenseKey={licenceKey}
           views={views}
+          resources={
+            defaultView == "resourceTimelineDay" ||
+            defaultView == "resourceTimeGridDay"
+              ? props.resources.value
+              : []
+          }
           eventClassNames={() => (!showEventTime ? "no-time" : "")}
           slotLabelFormat={slotLabelFormat}
           viewClassNames={viewClassNames}
@@ -429,7 +461,7 @@ let CalendarBasicComp = (function () {
               }
             });
             if (needChange) {
-              props.events.onChange(changeEvents);
+              // props.events.onChange(changeEvents);
               props.onEvent("change");
             }
           }}
@@ -439,10 +471,14 @@ let CalendarBasicComp = (function () {
   })
     .setPropertyViewFn((children) => {
       let licence = children.licenceKey.getView();
+
       return (
         <>
           <Section name={sectionNames.basic}>
             {children.events.propertyView({})}
+          </Section>
+          <Section name="Resources">
+            {children.resources.propertyView({})}
           </Section>
           <Section name={sectionNames.interaction}>
             {children.licenceKey.propertyView({

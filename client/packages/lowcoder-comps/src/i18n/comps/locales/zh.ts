@@ -120,6 +120,8 @@ export const zh = {
         week: "周",
         day: "日",
         list: "列表",
+        timeline: "时间轴",
+        resourceTimeGridDay: "资源时间网格日",
         monday: "星期一",
         tuesday: "星期二",
         wednesday: "星期三",
