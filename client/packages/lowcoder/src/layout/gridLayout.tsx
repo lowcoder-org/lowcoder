@@ -400,8 +400,15 @@ class GridLayout extends React.Component<GridLayoutProps, GridLayoutState> {
     // const ops = layoutOpUtils.push(this.state.ops, stickyItemOp(i, { h }));
     // this.setState({ ops });
     if (this.state.changedHs?.[i] !== h) {
-      const changedHeights = { ...this.state.changedHs, [i]: h };
-      this.setState({ changedHs: changedHeights });
+      this.setState((prevState) => {
+        return {
+          ...prevState,
+          changedHs: {
+            ...prevState.changedHs,
+            [i]: h,
+          }
+        }
+      })
     }
   };
 

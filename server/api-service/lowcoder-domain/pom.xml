@@ -5,7 +5,7 @@
     <parent>
         <artifactId>lowcoder-root</artifactId>
         <groupId>org.lowcoder</groupId>
-	<version>${revision}</version>
+		<version>${revision}</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -49,6 +49,10 @@
         <dependency>
             <groupId>org.lowcoder</groupId>
             <artifactId>lowcoder-infra</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-mail</artifactId>
         </dependency>
 
         <dependency>
@@ -186,6 +190,12 @@
         <dependency>
             <groupId>es.moki.ratelimitj</groupId>
             <artifactId>ratelimitj-redis</artifactId>
+            <exclusions>
+				<exclusion>
+					<groupId>io.lettuce</groupId>
+					<artifactId>lettuce-core</artifactId>
+				</exclusion>
+			</exclusions>
         </dependency>
 
         <dependency>
@@ -224,13 +234,13 @@
             <scope>test</scope>
         </dependency>
 
-        <dependency>
-            <groupId>javax.xml.bind</groupId>
-            <artifactId>jaxb-api</artifactId>
+		<dependency>
+		    <groupId>jakarta.xml.bind</groupId>
+		    <artifactId>jakarta.xml.bind-api</artifactId>
         </dependency>
-        <dependency>
-            <groupId>javax.activation</groupId>
-            <artifactId>activation</artifactId>
+		<dependency>
+		    <groupId>jakarta.activation</groupId>
+		    <artifactId>jakarta.activation-api</artifactId>
         </dependency>
         <!-- no more than 2.3.3-->
         <dependency>
@@ -268,9 +278,19 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <java.version>17</java.version>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     </properties>
+
+    <dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.lowcoder</groupId>
+				<artifactId>lowcoder-dependencies</artifactId>
+				<version>${revision}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>			
+		</dependencies>
+	</dependencyManagement>
 
 </project>

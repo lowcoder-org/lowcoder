@@ -21,6 +21,8 @@ import { CanvasContainerID } from "constants/domLocators";
 import { CNRootContainer } from "constants/styleSelectors";
 import { ScrollBar } from "lowcoder-design";
 
+// min-height: 100vh;
+
 const UICompContainer = styled.div<{ $maxWidth?: number; readOnly?: boolean; $bgColor: string }>`
   height: 100%;
   margin: 0 auto;
@@ -103,7 +105,6 @@ export function CanvasView(props: ContainerBaseProps) {
     cols: parseInt(defaultGrid),
   };
   //////////////////////
-
   if (readOnly) {
     return (
       <UICompContainer
@@ -112,21 +113,17 @@ export function CanvasView(props: ContainerBaseProps) {
         className={CNRootContainer}
         $bgColor={bgColor}
       >
-        <div>
-          {/* <ScrollBar style={{ height: "100%", margin: "0px", padding: "0px" }}> */}
-            <Profiler id="Panel" onRender={profilerCallback}>
-              <InnerGrid
-                containerPadding={rootContainerPadding}
-                overflow={rootContainerOverflow}
-                {...props}
-                positionParams={positionParams} // Added By Aqib Mirza
-                {...gridLayoutCanvasProps}
-                bgColor={bgColor}
-                radius="0px"
-              />
-            </Profiler>
-          {/*</ScrollBar> */}
-        </div>
+        <Profiler id="Panel" onRender={profilerCallback}>
+          <InnerGrid
+            containerPadding={rootContainerPadding}
+            overflow={rootContainerOverflow}
+            {...props}
+            positionParams={positionParams} // Added By Aqib Mirza
+            {...gridLayoutCanvasProps}
+            bgColor={bgColor}
+            radius="0px"
+          />
+        </Profiler>
       </UICompContainer>
     );
   }

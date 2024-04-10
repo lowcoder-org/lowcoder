@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
+import lombok.extern.jackson.Jacksonized;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.lowcoder.sdk.config.SerializeConfig.JsonViews;
@@ -29,6 +30,7 @@ import lombok.Getter;
 
 @Getter
 @Builder
+@Jacksonized
 public class MongoDatasourceConfig implements DatasourceConnectionConfig {
 
     private final boolean usingUri;

@@ -4,6 +4,8 @@ import java.util.function.Function;
 
 import javax.annotation.Nullable;
 
+import lombok.experimental.SuperBuilder;
+import lombok.extern.jackson.Jacksonized;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.ObjectUtils;
 
@@ -16,6 +18,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @JsonTypeInfo(use = Id.NAME, property = "authType", visible = true)
+@SuperBuilder
 public abstract class AbstractAuthConfig {
 
     protected String id;

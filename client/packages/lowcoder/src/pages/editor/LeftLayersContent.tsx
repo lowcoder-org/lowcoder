@@ -13,27 +13,32 @@ import React, { useCallback, useContext, useMemo, useState, useEffect, useRef } 
 import _, { get } from "lodash";
 import styled from "styled-components";
 import { leftCompListClassName } from "pages/tutorials/tutorialsConstant";
-import UIComp from "comps/comps/uiComp";
+import type UIComp from "comps/comps/uiComp";
 import { getTreeNodeByKey } from "util/objectUtils";
 import { TopHeaderHeight } from "constants/style";
 import { trans } from "i18n";
 import { CompTree } from "comps/comps/containerBase";
 import { CompStateIcon } from "./editorConstants";
-import { UICompType } from "comps/uiCompRegistry";
+import type { UICompType } from "comps/uiCompRegistry";
 import { DirectoryTreeStyle, Node } from "./styledComponents";
 import { isAggregationApp } from "util/appUtils";
 import cloneDeep from 'lodash/cloneDeep';
 import { useDispatch } from "react-redux";
 import { useApplicationId } from "util/hooks";
-import { Button, Divider, Dropdown, Flex, Input, Menu, MenuProps, Space } from "antd";
-import { Switch } from "antd";
+import { default as Button } from "antd/es/button";
+import { default as Divider } from "antd/es/divider";
+import { default as Dropdown } from "antd/es/dropdown";
+import { default as Flex } from "antd/es/flex";
+import { default as Input } from "antd/es/input";
+import { default as Menu } from "antd/es/menu";
+import { default as Space } from "antd/es/space";
+import { default as Switch } from "antd/es/switch";
 import {
   saveCollisionStatus,
 } from "util/localStorageUtil";
-import { DownOutlined } from "@ant-design/icons";
-import { ItemType } from "antd/es/menu/hooks/useItems";
-import ColorPicker, { configChangeParams } from "components/ColorPicker";
-
+import { default as DownOutlined } from "@ant-design/icons/DownOutlined";
+import type { ItemType } from "antd/es/menu/hooks/useItems";
+import ColorPicker from "components/ColorPicker";
 
 export type DisabledCollisionStatus = "true" | "false"; // "true" means collision is not enabled - Layering works, "false" means collision is enabled - Layering does not work
 export type ToggleCollisionStatus = (collisionStatus?: DisabledCollisionStatus) => void;
@@ -209,17 +214,31 @@ export const LeftLayersContent = (props: LeftLayersContentProps) => {
 
         const dsl = editorState.rootComp.toJsonValue();
         let layout: any = {};
-        parentNode.children.forEach((data, index) => {
-          layout[data.key] = {
-            ...dsl.ui.layout[data.key],
-            pos: index,
-          };
-        })
-
-        editorState.rootComp.children.ui.dispatchChangeValueAction({
-          ...dsl.ui,
-          layout,
-        })
+        if(dsl.ui.compType === 'module') {
+          parentNode.children.forEach((data, index) => {
+            layout[data.key] = {
+              ...dsl.ui.comp.container.layout[data.key],
+              pos: index,
+            };
+          })
+          const moduleLayoutComp = editorState.rootComp.children.ui.getModuleLayoutComp();
+          moduleLayoutComp?.children.container.dispatchChangeValueAction({
+            ...dsl.ui.comp.container,
+            layout,
+          })
+        } else {
+          parentNode.children.forEach((data, index) => {
+            layout[data.key] = {
+              ...dsl.ui.layout[data.key],
+              pos: index,
+            };
+          })
+  
+          editorState.rootComp.children.ui.dispatchChangeValueAction({
+            ...dsl.ui,
+            layout,
+          })
+        }
         return newTreeData;
       });
     }

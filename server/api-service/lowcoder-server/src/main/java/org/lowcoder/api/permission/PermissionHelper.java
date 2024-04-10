@@ -5,7 +5,7 @@ import static org.lowcoder.api.util.ViewBuilder.multiBuild;
 import java.util.List;
 import java.util.Locale;
 
-import javax.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotEmpty;
 
 import org.lowcoder.api.permission.view.PermissionItemView;
 import org.lowcoder.domain.group.model.Group;

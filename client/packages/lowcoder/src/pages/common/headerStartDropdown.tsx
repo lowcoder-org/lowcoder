@@ -22,7 +22,7 @@ import { AppTypeEnum } from "constants/applicationConstants";
 import { recycleApplication } from "redux/reduxActions/applicationActions";
 import { CopyModal } from "./copyModal";
 import { ExternalEditorContext } from "util/context/ExternalEditorContext";
-import { messageInstance } from "lowcoder-design";
+import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 import { getUser } from "redux/selectors/usersSelectors";
 import { canEditApp } from "util/permissionUtils";
 

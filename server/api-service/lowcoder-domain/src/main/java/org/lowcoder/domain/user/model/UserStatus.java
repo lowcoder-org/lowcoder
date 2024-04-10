@@ -6,6 +6,7 @@ import static org.lowcoder.domain.user.constant.UserStatusType.HAS_SHOW_NEW_USER
 
 import java.util.Map;
 
+import lombok.extern.jackson.Jacksonized;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -15,6 +16,7 @@ import com.google.common.collect.ImmutableMap;
 import lombok.Builder;
 
 @Builder
+@Jacksonized
 @Document
 public class UserStatus {
 
@@ -26,14 +28,6 @@ public class UserStatus {
     private final Boolean banned;
 
     private final Map<String, Object> statusMap;
-
-    @JsonCreator
-    public UserStatus(String id, Boolean hasShowNewUserGuidance, Boolean banned, Map<String, Object> statusMap) {
-        this.id = id;
-        this.hasShowNewUserGuidance = hasShowNewUserGuidance;
-        this.banned = banned;
-        this.statusMap = statusMap;
-    }
 
     public String getId() {
         return id;

@@ -19,6 +19,7 @@ const SliderBasicComp = (function () {
   return new UICompBuilder(childrenMap, (props) => {
     return props.label({
       style: props.style,
+      labelStyle:props.labelStyle,
       children: (
         <SliderWrapper
           onMouseDown={(e: any) => {
@@ -32,6 +33,7 @@ const SliderBasicComp = (function () {
             value={props.value.value}
             $style={props.style}
             style={{margin: 0}}
+            // FALK TODO : vertical={true}
             onChange={(e) => {
               props.value.onChange(e);
               props.onEvent("change");

@@ -1,5 +1,9 @@
 import styled from "styled-components";
-import { default as AntdTextArea, TextAreaRef, TextAreaProps as AntdTextAreaProps } from "antd/es/input/TextArea";
+import {
+  default as AntdTextArea,
+  type TextAreaRef,
+  type TextAreaProps as AntdTextAreaProps
+} from "antd/es/input/TextArea";
 import { ChangeEvent, useEffect, useRef, useState } from "react";
 import _ from "lodash";
 import React from "react";

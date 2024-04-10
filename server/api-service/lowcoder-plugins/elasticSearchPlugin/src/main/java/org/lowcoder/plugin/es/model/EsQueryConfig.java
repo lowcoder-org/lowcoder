@@ -1,10 +1,12 @@
 package org.lowcoder.plugin.es.model;
 
+import lombok.extern.jackson.Jacksonized;
 import org.springframework.http.HttpMethod;
 
 import lombok.Builder;
 
 @Builder
+@Jacksonized
 public class EsQueryConfig {
 
     private String esMethod; // used by client side

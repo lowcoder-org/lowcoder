@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
 
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.lowcoder.domain.application.model.ApplicationStatus;
@@ -44,23 +45,18 @@ import reactor.core.publisher.Mono;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class DatasourceServiceImpl implements DatasourceService {
 
     private static final Duration DEFAULT_TEST_CONNECTION_TIMEOUT = Duration.ofSeconds(10);
     private static final String INVALID_PARAMETER_CODE = "INVALID_PARAMETER";
 
-    @Autowired
-    private DatasourceMetaInfoService datasourceMetaInfoService;
-    @Autowired
-    private ApplicationRepository applicationRepository;
-    @Autowired
-    private ResourcePermissionService resourcePermissionService;
-    @Autowired
-    private DatasourceRepository repository;
-    @Autowired
-    private DatasourcePluginClient datasourcePluginClient;
-    @Autowired
-    private JsDatasourceHelper jsDatasourceHelper;
+    private final DatasourceMetaInfoService datasourceMetaInfoService;
+    private final ApplicationRepository applicationRepository;
+    private final ResourcePermissionService resourcePermissionService;
+    private final DatasourceRepository repository;
+    private final DatasourcePluginClient datasourcePluginClient;
+    private final JsDatasourceHelper jsDatasourceHelper;
 
     @Override
     public Mono<Datasource> create(Datasource datasource, String creatorId) {

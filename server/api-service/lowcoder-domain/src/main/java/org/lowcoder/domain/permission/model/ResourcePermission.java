@@ -5,6 +5,8 @@ import static org.lowcoder.domain.permission.config.PermissionConst.ID_SPLITTER;
 import java.util.List;
 import java.util.Set;
 
+import lombok.experimental.SuperBuilder;
+import lombok.extern.jackson.Jacksonized;
 import org.apache.commons.lang3.StringUtils;
 import org.lowcoder.infra.birelation.BiRelation;
 import org.lowcoder.infra.birelation.BiRelationBizType;
@@ -16,7 +18,8 @@ import lombok.Builder;
 import lombok.Getter;
 
 @Getter
-@Builder
+@SuperBuilder
+@Jacksonized
 public class ResourcePermission extends HasIdAndAuditing {
 
     private ResourceType resourceType;

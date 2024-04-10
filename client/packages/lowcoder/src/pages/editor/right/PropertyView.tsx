@@ -1,5 +1,5 @@
 import { EmptyContent } from "components/EmptyContent";
-import UIComp from "comps/comps/uiComp";
+import type UIComp from "comps/comps/uiComp";
 import { EditorContext } from "comps/editorState";
 import { GridCompOperator } from "comps/utils/gridCompOperator";
 import { SelectedComps } from "lowcoder-design";

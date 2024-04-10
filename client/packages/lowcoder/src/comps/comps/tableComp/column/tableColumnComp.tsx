@@ -21,7 +21,7 @@ import {
   withFunction,
   wrapChildAction,
 } from "lowcoder-core";
-import { AlignClose, AlignLeft, AlignRight, IconRadius, BorderWidthIcon, TextSizeIcon, FontFamilyIcon, TextWeigthIcon, ImageCompIcon, controlItem, Dropdown, OptionType } from "lowcoder-design";
+import { AlignClose, AlignLeft, AlignRight, IconRadius, BorderWidthIcon, TextSizeIcon, FontFamilyIcon, TextWeightIcon, ImageCompIcon, controlItem, Dropdown, OptionType } from "lowcoder-design";
 import { ColumnTypeComp, ColumnTypeCompMap } from "./columnTypeComp";
 import { ColorControl } from "comps/controls/colorControl";
 import { JSONValue } from "util/jsonTypes";
@@ -120,7 +120,7 @@ const StyledBorderRadiusIcon = styled(IconRadius)` width: 24px; margin: 0 8px 0 
 const StyledBorderIcon = styled(BorderWidthIcon)` width: 24px; margin: 0 8px 0 -3px; padding: 3px;`;
 const StyledTextSizeIcon = styled(TextSizeIcon)` width: 24px; margin: 0 8px 0 -3px; padding: 3px;`;
 const StyledFontFamilyIcon = styled(FontFamilyIcon)` width: 24px; margin: 0 8px 0 -3px; padding: 3px;`;
-const StyledTextWeightIcon = styled(TextWeigthIcon)` width: 24px; margin: 0 8px 0 -3px; padding: 3px;`;
+const StyledTextWeightIcon = styled(TextWeightIcon)` width: 24px; margin: 0 8px 0 -3px; padding: 3px;`;
 const StyledBackgroundImageIcon = styled(ImageCompIcon)` width: 24px; margin: 0 0px 0 -12px;`;
 
 /**
@@ -303,7 +303,7 @@ export class ColumnComp extends ColumnInitComp {
         })}
         {this.children.textWeight.propertyView({
           label: trans('style.textWeight'),
-          preInputNode: <StyledTextWeightIcon as={TextWeigthIcon} title="" />,
+          preInputNode: <StyledTextWeightIcon as={TextWeightIcon} title="" />,
           placeholder: 'normal',
         })}
         {this.children.fontFamily.propertyView({

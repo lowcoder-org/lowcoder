@@ -33,8 +33,7 @@ import { trans } from "../../i18n";
 import { isFetchingFolderElements } from "../../redux/selectors/folderSelector";
 import { checkIsMobile } from "util/commonUtils";
 import MarketplaceHeaderImage from "assets/images/marketplaceHeaderImage.jpg";
-import { Divider } from "antd";
-import { Margin } from "../setting/theme/styledComponents"; 
+import { default as Divider } from "antd/es/divider";
 import { ApplicationCategoriesEnum } from "constants/applicationConstants";
 
 const Wrapper = styled.div`
@@ -307,7 +306,6 @@ export function HomeLayout(props: HomeLayoutProps) {
     checkIsMobile(window.innerWidth) ? "card" : getHomeLayout()
   );
 
-
   useEffect(() => saveHomeLayout(layout), [layout]);
 
   useEffect(() => {
@@ -329,7 +327,7 @@ export function HomeLayout(props: HomeLayoutProps) {
     // Merge local and global apps into the elements array
     displayElements = [...markedLocalApps, ...markedGlobalApps];
   }
-  else if (mode === "marketplace") {
+  else if (mode === "marketplace" && !isSelfHost) {
     const markedLocalApps = localMarketplaceApps.map(app => ({ ...app, isLocalMarketplace: true }));
     displayElements = [...markedLocalApps];
   }
@@ -420,14 +418,6 @@ export function HomeLayout(props: HomeLayoutProps) {
       onClick: () => currentPath !== b.path && history.push(b.path)
     }))
   ]
-
-  const testOptions = [
-    getFilterMenuItem(HomeResTypeEnum.All),
-    getFilterMenuItem(HomeResTypeEnum.Application),
-    getFilterMenuItem(HomeResTypeEnum.Module),
-    ...(mode !== "marketplace" ? [getFilterMenuItem(HomeResTypeEnum.Navigation)] : []),
-    ...(mode !== "trash" && mode !== "marketplace" ? [getFilterMenuItem(HomeResTypeEnum.Folder)] : []),
-  ];
 
   return (
     <Wrapper>

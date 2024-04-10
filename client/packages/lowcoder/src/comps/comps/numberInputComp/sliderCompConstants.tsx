@@ -5,7 +5,7 @@ import { ChangeEventHandlerControl } from "../../controls/eventHandlerControl";
 import { Section, sectionNames } from "lowcoder-design";
 import { RecordConstructorToComp } from "lowcoder-core";
 import { styleControl } from "comps/controls/styleControl";
-import { SliderStyle, SliderStyleType } from "comps/controls/styleControlConstants";
+import { LabelStyle, SliderStyle, SliderStyleType } from "comps/controls/styleControlConstants";
 import styled, { css } from "styled-components";
 import { default as Slider } from "antd/es/slider";
 import { darkenColor, fadeColor } from "lowcoder-design";
@@ -30,7 +30,7 @@ const getStyle = (style: SliderStyleType) => {
         }
         .ant-slider-handle {
           background-color: ${style.thumb};
-          border-color: ${style.thumbBoder};
+          border-color: ${style.thumbBorder};
         }
       }
       &:hover {
@@ -39,7 +39,7 @@ const getStyle = (style: SliderStyleType) => {
         }
       }
       .ant-slider-handle:focus {
-        box-shadow: 0 0 0 5px ${fadeColor(darkenColor(style.thumbBoder, 0.08), 0.12)};
+        box-shadow: 0 0 0 5px ${fadeColor(darkenColor(style.thumbBorder, 0.08), 0.12)};
       }
     }
   `;
@@ -49,6 +49,7 @@ export const SliderStyled = styled(Slider)<{ $style: SliderStyleType }>`
   ${(props) => props.$style && getStyle(props.$style)}
 `;
 
+// Falk TODO: height: 300px;
 export const SliderWrapper = styled.div`
   width: 100%;
   display: inline-flex;
@@ -67,6 +68,7 @@ export const SliderChildren = {
   disabled: BoolCodeControl,
   onEvent: ChangeEventHandlerControl,
   style: styleControl(SliderStyle),
+  labelStyle:styleControl(LabelStyle.filter((style)=> ['accent','validate'].includes(style.name) === false)),
   prefixIcon: IconControl,
   suffixIcon: IconControl,
 };
@@ -95,6 +97,9 @@ export const SliderPropertyView = (
         </Section>
         <Section name={sectionNames.style}>
           {children.style.getPropertyView()}
+        </Section>
+        <Section name={sectionNames.labelStyle}>
+          {children.labelStyle.getPropertyView()}
         </Section>
       </>
     )}

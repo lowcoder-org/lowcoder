@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import lombok.RequiredArgsConstructor;
 import org.lowcoder.api.bizthreshold.AbstractBizThresholdChecker;
 import org.lowcoder.api.home.SessionUserService;
 import org.lowcoder.api.usermanagement.view.CreateGroupRequest;
@@ -38,19 +39,15 @@ import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
 
 @Service
+@RequiredArgsConstructor
 public class GroupApiService {
 
     private static final String NOT_AUTHORIZED = "NOT_AUTHORIZED";
-    @Autowired
-    private SessionUserService sessionUserService;
-    @Autowired
-    private GroupMemberService groupMemberService;
-    @Autowired
-    private UserService userService;
-    @Autowired
-    private GroupService groupService;
-    @Autowired
-    private AbstractBizThresholdChecker bizThresholdChecker;
+    private final SessionUserService sessionUserService;
+    private final GroupMemberService groupMemberService;
+    private final UserService userService;
+    private final GroupService groupService;
+    private final AbstractBizThresholdChecker bizThresholdChecker;
 
     public Mono<GroupMemberAggregateView> getGroupMembers(String groupId, int page, int count) {
         Mono<Tuple2<GroupMember, OrgMember>> groupAndOrgMemberInfo = getGroupAndOrgMemberInfo(groupId).cache();
@@ -58,6 +55,9 @@ public class GroupApiService {
         Mono<MemberRole> visitorRoleMono = groupAndOrgMemberInfo.flatMap(tuple -> {
             GroupMember groupMember = tuple.getT1();
             OrgMember orgMember = tuple.getT2();
+            if (groupMember.isSuperAdmin() || orgMember.isSuperAdmin()) {
+                return Mono.just(MemberRole.SUPER_ADMIN);
+            }
             if (groupMember.isAdmin() || orgMember.isAdmin()) {
                 return Mono.just(MemberRole.ADMIN);
             }
@@ -109,7 +109,7 @@ public class GroupApiService {
     private boolean hasManagePermission(Tuple2<GroupMember, OrgMember> tuple) {
         GroupMember groupMember = tuple.getT1();
         OrgMember orgMember = tuple.getT2();
-        return groupMember.isAdmin() || orgMember.isAdmin();
+        return groupMember.isAdmin() || orgMember.isAdmin() || groupMember.isSuperAdmin() || orgMember.isSuperAdmin();
     }
 
     private Mono<Tuple2<GroupMember, OrgMember>> getGroupAndOrgMemberInfo(String groupId) {
@@ -175,10 +175,16 @@ public class GroupApiService {
                     return sessionUserService.getVisitorOrgMemberCache()
                             .flatMap(orgMember -> {
                                 String orgId = orgMember.getOrgId();
-                                if (orgMember.isAdmin()) {
+                                if (orgMember.isAdmin() || orgMember.isSuperAdmin()) {
+                                    MemberRole memberRole;
+                                    if(orgMember.isAdmin()) {
+                                        memberRole = MemberRole.ADMIN;
+                                    } else {
+                                        memberRole = MemberRole.SUPER_ADMIN;
+                                    }
                                     return groupService.getByOrgId(orgId)
                                             .sort()
-                                            .flatMapSequential(group -> GroupView.from(group, MemberRole.ADMIN.getValue()))
+                                            .flatMapSequential(group -> GroupView.from(group, memberRole.getValue()))
                                             .collectList();
                                 }
                                 return groupMemberService.getUserGroupMembersInOrg(orgId, orgMember.getUserId())
@@ -211,7 +217,7 @@ public class GroupApiService {
 
     public Mono<Group> create(CreateGroupRequest createGroupRequest) {
         return sessionUserService.getVisitorOrgMemberCache()
-                .filter(OrgMember::isAdmin)
+                .filter(orgMember -> orgMember.isAdmin() || orgMember.isSuperAdmin())
                 .switchIfEmpty(deferredError(BizError.NOT_AUTHORIZED, NOT_AUTHORIZED))
                 .delayUntil(orgMember -> bizThresholdChecker.checkMaxGroupCount(orgMember))
                 .flatMap(orgMember -> {

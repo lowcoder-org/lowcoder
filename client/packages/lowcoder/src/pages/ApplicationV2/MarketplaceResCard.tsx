@@ -1,4 +1,4 @@
-import { TacoButton } from "lowcoder-design";
+import { TacoButton } from "lowcoder-design/src/components/button"
 import styled from "styled-components";
 import { timestampToHumanReadable } from "util/dateTimeUtils";
 import { HomeRes } from "./HomeLayout";
@@ -7,12 +7,8 @@ import {
   HomeResInfo,
 } from "../../util/homeResUtils";
 import { trans } from "../../i18n";
-import { checkIsMobile } from "util/commonUtils";
-import history from "util/history";
-import { APPLICATION_VIEW_URL } from "constants/routesURL";
 import { TypographyText } from "../../components/TypographyText";
-import { messageInstance } from "lowcoder-design";
-import { Typography } from "antd";
+import { default as Typography } from "antd/es/typography";
 import { MultiIconDisplay } from "../../comps/comps/multiIconDisplay";
 
 const { Text } = Typography;
@@ -164,12 +160,8 @@ export function MarketplaceResCard(props: { res: HomeRes; }) {
         )}
         <CardInfo
           onClick={(e) => {
-            if (checkIsMobile(window.innerWidth)) {
-              history.push(APPLICATION_VIEW_URL(res.id, "view"));
-              return;
-            }
             if(res.isMarketplace) {
-              handleMarketplaceAppViewClick(res.id);
+              handleMarketplaceAppViewClick(res.id , res.isLocalMarketplace);
               return;
             }
           }}
@@ -185,7 +177,7 @@ export function MarketplaceResCard(props: { res: HomeRes; }) {
           }
         </CardInfo>
         <OperationWrapper>
-          <ExecButton onClick={() => handleMarketplaceAppViewClick(res.id)}>
+          <ExecButton onClick={() => handleMarketplaceAppViewClick(res.id, res.isLocalMarketplace)}>
             {trans("view")}
           </ExecButton>
         </OperationWrapper>

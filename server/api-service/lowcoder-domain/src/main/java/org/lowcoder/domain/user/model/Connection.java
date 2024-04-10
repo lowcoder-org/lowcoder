@@ -6,9 +6,10 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import javax.annotation.Nullable;
-import javax.validation.constraints.NotEmpty;
+import jakarta.annotation.Nullable;
+import jakarta.validation.constraints.NotEmpty;
 
+import lombok.extern.jackson.Jacksonized;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.SetUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -26,6 +27,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
+@Jacksonized
 public class Connection {
 
     private static final long serialVersionUID = -9218373922209100577L;

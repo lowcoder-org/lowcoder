@@ -6,7 +6,7 @@ import { arrayStringExposingStateControl } from "comps/controls/codeStateControl
 import { BoolControl } from "comps/controls/boolControl";
 import { LabelControl } from "comps/controls/labelControl";
 import { styleControl } from "comps/controls/styleControl";
-import { CascaderStyle } from "comps/controls/styleControlConstants";
+import { CascaderStyle, LabelStyle } from "comps/controls/styleControlConstants";
 import {
   allowClearPropertyView,
   disabledPropertyView,
@@ -16,9 +16,9 @@ import {
 } from "comps/utils/propertyUtils";
 import { i18nObjs, trans } from "i18n";
 import { RefControl } from "comps/controls/refControl";
-import { CascaderRef } from "antd/lib/cascader";
+import { CascaderRef } from "antd/es/cascader";
 
-import { MarginControl } from "../../controls/marginControl";	
+import { MarginControl } from "../../controls/marginControl";
 import { PaddingControl } from "../../controls/paddingControl";
 
 import { useContext } from "react";
@@ -35,9 +35,10 @@ export const CascaderChildren = {
   allowClear: BoolControl,
   options: JSONObjectArrayControl,
   style: styleControl(CascaderStyle),
+  labelStyle: styleControl(LabelStyle.filter((style) => ['accent', 'validate'].includes(style.name) === false)),
   showSearch: BoolControl.DEFAULT_TRUE,
   viewRef: RefControl<CascaderRef>,
-  margin: MarginControl,	
+  margin: MarginControl,
   padding: PaddingControl,
 };
 
@@ -71,9 +72,14 @@ export const CascaderPropertyView = (
     )}
 
     {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
-      <Section name={sectionNames.style}>
-        {children.style.getPropertyView()}
-      </Section>
+      <>
+        <Section name={sectionNames.style}>
+          {children.style.getPropertyView()}
+        </Section>
+        <Section name={sectionNames.labelStyle}>
+          {children.labelStyle.getPropertyView()}
+        </Section>
+      </>
     )}
   </>
 );

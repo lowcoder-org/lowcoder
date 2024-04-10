@@ -22,6 +22,7 @@ import { default as message } from "antd/es/message";
 import { getAntdLocale } from "i18n/antdLocale";
 import { useUserViewMode } from "../../util/hooks";
 import { QueryApi } from "api/queryApi";
+import { RootCompInstanceType } from "./useRootCompInstance";
 
 /**
  * FIXME: optimize the logic of saving comps
@@ -68,41 +69,6 @@ function useSaveComp(
   }, [comp, applicationId, prevComp, prevJsonStr, readOnly, dispatch]);
 }
 
-export function useRootCompInstance(appInfo: AppSummaryInfo, readOnly: boolean, isReady: boolean) {
-  const appId = appInfo.id;
-  const params = useMemo(() => {
-    return {
-      Comp: RootComp,
-      initialValue: appInfo.dsl,
-      reduceContext: {
-        applicationId: appId,
-        parentApplicationPath: [],
-        moduleDSL: appInfo.moduleDsl || {},
-        readOnly,
-      },
-      initHandler: async (comp: RootComp) => {
-        const root = await comp.preload(`app-${appId}`);
-        perfMark(MarkAppInitialized);
-        return root;
-      },
-      isReady,
-    };
-  }, [appId, appInfo.dsl, appInfo.moduleDsl, isReady, readOnly]);
-  const [comp, container] = useCompInstance(params);
-  const history = useAppHistory(container, readOnly, appId);
-
-  useUnmount(() => {
-    comp?.clearPreload();
-    QueryApi.cancelAllQuery();
-  });
-
-  return useMemo(() => {
-    return { comp, history, appId };
-  }, [appId, comp, history]);
-}
-
-export type RootCompInstanceType = ReturnType<typeof useRootCompInstance>;
-
 interface AppEditorInternalViewProps {
   readOnly: boolean;
   appInfo: AppSummaryInfo;
@@ -132,6 +98,7 @@ export function AppEditorInternalView(props: AppEditorInternalViewProps) {
       readOnly,
       appType: appInfo.appType,
       applicationId: appInfo.id,
+      hideHeader: window.location.pathname.split("/")[3] === "admin",
       ...extraExternalEditorState,
     }));
   }, [compInstance?.history, extraExternalEditorState, readOnly, appInfo.appType, appInfo.id]);
@@ -146,8 +113,10 @@ export function AppEditorInternalView(props: AppEditorInternalViewProps) {
     !compInstance || !compInstance.comp || !compInstance.comp.preloaded || props.loading;
 
   return loading ? (
+    window.location.pathname.split("/")[3] === "admin" ? <div></div> : 
     <EditorSkeletonView />
   ) : (
+    // Falk - here we could add the language choise?
     <ConfigProvider locale={getAntdLocale()}>
       <ExternalEditorContext.Provider value={externalEditorState}>
         {compInstance?.comp?.getView()}

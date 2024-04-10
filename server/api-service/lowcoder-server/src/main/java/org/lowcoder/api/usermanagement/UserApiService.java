@@ -46,7 +46,7 @@ public class UserApiService {
     private Mono<Void> checkAdminPermissionAndUserBelongsToCurrentOrg(String userId) {
         return sessionUserService.getVisitorOrgMemberCache()
                 .flatMap(orgMember -> {
-                    if (!orgMember.isAdmin()) {
+                    if (!orgMember.isAdmin() && !orgMember.isSuperAdmin()) {
                         return ofError(UNSUPPORTED_OPERATION, "BAD_REQUEST");
                     }
                     return orgMemberService.getOrgMember(orgMember.getOrgId(), userId)
@@ -63,6 +63,14 @@ public class UserApiService {
     public Mono<String> resetPassword(String userId) {
         return checkAdminPermissionAndUserBelongsToCurrentOrg(userId)
                 .then(userService.resetPassword(userId));
+    }
+
+    public Mono<Boolean> lostPassword(String userEmail) {
+        return userService.lostPassword(userEmail);
+    }
+
+    public Mono<Boolean> resetLostPassword(String userEmail, String token, String newPassword) {
+        return userService.resetLostPassword(userEmail, token, newPassword);
     }
 
     // ========================== TOKEN OPERATIONS START ==========================

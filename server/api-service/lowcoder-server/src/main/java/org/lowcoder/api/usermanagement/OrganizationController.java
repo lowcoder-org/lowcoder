@@ -2,7 +2,7 @@ package org.lowcoder.api.usermanagement;
 
 import java.util.List;
 
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 
 import org.lowcoder.api.authentication.dto.OrganizationDomainCheckResult;
 import org.lowcoder.api.framework.view.ResponseView;

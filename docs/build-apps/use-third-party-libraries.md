@@ -68,11 +68,12 @@ Navigate to the settings page and then click the plus sign **+** under the **Jav
 
 <figure><img src="../.gitbook/assets/third-party-lib-1.png" alt=""><figcaption></figcaption></figure>
 
-Create a JS query and insert code.
+Create a JS query and insert code. All js libraries are imported to the `window` scope, thus you need to prefix any calls
+with `window.`.
 
 <figure><img src="../.gitbook/assets/third-party-lib-2.png" alt=""><figcaption></figcaption></figure>
 
-You can obtain the same result by calling the `cowsay.say()` method in the value of the text component.
+You can obtain the same result by calling `window.cowsay.say()` method in the value of the text component.
 
 <figure><img src="../.gitbook/assets/third-party-lib-3.png" alt=""><figcaption></figcaption></figure>
 

@@ -1,4 +1,4 @@
-import { LoadingOutlined } from "@ant-design/icons";
+import { default as LoadingOutlined } from "@ant-design/icons/LoadingOutlined";
 import { default as Spin } from "antd/es/spin";
 import DataSourceIcon from "components/DataSourceIcon";
 import { ContextControlType, ContextJsonControl } from "comps/controls/contextCodeControl";
@@ -47,7 +47,7 @@ interface InputItem {
 
 type InputChildrenType = Record<string, InstanceType<ContextControlType>>;
 
-const InputsComp = class extends MultiBaseComp<InputChildrenType, ToDataType<InputChildrenType>> {
+class InputsComp extends MultiBaseComp<InputChildrenType, ToDataType<InputChildrenType>> {
   params: any = {};
   inputs: InputItem[] = [];
 

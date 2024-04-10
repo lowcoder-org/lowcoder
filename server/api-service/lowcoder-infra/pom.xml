@@ -127,14 +127,28 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-webflux</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.lowcoder.plugin</groupId>
+            <artifactId>lowcoder-plugin-api</artifactId>
+        </dependency>
 
     </dependencies>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <java.version>17</java.version>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     </properties>
+
+    <dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.lowcoder</groupId>
+				<artifactId>lowcoder-dependencies</artifactId>
+				<version>${revision}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>			
+		</dependencies>
+	</dependencyManagement>
 
 </project>

@@ -8,7 +8,7 @@ import { HomeResTypeEnum } from "../../types/homeRes";
 import { deleteApplication, restoreApplication } from "../../redux/reduxActions/applicationActions";
 import { HomeRes } from "./HomeLayout";
 import { trans, transToNode } from "../../i18n";
-import { messageInstance } from "lowcoder-design";
+import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 
 const OperationWrapper = styled.div`
   display: flex;

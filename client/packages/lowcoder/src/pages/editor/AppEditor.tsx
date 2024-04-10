@@ -1,5 +1,5 @@
 import { AppPathParams, AppTypeEnum } from "constants/applicationConstants";
-import { useEffect, useRef, useState } from "react";
+import { Suspense, lazy, useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router";
 import { AppSummaryInfo, fetchApplicationInfo } from "redux/reduxActions/applicationActions";
@@ -7,12 +7,10 @@ import { fetchDataSourceByApp, fetchDataSourceTypes } from "redux/reduxActions/d
 import { getUser } from "redux/selectors/usersSelectors";
 import { useUserViewMode } from "util/hooks";
 import "comps/uiCompRegistry";
-import { AppSnapshot } from "pages/editor/appSnapshot";
 import { showAppSnapshotSelector } from "redux/selectors/appSnapshotSelector";
 import { setShowAppSnapshot } from "redux/reduxActions/appSnapshotActions";
 import { fetchGroupsAction } from "redux/reduxActions/orgActions";
 import { getFetchOrgGroupsFinished } from "redux/selectors/orgSelectors";
-import { AppEditorInternalView, useRootCompInstance } from "pages/editor/appEditorInternal";
 import { getIsCommonSettingFetching } from "redux/selectors/commonSettingSelectors";
 import {
   MarkAppDSLLoaded,
@@ -27,13 +25,28 @@ import { clearGlobalSettings, setGlobalSettings } from "comps/utils/globalSettin
 import { fetchFolderElements } from "redux/reduxActions/folderActions";
 import { registryDataSourcePlugin } from "constants/queryConstants";
 import { DatasourceApi } from "api/datasourceApi";
+import { useRootCompInstance } from "./useRootCompInstance";
+import ErrorBoundary from "antd/es/alert/ErrorBoundary";
+import EditorSkeletonView from "./editorSkeletonView";
+
+const AppSnapshot = lazy(() => {
+  return import("pages/editor/appSnapshot")
+    .then(moduleExports => ({default: moduleExports.AppSnapshot}));
+});
+
+const AppEditorInternalView = lazy(
+  () => import("pages/editor/appEditorInternal")
+    .then(moduleExports => ({default: moduleExports.AppEditorInternalView}))
+);
 
 export default function AppEditor() {
   const showAppSnapshot = useSelector(showAppSnapshotSelector);
-  const isUserViewMode = useUserViewMode();
   const params = useParams<AppPathParams>();
-  const applicationId = params.applicationId;
-  const viewMode = params.viewMode === "view" ? "published" : params.viewMode === "view_marketplace" ? "view_marketplace" : "editing";
+  const isUserViewModeCheck = useUserViewMode();
+  const isUserViewMode = params.viewMode ? isUserViewModeCheck : true;
+  const applicationId = params.applicationId || window.location.pathname.split("/")[2];
+  const paramViewMode = params.viewMode || window.location.pathname.split("/")[3];
+  const viewMode = (paramViewMode === "view" || paramViewMode === "admin") ? "published" : paramViewMode === "view_marketplace" ? "view_marketplace" : "editing";
   const currentUser = useSelector(getUser);
   const dispatch = useDispatch();
   const fetchOrgGroupsFinished = useSelector(getFetchOrgGroupsFinished);
@@ -42,7 +55,7 @@ export default function AppEditor() {
   const firstRendered = useRef(false);
   const [isDataSourcePluginRegistered, setIsDataSourcePluginRegistered] = useState(false);
 
-  setGlobalSettings({ applicationId, isViewMode: params.viewMode === "view" });
+  setGlobalSettings({ applicationId, isViewMode: paramViewMode === "view" });
 
   if (!firstRendered.current) {
     perfClear();
@@ -69,19 +82,19 @@ export default function AppEditor() {
 
   // fetch dataSource and plugin
   useEffect(() => {
-    if (!orgId || params.viewMode !== "edit") {
+    if (!orgId || paramViewMode !== "edit") {
       return;
     }
     dispatch(fetchDataSourceTypes({ organizationId: orgId }));
     dispatch(fetchFolderElements({}));
-  }, [dispatch, orgId, params.viewMode]);
+  }, [dispatch, orgId, paramViewMode]);
 
   useEffect(() => {
-    if (applicationId && params.viewMode === "edit") {
+    if (applicationId && paramViewMode === "edit") {
       dispatch(fetchDataSourceByApp({ applicationId: applicationId }));
       dispatch(fetchQueryLibraryDropdown());
     }
-  }, [dispatch, applicationId, params.viewMode]);
+  }, [dispatch, applicationId, paramViewMode]);
 
   useEffect(() => {
     DatasourceApi.fetchJsDatasourceByApp(applicationId).then((res) => {
@@ -121,24 +134,28 @@ export default function AppEditor() {
   }, [viewMode, applicationId, dispatch]);
 
   return (
-    <>
+    <ErrorBoundary>
       {showAppSnapshot ? (
-        <AppSnapshot
-          currentAppInfo={{
-            ...appInfo,
-            dsl: compInstance.comp?.toJsonValue() || {},
-          }}
-        />
+        <Suspense fallback={<EditorSkeletonView />}>
+          <AppSnapshot
+            currentAppInfo={{
+              ...appInfo,
+              dsl: compInstance.comp?.toJsonValue() || {},
+            }}
+          />
+        </Suspense>
       ) : (
-        <AppEditorInternalView
-          appInfo={appInfo}
-          readOnly={readOnly}
-          loading={
-            !fetchOrgGroupsFinished || !isDataSourcePluginRegistered || isCommonSettingsFetching
-          }
-          compInstance={compInstance}
-        />
+        <Suspense fallback={<EditorSkeletonView />}>
+          <AppEditorInternalView
+            appInfo={appInfo}
+            readOnly={readOnly}
+            loading={
+              !fetchOrgGroupsFinished || !isDataSourcePluginRegistered || isCommonSettingsFetching
+            }
+            compInstance={compInstance}
+          />
+        </Suspense>
       )}
-    </>
+    </ErrorBoundary>
   );
 }

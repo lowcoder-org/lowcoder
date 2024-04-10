@@ -9,6 +9,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
+import lombok.experimental.SuperBuilder;
+import lombok.extern.jackson.Jacksonized;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.lowcoder.domain.mongodb.AfterMongodbRead;
@@ -30,6 +32,8 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @Document
+@Jacksonized
+@SuperBuilder
 public class Organization extends HasIdAndAuditing implements BeforeMongodbWrite, AfterMongodbRead {
 
     private static final OrganizationCommonSettings EMPTY_SETTINGS = new OrganizationCommonSettings();
@@ -86,7 +90,7 @@ public class Organization extends HasIdAndAuditing implements BeforeMongodbWrite
     public static class OrganizationCommonSettings extends HashMap<String, Object> {
         public static final String USER_EXTRA_TRANSFORMER = "userExtraTransformer";
         public static final String USER_EXTRA_TRANSFORMER_UPDATE_TIME = "userExtraTransformer_updateTime";
-
+        public static final String PASSWORD_RESET_EMAIL_TEMPLATE = "passwordResetEmailTemplate";
         // custom branding configs
         public static final String CUSTOM_BRANDING_KEY = "branding";
     }

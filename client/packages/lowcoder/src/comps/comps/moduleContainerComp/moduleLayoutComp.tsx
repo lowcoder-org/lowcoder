@@ -67,9 +67,7 @@ function ModuleLayoutView(props: IProps) {
 
   if (readOnly) {
     return (
-      <ScrollBar style={{ height: "100%", margin: "0px", padding: "0px" }}>
-        <ModulePreviewWrapper className={CNRootContainer}>{props.containerView}</ModulePreviewWrapper>
-      </ScrollBar>
+      <ModulePreviewWrapper className={CNRootContainer}>{props.containerView}</ModulePreviewWrapper>
     );
   }
 
@@ -96,8 +94,7 @@ function ModuleLayoutView(props: IProps) {
   };
 
   return (
-    <ScrollBar style={{ height: "100%", margin: "0px", padding: "0px" }}>
-      <CanvasView
+    <CanvasView
       layout={layout}
       items={items}
       positionParams={{ ...positionParams, cols: parseInt(defaultGrid) }}
@@ -106,7 +103,6 @@ function ModuleLayoutView(props: IProps) {
       onLayoutChange={onLayoutChange}
       extraHeight="0px"
     />
-    </ScrollBar>
   );
 }
 
@@ -117,8 +113,7 @@ export class ModuleLayoutComp extends ModuleLayoutCompBase implements IContainer
     const isRowCountLocked = this.children.autoScaleCompHeight.getView();
     const rowCount = this.children.containerRowCount.getView();
     return (
-      <div>
-        <ModuleLayoutView
+      <ModuleLayoutView
         positionParams={this.children.positionParams.getView()}
         containerSize={this.children.containerSize.getView()}
         containerView={this.children.container.containerView({
@@ -138,7 +133,6 @@ export class ModuleLayoutComp extends ModuleLayoutCompBase implements IContainer
           });
         }}
       />
-      </div>
     );
   }
   getPropertyView() {

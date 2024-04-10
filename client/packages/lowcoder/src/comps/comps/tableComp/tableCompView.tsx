@@ -38,7 +38,7 @@ import { TableImplComp } from "./tableComp";
 import { useResizeDetector } from "react-resize-detector";
 import { SlotConfigContext } from "comps/controls/slotControl";
 import { EmptyContent } from "pages/common/styledComponent";
-import { messageInstance } from "lowcoder-design";
+import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 import { ReactRef, ResizeHandleAxis } from "layout/gridLayoutPropTypes";
 import { CellColorViewType } from "./column/tableColumnComp";
 

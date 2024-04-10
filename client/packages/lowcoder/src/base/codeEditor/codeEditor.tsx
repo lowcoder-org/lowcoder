@@ -9,9 +9,9 @@ import React, {
 import styled, { css } from "styled-components";
 import { EditorState, EditorView } from "./codeMirror";
 import { useExtensions } from "./extensions";
-import { PopupCard } from "lowcoder-design";
+import { PopupCard } from "lowcoder-design/src/components/popupCard";
 import { CodeEditorPanel } from "../../pages/editor/codeEditorPanel";
-import { CodeEditorProps, StyleName } from "./codeEditorTypes";
+import type { CodeEditorProps, StyleName } from "./codeEditorTypes";
 import { useClickCompNameEffect } from "./clickCompName";
 import { Layers } from "../../constants/Layers";
 
@@ -52,7 +52,7 @@ export const CodeEditorTooltipContainer = styled.div`
   // tooltip common
   .cm-tooltip {
     z-index: ${Layers.codeEditorTooltip};
-    border: none;
+    border: 1px solid #d7d9e0;
   }
   // make sure antd popover in the code editor available
   .ant-popover {
@@ -84,6 +84,7 @@ export const CodeEditorTooltipContainer = styled.div`
     border-radius: 8px;
     box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
     transform: translate(-16px, 10px);
+    z-index: ${Layers.codeEditorTooltip};
   }
 
   // left minor tooltip
@@ -109,6 +110,7 @@ export const CodeEditorTooltipContainer = styled.div`
     color: #4965f2;
     ${textStyle};
     font-weight: 600;
+    z-index: ${Layers.codeEditorTooltip};
   }
 
   .cm-tooltip > .cm-completionInfo .hintDiv:hover {

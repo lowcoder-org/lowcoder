@@ -5,7 +5,6 @@ export const labelCss: any = css`
   user-select: none;
 
   font-size: 13px;
-  color: #222222;
 
   &:hover {
     cursor: default;

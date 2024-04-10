@@ -31,12 +31,15 @@ import {
 } from "../containerComp/containerView";
 import { BackgroundColorContext } from "comps/utils/backgroundColorContext";
 import { trans } from "i18n";
-import { messageInstance } from "lowcoder-design";
+import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 import { BoolControl } from "comps/controls/boolControl";
-import { NumberControl } from "comps/controls/codeControl";
+import { BoolCodeControl, NumberControl } from "comps/controls/codeControl";
 
 import { useContext } from "react";
 import { EditorContext } from "comps/editorState";
+
+import { disabledPropertyView, hiddenPropertyView } from "comps/utils/propertyUtils";
+import { DisabledContext } from "comps/generators/uiCompBuilder";
 
 const RowWrapper = styled(Row)<{$style: ResponsiveLayoutRowStyleType}>`
   height: 100%;
@@ -62,7 +65,8 @@ const ColWrapper = styled(Col)<{
   }
 `;
 
-const childrenMap = {
+const childrenMap = { 
+  disabled: BoolCodeControl,
   columns: ColumnOptionControl,
   containers: withDefault(sameTypeMap(SimpleContainerComp), {
     0: { view: {}, layout: {} },
@@ -117,58 +121,60 @@ const ResponsiveLayout = (props: ResponsiveLayoutProps) => {
 
   return (
     <BackgroundColorContext.Provider value={props.rowStyle.background}>
-      <div style={{padding: rowStyle.margin, height: '100%'}}>
-        <RowWrapper
-          $style={rowStyle}
-          wrap={rowBreak}
-          gutter={[horizontalSpacing, verticalSpacing]}
-        >
-          {columns.map(column => {
-            const id = String(column.id);
-            const childDispatch = wrapDispatch(wrapDispatch(dispatch, "containers"), id);
-            if(!containers[id]) return null
-            const containerProps = containers[id].children;
+      <DisabledContext.Provider value={props.disabled}>
+        <div style={{padding: rowStyle.margin, height: '100%'}}>
+          <RowWrapper
+            $style={rowStyle}
+            wrap={rowBreak}
+            gutter={[horizontalSpacing, verticalSpacing]}
+          >
+            {columns.map(column => {
+              const id = String(column.id);
+              const childDispatch = wrapDispatch(wrapDispatch(dispatch, "containers"), id);
+              if(!containers[id]) return null
+              const containerProps = containers[id].children;
 
-            const columnCustomStyle = {
-              margin: !_.isEmpty(column.margin) ? column.margin : columnStyle.margin,
-              padding: !_.isEmpty(column.padding) ? column.padding : columnStyle.padding,
-              radius: !_.isEmpty(column.radius) ? column.radius : columnStyle.radius,
-              border: `1px solid ${!_.isEmpty(column.border) ? column.border : columnStyle.border}`,
-              background: !_.isEmpty(column.background) ? column.background : columnStyle.background,
+              const columnCustomStyle = {
+                margin: !_.isEmpty(column.margin) ? column.margin : columnStyle.margin,
+                padding: !_.isEmpty(column.padding) ? column.padding : columnStyle.padding,
+                radius: !_.isEmpty(column.radius) ? column.radius : columnStyle.radius,
+                border: `1px solid ${!_.isEmpty(column.border) ? column.border : columnStyle.border}`,
+                background: !_.isEmpty(column.background) ? column.background : columnStyle.background,
+              }
+              const noOfColumns = columns.length;
+              let backgroundStyle = columnCustomStyle.background;
+              if(!_.isEmpty(column.backgroundImage))  {
+                backgroundStyle = `center / cover url('${column.backgroundImage}') no-repeat, ${backgroundStyle}`;
+              }
+              return (
+                <ColWrapper
+                  key={id}
+                  lg={24/(noOfColumns < columnPerRowLG ? noOfColumns : columnPerRowLG)}
+                  md={24/(noOfColumns < columnPerRowMD ? noOfColumns : columnPerRowMD)}
+                  sm={24/(noOfColumns < columnPerRowSM ? noOfColumns : columnPerRowSM)}
+                  xs={24/(noOfColumns < columnPerRowSM ? noOfColumns : columnPerRowSM)}
+                  $style={columnCustomStyle}
+                  $minWidth={column.minWidth}
+                  $matchColumnsHeight={matchColumnsHeight}
+                >
+                  <ColumnContainer
+                    layout={containerProps.layout.getView()}
+                    items={gridItemCompToGridItems(containerProps.items.getView())}
+                    positionParams={containerProps.positionParams.getView()}
+                    dispatch={childDispatch}
+                    autoHeight={props.autoHeight}
+                    style={{
+                      ...columnCustomStyle,
+                      background: backgroundStyle,
+                    }}
+                  />
+                </ColWrapper>
+              )
+              })
             }
-            const noOfColumns = columns.length;
-            let backgroundStyle = columnCustomStyle.background;
-            if(!_.isEmpty(column.backgroundImage))  {
-              backgroundStyle = `center / cover url('${column.backgroundImage}') no-repeat, ${backgroundStyle}`;
-            }
-            return (
-              <ColWrapper
-                key={id}
-                lg={24/(noOfColumns < columnPerRowLG ? noOfColumns : columnPerRowLG)}
-                md={24/(noOfColumns < columnPerRowMD ? noOfColumns : columnPerRowMD)}
-                sm={24/(noOfColumns < columnPerRowSM ? noOfColumns : columnPerRowSM)}
-                xs={24/(noOfColumns < columnPerRowSM ? noOfColumns : columnPerRowSM)}
-                $style={columnCustomStyle}
-                $minWidth={column.minWidth}
-                $matchColumnsHeight={matchColumnsHeight}
-              >
-                <ColumnContainer
-                  layout={containerProps.layout.getView()}
-                  items={gridItemCompToGridItems(containerProps.items.getView())}
-                  positionParams={containerProps.positionParams.getView()}
-                  dispatch={childDispatch}
-                  autoHeight={props.autoHeight}
-                  style={{
-                    ...columnCustomStyle,
-                    background: backgroundStyle,
-                  }}
-                />
-              </ColWrapper>
-            )
-            })
-          }
-        </RowWrapper>
-      </div>
+          </RowWrapper>
+        </div>
+        </DisabledContext.Provider>
     </BackgroundColorContext.Provider>
   );
 };
@@ -188,6 +194,13 @@ export const ResponsiveLayoutBaseComp = (function () {
               newOptionLabel: "Column",
             })}
           </Section>
+
+          {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
+            <Section name={sectionNames.interaction}>
+              {disabledPropertyView(children)}
+              {hiddenPropertyView(children)}
+            </Section>
+          )}
 
           {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
             <>

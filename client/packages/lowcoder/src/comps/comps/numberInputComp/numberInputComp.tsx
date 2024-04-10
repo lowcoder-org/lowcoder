@@ -30,7 +30,7 @@ import { formDataChildren, FormDataPropertyView } from "../formComp/formDataCons
 import { withMethodExposing, refMethods } from "../../generators/withMethodExposing";
 import { RefControl } from "../../controls/refControl";
 import { styleControl } from "comps/controls/styleControl";
-import { InputLikeStyle, InputLikeStyleType, heightCalculator, widthCalculator } from "comps/controls/styleControlConstants";
+import { InputLikeStyle, InputLikeStyleType, LabelStyle, heightCalculator, widthCalculator } from "comps/controls/styleControlConstants";
 import {
   disabledPropertyView,
   hiddenPropertyView,
@@ -52,6 +52,8 @@ import {
 
 import { useContext } from "react";
 import { EditorContext } from "comps/editorState";
+import { migrateOldData } from "comps/generators/simpleGenerators";
+import { fixOldInputCompData } from "../textInputComp/textInputConstants";
 
 const getStyle = (style: InputLikeStyleType) => {
   return css`
@@ -256,6 +258,7 @@ const childrenMap = {
   onEvent: InputEventHandlerControl,
   viewRef: RefControl<HTMLInputElement>,
   style: styleControl(InputLikeStyle),
+  labelStyle:styleControl(LabelStyle),
   prefixIcon: IconControl,
 
   // validation
@@ -372,12 +375,13 @@ const CustomInputNumber = (props: RecordConstructorToView<typeof childrenMap>) =
   );
 };
 
-const NumberInputTmpComp = (function () {
+let NumberInputTmpComp = (function () {
   return new UICompBuilder(childrenMap, (props) => {
     return props.label({
       required: props.required,
       children: <CustomInputNumber {...props} />,
       style: props.style,
+      labelStyle:props.labelStyle,
       ...validate(props),
     });
   })
@@ -425,14 +429,21 @@ const NumberInputTmpComp = (function () {
         )}
 
         {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
+          <>
           <Section name={sectionNames.style}>
             {children.style.getPropertyView()}
           </Section>
+          <Section name={sectionNames.labelStyle}>
+            {children.labelStyle.getPropertyView()}
+          </Section>
+          </>
         )}
       </>
     ))
     .build();
 })();
+
+NumberInputTmpComp = migrateOldData(NumberInputTmpComp, fixOldInputCompData);
 
 const NumberInputTmp2Comp = withMethodExposing(
   NumberInputTmpComp,

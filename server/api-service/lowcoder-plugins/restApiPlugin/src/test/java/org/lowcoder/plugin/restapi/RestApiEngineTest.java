@@ -233,7 +233,11 @@ public class RestApiEngineTest {
     public void testBasicAuth() {
         RestApiDatasourceConfig datasourceConfig = RestApiDatasourceConfig.builder()
                 .headers(List.of(new Property("Content-Type", "application/json")))
-                .authConfig(new BasicAuthConfig("postman", "password", BASIC_AUTH))
+                .authConfig(BasicAuthConfig.builder()
+                        .username("postman")
+                        .password("password")
+                        .type(BASIC_AUTH)
+                    .build())
                 .url("https://postman-echo.com/basic-auth")
                 .build();
 
@@ -254,7 +258,12 @@ public class RestApiEngineTest {
     public void testDigestAuth() {
         RestApiDatasourceConfig datasourceConfig = RestApiDatasourceConfig.builder()
                 .headers(List.of(new Property("Content-Type", "application/json")))
-                .authConfig(new BasicAuthConfig("postman", "password", DIGEST_AUTH))
+                .authConfig(BasicAuthConfig.builder()
+                        .username("postman")
+                        .password("password")
+                        .type(DIGEST_AUTH)
+                        .build()
+                )
                 .url("https://postman-echo.com/digest-auth")
                 .build();
 

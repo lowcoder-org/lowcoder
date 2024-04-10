@@ -1,3 +1,5 @@
+import { default as App } from "antd/es/app";
+import GlobalInstances from "components/GlobalInstances";
 import { RootComp } from "comps/comps/rootComp";
 import { GetContainerParams, useCompInstance } from "comps/utils/useCompInstance";
 import { createBrowserHistory } from "history";
@@ -88,19 +90,22 @@ export function AppView(props: AppViewProps) {
   }, [moduleInputs]);
 
   return (
-    <Provider store={reduxStore}>
-      <ExternalEditorContext.Provider
-        value={{
-          applicationId: appId,
-          appType: 1,
-          readOnly: true,
-          hideHeader: true,
-        }}
-      >
-        <Router history={browserHistory}>
-          <Route path="/" render={() => comp?.getView()} />
-        </Router>
-      </ExternalEditorContext.Provider>
-    </Provider>
+    <App>
+      <GlobalInstances />
+      <Provider store={reduxStore}>
+        <ExternalEditorContext.Provider
+          value={{
+            applicationId: appId,
+            appType: 1,
+            readOnly: true,
+            hideHeader: true,
+          }}
+        >
+          <Router history={browserHistory}>
+            <Route path="/" render={() => comp?.getView()} />
+          </Router>
+        </ExternalEditorContext.Provider>
+      </Provider>
+    </App>
   );
 }

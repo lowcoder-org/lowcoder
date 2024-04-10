@@ -1,4 +1,4 @@
-import { Input } from "lowcoder-design";
+import { Input } from "lowcoder-design/src/components/Input";
 import { SimpleComp } from "lowcoder-core";
 import { ControlPropertyViewWrapper } from "lowcoder-design";
 import { ControlParams } from "./controlParams";

@@ -149,7 +149,7 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
                     boolean createWorkspace =
                             authUser.getOrgId() == null && StringUtils.isBlank(invitationId) && authProperties.getWorkspaceCreation();
                     if (user.getIsNewUser() && createWorkspace) {
-                        return onUserRegister(user);
+                        return onUserRegister(user, false);
                     }
                     return Mono.empty();
                 })
@@ -166,7 +166,7 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
                 .then(businessEventPublisher.publishUserLoginEvent(authUser.getSource()));
     }
 
-    private Mono<User> updateOrCreateUser(AuthUser authUser, boolean linkExistingUser) {
+    public Mono<User> updateOrCreateUser(AuthUser authUser, boolean linkExistingUser) {
 
         if(linkExistingUser) {
             return sessionUserService.getVisitor()
@@ -256,8 +256,8 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
                 .get();
     }
 
-    protected Mono<Void> onUserRegister(User user) {
-        return organizationService.createDefault(user).then();
+    public Mono<Void> onUserRegister(User user, boolean isSuperAdmin) {
+        return organizationService.createDefault(user, isSuperAdmin).then();
     }
 
     protected Mono<Void> onUserLogin(String orgId, User user, String source) {
@@ -362,7 +362,7 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
     private Mono<Void> checkIfAdmin() {
         return sessionUserService.getVisitorOrgMemberCache()
                 .flatMap(orgMember -> {
-                    if (orgMember.isAdmin()) {
+                    if (orgMember.isAdmin() || orgMember.isSuperAdmin()) {
                         return Mono.empty();
                     }
                     return deferredError(BizError.NOT_AUTHORIZED, "NOT_AUTHORIZED");

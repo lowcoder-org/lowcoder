@@ -6,7 +6,7 @@ import { BottomResComp, BottomResListComp, BottomResTypeEnum } from "types/botto
 import { undoKey } from "util/keyUtils";
 import { list } from "./list";
 import { IExposingComp } from "./withExposing";
-import { messageInstance } from "lowcoder-design";
+import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 
 type BottomResListItemCompConstr = new (param: CompParams<any>) => MultiBaseComp<any, any, any> &
   BottomResComp &
