@@ -30,6 +30,14 @@
   "lowcoder": {
     "description": "",
     "comps": {
+      "agormeetingcontroller": {
+        "name": "Agora meeting Controller",
+        "icon": "./icons/icon-chart.svg",
+        "layoutInfo": {
+          "w": 15,
+          "h": 40
+        }
+      },
       "chart": {
         "name": "Chart",
         "icon": "./icons/icon-chart.svg",
