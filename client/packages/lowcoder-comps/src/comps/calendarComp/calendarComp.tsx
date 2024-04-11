@@ -82,10 +82,7 @@ const childrenMap = {
   dayMaxEvents: withDefault(NumberControl, 2),
   eventMaxStack: withDefault(NumberControl, 0),
   style: styleControl(CalendarStyle),
-  licenceKey: withDefault(
-    StringControl,
-    "CC-Attribution-NonCommercial-NoDerivatives"
-  ),
+  licenceKey: withDefault(StringControl, ""),
 };
 
 let CalendarBasicComp = (function () {
@@ -346,7 +343,24 @@ let CalendarBasicComp = (function () {
     if (licenceKey != "") {
       defaultView = defaultPremiumView;
     }
-
+    const plugins = [
+      dayGridPlugin,
+      timeGridPlugin,
+      interactionPlugin,
+      listPlugin,
+      momentPlugin,
+    ];
+    const filteredPlugins = plugins.filter((plugin) => {
+      if (licenceKey === "") {
+        return ![
+          resourceTimelinePlugin,
+          resourceTimeGridPlugin,
+          adaptivePlugin,
+        ].includes(plugin);
+      } else {
+        return true;
+      }
+    });
     return (
       <Wrapper
         ref={ref}
@@ -370,16 +384,7 @@ let CalendarBasicComp = (function () {
           locale={getCalendarLocale()}
           locales={allLocales}
           firstDay={Number(firstDay)}
-          plugins={[
-            dayGridPlugin,
-            timeGridPlugin,
-            interactionPlugin,
-            listPlugin,
-            momentPlugin,
-            resourceTimelinePlugin,
-            resourceTimeGridPlugin,
-            adaptivePlugin,
-          ]}
+          plugins={filteredPlugins}
           headerToolbar={toolBar(defaultView)}
           moreLinkClick={(info) => {
             let left = 0;
