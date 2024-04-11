@@ -82,7 +82,10 @@ const childrenMap = {
   dayMaxEvents: withDefault(NumberControl, 2),
   eventMaxStack: withDefault(NumberControl, 0),
   style: styleControl(CalendarStyle),
-  licenceKey: withDefault(StringControl, ""),
+  licenceKey: withDefault(
+    StringControl,
+    "CC-Attribution-NonCommercial-NoDerivatives"
+  ),
 };
 
 let CalendarBasicComp = (function () {
@@ -349,6 +352,9 @@ let CalendarBasicComp = (function () {
       interactionPlugin,
       listPlugin,
       momentPlugin,
+      resourceTimelinePlugin,
+      resourceTimeGridPlugin,
+      adaptivePlugin,
     ];
     const filteredPlugins = plugins.filter((plugin) => {
       if (licenceKey === "") {
@@ -361,6 +367,8 @@ let CalendarBasicComp = (function () {
         return true;
       }
     });
+    console.log(filteredPlugins);
+
     return (
       <Wrapper
         ref={ref}
