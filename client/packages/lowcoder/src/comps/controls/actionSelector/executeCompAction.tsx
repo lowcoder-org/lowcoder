@@ -121,6 +121,10 @@ export function executeCompAction(params: ExecuteCompActionOptions) {
         );
     }
 
+    exposingNode() {
+      return this.node();
+    }
+    
     propertyView() {
       return (
         <EditorContext.Consumer>

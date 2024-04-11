@@ -141,6 +141,7 @@ import {
   LayoutCompIcon,
   FloatingTextComp,
 } from "lowcoder-design";
+import { TourComp } from "@lowcoder-ee/comps/comps/tourComp/tourComp";
 
 type Registry = {
   [key in UICompType]?: UICompManifest;
@@ -1160,6 +1161,19 @@ export var uiCompMap: Registry = {
     lazyLoad: true,
     compName: 'SelectComp',
     compPath: 'comps/selectInputComp/selectComp',
+    layoutInfo: {
+      w: 6,
+      h: 5,
+    },
+  },
+  tour: {
+    name: "Tour",
+    enName: "Tour",
+    description: trans("uiComp.selectCompDesc"),
+    categories: ["forms", "itemHandling"],
+    icon: SelectCompIcon,
+    keywords: trans("uiComp.selectCompKeywords"),
+    comp: TourComp,
     layoutInfo: {
       w: 6,
       h: 5,
