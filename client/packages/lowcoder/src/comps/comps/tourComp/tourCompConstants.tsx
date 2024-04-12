@@ -187,30 +187,6 @@ export const TourPropertyView = (
       {placeholderPropertyView(children)}
     </Section>
 
-    {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
-      <>
-        <>
-          <SelectInputValidationSection {...children} />
-          <FormDataPropertyView {...children} />
-        </>
-        <Section name={sectionNames.interaction}>
-          {children.onEvent.getPropertyView()}
-          {disabledPropertyView(children)}
-          {hiddenPropertyView(children)}
-        </Section>
-      </>
-    )}
-
-    {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) &&
-      children.label.getPropertyView()}
-
-    {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
-      <Section name={sectionNames.advanced}>
-        {allowClearPropertyView(children)}
-        {showSearchPropertyView(children)}
-      </Section>
-    )}
-
     {["layout", "both"].includes(
       useContext(EditorContext).editorModeStatus
     ) && (

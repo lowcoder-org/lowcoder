@@ -1,14 +1,7 @@
 import { ViewDocIcon } from "assets/icons";
-import {
-  ArrayControl,
-  BoolCodeControl,
-  FunctionControl,
-  RadiusControl,
-  StringControl
-} from "comps/controls/codeControl";
-import { dropdownControl, LeftRightControl } from "comps/controls/dropdownControl";
-import { IconControl } from "comps/controls/iconControl";
-import { MultiCompBuilder, valueComp, withContext, withDefault } from "comps/generators";
+import { ArrayControl, BoolCodeControl, StringControl } from "comps/controls/codeControl";
+import { dropdownControl } from "comps/controls/dropdownControl";
+import { MultiCompBuilder, withContext, withDefault } from "comps/generators";
 import { list } from "comps/generators/list";
 import { ToViewReturn } from "comps/generators/multi";
 import { genRandomKey } from "comps/utils/idGenerator";
@@ -24,32 +17,16 @@ import {
   ConstructorToView,
   fromRecord,
   MultiBaseComp,
-  withFunction,
+  withFunction
 } from "lowcoder-core";
-import {
-  AutoArea,
-  CompressIcon,
-  controlItem,
-  ExpandIcon,
-  IconRadius,
-  Option,
-  WidthIcon,
-  ImageCompIcon,
-} from "lowcoder-design";
+import { AutoArea, controlItem, Option } from "lowcoder-design";
 import styled from "styled-components";
 import { lastValueIfEqual } from "util/objectUtils";
 import { getNextEntityName } from "util/stringUtils";
 import { JSONObject, JSONValue } from "util/jsonTypes";
-import { ButtonEventHandlerControl } from "./eventHandlerControl";
 import { ControlItemCompBuilder } from "comps/generators/controlCompBuilder";
-import { ColorControl } from "./colorControl";
-import { StringStateControl } from "./codeStateControl";
 import { reduceInContext } from "../utils/reduceContext";
 import { optionsControl } from "lowcoder-sdk";
-import type { TourProps as AntdTourProps } from 'antd';
-import { useRef, useState } from "react";
-import { EditorState } from "@lowcoder-ee/comps/editorState";
-import { executeCompAction } from "@lowcoder-ee/comps/controls/actionSelector/executeCompAction";
 import { TargetCompAction } from "@lowcoder-ee/comps/comps/tourComp/componentSelectorControl";
 
 const OptionTypes = [
@@ -262,107 +239,6 @@ const OptionTip = optionListDocUrl ? (
   <></>
 );
 
-// auto mapping
-export function mapOptionsControl<T extends TourControlType>(
-  VariantComp: T,
-  uniqField?: keyof ConstructorToView<T>
-) {
-  // @ts-ignore
-  class TempComp extends VariantComp {
-    override getPropertyView() {
-      return hasPropertyView(this) ? this.propertyView({ autoMap: true }) : super.getPropertyView();
-    }
-  }
-
-  const MapDataComp = withContext(TempComp, ["item", "i"] as const);
-  const label = trans("data");
-  const TmpOptionControl = new ControlItemCompBuilder(
-    {
-      data: withDefault(ArrayControl, "[]"),
-      mapData: MapDataComp,
-    },
-    (props) => {
-      const view = props.data.map((d, i) => {
-        return props.mapData({
-          item: d,
-          i: i,
-        });
-      });
-      return uniqField ? distinctValue(view, uniqField) : view;
-    }
-  )
-    .setControlItemData({ filterText: label })
-    .setPropertyViewFn((children) => (
-      <>
-        {children.data.propertyView({ label })}
-        <AutoArea>
-          {children.mapData.getPropertyView()}
-          {OptionTip}
-        </AutoArea>
-      </>
-    ))
-    .build();
-
-  return class extends TmpOptionControl {
-    private lastDataExample: any = {};
-
-    exposingNode() {
-      const nd = withFunction(
-        fromRecord({
-          data: this.children.data.exposingNode(),
-          mapData: this.children.mapData.node(),
-        }),
-        (params) =>
-          params.data.map((d: any, i) =>
-            mapValues((params.mapData as any)({ item: d }), (v) => v.value)
-          )
-      );
-      return lastValueIfEqual(
-        this,
-        "exposingNode",
-        [nd, this] as const,
-        (a, b) => a[1] === b[1]
-      )[0];
-    }
-
-    override reduce(action: CompAction) {
-      // TODO: temporary solution condition to fix context issue in dropdown option's events
-      if (
-        action.type === CompActionTypes.CUSTOM
-        && (action.value as JSONObject).type === 'actionTriggered'
-      ) {
-        const comp = reduceInContext({ inEventContext: true }, () => super.reduce(action));
-        return comp;
-      } else
-      if (action.type === CompActionTypes.UPDATE_NODES_V2) {
-        const comp = super.reduce(action)
-        if (comp.children.data !== this.children.data) {
-          const sourceArray = comp.children.data.getView();
-          const dataExample = sourceArray ? sourceArray[0] : undefined;
-          if (dataExample && !_.isEqual(comp.lastDataExample, dataExample)) {
-            comp.lastDataExample = dataExample;
-            return comp.updateContext(dataExample);
-          }
-        }
-        return comp;
-      }
-      return super.reduce(action);
-    }
-
-    updateContext(dataExample: JSONValue) {
-      return this.setChild(
-        "mapData",
-        this.children.mapData.reduce(
-          MapDataComp.changeContextDataAction({
-            item: dataExample,
-            i: 0,
-          })
-        )
-      );
-    }
-  };
-}
-
 type TourStepChildType = { 
   // target: InstanceType<typeof TargetCompAction>,
   // target: InstanceType<typeof FunctionControl>,
@@ -439,7 +315,6 @@ const PlacementOptions = [
   { label: "BottomRight", value: "bottomRight"},
 ];
 
-
 let TourStep = new MultiCompBuilder(
   {
     target: TargetCompAction,
@@ -466,6 +341,10 @@ TourStep = class extends TourStep implements TourStepCompProperty {
           placeholder: "Welcome to lowcoder, this is your first tutorial step",
         })}
         {this.children.target.propertyView()}
+        {/*{this.children.placement.propertyView({*/}
+        {/*  label: trans("textShow.verticalAlignment"),*/}
+        {/*  radioButton: true,*/}
+        {/*})}*/}
         {hiddenPropertyView(this.children)}
       </>
     );
@@ -478,39 +357,3 @@ export const TourStepControl = tourStepsControl(TourStep, {
     { title: "second title", description: "Because they mean I don't have to teach people" },
   ],
 });
-
-let SelectInputOption = new MultiCompBuilder(
-  {
-    value: StringControl,
-    label: StringControl,
-    disabled: BoolCodeControl,
-    hidden: BoolCodeControl,
-  },
-  (props) => props
-).build();
-
-
-SelectInputOption = class extends SelectInputOption implements TourStepCompProperty {
-  propertyView(param: { autoMap?: boolean }) {
-    return (
-      <>
-        {this.children.label.propertyView({
-          label: trans("label"),
-          placeholder: param.autoMap ? "{{item}}" : "",
-        })}
-        {this.children.value.propertyView({ label: trans("value") })}
-        {disabledPropertyView(this.children)}
-        {hiddenPropertyView(this.children)}
-      </>
-    );
-  }
-};
-
-export const SelectInputOptionControl = optionsControl(SelectInputOption, {
-  initOptions: [
-    { label: trans("optionsControl.optionI", { i: 1 }), value: "1" },
-    { label: trans("optionsControl.optionI", { i: 2 }), value: "2" },
-  ],
-  uniqField: "value",
-});
-

@@ -1,20 +1,21 @@
 import { styleControl } from "comps/controls/styleControl";
 import { SelectStyle } from "comps/controls/styleControlConstants";
 import { trans } from "i18n";
-import { stringExposingStateControl } from "lowcoder-sdk";
-import { UICompBuilder } from "lowcoder-sdk";
-import { CommonNameConfig, NameConfig, withExposingConfigs , withMethodExposing} from "lowcoder-sdk";
 import {
-  baseSelectRefMethods,
-  TourChildrenMap,
-  TourPropertyView,
-} from "./tourCompConstants";
-import {
-  TourInputCommonConfig,
-  TourInputInvalidConfig,
-} from "./tourInputConstants";
+  CommonNameConfig,
+  NameConfig,
+  stringExposingStateControl,
+  UICompBuilder,
+  withExposingConfigs,
+  withMethodExposing
+} from "lowcoder-sdk";
+import { baseSelectRefMethods, TourChildrenMap, TourPropertyView } from "./tourCompConstants";
+import { TourInputCommonConfig, TourInputInvalidConfig } from "./tourInputConstants";
 import { Tour, TourProps } from "antd";
 
+/**
+ * This component builds the Property Panel and the fake 'UI' for the Tour component
+ */
 let TourBasicComp = (function () {
   const childrenMap = {
     ...TourChildrenMap,
@@ -28,7 +29,7 @@ let TourBasicComp = (function () {
       return {
         title: step.title,
         description: step.description,
-        target: null,
+        target: step.target()?.current,
       }
     })
 
