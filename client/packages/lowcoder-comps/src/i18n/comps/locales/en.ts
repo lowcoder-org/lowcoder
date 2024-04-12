@@ -98,8 +98,12 @@ export const en = {
   },
   calendar: {
     events: "Events Data",
+    resources: "Resources",
+    resourcesDefault: "Rooms",
+    resourcesEvents : "Resources Events Data",
     editable: "Editable",
     licence: "Licence Key",
+    licenseTooltip: "Get your licence key from https://fullcalendar.io/purchase to enable premium views like Resource Timeline and Resource Grid.",
     defaultDate: "Default Date",
     defaultDateTooltip: "Initial display date of the calendar",
     defaultView: "Default View",
@@ -125,9 +129,13 @@ export const en = {
     today: "Today",
     month: "Month",
     week: "Week",
+    weekdaygrid : "Days of Week",
+    daygrid : "Day Events List",
+    year: "Year",
     day: "Day",
-    list: "List",
-    timeline: "TimeLine", //added by fred
+    list: "Events List",
+    timeline: "Resource Timeline", //added by fred
+    resourceTimeGridDay: "Resource Grid", //added by fred
     monday: "Monday",
     tuesday: "Tuesday",
     wednesday: "Wednesday",
