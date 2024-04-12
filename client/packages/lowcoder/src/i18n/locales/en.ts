@@ -2643,7 +2643,7 @@ export const en = {
   "playground": {
     "url": "https://app.lowcoder.cloud/playground/{compType}/1",
     "data": "Current Data State",
-    "preview": "Preview (please mind, that your Editor-Layout/Logic Mode is active here too. You can set it to 'Both' in the App Editor to see all properties here too)",
+    "preview": "Preview",
     "property": "Properties",
     "console": "Visual Script Console",
     "executeMethods": "Execute Methods",

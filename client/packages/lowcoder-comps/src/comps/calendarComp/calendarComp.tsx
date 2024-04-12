@@ -6,6 +6,7 @@ import {
   UICompBuilder,
   withDefault,
   withExposingConfigs,
+  withMethodExposing,
   NumberControl,
   StringControl,
   hiddenPropertyView,
@@ -33,12 +34,16 @@ import adaptivePlugin from "@fullcalendar/adaptive";
 
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
+import multiMonthPlugin from '@fullcalendar/multimonth';
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import listPlugin from "@fullcalendar/list";
 import allLocales from "@fullcalendar/core/locales-all";
 import { EventContentArg, DateSelectArg } from "@fullcalendar/core";
 import momentPlugin from "@fullcalendar/moment";
+
+import ErrorBoundary from "./errorBoundary";
+
 import {
   DefaultWithFreeViewOptions,
   DefaultWithPremiumViewOptions,
@@ -53,6 +58,8 @@ import {
   headerToolbar,
   views,
   slotLabelFormat,
+  slotLabelFormatWeek,
+  slotLabelFormatMonth,
   viewClassNames,
   FormWrapper,
   resourcesDefaultData,
@@ -61,20 +68,17 @@ import {
   resourceTimeGridHeaderToolbar,
 } from "./calendarConstants";
 import dayjs from "dayjs";
-
+ 
 const childrenMap = {
   events: jsonValueExposingStateControl("events", defaultData),
-  resourcesEvents: jsonValueStateControl(resourcesEventsDefaultData),
-  resources: jsonValueStateControl(resourcesDefaultData),
+  resourcesEvents: jsonValueExposingStateControl("resourcesEvents", resourcesEventsDefaultData),
+  resources: jsonValueExposingStateControl("resources", resourcesDefaultData),
   onEvent: ChangeEventHandlerControl,
-
+  resourceName: withDefault(StringControl, trans("calendar.resourcesDefault")),
   editable: withDefault(BoolControl, true),
   defaultDate: withDefault(StringControl, "{{ new Date() }}"),
   defaultFreeView: dropdownControl(DefaultWithFreeViewOptions, "timeGridWeek"),
-  defaultPremiumView: dropdownControl(
-    DefaultWithPremiumViewOptions,
-    "timeGridWeek"
-  ),
+  defaultPremiumView: dropdownControl(DefaultWithPremiumViewOptions, "resourceTimelineDay"),
   firstDay: dropdownControl(FirstDayOptions, "1"),
   showEventTime: withDefault(BoolControl, true),
   showWeekends: withDefault(BoolControl, true),
@@ -82,14 +86,11 @@ const childrenMap = {
   dayMaxEvents: withDefault(NumberControl, 2),
   eventMaxStack: withDefault(NumberControl, 0),
   style: styleControl(CalendarStyle),
-  licenceKey: withDefault(
-    StringControl,
-    "CC-Attribution-NonCommercial-NoDerivatives"
-  ),
+  licenceKey: withDefault( StringControl, "" ),
 };
 
 let CalendarBasicComp = (function () {
-  return new UICompBuilder(childrenMap, (props) => {
+  return new UICompBuilder(childrenMap, (props: { events?: any; style: any; onEvent?: any; resourcesEvents?: any; resources?: any; defaultDate?: any; defaultFreeView?: any; defaultPremiumView?: any; showEventTime?: any; showWeekends?: any; showAllDay?: any; dayMaxEvents?: any; eventMaxStack?: any; firstDay?: any; editable?: any; licenceKey?: string; resourceName : string }) => {
     const theme = useContext(ThemeContext);
     const ref = createRef<HTMLDivElement>();
     const editEvent = useRef<EventType>();
@@ -103,6 +104,24 @@ let CalendarBasicComp = (function () {
         start: dayjs(item.start, DateParser).format(),
         end: dayjs(item.end, DateParser).format(),
         allDay: item.allDay,
+        resourceId: item.resourceId ? item.resourceId : null,
+        color: isValidColor(item.color || "")
+          ? item.color
+          : theme?.theme?.primary,
+        ...(item.groupId ? { groupId: item.groupId } : null),
+      };
+    });
+
+    const resources = props.resources.value;
+
+    const resourcesEvents = props.resourcesEvents.value.map((item: EventType) => {
+      return {
+        title: item.title,
+        id: item.id,
+        start: dayjs(item.start, DateParser).format(),
+        end: dayjs(item.end, DateParser).format(),
+        allDay: item.allDay,
+        resourceIds: item.resourceId ? [item.resourceId] : [],
         color: isValidColor(item.color || "")
           ? item.color
           : theme?.theme?.primary,
@@ -123,6 +142,7 @@ let CalendarBasicComp = (function () {
       firstDay,
       editable,
       licenceKey,
+      resourceName,
     } = props;
 
     function renderEventContent(eventInfo: EventContentArg) {
@@ -152,9 +172,9 @@ let CalendarBasicComp = (function () {
       return (
         <Event
           className={`event ${sizeClass} ${stateClass}`}
-          isList={isList}
           bg={eventInfo.backgroundColor}
           theme={theme?.theme}
+          isList={isList}
           allDay={showAllDay}
           $style={props.style}
         >
@@ -336,6 +356,26 @@ let CalendarBasicComp = (function () {
       }
     };
 
+
+    const [currentSlotLabelFormat, setCurrentSlotLabelFormat] = useState(slotLabelFormat);
+
+    const handleDatesSet = (arg: { view: { type: any; }; }) => {
+      switch (arg.view.type) {
+        case "resourceTimelineDay":
+          setCurrentSlotLabelFormat(slotLabelFormat);
+          break;
+        case "resourceTimelineWeek":
+          setCurrentSlotLabelFormat(slotLabelFormatWeek);
+          break;
+        case "resourceTimelineMonth":
+          setCurrentSlotLabelFormat(slotLabelFormatMonth);
+          break;
+        default:
+          setCurrentSlotLabelFormat(slotLabelFormat);
+          break;
+      }
+    };
+
     let initialDate = defaultDate;
     try {
       initialDate = new Date(defaultDate).toISOString();
@@ -343,9 +383,10 @@ let CalendarBasicComp = (function () {
       initialDate = undefined;
     }
     let defaultView = defaultFreeView;
-    if (licenceKey != "") {
-      defaultView = defaultPremiumView;
+    if (licenceKey != "") { 
+      defaultView = defaultPremiumView; 
     }
+    
     const plugins = [
       dayGridPlugin,
       timeGridPlugin,
@@ -355,6 +396,7 @@ let CalendarBasicComp = (function () {
       resourceTimelinePlugin,
       resourceTimeGridPlugin,
       adaptivePlugin,
+      multiMonthPlugin,
     ];
     const filteredPlugins = plugins.filter((plugin) => {
       if (licenceKey === "") {
@@ -367,7 +409,6 @@ let CalendarBasicComp = (function () {
         return true;
       }
     });
-    console.log(filteredPlugins);
 
     return (
       <Wrapper
@@ -379,168 +420,156 @@ let CalendarBasicComp = (function () {
         $left={left}
         key={initialDate ? defaultView + initialDate : defaultView}
       >
-        <FullCalendar
-          slotEventOverlap={false}
-          events={
-            defaultView == "resourceTimelineDay" ||
-            defaultView == "resourceTimeGridDay"
-              ? props.resourcesEvents.value
-              : events
-          }
-          expandRows={true}
-          height={"100%"}
-          locale={getCalendarLocale()}
-          locales={allLocales}
-          firstDay={Number(firstDay)}
-          plugins={filteredPlugins}
-          headerToolbar={toolBar(defaultView)}
-          moreLinkClick={(info) => {
-            let left = 0;
-            const ele = info.jsEvent.target as HTMLElement;
-            if (info.view.type === ViewType.DAY) {
-              if (info.allDay) {
-                left = ele.offsetParent?.parentElement?.offsetLeft || 0;
+        <ErrorBoundary>
+          <FullCalendar
+            slotEventOverlap={false}
+            events={ defaultView == "resourceTimelineDay" || defaultView == "resourceTimeGridDay" ? resourcesEvents : events }
+            dayHeaders={true}
+            dayHeaderFormat={{ weekday: 'short', month: 'numeric', day: 'numeric', omitCommas: true }}
+            expandRows={true}
+            multiMonthMinWidth={250}
+            nowIndicator={true}
+            height={"100%"}
+            locale={getCalendarLocale()}
+            locales={allLocales}
+            firstDay={Number(firstDay)}
+            plugins={filteredPlugins}
+            headerToolbar={toolBar(defaultView)}
+            resourceAreaHeaderContent={resourceName}
+            moreLinkClick={(info) => {
+              let left = 0;
+              const ele = info.jsEvent.target as HTMLElement;
+              if (info.view.type === ViewType.DAY) {
+                if (info.allDay) {
+                  left = ele.offsetParent?.parentElement?.offsetLeft || 0;
+                } else {
+                  left = ele.parentElement?.offsetLeft || 0;
+                }
               } else {
-                left = ele.parentElement?.offsetLeft || 0;
+                if (info.allDay) {
+                  left =
+                    ele.offsetParent?.parentElement?.parentElement?.offsetLeft ||
+                    0;
+                } else {
+                  left =
+                    ele.offsetParent?.parentElement?.parentElement?.parentElement
+                      ?.offsetLeft || 0;
+                }
               }
-            } else {
-              if (info.allDay) {
-                left =
-                  ele.offsetParent?.parentElement?.parentElement?.offsetLeft ||
-                  0;
-              } else {
-                left =
-                  ele.offsetParent?.parentElement?.parentElement?.parentElement
-                    ?.offsetLeft || 0;
+              setLeft(left);
+            }}
+            buttonText={buttonText}
+            schedulerLicenseKey={licenceKey}
+            views={views}
+            resources={ defaultView == "resourceTimelineDay" || defaultView == "resourceTimeGridDay" ? resources : [] }
+            eventClassNames={() => (!showEventTime ? "no-time" : "")}
+            slotLabelFormat={currentSlotLabelFormat}
+            viewClassNames={viewClassNames}
+            moreLinkText={trans("calendar.more")}
+            initialDate={initialDate}
+            initialView={defaultView}
+            editable={editable}
+            selectable={editable}
+            datesSet={handleDatesSet}
+            selectMirror={false}
+            displayEventTime={showEventTime}
+            dayMaxEvents={dayMaxEvents}
+            eventMaxStack={eventMaxStack || undefined}
+            weekends={showWeekends}
+            allDaySlot={showAllDay}
+            eventContent={renderEventContent}
+            select={(info) => handleCreate(info)}
+            eventClick={(info) => {
+              const event = events.find(
+                (item: EventType) => item.id === info.event.id
+              );
+              editEvent.current = event;
+              setTimeout(() => {
+                editEvent.current = undefined;
+              }, 500);
+            }}
+            eventsSet={(info) => {
+              let needChange = false;
+              let changeEvents: EventType[] = [];
+              info.forEach((item) => {
+                const event = events.find((i: EventType) => i.id === item.id);
+                const start = dayjs(item.start, DateParser).format();
+                const end = dayjs(item.end, DateParser).format();
+                if (
+                  start !== event?.start ||
+                  end !== event?.end ||
+                  !!item.allDay !== !!event?.allDay
+                ) {
+                  needChange = true;
+                  changeEvents.push({
+                    ...event,
+                    allDay: item.allDay,
+                    start: item.startStr,
+                    end: item.endStr,
+                  });
+                } else {
+                  changeEvents.push(event);
+                }
+              });
+              if (needChange) {
+                // props.events.onChange(changeEvents);
+                props.onEvent("change");
               }
-            }
-            setLeft(left);
-          }}
-          buttonText={buttonText}
-          schedulerLicenseKey={licenceKey}
-          views={views}
-          resources={
-            defaultView == "resourceTimelineDay" ||
-            defaultView == "resourceTimeGridDay"
-              ? props.resources.value
-              : []
-          }
-          eventClassNames={() => (!showEventTime ? "no-time" : "")}
-          slotLabelFormat={slotLabelFormat}
-          viewClassNames={viewClassNames}
-          moreLinkText={trans("calendar.more")}
-          initialDate={initialDate}
-          initialView={defaultView}
-          editable={editable}
-          selectable={editable}
-          selectMirror={false}
-          displayEventTime={showEventTime}
-          dayMaxEvents={dayMaxEvents}
-          eventMaxStack={eventMaxStack || undefined}
-          weekends={showWeekends}
-          allDaySlot={showAllDay}
-          eventContent={renderEventContent}
-          select={(info) => handleCreate(info)}
-          eventClick={(info) => {
-            const event = events.find(
-              (item: EventType) => item.id === info.event.id
-            );
-            editEvent.current = event;
-            setTimeout(() => {
-              editEvent.current = undefined;
-            }, 500);
-          }}
-          eventsSet={(info) => {
-            let needChange = false;
-            let changeEvents: EventType[] = [];
-            info.forEach((item) => {
-              const event = events.find((i: EventType) => i.id === item.id);
-              const start = dayjs(item.start, DateParser).format();
-              const end = dayjs(item.end, DateParser).format();
-              if (
-                start !== event?.start ||
-                end !== event?.end ||
-                !!item.allDay !== !!event?.allDay
-              ) {
-                needChange = true;
-                changeEvents.push({
-                  ...event,
-                  allDay: item.allDay,
-                  start: item.startStr,
-                  end: item.endStr,
-                });
-              } else {
-                changeEvents.push(event);
-              }
-            });
-            if (needChange) {
-              // props.events.onChange(changeEvents);
-              props.onEvent("change");
-            }
-          }}
-        />
+            }}
+          />
+        </ErrorBoundary>
       </Wrapper>
     );
   })
-    .setPropertyViewFn((children) => {
+    .setPropertyViewFn((children: { 
+      licenceKey: { getView: () => any; propertyView: (arg0: { label: string; }) => any; }; 
+      events: { propertyView: (arg0: {}) => any; }; 
+      resources: { propertyView: (arg0: {}) => any; }; 
+      onEvent: { getPropertyView: () => any; }; 
+      editable: { propertyView: (arg0: { label: string; }) => any; }; 
+      defaultDate: { propertyView: (arg0: { label: string; tooltip: string; }) => any; }; 
+      defaultFreeView: { propertyView: (arg0: { label: string; tooltip: string; }) => any; }; 
+      defaultPremiumView: { propertyView: (arg0: { label: string; tooltip: string; }) => any; }; 
+      firstDay: { propertyView: (arg0: { label: string; }) => any; }; 
+      showEventTime: { propertyView: (arg0: { label: string; tooltip: string; }) => any; }; 
+      showWeekends: { propertyView: (arg0: { label: string; }) => any; }; 
+      showAllDay: { propertyView: (arg0: { label: string; tooltip: string; }) => any; }; 
+      dayMaxEvents: { propertyView: (arg0: { label: string; tooltip: string; }) => any; }; 
+      eventMaxStack: { propertyView: (arg0: { label: string; tooltip: string; }) => any; }; 
+      style: { getPropertyView: () => any; }; 
+      resourceName: { propertyView: (arg0: {}) => any; };
+    }) => {
+      
       let licence = children.licenceKey.getView();
 
       return (
         <>
           <Section name={sectionNames.basic}>
             {children.events.propertyView({})}
+            {children.defaultDate.propertyView({ label: trans("calendar.defaultDate"), tooltip: trans("calendar.defaultDateTooltip"), })}
           </Section>
-          <Section name="Resources">
-            {children.resources.propertyView({})}
+          <Section name={trans("calendar.resources")}>
+            {licence == "" ? null : children.resources.propertyView({})}
+            {licence == "" ? null : children.resourceName.propertyView({})}
           </Section>
           <Section name={sectionNames.interaction}>
-            {children.licenceKey.propertyView({
-              label: trans("calendar.licence"),
-            })}
+            {hiddenPropertyView(children)}
             {children.onEvent.getPropertyView()}
+            {children.editable.propertyView({ label: trans("calendar.editable"), })}
           </Section>
           <Section name={sectionNames.advanced}>
-            {children.editable.propertyView({
-              label: trans("calendar.editable"),
-            })}
-            {children.defaultDate.propertyView({
-              label: trans("calendar.defaultDate"),
-              tooltip: trans("calendar.defaultDateTooltip"),
-            })}
-            {licence == ""
-              ? children.defaultFreeView.propertyView({
-                  label: trans("calendar.defaultView"),
-                  tooltip: trans("calendar.defaultViewTooltip"),
-                })
-              : children.defaultPremiumView.propertyView({
-                  label: trans("calendar.defaultView"),
-                  tooltip: trans("calendar.defaultViewTooltip"),
-                })}
-            {children.firstDay.propertyView({
-              label: trans("calendar.startWeek"),
-            })}
-            {children.showEventTime.propertyView({
-              label: trans("calendar.showEventTime"),
-              tooltip: trans("calendar.showEventTimeTooltip"),
-            })}
-            {children.showWeekends.propertyView({
-              label: trans("calendar.showWeekends"),
-            })}
-            {children.showAllDay.propertyView({
-              label: trans("calendar.showAllDay"),
-              tooltip: trans("calendar.showAllDayTooltip"),
-            })}
-            {children.dayMaxEvents.propertyView({
-              label: trans("calendar.dayMaxEvents"),
-              tooltip: trans("calendar.dayMaxEventsTooltip"),
-            })}
-            {children.eventMaxStack.propertyView({
-              label: trans("calendar.eventMaxStack"),
-              tooltip: trans("calendar.eventMaxStackTooltip"),
-            })}
+            {children.showEventTime.propertyView({ label: trans("calendar.showEventTime"), tooltip: trans("calendar.showEventTimeTooltip"), })}
+            {children.showWeekends.propertyView({ label: trans("calendar.showWeekends"), })}
+            {children.showAllDay.propertyView({ label: trans("calendar.showAllDay"), tooltip: trans("calendar.showAllDayTooltip"), })}
+            {children.dayMaxEvents.propertyView({ label: trans("calendar.dayMaxEvents"), tooltip: trans("calendar.dayMaxEventsTooltip"), })}
+            {children.eventMaxStack.propertyView({ label: trans("calendar.eventMaxStack"), tooltip: trans("calendar.eventMaxStackTooltip"), })}
           </Section>
           <Section name={sectionNames.layout}>
-            {hiddenPropertyView(children)}
+            {children.licenceKey.propertyView({ label: trans("calendar.licence"), tooltip: trans("calendar.licenseTooltip"), })}
+            {licence == ""
+              ? children.defaultFreeView.propertyView({ label: trans("calendar.defaultView"), tooltip: trans("calendar.defaultViewTooltip"), })
+              : children.defaultPremiumView.propertyView({ label: trans("calendar.defaultView"), tooltip: trans("calendar.defaultViewTooltip"), })}
+            {children.firstDay.propertyView({ label: trans("calendar.startWeek"), })}
           </Section>
           <Section name={sectionNames.style}>
             {children.style.getPropertyView()}
@@ -557,7 +586,24 @@ CalendarBasicComp = class extends CalendarBasicComp {
   }
 };
 
-export const CalendarComp = withExposingConfigs(CalendarBasicComp, [
+const TmpCalendarComp = withExposingConfigs(CalendarBasicComp, [
   new NameConfig("events", trans("calendar.events")),
+  new NameConfig("resourcesEvents", trans("calendar.resourcesEvents")),
+  new NameConfig("resources", trans("calendar.resources")),
   NameConfigHidden,
+]);
+
+export const CalendarComp = withMethodExposing(TmpCalendarComp, [
+  {
+    method: {
+      name: "setCalendarView",
+      description: "timeGridWeek || timeGridDay || dayGridMonth || listWeek || resourceTimelineDay || resourceTimeGridDay || resourceTimelineWeek || resourceTimelineMonth",
+      params: [{ name: "viewType", type: "string" }],
+    },
+    execute: (comp, values) => {
+      const viewType = values[0] as string;
+      viewType == "" ? viewType : "timeGridWeek";
+      return comp.children.licenceKey.getView() == "" ? comp.children.defaultFreeView.dispatchChangeValueAction(viewType) : comp.children.defaultPremiumView.dispatchChangeValueAction(viewType);
+    }
+  },
 ]);
