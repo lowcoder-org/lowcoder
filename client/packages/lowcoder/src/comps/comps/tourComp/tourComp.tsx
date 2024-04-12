@@ -10,7 +10,7 @@ import {
   withMethodExposing
 } from "lowcoder-sdk";
 import { baseSelectRefMethods, TourChildrenMap, TourPropertyView } from "./tourCompConstants";
-import { TourInputCommonConfig, TourInputInvalidConfig } from "./tourInputConstants";
+import { TourInputCommonConfig } from "./tourInputConstants";
 import { Tour, TourProps } from "antd";
 
 /**
@@ -21,7 +21,7 @@ let TourBasicComp = (function () {
     ...TourChildrenMap,
     defaultValue: stringExposingStateControl("defaultValue"),
     value: stringExposingStateControl("value"),
-    style: styleControl(SelectStyle),
+    // style: styleControl(SelectStyle),
   };
   return new UICompBuilder(childrenMap, (props, dispatch) => {
   
@@ -60,7 +60,6 @@ TourBasicComp = withMethodExposing(TourBasicComp, [
 export const TourComp = withExposingConfigs(TourBasicComp, [
   new NameConfig("value", trans("selectInput.valueDesc")),
   new NameConfig("inputValue", trans("select.inputValueDesc")),
-  TourInputInvalidConfig,
   ...TourInputCommonConfig,
   ...CommonNameConfig,
 ]);

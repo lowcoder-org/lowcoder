@@ -16,12 +16,12 @@ import { SelectInputOptionControl } from "../../controls/optionsControl";
 import { refMethods } from "comps/generators/withMethodExposing";
 import { blurMethod, focusWithOptions } from "comps/utils/methodUtils";
 import { TourStepControl } from "@lowcoder-ee/comps/controls/tourStepControl";
-
-export const SelectInputValidationChildren = {
-  required: BoolControl,
-  customRule: CustomRuleControl,
-};
-type ValidationComp = RecordConstructorToComp<typeof SelectInputValidationChildren>;
+//
+// export const SelectInputValidationChildren = {
+//   required: BoolControl,
+//   customRule: CustomRuleControl,
+// };
+// type ValidationComp = RecordConstructorToComp<typeof SelectInputValidationChildren>;
 
 type SelectValue = string | (string | number)[];
 type ValidationParams = {
@@ -97,35 +97,35 @@ export const useSelectInputValidate = (props: ValidationParams) => {
   ] as const;
 };
 
-type ValidationCompWithValue = ValidationComp & {
-  value: ConstructorToComp<
-    ReturnType<
-      | typeof stringExposingStateControl
-      | typeof arrayStringExposingStateControl
-      | typeof jsonExposingStateControl<(string | number)[]>
-    >
-  >;
-};
-export const TourInputInvalidConfig = depsConfig<
-  ValidationCompWithValue,
-  ChildrenTypeToDepsKeys<ValidationCompWithValue>
->({
-  name: "invalid",
-  desc: trans("export.invalidDesc"),
-  depKeys: ["value", "required", "customRule"],
-  func: (input) =>
-    selectInputValidate({
-      ...input,
-      value: { value: input.value },
-    }).validateStatus !== "success",
-});
+// type ValidationCompWithValue = ValidationComp & {
+//   value: ConstructorToComp<
+//     ReturnType<
+//       | typeof stringExposingStateControl
+//       | typeof arrayStringExposingStateControl
+//       | typeof jsonExposingStateControl<(string | number)[]>
+//     >
+//   >;
+// };
+// export const TourInputInvalidConfig = depsConfig<
+//   ValidationCompWithValue,
+//   ChildrenTypeToDepsKeys<ValidationCompWithValue>
+// >({
+//   name: "invalid",
+//   desc: trans("export.invalidDesc"),
+//   depKeys: ["value", "required", "customRule"],
+//   func: (input) =>
+//     selectInputValidate({
+//       ...input,
+//       value: { value: input.value },
+//     }).validateStatus !== "success",
+// });
 
-export const SelectInputValidationSection = (children: ValidationComp) => (
-  <Section name={sectionNames.validation}>
-    {requiredPropertyView(children)}
-    {children.customRule.propertyView({})}
-  </Section>
-);
+// export const SelectInputValidationSection = (children: ValidationComp) => (
+//   <Section name={sectionNames.validation}>
+//     {requiredPropertyView(children)}
+//     {children.customRule.propertyView({})}
+//   </Section>
+// );
 
 type ChildrenType = RecordConstructorToComp<{
   value: ReturnType<typeof stringExposingStateControl>;
