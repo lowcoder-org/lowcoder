@@ -27,8 +27,8 @@ import {
 import { default as Form } from "antd/es/form";
 
 export const Wrapper = styled.div<{
-  $editable: boolean;
-  $style: CalendarStyleType;
+  $editable?: boolean;
+  $style?: CalendarStyleType;
   $theme?: ThemeDetail;
   $left?: number;
 }>`

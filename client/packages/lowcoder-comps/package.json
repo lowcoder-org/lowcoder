@@ -32,6 +32,14 @@
   "lowcoder": {
     "description": "",
     "comps": {
+      "calendar": {
+        "name": "Calendar",
+        "icon": "./icons/icon-comp-calendar.svg",
+        "layoutInfo": {
+          "w": 15,
+          "h": 60
+        }
+      },
       "chart": {
         "name": "Chart",
         "icon": "./icons/icon-chart.svg",
@@ -46,14 +54,6 @@
         "layoutInfo": {
           "w": 15,
           "h": 40
-        }
-      },
-      "calendar": {
-        "name": "Calendar",
-        "icon": "./icons/icon-comp-calendar.svg",
-        "layoutInfo": {
-          "w": 15,
-          "h": 60
         }
       },
       "mermaid": {
