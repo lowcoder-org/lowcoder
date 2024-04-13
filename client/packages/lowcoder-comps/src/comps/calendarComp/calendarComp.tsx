@@ -441,28 +441,7 @@ let CalendarBasicComp = (function () {
             plugins={filteredPlugins}
             headerToolbar={toolBar(currentView)}
             resourceAreaHeaderContent={resourceName}
-            moreLinkClick={(info) => {
-              let left = 0;
-              const ele = info.jsEvent.target as HTMLElement;
-              if (info.view.type === ViewType.DAY) {
-                if (info.allDay) {
-                  left = ele.offsetParent?.parentElement?.offsetLeft || 0;
-                } else {
-                  left = ele.parentElement?.offsetLeft || 0;
-                }
-              } else {
-                if (info.allDay) {
-                  left =
-                    ele.offsetParent?.parentElement?.parentElement?.offsetLeft ||
-                    0;
-                } else {
-                  left =
-                    ele.offsetParent?.parentElement?.parentElement?.parentElement
-                      ?.offsetLeft || 0;
-                }
-              }
-              setLeft(left);
-            }}
+            
             buttonText={buttonText}
             schedulerLicenseKey={licenseKey}
             views={views}
@@ -493,6 +472,28 @@ let CalendarBasicComp = (function () {
                 editEvent.current = undefined;
               }, 500);
             }}
+            moreLinkClick={(info) => {
+              let left = 0;
+              const ele = info.jsEvent.target as HTMLElement;
+              if (info.view.type === ViewType.DAY) {
+                if (info.allDay) {
+                  left = ele.offsetParent?.parentElement?.offsetLeft || 0;
+                } else {
+                  left = ele.parentElement?.offsetLeft || 0;
+                }
+              } else {
+                if (info.allDay) {
+                  left =
+                    ele.offsetParent?.parentElement?.parentElement?.offsetLeft ||
+                    0;
+                } else {
+                  left =
+                    ele.offsetParent?.parentElement?.parentElement?.parentElement
+                      ?.offsetLeft || 0;
+                }
+              }
+              setLeft(left);
+            }}
             eventsSet={(info) => {
               let needChange = false;
               let changeEvents: EventType[] = [];
@@ -517,7 +518,6 @@ let CalendarBasicComp = (function () {
                 }
               });
               if (needChange) {
-                // props.events.onChange(changeEvents);
                 props.onEvent("change");
               }
             }}
