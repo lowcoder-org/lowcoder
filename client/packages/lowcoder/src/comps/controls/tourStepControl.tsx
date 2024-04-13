@@ -21,6 +21,8 @@ import { controlItem, Option } from "lowcoder-design";
 import styled from "styled-components";
 import { getNextEntityName } from "util/stringUtils";
 import { TargetCompAction } from "@lowcoder-ee/comps/comps/tourComp/componentSelectorControl";
+// import { PlacementType } from "@rc-component"
+export type PlacementType = 'left' | 'leftTop' | 'leftBottom' | 'right' | 'rightTop' | 'rightBottom' | 'top' | 'topLeft' | 'topRight' | 'bottom' | 'bottomLeft' | 'bottomRight' | 'center';
 
 const OptionTypes = [
   {
@@ -233,8 +235,6 @@ const OptionTip = optionListDocUrl ? (
 );
 
 type TourStepChildType = { 
-  // target: InstanceType<typeof TargetCompAction>,
-  // target: InstanceType<typeof FunctionControl>,
   title: InstanceType<typeof StringControl>,
 };
 type TourStepControlType = new (params: CompParams<any>) => MultiBaseComp<
@@ -292,7 +292,7 @@ export function tourStepsControl<T extends TourStepControlType>(
   };
 }
 
-const PlacementOptions = [
+const PlacementOptions: {label: string, value: PlacementType}[] = [
   { label: "Center", value: "center"},
   { label: "Left", value: "left"},
   { label: "Left Top", value: "leftTop"},

@@ -12,6 +12,7 @@ import {
 import { baseSelectRefMethods, TourChildrenMap, TourPropertyView } from "./tourCompConstants";
 import { TourInputCommonConfig } from "./tourInputConstants";
 import { Tour, TourProps } from "antd";
+import { PlacementType } from "@lowcoder-ee/comps/controls/tourStepControl";
 
 /**
  * This component builds the Property Panel and the fake 'UI' for the Tour component
@@ -30,6 +31,8 @@ let TourBasicComp = (function () {
         title: step.title,
         description: step.description,
         target: step.target()?.current,
+        // arrow: step.arrow,
+        placement: step.placement as PlacementType,
       }
     })
 
