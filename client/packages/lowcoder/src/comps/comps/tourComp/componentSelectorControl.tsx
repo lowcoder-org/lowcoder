@@ -1,7 +1,6 @@
 import { trans } from "@lowcoder-ee/i18n";
-import { getPromiseAfterDispatch } from "@lowcoder-ee/util/promiseUtils";
-import { CompParams, ConstructorToDataType, customAction, routeByNameAction } from "lowcoder-core";
-import { ExecuteAction, ParamsConfig } from "@lowcoder-ee/comps/controls/actionSelector/executeCompTypes";
+import { CompParams, ConstructorToDataType, MultiBaseComp } from "lowcoder-core";
+import { ParamsConfig } from "@lowcoder-ee/comps/controls/actionSelector/executeCompTypes";
 import { CompNameContext, EditorContext, EditorState } from "@lowcoder-ee/comps/editorState";
 import { mapValues } from "lodash";
 import { Dropdown } from "components/Dropdown";
@@ -48,6 +47,7 @@ const ExecuteCompTmpAction = (function() {
   };
   return new MultiCompBuilder(childrenMap, () => {
     return () => undefined as (React.RefObject<HTMLElement> | undefined);
+    // return () => Promise.resolve(undefined as unknown);
   })
     .setPropertyViewFn(() => <></>)
     .build();
@@ -72,20 +72,45 @@ export function targetCompAction(params: ExecuteCompActionOptions) {
       }
     }
     
-    selectedComp: (GridItemComp | HookComp | InstanceType<typeof TemporaryStateItemComp>) | undefined;
+    selectedComp: React.RefObject<HTMLDivElement> | undefined;
     compList: (GridItemComp | HookComp | InstanceType<typeof TemporaryStateItemComp>)[] = [];
 
     updateSelectedComp(compName: string): void {
       const compListItem = this.compList.find((compItem) => compItem.children.name.getView() === compName);
       if (compListItem) {
-        this.selectedComp = compListItem;
+        console.log(`setting selected comp to ${compListItem}`)
+        this.selectedComp = ((compListItem as MultiBaseComp).children.comp as GridItemComp).getRef();
       }
     }
 
     override getView(): () => (React.RefObject<HTMLElement> | undefined) {
-      return () => this.selectedComp?.getRef();
+      return () => this.selectedComp;
     }
 
+    // override getView() {
+    //   const name = this.children.name.getView();
+    //   if (!name) {
+    //     return () => Promise.resolve();
+    //   }
+    //   return () =>
+    //     getPromiseAfterDispatch(
+    //       this.dispatch,
+    //       routeByNameAction(
+    //         name,
+    //         customAction<ExecuteAction>(
+    //           {
+    //             type: "execute",
+    //             methodName: this.children.methodName.getView(),
+    //             params: this.children.params.getView().map((x) => x.getView())
+    //           },
+    //           false
+    //         )
+    //       ),
+    //       {
+    //         notHandledError: trans("eventHandler.notHandledError")
+    //       }
+    //     );
+    // }
     exposingNode() {
       return this.node();
     }
@@ -94,8 +119,30 @@ export function targetCompAction(params: ExecuteCompActionOptions) {
       return (
         <EditorContext.Consumer>
           {(editorState) => {
-            const compList: (GridItemComp | HookComp | InstanceType<typeof TemporaryStateItemComp>)[] = compListGetter(editorState);
+            this.compList = compListGetter(editorState);
+            const compMethods: Record<string, Record<string, ParamsConfig>> = {};
 
+            this.compList.forEach((item) => {
+              compMethods[item.children.name.getView()] = mapValues(
+                item.exposingInfo().methods,
+                (v) => v.params
+              );
+            });
+
+            function changeMethodAction(compName: string, methodName: string) {
+              console.log("sldjafldkdf")
+              const currentMethods = compMethods[compName] ?? {};
+              const params = currentMethods[methodName];
+              return {
+                name: compName,
+                methodName: methodName,
+                params: params?.map((p) => ({
+                  compType: p.type,
+                  name: p.name,
+                })),
+              };
+            }
+            
             const name = this.children.name.getView();
             return (
               <>
@@ -104,7 +151,7 @@ export function targetCompAction(params: ExecuteCompActionOptions) {
                     <Dropdown
                       showSearch={true}
                       value={name}
-                      options={compList
+                      options={this.compList
                         .filter((item) => item.children.name.getView() !== compName)
                         .map((item) => ({
                           label: item.children.name.getView(),
@@ -115,6 +162,11 @@ export function targetCompAction(params: ExecuteCompActionOptions) {
                         console.log(`the value is ${value}`);
                         // After the value is changed, update `selectedComp`
                         this.updateSelectedComp(value);
+
+                        console.log("am i here? ")
+                        return this.dispatchChangeValueAction(
+                          changeMethodAction(value, Object.keys(compMethods[value])[0])
+                        )
                       }}
                     />
                   )}

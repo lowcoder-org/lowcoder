@@ -1,17 +1,15 @@
 import { ViewDocIcon } from "assets/icons";
-import { ArrayControl, BoolCodeControl, StringControl } from "comps/controls/codeControl";
+import { BoolCodeControl, StringControl } from "comps/controls/codeControl";
 import { dropdownControl } from "comps/controls/dropdownControl";
-import { MultiCompBuilder, withContext, withDefault } from "comps/generators";
+import { MultiCompBuilder, withDefault } from "comps/generators";
 import { list } from "comps/generators/list";
 import { ToViewReturn } from "comps/generators/multi";
 import { genRandomKey } from "comps/utils/idGenerator";
-import { disabledPropertyView, hiddenPropertyView } from "comps/utils/propertyUtils";
+import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
-import _, { mapValues } from "lodash";
+import { mapValues } from "lodash";
 import {
   Comp,
-  CompAction,
-  CompActionTypes,
   CompParams,
   ConstructorToDataType,
   ConstructorToView,
@@ -19,14 +17,9 @@ import {
   MultiBaseComp,
   withFunction
 } from "lowcoder-core";
-import { AutoArea, controlItem, Option } from "lowcoder-design";
+import { controlItem, Option } from "lowcoder-design";
 import styled from "styled-components";
-import { lastValueIfEqual } from "util/objectUtils";
 import { getNextEntityName } from "util/stringUtils";
-import { JSONObject, JSONValue } from "util/jsonTypes";
-import { ControlItemCompBuilder } from "comps/generators/controlCompBuilder";
-import { reduceInContext } from "../utils/reduceContext";
-import { optionsControl } from "lowcoder-sdk";
 import { TargetCompAction } from "@lowcoder-ee/comps/comps/tourComp/componentSelectorControl";
 
 const OptionTypes = [
@@ -302,23 +295,23 @@ export function tourStepsControl<T extends TourStepControlType>(
 const PlacementOptions = [
   { label: "Center", value: "center"},
   { label: "Left", value: "left"},
-  { label: "LeftTop", value: "leftTop"},
-  { label: "LeftBottom", value: "leftBottom"},
+  { label: "Left Top", value: "leftTop"},
+  { label: "Left Bottom", value: "leftBottom"},
   { label: "Right", value: "right"},
-  { label: "RightTop", value: "rightTop"},
-  { label: "RightBottom", value: "rightBottom"},
+  { label: "Right Top", value: "rightTop"},
+  { label: "Right Bottom", value: "rightBottom"},
   { label: "Top", value: "top"},
-  { label: "TopLeft", value: "topLeft"},
-  { label: "TopRight", value: "topRight"},
+  { label: "Top Left", value: "topLeft"},
+  { label: "Top Right", value: "topRight"},
   { label: "Bottom", value: "bottom"},
-  { label: "BottomLeft", value: "bottomLeft"},
-  { label: "BottomRight", value: "bottomRight"},
+  { label: "Bottom Left", value: "bottomLeft"},
+  { label: "Bottom Right", value: "bottomRight"},
 ];
 
 let TourStep = new MultiCompBuilder(
   {
     target: TargetCompAction,
-    // target: FunctionControl,
+    // target: dropdownControl(editorState.getAllUICompMap(), ""),
     arrow: BoolCodeControl,
     title: StringControl,
     description: StringControl,
@@ -341,10 +334,10 @@ TourStep = class extends TourStep implements TourStepCompProperty {
           placeholder: "Welcome to lowcoder, this is your first tutorial step",
         })}
         {this.children.target.propertyView()}
-        {/*{this.children.placement.propertyView({*/}
-        {/*  label: trans("textShow.verticalAlignment"),*/}
-        {/*  radioButton: true,*/}
-        {/*})}*/}
+        {this.children.placement.propertyView({
+          label: trans("textShow.verticalAlignment"),
+          radioButton: false
+        })}
         {hiddenPropertyView(this.children)}
       </>
     );
