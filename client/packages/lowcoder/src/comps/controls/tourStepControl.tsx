@@ -1,4 +1,3 @@
-import { ViewDocIcon } from "assets/icons";
 import { BoolCodeControl, StringControl } from "comps/controls/codeControl";
 import { dropdownControl } from "comps/controls/dropdownControl";
 import { MultiCompBuilder, withDefault } from "comps/generators";
@@ -15,12 +14,14 @@ import {
   ConstructorToView,
   fromRecord,
   MultiBaseComp,
+  SimpleAbstractComp,
   withFunction
 } from "lowcoder-core";
-import { controlItem, Option } from "lowcoder-design";
-import styled from "styled-components";
+import { controlItem, Dropdown, Option, OptionsType, ValueFromOption } from "lowcoder-design";
 import { getNextEntityName } from "util/stringUtils";
-import { TargetCompAction } from "@lowcoder-ee/comps/comps/tourComp/componentSelectorControl";
+import { BoolControl, ControlParams } from "lowcoder-sdk";
+import { ReactNode, useContext, useEffect, useState } from "react";
+import { EditorContext, EditorState } from "@lowcoder-ee/comps/editorState";
 // import { PlacementType } from "@rc-component"
 export type PlacementType = 'left' | 'leftTop' | 'leftBottom' | 'right' | 'rightTop' | 'rightBottom' | 'top' | 'topLeft' | 'topRight' | 'bottom' | 'bottomLeft' | 'bottomRight' | 'center';
 
@@ -205,35 +206,6 @@ export function manualTourStepsControl<T extends TourStepControlType>(
     : ManualOptionControl;
 }
 
-const TipLabel = styled.p`
-  display: inline;
-  margin: 2px 0 0 0;
-  padding: 0;
-
-  font-size: 13px;
-  color: #9195a3;
-  line-height: 18px;
-  cursor: pointer;
-
-  :hover g g {
-    stroke: #315efb;
-  }
-`;
-const DocIcon = styled(ViewDocIcon)`
-  transform: translateY(1px);
-  margin-right: 6px;
-`;
-
-const optionListDocUrl = trans("docUrls.optionList");
-const OptionTip = optionListDocUrl ? (
-  <TipLabel onClick={() => window.open(optionListDocUrl)}>
-    <DocIcon title={trans("optionsControl.viewDocs")} />
-    {trans("optionsControl.tip")}
-  </TipLabel>
-) : (
-  <></>
-);
-
 type TourStepChildType = { 
   title: InstanceType<typeof StringControl>,
 };
@@ -308,14 +280,131 @@ const PlacementOptions: {label: string, value: PlacementType}[] = [
   { label: "Bottom Right", value: "bottomRight"},
 ];
 
+
+export function editorStateDropdownControl<T extends OptionsType>(
+  options: ((editorState: EditorState) => T),
+  defaultValue: ValueFromOption<T>
+) {
+  return class extends editorStateDropdownAbstractControl(options, defaultValue) {
+    override getView() {
+      return this.value;
+    }
+  };
+}
+
+interface EditorStateDropdownControlParams<T extends OptionsType> extends ControlParams {
+  radioButton?: boolean;
+  border?: boolean;
+  type?: "oneline";
+  disabled?: boolean;
+  // parent comp may batch dispatch in some cases
+  disableDispatchValueChange?: boolean;
+  onChange?: (value: string) => void;
+  options?: T;
+  showSearch?: boolean;
+  dropdownStyle?: React.CSSProperties;
+  labelStyle?: React.CSSProperties;
+  IconType?: "OnlyAntd" | "All" | "default" | undefined;
+}
+type EditorStateDropdownOptions<T extends OptionsType> = (editorState: EditorState) => T;
+
+interface DropdownPropertyViewProps<T extends OptionsType>
+  extends Omit<EditorStateDropdownControlParams<T>, "options"> {
+  options: EditorStateDropdownOptions<T>;
+  onChange: (value: ValueFromOption<T>) => void;
+  value: ValueFromOption<T>;
+}
+
+function EditorStateDropdownPropertyView<T extends OptionsType>(props: DropdownPropertyViewProps<T>) {
+  const { options, onChange, value, ...params } = props;
+  const [finalOptions, setFinalOptions] = useState<T>(
+    typeof options === "function" ? ([] as unknown as T) : options
+  );
+  const editorState = useContext(EditorContext);
+
+  useEffect(() => {
+    if (typeof options !== "function") {
+      setFinalOptions(options);
+      return;
+    }
+    if (!finalOptions?.length) {
+      setFinalOptions(options(editorState))
+        //.then((items) => setFinalOptions(items));
+    }
+  }, [finalOptions.length, options]);
+
+  return (
+    <Dropdown
+      placement={params.placement}
+      toolTip={params.tooltip}
+      value={value}
+      options={finalOptions}
+      radioButton={params.radioButton}
+      border={params.border}
+      type={params.type}
+      label={params.label}
+      showSearch={params.showSearch}
+      onChange={onChange}
+      disabled={params.disabled}
+      dropdownStyle={props.dropdownStyle}
+      labelStyle={props.labelStyle}
+    />
+  );
+}
+
+/**
+ * Leave a getView method unimplemented, because the type cannot be changed by inheritance
+ */
+export function editorStateDropdownAbstractControl<T extends OptionsType>(
+  options: ((editorState: EditorState) => T),
+  defaultValue: ValueFromOption<T>
+) {
+  abstract class DropdownControl extends SimpleAbstractComp<ValueFromOption<T>> {
+    override getDefaultValue(): ValueFromOption<T> {
+      return defaultValue;
+    }
+
+    propertyView(params: EditorStateDropdownControlParams<T>) {
+      return controlItem(
+        { filterText: params.label },
+        <EditorStateDropdownPropertyView<T>
+          {...params}
+          value={this.value}
+          options={options}
+          onChange={(value) => {
+            if (!params.disableDispatchValueChange) {
+              this.dispatchChangeValueAction(value);
+            }
+            params.onChange?.(value);
+          }}
+        />
+      );
+    }
+
+    getPropertyView(): ReactNode {
+      throw new Error("Method not implemented.");
+    }
+  }
+
+  return DropdownControl;
+}
+
 let TourStep = new MultiCompBuilder(
   {
-    target: TargetCompAction,
-    // target: dropdownControl(editorState.getAllUICompMap(), ""),
-    arrow: BoolCodeControl,
+    // target: TargetCompAction,
+    target: editorStateDropdownControl((editorState) => {
+      console.log("Is editor defined? ")
+      console.log(editorState)
+      return Object.values(editorState.getAllUICompMap()).map((it) => ({
+        label: it.children.name.getView(),
+        value: it.children.name.getView(),
+      }))
+    },
+      ""),
+    arrow: BoolControl,
     title: StringControl,
     description: StringControl,
-    placement: dropdownControl(PlacementOptions, "center"),
+    placement: dropdownControl(PlacementOptions, "bottom"),
     hidden: BoolCodeControl,
   },
   (props) => props
@@ -333,10 +422,16 @@ TourStep = class extends TourStep implements TourStepCompProperty {
           label: "Description",
           placeholder: "Welcome to lowcoder, this is your first tutorial step",
         })}
-        {this.children.target.propertyView()}
+        {this.children.target.propertyView({
+          label: "TARGET",
+          radioButton: false,
+        })}
         {this.children.placement.propertyView({
           label: trans("textShow.verticalAlignment"),
           radioButton: false
+        })}
+        {this.children.arrow.propertyView({
+          label: "Arrow"
         })}
         {hiddenPropertyView(this.children)}
       </>
@@ -346,7 +441,7 @@ TourStep = class extends TourStep implements TourStepCompProperty {
 
 export const TourStepControl = tourStepsControl(TourStep, {
   initOptions: [
-    { title: "BLAHHH", description: "I love tutorials" },
-    { title: "second title", description: "Because they mean I don't have to teach people" },
+    { title: "Welcome", description: "Welcome to lowcoder" },
+    { title: "Step 2", description: "This is a tutorial step" },
   ],
 });

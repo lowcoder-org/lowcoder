@@ -46,7 +46,9 @@ const ExecuteCompTmpAction = (function() {
     params: ParamsValueControl
   };
   return new MultiCompBuilder(childrenMap, () => {
-    return () => undefined as (React.RefObject<HTMLElement> | undefined);
+    // return () => undefined as (React.RefObject<HTMLElement> | undefined);
+    // return () => undefined as (string | undefined);
+    return undefined as (string | undefined);
     // return () => Promise.resolve(undefined as unknown);
   })
     .setPropertyViewFn(() => <></>)
@@ -72,45 +74,24 @@ export function targetCompAction(params: ExecuteCompActionOptions) {
       }
     }
     
-    selectedComp: React.RefObject<HTMLDivElement> | undefined;
+    // selectedComp: React.RefObject<HTMLDivElement> | undefined;
+    selectedComp: string|undefined;
     compList: (GridItemComp | HookComp | InstanceType<typeof TemporaryStateItemComp>)[] = [];
 
-    updateSelectedComp(compName: string): void {
-      const compListItem = this.compList.find((compItem) => compItem.children.name.getView() === compName);
-      if (compListItem) {
-        console.log(`setting selected comp to ${compListItem}`)
-        this.selectedComp = ((compListItem as MultiBaseComp).children.comp as GridItemComp).getRef();
-      }
-    }
-
-    override getView(): () => (React.RefObject<HTMLElement> | undefined) {
-      return () => this.selectedComp;
-    }
-
-    // override getView() {
-    //   const name = this.children.name.getView();
-    //   if (!name) {
-    //     return () => Promise.resolve();
+    // updateSelectedComp(compName: string): void {
+    //   const compListItem = this.compList.find((compItem) => compItem.children.name.getView() === compName);
+    //   if (compListItem) {
+    //     console.log(`setting selected comp to ${compListItem}`)
+    //     this.selectedComp = ((compListItem as MultiBaseComp).children.comp as GridItemComp).getRef();
     //   }
-    //   return () =>
-    //     getPromiseAfterDispatch(
-    //       this.dispatch,
-    //       routeByNameAction(
-    //         name,
-    //         customAction<ExecuteAction>(
-    //           {
-    //             type: "execute",
-    //             methodName: this.children.methodName.getView(),
-    //             params: this.children.params.getView().map((x) => x.getView())
-    //           },
-    //           false
-    //         )
-    //       ),
-    //       {
-    //         notHandledError: trans("eventHandler.notHandledError")
-    //       }
-    //     );
     // }
+
+    // override getView(): () => (React.RefObject<HTMLElement> | undefined) {
+    // override getView(): () => (string | undefined) {
+    override getView(): string | undefined {
+      return this.selectedComp;
+    }
+
     exposingNode() {
       return this.node();
     }
@@ -130,7 +111,6 @@ export function targetCompAction(params: ExecuteCompActionOptions) {
             });
 
             function changeMethodAction(compName: string, methodName: string) {
-              console.log("sldjafldkdf")
               const currentMethods = compMethods[compName] ?? {};
               const params = currentMethods[methodName];
               return {
@@ -161,7 +141,8 @@ export function targetCompAction(params: ExecuteCompActionOptions) {
                       onChange={(value) => {
                         console.log(`the value is ${value}`);
                         // After the value is changed, update `selectedComp`
-                        this.updateSelectedComp(value);
+                        // this.updateSelectedComp(value);
+                        this.selectedComp = value;
 
                         console.log("am i here? ")
                         return this.dispatchChangeValueAction(

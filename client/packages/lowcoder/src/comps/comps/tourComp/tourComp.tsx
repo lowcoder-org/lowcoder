@@ -2,7 +2,7 @@ import { styleControl } from "comps/controls/styleControl";
 import { SelectStyle } from "comps/controls/styleControlConstants";
 import { trans } from "i18n";
 import {
-  CommonNameConfig,
+  CommonNameConfig, MultiBaseComp,
   NameConfig,
   stringExposingStateControl,
   UICompBuilder,
@@ -13,6 +13,12 @@ import { baseSelectRefMethods, TourChildrenMap, TourPropertyView } from "./tourC
 import { TourInputCommonConfig } from "./tourInputConstants";
 import { Tour, TourProps } from "antd";
 import { PlacementType } from "@lowcoder-ee/comps/controls/tourStepControl";
+import { useContext } from "react";
+import { EditorContext } from "@lowcoder-ee/comps/editorState";
+import { GridItemComp } from "@lowcoder-ee/comps/comps/gridItemComp";
+import { HookComp } from "@lowcoder-ee/comps/hooks/hookComp";
+import { TemporaryStateItemComp } from "@lowcoder-ee/comps/comps/temporaryStateComp";
+import { delay } from "redux-saga/effects";
 
 /**
  * This component builds the Property Panel and the fake 'UI' for the Tour component
@@ -25,13 +31,31 @@ let TourBasicComp = (function () {
     // style: styleControl(SelectStyle),
   };
   return new UICompBuilder(childrenMap, (props, dispatch) => {
-  
+    const editorState = useContext(EditorContext);
+    console.log("EDITOR STATE IS HERE")
+    console.log(editorState)
+    const compMap: (GridItemComp | HookComp | InstanceType<typeof TemporaryStateItemComp>)[] = Object.values(editorState.getAllUICompMap());
+    console.log("COMP MAP IS HERE")
+    console.log(compMap)
+    
     const steps: TourProps['steps'] = props.options.map((step) => {
+      const targetName = step.target;
+      let target = undefined;
+      const compListItem = compMap.find((compItem) => compItem.children.name.getView() === targetName);
+      if (compListItem) {
+        console.log(`setting selected comp to ${compListItem}`)
+        try {
+          target = ((compListItem as MultiBaseComp).children.comp as GridItemComp).getRef();
+        } catch (e) {
+          target = ((compListItem as MultiBaseComp).children.comp as HookComp).getRef();
+        }
+      }
+      
       return {
         title: step.title,
         description: step.description,
-        target: step.target()?.current,
-        // arrow: step.arrow,
+        target: target?.current,
+        arrow: step.arrow || true,
         placement: step.placement as PlacementType,
       }
     })
