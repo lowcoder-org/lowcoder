@@ -963,6 +963,29 @@ export const SegmentStyle = [
   VALIDATE,
 ] as const;
 
+export const StepsStyle = [
+  LABEL,
+  ...STYLING_FIELDS_SEQUENCE.filter((style) => ['border', 'borderWidth'].includes(style.name) === false),
+  {
+    name: "indicatorBackground",
+    label: trans("style.indicatorBackground"),
+    color: SURFACE_COLOR,
+  },
+  {
+    name: "background",
+    label: trans("style.background"),
+    depName: "indicatorBackground",
+    transformer: handleToSegmentBackground,
+  },
+  {
+    name: "text",
+    label: trans("text"),
+    depName: "indicatorBackground",
+    depType: DEP_TYPE.CONTRAST_TEXT,
+    transformer: contrastText,
+  },
+] as const;
+
 const LinkTextStyle = [
   {
     name: "text",
@@ -1442,6 +1465,7 @@ export type CascaderStyleType = StyleConfigType<typeof CascaderStyle>;
 export type CheckboxStyleType = StyleConfigType<typeof CheckboxStyle>;
 export type RadioStyleType = StyleConfigType<typeof RadioStyle>;
 export type SegmentStyleType = StyleConfigType<typeof SegmentStyle>;
+export type StepsStyleType = StyleConfigType<typeof StepsStyle>;
 export type TableStyleType = StyleConfigType<typeof TableStyle>;
 export type TableHeaderStyleType = StyleConfigType<typeof TableHeaderStyle>;
 export type TableToolbarStyleType = StyleConfigType<typeof TableToolbarStyle>;

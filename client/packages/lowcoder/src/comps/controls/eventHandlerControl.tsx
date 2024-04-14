@@ -20,7 +20,7 @@ import {
   QueryConfigItemWrapper,
   ValueFromOption,
 } from "lowcoder-design";
-import { Fragment, ReactNode, useContext, useEffect, useState } from "react";
+import { Fragment, ReactNode, useContext, useEffect, useState} from "react";
 import { memo } from "util/cacheUtils";
 import { EditorContext } from "../editorState";
 import { ActionSelectorControl } from "./actionSelector/actionSelectorControl";
@@ -142,6 +142,11 @@ const EventHandlerControlPropertyView = (props: {
   type?: "query";
   eventConfigs: EventConfigsType;
 }) => {
+
+  
+  const editorState = useContext(EditorContext);
+  const [showNewCreate, setShowNewCreate] = useState(false);
+
   const {
     dispatch,
     pushAction,
@@ -149,11 +154,9 @@ const EventHandlerControlPropertyView = (props: {
     inline = false,
     items,
     eventConfigs,
-    type,
+    type
   } = props;
-  const editorState = useContext(EditorContext);
-  const [showNewCreate, setShowNewCreate] = useState(false);
-
+  
   useEffect(() => setShowNewCreate(false), [dispatch]);
 
   const queryHandler = {
@@ -232,9 +235,8 @@ const EventHandlerControlPropertyView = (props: {
   );
 };
 
-class EventHandlerControl<T extends EventConfigsType> extends list(
-  SingleEventHandlerControl
-) {
+class EventHandlerControl<T extends EventConfigsType> extends list(SingleEventHandlerControl) {
+
   @memo
   // @ts-ignore
   getView() {

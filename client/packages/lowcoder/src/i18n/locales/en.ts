@@ -276,7 +276,6 @@ export const en = {
     "slowdownTooltip": "Use debounce or throttle to control the frequency of action triggers. Time unit can be 'ms' (millisecond, default) or 's' (second).",
     "notHandledError": "Not Handled",
     "currentApp": "Current",
-
     "inputEventHandlers": "Input Event Handlers",
     "inputEventHandlersDesc": "Event Handlers related to User Input",
     "buttonEventHandlers": "Button Event Handlers",
@@ -313,7 +312,6 @@ export const en = {
     "meetingEventHandlersDesc": "Event Handlers related to Meeting Events",
     "collaborationEventHandlers": "Collaboration Event Handlers",
     "collaborationEventHandlersDesc": "Event Handlers related to Collaboration Events",
-
   },
   "event": {
     "submit": "Submit",
@@ -900,6 +898,10 @@ export const en = {
     "segmentedControlCompDesc": "A control with segmented options for quickly toggling between multiple choices.",
     "segmentedControlCompKeywords": "segmented, control, toggle, options",
 
+    "stepControlCompName": "Step Control",
+    "stepControlCompDesc": "A control with step options to offer visual guided steps for applications like forms or wizards.",
+    "stepControlCompKeywords": "steps, control, toggle, options",
+
     "fileUploadCompName": "File Upload",
     "fileUploadCompDesc": "A component for uploading files, with support for drag-and-drop and file selection.",
     "fileUploadCompKeywords": "file, upload, drag and drop, select",
@@ -1251,6 +1253,12 @@ export const en = {
     "optionI": "Option {i}",
     "viewDocs": "View Docs",
     "tip": "The 'item' and 'i' Variables Represent the Value and Index of Each Item in the Data Array"
+  },
+  "stepOptionsControl": {
+    "title": "Step Title",
+    "subTitle": "Step Subtitle",
+    "description": "Step Description",
+    "status": "Step Status",
   },
   "radio": {
     "options": "Options",

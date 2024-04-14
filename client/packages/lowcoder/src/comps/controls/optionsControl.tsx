@@ -634,3 +634,39 @@ export const ColumnOptionControl = manualOptionsControl(ColumnOption, {
   autoIncField: "id",
 });
 
+let StepOption = new MultiCompBuilder(
+  {
+    label: StringControl,
+    subTitle: StringControl,
+    description: StringControl,
+    icon: IconControl,
+    status: StringControl,
+    disabled: BoolCodeControl,
+  },
+  (props) => props
+).build();
+
+StepOption = class extends StepOption implements OptionCompProperty {
+  propertyView(param: { autoMap?: boolean }) {
+    return (
+      <>
+        {this.children.label.propertyView({ label: trans("stepOptionsControl.title") })}
+        {this.children.subTitle.propertyView({ label: trans("stepOptionsControl.subTitle") })}
+        {this.children.description.propertyView({ label: trans("stepOptionsControl.description") })}
+        {this.children.icon.propertyView({ label: trans("button.icon") })}
+        {this.children.status.propertyView({ label: trans("stepOptionsControl.status") })}
+        {disabledPropertyView(this.children)}
+      </>
+    );
+  }
+};
+
+export const StepOptionControl = optionsControl(StepOption, {
+  initOptions: [
+    { label: "Step 1", subTitle: "Initialization", description: "Initial setup of parameters.", icon: "solid/play", status: "complete", disabled: "false" },
+    { label: "Step 2", subTitle: "Execution", description: "Execution of the main process.", icon: "solid/person-running", status: "in_progress", disabled: "false" },
+    { label: "Step 3", subTitle: "Finalization", description: "Final steps to complete the process.", icon: "solid/circle-check", status: "pending", disabled: "true" },
+    { label: "Step 4", subTitle: "Completion", description: "Process completed successfully.", icon: "solid/stamp", status: "complete", disabled: "true" },
+  ],
+  uniqField: "label",
+});

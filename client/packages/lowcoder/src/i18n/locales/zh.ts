@@ -1180,6 +1180,12 @@ optionsControl: {
     viewDocs: "查看文档",
     tip: '“item”和“i”变量代表数据数组中每个项的值和索引',
 },
+"stepOptionsControl": {
+    "title": "步骤",
+    "subTitle": "子标题",
+    "description": "描述",
+    "status": "状态",
+},
 radio: {
     options: "选项",
     horizontal: "水平",
