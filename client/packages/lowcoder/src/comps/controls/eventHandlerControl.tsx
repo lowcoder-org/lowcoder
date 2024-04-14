@@ -619,7 +619,7 @@ export const InputEventHandlerControl = eventHandlerControl([
   focusEvent,
   blurEvent,
   submitEvent,
-] as const);
+] as const); // , { title: trans("eventHandler.inputEventHandlers"), description: trans("eventHandler.inputEventHandlersDesc"), icon : "" } as const);
 
 export const ButtonEventHandlerControl = eventHandlerControl([
   clickEvent,

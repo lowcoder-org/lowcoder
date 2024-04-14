@@ -31,7 +31,7 @@ import {
   StringControl,
   hiddenPropertyView,
   ChangeEventHandlerControl,
-  // DragEventHandlerControl,
+  DragEventHandlerControl,
   Section,
   sectionNames,
   dropdownControl,
@@ -75,7 +75,7 @@ const childrenMap = {
   resources: jsonValueExposingStateControl("resources", resourcesDefaultData),
   resourceName: withDefault(StringControl, trans("calendar.resourcesDefault")),
   onEvent: ChangeEventHandlerControl,
-  // onDropEvent: DragEventHandlerControl,
+  onDropEvent: DragEventHandlerControl,
   editable: withDefault(BoolControl, true),
   showEventTime: withDefault(BoolControl, true),
   showWeekends: withDefault(BoolControl, true),
@@ -524,11 +524,11 @@ let CalendarBasicComp = (function () {
                 props.onEvent("change");
               }
             }}
-            /* eventDragStop={(info) => {
+            eventDragStop={(info) => {
               if (info.view) {
                 props.onEventDrop("dropEvent");
               }
-            }} */
+            }}
           />
         </ErrorBoundary>
       </Wrapper>
@@ -541,7 +541,7 @@ let CalendarBasicComp = (function () {
       resources: { propertyView: (arg0: {}) => any; };
       resourceName: { propertyView: (arg0: {}) => any; };
       onEvent: { getPropertyView: () => any; }; 
-      // onDropEvent: { getPropertyView: () => any; };
+      onDropEvent: { getPropertyView: () => any; };
       editable: { propertyView: (arg0: { label: string; }) => any; };
       showEventTime: { propertyView: (arg0: { label: string; tooltip: string; }) => any; }; 
       showWeekends: { propertyView: (arg0: { label: string; }) => any; }; 
@@ -574,6 +574,7 @@ let CalendarBasicComp = (function () {
           <Section name={sectionNames.interaction}>
             {hiddenPropertyView(children)}
             {children.onEvent.getPropertyView()}
+            {children.onDropEvent.getPropertyView()}
             {children.editable.propertyView({ label: trans("calendar.editable"), })}
           </Section>
           <Section name={sectionNames.advanced}>

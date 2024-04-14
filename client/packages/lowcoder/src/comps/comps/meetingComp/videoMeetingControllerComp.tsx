@@ -17,6 +17,7 @@ import { PositionControl } from "comps/controls/dropdownControl";
 import {
   closeEvent,
   eventHandlerControl,
+  MeetingEventHandlerControl,
 } from "comps/controls/eventHandlerControl";
 import { styleControl } from "comps/controls/styleControl";
 import { DrawerStyle } from "comps/controls/styleControlConstants";
@@ -226,6 +227,7 @@ const rtmInit = async (appId: any, uid: any, token: any, channel: any) => {
 const meetingControllerChildren = {
   visible: withDefault(BooleanStateControl, "false"),
   onEvent: eventHandlerControl(EventOptions),
+  onMeetingEvent: MeetingEventHandlerControl,
   width: StringControl,
   height: StringControl,
   autoHeight: AutoHeightControl,
@@ -589,6 +591,7 @@ let MTComp = (function () {
             </Section>
             <Section name={sectionNames.interaction}>
               {children.onEvent.getPropertyView()}
+              {children.onMeetingEvent.getPropertyView()}
             </Section>
           </>
         )}
