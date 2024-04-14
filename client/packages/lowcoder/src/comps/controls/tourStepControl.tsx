@@ -391,15 +391,11 @@ export function editorStateDropdownAbstractControl<T extends OptionsType>(
 
 let TourStep = new MultiCompBuilder(
   {
-    // target: TargetCompAction,
-    target: editorStateDropdownControl((editorState) => {
-      console.log("Is editor defined? ")
-      console.log(editorState)
-      return Object.values(editorState.getAllUICompMap()).map((it) => ({
-        label: it.children.name.getView(),
-        value: it.children.name.getView(),
-      }))
-    },
+    target: editorStateDropdownControl((editorState) =>
+        Object.values(editorState.getAllUICompMap()).map((it) => ({
+          label: it.children.name.getView(),
+          value: it.children.name.getView()
+        })),
       ""),
     arrow: BoolControl,
     title: StringControl,

@@ -32,11 +32,7 @@ let TourBasicComp = (function () {
   };
   return new UICompBuilder(childrenMap, (props, dispatch) => {
     const editorState = useContext(EditorContext);
-    console.log("EDITOR STATE IS HERE")
-    console.log(editorState)
     const compMap: (GridItemComp | HookComp | InstanceType<typeof TemporaryStateItemComp>)[] = Object.values(editorState.getAllUICompMap());
-    console.log("COMP MAP IS HERE")
-    console.log(compMap)
     
     const steps: TourProps['steps'] = props.options.map((step) => {
       const targetName = step.target;
