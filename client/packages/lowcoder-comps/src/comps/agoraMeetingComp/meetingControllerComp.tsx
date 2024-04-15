@@ -831,20 +831,9 @@ MTComp = withMethodExposing(MTComp, [
       });
     },
   },
-  // {
-  //   method: {
-  //     name: "closeDrawer",
-  //     description: trans("drawer.closeDrawerDesc"),
-  //     params: [],
-  //   },
-  //   execute: (comp : any, values: any) => {
-  //     comp.children.visible.getView().onChange(false);
-  //   },
-  // },
 ]);
 
 export const MeetingControllerComp = withExposingConfigs(MTComp, [
-  // new NameConfig("visible", trans("export.visibleDesc")),
   new NameConfig("appId", trans("meeting.appid")),
   new NameConfig("localUser", trans("meeting.host")),
   new NameConfig("participants", trans("meeting.participants")),

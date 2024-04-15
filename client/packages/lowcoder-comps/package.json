@@ -19,6 +19,8 @@
     "@fullcalendar/timeline": "^6.1.6",
     "@types/react": "^18.2.45",
     "@types/react-dom": "^18.2.18",
+    "agora-rtc-sdk-ng": "^4.20.2",
+    "agora-rtm-sdk": "^1.5.1",
     "big.js": "^6.2.1",
     "echarts-extension-gmap": "^1.6.0",
     "echarts-wordcloud": "^2.1.0",
