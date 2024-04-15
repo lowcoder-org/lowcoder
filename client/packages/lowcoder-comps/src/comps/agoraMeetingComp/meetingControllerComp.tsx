@@ -30,17 +30,11 @@ import {
   BackgroundColorContext,
   ContainerCompBuilder,
   closeEvent,
+  MeetingEventHandlerControl,
 } from "lowcoder-sdk";
 
 const EventOptions = [closeEvent] as const;
-import { Button } from "antd-mobile";
-import { trans, getCalendarLocale } from "../../i18n/comps";
-import {
-  DefaultWithFreeViewOptions,
-  DefaultWithPremiumViewOptions,
-  FirstDayOptions,
-} from "./calendarConstants";
-import { default as CloseOutlined } from "@ant-design/icons/CloseOutlined";
+import { trans } from "../../i18n/comps";
 const DrawerWrapper = styled.div`
   // Shield the mouse events of the lower layer, the mask can be closed in the edit mode to prevent the lower layer from sliding
   pointer-events: auto;
@@ -55,11 +49,9 @@ import AgoraRTC, {
 } from "agora-rtc-sdk-ng";
 
 import type { RtmChannel, RtmClient } from "agora-rtm-sdk";
-import { useCallback, useContext, useEffect, useState } from "react";
-// import { Drawer, changeChildAction } from "lowcoder-sdk/src";
+import { useCallback, useEffect, useState } from "react";
 import { ResizeHandle } from "react-resizable";
 import { v4 as uuidv4 } from "uuid";
-// import styled from "styled-components/dist/constructors/styled";
 
 const DEFAULT_SIZE = 378;
 const DEFAULT_PADDING = 16;
@@ -227,6 +219,7 @@ const meetingControllerChildren = {
   meetingActive: withDefault(BooleanStateControl, "false"),
   audioControl: withDefault(BooleanStateControl, "false"),
   videoControl: withDefault(BooleanStateControl, "true"),
+  onMeetingEvent: MeetingEventHandlerControl,
   endCall: withDefault(BooleanStateControl, "false"),
   sharing: withDefault(BooleanStateControl, "false"),
   appId: withDefault(StringControl, trans("meeting.appid")),
@@ -251,8 +244,8 @@ let MTComp = (function () {
     (props: any, dispatch: any) => {
       const isTopBom = ["top", "bottom"].includes(props.placement);
       const { items, ...otherContainerProps } = props.container;
-      const userViewMode = useUserViewMode();
-      const resizable = !userViewMode && (!isTopBom || !props.autoHeight);
+      // const userViewMode = useUserViewMode();
+      // const resizable = !userViewMode && (!isTopBom || !props.autoHeight);
       const onResizeStop = useCallback(
         (
           e: React.SyntheticEvent,
@@ -492,7 +485,7 @@ let MTComp = (function () {
         <BackgroundColorContext.Provider value={props.style.background}>
           <DrawerWrapper>
             <Drawer
-              resizable={resizable}
+              // resizable={resizable}
               onResizeStop={onResizeStop}
               rootStyle={
                 props.visible.value
@@ -534,7 +527,6 @@ let MTComp = (function () {
               maskClosable={props.maskClosable}
               mask={props.showMask}
             >
-              <p>sfsd</p>
               {/* <ButtonStyle
                 onClick={() => {
                   props.visible.onChange(false);
@@ -558,67 +550,68 @@ let MTComp = (function () {
       );
     }
   )
-    .setPropertyViewFn((children: any) => (
+    .setPropertyViewFn((children:any) => (
       <>
-        {/* {(useContext(EditorContext).editorModeStatus === "logic" ||
-          useContext(EditorContext).editorModeStatus === "both") && (
-          <>
-            <Section name={sectionNames.meetings}>
-              {children.appId.propertyView({
-                label: trans("meeting.appid"),
-              })}
-              {children.meetingName.propertyView({
-                label: trans("meeting.meetingName"),
-              })}
-              {children.localUserID.propertyView({
-                label: trans("meeting.localUserID"),
-              })}
-              {children.rtmToken.propertyView({
-                label: trans("meeting.rtmToken"),
-              })}
-              {children.rtcToken.propertyView({
-                label: trans("meeting.rtcToken"),
-              })}
-            </Section>
-            <Section name={sectionNames.interaction}>
-              {children.onEvent.getPropertyView()}
-            </Section>
-          </>
-        )} */}
-
-        {/* {(useContext(EditorContext).editorModeStatus === "layout" ||
-          useContext(EditorContext).editorModeStatus === "both") && ( */}
-        {/* <> */}
-        <Section name={sectionNames.layout}>
-          {children.placement.propertyView({
-            label: trans("meeting.placement"),
-            radioButton: true,
+        {/* {(EditorContext.editorModeStatus === "logic" ||
+            EditorContext.editorModeStatus === "both") && (
+            <> */}
+        <Section name={sectionNames.meetings}>
+          {children.appId.propertyView({
+            label: trans("meeting.appid"),
           })}
-          {["top", "bottom"].includes(children.placement.getView())
-            ? children.autoHeight.getPropertyView()
-            : children.width.propertyView({
-                label: trans("meeting.width"),
-                tooltip: trans("meeting.widthTooltip"),
-                placeholder: DEFAULT_SIZE + "",
-              })}
-          {!children.autoHeight.getView() &&
-            ["top", "bottom"].includes(children.placement.getView()) &&
-            children.height.propertyView({
-              label: trans("meeting.height"),
-              tooltip: trans("meeting.heightTooltip"),
-              placeholder: DEFAULT_SIZE + "",
-            })}
-          {children.maskClosable.propertyView({
-            label: trans("meeting.maskClosable"),
+          {children.meetingName.propertyView({
+            label: trans("meeting.meetingName"),
           })}
-          {children.showMask.propertyView({
-            label: trans("meeting.showMask"),
+          {children.localUserID.propertyView({
+            label: trans("meeting.localUserID"),
+          })}
+          {children.rtmToken.propertyView({
+            label: trans("meeting.rtmToken"),
+          })}
+          {children.rtcToken.propertyView({
+            label: trans("meeting.rtcToken"),
           })}
         </Section>
-
-        <Section name={sectionNames.style}>
-          {children.style.getPropertyView()}
+        <Section name={sectionNames.interaction}>
+          {children.onEvent.getPropertyView()}
+          {children.onMeetingEvent.getPropertyView()}
         </Section>
+        {/* </>
+          )} */}
+
+        {/* {(EditorContext.editorModeStatus === "layout" ||
+            EditorContext.editorModeStatus === "both") && (
+            <> */}
+        {/* <Section name={sectionNames.layout}>
+                {children.placement.propertyView({
+                  label: trans("meeting.placement"),
+                  radioButton: true,
+                })}
+                {["top", "bottom"].includes(children.placement.getView())
+                  ? children.autoHeight.getPropertyView()
+                  : children.width.propertyView({
+                      label: trans("meeting.width"),
+                      tooltip: trans("meeting.widthTooltip"),
+                      placeholder: DEFAULT_SIZE + "",
+                    })}
+                {!children.autoHeight.getView() &&
+                  ["top", "bottom"].includes(children.placement.getView()) &&
+                  children.height.propertyView({
+                    label: trans("meeting.height"),
+                    tooltip: trans("meeting.heightTooltip"),
+                    placeholder: DEFAULT_SIZE + "",
+                  })}
+                {children.maskClosable.propertyView({
+                  label: trans("meeting.maskClosable"),
+                })}
+                {children.showMask.propertyView({
+                  label: trans("meeting.showMask"),
+                })}
+              </Section>
+
+              <Section name={sectionNames.style}>
+                {children.style.getPropertyView()}
+              </Section> */}
         {/* </> */}
         {/* )} */}
       </>
@@ -850,7 +843,7 @@ MTComp = withMethodExposing(MTComp, [
   // },
 ]);
 
-export const AgoraMeetingControllerComp = withExposingConfigs(MTComp, [
+export const MeetingControllerComp = withExposingConfigs(MTComp, [
   // new NameConfig("visible", trans("export.visibleDesc")),
   new NameConfig("appId", trans("meeting.appid")),
   new NameConfig("localUser", trans("meeting.host")),
