@@ -13590,14 +13590,14 @@ __metadata:
   linkType: soft
 
 "lowcoder-sdk@file:/Users/la/Desktop/lowcoder-1/client/packages/lowcoder-sdk::locator=lowcoder-comps%40workspace%3Apackages%2Flowcoder-comps":
-  version: 2.4.0-beta
-  resolution: "lowcoder-sdk@file:/Users/la/Desktop/lowcoder-1/client/packages/lowcoder-sdk#/Users/la/Desktop/lowcoder-1/client/packages/lowcoder-sdk::hash=bd18d9&locator=lowcoder-comps%40workspace%3Apackages%2Flowcoder-comps"
+  version: 2.4.0-beta-4
+  resolution: "lowcoder-sdk@file:/Users/la/Desktop/lowcoder-1/client/packages/lowcoder-sdk#/Users/la/Desktop/lowcoder-1/client/packages/lowcoder-sdk::hash=8f69ed&locator=lowcoder-comps%40workspace%3Apackages%2Flowcoder-comps"
   dependencies:
     prettier: ^3.1.1
   peerDependencies:
     react: ">=18"
     react-dom: ">=18"
-  checksum: 89abb711cf6d46857c7e9375dcc20e2b7fbffde89fd43c3a7161109c61adbbf0d530ff8c2ebb750b56954ba701061117b82c21f119ee2abd2badfec96e1713f7
+  checksum: 53389cc347577922de953c5eb86083e7c2942117a241aa589776dd260d27564fc6fec930675cdf4a735cbf15eb2bf5c197e06354be80fa0cb9e52bb32453c392
   languageName: node
   linkType: hard
 

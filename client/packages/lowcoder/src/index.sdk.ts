@@ -6,10 +6,6 @@ import * as styledNameExports from "styled-components";
 import styledDefault from "styled-components";
 export * from "comps/comps/containerBase/containerCompBuilder";
 export * from "comps/utils/backgroundColorContext";
-export {
-  closeEvent,
-  eventHandlerControl,
-} from "comps/controls/eventHandlerControl";
 export { getData } from "comps/comps/listViewComp/listViewUtils";
 export {
   gridItemCompToGridItems,
@@ -17,6 +13,11 @@ export {
 } from "comps/comps/containerComp/containerView";
 
 export { Layers } from "constants/Layers";
+export * from "comps/controls/eventHandlerControl";
+export * from "comps/utils/methodUtils";
+
+export { useUserViewMode } from "util/hooks";
+export * from "comps/editorState";
 export * from "redux/store/store";
 
 // util
