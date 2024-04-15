@@ -129,6 +129,8 @@ function ListItem({
           dispatch={itemIdx === offset ? containerProps.dispatch : _.noop}
           style={{
             height: "100%",
+            // in case of horizontal mode, minHorizontalWidth is 0px
+            width: minHorizontalWidth !== '0px' ? minHorizontalWidth : '100%',
             backgroundColor: "transparent",
             flex: "auto",
           }}
