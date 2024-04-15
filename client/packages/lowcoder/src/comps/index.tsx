@@ -908,7 +908,7 @@ export var uiCompMap: Registry = {
     keywords: trans("uiComp.stepControlCompKeywords"),
     lazyLoad: true,
     compName: 'StepComp',
-    compPath: 'comps/selectInputComp/stepsControl',
+    compPath: 'comps/selectInputComp/stepControl',
     layoutInfo: {
       w: 6,
       h: 6,
