@@ -158,8 +158,13 @@ export const en = {
   },
   calendar: {
     events: "Events Data",
+    resources: "Resources",
+    resourcesDefault: "Rooms",
+    resourcesName: "Resource Name",
+    resourcesEvents : "Resources Events Data",
     editable: "Editable",
-    licence: "Licence Key",
+    license: "Licence Key",
+    licenseTooltip: "Get your licence key from https://fullcalendar.io/purchase to enable premium views like Resource Timeline and Resource Grid.",
     defaultDate: "Default Date",
     defaultDateTooltip: "Initial display date of the calendar",
     defaultView: "Default View",
@@ -170,11 +175,9 @@ export const en = {
     showAllDay: "Show All-Day",
     showAllDayTooltip: "Display all-day slot in week and day views",
     dayMaxEvents: "Day Max Events",
-    dayMaxEventsTooltip:
-      "Max events per day in month view, 0 for cell height limit",
+    dayMaxEventsTooltip: "Max events per day in month view, 0 for cell height limit",
     eventMaxStack: "Event Max Stack",
-    eventMaxStackTooltip:
-      "Max events to stack horizontally in week and day views, 0 for no limit",
+    eventMaxStackTooltip: "Max events to stack horizontally in week and day views, 0 for no limit",
     selectInterval: "Selected Interval",
     selectEvent: "Selected Event",
     changeSet: "Changed Event Object",
@@ -185,9 +188,13 @@ export const en = {
     today: "Today",
     month: "Month",
     week: "Week",
+    weekdaygrid : "Days of Week",
+    daygrid : "Day Events List",
+    year: "Year",
     day: "Day",
-    list: "List",
-    timeline: "TimeLine", //added by fred
+    list: "Events List",
+    timeline: "Resource Timeline", //added by fred
+    resourceTimeGridDay: "Resource Grid", //added by fred
     monday: "Monday",
     tuesday: "Tuesday",
     wednesday: "Wednesday",

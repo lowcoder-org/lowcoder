@@ -22,6 +22,8 @@ export { ReactComponent as ClickLinkIcon } from "./icon-clickLink.svg";
 export { ReactComponent as CloseEyeIcon } from "./icon-closeEye.svg";
 export { ReactComponent as CodeEditorCloseIcon } from "./icon-code-editor-close.svg";
 export { ReactComponent as CodeEditorOpenIcon } from "./icon-code-editor-open.svg";
+export { ReactComponent as CodeEditorPinnedIcon} from "./remix/pushpin-2-fill.svg"
+export { ReactComponent as CodeEditorUnPinnedIcon} from "./remix/pushpin-line.svg"
 export { ReactComponent as ColorHexIcon } from "./icon-colorHex.svg";
 export { ReactComponent as ContainerDragIcon } from "./icon-container-drag.svg";
 export { ReactComponent as CopyIcon } from "./icon-copy.svg";

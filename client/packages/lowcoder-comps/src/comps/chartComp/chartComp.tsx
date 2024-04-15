@@ -39,6 +39,8 @@ import {
 import 'echarts-extension-gmap';
 import log from "loglevel";
 
+let clickEventCallback = () => {};
+
 let ChartTmpComp = (function () {
   return new UICompBuilder(chartChildrenMap, () => null)
     .setPropertyViewFn(chartPropertyView)
@@ -84,6 +86,15 @@ ChartTmpComp = withViewFn(ChartTmpComp, (comp) => {
     echartsCompInstance?.on("selectchanged", (param: any) => {
       const option: any = echartsCompInstance?.getOption();
       //log.log("chart select change", param);
+      // trigger click event listener
+      document.dispatchEvent(new CustomEvent("clickEvent", {
+        bubbles: true,
+        detail: {
+          action: param.fromAction,
+          data: getSelectedPoints(param, option)
+        }
+      }));
+
       if (param.fromAction === "select") {
         comp.dispatch(changeChildAction("selectedPoints", getSelectedPoints(param, option)));
         onUIEvent("select");
@@ -93,7 +104,10 @@ ChartTmpComp = withViewFn(ChartTmpComp, (comp) => {
       }
     });
     // unbind
-    return () => echartsCompInstance?.off("selectchanged");
+    return () => {
+      echartsCompInstance?.off("selectchanged");
+      document.removeEventListener('clickEvent', clickEventCallback)
+    };
   }, [mode, onUIEvent]);
 
   const echartsConfigChildren = _.omit(comp.children, echartsConfigOmitChildren);
@@ -337,6 +351,21 @@ ChartComp = withMethodExposing(ChartComp, [
         lng: comp.children.mapCenterLng.getView(),
         lat: comp.children.mapCenterLat.getView(),
       });
+    }
+  },
+  {
+    method: {
+      name: "onClick",
+      params: [
+        {
+          name: "callback",
+          type: "function",
+        },
+      ],
+    },
+    execute: (comp, params) => {
+      clickEventCallback = params[0];
+      document.addEventListener('clickEvent', clickEventCallback);
     }
   },
 ])

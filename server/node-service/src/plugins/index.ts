@@ -8,6 +8,7 @@ import couchdbPlugin from "./couchdb";
 import wooCommercePlugin from "./woocommerce";
 import openAiPlugin from "./openAi";
 import athenaPlugin from "./athena";
+import duckdbPlugin from "./duckdb";
 import lambdaPlugin from "./lambda";
 import googleCloudStorage from "./googleCloudStorage";
 import stripePlugin from "./stripe";
@@ -43,6 +44,7 @@ let plugins: (DataSourcePlugin | DataSourcePluginFactory)[] = [
   wooCommercePlugin,
   openAiPlugin,
   athenaPlugin,
+  duckdbPlugin,
   lambdaPlugin,
   googleCloudStorage,
   stripePlugin,
@@ -72,6 +74,6 @@ let plugins: (DataSourcePlugin | DataSourcePluginFactory)[] = [
 try {
   plugins = require("../ee/plugins").default;
   console.info("using ee plugins");
-} catch {}
+} catch { }
 
 export default plugins;

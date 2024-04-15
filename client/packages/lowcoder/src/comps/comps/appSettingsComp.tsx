@@ -18,6 +18,7 @@ import { StringControl } from "comps/controls/codeControl";
 import { IconControl } from "comps/controls/iconControl";
 import { dropdownControl } from "comps/controls/dropdownControl";
 import { ApplicationCategoriesEnum } from "constants/applicationConstants";
+import { BoolControl } from "../controls/boolControl";
 
 const TITLE = trans("appSetting.title");
 const USER_DEFINE = "__USER_DEFINE";
@@ -182,6 +183,7 @@ const childrenMap = {
   description: withDefault(StringControl, ''),
   icon: IconControl,
   category: dropdownControl(AppCategories, ApplicationCategoriesEnum.BUSINESS),
+  showHeaderInPublic: withDefault(BoolControl, true),
   maxWidth: dropdownInputSimpleControl(OPTIONS, USER_DEFINE, "1920"),
   themeId: valueComp<string>(DEFAULT_THEMEID),
   customShortcuts: CustomShortcutsComp,
@@ -202,6 +204,7 @@ function AppSettingsModal(props: ChildrenInstance) {
     description,
     icon,
     category,
+    showHeaderInPublic,
   } = props;
   const THEME_OPTIONS = themeList?.map((theme) => ({
     label: theme.name,
@@ -253,6 +256,11 @@ function AppSettingsModal(props: ChildrenInstance) {
           {icon.propertyView({
             label: trans("icon"),
             tooltip: trans("aggregation.iconTooltip"),
+          })}
+        </div>
+        <div style={{ margin: '20px 0'}}>
+          {showHeaderInPublic.propertyView({
+            label: trans("appSetting.showPublicHeader"),
           })}
         </div>
         {maxWidth.propertyView({
