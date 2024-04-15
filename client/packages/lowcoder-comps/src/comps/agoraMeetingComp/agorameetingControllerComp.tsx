@@ -1,40 +1,24 @@
 import {
-  isValidColor,
   NameConfig,
-  NameConfigHidden,
   BoolControl,
-  UICompBuilder,
   withDefault,
   withExposingConfigs,
-  NumberControl,
   StringControl,
-  hiddenPropertyView,
-  ChangeEventHandlerControl,
   Section,
   sectionNames,
-  dropdownControl,
   styleControl,
-  ThemeContext,
-  CalendarStyle,
-  DateParser,
-  CustomModal,
-  jsonValueExposingStateControl,
-  CalendarDeleteIcon,
-  Tooltip,
   BooleanStateControl,
   AutoHeightControl,
   stringStateControl,
   InnerGrid,
   useUserViewMode,
   getData,
-  DrawerWrapper,
   gridItemCompToGridItems,
   Layers,
   isNumeric,
   EditorContext,
   withMethodExposing,
   eventHandlerControl,
-  EventOptions,
   DrawerStyle,
   PositionControl,
   jsonObjectExposingStateControl,
@@ -43,10 +27,12 @@ import {
   changeChildAction,
   HintPlaceHolder,
   styled,
+  BackgroundColorContext,
+  ContainerCompBuilder,
+  closeEvent,
 } from "lowcoder-sdk";
 
-import { BackgroundColorContext } from "../../../../lowcoder/src/comps/utils/backgroundColorContext";
-import { ContainerCompBuilder } from "../../../../lowcoder/src/comps/comps/containerBase/containerCompBuilder";
+const EventOptions = [closeEvent] as const;
 import { Button } from "antd-mobile";
 import { trans, getCalendarLocale } from "../../i18n/comps";
 import {
@@ -55,7 +41,10 @@ import {
   FirstDayOptions,
 } from "./calendarConstants";
 import { default as CloseOutlined } from "@ant-design/icons/CloseOutlined";
-
+const DrawerWrapper = styled.div`
+  // Shield the mouse events of the lower layer, the mask can be closed in the edit mode to prevent the lower layer from sliding
+  pointer-events: auto;
+`;
 import AgoraRTC, {
   type ICameraVideoTrack,
   type IMicrophoneAudioTrack,
@@ -64,6 +53,7 @@ import AgoraRTC, {
   type UID,
   type ILocalVideoTrack,
 } from "agora-rtc-sdk-ng";
+
 import type { RtmChannel, RtmClient } from "agora-rtm-sdk";
 import { useCallback, useContext, useEffect, useState } from "react";
 // import { Drawer, changeChildAction } from "lowcoder-sdk/src";
@@ -98,34 +88,34 @@ let screenShareStream: ILocalVideoTrack;
 let userId: UID | null | undefined;
 let rtmChannelResponse: RtmChannel;
 let rtmClient: RtmClient;
-const ButtonStyle = styled(Button)`
-  position: absolute;
-  left: 0;
-  top: 0;
-  z-index: 10;
-  font-weight: 700;
-  box-shadow: none;
-  color: rgba(0, 0, 0, 0.45);
-  height: 54px;
-  width: 54px;
+// const ButtonStyle = styled(Button)`
+//   position: absolute;
+//   left: 0;
+//   top: 0;
+//   z-index: 10;
+//   font-weight: 700;
+//   box-shadow: none;
+//   color: rgba(0, 0, 0, 0.45);
+//   height: 54px;
+//   width: 54px;
 
-  svg {
-    width: 16px;
-    height: 16px;
-  }
+//   svg {
+//     width: 16px;
+//     height: 16px;
+//   }
 
-  &,
-  :hover,
-  :focus {
-    background-color: transparent;
-    border: none;
-  }
+//   &,
+//   :hover,
+//   :focus {
+//     background-color: transparent;
+//     border: none;
+//   }
 
-  :hover,
-  :focus {
-    color: rgba(0, 0, 0, 0.75);
-  }
-`;
+//   :hover,
+//   :focus {
+//     color: rgba(0, 0, 0, 0.75);
+//   }
+// `;
 const turnOnCamera = async (flag?: boolean) => {
   if (videoTrack) {
     return videoTrack.setEnabled(flag!);
@@ -532,10 +522,10 @@ let MTComp = (function () {
                   ? transToPxSize(props.height || DEFAULT_SIZE)
                   : ""
               }
-              onClose={(e) => {
+              onClose={(e: any) => {
                 props.visible.onChange(false);
               }}
-              afterOpenChange={(visible) => {
+              afterOpenChange={(visible: any) => {
                 if (!visible) {
                   props.onEvent("close");
                 }
@@ -544,13 +534,14 @@ let MTComp = (function () {
               maskClosable={props.maskClosable}
               mask={props.showMask}
             >
-              <ButtonStyle
+              <p>sfsd</p>
+              {/* <ButtonStyle
                 onClick={() => {
                   props.visible.onChange(false);
                 }}
               >
                 <CloseOutlined />
-              </ButtonStyle>
+              </ButtonStyle> */}
               <InnerGrid
                 {...otherContainerProps}
                 items={gridItemCompToGridItems(items)}
