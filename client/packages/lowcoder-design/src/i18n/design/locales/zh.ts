@@ -18,6 +18,7 @@ export const zh = {
     },
     prop: {
       basic: "基础",
+      resources: "资源",
       interaction: "交互",
       advanced: "高级",
       validation: "验证",

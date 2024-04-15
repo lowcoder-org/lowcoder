@@ -1,3 +1,23 @@
+import { default as Form } from "antd/es/form";
+import { default as Input } from "antd/es/input";
+import { trans, getCalendarLocale } from "../../i18n/comps";
+import { createRef, useContext, useRef, useState, useEffect } from "react";
+import dayjs from "dayjs";
+import FullCalendar from "@fullcalendar/react";
+import resourceTimelinePlugin from "@fullcalendar/resource-timeline";
+import resourceTimeGridPlugin from "@fullcalendar/resource-timegrid";
+import adaptivePlugin from "@fullcalendar/adaptive";
+import dayGridPlugin from "@fullcalendar/daygrid";
+import multiMonthPlugin from '@fullcalendar/multimonth';
+import timeGridPlugin from "@fullcalendar/timegrid";
+import interactionPlugin from "@fullcalendar/interaction";
+import listPlugin from "@fullcalendar/list";
+import allLocales from "@fullcalendar/core/locales-all";
+import { EventContentArg, DateSelectArg } from "@fullcalendar/core";
+import momentPlugin from "@fullcalendar/moment";
+
+import ErrorBoundary from "./errorBoundary";
+
 import {
   isValidColor,
   NameConfig,
@@ -6,10 +26,12 @@ import {
   UICompBuilder,
   withDefault,
   withExposingConfigs,
+  withMethodExposing,
   NumberControl,
   StringControl,
   hiddenPropertyView,
   ChangeEventHandlerControl,
+  DragEventHandlerControl,
   Section,
   sectionNames,
   dropdownControl,
@@ -22,22 +44,7 @@ import {
   CalendarDeleteIcon,
   Tooltip,
 } from "lowcoder-sdk";
-import { default as Form } from "antd/es/form";
-import { default as Input } from "antd/es/input";
-import { trans, getCalendarLocale } from "../../i18n/comps";
-import { createRef, useContext, useRef, useState } from "react";
-import resourceTimelinePlugin from "@fullcalendar/resource-timeline";
-import resourceTimeGridPlugin from "@fullcalendar/resource-timegrid";
-import adaptivePlugin from "@fullcalendar/adaptive";
 
-import FullCalendar from "@fullcalendar/react";
-import dayGridPlugin from "@fullcalendar/daygrid";
-import timeGridPlugin from "@fullcalendar/timegrid";
-import interactionPlugin from "@fullcalendar/interaction";
-import listPlugin from "@fullcalendar/list";
-import allLocales from "@fullcalendar/core/locales-all";
-import { EventContentArg, DateSelectArg } from "@fullcalendar/core";
-import momentPlugin from "@fullcalendar/moment";
 import {
   DefaultWithFreeViewOptions,
   DefaultWithPremiumViewOptions,
@@ -52,61 +59,156 @@ import {
   headerToolbar,
   views,
   slotLabelFormat,
+  slotLabelFormatWeek,
+  slotLabelFormatMonth,
   viewClassNames,
   FormWrapper,
+  resourcesDefaultData,
+  resourcesEventsDefaultData,
+  resourceTimeLineHeaderToolbar,
+  resourceTimeGridHeaderToolbar,
 } from "./calendarConstants";
-import dayjs from "dayjs";
-
-function filterViews() {}
-
+ 
 const childrenMap = {
   events: jsonValueExposingStateControl("events", defaultData),
+  resourcesEvents: jsonValueExposingStateControl("resourcesEvents", resourcesEventsDefaultData),
+  resources: jsonValueExposingStateControl("resources", resourcesDefaultData),
+  resourceName: withDefault(StringControl, trans("calendar.resourcesDefault")),
   onEvent: ChangeEventHandlerControl,
-
+  onDropEvent: DragEventHandlerControl,
   editable: withDefault(BoolControl, true),
-  defaultDate: withDefault(StringControl, "{{ new Date() }}"),
-  defaultFreeView: dropdownControl(DefaultWithFreeViewOptions, "timeGridWeek"),
-  defaultPremiumView: dropdownControl(
-    DefaultWithPremiumViewOptions,
-    "timeGridWeek"
-  ),
-
-  firstDay: dropdownControl(FirstDayOptions, "1"),
   showEventTime: withDefault(BoolControl, true),
   showWeekends: withDefault(BoolControl, true),
   showAllDay: withDefault(BoolControl, true),
+  defaultDate: withDefault(StringControl, "{{ new Date() }}"),
+  firstDay: dropdownControl(FirstDayOptions, "1"),
   dayMaxEvents: withDefault(NumberControl, 2),
   eventMaxStack: withDefault(NumberControl, 0),
   style: styleControl(CalendarStyle),
-  licenceKey: withDefault(StringControl, ""),
+  licenseKey: withDefault( StringControl, "" ),
+  currentFreeView: dropdownControl(DefaultWithFreeViewOptions, "timeGridWeek"),
+  currentPremiumView: dropdownControl(DefaultWithPremiumViewOptions, "resourceTimelineDay"),
 };
 
 let CalendarBasicComp = (function () {
-  return new UICompBuilder(childrenMap, (props) => {
+  return new UICompBuilder(childrenMap, (props: { 
+    events: any; 
+    resourcesEvents: any; 
+    resources: any; 
+    resourceName : string
+    onEvent?: any;
+    onEventDrop?: any;
+    editable?: boolean; 
+    showEventTime?: boolean; 
+    showWeekends?: boolean; 
+    showAllDay?: boolean; 
+    defaultDate?: string; 
+    firstDay?: string; 
+    dayMaxEvents?: number; 
+    eventMaxStack?: number; 
+    style: any; 
+    licenseKey?: string; 
+    licensed?: boolean;
+    currentFreeView?: string; 
+    currentPremiumView?: string; 
+  }) => {
+
     const theme = useContext(ThemeContext);
     const ref = createRef<HTMLDivElement>();
     const editEvent = useRef<EventType>();
     const [form] = Form.useForm();
     const [left, setLeft] = useState<number | undefined>(undefined);
+    const [licensed, setLicensed] = useState<boolean>(props.licenseKey !== "");
 
-    const events = props.events.value.map((item: EventType) => {
+    useEffect(() => {
+      setLicensed(props.licenseKey !== "");
+    }, [props.licenseKey]);
+
+    let currentView = licensed ? props.currentPremiumView : props.currentFreeView;
+    let currentEvents = currentView == "resourceTimelineDay" || currentView == "resourceTimeGridDay" ? props.resourcesEvents : props.events;
+
+    console.log("currentEvents", currentEvents);
+
+    // we use one central stack of events for all views
+    let events = Array.isArray(currentEvents.value) ? currentEvents.value.map((item: EventType) => {
       return {
         title: item.title,
         id: item.id,
         start: dayjs(item.start, DateParser).format(),
         end: dayjs(item.end, DateParser).format(),
         allDay: item.allDay,
-        color: isValidColor(item.color || "")
-          ? item.color
-          : theme?.theme?.primary,
-        ...(item.groupId ? { groupId: item.groupId } : null),
+        resourceId: item.resourceId ? item.resourceId : null,
+        color: isValidColor(item.color || "") ? item.color : theme?.theme?.primary,
+        ...(item.groupId ? { groupId: item.groupId } : {}),
       };
+    }) : [currentEvents.value];
+
+    const resources = props.resources.value;
+
+    // list all plugins for Fullcalendar
+    const plugins = [
+      dayGridPlugin,
+      timeGridPlugin,
+      interactionPlugin,
+      listPlugin,
+      momentPlugin,
+      resourceTimelinePlugin,
+      resourceTimeGridPlugin,
+      adaptivePlugin,
+      multiMonthPlugin,
+    ];
+
+    // filter out premium plugins if not licensed
+    const filteredPlugins = plugins.filter((plugin) => {
+      if (!licensed) {
+        return ![resourceTimelinePlugin, resourceTimeGridPlugin, adaptivePlugin].includes(plugin);
+      }
+      return true;
     });
 
-    const {
-      defaultDate,
-      defaultFreeView,
-      defaultPremiumView,
+    const toolBar = (defaultView: any) => {
+      switch (defaultView) {
+        case "resourceTimelineDay":
+          return resourceTimeLineHeaderToolbar;
+          break;
+        case "resourceTimeGridDay":
+          return resourceTimeGridHeaderToolbar;
+          break;
+        default:
+          return headerToolbar;
+          break;
+      }
+    };
+
+
+    const [currentSlotLabelFormat, setCurrentSlotLabelFormat] = useState(slotLabelFormat);
+
+    const handleDatesSet = (arg: { view: { type: any; }; }) => {
+      switch (arg.view.type) {
+        case "resourceTimelineDay":
+          setCurrentSlotLabelFormat(slotLabelFormat);
+          break;
+        case "resourceTimelineWeek":
+          setCurrentSlotLabelFormat(slotLabelFormatWeek);
+          break;
+        case "resourceTimelineMonth":
+          setCurrentSlotLabelFormat(slotLabelFormatMonth);
+          break;
+        default:
+          setCurrentSlotLabelFormat(slotLabelFormat);
+          break;
+      }
+    };
+
+    let initialDate: string | undefined;
+
+    try {
+      initialDate = new Date(props.defaultDate || Date.now()).toISOString();
+    } catch (error) {
+      initialDate = undefined;
+    }
+
+    let {
       showEventTime,
       showWeekends,
       showAllDay,
@@ -115,7 +217,8 @@ let CalendarBasicComp = (function () {
       style,
       firstDay,
       editable,
-      licenceKey,
+      licenseKey,
+      resourceName,
     } = props;
 
     function renderEventContent(eventInfo: EventContentArg) {
@@ -145,9 +248,9 @@ let CalendarBasicComp = (function () {
       return (
         <Event
           className={`event ${sizeClass} ${stateClass}`}
-          isList={isList}
           bg={eventInfo.backgroundColor}
           theme={theme?.theme}
+          isList={isList}
           allDay={showAllDay}
           $style={props.style}
         >
@@ -307,24 +410,13 @@ let CalendarBasicComp = (function () {
             }
             props.onEvent("change");
             form.resetFields();
-          });
+          }); //small change
         },
         onCancel: () => {
           form.resetFields();
         },
       });
-    };
-
-    let initialDate = defaultDate;
-    try {
-      initialDate = new Date(defaultDate).toISOString();
-    } catch (error) {
-      initialDate = undefined;
-    }
-    let defaultView = defaultFreeView;
-    if (licenceKey != "") {
-      defaultView = defaultPremiumView;
-    }
+    }; 
 
     return (
       <Wrapper
@@ -334,164 +426,170 @@ let CalendarBasicComp = (function () {
         $theme={theme?.theme}
         onDoubleClick={handleDbClick}
         $left={left}
-        key={initialDate ? defaultView + initialDate : defaultView}
+        key={initialDate ? currentView + initialDate : currentView}
       >
-        <FullCalendar
-          slotEventOverlap={false}
-          events={events}
-          expandRows={true}
-          height={"100%"}
-          locale={getCalendarLocale()}
-          locales={allLocales}
-          firstDay={Number(firstDay)}
-          plugins={[
-            dayGridPlugin,
-            timeGridPlugin,
-            interactionPlugin,
-            listPlugin,
-            momentPlugin,
-            resourceTimelinePlugin,
-            resourceTimeGridPlugin,
-            adaptivePlugin,
-          ]}
-          headerToolbar={headerToolbar}
-          moreLinkClick={(info) => {
-            let left = 0;
-            const ele = info.jsEvent.target as HTMLElement;
-            if (info.view.type === ViewType.DAY) {
-              if (info.allDay) {
-                left = ele.offsetParent?.parentElement?.offsetLeft || 0;
+        <ErrorBoundary>
+          <FullCalendar
+            slotEventOverlap={false}
+            events={ events }
+            dayHeaders={true}
+            dayHeaderFormat={{ weekday: 'short', month: 'numeric', day: 'numeric', omitCommas: true }}
+            expandRows={true}
+            multiMonthMinWidth={250}
+            nowIndicator={true}
+            height={"100%"}
+            locale={getCalendarLocale()}
+            locales={allLocales}
+            firstDay={Number(firstDay)}
+            plugins={filteredPlugins}
+            headerToolbar={toolBar(currentView)}
+            resourceAreaHeaderContent={resourceName}
+            
+            buttonText={buttonText}
+            schedulerLicenseKey={licenseKey}
+            views={views}
+            resources={ currentView == "resourceTimelineDay" || currentView == "resourceTimeGridDay" ? resources : [] }
+            eventClassNames={() => (!showEventTime ? "no-time" : "")}
+            slotLabelFormat={currentSlotLabelFormat}
+            viewClassNames={viewClassNames}
+            moreLinkText={trans("calendar.more")}
+            initialDate={initialDate}
+            initialView={currentView}
+            editable={editable}
+            selectable={editable}
+            datesSet={handleDatesSet}
+            selectMirror={false}
+            displayEventTime={showEventTime}
+            dayMaxEvents={dayMaxEvents}
+            eventMaxStack={eventMaxStack || undefined}
+            weekends={showWeekends}
+            allDaySlot={showAllDay}
+            eventContent={renderEventContent}
+            select={(info) => handleCreate(info)}
+            eventClick={(info) => {
+              const event = events.find(
+                (item: EventType) => item.id === info.event.id
+              );
+              editEvent.current = event;
+              setTimeout(() => {
+                editEvent.current = undefined;
+              }, 500);
+            }}
+            moreLinkClick={(info) => {
+              let left = 0;
+              const ele = info.jsEvent.target as HTMLElement;
+              if (info.view.type === ViewType.DAY) {
+                if (info.allDay) {
+                  left = ele.offsetParent?.parentElement?.offsetLeft || 0;
+                } else {
+                  left = ele.parentElement?.offsetLeft || 0;
+                }
               } else {
-                left = ele.parentElement?.offsetLeft || 0;
+                if (info.allDay) {
+                  left =
+                    ele.offsetParent?.parentElement?.parentElement?.offsetLeft ||
+                    0;
+                } else {
+                  left =
+                    ele.offsetParent?.parentElement?.parentElement?.parentElement
+                      ?.offsetLeft || 0;
+                }
               }
-            } else {
-              if (info.allDay) {
-                left =
-                  ele.offsetParent?.parentElement?.parentElement?.offsetLeft ||
-                  0;
-              } else {
-                left =
-                  ele.offsetParent?.parentElement?.parentElement?.parentElement
-                    ?.offsetLeft || 0;
+              setLeft(left);
+            }}
+            eventsSet={(info) => {
+              let needChange = false;
+              let changeEvents: EventType[] = [];
+              info.forEach((item) => {
+                const event = events.find((i: EventType) => i.id === item.id);
+                const start = dayjs(item.start, DateParser).format();
+                const end = dayjs(item.end, DateParser).format();
+                if (
+                  start !== event?.start ||
+                  end !== event?.end ||
+                  !!item.allDay !== !!event?.allDay
+                ) {
+                  needChange = true;
+                  changeEvents.push({
+                    ...event,
+                    allDay: item.allDay,
+                    start: item.startStr,
+                    end: item.endStr,
+                  });
+                } else {
+                  changeEvents.push(event);
+                }
+              });
+              if (needChange) {
+                props.onEvent("change");
               }
-            }
-            setLeft(left);
-          }}
-          buttonText={buttonText}
-          schedulerLicenseKey={licenceKey}
-          views={views}
-          eventClassNames={() => (!showEventTime ? "no-time" : "")}
-          slotLabelFormat={slotLabelFormat}
-          viewClassNames={viewClassNames}
-          moreLinkText={trans("calendar.more")}
-          initialDate={initialDate}
-          initialView={defaultView}
-          editable={editable}
-          selectable={editable}
-          selectMirror={false}
-          displayEventTime={showEventTime}
-          dayMaxEvents={dayMaxEvents}
-          eventMaxStack={eventMaxStack || undefined}
-          weekends={showWeekends}
-          allDaySlot={showAllDay}
-          eventContent={renderEventContent}
-          select={(info) => handleCreate(info)}
-          eventClick={(info) => {
-            const event = events.find(
-              (item: EventType) => item.id === info.event.id
-            );
-            editEvent.current = event;
-            setTimeout(() => {
-              editEvent.current = undefined;
-            }, 500);
-          }}
-          eventsSet={(info) => {
-            let needChange = false;
-            let changeEvents: EventType[] = [];
-            info.forEach((item) => {
-              const event = events.find((i: EventType) => i.id === item.id);
-              const start = dayjs(item.start, DateParser).format();
-              const end = dayjs(item.end, DateParser).format();
-              if (
-                start !== event?.start ||
-                end !== event?.end ||
-                !!item.allDay !== !!event?.allDay
-              ) {
-                needChange = true;
-                changeEvents.push({
-                  ...event,
-                  allDay: item.allDay,
-                  start: item.startStr,
-                  end: item.endStr,
-                });
-              } else {
-                changeEvents.push(event);
+            }}
+            eventDragStop={(info) => {
+              if (info.view) {
+                props.onEventDrop("dropEvent");
               }
-            });
-            if (needChange) {
-              props.events.onChange(changeEvents);
-              props.onEvent("change");
-            }
-          }}
-        />
+            }}
+          />
+        </ErrorBoundary>
       </Wrapper>
     );
   })
-    .setPropertyViewFn((children) => {
-      let licence = children.licenceKey.getView();
+    .setPropertyViewFn((children: { 
+      
+      events: { propertyView: (arg0: {}) => any; }; 
+      resourcesEvents: { propertyView: (arg0: {}) => any; };
+      resources: { propertyView: (arg0: {}) => any; };
+      resourceName: { propertyView: (arg0: {}) => any; };
+      onEvent: { getPropertyView: () => any; }; 
+      onDropEvent: { getPropertyView: () => any; };
+      editable: { propertyView: (arg0: { label: string; }) => any; };
+      showEventTime: { propertyView: (arg0: { label: string; tooltip: string; }) => any; }; 
+      showWeekends: { propertyView: (arg0: { label: string; }) => any; }; 
+      showAllDay: { propertyView: (arg0: { label: string; tooltip: string; }) => any; }; 
+      defaultDate: { propertyView: (arg0: { label: string; tooltip: string; }) => any; }; 
+      firstDay: { propertyView: (arg0: { label: string; }) => any; }; 
+      dayMaxEvents: { propertyView: (arg0: { label: string; tooltip: string; }) => any; }; 
+      eventMaxStack: { propertyView: (arg0: { label: string; tooltip: string; }) => any; }; 
+      currentFreeView: { propertyView: (arg0: { label: string; tooltip: string; }) => any; }; 
+      currentPremiumView: { propertyView: (arg0: { label: string; tooltip: string; }) => any; }; 
+      style: { getPropertyView: () => any; };
+      licenseKey: { getView: () => any; propertyView: (arg0: { label: string; }) => any; };
+    }) => {
+
+      const license = children.licenseKey.getView();
+      
       return (
         <>
           <Section name={sectionNames.basic}>
-            {children.events.propertyView({})}
+            {children.defaultDate.propertyView({ label: trans("calendar.defaultDate"), tooltip: trans("calendar.defaultDateTooltip"), })}
+            {children.events.propertyView({label: trans("calendar.events")})}
+            {license == "" ? null : children.resourcesEvents.propertyView({label: trans("calendar.resourcesEvents")})}
           </Section>
+          { license != "" && 
+            <Section name={trans("calendar.resources")}>
+              {children.resources.propertyView({label: trans("calendar.resources")})}
+              {children.resourceName.propertyView({label: trans("calendar.resourcesName")})}
+            </Section>
+          }
           <Section name={sectionNames.interaction}>
-            {children.licenceKey.propertyView({
-              label: trans("calendar.licence"),
-            })}
+            {hiddenPropertyView(children)}
             {children.onEvent.getPropertyView()}
+            {children.onDropEvent.getPropertyView()}
+            {children.editable.propertyView({ label: trans("calendar.editable"), })}
           </Section>
           <Section name={sectionNames.advanced}>
-            {children.editable.propertyView({
-              label: trans("calendar.editable"),
-            })}
-            {children.defaultDate.propertyView({
-              label: trans("calendar.defaultDate"),
-              tooltip: trans("calendar.defaultDateTooltip"),
-            })}
-            {licence == ""
-              ? children.defaultFreeView.propertyView({
-                  label: trans("calendar.defaultView"),
-                  tooltip: trans("calendar.defaultViewTooltip"),
-                })
-              : children.defaultPremiumView.propertyView({
-                  label: trans("calendar.defaultView"),
-                  tooltip: trans("calendar.defaultViewTooltip"),
-                })}
-            {children.firstDay.propertyView({
-              label: trans("calendar.startWeek"),
-            })}
-            {children.showEventTime.propertyView({
-              label: trans("calendar.showEventTime"),
-              tooltip: trans("calendar.showEventTimeTooltip"),
-            })}
-            {children.showWeekends.propertyView({
-              label: trans("calendar.showWeekends"),
-            })}
-            {children.showAllDay.propertyView({
-              label: trans("calendar.showAllDay"),
-              tooltip: trans("calendar.showAllDayTooltip"),
-            })}
-            {children.dayMaxEvents.propertyView({
-              label: trans("calendar.dayMaxEvents"),
-              tooltip: trans("calendar.dayMaxEventsTooltip"),
-            })}
-            {children.eventMaxStack.propertyView({
-              label: trans("calendar.eventMaxStack"),
-              tooltip: trans("calendar.eventMaxStackTooltip"),
-            })}
+            {children.showEventTime.propertyView({ label: trans("calendar.showEventTime"), tooltip: trans("calendar.showEventTimeTooltip"), })}
+            {children.showWeekends.propertyView({ label: trans("calendar.showWeekends"), })}
+            {children.showAllDay.propertyView({ label: trans("calendar.showAllDay"), tooltip: trans("calendar.showAllDayTooltip"), })}
+            {children.dayMaxEvents.propertyView({ label: trans("calendar.dayMaxEvents"), tooltip: trans("calendar.dayMaxEventsTooltip"), })}
+            {children.eventMaxStack.propertyView({ label: trans("calendar.eventMaxStack"), tooltip: trans("calendar.eventMaxStackTooltip"), })}
           </Section>
           <Section name={sectionNames.layout}>
-            {hiddenPropertyView(children)}
+            {children.licenseKey.propertyView({ label: trans("calendar.license"), tooltip: trans("calendar.licenseTooltip"), })}
+            {license == ""
+              ? children.currentFreeView.propertyView({ label: trans("calendar.defaultView"), tooltip: trans("calendar.defaultViewTooltip"), })
+              : children.currentPremiumView.propertyView({ label: trans("calendar.defaultView"), tooltip: trans("calendar.defaultViewTooltip"), })}
+            {children.firstDay.propertyView({ label: trans("calendar.startWeek"), })}
           </Section>
           <Section name={sectionNames.style}>
             {children.style.getPropertyView()}
@@ -508,7 +606,24 @@ CalendarBasicComp = class extends CalendarBasicComp {
   }
 };
 
-export const CalendarComp = withExposingConfigs(CalendarBasicComp, [
+const TmpCalendarComp = withExposingConfigs(CalendarBasicComp, [
   new NameConfig("events", trans("calendar.events")),
+  new NameConfig("resourcesEvents", trans("calendar.resourcesEvents")),
+  new NameConfig("resources", trans("calendar.resources")),
   NameConfigHidden,
+]);
+
+export const CalendarComp = withMethodExposing(TmpCalendarComp, [
+  {
+    method: {
+      name: "setCalendarView",
+      description: "timeGridWeek || timeGridDay || dayGridMonth || listWeek || resourceTimelineDay || resourceTimeGridDay || resourceTimelineWeek || resourceTimelineMonth",
+      params: [{ name: "viewType", type: "string" }],
+    },
+    execute: (comp, values) => {
+      const viewType = values[0] as string;
+      viewType == "" ? viewType : "timeGridWeek";
+      return comp.children.licenseKey.getView() == "" ? comp.children.defaultFreeView.dispatchChangeValueAction(viewType) : comp.children.defaultPremiumView.dispatchChangeValueAction(viewType);
+    }
+  },
 ]);

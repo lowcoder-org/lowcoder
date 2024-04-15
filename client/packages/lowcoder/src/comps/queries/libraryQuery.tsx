@@ -47,7 +47,7 @@ interface InputItem {
 
 type InputChildrenType = Record<string, InstanceType<ContextControlType>>;
 
-const InputsComp = class extends MultiBaseComp<InputChildrenType, ToDataType<InputChildrenType>> {
+class InputsComp extends MultiBaseComp<InputChildrenType, ToDataType<InputChildrenType>> {
   params: any = {};
   inputs: InputItem[] = [];
 

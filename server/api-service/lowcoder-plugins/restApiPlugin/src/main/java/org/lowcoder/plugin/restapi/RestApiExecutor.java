@@ -426,7 +426,7 @@ public class RestApiExecutor implements QueryExecutor<RestApiDatasourceConfig, O
         }
         if (isBinary(contentType)) {
             return ResponseBodyData.builder()
-                    .body(Base64.getEncoder().encode(body))
+                    .body(body)
                     .dataType(ResponseDataType.BINARY)
                     .build();
         }
