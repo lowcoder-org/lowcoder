@@ -76,6 +76,30 @@ ChartTmpComp = withViewFn(ChartTmpComp, (comp) => {
   }
 
   useEffect(() => {
+    // click events for JSON/Map mode 
+    if (mode === 'ui') return;
+
+    const echartsCompInstance = echartsCompRef?.current?.getEchartsInstance();
+    if (!echartsCompInstance) {
+      return _.noop;
+    }
+    echartsCompInstance?.on("click", (param: any) => {
+      document.dispatchEvent(new CustomEvent("clickEvent", {
+        bubbles: true,
+        detail: {
+          action: 'click',
+          data: param.data,
+        }
+      }));
+    });
+    return () => {
+      echartsCompInstance?.off("click");
+      document.removeEventListener('clickEvent', clickEventCallback)
+    };
+  }, [mode, mapScriptLoaded]);
+
+  useEffect(() => {
+    // click events for UI mode
     if(mode !== 'ui') return;
     
     // bind events
