@@ -13409,7 +13409,7 @@ __metadata:
     echarts-wordcloud: ^2.1.0
     jest: 29.3.0
     lowcoder-cli: "workspace:^"
-    lowcoder-sdk: "workspace:^"
+    lowcoder-sdk: /Users/la/Desktop/lowcoder-1/client/packages/lowcoder-sdk
     mermaid: ^10.6.1
     react: ^18.2.0
     react-dom: ^18.2.0
@@ -13575,6 +13575,18 @@ __metadata:
     react-dom: ">=18"
   languageName: unknown
   linkType: soft
+
+"lowcoder-sdk@file:/Users/la/Desktop/lowcoder-1/client/packages/lowcoder-sdk::locator=lowcoder-comps%40workspace%3Apackages%2Flowcoder-comps":
+  version: 2.4.0-beta
+  resolution: "lowcoder-sdk@file:/Users/la/Desktop/lowcoder-1/client/packages/lowcoder-sdk#/Users/la/Desktop/lowcoder-1/client/packages/lowcoder-sdk::hash=bd18d9&locator=lowcoder-comps%40workspace%3Apackages%2Flowcoder-comps"
+  dependencies:
+    prettier: ^3.1.1
+  peerDependencies:
+    react: ">=18"
+    react-dom: ">=18"
+  checksum: 89abb711cf6d46857c7e9375dcc20e2b7fbffde89fd43c3a7161109c61adbbf0d530ff8c2ebb750b56954ba701061117b82c21f119ee2abd2badfec96e1713f7
+  languageName: node
+  linkType: hard
 
 "lowcoder-sdk@npm:^2.1.10":
   version: 2.3.4
