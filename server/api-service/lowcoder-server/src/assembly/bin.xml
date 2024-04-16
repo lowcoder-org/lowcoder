@@ -7,7 +7,16 @@
 	</formats>
 	<includeBaseDirectory>false</includeBaseDirectory>
 
+	<files>
+		<!-- Lowcoder api-service main jar file -->
+		<file>
+			<source>${project.build.directory}/${jar.name}.jar</source>
+			<outputDirectory>.</outputDirectory>
+		</file>
+	</files>
+
 	<fileSets>
+		<!-- Lowcoder api-server dependencies -->
         <fileSet>
             <directory>${assembly.lib.directory}</directory>
             <outputDirectory>libs</outputDirectory>
@@ -15,19 +24,6 @@
 	</fileSets>
 
 	<moduleSets>
-		<!-- Main lowcoder API server application -->
-		<moduleSet>
-			<useAllReactorProjects>true</useAllReactorProjects>
-			<includes>
-				<include>org.lowcoder:lowcoder-server</include>
-			</includes>
-			<binaries>
-				<outputDirectory>.</outputDirectory>
-				<includeDependencies>false</includeDependencies>
-				<unpack>false</unpack>
-			</binaries>
-		</moduleSet>		
-
 		<!-- Lowcoder plugins -->
 		<moduleSet>
 			<useAllReactorProjects>true</useAllReactorProjects>

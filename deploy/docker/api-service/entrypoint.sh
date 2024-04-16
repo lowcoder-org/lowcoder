@@ -36,5 +36,6 @@ exec gosu ${USER_ID}:${GROUP_ID} ${JAVA_HOME}/bin/java \
   -Dspring.config.location="file:///lowcoder/api-service/config/application.yaml" \
   --add-opens java.base/java.nio=ALL-UNNAMED \
   ${JAVA_OPTS} \
+  -Dpf4j.pluginsDir=/lowcoder/api-service/plugins \
   -jar ${APP_JAR} --spring.webflux.base-path=${CONTEXT_PATH} ${CUSTOM_APP_PROPERTIES}
 

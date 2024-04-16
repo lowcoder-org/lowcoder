@@ -17,6 +17,7 @@
 	<properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		<jar.name>lowcoder-api-service</jar.name>
 		<assembly.lib.directory>${project.build.directory}/app-libs</assembly.lib.directory>
 
 		<skipTests>false</skipTests>
@@ -254,6 +255,7 @@
 	</dependencyManagement>
 
 	<build>
+		<finalName>${jar.name}</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -277,7 +279,6 @@
 				<artifactId>maven-jar-plugin</artifactId>
 				<version>3.3.0</version>
 				<configuration>
-					<finalName>lowcoder-api-service</finalName>
 					<archive>
 						<manifest>
 							<mainClass>org.lowcoder.api.ServerApplication</mainClass>
