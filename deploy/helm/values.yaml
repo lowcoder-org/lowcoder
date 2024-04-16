@@ -136,9 +136,9 @@ frontend:
     #tag: "latest"
 
   service:
-    type: NodePort
+    type: ClusterIP
     port: 80
-    nodePort: 30099
+    #nodePort: 30099
 
   replicaCount: 1
   autoscaling:
