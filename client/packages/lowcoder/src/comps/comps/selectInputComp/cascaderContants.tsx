@@ -6,7 +6,7 @@ import { arrayStringExposingStateControl } from "comps/controls/codeStateControl
 import { BoolControl } from "comps/controls/boolControl";
 import { LabelControl } from "comps/controls/labelControl";
 import { styleControl } from "comps/controls/styleControl";
-import { CascaderStyle, LabelStyle } from "comps/controls/styleControlConstants";
+import { CascaderStyle, ComponentStyle, LabelStyle } from "comps/controls/styleControlConstants";
 import {
   allowClearPropertyView,
   disabledPropertyView,
@@ -40,6 +40,7 @@ export const CascaderChildren = {
   viewRef: RefControl<CascaderRef>,
   margin: MarginControl,
   padding: PaddingControl,
+  field:styleControl(ComponentStyle)
 };
 
 export const CascaderPropertyView = (
@@ -78,6 +79,9 @@ export const CascaderPropertyView = (
         </Section>
         <Section name={sectionNames.labelStyle}>
           {children.labelStyle.getPropertyView()}
+        </Section>
+        <Section name={sectionNames.field}>
+          {children.field.getPropertyView()}
         </Section>
       </>
     )}
