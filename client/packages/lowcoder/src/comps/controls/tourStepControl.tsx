@@ -343,7 +343,7 @@ function EditorStateDropdownPropertyView<T extends OptionsType>(props: DropdownP
       border={params.border}
       type={params.type}
       label={params.label}
-      showSearch={params.showSearch}
+      showSearch={true}
       onChange={onChange}
       disabled={params.disabled}
       dropdownStyle={props.dropdownStyle}
