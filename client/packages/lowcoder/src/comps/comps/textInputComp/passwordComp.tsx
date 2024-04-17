@@ -26,7 +26,7 @@ import {
 import { withMethodExposing } from "../../generators/withMethodExposing";
 import { styleControl } from "comps/controls/styleControl";
 import styled from "styled-components";
-import { InputLikeStyle, InputLikeStyleType, LabelStyle } from "comps/controls/styleControlConstants";
+import { ComponentStyle, InputLikeStyle, InputLikeStyleType, LabelStyle } from "comps/controls/styleControlConstants";
 import {
   hiddenPropertyView,
   minLengthPropertyView,
@@ -58,7 +58,8 @@ let PasswordTmpComp = (function () {
     visibilityToggle: BoolControl.DEFAULT_TRUE,
     prefixIcon: IconControl,
     style: styleControl(InputLikeStyle),
-    labelStyle: styleControl(LabelStyle)
+    labelStyle: styleControl(LabelStyle),
+    field: styleControl(ComponentStyle)
   };
   return new UICompBuilder(childrenMap, (props) => {
     const [inputProps, validateState] = useTextInputProps(props);
@@ -74,7 +75,8 @@ let PasswordTmpComp = (function () {
         />
       ),
       style: props.style,
-      labelStyle:props.labelStyle,
+      labelStyle: props.labelStyle,
+      field:props.field,
       ...validateState,
     });
   })
@@ -110,6 +112,7 @@ let PasswordTmpComp = (function () {
             <>
               <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
               <Section name={sectionNames.labelStyle}>{children.labelStyle.getPropertyView()}</Section>
+              <Section name={sectionNames.field}>{children.field.getPropertyView()}</Section>
             </>
           )}
         </>
