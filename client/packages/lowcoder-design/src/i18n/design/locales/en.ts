@@ -26,6 +26,7 @@ export const en = {
     style: "Style",
     meetings : "Meeting Settings",
     data: "Data",
+    field:'Field'
   },
   passwordInput: {
     label: "Password:",
