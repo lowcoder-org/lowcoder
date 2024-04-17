@@ -11,7 +11,8 @@ import {
   LabelStyle,
   SignatureStyleType,
   widthCalculator,
-  heightCalculator
+  heightCalculator,
+  ComponentStyle
 } from "comps/controls/styleControlConstants";
 import { stateComp, withDefault } from "comps/generators/simpleGenerators";
 import { hiddenPropertyView } from "comps/utils/propertyUtils";
@@ -103,7 +104,7 @@ const childrenMap = {
   showUndo: withDefault(BoolControl, true),
   showClear: withDefault(BoolControl, true),
   value: stateComp(""),
-
+  field:styleControl(ComponentStyle),
   ...formDataChildren,
 };
 
@@ -128,7 +129,8 @@ let SignatureTmpComp = (function () {
     };
     return props.label({
       style: props.style,
-      labelStyle:props.labelStyle,
+      labelStyle: props.labelStyle,
+      field:props.field,
       children: (
         <ReactResizeDetector
           onResize={(width, height) => {
@@ -227,6 +229,9 @@ let SignatureTmpComp = (function () {
               </Section>
               <Section name={sectionNames.labelStyle}>
                 {children.labelStyle.getPropertyView()}
+              </Section>
+              <Section name={sectionNames.field}>
+                {children.field.getPropertyView()}
               </Section>
             </>
           )}
