@@ -97,7 +97,7 @@ let CalendarBasicComp = (function () {
     resources: any; 
     resourceName : string
     onEvent?: any;
-    onEventDrop?: any;
+    onDropEvent?: any;
     editable?: boolean; 
     showEventTime?: boolean; 
     showWeekends?: boolean; 
@@ -248,16 +248,16 @@ let CalendarBasicComp = (function () {
       return (
         <Event
           className={`event ${sizeClass} ${stateClass}`}
-          bg={eventInfo.backgroundColor}
+          $bg={eventInfo.backgroundColor}
           theme={theme?.theme}
-          isList={isList}
-          allDay={showAllDay}
+          $isList={isList}
+          $allDay={Boolean(showAllDay)}
           $style={props.style}
         >
           <div className="event-time">{eventInfo.timeText}</div>
           <div className="event-title">{eventInfo.event.title}</div>
           <Remove
-            isList={isList}
+            $isList={isList}
             className="event-remove"
             onClick={(e) => {
               e.stopPropagation();
@@ -526,7 +526,7 @@ let CalendarBasicComp = (function () {
             }}
             eventDragStop={(info) => {
               if (info.view) {
-                props.onEventDrop("dropEvent");
+                props.onDropEvent("dropEvent");
               }
             }}
           />
@@ -540,8 +540,8 @@ let CalendarBasicComp = (function () {
       resourcesEvents: { propertyView: (arg0: {}) => any; };
       resources: { propertyView: (arg0: {}) => any; };
       resourceName: { propertyView: (arg0: {}) => any; };
-      onEvent: { getPropertyView: () => any; }; 
-      onDropEvent: { getPropertyView: () => any; };
+      onEvent: { propertyView: ({title}?: {title?: string}) => any; }; 
+      onDropEvent: { propertyView: ({title}?: {title?: string}) => any; };
       editable: { propertyView: (arg0: { label: string; }) => any; };
       showEventTime: { propertyView: (arg0: { label: string; tooltip: string; }) => any; }; 
       showWeekends: { propertyView: (arg0: { label: string; }) => any; }; 
@@ -573,8 +573,12 @@ let CalendarBasicComp = (function () {
           }
           <Section name={sectionNames.interaction}>
             {hiddenPropertyView(children)}
-            {children.onEvent.getPropertyView()}
-            {children.onDropEvent.getPropertyView()}
+            <div style={{display: 'flex', flexDirection: 'column', gap: '8px'}}>
+              {children.onEvent.propertyView()}
+            </div>
+            <div style={{display: 'flex', flexDirection: 'column', gap: '8px'}}>
+              {children.onDropEvent.propertyView({title: trans("calendar.dragDropEventHandlers")})}
+            </div>
             {children.editable.propertyView({ label: trans("calendar.editable"), })}
           </Section>
           <Section name={sectionNames.advanced}>
