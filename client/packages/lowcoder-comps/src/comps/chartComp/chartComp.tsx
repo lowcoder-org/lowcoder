@@ -27,6 +27,7 @@ import {
   withViewFn,
   ThemeContext,
   chartColorPalette,
+  getPromiseAfterDispatch,
 } from "lowcoder-sdk";
 import { getEchartsLocale, trans } from "i18n/comps";
 import { ItemColorComp } from "comps/chartComp/chartConfigs/lineChartConfig";
@@ -57,6 +58,7 @@ ChartTmpComp = withViewFn(ChartTmpComp, (comp) => {
   const mapZoomlevel = comp.children.mapZoomLevel.getView();
   const onUIEvent = comp.children.onUIEvent.getView();
   const onMapEvent = comp.children.onMapEvent.getView();
+  const onEvent = comp.children.onEvent.getView();
 
   const echartsCompRef = useRef<ReactECharts | null>();
   const [chartSize, setChartSize] = useState<ChartSize>();
@@ -75,6 +77,15 @@ ChartTmpComp = withViewFn(ChartTmpComp, (comp) => {
     log.error('theme chart error: ', error);
   }
 
+  const triggerClickEvent = async (dispatch: any, action: CompAction<JSONValue>) => {
+    await getPromiseAfterDispatch(
+      dispatch,
+      action,
+      { autoHandleAfterReduce: true }
+    );
+    onEvent('click');
+  }
+
   useEffect(() => {
     // click events for JSON/Map mode 
     if (mode === 'ui') return;
@@ -91,6 +102,10 @@ ChartTmpComp = withViewFn(ChartTmpComp, (comp) => {
           data: param.data,
         }
       }));
+      triggerClickEvent(
+        comp.dispatch,
+        changeChildAction("lastInteractionData", param.data, false)
+      );
     });
     return () => {
       echartsCompInstance?.off("click");
@@ -111,6 +126,7 @@ ChartTmpComp = withViewFn(ChartTmpComp, (comp) => {
       const option: any = echartsCompInstance?.getOption();
       //log.log("chart select change", param);
       // trigger click event listener
+
       document.dispatchEvent(new CustomEvent("clickEvent", {
         bubbles: true,
         detail: {
@@ -118,14 +134,19 @@ ChartTmpComp = withViewFn(ChartTmpComp, (comp) => {
           data: getSelectedPoints(param, option)
         }
       }));
-
+      
       if (param.fromAction === "select") {
-        comp.dispatch(changeChildAction("selectedPoints", getSelectedPoints(param, option)));
+        comp.dispatch(changeChildAction("selectedPoints", getSelectedPoints(param, option), false));
         onUIEvent("select");
       } else if (param.fromAction === "unselect") {
-        comp.dispatch(changeChildAction("selectedPoints", getSelectedPoints(param, option)));
+        comp.dispatch(changeChildAction("selectedPoints", getSelectedPoints(param, option), false));
         onUIEvent("unselect");
       }
+
+      triggerClickEvent(
+        comp.dispatch,
+        changeChildAction("lastInteractionData", getSelectedPoints(param, option), false)
+      );
     });
     // unbind
     return () => {
@@ -165,9 +186,11 @@ ChartTmpComp = withViewFn(ChartTmpComp, (comp) => {
 
   useEffect(() => {
     if( mode !== 'map') {
-      comp.children.mapInstance.dispatch(changeValueAction(undefined))
+      comp.children.mapInstance.dispatch(changeValueAction(null, false))
       return;
     }
+
+    if(comp.children.mapInstance.value) return;
 
     const gMapScript = loadGoogleMapsScript(apiKey);
     if(isMapScriptLoaded) {
@@ -320,6 +343,14 @@ let ChartComp = withExposingConfigs(ChartTmpComp, [
     depKeys: ["selectedPoints"],
     func: (input) => {
       return input.selectedPoints;
+    },
+  }),
+  depsConfig({
+    name: "lastInteractionData",
+    desc: trans("chart.lastInteractionDataDesc"),
+    depKeys: ["lastInteractionData"],
+    func: (input) => {
+      return input.lastInteractionData;
     },
   }),
   depsConfig({

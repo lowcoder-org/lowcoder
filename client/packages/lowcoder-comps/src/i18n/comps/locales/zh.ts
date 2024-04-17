@@ -61,6 +61,7 @@ export const zh = {
         selectDesc: "当用户选择图表中的部分数据时触发",
         unselectDesc: "当用户取消选择图表中的部分数据时触发",
         selectedPointsDesc: "已选中的数据点",
+        lastInteractionDataDesc: "最后交互数据",
         dataDesc: "当前图表使用的原始数据",
         titleDesc: "当前图表标题",
         scatterShape: "散点形状",
@@ -77,7 +78,8 @@ export const zh = {
         zoomLevelChange: "缩放级别更改",
         zoomLevelChangeDesc: "地图缩放级别更改时触发",
         centerPositionChange: "中心位置变化",
-        centerPositionChangeDesc: "地图中心位置改变时触发"
+        centerPositionChangeDesc: "地图中心位置改变时触发",
+        chartEventHandlers: "图表事件处理程序",
     },
     imageEditor: {
         defaultSrc: "",
@@ -149,5 +151,6 @@ export const zh = {
         eventIdRequire: "请输入事件ID",
         eventIdTooltip: "每个事件的唯一标识符",
         eventIdExist: "ID已存在",
+        dragDropEventHandlers: "拖/放事件处理程序",
     },
 };
