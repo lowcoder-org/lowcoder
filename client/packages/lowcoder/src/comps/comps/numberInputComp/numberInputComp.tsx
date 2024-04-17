@@ -30,7 +30,7 @@ import { formDataChildren, FormDataPropertyView } from "../formComp/formDataCons
 import { withMethodExposing, refMethods } from "../../generators/withMethodExposing";
 import { RefControl } from "../../controls/refControl";
 import { styleControl } from "comps/controls/styleControl";
-import { InputLikeStyle, InputLikeStyleType, LabelStyle, heightCalculator, widthCalculator } from "comps/controls/styleControlConstants";
+import { ComponentStyle, InputLikeStyle, InputLikeStyleType, LabelStyle, heightCalculator, widthCalculator } from "comps/controls/styleControlConstants";
 import {
   disabledPropertyView,
   hiddenPropertyView,
@@ -260,7 +260,7 @@ const childrenMap = {
   style: styleControl(InputLikeStyle),
   labelStyle:styleControl(LabelStyle),
   prefixIcon: IconControl,
-
+  field:styleControl(ComponentStyle),
   // validation
   required: BoolControl,
   min: UndefinedNumberControl,
@@ -381,7 +381,8 @@ let NumberInputTmpComp = (function () {
       required: props.required,
       children: <CustomInputNumber {...props} />,
       style: props.style,
-      labelStyle:props.labelStyle,
+      labelStyle: props.labelStyle,
+      field:props.field,
       ...validate(props),
     });
   })
@@ -435,6 +436,9 @@ let NumberInputTmpComp = (function () {
           </Section>
           <Section name={sectionNames.labelStyle}>
             {children.labelStyle.getPropertyView()}
+          </Section>
+          <Section name={sectionNames.field}>
+            {children.field.getPropertyView()}
           </Section>
           </>
         )}
