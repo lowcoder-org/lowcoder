@@ -14,7 +14,7 @@ import {
 } from "./selectInputConstants";
 import { formDataChildren, FormDataPropertyView } from "../formComp/formDataConstants";
 import { styleControl } from "comps/controls/styleControl";
-import { LabelStyle, RadioStyle } from "comps/controls/styleControlConstants";
+import { ComponentStyle, LabelStyle, RadioStyle } from "comps/controls/styleControlConstants";
 import { dropdownControl } from "../../controls/dropdownControl";
 import { hiddenPropertyView, disabledPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
@@ -40,7 +40,7 @@ export const RadioChildrenMap = {
   labelStyle:styleControl(LabelStyle),
   layout: dropdownControl(RadioLayoutOptions, "horizontal"),
   viewRef: RefControl<HTMLDivElement>,
-
+  field:styleControl(ComponentStyle),
   ...SelectInputValidationChildren,
   ...formDataChildren,
 };
@@ -96,6 +96,7 @@ export const RadioPropertyView = (
       <>
       <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
       <Section name={sectionNames.labelStyle}>{children.labelStyle.getPropertyView()}</Section>
+      <Section name={sectionNames.field}>{children.field.getPropertyView()}</Section>
       </>
     )}
   </>
