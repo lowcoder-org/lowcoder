@@ -19,7 +19,8 @@ const SliderBasicComp = (function () {
   return new UICompBuilder(childrenMap, (props) => {
     return props.label({
       style: props.style,
-      labelStyle:props.labelStyle,
+      labelStyle: props.labelStyle,
+      field:props.field,
       children: (
         <SliderWrapper
           onMouseDown={(e: any) => {
