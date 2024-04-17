@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 import styled from "styled-components";
 import ReactResizeDetector from "react-resize-detector";
 import { StyleConfigType, styleControl } from "comps/controls/styleControl";
-import { LabelStyle, TreeStyle } from "comps/controls/styleControlConstants";
+import { ComponentStyle, LabelStyle, TreeStyle } from "comps/controls/styleControlConstants";
 import { LabelControl } from "comps/controls/labelControl";
 import { withDefault } from "comps/generators";
 import { dropdownControl } from "comps/controls/dropdownControl";
@@ -77,7 +77,8 @@ const childrenMap = {
   // TODO: more event
   onEvent: SelectEventHandlerControl,
   style: styleControl(TreeStyle),
-  labelStyle: styleControl(LabelStyle.filter((style) => ['accent', 'validate'].includes(style.name) === false))
+  labelStyle: styleControl(LabelStyle.filter((style) => ['accent', 'validate'].includes(style.name) === false)),
+  field:styleControl(ComponentStyle)
 };
 
 const TreeCompView = (props: RecordConstructorToView<typeof childrenMap>) => {
@@ -98,6 +99,7 @@ const TreeCompView = (props: RecordConstructorToView<typeof childrenMap>) => {
     ...selectInputValidate(props),
     style,
     labelStyle,
+    field:props.field,
     children: (
       <ReactResizeDetector onResize={(w, h) => setHeight(h)}>
         <Container {...style}>
@@ -184,6 +186,7 @@ let TreeBasicComp = (function () {
           <>
             <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
             <Section name={sectionNames.labelStyle}>{children.labelStyle.getPropertyView()}</Section>
+            <Section name={sectionNames.field}>{children.field.getPropertyView()}</Section>
           </>
         )}
       </>
