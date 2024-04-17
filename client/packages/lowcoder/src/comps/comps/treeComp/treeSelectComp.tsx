@@ -6,7 +6,7 @@ import { default as TreeSelect } from "antd/es/tree-select";
 import { useEffect } from "react";
 import styled from "styled-components";
 import { styleControl } from "comps/controls/styleControl";
-import { LabelStyle, TreeSelectStyle, TreeSelectStyleType } from "comps/controls/styleControlConstants";
+import { ComponentStyle, LabelStyle, TreeSelectStyle, TreeSelectStyleType } from "comps/controls/styleControlConstants";
 import { LabelControl } from "comps/controls/labelControl";
 import { dropdownControl } from "comps/controls/dropdownControl";
 import {
@@ -67,6 +67,7 @@ const childrenMap = {
   inputValue: stateComp<string>(""), // search value
   style: styleControl(TreeSelectStyle),
   labelStyle:styleControl(LabelStyle),
+  field:styleControl(ComponentStyle),
   viewRef: RefControl<BaseSelectRef>,
 };
 
@@ -102,6 +103,7 @@ const TreeCompView = (
     ...validateState,
     style,
     labelStyle,
+    field:props.field,
     children: (
       <StyledTreeSelect
         ref={props.viewRef}
@@ -185,6 +187,7 @@ let TreeBasicComp = (function () {
           <>
           <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
           <Section name={sectionNames.labelStyle}>{children.labelStyle.getPropertyView()}</Section>
+          <Section name={sectionNames.field}>{children.field.getPropertyView()}</Section>
           </>
         )}
       </>
