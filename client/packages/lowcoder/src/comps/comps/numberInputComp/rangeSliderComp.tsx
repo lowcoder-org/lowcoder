@@ -16,6 +16,7 @@ const RangeSliderBasicComp = (function () {
     return props.label({
       style: props.style,
       labelStyle: props.labelStyle,
+      field:props.field,
       children: (
         <SliderWrapper
           onMouseDown={(e: any) => {

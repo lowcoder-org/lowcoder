@@ -5,7 +5,7 @@ import { ChangeEventHandlerControl } from "../../controls/eventHandlerControl";
 import { Section, sectionNames } from "lowcoder-design";
 import { RecordConstructorToComp } from "lowcoder-core";
 import { styleControl } from "comps/controls/styleControl";
-import { LabelStyle, SliderStyle, SliderStyleType } from "comps/controls/styleControlConstants";
+import { ComponentStyle, LabelStyle, SliderStyle, SliderStyleType } from "comps/controls/styleControlConstants";
 import styled, { css } from "styled-components";
 import { default as Slider } from "antd/es/slider";
 import { darkenColor, fadeColor } from "lowcoder-design";
@@ -71,6 +71,7 @@ export const SliderChildren = {
   labelStyle:styleControl(LabelStyle.filter((style)=> ['accent','validate'].includes(style.name) === false)),
   prefixIcon: IconControl,
   suffixIcon: IconControl,
+  field:styleControl(ComponentStyle)
 };
 
 export const SliderPropertyView = (
@@ -100,6 +101,9 @@ export const SliderPropertyView = (
         </Section>
         <Section name={sectionNames.labelStyle}>
           {children.labelStyle.getPropertyView()}
+        </Section>
+        <Section name={sectionNames.field}>
+          {children.field.getPropertyView()}
         </Section>
       </>
     )}
