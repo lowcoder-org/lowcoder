@@ -476,6 +476,15 @@ const STYLING_FIELDS_SEQUENCE = [
   BORDER_WIDTH,
 ]
 
+const STYLING_FIELDS_CONTAINER_SEQUENCE = [
+  BORDER,
+  BORDER_STYLE,
+  MARGIN,
+  PADDING,
+  RADIUS,
+  BORDER_WIDTH,
+];
+
 const FILL = {
   name: "fill",
   label: trans("style.fill"),
@@ -783,6 +792,11 @@ export const InputLikeStyle = [
 export const LabelStyle = [
   ...replaceAndMergeMultipleStyles([...InputLikeStyle], 'text', [LABEL]).filter((style) => style.name !== 'radius' && style.name !== 'background')
 ]
+
+export const ComponentStyle = [
+  getStaticBackground(SURFACE_COLOR),
+  ...STYLING_FIELDS_CONTAINER_SEQUENCE,
+] as const;
 
 export const RatingStyle = [
   {
