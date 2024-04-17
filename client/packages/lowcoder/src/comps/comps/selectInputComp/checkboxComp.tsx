@@ -15,7 +15,7 @@ import {
 } from "./selectInputConstants";
 import { formDataChildren } from "../formComp/formDataConstants";
 import { styleControl } from "comps/controls/styleControl";
-import { CheckboxStyle, CheckboxStyleType, LabelStyle } from "comps/controls/styleControlConstants";
+import { CheckboxStyle, CheckboxStyleType, ComponentStyle, LabelStyle } from "comps/controls/styleControlConstants";
 import { RadioLayoutOptions, RadioPropertyView } from "./radioCompConstants";
 import { dropdownControl } from "../../controls/dropdownControl";
 import { ValueFromOption } from "lowcoder-design";
@@ -140,7 +140,7 @@ let CheckboxBasicComp = (function () {
     labelStyle: styleControl(LabelStyle.filter((style) => ['accent', 'validate'].includes(style.name) === false)),
     layout: dropdownControl(RadioLayoutOptions, "horizontal"),
     viewRef: RefControl<HTMLDivElement>,
-
+    field:styleControl(ComponentStyle),
     ...SelectInputValidationChildren,
     ...formDataChildren,
   };
@@ -153,6 +153,7 @@ let CheckboxBasicComp = (function () {
       required: props.required,
       style: props.style,
       labelStyle: props.labelStyle,
+      field:props.field,
       children: (
         <CheckboxGroup
           ref={props.viewRef}
