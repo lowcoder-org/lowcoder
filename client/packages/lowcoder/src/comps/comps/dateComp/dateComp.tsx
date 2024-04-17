@@ -20,7 +20,7 @@ import { UICompBuilder, withDefault } from "../../generators";
 import { CommonNameConfig, depsConfig, withExposingConfigs } from "../../generators/withExposing";
 import { formDataChildren, FormDataPropertyView } from "../formComp/formDataConstants";
 import { styleControl } from "comps/controls/styleControl";
-import { DateTimeStyle, DateTimeStyleType, LabelStyle } from "comps/controls/styleControlConstants";
+import { ComponentStyle, DateTimeStyle, DateTimeStyleType, LabelStyle } from "comps/controls/styleControlConstants";
 import { withMethodExposing } from "../../generators/withMethodExposing";
 import {
   disabledPropertyView,
@@ -76,6 +76,7 @@ const commonChildren = {
   suffixIcon: withDefault(IconControl, "/icon:regular/calendar"),
   ...validationChildren,
   viewRef: RefControl<CommonPickerMethods>,
+  field:styleControl(ComponentStyle)
 };
 type CommonChildrenType = RecordConstructorToComp<typeof commonChildren>;
 
@@ -166,7 +167,8 @@ export const datePickerControl = new UICompBuilder(childrenMap, (props) => {
   return props.label({
     required: props.required,
     style: props.style,
-    labelStyle:props.labelStyle,
+    labelStyle: props.labelStyle,
+    field:props.field,
     children: (
       <DateUIView
         viewRef={props.viewRef}
@@ -253,6 +255,9 @@ export const datePickerControl = new UICompBuilder(childrenMap, (props) => {
             <Section name={sectionNames.labelStyle}>
               {children.labelStyle.getPropertyView()}
             </Section>
+            <Section name={sectionNames.field}>
+              {children.field.getPropertyView()}
+            </Section>
           </>
         )}
       </>
@@ -319,6 +324,7 @@ export const dateRangeControl = (function () {
       style: props.style,
       labelStyle:props.labelStyle,
       children: children,
+      field:props.field,
       ...(startResult.validateStatus !== "success"
         ? startResult
         : endResult.validateStatus !== "success"
@@ -382,6 +388,9 @@ export const dateRangeControl = (function () {
               </Section>
               <Section name={sectionNames.labelStyle}>
                 {children.labelStyle.getPropertyView()}
+              </Section>
+              <Section name={sectionNames.field}>
+                {children.field.getPropertyView()}
               </Section>
             </>
           )}
