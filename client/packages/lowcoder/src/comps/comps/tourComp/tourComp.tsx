@@ -50,7 +50,9 @@ let TourBasicComp = (function() {
         description: step.description,
         target: target?.current,
         arrow: step.arrow || true,
-        placement: step.placement as PlacementType
+        placement: step.placement as PlacementType,
+        mask: step.mask,
+        type: step.type || "default",
       };
     });
 

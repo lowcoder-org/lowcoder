@@ -1,4 +1,4 @@
-import { BoolCodeControl, StringControl } from "comps/controls/codeControl";
+import { BoolCodeControl, MaskControl, StringControl } from "comps/controls/codeControl";
 import { dropdownControl } from "comps/controls/dropdownControl";
 import { MultiCompBuilder, withDefault } from "comps/generators";
 import { list } from "comps/generators/list";
@@ -24,6 +24,7 @@ import { ReactNode, useContext, useEffect, useState } from "react";
 import { EditorContext, EditorState } from "@lowcoder-ee/comps/editorState";
 // import { PlacementType } from "@rc-component"
 export type PlacementType = 'left' | 'leftTop' | 'leftBottom' | 'right' | 'rightTop' | 'rightBottom' | 'top' | 'topLeft' | 'topRight' | 'bottom' | 'bottomLeft' | 'bottomRight' | 'center';
+export type TourStepType = 'default' | 'primary';
 
 const OptionTypes = [
   {
@@ -281,6 +282,12 @@ const PlacementOptions: {label: string, value: PlacementType}[] = [
 ];
 
 
+const TypeOptions: {label: string, value: TourStepType}[] = [
+  { label: "Default", value: "default"},
+  { label: "Primary", value: "primary"},
+];
+
+
 export function editorStateDropdownControl<T extends OptionsType>(
   options: ((editorState: EditorState) => T),
   defaultValue: ValueFromOption<T>
@@ -329,7 +336,6 @@ function EditorStateDropdownPropertyView<T extends OptionsType>(props: DropdownP
     }
     if (!finalOptions?.length) {
       setFinalOptions(options(editorState))
-        //.then((items) => setFinalOptions(items));
     }
   }, [finalOptions.length, options]);
 
@@ -402,6 +408,8 @@ let TourStep = new MultiCompBuilder(
     description: StringControl,
     placement: dropdownControl(PlacementOptions, "bottom"),
     hidden: BoolCodeControl,
+    mask: MaskControl,
+    type: dropdownControl(TypeOptions, "default"),
   },
   (props) => props
 ).build();
@@ -427,9 +435,15 @@ TourStep = class extends TourStep implements TourStepCompProperty {
           radioButton: false
         })}
         {this.children.arrow.propertyView({
-          label: "Arrow"
+          label: "Arrow",
         })}
         {hiddenPropertyView(this.children)}
+        {this.children.mask.propertyView({
+          label: "Mask",
+        })}
+        {this.children.type.propertyView({
+          label: "Type",
+        })}
       </>
     );
   }

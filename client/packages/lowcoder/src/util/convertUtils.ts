@@ -1,4 +1,5 @@
 import { JSONObject, JSONValue } from "util/jsonTypes";
+import { CSSProperties } from "react";
 
 class EvalTypeError extends TypeError {
   hint?: string;
@@ -244,4 +245,18 @@ export function check(
       key !== undefined ? key + ": " : ""
     )
   );
+}
+
+export function toBooleanOrCss(value: any): boolean | undefined | {
+  style?: CSSProperties | undefined;
+  color?: string | undefined;
+} {
+  if (value === undefined || value === null || value === "") {
+    return undefined;
+  }
+  // if (typeof value === "boolean") {
+  if (value.toLocaleLowerCase() === "true" || value.toLocaleLowerCase() === "false") {
+    return value.toLocaleLowerCase() === "true";
+  }
+  return toJSONObject(value);
 }

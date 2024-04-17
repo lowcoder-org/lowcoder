@@ -30,11 +30,11 @@ import {
   toHex,
   wrapperToControlItem,
 } from "lowcoder-design";
-import { lazy, ReactNode, Suspense } from "react";
+import { CSSProperties, lazy, ReactNode, Suspense } from "react";
 import {
   showTransform,
   toArrayJSONObject,
-  toBoolean,
+  toBoolean, toBooleanOrCss,
   toJSONArray,
   toJSONObject,
   toJSONObjectArray,
@@ -318,6 +318,7 @@ export type CodeControlJSONType = ReturnType<typeof tmpFuncForJson>;
 export const StringControl = codeControl<string>(toString);
 export const NumberControl = codeControl<number>(toNumber);
 export const StringOrNumberControl = codeControl<string | number>(toStringOrNumber);
+export const MaskControl = codeControl<boolean | { style?: CSSProperties | undefined; color?: string | undefined; } | undefined>(toBooleanOrCss);
 
 // rangeCheck, don't support Infinity temporarily
 export class RangeControl {
