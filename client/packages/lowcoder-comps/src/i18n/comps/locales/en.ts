@@ -64,6 +64,7 @@ export const en = {
     unselectDesc:
       "Triggered when a user unselects part of the data in the chart",
     selectedPointsDesc: "Selected Points",
+    lastInteractionDataDesc: "Last Interaction Data",
     dataDesc: "JSON Data for the Chart",
     titleDesc: "Current Chart Title",
     scatterShape: "Scatter Shape",
@@ -82,6 +83,7 @@ export const en = {
     zoomLevelChangeDesc: "Triggers when the map zoom level changes",
     centerPositionChange: "Center Position Change",
     centerPositionChangeDesc: "Triggers when the map center position changes",
+    chartEventHandlers: "Chart Event Handlers",
   },
   imageEditor: {
     defaultSrc: "",
@@ -156,5 +158,6 @@ export const en = {
     eventIdRequire: "Enter Event ID",
     eventIdTooltip: "Unique ID for each event",
     eventIdExist: "ID Exists",
+    dragDropEventHandlers: "Drag/Drop Event Handlers",
   },
 };
