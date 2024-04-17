@@ -22,7 +22,7 @@ import {
 import { withMethodExposing, refMethods } from "../../generators/withMethodExposing";
 import { styleControl } from "comps/controls/styleControl";
 import styled from "styled-components";
-import { InputLikeStyle, InputLikeStyleType, LabelStyle } from "comps/controls/styleControlConstants";
+import { ComponentStyle, InputLikeStyle, InputLikeStyleType, LabelStyle } from "comps/controls/styleControlConstants";
 import { TextArea } from "components/TextArea";
 import {
   allowClearPropertyView,
@@ -72,12 +72,14 @@ let TextAreaTmpComp = (function () {
     allowClear: BoolControl,
     autoHeight: withDefault(AutoHeightControl, "fixed"),
     style: styleControl(InputLikeStyle),
-    labelStyle: styleControl(LabelStyle)
+    labelStyle: styleControl(LabelStyle),
+    field: styleControl(ComponentStyle)
   };
   return new UICompBuilder(childrenMap, (props) => {
     const [inputProps, validateState] = useTextInputProps(props);
     return props.label({
       required: props.required,
+      field:props.field,
       children: (
         <Wrapper $style={props.style}>
           <TextAreaStyled
@@ -120,6 +122,7 @@ let TextAreaTmpComp = (function () {
           <>
             <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
             <Section name={sectionNames.labelStyle}>{children.labelStyle.getPropertyView()}</Section>
+            <Section name={sectionNames.field}>{children.field.getPropertyView()}</Section>
           </>
         )}
       </>
