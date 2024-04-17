@@ -4,7 +4,7 @@ import { booleanExposingStateControl } from "comps/controls/codeStateControl";
 import { changeEvent, eventHandlerControl } from "comps/controls/eventHandlerControl";
 import { LabelControl } from "comps/controls/labelControl";
 import { styleControl } from "comps/controls/styleControl";
-import { SwitchStyle, SwitchStyleType, LabelStyle } from "comps/controls/styleControlConstants";
+import { SwitchStyle, SwitchStyleType, LabelStyle, ComponentStyle } from "comps/controls/styleControlConstants";
 import { migrateOldData } from "comps/generators/simpleGenerators";
 import { Section, sectionNames } from "lowcoder-design";
 import styled, { css } from "styled-components";
@@ -92,13 +92,14 @@ let SwitchTmpComp = (function () {
     style: migrateOldData(styleControl(SwitchStyle), fixOldData),
     labelStyle: styleControl(LabelStyle.filter((style) => ['accent', 'validate'].includes(style.name) === false)),
     viewRef: RefControl<HTMLElement>,
-
+    field:styleControl(ComponentStyle),
     ...formDataChildren,
   };
   return new UICompBuilder(childrenMap, (props) => {
     return props.label({
       style: props.style,
-      labelStyle:props.labelStyle,
+      labelStyle: props.labelStyle,
+      field:props.field,
       children: (
         <SwitchWrapper disabled={props.disabled} $style={props.style}>
           <Switch
@@ -143,6 +144,9 @@ let SwitchTmpComp = (function () {
               </Section>
               <Section name={sectionNames.labelStyle}>
                 {children.labelStyle.getPropertyView()}
+              </Section>
+              <Section name={sectionNames.field}>
+                {children.field.getPropertyView()}
               </Section>
             </>
           )}
