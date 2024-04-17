@@ -21,6 +21,7 @@ type LabelViewProps = Pick<FormItemProps, "required" | "help" | "validateStatus"
   children: ReactNode;
   style?: Record<string, string>;
   labelStyle?: Record<string, string>;
+  field?: Record<string, string>;
 };
 
 const StyledStarIcon = styled(StarIcon)`
@@ -41,7 +42,15 @@ function getStyle(style: any) {
   `;
 }
 
-const LabelViewWrapper = styled.div<{ $style: any }>`
+const LabelViewWrapper = styled.div<{ $style: any, field: any }>`
+${(props) => {
+    return (
+      props.field && {
+        ...props.field,
+        borderRadius: props.field.radius,
+      }
+    );
+  }}
   ${(props) => props.$style && getStyle(props.$style)}
   display: flex;
   flex-direction: column;
@@ -159,7 +168,7 @@ export const LabelControl = (function () {
   };
 
   return new MultiCompBuilder(childrenMap, (props) => (args: LabelViewProps) => (
-    <LabelViewWrapper $style={args.style}>
+    <LabelViewWrapper $style={args.style} field={args.field}>
       <MainWrapper
         $position={props.position}
         $hasLabel={!!props.text}

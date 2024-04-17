@@ -1,7 +1,7 @@
 import { Input, Section, sectionNames } from "lowcoder-design";
 import { BoolControl } from "comps/controls/boolControl";
 import { styleControl } from "comps/controls/styleControl";
-import { InputLikeStyle, InputLikeStyleType, LabelStyle, LabelStyleType } from "comps/controls/styleControlConstants";
+import { ComponentStyle, InputLikeStyle, InputLikeStyleType, LabelStyle, LabelStyleType } from "comps/controls/styleControlConstants";
 import {
   NameConfig,
   NameConfigPlaceHolder,
@@ -53,6 +53,7 @@ const childrenMap = {
   labelStyle: styleControl(LabelStyle),
   prefixIcon: IconControl,
   suffixIcon: IconControl,
+  field: styleControl(ComponentStyle),
 };
 
 let InputBasicComp = new UICompBuilder(childrenMap, (props) => {
@@ -72,6 +73,7 @@ let InputBasicComp = new UICompBuilder(childrenMap, (props) => {
     ),
     style: props.style,
     labelStyle: props.labelStyle,
+    field:props.field,
     ...validateState,
   });
 })
@@ -102,6 +104,7 @@ let InputBasicComp = new UICompBuilder(childrenMap, (props) => {
           <>
             <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
             <Section name={sectionNames.labelStyle}>{children.labelStyle.getPropertyView()}</Section>
+            <Section name={sectionNames.field}>{children.field.getPropertyView()}</Section>
           </>
         )}
       </>
