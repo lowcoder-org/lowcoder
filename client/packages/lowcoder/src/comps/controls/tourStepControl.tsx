@@ -419,7 +419,7 @@ TourStep = class extends TourStep implements TourStepCompProperty {
           placeholder: "Welcome to lowcoder, this is your first tutorial step",
         })}
         {this.children.target.propertyView({
-          label: "TARGET",
+          label: "Component",
           radioButton: false,
         })}
         {this.children.placement.propertyView({
