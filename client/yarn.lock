@@ -7398,6 +7398,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"coolshapes-react@npm:^0.1.1-beta.0":
+  version: 0.1.1-beta.0
+  resolution: "coolshapes-react@npm:0.1.1-beta.0"
+  peerDependencies:
+    react: ">=16.8"
+    react-dom: ">=16.8"
+  checksum: c3edd7e43ef84f5c34faebc0d97316a2a4177c143d0eb23f9f62022a9fc19451a7d8f2af2730ae7852bba524bb08204ac22871fad2f85305072b048acbad7b78
+  languageName: node
+  linkType: hard
+
 "copy-anything@npm:^2.0.1":
   version: 2.0.6
   resolution: "copy-anything@npm:2.0.6"
@@ -13553,13 +13563,13 @@ __metadata:
 
 "lowcoder-sdk@file:/Users/la/Desktop/lowcoder-1/client/packages/lowcoder-sdk::locator=lowcoder-comps%40workspace%3Apackages%2Flowcoder-comps":
   version: 2.4.0-beta-4
-  resolution: "lowcoder-sdk@file:/Users/la/Desktop/lowcoder-1/client/packages/lowcoder-sdk#/Users/la/Desktop/lowcoder-1/client/packages/lowcoder-sdk::hash=8f69ed&locator=lowcoder-comps%40workspace%3Apackages%2Flowcoder-comps"
+  resolution: "lowcoder-sdk@file:/Users/la/Desktop/lowcoder-1/client/packages/lowcoder-sdk#/Users/la/Desktop/lowcoder-1/client/packages/lowcoder-sdk::hash=06c528&locator=lowcoder-comps%40workspace%3Apackages%2Flowcoder-comps"
   dependencies:
     prettier: ^3.1.1
   peerDependencies:
     react: ">=18"
     react-dom: ">=18"
-  checksum: 53389cc347577922de953c5eb86083e7c2942117a241aa589776dd260d27564fc6fec930675cdf4a735cbf15eb2bf5c197e06354be80fa0cb9e52bb32453c392
+  checksum: 7d361bdb3dfcc8142d300c9e606c857ae7ba5fa96fd865f62c14c997181fbc5d5c1dcf329bc65ee9dace46f3b288050c2913dbd9456297475fcfd1813c7301ff
   languageName: node
   linkType: hard
 
@@ -13649,6 +13659,7 @@ __metadata:
     buffer: ^6.0.3
     clsx: ^2.0.0
     cnchar: ^3.2.4
+    coolshapes-react: ^0.1.1-beta.0
     copy-to-clipboard: ^3.3.3
     core-js: ^3.25.2
     dotenv: ^16.0.3
