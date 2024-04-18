@@ -1,5 +1,5 @@
 import { styleControl } from "comps/controls/styleControl";
-import { LabelStyle, MultiSelectStyle } from "comps/controls/styleControlConstants";
+import { ComponentStyle, LabelStyle, MultiSelectStyle } from "comps/controls/styleControlConstants";
 import { trans } from "i18n";
 import { arrayStringExposingStateControl } from "../../controls/codeStateControl";
 import { UICompBuilder } from "../../generators";
@@ -24,6 +24,7 @@ let MultiSelectBasicComp = (function () {
     value: arrayStringExposingStateControl("value"),
     style: styleControl(MultiSelectStyle),
     labelStyle:styleControl(LabelStyle),
+    field:styleControl(ComponentStyle),
     margin: MarginControl,	
     padding: PaddingControl,
   };
@@ -37,7 +38,8 @@ let MultiSelectBasicComp = (function () {
     return props.label({
       required: props.required,
       style: props.style,
-      labelStyle:props.labelStyle,
+      labelStyle: props.labelStyle,
+      field:props.field,
       children: (
         <SelectUIView
           {...props}
