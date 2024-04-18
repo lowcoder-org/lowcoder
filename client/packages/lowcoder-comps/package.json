@@ -1,6 +1,6 @@
 {
   "name": "lowcoder-comps",
-  "version": "0.0.28",
+  "version": "0.0.30",
   "type": "module",
   "license": "MIT",
   "dependencies": {
@@ -10,11 +10,13 @@
     "@fullcalendar/interaction": "^6.1.6",
     "@fullcalendar/list": "^6.1.9",
     "@fullcalendar/moment": "^6.1.6",
+    "@fullcalendar/multimonth": "^6.1.6",
     "@fullcalendar/react": "^6.1.6",
     "@fullcalendar/resource": "^6.1.11",
     "@fullcalendar/resource-timegrid": "^6.1.11",
     "@fullcalendar/resource-timeline": "^6.1.11",
     "@fullcalendar/timegrid": "^6.1.6",
+    "@fullcalendar/timeline": "^6.1.6",
     "@types/react": "^18.2.45",
     "@types/react-dom": "^18.2.18",
     "big.js": "^6.2.1",
@@ -30,6 +32,14 @@
   "lowcoder": {
     "description": "",
     "comps": {
+      "calendar": {
+        "name": "Calendar",
+        "icon": "./icons/icon-comp-calendar.svg",
+        "layoutInfo": {
+          "w": 15,
+          "h": 60
+        }
+      },
       "chart": {
         "name": "Chart",
         "icon": "./icons/icon-chart.svg",
@@ -44,14 +54,6 @@
         "layoutInfo": {
           "w": 15,
           "h": 40
-        }
-      },
-      "calendar": {
-        "name": "Calendar",
-        "icon": "./icons/icon-comp-calendar.svg",
-        "layoutInfo": {
-          "w": 15,
-          "h": 60
         }
       },
       "mermaid": {

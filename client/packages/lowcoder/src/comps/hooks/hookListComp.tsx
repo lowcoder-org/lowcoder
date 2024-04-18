@@ -26,8 +26,8 @@ const defaultHookListValue = [
   { compType: "theme", name: "theme" },
 ] as const;
 
-const HookListTmpComp = list(HookComp);
-const HookListTmp2Comp = class extends HookListTmpComp {
+// const HookListTmpComp = list(HookComp);
+const HookListTmp2Comp = class extends list(HookComp) {
   getAllCompItems() {
     return getAllCompItems(this.getCompTree());
   }

@@ -4,7 +4,7 @@ import { default as Sider} from "antd/es/layout/Sider";
 import { PreloadComp } from "comps/comps/preLoadComp";
 import UIComp from "comps/comps/uiComp";
 import { EditorContext } from "comps/editorState";
-import { AppUILayoutType } from "constants/applicationConstants";
+import { AppPathParams, AppUILayoutType } from "constants/applicationConstants";
 import { Layers } from "constants/Layers";
 import { TopHeaderHeight } from "constants/style";
 import { trans } from "i18n";
@@ -38,7 +38,7 @@ import React, {
 } from "react";
 import { Helmet } from "react-helmet";
 import { useDispatch, useSelector } from "react-redux";
-import { useLocation } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import { setEditorExternalStateAction } from "redux/reduxActions/configActions";
 import { currentApplication } from "redux/selectors/applicationSelector";
 import { showAppSnapshotSelector } from "redux/selectors/appSnapshotSelector";
@@ -274,6 +274,7 @@ const aggregationSiderItems = [
 
 function EditorView(props: EditorViewProps) {
   const { uiComp } = props;
+  const params = useParams<AppPathParams>();
   const editorState = useContext(EditorContext);
   const { readOnly, hideHeader } = useContext(ExternalEditorContext);
   const application = useSelector(currentApplication);
@@ -295,6 +296,11 @@ function EditorView(props: EditorViewProps) {
 
   const [prePanelStatus, setPrePanelStatus] =
     useState<PanelStatus>(DefaultPanelStatus);
+
+  const isViewMode = params.viewMode === 'view';
+
+  const appSettingsComp = editorState.getAppSettingsComp();
+  const { showHeaderInPublic } = appSettingsComp.getView();
 
   const togglePanel: TogglePanel = useCallback(
     (key) => {
@@ -363,7 +369,7 @@ function EditorView(props: EditorViewProps) {
     return () => window.removeEventListener(eventType, updateSize);
   }, []);
 
-  const hideBodyHeader = useTemplateViewMode();
+  const hideBodyHeader = useTemplateViewMode() || (isViewMode && !showHeaderInPublic);
 
   // we check if we are on the public cloud
   const isLowCoderDomain = window.location.hostname === 'app.lowcoder.cloud';
@@ -430,7 +436,6 @@ function EditorView(props: EditorViewProps) {
     savePanelStatus({ ...panelStatus, left });
     setMenuKey(params.key);
   };
-  const appSettingsComp = editorState.getAppSettingsComp();
 
   return (
     <Height100Div
