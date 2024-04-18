@@ -1,7 +1,7 @@
-
-import { default as AntdSteps } from "antd/es/steps";
+import { ConfigProvider, Steps} from "antd";
 import { BoolCodeControl } from "comps/controls/codeControl";
-import { stringExposingStateControl } from "comps/controls/codeStateControl";
+import { BoolControl } from "comps/controls/boolControl";
+import { stringExposingStateControl, numberExposingStateControl } from "comps/controls/codeStateControl";
 import { ChangeEventHandlerControl } from "comps/controls/eventHandlerControl";
 import { LabelControl } from "comps/controls/labelControl";
 import { StepOptionControl } from "comps/controls/optionsControl";
@@ -16,63 +16,79 @@ import { hiddenPropertyView, disabledPropertyView } from "comps/utils/propertyUt
 import { trans } from "i18n";
 import { hasIcon } from "comps/utils";
 import { RefControl } from "comps/controls/refControl";
+import { dropdownControl } from "comps/controls/dropdownControl";
 
-import { useContext, useState } from "react";
+import { useContext, useState, useEffect } from "react";
 import { EditorContext } from "comps/editorState";
 
 
-/* const getStyle = (style: StepsStyleType) => {
-  return css`
-    &.ant-segmented:not(.ant-segmented-disabled) {
-      background-color: ${style.background};
+const sizeOptions = [
+  {
+    label: trans("step.sizeSmall"),
+    value: "small",
+  },
+  {
+    label: trans("step.sizeDefault"),
+    value: "default",
+  }
+] as const;
 
-      &,
-      .ant-segmented-item-selected,
-      .ant-segmented-thumb,
-      .ant-segmented-item:hover,
-      .ant-segmented-item:focus {
-        color: ${style.text};
-        border-radius: ${style.radius};
-      }
-      .ant-segmented-item {
-        padding: ${style.padding};
-      }
-      .ant-segmented-item-selected,
-      .ant-segmented-thumb {
-        background-color: ${style.indicatorBackground};
-      }
-    }
+const typeOptions = [
+  {
+    label: trans("step.typeDefault"),
+    value: "default",
+  },
+  {
+    label: trans("step.typeNavigation"),
+    value: "navigation",
+  },
+  {
+    label: trans("step.typeInline"),
+    value: "inline",
+  }
+] as const;
 
-    &.ant-segmented,
-    .ant-segmented-item-selected {
-      border-radius: ${style.radius};
-    }
-    &.ant-segmented, .ant-segmented-item-label {
-      font-family:${style.fontFamily};
-      font-style:${style.fontStyle};
-      font-size:${style.textSize};
-      font-weight:${style.textWeight};
-      text-transform:${style.textTransform};
-      text-decoration:${style.textDecoration};
-    }
-  `;
-}; */
+const directionOptions = [
+  {
+    label: trans("step.directionHorizontal"),
+    value: "horizontal",
+  },
+  {
+    label: trans("step.directionVertical"),
+    value: "vertical",
+  }
+] as const;
 
-// ${(props) => props.$style && getStyle(props.$style)}
-const Segmented = styled(AntdSteps)<{ $style: StepsStyleType }>`
-  width: 100%;
-  min-height: 24px;
-`;
-
-const SegmentedWrapper = styled.div`
-  width: 100%;
-  min-height: 24px;
-`;
+const statusOptions = [
+  {
+    label: trans("step.statusProcess"),
+    value: "process"
+  },
+  {
+    label: trans("step.statusWait"),
+    value: "wait"
+  },
+  {
+    label: trans("step.statusFinish"),
+    value: "finish"
+  },
+  {
+    label: trans("step.statusError"),
+    value: "error"
+  },
+]
 
 const StepsChildrenMap = {
-  defaultValue: stringExposingStateControl("value"),
+  initialValue: numberExposingStateControl("0"),
   value: stringExposingStateControl("value"),
+  stepsStatus : stringExposingStateControl("process"),
+  size: dropdownControl(sizeOptions, "default"),
+  displayType : dropdownControl(typeOptions, "default"),
+  direction: dropdownControl(directionOptions, "horizontal"),
+  showDots : BoolControl,
+  showIcons : BoolControl,
   label: LabelControl,
+  labelPlacement: dropdownControl(directionOptions, "horizontal"),
   disabled: BoolCodeControl,
   onEvent: ChangeEventHandlerControl,
   options: StepOptionControl,
@@ -83,34 +99,75 @@ const StepsChildrenMap = {
 let StepControlBasicComp = (function () {
   return new UICompBuilder(StepsChildrenMap, (props) => {
 
+    // enabling user interaction to change the current step
     const [current, setCurrent] = useState(0);
 
-    const onChange = (value: number) => {
-      console.log('onChange:', value);
-      setCurrent(value);
+    // updating the state of current by the expose value
+    useEffect(() => {
+      setCurrent(Number(props.value.value));
+    }, [props.value.value]);
+
+
+    const onChange = (current: number) => {
+      setCurrent(current);
+      if (props.options[current]?.value !== undefined) {
+        props.value.onChange(props.options[current].value+""); 
+        props.onEvent("change");
+      }
     };
 
-    return props.label({
-      
-      style: props.style,
+    // margin-top: 17px; is important cause the dots where placed wrong.
+    /* 
+.ant-steps.ant-steps-small .ant-steps-item-icon {
+      margin-top: 17px;
+    }
+    */
+    const StepsWrapper = styled.div`
+      width: 100%;
+      min-height: 24px;
+    
+    `;
 
+    return props.label({
       children: (
-        <SegmentedWrapper ref={props.viewRef}>
-          <AntdSteps 
-            type="navigation"
-            size="default"
-            current={current}
-            onChange={onChange}
-            items={props.options.map((option) => ({
-              label: option.label,
-              subTitle: option.subTitle,
-              description: option.description,
-              status: option.status as "error" | "finish" | "wait" | "process",
-              disabled: option.disabled,
-              icon: hasIcon(option.icon) && option.icon,
-            }))}
-          />
-        </SegmentedWrapper>
+        <StepsWrapper ref={props.viewRef}>
+          <ConfigProvider
+              theme={{
+                components: {
+                  Steps: {
+                    colorPrimary: '#00b96b',
+                    algorithm: true, 
+                  }
+                },
+              }}
+            >
+            <Steps 
+              initial={Number(props.initialValue.value) - 1}
+              current={current}
+              onChange={(current) => {
+                onChange(current);
+              }}
+              percent={60}
+              status={props.stepsStatus.value as "error" | "finish" | "process" | "wait"}
+              type={props.displayType}
+              size={props.size}
+              labelPlacement={props.labelPlacement}
+              progressDot={props.showDots}
+              direction={props.direction}
+            >
+              {props.options.map((option, index) => (
+                <Steps.Step 
+                  key={index}
+                  title={option.label}
+                  subTitle={option.subTitle}
+                  description={option.description}
+                  status={option.status as "error" | "finish" | "wait" | "process" | undefined}
+                  icon={props.showIcons && hasIcon(option.icon) && option.icon || undefined}
+                />
+              ))}
+            </Steps>
+          </ConfigProvider>
+        </StepsWrapper>
       ),
     });
   })
@@ -118,7 +175,7 @@ let StepControlBasicComp = (function () {
       <>
         <Section name={sectionNames.basic}>
           {children.options.propertyView({})}
-          {children.defaultValue.propertyView({ label: trans("prop.defaultValue") })}
+          {children.initialValue.propertyView({ label: trans("step.initialValue") })}
         </Section>
 
         {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
@@ -127,11 +184,35 @@ let StepControlBasicComp = (function () {
             {children.onEvent.getPropertyView()}
             {disabledPropertyView(children)}
             {hiddenPropertyView(children)}
+            {children.stepsStatus.propertyView({label: trans("step.status")})}
           </Section></>
         )}
 
         {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
           children.label.getPropertyView()
+        )}
+
+        {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+          <Section name={sectionNames.layout}>
+            {children.size.propertyView({
+              label: trans("step.size"),
+              radioButton: true,
+            })}
+            {children.displayType.propertyView({
+              label: trans("step.type"),
+              radioButton: false,
+            })}
+            {children.direction.propertyView({
+              label: trans("step.direction"),
+              radioButton: true,
+            })}
+            {children.labelPlacement.propertyView({
+              label: trans("step.labelPlacement"),
+              radioButton: true,
+            })}
+            {children.showDots.propertyView({label: trans("step.showDots")})}
+            {children.showIcons.propertyView({label: trans("step.showIcons")})}
+          </Section>
         )}
 
         {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
@@ -146,6 +227,6 @@ let StepControlBasicComp = (function () {
 })();
 
 export const StepComp = withExposingConfigs(StepControlBasicComp, [
-  // new NameConfig("label", trans("selectInput.valueDesc")),
+  new NameConfig("value", trans("step.valueDesc")),
   ...CommonNameConfig,
 ]);

@@ -105,7 +105,14 @@ export function chartPropertyView(
           dataIndex={(s) => s.getView().dataIndex}
         />
       </Section>
-      <Section name={sectionNames.interaction}>{children.onUIEvent.getPropertyView()}</Section>
+      <Section name={sectionNames.interaction}>
+        <div style={{display: 'flex', flexDirection: 'column', gap: '8px'}}>
+          {children.onUIEvent.propertyView({title: trans("chart.chartEventHandlers")})}
+        </div>
+        <div style={{display: 'flex', flexDirection: 'column', gap: '8px'}}>
+          {children.onEvent.propertyView()}
+        </div>
+      </Section>
       <Section name={sectionNames.layout}>
         {children.title.propertyView({ label: trans("chart.title") })}
         {children.chartConfig.children.compType.getView() !== "pie" && (
@@ -143,6 +150,9 @@ export function chartPropertyView(
             </div>
           ),
         })}
+      </Section>
+      <Section name={sectionNames.interaction}>
+        {children.onEvent.propertyView()}
       </Section>
       <Section name={sectionNames.layout}>{hiddenPropertyView(children)}</Section>
     </>
@@ -189,7 +199,14 @@ export function chartPropertyView(
           ),
         })}
       </Section>
-      <Section name={sectionNames.interaction}>{children.onMapEvent.getPropertyView()}</Section>
+      <Section name={sectionNames.interaction}>
+        <div style={{display: 'flex', flexDirection: 'column', gap: '8px'}}>
+          {children.onMapEvent.propertyView({title: trans("chart.chartEventHandlers")})}
+        </div>
+        <div style={{display: 'flex', flexDirection: 'column', gap: '8px'}}>
+          {children.onEvent.propertyView()}
+        </div>
+      </Section>
       <Section name={sectionNames.layout}>{hiddenPropertyView(children)}</Section>
     </>
   );

@@ -863,8 +863,8 @@ export var uiCompMap: Registry = {
     icon: SegmentedCompIcon,
     keywords: trans("uiComp.stepControlCompKeywords"),
     lazyLoad: true,
-    compName: "StepComp",
-    compPath: "comps/selectInputComp/stepsControl",
+    compName: 'StepComp',
+    compPath: 'comps/selectInputComp/stepsControl',
     layoutInfo: {
       w: 6,
       h: 6,
