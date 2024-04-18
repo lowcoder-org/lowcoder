@@ -1,5 +1,5 @@
 import { styleControl } from "comps/controls/styleControl";
-import { LabelStyle, SelectStyle } from "comps/controls/styleControlConstants";
+import { ComponentStyle, LabelStyle, SelectStyle } from "comps/controls/styleControlConstants";
 import { trans } from "i18n";
 import { stringExposingStateControl } from "../../controls/codeStateControl";
 import { UICompBuilder } from "../../generators";
@@ -26,7 +26,8 @@ let SelectBasicComp = (function () {
     defaultValue: stringExposingStateControl("defaultValue"),
     value: stringExposingStateControl("value"),
     style: styleControl(SelectStyle),
-    labelStyle: styleControl(LabelStyle)
+    labelStyle: styleControl(LabelStyle),
+    field: styleControl(ComponentStyle)
   };
   return new UICompBuilder(childrenMap, (props, dispatch) => {
     const [
@@ -42,7 +43,8 @@ let SelectBasicComp = (function () {
     return props.label({
       required: props.required,
       style: props.style,
-      labelStyle:props.labelStyle,
+      labelStyle: props.labelStyle,
+      field:props.field,
       children: (
         <SelectUIView
           {...props}
