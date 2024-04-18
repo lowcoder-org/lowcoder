@@ -52,6 +52,7 @@ let TourBasicComp = (function() {
         arrow: step.arrow || true,
         placement: step.placement as PlacementType,
         mask: step.mask,
+        cover: step.cover ? (<img src={step.cover} />) : undefined,
         type: step.type || "default",
       };
     });

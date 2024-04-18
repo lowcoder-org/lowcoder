@@ -409,6 +409,7 @@ let TourStep = new MultiCompBuilder(
     placement: dropdownControl(PlacementOptions, "bottom"),
     hidden: BoolCodeControl,
     mask: MaskControl,
+    cover: StringControl,
     type: dropdownControl(TypeOptions, "default"),
   },
   (props) => props
@@ -438,6 +439,9 @@ TourStep = class extends TourStep implements TourStepCompProperty {
           label: "Arrow",
         })}
         {hiddenPropertyView(this.children)}
+        {this.children.cover.propertyView({
+          label: "Cover Image Url"
+        })}
         {this.children.mask.propertyView({
           label: "Mask",
           tooltip: TourStepMaskTooltip,
