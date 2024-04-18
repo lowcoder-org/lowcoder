@@ -2825,6 +2825,16 @@ export const en = {
     "navItemStyle": "Menu Item Style"
   },
 
+  "tour": {
+    "options": {
+      "mask": {
+        "label": "Mask",
+        "tooltip": "Whether to enable masking, change mask style and fill color by pass custom props, the default follows the `mask` property of Tour.",
+        "tooltipValidTypes": "Valid input types: `true`, `false`, empty, or a JSON object following the CSSProperties Schema from Antd. See an example below",
+      }
+    }
+  },
+
   docUrls: {
     docHome: "https://docs.lowcoder.cloud/",
     components: "https://app.lowcoder.cloud/components/{compType}",

@@ -22,7 +22,7 @@ import { getNextEntityName } from "util/stringUtils";
 import { BoolControl, ControlParams } from "lowcoder-sdk";
 import { ReactNode, useContext, useEffect, useState } from "react";
 import { EditorContext, EditorState } from "@lowcoder-ee/comps/editorState";
-// import { PlacementType } from "@rc-component"
+import { TourStepMaskTooltip } from "@lowcoder-ee/comps/comps/tourComp/tourInputConstants";
 export type PlacementType = 'left' | 'leftTop' | 'leftBottom' | 'right' | 'rightTop' | 'rightBottom' | 'top' | 'topLeft' | 'topRight' | 'bottom' | 'bottomLeft' | 'bottomRight' | 'center';
 export type TourStepType = 'default' | 'primary';
 
@@ -440,6 +440,7 @@ TourStep = class extends TourStep implements TourStepCompProperty {
         {hiddenPropertyView(this.children)}
         {this.children.mask.propertyView({
           label: "Mask",
+          tooltip: TourStepMaskTooltip,
         })}
         {this.children.type.propertyView({
           label: "Type",

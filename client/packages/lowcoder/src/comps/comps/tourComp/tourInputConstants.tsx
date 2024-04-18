@@ -1,18 +1,9 @@
-import { Section, sectionNames } from "lowcoder-design";
 import { ChildrenTypeToDepsKeys, depsConfig } from "../../generators/withExposing";
-import { BoolControl } from "../../controls/boolControl";
-import { CustomRuleControl } from "../../controls/codeControl";
 import { isEmpty } from "lodash";
-import { ConstructorToComp, RecordConstructorToComp } from "lowcoder-core";
-import {
-  arrayStringExposingStateControl,
-  jsonExposingStateControl,
-  stringExposingStateControl,
-} from "../../controls/codeStateControl";
-import { requiredPropertyView } from "comps/utils/propertyUtils";
+import { RecordConstructorToComp } from "lowcoder-core";
+import { stringExposingStateControl } from "../../controls/codeStateControl";
 import { trans } from "i18n";
 import { useEffect, useRef, useState } from "react";
-import { SelectInputOptionControl } from "../../controls/optionsControl";
 import { refMethods } from "comps/generators/withMethodExposing";
 import { blurMethod, focusWithOptions } from "comps/utils/methodUtils";
 import { TourStepControl } from "@lowcoder-ee/comps/controls/tourStepControl";
@@ -55,7 +46,7 @@ export const selectInputValidate = (
 
 export const useSelectInputValidate = (props: ValidationParams) => {
   const [validateState, setValidateState] = useState({});
-  const changeRef = useRef(false)
+  const changeRef = useRef(false);
   const propsRef = useRef<ValidationParams>(props);
   propsRef.current = props;
 
@@ -67,16 +58,16 @@ export const useSelectInputValidate = (props: ValidationParams) => {
       selectInputValidate({
         ...propsRef.current,
         value: {
-          value,
-        },
+          value
+        }
       })
     );
   };
 
   useEffect(() => {
-    props.value.onChange?.(defaultValue)
+    props.value.onChange?.(defaultValue);
   }, [defaultValue]);
-  
+
   useEffect(() => {
     if (!changeRef.current) return;
 
@@ -93,7 +84,7 @@ export const useSelectInputValidate = (props: ValidationParams) => {
   return [
     validateState,
     // handleValidate,
-    handleChange,
+    handleChange
   ] as const;
 };
 
@@ -136,14 +127,33 @@ export const TourInputCommonConfig = [
     name: "selectedIndex",
     desc: trans("selectInput.selectedIndexDesc"),
     depKeys: ["value", "options"],
-    func: (input) => input.options.findIndex?.((o: any) => o.value === input.value),
+    func: (input) => input.options.findIndex?.((o: any) => o.value === input.value)
   }),
   depsConfig<ChildrenType, ChildrenTypeToDepsKeys<ChildrenType>>({
     name: "selectedLabel",
     desc: trans("selectInput.selectedLabelDesc"),
     depKeys: ["value", "options"],
-    func: (input) => input.options.find?.((o: any) => o.value === input.value)?.title,
-  }),
+    func: (input) => input.options.find?.((o: any) => o.value === input.value)?.title
+  })
 ];
 
 export const selectDivRefMethods = refMethods<HTMLDivElement>([focusWithOptions, blurMethod]);
+let styleExample = {
+  "style": { "boxShadow": "inset 0 0 15px #fff" },
+  "color": "rgba(40, 0, 255, .4)"
+};
+
+export const TourStepMaskTooltip = (
+  <div>
+    {trans("tour.options.mask.tooltip")}:
+    <br />
+    <br />
+    {trans("tour.options.mask.tooltipValidTypes")}
+    <br />
+    <br />
+    <h3>Example:</h3>
+    <code>
+      {JSON.stringify(styleExample, null, 1)}
+    </code>
+  </div>
+);
