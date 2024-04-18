@@ -88,36 +88,6 @@ export const useSelectInputValidate = (props: ValidationParams) => {
   ] as const;
 };
 
-// type ValidationCompWithValue = ValidationComp & {
-//   value: ConstructorToComp<
-//     ReturnType<
-//       | typeof stringExposingStateControl
-//       | typeof arrayStringExposingStateControl
-//       | typeof jsonExposingStateControl<(string | number)[]>
-//     >
-//   >;
-// };
-// export const TourInputInvalidConfig = depsConfig<
-//   ValidationCompWithValue,
-//   ChildrenTypeToDepsKeys<ValidationCompWithValue>
-// >({
-//   name: "invalid",
-//   desc: trans("export.invalidDesc"),
-//   depKeys: ["value", "required", "customRule"],
-//   func: (input) =>
-//     selectInputValidate({
-//       ...input,
-//       value: { value: input.value },
-//     }).validateStatus !== "success",
-// });
-
-// export const SelectInputValidationSection = (children: ValidationComp) => (
-//   <Section name={sectionNames.validation}>
-//     {requiredPropertyView(children)}
-//     {children.customRule.propertyView({})}
-//   </Section>
-// );
-
 type ChildrenType = RecordConstructorToComp<{
   value: ReturnType<typeof stringExposingStateControl>;
   options: typeof TourStepControl;
@@ -138,22 +108,4 @@ export const TourInputCommonConfig = [
 ];
 
 export const selectDivRefMethods = refMethods<HTMLDivElement>([focusWithOptions, blurMethod]);
-let styleExample = {
-  "style": { "boxShadow": "inset 0 0 15px #fff" },
-  "color": "rgba(40, 0, 255, .4)"
-};
 
-export const TourStepMaskTooltip = (
-  <div>
-    {trans("tour.options.mask.tooltip")}:
-    <br />
-    <br />
-    {trans("tour.options.mask.tooltipValidTypes")}
-    <br />
-    <br />
-    <h3>Example:</h3>
-    <code>
-      {JSON.stringify(styleExample, null, 1)}
-    </code>
-  </div>
-);

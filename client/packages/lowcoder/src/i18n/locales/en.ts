@@ -2825,13 +2825,37 @@ export const en = {
     "navItemStyle": "Menu Item Style"
   },
 
-  "tour": {
+  "tour": { 
+    tooltipExampleHeader: "Example:",
+    tooltipSignatureHeader: "Signature:",
     "options": {
       "mask": {
         "label": "Mask",
         "tooltip": "Whether to enable masking, change mask style and fill color by pass custom props, the default follows the `mask` property of Tour.",
-        "tooltipValidTypes": "Valid input types: `true`, `false`, empty, or a JSON object following the CSSProperties Schema from Antd. See an example below",
+        "tooltipValidTypes": "Valid input types: `true`, `false`, empty, or a JSON object following the CSSProperties Schema from Antd.",
       }
+    },
+    "indicatorsRender": {
+      "label": "Indicators Render",
+      "tooltip": "Provides a custom indicator for which step you are on",
+      "tooltipValidTypes": "Format is a function that accepts two args, `current` and `total` and returns a ReactNode",
+      "tooltipFunctionSignatureHeader": "Signature:",
+      "tooltipFunctionSignature": "(current: number, total: number) => ReactNode",
+      "tooltipExampleHeader": "Example:",
+    },
+    "disabledInteraction": {
+      "label": "Disable Interaction",
+      "tooltip": "Disable interaction in the highlighted area."
+    },
+    "mask": {
+      "label": "Mask",
+      "tooltip": "Whether to enable masking, change mask style and fill color by pass custom props, the default follows the `mask` property of Tour.",
+      "tooltipValidTypes": "Valid input types: `true`, `false`, empty, or a JSON object following the CSSProperties Schema from Antd.",
+    },
+    placement: {
+      label: "Placement",
+      tooltip: "Position of the guide card relative to the target element",
+      tooltipValidOptions: "center left leftTop leftBottom right rightTop rightBottom top topLeft topRight bottom bottomLeft bottomRight"
     }
   },
 

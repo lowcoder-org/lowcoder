@@ -22,9 +22,8 @@ import { getNextEntityName } from "util/stringUtils";
 import { BoolControl, ControlParams } from "lowcoder-sdk";
 import { ReactNode, useContext, useEffect, useState } from "react";
 import { EditorContext, EditorState } from "@lowcoder-ee/comps/editorState";
-import { TourStepMaskTooltip } from "@lowcoder-ee/comps/comps/tourComp/tourInputConstants";
-export type PlacementType = 'left' | 'leftTop' | 'leftBottom' | 'right' | 'rightTop' | 'rightBottom' | 'top' | 'topLeft' | 'topRight' | 'bottom' | 'bottomLeft' | 'bottomRight' | 'center';
-export type TourStepType = 'default' | 'primary';
+import { PlacementOptions, TypeOptions } from "@lowcoder-ee/comps/comps/tourComp/tourControlConstants";
+import { TourPlacementTooltip, TourStepMaskTooltip } from "@lowcoder-ee/comps/comps/tourComp/tourTooltips";
 
 const OptionTypes = [
   {
@@ -265,29 +264,6 @@ export function tourStepsControl<T extends TourStepControlType>(
   };
 }
 
-const PlacementOptions: {label: string, value: PlacementType}[] = [
-  { label: "Center", value: "center"},
-  { label: "Left", value: "left"},
-  { label: "Left Top", value: "leftTop"},
-  { label: "Left Bottom", value: "leftBottom"},
-  { label: "Right", value: "right"},
-  { label: "Right Top", value: "rightTop"},
-  { label: "Right Bottom", value: "rightBottom"},
-  { label: "Top", value: "top"},
-  { label: "Top Left", value: "topLeft"},
-  { label: "Top Right", value: "topRight"},
-  { label: "Bottom", value: "bottom"},
-  { label: "Bottom Left", value: "bottomLeft"},
-  { label: "Bottom Right", value: "bottomRight"},
-];
-
-
-const TypeOptions: {label: string, value: TourStepType}[] = [
-  { label: "Default", value: "default"},
-  { label: "Primary", value: "primary"},
-];
-
-
 export function editorStateDropdownControl<T extends OptionsType>(
   options: ((editorState: EditorState) => T),
   defaultValue: ValueFromOption<T>
@@ -432,7 +408,8 @@ TourStep = class extends TourStep implements TourStepCompProperty {
           radioButton: false,
         })}
         {this.children.placement.propertyView({
-          label: trans("textShow.verticalAlignment"),
+          label: trans("tour.placement.label"),
+          tooltip: TourPlacementTooltip,
           radioButton: false
         })}
         {this.children.arrow.propertyView({
@@ -443,7 +420,7 @@ TourStep = class extends TourStep implements TourStepCompProperty {
           label: "Cover Image Url"
         })}
         {this.children.mask.propertyView({
-          label: "Mask",
+          label: trans("tour.options.mask.label"),
           tooltip: TourStepMaskTooltip,
         })}
         {this.children.type.propertyView({

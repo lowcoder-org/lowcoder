@@ -11,12 +11,12 @@ import {
 import { baseSelectRefMethods, TourChildrenMap, TourPropertyView } from "./tourCompConstants";
 import { TourInputCommonConfig } from "./tourInputConstants";
 import { Tour, TourProps } from "antd";
-import { PlacementType } from "@lowcoder-ee/comps/controls/tourStepControl";
 import React, { Suspense, useContext } from "react";
 import { EditorContext } from "@lowcoder-ee/comps/editorState";
 import { GridItemComp } from "@lowcoder-ee/comps/comps/gridItemComp";
 import { HookComp } from "@lowcoder-ee/comps/hooks/hookComp";
 import { TemporaryStateItemComp } from "@lowcoder-ee/comps/comps/temporaryStateComp";
+import { PlacementType } from "@lowcoder-ee/comps/comps/tourComp/tourControlConstants";
 
 /**
  * This component builds the Property Panel and the fake 'UI' for the Tour component
@@ -63,6 +63,8 @@ let TourBasicComp = (function() {
           steps={steps}
           open={props.open.value}
           onClose={() => props.open.onChange(false)}
+          indicatorsRender={(current, total) => props.indicatorsRender(current,total)}
+          disabledInteraction={props.disabledInteraction}
         />
       </Suspense>
     );
