@@ -7425,6 +7425,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"coolshapes-react@npm:^0.1.1-beta.0":
+  version: 0.1.1-beta.0
+  resolution: "coolshapes-react@npm:0.1.1-beta.0"
+  peerDependencies:
+    react: ">=16.8"
+    react-dom: ">=16.8"
+  checksum: c3edd7e43ef84f5c34faebc0d97316a2a4177c143d0eb23f9f62022a9fc19451a7d8f2af2730ae7852bba524bb08204ac22871fad2f85305072b048acbad7b78
+  languageName: node
+  linkType: hard
+
 "copy-anything@npm:^2.0.1":
   version: 2.0.6
   resolution: "copy-anything@npm:2.0.6"
@@ -13665,6 +13675,7 @@ __metadata:
     buffer: ^6.0.3
     clsx: ^2.0.0
     cnchar: ^3.2.4
+    coolshapes-react: ^0.1.1-beta.0
     copy-to-clipboard: ^3.3.3
     core-js: ^3.25.2
     dotenv: ^16.0.3
