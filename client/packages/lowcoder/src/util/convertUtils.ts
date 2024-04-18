@@ -254,9 +254,8 @@ export function toBooleanOrCss(value: any): boolean | undefined | {
   if (value === undefined || value === null || value === "") {
     return undefined;
   }
-  // if (typeof value === "boolean") {
   if (value.toLocaleLowerCase() === "true" || value.toLocaleLowerCase() === "false") {
     return value.toLocaleLowerCase() === "true";
   }
-  return toJSONObject(value);
+  return toJSONObject(JSON.parse(value));
 }
