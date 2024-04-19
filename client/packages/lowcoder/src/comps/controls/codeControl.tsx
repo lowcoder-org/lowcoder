@@ -34,7 +34,7 @@ import { CSSProperties, lazy, ReactNode, Suspense } from "react";
 import {
   showTransform,
   toArrayJSONObject,
-  toBoolean, toBooleanOrCss,
+  toBoolean, toBooleanOrCss, toBooleanOrJsonObject,
   toJSONArray,
   toJSONObject,
   toJSONObjectArray,
@@ -319,6 +319,7 @@ export const StringControl = codeControl<string>(toString);
 export const NumberControl = codeControl<number>(toNumber);
 export const StringOrNumberControl = codeControl<string | number>(toStringOrNumber);
 export const MaskControl = codeControl<boolean | { style?: CSSProperties | undefined; color?: string | undefined; } | undefined>(toBooleanOrCss);
+export const ArrowControl = codeControl<boolean | { pointAtCenter: boolean } | undefined>(toBooleanOrJsonObject);
 
 // rangeCheck, don't support Infinity temporarily
 export class RangeControl {
