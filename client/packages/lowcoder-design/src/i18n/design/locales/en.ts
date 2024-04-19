@@ -23,7 +23,7 @@ export const en = {
     advanced: "Advanced",
     validation: "Validation",
     layout: "Layout",
-    labelStyle:"Label Style",
+    labelStyle: "Label Style",
     style: "Style",
     meetings: "Meeting Settings",
     data: "Data",
@@ -46,6 +46,10 @@ export const en = {
   iconSelect: {
     title: "Select icon",
     searchPlaceholder: "Search icon",
+  },
+  shapeSelect: {
+    title: "Select shape",
+    searchPlaceholder: "Search shape",
   },
   eventHandler: {
     advanced: "Advanced",
