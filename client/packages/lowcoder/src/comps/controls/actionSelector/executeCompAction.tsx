@@ -19,7 +19,7 @@ import {
   JSONObjectControl,
   JSONValueControl,
   NumberControl,
-  StringControl
+  StringControl,
 } from "../codeControl";
 import { ExecuteAction, ParamsConfig, ParamType } from "./executeCompTypes";
 import { trans } from "i18n";

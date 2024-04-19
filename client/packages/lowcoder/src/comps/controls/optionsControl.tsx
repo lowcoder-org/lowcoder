@@ -1,10 +1,5 @@
 import { ViewDocIcon } from "assets/icons";
-import {
-  ArrayControl,
-  BoolCodeControl,
-  RadiusControl,
-  StringControl
-} from "comps/controls/codeControl";
+import { ArrayControl, BoolCodeControl, RadiusControl, StringControl } from "comps/controls/codeControl";
 import { dropdownControl, LeftRightControl } from "comps/controls/dropdownControl";
 import { IconControl } from "comps/controls/iconControl";
 import { MultiCompBuilder, valueComp, withContext, withDefault } from "comps/generators";
