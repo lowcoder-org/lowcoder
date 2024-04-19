@@ -2826,6 +2826,8 @@ export const en = {
   },
 
   tour: { 
+    section1Title: "Steps",
+    section1Subtitle: "Steps",
     tooltipExampleHeader: "Example:",
     tooltipSignatureHeader: "Signature:",
     options: {

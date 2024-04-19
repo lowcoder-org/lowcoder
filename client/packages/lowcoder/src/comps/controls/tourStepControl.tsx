@@ -29,25 +29,8 @@ import {
   TourStepMaskTooltip
 } from "@lowcoder-ee/comps/comps/tourComp/tourTooltips";
 
-const OptionTypes = [
-  {
-    label: trans("prop.manual"),
-    value: "manual",
-  },
-  {
-    label: trans("prop.map"),
-    value: "map",
-  },
-] as const;
-
 // All options must contain label
 type OptionChildType = { label: InstanceType<typeof StringControl> };
-type TourControlType = new (params: CompParams<any>) => MultiBaseComp<
-  OptionChildType,
-  any,
-  any
-> &
-  Comp<any, any, any>;
 type OptionControlParam = {
   // list title
   title?: string;
@@ -157,7 +140,7 @@ export function manualTourStepsControl<T extends TourStepControlType>(
     propertyView(param: OptionControlParam) {
       const manualComp = this.children.manual;
       const { autoIncField } = config;
-      const title = param.title ?? trans("optionsControl.optionList");
+      const title = param.title ?? trans("tour.section1Subtitle");
 
       return controlItem(
         { filterText: title },
@@ -233,7 +216,6 @@ export function tourStepsControl<T extends TourStepControlType>(
 
   const TmpOptionControl = new MultiCompBuilder(
     {
-      optionType: dropdownControl(OptionTypes, "manual"),
       manual: manualTourStepsControl(VariantComp, {
         initOptions: config.initOptions,
       }),
@@ -257,10 +239,6 @@ export function tourStepsControl<T extends TourStepControlType>(
       return controlItem(
         { searchChild: true },
         <>
-          {this.children.optionType.propertyView({
-            radioButton: true,
-            type: "oneline",
-          })}
           {item}
         </>
       );

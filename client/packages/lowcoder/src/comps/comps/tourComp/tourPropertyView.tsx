@@ -1,22 +1,15 @@
 import { RecordConstructorToComp } from "lowcoder-core";
 import { BoolControl } from "../../controls/boolControl";
-import { LabelControl } from "../../controls/labelControl";
-import { AlkjdfControl, ArrowControl, BoolCodeControl, MaskControl, StringControl } from "../../controls/codeControl";
-import { Section, sectionNames } from "lowcoder-design";
-import { SelectEventHandlerControl } from "../../controls/eventHandlerControl";
-import { stateComp } from "../../generators";
-import { RefControl } from "comps/controls/refControl";
-import { BaseSelectRef } from "rc-select";
-import { refMethods } from "comps/generators/withMethodExposing";
-import { blurMethod, focusMethod } from "comps/utils/methodUtils";
+import { ArrowControl, BoolCodeControl, MaskControl } from "../../controls/codeControl";
+import { Section } from "lowcoder-design";
 import { TourStepControl } from "@lowcoder-ee/comps/controls/tourStepControl";
 import { booleanExposingStateControl, dropdownControl } from "lowcoder-sdk";
 import { trans } from "i18n";
 import { PlacementOptions, TypeOptions } from "@lowcoder-ee/comps/comps/tourComp/tourControlConstants";
 import {
-  IndicatorsRenderTooltip, TourArrowTooltip,
+  TourArrowTooltip,
   TourMaskTooltip,
-  TourPlacementTooltip, TourStepArrowTooltip, TourStepMaskTooltip
+  TourPlacementTooltip
 } from "@lowcoder-ee/comps/comps/tourComp/tourTooltips";
 
 export const TourChildrenMap = {
@@ -40,7 +33,7 @@ export const TourPropertyView = (
   // }
 ) => (
   <>
-    <Section name={sectionNames.basic}>
+    <Section name={trans("tour.section1Title")}>
       {children.options.propertyView({})}
     </Section>
     
@@ -82,7 +75,3 @@ export const TourPropertyView = (
   </>
 );
 
-// export const baseSelectRefMethods = refMethods<BaseSelectRef>([
-//   focusMethod,
-//   blurMethod,
-// ]);

@@ -508,15 +508,15 @@ export const FunctionControl = codeControl<CodeFunction>(
   { codeType: "Function", evalWithMethods: true }
 );
 
-export const AlkjdfControl = codeControl<(current: number, total: number)=>ReactNode>(
-  (value) => {
-    // if (typeof value === "function") {
-    //   return value;
-    // }
-    return (current,total) => (value as (current: number, total: number)=>ReactNode)(current,total);
-  },
-  { codeType: "Function", evalWithMethods: true }
-);
+// export const AlkjdfControl = codeControl<(current: number, total: number)=>ReactNode>(
+//   (value) => {
+//     if (typeof value === "function") {
+//       return value;
+//     }
+//     return (current,total) => (value as (current: number, total: number)=>ReactNode)(current,total);
+//   },
+//   { codeType: "Function", evalWithMethods: true }
+// );
 
 export const TransformerCodeControl = codeControl<JSONValue>(
   (value) => {
