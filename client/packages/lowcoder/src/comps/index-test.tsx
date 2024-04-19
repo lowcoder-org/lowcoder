@@ -7,7 +7,10 @@ import { ModalComp } from "comps/hooks/modalComp";
 import { ButtonComp } from "./comps/buttonComp/buttonComp";
 import { DropdownComp } from "./comps/buttonComp/dropdownComp";
 import { LinkComp } from "./comps/buttonComp/linkComp";
-import { ContainerComp, defaultContainerData } from "./comps/containerComp/containerComp";
+import {
+  ContainerComp,
+  defaultContainerData,
+} from "./comps/containerComp/containerComp";
 import { CustomComp } from "./comps/customComp/customComp";
 import { DatePickerComp, DateRangeComp } from "./comps/dateComp/dateComp";
 import { DividerComp } from "./comps/dividerComp";
@@ -38,7 +41,12 @@ import { TextAreaComp } from "./comps/textInputComp/textAreaComp";
 import { TimePickerComp, TimeRangeComp } from "./comps/dateComp/timeComp";
 import { defaultFormData, FormComp } from "./comps/formComp/formComp";
 import { IFrameComp } from "./comps/iframeComp";
-import { defaultGridData, defaultListViewData, GridComp, ListViewComp,} from "./comps/listViewComp";
+import {
+  defaultGridData,
+  defaultListViewData,
+  GridComp,
+  ListViewComp,
+} from "./comps/listViewComp";
 import { ModuleComp } from "./comps/moduleComp/moduleComp";
 import { NavComp } from "./comps/navComp/navComp";
 import { TableComp } from "./comps/tableComp";
@@ -63,7 +71,7 @@ import { TimeLineComp } from "./comps/timelineComp/timelineComp";
 import { CommentComp } from "./comps/commentComp/commentComp";
 import { MentionComp } from "./comps/textInputComp/mentionComp";
 import { AutoCompleteComp } from "./comps/autoCompleteComp/autoCompleteComp";
-import { JsonLottieComp } from "./comps/jsonComp/jsonLottieComp"; 
+import { JsonLottieComp } from "./comps/jsonComp/jsonLottieComp";
 import { ResponsiveLayoutComp } from "./comps/responsiveLayout";
 import { ControlButton } from "./comps/meetingComp/controlButton";
 
@@ -145,7 +153,6 @@ const builtInRemoteComps: Omit<RemoteCompInfo, "compName"> = {
 
 var uiCompMap: Registry = {
   // Dashboards
-
   chart: {
     name: trans("uiComp.chartCompName"),
     enName: "Chart",
@@ -1121,7 +1128,7 @@ var uiCompMap: Registry = {
 };
 
 export function loadComps() {
-  if(!uiCompMap) return;
+  if (!uiCompMap) return;
   const entries = Object.entries(uiCompMap);
   for (const [compType, manifest] of entries) {
     registerComp(compType as UICompType, manifest);

@@ -117,6 +117,20 @@ export var uiCompMap: Registry = {
   // Dashboards
   
   // charts
+  shape: {
+    name: trans("uiComp.shapeCompName"),
+    enName: "Chart",
+    description: trans("uiComp.shapeCompDesc"),
+    categories: ["dashboards"],
+    icon: ChartCompIcon,
+    keywords: trans("uiComp.shapeCompKeywords"),
+    compName: "ShapeComp",
+    compPath: "comps/shapeComp/shapeComp",
+    layoutInfo: {
+      w: 12,
+      h: 40,
+    },
+  },
   
   chart: {
     name: trans("uiComp.chartCompName") + " (legacy)",
@@ -830,7 +844,6 @@ export var uiCompMap: Registry = {
     compName: "MentionComp",
     compPath: "comps/textInputComp/mentionComp",
   },
-
 
   // Forms
 

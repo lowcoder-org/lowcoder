@@ -19,7 +19,7 @@ import { Section, sectionNames } from "lowcoder-design";
 import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { NumberControl } from "comps/controls/codeControl";
-import { IconControl } from "comps/controls/iconControl";
+import { ShapeControl } from "comps/controls/shapeControl";
 import ReactResizeDetector from "react-resize-detector";
 import { AutoHeightControl } from "../../controls/autoHeightControl";
 import {
@@ -28,6 +28,7 @@ import {
 } from "../../controls/eventHandlerControl";
 import { useContext } from "react";
 import { EditorContext } from "comps/editorState";
+import { Coolshape } from "coolshapes-react";
 
 const Container = styled.div<{ $style: IconStyleType | undefined }>`
   display: flex;
@@ -58,7 +59,7 @@ const EventOptions = [clickEvent] as const;
 
 const childrenMap = {
   style: styleControl(IconStyle),
-  icon: withDefault(IconControl, "/icon:antd/homefilled"),
+  icon: withDefault(ShapeControl, ""),
   autoHeight: withDefault(AutoHeightControl, "auto"),
   iconSize: withDefault(NumberControl, 20),
   onEvent: eventHandlerControl(EventOptions),
@@ -80,6 +81,27 @@ const IconView = (props: RecordConstructorToView<typeof childrenMap>) => {
     setWidth(container?.clientWidth ?? 0);
     setHeight(container?.clientHeight ?? 0);
   };
+  const getIconDetails = () => {
+    if (props?.icon) {
+      let { props: pp } = props?.icon;
+      console.log(pp);
+    }
+
+    // let shapeDetails: any = props.icon["props"];
+    // console.log(shapeDetails);
+
+    // if (props.icon && props.icon?.props?.value) {
+    //   return {
+    //     index: parseInt(props.icon?.props?.value.split("_")[1]),
+    //     value: props.icon?.props?.value.split("_")[0],
+    //   };
+    // } else {
+    //   return {
+    //     index: 0,
+    //     value: "star",
+    //   };
+    // }
+  };
 
   return (
     <ReactResizeDetector onResize={onResize}>
@@ -94,7 +116,13 @@ const IconView = (props: RecordConstructorToView<typeof childrenMap>) => {
         }}
         onClick={() => props.onEvent("click")}
       >
-        {props.icon}
+        {/* {props.icon} */}
+        <Coolshape
+          type={getIconDetails()["value"]}
+          index={getIconDetails()["index"]}
+          size={48}
+          noise={true}
+        />
       </Container>
     </ReactResizeDetector>
   );
@@ -149,4 +177,6 @@ ShapeBasicComp = class extends ShapeBasicComp {
   }
 };
 
-export const ShapeComp = withExposingConfigs(ShapeBasicComp, [NameConfigHidden]);
+export const ShapeComp = withExposingConfigs(ShapeBasicComp, [
+  NameConfigHidden,
+]);
