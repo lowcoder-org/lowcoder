@@ -75,6 +75,7 @@ let TourBasicComp = (function() {
           arrow={props.arrow}
           placement={props.placement === "" ? undefined : props.placement}
           type={props.type === "" ? undefined : props.type}
+            mask={props.mask}
         />
       </Suspense>
     );
