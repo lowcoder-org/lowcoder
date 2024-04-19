@@ -47,7 +47,6 @@ export const CascaderPropertyView = (
   children: RecordConstructorToComp<typeof CascaderChildren & { hidden: typeof BoolCodeControl }>
 ) => (
   <>
-    {console.log(children)}
     <Section name={sectionNames.basic}>
       {children.options.propertyView({ label: trans("cascader.options") })}
       {children.value.propertyView({ label: trans("prop.defaultValue") })}

@@ -19,7 +19,6 @@ let CascaderBasicComp = (function () {
   const childrenMap = CascaderChildren;
 
   return new UICompBuilder(childrenMap, (props) => {
-    console.log("🚀 ~ returnnewUICompBuilder ~ props:", props)
     return props.label({
       style: props.style,
       labelStyle: props.labelStyle,
