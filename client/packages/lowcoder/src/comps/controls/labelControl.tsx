@@ -98,7 +98,7 @@ const Label = styled.span<{ $border: boolean, $labelStyle: LabelStyleType, $vali
   text-decoration:${(props) => props.$labelStyle.textDecoration};
   font-size:${(props) => props.$labelStyle.textSize};
   color:${(props) => !!props.$validateStatus && props?.$validateStatus === 'error' ? props.$labelStyle.validate : props.$labelStyle.label} !important;
-  ${(props) => `border-bottom:${props.$labelStyle.borderWidth} ${props.$labelStyle.borderStyle} ${!!props.$validateStatus && props?.$validateStatus === 'error' ? props.$labelStyle.validate : props.$labelStyle.border};`}
+  ${(props) => `border:${props.$labelStyle.borderWidth} ${props.$labelStyle.borderStyle} ${!!props.$validateStatus && props?.$validateStatus === 'error' ? props.$labelStyle.validate : props.$labelStyle.border};`}
   border-radius:${(props) => props.$labelStyle.radius};
   padding:${(props) => props.$labelStyle.padding};
   margin:${(props) => props.$labelStyle.margin};
