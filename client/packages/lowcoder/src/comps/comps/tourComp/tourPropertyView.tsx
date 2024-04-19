@@ -20,16 +20,9 @@ import {
 } from "@lowcoder-ee/comps/comps/tourComp/tourTooltips";
 
 export const TourChildrenMap = {
-  label: LabelControl,
-  placeholder: StringControl,
-  disabled: BoolCodeControl,
   open: booleanExposingStateControl("open"),
-  onEvent: SelectEventHandlerControl,
   options: TourStepControl,
-  inputValue: stateComp<string>(""), // user's input value when search
-  showSearch: BoolControl.DEFAULT_TRUE,
-  viewRef: RefControl<BaseSelectRef>,
-  indicatorsRender: AlkjdfControl,
+  // indicatorsRender: AlkjdfControl, // todo get this working later
   disabledInteraction: BoolControl,
   mask: MaskControl,
   placement: dropdownControl(PlacementOptions, "bottom"),
@@ -52,10 +45,10 @@ export const TourPropertyView = (
     </Section>
     
     <Section name="customization">
-      {children.indicatorsRender.propertyView({
-        label: trans("tour.indicatorsRender.label"),
-        tooltip: IndicatorsRenderTooltip,
-      })}
+      {/*{children.indicatorsRender.propertyView({*/}
+      {/*  label: trans("tour.indicatorsRender.label"),*/}
+      {/*  tooltip: IndicatorsRenderTooltip,*/}
+      {/*})}*/}
       {children.disabledInteraction.propertyView({
         label: trans("tour.disabledInteraction.label"),
         tooltip: trans("tour.disabledInteraction.tooltip")
@@ -89,7 +82,7 @@ export const TourPropertyView = (
   </>
 );
 
-export const baseSelectRefMethods = refMethods<BaseSelectRef>([
-  focusMethod,
-  blurMethod,
-]);
+// export const baseSelectRefMethods = refMethods<BaseSelectRef>([
+//   focusMethod,
+//   blurMethod,
+// ]);

@@ -8,10 +8,9 @@ import {
   withExposingConfigs,
   withMethodExposing
 } from "lowcoder-sdk";
-import { baseSelectRefMethods, TourChildrenMap, TourPropertyView } from "./tourPropertyView";
-import { TourInputCommonConfig } from "./tourInputConstants";
+import { TourChildrenMap, TourPropertyView } from "./tourPropertyView";
 import { Tour, TourProps } from "antd";
-import React, { Suspense, useContext } from "react";
+import React, { useContext } from "react";
 import { EditorContext } from "@lowcoder-ee/comps/editorState";
 import { GridItemComp } from "@lowcoder-ee/comps/comps/gridItemComp";
 import { HookComp } from "@lowcoder-ee/comps/hooks/hookComp";
@@ -65,27 +64,24 @@ let TourBasicComp = (function() {
     });
 
     return (
-      <Suspense fallback={<div>loading</div>}>
-        <Tour
-          steps={steps}
-          open={props.open.value}
-          onClose={() => props.open.onChange(false)}
-          indicatorsRender={(current, total) => props.indicatorsRender(current, total)}
-          disabledInteraction={props.disabledInteraction}
-          arrow={props.arrow}
-          placement={props.placement === "" ? undefined : props.placement}
-          type={props.type === "" ? undefined : props.type}
-            mask={props.mask}
-        />
-      </Suspense>
+      <Tour
+        steps={steps}
+        open={props.open.value}
+        onClose={() => props.open.onChange(false)}
+        // indicatorsRender={(current, total) => props.indicatorsRender(current, total)} // todo enable later
+        disabledInteraction={props.disabledInteraction}
+        arrow={props.arrow}
+        placement={props.placement === "" ? undefined : props.placement}
+        type={props.type === "" ? undefined : props.type}
+        mask={props.mask}
+      />
     );
   })
     .setPropertyViewFn((children) => <TourPropertyView {...children} />)
-    .setExposeMethodConfigs(baseSelectRefMethods)
     .build();
 })();
 
-TourBasicComp = withMethodExposing(TourBasicComp, [
+export const TourComp = withMethodExposing(TourBasicComp, [
   {
     method: {
       name: "startTour",
@@ -96,11 +92,4 @@ TourBasicComp = withMethodExposing(TourBasicComp, [
       comp.children.open.getView().onChange(true);
     }
   }
-]);
-
-export const TourComp = withExposingConfigs(TourBasicComp, [
-  new NameConfig("value", trans("selectInput.valueDesc")),
-  new NameConfig("inputValue", trans("select.inputValueDesc")),
-  ...TourInputCommonConfig,
-  ...CommonNameConfig
 ]);
