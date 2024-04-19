@@ -114,7 +114,7 @@ export type UICompType =
   | "custom"
   | "jsonExplorer"
   | "jsonEditor"
-  | "shapeComp"
+  | "shape"
   | "tree"
   | "treeSelect"
   | "audio"

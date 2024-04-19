@@ -90,6 +90,7 @@ export const CompStateIcon: {
   floatTextContainer: <LeftContainer />,
   meeting: <LeftMeeting />,
   mermaid: <LeftChart />,
+  shape: <LeftChart />,
   videocomponent: <LeftMeeting />,
   sharingcomponent: <LeftMeeting />,
   controlButton: <LeftButton />,
@@ -122,5 +123,4 @@ export const CompStateIcon: {
   autocomplete: <AutoCompleteCompIcon />,
   icon: <IconCompIcon />,
   responsiveLayout: <ResponsiveLayoutCompIcon />,
-
 };

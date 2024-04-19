@@ -86,6 +86,7 @@ export * from "comps/controls/dropdownInputSimpleControl";
 export * from "comps/controls/eventHandlerControl";
 export * from "comps/controls/actionSelector/actionSelectorControl";
 export * from "comps/controls/iconControl";
+export * from "comps/controls/shapeControl";
 export * from "comps/controls/keyValueControl";
 export * from "comps/controls/labelControl";
 export * from "comps/controls/millisecondControl";
