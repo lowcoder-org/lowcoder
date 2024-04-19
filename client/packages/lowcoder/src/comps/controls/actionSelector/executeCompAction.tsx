@@ -1,5 +1,4 @@
-import { customAction, routeByNameAction } from "lowcoder-core";
-import { CompParams, ConstructorToDataType } from "lowcoder-core";
+import { CompParams, ConstructorToDataType, customAction, routeByNameAction } from "lowcoder-core";
 import { GridItemComp } from "comps/comps/gridItemComp";
 import { SimpleNameComp } from "comps/comps/simpleNameComp";
 import { TemporaryStateItemComp } from "comps/comps/temporaryStateComp";
@@ -20,7 +19,7 @@ import {
   JSONObjectControl,
   JSONValueControl,
   NumberControl,
-  StringControl,
+  StringControl
 } from "../codeControl";
 import { ExecuteAction, ParamsConfig, ParamType } from "./executeCompTypes";
 import { trans } from "i18n";
@@ -121,10 +120,6 @@ export function executeCompAction(params: ExecuteCompActionOptions) {
         );
     }
 
-    exposingNode() {
-      return this.node();
-    }
-    
     propertyView() {
       return (
         <EditorContext.Consumer>
