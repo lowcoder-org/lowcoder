@@ -12,7 +12,8 @@ import {
   SignatureStyleType,
   widthCalculator,
   heightCalculator,
-  ComponentStyle
+  
+  InputFieldStyle
 } from "comps/controls/styleControlConstants";
 import { stateComp, withDefault } from "comps/generators/simpleGenerators";
 import { hiddenPropertyView } from "comps/utils/propertyUtils";
@@ -99,12 +100,12 @@ const childrenMap = {
   tips: withDefault(StringControl, trans("signature.signHere")),
   onEvent: ChangeEventHandlerControl,
   label: withDefault(LabelControl, { position: "column", text: "" }),
-  style: styleControl(SignatureStyle),
+  style: styleControl(InputFieldStyle),
   labelStyle: styleControl(LabelStyle),
   showUndo: withDefault(BoolControl, true),
   showClear: withDefault(BoolControl, true),
   value: stateComp(""),
-  field:styleControl(ComponentStyle),
+  inputFieldStyle:styleControl(SignatureStyle),
   ...formDataChildren,
 };
 
@@ -130,7 +131,7 @@ let SignatureTmpComp = (function () {
     return props.label({
       style: props.style,
       labelStyle: props.labelStyle,
-      field:props.field,
+      inputFieldStyle:props.inputFieldStyle,
       children: (
         <ReactResizeDetector
           onResize={(width, height) => {
@@ -142,7 +143,7 @@ let SignatureTmpComp = (function () {
             onMouseDown={(e) => {
               e.preventDefault();
             }}
-            $style={props.style}
+            $style={props.inputFieldStyle}
             $isEmpty={!props.value && !isBegin}
           >
             <div className="signature">
@@ -151,7 +152,7 @@ let SignatureTmpComp = (function () {
                   ref={(ref) => {
                     canvas = ref;
                   }}
-                  penColor={props.style.pen}
+                  penColor={props.inputFieldStyle.pen}
                   clearOnResize={false}
                   canvasProps={{
                     className: "sigCanvas",
@@ -230,8 +231,8 @@ let SignatureTmpComp = (function () {
               <Section name={sectionNames.labelStyle}>
                 {children.labelStyle.getPropertyView()}
               </Section>
-              <Section name={sectionNames.field}>
-                {children.field.getPropertyView()}
+              <Section name={sectionNames.inputFieldStyle}>
+                {children.inputFieldStyle.getPropertyView()}
               </Section>
             </>
           )}

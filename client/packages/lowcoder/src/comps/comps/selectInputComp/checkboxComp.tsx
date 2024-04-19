@@ -15,7 +15,7 @@ import {
 } from "./selectInputConstants";
 import { formDataChildren } from "../formComp/formDataConstants";
 import { styleControl } from "comps/controls/styleControl";
-import { CheckboxStyle, CheckboxStyleType, ComponentStyle, LabelStyle } from "comps/controls/styleControlConstants";
+import { CheckboxStyle, CheckboxStyleType, InputFieldStyle, LabelStyle } from "comps/controls/styleControlConstants";
 import { RadioLayoutOptions, RadioPropertyView } from "./radioCompConstants";
 import { dropdownControl } from "../../controls/dropdownControl";
 import { ValueFromOption } from "lowcoder-design";
@@ -136,11 +136,11 @@ let CheckboxBasicComp = (function () {
     disabled: BoolCodeControl,
     onEvent: ChangeEventHandlerControl,
     options: SelectInputOptionControl,
-    style: styleControl(CheckboxStyle),
+    style: styleControl(InputFieldStyle),
     labelStyle: styleControl(LabelStyle.filter((style) => ['accent', 'validate'].includes(style.name) === false)),
     layout: dropdownControl(RadioLayoutOptions, "horizontal"),
     viewRef: RefControl<HTMLDivElement>,
-    field:styleControl(ComponentStyle),
+    inputFieldStyle:styleControl(CheckboxStyle),
     ...SelectInputValidationChildren,
     ...formDataChildren,
   };
@@ -153,13 +153,13 @@ let CheckboxBasicComp = (function () {
       required: props.required,
       style: props.style,
       labelStyle: props.labelStyle,
-      field:props.field,
+      inputFieldStyle:props.inputFieldStyle,
       children: (
         <CheckboxGroup
           ref={props.viewRef}
           disabled={props.disabled}
           value={props.value.value}
-          $style={props.style}
+          $style={props.inputFieldStyle}
           $layout={props.layout}
           options={props.options
             .filter((option) => option.value !== undefined && !option.hidden)

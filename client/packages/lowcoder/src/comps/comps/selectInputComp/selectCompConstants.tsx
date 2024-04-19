@@ -38,7 +38,8 @@ import {
   TreeSelectStyleType,
   widthCalculator,
   heightCalculator,
-  ComponentStyle,
+  
+  SelectStyle,
 } from "comps/controls/styleControlConstants";
 import { stateComp, withDefault } from "../../generators";
 import {
@@ -219,7 +220,7 @@ export const SelectChildrenMap = {
   viewRef: RefControl<BaseSelectRef>,
   margin: MarginControl,
   padding: PaddingControl,
-  field:styleControl(ComponentStyle),
+  inputFieldStyle:styleControl(SelectStyle),
   ...SelectInputValidationChildren,
   ...formDataChildren,
 };
@@ -294,7 +295,7 @@ export const SelectPropertyView = (
     value: { propertyView: (params: ControlParams) => ControlNode };
     style: { getPropertyView: () => ControlNode };
     labelStyle: { getPropertyView: () => ControlNode };
-    field: { getPropertyView: () => ControlNode };
+    inputFieldStyle: { getPropertyView: () => ControlNode };
   }
 ) => (
   <>
@@ -340,8 +341,8 @@ export const SelectPropertyView = (
           <Section name={sectionNames.labelStyle}>
             {children.labelStyle.getPropertyView()}
           </Section>
-          <Section name={sectionNames.field}>
-            {children.field.getPropertyView()}
+          <Section name={sectionNames.inputFieldStyle}>
+            {children.inputFieldStyle.getPropertyView()}
           </Section>
         </>
       )}

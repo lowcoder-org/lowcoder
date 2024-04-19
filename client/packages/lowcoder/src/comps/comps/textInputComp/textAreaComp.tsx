@@ -22,7 +22,7 @@ import {
 import { withMethodExposing, refMethods } from "../../generators/withMethodExposing";
 import { styleControl } from "comps/controls/styleControl";
 import styled from "styled-components";
-import { ComponentStyle, InputLikeStyle, InputLikeStyleType, LabelStyle } from "comps/controls/styleControlConstants";
+import {  InputFieldStyle, InputLikeStyle, InputLikeStyleType, LabelStyle } from "comps/controls/styleControlConstants";
 import { TextArea } from "components/TextArea";
 import {
   allowClearPropertyView,
@@ -71,23 +71,23 @@ let TextAreaTmpComp = (function () {
     viewRef: RefControl<TextAreaRef>,
     allowClear: BoolControl,
     autoHeight: withDefault(AutoHeightControl, "fixed"),
-    style: styleControl(InputLikeStyle),
+    style: styleControl(InputFieldStyle),
     labelStyle: styleControl(LabelStyle),
-    field: styleControl(ComponentStyle)
+    inputFieldStyle: styleControl(InputLikeStyle)
   };
   return new UICompBuilder(childrenMap, (props) => {
     const [inputProps, validateState] = useTextInputProps(props);
     return props.label({
       required: props.required,
-      field:props.field,
+      inputFieldStyle:props.inputFieldStyle,
       children: (
-        <Wrapper $style={props.style}>
+        <Wrapper $style={props.inputFieldStyle}>
           <TextAreaStyled
             {...inputProps}
             ref={props.viewRef}
             allowClear={props.allowClear}
             style={{ height: "100% !important", resize: "vertical" }}
-            $style={props.style}
+            $style={props.inputFieldStyle}
           />
         </Wrapper>
       ),
@@ -122,7 +122,7 @@ let TextAreaTmpComp = (function () {
           <>
             <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
             <Section name={sectionNames.labelStyle}>{children.labelStyle.getPropertyView()}</Section>
-            <Section name={sectionNames.field}>{children.field.getPropertyView()}</Section>
+            <Section name={sectionNames.inputFieldStyle}>{children.inputFieldStyle.getPropertyView()}</Section>
           </>
         )}
       </>

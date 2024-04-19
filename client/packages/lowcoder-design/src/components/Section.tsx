@@ -148,5 +148,6 @@ export const sectionNames = {
   labelStyle:trans("prop.labelStyle"),
   data: trans("prop.data"),
   meetings: trans("prop.meetings"), // added by Falk Wolsky
-  field:trans("prop.field")
+  field: trans("prop.field"),
+  inputFieldStyle:trans("prop.inputFieldStyle")
 };

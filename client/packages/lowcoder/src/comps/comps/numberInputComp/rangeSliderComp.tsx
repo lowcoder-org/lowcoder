@@ -16,7 +16,7 @@ const RangeSliderBasicComp = (function () {
     return props.label({
       style: props.style,
       labelStyle: props.labelStyle,
-      field:props.field,
+      inputFieldStyle:props.inputFieldStyle,
       children: (
         <SliderWrapper
           onMouseDown={(e: any) => {
@@ -29,7 +29,7 @@ const RangeSliderBasicComp = (function () {
             {...props}
             range={true}
             value={[props.start.value, props.end.value]}
-            $style={props.style}
+            $style={props.inputFieldStyle}
             style={{ margin: 0 }}
             onChange={([start, end]) => {
               props.start.onChange(start);

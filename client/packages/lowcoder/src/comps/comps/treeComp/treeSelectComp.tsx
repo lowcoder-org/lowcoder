@@ -6,7 +6,7 @@ import { default as TreeSelect } from "antd/es/tree-select";
 import { useEffect } from "react";
 import styled from "styled-components";
 import { styleControl } from "comps/controls/styleControl";
-import { ComponentStyle, LabelStyle, TreeSelectStyle, TreeSelectStyleType } from "comps/controls/styleControlConstants";
+import {  InputFieldStyle, LabelStyle, TreeSelectStyle, TreeSelectStyleType } from "comps/controls/styleControlConstants";
 import { LabelControl } from "comps/controls/labelControl";
 import { dropdownControl } from "comps/controls/dropdownControl";
 import {
@@ -65,9 +65,9 @@ const childrenMap = {
   allowClear: BoolControl,
   showSearch: BoolControl.DEFAULT_TRUE,
   inputValue: stateComp<string>(""), // search value
-  style: styleControl(TreeSelectStyle),
+  style: styleControl(InputFieldStyle),
   labelStyle:styleControl(LabelStyle),
-  field:styleControl(ComponentStyle),
+  inputFieldStyle:styleControl(TreeSelectStyle),
   viewRef: RefControl<BaseSelectRef>,
 };
 
@@ -103,12 +103,12 @@ const TreeCompView = (
     ...validateState,
     style,
     labelStyle,
-    field:props.field,
+    inputFieldStyle:props.inputFieldStyle,
     children: (
       <StyledTreeSelect
         ref={props.viewRef}
         key={selectType}
-        $style={style}
+        $style={props.inputFieldStyle}
         popupMatchSelectWidth={false}
         disabled={props.disabled}
         placeholder={props.placeholder}
@@ -187,7 +187,7 @@ let TreeBasicComp = (function () {
           <>
           <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
           <Section name={sectionNames.labelStyle}>{children.labelStyle.getPropertyView()}</Section>
-          <Section name={sectionNames.field}>{children.field.getPropertyView()}</Section>
+          <Section name={sectionNames.inputFieldStyle}>{children.inputFieldStyle.getPropertyView()}</Section>
           </>
         )}
       </>

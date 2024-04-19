@@ -105,7 +105,7 @@ let RadioBasicComp = (function () {
       required: props.required,
       style: props.style,
       labelStyle: props.labelStyle,
-      field:props.field,
+      inputFieldStyle:props.inputFieldStyle,
       children: (
         <Radio
           ref={props.viewRef}

@@ -1,7 +1,7 @@
 import { Input, Section, sectionNames } from "lowcoder-design";
 import { BoolControl } from "comps/controls/boolControl";
 import { styleControl } from "comps/controls/styleControl";
-import { ComponentStyle, InputLikeStyle, InputLikeStyleType, LabelStyle, LabelStyleType } from "comps/controls/styleControlConstants";
+import { InputFieldStyle, InputLikeStyle, InputLikeStyleType, LabelStyle, LabelStyleType } from "comps/controls/styleControlConstants";
 import {
   NameConfig,
   NameConfigPlaceHolder,
@@ -49,11 +49,11 @@ const childrenMap = {
   viewRef: RefControl<InputRef>,
   showCount: BoolControl,
   allowClear: BoolControl,
-  style: styleControl(InputLikeStyle),
+  style: styleControl(InputFieldStyle),
   labelStyle: styleControl(LabelStyle),
   prefixIcon: IconControl,
   suffixIcon: IconControl,
-  field: styleControl(ComponentStyle),
+  inputFieldStyle: styleControl(InputLikeStyle),
 };
 
 let InputBasicComp = new UICompBuilder(childrenMap, (props) => {
@@ -66,14 +66,14 @@ let InputBasicComp = new UICompBuilder(childrenMap, (props) => {
         ref={props.viewRef}
         showCount={props.showCount}
         allowClear={props.allowClear}
-        $style={props.style}
+        $style={props.inputFieldStyle}
         prefix={hasIcon(props.prefixIcon) && props.prefixIcon}
         suffix={hasIcon(props.suffixIcon) && props.suffixIcon}
       />
     ),
     style: props.style,
     labelStyle: props.labelStyle,
-    field:props.field,
+    inputFieldStyle:props.inputFieldStyle,
     ...validateState,
   });
 })
@@ -104,7 +104,7 @@ let InputBasicComp = new UICompBuilder(childrenMap, (props) => {
           <>
             <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
             <Section name={sectionNames.labelStyle}>{children.labelStyle.getPropertyView()}</Section>
-            <Section name={sectionNames.field}>{children.field.getPropertyView()}</Section>
+            <Section name={sectionNames.inputFieldStyle}>{children.inputFieldStyle.getPropertyView()}</Section>
           </>
         )}
       </>

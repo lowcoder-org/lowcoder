@@ -19,10 +19,11 @@ let CascaderBasicComp = (function () {
   const childrenMap = CascaderChildren;
 
   return new UICompBuilder(childrenMap, (props) => {
+    console.log("🚀 ~ returnnewUICompBuilder ~ props:", props)
     return props.label({
       style: props.style,
       labelStyle: props.labelStyle,
-      field:props.field,
+      inputFieldStyle:props.inputFieldStyle,
       children: (
         <CascaderStyle
           ref={props.viewRef}
@@ -33,7 +34,7 @@ let CascaderBasicComp = (function () {
           allowClear={props.allowClear}
           placeholder={props.placeholder}
           showSearch={props.showSearch}
-          $style={props.style}
+          $style={props.inputFieldStyle}
           onFocus={() => props.onEvent("focus")}
           onBlur={() => props.onEvent("blur")}
           onChange={(value: (string | number)[]) => {

@@ -22,6 +22,7 @@ type LabelViewProps = Pick<FormItemProps, "required" | "help" | "validateStatus"
   style?: Record<string, string>;
   labelStyle?: Record<string, string>;
   field?: Record<string, string>;
+  inputFieldStyle?: Record<string, string>;
 };
 
 const StyledStarIcon = styled(StarIcon)`
@@ -42,16 +43,16 @@ function getStyle(style: any) {
   `;
 }
 
-const LabelViewWrapper = styled.div<{ $style: any, field: any }>`
+const LabelViewWrapper = styled.div<{ $style: any, inputFieldStyle: any }>`
 ${(props) => {
     return (
-      props.field && {
-        ...props.field,
-        borderRadius: props.field.radius,
+      props.$style && {
+        ...props.$style,
+        borderRadius: props.$style.radius,
       }
     );
   }}
-  ${(props) => props.$style && getStyle(props.$style)}
+  ${(props) => props.inputFieldStyle && getStyle(props.inputFieldStyle)}
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -168,18 +169,18 @@ export const LabelControl = (function () {
   };
 
   return new MultiCompBuilder(childrenMap, (props) => (args: LabelViewProps) => (
-    <LabelViewWrapper $style={args.style} field={args.field}>
+ <LabelViewWrapper $style={args.style} inputFieldStyle={args.inputFieldStyle}>
       <MainWrapper
         $position={props.position}
         $hasLabel={!!props.text}
         style={{
-          margin: args && args.style ? args?.style?.margin : 0,
-          // padding: args && args.style ? args?.style?.padding : 0,	
+          margin: args && args.inputFieldStyle ? args?.inputFieldStyle?.margin : 0,
+          // padding: args && args.inputFieldStyle ? args?.inputFieldStyle?.padding : 0,	
           width: widthCalculator(
-            args && args.style ? args?.style?.margin : "0px"
+            args && args.inputFieldStyle ? args?.inputFieldStyle?.margin : "0px"
           ),
           height: heightCalculator(
-            args && args.style ? args?.style?.margin : "0px"
+            args && args.inputFieldStyle ? args?.inputFieldStyle?.margin : "0px"
           ),
         }}
       >
@@ -246,7 +247,7 @@ export const LabelControl = (function () {
         </HelpWrapper>
       )}
     </LabelViewWrapper>
-  ))
+))
     .setPropertyViewFn((children) => (
       <Section name={trans("label")}>
         {children.text.propertyView({ label: trans("labelProp.text") })}
