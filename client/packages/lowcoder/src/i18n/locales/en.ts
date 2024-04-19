@@ -985,6 +985,10 @@ export const en = {
     "iconCompName": "Icons",
     "iconCompDesc": "Use various Icons to enhance the visual appeal and user experience of your application.",
     "iconCompKeywords": "Icons, pictograms, symbols, shapes",
+    
+    "tourCompName": "Tour",
+    "tourCompDesc": "A product tour for guiding users.",
+    "tourCompKeywords": "tour, product tour, walkthrough, interactive walkthrough",
   },
 
 

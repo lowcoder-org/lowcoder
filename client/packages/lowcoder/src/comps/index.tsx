@@ -140,6 +140,7 @@ import {
   IconCompIcon,
   LayoutCompIcon,
   FloatingTextComp,
+  IconModal,
 } from "lowcoder-design";
 import { TourComp } from "@lowcoder-ee/comps/comps/tourComp/tourComp";
 
@@ -1167,16 +1168,16 @@ export var uiCompMap: Registry = {
     },
   },
   tour: {
-    name: "Tour",
+    name: trans("uiComp.tourCompName"),
     enName: "Tour",
-    description: trans("uiComp.selectCompDesc"),
-    categories: ["forms", "itemHandling"],
-    icon: SelectCompIcon,
-    keywords: trans("uiComp.selectCompKeywords"),
+    description: trans("uiComp.tourCompDesc"),
+    categories: ["multimedia", "itemHandling"],
+    icon: IconModal,
+    keywords: trans("uiComp.tourCompKeywords"),
     comp: TourComp,
     layoutInfo: {
-      w: 6,
-      h: 5,
+      w: 1,
+      h: 1,
     },
   },
   multiSelect: {
