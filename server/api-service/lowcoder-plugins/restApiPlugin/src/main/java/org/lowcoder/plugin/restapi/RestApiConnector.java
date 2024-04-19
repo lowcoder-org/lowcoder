@@ -1,18 +1,16 @@
 package org.lowcoder.plugin.restapi;
 
-import static java.util.Collections.emptySet;
-
-import java.util.Map;
-import java.util.Set;
-
-import javax.annotation.Nonnull;
-
+import jakarta.annotation.Nonnull;
 import org.lowcoder.sdk.models.DatasourceTestResult;
 import org.lowcoder.sdk.plugin.common.DatasourceConnector;
 import org.lowcoder.sdk.plugin.restapi.RestApiDatasourceConfig;
 import org.pf4j.Extension;
-
 import reactor.core.publisher.Mono;
+
+import java.util.Map;
+import java.util.Set;
+
+import static java.util.Collections.emptySet;
 
 @Extension
 public class RestApiConnector implements DatasourceConnector<Object, RestApiDatasourceConfig> {

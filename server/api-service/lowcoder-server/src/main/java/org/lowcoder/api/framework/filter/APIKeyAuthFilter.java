@@ -1,6 +1,7 @@
 package org.lowcoder.api.framework.filter;
 
 import io.jsonwebtoken.Claims;
+import jakarta.annotation.Nonnull;
 import lombok.extern.slf4j.Slf4j;
 import org.lowcoder.api.authentication.util.JWTUtils;
 import org.lowcoder.api.home.SessionUserService;
@@ -10,8 +11,6 @@ import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
 import reactor.core.publisher.Mono;
 
-import javax.annotation.Nonnull;
-
 import static org.lowcoder.api.authentication.util.AuthenticationUtils.toAuthentication;
 import static org.springframework.security.core.context.ReactiveSecurityContextHolder.withAuthentication;
 
@@ -19,7 +18,6 @@ import static org.springframework.security.core.context.ReactiveSecurityContextH
 public class APIKeyAuthFilter implements WebFilter {
 
     private final SessionUserService service;
-
     private final CookieHelper cookieHelper;
     private final JWTUtils jwtUtils;
 

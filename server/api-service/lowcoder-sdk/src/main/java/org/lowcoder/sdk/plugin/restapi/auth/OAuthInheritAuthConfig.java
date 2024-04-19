@@ -1,10 +1,9 @@
 package org.lowcoder.sdk.plugin.restapi.auth;
 
+import jakarta.annotation.Nullable;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.jackson.Jacksonized;
-
-import javax.annotation.Nullable;
 
 /**
  * oauth(inherit from login) auth config

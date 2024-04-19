@@ -1,18 +1,16 @@
 package org.lowcoder.domain.application.repository;
 
 
-import java.util.Collection;
-
-import javax.annotation.Nonnull;
-
+import jakarta.annotation.Nonnull;
 import org.lowcoder.domain.application.model.Application;
 import org.lowcoder.domain.application.model.ApplicationStatus;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
 import org.springframework.stereotype.Repository;
-
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.util.Collection;
 
 @Repository
 public interface ApplicationRepository extends ReactiveMongoRepository<Application, String>, CustomApplicationRepository {

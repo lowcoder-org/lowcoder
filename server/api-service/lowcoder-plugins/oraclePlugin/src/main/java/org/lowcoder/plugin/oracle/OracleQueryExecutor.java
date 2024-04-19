@@ -1,23 +1,8 @@
 package org.lowcoder.plugin.oracle;
 
-import static org.lowcoder.sdk.exception.PluginCommonError.DATASOURCE_GET_STRUCTURE_ERROR;
-import static org.lowcoder.sdk.exception.PluginCommonError.QUERY_ARGUMENT_ERROR;
-import static org.lowcoder.sdk.plugin.common.sql.StructureParser.QUERY_STRUCTURE_SQL;
-
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.List;
-import java.util.Map;
-
-import javax.annotation.Nonnull;
-
-import org.lowcoder.plugin.oracle.gui.OracleBulkInsertCommand;
-import org.lowcoder.plugin.oracle.gui.OracleBulkUpdateCommand;
-import org.lowcoder.plugin.oracle.gui.OracleDeleteCommand;
-import org.lowcoder.plugin.oracle.gui.OracleInsertCommand;
-import org.lowcoder.plugin.oracle.gui.OracleUpdateCommand;
+import jakarta.annotation.Nonnull;
+import lombok.extern.slf4j.Slf4j;
+import org.lowcoder.plugin.oracle.gui.*;
 import org.lowcoder.plugin.sql.GeneralSqlExecutor;
 import org.lowcoder.plugin.sql.SqlBasedQueryExecutor;
 import org.lowcoder.sdk.exception.PluginException;
@@ -28,7 +13,16 @@ import org.lowcoder.sdk.plugin.common.sql.StructureParser;
 import org.lowcoder.sdk.plugin.sqlcommand.GuiSqlCommand;
 import org.pf4j.Extension;
 
-import lombok.extern.slf4j.Slf4j;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.List;
+import java.util.Map;
+
+import static org.lowcoder.sdk.exception.PluginCommonError.DATASOURCE_GET_STRUCTURE_ERROR;
+import static org.lowcoder.sdk.exception.PluginCommonError.QUERY_ARGUMENT_ERROR;
+import static org.lowcoder.sdk.plugin.common.sql.StructureParser.QUERY_STRUCTURE_SQL;
 
 @Slf4j
 @Extension

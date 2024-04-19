@@ -1,19 +1,11 @@
 package org.lowcoder.domain.datasource.model;
 
-import static org.lowcoder.domain.datasource.model.DatasourceCreationSource.LEGACY_WORKSPACE_PREDEFINED;
-import static org.lowcoder.domain.datasource.model.DatasourceCreationSource.SYSTEM_STATIC;
-import static org.lowcoder.domain.plugin.DatasourceMetaInfoConstants.GRAPHQL_API;
-import static org.lowcoder.domain.plugin.DatasourceMetaInfoConstants.REST_API;
-
-import java.util.Locale;
-import java.util.Optional;
-import java.util.Set;
-
-import javax.annotation.Nullable;
-
-import com.fasterxml.jackson.annotation.JsonCreator;
-import lombok.AllArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.annotation.Nullable;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.jackson.Jacksonized;
 import org.apache.commons.lang3.ObjectUtils;
@@ -28,12 +20,14 @@ import org.lowcoder.sdk.plugin.restapi.RestApiDatasourceConfig;
 import org.lowcoder.sdk.util.LocaleUtils;
 import org.springframework.data.annotation.Transient;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.Locale;
+import java.util.Optional;
+import java.util.Set;
 
-import lombok.Getter;
-import lombok.Setter;
-import org.springframework.data.mongodb.core.mapping.Document;
+import static org.lowcoder.domain.datasource.model.DatasourceCreationSource.LEGACY_WORKSPACE_PREDEFINED;
+import static org.lowcoder.domain.datasource.model.DatasourceCreationSource.SYSTEM_STATIC;
+import static org.lowcoder.domain.plugin.DatasourceMetaInfoConstants.GRAPHQL_API;
+import static org.lowcoder.domain.plugin.DatasourceMetaInfoConstants.REST_API;
 
 @Getter
 @Setter
