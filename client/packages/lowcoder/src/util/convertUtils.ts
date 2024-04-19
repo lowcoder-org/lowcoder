@@ -259,3 +259,17 @@ export function toBooleanOrCss(value: any): boolean | undefined | {
   }
   return toJSONObject(JSON.parse(value));
 }
+
+export function toBooleanOrJsonObject(value: any): boolean | undefined | { pointAtCenter: boolean } {
+  if (value === undefined || value === null || value === "") {
+    return undefined;
+  }
+  if (value.toLocaleLowerCase() === "true" || value.toLocaleLowerCase() === "false") {
+    return value.toLocaleLowerCase() === "true";
+  }
+  const json = toJSONObject(JSON.parse(value));
+  if (json.pointAtCenter) {
+    return json as { pointAtCenter: boolean };
+  }
+  throw new TypeError(typeErrorMsg("Object or Boolean", value));
+}

@@ -4,7 +4,7 @@ const indicatorsRenderExample = `(current, total) => (
   <span>
     {current + 1} / {total}
   </span>
-)`
+)`;
 export const IndicatorsRenderTooltip = (
   <div>
     {trans("tour.indicatorsRender.tooltip")}
@@ -95,6 +95,17 @@ export const TourPlacementTooltip = (
     <ul>
       <li>center</li>
     </ul>
+  </div>
+);
+
+const arrowTooltipSignature = `boolean | { pointAtCenter: boolean }`;
+export const TourStepArrowTooltip = (
+  <div>
+    {trans("tour.options.arrow.tooltip")}:
+    <br />
+    <br />
+    <h4>{trans("tour.tooltipSignatureHeader")}</h4>
+    <code>{arrowTooltipSignature}</code>
   </div>
 );
 

@@ -2825,32 +2825,59 @@ export const en = {
     "navItemStyle": "Menu Item Style"
   },
 
-  "tour": { 
+  tour: { 
     tooltipExampleHeader: "Example:",
     tooltipSignatureHeader: "Signature:",
-    "options": {
-      "mask": {
-        "label": "Mask",
-        "tooltip": "Whether to enable masking, change mask style and fill color by pass custom props, the default follows the `mask` property of Tour.",
-        "tooltipValidTypes": "Valid input types: `true`, `false`, empty, or a JSON object following the CSSProperties Schema from Antd.",
+    options: {
+      title: {
+        label: "Title",
+        placeholder: "Welcome",
+        tooltip: "The title of the step. Any HTML is valid here.",
+      },
+      description: {
+        label: "Description",
+        placeholder: "Welcome to lowcoder!",
+        tooltip: "The description of the step. Any HTML is valid here.",
+      },
+      mask: {
+        label: "Mask",
+        tooltip: "Whether to enable masking, change mask style and fill color by pass custom props, the default follows the `mask` property of Tour.",
+        tooltipValidTypes: "Valid input types: `true`, `false`, empty, or a JSON object following the CSSProperties Schema from Antd.",
+      },
+      arrow: {
+        label: "Arrow",
+        tooltip: "Turns the arrow on and off or moves it to point at the center of the component, if desired, otherwise the arrow will always point near the top of the component.",
+        tooltipFunctionSignature: "boolean | { pointAtCenter: boolean }",
+      },
+      type: {
+        label: "Type",
+        tooltip: "The type of tooltip, this affects the background color and text color. The colors can be controlled with the main tour styling section."
+      },
+      target: {
+        label: "Component",
+        tooltip: "The component you want to put the tooltip on, or leave it empty if you simply want a modal in the middle of the screen."
+      },
+      coverImage: {
+        label: "Cover Image URI",
+        tooltip: "A URI for an image you would like to display with the step",
       }
     },
-    "indicatorsRender": {
-      "label": "Indicators Render",
-      "tooltip": "Provides a custom indicator for which step you are on",
-      "tooltipValidTypes": "Format is a function that accepts two args, `current` and `total` and returns a ReactNode",
-      "tooltipFunctionSignatureHeader": "Signature:",
-      "tooltipFunctionSignature": "(current: number, total: number) => ReactNode",
-      "tooltipExampleHeader": "Example:",
+    indicatorsRender: {
+      label: "Indicators Render",
+      tooltip: "Provides a custom indicator for which step you are on",
+      tooltipValidTypes: "Format is a function that accepts two args, `current` and `total` and returns a ReactNode",
+      tooltipFunctionSignatureHeader: "Signature:",
+      tooltipFunctionSignature: "(current: number, total: number) => ReactNode",
+      tooltipExampleHeader: "Example:",
     },
-    "disabledInteraction": {
-      "label": "Disable Interaction",
-      "tooltip": "Disable interaction in the highlighted area."
+    disabledInteraction: {
+      label: "Disable Interaction",
+      tooltip: "Disable interaction in the highlighted area."
     },
-    "mask": {
-      "label": "Mask",
-      "tooltip": "Whether to enable masking, change mask style and fill color by pass custom props, the default follows the `mask` property of Tour.",
-      "tooltipValidTypes": "Valid input types: `true`, `false`, empty, or a JSON object following the CSSProperties Schema from Antd.",
+    mask: {
+      label: "Mask",
+      tooltip: "Whether to enable masking, change mask style and fill color by pass custom props, the default follows the `mask` property of Tour.",
+      tooltipValidTypes: "Valid input types: `true`, `false`, empty, or a JSON object following the CSSProperties Schema from Antd.",
     },
     placement: {
       label: "Placement",

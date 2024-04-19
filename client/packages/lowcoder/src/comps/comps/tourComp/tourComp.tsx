@@ -46,10 +46,18 @@ let TourBasicComp = (function() {
       }
 
       return {
-        title: step.title,
-        description: step.description,
+        /**
+         * I'm pretty sure it's safe to use dangerouslySetInnerHTML here as any creator of an app
+         * will have unrestricted access to the data of any user anyway. E.g. have a button that 
+         * just sends the current cookies wherever, thus the developer of the app must be trusted 
+         * in all cases
+         * This even applies to things like <b onmouseover="alert('mouseover');">, because the
+         * app creator might desire functionality like this. 
+         */
+        title: (<div dangerouslySetInnerHTML={{ __html: step.title }} />),
+        description: (<div dangerouslySetInnerHTML={{ __html: step.description }} />),
         target: target?.current,
-        arrow: step.arrow || true,
+        arrow: step.arrow,
         placement: step.placement as PlacementType,
         mask: step.mask,
         cover: step.cover ? (<img src={step.cover} />) : undefined,

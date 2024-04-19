@@ -1,4 +1,4 @@
-import { BoolCodeControl, MaskControl, StringControl } from "comps/controls/codeControl";
+import { ArrowControl, BoolCodeControl, MaskControl, StringControl } from "comps/controls/codeControl";
 import { dropdownControl } from "comps/controls/dropdownControl";
 import { MultiCompBuilder, withDefault } from "comps/generators";
 import { list } from "comps/generators/list";
@@ -23,7 +23,11 @@ import { BoolControl, ControlParams } from "lowcoder-sdk";
 import { ReactNode, useContext, useEffect, useState } from "react";
 import { EditorContext, EditorState } from "@lowcoder-ee/comps/editorState";
 import { PlacementOptions, TypeOptions } from "@lowcoder-ee/comps/comps/tourComp/tourControlConstants";
-import { TourPlacementTooltip, TourStepMaskTooltip } from "@lowcoder-ee/comps/comps/tourComp/tourTooltips";
+import {
+  TourPlacementTooltip,
+  TourStepArrowTooltip,
+  TourStepMaskTooltip
+} from "@lowcoder-ee/comps/comps/tourComp/tourTooltips";
 
 const OptionTypes = [
   {
@@ -379,7 +383,7 @@ let TourStep = new MultiCompBuilder(
           value: it.children.name.getView()
         })),
       ""),
-    arrow: BoolControl,
+    arrow: ArrowControl,
     title: StringControl,
     description: StringControl,
     placement: dropdownControl(PlacementOptions, "bottom"),
@@ -396,15 +400,18 @@ TourStep = class extends TourStep implements TourStepCompProperty {
     return (
       <>
         {this.children.title.propertyView({
-          label: "Title",
-          placeholder: "Welcome",
+          label: trans("tour.options.title.label"),
+          placeholder: trans("tour.options.title.placeholder"),
+          tooltip: trans("tour.options.title.tooltip"),
         })}
         {this.children.description.propertyView({
-          label: "Description",
-          placeholder: "Welcome to lowcoder, this is your first tutorial step",
+          label: trans("tour.options.description.label"),
+          placeholder: trans("tour.options.description.placeholder"),
+          tooltip: trans("tour.options.description.tooltip"),
         })}
         {this.children.target.propertyView({
-          label: "Component",
+          label: trans("tour.options.target.label"),
+          tooltip: trans("tour.options.target.tooltip"),
           radioButton: false,
         })}
         {this.children.placement.propertyView({
@@ -413,19 +420,22 @@ TourStep = class extends TourStep implements TourStepCompProperty {
           radioButton: false
         })}
         {this.children.arrow.propertyView({
-          label: "Arrow",
+          label: trans("tour.options.arrow.label"),
+          tooltip: TourStepArrowTooltip,
         })}
-        {hiddenPropertyView(this.children)}
         {this.children.cover.propertyView({
-          label: "Cover Image Url"
+          label: trans("tour.options.coverImage.label"),
+          tooltip: trans("tour.options.coverImage.tooltip"),
         })}
         {this.children.mask.propertyView({
           label: trans("tour.options.mask.label"),
           tooltip: TourStepMaskTooltip,
         })}
         {this.children.type.propertyView({
-          label: "Type",
+          label: trans("tour.options.type.label"),
+          tooltip: trans("tour.options.type.tooltip")
         })}
+        {hiddenPropertyView(this.children)}
       </>
     );
   }
