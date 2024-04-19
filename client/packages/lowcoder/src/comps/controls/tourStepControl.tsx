@@ -386,11 +386,11 @@ let TourStep = new MultiCompBuilder(
     arrow: ArrowControl,
     title: StringControl,
     description: StringControl,
-    placement: dropdownControl(PlacementOptions, "bottom"),
+    placement: dropdownControl(PlacementOptions, ""),
     hidden: BoolCodeControl,
     mask: MaskControl,
     cover: StringControl,
-    type: dropdownControl(TypeOptions, "default"),
+    type: dropdownControl(TypeOptions, ""),
   },
   (props) => props
 ).build();

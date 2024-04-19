@@ -8,7 +8,7 @@ import {
   withExposingConfigs,
   withMethodExposing
 } from "lowcoder-sdk";
-import { baseSelectRefMethods, TourChildrenMap, TourPropertyView } from "./tourCompConstants";
+import { baseSelectRefMethods, TourChildrenMap, TourPropertyView } from "./tourPropertyView";
 import { TourInputCommonConfig } from "./tourInputConstants";
 import { Tour, TourProps } from "antd";
 import React, { Suspense, useContext } from "react";
@@ -16,7 +16,6 @@ import { EditorContext } from "@lowcoder-ee/comps/editorState";
 import { GridItemComp } from "@lowcoder-ee/comps/comps/gridItemComp";
 import { HookComp } from "@lowcoder-ee/comps/hooks/hookComp";
 import { TemporaryStateItemComp } from "@lowcoder-ee/comps/comps/temporaryStateComp";
-import { PlacementType } from "@lowcoder-ee/comps/comps/tourComp/tourControlConstants";
 
 /**
  * This component builds the Property Panel and the fake 'UI' for the Tour component
@@ -48,20 +47,20 @@ let TourBasicComp = (function() {
       return {
         /**
          * I'm pretty sure it's safe to use dangerouslySetInnerHTML here as any creator of an app
-         * will have unrestricted access to the data of any user anyway. E.g. have a button that 
-         * just sends the current cookies wherever, thus the developer of the app must be trusted 
+         * will have unrestricted access to the data of any user anyway. E.g. have a button that
+         * just sends the current cookies wherever, thus the developer of the app must be trusted
          * in all cases
          * This even applies to things like <b onmouseover="alert('mouseover');">, because the
-         * app creator might desire functionality like this. 
+         * app creator might desire functionality like this.
          */
         title: (<div dangerouslySetInnerHTML={{ __html: step.title }} />),
         description: (<div dangerouslySetInnerHTML={{ __html: step.description }} />),
         target: target?.current,
         arrow: step.arrow,
-        placement: step.placement as PlacementType,
+        placement: step.placement === "" ? undefined : step.placement,
         mask: step.mask,
         cover: step.cover ? (<img src={step.cover} />) : undefined,
-        type: step.type || "default",
+        type: step.type === "" ? undefined : step.type,
       };
     });
 
@@ -71,8 +70,11 @@ let TourBasicComp = (function() {
           steps={steps}
           open={props.open.value}
           onClose={() => props.open.onChange(false)}
-          indicatorsRender={(current, total) => props.indicatorsRender(current,total)}
+          indicatorsRender={(current, total) => props.indicatorsRender(current, total)}
           disabledInteraction={props.disabledInteraction}
+          arrow={props.arrow}
+          placement={props.placement === "" ? undefined : props.placement}
+          type={props.type === "" ? undefined : props.type}
         />
       </Suspense>
     );

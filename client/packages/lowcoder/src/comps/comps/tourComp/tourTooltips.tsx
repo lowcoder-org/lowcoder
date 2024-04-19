@@ -33,7 +33,7 @@ let styleExample = {
 
 export const TourStepMaskTooltip = (
   <div>
-    {trans("tour.options.mask.tooltip")}:
+    {trans("tour.options.mask.tooltip")}
     <br />
     <br />
     {trans("tour.options.mask.tooltipValidTypes")}
@@ -48,7 +48,7 @@ export const TourStepMaskTooltip = (
 
 export const TourMaskTooltip = (
   <div>
-    {trans("tour.mask.tooltip")}:
+    {trans("tour.mask.tooltip")}
     <br />
     <br />
     {trans("tour.mask.tooltipValidTypes")}
@@ -63,7 +63,7 @@ export const TourMaskTooltip = (
 
 export const TourPlacementTooltip = (
   <div>
-    {trans("tour.placement.tooltip")}:
+    {trans("tour.placement.tooltip")}
     <br />
     <br />
     <h4>Valid options</h4>
@@ -101,7 +101,16 @@ export const TourPlacementTooltip = (
 const arrowTooltipSignature = `boolean | { pointAtCenter: boolean }`;
 export const TourStepArrowTooltip = (
   <div>
-    {trans("tour.options.arrow.tooltip")}:
+    {trans("tour.options.arrow.tooltip")}
+    <br />
+    <br />
+    <h4>{trans("tour.tooltipSignatureHeader")}</h4>
+    <code>{arrowTooltipSignature}</code>
+  </div>
+);
+export const TourArrowTooltip = (
+  <div>
+    {trans("tour.arrow.tooltip")}
     <br />
     <br />
     <h4>{trans("tour.tooltipSignatureHeader")}</h4>

@@ -2876,14 +2876,23 @@ export const en = {
     },
     mask: {
       label: "Mask",
-      tooltip: "Whether to enable masking, change mask style and fill color by pass custom props, the default follows the `mask` property of Tour.",
+      tooltip: "Whether to enable masking, change mask style and fill color by pass custom props, the default follows the `mask` property of Tour. Can be overridden at the step level.",
       tooltipValidTypes: "Valid input types: `true`, `false`, empty, or a JSON object following the CSSProperties Schema from Antd.",
     },
     placement: {
       label: "Placement",
-      tooltip: "Position of the guide card relative to the target element",
+      tooltip: "Position of the guide card relative to the target element. Can be overridden at the step level.",
       tooltipValidOptions: "center left leftTop leftBottom right rightTop rightBottom top topLeft topRight bottom bottomLeft bottomRight"
-    }
+    },
+    arrow: {
+      label: "Arrow",
+      tooltip: "Turns the arrow on and off or moves it to point at the center of the component, if desired, otherwise the arrow will always point near the top of the component. Can be overridden at the step level.",
+      tooltipFunctionSignature: "boolean | { pointAtCenter: boolean }",
+    },
+    type: {
+      label: "Type",
+      tooltip: "The type of tooltip, this affects the background color and text color. The colors can be controlled with the main tour styling section. Can be overridden at the step level."
+    },
   },
 
   docUrls: {

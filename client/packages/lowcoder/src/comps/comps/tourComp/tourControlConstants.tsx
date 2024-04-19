@@ -1,7 +1,8 @@
-export type PlacementType = 'left' | 'leftTop' | 'leftBottom' | 'right' | 'rightTop' | 'rightBottom' | 'top' | 'topLeft' | 'topRight' | 'bottom' | 'bottomLeft' | 'bottomRight' | 'center';
-export type TourStepType = 'default' | 'primary';
+export type PlacementType = 'left' | 'leftTop' | 'leftBottom' | 'right' | 'rightTop' | 'rightBottom' | 'top' | 'topLeft' | 'topRight' | 'bottom' | 'bottomLeft' | 'bottomRight' | 'center' | '';
+export type TourStepType = 'default' | 'primary' | '';
 
 export const PlacementOptions: {label: string, value: PlacementType}[] = [
+  { label: "​", value: ""},
   { label: "Center", value: "center"},
   { label: "Left", value: "left"},
   { label: "Left Top", value: "leftTop"},
@@ -18,6 +19,7 @@ export const PlacementOptions: {label: string, value: PlacementType}[] = [
 ];
 
 export const TypeOptions: {label: string, value: TourStepType}[] = [
+  { label: "​", value: ""},
   { label: "Default", value: "default"},
   { label: "Primary", value: "primary"},
 ];

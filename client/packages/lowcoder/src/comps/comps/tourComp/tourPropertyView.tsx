@@ -1,7 +1,7 @@
 import { RecordConstructorToComp } from "lowcoder-core";
 import { BoolControl } from "../../controls/boolControl";
 import { LabelControl } from "../../controls/labelControl";
-import { AlkjdfControl, BoolCodeControl, MaskControl, StringControl } from "../../controls/codeControl";
+import { AlkjdfControl, ArrowControl, BoolCodeControl, MaskControl, StringControl } from "../../controls/codeControl";
 import { Section, sectionNames } from "lowcoder-design";
 import { SelectEventHandlerControl } from "../../controls/eventHandlerControl";
 import { stateComp } from "../../generators";
@@ -12,8 +12,12 @@ import { blurMethod, focusMethod } from "comps/utils/methodUtils";
 import { TourStepControl } from "@lowcoder-ee/comps/controls/tourStepControl";
 import { booleanExposingStateControl, dropdownControl } from "lowcoder-sdk";
 import { trans } from "i18n";
-import { PlacementOptions } from "@lowcoder-ee/comps/comps/tourComp/tourControlConstants";
-import { IndicatorsRenderTooltip, TourMaskTooltip } from "@lowcoder-ee/comps/comps/tourComp/tourTooltips";
+import { PlacementOptions, TypeOptions } from "@lowcoder-ee/comps/comps/tourComp/tourControlConstants";
+import {
+  IndicatorsRenderTooltip, TourArrowTooltip,
+  TourMaskTooltip,
+  TourPlacementTooltip, TourStepArrowTooltip, TourStepMaskTooltip
+} from "@lowcoder-ee/comps/comps/tourComp/tourTooltips";
 
 export const TourChildrenMap = {
   label: LabelControl,
@@ -29,6 +33,8 @@ export const TourChildrenMap = {
   disabledInteraction: BoolControl,
   mask: MaskControl,
   placement: dropdownControl(PlacementOptions, "bottom"),
+  arrow: ArrowControl,
+  type: dropdownControl(TypeOptions, "default"),
 };
 
 export const TourPropertyView = (
@@ -58,11 +64,19 @@ export const TourPropertyView = (
         label: trans("tour.mask.label"),
         tooltip: TourMaskTooltip,
       })}
-      {/*{children.placement.propertyView({*/}
-      {/*  label: trans("tour.placement.label"),*/}
-      {/*  tooltip: TourPlacementTooltip,*/}
-      {/*  radioButton: false*/}
-      {/*})}*/}
+      {children.placement.propertyView({
+        label: trans("tour.placement.label"),
+        tooltip: TourPlacementTooltip,
+        radioButton: false
+      })}
+      {children.arrow.propertyView({
+        label: trans("tour.arrow.label"),
+        tooltip: TourArrowTooltip,
+      })}
+      {children.type.propertyView({
+        label: trans("tour.type.label"),
+        tooltip: trans("tour.type.tooltip")
+      })}
     </Section>
 
     {/*{["layout", "both"].includes(*/}
