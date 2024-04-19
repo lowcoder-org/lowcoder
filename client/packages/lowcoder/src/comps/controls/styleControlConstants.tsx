@@ -1150,11 +1150,11 @@ export const LinkStyle = [
 ] as const;
 
 export const DividerStyle = [
-  {
+  /* {
     name: "color",
     label: trans("color"),
-    color: lightenColor(SECOND_SURFACE_COLOR, 0.05),
-  },
+    color: darkenColor(SECOND_SURFACE_COLOR, 0.1),
+  }, */
   ...STYLING_FIELDS_SEQUENCE.map((style) => {
     if (style.name === 'text') {
       return {
