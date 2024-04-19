@@ -66,32 +66,32 @@ export const TourPlacementTooltip = (
     {trans("tour.placement.tooltip")}
     <br />
     <br />
-    <h4>Valid options</h4>
-    <h5>Above the component:</h5>
+    <h4>{trans("tour.placement.tooltipValidOptions")}</h4>
+    <h5>{trans("tour.placement.tooltipValidOptionsAbove")}</h5>
     <ul>
       <li><code>topLeft</code></li>
       <li><code>top</code></li>
       <li><code>topRight</code></li>
     </ul>
-    <h5>To the left of the component:</h5>
+    <h5>{trans("tour.placement.tooltipValidOptionsLeft")}</h5>
     <ul>
       <li><code>leftTop</code></li>
       <li><code>left</code></li>
       <li><code>leftBottom</code></li>
     </ul>
-    <h5>To the right of the component:</h5>
+    <h5>{trans("tour.placement.tooltipValidOptionsRight")}</h5>
     <ul>
       <li><code>rightTop</code></li>
       <li><code>right</code></li>
       <li><code>rightBottom</code></li>
     </ul>
-    <h5>Below the component:</h5>
+    <h5>{trans("tour.placement.tooltipValidOptionsBelow")}</h5>
     <ul>
       <li><code>bottomLeft</code></li>
       <li><code>bottom</code></li>
       <li><code>bottomRight</code></li>
     </ul>
-    <h5>On top of the component:</h5>
+    <h5>{trans("tour.placement.tooltipValidOptionsOnTop")}</h5>
     <ul>
       <li>center</li>
     </ul>

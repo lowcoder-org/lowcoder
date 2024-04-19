@@ -2882,7 +2882,12 @@ export const en = {
     placement: {
       label: "Placement",
       tooltip: "Position of the guide card relative to the target element. Can be overridden at the step level.",
-      tooltipValidOptions: "center left leftTop leftBottom right rightTop rightBottom top topLeft topRight bottom bottomLeft bottomRight"
+      tooltipValidOptions: "Valid options",
+      tooltipValidOptionsAbove: "Above the component:",
+      tooltipValidOptionsLeft: "To the left of the component:",
+      tooltipValidOptionsRight: "To the right of the component:",
+      tooltipValidOptionsBelow: "Below the component:",
+      tooltipValidOptionsOnTop: "On top of the component:",
     },
     arrow: {
       label: "Arrow",
