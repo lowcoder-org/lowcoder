@@ -4,6 +4,7 @@ import * as uuid from "uuid";
 
 import * as styledNameExports from "styled-components";
 import styledDefault from "styled-components";
+export * as styledm from "styled-components";
 export * from "comps/comps/containerBase/containerCompBuilder";
 export * from "comps/utils/backgroundColorContext";
 export { getData } from "comps/comps/listViewComp/listViewUtils";
@@ -15,6 +16,7 @@ export {
 export { Layers } from "constants/Layers";
 export * from "comps/controls/eventHandlerControl";
 export * from "comps/utils/methodUtils";
+// export * from Button
 
 export { useUserViewMode } from "util/hooks";
 export * from "comps/editorState";
