@@ -2590,5 +2590,13 @@
     "widthTooltip": "Pixel or Percentage, e.g. 520, 60%",
     "navStyle": "Menu Style",
     "navItemStyle": "Menu Item Style"
+  },
+  "tour": {
+    "options": {
+      "mask": {
+        "label": "Mask",
+        "tooltip": "Whether to enable masking, change mask style and fill color by pass custom props, the default follows the `mask` property of Tour."
+      }
+    }
   }
 }

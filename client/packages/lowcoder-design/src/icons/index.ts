@@ -106,6 +106,7 @@ export { ReactComponent as TextCompIcon } from "./icon-text-display.svg";
 export { ReactComponent as SwitchCompIcon } from "./icon-switch.svg";
 export { ReactComponent as TableCompIcon } from "./icon-table-comp.svg";
 export { ReactComponent as SelectCompIcon } from "./icon-insert-select.svg";
+export { ReactComponent as IconModal } from "./icon-modal.svg";
 export { ReactComponent as CheckboxCompIcon } from "./icon-checkboxes.svg";
 export { ReactComponent as RadioCompIcon } from "./icon-radio.svg";
 export { ReactComponent as TimeCompIcon } from "./icon-time.svg";

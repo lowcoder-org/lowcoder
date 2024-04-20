@@ -122,5 +122,5 @@ export const CompStateIcon: {
   autocomplete: <AutoCompleteCompIcon />,
   icon: <IconCompIcon />,
   responsiveLayout: <ResponsiveLayoutCompIcon />,
-
+  tour: <LeftSelect />,
 };

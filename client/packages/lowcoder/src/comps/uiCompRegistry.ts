@@ -132,7 +132,8 @@ export type UICompType =
   | "comment" //Added By Mousheng
   | "mention" //Added By Mousheng
   | "autocomplete" //Added By Mousheng
-  | "responsiveLayout";
+  | "responsiveLayout"
+  | "tour";
 
 
 export const uiCompRegistry = {} as Record<UICompType | string, UICompManifest>;

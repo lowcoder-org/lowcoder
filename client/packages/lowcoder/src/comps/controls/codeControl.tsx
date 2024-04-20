@@ -30,11 +30,11 @@ import {
   toHex,
   wrapperToControlItem,
 } from "lowcoder-design";
-import { lazy, ReactNode, Suspense } from "react";
+import { CSSProperties, lazy, ReactNode, Suspense } from "react";
 import {
   showTransform,
   toArrayJSONObject,
-  toBoolean,
+  toBoolean, toBooleanOrCss, toBooleanOrJsonObject,
   toJSONArray,
   toJSONObject,
   toJSONObjectArray,
@@ -318,6 +318,8 @@ export type CodeControlJSONType = ReturnType<typeof tmpFuncForJson>;
 export const StringControl = codeControl<string>(toString);
 export const NumberControl = codeControl<number>(toNumber);
 export const StringOrNumberControl = codeControl<string | number>(toStringOrNumber);
+export const MaskControl = codeControl<boolean | { style?: CSSProperties | undefined; color?: string | undefined; } | undefined>(toBooleanOrCss);
+export const ArrowControl = codeControl<boolean | { pointAtCenter: boolean } | undefined>(toBooleanOrJsonObject);
 
 // rangeCheck, don't support Infinity temporarily
 export class RangeControl {
@@ -505,6 +507,16 @@ export const FunctionControl = codeControl<CodeFunction>(
   },
   { codeType: "Function", evalWithMethods: true }
 );
+
+// export const AlkjdfControl = codeControl<(current: number, total: number)=>ReactNode>(
+//   (value) => {
+//     if (typeof value === "function") {
+//       return value;
+//     }
+//     return (current,total) => (value as (current: number, total: number)=>ReactNode)(current,total);
+//   },
+//   { codeType: "Function", evalWithMethods: true }
+// );
 
 export const TransformerCodeControl = codeControl<JSONValue>(
   (value) => {
