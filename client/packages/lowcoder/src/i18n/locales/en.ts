@@ -1260,6 +1260,7 @@ export const en = {
   },
   "stepOptionsControl": {
     "value": "Value / Key",
+    "valueTooltip": "Step Value must be a number. For the first Step, it must be equal to the initial value. Numbers must be in consistent and ascending order",
     "title": "Step Title",
     "subTitle": "Step Subtitle",
     "description": "Step Description",
@@ -1267,7 +1268,8 @@ export const en = {
     "icon": "Step Icon",
   },
   "step" : {
-    "initialValue": "Start Numbers from",
+    "initialValue": "Start Numbers at",
+    "initialValueTooltip": "Where to start the visual Numbering. Must be 1 or higher.",
     "valueDesc": "Current Value",
     "size" : "Steps Size",
     "sizeSmall" : "Small",
@@ -1289,6 +1291,7 @@ export const en = {
     "showDots" : "Show Dots instead Symbols",
     "showIcons" : "Show Icons instead Symbols",
     "responsive" : "Responsive",
+    "selectable" : "Selectable",
   },
   "radio": {
     "options": "Options",

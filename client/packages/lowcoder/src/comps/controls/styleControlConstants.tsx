@@ -964,25 +964,45 @@ export const SegmentStyle = [
 ] as const;
 
 export const StepsStyle = [
-  LABEL,
-  ...STYLING_FIELDS_SEQUENCE.filter((style) => ['border', 'borderWidth'].includes(style.name) === false),
   {
-    name: "indicatorBackground",
-    label: trans("style.indicatorBackground"),
-    color: SURFACE_COLOR,
-  },
-  {
-    name: "background",
-    label: trans("style.background"),
-    depName: "indicatorBackground",
+    name: "activeBackground",
+    label: trans("style.accent"),
+    depName: "activeBackground",
     transformer: handleToSegmentBackground,
   },
   {
-    name: "text",
-    label: trans("text"),
-    depName: "indicatorBackground",
+    name: "titleText",
+    label: trans("title"),
+    depName: "background",
     depType: DEP_TYPE.CONTRAST_TEXT,
     transformer: contrastText,
+  },
+  ...STYLING_FIELDS_SEQUENCE.filter((style) => ['background', 'textSize','textDecoration'].includes(style.name) === false),
+  getBackground(),
+  {
+    name: "backgroundImage",
+    label: trans("style.backgroundImage"),
+    backgroundImage: "backgroundImage",
+  },
+  {
+    name: "backgroundImageRepeat",
+    label: trans("style.backgroundImageRepeat"),
+    backgroundImageRepeat: "backgroundImageRepeat",
+  },
+  {
+    name: "backgroundImageSize",
+    label: trans("style.backgroundImageSize"),
+    backgroundImageSize: "backgroundImageSize",
+  },
+  {
+    name: "backgroundImagePosition",
+    label: trans("style.backgroundImagePosition"),
+    backgroundImagePosition: "backgroundImagePosition",
+  },
+  {
+    name: "backgroundImageOrigin",
+    label: trans("style.backgroundImageOrigin"),
+    backgroundImageOrigin: "backgroundImageOrigin",
   },
 ] as const;
 
