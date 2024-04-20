@@ -550,6 +550,7 @@ export var uiCompMap: Registry = {
     compPath: 'comps/meetingComp/videoMeetingControllerComp',
     withoutLoading: true,
   },
+
   comment: {
     name: trans("uiComp.commentCompName"),
     enName: "comment",
@@ -561,7 +562,7 @@ export var uiCompMap: Registry = {
     compName: 'CommentComp',
     compPath: 'comps/commentComp/commentComp',
     layoutInfo: {
-      w: 13,
+      w: 12,
       h: 55,
     },
   },
@@ -912,7 +913,7 @@ export var uiCompMap: Registry = {
     compName: 'StepComp',
     compPath: 'comps/selectInputComp/stepControl',
     layoutInfo: {
-      w: 6,
+      w: 19,
       h: 6,
     },
   },

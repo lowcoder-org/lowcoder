@@ -8,7 +8,7 @@ import { StepOptionControl } from "comps/controls/optionsControl";
 import { styleControl } from "comps/controls/styleControl";
 import { StepsStyle, StepsStyleType } from "comps/controls/styleControlConstants";
 import styled, { css } from "styled-components";
-import { UICompBuilder } from "../../generators";
+import { UICompBuilder, withDefault } from "../../generators";
 import { CommonNameConfig, NameConfig, withExposingConfigs } from "../../generators/withExposing";
 import { selectDivRefMethods, } from "./selectInputConstants";
 import { Section, sectionNames } from "lowcoder-design";
@@ -87,7 +87,6 @@ const StepsChildrenMap = {
   direction: dropdownControl(directionOptions, "horizontal"),
   showDots : BoolControl,
   showIcons : BoolControl,
-  label: LabelControl,
   labelPlacement: dropdownControl(directionOptions, "horizontal"),
   disabled: BoolCodeControl,
   onEvent: ChangeEventHandlerControl,
@@ -128,48 +127,47 @@ let StepControlBasicComp = (function () {
     
     `;
 
-    return props.label({
-      children: (
-        <StepsWrapper ref={props.viewRef}>
-          <ConfigProvider
-              theme={{
-                components: {
-                  Steps: {
-                    colorPrimary: '#00b96b',
-                    algorithm: true, 
-                  }
-                },
-              }}
-            >
-            <Steps 
-              initial={Number(props.initialValue.value) - 1}
-              current={current}
-              onChange={(current) => {
-                onChange(current);
-              }}
-              percent={60}
-              status={props.stepsStatus.value as "error" | "finish" | "process" | "wait"}
-              type={props.displayType}
-              size={props.size}
-              labelPlacement={props.labelPlacement}
-              progressDot={props.showDots}
-              direction={props.direction}
-            >
-              {props.options.map((option, index) => (
-                <Steps.Step 
-                  key={index}
-                  title={option.label}
-                  subTitle={option.subTitle}
-                  description={option.description}
-                  status={option.status as "error" | "finish" | "wait" | "process" | undefined}
-                  icon={props.showIcons && hasIcon(option.icon) && option.icon || undefined}
-                />
-              ))}
-            </Steps>
-          </ConfigProvider>
-        </StepsWrapper>
-      ),
-    });
+    return (
+      <StepsWrapper ref={props.viewRef}>
+        <ConfigProvider
+            theme={{
+              components: {
+                Steps: {
+                  colorPrimary: '#00b96b',
+                  algorithm: true, 
+                }
+              },
+            }}
+          >
+          <Steps 
+            initial={Number(props.initialValue.value) - 1}
+            current={current}
+            onChange={(current) => {
+              onChange(current);
+            }}
+            percent={60}
+            status={props.stepsStatus.value as "error" | "finish" | "process" | "wait"}
+            type={props.displayType}
+            size={props.size}
+            labelPlacement={props.labelPlacement}
+            progressDot={props.showDots}
+            direction={props.direction}
+          >
+            {props.options.map((option, index) => (
+              <Steps.Step 
+                key={index}
+                title={option.label}
+                subTitle={option.subTitle}
+                description={option.description}
+                status={option.status as "error" | "finish" | "wait" | "process" | undefined}
+                icon={props.showIcons && hasIcon(option.icon) && option.icon || undefined}
+              />
+            ))}
+          </Steps>
+        </ConfigProvider>
+      </StepsWrapper>
+    );
+
   })
     .setPropertyViewFn((children) => (
       <>
@@ -186,10 +184,6 @@ let StepControlBasicComp = (function () {
             {hiddenPropertyView(children)}
             {children.stepsStatus.propertyView({label: trans("step.status")})}
           </Section></>
-        )}
-
-        {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
-          children.label.getPropertyView()
         )}
 
         {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
