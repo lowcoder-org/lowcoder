@@ -1,5 +1,20 @@
 package org.lowcoder.domain.permission.service;
 
+import lombok.RequiredArgsConstructor;
+import org.lowcoder.domain.application.model.Application;
+import org.lowcoder.domain.application.model.ApplicationRequestType;
+import org.lowcoder.domain.application.service.ApplicationService;
+import org.lowcoder.domain.permission.model.ResourceAction;
+import org.lowcoder.domain.permission.model.ResourcePermission;
+import org.lowcoder.domain.permission.model.ResourceRole;
+import org.lowcoder.domain.permission.model.ResourceType;
+import org.lowcoder.domain.solutions.TemplateSolutionService;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.stereotype.Component;
+import reactor.core.publisher.Mono;
+
+import java.util.*;
+
 import static com.google.common.collect.Sets.newHashSet;
 import static java.util.Collections.emptyMap;
 import static java.util.function.Function.identity;
@@ -8,37 +23,15 @@ import static org.lowcoder.domain.permission.model.ResourceHolder.USER;
 import static org.lowcoder.sdk.constants.Authentication.ANONYMOUS_USER_ID;
 import static org.lowcoder.sdk.util.StreamUtils.collectMap;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import org.lowcoder.domain.application.model.Application;
-import org.lowcoder.domain.application.model.ApplicationRequestType;
-import org.lowcoder.domain.application.service.ApplicationService;
-import org.lowcoder.domain.permission.model.ResourceAction;
-import org.lowcoder.domain.permission.model.ResourcePermission;
-import org.lowcoder.domain.permission.model.ResourceRole;
-import org.lowcoder.domain.permission.model.ResourceType;
-import org.lowcoder.domain.solutions.TemplateSolution;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.stereotype.Component;
-
-import reactor.core.publisher.Mono;
-
-@Lazy
+@RequiredArgsConstructor
 @Component
 class ApplicationPermissionHandler extends ResourcePermissionHandler {
 
     private static final ResourceRole ANONYMOUS_USER_ROLE = ResourceRole.VIEWER;
-    @Autowired
-    private ApplicationService applicationService;
 
-    @Autowired
-    private TemplateSolution templateSolution;
+    @Lazy
+    private final ApplicationService applicationService;
+    private final TemplateSolutionService templateSolutionService;
 
     @Override
     protected Mono<Map<String, List<ResourcePermission>>> getAnonymousUserPermissions(Collection<String> resourceIds,
@@ -49,7 +42,7 @@ class ApplicationPermissionHandler extends ResourcePermissionHandler {
 
         Set<String> applicationIds = newHashSet(resourceIds);
         return Mono.zip(applicationService.getPublicApplicationIds(applicationIds),
-                        templateSolution.getTemplateApplicationIds(applicationIds))
+                        templateSolutionService.getTemplateApplicationIds(applicationIds))
                 .map(tuple -> {
                     Set<String> publicAppIds = tuple.getT1();
                     Set<String> templateAppIds = tuple.getT2();
@@ -64,7 +57,7 @@ class ApplicationPermissionHandler extends ResourcePermissionHandler {
 
         Set<String> applicationIds = newHashSet(resourceIds);
         return Mono.zip(applicationService.getPrivateApplicationIds(applicationIds),
-                        templateSolution.getTemplateApplicationIds(applicationIds))
+                        templateSolutionService.getTemplateApplicationIds(applicationIds))
                 .map(tuple -> {
                     Set<String> publicAppIds = tuple.getT1();
                     Set<String> templateAppIds = tuple.getT2();
@@ -84,7 +77,7 @@ class ApplicationPermissionHandler extends ResourcePermissionHandler {
         Set<String> applicationIds = newHashSet(resourceIds);
         return Mono.zip(applicationService.getFilteredPublicApplicationIds(requestType, applicationIds, Boolean.TRUE, config.getMarketplace().isPrivateMode())
         					.defaultIfEmpty(new HashSet<>()),
-                        templateSolution.getTemplateApplicationIds(applicationIds)
+                        templateSolutionService.getTemplateApplicationIds(applicationIds)
                         	.defaultIfEmpty(new HashSet<>())
                ).map(tuple -> {
                     Set<String> publicAppIds = tuple.getT1();
@@ -98,7 +91,7 @@ class ApplicationPermissionHandler extends ResourcePermissionHandler {
 			Collection<String> resourceIds, ResourceAction resourceAction, ApplicationRequestType requestType) {
         Set<String> applicationIds = newHashSet(resourceIds);
         return Mono.zip(applicationService.getFilteredPublicApplicationIds(requestType, applicationIds, Boolean.FALSE, config.getMarketplace().isPrivateMode()),
-                        templateSolution.getTemplateApplicationIds(applicationIds))
+                        templateSolutionService.getTemplateApplicationIds(applicationIds))
                 .map(tuple -> {
                     Set<String> publicAppIds = tuple.getT1();
                     Set<String> templateAppIds = tuple.getT2();

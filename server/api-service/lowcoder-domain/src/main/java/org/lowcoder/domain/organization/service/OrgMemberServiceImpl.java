@@ -43,6 +43,7 @@ public class OrgMemberServiceImpl implements OrgMemberService {
     private final BiRelationService biRelationService;
     private final GroupMemberService groupMemberService;
     private final GroupService groupService;
+    @Lazy
     private final OrganizationService organizationService;
     private final CommonConfig commonConfig;
     private final MongoUpsertHelper mongoUpsertHelper;

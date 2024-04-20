@@ -182,7 +182,7 @@ export function CompPlayground(props: IProps) {
             <div className="panel-content">
               <Form component={false} layout="horizontal">
                 <Form.Item label={trans("playground.executeMethods")}>
-                  <Space>
+                  <Space wrap={true}>
                     {methods.length === 0 && (
                       <div className="help">{trans("playground.noMethods")}</div>
                     )}

@@ -29,6 +29,7 @@ import { CheckboxComp } from "./comps/selectInputComp/checkboxComp";
 import { MultiSelectComp } from "./comps/selectInputComp/multiSelectComp";
 import { RadioComp } from "./comps/selectInputComp/radioComp";
 import { SegmentedControlComp } from "./comps/selectInputComp/segmentedControl";
+import { StepComp } from "./comps/selectInputComp/stepControl";
 import { SelectComp } from "./comps/selectInputComp/selectComp";
 import { SwitchComp } from "./comps/switchComp";
 import { defaultTableData } from "./comps/tableComp/mockTableComp";
@@ -900,6 +901,22 @@ export var uiCompMap: Registry = {
       h: 6,
     },
   },
+  step: {
+    name: trans("uiComp.stepControlCompName"),
+    enName: "Steps Control",
+    description: trans("uiComp.stepControlCompDesc"),
+    categories: ["forms"],
+    icon: SegmentedCompIcon,
+    keywords: trans("uiComp.stepControlCompKeywords"),
+    lazyLoad: true,
+    compName: 'StepComp',
+    compPath: 'comps/selectInputComp/stepControl',
+    layoutInfo: {
+      w: 6,
+      h: 6,
+    },
+  },
+
   rating: {
     name: trans("uiComp.ratingCompName"),
     enName: "Rating",

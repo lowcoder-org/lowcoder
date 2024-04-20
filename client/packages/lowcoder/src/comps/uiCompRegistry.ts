@@ -76,6 +76,7 @@ export type UICompType =
   | "switch"
   | "select"
   | "multiSelect"
+  | "step"
   | "cascader"
   | "checkbox"
   | "radio"

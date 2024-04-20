@@ -1,0 +1,41 @@
+<assembly xmlns="http://maven.apache.org/ASSEMBLY/2.2.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/ASSEMBLY/2.2.0 http://maven.apache.org/xsd/assembly-2.2.0.xsd">
+	<id>bin</id>
+	<formats>
+		<format>dir</format>
+	</formats>
+	<includeBaseDirectory>false</includeBaseDirectory>
+
+	<files>
+		<!-- Lowcoder api-service main jar file -->
+		<file>
+			<source>${project.build.directory}/${jar.name}.jar</source>
+			<outputDirectory>.</outputDirectory>
+		</file>
+	</files>
+
+	<fileSets>
+		<!-- Lowcoder api-server dependencies -->
+        <fileSet>
+            <directory>${assembly.lib.directory}</directory>
+            <outputDirectory>libs</outputDirectory>
+        </fileSet>
+	</fileSets>
+
+	<moduleSets>
+		<!-- Lowcoder plugins -->
+		<moduleSet>
+			<useAllReactorProjects>true</useAllReactorProjects>
+			<includeSubModules>true</includeSubModules>
+			<includes>
+				<include>org.lowcoder.plugins:*Plugin</include>
+			</includes>
+			<binaries>
+				<outputDirectory>plugins</outputDirectory>
+				<includeDependencies>false</includeDependencies>
+				<unpack>false</unpack>
+			</binaries>
+		</moduleSet>
+	</moduleSets>
+</assembly>

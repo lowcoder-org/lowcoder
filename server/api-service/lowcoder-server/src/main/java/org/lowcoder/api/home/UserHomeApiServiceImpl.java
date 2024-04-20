@@ -1,21 +1,7 @@
 package org.lowcoder.api.home;
 
-import static java.util.Objects.isNull;
-import static org.lowcoder.domain.permission.model.ResourceAction.READ_APPLICATIONS;
-import static org.lowcoder.infra.util.MonoUtils.emptyIfNull;
-import static org.lowcoder.sdk.util.StreamUtils.collectList;
-
-import java.time.Instant;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
-import javax.annotation.Nullable;
-
+import jakarta.annotation.Nullable;
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.lowcoder.api.application.view.ApplicationInfoView;
 import org.lowcoder.api.application.view.ApplicationInfoView.ApplicationInfoViewBuilder;
@@ -42,48 +28,37 @@ import org.lowcoder.domain.user.service.UserService;
 import org.lowcoder.domain.user.service.UserStatusService;
 import org.lowcoder.infra.util.NetworkUtils;
 import org.lowcoder.sdk.config.CommonConfig;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
-
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.time.Instant;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
+import static java.util.Objects.isNull;
+import static org.lowcoder.domain.permission.model.ResourceAction.READ_APPLICATIONS;
+import static org.lowcoder.infra.util.MonoUtils.emptyIfNull;
+import static org.lowcoder.sdk.util.StreamUtils.collectList;
+
+
+@RequiredArgsConstructor
 @Component
 public class UserHomeApiServiceImpl implements UserHomeApiService {
 
-
-    @Autowired
-    private SessionUserService sessionUserService;
-
-    @Autowired
-    private OrganizationService organizationService;
-
-    @Autowired
-    private OrgMemberService orgMemberService;
-
-    @Autowired
-    private ApplicationService applicationService;
-
-    @Autowired
-    private ResourcePermissionService resourcePermissionService;
-
-    @Autowired
-    private UserService userService;
-
-    @Autowired
-    private UserStatusService userStatusService;
-
-    @Autowired
-    private OrgDevChecker orgDevChecker;
-    @Autowired
-    private FolderApiService folderApiService;
-    @Autowired
-    private UserApplicationInteractionService userApplicationInteractionService;
-
-    @Autowired
-    private CommonConfig config;
+    private final SessionUserService sessionUserService;
+    private final OrganizationService organizationService;
+    private final OrgMemberService orgMemberService;
+    private final ApplicationService applicationService;
+    private final ResourcePermissionService resourcePermissionService;
+    private final UserService userService;
+    private final UserStatusService userStatusService;
+    private final OrgDevChecker orgDevChecker;
+    private final FolderApiService folderApiService;
+    private final UserApplicationInteractionService userApplicationInteractionService;
+    private final CommonConfig config;
 
     @Override
     public Mono<UserProfileView> buildUserProfileView(User user, ServerWebExchange exchange) {
@@ -202,7 +177,7 @@ public class UserHomeApiServiceImpl implements UserHomeApiService {
 
     @Override
     public Flux<ApplicationInfoView> getAllAuthorisedApplications4CurrentOrgMember(@Nullable ApplicationType applicationType,
-            @Nullable ApplicationStatus applicationStatus, boolean withContainerSize) {
+                                                                                   @Nullable ApplicationStatus applicationStatus, boolean withContainerSize) {
 
         return sessionUserService.getVisitorOrgMemberCache()
                 .flatMapMany(orgMember -> {

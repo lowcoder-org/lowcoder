@@ -1,7 +1,7 @@
 package org.lowcoder.sdk.util;
 
-import javax.annotation.Nonnull;
 
+import jakarta.annotation.Nonnull;
 import tv.twelvetone.json.JsonValue;
 import tv.twelvetone.rjson.RJsonParser;
 import tv.twelvetone.rjson.RJsonParserFactory;

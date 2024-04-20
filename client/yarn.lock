@@ -2574,6 +2574,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@fullcalendar/multimonth@npm:^6.1.6":
+  version: 6.1.11
+  resolution: "@fullcalendar/multimonth@npm:6.1.11"
+  dependencies:
+    "@fullcalendar/daygrid": ~6.1.11
+  peerDependencies:
+    "@fullcalendar/core": ~6.1.11
+  checksum: 213a9ac97e46319bbcfce3f02edaa1b808790f58669fee06e00a7fbb9f638dfabf37c6243234758670e75ee2c1e1cb247131c3a5bb469fec77b60db577b7326c
+  languageName: node
+  linkType: hard
+
 "@fullcalendar/premium-common@npm:~6.1.11":
   version: 6.1.11
   resolution: "@fullcalendar/premium-common@npm:6.1.11"
@@ -2668,7 +2679,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@fullcalendar/timeline@npm:~6.1.11":
+"@fullcalendar/timeline@npm:^6.1.6, @fullcalendar/timeline@npm:~6.1.11":
   version: 6.1.11
   resolution: "@fullcalendar/timeline@npm:6.1.11"
   dependencies:
@@ -13397,11 +13408,13 @@ __metadata:
     "@fullcalendar/interaction": ^6.1.6
     "@fullcalendar/list": ^6.1.9
     "@fullcalendar/moment": ^6.1.6
+    "@fullcalendar/multimonth": ^6.1.6
     "@fullcalendar/react": ^6.1.6
     "@fullcalendar/resource": ^6.1.11
     "@fullcalendar/resource-timegrid": ^6.1.11
     "@fullcalendar/resource-timeline": ^6.1.11
     "@fullcalendar/timegrid": ^6.1.6
+    "@fullcalendar/timeline": ^6.1.6
     "@types/react": ^18.2.45
     "@types/react-dom": ^18.2.18
     big.js: ^6.2.1

@@ -1,7 +1,10 @@
 package org.lowcoder.sdk.plugin.sqlcommand.changeset;
 
-import static com.google.common.collect.Sets.newHashSet;
-import static org.lowcoder.sdk.exception.PluginCommonError.INVALID_GUI_SETTINGS;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.google.common.collect.Streams;
+import jakarta.annotation.Nonnull;
+import org.lowcoder.sdk.exception.PluginException;
 
 import java.util.HashSet;
 import java.util.Iterator;
@@ -10,13 +13,8 @@ import java.util.Set;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import javax.annotation.Nonnull;
-
-import org.lowcoder.sdk.exception.PluginException;
-
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.google.common.collect.Streams;
+import static com.google.common.collect.Sets.newHashSet;
+import static org.lowcoder.sdk.exception.PluginCommonError.INVALID_GUI_SETTINGS;
 
 public record ChangeSetRows(List<ChangeSetRow> rows) implements Iterable<ChangeSetRow> {
 

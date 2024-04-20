@@ -65,6 +65,7 @@ export const CompStateIcon: {
   checkbox: <LeftCheckbox />,
   radio: <LeftRadio />,
   segmentedControl: <LeftSegmentedControl />,
+  step: <LeftSegmentedControl />,
   file: <LeftFile />,
   date: <LeftDate />,
   dateRange: <LeftDate />,
