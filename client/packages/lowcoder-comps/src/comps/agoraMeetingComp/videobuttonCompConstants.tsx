@@ -104,8 +104,8 @@ export const ButtonStyleControl = migrateOldData(
   fixOldData
 );
 
-// export const buttonRefMethods = refMethods([
-//   focusWithOptions,
-//   blurMethod,
-//   clickMethod,
-// ]);
+export const buttonRefMethods = refMethods([
+  focusWithOptions,
+  blurMethod,
+  clickMethod,
+]);

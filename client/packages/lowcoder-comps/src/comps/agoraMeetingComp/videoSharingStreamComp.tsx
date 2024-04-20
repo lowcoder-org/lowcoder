@@ -16,7 +16,6 @@ import {
   UICompBuilder,
   CommonNameConfig,
   hiddenPropertyView,
-  // ButtonStyleControl,
 } from "lowcoder-sdk";
 import { useEffect, useRef, useState } from "react";
 import { client } from "./meetingControllerComp";
@@ -24,6 +23,7 @@ import type { IAgoraRTCRemoteUser } from "agora-rtc-sdk-ng";
 import { trans } from "../../i18n/comps";
 import { useContext } from "react";
 import ReactResizeDetector from "react-resize-detector";
+import { ButtonStyleControl } from "./videobuttonCompConstants";
 
 const VideoContainer = styled.video`
   height: 100%;
@@ -41,7 +41,7 @@ const sharingStreamChildren = {
   onEvent: MeetingEventHandlerControl,
   disabled: BoolCodeControl,
   loading: BoolCodeControl,
-  // style: ButtonStyleControl,
+  style: ButtonStyleControl,
   viewRef: RefControl,
   userId: withDefault(stringExposingStateControl(""), "{{meeting1.localUser}}"),
   noVideoText: stringExposingStateControl(trans("meeting.noVideo")),
@@ -95,8 +95,6 @@ let SharingCompBuilder = (function () {
         client.on(
           "user-unpublished",
           (user: IAgoraRTCRemoteUser, mediaType: "video" | "audio") => {
-            // console.log("user-unpublished");
-
             if (mediaType === "audio") {
               if (
                 !user.hasAudio &&
@@ -161,7 +159,7 @@ let SharingCompBuilder = (function () {
               ) : (
                 <></>
               )}
-              {/* <div
+              <div
                 style={{
                   flexDirection: "column",
                   alignItems: "center",
@@ -177,10 +175,10 @@ let SharingCompBuilder = (function () {
                     width: "100%",
                     overflow: "hidden",
                   }}
-                  src={props.profileImageUrl.value}
+                  src={props.profileImageUrl?.value}
                 />
                 <p style={{ margin: "0" }}>{userName ?? ""}</p>
-              </div> */}
+              </div>
             </div>
           </ReactResizeDetector>
         )}
@@ -233,6 +231,6 @@ SharingCompBuilder = class extends SharingCompBuilder {
 };
 
 export const VideoSharingStreamComp = withExposingConfigs(SharingCompBuilder, [
-  // new NameConfig("loading", trans("meeting.loadingDesc")),
+  new NameConfig("loading", trans("meeting.loadingDesc")),
   ...CommonNameConfig,
 ]);

@@ -100,6 +100,7 @@ export const en = {
     logLevel: "Agora SDK Log Level",
     placement: "Meeting Drawer Placement",
     meeting: "Meeting Settings",
+    loadingDesc: "loadingDesc",
     cameraView: "Camera View",
     cameraViewDesc: "Camera View of the Local User (Host)",
     screenShared: "Screen Shared",

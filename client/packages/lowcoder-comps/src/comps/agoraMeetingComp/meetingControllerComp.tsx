@@ -16,7 +16,6 @@ import {
   gridItemCompToGridItems,
   Layers,
   isNumeric,
-  EditorContext,
   withMethodExposing,
   eventHandlerControl,
   DrawerStyle,
@@ -26,19 +25,23 @@ import {
   Drawer,
   changeChildAction,
   HintPlaceHolder,
-  styled,
+  // styledm,
+  // DrawerWrapper,
   BackgroundColorContext,
   ContainerCompBuilder,
   closeEvent,
   MeetingEventHandlerControl,
 } from "lowcoder-sdk";
+import { default as CloseOutlined } from "@ant-design/icons/CloseOutlined";
+import type { JSONValue } from "../../../../lowcoder/src/util/jsonTypes";
+// import { default as Button } from "antd/es/button";
 
 const EventOptions = [closeEvent] as const;
 import { trans } from "../../i18n/comps";
-const DrawerWrapper = styled.div`
-  // Shield the mouse events of the lower layer, the mask can be closed in the edit mode to prevent the lower layer from sliding
-  pointer-events: auto;
-`;
+// const DrawerWrapper = styledm.div`
+//   // Shield the mouse events of the lower layer, the mask can be closed in the edit mode to prevent the lower layer from sliding
+//   pointer-events: auto;
+// `;
 import AgoraRTC, {
   type ICameraVideoTrack,
   type IMicrophoneAudioTrack,
@@ -80,7 +83,7 @@ let screenShareStream: ILocalVideoTrack;
 let userId: UID | null | undefined;
 let rtmChannelResponse: RtmChannel;
 let rtmClient: RtmClient;
-// const ButtonStyle = styled(Button)`
+// const ButtonStyle = styledm(Button)`
 //   position: absolute;
 //   left: 0;
 //   top: 0;
@@ -209,6 +212,7 @@ const CanvasContainerID = "__canvas_container__";
 const meetingControllerChildren = {
   visible: withDefault(BooleanStateControl, "false"),
   onEvent: eventHandlerControl(EventOptions),
+  onMeetingEvent: MeetingEventHandlerControl,
   width: StringControl,
   height: StringControl,
   autoHeight: AutoHeightControl,
@@ -219,12 +223,11 @@ const meetingControllerChildren = {
   meetingActive: withDefault(BooleanStateControl, "false"),
   audioControl: withDefault(BooleanStateControl, "false"),
   videoControl: withDefault(BooleanStateControl, "true"),
-  onMeetingEvent: MeetingEventHandlerControl,
   endCall: withDefault(BooleanStateControl, "false"),
   sharing: withDefault(BooleanStateControl, "false"),
   appId: withDefault(StringControl, trans("meeting.appid")),
-  participants: stateComp([]),
-  usersScreenShared: stateComp([]),
+  participants: stateComp<JSONValue>([]),
+  usersScreenShared: stateComp<JSONValue>([]),
   localUser: jsonObjectExposingStateControl(""),
   localUserID: withDefault(
     stringStateControl(trans("meeting.localUserID")),
@@ -236,7 +239,7 @@ const meetingControllerChildren = {
   ),
   rtmToken: stringStateControl(trans("meeting.rtmToken")),
   rtcToken: stringStateControl(trans("meeting.rtcToken")),
-  messages: stateComp([]),
+  messages: stateComp<JSONValue>([]),
 };
 let MTComp = (function () {
   return new ContainerCompBuilder(
@@ -483,74 +486,74 @@ let MTComp = (function () {
 
       return (
         <BackgroundColorContext.Provider value={props.style.background}>
-          <DrawerWrapper>
-            <Drawer
-              // resizable={resizable}
-              onResizeStop={onResizeStop}
-              rootStyle={
-                props.visible.value
-                  ? { overflow: "auto", pointerEvents: "auto" }
-                  : {}
+          {/* <DrawerWrapper> */}
+          <Drawer
+            // resizable={resizable}
+            onResizeStop={onResizeStop}
+            rootStyle={
+              props.visible.value
+                ? { overflow: "auto", pointerEvents: "auto" }
+                : {}
+            }
+            styles={{
+              wrapper: {
+                maxHeight: "100%",
+                maxWidth: "100%",
+              },
+              body: {
+                padding: 0,
+                backgroundColor: props.style.background,
+              },
+            }}
+            closable={false}
+            placement={props.placement}
+            open={props.visible.value}
+            getContainer={() =>
+              document.querySelector(`#${CanvasContainerID}`) || document.body
+            }
+            footer={null}
+            width={transToPxSize(props.width || DEFAULT_SIZE)}
+            height={
+              !props.autoHeight
+                ? transToPxSize(props.height || DEFAULT_SIZE)
+                : ""
+            }
+            onClose={(e: any) => {
+              props.visible.onChange(false);
+            }}
+            afterOpenChange={(visible: any) => {
+              if (!visible) {
+                props.onEvent("close");
               }
-              styles={{
-                wrapper: {
-                  maxHeight: "100%",
-                  maxWidth: "100%",
-                },
-                body: {
-                  padding: 0,
-                  backgroundColor: props.style.background,
-                },
-              }}
-              closable={false}
-              placement={props.placement}
-              open={props.visible.value}
-              getContainer={() =>
-                document.querySelector(`#${CanvasContainerID}`) || document.body
-              }
-              footer={null}
-              width={transToPxSize(props.width || DEFAULT_SIZE)}
-              height={
-                !props.autoHeight
-                  ? transToPxSize(props.height || DEFAULT_SIZE)
-                  : ""
-              }
-              onClose={(e: any) => {
-                props.visible.onChange(false);
-              }}
-              afterOpenChange={(visible: any) => {
-                if (!visible) {
-                  props.onEvent("close");
-                }
-              }}
-              zIndex={Layers.drawer}
-              maskClosable={props.maskClosable}
-              mask={props.showMask}
-            >
-              {/* <ButtonStyle
+            }}
+            zIndex={Layers.drawer}
+            maskClosable={props.maskClosable}
+            mask={props.showMask}
+          >
+            {/* <ButtonStyle
                 onClick={() => {
                   props.visible.onChange(false);
                 }}
               >
                 <CloseOutlined />
               </ButtonStyle> */}
-              <InnerGrid
-                {...otherContainerProps}
-                items={gridItemCompToGridItems(items)}
-                autoHeight={props.autoHeight}
-                minHeight={isTopBom ? DEFAULT_SIZE + "px" : "100%"}
-                style={{ height: "100%" }}
-                containerPadding={[DEFAULT_PADDING, DEFAULT_PADDING]}
-                hintPlaceholder={HintPlaceHolder}
-                bgColor={props.style.background}
-              />
-            </Drawer>
-          </DrawerWrapper>
+            <InnerGrid
+              {...otherContainerProps}
+              items={gridItemCompToGridItems(items)}
+              autoHeight={props.autoHeight}
+              minHeight={isTopBom ? DEFAULT_SIZE + "px" : "100%"}
+              style={{ height: "100%" }}
+              containerPadding={[DEFAULT_PADDING, DEFAULT_PADDING]}
+              hintPlaceholder={HintPlaceHolder}
+              bgColor={props.style.background}
+            />
+          </Drawer>
+          {/* </DrawerWrapper> */}
         </BackgroundColorContext.Provider>
       );
     }
   )
-    .setPropertyViewFn((children:any) => (
+    .setPropertyViewFn((children: any) => (
       <>
         {/* {(EditorContext.editorModeStatus === "logic" ||
             EditorContext.editorModeStatus === "both") && (
@@ -701,12 +704,24 @@ MTComp = withMethodExposing(MTComp, [
       params: [],
     },
     execute: async (comp: any, values: any) => {
+      console.log("startMeeting ", {
+        user: userId + "",
+        audiostatus: false,
+        speaking: false,
+        streamingVideo: true,
+      });
       if (comp.children.meetingActive.getView().value) return;
       userId =
         comp.children.localUserID.getView().value === ""
           ? uuidv4()
           : comp.children.localUserID.getView().value;
       comp.children.localUser.change({
+        user: userId + "",
+        audiostatus: false,
+        speaking: false,
+        streamingVideo: true,
+      });
+      console.log("startMeeting localUser ", {
         user: userId + "",
         audiostatus: false,
         speaking: false,
