@@ -1140,6 +1140,8 @@ export const DateTimeStyle = [
   TEXT,
   MARGIN,
   PADDING,
+  BORDER_STYLE,
+  BORDER_WIDTH,
   ...ACCENT_VALIDATE,
 ] as const;
 
