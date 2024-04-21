@@ -651,7 +651,7 @@ StepOption = class extends StepOption implements OptionCompProperty {
   propertyView(param: { autoMap?: boolean }) {
     return (
       <>
-        {this.children.value.propertyView({ label: trans("stepOptionsControl.value") })}
+        {this.children.value.propertyView({ label: trans("stepOptionsControl.value"), tooltip: trans("stepOptionsControl.valueTooltip") })}
         {this.children.label.propertyView({ label: trans("stepOptionsControl.title") })}
         {this.children.subTitle.propertyView({ label: trans("stepOptionsControl.subTitle") })}
         {this.children.description.propertyView({ label: trans("stepOptionsControl.description") })}

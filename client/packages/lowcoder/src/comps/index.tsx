@@ -141,7 +141,9 @@ import {
   IconCompIcon,
   LayoutCompIcon,
   FloatingTextComp,
+  IconModal,
 } from "lowcoder-design";
+import { TourComp } from "@lowcoder-ee/comps/comps/tourComp/tourComp";
 
 type Registry = {
   [key in UICompType]?: UICompManifest;
@@ -548,6 +550,7 @@ export var uiCompMap: Registry = {
     compPath: 'comps/meetingComp/videoMeetingControllerComp',
     withoutLoading: true,
   },
+
   comment: {
     name: trans("uiComp.commentCompName"),
     enName: "comment",
@@ -559,7 +562,7 @@ export var uiCompMap: Registry = {
     compName: 'CommentComp',
     compPath: 'comps/commentComp/commentComp',
     layoutInfo: {
-      w: 13,
+      w: 12,
       h: 55,
     },
   },
@@ -910,7 +913,7 @@ export var uiCompMap: Registry = {
     compName: 'StepComp',
     compPath: 'comps/selectInputComp/stepControl',
     layoutInfo: {
-      w: 6,
+      w: 19,
       h: 6,
     },
   },
@@ -1180,6 +1183,19 @@ export var uiCompMap: Registry = {
     layoutInfo: {
       w: 6,
       h: 5,
+    },
+  },
+  tour: {
+    name: trans("uiComp.tourCompName"),
+    enName: "Tour",
+    description: trans("uiComp.tourCompDesc"),
+    categories: ["multimedia", "itemHandling"],
+    icon: IconModal,
+    keywords: trans("uiComp.tourCompKeywords"),
+    comp: TourComp,
+    layoutInfo: {
+      w: 1,
+      h: 1,
     },
   },
   multiSelect: {

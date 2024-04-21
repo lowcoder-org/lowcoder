@@ -1,5 +1,5 @@
 import { BoolCodeControl } from "comps/controls/codeControl";
-import React, { ReactNode, useContext } from "react";
+import React, { ReactNode, useContext, useRef } from "react";
 import { ExternalEditorContext } from "util/context/ExternalEditorContext";
 import { Comp, CompParams, MultiBaseComp } from "lowcoder-core";
 import {
@@ -121,6 +121,8 @@ export class UICompBuilder<
       ToDataType<NewChildren<ChildrenCompMap>>,
       ToNodeType<NewChildren<ChildrenCompMap>>
     > {
+      ref: React.RefObject<HTMLDivElement> = React.createRef();
+      
       override parseChildrenFromValue(
         params: CompParams<ToDataType<NewChildren<ChildrenCompMap>>>
       ): NewChildren<ChildrenCompMap> {
@@ -131,8 +133,12 @@ export class UICompBuilder<
         return true;
       }
 
+      override getRef(): React.RefObject<HTMLDivElement> {
+        return this.ref;
+      }
+
       override getView(): ViewReturn {
-        return <UIView comp={this} viewFn={builder.viewFn} />;
+        return (<div ref={this.ref}><UIView comp={this} viewFn={builder.viewFn} /></div>);
       }
 
       override getPropertyView(): ReactNode {

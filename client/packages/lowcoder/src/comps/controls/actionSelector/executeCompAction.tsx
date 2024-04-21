@@ -1,5 +1,4 @@
-import { customAction, routeByNameAction } from "lowcoder-core";
-import { CompParams, ConstructorToDataType } from "lowcoder-core";
+import { CompParams, ConstructorToDataType, customAction, routeByNameAction } from "lowcoder-core";
 import { GridItemComp } from "comps/comps/gridItemComp";
 import { SimpleNameComp } from "comps/comps/simpleNameComp";
 import { TemporaryStateItemComp } from "comps/comps/temporaryStateComp";

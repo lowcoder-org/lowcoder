@@ -3,10 +3,9 @@ import { BoolCodeControl } from "comps/controls/codeControl";
 import { BoolControl } from "comps/controls/boolControl";
 import { stringExposingStateControl, numberExposingStateControl } from "comps/controls/codeStateControl";
 import { ChangeEventHandlerControl } from "comps/controls/eventHandlerControl";
-import { LabelControl } from "comps/controls/labelControl";
 import { StepOptionControl } from "comps/controls/optionsControl";
 import { styleControl } from "comps/controls/styleControl";
-import { StepsStyle, StepsStyleType } from "comps/controls/styleControlConstants";
+import { StepsStyle, StepsStyleType, heightCalculator, widthCalculator, marginCalculator } from "comps/controls/styleControlConstants";
 import styled, { css } from "styled-components";
 import { UICompBuilder } from "../../generators";
 import { CommonNameConfig, NameConfig, withExposingConfigs } from "../../generators/withExposing";
@@ -17,7 +16,6 @@ import { trans } from "i18n";
 import { hasIcon } from "comps/utils";
 import { RefControl } from "comps/controls/refControl";
 import { dropdownControl } from "comps/controls/dropdownControl";
-
 import { useContext, useState, useEffect } from "react";
 import { EditorContext } from "comps/editorState";
 
@@ -79,15 +77,16 @@ const statusOptions = [
 ]
 
 const StepsChildrenMap = {
-  initialValue: numberExposingStateControl("0"),
+  initialValue: numberExposingStateControl("1"),
   value: stringExposingStateControl("value"),
-  stepsStatus : stringExposingStateControl("process"),
+  stepStatus : stringExposingStateControl("process"),
+  stepPercent: numberExposingStateControl("60"),
   size: dropdownControl(sizeOptions, "default"),
   displayType : dropdownControl(typeOptions, "default"),
   direction: dropdownControl(directionOptions, "horizontal"),
   showDots : BoolControl,
   showIcons : BoolControl,
-  label: LabelControl,
+  selectable : BoolControl,
   labelPlacement: dropdownControl(directionOptions, "horizontal"),
   disabled: BoolCodeControl,
   onEvent: ChangeEventHandlerControl,
@@ -99,56 +98,81 @@ const StepsChildrenMap = {
 let StepControlBasicComp = (function () {
   return new UICompBuilder(StepsChildrenMap, (props) => {
 
-    // enabling user interaction to change the current step
-    const [current, setCurrent] = useState(0);
+    const StyledWrapper = styled.div<{ style: StepsStyleType }>`
+      min-height: 24px;
+      max-width: ${widthCalculator(props.style.margin)};
+      max-height: ${heightCalculator(props.style.margin)};
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-decoration: ${props.style.textDecoration};
+      font-style: ${props.style.fontStyle};
+      font-weight: ${props.style.textWeight};
+      font-size: ${props.style.textSize};
+      text-transform: ${props.style.textTransform};
+      margin: ${props.style.margin};
+      padding: ${props.style.padding};
+      background-color: ${props.style.background};
+      border: ${props.style.borderWidth} solid ${props.style.border};
+      border-radius: ${props.style.radius};
+      background-image: ${props.style.backgroundImage};
+      background-repeat: ${props.style.backgroundImageRepeat};
+      background-size: ${props.style.backgroundImageSize};
+      background-position: ${props.style.backgroundImagePosition};
+      background-origin: ${props.style.backgroundImageOrigin};
+      .ant-steps-item { padding-top: 5px !important; }
+      .ant-steps.ant-steps-label-vertical.ant-steps-small .ant-steps-item-icon { margin-top: 17px !important; }
+      .ant-steps.ant-steps-label-vertical.ant-steps-default .ant-steps-item-icon { margin-top: 12px !important; }
+      .ant-steps.ant-steps-dot .ant-steps-item-process .ant-steps-icon .ant-steps-icon-dot { margin-top: 4px !important; }
+      .ant-steps.ant-steps-default .ant-steps-item-icon .ant-steps-icon-dot { margin-top: 9px !important; }
+      .ant-steps.ant-steps-small .ant-steps-item-icon .ant-steps-icon-dot { margin-top: 4px !important; }
+      .ant-steps.ant-steps-dot .ant-steps-item-title { margin-top: 10px !important; }
+      .ant-steps.ant-steps-default.ant-steps-with-progress.ant-steps-label-horizontal .ant-steps-item.ant-steps-item-custom div.ant-steps-item-icon { margin-top:4px !important; }
+      .ant-steps.ant-steps-default.ant-steps-with-progress.ant-steps-label-vertical .ant-steps-item.ant-steps-item-custom div.ant-steps-item-icon { margin-top:17px !important; }
+      .ant-steps.ant-steps-dot.ant-steps-small.ant-steps-with-progress .ant-steps-item-icon .ant-progress { inset-block-start: -8px !important; inset-inline-start: -11px !important; }
+      .ant-steps.ant-steps-dot.ant-steps-default.ant-steps-with-progress .ant-steps-item-icon .ant-progress { inset-block-start: -7px !important; inset-inline-start: -13px !important; }
+      .ant-steps.ant-steps-small.ant-steps-with-progress .ant-steps-item:not(.ant-steps-item-custom) .ant-progress { inset-block-start: -5px !important; inset-inline-start: -5px !important; }
+      .ant-steps.ant-steps-default.ant-steps-with-progress .ant-steps-item:not(.ant-steps-item-custom) .ant-progress { inset-block-start: -5px !important; inset-inline-start: -5px !important; }
+      .ant-steps.ant-steps-small.ant-steps-with-progress .ant-steps-item.ant-steps-item-custom .ant-progress { inset-block-start: -5px !important; inset-inline-start: -10px !important; }
+      .ant-steps.ant-steps-default.ant-steps-with-progress .ant-steps-item.ant-steps-item-custom .ant-progress { inset-block-start: -4px !important; inset-inline-start: -13px !important; }
+    `;
 
-    // updating the state of current by the expose value
+    const [current, setCurrent] = useState(props.initialValue.value - 1); // Convert 1-based index to 0-based.
+
     useEffect(() => {
-      setCurrent(Number(props.value.value));
+      const newValue = Number(props.value.value);
+      setCurrent(newValue - 1); // Adjust for 0-based index.
     }, [props.value.value]);
 
-
-    const onChange = (current: number) => {
-      setCurrent(current);
-      if (props.options[current]?.value !== undefined) {
-        props.value.onChange(props.options[current].value+""); 
+    const onChange = (index: number) => {
+      if (props.selectable == false) return;
+      const newIndex = Math.max(0, index);
+      setCurrent(newIndex);
+      if (props.options[newIndex]?.value !== undefined) {
+        props.value.onChange(newIndex + 1 + ""); // Convert back to 1-based index for display.
         props.onEvent("change");
       }
     };
 
-    // margin-top: 17px; is important cause the dots where placed wrong.
-    /* 
-.ant-steps.ant-steps-small .ant-steps-item-icon {
-      margin-top: 17px;
-    }
-    */
-    const StepsWrapper = styled.div`
-      width: 100%;
-      min-height: 24px;
-    
-    `;
-
-    return props.label({
-      children: (
-        <StepsWrapper ref={props.viewRef}>
-          <ConfigProvider
-              theme={{
-                components: {
-                  Steps: {
-                    colorPrimary: '#00b96b',
-                    algorithm: true, 
-                  }
-                },
-              }}
-            >
+    return (
+        <ConfigProvider
+            theme={{
+              token: { 
+                colorPrimary: props.style.activeBackground,
+                colorText: props.style.titleText,
+                colorTextDescription: props.style.text,
+                fontFamily: props.style.fontFamily,
+              }
+            }}
+          >
+          <StyledWrapper style={props.style}>
             <Steps 
-              initial={Number(props.initialValue.value) - 1}
+              initial={props.initialValue.value -1}
               current={current}
-              onChange={(current) => {
-                onChange(current);
-              }}
-              percent={60}
-              status={props.stepsStatus.value as "error" | "finish" | "process" | "wait"}
+              onChange={onChange}
+              percent={props.stepPercent.value}
+              status={props.stepStatus.value as "error" | "finish" | "process" | "wait"}
               type={props.displayType}
               size={props.size}
               labelPlacement={props.labelPlacement}
@@ -166,16 +190,16 @@ let StepControlBasicComp = (function () {
                 />
               ))}
             </Steps>
-          </ConfigProvider>
-        </StepsWrapper>
-      ),
-    });
+          </StyledWrapper>
+        </ConfigProvider>
+    );
+
   })
     .setPropertyViewFn((children) => (
       <>
         <Section name={sectionNames.basic}>
           {children.options.propertyView({})}
-          {children.initialValue.propertyView({ label: trans("step.initialValue") })}
+          {children.initialValue.propertyView({ label: trans("step.initialValue"), tooltip : trans("step.initialValueTooltip")})}
         </Section>
 
         {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
@@ -184,12 +208,10 @@ let StepControlBasicComp = (function () {
             {children.onEvent.getPropertyView()}
             {disabledPropertyView(children)}
             {hiddenPropertyView(children)}
-            {children.stepsStatus.propertyView({label: trans("step.status")})}
+            {children.stepStatus.propertyView({label: trans("step.status")})}
+            {children.stepPercent.propertyView({label: trans("step.percent")})}
+            {children.selectable.propertyView({label: trans("step.selectable")})}
           </Section></>
-        )}
-
-        {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
-          children.label.getPropertyView()
         )}
 
         {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
@@ -206,12 +228,18 @@ let StepControlBasicComp = (function () {
               label: trans("step.direction"),
               radioButton: true,
             })}
-            {children.labelPlacement.propertyView({
-              label: trans("step.labelPlacement"),
-              radioButton: true,
-            })}
-            {children.showDots.propertyView({label: trans("step.showDots")})}
-            {children.showIcons.propertyView({label: trans("step.showIcons")})}
+            { children.direction.getView() == "horizontal" && 
+              children.labelPlacement.propertyView({
+                label: trans("step.labelPlacement"),
+                radioButton: true,
+              })
+            }
+            { children.displayType.getView() != "inline" && !children.showIcons.getView() && (
+              children.showDots.propertyView({label: trans("step.showDots")}
+            ))}
+            { children.displayType.getView() != "inline" && !children.showDots.getView() && (
+              children.showIcons.propertyView({label: trans("step.showIcons")}
+            ))}
           </Section>
         )}
 
@@ -228,5 +256,7 @@ let StepControlBasicComp = (function () {
 
 export const StepComp = withExposingConfigs(StepControlBasicComp, [
   new NameConfig("value", trans("step.valueDesc")),
+  new NameConfig("stepStatus", trans("step.status") ),
+  new NameConfig("stepPercent", trans("step.percent")),
   ...CommonNameConfig,
 ]);
