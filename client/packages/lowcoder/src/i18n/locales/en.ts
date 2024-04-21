@@ -926,6 +926,10 @@ export const en = {
     "buttonCompDesc": "A versatile button component for submitting forms, triggering actions, or navigating.",
     "buttonCompKeywords": "button, submit, action, navigate",
 
+    "meetingControlCompName": "Control Button",
+    "meetingCompDesc": "A button for controlling functions like start, end, mute, or share.",
+    "meetingCompKeywords": "control, button, start, end",
+
     "linkCompName": "Link",
     "linkCompDesc": "A hyperlink display component for navigation or linking to external resources.",
     "linkCompKeywords": "link, hyperlink, navigation, external",
@@ -2457,6 +2461,7 @@ export const en = {
     "history": "History"
   },
   "home": {
+    "profile": "Your Profile",
     "allApplications": "Your Apps",
     "allModules": "Your Modules",
     "allFolders": "All Folders",

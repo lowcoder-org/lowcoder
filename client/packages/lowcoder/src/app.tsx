@@ -1,6 +1,7 @@
 import { default as App } from "antd/es/app";
 import { default as ConfigProvider } from "antd/es/config-provider";
 import {
+  USER_PROFILE_URL,
   ALL_APPLICATIONS_URL,
   APP_EDITOR_URL,
   APPLICATION_VIEW_URL,
@@ -146,6 +147,7 @@ class AppIndex extends React.Component<AppIndexProps, any> {
             <LazyRoute
               fallback="layout"
               path={[
+                USER_PROFILE_URL,
                 ALL_APPLICATIONS_URL,
                 DATASOURCE_CREATE_URL,
                 DATASOURCE_EDIT_URL,

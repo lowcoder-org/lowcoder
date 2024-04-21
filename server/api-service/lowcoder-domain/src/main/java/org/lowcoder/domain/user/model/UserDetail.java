@@ -14,6 +14,7 @@ public class UserDetail {
             .id("")
             .name("ANONYMOUS")
             .avatarUrl("")
+            .uiLanguage("")
             .email("")
             .ip("")
             .groups(Collections.emptyList())
@@ -23,6 +24,7 @@ public class UserDetail {
     private String id;
     private String name;
     private String avatarUrl;
+    private String uiLanguage;
     private String email;
     private String ip;
     private List<Map<String, String>> groups;

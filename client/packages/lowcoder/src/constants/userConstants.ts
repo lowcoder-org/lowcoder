@@ -20,6 +20,7 @@ export type UserConnection = {
 export type BaseUserInfo = {
   id: string;
   username: string;
+  uiLanguage: string;
   currentOrgId: string;
   connections?: UserConnection[];
   isAnonymous: boolean;
@@ -44,6 +45,7 @@ export const defaultUser: User = {
   orgs: [],
   orgRoleMap: new Map(),
   username: ANONYMOUS_USERNAME,
+  uiLanguage: "en",
   currentOrgId: "",
   id: "",
   hasPassword: false,

@@ -819,35 +819,35 @@ export const de: typeof en = {
   },
   "uiComp": {
     ...en.uiComp,
-    "autoCompleteCompName": "Autovervollständigung",
+    "autoCompleteCompName": "Vorschlag Feld",
     "autoCompleteCompDesc": "Ein Eingabefeld, das Vorschläge während der Eingabe anbietet und dadurch die Benutzererfahrung und Genauigkeit verbessert.",
     "autoCompleteCompKeywords": "Vorschläge, Autovervollständigung, Tippen, Eingabe",
 
-    "inputCompName": "Eingabefeld",
+    "inputCompName": "Eingabe Feld",
     "inputCompDesc": "Ein grundlegendes Texteingabefeld, das es Benutzern ermöglicht, Text einzugeben und zu bearbeiten.",
     "inputCompKeywords": "Text, Eingabe, Feld, Bearbeiten",
 
-    "textAreaCompName": "Textbereich",
+    "textAreaCompName": "Text Bereich Feld",
     "textAreaCompDesc": "Ein mehrzeiliges Texteingabefeld für längere Inhalte wie Kommentare oder Beschreibungen.",
     "textAreaCompKeywords": "mehrzeilig, Textbereich, Eingabe, Text",
 
-    "passwordCompName": "Passwortfeld",
+    "passwordCompName": "Passwort Feld",
     "passwordCompDesc": "Ein sicheres Eingabefeld für Passwörter, das Zeichen aus Datenschutzgründen maskiert.",
     "passwordCompKeywords": "Passwort, Sicherheit, Eingabe, versteckt",
 
-    "richTextEditorCompName": "Text-Editor",
+    "richTextEditorCompName": "Text Editor",
     "richTextEditorCompDesc": "Ein fortgeschrittener Texteditor, der reichhaltige Formatierungsoptionen wie Fett, Kursiv und Listen unterstützt.",
     "richTextEditorCompKeywords": "Editor, Text, Formatierung, Rich Content",
 
-    "numberInputCompName": "Zahlenfeld",
+    "numberInputCompName": "Zahlen Feld",
     "numberInputCompDesc": "Ein Eingabefeld speziell für numerische Eingaben mit Optionen zum Erhöhen und Verringern der Werte.",
     "numberInputCompKeywords": "Nummer, Eingabe, Inkrement, Dekrement",
 
-    "sliderCompName": "Schieberegler",
+    "sliderCompName": "Regler",
     "sliderCompDesc": "Eine grafische Schiebereglerkomponente zur Auswahl eines Wertes oder Bereichs innerhalb einer festgelegten Skala.",
     "sliderCompKeywords": "Schieberegler, Bereich, Eingabe, grafisch",
 
-    "rangeSliderCompName": "Bereich Schieberegler",
+    "rangeSliderCompName": "Bereich Regler",
     "rangeSliderCompDesc": "Ein Schieberegler mit zwei Griffen zur Auswahl eines Wertebereichs, nützlich für Filterungen oder zum Festlegen von Grenzwerten.",
     "rangeSliderCompKeywords": "Bereich, Schieberegler, Zweigriff, Filter",
 
@@ -875,7 +875,7 @@ export const de: typeof en = {
     "checkboxCompDesc": "Ein Standardkästchen für Optionen, die ausgewählt oder abgewählt werden können.",
     "checkboxCompKeywords": "Kästchen, Optionen, auswählen, umschalten",
 
-    "radioCompName": "Optionsfeld",
+    "radioCompName": "Options Feld",
     "radioCompDesc": "Optionsfelder zur Auswahl einer Option aus einem Set, wobei nur eine Wahl erlaubt ist.",
     "radioCompKeywords": "Optionsfeld, Schaltflächen, auswählen, Einzelwahl",
 
@@ -923,9 +923,13 @@ export const de: typeof en = {
     "dropdownCompDesc": "Ein Dropdown-Menü zur kompakten Darstellung einer Liste von Optionen.",
     "dropdownCompKeywords": "Dropdown, Menü, Optionen, auswählen",
 
-    "toggleButtonCompName": "Umschaltknopf",
+    "toggleButtonCompName": "Umschalter",
     "toggleButtonCompDesc": "Ein Knopf, der zwischen zwei Zuständen oder Optionen umschalten kann.",
     "toggleButtonCompKeywords": "Umschalten, Knopf, Schalter, Zustand",
+
+    "meetingControlCompName": "Steuerung Taste",
+    "meetingCompDesc": "Eine Steuerungstaste mit Icons.",
+    "meetingCompKeywords": "Steuerung, Taste, Icons",
 
     "textCompName": "Text Anzeige",
     "textCompDesc": "Eine einfache Komponente zur Anzeige von statischem oder dynamischem Textinhalt einschließlich Markdown-Formatierung.",
@@ -939,11 +943,11 @@ export const de: typeof en = {
     "imageCompDesc": "Eine Komponente zur Anzeige von Bildern, die verschiedene Formate basierend auf URI oder Base64-Daten unterstützt.",
     "imageCompKeywords": "Bild, Anzeige, Medium, Base64",
 
-    "progressCompName": "Fortschritt Aanzeige",
+    "progressCompName": "Fortschritt Anzeige",
     "progressCompDesc": "Ein visueller Indikator des Fortschritts, der typischerweise verwendet wird, um den Fertigstellungsstatus einer Aufgabe zu zeigen.",
     "progressCompKeywords": "Fortschritt, Indikator, Status, Aufgabe",
 
-    "progressCircleCompName": "Fortschritt Aanzeige Kreis",
+    "progressCircleCompName": "Fortschritt Anzeige Kreis",
     "progressCircleCompDesc": "Ein kreisförmiger Fortschrittsindikator, der häufig für Ladezustände oder zeitgebundene Aufgaben verwendet wird.",
     "progressCircleCompKeywords": "Kreis, Fortschritt, Indikator, Laden",
 
@@ -955,7 +959,7 @@ export const de: typeof en = {
     "dividerCompDesc": "Eine visuelle Trennkomponente, die verwendet wird, um Inhalte oder Abschnitte innerhalb eines Layouts zu separieren.",
     "dividerCompKeywords": "Trennlinie, Separator, Layout, Gestaltung",
 
-    "qrCodeCompName": "QR-Code Anzeiger",
+    "qrCodeCompName": "QRCode Anzeiger",
     "qrCodeCompDesc": "Eine Komponente zur Anzeige von QR-Codes, nützlich für schnelles Scannen und Informationsübertragung.",
     "qrCodeCompKeywords": "QR-Code, Scannen, Barcode, Information",
 
@@ -963,7 +967,7 @@ export const de: typeof en = {
     "formCompDesc": "Eine Containerkomponente für die Erstellung strukturierter Formulare mit verschiedenen Eingabetypen.",
     "formCompKeywords": "Formular, Eingabe, Container, Struktur",
 
-    "jsonSchemaFormCompName": "JSON-Schema Formular",
+    "jsonSchemaFormCompName": "JSON Schema Formular",
     "jsonSchemaFormCompDesc": "Eine dynamische Formularkomponente, die basierend auf einem JSON-Schema generiert wird.",
     "jsonSchemaFormCompKeywords": "JSON, Schema, Formular, dynamisch",
 
@@ -975,15 +979,15 @@ export const de: typeof en = {
     "floatTextContainerCompDesc": "Eine Komponente zur Anzeige von Text, die den Inhalt dynamisch anpasst und einfließen lässt.",
     "floatTextContainerCompKeywords": "Container, Layout, Text, fließend",
 
-    "collapsibleContainerCompName": "Klappbarer Container",
+    "collapsibleContainerCompName": "Klapp Container",
     "collapsibleContainerCompDesc": "Ein Container, der erweitert oder zusammengeklappt werden kann, ideal für die Verwaltung der Sichtbarkeit von Inhalten.",
     "collapsibleContainerCompKeywords": "klappbar, Container, erweitern, zusammenklappen",
 
-    "tabbedContainerCompName": "Registerkarten Container",
+    "tabbedContainerCompName": "Register Karten Container",
     "tabbedContainerCompDesc": "Ein Container mit Registerkartennavigation zur Organisation von Inhalten in separaten Bereichen.",
     "tabbedContainerCompKeywords": "Registerkarten, Container, Navigation, Bereiche",
 
-    "pageLayoutCompName": "Seitenlayout",
+    "pageLayoutCompName": "Seiten Layout",
     "pageLayoutCompDesc": "Ein Container, der es ermöglicht, ein Layout mit Kopfzeile, Seitenleiste, Fußzeile und Hauptinhaltsbereichen zu erstellen.",
     "pageLayoutCompKeywords": "Layout, Container, Navigation, Seiten",
 
@@ -1007,7 +1011,7 @@ export const de: typeof en = {
     "iframeCompDesc": "Eine Inline-Frame-Komponente zum Einbetten externer Webseiten und Anwendungen oder Inhalte innerhalb der Anwendung.",
     "iframeCompKeywords": "IFrame, einbetten, Webseite, Inhalt",
 
-    "customCompName": "Benutzerdefinierte Komponente",
+    "customCompName": "Code Komponente",
     "customCompDesc": "Eine flexible, programmierbare Komponente zur Erstellung einzigartiger, benutzerdefinierter UI-Elemente, die speziell auf Ihre Bedürfnisse zugeschnitten sind.",
     "customCompKeywords": "benutzerdefiniert, benutzerdefiniert, flexibel, programmierbar",
 
@@ -1023,11 +1027,11 @@ export const de: typeof en = {
     "jsonEditorCompDesc": "Eine Editor-Komponente zum Erstellen und Modifizieren von JSON-Daten mit Validierung und Syntaxhervorhebung.",
     "jsonEditorCompKeywords": "JSON, Editor, modifizieren, validieren",
 
-    "treeCompName": "Baumstruktur",
+    "treeCompName": "Baum Struktur",
     "treeCompDesc": "Eine Baumstrukturkomponente zur Darstellung hierarchischer Daten, wie z. B. Dateisysteme oder Organigramme.",
     "treeCompKeywords": "Baum, hierarchisch, Daten, Struktur",
 
-    "treeSelectCompName": "Baumauswahl",
+    "treeSelectCompName": "Baum Auswahl",
     "treeSelectCompDesc": "Eine Auswahlkomponente, die Optionen in einem hierarchischen Baumformat präsentiert, was eine organisierte und verschachtelte Auswahl ermöglicht.",
     "treeSelectCompKeywords": "Baum, auswählen, hierarchisch, verschachtelt",
 
@@ -1083,7 +1087,7 @@ export const de: typeof en = {
     "mentionCompDesc": "Eine Komponente, die das Erwähnen von Benutzern oder Tags innerhalb von Textinhalten unterstützt, typischerweise verwendet in sozialen Medien oder kollaborativen Plattformen.",
     "mentionCompKeywords": "Erwähnung, Tag, Benutzer, soziale Medien",
 
-    "responsiveLayoutCompName": "Responsives Layout",
+    "responsiveLayoutCompName": "Responsive Layout",
     "responsiveLayoutCompDesc": "Eine Layoutkomponente, die entwickelt wurde, um sich verschiedenen Bildschirmgrößen und Geräten anzupassen, und so ein konsistentes Benutzererlebnis sicherstellt.",
     "responsiveLayoutCompKeywords": "responsiv, Layout, anpassen, Bildschirmgröße",
 
@@ -1701,7 +1705,7 @@ export const de: typeof en = {
       "sharingCompName": "Bildschirm teilen Stream",
       "videoCompName": "Kamera-Stream",
       "videoSharingCompName": "Bildschirm teilen Stream",
-      "meetingControlCompName": "Steuerungstaste",
+      "meetingControlCompName": "Steuerung Taste",
       "meetingCompDesc": "Meeting-Komponente",
       "meetingCompControls": "Meeting-Kontrolle",
       "meetingCompKeywords": "Agora Meeting, Web-Meeting, Kollaboration",
@@ -2206,7 +2210,7 @@ export const de: typeof en = {
   "profile": {
       ...en.profile,
       "orgSettings": "Arbeitsbereich-Einstellungen",
-      "switchOrg": "Arbeitsbereich wechseln",
+      "switchOrg": "Bereich wechseln",
       "joinedOrg": "Meine Arbeitsbereiche",
       "createOrg": "Arbeitsbereich erstellen",
       "logout": "Abmelden",
@@ -2298,11 +2302,11 @@ export const de: typeof en = {
       "recoverAppSnapshotContent": "Stelle die aktuelle App auf die Version wieder her, die zum Zeitpunkt {time} erstellt wurde.",
       "recoverAppSnapshotMessage": "Diese Version wiederherstellen",
       "returnEdit": "Zurück zur Redaktion",
-      "deploy": "veröffentlichen",
+      "deploy": "Veröffentlichen",
       "export": "Exportieren nach JSON",
       "editName": "Name bearbeiten",
       "duplicate": "Duplizieren {type}",
-      "snapshot": "Geschichte",
+      "snapshot": "Bearbeitungs-Historie",
       "scriptsAndStyles": "Skripte und Stil",
       "appSettings": "App-Einstellungen",
       "preview": "Vorschau",
@@ -2401,6 +2405,7 @@ export const de: typeof en = {
   },
   "home": {
       ...en.home,
+      "profile": "Profil",
       "allApplications": "Alle Apps",
       "allModules": "Alle Module",
       "allFolders": "Alle Ordner",
@@ -2465,13 +2470,13 @@ export const de: typeof en = {
       "allPermissions": "Besitzer",
       "shareLink": "Link teilen: ",
       "copyLink": "Link kopieren",
-      "appPublicMessage": "App veröffentlichen. Auf dem Marktplatz für jeden zu sehen.",
-      "modulePublicMessage": "Module veröffentlichen. Auf dem Marktplatz für jeden zu sehen.",
+      "appPublicMessage": "App veröffentlichen. Die App wird damit für jeden sichtbar.",
+      "modulePublicMessage": "Module veröffentlichen. Das Module wird damit für jeden sichtbar.",
       "appMarketplaceMessage": "Veröffentlichen Sie Ihre App auf dem Lowcoder-Marktplatz. Jeder kann sie dort sehen und kopieren.",
       "moduleMarketplaceMessage": "Veröffentlichen Sie Ihr Modul auf dem Lowcoder-Marktplatz. Jeder kann es dort sehen und kopieren.",
       "marketplaceGoodPublishing": "Bitte stellen Sie sicher, dass Ihre App gut benannt und einfach zu bedienen ist. Entfernen Sie alle sensiblen Informationen vor der Veröffentlichung. Entfernen Sie außerdem lokale Datenquellen und ersetzen Sie sie durch statische, integrierte temporäre Daten.",
       "noMarketplaceApps": "Noch sind keine Anwendungen auf dem Marktplatz.",
-      "memberPermissionList": "Mitgliedschaftsberechtigungen: ",
+      "memberPermissionList": "Berechtigungen: ",
       "orgName": "{orgName} admins",
       "addMember": "Mitglieder hinzufügen",
       "addPermissionPlaceholder": "Bitte gib einen Namen ein, um Mitglieder zu suchen",

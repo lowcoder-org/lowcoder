@@ -31,6 +31,8 @@ public class UserProfileView {
     @JsonProperty(value = "isEnabled")
     private boolean isEnabled;
 
+    private String uiLanguage;
+
     private String avatar;
 
     private String avatarUrl;
