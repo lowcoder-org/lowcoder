@@ -17,6 +17,7 @@ import org.lowcoder.domain.mongodb.AfterMongodbRead;
 import org.lowcoder.domain.mongodb.BeforeMongodbWrite;
 import org.lowcoder.domain.mongodb.MongodbInterceptorContext;
 import org.lowcoder.sdk.config.SerializeConfig;
+import org.lowcoder.sdk.constants.UiConstants;
 import org.lowcoder.sdk.models.HasIdAndAuditing;
 import org.lowcoder.sdk.util.JsonUtils;
 import org.springframework.data.annotation.Transient;
@@ -41,7 +42,8 @@ public class User extends HasIdAndAuditing implements BeforeMongodbWrite, AfterM
 
     private String name;
 
-    private String uiLanguage;
+    @Builder.Default
+    private String uiLanguage = UiConstants.DEFAULT_UI_LANGUAGE;
 
     private String avatar;
 
