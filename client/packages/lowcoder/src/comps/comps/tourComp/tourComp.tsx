@@ -1,13 +1,9 @@
 import { trans } from "i18n";
-import {
-  CommonNameConfig,
-  MultiBaseComp,
-  NameConfig,
-  stringExposingStateControl,
-  UICompBuilder,
-  withExposingConfigs,
-  withMethodExposing
-} from "lowcoder-sdk";
+import { withMethodExposing } from "../../generators/withMethodExposing";
+import { UICompBuilder } from "../../generators";
+import { stringExposingStateControl } from "comps/controls/codeStateControl";
+import { CommonNameConfig, NameConfig, withExposingConfigs } from "../../generators/withExposing";
+import { MultiBaseComp } from "lowcoder-core";
 import { TourChildrenMap, TourPropertyView } from "./tourPropertyView";
 import { Tour, TourProps } from "antd";
 import React, { useContext } from "react";

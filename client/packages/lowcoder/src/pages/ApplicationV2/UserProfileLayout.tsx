@@ -13,10 +13,12 @@ import { getOrgGroups } from "../../redux/selectors/orgSelectors";
 import { useLocation } from "react-router-dom";
 import { useMemo } from "react";
 import history from "util/history";
-import { trans, language } from "../../i18n";
+import { trans, language, languageList } from "../../i18n";
 import { ALL_APPLICATIONS_URL } from "constants/routesURL";
 import { USER_PROFILE_URL } from "constants/routesURL";
 import { default as Divider } from "antd/es/divider";
+
+// import "/node_modules/flag-icons/css/flag-icons.min.css";
 
 import { Avatar, Badge, Button, Card, Col, Row, Space, Typography } from 'antd';
 
@@ -282,7 +284,7 @@ export function UserProfileLayout(props: UserProfileLayoutProps) {
           <Card style={{ marginBottom: "20px" }}>
             <Title level={4}>Settings</Title>
             <Space direction="vertical" size={10}>
-              <Text>UI Language: {language}</Text>
+              <Text>UI Language: {language} <span className="fi fi-gr"></span> <span className="fi fi-gr fis"></span></Text>
             </Space>
           </Card>
 
