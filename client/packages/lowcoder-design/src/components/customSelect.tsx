@@ -21,6 +21,7 @@ const SelectWrapper = styled.div<{ $border?: boolean }>`
     height: 100%;
     align-items: center;
     margin-right: 8px;
+    background-color: #fff;
 
     .ant-select-selection-item {
       display: flex;

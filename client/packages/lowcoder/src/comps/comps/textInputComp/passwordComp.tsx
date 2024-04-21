@@ -26,7 +26,7 @@ import {
 import { withMethodExposing } from "../../generators/withMethodExposing";
 import { styleControl } from "comps/controls/styleControl";
 import styled from "styled-components";
-import { InputLikeStyle, InputLikeStyleType, LabelStyle } from "comps/controls/styleControlConstants";
+import {  InputFieldStyle, InputLikeStyle, InputLikeStyleType, LabelStyle } from "comps/controls/styleControlConstants";
 import {
   hiddenPropertyView,
   minLengthPropertyView,
@@ -57,8 +57,9 @@ let PasswordTmpComp = (function () {
     validationType: dropdownControl(TextInputValidationOptions, "Regex"),
     visibilityToggle: BoolControl.DEFAULT_TRUE,
     prefixIcon: IconControl,
-    style: styleControl(InputLikeStyle),
-    labelStyle: styleControl(LabelStyle)
+    style: styleControl(InputFieldStyle),
+    labelStyle: styleControl(LabelStyle),
+    inputFieldStyle: styleControl(InputLikeStyle)
   };
   return new UICompBuilder(childrenMap, (props) => {
     const [inputProps, validateState] = useTextInputProps(props);
@@ -70,11 +71,12 @@ let PasswordTmpComp = (function () {
           {...inputProps}
           ref={props.viewRef}
           visibilityToggle={props.visibilityToggle}
-          $style={props.style}
+          $style={props.inputFieldStyle}
         />
       ),
       style: props.style,
-      labelStyle:props.labelStyle,
+      labelStyle: props.labelStyle,
+      inputFieldStyle:props.inputFieldStyle,
       ...validateState,
     });
   })
@@ -110,6 +112,7 @@ let PasswordTmpComp = (function () {
             <>
               <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
               <Section name={sectionNames.labelStyle}>{children.labelStyle.getPropertyView()}</Section>
+              <Section name={sectionNames.inputFieldStyle}>{children.inputFieldStyle.getPropertyView()}</Section>
             </>
           )}
         </>

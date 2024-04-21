@@ -30,7 +30,7 @@ import { formDataChildren, FormDataPropertyView } from "../formComp/formDataCons
 import { withMethodExposing, refMethods } from "../../generators/withMethodExposing";
 import { RefControl } from "../../controls/refControl";
 import { styleControl } from "comps/controls/styleControl";
-import { InputLikeStyle, InputLikeStyleType, LabelStyle, heightCalculator, widthCalculator } from "comps/controls/styleControlConstants";
+import {  InputFieldStyle, InputLikeStyle, InputLikeStyleType, LabelStyle, heightCalculator, widthCalculator } from "comps/controls/styleControlConstants";
 import {
   disabledPropertyView,
   hiddenPropertyView,
@@ -257,10 +257,10 @@ const childrenMap = {
   allowNull: BoolControl,
   onEvent: InputEventHandlerControl,
   viewRef: RefControl<HTMLInputElement>,
-  style: styleControl(InputLikeStyle),
+  style: styleControl(InputFieldStyle),
   labelStyle:styleControl(LabelStyle),
   prefixIcon: IconControl,
-
+  inputFieldStyle:styleControl(InputLikeStyle),
   // validation
   required: BoolControl,
   min: UndefinedNumberControl,
@@ -322,7 +322,7 @@ const CustomInputNumber = (props: RecordConstructorToView<typeof childrenMap>) =
       placeholder={props.placeholder}
       stringMode={true}
       precision={props.precision}
-      $style={props.style}
+      $style={props.inputFieldStyle}
       prefix={hasIcon(props.prefixIcon) && props.prefixIcon}
       onPressEnter={() => {
         handleFinish();
@@ -381,7 +381,8 @@ let NumberInputTmpComp = (function () {
       required: props.required,
       children: <CustomInputNumber {...props} />,
       style: props.style,
-      labelStyle:props.labelStyle,
+      labelStyle: props.labelStyle,
+      inputFieldStyle:props.inputFieldStyle,
       ...validate(props),
     });
   })
@@ -435,6 +436,9 @@ let NumberInputTmpComp = (function () {
           </Section>
           <Section name={sectionNames.labelStyle}>
             {children.labelStyle.getPropertyView()}
+          </Section>
+          <Section name={sectionNames.inputFieldStyle}>
+            {children.inputFieldStyle.getPropertyView()}
           </Section>
           </>
         )}
