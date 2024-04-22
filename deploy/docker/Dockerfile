@@ -135,6 +135,10 @@ WORKDIR /lowcoder-client/packages/lowcoder-sdk
 RUN yarn install
 RUN yarn build
 
+WORKDIR /lowcoder-client/packages/lowcoder-sdk-webpack-bundle
+RUN yarn install
+RUN yarn build
+
 ##
 ## Intermediary Lowcoder client image
 ##
@@ -156,6 +160,8 @@ COPY --chown=lowcoder:lowcoder --from=build-client /lowcoder-client/packages/low
 COPY --chown=lowcoder:lowcoder --from=build-client /lowcoder-client/packages/lowcoder-comps/lowcoder-comps /lowcoder/client-comps
 # Copy lowcoder SDK
 COPY --chown=lowcoder:lowcoder --from=build-client /lowcoder-client/packages/lowcoder-sdk /lowcoder/client-sdk
+# Copy lowcoder SDK webpack bundle
+COPY --chown=lowcoder:lowcoder --from=build-client /lowcoder-client/packages/lowcoder-sdk-webpack-bundle/dist /lowcoder/client-embed
 
 
 # Copy additional nginx init scripts
