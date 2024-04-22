@@ -11,7 +11,7 @@ import { genInviteLink } from "util/urlUtils";
 import { HelpText } from "components/HelpText";
 import copyToClipboard from "copy-to-clipboard";
 import { trans } from "i18n";
-import { messageInstance } from "lowcoder-design";
+import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 
 const InviteButton = styled(TacoButton)`
   width: 76px;

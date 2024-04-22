@@ -8,6 +8,7 @@ import { visualizer } from "rollup-plugin-visualizer";
 import path from "path";
 import chalk from "chalk";
 import { createHtmlPlugin } from "vite-plugin-html";
+import dynamicImport from 'vite-plugin-dynamic-import';
 import { ensureLastSlash } from "./src/dev-utils/util";
 import { buildVars } from "./src/dev-utils/buildVars";
 import { globalDepPlugin } from "./src/dev-utils/globalDepPlguin";
@@ -17,9 +18,6 @@ dotenv.config();
 const apiProxyTarget = process.env.LOWCODER_API_SERVICE_URL;
 const nodeServiceApiProxyTarget = process.env.NODE_SERVICE_API_PROXY_TARGET;
 const nodeEnv = process.env.NODE_ENV ?? "development";
-const edition = process.env.REACT_APP_EDITION;
-const isEEGlobal = edition === "enterprise-global";
-const isEE = edition === "enterprise" || isEEGlobal;
 const isDev = nodeEnv === "development";
 const isVisualizerEnabled = !!process.env.ENABLE_VISUALIZER;
 // the file was never created
@@ -61,8 +59,7 @@ export const viteConfig: UserConfig = {
     extensions: [".mjs", ".js", ".ts", ".jsx", ".tsx", ".json"],
     alias: {
       "@lowcoder-ee": path.resolve(
-        __dirname,
-        isEE ? `../lowcoder/src/${isEEGlobal ? "ee-global" : "ee"}` : "../lowcoder/src"
+        __dirname, "../lowcoder/src"
       ),
     },
   },
@@ -78,6 +75,12 @@ export const viteConfig: UserConfig = {
       output: {
         chunkFileNames: "[hash].js",
       },
+      onwarn: (warning, warn) => {
+        if (warning.code === 'MODULE_LEVEL_DIRECTIVE') {
+          return
+        }
+        warn(warning)
+      },
     },
     commonjsOptions: {
       defaultIsModuleExports: (id) => {
@@ -87,6 +90,12 @@ export const viteConfig: UserConfig = {
         return "auto";
       },
     },
+  },
+  optimizeDeps: {
+    entries: ['./src/**/*.{js,jsx,ts,tsx}']
+    // include: ['antd/es/*'],
+    // include: ['antd/**/*'],
+    // force: true,
   },
   css: {
     preprocessorOptions: {
@@ -147,6 +156,7 @@ export const viteConfig: UserConfig = {
       },
     }),
     isVisualizerEnabled && visualizer(),
+    dynamicImport(),
   ].filter(Boolean),
 };
 

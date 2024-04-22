@@ -1,74 +1,28 @@
 package org.lowcoder.domain.query.service;
 
-import static org.lowcoder.sdk.exception.BizError.LIBRARY_QUERY_NOT_FOUND;
-import static org.lowcoder.sdk.util.ExceptionUtils.deferredError;
-
-import java.util.Map;
-
 import org.lowcoder.domain.query.model.BaseQuery;
 import org.lowcoder.domain.query.model.LibraryQuery;
-import org.lowcoder.domain.query.model.LibraryQueryRecord;
-import org.lowcoder.domain.query.repository.LibraryQueryRepository;
-import org.lowcoder.infra.mongo.MongoUpsertHelper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-@Service
-public class LibraryQueryService {
+import java.util.Map;
 
-    @Autowired
-    private LibraryQueryRepository libraryQueryRepository;
+public interface LibraryQueryService {
+    Mono<LibraryQuery> getById(String libraryQueryId);
 
-    @Autowired
-    private LibraryQueryRecordService libraryQueryRecordService;
+    Mono<LibraryQuery> getByName(String libraryQueryName);
 
-    @Autowired
-    private MongoUpsertHelper mongoUpsertHelper;
+    Flux<LibraryQuery> getByOrganizationId(String organizationId);
 
-    public Mono<LibraryQuery> getById(String libraryQueryId) {
-        return libraryQueryRepository.findById(libraryQueryId)
-                .switchIfEmpty(deferredError(LIBRARY_QUERY_NOT_FOUND, "LIBRARY_QUERY_NOT_FOUND"));
-    }
+    Mono<LibraryQuery> insert(LibraryQuery libraryQuery);
 
-    public Mono<LibraryQuery> getByName(String libraryQueryName) {
-        return libraryQueryRepository.findByName(libraryQueryName)
-                .switchIfEmpty(deferredError(LIBRARY_QUERY_NOT_FOUND, "LIBRARY_QUERY_NOT_FOUND"));
-    }
+    Mono<Boolean> update(String libraryQueryId, LibraryQuery libraryQuery);
 
-    public Flux<LibraryQuery> getByOrganizationId(String organizationId) {
-        return libraryQueryRepository.findByOrganizationId(organizationId);
-    }
+    Mono<Void> delete(String libraryQueryId);
 
-    public Mono<LibraryQuery> insert(LibraryQuery libraryQuery) {
-        return libraryQueryRepository.save(libraryQuery);
-    }
+    Mono<BaseQuery> getEditingBaseQueryByLibraryQueryId(String libraryQueryId);
 
-    public Mono<Boolean> update(String libraryQueryId, LibraryQuery libraryQuery) {
-        return mongoUpsertHelper.updateById(libraryQuery, libraryQueryId);
-    }
+    Mono<BaseQuery> getLiveBaseQueryByLibraryQueryId(String libraryQueryId);
 
-    public Mono<Void> delete(String libraryQueryId) {
-        return libraryQueryRepository.deleteById(libraryQueryId);
-    }
-
-    public Mono<BaseQuery> getEditingBaseQueryByLibraryQueryId(String libraryQueryId) {
-        return getById(libraryQueryId).map(LibraryQuery::getQuery);
-    }
-
-    public Mono<BaseQuery> getLiveBaseQueryByLibraryQueryId(String libraryQueryId) {
-        return libraryQueryRecordService.getLatestRecordByLibraryQueryId(libraryQueryId)
-                .map(LibraryQueryRecord::getQuery)
-                .switchIfEmpty(getById(libraryQueryId)
-                        .map(LibraryQuery::getQuery));
-    }
-
-    public Mono<Map<String, Object>> getLiveDSLByLibraryQueryId(String libraryQueryId) {
-        return libraryQueryRecordService.getLatestRecordByLibraryQueryId(libraryQueryId)
-                .map(LibraryQueryRecord::getLibraryQueryDSL)
-                .switchIfEmpty(getById(libraryQueryId)
-                        .map(LibraryQuery::getLibraryQueryDSL));
-    }
+    Mono<Map<String, Object>> getLiveDSLByLibraryQueryId(String libraryQueryId);
 }

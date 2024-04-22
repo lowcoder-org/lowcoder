@@ -1,5 +1,8 @@
 package org.lowcoder.domain.asset.model;
 
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
+import lombok.extern.jackson.Jacksonized;
 import org.lowcoder.sdk.models.HasIdAndAuditing;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.http.MediaType;
@@ -7,20 +10,20 @@ import org.springframework.http.MediaType;
 import com.fasterxml.jackson.annotation.JsonCreator;
 
 @Document
+@Jacksonized
+@SuperBuilder
+@NoArgsConstructor
 public class Asset extends HasIdAndAuditing {
 
-    private final String contentType;
+    private String contentType;
 
-    private final byte[] data;
-
-    @JsonCreator
-    private Asset(String contentType, byte[] data) {
-        this.contentType = contentType;
-        this.data = data;
-    }
+    private byte[] data;
 
     public static Asset from(MediaType mediaType, byte[] data) {
-        return new Asset(mediaType == null ? null : mediaType.toString(), data);
+        return Asset.builder()
+                .contentType(mediaType == null ? null : mediaType.toString())
+                .data(data)
+                .build();
     }
 
     public String getContentType() {

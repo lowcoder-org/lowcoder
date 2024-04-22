@@ -38,6 +38,8 @@ import {
   TreeSelectStyleType,
   widthCalculator,
   heightCalculator,
+  
+  SelectStyle,
 } from "comps/controls/styleControlConstants";
 import { stateComp, withDefault } from "../../generators";
 import {
@@ -56,6 +58,7 @@ import { blurMethod, focusMethod } from "comps/utils/methodUtils";
 
 import { useContext } from "react";
 import { EditorContext } from "comps/editorState";
+import { styleControl } from "@lowcoder-ee/index.sdk";
 
 export const getStyle = (
   style:
@@ -217,6 +220,7 @@ export const SelectChildrenMap = {
   viewRef: RefControl<BaseSelectRef>,
   margin: MarginControl,
   padding: PaddingControl,
+  inputFieldStyle:styleControl(SelectStyle),
   ...SelectInputValidationChildren,
   ...formDataChildren,
 };
@@ -290,6 +294,8 @@ export const SelectPropertyView = (
     defaultValue: { propertyView: (params: ControlParams) => ControlNode };
     value: { propertyView: (params: ControlParams) => ControlNode };
     style: { getPropertyView: () => ControlNode };
+    labelStyle: { getPropertyView: () => ControlNode };
+    inputFieldStyle: { getPropertyView: () => ControlNode };
   }
 ) => (
   <>
@@ -328,10 +334,18 @@ export const SelectPropertyView = (
     {["layout", "both"].includes(
       useContext(EditorContext).editorModeStatus
     ) && (
-      <Section name={sectionNames.style}>
-        {children.style.getPropertyView()}
-      </Section>
-    )}
+        <>
+          <Section name={sectionNames.style}>
+            {children.style.getPropertyView()}
+          </Section>
+          <Section name={sectionNames.labelStyle}>
+            {children.labelStyle.getPropertyView()}
+          </Section>
+          <Section name={sectionNames.inputFieldStyle}>
+            {children.inputFieldStyle.getPropertyView()}
+          </Section>
+        </>
+      )}
   </>
 );
 

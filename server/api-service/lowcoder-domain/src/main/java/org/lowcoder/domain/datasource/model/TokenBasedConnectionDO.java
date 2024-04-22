@@ -2,6 +2,9 @@ package org.lowcoder.domain.datasource.model;
 
 import java.util.Map;
 
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
+import lombok.extern.jackson.Jacksonized;
 import org.lowcoder.sdk.models.HasIdAndAuditing;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -14,6 +17,9 @@ import lombok.Setter;
 @Document(collection = "tokenBasedConnection")
 @Getter
 @Setter
+@Jacksonized
+@SuperBuilder
+@NoArgsConstructor
 public class TokenBasedConnectionDO extends HasIdAndAuditing {
 
     private String datasourceId;

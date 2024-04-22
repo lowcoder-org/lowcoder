@@ -9,8 +9,31 @@ spring:
   main:
     allow-bean-definition-overriding: true
     allow-circular-references: true
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: yourmail@gmail.com
+    password: yourpass
+    properties:
+      mail:
+        smtp:
+          auth: true
+          ssl:
+            enable: false
+          starttls:
+            enable: true
+            required: true
+        transport:
+          protocol: smtp
+
+logging:
+  level:
+    root: info
+    web: debug
 
 server:
+  error:
+    includeStacktrace: ALWAYS
   compression:
     enabled: true
   forward-headers-strategy: NATIVE
@@ -44,8 +67,15 @@ common:
   block-hound-enable: false
   js-executor:
     host: http://127.0.0.1:6060
+  plugin-dirs:
+    - /tmp/plugins
+  super-admin:
+    username: test@lowcoder.pro
+    password: Password@123
   marketplace:
     private-mode: false
+  lowcoder-public-url: http://localhost:8080
+  notifications-email-sender: info@lowcoder.org
 
 material:
   mongodb-grid-fs:

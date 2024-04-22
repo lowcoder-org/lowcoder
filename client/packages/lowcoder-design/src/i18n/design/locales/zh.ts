@@ -18,10 +18,12 @@ export const zh = {
     },
     prop: {
       basic: "基础",
+      resources: "资源",
       interaction: "交互",
       advanced: "高级",
       validation: "验证",
       layout: "布局",
+      labelStyle:"标签样式",
       style: "样式",
       meetings: "会议",
       data: "数据",

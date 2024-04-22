@@ -30,7 +30,7 @@ import { formDataChildren, FormDataPropertyView } from "../formComp/formDataCons
 import { withMethodExposing, refMethods } from "../../generators/withMethodExposing";
 import { RefControl } from "../../controls/refControl";
 import { styleControl } from "comps/controls/styleControl";
-import { InputLikeStyle, InputLikeStyleType, heightCalculator, widthCalculator } from "comps/controls/styleControlConstants";
+import {  InputFieldStyle, InputLikeStyle, InputLikeStyleType, LabelStyle, heightCalculator, widthCalculator } from "comps/controls/styleControlConstants";
 import {
   disabledPropertyView,
   hiddenPropertyView,
@@ -52,6 +52,8 @@ import {
 
 import { useContext } from "react";
 import { EditorContext } from "comps/editorState";
+import { migrateOldData } from "comps/generators/simpleGenerators";
+import { fixOldInputCompData } from "../textInputComp/textInputConstants";
 
 const getStyle = (style: InputLikeStyleType) => {
   return css`
@@ -255,9 +257,10 @@ const childrenMap = {
   allowNull: BoolControl,
   onEvent: InputEventHandlerControl,
   viewRef: RefControl<HTMLInputElement>,
-  style: styleControl(InputLikeStyle),
+  style: styleControl(InputFieldStyle),
+  labelStyle:styleControl(LabelStyle),
   prefixIcon: IconControl,
-
+  inputFieldStyle:styleControl(InputLikeStyle),
   // validation
   required: BoolControl,
   min: UndefinedNumberControl,
@@ -319,7 +322,7 @@ const CustomInputNumber = (props: RecordConstructorToView<typeof childrenMap>) =
       placeholder={props.placeholder}
       stringMode={true}
       precision={props.precision}
-      $style={props.style}
+      $style={props.inputFieldStyle}
       prefix={hasIcon(props.prefixIcon) && props.prefixIcon}
       onPressEnter={() => {
         handleFinish();
@@ -372,12 +375,14 @@ const CustomInputNumber = (props: RecordConstructorToView<typeof childrenMap>) =
   );
 };
 
-const NumberInputTmpComp = (function () {
+let NumberInputTmpComp = (function () {
   return new UICompBuilder(childrenMap, (props) => {
     return props.label({
       required: props.required,
       children: <CustomInputNumber {...props} />,
       style: props.style,
+      labelStyle: props.labelStyle,
+      inputFieldStyle:props.inputFieldStyle,
       ...validate(props),
     });
   })
@@ -425,14 +430,24 @@ const NumberInputTmpComp = (function () {
         )}
 
         {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
+          <>
           <Section name={sectionNames.style}>
             {children.style.getPropertyView()}
           </Section>
+          <Section name={sectionNames.labelStyle}>
+            {children.labelStyle.getPropertyView()}
+          </Section>
+          <Section name={sectionNames.inputFieldStyle}>
+            {children.inputFieldStyle.getPropertyView()}
+          </Section>
+          </>
         )}
       </>
     ))
     .build();
 })();
+
+NumberInputTmpComp = migrateOldData(NumberInputTmpComp, fixOldInputCompData);
 
 const NumberInputTmp2Comp = withMethodExposing(
   NumberInputTmpComp,

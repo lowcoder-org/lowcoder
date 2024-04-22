@@ -1,5 +1,5 @@
 /// <reference types="react" />
-import { ReactNode } from 'react';
+import React, { ReactNode } from 'react';
 
 type EvalMethods = Record<string, Record<string, Function>>;
 type CodeType = undefined | "JSON" | "Function" | "PureJSON";
@@ -613,6 +613,7 @@ declare abstract class MultiBaseComp<ChildrenType extends Record<string, Comp<un
     toJsonValue(): DataType;
     autoHeight(): boolean;
     changeChildAction(childName: string & keyof ChildrenType, value: ConstructorToDataType<new (...params: any) => ChildrenType[typeof childName]>): CompAction<JSONValue>;
+    getRef(): React.RefObject<HTMLDivElement>;
 }
 declare function mergeExtra(e1: ExtraNodeType | undefined, e2: ExtraNodeType): ExtraNodeType;
 

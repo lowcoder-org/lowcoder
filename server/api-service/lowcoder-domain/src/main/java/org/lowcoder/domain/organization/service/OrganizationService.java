@@ -17,9 +17,9 @@ public interface OrganizationService {
     @PossibleEmptyMono
     Mono<Organization> getOrganizationInEnterpriseMode();
 
-    Mono<Organization> create(Organization organization, String creatorUserId);
+    Mono<Organization> create(Organization organization, String creatorUserId, boolean isSuperAdmin);
 
-    Mono<Organization> createDefault(User user);
+    Mono<Organization> createDefault(User user, boolean isSuperAdmin);
 
     Mono<Organization> getById(String id);
 

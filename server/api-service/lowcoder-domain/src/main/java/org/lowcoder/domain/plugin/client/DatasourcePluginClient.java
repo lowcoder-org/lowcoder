@@ -1,13 +1,7 @@
 package org.lowcoder.domain.plugin.client;
 
-import static org.lowcoder.sdk.constants.GlobalContext.REQUEST;
-
-import java.time.Duration;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -19,19 +13,25 @@ import org.lowcoder.sdk.config.CommonConfigHelper;
 import org.lowcoder.sdk.exception.ServerException;
 import org.lowcoder.sdk.models.DatasourceTestResult;
 import org.lowcoder.sdk.models.QueryExecutionResult;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
-
-import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.time.Duration;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+
+import static org.lowcoder.sdk.constants.GlobalContext.REQUEST;
+
 @Slf4j
+@RequiredArgsConstructor
 @Component
 public class DatasourcePluginClient implements NodeServerClient {
 
@@ -44,10 +44,8 @@ public class DatasourcePluginClient implements NodeServerClient {
             .exchangeStrategies(EXCHANGE_STRATEGIES)
             .build();
 
-    @Autowired
-    private CommonConfigHelper commonConfigHelper;
-    @Autowired
-    private NodeServerHelper nodeServerHelper;
+    private final CommonConfigHelper commonConfigHelper;
+    private final NodeServerHelper nodeServerHelper;
 
     private static final String PLUGINS_PATH = "plugins";
     private static final String RUN_PLUGIN_QUERY = "runPluginQuery";
@@ -78,7 +76,7 @@ public class DatasourcePluginClient implements NodeServerClient {
                                 return response.bodyToMono(new ParameterizedTypeReference<>() {
                                 });
                             }
-                            log.error("request /getPluginDynamicConfig error.{},{}", getPluginDynamicConfigRequestDTOS, response.rawStatusCode());
+                            log.error("request /getPluginDynamicConfig error.{},{}", getPluginDynamicConfigRequestDTOS, response.statusCode().value());
                             return Mono.error(new ServerException("get dynamic config error"));
                         })
                         .timeout(Duration.ofSeconds(10))
@@ -105,7 +103,7 @@ public class DatasourcePluginClient implements NodeServerClient {
                                 return response.bodyToMono(new ParameterizedTypeReference<List<DatasourcePluginDefinition>>() {
                                 });
                             }
-                            log.error("request /plugins error.{}", response.rawStatusCode());
+                            log.error("request /plugins error.{}", response.statusCode().value());
                             return Mono.just(Collections.emptyList());
                         })
                         .timeout(Duration.ofSeconds(10))

@@ -44,10 +44,15 @@ export interface UICompManifest {
   categories: readonly UICompCategory[]; // Set to empty to hide from insertion panel
   keywords: string;
   icon: FunctionComponent<React.SVGProps<SVGSVGElement>>;
-  comp: ExposingMultiCompConstructor;
+  comp?: ExposingMultiCompConstructor;
   layoutInfo?: UICompLayoutInfo;
   withoutLoading?: boolean;
+  lazyLoad?: boolean;
+  compName?: string;
+  compPath?: string;
   defaultDataFn?: CompDefaultDataFunction;
+  defaultDataFnName?: string;
+  defaultDataFnPath?: string;
 }
 
 export type UICompType =
@@ -71,6 +76,7 @@ export type UICompType =
   | "switch"
   | "select"
   | "multiSelect"
+  | "step"
   | "cascader"
   | "checkbox"
   | "radio"
@@ -97,6 +103,8 @@ export type UICompType =
   | "form"
   | "jsonSchemaForm"
   | "container"
+  | "pageLayout" // added by Falk Wolsky
+  | "floatTextContainer"
   | "tabbedContainer"
   | "modal"
   | "listView"
@@ -124,7 +132,8 @@ export type UICompType =
   | "comment" //Added By Mousheng
   | "mention" //Added By Mousheng
   | "autocomplete" //Added By Mousheng
-  | "responsiveLayout";
+  | "responsiveLayout"
+  | "tour";
 
 
 export const uiCompRegistry = {} as Record<UICompType | string, UICompManifest>;

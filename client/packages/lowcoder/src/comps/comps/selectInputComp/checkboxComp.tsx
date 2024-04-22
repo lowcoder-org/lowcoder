@@ -15,13 +15,15 @@ import {
 } from "./selectInputConstants";
 import { formDataChildren } from "../formComp/formDataConstants";
 import { styleControl } from "comps/controls/styleControl";
-import { CheckboxStyle, CheckboxStyleType } from "comps/controls/styleControlConstants";
+import { CheckboxStyle, CheckboxStyleType, InputFieldStyle, LabelStyle } from "comps/controls/styleControlConstants";
 import { RadioLayoutOptions, RadioPropertyView } from "./radioCompConstants";
 import { dropdownControl } from "../../controls/dropdownControl";
 import { ValueFromOption } from "lowcoder-design";
 import { EllipsisTextCss } from "lowcoder-design";
 import { trans } from "i18n";
 import { RefControl } from "comps/controls/refControl";
+import { migrateOldData } from "comps/generators/simpleGenerators";
+import { fixOldInputCompData } from "../textInputComp/textInputConstants";
 
 export const getStyle = (style: CheckboxStyleType) => {
   return css`
@@ -62,13 +64,13 @@ export const getStyle = (style: CheckboxStyleType) => {
       &:hover .ant-checkbox-inner, 
       .ant-checkbox:hover .ant-checkbox-inner,
       .ant-checkbox-input + ant-checkbox-inner {
-        background-color:${style.hoverBackground ? style.hoverBackground :'#fff'};
+        background-color:${style.hoverBackground ? style.hoverBackground : '#fff'};
       }
 
       &:hover .ant-checkbox-checked .ant-checkbox-inner, 
       .ant-checkbox:hover .ant-checkbox-inner,
       .ant-checkbox-input + ant-checkbox-inner {
-        background-color:${style.hoverBackground ? style.hoverBackground:'#ffff'};
+        background-color:${style.hoverBackground ? style.hoverBackground : '#ffff'};
       }
 
       &:hover .ant-checkbox-inner,
@@ -126,7 +128,7 @@ const CheckboxGroup = styled(AntdCheckboxGroup) <{
   }}
 `;
 
-const CheckboxBasicComp = (function () {
+let CheckboxBasicComp = (function () {
   const childrenMap = {
     defaultValue: arrayStringExposingStateControl("defaultValue"),
     value: arrayStringExposingStateControl("value"),
@@ -134,10 +136,11 @@ const CheckboxBasicComp = (function () {
     disabled: BoolCodeControl,
     onEvent: ChangeEventHandlerControl,
     options: SelectInputOptionControl,
-    style: styleControl(CheckboxStyle),
+    style: styleControl(InputFieldStyle),
+    labelStyle: styleControl(LabelStyle.filter((style) => ['accent', 'validate'].includes(style.name) === false)),
     layout: dropdownControl(RadioLayoutOptions, "horizontal"),
     viewRef: RefControl<HTMLDivElement>,
-
+    inputFieldStyle:styleControl(CheckboxStyle),
     ...SelectInputValidationChildren,
     ...formDataChildren,
   };
@@ -149,12 +152,14 @@ const CheckboxBasicComp = (function () {
     return props.label({
       required: props.required,
       style: props.style,
+      labelStyle: props.labelStyle,
+      inputFieldStyle:props.inputFieldStyle,
       children: (
         <CheckboxGroup
           ref={props.viewRef}
           disabled={props.disabled}
           value={props.value.value}
-          $style={props.style}
+          $style={props.inputFieldStyle}
           $layout={props.layout}
           options={props.options
             .filter((option) => option.value !== undefined && !option.hidden)
@@ -175,6 +180,8 @@ const CheckboxBasicComp = (function () {
     .setExposeMethodConfigs(selectDivRefMethods)
     .build();
 })();
+
+CheckboxBasicComp = migrateOldData(CheckboxBasicComp, fixOldInputCompData);
 
 export const CheckboxComp = withExposingConfigs(CheckboxBasicComp, [
   new NameConfig("value", trans("selectInput.valueDesc")),

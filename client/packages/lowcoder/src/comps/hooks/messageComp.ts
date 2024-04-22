@@ -4,7 +4,7 @@ import { withExposingConfigs } from "../generators/withExposing";
 import { EvalParamType, ParamsConfig } from "../controls/actionSelector/executeCompTypes";
 import { JSONObject } from "../../util/jsonTypes";
 import { trans } from "i18n";
-import { messageInstance } from "lowcoder-design";
+import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 
 const params: ParamsConfig = [
   { name: "text", type: "string" },

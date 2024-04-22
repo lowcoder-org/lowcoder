@@ -1,17 +1,7 @@
 package org.lowcoder.plugin.snowflake;
 
-import static org.lowcoder.sdk.exception.PluginCommonError.DATASOURCE_GET_STRUCTURE_ERROR;
-
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.Map;
-
-import javax.annotation.Nonnull;
-
+import jakarta.annotation.Nonnull;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.lowcoder.plugin.sql.GeneralSqlExecutor;
 import org.lowcoder.plugin.sql.SqlBasedQueryExecutor;
@@ -26,7 +16,15 @@ import org.lowcoder.sdk.query.QueryVisitorContext;
 import org.lowcoder.sdk.util.ExceptionUtils;
 import org.pf4j.Extension;
 
-import lombok.extern.slf4j.Slf4j;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+import static org.lowcoder.sdk.exception.PluginCommonError.DATASOURCE_GET_STRUCTURE_ERROR;
 
 @SuppressWarnings({"SqlDialectInspection", "SqlNoDataSourceInspection"})
 @Slf4j

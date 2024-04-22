@@ -19,6 +19,8 @@ const SliderBasicComp = (function () {
   return new UICompBuilder(childrenMap, (props) => {
     return props.label({
       style: props.style,
+      labelStyle: props.labelStyle,
+      inputFieldStyle:props.inputFieldStyle,
       children: (
         <SliderWrapper
           onMouseDown={(e: any) => {
@@ -30,8 +32,9 @@ const SliderBasicComp = (function () {
           <SliderStyled
             {...props}
             value={props.value.value}
-            $style={props.style}
+            $style={props.inputFieldStyle}
             style={{margin: 0}}
+            // FALK TODO : vertical={true}
             onChange={(e) => {
               props.value.onChange(e);
               props.onEvent("change");

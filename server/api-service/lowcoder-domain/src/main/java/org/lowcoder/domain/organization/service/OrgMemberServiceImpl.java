@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.Document;
 import org.lowcoder.domain.group.model.GroupMember;
@@ -26,6 +27,7 @@ import org.lowcoder.sdk.config.CommonConfig;
 import org.lowcoder.sdk.config.CommonConfig.Workspace;
 import org.lowcoder.sdk.constants.WorkspaceMode;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
@@ -35,25 +37,16 @@ import reactor.core.publisher.Mono;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class OrgMemberServiceImpl implements OrgMemberService {
 
-    @Autowired
-    private BiRelationService biRelationService;
-
-    @Autowired
-    private GroupMemberService groupMemberService;
-
-    @Autowired
-    private GroupService groupService;
-
-    @Autowired
-    private OrganizationService organizationService;
-
-    @Autowired
-    private CommonConfig commonConfig;
-
-    @Autowired
-    private MongoUpsertHelper mongoUpsertHelper;
+    private final BiRelationService biRelationService;
+    private final GroupMemberService groupMemberService;
+    private final GroupService groupService;
+    @Lazy
+    private final OrganizationService organizationService;
+    private final CommonConfig commonConfig;
+    private final MongoUpsertHelper mongoUpsertHelper;
 
     @Override
     public Flux<OrgMember> getOrganizationMembers(String orgId) {
@@ -243,7 +236,7 @@ public class OrgMemberServiceImpl implements OrgMemberService {
 
     @Override
     public Mono<Void> bulkAddMember(String orgId, Collection<String> userIds, MemberRole memberRole) {
-        List<BiRelation> biRelations = userIds.stream()
+        List<BiRelation> biRelations = (List<BiRelation>)userIds.stream()
                 .map(userId -> BiRelation.builder()
                         .bizType(ORG_MEMBER)
                         .sourceId(orgId)

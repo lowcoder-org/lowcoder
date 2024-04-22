@@ -1,21 +1,9 @@
 package org.lowcoder.api.datasource;
 
-import static org.lowcoder.infra.event.EventType.DATA_SOURCE_CREATE;
-import static org.lowcoder.infra.event.EventType.DATA_SOURCE_DELETE;
-import static org.lowcoder.infra.event.EventType.DATA_SOURCE_PERMISSION_DELETE;
-import static org.lowcoder.infra.event.EventType.DATA_SOURCE_PERMISSION_GRANT;
-import static org.lowcoder.infra.event.EventType.DATA_SOURCE_PERMISSION_UPDATE;
-import static org.lowcoder.infra.event.EventType.DATA_SOURCE_UPDATE;
-import static org.lowcoder.sdk.exception.BizError.INVALID_PARAMETER;
-import static org.lowcoder.sdk.util.ExceptionUtils.ofError;
-import static org.lowcoder.sdk.util.LocaleUtils.getLocale;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
-
-import javax.validation.Valid;
-
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -34,12 +22,20 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
+
+import static org.lowcoder.plugin.api.event.LowcoderEvent.EventType.*;
+import static org.lowcoder.sdk.exception.BizError.INVALID_PARAMETER;
+import static org.lowcoder.sdk.util.ExceptionUtils.ofError;
+import static org.lowcoder.sdk.util.LocaleUtils.getLocale;
 
 @RequiredArgsConstructor
 @RestController
+@Slf4j
 public class DatasourceController implements DatasourceEndpoints
 {
     private final DatasourceStructureService datasourceStructureService;
@@ -134,6 +130,7 @@ public class DatasourceController implements DatasourceEndpoints
                 .map(ResponseView::success);
     }
 
+    @SneakyThrows
     @Override
     public Mono<ResponseView<List<DatasourceView>>> listOrgDataSources(@RequestParam(name = "orgId") String orgId) {
         if (StringUtils.isBlank(orgId)) {
@@ -149,6 +146,7 @@ public class DatasourceController implements DatasourceEndpoints
         if (StringUtils.isBlank(applicationId)) {
             return ofError(BizError.INVALID_PARAMETER, "INVALID_APP_ID");
         }
+
         return datasourceApiService.listAppDataSources(applicationId)
                 .collectList()
                 .map(ResponseView::success);

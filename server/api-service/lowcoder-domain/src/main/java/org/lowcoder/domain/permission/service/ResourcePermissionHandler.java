@@ -1,42 +1,29 @@
 package org.lowcoder.domain.permission.service;
 
-import static java.util.Collections.emptyList;
-import static java.util.Collections.emptyMap;
-import static java.util.Collections.singletonList;
-import static java.util.function.Function.identity;
-import static java.util.stream.Collectors.toMap;
-import static org.lowcoder.sdk.constants.Authentication.isAnonymousUser;
-
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.annotation.Nonnull;
-
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+import jakarta.annotation.Nonnull;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.ListUtils;
 import org.lowcoder.domain.application.model.ApplicationRequestType;
 import org.lowcoder.domain.group.service.GroupMemberService;
 import org.lowcoder.domain.organization.service.OrgMemberService;
-import org.lowcoder.domain.permission.model.ResourceAction;
-import org.lowcoder.domain.permission.model.ResourceHolder;
-import org.lowcoder.domain.permission.model.ResourcePermission;
-import org.lowcoder.domain.permission.model.ResourceRole;
-import org.lowcoder.domain.permission.model.ResourceType;
-import org.lowcoder.domain.permission.model.UserPermissionOnResourceStatus;
+import org.lowcoder.domain.permission.model.*;
 import org.lowcoder.sdk.config.CommonConfig;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-
+import org.springframework.context.annotation.Lazy;
 import reactor.core.publisher.Mono;
 
-abstract class ResourcePermissionHandler {
+import java.util.*;
 
+import static java.util.Collections.*;
+import static java.util.function.Function.identity;
+import static java.util.stream.Collectors.toMap;
+import static org.lowcoder.sdk.constants.Authentication.isAnonymousUser;
+
+abstract class ResourcePermissionHandler implements ResourcePermissionHandlerService {
+
+    @Lazy
     @Autowired
     private ResourcePermissionService resourcePermissionService;
 
@@ -49,9 +36,10 @@ abstract class ResourcePermissionHandler {
     @Autowired
     protected CommonConfig config;
 
+    @Override
     public Mono<Map<String, List<ResourcePermission>>> getAllMatchingPermissions(String userId,
-            Collection<String> resourceIds,
-            ResourceAction resourceAction) {
+                                                                                 Collection<String> resourceIds,
+                                                                                 ResourceAction resourceAction) {
 
         ResourceType resourceType = resourceAction.getResourceType();
 
@@ -66,7 +54,7 @@ abstract class ResourcePermissionHandler {
         return getOrgId(resourceIds.iterator().next())
                 .flatMap(orgId -> orgMemberService.getOrgMember(orgId, userId))
                 .flatMap(orgMember -> {
-                    if (orgMember.isAdmin()) {
+                    if (orgMember.isAdmin() || orgMember.isSuperAdmin()) {
                         return Mono.just(buildAdminPermissions(resourceType, resourceIds, userId));
                     }
                     return getAllMatchingPermissions0(userId, orgMember.getOrgId(), resourceType, resourceIds, resourceAction);
@@ -81,8 +69,9 @@ abstract class ResourcePermissionHandler {
                 });
     }
 
+    @Override
     public Mono<UserPermissionOnResourceStatus> checkUserPermissionStatusOnResource(String userId,
-            String resourceId, ResourceAction resourceAction) {
+                                                                                    String resourceId, ResourceAction resourceAction) {
 
         ResourceType resourceType = resourceAction.getResourceType();
 
@@ -112,7 +101,7 @@ abstract class ResourcePermissionHandler {
         Mono<UserPermissionOnResourceStatus> orgUserPermissionMono = getOrgId(resourceId)
                 .flatMap(orgId -> orgMemberService.getOrgMember(orgId, userId))
                 .flatMap(orgMember -> {
-                    if (orgMember.isAdmin()) {
+                    if (orgMember.isAdmin() || orgMember.isSuperAdmin()) {
                         return Mono.just(UserPermissionOnResourceStatus.success(buildAdminPermission(resourceType, resourceId, userId)));
                     }
                     return getAllMatchingPermissions0(userId, orgMember.getOrgId(), resourceType, Collections.singleton(resourceId), resourceAction)
@@ -221,8 +210,9 @@ abstract class ResourcePermissionHandler {
 
     protected abstract Mono<String> getOrgId(String resourceId);
 
-	public Mono<UserPermissionOnResourceStatus> checkUserPermissionStatusOnApplication(String userId, String resourceId,
-			ResourceAction resourceAction, ApplicationRequestType requestType) 
+	@Override
+    public Mono<UserPermissionOnResourceStatus> checkUserPermissionStatusOnApplication(String userId, String resourceId,
+                                                                                       ResourceAction resourceAction, ApplicationRequestType requestType)
 	{
         ResourceType resourceType = resourceAction.getResourceType();
 

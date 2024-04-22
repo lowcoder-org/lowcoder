@@ -114,7 +114,7 @@ export const en = {
 
   // second part
 
-  
+
   "bottomPanel": {
     "title": "Data Queries",
     "run": "Run",
@@ -135,7 +135,7 @@ export const en = {
     "moduleListTitle": "Modules",
     "pluginListTitle": "Plugins",
     "emptyModules": "Modules are reusable Mikro-Apps. You can embed them in your App.",
-    "searchNotFound": "Can't find the right component? Submit an issue",
+    "searchNotFound": "Can't find the right component?",
     "emptyPlugins": "No Plugins Added",
     "contactUs": "Contact Us",
     "issueHere": "here."
@@ -189,11 +189,28 @@ export const en = {
     "showLabel": "Show Label",
     "showHeader": "Show Header",
     "showBody": "Show Body",
+    "showSider": "Show Sider",
+    "innerSider" : "Inner Sider",
     "showFooter": "Show Footer",
     "maskClosable": "Click Outside to Close",
     "showMask": "Show Mask",
     "textOverflow": "Text Overflow",
     "scrollbar" : "Show Scrollbars",
+    "siderScrollbar" : "Show Scrollbars in Sider",
+    "siderRight" : "Show sider on the Right",
+    "siderWidth" : "Sider Width",
+    "siderWidthTooltip" : "Sider width supports percentages (%) and pixels (px).",
+    "siderCollapsedWidth" : "Sider Collapsed Width",
+    "siderCollapsedWidthTooltip" : "Sider collapsed width supports percentages (%) and pixels (px).",
+    "siderCollapsible" : "Sider Collapsible",
+    "siderCollapsed" : "Sider Collapsed",
+    "contentScrollbar" : "Show Scrollbars in Content",
+    "appID": "App Id",
+    "showApp": "Show an App in the content area",
+    "showAppTooltip": "You can display whole Lowcoder Apps in the content area. Please mind, that for Modules we do not support Inputs, Outputs Events and Methods.",
+    "baseURL": "Lowcoder API Base URL",
+    "horizontal": "Horizontal",
+    "minHorizontalWidth": "Minimum Horizontal Width",
   },
   "autoHeightProp": {
     "auto": "Auto",
@@ -258,7 +275,43 @@ export const en = {
     "throttle": "Throttle for",
     "slowdownTooltip": "Use debounce or throttle to control the frequency of action triggers. Time unit can be 'ms' (millisecond, default) or 's' (second).",
     "notHandledError": "Not Handled",
-    "currentApp": "Current"
+    "currentApp": "Current",
+    "inputEventHandlers": "Input Event Handlers",
+    "inputEventHandlersDesc": "Event Handlers related to User Input",
+    "buttonEventHandlers": "Button Event Handlers",
+    "buttonEventHandlersDesc": "Event Handlers related to Button Clicks",
+    "changeEventHandlers": "Change Event Handlers",
+    "changeEventHandlersDesc": "Event Handlers related to Value Changes",
+    "editedEventHandlers": "Edit Event Handlers",
+    "editedEventHandlersDesc": "Event Handlers related to edited state of Elements",
+    "clickEventHandlers": "Click Event Handlers",
+    "clickEventHandlersDesc": "Event Handlers related to Clicks",
+    "keyDownEventHandlers": "Key Down Event Handlers",
+    "keyDownEventHandlersDesc": "Event Handlers related to Key Down Events",
+    "checkboxEventHandlers": "Checkbox Event Handlers",
+    "checkboxEventHandlersDesc": "Event Handlers related to Checkbox Changes",
+    "dragEventHandlers": "Drag Event Handlers",
+    "dragEventHandlersDesc": "Event Handlers related to Drag and Drop Events",
+    "elementEventHandlers": "Element Event Handlers",
+    "elementEventHandlersDesc": "Event Handlers related to generic Data Element Events",
+    "mediaEventHandlers": "Media Event Handlers",
+    "mediaEventHandlersDesc": "Event Handlers related to Media Events",
+    "scannerEventHandlers": "Scanner Event Handlers",
+    "scannerEventHandlersDesc": "Event Handlers related to Scanner Events",
+    "chartEventHandlers": "Chart Event Handlers",
+    "chartEventHandlersDesc": "Event Handlers related to Chart Events",
+    "geoMapEventHandlers": "Geo Map Event Handlers",
+    "geoMapEventHandlersDesc": "Event Handlers related to Geo Map Events",
+    "stepEventHandlers": "Step Event Handlers",
+    "stepEventHandlersDesc": "Event Handlers related to Step UI Events",
+    "shareEventHandlers": "Share Event Handlers",
+    "shareEventHandlersDesc": "Event Handlers related to Share Events",
+    "selectEventHandlers": "Select Event Handlers",
+    "selectEventHandlersDesc": "Event Handlers related to Select Events",
+    "meetingEventHandlers": "Meeting Event Handlers",
+    "meetingEventHandlersDesc": "Event Handlers related to Meeting Events",
+    "collaborationEventHandlers": "Collaboration Event Handlers",
+    "collaborationEventHandlersDesc": "Event Handlers related to Collaboration Events",
   },
   "event": {
     "submit": "Submit",
@@ -271,6 +324,86 @@ export const en = {
     "blurDesc": "Triggers on Blur",
     "click": "Click",
     "clickDesc": "Triggers on Click",
+    "doubleClick": "Double Click",
+    "doubleClickDesc": "Triggers on Double Click",
+    "rightClick": "Right Click",
+    "rightClickDesc": "Triggers on Right Click",
+    "keyDown": "Key Down",
+    "keyDownDesc": "Triggers on Key Down",
+    "select": "Select",
+    "selectDesc": "Triggers on Select",
+    "checked": "Checked",
+    "checkedDesc": "Triggers when a checkbox is Checked",
+    "unchecked": "Unchecked",
+    "uncheckedDesc": "Triggers when a checkbox is Unchecked",
+    "drag": "Drag",
+    "dragDesc": "Triggers on Drag",
+    "drop": "Drop",
+    "dropDesc": "Triggers on Drop",
+    "open": "Open",
+    "openDesc": "Triggers on Open",
+    "mute": "Mute",
+    "muteDesc": "Triggers on Mute of a Microphone",
+    "unmute": "Unmute",
+    "unmuteDesc": "Triggers on Unmute of a Microphone",
+    "showCamera": "Show Camera",
+    "showCameraDesc": "Triggers when Show Camera is on",
+    "hideCamera": "Hide Camera",
+    "hideCameraDesc": "Triggers when Show Camera is off",
+    "shareScreen": "Share Screen",
+    "shareScreenDesc": "Triggers on Share Screen",
+    "shareScreenEnd": "Share Screen End",
+    "shareScreenEndDesc": "Triggers on Share Screen End",
+    "shareControl": "Share Control",
+    "shareControlDesc": "Triggers on Share Control",
+    "shareControlEnd": "Share Control End",
+    "shareControlEndDesc": "Triggers on Share Control End",
+    "shareContent": "Share Content",
+    "shareContentDesc": "Triggers on Share Content",
+    "shareContentEnd": "Share Content End",
+    "shareContentEndDesc": "Triggers on Share Content End",
+    "meetingStart": "Meeting Start",
+    "meetingStartDesc": "Triggers on Meeting Start",
+    "meetingEnd": "Meeting End",
+    "meetingEndDesc": "Triggers on Meeting End",
+    "meetingJoin": "Meeting Join",
+    "meetingJoinDesc": "Triggers on Meeting Join",
+    "meetingLeave": "Meeting Leave",
+    "meetingLeaveDesc": "Triggers on Meeting Leave",
+    "play": "Play",
+    "playDesc": "Triggers on Play",
+    "pause": "Pause",
+    "pauseDesc": "Triggers on Pause",
+    "ended": "Ended",
+    "endedDesc": "Triggers on Ended",
+    "step": "Step",
+    "stepDesc": "Triggers on Step",
+    "next": "Next",
+    "nextDesc": "Triggers on Next",
+    "finished": "Finished",
+    "finishedDesc": "Triggers on Finished",
+    "saved": "Saved",
+    "savedDesc": "Triggers when an element is Saved",
+    "edited": "Edited",
+    "editedDesc": "Triggers when an element is Edited",
+    "geoMapMove": "Geo Map Move",
+    "geoMapMoveDesc": "Triggers when Users move Geo Map",
+    "geoMapZoom": "Geo Map Zoom",
+    "geoMapZoomDesc": "Triggers when Users zoom Geo Map",
+    "geoMapSelect": "Geo Map Select",
+    "geoMapSelectDesc": "Triggers when Users select an Element on Geo Map",
+    "scannerSuccess": "Scanner Success",
+    "scannerSuccessDesc": "Triggers when a Scanner successfully scans",
+    "scannerError": "Scanner Error",
+    "scannerErrorDesc": "Triggers when a Scanner fails to scan",
+    "chartZoom": "Chart Zoom",
+    "chartZoomDesc": "Triggers on Chart Zoom",
+    "chartHover": "Chart Hover",
+    "chartHoverDesc": "Triggers on Chart Hover",
+    "chartSelect": "Chart Select",
+    "chartSelectDesc": "Triggers on Chart Select",
+    "chartDeselect": "Chart Deselect",
+    "chartDeselectDesc": "Triggers on Chart Deselect",
     "close": "Close",
     "closeDesc": "Triggers on Close",
     "parse": "Parse",
@@ -302,7 +435,7 @@ export const en = {
     "marginDesc": "Default margin typically used for most components",
     "padding": "Padding",
     "paddingDesc": "Default padding typically used for most components",
-    "containerheaderpadding": "Header Padding",
+    "containerHeaderPadding": "Header Padding",
     "containerheaderpaddingDesc": "Default header padding typically used for most components",
     "gridColumns": "Grid Columns",
     "gridColumnsDesc": "Default number of columns typically used for most containers"
@@ -322,8 +455,10 @@ export const en = {
     "border": "Border Color",
     "borderRadius": "Border Radius",
     "borderWidth": "Border Width",
+    "borderStyle":"Border Style",
     "background": "Background",
     "headerBackground": "Header Background",
+    "siderBackground": "Sider Background",
     "footerBackground": "Footer Background",
     "fill": "Fill",
     "track": "Track",
@@ -362,9 +497,10 @@ export const en = {
     "marginRight": "Margin Right",
     "marginTop": "Margin Top",
     "marginBottom": "Margin Bottom",
-    "containerheaderpadding": "Header Padding",
-    "containerfooterpadding": "Footer Padding",
-    "containerbodypadding": "Body Padding",
+    "containerHeaderPadding": "Header Padding",
+    "containerFooterPadding": "Footer Padding",
+    "containerSiderPadding": "Sider Padding",
+    "containerBodyPadding": "Body Padding",
     "minWidth": "Minimum Width",
     "aspectRatio": "Aspect Ratio",
     "textSize": "Text Size",
@@ -701,119 +837,123 @@ export const en = {
     "autoCompleteCompName": "Auto Complete",
     "autoCompleteCompDesc": "An input field that provides suggestions as you type, enhancing user experience and accuracy.",
     "autoCompleteCompKeywords": "suggestions, autocomplete, typing, input",
-    
+
     "inputCompName": "Input",
     "inputCompDesc": "A basic text input field allowing users to enter and edit text.",
     "inputCompKeywords": "text, input, field, edit",
-    
+
     "textAreaCompName": "Text Area",
     "textAreaCompDesc": "A multi-line text input for longer form content, such as comments or descriptions.",
     "textAreaCompKeywords": "multiline, textarea, input, text",
-    
+
     "passwordCompName": "Password",
     "passwordCompDesc": "A secure field for password input, masking the characters for privacy.",
     "passwordCompKeywords": "password, security, input, hidden",
-    
+
     "richTextEditorCompName": "Rich Text Editor",
     "richTextEditorCompDesc": "An advanced text editor supporting rich formatting options like bold, italics, and lists.",
     "richTextEditorCompKeywords": "editor, text, formatting, rich content",
-    
+
     "numberInputCompName": "Number Input",
     "numberInputCompDesc": "A field specifically for numerical input, with controls for incrementing and decrementing values.",
     "numberInputCompKeywords": "number, input, increment, decrement",
-    
+
     "sliderCompName": "Slider",
     "sliderCompDesc": "A graphical slider component for selecting a value or range within a defined scale.",
     "sliderCompKeywords": "slider, range, input, graphical",
-    
+
     "rangeSliderCompName": "Range Slider",
     "rangeSliderCompDesc": "A dual-handle slider to select a range of values, useful for filtering or setting limits.",
     "rangeSliderCompKeywords": "range, slider, dual-handle, filter",
-    
+
     "ratingCompName": "Rating",
     "ratingCompDesc": "A component for capturing user ratings, displayed as stars.",
     "ratingCompKeywords": "rating, stars, feedback, input",
-    
+
     "switchCompName": "Switch",
     "switchCompDesc": "A toggle switch for on/off or yes/no type decisions.",
     "switchCompKeywords": "toggle, switch, on/off, control",
-    
+
     "selectCompName": "Select",
     "selectCompDesc": "A dropdown menu for selecting from a list of options.",
     "selectCompKeywords": "dropdown, select, options, menu",
-    
+
     "multiSelectCompName": "Multiselect",
     "multiSelectCompDesc": "A component that allows selection of multiple items from a dropdown list.",
     "multiSelectCompKeywords": "multiselect, multiple, dropdown, choices",
-    
+
     "cascaderCompName": "Cascader",
     "cascaderCompDesc": "A multi-level dropdown for hierarchical data selection, such as selecting a location.",
     "cascaderCompKeywords": "cascader, hierarchical, dropdown, levels",
-    
+
     "checkboxCompName": "Checkbox",
     "checkboxCompDesc": "A standard checkbox for options that can be selected or deselected.",
     "checkboxCompKeywords": "checkbox, options, select, toggle",
-    
+
     "radioCompName": "Radio",
     "radioCompDesc": "Radio buttons for selecting one option from a set, where only one choice is allowed.",
     "radioCompKeywords": "radio, buttons, select, single choice",
-    
+
     "segmentedControlCompName": "Segmented Control",
     "segmentedControlCompDesc": "A control with segmented options for quickly toggling between multiple choices.",
     "segmentedControlCompKeywords": "segmented, control, toggle, options",
-    
+
+    "stepControlCompName": "Step Control",
+    "stepControlCompDesc": "A control with step options to offer visual guided steps for applications like forms or wizards.",
+    "stepControlCompKeywords": "steps, control, toggle, options",
+
     "fileUploadCompName": "File Upload",
     "fileUploadCompDesc": "A component for uploading files, with support for drag-and-drop and file selection.",
     "fileUploadCompKeywords": "file, upload, drag and drop, select",
-    
+
     "dateCompName": "Date",
     "dateCompDesc": "A date picker component for selecting dates from a calendar interface.",
     "dateCompKeywords": "date, picker, calendar, select",
-    
+
     "dateRangeCompName": "Date Range",
     "dateRangeCompDesc": "A component for selecting a range of dates, useful for booking systems or filters.",
     "dateRangeCompKeywords": "daterange, select, booking, filter",
-    
+
     "timeCompName": "Time",
     "timeCompDesc": "A time selection component for choosing specific times of the day.",
     "timeCompKeywords": "time, picker, select, clock",
-    
+
     "timeRangeCompName": "Time Range",
     "timeRangeCompDesc": "A component for selecting a range of time, often used in scheduling applications.",
     "timeRangeCompKeywords": "timerange, select, scheduling, duration",
-    
+
     "buttonCompName": "Form Button",
     "buttonCompDesc": "A versatile button component for submitting forms, triggering actions, or navigating.",
     "buttonCompKeywords": "button, submit, action, navigate",
-    
+
     "linkCompName": "Link",
     "linkCompDesc": "A hyperlink display component for navigation or linking to external resources.",
     "linkCompKeywords": "link, hyperlink, navigation, external",
-    
+
     "scannerCompName": "Scanner",
     "scannerCompDesc": "A component for scanning barcodes, QR codes, and other similar data.",
     "scannerCompKeywords": "scanner, barcode, QR code, scan",
-    
+
     "dropdownCompName": "Dropdown",
     "dropdownCompDesc": "A dropdown menu for compactly displaying a list of options.",
     "dropdownCompKeywords": "dropdown, menu, options, select",
-    
+
     "toggleButtonCompName": "Toggle Button",
     "toggleButtonCompDesc": "A button that can toggle between two states or options.",
     "toggleButtonCompKeywords": "toggle, button, switch, state",
-    
+
     "textCompName": "Text Display",
     "textCompDesc": "A simple component for displaying static or dynamic text content inclusive Markdown formatting.",
     "textCompKeywords": "text, display, static, dynamic",
-    
+
     "tableCompName": "Table",
     "tableCompDesc": "A rich table component for displaying data in a structured table format, with options for sorting and filtering, tree Data display and extensible Rows.",
     "tableCompKeywords": "table, data, sorting, filtering",
-    
+
     "imageCompName": "Image",
     "imageCompDesc": "A component for displaying images, supporting various formats based on URI or Base64 Data.",
     "imageCompKeywords": "image, display, media, Base64",
-    
+
     "progressCompName": "Progress",
     "progressCompDesc": "A visual indicator of progress, typically used to show the completion status of a task.",
     "progressCompKeywords": "progress, indicator, status, task",
@@ -846,6 +986,10 @@ export const en = {
     "containerCompDesc": "A general-purpose container for layout and organization of UI elements.",
     "containerCompKeywords": "container, layout, organization, UI",
 
+    "floatTextContainerCompName": "Float Text Container",
+    "floatTextContainerCompDesc": "Float Text Container component",
+    "floatTextContainerCompKeywords": "container, layout, text, flow",
+
     "collapsibleContainerCompName": "Collapsible Container",
     "collapsibleContainerCompDesc": "A container that can be expanded or collapsed, ideal for managing content visibility.",
     "collapsibleContainerCompKeywords": "collapsible, container, expand, collapse",
@@ -853,6 +997,10 @@ export const en = {
     "tabbedContainerCompName": "Tabbed Container",
     "tabbedContainerCompDesc": "A container with tabbed navigation for organizing content into separate panels.",
     "tabbedContainerCompKeywords": "tabbed, container, navigation, panels",
+
+    "pageLayoutCompName": "Layout Container",
+    "pageLayoutCompDesc": "A container which offers to create a layout with header, sider, footer and main content areas",
+    "pageLayoutCompKeywords": "layout, container, navigation, pages",
 
     "modalCompName": "Modal",
     "modalCompDesc": "A pop-up modal component for displaying content, alerts, or forms in focus.",
@@ -957,6 +1105,10 @@ export const en = {
     "iconCompName": "Icons",
     "iconCompDesc": "Use various Icons to enhance the visual appeal and user experience of your application.",
     "iconCompKeywords": "Icons, pictograms, symbols, shapes",
+    
+    "tourCompName": "Tour",
+    "tourCompDesc": "A product tour for guiding users.",
+    "tourCompKeywords": "tour, product tour, walkthrough, interactive walkthrough",
   },
 
 
@@ -1105,6 +1257,41 @@ export const en = {
     "optionI": "Option {i}",
     "viewDocs": "View Docs",
     "tip": "The 'item' and 'i' Variables Represent the Value and Index of Each Item in the Data Array"
+  },
+  "stepOptionsControl": {
+    "value": "Value / Key",
+    "valueTooltip": "Step Value must be a number. For the first Step, it must be equal to the initial value. Numbers must be in consistent and ascending order",
+    "title": "Step Title",
+    "subTitle": "Step Subtitle",
+    "description": "Step Description",
+    "status": "Step Status",
+    "icon": "Step Icon",
+  },
+  "step" : {
+    "initialValue": "Start Numbers at",
+    "initialValueTooltip": "Where to start the visual Numbering. Must be 1 or higher.",
+    "valueDesc": "Current Value",
+    "size" : "Steps Size",
+    "sizeSmall" : "Small",
+    "sizeDefault" : "Default",
+    "percent" : "Steps Percent",
+    "type" : "Steps Type",
+    "typeDefault" : "Standard",
+    "typeNavigation" : "Navigation",
+    "typeInline" : "Inline",
+    "direction" : "Steps Direction",
+    "directionVertical" : "Vertical",
+    "directionHorizontal" : "Horizontal",
+    "labelPlacement" : "Steps Label Placement",
+    "status" : "Steps Status",
+    "statusWait" : "Wait",
+    "statusProcess" : "Process",
+    "statusFinish" : "Finish",
+    "statusError" : "Error",
+    "showDots" : "Show Dots instead Symbols",
+    "showIcons" : "Show Icons instead Symbols",
+    "responsive" : "Responsive",
+    "selectable" : "Selectable",
   },
   "radio": {
     "options": "Options",
@@ -1500,7 +1687,10 @@ export const en = {
     "mode": "Select Mode"
   },
   "container": {
-    "title": "Displayed Container Title"
+    "title": "Displayed Container Title",
+    "titleTooltip": "The Title of the Container",
+    "flowWidth": "Content Width",
+    "floatType": "Text Float Type",
   },
   "drawer": {
     "closePosition": "Close Button Placement",
@@ -1584,7 +1774,8 @@ export const en = {
     "oauthProviders": "User Authentication",
     "appUsage": "App Usage Logs",
     "environments": "Environments",
-    "premium": "Premium"
+    "premium": "Premium",
+    "AppUsage": "Global App Usage",
   },
 
 
@@ -1654,13 +1845,19 @@ export const en = {
     "orgName": "Workspace Name"
   },
   "freeLimit": "Free Trial",
+
   "tabbedContainer": {
     "switchTab": "Switch Tab",
     "switchTabDesc": "Triggered When Switching Tabs",
     "tab": "Tabs",
     "atLeastOneTabError": "The Tab Container Keeps at Least One Tab",
     "selectedTabKeyDesc": "Currently Selected Tab",
-    "iconPosition": "Icon Position"
+    "iconPosition": "Icon Position",
+    "placement" : "Tabs Placement",
+    "showTabs": "Show Tabs",
+    "gutter" : "Gap",
+    "gutterTooltip" : "The distance between tabs in px",
+    "tabsCentered" : "Centered Tabs",
   },
   "formComp": {
     "containerPlaceholder": "Drag Components from the Right Pane or",
@@ -2049,6 +2246,7 @@ export const en = {
     "appTitle": "Title",
     "appDescription": "Description",
     "appCategory": "Category",
+    "showPublicHeader": "Show header in public view"
   },
   "customShortcut": {
     "title": "Custom Shortcuts",
@@ -2132,7 +2330,7 @@ export const en = {
 
 
   // eighteenth part
-  
+
 
   "help": {
     "videoText": "Overview",
@@ -2604,7 +2802,7 @@ export const en = {
   "playground": {
     "url": "https://app.lowcoder.cloud/playground/{compType}/1",
     "data": "Current Data State",
-    "preview": "Preview (please mind, that your Editor-Layout/Logic Mode is active here too. You can set it to 'Both' in the App Editor to see all properties here too)",
+    "preview": "Preview",
     "property": "Properties",
     "console": "Visual Script Console",
     "executeMethods": "Execute Methods",
@@ -2673,7 +2871,7 @@ export const en = {
   "timeLine": {
     "titleColor": "Title Color",
     "subTitleColor": "Subtitle Color",
-    "lableColor": "Label Color",
+    "labelColor": "Label Color",
     "value": "Timeline Data",
     "mode": "Display Order",
     "left": "Content Right",
@@ -2694,7 +2892,7 @@ export const en = {
     "helpDot": "Rendering Timeline Nodes as Ant Design Icons",
     "helpTitleColor": "Individually Control the Color of Node Title",
     "helpSubTitleColor": "Individually Control the Color of Node Subtitle",
-    "helpLableColor": "Individually Control the Color of Node Icon",
+    "helpLabelColor": "Individually Control the Color of Node Icon",
     "valueDesc": "Data of Timeline",
     "clickedObjectDesc": "Clicked Item Data",
     "clickedIndexDesc": "Clicked Item Index"
@@ -2784,6 +2982,83 @@ export const en = {
     "widthTooltip": "Pixel or Percentage, e.g. 520, 60%",
     "navStyle": "Menu Style",
     "navItemStyle": "Menu Item Style"
+  },
+
+  tour: { 
+    section1Title: "Steps",
+    section1Subtitle: "Steps",
+    tooltipExampleHeader: "Example:",
+    tooltipSignatureHeader: "Signature:",
+    options: {
+      title: {
+        label: "Title",
+        placeholder: "Welcome",
+        tooltip: "The title of the step. Any HTML is valid here.",
+      },
+      description: {
+        label: "Description",
+        placeholder: "Welcome to lowcoder!",
+        tooltip: "The description of the step. Any HTML is valid here.",
+      },
+      mask: {
+        label: "Mask",
+        tooltip: "Whether to enable masking, change mask style and fill color by pass custom props, the default follows the `mask` property of Tour.",
+        tooltipValidTypes: "Valid input types: `true`, `false`, empty, or a JSON object following the CSSProperties Schema from Antd.",
+      },
+      arrow: {
+        label: "Arrow",
+        tooltip: "Turns the arrow on and off or moves it to point at the center of the component, if desired, otherwise the arrow will always point near the top of the component.",
+        tooltipFunctionSignature: "boolean | { pointAtCenter: boolean }",
+      },
+      type: {
+        label: "Type",
+        tooltip: "The type of tooltip, this affects the background color and text color. The colors can be controlled with the main tour styling section."
+      },
+      target: {
+        label: "Component",
+        tooltip: "The component you want to put the tooltip on, or leave it empty if you simply want a modal in the middle of the screen."
+      },
+      coverImage: {
+        label: "Cover Image URI",
+        tooltip: "A URI for an image you would like to display with the step",
+      }
+    },
+    indicatorsRender: {
+      label: "Indicators Render",
+      tooltip: "Provides a custom indicator for which step you are on",
+      tooltipValidTypes: "Format is a function that accepts two args, `current` and `total` and returns a ReactNode",
+      tooltipFunctionSignatureHeader: "Signature:",
+      tooltipFunctionSignature: "(current: number, total: number) => ReactNode",
+      tooltipExampleHeader: "Example:",
+    },
+    disabledInteraction: {
+      label: "Disable Interaction",
+      tooltip: "Disable interaction in the highlighted area."
+    },
+    mask: {
+      label: "Mask",
+      tooltip: "Whether to enable masking, change mask style and fill color by pass custom props, the default follows the `mask` property of Tour. Can be overridden at the step level.",
+      tooltipValidTypes: "Valid input types: `true`, `false`, empty, or a JSON object following the CSSProperties Schema from Antd.",
+    },
+    placement: {
+      label: "Placement",
+      tooltip: "Position of the guide card relative to the target element. Can be overridden at the step level.",
+      tooltipValidOptions: "Valid options",
+      tooltipValidOptionsAbove: "Above the component:",
+      tooltipValidOptionsLeft: "To the left of the component:",
+      tooltipValidOptionsRight: "To the right of the component:",
+      tooltipValidOptionsBelow: "Below the component:",
+      tooltipValidOptionsOnTop: "On top of the component:",
+    },
+    arrow: {
+      label: "Arrow",
+      tooltip: "Turns the arrow on and off or moves it to point at the center of the component, if desired, otherwise the arrow will always point near the top of the component. Can be overridden at the step level.",
+      tooltipFunctionSignature: "boolean | { pointAtCenter: boolean }",
+    },
+    type: {
+      label: "Type",
+      tooltip: "The type of tooltip, this affects the background color and text color. The colors can be controlled with the main tour styling section. Can be overridden at the step level."
+    },
   },
 
   docUrls: {

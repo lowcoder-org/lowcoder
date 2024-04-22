@@ -20,6 +20,11 @@ public class FolderInfoView {
     private final String folderId;
     private final String parentFolderId;
     private final String name;
+    private final String title;
+    private final String description;
+    private final String category;
+    private final String type;
+    private final String image;
     private final Long createAt;
     private final String createBy;
     private boolean isVisible;

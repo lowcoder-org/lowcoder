@@ -1,13 +1,12 @@
-import { EditorState } from "@codemirror/state";
+import type { EditorState } from "@codemirror/state";
 import { isThemeColorKey } from "api/commonSettingApi";
-import { CodeEditor } from "base/codeEditor";
-import { Language } from "base/codeEditor/codeEditorTypes";
+import type { Language } from "base/codeEditor/codeEditorTypes";
 import { EditorContext } from "comps/editorState";
 import { withDefault } from "comps/generators/simpleGenerators";
 import { CompExposingContext } from "comps/generators/withContext";
 import { exposingDataForAutoComplete } from "comps/utils/exposingTypes";
 import { trans } from "i18n";
-import _ from "lodash";
+import { debounce, trimStart } from "lodash";
 import {
   AbstractComp,
   changeDependName,
@@ -31,11 +30,11 @@ import {
   toHex,
   wrapperToControlItem,
 } from "lowcoder-design";
-import { ReactNode } from "react";
+import { CSSProperties, lazy, ReactNode, Suspense } from "react";
 import {
   showTransform,
   toArrayJSONObject,
-  toBoolean,
+  toBoolean, toBooleanOrCss, toBooleanOrJsonObject,
   toJSONArray,
   toJSONObject,
   toJSONObjectArray,
@@ -54,6 +53,11 @@ import { JSONObject, JSONValue } from "util/jsonTypes";
 import { setFieldsNoTypeCheck, shallowEqual, toType } from "util/objectUtils";
 import { toReadableString } from "util/stringUtils";
 import { ControlLayout, ControlParams } from "./controlParams";
+
+const CodeEditor = lazy(
+  () => import("base/codeEditor/codeEditor")
+    .then(module => ({default: module.CodeEditor}))
+)
 
 interface CodeControlParams<T> extends CodeNodeOptions {
   language?: Language;
@@ -95,7 +99,7 @@ export function codeControl<
       this._exposingNode = withFunction(this._node, (x) => x.value);
 
       // make sure handleChange's reference only changes when the instance changes, avoid CodeEditor frequent reconfigure
-      this.handleChange = _.debounce((state: EditorState) => {
+      this.handleChange = debounce((state: EditorState) => {
         this.dispatchChangeValueAction(state.doc.toString());
       }, 50);
     }
@@ -104,7 +108,7 @@ export function codeControl<
       // need to re-bind handleChange when dispatch changes, otherwise old instance's dispatch is still in use
       const comp = setFieldsNoTypeCheck(this, {
         dispatch,
-        handleChange: _.debounce((state: EditorState) => {
+        handleChange: debounce((state: EditorState) => {
           comp.dispatchChangeValueAction(state.doc.toString());
         }, 50),
       });
@@ -188,7 +192,7 @@ export function codeControl<
           {(editorState) => (
             <CompExposingContext.Consumer>
               {(exposingData) => (
-                <>
+                <Suspense fallback={null}>
                   <CodeEditor
                     {...params}
                     bordered
@@ -209,7 +213,7 @@ export function codeControl<
                     boostExposingData={exposingData}
                     enableClickCompName={editorState?.forceShowGrid}
                   />
-                </>
+                </Suspense>
               )}
             </CompExposingContext.Consumer>
           )}
@@ -270,7 +274,7 @@ function toRegExp(value: unknown): RegExp {
   if (valueType === "RegExp") {
     return value as RegExp;
   } else if (valueType === "string") {
-    const regexStr = _.trimStart(value as string, "^");
+    const regexStr = trimStart(value as string, "^");
     return new RegExp("^" + (regexStr ?? ".*") + "$");
   }
   throw new TypeError(
@@ -314,6 +318,8 @@ export type CodeControlJSONType = ReturnType<typeof tmpFuncForJson>;
 export const StringControl = codeControl<string>(toString);
 export const NumberControl = codeControl<number>(toNumber);
 export const StringOrNumberControl = codeControl<string | number>(toStringOrNumber);
+export const MaskControl = codeControl<boolean | { style?: CSSProperties | undefined; color?: string | undefined; } | undefined>(toBooleanOrCss);
+export const ArrowControl = codeControl<boolean | { pointAtCenter: boolean } | undefined>(toBooleanOrJsonObject);
 
 // rangeCheck, don't support Infinity temporarily
 export class RangeControl {
@@ -501,6 +507,16 @@ export const FunctionControl = codeControl<CodeFunction>(
   },
   { codeType: "Function", evalWithMethods: true }
 );
+
+// export const AlkjdfControl = codeControl<(current: number, total: number)=>ReactNode>(
+//   (value) => {
+//     if (typeof value === "function") {
+//       return value;
+//     }
+//     return (current,total) => (value as (current: number, total: number)=>ReactNode)(current,total);
+//   },
+//   { codeType: "Function", evalWithMethods: true }
+// );
 
 export const TransformerCodeControl = codeControl<JSONValue>(
   (value) => {

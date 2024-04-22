@@ -1,6 +1,7 @@
 package org.lowcoder.domain.datasource.service.impl;
 
 import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.lowcoder.domain.datasource.model.Datasource;
 import org.lowcoder.domain.datasource.model.DatasourceConnectionHolder;
@@ -25,15 +26,13 @@ import java.util.stream.Collectors;
 import static org.lowcoder.domain.plugin.DatasourceMetaInfoConstants.REST_API;
 
 @Primary
+@RequiredArgsConstructor
 @Service
 @Slf4j
 public class DatasourceConnectionPoolFacade implements DatasourceConnectionPool {
 
-    @Autowired
-    private List<DatasourceConnectionPool> pools;
-
-    @Autowired
-    private DatasourceMetaInfoService metaInfoService;
+    private final List<DatasourceConnectionPool> pools;
+    private final DatasourceMetaInfoService metaInfoService;
 
     private Map<Class<? extends DatasourceConnectionPool>, DatasourceConnectionPool> poolMap;
 

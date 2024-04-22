@@ -43,7 +43,6 @@ import {
   AutoCompleteCompIcon,
   IconCompIcon,
   ResponsiveLayoutCompIcon,
-
 } from "lowcoder-design";
 
 export const CompStateIcon: {
@@ -66,6 +65,7 @@ export const CompStateIcon: {
   checkbox: <LeftCheckbox />,
   radio: <LeftRadio />,
   segmentedControl: <LeftSegmentedControl />,
+  step: <LeftSegmentedControl />,
   file: <LeftFile />,
   date: <LeftDate />,
   dateRange: <LeftDate />,
@@ -87,12 +87,14 @@ export const CompStateIcon: {
   form: <LeftForm />,
   jsonSchemaForm: <LeftJsonEditor />,
   container: <LeftContainer />,
+  floatTextContainer: <LeftContainer />,
   meeting: <LeftMeeting />,
   mermaid: <LeftChart />,
   videocomponent: <LeftMeeting />,
   sharingcomponent: <LeftMeeting />,
   controlButton: <LeftButton />,
   tabbedContainer: <LeftContainer />,
+  pageLayout: <LeftContainer />,
   modal: <LeftModal />,
   listView: <LeftListView />,
   grid: <LeftListView />,
@@ -120,5 +122,5 @@ export const CompStateIcon: {
   autocomplete: <AutoCompleteCompIcon />,
   icon: <IconCompIcon />,
   responsiveLayout: <ResponsiveLayoutCompIcon />,
-
+  tour: <LeftSelect />,
 };

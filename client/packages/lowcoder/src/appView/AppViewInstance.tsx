@@ -1,17 +1,22 @@
-import { ApplicationResp } from "api/applicationApi";
+import type { ApplicationResp } from "api/applicationApi";
 import axios from "axios";
-import { RootComp } from "comps/comps/rootComp";
+import type { RootComp } from "comps/comps/rootComp";
 import { setGlobalSettings } from "comps/utils/globalSettings";
 import { sdkConfig } from "constants/sdkConfig";
-import _ from "lodash";
-import { Root } from "react-dom/client";
+import { get, set, isEqual } from "lodash";
+import type { Root } from "react-dom/client";
 import { StyleSheetManager } from "styled-components";
-import { ModuleDSL, ModuleDSLIoInput } from "types/dsl";
-import { AppView } from "./AppView";
+import type { ModuleDSL, ModuleDSLIoInput } from "types/dsl";
 import { API_STATUS_CODES } from "constants/apiConstants";
 import { AUTH_LOGIN_URL } from "constants/routesURL";
 import { AuthSearchParams } from "constants/authConstants";
-import { saveAuthSearchParams } from "@lowcoder-ee/pages/userAuth/authUtils";
+import { saveAuthSearchParams } from "pages/userAuth/authUtils";
+import { Suspense, lazy } from "react";
+
+const AppView = lazy(
+  () => import('./AppView')
+    .then(module => ({default: module.AppView}))
+);
 
 export type OutputChangeHandler<O> = (output: O) => void;
 export type EventTriggerHandler = (eventName: string) => void;
@@ -90,7 +95,7 @@ export class AppViewInstance<I = any, O = any> {
 
     if (this.options.moduleInputs && this.isModuleDSL(finalAppDsl)) {
       const inputsPath = "ui.comp.io.inputs";
-      const nextInputs = _.get(finalAppDsl, inputsPath, []).map((i: ModuleDSLIoInput) => {
+      const nextInputs = get(finalAppDsl, inputsPath, []).map((i: ModuleDSLIoInput) => {
         const inputValue = this.options.moduleInputs[i.name];
         if (inputValue) {
           return {
@@ -103,7 +108,7 @@ export class AppViewInstance<I = any, O = any> {
         }
         return i;
       });
-      _.set(finalAppDsl, inputsPath, nextInputs);
+      set(finalAppDsl, inputsPath, nextInputs);
     }
 
     return {
@@ -128,7 +133,7 @@ export class AppViewInstance<I = any, O = any> {
           return [name, value];
         })
       );
-      if (!_.isEqual(this.prevOutputs, outputValue)) {
+      if (!isEqual(this.prevOutputs, outputValue)) {
         this.prevOutputs = outputValue;
         this.emit("moduleOutputChange", [outputValue]);
       }
@@ -139,14 +144,16 @@ export class AppViewInstance<I = any, O = any> {
     const data = await this.dataPromise;
     this.root.render(
       <StyleSheetManager target={this.node as HTMLElement}>
-        <AppView
-          appId={this.appId}
-          dsl={data.appDsl}
-          moduleDsl={data.moduleDslMap}
-          moduleInputs={this.options.moduleInputs}
-          onCompChange={(comp) => this.handleCompChange(comp)}
-          onModuleEventTriggered={(eventName) => this.emit("moduleEventTriggered", [eventName])}
-        />
+        <Suspense fallback={null}>
+          <AppView
+            appId={this.appId}
+            dsl={data.appDsl}
+            moduleDsl={data.moduleDslMap}
+            moduleInputs={this.options.moduleInputs}
+            onCompChange={(comp) => this.handleCompChange(comp)}
+            onModuleEventTriggered={(eventName) => this.emit("moduleEventTriggered", [eventName])}
+          />
+        </Suspense>
       </StyleSheetManager>
     );
   }

@@ -28,7 +28,7 @@ import { trans } from "i18n";
 import log from "loglevel";
 import { Datasource } from "@lowcoder-ee/constants/datasourceConstants";
 import DataSourceIcon from "components/DataSourceIcon";
-import { messageInstance } from "lowcoder-design";
+import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 
 const OpenDialogButton = styled.span`
   &:hover {

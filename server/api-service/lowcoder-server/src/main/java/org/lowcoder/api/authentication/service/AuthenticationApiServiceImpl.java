@@ -1,5 +1,7 @@
 package org.lowcoder.api.authentication.service;
 
+import jakarta.annotation.Nullable;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -33,14 +35,12 @@ import org.lowcoder.sdk.config.AuthProperties;
 import org.lowcoder.sdk.exception.BizError;
 import org.lowcoder.sdk.exception.BizException;
 import org.lowcoder.sdk.util.CookieHelper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -51,43 +51,24 @@ import static org.lowcoder.sdk.util.ExceptionUtils.deferredError;
 import static org.lowcoder.sdk.util.ExceptionUtils.ofError;
 
 @Service
+@RequiredArgsConstructor
 @Slf4j
 public class AuthenticationApiServiceImpl implements AuthenticationApiService {
 
-    @Autowired
-    private OrgApiService orgApiService;
-
-    @Autowired
-    private OrganizationService organizationService;
-
-    @Autowired
-    private AuthRequestFactory<AuthRequestContext> authRequestFactory;
-
-    @Autowired
-    private AuthenticationService authenticationService;
-
-    @Autowired
-    private UserService userService;
-    @Autowired
-    private InvitationApiService invitationApiService;
-    @Autowired
-    private BusinessEventPublisher businessEventPublisher;
-    @Autowired
-    private SessionUserService sessionUserService;
-    @Autowired
-    private CookieHelper cookieHelper;
-    @Autowired
-    private AuthConfigFactory authConfigFactory;
-    @Autowired
-    private UserApiService userApiService;
-    @Autowired
-    private OrgMemberService orgMemberService;
-
-    @Autowired
-    private JWTUtils jwtUtils;
-
-    @Autowired
-    private AuthProperties authProperties;
+    private final OrgApiService orgApiService;
+    private final OrganizationService organizationService;
+    private final AuthRequestFactory<AuthRequestContext> authRequestFactory;
+    private final AuthenticationService authenticationService;
+    private final UserService userService;
+    private final InvitationApiService invitationApiService;
+    private final BusinessEventPublisher businessEventPublisher;
+    private final SessionUserService sessionUserService;
+    private final CookieHelper cookieHelper;
+    private final AuthConfigFactory authConfigFactory;
+    private final UserApiService userApiService;
+    private final OrgMemberService orgMemberService;
+    private final JWTUtils jwtUtils;
+    private final AuthProperties authProperties;
 
     @Override
     public Mono<AuthUser> authenticateByForm(String loginId, String password, String source, boolean register, String authId, String orgId) {
@@ -149,7 +130,7 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
                     boolean createWorkspace =
                             authUser.getOrgId() == null && StringUtils.isBlank(invitationId) && authProperties.getWorkspaceCreation();
                     if (user.getIsNewUser() && createWorkspace) {
-                        return onUserRegister(user);
+                        return onUserRegister(user, false);
                     }
                     return Mono.empty();
                 })
@@ -166,7 +147,7 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
                 .then(businessEventPublisher.publishUserLoginEvent(authUser.getSource()));
     }
 
-    private Mono<User> updateOrCreateUser(AuthUser authUser, boolean linkExistingUser) {
+    public Mono<User> updateOrCreateUser(AuthUser authUser, boolean linkExistingUser) {
 
         if(linkExistingUser) {
             return sessionUserService.getVisitor()
@@ -256,8 +237,8 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
                 .get();
     }
 
-    protected Mono<Void> onUserRegister(User user) {
-        return organizationService.createDefault(user).then();
+    public Mono<Void> onUserRegister(User user, boolean isSuperAdmin) {
+        return organizationService.createDefault(user, isSuperAdmin).then();
     }
 
     protected Mono<Void> onUserLogin(String orgId, User user, String source) {
@@ -362,7 +343,7 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
     private Mono<Void> checkIfAdmin() {
         return sessionUserService.getVisitorOrgMemberCache()
                 .flatMap(orgMember -> {
-                    if (orgMember.isAdmin()) {
+                    if (orgMember.isAdmin() || orgMember.isSuperAdmin()) {
                         return Mono.empty();
                     }
                     return deferredError(BizError.NOT_AUTHORIZED, "NOT_AUTHORIZED");

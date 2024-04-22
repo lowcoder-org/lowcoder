@@ -9,12 +9,12 @@ import { gridItemCompToGridItems, InnerGrid } from "../containerComp/containerVi
 import { TriContainerViewProps } from "../triContainerComp/triContainerCompBuilder";
 
 const getStyle = (style: ContainerStyleType) => {
-  return css` 
+  return css`
     border-color: ${style.border};
     border-width: ${style.borderWidth};
     border-radius: ${style.radius};
     overflow: hidden;
-    padding: ${style.padding};	
+    padding: ${style.padding};
     ${style.background && `background-color: ${style.background};`}
     ${style.backgroundImage && `background-image: ${style.backgroundImage};`}
     ${style.backgroundImageRepeat && `background-repeat: ${style.backgroundImageRepeat};`}
@@ -33,7 +33,7 @@ const Wrapper = styled.div<{ $style: ContainerStyleType }>`
   ${(props) => props.$style && getStyle(props.$style)}
 `;
 
-const HeaderInnerGrid = styled(InnerGrid)<{ 
+const HeaderInnerGrid = styled(InnerGrid)<{
   $backgroundColor: string
   $headerBackgroundImage: string;
   $headerBackgroundImageRepeat: string;
@@ -140,15 +140,14 @@ export function TriContainer(props: TriContainerProps) {
             $headerBackgroundImageSize={headerStyle?.headerBackgroundImageSize}
             $headerBackgroundImagePosition={headerStyle?.headerBackgroundImagePosition}
             $headerBackgroundImageOrigin={headerStyle?.headerBackgroundImageOrigin}
-            style={{padding: headerStyle.containerheaderpadding}}
+            style={{padding: headerStyle.containerHeaderPadding}}
 
           />
         </BackgroundColorContext.Provider>
       )}
       {showBody && (
         <BackgroundColorContext.Provider value={bodyStyle.background}>
-          {scrollbars ? (
-            <ScrollBar style={{ height: container.autoHeight ? "auto" : "100%", margin: "0px", padding: "0px" }}>
+            <ScrollBar style={{ height: container.autoHeight ? "auto" : "100%", margin: "0px", padding: "0px" }} hideScrollbar={!scrollbars}>
               <BodyInnerGrid
                 $showBorder={showHeader}
                 {...otherBodyProps}
@@ -168,31 +167,9 @@ export function TriContainer(props: TriContainerProps) {
                 $backgroundImageSize={bodyStyle?.backgroundImageSize}
                 $backgroundImagePosition={bodyStyle?.backgroundImagePosition}
                 $backgroundImageOrigin={bodyStyle?.backgroundImageOrigin}
-                style={{padding: bodyStyle.containerbodypadding}}
+                style={{padding: bodyStyle.containerBodyPadding}}
               />
             </ScrollBar>
-            ) : (
-            <BodyInnerGrid
-              $showBorder={showHeader}
-              {...otherBodyProps}
-              items={gridItemCompToGridItems(bodyItems)}
-              autoHeight={container.autoHeight}
-              emptyRows={14}
-              minHeight={showHeader ? "143px" : "142px"}
-              containerPadding={
-                (showHeader && showFooter) || showHeader ? [paddingWidth, 11.5] : [paddingWidth, 11]
-              }
-              hintPlaceholder={props.hintPlaceholder ?? HintPlaceHolder}
-              $backgroundColor={bodyStyle?.background || 'transparent'}
-              $borderColor={style?.border}
-              $borderWidth={style?.borderWidth}
-              $backgroundImage={bodyStyle?.backgroundImage}
-              $backgroundImageRepeat={bodyStyle?.backgroundImageRepeat}
-              $backgroundImageSize={bodyStyle?.backgroundImageSize}
-              $backgroundImagePosition={bodyStyle?.backgroundImagePosition}
-              $backgroundImageOrigin={bodyStyle?.backgroundImageOrigin}
-              style={{padding: bodyStyle.containerbodypadding}}/>
-          )}
         </BackgroundColorContext.Provider>
       )}
       {showFooter && (
@@ -214,7 +191,7 @@ export function TriContainer(props: TriContainerProps) {
             $footerBackgroundImageOrigin={footerStyle?.footerBackgroundImageOrigin}
             $borderColor={style?.border}
             $borderWidth={style?.borderWidth}
-            style={{padding: footerStyle.containerfooterpadding}}
+            style={{padding: footerStyle.containerFooterPadding}}
           />
         </BackgroundColorContext.Provider>
       )}

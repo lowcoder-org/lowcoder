@@ -1,6 +1,6 @@
-import { messageInstance } from "lowcoder-design";
+import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 
-import { RcFile } from "antd/lib/upload/interface";
+import { RcFile } from "antd/es/upload/interface";
 import { Buffer } from "buffer";
 import mime from "mime";
 import { saveAs } from "file-saver";
@@ -48,7 +48,7 @@ export async function saveDataAsFile({ data, filename, fileType, dataType }: Sav
 
   if (dataType === "base64") {
     const blob = new Blob([Buffer.from(data, "base64")], {
-      type: mime + ";charset=utf-16",
+      type: mim + ";charset=utf-16",
     });
     return saveAs(blob, filename, { autoBom: true });
   }

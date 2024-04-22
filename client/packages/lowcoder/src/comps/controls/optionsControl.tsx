@@ -1,5 +1,5 @@
 import { ViewDocIcon } from "assets/icons";
-import { ArrayControl, BoolCodeControl, RadiusControl, StringControl } from "comps/controls/codeControl";
+import { ArrayControl, BoolCodeControl, NumberControl, RadiusControl, StringControl } from "comps/controls/codeControl";
 import { dropdownControl, LeftRightControl } from "comps/controls/dropdownControl";
 import { IconControl } from "comps/controls/iconControl";
 import { MultiCompBuilder, valueComp, withContext, withDefault } from "comps/generators";
@@ -634,3 +634,41 @@ export const ColumnOptionControl = manualOptionsControl(ColumnOption, {
   autoIncField: "id",
 });
 
+let StepOption = new MultiCompBuilder(
+  {
+    value : NumberControl,
+    label: StringControl,
+    subTitle: StringControl,
+    description: StringControl,
+    icon: IconControl,
+    status: StringControl,
+    disabled: BoolCodeControl,
+  },
+  (props) => props
+).build();
+
+StepOption = class extends StepOption implements OptionCompProperty {
+  propertyView(param: { autoMap?: boolean }) {
+    return (
+      <>
+        {this.children.value.propertyView({ label: trans("stepOptionsControl.value"), tooltip: trans("stepOptionsControl.valueTooltip") })}
+        {this.children.label.propertyView({ label: trans("stepOptionsControl.title") })}
+        {this.children.subTitle.propertyView({ label: trans("stepOptionsControl.subTitle") })}
+        {this.children.description.propertyView({ label: trans("stepOptionsControl.description") })}
+        {this.children.icon.propertyView({ label: trans("stepOptionsControl.icon") })}
+        {this.children.status.propertyView({ label: trans("stepOptionsControl.status") })}
+        {disabledPropertyView(this.children)}
+      </>
+    );
+  }
+};
+
+export const StepOptionControl = optionsControl(StepOption, {
+  initOptions: [
+    { value: "1", label: "Step 1", subTitle: "Initialization", description: "Initial setup of parameters.", icon: "/icon:solid/play", status: "finish", disabled: "false" },
+    { value: "2", label: "Step 2", subTitle: "Execution", description: "Execution of the main process.", icon: "/icon:solid/person-running", status: "process", disabled: "false" },
+    { value: "3", label: "Step 3", subTitle: "Finalization", description: "Final steps to complete the process.", icon: "/icon:solid/circle-check", status: "wait", disabled: "true" },
+    { value: "4", label: "Step 4", subTitle: "Completion", description: "Process completed successfully.", status: "wait", disabled: "true" },
+  ],
+  uniqField: "label",
+});

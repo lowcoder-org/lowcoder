@@ -29,6 +29,7 @@ export * from "util/objectUtils";
 export * from "util/objectUtils";
 export * from "util/perfUtils";
 export * from "util/permissionUtils";
+export * from "util/promiseUtils";
 export * from "util/reducerUtils";
 export * from "util/scheduleUtils";
 export * from "util/stringUtils";
@@ -108,7 +109,7 @@ export * from "appView/AppViewInstance";
 export * from "ide/CompIde";
 export * from "ide/CompPlayground";
 
-export * as antd from "antd";
+export * as antd from "antd/es";
 export const styled = { ...styledDefault, ...styledNameExports };
 
 window.numbro = numbro;

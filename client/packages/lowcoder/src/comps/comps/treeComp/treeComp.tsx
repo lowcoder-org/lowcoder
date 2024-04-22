@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 import styled from "styled-components";
 import ReactResizeDetector from "react-resize-detector";
 import { StyleConfigType, styleControl } from "comps/controls/styleControl";
-import { TreeStyle } from "comps/controls/styleControlConstants";
+import {  InputFieldStyle, LabelStyle, TreeStyle } from "comps/controls/styleControlConstants";
 import { LabelControl } from "comps/controls/labelControl";
 import { withDefault } from "comps/generators";
 import { dropdownControl } from "comps/controls/dropdownControl";
@@ -76,11 +76,13 @@ const childrenMap = {
   label: withDefault(LabelControl, { position: "column" }),
   // TODO: more event
   onEvent: SelectEventHandlerControl,
-  style: styleControl(TreeStyle),
+  style: styleControl(InputFieldStyle),
+  labelStyle: styleControl(LabelStyle.filter((style) => ['accent', 'validate'].includes(style.name) === false)),
+  inputFieldStyle:styleControl(TreeStyle)
 };
 
 const TreeCompView = (props: RecordConstructorToView<typeof childrenMap>) => {
-  const { treeData, selectType, value, expanded, checkStrictly, style } = props;
+  const { treeData, selectType, value, expanded, checkStrictly, style, labelStyle } = props;
   const [height, setHeight] = useState<number>();
   const selectable = selectType === "single" || selectType === "multi";
   const checkable = selectType === "check";
@@ -95,15 +97,17 @@ const TreeCompView = (props: RecordConstructorToView<typeof childrenMap>) => {
   return props.label({
     required: props.required,
     ...selectInputValidate(props),
-    style: style,
+    style,
+    labelStyle,
+    inputFieldStyle:props.inputFieldStyle,
     children: (
       <ReactResizeDetector onResize={(w, h) => setHeight(h)}>
-        <Container {...style}>
+        <Container {...props.inputFieldStyle}>
           <Tree
             key={selectType}
             disabled={props.disabled}
             height={height}
-            rootStyle={{ background: "transparent", color: style.text }}
+            rootStyle={{ background: "transparent", color: props.inputFieldStyle.text }}
             fieldNames={{ title: "label", key: "value" }}
             treeData={treeData}
             selectable={selectable}
@@ -166,7 +170,7 @@ let TreeBasicComp = (function () {
             </Section>
           </>
         )}
-      
+
         {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
           <Section name={sectionNames.layout}>
             {children.expanded.propertyView({ label: trans("tree.expanded") })}
@@ -176,10 +180,14 @@ let TreeBasicComp = (function () {
           </Section>
         )}
 
-        {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && ( children.label.getPropertyView() )}
+        {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (children.label.getPropertyView())}
 
         {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
-          <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
+          <>
+            <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
+            <Section name={sectionNames.labelStyle}>{children.labelStyle.getPropertyView()}</Section>
+            <Section name={sectionNames.inputFieldStyle}>{children.inputFieldStyle.getPropertyView()}</Section>
+          </>
         )}
       </>
     ))

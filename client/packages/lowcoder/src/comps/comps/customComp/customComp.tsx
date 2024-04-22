@@ -15,7 +15,6 @@ import { EditorContext } from "comps/editorState";
 
 // TODO: eventually to embedd in container so we have styling?
 // TODO: support different starter templates for different frameworks (react, ANT, Flutter, Angular, etc)
-// TODO: use modern version of ANTd
 
 const defaultModel = {
   name: "{{currentUser.name}}",

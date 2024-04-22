@@ -7,7 +7,7 @@ import { CanvasContainerID } from "constants/domLocators";
 import { trans } from "i18n";
 import React from "react";
 import { DataUIViewProps } from "comps/comps/dateComp/dateUIView";
-import { SwapRightOutlined } from "@ant-design/icons";
+import { default as SwapRightOutlined } from "@ant-design/icons/SwapRightOutlined"
 import { DateRangeUIViewProps } from "comps/comps/dateComp/dateRangeUIView";
 import { DateCompViewProps } from "comps/comps/dateComp/dateComp";
 
@@ -30,6 +30,8 @@ const handleClick = async (
   MobileDatePicker.prompt({
     getContainer: () => document.querySelector(`#${CanvasContainerID}`) || document.body,
     mouseWheel: true,
+    cancelText: trans("cancel"),
+    confirmText: trans("ok"),
     destroyOnClose: true,
     closeOnMaskClick: true,
     min: min.isValid() ? min.toDate() : undefined,

@@ -23,8 +23,9 @@ dependency-reduced-pom.xml
 .run/**
 logs/**
 tmp/**
-/openblocks-server/logs/
 
+# Ignore plugin.properties which are generated dynamically
+**/plugin.properties
 
 # to ignore the node_modeules folder
 node_modules
@@ -34,5 +35,4 @@ package-lock.json
 # test coverage
 coverage-summary.json
 app/client/cypress/locators/Widgets.json
-/openblocks-domain/logs/
 application-lowcoder.yml

@@ -40,7 +40,7 @@ import {
 import { TriContainer } from "../triContainerComp/triContainer";
 import { traverseCompTree } from "../containerBase/utils";
 import { IForm } from "./formDataConstants";
-import { default as Spin } from "antd/es/spin";
+import { default as Spin } from "antd/lib/spin";
 import { BoolControl } from "comps/controls/boolControl";
 import { BottomResTypeEnum } from "types/bottomRes";
 import { BoolCodeControl, JSONObjectControl } from "comps/controls/codeControl";
@@ -55,8 +55,8 @@ import {
 import { trans } from "i18n";
 import log from "loglevel";
 import { DisabledContext } from "comps/generators/uiCompBuilder";
-import { LoadingOutlined } from "@ant-design/icons";
-import { messageInstance } from "lowcoder-design";
+import { default as LoadingOutlined } from "@ant-design/icons/LoadingOutlined";
+import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 import { styled } from "styled-components";
 
 const FormWrapper = styled.div`

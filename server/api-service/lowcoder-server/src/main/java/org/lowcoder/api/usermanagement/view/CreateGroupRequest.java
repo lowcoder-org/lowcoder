@@ -1,6 +1,6 @@
 package org.lowcoder.api.usermanagement.view;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 public class CreateGroupRequest {
 

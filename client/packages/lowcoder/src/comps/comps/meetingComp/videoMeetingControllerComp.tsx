@@ -1,4 +1,4 @@
-import { CloseOutlined } from "@ant-design/icons";
+import { default as CloseOutlined } from "@ant-design/icons/CloseOutlined";
 import { default as Button } from "antd/es/button";
 import { ContainerCompBuilder } from "comps/comps/containerBase/containerCompBuilder";
 import {
@@ -9,7 +9,6 @@ import { AutoHeightControl } from "comps/controls/autoHeightControl";
 import { BoolControl } from "comps/controls/boolControl";
 import { StringControl } from "comps/controls/codeControl";
 import {
-  booleanExposingStateControl,
   BooleanStateControl,
   jsonObjectExposingStateControl,
   stringStateControl,
@@ -18,6 +17,7 @@ import { PositionControl } from "comps/controls/dropdownControl";
 import {
   closeEvent,
   eventHandlerControl,
+  MeetingEventHandlerControl,
 } from "comps/controls/eventHandlerControl";
 import { styleControl } from "comps/controls/styleControl";
 import { DrawerStyle } from "comps/controls/styleControlConstants";
@@ -49,17 +49,17 @@ import { EditorContext } from "comps/editorState";
 // import axios from "axios";
 
 import AgoraRTC, {
-  ICameraVideoTrack,
-  IMicrophoneAudioTrack,
-  IAgoraRTCClient,
-  IAgoraRTCRemoteUser,
-  UID,
-  ILocalVideoTrack,
+  type ICameraVideoTrack,
+  type IMicrophoneAudioTrack,
+  type IAgoraRTCClient,
+  type IAgoraRTCRemoteUser,
+  type UID,
+  type ILocalVideoTrack,
 } from "agora-rtc-sdk-ng";
 
-import { JSONValue, NumberControl } from "@lowcoder-ee/index.sdk";
+import type { JSONValue } from "util/jsonTypes";
 import { getData } from "../listViewComp/listViewUtils";
-import AgoraRTM, { RtmChannel, RtmClient } from "agora-rtm-sdk";
+import type { RtmChannel, RtmClient } from "agora-rtm-sdk";
 
 const EventOptions = [closeEvent] as const;
 
@@ -211,6 +211,7 @@ const sendPeerMessageRtm = (message: any, toId: string) => {
 };
 
 const rtmInit = async (appId: any, uid: any, token: any, channel: any) => {
+  const AgoraRTM = (await import("agora-rtm-sdk")).default;
   rtmClient = AgoraRTM.createInstance(appId);
   let options = {
     uid: String(uid),
@@ -226,6 +227,7 @@ const rtmInit = async (appId: any, uid: any, token: any, channel: any) => {
 const meetingControllerChildren = {
   visible: withDefault(BooleanStateControl, "false"),
   onEvent: eventHandlerControl(EventOptions),
+  onMeetingEvent: MeetingEventHandlerControl,
   width: StringControl,
   height: StringControl,
   autoHeight: AutoHeightControl,
@@ -589,6 +591,7 @@ let MTComp = (function () {
             </Section>
             <Section name={sectionNames.interaction}>
               {children.onEvent.getPropertyView()}
+              {children.onMeetingEvent.getPropertyView()}
             </Section>
           </>
         )}

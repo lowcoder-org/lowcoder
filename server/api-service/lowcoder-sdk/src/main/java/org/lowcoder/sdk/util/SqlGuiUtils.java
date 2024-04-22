@@ -1,18 +1,16 @@
 package org.lowcoder.sdk.util;
 
-import static org.apache.commons.lang3.StringUtils.isBlank;
-import static org.lowcoder.sdk.util.JsonUtils.jsonNodeToObject;
-import static org.lowcoder.sdk.util.JsonUtils.toJson;
+import com.fasterxml.jackson.databind.JsonNode;
+import jakarta.annotation.Nonnull;
+import org.apache.commons.lang3.RandomStringUtils;
+import org.lowcoder.sdk.util.SqlGuiUtils.GuiSqlValue.EscapeSql;
 
 import java.util.Collection;
 import java.util.Map;
 
-import javax.annotation.Nonnull;
-
-import org.apache.commons.lang3.RandomStringUtils;
-import org.lowcoder.sdk.util.SqlGuiUtils.GuiSqlValue.EscapeSql;
-
-import com.fasterxml.jackson.databind.JsonNode;
+import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.lowcoder.sdk.util.JsonUtils.jsonNodeToObject;
+import static org.lowcoder.sdk.util.JsonUtils.toJson;
 
 public final class SqlGuiUtils {
 

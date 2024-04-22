@@ -72,28 +72,30 @@ public class AuthProperties {
         }
         // google
         if (google.isEnable()) {
-            Oauth2SimpleAuthConfig googleConfig = new Oauth2SimpleAuthConfig(
-                    null,
-                    true,
-                    google.isEnableRegister(),
-                    GOOGLE,
-                    GOOGLE_NAME,
-                    google.getClientId(),
-                    google.getClientSecret(),
-                    AuthTypeConstants.GOOGLE);
+            Oauth2SimpleAuthConfig googleConfig = Oauth2SimpleAuthConfig.builder()
+                    .id(null)
+                    .enable(true)
+                    .enableRegister(google.isEnableRegister())
+                    .source(GOOGLE)
+                    .sourceName(GOOGLE_NAME)
+                    .clientId(google.getClientId())
+                    .clientSecret(google.getClientSecret())
+                    .authType(AuthTypeConstants.GOOGLE)
+                    .build();
             authConfigs.add(googleConfig);
         }
         // github
         if (github.isEnable()) {
-            Oauth2SimpleAuthConfig githubConfig = new Oauth2SimpleAuthConfig(
-                    null,
-                    true,
-                    github.isEnableRegister(),
-                    GITHUB,
-                    GITHUB_NAME,
-                    github.getClientId(),
-                    github.getClientSecret(),
-                    AuthTypeConstants.GITHUB);
+            Oauth2SimpleAuthConfig githubConfig = Oauth2SimpleAuthConfig.builder()
+                    .id(null)
+                    .enable(true)
+                    .enableRegister(github.isEnableRegister())
+                    .source(GITHUB)
+                    .sourceName(GITHUB_NAME)
+                    .clientId(github.getClientId())
+                    .clientSecret(github.getClientSecret())
+                    .authType(AuthTypeConstants.GITHUB)
+                    .build();
             authConfigs.add(githubConfig);
         }
         return authConfigs;

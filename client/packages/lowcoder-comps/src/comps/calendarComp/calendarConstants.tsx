@@ -27,8 +27,8 @@ import {
 import { default as Form } from "antd/es/form";
 
 export const Wrapper = styled.div<{
-  $editable: boolean;
-  $style: CalendarStyleType;
+  $editable?: boolean;
+  $style?: CalendarStyleType;
   $theme?: ThemeDetail;
   $left?: number;
 }>`
@@ -635,7 +635,7 @@ export const Wrapper = styled.div<{
   }
 `;
 
-export const Remove = styled.div<{ isList: boolean }>`
+export const Remove = styled.div<{ $isList: boolean }>`
   position: absolute;
   pointer-events: auto;
   top: 0;
@@ -652,21 +652,21 @@ export const Remove = styled.div<{ isList: boolean }>`
 `;
 
 export const Event = styled.div<{
-  bg: string;
+  $bg: string;
   theme: Object;
-  isList: boolean;
-  allDay: boolean;
+  $isList: boolean;
+  $allDay: boolean;
   $style: CalendarStyleType;
 }>`
   height: 100%;
   width: 100%;
   pointer-events: none;
   border-radius: 4px;
-  box-shadow: ${(props) => !props.isList && "0 0 5px 0 rgba(0, 0, 0, 0.15)"};
+  box-shadow: ${(props) => !props.$isList && "0 0 5px 0 rgba(0, 0, 0, 0.15)"};
   border: 1px solid ${(props) => props.$style.border};
-  display: ${(props) => props.isList && "flex"};
+  display: ${(props) => props.$isList && "flex"};
   background-color: ${(props) =>
-    !props.isList && lightenColor(props.$style.background, 0.1)};
+    !props.$isList && lightenColor(props.$style.background, 0.1)};
   overflow: hidden;
   font-size: 13px;
   line-height: 19px;
@@ -682,12 +682,12 @@ export const Event = styled.div<{
     left: 2px;
     top: 2px;
     border-radius: 3px;
-    background-color: ${(props) => props.bg};
+    background-color: ${(props) => props.$bg};
   }
 
   .event-time {
     color: ${(props) =>
-      !props.isList &&
+      !props.$isList &&
       (isDarkColor(props.$style.text)
         ? lightenColor(props.$style.text, 0.2)
         : props.$style.text)};
@@ -696,7 +696,7 @@ export const Event = styled.div<{
     margin-top: 2px;
   }
   .event-title {
-    color: ${(props) => !props.isList && props.$style.text};
+    color: ${(props) => !props.$isList && props.$style.text};
     font-weight: 500;
     margin-left: 15px;
     white-space: pre-wrap;
@@ -763,6 +763,7 @@ export const FormWrapper = styled(Form)`
 
 export type EventType = {
   id?: string;
+  resourceId?: string;
   label?: string;
   title?: string;
   start?: string;
@@ -774,15 +775,28 @@ export type EventType = {
 };
 
 export enum ViewType {
+  YEAR = "multiMonthYear",
   MONTH = "dayGridMonth",
   WEEK = "timeGridWeek",
   DAY = "timeGridDay",
+  DAYLIST = "dayGridDay",
   LIST = "listWeek",
   TIMEGRID = "timeGridDay",
 }
 
-
 export const DefaultWithPremiumViewOptions = [
+  {
+    label: trans("calendar.resourceTimeGridDay"),
+    value: "resourceTimeGridDay",
+  },
+  {
+    label: trans("calendar.timeline"),
+    value: "resourceTimelineDay",
+  },
+  {
+    label: trans("calendar.year"),
+    value: "multiMonthYear",
+  },
   {
     label: trans("calendar.month"),
     value: "dayGridMonth",
@@ -792,8 +806,12 @@ export const DefaultWithPremiumViewOptions = [
     value: "timeGridWeek",
   },
   {
-    label: trans("calendar.timeline"),
-    value: "resourceTimeline",
+    label: trans("calendar.weekdaygrid"),
+    value: "dayGridWeek",
+  },
+  {
+    label: trans("calendar.daygrid"),
+    value: "dayGridDay",
   },
   {
     label: trans("calendar.day"),
@@ -807,12 +825,24 @@ export const DefaultWithPremiumViewOptions = [
 
 export const DefaultWithFreeViewOptions = [
   {
+    label: trans("calendar.year"),
+    value: "multiMonthYear",
+  },
+  {
     label: trans("calendar.month"),
     value: "dayGridMonth",
   },
   {
     label: trans("calendar.week"),
     value: "timeGridWeek",
+  },
+  {
+    label: trans("calendar.weekdaygrid"),
+    value: "dayGridWeek",
+  },
+  {
+    label: trans("calendar.daygrid"),
+    value: "dayGridDay",
   },
   {
     label: trans("calendar.day"),
@@ -871,6 +901,58 @@ export const defaultData = [
     allDay: true,
   },
 ];
+export const resourcesEventsDefaultData = [
+  {
+    id: "1",
+    resourceId: "d1",
+    title: "event 1",
+    start: dayjs().hour(10).minute(0).second(0).format(DATE_TIME_FORMAT),
+    end: dayjs().hour(17).minute(30).second(0).format(DATE_TIME_FORMAT),
+    color: "#079968",
+  },
+  {
+    id: "2",
+    resourceId: "b",
+    title: "event 5",
+    start: dayjs().hour(8).minute(0).second(0).format(DATE_TIME_FORMAT),
+    end: dayjs().hour(16).minute(30).second(0).format(DATE_TIME_FORMAT),
+    color: "#079968",
+  },
+  {
+    id: "3",
+    resourceId: "a",
+    title: "event 3",
+    start: dayjs().hour(12).minute(0).second(0).format(DATE_TIME_FORMAT),
+    end: dayjs().hour(21).minute(30).second(0).format(DATE_TIME_FORMAT),
+    color: "#079968",
+  },
+];
+
+export const resourcesDefaultData = [
+  {
+    id: "a",
+    title: "Auditorium A",
+  },
+  {
+    id: "b",
+    title: "Auditorium B",
+    eventColor: "green",
+  },
+  {
+    id: "d",
+    title: "Auditorium D",
+    children: [
+      {
+        id: "d1",
+        title: "Room D1",
+      },
+      {
+        id: "d2",
+        title: "Room D2",
+      },
+    ],
+  },
+];
 
 export const buttonText = {
   today: trans("calendar.today"),
@@ -884,6 +966,16 @@ export const buttonText = {
 export const headerToolbar = {
   left: "title",
   right: "prev today next dayGridMonth,timeGridWeek,timeGridDay,listWeek",
+};
+
+export const resourceTimeLineHeaderToolbar = {
+  left: "title",
+  right:
+    "prev today next resourceTimelineMonth,resourceTimelineWeek,resourceTimelineDay",
+};
+export const resourceTimeGridHeaderToolbar = {
+  left: "title",
+  right: "prev today next",
 };
 
 const weekHeadContent = (info: DayHeaderContentArg) => {
@@ -930,7 +1022,17 @@ export const slotLabelFormat = [
   {
     hour: "2-digit",
     minute: "2-digit",
-  },
+  }, 
+] as FormatterInput[];
+
+export const slotLabelFormatWeek = [
+  { week: "short" },
+  { hour: "2-digit" }, 
+] as FormatterInput[];
+
+export const slotLabelFormatMonth = [
+  { week: "short" },
+  { weekday: "short" }
 ] as FormatterInput[];
 
 export const viewClassNames = (info: ViewContentArg) => {

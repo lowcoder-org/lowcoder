@@ -1,7 +1,7 @@
 import { Input, Section, sectionNames } from "lowcoder-design";
 import { BoolControl } from "comps/controls/boolControl";
 import { styleControl } from "comps/controls/styleControl";
-import { InputLikeStyle, InputLikeStyleType } from "comps/controls/styleControlConstants";
+import { InputFieldStyle, InputLikeStyle, InputLikeStyleType, LabelStyle, LabelStyleType } from "comps/controls/styleControlConstants";
 import {
   NameConfig,
   NameConfigPlaceHolder,
@@ -11,6 +11,7 @@ import styled from "styled-components";
 import { UICompBuilder } from "../../generators";
 import { FormDataPropertyView } from "../formComp/formDataConstants";
 import {
+  fixOldInputCompData,
   getStyle,
   inputRefMethods,
   TextInputBasicSection,
@@ -30,6 +31,7 @@ import { IconControl } from "comps/controls/iconControl";
 import { hasIcon } from "comps/utils";
 import { InputRef } from "antd/es/input";
 import { RefControl } from "comps/controls/refControl";
+import { migrateOldData } from "comps/generators/simpleGenerators";
 
 import React, { useContext } from "react";
 import { EditorContext } from "comps/editorState";
@@ -38,7 +40,7 @@ import { EditorContext } from "comps/editorState";
  * Input Comp
  */
 
-const InputStyle = styled(Input)<{ $style: InputLikeStyleType }>`
+const InputStyle = styled(Input) <{ $style: InputLikeStyleType }>`
   ${(props) => props.$style && getStyle(props.$style)}
 `;
 
@@ -47,12 +49,14 @@ const childrenMap = {
   viewRef: RefControl<InputRef>,
   showCount: BoolControl,
   allowClear: BoolControl,
-  style: styleControl(InputLikeStyle),
+  style: styleControl(InputFieldStyle),
+  labelStyle: styleControl(LabelStyle),
   prefixIcon: IconControl,
   suffixIcon: IconControl,
+  inputFieldStyle: styleControl(InputLikeStyle),
 };
 
-export const InputComp = new UICompBuilder(childrenMap, (props) => {
+let InputBasicComp = new UICompBuilder(childrenMap, (props) => {
   const [inputProps, validateState] = useTextInputProps(props);
   return props.label({
     required: props.required,
@@ -62,12 +66,14 @@ export const InputComp = new UICompBuilder(childrenMap, (props) => {
         ref={props.viewRef}
         showCount={props.showCount}
         allowClear={props.allowClear}
-        $style={props.style}
+        $style={props.inputFieldStyle}
         prefix={hasIcon(props.prefixIcon) && props.prefixIcon}
         suffix={hasIcon(props.suffixIcon) && props.suffixIcon}
       />
     ),
     style: props.style,
+    labelStyle: props.labelStyle,
+    inputFieldStyle:props.inputFieldStyle,
     ...validateState,
   });
 })
@@ -80,22 +86,26 @@ export const InputComp = new UICompBuilder(childrenMap, (props) => {
         {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
           children.label.getPropertyView()
         )}
-        
+
         {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
           <><TextInputInteractionSection {...children} />
-          <Section name={sectionNames.layout}>{hiddenPropertyView(children)}</Section>
-          <Section name={sectionNames.advanced}>
-            {children.prefixIcon.propertyView({ label: trans("button.prefixIcon") })}
-            {children.suffixIcon.propertyView({ label: trans("button.suffixIcon") })}
-            {children.showCount.propertyView({ label: trans("prop.showCount") })}
-            {allowClearPropertyView(children)}
-            {readOnlyPropertyView(children)}
-          </Section>
-          <TextInputValidationSection {...children} />
+            <Section name={sectionNames.layout}>{hiddenPropertyView(children)}</Section>
+            <Section name={sectionNames.advanced}>
+              {children.prefixIcon.propertyView({ label: trans("button.prefixIcon") })}
+              {children.suffixIcon.propertyView({ label: trans("button.suffixIcon") })}
+              {children.showCount.propertyView({ label: trans("prop.showCount") })}
+              {allowClearPropertyView(children)}
+              {readOnlyPropertyView(children)}
+            </Section>
+            <TextInputValidationSection {...children} />
           </>
         )}
         {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
-          <><Section name={sectionNames.style}>{children.style.getPropertyView()}</Section></>
+          <>
+            <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
+            <Section name={sectionNames.labelStyle}>{children.labelStyle.getPropertyView()}</Section>
+            <Section name={sectionNames.inputFieldStyle}>{children.inputFieldStyle.getPropertyView()}</Section>
+          </>
         )}
       </>
     );
@@ -108,3 +118,8 @@ export const InputComp = new UICompBuilder(childrenMap, (props) => {
     ...TextInputConfigs,
   ])
   .build();
+
+
+const InputComp = migrateOldData(InputBasicComp, fixOldInputCompData);
+
+export { InputComp };

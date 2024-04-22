@@ -6,6 +6,8 @@ import static org.lowcoder.sdk.util.JsonUtils.toJson;
 
 import java.util.Map;
 
+import lombok.Builder;
+import lombok.extern.jackson.Jacksonized;
 import org.apache.commons.collections4.MapUtils;
 import org.lowcoder.sdk.exception.PluginException;
 
@@ -14,18 +16,13 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import lombok.Getter;
 
 @Getter
+@Builder
+@Jacksonized
 public class ClickHouseQueryConfig {
 
     private final String sql;
     private final boolean disablePreparedStatement;
     private final int timeout;
-
-    @JsonCreator
-    private ClickHouseQueryConfig(String sql, boolean disablePreparedStatement, int timeout) {
-        this.sql = sql;
-        this.disablePreparedStatement = disablePreparedStatement;
-        this.timeout = timeout;
-    }
 
     public static ClickHouseQueryConfig from(Map<String, Object> queryConfigs) {
         if (MapUtils.isEmpty(queryConfigs)) {

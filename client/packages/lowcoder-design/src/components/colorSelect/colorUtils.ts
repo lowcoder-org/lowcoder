@@ -1,6 +1,6 @@
 import { colord, extend } from "colord";
 import namesPlugin from "colord/plugins/names";
-import { generate } from "@ant-design/colors";
+import { generate } from "@ant-design/colors/es";
 
 extend([namesPlugin]);
 

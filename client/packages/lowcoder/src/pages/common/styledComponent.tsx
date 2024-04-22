@@ -7,7 +7,7 @@ import _ from "lodash";
 import { useResizeDetector } from "react-resize-detector";
 import { EditorContainerPadding, TopHeaderHeight } from "constants/style";
 import { trans } from "i18n";
-import { messageInstance } from "lowcoder-design";
+import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 
 export const Height100Div = styled.div`
   height: 100%;
