@@ -3,6 +3,7 @@ package org.lowcoder.api.usermanagement;
 import static org.lowcoder.sdk.exception.BizError.INVALID_USER_STATUS;
 import static org.lowcoder.sdk.util.ExceptionUtils.ofError;
 
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.lowcoder.api.authentication.dto.OrganizationDomainCheckResult;
 import org.lowcoder.api.framework.view.ResponseView;
@@ -29,30 +30,17 @@ import org.springframework.web.server.ServerWebExchange;
 
 import reactor.core.publisher.Mono;
 
+@RequiredArgsConstructor
 @RestController
 public class UserController implements UserEndpoints
 {
-
-    @Autowired
-    private SessionUserService sessionUserService;
-
-    @Autowired
-    private UserService userService;
-
-    @Autowired
-    private UserHomeApiService userHomeApiService;
-
-    @Autowired
-    private OrgApiService orgApiService;
-
-    @Autowired
-    private UserStatusService userStatusService;
-
-    @Autowired
-    private UserApiService userApiService;
-
-    @Autowired
-    private CommonConfig commonConfig;
+    private final SessionUserService sessionUserService;
+    private final UserService userService;
+    private final UserHomeApiService userHomeApiService;
+    private final OrgApiService orgApiService;
+    private final UserStatusService userStatusService;
+    private final UserApiService userApiService;
+    private final CommonConfig commonConfig;
 
     @Override
     public Mono<ResponseView<?>> getUserProfile(ServerWebExchange exchange) {
@@ -90,6 +78,9 @@ public class UserController implements UserEndpoints
                     if (StringUtils.isNotBlank(updateUserRequest.getName())) {
                         updateUser.setName(updateUserRequest.getName());
                         updateUser.setHasSetNickname(true);
+                    }
+                    if (StringUtils.isNotBlank(updateUserRequest.getUiLanguage())) {
+                        updateUser.setUiLanguage(updateUserRequest.getUiLanguage());
                     }
                     return userService.update(uid, updateUser);
                 })
