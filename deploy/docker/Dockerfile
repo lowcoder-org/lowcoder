@@ -169,7 +169,10 @@ EXPOSE 3443
 FROM lowcoder-ce-frontend
 LABEL maintainer="lowcoder"
 
-RUN apt update && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y curl ca-certificates gnupg
+RUN apt-get update && apt-get upgrade -y \
+  && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y curl ca-certificates gnupg \
+  && rm -rf /var/cache/apt/lists /var/lib/apt/lists/* /var/log/dpkg.log \
+  && apt-get clean
 
 # Add nodejs repo and keys
 RUN mkdir -p /etc/apt/keyrings \
@@ -197,7 +200,7 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install --no-instal
       nodejs \
       openjdk-17-jdk-headless \
   && npm install -g yarn \
-  && rm -rf /var/cache/apt/lists \
+  && rm -rf /var/cache/apt/lists /var/lib/apt/lists/* /var/log/dpkg.log \
   && mkdir -p /lowcoder/assets \
   && apt-get clean \
   && rm -rf /tmp/*
@@ -213,6 +216,17 @@ COPY --chown=lowcoder:lowcoder deploy/docker/all-in-one/etc /lowcoder/etc
 
 # Add startup script
 COPY --chown=lowcoder:lowcoder deploy/docker/all-in-one/entrypoint.sh /lowcoder/entrypoint.sh
+
+# Fixes for OpenShift compatibility (after all files are copied)
+RUN echo  \
+  && adduser lowcoder root \
+  && mkdir -p /lowcoder-stacks \
+  && for i in /lowcoder-stacks /lowcoder/assets /lowcoder/api-service/logs /lowcoder/etc/supervisord; do \
+       chmod -R g+rw "$i"; \
+       chown -R lowcoder:root "$i"; \
+     done \
+  && chown -R lowcoder:root /var/log \
+  && chmod -R g+rw /run /etc/nginx /var/cache/nginx /var/log
 
 EXPOSE 27017
 EXPOSE 3000
