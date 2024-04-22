@@ -49,6 +49,7 @@ import { SystemWarning } from "./components/SystemWarning";
 import { getBrandingConfig } from "./redux/selectors/configSelectors";
 import { buildMaterialPreviewURL } from "./util/materialUtils";
 import GlobalInstances from 'components/GlobalInstances';
+// import { LanguageProvider } from './i18n/LanguageContext';
 
 const LazyUserAuthComp = React.lazy(() => import("pages/userAuth"));
 const LazyInviteLanding = React.lazy(() => import("pages/common/inviteLanding"));
@@ -213,7 +214,7 @@ export function bootstrap() {
   const root = createRoot(container!);
   root.render(
     <Provider store={reduxStore}>
-      <AppIndexWithProps />
+        <AppIndexWithProps />
     </Provider>
   );
 }

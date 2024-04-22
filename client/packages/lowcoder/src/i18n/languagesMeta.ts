@@ -1,7 +1,14 @@
+import {
+    Flag_de, 
+    Flag_gb, 
+    Flag_it, 
+    Flag_cn
+  } from "lowcoder-design";
+
 // Define the structure for a single language's metadata
 export interface LanguageMeta {
     languageName: string;
-    flag: string;
+    flag: React.FC<React.SVGProps<SVGSVGElement>>;
   }
   
   // Define the structure for the container of all language metadatas
@@ -13,19 +20,19 @@ export interface LanguageMeta {
   export const languagesMetadata: LanguagesMetadata = {
     en: {
       languageName: "English",
-      flag: "/flags/en.png"
+      flag: Flag_gb
     },
     de: {
       languageName: "Deutsch",
-      flag: "/flags/de.png"
+      flag: Flag_de
     },
     it: {
       languageName: "Italiano",
-      flag: "/flags/it.png"
+      flag: Flag_it
     },
     zh: {
       languageName: "中文",
-      flag: "/flags/zh.png"
+      flag: Flag_cn
     }
   };
   

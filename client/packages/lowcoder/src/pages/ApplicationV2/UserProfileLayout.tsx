@@ -1,3 +1,5 @@
+import React from 'react';
+import CountUp from 'react-countup';
 import { useSelector } from "react-redux";
 import styled from "styled-components";
 import dayjs from "dayjs";
@@ -18,9 +20,7 @@ import { ALL_APPLICATIONS_URL } from "constants/routesURL";
 import { USER_PROFILE_URL } from "constants/routesURL";
 import { default as Divider } from "antd/es/divider";
 
-// import "/node_modules/flag-icons/css/flag-icons.min.css";
-
-import { Avatar, Badge, Button, Card, Col, Row, Space, Typography } from 'antd';
+import { Avatar, Badge, Button, Card, Col, Row, Space, Typography, Select } from 'antd';
 
 import {
   BlurFinishInput,
@@ -32,6 +32,7 @@ import {
   HomeModuleIcon,
   MarketplaceIcon,
   AppsIcon,
+  Flag_de, Flag_gb, Flag_it, Flag_cn
 } from "lowcoder-design";
 
 import { useDispatch } from "react-redux";
@@ -41,9 +42,8 @@ import { default as Upload, UploadChangeParam } from "antd/es/upload";
 import { USER_HEAD_UPLOAD_URL } from "constants/apiConstants";
 import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 
-import CountUp from 'react-countup';
-
 const { Text, Title, Link } = Typography;
+const { Option } = Select;
 
 const Wrapper = styled.div`
   display: flex;
@@ -169,9 +169,8 @@ export function UserProfileLayout(props: UserProfileLayoutProps) {
   );
 
   const currentPath = useLocation().pathname;
-
-
   const dispatch = useDispatch();
+
   const handleUploadChange = (info: UploadChangeParam) => {
     if (info.file.status === "done") {
       getBase64(info.file.originFileObj, (imageUrl: string) => {
@@ -181,6 +180,15 @@ export function UserProfileLayout(props: UserProfileLayoutProps) {
     if (info.file.status === "error") {
       messageInstance.error(trans("profile.uploadError"));
     }
+  };
+
+  // change language for the app directly
+  // const { language, changeLanguage } = useLanguage();
+
+  // persist the language change to the user
+  const handleLanguageChange = (newLanguage: string) => {
+    // changeLanguage(newLanguage);
+    dispatch(updateUserAction({ uiLanguage: newLanguage }));
   };
 
   if (!user.currentOrgId) {
@@ -274,7 +282,7 @@ export function UserProfileLayout(props: UserProfileLayoutProps) {
 
           <Card style={{ marginBottom: "20px" }}>
             <Title level={4}>About</Title>
-            <Space direction="horizontal" size={10}>
+            <Space direction="horizontal" size={10} wrap={true}>
               <Text>User-ID: {user.id}</Text> | 
               <Text>Created At: {dayjs(user.createdTimeMs).format("YYYY-MM-DD HH:mm:ss")}</Text> | 
               <Text>Current Organization: {currentOrg?.name}</Text>
@@ -284,14 +292,29 @@ export function UserProfileLayout(props: UserProfileLayoutProps) {
           <Card style={{ marginBottom: "20px" }}>
             <Title level={4}>Settings</Title>
             <Space direction="vertical" size={10}>
-              <Text>UI Language: {language} <span className="fi fi-gr"></span> <span className="fi fi-gr fis"></span></Text>
+              <Text>UI Language:</Text>
+              <Select
+                defaultValue={language}
+                style={{ width: 200 }}
+                onChange={handleLanguageChange}
+                showSearch
+              >
+                {languageList.map(lang => (
+                  <Option key={lang.languageCode} value={lang.languageCode}>
+                    <Space>
+                      <lang.flag width={"16px"}/>
+                      {lang.languageName}
+                    </Space>
+                  </Option>
+                ))}
+              </Select>
             </Space>
           </Card>
 
           <Card style={{ marginBottom: "20px" }}>
             <Title level={4}>Info</Title>
             <Space direction="horizontal" size={10}>
-              <Row gutter={[24,24]} style={{ }} wrap={false}>
+              <Row gutter={[24,24]}>
                 <Col xs={24} sm={12} xl={6} style={{marginBottom: "20px", minWidth: "300px"}} span={8}>
                     <Card hoverable>
                         <div style={{ display: "flex", justifyContent: "space-between" }}>

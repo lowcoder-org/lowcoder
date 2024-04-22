@@ -1,12 +1,14 @@
 import { getI18nObjects, Translator } from "lowcoder-core";
 import * as localeData from "./locales";
 import { I18nObjects } from "./locales/types";
-import { languagesMetadata } from "./languagesMeta"; // Import the metadata
+import { languagesMetadata } from "./languagesMeta";
+import { useSelector } from "react-redux";
+
 
 export const { trans, transToNode, language } = new Translator<typeof localeData.en>(
   localeData,
   REACT_APP_LANGUAGES,
-  ['de']
+  ["de"]
 );
 export const i18nObjs = getI18nObjects<I18nObjects>(localeData, REACT_APP_LANGUAGES);
 
