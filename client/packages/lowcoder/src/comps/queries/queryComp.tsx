@@ -8,7 +8,7 @@ import DataSourceIcon from "components/DataSourceIcon";
 import { SimpleNameComp } from "comps/comps/simpleNameComp";
 import { StringControl } from "comps/controls/codeControl";
 import { eventHandlerControl } from "comps/controls/eventHandlerControl";
-import { EditorContext, EditorState } from "comps/editorState";
+import { EditorState } from "comps/editorState";
 import {
   stateComp,
   valueComp,
@@ -43,7 +43,7 @@ import {
   wrapActionExtraInfo,
 } from "lowcoder-core";
 import { ValueFromOption } from "lowcoder-design";
-import { ReactNode, useContext, useEffect } from "react";
+import { ReactNode, useEffect } from "react";
 import {
   BottomResComp,
   BottomResCompResult,
@@ -271,12 +271,10 @@ interface QueryViewProps {
 }
 
 function QueryView(props: QueryViewProps) {
-  const editorState = useContext(EditorContext);
   const { comp } = props;
 
   useEffect(() => {
     // Automatically load when page load
-
     if (
       getTriggerType(comp) === "automatic" &&
       (comp as any).isDepReady &&
