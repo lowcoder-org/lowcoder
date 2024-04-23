@@ -62,6 +62,20 @@ const chartModeOptions = [
   },
 ] as const;
 
+const mapModeOptions = [
+  {
+    label: "Map",
+    value: "map",
+  },
+] as const;
+
+const eChartModeOptions = [
+  {
+    label: "ECharts JSON",
+    value: "json",
+  },
+] as const;
+
 export const UIEventOptions = [
   {
     label: trans("chart.select"),
@@ -285,7 +299,6 @@ export type NonUIChartDataType = {
 }
 
 export const chartChildrenMap = {
-  mode: dropdownControl(chartModeOptions, "ui"),
   selectedPoints: stateComp<Array<UIChartDataType>>([]),
   lastInteractionData: stateComp<Array<UIChartDataType> | NonUIChartDataType>({}),
   onEvent: eventHandlerControl([clickEvent] as const),
