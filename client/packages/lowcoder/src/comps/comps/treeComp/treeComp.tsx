@@ -101,45 +101,49 @@ const TreeCompView = (props: RecordConstructorToView<typeof childrenMap>) => {
     labelStyle,
     inputFieldStyle:props.inputFieldStyle,
     children: (
-      <ReactResizeDetector onResize={(w, h) => setHeight(h)}>
-        <Container {...props.inputFieldStyle}>
-          <Tree
-            key={selectType}
-            disabled={props.disabled}
-            height={height}
-            rootStyle={{ background: "transparent", color: props.inputFieldStyle.text }}
-            fieldNames={{ title: "label", key: "value" }}
-            treeData={treeData}
-            selectable={selectable}
-            multiple={selectType === "multi"}
-            selectedKeys={selectable ? value.value : []}
-            checkable={checkable}
-            checkedKeys={
-              checkable
-                ? checkStrictly
-                  ? { checked: value.value, halfChecked: [] }
-                  : value.value
-                : undefined
-            }
-            checkStrictly={checkStrictly}
-            showLine={props.showLine ? { showLeafIcon: props.showLeafIcon } : false}
-            expandedKeys={expanded.value}
-            autoExpandParent={props.autoExpandParent}
-            onSelect={(keys) => {
-              value.onChange(keys as (string | number)[]);
-              props.onEvent("change");
-            }}
-            onCheck={(keys) => {
-              value.onChange(Array.isArray(keys) ? keys as (string | number)[] : keys.checked as (string | number)[]);
-              props.onEvent("change");
-            }}
-            onExpand={(keys) => {
-              expanded.onChange(keys as (string | number)[]);
-            }}
-            onFocus={() => props.onEvent("focus")}
-            onBlur={() => props.onEvent("blur")}
-          />
+      <ReactResizeDetector
+        onResize={(w, h) => setHeight(h)}
+        render={() => (
+          <Container {...props.inputFieldStyle}>
+            <Tree
+              key={selectType}
+              disabled={props.disabled}
+              height={height}
+              rootStyle={{ background: "transparent", color: props.inputFieldStyle.text }}
+              fieldNames={{ title: "label", key: "value" }}
+              treeData={treeData}
+              selectable={selectable}
+              multiple={selectType === "multi"}
+              selectedKeys={selectable ? value.value : []}
+              checkable={checkable}
+              checkedKeys={
+                checkable
+                  ? checkStrictly
+                    ? { checked: value.value, halfChecked: [] }
+                    : value.value
+                  : undefined
+              }
+              checkStrictly={checkStrictly}
+              showLine={props.showLine ? { showLeafIcon: props.showLeafIcon } : false}
+              expandedKeys={expanded.value}
+              autoExpandParent={props.autoExpandParent}
+              onSelect={(keys) => {
+                value.onChange(keys as (string | number)[]);
+                props.onEvent("change");
+              }}
+              onCheck={(keys) => {
+                value.onChange(Array.isArray(keys) ? keys as (string | number)[] : keys.checked as (string | number)[]);
+                props.onEvent("change");
+              }}
+              onExpand={(keys) => {
+                expanded.onChange(keys as (string | number)[]);
+              }}
+              onFocus={() => props.onEvent("focus")}
+              onBlur={() => props.onEvent("blur")}
+            />
         </Container>
+        )}
+      >
       </ReactResizeDetector>
     ),
   });
