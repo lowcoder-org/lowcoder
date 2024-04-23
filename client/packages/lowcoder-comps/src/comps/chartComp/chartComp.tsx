@@ -28,6 +28,7 @@ import {
   ThemeContext,
   chartColorPalette,
   getPromiseAfterDispatch,
+  dropdownControl
 } from "lowcoder-sdk";
 import { getEchartsLocale, trans } from "i18n/comps";
 import { ItemColorComp } from "comps/chartComp/chartConfigs/lineChartConfig";
@@ -42,8 +43,15 @@ import log from "loglevel";
 
 let clickEventCallback = () => {};
 
+const chartModeOptions = [
+  {
+    label: trans("chart.UIMode"),
+    value: "ui",
+  }
+] as const;
+
 let ChartTmpComp = (function () {
-  return new UICompBuilder(chartChildrenMap, () => null)
+  return new UICompBuilder({mode:dropdownControl(chartModeOptions,'ui'),...chartChildrenMap}, () => null)
     .setPropertyViewFn(chartPropertyView)
     .build();
 })();
