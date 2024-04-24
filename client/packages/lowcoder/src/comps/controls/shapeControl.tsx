@@ -4,6 +4,7 @@ import {
   iconWidgetClass,
 } from "base/codeEditor/extensions/iconExtension";
 import { i18nObjs, trans } from "i18n";
+import { Coolshape } from "coolshapes-react";
 import {
   AbstractComp,
   CompAction,
@@ -34,7 +35,6 @@ import styled from "styled-components";
 import { setFieldsNoTypeCheck } from "util/objectUtils";
 import { StringControl } from "./codeControl";
 import { ControlParams } from "./controlParams";
-import { log } from "console";
 
 const ButtonWrapper = styled.div`
   width: 100%;
@@ -81,6 +81,11 @@ const IconPicker = (props: {
   IconType?: "OnlyAntd" | "All" | "default" | undefined;
 }) => {
   const icon = useShape(props.value);
+  console.log(props);
+  let shapeDetails = props.value;
+  console.log("shapeDetails ", shapeDetails);
+  
+  
   return (
     <ShapeSelect
       onChange={props.onChange}
@@ -89,13 +94,22 @@ const IconPicker = (props: {
       IconType={props.IconType}
     >
       <TacoButton style={{ width: "100%" }}>
-        {icon ? (
+        {props.value ? (
           <ButtonWrapper>
-            <ButtonIconWrapper>{icon.getView()}</ButtonIconWrapper>
-            <ButtonText title={icon.title}>{icon.title}</ButtonText>
+            <ButtonIconWrapper>
+              <Coolshape
+                type={"star"}
+                index={0}
+                size={48}
+                noise={true}
+              />
+            </ButtonIconWrapper>
+            {/* <ButtonIconWrapper>{icon.getView()}</ButtonIconWrapper>
+            <ButtonText title={icon.title}>{icon.title}</ButtonText> */}
+
             <StyledDeleteInputIcon
               onClick={(e) => {
-                props.onChange("");
+                props.onChange(""); 
                 e.stopPropagation();
               }}
             />
@@ -246,7 +260,8 @@ export class ShapeControl extends AbstractComp<
   }
 
   override getPropertyView(): ReactNode {
-    throw new Error("Method not implemented.");
+    const value = this.codeControl.getView();
+    return <ShapeControlView value={value} />;
   }
 
   changeModeAction() {
