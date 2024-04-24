@@ -81,27 +81,16 @@ const IconView = (props: RecordConstructorToView<typeof childrenMap>) => {
     setWidth(container?.clientWidth ?? 0);
     setHeight(container?.clientHeight ?? 0);
   };
-  const getIconDetails = () => {
-    if (props?.icon) {
-      let { props: pp } = props?.icon;
-      console.log(pp);
+  let [shape, setShape] = useState({ value: "star", index: 0 });
+  useEffect(() => {
+    if (props.icon) {
+      let shapeDetails = Object.values(props?.icon)[4]?.value;
+      setShape({
+        index: parseInt(shapeDetails?.split("_")[0]),
+        value: shapeDetails?.split("_")[1],
+      });
     }
-
-    // let shapeDetails: any = props.icon["props"];
-    // console.log(shapeDetails);
-
-    // if (props.icon && props.icon?.props?.value) {
-    //   return {
-    //     index: parseInt(props.icon?.props?.value.split("_")[1]),
-    //     value: props.icon?.props?.value.split("_")[0],
-    //   };
-    // } else {
-    //   return {
-    //     index: 0,
-    //     value: "star",
-    //   };
-    // }
-  };
+  }, [props.icon]);
 
   return (
     <ReactResizeDetector onResize={onResize}>
@@ -114,12 +103,13 @@ const IconView = (props: RecordConstructorToView<typeof childrenMap>) => {
             : props.iconSize,
           background: props.style.background,
         }}
-        onClick={() => props.onEvent("click")}
+        onClick={() => {
+          console.log("click");
+        }}
       >
-        {/* {props.icon} */}
         <Coolshape
-          type={getIconDetails()["value"]}
-          index={getIconDetails()["index"]}
+          type={shape.value as any}
+          index={shape.index}
           size={48}
           noise={true}
         />
