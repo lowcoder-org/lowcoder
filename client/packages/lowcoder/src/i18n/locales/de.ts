@@ -184,8 +184,8 @@ export const de = {
       "maskClosable": "Zum Schließen auf \"Draußen\" klicken",
       "showMask": "Maske zeigen",
       "component": "Komponente",
-      "id": "ID",
       "className": "Klasse",
+      "dataTestId": "Test ID",
   },
   "autoHeightProp": {
       "auto": "Auto",

@@ -212,8 +212,8 @@ export const en = {
     "horizontal": "Horizontal",
     "minHorizontalWidth": "Minimum Horizontal Width",
     "component": "Component",
-    "id": "ID",
     "className": "Class",
+    "dataTestId": "Test ID",
   },
   "autoHeightProp": {
     "auto": "Auto",

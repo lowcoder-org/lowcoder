@@ -28,8 +28,8 @@ import { trans } from "i18n";
 export type NewChildren<ChildrenCompMap extends Record<string, Comp<unknown>>> =
   ChildrenCompMap & {
     hidden: InstanceType<typeof BoolCodeControl>;
-    id: InstanceType<typeof StringControl>;
     className: InstanceType<typeof StringControl>;
+    dataTestId: InstanceType<typeof StringControl>;
   };
 
 export function HidableView(props: {
@@ -56,15 +56,15 @@ export function HidableView(props: {
 
 export function ExtendedComponentView(props: {
   children: JSX.Element | React.ReactNode;
-  id: string;
   className: string;
+  dataTestId: string;
 }) {
-  if (!props.id && !props.className) {
+  if (!props.className && !props.dataTestId) {
     return <>{props.children}</>;
-  } 
-  
+  }
+
   return (
-    <div id={props.id} className={props.className}>
+    <div className={props.className} data-testid={props.dataTestId}>
       {props.children}
     </div>
   );
@@ -73,17 +73,17 @@ export function ExtendedComponentView(props: {
 export function ExtendedPropertyView<
   ChildrenCompMap extends Record<string, Comp<unknown>>,
 >(props: {
-    children: JSX.Element | React.ReactNode,
-    childrenMap: NewChildren<ChildrenCompMap>
-  }
+  children: JSX.Element | React.ReactNode,
+  childrenMap: NewChildren<ChildrenCompMap>
+}
 ) {
   return (
     <>
-        {props.children}
-        <Section name={ trans("prop.component") }>
-          {props.childrenMap.id?.propertyView({ label: trans("prop.id") })}
-          {props.childrenMap.className?.propertyView({ label: trans("prop.className") })}
-        </Section>
+      {props.children}
+      <Section name={trans("prop.component")}>
+        {props.childrenMap.className?.propertyView({ label: trans("prop.className") })}
+        {props.childrenMap.dataTestId?.propertyView({ label: trans("prop.dataTestId") })}
+      </Section>
     </>
   );
 }
@@ -93,7 +93,12 @@ export function uiChildren<
 >(
   childrenMap: ToConstructor<ChildrenCompMap>
 ): ToConstructor<NewChildren<ChildrenCompMap>> {
-  return { ...childrenMap, hidden: BoolCodeControl, id: StringControl, className: StringControl } as any;
+  return {
+    ...childrenMap,
+    hidden: BoolCodeControl,
+    className: StringControl,
+    dataTestId: StringControl
+  } as any;
 }
 
 type ViewReturn = ReactNode;
@@ -160,14 +165,11 @@ export class UICompBuilder<
   }
 
   build() {
-    if (this.childrenMap.hasOwnProperty("hidden")) {
-      throw new Error("already has hidden");
-    }
-    if (this.childrenMap.hasOwnProperty("id")) {
-      throw new Error("already has id");
-    }
-    if (this.childrenMap.hasOwnProperty("className")) {
-      throw new Error("already has className");
+    const reservedProps = ["hidden", "className", "dataTestId"];
+    for (const reservedProp of reservedProps) {
+      if (this.childrenMap.hasOwnProperty(reservedProp)) {
+        throw new Error(`Property »${reservedProp}« is reserved and must not be implemented in components!`);
+      }
     }
     const newChildrenMap = uiChildren(this.childrenMap);
     const builder = this;
@@ -178,7 +180,7 @@ export class UICompBuilder<
       ToNodeType<NewChildren<ChildrenCompMap>>
     > {
       ref: React.RefObject<HTMLDivElement> = React.createRef();
-      
+
       override parseChildrenFromValue(
         params: CompParams<ToDataType<NewChildren<ChildrenCompMap>>>
       ): NewChildren<ChildrenCompMap> {
@@ -241,7 +243,10 @@ function UIView(props: { comp: any; viewFn: any }) {
   //END ADD BY FRED
 
   return (
-    <ExtendedComponentView id={childrenProps.id as string} className={childrenProps.className as string}>
+    <ExtendedComponentView 
+      className={childrenProps.className as string}
+      dataTestId={childrenProps.dataTestId as string}
+    >
       <HidableView hidden={childrenProps.hidden as boolean}>
         {props.viewFn(childrenProps, comp.dispatch)}
       </HidableView>
