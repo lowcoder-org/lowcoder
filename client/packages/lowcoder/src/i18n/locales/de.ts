@@ -182,7 +182,10 @@ export const de = {
       "showBody": "Körper zeigen",
       "showFooter": "Fußzeile anzeigen",
       "maskClosable": "Zum Schließen auf \"Draußen\" klicken",
-      "showMask": "Maske zeigen"
+      "showMask": "Maske zeigen",
+      "component": "Komponente",
+      "id": "ID",
+      "className": "Klasse",
   },
   "autoHeightProp": {
       "auto": "Auto",

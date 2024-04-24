@@ -211,6 +211,9 @@ export const en = {
     "baseURL": "Lowcoder API Base URL",
     "horizontal": "Horizontal",
     "minHorizontalWidth": "Minimum Horizontal Width",
+    "component": "Component",
+    "id": "ID",
+    "className": "Class",
   },
   "autoHeightProp": {
     "auto": "Auto",

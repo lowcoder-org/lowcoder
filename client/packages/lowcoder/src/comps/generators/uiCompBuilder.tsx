@@ -1,4 +1,4 @@
-import { BoolCodeControl } from "comps/controls/codeControl";
+import { BoolCodeControl, StringControl } from "comps/controls/codeControl";
 import React, { ReactNode, useContext, useRef } from "react";
 import { ExternalEditorContext } from "util/context/ExternalEditorContext";
 import { Comp, CompParams, MultiBaseComp } from "lowcoder-core";
@@ -22,10 +22,14 @@ import {
   MethodConfigsType,
   withMethodExposing,
 } from "./withMethodExposing";
+import { Section } from "lowcoder-design";
+import { trans } from "i18n";
 
 export type NewChildren<ChildrenCompMap extends Record<string, Comp<unknown>>> =
   ChildrenCompMap & {
     hidden: InstanceType<typeof BoolCodeControl>;
+    id: InstanceType<typeof StringControl>;
+    className: InstanceType<typeof StringControl>;
   };
 
 export function HidableView(props: {
@@ -50,12 +54,46 @@ export function HidableView(props: {
   }
 }
 
+export function ExtendedComponentView(props: {
+  children: JSX.Element | React.ReactNode;
+  id: string;
+  className: string;
+}) {
+  if (!props.id && !props.className) {
+    return <>{props.children}</>;
+  } 
+  
+  return (
+    <div id={props.id} className={props.className}>
+      {props.children}
+    </div>
+  );
+}
+
+export function ExtendedPropertyView<
+  ChildrenCompMap extends Record<string, Comp<unknown>>,
+>(props: {
+    children: JSX.Element | React.ReactNode,
+    childrenMap: NewChildren<ChildrenCompMap>
+  }
+) {
+  return (
+    <>
+        {props.children}
+        <Section name={ trans("prop.component") }>
+          {props.childrenMap.id?.propertyView({ label: trans("prop.id") })}
+          {props.childrenMap.className?.propertyView({ label: trans("prop.className") })}
+        </Section>
+    </>
+  );
+}
+
 export function uiChildren<
   ChildrenCompMap extends Record<string, Comp<unknown>>,
 >(
   childrenMap: ToConstructor<ChildrenCompMap>
 ): ToConstructor<NewChildren<ChildrenCompMap>> {
-  return { ...childrenMap, hidden: BoolCodeControl } as any;
+  return { ...childrenMap, hidden: BoolCodeControl, id: StringControl, className: StringControl } as any;
 }
 
 type ViewReturn = ReactNode;
@@ -89,8 +127,20 @@ export class UICompBuilder<
   setPropertyViewFn(
     propertyViewFn: PropertyViewFnTypeForComp<NewChildren<ChildrenCompMap>>
   ) {
-    this.propertyViewFn = propertyViewFn;
+    this.propertyViewFn = this.decoratePropertyViewFn(propertyViewFn);
     return this;
+  }
+
+  decoratePropertyViewFn(
+    propertyViewFn: PropertyViewFnTypeForComp<NewChildren<ChildrenCompMap>>
+  ): PropertyViewFnTypeForComp<NewChildren<ChildrenCompMap>> {
+    return (childrenMap, dispatch) => {
+      return (
+        <ExtendedPropertyView childrenMap={childrenMap}>
+          {propertyViewFn(childrenMap, dispatch)}
+        </ExtendedPropertyView>
+      );
+    };
   }
 
   setExposeStateConfigs(
@@ -112,6 +162,12 @@ export class UICompBuilder<
   build() {
     if (this.childrenMap.hasOwnProperty("hidden")) {
       throw new Error("already has hidden");
+    }
+    if (this.childrenMap.hasOwnProperty("id")) {
+      throw new Error("already has id");
+    }
+    if (this.childrenMap.hasOwnProperty("className")) {
+      throw new Error("already has className");
     }
     const newChildrenMap = uiChildren(this.childrenMap);
     const builder = this;
@@ -185,8 +241,10 @@ function UIView(props: { comp: any; viewFn: any }) {
   //END ADD BY FRED
 
   return (
-    <HidableView hidden={childrenProps.hidden as boolean}>
-      {props.viewFn(childrenProps, comp.dispatch)}
-    </HidableView>
+    <ExtendedComponentView id={childrenProps.id as string} className={childrenProps.className as string}>
+      <HidableView hidden={childrenProps.hidden as boolean}>
+        {props.viewFn(childrenProps, comp.dispatch)}
+      </HidableView>
+    </ExtendedComponentView>
   );
 }
