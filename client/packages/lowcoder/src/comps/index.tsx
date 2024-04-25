@@ -83,10 +83,6 @@ import { MentionComp } from "./comps/textInputComp/mentionComp";
 import { AutoCompleteComp } from "./comps/autoCompleteComp/autoCompleteComp";
 import { JsonLottieComp } from "./comps/jsonComp/jsonLottieComp";
 import { ResponsiveLayoutComp } from "./comps/responsiveLayout";
-import { VideoMeetingStreamComp } from "./comps/meetingComp/videoMeetingStreamComp";
-import { ControlButton } from "./comps/meetingComp/controlButton";
-import { VideoMeetingControllerComp } from "./comps/meetingComp/videoMeetingControllerComp";
-// import { VideoSharingStreamComp } from "./comps/meetingComp/videoSharingStreamComp";
 import { IconComp } from "./comps/iconComp";
 
 import {
@@ -170,7 +166,47 @@ const builtInRemoteComps: Omit<RemoteCompInfo, "compName"> = {
 
 export var uiCompMap: Registry = {
   // Dashboards
-
+  sharingcomponent: {
+    name: trans("meeting.sharingCompName"),
+    enName: "Sharing",
+    description: trans("meeting.sharingCompName"),
+    categories: ["collaboration"],
+    icon: VideoCompIcon,
+    keywords: trans("meeting.meetingCompKeywords"),
+    // comp: VideoSharingStreamComp,
+    comp: remoteComp({ ...builtInRemoteComps, compName: "meetingStream" }),
+    withoutLoading: true,
+    layoutInfo: {
+      w: 12,
+      h: 50,
+    },
+  },
+  videocomponent: {
+    name: trans("meeting.videoCompName"),
+    enName: "Video",
+    description: trans("meeting.videoCompName"),
+    categories: ["collaboration"],
+    icon: VideoCompIcon,
+    keywords: trans("meeting.meetingCompKeywords"),
+    // comp: VideoMeetingStreamComp,
+    comp: remoteComp({ ...builtInRemoteComps, compName: "meetingStream" }),
+    withoutLoading: true,
+    layoutInfo: {
+      w: 6,
+      h: 32,
+    },
+  },
+  meeting: {
+    name: trans("meeting.meetingCompName"),
+    enName: "Drawer",
+    comp: remoteComp({ ...builtInRemoteComps, compName: "meetingController" }),
+    description: trans("meeting.meetingCompDesc"),
+    categories: ["collaboration"],
+    icon: DrawerCompIcon,
+    keywords: trans("meeting.meetingCompKeywords"),
+    // comp: VideoMeetingControllerComp,
+    withoutLoading: true,
+  },
   chart: {
     name: trans("uiComp.chartCompName"),
     enName: "Chart",
@@ -517,64 +553,64 @@ export var uiCompMap: Registry = {
   },
 
   // Collaboration
-
-  sharingcomponent: {
-    name: trans("meeting.sharingCompName"),
-    enName: "Sharing",
-    description: trans("meeting.sharingCompName"),
-    categories: ["collaboration"],
-    icon: VideoCompIcon,
-    keywords: trans("meeting.meetingCompKeywords"),
-    lazyLoad: true,
-    compName: "VideoSharingStreamComp",
-    // compPath: "comps/meetingComp/videoSharingStreamComp",
-    comp: remoteComp({ ...builtInRemoteComps, compName: "meetingSharing" }),
-    withoutLoading: true,
-    layoutInfo: {
-      w: 12,
-      h: 50,
-    },
-  },
-  videocomponent: {
-    name: trans("meeting.videoCompName"),
-    enName: "Video",
-    description: trans("meeting.videoCompName"),
-    categories: ["collaboration"],
-    icon: VideoCompIcon,
-    comp: remoteComp({ ...builtInRemoteComps, compName: "meetingStream" }),
-    keywords: trans("meeting.meetingCompKeywords"),
-    layoutInfo: {
-      w: 6,
-      h: 32,
-    },
-    // name: trans("meeting.videoCompName"),
-    // enName: "Video",
-    // description: trans("meeting.videoCompName"),
-    // categories: ["collaboration"],
-    // icon: VideoCompIcon,
-    // keywords: trans("meeting.meetingCompKeywords"),
-    // lazyLoad: true,
-    // compName: "VideoMeetingStreamComp",
-    // compPath: "comps/meetingComp/videoMeetingStreamComp",
-    // withoutLoading: true,
-    // layoutInfo: {
-    //   w: 6,
-    //   h: 32,
-    // },
-  },
-  meeting: {
-    name: trans("meeting.meetingCompName"),
-    enName: "Drawer",
-    description: trans("meeting.meetingCompDesc"),
-    categories: ["collaboration"],
-    icon: DrawerCompIcon,
-    keywords: trans("meeting.meetingCompKeywords"),
-    lazyLoad: true,
-    compName: "VideoMeetingControllerComp",
-    // compPath: "comps/meetingComp/videoMeetingControllerComp",
-    comp: remoteComp({ ...builtInRemoteComps, compName: "meetingController" }),
-    withoutLoading: true,
-  },
+ 
+  // sharingcomponent: {
+  //   name: trans("meeting.sharingCompName"),
+  //   enName: "Sharing",
+  //   description: trans("meeting.sharingCompName"),
+  //   categories: ["collaboration"],
+  //   icon: VideoCompIcon,
+  //   keywords: trans("meeting.meetingCompKeywords"),
+  //   lazyLoad: true,
+  //   compName: "VideoSharingStreamComp",
+  //   // compPath: "comps/meetingComp/videoSharingStreamComp",
+  //   comp: remoteComp({ ...builtInRemoteComps, compName: "meetingSharing" }),
+  //   withoutLoading: true,
+  //   layoutInfo: {
+  //     w: 12,
+  //     h: 50,
+  //   },
+  // },
+  // videocomponent: {
+  //   name: trans("meeting.videoCompName"),
+  //   enName: "Video",
+  //   description: trans("meeting.videoCompName"),
+  //   categories: ["collaboration"],
+  //   icon: VideoCompIcon,
+  //   comp: remoteComp({ ...builtInRemoteComps, compName: "meetingStream" }),
+  //   keywords: trans("meeting.meetingCompKeywords"),
+  //   layoutInfo: {
+  //     w: 6,
+  //     h: 32,
+  //   },
+  //   // name: trans("meeting.videoCompName"),
+  //   // enName: "Video",
+  //   // description: trans("meeting.videoCompName"),
+  //   // categories: ["collaboration"],
+  //   // icon: VideoCompIcon,
+  //   // keywords: trans("meeting.meetingCompKeywords"),
+  //   // lazyLoad: true,
+  //   // compName: "VideoMeetingStreamComp",
+  //   // compPath: "comps/meetingComp/videoMeetingStreamComp",
+  //   // withoutLoading: true,
+  //   // layoutInfo: {
+  //   //   w: 6,
+  //   //   h: 32,
+  //   // },
+  // },
+  // meeting: {
+  //   name: trans("meeting.meetingCompName"),
+  //   enName: "Drawer",
+  //   description: trans("meeting.meetingCompDesc"),
+  //   categories: ["collaboration"],
+  //   icon: DrawerCompIcon,
+  //   keywords: trans("meeting.meetingCompKeywords"),
+  //   lazyLoad: true,
+  //   compName: "VideoMeetingControllerComp",
+  //   // compPath: "comps/meetingComp/videoMeetingControllerComp",
+  //   comp: remoteComp({ ...builtInRemoteComps, compName: "meetingController" }),
+  //   withoutLoading: true,
+  // },
   comment: {
     name: trans("uiComp.commentCompName"),
     enName: "comment",

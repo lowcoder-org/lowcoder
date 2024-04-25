@@ -28,10 +28,7 @@ import {
 } from "../../generators/withExposing";
 import { IForm } from "../formComp/formDataConstants";
 import { SimpleNameComp } from "../simpleNameComp";
-import {
-  Button100,
-  ButtonStyleControl,
-} from "./videobuttonCompConstants";
+import { Button100, ButtonStyleControl } from "./videobuttonCompConstants";
 import { RefControl } from "comps/controls/refControl";
 import { AutoHeightControl } from "comps/controls/autoHeightControl";
 import {
@@ -247,16 +244,16 @@ let ButtonTmpComp = (function () {
                   loading={props.loading}
                   style={
                     props.autoHeight
-                      ? { 
-                        width: "100%", 
-                        height: "100%",
-                        aspectRatio: props.aspectRatio,
-                        borderRadius: props.style.radius,
-                      }
+                      ? {
+                          width: "100%",
+                          height: "100%",
+                          aspectRatio: props.aspectRatio,
+                          borderRadius: props.style.radius,
+                        }
                       : {
-                        aspectRatio: props.aspectRatio,
-                        borderRadius: props.style.radius,
-                      }
+                          aspectRatio: props.aspectRatio,
+                          borderRadius: props.style.radius,
+                        }
                   }
                   disabled={
                     props.disabled ||
@@ -276,7 +273,6 @@ let ButtonTmpComp = (function () {
                       {props.prefixIcon}
                     </IconWrapper>
                   )}
-                  
                 </Button100>
               </div>
             </Container>
@@ -293,8 +289,8 @@ let ButtonTmpComp = (function () {
           })}
         </Section>
 
-
-        {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
+        {(useContext(EditorContext).editorModeStatus === "logic" ||
+          useContext(EditorContext).editorModeStatus === "both") && (
           <Section name={sectionNames.interaction}>
             {children.onEvent.getPropertyView()}
             {disabledPropertyView(children)}
@@ -303,19 +299,22 @@ let ButtonTmpComp = (function () {
           </Section>
         )}
 
-        {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
-          <><Section name={sectionNames.layout}>
+        {(useContext(EditorContext).editorModeStatus === "layout" ||
+          useContext(EditorContext).editorModeStatus === "both") && (
+          <>
+            <Section name={sectionNames.layout}>
               {children.autoHeight.getPropertyView()}
               {children.iconSize.propertyView({
                 label: trans("button.iconSize"),
               })}
             </Section>
             <Section name={sectionNames.style}>
-                {children.style.getPropertyView()}
-                {children.aspectRatio.propertyView({
-                  label: trans("style.aspectRatio"),
-                })}
-            </Section></>
+              {children.style.getPropertyView()}
+              {children.aspectRatio.propertyView({
+                label: trans("style.aspectRatio"),
+              })}
+            </Section>
+          </>
         )}
       </>
     ))

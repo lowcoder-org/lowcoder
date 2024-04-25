@@ -1,20 +1,20 @@
 import { default as Button } from "antd/es/button";
-import { styleControl } from "comps/controls/styleControl";
 import {
+  styleControl,
   ButtonStyleType,
   ButtonStyle,
-} from "comps/controls/styleControlConstants";
-import { migrateOldData } from "comps/generators/simpleGenerators";
-import styled, { css } from "styled-components";
-import { genActiveColor, genHoverColor } from "lowcoder-design";
-import { refMethods } from "comps/generators/withMethodExposing";
-import {
+  migrateOldData,
+  refMethods,
   blurMethod,
   clickMethod,
   focusWithOptions,
-} from "comps/utils/methodUtils";
+  genActiveColor,
+  genHoverColor,
+} from "lowcoder-sdk";
+import styled, { css } from "styled-components";
+// import { genActiveColor, genHoverColor } from "lowcoder-design";
 
-export function getButtonStyle(buttonStyle: ButtonStyleType) {
+export function getButtonStyle(buttonStyle: any) {
   const hoverColor = genHoverColor(buttonStyle.background);
   const activeColor = genActiveColor(buttonStyle.background);
   return css`
@@ -53,7 +53,7 @@ export function getButtonStyle(buttonStyle: ButtonStyleType) {
   `;
 }
 
-export const Button100 = styled(Button)<{ $buttonStyle?: ButtonStyleType }>`
+export const Button100 = styled(Button)<{ $buttonStyle?: any }>`
   ${(props) => props.$buttonStyle && getButtonStyle(props.$buttonStyle)}
   width: 100%;
   height: auto;
@@ -104,7 +104,7 @@ export const ButtonStyleControl = migrateOldData(
   fixOldData
 );
 
-export const buttonRefMethods = refMethods<HTMLElement>([
+export const buttonRefMethods = refMethods([
   focusWithOptions,
   blurMethod,
   clickMethod,
