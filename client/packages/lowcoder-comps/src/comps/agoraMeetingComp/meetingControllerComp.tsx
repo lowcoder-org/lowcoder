@@ -178,11 +178,9 @@ const publishVideo = async (
   rtmToken: string,
   rtcToken: string
 ) => {
-  // initializing the Agora Meeting Client
   await turnOnCamera(true);
   await client.join(appId, channel, rtcToken, userId);
   await client.publish(videoTrack);
-  // initializing the Agora RTM Client
   await rtmInit(appId, userId, rtmToken, channel);
 };
 
@@ -276,13 +274,22 @@ let MTComp = (function () {
 
       useEffect(() => {
         if (userJoined) {
+          console.log("userJoined ", userJoined);
+          
           let prevUsers: any[] = props.participants as [];
+          console.log("prevUsers ", prevUsers);
           let userData = {
             user: userJoined.uid,
             audiostatus: userJoined.hasAudio,
             streamingVideo: true,
           };
+          console.log("userData ", userData);
           setUserIds((userIds: any) => [...userIds, userData]);
+          console.log("userIds ", userIds);
+          console.log(
+            "removeDuplicates ",
+            removeDuplicates(getData([...prevUsers, userData]).data, "user")
+          );
           dispatch(
             changeChildAction(
               "participants",
@@ -370,6 +377,8 @@ let MTComp = (function () {
         };
         props.localUser.onChange(localObject);
       }, [props.sharing.value]);
+
+      console.log("participants ", props.participants);
 
       useEffect(() => {
         let prevUsers: [] = props.participants as [];
@@ -705,7 +714,7 @@ MTComp = withMethodExposing(MTComp, [
     },
     execute: async (comp: any, values: any) => {
       console.log("startMeeting ", {
-        user: userId + "",
+        // user: userId + "",
         audiostatus: false,
         speaking: false,
         streamingVideo: true,

@@ -12,16 +12,13 @@ import {
   BoolCodeControl,
   RefControl,
   stringExposingStateControl,
-  StringStateControl,
   UICompBuilder,
   CommonNameConfig,
-  hiddenPropertyView,
 } from "lowcoder-sdk";
 import { useEffect, useRef, useState } from "react";
 import { client } from "./meetingControllerComp";
 import type { IAgoraRTCRemoteUser } from "agora-rtc-sdk-ng";
 import { trans } from "../../i18n/comps";
-import { useContext } from "react";
 import ReactResizeDetector from "react-resize-detector";
 import { ButtonStyleControl } from "./videobuttonCompConstants";
 
@@ -234,3 +231,4 @@ export const VideoSharingStreamComp = withExposingConfigs(SharingCompBuilder, [
   new NameConfig("loading", trans("meeting.loadingDesc")),
   ...CommonNameConfig,
 ]);
+ 
