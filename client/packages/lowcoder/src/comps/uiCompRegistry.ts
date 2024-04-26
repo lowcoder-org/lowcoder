@@ -133,6 +133,7 @@ export type UICompType =
   | "mention" //Added By Mousheng
   | "autocomplete" //Added By Mousheng
   | "responsiveLayout"
+  | "columnLayout"
   | "tour";
 
 

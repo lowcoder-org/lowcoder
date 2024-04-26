@@ -268,6 +268,23 @@ export var uiCompMap: Registry = {
       delayCollision: true,
     },
   },
+  columnLayout: {
+    name: "Column Layout",
+    enName: "Column Layout",
+    description: trans("uiComp.responsiveLayoutCompDesc"),
+    categories: ["layout"],
+    icon: ResponsiveLayoutCompIcon,
+    keywords: trans("uiComp.responsiveLayoutCompKeywords"),
+    lazyLoad: true,
+    compName: 'ColumnLayoutComp',
+    compPath: 'comps/columnLayout/index',
+    withoutLoading: true,
+    layoutInfo: {
+      w: 24,
+      h: 25,
+      delayCollision: true,
+    },
+  },
   container: {
     name: trans("uiComp.containerCompName"),
     enName: "Container",

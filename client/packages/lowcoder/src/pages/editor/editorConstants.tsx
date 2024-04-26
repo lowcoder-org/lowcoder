@@ -42,7 +42,7 @@ import {
   MentionIcon,
   AutoCompleteCompIcon,
   IconCompIcon,
-  ResponsiveLayoutCompIcon,
+  ResponsiveLayoutCompIcon
 } from "lowcoder-design";
 
 export const CompStateIcon: {
@@ -122,5 +122,6 @@ export const CompStateIcon: {
   autocomplete: <AutoCompleteCompIcon />,
   icon: <IconCompIcon />,
   responsiveLayout: <ResponsiveLayoutCompIcon />,
+  columnLayout: <ResponsiveLayoutCompIcon />,
   tour: <LeftSelect />,
 };
