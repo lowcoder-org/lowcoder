@@ -309,14 +309,7 @@ let EChartsComp = withExposingConfigs(EChartsTmpComp, [
     name: "data",
     desc: trans("chart.dataDesc"),
     depKeys: ["data", "mode"],
-    func: (input) => {
-      if (input.mode === "ui") {
-        return input.data;
-      } else {
-        // no data in json mode
-        return [];
-      }
-    },
+    func: (input) =>[] ,
   }),
   new NameConfig("title", trans("chart.titleDesc")),
 ]);
