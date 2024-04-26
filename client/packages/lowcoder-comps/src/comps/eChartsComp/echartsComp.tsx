@@ -63,14 +63,11 @@ EChartsTmpComp = withViewFn(EChartsTmpComp, (comp) => {
     lng: comp.children.mapCenterLng.getView(),
     lat: comp.children.mapCenterLat.getView(),
   }
-  const mapZoomlevel = comp.children.mapZoomLevel.getView();
   const onUIEvent = comp.children.onUIEvent.getView();
-  const onMapEvent = comp.children.onMapEvent.getView();
   const onEvent = comp.children.onEvent.getView();
 
   const echartsCompRef = useRef<ReactECharts | null>();
   const [chartSize, setChartSize] = useState<ChartSize>();
-  const [mapScriptLoaded, setMapScriptLoaded] = useState(false);
   const firstResize = useRef(true);
   const theme = useContext(ThemeContext);
   const defaultChartTheme = {
@@ -95,9 +92,6 @@ EChartsTmpComp = withViewFn(EChartsTmpComp, (comp) => {
   }
 
   useEffect(() => {
-    // click events for JSON/Map mode 
-    if (mode === 'ui') return;
-
     const echartsCompInstance = echartsCompRef?.current?.getEchartsInstance();
     if (!echartsCompInstance) {
       return _.noop;
@@ -119,12 +113,9 @@ EChartsTmpComp = withViewFn(EChartsTmpComp, (comp) => {
       echartsCompInstance?.off("click");
       document.removeEventListener('clickEvent', clickEventCallback)
     };
-  }, [mode, mapScriptLoaded]);
+  }, []);
 
   useEffect(() => {
-    // click events for UI mode
-    if(mode !== 'ui') return;
-    
     // bind events
     const echartsCompInstance = echartsCompRef?.current?.getEchartsInstance();
     if (!echartsCompInstance) {
@@ -161,7 +152,7 @@ EChartsTmpComp = withViewFn(EChartsTmpComp, (comp) => {
       echartsCompInstance?.off("selectchanged");
       document.removeEventListener('clickEvent', clickEventCallback)
     };
-  }, [mode, onUIEvent]);
+  }, [onUIEvent]);
 
   const echartsConfigChildren = _.omit(comp.children, echartsConfigOmitChildren);
   const option = useMemo(() => {
@@ -171,55 +162,10 @@ EChartsTmpComp = withViewFn(EChartsTmpComp, (comp) => {
     );
   }, [chartSize, ...Object.values(echartsConfigChildren)]);
 
-  const isMapScriptLoaded = useMemo(() => {
-    return mapScriptLoaded || window?.google;
-  }, [mapScriptLoaded])
-
-  const loadGoogleMapData = () => {
-    const echartsCompInstance = echartsCompRef?.current?.getEchartsInstance();
-    if (!echartsCompInstance) {
-      return _.noop;
-    }
-
-    comp.children.mapInstance.dispatch(changeValueAction(echartsCompInstance))
-    onMapEvent('mapReady')
-  }
-  
-  const handleOnMapScriptLoad = () => {
-    setMapScriptLoaded(true);
-    setTimeout(() => {
-      loadGoogleMapData();
-    })
-  }
-
   useEffect(() => {
-    if( mode !== 'map') {
-      comp.children.mapInstance.dispatch(changeValueAction(null, false))
-      return;
-    }
-
+    comp.children.mapInstance.dispatch(changeValueAction(null, false))
     if(comp.children.mapInstance.value) return;
-
-    const gMapScript = loadGoogleMapsScript(apiKey);
-    if(isMapScriptLoaded) {
-      handleOnMapScriptLoad();
-      return;
-    }
-    gMapScript.addEventListener('load', handleOnMapScriptLoad);
-    return () => {
-      gMapScript.removeEventListener('load', handleOnMapScriptLoad);
-    }
-  }, [mode, apiKey, option])
-
-  useEffect(() => {
-    if(mode !== 'map') return;
-    onMapEvent('centerPositionChange');
-  }, [mode, mapCenterPosition.lat, mapCenterPosition.lng])
-
-  useEffect(() => {
-    if(mode !== 'map') return;
-    onMapEvent('zoomLevelChange');
-  }, [mode, mapZoomlevel])
+  }, [option])
 
   return (
     <ReactResizeDetector
@@ -375,61 +321,6 @@ let EChartsComp = withExposingConfigs(EChartsTmpComp, [
   new NameConfig("title", trans("chart.titleDesc")),
 ]);
 
-EChartsComp = withMethodExposing(EChartsComp, [
-  {
-    method: {
-      name: "getMapInstance",
-    },
-    execute: (comp) => {
-      return new Promise(resolve => {
-        let intervalCount = 0;
-        const mapInstanceInterval = setInterval(() => {
-          const instance = comp.children.mapInstance.getView();
-          const mapInstance = instance?.getModel()?.getComponent("gmap")?.getGoogleMap()
-          if(mapInstance || intervalCount === 10) {
-            clearInterval(mapInstanceInterval)
-            resolve(mapInstance)
-          }
-          intervalCount++;
-        }, 1000);
-      })
-    }
-  },
-  {
-    method: {
-      name: "getMapZoomLevel",
-    },
-    execute: (comp) => {
-      return comp.children.mapZoomLevel.getView();
-    }
-  },
-  {
-    method: {
-      name: "getMapCenterPosition",
-    },
-    execute: (comp) => {
-      return Promise.resolve({
-        lng: comp.children.mapCenterLng.getView(),
-        lat: comp.children.mapCenterLat.getView(),
-      });
-    }
-  },
-  {
-    method: {
-      name: "onClick",
-      params: [
-        {
-          name: "callback",
-          type: "function",
-        },
-      ],
-    },
-    execute: (comp, params) => {
-      clickEventCallback = params[0];
-      document.addEventListener('clickEvent', clickEventCallback);
-    }
-  },
-])
 
 export const EChartsCompWithDefault = withDefault(EChartsComp, {
   xAxisKey: "date",
