@@ -16,10 +16,7 @@ import {
   childrenToProps,
   depsConfig,
   genRandomKey,
-  JSONObject,
-  JSONValue,
   NameConfig,
-  ToViewReturn,
   UICompBuilder,
   withDefault,
   withExposingConfigs,
@@ -95,9 +92,6 @@ MapTmpComp = withViewFn(MapTmpComp, (comp) => {
   }
 
   useEffect(() => {
-    // click events for JSON/Map mode 
-    if (mode === 'ui') return;
-
     const echartsCompInstance = echartsCompRef?.current?.getEchartsInstance();
     if (!echartsCompInstance) {
       return _.noop;
@@ -119,49 +113,7 @@ MapTmpComp = withViewFn(MapTmpComp, (comp) => {
       echartsCompInstance?.off("click");
       document.removeEventListener('clickEvent', clickEventCallback)
     };
-  }, [mode, mapScriptLoaded]);
-
-  useEffect(() => {
-    // click events for UI mode
-    if(mode !== 'ui') return;
-    
-    // bind events
-    const echartsCompInstance = echartsCompRef?.current?.getEchartsInstance();
-    if (!echartsCompInstance) {
-      return _.noop;
-    }
-    echartsCompInstance?.on("selectchanged", (param: any) => {
-      const option: any = echartsCompInstance?.getOption();
-      //log.log("chart select change", param);
-      // trigger click event listener
-
-      document.dispatchEvent(new CustomEvent("clickEvent", {
-        bubbles: true,
-        detail: {
-          action: param.fromAction,
-          data: getSelectedPoints(param, option)
-        }
-      }));
-      
-      if (param.fromAction === "select") {
-        comp.dispatch(changeChildAction("selectedPoints", getSelectedPoints(param, option), false));
-        onUIEvent("select");
-      } else if (param.fromAction === "unselect") {
-        comp.dispatch(changeChildAction("selectedPoints", getSelectedPoints(param, option), false));
-        onUIEvent("unselect");
-      }
-
-      triggerClickEvent(
-        comp.dispatch,
-        changeChildAction("lastInteractionData", getSelectedPoints(param, option), false)
-      );
-    });
-    // unbind
-    return () => {
-      echartsCompInstance?.off("selectchanged");
-      document.removeEventListener('clickEvent', clickEventCallback)
-    };
-  }, [mode, onUIEvent]);
+  }, [mapScriptLoaded]);
 
   const echartsConfigChildren = _.omit(comp.children, echartsConfigOmitChildren);
   const option = useMemo(() => {
@@ -193,11 +145,6 @@ MapTmpComp = withViewFn(MapTmpComp, (comp) => {
   }
 
   useEffect(() => {
-    if( mode !== 'map') {
-      comp.children.mapInstance.dispatch(changeValueAction(null, false))
-      return;
-    }
-
     if(comp.children.mapInstance.value) return;
 
     const gMapScript = loadGoogleMapsScript(apiKey);
@@ -209,17 +156,15 @@ MapTmpComp = withViewFn(MapTmpComp, (comp) => {
     return () => {
       gMapScript.removeEventListener('load', handleOnMapScriptLoad);
     }
-  }, [mode, apiKey, option])
+  }, [apiKey, option])
 
   useEffect(() => {
-    if(mode !== 'map') return;
     onMapEvent('centerPositionChange');
-  }, [mode, mapCenterPosition.lat, mapCenterPosition.lng])
+  }, [mapCenterPosition.lat, mapCenterPosition.lng])
 
   useEffect(() => {
-    if(mode !== 'map') return;
     onMapEvent('zoomLevelChange');
-  }, [mode, mapZoomlevel])
+  }, [mapZoomlevel])
 
   return (
     <ReactResizeDetector
@@ -235,18 +180,16 @@ MapTmpComp = withViewFn(MapTmpComp, (comp) => {
         }
       }}
     >
-      {(mode !== 'map' || (mode === 'map' && isMapScriptLoaded)) && (
-        <ReactECharts
+       <ReactECharts
           ref={(e) => (echartsCompRef.current = e)}
           style={{ height: "100%" }}
           notMerge
           lazyUpdate
           opts={{ locale: getEchartsLocale() }}
           option={option}
-          theme={mode !== 'map' ? themeConfig : undefined}
+          theme={undefined}
           mode={mode}
         />
-      )}
     </ReactResizeDetector>
   );
 });
@@ -365,14 +308,7 @@ let MapComp = withExposingConfigs(MapTmpComp, [
     name: "data",
     desc: trans("chart.dataDesc"),
     depKeys: ["data", "mode"],
-    func: (input) => {
-      if (input.mode === "ui") {
-        return input.data;
-      } else {
-        // no data in json mode
-        return [];
-      }
-    },
+    func: (input) =>[],
   }),
   new NameConfig("title", trans("chart.titleDesc")),
 ]);

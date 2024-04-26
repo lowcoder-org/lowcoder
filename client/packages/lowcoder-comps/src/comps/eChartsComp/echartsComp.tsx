@@ -235,8 +235,7 @@ EChartsTmpComp = withViewFn(EChartsTmpComp, (comp) => {
         }
       }}
     >
-      {(mode !== 'map' || (mode === 'map' && isMapScriptLoaded)) && (
-        <ReactECharts
+      <ReactECharts
           ref={(e) => (echartsCompRef.current = e)}
           style={{ height: "100%" }}
           notMerge
@@ -246,7 +245,6 @@ EChartsTmpComp = withViewFn(EChartsTmpComp, (comp) => {
           theme={mode !== 'map' ? themeConfig : undefined}
           mode={mode}
         />
-      )}
     </ReactResizeDetector>
   );
 });

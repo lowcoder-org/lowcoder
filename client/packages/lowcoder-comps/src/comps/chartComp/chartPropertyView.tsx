@@ -223,12 +223,12 @@ export function chartPropertyView(
   }
   return (
     <>
-      <Section name={trans("chart.mode")}>
+      {/* <Section name={trans("chart.mode")}>
         {children.mode.propertyView({
           label: "",
           radioButton: true,
         })}
-      </Section>
+      </Section> */}
       {getChatConfigByMode(children.mode.getView())}
     </>
   );
