@@ -63,6 +63,7 @@ import { RemoteCompInfo } from "types/remoteComp";
 import { ScannerComp } from "./comps/buttonComp/scannerComp";
 import { SignatureComp } from "./comps/signatureComp";
 import { TimeLineComp } from "./comps/timelineComp/timelineComp";
+import { TourComp } from "./comps/tourComp/tourComp";
 import { CommentComp } from "./comps/commentComp/commentComp";
 import { MentionComp } from "./comps/textInputComp/mentionComp";
 import { AutoCompleteComp } from "./comps/autoCompleteComp/autoCompleteComp";
@@ -143,7 +144,6 @@ import {
   FloatingTextComp,
   IconModal,
 } from "lowcoder-design";
-import { TourComp } from "@lowcoder-ee/comps/comps/tourComp/tourComp";
 
 type Registry = {
   [key in UICompType]?: UICompManifest;
