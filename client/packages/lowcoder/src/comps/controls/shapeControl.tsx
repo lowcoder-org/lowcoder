@@ -84,8 +84,7 @@ const IconPicker = (props: {
   console.log(props);
   let shapeDetails = props.value;
   console.log("shapeDetails ", shapeDetails);
-  
-  
+
   return (
     <ShapeSelect
       onChange={props.onChange}
@@ -98,18 +97,16 @@ const IconPicker = (props: {
           <ButtonWrapper>
             <ButtonIconWrapper>
               <Coolshape
-                type={"star"}
-                index={0}
-                size={48}
+                type={(shapeDetails?.split("_")[1] as any) ?? "star"}
+                index={parseInt(shapeDetails?.split("_")[0]) ?? 0}
+                size={28}
                 noise={true}
               />
             </ButtonIconWrapper>
-            {/* <ButtonIconWrapper>{icon.getView()}</ButtonIconWrapper>
-            <ButtonText title={icon.title}>{icon.title}</ButtonText> */}
 
             <StyledDeleteInputIcon
               onClick={(e) => {
-                props.onChange(""); 
+                props.onChange("");
                 e.stopPropagation();
               }}
             />
@@ -164,63 +161,7 @@ type Range = {
   to: number;
 };
 
-function IconCodeEditor(props: {
-  codeControl: InstanceType<typeof StringControl>;
-  params: ControlParams;
-}) {
-  const [visible, setVisible] = useState(false);
-  const [range, setRange] = useState<Range>();
-  const widgetPopup = useCallback(
-    (v: EditorView) => (
-      <IconSelectBase
-        onChange={(value) => {
-          const r: Range = range ??
-            v.state.selection.ranges[0] ?? { from: 0, to: 0 };
-          const insert = '"' + value + '"';
-          setRange({ ...r, to: r.from + insert.length });
-          v.dispatch({ changes: { ...r, insert } });
-        }}
-        visible={visible}
-        setVisible={setVisible}
-        trigger="contextMenu"
-        // parent={document.querySelector<HTMLElement>(`${CodeEditorTooltipContainer}`)}
-        searchKeywords={i18nObjs.iconSearchKeywords}
-      />
-    ),
-    [visible, range]
-  );
-  const onClick = useCallback((e: React.MouseEvent, v: EditorView) => {
-    const r = onClickIcon(e, v);
-    if (r) {
-      setVisible(true);
-      setRange(r);
-    }
-  }, []);
-  const extraOnChange = useCallback((state: EditorState) => {
-    // popover should hide on change
-    setVisible(false);
-    setRange(undefined);
-  }, []);
-  return props.codeControl.codeEditor({
-    ...props.params,
-    enableIcon: true,
-    widgetPopup,
-    onClick,
-    extraOnChange,
-    cardRichContent,
-    cardTips: (
-      <>
-        {trans("shapeControl.insertImage")}
-        <TacoButton
-          style={{ display: "inline" }}
-          onClick={() => setVisible(true)}
-        >
-          {trans("shapeControl.insertShape")}
-        </TacoButton>
-      </>
-    ),
-  });
-}
+
 
 function isSelectValue(value: any) {
   return !value || (typeof value === "string" && value.startsWith(iconPrefix));
@@ -278,31 +219,14 @@ export class ShapeControl extends AbstractComp<
         onChange={() => this.dispatch(this.changeModeAction())}
       />
     );
-    if (this.useCodeEditor) {
-      return controlItem(
-        { filterText: params.label },
-        <Wrapper>
-          <SwitchWrapper
-            label={params.label}
-            tooltip={params.tooltip}
-            lastNode={jsContent}
-          />
-          {this.useCodeEditor && (
-            <IconCodeEditor codeControl={this.codeControl} params={params} />
-          )}
-        </Wrapper>
-      );
-    }
     return wrapperToControlItem(
       <ControlPropertyViewWrapper {...params} lastNode={jsContent}>
-        {!this.useCodeEditor && (
-          <IconPicker
-            value={this.codeControl.getView()}
-            onChange={(x) => this.dispatchChangeValueAction(x)}
-            label={params.label}
-            IconType={params.IconType}
-          />
-        )}
+        <IconPicker
+          value={this.codeControl.getView()}
+          onChange={(x) => this.dispatchChangeValueAction(x)}
+          label={params.label}
+          IconType={params.IconType}
+        />
       </ControlPropertyViewWrapper>
     );
   }

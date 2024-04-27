@@ -34,6 +34,11 @@ const Container = styled.div<{ $style: IconStyleType | undefined }>`
   display: flex;
   align-items: center;
   justify-content: center;
+  .coolshapes {
+    max-width: 100%;
+    min-height: 100%;
+    min-width: 100%;
+  }
 
   ${(props) =>
     props.$style &&
@@ -110,7 +115,6 @@ const IconView = (props: RecordConstructorToView<typeof childrenMap>) => {
         <Coolshape
           type={shape.value as any}
           index={shape.index}
-          size={48}
           noise={true}
         />
       </Container>
