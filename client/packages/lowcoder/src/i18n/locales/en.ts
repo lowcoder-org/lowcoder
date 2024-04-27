@@ -1213,6 +1213,9 @@ export const en = {
   },
   "password": {
     "label": "Password",
+    "placeholder": "Please Enter Password",
+    "conformLabel": "Confirm Password",
+    "conformPlaceholder": "Please Confirm Password",
     "visibilityToggle": "Show Visibility Toggle"
   },
   "richTextEditor": {
@@ -2385,7 +2388,7 @@ export const en = {
     "passwordCheckContainsNumberAndLetter": "Must Contain Letters and Numbers",
     "passwordCheckSpace": "Cannot Contain Whitespace Characters",
     "welcomeTitle": "Welcome to {productName}",
-    "inviteWelcomeTitle": "{username} Invite You to Login {productName}",
+    "inviteWelcomeTitle": "{username} invites You to work together",
     "terms": "Terms",
     "privacy": "Privacy Policy",
     "registerHint": "I Have Read and Agree to the",
@@ -2402,7 +2405,7 @@ export const en = {
     "resetSuccess": "Reset Succeeded",
     "resetSuccessDesc": "Password Reset Succeeded. The New Password is: {password}",
     "copyPassword": "Copy Password",
-    "poweredByLowcoder": "Powered by Lowcoder.cloud"
+    "poweredByLowcoder": "Powered by: Lowcoder.cloud"
   },
   "preLoad": {
     "jsLibraryHelpText": "Add JavaScript Libraries to Your Current Application via URL Addresses. lodash, day.js, uuid, numbro are Built into the System for Immediate Use. JavaScript Libraries are Loaded Before the Application is Initialized, Which Can Have an Impact on Application Performance.",
@@ -2434,8 +2437,7 @@ export const en = {
     "compProperties": "Component Properties"
   },
   "homeTutorials": {
-    // eslint-disable-next-line only-ascii/only-ascii
-    "createAppContent": "🎉 Welcome to {productName}, Click 'App' and Start to Create Your First Application.",
+    "createAppContent": "Welcome! Click 'App' and Start to Create Your First Application.",
     "createAppTitle": "Create App"
   },
 

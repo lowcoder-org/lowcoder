@@ -648,7 +648,9 @@ declare const i18n: {
     region?: string | undefined;
     locales: string[];
 };
+
 declare function getValueByLocale<T>(defaultValue: T, func: (info: LocaleInfo) => T | undefined): T;
+
 type AddDot<T extends string> = T extends "" ? "" : `.${T}`;
 type ValidKey<T> = Exclude<keyof T, symbol>;
 type NestedKey<T> = (T extends object ? {
@@ -658,6 +660,7 @@ type AddPrefix<T, P extends string> = {
     [K in keyof T as K extends string ? `${P}${K}` : never]: T[K];
 };
 declare const globalMessages: AddPrefix<{}, "@">;
+
 type GlobalMessageKey = NestedKey<typeof globalMessages>;
 type VariableValue = string | number | boolean | Date | React.ReactNode;
 

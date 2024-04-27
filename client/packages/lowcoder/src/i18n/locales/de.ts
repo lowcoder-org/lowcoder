@@ -97,7 +97,7 @@ export const de: typeof en = {
       "deleteCompsSuccess": "Erfolgreich gelöscht. Drücke {undoKey} zum Rückgängigmachen.",
       "deleteCompsTitle": "Komponenten löschen",
       "deleteCompsBody": "Bist du sicher, dass du die ausgewählten Komponenten {compNum} löschen willst?",
-      "cutCompsSuccess": "Erfolgreich selektiert und gelöscht. Drücke {EinfügenTaste}, um die Komponente einzufügen, oder {RückgängigTaste}, um den Vorgang rückgängig zu machen."
+      "cutCompsSuccess": "Erfolgreich selektiert und gelöscht. Drücke {pasteKey}, um die Komponente einzufügen, oder {undoKey}, um den Vorgang rückgängig zu machen."
   },
   "leftPanel": {
       ...en.leftPanel,
@@ -218,7 +218,7 @@ export const de: typeof en = {
       "eventHandlers": "Ereignishandler",
       "emptyEventHandlers": "Keine Ereignishandler",
       "incomplete": "Unvollständige Auswahl",
-      "inlineEventTitle": "Bei {EreignisName}",
+      "inlineEventTitle": "Bei {eventName}",
       "event": "Ereignis",
       "action": "Aktion",
       "noSelect": "Keine Auswahl",
@@ -548,10 +548,10 @@ export const de: typeof en = {
       "email": "Bitte gib eine gültige E-Mail Adresse ein",
       "url": "Bitte gib eine gültige URL ein",
       "regex": "Die Eingabe muss zum regulären Ausdruck passen.",
-      "maxLength": "Zu viele Zeichen, aktuell: {Länge}, maximal: {maxLength}",
+      "maxLength": "Zu viele Zeichen, aktuell: {length}, maximal: {maxLength}",
       "minLength": "Nicht genug Zeichen, aktuell: {length}, minimal: {minLength}",
-      "maxValue": "Wert überschreitet Maximum, aktuell: {Wert}, Maximum: {max}",
-      "minValue": "Wert unter Minimum, aktuell: {Wert}, Minimum: {min}",
+      "maxValue": "Wert überschreitet Maximum, aktuell: {value}, Maximum: {max}",
+      "minValue": "Wert unter Minimum, aktuell: {value}, Minimum: {min}",
       "maxTime": "Zeit überschreitet Maximum, aktuell: {time}, Maximum: {maxTime}",
       "minTime": "Zeit unter Minimum, aktuell: {time}, Minimum: {minTime}",
       "maxDate": "Datum überschreitet Maximum, aktuell: {date}, Maximum: {maxDate}",
@@ -576,7 +576,7 @@ export const de: typeof en = {
       "notifyDuration": "Dauer",
       "notifyDurationTooltip": "Dauer der Benachrichtigung. Die Zeiteinheit kann \\'s\\' (Sekunde, Standard) oder \\'ms\\' (Millisekunde) sein. Der Standardwert ist {default}s. Das Maximum ist {max}s.",
       "successMessageWithName": "{name} Lauf erfolgreich",
-      "failMessageWithName": "{name} Lauf fehlgeschlagen: {Ergebnis}",
+      "failMessageWithName": "{name} Lauf fehlgeschlagen: {result}",
       "showConfirmationModal": "Bestätigungsmodal vor der Ausführung anzeigen",
       "confirmationMessageLabel": "Bestätigungsnachricht",
       "confirmationMessage": "Bist du sicher, dass du diese Datenabfrage ausführen willst?",
@@ -784,7 +784,7 @@ export const de: typeof en = {
   },
   "httpQuery": {
       ...en.httpQuery,
-      "bodyFormDataTooltip": "Wenn {type} ausgewählt ist, sollte das Werteformat {objekt} sein. Beispiel: {example}",
+      "bodyFormDataTooltip": "Wenn {type} ausgewählt ist, sollte das Werteformat {object} sein. Beispiel: {example}",
       "text": "Text",
       "file": "Datei",
       "extraBodyTooltip": "Schlüsselwerte im Extra Body werden an den Body mit den Datentypen JSON oder Form Data angehängt",
@@ -1127,11 +1127,11 @@ export const de: typeof en = {
       "required": "Erforderlich",
       "maximum": "Der Maximalwert ist {value}",
       "minimum": "Der Mindestwert ist {value}",
-      "exclusiveMaximum": "Sollte kleiner sein als {Wert}",
-      "exclusiveMinimum": "Sollte größer sein als {Wert}",
+      "exclusiveMaximum": "Sollte kleiner sein als {value}",
+      "exclusiveMinimum": "Sollte größer sein als {value}",
       "multipleOf": "Sollte ein Vielfaches von {value} sein",
-      "minLength": "Mindestens {Wert} Zeichen",
-      "maxLength": "Höchstens {Wert} Zeichen",
+      "minLength": "Mindestens {value} Zeichen",
+      "maxLength": "Höchstens {value} Zeichen",
       "pattern": "Sollte dem Muster {value} entsprechen",
       "format": "Sollte dem Format {value} entsprechen"
   },
@@ -1199,6 +1199,9 @@ export const de: typeof en = {
   "password": {
       ...en.password,
       "label": "Passwort",
+      "placeholder": "Bitte gib ein sicheres Passwort ein",
+      "conformLabel": "Passwort Bestätigung",
+      "conformPlaceholder": "Bitte das Passwort zur Bestätigung nochmal eingeben",
       "visibilityToggle": "Sichtbarkeit anzeigen Toggle"
   },
   "richTextEditor": {
@@ -1630,8 +1633,8 @@ export const de: typeof en = {
   },
   "millisecondsControl": {
       ...en.millisecondsControl,
-      "timeoutTypeError": "Bitte gib die korrekte Timeout-Zeit in ms ein, die aktuelle Eingabe ist: {Wert}",
-      "timeoutLessThanMinError": "Die Eingabe muss größer sein als {links}, die aktuelle Eingabe ist: {Wert}"
+      "timeoutTypeError": "Bitte gib die korrekte Timeout-Zeit in ms ein, die aktuelle Eingabe ist: {value}",
+      "timeoutLessThanMinError": "Die Eingabe muss größer sein als {left}, die aktuelle Eingabe ist: {value}"
   },
   "selectionControl": {
       ...en.selectionControl,
@@ -1764,7 +1767,7 @@ export const de: typeof en = {
       "inviteUserHelp": "Du kannst den Einladungslink zum Versenden an den Nutzer kopieren",
       "inviteUserLabel": "Einladungslink:",
       "inviteCopyLink": "Link kopieren",
-      "inviteText": "{Benutzername} lädt dich ein, dem Arbeitsbereich %r@\\\"{Organisation}%r@\\\" beizutreten, Klicke auf den Link, um beizutreten: {inviteLink}",
+      "inviteText": "{userName} lädt dich ein, dem Arbeitsbereich %r@\\\"{organization}%r@\\\" beizutreten, Klicke auf den Link, um beizutreten: {inviteLink}",
       "groupName": "Gruppe Name",
       "createTime": "Erstellt",
       "manageBtn": "Verwalte",
@@ -1778,7 +1781,7 @@ export const de: typeof en = {
       "title": "Arbeitsbereich",
       "createOrg": "Arbeitsbereich erstellen (Organisation)",
       "deleteModalTitle": "Bist du sicher, dass du diesen Arbeitsbereich löschen willst?",
-      "deleteModalContent": "Du bist dabei, diesen Arbeitsbereich {permanentlyDelete} zu löschen. Sobald er gelöscht ist, wird der Arbeitsbereich {nichtwiederhergestellt}.",
+      "deleteModalContent": "Du bist dabei, diesen Arbeitsbereich {permanentlyDelete} zu löschen. Sobald er gelöscht ist, wird der Arbeitsbereich {notRestored}.",
       "permanentlyDelete": "Dauerhaft",
       "notRestored": "Kann nicht wiederhergestellt werden",
       "deleteModalLabel": "Bitte gib den Arbeitsbereichsnamen {name} ein, um den Vorgang zu bestätigen:",
@@ -1880,7 +1883,7 @@ export const de: typeof en = {
   },
   "droppadbleMenuItem": {
       ...en.droppadbleMenuItem,
-      "subMenu": "Untermenü {Nummer}"
+      "subMenu": "Untermenü {number}"
   },
   "navItemComp": {
       ...en.navItemComp,
@@ -2161,7 +2164,7 @@ export const de: typeof en = {
   "globalErrorMessage": {
       ...en.globalErrorMessage,
       "createCompFail": "Komponente erstellen {comp} Fehlgeschlagen",
-      "notHandledError": "{Methode} Nicht ausgeführte Methode"
+      "notHandledError": "{method} Nicht ausgeführte Methode"
   },
   "aggregation": {
       ...en.aggregation,
@@ -2215,7 +2218,7 @@ export const de: typeof en = {
       "createOrg": "Arbeitsbereich erstellen",
       "logout": "Abmelden",
       "personalInfo": "Mein Profil",
-      "bindingSuccess": "Bindung {Quellenname} Erfolg",
+      "bindingSuccess": "Bindung {sourceName} Erfolg",
       "uploadError": "Upload-Fehler",
       "editProfilePicture": "Ändern Sie",
       "nameCheck": "Der Name darf nicht leer sein",
@@ -2322,21 +2325,21 @@ export const de: typeof en = {
       "email": "E-Mail:",
       "inputEmail": "Bitte gib deine E-Mail ein",
       "inputValidEmail": "Bitte gib eine gültige E-Mail ein",
-      "register": "Anmelden",
-      "userLogin": "Eintragen",
-      "login": "Eintragen",
+      "register": "Neu Registrieren",
+      "userLogin": "Anmelden",
+      "login": "Anmelden",
       "bind": "Binde",
       "passwordCheckLength": "Mindestens {min} Zeichen",
       "passwordCheckContainsNumberAndLetter": "Muss Buchstaben und Ziffern enthalten",
       "passwordCheckSpace": "Kann keine Leerzeichen enthalten",
-      "welcomeTitle": "Willkommen bei {Produktname}",
-      "inviteWelcomeTitle": "{Benutzername} lade dich zum Login ein {Produktname}",
-      "terms": "Begriffe",
+      "welcomeTitle": "Willkommen bei {productName}", 
+      "inviteWelcomeTitle": "{username} lädt dich zur Mitarbeit ein",
+      "terms": "Geschäftsbedingungen",
       "privacy": "Datenschutzrichtlinie",
       "registerHint": "Ich habe die Nutzungsbedingungen gelesen und stimme ihnen zu.",
       "chooseAccount": "Wähle dein Konto",
       "signInLabel": "Melde dich mit {name} an",
-      "bindAccount": "Konto binden",
+      "bindAccount": "Konto zusammenführen",
       "scanQrCode": "Scanne den QR-Code mit {name}",
       "invalidThirdPartyParam": "Ungültige Drittpartei Param",
       "account": "Konto",
@@ -2345,9 +2348,9 @@ export const de: typeof en = {
       "resetPassword": "Passwort zurücksetzen",
       "resetPasswordDesc": "Setze das Passwort von Benutzer {name} zurück. Nach dem Zurücksetzen wird ein neues Passwort generiert.",
       "resetSuccess": "Zurücksetzen Erfolglos",
-      "resetSuccessDesc": "Passwort zurücksetzen war erfolgreich. Das neue Passwort lautet: {Passwort}",
+      "resetSuccessDesc": "Passwort zurücksetzen war erfolgreich. Das neue Passwort lautet: {password}",
       "copyPassword": "Passwort kopieren",
-      "poweredByLowcoder": "Angetrieben von Lowcoder.cloud"
+      "poweredByLowcoder": "Powered by: Lowcoder.cloud"
   },
   "preLoad": {
       ...en.preLoad,
@@ -2362,8 +2365,8 @@ export const de: typeof en = {
       "jsLibraryDownloadError": "Fehler beim Herunterladen der JavaScript-Bibliothek",
       "jsLibraryInstallSuccess": "Die JavaScript-Bibliothek wurde erfolgreich installiert",
       "jsLibraryInstallFailed": "Installation der JavaScript-Bibliothek fehlgeschlagen",
-      "jsLibraryInstallFailedCloud": "Vielleicht ist die Bibliothek in der Sandbox nicht verfügbar, [Dokumentation](https://docs.lowcoder.cloud/build-apps/write-javascript/use-third-party-libraries#manually-import-libraries)\n{Meldung}",
-      "jsLibraryInstallFailedHost": "{Nachricht}",
+      "jsLibraryInstallFailedCloud": "Vielleicht ist die Bibliothek in der Sandbox nicht verfügbar, [Dokumentation](https://docs.lowcoder.cloud/build-apps/write-javascript/use-third-party-libraries#manually-import-libraries)\n{message}",
+      "jsLibraryInstallFailedHost": "{message}",
       "add": "Neu hinzufügen",
       "jsHelpText": "Füge eine globale Methode oder Variable zur aktuellen Anwendung hinzu.",
       "cssHelpText": "Füge der aktuellen Anwendung Stile hinzu. Die DOM-Struktur kann sich ändern, wenn das System iteriert. Versuche, Stile über Komponenteneigenschaften zu ändern.",
@@ -2382,7 +2385,7 @@ export const de: typeof en = {
   },
   "homeTutorials": {
       ...en.homeTutorials,
-      "createAppContent": "🎉 Willkommen bei {Produktname}, klicke auf \\'App\\' und beginne, deine erste Anwendung zu erstellen.",
+      "createAppContent": "🎉 Willkommen! Klicke auf \\'App\\' und beginne, deine erste Anwendung zu erstellen.",
       "createAppTitle": "App erstellen"
   },
   "history": {
@@ -2459,10 +2462,10 @@ export const de: typeof en = {
       "creating": "Erstellen...",
       "chooseDataSourceType": "Datenquellentyp auswählen",
       "folderAlreadyExists": "Der Ordner existiert bereits",
-      "newNavLayout": "{Benutzername}'s {name} ",
-      "newApp": "{Benutzername}'s neuer {name} ",
-      "importError": "Importfehler, {Meldung}",
-      "exportError": "Exportfehler, {Meldung}",
+      "newNavLayout": "{userName}'s {name} ",
+      "newApp": "{userName}'s neuer {name} ",
+      "importError": "Importfehler, {message}",
+      "exportError": "Exportfehler, {message}",
       "importSuccess": "Erfolg importieren",
       "fileUploadError": "Datei-Upload-Fehler",
       "fileFormatError": "Fehler im Dateiformat",
@@ -2481,7 +2484,7 @@ export const de: typeof en = {
       "addMember": "Mitglieder hinzufügen",
       "addPermissionPlaceholder": "Bitte gib einen Namen ein, um Mitglieder zu suchen",
       "searchMemberOrGroup": "Suche nach Mitgliedern oder Gruppen: ",
-      "addPermissionErrorMessage": "Berechtigung kann nicht hinzugefügt werden, {Meldung}",
+      "addPermissionErrorMessage": "Berechtigung kann nicht hinzugefügt werden, {message}",
       "copyModalTitle": "Klonen",
       "copyNameLabel": "{type} Name",
       "copyModalfolderLabel": "Zum Ordner hinzufügen",
@@ -2766,7 +2769,7 @@ export const de: typeof en = {
       "saveBtn": "Speichern und Aktivieren",
       "save": "Speichern",
       "none": "Keine",
-      "formPlaceholder": "Bitte {Label} eingeben",
+      "formPlaceholder": "Bitte {label} eingeben",
       "formSelectPlaceholder": "Bitte wähle das {label}",
       "saveSuccess": "Erfolgreich gerettet",
       "dangerLabel": "Gefahrenzone",
@@ -2777,7 +2780,7 @@ export const de: typeof en = {
       "disableTip": "Tipps",
       "disableContent": "Die Deaktivierung dieses ID-Anbieters kann dazu führen, dass sich einige Nutzer nicht mehr anmelden können. Bist du sicher, dass du fortfahren kannst?",
       "manualTip": "",
-      "lockTip": "Der Inhalt ist gesperrt. Um Änderungen vorzunehmen, klicke bitte auf das {Icon}, um die Sperre aufzuheben.",
+      "lockTip": "Der Inhalt ist gesperrt. Um Änderungen vorzunehmen, klicke bitte auf das {icon}, um die Sperre aufzuheben.",
       "lockModalContent": "Die Änderung des Feldes \"ID-Attribut\" kann erhebliche Auswirkungen auf die Benutzeridentifizierung haben. Bitte vergewissere dich, dass du die Auswirkungen dieser Änderung verstehst, bevor du fortfährst.",
       "payUserTag": "Premium"
   },

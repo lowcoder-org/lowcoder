@@ -44,12 +44,11 @@ import { loadComps } from "comps";
 import { initApp } from "util/commonUtils";
 import { favicon } from "assets/images";
 import { hasQueryParam } from "util/urlUtils";
-import { isFetchUserFinished } from "redux/selectors/usersSelectors";
+import { getCurrentUser, isFetchUserFinished } from "redux/selectors/usersSelectors";
 import { SystemWarning } from "./components/SystemWarning";
 import { getBrandingConfig } from "./redux/selectors/configSelectors";
 import { buildMaterialPreviewURL } from "./util/materialUtils";
 import GlobalInstances from 'components/GlobalInstances';
-// import { LanguageProvider } from './i18n/LanguageContext';
 
 const LazyUserAuthComp = React.lazy(() => import("pages/userAuth"));
 const LazyInviteLanding = React.lazy(() => import("pages/common/inviteLanding"));
@@ -61,10 +60,10 @@ const LazyApplicationHome = React.lazy(() => import("pages/ApplicationV2"));
 const LazyDebugComp = React.lazy(() => import("./debug"));
 const LazyDebugNewComp = React.lazy(() => import("./debugNew"));
 
-const Wrapper = (props: { children: React.ReactNode }) => (
+const Wrapper = (props: { children: React.ReactNode, language: string }) => (
   <ConfigProvider
     theme={{ hashed: false }}
-    locale={getAntdLocale(language)}
+    locale={getAntdLocale(props.language)}
   >
     <App>
       <GlobalInstances />
@@ -82,6 +81,7 @@ type AppIndexProps = {
   getCurrentUser: () => void;
   favicon: string;
   brandName: string;
+  uiLanguage: string;
 };
 
 class AppIndex extends React.Component<AppIndexProps, any> {
@@ -107,8 +107,9 @@ class AppIndex extends React.Component<AppIndexProps, any> {
       const hideLoadingHeader = isTemplate || isAuthUnRequired(pathname);
       return <ProductLoading hideHeader={hideLoadingHeader} />;
     }
+
     return (
-      <Wrapper>
+      <Wrapper language={this.props.uiLanguage}>
         <Helmet>
           {<title>{this.props.brandName}</title>}
           {<link rel="icon" href={this.props.favicon} />}
@@ -196,6 +197,7 @@ const mapStateToProps = (state: AppState) => ({
     ? buildMaterialPreviewURL(getBrandingConfig(state)?.favicon!)
     : favicon,
   brandName: getBrandingConfig(state)?.brandName ?? trans("productName"),
+  uiLanguage: state.ui.users.user.uiLanguage,
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
@@ -214,7 +216,7 @@ export function bootstrap() {
   const root = createRoot(container!);
   root.render(
     <Provider store={reduxStore}>
-        <AppIndexWithProps />
+      <AppIndexWithProps />
     </Provider>
   );
 }

@@ -61,6 +61,7 @@ export const defaultUser: User = {
 export type CurrentUser = {
   id: string;
   name: string;
+  uiLanguage: string;
   avatarUrl: string;
   email: string;
   ip: string;
@@ -74,6 +75,7 @@ export type CurrentUser = {
 export const defaultCurrentUser: CurrentUser = {
   id: "",
   name: ANONYMOUS_USERNAME,
+  uiLanguage: "en",
   avatarUrl: "",
   email: "",
   ip: "",

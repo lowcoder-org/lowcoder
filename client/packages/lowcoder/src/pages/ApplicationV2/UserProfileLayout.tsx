@@ -32,7 +32,6 @@ import {
   HomeModuleIcon,
   MarketplaceIcon,
   AppsIcon,
-  Flag_de, Flag_gb, Flag_it, Flag_cn
 } from "lowcoder-design";
 
 import { useDispatch } from "react-redux";
@@ -182,14 +181,14 @@ export function UserProfileLayout(props: UserProfileLayoutProps) {
     }
   };
 
-  // change language for the app directly
-  // const { language, changeLanguage } = useLanguage();
-
   // persist the language change to the user
   const handleLanguageChange = (newLanguage: string) => {
     // changeLanguage(newLanguage);
     dispatch(updateUserAction({ uiLanguage: newLanguage }));
   };
+
+  console.log("App Language", language);
+  console.log("User Language", currentUser.uiLanguage);
 
   if (!user.currentOrgId) {
     return null;
@@ -294,7 +293,7 @@ export function UserProfileLayout(props: UserProfileLayoutProps) {
             <Space direction="vertical" size={10}>
               <Text>UI Language:</Text>
               <Select
-                defaultValue={language}
+                defaultValue={currentUser.uiLanguage}
                 style={{ width: 200 }}
                 onChange={handleLanguageChange}
                 showSearch

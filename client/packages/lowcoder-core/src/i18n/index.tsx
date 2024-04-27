@@ -3,7 +3,7 @@ import IntlMessageFormat from "intl-messageformat";
 import log from "loglevel";
 import { Fragment } from "react";
 
-const defaultLocale = "en";
+const defaultLocale = "de";
 
 let locales = [defaultLocale];
 
