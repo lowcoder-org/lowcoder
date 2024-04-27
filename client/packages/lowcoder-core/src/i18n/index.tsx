@@ -68,6 +68,9 @@ function getDataByLocale<T>(
   filterLocales?: string,
   targetLocales?: string[]
 ) {
+
+  console.log("Überraschung", fileData);
+
   let localeInfos = [...fallbackLocaleInfos];
 
   const targetLocaleInfo = parseLocales(targetLocales || []);

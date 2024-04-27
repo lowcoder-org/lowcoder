@@ -1,7 +1,17 @@
-import { MultiBaseComp } from "lowcoder-core";
-import { UICompBuilder } from "comps/generators/uiCompBuilder";
+
+import { trans } from "i18n";
+import { withMethodExposing } from "../../generators/withMethodExposing";
+import { UICompBuilder } from "../../generators";
 import { stringExposingStateControl } from "comps/controls/codeStateControl";
-import { withMethodExposing } from "comps/generators/withMethodExposing";
+import { CommonNameConfig, NameConfig, withExposingConfigs } from "../../generators/withExposing";
+import { MultiBaseComp } from "lowcoder-core";
+
+// FALK TODO: Check imports
+// import { MultiBaseComp } from "lowcoder-core";
+// import { UICompBuilder } from "comps/generators/uiCompBuilder";
+// import { stringExposingStateControl } from "comps/controls/codeStateControl";
+// import { withMethodExposing } from "comps/generators/withMethodExposing";
+
 import { TourChildrenMap, TourPropertyView } from "./tourPropertyView";
 import { Tour, TourProps } from "antd";
 import React, { useContext } from "react";

@@ -23,6 +23,7 @@ import { getAntdLocale } from "i18n/antdLocale";
 import { useUserViewMode } from "../../util/hooks";
 import { QueryApi } from "api/queryApi";
 import { RootCompInstanceType } from "./useRootCompInstance";
+import { getCurrentUser } from "redux/selectors/usersSelectors";
 
 /**
  * FIXME: optimize the logic of saving comps
@@ -112,12 +113,13 @@ export function AppEditorInternalView(props: AppEditorInternalViewProps) {
   const loading =
     !compInstance || !compInstance.comp || !compInstance.comp.preloaded || props.loading;
 
+  const currentUser = useSelector(getCurrentUser);
+
   return loading ? (
     window.location.pathname.split("/")[3] === "admin" ? <div></div> : 
     <EditorSkeletonView />
   ) : (
-    // Falk - here we could add the language choise?
-    <ConfigProvider locale={getAntdLocale()}>
+    <ConfigProvider locale={getAntdLocale(currentUser.uiLanguage)}>
       <ExternalEditorContext.Provider value={externalEditorState}>
         {compInstance?.comp?.getView()}
       </ExternalEditorContext.Provider>
