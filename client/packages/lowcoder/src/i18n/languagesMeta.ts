@@ -2,7 +2,18 @@ import {
     Flag_de, 
     Flag_gb, 
     Flag_it, 
-    Flag_cn
+    Flag_cn,
+    Flag_fr,
+    Flag_ru,
+    Flag_cz,
+    Flag_pl,
+    Flag_es,
+    Flag_vi,
+    Flag_id,
+    Flag_tr,
+    Flag_th,
+    Flag_ar,
+    Flag_pt,
   } from "lowcoder-design";
 
 // Define the structure for a single language's metadata
@@ -22,17 +33,13 @@ export interface LanguageMeta {
       languageName: "English",
       flag: Flag_gb
     },
-    de: {
-      languageName: "Deutsch",
-      flag: Flag_de
-    },
-    it: {
-      languageName: "Italiano",
-      flag: Flag_it
-    },
     zh: {
       languageName: "中文",
       flag: Flag_cn
+    },
+    de: {
+      languageName: "Deutsch",
+      flag: Flag_de
     }
   };
   

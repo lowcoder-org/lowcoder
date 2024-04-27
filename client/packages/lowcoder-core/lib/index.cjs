@@ -11513,6 +11513,7 @@ var IntlMessageFormat = IntlMessageFormat$1;
 
 var defaultLocale = "en";
 var locales = [defaultLocale];
+
 if (globalThis.navigator) {
     if (navigator.languages && navigator.languages.length > 0) {
         locales = __spreadArray([], navigator.languages, true);
@@ -11521,6 +11522,7 @@ if (globalThis.navigator) {
         locales = [navigator.language || navigator.userLanguage || defaultLocale];
     }
 }
+
 function parseLocale(s) {
     var locale = s.trim();
     if (!locale) {

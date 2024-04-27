@@ -26,7 +26,7 @@ import hr_HR from "antd/es/locale/hr_HR";
 import sk_SK from "antd/es/locale/sk_SK";
 import sl_SI from "antd/es/locale/sl_SI";
 import mk_MK from "antd/es/locale/mk_MK";
-
+import pt_PT from "antd/es/locale/pt_PT";
 
 import { getValueByLocale } from "lowcoder-core";
 
@@ -56,6 +56,13 @@ function selectAntdLocale(language: string, region?: string) {
           return es_ES;
         default:
           return es_ES; 
+      }
+    case "pt":
+      switch (region) {
+        case "PT":
+          return pt_PT;
+        default:
+          return pt_PT; 
       }
     case "fr":
       switch (region) {

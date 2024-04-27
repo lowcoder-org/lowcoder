@@ -183,8 +183,13 @@ export function UserProfileLayout(props: UserProfileLayoutProps) {
 
   // persist the language change to the user
   const handleLanguageChange = (newLanguage: string) => {
-    // changeLanguage(newLanguage);
+    // using localStorage, so that the language is persisted across sessions
+    // especially since the translator function is global and outside of a react state
     dispatch(updateUserAction({ uiLanguage: newLanguage }));
+    localStorage.setItem('lowcoder_uiLanguage',newLanguage);
+    setTimeout(() => {
+      window.location.reload();
+    }, 1000);
   };
 
   console.log("App Language", language);

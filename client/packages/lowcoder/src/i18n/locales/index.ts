@@ -3,8 +3,9 @@
 export * from "./de"; 
 export * from "./en";
 export * from "./it";
-export * from "@lowcoder-ee/i18n/locales/zh";
+export * from "./zh";
 
 export * from "./enObj";
+export * from "./deObj";
 export * from "./itObj";
-export * from "@lowcoder-ee/i18n/locales/zhObj";
+export * from "./zhObj";

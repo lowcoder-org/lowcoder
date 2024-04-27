@@ -3,7 +3,7 @@ import IntlMessageFormat from "intl-messageformat";
 import log from "loglevel";
 import { Fragment } from "react";
 
-const defaultLocale = "de";
+const defaultLocale = "en";
 
 let locales = [defaultLocale];
 
@@ -68,6 +68,9 @@ function getDataByLocale<T>(
   filterLocales?: string,
   targetLocales?: string[]
 ) {
+
+  console.log("Überraschung", fileData);
+
   let localeInfos = [...fallbackLocaleInfos];
 
   const targetLocaleInfo = parseLocales(targetLocales || []);
