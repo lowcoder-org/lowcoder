@@ -1960,18 +1960,18 @@ export const de: typeof en = {
   "temporaryState": {
       ...en.temporaryState,
       "value": "Anfangswert",
-      "valueTooltip": "Der Anfangswert, der im temporären Status gespeichert wird, kann ein beliebiger gültiger JSON-Wert sein.",
-      "docLink": "Lies mehr über temporäre Staaten...",
+      "valueTooltip": "Der Anfangswert, der im temporären Zustand gespeichert wird, kann ein beliebiger gültiger JSON-Wert sein.",
+      "docLink": "Lies mehr über temporäre Zustände...",
       "pathTypeError": "Pfad muss entweder ein String oder ein Array von Werten sein",
       "unStructuredError": "Unstrukturierte Daten {prev} können nicht von {path} aktualisiert werden",
       "valueDesc": "Vorläufiger Zustandswert",
-      "deleteMessage": "Der temporäre Status wurde erfolgreich gelöscht. Du kannst {undoKey} zum Rückgängigmachen verwenden.",
+      "deleteMessage": "Der temporäre Zustand wurde erfolgreich gelöscht. Du kannst {undoKey} zum Rückgängigmachen verwenden.",
       "documentationText": "Temporäre Zustände in Lowcoder sind eine leistungsstarke Funktion zur Verwaltung komplexer Variablen, die den Zustand von Komponenten in deiner Anwendung dynamisch aktualisieren. Diese Zustände dienen als Zwischenspeicher für Daten, die sich im Laufe der Zeit aufgrund von Benutzerinteraktionen oder anderen Prozessen ändern können."
   },
   "dataResponder": {
       ...en.dataResponder,
       "data": "Daten",
-      "dataDesc": "Daten des aktuellen Datenresponders",
+      "dataDesc": "Daten des aktuellen Data Responders",
       "dataTooltip": "Wenn diese Daten geändert werden, lösen sie nachfolgende Aktionen aus.",
       "docLink": "Lies mehr über die Data Responders...",
       "deleteMessage": "Der Data Responder wurde erfolgreich gelöscht. Du kannst {undoKey} zum Rückgängigmachen verwenden.",
@@ -2295,7 +2295,7 @@ export const de: typeof en = {
       "update": "Was gibt's Neues?",
       "version": "Version",
       "versionWithColon": "Version: ",
-      "submitIssue": "Ausgabe einreichen"
+      "submitIssue": "Problem melden"
   },
   "header": {
       ...en.header,
@@ -2304,11 +2304,11 @@ export const de: typeof en = {
       "recoverAppSnapshotTitle": "Diese Version wiederherstellen?",
       "recoverAppSnapshotContent": "Stelle die aktuelle App auf die Version wieder her, die zum Zeitpunkt {time} erstellt wurde.",
       "recoverAppSnapshotMessage": "Diese Version wiederherstellen",
-      "returnEdit": "Zurück zur Redaktion",
+      "returnEdit": "Zurück zum Bearbeiten",
       "deploy": "Veröffentlichen",
       "export": "Exportieren nach JSON",
       "editName": "Name bearbeiten",
-      "duplicate": "Duplizieren {type}",
+      "duplicate": "{type} Duplizieren",
       "snapshot": "Bearbeitungs-Historie",
       "scriptsAndStyles": "Skripte und Stil",
       "appSettings": "App-Einstellungen",

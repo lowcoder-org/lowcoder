@@ -11194,11 +11194,16 @@ originalMessage) {
             continue;
         }
         var varName = el.value;
+        var value = "";
         // Enforce that all required values are provided by the caller.
         if (!(values && varName in values)) {
-            throw new MissingValueError(varName, originalMessage);
+            console.log("No value provided for the variable \"" + varName + "\". " + originalMessage);
+            // throw new MissingValueError(varName, originalMessage);
+            value = varName;
         }
-        var value = values[varName];
+        else {
+            value = values[varName];
+        }
         if (isArgumentElement(el)) {
             if (!value || typeof value === 'string' || typeof value === 'number') {
                 value =

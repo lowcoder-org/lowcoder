@@ -106,11 +106,11 @@ export function getMainCompValue(): object {
 export type HomeLayoutType = "list" | "card";
 
 export function saveHomeLayout(layout: HomeLayoutType) {
-  localStorage.setItem("home_layout", layout);
+  localStorage.setItem("lowcoder_home_layout", layout);
 }
 
 export function getHomeLayout(): HomeLayoutType {
-  const layout = localStorage.getItem("home_layout");
+  const layout = localStorage.getItem("lowcoder_home_layout");
   return layout === "list" || layout === "card" ? layout : "card";
 }
 

@@ -1,3 +1,5 @@
+// this is the tpyes file next to index.js
+
 /// <reference types="react" />
 import React, { ReactNode } from 'react';
 
