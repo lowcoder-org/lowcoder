@@ -17,11 +17,12 @@ import { AuthContext, useAuthSubmit } from "pages/userAuth/authUtils";
 import { ThirdPartyAuth } from "pages/userAuth/thirdParty/thirdPartyAuth";
 import { AUTH_REGISTER_URL, ORG_AUTH_REGISTER_URL } from "constants/routesURL";
 import { useLocation, useParams } from "react-router-dom";
+import { Divider } from "antd";
 
 const AccountLoginWrapper = styled(FormWrapperMobile)`
   display: flex;
   flex-direction: column;
-  margin-bottom: 106px;
+  margin-bottom: 40px;
 `;
 
 type FormLoginProps = {
@@ -56,7 +57,7 @@ export default function FormLogin(props: FormLoginProps) {
 
   return (
     <>
-      <LoginCardTitle>{trans("userAuth.login")}</LoginCardTitle>
+      {/* <LoginCardTitle>{trans("userAuth.login")}</LoginCardTitle> */}
       <AccountLoginWrapper>
         <FormInput
           className="form-input"
@@ -76,7 +77,6 @@ export default function FormLogin(props: FormLoginProps) {
         <ConfirmButton loading={loading} disabled={!account || !password} onClick={onSubmit}>
           {trans("userAuth.login")}
         </ConfirmButton>
-        
         {props.organizationId && (
           <ThirdPartyAuth
             invitationId={invitationId}
@@ -85,14 +85,14 @@ export default function FormLogin(props: FormLoginProps) {
           />
         )}
       </AccountLoginWrapper>
+      <Divider/>
       <AuthBottomView>
         <StyledRouteLink to={{
           pathname: orgId
             ? ORG_AUTH_REGISTER_URL.replace(':orgId', orgId)
             : AUTH_REGISTER_URL,
           state: location.state
-        }}>
-          {trans("userAuth.register")}
+          }}>{trans("userAuth.register")}
         </StyledRouteLink>
       </AuthBottomView>
     </>

@@ -19,18 +19,16 @@
 
 package org.lowcoder.sdk.models;
 
-import java.lang.reflect.Type;
-import java.util.List;
-import java.util.Map;
-
-import javax.annotation.Nonnull;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.gson.InstanceCreator;
-
+import jakarta.annotation.Nonnull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.lang.reflect.Type;
+import java.util.List;
+import java.util.Map;
 
 @Data
 @NoArgsConstructor

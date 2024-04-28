@@ -21,6 +21,8 @@ type LabelViewProps = Pick<FormItemProps, "required" | "help" | "validateStatus"
   children: ReactNode;
   style?: Record<string, string>;
   labelStyle?: Record<string, string>;
+  field?: Record<string, string>;
+  inputFieldStyle?: Record<string, string>;
 };
 
 const StyledStarIcon = styled(StarIcon)`
@@ -41,8 +43,16 @@ function getStyle(style: any) {
   `;
 }
 
-const LabelViewWrapper = styled.div<{ $style: any }>`
-  ${(props) => props.$style && getStyle(props.$style)}
+const LabelViewWrapper = styled.div<{ $style: any, inputFieldStyle: any }>`
+${(props) => {
+    return (
+      props.$style && {
+        ...props.$style,
+        borderRadius: props.$style.radius,
+      }
+    );
+  }}
+  ${(props) => props.inputFieldStyle && getStyle(props.inputFieldStyle)}
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -88,7 +98,7 @@ const Label = styled.span<{ $border: boolean, $labelStyle: LabelStyleType, $vali
   text-decoration:${(props) => props.$labelStyle.textDecoration};
   font-size:${(props) => props.$labelStyle.textSize};
   color:${(props) => !!props.$validateStatus && props?.$validateStatus === 'error' ? props.$labelStyle.validate : props.$labelStyle.label} !important;
-  ${(props) => `border-bottom:${props.$labelStyle.borderWidth} ${props.$labelStyle.borderStyle} ${!!props.$validateStatus && props?.$validateStatus === 'error' ? props.$labelStyle.validate : props.$labelStyle.border};`}
+  ${(props) => `border:${props.$labelStyle.borderWidth} ${props.$labelStyle.borderStyle} ${!!props.$validateStatus && props?.$validateStatus === 'error' ? props.$labelStyle.validate : props.$labelStyle.border};`}
   border-radius:${(props) => props.$labelStyle.radius};
   padding:${(props) => props.$labelStyle.padding};
   margin:${(props) => props.$labelStyle.margin};
@@ -159,18 +169,18 @@ export const LabelControl = (function () {
   };
 
   return new MultiCompBuilder(childrenMap, (props) => (args: LabelViewProps) => (
-    <LabelViewWrapper $style={args.style}>
+ <LabelViewWrapper $style={args.style} inputFieldStyle={args.inputFieldStyle}>
       <MainWrapper
         $position={props.position}
         $hasLabel={!!props.text}
         style={{
-          margin: args && args.style ? args?.style?.margin : 0,
-          // padding: args && args.style ? args?.style?.padding : 0,	
+          margin: args && args.inputFieldStyle ? args?.inputFieldStyle?.margin : 0,
+          // padding: args && args.inputFieldStyle ? args?.inputFieldStyle?.padding : 0,	
           width: widthCalculator(
-            args && args.style ? args?.style?.margin : "0px"
+            args && args.inputFieldStyle ? args?.inputFieldStyle?.margin : "0px"
           ),
           height: heightCalculator(
-            args && args.style ? args?.style?.margin : "0px"
+            args && args.inputFieldStyle ? args?.inputFieldStyle?.margin : "0px"
           ),
         }}
       >
@@ -237,7 +247,7 @@ export const LabelControl = (function () {
         </HelpWrapper>
       )}
     </LabelViewWrapper>
-  ))
+))
     .setPropertyViewFn((children) => (
       <Section name={trans("label")}>
         {children.text.propertyView({ label: trans("labelProp.text") })}

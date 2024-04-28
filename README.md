@@ -32,7 +32,7 @@ Lowcoder wants to take a step forward. More specifically, Lowcoder is:
 - The only platform where you can build your own Meeting Tool - like Teams, Zoom or Google Meets, - just in the Lowcode way.
 
 ## 🪄 Features
-- **Visual UI builder** with 50+ built-in components. Save 90% of time to build apps.
+- **Visual UI builder** with 70+ built-in components. Save 90% of time to build apps.
 - **Modules** for reusable (!) component sets in the UI builder.
 - **Embed Lowcoder Apps as native parts of any Website** instead of iFrame (!). [Demo](https://github.com/lowcoder-org/lowcoder-sdk-demo)
 - **Video Meeting Components** to create your own individual Web-Meeting tool.
@@ -87,6 +87,8 @@ And we mean it... Day by day!
 ## 💻 Deployment Options
 [![Deploy to AWS using Stitch](https://img.shields.io/badge/deploy_with-Stitch-%23E369F7?logo=amazonaws&color=%23E369F7)](https://deploy.stitch.tech/lowcoder/lowcoder)
 
+[![Deploy in minutes on Elest.io](https://raw.githubusercontent.com/elestio-examples/element/main/deploy-on-elestio.png)](https://elest.io/open-source/lowcoder)
+
 You can access Lowcoder from [cloud-hosted version](https://app.lowcoder.cloud/) at any time, or use the following resources for self-host Lowcoder on different platforms:
 - [Docker](https://docs.lowcoder.cloud/lowcoder-documentation/setup-and-run/self-hosting)
 
@@ -99,4 +101,4 @@ You can access Lowcoder from [cloud-hosted version](https://app.lowcoder.cloud/)
 Accelerate the growth of Lowcoder and unleash its potential with your Sponsorship – together, we're shaping the future of Lowcode for everyone!
 [Be a Sponsor](https://github.com/sponsors/lowcoder-org)
 
-Like ...  [@spacegoats-io](https://github.com/spacegoats-io), [@Jomedya](https://github.com/Jomedya), [@CHSchuepfer](https://github.com/CHSchuepfer), Thank you very much!!
+Like ...  [@Darkjamin](https://github.com/Darkjamin), [@spacegoats-io](https://github.com/spacegoats-io), [@Jomedya](https://github.com/Jomedya), [@CHSchuepfer](https://github.com/CHSchuepfer), Thank you very much!!

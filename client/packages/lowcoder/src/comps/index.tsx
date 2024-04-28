@@ -78,6 +78,7 @@ import { RemoteCompInfo } from "types/remoteComp";
 import { ScannerComp } from "./comps/buttonComp/scannerComp";
 import { SignatureComp } from "./comps/signatureComp";
 import { TimeLineComp } from "./comps/timelineComp/timelineComp";
+import { TourComp } from "./comps/tourComp/tourComp";
 import { CommentComp } from "./comps/commentComp/commentComp";
 import { MentionComp } from "./comps/textInputComp/mentionComp";
 import { AutoCompleteComp } from "./comps/autoCompleteComp/autoCompleteComp";
@@ -152,6 +153,7 @@ import {
   IconCompIcon,
   LayoutCompIcon,
   FloatingTextComp,
+  IconModal,
 } from "lowcoder-design";
 
 type Registry = {
@@ -553,7 +555,7 @@ export var uiCompMap: Registry = {
   },
 
   // Collaboration
- 
+  // we moved Agora Meetings to lowcoder-comps 
   // sharingcomponent: {
   //   name: trans("meeting.sharingCompName"),
   //   enName: "Sharing",
@@ -611,6 +613,7 @@ export var uiCompMap: Registry = {
   //   comp: remoteComp({ ...builtInRemoteComps, compName: "meetingController" }),
   //   withoutLoading: true,
   // },
+
   comment: {
     name: trans("uiComp.commentCompName"),
     enName: "comment",
@@ -622,7 +625,7 @@ export var uiCompMap: Registry = {
     compName: "CommentComp",
     compPath: "comps/commentComp/commentComp",
     layoutInfo: {
-      w: 13,
+      w: 12,
       h: 55,
     },
   },
@@ -902,12 +905,12 @@ export var uiCompMap: Registry = {
     withoutLoading: true,
   },
   controlButton: {
-    name: trans("meeting.meetingControlCompName"),
+    name: trans("uiComp.meetingControlCompName"),
     enName: "Controls",
-    description: trans("meeting.meetingCompDesc"),
+    description: trans("uiComp.meetingCompDesc"),
     categories: ["forms", "collaboration"],
     icon: ButtonCompIcon,
-    keywords: trans("meeting.meetingCompKeywords"),
+    keywords: trans("uiComp.meetingCompKeywords"),
     lazyLoad: true,
     compName: "ControlButton",
     compPath: "comps/meetingComp/controlButton",
@@ -973,7 +976,7 @@ export var uiCompMap: Registry = {
     compName: "StepComp",
     compPath: "comps/selectInputComp/stepsControl",
     layoutInfo: {
-      w: 6,
+      w: 19,
       h: 6,
     },
   },
@@ -1242,6 +1245,19 @@ export var uiCompMap: Registry = {
     layoutInfo: {
       w: 6,
       h: 5,
+    },
+  },
+  tour: {
+    name: trans("uiComp.tourCompName"),
+    enName: "Tour",
+    description: trans("uiComp.tourCompDesc"),
+    categories: ["multimedia", "itemHandling"],
+    icon: IconModal,
+    keywords: trans("uiComp.tourCompKeywords"),
+    comp: TourComp,
+    layoutInfo: {
+      w: 1,
+      h: 1,
     },
   },
   multiSelect: {

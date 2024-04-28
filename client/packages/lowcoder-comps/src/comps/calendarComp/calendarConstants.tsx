@@ -635,7 +635,7 @@ export const Wrapper = styled.div<{
   }
 `;
 
-export const Remove = styled.div<{ isList: boolean }>`
+export const Remove = styled.div<{ $isList: boolean }>`
   position: absolute;
   pointer-events: auto;
   top: 0;
@@ -652,21 +652,21 @@ export const Remove = styled.div<{ isList: boolean }>`
 `;
 
 export const Event = styled.div<{
-  bg: string;
+  $bg: string;
   theme: Object;
-  isList: boolean;
-  allDay: boolean;
+  $isList: boolean;
+  $allDay: boolean;
   $style: CalendarStyleType;
 }>`
   height: 100%;
   width: 100%;
   pointer-events: none;
   border-radius: 4px;
-  box-shadow: ${(props) => !props.isList && "0 0 5px 0 rgba(0, 0, 0, 0.15)"};
+  box-shadow: ${(props) => !props.$isList && "0 0 5px 0 rgba(0, 0, 0, 0.15)"};
   border: 1px solid ${(props) => props.$style.border};
-  display: ${(props) => props.isList && "flex"};
+  display: ${(props) => props.$isList && "flex"};
   background-color: ${(props) =>
-    !props.isList && lightenColor(props.$style.background, 0.1)};
+    !props.$isList && lightenColor(props.$style.background, 0.1)};
   overflow: hidden;
   font-size: 13px;
   line-height: 19px;
@@ -682,12 +682,12 @@ export const Event = styled.div<{
     left: 2px;
     top: 2px;
     border-radius: 3px;
-    background-color: ${(props) => props.bg};
+    background-color: ${(props) => props.$bg};
   }
 
   .event-time {
     color: ${(props) =>
-      !props.isList &&
+      !props.$isList &&
       (isDarkColor(props.$style.text)
         ? lightenColor(props.$style.text, 0.2)
         : props.$style.text)};
@@ -696,7 +696,7 @@ export const Event = styled.div<{
     margin-top: 2px;
   }
   .event-title {
-    color: ${(props) => !props.isList && props.$style.text};
+    color: ${(props) => !props.$isList && props.$style.text};
     font-weight: 500;
     margin-left: 15px;
     white-space: pre-wrap;

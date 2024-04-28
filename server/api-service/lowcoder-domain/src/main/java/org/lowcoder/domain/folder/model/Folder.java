@@ -1,13 +1,12 @@
 package org.lowcoder.domain.folder.model;
 
-import javax.annotation.Nullable;
 
+import jakarta.annotation.Nullable;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.lowcoder.sdk.models.HasIdAndAuditing;
 import org.springframework.data.mongodb.core.mapping.Document;
-
-import lombok.Getter;
-import lombok.Setter;
 
 @Getter
 @Setter

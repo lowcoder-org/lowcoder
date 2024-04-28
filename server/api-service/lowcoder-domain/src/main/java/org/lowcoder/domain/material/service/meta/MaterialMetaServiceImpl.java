@@ -2,6 +2,7 @@ package org.lowcoder.domain.material.service.meta;
 
 import java.util.Map;
 
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections4.MapUtils;
 import org.lowcoder.domain.material.model.MaterialMeta;
 import org.lowcoder.domain.material.repository.MaterialMateRepository;
@@ -19,14 +20,12 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+@RequiredArgsConstructor
 @Service
 public class MaterialMetaServiceImpl implements MaterialMetaService {
 
-    @Autowired
-    private ReactiveMongoTemplate reactiveMongoTemplate;
-
-    @Autowired
-    private MaterialMateRepository repository;
+    private final ReactiveMongoTemplate reactiveMongoTemplate;
+    private final MaterialMateRepository repository;
 
     @Override
     public Mono<Boolean> existsByOrgIdAndFilename(String orgId, String filename) {

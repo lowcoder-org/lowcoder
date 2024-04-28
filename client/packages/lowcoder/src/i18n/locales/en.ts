@@ -926,6 +926,10 @@ export const en = {
     "buttonCompDesc": "A versatile button component for submitting forms, triggering actions, or navigating.",
     "buttonCompKeywords": "button, submit, action, navigate",
 
+    "meetingControlCompName": "Control Button",
+    "meetingCompDesc": "A button for controlling functions like start, end, mute, or share.",
+    "meetingCompKeywords": "control, button, start, end",
+
     "linkCompName": "Link",
     "linkCompDesc": "A hyperlink display component for navigation or linking to external resources.",
     "linkCompKeywords": "link, hyperlink, navigation, external",
@@ -1105,6 +1109,10 @@ export const en = {
     "iconCompName": "Icons",
     "iconCompDesc": "Use various Icons to enhance the visual appeal and user experience of your application.",
     "iconCompKeywords": "Icons, pictograms, symbols, shapes",
+    
+    "tourCompName": "Tour",
+    "tourCompDesc": "A product tour for guiding users.",
+    "tourCompKeywords": "tour, product tour, walkthrough, interactive walkthrough",
   },
 
 
@@ -1205,6 +1213,9 @@ export const en = {
   },
   "password": {
     "label": "Password",
+    "placeholder": "Please Enter Password",
+    "conformLabel": "Confirm Password",
+    "conformPlaceholder": "Please Confirm Password",
     "visibilityToggle": "Show Visibility Toggle"
   },
   "richTextEditor": {
@@ -1255,10 +1266,39 @@ export const en = {
     "tip": "The 'item' and 'i' Variables Represent the Value and Index of Each Item in the Data Array"
   },
   "stepOptionsControl": {
+    "value": "Value / Key",
+    "valueTooltip": "Step Value must be a number. For the first Step, it must be equal to the initial value. Numbers must be in consistent and ascending order",
     "title": "Step Title",
     "subTitle": "Step Subtitle",
     "description": "Step Description",
     "status": "Step Status",
+    "icon": "Step Icon",
+  },
+  "step" : {
+    "initialValue": "Start Numbers at",
+    "initialValueTooltip": "Where to start the visual Numbering. Must be 1 or higher.",
+    "valueDesc": "Current Value",
+    "size" : "Steps Size",
+    "sizeSmall" : "Small",
+    "sizeDefault" : "Default",
+    "percent" : "Steps Percent",
+    "type" : "Steps Type",
+    "typeDefault" : "Standard",
+    "typeNavigation" : "Navigation",
+    "typeInline" : "Inline",
+    "direction" : "Steps Direction",
+    "directionVertical" : "Vertical",
+    "directionHorizontal" : "Horizontal",
+    "labelPlacement" : "Steps Label Placement",
+    "status" : "Steps Status",
+    "statusWait" : "Wait",
+    "statusProcess" : "Process",
+    "statusFinish" : "Finish",
+    "statusError" : "Error",
+    "showDots" : "Show Dots instead Symbols",
+    "showIcons" : "Show Icons instead Symbols",
+    "responsive" : "Responsive",
+    "selectable" : "Selectable",
   },
   "radio": {
     "options": "Options",
@@ -2348,7 +2388,7 @@ export const en = {
     "passwordCheckContainsNumberAndLetter": "Must Contain Letters and Numbers",
     "passwordCheckSpace": "Cannot Contain Whitespace Characters",
     "welcomeTitle": "Welcome to {productName}",
-    "inviteWelcomeTitle": "{username} Invite You to Login {productName}",
+    "inviteWelcomeTitle": "{username} invites You to work together",
     "terms": "Terms",
     "privacy": "Privacy Policy",
     "registerHint": "I Have Read and Agree to the",
@@ -2365,7 +2405,7 @@ export const en = {
     "resetSuccess": "Reset Succeeded",
     "resetSuccessDesc": "Password Reset Succeeded. The New Password is: {password}",
     "copyPassword": "Copy Password",
-    "poweredByLowcoder": "Powered by Lowcoder.cloud"
+    "poweredByLowcoder": "Powered by: Lowcoder.cloud"
   },
   "preLoad": {
     "jsLibraryHelpText": "Add JavaScript Libraries to Your Current Application via URL Addresses. lodash, day.js, uuid, numbro are Built into the System for Immediate Use. JavaScript Libraries are Loaded Before the Application is Initialized, Which Can Have an Impact on Application Performance.",
@@ -2397,8 +2437,7 @@ export const en = {
     "compProperties": "Component Properties"
   },
   "homeTutorials": {
-    // eslint-disable-next-line only-ascii/only-ascii
-    "createAppContent": "🎉 Welcome to {productName}, Click 'App' and Start to Create Your First Application.",
+    "createAppContent": "Welcome! Click 'App' and Start to Create Your First Application.",
     "createAppTitle": "Create App"
   },
 
@@ -2424,6 +2463,7 @@ export const en = {
     "history": "History"
   },
   "home": {
+    "profile": "Your Profile",
     "allApplications": "Your Apps",
     "allModules": "Your Modules",
     "allFolders": "All Folders",
@@ -2949,6 +2989,83 @@ export const en = {
     "widthTooltip": "Pixel or Percentage, e.g. 520, 60%",
     "navStyle": "Menu Style",
     "navItemStyle": "Menu Item Style"
+  },
+
+  tour: { 
+    section1Title: "Steps",
+    section1Subtitle: "Steps",
+    tooltipExampleHeader: "Example:",
+    tooltipSignatureHeader: "Signature:",
+    options: {
+      title: {
+        label: "Title",
+        placeholder: "Welcome",
+        tooltip: "The title of the step. Any HTML is valid here.",
+      },
+      description: {
+        label: "Description",
+        placeholder: "Welcome to lowcoder!",
+        tooltip: "The description of the step. Any HTML is valid here.",
+      },
+      mask: {
+        label: "Mask",
+        tooltip: "Whether to enable masking, change mask style and fill color by pass custom props, the default follows the `mask` property of Tour.",
+        tooltipValidTypes: "Valid input types: `true`, `false`, empty, or a JSON object following the CSSProperties Schema from Antd.",
+      },
+      arrow: {
+        label: "Arrow",
+        tooltip: "Turns the arrow on and off or moves it to point at the center of the component, if desired, otherwise the arrow will always point near the top of the component.",
+        tooltipFunctionSignature: "boolean | { pointAtCenter: boolean }",
+      },
+      type: {
+        label: "Type",
+        tooltip: "The type of tooltip, this affects the background color and text color. The colors can be controlled with the main tour styling section."
+      },
+      target: {
+        label: "Component",
+        tooltip: "The component you want to put the tooltip on, or leave it empty if you simply want a modal in the middle of the screen."
+      },
+      coverImage: {
+        label: "Cover Image URI",
+        tooltip: "A URI for an image you would like to display with the step",
+      }
+    },
+    indicatorsRender: {
+      label: "Indicators Render",
+      tooltip: "Provides a custom indicator for which step you are on",
+      tooltipValidTypes: "Format is a function that accepts two args, `current` and `total` and returns a ReactNode",
+      tooltipFunctionSignatureHeader: "Signature:",
+      tooltipFunctionSignature: "(current: number, total: number) => ReactNode",
+      tooltipExampleHeader: "Example:",
+    },
+    disabledInteraction: {
+      label: "Disable Interaction",
+      tooltip: "Disable interaction in the highlighted area."
+    },
+    mask: {
+      label: "Mask",
+      tooltip: "Whether to enable masking, change mask style and fill color by pass custom props, the default follows the `mask` property of Tour. Can be overridden at the step level.",
+      tooltipValidTypes: "Valid input types: `true`, `false`, empty, or a JSON object following the CSSProperties Schema from Antd.",
+    },
+    placement: {
+      label: "Placement",
+      tooltip: "Position of the guide card relative to the target element. Can be overridden at the step level.",
+      tooltipValidOptions: "Valid options",
+      tooltipValidOptionsAbove: "Above the component:",
+      tooltipValidOptionsLeft: "To the left of the component:",
+      tooltipValidOptionsRight: "To the right of the component:",
+      tooltipValidOptionsBelow: "Below the component:",
+      tooltipValidOptionsOnTop: "On top of the component:",
+    },
+    arrow: {
+      label: "Arrow",
+      tooltip: "Turns the arrow on and off or moves it to point at the center of the component, if desired, otherwise the arrow will always point near the top of the component. Can be overridden at the step level.",
+      tooltipFunctionSignature: "boolean | { pointAtCenter: boolean }",
+    },
+    type: {
+      label: "Type",
+      tooltip: "The type of tooltip, this affects the background color and text color. The colors can be controlled with the main tour styling section. Can be overridden at the step level."
+    },
   },
 
   docUrls: {

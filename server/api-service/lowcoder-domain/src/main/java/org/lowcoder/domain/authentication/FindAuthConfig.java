@@ -1,7 +1,7 @@
 package org.lowcoder.domain.authentication;
 
-import javax.annotation.Nullable;
 
+import jakarta.annotation.Nullable;
 import org.lowcoder.domain.organization.model.Organization;
 import org.lowcoder.sdk.auth.AbstractAuthConfig;
 

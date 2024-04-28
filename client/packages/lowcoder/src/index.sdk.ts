@@ -44,6 +44,7 @@ export * from "util/objectUtils";
 export * from "util/objectUtils";
 export * from "util/perfUtils";
 export * from "util/permissionUtils";
+export * from "util/promiseUtils";
 export * from "util/reducerUtils";
 export * from "util/scheduleUtils";
 export * from "util/stringUtils";

@@ -1,17 +1,14 @@
 package org.lowcoder.api.application.view;
 
-import java.time.Instant;
-
-import javax.annotation.Nullable;
-
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import jakarta.annotation.Nullable;
+import lombok.Builder;
+import lombok.Getter;
 import org.lowcoder.api.home.FolderInfoView;
 import org.lowcoder.domain.application.model.ApplicationStatus;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
-
-import lombok.Builder;
-import lombok.Getter;
+import java.time.Instant;
 
 @Builder
 @Getter

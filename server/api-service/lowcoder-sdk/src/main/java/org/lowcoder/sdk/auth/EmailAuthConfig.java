@@ -1,15 +1,13 @@
 package org.lowcoder.sdk.auth;
 
-import static org.lowcoder.sdk.auth.constants.AuthTypeConstants.FORM;
-import static org.lowcoder.sdk.constants.AuthSourceConstants.EMAIL;
-
-import javax.annotation.Nullable;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
-
+import jakarta.annotation.Nullable;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.jackson.Jacksonized;
+
+import static org.lowcoder.sdk.auth.constants.AuthTypeConstants.FORM;
+import static org.lowcoder.sdk.constants.AuthSourceConstants.EMAIL;
 
 @Getter
 @SuperBuilder

@@ -7501,6 +7501,25 @@ __metadata:
   languageName: node
   linkType: hard
 
+"countup.js@npm:^2.8.0":
+  version: 2.8.0
+  resolution: "countup.js@npm:2.8.0"
+  checksum: bfded0c6051b79be5f07c097f97bc39f29e95b92b01077fc214ee118b0afbc53988b3a491e2319ea7a1896014a9cda52f150722ccce9afd677faea5ade1274dd
+  languageName: node
+  linkType: hard
+
+"crc-32@npm:1.2.0":
+  version: 1.2.0
+  resolution: "crc-32@npm:1.2.0"
+  dependencies:
+    exit-on-epipe: ~1.0.1
+    printj: ~1.1.0
+  bin:
+    crc32: ./bin/crc32.njs
+  checksum: 7bcde8bea262f6629ac3c70e20bdfa3d058dc77091705ce8620513f76f19b41fc273ddd65a716eef9b4e33fbb61ff7f9b266653d214319aef27e4223789c6b9e
+  languageName: node
+  linkType: hard
+
 "crc-32@npm:~1.2.0, crc-32@npm:~1.2.1":
   version: 1.2.2
   resolution: "crc-32@npm:1.2.2"
@@ -10211,6 +10230,13 @@ __metadata:
     locate-path: ^7.1.0
     path-exists: ^5.0.0
   checksum: 9a21b7f9244a420e54c6df95b4f6fc3941efd3c3e5476f8274eb452f6a85706e7a6a90de71353ee4f091fcb4593271a6f92810a324ec542650398f928783c280
+  languageName: node
+  linkType: hard
+
+"flag-icons@npm:^7.2.1":
+  version: 7.2.1
+  resolution: "flag-icons@npm:7.2.1"
+  checksum: c24a71a1e830860625b60f4a0d16dff51dcc5e6849aeacb93e44bb0cd1553f5ba7d07fdfbb35ea3e297ddb300ca4bdb6a8499c396e25882c8ed38a942dc922cc
   languageName: node
   linkType: hard
 
@@ -13501,6 +13527,7 @@ __metadata:
     babel-jest: ^29.3.0
     babel-preset-react-app: ^10.0.1
     chalk: 4
+    flag-icons: ^7.2.1
     husky: ^8.0.1
     jest: ^29.5.0
     jest-canvas-mock: ^2.5.2
@@ -13510,6 +13537,7 @@ __metadata:
     mq-polyfill: ^1.1.8
     number-precision: ^1.6.0
     prettier: ^3.1.0
+    react-countup: ^6.5.3
     react-player: ^2.11.0
     resize-observer-polyfill: ^1.5.1
     rimraf: ^3.0.2
@@ -16678,6 +16706,17 @@ __metadata:
     react: ">=16.8.0"
     react-dom: ">=16.8.0"
   checksum: e432b7cb0df57e8f0bcdc3b012d2e93fcbcb6092c9e0f85654788d5ebfc4442536d8cc35b2418061ba3c4afb8b7788cc101c606d86a1732407921de7a9244c8d
+  languageName: node
+  linkType: hard
+
+"react-countup@npm:^6.5.3":
+  version: 6.5.3
+  resolution: "react-countup@npm:6.5.3"
+  dependencies:
+    countup.js: ^2.8.0
+  peerDependencies:
+    react: ">= 16.3.0"
+  checksum: c9a9776737a469e68beb035b81334879bac2e7d8edb1721f97d115d7b88e87d6ad62fc99083e329650b4416fe33d85b33211719afd531b83399e12d7ded25f89
   languageName: node
   linkType: hard
 

@@ -37,11 +37,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends gosu \
 COPY --chown=lowcoder:lowcoder --from=build-api-service /lowcoder/api-service /lowcoder/api-service
 
 # Copy lowcoder api service app, dependencies and libs
-COPY --chown=lowcoder:lowcoder --from=build-api-service /lowcoder-server/distribution/target/lowcoder-api-service-bin/app /lowcoder/api-service/app
-COPY --chown=lowcoder:lowcoder --from=build-api-service /lowcoder-server/distribution/target/lowcoder-api-service-bin/dependencies /lowcoder/api-service/dependencies
-COPY --chown=lowcoder:lowcoder --from=build-api-service /lowcoder-server/distribution/target/lowcoder-api-service-bin/libs /lowcoder/api-service/libs
-COPY --chown=lowcoder:lowcoder --from=build-api-service /lowcoder-server/distribution/target/lowcoder-api-service-bin/plugins /lowcoder/api-service/plugins
-COPY --chown=lowcoder:lowcoder --from=build-api-service /lowcoder-server/distribution/target/lowcoder-api-service-bin/set-classpath.sh /lowcoder/api-service/set-classpath.sh
+COPY --chown=lowcoder:lowcoder --from=build-api-service /lowcoder-server/lowcoder-server/target/lowcoder-api-service-bin/lowcoder-api-service.jar /lowcoder/api-service/lowcoder-api-service.jar
+COPY --chown=lowcoder:lowcoder --from=build-api-service /lowcoder-server/lowcoder-server/target/lowcoder-api-service-bin/libs /lowcoder/api-service/libs
+COPY --chown=lowcoder:lowcoder --from=build-api-service /lowcoder-server/lowcoder-server/target/lowcoder-api-service-bin/plugins /lowcoder/api-service/plugins
 
 EXPOSE 8080
 CMD [ "/bin/bash" , "/lowcoder/api-service/entrypoint.sh" ]
@@ -53,7 +51,7 @@ CMD [ "/bin/bash" , "/lowcoder/api-service/entrypoint.sh" ]
 ##
 FROM ubuntu:jammy as build-node-service
 
-RUN apt update && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y curl ca-certificates build-essential gnupg
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y curl ca-certificates build-essential gnupg
 
 # Add nodejs repo and keys
 RUN mkdir -p /etc/apt/keyrings \
@@ -85,7 +83,7 @@ RUN chmod +x /lowcoder/node-service/*.sh
 FROM ubuntu:jammy as lowcoder-ce-node-service
 LABEL maintainer="lowcoder"
 
-RUN apt update && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y curl ca-certificates gnupg
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y curl ca-certificates gnupg
 
 # Add nodejs repo and keys
 RUN mkdir -p /etc/apt/keyrings \
@@ -111,14 +109,14 @@ CMD [ "/bin/sh", "/lowcoder/node-service/entrypoint.sh" ]
 ## Build lowcoder client application
 ##
 FROM node:20.2-slim AS build-client
-COPY ./client /lowcoder-client
-WORKDIR /lowcoder-client
-RUN yarn --immutable
-
-# TODO: build lowcoder-comps
 
 # curl is required for yarn build to succeed, because it calls it while building client
 RUN apt-get update && apt-get install -y --no-install-recommends curl ca-certificates
+
+# Build client
+COPY ./client /lowcoder-client
+WORKDIR /lowcoder-client
+RUN yarn --immutable
 
 ARG REACT_APP_COMMIT_ID=test
 ARG REACT_APP_ENV=production
@@ -126,6 +124,20 @@ ARG REACT_APP_EDITION=community
 ARG REACT_APP_DISABLE_JS_SANDBOX=true
 RUN yarn build
 
+# Build lowcoder-comps
+WORKDIR /lowcoder-client/packages/lowcoder-comps
+RUN yarn install
+RUN yarn build
+RUN tar -zxf lowcoder-comps-*.tgz && mv package lowcoder-comps
+
+# Build lowcoder-sdk
+WORKDIR /lowcoder-client/packages/lowcoder-sdk
+RUN yarn install
+RUN yarn build
+
+WORKDIR /lowcoder-client/packages/lowcoder-sdk-webpack-bundle
+RUN yarn install
+RUN yarn build
 
 ##
 ## Intermediary Lowcoder client image
@@ -142,8 +154,15 @@ RUN usermod --login lowcoder --uid 9001 nginx \
   && rm -f /etc/nginx/nginx.conf \
   && mkdir -p /lowcoder/assets
 
-# Copy lowcoder client data
+# Copy lowcoder client
 COPY --chown=lowcoder:lowcoder --from=build-client /lowcoder-client/packages/lowcoder/build/ /lowcoder/client
+# Copy lowcoder components
+COPY --chown=lowcoder:lowcoder --from=build-client /lowcoder-client/packages/lowcoder-comps/lowcoder-comps /lowcoder/client-comps
+# Copy lowcoder SDK
+COPY --chown=lowcoder:lowcoder --from=build-client /lowcoder-client/packages/lowcoder-sdk /lowcoder/client-sdk
+# Copy lowcoder SDK webpack bundle
+COPY --chown=lowcoder:lowcoder --from=build-client /lowcoder-client/packages/lowcoder-sdk-webpack-bundle/dist /lowcoder/client-embed
+
 
 # Copy additional nginx init scripts
 COPY deploy/docker/frontend/00-change-nginx-user.sh /docker-entrypoint.d/00-change-nginx-user.sh
@@ -152,6 +171,7 @@ COPY deploy/docker/frontend/01-update-nginx-conf.sh /docker-entrypoint.d/01-upda
 RUN chmod +x /docker-entrypoint.d/00-change-nginx-user.sh && \
     chmod +x /docker-entrypoint.d/01-update-nginx-conf.sh
 
+COPY deploy/docker/frontend/server.conf /etc/nginx/server.conf
 COPY deploy/docker/frontend/nginx-http.conf /etc/nginx/nginx-http.conf
 COPY deploy/docker/frontend/nginx-https.conf /etc/nginx/nginx-https.conf
 COPY deploy/docker/frontend/ssl-certificate.conf /etc/nginx/ssl-certificate.conf
@@ -180,15 +200,9 @@ RUN mkdir -p /etc/apt/keyrings \
 # Install required packages
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y bash gnupg curl lsb-release \
   && curl -fsSL https://packages.redis.io/gpg | gpg --dearmor -o /usr/share/keyrings/redis-archive-keyring.gpg \
-  && echo "deb [signed-by=/usr/share/keyrings/redis-archive-keyring.gpg] https://packages.redis.io/deb bullseye main" | tee /etc/apt/sources.list.d/redis.list \
+  && echo "deb [signed-by=/usr/share/keyrings/redis-archive-keyring.gpg] https://packages.redis.io/deb bookworm main" | tee /etc/apt/sources.list.d/redis.list \
   && curl -fsSL https://www.mongodb.org/static/pgp/server-4.4.asc | gpg --dearmor -o /usr/share/keyrings/mongodb-archive-keyring.gpg \
-  && echo "deb [signed-by=/usr/share/keyrings/mongodb-archive-keyring.gpg arch=amd64,arm64] http://repo.mongodb.org/apt/ubuntu focal/mongodb-org/4.4 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-4.4.list \
-  && if [ "$(dpkg --print-architecture)" = "amd64" ] || [ "$(dpkg --print-architecture)" = "i386" ]; then \
-    curl -sL http://archive.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.1f-1ubuntu2_$(dpkg --print-architecture).deb --output libssl1.1_1.1.1f-1ubuntu2_$(dpkg --print-architecture).deb; \
-  else \
-    curl -sL http://ports.ubuntu.com/pool/main/o/openssl/libssl1.1_1.1.1f-1ubuntu2_$(dpkg --print-architecture).deb --output libssl1.1_1.1.1f-1ubuntu2_$(dpkg --print-architecture).deb; \
-  fi \
-  && dpkg -i libssl1.1_1.1.1f-1ubuntu2_$(dpkg --print-architecture).deb \
+  && echo "deb [signed-by=/usr/share/keyrings/mongodb-archive-keyring.gpg] https://repo.mongodb.org/apt/debian bookworm/mongodb-org/4.4 main" | tee /etc/apt/sources.list.d/mongodb-org-4.4.list \
   && apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install --no-install-recommends -y \
       mongodb-org \
       redis \

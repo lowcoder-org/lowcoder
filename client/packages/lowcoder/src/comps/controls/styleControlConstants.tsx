@@ -476,6 +476,15 @@ const STYLING_FIELDS_SEQUENCE = [
   BORDER_WIDTH,
 ]
 
+const STYLING_FIELDS_CONTAINER_SEQUENCE = [
+  BORDER,
+  BORDER_STYLE,
+  MARGIN,
+  PADDING,
+  RADIUS,
+  BORDER_WIDTH,
+];
+
 const FILL = {
   name: "fill",
   label: trans("style.fill"),
@@ -784,6 +793,11 @@ export const LabelStyle = [
   ...replaceAndMergeMultipleStyles([...InputLikeStyle], 'text', [LABEL]).filter((style) => style.name !== 'radius' && style.name !== 'background')
 ]
 
+export const InputFieldStyle = [
+  getStaticBackground(SURFACE_COLOR),
+  ...STYLING_FIELDS_CONTAINER_SEQUENCE,
+] as const;
+
 export const RatingStyle = [
   {
     name: "checked",
@@ -964,25 +978,45 @@ export const SegmentStyle = [
 ] as const;
 
 export const StepsStyle = [
-  LABEL,
-  ...STYLING_FIELDS_SEQUENCE.filter((style) => ['border', 'borderWidth'].includes(style.name) === false),
   {
-    name: "indicatorBackground",
-    label: trans("style.indicatorBackground"),
-    color: SURFACE_COLOR,
-  },
-  {
-    name: "background",
-    label: trans("style.background"),
-    depName: "indicatorBackground",
+    name: "activeBackground",
+    label: trans("style.accent"),
+    depName: "activeBackground",
     transformer: handleToSegmentBackground,
   },
   {
-    name: "text",
-    label: trans("text"),
-    depName: "indicatorBackground",
+    name: "titleText",
+    label: trans("title"),
+    depName: "background",
     depType: DEP_TYPE.CONTRAST_TEXT,
     transformer: contrastText,
+  },
+  ...STYLING_FIELDS_SEQUENCE.filter((style) => ['background', 'textSize','textDecoration'].includes(style.name) === false),
+  getBackground(),
+  {
+    name: "backgroundImage",
+    label: trans("style.backgroundImage"),
+    backgroundImage: "backgroundImage",
+  },
+  {
+    name: "backgroundImageRepeat",
+    label: trans("style.backgroundImageRepeat"),
+    backgroundImageRepeat: "backgroundImageRepeat",
+  },
+  {
+    name: "backgroundImageSize",
+    label: trans("style.backgroundImageSize"),
+    backgroundImageSize: "backgroundImageSize",
+  },
+  {
+    name: "backgroundImagePosition",
+    label: trans("style.backgroundImagePosition"),
+    backgroundImagePosition: "backgroundImagePosition",
+  },
+  {
+    name: "backgroundImageOrigin",
+    label: trans("style.backgroundImageOrigin"),
+    backgroundImageOrigin: "backgroundImageOrigin",
   },
 ] as const;
 
@@ -1126,6 +1160,8 @@ export const DateTimeStyle = [
   TEXT,
   MARGIN,
   PADDING,
+  BORDER_STYLE,
+  BORDER_WIDTH,
   ...ACCENT_VALIDATE,
 ] as const;
 
@@ -1150,11 +1186,11 @@ export const LinkStyle = [
 ] as const;
 
 export const DividerStyle = [
-  {
+  /* {
     name: "color",
     label: trans("color"),
-    color: lightenColor(SECOND_SURFACE_COLOR, 0.05),
-  },
+    color: darkenColor(SECOND_SURFACE_COLOR, 0.1),
+  }, */
   ...STYLING_FIELDS_SEQUENCE.map((style) => {
     if (style.name === 'text') {
       return {
@@ -1446,6 +1482,7 @@ export const RichTextEditorStyle = [
 
 export type LabelStyleType = StyleConfigType<typeof LabelStyle>;
 export type InputLikeStyleType = StyleConfigType<typeof InputLikeStyle>;
+export type InputFieldStyleType = StyleConfigType<typeof InputFieldStyle>;
 export type ButtonStyleType = StyleConfigType<typeof ButtonStyle>;
 export type ToggleButtonStyleType = StyleConfigType<typeof ToggleButtonStyle>;
 export type TextStyleType = StyleConfigType<typeof TextStyle>;
