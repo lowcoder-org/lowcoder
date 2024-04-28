@@ -1,29 +1,26 @@
-import { BoolCodeControl, StringControl } from "comps/controls/codeControl";
-import { EditorContext } from "comps/editorState";
-import { withDefault } from "comps/generators";
-import { UICompBuilder } from "comps/generators/uiCompBuilder";
-import ReactResizeDetector from "react-resize-detector";
 import {
+  NameConfig,
+  withDefault,
+  withExposingConfigs,
+  StringControl,
   Section,
   sectionNames,
-} from "lowcoder-design";
-import { trans } from "i18n";
-import styled from "styled-components";
-import {
+  AutoHeightControl,
+  EditorContext,
+  styled,
+  MeetingEventHandlerControl,
+  BoolCodeControl,
+  RefControl,
+  stringExposingStateControl,
+  UICompBuilder,
   CommonNameConfig,
-  NameConfig,
-  withExposingConfigs,
-} from "../../generators/withExposing";
-import { ButtonStyleControl } from "./videobuttonCompConstants";
-import { RefControl } from "comps/controls/refControl";
+} from "lowcoder-sdk";
 import { useEffect, useRef, useState } from "react";
-import { AutoHeightControl } from "comps/controls/autoHeightControl";
-import { client } from "./videoMeetingControllerComp";
+import { client } from "./meetingControllerComp";
 import type { IAgoraRTCRemoteUser } from "agora-rtc-sdk-ng";
-import { useContext } from "react";
-import { MeetingEventHandlerControl } from "comps/controls/eventHandlerControl";
-import { stringExposingStateControl } from "comps/controls/codeStateControl";
-import { hiddenPropertyView } from "comps/utils/propertyUtils";
+import { trans } from "../../i18n/comps";
+import ReactResizeDetector from "react-resize-detector";
+import { ButtonStyleControl } from "./videobuttonCompConstants";
 
 const VideoContainer = styled.video`
   height: 100%;
@@ -42,13 +39,13 @@ const sharingStreamChildren = {
   disabled: BoolCodeControl,
   loading: BoolCodeControl,
   style: ButtonStyleControl,
-  viewRef: RefControl<HTMLElement>,
+  viewRef: RefControl,
   userId: withDefault(stringExposingStateControl(""), "{{meeting1.localUser}}"),
   noVideoText: stringExposingStateControl(trans("meeting.noVideo")),
 };
 
 let SharingCompBuilder = (function () {
-  return new UICompBuilder(sharingStreamChildren, (props) => {
+  return new UICompBuilder(sharingStreamChildren, (props: any) => {
     const videoRef = useRef<HTMLVideoElement>(null);
     const conRef = useRef<HTMLDivElement>(null);
     const [userId, setUserId] = useState();
@@ -95,8 +92,6 @@ let SharingCompBuilder = (function () {
         client.on(
           "user-unpublished",
           (user: IAgoraRTCRemoteUser, mediaType: "video" | "audio") => {
-            // console.log("user-unpublished");
-
             if (mediaType === "audio") {
               if (
                 !user.hasAudio &&
@@ -130,7 +125,7 @@ let SharingCompBuilder = (function () {
 
     return (
       <EditorContext.Consumer>
-        {(editorState) => (
+        {(editorState: any) => (
           <ReactResizeDetector>
             <div
               ref={conRef}
@@ -139,11 +134,11 @@ let SharingCompBuilder = (function () {
                 alignItems: "center",
                 height: "100%",
                 overflow: "hidden",
-                borderRadius: props.style.radius,
-                aspectRatio: props.videoAspectRatio,
-                backgroundColor: props.style.background,
-                padding: props.style.padding,
-                margin: props.style.margin,
+                borderRadius: props?.style?.radius,
+                aspectRatio: props?.videoAspectRatio,
+                backgroundColor: props.style?.background,
+                padding: props.style?.padding,
+                margin: props.style?.margin,
               }}
             >
               {userId ? (
@@ -161,7 +156,7 @@ let SharingCompBuilder = (function () {
               ) : (
                 <></>
               )}
-              {/* <div
+              <div
                 style={{
                   flexDirection: "column",
                   alignItems: "center",
@@ -177,59 +172,63 @@ let SharingCompBuilder = (function () {
                     width: "100%",
                     overflow: "hidden",
                   }}
-                  src={props.profileImageUrl.value}
+                  src={props.profileImageUrl?.value}
                 />
                 <p style={{ margin: "0" }}>{userName ?? ""}</p>
-              </div> */}
+              </div>
             </div>
           </ReactResizeDetector>
         )}
       </EditorContext.Consumer>
     );
   })
-    .setPropertyViewFn((children) => (
+    .setPropertyViewFn((children: any) => (
       <>
         <Section name={sectionNames.basic}>
           {children.userId.propertyView({ label: trans("meeting.videoId") })}
         </Section>
 
-        {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
+        {/* {(useContext(EditorContext).editorModeStatus === "logic" ||
+          useContext(EditorContext).editorModeStatus === "both") && (
           <Section name={sectionNames.interaction}>
             {children.onEvent.getPropertyView()}
             {hiddenPropertyView(children)}
           </Section>
-        )}
+        )} */}
 
-        {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
-          <><Section name={sectionNames.layout}>
-              {children.autoHeight.getPropertyView()}
-            </Section>
-            <Section name={sectionNames.style}>
-              {children.profilePadding.propertyView({
-                label: "Profile Image Padding",
-              })}
-              {children.profileBorderRadius.propertyView({
-                label: "Profile Image Border Radius",
-              })}
-              {children.videoAspectRatio.propertyView({
-                label: "Video Aspect Ratio",
-              })}
-              {children.style.getPropertyView()}
-            </Section>
-          </>
-        )}
+        {/* {(useContext(EditorContext).editorModeStatus === "layout" ||
+          useContext(EditorContext).editorModeStatus === "both") && (
+          <> */}
+        <Section name={sectionNames.layout}>
+          {children.autoHeight.getPropertyView()}
+        </Section>
+        <Section name={sectionNames.style}>
+          {children.profilePadding.propertyView({
+            label: "Profile Image Padding",
+          })}
+          {children.profileBorderRadius.propertyView({
+            label: "Profile Image Border Radius",
+          })}
+          {children.videoAspectRatio.propertyView({
+            label: "Video Aspect Ratio",
+          })}
+          {children.style?.getPropertyView()}
+        </Section>
+        {/* </> */}
+        {/* )} */}
       </>
     ))
     .build();
 })();
 
 SharingCompBuilder = class extends SharingCompBuilder {
-  override autoHeight(): boolean {
-    return this.children.autoHeight.getView();
+  autoHeight(): boolean {
+    return false;
   }
 };
 
 export const VideoSharingStreamComp = withExposingConfigs(SharingCompBuilder, [
-  new NameConfig("loading", trans("button.loadingDesc")),
+  new NameConfig("loading", trans("meeting.loadingDesc")),
   ...CommonNameConfig,
 ]);
+ 

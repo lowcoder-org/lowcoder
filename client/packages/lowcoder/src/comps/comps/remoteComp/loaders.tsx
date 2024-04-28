@@ -16,7 +16,7 @@ async function npmLoader(
 
   const { packageName, packageVersion, compName } = remoteInfo;
   const entry = `${NPM_PLUGIN_ASSETS_BASE_URL}/${packageName}@${localPackageVersion}/index.js`;
-  // const entry = `../../../../../public/package/index.js`; 
+  /// const entry = `../../../../../public/package/index.js`; 
   // console.log("Entry", entry);
   try {
     const module = await import(

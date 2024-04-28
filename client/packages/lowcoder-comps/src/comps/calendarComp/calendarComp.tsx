@@ -116,7 +116,7 @@ let CalendarBasicComp = (function () {
     const theme = useContext(ThemeContext);
     const ref = createRef<HTMLDivElement>();
     const editEvent = useRef<EventType>();
-    const [form] = Form.useForm();
+    const [form] = Form.useForm(); 
     const [left, setLeft] = useState<number | undefined>(undefined);
     const [licensed, setLicensed] = useState<boolean>(props.licenseKey !== "");
 

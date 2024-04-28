@@ -1,29 +1,28 @@
-import { BoolCodeControl, StringControl } from "comps/controls/codeControl";
-import { EditorContext } from "comps/editorState";
-import { withDefault } from "comps/generators/simpleGenerators";
-import { UICompBuilder } from "comps/generators/uiCompBuilder";
-import ReactResizeDetector from "react-resize-detector";
 import {
+  NameConfig,
+  withDefault,
+  withExposingConfigs,
+  StringControl,
   Section,
   sectionNames,
-} from "lowcoder-design";
-import { trans } from "i18n";
-import styled from "styled-components";
-import {
+  AutoHeightControl,
+  EditorContext,
+  styled,
+  MeetingEventHandlerControl,
+  BoolCodeControl,
+  RefControl,
+  stringExposingStateControl,
+  StringStateControl,
+  UICompBuilder, 
   CommonNameConfig,
-  NameConfig,
-  withExposingConfigs,
-} from "../../generators/withExposing";
+} from "lowcoder-sdk";
 import { ButtonStyleControl } from "./videobuttonCompConstants";
-import { RefControl } from "comps/controls/refControl";
-import { useEffect, useRef, useState } from "react";
-import { AutoHeightControl } from "comps/controls/autoHeightControl";
-import { client } from "./videoMeetingControllerComp";
+import { trans } from "../../i18n/comps";
+
+import { client } from "./meetingControllerComp";
 import type { IAgoraRTCRemoteUser } from "agora-rtc-sdk-ng";
-import { useContext } from "react";
-import { MeetingEventHandlerControl } from "comps/controls/eventHandlerControl";
-import { StringStateControl, stringExposingStateControl } from "comps/controls/codeStateControl";
-import { hiddenPropertyView } from "comps/utils/propertyUtils";
+import { useEffect, useRef, useState } from "react";
+import ReactResizeDetector from "react-resize-detector";
 
 const VideoContainer = styled.video`
   height: 100%;
@@ -42,14 +41,17 @@ const meetingStreamChildren = {
   disabled: BoolCodeControl,
   loading: BoolCodeControl,
   style: ButtonStyleControl,
-  viewRef: RefControl<HTMLElement>,
+  viewRef: RefControl,
   userId: withDefault(stringExposingStateControl(""), "{{meeting1.localUser}}"),
-  profileImageUrl: withDefault(StringStateControl, "https://api.dicebear.com/7.x/fun-emoji/svg?seed=Peanut&radius=50&backgroundColor=transparent&randomizeIds=true&eyes=wink,sleepClose"),
+  profileImageUrl: withDefault(
+    StringStateControl,
+    "https://api.dicebear.com/7.x/fun-emoji/svg?seed=Peanut&radius=50&backgroundColor=transparent&randomizeIds=true&eyes=wink,sleepClose"
+  ),
   noVideoText: stringExposingStateControl(trans("meeting.noVideo")),
 };
 
 let VideoCompBuilder = (function () {
-  return new UICompBuilder(meetingStreamChildren, (props) => {
+  return new UICompBuilder(meetingStreamChildren, (props: any) => {
     const videoRef = useRef<HTMLVideoElement>(null);
     const conRef = useRef<HTMLDivElement>(null);
     const [userId, setUserId] = useState();
@@ -116,7 +118,7 @@ let VideoCompBuilder = (function () {
                 !user.hasVideo &&
                 user.uid + "" !== userData.user &&
                 userData.user !== ""
-              ) {
+              ) { 
                 props.onEvent("videoOff");
               }
             }
@@ -128,13 +130,12 @@ let VideoCompBuilder = (function () {
         setVideo(userData.streamingVideo);
       }
     }, [props.userId.value]);
-
-    // console.log(props.userId);
+    console.log("userId", userId);
     
 
     return (
       <EditorContext.Consumer>
-        {(editorState) => (
+        {(editorState: any) => (
           <ReactResizeDetector>
             <div
               ref={conRef}
@@ -191,55 +192,59 @@ let VideoCompBuilder = (function () {
       </EditorContext.Consumer>
     );
   })
-    .setPropertyViewFn((children) => (
+    .setPropertyViewFn((children: any) => (
       <>
         <Section name={sectionNames.basic}>
           {children.userId.propertyView({ label: trans("meeting.videoId") })}
-          
+
           {children.profileImageUrl.propertyView({
             label: trans("meeting.profileImageUrl"),
-            placeholder: "https://api.dicebear.com/7.x/fun-emoji/svg?seed=Peanut&radius=50&backgroundColor=transparent&randomizeIds=true&eyes=wink,sleepClose",
+            placeholder:
+              "https://api.dicebear.com/7.x/fun-emoji/svg?seed=Peanut&radius=50&backgroundColor=transparent&randomizeIds=true&eyes=wink,sleepClose",
           })}
         </Section>
 
-        {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
+        {/* {(useContext(EditorContext).editorModeStatus === "logic" ||
+          useContext(EditorContext).editorModeStatus === "both") && (
           <Section name={sectionNames.interaction}>
             {children.onEvent.getPropertyView()}
             {hiddenPropertyView(children)}
           </Section>
         )}
 
-        {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
-          <><Section name={sectionNames.layout}>
-              {children.autoHeight.getPropertyView()}
-            </Section>
-            <Section name={sectionNames.style}>
-              {children.profilePadding.propertyView({
-                label: "Profile Image Padding",
-              })}
-              {children.profileBorderRadius.propertyView({
-                label: "Profile Image Border Radius",
-              })}
-              {children.videoAspectRatio.propertyView({
-                label: "Video Aspect Ratio",
-              })}
-              {children.style.getPropertyView()}
-            </Section>
-          </>
-        )}
+        {(useContext(EditorContext).editorModeStatus === "layout" ||
+          useContext(EditorContext).editorModeStatus === "both") && (
+          <> */}
+        <Section name={sectionNames.layout}>
+          {children.autoHeight.getPropertyView()}
+        </Section>
+        <Section name={sectionNames.style}>
+          {children.profilePadding.propertyView({
+            label: "Profile Image Padding",
+          })}
+          {children.profileBorderRadius.propertyView({
+            label: "Profile Image Border Radius",
+          })}
+          {children.videoAspectRatio.propertyView({
+            label: "Video Aspect Ratio",
+          })}
+          {children.style.getPropertyView()}
+        </Section>
+        {/* </> */}
+        {/* )} */}
       </>
     ))
     .build();
 })();
 
 VideoCompBuilder = class extends VideoCompBuilder {
-  override autoHeight(): boolean {
-    return this.children.autoHeight.getView();
+  autoHeight(): boolean {
+    return false;
   }
 };
 
 export const VideoMeetingStreamComp = withExposingConfigs(VideoCompBuilder, [
-  new NameConfig("loading", trans("button.loadingDesc")),
+  new NameConfig("loading", trans("meeting.loadingDesc")),
   new NameConfig("profileImageUrl", trans("meeting.profileImageUrl")),
 
   ...CommonNameConfig,
