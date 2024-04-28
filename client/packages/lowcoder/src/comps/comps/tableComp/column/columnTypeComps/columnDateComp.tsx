@@ -11,7 +11,7 @@ import { trans } from "i18n";
 import { isNumber } from "lodash";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
-import { CalendarIcon, PrevIcon, SuperPrevIcon } from "lowcoder-design";
+import { CalendarIcon_s, PrevIcon, SuperPrevIcon } from "lowcoder-design";
 import { useState } from "react";
 import styled from "styled-components";
 import { DateParser, DATE_FORMAT } from "util/dateTimeUtils";
@@ -164,7 +164,7 @@ export const DateEdit = (props: DateEditProps) => {
     >
       <DatePickerStyled
         $open={panelOpen}
-        suffixIcon={<CalendarIcon />}
+        suffixIcon={<CalendarIcon_s />}
         prevIcon={<PrevIcon />}
         nextIcon={<IconNext />}
         superNextIcon={<IconSuperNext />}
