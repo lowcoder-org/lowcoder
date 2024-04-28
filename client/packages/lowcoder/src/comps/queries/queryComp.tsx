@@ -276,20 +276,15 @@ function QueryView(props: QueryViewProps) {
 
   useEffect(() => {
     // Automatically load when page load
-    const depList = Object.keys(comp.children.comp.node()?.dependValues() ?? {});
-    const depName = depList.length ? depList[0] : null;
-    const depComp = depName ? editorState.getUICompByName(depName) : undefined;
-    const isModule = depComp ? depComp.children.compType.getView() === 'module' : false;
 
     if (
-      isModule &&
       getTriggerType(comp) === "automatic" &&
       (comp as any).isDepReady &&
       !comp.children.isNewCreate.value
     ) {
       setTimeout(() => {
         comp.dispatch(deferAction(executeQueryAction({})));
-      }, 1000);
+      }, 300);
     }
   }, []);
 
