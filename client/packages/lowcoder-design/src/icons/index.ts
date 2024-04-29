@@ -280,7 +280,7 @@ export { ReactComponent as AutoCompleteCompIcon } from "./v2/auto-complete-input
 export { ReactComponent as ButtonCompIcon } from "./v2/button-m.svg";
 export { ReactComponent as CalendarCompIcon } from "./v2/calendar-m.svg";
 export { ReactComponent as CascaderCompIcon } from "./v2/cascader-m.svg";
-export { ReactComponent as ChartCompIcon } from "./v2/bar-chart-m.svg";
+export { ReactComponent as ChartCompIcon } from "./v2/pie-chart-m.svg";
 export { ReactComponent as CheckboxCompIcon } from "./v2/checkbox-m.svg";
 export { ReactComponent as CollapsibleContainerCompIcon } from "./v2/collapsible-container-m.svg";
 export { ReactComponent as CommentCompIcon } from "./v2/comment-m.svg";
