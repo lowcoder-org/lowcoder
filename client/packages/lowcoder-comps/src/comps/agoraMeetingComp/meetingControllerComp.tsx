@@ -239,10 +239,13 @@ const meetingControllerChildren = {
   rtcToken: stringStateControl(trans("meeting.rtcToken")),
   messages: stateComp<JSONValue>([]),
 };
-let MTComp = (function () {
-  return new ContainerCompBuilder(
-    meetingControllerChildren,
-    (props: any, dispatch: any) => {
+
+let MTComp;
+
+try {
+
+    MTComp = new ContainerCompBuilder( meetingControllerChildren, (props: any, dispatch: any) => {
+      
       const isTopBom = ["top", "bottom"].includes(props.placement);
       const { items, ...otherContainerProps } = props.container;
       // const userViewMode = useUserViewMode();
@@ -274,22 +277,22 @@ let MTComp = (function () {
 
       useEffect(() => {
         if (userJoined) {
-          console.log("userJoined ", userJoined);
+          // console.log("userJoined ", userJoined);
           
           let prevUsers: any[] = props.participants as [];
-          console.log("prevUsers ", prevUsers);
+          // console.log("prevUsers ", prevUsers);
           let userData = {
             user: userJoined.uid,
             audiostatus: userJoined.hasAudio,
             streamingVideo: true,
           };
-          console.log("userData ", userData);
+          // console.log("userData ", userData);
           setUserIds((userIds: any) => [...userIds, userData]);
-          console.log("userIds ", userIds);
-          console.log(
+          // console.log("userIds ", userIds);
+          /* console.log(
             "removeDuplicates ",
             removeDuplicates(getData([...prevUsers, userData]).data, "user")
-          );
+          ); */
           dispatch(
             changeChildAction(
               "participants",
@@ -378,7 +381,7 @@ let MTComp = (function () {
         props.localUser.onChange(localObject);
       }, [props.sharing.value]);
 
-      console.log("participants ", props.participants);
+      // console.log("participants ", props.participants);
 
       useEffect(() => {
         let prevUsers: [] = props.participants as [];
@@ -629,242 +632,247 @@ let MTComp = (function () {
       </>
     ))
     .build();
-})();
 
-MTComp = class extends MTComp {
-  autoHeight(): boolean {
-    return false;
-  }
-};
-
-MTComp = withMethodExposing(MTComp, [
-  {
-    method: {
-      name: "openDrawer",
-      params: [],
-    },
-    execute: (comp: any, values: any) => {
-      comp.children.visible.getView().onChange(true);
-    },
-  },
-  {
-    method: {
-      name: "startSharing",
-      params: [],
-    },
-    execute: async (comp: any, values: any) => {
-      if (!comp.children.meetingActive.getView().value) return;
-      let sharing = !comp.children.sharing.getView().value;
-      await shareScreen(sharing);
-      comp.children.sharing.change(sharing);
-    },
-  },
-  {
-    method: {
-      name: "audioControl",
-      description: trans("meeting.actionBtnDesc"),
-      params: [],
-    },
-    execute: async (comp: any, values: any) => {
-      if (!comp.children.meetingActive.getView().value) return;
-      let value = !comp.children.audioControl.getView().value;
-      comp.children.localUser.change({
-        user: userId + "",
-        audiostatus: value,
-        streamingVideo: comp.children.videoControl.getView().value,
-        speaking: false,
-      });
-      await turnOnMicrophone(value);
-      comp.children.audioControl.change(value);
-    },
-  },
-  {
-    method: {
-      name: "videoControl",
-      description: trans("meeting.actionBtnDesc"),
-      params: [],
-    },
-    execute: async (comp: any, values: any) => {
-      //check if meeting is active
-      if (!comp.children.meetingActive.getView().value) return;
-      //toggle videoControl
-      let value = !comp.children.videoControl.getView().value;
-      if (videoTrack) {
-        videoTrack.setEnabled(value);
-      } else {
-        await turnOnCamera(value);
+    MTComp = class extends MTComp {
+      autoHeight(): boolean {
+        return false;
       }
-      //change my local user data
-      let localData = {
-        user: userId + "",
-        streamingVideo: value,
-        audiostatus: comp.children.audioControl.getView().value,
-        speaking: comp.children.localUser.getView().value.speaking,
-      };
-
-      comp.children.localUser.change(localData);
-      comp.children.videoControl.change(value);
-    },
-  },
-  {
-    method: {
-      name: "startMeeting",
-      description: trans("meeting.actionBtnDesc"),
-      params: [],
-    },
-    execute: async (comp: any, values: any) => {
-      console.log("startMeeting ", {
-        // user: userId + "",
-        audiostatus: false,
-        speaking: false,
-        streamingVideo: true,
-      });
-      if (comp.children.meetingActive.getView().value) return;
-      userId =
-        comp.children.localUserID.getView().value === ""
-          ? uuidv4()
-          : comp.children.localUserID.getView().value;
-      comp.children.localUser.change({
-        user: userId + "",
-        audiostatus: false,
-        speaking: false,
-        streamingVideo: true,
-      });
-      console.log("startMeeting localUser ", {
-        user: userId + "",
-        audiostatus: false,
-        speaking: false,
-        streamingVideo: true,
-      });
-
-      comp.children.localUser.children.value.dispatch(
-        changeChildAction(
-          "localUser",
-          {
+    };
+    
+    MTComp = withMethodExposing(MTComp, [
+      {
+        method: {
+          name: "openDrawer",
+          params: [],
+        },
+        execute: (comp: any, values: any) => {
+          comp.children.visible.getView().onChange(true);
+        },
+      },
+      {
+        method: {
+          name: "startSharing",
+          params: [],
+        },
+        execute: async (comp: any, values: any) => {
+          if (!comp.children.meetingActive.getView().value) return;
+          let sharing = !comp.children.sharing.getView().value;
+          await shareScreen(sharing);
+          comp.children.sharing.change(sharing);
+        },
+      },
+      {
+        method: {
+          name: "audioControl",
+          description: trans("meeting.actionBtnDesc"),
+          params: [],
+        },
+        execute: async (comp: any, values: any) => {
+          if (!comp.children.meetingActive.getView().value) return;
+          let value = !comp.children.audioControl.getView().value;
+          comp.children.localUser.change({
+            user: userId + "",
+            audiostatus: value,
+            streamingVideo: comp.children.videoControl.getView().value,
+            speaking: false,
+          });
+          await turnOnMicrophone(value);
+          comp.children.audioControl.change(value);
+        },
+      },
+      {
+        method: {
+          name: "videoControl",
+          description: trans("meeting.actionBtnDesc"),
+          params: [],
+        },
+        execute: async (comp: any, values: any) => {
+          //check if meeting is active
+          if (!comp.children.meetingActive.getView().value) return;
+          //toggle videoControl
+          let value = !comp.children.videoControl.getView().value;
+          if (videoTrack) {
+            videoTrack.setEnabled(value);
+          } else {
+            await turnOnCamera(value);
+          }
+          //change my local user data
+          let localData = {
+            user: userId + "",
+            streamingVideo: value,
+            audiostatus: comp.children.audioControl.getView().value,
+            speaking: comp.children.localUser.getView().value.speaking,
+          };
+    
+          comp.children.localUser.change(localData);
+          comp.children.videoControl.change(value);
+        },
+      },
+      {
+        method: {
+          name: "startMeeting",
+          description: trans("meeting.actionBtnDesc"),
+          params: [],
+        },
+        execute: async (comp: any, values: any) => {
+          /* console.log("startMeeting ", {
+            // user: userId + "",
+            audiostatus: false,
+            speaking: false,
+            streamingVideo: true,
+          }); */
+          if (comp.children.meetingActive.getView().value) return;
+          userId =
+            comp.children.localUserID.getView().value === ""
+              ? uuidv4()
+              : comp.children.localUserID.getView().value;
+          comp.children.localUser.change({
             user: userId + "",
             audiostatus: false,
             speaking: false,
             streamingVideo: true,
-          },
-          false
-        )
-      );
-      comp.children.videoControl.change(true);
-      await publishVideo(
-        comp.children.appId.getView(),
-        comp.children.meetingName.getView().value === ""
-          ? uuidv4()
-          : comp.children.meetingName.getView().value,
-        comp.children.rtmToken.getView().value,
-        comp.children.rtcToken.getView().value
-      );
-      comp.children.meetingActive.change(true);
-    },
-  },
-  {
-    method: {
-      name: "broadCast",
-      description: trans("meeting.broadCast"),
-      params: [],
-    },
-    execute: async (comp: any, values: any) => {
-      if (!comp.children.meetingActive.getView().value) return;
-      let messagedata =
-        values !== undefined && values[0] !== undefined ? values[0] : "";
-      let toUsers: any =
-        values !== undefined && values[1] !== undefined ? values[1] : "";
+          });
+          /* console.log("startMeeting localUser ", {
+            user: userId + "",
+            audiostatus: false,
+            speaking: false,
+            streamingVideo: true,
+          }); */
+    
+          comp.children.localUser.children.value.dispatch(
+            changeChildAction(
+              "localUser",
+              {
+                user: userId + "",
+                audiostatus: false,
+                speaking: false,
+                streamingVideo: true,
+              },
+              false
+            )
+          );
+          comp.children.videoControl.change(true);
+          await publishVideo(
+            comp.children.appId.getView(),
+            comp.children.meetingName.getView().value === ""
+              ? uuidv4()
+              : comp.children.meetingName.getView().value,
+            comp.children.rtmToken.getView().value,
+            comp.children.rtcToken.getView().value
+          );
+          comp.children.meetingActive.change(true);
+        },
+      },
+      {
+        method: {
+          name: "broadCast",
+          description: trans("meeting.broadCast"),
+          params: [],
+        },
+        execute: async (comp: any, values: any) => {
+          if (!comp.children.meetingActive.getView().value) return;
+          let messagedata =
+            values !== undefined && values[0] !== undefined ? values[0] : "";
+          let toUsers: any =
+            values !== undefined && values[1] !== undefined ? values[1] : "";
+    
+          let message: any = {
+            time: Date.now(),
+            message: messagedata,
+          };
+    
+          if (toUsers.length > 0 && toUsers[0] !== undefined) {
+            toUsers.forEach((peer: any) => {
+              message.to = peer;
+              sendPeerMessageRtm(message, String(peer));
+            });
+          } else {
+            sendMessageRtm(message);
+          }
+        },
+      },
+      {
+        method: {
+          name: "setMeetingName",
+          description: trans("meeting.meetingName"),
+          params: [],
+        },
+        execute: async (comp: any, values: any) => {
+          let meetingName: any = values[0];
+          comp.children.meetingName.change(meetingName);
+        },
+      },
+      {
+        method: {
+          name: "setUserName",
+          description: trans("meeting.userName"),
+          params: [],
+        },
+        execute: async (comp: any, values: any) => {
+          let userName: any = values[0];
+          let userLocal = comp.children.localUser.getView().value;
+          comp.children.localUser.change({ ...userLocal, userName: userName });
+        },
+      },
+      {
+        method: {
+          name: "setRTCToken",
+          description: trans("meeting.rtcToken"),
+          params: [],
+        },
+        execute: async (comp: any, values: any) => {
+          let rtcToken: any = values[0];
+          comp.children.rtcToken.change(rtcToken);
+        },
+      },
+      {
+        method: {
+          name: "setRTMToken",
+          description: trans("meeting.rtmToken"),
+          params: [],
+        },
+        execute: async (comp: any, values: any) => {
+          let rtmToken: any = values[0];
+          comp.children.rtmToken.change(rtmToken);
+        },
+      },
+      {
+        method: {
+          name: "endMeeting",
+          description: trans("meeting.actionBtnDesc"),
+          params: [],
+        },
+        execute: async (comp: any, values: any) => {
+          if (!comp.children.meetingActive.getView().value) return;
+    
+          let value = !comp.children.endCall.getView().value;
+          comp.children.endCall.change(value);
+          comp.children.meetingActive.change(false);
+    
+          await leaveChannel();
+    
+          comp.children.localUser.change({
+            user: userId + "",
+            streamingVideo: false,
+          });
+        },
+      },
+    ]);
 
-      let message: any = {
-        time: Date.now(),
-        message: messagedata,
-      };
+  } catch (error) {
+    console.error("Failed to initialize ContainerCompBuilder for Meeting Component:", error);
+    // Define a fallback component or behavior
+    MTComp = () => <div>Meeting Component is not available. It needs Lowcoder from Version v2.4</div>;
+  }
 
-      if (toUsers.length > 0 && toUsers[0] !== undefined) {
-        toUsers.forEach((peer: any) => {
-          message.to = peer;
-          sendPeerMessageRtm(message, String(peer));
-        });
-      } else {
-        sendMessageRtm(message);
-      }
-    },
-  },
-  {
-    method: {
-      name: "setMeetingName",
-      description: trans("meeting.meetingName"),
-      params: [],
-    },
-    execute: async (comp: any, values: any) => {
-      let meetingName: any = values[0];
-      comp.children.meetingName.change(meetingName);
-    },
-  },
-  {
-    method: {
-      name: "setUserName",
-      description: trans("meeting.userName"),
-      params: [],
-    },
-    execute: async (comp: any, values: any) => {
-      let userName: any = values[0];
-      let userLocal = comp.children.localUser.getView().value;
-      comp.children.localUser.change({ ...userLocal, userName: userName });
-    },
-  },
-  {
-    method: {
-      name: "setRTCToken",
-      description: trans("meeting.rtcToken"),
-      params: [],
-    },
-    execute: async (comp: any, values: any) => {
-      let rtcToken: any = values[0];
-      comp.children.rtcToken.change(rtcToken);
-    },
-  },
-  {
-    method: {
-      name: "setRTMToken",
-      description: trans("meeting.rtmToken"),
-      params: [],
-    },
-    execute: async (comp: any, values: any) => {
-      let rtmToken: any = values[0];
-      comp.children.rtmToken.change(rtmToken);
-    },
-  },
-  {
-    method: {
-      name: "endMeeting",
-      description: trans("meeting.actionBtnDesc"),
-      params: [],
-    },
-    execute: async (comp: any, values: any) => {
-      if (!comp.children.meetingActive.getView().value) return;
-
-      let value = !comp.children.endCall.getView().value;
-      comp.children.endCall.change(value);
-      comp.children.meetingActive.change(false);
-
-      await leaveChannel();
-
-      comp.children.localUser.change({
-        user: userId + "",
-        streamingVideo: false,
-      });
-    },
-  },
-]);
-
-export const MeetingControllerComp = withExposingConfigs(MTComp, [
-  new NameConfig("appId", trans("meeting.appid")),
-  new NameConfig("localUser", trans("meeting.host")),
-  new NameConfig("participants", trans("meeting.participants")),
-  new NameConfig("meetingActive", trans("meeting.meetingActive")),
-  new NameConfig("meetingName", trans("meeting.meetingName")),
-  new NameConfig("localUserID", trans("meeting.localUserID")),
-  new NameConfig("messages", trans("meeting.messages")),
-  new NameConfig("rtmToken", trans("meeting.rtmToken")),
-  new NameConfig("rtcToken", trans("meeting.rtcToken")),
-]);
+  export const MeetingControllerComp = withExposingConfigs(MTComp, [
+    new NameConfig("appId", trans("meeting.appid")),
+    new NameConfig("localUser", trans("meeting.host")),
+    new NameConfig("participants", trans("meeting.participants")),
+    new NameConfig("meetingActive", trans("meeting.meetingActive")),
+    new NameConfig("meetingName", trans("meeting.meetingName")),
+    new NameConfig("localUserID", trans("meeting.localUserID")),
+    new NameConfig("messages", trans("meeting.messages")),
+    new NameConfig("rtmToken", trans("meeting.rtmToken")),
+    new NameConfig("rtcToken", trans("meeting.rtcToken")),
+  ]);
