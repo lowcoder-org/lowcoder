@@ -43,6 +43,8 @@ import {
   jsonValueExposingStateControl,
   CalendarDeleteIcon,
   Tooltip,
+  AbstractComp,
+  MultiBaseComp,
 } from "lowcoder-sdk";
 
 import {
@@ -71,6 +73,7 @@ import {
 
 // this should ensure backwards compatibility with older versions of the SDK
 const safeDragEventHandlerControl = typeof DragEventHandlerControl !== 'undefined' ? DragEventHandlerControl : () => {};
+const isVariantCompAvailable = typeof AbstractComp !== 'undefined' && AbstractComp !== null && typeof MultiBaseComp !== 'undefined' && MultiBaseComp !== null;
  
 const childrenMap = {
   events: jsonValueExposingStateControl("events", defaultData),
@@ -624,17 +627,25 @@ const TmpCalendarComp = withExposingConfigs(CalendarBasicComp, [
   NameConfigHidden,
 ]);
 
-export const CalendarComp = withMethodExposing(TmpCalendarComp, [
-  {
-    method: {
-      name: "setCalendarView",
-      description: "timeGridWeek || timeGridDay || dayGridMonth || listWeek || resourceTimelineDay || resourceTimeGridDay || resourceTimelineWeek || resourceTimelineMonth",
-      params: [{ name: "viewType", type: "string" }],
-    },
-    execute: (comp, values) => {
-      const viewType = values[0] as string;
-      viewType == "" ? viewType : "timeGridWeek";
-      return comp.children.licenseKey.getView() == "" ? comp.children.defaultFreeView.dispatchChangeValueAction(viewType) : comp.children.defaultPremiumView.dispatchChangeValueAction(viewType);
-    }
-  },
-]);
+let CalendarComp;
+
+if (isVariantCompAvailable) {
+  CalendarComp = withMethodExposing(TmpCalendarComp, [
+      {
+          method: {
+              name: "setCalendarView",
+              description: "Sets the view of the calendar to a specified type",
+              params: [{ name: "viewType", type: "string" }],
+          },
+          execute: (comp, values) => {
+              const viewType = values[0] as string || "timeGridWeek"; // Default to "timeGridWeek" if undefined
+              const viewKey = comp.children.licenseKey.getView() === "" ? 'defaultFreeView' : 'defaultPremiumView';
+              comp.children[viewKey].dispatchChangeValueAction(viewType);
+          }
+      },
+  ]);
+} else {
+  CalendarComp = TmpCalendarComp;
+}
+
+export { CalendarComp };
