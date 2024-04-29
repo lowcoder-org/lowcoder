@@ -42,9 +42,7 @@ import {
   CustomModal,
   jsonValueExposingStateControl,
   CalendarDeleteIcon,
-  Tooltip,
-  AbstractComp,
-  MultiBaseComp,
+  Tooltip
 } from "lowcoder-sdk";
 
 import {
@@ -73,7 +71,6 @@ import {
 
 // this should ensure backwards compatibility with older versions of the SDK
 const safeDragEventHandlerControl = typeof DragEventHandlerControl !== 'undefined' ? DragEventHandlerControl : () => {};
-const isVariantCompAvailable = typeof AbstractComp !== 'undefined' && AbstractComp !== null && typeof MultiBaseComp !== 'undefined' && MultiBaseComp !== null;
  
 const childrenMap = {
   events: jsonValueExposingStateControl("events", defaultData),
@@ -627,10 +624,9 @@ const TmpCalendarComp = withExposingConfigs(CalendarBasicComp, [
   NameConfigHidden,
 ]);
 
-let CalendarComp;
+let CalendarComp = withMethodExposing(TmpCalendarComp, [
 
-if (isVariantCompAvailable) {
-  CalendarComp = withMethodExposing(TmpCalendarComp, [
+      /* this is not backwards compatible with older versions of the SDK
       {
           method: {
               name: "setCalendarView",
@@ -642,10 +638,109 @@ if (isVariantCompAvailable) {
               const viewKey = comp.children.licenseKey.getView() === "" ? 'defaultFreeView' : 'defaultPremiumView';
               comp.children[viewKey].dispatchChangeValueAction(viewType);
           }
-      },
+      },*/
+
+
+        {
+          method: {
+            name: "setResourceTimeGridDayView",
+            description: "Switches the calendar view to 'Resource Time Grid Day', which displays resources along the vertical axis and the hours of a single day along the horizontal axis.",
+            params: [{ name: "viewType", type: "string" }],
+        },
+          execute: (comp) => {
+            const viewKey = comp.children.licenseKey.getView() === "" ? 'defaultFreeView' : 'defaultPremiumView';
+            comp.children["viewKey"].dispatchChangeValueAction("resourceTimeGridDay");
+          }
+        },
+        {
+          method: {
+            name: "setResourceTimelineDayView",
+            description: "Switches the calendar view to 'Resource Timeline Day', showing events against a timeline for a single day, segmented by resources.",
+            params: [{ name: "viewType", type: "string" }],
+        },
+          execute: (comp) => {
+            const viewKey = comp.children.licenseKey.getView() === "" ? 'defaultFreeView' : 'defaultPremiumView';
+            comp.children["viewKey"].dispatchChangeValueAction("resourceTimelineDay");
+          }
+        },
+        {
+          method: {
+            name: "setDayGridWeekView",
+            description: "Switches the calendar view to 'Day Grid Week', where the days of the week are displayed as columns and events are laid out in grid form.",
+            params: [{ name: "viewType", type: "string" }],
+        },
+          execute: (comp) => {
+            const viewKey = comp.children.licenseKey.getView() === "" ? 'defaultFreeView' : 'defaultPremiumView';
+            comp.children["viewKey"].dispatchChangeValueAction("dayGridWeek");
+          }
+        },
+        {
+          method: {
+            name: "setTimeGridWeekView",
+            description: "Switches the calendar view to 'Day Grid Week', where the days of the week are displayed as columns and events are laid out in grid form.",
+            params: [{ name: "viewType", type: "string" }],
+        },
+          execute: (comp) => {
+            const viewKey = comp.children.licenseKey.getView() === "" ? 'defaultFreeView' : 'defaultPremiumView';
+            comp.children["viewKey"].dispatchChangeValueAction("timeGridWeek");
+          }
+        },
+        {
+          method: {
+            name: "setTimeGridDayView",
+            description: "Switches the calendar view to 'Time Grid Day', which shows a detailed hourly schedule for a single day.",
+            params: [{ name: "viewType", type: "string" }],
+        },
+          execute: (comp) => {
+            const viewKey = comp.children.licenseKey.getView() === "" ? 'defaultFreeView' : 'defaultPremiumView';
+            comp.children["viewKey"].dispatchChangeValueAction("timeGridDay");
+          }
+        },
+        {
+          method: {
+            name: "setDayGridDayView",
+            description: "Switches the calendar view to 'Day Grid Day', displaying a single day in a grid layout that includes all events for that day.",
+            params: [{ name: "viewType", type: "string" }],
+        },
+          execute: (comp) => {
+            const viewKey = comp.children.licenseKey.getView() === "" ? 'defaultFreeView' : 'defaultPremiumView';
+            comp.children["viewKey"].dispatchChangeValueAction("dayGridDay");
+          }
+        },
+        {
+          method: {
+            name: "setListWeekView",
+            description: "Switches the calendar view to 'List Week', which provides a list-style overview of all events happening throughout the week.",
+            params: [{ name: "viewType", type: "string" }],
+        },
+          execute: (comp) => {
+            const viewKey = comp.children.licenseKey.getView() === "" ? 'defaultFreeView' : 'defaultPremiumView';
+            comp.children["viewKey"].dispatchChangeValueAction("listWeek");
+          }
+        },
+        {
+          method: {
+            name: "setDayGridMonthView",
+            description: "Switches the calendar view to 'Day Grid Month', presenting the entire month in a grid with events displayed on their respective days.",
+            params: [{ name: "viewType", type: "string" }],
+        },
+          execute: (comp) => {
+            const viewKey = comp.children.licenseKey.getView() === "" ? 'defaultFreeView' : 'defaultPremiumView';
+            comp.children["viewKey"].dispatchChangeValueAction("dayGridMonth");
+          }
+        },
+        {
+          method: {
+            name: "setMultiMonthYearView",
+            description: "Switches the calendar view to 'Multi Month Year', showing multiple months at once, allowing for long-term planning and overview.",
+            params: [{ name: "viewType", type: "string" }],
+        },
+          execute: (comp) => {
+            const viewKey = comp.children.licenseKey.getView() === "" ? 'defaultFreeView' : 'defaultPremiumView';
+            comp.children["viewKey"].dispatchChangeValueAction("multiMonthYear");
+          }
+        }
   ]);
-} else {
-  CalendarComp = TmpCalendarComp;
-}
+
 
 export { CalendarComp };
