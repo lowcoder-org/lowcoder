@@ -68,6 +68,9 @@ import {
   resourceTimeLineHeaderToolbar,
   resourceTimeGridHeaderToolbar,
 } from "./calendarConstants";
+
+// this should ensure backwards compatibility with older versions of the SDK
+const safeDragEventHandlerControl = typeof DragEventHandlerControl !== 'undefined' ? DragEventHandlerControl : () => {};
  
 const childrenMap = {
   events: jsonValueExposingStateControl("events", defaultData),
@@ -75,7 +78,7 @@ const childrenMap = {
   resources: jsonValueExposingStateControl("resources", resourcesDefaultData),
   resourceName: withDefault(StringControl, trans("calendar.resourcesDefault")),
   onEvent: ChangeEventHandlerControl,
-  onDropEvent: DragEventHandlerControl,
+  onDropEvent: safeDragEventHandlerControl,
   editable: withDefault(BoolControl, true),
   showEventTime: withDefault(BoolControl, true),
   showWeekends: withDefault(BoolControl, true),
@@ -418,6 +421,12 @@ let CalendarBasicComp = (function () {
       });
     }; 
 
+    const handleDrop = () => {
+      if (typeof props.onDropEvent === 'function') {
+        props.onDropEvent("dropEvent");
+      }
+    };
+
     return (
       <Wrapper
         ref={ref}
@@ -444,7 +453,6 @@ let CalendarBasicComp = (function () {
             plugins={filteredPlugins}
             headerToolbar={toolBar(currentView)}
             resourceAreaHeaderContent={resourceName}
-            
             buttonText={buttonText}
             schedulerLicenseKey={licenseKey}
             views={views}
@@ -526,7 +534,7 @@ let CalendarBasicComp = (function () {
             }}
             eventDragStop={(info) => {
               if (info.view) {
-                props.onDropEvent("dropEvent");
+                handleDrop
               }
             }}
           />
@@ -535,7 +543,6 @@ let CalendarBasicComp = (function () {
     );
   })
     .setPropertyViewFn((children: { 
-      
       events: { propertyView: (arg0: {}) => any; }; 
       resourcesEvents: { propertyView: (arg0: {}) => any; };
       resources: { propertyView: (arg0: {}) => any; };
@@ -577,7 +584,7 @@ let CalendarBasicComp = (function () {
               {children.onEvent.propertyView()}
             </div>
             <div style={{display: 'flex', flexDirection: 'column', gap: '8px'}}>
-              {children.onDropEvent.propertyView({title: trans("calendar.dragDropEventHandlers")})}
+              {children.onDropEvent?.propertyView({title: trans("calendar.dragDropEventHandlers")})}
             </div>
             {children.editable.propertyView({ label: trans("calendar.editable"), })}
           </Section>
