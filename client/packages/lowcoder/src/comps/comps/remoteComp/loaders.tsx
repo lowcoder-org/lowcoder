@@ -13,11 +13,18 @@ async function npmLoader(
 
   console.log("remoteInfo: ", remoteInfo);
 
-  // Falk: removed "packageVersion = "latest" as default value fir packageVersion - to ensure no automatic version jumping.
+  // Falk: removed "packageVersion = "latest" as default value for packageVersion - to ensure no automatic version jumping.
 
-  const localPackageVersion = remoteInfo.packageVersion || "latest";
+  var localPackageVersion = remoteInfo.packageVersion || "latest";
   const { packageName, packageVersion, compName } = remoteInfo;
+
+  // Falk: Special handling for lowcoder-comps package for old versions before 2.4.0
+  if (packageName === "lowcoder-comps") {
+    localPackageVersion = "0.0.32";
+  }
+
   const entry = `${NPM_PLUGIN_ASSETS_BASE_URL}/${packageName}@${localPackageVersion}/index.js`;
+    
   try {
     const module = await import(/* webpackIgnore: true */ entry);
     const comp = module.default?.[compName];
