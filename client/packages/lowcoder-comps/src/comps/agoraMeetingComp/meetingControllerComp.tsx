@@ -240,11 +240,13 @@ const meetingControllerChildren = {
   messages: stateComp<JSONValue>([]),
 };
 
-let MTComp;
+let MeetingControllerComp = () => <div>Meeting Component is not available. It needs Lowcoder from Version v2.4</div>;
 
-try {
+if (typeof ContainerCompBuilder === 'function') {
 
-    MTComp = new ContainerCompBuilder( meetingControllerChildren, (props: any, dispatch: any) => {
+let MTComp = (function () {
+  return new ContainerCompBuilder(
+    meetingControllerChildren, (props: any, dispatch: any) => {
       
       const isTopBom = ["top", "bottom"].includes(props.placement);
       const { items, ...otherContainerProps } = props.container;
@@ -631,7 +633,9 @@ try {
         {/* )} */}
       </>
     ))
-    .build();
+    .build(); 
+  
+    })();
 
     MTComp = class extends MTComp {
       autoHeight(): boolean {
@@ -857,15 +861,9 @@ try {
           });
         },
       },
-    ]);
-
-  } catch (error) {
-    console.error("Failed to initialize ContainerCompBuilder for Meeting Component:", error);
-    // Define a fallback component or behavior
-    MTComp = () => <div>Meeting Component is not available. It needs Lowcoder from Version v2.4</div>;
-  }
-
-  export const MeetingControllerComp = withExposingConfigs(MTComp, [
+    ]); 
+  
+    MeetingControllerComp = withExposingConfigs(MTComp, [
     new NameConfig("appId", trans("meeting.appid")),
     new NameConfig("localUser", trans("meeting.host")),
     new NameConfig("participants", trans("meeting.participants")),
@@ -876,3 +874,9 @@ try {
     new NameConfig("rtmToken", trans("meeting.rtmToken")),
     new NameConfig("rtcToken", trans("meeting.rtcToken")),
   ]);
+
+} else {
+  console.error("ContainerCompBuilder for Meeting Comp is not available. Please ensure that Lowcoder SDK version v2.4 or higher is installed.");
+}
+
+export { MeetingControllerComp };
