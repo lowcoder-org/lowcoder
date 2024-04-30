@@ -2249,7 +2249,19 @@ export const de: typeof en = {
       "alreadySetPassword": "Passwort setzen",
       "setPassPlaceholder": "Du kannst dich mit Passwort anmelden",
       "setPassAfterBind": "Du kannst das Passwort nach der Kontobindung festlegen",
-      "socialConnections": "Soziale Bindungen"
+      "socialConnections": "Soziale Bindungen",
+      "changeAvatar": "Avatar ändern",
+      "about": "Um",
+      "userId": "Benutzer-ID",
+      "createdAt": "Hergestellt in",
+      "currentOrg": "aktuelle Organisation",
+      "settings": "Einstellungen",
+      "uiLanguage": "UI-Sprache",
+      "info": "Die Info",
+      "createdApps": "Erstellte Apps",
+      "createdModules": "Erstellte Module",
+      "onMarketplace": "Auf dem Marktplatz",
+      "howToPublish": "So veröffentlichen Sie auf dem Marktplatz"
   },
   "shortcut": {
       ...en.shortcut,

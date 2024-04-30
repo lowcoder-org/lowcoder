@@ -2302,7 +2302,19 @@ export const en = {
     "alreadySetPassword": "Password Set",
     "setPassPlaceholder": "You Can Login with Password",
     "setPassAfterBind": "You Can Set Password After Account Bind",
-    "socialConnections": "Social Connections"
+    "socialConnections": "Social Connections",
+    "changeAvatar": "Change Avatar",
+    "about": "About",
+    "userId": "User ID",
+    "createdAt": "Created At",
+    "currentOrg": "Current Organization",
+    "settings": "Settings",
+    "uiLanguage": "UI Language",
+    "info": "Info",
+    "createdApps": "Created Apps",
+    "createdModules": "Created Modules",
+    "onMarketplace": "On Marketplace",
+    "howToPublish": "How to publish on Marketplace"
   },
   "shortcut": {
     "shortcutList": "Keyboard Shortcuts",
