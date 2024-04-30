@@ -239,7 +239,7 @@ export function UserProfileLayout(props: UserProfileLayoutProps) {
             <StyleProfileContent>
               <Row gutter={[24, 24]} style={{ display: 'flex', alignItems: 'end' }}>
                 <Col lg={4}>
-                  <StyleAvatar src={<img src={user.avatarUrl} alt="avatar" />} shape="square" size={120} />
+                  <StyleAvatar src={<img src={user.avatarUrl ?? `https://eu.ui-avatars.com/api/?name=${user.username}&size=250`} alt="avatar" />} shape="square" size={120} />
                 </Col>
                 <Col lg={20}>
                   <Space style={{paddingLeft : "80px"}}>
@@ -265,11 +265,12 @@ export function UserProfileLayout(props: UserProfileLayoutProps) {
                 beforeUpload={beforeImgUpload}
                 withCredentials
               >
-                <Button style={{marginTop: "8px"}}>Change Avatar</Button>
+                <Button style={{marginTop: "8px"}}>
+                  {trans("profile.changeAvatar")}
+                </Button>
               </Upload>
 
               <BlurFinishInput
-                
                 valueCheck={{
                   rule: (val) => val.trim() !== "",
                   message: trans("profile.nameCheck"),
@@ -285,20 +286,20 @@ export function UserProfileLayout(props: UserProfileLayoutProps) {
           </Card>
 
           <Card style={{ marginBottom: "20px" }}>
-            <Title level={4}>About</Title>
+            <Title level={4}>{trans("profile.about")}</Title>
             <Space direction="horizontal" size={10} wrap={true}>
-              <Text>User-ID: {user.id}</Text> | 
-              <Text>Created At: {dayjs(user.createdTimeMs).format("YYYY-MM-DD HH:mm:ss")}</Text> | 
-              <Text>Current Organization: {currentOrg?.name}</Text>
+              <Text>{trans("profile.userId")}: {user.id}</Text> | 
+              <Text>{trans("profile.createdAt")}: {dayjs(user.createdTimeMs).format("YYYY-MM-DD HH:mm:ss")}</Text> | 
+              <Text>{trans("profile.currentOrg")}: {currentOrg?.name}</Text>
             </Space>
           </Card>
 
           <Card style={{ marginBottom: "20px" }}>
-            <Title level={4}>Settings</Title>
+            <Title level={4}>{trans("profile.settings")}</Title>
             <Space direction="vertical" size={10}>
-              <Text>UI Language:</Text>
+              <Text>{trans("profile.uiLanguage")}:</Text>
               <Select
-                defaultValue={currentUser.uiLanguage}
+                defaultValue={currentUser.uiLanguage ?? 'en'}
                 style={{ width: 200 }}
                 onChange={handleLanguageChange}
                 showSearch
@@ -316,14 +317,16 @@ export function UserProfileLayout(props: UserProfileLayoutProps) {
           </Card>
 
           <Card style={{ marginBottom: "20px" }}>
-            <Title level={4}>Info</Title>
+            <Title level={4}>{trans("profile.info")}</Title>
             <Space direction="horizontal" size={10}>
               <Row gutter={[24,24]}>
                 <Col xs={24} sm={12} xl={6} style={{marginBottom: "20px", minWidth: "300px"}} span={8}>
                     <Card hoverable>
                         <div style={{ display: "flex", justifyContent: "space-between" }}>
                             <div>
-                                <p style={{ textTransform: "uppercase", fontSize: "13px" }}>Created Apps</p>
+                                <p style={{ textTransform: "uppercase", fontSize: "13px" }}>
+                                  {trans("profile.createdApps")}
+                                </p>
                                 <h4 style={{ fontSize: "22px" }}>
                                     <span data-target={apps.filter(app => app.createBy === user.username && app.applicationType == 1).length}>
                                         <CountUp start={0} end={apps.filter(app => app.createBy === user.username && app.applicationType == 1).length} duration={2} />
@@ -343,7 +346,9 @@ export function UserProfileLayout(props: UserProfileLayoutProps) {
                     <Card hoverable>
                         <div style={{ display: "flex", justifyContent: "space-between" }}>
                             <div>
-                                <p style={{ textTransform: "uppercase", fontSize: "13px" }}>Created Modules</p>
+                                <p style={{ textTransform: "uppercase", fontSize: "13px" }}>
+                                  {trans("profile.createdModules")}
+                                </p>
                                 <h4 style={{ fontSize: "22px" }}>
                                     <span data-target={apps.filter(app => app.createBy === user.username && app.applicationType == 2).length}>
                                         <CountUp start={0} end={apps.filter(app => app.createBy === user.username && app.applicationType == 2).length} duration={2} />
@@ -363,14 +368,18 @@ export function UserProfileLayout(props: UserProfileLayoutProps) {
                     <Card hoverable>
                         <div style={{ display: "flex", justifyContent: "space-between" }}>
                             <div>
-                                <p style={{ textTransform: "uppercase", fontSize: "13px" }}>on Marketplace</p>
+                                <p style={{ textTransform: "uppercase", fontSize: "13px" }}>
+                                  {trans("profile.onMarketplace")}
+                                </p>
                                 <h4 style={{ fontSize: "22px" }}>
                                     <span data-target={8}>
                                         <CountUp start={0} end={8} duration={2} />
                                     </span>
                                 </h4>
                                 <div style={{ display: "flex", alignItems: "center" }}>
-                                    <h5 style={{ color: "#55c27f", marginRight: "10px" }}>How to publish on Marketplce</h5>
+                                    <h5 style={{ color: "#55c27f", marginRight: "10px" }}>
+                                      {trans("profile.howToPublish")}
+                                    </h5>
                                 </div>
                             </div>
                             <BgSuccess style={{ padding: '6px', width: '48px', height: '48px', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>

@@ -215,6 +215,9 @@ const AppIndexWithProps = connect(mapStateToProps, mapDispatchToProps)(AppIndex)
 export function bootstrap() {
   initApp();
   loadComps();
+
+  const uiLanguage = localStorage.getItem('lowcoder_uiLanguage');
+
   const container = document.getElementById("root");
   const root = createRoot(container!);
   root.render(
