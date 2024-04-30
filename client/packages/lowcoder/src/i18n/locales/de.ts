@@ -927,7 +927,7 @@ export const de: typeof en = {
     "toggleButtonCompDesc": "Ein Knopf, der zwischen zwei Zuständen oder Optionen umschalten kann.",
     "toggleButtonCompKeywords": "Umschalten, Knopf, Schalter, Zustand",
 
-    "meetingControlCompName": "Steuerung Taste",
+    "meetingControlCompName": "Icon Taste",
     "meetingCompDesc": "Eine Steuerungstaste mit Icons.",
     "meetingCompKeywords": "Steuerung, Taste, Icons",
 
@@ -1059,7 +1059,7 @@ export const de: typeof en = {
     "imageEditorCompDesc": "Eine interaktive Komponente zur Bearbeitung und Manipulation von Bildern, bietet verschiedene Werkzeuge und Filter.",
     "imageEditorCompKeywords": "Bild, Editor, bearbeiten, Werkzeuge",
 
-    "mermaidCompName": "Mermaid Diagramme",
+    "mermaidCompName": "Mermaid Diagramm",
     "mermaidCompDesc": "Eine Komponente zum Erstellen komplexer Diagramme und Flussdiagramme basierend auf der Mermaid-Syntax.",
     "mermaidCompKeywords": "Mermaid, Diagramme, Flussdiagramme, Visualisierung",
 
@@ -1708,7 +1708,7 @@ export const de: typeof en = {
       "sharingCompName": "Bildschirm teilen Stream",
       "videoCompName": "Kamera-Stream",
       "videoSharingCompName": "Bildschirm teilen Stream",
-      "meetingControlCompName": "Steuerung Taste",
+      "meetingControlCompName": "Icon Taste",
       "meetingCompDesc": "Meeting-Komponente",
       "meetingCompControls": "Meeting-Kontrolle",
       "meetingCompKeywords": "Agora Meeting, Web-Meeting, Kollaboration",

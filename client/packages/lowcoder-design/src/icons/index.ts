@@ -98,9 +98,6 @@ export { ReactComponent as TempStateIcon } from "./icon-temp-state.svg";
 export { ReactComponent as IconDep } from "./icon-style-dep.svg";
 export { ReactComponent as IconRadius } from "./icon-style-border-radius.svg";
 export { ReactComponent as IconReset } from "./icon-style-reset.svg";
-
-
-
 export { ReactComponent as PackUpIcon } from "./icon-Pack-up.svg";
 export { ReactComponent as SearchIcon } from "./icon-Search.svg";
 export { ReactComponent as SearchOutlinedIcon } from "./icon-SearchOutlined.svg";
@@ -119,10 +116,8 @@ export { ReactComponent as SuccessIcon } from "./icon-success.svg";
 export { ReactComponent as ErrorIcon } from "./icon-err-warning.svg";
 export { ReactComponent as DocIcon } from "./icon-tutorial.svg";
 export { ReactComponent as DocBoldIcon } from "./icon-tutorial-bold.svg";
-
 export { ReactComponent as NavDocIcon } from "./icon-nav-doc.svg";
 export { ReactComponent as LabIcon } from "./icon-laboratory.svg";
-
 export { ReactComponent as ArrowIcon } from "./icon-arrow.svg";
 export { ReactComponent as ArrowSolidIcon } from "./icon-arrow-solid.svg";
 export { ReactComponent as videoPlayTriangle } from "./icon-video-play-triangle.svg";
@@ -133,10 +128,23 @@ export { ReactComponent as InviteUserIcon } from "./icon-application-invite-user
 export { ReactComponent as HomeEmptyIcon } from "./icon-application-empty.svg";
 export { ReactComponent as HomeListIcon } from "./icon-application-list.svg";
 export { ReactComponent as HomeCardIcon } from "./icon-application-card.svg";
-export { ReactComponent as CarouselCompIcon } from "./icon-image-carousel.svg";
+
+// Data Sources
 export { ReactComponent as MysqlIcon } from "./icon-query-MySQL.svg";
-export { ReactComponent as DataResponderIcon } from "./icon-query-data-responder.svg";
 export { ReactComponent as MongoIcon } from "./icon-query-MongoDB.svg";
+export { ReactComponent as PostgresIcon } from "./icon-query-postgres.svg";
+export { ReactComponent as RedisIcon } from "./icon-query-Redis.svg";
+export { ReactComponent as MSSQLIcon } from "./icon-query-mssql.svg";
+export { ReactComponent as SMTPIcon } from "./icon-query-SMTP.svg";
+export { ReactComponent as OracleIcon } from "./icon-query-OracleDB.svg";
+export { ReactComponent as ClickHouseIcon } from "./icon-query-ClickHouse.svg";
+export { ReactComponent as GoogleSheetsIcon } from "./icon-query-GoogleSheets.svg";
+export { ReactComponent as GraphqlIcon } from "./icon-query-Graphql.svg";
+export { ReactComponent as SnowflakeIcon } from "./icon-query-snowflake.svg";
+export { ReactComponent as MariaDBIcon } from "./icon-query-MariaDB.svg";
+
+// Data Queries
+export { ReactComponent as DataResponderIcon } from "./icon-query-data-responder.svg";
 export { ReactComponent as RestApiIcon } from "./icon-query-API.svg";
 export { ReactComponent as DeleteApiIcon } from "./icon-query-delete.svg";
 export { ReactComponent as GetApiIcon } from "./icon-query-get.svg";
@@ -146,15 +154,10 @@ export { ReactComponent as PutApiIcon } from "./icon-query-put.svg";
 export { ReactComponent as OptionsApiIcon } from "./icon-query-options.svg";
 export { ReactComponent as HeadApiIcon } from "./icon-query-head.svg";
 export { ReactComponent as TraceApiIcon } from "./icon-query-trace.svg";
-export { ReactComponent as PostgresIcon } from "./icon-query-postgres.svg";
 export { ReactComponent as JSIcon } from "./icon-query-JS.svg";
 export { ReactComponent as LowcoderQueryIcon } from "./icon-query-lowcoder.svg";
-export { ReactComponent as RedisIcon } from "./icon-query-Redis.svg";
 export { ReactComponent as EsIcon } from "./icon-query-ElasticSearch.svg";
-export { ReactComponent as MSSQLIcon } from "./icon-query-mssql.svg";
-export { ReactComponent as SMTPIcon } from "./icon-query-SMTP.svg";
-export { ReactComponent as OracleIcon } from "./icon-query-OracleDB.svg";
-export { ReactComponent as ClickHouseIcon } from "./icon-query-ClickHouse.svg";
+
 export { ReactComponent as ResetIcon } from "./icon-style-reset.svg";
 export { ReactComponent as EditIcon } from "./icon-edit.svg";
 export { ReactComponent as EditableIcon } from "./icon-editable.svg";
@@ -164,10 +167,6 @@ export { ReactComponent as LeftLayersIcon } from "./remix/stack-line.svg";
 export { ReactComponent as LeftHelpIcon } from "./icon-left-help.svg";
 export { ReactComponent as LeftPreloadIcon } from "./icon-left-preload.svg";
 
-export { ReactComponent as GoogleSheetsIcon } from "./icon-query-GoogleSheets.svg";
-export { ReactComponent as GraphqlIcon } from "./icon-query-Graphql.svg";
-export { ReactComponent as SnowflakeIcon } from "./icon-query-snowflake.svg";
-export { ReactComponent as MariaDBIcon } from "./icon-query-MariaDB.svg";
 
 export { ReactComponent as HomeSettingsIcon } from "./icon-home-settings.svg";
 export { ReactComponent as HomeSettingsActiveIcon } from "./icon-home-settings-active.svg";
@@ -177,7 +176,7 @@ export { ReactComponent as LeftOpen } from "./icon-left-comp-open.svg";
 export { ReactComponent as LeftClose } from "./icon-left-comp-close.svg";
 export { ReactComponent as MaterialUploadIcon } from "./icon-material-upload.svg";
 export { ReactComponent as UndoIcon } from "./icon-undo.svg";
-export { ReactComponent as SignatureIcon } from "./icon-signature.svg";
+
 export { ReactComponent as ManualIcon } from "./icon-manual.svg";
 export { ReactComponent as WarnIcon } from "./icon-warn.svg";
 export { ReactComponent as SyncManualIcon } from "./icon-sync-manual.svg";
@@ -230,47 +229,80 @@ export { ReactComponent as IconModal } from "./icon-modal.svg";
 // components
 
 // small
+export { ReactComponent as LeftCommon } from "./icon-left-comp-common.svg"; // generic
 
-export { ReactComponent as LeftAudio } from "./icon-left-comp-audio.svg";
-export { ReactComponent as LeftButton } from "./icon-left-comp-button.svg";
-export { ReactComponent as LeftChart } from "./icon-left-comp-chart.svg";
-export { ReactComponent as LeftCheckbox } from "./icon-left-comp-checkbox.svg";
-export { ReactComponent as LeftCommon } from "./icon-left-comp-common.svg";
-export { ReactComponent as LeftContainer } from "./icon-left-comp-container.svg";
-export { ReactComponent as LeftDate } from "./icon-left-comp-date.svg";
-export { ReactComponent as LeftDivider } from "./icon-left-comp-divider.svg";
-export { ReactComponent as LeftDrawer } from "./icon-left-comp-drawer.svg";
-export { ReactComponent as LeftMeeting } from "./icon-left-comp-video.svg";
-export { ReactComponent as LeftFile } from "./icon-left-comp-file.svg";
-export { ReactComponent as LeftFileViewer } from "./icon-left-comp-fileViewer.svg";
-export { ReactComponent as LeftForm } from "./icon-left-comp-form.svg";
-export { ReactComponent as LeftIframe } from "./icon-left-comp-iframe.svg";
-export { ReactComponent as LeftImage } from "./remix/image-line.svg";
-export { ReactComponent as LeftInput } from "./icon-left-comp-input.svg";
-export { ReactComponent as LeftJsonEditor } from "./icon-left-comp-jsonEditor.svg";
-export { ReactComponent as LeftLink } from "./icon-left-comp-link.svg";
-export { ReactComponent as LeftListView } from "./icon-left-comp-listView.svg";
-export { ReactComponent as LeftModal } from "./icon-left-comp-modal.svg";
-export { ReactComponent as LeftNavigation } from "./icon-left-comp-navigation.svg";
-export { ReactComponent as LeftNumberInput } from "./icon-left-comp-numberInput.svg";
-export { ReactComponent as LeftPassword } from "./icon-left-comp-password.svg";
-export { ReactComponent as LeftProgress } from "./icon-left-comp-progress.svg";
-export { ReactComponent as LeftQrCode } from "./icon-left-comp-qrCode.svg";
-export { ReactComponent as LeftRadio } from "./icon-left-comp-radio.svg";
-export { ReactComponent as LeftRating } from "./icon-left-comp-rating.svg";
-export { ReactComponent as LeftSegmentedControl } from "./icon-left-comp-segmentedControl.svg";
-export { ReactComponent as LeftSelect } from "./icon-left-comp-select.svg";
-export { ReactComponent as LeftSlider } from "./icon-left-comp-slider.svg";
-export { ReactComponent as LeftSwitch } from "./icon-left-comp-switch.svg";
-export { ReactComponent as LeftTable } from "./icon-left-comp-table.svg";
-export { ReactComponent as LeftText } from "./icon-left-comp-text.svg";
-export { ReactComponent as LeftTime } from "./icon-left-comp-time.svg";
-export { ReactComponent as LeftTree } from "./icon-left-comp-tree.svg";
-export { ReactComponent as LeftVideo } from "./icon-left-comp-video.svg";
-export { ReactComponent as LeftMeetingIcon } from "./icon-left-comp-video.svg";
-export { ReactComponent as LeftSignature } from "./icon-left-signature.svg";
-export { ReactComponent as CalendarIcon_s } from "./v2/calendar-s.svg";
-export { ReactComponent as ImageCompIconSmall } from "./icon-image.svg";
+export { ReactComponent as AudioCompIconSmall } from "./v2/audio-player-s.svg";
+export { ReactComponent as AutoCompleteCompIconSmall } from "./v2/auto-complete-input-s.svg"; // new
+export { ReactComponent as ButtonCompIconSmall } from "./v2/button-s.svg";
+export { ReactComponent as IconButtonCompIconSmall } from "./v2/icon-button-s.svg"; // new
+export { ReactComponent as CalendarCompIconSmall } from "./v2/calendar-s.svg";
+export { ReactComponent as CascaderCompIconSmall } from "./v2/cascader-s.svg";
+export { ReactComponent as CarouselCompIconSmall } from "./v2/image-carousel-s.svg"; // new
+export { ReactComponent as ChartCompIconSmall } from "./v2/pie-chart-s.svg";
+export { ReactComponent as CheckboxCompIconSmall } from "./v2/checkbox-s.svg";
+export { ReactComponent as CollapsibleContainerCompIconSmall } from "./v2/collapsible-container-s.svg"; // new
+export { ReactComponent as CommentCompIconSmall } from "./v2/comment-s.svg";
+export { ReactComponent as ContainerCompIconSmall } from "./v2/container-s.svg";
+export { ReactComponent as CustomCompIconSmall } from "./v2/custom-code-s.svg"; // new
+export { ReactComponent as DateCompIconSmall } from "./v2/date-select-s.svg";
+export { ReactComponent as DateRangeCompIconSmall } from "./v2/date-range-select-s.svg"; // new
+export { ReactComponent as DividerCompIconSmall } from "./v2/divider-s.svg";
+export { ReactComponent as DrawerCompIconSmall } from "./v2/drawer-s.svg";
+export { ReactComponent as DropdownCompIconSmall } from "./v2/dropdown-s.svg"; // new
+export { ReactComponent as UploadCompIconSmall } from "./v2/file-upload-s.svg";
+export { ReactComponent as FileViewerCompIconSmall } from "./v2/file-viewer-s.svg";
+export { ReactComponent as FloatingTextCompIconSmall } from "./v2/floating-text-layout-s.svg"; // new
+export { ReactComponent as FormCompIconSmall } from "./v2/form-s.svg";
+export { ReactComponent as GridCompIconSmall } from "./v2/grid-view-s.svg"; // new
+export { ReactComponent as IconCompIconSmall } from "./v2/icon-s.svg"; // new
+export { ReactComponent as IFrameCompIconSmall } from "./v2/iframe-s.svg";
+export { ReactComponent as ImageEditorCompIconSmall } from "./v2/image-editor-s.svg"; // new
+export { ReactComponent as ImageCompIconSmall } from "./v2/image-s.svg";
+export { ReactComponent as InputCompIconSmall } from "./v2/input-s.svg";
+export { ReactComponent as JsonEditorCompIconSmall } from "./v2/json-editor-s.svg";
+export { ReactComponent as JsonExplorerCompIconSmall } from "./v2/json-viewer-s.svg"; // new
+export { ReactComponent as JsonFormCompIconSmall } from "./v2/json-schema-form-s.svg"; // new
+export { ReactComponent as PageLayoutCompIconSmall } from "./v2/page-layout-s.svg"; // new
+export { ReactComponent as LinkCompIconSmall } from "./v2/link-s.svg";
+export { ReactComponent as ListViewCompIconSmall } from "./v2/list-view-s.svg";
+export { ReactComponent as LottieAnimationCompIconSmall } from "./v2/lottie-animation-s.svg"; // new
+export { ReactComponent as MentionCompIconSmall } from "./v2/mention-s.svg"; // new
+export { ReactComponent as MermaidCompIconSmall } from "./v2/mermaid-chart-s.svg"; // new
+export { ReactComponent as ModalCompIconSmall } from "./v2/modal-s.svg";
+export { ReactComponent as MultiSelectCompIconSmall } from "./v2/multiselect-s.svg"; // new
+export { ReactComponent as NavComIconSmall } from "./v2/navigation-s.svg";
+export { ReactComponent as NumberInputCompIconSmall } from "./v2/number-input-s.svg";
+export { ReactComponent as PasswordCompIconSmall } from "./v2/password-s.svg";
+export { ReactComponent as ProgressCompIconSmall } from "./v2/progress-s.svg";
+export { ReactComponent as ProcessCircleCompIconSmall } from "./v2/progress-circle-s.svg"; // new
+export { ReactComponent as QRCodeCompIconSmall } from "./v2/qr-code-display-s.svg";
+export { ReactComponent as RadioCompIconSmall } from "./v2/radio-button-s.svg";
+export { ReactComponent as RangeSliderCompIconSmall } from "./v2/range-slider-s.svg"; // new
+export { ReactComponent as RatingCompIconSmall } from "./v2/rating-s.svg";
+export { ReactComponent as ResponsiveLayoutCompIconSmall } from "./v2/resposive-layout-s.svg"; // new
+export { ReactComponent as RichTextEditorCompIconSmall } from "./v2/rich-text-editor-s.svg"; // new
+export { ReactComponent as ScannerCompIconSmall } from "./v2/scanner-s.svg";    // new
+export { ReactComponent as SegmentedCompIconSmall } from "./v2/segmented-control-s.svg";
+export { ReactComponent as SelectCompIconSmall } from "./v2/select-s.svg";
+export { ReactComponent as SliderCompIconSmall } from "./v2/slider-s.svg";
+export { ReactComponent as StepsTextIconSmall } from "./icon-steps-comp.svg"; // new
+export { ReactComponent as SwitchCompIconSmall } from "./v2/switch-s.svg";
+export { ReactComponent as TabbedContainerCompIconSmall } from "./v2/tabbed-container-s.svg"; // new
+export { ReactComponent as TableCompIconSmall } from "./v2/table-s.svg";
+export { ReactComponent as TextAreaCompIconSmall } from "./v2/text-area-input-s.svg"; // new
+export { ReactComponent as TextCompIconSmall } from "./v2/text-display-s.svg";
+export { ReactComponent as TimeCompIconSmall } from "./v2/time-select-s.svg";
+export { ReactComponent as TimeLineCompIconSmall } from "./v2/timeline-s.svg"; // new
+export { ReactComponent as TimeRangeCompIconSmall } from "./v2/time-range-select-s.svg"; // new
+export { ReactComponent as ToggleButtonCompIconSmall } from "./v2/toggle-button-s.svg"; // new
+export { ReactComponent as TreeDisplayCompIconSmall } from "./v2/tree-display-s.svg";
+export { ReactComponent as TreeSelectCompIconSmall } from "./v2/tree-select-s.svg"; // new
+export { ReactComponent as VideoCompIconSmall } from "./v2/video-player-s.svg";
+export { ReactComponent as VideoMeetingRoomCompIconSmall } from "./v2/meeting-room-s.svg";
+export { ReactComponent as VideoCameraStreamCompIconSmall } from "./v2/camera-stream-s.svg";    // new
+export { ReactComponent as VideoScreenshareCompIconSmall } from "./v2/screen-share-stream-s.svg"; // new
+export { ReactComponent as SignatureCompIconSmall } from "./v2/signature-s.svg";
+export { ReactComponent as StepCompIconSmall } from "./v2/steps-s.svg"; 
 
 
 // medium
@@ -278,7 +310,9 @@ export { ReactComponent as AudioCompIcon } from "./v2/audio-player-m.svg";
 export { ReactComponent as AutoCompleteCompIcon } from "./v2/auto-complete-input-m.svg";
 // export { ReactComponent as AutoCompleteIcon } from "./icon-autoComplete.svg";
 export { ReactComponent as ButtonCompIcon } from "./v2/button-m.svg";
+export { ReactComponent as IconButtonCompIcon } from "./v2/icon-button-m.svg";
 export { ReactComponent as CalendarCompIcon } from "./v2/calendar-m.svg";
+export { ReactComponent as CarouselCompIcon } from "./v2/image-carousel-m.svg";
 export { ReactComponent as CascaderCompIcon } from "./v2/cascader-m.svg";
 export { ReactComponent as ChartCompIcon } from "./v2/pie-chart-m.svg";
 export { ReactComponent as CheckboxCompIcon } from "./v2/checkbox-m.svg";
@@ -286,13 +320,13 @@ export { ReactComponent as CollapsibleContainerCompIcon } from "./v2/collapsible
 export { ReactComponent as CommentCompIcon } from "./v2/comment-m.svg";
 export { ReactComponent as ContainerCompIcon } from "./v2/container-m.svg";
 export { ReactComponent as CustomCompIcon } from "./v2/custom-code-m.svg";
-export { ReactComponent as DateCompIcon } from "./icon-date.svg";
-export { ReactComponent as DateRangeCompIcon } from "./v2/date-range-m.svg";
+export { ReactComponent as DateCompIcon } from "./v2/date-select-m.svg";
+export { ReactComponent as DateRangeCompIcon } from "./v2/date-range-select-m.svg";
 export { ReactComponent as DividerCompIcon } from "./v2/divider-m.svg";
 export { ReactComponent as DrawerCompIcon } from "./v2/drawer-m.svg";
 export { ReactComponent as DropdownCompIcon } from "./v2/dropdown-m.svg";
 export { ReactComponent as FileViewerCompIcon } from "./v2/file-viewer-m.svg";
-export { ReactComponent as FloatingTextCompIcon } from "./icon-text-flow-comp.svg";
+export { ReactComponent as FloatingTextCompIcon } from "./v2/floating-text-layout-m.svg";
 export { ReactComponent as FormCompIcon } from "./v2/form-m.svg";
 export { ReactComponent as GridCompIcon } from "./v2/grid-view-m.svg";
 export { ReactComponent as IconCompIcon } from "./v2/icon-m.svg"; // to check
@@ -303,13 +337,13 @@ export { ReactComponent as ImageCompIcon } from "./v2/image-m.svg";
 export { ReactComponent as InputCompIcon } from "./v2/input-m.svg";
 export { ReactComponent as JsonEditorCompIcon } from "./v2/json-editor-m.svg";
 export { ReactComponent as JsonExplorerCompIcon } from "./v2/json-viewer-m.svg";
-export { ReactComponent as JsonFormCompIcon } from "./v2/form-m.svg";
-export { ReactComponent as LayoutCompIcon } from "./layout-comp.svg";
+export { ReactComponent as JsonFormCompIcon } from "./v2/json-schema-form-m.svg";
+export { ReactComponent as PageLayoutCompIcon } from "./v2/page-layout-m.svg";
 export { ReactComponent as LinkCompIcon } from "./v2/link-m.svg";
 export { ReactComponent as ListViewCompIcon } from "./v2/list-view-m.svg";
 export { ReactComponent as LottieAnimationCompIcon } from "./v2/lottie-animation-m.svg";
 export { ReactComponent as MentionCompIcon } from "./v2/mention-m.svg";
-export { ReactComponent as MermaidCompIcon } from "./icon-mermaid.svg";
+export { ReactComponent as MermaidCompIcon } from "./v2/mermaid-chart-m.svg";
 export { ReactComponent as ModalCompIcon } from "./v2/modal-m.svg";
 export { ReactComponent as MultiSelectCompIcon } from "./v2/multiselect-m.svg";
 export { ReactComponent as NavComIcon } from "./v2/navigation-m.svg";
@@ -333,15 +367,19 @@ export { ReactComponent as TabbedContainerCompIcon } from "./v2/tabbed-container
 export { ReactComponent as TableCompIcon } from "./v2/mighty-table-m.svg";
 export { ReactComponent as TextAreaCompIcon } from "./v2/text-area-input-m.svg";
 export { ReactComponent as TextCompIcon } from "./v2/text-display-m.svg";
-export { ReactComponent as TimeCompIcon } from "./icon-time.svg";
+export { ReactComponent as TimeCompIcon } from "./v2/time-select-m.svg";
 export { ReactComponent as TimeLineCompIcon } from "./v2/timeline-m.svg";
-export { ReactComponent as TimeRangeCompIcon } from "./icon-timeRange.svg";
+export { ReactComponent as TimeRangeCompIcon } from "./v2/time-range-select-m.svg";
 export { ReactComponent as ToggleButtonCompIcon } from "./v2/toggle-button-m.svg";
 export { ReactComponent as TreeDisplayCompIcon } from "./v2/tree-display-m.svg";
 export { ReactComponent as TreeSelectCompIcon } from "./v2/tree-select-m.svg";
 export { ReactComponent as UploadCompIcon } from "./v2/file-upload-m.svg";
 export { ReactComponent as VideoCompIcon } from "./v2/video-player-m.svg";
-
+export { ReactComponent as VideoMeetingRoomCompIcon } from "./v2/meeting-room-m.svg";
+export { ReactComponent as VideoCameraStreamCompIcon } from "./v2/camera-stream-m.svg";
+export { ReactComponent as VideoScreenshareCompIcon } from "./v2/screen-share-stream-m.svg";
+export { ReactComponent as StepCompIcon } from "./v2/steps-m.svg";
+export { ReactComponent as SignatureCompIcon } from "./v2/signature-m.svg";
 
 
 // flags
