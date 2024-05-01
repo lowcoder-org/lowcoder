@@ -39,12 +39,12 @@ import history from "util/history";
 import LazyRoute from "components/LazyRoute";
 import { getAntdLocale } from "i18n/antdLocale";
 import { ProductLoading } from "components/ProductLoading";
-import { language, trans } from "i18n";
+import { trans } from "i18n"; // language
 import { loadComps } from "comps";
 import { initApp } from "util/commonUtils";
 import { favicon } from "assets/images";
 import { hasQueryParam } from "util/urlUtils";
-import { getCurrentUser, isFetchUserFinished } from "redux/selectors/usersSelectors";
+import { isFetchUserFinished } from "redux/selectors/usersSelectors"; // getCurrentUser, 
 import { SystemWarning } from "./components/SystemWarning";
 import { getBrandingConfig } from "./redux/selectors/configSelectors";
 import { buildMaterialPreviewURL } from "./util/materialUtils";
