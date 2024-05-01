@@ -154,35 +154,8 @@ export const enObj: I18nObjects = {
   ],
 
   defaultEchartsJsonOption: {
-    title: {
-      text: "Funnel Chart",
-      left: "center",
-    },
-    backgroundColor: "#ffffff",
-    color: chartColorPalette,
-    tooltip: {
-      trigger: "item",
-      formatter: "{a} <br/>{b} : {c}%",
-    },
-    legend: {
-      data: ["Show", "Click", "Visit", "Query", "Buy"],
-      top: "bottom",
-    },
     series: [
       {
-        name: "Funnel",
-        type: "funnel",
-        left: "10%",
-        top: 60,
-        bottom: 60,
-        width: "80%",
-        min: 0,
-        max: 100,
-        gap: 2,
-        label: {
-          show: true,
-          position: "inside",
-        },
         data: [
           { value: 100, name: "Show" },
           { value: 80, name: "Click" },
