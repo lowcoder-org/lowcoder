@@ -137,19 +137,13 @@ export function getEchartsConfig(props: EchartsConfigProps, chartSize?: ChartSiz
     "left":"center"
   },
   "backgroundColor": props?.style?.background,
-  "color":props?.style?.color,
+      "color": props.echartsOption.data?.map(data => data.color),
   "tooltip": props.tooltip&&{
     "trigger": "item",
     "formatter": "{a} <br/>{b} : {c}%"
   },
   "legend":props.legendVisibility&& {
-    "data": [
-      "Show",
-      "Click",
-      "Visit",
-      "Query",
-      "Buy"
-    ],
+    "data": props.echartsOption.data?.map(data=>data.name),
     "top": props.echartsLegendConfig.top,
   },
   "series": [
@@ -167,7 +161,7 @@ export function getEchartsConfig(props: EchartsConfigProps, chartSize?: ChartSiz
         "show": true,
         "position": props.echartsLabelConfig.top
       },
-      "data": props.echartsOption.series[0].data
+      "data": props.echartsOption.data
     }
   ]
 }

@@ -154,17 +154,13 @@ export const enObj: I18nObjects = {
   ],
 
   defaultEchartsJsonOption: {
-    series: [
-      {
-        data: [
-          { value: 100, name: "Show" },
-          { value: 80, name: "Click" },
-          { value: 60, name: "Visit" },
-          { value: 40, name: "Query" },
-          { value: 20, name: "Buy" },
+    data: [
+      { value: 100, name: "Show",color:'#fc8452' },
+      { value: 80, name: "Click" ,color:'#9a60b4'},
+      { value: 60, name: "Visit" ,color:'#fac858'},
+      { value: 40, name: "Query" ,color:'#ee6666'},
+      { value: 20, name: "Buy" ,color:'#3ba272'},
         ],
-      },
-    ],
   },
 
   defaultMapJsonOption: defaultMapData,
