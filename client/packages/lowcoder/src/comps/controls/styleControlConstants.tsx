@@ -789,6 +789,86 @@ export const InputLikeStyle = [
   ...ACCENT_VALIDATE,
 ] as const;
 
+// added by Mousheng
+
+export const ColorPickerStyle = [
+  LABEL,
+  getStaticBackground(SURFACE_COLOR),
+  ...STYLING_FIELDS_SEQUENCE,
+  ...ACCENT_VALIDATE,
+] as const;
+
+export const AvatarStyle = [
+  {
+    name: "background",
+    label: trans("avatarComp.avatarBackground"),
+    color: '#bfbfbf',
+  },
+  FILL,
+  {
+    name: "label",
+    label: trans("avatarComp.label"),
+    color: '#000000',
+  },
+  {
+    name: "caption",
+    label: trans("avatarComp.caption"),
+    color: '#a5a5a5',
+  },
+] as const;
+
+export const avatarGroupStyle = [
+  {
+    name: "fill",
+    label: trans("style.fill"),
+    color: '#FFFFFF',
+  },
+  getBackground("primary"),
+] as const;
+
+export const FloatButtonStyle = [
+  {
+    name: "badgeColor",
+    label: trans("floatButton.badgeColor"),
+    color: "#ff4d4f",
+  },
+] as const;
+
+export const TransferStyle = [
+  MARGIN,	
+] as const;
+
+export const CardStyle = [
+  getStaticBackground("#ffffff"),
+  BORDER,
+  {
+    name: "IconColor",
+    label: trans("card.IconColor"),
+    color: "#000000",
+  },
+  {
+    name: "activateColor",
+    label: trans("card.hoverColor"),
+    depTheme: "primary",
+    depType: DEP_TYPE.SELF,
+    transformer: toSelf,
+  },
+  CONTAINER_BODY_PADDING,
+] as const;
+
+export const timerStyle = [
+  getBackground("primarySurface"),
+  BORDER,
+  RADIUS,
+  {
+    name: "fontColor",
+    label: trans("timer.fontColor"),
+    color: "#000000",
+  },
+] as const;
+
+// end
+
 export const LabelStyle = [
   ...replaceAndMergeMultipleStyles([...InputLikeStyle], 'text', [LABEL]).filter((style) => style.name !== 'radius' && style.name !== 'background')
 ]
@@ -1480,9 +1560,18 @@ export const RichTextEditorStyle = [
   BORDER_WIDTH
 ] as const;
 
+export type QRCodeStyleType = StyleConfigType<typeof QRCodeStyle>;
+export type AvatarStyleType = StyleConfigType<typeof AvatarStyle>;
+export type AvatarGroupStyleType = StyleConfigType<typeof avatarGroupStyle>;
+export type FloatButtonStyleType = StyleConfigType<typeof FloatButtonStyle>;
+export type TransferStyleType = StyleConfigType<typeof TransferStyle>;
+export type CardStyleType = StyleConfigType<typeof CardStyle>;
+export type timerStyleType = StyleConfigType<typeof timerStyle>;
+
 export type LabelStyleType = StyleConfigType<typeof LabelStyle>;
 export type InputLikeStyleType = StyleConfigType<typeof InputLikeStyle>;
 export type InputFieldStyleType = StyleConfigType<typeof InputFieldStyle>;
+export type ColorPickerStyleType = StyleConfigType<typeof ColorPickerStyle>;
 export type ButtonStyleType = StyleConfigType<typeof ButtonStyle>;
 export type ToggleButtonStyleType = StyleConfigType<typeof ToggleButtonStyle>;
 export type TextStyleType = StyleConfigType<typeof TextStyle>;

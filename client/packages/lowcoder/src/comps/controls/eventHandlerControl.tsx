@@ -310,6 +310,12 @@ export function eventHandlerControl<T extends EventConfigsType>(
   return EventHandlerTempControl;
 }
 
+export const refreshEvent: EventConfigType = {
+  label: trans("event.refresh"),
+  value: "refresh",
+  description: trans("event.refreshDesc"),
+};
+
 export const submitEvent: EventConfigType = {
   label: trans("event.submit"),
   value: "submit",
@@ -455,6 +461,27 @@ export const mentionEvent: EventConfigType = {
   label: trans("event.mention"),
   value: "mention",
   description: trans("event.mentionDesc"),
+};
+
+export const startEvent: EventConfigType = {
+  label: trans("event.start"),
+  value: "start",
+  description: trans("event.startDesc"),
+};
+export const resumeEvent: EventConfigType = {
+  label: trans("event.resume"),
+  value: "resume",
+  description: trans("event.resumeDesc"),
+};
+export const countdownEvent: EventConfigType = {
+  label: trans("event.countdown"),
+  value: "countdown",
+  description: trans("event.countdownDesc"),
+};
+export const resetEvent: EventConfigType = {
+  label: trans("event.reset"),
+  value: "reset",
+  description: trans("event.resetDesc"),
 };
 
 
@@ -614,6 +641,24 @@ export const chartDeselectEvent: EventConfigType = {
   description: trans("event.chartDeselectDesc"),
 };
 
+export const selectedChangeEvent: EventConfigType = {
+  label: trans("event.selectedChange"),
+  value: "selectedChange",
+  description: trans("event.selectedChangeDesc"),
+};
+
+export const searchEvent: EventConfigType = {
+  label: trans("event.search"),
+  value: "search",
+  description: trans("event.searchDesc"),
+};
+
+export const clickExtraEvent: EventConfigType = {
+  label: trans("event.clickExtra"),
+  value: "clickExtra",
+  description: trans("event.clickExtraDesc"),
+};
+
 // Exports
 
 export const InputEventHandlerControl = eventHandlerControl([
@@ -727,4 +772,11 @@ export const CollaborationEventHandlerControl = eventHandlerControl([
   shareControlEndEvent,
   shareContentEvent,
   shareContentEndEvent,
+] as const);
+
+export const CardEventHandlerControl = eventHandlerControl([
+  clickEvent,
+  clickExtraEvent,
+  focusEvent,
+  blurEvent,
 ] as const);
