@@ -83,4 +83,11 @@ export const defaultCurrentUser: CurrentUser = {
   extra: {},
 };
 
+export type ApiKey = {
+  id: string;
+  name: string;
+  description: string;
+  token: string;
+}
+
 export type UserStatusType = keyof BaseUserInfo["userStatus"];

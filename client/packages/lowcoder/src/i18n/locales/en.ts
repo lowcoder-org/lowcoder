@@ -2314,7 +2314,15 @@ export const en = {
     "createdApps": "Created Apps",
     "createdModules": "Created Modules",
     "onMarketplace": "On Marketplace",
-    "howToPublish": "How to publish on Marketplace"
+    "howToPublish": "How to publish on Marketplace",
+    "apiKeys": "API Keys",
+    "createApiKey": "Create API Key",
+    "apiKeyName": "Name",
+    "apiKeyDescription": "Description",
+    "apiKey": "API Key",
+    "deleteApiKey": "Delete API Key",
+    "deleteApiKeyContent": "Are you sure you want to delete this API key?",
+    "deleteApiKeyError": "Something went wrong. Please try again."
   },
   "shortcut": {
     "shortcutList": "Keyboard Shortcuts",

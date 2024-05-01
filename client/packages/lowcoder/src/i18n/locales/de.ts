@@ -2261,7 +2261,15 @@ export const de: typeof en = {
       "createdApps": "Erstellte Apps",
       "createdModules": "Erstellte Module",
       "onMarketplace": "Auf dem Marktplatz",
-      "howToPublish": "So veröffentlichen Sie auf dem Marktplatz"
+      "howToPublish": "So veröffentlichen Sie auf dem Marktplatz",
+      "apiKeys": "API-Schlüssel",
+      "createApiKey": "API-Schlüssel erstellen",
+      "apiKeyName": "Name",
+      "apiKeyDescription": "Beschreibung",
+      "apiKey": "API-Schlüssel",
+      "deleteApiKey": "API-Schlüssel löschen",
+      "deleteApiKeyContent": "Sind Sie sicher, dass Sie diesen API-Schlüssel löschen möchten?",
+      "deleteApiKeyError": "Etwas ist schief gelaufen. Bitte versuche es erneut."
   },
   "shortcut": {
       ...en.shortcut,

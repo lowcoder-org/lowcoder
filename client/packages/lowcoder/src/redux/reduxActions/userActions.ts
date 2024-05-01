@@ -1,5 +1,5 @@
 import { ReduxAction, ReduxActionTypes } from "constants/reduxActionConstants";
-import { UserStatusType } from "constants/userConstants";
+import { ApiKey, UserStatusType } from "constants/userConstants";
 
 export const fetchUserAction = () => ({
   type: ReduxActionTypes.FETCH_USER_INIT,
@@ -20,6 +20,9 @@ export type UpdateUserPayload = {
   avatarUrl?: string;
   uiLanguage?: string;
 };
+
+export type FetchApiKeysPayload = Array<ApiKey>;
+
 export const updateUserAction = (payload: UpdateUserPayload) => {
   return {
     type: ReduxActionTypes.UPDATE_USER_PROFILE,
@@ -58,3 +61,16 @@ export const logoutAction = (payload: LogoutActionPayload) => ({
 export const logoutSuccess = () => ({
   type: ReduxActionTypes.LOGOUT_USER_SUCCESS,
 });
+
+export const fetchApiKeysAction = () => {
+  return {
+    type: ReduxActionTypes.FETCH_API_KEYS,
+  };
+};
+
+export const fetchApiKeysSuccess = (payload: FetchApiKeysPayload) => {
+  return {
+    type: ReduxActionTypes.FETCH_API_KEYS_SUCCESS,
+    payload: payload,
+  };
+};

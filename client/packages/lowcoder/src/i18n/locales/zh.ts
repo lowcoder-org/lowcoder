@@ -2148,6 +2148,14 @@ profile: {
     createdModules: "创建的模块",
     onMarketplace: "在市场上",
     howToPublish: "如何在 Marketplace 上发布",
+    apiKeys: "API 密钥",
+    createApiKey: "创建 API 密钥",
+    apiKeyName: "姓名",
+    apiKeyDescription: "描述",
+    apiKey: "API密钥",
+    deleteApiKey: "删除 API 密钥",
+    deleteApiKeyContent: "您确定要删除此 API 密钥吗?",
+    deleteApiKeyError: "出了些问题。请再试一次。"
 },
 shortcut: {
     shortcutList: "键盘快捷键",
