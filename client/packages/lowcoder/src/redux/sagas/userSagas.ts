@@ -24,6 +24,7 @@ import { messageInstance } from "lowcoder-design/src/components/GlobalInstances"
 
 import { AuthSearchParams } from "constants/authConstants";
 import { saveAuthSearchParams } from "pages/userAuth/authUtils";
+import { initTranslator } from "i18n";
 
 function validResponseData(response: AxiosResponse<ApiResponse>) {
   return response && response.data && response.data.data;
@@ -90,6 +91,8 @@ export function* getCurrentUserSaga() {
         type: ReduxActionTypes.FETCH_CURRENT_USER_SUCCESS,
         payload: response.data.data,
       });
+      const { uiLanguage } = response.data.data;
+      initTranslator(uiLanguage);
     }
   } catch (error: any) {
     yield put({

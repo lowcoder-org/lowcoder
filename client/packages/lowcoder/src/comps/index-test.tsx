@@ -110,7 +110,7 @@ import {
   ScannerCompIcon,
   SegmentedCompIcon,
   SelectCompIcon,
-  SignatureIcon,
+  SignatureCompIcon,
   SliderCompIcon,
   SwitchCompIcon,
   TabbedContainerCompIcon,
@@ -1000,7 +1000,7 @@ var uiCompMap: Registry = {
     enName: "Signature",
     description: trans("uiComp.signatureCompDesc"),
     categories: ["itemHandling"],
-    icon: SignatureIcon,
+    icon: SignatureCompIcon,
     keywords: trans("uiComp.signatureCompKeywords"),
     comp: SignatureComp,
     layoutInfo: {

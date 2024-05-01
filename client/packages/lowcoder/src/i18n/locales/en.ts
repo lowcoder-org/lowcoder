@@ -926,7 +926,7 @@ export const en = {
     "buttonCompDesc": "A versatile button component for submitting forms, triggering actions, or navigating.",
     "buttonCompKeywords": "button, submit, action, navigate",
 
-    "meetingControlCompName": "Control Button",
+    "meetingControlCompName": "Icon Button",
     "meetingCompDesc": "A button for controlling functions like start, end, mute, or share.",
     "meetingCompKeywords": "control, button, start, end",
 
@@ -1002,7 +1002,7 @@ export const en = {
     "tabbedContainerCompDesc": "A container with tabbed navigation for organizing content into separate panels.",
     "tabbedContainerCompKeywords": "tabbed, container, navigation, panels",
 
-    "pageLayoutCompName": "Layout Container",
+    "pageLayoutCompName": "Page Layout",
     "pageLayoutCompDesc": "A container which offers to create a layout with header, sider, footer and main content areas",
     "pageLayoutCompKeywords": "layout, container, navigation, pages",
 
@@ -1074,7 +1074,7 @@ export const en = {
     "imageEditorCompDesc": "An interactive component for editing and manipulating images, offering various tools and filters.",
     "imageEditorCompKeywords": "image, editor, manipulate, tools",
 
-    "mermaidCompName": "Mermaid Charts",
+    "mermaidCompName": "Mermaid Chart",
     "mermaidCompDesc": "A component for rendering complex diagrams and flowcharts based on Mermaid syntax.",
     "mermaidCompKeywords": "mermaid, charts, diagrams, flowcharts",
 
@@ -1758,7 +1758,7 @@ export const en = {
     "sharingCompName": "Screen Share Stream",
     "videoCompName": "Camera Stream",
     "videoSharingCompName": "Screen Share Stream",
-    "meetingControlCompName": "Control Button",
+    "meetingControlCompName": "Icon Button",
     "meetingCompDesc": "Meeting Component",
     "meetingCompControls": "Meeting Control",
     "meetingCompKeywords": "Agora Meeting, Web Meeting, Collaboration",
@@ -2302,7 +2302,19 @@ export const en = {
     "alreadySetPassword": "Password Set",
     "setPassPlaceholder": "You Can Login with Password",
     "setPassAfterBind": "You Can Set Password After Account Bind",
-    "socialConnections": "Social Connections"
+    "socialConnections": "Social Connections",
+    "changeAvatar": "Change Avatar",
+    "about": "About",
+    "userId": "User ID",
+    "createdAt": "Created At",
+    "currentOrg": "Current Organization",
+    "settings": "Settings",
+    "uiLanguage": "UI Language",
+    "info": "Info",
+    "createdApps": "Created Apps",
+    "createdModules": "Created Modules",
+    "onMarketplace": "On Marketplace",
+    "howToPublish": "How to publish on Marketplace"
   },
   "shortcut": {
     "shortcutList": "Keyboard Shortcuts",

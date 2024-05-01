@@ -927,7 +927,7 @@ export const de: typeof en = {
     "toggleButtonCompDesc": "Ein Knopf, der zwischen zwei Zuständen oder Optionen umschalten kann.",
     "toggleButtonCompKeywords": "Umschalten, Knopf, Schalter, Zustand",
 
-    "meetingControlCompName": "Steuerung Taste",
+    "meetingControlCompName": "Icon Taste",
     "meetingCompDesc": "Eine Steuerungstaste mit Icons.",
     "meetingCompKeywords": "Steuerung, Taste, Icons",
 
@@ -1059,7 +1059,7 @@ export const de: typeof en = {
     "imageEditorCompDesc": "Eine interaktive Komponente zur Bearbeitung und Manipulation von Bildern, bietet verschiedene Werkzeuge und Filter.",
     "imageEditorCompKeywords": "Bild, Editor, bearbeiten, Werkzeuge",
 
-    "mermaidCompName": "Mermaid Diagramme",
+    "mermaidCompName": "Mermaid Diagramm",
     "mermaidCompDesc": "Eine Komponente zum Erstellen komplexer Diagramme und Flussdiagramme basierend auf der Mermaid-Syntax.",
     "mermaidCompKeywords": "Mermaid, Diagramme, Flussdiagramme, Visualisierung",
 
@@ -1708,7 +1708,7 @@ export const de: typeof en = {
       "sharingCompName": "Bildschirm teilen Stream",
       "videoCompName": "Kamera-Stream",
       "videoSharingCompName": "Bildschirm teilen Stream",
-      "meetingControlCompName": "Steuerung Taste",
+      "meetingControlCompName": "Icon Taste",
       "meetingCompDesc": "Meeting-Komponente",
       "meetingCompControls": "Meeting-Kontrolle",
       "meetingCompKeywords": "Agora Meeting, Web-Meeting, Kollaboration",
@@ -2249,7 +2249,19 @@ export const de: typeof en = {
       "alreadySetPassword": "Passwort setzen",
       "setPassPlaceholder": "Du kannst dich mit Passwort anmelden",
       "setPassAfterBind": "Du kannst das Passwort nach der Kontobindung festlegen",
-      "socialConnections": "Soziale Bindungen"
+      "socialConnections": "Soziale Bindungen",
+      "changeAvatar": "Avatar ändern",
+      "about": "Um",
+      "userId": "Benutzer-ID",
+      "createdAt": "Hergestellt in",
+      "currentOrg": "aktuelle Organisation",
+      "settings": "Einstellungen",
+      "uiLanguage": "UI-Sprache",
+      "info": "Die Info",
+      "createdApps": "Erstellte Apps",
+      "createdModules": "Erstellte Module",
+      "onMarketplace": "Auf dem Marktplatz",
+      "howToPublish": "So veröffentlichen Sie auf dem Marktplatz"
   },
   "shortcut": {
       ...en.shortcut,
