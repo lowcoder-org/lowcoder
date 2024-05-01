@@ -13,20 +13,25 @@ import {
   eventHandlerControl,
   valueComp,
   withType,
-  ValueFromOption,
   uiChildren,
   clickEvent,
+  styleControl,
+  EchartsStyle
 } from "lowcoder-sdk";
 import { RecordConstructorToComp, RecordConstructorToView } from "lowcoder-core";
 import { BarChartConfig } from "./chartConfigs/barChartConfig";
 import { XAxisConfig, YAxisConfig } from "./chartConfigs/cartesianAxisConfig";
 import { LegendConfig } from "./chartConfigs/legendConfig";
+import { EchartsLegendConfig } from "./chartConfigs/echartsLegendConfig";
+import { EchartsLabelConfig } from "./chartConfigs/echartsLabelConfig";
 import { LineChartConfig } from "./chartConfigs/lineChartConfig";
 import { PieChartConfig } from "./chartConfigs/pieChartConfig";
 import { ScatterChartConfig } from "./chartConfigs/scatterChartConfig";
 import { SeriesListComp } from "./seriesComp";
 import { EChartsOption } from "echarts";
 import { i18nObjs, trans } from "i18n/comps";
+import { GaugeChartConfig } from "./chartConfigs/gaugeChartConfig";
+import { FunnelChartConfig } from "./chartConfigs/funnelChartConfig";
 
 export const ChartTypeOptions = [
   {
@@ -47,32 +52,14 @@ export const ChartTypeOptions = [
   },
 ] as const;
 
-const chartModeOptions = [
+export const EchartsTypeOptions = [
   {
-    label: trans("chart.UIMode"),
-    value: "ui",
+    label: trans("chart.funnel"),
+    value: "funnel",
   },
   {
-    label: "ECharts JSON",
-    value: "json",
-  },
-  {
-    label: "Map",
-    value: "map",
-  },
-] as const;
-
-const mapModeOptions = [
-  {
-    label: "Map",
-    value: "map",
-  },
-] as const;
-
-const eChartModeOptions = [
-  {
-    label: "ECharts JSON",
-    value: "json",
+    label: trans("chart.gauge"),
+    value: "gauge",
   },
 ] as const;
 
@@ -251,7 +238,13 @@ const ChartOptionMap = {
   scatter: ScatterChartConfig,
 };
 
+const EchartsOptionMap = {
+  funnel: FunnelChartConfig,
+  gauge: GaugeChartConfig,
+};
+
 const ChartOptionComp = withType(ChartOptionMap, "bar");
+const EchartsOptionComp = withType(EchartsOptionMap, "funnel");
 export type CharOptionCompType = keyof typeof ChartOptionMap;
 
 export const chartUiModeChildren = {
@@ -269,6 +262,11 @@ export const chartUiModeChildren = {
 
 const chartJsonModeChildren = {
   echartsOption: jsonControl(toObject, i18nObjs.defaultEchartsJsonOption),
+  echartsTitle: withDefault(StringControl, trans("echarts.defaultTitle")),
+  echartsLegendConfig: EchartsLegendConfig,
+  echartsLabelConfig: EchartsLabelConfig,
+  echartsConfig: EchartsOptionComp,
+  style: styleControl(EchartsStyle),
 }
 
 const chartMapModeChildren = {

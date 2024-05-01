@@ -1,5 +1,5 @@
 import { changeChildAction, CompAction } from "lowcoder-core";
-import { ChartCompChildrenType, ChartTypeOptions, getDataKeys } from "./chartConstants";
+import { ChartCompChildrenType, ChartTypeOptions, EchartsTypeOptions,getDataKeys } from "./chartConstants";
 import { newSeries } from "./seriesComp";
 import {
   CustomModal,
@@ -150,9 +150,40 @@ export function chartPropertyView(
             </div>
           ),
         })}
+        <Dropdown
+          value={children.echartsConfig.children.compType.getView()}
+          options={EchartsTypeOptions}
+          label={trans("chart.chartType")}
+          onChange={(value) => {
+            // keep the previous value
+            if (children.echartsConfig.children.comp.children.hasOwnProperty("showLabel")) {
+              children.echartsConfig.dispatchChangeValueAction({
+                compType: value as any,
+                comp: {
+                  showLabel: (
+                    children.echartsConfig.children.comp.children as any
+                  ).showLabel.toJsonValue(),
+                },
+              });
+            } else {
+              children.echartsConfig.dispatchChangeValueAction({
+                compType: value,
+              });
+            }
+          }}
+        />
+        {children.echartsConfig.children.compType.getView() === "funnel" &&
+          <>
+          {children.echartsLegendConfig.getPropertyView()}
+          {children.echartsLabelConfig.getPropertyView()}
+          </>}
+        {children.echartsTitle.propertyView({ label: trans("echarts.title") })}
       </Section>
       <Section name={sectionNames.interaction}>
         {children.onEvent.propertyView()}
+      </Section>
+      <Section name={sectionNames.style}>
+         {children.style.getPropertyView()}
       </Section>
       <Section name={sectionNames.layout}>{hiddenPropertyView(children)}</Section>
     </>

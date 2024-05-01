@@ -130,8 +130,50 @@ export function getSeriesConfig(props: EchartsConfigProps) {
 // https://echarts.apache.org/en/option.html
 export function getEchartsConfig(props: EchartsConfigProps, chartSize?: ChartSize): EChartsOptionWithMap {
   if (props.mode === "json") {
-    return props.echartsOption ? props.echartsOption : {};
+    let opt={
+  "title": {
+    "text": props.echartsTitle,
+    "left": "center"
+  },
+  "backgroundColor": props?.style?.background,
+  "color":props?.style?.color,
+  "tooltip": {
+    "trigger": "item",
+    "formatter": "{a} <br/>{b} : {c}%"
+  },
+  "legend": {
+    "data": [
+      "Show",
+      "Click",
+      "Visit",
+      "Query",
+      "Buy"
+    ],
+    "top": props.echartsLegendConfig.top,
+  },
+  "series": [
+    {
+      "name": props.echartsConfig.type,
+      "type": props.echartsConfig.type,
+      "left": "10%",
+      "top": 60,
+      "bottom": 60,
+      "width": "80%",
+      "min": 0,
+      "max": 100,
+      "gap": 2,
+      "label": {
+        "show": true,
+        "position": props.echartsLabelConfig.top
+      },
+      "data": props.echartsOption.series[0].data
+    }
+  ]
+}
+    return props.echartsOption ? opt : {};
+    
   }
+  
   if(props.mode === "map") {
     const {
       mapZoomLevel,
