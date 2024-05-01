@@ -1,4 +1,3 @@
-import React from 'react';
 import CountUp from 'react-countup';
 import { useSelector } from "react-redux";
 import styled from "styled-components";
@@ -20,7 +19,7 @@ import { ALL_APPLICATIONS_URL } from "constants/routesURL";
 import { USER_PROFILE_URL } from "constants/routesURL";
 import { default as Divider } from "antd/es/divider";
 
-import { Avatar, Badge, Button, Card, Col, Row, Space, Typography, Select } from 'antd';
+import { Avatar, Badge, Button, Card, Col, Row, Space, Typography, Select, Table, Flex } from "antd";
 
 import {
   BlurFinishInput,
@@ -40,6 +39,7 @@ import { updateUserAction, updateUserSuccess } from "redux/reduxActions/userActi
 import { default as Upload, UploadChangeParam } from "antd/es/upload";
 import { USER_HEAD_UPLOAD_URL } from "constants/apiConstants";
 import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
+import UserApiKeysCard from './components/UserApiKeysCard';
 
 const { Text, Title, Link } = Typography;
 const { Option } = Select;
@@ -161,7 +161,9 @@ export function UserProfileLayout(props: UserProfileLayoutProps) {
   const modules = useSelector(modulesSelector);
   const orgUsers = useSelector(getOrgUsers);
   const orgGroups = useSelector(getOrgGroups);
+  
   const currentOrgId = user.currentOrgId;
+
   const currentOrg = useMemo(
     () => user.orgs.find((o) => o.id === currentOrgId),
     [user, currentOrgId]
@@ -191,9 +193,6 @@ export function UserProfileLayout(props: UserProfileLayoutProps) {
       window.location.reload();
     }, 1000);
   };
-
-  console.log("App Language", language);
-  console.log("User Language", currentUser.uiLanguage);
 
   if (!user.currentOrgId) {
     return null;
@@ -395,7 +394,9 @@ export function UserProfileLayout(props: UserProfileLayoutProps) {
 
             </Space>
           </Card>
-
+          
+          <UserApiKeysCard />
+          
         </ProfileView>
       </ContentWrapper>
     </Wrapper>
