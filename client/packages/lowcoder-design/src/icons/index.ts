@@ -354,7 +354,7 @@ export { ReactComponent as ProgressCompIcon } from "./v2/progress-m.svg";
 export { ReactComponent as QRCodeCompIcon } from "./v2/qr-code-display-m.svg";
 export { ReactComponent as RadioCompIcon } from "./v2/radio-button-m.svg";
 export { ReactComponent as RangeSliderCompIcon } from "./v2/range-slider-m.svg";
-export { ReactComponent as RatingCompIcon } from "./V2/rating-m.svg";
+export { ReactComponent as RatingCompIcon } from "./v2/rating-m.svg";
 export { ReactComponent as ResponsiveLayoutCompIcon } from "./v2/resposive-layout-m.svg";
 export { ReactComponent as RichTextEditorCompIcon } from "./v2/rich-text-editor-m.svg";
 export { ReactComponent as ScannerCompIcon } from "./v2/scanner-m.svg";
