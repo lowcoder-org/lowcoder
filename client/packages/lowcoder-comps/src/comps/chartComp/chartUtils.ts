@@ -133,15 +133,16 @@ export function getEchartsConfig(props: EchartsConfigProps, chartSize?: ChartSiz
     let opt={
   "title": {
     "text": props.echartsTitle,
-    "left": "center"
+    'top': props.echartsLegendConfig.top === 'bottom' ?'top':'bottom',
+    "left":"center"
   },
   "backgroundColor": props?.style?.background,
   "color":props?.style?.color,
-  "tooltip": {
+  "tooltip": props.tooltip&&{
     "trigger": "item",
     "formatter": "{a} <br/>{b} : {c}%"
   },
-  "legend": {
+  "legend":props.legendVisibility&& {
     "data": [
       "Show",
       "Click",

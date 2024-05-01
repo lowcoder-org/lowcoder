@@ -178,6 +178,8 @@ export function chartPropertyView(
           {children.echartsLabelConfig.getPropertyView()}
           </>}
         {children.echartsTitle.propertyView({ label: trans("echarts.title") })}
+        {children.tooltip.propertyView({label: trans("echarts.tooltip")})}
+        {children.legendVisibility.propertyView({label: trans("echarts.legendVisibility")})}
       </Section>
       <Section name={sectionNames.interaction}>
         {children.onEvent.propertyView()}
