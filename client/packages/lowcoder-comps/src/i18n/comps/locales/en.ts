@@ -1,5 +1,19 @@
 export const en = {
+  echarts: {
+    title: 'Title',
+    defaultTitle: 'Funnel Chart',
+    backgroundColor: 'Background Color',
+    defaultBackgroundColor: '#fff',
+    color: 'Color',
+    defaultColor: '#4C64D9',
+    funnelType:'Funnel Chart Type',
+    gaugeType: 'Gauge Chart Type',
+    legendPosition: "Legend Position",
+    labelPosition: "Label Position",
+  },
   chart: {
+    funnel: 'Funnel',
+    gauge:'Gauge',
     delete: "Delete",
     data: "Data",
     mode: "Mode",
@@ -14,6 +28,7 @@ export const en = {
     seriesName: "Series Name",
     dataColumns: "Data Columns",
     title: "Title",
+    tooltip:'Tooltip',
     xAxisDirection: "X-axis Direction",
     xAxisName: "X-axis Name",
     xAxisType: "X-axis Type",
