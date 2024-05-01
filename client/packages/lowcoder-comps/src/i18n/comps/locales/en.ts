@@ -10,6 +10,8 @@ export const en = {
     gaugeType: 'Gauge Chart Type',
     legendPosition: "Legend Position",
     labelPosition: "Label Position",
+    tooltip: 'Tooltip',
+    legendVisibility:'Legend Visibility'
   },
   chart: {
     funnel: 'Funnel',
