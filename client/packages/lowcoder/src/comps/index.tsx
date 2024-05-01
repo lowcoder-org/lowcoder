@@ -157,7 +157,7 @@ import {
   IconCompIcon,
   PageLayoutCompIcon,
   FloatingTextCompIcon,
-  IconModal,
+  TourCompIcon,
   StepCompIcon,
 } from "lowcoder-design";
 
@@ -1200,7 +1200,7 @@ export var uiCompMap: Registry = {
     enName: "Tour",
     description: trans("uiComp.tourCompDesc"),
     categories: ["multimedia", "itemHandling"],
-    icon: IconModal,
+    icon: TourCompIcon,
     keywords: trans("uiComp.tourCompKeywords"),
     comp: TourComp,
     layoutInfo: {
