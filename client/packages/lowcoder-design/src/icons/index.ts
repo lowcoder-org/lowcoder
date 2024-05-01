@@ -191,11 +191,26 @@ export { ReactComponent as FileFolderIcon } from "./icon-editor-folder.svg";
 export { ReactComponent as ExpandIcon } from "./icon-expand.svg";
 export { ReactComponent as CompressIcon } from "./icon-compress.svg";
 export { ReactComponent as TableCellsIcon } from "./icon-table-cells.svg"; // Added By Aqib Mirza
+
+// Style Props
 export { ReactComponent as WidthIcon } from "./icon-width.svg";
-export { ReactComponent as TextSizeIcon } from "./remix/font-size-2.svg";
+export { ReactComponent as TextSizeIcon } from "./remix/font-size.svg";
+export { ReactComponent as TextTransformationIcon } from "./remix/font-size-2.svg";
 export { ReactComponent as FontFamilyIcon } from "./remix/font-sans-serif.svg";
 export { ReactComponent as TextWeightIcon } from "./remix/bold.svg";
-export { ReactComponent as BorderWidthIcon } from "./remix/expand-width-line.svg";
+export { ReactComponent as TextDecorationIcon } from "./remix/underline.svg";
+export { ReactComponent as TextStyleIcon } from "./remix/italic.svg";
+export { ReactComponent as BorderWidthIcon } from "./remix/space.svg";
+export { ReactComponent as BorderStyleIcon } from "./remix/separator.svg";
+export { ReactComponent as RotationIcon } from "./remix/clockwise-line.svg";
+export { ReactComponent as BorderRadiusIcon } from "./remix/rounded-corner.svg";
+
+// Falk: TODO
+export { ReactComponent as ShadowIcon } from "./remix/shadow-line.svg";
+export { ReactComponent as OpacityIcon } from "./remix/contrast-drop-2-line.svg";
+export { ReactComponent as AnimationIcon } from "./remix/loader-line.svg";
+
+
 export { ReactComponent as LeftInfoLine } from "./remix/information-line.svg";
 export { ReactComponent as LeftInfoFill } from "./remix/information-fill.svg";
 export { ReactComponent as LeftShow } from "./remix/eye-off-line.svg";

@@ -23,6 +23,10 @@ export type BorderWidthConfig = CommonColorConfig & {
   readonly borderWidth: string;
 };
 
+export type RotationConfig = CommonColorConfig & {
+  readonly rotation: string;
+};
+
 export type BackgroundImageConfig = CommonColorConfig & { readonly backgroundImage: string; };
 export type BackgroundImageRepeatConfig = CommonColorConfig & { readonly backgroundImageRepeat: string; };
 export type BackgroundImageSizeConfig = CommonColorConfig & { readonly backgroundImageSize: string; };
@@ -106,7 +110,7 @@ export type DepColorConfig = CommonColorConfig & {
   transformer: (color: string, ...rest: string[]) => string;
 };
 
-export type SingleColorConfig = SimpleColorConfig | DepColorConfig | RadiusConfig | BorderWidthConfig | borderStyleConfig | BackgroundImageConfig | BackgroundImageRepeatConfig | BackgroundImageSizeConfig | BackgroundImagePositionConfig | BackgroundImageOriginConfig | TextSizeConfig | TextWeightConfig | TextTransformConfig | TextDecorationConfig | FontFamilyConfig | FontStyleConfig | MarginConfig | PaddingConfig | ContainerHeaderPaddingConfig | ContainerSiderPaddingConfig | ContainerFooterPaddingConfig | ContainerBodyPaddingConfig | HeaderBackgroundImageConfig | HeaderBackgroundImageRepeatConfig | HeaderBackgroundImageSizeConfig | HeaderBackgroundImagePositionConfig | HeaderBackgroundImageOriginConfig | FooterBackgroundImageConfig | FooterBackgroundImageRepeatConfig | FooterBackgroundImageSizeConfig | FooterBackgroundImagePositionConfig | FooterBackgroundImageOriginConfig | SiderBackgroundImageConfig | SiderBackgroundImageRepeatConfig | SiderBackgroundImageSizeConfig | SiderBackgroundImagePositionConfig | SiderBackgroundImageOriginConfig;
+export type SingleColorConfig = SimpleColorConfig | DepColorConfig | RadiusConfig | BorderWidthConfig | RotationConfig | borderStyleConfig | BackgroundImageConfig | BackgroundImageRepeatConfig | BackgroundImageSizeConfig | BackgroundImagePositionConfig | BackgroundImageOriginConfig | TextSizeConfig | TextWeightConfig | TextTransformConfig | TextDecorationConfig | FontFamilyConfig | FontStyleConfig | MarginConfig | PaddingConfig | ContainerHeaderPaddingConfig | ContainerSiderPaddingConfig | ContainerFooterPaddingConfig | ContainerBodyPaddingConfig | HeaderBackgroundImageConfig | HeaderBackgroundImageRepeatConfig | HeaderBackgroundImageSizeConfig | HeaderBackgroundImagePositionConfig | HeaderBackgroundImageOriginConfig | FooterBackgroundImageConfig | FooterBackgroundImageRepeatConfig | FooterBackgroundImageSizeConfig | FooterBackgroundImagePositionConfig | FooterBackgroundImageOriginConfig | SiderBackgroundImageConfig | SiderBackgroundImageRepeatConfig | SiderBackgroundImageSizeConfig | SiderBackgroundImagePositionConfig | SiderBackgroundImageOriginConfig;
 
 export const defaultTheme: ThemeDetail = {
   primary: "#3377FF",
@@ -303,6 +307,12 @@ const VALIDATE = {
 
 const ACCENT_VALIDATE = [ACCENT, VALIDATE] as const;
 
+const ROTATION = {
+  name: "rotation",
+  label: "Rotation",
+  rotation: "rotation",
+} as const;
+
 const BORDER = {
   name: "border",
   label: trans("style.border"),
@@ -460,7 +470,10 @@ const SIDER_BACKGROUND = {
 } as const;
 
 const BG_STATIC_BORDER_RADIUS = [getBackground(), getStaticBorder(), RADIUS] as const;
+
 const STYLING_FIELDS_SEQUENCE = [
+  MARGIN,
+  PADDING,
   TEXT,
   TEXT_TRANSFORM,
   TEXT_DECORATION,
@@ -470,17 +483,16 @@ const STYLING_FIELDS_SEQUENCE = [
   FONT_STYLE,
   BORDER,
   BORDER_STYLE,
-  MARGIN,
-  PADDING,
   RADIUS,
   BORDER_WIDTH,
+  ROTATION,
 ]
 
 const STYLING_FIELDS_CONTAINER_SEQUENCE = [
-  BORDER,
-  BORDER_STYLE,
   MARGIN,
   PADDING,
+  BORDER,
+  BORDER_STYLE,
   RADIUS,
   BORDER_WIDTH,
 ];
