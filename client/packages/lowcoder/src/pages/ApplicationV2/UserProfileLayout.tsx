@@ -315,6 +315,8 @@ export function UserProfileLayout(props: UserProfileLayoutProps) {
             </Space>
           </Card>
 
+          <UserApiKeysCard />
+
           <Card style={{ marginBottom: "20px" }}>
             <Title level={4}>{trans("profile.info")}</Title>
             <Space direction="horizontal" size={10}>
@@ -395,7 +397,7 @@ export function UserProfileLayout(props: UserProfileLayoutProps) {
             </Space>
           </Card>
           
-          <UserApiKeysCard />
+          
           
         </ProfileView>
       </ContentWrapper>

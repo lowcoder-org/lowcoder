@@ -3,6 +3,7 @@ import Card from "antd/es/card";
 import Flex from "antd/es/flex";
 import Title from "antd/es/typography/Title";
 import Table from "antd/es/table";
+import Tooltip from "antd/es/tooltip";
 import { useDispatch, useSelector } from "react-redux";
 import { useState } from "react";
 import { styled } from "styled-components";
@@ -40,6 +41,14 @@ export default function UserApiKeysCard() {
   const dispatch = useDispatch();
   const apiKeys = useSelector(getApiKeys);
   const [modalVisible, setModalVisible] = useState(false);
+
+  const handleCopy = (value: string) => {
+    navigator.clipboard.writeText(value).then(() => {
+      messageInstance.success('Copied to clipboard!');
+    }).catch(err => {
+      messageInstance.error('Failed to copy!');
+    });
+  };
 
   return (
     <>
@@ -89,9 +98,11 @@ export default function UserApiKeysCard() {
                 const startToken = value.substring(0, 6);
                 const endToken = value.substring(value.length - 6);
                 return (
-                  <>
-                    { `${startToken}********************${endToken}`}
-                  </>
+                  <Tooltip placement="topLeft" title={ trans("profile.apiKeyCopy")}>
+                    <div onClick={() => handleCopy(value)} style={{ cursor: 'pointer' }}>
+                      {`${startToken}********************${endToken}`}
+                    </div>
+                  </Tooltip>
                 )
               }
             },

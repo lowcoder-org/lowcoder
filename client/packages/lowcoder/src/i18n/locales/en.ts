@@ -2319,6 +2319,7 @@ export const en = {
     "createApiKey": "Create API Key",
     "apiKeyName": "Name",
     "apiKeyDescription": "Description",
+    "apiKeyCopy": "Click the Api Key to get the value in your clipboard",
     "apiKey": "API Key",
     "deleteApiKey": "Delete API Key",
     "deleteApiKeyContent": "Are you sure you want to delete this API key?",
