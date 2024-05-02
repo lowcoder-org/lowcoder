@@ -6,6 +6,7 @@ import org.lowcoder.api.authentication.request.oauth2.OAuth2RequestContext;
 import org.lowcoder.domain.user.model.AuthToken;
 import org.lowcoder.domain.user.model.AuthUser;
 import org.lowcoder.sdk.auth.Oauth2GenericAuthConfig;
+import org.lowcoder.sdk.auth.Oauth2KeycloakAuthConfig;
 import org.lowcoder.sdk.util.JsonUtils;
 import org.lowcoder.sdk.webclient.WebClientBuildHelper;
 import org.springframework.http.MediaType;
