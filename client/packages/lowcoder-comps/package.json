@@ -64,8 +64,24 @@
           "h": 40
         }
       },
-      "eCharts": {
-        "name": "ECharts",
+      "funnelChart": {
+        "name": "Funnel Chart",
+        "icon": "./icons/icon-chart.svg",
+        "layoutInfo": {
+          "w": 15,
+          "h": 40
+        }
+      },
+      "gaugeChart": {
+        "name": "Gauge Chart",
+        "icon": "./icons/icon-chart.svg",
+        "layoutInfo": {
+          "w": 15,
+          "h": 40
+        }
+      },
+      "sankeyChart": {
+        "name": "Sankey Chart",
         "icon": "./icons/icon-chart.svg",
         "layoutInfo": {
           "w": 15,
