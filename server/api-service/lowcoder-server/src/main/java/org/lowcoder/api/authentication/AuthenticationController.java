@@ -1,6 +1,7 @@
 package org.lowcoder.api.authentication;
 
 import java.util.List;
+import java.util.Map;
 
 import org.lowcoder.api.authentication.dto.APIKeyRequest;
 import org.lowcoder.api.authentication.dto.AuthConfigRequest;
@@ -14,7 +15,9 @@ import org.lowcoder.api.util.BusinessEventPublisher;
 import org.lowcoder.domain.authentication.FindAuthConfig;
 import org.lowcoder.domain.user.model.APIKey;
 import org.lowcoder.sdk.auth.AbstractAuthConfig;
+import org.lowcoder.sdk.auth.Oauth2GenericAuthConfig;
 import org.lowcoder.sdk.util.CookieHelper;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -125,6 +128,25 @@ public class AuthenticationController implements AuthenticationEndpoints
     public Mono<ResponseView<List<APIKey>>> getAllAPIKeys() {
         return authenticationApiService.findAPIKeys()
                 .collectList()
+                .map(ResponseView::success);
+    }
+
+    /**
+     * This endpoint is to get IDP configuration
+     * @param issuerUri String
+     * @param source String
+     * @param sourceName String
+     * @param clientId String
+     * @param clientSecret String
+     * @return Oauth2GenericAuthConfig
+     */
+    @Override
+    public Mono<ResponseView<Oauth2GenericAuthConfig>> addOAuthProvider(String issuerUri,
+                                                                        String source,
+                                                                        String sourceName,
+                                                                        String clientId,
+                                                                        String clientSecret) {
+        return authenticationApiService.fetchAndParseConfiguration(issuerUri, source, sourceName, clientId, clientSecret)
                 .map(ResponseView::success);
     }
 

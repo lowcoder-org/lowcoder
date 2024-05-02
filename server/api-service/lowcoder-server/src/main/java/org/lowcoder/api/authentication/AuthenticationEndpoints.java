@@ -1,6 +1,7 @@
 package org.lowcoder.api.authentication;
 
 import java.util.List;
+import java.util.Map;
 
 import org.lowcoder.api.authentication.dto.APIKeyRequest;
 import org.lowcoder.api.authentication.dto.AuthConfigRequest;
@@ -11,8 +12,10 @@ import org.lowcoder.api.usermanagement.view.APIKeyVO;
 import org.lowcoder.domain.user.model.APIKey;
 import org.lowcoder.infra.constant.NewUrl;
 import org.lowcoder.sdk.auth.AbstractAuthConfig;
+import org.lowcoder.sdk.auth.Oauth2GenericAuthConfig;
 import org.lowcoder.sdk.config.SerializeConfig.JsonViews;
 import org.lowcoder.sdk.constants.AuthSourceConstants;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -160,4 +163,19 @@ public interface AuthenticationEndpoints
     public record FormLoginRequest(String loginId, String password, boolean register, String source, String authId) {
     }
 
+	/**
+	 * This endpoint is to get IDP configuration
+	 * @param issuerUri String
+	 * @param source String
+	 * @param sourceName String
+	 * @param clientId String
+	 * @param clientSecret String
+	 * @return Oauth2GenericAuthConfig
+	 */
+	@GetMapping("/providers")
+	public Mono<ResponseView<Oauth2GenericAuthConfig>> addOAuthProvider(@RequestParam String issuerUri,
+																		@RequestParam String source,
+																		@RequestParam String sourceName,
+																		@RequestParam String clientId,
+																		@RequestParam String clientSecret);
 }
