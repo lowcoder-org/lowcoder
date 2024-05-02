@@ -153,4 +153,12 @@ export const CompStateIcon: {
   treeSelect: <TreeSelectCompIconSmall />,
   video: <VideoCompIconSmall />,
   videocomponent: <VideoCameraStreamCompIconSmall />,
+  
+  avatar: <LeftCommon />, 
+  avatarGroup: <LeftCommon />, 
+  colorPicker: <LeftCommon />,
+  floatButton: <LeftCommon />,
+  transfer: <LeftCommon />,
+  card: <LeftCommon />,
+  timer: <LeftCommon />,
 };

@@ -12,10 +12,12 @@ import { mapValues } from "lodash";
 import { Fragment, ReactNode } from "react";
 import { getPromiseAfterDispatch } from "util/promiseUtils";
 import {
+  ArrayNumberControl,
   ArrayStringControl,
   ArrayStringOrNumberControl,
   BoolCodeControl,
   CodeControlType,
+  JSONObjectArrayControl,
   JSONObjectControl,
   JSONValueControl,
   NumberControl,
@@ -29,7 +31,9 @@ const ParamsCompMap: Record<ParamType, CodeControlType> = {
   string: StringControl,
   boolean: BoolCodeControl,
   arrayString: ArrayStringControl,
+  arrayObject: JSONObjectArrayControl,
   arrayNumberString: ArrayStringOrNumberControl,
+  arrayNumber: ArrayNumberControl,
   JSON: JSONObjectControl,
   JSONValue: JSONValueControl,
 };

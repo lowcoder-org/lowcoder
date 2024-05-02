@@ -127,11 +127,18 @@ export type UICompType =
   | "calendar"
   | "signature"
   | "jsonLottie" //Added By Aqib Mirza
+  | "avatar" //Added By Mousheng
+  | "avatarGroup" //Added By Mousheng
   | "icon" //Added By Mousheng
   | "timeline" //Added By Mousheng
   | "comment" //Added By Mousheng
   | "mention" //Added By Mousheng
   | "autocomplete" //Added By Mousheng
+  | "colorPicker" //Added By Mousheng
+  | "floatButton" //Added By Mousheng
+  | "transfer" //Added By Mousheng
+  | "card"  //Added By Mousheng
+  | "timer" //Added by Mousheng
   | "responsiveLayout"
   | "tour";
 
