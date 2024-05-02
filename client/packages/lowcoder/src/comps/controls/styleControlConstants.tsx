@@ -1316,11 +1316,6 @@ export const JsonEditorStyle = [LABEL] as const;
 
 export const EchartsStyle = [
   getBackground("primarySurface"),
-  {
-    name: "color",
-    label: trans("color"),
-    color: "#4C64D9",
-  },
 ] as const;
 
 export const CalendarStyle = [
