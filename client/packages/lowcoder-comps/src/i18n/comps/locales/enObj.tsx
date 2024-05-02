@@ -162,6 +162,35 @@ export const enObj: I18nObjects = {
       { value: 20, name: "Buy" ,color:'#3ba272'},
         ],
   },
+  defaultFunnelChartOption: {
+    data: [
+      { value: 100, name: "Show",color:'#fc8452' },
+      { value: 80, name: "Click" ,color:'#9a60b4'},
+      { value: 60, name: "Visit" ,color:'#fac858'},
+      { value: 40, name: "Query" ,color:'#ee6666'},
+      { value: 20, name: "Buy" ,color:'#3ba272'},
+        ],
+  },
+  defaultGaugeChartOption: {
+    data: [
+      { value: 60, name: "Completed",color:'#fc8452' }
+    ]
+  },
+  defaultSankeyChartOption: {
+    data: [
+      {name: "Show"},
+      {name: "Click"},
+      {name: "Visit"},
+      {name: "Query"},
+      {name: "Buy"}
+    ],
+    links: [
+      {source: "Show", target: "Click", value: 80},
+      {source: "Click", target: "Visit", value: 60},
+      {source: "Visit", target: "Query", value: 40},
+      {source: "Query", target: "Buy", value: 20}
+    ]
+  },
 
   defaultMapJsonOption: defaultMapData,
 };
