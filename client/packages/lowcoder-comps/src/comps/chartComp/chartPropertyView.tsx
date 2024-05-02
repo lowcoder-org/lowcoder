@@ -1,5 +1,5 @@
 import { changeChildAction, CompAction } from "lowcoder-core";
-import { ChartCompChildrenType, ChartTypeOptions, EchartsTypeOptions,getDataKeys } from "./chartConstants";
+import { ChartCompChildrenType, ChartTypeOptions,getDataKeys } from "./chartConstants";
 import { newSeries } from "./seriesComp";
 import {
   CustomModal,
@@ -134,60 +134,6 @@ export function chartPropertyView(
 
   const jsonModePropertyView = (
     <>
-      <Section name={trans("chart.config")}>
-        {children.echartsOption.propertyView({
-          label: trans("chart.echartsOptionLabel"),
-          styleName: "higher",
-          tooltip: (
-            <div>
-              <a href={optionUrl} target="_blank" rel="noopener noreferrer">
-                {trans("chart.echartsOptionTooltip")}
-              </a>
-              <br />
-              <a href={examplesUrl} target="_blank" rel="noopener noreferrer">
-                {trans("chart.echartsOptionExamples")}
-              </a>
-            </div>
-          ),
-        })}
-        <Dropdown
-          value={children.echartsConfig.children.compType.getView()}
-          options={EchartsTypeOptions}
-          label={trans("chart.chartType")}
-          onChange={(value) => {
-            // keep the previous value
-            if (children.echartsConfig.children.comp.children.hasOwnProperty("showLabel")) {
-              children.echartsConfig.dispatchChangeValueAction({
-                compType: value as any,
-                comp: {
-                  showLabel: (
-                    children.echartsConfig.children.comp.children as any
-                  ).showLabel.toJsonValue(),
-                },
-              });
-            } else {
-              children.echartsConfig.dispatchChangeValueAction({
-                compType: value,
-              });
-            }
-          }}
-        />
-        {children.echartsConfig.children.compType.getView() === "funnel" &&
-          <>
-          {children.echartsLegendConfig.getPropertyView()}
-          {children.echartsLabelConfig.getPropertyView()}
-          </>}
-        {children.echartsTitle.propertyView({ label: trans("echarts.title") })}
-        {children.tooltip.propertyView({label: trans("echarts.tooltip")})}
-        {children.legendVisibility.propertyView({label: trans("echarts.legendVisibility")})}
-      </Section>
-      <Section name={sectionNames.interaction}>
-        {children.onEvent.propertyView()}
-      </Section>
-      <Section name={sectionNames.style}>
-         {children.style.getPropertyView()}
-      </Section>
-      <Section name={sectionNames.layout}>{hiddenPropertyView(children)}</Section>
     </>
   );
 

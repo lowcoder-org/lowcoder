@@ -52,17 +52,6 @@ export const ChartTypeOptions = [
   },
 ] as const;
 
-export const EchartsTypeOptions = [
-  {
-    label: trans("chart.funnel"),
-    value: "funnel",
-  },
-  {
-    label: trans("chart.gauge"),
-    value: "gauge",
-  },
-] as const;
-
 export const UIEventOptions = [
   {
     label: trans("chart.select"),
