@@ -38,6 +38,7 @@ public class Oauth2SimpleAuthConfig extends AbstractAuthConfig {
             case AuthTypeConstants.GITHUB -> replaceAuthUrlClientIdPlaceholder(Oauth2Constants.GITHUB_AUTHORIZE_URL);
             case AuthTypeConstants.ORY -> replaceAuthUrlClientIdPlaceholder(Oauth2Constants.ORY_AUTHORIZE_URL);
             case AuthTypeConstants.KEYCLOAK -> replaceAuthUrlClientIdPlaceholder(Oauth2Constants.KEYCLOAK_AUTHORIZE_URL);
+            case AuthTypeConstants.GENERIC -> replaceAuthUrlClientIdPlaceholder(((Oauth2GenericAuthConfig)this).getAuthorizationEndpoint());
             default -> null;
         };
     }

@@ -31,10 +31,13 @@ import org.lowcoder.domain.organization.service.OrganizationService;
 import org.lowcoder.domain.user.model.*;
 import org.lowcoder.domain.user.service.UserService;
 import org.lowcoder.sdk.auth.AbstractAuthConfig;
+import org.lowcoder.sdk.auth.Oauth2GenericAuthConfig;
+import org.lowcoder.sdk.auth.constants.AuthTypeConstants;
 import org.lowcoder.sdk.config.AuthProperties;
 import org.lowcoder.sdk.exception.BizError;
 import org.lowcoder.sdk.exception.BizException;
 import org.lowcoder.sdk.util.CookieHelper;
+import org.lowcoder.sdk.webclient.WebClientBuildHelper;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ServerWebExchange;
@@ -328,6 +331,55 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
                 .flatMapIterable(user ->
                         new ArrayList<>(user.getApiKeysList())
                 );
+    }
+
+    /**
+     * This method is to fetch and parse the OpenID configuration from the issuer URI.
+     * @param issuerUri String
+     * @param source String
+     * @param sourceName String
+     * @param clientId String
+     * @param clientSecret String
+     * @return Oauth2GenericAuthConfig
+     */
+    @Override
+    public Mono<Oauth2GenericAuthConfig> fetchAndParseConfiguration(String issuerUri,
+                                                                    String source,
+                                                                    String sourceName,
+                                                                    String clientId,
+                                                                    String clientSecret) {
+        String wellKnownUri = issuerUri + "/.well-known/openid-configuration";
+        return WebClientBuildHelper.builder()
+                .systemProxy()
+                .build()
+                .get()
+                .uri(wellKnownUri)
+                .retrieve()
+                .bodyToMono(Map.class)
+                .map(map -> mapToConfig(map, source, sourceName, clientId, clientSecret));
+    }
+
+    /**
+     * This method is to map to config for Generic Auth Provider
+     * @param map Object that comes from /.well-known endpoint for IDP Configuration
+     * @return Oauth2GenericAuthConfig
+     */
+    private Oauth2GenericAuthConfig mapToConfig(Map<String, Object> map,
+                                                String source,
+                                                String sourceName,
+                                                String clientId,
+                                                String clientSecret) {
+        return Oauth2GenericAuthConfig.builder()
+                .authType(AuthTypeConstants.GENERIC)
+                .source(source)
+                .sourceName(sourceName)
+                .clientId(clientId)
+                .clientSecret(clientSecret)
+                .issuerUri((String) map.get("issuer"))
+                .authorizationEndpoint((String) map.get("authorization_endpoint"))
+                .tokenEndpoint((String) map.get("token_endpoint"))
+                .userInfoEndpoint((String) map.get("userinfo_endpoint"))
+                .build();
     }
 
 
