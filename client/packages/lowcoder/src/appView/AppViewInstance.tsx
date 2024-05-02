@@ -12,6 +12,8 @@ import { AUTH_LOGIN_URL } from "constants/routesURL";
 import { AuthSearchParams } from "constants/authConstants";
 import { saveAuthSearchParams } from "pages/userAuth/authUtils";
 import { Suspense, lazy } from "react";
+import Flex from "antd/es/flex";
+import { TacoButton } from "components/button";
 
 const AppView = lazy(
   () => import('./AppView')
@@ -35,6 +37,8 @@ export interface AppViewInstanceOptions<I = any> {
   moduleInputs?: I;
 }
 
+let isAuthButtonClicked = false;
+
 export class AppViewInstance<I = any, O = any> {
   private comp: RootComp | null = null;
   private prevOutputs: any = null;
@@ -44,6 +48,7 @@ export class AppViewInstance<I = any, O = any> {
     baseUrl: "https://api-service.lowcoder.cloud",
     webUrl: "https://app.lowcoder.cloud",
   };
+  private authorizedUser: boolean = true;
 
   constructor(private appId: string, private node: Element, private root: Root, options: AppViewInstanceOptions = {}) {
     Object.assign(this.options, options);
@@ -81,7 +86,15 @@ export class AppViewInstance<I = any, O = any> {
               [AuthSearchParams.redirectUrl]: encodeURIComponent(window.location.href),
               [AuthSearchParams.loginType]: null,
             })
-            window.location.href = `${webUrl}${AUTH_LOGIN_URL}`;
+            // window.location.href = `${webUrl}${AUTH_LOGIN_URL}`;
+            this.authorizedUser = false;
+            return {
+              data: {
+                orgCommonSettings: undefined,
+                applicationDSL: {},
+                moduleDSL: {},
+              }
+            };
           }
         });
 
@@ -143,18 +156,45 @@ export class AppViewInstance<I = any, O = any> {
   private async render() {
     const data = await this.dataPromise;
     this.root.render(
-      <StyleSheetManager target={this.node as HTMLElement}>
-        <Suspense fallback={null}>
-          <AppView
-            appId={this.appId}
-            dsl={data.appDsl}
-            moduleDsl={data.moduleDslMap}
-            moduleInputs={this.options.moduleInputs}
-            onCompChange={(comp) => this.handleCompChange(comp)}
-            onModuleEventTriggered={(eventName) => this.emit("moduleEventTriggered", [eventName])}
-          />
-        </Suspense>
-      </StyleSheetManager>
+      this.authorizedUser ? (
+        <StyleSheetManager target={this.node as HTMLElement}>
+          <Suspense fallback={null}>
+            <AppView
+              appId={this.appId}
+              dsl={data.appDsl}
+              moduleDsl={data.moduleDslMap}
+              moduleInputs={this.options.moduleInputs}
+              onCompChange={(comp) => this.handleCompChange(comp)}
+              onModuleEventTriggered={(eventName) => this.emit("moduleEventTriggered", [eventName])}
+            />
+          </Suspense>
+        </StyleSheetManager>
+      ) : (
+        <Flex vertical={true} align="center" justify="center">
+          <h4>This resource needs authentication.</h4>
+          {!isAuthButtonClicked ? (
+            <TacoButton
+              buttonType="primary"
+              onClick={() => {
+                isAuthButtonClicked = true;
+                window.open(`${this.options.webUrl}${AUTH_LOGIN_URL}`, '_blank');
+                this.render();
+              }}
+            >
+              Login
+            </TacoButton>
+          ) : (
+            <TacoButton
+              buttonType="primary"
+              onClick={() => {
+                window.location.reload();
+              }}
+            >
+              Refresh
+            </TacoButton>
+          )}
+        </Flex>
+      )
     );
   }
 
