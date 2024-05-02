@@ -8,7 +8,7 @@ import { numberExposingStateControl } from "@lowcoder-ee/comps/controls/codeStat
 import { withDefault } from "comps/generators";
 import { RecordConstructorToComp } from "lowcoder-core";
 import { trans } from "i18n";
-import { dropdownControl } from "@lowcoder-ee/index.sdk";
+import { dropdownControl } from "comps/controls/dropdownControl";
 
 const badgeSizeOptions = [
   {
