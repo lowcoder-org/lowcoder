@@ -1,21 +1,28 @@
 export const en = {
-  echarts: {
+  sankeyChart: {
+    sankeyType: 'Sankey Chart Type',
+    title: 'Title',
+    defaultTitle: 'Sankey Chart',
+    tooltip: 'Tooltip',
+  },
+  funnelChart: {
     title: 'Title',
     defaultTitle: 'Funnel Chart',
-    backgroundColor: 'Background Color',
-    defaultBackgroundColor: '#fff',
-    color: 'Color',
-    defaultColor: '#4C64D9',
     funnelType:'Funnel Chart Type',
-    gaugeType: 'Gauge Chart Type',
-    legendPosition: "Legend Position",
-    labelPosition: "Label Position",
     tooltip: 'Tooltip',
     legendVisibility:'Legend Visibility'
   },
+  gaugeChart: {
+    title: 'Title',
+    defaultTitle: 'Gauge Chart',
+    gaugeType: 'Gauge Chart Type',
+    tooltip: 'Tooltip',
+  },
+  echarts: {
+    legendPosition: "Legend Position",
+    labelPosition: "Label Position",
+  },
   chart: {
-    funnel: 'Funnel',
-    gauge:'Gauge',
     delete: "Delete",
     data: "Data",
     mode: "Mode",
