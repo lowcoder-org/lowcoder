@@ -22,7 +22,7 @@ export const GaugeChartConfig = (function () {
       <>
         {showLabelPropertyView(children)}
         {children.type.propertyView({
-          label: trans("echarts.gaugeType"),
+          label: trans("gaugeChart.gaugeType"),
           radioButton: true,
         })}
       </>

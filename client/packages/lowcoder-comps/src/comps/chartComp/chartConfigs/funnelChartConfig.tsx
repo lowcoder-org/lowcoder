@@ -26,7 +26,7 @@ export const FunnelChartConfig = (function () {
       <>
         {showLabelPropertyView(children)}
         {children.type.propertyView({
-          label: trans("echarts.funnelType"),
+          label: trans("funnelChart.funnelType"),
           radioButton: true,
         })}
       </>
