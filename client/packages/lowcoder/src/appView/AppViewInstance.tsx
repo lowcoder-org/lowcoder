@@ -35,6 +35,7 @@ export interface AppViewInstanceOptions<I = any> {
   baseUrl?: string;
   webUrl?: string;
   moduleInputs?: I;
+  orgId?: string;
 }
 
 let isAuthButtonClicked = false;
@@ -54,6 +55,9 @@ export class AppViewInstance<I = any, O = any> {
     Object.assign(this.options, options);
     if (this.options.baseUrl) {
       sdkConfig.baseURL = this.options.baseUrl;
+    }
+    if (this.options.webUrl) {
+      sdkConfig.webUrl = this.options.webUrl;
     }
 
     this.dataPromise = this.loadData();
@@ -86,7 +90,7 @@ export class AppViewInstance<I = any, O = any> {
               [AuthSearchParams.redirectUrl]: encodeURIComponent(window.location.href),
               [AuthSearchParams.loginType]: null,
             })
-            // window.location.href = `${webUrl}${AUTH_LOGIN_URL}`;
+
             this.authorizedUser = false;
             return {
               data: {
@@ -155,6 +159,10 @@ export class AppViewInstance<I = any, O = any> {
 
   private async render() {
     const data = await this.dataPromise;
+    const loginUrl = this.options.orgId
+      ? `${this.options.webUrl}/org/${this.options.orgId}/auth/login`
+      : `${this.options.webUrl}${AUTH_LOGIN_URL}`;
+
     this.root.render(
       this.authorizedUser ? (
         <StyleSheetManager target={this.node as HTMLElement}>
@@ -177,7 +185,7 @@ export class AppViewInstance<I = any, O = any> {
               buttonType="primary"
               onClick={() => {
                 isAuthButtonClicked = true;
-                window.open(`${this.options.webUrl}${AUTH_LOGIN_URL}`, '_blank');
+                window.open(loginUrl, '_blank');
                 this.render();
               }}
             >
