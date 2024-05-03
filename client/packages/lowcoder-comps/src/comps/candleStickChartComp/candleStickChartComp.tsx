@@ -6,8 +6,8 @@ import {
   wrapChildAction,
 } from "lowcoder-core";
 import { AxisFormatterComp, EchartsAxisType } from "../chartComp/chartConfigs/cartesianAxisConfig";
-import { chartChildrenMap, ChartSize, getDataKeys } from "../chartComp/chartConstants";
-import { chartPropertyView } from "../chartComp/chartPropertyView";
+import { candleStickChartChildrenMap, ChartSize, getDataKeys } from "./candleStickChartConstants";
+import { candleStickChartPropertyView } from "./candleStickChartPropertyView";
 import _ from "lodash";
 import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import ReactResizeDetector from "react-resize-detector";
@@ -16,14 +16,10 @@ import {
   childrenToProps,
   depsConfig,
   genRandomKey,
-  JSONObject,
-  JSONValue,
   NameConfig,
-  ToViewReturn,
   UICompBuilder,
   withDefault,
   withExposingConfigs,
-  withMethodExposing,
   withViewFn,
   ThemeContext,
   chartColorPalette,
@@ -36,8 +32,7 @@ import {
   echartsConfigOmitChildren,
   getEchartsConfig,
   getSelectedPoints,
-  loadGoogleMapsScript,
-} from "comps/chartComp/chartUtils";
+} from "./candleStickChartUtils";
 import 'echarts-extension-gmap';
 import log from "loglevel";
 
@@ -50,22 +45,16 @@ const chartModeOptions = [
   }
 ] as const;
 
-let EChartsTmpComp = (function () {
-  return new UICompBuilder({mode:dropdownControl(chartModeOptions,'json'),...chartChildrenMap}, () => null)
-    .setPropertyViewFn(chartPropertyView)
+let CandleStickChartTmpComp = (function () {
+  return new UICompBuilder({mode:dropdownControl(chartModeOptions,'json'),...candleStickChartChildrenMap}, () => null)
+    .setPropertyViewFn(candleStickChartPropertyView)
     .build();
 })();
 
-EChartsTmpComp = withViewFn(EChartsTmpComp, (comp) => {
-  const apiKey = comp.children.mapApiKey.getView();
+CandleStickChartTmpComp = withViewFn(CandleStickChartTmpComp, (comp) => {
   const mode = comp.children.mode.getView();
-  const mapCenterPosition = {
-    lng: comp.children.mapCenterLng.getView(),
-    lat: comp.children.mapCenterLat.getView(),
-  }
   const onUIEvent = comp.children.onUIEvent.getView();
   const onEvent = comp.children.onEvent.getView();
-
   const echartsCompRef = useRef<ReactECharts | null>();
   const [chartSize, setChartSize] = useState<ChartSize>();
   const firstResize = useRef(true);
@@ -123,9 +112,6 @@ EChartsTmpComp = withViewFn(EChartsTmpComp, (comp) => {
     }
     echartsCompInstance?.on("selectchanged", (param: any) => {
       const option: any = echartsCompInstance?.getOption();
-      //log.log("chart select change", param);
-      // trigger click event listener
-
       document.dispatchEvent(new CustomEvent("clickEvent", {
         bubbles: true,
         detail: {
@@ -213,7 +199,7 @@ function getYAxisFormatContextValue(
   return contextValue;
 }
 
-EChartsTmpComp = class extends EChartsTmpComp {
+CandleStickChartTmpComp = class extends CandleStickChartTmpComp {
   private lastYAxisFormatContextVal?: JSONValue;
   private lastColorContext?: JSONObject;
 
@@ -288,7 +274,7 @@ EChartsTmpComp = class extends EChartsTmpComp {
   }
 };
 
-let EChartsComp = withExposingConfigs(EChartsTmpComp, [
+let CandleStickChartComp = withExposingConfigs(CandleStickChartTmpComp, [
   depsConfig({
     name: "selectedPoints",
     desc: trans("chart.selectedPointsDesc"),
@@ -315,7 +301,7 @@ let EChartsComp = withExposingConfigs(EChartsTmpComp, [
 ]);
 
 
-export const EChartsCompWithDefault = withDefault(EChartsComp, {
+export const CandleStickChartCompWithDefault = withDefault(CandleStickChartComp, {
   xAxisKey: "date",
   series: [
     {
