@@ -6,6 +6,7 @@ import { MapCompWithDefault } from "comps/mapComp/mapComp";
 import { FunnelChartCompWithDefault } from "comps/chartComp/funnelChartComp/funnelChartComp";
 import { GaugeChartCompWithDefault } from "comps/chartComp/gaugeChartComp/gaugeChartComp";
 import { SankeyChartCompWithDefault } from "comps/chartComp/sankeyChartComp/sankeyChartComp";
+import { CandleStickChartCompWithDefault } from "comps/chartComp/candleStickChartComp/candleStickChartComp";
 
 export default {
   chart: ChartCompWithDefault,
@@ -13,6 +14,7 @@ export default {
   funnelChart: FunnelChartCompWithDefault,
   gaugeChart: GaugeChartCompWithDefault,
   sankeyChart: SankeyChartCompWithDefault,
+  candleStickChart: CandleStickChartCompWithDefault,
   imageEditor: ImageEditorComp,
   calendar: CalendarComp,
   mermaid: MermaidComp,
