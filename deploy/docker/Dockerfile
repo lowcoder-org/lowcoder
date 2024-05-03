@@ -25,7 +25,7 @@ RUN chmod +x /lowcoder/api-service/*.sh
 ## To create a separate image out of it, build it with:
 ##   DOCKER_BUILDKIT=1 docker build -f deploy/docker/Dockerfile -t lowcoderorg/lowcoder-ce-api-service --target lowcoder-ce-api-service .
 ##
-FROM eclipse-temurin:17-jammy as lowcoder-ce-api-service
+FROM eclipse-temurin:17-jammy AS lowcoder-ce-api-service
 LABEL maintainer="lowcoder"
 
 RUN apt-get update && apt-get install -y --no-install-recommends gosu \
@@ -49,7 +49,7 @@ CMD [ "/bin/bash" , "/lowcoder/api-service/entrypoint.sh" ]
 ##
 ## Build lowcoder node service
 ##
-FROM ubuntu:jammy as build-node-service
+FROM ubuntu:jammy AS build-node-service
 
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y curl ca-certificates build-essential gnupg
 
@@ -80,7 +80,7 @@ RUN chmod +x /lowcoder/node-service/*.sh
 ## To create a separate image out of it, build it with:
 ##   DOCKER_BUILDKIT=1 docker build -f deploy/docker/Dockerfile -t lowcoderorg/lowcoder-ce-node-service --target lowcoder-ce-node-service .
 ##
-FROM ubuntu:jammy as lowcoder-ce-node-service
+FROM ubuntu:jammy AS lowcoder-ce-node-service
 LABEL maintainer="lowcoder"
 
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y curl ca-certificates gnupg
@@ -145,7 +145,7 @@ RUN yarn build
 ## To create a separate image out of it, build it with:
 ##   DOCKER_BUILDKIT=1 docker build -f deploy/docker/Dockerfile -t lowcoderorg/lowcoder-ce-frontend --target lowcoder-ce-frontend .
 ##
-FROM nginx:1.25.1 as lowcoder-ce-frontend
+FROM nginx:1.25.1 AS lowcoder-ce-frontend
 LABEL maintainer="lowcoder"
 
 # Change default nginx user into lowcoder user and remove default nginx config
@@ -189,7 +189,10 @@ EXPOSE 3443
 FROM lowcoder-ce-frontend
 LABEL maintainer="lowcoder"
 
-RUN apt update && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y curl ca-certificates gnupg
+RUN apt-get update && apt-get upgrade -y \
+  && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y curl ca-certificates gnupg \
+  && rm -rf /var/cache/apt/lists /var/lib/apt/lists/* /var/log/dpkg.log \
+  && apt-get clean
 
 # Add nodejs repo and keys
 RUN mkdir -p /etc/apt/keyrings \
@@ -211,8 +214,10 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install --no-instal
       nodejs \
       openjdk-17-jdk-headless \
   && npm install -g yarn \
-  && rm -rf /var/cache/apt/lists \
-  && mkdir -p /lowcoder/assets
+  && rm -rf /var/cache/apt/lists /var/lib/apt/lists/* /var/log/dpkg.log \
+  && mkdir -p /lowcoder/assets \
+  && apt-get clean \
+  && rm -rf /tmp/*
 
 # Add lowcoder api-service
 COPY --chown=lowcoder:lowcoder --from=lowcoder-ce-api-service /lowcoder/api-service /lowcoder/api-service
@@ -226,6 +231,17 @@ COPY --chown=lowcoder:lowcoder deploy/docker/all-in-one/etc /lowcoder/etc
 
 # Add startup script
 COPY --chown=lowcoder:lowcoder deploy/docker/all-in-one/entrypoint.sh /lowcoder/entrypoint.sh
+
+# Fixes for OpenShift compatibility (after all files are copied)
+RUN echo  \
+  && adduser lowcoder root \
+  && mkdir -p /lowcoder-stacks \
+  && for i in /lowcoder-stacks /lowcoder/assets /lowcoder/api-service/logs /lowcoder/etc/supervisord; do \
+       chmod -R g+rw "$i"; \
+       chown -R lowcoder:root "$i"; \
+     done \
+  && chown -R lowcoder:root /var/log \
+  && chmod -R g+rw /run /etc/nginx /var/cache/nginx /var/log
 
 EXPOSE 27017
 EXPOSE 3000
