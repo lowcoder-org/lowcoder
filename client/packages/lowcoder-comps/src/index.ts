@@ -8,6 +8,7 @@ import { GaugeChartCompWithDefault } from "comps/gaugeChartComp/gaugeChartComp";
 import { SankeyChartCompWithDefault } from "comps/sankeyChartComp/sankeyChartComp";
 import { CandleStickChartCompWithDefault } from "comps/candleStickChartComp/candleStickChartComp";
 import { RadarChartCompWithDefault } from "comps/radarChartComp/radarChartComp";
+import { HeatmapChartCompWithDefault } from "comps/heatmapChartComp/heatmapChartComp";
 
 export default {
   chart: ChartCompWithDefault,
@@ -17,6 +18,7 @@ export default {
   sankeyChart: SankeyChartCompWithDefault,
   candleStickChart: CandleStickChartCompWithDefault,
   radarChart: RadarChartCompWithDefault,
+  heatmapChart: HeatmapChartCompWithDefault,
   imageEditor: ImageEditorComp,
   calendar: CalendarComp,
   mermaid: MermaidComp,
