@@ -7,6 +7,7 @@ export type I18nObjects = {
   defaultGaugeChartOption: Record<string, unknown>;
   defaultFunnelChartOption: Record<string, unknown>;
   defaultSankeyChartOption: Record<string, unknown>;
+  defaultCandleStickChartOption: Record<string, unknown>;
   defaultMapJsonOption: Record<string, unknown>;
   timeXAxisLabel?: XAXisComponentOption["axisLabel"];
   imageEditorLocale?: Record<string, string>;
