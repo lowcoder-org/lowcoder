@@ -19,6 +19,7 @@ public class AuthConfigFactoryImpl implements AuthConfigFactory {
 
     @Override
     public AbstractAuthConfig build(AuthConfigRequest authConfigRequest, boolean enable) {
+        buildOauth2GenericAuthConfig(authConfigRequest, enable);
         return switch (authConfigRequest.getAuthType()) {
             case AuthTypeConstants.FORM -> buildEmailAuthConfig(authConfigRequest, enable);
             case AuthTypeConstants.GITHUB -> buildOauth2SimpleAuthConfig(GITHUB, GITHUB_NAME, authConfigRequest, enable);
@@ -103,16 +104,15 @@ public class AuthConfigFactoryImpl implements AuthConfigFactory {
                 .id(authConfigRequest.getId())
                 .enable(enable)
                 .enableRegister(authConfigRequest.isEnableRegister())
-                .source(AuthTypeConstants.GENERIC)
-                .sourceName(org.lowcoder.sdk.constants.AuthSourceConstants.KEYCLOAK_NAME)
+                .source(authConfigRequest.getSource(AuthTypeConstants.GENERIC))
+                .sourceName(authConfigRequest.getSourceName(AuthTypeConstants.GENERIC))
                 .clientId(requireNonNull(authConfigRequest.getClientId(), "clientId can not be null."))
                 .clientSecret(authConfigRequest.getClientSecret())
-                .issuerUri(authConfigRequest.getString("issuer"))
-                .authorizationEndpoint(authConfigRequest.getString("authorization_endpoint"))
-                .tokenEndpoint(authConfigRequest.getString("token_endpoint"))
-                .userInfoEndpoint(authConfigRequest.getString("userinfo_endpoint"))
-                .authType(authConfigRequest.getAuthType())
+                .issuerUri(authConfigRequest.getIssuerUri())
+                .authorizationEndpoint(authConfigRequest.getAuthorizationEndpoint())
+                .tokenEndpoint(authConfigRequest.getTokenEndpoint())
+                .userInfoEndpoint(authConfigRequest.getUserInfoEndpoint())
+                .authType(AuthTypeConstants.GENERIC)
                 .build();
-
     }
 }

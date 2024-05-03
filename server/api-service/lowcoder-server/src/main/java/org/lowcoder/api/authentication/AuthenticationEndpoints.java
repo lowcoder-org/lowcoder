@@ -162,20 +162,4 @@ public interface AuthenticationEndpoints
      */
     public record FormLoginRequest(String loginId, String password, boolean register, String source, String authId) {
     }
-
-	/**
-	 * This endpoint is to get IDP configuration
-	 * @param issuerUri String
-	 * @param source String
-	 * @param sourceName String
-	 * @param clientId String
-	 * @param clientSecret String
-	 * @return Oauth2GenericAuthConfig
-	 */
-	@GetMapping("/providers")
-	public Mono<ResponseView<Oauth2GenericAuthConfig>> addOAuthProvider(@RequestParam String issuerUri,
-																		@RequestParam String source,
-																		@RequestParam String sourceName,
-																		@RequestParam String clientId,
-																		@RequestParam String clientSecret);
 }
