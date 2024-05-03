@@ -232,6 +232,37 @@ export const enObj: I18nObjects = {
     }
     ]
   },
+  defaultHeatmapChartOption: {
+    xAxis: {
+    "data": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+  },
+  yAxis: {
+    "data": ["Morning", "Afternoon", "Evening"]
+    },
+  data: [
+        [0, 0, 10],
+        [0, 1, 20],
+        [0, 2, 30],
+        [1, 0, 40],
+        [1, 1, 50],
+        [1, 2, 60],
+        [2, 0, 70],
+        [2, 1, 80],
+        [2, 2, 90],
+        [3, 0, 100],
+        [3, 1, 90],
+        [3, 2, 80],
+        [4, 0, 70],
+        [4, 1, 60],
+        [4, 2, 50],
+        [5, 0, 40],
+        [5, 1, 30],
+        [5, 2, 20],
+        [6, 0, 10],
+        [6, 1, 0],
+        [6, 2, 10]
+      ]
+  },
 
   defaultMapJsonOption: defaultMapData,
 };
