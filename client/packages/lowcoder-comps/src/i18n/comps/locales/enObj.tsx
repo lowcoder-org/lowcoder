@@ -191,6 +191,18 @@ export const enObj: I18nObjects = {
       {source: "Query", target: "Buy", value: 20}
     ]
   },
+  defaultCandleStickChartOption: {
+    xAxis: {
+    data: ["Day 1", "Day 2", "Day 3", "Day 4", "Day 5"]
+  },
+    data:[
+        [100, 200, 50, 150],
+        [120, 220, 80, 180],
+        [80, 150, 60, 130],
+        [130, 230, 110, 190],
+        [90, 180, 70, 160]
+      ]
+  },
 
   defaultMapJsonOption: defaultMapData,
 };
