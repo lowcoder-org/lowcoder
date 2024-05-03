@@ -278,6 +278,27 @@ export const enObj: I18nObjects = {
         {source: "Node 2", target: "Node 3", category: 1}
       ]
   },
+  defaultTreeChartOption: {
+    data: [{
+        name: "Parent",
+        children: [
+          {
+            name: "Child 1",
+            children: [
+              { name: "Child 1-1" },
+              { name: "Child 1-2" }
+            ]
+          },
+          {
+            name: "Child 2",
+            children: [
+              { name: "Child 2-1" },
+              { name: "Child 2-2" }
+            ]
+          }
+        ]
+      }]
+  },
 
   defaultMapJsonOption: defaultMapData,
 };
