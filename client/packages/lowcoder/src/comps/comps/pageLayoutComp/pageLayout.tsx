@@ -9,9 +9,8 @@ import { gridItemCompToGridItems, InnerGrid } from "../containerComp/containerVi
 import { LayoutViewProps } from "./pageLayoutCompBuilder";
 import { ConfigProvider, Layout } from 'antd';
 import { contrastBackground, contrastText } from "comps/controls/styleControlConstants";
-
-import { LowcoderAppView } from "@lowcoder-ee/index.sdk";
 import { useRef, useState } from "react";
+import { LowcoderAppView } from "appView/LowcoderAppView";
 
 const { Header, Content, Footer, Sider } = Layout;
 

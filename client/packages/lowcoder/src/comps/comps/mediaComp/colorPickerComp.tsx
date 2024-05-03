@@ -4,15 +4,18 @@ import { styleControl } from "comps/controls/styleControl";
 import { ColorPickerStyle, ColorPickerStyleType } from "comps/controls/styleControlConstants";
 import { NameConfig } from "comps/generators/withExposing";
 import styled, { css } from "styled-components";
-import { UICompBuilder } from "../../generators";
+import { UICompBuilder, withDefault } from "../../generators";
 import { FormDataPropertyView } from "../formComp/formDataConstants";
 import { textInputChildren } from "../textInputComp/textInputConstants";
 import { disabledPropertyView, hiddenPropertyView, } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { ColorPicker } from 'antd';
-import { ArrayOrJSONObjectControl, changeEvent, dropdownControl, eventHandlerControl, jsonObjectExposingStateControl, stringExposingStateControl, withDefault } from "@lowcoder-ee/index.sdk";
 import { presets } from "./colorPickerConstants";
 import _ from "lodash"
+import { changeEvent, eventHandlerControl } from "comps/controls/eventHandlerControl";
+import { jsonObjectExposingStateControl, stringExposingStateControl } from "comps/controls/codeStateControl";
+import { dropdownControl } from "comps/controls/dropdownControl";
+import { ArrayOrJSONObjectControl } from "comps/controls/codeControl";
 
 export function getStyle(style: ColorPickerStyleType) {
   return css`

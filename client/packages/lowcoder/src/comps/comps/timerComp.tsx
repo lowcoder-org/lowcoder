@@ -13,7 +13,8 @@ import { useContext, useState, useEffect, useMemo } from "react";
 import { stateComp } from "../generators";
 import { EditorContext } from "comps/editorState";
 import { dropdownControl } from "../controls/dropdownControl";
-import { BoolControl, stringExposingStateControl } from "@lowcoder-ee/index.sdk";
+import { stringExposingStateControl } from "comps/controls/codeStateControl";
+import { BoolControl } from "comps/controls/boolControl";
 
 const Container = styled.div<{ $style: timerStyleType | undefined }>`
   align-items: center;

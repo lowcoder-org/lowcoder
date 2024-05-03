@@ -9,12 +9,13 @@ import { NameConfig, NameConfigHidden, withExposingConfigs } from "comps/generat
 import { Section, sectionNames } from "lowcoder-design";
 import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
-import { StringControl } from "comps/controls/codeControl";
+import { StringControl, NumberControl } from "comps/controls/codeControl";
 import { FloatButton } from 'antd';
-import { withDefault } from "../../generators";
+import { withDefault, MultiCompBuilder, valueComp } from "../../generators";
 import { IconControl } from "comps/controls/iconControl";
 import styled from "styled-components";
-import { ButtonEventHandlerControl, MultiCompBuilder, NumberControl, manualOptionsControl, valueComp } from "@lowcoder-ee/index.sdk";
+import { ButtonEventHandlerControl } from "comps/controls/eventHandlerControl";
+import { manualOptionsControl } from "comps/controls/optionsControl";
 
 const Wrapper = styled.div<{ $style: FloatButtonStyleType }>`
     width: 0px;
