@@ -263,6 +263,21 @@ export const enObj: I18nObjects = {
         [6, 2, 10]
       ]
   },
+  defaultGraphChartOption: {
+     categories: [
+        {name: "Nodes"},
+        {name: "Edges"}
+      ],
+      nodes: [
+        {name: "Node 1", category: 0},
+        {name: "Node 2", category: 0},
+        {name: "Node 3", category: 0}
+      ],
+      links: [
+        {source: "Node 1", target: "Node 2", category: 1},
+        {source: "Node 2", target: "Node 3", category: 1}
+      ]
+  },
 
   defaultMapJsonOption: defaultMapData,
 };
