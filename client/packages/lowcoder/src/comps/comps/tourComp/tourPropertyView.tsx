@@ -2,10 +2,18 @@ import { RecordConstructorToComp } from "lowcoder-core";
 import { BoolControl } from "../../controls/boolControl";
 import { ArrowControl, BoolCodeControl, MaskControl } from "../../controls/codeControl";
 import { Section } from "lowcoder-design";
+
 import { TourStepControl } from "@lowcoder-ee/comps/controls/tourStepControl";
-import { booleanExposingStateControl, dropdownControl } from "lowcoder-sdk";
+import { booleanExposingStateControl } from "comps/controls/codeStateControl";
+import { dropdownControl } from "comps/controls/dropdownControl";
+
+// Falk TODO: Check Imports
+// import { TourStepControl } from "comps/controls/tourStepControl";
+// import { booleanExposingStateControl } from "comps/controls/codeStateControl";
+// import {  dropdownControl } from "comps/controls/dropdownControl";
+
 import { trans } from "i18n";
-import { PlacementOptions, TypeOptions } from "@lowcoder-ee/comps/comps/tourComp/tourControlConstants";
+import { PlacementOptions, TypeOptions } from "./tourControlConstants";
 import {
   TourArrowTooltip,
   TourMaskTooltip,

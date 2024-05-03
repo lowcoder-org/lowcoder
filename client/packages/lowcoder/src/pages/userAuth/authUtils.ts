@@ -116,11 +116,11 @@ export const checkPassWithMsg = (value: string) => {
   return [valid, messages.join(",")] as const;
 };
 
-export const getLoginTitle = (inviteUserName?: string, brandName?: string) => {
-  const productName = brandName ?? trans("productName");
+export const getLoginTitle = (inviteUserName?: string) => {
+  // const productName = brandName ?? trans("productName");
   return inviteUserName
-    ? trans("userAuth.inviteWelcomeTitle", { username: inviteUserName, productName })
-    : trans("userAuth.welcomeTitle", { productName });
+    ? trans("userAuth.inviteWelcomeTitle", { username: inviteUserName })
+    : trans("userAuth.userLogin"); 
 };
 
 /**

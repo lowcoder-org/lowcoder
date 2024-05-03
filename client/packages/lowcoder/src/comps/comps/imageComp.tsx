@@ -132,24 +132,28 @@ const ContainerImg = (props: RecordConstructorToView<typeof childrenMap>) => {
     }
   };
   return (
-    <ReactResizeDetector onResize={onResize}>
-      <Container ref={conRef} $style={props.style}>
-        <div
-          ref={imgRef}
-          style={
-            props.autoHeight ? { width: "100%", height: "100%" } : undefined
-          }
-        >
-          <AntImage
-            src={props.src.value}
-            referrerPolicy="same-origin"
-            draggable={false}
-            preview={props.supportPreview}
-            fallback={DEFAULT_IMG_URL}
-            onClick={() => props.onEvent("click")}
-          />
-        </div>
-      </Container>
+    <ReactResizeDetector
+      onResize={onResize}
+      render={() => (
+        <Container ref={conRef} $style={props.style}>
+          <div
+            ref={imgRef}
+            style={
+              props.autoHeight ? { width: "100%", height: "100%" } : undefined
+            }
+          >
+            <AntImage
+              src={props.src.value}
+              referrerPolicy="same-origin"
+              draggable={false}
+              preview={props.supportPreview}
+              fallback={DEFAULT_IMG_URL}
+              onClick={() => props.onEvent("click")}
+            />
+          </div>
+        </Container>
+      )}
+    >
     </ReactResizeDetector>
   );
 };

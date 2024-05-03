@@ -196,7 +196,7 @@ export class UICompBuilder<
       }
 
       override getView(): ViewReturn {
-        return (<div ref={this.ref}><UIView comp={this} viewFn={builder.viewFn} /></div>);
+        return (<div ref={this.ref} style={{height:"100%",width:"100%",margin:0,padding:0}}><UIView comp={this} viewFn={builder.viewFn} /></div>);
       }
 
       override getPropertyView(): ReactNode {

@@ -1,6 +1,7 @@
 import { default as App } from "antd/es/app";
 import { default as ConfigProvider } from "antd/es/config-provider";
 import {
+  USER_PROFILE_URL,
   ALL_APPLICATIONS_URL,
   APP_EDITOR_URL,
   APPLICATION_VIEW_URL,
@@ -38,12 +39,12 @@ import history from "util/history";
 import LazyRoute from "components/LazyRoute";
 import { getAntdLocale } from "i18n/antdLocale";
 import { ProductLoading } from "components/ProductLoading";
-import { language, trans } from "i18n";
+import { trans } from "i18n"; // language
 import { loadComps } from "comps";
 import { initApp } from "util/commonUtils";
 import { favicon } from "assets/images";
 import { hasQueryParam } from "util/urlUtils";
-import { isFetchUserFinished } from "redux/selectors/usersSelectors";
+import { isFetchUserFinished } from "redux/selectors/usersSelectors"; // getCurrentUser, 
 import { SystemWarning } from "./components/SystemWarning";
 import { getBrandingConfig } from "./redux/selectors/configSelectors";
 import { buildMaterialPreviewURL } from "./util/materialUtils";
@@ -59,10 +60,10 @@ const LazyApplicationHome = React.lazy(() => import("pages/ApplicationV2"));
 const LazyDebugComp = React.lazy(() => import("./debug"));
 const LazyDebugNewComp = React.lazy(() => import("./debugNew"));
 
-const Wrapper = (props: { children: React.ReactNode }) => (
+const Wrapper = (props: { children: React.ReactNode, language: string }) => (
   <ConfigProvider
     theme={{ hashed: false }}
-    locale={getAntdLocale(language)}
+    locale={getAntdLocale(props.language)}
   >
     <App>
       <GlobalInstances />
@@ -80,6 +81,7 @@ type AppIndexProps = {
   getCurrentUser: () => void;
   favicon: string;
   brandName: string;
+  uiLanguage: string;
 };
 
 class AppIndex extends React.Component<AppIndexProps, any> {
@@ -105,8 +107,12 @@ class AppIndex extends React.Component<AppIndexProps, any> {
       const hideLoadingHeader = isTemplate || isAuthUnRequired(pathname);
       return <ProductLoading hideHeader={hideLoadingHeader} />;
     }
+
+    // persisting the language in local storage
+    localStorage.setItem('lowcoder_uiLanguage', this.props.uiLanguage);
+
     return (
-      <Wrapper>
+      <Wrapper language={this.props.uiLanguage}>
         <Helmet>
           {<title>{this.props.brandName}</title>}
           {<link rel="icon" href={this.props.favicon} />}
@@ -146,6 +152,7 @@ class AppIndex extends React.Component<AppIndexProps, any> {
             <LazyRoute
               fallback="layout"
               path={[
+                USER_PROFILE_URL,
                 ALL_APPLICATIONS_URL,
                 DATASOURCE_CREATE_URL,
                 DATASOURCE_EDIT_URL,
@@ -193,6 +200,7 @@ const mapStateToProps = (state: AppState) => ({
     ? buildMaterialPreviewURL(getBrandingConfig(state)?.favicon!)
     : favicon,
   brandName: getBrandingConfig(state)?.brandName ?? trans("productName"),
+  uiLanguage: state.ui.users.user.uiLanguage,
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
@@ -207,6 +215,9 @@ const AppIndexWithProps = connect(mapStateToProps, mapDispatchToProps)(AppIndex)
 export function bootstrap() {
   initApp();
   loadComps();
+
+  const uiLanguage = localStorage.getItem('lowcoder_uiLanguage');
+
   const container = document.getElementById("root");
   const root = createRoot(container!);
   root.render(

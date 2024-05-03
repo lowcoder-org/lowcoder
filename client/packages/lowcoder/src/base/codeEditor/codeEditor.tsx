@@ -51,8 +51,10 @@ const textStyle = css`
 export const CodeEditorTooltipContainer = styled.div`
   // tooltip common
   .cm-tooltip {
-    z-index: ${Layers.codeEditorTooltip};
     border: 1px solid #d7d9e0;
+    padding: 5px !important;
+    margin-top: 5px !important;
+    height: 120px;
   }
   // make sure antd popover in the code editor available
   .ant-popover {

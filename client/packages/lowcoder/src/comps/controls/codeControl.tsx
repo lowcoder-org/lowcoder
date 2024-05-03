@@ -6,6 +6,7 @@ import { withDefault } from "comps/generators/simpleGenerators";
 import { CompExposingContext } from "comps/generators/withContext";
 import { exposingDataForAutoComplete } from "comps/utils/exposingTypes";
 import { trans } from "i18n";
+import _ from "lodash";
 import { debounce, trimStart } from "lodash";
 import {
   AbstractComp,
@@ -192,28 +193,30 @@ export function codeControl<
           {(editorState) => (
             <CompExposingContext.Consumer>
               {(exposingData) => (
-                <Suspense fallback={null}>
-                  <CodeEditor
-                    {...params}
-                    bordered
-                    value={this.unevaledValue}
-                    codeType={codeType}
-                    cardTitle={toCardTitle(codeControlParams?.expectedType, this.valueAndMsg.value)}
-                    cardContent={cardContent}
-                    onChange={this.handleChange}
-                    hasError={this.valueAndMsg?.hasError()}
-                    segments={this.valueAndMsg?.extra?.segments}
-                    exposingData={{
-                      ...exposingDataForAutoComplete(
-                        editorState?.nameAndExposingInfo(),
-                        evalWithMethods
-                      ),
-                      ...exposingData,
-                    }}
-                    boostExposingData={exposingData}
-                    enableClickCompName={editorState?.forceShowGrid}
-                  />
-                </Suspense>
+                <>
+                  <Suspense fallback={null}>
+                    <CodeEditor
+                      {...params}
+                      bordered
+                      value={this.unevaledValue}
+                      codeType={codeType}
+                      cardTitle={toCardTitle(codeControlParams?.expectedType, this.valueAndMsg.value)}
+                      cardContent={cardContent}
+                      onChange={this.handleChange}
+                      hasError={this.valueAndMsg?.hasError()}
+                      segments={this.valueAndMsg?.extra?.segments}
+                      exposingData={{
+                        ...exposingDataForAutoComplete(
+                          editorState?.nameAndExposingInfo(),
+                          evalWithMethods
+                        ),
+                        ...exposingData,
+                      }}
+                      boostExposingData={exposingData}
+                      enableClickCompName={editorState?.forceShowGrid}
+                    />
+                  </Suspense>
+                </>
               )}
             </CompExposingContext.Consumer>
           )}
@@ -396,6 +399,12 @@ export const jsonObjectControl = (defaultValue?: JSONObject) =>
     ? JSONObjectControl
     : withDefault(JSONObjectControl, JSON.stringify(defaultValue, null, 2));
 
+export const jsonArrayControl = (defaultValue?: JSONObject[]) =>
+  defaultValue === undefined
+    ? JSONObjectControl
+    : withDefault(JSONObjectArrayControl, JSON.stringify(defaultValue, null, 2));
+
+
 export const jsonValueControl = (defaultValue?: JSONValue) =>
   defaultValue === undefined
     ? JSONValueControl
@@ -507,16 +516,6 @@ export const FunctionControl = codeControl<CodeFunction>(
   },
   { codeType: "Function", evalWithMethods: true }
 );
-
-// export const AlkjdfControl = codeControl<(current: number, total: number)=>ReactNode>(
-//   (value) => {
-//     if (typeof value === "function") {
-//       return value;
-//     }
-//     return (current,total) => (value as (current: number, total: number)=>ReactNode)(current,total);
-//   },
-//   { codeType: "Function", evalWithMethods: true }
-// );
 
 export const TransformerCodeControl = codeControl<JSONValue>(
   (value) => {
