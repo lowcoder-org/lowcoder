@@ -129,7 +129,6 @@ export function getSeriesConfig(props: EchartsConfigProps) {
 
 // https://echarts.apache.org/en/option.html
 export function getEchartsConfig(props: EchartsConfigProps, chartSize?: ChartSize): EChartsOptionWithMap {
-  console.log("🚀 ~ getEchartsConfig ~ props:", props)
   if (props.mode === "json") {
     let opt={
   "title": {
