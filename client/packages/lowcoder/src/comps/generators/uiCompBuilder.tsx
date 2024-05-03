@@ -64,7 +64,7 @@ export function ExtendedComponentView(props: {
   }
 
   return (
-    <div className={props.className} data-testid={props.dataTestId}>
+    <div className={props.className} data-testid={props.dataTestId} style={{ width: "100%", height: "100%", margin: "0px", padding: "0px" }}>
       {props.children}
     </div>
   );
