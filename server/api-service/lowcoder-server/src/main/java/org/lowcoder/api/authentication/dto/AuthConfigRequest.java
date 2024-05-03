@@ -1,6 +1,7 @@
 package org.lowcoder.api.authentication.dto;
 
 import jakarta.annotation.Nullable;
+import jakarta.validation.constraints.Null;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -25,6 +26,30 @@ public class AuthConfigRequest extends HashMap<String, Object> {
 
     public boolean isEnableRegister() {
         return MapUtils.getBoolean(this, "enableRegister", true);
+    }
+
+    /**
+     * Additional configs for generic
+     * config will be updated instead of creating a new one.
+     */
+    @Nullable
+    public String getIssuerUri() {
+        return getString("issuer");
+    }
+
+    @Nullable
+    public String getAuthorizationEndpoint() {
+        return getString("authorizationEndpoint");
+    }
+
+    @Nullable
+    public String getTokenEndpoint() {
+        return getString("tokenEndpoint");
+    }
+
+    @Nullable
+    public String getUserInfoEndpoint() {
+        return getString("userInfoEndpoint");
     }
 
     @Nullable
