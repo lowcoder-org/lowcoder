@@ -333,56 +333,6 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
                 );
     }
 
-    /**
-     * This method is to fetch and parse the OpenID configuration from the issuer URI.
-     * @param issuerUri String
-     * @param source String
-     * @param sourceName String
-     * @param clientId String
-     * @param clientSecret String
-     * @return Oauth2GenericAuthConfig
-     */
-    @Override
-    public Mono<Oauth2GenericAuthConfig> fetchAndParseConfiguration(String issuerUri,
-                                                                    String source,
-                                                                    String sourceName,
-                                                                    String clientId,
-                                                                    String clientSecret) {
-        String wellKnownUri = issuerUri + "/.well-known/openid-configuration";
-        return WebClientBuildHelper.builder()
-                .systemProxy()
-                .build()
-                .get()
-                .uri(wellKnownUri)
-                .retrieve()
-                .bodyToMono(Map.class)
-                .map(map -> mapToConfig(map, source, sourceName, clientId, clientSecret));
-    }
-
-    /**
-     * This method is to map to config for Generic Auth Provider
-     * @param map Object that comes from /.well-known endpoint for IDP Configuration
-     * @return Oauth2GenericAuthConfig
-     */
-    private Oauth2GenericAuthConfig mapToConfig(Map<String, Object> map,
-                                                String source,
-                                                String sourceName,
-                                                String clientId,
-                                                String clientSecret) {
-        return Oauth2GenericAuthConfig.builder()
-                .authType(AuthTypeConstants.GENERIC)
-                .source(source)
-                .sourceName(sourceName)
-                .clientId(clientId)
-                .clientSecret(clientSecret)
-                .issuerUri((String) map.get("issuer"))
-                .authorizationEndpoint((String) map.get("authorization_endpoint"))
-                .tokenEndpoint((String) map.get("token_endpoint"))
-                .userInfoEndpoint((String) map.get("userinfo_endpoint"))
-                .build();
-    }
-
-
     private Mono<Void> removeTokensByAuthId(String authId) {
         return sessionUserService.getVisitorOrgMemberCache()
                 .flatMapMany(orgMember -> orgMemberService.getOrganizationMembers(orgMember.getOrgId()))

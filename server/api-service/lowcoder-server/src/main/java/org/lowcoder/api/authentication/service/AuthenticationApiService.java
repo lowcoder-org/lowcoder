@@ -6,7 +6,6 @@ import org.lowcoder.api.usermanagement.view.APIKeyVO;
 import org.lowcoder.domain.authentication.FindAuthConfig;
 import org.lowcoder.domain.user.model.APIKey;
 import org.lowcoder.domain.user.model.AuthUser;
-import org.lowcoder.sdk.auth.Oauth2GenericAuthConfig;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -30,19 +29,4 @@ public interface AuthenticationApiService {
     Mono<Void> deleteAPIKey(String authId);
 
     Flux<APIKey> findAPIKeys();
-
-    /**
-     * This method is to fetch and parse the OpenID configuration from the issuer URI.
-     * @param issuerUri String
-     * @param source String
-     * @param sourceName String
-     * @param clientId String
-     * @param clientSecret String
-     * @return Oauth2GenericAuthConfig
-     */
-    Mono<Oauth2GenericAuthConfig> fetchAndParseConfiguration(String issuerUri,
-                                                             String source,
-                                                             String sourceName,
-                                                             String clientId,
-                                                             String clientSecret);
 }

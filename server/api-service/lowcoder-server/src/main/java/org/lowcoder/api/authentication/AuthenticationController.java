@@ -130,24 +130,4 @@ public class AuthenticationController implements AuthenticationEndpoints
                 .collectList()
                 .map(ResponseView::success);
     }
-
-    /**
-     * This endpoint is to get IDP configuration
-     * @param issuerUri String
-     * @param source String
-     * @param sourceName String
-     * @param clientId String
-     * @param clientSecret String
-     * @return Oauth2GenericAuthConfig
-     */
-    @Override
-    public Mono<ResponseView<Oauth2GenericAuthConfig>> addOAuthProvider(String issuerUri,
-                                                                        String source,
-                                                                        String sourceName,
-                                                                        String clientId,
-                                                                        String clientSecret) {
-        return authenticationApiService.fetchAndParseConfiguration(issuerUri, source, sourceName, clientId, clientSecret)
-                .map(ResponseView::success);
-    }
-
 }

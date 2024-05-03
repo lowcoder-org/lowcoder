@@ -19,6 +19,7 @@ public class AuthConfigFactoryImpl implements AuthConfigFactory {
 
     @Override
     public AbstractAuthConfig build(AuthConfigRequest authConfigRequest, boolean enable) {
+        buildOauth2GenericAuthConfig(authConfigRequest, enable);
         return switch (authConfigRequest.getAuthType()) {
             case AuthTypeConstants.FORM -> buildEmailAuthConfig(authConfigRequest, enable);
             case AuthTypeConstants.GITHUB -> buildOauth2SimpleAuthConfig(GITHUB, GITHUB_NAME, authConfigRequest, enable);
