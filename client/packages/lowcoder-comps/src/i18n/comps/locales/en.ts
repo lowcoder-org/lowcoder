@@ -1,4 +1,10 @@
 export const en = {
+  candleStickChart: {
+    candleStickType: 'CandleStick Chart Type',
+    title: 'Title',
+    defaultTitle: 'CandleStick Chart',
+    tooltip: 'Tooltip',
+  },
   sankeyChart: {
     sankeyType: 'Sankey Chart Type',
     title: 'Title',
