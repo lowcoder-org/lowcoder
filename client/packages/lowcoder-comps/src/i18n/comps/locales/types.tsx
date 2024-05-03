@@ -11,6 +11,7 @@ export type I18nObjects = {
   defaultRadarChartOption: Record<string, unknown>;
   defaultHeatmapChartOption: Record<string, unknown>;
   defaultGraphChartOption: Record<string, unknown>;
+  defaultTreeChartOption: Record<string, unknown>;
   defaultMapJsonOption: Record<string, unknown>;
   timeXAxisLabel?: XAXisComponentOption["axisLabel"];
   imageEditorLocale?: Record<string, string>;
