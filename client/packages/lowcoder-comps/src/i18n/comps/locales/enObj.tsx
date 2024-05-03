@@ -203,6 +203,35 @@ export const enObj: I18nObjects = {
         [90, 180, 70, 160]
       ]
   },
+  defaultRadarChartOption: {
+    indicator: [
+        { name: "Indicator 1", max: 100 },
+        { name: "Indicator 2", max: 100 },
+        { name: "Indicator 3", max: 100 },
+        { name: "Indicator 4", max: 100 },
+        { name: "Indicator 5", max: 100 }
+    ],
+    series: [
+       {
+      "name": "Data 1",
+      "data": [
+        {
+          "value": [90, 80, 70, 60, 50],
+          "name": "Data 1"
+        }
+      ]
+      },
+      {
+      "name": "Data 2",
+      "data": [
+        {
+          "value": [70, 60, 50, 40, 30],
+          "name": "Data 2"
+        }
+      ]
+    }
+    ]
+  },
 
   defaultMapJsonOption: defaultMapData,
 };
