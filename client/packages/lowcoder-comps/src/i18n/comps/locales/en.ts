@@ -1,4 +1,10 @@
 export const en = {
+  radarChart: {
+    radarType: 'Radar Chart Type',
+    title: 'Title',
+    defaultTitle: 'Radar Chart',
+    tooltip: 'Tooltip',
+  },
   candleStickChart: {
     candleStickType: 'CandleStick Chart Type',
     title: 'Title',
