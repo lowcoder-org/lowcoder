@@ -5,13 +5,13 @@ import {
   CompActionTypes,
   wrapChildAction,
 } from "lowcoder-core";
-import { AxisFormatterComp, EchartsAxisType } from "../chartConfigs/cartesianAxisConfig";
+import { AxisFormatterComp, EchartsAxisType } from "../chartComp/chartConfigs/cartesianAxisConfig";
 import { funnelChartChildrenMap, ChartSize, getDataKeys } from "./funnelChartConstants";
 import { funnelChartPropertyView } from "./funnelChartPropertyView";
 import _ from "lodash";
 import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import ReactResizeDetector from "react-resize-detector";
-import ReactECharts from "../reactEcharts";
+import ReactECharts from "../chartComp/reactEcharts";
 import {
   childrenToProps,
   depsConfig,

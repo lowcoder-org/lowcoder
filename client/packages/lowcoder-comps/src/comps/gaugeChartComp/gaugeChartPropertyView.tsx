@@ -6,7 +6,7 @@ import {
   sectionNames,
 } from "lowcoder-sdk";
 import { trans } from "i18n/comps";
-import { examplesUrl,optionUrl } from "../chartConfigs/chartUrls";
+import { examplesUrl,optionUrl } from "../chartComp/chartConfigs/chartUrls";
 
 export function gaugeChartPropertyView(
   children: ChartCompChildrenType,

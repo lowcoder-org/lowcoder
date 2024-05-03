@@ -19,18 +19,18 @@ import {
   EchartsStyle
 } from "lowcoder-sdk";
 import { RecordConstructorToComp, RecordConstructorToView } from "lowcoder-core";
-import { BarChartConfig } from "../chartConfigs/barChartConfig";
-import { XAxisConfig, YAxisConfig } from "../chartConfigs/cartesianAxisConfig";
-import { LegendConfig } from "../chartConfigs/legendConfig";
-import { EchartsLegendConfig } from "../chartConfigs/echartsLegendConfig";
-import { EchartsLabelConfig } from "../chartConfigs/echartsLabelConfig";
-import { LineChartConfig } from "../chartConfigs/lineChartConfig";
-import { PieChartConfig } from "../chartConfigs/pieChartConfig";
-import { ScatterChartConfig } from "../chartConfigs/scatterChartConfig";
-import { SeriesListComp } from "../seriesComp";
+import { BarChartConfig } from "../chartComp/chartConfigs/barChartConfig";
+import { XAxisConfig, YAxisConfig } from "../chartComp/chartConfigs/cartesianAxisConfig";
+import { LegendConfig } from "../chartComp/chartConfigs/legendConfig";
+import { EchartsLegendConfig } from "../chartComp/chartConfigs/echartsLegendConfig";
+import { EchartsLabelConfig } from "../chartComp/chartConfigs/echartsLabelConfig";
+import { LineChartConfig } from "../chartComp/chartConfigs/lineChartConfig";
+import { PieChartConfig } from "../chartComp/chartConfigs/pieChartConfig";
+import { ScatterChartConfig } from "../chartComp/chartConfigs/scatterChartConfig";
+import { SeriesListComp } from "../chartComp/seriesComp";
 import { EChartsOption } from "echarts";
 import { i18nObjs, trans } from "i18n/comps";
-import { FunnelChartConfig } from "../chartConfigs/funnelChartConfig";
+import { FunnelChartConfig } from "../chartComp/chartConfigs/funnelChartConfig";
 
 export const ChartTypeOptions = [
   {
