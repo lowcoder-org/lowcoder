@@ -55,10 +55,9 @@ import { RefControl } from "comps/controls/refControl";
 import { BaseSelectRef } from "rc-select";
 import { refMethods } from "comps/generators/withMethodExposing";
 import { blurMethod, focusMethod } from "comps/utils/methodUtils";
-
 import { useContext } from "react";
 import { EditorContext } from "comps/editorState";
-import { styleControl } from "@lowcoder-ee/index.sdk";
+import { styleControl } from "comps/controls/styleControl";
 
 export const getStyle = (
   style:

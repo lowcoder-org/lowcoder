@@ -7,16 +7,22 @@ import {
 } from "../triContainerComp/triContainerCompBuilder";
 import { disabledPropertyView, hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
-import { BoolCodeControl } from "comps/controls/codeControl";
-import { BoolControl } from "@lowcoder-ee/comps/controls/boolControl";
+import { BoolCodeControl, StringControl } from "comps/controls/codeControl";
+import { BoolControl } from "comps/controls/boolControl";
 import { useContext, useEffect, useRef, useState } from "react";
 import { EditorContext } from "comps/editorState";
-import { ButtonEventHandlerControl, IconControl, MultiCompBuilder, CardStyleType, StringControl, clickEvent, dropdownControl, eventHandlerControl, heightCalculator, optionsControl, refreshEvent, styleControl, widthCalculator, withDefault, CardStyle, CardEventHandlerControl } from "@lowcoder-ee/index.sdk";
 import { Card } from "antd";
 import styled from "styled-components";
+import { CardStyle, CardStyleType } from "comps/controls/styleControlConstants";
+import { MultiCompBuilder, withDefault } from "comps/generators";
+import { IconControl } from "comps/controls/iconControl";
+import { ButtonEventHandlerControl, CardEventHandlerControl, clickEvent, refreshEvent } from "comps/controls/eventHandlerControl";
+import { optionsControl } from "comps/controls/optionsControl";
+import { dropdownControl } from "comps/controls/dropdownControl";
+import { styleControl } from "comps/controls/styleControl";
 const { Meta } = Card;
 
-const Warpper = styled.div<{ $style: CardStyleType | undefined, showMate: boolean, cardType: string }>`
+const Warpper = styled.div<{ $style: CardStyleType | undefined, $showMate: boolean, $cardType: string }>`
   height: 100%;
   width: 100%;
   .ant-card-small >.ant-card-head {
@@ -31,7 +37,7 @@ const Warpper = styled.div<{ $style: CardStyleType | undefined, showMate: boolea
     border-inline-end: 1px solid ${props => props.$style?.border};
   }
   .ant-card-small >.ant-card-body {
-    padding: ${props => props.cardType == 'custom' ? '0px' : '10px'};
+    padding: ${props => props.$cardType == 'custom' ? '0px' : '10px'};
   }
   .ant-card .ant-card-head {
     background-color: ${props => props.$style?.background};
@@ -44,7 +50,7 @@ const Warpper = styled.div<{ $style: CardStyleType | undefined, showMate: boolea
     background-color: ${props => props.$style?.background};
   }
   .ant-card .ant-card-body {
-    padding: ${props => props.cardType == 'custom' ? '0px' : '10px'};
+    padding: ${props => props.$cardType == 'custom' ? '0px' : '10px'};
   }
   .ant-card {
     display: flex;
@@ -53,8 +59,8 @@ const Warpper = styled.div<{ $style: CardStyleType | undefined, showMate: boolea
     background-color: ${props => props.$style?.background};
   }
   .ant-card-body {
-    display: ${props => props.showMate ? '' : 'none'};
-    height: ${props => props.cardType == 'custom' ? '100%' : 'auto'};
+    display: ${props => props.$showMate ? '' : 'none'};
+    height: ${props => props.$cardType == 'custom' ? '100%' : 'auto'};
   }
 `;
 
@@ -163,8 +169,8 @@ export const ContainerBaseComp = (function () {
         <Warpper
           ref={conRef}
           $style={props.style}
-          showMate={props.showMeta || props.cardType == 'custom'}
-          cardType={props.cardType}
+          $showMate={props.showMeta || props.cardType == 'custom'}
+          $cardType={props.cardType}
           onMouseEnter={() => props.onEvent('focus')}
           onMouseLeave={() => props.onEvent('blur')}
           onClick={() => props.onEvent('click')}

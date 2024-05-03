@@ -18,7 +18,7 @@ import { ColorControl } from "../controls/colorControl";
 import { optionsControl } from "../controls/optionsControl";
 import { BoolControl } from "../controls/boolControl";
 import { dropdownControl } from "../controls/dropdownControl";
-import { JSONObject } from "@lowcoder-ee/index.sdk";
+import { JSONObject } from "util/jsonTypes";
 
 const MacaroneList = [
   '#fde68a',

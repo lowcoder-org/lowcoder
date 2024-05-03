@@ -31,7 +31,7 @@ import { DropdownOptionControl } from "../controls/optionsControl";
 import { ReactElement, useContext } from "react";
 import { CompNameContext, EditorContext } from "../editorState";
 
-const AvatarWrapper = styled(Avatar) <AvatarProps & { $cursorPointer: boolean, $style: AvatarStyleType }>`
+const AvatarWrapper = styled(Avatar) <AvatarProps & { $cursorPointer?: boolean, $style: AvatarStyleType }>`
   background: ${(props) => props.$style.background};
   color: ${(props) => props.$style.fill};
   cursor: ${(props) => props.$cursorPointer ? 'pointer' : ''};
@@ -101,7 +101,7 @@ const childrenMap = {
 const AvatarView = (props: RecordConstructorToView<typeof childrenMap>) => {
   const { shape, title, src, iconSize } = props;
   const comp = useContext(EditorContext).getUICompByName(useContext(CompNameContext));
-  const eventsCount = comp ? Object.keys(comp?.children.comp.children.onEvent.children).length : 0;
+  // const eventsCount = comp ? Object.keys(comp?.children.comp.children.onEvent.children).length : 0;
   const hasIcon = props.options.findIndex((option) => (option.prefixIcon as ReactElement)?.props.value) > -1;
   const items = props.options
     .filter((option) => !option.hidden)
@@ -142,7 +142,7 @@ const AvatarView = (props: RecordConstructorToView<typeof childrenMap>) => {
             shape={shape}
             $style={props.style}
             src={src.value}
-            $cursorPointer={eventsCount > 0}
+            // $cursorPointer={eventsCount > 0}
             onClick={() => props.onEvent("click")}
           >
             {title.value}
