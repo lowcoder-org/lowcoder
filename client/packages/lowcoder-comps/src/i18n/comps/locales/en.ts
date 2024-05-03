@@ -1,4 +1,10 @@
 export const en = {
+  graphChart: {
+    graphType: 'Graph Chart Type',
+    title: 'Title',
+    defaultTitle: 'Graph Chart',
+    tooltip: 'Tooltip',
+  },
   heatmapChart: {
     heatmapType: 'Heatmap Chart Type',
     title: 'Title',
