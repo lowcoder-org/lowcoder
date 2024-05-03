@@ -112,6 +112,14 @@
           "h": 40
         }
       },
+      "graphChart": {
+        "name": "Graph Chart",
+        "icon": "./icons/icon-chart.svg",
+        "layoutInfo": {
+          "w": 15,
+          "h": 40
+        }
+      },
       "map": {
         "name": "Map",
         "icon": "./icons/icon-chart.svg",
