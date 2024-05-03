@@ -10,6 +10,7 @@ export type I18nObjects = {
   defaultCandleStickChartOption: Record<string, unknown>;
   defaultRadarChartOption: Record<string, unknown>;
   defaultHeatmapChartOption: Record<string, unknown>;
+  defaultGraphChartOption: Record<string, unknown>;
   defaultMapJsonOption: Record<string, unknown>;
   timeXAxisLabel?: XAXisComponentOption["axisLabel"];
   imageEditorLocale?: Record<string, string>;
