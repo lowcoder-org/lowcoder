@@ -1,4 +1,10 @@
 export const en = {
+  treeChart: {
+    treeType: 'Tree Chart Type',
+    title: 'Title',
+    defaultTitle: 'Tree Chart',
+    tooltip: 'Tooltip',
+  },
   graphChart: {
     graphType: 'Graph Chart Type',
     title: 'Title',
