@@ -195,7 +195,10 @@ export const de: typeof en = {
       "showBody": "Hauptbereich zeigen",
       "showFooter": "Fußbereich anzeigen",
       "maskClosable": "Zum Schließen auf \"Schließen\" klicken",
-      "showMask": "Maske darstellen"
+      "showMask": "Maske darstellen",
+      "component": "Komponente",
+      "className": "Klasse",
+      "dataTestId": "Test ID",
   },
   "autoHeightProp": {
       ...en.autoHeightProp,
