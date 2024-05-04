@@ -11,6 +11,7 @@ import { RadarChartCompWithDefault } from "comps/radarChartComp/radarChartComp";
 import { HeatmapChartCompWithDefault } from "comps/heatmapChartComp/heatmapChartComp";
 import { GraphChartCompWithDefault } from "comps/graphChartComp/graphChartComp";
 import { TreeChartCompWithDefault } from "comps/treeChartComp/treechartComp";
+import { TreemapChartCompWithDefault } from "comps/treemapChartComp/treemapChartComp";
 
 export default {
   chart: ChartCompWithDefault,
@@ -23,6 +24,7 @@ export default {
   heatmapChart: HeatmapChartCompWithDefault,
   graphChart: GraphChartCompWithDefault,
   treeChart: TreeChartCompWithDefault,
+  treemapChart: TreemapChartCompWithDefault,
   imageEditor: ImageEditorComp,
   calendar: CalendarComp,
   mermaid: MermaidComp,
