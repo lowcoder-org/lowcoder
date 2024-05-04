@@ -13,6 +13,7 @@ export type I18nObjects = {
   defaultGraphChartOption: Record<string, unknown>;
   defaultTreeChartOption: Record<string, unknown>;
   defaultTreemapChartOption: Record<string, unknown>;
+  defaultSunburstChartOption: Record<string, unknown>;
   defaultMapJsonOption: Record<string, unknown>;
   timeXAxisLabel?: XAXisComponentOption["axisLabel"];
   imageEditorLocale?: Record<string, string>;
