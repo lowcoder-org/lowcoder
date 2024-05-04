@@ -1,4 +1,10 @@
 export const en = {
+  sunburstChart: {
+    sunburstType: 'Sunburst Chart Type',
+    title: 'Title',
+    defaultTitle: 'Sunburst Chart',
+    tooltip: 'Tooltip',
+  },
   treemapChart: {
     treemapType: 'Treemap Chart Type',
     title: 'Title',
