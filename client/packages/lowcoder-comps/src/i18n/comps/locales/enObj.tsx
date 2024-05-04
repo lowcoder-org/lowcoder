@@ -310,6 +310,29 @@ export const enObj: I18nObjects = {
         }
       ]
   },
+  defaultSunburstChartOption: {
+    data: [
+       {
+          name: "Grandparent",
+          children: [
+            {
+              name: "Parent A",
+              children: [
+                {name: "Child A1", value: 10},
+                {name: "Child A2", value: 20}
+              ]
+            },
+            {
+              name: "Parent B",
+              children: [
+                {name: "Child B1", value: 15},
+                {name: "Child B2", value: 25}
+              ]
+            }
+          ]
+        }
+    ]
+  },
 
   defaultMapJsonOption: defaultMapData,
 };
