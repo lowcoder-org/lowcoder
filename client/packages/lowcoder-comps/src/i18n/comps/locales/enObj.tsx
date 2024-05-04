@@ -299,6 +299,17 @@ export const enObj: I18nObjects = {
         ]
       }]
   },
+  defaultTreemapChartOption: {
+    data: [
+        {
+          name: "Parent",
+          children: [
+            {name: "Child 1", value: 10},
+            {name: "Child 2", value: 20}
+          ]
+        }
+      ]
+  },
 
   defaultMapJsonOption: defaultMapData,
 };
