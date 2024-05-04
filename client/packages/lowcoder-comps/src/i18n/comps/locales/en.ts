@@ -1,4 +1,10 @@
 export const en = {
+  treemapChart: {
+    treemapType: 'Treemap Chart Type',
+    title: 'Title',
+    defaultTitle: 'Treemap Chart',
+    tooltip: 'Tooltip',
+  },
   treeChart: {
     treeType: 'Tree Chart Type',
     title: 'Title',
