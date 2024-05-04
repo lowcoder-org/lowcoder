@@ -12,6 +12,7 @@ import { HeatmapChartCompWithDefault } from "comps/heatmapChartComp/heatmapChart
 import { GraphChartCompWithDefault } from "comps/graphChartComp/graphChartComp";
 import { TreeChartCompWithDefault } from "comps/treeChartComp/treechartComp";
 import { TreemapChartCompWithDefault } from "comps/treemapChartComp/treemapChartComp";
+import { SunburstChartCompWithDefault } from "comps/sunburstChartComp/sunburstChartComp";
 
 export default {
   chart: ChartCompWithDefault,
@@ -25,6 +26,7 @@ export default {
   graphChart: GraphChartCompWithDefault,
   treeChart: TreeChartCompWithDefault,
   treemapChart: TreemapChartCompWithDefault,
+  sunburstChart: SunburstChartCompWithDefault,
   imageEditor: ImageEditorComp,
   calendar: CalendarComp,
   mermaid: MermaidComp,
