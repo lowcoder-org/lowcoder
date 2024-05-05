@@ -31,6 +31,7 @@ import { SeriesListComp } from "../chartComp/seriesComp";
 import { EChartsOption } from "echarts";
 import { i18nObjs, trans } from "i18n/comps";
 import { FunnelChartConfig } from "../chartComp/chartConfigs/funnelChartConfig";
+import { EchartsTitleConfig } from "comps/chartComp/chartConfigs/echartsTitleConfig";
 
 export const ChartTypeOptions = [
   {
@@ -253,9 +254,18 @@ const chartJsonModeChildren = {
   echartsLegendConfig: EchartsLegendConfig,
   echartsLabelConfig: EchartsLabelConfig,
   echartsConfig: EchartsOptionComp,
+  echartsTitleConfig:EchartsTitleConfig,
   style: styleControl(EchartsStyle),
   tooltip: withDefault(BoolControl, true),
+  label: withDefault(BoolControl, true),
   legendVisibility: withDefault(BoolControl, true),
+  left:withDefault(NumberControl,trans('funnelChart.defaultLeft')),
+  top:withDefault(NumberControl,trans('funnelChart.defaultTop')),
+  bottom:withDefault(NumberControl,trans('funnelChart.defaultBottom')),
+  width:withDefault(NumberControl,trans('funnelChart.defaultWidth')),
+  min:withDefault(NumberControl,trans('funnelChart.defaultMin')),
+  max:withDefault(NumberControl,trans('funnelChart.defaultMax')),
+  gap:withDefault(NumberControl,trans('funnelChart.defaultGap'))
 }
 
 const chartMapModeChildren = {
