@@ -31,8 +31,16 @@ export function gaugeChartPropertyView(
             </div>
           ),
         })}
+        {children.echartsTitleConfig.getPropertyView()}
         {children.echartsTitle.propertyView({ label: trans("gaugeChart.title") })}
-        {children.tooltip.propertyView({label: trans("gaugeChart.tooltip")})}
+        {/* {children.left.propertyView({ label: trans("gaugeChart.left") })}
+        {children.top.propertyView({ label: trans("gaugeChart.top") })}
+        {children.bottom.propertyView({ label: trans("gaugeChart.bottom") })}
+        {children.width.propertyView({ label: trans("gaugeChart.width") })} */}
+        {children.min.propertyView({ label: trans("gaugeChart.min") })}
+        {children.max.propertyView({ label: trans("gaugeChart.max") })}
+        {/* {children.gap.propertyView({ label: trans("gaugeChart.gap") })} */}
+        {children.tooltip.propertyView({ label: trans("gaugeChart.tooltip") })}
       </Section>
       <Section name={sectionNames.interaction}>
         {children.onEvent.propertyView()}
