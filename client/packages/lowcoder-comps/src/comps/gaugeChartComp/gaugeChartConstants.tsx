@@ -31,6 +31,7 @@ import { SeriesListComp } from "../chartComp/seriesComp";
 import { EChartsOption } from "echarts";
 import { i18nObjs, trans } from "i18n/comps";
 import { GaugeChartConfig } from "../chartComp/chartConfigs/gaugeChartConfig";
+import { EchartsTitleConfig } from "comps/chartComp/chartConfigs/echartsTitleConfig";
 
 export const ChartTypeOptions = [
   {
@@ -253,9 +254,18 @@ const chartJsonModeChildren = {
   echartsLegendConfig: EchartsLegendConfig,
   echartsLabelConfig: EchartsLabelConfig,
   echartsConfig: EchartsOptionComp,
+  echartsTitleConfig:EchartsTitleConfig,
   style: styleControl(EchartsStyle),
   tooltip: withDefault(BoolControl, true),
   legendVisibility: withDefault(BoolControl, true),
+  label: withDefault(BoolControl, true),
+  left:withDefault(NumberControl,trans('gaugeChart.defaultLeft')),
+  top:withDefault(NumberControl,trans('gaugeChart.defaultTop')),
+  bottom:withDefault(NumberControl,trans('gaugeChart.defaultBottom')),
+  width:withDefault(NumberControl,trans('gaugeChart.defaultWidth')),
+  min:withDefault(NumberControl,trans('gaugeChart.defaultMin')),
+  max:withDefault(NumberControl,trans('gaugeChart.defaultMax')),
+  gap:withDefault(NumberControl,trans('gaugeChart.defaultGap'))
 }
 
 const chartMapModeChildren = {
