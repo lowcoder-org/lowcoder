@@ -144,6 +144,14 @@
           "h": 40
         }
       },
+      "themeriverChart": {
+        "name": "Themeriver Chart",
+        "icon": "./icons/icon-chart.svg",
+        "layoutInfo": {
+          "w": 15,
+          "h": 40
+        }
+      },
       "map": {
         "name": "Map",
         "icon": "./icons/icon-chart.svg",
