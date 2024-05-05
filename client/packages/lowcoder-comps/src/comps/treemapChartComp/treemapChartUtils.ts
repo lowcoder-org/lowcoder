@@ -137,24 +137,25 @@ export function getEchartsConfig(props: EchartsConfigProps, chartSize?: ChartSiz
     "left":"center"
   },
   "backgroundColor": props?.style?.background,
-  "color": props.echartsOption.data?.map(data => data.color),
+  "color": [],
   "tooltip": props.tooltip&&{
     "trigger": "item",
-    "triggerOn": "mousemove"
+    "formatter": "{b}: {c}",
+    "axisPointer": {
+      "type": "shadow"
+    },
   },
   "series": [
     {
       "name": props.echartsConfig.type,
       "type": props.echartsConfig.type,
-      "top": "10%",
-      "left": "10%",
-      "bottom": "10%",
-      "right": "10%",
-      "symbolSize": 7,
       'data': props.echartsOption.data,
+      "breadcrumb": {
+        "show": true
+      }
     }
   ]
-}
+    }
     return props.echartsOption ? opt : {};
     
   }
