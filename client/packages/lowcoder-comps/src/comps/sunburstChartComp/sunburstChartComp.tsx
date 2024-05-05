@@ -32,7 +32,7 @@ import {
   echartsConfigOmitChildren,
   getEchartsConfig,
   getSelectedPoints,
-} from "../treeChartComp/treeChartUtils";
+} from "./sunburstChartUtils";
 import 'echarts-extension-gmap';
 import log from "loglevel";
 
@@ -45,13 +45,13 @@ const chartModeOptions = [
   }
 ] as const;
 
-let TreeChartTmpComp = (function () {
+let SunburstChartTmpComp = (function () {
   return new UICompBuilder({mode:dropdownControl(chartModeOptions,'json'),...sunburstChartChildrenMap}, () => null)
     .setPropertyViewFn(sunburstChartPropertyView)
     .build();
 })();
 
-TreeChartTmpComp = withViewFn(TreeChartTmpComp, (comp) => {
+SunburstChartTmpComp = withViewFn(SunburstChartTmpComp, (comp) => {
   const mode = comp.children.mode.getView();
   const onUIEvent = comp.children.onUIEvent.getView();
   const onEvent = comp.children.onEvent.getView();
@@ -199,7 +199,7 @@ function getYAxisFormatContextValue(
   return contextValue;
 }
 
-TreeChartTmpComp = class extends TreeChartTmpComp {
+SunburstChartTmpComp = class extends SunburstChartTmpComp {
   private lastYAxisFormatContextVal?: JSONValue;
   private lastColorContext?: JSONObject;
 
@@ -274,7 +274,7 @@ TreeChartTmpComp = class extends TreeChartTmpComp {
   }
 };
 
-let TreeChartComp = withExposingConfigs(TreeChartTmpComp, [
+let SunburstChartComp = withExposingConfigs(SunburstChartTmpComp, [
   depsConfig({
     name: "selectedPoints",
     desc: trans("chart.selectedPointsDesc"),
@@ -301,7 +301,7 @@ let TreeChartComp = withExposingConfigs(TreeChartTmpComp, [
 ]);
 
 
-export const SunburstChartCompWithDefault = withDefault(TreeChartComp, {
+export const SunburstChartCompWithDefault = withDefault(SunburstChartComp, {
   xAxisKey: "date",
   series: [
     {
