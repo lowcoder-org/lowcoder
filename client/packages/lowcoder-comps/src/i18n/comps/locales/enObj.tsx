@@ -333,6 +333,45 @@ export const enObj: I18nObjects = {
         }
     ]
   },
+  defaultCalendarChartOption: {
+    data:[
+        ["2022-01-01", 10],
+        ["2022-02-05", 30],
+        ["2022-03-15", 50],
+        ["2022-04-20", 70],
+        ["2022-05-25", 90],
+        ["2022-06-30", 100],
+        ["2022-07-10", 80],
+        ["2022-08-20", 60],
+        ["2022-09-25", 40],
+        ["2022-10-30", 20],
+        ["2022-11-05", 5]
+      ]
+  },
+  defaultThemeriverChartOption: {
+    data: [
+        ["2024-01-01", 10, "Category A"],
+        ["2024-01-02", 15, "Category A"],
+        ["2024-01-03", 20, "Category A"],
+        ["2024-01-04", 25, "Category A"],
+        ["2024-01-05", 30, "Category A"],
+        ["2024-01-06", 35, "Category A"],
+        ["2024-01-07", 40, "Category A"],
+        ["2024-01-08", 45, "Category A"],
+        ["2024-01-09", 50, "Category A"],
+        ["2024-01-10", 55, "Category A"],
+        ["2024-01-01", 15, "Category B"],
+        ["2024-01-02", 20, "Category B"],
+        ["2024-01-03", 25, "Category B"],
+        ["2024-01-04", 30, "Category B"],
+        ["2024-01-05", 35, "Category B"],
+        ["2024-01-06", 40, "Category B"],
+        ["2024-01-07", 45, "Category B"],
+        ["2024-01-08", 50, "Category B"],
+        ["2024-01-09", 55, "Category B"],
+        ["2024-01-10", 60, "Category B"]
+      ]
+  },
 
   defaultMapJsonOption: defaultMapData,
 };
