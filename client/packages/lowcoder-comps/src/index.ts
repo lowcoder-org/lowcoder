@@ -13,7 +13,6 @@ import { GraphChartCompWithDefault } from "comps/graphChartComp/graphChartComp";
 import { TreeChartCompWithDefault } from "comps/treeChartComp/treechartComp";
 import { TreemapChartCompWithDefault } from "comps/treemapChartComp/treemapChartComp";
 import { SunburstChartCompWithDefault } from "comps/sunburstChartComp/sunburstChartComp";
-import { CalendarChartCompWithDefault } from "comps/calendarChartComp/chlendarChartComp";
 import { ThemeriverChartCompWithDefault } from "comps/themeriverChartComp/themeriverChartComp";
 
 export default {
@@ -29,9 +28,8 @@ export default {
   treeChart: TreeChartCompWithDefault,
   treemapChart: TreemapChartCompWithDefault,
   sunburstChart: SunburstChartCompWithDefault,
-  calendarChart: CalendarChartCompWithDefault,
   themeriverChart: ThemeriverChartCompWithDefault,
   imageEditor: ImageEditorComp,
-  // calendar: CalendarComp,
+  calendar: CalendarComp,
   mermaid: MermaidComp,
 };
