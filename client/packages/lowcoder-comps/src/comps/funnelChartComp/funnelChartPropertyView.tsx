@@ -31,10 +31,19 @@ export function funnelChartPropertyView(
             </div>
           ),
         })}
-        {children.echartsLegendConfig.getPropertyView()}
-        {children.echartsLabelConfig.getPropertyView()}
+        {children.legendVisibility.getView()&& children.echartsLegendConfig.getPropertyView()}
+        {children.label.getView()&& children.echartsLabelConfig.getPropertyView()}
+        {children.echartsTitleConfig.getPropertyView()}
+        {children.left.propertyView({ label: trans("funnelChart.left") })}
+        {children.top.propertyView({ label: trans("funnelChart.top") })}
+        {children.bottom.propertyView({ label: trans("funnelChart.bottom") })}
+        {children.width.propertyView({ label: trans("funnelChart.width") })}
+        {children.min.propertyView({ label: trans("funnelChart.min") })}
+        {children.max.propertyView({ label: trans("funnelChart.max") })}
+        {children.gap.propertyView({ label: trans("funnelChart.gap") })}
         {children.echartsTitle.propertyView({ label: trans("funnelChart.title") })}
         {children.tooltip.propertyView({label: trans("funnelChart.tooltip")})}
+        {children.label.propertyView({label: trans("funnelChart.label")})}
         {children.legendVisibility.propertyView({label: trans("funnelChart.legendVisibility")})}
       </Section>
       <Section name={sectionNames.interaction}>
