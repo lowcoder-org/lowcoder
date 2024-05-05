@@ -1,4 +1,10 @@
 export const en = {
+  calendarChart: {
+    calendarType: 'Calendar Chart Type',
+    title: 'Title',
+    defaultTitle: 'Calendar Chart',
+    tooltip: 'Tooltip',
+  },
   sunburstChart: {
     sunburstType: 'Sunburst Chart Type',
     title: 'Title',
@@ -52,7 +58,22 @@ export const en = {
     defaultTitle: 'Funnel Chart',
     funnelType:'Funnel Chart Type',
     tooltip: 'Tooltip',
-    legendVisibility:'Legend Visibility'
+    legendVisibility: 'Legend Visibility',
+    left: 'Left',
+    defaultLeft:'35',
+    top: 'Top',
+    defaultTop:'60',
+    bottom: 'Bottom',
+    defaultBottom:'60',
+    width: 'Width',
+    defaultWidth:'80',
+    min: 'Min',
+    defaultMin:'0',
+    max: 'Max',
+    defaultMax:'100',
+    gap: 'Gap',
+    defaultGap: '2',
+    label:'Label',
   },
   gaugeChart: {
     title: 'Title',
@@ -63,6 +84,7 @@ export const en = {
   echarts: {
     legendPosition: "Legend Position",
     labelPosition: "Label Position",
+    titlePosition: "Title Position",
   },
   chart: {
     delete: "Delete",
