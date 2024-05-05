@@ -31,8 +31,8 @@ export function sunburstChartPropertyView(
             </div>
           ),
         })}
-        {children.echartsTitle.propertyView({ label: trans("treeChart.title") })}
-        {children.tooltip.propertyView({label: trans("treeChart.tooltip")})}
+        {children.echartsTitle.propertyView({ label: trans("sunburstChart.title") })}
+        {children.tooltip.propertyView({label: trans("sunburstChart.tooltip")})}
       </Section>
       <Section name={sectionNames.interaction}>
         {children.onEvent.propertyView()}
