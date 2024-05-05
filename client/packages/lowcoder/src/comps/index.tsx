@@ -265,7 +265,7 @@ export var uiCompMap: Registry = {
     name: trans("uiComp.tabbedContainerCompName"),
     enName: "Tabbed Container",
     description: trans("uiComp.tabbedContainerCompDesc"),
-    categories: ["layout", "multimedia"],
+    categories: ["layout"],
     icon: TabbedContainerCompIcon,
     keywords: trans("uiComp.tabbedContainerCompKeywords"),
     lazyLoad: true,
@@ -556,7 +556,7 @@ export var uiCompMap: Registry = {
     compName: "AvatarComp",
     compPath: "comps/avatar",
     layoutInfo: {
-      w: 3,
+      w: 6,
       h: 6,
     },
   },
