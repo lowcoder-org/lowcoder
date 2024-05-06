@@ -34,7 +34,7 @@ public class AuthConfigRequest extends HashMap<String, Object> {
      */
     @Nullable
     public String getIssuerUri() {
-        return getString("issuer");
+        return getString("issuerUri");
     }
 
     @Nullable
@@ -65,6 +65,11 @@ public class AuthConfigRequest extends HashMap<String, Object> {
     @Nullable
     public String getClientSecret() {
         return getString("clientSecret");
+    }
+
+    @Nullable
+    public String getScope() {
+        return getString("scope");
     }
 
     public String getSource(String defaultValue) {
