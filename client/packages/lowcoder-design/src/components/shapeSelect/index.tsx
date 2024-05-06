@@ -74,6 +74,12 @@ const StyledSearchIcon = styled(SearchIcon)`
 const IconListWrapper = styled.div`
   padding-left: 10px;
   padding-right: 4px;
+  .gtujLP {
+    overflow: hidden;
+  }
+  .iconsDiv div {
+    float: left;
+  }
 `;
 const IconList = styled(List)`
   scrollbar-gutter: stable;
@@ -278,14 +284,10 @@ function getIconKey(value?: string) {
 }
 
 export function useShape(value?: string) {
-  console.log("icon value ", value);
   const key = getIconKey(value);
-  console.log("icon key ", key);
-
   const [icon, setIcon] = useState<Icon | undefined>(undefined);
   useEffect(() => {
     let allshapes = getAllIcons();
-    console.log("all shapes ", allshapes);
     setIcon(allshapes[key]);
   }, [key]);
   return icon;
@@ -379,7 +381,7 @@ const IconPopup = (props: {
           <StyledCloseIcon onClick={props.onClose} />
         </TitleDiv>
         {/* <SearchDiv>
-          <TacoInput
+          <TacoInput 
             style={{ width: "100%", paddingLeft: "40px" }}
             value={searchText}
             onChange={(e) => setSearchText(e.target.value)}
@@ -387,20 +389,28 @@ const IconPopup = (props: {
           />
           <StyledSearchIcon />
         </SearchDiv> */}
-        <IconListWrapper>
+        <IconListWrapper style={{ display: "flex", flexWrap: "wrap" }}>
           <>
             {Object.keys(shapes).map((shapeType: string, _i: number) => {
               return shapes[shapeType as keyof typeof shapes].map(
                 (Shape: any, index: any) => {
                   return (
-                    <Shape
-                      size={48}
+                    <div
+                      style={{ paddingLeft: "10px" }}
                       key={index}
                       onClick={() => {
-                        console.log("Shape ", index, shapeType);
                         onChangeIcon(index + "_" + shapeType);
                       }}
-                    />
+                    >
+                      <Shape
+                        size={24} 
+                        key={index}
+                        onClick={() => {
+                          onChangeIcon(index + "_" + shapeType);
+                        }}
+                      />
+                      <p>{shapeType}</p>
+                    </div>
                   );
                 }
               );
