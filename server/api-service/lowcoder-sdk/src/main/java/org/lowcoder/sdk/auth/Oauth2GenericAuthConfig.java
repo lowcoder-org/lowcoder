@@ -15,4 +15,5 @@ public class Oauth2GenericAuthConfig extends Oauth2SimpleAuthConfig {
     private String authorizationEndpoint;
     private String tokenEndpoint;
     private String userInfoEndpoint;
+    private String scope;
 }
