@@ -112,6 +112,7 @@ public class AuthConfigFactoryImpl implements AuthConfigFactory {
                 .authorizationEndpoint(authConfigRequest.getAuthorizationEndpoint())
                 .tokenEndpoint(authConfigRequest.getTokenEndpoint())
                 .userInfoEndpoint(authConfigRequest.getUserInfoEndpoint())
+                .scope(authConfigRequest.getScope())
                 .authType(AuthTypeConstants.GENERIC)
                 .build();
     }
