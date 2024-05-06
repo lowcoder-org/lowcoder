@@ -6,12 +6,12 @@ import {
   noDataPieChartConfig,
 } from "comps/chartComp/chartConstants";
 import { getPieRadiusAndCenter } from "comps/chartComp/chartConfigs/pieChartConfig";
-import { EChartsOptionWithMap } from "./reactEcharts/types";
+import { EChartsOptionWithMap } from "../chartComp/reactEcharts/types";
 import _ from "lodash";
 import { chartColorPalette, isNumeric, JSONObject, loadScript } from "lowcoder-sdk";
 import { calcXYConfig } from "comps/chartComp/chartConfigs/cartesianAxisConfig";
 import Big from "big.js";
-import { googleMapsApiUrl } from "./chartConfigs/chartUrls";
+import { googleMapsApiUrl } from "../chartComp/chartConfigs/chartUrls";
 
 export function transformData(
   originData: JSONObject[],
@@ -137,33 +137,24 @@ export function getEchartsConfig(props: EchartsConfigProps, chartSize?: ChartSiz
     "left":"center"
   },
   "backgroundColor": props?.style?.background,
-      "color": props.echartsOption.data?.map(data => data.color),
-  "tooltip": props.tooltip&&{
-    "trigger": "item",
-    "formatter": "{a} <br/>{b} : {c}%"
+  "color": props.echartsOption.data?.map(data => data.color),
+     "tooltip": props.tooltip&& {
+    "trigger": "item"
   },
-  "legend":props.legendVisibility&& {
-    "data": props.echartsOption.data?.map(data=>data.name),
-    "top": props.echartsLegendConfig.top,
-  },
-  "series": [
-    {
-      "name": props.echartsConfig.type,
-      "type": props.echartsConfig.type,
-      "left": "10%",
-      "top": 60,
-      "bottom": 60,
-      "width": "80%",
-      "min": 0,
-      "max": 100,
-      "gap": 2,
-      "label": {
-        "show": true,
-        "position": props.echartsLabelConfig.top
-      },
-      "data": props.echartsOption.data
-    }
-  ]
+        'series': [
+            {
+                "type": "graph",
+      "layout": "force",
+      "force": {
+        "repulsion": 100,
+        "gravity": 0.1,
+        "edgeLength": 100
+                },
+        'categories': props.echartsOption.categories,
+        'links': props.echartsOption.links,
+      'nodes': props.echartsOption.nodes,
+        }
+      ]
 }
     return props.echartsOption ? opt : {};
     

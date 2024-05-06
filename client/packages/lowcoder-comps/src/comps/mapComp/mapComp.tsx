@@ -5,13 +5,13 @@ import {
   CompActionTypes,
   wrapChildAction,
 } from "lowcoder-core";
-import { AxisFormatterComp, EchartsAxisType } from "./chartConfigs/cartesianAxisConfig";
-import { chartChildrenMap, ChartSize, getDataKeys } from "./chartConstants";
-import { chartPropertyView } from "./chartPropertyView";
+import { AxisFormatterComp, EchartsAxisType } from "../chartComp/chartConfigs/cartesianAxisConfig";
+import { chartChildrenMap, ChartSize, getDataKeys } from "../chartComp/chartConstants";
+import { chartPropertyView } from "../chartComp/chartPropertyView";
 import _ from "lodash";
 import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import ReactResizeDetector from "react-resize-detector";
-import ReactECharts from "./reactEcharts";
+import ReactECharts from "../chartComp/reactEcharts";
 import {
   childrenToProps,
   depsConfig,
@@ -33,6 +33,7 @@ import {
   echartsConfigOmitChildren,
   getEchartsConfig,
   getSelectedPoints,
+  loadGoogleMapsScript,
 } from "comps/chartComp/chartUtils";
 import 'echarts-extension-gmap';
 import log from "loglevel";
@@ -41,24 +42,32 @@ let clickEventCallback = () => {};
 
 const chartModeOptions = [
   {
-    label: trans("chart.UIMode"),
-    value: "ui",
+    label: "Map",
+    value: "map",
   }
 ] as const;
 
-let ChartTmpComp = (function () {
-  return new UICompBuilder({mode:dropdownControl(chartModeOptions,'ui'),...chartChildrenMap}, () => null)
+let MapTmpComp = (function () {
+  return new UICompBuilder({mode:dropdownControl(chartModeOptions,'map'),...chartChildrenMap}, () => null)
     .setPropertyViewFn(chartPropertyView)
     .build();
 })();
 
-ChartTmpComp = withViewFn(ChartTmpComp, (comp) => {
+MapTmpComp = withViewFn(MapTmpComp, (comp) => {
+  const apiKey = comp.children.mapApiKey.getView();
   const mode = comp.children.mode.getView();
+  const mapCenterPosition = {
+    lng: comp.children.mapCenterLng.getView(),
+    lat: comp.children.mapCenterLat.getView(),
+  }
+  const mapZoomlevel = comp.children.mapZoomLevel.getView();
   const onUIEvent = comp.children.onUIEvent.getView();
+  const onMapEvent = comp.children.onMapEvent.getView();
   const onEvent = comp.children.onEvent.getView();
 
   const echartsCompRef = useRef<ReactECharts | null>();
   const [chartSize, setChartSize] = useState<ChartSize>();
+  const [mapScriptLoaded, setMapScriptLoaded] = useState(false);
   const firstResize = useRef(true);
   const theme = useContext(ThemeContext);
   const defaultChartTheme = {
@@ -83,41 +92,28 @@ ChartTmpComp = withViewFn(ChartTmpComp, (comp) => {
   }
 
   useEffect(() => {
-    // bind events
     const echartsCompInstance = echartsCompRef?.current?.getEchartsInstance();
     if (!echartsCompInstance) {
       return _.noop;
     }
-    echartsCompInstance?.on("selectchanged", (param: any) => {
-      const option: any = echartsCompInstance?.getOption();
-
+    echartsCompInstance?.on("click", (param: any) => {
       document.dispatchEvent(new CustomEvent("clickEvent", {
         bubbles: true,
         detail: {
-          action: param.fromAction,
-          data: getSelectedPoints(param, option)
+          action: 'click',
+          data: param.data,
         }
       }));
-      
-      if (param.fromAction === "select") {
-        comp.dispatch(changeChildAction("selectedPoints", getSelectedPoints(param, option), false));
-        onUIEvent("select");
-      } else if (param.fromAction === "unselect") {
-        comp.dispatch(changeChildAction("selectedPoints", getSelectedPoints(param, option), false));
-        onUIEvent("unselect");
-      }
-
       triggerClickEvent(
         comp.dispatch,
-        changeChildAction("lastInteractionData", getSelectedPoints(param, option), false)
+        changeChildAction("lastInteractionData", param.data, false)
       );
     });
-    // unbind
     return () => {
-      echartsCompInstance?.off("selectchanged");
+      echartsCompInstance?.off("click");
       document.removeEventListener('clickEvent', clickEventCallback)
     };
-  }, [onUIEvent]);
+  }, [mapScriptLoaded]);
 
   const echartsConfigChildren = _.omit(comp.children, echartsConfigOmitChildren);
   const option = useMemo(() => {
@@ -127,9 +123,48 @@ ChartTmpComp = withViewFn(ChartTmpComp, (comp) => {
     );
   }, [chartSize, ...Object.values(echartsConfigChildren)]);
 
+  const isMapScriptLoaded = useMemo(() => {
+    return mapScriptLoaded || window?.google;
+  }, [mapScriptLoaded])
+
+  const loadGoogleMapData = () => {
+    const echartsCompInstance = echartsCompRef?.current?.getEchartsInstance();
+    if (!echartsCompInstance) {
+      return _.noop;
+    }
+
+    comp.children.mapInstance.dispatch(changeValueAction(echartsCompInstance))
+    onMapEvent('mapReady')
+  }
+  
+  const handleOnMapScriptLoad = () => {
+    setMapScriptLoaded(true);
+    setTimeout(() => {
+      loadGoogleMapData();
+    })
+  }
+
   useEffect(() => {
-    comp.children.mapInstance.dispatch(changeValueAction(null, false))
-  }, [option])
+    if(comp.children.mapInstance.value) return;
+
+    const gMapScript = loadGoogleMapsScript(apiKey);
+    if(isMapScriptLoaded) {
+      handleOnMapScriptLoad();
+      return;
+    }
+    gMapScript.addEventListener('load', handleOnMapScriptLoad);
+    return () => {
+      gMapScript.removeEventListener('load', handleOnMapScriptLoad);
+    }
+  }, [apiKey, option])
+
+  useEffect(() => {
+    onMapEvent('centerPositionChange');
+  }, [mapCenterPosition.lat, mapCenterPosition.lng])
+
+  useEffect(() => {
+    onMapEvent('zoomLevelChange');
+  }, [mapZoomlevel])
 
   return (
     <ReactResizeDetector
@@ -145,14 +180,14 @@ ChartTmpComp = withViewFn(ChartTmpComp, (comp) => {
         }
       }}
     >
-      <ReactECharts
+       <ReactECharts
           ref={(e) => (echartsCompRef.current = e)}
           style={{ height: "100%" }}
           notMerge
           lazyUpdate
           opts={{ locale: getEchartsLocale() }}
           option={option}
-          theme={themeConfig}
+          theme={undefined}
           mode={mode}
         />
     </ReactResizeDetector>
@@ -177,7 +212,7 @@ function getYAxisFormatContextValue(
   return contextValue;
 }
 
-ChartTmpComp = class extends ChartTmpComp {
+MapTmpComp = class extends MapTmpComp {
   private lastYAxisFormatContextVal?: JSONValue;
   private lastColorContext?: JSONObject;
 
@@ -252,7 +287,7 @@ ChartTmpComp = class extends ChartTmpComp {
   }
 };
 
-let ChartComp = withExposingConfigs(ChartTmpComp, [
+let MapComp = withExposingConfigs(MapTmpComp, [
   depsConfig({
     name: "selectedPoints",
     desc: trans("chart.selectedPointsDesc"),
@@ -273,12 +308,68 @@ let ChartComp = withExposingConfigs(ChartTmpComp, [
     name: "data",
     desc: trans("chart.dataDesc"),
     depKeys: ["data", "mode"],
-    func: (input) => input.data,
+    func: (input) =>[],
   }),
   new NameConfig("title", trans("chart.titleDesc")),
 ]);
 
-export const ChartCompWithDefault = withDefault(ChartComp, {
+MapComp = withMethodExposing(MapComp, [
+  {
+    method: {
+      name: "getMapInstance",
+    },
+    execute: (comp) => {
+      return new Promise(resolve => {
+        let intervalCount = 0;
+        const mapInstanceInterval = setInterval(() => {
+          const instance = comp.children.mapInstance.getView();
+          const mapInstance = instance?.getModel()?.getComponent("gmap")?.getGoogleMap()
+          if(mapInstance || intervalCount === 10) {
+            clearInterval(mapInstanceInterval)
+            resolve(mapInstance)
+          }
+          intervalCount++;
+        }, 1000);
+      })
+    }
+  },
+  {
+    method: {
+      name: "getMapZoomLevel",
+    },
+    execute: (comp) => {
+      return comp.children.mapZoomLevel.getView();
+    }
+  },
+  {
+    method: {
+      name: "getMapCenterPosition",
+    },
+    execute: (comp) => {
+      return Promise.resolve({
+        lng: comp.children.mapCenterLng.getView(),
+        lat: comp.children.mapCenterLat.getView(),
+      });
+    }
+  },
+  {
+    method: {
+      name: "onClick",
+      params: [
+        {
+          name: "callback",
+          type: "function",
+        },
+      ],
+    },
+    execute: (comp, params) => {
+      clickEventCallback = params[0];
+      document.addEventListener('clickEvent', clickEventCallback);
+    }
+  },
+])
+
+export const MapCompWithDefault = withDefault(MapComp, {
   xAxisKey: "date",
   series: [
     {

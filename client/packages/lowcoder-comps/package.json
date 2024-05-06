@@ -89,6 +89,102 @@
           "w": 15,
           "h": 40
         }
+      },
+      "funnelChart": {
+        "name": "Funnel Chart",
+        "icon": "./icons/icon-chart.svg",
+        "layoutInfo": {
+          "w": 15,
+          "h": 40
+        }
+      },
+      "gaugeChart": {
+        "name": "Gauge Chart",
+        "icon": "./icons/icon-chart.svg",
+        "layoutInfo": {
+          "w": 15,
+          "h": 40
+        }
+      },
+      "sankeyChart": {
+        "name": "Sankey Chart",
+        "icon": "./icons/icon-chart.svg",
+        "layoutInfo": {
+          "w": 15,
+          "h": 40
+        }
+      },
+      "candleStickChart": {
+        "name": "CandleStick Chart",
+        "icon": "./icons/icon-chart.svg",
+        "layoutInfo": {
+          "w": 15,
+          "h": 40
+        }
+      },
+      "radarChart": {
+        "name": "Radar Chart",
+        "icon": "./icons/icon-chart.svg",
+        "layoutInfo": {
+          "w": 15,
+          "h": 40
+        }
+      },
+      "heatmapChart": {
+        "name": "Heatmap Chart",
+        "icon": "./icons/icon-chart.svg",
+        "layoutInfo": {
+          "w": 15,
+          "h": 40
+        }
+      },
+      "graphChart": {
+        "name": "Graph Chart",
+        "icon": "./icons/icon-chart.svg",
+        "layoutInfo": {
+          "w": 15,
+          "h": 40
+        }
+      },
+      "treeChart": {
+        "name": "Tree Chart",
+        "icon": "./icons/icon-chart.svg",
+        "layoutInfo": {
+          "w": 15,
+          "h": 40
+        }
+      },
+      "treemapChart": {
+        "name": "Treemap Chart",
+        "icon": "./icons/icon-chart.svg",
+        "layoutInfo": {
+          "w": 15,
+          "h": 40
+        }
+      },
+      "sunburstChart": {
+        "name": "Sunburst Chart",
+        "icon": "./icons/icon-chart.svg",
+        "layoutInfo": {
+          "w": 15,
+          "h": 40
+        }
+      },
+      "themeriverChart": {
+        "name": "Themeriver Chart",
+        "icon": "./icons/icon-chart.svg",
+        "layoutInfo": {
+          "w": 15,
+          "h": 40
+        }
+      },
+      "map": {
+        "name": "Map",
+        "icon": "./icons/icon-chart.svg",
+        "layoutInfo": {
+          "w": 15,
+          "h": 40
+        }
       }
     }
   },

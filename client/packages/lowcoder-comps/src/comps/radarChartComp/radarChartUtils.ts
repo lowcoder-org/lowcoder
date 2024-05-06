@@ -6,12 +6,12 @@ import {
   noDataPieChartConfig,
 } from "comps/chartComp/chartConstants";
 import { getPieRadiusAndCenter } from "comps/chartComp/chartConfigs/pieChartConfig";
-import { EChartsOptionWithMap } from "./reactEcharts/types";
+import { EChartsOptionWithMap } from "../chartComp/reactEcharts/types";
 import _ from "lodash";
 import { chartColorPalette, isNumeric, JSONObject, loadScript } from "lowcoder-sdk";
 import { calcXYConfig } from "comps/chartComp/chartConfigs/cartesianAxisConfig";
 import Big from "big.js";
-import { googleMapsApiUrl } from "./chartConfigs/chartUrls";
+import { googleMapsApiUrl } from "../chartComp/chartConfigs/chartUrls";
 
 export function transformData(
   originData: JSONObject[],
@@ -137,33 +137,25 @@ export function getEchartsConfig(props: EchartsConfigProps, chartSize?: ChartSiz
     "left":"center"
   },
   "backgroundColor": props?.style?.background,
-      "color": props.echartsOption.data?.map(data => data.color),
-  "tooltip": props.tooltip&&{
-    "trigger": "item",
-    "formatter": "{a} <br/>{b} : {c}%"
-  },
-  "legend":props.legendVisibility&& {
-    "data": props.echartsOption.data?.map(data=>data.name),
-    "top": props.echartsLegendConfig.top,
-  },
-  "series": [
-    {
-      "name": props.echartsConfig.type,
-      "type": props.echartsConfig.type,
-      "left": "10%",
-      "top": 60,
-      "bottom": 60,
-      "width": "80%",
-      "min": 0,
-      "max": 100,
-      "gap": 2,
-      "label": {
-        "show": true,
-        "position": props.echartsLabelConfig.top
-      },
-      "data": props.echartsOption.data
+  "color": props.echartsOption.data?.map(data => data.color),
+   "tooltip": {
+    "trigger": "axis",
+    "formatter": function(params) {
+      let tooltipText = params[0].name + '<br/>';
+      params.forEach(function(item) {
+        tooltipText += item.seriesName + ': ' + item.value + '<br/>';
+      });
+      return tooltipText;
     }
-  ]
+  },
+     "radar": [
+    {
+      "indicator": props.echartsOption.indicator,
+      "center": ["50%", "50%"],
+      "radius": "60%"
+    }
+        ],
+     "series": props.echartsOption.series.map(option=>{return {...option,type:'radar'}})
 }
     return props.echartsOption ? opt : {};
     

@@ -6,12 +6,12 @@ import {
   noDataPieChartConfig,
 } from "comps/chartComp/chartConstants";
 import { getPieRadiusAndCenter } from "comps/chartComp/chartConfigs/pieChartConfig";
-import { EChartsOptionWithMap } from "./reactEcharts/types";
+import { EChartsOptionWithMap } from "../chartComp/reactEcharts/types";
 import _ from "lodash";
 import { chartColorPalette, isNumeric, JSONObject, loadScript } from "lowcoder-sdk";
 import { calcXYConfig } from "comps/chartComp/chartConfigs/cartesianAxisConfig";
 import Big from "big.js";
-import { googleMapsApiUrl } from "./chartConfigs/chartUrls";
+import { googleMapsApiUrl } from "../chartComp/chartConfigs/chartUrls";
 
 export function transformData(
   originData: JSONObject[],
@@ -137,33 +137,41 @@ export function getEchartsConfig(props: EchartsConfigProps, chartSize?: ChartSiz
     "left":"center"
   },
   "backgroundColor": props?.style?.background,
-      "color": props.echartsOption.data?.map(data => data.color),
-  "tooltip": props.tooltip&&{
-    "trigger": "item",
-    "formatter": "{a} <br/>{b} : {c}%"
+  "color": props.echartsOption.data?.map(data => data.color),
+     "tooltip": props.tooltip&&{
+    "position": "top"
   },
-  "legend":props.legendVisibility&& {
-    "data": props.echartsOption.data?.map(data=>data.name),
-    "top": props.echartsLegendConfig.top,
+  "grid": {
+    "height": "50%",
+    "top": "10%"
   },
-  "series": [
-    {
-      "name": props.echartsConfig.type,
-      "type": props.echartsConfig.type,
-      "left": "10%",
-      "top": 60,
-      "bottom": 60,
-      "width": "80%",
-      "min": 0,
-      "max": 100,
-      "gap": 2,
-      "label": {
-        "show": true,
-        "position": props.echartsLabelConfig.top
+   "visualMap": {
+    "min": 0,
+    "max": 100,
+    "calculable": true,
+    "orient": "horizontal",
+    "left": "center",
+    "bottom": "15%"
+  },
+  "legend": {
+    "data": ["Heatmap"],
+    "left": "left"
+  },
+      'xAxis': {
+        "type": "category",
+        'data':props.echartsOption.xAxis.data
       },
-      "data": props.echartsOption.data
-    }
-  ]
+      'yAxis': {
+        "type": "category",
+        data: props.echartsOption.yAxis.data
+      },
+      'series': [
+        {
+          'name': 'Heatmap',
+          'type': 'heatmap',
+          'data':props.echartsOption.data
+       }
+     ]
 }
     return props.echartsOption ? opt : {};
     

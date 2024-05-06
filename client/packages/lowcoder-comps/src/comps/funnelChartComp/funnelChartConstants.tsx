@@ -19,19 +19,19 @@ import {
   EchartsStyle
 } from "lowcoder-sdk";
 import { RecordConstructorToComp, RecordConstructorToView } from "lowcoder-core";
-import { BarChartConfig } from "./chartConfigs/barChartConfig";
-import { XAxisConfig, YAxisConfig } from "./chartConfigs/cartesianAxisConfig";
-import { LegendConfig } from "./chartConfigs/legendConfig";
-import { EchartsLegendConfig } from "./chartConfigs/echartsLegendConfig";
-import { EchartsLabelConfig } from "./chartConfigs/echartsLabelConfig";
-import { LineChartConfig } from "./chartConfigs/lineChartConfig";
-import { PieChartConfig } from "./chartConfigs/pieChartConfig";
-import { ScatterChartConfig } from "./chartConfigs/scatterChartConfig";
-import { SeriesListComp } from "./seriesComp";
+import { BarChartConfig } from "../chartComp/chartConfigs/barChartConfig";
+import { XAxisConfig, YAxisConfig } from "../chartComp/chartConfigs/cartesianAxisConfig";
+import { LegendConfig } from "../chartComp/chartConfigs/legendConfig";
+import { EchartsLegendConfig } from "../chartComp/chartConfigs/echartsLegendConfig";
+import { EchartsLabelConfig } from "../chartComp/chartConfigs/echartsLabelConfig";
+import { LineChartConfig } from "../chartComp/chartConfigs/lineChartConfig";
+import { PieChartConfig } from "../chartComp/chartConfigs/pieChartConfig";
+import { ScatterChartConfig } from "../chartComp/chartConfigs/scatterChartConfig";
+import { SeriesListComp } from "../chartComp/seriesComp";
 import { EChartsOption } from "echarts";
 import { i18nObjs, trans } from "i18n/comps";
-import { GaugeChartConfig } from "./chartConfigs/gaugeChartConfig";
-import { FunnelChartConfig } from "./chartConfigs/funnelChartConfig";
+import { FunnelChartConfig } from "../chartComp/chartConfigs/funnelChartConfig";
+import { EchartsTitleConfig } from "comps/chartComp/chartConfigs/echartsTitleConfig";
 
 export const ChartTypeOptions = [
   {
@@ -229,7 +229,6 @@ const ChartOptionMap = {
 
 const EchartsOptionMap = {
   funnel: FunnelChartConfig,
-  gauge: GaugeChartConfig,
 };
 
 const ChartOptionComp = withType(ChartOptionMap, "bar");
@@ -250,14 +249,23 @@ export const chartUiModeChildren = {
 };
 
 const chartJsonModeChildren = {
-  echartsOption: jsonControl(toObject, i18nObjs.defaultEchartsJsonOption),
-  echartsTitle: withDefault(StringControl, trans("echarts.defaultTitle")),
+  echartsOption: jsonControl(toObject, i18nObjs.defaultFunnelChartOption),
+  echartsTitle: withDefault(StringControl, trans("funnelChart.defaultTitle")),
   echartsLegendConfig: EchartsLegendConfig,
   echartsLabelConfig: EchartsLabelConfig,
   echartsConfig: EchartsOptionComp,
+  echartsTitleConfig:EchartsTitleConfig,
   style: styleControl(EchartsStyle),
   tooltip: withDefault(BoolControl, true),
+  label: withDefault(BoolControl, true),
   legendVisibility: withDefault(BoolControl, true),
+  left:withDefault(NumberControl,trans('funnelChart.defaultLeft')),
+  top:withDefault(NumberControl,trans('funnelChart.defaultTop')),
+  bottom:withDefault(NumberControl,trans('funnelChart.defaultBottom')),
+  width:withDefault(NumberControl,trans('funnelChart.defaultWidth')),
+  min:withDefault(NumberControl,trans('funnelChart.defaultMin')),
+  max:withDefault(NumberControl,trans('funnelChart.defaultMax')),
+  gap:withDefault(NumberControl,trans('funnelChart.defaultGap'))
 }
 
 const chartMapModeChildren = {
@@ -287,7 +295,7 @@ export type NonUIChartDataType = {
   value: any;
 }
 
-export const chartChildrenMap = {
+export const funnelChartChildrenMap = {
   selectedPoints: stateComp<Array<UIChartDataType>>([]),
   lastInteractionData: stateComp<Array<UIChartDataType> | NonUIChartDataType>({}),
   onEvent: eventHandlerControl([clickEvent] as const),
@@ -296,6 +304,6 @@ export const chartChildrenMap = {
   ...chartMapModeChildren,
 };
 
-const chartUiChildrenMap = uiChildren(chartChildrenMap);
+const chartUiChildrenMap = uiChildren(funnelChartChildrenMap);
 export type ChartCompPropsType = RecordConstructorToView<typeof chartUiChildrenMap>;
 export type ChartCompChildrenType = RecordConstructorToComp<typeof chartUiChildrenMap>;

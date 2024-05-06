@@ -5,13 +5,13 @@ import {
   CompActionTypes,
   wrapChildAction,
 } from "lowcoder-core";
-import { AxisFormatterComp, EchartsAxisType } from "./chartConfigs/cartesianAxisConfig";
-import { chartChildrenMap, ChartSize, getDataKeys } from "./chartConstants";
-import { chartPropertyView } from "./chartPropertyView";
+import { AxisFormatterComp, EchartsAxisType } from "../chartComp/chartConfigs/cartesianAxisConfig";
+import { graphChartChildrenMap, ChartSize, getDataKeys } from "./graphChartConstants";
+import { graphChartPropertyView } from "./graphChartPropertyView";
 import _ from "lodash";
 import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import ReactResizeDetector from "react-resize-detector";
-import ReactECharts from "./reactEcharts";
+import ReactECharts from "../chartComp/reactEcharts";
 import {
   childrenToProps,
   depsConfig,
@@ -20,12 +20,12 @@ import {
   UICompBuilder,
   withDefault,
   withExposingConfigs,
-  withMethodExposing,
   withViewFn,
   ThemeContext,
   chartColorPalette,
   getPromiseAfterDispatch,
-  dropdownControl
+  dropdownControl,
+  JSONObject
 } from "lowcoder-sdk";
 import { getEchartsLocale, trans } from "i18n/comps";
 import { ItemColorComp } from "comps/chartComp/chartConfigs/lineChartConfig";
@@ -33,7 +33,7 @@ import {
   echartsConfigOmitChildren,
   getEchartsConfig,
   getSelectedPoints,
-} from "comps/chartComp/chartUtils";
+} from "./graphChartUtils";
 import 'echarts-extension-gmap';
 import log from "loglevel";
 
@@ -41,22 +41,21 @@ let clickEventCallback = () => {};
 
 const chartModeOptions = [
   {
-    label: trans("chart.UIMode"),
-    value: "ui",
+    label: "ECharts JSON",
+    value: "json",
   }
 ] as const;
 
-let ChartTmpComp = (function () {
-  return new UICompBuilder({mode:dropdownControl(chartModeOptions,'ui'),...chartChildrenMap}, () => null)
-    .setPropertyViewFn(chartPropertyView)
+let GraphChartTmpComp = (function () {
+  return new UICompBuilder({mode:dropdownControl(chartModeOptions,'json'),...graphChartChildrenMap}, () => null)
+    .setPropertyViewFn(graphChartPropertyView)
     .build();
 })();
 
-ChartTmpComp = withViewFn(ChartTmpComp, (comp) => {
+GraphChartTmpComp = withViewFn(GraphChartTmpComp, (comp) => {
   const mode = comp.children.mode.getView();
   const onUIEvent = comp.children.onUIEvent.getView();
   const onEvent = comp.children.onEvent.getView();
-
   const echartsCompRef = useRef<ReactECharts | null>();
   const [chartSize, setChartSize] = useState<ChartSize>();
   const firstResize = useRef(true);
@@ -83,6 +82,30 @@ ChartTmpComp = withViewFn(ChartTmpComp, (comp) => {
   }
 
   useEffect(() => {
+    const echartsCompInstance = echartsCompRef?.current?.getEchartsInstance();
+    if (!echartsCompInstance) {
+      return _.noop;
+    }
+    echartsCompInstance?.on("click", (param: any) => {
+      document.dispatchEvent(new CustomEvent("clickEvent", {
+        bubbles: true,
+        detail: {
+          action: 'click',
+          data: param.data,
+        }
+      }));
+      triggerClickEvent(
+        comp.dispatch,
+        changeChildAction("lastInteractionData", param.data, false)
+      );
+    });
+    return () => {
+      echartsCompInstance?.off("click");
+      document.removeEventListener('clickEvent', clickEventCallback)
+    };
+  }, []);
+
+  useEffect(() => {
     // bind events
     const echartsCompInstance = echartsCompRef?.current?.getEchartsInstance();
     if (!echartsCompInstance) {
@@ -90,7 +113,6 @@ ChartTmpComp = withViewFn(ChartTmpComp, (comp) => {
     }
     echartsCompInstance?.on("selectchanged", (param: any) => {
       const option: any = echartsCompInstance?.getOption();
-
       document.dispatchEvent(new CustomEvent("clickEvent", {
         bubbles: true,
         detail: {
@@ -129,6 +151,7 @@ ChartTmpComp = withViewFn(ChartTmpComp, (comp) => {
 
   useEffect(() => {
     comp.children.mapInstance.dispatch(changeValueAction(null, false))
+    if(comp.children.mapInstance.value) return;
   }, [option])
 
   return (
@@ -152,7 +175,7 @@ ChartTmpComp = withViewFn(ChartTmpComp, (comp) => {
           lazyUpdate
           opts={{ locale: getEchartsLocale() }}
           option={option}
-          theme={themeConfig}
+          theme={mode !== 'map' ? themeConfig : undefined}
           mode={mode}
         />
     </ReactResizeDetector>
@@ -177,7 +200,7 @@ function getYAxisFormatContextValue(
   return contextValue;
 }
 
-ChartTmpComp = class extends ChartTmpComp {
+GraphChartTmpComp = class extends GraphChartTmpComp {
   private lastYAxisFormatContextVal?: JSONValue;
   private lastColorContext?: JSONObject;
 
@@ -252,7 +275,7 @@ ChartTmpComp = class extends ChartTmpComp {
   }
 };
 
-let ChartComp = withExposingConfigs(ChartTmpComp, [
+let GraphChartComp = withExposingConfigs(GraphChartTmpComp, [
   depsConfig({
     name: "selectedPoints",
     desc: trans("chart.selectedPointsDesc"),
@@ -273,12 +296,13 @@ let ChartComp = withExposingConfigs(ChartTmpComp, [
     name: "data",
     desc: trans("chart.dataDesc"),
     depKeys: ["data", "mode"],
-    func: (input) => input.data,
+    func: (input) =>[] ,
   }),
   new NameConfig("title", trans("chart.titleDesc")),
 ]);
 
-export const ChartCompWithDefault = withDefault(ChartComp, {
+
+export const GraphChartCompWithDefault = withDefault(GraphChartComp, {
   xAxisKey: "date",
   series: [
     {

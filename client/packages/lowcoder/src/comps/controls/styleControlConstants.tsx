@@ -1406,6 +1406,10 @@ export const DrawerStyle = [getBackground()] as const
 
 export const JsonEditorStyle = [LABEL] as const;
 
+export const EchartsStyle = [
+  getBackground("primarySurface"),
+] as const;
+
 export const CalendarStyle = [
   getBackground("primarySurface"),
   {

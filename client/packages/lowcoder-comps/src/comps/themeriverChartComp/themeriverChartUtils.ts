@@ -6,12 +6,12 @@ import {
   noDataPieChartConfig,
 } from "comps/chartComp/chartConstants";
 import { getPieRadiusAndCenter } from "comps/chartComp/chartConfigs/pieChartConfig";
-import { EChartsOptionWithMap } from "./reactEcharts/types";
+import { EChartsOptionWithMap } from "../chartComp/reactEcharts/types";
 import _ from "lodash";
 import { chartColorPalette, isNumeric, JSONObject, loadScript } from "lowcoder-sdk";
 import { calcXYConfig } from "comps/chartComp/chartConfigs/cartesianAxisConfig";
 import Big from "big.js";
-import { googleMapsApiUrl } from "./chartConfigs/chartUrls";
+import { googleMapsApiUrl } from "../chartComp/chartConfigs/chartUrls";
 
 export function transformData(
   originData: JSONObject[],
@@ -136,35 +136,52 @@ export function getEchartsConfig(props: EchartsConfigProps, chartSize?: ChartSiz
     'top': props.echartsLegendConfig.top === 'bottom' ?'top':'bottom',
     "left":"center"
   },
-  "backgroundColor": props?.style?.background,
-      "color": props.echartsOption.data?.map(data => data.color),
+  "backgroundColor": props.style.background,
   "tooltip": props.tooltip&&{
-    "trigger": "item",
-    "formatter": "{a} <br/>{b} : {c}%"
+    "trigger": "axis",
+    "axisPointer": {
+      "type": "line",
+      "lineStyle": {
+        "color": "rgba(0,0,0,0.2)",
+        "width": 2,
+        "type": "solid"
+      }
+    }
   },
-  "legend":props.legendVisibility&& {
-    "data": props.echartsOption.data?.map(data=>data.name),
-    "top": props.echartsLegendConfig.top,
+  "singleAxis": {
+    "type": "time",
+    "bottom": 50,
+    "axisTick": {},
+    "axisLabel": {},
+    "splitLine": {},
+    "axisPointer": {
+      "animation": true,
+      "label": {
+        "show": true,
+        "color": "#fff"
+      }
+    },
+    "splitNumber": 30
   },
   "series": [
     {
-      "name": props.echartsConfig.type,
       "type": props.echartsConfig.type,
-      "left": "10%",
-      "top": 60,
-      "bottom": 60,
-      "width": "80%",
-      "min": 0,
-      "max": 100,
-      "gap": 2,
+      "data": props.echartsOption.data,
       "label": {
         "show": true,
-        "position": props.echartsLabelConfig.top
+        "position": "top",
+        "fontSize": 12
       },
-      "data": props.echartsOption.data
+      "emphasis": {
+        "itemStyle": {
+          "shadowBlur": 20,
+          "shadowColor": "rgba(0, 0, 0, 0.8)"
+        }
+      }
     }
   ]
 }
+
     return props.echartsOption ? opt : {};
     
   }

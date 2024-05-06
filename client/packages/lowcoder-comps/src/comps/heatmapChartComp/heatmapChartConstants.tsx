@@ -19,19 +19,18 @@ import {
   EchartsStyle
 } from "lowcoder-sdk";
 import { RecordConstructorToComp, RecordConstructorToView } from "lowcoder-core";
-import { BarChartConfig } from "./chartConfigs/barChartConfig";
-import { XAxisConfig, YAxisConfig } from "./chartConfigs/cartesianAxisConfig";
-import { LegendConfig } from "./chartConfigs/legendConfig";
-import { EchartsLegendConfig } from "./chartConfigs/echartsLegendConfig";
-import { EchartsLabelConfig } from "./chartConfigs/echartsLabelConfig";
-import { LineChartConfig } from "./chartConfigs/lineChartConfig";
-import { PieChartConfig } from "./chartConfigs/pieChartConfig";
-import { ScatterChartConfig } from "./chartConfigs/scatterChartConfig";
-import { SeriesListComp } from "./seriesComp";
+import { BarChartConfig } from "../chartComp/chartConfigs/barChartConfig";
+import { XAxisConfig, YAxisConfig } from "../chartComp/chartConfigs/cartesianAxisConfig";
+import { LegendConfig } from "../chartComp/chartConfigs/legendConfig";
+import { EchartsLegendConfig } from "../chartComp/chartConfigs/echartsLegendConfig";
+import { EchartsLabelConfig } from "../chartComp/chartConfigs/echartsLabelConfig";
+import { LineChartConfig } from "../chartComp/chartConfigs/lineChartConfig";
+import { PieChartConfig } from "../chartComp/chartConfigs/pieChartConfig";
+import { ScatterChartConfig } from "../chartComp/chartConfigs/scatterChartConfig";
+import { SeriesListComp } from "../chartComp/seriesComp";
 import { EChartsOption } from "echarts";
 import { i18nObjs, trans } from "i18n/comps";
-import { GaugeChartConfig } from "./chartConfigs/gaugeChartConfig";
-import { FunnelChartConfig } from "./chartConfigs/funnelChartConfig";
+import { HeatmapChartConfig } from "comps/chartComp/chartConfigs/heatmapChartConfig";
 
 export const ChartTypeOptions = [
   {
@@ -228,12 +227,11 @@ const ChartOptionMap = {
 };
 
 const EchartsOptionMap = {
-  funnel: FunnelChartConfig,
-  gauge: GaugeChartConfig,
+  heatmap: HeatmapChartConfig,
 };
 
 const ChartOptionComp = withType(ChartOptionMap, "bar");
-const EchartsOptionComp = withType(EchartsOptionMap, "funnel");
+const EchartsOptionComp = withType(EchartsOptionMap, "heatmap");
 export type CharOptionCompType = keyof typeof ChartOptionMap;
 
 export const chartUiModeChildren = {
@@ -250,8 +248,8 @@ export const chartUiModeChildren = {
 };
 
 const chartJsonModeChildren = {
-  echartsOption: jsonControl(toObject, i18nObjs.defaultEchartsJsonOption),
-  echartsTitle: withDefault(StringControl, trans("echarts.defaultTitle")),
+  echartsOption: jsonControl(toObject, i18nObjs.defaultHeatmapChartOption),
+  echartsTitle: withDefault(StringControl, trans("heatmapChart.defaultTitle")),
   echartsLegendConfig: EchartsLegendConfig,
   echartsLabelConfig: EchartsLabelConfig,
   echartsConfig: EchartsOptionComp,
@@ -287,7 +285,7 @@ export type NonUIChartDataType = {
   value: any;
 }
 
-export const chartChildrenMap = {
+export const heatmapChartChildrenMap = {
   selectedPoints: stateComp<Array<UIChartDataType>>([]),
   lastInteractionData: stateComp<Array<UIChartDataType> | NonUIChartDataType>({}),
   onEvent: eventHandlerControl([clickEvent] as const),
@@ -296,6 +294,6 @@ export const chartChildrenMap = {
   ...chartMapModeChildren,
 };
 
-const chartUiChildrenMap = uiChildren(chartChildrenMap);
+const chartUiChildrenMap = uiChildren(heatmapChartChildrenMap);
 export type ChartCompPropsType = RecordConstructorToView<typeof chartUiChildrenMap>;
 export type ChartCompChildrenType = RecordConstructorToComp<typeof chartUiChildrenMap>;

@@ -6,12 +6,12 @@ import {
   noDataPieChartConfig,
 } from "comps/chartComp/chartConstants";
 import { getPieRadiusAndCenter } from "comps/chartComp/chartConfigs/pieChartConfig";
-import { EChartsOptionWithMap } from "./reactEcharts/types";
+import { EChartsOptionWithMap } from "../chartComp/reactEcharts/types";
 import _ from "lodash";
 import { chartColorPalette, isNumeric, JSONObject, loadScript } from "lowcoder-sdk";
 import { calcXYConfig } from "comps/chartComp/chartConfigs/cartesianAxisConfig";
 import Big from "big.js";
-import { googleMapsApiUrl } from "./chartConfigs/chartUrls";
+import { googleMapsApiUrl } from "../chartComp/chartConfigs/chartUrls";
 
 export function transformData(
   originData: JSONObject[],
@@ -134,10 +134,10 @@ export function getEchartsConfig(props: EchartsConfigProps, chartSize?: ChartSiz
   "title": {
     "text": props.echartsTitle,
     'top': props.echartsLegendConfig.top === 'bottom' ?'top':'bottom',
-    "left":"center"
+    "left":props.echartsTitleConfig.top
   },
   "backgroundColor": props?.style?.background,
-      "color": props.echartsOption.data?.map(data => data.color),
+  "color": props.echartsOption.data?.map(data => data.color),
   "tooltip": props.tooltip&&{
     "trigger": "item",
     "formatter": "{a} <br/>{b} : {c}%"
@@ -150,15 +150,15 @@ export function getEchartsConfig(props: EchartsConfigProps, chartSize?: ChartSiz
     {
       "name": props.echartsConfig.type,
       "type": props.echartsConfig.type,
-      "left": "10%",
-      "top": 60,
-      "bottom": 60,
-      "width": "80%",
-      "min": 0,
-      "max": 100,
-      "gap": 2,
+      "left": `${props.left}%`,
+      "top": props.top,
+      "bottom": props.bottom,
+      "width":  `${props.left}%`,
+      "min": props.min,
+      "max": props.max,
+      "gap": props.gap,
       "label": {
-        "show": true,
+        "show": props.label,
         "position": props.echartsLabelConfig.top
       },
       "data": props.echartsOption.data
