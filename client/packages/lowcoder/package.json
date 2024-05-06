@@ -41,7 +41,7 @@
     "buffer": "^6.0.3",
     "clsx": "^2.0.0",
     "cnchar": "^3.2.4",
-    "coolshapes-react": "/Users/la/Desktop/coolshapes-react",
+    "coolshapes-react": "lowcoder-org/coolshapes-react",
     "copy-to-clipboard": "^3.3.3",
     "core-js": "^3.25.2",
     "echarts": "^5.4.3",
