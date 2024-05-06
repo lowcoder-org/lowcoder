@@ -2436,6 +2436,7 @@ export const de: typeof en = {
       "allApplications": "Alle Apps",
       "allModules": "Alle Module",
       "allFolders": "Alle Ordner",
+      "yourFolders" : "Deine Ordner",
       "modules": "Module",
       "module": "Modul",
       "trash": "Papierkorb",

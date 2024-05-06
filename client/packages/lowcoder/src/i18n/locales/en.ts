@@ -2801,6 +2801,7 @@ export const en = {
     "allApplications": "Your Apps",
     "allModules": "Your Modules",
     "allFolders": "All Folders",
+    "yourFolders" : "Your Folders",
     "modules": "Modules",
     "module": "Module",
     "trash": "Trash",
