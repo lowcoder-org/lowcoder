@@ -8,16 +8,21 @@ import { trans } from "i18n";
 import _ from "lodash";
 import {
   controlItem,
-  IconRadius,
   IconReset,
   ExpandIcon,
   CompressIcon,
   TextSizeIcon,
+  TextTransformationIcon,
   FontFamilyIcon,
   TextWeightIcon,
   ShowBorderIcon,
   BorderWidthIcon,
   ImageCompIconSmall,
+  RotationIcon,
+  TextDecorationIcon,
+  BorderStyleIcon,
+  BorderRadiusIcon,
+  TextStyleIcon,
 } from "lowcoder-design";
 import { useContext } from "react";
 import styled from "styled-components";
@@ -38,6 +43,7 @@ import {
   FontFamilyConfig,
   FontStyleConfig,
   BorderWidthConfig,
+  RotationConfig,
   BackgroundImageConfig,
   BackgroundImageRepeatConfig,
   BackgroundImageSizeConfig,
@@ -76,6 +82,10 @@ function isRadiusConfig(config: SingleColorConfig): config is RadiusConfig {
 
 function isBorderWidthConfig(config: SingleColorConfig): config is BorderWidthConfig {
   return config.hasOwnProperty("borderWidth");
+}
+
+function isRotationConfig(config: SingleColorConfig): config is RotationConfig {
+  return config.hasOwnProperty("rotation");
 }
 
 function isBackgroundImageConfig(config: SingleColorConfig): config is BackgroundImageConfig {
@@ -176,6 +186,9 @@ function isEmptyRadius(radius: string) {
 function isEmptyBorderWidth(borderWidth: string) {
   return _.isEmpty(borderWidth);
 }
+function isEmptyRotation(rotation: string) {
+  return _.isEmpty(rotation);
+}
 function isEmptyBackgroundImageConfig(backgroundImage: string) {
   return _.isEmpty(backgroundImage);
 }
@@ -273,6 +286,11 @@ function calcColors<ColorMap extends Record<string, string>>(
       res[name] = props[name];
       return;
     }
+    if (!isEmptyRotation(props[name]) && isRotationConfig(config)) {
+      res[name] = props[name];
+      return;
+    }
+
     if (!isEmptyBackgroundImageConfig(props[name]) && isBackgroundImageConfig(config)) {
       res[name] = props[name];
       return;
@@ -385,6 +403,9 @@ function calcColors<ColorMap extends Record<string, string>>(
     }
     if (isBorderWidthConfig(config)) {
       res[name] = '0px';
+    }
+    if (isRotationConfig(config)) {
+      res[name] = '0deg';
     }
     if (isBackgroundImageConfig(config)) {
       res[name] = '';
@@ -563,14 +584,22 @@ const StyleContent = styled.div`
   }
 `;
 
-const RadiusIcon = styled(IconRadius)` margin: 0 8px 0 -2px;`;
-const BorderIcon = styled(BorderWidthIcon)` margin: 0 8px 0 -3px; padding: 3px;`;
-const MarginIcon = styled(ExpandIcon)` margin: 0 8px 0 2px;`;
-const PaddingIcon = styled(CompressIcon)`	margin: 0 8px 0 2px;`;
-const StyledTextSizeIcon = styled(TextSizeIcon)` margin: 0 8px 0 -3px; padding: 3px;`;
-const StyledFontFamilyIcon = styled(FontFamilyIcon)` margin: 0 8px 0 -3px; padding: 3px;`;
-const StyledTextWeightIcon = styled(TextWeightIcon)` margin: 0 8px 0 -3px; padding: 3px;`;
-const StyledBackgroundImageIcon = styled(ImageCompIconSmall)` margin: 0 0px 0 -12px;`;
+const MarginIcon = styled(ExpandIcon)` margin: 0 8px 0 2px; color: #888`;
+const PaddingIcon = styled(CompressIcon)`	margin: 0 8px 0 2px; color: #888`;
+const RadiusPropIcon = styled(BorderRadiusIcon)` width: 24px; margin: 0 11px 0 0px; color: #888`;
+const BorderPropIcon = styled(BorderWidthIcon)` margin: 0 8px 0 -3px; padding: 3px; color: #888`;
+const BorderStylePropIcon = styled(BorderStyleIcon)` margin: 0 8px 0 -3px; padding: 3px; color: #888`;
+
+const StyledBackgroundImageIcon = styled(ImageCompIconSmall)` margin: 0 6px 0 0; padding: 2px; color: #888`;
+const RotationPropIcon = styled(RotationIcon)` margin: 0 8px 0 -3px; padding: 3px; color: #888`;
+
+const StyledTextSizeIcon = styled(TextSizeIcon)` margin: 0 8px 0 -3px; padding: 3px; color: #888`;
+const StyledTextTransformIcon = styled(TextTransformationIcon)` margin: 0 8px 0 -3px; padding: 3px; color: #888`;
+const StyledFontFamilyIcon = styled(FontFamilyIcon)` margin: 0 8px 0 -3px; padding: 3px; color: #888`;
+const StyledTextWeightIcon = styled(TextWeightIcon)` margin: 0 8px 0 -3px; padding: 3px; color: #888`;
+const StyledTextStyleIcon = styled(TextStyleIcon)` margin: 0 8px 0 -3px; padding: 3px; color: #888`;
+const StyledTextDecorationPropIcon = styled(TextDecorationIcon)` margin: 0 8px 0 -3px; padding: 3px; color: #888`;
+
 
 const ResetIcon = styled(IconReset)`
   &:hover g g {
@@ -586,6 +615,7 @@ export function styleControl<T extends readonly SingleColorConfig[]>(colorConfig
     if (
       name === "radius" ||
       name === "borderWidth" ||
+      name === "rotation" ||
       name === "cardRadius" ||
       name === "textSize" ||
       name === "textWeight" ||
@@ -663,6 +693,7 @@ export function styleControl<T extends readonly SingleColorConfig[]>(colorConfig
                       name === "containerFooterPadding" ||
                       name === "containerBodyPadding" ||
                       name === "borderWidth" ||
+                      name === "rotation" ||
                       name === "backgroundImage" ||
                       name === "backgroundImageRepeat" ||
                       name === "backgroundImageSize" ||
@@ -723,7 +754,7 @@ export function styleControl<T extends readonly SingleColorConfig[]>(colorConfig
                         children[name] as InstanceType<typeof StringControl>
                       ).propertyView({
                         label: config.label,
-                        preInputNode: <RadiusIcon title="Radius" />,
+                        preInputNode: <RadiusPropIcon title="Radius" />,
                         placeholder: props[name],
                       })
                       : name === "borderWidth"
@@ -731,14 +762,14 @@ export function styleControl<T extends readonly SingleColorConfig[]>(colorConfig
                           children[name] as InstanceType<typeof StringControl>
                         ).propertyView({
                           label: config.label,
-                          preInputNode: <BorderIcon title="Border-Width" />,
+                          preInputNode: <BorderPropIcon title="Border-Width" />,
                           placeholder: props[name],
                         }) : name === "borderStyle"
                           ? (
                             children[name] as InstanceType<typeof StringControl>
                           ).propertyView({
                             label: config.label,
-                            preInputNode: <BorderIcon title="Border-Style" />,
+                            preInputNode: <BorderStylePropIcon title="Border-Style" />,
                             placeholder: props[name],
                           })
                           : name === "margin"
@@ -749,8 +780,7 @@ export function styleControl<T extends readonly SingleColorConfig[]>(colorConfig
                               preInputNode: <MarginIcon title="Margin" />,
                               placeholder: props[name],
                             })
-                            : name === "textSize" ||
-                              name === "padding" ||
+                            : name === "padding" ||
                               name === "containerHeaderPadding" ||
                               name === "containerSiderPadding" ||
                               name === "containerFooterPadding" ||
@@ -790,14 +820,14 @@ export function styleControl<T extends readonly SingleColorConfig[]>(colorConfig
                                         children[name] as InstanceType<typeof StringControl>
                                       ).propertyView({
                                         label: config.label,
-                                        preInputNode: <StyledFontFamilyIcon title="Text Decoration" />,
+                                        preInputNode: <StyledTextDecorationPropIcon title="Text Decoration" />,
                                         placeholder: props[name],
                                       }) : name === "textTransform"
                                         ? (
                                           children[name] as InstanceType<typeof StringControl>
                                         ).propertyView({
                                           label: config.label,
-                                          preInputNode: <StyledFontFamilyIcon title="Text Transform" />,
+                                          preInputNode: <StyledTextTransformIcon title="Text Transform" />,
                                           placeholder: props[name],
                                         })
                                         : name === "fontStyle"
@@ -805,7 +835,7 @@ export function styleControl<T extends readonly SingleColorConfig[]>(colorConfig
                                             children[name] as InstanceType<typeof StringControl>
                                           ).propertyView({
                                             label: config.label,
-                                            preInputNode: <StyledFontFamilyIcon title="Font Style" />,
+                                            preInputNode: <StyledTextStyleIcon title="Font Style" />,
                                             placeholder: props[name],
                                           })
                                           : name === "backgroundImage" || name === "headerBackgroundImage" || name === "footerBackgroundImage"
@@ -824,13 +854,21 @@ export function styleControl<T extends readonly SingleColorConfig[]>(colorConfig
                                                 preInputNode: <StyledBackgroundImageIcon title="Background Image Repeat" />,
                                                 placeholder: props[name],
                                               })
-                                              : children[name].propertyView({
-                                                label: config.label,
-                                                panelDefaultColor: props[name],
-                                                // isDep: isDepColorConfig(config),	
-                                                isDep: true,
-                                                depMsg: depMsg,
-                                              })
+                                              : name === "rotation"
+                                                ? (
+                                                  children[name] as InstanceType<typeof StringControl>
+                                                ).propertyView({
+                                                  label: config.label,
+                                                  preInputNode: <RotationPropIcon title="Rotation" />,
+                                                  placeholder: props[name],
+                                                })
+                                                : children[name].propertyView({
+                                                  label: config.label,
+                                                  panelDefaultColor: props[name],
+                                                  // isDep: isDepColorConfig(config),	
+                                                  isDep: true,
+                                                  depMsg: depMsg,
+                                                })
 
                     }
                   </div>

@@ -6,6 +6,7 @@ import java.util.Map;
 
 import lombok.Builder;
 import lombok.Getter;
+import org.lowcoder.sdk.constants.UiConstants;
 
 @Builder
 @Getter
@@ -14,6 +15,7 @@ public class UserDetail {
             .id("")
             .name("ANONYMOUS")
             .avatarUrl("")
+            .uiLanguage("en")
             .email("")
             .ip("")
             .groups(Collections.emptyList())
@@ -23,6 +25,8 @@ public class UserDetail {
     private String id;
     private String name;
     private String avatarUrl;
+    @Builder.Default
+    private String uiLanguage = UiConstants.DEFAULT_UI_LANGUAGE;
     private String email;
     private String ip;
     private List<Map<String, String>> groups;

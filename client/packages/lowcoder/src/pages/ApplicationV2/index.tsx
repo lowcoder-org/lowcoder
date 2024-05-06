@@ -1,4 +1,5 @@
 import {
+  USER_PROFILE_URL,
   ALL_APPLICATIONS_URL,
   DATASOURCE_URL,
   FOLDER_URL,
@@ -28,7 +29,8 @@ import {
   RecyclerIcon,
   MarketplaceIcon,
   AppsIcon,
-  EnterpriseIcon
+  EnterpriseIcon,
+  UserIcon,
 } from "lowcoder-design";
 import React, { useEffect, useState } from "react";
 import { fetchAllApplications, fetchHomeData } from "redux/reduxActions/applicationActions";
@@ -39,6 +41,7 @@ import { QueryLibraryEditor } from "../queryLibrary/QueryLibraryEditor";
 import { ProductLoading } from "components/ProductLoading";
 import { Layout } from "../../components/layout/Layout";
 import { HomeView } from "./HomeView";
+import { UserProfileView } from "./UserProfileView";
 import styled, { css } from "styled-components";
 import history from "../../util/history";
 import { FolderView } from "./FolderView";
@@ -338,6 +341,12 @@ export default function ApplicationHome() {
         sections={[
           {
             items: [
+              {
+                text: <TabLabel>{trans("home.profile")}</TabLabel>,
+                routePath: USER_PROFILE_URL,
+                routeComp: UserProfileView,
+                icon: ({ selected, ...otherProps }) => selected ? <UserIcon {...otherProps} width={"24px"}/> : <UserIcon {...otherProps} width={"24px"}/>,
+              },
               {
                 text: <TabLabel>{trans("home.allApplications")}</TabLabel>,
                 routePath: ALL_APPLICATIONS_URL,

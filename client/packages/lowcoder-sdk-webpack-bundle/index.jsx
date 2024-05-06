@@ -37,6 +37,18 @@ for (
             [i]?.querySelector(".locoder-backend-url")?.value ||
           "https://api-service.lowcoder.cloud"
         }
+        webUrl={
+          document
+            .querySelectorAll(".lowcoder-module-container")
+            [i]?.querySelector(".locoder-frontend-url")?.value ||
+          "https://app.lowcoder.cloud"
+        }
+        orgId={
+          document
+            .querySelectorAll(".lowcoder-module-container")
+            [i]?.querySelector(".locoder-org-id")?.value ||
+          undefined
+        }
       />
     );
   }

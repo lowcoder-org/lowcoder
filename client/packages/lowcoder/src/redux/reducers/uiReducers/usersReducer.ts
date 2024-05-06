@@ -3,7 +3,7 @@ import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "constants/reduxActionConstants";
-import { CurrentUser, defaultCurrentUser, defaultUser, User } from "constants/userConstants";
+import { ApiKey, CurrentUser, defaultCurrentUser, defaultUser, User } from "constants/userConstants";
 import { UpdateOrgPayload } from "redux/reduxActions/orgActions";
 import { MarkUserStatusPayload, UpdateUserPayload } from "redux/reduxActions/userActions";
 import { createReducer } from "util/reducerUtils";
@@ -20,6 +20,7 @@ const initialState: UsersReduxState = {
   currentUser: defaultCurrentUser,
   rawCurrentUser: defaultCurrentUser,
   profileSettingModalVisible: false,
+  apiKeys: [],
 };
 
 const usersReducer = createReducer(initialState, {
@@ -182,6 +183,13 @@ const usersReducer = createReducer(initialState, {
       },
     };
   },
+  [ReduxActionTypes.FETCH_API_KEYS_SUCCESS]: (
+    state: UsersReduxState,
+    action: ReduxAction<Array<ApiKey>>
+  ): UsersReduxState => ({
+    ...state,
+    apiKeys: action.payload,
+  }),
 });
 
 export interface UsersReduxState {
@@ -196,6 +204,7 @@ export interface UsersReduxState {
   };
   error: string;
   profileSettingModalVisible: boolean;
+  apiKeys: Array<ApiKey>;
 }
 
 export default usersReducer;

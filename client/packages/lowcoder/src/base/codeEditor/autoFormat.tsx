@@ -14,7 +14,7 @@ export async function htmlFormatter(text: string) {
   const prettier = await require("prettier/standalone");
   const parserPlugin = await require("prettier/parser-html");
   return (await prettier.format(text, { parser: "html", plugins: [parserPlugin], semi: false })).trim();
-}
+} 
 
 async function getJavascriptFormatter() {
   const prettier = await require("prettier/standalone");

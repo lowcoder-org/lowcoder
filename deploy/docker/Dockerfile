@@ -25,7 +25,7 @@ RUN chmod +x /lowcoder/api-service/*.sh
 ## To create a separate image out of it, build it with:
 ##   DOCKER_BUILDKIT=1 docker build -f deploy/docker/Dockerfile -t lowcoderorg/lowcoder-ce-api-service --target lowcoder-ce-api-service .
 ##
-FROM eclipse-temurin:17-jammy as lowcoder-ce-api-service
+FROM eclipse-temurin:17-jammy AS lowcoder-ce-api-service
 LABEL maintainer="lowcoder"
 
 RUN apt-get update && apt-get install -y --no-install-recommends gosu \
@@ -49,9 +49,9 @@ CMD [ "/bin/bash" , "/lowcoder/api-service/entrypoint.sh" ]
 ##
 ## Build lowcoder node service
 ##
-FROM ubuntu:jammy as build-node-service
+FROM ubuntu:jammy AS build-node-service
 
-RUN apt update && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y curl ca-certificates build-essential gnupg
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y curl ca-certificates build-essential gnupg
 
 # Add nodejs repo and keys
 RUN mkdir -p /etc/apt/keyrings \
@@ -80,10 +80,10 @@ RUN chmod +x /lowcoder/node-service/*.sh
 ## To create a separate image out of it, build it with:
 ##   DOCKER_BUILDKIT=1 docker build -f deploy/docker/Dockerfile -t lowcoderorg/lowcoder-ce-node-service --target lowcoder-ce-node-service .
 ##
-FROM ubuntu:jammy as lowcoder-ce-node-service
+FROM ubuntu:jammy AS lowcoder-ce-node-service
 LABEL maintainer="lowcoder"
 
-RUN apt update && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y curl ca-certificates gnupg
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y curl ca-certificates gnupg
 
 # Add nodejs repo and keys
 RUN mkdir -p /etc/apt/keyrings \
@@ -145,7 +145,7 @@ RUN yarn build
 ## To create a separate image out of it, build it with:
 ##   DOCKER_BUILDKIT=1 docker build -f deploy/docker/Dockerfile -t lowcoderorg/lowcoder-ce-frontend --target lowcoder-ce-frontend .
 ##
-FROM nginx:1.25.1 as lowcoder-ce-frontend
+FROM nginx:1.25.1 AS lowcoder-ce-frontend
 LABEL maintainer="lowcoder"
 
 # Change default nginx user into lowcoder user and remove default nginx config
@@ -189,7 +189,10 @@ EXPOSE 3443
 FROM lowcoder-ce-frontend
 LABEL maintainer="lowcoder"
 
-RUN apt update && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y curl ca-certificates gnupg
+RUN apt-get update && apt-get upgrade -y \
+  && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y curl ca-certificates gnupg \
+  && rm -rf /var/cache/apt/lists /var/lib/apt/lists/* /var/log/dpkg.log \
+  && apt-get clean
 
 # Add nodejs repo and keys
 RUN mkdir -p /etc/apt/keyrings \
@@ -200,15 +203,9 @@ RUN mkdir -p /etc/apt/keyrings \
 # Install required packages
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y bash gnupg curl lsb-release \
   && curl -fsSL https://packages.redis.io/gpg | gpg --dearmor -o /usr/share/keyrings/redis-archive-keyring.gpg \
-  && echo "deb [signed-by=/usr/share/keyrings/redis-archive-keyring.gpg] https://packages.redis.io/deb bullseye main" | tee /etc/apt/sources.list.d/redis.list \
+  && echo "deb [signed-by=/usr/share/keyrings/redis-archive-keyring.gpg] https://packages.redis.io/deb bookworm main" | tee /etc/apt/sources.list.d/redis.list \
   && curl -fsSL https://www.mongodb.org/static/pgp/server-4.4.asc | gpg --dearmor -o /usr/share/keyrings/mongodb-archive-keyring.gpg \
-  && echo "deb [signed-by=/usr/share/keyrings/mongodb-archive-keyring.gpg arch=amd64,arm64] http://repo.mongodb.org/apt/ubuntu focal/mongodb-org/4.4 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-4.4.list \
-  && if [ "$(dpkg --print-architecture)" = "amd64" ] || [ "$(dpkg --print-architecture)" = "i386" ]; then \
-    curl -sL http://archive.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.1f-1ubuntu2_$(dpkg --print-architecture).deb --output libssl1.1_1.1.1f-1ubuntu2_$(dpkg --print-architecture).deb; \
-  else \
-    curl -sL http://ports.ubuntu.com/pool/main/o/openssl/libssl1.1_1.1.1f-1ubuntu2_$(dpkg --print-architecture).deb --output libssl1.1_1.1.1f-1ubuntu2_$(dpkg --print-architecture).deb; \
-  fi \
-  && dpkg -i libssl1.1_1.1.1f-1ubuntu2_$(dpkg --print-architecture).deb \
+  && echo "deb [signed-by=/usr/share/keyrings/mongodb-archive-keyring.gpg] https://repo.mongodb.org/apt/debian bookworm/mongodb-org/4.4 main" | tee /etc/apt/sources.list.d/mongodb-org-4.4.list \
   && apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install --no-install-recommends -y \
       mongodb-org \
       redis \
@@ -217,8 +214,10 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install --no-instal
       nodejs \
       openjdk-17-jdk-headless \
   && npm install -g yarn \
-  && rm -rf /var/cache/apt/lists \
-  && mkdir -p /lowcoder/assets
+  && rm -rf /var/cache/apt/lists /var/lib/apt/lists/* /var/log/dpkg.log \
+  && mkdir -p /lowcoder/assets \
+  && apt-get clean \
+  && rm -rf /tmp/*
 
 # Add lowcoder api-service
 COPY --chown=lowcoder:lowcoder --from=lowcoder-ce-api-service /lowcoder/api-service /lowcoder/api-service
@@ -232,6 +231,17 @@ COPY --chown=lowcoder:lowcoder deploy/docker/all-in-one/etc /lowcoder/etc
 
 # Add startup script
 COPY --chown=lowcoder:lowcoder deploy/docker/all-in-one/entrypoint.sh /lowcoder/entrypoint.sh
+
+# Fixes for OpenShift compatibility (after all files are copied)
+RUN echo  \
+  && adduser lowcoder root \
+  && mkdir -p /lowcoder-stacks \
+  && for i in /lowcoder-stacks /lowcoder/assets /lowcoder/api-service/logs /lowcoder/etc/supervisord; do \
+       chmod -R g+rw "$i"; \
+       chown -R lowcoder:root "$i"; \
+     done \
+  && chown -R lowcoder:root /var/log \
+  && chmod -R g+rw /run /etc/nginx /var/cache/nginx /var/log
 
 EXPOSE 27017
 EXPOSE 3000

@@ -1,14 +1,10 @@
 package org.lowcoder.api.usermanagement.view;
 
+import lombok.Data;
+import org.lowcoder.sdk.constants.UiConstants;
+
+@Data
 public class UpdateUserRequest {
-
     private String name;
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
+    private String uiLanguage = UiConstants.DEFAULT_UI_LANGUAGE;
 }

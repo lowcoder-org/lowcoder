@@ -3,6 +3,7 @@ import { getAllCompItems } from "comps/comps/containerBase/utils";
 import { SimpleNameComp } from "comps/comps/simpleNameComp";
 import { StringControl } from "comps/controls/codeControl";
 import { EditorContext } from "comps/editorState";
+import { RemoteCompInfo } from "types/remoteComp";
 import {
   simpleMultiComp,
   withDefault,
@@ -13,6 +14,8 @@ import {
 import { hookToStateComp, simpleValueComp } from "comps/generators/hookToComp";
 import { withSimpleExposing } from "comps/generators/withExposing";
 import { DrawerComp } from "comps/hooks/drawerComp";
+import { remoteComp } from "comps/comps/remoteComp/remoteComp";
+
 import {
   HookCompConstructor,
   HookCompMapRawType,
@@ -33,7 +36,6 @@ import { ToastComp } from "./toastComp";
 import { ThemeComp } from "./themeComp";
 import UrlParamsHookComp from "./UrlParamsHookComp";
 import { UtilsComp } from "./utilsComp";
-import { VideoMeetingControllerComp } from "../comps/meetingComp/videoMeetingControllerComp";
 import { ScreenInfoHookComp } from "./screenInfoComp";
 
 window._ = _;
@@ -85,7 +87,11 @@ const TitleHookComp = withPropertyViewFn(TitleTmp2Comp, (comp) => {
     </Section>
   );
 });
-
+const builtInRemoteComps: Omit<RemoteCompInfo, "compName"> = {
+  source: !!REACT_APP_BUNDLE_BUILTIN_PLUGIN ? "bundle" : "npm",
+  isRemote: true,
+  packageName: "lowcoder-comps",
+};
 const HookMap: HookCompMapRawType = {
   title: TitleHookComp,
   windowSize: WindowSizeComp,
@@ -93,17 +99,17 @@ const HookMap: HookCompMapRawType = {
   lodashJsLib: LodashJsLib,
   dayJsLib: DayJsLib,
   momentJsLib: DayJsLib, // old components use this hook
-  utils: UtilsComp,
+  utils: UtilsComp, 
   message: MessageComp,
   toast: ToastComp,
   localStorage: LocalStorageComp,
   modal: ModalComp,
-  meeting: VideoMeetingControllerComp,
+  meeting: remoteComp({ ...builtInRemoteComps, compName: "meetingController" }),
   currentUser: CurrentUserHookComp,
   screenInfo: ScreenInfoHookComp,
   urlParams: UrlParamsHookComp,
   drawer: DrawerComp,
-  theme: ThemeComp,
+  theme: ThemeComp, 
 };
 
 export const HookTmpComp = withTypeAndChildren(HookMap, "title", {
