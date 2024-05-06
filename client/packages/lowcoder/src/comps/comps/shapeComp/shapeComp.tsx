@@ -34,11 +34,6 @@ const Container = styled.div<{ $style: IconStyleType | undefined }>`
   display: flex;
   align-items: center;
   justify-content: center;
-  .coolshapes {
-    max-width: 100%;
-    min-height: 100%;
-    min-width: 100%;
-  }
 
   ${(props) =>
     props.$style &&
@@ -47,8 +42,6 @@ const Container = styled.div<{ $style: IconStyleType | undefined }>`
       width: calc(100% - ${props.$style.margin});
       padding: ${props.$style.padding};
       margin: ${props.$style.margin};
-      border: ${props.$style.borderWidth} solid ${props.$style.border};
-      border-radius: ${props.$style.radius};
       background: ${props.$style.background};
       svg {
         max-width: ${widthCalculator(props.$style.margin)};
@@ -57,7 +50,7 @@ const Container = styled.div<{ $style: IconStyleType | undefined }>`
         object-fit: contain;
         pointer-events: auto;
       }
-    `}
+    `} 
 `;
 
 const EventOptions = [clickEvent] as const;
@@ -106,16 +99,20 @@ const IconView = (props: RecordConstructorToView<typeof childrenMap>) => {
           fontSize: props.autoHeight
             ? `${height < width ? height : width}px`
             : props.iconSize,
-          background: props.style.background,
         }}
         onClick={() => {
           console.log("click");
-        }}
+        }}  
       >
-        <Coolshape
+        <Coolshape 
           type={shape.value as any}
-          index={shape.index}
-          noise={true}
+          index={shape.index} 
+          noise={false} 
+          style={{
+            border: `${props.style.borderWidth} solid ${props.style.border}`,
+            borderRadius: props.style.radius,
+            color: props.style.background,
+          }} 
         />
       </Container>
     </ReactResizeDetector>
