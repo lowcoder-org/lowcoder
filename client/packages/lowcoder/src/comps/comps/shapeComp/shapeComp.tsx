@@ -1,173 +1,159 @@
-import { useEffect, useRef, useState } from "react";
-import styled, { css } from "styled-components";
-import { RecordConstructorToView } from "lowcoder-core";
-import { styleControl } from "comps/controls/styleControl";
-import _ from "lodash";
-import {
-  IconStyle,
-  IconStyleType,
-  heightCalculator,
-  widthCalculator,
-} from "comps/controls/styleControlConstants";
-import { UICompBuilder } from "comps/generators/uiCompBuilder";
-import { withDefault } from "../../generators";
+import { CompParams } from "lowcoder-core";
+import { ToDataType } from "comps/generators/multi";
 import {
   NameConfigHidden,
   withExposingConfigs,
 } from "comps/generators/withExposing";
+import { NameGenerator } from "comps/utils/nameGenerator";
 import { Section, sectionNames } from "lowcoder-design";
-import { hiddenPropertyView } from "comps/utils/propertyUtils";
-import { trans } from "i18n";
-import { NumberControl } from "comps/controls/codeControl";
+import { oldContainerParamsToNew } from "../containerBase";
+import { toSimpleContainerData } from "../containerBase/simpleContainerComp";
+import { ShapeTriContainer } from "./shapeTriContainer";
 import { ShapeControl } from "comps/controls/shapeControl";
-import ReactResizeDetector from "react-resize-detector";
-import { AutoHeightControl } from "../../controls/autoHeightControl";
+import { withDefault } from "../../generators";
 import {
-  clickEvent,
-  eventHandlerControl,
-} from "../../controls/eventHandlerControl";
-import { useContext } from "react";
+  ContainerChildren,
+  ContainerCompBuilder,
+} from "../triContainerComp/triContainerCompBuilder";
+import {
+  disabledPropertyView,
+  hiddenPropertyView,
+} from "comps/utils/propertyUtils";
+import { trans } from "i18n";
+import { BoolCodeControl } from "comps/controls/codeControl";
+import { DisabledContext } from "comps/generators/uiCompBuilder";
+import React, { useContext, useEffect, useState } from "react";
 import { EditorContext } from "comps/editorState";
-import { Coolshape } from "coolshapes-react";
 
-const Container = styled.div<{ $style: IconStyleType | undefined }>`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  ${(props) =>
-    props.$style &&
-    css`
-      height: calc(100% - ${props.$style.margin});
-      width: calc(100% - ${props.$style.margin});
-      padding: ${props.$style.padding};
-      margin: ${props.$style.margin};
-      background: ${props.$style.background};
-      svg {
-        max-width: ${widthCalculator(props.$style.margin)};
-        max-height: ${heightCalculator(props.$style.margin)};
-        color: ${props.$style.fill};
-        object-fit: contain;
-        pointer-events: auto;
-      }
-    `} 
-`;
-
-const EventOptions = [clickEvent] as const;
-
-const childrenMap = {
-  style: styleControl(IconStyle),
-  icon: withDefault(ShapeControl, ""),
-  autoHeight: withDefault(AutoHeightControl, "auto"),
-  iconSize: withDefault(NumberControl, 20),
-  onEvent: eventHandlerControl(EventOptions),
-};
-
-const IconView = (props: RecordConstructorToView<typeof childrenMap>) => {
-  const conRef = useRef<HTMLDivElement>(null);
-  const [width, setWidth] = useState(0);
-  const [height, setHeight] = useState(0);
-
-  useEffect(() => {
-    if (height && width) {
-      onResize();
-    }
-  }, [height, width]);
-
-  const onResize = () => {
-    const container = conRef.current;
-    setWidth(container?.clientWidth ?? 0);
-    setHeight(container?.clientHeight ?? 0);
+export const ContainerBaseComp = (function () {
+  const childrenMap = {
+    disabled: BoolCodeControl,
+    icon: withDefault(ShapeControl, ""),
   };
-  let [shape, setShape] = useState({ value: "star", index: 0 });
-  useEffect(() => {
-    if (props.icon) {
-      let shapeDetails = Object.values(props?.icon)[4]?.value;
-      setShape({
-        index: parseInt(shapeDetails?.split("_")[0]),
-        value: shapeDetails?.split("_")[1],
-      });
-    }
-  }, [props.icon]);
+  return new ContainerCompBuilder(childrenMap, (props, dispatch) => {
 
-  return (
-    <ReactResizeDetector onResize={onResize}>
-      <Container
-        ref={conRef}
-        $style={props.style}
-        style={{
-          fontSize: props.autoHeight
-            ? `${height < width ? height : width}px`
-            : props.iconSize,
-        }}
-        onClick={() => {
-          console.log("click");
-        }}  
-      >
-        <Coolshape 
-          type={shape.value as any}
-          index={shape.index} 
-          noise={false} 
-          style={{
-            border: `${props.style.borderWidth} solid ${props.style.border}`,
-            borderRadius: props.style.radius,
-            color: props.style.background,
-          }} 
-        />
-      </Container>
-    </ReactResizeDetector>
-  );
-};
-
-let ShapeBasicComp = (function () {
-  return new UICompBuilder(childrenMap, (props) => <IconView {...props} />)
-    .setPropertyViewFn((children) => (
-      <>
-        <Section name={sectionNames.basic}>
-          {children.icon.propertyView({
-            label: trans("iconComp.icon"),
-            IconType: "All",
-          })}
-        </Section>
-
-        {["logic", "both"].includes(
-          useContext(EditorContext).editorModeStatus
-        ) && (
-          <Section name={sectionNames.interaction}>
-            {children.onEvent.getPropertyView()}
-            {hiddenPropertyView(children)}
+    
+    return (
+      <DisabledContext.Provider value={props.disabled}>
+        <ShapeTriContainer {...props} />
+      </DisabledContext.Provider>
+    );
+  })
+    .setPropertyViewFn((children) => {
+      return (
+        <>
+          <Section name={sectionNames.basic}>
+            {children.icon.propertyView({
+              label: trans("iconComp.icon"),
+              IconType: "All",
+            })}
           </Section>
-        )}
+          {(useContext(EditorContext).editorModeStatus === "logic" ||
+            useContext(EditorContext).editorModeStatus === "both") && (
+            <Section name={sectionNames.interaction}>
+              {disabledPropertyView(children)}
+              {hiddenPropertyView(children)}
+            </Section>
+          )}
 
-        {["layout", "both"].includes(
-          useContext(EditorContext).editorModeStatus
-        ) && (
-          <>
-            <Section name={sectionNames.layout}>
-              {children.autoHeight.propertyView({
-                label: trans("iconComp.autoSize"),
-              })}
-              {!children.autoHeight.getView() &&
-                children.iconSize.propertyView({
-                  label: trans("iconComp.iconSize"),
-                })}
-            </Section>
-            <Section name={sectionNames.style}>
-              {children.style.getPropertyView()}
-            </Section>
-          </>
-        )}
-      </>
-    ))
+          {(useContext(EditorContext).editorModeStatus === "layout" ||
+            useContext(EditorContext).editorModeStatus === "both") && (
+            <>
+              <Section name={sectionNames.layout}>
+                {children.container.getPropertyView()}
+              </Section>
+              <Section name={sectionNames.style}>
+                {children.container.stylePropertyView()}
+              </Section>
+              {children.container.children.showHeader.getView() && (
+                <Section name={"Header Style"}>
+                  {children.container.headerStylePropertyView()}
+                </Section>
+              )}
+              {children.container.children.showBody.getView() && (
+                <Section name={"Body Style"}>
+                  {children.container.bodyStylePropertyView()}
+                </Section>
+              )}
+              {children.container.children.showFooter.getView() && (
+                <Section name={"Footer Style"}>
+                  {children.container.footerStylePropertyView()}
+                </Section>
+              )}
+            </>
+          )}
+        </>
+      );
+    })
     .build();
 })();
 
-ShapeBasicComp = class extends ShapeBasicComp {
-  override autoHeight(): boolean {
-    return false;
-  }
-};
+// Compatible with old data
+function convertOldContainerParams(params: CompParams<any>) {
+  // convert older params to old params
+  let tempParams = oldContainerParamsToNew(params);
 
-export const ShapeComp = withExposingConfigs(ShapeBasicComp, [
-  NameConfigHidden,
-]);
+  if (tempParams.value) {
+    const container = tempParams.value.container;
+    // old params
+    if (
+      container &&
+      (container.hasOwnProperty("layout") || container.hasOwnProperty("items"))
+    ) {
+      const autoHeight = tempParams.value.autoHeight;
+      const scrollbars = tempParams.value.scrollbars;
+      return {
+        ...tempParams,
+        value: {
+          container: {
+            showHeader: true,
+            body: { 0: { view: container } },
+            showBody: true,
+            showFooter: false,
+            autoHeight: autoHeight,
+            scrollbars: scrollbars,
+          },
+        },
+      };
+    }
+  }
+  return tempParams;
+}
+
+class ContainerTmpComp extends ContainerBaseComp {
+  constructor(params: CompParams<any>) {
+    super(convertOldContainerParams(params));
+  }
+}
+
+export const ShapeComp = withExposingConfigs(ContainerTmpComp, [NameConfigHidden]);
+
+type ContainerDataType = ToDataType<ContainerChildren<{}>>;
+
+export function defaultContainerData(
+  compName: string,
+  nameGenerator: NameGenerator
+): ContainerDataType {
+  return {
+    container: {
+      header: toSimpleContainerData([
+        {
+          item: {
+            compType: "text",
+            name: nameGenerator.genItemName("containerTitle"),
+            comp: {
+              text: "### " + trans("container.title"),
+            },
+          },
+          layoutItem: {
+            i: "",
+            h: 5,
+            w: 24,
+            x: 0,
+            y: 0,
+          },
+        },
+      ]),
+    },
+  };
+}
