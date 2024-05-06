@@ -16,7 +16,10 @@ export function HomeView() {
   return (
     <>
       <Helmet>{<title>{trans("productName")} {trans("home.home")}</title>}</Helmet>
-      <HomeLayout elements={elements} mode={"view"} />
+      <HomeLayout 
+        elements={elements} 
+        mode={"view"} 
+      />
     </>
   );
 }

@@ -22,6 +22,7 @@ import { APPLICATION_VIEW_URL } from "constants/routesURL";
 import { TypographyText } from "../../components/TypographyText";
 import { useParams } from "react-router-dom";
 import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
+import { colorPickerEvent } from "@lowcoder-ee/comps/comps/mediaComp/colorPickerComp";
 
 const EditButton = styled(TacoButton)`
   width: 52px;
@@ -158,13 +159,30 @@ export function HomeResCard(props: { res: HomeRes; onMove: (res: HomeRes) => voi
     return null;
   }
 
+  var iconColor = "#444";
+  if (res.type === HomeResTypeEnum.Application) {
+    iconColor = "#2650cf";
+  }
+  else if (res.type === HomeResTypeEnum.Module) {
+    iconColor = "#cf9e26";
+  }
+  else if (res.type === HomeResTypeEnum.NavLayout || res.type === HomeResTypeEnum.MobileTabLayout) {
+    iconColor = "#af41ff";
+  }
+
   const Icon = resInfo.icon;
 
   return (
     <Wrapper>
       <Card>
         {Icon && (
-          <Icon width={"24px"} height={"24px"} style={{ marginRight: "10px", flexShrink: 0 }} />
+          <Icon width={"24px"} height={"24px"} style={
+            { 
+              color: iconColor,
+              marginRight: "10px", 
+              flexShrink: 0 
+            }
+          } />
         )}
         <CardInfo
           onClick={(e) => {

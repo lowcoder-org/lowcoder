@@ -1,21 +1,8 @@
 import styled from "styled-components";
 import { trans } from "../../i18n";
-import { useLocation } from "react-router-dom";
-import { NEWS_URL } from "constants/routesURL";
 import { default as Divider } from "antd/es/divider";
 
-import { Avatar, Badge, Button, Card, Col, Row, Space, Typography, Select, Table, Flex } from "antd";
-
-
-import {
-  HomeModuleIcon,
-  MarketplaceIcon,
-  AppsIcon,
-} from "lowcoder-design";
-import { AppView } from "@lowcoder-ee/appView/AppView";
-import { useRef } from "react";
-
-const { Text, Title, Link } = Typography;
+import { Card } from "antd";
 
 const Wrapper = styled.div`
   display: flex;
@@ -52,10 +39,10 @@ const NewsView = styled.div`
 
 const StyleNewsCover = styled.div`
     background: rgb(2,0,36);
-    background: -moz-linear-gradient(31deg, rgba(2,0,36,1) 0%, rgba(121,9,102,1) 35%, rgba(0,212,255,1) 100%);
-    background: -webkit-linear-gradient(31deg, rgba(2,0,36,1) 0%, rgba(121,9,102,1) 35%, rgba(0,212,255,1) 100%);
-    background: linear-gradient(31deg, rgba(2,0,36,1) 0%, rgba(121,9,102,1) 35%, rgba(0,212,255,1) 100%);
-    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#020024",endColorstr="#00d4ff",GradientType=1);
+    background: -moz-linear-gradient(39deg, rgba(2,0,36,1) 0%, rgba(104,9,121,1) 35%, rgba(255,83,0,1) 100%);
+    background: -webkit-linear-gradient(39deg, rgba(2,0,36,1) 0%, rgba(104,9,121,1) 35%, rgba(255,83,0,1) 100%);
+    background: linear-gradient(39deg, rgba(2,0,36,1) 0%, rgba(104,9,121,1) 35%, rgba(255,83,0,1) 100%);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#020024",endColorstr="#ff5300",GradientType=1);
     padding: 25px;
     height: 120px;
     border-radius:10px 10px 0 0;
@@ -98,14 +85,12 @@ export function NewsLayout() {
 
   return (
     <Wrapper>
-      <HeaderWrapper>
-        
-      </HeaderWrapper>
+      <HeaderWrapper></HeaderWrapper>
 
       <ContentWrapper>
         <NewsView>
           <StyleNewsCover>
-            <h1>Lowcoder {trans("home.news")}</h1>
+            <h1 style={{color: "#ffffff", marginTop : "12px"}}>Lowcoder {trans("home.news")}</h1>
           </StyleNewsCover>
           <Card style={{ marginBottom: "20px" }}>
             <iframe
