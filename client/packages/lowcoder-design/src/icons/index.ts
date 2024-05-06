@@ -227,6 +227,7 @@ export { ReactComponent as AppsIcon } from "./remix/apps-2-line.svg";
 export { ReactComponent as WorkspacesIcon } from "./remix/hotel-line.svg";
 
 export { ReactComponent as HomeIcon } from "./remix/home-3-line.svg";
+export { ReactComponent as NewsIcon } from "./remix/megaphone-line.svg";
 export { ReactComponent as HomeModuleIcon } from "./remix/focus-mode.svg";
 export { ReactComponent as HomeQueryLibraryIcon } from "./remix/braces-line.svg";
 export { ReactComponent as HomeDataSourceIcon } from "./remix/database-2-line.svg";

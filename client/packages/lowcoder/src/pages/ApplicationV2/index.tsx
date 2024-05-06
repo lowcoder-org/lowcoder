@@ -10,7 +10,8 @@ import {
   QUERY_LIBRARY_URL,
   SETTING,
   TRASH_URL,
-  ADMIN_APP_URL
+  ADMIN_APP_URL,
+  NEWS_URL
 } from "constants/routesURL";
 import { getUser, isFetchingUser } from "redux/selectors/usersSelectors";
 import { useDispatch, useSelector } from "react-redux";
@@ -20,6 +21,7 @@ import {
   FolderIcon,
   HomeDataSourceIcon,
   HomeIcon,
+  NewsIcon,
   HomeModuleIcon,
   HomeQueryLibraryIcon,
   HomeSettingIcon,
@@ -42,6 +44,7 @@ import { ProductLoading } from "components/ProductLoading";
 import { Layout } from "../../components/layout/Layout";
 import { HomeView } from "./HomeView";
 import { UserProfileView } from "./UserProfileView";
+import { NewsView } from "./NewsView";
 import styled, { css } from "styled-components";
 import history from "../../util/history";
 import { FolderView } from "./FolderView";
@@ -346,6 +349,12 @@ export default function ApplicationHome() {
                 routePath: USER_PROFILE_URL,
                 routeComp: UserProfileView,
                 icon: ({ selected, ...otherProps }) => selected ? <UserIcon {...otherProps} width={"24px"}/> : <UserIcon {...otherProps} width={"24px"}/>,
+              },
+              {
+                text: <TabLabel>{trans("home.news")}</TabLabel>,
+                routePath: NEWS_URL,
+                routeComp: NewsView,
+                icon: ({ selected, ...otherProps }) => selected ? <NewsIcon {...otherProps} width={"24px"}/> : <NewsIcon {...otherProps} width={"24px"}/>,
               },
               {
                 text: <TabLabel>{trans("home.allApplications")}</TabLabel>,

@@ -2797,6 +2797,7 @@ export const en = {
   },
   "home": {
     "profile": "Your Profile",
+    "news": "News",
     "allApplications": "Your Apps",
     "allModules": "Your Modules",
     "allFolders": "All Folders",
