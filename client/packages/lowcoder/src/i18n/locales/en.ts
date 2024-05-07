@@ -24,7 +24,9 @@ export const en = {
   "error": "Error",
   "reference": "Reference",
   "text": "Text",
+  "basic": "Basic",
   "label": "Label",
+  "layout": "Layout",
   "color": "Color",
   "form": "Form",
   "menu": "Menu",
@@ -372,6 +374,8 @@ export const en = {
     "shareContentDesc": "Triggers on Share Content",
     "shareContentEnd": "Share Content End",
     "shareContentEndDesc": "Triggers on Share Content End",
+    "stopShare": "Stop Share",
+    "stopShareDesc": "Triggers on Stop Share",
     "meetingStart": "Meeting Start",
     "meetingStartDesc": "Triggers on Meeting Start",
     "meetingEnd": "Meeting End",
@@ -1161,6 +1165,50 @@ export const en = {
     "pivotTableCompName": "Pivot Table",
     "pivotTableCompDesc": "A data summarization and analysis tool for organizing and aggregating data in a tabular format.",
     "pivotTableCompKeywords": "pivot table, data, analysis, aggregation",
+
+    "funnelChartCompName": "Funnel Chart",
+    "funnelChartCompDesc": "A visualization tool for displaying the progressive reduction of data as it passes through stages.",
+    "funnelChartCompKeywords": "funnel chart, sales, conversions, process",
+
+    "gaugeChartCompName": "Gauge Chart",
+    "gaugeChartCompDesc": "A chart that displays data as a reading on a dial, useful for indicating the status or level of something.",
+    "gaugeChartCompKeywords": "gauge chart, metrics, performance, status",
+
+    "sankeyChartCompName": "Sankey Chart",
+    "sankeyChartCompDesc": "A flow diagram in which the width of the arrows is proportional to the flow rate, used to show energy, material, or cost transfers.",
+    "sankeyChartCompKeywords": "sankey chart, flow, energy, costs",
+
+    "candleStickChartCompName": "Candlestick Chart",
+    "candleStickChartCompDesc": "A style of financial chart used to describe price movements of a security, derivative, or currency.",
+    "candleStickChartCompKeywords": "candlestick chart, stocks, trading, finance",
+
+    "radarChartCompName": "Radar Chart",
+    "radarChartCompDesc": "A graphical method of displaying multivariate data in the form of a two-dimensional chart of three or more quantitative variables.",
+    "radarChartCompKeywords": "radar chart, multivariate, performance analysis",
+
+    "heatmapChartCompName": "Heatmap Chart",
+    "heatmapChartCompDesc": "A graphical representation of data where individual values are represented as colors.",
+    "heatmapChartCompKeywords": "heatmap, data visualization, intensity",
+
+    "graphChartCompName": "Graph Chart",
+    "graphChartCompDesc": "A diagram representing a network of nodes connected by edges, useful for showing interconnections and relationships.",
+    "graphChartCompKeywords": "graph chart, networks, relationships, nodes",
+
+    "treeChartCompName": "Tree Chart",
+    "treeChartCompDesc": "A diagram that visually represents hierarchy in a tree-like structure, showing relationships among various nodes.",
+    "treeChartCompKeywords": "tree chart, hierarchy, organizational",
+
+    "treemapChartCompName": "Treemap Chart",
+    "treemapChartCompDesc": "A chart that uses nested rectangles to represent hierarchical data proportionately.",
+    "treemapChartCompKeywords": "treemap, hierarchy, data visualization",
+
+    "sunburstChartCompName": "Sunburst Chart",
+    "sunburstChartCompDesc": "A radial space-filling visualization technique that illustrates hierarchical relationships through layers of a circle.",
+    "sunburstChartCompKeywords": "sunburst chart, radial, hierarchy",
+
+    "themeriverChartCompName": "Theme River Chart",
+    "themeriverChartCompDesc": "A visualization resembling a stream graph that shows changes in a data set over time across categories.",
+    "themeriverChartCompKeywords": "theme river, time series, trends",
 
     // by mousheng
 

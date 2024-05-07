@@ -160,6 +160,17 @@ export const CompStateIcon: {
   bpmnEditor: <LeftCommon />,  // Placeholder or specify if there's a dedicated icon
   turnstileCaptcha: <LeftCommon />,  // Placeholder or specify if there's a dedicated icon
   pivotTable: <LeftCommon />,  // Placeholder or specify if there's a dedicated icon
+  funnelChart: <LeftCommon />,
+  gaugeChart: <LeftCommon />,
+  sankeyChart : <LeftCommon />,
+  candleStickChart : <LeftCommon />,
+  radarChart : <LeftCommon />,
+  heatmapChart : <LeftCommon />,
+  graphChart : <LeftCommon />,
+  treeChart : <LeftCommon />,
+  treemapChart : <LeftCommon />,
+  sunburstChart : <LeftCommon />,
+  themeriverChart : <LeftCommon />,
 
   avatar: <LeftCommon />, 
   avatarGroup: <LeftCommon />, 
