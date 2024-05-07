@@ -870,14 +870,13 @@ export const CardStyle = [
 
 export const timerStyle = [
   getBackground("primarySurface"),
-  BORDER,
-  RADIUS,
-  {
-    name: "fontColor",
-    label: trans("timer.fontColor"),
-    color: "#000000",
-  },
+ ...STYLING_FIELDS_SEQUENCE
 ] as const;
+
+export const startButtonStyle = [
+  getBackground("primarySurface"),
+  ...STYLING_FIELDS_SEQUENCE
+] as const
 
 // end
 
@@ -1585,6 +1584,7 @@ export type FloatButtonStyleType = StyleConfigType<typeof FloatButtonStyle>;
 export type TransferStyleType = StyleConfigType<typeof TransferStyle>;
 export type CardStyleType = StyleConfigType<typeof CardStyle>;
 export type timerStyleType = StyleConfigType<typeof timerStyle>;
+export type StartButtonStyleType = StyleConfigType<typeof startButtonStyle>;
 
 export type LabelStyleType = StyleConfigType<typeof LabelStyle>;
 export type InputLikeStyleType = StyleConfigType<typeof InputLikeStyle>;
