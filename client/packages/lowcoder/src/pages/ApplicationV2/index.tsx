@@ -360,6 +360,14 @@ export default function ApplicationHome() {
                 routeComp: NewsView,
                 icon: ({ selected, ...otherProps }) => selected ? <NewsIcon {...otherProps} width={"24px"}/> : <NewsIcon {...otherProps} width={"24px"}/>,
               },
+              {
+                text: <TabLabel>{trans("home.marketplace")}</TabLabel>,
+                routePath: MARKETPLACE_URL,
+                routePathExact: false,
+                routeComp: MarketplaceView,
+                icon: ({ selected, ...otherProps }) => selected ? <MarketplaceIcon {...otherProps} width={"24px"}/> : <MarketplaceIcon {...otherProps} width={"24px"}/>,
+                visible: ({ user }) => user.orgDev,
+              },
             ]
           },
 
@@ -402,14 +410,7 @@ export default function ApplicationHome() {
           
           {
             items: [
-              {
-                text: <TabLabel>{trans("home.marketplace")}</TabLabel>,
-                routePath: MARKETPLACE_URL,
-                routePathExact: false,
-                routeComp: MarketplaceView,
-                icon: ({ selected, ...otherProps }) => selected ? <MarketplaceIcon {...otherProps} width={"24px"}/> : <MarketplaceIcon {...otherProps} width={"24px"}/>,
-                visible: ({ user }) => user.orgDev,
-              },
+              
               {
                 text: <TabLabel>{trans("home.queryLibrary")}</TabLabel>,
                 routePath: QUERY_LIBRARY_URL,
