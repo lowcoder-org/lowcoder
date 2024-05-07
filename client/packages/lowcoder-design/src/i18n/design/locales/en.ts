@@ -31,6 +31,8 @@ export const en = {
     inputFieldStyle: 'Input Field Style',
     avatarStyle: 'Avatar Style',
     captionStyle: 'Caption Style',
+    startButtonStyle: 'Start Button Style',
+    resetButtonStyle: 'Reset Button Style',
   },
   passwordInput: {
     label: "Password:",
