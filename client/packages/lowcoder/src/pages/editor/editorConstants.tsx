@@ -4,6 +4,7 @@ import {
   AudioCompIconSmall,
   AutoCompleteCompIconSmall,
   ButtonCompIconSmall,
+  CardCompIconSmall,
   CalendarCompIconSmall,
   CarouselCompIconSmall,
   CascaderCompIconSmall,
@@ -19,6 +20,7 @@ import {
   DrawerCompIconSmall,
   DropdownCompIconSmall,
   FileViewerCompIconSmall,
+  FloatingButtonCompIconSmall,
   FloatingTextCompIconSmall,
   FormCompIconSmall,
   GridCompIconSmall,
@@ -73,6 +75,10 @@ import {
   VideoCompIconSmall,
   VideoMeetingRoomCompIconSmall,
   VideoScreenshareCompIconSmall,
+  AvatarCompIconSmall,
+  AvatarGroupCompIconSmall,
+  ColorPickerCompIconSmall,
+  TransferCompIconSmall,
 } from "lowcoder-design";
 
 export const CompStateIcon: {
@@ -172,11 +178,11 @@ export const CompStateIcon: {
   sunburstChart : <LeftCommon />,
   themeriverChart : <LeftCommon />,
 
-  avatar: <LeftCommon />, 
-  avatarGroup: <LeftCommon />, 
-  colorPicker: <LeftCommon />,
-  floatButton: <LeftCommon />,
-  transfer: <LeftCommon />,
-  card: <LeftCommon />,
-  timer: <LeftCommon />,
+  avatar: <AvatarCompIconSmall />,
+  avatarGroup: <AvatarGroupCompIconSmall />,
+  colorPicker: <ColorPickerCompIconSmall />,
+  floatingButton: <FloatingButtonCompIconSmall />,
+  transfer: <TransferCompIconSmall />,
+  card: <CardCompIconSmall />,
+  timer: <TimeRangeCompIconSmall/>,
 };
