@@ -11463,7 +11463,8 @@ var IntlMessageFormat$1 = /** @class */ (function () {
             this.ast = message;
         }
         if (!Array.isArray(this.ast)) {
-            throw new TypeError('A message must be provided as a String or AST.');
+            // throw new TypeError('A message must be provided as a String or AST.');
+            console.log('Translator: A message must be provided as a String or AST.', this.ast);
         }
         // Creates a new object with the specified `formats` merged with the default
         // formats.
