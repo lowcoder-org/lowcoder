@@ -817,16 +817,16 @@ export const AvatarStyle = [
     color: '#bfbfbf',
   },
   FILL,
-  {
-    name: "label",
-    label: trans("avatarComp.label"),
-    color: '#000000',
-  },
-  {
-    name: "caption",
-    label: trans("avatarComp.caption"),
-    color: '#a5a5a5',
-  },
+] as const;
+
+export const avatarContainerStyle = [
+  getStaticBackground(SURFACE_COLOR),
+  ...STYLING_FIELDS_CONTAINER_SEQUENCE
+] as const;
+
+export const avatarLabelStyle = [
+  getStaticBackground(SURFACE_COLOR),
+  ...STYLING_FIELDS_SEQUENCE
 ] as const;
 
 export const avatarGroupStyle = [
@@ -1578,6 +1578,8 @@ export const RichTextEditorStyle = [
 
 export type QRCodeStyleType = StyleConfigType<typeof QRCodeStyle>;
 export type AvatarStyleType = StyleConfigType<typeof AvatarStyle>;
+export type AvatarLabelStyleType = StyleConfigType<typeof avatarLabelStyle>;
+export type AvatarContainerStyleType = StyleConfigType<typeof avatarContainerStyle>;
 export type AvatarGroupStyleType = StyleConfigType<typeof avatarGroupStyle>;
 export type FloatButtonStyleType = StyleConfigType<typeof FloatButtonStyle>;
 export type TransferStyleType = StyleConfigType<typeof TransferStyle>;
