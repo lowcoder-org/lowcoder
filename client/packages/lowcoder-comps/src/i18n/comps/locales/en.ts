@@ -103,6 +103,7 @@ export const en = {
     label:'Label',
   },
   echarts: {
+    defaultTitle: "Data Display",
     legendPosition: "Legend Position",
     labelPosition: "Label Position",
     titlePosition: "Title Position",
