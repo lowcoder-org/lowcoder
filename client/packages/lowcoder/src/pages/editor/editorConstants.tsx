@@ -154,6 +154,13 @@ export const CompStateIcon: {
   video: <VideoCompIconSmall />,
   videocomponent: <VideoCameraStreamCompIconSmall />,
   
+  hillchart: <LeftCommon />,  // Placeholder or specify if there's a dedicated icon
+  openLayersGeoMap: <LeftCommon />,  // Placeholder or specify if there's a dedicated icon
+  chartsGeoMap: <LeftCommon />,  // Placeholder or specify if there's a dedicated icon
+  bpmnEditor: <LeftCommon />,  // Placeholder or specify if there's a dedicated icon
+  turnstileCaptcha: <LeftCommon />,  // Placeholder or specify if there's a dedicated icon
+  pivotTable: <LeftCommon />,  // Placeholder or specify if there's a dedicated icon
+
   avatar: <LeftCommon />, 
   avatarGroup: <LeftCommon />, 
   colorPicker: <LeftCommon />,

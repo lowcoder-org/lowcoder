@@ -1,6 +1,6 @@
 {
   "name": "lowcoder-comps",
-  "version": "0.0.39",
+  "version": "2.4.0",
   "type": "module",
   "license": "MIT",
   "dependencies": {
@@ -38,31 +38,31 @@
         "name": "Agora Meeting Controller",
         "icon": "./icons/icon-comp-calendar.svg",
         "layoutInfo": {
-          "w": 15,
-          "h": 60
+          "w": 1,
+          "h": 1
         }
       },
       "meetingSharing": {
         "name": "Agora Meeting Sharing",
         "icon": "./icons/icon-comp-calendar.svg",
         "layoutInfo": {
-          "w": 15,
-          "h": 60
+          "w": 6,
+          "h": 40
         }
       },
       "meetingStream": {
         "name": "Video Stream",
         "icon": "./icons/icon-comp-calendar.svg",
         "layoutInfo": {
-          "w": 15,
-          "h": 60
+          "w": 6,
+          "h": 40
         }
       },
       "calendar": {
         "name": "Calendar",
         "icon": "./icons/icon-comp-calendar.svg",
         "layoutInfo": {
-          "w": 15,
+          "w": 19,
           "h": 60
         }
       },
@@ -70,7 +70,7 @@
         "name": "Chart",
         "icon": "./icons/icon-chart.svg",
         "layoutInfo": {
-          "w": 15,
+          "w": 12,
           "h": 40
         }
       },
@@ -78,7 +78,7 @@
         "name": "Image Editor",
         "icon": "./icons/icon-chart.svg",
         "layoutInfo": {
-          "w": 15,
+          "w": 12,
           "h": 40
         }
       },
@@ -86,7 +86,7 @@
         "name": "Mermaid",
         "icon": "./icons/mermaidchart.svg",
         "layoutInfo": {
-          "w": 15,
+          "w": 12,
           "h": 40
         }
       },
@@ -94,7 +94,7 @@
         "name": "Funnel Chart",
         "icon": "./icons/icon-chart.svg",
         "layoutInfo": {
-          "w": 15,
+          "w": 12,
           "h": 40
         }
       },
@@ -102,7 +102,7 @@
         "name": "Gauge Chart",
         "icon": "./icons/icon-chart.svg",
         "layoutInfo": {
-          "w": 15,
+          "w": 12,
           "h": 40
         }
       },
@@ -110,7 +110,7 @@
         "name": "Sankey Chart",
         "icon": "./icons/icon-chart.svg",
         "layoutInfo": {
-          "w": 15,
+          "w": 12,
           "h": 40
         }
       },
@@ -118,7 +118,7 @@
         "name": "CandleStick Chart",
         "icon": "./icons/icon-chart.svg",
         "layoutInfo": {
-          "w": 15,
+          "w": 12,
           "h": 40
         }
       },
@@ -126,7 +126,7 @@
         "name": "Radar Chart",
         "icon": "./icons/icon-chart.svg",
         "layoutInfo": {
-          "w": 15,
+          "w": 12,
           "h": 40
         }
       },
@@ -134,7 +134,7 @@
         "name": "Heatmap Chart",
         "icon": "./icons/icon-chart.svg",
         "layoutInfo": {
-          "w": 15,
+          "w": 12,
           "h": 40
         }
       },
@@ -142,7 +142,7 @@
         "name": "Graph Chart",
         "icon": "./icons/icon-chart.svg",
         "layoutInfo": {
-          "w": 15,
+          "w": 12,
           "h": 40
         }
       },
@@ -150,7 +150,7 @@
         "name": "Tree Chart",
         "icon": "./icons/icon-chart.svg",
         "layoutInfo": {
-          "w": 15,
+          "w": 12,
           "h": 40
         }
       },
@@ -158,7 +158,7 @@
         "name": "Treemap Chart",
         "icon": "./icons/icon-chart.svg",
         "layoutInfo": {
-          "w": 15,
+          "w": 12,
           "h": 40
         }
       },
@@ -166,7 +166,7 @@
         "name": "Sunburst Chart",
         "icon": "./icons/icon-chart.svg",
         "layoutInfo": {
-          "w": 15,
+          "w": 12,
           "h": 40
         }
       },
@@ -174,16 +174,16 @@
         "name": "Themeriver Chart",
         "icon": "./icons/icon-chart.svg",
         "layoutInfo": {
-          "w": 15,
+          "w": 12,
           "h": 40
         }
       },
-      "map": {
-        "name": "Map",
+      "chartsGeoMap": {
+        "name": "chartsGeoMap",
         "icon": "./icons/icon-chart.svg",
         "layoutInfo": {
-          "w": 15,
-          "h": 40
+          "w": 19,
+          "h": 60
         }
       }
     }

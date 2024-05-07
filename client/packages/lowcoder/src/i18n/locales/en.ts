@@ -1138,6 +1138,30 @@ export const en = {
     "tourCompDesc": "A product tour for guiding users.",
     "tourCompKeywords": "tour, product tour, walkthrough, interactive walkthrough",
 
+    "hillchartCompName": "Hillchart",
+    "hillchartCompDesc": "A visualization component for displaying project management state data in a hill chart format.",
+    "hillchartCompKeywords": "project management, hill chart, visualization, data",
+
+    "openLayersGeoMapCompName": "Openlayers Geomap",
+    "openLayersGeoMapCompDesc": "A component for displaying interactive maps using OpenLayers, with support for various map layers and features.",
+    "openLayersGeoMapCompKeywords": "openlayers, geo map, interactive, map layers",
+
+    "chartsGeoMapCompName": "Geo Map Charts",
+    "chartsGeoMapCompDesc": "A component for visualizing geographical data on interactive maps with dynamic charts",
+    "chartsGeoMapCompKeywords": "geo map, charts, visualization, geographical data",
+
+    "bpmnEditorCompName": "BPMN Editor",
+    "bpmnEditorCompDesc": "A component for viewing, creating and editing BPMN diagrams, supporting various BPMN elements and features.",
+    "bpmnEditorCompKeywords": "BPMN, editor, diagrams, elements, workflows",
+
+    "turnstileCaptchaCompName": "Turnstile Captcha",
+    "turnstileCaptchaCompDesc": "A captcha component to verify users against bots.",
+    "turnstileCaptchaCompKeywords": "captcha, verification, identity, security",
+
+    "pivotTableCompName": "Pivot Table",
+    "pivotTableCompDesc": "A data summarization and analysis tool for organizing and aggregating data in a tabular format.",
+    "pivotTableCompKeywords": "pivot table, data, analysis, aggregation",
+
     // by mousheng
 
     "colorPickerCompName": "Color Picker",
@@ -1818,6 +1842,8 @@ export const en = {
     "fixedToolbar": "Fixed Toolbar",
     "fixedToolbarTooltip": "Toolbar Will Be Fixed for Vertically Scrollable Table Based on Position",
     "hideBordered": "Show Resize Handles",
+    "showHeaderGridBorder": "Show Header Grid Border",
+    "showRowGridBorder": "Show Row Grid Border",
     "showVerticalRowGridBorder": "Show vertical Row Grid Border",
     "showHorizontalRowGridBorder": "Show horizontal Row Grid Border",
     "deleteColumn": "Delete Column",
@@ -2442,6 +2468,7 @@ export const en = {
     "APIConsumptionDescription": "Here you can see the API Consumption for All Apps in the Current Workspace.",
     "overallAPIConsumption": "Overall API Consumption in this Workspace till now",
     "lastMonthAPIConsumption": "Last Month API Consumption, in this Workspace"
+
   },
 
 
@@ -2461,6 +2488,11 @@ export const en = {
     "upload": "Click to Upload"
   },
   "networkMessage": {
+    "200": "Success",
+    "201": "Created",
+    "204": "No Content",
+    "400": "Bad Request",
+    "404": "Not Found",
     "500": "Busy Service, Please Try Again Later",
     "0": "Failed to Connect to Server, Please Check Your Network",
     "401": "Authentication Failed, Please Log On Again",

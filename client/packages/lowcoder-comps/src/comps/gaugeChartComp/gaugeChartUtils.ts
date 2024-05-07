@@ -154,15 +154,15 @@ export function getEchartsConfig(props: EchartsConfigProps, chartSize?: ChartSiz
       "max": props.max,
       "gap": props.gap,
       'detail': {
-        "backgroundColor": props?.style?.background,
+        "backgroundColor": props?.style?.background, "formatter": "{value}%"
       },
       "label": {
         "show": props.label,
         "position": props.echartsLabelConfig.top
           },
-      "detail": {
+      /*"detail": {
         "formatter": "{value}%"
-      },
+      }, */
       "data": props.echartsOption.data
     }
   ]

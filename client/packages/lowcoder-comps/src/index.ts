@@ -1,7 +1,7 @@
 import { ChartCompWithDefault } from "./comps/chartComp/chartComp";
 import { ImageEditorComp } from "./comps/imageEditorComp/index";
 import { CalendarComp } from "./comps/calendarComp/calendarComp";
-import { MapCompWithDefault } from "comps/mapComp/mapComp";
+import { ChartsGeoMapComp } from "comps/chartsGeoMapComp/chartsGeoMapComp";
 import { FunnelChartCompWithDefault } from "comps/funnelChartComp/funnelChartComp";
 import { GaugeChartCompWithDefault } from "comps/gaugeChartComp/gaugeChartComp";
 import { SankeyChartCompWithDefault } from "comps/sankeyChartComp/sankeyChartComp";
@@ -21,7 +21,7 @@ import { VideoSharingStreamComp } from "comps/agoraMeetingComp/videoSharingStrea
 
 export default {
   chart: ChartCompWithDefault,
-  map: MapCompWithDefault,
+  chartsGeoMap: ChartsGeoMapComp,
   funnelChart: FunnelChartCompWithDefault,
   gaugeChart: GaugeChartCompWithDefault,
   sankeyChart: SankeyChartCompWithDefault,

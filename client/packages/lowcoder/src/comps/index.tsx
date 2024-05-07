@@ -110,6 +110,51 @@ export var uiCompMap: Registry = {
       h: 40,
     },
   },
+  openLayersGeoMap: {
+    name: trans("uiComp.openLayersGeoMapCompName"),
+    enName: "Hillchart",
+    description: trans("uiComp.openLayersGeoMapCompDesc"),
+    categories: ["dashboards"],
+    icon: IconCompIcon,
+    keywords: trans("uiComp.openLayersGeoMapCompKeywords"),
+    comp: remoteComp({compName: "geo", packageName: "lowcoder-comp-geo", source: "npm", isRemote: true}),
+    layoutInfo: {
+      w: 12,
+      h: 50,
+    },
+  },
+  chartsGeoMap: {
+    name: trans("uiComp.chartsGeoMapCompName"),
+    enName: "GeoMap",
+    description: trans("uiComp.chartsGeoMapCompDesc"),
+    categories: ["dashboards"],
+    icon: IconCompIcon,
+    keywords: trans("uiComp.chartsGeoMapCompKeywords"),
+    comp: remoteComp({ ...builtInRemoteComps, compName: "chartsGeoMapComp" }),
+    layoutInfo: {
+      w: 19,
+      h: 60,
+    },
+  },
+  table: {
+    name: trans("uiComp.tableCompName"),
+    enName: "Table",
+    description: trans("uiComp.tableCompDesc"),
+    categories: ["dashboards"],
+    icon: TableCompIcon,
+    keywords: trans("uiComp.tableCompKeywords"),
+    lazyLoad: true,
+    compName: "TableComp",
+    compPath: "comps/tableComp/index",
+    layoutInfo: {
+      w: 12,
+      h: 40,
+    },
+    withoutLoading: true,
+    defaultDataFnName: "defaultTableData",
+    defaultDataFnPath: "comps/tableComp/mockTableComp",
+  },
+  
   mermaid: {
     name: trans("uiComp.mermaidCompName"),
     enName: "Mermaid Charts",
@@ -138,24 +183,8 @@ export var uiCompMap: Registry = {
       h: 40,
     },
   },
-  table: {
-    name: trans("uiComp.tableCompName"),
-    enName: "Table",
-    description: trans("uiComp.tableCompDesc"),
-    categories: ["dashboards", "projectmanagement"],
-    icon: TableCompIcon,
-    keywords: trans("uiComp.tableCompKeywords"),
-    lazyLoad: true,
-    compName: "TableComp",
-    compPath: "comps/tableComp/index",
-    layoutInfo: {
-      w: 12,
-      h: 40,
-    },
-    withoutLoading: true,
-    defaultDataFnName: "defaultTableData",
-    defaultDataFnPath: "comps/tableComp/mockTableComp",
-  },
+
+
   slider: {
     name: trans("uiComp.sliderCompName"),
     enName: "Slider",
@@ -966,6 +995,20 @@ export var uiCompMap: Registry = {
 
 
   // Project Management
+
+  hillchart: {
+    name: trans("uiComp.hillchartCompName"),
+    enName: "Hillchart",
+    description: trans("uiComp.hillchartCompDesc"),
+    categories: ["projectmanagement"],
+    icon: IconCompIcon,
+    keywords: trans("uiComp.hillchartCompKeywords"),
+    comp: remoteComp({compName: "hillcharts", packageName: "lowcoder-comp-hillcharts", source: "npm", isRemote: true}),
+    layoutInfo: {
+      w: 12,
+      h: 50,
+    },
+  },
 
   progress: {
     name: trans("uiComp.progressCompName"),

@@ -1,6 +1,6 @@
 import table from "./componentDocExtra/table.md?url";
 import { en } from "./en";
-
+ 
 export const de: typeof en = {
     ...en,
   "productName": "Lowcoder",

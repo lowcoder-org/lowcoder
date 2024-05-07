@@ -287,7 +287,7 @@ MapTmpComp = class extends MapTmpComp {
   }
 };
 
-let MapComp = withExposingConfigs(MapTmpComp, [
+let ChartsGeoMapCompTMP = withExposingConfigs(MapTmpComp, [
   depsConfig({
     name: "selectedPoints",
     desc: trans("chart.selectedPointsDesc"),
@@ -313,7 +313,7 @@ let MapComp = withExposingConfigs(MapTmpComp, [
   new NameConfig("title", trans("chart.titleDesc")),
 ]);
 
-MapComp = withMethodExposing(MapComp, [
+export const ChartsGeoMapComp = withMethodExposing(ChartsGeoMapCompTMP, [
   {
     method: {
       name: "getMapInstance",
@@ -369,7 +369,7 @@ MapComp = withMethodExposing(MapComp, [
   },
 ])
 
-export const MapCompWithDefault = withDefault(MapComp, {
+/* export const MapCompWithDefault = withDefault(ChartsGeoMapComp, {
   xAxisKey: "date",
   series: [
     {
@@ -383,4 +383,4 @@ export const MapCompWithDefault = withDefault(MapComp, {
       columnName: "budget",
     },
   ],
-});
+}); */
