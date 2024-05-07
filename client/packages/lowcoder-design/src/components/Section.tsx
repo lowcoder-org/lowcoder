@@ -152,4 +152,6 @@ export const sectionNames = {
   inputFieldStyle:trans("prop.inputFieldStyle"),
   avatarStyle:trans("prop.avatarStyle"),
   captionStyle:trans("prop.captionStyle"),
+  startButtonStyle:trans("prop.startButtonStyle"),
+  resetButtonStyle:trans("prop.resetButtonStyle"),
 };
