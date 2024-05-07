@@ -442,6 +442,8 @@ export const en = {
     "countdownDesc": "Triggers on Countdown ends",
     "reset": "Reset ends",
     "resetDesc": "Triggers on Reset timer",
+    "refresh": "Refresh",
+    "refreshDesc": "Triggers on Refresh",
   },
   "themeDetail": {
     "primary": "Brand Color",

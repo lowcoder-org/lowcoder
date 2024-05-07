@@ -179,7 +179,7 @@ export var uiCompMap: Registry = {
     "description": trans("uiComp.radarChartCompDesc"),
     "categories": ["dashboards"],
     "icon": IconCompIcon,
-    "keywords": trans("uiComp.radarChartKeywords"),
+    "keywords": trans("uiComp.radarChartCompKeywords"),
     "comp": remoteComp({ ...builtInRemoteComps, compName: "radarChart" }),
     "layoutInfo": {
       "w": 12,
