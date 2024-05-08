@@ -38,6 +38,8 @@ import {
   TreeSelectStyleType,
   widthCalculator,
   heightCalculator,
+  
+  SelectStyle,
 } from "comps/controls/styleControlConstants";
 import { stateComp, withDefault } from "../../generators";
 import {
@@ -53,9 +55,9 @@ import { RefControl } from "comps/controls/refControl";
 import { BaseSelectRef } from "rc-select";
 import { refMethods } from "comps/generators/withMethodExposing";
 import { blurMethod, focusMethod } from "comps/utils/methodUtils";
-
 import { useContext } from "react";
 import { EditorContext } from "comps/editorState";
+import { styleControl } from "comps/controls/styleControl";
 
 export const getStyle = (
   style:
@@ -217,6 +219,7 @@ export const SelectChildrenMap = {
   viewRef: RefControl<BaseSelectRef>,
   margin: MarginControl,
   padding: PaddingControl,
+  inputFieldStyle:styleControl(SelectStyle),
   ...SelectInputValidationChildren,
   ...formDataChildren,
 };
@@ -291,6 +294,7 @@ export const SelectPropertyView = (
     value: { propertyView: (params: ControlParams) => ControlNode };
     style: { getPropertyView: () => ControlNode };
     labelStyle: { getPropertyView: () => ControlNode };
+    inputFieldStyle: { getPropertyView: () => ControlNode };
   }
 ) => (
   <>
@@ -335,6 +339,9 @@ export const SelectPropertyView = (
           </Section>
           <Section name={sectionNames.labelStyle}>
             {children.labelStyle.getPropertyView()}
+          </Section>
+          <Section name={sectionNames.inputFieldStyle}>
+            {children.inputFieldStyle.getPropertyView()}
           </Section>
         </>
       )}

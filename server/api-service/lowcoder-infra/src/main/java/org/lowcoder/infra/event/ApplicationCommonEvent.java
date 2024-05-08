@@ -1,7 +1,7 @@
 package org.lowcoder.infra.event;
 
-import javax.annotation.Nullable;
 
+import jakarta.annotation.Nullable;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 

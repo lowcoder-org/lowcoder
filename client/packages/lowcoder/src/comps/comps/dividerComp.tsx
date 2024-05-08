@@ -46,10 +46,10 @@ const StyledDivider = styled(Divider) <IProps>`
   }};	
   padding: ${(props) => props.$style.padding};
   
-  border-top: ${(props) => (props.$style.borderWidth ? props.$style.borderWidth : "1px")} ${(props) => (props.dashed ? "dashed" : "solid")} ${(props) => props.$style.color};
-
+  border-top: ${(props) => (props.$style.borderWidth && props.$style.borderWidth != "0px" ? props.$style.borderWidth : "1px")} ${(props) => (props.dashed ? "dashed" : "solid")} ${(props) => props.$style.border};
+""
   .ant-divider-inner-text::before, .ant-divider-inner-text::after {
-    border-block-start: ${(props) => (props.$style.borderWidth ? props.$style.borderWidth : "1px")} ${(props) => (props.dashed ? "dashed" : "solid")} ${(props) => props.$style.color} !important;
+    border-block-start: ${(props) => (props.$style.borderWidth && props.$style.borderWidth != "0px" ? props.$style.borderWidth : "1px")} ${(props) => (props.dashed ? "dashed" : "solid")} ${(props) => props.$style.border} !important;
     border-block-start-color: inherit;
     border-block-end: 0;
   }
@@ -80,6 +80,8 @@ function fixOldStyleData(oldData: any) {
   }
   return oldData;
 }
+
+
 
 // Compatible with historical style data 2022-8-26
 export const DividerComp = migrateOldData(

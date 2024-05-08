@@ -20,7 +20,7 @@ import { UICompBuilder, withDefault } from "../../generators";
 import { CommonNameConfig, depsConfig, withExposingConfigs } from "../../generators/withExposing";
 import { formDataChildren, FormDataPropertyView } from "../formComp/formDataConstants";
 import { styleControl } from "comps/controls/styleControl";
-import { DateTimeStyle, DateTimeStyleType, LabelStyle } from "comps/controls/styleControlConstants";
+import {  DateTimeStyle, DateTimeStyleType, InputFieldStyle, LabelStyle } from "comps/controls/styleControlConstants";
 import { withMethodExposing } from "../../generators/withMethodExposing";
 import {
   disabledPropertyView,
@@ -71,11 +71,12 @@ const commonChildren = {
   hourStep: RangeControl.closed(1, 24, 1),
   minuteStep: RangeControl.closed(1, 60, 1),
   secondStep: RangeControl.closed(1, 60, 1),
-  style: styleControl(DateTimeStyle),
+  style: styleControl(InputFieldStyle),
   labelStyle: styleControl(LabelStyle.filter((style) => ['accent', 'validate'].includes(style.name) === false)),
   suffixIcon: withDefault(IconControl, "/icon:regular/calendar"),
   ...validationChildren,
   viewRef: RefControl<CommonPickerMethods>,
+  inputFieldStyle:styleControl(DateTimeStyle)
 };
 type CommonChildrenType = RecordConstructorToComp<typeof commonChildren>;
 
@@ -166,12 +167,13 @@ export const datePickerControl = new UICompBuilder(childrenMap, (props) => {
   return props.label({
     required: props.required,
     style: props.style,
-    labelStyle:props.labelStyle,
+    labelStyle: props.labelStyle,
+    inputFieldStyle:props.inputFieldStyle,
     children: (
       <DateUIView
         viewRef={props.viewRef}
         disabledTime={() => disabledTime(props.minTime, props.maxTime)}
-        $style={props.style}
+        $style={props.inputFieldStyle}
         disabled={props.disabled}
         {...datePickerProps(props)}
         minDate={props.minDate}
@@ -253,6 +255,9 @@ export const datePickerControl = new UICompBuilder(childrenMap, (props) => {
             <Section name={sectionNames.labelStyle}>
               {children.labelStyle.getPropertyView()}
             </Section>
+            <Section name={sectionNames.inputFieldStyle}>
+              {children.inputFieldStyle.getPropertyView()}
+            </Section>
           </>
         )}
       </>
@@ -281,7 +286,7 @@ export const dateRangeControl = (function () {
     const children = (
       <DateRangeUIView
         viewRef={props.viewRef}
-        $style={props.style}
+        $style={props.inputFieldStyle}
         disabled={props.disabled}
         {...datePickerProps(props)}
         start={start.isValid() ? start : null}
@@ -319,6 +324,7 @@ export const dateRangeControl = (function () {
       style: props.style,
       labelStyle:props.labelStyle,
       children: children,
+      inputFieldStyle:props.inputFieldStyle,
       ...(startResult.validateStatus !== "success"
         ? startResult
         : endResult.validateStatus !== "success"
@@ -382,6 +388,9 @@ export const dateRangeControl = (function () {
               </Section>
               <Section name={sectionNames.labelStyle}>
                 {children.labelStyle.getPropertyView()}
+              </Section>
+              <Section name={sectionNames.inputFieldStyle}>
+                {children.inputFieldStyle.getPropertyView()}
               </Section>
             </>
           )}

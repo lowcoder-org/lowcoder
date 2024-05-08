@@ -22,7 +22,7 @@ import lombok.Setter;
 @Jacksonized
 @SuperBuilder
 @NoArgsConstructor
-@AllArgsConstructor(onConstructor_ = { @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)})
+@AllArgsConstructor
 public class DatasourceDO extends HasIdAndAuditing {
 
     private String name;

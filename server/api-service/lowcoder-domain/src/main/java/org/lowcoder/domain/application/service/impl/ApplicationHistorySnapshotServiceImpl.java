@@ -7,6 +7,7 @@ import static org.lowcoder.sdk.util.ExceptionUtils.ofException;
 import java.util.List;
 import java.util.Map;
 
+import lombok.RequiredArgsConstructor;
 import org.lowcoder.domain.application.model.ApplicationHistorySnapshot;
 import org.lowcoder.domain.application.repository.ApplicationHistorySnapshotRepository;
 import org.lowcoder.domain.application.service.ApplicationHistorySnapshotService;
@@ -19,12 +20,11 @@ import org.springframework.stereotype.Service;
 
 import reactor.core.publisher.Mono;
 
-@Lazy
+@RequiredArgsConstructor
 @Service
 public class ApplicationHistorySnapshotServiceImpl implements ApplicationHistorySnapshotService {
 
-    @Autowired
-    private ApplicationHistorySnapshotRepository repository;
+    private final ApplicationHistorySnapshotRepository repository;
 
     @Override
     public Mono<Boolean> createHistorySnapshot(String applicationId, Map<String, Object> dsl, Map<String, Object> context, String userId) {

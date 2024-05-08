@@ -1,14 +1,13 @@
 package org.lowcoder.api.authentication.dto;
 
-import static org.lowcoder.sdk.util.IDUtils.generate;
-
-import java.util.HashMap;
-
-import javax.annotation.Nullable;
-
+import jakarta.annotation.Nullable;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
+
+import java.util.HashMap;
+
+import static org.lowcoder.sdk.util.IDUtils.generate;
 
 public class AuthConfigRequest extends HashMap<String, Object> {
 

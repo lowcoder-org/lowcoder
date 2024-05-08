@@ -42,18 +42,26 @@ const FlexWrapper = styled.div`
   height: 100%;
   display: flex;
   align-items: center;
-  justify-content: center;
-  flex-wrap: 'wrap'};
+  // justify-content: center;
 `;
 
-const ListOrientationWrapper = styled.div<{ $isHorizontal: boolean, $autoHeight : boolean }>`
+const ListOrientationWrapper = styled.div<{
+  $isHorizontal: boolean,
+  $autoHeight : boolean,
+  $isGrid: boolean,
+}>`
   height: ${(props) => (props.$autoHeight ? "auto" : "100%")};
   display: flex;
-  flex-direction: ${(props) => (props.$isHorizontal ? "row" : "column")};
+  flex-direction: ${(props) => (props.$isHorizontal && !props.$isGrid ? "row" : "column")};
   height: 100%;
 `;
 
-const MinHorizontalWidthContext = createContext({
+type MinHorizontalWidthContextType = {
+  horizontalWidth: string,
+  minHorizontalWidth?: string,
+}
+
+const MinHorizontalWidthContext = createContext<MinHorizontalWidthContextType>({
   horizontalWidth: '100%',
   minHorizontalWidth: '100px',
 });
@@ -63,11 +71,12 @@ const ContainerInListView = (props: ContainerBaseProps ) => {
     horizontalWidth,
     minHorizontalWidth
   } = useContext(MinHorizontalWidthContext);
+
   return (
     <div
       style={{
         width: horizontalWidth,
-        minWidth: minHorizontalWidth,
+        minWidth: minHorizontalWidth || '0px',
       }}
     >
       <InnerGrid
@@ -88,7 +97,7 @@ type ListItemProps = {
   scrollContainerRef?: RefObject<HTMLDivElement>;
   minHeight?: string;
   unMountFn?: () => void;
-  minHorizontalWidth: string;
+  minHorizontalWidth?: string;
   horizontalWidth: string;
 };
 
@@ -129,8 +138,10 @@ function ListItem({
           dispatch={itemIdx === offset ? containerProps.dispatch : _.noop}
           style={{
             height: "100%",
+            // in case of horizontal mode, minHorizontalWidth is 0px
+            width: minHorizontalWidth || '100%',
             backgroundColor: "transparent",
-            flex: "auto",
+            // flex: "auto",
           }}
           autoHeight={autoHeight}
           isDroppable={itemIdx === offset}
@@ -247,7 +258,7 @@ export function ListView(props: Props) {
                 minHeight={minHeight}
                 unMountFn={unMountFn}
                 horizontalWidth={`${100 / noOfColumns}%`}
-                minHorizontalWidth={horizontal ? minHorizontalWidth : '0px'}
+                minHorizontalWidth={horizontal ? minHorizontalWidth : undefined}
               />
             );
           })}
@@ -267,9 +278,22 @@ export function ListView(props: Props) {
 
         <BodyWrapper ref={ref} $autoHeight={autoHeight}>
           <ScrollBar style={{ height: autoHeight ? "auto" : "100%", margin: "0px", padding: "0px" }} hideScrollbar={!scrollbars}>
-            <>{<ReactResizeDetector onResize={(width?: number, height?: number) => { if (height) setListHeight(height); }} observerOptions={{ box: "border-box" }} >
-              <ListOrientationWrapper $isHorizontal={horizontal} $autoHeight={autoHeight}>{renders}</ListOrientationWrapper>
-            </ReactResizeDetector>}</>
+            <ReactResizeDetector
+              onResize={(width?: number, height?: number) => {
+                if (height) setListHeight(height);
+              }}
+              observerOptions={{ box: "border-box" }}
+              render={() => (
+                <ListOrientationWrapper
+                  $isHorizontal={horizontal}
+                  $isGrid={noOfColumns > 1}
+                  $autoHeight={autoHeight}
+                >
+                  {renders}
+                </ListOrientationWrapper>
+              )}
+            >
+            </ReactResizeDetector>
           </ScrollBar>
         </BodyWrapper>
         <FooterWrapper>

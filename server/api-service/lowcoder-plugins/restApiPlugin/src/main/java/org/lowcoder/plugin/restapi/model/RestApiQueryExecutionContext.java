@@ -1,12 +1,9 @@
 package org.lowcoder.plugin.restapi.model;
 
-import java.net.URI;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.annotation.Nullable;
-
+import jakarta.annotation.Nullable;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
 import org.lowcoder.sdk.models.Property;
 import org.lowcoder.sdk.plugin.common.ssl.SslConfig;
 import org.lowcoder.sdk.plugin.restapi.auth.AuthConfig;
@@ -14,11 +11,12 @@ import org.lowcoder.sdk.query.QueryExecutionContext;
 import org.springframework.http.HttpCookie;
 import org.springframework.http.HttpMethod;
 import org.springframework.util.MultiValueMap;
-
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
 import reactor.core.publisher.Mono;
+
+import java.net.URI;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 @Builder
 public class RestApiQueryExecutionContext extends QueryExecutionContext {

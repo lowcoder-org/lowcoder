@@ -1,26 +1,19 @@
 package org.lowcoder.domain.permission.model;
 
-import static com.google.common.collect.Maps.newHashMap;
-import static org.lowcoder.sdk.util.StreamUtils.collectMap;
-
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
-import javax.annotation.Nullable;
-
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.google.common.collect.Streams;
+import jakarta.annotation.Nullable;
 import org.jgrapht.Graph;
 import org.jgrapht.graph.DefaultDirectedGraph;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.traverse.BreadthFirstIterator;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.google.common.collect.Streams;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import static com.google.common.collect.Maps.newHashMap;
+import static org.lowcoder.sdk.util.StreamUtils.collectMap;
 
 public enum ResourceRole {
 

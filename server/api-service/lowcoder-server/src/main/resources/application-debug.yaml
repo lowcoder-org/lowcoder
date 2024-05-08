@@ -8,7 +8,6 @@ spring:
 
 server:
   port: 18080
-
 common:
   cookie-name: LOWCODER_DEBUG_TOKEN
   js-executor:

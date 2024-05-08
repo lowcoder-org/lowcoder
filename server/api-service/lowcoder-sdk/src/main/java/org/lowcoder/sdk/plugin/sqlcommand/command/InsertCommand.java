@@ -1,15 +1,6 @@
 package org.lowcoder.sdk.plugin.sqlcommand.command;
 
-import static org.lowcoder.sdk.exception.PluginCommonError.INVALID_INSERT_COMMAND;
-import static org.lowcoder.sdk.plugin.sqlcommand.changeset.ChangeSet.parseChangeSet;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.annotation.Nonnull;
-
+import jakarta.annotation.Nonnull;
 import org.apache.commons.lang3.StringUtils;
 import org.lowcoder.sdk.exception.PluginException;
 import org.lowcoder.sdk.plugin.sqlcommand.GuiSqlCommand;
@@ -18,6 +9,14 @@ import org.lowcoder.sdk.plugin.sqlcommand.changeset.ChangeSetItem;
 import org.lowcoder.sdk.plugin.sqlcommand.changeset.ChangeSetRow;
 import org.lowcoder.sdk.util.MustacheHelper;
 import org.lowcoder.sdk.util.SqlGuiUtils.GuiSqlValue;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import static org.lowcoder.sdk.exception.PluginCommonError.INVALID_INSERT_COMMAND;
+import static org.lowcoder.sdk.plugin.sqlcommand.changeset.ChangeSet.parseChangeSet;
 
 public abstract class InsertCommand implements GuiSqlCommand {
 

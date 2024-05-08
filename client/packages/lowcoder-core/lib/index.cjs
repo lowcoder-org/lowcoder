@@ -1,3 +1,5 @@
+// this is used in Node.js ??
+
 'use strict';
 
 Object.defineProperty(exports, '__esModule', { value: true });
@@ -7589,15 +7591,62 @@ function requireReactJsxRuntime_development () {
 } (jsxRuntime));
 
 var en = {};
-
 var zh = {};
+var de = {};
+var fr = {};
+var es = {};
+var it = {};
+var ar = {};
+var th = {};
+var vi = {};
+var ms = {};
+var id = {};
+var hi = {};
+var ta = {};
+var kn = {};
+var ml = {};
+var ru = {};
+var pl = {};
+var cs = {};
+var uk = {};
+var bg = {};
+var sr = {};
+var hr = {};
+var sk = {};
+var sl = {};
+var mk = {};
+var pt = {};
 
 // file examples: en, enGB, zh, zhHK
 
 var localeData = /*#__PURE__*/Object.freeze({
     __proto__: null,
     en: en,
-    zh: zh
+    zh: zh,
+    de: de,
+    fr: fr,
+    es: es,
+    it: it,
+    ar: ar,
+    th: th,
+    vi: vi,
+    ms: ms,
+    id: id,
+    hi: hi,
+    ta: ta,
+    kn: kn,
+    ml: ml,
+    ru: ru,
+    pl: pl,
+    cs: cs,
+    uk: uk,
+    bg: bg,
+    sr: sr,
+    hr: hr,
+    sk: sk,
+    sl: sl,
+    mk: mk,
+    pt: pt
 });
 
 var ErrorKind;
@@ -11156,8 +11205,14 @@ originalMessage) {
         }
         var varName = el.value;
         // Enforce that all required values are provided by the caller.
+        var value = "";
         if (!(values && varName in values)) {
-            throw new MissingValueError(varName, originalMessage);
+            // throw new MissingValueError(varName, originalMessage);
+            console.log("No value provided for the variable \"" + varName + "\". " + originalMessage);
+            value = varName;
+        }
+        else {
+          value = values[varName];
         }
         var value = values[varName];
         if (isArgumentElement(el)) {
@@ -11408,7 +11463,8 @@ var IntlMessageFormat$1 = /** @class */ (function () {
             this.ast = message;
         }
         if (!Array.isArray(this.ast)) {
-            throw new TypeError('A message must be provided as a String or AST.');
+            // throw new TypeError('A message must be provided as a String or AST.');
+            console.log('Translator: A message must be provided as a String or AST.', this.ast);
         }
         // Creates a new object with the specified `formats` merged with the default
         // formats.
@@ -11511,16 +11567,25 @@ See the accompanying LICENSE file for terms.
 */
 var IntlMessageFormat = IntlMessageFormat$1;
 
-var defaultLocale = "en";
+var defaultLocale = "en"; 
 var locales = [defaultLocale];
+
+// Falk - Adapted the central translator to check if a localStorage key is existing.
+
+const uiLanguage = localStorage.getItem('lowcoder_uiLanguage');
+
 if (globalThis.navigator) {
-    if (navigator.languages && navigator.languages.length > 0) {
+    if (uiLanguage) {  
+      locales = [uiLanguage];
+    } 
+    else if (navigator.languages && navigator.languages.length > 0) {
         locales = __spreadArray([], navigator.languages, true);
     }
     else {
         locales = [navigator.language || navigator.userLanguage || defaultLocale];
     }
 }
+
 function parseLocale(s) {
     var locale = s.trim();
     if (!locale) {
@@ -11580,7 +11645,9 @@ function getDataByLocale(fileData, suffix, filterLocales, targetLocales) {
             return { data: data, language: name_1.slice(0, 2) };
         }
     }
-    throw new Error("Not found ".concat(names));
+    console.error("Not found ".concat(names));
+    // better to continue the app without crashing
+    // throw new Error("Not found ".concat(names));
 }
 var globalMessageKeyPrefix = "@";
 var globalMessages = Object.fromEntries(Object.entries(getDataByLocale(localeData, "").data).map(function (_a) {
@@ -11626,7 +11693,7 @@ var Translator = /** @class */ (function () {
     return Translator;
 }());
 function getI18nObjects(fileData, filterLocales) {
-    return getDataByLocale(fileData, "Obj", filterLocales).data;
+    return getDataByLocale(fileData, "Obj", filterLocales)?.data;
 }
 
 exports.AbstractComp = AbstractComp;

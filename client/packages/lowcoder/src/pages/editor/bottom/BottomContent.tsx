@@ -143,7 +143,13 @@ export const BottomContent = () => {
       </Left>
       <Drag />
       <Right>
-        <div style={{ width: "100%", height: "100%", minWidth: "480px" }}>
+        <div style={{
+          width: "100%",
+          height: "100%",
+          minWidth: "480px",
+          display: "flex",
+          flexDirection: "column",
+        }}>
           <MetaDataContext.Provider value={metaData}>
             <CompNameContext.Provider
               value={editorState.selectedQueryComp()?.children.name.getView() || ""}
