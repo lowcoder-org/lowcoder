@@ -121,6 +121,20 @@ export var uiCompMap: Registry = {
     },
   },
 
+  basicChart: {
+    name: trans("uiComp.basicChartCompName"),
+    enName: "Basic Chart",
+    description: trans("uiComp.basicChartCompDesc"),
+    categories: ["dashboards"],
+    icon: ChartCompIcon,
+    comp: remoteComp({ ...builtInRemoteComps, compName: "basicChart" }),
+    keywords: trans("uiComp.basicChartCompKeywords"),
+    layoutInfo: {
+      w: 12,
+      h: 40,
+    },
+  },
+
   funnelChart : {
     "name": trans("uiComp.funnelChartCompName"),
     "enName": "Sankey Chart",

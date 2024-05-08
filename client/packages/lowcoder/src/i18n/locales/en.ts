@@ -1212,6 +1212,10 @@ export const en = {
     "themeriverChartCompDesc": "A visualization resembling a stream graph that shows changes in a data set over time across categories.",
     "themeriverChartCompKeywords": "theme river, time series, trends",
 
+    "basicChartCompName": "Basic Chart",
+    "basicChartCompDesc": "A versatile component for visualizing data through various types of charts and graphs.",
+    "basicChartCompKeywords": "chart, graph, data, visualization",
+
     // by mousheng
 
     "colorPickerCompName": "Color Picker",

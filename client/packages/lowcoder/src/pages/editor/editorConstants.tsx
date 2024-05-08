@@ -177,6 +177,7 @@ export const CompStateIcon: {
   treemapChart : <LeftCommon />,
   sunburstChart : <LeftCommon />,
   themeriverChart : <LeftCommon />,
+  basicChart : <LeftCommon />,
 
   avatar: <AvatarCompIconSmall />,
   avatarGroup: <AvatarGroupCompIconSmall />,
