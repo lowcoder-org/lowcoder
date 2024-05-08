@@ -156,4 +156,5 @@ export const sectionNames = {
   resetButtonStyle:trans("prop.resetButtonStyle"),
   headerStyle:trans("prop.headerStyle"),
   bodyStyle:trans("prop.bodyStyle"),
+  badgeStyle:trans("prop.badgeStyle"),
 };
