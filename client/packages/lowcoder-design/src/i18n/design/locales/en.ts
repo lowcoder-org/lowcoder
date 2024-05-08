@@ -33,6 +33,8 @@ export const en = {
     captionStyle: 'Caption Style',
     startButtonStyle: 'Start Button Style',
     resetButtonStyle: 'Reset Button Style',
+    headerStyle: 'Header Style',
+    bodyStyle: 'Body Style',
   },
   passwordInput: {
     label: "Password:",
