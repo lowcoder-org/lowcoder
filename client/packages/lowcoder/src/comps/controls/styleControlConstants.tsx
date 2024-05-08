@@ -852,7 +852,6 @@ export const TransferStyle = [
 
 export const CardStyle = [
   getStaticBackground("#ffffff"),
-  BORDER,
   {
     name: "IconColor",
     label: trans("card.IconColor"),
@@ -866,6 +865,12 @@ export const CardStyle = [
     transformer: toSelf,
   },
   CONTAINER_BODY_PADDING,
+  ...STYLING_FIELDS_CONTAINER_SEQUENCE
+] as const;
+
+export const CardHeaderStyle = [
+  getStaticBackground(SURFACE_COLOR),
+  ...STYLING_FIELDS_SEQUENCE,
 ] as const;
 
 export const timerStyle = [
@@ -1583,6 +1588,7 @@ export type AvatarGroupStyleType = StyleConfigType<typeof avatarGroupStyle>;
 export type FloatButtonStyleType = StyleConfigType<typeof FloatButtonStyle>;
 export type TransferStyleType = StyleConfigType<typeof TransferStyle>;
 export type CardStyleType = StyleConfigType<typeof CardStyle>;
+export type CardHeaderStyleType = StyleConfigType<typeof CardHeaderStyle>;
 export type timerStyleType = StyleConfigType<typeof timerStyle>;
 export type StartButtonStyleType = StyleConfigType<typeof startButtonStyle>;
 
