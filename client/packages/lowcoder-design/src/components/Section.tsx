@@ -154,4 +154,6 @@ export const sectionNames = {
   captionStyle:trans("prop.captionStyle"),
   startButtonStyle:trans("prop.startButtonStyle"),
   resetButtonStyle:trans("prop.resetButtonStyle"),
+  headerStyle:trans("prop.headerStyle"),
+  bodyStyle:trans("prop.bodyStyle"),
 };
