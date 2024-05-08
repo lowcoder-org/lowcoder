@@ -51,7 +51,7 @@ export const ColumnNumberComp = (function () {
       const value = props.changeValue ?? getBaseValue(props, dispatch);
       let formattedValue: string | number = !float ? Math.floor(value) : value;
       if(float) {
-        formattedValue = formattedValue.toPrecision(precision + 1);
+        formattedValue = formattedValue.toFixed(precision + 1);
       }
       return props.prefix + formattedValue + props.suffix;
     },
