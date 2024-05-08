@@ -977,15 +977,8 @@ export const MultiSelectStyle = [
 ] as const;
 
 export const ChildrenMultiSelectStyle = [
-  ...multiSelectCommon,
-  {
-    name: "multiIcon",
-    label: trans("style.multiIcon"),
-    depTheme: "primary",
-    depType: DEP_TYPE.SELF,
-    transformer: toSelf,
-    platform: "pc",
-  },
+  ...STYLING_FIELDS_SEQUENCE,
+  getStaticBackground(SURFACE_COLOR)
 ] as const;
 
 export const TabContainerStyle = [
