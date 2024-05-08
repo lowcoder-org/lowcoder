@@ -149,144 +149,144 @@ export var uiCompMap: Registry = {
   },
 
   candleStickChart : {
-    "name": trans("uiComp.candleStickChartCompName"),
-    "enName": "Candlestick Chart",
-    "description": trans("uiComp.candleStickChartCompDesc"),
-    "categories": ["dashboards"],
-    "icon": CandlestickChartCompIcon,
-    "keywords": trans("uiComp.candleStickChartCompKeywords"),
-    "comp": remoteComp({ ...builtInRemoteComps, compName: "candleStickChart" }),
-    "layoutInfo": {
+    name: trans("uiComp.candleStickChartCompName"),
+    enName: "Candlestick Chart",
+    description: trans("uiComp.candleStickChartCompDesc"),
+    categories: ["dashboards"],
+    icon: CandlestickChartCompIcon,
+    keywords: trans("uiComp.candleStickChartCompKeywords"),
+    comp: remoteComp({ ...builtInRemoteComps, compName: "candleStickChart" }),
+    layoutInfo: {
       "w": 12,
       "h": 40
     }
   },
   funnelChart : {
-    "name": trans("uiComp.funnelChartCompName"),
-    "enName": "Sankey Chart",
-    "description": trans("uiComp.funnelChartCompDesc"),
-    "categories": ["dashboards"],
-    "icon": FunnelChartCompIcon,
-    "keywords": trans("uiComp.funnelChartCompKeywords"),
-    "comp": remoteComp({ ...builtInRemoteComps, compName: "funnelChart" }),
-    "layoutInfo": {
+    name: trans("uiComp.funnelChartCompName"),
+    enName: "Sankey Chart",
+    description: trans("uiComp.funnelChartCompDesc"),
+    categories: ["dashboards"],
+    icon: FunnelChartCompIcon,
+    keywords: trans("uiComp.funnelChartCompKeywords"),
+    comp: remoteComp({ ...builtInRemoteComps, compName: "funnelChart" }),
+    layoutInfo: {
       "w": 12,
       "h": 40
     }
   },
   gaugeChart : {
-    "name": trans("uiComp.gaugeChartCompName"),
-    "enName": "Candlestick Chart",
-    "description": trans("uiComp.gaugeChartCompDesc"),
-    "categories": ["dashboards"],
-    "icon": GaugeChartCompIcon,
-    "keywords": trans("uiComp.gaugeChartCompKeywords"),
-    "comp": remoteComp({ ...builtInRemoteComps, compName: "gaugeChart" }),
-    "layoutInfo": {
+    name: trans("uiComp.gaugeChartCompName"),
+    enName: "Candlestick Chart",
+    description: trans("uiComp.gaugeChartCompDesc"),
+    categories: ["dashboards"],
+    icon: GaugeChartCompIcon,
+    keywords: trans("uiComp.gaugeChartCompKeywords"),
+    comp: remoteComp({ ...builtInRemoteComps, compName: "gaugeChart" }),
+    layoutInfo: {
       "w": 12,
       "h": 40
     }
   },
   graphChart : {
-    "name": trans("uiComp.graphChartCompName"),
-    "enName": "Graph Chart",
-    "description": trans("uiComp.graphChartCompDesc"),
-    "categories": ["dashboards"],
-    "icon": IconCompIcon,
-    "keywords": trans("uiComp.graphChartCompKeywords"),
-    "comp": remoteComp({ ...builtInRemoteComps, compName: "graphChart" }),
-    "layoutInfo": {
+    name: trans("uiComp.graphChartCompName"),
+    enName: "Graph Chart",
+    description: trans("uiComp.graphChartCompDesc"),
+    categories: ["dashboards"],
+    icon: IconCompIcon,
+    keywords: trans("uiComp.graphChartCompKeywords"),
+    comp: remoteComp({ ...builtInRemoteComps, compName: "graphChart" }),
+    layoutInfo: {
       "w": 12,
       "h": 40
     }
   },
   heatmapChart: {
-    "name": trans("uiComp.heatmapChartCompName"),
-    "enName": "Heatmap Chart",
-    "description": trans("uiComp.heatmapChartCompDesc"),
-    "categories": ["dashboards"],
-    "icon": HeatmapChartCompIcon,
-    "keywords": trans("uiComp.heatmapChartCompKeywords"),
-    "comp": remoteComp({ ...builtInRemoteComps, compName: "heatmapChart" }),
-    "layoutInfo": {
+    name: trans("uiComp.heatmapChartCompName"),
+    enName: "Heatmap Chart",
+    description: trans("uiComp.heatmapChartCompDesc"),
+    categories: ["dashboards"],
+    icon: HeatmapChartCompIcon,
+    keywords: trans("uiComp.heatmapChartCompKeywords"),
+    comp: remoteComp({ ...builtInRemoteComps, compName: "heatmapChart" }),
+    layoutInfo: {
       "w": 12,
       "h": 40
     }
   },
   radarChart : {
-    "name": trans("uiComp.radarChartCompName"),
-    "enName": "Radar Chart",
-    "description": trans("uiComp.radarChartCompDesc"),
-    "categories": ["dashboards"],
-    "icon": RadarChartCompIcon,
-    "keywords": trans("uiComp.radarChartCompKeywords"),
-    "comp": remoteComp({ ...builtInRemoteComps, compName: "radarChart" }),
-    "layoutInfo": {
+    name: trans("uiComp.radarChartCompName"),
+    enName: "Radar Chart",
+    description: trans("uiComp.radarChartCompDesc"),
+    categories: ["dashboards"],
+    icon: RadarChartCompIcon,
+    keywords: trans("uiComp.radarChartCompKeywords"),
+    comp: remoteComp({ ...builtInRemoteComps, compName: "radarChart" }),
+    layoutInfo: {
       "w": 12,
       "h": 40
     }
   },
   sankeyChart : {
-    "name": trans("uiComp.sankeyChartCompName"),
-    "enName": "Sankey Chart",
-    "description": trans("uiComp.sankeyChartCompDesc"),
-    "categories": ["dashboards"],
-    "icon": SankeyChartCompIcon,
-    "keywords": trans("uiComp.sankeyChartCompKeywords"),
-    "comp": remoteComp({ ...builtInRemoteComps, compName: "sankeyChart" }),
-    "layoutInfo": {
+    name: trans("uiComp.sankeyChartCompName"),
+    enName: "Sankey Chart",
+    description: trans("uiComp.sankeyChartCompDesc"),
+    categories: ["dashboards"],
+    icon: SankeyChartCompIcon,
+    keywords: trans("uiComp.sankeyChartCompKeywords"),
+    comp: remoteComp({ ...builtInRemoteComps, compName: "sankeyChart" }),
+    layoutInfo: {
       "w": 12,
       "h": 40
     }
   },
   sunburstChart: {
-    "name": trans("uiComp.sunburstChartCompName"),
-    "enName": "Sunburst Chart",
-    "description": trans("uiComp.sunburstChartCompDesc"),
-    "categories": ["dashboards"],
-    "icon": SunburstChartCompIcon,
-    "keywords": trans("uiComp.sunburstChartCompKeywords"),
-    "comp": remoteComp({ ...builtInRemoteComps, compName: "sunburstChart" }),
-    "layoutInfo": {
+    name: trans("uiComp.sunburstChartCompName"),
+    enName: "Sunburst Chart",
+    description: trans("uiComp.sunburstChartCompDesc"),
+    categories: ["dashboards"],
+    icon: SunburstChartCompIcon,
+    keywords: trans("uiComp.sunburstChartCompKeywords"),
+    comp: remoteComp({ ...builtInRemoteComps, compName: "sunburstChart" }),
+    layoutInfo: {
       "w": 12,
       "h": 40
     }
   },
   themeriverChart : {
-    "name": trans("uiComp.themeriverChartCompName"),
-    "enName": "Theme River Chart",
-    "description": trans("uiComp.themeriverChartCompDesc"),
-    "categories": ["dashboards"],
-    "icon": ThemeriverChartCompIcon,
-    "keywords": trans("uiComp.themeriverChartCompKeywords"),
-    "comp": remoteComp({ ...builtInRemoteComps, compName: "themeriverChart" }),
-    "layoutInfo": {
+    name: trans("uiComp.themeriverChartCompName"),
+    enName: "Theme River Chart",
+    description: trans("uiComp.themeriverChartCompDesc"),
+    categories: ["dashboards"],
+    icon: ThemeriverChartCompIcon,
+    keywords: trans("uiComp.themeriverChartCompKeywords"),
+    comp: remoteComp({ ...builtInRemoteComps, compName: "themeriverChart" }),
+    layoutInfo: {
       "w": 12,
       "h": 40
     }
   },
   treeChart : {
-    "name": trans("uiComp.treeChartCompName"),
-    "enName": "Tree Chart",
-    "description": trans("uiComp.treeChartCompDesc"),
-    "categories": ["dashboards"],
-    "icon": TreeChartCompIcon,
-    "keywords": trans("uiComp.treeChartCompKeywords"),
-    "comp": remoteComp({ ...builtInRemoteComps, compName: "treeChart" }),
-    "layoutInfo": {
+    name: trans("uiComp.treeChartCompName"),
+    enName: "Tree Chart",
+    description: trans("uiComp.treeChartCompDesc"),
+    categories: ["dashboards"],
+    icon: TreeChartCompIcon,
+    keywords: trans("uiComp.treeChartCompKeywords"),
+    comp: remoteComp({ ...builtInRemoteComps, compName: "treeChart" }),
+    layoutInfo : {
       "w": 12,
       "h": 40
     }
   },
   treemapChart : {
-    "name": trans("uiComp.treemapChartCompName"),
-    "enName": "Treemap Chart",
-    "description": trans("uiComp.treemapChartCompDesc"),
-    "categories": ["dashboards"],
-    "icon": TreemapChartCompIcon,
-    "keywords": trans("uiComp.treemapChartCompKeywords"),
-    "comp": remoteComp({ ...builtInRemoteComps, compName: "treemapChart" }),
-    "layoutInfo": {
+    name: trans("uiComp.treemapChartCompName"),
+    enName: "Treemap Chart",
+    description: trans("uiComp.treemapChartCompDesc"),
+    categories: ["dashboards"],
+    icon: TreemapChartCompIcon,
+    keywords: trans("uiComp.treemapChartCompKeywords"),
+    comp: remoteComp({ ...builtInRemoteComps, compName: "treemapChart" }),
+    layoutInfo: {
       "w": 12,
       "h": 40
     }
@@ -383,7 +383,6 @@ export var uiCompMap: Registry = {
       h: 40,
     },
   },
-
 
   slider: {
     name: trans("uiComp.sliderCompName"),
