@@ -976,6 +976,18 @@ export const MultiSelectStyle = [
   ...ACCENT_VALIDATE,
 ] as const;
 
+export const ChildrenMultiSelectStyle = [
+  ...multiSelectCommon,
+  {
+    name: "multiIcon",
+    label: trans("style.multiIcon"),
+    depTheme: "primary",
+    depType: DEP_TYPE.SELF,
+    transformer: toSelf,
+    platform: "pc",
+  },
+] as const;
+
 export const TabContainerStyle = [
   // Keep background related properties of container as STYLING_FIELDS_SEQUENCE has rest of the properties
   ...replaceAndMergeMultipleStyles([...ContainerStyle.filter((style) => ['border', 'radius', 'borderWidth', 'margin', 'padding'].includes(style.name) === false), ...STYLING_FIELDS_SEQUENCE], 'text', [{
@@ -1618,6 +1630,7 @@ export type RatingStyleType = StyleConfigType<typeof RatingStyle>;
 export type SwitchStyleType = StyleConfigType<typeof SwitchStyle>;
 export type SelectStyleType = StyleConfigType<typeof SelectStyle>;
 export type MultiSelectStyleType = StyleConfigType<typeof MultiSelectStyle>;
+export type ChildrenMultiSelectStyleType = StyleConfigType<typeof ChildrenMultiSelectStyle>;
 export type TabContainerStyleType = StyleConfigType<typeof TabContainerStyle>;
 export type ModalStyleType = StyleConfigType<typeof ModalStyle>;
 export type CascaderStyleType = StyleConfigType<typeof CascaderStyle>;
