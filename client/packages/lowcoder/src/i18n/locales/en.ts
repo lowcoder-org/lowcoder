@@ -1642,7 +1642,8 @@ export const en = {
   },
   "slider": {
     "step": "Step",
-    "stepTooltip": "The Value Must Be Greater Than 0 and Divisible by (Max-Min)"
+    "stepTooltip": "The Value Must Be Greater Than 0 and Divisible by (Max-Min)",
+    "vertical": "Vertical Orientation",
   },
   "rating": {
     "max": "Max Rating",
