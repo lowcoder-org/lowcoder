@@ -118,10 +118,7 @@ public class SessionUserServiceImpl implements SessionUserService {
 
     private Duration getTokenExpireTime() {
         long maxAgeInSeconds = commonConfig.getCookie().getMaxAgeInSeconds();
-        if (maxAgeInSeconds >= 0) {
-            return Duration.ofSeconds(maxAgeInSeconds).plus(Duration.ofDays(1));
-        }
-        return Duration.ofDays(7);
+        return Duration.ofSeconds(maxAgeInSeconds);
     }
 
     @Override
