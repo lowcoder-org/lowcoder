@@ -324,6 +324,18 @@ export { ReactComponent as VideoScreenshareCompIconSmall } from "./v2/screen-sha
 export { ReactComponent as SignatureCompIconSmall } from "./v2/signature-s.svg";
 export { ReactComponent as StepCompIconSmall } from "./v2/steps-s.svg"; 
 
+export { ReactComponent as CandlestickChartCompIconSmall } from "./v2/candlestick-chart-s.svg"; // new
+export { ReactComponent as FunnelChartCompIconSmall } from "./v2/funnel-chart-s.svg"; // new
+export { ReactComponent as GaugeChartCompIconSmall } from "./v2/gauge-chart-s.svg"; // new
+// export { ReactComponent as GraphChartCompIconSmall } from "./v2/graph-chart-s.svg"; // new
+export { ReactComponent as HeatmapChartCompIconSmall } from "./v2/heatmap-chart-s.svg"; // new
+export { ReactComponent as RadarChartCompIconSmall } from "./v2/radar-chart-s.svg"; // new
+export { ReactComponent as SankeyChartCompIconSmall } from "./v2/sankey-chart-s.svg"; // new
+export { ReactComponent as SunburstChartCompIconSmall } from "./v2/sunburst-chart-s.svg"; // new
+export { ReactComponent as ThemeriverChartCompIconSmall } from "./v2/themeriver-chart-s.svg"; // new
+export { ReactComponent as TreeChartCompIconSmall } from "./v2/tree-chart-s.svg"; // new
+export { ReactComponent as TreemapChartCompIconSmall } from "./v2/treemap-chart-s.svg"; // new
+
 
 // medium
 export { ReactComponent as AudioCompIcon } from "./v2/audio-player-m.svg";
@@ -406,6 +418,19 @@ export { ReactComponent as VideoCameraStreamCompIcon } from "./v2/camera-stream-
 export { ReactComponent as VideoScreenshareCompIcon } from "./v2/screen-share-stream-m.svg";
 export { ReactComponent as StepCompIcon } from "./v2/steps-m.svg";
 export { ReactComponent as SignatureCompIcon } from "./v2/signature-m.svg";
+
+export { ReactComponent as CandlestickChartCompIcon } from "./v2/candlestick-chart-m.svg";
+export { ReactComponent as FunnelChartCompIcon } from "./v2/funnel-chart-m.svg";
+export { ReactComponent as GaugeChartCompIcon } from "./v2/gauge-chart-m.svg";
+// export { ReactComponent as GraphChartCompIcon } from "./v2/graph-chart-m.svg";
+export { ReactComponent as HeatmapChartCompIcon } from "./v2/heatmap-chart-m.svg";
+export { ReactComponent as RadarChartCompIcon } from "./v2/radar-chart-m.svg";
+export { ReactComponent as SankeyChartCompIcon } from "./v2/sankey-chart-m.svg";
+export { ReactComponent as SunburstChartCompIcon } from "./v2/sunburst-chart-m.svg";
+export { ReactComponent as ThemeriverChartCompIcon } from "./v2/themeriver-chart-m.svg";
+export { ReactComponent as TreeChartCompIcon } from "./v2/tree-chart-m.svg";
+export { ReactComponent as TreemapChartCompIcon } from "./v2/treemap-chart-m.svg";
+
 
 
 // flags

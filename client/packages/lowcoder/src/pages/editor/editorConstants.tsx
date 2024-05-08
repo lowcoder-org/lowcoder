@@ -79,6 +79,19 @@ import {
   AvatarGroupCompIconSmall,
   ColorPickerCompIconSmall,
   TransferCompIconSmall,
+
+  CandlestickChartCompIconSmall,
+  FunnelChartCompIconSmall,
+  GaugeChartCompIconSmall,
+  // GraphChartCompIconSmall,
+  HeatmapChartCompIconSmall,
+  RadarChartCompIconSmall,
+  SankeyChartCompIconSmall,
+  SunburstChartCompIconSmall,
+  ThemeriverChartCompIconSmall,
+  TreeChartCompIconSmall,
+  TreemapChartCompIconSmall,
+
 } from "lowcoder-design";
 
 export const CompStateIcon: {
@@ -166,18 +179,18 @@ export const CompStateIcon: {
   bpmnEditor: <LeftCommon />,  // Placeholder or specify if there's a dedicated icon
   turnstileCaptcha: <LeftCommon />,  // Placeholder or specify if there's a dedicated icon
   pivotTable: <LeftCommon />,  // Placeholder or specify if there's a dedicated icon
-  funnelChart: <LeftCommon />,
-  gaugeChart: <LeftCommon />,
-  sankeyChart : <LeftCommon />,
-  candleStickChart : <LeftCommon />,
-  radarChart : <LeftCommon />,
-  heatmapChart : <LeftCommon />,
+  funnelChart: <FunnelChartCompIconSmall />,
+  gaugeChart: <GaugeChartCompIconSmall />,
+  sankeyChart : <SankeyChartCompIconSmall />,
+  candleStickChart : <CandlestickChartCompIconSmall />,
+  radarChart : <RadarChartCompIconSmall />,
+  heatmapChart : <HeatmapChartCompIconSmall />,
   graphChart : <LeftCommon />,
-  treeChart : <LeftCommon />,
-  treemapChart : <LeftCommon />,
-  sunburstChart : <LeftCommon />,
-  themeriverChart : <LeftCommon />,
-  basicChart : <LeftCommon />,
+  treeChart : <TreeChartCompIconSmall />,
+  treemapChart : <TreemapChartCompIconSmall />,
+  sunburstChart : <SunburstChartCompIconSmall />,
+  themeriverChart : <ThemeriverChartCompIconSmall />,
+  basicChart : <ChartCompIconSmall />,
 
   avatar: <AvatarCompIconSmall />,
   avatarGroup: <AvatarGroupCompIconSmall />,
