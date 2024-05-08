@@ -1765,6 +1765,7 @@ export const en = {
   },
   "button": {
     "prefixIcon": "Prefix Icon",
+    "prefixText": "Prefix Text",
     "suffixIcon": "Suffix Icon",
     "icon": "Icon",
     "iconSize": "Icon Size",
