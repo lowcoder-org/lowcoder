@@ -180,16 +180,18 @@ MapTmpComp = withViewFn(MapTmpComp, (comp) => {
         }
       }}
     >
-       <ReactECharts
-          ref={(e) => (echartsCompRef.current = e)}
-          style={{ height: "100%" }}
-          notMerge
-          lazyUpdate
-          opts={{ locale: getEchartsLocale() }}
-          option={option}
-          theme={undefined}
-          mode={mode}
-        />
+      {isMapScriptLoaded && (
+        <ReactECharts
+           ref={(e) => (echartsCompRef.current = e)}
+           style={{ height: "100%" }}
+           notMerge
+           lazyUpdate
+           opts={{ locale: getEchartsLocale() }}
+           option={option}
+           theme={undefined}
+           mode={mode}
+         />
+      )}
     </ReactResizeDetector>
   );
 });

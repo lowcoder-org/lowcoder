@@ -18,9 +18,11 @@ import { MermaidComp } from "./comps/mermaidComp";
 import { MeetingControllerComp } from "./comps/agoraMeetingComp/meetingControllerComp";
 import { VideoMeetingStreamComp } from "./comps/agoraMeetingComp/videoMeetingStreamComp";
 import { VideoSharingStreamComp } from "./comps/agoraMeetingComp/videoSharingStreamComp";
+import { BasicChartCompWithDefault } from "comps/basicChartComp/chartComp";
 
 export default {
   chart: ChartCompWithDefault,
+  basicChart: BasicChartCompWithDefault,
   chartsGeoMap: ChartsGeoMapComp,
   funnelChart: FunnelChartCompWithDefault,
   gaugeChart: GaugeChartCompWithDefault,

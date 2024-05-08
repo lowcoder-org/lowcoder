@@ -13,20 +13,25 @@ import {
   eventHandlerControl,
   valueComp,
   withType,
-  ValueFromOption,
   uiChildren,
   clickEvent,
+  styleControl,
+  EchartsStyle
 } from "lowcoder-sdk";
 import { RecordConstructorToComp, RecordConstructorToView } from "lowcoder-core";
 import { BarChartConfig } from "./chartConfigs/barChartConfig";
 import { XAxisConfig, YAxisConfig } from "./chartConfigs/cartesianAxisConfig";
 import { LegendConfig } from "./chartConfigs/legendConfig";
+import { EchartsLegendConfig } from "./chartConfigs/echartsLegendConfig";
+import { EchartsLabelConfig } from "./chartConfigs/echartsLabelConfig";
 import { LineChartConfig } from "./chartConfigs/lineChartConfig";
 import { PieChartConfig } from "./chartConfigs/pieChartConfig";
 import { ScatterChartConfig } from "./chartConfigs/scatterChartConfig";
 import { SeriesListComp } from "./seriesComp";
 import { EChartsOption } from "echarts";
 import { i18nObjs, trans } from "i18n/comps";
+import { GaugeChartConfig } from "./chartConfigs/gaugeChartConfig";
+import { FunnelChartConfig } from "./chartConfigs/funnelChartConfig";
 
 export const ChartTypeOptions = [
   {
@@ -44,21 +49,6 @@ export const ChartTypeOptions = [
   {
     label: trans("chart.pie"),
     value: "pie",
-  },
-] as const;
-
-const chartModeOptions = [
-  {
-    label: trans("chart.UIMode"),
-    value: "ui",
-  },
-  {
-    label: "ECharts JSON",
-    value: "json",
-  },
-  {
-    label: "Map",
-    value: "map",
   },
 ] as const;
 
@@ -237,7 +227,13 @@ const ChartOptionMap = {
   scatter: ScatterChartConfig,
 };
 
+const EchartsOptionMap = {
+  funnel: FunnelChartConfig,
+  gauge: GaugeChartConfig,
+};
+
 const ChartOptionComp = withType(ChartOptionMap, "bar");
+const EchartsOptionComp = withType(EchartsOptionMap, "funnel");
 export type CharOptionCompType = keyof typeof ChartOptionMap;
 
 export const chartUiModeChildren = {
@@ -255,6 +251,13 @@ export const chartUiModeChildren = {
 
 const chartJsonModeChildren = {
   echartsOption: jsonControl(toObject, i18nObjs.defaultEchartsJsonOption),
+  echartsTitle: withDefault(StringControl, trans("echarts.defaultTitle")),
+  echartsLegendConfig: EchartsLegendConfig,
+  echartsLabelConfig: EchartsLabelConfig,
+  echartsConfig: EchartsOptionComp,
+  style: styleControl(EchartsStyle),
+  tooltip: withDefault(BoolControl, true),
+  legendVisibility: withDefault(BoolControl, true),
 }
 
 const chartMapModeChildren = {
@@ -285,7 +288,6 @@ export type NonUIChartDataType = {
 }
 
 export const chartChildrenMap = {
-  mode: dropdownControl(chartModeOptions, "ui"),
   selectedPoints: stateComp<Array<UIChartDataType>>([]),
   lastInteractionData: stateComp<Array<UIChartDataType> | NonUIChartDataType>({}),
   onEvent: eventHandlerControl([clickEvent] as const),

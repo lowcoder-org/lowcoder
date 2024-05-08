@@ -1,5 +1,5 @@
 import { changeChildAction, CompAction } from "lowcoder-core";
-import { ChartCompChildrenType, ChartTypeOptions, getDataKeys } from "./chartConstants";
+import { ChartCompChildrenType, ChartTypeOptions,getDataKeys } from "./chartConstants";
 import { newSeries } from "./seriesComp";
 import {
   CustomModal,
@@ -134,27 +134,6 @@ export function chartPropertyView(
 
   const jsonModePropertyView = (
     <>
-      <Section name={trans("chart.config")}>
-        {children.echartsOption.propertyView({
-          label: trans("chart.echartsOptionLabel"),
-          styleName: "higher",
-          tooltip: (
-            <div>
-              <a href={optionUrl} target="_blank" rel="noopener noreferrer">
-                {trans("chart.echartsOptionTooltip")}
-              </a>
-              <br />
-              <a href={examplesUrl} target="_blank" rel="noopener noreferrer">
-                {trans("chart.echartsOptionExamples")}
-              </a>
-            </div>
-          ),
-        })}
-      </Section>
-      <Section name={sectionNames.interaction}>
-        {children.onEvent.propertyView()}
-      </Section>
-      <Section name={sectionNames.layout}>{hiddenPropertyView(children)}</Section>
     </>
   );
 
@@ -223,12 +202,12 @@ export function chartPropertyView(
   }
   return (
     <>
-      <Section name={trans("chart.mode")}>
+      {/* <Section name={trans("chart.mode")}>
         {children.mode.propertyView({
           label: "",
           radioButton: true,
         })}
-      </Section>
+      </Section> */}
       {getChatConfigByMode(children.mode.getView())}
     </>
   );

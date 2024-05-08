@@ -1,6 +1,6 @@
 {
   "name": "lowcoder-comps",
-  "version": "2.4.3",
+  "version": "2.4.4",
   "type": "module",
   "license": "MIT",
   "dependencies": {
@@ -68,6 +68,14 @@
       },
       "chart": {
         "name": "Chart",
+        "icon": "./icons/icon-chart.svg",
+        "layoutInfo": {
+          "w": 12,
+          "h": 40
+        }
+      },
+      "basicChart": {
+        "name": "Basic Chart",
         "icon": "./icons/icon-chart.svg",
         "layoutInfo": {
           "w": 12,

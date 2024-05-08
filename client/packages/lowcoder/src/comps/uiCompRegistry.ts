@@ -158,6 +158,7 @@ export type UICompType =
   | "treemapChart"
   | "sunburstChart"
   | "themeriverChart" 
+  | "basicChart"
   ;
 
 
