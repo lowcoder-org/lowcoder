@@ -16,6 +16,7 @@ export const IdSource = [
   AuthType.Form,
   AuthType.Ory,
   AuthType.KeyCloak,
+  AuthType.Generic,
 ];
 
 export const validatorOptions = [];
@@ -73,7 +74,7 @@ export const authConfig = {
       sourceIcon: { label: "Source Icon" },
       sourceCategory: { label: "Source Category" },
       ...clientIdandSecretConfig,
-      issuerUri: { label: 'Issuer URI', isRequired: true },
+      issuer: { label: 'Issuer URI', isRequired: true },
       authorizationEndpoint: { label: 'Authorization Endpoint', isRequired: true },
       tokenEndpoint: { label: 'Token Endpoint', isRequired: true },
       userInfoEndpoint: { label: 'UserInfo Endpoint', isRequired: true },
@@ -85,7 +86,7 @@ export const authConfig = {
   },
 } as { [key: string]: { sourceName: string; sourceValue: AuthType, form: FormItemType } };
 
-export const FreeTypes = [AuthType.Google, AuthType.Github, AuthType.Form, AuthType.Ory, AuthType.KeyCloak];
+export const FreeTypes = [AuthType.Google, AuthType.Github, AuthType.Form, AuthType.Ory, AuthType.KeyCloak, AuthType.Generic];
 
 export const authTypeDisabled = (type: AuthType, enableEnterpriseLogin?: boolean) => {
   return !FreeTypes.includes(type);

@@ -35,8 +35,6 @@ import { currentOrgAdmin } from "../../../util/permissionUtils";
 import CreateModal from "./createModal";
 import _ from "lodash";
 import { HelpText } from "components/HelpText";
-import Flex from "antd/es/flex";
-import AddGenericOauthModal from "./AddGenericOauthModal";
 
 export const IdSourceList = (props: any) => {
   const user = useSelector(getUser);
@@ -45,7 +43,6 @@ export const IdSourceList = (props: any) => {
   const [configs, setConfigs] = useState<ConfigItem[]>([]);
   const [fetching, setFetching] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
-  const [genericModalVisible, setGenericModalVisible] = useState(false);
   const enableEnterpriseLogin = useSelector(selectSystemConfig)?.featureFlag?.enableEnterpriseLogin;
 
   let protocol = window.location.protocol;
@@ -95,33 +92,18 @@ export const IdSourceList = (props: any) => {
       <Level1SettingPageContentWithList>
         <Level1SettingPageTitleWithBtn>
           <>
-            <div>
-              {trans("idSource.title")}
-            </div>
-            <Flex gap="8px">
-              {currentOrgAdmin(user) && (
-                <CreateButton
-                  type="primary"
-                  icon={<AddIcon />}
-                  onClick={() =>
-                    setGenericModalVisible(true)
-                  }
-                >
-                  {"Add Generic OAuth Provider"}
-                </CreateButton>
-              )}
-              {currentOrgAdmin(user) && (
-                <CreateButton
-                  type="primary"
-                  icon={<AddIcon />}
-                  onClick={() =>
-                    setModalVisible(true)
-                  }
-                >
-                  {"Add OAuth Provider"}
-                </CreateButton>
-              )}
-            </Flex>
+            {trans("idSource.title")}
+            {currentOrgAdmin(user) && (
+              <CreateButton
+                type="primary"
+                icon={<AddIcon />}
+                onClick={() =>
+                  setModalVisible(true)
+                }
+              >
+                {"Add OAuth Provider"}
+              </CreateButton>
+            )}
           </>
         </Level1SettingPageTitleWithBtn>
         <TableStyled
@@ -152,7 +134,7 @@ export const IdSourceList = (props: any) => {
             title={trans("idSource.loginType")}
             dataIndex="authType"
             key="authType"
-            render={(value, record: ConfigItem) => (
+            render={(value: AuthType, record: ConfigItem) => (
               <SpanStyled disabled={authTypeDisabled(value, enableEnterpriseLogin)}>
                 {
                   <img
@@ -160,7 +142,12 @@ export const IdSourceList = (props: any) => {
                     alt={value}
                   />
                 }
-                <span>{authConfig[value as AuthType].sourceName}</span>
+                <span>
+                  {value === AuthType.Generic
+                    ? record.sourceName
+                    : authConfig[value as AuthType].sourceName
+                  }
+                </span>
                 {!FreeTypes.includes(value) && (
                   <FreeLimitTag
                     text={
@@ -199,15 +186,6 @@ export const IdSourceList = (props: any) => {
         onConfigCreate={() => {
           setModalVisible(false);
           getConfigs();
-        }}
-      />
-      <AddGenericOauthModal
-        modalVisible={genericModalVisible}
-        oauthProvidersList={configs.map(config => config.authType)}
-        closeModal={() => setGenericModalVisible(false)}
-        onConfigCreate={() => {
-          setGenericModalVisible(false);
-          // getConfigs();
         }}
       />
     </>
