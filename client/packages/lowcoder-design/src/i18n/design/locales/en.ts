@@ -35,6 +35,7 @@ export const en = {
     resetButtonStyle: 'Reset Button Style',
     headerStyle: 'Header Style',
     bodyStyle: 'Body Style',
+    badgeStyle: 'Badge Style',
   },
   passwordInput: {
     label: "Password:",
