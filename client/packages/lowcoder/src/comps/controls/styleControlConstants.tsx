@@ -838,12 +838,19 @@ export const avatarGroupStyle = [
   getBackground("primary"),
 ] as const;
 
-export const FloatButtonStyle = [
+export const BadgeStyle = [
   {
     name: "badgeColor",
     label: trans("floatButton.badgeColor"),
     color: "#ff4d4f",
   },
+] as const;
+
+export const FloatButtonStyle = [
+  getStaticBackground(SURFACE_COLOR),
+  BORDER,
+  BORDER_STYLE,
+  BORDER_WIDTH,
 ] as const;
 
 export const TransferStyle = [
@@ -1586,6 +1593,7 @@ export type AvatarLabelStyleType = StyleConfigType<typeof avatarLabelStyle>;
 export type AvatarContainerStyleType = StyleConfigType<typeof avatarContainerStyle>;
 export type AvatarGroupStyleType = StyleConfigType<typeof avatarGroupStyle>;
 export type FloatButtonStyleType = StyleConfigType<typeof FloatButtonStyle>;
+export type BadgeStyleType = StyleConfigType<typeof BadgeStyle>;
 export type TransferStyleType = StyleConfigType<typeof TransferStyle>;
 export type CardStyleType = StyleConfigType<typeof CardStyle>;
 export type CardHeaderStyleType = StyleConfigType<typeof CardHeaderStyle>;
