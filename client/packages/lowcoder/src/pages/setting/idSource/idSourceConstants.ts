@@ -7,6 +7,7 @@ export enum AuthType {
   Github = "GITHUB",
   Ory = "ORY",
   KeyCloak = "KEYCLOAK",
+  Generic = "GENERIC",
 }
 
 export const IdSource = [
@@ -60,6 +61,26 @@ export const authConfig = {
       baseUrl: "Base URL",
       realm: "Realm",
       scope: "Scope",
+    },
+  },
+  [AuthType.Generic]: {
+    sourceName: "Generic",
+    sourceValue: AuthType.Generic,
+    form: {
+      source: { label: "Source", isRequire: true },
+      sourceName: { label: "Source Name", isRequire: true },
+      sourceDescription: { label: "Source Description" },
+      sourceIcon: { label: "Source Icon" },
+      sourceCategory: { label: "Source Category" },
+      ...clientIdandSecretConfig,
+      issuerUri: { label: 'Issuer URI', isRequired: true },
+      authorizationEndpoint: { label: 'Authorization Endpoint', isRequired: true },
+      tokenEndpoint: { label: 'Token Endpoint', isRequired: true },
+      userInfoEndpoint: { label: 'UserInfo Endpoint', isRequired: true },
+      // jwks: { label: 'Authorize URL', isRequired: true },
+      scope: "Scope",
+      // baseUrl: "Base URL",
+      // realm: "Realm",
     },
   },
 } as { [key: string]: { sourceName: string; sourceValue: AuthType, form: FormItemType } };
