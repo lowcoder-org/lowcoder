@@ -99,7 +99,7 @@ const HookMap: HookCompMapRawType = {
   lodashJsLib: LodashJsLib,
   dayJsLib: DayJsLib,
   momentJsLib: DayJsLib, // old components use this hook
-  utils: UtilsComp, 
+  utils: UtilsComp,
   message: MessageComp,
   toast: ToastComp,
   localStorage: LocalStorageComp,
@@ -109,7 +109,7 @@ const HookMap: HookCompMapRawType = {
   screenInfo: ScreenInfoHookComp,
   urlParams: UrlParamsHookComp,
   drawer: DrawerComp,
-  theme: ThemeComp, 
+  theme: ThemeComp,
 };
 
 export const HookTmpComp = withTypeAndChildren(HookMap, "title", {
@@ -124,6 +124,7 @@ function SelectHookView(props: {
 }) {
   const editorState = useContext(EditorContext);
   const selectedComp = editorState.selectedComp();
+
   // Select the modal and its subcomponents on the left to display the modal
   useEffect(() => {
     if (
@@ -135,7 +136,13 @@ function SelectHookView(props: {
         editorState.selectSource !== "leftPanel")
     ) {
       return;
-    } else if ((selectedComp as any).children.comp === props.comp) {
+    } else if (
+      (selectedComp as any).children.comp === props.comp
+    ) {
+      if ((selectedComp as any).children.comp?.remoteInfo?.isRemote){
+        return;
+      }
+
       // Select the current modal to display the modal
       !props.comp.children.visible.getView().value &&
         props.comp.children.visible.dispatch(
@@ -177,7 +184,7 @@ export class HookComp extends HookTmpComp {
   }
 
   override getView() {
-    const view = this.children.comp.getView();
+    const view = this.children?.comp?.getView();
     if (!view) {
       // most hook components have no view
       return view;
