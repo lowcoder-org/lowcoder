@@ -854,7 +854,8 @@ export const FloatButtonStyle = [
 ] as const;
 
 export const TransferStyle = [
-  MARGIN,	
+  getStaticBackground(SURFACE_COLOR),
+  ...STYLING_FIELDS_CONTAINER_SEQUENCE
 ] as const;
 
 export const CardStyle = [
