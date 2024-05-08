@@ -71,7 +71,7 @@ export const authConfig = {
       source: { label: "Source", isRequire: true },
       sourceName: { label: "Source Name", isRequire: true },
       sourceDescription: { label: "Source Description" },
-      sourceIcon: { label: "Source Icon" },
+      sourceIcon: { label: "Source Icon", isIcon: true },
       sourceCategory: { label: "Source Category" },
       ...clientIdandSecretConfig,
       issuer: { label: 'Issuer URI', isRequired: true },
@@ -105,6 +105,7 @@ export type ItemType = {
   isList?: boolean;
   isRequire?: boolean;
   isPassword?: boolean;
+  isIcon?: boolean;
   hasLock?: boolean;
   tip?: string;
 }

@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { messageInstance, CloseEyeIcon } from "lowcoder-design";
-import { trans } from "i18n";
+import { i18nObjs, trans } from "i18n";
 import {
   FormStyled,
   PasswordLabel,
   StyledSteps
 } from "../styledComponents";
-import { default as Form } from "antd/es/form";
+import { default as Form, FormInstance } from "antd/es/form";
 import { default as Input } from "antd/es/input";
 import { default as Tooltip } from "antd/es/tooltip";
 import IdSourceApi, { ConfigItem } from "api/idSourceApi";
@@ -16,6 +16,7 @@ import _ from "lodash";
 import Flex from "antd/es/flex";
 import Button from "antd/es/button";
 import axios from "axios";
+import { IconPicker } from "@lowcoder-ee/comps/controls/iconControl";
 
 const sourceMappingKeys = [
   'uid',
@@ -80,7 +81,7 @@ function GenericOAuthForm(props: GenericOAuthFormProp) {
 
   const [saveLoading, setSaveLoading] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
-  const [issuerDetails, setIssuerDetails] = useState<ConfigProvider>();
+  const [issuerDetails, setIssuerDetails] = useState<ConfigProvider | {}>({});
 
   function saveAuthProvider(values: ConfigItem) {
     setSaveLoading(true);
@@ -105,31 +106,32 @@ function GenericOAuthForm(props: GenericOAuthFormProp) {
     form1.validateFields().then(async (values) => {
       setSaveLoading(true);
       const { issuer } = values;
-      const res = await axios.get<OpenIdProvider>(`${issuer}/.well-known/openid-configuration`);
-      setSaveLoading(false);
-
-      if (res.status >= 400) {
-        return null;
+      try {
+        const res = await axios.get<OpenIdProvider>(`${issuer}/.well-known/openid-configuration`);
+        setIssuerDetails(() => {
+          const issuer = {
+            authType: AuthType.Generic,
+            source: '',
+            sourceName: '',
+            issuer: res.data.issuer,
+            authorizationEndpoint: res.data.authorization_endpoint,
+            tokenEndpoint: res.data.token_endpoint,
+            userInfoEndpoint: res.data.userinfo_endpoint,
+            jwksUri: res.data.jwks_uri,
+            scope: res.data.scopes_supported.join(','),
+            sourceMappings: sourceMappingKeys.map(sourceKey => ({
+              [sourceKey]: sourceKey,
+            }))
+          };
+          form1.setFieldsValue(issuer);
+          return issuer;
+        })
+      } catch (e) {
+        setIssuerDetails({});
+      } finally {
+        setSaveLoading(false);
+        setCurrentStep(currentStep => currentStep + 1);
       }
-      setIssuerDetails(() => {
-        const issuer = {
-          authType: AuthType.Generic,
-          source: '',
-          sourceName: '',
-          issuer: res.data.issuer,
-          authorizationEndpoint: res.data.authorization_endpoint,
-          tokenEndpoint: res.data.token_endpoint,
-          userInfoEndpoint: res.data.userinfo_endpoint,
-          jwksUri: res.data.jwks_uri,
-          scope: res.data.scopes_supported.join(','),
-          sourceMappings: sourceMappingKeys.map(sourceKey => ({
-            [sourceKey]: sourceKey,
-          }))
-        };
-        form1.setFieldsValue(issuer);
-        return issuer;
-      })
-      setCurrentStep(currentStep => currentStep + 1);
     })
   }
 
@@ -215,6 +217,7 @@ function GenericOAuthForm(props: GenericOAuthFormProp) {
           const label = valueObject ? valueObject.label : value as string;
           const tip = valueObject && valueObject.tip;
           const isPassword = valueObject && valueObject.isPassword;
+          const isIcon = valueObject && valueObject.isIcon;
           return (
             <div key={key}>
               <Form.Item
@@ -246,6 +249,12 @@ function GenericOAuthForm(props: GenericOAuthFormProp) {
                     type={"password"}
                     placeholder={trans("idSource.encryptedServer")}
                     autoComplete={"one-time-code"}
+                  />
+                ) : isIcon ? (
+                  <IconPicker
+                    onChange={(value) => form1.setFieldValue("sourceIcon", value)}
+                    label={'Source Icon'}
+                    value={form1.getFieldValue('sourceIcon')}
                   />
                 ) : (
                   <Input
