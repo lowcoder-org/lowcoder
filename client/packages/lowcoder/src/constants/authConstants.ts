@@ -90,9 +90,9 @@ export const AuthRoutes: Array<{ path: string; component: React.ComponentType<an
   { path: ORG_AUTH_REGISTER_URL, component: UserRegister },
 ];
 
-export type ServerAuthType = "GOOGLE" | "GITHUB" | "FORM" | "KEYCLOAK" | "ORY";
+export type ServerAuthType = "GOOGLE" | "GITHUB" | "FORM" | "KEYCLOAK" | "ORY" | "GENERIC";
 
-export type ServerAuthTypeInfoValueType = { logo: string; isOAuth2?: boolean };
+export type ServerAuthTypeInfoValueType = { logo?: string; isOAuth2?: boolean };
 export const ServerAuthTypeInfo: { [key in ServerAuthType]?: ServerAuthTypeInfoValueType } = {
   GOOGLE: {
     logo: GoogleLoginIcon,
@@ -108,6 +108,10 @@ export const ServerAuthTypeInfo: { [key in ServerAuthType]?: ServerAuthTypeInfoV
   },
   ORY: {
     logo: OryLoginIcon,
+    isOAuth2: true
+  },
+  GENERIC: {
+    logo: undefined,
     isOAuth2: true
   },
   FORM: { logo: EmailLoginIcon },

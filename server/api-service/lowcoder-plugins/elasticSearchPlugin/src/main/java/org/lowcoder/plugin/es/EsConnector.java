@@ -1,21 +1,8 @@
 package org.lowcoder.plugin.es;
 
-import static org.lowcoder.sdk.exception.BizError.DATASOURCE_CLOSE_FAILED;
-import static org.lowcoder.sdk.exception.PluginCommonError.DATASOURCE_ARGUMENT_ERROR;
-import static org.lowcoder.sdk.util.ExceptionUtils.ofException;
-import static org.lowcoder.sdk.util.ExceptionUtils.ofPluginException;
-
-import java.io.IOException;
-import java.time.Duration;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-
-import javax.annotation.Nonnull;
-
+import com.google.common.base.Joiner;
+import jakarta.annotation.Nonnull;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpHost;
@@ -43,11 +30,16 @@ import org.lowcoder.sdk.util.JsonUtils;
 import org.lowcoder.sdk.util.Preconditions;
 import org.pf4j.Extension;
 import org.springframework.http.HttpMethod;
-
-import com.google.common.base.Joiner;
-
-import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
+
+import java.io.IOException;
+import java.time.Duration;
+import java.util.*;
+
+import static org.lowcoder.sdk.exception.BizError.DATASOURCE_CLOSE_FAILED;
+import static org.lowcoder.sdk.exception.PluginCommonError.DATASOURCE_ARGUMENT_ERROR;
+import static org.lowcoder.sdk.util.ExceptionUtils.ofException;
+import static org.lowcoder.sdk.util.ExceptionUtils.ofPluginException;
 
 /**
  * doc references:

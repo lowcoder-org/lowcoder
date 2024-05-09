@@ -13,7 +13,7 @@ import {
   RefControl,
   stringExposingStateControl,
   StringStateControl,
-  UICompBuilder,
+  UICompBuilder, 
   CommonNameConfig,
 } from "lowcoder-sdk";
 import { ButtonStyleControl } from "./videobuttonCompConstants";
@@ -118,7 +118,7 @@ let VideoCompBuilder = (function () {
                 !user.hasVideo &&
                 user.uid + "" !== userData.user &&
                 userData.user !== ""
-              ) {
+              ) { 
                 props.onEvent("videoOff");
               }
             }
@@ -130,6 +130,8 @@ let VideoCompBuilder = (function () {
         setVideo(userData.streamingVideo);
       }
     }, [props.userId.value]);
+    console.log("userId", userId);
+    
 
     return (
       <EditorContext.Consumer>
@@ -242,7 +244,7 @@ VideoCompBuilder = class extends VideoCompBuilder {
 };
 
 export const VideoMeetingStreamComp = withExposingConfigs(VideoCompBuilder, [
-  // new NameConfig("loading", trans("meeting.loadingDesc")),
+  new NameConfig("loading", trans("meeting.loadingDesc")),
   new NameConfig("profileImageUrl", trans("meeting.profileImageUrl")),
 
   ...CommonNameConfig,

@@ -73,6 +73,8 @@ export const getStyle = (style: DateTimeStyleType) => {
     &:not(.ant-picker-disabled) {
       border-color: ${style.border};
       background-color: ${style.background};
+      border-width: ${style.borderWidth};
+      border-style: ${style.borderStyle};
 
       input {
         color: ${style.text};

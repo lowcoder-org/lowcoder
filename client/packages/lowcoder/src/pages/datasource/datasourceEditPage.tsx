@@ -13,6 +13,7 @@ import { DatasourceType } from "@lowcoder-ee/constants/queryConstants";
 import { getDatasourceTutorial } from "@lowcoder-ee/util/tutorialUtils";
 import { getDataSourceFormManifest } from "./getDataSourceFormManifest";
 import DataSourceIcon from "components/DataSourceIcon";
+import { Helmet } from "react-helmet";
 
 const Wrapper = styled.div`
   display: flex;
@@ -190,7 +191,7 @@ export const DatasourceEditPage = () => {
   const DatasourceForm = formManifest?.form;
 
   return (
-    <Wrapper>
+    <><Helmet>{<title>{trans("home.datasource")} | {finalDataSourceType}</title>}</Helmet><Wrapper>
       <ContentWrapper>
         <Header>
           <BackBtn onClick={() => history.push(DATASOURCE_URL)}>
@@ -223,8 +224,7 @@ export const DatasourceEditPage = () => {
                 onFormReadyStatusChange={handleFormReadyStatusChange}
                 dataSourceTypeInfo={dataSourceTypeInfo}
                 datasource={datasourceInfo?.datasource!}
-                size={"middle"}
-              />
+                size={"middle"} />
             )}
 
             {formManifest && (
@@ -233,14 +233,12 @@ export const DatasourceEditPage = () => {
                   <TacoButton
                     buttonType="link"
                     loading={testLoading}
-                    onClick={() =>
-                      resolveTest(
-                        genRequest({
-                          datasourceId: datasourceId,
-                          datasourceType: datasourceType ?? datasourceInfo?.datasource.type,
-                        })
-                      )
-                    }
+                    onClick={() => resolveTest(
+                      genRequest({
+                        datasourceId: datasourceId,
+                        datasourceType: datasourceType ?? datasourceInfo?.datasource.type,
+                      })
+                    )}
                   >
                     {trans("query.testConnection")}
                   </TacoButton>
@@ -250,16 +248,14 @@ export const DatasourceEditPage = () => {
                   buttonType="primary"
                   loading={createLoading}
                   disabled={!isReady}
-                  onClick={() =>
-                    resolveCreate({
+                  onClick={() => resolveCreate({
+                    datasourceId: datasourceId,
+                    request: genRequest({
                       datasourceId: datasourceId,
-                      request: genRequest({
-                        datasourceId: datasourceId,
-                        datasourceType: datasourceType ?? datasourceInfo?.datasource.type,
-                      }),
-                      afterCreate: () => history.push(DATASOURCE_URL),
-                    })
-                  }
+                      datasourceType: datasourceType ?? datasourceInfo?.datasource.type,
+                    }),
+                    afterCreate: () => history.push(DATASOURCE_URL),
+                  })}
                 >
                   {!createLoading && trans("query.save")}
                 </TacoButton>
@@ -290,6 +286,6 @@ export const DatasourceEditPage = () => {
           )}
         </Body>
       </ContentWrapper>
-    </Wrapper>
+    </Wrapper></>
   );
 };

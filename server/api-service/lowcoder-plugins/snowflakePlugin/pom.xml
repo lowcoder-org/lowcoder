@@ -9,6 +9,7 @@
         <version>${revision}</version>
     </parent>
 
+    <groupId>org.lowcoder.plugins</groupId>
     <artifactId>snowflakePlugin</artifactId>
 
     <properties>

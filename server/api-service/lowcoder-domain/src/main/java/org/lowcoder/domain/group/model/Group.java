@@ -1,12 +1,12 @@
 package org.lowcoder.domain.group.model;
 
-import java.beans.Transient;
-import java.util.Comparator;
-import java.util.Locale;
-
-import javax.annotation.Nonnull;
-
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.annotation.Nonnull;
+import jakarta.validation.constraints.NotNull;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.jackson.Jacksonized;
 import org.apache.commons.lang3.BooleanUtils;
@@ -15,12 +15,9 @@ import org.lowcoder.domain.group.util.SystemGroups;
 import org.lowcoder.sdk.models.HasIdAndAuditing;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
-import jakarta.validation.constraints.NotNull;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import java.beans.Transient;
+import java.util.Comparator;
+import java.util.Locale;
 
 @Setter
 @ToString

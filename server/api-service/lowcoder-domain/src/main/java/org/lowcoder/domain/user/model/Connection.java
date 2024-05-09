@@ -2,6 +2,8 @@ package org.lowcoder.domain.user.model;
 
 import static org.apache.commons.collections4.MapUtils.emptyIfNull;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -28,8 +30,9 @@ import lombok.Setter;
 @Setter
 @Builder
 @Jacksonized
-public class Connection {
+public class Connection implements Serializable {
 
+    @Serial
     private static final long serialVersionUID = -9218373922209100577L;
 
     private String authId;
@@ -67,10 +70,6 @@ public class Connection {
         this.authConnectionAuthToken = authConnectionAuthToken;
         this.rawUserInfo = rawUserInfo;
         this.tokens = tokens;
-    }
-
-    public static Connection.ConnectionBuilder builder() {
-        return new ConnectionBuilder();
     }
 
     public Set<String> getTokens() {

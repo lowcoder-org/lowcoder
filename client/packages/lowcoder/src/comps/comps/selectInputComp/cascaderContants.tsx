@@ -6,7 +6,7 @@ import { arrayStringExposingStateControl } from "comps/controls/codeStateControl
 import { BoolControl } from "comps/controls/boolControl";
 import { LabelControl } from "comps/controls/labelControl";
 import { styleControl } from "comps/controls/styleControl";
-import { CascaderStyle, LabelStyle } from "comps/controls/styleControlConstants";
+import { CascaderStyle, InputFieldStyle, LabelStyle } from "comps/controls/styleControlConstants";
 import {
   allowClearPropertyView,
   disabledPropertyView,
@@ -34,12 +34,13 @@ export const CascaderChildren = {
   onEvent: SelectEventHandlerControl,
   allowClear: BoolControl,
   options: JSONObjectArrayControl,
-  style: styleControl(CascaderStyle),
+  style: styleControl(InputFieldStyle),
   labelStyle: styleControl(LabelStyle.filter((style) => ['accent', 'validate'].includes(style.name) === false)),
   showSearch: BoolControl.DEFAULT_TRUE,
   viewRef: RefControl<CascaderRef>,
   margin: MarginControl,
   padding: PaddingControl,
+  inputFieldStyle:styleControl(CascaderStyle)
 };
 
 export const CascaderPropertyView = (
@@ -78,6 +79,9 @@ export const CascaderPropertyView = (
         </Section>
         <Section name={sectionNames.labelStyle}>
           {children.labelStyle.getPropertyView()}
+        </Section>
+        <Section name={sectionNames.inputFieldStyle}>
+          {children.inputFieldStyle.getPropertyView()}
         </Section>
       </>
     )}

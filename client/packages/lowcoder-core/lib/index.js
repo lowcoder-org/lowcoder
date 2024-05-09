@@ -7581,15 +7581,62 @@ function requireReactJsxRuntime_development () {
 } (jsxRuntime));
 
 var en = {};
-
 var zh = {};
+var de = {};
+var fr = {};
+var es = {};
+var it = {};
+var ar = {};
+var th = {};
+var vi = {};
+var ms = {};
+var id = {};
+var hi = {};
+var ta = {};
+var kn = {};
+var ml = {};
+var ru = {};
+var pl = {};
+var cs = {};
+var uk = {};
+var bg = {};
+var sr = {};
+var hr = {};
+var sk = {};
+var sl = {};
+var mk = {};
+var pt = {};
 
 // file examples: en, enGB, zh, zhHK
 
 var localeData = /*#__PURE__*/Object.freeze({
     __proto__: null,
     en: en,
-    zh: zh
+    zh: zh,
+    de: de,
+    fr: fr,
+    es: es,
+    it: it,
+    ar: ar,
+    th: th,
+    vi: vi,
+    ms: ms,
+    id: id,
+    hi: hi,
+    ta: ta,
+    kn: kn,
+    ml: ml,
+    ru: ru,
+    pl: pl,
+    cs: cs,
+    uk: uk,
+    bg: bg,
+    sr: sr,
+    hr: hr,
+    sk: sk,
+    sl: sl,
+    mk: mk,
+    pt: pt
 });
 
 var ErrorKind;
@@ -11147,11 +11194,16 @@ originalMessage) {
             continue;
         }
         var varName = el.value;
+        var value = "";
         // Enforce that all required values are provided by the caller.
         if (!(values && varName in values)) {
-            throw new MissingValueError(varName, originalMessage);
+            console.log("No value provided for the variable \"" + varName + "\". " + originalMessage);
+            // throw new MissingValueError(varName, originalMessage);
+            value = varName;
         }
-        var value = values[varName];
+        else {
+            value = values[varName];
+        }
         if (isArgumentElement(el)) {
             if (!value || typeof value === 'string' || typeof value === 'number') {
                 value =
@@ -11505,14 +11557,22 @@ var IntlMessageFormat = IntlMessageFormat$1;
 
 var defaultLocale = "en";
 var locales = [defaultLocale];
+
+// Falk - Adapted the central translator to check if a localStorage key is existing.
+
+const uiLanguage = localStorage.getItem('lowcoder_uiLanguage');
 if (globalThis.navigator) {
-    if (navigator.languages && navigator.languages.length > 0) {
+    if (uiLanguage) {  
+        locales = [uiLanguage];
+    } 
+    else if (navigator.languages && navigator.languages.length > 0) {
         locales = __spreadArray([], navigator.languages, true);
     }
     else {
         locales = [navigator.language || navigator.userLanguage || defaultLocale];
     }
 }
+
 function parseLocale(s) {
     var locale = s.trim();
     if (!locale) {
@@ -11572,9 +11632,13 @@ function getDataByLocale(fileData, suffix, filterLocales, targetLocales) {
             return { data: data, language: name_1.slice(0, 2) };
         }
     }
-    throw new Error("Not found ".concat(names));
+    // throw new Error("Not found ".concat(names));
+    // better to continue the app without crashing
+    console.error("Not found ".concat(names));
 }
+
 var globalMessageKeyPrefix = "@";
+
 var globalMessages = Object.fromEntries(Object.entries(getDataByLocale(localeData, "").data).map(function (_a) {
     var k = _a[0], v = _a[1];
     return [
@@ -11635,7 +11699,7 @@ var Translator = /** @class */ (function () {
 }());
 
 function getI18nObjects(fileData, filterLocales) {
-    return getDataByLocale(fileData, "Obj", filterLocales).data;
+    return getDataByLocale(fileData, "Obj", filterLocales)?.data;
 }
 
 export { AbstractComp, AbstractNode, CachedNode, CodeNode, CompActionTypes, FetchCheckNode, FunctionNode, MultiBaseComp, RecordNode, RelaxedJsonParser, SimpleAbstractComp, SimpleComp, SimpleNode, Translator, ValueAndMsg, WrapContextNodeV2, WrapNode, changeChildAction, changeDependName, changeEditDSLAction, changeValueAction, clearMockWindow, clearStyleEval, customAction, deferAction, deleteCompAction, dependingNodeMapEquals, evalFunc, evalFunctionResult, evalNodeOrMinor, evalPerfUtil, evalScript, evalStyle, executeQueryAction, fromRecord, fromUnevaledValue, fromValue, fromValueWithCache, getDynamicStringSegments, getI18nObjects, getValueByLocale, i18n, isBroadcastAction, isChildAction, isCustomAction, isDynamicSegment, isFetching, isMyCustomAction, mergeExtra, multiChangeAction, nodeIsRecord, onlyEvalAction, relaxedJSONToJSON, renameAction, replaceCompAction, routeByNameAction, transformWrapper, triggerModuleEventAction, unwrapChildAction, updateActionContextAction, updateNodesV2Action, withFunction, wrapActionExtraInfo, wrapChildAction, wrapContext, wrapDispatch };

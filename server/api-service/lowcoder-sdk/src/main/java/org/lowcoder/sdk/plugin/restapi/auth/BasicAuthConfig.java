@@ -1,18 +1,14 @@
 package org.lowcoder.sdk.plugin.restapi.auth;
 
-import java.util.function.Function;
-
-import javax.annotation.Nullable;
-
+import com.fasterxml.jackson.annotation.JsonView;
+import jakarta.annotation.Nullable;
+import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.jackson.Jacksonized;
 import org.apache.commons.lang3.ObjectUtils;
 import org.lowcoder.sdk.config.SerializeConfig.JsonViews;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonView;
-
-import lombok.Getter;
+import java.util.function.Function;
 
 /**
  * not only basic auth config, but also digest auth config.

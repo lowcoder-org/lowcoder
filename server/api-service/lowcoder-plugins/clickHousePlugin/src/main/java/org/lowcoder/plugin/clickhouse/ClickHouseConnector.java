@@ -1,9 +1,17 @@
 package org.lowcoder.plugin.clickhouse;
 
-import static org.lowcoder.sdk.exception.PluginCommonError.DATASOURCE_ARGUMENT_ERROR;
-import static org.lowcoder.sdk.exception.PluginCommonError.DATASOURCE_TIMEOUT_ERROR;
-import static org.lowcoder.sdk.exception.PluginCommonError.QUERY_EXECUTION_ERROR;
-import static org.lowcoder.sdk.plugin.common.QueryExecutionUtils.querySharedScheduler;
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
+import com.zaxxer.hikari.pool.HikariPool.PoolInitializationException;
+import jakarta.annotation.Nonnull;
+import org.apache.commons.lang3.StringUtils;
+import org.lowcoder.plugin.clickhouse.model.ClickHouseDatasourceConfig;
+import org.lowcoder.sdk.config.dynamic.ConfigCenter;
+import org.lowcoder.sdk.exception.PluginException;
+import org.lowcoder.sdk.models.DatasourceTestResult;
+import org.lowcoder.sdk.plugin.common.DatasourceConnector;
+import org.pf4j.Extension;
+import reactor.core.publisher.Mono;
 
 import java.time.Duration;
 import java.util.HashSet;
@@ -13,21 +21,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Supplier;
 
-import javax.annotation.Nonnull;
-
-import org.apache.commons.lang3.StringUtils;
-import org.lowcoder.plugin.clickhouse.model.ClickHouseDatasourceConfig;
-import org.lowcoder.sdk.config.dynamic.ConfigCenter;
-import org.lowcoder.sdk.exception.PluginException;
-import org.lowcoder.sdk.models.DatasourceTestResult;
-import org.lowcoder.sdk.plugin.common.DatasourceConnector;
-import org.pf4j.Extension;
-
-import com.zaxxer.hikari.HikariConfig;
-import com.zaxxer.hikari.HikariDataSource;
-import com.zaxxer.hikari.pool.HikariPool.PoolInitializationException;
-
-import reactor.core.publisher.Mono;
+import static org.lowcoder.sdk.exception.PluginCommonError.*;
+import static org.lowcoder.sdk.plugin.common.QueryExecutionUtils.querySharedScheduler;
 
 @Extension
 public class ClickHouseConnector implements DatasourceConnector<HikariDataSource, ClickHouseDatasourceConfig> {

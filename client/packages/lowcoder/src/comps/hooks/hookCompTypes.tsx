@@ -3,7 +3,7 @@ import { withExposingRaw } from "comps/generators/withExposing";
 const AllHookComp = [
   "modal",
   "drawer",
-  "meeting",
+  // "meeting",
   "title",
   "windowSize",
   "currentTime",
@@ -18,6 +18,7 @@ const AllHookComp = [
   "screenInfo",
   "urlParams",
   "theme",
+  "meeting"
 ] as const;
 
 export type HookCompType = (typeof AllHookComp)[number];

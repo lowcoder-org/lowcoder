@@ -7,6 +7,7 @@ export enum AuthType {
   Github = "GITHUB",
   Ory = "ORY",
   KeyCloak = "KEYCLOAK",
+  Generic = "GENERIC",
 }
 
 export const IdSource = [
@@ -15,6 +16,7 @@ export const IdSource = [
   AuthType.Form,
   AuthType.Ory,
   AuthType.KeyCloak,
+  AuthType.Generic,
 ];
 
 export const validatorOptions = [];
@@ -62,9 +64,29 @@ export const authConfig = {
       scope: "Scope",
     },
   },
+  [AuthType.Generic]: {
+    sourceName: "Generic",
+    sourceValue: AuthType.Generic,
+    form: {
+      source: { label: "Source", isRequire: true },
+      sourceName: { label: "Source Name", isRequire: true },
+      sourceDescription: { label: "Source Description" },
+      sourceIcon: { label: "Source Icon", isIcon: true },
+      sourceCategory: { label: "Source Category" },
+      ...clientIdandSecretConfig,
+      issuer: { label: 'Issuer URI', isRequired: true },
+      authorizationEndpoint: { label: 'Authorization Endpoint', isRequired: true },
+      tokenEndpoint: { label: 'Token Endpoint', isRequired: true },
+      userInfoEndpoint: { label: 'UserInfo Endpoint', isRequired: true },
+      // jwks: { label: 'Authorize URL', isRequired: true },
+      scope: "Scope",
+      // baseUrl: "Base URL",
+      // realm: "Realm",
+    },
+  },
 } as { [key: string]: { sourceName: string; sourceValue: AuthType, form: FormItemType } };
 
-export const FreeTypes = [AuthType.Google, AuthType.Github, AuthType.Form, AuthType.Ory, AuthType.KeyCloak];
+export const FreeTypes = [AuthType.Google, AuthType.Github, AuthType.Form, AuthType.Ory, AuthType.KeyCloak, AuthType.Generic];
 
 export const authTypeDisabled = (type: AuthType, enableEnterpriseLogin?: boolean) => {
   return !FreeTypes.includes(type);
@@ -83,6 +105,7 @@ export type ItemType = {
   isList?: boolean;
   isRequire?: boolean;
   isPassword?: boolean;
+  isIcon?: boolean;
   hasLock?: boolean;
   tip?: string;
 }

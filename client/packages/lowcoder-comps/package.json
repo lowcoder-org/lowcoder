@@ -1,6 +1,6 @@
 {
   "name": "lowcoder-comps",
-  "version": "0.0.30",
+  "version": "2.4.4",
   "type": "module",
   "license": "MIT",
   "dependencies": {
@@ -25,7 +25,7 @@
     "echarts-extension-gmap": "^1.6.0",
     "echarts-wordcloud": "^2.1.0",
     "lowcoder-cli": "workspace:^",
-    "lowcoder-sdk": "/Users/la/Desktop/lowcoder-1/client/packages/lowcoder-sdk",
+    "lowcoder-sdk": "workspace:^",
     "mermaid": "^10.6.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -34,35 +34,35 @@
   "lowcoder": {
     "description": "",
     "comps": {
-      "meetingSharing": {
-        "name": "Agora Meeting Sharing",
-        "icon": "./icons/icon-comp-calendar.svg",
-        "layoutInfo": {
-          "w": 15,
-          "h": 60
-        }
-      },
       "meetingController": {
         "name": "Agora Meeting Controller",
         "icon": "./icons/icon-comp-calendar.svg",
         "layoutInfo": {
-          "w": 15,
-          "h": 60
+          "w": 1,
+          "h": 1
+        }
+      },
+      "meetingSharing": {
+        "name": "Agora Meeting Sharing",
+        "icon": "./icons/icon-comp-calendar.svg",
+        "layoutInfo": {
+          "w": 6,
+          "h": 40
         }
       },
       "meetingStream": {
         "name": "Video Stream",
         "icon": "./icons/icon-comp-calendar.svg",
         "layoutInfo": {
-          "w": 15,
-          "h": 60
+          "w": 6,
+          "h": 40
         }
       },
       "calendar": {
         "name": "Calendar",
         "icon": "./icons/icon-comp-calendar.svg",
         "layoutInfo": {
-          "w": 15,
+          "w": 19,
           "h": 60
         }
       },
@@ -70,7 +70,15 @@
         "name": "Chart",
         "icon": "./icons/icon-chart.svg",
         "layoutInfo": {
-          "w": 15,
+          "w": 12,
+          "h": 40
+        }
+      },
+      "basicChart": {
+        "name": "Basic Chart",
+        "icon": "./icons/icon-chart.svg",
+        "layoutInfo": {
+          "w": 12,
           "h": 40
         }
       },
@@ -78,7 +86,7 @@
         "name": "Image Editor",
         "icon": "./icons/icon-chart.svg",
         "layoutInfo": {
-          "w": 15,
+          "w": 12,
           "h": 40
         }
       },
@@ -86,8 +94,104 @@
         "name": "Mermaid",
         "icon": "./icons/mermaidchart.svg",
         "layoutInfo": {
-          "w": 15,
+          "w": 12,
           "h": 40
+        }
+      },
+      "funnelChart": {
+        "name": "Funnel Chart",
+        "icon": "./icons/icon-chart.svg",
+        "layoutInfo": {
+          "w": 12,
+          "h": 40
+        }
+      },
+      "gaugeChart": {
+        "name": "Gauge Chart",
+        "icon": "./icons/icon-chart.svg",
+        "layoutInfo": {
+          "w": 12,
+          "h": 40
+        }
+      },
+      "sankeyChart": {
+        "name": "Sankey Chart",
+        "icon": "./icons/icon-chart.svg",
+        "layoutInfo": {
+          "w": 12,
+          "h": 40
+        }
+      },
+      "candleStickChart": {
+        "name": "CandleStick Chart",
+        "icon": "./icons/icon-chart.svg",
+        "layoutInfo": {
+          "w": 12,
+          "h": 40
+        }
+      },
+      "radarChart": {
+        "name": "Radar Chart",
+        "icon": "./icons/icon-chart.svg",
+        "layoutInfo": {
+          "w": 12,
+          "h": 40
+        }
+      },
+      "heatmapChart": {
+        "name": "Heatmap Chart",
+        "icon": "./icons/icon-chart.svg",
+        "layoutInfo": {
+          "w": 12,
+          "h": 40
+        }
+      },
+      "graphChart": {
+        "name": "Graph Chart",
+        "icon": "./icons/icon-chart.svg",
+        "layoutInfo": {
+          "w": 12,
+          "h": 40
+        }
+      },
+      "treeChart": {
+        "name": "Tree Chart",
+        "icon": "./icons/icon-chart.svg",
+        "layoutInfo": {
+          "w": 12,
+          "h": 40
+        }
+      },
+      "treemapChart": {
+        "name": "Treemap Chart",
+        "icon": "./icons/icon-chart.svg",
+        "layoutInfo": {
+          "w": 12,
+          "h": 40
+        }
+      },
+      "sunburstChart": {
+        "name": "Sunburst Chart",
+        "icon": "./icons/icon-chart.svg",
+        "layoutInfo": {
+          "w": 12,
+          "h": 40
+        }
+      },
+      "themeriverChart": {
+        "name": "Themeriver Chart",
+        "icon": "./icons/icon-chart.svg",
+        "layoutInfo": {
+          "w": 12,
+          "h": 40
+        }
+      },
+      "chartsGeoMap": {
+        "name": "chartsGeoMap",
+        "icon": "./icons/icon-chart.svg",
+        "layoutInfo": {
+          "w": 19,
+          "h": 60
         }
       }
     }

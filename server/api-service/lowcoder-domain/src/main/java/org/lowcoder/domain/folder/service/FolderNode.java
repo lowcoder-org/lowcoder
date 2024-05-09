@@ -1,18 +1,13 @@
 package org.lowcoder.domain.folder.service;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.List;
-import java.util.PriorityQueue;
-import java.util.function.Consumer;
-import java.util.function.Function;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.*;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 @Getter
 @Setter

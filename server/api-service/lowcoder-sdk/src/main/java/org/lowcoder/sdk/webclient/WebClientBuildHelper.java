@@ -1,12 +1,9 @@
 package org.lowcoder.sdk.webclient;
 
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
-import java.time.Duration;
-import java.util.Set;
-
-import javax.net.ssl.SSLException;
-
+import io.netty.handler.ssl.SslContext;
+import io.netty.handler.ssl.SslContextBuilder;
+import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.lowcoder.sdk.plugin.common.ssl.DisableVerifySslConfig;
@@ -16,14 +13,15 @@ import org.lowcoder.sdk.plugin.common.ssl.VerifySelfSignedCertSslConfig;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClient.Builder;
-
-import io.netty.handler.ssl.SslContext;
-import io.netty.handler.ssl.SslContextBuilder;
-import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
-import lombok.extern.slf4j.Slf4j;
 import reactor.netty.http.client.HttpClient;
 import reactor.netty.tcp.SslProvider;
 import reactor.netty.transport.ProxyProvider.Proxy;
+
+import javax.net.ssl.SSLException;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+import java.time.Duration;
+import java.util.Set;
 
 @Slf4j
 public class WebClientBuildHelper {

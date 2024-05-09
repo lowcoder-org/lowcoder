@@ -23,6 +23,10 @@ export type BorderWidthConfig = CommonColorConfig & {
   readonly borderWidth: string;
 };
 
+export type RotationConfig = CommonColorConfig & {
+  readonly rotation: string;
+};
+
 export type BackgroundImageConfig = CommonColorConfig & { readonly backgroundImage: string; };
 export type BackgroundImageRepeatConfig = CommonColorConfig & { readonly backgroundImageRepeat: string; };
 export type BackgroundImageSizeConfig = CommonColorConfig & { readonly backgroundImageSize: string; };
@@ -106,7 +110,7 @@ export type DepColorConfig = CommonColorConfig & {
   transformer: (color: string, ...rest: string[]) => string;
 };
 
-export type SingleColorConfig = SimpleColorConfig | DepColorConfig | RadiusConfig | BorderWidthConfig | borderStyleConfig | BackgroundImageConfig | BackgroundImageRepeatConfig | BackgroundImageSizeConfig | BackgroundImagePositionConfig | BackgroundImageOriginConfig | TextSizeConfig | TextWeightConfig | TextTransformConfig | TextDecorationConfig | FontFamilyConfig | FontStyleConfig | MarginConfig | PaddingConfig | ContainerHeaderPaddingConfig | ContainerSiderPaddingConfig | ContainerFooterPaddingConfig | ContainerBodyPaddingConfig | HeaderBackgroundImageConfig | HeaderBackgroundImageRepeatConfig | HeaderBackgroundImageSizeConfig | HeaderBackgroundImagePositionConfig | HeaderBackgroundImageOriginConfig | FooterBackgroundImageConfig | FooterBackgroundImageRepeatConfig | FooterBackgroundImageSizeConfig | FooterBackgroundImagePositionConfig | FooterBackgroundImageOriginConfig | SiderBackgroundImageConfig | SiderBackgroundImageRepeatConfig | SiderBackgroundImageSizeConfig | SiderBackgroundImagePositionConfig | SiderBackgroundImageOriginConfig;
+export type SingleColorConfig = SimpleColorConfig | DepColorConfig | RadiusConfig | BorderWidthConfig | RotationConfig | borderStyleConfig | BackgroundImageConfig | BackgroundImageRepeatConfig | BackgroundImageSizeConfig | BackgroundImagePositionConfig | BackgroundImageOriginConfig | TextSizeConfig | TextWeightConfig | TextTransformConfig | TextDecorationConfig | FontFamilyConfig | FontStyleConfig | MarginConfig | PaddingConfig | ContainerHeaderPaddingConfig | ContainerSiderPaddingConfig | ContainerFooterPaddingConfig | ContainerBodyPaddingConfig | HeaderBackgroundImageConfig | HeaderBackgroundImageRepeatConfig | HeaderBackgroundImageSizeConfig | HeaderBackgroundImagePositionConfig | HeaderBackgroundImageOriginConfig | FooterBackgroundImageConfig | FooterBackgroundImageRepeatConfig | FooterBackgroundImageSizeConfig | FooterBackgroundImagePositionConfig | FooterBackgroundImageOriginConfig | SiderBackgroundImageConfig | SiderBackgroundImageRepeatConfig | SiderBackgroundImageSizeConfig | SiderBackgroundImagePositionConfig | SiderBackgroundImageOriginConfig;
 
 export const defaultTheme: ThemeDetail = {
   primary: "#3377FF",
@@ -303,6 +307,12 @@ const VALIDATE = {
 
 const ACCENT_VALIDATE = [ACCENT, VALIDATE] as const;
 
+const ROTATION = {
+  name: "rotation",
+  label: "Rotation",
+  rotation: "rotation",
+} as const;
+
 const BORDER = {
   name: "border",
   label: trans("style.border"),
@@ -460,7 +470,10 @@ const SIDER_BACKGROUND = {
 } as const;
 
 const BG_STATIC_BORDER_RADIUS = [getBackground(), getStaticBorder(), RADIUS] as const;
+
 const STYLING_FIELDS_SEQUENCE = [
+  MARGIN,
+  PADDING,
   TEXT,
   TEXT_TRANSFORM,
   TEXT_DECORATION,
@@ -470,11 +483,19 @@ const STYLING_FIELDS_SEQUENCE = [
   FONT_STYLE,
   BORDER,
   BORDER_STYLE,
-  MARGIN,
-  PADDING,
   RADIUS,
   BORDER_WIDTH,
+  ROTATION,
 ]
+
+const STYLING_FIELDS_CONTAINER_SEQUENCE = [
+  MARGIN,
+  PADDING,
+  BORDER,
+  BORDER_STYLE,
+  RADIUS,
+  BORDER_WIDTH,
+];
 
 const FILL = {
   name: "fill",
@@ -780,9 +801,94 @@ export const InputLikeStyle = [
   ...ACCENT_VALIDATE,
 ] as const;
 
+// added by Mousheng
+
+export const ColorPickerStyle = [
+  LABEL,
+  getStaticBackground(SURFACE_COLOR),
+  ...STYLING_FIELDS_SEQUENCE,
+  ...ACCENT_VALIDATE,
+] as const;
+
+export const AvatarStyle = [
+  {
+    name: "background",
+    label: trans("avatarComp.avatarBackground"),
+    color: '#bfbfbf',
+  },
+  FILL,
+  {
+    name: "label",
+    label: trans("avatarComp.label"),
+    color: '#000000',
+  },
+  {
+    name: "caption",
+    label: trans("avatarComp.caption"),
+    color: '#a5a5a5',
+  },
+] as const;
+
+export const avatarGroupStyle = [
+  {
+    name: "fill",
+    label: trans("style.fill"),
+    color: '#FFFFFF',
+  },
+  getBackground("primary"),
+] as const;
+
+export const FloatButtonStyle = [
+  {
+    name: "badgeColor",
+    label: trans("floatButton.badgeColor"),
+    color: "#ff4d4f",
+  },
+] as const;
+
+export const TransferStyle = [
+  MARGIN,	
+] as const;
+
+export const CardStyle = [
+  getStaticBackground("#ffffff"),
+  BORDER,
+  {
+    name: "IconColor",
+    label: trans("card.IconColor"),
+    color: "#000000",
+  },
+  {
+    name: "activateColor",
+    label: trans("card.hoverColor"),
+    depTheme: "primary",
+    depType: DEP_TYPE.SELF,
+    transformer: toSelf,
+  },
+  CONTAINER_BODY_PADDING,
+] as const;
+
+export const timerStyle = [
+  getBackground("primarySurface"),
+  BORDER,
+  RADIUS,
+  {
+    name: "fontColor",
+    label: trans("timer.fontColor"),
+    color: "#000000",
+  },
+] as const;
+
+// end
+
 export const LabelStyle = [
   ...replaceAndMergeMultipleStyles([...InputLikeStyle], 'text', [LABEL]).filter((style) => style.name !== 'radius' && style.name !== 'background')
 ]
+
+export const InputFieldStyle = [
+  getStaticBackground(SURFACE_COLOR),
+  ...STYLING_FIELDS_CONTAINER_SEQUENCE,
+] as const;
 
 export const RatingStyle = [
   {
@@ -964,25 +1070,45 @@ export const SegmentStyle = [
 ] as const;
 
 export const StepsStyle = [
-  LABEL,
-  ...STYLING_FIELDS_SEQUENCE.filter((style) => ['border', 'borderWidth'].includes(style.name) === false),
   {
-    name: "indicatorBackground",
-    label: trans("style.indicatorBackground"),
-    color: SURFACE_COLOR,
-  },
-  {
-    name: "background",
-    label: trans("style.background"),
-    depName: "indicatorBackground",
+    name: "activeBackground",
+    label: trans("style.accent"),
+    depName: "activeBackground",
     transformer: handleToSegmentBackground,
   },
   {
-    name: "text",
-    label: trans("text"),
-    depName: "indicatorBackground",
+    name: "titleText",
+    label: trans("title"),
+    depName: "background",
     depType: DEP_TYPE.CONTRAST_TEXT,
     transformer: contrastText,
+  },
+  ...STYLING_FIELDS_SEQUENCE.filter((style) => ['background', 'textSize','textDecoration'].includes(style.name) === false),
+  getBackground(),
+  {
+    name: "backgroundImage",
+    label: trans("style.backgroundImage"),
+    backgroundImage: "backgroundImage",
+  },
+  {
+    name: "backgroundImageRepeat",
+    label: trans("style.backgroundImageRepeat"),
+    backgroundImageRepeat: "backgroundImageRepeat",
+  },
+  {
+    name: "backgroundImageSize",
+    label: trans("style.backgroundImageSize"),
+    backgroundImageSize: "backgroundImageSize",
+  },
+  {
+    name: "backgroundImagePosition",
+    label: trans("style.backgroundImagePosition"),
+    backgroundImagePosition: "backgroundImagePosition",
+  },
+  {
+    name: "backgroundImageOrigin",
+    label: trans("style.backgroundImageOrigin"),
+    backgroundImageOrigin: "backgroundImageOrigin",
   },
 ] as const;
 
@@ -1126,6 +1252,8 @@ export const DateTimeStyle = [
   TEXT,
   MARGIN,
   PADDING,
+  BORDER_STYLE,
+  BORDER_WIDTH,
   ...ACCENT_VALIDATE,
 ] as const;
 
@@ -1150,11 +1278,11 @@ export const LinkStyle = [
 ] as const;
 
 export const DividerStyle = [
-  {
+  /* {
     name: "color",
     label: trans("color"),
-    color: lightenColor(SECOND_SURFACE_COLOR, 0.05),
-  },
+    color: darkenColor(SECOND_SURFACE_COLOR, 0.1),
+  }, */
   ...STYLING_FIELDS_SEQUENCE.map((style) => {
     if (style.name === 'text') {
       return {
@@ -1277,6 +1405,10 @@ export const TreeSelectStyle = [...multiSelectCommon, ...ACCENT_VALIDATE] as con
 export const DrawerStyle = [getBackground()] as const
 
 export const JsonEditorStyle = [LABEL] as const;
+
+export const EchartsStyle = [
+  getBackground("primarySurface"),
+] as const;
 
 export const CalendarStyle = [
   getBackground("primarySurface"),
@@ -1444,8 +1576,18 @@ export const RichTextEditorStyle = [
   BORDER_WIDTH
 ] as const;
 
+export type QRCodeStyleType = StyleConfigType<typeof QRCodeStyle>;
+export type AvatarStyleType = StyleConfigType<typeof AvatarStyle>;
+export type AvatarGroupStyleType = StyleConfigType<typeof avatarGroupStyle>;
+export type FloatButtonStyleType = StyleConfigType<typeof FloatButtonStyle>;
+export type TransferStyleType = StyleConfigType<typeof TransferStyle>;
+export type CardStyleType = StyleConfigType<typeof CardStyle>;
+export type timerStyleType = StyleConfigType<typeof timerStyle>;
+
 export type LabelStyleType = StyleConfigType<typeof LabelStyle>;
 export type InputLikeStyleType = StyleConfigType<typeof InputLikeStyle>;
+export type InputFieldStyleType = StyleConfigType<typeof InputFieldStyle>;
+export type ColorPickerStyleType = StyleConfigType<typeof ColorPickerStyle>;
 export type ButtonStyleType = StyleConfigType<typeof ButtonStyle>;
 export type ToggleButtonStyleType = StyleConfigType<typeof ToggleButtonStyle>;
 export type TextStyleType = StyleConfigType<typeof TextStyle>;

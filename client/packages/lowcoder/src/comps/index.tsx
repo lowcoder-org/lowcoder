@@ -1,10 +1,4 @@
 import cnchar from "cnchar";
-import { defaultContainerData } from "./comps/containerComp/containerComp";
-import { ContainerComp as FloatTextContainerComp } from "./comps/containerComp/textContainerComp";
-import {
-  PageLayoutComp,
-  defaultPageLayoutData,
-} from "./comps/containerComp/pageLayoutComp";
 import { trans } from "i18n";
 import { remoteComp } from "./comps/remoteComp/remoteComp";
 import {
@@ -12,18 +6,21 @@ import {
   type UICompManifest,
   type UICompType,
 } from "./uiCompRegistry";
-
 import { RemoteCompInfo } from "types/remoteComp";
-import { IconComp } from "./comps/iconComp";
- 
+
 import {
+  AvatarCompIcon,
+  AvatarGroupCompIcon,
   AudioCompIcon,
   ButtonCompIcon,
+  IconButtonCompIcon,
+  CardCompIcon,
   CalendarCompIcon,
   CarouselCompIcon,
   CascaderCompIcon,
   ChartCompIcon,
   CheckboxCompIcon,
+  ColorPickerCompIcon,
   CollapsibleContainerCompIcon,
   ContainerCompIcon,
   CustomCompIcon,
@@ -33,17 +30,18 @@ import {
   DrawerCompIcon,
   DropdownCompIcon,
   FileViewerCompIcon,
+  FloatingButtonCompIcon,
   FormCompIcon,
   GridCompIcon,
   IFrameCompIcon,
   ImageCompIcon,
-  imageEditorIcon,
+  ImageEditorCompIcon,
   InputCompIcon,
   JsonEditorCompIcon,
   JsonExplorerCompIcon,
   JsonFormCompIcon,
   LinkCompIcon,
-  ListViewIcon,
+  ListViewCompIcon,
   ModalCompIcon,
   MultiSelectCompIcon,
   NavComIcon,
@@ -56,10 +54,10 @@ import {
   RangeSliderCompIcon,
   RatingCompIcon,
   RichTextEditorCompIcon,
-  ScannerIcon,
+  ScannerCompIcon,
   SegmentedCompIcon,
   SelectCompIcon,
-  SignatureIcon,
+  SignatureCompIcon,
   SliderCompIcon,
   SwitchCompIcon,
   TabbedContainerCompIcon,
@@ -67,22 +65,42 @@ import {
   TextAreaCompIcon,
   TextCompIcon,
   TimeCompIcon,
+  TimerCompIcon,
   TimeRangeCompIcon,
   ToggleButtonCompIcon,
-  TreeIcon,
-  TreeSelectIcon,
+  TransferCompIcon,
+  TreeDisplayCompIcon,
+  TreeSelectCompIcon,
   UploadCompIcon,
   VideoCompIcon,
-  TimeLineIcon,
-  LottieIcon,
-  CommentIcon,
-  MentionIcon,
+  VideoMeetingRoomCompIcon,
+  VideoCameraStreamCompIcon,
+  VideoScreenshareCompIcon,
+  TimeLineCompIcon,
+  LottieAnimationCompIcon,
+  CommentCompIcon,
+  MentionCompIcon,
   AutoCompleteCompIcon,
   ResponsiveLayoutCompIcon,
-  MermaidIcon,
+  MermaidCompIcon,
   IconCompIcon,
-  LayoutCompIcon,
-  FloatingTextComp,
+  PageLayoutCompIcon,
+  FloatingTextCompIcon,
+  TourCompIcon,
+  StepCompIcon,
+
+  CandlestickChartCompIcon,
+  FunnelChartCompIcon,
+  // GraphChartCompIcon,
+  HeatmapChartCompIcon,
+  GaugeChartCompIcon,
+  RadarChartCompIcon,
+  SankeyChartCompIcon,
+  SunburstChartCompIcon,
+  ThemeriverChartCompIcon,
+  TreeChartCompIcon,
+  TreemapChartCompIcon,
+
 } from "lowcoder-design";
 import { ShapeComp } from "./comps/shapeComp/shapeComp";
 
@@ -96,25 +114,28 @@ const builtInRemoteComps: Omit<RemoteCompInfo, "compName"> = {
   packageName: "lowcoder-comps",
 };
 
-export var uiCompMap: Registry = {
+export var uiCompMap: Registry = { 
   // Dashboards
-
+  
   shape: {
     name: trans("uiComp.shapeCompName"),
-    enName: "Chart",
+    enName: "Shape",
     description: trans("uiComp.shapeCompDesc"),
     categories: ["dashboards"],
     icon: ChartCompIcon,
     keywords: trans("uiComp.shapeCompKeywords"),
-    comp: ShapeComp,
+    lazyLoad: true,
+    compName: "ShapeComp",
+    compPath: "comps/shapeComp/shapeComp",
     layoutInfo: {
       w: 12,
       h: 40,
     },
   },
-
+  
+  // charts
   chart: {
-    name: trans("uiComp.chartCompName"),
+    name: trans("uiComp.chartCompName") + " (legacy)",
     enName: "Chart",
     description: trans("uiComp.chartCompDesc"),
     categories: ["dashboards"],
@@ -126,39 +147,200 @@ export var uiCompMap: Registry = {
       h: 40,
     },
   },
-  mermaid: {
-    name: trans("uiComp.mermaidCompName"),
-    enName: "Mermaid Charts",
-    comp: remoteComp({ ...builtInRemoteComps, compName: "mermaid" }),
-    description: trans("uiComp.mermaidCompDesc"),
+
+  basicChart: {
+    name: trans("uiComp.basicChartCompName"),
+    enName: "Basic Chart",
+    description: trans("uiComp.basicChartCompDesc"),
     categories: ["dashboards"],
-    icon: MermaidIcon,
-    keywords: trans("uiComp.mermaidCompKeywords"),
+    icon: ChartCompIcon,
+    comp: remoteComp({ ...builtInRemoteComps, compName: "basicChart" }),
+    keywords: trans("uiComp.basicChartCompKeywords"),
     layoutInfo: {
       w: 12,
       h: 40,
     },
   },
-  timeline: {
-    name: trans("uiComp.timelineCompName"),
-    enName: "timeline",
-    description: trans("uiComp.timelineCompDesc"),
+
+  candleStickChart : {
+    name: trans("uiComp.candleStickChartCompName"),
+    enName: "Candlestick Chart",
+    description: trans("uiComp.candleStickChartCompDesc"),
     categories: ["dashboards"],
-    icon: TimeLineIcon,
-    keywords: trans("uiComp.timelineCompKeywords"),
-    lazyLoad: true,
-    compName: "TimeLineComp",
-    compPath: "comps/timelineComp/timelineComp",
+    icon: CandlestickChartCompIcon,
+    keywords: trans("uiComp.candleStickChartCompKeywords"),
+    comp: remoteComp({ ...builtInRemoteComps, compName: "candleStickChart" }),
+    layoutInfo: {
+      "w": 12,
+      "h": 40
+    }
+  },
+  funnelChart : {
+    name: trans("uiComp.funnelChartCompName"),
+    enName: "Sankey Chart",
+    description: trans("uiComp.funnelChartCompDesc"),
+    categories: ["dashboards"],
+    icon: FunnelChartCompIcon,
+    keywords: trans("uiComp.funnelChartCompKeywords"),
+    comp: remoteComp({ ...builtInRemoteComps, compName: "funnelChart" }),
+    layoutInfo: {
+      "w": 12,
+      "h": 40
+    }
+  },
+  gaugeChart : {
+    name: trans("uiComp.gaugeChartCompName"),
+    enName: "Candlestick Chart",
+    description: trans("uiComp.gaugeChartCompDesc"),
+    categories: ["dashboards"],
+    icon: GaugeChartCompIcon,
+    keywords: trans("uiComp.gaugeChartCompKeywords"),
+    comp: remoteComp({ ...builtInRemoteComps, compName: "gaugeChart" }),
+    layoutInfo: {
+      "w": 12,
+      "h": 40
+    }
+  },
+  graphChart : {
+    name: trans("uiComp.graphChartCompName"),
+    enName: "Graph Chart",
+    description: trans("uiComp.graphChartCompDesc"),
+    categories: ["dashboards"],
+    icon: IconCompIcon,
+    keywords: trans("uiComp.graphChartCompKeywords"),
+    comp: remoteComp({ ...builtInRemoteComps, compName: "graphChart" }),
+    layoutInfo: {
+      "w": 12,
+      "h": 40
+    }
+  },
+  heatmapChart: {
+    name: trans("uiComp.heatmapChartCompName"),
+    enName: "Heatmap Chart",
+    description: trans("uiComp.heatmapChartCompDesc"),
+    categories: ["dashboards"],
+    icon: HeatmapChartCompIcon,
+    keywords: trans("uiComp.heatmapChartCompKeywords"),
+    comp: remoteComp({ ...builtInRemoteComps, compName: "heatmapChart" }),
+    layoutInfo: {
+      "w": 12,
+      "h": 40
+    }
+  },
+  radarChart : {
+    name: trans("uiComp.radarChartCompName"),
+    enName: "Radar Chart",
+    description: trans("uiComp.radarChartCompDesc"),
+    categories: ["dashboards"],
+    icon: RadarChartCompIcon,
+    keywords: trans("uiComp.radarChartCompKeywords"),
+    comp: remoteComp({ ...builtInRemoteComps, compName: "radarChart" }),
+    layoutInfo: {
+      "w": 12,
+      "h": 40
+    }
+  },
+  sankeyChart : {
+    name: trans("uiComp.sankeyChartCompName"),
+    enName: "Sankey Chart",
+    description: trans("uiComp.sankeyChartCompDesc"),
+    categories: ["dashboards"],
+    icon: SankeyChartCompIcon,
+    keywords: trans("uiComp.sankeyChartCompKeywords"),
+    comp: remoteComp({ ...builtInRemoteComps, compName: "sankeyChart" }),
+    layoutInfo: {
+      "w": 12,
+      "h": 40
+    }
+  },
+  sunburstChart: {
+    name: trans("uiComp.sunburstChartCompName"),
+    enName: "Sunburst Chart",
+    description: trans("uiComp.sunburstChartCompDesc"),
+    categories: ["dashboards"],
+    icon: SunburstChartCompIcon,
+    keywords: trans("uiComp.sunburstChartCompKeywords"),
+    comp: remoteComp({ ...builtInRemoteComps, compName: "sunburstChart" }),
+    layoutInfo: {
+      "w": 12,
+      "h": 40
+    }
+  },
+  themeriverChart : {
+    name: trans("uiComp.themeriverChartCompName"),
+    enName: "Theme River Chart",
+    description: trans("uiComp.themeriverChartCompDesc"),
+    categories: ["dashboards"],
+    icon: ThemeriverChartCompIcon,
+    keywords: trans("uiComp.themeriverChartCompKeywords"),
+    comp: remoteComp({ ...builtInRemoteComps, compName: "themeriverChart" }),
+    layoutInfo: {
+      "w": 12,
+      "h": 40
+    }
+  },
+  treeChart : {
+    name: trans("uiComp.treeChartCompName"),
+    enName: "Tree Chart",
+    description: trans("uiComp.treeChartCompDesc"),
+    categories: ["dashboards"],
+    icon: TreeChartCompIcon,
+    keywords: trans("uiComp.treeChartCompKeywords"),
+    comp: remoteComp({ ...builtInRemoteComps, compName: "treeChart" }),
+    layoutInfo : {
+      "w": 12,
+      "h": 40
+    }
+  },
+  treemapChart : {
+    name: trans("uiComp.treemapChartCompName"),
+    enName: "Treemap Chart",
+    description: trans("uiComp.treemapChartCompDesc"),
+    categories: ["dashboards"],
+    icon: TreemapChartCompIcon,
+    keywords: trans("uiComp.treemapChartCompKeywords"),
+    comp: remoteComp({ ...builtInRemoteComps, compName: "treemapChart" }),
+    layoutInfo: {
+      "w": 12,
+      "h": 40
+    }
+  },
+  
+
+  // GeoMap
+
+  openLayersGeoMap: {
+    name: trans("uiComp.openLayersGeoMapCompName"),
+    enName: "OpenLayersGeoMap",
+    description: trans("uiComp.openLayersGeoMapCompDesc"),
+    categories: ["dashboards"],
+    icon: IconCompIcon,
+    keywords: trans("uiComp.openLayersGeoMapCompKeywords"),
+    comp: remoteComp({compName: "geo", packageName: "lowcoder-comp-geo", source: "npm", isRemote: true}),
     layoutInfo: {
       w: 12,
-      h: 40,
+      h: 50,
     },
   },
+  chartsGeoMap: {
+    name: trans("uiComp.chartsGeoMapCompName"),
+    enName: "GeoMap",
+    description: trans("uiComp.chartsGeoMapCompDesc"),
+    categories: ["dashboards"],
+    icon: IconCompIcon,
+    keywords: trans("uiComp.chartsGeoMapCompKeywords"),
+    comp: remoteComp({ ...builtInRemoteComps, compName: "chartsGeoMap" }),
+    layoutInfo: {
+      w: 19,
+      h: 60,
+    },
+  },
+
   table: {
     name: trans("uiComp.tableCompName"),
     enName: "Table",
     description: trans("uiComp.tableCompDesc"),
-    categories: ["dashboards", "projectmanagement"],
+    categories: ["dashboards"],
     icon: TableCompIcon,
     keywords: trans("uiComp.tableCompKeywords"),
     lazyLoad: true,
@@ -172,6 +354,50 @@ export var uiCompMap: Registry = {
     defaultDataFnName: "defaultTableData",
     defaultDataFnPath: "comps/tableComp/mockTableComp",
   },
+
+  pivotTable: {
+    name: trans("uiComp.pivotTableCompName"),
+    enName: "pivotTable",
+    description: trans("uiComp.pivotTableCompDesc"),
+    categories: ["dashboards"],
+    icon: IconCompIcon,
+    keywords: trans("uiComp.pivotTableCompKeywords"),
+    comp: remoteComp({compName: "pivottable", packageName: "lowcoder-comp-reactpivottable", source: "npm", isRemote: true}),
+    layoutInfo: {
+      w: 12,
+      h: 50,
+    },
+  },
+  
+  mermaid: {
+    name: trans("uiComp.mermaidCompName"),
+    enName: "Mermaid Charts",
+    comp: remoteComp({ ...builtInRemoteComps, compName: "mermaid" }),
+    description: trans("uiComp.mermaidCompDesc"),
+    categories: ["dashboards"],
+    icon: MermaidCompIcon,
+    keywords: trans("uiComp.mermaidCompKeywords"),
+    layoutInfo: {
+      w: 12,
+      h: 40,
+    },
+  },
+  timeline: {
+    name: trans("uiComp.timelineCompName"),
+    enName: "timeline",
+    description: trans("uiComp.timelineCompDesc"),
+    categories: ["dashboards"],
+    icon: TimeLineCompIcon,
+    keywords: trans("uiComp.timelineCompKeywords"),
+    lazyLoad: true,
+    compName: "TimeLineComp",
+    compPath: "comps/timelineComp/timelineComp",
+    layoutInfo: {
+      w: 12,
+      h: 40,
+    },
+  },
+
   slider: {
     name: trans("uiComp.sliderCompName"),
     enName: "Slider",
@@ -222,35 +448,34 @@ export var uiCompMap: Registry = {
       delayCollision: true,
     },
   },
-  container: {
-    name: trans("uiComp.containerCompName"),
-    enName: "Container",
-    description: trans("uiComp.containerCompDesc"),
+  pageLayout: {
+    name: trans("uiComp.pageLayoutCompName"),
+    enName: "Page Layout Container",
+    description: trans("uiComp.pageLayoutCompDesc"),
     categories: ["layout"],
-    icon: ContainerCompIcon,
-    keywords: trans("uiComp.containerCompKeywords"),
+    icon: PageLayoutCompIcon,
+    keywords: trans("uiComp.pageLayoutCompKeywords"),
     lazyLoad: true,
-    compName: "ContainerComp",
-    compPath: "comps/containerComp/containerComp",
+    compName: 'PageLayoutComp',
+    compPath: 'comps/containerComp/pageLayoutComp',
     withoutLoading: true,
     layoutInfo: {
       w: 12,
-      h: 25,
+      h: 50,
       // static: true,
       delayCollision: true,
     },
-    defaultDataFnName: "defaultContainerData",
-    defaultDataFnPath: "comps/containerComp/containerComp",
+    defaultDataFnName: "defaultPageLayoutData",
+    defaultDataFnPath: "comps/tableComp/mockTableComp",
   },
-
   floatTextContainer: {
     name: trans("uiComp.floatTextContainerCompName"),
     enName: "Container",
     description: trans("uiComp.floatTextContainerCompDesc"),
     categories: ["layout"],
-    icon: FloatingTextComp,
+    icon: FloatingTextCompIcon,
     keywords: trans("uiComp.floatTextContainerCompKeywords"),
-    comp: FloatTextContainerComp,
+    lazyLoad: true,
     compName: "ContainerComp",
     compPath: "comps/containerComp/textContainerComp",
     withoutLoading: true,
@@ -260,11 +485,24 @@ export var uiCompMap: Registry = {
       // static: true,
       delayCollision: true,
     },
-    defaultDataFn: defaultContainerData,
     defaultDataFnName: "defaultContainerData",
     defaultDataFnPath: "comps/containerComp/containerComp",
   },
-
+  card: {
+    name: trans("uiComp.cardCompName"),
+    enName: "card",
+    icon: CardCompIcon,
+    description: trans("uiComp.cardCompDesc"),
+    categories: ["layout"],
+    keywords: trans("uiComp.cardCompKeywords"),
+    lazyLoad: true,
+    compName: "CardComp",
+    compPath: "comps/containerComp/cardComp",
+    layoutInfo: {
+      h: 44,
+      w: 6,
+    },
+  },
   tabbedContainer: {
     name: trans("uiComp.tabbedContainerCompName"),
     enName: "Tabbed Container",
@@ -303,28 +541,30 @@ export var uiCompMap: Registry = {
     defaultDataFnName: "defaultCollapsibleContainerData",
     defaultDataFnPath: "comps/containerComp/collapsibleContainerComp",
   },
-  pageLayout: {
-    name: trans("uiComp.pageLayoutCompName"),
-    enName: "Page Layout Container",
-    description: trans("uiComp.pageLayoutCompDesc"),
+  container: {
+    name: trans("uiComp.containerCompName"),
+    enName: "Container",
+    description: trans("uiComp.containerCompDesc"),
     categories: ["layout"],
-    icon: LayoutCompIcon,
-    keywords: trans("uiComp.pageLayoutCompKeywords"),
-    comp: PageLayoutComp,
+    icon: ContainerCompIcon,
+    keywords: trans("uiComp.containerCompKeywords"),
+    lazyLoad: true,
+    compName: "ContainerComp",
+    compPath: "comps/containerComp/containerComp",
     withoutLoading: true,
     layoutInfo: {
       w: 12,
-      h: 50,
+      h: 25,
       // static: true,
       delayCollision: true,
     },
-    defaultDataFn: defaultPageLayoutData,
+    defaultDataFnName: "defaultContainerData",
+    defaultDataFnPath: "comps/containerComp/containerComp",
   },
-
   listView: {
     name: trans("uiComp.listViewCompName"),
     enName: "List View",
-    icon: ListViewIcon,
+    icon: ListViewCompIcon,
     description: trans("uiComp.listViewCompDesc"),
     categories: ["layout"],
     keywords: trans("uiComp.listViewCompKeywords"),
@@ -381,6 +621,21 @@ export var uiCompMap: Registry = {
     compPath: "hooks/drawerComp",
     withoutLoading: true,
   },
+  divider: {
+    name: trans("uiComp.dividerCompName"),
+    enName: "Divider",
+    description: trans("uiComp.dividerCompDesc"),
+    categories: ["layout"],
+    icon: DividerCompIcon,
+    keywords: trans("uiComp.dividerCompKeywords"),
+    lazyLoad: true,
+    compName: "DividerComp",
+    compPath: "comps/dividerComp",
+    layoutInfo: {
+      w: 12,
+      h: 1,
+    },
+  },
   navigation: {
     name: trans("uiComp.navigationCompName"),
     enName: "Navigation",
@@ -394,6 +649,21 @@ export var uiCompMap: Registry = {
     layoutInfo: {
       w: 24,
       h: 5,
+    },
+  },
+  step: {
+    name: trans("uiComp.stepControlCompName"),
+    enName: "Steps Control",
+    description: trans("uiComp.stepControlCompDesc"),
+    categories: ["layout"],
+    icon: StepCompIcon,
+    keywords: trans("uiComp.stepControlCompKeywords"),
+    lazyLoad: true,
+    compName: "StepComp",
+    compPath: "comps/selectInputComp/stepControl",
+    layoutInfo: {
+      w: 19,
+      h: 6,
     },
   },
   cascader: {
@@ -426,21 +696,23 @@ export var uiCompMap: Registry = {
       h: 5,
     },
   },
-  divider: {
-    name: trans("uiComp.dividerCompName"),
-    enName: "Divider",
-    description: trans("uiComp.dividerCompDesc"),
+  floatingButton: {
+    name: trans("uiComp.floatButtonCompName"),
+    enName: "floatingButton",
+    description: trans("uiComp.floatButtonCompDesc"),
     categories: ["layout"],
-    icon: DividerCompIcon,
-    keywords: trans("uiComp.dividerCompKeywords"),
+    icon: FloatingButtonCompIcon,
+    keywords: trans("uiComp.floatButtonCompKeywords"),
     lazyLoad: true,
-    compName: "DividerComp",
-    compPath: "comps/dividerComp",
+    compName: "FloatButtonComp",
+    compPath: "comps/buttonComp/floatButtonComp",
     layoutInfo: {
-      w: 12,
+      w: 1,
       h: 1,
     },
+    withoutLoading: true,
   },
+
 
   // Scheduling
 
@@ -457,20 +729,32 @@ export var uiCompMap: Registry = {
       h: 60,
     },
   },
+  timer: {
+    name: trans("uiComp.timerCompName"),
+    enName: "timer",
+    icon: TimerCompIcon,
+    description: trans("uiComp.timerCompDesc"),
+    categories: ["scheduling", "projectmanagement"],
+    keywords: trans("uiComp.timerCompKeywords"),
+    lazyLoad: true,
+    compName: "TimerComp",
+    compPath: "comps/timerComp",
+    layoutInfo: {
+      h: 14,
+      w: 6,
+    },
+  },
 
-  // Collaboration
+  // Meeting & Collaboration
 
   sharingcomponent: {
     name: trans("meeting.sharingCompName"),
     enName: "Sharing",
     description: trans("meeting.sharingCompName"),
     categories: ["collaboration"],
-    icon: VideoCompIcon,
+    icon: VideoScreenshareCompIcon,
     keywords: trans("meeting.meetingCompKeywords"),
-    lazyLoad: true,
-    compName: "VideoSharingStreamComp",
-    // compPath: "comps/meetingComp/videoSharingStreamComp",
-    comp: remoteComp({ ...builtInRemoteComps, compName: "meetingSharing" }),
+    comp: remoteComp({ ...builtInRemoteComps, compName: "meetingStream" }),
     withoutLoading: true,
     layoutInfo: {
       w: 12,
@@ -482,53 +766,72 @@ export var uiCompMap: Registry = {
     enName: "Video",
     description: trans("meeting.videoCompName"),
     categories: ["collaboration"],
-    icon: VideoCompIcon,
-    comp: remoteComp({ ...builtInRemoteComps, compName: "meetingStream" }),
+    icon: VideoCameraStreamCompIcon,
     keywords: trans("meeting.meetingCompKeywords"),
+    comp: remoteComp({ ...builtInRemoteComps, compName: "meetingStream" }),
+    withoutLoading: true,
     layoutInfo: {
       w: 6,
       h: 32,
     },
-    // name: trans("meeting.videoCompName"),
-    // enName: "Video",
-    // description: trans("meeting.videoCompName"),
-    // categories: ["collaboration"],
-    // icon: VideoCompIcon,
-    // keywords: trans("meeting.meetingCompKeywords"),
-    // lazyLoad: true,
-    // compName: "VideoMeetingStreamComp",
-    // compPath: "comps/meetingComp/videoMeetingStreamComp",
-    // withoutLoading: true,
-    // layoutInfo: {
-    //   w: 6,
-    //   h: 32,
-    // },
   },
   meeting: {
     name: trans("meeting.meetingCompName"),
     enName: "Drawer",
+    comp: remoteComp({ ...builtInRemoteComps, compName: "meetingController" }),
     description: trans("meeting.meetingCompDesc"),
     categories: ["collaboration"],
-    icon: DrawerCompIcon,
+    icon: VideoMeetingRoomCompIcon,
     keywords: trans("meeting.meetingCompKeywords"),
-    lazyLoad: true,
-    compName: "VideoMeetingControllerComp",
-    // compPath: "comps/meetingComp/videoMeetingControllerComp",
-    comp: remoteComp({ ...builtInRemoteComps, compName: "meetingController" }),
     withoutLoading: true,
   },
+
+  // added by Mousheng
+  avatar: {
+    name: trans("uiComp.avatarCompName"),
+    enName: "avatar",
+    description: trans("uiComp.avatarCompDesc"),
+    categories: ["collaboration"],
+    icon: AvatarCompIcon,
+    keywords: trans("uiComp.avatarCompKeywords"),
+    lazyLoad: true,
+    compName: "AvatarComp",
+    compPath: "comps/avatar",
+    layoutInfo: {
+      w: 6,
+      h: 6,
+    },
+  },
+
+  avatarGroup: {
+    name: trans("uiComp.avatarGroupCompName"),
+    enName: "avatarGroup",
+    icon: AvatarGroupCompIcon,
+    description: trans("uiComp.avatarGroupCompDesc"),
+    categories: ["collaboration"],
+    keywords: trans("uiComp.avatarGroupCompKeywords"),
+    lazyLoad: true,
+    compName: "AvatarGroupComp",
+    compPath: "comps/avatarGroup",
+    withoutLoading: true,
+    layoutInfo: {
+      w: 6,
+      h: 6,
+    },
+  },
+
   comment: {
     name: trans("uiComp.commentCompName"),
     enName: "comment",
     description: trans("uiComp.commentCompDesc"),
-    categories: ["forms", "collaboration"],
-    icon: CommentIcon,
+    categories: [ "collaboration"],
+    icon: CommentCompIcon,
     keywords: trans("uiComp.commentCompKeywords"),
     lazyLoad: true,
     compName: "CommentComp",
     compPath: "comps/commentComp/commentComp",
     layoutInfo: {
-      w: 13,
+      w: 12,
       h: 55,
     },
   },
@@ -536,8 +839,8 @@ export var uiCompMap: Registry = {
     name: trans("uiComp.mentionCompName"),
     enName: "mention",
     description: trans("uiComp.mentionCompDesc"),
-    categories: ["forms", "collaboration"],
-    icon: MentionIcon,
+    categories: ["collaboration"],
+    icon: MentionCompIcon,
     keywords: trans("uiComp.mentionCompKeywords"),
     lazyLoad: true,
     compName: "MentionComp",
@@ -686,6 +989,23 @@ export var uiCompMap: Registry = {
       h: 12,
     },
   },
+  autocomplete: {
+    name: trans("uiComp.autoCompleteCompName"),
+    enName: "autoComplete",
+    description: trans("uiComp.autoCompleteCompDesc"),
+    categories: ["forms"],
+    icon: AutoCompleteCompIcon,
+    keywords: cnchar
+      .spell(trans("uiComp.autoCompleteCompName"), "first", "low")
+      .toString(),
+    lazyLoad: true,
+    compName: "AutoCompleteComp",
+    compPath: "comps/autoCompleteComp/autoCompleteComp",
+    layoutInfo: {
+      w: 6,
+      h: 5,
+    },
+  },
   switch: {
     name: trans("uiComp.switchCompName"),
     enName: "Switch",
@@ -808,12 +1128,12 @@ export var uiCompMap: Registry = {
     withoutLoading: true,
   },
   controlButton: {
-    name: trans("meeting.meetingControlCompName"),
+    name: trans("uiComp.meetingControlCompName"),
     enName: "Controls",
-    description: trans("meeting.meetingCompDesc"),
+    description: trans("uiComp.meetingCompDesc"),
     categories: ["forms", "collaboration"],
-    icon: ButtonCompIcon,
-    keywords: trans("meeting.meetingCompKeywords"),
+    icon: IconButtonCompIcon,
+    keywords: trans("uiComp.meetingCompKeywords"),
     lazyLoad: true,
     compName: "ControlButton",
     compPath: "comps/meetingComp/controlButton",
@@ -868,21 +1188,6 @@ export var uiCompMap: Registry = {
       h: 6,
     },
   },
-  step: {
-    name: trans("uiComp.stepControlCompName"),
-    enName: "Steps Control",
-    description: trans("uiComp.stepControlCompDesc"),
-    categories: ["forms"],
-    icon: SegmentedCompIcon,
-    keywords: trans("uiComp.stepControlCompKeywords"),
-    lazyLoad: true,
-    compName: "StepComp",
-    compPath: "comps/selectInputComp/stepsControl",
-    layoutInfo: {
-      w: 6,
-      h: 6,
-    },
-  },
 
   rating: {
     name: trans("uiComp.ratingCompName"),
@@ -899,26 +1204,36 @@ export var uiCompMap: Registry = {
       h: 6,
     },
   },
-  autocomplete: {
-    name: trans("uiComp.autoCompleteCompName"),
-    enName: "autoComplete",
-    description: trans("uiComp.autoCompleteCompDesc"),
-    categories: ["forms", "collaboration"],
-    icon: AutoCompleteCompIcon,
-    keywords: cnchar
-      .spell(trans("uiComp.autoCompleteCompName"), "first", "low")
-      .toString(),
-    lazyLoad: true,
-    compName: "AutoCompleteComp",
-    compPath: "comps/autoCompleteComp/autoCompleteComp",
-    layoutInfo: {
-      w: 6,
-      h: 5,
-    },
-  },
+
 
   // Project Management
 
+  hillchart: {
+    name: trans("uiComp.hillchartCompName"),
+    enName: "Hillchart",
+    description: trans("uiComp.hillchartCompDesc"),
+    categories: ["projectmanagement"],
+    icon: IconCompIcon,
+    keywords: trans("uiComp.hillchartCompKeywords"),
+    comp: remoteComp({compName: "hillcharts", packageName: "lowcoder-comp-hillcharts", source: "npm", isRemote: true}),
+    layoutInfo: {
+      w: 12,
+      h: 50,
+    },
+  },
+  bpmnEditor: {
+    name: trans("uiComp.bpmnEditorCompName"),
+    enName: "BPMN Editor",
+    description: trans("uiComp.bpmnEditorCompDesc"),
+    categories: ["projectmanagement", "documents"],
+    icon: IconCompIcon,
+    keywords: trans("uiComp.bpmnEditorCompKeywords"),
+    comp: remoteComp({compName: "bpmn", packageName: "lowcoder-comp-bpmn-io", source: "npm", isRemote: true}),
+    layoutInfo: {
+      w: 19,
+      h: 60,
+    },
+  },
   progress: {
     name: trans("uiComp.progressCompName"),
     enName: "Progress",
@@ -1051,7 +1366,7 @@ export var uiCompMap: Registry = {
     enName: "Lottie Animation",
     description: trans("uiComp.jsonLottieCompDesc"),
     categories: ["multimedia"],
-    icon: LottieIcon,
+    icon: LottieAnimationCompIcon,
     keywords: trans("uiComp.jsonLottieCompKeywords"),
     lazyLoad: true,
     compName: "JsonLottieComp",
@@ -1068,7 +1383,9 @@ export var uiCompMap: Registry = {
     categories: ["multimedia"],
     icon: IconCompIcon,
     keywords: trans("uiComp.iconCompKeywords"),
-    comp: IconComp,
+    lazyLoad: true,
+    compName: "IconComp",
+    compPath: "comps/iconComp",
     layoutInfo: {
       w: 2,
       h: 10,
@@ -1080,12 +1397,25 @@ export var uiCompMap: Registry = {
     comp: remoteComp({ ...builtInRemoteComps, compName: "imageEditor" }),
     description: trans("uiComp.imageEditorCompDesc"),
     categories: ["multimedia"],
-    icon: imageEditorIcon,
+    icon: ImageEditorCompIcon,
     keywords: trans("uiComp.imageEditorCompKeywords"),
     layoutInfo: {
       w: 12,
       h: 40,
     },
+  },
+
+  // added by Mousheng
+  colorPicker: {
+    name: trans("uiComp.colorPickerCompName"),
+    enName: "colorPicker",
+    description: trans("uiComp.colorPickerCompDesc"),
+    categories: ["multimedia"],
+    icon: ColorPickerCompIcon,
+    keywords: trans("uiComp.colorPickerCompKeywords"),
+    lazyLoad: true,
+    compName: "ColorPickerComp",
+    compPath: "comps/mediaComp/colorPickerComp",
   },
 
   // item Handling
@@ -1110,7 +1440,7 @@ export var uiCompMap: Registry = {
     enName: "Scanner",
     description: trans("uiComp.scannerCompDesc"),
     categories: ["itemHandling"],
-    icon: ScannerIcon,
+    icon: ScannerCompIcon,
     keywords: trans("uiComp.scannerCompKeywords"),
     lazyLoad: true,
     compName: "ScannerComp",
@@ -1125,7 +1455,7 @@ export var uiCompMap: Registry = {
     enName: "Signature",
     description: trans("uiComp.signatureCompDesc"),
     categories: ["itemHandling"],
-    icon: SignatureIcon,
+    icon: SignatureCompIcon,
     keywords: trans("uiComp.signatureCompKeywords"),
     lazyLoad: true,
     compName: "SignatureComp",
@@ -1150,6 +1480,21 @@ export var uiCompMap: Registry = {
       h: 5,
     },
   },
+  tour: {
+    name: trans("uiComp.tourCompName"),
+    enName: "Tour",
+    description: trans("uiComp.tourCompDesc"),
+    categories: ["multimedia", "itemHandling"],
+    icon: TourCompIcon,
+    keywords: trans("uiComp.tourCompKeywords"),
+    lazyLoad: true,
+    compName: "TourComp",
+    compPath: "comps/tourComp/tourComp",
+    layoutInfo: {
+      w: 1,
+      h: 1,
+    },
+  },
   multiSelect: {
     name: trans("uiComp.multiSelectCompName"),
     enName: "Multiselect",
@@ -1170,7 +1515,7 @@ export var uiCompMap: Registry = {
     enName: "Tree",
     description: trans("uiComp.treeCompDesc"),
     categories: ["layout", "itemHandling", "documents"],
-    icon: TreeIcon,
+    icon: TreeDisplayCompIcon,
     keywords: trans("uiComp.treeCompKeywords"),
     lazyLoad: true,
     compName: "TreeComp",
@@ -1185,7 +1530,7 @@ export var uiCompMap: Registry = {
     enName: "Tree Select",
     description: trans("uiComp.treeSelectCompDesc"),
     categories: ["layout", "itemHandling", "documents"],
-    icon: TreeSelectIcon,
+    icon: TreeSelectCompIcon,
     keywords: trans("uiComp.treeSelectCompKeywords"),
     lazyLoad: true,
     compName: "TreeSelectComp",
@@ -1193,6 +1538,34 @@ export var uiCompMap: Registry = {
     layoutInfo: {
       w: 12,
       h: 5,
+    },
+  },
+  transfer: {
+    name: trans("uiComp.transferName"),
+    enName: "transfer",
+    icon: TransferCompIcon,
+    description: trans("uiComp.transferDesc"),
+    categories: ["itemHandling", "documents"],
+    keywords: trans("uiComp.transferKeywords"),
+    lazyLoad: true,
+    compName: 'transferComp',
+    compPath: 'comps/transferComp',
+    layoutInfo: {
+      w: 12,
+      h: 50,
+    },
+  },
+  turnstileCaptcha: {
+    name: trans("uiComp.turnstileCaptchaCompName"),
+    enName: "Cloudflare Turnstile",
+    description: trans("uiComp.turnstileCaptchaCompDesc"),
+    categories: ["itemHandling"],
+    icon: IconCompIcon,
+    keywords: trans("uiComp.turnstileCaptchaCompKeywords"),
+    comp: remoteComp({compName: "cloudflareTurnstile", packageName: "lowcoder-comp-cf-turnstile", source: "npm", isRemote: true}),
+    layoutInfo: {
+      w: 8,
+      h: 20,
     },
   },
 

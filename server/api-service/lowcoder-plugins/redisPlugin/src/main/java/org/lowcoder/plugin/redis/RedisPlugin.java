@@ -16,37 +16,8 @@
  */
 package org.lowcoder.plugin.redis;
 
-import static com.google.common.collect.Maps.newHashMap;
-import static java.util.Objects.isNull;
-import static org.lowcoder.plugin.redis.RedisError.REDIS_EXECUTION_ERROR;
-import static org.lowcoder.plugin.redis.RedisError.REDIS_URL_ERROR;
-import static org.lowcoder.plugin.redis.constants.RedisConstants.JEDIS_POOL_MAX_IDLE;
-import static org.lowcoder.plugin.redis.constants.RedisConstants.JEDIS_POOL_MAX_TOTAL;
-import static org.lowcoder.plugin.redis.constants.RedisConstants.JEDIS_POOL_MIN_EVICTABLE_IDLE_MILLIS;
-import static org.lowcoder.plugin.redis.constants.RedisConstants.JEDIS_POOL_MIN_IDLE;
-import static org.lowcoder.plugin.redis.constants.RedisConstants.JEDIS_POOL_TIME_BETWEEN_EVICTION_RUNS_MILLIS;
-import static org.lowcoder.plugin.redis.constants.RedisConstants.TEST_TIMEOUT_MILLIS;
-import static org.lowcoder.plugin.redis.constants.RedisFieldName.RAW_COMMAND;
-import static org.lowcoder.plugin.redis.utils.RedisQueryUtils.convertRedisFormInputToRedisCommand;
-import static org.lowcoder.sdk.exception.PluginCommonError.QUERY_ARGUMENT_ERROR;
-import static org.lowcoder.sdk.plugin.common.QueryExecutionUtils.getValueSafelyFromFormData;
-import static org.lowcoder.sdk.util.MustacheHelper.renderMustacheArrayString;
-import static org.lowcoder.sdk.util.MustacheHelper.renderMustacheStringWithoutRemoveSurroundedPar;
-
-import java.net.URI;
-import java.time.Duration;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-
-import javax.annotation.Nonnull;
-
+import jakarta.annotation.Nonnull;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.lowcoder.plugin.redis.commands.RedisCommand;
@@ -63,8 +34,6 @@ import org.lowcoder.sdk.query.QueryVisitorContext;
 import org.pf4j.Extension;
 import org.pf4j.Plugin;
 import org.pf4j.PluginWrapper;
-
-import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import redis.clients.jedis.Jedis;
@@ -74,6 +43,25 @@ import redis.clients.jedis.Protocol;
 import redis.clients.jedis.Protocol.Command;
 import redis.clients.jedis.exceptions.JedisException;
 import redis.clients.jedis.util.SafeEncoder;
+
+import java.net.URI;
+import java.time.Duration;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
+import static com.google.common.collect.Maps.newHashMap;
+import static java.util.Objects.isNull;
+import static org.lowcoder.plugin.redis.RedisError.REDIS_EXECUTION_ERROR;
+import static org.lowcoder.plugin.redis.RedisError.REDIS_URL_ERROR;
+import static org.lowcoder.plugin.redis.constants.RedisConstants.*;
+import static org.lowcoder.plugin.redis.constants.RedisFieldName.RAW_COMMAND;
+import static org.lowcoder.plugin.redis.utils.RedisQueryUtils.convertRedisFormInputToRedisCommand;
+import static org.lowcoder.sdk.exception.PluginCommonError.QUERY_ARGUMENT_ERROR;
+import static org.lowcoder.sdk.plugin.common.QueryExecutionUtils.getValueSafelyFromFormData;
+import static org.lowcoder.sdk.util.MustacheHelper.renderMustacheArrayString;
+import static org.lowcoder.sdk.util.MustacheHelper.renderMustacheStringWithoutRemoveSurroundedPar;
 
 public class RedisPlugin extends Plugin {
     public static final int DEFAULT_QUERY_TIMEOUT_SECONDS = 8;

@@ -9,7 +9,9 @@ export type ParamType =
   | "boolean"
   | "arrayString"
   | "arrayNumberString"
+  | "arrayNumber"
   | "JSON"
+  | "arrayObject"
   | "JSONValue";
 
 export type ParamConfig = {

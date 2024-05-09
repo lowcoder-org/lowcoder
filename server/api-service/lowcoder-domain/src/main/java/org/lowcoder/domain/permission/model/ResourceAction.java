@@ -1,18 +1,16 @@
 package org.lowcoder.domain.permission.model;
 
-import static com.google.common.collect.Multimaps.toMultimap;
-import static java.util.Collections.emptySet;
-import static org.apache.commons.lang3.ObjectUtils.firstNonNull;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.SetMultimap;
+import jakarta.annotation.Nonnull;
+import lombok.Getter;
 
 import java.util.Arrays;
 import java.util.Set;
 
-import javax.annotation.Nonnull;
-
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.SetMultimap;
-
-import lombok.Getter;
+import static com.google.common.collect.Multimaps.toMultimap;
+import static java.util.Collections.emptySet;
+import static org.apache.commons.lang3.ObjectUtils.firstNonNull;
 
 @Getter
 public enum ResourceAction {

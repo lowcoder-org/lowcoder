@@ -1,5 +1,7 @@
+// this is the tpyes file next to index.js
+
 /// <reference types="react" />
-import { ReactNode } from 'react';
+import React, { ReactNode } from 'react';
 
 type EvalMethods = Record<string, Record<string, Function>>;
 type CodeType = undefined | "JSON" | "Function" | "PureJSON";
@@ -613,6 +615,7 @@ declare abstract class MultiBaseComp<ChildrenType extends Record<string, Comp<un
     toJsonValue(): DataType;
     autoHeight(): boolean;
     changeChildAction(childName: string & keyof ChildrenType, value: ConstructorToDataType<new (...params: any) => ChildrenType[typeof childName]>): CompAction<JSONValue>;
+    getRef(): React.RefObject<HTMLDivElement>;
 }
 declare function mergeExtra(e1: ExtraNodeType | undefined, e2: ExtraNodeType): ExtraNodeType;
 
@@ -647,7 +650,9 @@ declare const i18n: {
     region?: string | undefined;
     locales: string[];
 };
+
 declare function getValueByLocale<T>(defaultValue: T, func: (info: LocaleInfo) => T | undefined): T;
+
 type AddDot<T extends string> = T extends "" ? "" : `.${T}`;
 type ValidKey<T> = Exclude<keyof T, symbol>;
 type NestedKey<T> = (T extends object ? {
@@ -657,6 +662,7 @@ type AddPrefix<T, P extends string> = {
     [K in keyof T as K extends string ? `${P}${K}` : never]: T[K];
 };
 declare const globalMessages: AddPrefix<{}, "@">;
+
 type GlobalMessageKey = NestedKey<typeof globalMessages>;
 type VariableValue = string | number | boolean | Date | React.ReactNode;
 
