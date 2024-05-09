@@ -163,6 +163,9 @@ export const DropdownStyled = styled.div`
   .ant-tag {
     margin-right: 0;
   }
+  .ant-tag svg {
+    margin-right: 4px;
+  }
 `;
 
 export const TagStyled = styled(Tag)`
