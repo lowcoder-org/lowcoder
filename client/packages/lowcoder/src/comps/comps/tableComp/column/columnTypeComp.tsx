@@ -5,6 +5,7 @@ import { withType } from "comps/generators";
 import { trans } from "i18n";
 import { Dropdown } from "lowcoder-design/src/components/Dropdown";
 import { BooleanComp } from "./columnTypeComps/columnBooleanComp";
+import { SwitchComp } from "./columnTypeComps/columnSwitchComp";
 import { DateComp } from "./columnTypeComps/columnDateComp";
 import { ImageComp } from "./columnTypeComps/columnImgComp";
 import { LinkComp } from "./columnTypeComps/columnLinkComp";
@@ -78,6 +79,10 @@ const actionOptions = [
     value: "boolean",
   },
   {
+    label: trans("table.switch"),
+    value: "switch",
+  },
+  {
     label: trans("table.rating"),
     value: "rating",
   },
@@ -101,6 +106,7 @@ export const ColumnTypeCompMap = {
   markdown: ColumnMarkdownComp,
   dateTime: DateTimeComp,
   boolean: BooleanComp,
+  switch: SwitchComp,
   rating: RatingComp,
   progress: ProgressComp,
   date: DateComp,

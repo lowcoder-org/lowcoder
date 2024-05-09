@@ -1888,6 +1888,7 @@ export const en = {
     "button": "Button",
     "image": "Image",
     "boolean": "Boolean",
+    "switch": "Switch",
     "rating": "Rating",
     "progress": "Progress",
     "option": "Operation",
