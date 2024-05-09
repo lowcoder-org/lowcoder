@@ -223,7 +223,7 @@ let SharingCompBuilder = (function () {
 
 SharingCompBuilder = class extends SharingCompBuilder {
   autoHeight(): boolean {
-    return false;
+    return this.children.autoHeight.getView();
   }
 };
 
