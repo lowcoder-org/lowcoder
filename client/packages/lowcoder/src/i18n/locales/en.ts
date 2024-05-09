@@ -1691,6 +1691,11 @@ export const en = {
     "responsive" : "Responsive",
     "selectable" : "Selectable",
   },
+  "coloredTagOptionControl" : {
+    "tag" : "Tag Text",
+    "color" : "Color",
+    "icon" : "Icon",
+  },
   "radio": {
     "options": "Options",
     "horizontal": "Horizontal",
@@ -1869,6 +1874,7 @@ export const en = {
     "float": "Float",
     "prefix": "Prefix",
     "suffix": "Suffix",
+    "avatars": "Avatars",
     "text": "Text",
     "number": "Number",
     "link": "Link",

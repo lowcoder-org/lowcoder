@@ -18,7 +18,13 @@ import { ColumnSelectComp } from "./columnTypeComps/columnSelectComp";
 import { SimpleTextComp } from "./columnTypeComps/simpleTextComp";
 import { ColumnNumberComp } from "./columnTypeComps/ColumnNumberComp";
 
+import { ColumnAvatarsComp } from "./columnTypeComps/columnAvatarsComp";
+
 const actionOptions = [
+  {
+    label: trans("table.avatars"),
+    value: "avatars",
+  },
   {
     label: trans("table.text"),
     value: "text",
@@ -82,6 +88,7 @@ const actionOptions = [
 ] as const;
 
 export const ColumnTypeCompMap = {
+  avatars: ColumnAvatarsComp,
   text: SimpleTextComp,
   number: ColumnNumberComp,
   button: ButtonComp,
