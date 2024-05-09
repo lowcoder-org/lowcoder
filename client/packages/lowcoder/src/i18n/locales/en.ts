@@ -1875,6 +1875,7 @@ export const en = {
     "prefix": "Prefix",
     "suffix": "Suffix",
     "avatars": "Avatars",
+    "avatarGroupAlignment": "Avatars Alignment",
     "text": "Text",
     "number": "Number",
     "link": "Link",

@@ -17,8 +17,6 @@ import { optionsControl } from "comps/controls/optionsControl";
 import { BoolControl } from "comps/controls/boolControl";
 import { dropdownControl } from "comps/controls/dropdownControl";
 import { JSONObject } from "util/jsonTypes";
-import { Dispatch } from 'redux';
-import { changeChildAction } from "lowcoder-core";
 
 const MenuLinkWrapper = styled.div`
   > a {
@@ -108,6 +106,7 @@ export const ColumnAvatarsComp = (function () {
       ],
     })
   };
+
   return new ColumnTypeCompBuilder(
     childrenMap,
     (props) => {
@@ -161,13 +160,10 @@ export const ColumnAvatarsComp = (function () {
           label: trans("avatarGroup.autoColor")
         })}
         {children.alignment.propertyView({
-          label: trans("avatarGroup.alignment"),
+          label: trans("table.avatarGroupAlignment"),
           radioButton: true,
         })}
-        {children.avatars.propertyView({
-          newOptionLabel: trans("table.option"),
-          title: trans("table.optionList"),
-        })}
+        {children.onEvent.propertyView()}
       </>
     ))
     .build();
