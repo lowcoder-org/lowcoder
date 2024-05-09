@@ -49,7 +49,6 @@ const TmpComp = withTypeAndChildren<
         continue;
       }
 
-      console.log(manifest);
       if(manifest.lazyLoad) {
         return lazyLoadComp(
           manifest.compName,
