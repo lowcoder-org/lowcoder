@@ -155,7 +155,6 @@ function GenericOAuthForm(props: GenericOAuthFormProp) {
           }
         };
         saveAuthProvider(updatedDetails);
-        console.log('save details', updatedDetails);
         return updatedDetails;
       });
     })
