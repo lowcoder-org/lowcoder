@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { messageInstance, CloseEyeIcon } from "lowcoder-design";
+import { messageInstance, CloseEyeIcon, CustomSelect } from "lowcoder-design";
 import { i18nObjs, trans } from "i18n";
 import {
   FormStyled,
@@ -107,7 +107,7 @@ function GenericOAuthForm(props: GenericOAuthFormProp) {
       setSaveLoading(true);
       const { issuer } = values;
       try {
-        const res = await axios.get<OpenIdProvider>(`${issuer}/.well-known/openid-configuration`);
+        const res = await axios.get<OpenIdProvider>(issuer);
         setIssuerDetails(() => {
           const issuer = {
             authType: AuthType.Generic,
@@ -155,7 +155,6 @@ function GenericOAuthForm(props: GenericOAuthFormProp) {
           }
         };
         saveAuthProvider(updatedDetails);
-        console.log('save details', updatedDetails);
         return updatedDetails;
       });
     })
@@ -189,6 +188,7 @@ function GenericOAuthForm(props: GenericOAuthFormProp) {
         current={currentStep}
         items={steps}
         style={{marginBottom: '16px'}}
+        onChange={(current) => setCurrentStep(current)}
       />
       
       <FormStyled
@@ -213,11 +213,13 @@ function GenericOAuthForm(props: GenericOAuthFormProp) {
         )}
         {currentStep === 1 && Object.entries(authConfigForm).map(([key, value]) => {
           const valueObject = _.isObject(value) ? (value as ItemType) : false;
-          const required = true;
+          let required = (key === "clientId" || key === "clientSecret" || key === "scope");
+          required = valueObject ? valueObject.isRequire ?? required : required;
           const label = valueObject ? valueObject.label : value as string;
           const tip = valueObject && valueObject.tip;
           const isPassword = valueObject && valueObject.isPassword;
           const isIcon = valueObject && valueObject.isIcon;
+          const isList = valueObject && valueObject.isList;
           return (
             <div key={key}>
               <Form.Item
@@ -250,11 +252,18 @@ function GenericOAuthForm(props: GenericOAuthFormProp) {
                     placeholder={trans("idSource.encryptedServer")}
                     autoComplete={"one-time-code"}
                   />
-                ) : isIcon ? (
+                ) : !isPassword && !isList && isIcon ? (
                   <IconPicker
                     onChange={(value) => form1.setFieldValue("sourceIcon", value)}
                     label={'Source Icon'}
                     value={form1.getFieldValue('sourceIcon')}
+                  />
+                ) : !isPassword && isList && !isIcon ? (
+                  <CustomSelect
+                    options={(value as ItemType).options}
+                    placeholder={trans("idSource.formSelectPlaceholder", {
+                      label,
+                    })}
                   />
                 ) : (
                   <Input
