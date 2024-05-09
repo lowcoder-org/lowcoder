@@ -7425,13 +7425,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"coolshapes-react@file:/Users/la/Desktop/coolshapes-react::locator=lowcoder%40workspace%3Apackages%2Flowcoder":
+coolshapes-react@lowcoder-org/coolshapes-react:
   version: 1.0.1
-  resolution: "coolshapes-react@file:/Users/la/Desktop/coolshapes-react#/Users/la/Desktop/coolshapes-react::hash=163e05&locator=lowcoder%40workspace%3Apackages%2Flowcoder"
+  resolution: "coolshapes-react@https://github.com/lowcoder-org/coolshapes-react.git#commit=0530e0e01feeba965286c1321f9c1cacb47bf587"
   peerDependencies:
     react: ">=16.8"
     react-dom: ">=16.8"
-  checksum: 858b8476d410d3faae4cb26aab768d7a9d370befd51f54004540b84a08f27f5f11aa6ff4b76dca9f4dee82edfcd030d528819fabdbc82d2a6b0462b6f2d94ff3
+  checksum: e1b199f0325e87865cf6d89d4891ee84f4930196d21eed2356f4f2d2af8e748b8ad3889d1c9da2f5db6971913f75bd0f800b67a443ab7f4e972678031ce5c717
   languageName: node
   linkType: hard
 
@@ -13675,7 +13675,7 @@ __metadata:
     buffer: ^6.0.3
     clsx: ^2.0.0
     cnchar: ^3.2.4
-    coolshapes-react: /Users/la/Desktop/coolshapes-react
+    coolshapes-react: lowcoder-org/coolshapes-react
     copy-to-clipboard: ^3.3.3
     core-js: ^3.25.2
     dotenv: ^16.0.3

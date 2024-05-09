@@ -116,14 +116,14 @@ const builtInRemoteComps: Omit<RemoteCompInfo, "compName"> = {
 export var uiCompMap: Registry = { 
   // Dashboards
   
-  // charts
   shape: {
     name: trans("uiComp.shapeCompName"),
-    enName: "Chart",
+    enName: "Shape",
     description: trans("uiComp.shapeCompDesc"),
     categories: ["dashboards"],
     icon: ChartCompIcon,
     keywords: trans("uiComp.shapeCompKeywords"),
+    lazyLoad: true,
     compName: "ShapeComp",
     compPath: "comps/shapeComp/shapeComp",
     layoutInfo: {
@@ -132,6 +132,7 @@ export var uiCompMap: Registry = {
     },
   },
   
+  // charts
   chart: {
     name: trans("uiComp.chartCompName") + " (legacy)",
     enName: "Chart",

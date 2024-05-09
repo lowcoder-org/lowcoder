@@ -199,4 +199,6 @@ export const CompStateIcon: {
   transfer: <TransferCompIconSmall />,
   card: <CardCompIconSmall />,
   timer: <TimeRangeCompIconSmall/>,
+
+  shape: <ChartCompIconSmall />,
 };

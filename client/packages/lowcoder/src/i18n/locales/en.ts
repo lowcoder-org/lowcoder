@@ -1126,6 +1126,10 @@ export const en = {
     "chartCompDesc": "A versatile component for visualizing data through various types of charts and graphs.",
     "chartCompKeywords": "chart, graph, data, visualization",
 
+    "shapeCompName": "Shape",
+    "shapeCompDesc": "",
+    "shapeCompKeywords": "shape",
+
     "carouselCompName": "Image Carousel",
     "carouselCompDesc": "A rotating carousel component for showcasing images, banners, or content slides.",
     "carouselCompKeywords": "carousel, images, rotation, showcase",
