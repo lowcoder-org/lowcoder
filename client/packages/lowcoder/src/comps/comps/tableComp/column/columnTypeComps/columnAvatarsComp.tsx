@@ -86,8 +86,6 @@ export const alignOptions = [
   { label: <AlignRight />, value: "flex-end" },
 ] as const;
 
-// props.dispatch(changeChildAction("currentAvatar", item as JSONObject, false));
-
 export const ColumnAvatarsComp = (function () {
   const childrenMap = {
     style: styleControl(avatarGroupStyle),
@@ -131,6 +129,7 @@ export const ColumnAvatarsComp = (function () {
                         size={props.avatarSize}
                         onClick={() => {
                           props.onEvent("click")
+                          // Falk: TODO: Implement dispatch function to set the currentAvatar
                           // dispatch(changeChildAction("currentAvatar", item as JSONObject, false));
                         }}
                       >
