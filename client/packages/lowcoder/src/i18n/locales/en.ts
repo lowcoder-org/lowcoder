@@ -1951,6 +1951,9 @@ export const en = {
     "toUpdateRowsDesc": "An Array of Objects for Rows to Be Updated in Editable Tables.",
     "empty": "Empty",
     "falseValues": "Text When False",
+    "iconTrue": "Icon When True",
+    "iconFalse": "Icon When False",
+    "iconNull": "Icon When Null",
     "allColumn": "All",
     "visibleColumn": "Visible",
     "emptyColumns": "No Columns Are Currently Visible"

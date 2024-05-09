@@ -71,6 +71,7 @@ export function EditableCell<T extends JSONValue>(props: EditableCellProps<T>) {
     changeValue,
     baseValue,
     candidateTags,
+    // tagColors
     candidateStatus,
     onTableEvent,
   } = props;
