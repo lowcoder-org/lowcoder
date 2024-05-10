@@ -1573,13 +1573,14 @@ export const en = {
     "src": "src",
     "avatarCompTooltip": "The display priority is: image -> characters -> icon. Depending on what is first available.",
     "iconSize": "Icon Size",
-    "avatarBackground": "Icon Background",
+    "avatarBackground": "Background",
     "label": "Label",
     "caption": "Caption",
     "labelPosition": "Position",
     "alignmentPosition": "alignment",
     "text": "Text",
-    "enableDropDown": "Enable DropDown"
+    "enableDropDown": "Enable DropDown",
+    "containerBackground": "Background"
   },
 
   "card": {

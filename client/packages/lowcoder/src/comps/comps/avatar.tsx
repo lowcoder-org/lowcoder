@@ -3,6 +3,10 @@ import { RecordConstructorToView } from "lowcoder-core";
 import { styleControl } from "comps/controls/styleControl";
 import _ from "lodash";
 import {
+  avatarContainerStyle,
+  AvatarContainerStyleType,
+  avatarLabelStyle,
+  AvatarLabelStyleType,
   AvatarStyle,
   AvatarStyleType,
 } from "comps/controls/styleControlConstants";
@@ -37,13 +41,20 @@ const AvatarWrapper = styled(Avatar) <AvatarProps & { $cursorPointer?: boolean, 
   cursor: ${(props) => props.$cursorPointer ? 'pointer' : ''};
 `;
 
-const Wrapper = styled.div <{ iconSize: number, labelPosition: string }>`
+const Wrapper = styled.div <{ iconSize: number, labelPosition: string,$style: AvatarContainerStyleType}>`
 display: flex;
 width: 100%;
 height: 100%;
-padding: 0px;
 align-items: center;
 flex-direction: ${(props) => props.labelPosition === 'left' ? 'row' : 'row-reverse'};
+${(props) => {
+    return (
+      props.$style && {
+        ...props.$style,
+        borderRadius: props.$style.radius,
+      }
+    );
+  }}
 `
 
 const LabelWrapper = styled.div<{ iconSize: number, alignmentPosition: string }>`
@@ -55,20 +66,47 @@ flex-direction: column;
 justify-content: flex-end;
 align-items: ${(props) => props.alignmentPosition === 'left' ? 'flex-start' : 'flex-end'};
 `
-const LabelSpan = styled.span<{ color: string }>`
+const LabelSpan = styled.span<{ $style:AvatarLabelStyleType }>`
 max-width: 100%;
 overflow: hidden;
 text-overflow: ellipsis;
 white-space: nowrap;
-font-weight: bold;
-color: ${(props) => props.color};
+font-weight: ${props=>props.$style.textWeight};
+border-radius: ${props=>props.$style.radius};
+font-size: ${props=>props.$style.textSize};
+rotate: ${props=>props.$style.rotation};
+text-transform: ${props=>props.$style.textTransform};
+color: ${props=>props.$style.text};
+border: ${props => props.$style.border};
+border-style: ${props=>props.$style.borderStyle};
+border-width: ${props=>props.$style.borderWidth};
+font-family: ${props=>props.$style.fontFamily};
+font-style: ${props=>props.$style.fontStyle};
+margin: ${props=>props.$style.margin};
+padding: ${props=>props.$style.padding};
+background: ${props=>props.$style.background};
+text-decoration: ${props=>props.$style.textDecoration};
 `
-const CaptionSpan = styled.span<{ color: string }>`
+const CaptionSpan = styled.span<{ $style:AvatarLabelStyleType }>`
 max-width: 100%;
 overflow: hidden;
 text-overflow: ellipsis;
 white-space: nowrap;
-color: ${(props) => props.color};
+font-weight: ${props=>props.$style.textWeight};
+border-radius: ${props=>props.$style.radius};
+font-size: ${props=>props.$style.textSize};
+rotate: ${props=>props.$style.rotation};
+text-transform: ${props=>props.$style.textTransform};
+color: ${props=>props.$style.text};
+border: ${props => props.$style.border};
+border-style: ${props=>props.$style.borderStyle};
+border-width: ${props=>props.$style.borderWidth};
+font-family: ${props=>props.$style.fontFamily};
+font-style: ${props=>props.$style.fontStyle};
+margin: ${props=>props.$style.margin};
+padding: ${props=>props.$style.padding};
+background: ${props=>props.$style.background};
+text-decoration: ${props => props.$style.textDecoration};
 `
 const EventOptions = [clickEvent] as const;
 const sharpOptions = [
@@ -82,7 +120,10 @@ const sideOptions = [
 ] as const;
 
 const childrenMap = {
-  style: styleControl(AvatarStyle),
+  style: styleControl(avatarContainerStyle),
+  avatarStyle: styleControl(AvatarStyle),
+  labelStyle: styleControl(avatarLabelStyle),
+  captionStyle: styleControl(avatarLabelStyle),
   icon: withDefault(IconControl, "/icon:solid/user"),
   iconSize: withDefault(NumberControl, 40),
   onEvent: eventHandlerControl(EventOptions),
@@ -127,7 +168,7 @@ const AvatarView = (props: RecordConstructorToView<typeof childrenMap>) => {
       disabled={!props.enableDropdownMenu}
       dropdownRender={() => menu}
     >
-      <Wrapper iconSize={props.iconSize} labelPosition={props.labelPosition}>
+      <Wrapper iconSize={props.iconSize} labelPosition={props.labelPosition} $style={props.style}>
         <Badge
           count={props.badgeCount.value}
           dot={props.badgeType === 'dot'}
@@ -140,7 +181,7 @@ const AvatarView = (props: RecordConstructorToView<typeof childrenMap>) => {
             size={iconSize}
             icon={title.value !== '' ? null : props.icon}
             shape={shape}
-            $style={props.style}
+            $style={props.avatarStyle}
             src={src.value}
             // $cursorPointer={eventsCount > 0}
             onClick={() => props.onEvent("click")}
@@ -149,8 +190,8 @@ const AvatarView = (props: RecordConstructorToView<typeof childrenMap>) => {
           </AvatarWrapper>
         </Badge>
         <LabelWrapper iconSize={props.iconSize} alignmentPosition={props.alignmentPosition}>
-          <LabelSpan color={props.style.label}>{props.avatarLabel.value}</LabelSpan>
-          <CaptionSpan color={props.style.caption}>{props.avatarCatption.value}</CaptionSpan>
+          <LabelSpan $style={props.labelStyle}>{props.avatarLabel.value}</LabelSpan>
+          <CaptionSpan $style={props.captionStyle}>{props.avatarCatption.value}</CaptionSpan>
         </LabelWrapper>
       </Wrapper>
     </Dropdown>
@@ -219,6 +260,15 @@ let AvatarBasicComp = (function () {
         </Section>
         <Section name={sectionNames.style}>
           {children.style.getPropertyView()}
+        </Section>
+        <Section name={sectionNames.avatarStyle}>
+          {children.avatarStyle.getPropertyView()}
+        </Section>
+        <Section name={sectionNames.labelStyle}>
+          {children.labelStyle.getPropertyView()}
+        </Section>
+        <Section name={sectionNames.captionStyle}>
+          {children.captionStyle.getPropertyView()}
         </Section>
       </>
     ))
