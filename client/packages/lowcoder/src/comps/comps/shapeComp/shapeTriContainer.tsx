@@ -1,6 +1,4 @@
-import {
-  ContainerStyleType,
-} from "comps/controls/styleControlConstants";
+import { ContainerStyleType } from "comps/controls/styleControlConstants";
 import { EditorContext } from "comps/editorState";
 import { BackgroundColorContext } from "comps/utils/backgroundColorContext";
 import { HintPlaceHolder, ScrollBar } from "lowcoder-design";
@@ -122,19 +120,24 @@ export function ShapeTriContainer(props: TriContainerProps) {
             }}
             hideScrollbar={!scrollbars}
           >
-            <div style={{ position: "relative" }}>
+            <div style={{ position: "relative", height: "100%" }}>
+              <Coolshape
+                type={shape?.value as any}
+                index={shape.index}
+                styles={{
+                  position: "absolute",
+                  top: "0",
+                  left: "50%",
+                  transform: "translateX(-50%)",
+                }}
+              />
               <BodyInnerGrid
-                $showBorder={showHeader}
+                $showBorder={false}
                 {...otherBodyProps}
                 items={gridItemCompToGridItems(bodyItems)}
                 autoHeight={container.autoHeight}
                 emptyRows={14}
-                minHeight={showHeader ? "143px" : "142px"}
-                containerPadding={
-                  (showHeader && showFooter) || showHeader
-                    ? [paddingWidth, 11.5]
-                    : [paddingWidth, 11]
-                }
+                minHeight={"142px"}
                 hintPlaceholder={props.hintPlaceholder ?? HintPlaceHolder}
                 $backgroundColor={bodyStyle?.background || "transparent"}
                 $borderColor={style?.border}
@@ -145,18 +148,7 @@ export function ShapeTriContainer(props: TriContainerProps) {
                 $backgroundImagePosition={bodyStyle?.backgroundImagePosition}
                 $backgroundImageOrigin={bodyStyle?.backgroundImageOrigin}
                 style={{
-                  padding: bodyStyle.containerBodyPadding,
                   zIndex: 999,
-                }}
-              />
-              <Coolshape
-                type={shape?.value as any}
-                index={shape.index}
-                styles={{
-                  position: "absolute",
-                  top: "0",
-                  left: "50%",
-                  transform: "translateX(-50%)",
                 }}
               />
             </div>
