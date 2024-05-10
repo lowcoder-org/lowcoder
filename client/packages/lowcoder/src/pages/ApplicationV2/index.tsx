@@ -347,8 +347,6 @@ export default function ApplicationHome() {
     };
   }
 
-  console.log("user", user);
-
   return (
     <DivStyled>
       <Layout

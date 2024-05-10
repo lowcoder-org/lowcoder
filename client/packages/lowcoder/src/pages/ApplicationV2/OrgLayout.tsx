@@ -4,16 +4,26 @@ import { default as Divider } from "antd/es/divider";
 import { useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { getHomeOrg } from "redux/selectors/applicationSelector";
+import { getUser } from "redux/selectors/usersSelectors";
+import { normalAppListSelector } from "../../redux/selectors/applicationSelector";
 import history from "util/history";
 import { ALL_APPLICATIONS_URL, ORG_HOME_URL } from "constants/routesURL";
 import { default as AntdBreadcrumb } from "antd/es/breadcrumb";
 import { ArrowIcon } from "lowcoder-design";
-import { Card } from "antd";
+import { Avatar, Button, Card, Col, Row, Space, Typography, Select, Tooltip } from "antd";
 import { useRef } from "react";
 import { LowcoderAppView } from "appView/LowcoderAppView";
+import CountUp from 'react-countup';
+import {
+  ApplicationDocIcon,
+  ModuleDocIcon,
+  AvatarGroupCompIcon,
+} from "lowcoder-design";
 
 import { SERVER_HOST } from "constants/apiConstants";
 import { sdkConfig } from "constants/sdkConfig";
+
+const { Text, Title, Link } = Typography;
 
 const Wrapper = styled.div`
   display: flex;
@@ -103,6 +113,10 @@ const BreadcrumbItem = styled.div`
   cursor: pointer;
 `;
 
+const BgSuccess = styled.div`
+      background-color: #f0f2f5;
+`;
+
 const isSelfHost = window.location.host !== 'app.lowcoder.cloud';
 
 export type OrgLayoutBreadcrumbType = { text: string; path: string };
@@ -137,6 +151,8 @@ export function OrgLayout(props: OrgLayoutLayoutProps) {
     }))
   ];
 
+  const user = useSelector(getUser);
+  const apps = useSelector(normalAppListSelector); 
   const currentOrg = useSelector(getHomeOrg);
   const appRef = useRef();
   const baseURL = sdkConfig.baseURL || SERVER_HOST;
@@ -178,7 +194,37 @@ export function OrgLayout(props: OrgLayoutLayoutProps) {
                 baseUrl={baseURL}
               />
               : 
-              <div>Keine Default Homepage</div>
+              
+              <Card style={{ marginBottom: "20px" }}>
+                <Title level={4}>{trans("home.allApplications")}</Title>
+                <Space direction="horizontal" size={10}>
+                  <Row gutter={[12,12]}>
+                    <Col xs={12} sm={12} xl={12} style={{marginBottom: "20px", minWidth: "350px"}} span={8}>
+                      <Card hoverable extra={<a href="#" onClick={() => history.replace(ALL_APPLICATIONS_URL)}>{trans("home.show")}</a>}>
+                          <div style={{ display: "flex", justifyContent: "space-between" }}>
+                              <div>
+                                  <p style={{ textTransform: "uppercase", fontSize: "13px" }}>
+                                    {trans("profile.sharedApps")}
+                                  </p>
+                                  <h4 style={{ fontSize: "22px" }}>
+                                      <span data-target={apps.filter(app => app.createBy !== user.username && app.applicationType == 1).length}>
+                                        <CountUp start={0} end={apps.filter(app => app.createBy !== user.username && app.applicationType == 1).length} duration={2} />
+                                      </span>
+                                  </h4>
+                                  <div style={{ display: "flex", alignItems: "center" }}>
+                                      <h5 style={{ color: "#55c27f", marginRight: "50px" }}></h5>
+                                  </div>
+                              </div>
+                              <BgSuccess style={{ padding: '6px', width: '48px', height: '48px', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                <ApplicationDocIcon width={"42px"}/>
+                              </BgSuccess>
+                          </div>
+                      </Card>
+                    </Col>
+                  </Row>
+                </Space>
+              </Card>
+
             }
 
           </Card>  

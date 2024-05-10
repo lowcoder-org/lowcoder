@@ -323,7 +323,7 @@ export function UserProfileLayout(props: UserProfileLayoutProps) {
             <Space direction="horizontal" size={10}>
               <Row gutter={[24,24]}>
                 <Col xs={24} sm={12} xl={6} style={{marginBottom: "20px", minWidth: "350px"}} span={8}>
-                    <Card hoverable extra={<a href="#" onClick={() => history.replace(ALL_APPLICATIONS_URL)}>Show</a>}>
+                    <Card hoverable extra={<a href="#" onClick={() => history.replace(ALL_APPLICATIONS_URL)}>{trans("home.show")}</a>}>
                         <div style={{ display: "flex", justifyContent: "space-between" }}>
                             <div>
                                 <p style={{ textTransform: "uppercase", fontSize: "13px" }}>
@@ -345,7 +345,7 @@ export function UserProfileLayout(props: UserProfileLayoutProps) {
                     </Card>
                 </Col>
                 <Col  xs={24} sm={12} xl={6} style={{marginBottom: "20px", minWidth: "350px"}} flex="auto" span={8}>
-                    <Card hoverable extra={<a href="#" onClick={() => history.replace(ALL_APPLICATIONS_URL)}>Show</a>}>
+                    <Card hoverable extra={<a href="#" onClick={() => history.replace(ALL_APPLICATIONS_URL)}>{trans("home.show")}</a>}>
                         <div style={{ display: "flex", justifyContent: "space-between" }}>
                             <div>
                                 <p style={{ textTransform: "uppercase", fontSize: "13px" }}>
@@ -368,7 +368,7 @@ export function UserProfileLayout(props: UserProfileLayoutProps) {
                 </Col>
 
                 <Col xs={24} sm={12} xl={6} style={{marginBottom: "20px", minWidth: "350px"}} span={8}>
-                    <Card hoverable extra={<a href="#" onClick={() => history.replace(ALL_APPLICATIONS_URL)}>Show</a>}>
+                    <Card hoverable extra={<a href="#" onClick={() => history.replace(ALL_APPLICATIONS_URL)}>{trans("home.show")}</a>}>
                         <div style={{ display: "flex", justifyContent: "space-between" }}>
                             <div>
                                 <p style={{ textTransform: "uppercase", fontSize: "13px" }}>
@@ -390,7 +390,7 @@ export function UserProfileLayout(props: UserProfileLayoutProps) {
                     </Card>
                 </Col>
                 <Col  xs={24} sm={12} xl={6} style={{marginBottom: "20px", minWidth: "350px"}} flex="auto" span={8}>
-                    <Card hoverable extra={<a href="#" onClick={() => history.replace(ALL_APPLICATIONS_URL)}>Show</a>}>
+                    <Card hoverable extra={<a href="#" onClick={() => history.replace(ALL_APPLICATIONS_URL)}>{trans("home.show")}</a>}>
                         <div style={{ display: "flex", justifyContent: "space-between" }}>
                             <div>
                                 <p style={{ textTransform: "uppercase", fontSize: "13px" }}>

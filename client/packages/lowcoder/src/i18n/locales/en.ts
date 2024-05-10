@@ -2937,6 +2937,7 @@ export const en = {
     "rootFolder": "Root",
     "import": "Import",
     "export": "Export to JSON",
+    "show": "Show",
     "inviteUser": "Invite members",
     "createFolder": "Create Folder",
     "createFolderSubTitle": "Folder name:",

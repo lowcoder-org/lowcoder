@@ -151,7 +151,7 @@ class UserApi extends Api {
   }
 
   static resetLostPassword(request: ResetLostPasswordPayload): AxiosPromise<ApiResponse> {
-    console.log(request);
+    // console.log(request);
     return Api.post(UserApi.resetLostPasswordURL, request);
   }
 
