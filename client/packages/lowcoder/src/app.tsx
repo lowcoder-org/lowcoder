@@ -24,6 +24,8 @@ import {
   TRASH_URL,
   USER_AUTH_URL,
   ADMIN_APP_URL,
+  ORG_AUTH_FORGOT_PASSWORD_URL,
+  ORG_AUTH_RESET_PASSWORD_URL,
 } from "constants/routesURL";
 
 import React from "react";
@@ -173,6 +175,8 @@ class AppIndex extends React.Component<AppIndexProps, any> {
             <LazyRoute path={USER_AUTH_URL} component={LazyUserAuthComp} />
             <LazyRoute path={ORG_AUTH_LOGIN_URL} component={LazyUserAuthComp} />
             <LazyRoute path={ORG_AUTH_REGISTER_URL} component={LazyUserAuthComp} />
+            <LazyRoute path={ORG_AUTH_FORGOT_PASSWORD_URL} component={LazyUserAuthComp} />
+            <LazyRoute path={ORG_AUTH_RESET_PASSWORD_URL} component={LazyUserAuthComp} />
             <LazyRoute path={INVITE_LANDING_URL} component={LazyInviteLanding} />
             <LazyRoute path={`${COMPONENT_DOC_URL}/:name`} component={LazyComponentDoc} />
             <LazyRoute path={`/playground/:name/:dsl`} component={LazyComponentPlayground} />

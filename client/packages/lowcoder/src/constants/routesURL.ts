@@ -40,6 +40,8 @@ export const APP_EDITOR_URL = `${ALL_APPLICATIONS_URL}/:applicationId/:viewMode/
 export const AUTH_BIND_URL = `${USER_AUTH_URL}/bind`;
 export const AUTH_LOGIN_URL = `${USER_AUTH_URL}/login`;
 export const AUTH_REGISTER_URL = `${USER_AUTH_URL}/register`;
+export const AUTH_FORGOT_PASSWORD_URL = `${USER_AUTH_URL}/forgot-password`;
+export const AUTH_RESET_PASSWORD_URL = `${USER_AUTH_URL}/lost-password`;
 export const QR_CODE_OAUTH_URL = `${USER_AUTH_URL}/oauth/qrcode`;
 export const OAUTH_REDIRECT = `${USER_AUTH_URL}/oauth/redirect`;
 export const CAS_AUTH_REDIRECT = `${USER_AUTH_URL}/cas/redirect`;
@@ -47,6 +49,8 @@ export const LDAP_AUTH_LOGIN_URL = `${USER_AUTH_URL}/ldap/login`;
 export const INVITE_LANDING_URL = "/invite/:invitationId";
 export const ORG_AUTH_LOGIN_URL = `/org/:orgId/auth/login`;
 export const ORG_AUTH_REGISTER_URL = `/org/:orgId/auth/register`;
+export const ORG_AUTH_FORGOT_PASSWORD_URL = `/org/:orgId/auth/forgot-password`;
+export const ORG_AUTH_RESET_PASSWORD_URL = `/org/:orgId/auth/lost-password`;
 export const MARKETPLACE_TYPE_URL = `${MARKETPLACE_URL}/:marketplaceType`;
 
 export const APPLICATION_VIEW_URL = (appId: string, viewMode: AppViewMode) =>

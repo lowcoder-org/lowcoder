@@ -2810,8 +2810,12 @@ export const en = {
   "userAuth": {
     "registerByEmail": "Sign Up",
     "email": "Email:",
-    "inputEmail": "Please Enter Your Email",
-    "inputValidEmail": "Please Enter a Valid Email",
+    "inputEmail": "Please enter your email",
+    "inputValidEmail": "Please enter a valid email",
+    "forgotPassword": "Forgot Password",
+    "forgotPasswordInfo": "Enter your email and we'll send you a link to reset your password.",
+    "forgotPasswordSuccess": "Please check your email for reset password link.",
+    "forgotPasswordError": "Something went wrong. Please try again.",
     "register": "Sign Up",
     "userLogin": "Sign In",
     "login": "Sign In",
@@ -2836,6 +2840,7 @@ export const en = {
     "resetPasswordDesc": "Reset User {name}'s Password. A New Password Will Be Generated After Reset.",
     "resetSuccess": "Reset Succeeded",
     "resetSuccessDesc": "Password Reset Succeeded. The New Password is: {password}",
+    "resetLostPasswordSuccess": "Password Reset Succeeded. Please login again.",
     "copyPassword": "Copy Password",
     "poweredByLowcoder": "Powered by: Lowcoder.cloud"
   },

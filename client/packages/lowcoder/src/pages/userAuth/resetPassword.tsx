@@ -3,24 +3,20 @@ import {
   AuthContainer,
   ConfirmButton,
   FormWrapperMobile,
-  LoginCardTitle,
   StyledRouteLinkLogin,
-  TermsAndPrivacyInfo,
 } from "pages/userAuth/authComponents";
-import { FormInput, PasswordInput } from "lowcoder-design";
+import { FormInput, PasswordInput, messageInstance } from "lowcoder-design";
 import { AUTH_LOGIN_URL, ORG_AUTH_LOGIN_URL } from "constants/routesURL";
 import UserApi from "api/userApi";
-import { useRedirectUrl } from "util/hooks";
 import { checkEmailValid } from "util/stringUtils";
 import styled from "styled-components";
 import { requiresUnAuth } from "./authHOC";
 import { useLocation } from "react-router-dom";
-import { UserConnectionSource } from "@lowcoder-ee/constants/userConstants";
 import { trans } from "i18n";
-import { AuthContext, checkPassWithMsg, useAuthSubmit } from "pages/userAuth/authUtils";
-import { ThirdPartyAuth } from "pages/userAuth/thirdParty/thirdPartyAuth";
+import { checkPassWithMsg } from "pages/userAuth/authUtils";
 import { useParams } from "react-router-dom";
 import { Divider } from "antd";
+import { validateResponse } from "api/apiUtils";
 
 const StyledFormInput = styled(FormInput)`
   margin-bottom: 16px;
@@ -36,42 +32,42 @@ const RegisterContent = styled(FormWrapperMobile)`
   margin-bottom: 0px;
 `;
 
-function UserRegister() {
+function ResetPassword() {
   const [submitBtnDisable, setSubmitBtnDisable] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [account, setAccount] = useState("");
   const [password, setPassword] = useState("");
-  const redirectUrl = useRedirectUrl();
   const location = useLocation();
-  const { systemConfig, inviteInfo, fetchUserAfterAuthSuccess } = useContext(AuthContext);
-  const invitationId = inviteInfo?.invitationId;
-
+  const queryParams = new URLSearchParams(location.search);
+  
   const orgId = useParams<any>().orgId;
-  const organizationId = useMemo(() => {
-    if(inviteInfo?.invitedOrganizationId) {
-      return inviteInfo?.invitedOrganizationId;
-    }
-    return orgId;
-  }, [ inviteInfo, orgId ])
+  const token = queryParams.get('token') ?? '';
 
-  const authId = systemConfig?.form.id;
+  const onSubmit = () => {
+    setLoading(true);
+    UserApi.resetLostPassword({
+      token,
+      userEmail: account,
+      newPassword: password,
+    })
+      .then((resp) => {
+        // TODO: need proper response from BE
+        // if (validateResponse(resp)) {
+        //   messageInstance.success(trans("userAuth.resetLostPasswordSuccess"));
+        // }
+        if (resp.status === 200) {
+          messageInstance.success(trans("userAuth.resetLostPasswordSuccess"));
+        }
+      })
+      .catch((e) => {
+        messageInstance.error(trans("userAuth.forgotPasswordError"));
+      })
+      .finally(() => {
+        setLoading(false);
+      })
+  }
 
-  const { loading, onSubmit } = useAuthSubmit(
-    () =>
-      UserApi.formLogin({
-        register: true,
-        loginId: account,
-        password: password,
-        invitationId,
-        source: UserConnectionSource.email,
-        orgId: organizationId,
-        authId,
-      }),
-    false,
-    redirectUrl,
-    fetchUserAfterAuthSuccess,
-  );
-
-  const registerHeading = trans("userAuth.register")
+  const registerHeading = trans("userAuth.resetPassword")
   const registerSubHeading = trans("userAuth.poweredByLowcoder");
 
   return (
@@ -81,7 +77,6 @@ function UserRegister() {
       type="large"
     >
       <RegisterContent>
-        {/* <LoginCardTitle>{trans("userAuth.registerByEmail")}</LoginCardTitle> */}
         <StyledFormInput
           className="form-input"
           label={trans("userAuth.email")}
@@ -105,16 +100,8 @@ function UserRegister() {
           onClick={onSubmit}
           loading={loading}
         >
-          {trans("userAuth.register")}
+          {trans("button.submit")}
         </ConfirmButton>
-        <TermsAndPrivacyInfo onCheckChange={(e) => setSubmitBtnDisable(!e.target.checked)} />
-        {organizationId && (
-          <ThirdPartyAuth
-            invitationId={invitationId}
-            invitedOrganizationId={organizationId}
-            authGoal="register"
-          />
-        )}
       </RegisterContent>
       <Divider/>
       <StyledRouteLinkLogin to={{
@@ -128,4 +115,4 @@ function UserRegister() {
   );
 }
 
-export default requiresUnAuth(UserRegister);
+export default requiresUnAuth(ResetPassword);
