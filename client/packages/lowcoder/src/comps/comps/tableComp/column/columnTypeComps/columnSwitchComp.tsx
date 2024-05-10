@@ -12,6 +12,7 @@ import { styleControl } from "comps/controls/styleControl";
 import { RefControl } from "comps/controls/refControl";
 import { booleanExposingStateControl } from "comps/controls/codeStateControl";
 import { changeEvent, eventHandlerControl } from "comps/controls/eventHandlerControl";
+import { disabledPropertyView } from "comps/utils/propertyUtils";
 
 interface SwitchWrapperProps {
   disabled: boolean;
@@ -50,15 +51,6 @@ const getStyle = (style: SwitchStyleType) => {
 const SwitchWrapper = styled.div<{ disabled: boolean }>`
   display: flex;
   align-items: center;
-  // Can respond to drag & select events when disabled
-  ${(props) =>
-    props.disabled &&
-    `
-    cursor: not-allowed;
-    >button:disabled {
-      pointer-events: none;
-    }
-  `};
 `;
 
 const Wrapper = styled.div`
@@ -72,7 +64,6 @@ const childrenMap = {
   onEvent: eventHandlerControl(EventOptions),
   disabled: BoolCodeControl,
   style: styleControl(InputFieldStyle),
-  labelStyle: styleControl(LabelStyle.filter((style) => ['accent', 'validate'].includes(style.name) === false)),
   viewRef: RefControl<HTMLElement>,
 };
 
@@ -87,7 +78,7 @@ export const SwitchComp = (function () {
         return (
           <Switch 
             checked={value}
-            disabled={props.disabled || true}
+            disabled={props.disabled}
             ref={props.viewRef}
             onChange={(checked) => {
               props.value.onChange(checked);
@@ -129,6 +120,8 @@ export const SwitchComp = (function () {
             label: trans("table.columnValue"),
             tooltip: ColumnValueTooltip,
           })}
+          {children.onEvent.propertyView()}
+          {disabledPropertyView(children)}
           
         </>
       );
