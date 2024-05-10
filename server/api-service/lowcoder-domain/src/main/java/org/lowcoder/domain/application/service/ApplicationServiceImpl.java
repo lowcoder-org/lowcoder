@@ -7,12 +7,17 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.lowcoder.domain.application.model.Application;
 import org.lowcoder.domain.application.model.ApplicationRequestType;
 import org.lowcoder.domain.application.model.ApplicationStatus;
 import org.lowcoder.domain.application.repository.ApplicationRepository;
+import org.lowcoder.domain.organization.repository.OrganizationRepository;
+import org.lowcoder.domain.organization.service.OrgMemberService;
 import org.lowcoder.domain.permission.model.ResourceRole;
 import org.lowcoder.domain.permission.service.ResourcePermissionService;
+import org.lowcoder.domain.user.repository.UserRepository;
+import org.lowcoder.domain.user.service.UserService;
 import org.lowcoder.infra.annotation.NonEmptyMono;
 import org.lowcoder.infra.mongo.MongoUpsertHelper;
 import org.lowcoder.sdk.constants.FieldName;
@@ -37,6 +42,7 @@ public class ApplicationServiceImpl implements ApplicationService {
     private final MongoUpsertHelper mongoUpsertHelper;
     private final ResourcePermissionService resourcePermissionService;
     private final ApplicationRepository repository;
+    private final UserRepository userRepository;
 
     @Override
     public Mono<Application> findById(String id) {
@@ -219,8 +225,8 @@ public class ApplicationServiceImpl implements ApplicationService {
     @Override
     @NonEmptyMono
     @SuppressWarnings("ReactiveStreamsNullableInLambdaInTransform")
-    public Mono<Set<String>> getFilteredPublicApplicationIds(ApplicationRequestType requestType, Collection<String> applicationIds, boolean isAnonymous, Boolean isPrivateMarketplace) {
-
+    public Mono<Set<String>> getFilteredPublicApplicationIds(ApplicationRequestType requestType, Collection<String> applicationIds, String userId, Boolean isPrivateMarketplace) {
+        boolean isAnonymous = StringUtils.isBlank(userId);
     	switch(requestType)
     	{
 	    	case PUBLIC_TO_ALL:
@@ -230,7 +236,7 @@ public class ApplicationServiceImpl implements ApplicationService {
 	    		}
 	    		else
 	    		{
-	    			return getPrivateApplicationIds(applicationIds);
+	    			return getPrivateApplicationIds(applicationIds, userId);
 	    		}
 	    	case PUBLIC_TO_MARKETPLACE:
 	    		return getPublicMarketplaceApplicationIds(applicationIds, isAnonymous, isPrivateMarketplace);
@@ -262,11 +268,16 @@ public class ApplicationServiceImpl implements ApplicationService {
     @Override
     @NonEmptyMono
     @SuppressWarnings("ReactiveStreamsNullableInLambdaInTransform")
-    public Mono<Set<String>> getPrivateApplicationIds(Collection<String> applicationIds) {
+    public Mono<Set<String>> getPrivateApplicationIds(Collection<String> applicationIds, String userId) {
+
     	// TODO: in 2.4.0 we need to check whether the app was published or not
-        return repository.findByIdIn(applicationIds)
+        return repository.findByCreatedByAndIdIn(userId, applicationIds)
                         .map(HasIdAndAuditing::getId)
                         .collect(Collectors.toSet());
+
+//        return repository.findByIdIn(applicationIds)
+//                        .map(HasIdAndAuditing::getId)
+//                        .collect(Collectors.toSet());
     }
     
     
