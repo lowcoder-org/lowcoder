@@ -4,6 +4,7 @@ import {
   AudioCompIconSmall,
   AutoCompleteCompIconSmall,
   ButtonCompIconSmall,
+  CardCompIconSmall,
   CalendarCompIconSmall,
   CarouselCompIconSmall,
   CascaderCompIconSmall,
@@ -19,6 +20,7 @@ import {
   DrawerCompIconSmall,
   DropdownCompIconSmall,
   FileViewerCompIconSmall,
+  FloatingButtonCompIconSmall,
   FloatingTextCompIconSmall,
   FormCompIconSmall,
   GridCompIconSmall,
@@ -73,6 +75,23 @@ import {
   VideoCompIconSmall,
   VideoMeetingRoomCompIconSmall,
   VideoScreenshareCompIconSmall,
+  AvatarCompIconSmall,
+  AvatarGroupCompIconSmall,
+  ColorPickerCompIconSmall,
+  TransferCompIconSmall,
+
+  CandlestickChartCompIconSmall,
+  FunnelChartCompIconSmall,
+  GaugeChartCompIconSmall,
+  // GraphChartCompIconSmall,
+  HeatmapChartCompIconSmall,
+  RadarChartCompIconSmall,
+  SankeyChartCompIconSmall,
+  SunburstChartCompIconSmall,
+  ThemeriverChartCompIconSmall,
+  TreeChartCompIconSmall,
+  TreemapChartCompIconSmall,
+
 } from "lowcoder-design";
 
 export const CompStateIcon: {
@@ -154,11 +173,30 @@ export const CompStateIcon: {
   video: <VideoCompIconSmall />,
   videocomponent: <VideoCameraStreamCompIconSmall />,
   
-  avatar: <LeftCommon />, 
-  avatarGroup: <LeftCommon />, 
-  colorPicker: <LeftCommon />,
-  floatButton: <LeftCommon />,
-  transfer: <LeftCommon />,
-  card: <LeftCommon />,
-  timer: <LeftCommon />,
+  hillchart: <LeftCommon />,  // Placeholder or specify if there's a dedicated icon
+  openLayersGeoMap: <LeftCommon />,  // Placeholder or specify if there's a dedicated icon
+  chartsGeoMap: <LeftCommon />,  // Placeholder or specify if there's a dedicated icon
+  bpmnEditor: <LeftCommon />,  // Placeholder or specify if there's a dedicated icon
+  turnstileCaptcha: <LeftCommon />,  // Placeholder or specify if there's a dedicated icon
+  pivotTable: <LeftCommon />,  // Placeholder or specify if there's a dedicated icon
+  funnelChart: <FunnelChartCompIconSmall />,
+  gaugeChart: <GaugeChartCompIconSmall />,
+  sankeyChart : <SankeyChartCompIconSmall />,
+  candleStickChart : <CandlestickChartCompIconSmall />,
+  radarChart : <RadarChartCompIconSmall />,
+  heatmapChart : <HeatmapChartCompIconSmall />,
+  graphChart : <LeftCommon />,
+  treeChart : <TreeChartCompIconSmall />,
+  treemapChart : <TreemapChartCompIconSmall />,
+  sunburstChart : <SunburstChartCompIconSmall />,
+  themeriverChart : <ThemeriverChartCompIconSmall />,
+  basicChart : <ChartCompIconSmall />,
+
+  avatar: <AvatarCompIconSmall />,
+  avatarGroup: <AvatarGroupCompIconSmall />,
+  colorPicker: <ColorPickerCompIconSmall />,
+  floatingButton: <FloatingButtonCompIconSmall />,
+  transfer: <TransferCompIconSmall />,
+  card: <CardCompIconSmall />,
+  timer: <TimeRangeCompIconSmall/>,
 };

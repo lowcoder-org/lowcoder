@@ -125,7 +125,13 @@ export type UICompType =
   | "npmPlugin"
   | "collapsibleContainer"
   | "calendar"
+  | "hillchart"
   | "signature"
+  | "openLayersGeoMap"
+  | "chartsGeoMap"
+  | "bpmnEditor"
+  | "turnstileCaptcha"
+  | "pivotTable"
   | "jsonLottie" //Added By Aqib Mirza
   | "avatar" //Added By Mousheng
   | "avatarGroup" //Added By Mousheng
@@ -135,12 +141,25 @@ export type UICompType =
   | "mention" //Added By Mousheng
   | "autocomplete" //Added By Mousheng
   | "colorPicker" //Added By Mousheng
-  | "floatButton" //Added By Mousheng
+  | "floatingButton" //Added By Mousheng
   | "transfer" //Added By Mousheng
   | "card"  //Added By Mousheng
   | "timer" //Added by Mousheng
   | "responsiveLayout"
-  | "tour";
+  | "tour"
+  | "funnelChart"
+  | "gaugeChart"
+  | "sankeyChart"
+  | "candleStickChart"
+  | "radarChart"
+  | "heatmapChart"
+  | "graphChart"
+  | "treeChart"
+  | "treemapChart"
+  | "sunburstChart"
+  | "themeriverChart" 
+  | "basicChart"
+  ;
 
 
 export const uiCompRegistry = {} as Record<UICompType | string, UICompManifest>;

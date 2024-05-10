@@ -24,7 +24,9 @@ export const en = {
   "error": "Error",
   "reference": "Reference",
   "text": "Text",
+  "basic": "Basic",
   "label": "Label",
+  "layout": "Layout",
   "color": "Color",
   "form": "Form",
   "menu": "Menu",
@@ -372,6 +374,8 @@ export const en = {
     "shareContentDesc": "Triggers on Share Content",
     "shareContentEnd": "Share Content End",
     "shareContentEndDesc": "Triggers on Share Content End",
+    "stopShare": "Stop Share",
+    "stopShareDesc": "Triggers on Stop Share",
     "meetingStart": "Meeting Start",
     "meetingStartDesc": "Triggers on Meeting Start",
     "meetingEnd": "Meeting End",
@@ -438,6 +442,8 @@ export const en = {
     "countdownDesc": "Triggers on Countdown ends",
     "reset": "Reset ends",
     "resetDesc": "Triggers on Reset timer",
+    "refresh": "Refresh",
+    "refreshDesc": "Triggers on Refresh",
   },
   "themeDetail": {
     "primary": "Brand Color",
@@ -1138,6 +1144,78 @@ export const en = {
     "tourCompDesc": "A product tour for guiding users.",
     "tourCompKeywords": "tour, product tour, walkthrough, interactive walkthrough",
 
+    "hillchartCompName": "Hillchart",
+    "hillchartCompDesc": "A visualization component for displaying project management state data in a hill chart format.",
+    "hillchartCompKeywords": "project management, hill chart, visualization, data",
+
+    "openLayersGeoMapCompName": "Openlayers Geomap",
+    "openLayersGeoMapCompDesc": "A component for displaying interactive maps using OpenLayers, with support for various map layers and features.",
+    "openLayersGeoMapCompKeywords": "openlayers, geo map, interactive, map layers",
+
+    "chartsGeoMapCompName": "Geo Map Charts",
+    "chartsGeoMapCompDesc": "A component for visualizing geographical data on interactive maps with dynamic charts",
+    "chartsGeoMapCompKeywords": "geo map, charts, visualization, geographical data",
+
+    "bpmnEditorCompName": "BPMN Editor",
+    "bpmnEditorCompDesc": "A component for viewing, creating and editing BPMN diagrams, supporting various BPMN elements and features.",
+    "bpmnEditorCompKeywords": "BPMN, editor, diagrams, elements, workflows",
+
+    "turnstileCaptchaCompName": "Turnstile Captcha",
+    "turnstileCaptchaCompDesc": "A captcha component to verify users against bots.",
+    "turnstileCaptchaCompKeywords": "captcha, verification, identity, security",
+
+    "pivotTableCompName": "Pivot Table",
+    "pivotTableCompDesc": "A data summarization and analysis tool for organizing and aggregating data in a tabular format.",
+    "pivotTableCompKeywords": "pivot table, data, analysis, aggregation",
+
+    "funnelChartCompName": "Funnel Chart",
+    "funnelChartCompDesc": "A visualization tool for displaying the progressive reduction of data as it passes through stages.",
+    "funnelChartCompKeywords": "funnel chart, sales, conversions, process",
+
+    "gaugeChartCompName": "Gauge Chart",
+    "gaugeChartCompDesc": "A chart that displays data as a reading on a dial, useful for indicating the status or level of something.",
+    "gaugeChartCompKeywords": "gauge chart, metrics, performance, status",
+
+    "sankeyChartCompName": "Sankey Chart",
+    "sankeyChartCompDesc": "A flow diagram in which the width of the arrows is proportional to the flow rate, used to show energy, material, or cost transfers.",
+    "sankeyChartCompKeywords": "sankey chart, flow, energy, costs",
+
+    "candleStickChartCompName": "Candlestick Chart",
+    "candleStickChartCompDesc": "A style of financial chart used to describe price movements of a security, derivative, or currency.",
+    "candleStickChartCompKeywords": "candlestick chart, stocks, trading, finance",
+
+    "radarChartCompName": "Radar Chart",
+    "radarChartCompDesc": "A graphical method of displaying multivariate data in the form of a two-dimensional chart of three or more quantitative variables.",
+    "radarChartCompKeywords": "radar chart, multivariate, performance analysis",
+
+    "heatmapChartCompName": "Heatmap Chart",
+    "heatmapChartCompDesc": "A graphical representation of data where individual values are represented as colors.",
+    "heatmapChartCompKeywords": "heatmap, data visualization, intensity",
+
+    "graphChartCompName": "Graph Chart",
+    "graphChartCompDesc": "A diagram representing a network of nodes connected by edges, useful for showing interconnections and relationships.",
+    "graphChartCompKeywords": "graph chart, networks, relationships, nodes",
+
+    "treeChartCompName": "Tree Chart",
+    "treeChartCompDesc": "A diagram that visually represents hierarchy in a tree-like structure, showing relationships among various nodes.",
+    "treeChartCompKeywords": "tree chart, hierarchy, organizational",
+
+    "treemapChartCompName": "Treemap Chart",
+    "treemapChartCompDesc": "A chart that uses nested rectangles to represent hierarchical data proportionately.",
+    "treemapChartCompKeywords": "treemap, hierarchy, data visualization",
+
+    "sunburstChartCompName": "Sunburst Chart",
+    "sunburstChartCompDesc": "A radial space-filling visualization technique that illustrates hierarchical relationships through layers of a circle.",
+    "sunburstChartCompKeywords": "sunburst chart, radial, hierarchy",
+
+    "themeriverChartCompName": "Theme River Chart",
+    "themeriverChartCompDesc": "A visualization resembling a stream graph that shows changes in a data set over time across categories.",
+    "themeriverChartCompKeywords": "theme river, time series, trends",
+
+    "basicChartCompName": "Basic Chart",
+    "basicChartCompDesc": "A versatile component for visualizing data through various types of charts and graphs.",
+    "basicChartCompKeywords": "chart, graph, data, visualization",
+
     // by mousheng
 
     "colorPickerCompName": "Color Picker",
@@ -1565,7 +1643,8 @@ export const en = {
   },
   "slider": {
     "step": "Step",
-    "stepTooltip": "The Value Must Be Greater Than 0 and Divisible by (Max-Min)"
+    "stepTooltip": "The Value Must Be Greater Than 0 and Divisible by (Max-Min)",
+    "vertical": "Vertical Orientation",
   },
   "rating": {
     "max": "Max Rating",
@@ -1612,6 +1691,11 @@ export const en = {
     "showIcons" : "Show Icons instead Symbols",
     "responsive" : "Responsive",
     "selectable" : "Selectable",
+  },
+  "coloredTagOptionControl" : {
+    "tag" : "Tag Text",
+    "color" : "Color",
+    "icon" : "Icon",
   },
   "radio": {
     "options": "Options",
@@ -1687,6 +1771,7 @@ export const en = {
   },
   "button": {
     "prefixIcon": "Prefix Icon",
+    "prefixText": "Prefix Text",
     "suffixIcon": "Suffix Icon",
     "icon": "Icon",
     "iconSize": "Icon Size",
@@ -1790,6 +1875,8 @@ export const en = {
     "float": "Float",
     "prefix": "Prefix",
     "suffix": "Suffix",
+    "avatars": "Avatars",
+    "avatarGroupAlignment": "Avatars Alignment",
     "text": "Text",
     "number": "Number",
     "link": "Link",
@@ -1802,6 +1889,7 @@ export const en = {
     "button": "Button",
     "image": "Image",
     "boolean": "Boolean",
+    "switch": "Switch",
     "rating": "Rating",
     "progress": "Progress",
     "option": "Operation",
@@ -1819,6 +1907,8 @@ export const en = {
     "fixedToolbar": "Fixed Toolbar",
     "fixedToolbarTooltip": "Toolbar Will Be Fixed for Vertically Scrollable Table Based on Position",
     "hideBordered": "Show Resize Handles",
+    "showHeaderGridBorder": "Show Header Grid Border",
+    "showRowGridBorder": "Show Row Grid Border",
     "showVerticalRowGridBorder": "Show vertical Row Grid Border",
     "showHorizontalRowGridBorder": "Show horizontal Row Grid Border",
     "deleteColumn": "Delete Column",
@@ -1870,6 +1960,9 @@ export const en = {
     "toUpdateRowsDesc": "An Array of Objects for Rows to Be Updated in Editable Tables.",
     "empty": "Empty",
     "falseValues": "Text When False",
+    "iconTrue": "Icon When True",
+    "iconFalse": "Icon When False",
+    "iconNull": "Icon When Null",
     "allColumn": "All",
     "visibleColumn": "Visible",
     "emptyColumns": "No Columns Are Currently Visible"
@@ -2443,6 +2536,7 @@ export const en = {
     "APIConsumptionDescription": "Here you can see the API Consumption for All Apps in the Current Workspace.",
     "overallAPIConsumption": "Overall API Consumption in this Workspace till now",
     "lastMonthAPIConsumption": "Last Month API Consumption, in this Workspace"
+
   },
 
 
@@ -2462,6 +2556,11 @@ export const en = {
     "upload": "Click to Upload"
   },
   "networkMessage": {
+    "200": "Success",
+    "201": "Created",
+    "204": "No Content",
+    "400": "Bad Request",
+    "404": "Not Found",
     "500": "Busy Service, Please Try Again Later",
     "0": "Failed to Connect to Server, Please Check Your Network",
     "401": "Authentication Failed, Please Log On Again",
@@ -2712,8 +2811,12 @@ export const en = {
   "userAuth": {
     "registerByEmail": "Sign Up",
     "email": "Email:",
-    "inputEmail": "Please Enter Your Email",
-    "inputValidEmail": "Please Enter a Valid Email",
+    "inputEmail": "Please enter your email",
+    "inputValidEmail": "Please enter a valid email",
+    "forgotPassword": "Forgot Password",
+    "forgotPasswordInfo": "Enter your email and we'll send you a link to reset your password.",
+    "forgotPasswordSuccess": "Please check your email for reset password link.",
+    "forgotPasswordError": "Something went wrong. Please try again.",
     "register": "Sign Up",
     "userLogin": "Sign In",
     "login": "Sign In",
@@ -2738,6 +2841,7 @@ export const en = {
     "resetPasswordDesc": "Reset User {name}'s Password. A New Password Will Be Generated After Reset.",
     "resetSuccess": "Reset Succeeded",
     "resetSuccessDesc": "Password Reset Succeeded. The New Password is: {password}",
+    "resetLostPasswordSuccess": "Password Reset Succeeded. Please login again.",
     "copyPassword": "Copy Password",
     "poweredByLowcoder": "Powered by: Lowcoder.cloud"
   },
@@ -2798,9 +2902,11 @@ export const en = {
   },
   "home": {
     "profile": "Your Profile",
+    "news": "News",
     "allApplications": "Your Apps",
     "allModules": "Your Modules",
     "allFolders": "All Folders",
+    "yourFolders" : "Your Folders",
     "modules": "Modules",
     "module": "Module",
     "trash": "Trash",

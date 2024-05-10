@@ -145,7 +145,7 @@ export const UICompPanel = () => {
   const compList = useMemo(
     () =>
       Object.entries(categories)
-        .filter(([key]) => !(!isEmpty(searchValue) && (key as UICompCategory) === "dashboards"))
+        // .filter(([key]) => !(!isEmpty(searchValue) && (key as UICompCategory) === "dashboards"))
         .map(([key, value], index) => {
           let infos = value;
           if (!isEmpty(searchValue)) {
