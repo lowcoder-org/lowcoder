@@ -61,6 +61,11 @@ const SwitchWrapper = styled.div<{ disabled: boolean }>`
   `};
 `;
 
+const Wrapper = styled.div`
+  background: transparent !important;
+  padding: 0 8px;
+`
+
 const childrenMap = {
   value: booleanExposingStateControl("value"),
   switchState: BoolCodeControl,
@@ -80,18 +85,16 @@ export const SwitchComp = (function () {
       const value = props.changeValue ?? getBaseValue(props, dispatch);
       const CheckBoxComp = () => {
         return (
-          <SwitchWrapper disabled={props.disabled}>
-            <Switch 
-              checked={props.value.value || true}
-              disabled={props.disabled}
-              ref={props.viewRef}
-              onChange={(checked) => {
-                props.value.onChange(checked);
-                props.onEvent("change");
-                props.onEvent(checked ? "true" : "false");
-              }}
-            />
-          </SwitchWrapper>
+          <Switch 
+            checked={value}
+            disabled={props.disabled || true}
+            ref={props.viewRef}
+            onChange={(checked) => {
+              props.value.onChange(checked);
+              props.onEvent("change");
+              props.onEvent(checked ? "true" : "false");
+            }}
+          />
         );
       };
       return <CheckBoxComp />;
@@ -101,15 +104,22 @@ export const SwitchComp = (function () {
   )
     .setEditViewFn((props) => {
       return (
-        <Switch 
-          checked={props.value}
-          disabled={false}
-          onChange={(checked) => {
-            props.onChange(checked);
-            // props.onEvent("change");
-            // props.onEvent(checked ? "true" : "false");
+        <Wrapper
+          onBlur={(e) => {
+            if (!e.currentTarget?.contains(e.relatedTarget)) {
+              props.onChangeEnd();
+            }
           }}
-      />
+        >
+          <Switch
+            defaultChecked={props.value}
+            disabled={false}
+            onChange={(checked) => {
+              props.onChange(checked);
+            }}
+          />
+
+        </Wrapper>
       );
     })
     .setPropertyViewFn((children) => {
