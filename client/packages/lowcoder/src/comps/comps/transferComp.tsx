@@ -28,6 +28,12 @@ const Container = styled.div<{ $style: TransferStyleType }>`
 const getStyle = (style: TransferStyleType) => {
   return css`
     margin: ${style.margin};
+    padding: ${style.padding};
+    border-style: ${style.borderStyle};
+    border-width: ${style.borderWidth};
+    border-color: ${style.border};
+    background: ${style.background};
+    border-radius: ${style.radius};
     max-width: ${widthCalculator(style.margin)};
     max-height: ${heightCalculator(style.margin)};
   `;

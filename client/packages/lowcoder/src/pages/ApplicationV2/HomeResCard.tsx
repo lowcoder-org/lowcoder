@@ -102,7 +102,7 @@ const CardInfo = styled.div`
   justify-content: center;
   margin-left: 14px;
   white-space: nowrap;
-  width: 284px;
+  width: 30%;
   height: 100%;
   flex-grow: 1;
   cursor: pointer;
@@ -176,7 +176,7 @@ export function HomeResCard(props: { res: HomeRes; onMove: (res: HomeRes) => voi
     <Wrapper>
       <Card>
         {Icon && (
-          <Icon width={"24px"} height={"24px"} style={
+          <Icon width={"42px"} height={"42px"} style={
             { 
               color: iconColor,
               marginRight: "10px", 
@@ -225,11 +225,11 @@ export function HomeResCard(props: { res: HomeRes; onMove: (res: HomeRes) => voi
           <AppTimeOwnerInfoLabel title={subTitle}>{subTitle}</AppTimeOwnerInfoLabel>
         </CardInfo>
         <OperationWrapper>
-          {res.isEditable && (
+          {/* {res.isEditable && (
             <EditButton onClick={(e) => handleAppEditClick(e, res.id)} buttonType="primary">
               {trans("edit")}
             </EditButton>
-          )}
+          )} */}
           <ExecButton
             onClick={() =>
               res.type === HomeResTypeEnum.Folder

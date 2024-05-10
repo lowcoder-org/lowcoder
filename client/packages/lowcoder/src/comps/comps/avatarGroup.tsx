@@ -1,6 +1,6 @@
 import { CompAction, RecordConstructorToView, changeChildAction } from "lowcoder-core";
 import { styleControl } from "comps/controls/styleControl";
-import { avatarGroupStyle, AvatarGroupStyleType } from "comps/controls/styleControlConstants";
+import { QRCodeStyle, QRCodeStyleType, avatarGroupStyle, AvatarGroupStyleType, avatarContainerStyle, AvatarContainerStyleType } from "comps/controls/styleControlConstants";
 import { UICompBuilder } from "comps/generators/uiCompBuilder";
 import { NameConfig, NameConfigHidden, withExposingConfigs } from "comps/generators/withExposing";
 import { AlignCenter, AlignLeft, AlignRight, Section, sectionNames } from "lowcoder-design";
@@ -31,13 +31,20 @@ const MacaroneList = [
   '#fcd6bb',
 ]
 
-const Container = styled.div<{ $style: AvatarGroupStyleType | undefined, alignment: string }>`
+const Container = styled.div<{ $style: AvatarContainerStyleType | undefined, alignment: string }>`
   height: 100%;
   width: 100%;
   display: flex;
   align-items: center;
   justify-content: ${props => props.alignment};
   cursor: pointer;
+  background: ${props => props?.$style?.background};
+  margin: ${props => props?.$style?.margin};
+  padding: ${props => props?.$style?.padding};
+  border: ${props => props?.$style?.border};
+  border-style: ${props => props?.$style?.borderStyle};
+  border-radius: ${props => props?.$style?.radius};
+  border-width: ${props => props?.$style?.borderWidth};
 `;
 
 const DropdownOption = new MultiCompBuilder(
@@ -79,7 +86,8 @@ export const alignOptions = [
 ] as const;
 
 const childrenMap = {
-  style: styleControl(avatarGroupStyle),
+  avatar: styleControl(avatarGroupStyle),
+  style: styleControl(avatarContainerStyle),
   maxCount: withDefault(NumberControl, 3),
   avatarSize: withDefault(NumberControl, 40),
   alignment: dropdownControl(alignOptions, "center"),
@@ -112,8 +120,8 @@ const AvatarGroupView = (props: RecordConstructorToView<typeof childrenMap> & { 
                     src={item.src ?? undefined}
                     icon={(item.AvatarIcon as ReactElement)?.props.value === '' || item.label.trim() !== '' ? undefined : item.AvatarIcon}
                     style={{
-                      color: item.color ? item.color : (props.style.fill !== '#FFFFFF' ? props.style.fill : '#FFFFFF'),
-                      backgroundColor: item.backgroundColor ? item.backgroundColor : (props.autoColor ? MacaroneList[index % MacaroneList.length] : props.style.background),
+                      color: item.color ? item.color : (props.avatar.fill !== '#FFFFFF' ? props.avatar.fill : '#FFFFFF'),
+                      backgroundColor: item.backgroundColor ? item.backgroundColor : (props.autoColor ? MacaroneList[index % MacaroneList.length] : props.avatar.background),
                     }}
                     size={props.avatarSize}
                     onClick={() => {
@@ -163,9 +171,14 @@ let AvatarGroupBasicComp = (function () {
         )}
 
         {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+          <>
+          <Section name={sectionNames.avatarStyle}>
+            {children.avatar.getPropertyView()}
+          </Section>
           <Section name={sectionNames.style}>
             {children.style.getPropertyView()}
           </Section>
+          </>
         )}
       </>
     ))
