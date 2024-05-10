@@ -209,8 +209,8 @@ export const en = {
     "contentScrollbar" : "Show Scrollbars in Content",
     "appID": "App Id",
     "showApp": "Show an App in the content area",
-    "showAppTooltip": "You can display whole Lowcoder Apps in the content area. Please mind, that for Modules we do not support Inputs, Outputs Events and Methods.",
-    "baseURL": "Lowcoder API Base URL",
+    "showAppTooltip": "You can display whole Apps in the content area. Please mind, that for Modules we do not support Inputs, Outputs Events and Methods.",
+    "baseURL": "API Base URL",
     "horizontal": "Horizontal",
     "minHorizontalWidth": "Minimum Horizontal Width",
     "component": "Own Component Identifiers",
@@ -2420,7 +2420,7 @@ export const en = {
     "unStructuredError": "Unstructured Data {prev} Can't Be Updated by {path}",
     "valueDesc": "Temporary State Value",
     "deleteMessage": "The Temporary State is Deleted Successfully. You Can Use {undoKey} to Undo.",
-    "documentationText" : "Temporary states in Lowcoder are a powerful feature used to manage complex variables that dynamically update the state of components in your application. These states act as intermediary or transient storage for data that can change over time due to user interactions or other processes."
+    "documentationText" : "Temporary states are a powerful feature used to manage complex variables that dynamically update the state of components in your application. These states act as intermediary or transient storage for data that can change over time due to user interactions or other processes."
   },
   "dataResponder": {
     "data": "Data",
@@ -2582,7 +2582,7 @@ export const en = {
   "module": {
     "emptyText": "No Data",
     "docLink": "Read More About Modules...",
-    "documentationText" : "Lowcoder Modules are complete Applications, that can get included and repeated in other Lowcoder Applications and it functions just like a single component. As modules can get embedded, they need to be able to interact with your outside apps or websites. This four settings help to support communication with a Module.",
+    "documentationText" : "Modules are complete Applications, that can get included and repeated in other Applications and it functions just like a single component. As modules can get embedded, they need to be able to interact with your outside apps or websites. This four settings help to support communication with a Module.",
     "circularReference": "Circular Reference, Current Module/Application Cannot Be Used!",
     "emptyTestInput": "The Current Module Has No Input to Test",
     "emptyTestMethod": "The Current Module Has No Method to Test",
@@ -2982,8 +2982,8 @@ export const en = {
     "appPublicMessage": "Make the app public. Anyone can view.",
     "modulePublicMessage": "Make the module public. Anyone can view.",
     "marketplaceURL": "https://api-service.lowcoder.cloud",
-    "appMarketplaceMessage": "Publish your App on Lowcoder Marketplace. Anyone can view and copy it from there.",
-    "moduleMarketplaceMessage": "Publish your Module on Lowcoder Marketplace. Anyone can view and copy it from there.",
+    "appMarketplaceMessage": "Publish your App on the Public Marketplace. Anyone can view and copy it from there.",
+    "moduleMarketplaceMessage": "Publish your Module on the Public Marketplace. Anyone can view and copy it from there.",
     "marketplaceGoodPublishing": "Please make sure your app is well-named and easy to use. Remove any sensitive information before publishing. Also, remove local datasources and replace by static built-in temporary data.",
     "noMarketplaceApps": "No apps yet in the marketplace",
     "errorMarketplaceApps": "Error while loading Marketplace Apps",
@@ -3001,7 +3001,7 @@ export const en = {
     "copyNamePlaceholder": "Please enter a {type} name",
     "chooseNavType": "Please choose navigation type",
     "createNavigation": "Create Navigation",
-    "howToUseAPI": "How to use the Lowcoder Open Rest API",
+    "howToUseAPI": "How to use the Open Rest API",
   },
   "carousel": {
     "dotPosition": "Navigation Dots position",

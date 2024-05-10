@@ -115,6 +115,8 @@ class AppIndex extends React.Component<AppIndexProps, any> {
     // persisting the language in local storage
     localStorage.setItem('lowcoder_uiLanguage', this.props.uiLanguage);
 
+    // console.log("this.props.defaultHomePage: ", this.props.defaultHomePage)
+
     return (
       <Wrapper language={this.props.uiLanguage}>
         <Helmet>
@@ -148,7 +150,13 @@ class AppIndex extends React.Component<AppIndexProps, any> {
               <Redirect exact from={ALL_APPLICATIONS_URL} to={APPLICATION_VIEW_URL(this.props.defaultHomePage, "view")}
               />
             )} */}
-            <Redirect exact from={BASE_URL} to={USER_PROFILE_URL} />
+
+            {!this.props.orgDev ? (
+              <Redirect exact from={BASE_URL} to={ORG_HOME_URL} />
+            ) : (
+              <Redirect exact from={BASE_URL} to={ALL_APPLICATIONS_URL} />
+            )}
+            
             <LazyRoute exact path={IMPORT_APP_FROM_TEMPLATE_URL} component={LazyAppFromTemplate} />
             <LazyRoute fallback="layout" path={APP_EDITOR_URL} component={LazyAppEditor} />
             <LazyRoute
