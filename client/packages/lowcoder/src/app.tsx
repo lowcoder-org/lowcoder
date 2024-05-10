@@ -3,6 +3,7 @@ import { default as ConfigProvider } from "antd/es/config-provider";
 import {
   USER_PROFILE_URL,
   NEWS_URL,
+  ORG_HOME_URL,
   ALL_APPLICATIONS_URL,
   APP_EDITOR_URL,
   APPLICATION_VIEW_URL,
@@ -134,22 +135,20 @@ class AppIndex extends React.Component<AppIndexProps, any> {
         <SystemWarning />
         <Router history={history}>
           <Switch>
-            {!this.props.orgDev && !!this.props.defaultHomePage ? (
-              <Redirect
-                exact
-                from={BASE_URL}
-                to={APPLICATION_VIEW_URL(this.props.defaultHomePage, "view")}
+            
+            {/* 
+              // we decided to show the org homepage in a own navigation page
+              {!this.props.orgDev && !!this.props.defaultHomePage ? (
+              <Redirect exact from={BASE_URL} to={APPLICATION_VIEW_URL(this.props.defaultHomePage, "view")}
               />
             ) : (
-              <Redirect exact from={BASE_URL} to={ALL_APPLICATIONS_URL} />
+              <Redirect exact from={BASE_URL} to={USER_PROFILE_URL} />
             )}
             {!this.props.orgDev && !!this.props.defaultHomePage && (
-              <Redirect
-                exact
-                from={ALL_APPLICATIONS_URL}
-                to={APPLICATION_VIEW_URL(this.props.defaultHomePage, "view")}
+              <Redirect exact from={ALL_APPLICATIONS_URL} to={APPLICATION_VIEW_URL(this.props.defaultHomePage, "view")}
               />
-            )}
+            )} */}
+            <Redirect exact from={BASE_URL} to={USER_PROFILE_URL} />
             <LazyRoute exact path={IMPORT_APP_FROM_TEMPLATE_URL} component={LazyAppFromTemplate} />
             <LazyRoute fallback="layout" path={APP_EDITOR_URL} component={LazyAppEditor} />
             <LazyRoute
@@ -157,6 +156,7 @@ class AppIndex extends React.Component<AppIndexProps, any> {
               path={[
                 USER_PROFILE_URL,
                 NEWS_URL,
+                ORG_HOME_URL,
                 ALL_APPLICATIONS_URL,
                 DATASOURCE_CREATE_URL,
                 DATASOURCE_EDIT_URL,

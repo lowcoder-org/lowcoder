@@ -83,9 +83,6 @@ export { ReactComponent as AddIcon } from "./icon-add.svg";
 export { ReactComponent as ImportAppIcon } from "./icon-app-import.svg";
 export { ReactComponent as ImportIcon } from "./icon-import.svg";
 export { ReactComponent as ImportIconV2 } from "./icon-import-v2.svg";
-export { ReactComponent as ModuleMenuIcon } from "./remix/focus-mode.svg";
-export { ReactComponent as ModuleIcon } from "./remix/focus-mode.svg";
-export { ReactComponent as AllAppIcon } from "./icon-all-app.svg";
 export { ReactComponent as DatasourceIcon } from "./icon-datasource.svg";
 export { ReactComponent as QueryLibraryIcon } from "./icon-query-library.svg";
 export { ReactComponent as TransformerIcon } from "./icon-transformer.svg";
@@ -117,15 +114,19 @@ export { ReactComponent as ArrowSolidIcon } from "./icon-arrow-solid.svg";
 
 // Home Section
 export { ReactComponent as PlusIcon } from "./icon-plus.svg";
-export { ReactComponent as ApplicationDocIcon } from "./remix/apps-2-line.svg";
-export { ReactComponent as ModuleDocIcon } from "./remix/focus-mode.svg";
-export { ReactComponent as NavDocIcon } from "./remix/menu-line.svg";
+export { ReactComponent as ApplicationDocIcon } from "./v2/app-m.svg";
+export { ReactComponent as ModuleMenuIcon } from "./v2/module-m.svg";
+export { ReactComponent as ModuleIcon } from "./v2/module-m.svg";
+export { ReactComponent as ModuleDocIcon } from "./v2/module-m.svg";
+export { ReactComponent as NavDocIcon } from "./v2/entry-page-m.svg";
 export { ReactComponent as FolderIcon } from "./remix/folder-6-line.svg";
 export { ReactComponent as AllTypesIcon } from "./icon-application-all.svg";
 export { ReactComponent as InviteUserIcon } from "./icon-application-invite-user.svg";
 export { ReactComponent as HomeEmptyIcon } from "./icon-application-empty.svg";
 export { ReactComponent as HomeListIcon } from "./icon-application-list.svg";
 export { ReactComponent as HomeCardIcon } from "./icon-application-card.svg";
+// export { ReactComponent as AllAppIcon } from "./icon-all-app.svg";
+
 
 // Data Sources
 export { ReactComponent as MysqlIcon } from "./icon-query-MySQL.svg";
@@ -287,6 +288,7 @@ export { ReactComponent as LottieAnimationCompIconSmall } from "./v2/lottie-anim
 export { ReactComponent as MentionCompIconSmall } from "./v2/mention-s.svg"; // new
 export { ReactComponent as MermaidCompIconSmall } from "./v2/mermaid-chart-s.svg"; // new
 export { ReactComponent as ModalCompIconSmall } from "./v2/modal-s.svg";
+export { ReactComponent as ModuleIconSmall } from "./v2/module-s.svg";
 export { ReactComponent as MultiSelectCompIconSmall } from "./v2/multiselect-s.svg"; // new
 export { ReactComponent as NavComIconSmall } from "./v2/navigation-s.svg";
 export { ReactComponent as NumberInputCompIconSmall } from "./v2/number-input-s.svg";
@@ -327,7 +329,7 @@ export { ReactComponent as StepCompIconSmall } from "./v2/steps-s.svg";
 export { ReactComponent as CandlestickChartCompIconSmall } from "./v2/candlestick-chart-s.svg"; // new
 export { ReactComponent as FunnelChartCompIconSmall } from "./v2/funnel-chart-s.svg"; // new
 export { ReactComponent as GaugeChartCompIconSmall } from "./v2/gauge-chart-s.svg"; // new
-// export { ReactComponent as GraphChartCompIconSmall } from "./v2/graph-chart-s.svg"; // new
+export { ReactComponent as GraphChartCompIconSmall } from "./v2/graph-chart-s.svg"; // new
 export { ReactComponent as HeatmapChartCompIconSmall } from "./v2/heatmap-chart-s.svg"; // new
 export { ReactComponent as RadarChartCompIconSmall } from "./v2/radar-chart-s.svg"; // new
 export { ReactComponent as SankeyChartCompIconSmall } from "./v2/sankey-chart-s.svg"; // new
@@ -335,6 +337,12 @@ export { ReactComponent as SunburstChartCompIconSmall } from "./v2/sunburst-char
 export { ReactComponent as ThemeriverChartCompIconSmall } from "./v2/themeriver-chart-s.svg"; // new
 export { ReactComponent as TreeChartCompIconSmall } from "./v2/tree-chart-s.svg"; // new
 export { ReactComponent as TreemapChartCompIconSmall } from "./v2/treemap-chart-s.svg"; // new
+export { ReactComponent as BPMNEditorCompIconSmall } from "./v2/bpmn-editor-s.svg"; // new
+export { ReactComponent as GeoMapChartsCompIconSmall } from "./v2/geomap-charts-s.svg"; // new
+export { ReactComponent as GeoMapLayersCompIconSmall } from "./v2/geomap-layers-s.svg"; // new
+export { ReactComponent as HillchartCompIconSmall } from "./v2/hillchart-s.svg"; // new
+export { ReactComponent as PivotTableCompIconSmall } from "./v2/pivot-table-s.svg"; // new
+export { ReactComponent as TurnstileCaptchaCompIconSmall } from "./v2/turnstile-captcha-s.svg"; // new
 
 
 // medium
@@ -422,7 +430,7 @@ export { ReactComponent as SignatureCompIcon } from "./v2/signature-m.svg";
 export { ReactComponent as CandlestickChartCompIcon } from "./v2/candlestick-chart-m.svg";
 export { ReactComponent as FunnelChartCompIcon } from "./v2/funnel-chart-m.svg";
 export { ReactComponent as GaugeChartCompIcon } from "./v2/gauge-chart-m.svg";
-// export { ReactComponent as GraphChartCompIcon } from "./v2/graph-chart-m.svg";
+export { ReactComponent as GraphChartCompIcon } from "./v2/graph-chart-m.svg";
 export { ReactComponent as HeatmapChartCompIcon } from "./v2/heatmap-chart-m.svg";
 export { ReactComponent as RadarChartCompIcon } from "./v2/radar-chart-m.svg";
 export { ReactComponent as SankeyChartCompIcon } from "./v2/sankey-chart-m.svg";
@@ -431,7 +439,12 @@ export { ReactComponent as ThemeriverChartCompIcon } from "./v2/themeriver-chart
 export { ReactComponent as TreeChartCompIcon } from "./v2/tree-chart-m.svg";
 export { ReactComponent as TreemapChartCompIcon } from "./v2/treemap-chart-m.svg";
 
-
+export { ReactComponent as BPMNEditorCompIcon } from "./v2/bpmn-editor-m.svg";
+export { ReactComponent as GeoMapChartsCompIcon } from "./v2/geomap-charts-m.svg";
+export { ReactComponent as GeoMapLayersCompIcon } from "./v2/geomap-layers-m.svg";
+export { ReactComponent as HillchartCompIcon } from "./v2/hillchart-m.svg";
+export { ReactComponent as TurnstileCaptchaCompIcon } from "./v2/turnstile-captcha-m.svg";
+export { ReactComponent as PivotTableCompIcon } from "./v2/pivot-table-m.svg";
 
 // flags
 

@@ -7,6 +7,7 @@ export const BASE_URL = "/";
 export const USER_AUTH_URL = "/user/auth";
 export const USER_PROFILE_URL = "/user/profile";
 export const NEWS_URL = "/news";
+export const ORG_HOME_URL = "/org/home";
 export const COMPONENT_DOC_URL = "/components";
 export const SETTING = "/setting";
 export const PERMISSION_SETTING = "/setting/permission";

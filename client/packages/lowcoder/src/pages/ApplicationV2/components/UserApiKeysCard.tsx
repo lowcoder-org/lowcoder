@@ -55,6 +55,7 @@ export default function UserApiKeysCard() {
       <Card style={{ marginBottom: "20px" }}>
         <Flex justify="space-between" align="center" style={{marginBottom: '8px'}}>
           <Title level={4}>{trans("profile.apiKeys")}</Title>
+          <h4><a href={trans("docUrls.apiDocHome")} target="_blank">{trans("home.howToUseAPI")}</a></h4>
           <CreateButton
             buttonType={"primary"}
             icon={<AddIcon />}

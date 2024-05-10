@@ -28,6 +28,7 @@ export interface HomeOrgMeta {
   id: string;
   name: string;
   commonSettings: CommonSettingResponseData;
+  createdBy: string;
 }
 
 export interface HomeData {

@@ -10,8 +10,9 @@ import {
   QUERY_LIBRARY_URL,
   SETTING,
   TRASH_URL,
-  ADMIN_APP_URL,
-  NEWS_URL
+  // ADMIN_APP_URL,
+  NEWS_URL,
+  ORG_HOME_URL,
 } from "constants/routesURL";
 import { getUser, isFetchingUser } from "redux/selectors/usersSelectors";
 import { useDispatch, useSelector } from "react-redux";
@@ -22,6 +23,7 @@ import {
   HomeDataSourceIcon,
   HomeIcon,
   NewsIcon,
+  WorkspacesIcon,
   HomeModuleIcon,
   HomeQueryLibraryIcon,
   HomeSettingIcon,
@@ -45,6 +47,7 @@ import { Layout } from "../../components/layout/Layout";
 import { HomeView } from "./HomeView";
 import { UserProfileView } from "./UserProfileView";
 import { NewsView } from "./NewsView";
+import { OrgView } from "./OrgView";
 import styled, { css } from "styled-components";
 import history from "../../util/history";
 import { FolderView } from "./FolderView";
@@ -258,6 +261,8 @@ export default function ApplicationHome() {
   const isSelfHost = window.location.host !== 'app.lowcoder.cloud';
 
   const handleFolderCreate = useCreateFolder();
+  
+  const isOrgAdmin = org?.createdBy == user.id ? true : false;
 
   useEffect(() => {
     dispatch(fetchHomeData({}));
@@ -342,6 +347,8 @@ export default function ApplicationHome() {
     };
   }
 
+  console.log("user", user);
+
   return (
     <DivStyled>
       <Layout
@@ -359,6 +366,15 @@ export default function ApplicationHome() {
                 routePath: NEWS_URL,
                 routeComp: NewsView,
                 icon: ({ selected, ...otherProps }) => selected ? <NewsIcon {...otherProps} width={"24px"}/> : <NewsIcon {...otherProps} width={"24px"}/>,
+                visible: ({ user }) => user.orgDev,
+              },
+              {
+                text: <TabLabel>{trans("home.orgHome")}</TabLabel>,
+                routePath: ORG_HOME_URL,
+                routePathExact: false,
+                routeComp: OrgView,
+                icon: ({ selected, ...otherProps }) => selected ? <WorkspacesIcon {...otherProps} width={"24px"}/> : <WorkspacesIcon {...otherProps} width={"24px"}/>,
+                visible: ({ user }) => !user.orgDev,
               },
               {
                 text: <TabLabel>{trans("home.marketplace")}</TabLabel>,
@@ -366,7 +382,6 @@ export default function ApplicationHome() {
                 routePathExact: false,
                 routeComp: MarketplaceView,
                 icon: ({ selected, ...otherProps }) => selected ? <MarketplaceIcon {...otherProps} width={"24px"}/> : <MarketplaceIcon {...otherProps} width={"24px"}/>,
-                visible: ({ user }) => user.orgDev,
               },
             ]
           },
@@ -384,7 +399,7 @@ export default function ApplicationHome() {
                 routePath: MODULE_APPLICATIONS_URL,
                 routeComp: ModuleView,
                 icon: ({ selected, ...otherProps }) => selected ? <HomeModuleIcon {...otherProps} width={"24px"}/> : <HomeModuleIcon {...otherProps} width={"24px"}/>,
-                visible: ({ user }) => user.orgDev,
+                visible: ({ user }) => isOrgAdmin,
               },
               
             ],
