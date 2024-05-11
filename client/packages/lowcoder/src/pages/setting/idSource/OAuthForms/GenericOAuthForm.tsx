@@ -140,6 +140,7 @@ function GenericOAuthForm(props: GenericOAuthFormProp) {
       setIssuerDetails(issuerDetails => ({
         ...issuerDetails,
         ...values,
+        authType: AuthType.Generic,
       }))
       setCurrentStep(currentStep => currentStep + 1);
     })
@@ -152,7 +153,8 @@ function GenericOAuthForm(props: GenericOAuthFormProp) {
           ...issuerDetails,
           sourceMappings: {
             ...values,
-          }
+          },
+          authType: AuthType.Generic,
         };
         saveAuthProvider(updatedDetails);
         return updatedDetails;
