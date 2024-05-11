@@ -109,7 +109,7 @@ const getStyle = (
 
         .ant-tabs-tab {
           div {
-            color: ${style.tabText};
+            color: #8b8fa3;
           }
 
           &.ant-tabs-tab-active div {
