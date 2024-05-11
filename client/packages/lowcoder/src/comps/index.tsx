@@ -88,6 +88,7 @@ import {
   FloatingTextCompIcon,
   TourCompIcon,
   StepCompIcon,
+  ShapesCompIcon,
 
   CandlestickChartCompIcon,
   FunnelChartCompIcon,
@@ -109,7 +110,6 @@ import {
   GraphChartCompIcon
 
 } from "lowcoder-design";
-import { ShapeComp } from "./comps/shapeComp/shapeComp";
 
 type Registry = {
   [key in UICompType]?: UICompManifest;
@@ -123,22 +123,7 @@ const builtInRemoteComps: Omit<RemoteCompInfo, "compName"> = {
 
 export var uiCompMap: Registry = { 
   // Dashboards
-  
-  shape: {
-    name: trans("uiComp.shapeCompName"),
-    enName: "Shape",
-    description: trans("uiComp.shapeCompDesc"),
-    categories: ["dashboards"],
-    icon: ChartCompIcon,
-    keywords: trans("uiComp.shapeCompKeywords"),
-    lazyLoad: true,
-    compName: "ShapeComp",
-    compPath: "comps/shapeComp/shapeComp",
-    layoutInfo: {
-      w: 12,
-      h: 40,
-    },
-  },
+
   
   // charts
   chart: {
@@ -402,37 +387,6 @@ export var uiCompMap: Registry = {
     layoutInfo: {
       w: 12,
       h: 40,
-    },
-  },
-
-  slider: {
-    name: trans("uiComp.sliderCompName"),
-    enName: "Slider",
-    description: trans("uiComp.sliderCompDesc"),
-    categories: ["dashboards"],
-    icon: SliderCompIcon,
-    keywords: trans("uiComp.sliderCompKeywords"),
-    lazyLoad: true,
-    compName: "SliderComp",
-    compPath: "comps/numberInputComp/sliderComp",
-    layoutInfo: {
-      w: 6,
-      h: 5,
-    },
-  },
-  rangeSlider: {
-    name: trans("uiComp.rangeSliderCompName"),
-    enName: "Range Slider",
-    description: trans("uiComp.rangeSliderCompDesc"),
-    categories: ["dashboards"],
-    icon: RangeSliderCompIcon,
-    keywords: trans("uiComp.rangeSliderCompKeywords"),
-    lazyLoad: true,
-    compName: "RangeSliderComp",
-    compPath: "comps/numberInputComp/rangeSliderComp",
-    layoutInfo: {
-      w: 6,
-      h: 5,
     },
   },
 
@@ -1118,6 +1072,38 @@ export var uiCompMap: Registry = {
       h: 6,
     },
   },
+
+  slider: {
+    name: trans("uiComp.sliderCompName"),
+    enName: "Slider",
+    description: trans("uiComp.sliderCompDesc"),
+    categories: ["forms"],
+    icon: SliderCompIcon,
+    keywords: trans("uiComp.sliderCompKeywords"),
+    lazyLoad: true,
+    compName: "SliderComp",
+    compPath: "comps/numberInputComp/sliderComp",
+    layoutInfo: {
+      w: 6,
+      h: 5,
+    },
+  },
+  rangeSlider: {
+    name: trans("uiComp.rangeSliderCompName"),
+    enName: "Range Slider",
+    description: trans("uiComp.rangeSliderCompDesc"),
+    categories: ["forms"],
+    icon: RangeSliderCompIcon,
+    keywords: trans("uiComp.rangeSliderCompKeywords"),
+    lazyLoad: true,
+    compName: "RangeSliderComp",
+    compPath: "comps/numberInputComp/rangeSliderComp",
+    layoutInfo: {
+      w: 6,
+      h: 5,
+    },
+  },
+
   button: {
     name: trans("uiComp.buttonCompName"),
     enName: "Button",
@@ -1368,6 +1354,23 @@ export var uiCompMap: Registry = {
       h: 40,
     },
   },
+
+  shape: {
+    name: trans("uiComp.shapeCompName"),
+    enName: "Shape",
+    description: trans("uiComp.shapeCompDesc"),
+    categories: ["multimedia", "dashboards"],
+    icon: ShapesCompIcon,
+    keywords: trans("uiComp.shapeCompKeywords"),
+    lazyLoad: true,
+    compName: "ShapeComp",
+    compPath: "comps/shapeComp/shapeComp",
+    layoutInfo: {
+      w: 12,
+      h: 40,
+    },
+  },
+
   jsonLottie: {
     name: trans("uiComp.jsonLottieCompName"),
     enName: "Lottie Animation",

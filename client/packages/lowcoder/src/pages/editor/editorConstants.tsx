@@ -80,6 +80,7 @@ import {
   AvatarGroupCompIconSmall,
   ColorPickerCompIconSmall,
   TransferCompIconSmall,
+  ShapesCompIconSmall,
 
   CandlestickChartCompIconSmall,
   FunnelChartCompIconSmall,
@@ -208,5 +209,5 @@ export const CompStateIcon: {
   card: <CardCompIconSmall />,
   timer: <TimeRangeCompIconSmall/>,
 
-  shape: <ChartCompIconSmall />,
+  shape: <ShapesCompIconSmall />,
 };

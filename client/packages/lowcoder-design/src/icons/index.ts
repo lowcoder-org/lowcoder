@@ -302,6 +302,7 @@ export { ReactComponent as RatingCompIconSmall } from "./v2/rating-s.svg";
 export { ReactComponent as ResponsiveLayoutCompIconSmall } from "./v2/resposive-layout-s.svg"; // new
 export { ReactComponent as RichTextEditorCompIconSmall } from "./v2/rich-text-editor-s.svg"; // new
 export { ReactComponent as ScannerCompIconSmall } from "./v2/scanner-s.svg";    // new
+export { ReactComponent as ShapesCompIconSmall } from "./v2/shapes-s.svg"; // new
 export { ReactComponent as SegmentedCompIconSmall } from "./v2/segmented-control-s.svg";
 export { ReactComponent as SelectCompIconSmall } from "./v2/select-s.svg";
 export { ReactComponent as SliderCompIconSmall } from "./v2/slider-s.svg";
@@ -401,6 +402,7 @@ export { ReactComponent as RatingCompIcon } from "./v2/rating-m.svg";
 export { ReactComponent as ResponsiveLayoutCompIcon } from "./v2/resposive-layout-m.svg";
 export { ReactComponent as RichTextEditorCompIcon } from "./v2/rich-text-editor-m.svg";
 export { ReactComponent as ScannerCompIcon } from "./v2/scanner-m.svg";
+export { ReactComponent as ShapesCompIcon } from "./v2/shapes-m.svg";
 export { ReactComponent as SegmentedCompIcon } from "./v2/segmented-control-m.svg";
 export { ReactComponent as SelectCompIcon } from "./v2/select-m.svg";
 export { ReactComponent as SliderCompIcon } from "./v2/slider-m.svg";
