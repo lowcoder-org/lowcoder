@@ -40,7 +40,7 @@ const childrenMap = {
   showFooter: BoolControl,
   autoHeight: AutoHeightControl,
   scrollbars: withDefault(BoolControl, false),
-  style: styleControl(ContainerStyle),
+  style: withDefault(styleControl(ContainerStyle),{borderWidth:'1px'}),
   headerStyle: styleControl(ContainerHeaderStyle),
   bodyStyle: styleControl(ContainerBodyStyle),
   footerStyle: styleControl(ContainerFooterStyle),

@@ -57,7 +57,7 @@ const childrenMap = {
   onEvent: eventHandlerControl(EVENT_OPTIONS),
   disabled: BoolCodeControl,
   showHeader: withDefault(BoolControl, true),
-  style: styleControl(TabContainerStyle),
+  style: withDefault(styleControl(TabContainerStyle),{borderWidth:'1px'}),
   headerStyle: styleControl(ContainerHeaderStyle),
   bodyStyle: styleControl(ContainerBodyStyle),
   tabsGutter: withDefault(NumberControl, 32),
@@ -72,6 +72,7 @@ const getStyle = (
   headerStyle: ContainerHeaderStyleType,
   bodyStyle: ContainerBodyStyleType,
 ) => {
+  console.log("🚀 ~ style:", style)
   return css`
     &.ant-tabs {
       overflow: hidden;
