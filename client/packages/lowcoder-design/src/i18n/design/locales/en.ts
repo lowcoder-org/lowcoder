@@ -28,7 +28,14 @@ export const en = {
     meetings: "Meeting Settings",
     data: "Data",
     field: 'Field',
-    inputFieldStyle:'Input Field Style'
+    inputFieldStyle: 'Input Field Style',
+    avatarStyle: 'Avatar Style',
+    captionStyle: 'Caption Style',
+    startButtonStyle: 'Start Button Style',
+    resetButtonStyle: 'Reset Button Style',
+    headerStyle: 'Header Style',
+    bodyStyle: 'Body Style',
+    badgeStyle: 'Badge Style',
   },
   passwordInput: {
     label: "Password:",

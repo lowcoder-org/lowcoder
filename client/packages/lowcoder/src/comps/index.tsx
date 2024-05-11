@@ -100,6 +100,13 @@ import {
   ThemeriverChartCompIcon,
   TreeChartCompIcon,
   TreemapChartCompIcon,
+  BPMNEditorCompIcon,
+  GeoMapChartsCompIcon,
+  GeoMapLayersCompIcon,
+  HillchartCompIcon,
+  TurnstileCaptchaCompIcon,
+  PivotTableCompIcon,
+  GraphChartCompIcon
 
 } from "lowcoder-design";
 import { ShapeComp } from "./comps/shapeComp/shapeComp";
@@ -206,7 +213,7 @@ export var uiCompMap: Registry = {
     enName: "Graph Chart",
     description: trans("uiComp.graphChartCompDesc"),
     categories: ["dashboards"],
-    icon: IconCompIcon,
+    icon: GraphChartCompIcon,
     keywords: trans("uiComp.graphChartCompKeywords"),
     comp: remoteComp({ ...builtInRemoteComps, compName: "graphChart" }),
     layoutInfo: {
@@ -314,7 +321,7 @@ export var uiCompMap: Registry = {
     enName: "OpenLayersGeoMap",
     description: trans("uiComp.openLayersGeoMapCompDesc"),
     categories: ["dashboards"],
-    icon: IconCompIcon,
+    icon: GeoMapLayersCompIcon,
     keywords: trans("uiComp.openLayersGeoMapCompKeywords"),
     comp: remoteComp({compName: "geo", packageName: "lowcoder-comp-geo", source: "npm", isRemote: true}),
     layoutInfo: {
@@ -327,7 +334,7 @@ export var uiCompMap: Registry = {
     enName: "GeoMap",
     description: trans("uiComp.chartsGeoMapCompDesc"),
     categories: ["dashboards"],
-    icon: IconCompIcon,
+    icon: GeoMapChartsCompIcon,
     keywords: trans("uiComp.chartsGeoMapCompKeywords"),
     comp: remoteComp({ ...builtInRemoteComps, compName: "chartsGeoMap" }),
     layoutInfo: {
@@ -360,7 +367,7 @@ export var uiCompMap: Registry = {
     enName: "pivotTable",
     description: trans("uiComp.pivotTableCompDesc"),
     categories: ["dashboards"],
-    icon: IconCompIcon,
+    icon: PivotTableCompIcon,
     keywords: trans("uiComp.pivotTableCompKeywords"),
     comp: remoteComp({compName: "pivottable", packageName: "lowcoder-comp-reactpivottable", source: "npm", isRemote: true}),
     layoutInfo: {
@@ -1213,7 +1220,7 @@ export var uiCompMap: Registry = {
     enName: "Hillchart",
     description: trans("uiComp.hillchartCompDesc"),
     categories: ["projectmanagement"],
-    icon: IconCompIcon,
+    icon: HillchartCompIcon,
     keywords: trans("uiComp.hillchartCompKeywords"),
     comp: remoteComp({compName: "hillcharts", packageName: "lowcoder-comp-hillcharts", source: "npm", isRemote: true}),
     layoutInfo: {
@@ -1226,7 +1233,7 @@ export var uiCompMap: Registry = {
     enName: "BPMN Editor",
     description: trans("uiComp.bpmnEditorCompDesc"),
     categories: ["projectmanagement", "documents"],
-    icon: IconCompIcon,
+    icon: BPMNEditorCompIcon,
     keywords: trans("uiComp.bpmnEditorCompKeywords"),
     comp: remoteComp({compName: "bpmn", packageName: "lowcoder-comp-bpmn-io", source: "npm", isRemote: true}),
     layoutInfo: {
@@ -1560,7 +1567,7 @@ export var uiCompMap: Registry = {
     enName: "Cloudflare Turnstile",
     description: trans("uiComp.turnstileCaptchaCompDesc"),
     categories: ["itemHandling"],
-    icon: IconCompIcon,
+    icon: TurnstileCaptchaCompIcon,
     keywords: trans("uiComp.turnstileCaptchaCompKeywords"),
     comp: remoteComp({compName: "cloudflareTurnstile", packageName: "lowcoder-comp-cf-turnstile", source: "npm", isRemote: true}),
     layoutInfo: {

@@ -23,6 +23,7 @@ type LabelViewProps = Pick<FormItemProps, "required" | "help" | "validateStatus"
   labelStyle?: Record<string, string>;
   field?: Record<string, string>;
   inputFieldStyle?: Record<string, string>;
+  childrenInputFieldStyle?: Record<string, string>;
 };
 
 const StyledStarIcon = styled(StarIcon)`
@@ -168,8 +169,9 @@ export const LabelControl = (function () {
     align: dropdownControl(AlignOptions, "left"),
   };
 
-  return new MultiCompBuilder(childrenMap, (props) => (args: LabelViewProps) => (
- <LabelViewWrapper $style={args.style} inputFieldStyle={args.inputFieldStyle}>
+  return new MultiCompBuilder(childrenMap, (props) => (args: LabelViewProps) => 
+  {
+    return <LabelViewWrapper $style={args.style} inputFieldStyle={args.inputFieldStyle}>
       <MainWrapper
         $position={props.position}
         $hasLabel={!!props.text}
@@ -246,8 +248,8 @@ export const LabelControl = (function () {
           {args.help}
         </HelpWrapper>
       )}
-    </LabelViewWrapper>
-))
+    </LabelViewWrapper>}
+)
     .setPropertyViewFn((children) => (
       <Section name={trans("label")}>
         {children.text.propertyView({ label: trans("labelProp.text") })}

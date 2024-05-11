@@ -112,6 +112,7 @@ let StepControlBasicComp = (function () {
       font-size: ${props.style.textSize};
       text-transform: ${props.style.textTransform};
       margin: ${props.style.margin};
+      rotate: ${props.style.rotation};
       padding: ${props.style.padding};
       background-color: ${props.style.background};
       border: ${props.style.borderWidth} solid ${props.style.border};

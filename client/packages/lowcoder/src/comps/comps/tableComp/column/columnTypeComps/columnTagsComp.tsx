@@ -163,6 +163,9 @@ export const DropdownStyled = styled.div`
   .ant-tag {
     margin-right: 0;
   }
+  .ant-tag svg {
+    margin-right: 4px;
+  }
 `;
 
 export const TagStyled = styled(Tag)`
@@ -170,6 +173,8 @@ export const TagStyled = styled(Tag)`
     margin-right: 4px;
   }
 `;
+
+let tagOptionsList: any[] = [];
 
 const TagEdit = (props: TagEditPropsType) => {
   const defaultTags = useContext(TagsContext);
@@ -225,12 +230,12 @@ const TagEdit = (props: TagEditPropsType) => {
           <CustomSelect.Option value={value} key={index}>
             {value.split(",")[1] ? (
               value.split(",").map((item, i) => (
-                <Tag color={getTagColor(item, [])} key={i} style={{ marginRight: "8px" }}>
+                <Tag color={getTagColor(item, tagOptionsList)} icon={getTagIcon(item, tagOptionsList)} key={i} style={{ marginRight: "8px" }}>
                   {item}
                 </Tag>
               ))
             ) : (
-              <Tag color={getTagColor(value, [])} key={index}>
+              <Tag color={getTagColor(value, tagOptionsList)} icon={getTagIcon(value, tagOptionsList)} key={index}>
                 {value}
               </Tag>
             )}
@@ -246,6 +251,7 @@ export const ColumnTagsComp = (function () {
     childrenMap,
     (props, dispatch) => {
       const tagOptions = props.tagColors;
+      tagOptionsList = props.tagColors;
       let value = props.changeValue ?? getBaseValue(props, dispatch);
       value = typeof value === "string" && value.split(",")[1] ? value.split(",") : value;
       const tags = _.isArray(value) ? value : [value];

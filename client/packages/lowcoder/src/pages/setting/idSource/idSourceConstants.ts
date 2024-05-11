@@ -19,6 +19,26 @@ export const IdSource = [
   AuthType.Generic,
 ];
 
+export enum AuthCategoriesEnum {
+  ENTERPISE_ENTITY = "Enterprise Identity",
+  CLOUD_SERVICES = "Cloud Services",
+  SOCIAL_MEDIA = "Social Media",
+  DEVELOPMENT = "Development",
+  TOOLS_AND_PRODUCTIVITY = "Tools & Productivity",
+}
+
+type AuthCategoriesEnumKey = keyof typeof AuthCategoriesEnum;
+const AuthCategories = Object.keys(AuthCategoriesEnum).map(
+  (cat) => {
+    const value = AuthCategoriesEnum[cat as AuthCategoriesEnumKey];
+    return {
+      label: value,
+      value: cat
+    }
+  }
+);
+
+
 export const validatorOptions = [];
 
 export const clientIdandSecretConfig = {
@@ -70,15 +90,15 @@ export const authConfig = {
     form: {
       source: { label: "Source", isRequire: true },
       sourceName: { label: "Source Name", isRequire: true },
-      sourceDescription: { label: "Source Description" },
-      sourceIcon: { label: "Source Icon", isIcon: true },
-      sourceCategory: { label: "Source Category" },
+      sourceDescription: { label: "Source Description", isRequire: false },
+      sourceIcon: { label: "Source Icon", isIcon: true, isRequire: true, },
+      sourceCategory: { label: "Source Category", isRequire: true, isList: true, options: AuthCategories },
       ...clientIdandSecretConfig,
-      issuer: { label: 'Issuer URI', isRequired: true },
-      authorizationEndpoint: { label: 'Authorization Endpoint', isRequired: true },
-      tokenEndpoint: { label: 'Token Endpoint', isRequired: true },
-      userInfoEndpoint: { label: 'UserInfo Endpoint', isRequired: true },
-      // jwks: { label: 'Authorize URL', isRequired: true },
+      issuer: { label: 'Issuer URI', isRequire: true },
+      authorizationEndpoint: { label: 'Authorization Endpoint', isRequire: true },
+      tokenEndpoint: { label: 'Token Endpoint', isRequire: true },
+      userInfoEndpoint: { label: 'UserInfo Endpoint', isRequire: true },
+      // jwks: { label: 'Authorize URL', isRequire: true },
       scope: "Scope",
       // baseUrl: "Base URL",
       // realm: "Realm",

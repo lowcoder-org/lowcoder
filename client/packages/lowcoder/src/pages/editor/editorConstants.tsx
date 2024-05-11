@@ -39,6 +39,7 @@ import {
   MentionCompIconSmall,
   MermaidCompIconSmall,
   ModalCompIconSmall,
+  ModuleIconSmall,
   MultiSelectCompIconSmall,
   NavComIconSmall,
   NumberInputCompIconSmall,
@@ -91,6 +92,13 @@ import {
   ThemeriverChartCompIconSmall,
   TreeChartCompIconSmall,
   TreemapChartCompIconSmall,
+  BPMNEditorCompIconSmall,
+  GeoMapChartsCompIconSmall,
+  GeoMapLayersCompIconSmall,
+  HillchartCompIconSmall,
+  TurnstileCaptchaCompIconSmall,
+  PivotTableCompIconSmall,
+  GraphChartCompIconSmall
 
 } from "lowcoder-design";
 
@@ -127,7 +135,7 @@ export const CompStateIcon: {
   input: <InputCompIconSmall />,
   jsonEditor: <JsonEditorCompIconSmall />,
   jsonExplorer: <JsonExplorerCompIconSmall />,
-  jsonLottie: <LottieAnimationCompIconSmall />, // Assuming related to JSON handling, adjust if needed
+  jsonLottie: <LottieAnimationCompIconSmall />,
   jsonSchemaForm: <JsonFormCompIconSmall />,
   link: <LinkCompIconSmall />,
   listView: <ListViewCompIconSmall />,
@@ -135,8 +143,8 @@ export const CompStateIcon: {
   mention: <MentionCompIconSmall />,
   mermaid: <MermaidCompIconSmall />,
   modal: <ModalCompIconSmall />,
-  module: <LeftCommon />,  // Placeholder or specify if there's a dedicated icon
-  moduleContainer: <LeftCommon />,  // Placeholder or specify if there's a dedicated icon
+  module: <ModuleIconSmall/>,  
+  moduleContainer: <ModuleIconSmall/>,  // Placeholder or specify if there's a dedicated icon
   multiSelect: <MultiSelectCompIconSmall />,
   navigation: <NavComIconSmall />,
   numberInput: <NumberInputCompIconSmall />,
@@ -167,25 +175,25 @@ export const CompStateIcon: {
   timeRange: <TimeRangeCompIconSmall />,
   timeline: <TimeLineCompIconSmall />,
   toggleButton: <ToggleButtonCompIconSmall />,
-  tour: <TourCompIconSmall />,  // Placeholder or specify if there's a dedicated icon
+  tour: <TourCompIconSmall />, 
   tree: <TreeDisplayCompIconSmall />,
   treeSelect: <TreeSelectCompIconSmall />,
   video: <VideoCompIconSmall />,
   videocomponent: <VideoCameraStreamCompIconSmall />,
   
-  hillchart: <LeftCommon />,  // Placeholder or specify if there's a dedicated icon
-  openLayersGeoMap: <LeftCommon />,  // Placeholder or specify if there's a dedicated icon
-  chartsGeoMap: <LeftCommon />,  // Placeholder or specify if there's a dedicated icon
-  bpmnEditor: <LeftCommon />,  // Placeholder or specify if there's a dedicated icon
-  turnstileCaptcha: <LeftCommon />,  // Placeholder or specify if there's a dedicated icon
-  pivotTable: <LeftCommon />,  // Placeholder or specify if there's a dedicated icon
+  hillchart: <HillchartCompIconSmall/>,  
+  openLayersGeoMap: <GeoMapLayersCompIconSmall/>,  
+  chartsGeoMap: <GeoMapChartsCompIconSmall/>,  
+  bpmnEditor: <BPMNEditorCompIconSmall/>, 
+  turnstileCaptcha: <TurnstileCaptchaCompIconSmall/>,
+  pivotTable: <PivotTableCompIconSmall/>,
   funnelChart: <FunnelChartCompIconSmall />,
   gaugeChart: <GaugeChartCompIconSmall />,
   sankeyChart : <SankeyChartCompIconSmall />,
   candleStickChart : <CandlestickChartCompIconSmall />,
   radarChart : <RadarChartCompIconSmall />,
   heatmapChart : <HeatmapChartCompIconSmall />,
-  graphChart : <LeftCommon />,
+  graphChart : <GraphChartCompIconSmall/>,
   treeChart : <TreeChartCompIconSmall />,
   treemapChart : <TreemapChartCompIconSmall />,
   sunburstChart : <SunburstChartCompIconSmall />,

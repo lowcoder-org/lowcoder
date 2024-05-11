@@ -225,7 +225,7 @@ let VideoCompBuilder = (function () {
           {children.profileBorderRadius.propertyView({
             label: "Profile Image Border Radius",
           })}
-          {children.videoAspectRatio.propertyView({
+          {children.videoAspectRatio.propertyView({ 
             label: "Video Aspect Ratio",
           })}
           {children.style.getPropertyView()}
@@ -239,7 +239,7 @@ let VideoCompBuilder = (function () {
 
 VideoCompBuilder = class extends VideoCompBuilder {
   autoHeight(): boolean {
-    return false;
+    return this.children.autoHeight.getView();
   }
 };
 
@@ -247,5 +247,5 @@ export const VideoMeetingStreamComp = withExposingConfigs(VideoCompBuilder, [
   new NameConfig("loading", trans("meeting.loadingDesc")),
   new NameConfig("profileImageUrl", trans("meeting.profileImageUrl")),
 
-  ...CommonNameConfig,
+  ...CommonNameConfig, 
 ]);

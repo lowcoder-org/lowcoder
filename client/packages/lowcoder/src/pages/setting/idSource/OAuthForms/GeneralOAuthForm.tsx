@@ -52,7 +52,7 @@ function GeneralOAuthForm(props: GeneralOAuthFormProp) {
 
   const handleSave = () => {
     form1.validateFields().then(values => {
-      console.log(values);
+      // console.log(values);
       saveAuthProvider(values);
     });
   }
