@@ -220,7 +220,7 @@ export function handleToHeadBg(color: string) {
     return darkenColor(color, 0.06);
   }
   if (toHex(color) === "#000000") {
-    return SECOND_SURFACE_COLOR;
+    return SURFACE_COLOR;
   }
   if (isDarkColor(color)) {
     return darkenColor(color, 0.06);
@@ -1164,10 +1164,12 @@ export const TableHeaderStyle = [
   FONT_FAMILY,
   FONT_STYLE,
   TEXT,
+  getStaticBackground(SURFACE_COLOR),
+  getBackground('primarySurface'),
   {
     name: "headerBackground",
     label: trans("style.tableHeaderBackground"),
-    depName: "headerBackground",
+    depName: "background",
     transformer: handleToHeadBg,
   },
   getStaticBorder(),
