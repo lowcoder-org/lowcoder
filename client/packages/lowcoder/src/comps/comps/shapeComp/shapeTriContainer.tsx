@@ -1,4 +1,4 @@
-import { ContainerStyleType } from "comps/controls/styleControlConstants";
+import { ContainerStyleType, widthCalculator } from "comps/controls/styleControlConstants";
 import { EditorContext } from "comps/editorState";
 import { BackgroundColorContext } from "comps/utils/backgroundColorContext";
 import { HintPlaceHolder, ScrollBar } from "lowcoder-design";
@@ -38,6 +38,10 @@ const Wrapper = styled.div<{ $style: ContainerStyleType }>`
   height: 100%;
   border: 1px solid #d7d9e0;
   border-radius: 4px;
+  ${(props) => props.$style && getStyle(props.$style)}
+`;
+
+const StylesShape = styled(Coolshape)<{ $style: ContainerStyleType }>`;
   ${(props) => props.$style && getStyle(props.$style)}
 `;
 
@@ -81,15 +85,13 @@ export type TriContainerProps = TriContainerViewProps & {
 
 export function ShapeTriContainer(props: TriContainerProps) {
   const { container, icon } = props;
-  const { showHeader, showFooter } = container;
+  // const { showHeader, showFooter } = container;
   // When the header and footer are not displayed, the body must be displayed
-  const showBody = container.showBody || (!showHeader && !showFooter);
+  const showBody = true;
   const scrollbars = container.scrollbars;
 
-  const { items: headerItems, ...otherHeaderProps } = container.header;
   const { items: bodyItems, ...otherBodyProps } =
-    container.body["0"].children.view.getView();
-  const { items: footerItems, ...otherFooterProps } = container.footer;
+  container.body["0"].children.view.getView();
   const { style, headerStyle, bodyStyle, footerStyle } = container;
 
   const editorState = useContext(EditorContext);
@@ -121,14 +123,18 @@ export function ShapeTriContainer(props: TriContainerProps) {
             hideScrollbar={!scrollbars}
           >
             <div style={{ position: "relative", height: "100%" }}>
-              <Coolshape
+              <StylesShape 
+                $style={style}
                 type={shape?.value as any}
+                noise={false}
                 index={shape.index}
                 styles={{
                   position: "absolute",
                   top: "0",
                   left: "50%",
                   transform: "translateX(-50%)",
+                  width: widthCalculator(style.margin),
+                  height: "100%",
                 }}
               />
               <BodyInnerGrid

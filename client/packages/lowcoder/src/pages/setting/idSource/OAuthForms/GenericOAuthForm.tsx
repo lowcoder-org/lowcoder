@@ -63,6 +63,7 @@ interface ConfigProvider {
   jwksUri?: string,
   scope: string,
   sourceMappings: any,
+  userInfoIntrospection?: boolean,
 }
 
 type GenericOAuthFormProp = {
