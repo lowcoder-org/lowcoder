@@ -21,7 +21,7 @@ import {
   withExposingConfigs,
 } from "comps/generators/withExposing";
 import { Section, sectionNames, ValueFromOption } from "lowcoder-design";
-import { useEffect, useRef, useState } from "react";
+import { ReactNode, useEffect, useRef, useState } from "react";
 import styled, { css } from "styled-components";
 import { RecordConstructorToView } from "lowcoder-core";
 import { InputEventHandlerControl } from "../../controls/eventHandlerControl";
@@ -259,6 +259,7 @@ const childrenMap = {
   viewRef: RefControl<HTMLInputElement>,
   style: styleControl(InputFieldStyle),
   labelStyle:styleControl(LabelStyle),
+  prefixText : stringExposingStateControl("defaultValue"),
   prefixIcon: IconControl,
   inputFieldStyle:styleControl(InputLikeStyle),
   // validation
@@ -323,7 +324,7 @@ const CustomInputNumber = (props: RecordConstructorToView<typeof childrenMap>) =
       stringMode={true}
       precision={props.precision}
       $style={props.inputFieldStyle}
-      prefix={hasIcon(props.prefixIcon) && props.prefixIcon}
+      prefix={hasIcon(props.prefixIcon) ? props.prefixIcon : props.prefixText.value}
       onPressEnter={() => {
         handleFinish();
         props.onEvent("submit");
@@ -420,6 +421,7 @@ let NumberInputTmpComp = (function () {
             {children.step.propertyView({ label: trans("numberInput.step") })}
             {children.precision.propertyView({ label: trans("numberInput.precision") })}
             {children.prefixIcon.propertyView({ label: trans("button.prefixIcon") })}
+            {children.prefixText.propertyView({ label: trans("button.prefixText") })}
             {children.allowNull.propertyView({ label: trans("numberInput.allowNull") })}
             {children.thousandsSeparator.propertyView({
               label: trans("numberInput.thousandsSeparator"),

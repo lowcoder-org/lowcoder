@@ -71,6 +71,7 @@ export function EditableCell<T extends JSONValue>(props: EditableCellProps<T>) {
     changeValue,
     baseValue,
     candidateTags,
+    // tagColors
     candidateStatus,
     onTableEvent,
   } = props;
@@ -78,8 +79,8 @@ export function EditableCell<T extends JSONValue>(props: EditableCellProps<T>) {
   const editable = editViewFn ? props.editable : false;
   const { isEditing, setIsEditing } = useContext(TableCellContext);
   const value = changeValue ?? baseValue!;
-
   const [tmpValue, setTmpValue] = useState<T | null>(value);
+
   useEffect(() => {
     setTmpValue(value);
   }, [value]);

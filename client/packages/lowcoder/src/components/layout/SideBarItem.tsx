@@ -19,6 +19,10 @@ const Wrapper = styled.div<{ $size?: SideBarSize; $selected?: boolean }>`
     background: ${(props) => (props.$selected ? "#ebf0f7" : "#efeff1")};
   }
 
+  svg {
+    width:24px
+  }
+
   ${(props) =>
     props.$selected &&
     css`

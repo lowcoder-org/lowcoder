@@ -5,6 +5,7 @@ import { TRASH_URL } from "../../constants/routesURL";
 import { useEffect } from "react";
 import { fetchApplicationRecycleList } from "../../redux/reduxActions/applicationActions";
 import { trans } from "../../i18n";
+import { Helmet } from "react-helmet";
 
 export function TrashView() {
   const dispatch = useDispatch();
@@ -15,10 +16,12 @@ export function TrashView() {
   }, [dispatch]);
 
   return (
-    <HomeLayout
+    <>
+      <Helmet>{<title>{trans("home.trash")}</title>}</Helmet>
+      <HomeLayout
       elements={recycleList}
       breadcrumb={[{ text: trans("home.trash"), path: TRASH_URL }]}
-      mode={"trash"}
-    />
+      mode={"trash"} />
+    </>
   );
 }

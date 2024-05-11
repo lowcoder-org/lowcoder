@@ -39,7 +39,7 @@ let TourBasicComp = (function() {
       let target = undefined;
       const compListItem = compMap.find((compItem) => compItem.children.name.getView() === targetName);
       if (compListItem) {
-        console.log(`setting selected comp to ${compListItem}`);
+        // console.log(`setting selected comp to ${compListItem}`);
         try {
           target = ((compListItem as MultiBaseComp).children.comp as GridItemComp).getRef?.();
         } catch (e) {

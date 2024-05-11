@@ -15,14 +15,19 @@ import { UserConnectionSource } from "@lowcoder-ee/constants/userConstants";
 import { trans } from "i18n";
 import { AuthContext, useAuthSubmit } from "pages/userAuth/authUtils";
 import { ThirdPartyAuth } from "pages/userAuth/thirdParty/thirdPartyAuth";
-import { AUTH_REGISTER_URL, ORG_AUTH_REGISTER_URL } from "constants/routesURL";
-import { useLocation, useParams } from "react-router-dom";
+import { AUTH_FORGOT_PASSWORD_URL, AUTH_REGISTER_URL, ORG_AUTH_FORGOT_PASSWORD_URL, ORG_AUTH_REGISTER_URL } from "constants/routesURL";
+import { Link, useLocation, useParams } from "react-router-dom";
 import { Divider } from "antd";
+import Flex from "antd/es/flex";
 
 const AccountLoginWrapper = styled(FormWrapperMobile)`
   display: flex;
   flex-direction: column;
-  margin-bottom: 40px;
+  margin-bottom: 0px;
+
+  .form-input.password-input {
+    margin-bottom: 0px;
+  }
 `;
 
 type FormLoginProps = {
@@ -70,10 +75,21 @@ export default function FormLogin(props: FormLoginProps) {
           }}
         />
         <PasswordInput
-          className="form-input"
+          className="form-input password-input"
           onChange={(value) => setPassword(value)}
           valueCheck={() => [true, ""]}
         />
+        <Flex justify="end" style={{margin: '10px 0'}}>
+          <Link to={{
+            pathname: orgId
+              ? ORG_AUTH_FORGOT_PASSWORD_URL.replace(':orgId', orgId)
+              : AUTH_FORGOT_PASSWORD_URL,
+            state: location.state
+            }}
+          >
+            {`${trans("userAuth.forgotPassword")}?`}
+          </Link>
+        </Flex>
         <ConfirmButton loading={loading} disabled={!account || !password} onClick={onSubmit}>
           {trans("userAuth.login")}
         </ConfirmButton>

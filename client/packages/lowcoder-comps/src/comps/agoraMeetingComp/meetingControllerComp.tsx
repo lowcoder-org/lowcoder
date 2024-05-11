@@ -864,16 +864,16 @@ let MTComp = (function () {
     ]); 
   
     MeetingControllerComp = withExposingConfigs(MTComp, [
-    new NameConfig("appId", trans("meeting.appid")),
-    new NameConfig("localUser", trans("meeting.host")),
-    new NameConfig("participants", trans("meeting.participants")),
-    new NameConfig("meetingActive", trans("meeting.meetingActive")),
-    new NameConfig("meetingName", trans("meeting.meetingName")),
-    new NameConfig("localUserID", trans("meeting.localUserID")),
-    new NameConfig("messages", trans("meeting.messages")),
-    new NameConfig("rtmToken", trans("meeting.rtmToken")),
-    new NameConfig("rtcToken", trans("meeting.rtcToken")),
-  ]);
+      new NameConfig("appId", trans("meeting.appid")),
+      new NameConfig("localUser", trans("meeting.host")),
+      new NameConfig("participants", trans("meeting.participants")),
+      new NameConfig("meetingActive", trans("meeting.meetingActive")),
+      new NameConfig("meetingName", trans("meeting.meetingName")),
+      new NameConfig("localUserID", trans("meeting.localUserID")),
+      new NameConfig("messages", trans("meeting.messages")),
+      new NameConfig("rtmToken", trans("meeting.rtmToken")),
+      new NameConfig("rtcToken", trans("meeting.rtcToken")),
+    ]);
 
 } else {
   console.error("ContainerCompBuilder for Meeting Comp is not available. Please ensure that Lowcoder SDK version v2.4 or higher is installed.");

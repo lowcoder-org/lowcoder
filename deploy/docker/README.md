@@ -47,16 +47,29 @@ Image can be configured by setting environment variables.
 | `LOWCODER_MAX_DEVELOPERS`           | Default maximum developers                                              | `100`                                                 |
 | `LOWCODER_WORKSPACE_MODE`           | SAAS to activate, ENTERPRISE to switch off - Workspaces                 | `SAAS`                                                |
 | `LOWCODER_EMAIL_SIGNUP_ENABLED`     | Control if users create their own Workspace automatic when Sign Up      | `true`                                                |
-| `LOWCODER_EMAIL_AUTH_ENABLED`       | Control to show the eMail Login after Admin user is set                 | `true`                                                |
 | `LOWCODER_CREATE_WORKSPACE_ON_SIGNUP`       | IF LOWCODER_WORKSPACE_MODE = SAAS, controls if a own workspace is created for the user after sign up                 | `true`                                                |
 | `LOWCODER_MARKETPLACE_PRIVATE_MODE` | Control if not to show Apps on the local Marketplace to anonymous users | `true`                                                |
 
-Also you should set the API-KEY secret, whcih should be a string of at least 32 random characters
+Also you should set the API-KEY secret, whcih should be a string of at least 32 random characters. (from Lowcoder v2.3.x on)
 On linux/mac, generate one eg. with: head /dev/urandom | head -c 30 | shasum -a 256
 
 | Environment variable                | Description                                                             | Default-Value                                                 |
 |-------------------------------------| ----------------------------------------------------------------------- | ----------------------------------------------------- |
 | `LOWCODER_API_KEY_SECRET`           | String to encrypt/sign API Keys that users may create                   |                                                       |
+
+To enable secure Password Reset flow for the users, you need to configure your own SMTP Server. You can do this with the following Variables (from Lowcoder v2.4.x on):
+
+| Environment Variable                      | Description                                             | Default Value        |
+|-------------------------------------------|---------------------------------------------------------|----------------------|
+| `LOWCODER_ADMIN_SMTP_HOST`                | SMTP Hostname of your Mail Relay Server                 |                      |
+| `LOWCODER_ADMIN_SMTP_PORT`                | Port number for the SMTP service                        | `587`                |
+| `LOWCODER_ADMIN_SMTP_USERNAME`            | Username for SMTP authentication                        |                      |
+| `LOWCODER_ADMIN_SMTP_PASSWORD`            | Password for SMTP authentication                        |                      |
+| `LOWCODER_ADMIN_SMTP_AUTH`                | Enable SMTP authentication                              | `true`               |
+| `LOWCODER_ADMIN_SMTP_SSL_ENABLED`         | Enable SSL encryption                                   | `false`              |
+| `LOWCODER_ADMIN_SMTP_STARTTLS_ENABLED`    | Enable STARTTLS encryption                              | `true`               |
+| `LOWCODER_ADMIN_SMTP_STARTTLS_REQUIRED`   | Require STARTTLS encryption                             | `true`               |
+
 
 
 ## Building api-service image
@@ -93,7 +106,27 @@ Image can be configured by setting environment variables.
 | `LOWCODER_MAX_REQUEST_SIZE`     | Lowcoder max request size                                           | `20m`                                                 |
 | `LOWCODER_WORKSPACE_MODE`       | SAAS to activate, ENTERPRISE to switch off - Workspaces             | `SAAS`                                                |
 | `LOWCODER_EMAIL_SIGNUP_ENABLED` | Control is users can create their own Workspace when Sign Up        | `true`                                                |
-| `LOWCODER_EMAIL_AUTH_ENABLED`   | Control to show the eMail Login after Admin user is set             | `true`                                                |
+
+Also you should set the API-KEY secret, whcih should be a string of at least 32 random characters. (from Lowcoder v2.3.x on)
+On linux/mac, generate one eg. with: head /dev/urandom | head -c 30 | shasum -a 256
+
+| Environment variable                | Description                                                             | Default-Value                                                 |
+|-------------------------------------| ----------------------------------------------------------------------- | ----------------------------------------------------- |
+| `LOWCODER_API_KEY_SECRET`           | String to encrypt/sign API Keys that users may create                   |                                                       |
+
+
+To enable secure Password Reset flow for the users, you need to configure your own SMTP Server. You can do this with the following Variables (from Lowcoder v2.4.x on):
+
+| Environment Variable                      | Description                                             | Default Value        |
+|-------------------------------------------|---------------------------------------------------------|----------------------|
+| `LOWCODER_ADMIN_SMTP_HOST`                | SMTP Hostname of your Mail Relay Server                 |                      |
+| `LOWCODER_ADMIN_SMTP_PORT`                | Port number for the SMTP service                        | `587`                |
+| `LOWCODER_ADMIN_SMTP_USERNAME`            | Username for SMTP authentication                        |                      |
+| `LOWCODER_ADMIN_SMTP_PASSWORD`            | Password for SMTP authentication                        |                      |
+| `LOWCODER_ADMIN_SMTP_AUTH`                | Enable SMTP authentication                              | `true`               |
+| `LOWCODER_ADMIN_SMTP_SSL_ENABLED`         | Enable SSL encryption                                   | `false`              |
+| `LOWCODER_ADMIN_SMTP_STARTTLS_ENABLED`    | Enable STARTTLS encryption                              | `true`               |
+| `LOWCODER_ADMIN_SMTP_STARTTLS_REQUIRED`   | Require STARTTLS encryption                             | `true`               |
 
 ## Building node-service image
 

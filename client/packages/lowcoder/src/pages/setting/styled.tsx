@@ -69,9 +69,9 @@ export const ModalNameDiv = styled.div`
 `;
 
 export const CustomModalStyled = styled(CustomModal)`
-  button {
-    margin-top: 20px;
-  }
+  // button {
+  //   margin-top: 20px;
+  // }
 `;
 
 export const TacoInputStyled = styled(TacoInput)`

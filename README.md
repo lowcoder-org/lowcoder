@@ -15,15 +15,13 @@
 
 ## 📢 Use Lowcoder in 3 steps
 1. Connect to any data sources or APIs.
-2. Build UI with 60+ components.
+2. Build flexible and responsive UI with 100+ components and free layout / design possibilities.
 3. Share with colleagues and customers.
 
 ## 💡 Why Lowcoder
 One platform for everything instead so many different softwares. (like Website Builders, CMS, CRM, POS, ERP, Dashboards & Data Story Visualization, Collaboration Tools).
 
 It's cumbersome to create a single app. You had to design user interfaces, write code in multiple languages and frameworks, and understand how all of that code works together.
-
-Low-code/No-code platforms are fast to get started with but quickly become unmaintainable and inflexible. This creates more problems than it solves.
 
 NewGen Lowcode Platforms like Retool and others are great for their simplicity and flexibility - like Lowcoder too, but they can also be limited in different ways, especially when it comes to "external" applications for everyone.
 
@@ -36,7 +34,7 @@ Lowcoder wants to take a step forward. More specifically, Lowcoder is:
 - The only platform which has extensibility plugin architecture [Check Community Contributions](https://www.npmjs.com/search?q=lowcoder-comp)
 
 ## 🪄 Features
-- **Visual UI builder** with 85+ built-in components. Save 90% of time to build apps.
+- **Visual UI builder** with 100+ built-in components. Save 90% of time to build apps.
 - **Modules** for reusable (!) embedable component sets in the UI builder.
 - **Embed Lowcoder Apps as native parts of any Website** instead of iFrame (!). [Demo](https://lowcoder.cloud/about), [Docu](https://docs.lowcoder.cloud/lowcoder-documentation/lowcoder-extension/native-embed-sdk)
 - **Video Meeting Components** to create your own individual Web-Meeting tool.
@@ -63,6 +61,7 @@ Lowcoder wants to take a step forward. More specifically, Lowcoder is:
 - Lowcoder is open-source. You don't need to worry about vendor lock-in or being stuck with an outdated version of the software.
 - In Lowcoder, developers can build truly responsive apps - not as cumbersome as the "Desktop / Mobile switch" in Retool
 - Lowcoder is free and you can contribute!
+- With Lowcoder you can design better Apps. More Layout & Design Components as also better support for powerful Data & Admin Dashboards.
 - The EE Version of Lowcoder comes with a much better pricing model, so you have no "per-user costs".
 ### Lowcoder vs Appsmith, Tooljet
 - Lowcoder has more components and richer configuration than Appsmith and Tooljet.
@@ -100,6 +99,8 @@ You can access Lowcoder from [cloud-hosted version](https://app.lowcoder.cloud/)
 - Language support: If you have experience with a language that isn't currently supported by our product, send us a pull request.
 - Create and share components or demos: If you've created something that might be useful to others, add the link here.
 - [Contributing guide](https://docs.lowcoder.cloud/lowcoder-documentation/lowcoder-extension/opensource-contribution)
+
+Special tanks goes to [@sjhoeksma](https://github.com/sjhoeksma), [@mousheng](https://github.com/mousheng), [@mat02](https://github.com/mat02), [@jomedya](https://github.com/jomedya) and many other contributors!
 
 ## 🥇 Sponsors
 Accelerate the growth of Lowcoder and unleash its potential with your Sponsorship – together, we're shaping the future of Lowcode for everyone!

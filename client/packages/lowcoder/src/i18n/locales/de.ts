@@ -1,6 +1,6 @@
 import table from "./componentDocExtra/table.md?url";
 import { en } from "./en";
-
+ 
 export const de: typeof en = {
     ...en,
   "productName": "Lowcoder",
@@ -1969,7 +1969,7 @@ export const de: typeof en = {
       "unStructuredError": "Unstrukturierte Daten {prev} können nicht von {path} aktualisiert werden",
       "valueDesc": "Vorläufiger Zustandswert",
       "deleteMessage": "Der temporäre Zustand wurde erfolgreich gelöscht. Du kannst {undoKey} zum Rückgängigmachen verwenden.",
-      "documentationText": "Temporäre Zustände in Lowcoder sind eine leistungsstarke Funktion zur Verwaltung komplexer Variablen, die den Zustand von Komponenten in deiner Anwendung dynamisch aktualisieren. Diese Zustände dienen als Zwischenspeicher für Daten, die sich im Laufe der Zeit aufgrund von Benutzerinteraktionen oder anderen Prozessen ändern können."
+      "documentationText": "Temporäre Zustände sind eine leistungsstarke Funktion zur Verwaltung komplexer Variablen, die den Zustand von Komponenten in deiner Anwendung dynamisch aktualisieren. Diese Zustände dienen als Zwischenspeicher für Daten, die sich im Laufe der Zeit aufgrund von Benutzerinteraktionen oder anderen Prozessen ändern können."
   },
   "dataResponder": {
       ...en.dataResponder,
@@ -2254,7 +2254,7 @@ export const de: typeof en = {
       "setPassAfterBind": "Du kannst das Passwort nach der Kontobindung festlegen",
       "socialConnections": "Soziale Bindungen",
       "changeAvatar": "Avatar ändern",
-      "about": "Dein Lowcoder Account",
+      "about": "Dein Account",
       "userId": "Benutzer-ID",
       "createdAt": "Erstellt am",
       "currentOrg": "aktuelle Organisation",
@@ -2436,6 +2436,7 @@ export const de: typeof en = {
       "allApplications": "Alle Apps",
       "allModules": "Alle Module",
       "allFolders": "Alle Ordner",
+      "yourFolders" : "Deine Ordner",
       "modules": "Module",
       "module": "Modul",
       "trash": "Papierkorb",
@@ -2499,8 +2500,8 @@ export const de: typeof en = {
       "copyLink": "Link kopieren",
       "appPublicMessage": "App veröffentlichen. Die App wird damit für jeden sichtbar.",
       "modulePublicMessage": "Module veröffentlichen. Das Module wird damit für jeden sichtbar.",
-      "appMarketplaceMessage": "Veröffentlichen Sie Ihre App auf dem Lowcoder-Marktplatz. Jeder kann sie dort sehen und kopieren.",
-      "moduleMarketplaceMessage": "Veröffentlichen Sie Ihr Modul auf dem Lowcoder-Marktplatz. Jeder kann es dort sehen und kopieren.",
+      "appMarketplaceMessage": "Veröffentlichen Sie Ihre App auf dem öffentlichen Marktplatz. Jeder kann sie dort sehen und kopieren.",
+      "moduleMarketplaceMessage": "Veröffentlichen Sie Ihr Modul auf dem öffentlichen Marktplatz. Jeder kann es dort sehen und kopieren.",
       "marketplaceGoodPublishing": "Bitte stellen Sie sicher, dass Ihre App gut benannt und einfach zu bedienen ist. Entfernen Sie alle sensiblen Informationen vor der Veröffentlichung. Entfernen Sie außerdem lokale Datenquellen und ersetzen Sie sie durch statische, integrierte temporäre Daten.",
       "noMarketplaceApps": "Noch sind keine Anwendungen auf dem Marktplatz.",
       "memberPermissionList": "Berechtigungen: ",
