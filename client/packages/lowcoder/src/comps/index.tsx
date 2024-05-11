@@ -1,5 +1,3 @@
-// import "comps/comps/layout/navLayout";
-// import "comps/comps/layout/mobileTabLayout";
 import cnchar from "cnchar";
 import { trans } from "i18n";
 import { remoteComp } from "./comps/remoteComp/remoteComp";
@@ -111,6 +109,7 @@ import {
   GraphChartCompIcon
 
 } from "lowcoder-design";
+import { ShapeComp } from "./comps/shapeComp/shapeComp";
 
 type Registry = {
   [key in UICompType]?: UICompManifest;
@@ -125,8 +124,23 @@ const builtInRemoteComps: Omit<RemoteCompInfo, "compName"> = {
 export var uiCompMap: Registry = { 
   // Dashboards
   
-  // charts
+  shape: {
+    name: trans("uiComp.shapeCompName"),
+    enName: "Shape",
+    description: trans("uiComp.shapeCompDesc"),
+    categories: ["dashboards"],
+    icon: ChartCompIcon,
+    keywords: trans("uiComp.shapeCompKeywords"),
+    lazyLoad: true,
+    compName: "ShapeComp",
+    compPath: "comps/shapeComp/shapeComp",
+    layoutInfo: {
+      w: 12,
+      h: 40,
+    },
+  },
   
+  // charts
   chart: {
     name: trans("uiComp.chartCompName") + " (legacy)",
     enName: "Chart",
@@ -839,7 +853,6 @@ export var uiCompMap: Registry = {
     compName: "MentionComp",
     compPath: "comps/textInputComp/mentionComp",
   },
-
 
   // Forms
 

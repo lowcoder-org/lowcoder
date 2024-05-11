@@ -7425,6 +7425,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+coolshapes-react@lowcoder-org/coolshapes-react:
+  version: 1.0.1
+  resolution: "coolshapes-react@https://github.com/lowcoder-org/coolshapes-react.git#commit=0530e0e01feeba965286c1321f9c1cacb47bf587"
+  peerDependencies:
+    react: ">=16.8"
+    react-dom: ">=16.8"
+  checksum: e1b199f0325e87865cf6d89d4891ee84f4930196d21eed2356f4f2d2af8e748b8ad3889d1c9da2f5db6971913f75bd0f800b67a443ab7f4e972678031ce5c717
+  languageName: node
+  linkType: hard
+
 "copy-anything@npm:^2.0.1":
   version: 2.0.6
   resolution: "copy-anything@npm:2.0.6"
@@ -13665,6 +13675,7 @@ __metadata:
     buffer: ^6.0.3
     clsx: ^2.0.0
     cnchar: ^3.2.4
+    coolshapes-react: lowcoder-org/coolshapes-react
     copy-to-clipboard: ^3.3.3
     core-js: ^3.25.2
     dotenv: ^16.0.3

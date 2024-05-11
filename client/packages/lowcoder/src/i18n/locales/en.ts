@@ -1216,6 +1216,10 @@ export const en = {
     "basicChartCompDesc": "A versatile component for visualizing data through various types of charts and graphs.",
     "basicChartCompKeywords": "chart, graph, data, visualization",
 
+    "shapeCompName": "Shapes",
+    "shapeCompDesc": "A collection of geometric shapes for use with diagrams, illustrations, and visualizations.",
+    "shapeCompKeywords": "shapes, geometric, diagrams, illustrations",
+
     // by mousheng
 
     "colorPickerCompName": "Color Picker",
@@ -2085,6 +2089,11 @@ export const en = {
     "insertImage": "Insert an Image or "
   },
 
+  "shapeControl": {
+    "selectShape": "Select an Shape",
+    "insertShape": "Insert an Shape",
+    "insertImage": "Insert an Image or ",
+  },
 
   // twelfth part
 
