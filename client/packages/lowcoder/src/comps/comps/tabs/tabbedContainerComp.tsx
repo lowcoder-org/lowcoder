@@ -79,7 +79,7 @@ const getStyle = (
       border-radius: ${style.radius};
       padding: ${style.padding};
       background-color: ${style.background};
-      background-image: ${style.backgroundImage};
+      background-image: url(${style.backgroundImage});
       background-repeat: ${style.backgroundImageRepeat};
       background-size: ${style.backgroundImageSize};
       background-position: ${style.backgroundImagePosition};
@@ -90,22 +90,11 @@ const getStyle = (
         .react-grid-layout {
           border-radius: 0;
           background-color: ${bodyStyle.background || 'transparent'};
-          background-image: ${bodyStyle.backgroundImage};
-          background-repeat: ${bodyStyle.backgroundImageRepeat};
-          background-size: ${bodyStyle.backgroundImageSize};
-          background-position: ${bodyStyle.backgroundImagePosition};
-          background-origin: ${bodyStyle.backgroundImageOrigin};
-
         }
       }
 
       > .ant-tabs-nav {
         background-color: ${headerStyle.headerBackground || 'transparent'};
-        background-image: ${headerStyle.headerBackgroundImage};
-        background-repeat: ${headerStyle.headerBackgroundImageRepeat};
-        background-size: ${headerStyle.headerBackgroundImageSize};
-        background-position: ${headerStyle.headerBackgroundImagePosition};
-        background-origin: ${headerStyle.headerBackgroundImageOrigin};
 
         .ant-tabs-tab {
           div {

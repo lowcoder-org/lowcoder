@@ -647,31 +647,6 @@ export const ContainerStyle = [
 export const ContainerHeaderStyle = [
   CONTAINER_HEADER_PADDING,
   HEADER_BACKGROUND,
-  {
-    name: "headerBackgroundImage",
-    label: trans("style.backgroundImage"),
-    headerBackgroundImage: "headerBackgroundImage",
-  },
-  {
-    name: "headerBackgroundImageRepeat",
-    label: trans("style.backgroundImageRepeat"),
-    headerBackgroundImageRepeat: "headerBackgroundImageRepeat",
-  },
-  {
-    name: "headerBackgroundImageSize",
-    label: trans("style.backgroundImageSize"),
-    headerBackgroundImageSize: "headerBackgroundImageSize",
-  },
-  {
-    name: "headerBackgroundImagePosition",
-    label: trans("style.backgroundImagePosition"),
-    headerBackgroundImagePosition: "headerBackgroundImagePosition",
-  }
-  , {
-    name: "headerBackgroundImageOrigin",
-    label: trans("style.backgroundImageOrigin"),
-    headerBackgroundImageOrigin: "headerBackgroundImageOrigin",
-  },
 ] as const;
 
 export const ContainerSiderStyle = [
@@ -712,31 +687,6 @@ export const ContainerBodyStyle = [
     depName: "background",
     depType: DEP_TYPE.SELF,
     transformer: toSelf,
-  },
-  {
-    name: "backgroundImage",
-    label: trans("style.backgroundImage"),
-    backgroundImage: "backgroundImage",
-  },
-  {
-    name: "backgroundImageRepeat",
-    label: trans("style.backgroundImageRepeat"),
-    backgroundImageRepeat: "backgroundImageRepeat",
-  },
-  {
-    name: "backgroundImageSize",
-    label: trans("style.backgroundImageSize"),
-    backgroundImageSize: "backgroundImageSize",
-  },
-  {
-    name: "backgroundImagePosition",
-    label: trans("style.backgroundImagePosition"),
-    backgroundImagePosition: "backgroundImagePosition",
-  },
-  {
-    name: "backgroundImageOrigin",
-    label: trans("style.backgroundImageOrigin"),
-    backgroundImageOrigin: "backgroundImageOrigin",
   },
 ] as const;
 
