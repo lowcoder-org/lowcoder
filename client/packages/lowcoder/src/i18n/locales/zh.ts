@@ -1,4 +1,4 @@
-import table from "./componentDocExtra/table.md?url";
+// import table from "./componentDocExtra/table.md?url";
 import { en } from "./en";
 
 export const zh: typeof en = {
@@ -2857,10 +2857,10 @@ export const zh: typeof en = {
         title: "标题",
         selectBackground: "选中背景",
     },
-    componentDocExtra: {
+    /* componentDocExtra: {
         ...en.componentDocExtra,
         table: table,
-    },
+    },*/
     idSource: {
         ...en.idSource,
         title: "用户认证提供商",

@@ -1,4 +1,4 @@
-// import table from "./componentDocExtra/table.md?url";
+import table from "./componentDocExtra/table.md?url";
 import { en } from "./en";
  
 export const de: typeof en = {
@@ -2773,10 +2773,10 @@ export const de: typeof en = {
       "title": "Titel",
       "selectBackground": "Ausgewählter Hintergrund"
   },
-  /* "componentDocExtra": {
+  "componentDocExtra": {
       ...en.componentDocExtra,
       "table": table,
-  }, */
+  },
   "idSource": {
       ...en.idSource,
       "title": "OAuth-Anbieter",
