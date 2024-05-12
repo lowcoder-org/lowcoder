@@ -87,7 +87,7 @@ export function withMultiContext<TCtor extends MultiCompConstructor>(VariantComp
     override parseChildrenFromValue(params: CompParams): ChildrenType {
       const dispatch = params.dispatch ?? _.noop;
       const newParams = { ...params, dispatch: wrapDispatch(dispatch, COMP_KEY) };
-
+      
       const comp: WithParamComp = new WithParamCompCtor(newParams) as unknown as WithParamComp;
       const mapComp = new MapCtor({ dispatch: wrapDispatch(dispatch, MAP_KEY) });
       return { [COMP_KEY]: comp, [MAP_KEY]: mapComp };

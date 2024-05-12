@@ -38,18 +38,18 @@ function ViewLoading(props: { padding?: number }) {
   );
 }
 
-interface RemoteCompReadyAction {
-  type: "RemoteCompReady";
+export interface LazyCompReadyAction {
+  type: "LazyCompReady";
   comp: Comp;
 }
 
-interface RemoteCompViewProps {
+interface LazyCompViewProps {
   loadComp: () => Promise<void>;
   loadingElement?: () => React.ReactNode;
   errorElement?: (error: any) => React.ReactNode;
 }
 
-function RemoteCompView(props: React.PropsWithChildren<RemoteCompViewProps>) {
+function LazyCompView(props: React.PropsWithChildren<LazyCompViewProps>) {
   const { loadComp, loadingElement, errorElement } = props;
   const [error, setError] = useState<any>("");
 
@@ -100,20 +100,22 @@ export function lazyLoadComp(
     }
 
     private async load() {
+      console.log('lazyLoad ->', compName);
       if (!compPath) {
         return;
       }
-      let RemoteExportedComp;
+      let LazyExportedComp;
       if (!loader) {
         const module = await import(`../../${compPath}.tsx`);
-        RemoteExportedComp = module[compName!];
+        LazyExportedComp = module[compName!];
       } else {
-        RemoteExportedComp = await loader();
+        LazyExportedComp = await loader();
       }
-      if (!RemoteExportedComp) {
+      if (!LazyExportedComp) {
         log.error("loader not found, lazy load info:", compPath);
         return;
       }
+      console.log(LazyExportedComp)
 
       const params: CompParams<any> = {
         dispatch: this.dispatch,
@@ -122,12 +124,12 @@ export function lazyLoadComp(
       if (this.compValue) {
         params.value = this.compValue;
       }
-      const RemoteCompWithErrorBound = withErrorBoundary(RemoteExportedComp);
+      const LazyCompWithErrorBound = withErrorBoundary(LazyExportedComp);
       this.dispatch(
-        customAction<RemoteCompReadyAction>(
+        customAction<LazyCompReadyAction>(
           {
-            type: "RemoteCompReady",
-            comp: new RemoteCompWithErrorBound(params),
+            type: "LazyCompReady",
+            comp: new LazyCompWithErrorBound(params),
           },
           false
         )
@@ -138,7 +140,7 @@ export function lazyLoadComp(
       // const key = `${remoteInfo?.packageName}-${remoteInfo?.packageVersion}-${remoteInfo?.compName}`;
       const key = `${compName}`;
       return (
-        <RemoteCompView key={key} loadComp={() => this.load()} loadingElement={loadingElement} />
+        <LazyCompView key={key} loadComp={() => this.load()} loadingElement={loadingElement} />
       );
     }
 
@@ -147,7 +149,7 @@ export function lazyLoadComp(
     }
 
     reduce(action: CompAction<any>): this {
-      if (isCustomAction<RemoteCompReadyAction>(action, "RemoteCompReady")) {
+      if (isCustomAction<LazyCompReadyAction>(action, "LazyCompReady")) {
         // use real remote comp instance to replace RemoteCompLoader
         return action.value.comp as this;
       }
