@@ -11,9 +11,13 @@ import lombok.extern.jackson.Jacksonized;
 @SuperBuilder
 @Jacksonized
 public class Oauth2GenericAuthConfig extends Oauth2SimpleAuthConfig {
+    private String sourceDescription;
+    private String sourceIcon;
+    private String sourceCategory;
     private String issuerUri;
     private String authorizationEndpoint;
     private String tokenEndpoint;
     private String userInfoEndpoint;
     private String scope;
+    private Boolean userInfoIntrospection;
 }
