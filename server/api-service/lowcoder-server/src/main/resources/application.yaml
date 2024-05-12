@@ -84,7 +84,7 @@ common:
   marketplace:
     private-mode: ${LOWCODER_MARKETPLACE_PRIVATE_MODE:true}
   lowcoder-public-url: ${LOWCODER_PUBLIC_URL:http://localhost:8080}
-  notifications-email-sender: ${LOWCODER_LOST_PASSWORD_EMAIL_SENDER:info@lowcoder.org}
+  notifications-email-sender: ${LOWCODER_EMAIL_NOTIFICATIONS_SENDER:info@localhost}
 
 material:
   mongodb-grid-fs:

@@ -12,6 +12,8 @@ services:
       - "3443:3443"
     #  - "27017:27017"
     environment:
+      # Public base url
+      LOWCODER_PUBLIC_URL: "http://localhost:3000/"
       # enable services
       LOWCODER_REDIS_ENABLED: "true"
       LOWCODER_MONGODB_ENABLED: "true"
@@ -59,6 +61,17 @@ services:
       LOWCODER_MAX_REQUEST_SIZE: 20m
       LOWCODER_MAX_QUERY_TIMEOUT: 120
       LOWCODER_WORKSPACE_MODE: SAAS
+      # Lowcoder notification emails setup
+      LOWCODER_ADMIN_SMTP_HOST: smtp.gmail.com
+      LOWCODER_ADMIN_SMTP_PORT: 587
+      LOWCODER_ADMIN_SMTP_USERNAME: 
+      LOWCODER_ADMIN_SMTP_PASSWORD: 
+      LOWCODER_ADMIN_SMTP_AUTH: true
+      LOWCODER_ADMIN_SMTP_SSL_ENABLED: false
+      LOWCODER_ADMIN_SMTP_STARTTLS_ENABLED: true
+      LOWCODER_ADMIN_SMTP_STARTTLS_REQUIRED: true
+      # Email used as sender in lost password email
+      LOWCODER_EMAIL_NOTIFICATIONS_SENDER: info@localhost
     volumes:
       - ./lowcoder-stacks:/lowcoder-stacks
       - ./lowcoder-stacks/assets:/lowcoder/assets
