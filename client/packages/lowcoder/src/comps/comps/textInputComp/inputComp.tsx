@@ -31,7 +31,7 @@ import { IconControl } from "comps/controls/iconControl";
 import { hasIcon } from "comps/utils";
 import { InputRef } from "antd/es/input";
 import { RefControl } from "comps/controls/refControl";
-import { migrateOldData } from "comps/generators/simpleGenerators";
+import { migrateOldData, withDefault } from "comps/generators/simpleGenerators";
 
 import React, { useContext } from "react";
 import { EditorContext } from "comps/editorState";
@@ -49,7 +49,7 @@ const childrenMap = {
   viewRef: RefControl<InputRef>,
   showCount: BoolControl,
   allowClear: BoolControl,
-  style: styleControl(InputFieldStyle),
+  style: withDefault(styleControl(InputFieldStyle), {borderWidth: '1px'}),
   labelStyle: styleControl(LabelStyle),
   prefixIcon: IconControl,
   suffixIcon: IconControl,

@@ -57,7 +57,7 @@ let PasswordTmpComp = (function () {
     validationType: dropdownControl(TextInputValidationOptions, "Regex"),
     visibilityToggle: BoolControl.DEFAULT_TRUE,
     prefixIcon: IconControl,
-    style: styleControl(InputFieldStyle),
+    style: withDefault(styleControl(InputFieldStyle), {borderWidth: '1px'}),
     labelStyle: styleControl(LabelStyle),
     inputFieldStyle: styleControl(InputLikeStyle)
   };

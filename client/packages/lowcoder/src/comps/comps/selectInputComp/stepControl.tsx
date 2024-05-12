@@ -7,7 +7,7 @@ import { StepOptionControl } from "comps/controls/optionsControl";
 import { styleControl } from "comps/controls/styleControl";
 import { StepsStyle, StepsStyleType, heightCalculator, widthCalculator, marginCalculator } from "comps/controls/styleControlConstants";
 import styled, { css } from "styled-components";
-import { UICompBuilder } from "../../generators";
+import { UICompBuilder, withDefault } from "../../generators";
 import { CommonNameConfig, NameConfig, withExposingConfigs } from "../../generators/withExposing";
 import { selectDivRefMethods, } from "./selectInputConstants";
 import { Section, sectionNames } from "lowcoder-design";
@@ -91,7 +91,7 @@ const StepsChildrenMap = {
   disabled: BoolCodeControl,
   onEvent: ChangeEventHandlerControl,
   options: StepOptionControl,
-  style: styleControl(StepsStyle),
+  style: withDefault( styleControl(StepsStyle), {text:'#D7D9E0'}),
   viewRef: RefControl<HTMLDivElement>
 };
 
