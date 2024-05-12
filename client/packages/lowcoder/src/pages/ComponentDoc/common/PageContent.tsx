@@ -3,7 +3,7 @@ import PageInfo from "./PageInfo";
 import examples from "../examples";
 import { Section, Title1 } from "./Styled";
 import styled from "styled-components";
-import Extra from "./Extra";
+// import Extra from "./Extra";
 import { UICompType, UICompManifest } from "comps/uiCompRegistry";
 import { trans } from "i18n";
 
@@ -38,7 +38,7 @@ export default function PageContent(props: IProps) {
       { compInfo.comp && <Exposing compName={name} compFactory={compInfo.comp} /> }
 
       {/* extra info via Markdown */}
-      <Extra compName={name} />
+      {/* <Extra compName={name} /> */}
     </Wrapper>
   );
 }
