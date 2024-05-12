@@ -88,7 +88,20 @@ public class AuthConfigRequest extends HashMap<String, Object> {
         return defaultValue;
     }
 
+    public String getSourceDescription() {
+        return getString("sourceDescription");
+    }
+
+    public String getSourceIcon() {
+        return getString("sourceIcon");
+    }
+
+    public String getSourceCategory() {
+        return getString("sourceDescription");
+    }
+
     public String getString(String key) {
         return MapUtils.getString(this, key);
     }
+
 }
