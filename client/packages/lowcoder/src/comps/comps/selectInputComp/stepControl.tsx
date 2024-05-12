@@ -117,7 +117,7 @@ let StepControlBasicComp = (function () {
       background-color: ${props.style.background};
       border: ${props.style.borderWidth} solid ${props.style.border};
       border-radius: ${props.style.radius};
-      background-image: ${props.style.backgroundImage};
+      background-image: url(${props.style.backgroundImage});
       background-repeat: ${props.style.backgroundImageRepeat};
       background-size: ${props.style.backgroundImageSize};
       background-position: ${props.style.backgroundImagePosition};

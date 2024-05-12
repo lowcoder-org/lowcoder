@@ -220,7 +220,7 @@ export function handleToHeadBg(color: string) {
     return darkenColor(color, 0.06);
   }
   if (toHex(color) === "#000000") {
-    return SECOND_SURFACE_COLOR;
+    return SURFACE_COLOR;
   }
   if (isDarkColor(color)) {
     return darkenColor(color, 0.06);
@@ -1154,12 +1154,9 @@ const LinkTextStyle = [
 export const TableStyle = [
   MARGIN,
   PADDING,
+  BORDER_STYLE, 
+  BORDER_WIDTH,
   ...BG_STATIC_BORDER_RADIUS,
-  {
-    name: "borderWidth",
-    label: trans("style.borderWidth"),
-    borderWidth: "borderWidth",
-  },
 ] as const;
 
 export const TableToolbarStyle = [
@@ -1181,10 +1178,12 @@ export const TableHeaderStyle = [
   FONT_FAMILY,
   FONT_STYLE,
   TEXT,
+  getStaticBackground(SURFACE_COLOR),
+  getBackground('primarySurface'),
   {
     name: "headerBackground",
     label: trans("style.tableHeaderBackground"),
-    depName: "headerBackground",
+    depName: "background",
     transformer: handleToHeadBg,
   },
   getStaticBorder(),
@@ -1206,6 +1205,9 @@ export const TableHeaderStyle = [
 ] as const;
 
 export const TableRowStyle = [
+  BORDER_WIDTH,
+  BORDER_STYLE,
+  ...BG_STATIC_BORDER_RADIUS,
   getBackground(),
   {
     name: "selectedRowBackground",
@@ -1233,7 +1235,7 @@ export const TableColumnStyle = [
   getStaticBackground("#00000000"),
   getStaticBorder(),
   MARGIN,
-  BORDER_WIDTH,
+  
   RADIUS,
   TEXT,
   TEXT_SIZE,
