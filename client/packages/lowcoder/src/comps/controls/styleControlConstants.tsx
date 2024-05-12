@@ -647,31 +647,6 @@ export const ContainerStyle = [
 export const ContainerHeaderStyle = [
   CONTAINER_HEADER_PADDING,
   HEADER_BACKGROUND,
-  {
-    name: "headerBackgroundImage",
-    label: trans("style.backgroundImage"),
-    headerBackgroundImage: "headerBackgroundImage",
-  },
-  {
-    name: "headerBackgroundImageRepeat",
-    label: trans("style.backgroundImageRepeat"),
-    headerBackgroundImageRepeat: "headerBackgroundImageRepeat",
-  },
-  {
-    name: "headerBackgroundImageSize",
-    label: trans("style.backgroundImageSize"),
-    headerBackgroundImageSize: "headerBackgroundImageSize",
-  },
-  {
-    name: "headerBackgroundImagePosition",
-    label: trans("style.backgroundImagePosition"),
-    headerBackgroundImagePosition: "headerBackgroundImagePosition",
-  }
-  , {
-    name: "headerBackgroundImageOrigin",
-    label: trans("style.backgroundImageOrigin"),
-    headerBackgroundImageOrigin: "headerBackgroundImageOrigin",
-  },
 ] as const;
 
 export const ContainerSiderStyle = [
@@ -712,31 +687,6 @@ export const ContainerBodyStyle = [
     depName: "background",
     depType: DEP_TYPE.SELF,
     transformer: toSelf,
-  },
-  {
-    name: "backgroundImage",
-    label: trans("style.backgroundImage"),
-    backgroundImage: "backgroundImage",
-  },
-  {
-    name: "backgroundImageRepeat",
-    label: trans("style.backgroundImageRepeat"),
-    backgroundImageRepeat: "backgroundImageRepeat",
-  },
-  {
-    name: "backgroundImageSize",
-    label: trans("style.backgroundImageSize"),
-    backgroundImageSize: "backgroundImageSize",
-  },
-  {
-    name: "backgroundImagePosition",
-    label: trans("style.backgroundImagePosition"),
-    backgroundImagePosition: "backgroundImagePosition",
-  },
-  {
-    name: "backgroundImageOrigin",
-    label: trans("style.backgroundImageOrigin"),
-    backgroundImageOrigin: "backgroundImageOrigin",
   },
 ] as const;
 
@@ -817,16 +767,16 @@ export const AvatarStyle = [
     color: '#bfbfbf',
   },
   FILL,
-  {
-    name: "label",
-    label: trans("avatarComp.label"),
-    color: '#000000',
-  },
-  {
-    name: "caption",
-    label: trans("avatarComp.caption"),
-    color: '#a5a5a5',
-  },
+] as const;
+
+export const avatarContainerStyle = [
+  getStaticBackground(SURFACE_COLOR),
+  ...STYLING_FIELDS_CONTAINER_SEQUENCE
+] as const;
+
+export const avatarLabelStyle = [
+  getStaticBackground(SURFACE_COLOR),
+  ...STYLING_FIELDS_SEQUENCE
 ] as const;
 
 export const avatarGroupStyle = [
@@ -838,7 +788,7 @@ export const avatarGroupStyle = [
   getBackground("primary"),
 ] as const;
 
-export const FloatButtonStyle = [
+export const BadgeStyle = [
   {
     name: "badgeColor",
     label: trans("floatButton.badgeColor"),
@@ -846,13 +796,20 @@ export const FloatButtonStyle = [
   },
 ] as const;
 
+export const FloatButtonStyle = [
+  getStaticBackground(SURFACE_COLOR),
+  BORDER,
+  BORDER_STYLE,
+  BORDER_WIDTH,
+] as const;
+
 export const TransferStyle = [
-  MARGIN,	
+  getStaticBackground(SURFACE_COLOR),
+  ...STYLING_FIELDS_CONTAINER_SEQUENCE
 ] as const;
 
 export const CardStyle = [
   getStaticBackground("#ffffff"),
-  BORDER,
   {
     name: "IconColor",
     label: trans("card.IconColor"),
@@ -866,18 +823,23 @@ export const CardStyle = [
     transformer: toSelf,
   },
   CONTAINER_BODY_PADDING,
+  ...STYLING_FIELDS_CONTAINER_SEQUENCE
+] as const;
+
+export const CardHeaderStyle = [
+  getStaticBackground(SURFACE_COLOR),
+  ...STYLING_FIELDS_SEQUENCE,
 ] as const;
 
 export const timerStyle = [
   getBackground("primarySurface"),
-  BORDER,
-  RADIUS,
-  {
-    name: "fontColor",
-    label: trans("timer.fontColor"),
-    color: "#000000",
-  },
+ ...STYLING_FIELDS_SEQUENCE
 ] as const;
+
+export const startButtonStyle = [
+  getBackground("primarySurface"),
+  ...STYLING_FIELDS_SEQUENCE
+] as const
 
 // end
 
@@ -962,6 +924,11 @@ export const MultiSelectStyle = [
     platform: "pc",
   },
   ...ACCENT_VALIDATE,
+] as const;
+
+export const ChildrenMultiSelectStyle = [
+  ...STYLING_FIELDS_SEQUENCE,
+  getStaticBackground(SURFACE_COLOR)
 ] as const;
 
 export const TabContainerStyle = [
@@ -1580,11 +1547,16 @@ export const RichTextEditorStyle = [
 
 export type QRCodeStyleType = StyleConfigType<typeof QRCodeStyle>;
 export type AvatarStyleType = StyleConfigType<typeof AvatarStyle>;
+export type AvatarLabelStyleType = StyleConfigType<typeof avatarLabelStyle>;
+export type AvatarContainerStyleType = StyleConfigType<typeof avatarContainerStyle>;
 export type AvatarGroupStyleType = StyleConfigType<typeof avatarGroupStyle>;
 export type FloatButtonStyleType = StyleConfigType<typeof FloatButtonStyle>;
+export type BadgeStyleType = StyleConfigType<typeof BadgeStyle>;
 export type TransferStyleType = StyleConfigType<typeof TransferStyle>;
 export type CardStyleType = StyleConfigType<typeof CardStyle>;
+export type CardHeaderStyleType = StyleConfigType<typeof CardHeaderStyle>;
 export type timerStyleType = StyleConfigType<typeof timerStyle>;
+export type StartButtonStyleType = StyleConfigType<typeof startButtonStyle>;
 
 export type LabelStyleType = StyleConfigType<typeof LabelStyle>;
 export type InputLikeStyleType = StyleConfigType<typeof InputLikeStyle>;
@@ -1603,6 +1575,7 @@ export type RatingStyleType = StyleConfigType<typeof RatingStyle>;
 export type SwitchStyleType = StyleConfigType<typeof SwitchStyle>;
 export type SelectStyleType = StyleConfigType<typeof SelectStyle>;
 export type MultiSelectStyleType = StyleConfigType<typeof MultiSelectStyle>;
+export type ChildrenMultiSelectStyleType = StyleConfigType<typeof ChildrenMultiSelectStyle>;
 export type TabContainerStyleType = StyleConfigType<typeof TabContainerStyle>;
 export type ModalStyleType = StyleConfigType<typeof ModalStyle>;
 export type CascaderStyleType = StyleConfigType<typeof CascaderStyle>;

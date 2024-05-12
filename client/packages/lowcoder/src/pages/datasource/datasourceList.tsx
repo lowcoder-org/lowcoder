@@ -15,6 +15,7 @@ import { Table } from "../../components/Table";
 import { trans } from "../../i18n";
 import { DatasourcePermissionDialog } from "../../components/PermissionDialog/DatasourcePermissionDialog";
 import DataSourceIcon from "components/DataSourceIcon";
+import { Helmet } from "react-helmet";
 
 const DatasourceWrapper = styled.div`
   display: flex;
@@ -107,203 +108,197 @@ export const DatasourceList = () => {
   const plugins = useSelector(getDataSourceTypesMap);
 
   return (
-    <DatasourceWrapper>
-      <StepModal
-        open={isCreateFormShow}
-        onCancel={() => showCreateForm(false)}
-        activeStepKey={"type"}
-        destroyOnClose={true}
-        width="888px"
-        steps={[
-          {
-            key: "type",
-            titleRender: () => <DataSourceModalTitle title={trans("home.selectDatasourceType")} />,
-            bodyRender: () => (
-              <PluginPanel
-                onSelect={(typeInfo) => {
-                  history.push(buildDatasourceCreateUrl(typeInfo.id));
-                  showCreateForm(false);
-                }}
-              />
-            ),
-            footerRender: () => null,
-          },
-        ]}
-      />
+    <>
+      <Helmet>{<title>{trans("home.datasource")}</title>}</Helmet>
+      <DatasourceWrapper>
+        <StepModal
+          open={isCreateFormShow}
+          onCancel={() => showCreateForm(false)}
+          activeStepKey={"type"}
+          destroyOnClose={true}
+          width="888px"
+          steps={[
+            {
+              key: "type",
+              titleRender: () => <DataSourceModalTitle title={trans("home.selectDatasourceType")} />,
+              bodyRender: () => (
+                <PluginPanel
+                  onSelect={(typeInfo) => {
+                    history.push(buildDatasourceCreateUrl(typeInfo.id));
+                    showCreateForm(false);
+                  } } />
+              ),
+              footerRender: () => null,
+            },
+          ]} />
 
-      <HeaderWrapper>
-        <Title>{trans("home.datasource")}</Title>
-        <Search
-          placeholder={trans("search")}
-          value={searchValue}
-          onChange={(e) => setSearchValue(e.target.value)}
-          style={{ width: "192px", height: "32px", margin: "0 12px 0 0" }}
-        />
-        <AddBtn buttonType={"primary"} onClick={() => showCreateForm(true)}>
-          {trans("home.newDatasource")}
-        </AddBtn>
-      </HeaderWrapper>
-      <BodyWrapper>
-        <StyledTable
-          rowClassName={(record: any) => (!record.edit ? "datasource-can-not-edit" : "")}
-          tableLayout={"auto"}
-          scroll={{ x: "100%" }}
-          pagination={false}
-          onRow={(record: any) => ({
-            onClick: () => record.edit && history.push(buildDatasourceEditUrl(record.id)),
-          })}
-          columns={[
-            {
-              title: trans("home.datasourceName"),
-              dataIndex: "name",
-              ellipsis: true,
-              sorter: (a: any, b: any) => {
-                if (a.name === b.name) {
-                  return 0;
-                }
-                return a.name > b.name ? 1 : -1;
+        <HeaderWrapper>
+          <Title>{trans("home.datasource")}</Title>
+          <Search
+            placeholder={trans("search")}
+            value={searchValue}
+            onChange={(e) => setSearchValue(e.target.value)}
+            style={{ width: "192px", height: "32px", margin: "0 12px 0 0" }} />
+          <AddBtn buttonType={"primary"} onClick={() => showCreateForm(true)}>
+            {trans("home.newDatasource")}
+          </AddBtn>
+        </HeaderWrapper>
+        <BodyWrapper>
+          <StyledTable
+            rowClassName={(record: any) => (!record.edit ? "datasource-can-not-edit" : "")}
+            tableLayout={"auto"}
+            scroll={{ x: "100%" }}
+            pagination={false}
+            onRow={(record: any) => ({
+              onClick: () => record.edit && history.push(buildDatasourceEditUrl(record.id)),
+            })}
+            columns={[
+              {
+                title: trans("home.datasourceName"),
+                dataIndex: "name",
+                ellipsis: true,
+                sorter: (a: any, b: any) => {
+                  if (a.name === b.name) {
+                    return 0;
+                  }
+                  return a.name > b.name ? 1 : -1;
+                },
               },
-            },
-            {
-              title: trans("home.type"),
-              dataIndex: "type",
-              ellipsis: true,
-              width: "192px",
-              sorter: (a: any, b: any) => {
-                if (a.type === b.type) {
-                  return 0;
-                }
-                return a.type > b.type ? 1 : -1;
+              {
+                title: trans("home.type"),
+                dataIndex: "type",
+                ellipsis: true,
+                width: "192px",
+                sorter: (a: any, b: any) => {
+                  if (a.type === b.type) {
+                    return 0;
+                  }
+                  return a.type > b.type ? 1 : -1;
+                },
+                render: (text) => <SubColumnCell>{text}</SubColumnCell>,
               },
-              render: (text) => <SubColumnCell>{text}</SubColumnCell>,
-            },
-            {
-              title: trans("home.databaseName"),
-              dataIndex: "database",
-              ellipsis: true,
-              sorter: (a: any, b: any) => {
-                if (a.database === b.database) {
-                  return 0;
-                }
-                return a.database > b.database ? 1 : -1;
+              {
+                title: trans("home.databaseName"),
+                dataIndex: "database",
+                ellipsis: true,
+                sorter: (a: any, b: any) => {
+                  if (a.database === b.database) {
+                    return 0;
+                  }
+                  return a.database > b.database ? 1 : -1;
+                },
+                render: (text) => (
+                  <SubColumnCell>
+                    {isEmpty(text) ? <span style={{ color: "#8B8FA3" }}>--</span> : text}
+                  </SubColumnCell>
+                ),
               },
-              render: (text) => (
-                <SubColumnCell>
-                  {isEmpty(text) ? <span style={{ color: "#8B8FA3" }}>--</span> : text}
-                </SubColumnCell>
-              ),
-            },
-            {
-              title: trans("home.creator"),
-              dataIndex: "creator",
-              ellipsis: true,
-              width: "192px",
-              sorter: (a: any, b: any) => {
-                if (a.creator === b.creator) {
-                  return 0;
-                }
-                return a.type > b.type ? 1 : -1;
+              {
+                title: trans("home.creator"),
+                dataIndex: "creator",
+                ellipsis: true,
+                width: "192px",
+                sorter: (a: any, b: any) => {
+                  if (a.creator === b.creator) {
+                    return 0;
+                  }
+                  return a.type > b.type ? 1 : -1;
+                },
+                render: (text) => <SubColumnCell>{text}</SubColumnCell>,
               },
-              render: (text) => <SubColumnCell>{text}</SubColumnCell>,
-            },
-            {
-              title: trans("home.createTime"),
-              dataIndex: "createTime",
-              ellipsis: true,
-              width: "192px",
-              sorter: (a: any, b: any) => {
-                if (a.createTime === b.createTime) {
-                  return 0;
-                }
-                return a.createTime > b.createTime ? 1 : -1;
+              {
+                title: trans("home.createTime"),
+                dataIndex: "createTime",
+                ellipsis: true,
+                width: "192px",
+                sorter: (a: any, b: any) => {
+                  if (a.createTime === b.createTime) {
+                    return 0;
+                  }
+                  return a.createTime > b.createTime ? 1 : -1;
+                },
+                render: (text) => (
+                  <SubColumnCell>
+                    {timestampToHumanReadable(text, 30 * 24 * 60 * 60 * 1000)}
+                  </SubColumnCell>
+                ),
               },
-              render: (text) => (
-                <SubColumnCell>
-                  {timestampToHumanReadable(text, 30 * 24 * 60 * 60 * 1000)}
-                </SubColumnCell>
-              ),
-            },
-            {
-              title: " ",
-              dataIndex: "operation",
-              width: "152px",
-              render: (_, record: any) => (
-                <>
-                  {record.edit && (
-                    <OperationWrapper>
-                      {
-                        <EditBtn
+              {
+                title: " ",
+                dataIndex: "operation",
+                width: "152px",
+                render: (_, record: any) => (
+                  <>
+                    {record.edit && (
+                      <OperationWrapper>
+                        {<EditBtn
                           className={"home-datasource-edit-button"}
                           buttonType={"primary"}
                           onClick={() => history.push(buildDatasourceEditUrl(record.id))}
                         >
                           {trans("edit")}
-                        </EditBtn>
-                      }
-                      <EditPopover
-                        items={[
-                          {
-                            text: trans("accessControl"),
-                            onClick: () => setShareDatasourceId(record.id),
-                          },
-                          {
-                            text: trans("delete"),
-                            onClick: () => {
-                              dispatch(deleteDatasource({ datasourceId: record.id }));
+                        </EditBtn>}
+                        <EditPopover
+                          items={[
+                            {
+                              text: trans("accessControl"),
+                              onClick: () => setShareDatasourceId(record.id),
                             },
-                            type: "delete",
-                          },
-                        ]}
-                      >
-                        <PopoverIcon tabIndex={-1} />
-                      </EditPopover>
-                    </OperationWrapper>
-                  )}
-                </>
-              ),
-            },
-          ]}
-          dataSource={datasource
-            .filter((info) => {
-              if (info.datasource.creationSource === 2) {
-                return false;
-              }
-              if (!isEmpty(searchValue)) {
-                return (
-                  info.datasource.name.toLowerCase().includes(searchValue.trim().toLowerCase()) ||
-                  info.datasource.type.toLowerCase().includes(searchValue.trim().toLowerCase())
-                );
-              }
-              return true;
-            })
-            .map((info, i) => ({
-              key: i,
-              id: info.datasource.id,
-              name: (
-                <DatasourceName>
-                  <DataSourceIcon dataSourceType={info.datasource.type} />
-                  {info.datasource.name}
-                </DatasourceName>
-              ),
-              type: plugins[info.datasource.type]?.name,
-              database:
-                (info.datasource.datasourceConfig as any)?.database ??
-                (info.datasource.datasourceConfig as any)?.serviceName,
-              createTime: info.datasource.createTime,
-              creator: info.creatorName,
-              edit: info.edit,
-            }))}
-        />
-      </BodyWrapper>
-      {shareDatasourceId && (
-        <DatasourcePermissionDialog
-          datasourceId={shareDatasourceId}
-          visible={!!shareDatasourceId}
-          onVisibleChange={(visible) => {
-            !visible && setShareDatasourceId(undefined);
-          }}
-        />
-      )}
-    </DatasourceWrapper>
+                            {
+                              text: trans("delete"),
+                              onClick: () => {
+                                dispatch(deleteDatasource({ datasourceId: record.id }));
+                              },
+                              type: "delete",
+                            },
+                          ]}
+                        >
+                          <PopoverIcon tabIndex={-1} />
+                        </EditPopover>
+                      </OperationWrapper>
+                    )}
+                  </>
+                ),
+              },
+            ]}
+            dataSource={datasource
+              .filter((info) => {
+                if (info.datasource.creationSource === 2) {
+                  return false;
+                }
+                if (!isEmpty(searchValue)) {
+                  return (
+                    info.datasource.name.toLowerCase().includes(searchValue.trim().toLowerCase()) ||
+                    info.datasource.type.toLowerCase().includes(searchValue.trim().toLowerCase())
+                  );
+                }
+                return true;
+              })
+              .map((info, i) => ({
+                key: i,
+                id: info.datasource.id,
+                name: (
+                  <DatasourceName>
+                    <DataSourceIcon dataSourceType={info.datasource.type} />
+                    {info.datasource.name}
+                  </DatasourceName>
+                ),
+                type: plugins[info.datasource.type]?.name,
+                database: (info.datasource.datasourceConfig as any)?.database ??
+                  (info.datasource.datasourceConfig as any)?.serviceName,
+                createTime: info.datasource.createTime,
+                creator: info.creatorName,
+                edit: info.edit,
+              }))} />
+        </BodyWrapper>
+        {shareDatasourceId && (
+          <DatasourcePermissionDialog
+            datasourceId={shareDatasourceId}
+            visible={!!shareDatasourceId}
+            onVisibleChange={(visible) => {
+              !visible && setShareDatasourceId(undefined);
+            } } />
+        )}
+      </DatasourceWrapper></>
   );
 };

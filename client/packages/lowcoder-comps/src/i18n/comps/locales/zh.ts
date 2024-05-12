@@ -1,5 +1,9 @@
-export const zh = {
+import { en } from "./en";
+
+export const zh: typeof en = {
+    ...en,
     chart: {
+        ...en.chart,
         delete: "删除",
         data: "数据",
         mode: "模式",
@@ -82,6 +86,7 @@ export const zh = {
         chartEventHandlers: "图表事件处理程序",
     },
     imageEditor: {
+        ...en.imageEditor,
         defaultSrc: "",
         save: "保存",
         saveDesc: "保存图像",
@@ -95,6 +100,7 @@ export const zh = {
         buttonTextDesc: "按钮文本",
     },
     calendar: {
+        ...en.calendar,
         events: "事件数据",
         resources: "资源数据",
         resourcesDefault: "客房",

@@ -37,6 +37,7 @@ import { validateResponse } from "api/apiUtils";
 import { ItemType } from "pages/setting/idSource/idSourceConstants";
 import _ from "lodash";
 import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
+import { IconPicker } from "@lowcoder-ee/comps/controls/iconControl";
 
 type IdSourceDetailProps = {
   location: Location & { state: ConfigItem };
@@ -163,6 +164,7 @@ export const IdSourceDetail = (props: IdSourceDetailProps) => {
             const label = valueObject ? valueObject.label : value as string;
             const isList = valueObject && valueObject.isList;
             const isPassword = valueObject && valueObject.isPassword;
+            const isIcon = valueObject && valueObject.isIcon;
             return (
               <div key={key}>
                 <Form.Item
@@ -206,7 +208,7 @@ export const IdSourceDetail = (props: IdSourceDetailProps) => {
                       }
                       autoComplete={"one-time-code"}
                     />
-                  ) : !isPassword && !isList ? (
+                  ) : !isPassword && !isList && !isIcon ? (
                     <Input
                       placeholder={trans("idSource.formPlaceholder", {
                         label,
@@ -216,6 +218,12 @@ export const IdSourceDetail = (props: IdSourceDetailProps) => {
                         hasLock &&
                         (lock ? <LockIcon onClick={() => handleLockClick()} /> : <UnLockIcon />)
                       }
+                    />
+                  ) : !isPassword && !isList && isIcon ? (
+                    <IconPicker
+                      onChange={(value) => form.setFieldValue("sourceIcon", value)}
+                      label={'Source Icon'}
+                      value={form.getFieldValue('sourceIcon')}
                     />
                   ) : (
                     <CustomSelect

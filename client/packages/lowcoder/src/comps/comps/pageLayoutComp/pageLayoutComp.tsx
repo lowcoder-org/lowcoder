@@ -51,7 +51,7 @@ const childrenMap = {
   autoHeight: AutoHeightControl,
   siderScrollbars: withDefault(BoolControl, false),
   contentScrollbars: withDefault(BoolControl, false),
-  style: styleControl(ContainerStyle),
+  style: withDefault(styleControl(ContainerStyle),{borderWidth:'1px'}),
   headerStyle: styleControl(ContainerHeaderStyle),
   siderStyle: styleControl(ContainerSiderStyle),
   bodyStyle: styleControl(ContainerBodyStyle),

@@ -3,7 +3,7 @@ import { BoolControl } from "comps/controls/boolControl";
 import { stringExposingStateControl } from "comps/controls/codeStateControl";
 import { dropdownControl } from "comps/controls/dropdownControl";
 import { styleControl } from "comps/controls/styleControl";
-import { FloatButtonStyle, FloatButtonStyleType } from "comps/controls/styleControlConstants";
+import { BadgeStyle, BadgeStyleType, FloatButtonStyle, FloatButtonStyleType } from "comps/controls/styleControlConstants";
 import { UICompBuilder } from "comps/generators/uiCompBuilder";
 import { NameConfig, NameConfigHidden, withExposingConfigs } from "comps/generators/withExposing";
 import { Section, sectionNames } from "lowcoder-design";
@@ -17,7 +17,7 @@ import styled from "styled-components";
 import { ButtonEventHandlerControl } from "comps/controls/eventHandlerControl";
 import { manualOptionsControl } from "comps/controls/optionsControl";
 
-const Wrapper = styled.div<{ $style: FloatButtonStyleType }>`
+const Wrapper = styled.div<{ $badgeStyle: BadgeStyleType, $style: FloatButtonStyleType}>`
     width: 0px;
     height: 0px;
     overflow: hidden;
@@ -28,6 +28,12 @@ const Wrapper = styled.div<{ $style: FloatButtonStyleType }>`
     .ant-float-btn {
         right: 0px;
         inset-block-end: -8px;
+    }
+    .ant-float-btn-primary .ant-float-btn-body {
+    background-color: ${(props) => props.$style.background};
+    border: ${(props) => props.$style.border};
+    border-style: ${(props) => props.$style.borderStyle};
+    border-width: ${(props) => props.$style.borderWidth};
     }
 `
 
@@ -70,6 +76,7 @@ const childrenMap = {
     includeMargin: BoolControl.DEFAULT_TRUE,
     image: StringControl,
     icon: withDefault(IconControl, '/icon:antd/questioncircleoutlined'),
+    badgeStyle: styleControl(BadgeStyle),
     style: styleControl(FloatButtonStyle),
     buttons: manualOptionsControl(buttonGroupOption, {
         initOptions: [
@@ -92,20 +99,20 @@ const FloatButtonView = (props: RecordConstructorToView<typeof childrenMap>) => 
                 onClick={() => button.onEvent("click")}
                 tooltip={button?.label}
                 description={button?.description}
-                badge={{ count: button?.badge, color: props.style.badgeColor, dot: props?.dot }}
+                badge={{ count: button?.badge, color: props.badgeStyle.badgeColor, dot: props?.dot }}
                 type={onlyOne ? props.buttonTheme : 'default'}
                 shape={props.shape}
             />)
             : ''
     }
     return (
-        <Wrapper $style={props.style} >
+        <Wrapper $badgeStyle={props.badgeStyle} $style={props.style}>
             {props.buttons.length === 1 ? (renderButton(props.buttons[0], true)) :
                 (<FloatButton.Group
                     trigger="hover"
                     icon={props.icon}
                     shape={props.shape}
-                    badge={{ count: props.buttons.reduce((sum, i) => sum + (i.buttonType === 'custom' && !i.hidden ? i.badge : 0), 0), color: props.style.badgeColor, dot: props.dot }}
+                    badge={{ count: props.buttons.reduce((sum, i) => sum + (i.buttonType === 'custom' && !i.hidden ? i.badge : 0), 0), color: props.badgeStyle.badgeColor, dot: props.dot }}
                     type={props.buttonTheme}
                 >
                     {props.buttons.map((button: any) => renderButton(button))}
@@ -129,6 +136,7 @@ let FloatButtonBasicComp = (function () {
                 <Section name={sectionNames.layout}>
                     {hiddenPropertyView(children)}
                 </Section>
+                <Section name={sectionNames.badgeStyle}>{children.badgeStyle.getPropertyView()}</Section>
                 <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
             </>
         ))

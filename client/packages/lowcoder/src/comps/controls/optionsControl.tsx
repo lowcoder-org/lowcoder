@@ -672,3 +672,30 @@ export const StepOptionControl = optionsControl(StepOption, {
   ],
   uniqField: "label",
 });
+
+
+let ColoredTagOption = new MultiCompBuilder(
+  {
+    label: StringControl,
+    icon: IconControl,
+    color: withDefault(ColorControl, ""),
+  },
+  (props) => props
+).build();
+
+ColoredTagOption = class extends ColoredTagOption implements OptionCompProperty {
+  propertyView(param: { autoMap?: boolean }) {
+    return (
+      <>
+        {this.children.label.propertyView({ label: trans("coloredTagOptionControl.tag") })}
+        {this.children.icon.propertyView({ label: trans("coloredTagOptionControl.icon") })}
+        {this.children.color.propertyView({ label: trans("coloredTagOptionControl.color") })}
+      </>
+    );
+  }
+};
+
+export const ColoredTagOptionControl = optionsControl(ColoredTagOption, {
+  initOptions: [{ label: "Tag1", icon: "/icon:solid/tag", color: "#f50" }, { label: "Tag2", icon: "/icon:solid/tag", color: "#2db7f5" }],
+  uniqField: "label",
+});

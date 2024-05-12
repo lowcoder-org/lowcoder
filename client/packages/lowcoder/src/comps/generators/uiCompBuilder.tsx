@@ -54,22 +54,6 @@ export function HidableView(props: {
   }
 }
 
-export function ExtendedComponentView(props: {
-  children: JSX.Element | React.ReactNode;
-  className: string;
-  dataTestId: string;
-}) {
-  if (!props.className && !props.dataTestId) {
-    return <>{props.children}</>;
-  }
-
-  return (
-    <div className={props.className} data-testid={props.dataTestId} style={{ width: "100%", height: "100%", margin: "0px", padding: "0px" }}>
-      {props.children}
-    </div>
-  );
-}
-
 export function ExtendedPropertyView<
   ChildrenCompMap extends Record<string, Comp<unknown>>,
 >(props: {
@@ -196,7 +180,13 @@ export class UICompBuilder<
       }
 
       override getView(): ViewReturn {
-        return (<div ref={this.ref} style={{height:"100%",width:"100%",margin:0,padding:0}}><UIView comp={this} viewFn={builder.viewFn} /></div>);
+        return (
+          <UIView
+            innerRef={this.ref}
+            comp={this}
+            viewFn={builder.viewFn}
+          />
+        );
       }
 
       override getPropertyView(): ReactNode {
@@ -223,7 +213,11 @@ export const DisabledContext = React.createContext<boolean>(false);
 /**
  * Guaranteed to be in a react component, so that react hooks can be used internally
  */
-function UIView(props: { comp: any; viewFn: any }) {
+function UIView(props: {
+  innerRef: React.RefObject<HTMLDivElement>;
+  comp: any;
+  viewFn: any;
+}) {
   const comp = props.comp;
 
   const childrenProps = childrenToProps(comp.children);
@@ -243,13 +237,22 @@ function UIView(props: { comp: any; viewFn: any }) {
   //END ADD BY FRED
 
   return (
-    <ExtendedComponentView 
+    <div
+      ref={props.innerRef}
       className={childrenProps.className as string}
-      dataTestId={childrenProps.dataTestId as string}
-    >
+      data-testid={childrenProps.dataTestId as string}
+      style={{
+        width: "100%",
+        height: "100%",
+        margin: "0px",
+        padding: "0px",
+      }}>
       <HidableView hidden={childrenProps.hidden as boolean}>
-        {props.viewFn(childrenProps, comp.dispatch)}
+        {props.viewFn(
+          childrenProps,
+          comp.dispatch
+        )}
       </HidableView>
-    </ExtendedComponentView>
+    </div>
   );
 }

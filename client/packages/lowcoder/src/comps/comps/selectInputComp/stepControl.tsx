@@ -112,11 +112,12 @@ let StepControlBasicComp = (function () {
       font-size: ${props.style.textSize};
       text-transform: ${props.style.textTransform};
       margin: ${props.style.margin};
+      rotate: ${props.style.rotation};
       padding: ${props.style.padding};
       background-color: ${props.style.background};
       border: ${props.style.borderWidth} solid ${props.style.border};
       border-radius: ${props.style.radius};
-      background-image: ${props.style.backgroundImage};
+      background-image: url(${props.style.backgroundImage});
       background-repeat: ${props.style.backgroundImageRepeat};
       background-size: ${props.style.backgroundImageSize};
       background-position: ${props.style.backgroundImagePosition};

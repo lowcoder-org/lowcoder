@@ -7,19 +7,16 @@ import { ArrowIcon } from "lowcoder-design";
 
 import { getUser } from "../../redux/selectors/usersSelectors";
 import { getCurrentUser } from "../../redux/selectors/usersSelectors";
-import { normalAppListSelector, modulesSelector } from "../../redux/selectors/applicationSelector";
-import { getOrgUsers } from "../../redux/selectors/orgSelectors";
-import { getOrgGroups } from "../../redux/selectors/orgSelectors";
+import { normalAppListSelector } from "../../redux/selectors/applicationSelector";
 
 import { useLocation } from "react-router-dom";
 import { useMemo } from "react";
 import history from "util/history";
-import { trans, language, languageList } from "../../i18n";
+import { trans, languageList } from "../../i18n";
 import { ALL_APPLICATIONS_URL } from "constants/routesURL";
-import { USER_PROFILE_URL } from "constants/routesURL";
 import { default as Divider } from "antd/es/divider";
 
-import { Avatar, Badge, Button, Card, Col, Row, Space, Typography, Select, Table, Flex } from "antd";
+import { Avatar, Button, Card, Col, Row, Space, Typography, Select, Tooltip } from "antd";
 
 import {
   BlurFinishInput,
@@ -28,9 +25,9 @@ import {
 } from "lowcoder-design";
 
 import {
-  HomeModuleIcon,
-  MarketplaceIcon,
-  AppsIcon,
+  ApplicationDocIcon,
+  ModuleDocIcon,
+  AvatarGroupCompIcon,
 } from "lowcoder-design";
 
 import { useDispatch } from "react-redux";
@@ -157,11 +154,7 @@ export function UserProfileLayout(props: UserProfileLayoutProps) {
   const { breadcrumb = []} = props;
   const user = useSelector(getUser);
   const currentUser = useSelector(getCurrentUser);
-  const apps = useSelector(normalAppListSelector);
-  const modules = useSelector(modulesSelector);
-  const orgUsers = useSelector(getOrgUsers);
-  const orgGroups = useSelector(getOrgGroups);
-  
+  const apps = useSelector(normalAppListSelector);  
   const currentOrgId = user.currentOrgId;
 
   const currentOrg = useMemo(
@@ -201,7 +194,7 @@ export function UserProfileLayout(props: UserProfileLayoutProps) {
   const breadcrumbItems = [
     {
       key: 0,
-      title: trans("home.profile"),
+      title: trans("home.home"),
       onClick: () =>
         currentPath !== ALL_APPLICATIONS_URL && history.push(ALL_APPLICATIONS_URL),
     },
@@ -264,22 +257,28 @@ export function UserProfileLayout(props: UserProfileLayoutProps) {
                 beforeUpload={beforeImgUpload}
                 withCredentials
               >
-                <Button style={{marginTop: "8px"}}>
-                  {trans("profile.changeAvatar")}
-                </Button>
+                <Tooltip placement="topLeft" title={ trans("profile.changeAvatarTooltip")}>
+                  <Button style={{marginTop: "8px"}}>
+                    {trans("profile.changeAvatar")}
+                  </Button>
+                  </Tooltip>
               </Upload>
 
-              <BlurFinishInput
-                valueCheck={{
-                  rule: (val) => val.trim() !== "",
-                  message: trans("profile.nameCheck"),
-                }}
-                placeholder={trans("profile.namePlaceholder")}
-                defaultValue={user.username}
-                onFinish={(value: string) => {
-                  dispatch(updateUserAction({ name: value }));
-                }}
-              />
+              <Tooltip placement="topLeft" title={ trans("profile.saveUserNameTooltip")}>
+                <div>
+                  <BlurFinishInput
+                    valueCheck={{
+                      rule: (val) => val.trim() !== "",
+                      message: trans("profile.nameCheck"),
+                    }}
+                    placeholder={trans("profile.namePlaceholder")}
+                    defaultValue={user.username}
+                    onFinish={(value: string) => {
+                      dispatch(updateUserAction({ name: value }));
+                    }}
+                  />
+                </div>
+              </Tooltip>
             </Space>
 
           </Card>
@@ -315,14 +314,16 @@ export function UserProfileLayout(props: UserProfileLayoutProps) {
             </Space>
           </Card>
 
-          <UserApiKeysCard />
+          { user.orgDev && 
+            <UserApiKeysCard />
+          }
 
           <Card style={{ marginBottom: "20px" }}>
             <Title level={4}>{trans("profile.info")}</Title>
             <Space direction="horizontal" size={10}>
               <Row gutter={[24,24]}>
-                <Col xs={24} sm={12} xl={6} style={{marginBottom: "20px", minWidth: "300px"}} span={8}>
-                    <Card hoverable>
+                <Col xs={24} sm={12} xl={6} style={{marginBottom: "20px", minWidth: "350px"}} span={8}>
+                    <Card hoverable extra={<a href="#" onClick={() => history.replace(ALL_APPLICATIONS_URL)}>{trans("home.show")}</a>}>
                         <div style={{ display: "flex", justifyContent: "space-between" }}>
                             <div>
                                 <p style={{ textTransform: "uppercase", fontSize: "13px" }}>
@@ -330,7 +331,7 @@ export function UserProfileLayout(props: UserProfileLayoutProps) {
                                 </p>
                                 <h4 style={{ fontSize: "22px" }}>
                                     <span data-target={apps.filter(app => app.createBy === user.username && app.applicationType == 1).length}>
-                                        <CountUp start={0} end={apps.filter(app => app.createBy === user.username && app.applicationType == 1).length} duration={2} />
+                                      <CountUp start={0} end={apps.filter(app => app.createBy === user.username && app.applicationType == 1).length} duration={2} />
                                     </span>
                                 </h4>
                                 <div style={{ display: "flex", alignItems: "center" }}>
@@ -338,13 +339,13 @@ export function UserProfileLayout(props: UserProfileLayoutProps) {
                                 </div>
                             </div>
                             <BgSuccess style={{ padding: '6px', width: '48px', height: '48px', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                              <AppsIcon width={"24px"}/>
+                              <ApplicationDocIcon width={"42px"}/>
                             </BgSuccess>
                         </div>
                     </Card>
                 </Col>
-                <Col  xs={24} sm={12} xl={6} style={{marginBottom: "20px", minWidth: "300px"}} flex="auto" span={8}>
-                    <Card hoverable>
+                <Col  xs={24} sm={12} xl={6} style={{marginBottom: "20px", minWidth: "350px"}} flex="auto" span={8}>
+                    <Card hoverable extra={<a href="#" onClick={() => history.replace(ALL_APPLICATIONS_URL)}>{trans("home.show")}</a>}>
                         <div style={{ display: "flex", justifyContent: "space-between" }}>
                             <div>
                                 <p style={{ textTransform: "uppercase", fontSize: "13px" }}>
@@ -360,31 +361,72 @@ export function UserProfileLayout(props: UserProfileLayoutProps) {
                                 </div>
                             </div>
                             <BgSuccess style={{ padding: '6px', width: '48px', height: '48px', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                <HomeModuleIcon width={"24px"}/>
+                                <ModuleDocIcon width={"42px"}/>
                             </BgSuccess>
                         </div>
                     </Card>
                 </Col>
+
+                <Col xs={24} sm={12} xl={6} style={{marginBottom: "20px", minWidth: "350px"}} span={8}>
+                    <Card hoverable extra={<a href="#" onClick={() => history.replace(ALL_APPLICATIONS_URL)}>{trans("home.show")}</a>}>
+                        <div style={{ display: "flex", justifyContent: "space-between" }}>
+                            <div>
+                                <p style={{ textTransform: "uppercase", fontSize: "13px" }}>
+                                  {trans("profile.sharedApps")}
+                                </p>
+                                <h4 style={{ fontSize: "22px" }}>
+                                    <span data-target={apps.filter(app => app.createBy !== user.username && app.applicationType == 1).length}>
+                                      <CountUp start={0} end={apps.filter(app => app.createBy !== user.username && app.applicationType == 1).length} duration={2} />
+                                    </span>
+                                </h4>
+                                <div style={{ display: "flex", alignItems: "center" }}>
+                                    <h5 style={{ color: "#55c27f", marginRight: "50px" }}></h5>
+                                </div>
+                            </div>
+                            <BgSuccess style={{ padding: '6px', width: '48px', height: '48px', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                              <ApplicationDocIcon width={"42px"}/>
+                            </BgSuccess>
+                        </div>
+                    </Card>
+                </Col>
+                <Col  xs={24} sm={12} xl={6} style={{marginBottom: "20px", minWidth: "350px"}} flex="auto" span={8}>
+                    <Card hoverable extra={<a href="#" onClick={() => history.replace(ALL_APPLICATIONS_URL)}>{trans("home.show")}</a>}>
+                        <div style={{ display: "flex", justifyContent: "space-between" }}>
+                            <div>
+                                <p style={{ textTransform: "uppercase", fontSize: "13px" }}>
+                                  {trans("profile.sharedModules")}
+                                </p>
+                                <h4 style={{ fontSize: "22px" }}>
+                                    <span data-target={apps.filter(app => app.createBy !== user.username && app.applicationType == 2).length}>
+                                        <CountUp start={0} end={apps.filter(app => app.createBy !== user.username && app.applicationType == 2).length} duration={2} />
+                                    </span>
+                                </h4>
+                                <div style={{ display: "flex", alignItems: "center" }}>
+                                    <h5 style={{ color: "#55c27f", marginRight: "50px" }}></h5>
+                                </div>
+                            </div>
+                            <BgSuccess style={{ padding: '6px', width: '48px', height: '48px', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                <ModuleDocIcon width={"42px"}/>
+                            </BgSuccess>
+                        </div>
+                    </Card>
+                </Col>
+                
                 <Col  xs={24} sm={12} xl={6} style={{marginBottom: "20px", minWidth: "300px"}} flex="auto" span={8}>
                     <Card hoverable>
                         <div style={{ display: "flex", justifyContent: "space-between" }}>
                             <div>
                                 <p style={{ textTransform: "uppercase", fontSize: "13px" }}>
-                                  {trans("profile.onMarketplace")}
+                                  {trans("profile.memberOfOrgs")}
                                 </p>
                                 <h4 style={{ fontSize: "22px" }}>
-                                    <span data-target={8}>
-                                        <CountUp start={0} end={8} duration={2} />
+                                    <span data-target={user.orgs.length}>
+                                        <CountUp start={0} end={user.orgs.length} duration={2} />
                                     </span>
                                 </h4>
-                                <div style={{ display: "flex", alignItems: "center" }}>
-                                    <h5 style={{ color: "#55c27f", marginRight: "10px" }}>
-                                      {trans("profile.howToPublish")}
-                                    </h5>
-                                </div>
                             </div>
                             <BgSuccess style={{ padding: '6px', width: '48px', height: '48px', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                              <MarketplaceIcon width={"24px"}/>
+                              <AvatarGroupCompIcon width={"42px"}/>
                             </BgSuccess>
                         </div>
                     </Card>

@@ -91,18 +91,20 @@ export const IdSourceList = (props: any) => {
     <>
       <Level1SettingPageContentWithList>
         <Level1SettingPageTitleWithBtn>
-          {trans("idSource.title")}
-          {currentOrgAdmin(user) && (
-            <CreateButton
-              type="primary"
-              icon={<AddIcon />}
-              onClick={() =>
-                setModalVisible(true)
-              }
-            >
-              {"Add OAuth Provider"}
-            </CreateButton>
-          )}
+          <>
+            {trans("idSource.title")}
+            {currentOrgAdmin(user) && (
+              <CreateButton
+                type="primary"
+                icon={<AddIcon />}
+                onClick={() =>
+                  setModalVisible(true)
+                }
+              >
+                {"Add OAuth Provider"}
+              </CreateButton>
+            )}
+          </>
         </Level1SettingPageTitleWithBtn>
         <TableStyled
           tableLayout={"auto"}
@@ -132,7 +134,7 @@ export const IdSourceList = (props: any) => {
             title={trans("idSource.loginType")}
             dataIndex="authType"
             key="authType"
-            render={(value, record: ConfigItem) => (
+            render={(value: AuthType, record: ConfigItem) => (
               <SpanStyled disabled={authTypeDisabled(value, enableEnterpriseLogin)}>
                 {
                   <img
@@ -140,7 +142,12 @@ export const IdSourceList = (props: any) => {
                     alt={value}
                   />
                 }
-                <span>{authConfig[value as AuthType].sourceName}</span>
+                <span>
+                  {value === AuthType.Generic
+                    ? record.sourceName
+                    : authConfig[value as AuthType].sourceName
+                  }
+                </span>
                 {!FreeTypes.includes(value) && (
                   <FreeLimitTag
                     text={

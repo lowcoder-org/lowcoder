@@ -180,16 +180,18 @@ MapTmpComp = withViewFn(MapTmpComp, (comp) => {
         }
       }}
     >
-       <ReactECharts
-          ref={(e) => (echartsCompRef.current = e)}
-          style={{ height: "100%" }}
-          notMerge
-          lazyUpdate
-          opts={{ locale: getEchartsLocale() }}
-          option={option}
-          theme={undefined}
-          mode={mode}
-        />
+      {isMapScriptLoaded && (
+        <ReactECharts
+           ref={(e) => (echartsCompRef.current = e)}
+           style={{ height: "100%" }}
+           notMerge
+           lazyUpdate
+           opts={{ locale: getEchartsLocale() }}
+           option={option}
+           theme={undefined}
+           mode={mode}
+         />
+      )}
     </ReactResizeDetector>
   );
 });
@@ -287,7 +289,7 @@ MapTmpComp = class extends MapTmpComp {
   }
 };
 
-let MapComp = withExposingConfigs(MapTmpComp, [
+let ChartsGeoMapCompTMP = withExposingConfigs(MapTmpComp, [
   depsConfig({
     name: "selectedPoints",
     desc: trans("chart.selectedPointsDesc"),
@@ -313,7 +315,7 @@ let MapComp = withExposingConfigs(MapTmpComp, [
   new NameConfig("title", trans("chart.titleDesc")),
 ]);
 
-MapComp = withMethodExposing(MapComp, [
+export const ChartsGeoMapComp = withMethodExposing(ChartsGeoMapCompTMP, [
   {
     method: {
       name: "getMapInstance",
@@ -369,7 +371,7 @@ MapComp = withMethodExposing(MapComp, [
   },
 ])
 
-export const MapCompWithDefault = withDefault(MapComp, {
+/* export const MapCompWithDefault = withDefault(ChartsGeoMapComp, {
   xAxisKey: "date",
   series: [
     {
@@ -383,4 +385,4 @@ export const MapCompWithDefault = withDefault(MapComp, {
       columnName: "budget",
     },
   ],
-});
+}); */

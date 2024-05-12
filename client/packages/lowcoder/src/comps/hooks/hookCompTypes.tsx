@@ -45,10 +45,10 @@ const HookCompConfig: Record<
     category: "ui",
     singleton: false,
   },
-  // meeting: {
-  //   category: "ui",
-  //   singleton: false,
-  // },
+  meeting: {
+    category: "ui",
+    singleton: false,
+  },
   lodashJsLib: {
     category: "hide",
   },
