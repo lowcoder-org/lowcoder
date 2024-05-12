@@ -100,6 +100,7 @@ export const authConfig = {
       userInfoEndpoint: { label: 'UserInfo Endpoint', isRequire: true },
       // jwks: { label: 'Authorize URL', isRequire: true },
       scope: "Scope",
+      userInfoIntrospection: { label: 'Use OpenID User Introspection', isSwitch: true, isRequire: false},
       // baseUrl: "Base URL",
       // realm: "Realm",
     },
@@ -126,6 +127,7 @@ export type ItemType = {
   isRequire?: boolean;
   isPassword?: boolean;
   isIcon?: boolean;
+  isSwitch?: boolean;
   hasLock?: boolean;
   tip?: string;
 }
