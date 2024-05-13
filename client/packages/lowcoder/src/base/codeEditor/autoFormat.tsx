@@ -1,8 +1,8 @@
-import { CodeType } from "lowcoder-core";
+import type { CodeType } from "lowcoder-core";
 import { relaxedJSONToJSON } from "lowcoder-core";
 import { getDynamicStringSegments, isDynamicSegment } from "lowcoder-core";
 import { format as formatSQL } from "sql-formatter";
-import { Language } from "./codeEditorTypes";
+import type { Language } from "./codeEditorTypes";
 
 export async function cssFormatter(text: string) {
   const prettier = await require("prettier/standalone");
@@ -14,7 +14,7 @@ export async function htmlFormatter(text: string) {
   const prettier = await require("prettier/standalone");
   const parserPlugin = await require("prettier/parser-html");
   return (await prettier.format(text, { parser: "html", plugins: [parserPlugin], semi: false })).trim();
-}
+} 
 
 async function getJavascriptFormatter() {
   const prettier = await require("prettier/standalone");

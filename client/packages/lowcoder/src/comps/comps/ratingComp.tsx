@@ -10,7 +10,7 @@ import { UICompBuilder, withDefault } from "../generators";
 import { CommonNameConfig, NameConfig, withExposingConfigs } from "../generators/withExposing";
 import { formDataChildren, FormDataPropertyView } from "./formComp/formDataConstants";
 import { styleControl } from "comps/controls/styleControl";
-import { RatingStyle, RatingStyleType } from "comps/controls/styleControlConstants";
+import {  InputFieldStyle, LabelStyle, RatingStyle, RatingStyleType } from "comps/controls/styleControlConstants";
 import { migrateOldData } from "comps/generators/simpleGenerators";
 import { disabledPropertyView, hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
@@ -43,7 +43,9 @@ const RatingBasicComp = (function () {
     allowHalf: BoolControl,
     disabled: BoolCodeControl,
     onEvent: eventHandlerControl(EventOptions),
-    style: migrateOldData(styleControl(RatingStyle), fixOldData),
+    style: withDefault(styleControl(InputFieldStyle), {borderWidth: '1px'}),
+    labelStyle: styleControl(LabelStyle.filter((style) => ['accent', 'validate'].includes(style.name) === false)),
+    inputFieldStyle:migrateOldData(styleControl(RatingStyle), fixOldData),
     ...formDataChildren,
   };
   return new UICompBuilder(childrenMap, (props) => {
@@ -64,6 +66,8 @@ const RatingBasicComp = (function () {
 
     return props.label({
       style: props.style,
+      labelStyle: props.labelStyle,
+      inputFieldStyle:props.inputFieldStyle,
       children: (
         <RateStyled
           count={props.max}
@@ -74,7 +78,7 @@ const RatingBasicComp = (function () {
           }}
           allowHalf={props.allowHalf}
           disabled={props.disabled}
-          $style={props.style}
+          $style={props.inputFieldStyle}
         />
       ),
     });
@@ -93,14 +97,14 @@ const RatingBasicComp = (function () {
 
           {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
             <><Section name={sectionNames.interaction}>
-                {children.onEvent.getPropertyView()}
-                {disabledPropertyView(children)}
-                {hiddenPropertyView(children)}
-              </Section>
+              {children.onEvent.getPropertyView()}
+              {disabledPropertyView(children)}
+              {hiddenPropertyView(children)}
+            </Section>
               <Section name={sectionNames.advanced}>
-              {children.allowHalf.propertyView({
-                label: trans("rating.allowHalf"),
-              })}
+                {children.allowHalf.propertyView({
+                  label: trans("rating.allowHalf"),
+                })}
               </Section>
             </>
           )}
@@ -110,9 +114,17 @@ const RatingBasicComp = (function () {
           )}
 
           {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
-            <Section name={sectionNames.style}>
-              {children.style.getPropertyView()}
-            </Section>
+            <>
+              <Section name={sectionNames.style}>
+                {children.style.getPropertyView()}
+              </Section>
+              <Section name={sectionNames.labelStyle}>
+                {children.labelStyle.getPropertyView()}
+              </Section>
+              <Section name={sectionNames.inputFieldStyle}>
+                {children.inputFieldStyle.getPropertyView()}
+              </Section>
+            </>
           )}
         </>
       );
@@ -144,6 +156,6 @@ const getStyle = (style: RatingStyleType) => {
   `;
 };
 
-export const RateStyled = styled(Rate)<{ $style: RatingStyleType }>`
+export const RateStyled = styled(Rate) <{ $style: RatingStyleType }>`
   ${(props) => props.$style && getStyle(props.$style)}
 `;

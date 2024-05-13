@@ -20,6 +20,7 @@ import { trans } from "i18n";
 import { AuthContext, checkPassWithMsg, useAuthSubmit } from "pages/userAuth/authUtils";
 import { ThirdPartyAuth } from "pages/userAuth/thirdParty/thirdPartyAuth";
 import { useParams } from "react-router-dom";
+import { Divider } from "antd";
 
 const StyledFormInput = styled(FormInput)`
   margin-bottom: 16px;
@@ -32,7 +33,7 @@ const StyledPasswordInput = styled(PasswordInput)`
 const RegisterContent = styled(FormWrapperMobile)`
   display: flex;
   flex-direction: column;
-  margin-bottom: 106px;
+  margin-bottom: 0px;
 `;
 
 function UserRegister() {
@@ -70,8 +71,8 @@ function UserRegister() {
     fetchUserAfterAuthSuccess,
   );
 
-  const registerHeading = trans("userAuth.register") // REACT_APP_LOWCODER_CUSTOM_AUTH_WELCOME_TEXT !== "" ? REACT_APP_LOWCODER_CUSTOM_AUTH_WELCOME_TEXT : trans("userAuth.register")
-  const registerSubHeading = '' // REACT_APP_LOWCODER_CUSTOM_AUTH_WELCOME_TEXT !== "" ? trans("userAuth.poweredByLowcoder") : ''
+  const registerHeading = trans("userAuth.register")
+  const registerSubHeading = trans("userAuth.poweredByLowcoder");
 
   return (
     <AuthContainer
@@ -80,7 +81,7 @@ function UserRegister() {
       type="large"
     >
       <RegisterContent>
-        <LoginCardTitle>{trans("userAuth.registerByEmail")}</LoginCardTitle>
+        {/* <LoginCardTitle>{trans("userAuth.registerByEmail")}</LoginCardTitle> */}
         <StyledFormInput
           className="form-input"
           label={trans("userAuth.email")}
@@ -93,6 +94,8 @@ function UserRegister() {
         />
         <StyledPasswordInput
           className="form-input"
+          passInputConf={{label:trans("password.label"), placeholder: trans("password.placeholder")}}
+          confirmPassConf={{label:trans("password.conformLabel"), placeholder: trans("password.conformPlaceholder")}}
           valueCheck={checkPassWithMsg}
           onChange={(value, valid) => setPassword(valid ? value : "")}
           doubleCheck
@@ -113,13 +116,13 @@ function UserRegister() {
           />
         )}
       </RegisterContent>
+      <Divider/>
       <StyledRouteLinkLogin to={{
         pathname: orgId
           ? ORG_AUTH_LOGIN_URL.replace(':orgId', orgId)
           : AUTH_LOGIN_URL,
         state: location.state
-      }}>
-        {trans("userAuth.userLogin")}
+      }}>{trans("userAuth.userLogin")}
       </StyledRouteLinkLogin>
     </AuthContainer>
   );

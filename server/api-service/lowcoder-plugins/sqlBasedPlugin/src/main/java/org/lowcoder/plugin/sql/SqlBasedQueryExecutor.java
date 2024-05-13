@@ -1,17 +1,9 @@
 package org.lowcoder.plugin.sql;
 
-import static org.lowcoder.sdk.exception.PluginCommonError.CONNECTION_ERROR;
-import static org.lowcoder.sdk.exception.PluginCommonError.QUERY_ARGUMENT_ERROR;
-import static org.lowcoder.sdk.exception.PluginCommonError.QUERY_EXECUTION_ERROR;
-import static org.lowcoder.sdk.util.ExceptionUtils.wrapException;
-
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.Map;
-import java.util.Set;
-
-import javax.annotation.Nonnull;
-
+import com.google.common.collect.Maps;
+import com.zaxxer.hikari.HikariDataSource;
+import jakarta.annotation.Nonnull;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.lowcoder.sdk.exception.InvalidHikariDatasourceException;
@@ -27,10 +19,13 @@ import org.lowcoder.sdk.plugin.sqlcommand.GuiSqlCommand;
 import org.lowcoder.sdk.query.QueryVisitorContext;
 import org.lowcoder.sdk.util.MustacheHelper;
 
-import com.google.common.collect.Maps;
-import com.zaxxer.hikari.HikariDataSource;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.Map;
+import java.util.Set;
 
-import lombok.extern.slf4j.Slf4j;
+import static org.lowcoder.sdk.exception.PluginCommonError.*;
+import static org.lowcoder.sdk.util.ExceptionUtils.wrapException;
 
 @Slf4j
 public abstract class SqlBasedQueryExecutor extends BlockingQueryExecutor<SqlBasedDatasourceConnectionConfig,

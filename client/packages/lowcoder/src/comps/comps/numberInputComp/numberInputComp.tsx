@@ -21,7 +21,7 @@ import {
   withExposingConfigs,
 } from "comps/generators/withExposing";
 import { Section, sectionNames, ValueFromOption } from "lowcoder-design";
-import { useEffect, useRef, useState } from "react";
+import { ReactNode, useEffect, useRef, useState } from "react";
 import styled, { css } from "styled-components";
 import { RecordConstructorToView } from "lowcoder-core";
 import { InputEventHandlerControl } from "../../controls/eventHandlerControl";
@@ -30,7 +30,7 @@ import { formDataChildren, FormDataPropertyView } from "../formComp/formDataCons
 import { withMethodExposing, refMethods } from "../../generators/withMethodExposing";
 import { RefControl } from "../../controls/refControl";
 import { styleControl } from "comps/controls/styleControl";
-import { InputLikeStyle, InputLikeStyleType, heightCalculator, widthCalculator } from "comps/controls/styleControlConstants";
+import {  InputFieldStyle, InputLikeStyle, InputLikeStyleType, LabelStyle, heightCalculator, widthCalculator } from "comps/controls/styleControlConstants";
 import {
   disabledPropertyView,
   hiddenPropertyView,
@@ -257,9 +257,11 @@ const childrenMap = {
   allowNull: BoolControl,
   onEvent: InputEventHandlerControl,
   viewRef: RefControl<HTMLInputElement>,
-  style: styleControl(InputLikeStyle),
+  style: withDefault(styleControl(InputFieldStyle), {borderWidth: '1px'}),
+  labelStyle:styleControl(LabelStyle),
+  prefixText : stringExposingStateControl("defaultValue"),
   prefixIcon: IconControl,
-
+  inputFieldStyle: withDefault(styleControl(InputLikeStyle), {borderWidth: '1px'}) ,
   // validation
   required: BoolControl,
   min: UndefinedNumberControl,
@@ -321,8 +323,8 @@ const CustomInputNumber = (props: RecordConstructorToView<typeof childrenMap>) =
       placeholder={props.placeholder}
       stringMode={true}
       precision={props.precision}
-      $style={props.style}
-      prefix={hasIcon(props.prefixIcon) && props.prefixIcon}
+      $style={props.inputFieldStyle}
+      prefix={hasIcon(props.prefixIcon) ? props.prefixIcon : props.prefixText.value}
       onPressEnter={() => {
         handleFinish();
         props.onEvent("submit");
@@ -380,6 +382,8 @@ let NumberInputTmpComp = (function () {
       required: props.required,
       children: <CustomInputNumber {...props} />,
       style: props.style,
+      labelStyle: props.labelStyle,
+      inputFieldStyle:props.inputFieldStyle,
       ...validate(props),
     });
   })
@@ -417,6 +421,7 @@ let NumberInputTmpComp = (function () {
             {children.step.propertyView({ label: trans("numberInput.step") })}
             {children.precision.propertyView({ label: trans("numberInput.precision") })}
             {children.prefixIcon.propertyView({ label: trans("button.prefixIcon") })}
+            {children.prefixText.propertyView({ label: trans("button.prefixText") })}
             {children.allowNull.propertyView({ label: trans("numberInput.allowNull") })}
             {children.thousandsSeparator.propertyView({
               label: trans("numberInput.thousandsSeparator"),
@@ -427,9 +432,17 @@ let NumberInputTmpComp = (function () {
         )}
 
         {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
+          <>
           <Section name={sectionNames.style}>
             {children.style.getPropertyView()}
           </Section>
+          <Section name={sectionNames.labelStyle}>
+            {children.labelStyle.getPropertyView()}
+          </Section>
+          <Section name={sectionNames.inputFieldStyle}>
+            {children.inputFieldStyle.getPropertyView()}
+          </Section>
+          </>
         )}
       </>
     ))

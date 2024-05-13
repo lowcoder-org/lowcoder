@@ -17,54 +17,15 @@
 // adapted for mongodb queries
 package org.lowcoder.plugin.mongo;
 
-import static com.google.common.collect.Maps.newHashMap;
-import static org.lowcoder.plugin.mongo.MongoPluginError.MONGO_COMMAND_ERROR;
-import static org.lowcoder.plugin.mongo.MongoPluginError.MONGO_EXECUTION_ERROR;
-import static org.lowcoder.plugin.mongo.constants.MongoFieldName.AGGREGATE_PIPELINE;
-import static org.lowcoder.plugin.mongo.constants.MongoFieldName.COUNT_QUERY;
-import static org.lowcoder.plugin.mongo.constants.MongoFieldName.DELETE_QUERY;
-import static org.lowcoder.plugin.mongo.constants.MongoFieldName.DISTINCT_QUERY;
-import static org.lowcoder.plugin.mongo.constants.MongoFieldName.FIND_PROJECTION;
-import static org.lowcoder.plugin.mongo.constants.MongoFieldName.FIND_QUERY;
-import static org.lowcoder.plugin.mongo.constants.MongoFieldName.FIND_SORT;
-import static org.lowcoder.plugin.mongo.constants.MongoFieldName.INSERT_DOCUMENT;
-import static org.lowcoder.plugin.mongo.constants.MongoFieldName.RAW_COMMAND;
-import static org.lowcoder.plugin.mongo.constants.MongoFieldName.UPDATE_OPERATION;
-import static org.lowcoder.plugin.mongo.constants.MongoFieldName.UPDATE_QUERY;
-import static org.lowcoder.plugin.mongo.model.MongoConnectionUriParser.extractInfoFromConnectionStringURI;
-import static org.lowcoder.plugin.mongo.utils.MongoQueryUtils.isRawCommand;
-import static org.lowcoder.plugin.mongo.utils.MongoQueryUtils.parseResultBody;
-import static org.lowcoder.sdk.exception.PluginCommonError.CONNECTION_ERROR;
-import static org.lowcoder.sdk.exception.PluginCommonError.DATASOURCE_ARGUMENT_ERROR;
-import static org.lowcoder.sdk.exception.PluginCommonError.DATASOURCE_GET_STRUCTURE_ERROR;
-import static org.lowcoder.sdk.exception.PluginCommonError.DATASOURCE_TIMEOUT_ERROR;
-import static org.lowcoder.sdk.exception.PluginCommonError.INVALID_QUERY_SETTINGS;
-import static org.lowcoder.sdk.exception.PluginCommonError.QUERY_ARGUMENT_ERROR;
-import static org.lowcoder.sdk.exception.PluginCommonError.QUERY_EXECUTION_ERROR;
-import static org.lowcoder.sdk.exception.PluginCommonError.QUERY_EXECUTION_TIMEOUT;
-import static org.lowcoder.sdk.plugin.common.QueryExecutionUtils.getValueSafelyFromFormData;
-import static org.lowcoder.sdk.plugin.common.QueryExecutionUtils.querySharedScheduler;
-import static org.lowcoder.sdk.util.JsonUtils.toJson;
-import static org.lowcoder.sdk.util.MustacheHelper.renderMustacheJsonString;
-import static org.lowcoder.sdk.util.MustacheHelper.renderMustacheString;
-
-import java.math.BigInteger;
-import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.concurrent.TimeoutException;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import javax.annotation.Nonnull;
-
+import com.google.common.base.Joiner;
+import com.google.common.collect.ImmutableSet;
+import com.mongodb.MongoCommandException;
+import com.mongodb.MongoSocketWriteException;
+import com.mongodb.MongoTimeoutException;
+import com.mongodb.reactivestreams.client.MongoClients;
+import com.mongodb.reactivestreams.client.MongoDatabase;
+import jakarta.annotation.Nonnull;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.Document;
 import org.json.JSONObject;
@@ -87,19 +48,31 @@ import org.pf4j.Extension;
 import org.pf4j.Plugin;
 import org.pf4j.PluginWrapper;
 import org.reactivestreams.Publisher;
-
-import com.google.common.base.Joiner;
-import com.google.common.collect.ImmutableSet;
-import com.mongodb.MongoCommandException;
-import com.mongodb.MongoSocketWriteException;
-import com.mongodb.MongoTimeoutException;
-import com.mongodb.reactivestreams.client.MongoClients;
-import com.mongodb.reactivestreams.client.MongoDatabase;
-
-import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
+
+import java.math.BigInteger;
+import java.time.Duration;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.concurrent.TimeoutException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import static com.google.common.collect.Maps.newHashMap;
+import static org.lowcoder.plugin.mongo.MongoPluginError.MONGO_COMMAND_ERROR;
+import static org.lowcoder.plugin.mongo.MongoPluginError.MONGO_EXECUTION_ERROR;
+import static org.lowcoder.plugin.mongo.constants.MongoFieldName.*;
+import static org.lowcoder.plugin.mongo.model.MongoConnectionUriParser.extractInfoFromConnectionStringURI;
+import static org.lowcoder.plugin.mongo.utils.MongoQueryUtils.isRawCommand;
+import static org.lowcoder.plugin.mongo.utils.MongoQueryUtils.parseResultBody;
+import static org.lowcoder.sdk.exception.PluginCommonError.*;
+import static org.lowcoder.sdk.plugin.common.QueryExecutionUtils.getValueSafelyFromFormData;
+import static org.lowcoder.sdk.plugin.common.QueryExecutionUtils.querySharedScheduler;
+import static org.lowcoder.sdk.util.JsonUtils.toJson;
+import static org.lowcoder.sdk.util.MustacheHelper.renderMustacheJsonString;
+import static org.lowcoder.sdk.util.MustacheHelper.renderMustacheString;
 
 public class MongoPlugin extends Plugin {
 

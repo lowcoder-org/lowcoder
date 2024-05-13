@@ -1,32 +1,16 @@
 package org.lowcoder.domain.organization.service;
 
-import static org.lowcoder.domain.authentication.AuthenticationService.DEFAULT_AUTH_CONFIG;
-import static org.lowcoder.domain.organization.model.OrganizationState.ACTIVE;
-import static org.lowcoder.domain.organization.model.OrganizationState.DELETED;
-import static org.lowcoder.domain.util.QueryDslUtils.fieldName;
-import static org.lowcoder.sdk.exception.BizError.UNABLE_TO_FIND_VALID_ORG;
-import static org.lowcoder.sdk.util.ExceptionUtils.deferredError;
-import static org.lowcoder.sdk.util.ExceptionUtils.ofError;
-import static org.lowcoder.sdk.util.LocaleUtils.getLocale;
-import static org.lowcoder.sdk.util.LocaleUtils.getMessage;
-
-import java.util.Collection;
-import java.util.List;
-import java.util.Locale;
-
-import javax.annotation.Nonnull;
-
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.lowcoder.domain.asset.model.Asset;
 import org.lowcoder.domain.asset.service.AssetRepository;
 import org.lowcoder.domain.asset.service.AssetService;
 import org.lowcoder.domain.group.service.GroupService;
 import org.lowcoder.domain.organization.event.OrgDeletedEvent;
-import org.lowcoder.domain.organization.model.MemberRole;
-import org.lowcoder.domain.organization.model.Organization;
-import org.lowcoder.domain.organization.model.OrganizationDomain;
-import org.lowcoder.domain.organization.model.OrganizationState;
-import org.lowcoder.domain.organization.model.QOrganization;
+import org.lowcoder.domain.organization.model.*;
 import org.lowcoder.domain.organization.model.Organization.OrganizationCommonSettings;
 import org.lowcoder.domain.organization.repository.OrganizationRepository;
 import org.lowcoder.domain.user.model.User;
@@ -40,53 +24,58 @@ import org.lowcoder.sdk.constants.WorkspaceMode;
 import org.lowcoder.sdk.exception.BizError;
 import org.lowcoder.sdk.exception.BizException;
 import org.lowcoder.sdk.util.UriUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.http.codec.multipart.Part;
 import org.springframework.stereotype.Service;
-
-import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.Collection;
+import java.util.List;
+import java.util.Locale;
+
+import static org.lowcoder.domain.authentication.AuthenticationService.DEFAULT_AUTH_CONFIG;
+import static org.lowcoder.domain.organization.model.OrganizationState.ACTIVE;
+import static org.lowcoder.domain.organization.model.OrganizationState.DELETED;
+import static org.lowcoder.domain.util.QueryDslUtils.fieldName;
+import static org.lowcoder.sdk.exception.BizError.UNABLE_TO_FIND_VALID_ORG;
+import static org.lowcoder.sdk.util.ExceptionUtils.deferredError;
+import static org.lowcoder.sdk.util.ExceptionUtils.ofError;
+import static org.lowcoder.sdk.util.LocaleUtils.getLocale;
+import static org.lowcoder.sdk.util.LocaleUtils.getMessage;
+
 @Slf4j
+@RequiredArgsConstructor
 @Service
 public class OrganizationServiceImpl implements OrganizationService {
 
-    private final Conf<Integer> logoMaxSizeInKb;
+    private Conf<Integer> logoMaxSizeInKb;
 
-    @Autowired
-    private AssetRepository assetRepository;
+    private static final String PASSWORD_RESET_EMAIL_TEMPLATE_DEFAULT = "<p>Hi, %s<br/>" +
+            "Here is the link to reset your password: %s<br/>" +
+            "Please note that the link will expire after 12 hours.<br/><br/>" +
+            "Regards,<br/>" +
+            "The Lowcoder Team</p>";
 
-    @Autowired
-    private AssetService assetService;
+    private final AssetRepository assetRepository;
+    private final AssetService assetService;
+    private final OrgMemberService orgMemberService;
+    private final MongoUpsertHelper mongoUpsertHelper;
+    private final OrganizationRepository repository;
+    private final GroupService groupService;
+    private final ApplicationContext applicationContext;
+    private final CommonConfig commonConfig;
+    private final ConfigCenter configCenter;
 
-    @Autowired
-    private OrgMemberService orgMemberService;
-
-    @Autowired
-    private MongoUpsertHelper mongoUpsertHelper;
-
-    @Autowired
-    private OrganizationRepository repository;
-
-    @Autowired
-    private GroupService groupService;
-
-    @Autowired
-    private ApplicationContext applicationContext;
-
-    @Autowired
-    private CommonConfig commonConfig;
-
-    @Autowired
-    public OrganizationServiceImpl(ConfigCenter configCenter) {
+    @PostConstruct
+    private void init()
+    {
         logoMaxSizeInKb = configCenter.asset().ofInteger("logoMaxSizeInKb", 300);
     }
 
     @Override
-    public Mono<Organization> createDefault(User user) {
+    public Mono<Organization> createDefault(User user, boolean isSuperAdmin) {
         return Mono.deferContextual(contextView -> {
             Locale locale = getLocale(contextView);
             String userOrgSuffix = getMessage(locale, "USER_ORG_SUFFIX");
@@ -96,7 +85,7 @@ public class OrganizationServiceImpl implements OrganizationService {
             organization.setIsAutoGeneratedOrganization(true);
             // saas mode
             if (commonConfig.getWorkspace().getMode() == WorkspaceMode.SAAS) {
-                return create(organization, user.getId());
+                return create(organization, user.getId(), isSuperAdmin);
             }
             // enterprise mode
             return joinOrganizationInEnterpriseMode(user.getId())
@@ -107,7 +96,7 @@ public class OrganizationServiceImpl implements OrganizationService {
                         OrganizationDomain organizationDomain = new OrganizationDomain();
                         organizationDomain.setConfigs(List.of(DEFAULT_AUTH_CONFIG));
                         organization.setOrganizationDomain(organizationDomain);
-                        return create(organization, user.getId());
+                        return create(organization, user.getId(), isSuperAdmin);
                     });
         });
     }
@@ -145,29 +134,32 @@ public class OrganizationServiceImpl implements OrganizationService {
     }
 
     @Override
-    public Mono<Organization> create(Organization organization, String creatorId) {
+    public Mono<Organization> create(Organization organization, String creatorId, boolean isSuperAdmin) {
 
         return Mono.defer(() -> {
                     if (organization == null || StringUtils.isNotBlank(organization.getId())) {
                         return Mono.error(new BizException(BizError.INVALID_PARAMETER, "INVALID_PARAMETER", FieldName.ORGANIZATION));
                     }
+                    organization.setCommonSettings(new OrganizationCommonSettings());
+                    organization.getCommonSettings().put("PASSWORD_RESET_EMAIL_TEMPLATE",
+                            PASSWORD_RESET_EMAIL_TEMPLATE_DEFAULT);
                     organization.setState(ACTIVE);
                     return Mono.just(organization);
                 })
                 .flatMap(repository::save)
-                .flatMap(newOrg -> onOrgCreated(creatorId, newOrg))
+                .flatMap(newOrg -> onOrgCreated(creatorId, newOrg, isSuperAdmin))
                 .log();
     }
 
-    private Mono<Organization> onOrgCreated(String userId, Organization newOrg) {
+    private Mono<Organization> onOrgCreated(String userId, Organization newOrg, boolean isSuperAdmin) {
         return groupService.createAllUserGroup(newOrg.getId())
                 .then(groupService.createDevGroup(newOrg.getId()))
-                .then(setOrgAdmin(userId, newOrg))
+                .then(setOrgAdmin(userId, newOrg, isSuperAdmin))
                 .thenReturn(newOrg);
     }
 
-    private Mono<Boolean> setOrgAdmin(String userId, Organization newOrg) {
-        return orgMemberService.addMember(newOrg.getId(), userId, MemberRole.ADMIN);
+    private Mono<Boolean> setOrgAdmin(String userId, Organization newOrg, boolean isSuperAdmin) {
+        return orgMemberService.addMember(newOrg.getId(), userId, isSuperAdmin ? MemberRole.SUPER_ADMIN : MemberRole.ADMIN);
     }
 
     @Override

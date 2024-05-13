@@ -2,12 +2,18 @@ package org.lowcoder.domain.organization.model;
 
 import static com.google.common.base.Strings.nullToEmpty;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.extern.jackson.Jacksonized;
 import org.apache.commons.lang3.StringUtils;
 import org.lowcoder.infra.birelation.BiRelation;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+@Jacksonized
+@Builder
+@AllArgsConstructor
 public class OrgMember {
 
     private final String orgId;
@@ -17,15 +23,6 @@ public class OrgMember {
     private final long joinTime;
 
     public static final OrgMember NOT_EXIST = new OrgMember("", "", MemberRole.MEMBER, "", 0);
-
-    @JsonCreator
-    public OrgMember(String orgId, String userId, MemberRole role, String state, long joinTime) {
-        this.orgId = orgId;
-        this.userId = userId;
-        this.role = role;
-        this.state = state;
-        this.joinTime = joinTime;
-    }
 
     @JsonIgnore
     public boolean isInvalid() {
@@ -50,6 +47,10 @@ public class OrgMember {
 
     public MemberRole getRole() {
         return role;
+    }
+
+    public boolean isSuperAdmin() {
+        return role == MemberRole.SUPER_ADMIN;
     }
 
     public boolean isAdmin() {

@@ -44,7 +44,11 @@ public class CommonConfig {
     private Cookie cookie = new Cookie();
     private JsExecutor jsExecutor = new JsExecutor();
     private Set<String> disallowedHosts = new HashSet<>();
+    private List<String> pluginDirs = new ArrayList<>();
+    private SuperAdmin superAdmin = new SuperAdmin();
     private Marketplace marketplace = new Marketplace();
+    private String lowcoderPublicUrl;
+    private String lostPasswordEmailSender;
 
     public boolean isSelfHost() {
         return !isCloud();
@@ -137,8 +141,8 @@ public class CommonConfig {
 
     @Data
     public static class Cookie {
-
-        private long maxAgeInSeconds = Duration.ofDays(30).toSeconds();
+        //Set cookie max age to 1 day
+        private long maxAgeInSeconds = Duration.ofDays(1).toSeconds();
     }
 
     @Data
@@ -157,5 +161,11 @@ public class CommonConfig {
     @Setter
     public static class Query {
         private long readStructureTimeout = 15000;
+    }
+
+    @Data
+    public static class SuperAdmin {
+        private String userName;
+        private String password;
     }
 }

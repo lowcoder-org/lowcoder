@@ -62,10 +62,19 @@ export function listPropertyView(compType: ListCompType) {
         {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
           <><Section name={sectionNames.layout}>
               {children.autoHeight.getPropertyView()}
-              {!children.autoHeight.getView() && 
+              {(!children.autoHeight.getView() || children.horizontal.getView()) && 
                 children.scrollbars.propertyView({
                 label: trans("prop.scrollbar"),
                }  
+              )}
+              {children.horizontal.propertyView({
+                label: trans("prop.horizontal"),
+              })}
+              {children.horizontal.getView() && (
+                children.minHorizontalWidth.propertyView({
+                  label: trans("prop.minHorizontalWidth"),
+                  placeholder: '100px',
+                })
               )}
             </Section>
             <Section name={sectionNames.style}>

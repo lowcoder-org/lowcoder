@@ -3,7 +3,7 @@
 
 <div align="center">
     <h1 style="border-bottom: none; margin-bottom: 0">Lowcoder</h1>
-    <h3 style="margin-top: 0">This is the only Platform, which closes the gap between App Development, Website Development and Slide-Presentations.</h3>
+    <h3 style="margin-top: 0">This is the only Platform, which closes the gap between App Development, Website Development,  interactive Slides/Presentations and Collaboration Tools!</h3>
     <p>
         Create software applications (internal and customer-facing!) and Meeting/Collaboration tools for your Company and your Customers with minimal coding experience. 
     </p>
@@ -12,40 +12,42 @@
 
 <img src="https://1167272343-files.gitbook.io/~/files/v0/b/gitbook-x-prod.appspot.com/o/spaces%2FjNgeI0mUzgw6Re92iTOw%2Fuploads%2FnwXJC1XBqP2MvTQitPyo%2FApp%20Editor%20%7C%20Main%20Screeen%20clean.png?alt=media&token=e5fba81b-82a7-4c0e-a15d-baa781d5b13a"/>
 
+
 ## 📢 Use Lowcoder in 3 steps
 1. Connect to any data sources or APIs.
-2. Build UI with 60+ components.
+2. Build flexible and responsive UI with 100+ components and free layout / design possibilities.
 3. Share with colleagues and customers.
 
 ## 💡 Why Lowcoder
-It's cumbersome to create a single app. You had to design user interfaces, write code in multiple languages and frameworks, and understand how all of that code works together.
+One platform for everything instead so many different softwares. (like Website Builders, CMS, CRM, POS, ERP, Dashboards & Data Story Visualization, Collaboration Tools).
 
-Low-code/No-code platforms are fast to get started with but quickly become unmaintainable and inflexible. This creates more problems than it solves.
+It's cumbersome to create a single app. You had to design user interfaces, write code in multiple languages and frameworks, and understand how all of that code works together.
 
 NewGen Lowcode Platforms like Retool and others are great for their simplicity and flexibility - like Lowcoder too, but they can also be limited in different ways, especially when it comes to "external" applications for everyone.
 
 Lowcoder wants to take a step forward. More specifically, Lowcoder is:
 - An all-in-one IDE to create internal or customer-facing (external) apps.
-- A place to create, build and share building blocks of web applications.
+- A place to create, build and share building blocks of web applications and whole websites.
 - The tool and community to support your business, and lower the cost and time to develop interactive applications.
 - The only platform to embed Lowcode Apps natively in Websites (no iFrame!)
 - The only platform where you can build your own Meeting Tool - like Teams, Zoom or Google Meets, - just in the Lowcode way.
+- The only platform which has extensibility plugin architecture [Check Community Contributions](https://www.npmjs.com/search?q=lowcoder-comp)
 
 ## 🪄 Features
-- **Visual UI builder** with 50+ built-in components. Save 90% of time to build apps.
-- **Modules** for reusable (!) component sets in the UI builder.
-- **Embed Lowcoder Apps as native parts of any Website** instead of iFrame (!). [Demo](https://github.com/lowcoder-org/lowcoder-sdk-demo)
+- **Visual UI builder** with 100+ built-in components. Save 90% of time to build apps.
+- **Modules** for reusable (!) embedable component sets in the UI builder.
+- **Embed Lowcoder Apps as native parts of any Website** instead of iFrame (!). [Demo](https://lowcoder.cloud/about), [Docu](https://docs.lowcoder.cloud/lowcoder-documentation/lowcoder-extension/native-embed-sdk)
 - **Video Meeting Components** to create your own individual Web-Meeting tool.
 - **Query Library** for reusable data queries of your data sources.
 - **Custom components** to develop own components and use them in the UI builder.
 - **Native Data connections** to PostgreSQL, MongoDB, MySQL, Redis, Elasticsearch, REST API, SMTP, etc.
-- **Stream Data connections** to Websockets for realtime data updates & collaboration
+- **Stream Data connections** to Websockets for realtime data updates & collaboration! [Docu](https://docs.lowcoder.cloud/lowcoder-documentation/connect-your-data/data-sources-in-lowcoder/websocket-datasource)
 - **JavaScript supported everywhere** to transform data, control components, etc.
-- **Role-based access control (RBAC)** for granular permission management.
+- **Role-based access control (RBAC)** for granular permission management. [Docu](https://docs.lowcoder.cloud/lowcoder-documentation/workspaces-and-teamwork/members-and-groups)
 - **Auto-saved and restorable history** for release and version control.
 - **App Themes and Theme Editor** to precisely align with your company's brand guidelines.
 
-- **Self Hosting** to use Lowcoder in your internal company network, even behind the firewall.
+- **Self Hosting** to use Lowcoder in your internal company network, even behind the firewall. [Docu](https://docs.lowcoder.cloud/lowcoder-documentation/setup-and-run/self-hosting)
 - **Free Community Cloud** to start within a minute and build your first Apps. [Start here](https://app.lowcoder.cloud)
 
 ## 🏆 Comparisons
@@ -59,6 +61,7 @@ Lowcoder wants to take a step forward. More specifically, Lowcoder is:
 - Lowcoder is open-source. You don't need to worry about vendor lock-in or being stuck with an outdated version of the software.
 - In Lowcoder, developers can build truly responsive apps - not as cumbersome as the "Desktop / Mobile switch" in Retool
 - Lowcoder is free and you can contribute!
+- With Lowcoder you can design better Apps. More Layout & Design Components as also better support for powerful Data & Admin Dashboards.
 - The EE Version of Lowcoder comes with a much better pricing model, so you have no "per-user costs".
 ### Lowcoder vs Appsmith, Tooljet
 - Lowcoder has more components and richer configuration than Appsmith and Tooljet.
@@ -87,16 +90,24 @@ And we mean it... Day by day!
 ## 💻 Deployment Options
 [![Deploy to AWS using Stitch](https://img.shields.io/badge/deploy_with-Stitch-%23E369F7?logo=amazonaws&color=%23E369F7)](https://deploy.stitch.tech/lowcoder/lowcoder)
 
+[![Deploy in minutes on Elest.io](https://raw.githubusercontent.com/elestio-examples/element/main/deploy-on-elestio.png)](https://elest.io/open-source/lowcoder)
+
 You can access Lowcoder from [cloud-hosted version](https://app.lowcoder.cloud/) at any time, or use the following resources for self-host Lowcoder on different platforms:
 - [Docker](https://docs.lowcoder.cloud/lowcoder-documentation/setup-and-run/self-hosting)
 
 ## 💪 Contributing
 - Language support: If you have experience with a language that isn't currently supported by our product, send us a pull request.
 - Create and share components or demos: If you've created something that might be useful to others, add the link here.
-- [Frontend contributing guide](https://github.com/lowcoder-org/lowcoder/tree/main/client)
+- [Contributing guide](https://docs.lowcoder.cloud/lowcoder-documentation/lowcoder-extension/opensource-contribution)
+
+Special tanks goes to [@sjhoeksma](https://github.com/sjhoeksma), [@mousheng](https://github.com/mousheng), [@mat02](https://github.com/mat02), [@jomedya](https://github.com/jomedya) and many other contributors!
 
 ## 🥇 Sponsors
 Accelerate the growth of Lowcoder and unleash its potential with your Sponsorship – together, we're shaping the future of Lowcode for everyone!
 [Be a Sponsor](https://github.com/sponsors/lowcoder-org)
 
-Like ...  [@spacegoats-io](https://github.com/spacegoats-io), [@Jomedya](https://github.com/Jomedya), [@CHSchuepfer](https://github.com/CHSchuepfer), Thank you very much!!
+Like ...  [@Darkjamin](https://github.com/Darkjamin), [@spacegoats-io](https://github.com/spacegoats-io), [@Jomedya](https://github.com/Jomedya), [@CHSchuepfer](https://github.com/CHSchuepfer), Thank you very much!!
+
+## Intro Video
+
+[![Watch the video](https://i.ytimg.com/vi/s4ltAqS0hzM/maxresdefault.jpg?sqp=-oaymwEmCIAKENAF8quKqQMa8AEB-AH-CYAC0AWKAgwIABABGD0gSShyMA8=&rs=AOn4CLAlPOIFdtauythoBKNPXhi6XGwlDQ)](https://youtu.be/s4ltAqS0hzM?feature=shared)

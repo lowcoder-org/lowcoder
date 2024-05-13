@@ -1,5 +1,5 @@
 import { default as Tag } from "antd/es/tag";
-import { PresetStatusColorTypes } from "antd/lib/_util/colors";
+import { PresetStatusColorTypes } from "antd/es/_util/colors";
 import { TagsContext } from "components/table/EditableCell";
 import {
   ColumnTypeCompBuilder,
@@ -15,6 +15,7 @@ import { toJson } from "really-relaxed-json";
 import { hashToNum } from "util/stringUtils";
 import { CustomSelect, PackUpIcon } from "lowcoder-design";
 import { ScrollBar } from "lowcoder-design";
+import { ColoredTagOptionControl } from "comps/controls/optionsControl";
 
 const colors = PresetStatusColorTypes;
 
@@ -55,13 +56,22 @@ const TagsControl = codeControl<Array<string> | string>(
   { expectedType: "string | Array<string>", codeType: "JSON" }
 );
 
-function getTagColor(text: string) {
-  const index = Math.abs(hashToNum(text)) % colors.length;
-  return colors[index];
+function getTagColor(tagText : any, tagOptions: any[]) {
+  const foundOption = tagOptions.find((option: { label: any; }) => option.label === tagText);
+  return foundOption ? foundOption.color : (function() {
+    const index = Math.abs(hashToNum(tagText)) % colors.length;
+    return colors[index];
+  })();
+}
+
+function getTagIcon(tagText: any, tagOptions: any[]) {
+  const foundOption = tagOptions.find(option => option.label === tagText);
+  return foundOption ? foundOption.icon : undefined;
 }
 
 const childrenMap = {
   text: TagsControl,
+  tagColors: ColoredTagOptionControl,
 };
 
 const getBaseValue: ColumnTypeViewFn<typeof childrenMap, string | string[], string | string[]> = (
@@ -135,6 +145,9 @@ export const Wrapper = styled.div`
       }
     }
   }
+  .ant-tag svg {
+    margin-right: 4px;
+  }
 `;
 
 export const DropdownStyled = styled.div`
@@ -150,7 +163,18 @@ export const DropdownStyled = styled.div`
   .ant-tag {
     margin-right: 0;
   }
+  .ant-tag svg {
+    margin-right: 4px;
+  }
 `;
+
+export const TagStyled = styled(Tag)`
+  svg {
+    margin-right: 4px;
+  }
+`;
+
+let tagOptionsList: any[] = [];
 
 const TagEdit = (props: TagEditPropsType) => {
   const defaultTags = useContext(TagsContext);
@@ -206,12 +230,12 @@ const TagEdit = (props: TagEditPropsType) => {
           <CustomSelect.Option value={value} key={index}>
             {value.split(",")[1] ? (
               value.split(",").map((item, i) => (
-                <Tag color={getTagColor(item)} key={i} style={{ marginRight: "8px" }}>
+                <Tag color={getTagColor(item, tagOptionsList)} icon={getTagIcon(item, tagOptionsList)} key={i} style={{ marginRight: "8px" }}>
                   {item}
                 </Tag>
               ))
             ) : (
-              <Tag color={getTagColor(value)} key={index}>
+              <Tag color={getTagColor(value, tagOptionsList)} icon={getTagIcon(value, tagOptionsList)} key={index}>
                 {value}
               </Tag>
             )}
@@ -226,6 +250,8 @@ export const ColumnTagsComp = (function () {
   return new ColumnTypeCompBuilder(
     childrenMap,
     (props, dispatch) => {
+      const tagOptions = props.tagColors;
+      tagOptionsList = props.tagColors;
       let value = props.changeValue ?? getBaseValue(props, dispatch);
       value = typeof value === "string" && value.split(",")[1] ? value.split(",") : value;
       const tags = _.isArray(value) ? value : [value];
@@ -233,9 +259,9 @@ export const ColumnTagsComp = (function () {
         // The actual eval value is of type number or boolean
         const tagText = String(tag);
         return (
-          <Tag color={getTagColor(tagText)} key={index}>
+          <TagStyled color={getTagColor(tagText, tagOptions)} icon={getTagIcon(tagText, tagOptions)} key={index} >
             {tagText}
-          </Tag>
+          </TagStyled>
         );
       });
       return view;
@@ -256,6 +282,9 @@ export const ColumnTagsComp = (function () {
         {children.text.propertyView({
           label: trans("table.columnValue"),
           tooltip: ColumnValueTooltip,
+        })}
+        {children.tagColors.propertyView({
+          title: "test",
         })}
       </>
     ))

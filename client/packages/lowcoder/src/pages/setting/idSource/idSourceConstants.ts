@@ -1,4 +1,4 @@
-import { DefaultOptionType } from "antd/lib/select";
+import { DefaultOptionType } from "antd/es/select";
 import { trans } from "i18n";
 
 export enum AuthType {
@@ -7,6 +7,7 @@ export enum AuthType {
   Github = "GITHUB",
   Ory = "ORY",
   KeyCloak = "KEYCLOAK",
+  Generic = "GENERIC",
 }
 
 export const IdSource = [
@@ -15,7 +16,28 @@ export const IdSource = [
   AuthType.Form,
   AuthType.Ory,
   AuthType.KeyCloak,
+  AuthType.Generic,
 ];
+
+export enum AuthCategoriesEnum {
+  ENTERPISE_ENTITY = "Enterprise Identity",
+  CLOUD_SERVICES = "Cloud Services",
+  SOCIAL_MEDIA = "Social Media",
+  DEVELOPMENT = "Development",
+  TOOLS_AND_PRODUCTIVITY = "Tools & Productivity",
+}
+
+type AuthCategoriesEnumKey = keyof typeof AuthCategoriesEnum;
+const AuthCategories = Object.keys(AuthCategoriesEnum).map(
+  (cat) => {
+    const value = AuthCategoriesEnum[cat as AuthCategoriesEnumKey];
+    return {
+      label: value,
+      value: cat
+    }
+  }
+);
+
 
 export const validatorOptions = [];
 
@@ -62,9 +84,30 @@ export const authConfig = {
       scope: "Scope",
     },
   },
+  [AuthType.Generic]: {
+    sourceName: "Generic",
+    sourceValue: AuthType.Generic,
+    form: {
+      source: { label: "Source", isRequire: true },
+      sourceName: { label: "Source Name", isRequire: true },
+      sourceDescription: { label: "Source Description", isRequire: false },
+      sourceIcon: { label: "Source Icon", isIcon: true, isRequire: true, },
+      sourceCategory: { label: "Source Category", isRequire: true, isList: true, options: AuthCategories },
+      ...clientIdandSecretConfig,
+      issuer: { label: 'Issuer URI', isRequire: true },
+      authorizationEndpoint: { label: 'Authorization Endpoint', isRequire: true },
+      tokenEndpoint: { label: 'Token Endpoint', isRequire: true },
+      userInfoEndpoint: { label: 'UserInfo Endpoint', isRequire: true },
+      // jwks: { label: 'Authorize URL', isRequire: true },
+      scope: "Scope",
+      userInfoIntrospection: { label: 'Use OpenID User Introspection', isSwitch: true, isRequire: false},
+      // baseUrl: "Base URL",
+      // realm: "Realm",
+    },
+  },
 } as { [key: string]: { sourceName: string; sourceValue: AuthType, form: FormItemType } };
 
-export const FreeTypes = [AuthType.Google, AuthType.Github, AuthType.Form, AuthType.Ory, AuthType.KeyCloak];
+export const FreeTypes = [AuthType.Google, AuthType.Github, AuthType.Form, AuthType.Ory, AuthType.KeyCloak, AuthType.Generic];
 
 export const authTypeDisabled = (type: AuthType, enableEnterpriseLogin?: boolean) => {
   return !FreeTypes.includes(type);
@@ -83,6 +126,8 @@ export type ItemType = {
   isList?: boolean;
   isRequire?: boolean;
   isPassword?: boolean;
+  isIcon?: boolean;
+  isSwitch?: boolean;
   hasLock?: boolean;
   tip?: string;
 }

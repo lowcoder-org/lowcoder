@@ -1,6 +1,7 @@
 package org.lowcoder.api.home;
 
 import static org.lowcoder.sdk.constants.GlobalContext.CURRENT_ORG_MEMBER;
+import static org.lowcoder.sdk.constants.GlobalContext.VISITOR_TOKEN;
 import static org.lowcoder.sdk.exception.BizError.UNABLE_TO_FIND_VALID_ORG;
 import static org.lowcoder.sdk.util.ExceptionUtils.deferredError;
 import static org.lowcoder.sdk.util.JsonUtils.fromJsonQuietly;
@@ -75,6 +76,17 @@ public class SessionUserServiceImpl implements SessionUserService {
     }
 
     @Override
+    public Mono<OrgMember> getVisitorOrgMemberCacheSilent() {
+        return Mono.deferContextual(contextView -> (Mono<OrgMember>) contextView.get(CURRENT_ORG_MEMBER))
+                .delayUntil(Mono::just);
+    }
+
+    @Override
+    public Mono<String> getVisitorToken() {
+        return Mono.deferContextual(contextView -> Mono.just(contextView.get(VISITOR_TOKEN)));
+    }
+
+    @Override
     public Mono<OrgMember> getVisitorOrgMember() {
         return getVisitorId()
                 .flatMap(userId -> orgMemberService.getCurrentOrgMember(userId))
@@ -106,10 +118,7 @@ public class SessionUserServiceImpl implements SessionUserService {
 
     private Duration getTokenExpireTime() {
         long maxAgeInSeconds = commonConfig.getCookie().getMaxAgeInSeconds();
-        if (maxAgeInSeconds >= 0) {
-            return Duration.ofSeconds(maxAgeInSeconds).plus(Duration.ofDays(1));
-        }
-        return Duration.ofDays(7);
+        return Duration.ofSeconds(maxAgeInSeconds);
     }
 
     @Override

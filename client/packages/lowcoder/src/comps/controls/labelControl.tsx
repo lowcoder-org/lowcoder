@@ -1,5 +1,5 @@
 import { trans } from "i18n";
-import { green, red, yellow } from "@ant-design/colors";
+import { green, red, yellow } from "@ant-design/colors/es";
 import { FormItemProps } from "antd/es/form/FormItem";
 import { BoolControl } from "comps/controls/boolControl";
 import { NumberControl, StringControl } from "comps/controls/codeControl";
@@ -9,17 +9,21 @@ import { MultiCompBuilder } from "comps/generators/multi";
 import { labelCss, Section, Tooltip, UnderlineCss } from "lowcoder-design";
 import { ValueFromOption } from "lowcoder-design";
 import { isEmpty } from "lodash";
-import { ReactNode } from "react";
+import { Fragment, ReactNode } from "react";
 import styled, { css } from "styled-components";
 import { AlignLeft } from "lowcoder-design";
 import { AlignRight } from "lowcoder-design";
 import { StarIcon } from "lowcoder-design";
 
-import { heightCalculator, widthCalculator } from "./styleControlConstants";
+import { LabelStyleType, heightCalculator, widthCalculator } from "./styleControlConstants";
 
 type LabelViewProps = Pick<FormItemProps, "required" | "help" | "validateStatus"> & {
   children: ReactNode;
   style?: Record<string, string>;
+  labelStyle?: Record<string, string>;
+  field?: Record<string, string>;
+  inputFieldStyle?: Record<string, string>;
+  childrenInputFieldStyle?: Record<string, string>;
 };
 
 const StyledStarIcon = styled(StarIcon)`
@@ -40,11 +44,20 @@ function getStyle(style: any) {
   `;
 }
 
-const LabelViewWrapper = styled.div<{ $style: any }>`
-  ${(props) => props.$style && getStyle(props.$style)}
+const LabelViewWrapper = styled.div<{ $style: any, inputFieldStyle: any }>`
+${(props) => {
+    return (
+      props.$style && {
+        ...props.$style,
+        borderRadius: props.$style.radius,
+      }
+    );
+  }}
+  ${(props) => props.inputFieldStyle && getStyle(props.inputFieldStyle)}
   display: flex;
   flex-direction: column;
   height: 100%;
+  border: ${(props)=>{return props.$style.borderWidth}} ${(props)=>{return props.$style.borderStyle}} ${(props)=>{return props.$style.border}} !important;
 `;
 
 const MainWrapper = styled.div<{
@@ -75,10 +88,22 @@ const LabelWrapper = styled.div<{
   max-width: ${(props) => (props.$position === "row" ? "80%" : "100%")};
   flex-shrink: 0;
 `;
+// ${(props) => props.$border && UnderlineCss};
+// ${(props) => props.$border && `border-bottom:${props.$labelStyle.borderWidth} ${props.$labelStyle.borderStyle} ${!!props.$validateStatus && props?.$validateStatus === 'error' ? props.$labelStyle.validate : props.$labelStyle.border};`}
 
-const Label = styled.span<{ $border: boolean }>`
+const Label = styled.span<{ $border: boolean, $labelStyle: LabelStyleType, $validateStatus: "success" | "warning" | "error" | "validating" | null }>`
   ${labelCss};
-  ${(props) => props.$border && UnderlineCss};
+  font-family:${(props) => props.$labelStyle.fontFamily};
+  font-weight:${(props) => props.$labelStyle.textWeight};
+  font-style:${(props) => props.$labelStyle.fontStyle};
+  text-transform:${(props) => props.$labelStyle.textTransform};
+  text-decoration:${(props) => props.$labelStyle.textDecoration};
+  font-size:${(props) => props.$labelStyle.textSize};
+  color:${(props) => !!props.$validateStatus && props?.$validateStatus === 'error' ? props.$labelStyle.validate : props.$labelStyle.label} !important;
+  ${(props) => `border:${props.$labelStyle.borderWidth} ${props.$labelStyle.borderStyle} ${!!props.$validateStatus && props?.$validateStatus === 'error' ? props.$labelStyle.validate : props.$labelStyle.border};`}
+  border-radius:${(props) => props.$labelStyle.radius};
+  padding:${(props) => props.$labelStyle.padding};
+  margin:${(props) => props.$labelStyle.margin};
   width: fit-content;
   user-select: text;
   white-space: nowrap;
@@ -144,21 +169,23 @@ export const LabelControl = (function () {
     position: dropdownControl(PositionOptions, "row"),
     align: dropdownControl(AlignOptions, "left"),
   };
-  return new MultiCompBuilder(childrenMap, (props) => (args: LabelViewProps) => (
-    <LabelViewWrapper $style={args.style}>
-      <MainWrapper	
-        $position={props.position}	
-        $hasLabel={!!props.text}	
-        style={{	
-          margin: args && args.style ? args?.style?.margin : 0,	
-          // padding: args && args.style ? args?.style?.padding : 0,	
-          width: widthCalculator(	
-            args && args.style ? args?.style?.margin : "0px"	
-          ),	
-          height: heightCalculator(	
-            args && args.style ? args?.style?.margin : "0px"	
-          ),	
-        }}	
+
+  return new MultiCompBuilder(childrenMap, (props) => (args: LabelViewProps) => 
+  {
+    return <LabelViewWrapper $style={args.style} inputFieldStyle={args.inputFieldStyle}>
+      <MainWrapper
+        $position={props.position}
+        $hasLabel={!!props.text}
+        style={{
+          margin: args && args.inputFieldStyle ? args?.inputFieldStyle?.margin : 0,
+          // padding: args && args.inputFieldStyle ? args?.inputFieldStyle?.padding : 0,	
+          width: widthCalculator(
+            args && args.inputFieldStyle ? args?.inputFieldStyle?.margin : "0px"
+          ),
+          height: heightCalculator(
+            args && args.inputFieldStyle ? args?.inputFieldStyle?.margin : "0px"
+          ),
+        }}
       >
         {!props.hidden && !isEmpty(props.text) && (
           <LabelWrapper
@@ -181,7 +208,12 @@ export const LabelControl = (function () {
               color="#2c2c2c"
               getPopupContainer={(node: any) => node.closest(".react-grid-item")}
             >
-              <Label $border={!!props.tooltip}>{props.text}</Label>
+              <Label
+                $border={!!props.tooltip}
+                $validateStatus={args && args.validateStatus ? args.validateStatus : null}
+                $labelStyle={{ ...args.labelStyle }}>
+                {props.text}
+              </Label>
             </Tooltip>
             {args.required && <StyledStarIcon />}
           </LabelWrapper>
@@ -210,15 +242,15 @@ export const LabelControl = (function () {
             args.validateStatus === "error"
               ? red.primary
               : args.validateStatus === "warning"
-              ? yellow.primary
-              : green.primary
+                ? yellow.primary
+                : green.primary
           }
         >
           {args.help}
         </HelpWrapper>
       )}
-    </LabelViewWrapper>
-  ))
+    </LabelViewWrapper>}
+)
     .setPropertyViewFn((children) => (
       <Section name={trans("label")}>
         {children.text.propertyView({ label: trans("labelProp.text") })}

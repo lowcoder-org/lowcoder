@@ -4,6 +4,8 @@ import static org.apache.commons.lang3.ObjectUtils.firstNonNull;
 
 import java.util.function.Function;
 
+import lombok.experimental.SuperBuilder;
+import lombok.extern.jackson.Jacksonized;
 import org.jetbrains.annotations.Nullable;
 import org.lowcoder.sdk.config.SerializeConfig.JsonViews;
 
@@ -13,16 +15,12 @@ import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Getter;
 
 @Getter
+@SuperBuilder
+@Jacksonized
 public class VerifySelfSignedCertSslConfig extends SslConfig {
 
     @JsonView(JsonViews.Internal.class)
     private String selfSignedCert;
-
-    @JsonCreator
-    public VerifySelfSignedCertSslConfig(SslCertVerificationType sslCertVerificationType, String selfSignedCert) {
-        super(sslCertVerificationType);
-        this.selfSignedCert = selfSignedCert;
-    }
 
     @Override
     public void doEncrypt(Function<String, String> encryptFunc) {
@@ -39,7 +37,9 @@ public class VerifySelfSignedCertSslConfig extends SslConfig {
         if (!(updatedConfig instanceof VerifySelfSignedCertSslConfig verifySelfSignedCertSSLConfig)) {
             return updatedConfig;
         }
-        return new VerifySelfSignedCertSslConfig(verifySelfSignedCertSSLConfig.getSslCertVerificationType(),
-                firstNonNull(verifySelfSignedCertSSLConfig.selfSignedCert, this.selfSignedCert));
+        return VerifySelfSignedCertSslConfig.builder()
+                .sslCertVerificationType(verifySelfSignedCertSSLConfig.getSslCertVerificationType())
+                .selfSignedCert(firstNonNull(verifySelfSignedCertSSLConfig.selfSignedCert, this.selfSignedCert))
+                .build();
     }
 }

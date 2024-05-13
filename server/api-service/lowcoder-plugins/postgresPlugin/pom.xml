@@ -10,6 +10,7 @@
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
+    <groupId>org.lowcoder.plugins</groupId>
     <artifactId>postgresPlugin</artifactId>
 
     <name>postgresPlugin</name>

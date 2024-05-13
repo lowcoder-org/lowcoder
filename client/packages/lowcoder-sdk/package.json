@@ -1,6 +1,6 @@
 {
   "name": "lowcoder-sdk",
-  "version": "2.3.4",
+  "version": "2.4.3",
   "type": "module",
   "files": [
     "src",
@@ -15,6 +15,10 @@
     ".": {
       "import": "./dist/lowcoder-sdk.js",
       "require": "./dist/lowcoder-sdk.js"
+    },
+    "./appView": {
+      "import": "./dist/appView.js",
+      "require": "./dist/appView.js"
     },
     "./dataSource": {
       "types": "./dataSource.d.ts"

@@ -17,6 +17,7 @@ import {
 const StyledInnerGrid = styled(InnerGrid)<ContainerBaseProps & { $bordered: boolean }>`
   border: ${(props) => (!props.$bordered ? "0px" : `1px solid ${BorderColor}`)};
   height: 100%;
+  overflow: auto;
 `;
 
 function ModuleContainerView(props: ContainerBaseProps) {

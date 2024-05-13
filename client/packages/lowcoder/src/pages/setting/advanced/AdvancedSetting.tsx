@@ -1,9 +1,8 @@
-import { CodeEditor } from "base/codeEditor";
 import { EmptyContent } from "components/EmptyContent";
 import { HelpText } from "components/HelpText";
 import { GreyTextColor } from "constants/style";
 import { CustomModal, CustomSelect, TacoButton } from "lowcoder-design";
-import React, { useEffect, useState } from "react";
+import React, { lazy, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchCommonSettings, setCommonSettings } from "redux/reduxActions/commonSettingsActions";
 import { getCommonSettings } from "redux/selectors/commonSettingSelectors";
@@ -25,8 +24,12 @@ import { JSLibraryTree } from "components/JSLibraryTree";
 import { getGlobalSettings } from "comps/utils/globalSettings";
 import { fetchJSLibrary } from "util/jsLibraryUtils";
 import { evalFunc } from "lowcoder-core";
-import { messageInstance } from "lowcoder-design";
-import Api from "@lowcoder-ee/api/api";
+import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
+
+const CodeEditor = lazy(
+  () => import("base/codeEditor/codeEditor")
+    .then(module => ({default: module.CodeEditor}))
+)
 
 const AdvancedSettingContent = styled.div`
   max-width: 840px;

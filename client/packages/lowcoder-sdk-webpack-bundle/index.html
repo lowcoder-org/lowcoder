@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>YOUR APP TITLE</title>
+    <script>
+      //Output change Handler. MAKE SURE you use same method name
+      opChange = (op) => {
+        console.log("Output changed", op);
+      };
+
+      //Module Event Handler. MAKE SURE you use same method name
+      onModuleEventTriggered = (eventName) => {
+        console.log(eventName);
+      };
+    </script>
+  </head>
+  <body>
+    <!--* App 1 Start *-->
+    <h1>App 1</h1>
+    <div class="lowcoder-module-container">
+      <input type="hidden" class="module-id" value="6533c298b3f4097d93c215d8" />
+      <!-- <input type="hidden" class="module-input" value="" /> -->
+      <input
+        type="hidden"
+        class="locoder-backend-url"
+        value="https://api-service.lowcoder.cloud"
+      />
+      <div class="lowcoder-module-display"></div>
+    </div>
+
+    <!--*  Required Bundle Script ** -->
+    <script src="./bundle.js"></script>
+  </body>
+</html>

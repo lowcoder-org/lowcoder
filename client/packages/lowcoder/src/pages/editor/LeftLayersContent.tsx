@@ -10,31 +10,37 @@ import {
   LeftShow,
 } from "lowcoder-design";
 import React, { useCallback, useContext, useMemo, useState, useEffect, useRef } from "react";
-import _, { get } from "lodash";
+import _, { get, set } from "lodash";
 import styled from "styled-components";
 import { leftCompListClassName } from "pages/tutorials/tutorialsConstant";
-import UIComp from "comps/comps/uiComp";
+import type UIComp from "comps/comps/uiComp";
 import { getTreeNodeByKey } from "util/objectUtils";
 import { TopHeaderHeight } from "constants/style";
 import { trans } from "i18n";
 import { CompTree } from "comps/comps/containerBase";
 import { CompStateIcon } from "./editorConstants";
-import { UICompType } from "comps/uiCompRegistry";
+import type { UICompType } from "comps/uiCompRegistry";
 import { DirectoryTreeStyle, Node } from "./styledComponents";
 import { isAggregationApp } from "util/appUtils";
 import cloneDeep from 'lodash/cloneDeep';
 import { useDispatch } from "react-redux";
 import { useApplicationId } from "util/hooks";
-import { Button, Divider, Dropdown, Flex, Input, Menu, MenuProps, Space } from "antd";
-import { Switch } from "antd";
+import { default as Button } from "antd/es/button";
+import { default as Divider } from "antd/es/divider";
+import { default as Dropdown } from "antd/es/dropdown";
+import { default as Flex } from "antd/es/flex";
+import { default as Input } from "antd/es/input";
+import { default as Menu } from "antd/es/menu";
+import { default as Space } from "antd/es/space";
+import { default as Switch } from "antd/es/switch";
+import { MenuProps } from "antd/es/menu";
+import type { InputRef } from 'antd';
 import {
   saveCollisionStatus,
 } from "util/localStorageUtil";
-import { DownOutlined } from "@ant-design/icons";
-import { ItemType } from "antd/es/menu/hooks/useItems";
-import ColorPicker, { configChangeParams } from "components/ColorPicker";
-import { ModuleLayoutComp } from "@lowcoder-ee/comps/comps/moduleContainerComp/moduleLayoutComp";
-
+import { default as DownOutlined } from "@ant-design/icons/DownOutlined";
+import type { ItemType } from "antd/es/menu/hooks/useItems";
+import ColorPicker from "components/ColorPicker";
 
 export type DisabledCollisionStatus = "true" | "false"; // "true" means collision is not enabled - Layering works, "false" means collision is enabled - Layering does not work
 export type ToggleCollisionStatus = (collisionStatus?: DisabledCollisionStatus) => void;
@@ -56,6 +62,81 @@ type NodeItem = {
   disabled?: boolean;
   fixed?: boolean;
 };
+
+const items: MenuProps['items'] = [
+  {
+    label: 'Hide Component',
+    key: 'hidden',
+  },
+  {
+    label: 'Disable Component',
+    key: 'disable',
+  },
+  {
+    label: 'Margin',
+    key: 'style.margin',
+  },
+  {
+    label: 'Padding',
+    key: 'style.padding',
+  },
+  {
+    label: 'Font Size',
+    key: 'style.textSize',
+  },
+  {
+    label: 'Font Weight',
+    key: 'style.textWeight',
+  },
+  {
+    label: 'Font Family',
+    key: 'style.fontFamily',
+  },
+  {
+    label: 'Font Style',
+    key: 'style.fontStyle',
+  },
+  {
+    label: 'Text Transform',
+    key: 'style.textTransform',
+  },
+  {
+    label: 'Text Decoration',
+    key: 'style.textDecoration',
+  },
+  {
+    label: 'Border Radius',
+    key: 'style.borderRadius',
+  },
+  {
+    label: 'Border Width',
+    key: 'style.borderWidth',
+  },
+  {
+    label: 'Border Style',
+    key: 'style.borderStyle',
+  },
+  {
+    label: 'Background Image',
+    key: 'style.backgroundImage',
+  },
+  {
+    label: 'Background Image Repeat',
+    key: 'style.backgroundImageRepeat',
+  },
+  {
+    label: 'Background Image Size',
+    key: 'style.backgroundImageSize',
+  },
+  {
+    label: 'Background Image Position',
+    key: 'style.backgroundImagePosition',
+  },
+  {
+    label: 'Background Image Origin',
+    key: 'style.backgroundImageOrigin',
+  }
+];
 
 const LeftLayersContentWrapper = styled.div`
   height: calc(100vh - ${TopHeaderHeight});
@@ -79,9 +160,21 @@ export const LeftLayersContent = (props: LeftLayersContentProps) => {
   // added by Falk Wolsky to support a Layers in Lowcoder
   const [collisionStatus, setCollisionStatus] = useState(editorState.getCollisionStatus());
 
+  const [checkedKeys, setCheckedKeys] = useState<string[]>([]);
+  const [actionValue, setActionValue] = useState<string>("");
+  const [selectedActionKey, setSelectedActionKey] = useState<string | null>(null);
+  const [placeholderText, setPlaceholderText] = useState<string>("");
+  // const [color, setColor] = useState<string>("");
+  const inputRef = useRef<InputRef>(null);
+
   useEffect(() => {
     saveCollisionStatus(collisionStatus);
   }, [collisionStatus])
+
+
+  const handleActionSelection = useCallback((key: string) => {
+    setSelectedActionKey(key);
+  }, []);
 
   const handleToggleLayer = (checked: boolean) => {
     editorState.rootComp.children.settings.children.disableCollision.dispatchChangeValueAction(
@@ -251,11 +344,49 @@ export const LeftLayersContent = (props: LeftLayersContentProps) => {
 
   // here we handle the checked keys of the component tree
 
-  const [checkedKeys, setCheckedKeys] = useState<string[]>([]);
-  const [actionValue, setActionValue] = useState<string>("");
-  const [selectedActionKey, setSelectedActionKey] = useState<string | null>(null);
-  const [placeholderText, setPlaceholderText] = useState<string>("");
-  const [color, setColor] = useState<string>("");
+  const getPlaceholderText = useCallback((key: string) => {
+    switch (key) {
+      case 'hidden':
+      case 'disable':
+        return 'true | false';
+      case 'style.border':
+        return 'e.g., #ffffff'; // Example format indication
+      case 'style.borderRadius':
+      case 'style.radius': // Supporting legacy key if needed
+        return 'e.g., 4px'; // Example format indication
+      case 'style.borderWidth':
+        return 'e.g., 2px'; // Example format indication
+      case 'style.borderStyle':
+        return 'solid | dashed | dotted';
+      case 'style.backgroundImage':
+        return 'URL as string';
+      case 'style.backgroundImageRepeat':
+        return 'repeat | repeat-x | repeat-y | no-repeat';
+      case 'style.backgroundImageSize':
+        return 'cover | contain | % | px';
+      case 'style.backgroundImagePosition':
+        return 'top | bottom | center | % | px';
+      case 'style.backgroundImageOrigin':
+        return 'padding-box | border-box | content-box';
+      case 'style.margin':
+      case 'style.padding':
+        return 'e.g., 4px 8px 16px 32px'; // Example format indication
+      case 'style.textSize':
+        return 'e.g., 16px'; // Example format indication
+      case 'style.textWeight':
+        return 'bold | 900 | normal | 400';
+      case 'style.fontFamily':
+        return 'Arial, sans-serif';
+      case 'style.fontStyle':
+        return 'normal | italic | oblique';
+      case 'style.textTransform':
+        return 'none | capitalize | uppercase | lowercase';
+      case 'style.textDecoration':
+        return 'none | underline | overline | line-through';
+      default:
+        return 'Action Value';
+    }
+  }, []);
 
   const handleColorChange = (color: string | undefined, actionType: string) => {
     const newColor = color || '#ffffff';
@@ -290,11 +421,6 @@ export const LeftLayersContent = (props: LeftLayersContentProps) => {
     }
   };
 
-
-  /* const handleActionValueChange = (e: any) => {
-    setActionValue(e.target.value);
-  } */
-
   // sync selected components with checked keys
   useEffect(() => {
     setCheckedKeys([]);
@@ -312,10 +438,10 @@ export const LeftLayersContent = (props: LeftLayersContentProps) => {
   }, [editorState]);
 
   // make sure to handle the selectedActionKey for the changed input fields
-  useEffect(() => {
+  /* useEffect(() => {
     setActionValue('');
-    setColor('#ffffff');
-  }, [selectedActionKey, placeholderText]);
+    // setColor('#ffffff');
+  }, [selectedActionKey, placeholderText]); */
 
   const onCheck = (checkedKeys: any, e: any) => {
     setCheckedKeys(checkedKeys);
@@ -365,78 +491,6 @@ export const LeftLayersContent = (props: LeftLayersContentProps) => {
       }
     }
   }, [getActionValue, getCheckedKeys]);
-
-  const handleActionSelection = useCallback((key: string) => {
-    setSelectedActionKey(key);
-    setPlaceholderText(getPlaceholderText(key));
-  }, [handleComponentsActions]);
-
-  const layerActions: ItemType[] = [
-    {
-      label: 'Hide Component',
-      key: 'hidden',
-    },
-    {
-      label: 'Disable Component',
-      key: 'disable',
-    },
-    {
-      label: 'Margin',
-      key: 'style.margin',
-    },
-    {
-      label: 'Padding',
-      key: 'style.padding',
-    },
-    {
-      label: 'Border Radius',
-      key: 'style.radius',
-    },
-    {
-      label: 'Border Width',
-      key: 'style.borderWidth',
-    },
-    {
-      label: 'Font Size',
-      key: 'style.textSize',
-    },
-    {
-      label: 'Font Weight',
-      key: 'style.textWeight',
-    },
-    {
-      label: 'Font Family',
-      key: 'style.fontFamily',
-    }
-  ];
-
-
-  const getPlaceholderText = (key: string) => {
-    switch (key) {
-      case 'hidden':
-      case 'disable':
-        return 'true | false';
-      case 'style.background':
-      case 'style.text':
-      case 'style.border':
-        return 'e.g., #ffffff'; // Indicate example format
-      case 'style.radius':
-        return 'e.g., 4px'; // Indicate example format
-      case 'style.borderWidth':
-        return 'e.g., 2px'; // Indicate example format
-      case 'style.textSize':
-        return 'e.g., 16px'; // Indicate example format
-      case 'style.textWeight':
-        return 'bold | 900';
-      case 'style.fontFamily':
-        return 'Arial, sans-serif';
-      case 'style.margin':
-      case 'style.padding':
-        return 'e.g., 4px 8px 16px 32px'; // Indicate example format
-      default:
-        return 'Action Value';
-    }
-  };  
   
   const getTreeUI = () => {
     // here the components get sorted by name
@@ -449,6 +503,7 @@ export const LeftLayersContent = (props: LeftLayersContentProps) => {
       <>
       <div style={{margin:"0px 16px"}}>
         <div style={{marginBottom:"10px"}}>
+ 
           {trans("leftPanel.activatelayers")}
           <Switch 
             style={{margin : "0px 10px"}}
@@ -486,21 +541,21 @@ export const LeftLayersContent = (props: LeftLayersContentProps) => {
             <CustomDropdown
               dropdownRender={() => (
                 <Menu
-                  items={layerActions}
-                  onClick={({key}) => handleActionSelection(key)}
+                  items={items}
+                  onClick={({ key }) => {
+                    handleActionSelection(key);
+                  }}
                 />
               )}
             >
               <Button size={"small"}>
-                <Space>
-                  Action
-                  <DownOutlined />
-                </Space>
+                <Space>Action <DownOutlined /></Space>
               </Button>
             </CustomDropdown>
-            <Input 
-              value={actionValue} // Use actionValue for the default case as well
-              onChange={(e) => setActionValue(e.target.value)} // Handle changes to update actionValue
+            <Input
+              ref={inputRef}
+              value={actionValue}
+              onChange={(e) => setActionValue(e.target.value)}
               placeholder={placeholderText}
             />
             <Button 

@@ -1,25 +1,9 @@
 package org.lowcoder.sdk.util;
 
-import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.annotation.Nullable;
-
-import org.lowcoder.sdk.auth.EmailAuthConfig;
-import org.lowcoder.sdk.auth.Oauth2KeycloakAuthConfig;
-import org.lowcoder.sdk.auth.Oauth2OryAuthConfig;
-import org.lowcoder.sdk.auth.Oauth2SimpleAuthConfig;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
-import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -27,8 +11,14 @@ import com.fasterxml.jackson.databind.type.CollectionType;
 import com.fasterxml.jackson.databind.type.MapType;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
-
+import jakarta.annotation.Nullable;
 import lombok.extern.slf4j.Slf4j;
+import org.lowcoder.sdk.auth.*;
+
+import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static org.lowcoder.sdk.auth.constants.AuthTypeConstants.*;
 
@@ -48,6 +38,7 @@ public final class JsonUtils {
         OBJECT_MAPPER.registerSubtypes(new NamedType(Oauth2SimpleAuthConfig.class, GOOGLE));
         OBJECT_MAPPER.registerSubtypes(new NamedType(Oauth2OryAuthConfig.class, ORY));
         OBJECT_MAPPER.registerSubtypes(new NamedType(Oauth2KeycloakAuthConfig.class, KEYCLOAK));
+        OBJECT_MAPPER.registerSubtypes(new NamedType(Oauth2GenericAuthConfig.class, GENERIC));
     }
 
     public static final JsonNode EMPTY_JSON_NODE = createObjectNode();

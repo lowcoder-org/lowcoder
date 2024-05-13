@@ -1,4 +1,4 @@
-import { DeleteOutlined } from "@ant-design/icons";
+import { default as DeleteOutlined } from "@ant-design/icons/DeleteOutlined";
 import { default as Skeleton } from "antd/es/skeleton";
 import { BoolControl } from "comps/controls/boolControl";
 import { StringControl } from "comps/controls/codeControl";
@@ -8,9 +8,12 @@ import { styleControl } from "comps/controls/styleControl";
 import {
   contrastColor,
   SignatureStyle,
+  LabelStyle,
   SignatureStyleType,
   widthCalculator,
-  heightCalculator
+  heightCalculator,
+  
+  InputFieldStyle
 } from "comps/controls/styleControlConstants";
 import { stateComp, withDefault } from "comps/generators/simpleGenerators";
 import { hiddenPropertyView } from "comps/utils/propertyUtils";
@@ -38,11 +41,11 @@ const Wrapper = styled.div<{ $style: SignatureStyleType; $isEmpty: boolean }>`
   overflow: hidden;
   width: 100%;
   height: 100%;
-  width: ${(props) => {	
-    return widthCalculator(props.$style.margin);	
+  width: ${(props) => {
+    return widthCalculator(props.$style.margin);
   }};	
-  height: ${(props) => {	
-    return heightCalculator(props.$style.margin);	
+  height: ${(props) => {
+    return heightCalculator(props.$style.margin);
   }};	
   margin: ${(props) => props.$style.margin};	
   padding: ${(props) => props.$style.padding};
@@ -97,11 +100,12 @@ const childrenMap = {
   tips: withDefault(StringControl, trans("signature.signHere")),
   onEvent: ChangeEventHandlerControl,
   label: withDefault(LabelControl, { position: "column", text: "" }),
-  style: styleControl(SignatureStyle),
+  style: styleControl(InputFieldStyle),
+  labelStyle: styleControl(LabelStyle),
   showUndo: withDefault(BoolControl, true),
   showClear: withDefault(BoolControl, true),
   value: stateComp(""),
-
+  inputFieldStyle:styleControl(SignatureStyle),
   ...formDataChildren,
 };
 
@@ -126,6 +130,8 @@ let SignatureTmpComp = (function () {
     };
     return props.label({
       style: props.style,
+      labelStyle: props.labelStyle,
+      inputFieldStyle:props.inputFieldStyle,
       children: (
         <ReactResizeDetector
           onResize={(width, height) => {
@@ -137,7 +143,7 @@ let SignatureTmpComp = (function () {
             onMouseDown={(e) => {
               e.preventDefault();
             }}
-            $style={props.style}
+            $style={props.inputFieldStyle}
             $isEmpty={!props.value && !isBegin}
           >
             <div className="signature">
@@ -146,7 +152,7 @@ let SignatureTmpComp = (function () {
                   ref={(ref) => {
                     canvas = ref;
                   }}
-                  penColor={props.style.pen}
+                  penColor={props.inputFieldStyle.pen}
                   clearOnResize={false}
                   canvasProps={{
                     className: "sigCanvas",
@@ -218,9 +224,17 @@ let SignatureTmpComp = (function () {
           )}
 
           {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
-            <Section name={sectionNames.style}>
-              {children.style.getPropertyView()}
-            </Section>
+            <>
+              <Section name={sectionNames.style}>
+                {children.style.getPropertyView()}
+              </Section>
+              <Section name={sectionNames.labelStyle}>
+                {children.labelStyle.getPropertyView()}
+              </Section>
+              <Section name={sectionNames.inputFieldStyle}>
+                {children.inputFieldStyle.getPropertyView()}
+              </Section>
+            </>
           )}
         </>
       );

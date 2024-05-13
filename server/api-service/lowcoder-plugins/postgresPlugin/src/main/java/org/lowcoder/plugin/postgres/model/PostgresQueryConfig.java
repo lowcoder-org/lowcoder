@@ -6,6 +6,8 @@ import static org.lowcoder.sdk.util.JsonUtils.toJson;
 
 import java.util.Map;
 
+import lombok.Builder;
+import lombok.extern.jackson.Jacksonized;
 import org.apache.commons.collections4.MapUtils;
 import org.lowcoder.sdk.exception.PluginException;
 
@@ -15,6 +17,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 
 @Getter
+@Builder
+@Jacksonized
 public class PostgresQueryConfig {
 
     private final String sql;

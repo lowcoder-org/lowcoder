@@ -74,7 +74,7 @@ import { QueryConfirmationModal } from "./queryComp/queryConfirmationModal";
 import { QueryNotificationControl } from "./queryComp/queryNotificationControl";
 import { QueryPropertyView } from "./queryComp/queryPropertyView";
 import { getTriggerType, onlyManualTrigger } from "./queryCompUtils";
-import { messageInstance } from "lowcoder-design";
+import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 
 const latestExecution: Record<string, string> = {};
 
@@ -282,7 +282,7 @@ function QueryView(props: QueryViewProps) {
     ) {
       setTimeout(() => {
         comp.dispatch(deferAction(executeQueryAction({})));
-      });
+      }, 300);
     }
   }, []);
 

@@ -20,7 +20,7 @@ import {
   QueryConfigItemWrapper,
   ValueFromOption,
 } from "lowcoder-design";
-import { Fragment, ReactNode, useContext, useEffect, useState } from "react";
+import { Fragment, ReactNode, useContext, useEffect, useState} from "react";
 import { memo } from "util/cacheUtils";
 import { EditorContext } from "../editorState";
 import { ActionSelectorControl } from "./actionSelector/actionSelectorControl";
@@ -142,6 +142,11 @@ const EventHandlerControlPropertyView = (props: {
   type?: "query";
   eventConfigs: EventConfigsType;
 }) => {
+
+  
+  const editorState = useContext(EditorContext);
+  const [showNewCreate, setShowNewCreate] = useState(false);
+
   const {
     dispatch,
     pushAction,
@@ -149,11 +154,9 @@ const EventHandlerControlPropertyView = (props: {
     inline = false,
     items,
     eventConfigs,
-    type,
+    type
   } = props;
-  const editorState = useContext(EditorContext);
-  const [showNewCreate, setShowNewCreate] = useState(false);
-
+  
   useEffect(() => setShowNewCreate(false), [dispatch]);
 
   const queryHandler = {
@@ -232,9 +235,8 @@ const EventHandlerControlPropertyView = (props: {
   );
 };
 
-class EventHandlerControl<T extends EventConfigsType> extends list(
-  SingleEventHandlerControl
-) {
+class EventHandlerControl<T extends EventConfigsType> extends list(SingleEventHandlerControl) {
+
   @memo
   // @ts-ignore
   getView() {
@@ -308,6 +310,12 @@ export function eventHandlerControl<T extends EventConfigsType>(
   return EventHandlerTempControl;
 }
 
+export const refreshEvent: EventConfigType = {
+  label: trans("event.refresh"),
+  value: "refresh",
+  description: trans("event.refreshDesc"),
+};
+
 export const submitEvent: EventConfigType = {
   label: trans("event.submit"),
   value: "submit",
@@ -333,6 +341,107 @@ export const clickEvent: EventConfigType = {
   value: "click",
   description: trans("event.clickDesc"),
 };
+export const doubleClickEvent: EventConfigType = {
+  label: trans("event.doubleClick"),
+  value: "doubleClick",
+  description: trans("event.doubleClickDesc"),
+};
+export const rightClickEvent: EventConfigType = {
+  label: trans("event.rightClick"),
+  value: "doubleClick",
+  description: trans("event.rightClickDesc"),
+};
+
+export const keyDownEvent: EventConfigType = {
+  label: trans("event.keyDown"),
+  value: "keyDown",
+  description: trans("event.keyDownDesc"),
+};
+
+export const selectEvent: EventConfigType = {
+  label: trans("event.select"),
+  value: "select",
+  description: trans("event.selectDesc"),
+};
+
+export const checkedEvent: EventConfigType = {
+  label: trans("event.checked"),
+  value: "checked",
+  description: trans("event.checkedDesc"),
+};
+
+export const uncheckedEvent: EventConfigType = {
+  label: trans("event.unchecked"),
+  value: "unchecked",
+  description: trans("event.uncheckedDesc"),
+};
+
+export const dragEvent: EventConfigType = {
+  label: trans("event.drag"),
+  value: "drag",
+  description: trans("event.dragDesc"),
+};
+
+export const dropEvent: EventConfigType = {
+  label: trans("event.drop"),
+  value: "drop",
+  description: trans("event.dropDesc"),
+};
+
+export const openEvent: EventConfigType = {
+  label: trans("event.open"),
+  value: "open",
+  description: trans("event.openDesc"),
+};
+
+export const playEvent: EventConfigType = {
+  label: trans("event.play"),
+  value: "play",
+  description: trans("event.playDesc"),
+};
+
+export const pauseEvent: EventConfigType = {
+  label: trans("event.pause"),
+  value: "pause",
+  description: trans("event.pauseDesc"),
+};
+
+export const endedEvent: EventConfigType = {
+  label: trans("event.ended"),
+  value: "ended",
+  description: trans("event.endedDesc"),
+};
+
+export const stepEvent: EventConfigType = {
+  label: trans("event.step"),
+  value: "step",
+  description: trans("event.stepDesc"),
+};
+
+export const nextEvent: EventConfigType = {
+  label: trans("event.next"),
+  value: "next",
+  description: trans("event.nextDesc"),
+};
+
+export const finishedEvent: EventConfigType = {
+  label: trans("event.finished"),
+  value: "finished",
+  description: trans("event.finishedDesc"),
+};
+
+export const savedEvent: EventConfigType = {
+  label: trans("event.saved"),
+  value: "saved",
+  description: trans("event.savedDesc"),
+};
+
+export const editedEvent: EventConfigType = {
+  label: trans("event.edited"),
+  value: "edited",
+  description: trans("event.editedDesc"),
+};
+
 export const closeEvent: EventConfigType = {
   label: trans("event.close"),
   value: "close",
@@ -352,6 +461,51 @@ export const mentionEvent: EventConfigType = {
   label: trans("event.mention"),
   value: "mention",
   description: trans("event.mentionDesc"),
+};
+
+export const startEvent: EventConfigType = {
+  label: trans("event.start"),
+  value: "start",
+  description: trans("event.startDesc"),
+};
+export const resumeEvent: EventConfigType = {
+  label: trans("event.resume"),
+  value: "resume",
+  description: trans("event.resumeDesc"),
+};
+export const countdownEvent: EventConfigType = {
+  label: trans("event.countdown"),
+  value: "countdown",
+  description: trans("event.countdownDesc"),
+};
+export const resetEvent: EventConfigType = {
+  label: trans("event.reset"),
+  value: "reset",
+  description: trans("event.resetDesc"),
+};
+
+
+// Meeting Events
+
+export const meetingStartEvent: EventConfigType = {
+  label: trans("event.meetingStart"),
+  value: "meetingStart",
+  description: trans("event.meetingStartDesc"),
+};
+export const meetingEndEvent: EventConfigType = {
+  label: trans("event.meetingEnd"),
+  value: "meetingEnd",
+  description: trans("event.meetingEndDesc"),
+};
+export const meetingJoinEvent: EventConfigType = {
+  label: trans("event.meetingJoin"),
+  value: "meetingJoin",
+  description: trans("event.meetingJoinDesc"),
+};
+export const meetingLeaveEvent: EventConfigType = {
+  label: trans("event.meetingLeave"),
+  value: "meetingLeave",
+  description: trans("event.meetingLeaveDesc"),
 };
 export const audioUnmuted: EventConfigType = {
   label: trans("meeting.audioUnmuted"),
@@ -373,17 +527,146 @@ export const videoOn: EventConfigType = {
   value: "videoOn",
   description: trans("meeting.videoOn"),
 };
+export const showCameraEvent: EventConfigType = {
+  label: trans("event.showCamera"),
+  value: "showCamera",
+  description: trans("event.showCameraDesc"),
+};
+export const hideCameraEvent: EventConfigType = {
+  label: trans("event.hideCamera"),
+  value: "hideCamera",
+  description: trans("event.hideCameraDesc"),
+};
 export const videoClicked: EventConfigType = {
   label: trans("meeting.videoClicked"),
   value: "videoClicked",
   description: trans("meeting.videoClicked"),
 };
+
+// Collaboration Events
+
+export const shareScreenEvent: EventConfigType = {
+  label: trans("event.shareScreen"),
+  value: "shareScreen",
+  description: trans("event.shareScreenDesc"),
+};
+export const shareScreenEndEvent: EventConfigType = {
+  label: trans("event.shareScreenEnd"),
+  value: "shareScreenEnd",
+  description: trans("event.shareScreenEndDesc"),
+};
+export const shareControlEvent: EventConfigType = {
+  label: trans("event.shareControl"),
+  value: "shareControl",
+  description: trans("event.shareControlDesc"),
+};
+export const shareControlEndEvent: EventConfigType = {
+  label: trans("event.shareControlEnd"),
+  value: "shareControlEnd",
+  description: trans("event.shareControlEndDesc"),
+};
+export const shareContentEvent: EventConfigType = {
+  label: trans("event.shareContent"),
+  value: "shareContent",
+  description: trans("event.shareContentDesc"),
+};
+export const shareContentEndEvent: EventConfigType = {
+  label: trans("event.shareContentEnd"),
+  value: "shareContentEnd",
+  description: trans("event.shareContentEndDesc"),
+};
+export const muteEvent: EventConfigType = {
+  label: trans("event.mute"),
+  value: "mute",
+  description: trans("event.muteDesc"),
+};
+export const unmuteEvent: EventConfigType = {
+  label: trans("event.unmute"),
+  value: "unmute",
+  description: trans("event.unmuteDesc"),
+};
+
+// Geo Map Events
+
+export const geoMapMoveEvent: EventConfigType = {
+  label: trans("event.geoMapMove"),
+  value: "geoMapMove",
+  description: trans("event.geoMapMoveDesc"),
+};
+export const geoMapZoomEvent: EventConfigType = {
+  label: trans("event.geoMapZoom"),
+  value: "geoMapZoom",
+  description: trans("event.geoMapZoomDesc"),
+};
+export const geoMapSelectEvent: EventConfigType = {
+  label: trans("event.geoMapSelect"),
+  value: "geoMapSelect",
+  description: trans("event.geoMapSelectDesc"),
+};
+
+
+// Scanner Events
+
+export const scannerSuccessEvent: EventConfigType = {
+  label: trans("event.scannerSuccess"),
+  value: "scannerSuccess",
+  description: trans("event.scannerSuccessDesc"),
+};
+export const scannerErrorEvent: EventConfigType = {
+  label: trans("event.scannerError"),
+  value: "scannerError",
+  description: trans("event.scannerErrorDesc"),
+};
+
+// Chart Events
+
+export const chartZoomEvent: EventConfigType = {
+  label: trans("event.chartZoom"),
+  value: "chartZoom",
+  description: trans("event.chartZoomDesc"),
+};
+export const chartHoverEvent: EventConfigType = {
+  label: trans("event.chartHover"),
+  value: "chartHover",
+  description: trans("event.chartHoverDesc"),
+};
+export const chartSelectEvent: EventConfigType = {
+  label: trans("event.chartSelect"),
+  value: "chartSelect",
+  description: trans("event.chartSelectDesc"),
+};
+export const chartDeselectEvent: EventConfigType = {
+  label: trans("event.chartDeselect"),
+  value: "chartDeselect",
+  description: trans("event.chartDeselectDesc"),
+};
+
+export const selectedChangeEvent: EventConfigType = {
+  label: trans("event.selectedChange"),
+  value: "selectedChange",
+  description: trans("event.selectedChangeDesc"),
+};
+
+export const searchEvent: EventConfigType = {
+  label: trans("event.search"),
+  value: "search",
+  description: trans("event.searchDesc"),
+};
+
+export const clickExtraEvent: EventConfigType = {
+  label: trans("event.clickExtra"),
+  value: "clickExtra",
+  description: trans("event.clickExtraDesc"),
+};
+
+// Exports
+
 export const InputEventHandlerControl = eventHandlerControl([
   changeEvent,
   focusEvent,
   blurEvent,
   submitEvent,
-] as const);
+] as const); // , { title: trans("eventHandler.inputEventHandlers"), description: trans("eventHandler.inputEventHandlersDesc"), icon : "" } as const);
 
 export const ButtonEventHandlerControl = eventHandlerControl([
   clickEvent,
@@ -391,6 +674,56 @@ export const ButtonEventHandlerControl = eventHandlerControl([
 
 export const ChangeEventHandlerControl = eventHandlerControl([
   changeEvent,
+] as const);
+
+export const EditedEventHandlerControl = eventHandlerControl([
+  editedEvent,
+] as const);
+
+export const ClickEventHandlerControl = eventHandlerControl([
+  clickEvent,
+  doubleClickEvent,
+  rightClickEvent
+] as const);
+
+export const KeyDownEventHandlerControl = eventHandlerControl([
+  keyDownEvent,
+] as const);
+
+export const CheckboxEventHandlerControl = eventHandlerControl([
+  checkedEvent,
+  uncheckedEvent,
+] as const);
+
+export const DragEventHandlerControl = eventHandlerControl([
+  dragEvent,
+  dropEvent,
+] as const);
+
+export const ElementEventHandlerControl = eventHandlerControl([
+  openEvent,
+  editedEvent,
+  closeEvent,
+  savedEvent,
+  deleteEvent,
+] as const);
+
+export const MediaEventHandlerControl = eventHandlerControl([
+  playEvent,
+  pauseEvent,
+  nextEvent,
+  endedEvent,
+] as const);
+
+export const StepEventHandlerControl = eventHandlerControl([
+  stepEvent,
+  nextEvent,
+  finishedEvent,
+] as const);
+
+export const ShareContentEventHandlerControl = eventHandlerControl([
+  shareContentEvent,
+  shareContentEndEvent,
 ] as const);
 
 export const SelectEventHandlerControl = eventHandlerControl([
@@ -401,6 +734,8 @@ export const SelectEventHandlerControl = eventHandlerControl([
 
 export const ScannerEventHandlerControl = eventHandlerControl([
   clickEvent,
+  // scannerSuccessEvent,
+  // scannerErrorEvent,
   successEvent,
   closeEvent,
 ] as const);
@@ -408,7 +743,40 @@ export const ScannerEventHandlerControl = eventHandlerControl([
 export const MeetingEventHandlerControl = eventHandlerControl([
   audioMuted,
   audioUnmuted,
-  videoOff,
-  videoOn,
+  showCameraEvent,
+  hideCameraEvent,
   videoClicked,
+  shareScreenEvent,
+  shareScreenEndEvent,
+  shareControlEvent,
+  shareControlEndEvent,
+] as const);
+
+export const GeoMapEventHandlerControl = eventHandlerControl([
+  geoMapMoveEvent,
+  geoMapZoomEvent,
+  geoMapSelectEvent,
+] as const);
+
+export const ChartEventHandlerControl = eventHandlerControl([
+  chartZoomEvent,
+  chartHoverEvent,
+  chartSelectEvent,
+  chartDeselectEvent,
+] as const);
+
+export const CollaborationEventHandlerControl = eventHandlerControl([
+  shareScreenEvent,
+  shareScreenEndEvent,
+  shareControlEvent,
+  shareControlEndEvent,
+  shareContentEvent,
+  shareContentEndEvent,
+] as const);
+
+export const CardEventHandlerControl = eventHandlerControl([
+  clickEvent,
+  clickExtraEvent,
+  focusEvent,
+  blurEvent,
 ] as const);

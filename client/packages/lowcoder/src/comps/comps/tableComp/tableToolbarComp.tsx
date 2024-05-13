@@ -60,8 +60,8 @@ const getStyle = (
     postion: -webkit-sticky;
     left: 0px !important;
     margin: ${style.margin} !important;
+    z-index: 999;
 
-    ${fixedToolbar && `z-index: 99;`};
     ${fixedToolbar && position === 'below' && `bottom: 0;`};
     ${fixedToolbar && position === 'above' && `top: 0;` };
 

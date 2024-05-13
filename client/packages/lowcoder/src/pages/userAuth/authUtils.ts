@@ -8,7 +8,7 @@ import { AxiosPromise, AxiosResponse } from "axios";
 import { ApiResponse } from "api/apiResponses";
 import { doValidResponse } from "api/apiUtils";
 import { SERVER_ERROR_CODES } from "constants/apiConstants";
-import { messageInstance } from "lowcoder-design";
+import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 
 import { trans } from "i18n";
 import { createContext, useState } from "react";
@@ -116,11 +116,11 @@ export const checkPassWithMsg = (value: string) => {
   return [valid, messages.join(",")] as const;
 };
 
-export const getLoginTitle = (inviteUserName?: string, brandName?: string) => {
-  const productName = brandName ?? trans("productName");
+export const getLoginTitle = (inviteUserName?: string) => {
+  // const productName = brandName ?? trans("productName");
   return inviteUserName
-    ? trans("userAuth.inviteWelcomeTitle", { username: inviteUserName, productName })
-    : trans("userAuth.welcomeTitle", { productName });
+    ? trans("userAuth.inviteWelcomeTitle", { username: inviteUserName })
+    : trans("userAuth.userLogin"); 
 };
 
 /**

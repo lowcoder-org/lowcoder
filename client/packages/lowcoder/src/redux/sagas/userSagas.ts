@@ -1,5 +1,5 @@
 import { ApiResponse } from "api/apiResponses";
-import UserApi, { GetCurrentUserResponse, GetUserResponse } from "api/userApi";
+import UserApi, { FetchApiKeysResponse, GetCurrentUserResponse, GetUserResponse } from "api/userApi";
 import { AxiosResponse } from "axios";
 import {
   ReduxAction,
@@ -20,10 +20,11 @@ import { validateResponse } from "api/apiUtils";
 import { Org } from "constants/orgConstants";
 import { SERVER_ERROR_CODES } from "constants/apiConstants";
 import { defaultUser } from "constants/userConstants";
-import { messageInstance } from "lowcoder-design";
+import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 
 import { AuthSearchParams } from "constants/authConstants";
 import { saveAuthSearchParams } from "pages/userAuth/authUtils";
+import { initTranslator } from "i18n";
 
 function validResponseData(response: AxiosResponse<ApiResponse>) {
   return response && response.data && response.data.data;
@@ -90,6 +91,8 @@ export function* getCurrentUserSaga() {
         type: ReduxActionTypes.FETCH_CURRENT_USER_SUCCESS,
         payload: response.data.data,
       });
+      const { uiLanguage } = response.data.data;
+      initTranslator(uiLanguage);
     }
   } catch (error: any) {
     yield put({
@@ -174,6 +177,22 @@ function* markUserStatusSaga(action: ReduxAction<MarkUserStatusPayload>) {
   }
 }
 
+export function* fetchApiKeysSaga() {
+  try {
+    const response: AxiosResponse<FetchApiKeysResponse> = yield call(UserApi.fetchApiKeys);
+    const isValidResponse: boolean = validateResponse(response);
+    if (isValidResponse) {
+      const apiKeys = response.data.data;
+      yield put({
+        type: ReduxActionTypes.FETCH_API_KEYS_SUCCESS,
+        payload: apiKeys,
+      });
+    }
+  } catch(error: any) {
+    log.error(error);
+  }
+}
+
 export default function* userSagas() {
   yield all([
     takeLatest(ReduxActionTypes.LOGOUT_USER_INIT, logoutSaga),
@@ -182,5 +201,6 @@ export default function* userSagas() {
     takeLatest(ReduxActionTypes.FETCH_RAW_CURRENT_USER, getRawCurrentUserSaga),
     takeLatest(ReduxActionTypes.UPDATE_USER_PROFILE, updateUserSaga),
     takeLatest(ReduxActionTypes.MARK_USER_STATUS, markUserStatusSaga),
+    takeLatest(ReduxActionTypes.FETCH_API_KEYS, fetchApiKeysSaga),
   ]);
 }

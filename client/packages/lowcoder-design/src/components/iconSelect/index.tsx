@@ -1,12 +1,12 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import type { IconDefinition } from "@fortawesome/free-regular-svg-icons";
 // import type { IconDefinition as IconDefinitionBrands } from "@fortawesome/free-brands-svg-icons";
-import { Popover } from "antd";
-import { ActionType } from "@rc-component/trigger/lib/interface";
+import { default as Popover } from "antd/lib/popover";
+import type { ActionType } from "@rc-component/trigger/lib/interface";
 import { TacoInput } from "components/tacoInput";
 import { Tooltip } from "components/toolTip";
 import { trans } from "i18n/design";
-import _ from "lodash";
+import { upperFirst, sortBy } from "lodash";
 import {
   ReactNode,
   useEffect,
@@ -14,13 +14,13 @@ import {
   useMemo,
   useRef,
   useState,
+  Suspense
 } from "react";
 import Draggable from "react-draggable";
-import { default as List, ListRowProps } from "react-virtualized/dist/es/List";
+import { default as List, type ListRowProps } from "react-virtualized/dist/es/List";
 import styled from "styled-components";
 import { CloseIcon, SearchIcon } from "icons";
 import { ANTDICON } from "icons/antIcon";
-import { Divider } from "antd-mobile";
 
 const PopupContainer = styled.div`
   width: 580px;
@@ -141,7 +141,7 @@ class Icon {
   readonly title: string;
   constructor(readonly def: IconDefinition | any, readonly names: string[]) {
     if (def?.iconName) {
-      this.title = def.iconName.split("-").map(_.upperFirst).join(" ");
+      this.title = def.iconName.split("-").map(upperFirst).join(" ");
     } else {
       this.title = names[0].slice(5);
       this.def = def;
@@ -231,7 +231,7 @@ function search(
     .toLowerCase()
     .split(/\s+/g)
     .filter((t) => t);
-  return _.sortBy(
+  return sortBy(
     Object.entries(allIcons).filter(([key, icon]) => {
       if (icon.names.length === 0) {
         return false;
@@ -297,7 +297,11 @@ const IconPopup = (props: {
                   onChangeIcon(key);
                 }}
               >
-                <IconWrapper>{icon.getView()}</IconWrapper>
+                <IconWrapper>
+                  <Suspense fallback={null}>
+                    {icon.getView()}
+                  </Suspense>
+                </IconWrapper>
                 <IconKeyDisplay>{key}</IconKeyDisplay>
               </IconItemContainer>
             </Tooltip>
@@ -394,7 +398,7 @@ export const IconSelect = (props: {
       visible={visible}
       setVisible={setVisible}
       trigger="click"
-      leftOffset={-96}
+      leftOffset={-30}
       searchKeywords={props.searchKeywords}
     />
   );

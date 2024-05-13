@@ -1,5 +1,4 @@
-import { CodeEditorTooltipContainer } from "base/codeEditor/codeEditor";
-import { EditorState, EditorView } from "base/codeEditor/codeMirror";
+import type { EditorState, EditorView } from "base/codeEditor/codeMirror";
 import { iconRegexp, iconWidgetClass } from "base/codeEditor/extensions/iconExtension";
 import { i18nObjs, trans } from "i18n";
 import {
@@ -71,7 +70,7 @@ const Wrapper = styled.div`
   }
 `;
 
-const IconPicker = (props: {
+export const IconPicker = (props: {
   value: string;
   onChange: (value: string) => void;
   label?: ReactNode;

@@ -4,7 +4,7 @@ import { range } from "lodash";
 import { DateTimeStyleType } from "../../controls/styleControlConstants";
 import { css } from "styled-components";
 import { isDarkColor, lightenColor } from "components/colorSelect/colorUtils";
-import { CommonPickerMethods } from "antd/lib/date-picker/generatePicker/interface";
+import { CommonPickerMethods } from "antd/es/date-picker/generatePicker/interface";
 import { blurMethod, focusMethod } from "comps/utils/methodUtils";
 import { refMethods } from "comps/generators/withMethodExposing";
 
@@ -73,6 +73,8 @@ export const getStyle = (style: DateTimeStyleType) => {
     &:not(.ant-picker-disabled) {
       border-color: ${style.border};
       background-color: ${style.background};
+      border-width: ${style.borderWidth};
+      border-style: ${style.borderStyle};
 
       input {
         color: ${style.text};

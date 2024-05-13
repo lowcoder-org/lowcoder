@@ -75,6 +75,7 @@ const ShowChildren = styled.div<{ $show?: string; $noMargin?: boolean }>`
 
 interface ISectionConfig<T> {
   name?: string;
+  open?: boolean;
   width?: number;
   noMargin?: boolean;
   style?: React.CSSProperties;
@@ -103,7 +104,9 @@ export const PropertySectionContext = React.createContext<PropertySectionContext
 export const BaseSection = (props: ISectionConfig<ReactNode>) => {
   const { name } = props;
   const { compName, state, toggle } = useContext(PropertySectionContext);
-  const open = name ? state[compName]?.[name] !== false : true;
+  const open = props.open !== undefined ? props.open : name ? state[compName]?.[name] !== false : true;
+
+  // console.log("open", open, props.open);
 
   const handleToggle = () => {
     if (!name) {
@@ -142,6 +145,16 @@ export const sectionNames = {
   validation: trans("prop.validation"),
   layout: trans("prop.layout"),
   style: trans("prop.style"),
+  labelStyle:trans("prop.labelStyle"),
   data: trans("prop.data"),
-  meetings : trans("prop.meetings"), // added by Falk Wolsky
+  meetings: trans("prop.meetings"), // added by Falk Wolsky
+  field: trans("prop.field"),
+  inputFieldStyle:trans("prop.inputFieldStyle"),
+  avatarStyle:trans("prop.avatarStyle"),
+  captionStyle:trans("prop.captionStyle"),
+  startButtonStyle:trans("prop.startButtonStyle"),
+  resetButtonStyle:trans("prop.resetButtonStyle"),
+  headerStyle:trans("prop.headerStyle"),
+  bodyStyle:trans("prop.bodyStyle"),
+  badgeStyle:trans("prop.badgeStyle"),
 };

@@ -5,7 +5,7 @@ import { manualOptionsControl } from "comps/controls/optionsControl";
 import { BoolCodeControl, StringControl } from "comps/controls/codeControl";
 import { IconControl } from "comps/controls/iconControl";
 import styled from "styled-components";
-import React, { Suspense, useContext, useState } from "react";
+import React, { Suspense, useContext, useState } from "react";  
 import { registerLayoutMap } from "comps/comps/uiComp";
 import { AppSelectComp } from "comps/comps/layout/appSelectComp";
 import { NameAndExposingInfo } from "comps/utils/exposingTypes";
@@ -190,6 +190,8 @@ MobileTabLayoutTmp = withViewFn(MobileTabLayoutTmp, (comp) => {
       readOnly={!!readOnly}
     />
   );
+
+  //console.log("appView", appView);
 
   if (readOnly) {
     return (

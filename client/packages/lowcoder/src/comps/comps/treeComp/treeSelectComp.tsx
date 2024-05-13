@@ -6,7 +6,7 @@ import { default as TreeSelect } from "antd/es/tree-select";
 import { useEffect } from "react";
 import styled from "styled-components";
 import { styleControl } from "comps/controls/styleControl";
-import { TreeSelectStyle, TreeSelectStyleType } from "comps/controls/styleControlConstants";
+import {  InputFieldStyle, LabelStyle, TreeSelectStyle, TreeSelectStyleType } from "comps/controls/styleControlConstants";
 import { LabelControl } from "comps/controls/labelControl";
 import { dropdownControl } from "comps/controls/dropdownControl";
 import {
@@ -65,7 +65,9 @@ const childrenMap = {
   allowClear: BoolControl,
   showSearch: BoolControl.DEFAULT_TRUE,
   inputValue: stateComp<string>(""), // search value
-  style: styleControl(TreeSelectStyle),
+  style: withDefault(styleControl(InputFieldStyle), {borderWidth: '1px'}),
+  labelStyle:styleControl(LabelStyle),
+  inputFieldStyle: withDefault(styleControl(TreeSelectStyle), {borderWidth: '1px'}),
   viewRef: RefControl<BaseSelectRef>,
 };
 
@@ -83,7 +85,7 @@ function getCheckedStrategy(v: ValueFromOption<typeof checkedStrategyOptions>) {
 const TreeCompView = (
   props: RecordConstructorToView<typeof childrenMap> & { dispatch: DispatchType }
 ) => {
-  const { treeData, selectType, value, expanded, style, inputValue } = props;
+  const { treeData, selectType, value, expanded, style,labelStyle, inputValue } = props;
   const isSingle = selectType === "single";
   const [
     validateState,
@@ -99,12 +101,14 @@ const TreeCompView = (
   return props.label({
     required: props.required,
     ...validateState,
-    style: style,
+    style,
+    labelStyle,
+    inputFieldStyle:props.inputFieldStyle,
     children: (
       <StyledTreeSelect
         ref={props.viewRef}
         key={selectType}
-        $style={style}
+        $style={props.inputFieldStyle}
         popupMatchSelectWidth={false}
         disabled={props.disabled}
         placeholder={props.placeholder}
@@ -180,11 +184,12 @@ let TreeBasicComp = (function () {
         {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && ( children.label.getPropertyView() )}
 
         {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+          <>
           <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
+          <Section name={sectionNames.labelStyle}>{children.labelStyle.getPropertyView()}</Section>
+          <Section name={sectionNames.inputFieldStyle}>{children.inputFieldStyle.getPropertyView()}</Section>
+          </>
         )}
-
-
-
       </>
     ))
     .setExposeMethodConfigs(baseSelectRefMethods)

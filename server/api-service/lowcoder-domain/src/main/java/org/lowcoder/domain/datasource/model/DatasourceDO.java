@@ -2,6 +2,11 @@ package org.lowcoder.domain.datasource.model;
 
 import java.util.Map;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
+import lombok.extern.jackson.Jacksonized;
 import org.lowcoder.sdk.models.HasIdAndAuditing;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -14,6 +19,10 @@ import lombok.Setter;
 @Document(collection = "datasource")
 @Getter
 @Setter
+@Jacksonized
+@SuperBuilder
+@NoArgsConstructor
+@AllArgsConstructor
 public class DatasourceDO extends HasIdAndAuditing {
 
     private String name;

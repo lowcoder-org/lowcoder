@@ -29,6 +29,8 @@
   },
   "dependencies": {
     "@apidevtools/swagger-parser": "^10.1.0",
+    "@aws-sdk/client-appconfig": "^3.533.0",
+    "@aws-sdk/client-appconfigdata": "^3.533.0",
     "@aws-sdk/client-athena": "^3.333.0",
     "@aws-sdk/client-dynamodb": "^3.332.0",
     "@aws-sdk/client-lambda": "^3.332.0",
@@ -46,6 +48,7 @@
     "@types/node-fetch": "^2.6.2",
     "axios": "^1.2.0",
     "base64-arraybuffer": "^1.0.2",
+    "duckdb-async": "^0.10.0",
     "dynamodb-data-types": "^4.0.1",
     "express": "^4.18.2",
     "express-async-errors": "^3.1.1",

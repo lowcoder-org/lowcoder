@@ -1,7 +1,7 @@
 import { PresetStatusColorType } from "antd/es/_util/colors";
 import _ from "lodash";
 import { changeChildAction, DispatchType } from "lowcoder-core";
-import { constantColors } from "lowcoder-design";
+import { constantColors } from "lowcoder-design/src/components/colorSelect/colorUtils";
 import React, { ReactNode, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
 import { JSONValue } from "util/jsonTypes";
@@ -71,6 +71,7 @@ export function EditableCell<T extends JSONValue>(props: EditableCellProps<T>) {
     changeValue,
     baseValue,
     candidateTags,
+    // tagColors
     candidateStatus,
     onTableEvent,
   } = props;
@@ -78,8 +79,8 @@ export function EditableCell<T extends JSONValue>(props: EditableCellProps<T>) {
   const editable = editViewFn ? props.editable : false;
   const { isEditing, setIsEditing } = useContext(TableCellContext);
   const value = changeValue ?? baseValue!;
-
   const [tmpValue, setTmpValue] = useState<T | null>(value);
+
   useEffect(() => {
     setTmpValue(value);
   }, [value]);

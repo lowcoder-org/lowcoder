@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import lombok.RequiredArgsConstructor;
 import org.lowcoder.domain.permission.model.ResourceHolder;
 import org.lowcoder.domain.permission.model.ResourcePermission;
 import org.lowcoder.domain.permission.model.ResourceRole;
@@ -26,15 +27,12 @@ import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
 @Slf4j
-@Lazy
+@RequiredArgsConstructor
 @Service
 public class ResourcePermissionRepositoryImpl implements ResourcePermissionRepository {
 
-    @Autowired
-    private MongoUpsertHelper mongoUpsertHelper;
-
-    @Autowired
-    private BiRelationService biRelationService;
+    private final MongoUpsertHelper mongoUpsertHelper;
+    private final BiRelationService biRelationService;
 
     @Override
     public Mono<Map<String, Collection<ResourcePermission>>> getByResourceTypeAndResourceIds(ResourceType resourceType,

@@ -11,22 +11,18 @@ async function npmLoader(
   remoteInfo: RemoteCompInfo
 ): Promise<CompConstructor | null> {
 
-  console.log("remoteInfo: ", remoteInfo);
-
-  // Falk: removed "packageVersion = "latest" as default value for packageVersion - to ensure no automatic version jumping.
-
-  var localPackageVersion = remoteInfo.packageVersion || "latest";
+  // Falk: removed "packageVersion = "latest" as default value fir packageVersion - to ensure no automatic version jumping.
+  const localPackageVersion = remoteInfo.packageVersion || "latest";
   const { packageName, packageVersion, compName } = remoteInfo;
-
-  // Falk: Special handling for lowcoder-comps package for old versions before 2.4.0
-  if (packageName === "lowcoder-comps") {
-    localPackageVersion = "0.0.32";
-  }
-
   const entry = `${NPM_PLUGIN_ASSETS_BASE_URL}/${packageName}@${localPackageVersion}/index.js`;
-    
+
   try {
-    const module = await import(/* webpackIgnore: true */ entry);
+    const module = await import(
+      /* @vite-ignore */
+      /* webpackIgnore: true */
+      entry
+    );
+    // console.log("Entry 1", module);
     const comp = module.default?.[compName];
     if (!comp) {
       throw new Error(trans("npm.compNotFound", { compName }));
@@ -43,8 +39,12 @@ async function bundleLoader(
 ): Promise<CompConstructor | null> {
   const { packageName, packageVersion = "latest", compName } = remoteInfo;
   const entry = `/${packageName}/${packageVersion}/index.js?v=${REACT_APP_COMMIT_ID}`;
-  const module = await import(/* webpackIgnore: true */ entry);
-  const comp = module.default?.[compName];
+  const module = await import(
+    /* @vite-ignore */
+    /* webpackIgnore: true */
+    entry
+  );
+  const comp = module?.default?.[compName];
   if (!comp) {
     throw new Error(trans("npm.compNotFound", { compName }));
   }

@@ -3,8 +3,10 @@ import { Input, Section, sectionNames } from "lowcoder-design";
 import { BoolControl } from "comps/controls/boolControl";
 import { styleControl } from "comps/controls/styleControl";
 import {
+  InputFieldStyle,
   InputLikeStyle,
   InputLikeStyleType,
+  LabelStyle,
 } from "comps/controls/styleControlConstants";
 import {
   NameConfig,
@@ -72,7 +74,8 @@ const childrenMap = {
   ...textInputChildren,
   viewRef: RefControl<InputRef>,
   allowClear: BoolControl.DEFAULT_TRUE,
-  style: styleControl(InputLikeStyle),
+  style: styleControl(InputFieldStyle),
+  labelStyle:styleControl(LabelStyle),
   prefixIcon: IconControl,
   suffixIcon: IconControl,
   items: jsonControl(convertAutoCompleteData, autoCompleteDate),
@@ -85,6 +88,7 @@ const childrenMap = {
   autocompleteIconColor: dropdownControl(autocompleteIconColor, "blue"),
   componentSize: dropdownControl(componentSize, "small"),
   valueInItems: booleanExposingStateControl("valueInItems"),
+  inputFieldStyle: styleControl(InputLikeStyle),
 };
 
 const getValidate = (value: any): "" | "warning" | "error" | undefined => {
@@ -153,11 +157,11 @@ let AutoCompleteCompBase = (function () {
           <ConfigProvider
             theme={{
               token: {
-                colorBgContainer: props.style.background,
-                colorBorder: props.style.border,
-                borderRadius: parseInt(props.style.radius),
-                colorText: props.style.text,
-                colorPrimary: props.style.accent,
+                colorBgContainer: props.inputFieldStyle.background,
+                colorBorder: props.inputFieldStyle.border,
+                borderRadius: parseInt(props.inputFieldStyle.radius),
+                colorText: props.inputFieldStyle.text,
+                colorPrimary: props.inputFieldStyle.accent,
                 controlHeight: componentSize === "small" ? 30 : 38,
               },
             }}
@@ -266,7 +270,7 @@ let AutoCompleteCompBase = (function () {
                   ref={props.viewRef}
                   placeholder={placeholder}
                   allowClear={props.allowClear}
-                  $style={props.style}
+                  $style={props.inputFieldStyle}
                   prefix={hasIcon(props.prefixIcon) && props.prefixIcon}
                   suffix={hasIcon(props.suffixIcon) && props.suffixIcon}
                   status={getValidate(validateState)}
@@ -276,8 +280,10 @@ let AutoCompleteCompBase = (function () {
           </ConfigProvider>
         </>
       ),
-      // style: props.style,
-      // ...validateState,
+      style: props.style,
+      labelStyle: props.labelStyle,
+      inputFieldStyle:props.inputFieldStyle,
+      ...validateState,
     });
   })
     .setPropertyViewFn((children) => {
@@ -334,6 +340,12 @@ let AutoCompleteCompBase = (function () {
 
           <Section name={sectionNames.style}>
             {children.style.getPropertyView()}
+          </Section>
+          <Section name={sectionNames.labelStyle}>
+            {children.labelStyle.getPropertyView()}
+          </Section>
+          <Section name={sectionNames.inputFieldStyle}>
+            {children.inputFieldStyle.getPropertyView()}
           </Section>
         </>
       );

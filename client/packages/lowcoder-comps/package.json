@@ -1,6 +1,6 @@
 {
   "name": "lowcoder-comps",
-  "version": "0.0.27",
+  "version": "2.4.5",
   "type": "module",
   "license": "MIT",
   "dependencies": {
@@ -10,13 +10,17 @@
     "@fullcalendar/interaction": "^6.1.6",
     "@fullcalendar/list": "^6.1.9",
     "@fullcalendar/moment": "^6.1.6",
+    "@fullcalendar/multimonth": "^6.1.6",
     "@fullcalendar/react": "^6.1.6",
     "@fullcalendar/resource": "^6.1.11",
     "@fullcalendar/resource-timegrid": "^6.1.11",
     "@fullcalendar/resource-timeline": "^6.1.11",
     "@fullcalendar/timegrid": "^6.1.6",
+    "@fullcalendar/timeline": "^6.1.6",
     "@types/react": "^18.2.45",
     "@types/react-dom": "^18.2.18",
+    "agora-rtc-sdk-ng": "^4.20.2",
+    "agora-rtm-sdk": "^1.5.1",
     "big.js": "^6.2.1",
     "echarts-extension-gmap": "^1.6.0",
     "echarts-wordcloud": "^2.1.0",
@@ -30,19 +34,27 @@
   "lowcoder": {
     "description": "",
     "comps": {
-      "chart": {
-        "name": "Chart",
-        "icon": "./icons/icon-chart.svg",
+      "meetingController": {
+        "name": "Agora Meeting Controller",
+        "icon": "./icons/icon-comp-calendar.svg",
         "layoutInfo": {
-          "w": 15,
+          "w": 1,
+          "h": 1
+        }
+      },
+      "meetingSharing": {
+        "name": "Agora Meeting Sharing",
+        "icon": "./icons/icon-comp-calendar.svg",
+        "layoutInfo": {
+          "w": 6,
           "h": 40
         }
       },
-      "imageEditor": {
-        "name": "Image Editor",
-        "icon": "./icons/icon-chart.svg",
+      "meetingStream": {
+        "name": "Video Stream",
+        "icon": "./icons/icon-comp-calendar.svg",
         "layoutInfo": {
-          "w": 15,
+          "w": 6,
           "h": 40
         }
       },
@@ -50,16 +62,136 @@
         "name": "Calendar",
         "icon": "./icons/icon-comp-calendar.svg",
         "layoutInfo": {
-          "w": 15,
+          "w": 19,
           "h": 60
+        }
+      },
+      "chart": {
+        "name": "Chart",
+        "icon": "./icons/icon-chart.svg",
+        "layoutInfo": {
+          "w": 12,
+          "h": 40
+        }
+      },
+      "basicChart": {
+        "name": "Basic Chart",
+        "icon": "./icons/icon-chart.svg",
+        "layoutInfo": {
+          "w": 12,
+          "h": 40
+        }
+      },
+      "imageEditor": {
+        "name": "Image Editor",
+        "icon": "./icons/icon-chart.svg",
+        "layoutInfo": {
+          "w": 12,
+          "h": 40
         }
       },
       "mermaid": {
         "name": "Mermaid",
         "icon": "./icons/mermaidchart.svg",
         "layoutInfo": {
-          "w": 15,
+          "w": 12,
           "h": 40
+        }
+      },
+      "funnelChart": {
+        "name": "Funnel Chart",
+        "icon": "./icons/icon-chart.svg",
+        "layoutInfo": {
+          "w": 12,
+          "h": 40
+        }
+      },
+      "gaugeChart": {
+        "name": "Gauge Chart",
+        "icon": "./icons/icon-chart.svg",
+        "layoutInfo": {
+          "w": 12,
+          "h": 40
+        }
+      },
+      "sankeyChart": {
+        "name": "Sankey Chart",
+        "icon": "./icons/icon-chart.svg",
+        "layoutInfo": {
+          "w": 12,
+          "h": 40
+        }
+      },
+      "candleStickChart": {
+        "name": "CandleStick Chart",
+        "icon": "./icons/icon-chart.svg",
+        "layoutInfo": {
+          "w": 12,
+          "h": 40
+        }
+      },
+      "radarChart": {
+        "name": "Radar Chart",
+        "icon": "./icons/icon-chart.svg",
+        "layoutInfo": {
+          "w": 12,
+          "h": 40
+        }
+      },
+      "heatmapChart": {
+        "name": "Heatmap Chart",
+        "icon": "./icons/icon-chart.svg",
+        "layoutInfo": {
+          "w": 12,
+          "h": 40
+        }
+      },
+      "graphChart": {
+        "name": "Graph Chart",
+        "icon": "./icons/icon-chart.svg",
+        "layoutInfo": {
+          "w": 12,
+          "h": 40
+        }
+      },
+      "treeChart": {
+        "name": "Tree Chart",
+        "icon": "./icons/icon-chart.svg",
+        "layoutInfo": {
+          "w": 12,
+          "h": 40
+        }
+      },
+      "treemapChart": {
+        "name": "Treemap Chart",
+        "icon": "./icons/icon-chart.svg",
+        "layoutInfo": {
+          "w": 12,
+          "h": 40
+        }
+      },
+      "sunburstChart": {
+        "name": "Sunburst Chart",
+        "icon": "./icons/icon-chart.svg",
+        "layoutInfo": {
+          "w": 12,
+          "h": 40
+        }
+      },
+      "themeriverChart": {
+        "name": "Themeriver Chart",
+        "icon": "./icons/icon-chart.svg",
+        "layoutInfo": {
+          "w": 12,
+          "h": 40
+        }
+      },
+      "chartsGeoMap": {
+        "name": "chartsGeoMap",
+        "icon": "./icons/icon-chart.svg",
+        "layoutInfo": {
+          "w": 19,
+          "h": 60
         }
       }
     }

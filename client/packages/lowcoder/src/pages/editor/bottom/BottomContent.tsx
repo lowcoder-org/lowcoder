@@ -13,7 +13,7 @@ import { ResCreatePanel } from "components/ResCreatePanel";
 import { trans } from "i18n";
 import { getDataSource } from "redux/selectors/datasourceSelectors";
 import { useMetaData } from "util/hooks";
-import { messageInstance } from "lowcoder-design";
+import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 
 const Container = styled.div`
   width: 100%;
@@ -143,7 +143,13 @@ export const BottomContent = () => {
       </Left>
       <Drag />
       <Right>
-        <div style={{ width: "100%", height: "100%", minWidth: "480px" }}>
+        <div style={{
+          width: "100%",
+          height: "100%",
+          minWidth: "480px",
+          display: "flex",
+          flexDirection: "column",
+        }}>
           <MetaDataContext.Provider value={metaData}>
             <CompNameContext.Provider
               value={editorState.selectedQueryComp()?.children.name.getView() || ""}

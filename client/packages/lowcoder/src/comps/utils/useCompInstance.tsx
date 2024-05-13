@@ -5,7 +5,7 @@ import {
   ENABLE_ACTION_PRIORITY,
   UPDATE_ROOT_VIEW_DEBOUNCE,
 } from "constants/perf";
-import _ from "lodash";
+import { debounce } from "lodash";
 import log from "loglevel";
 import { CompAction, CompActionTypes, CompConstructor } from "lowcoder-core";
 import { useEffect, useMemo, useState } from "react";
@@ -305,7 +305,7 @@ export function useCompInstance<T extends CompConstructor>(
     let updateHandler = () => setComp(container.comp);
 
     if (UPDATE_ROOT_VIEW_DEBOUNCE > 0) {
-      updateHandler = _.debounce(() => {
+      updateHandler = debounce(() => {
         setComp(container.comp);
       }, UPDATE_ROOT_VIEW_DEBOUNCE);
     }

@@ -1,5 +1,6 @@
 package org.lowcoder.domain.authentication;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.lowcoder.domain.organization.service.OrgMemberService;
 import org.lowcoder.domain.organization.service.OrganizationService;
@@ -22,19 +23,14 @@ import static org.lowcoder.sdk.exception.BizError.LOG_IN_SOURCE_NOT_SUPPORTED;
 import static org.lowcoder.sdk.util.ExceptionUtils.ofError;
 
 @Slf4j
+@RequiredArgsConstructor
 @Service
 public class AuthenticationServiceImpl implements AuthenticationService {
 
-    @Autowired
-    private OrganizationService organizationService;
-
-    @Autowired
-    private OrgMemberService orgMemberService;
-
-    @Autowired
-    private CommonConfig commonConfig;
-    @Autowired
-    private AuthProperties authProperties;
+    private final OrganizationService organizationService;
+    private final OrgMemberService orgMemberService;
+    private final CommonConfig commonConfig;
+    private final AuthProperties authProperties;
 
     @Override
     public Mono<FindAuthConfig> findAuthConfigByAuthId(String orgId, String authId) {

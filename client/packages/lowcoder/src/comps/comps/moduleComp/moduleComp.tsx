@@ -68,7 +68,7 @@ type UpdateDslAction = {
   moduleDsl: Record<string, DSLType>;
 };
 
-type ModuleReadyAction = {
+export type ModuleReadyAction = {
   type: "moduleReady";
   comp: RootComp;
 };
@@ -123,7 +123,7 @@ class ModuleTmpComp extends ModuleCompBase {
         )}
         <Section name={sectionNames.layout}>
           {!this.autoScaleCompHeight() && this.children.autoHeight.getPropertyView()}
-          {this.children.scrollbars.propertyView({
+          {!this.autoScaleCompHeight() && this.children.scrollbars.propertyView({
             label: trans("prop.scrollbar"),
           })}
           {hiddenPropertyView(this.children)}
@@ -263,7 +263,6 @@ class ModuleTmpComp extends ModuleCompBase {
 
   override reduce(action: CompAction<JSONValue>): this {
     const appId = this.children.appId.getView();
-
     // init
     if (isMyCustomAction<InitAction>(action, "init")) {
       if (getReduceContext().disableUpdateState) return this;
@@ -531,7 +530,7 @@ const ModuleCompWithView = withViewFn(ModuleTmpComp, (comp) => {
   if (comp.moduleRootComp && comp.isReady) {
     content = (
       <Wrapper className="module-wrapper">
-        <ScrollBar style={{ height: comp.autoHeight() ? "100%" : "auto", margin: "0px", padding: "0px" }} hideScrollbar={!scrollbars}>
+        <ScrollBar style={{ height: comp.autoHeight() ? "100%" : "100%", margin: "0px", padding: "0px" }} hideScrollbar={!scrollbars}>
           <ExternalEditorContext.Provider value={moduleExternalState}>
            {comp.moduleRootComp.getView()}
           </ExternalEditorContext.Provider>

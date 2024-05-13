@@ -1,6 +1,8 @@
 package org.lowcoder.api.framework.security;
 
 
+import jakarta.annotation.Nonnull;
+import lombok.RequiredArgsConstructor;
 import org.lowcoder.api.authentication.request.AuthRequestFactory;
 import org.lowcoder.api.authentication.service.AuthenticationApiServiceImpl;
 import org.lowcoder.api.authentication.util.JWTUtils;
@@ -14,7 +16,6 @@ import org.lowcoder.domain.user.service.UserService;
 import org.lowcoder.infra.constant.NewUrl;
 import org.lowcoder.sdk.config.CommonConfig;
 import org.lowcoder.sdk.util.CookieHelper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -23,6 +24,7 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
+import org.springframework.security.config.web.server.ServerHttpSecurity.CsrfSpec;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.ServerAuthenticationEntryPoint;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
@@ -32,7 +34,6 @@ import org.springframework.web.cors.reactive.CorsConfigurationSource;
 import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
 import org.springframework.web.server.adapter.ForwardedHeaderTransformer;
 
-import javax.annotation.Nonnull;
 import java.util.List;
 
 import static org.lowcoder.infra.constant.NewUrl.GITHUB_STAR;
@@ -40,40 +41,22 @@ import static org.lowcoder.infra.constant.Url.*;
 import static org.lowcoder.sdk.constants.Authentication.ANONYMOUS_USER;
 import static org.lowcoder.sdk.constants.Authentication.ANONYMOUS_USER_ID;
 
+@RequiredArgsConstructor
 @Configuration
 @EnableWebFluxSecurity
-@EnableReactiveMethodSecurity
+@EnableReactiveMethodSecurity(useAuthorizationManager = true)
 public class SecurityConfig {
 
-    @Autowired
-    private CommonConfig commonConfig;
-
-    @Autowired
-    private SessionUserService sessionUserService;
-
-    @Autowired
-    private UserService userService;
-
-    @Autowired
-    private AccessDeniedHandler accessDeniedHandler;
-
-    @Autowired
-    private ServerAuthenticationEntryPoint serverAuthenticationEntryPoint;
-
-    @Autowired
-    private CookieHelper cookieHelper;
-
-    @Autowired
-    AuthenticationService authenticationService;
-
-    @Autowired
-    AuthenticationApiServiceImpl authenticationApiService;
-
-    @Autowired
-    AuthRequestFactory<AuthRequestContext> authRequestFactory;
-
-    @Autowired
-    JWTUtils jwtUtils;
+    private final CommonConfig commonConfig;
+    private final SessionUserService sessionUserService;
+    private final UserService userService;
+    private final AccessDeniedHandler accessDeniedHandler;
+    private final ServerAuthenticationEntryPoint serverAuthenticationEntryPoint;
+    private final CookieHelper cookieHelper;
+    private final AuthenticationService authenticationService;
+    private final AuthenticationApiServiceImpl authenticationApiService;
+    private final AuthRequestFactory<AuthRequestContext> authRequestFactory;
+    private final JWTUtils jwtUtils;
 
     @Bean
     SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
@@ -90,7 +73,7 @@ public class SecurityConfig {
     	
     	http
     		.cors(cors -> cors.configurationSource(buildCorsConfigurationSource()))
-            .csrf(csrf -> csrf.disable())
+            .csrf(CsrfSpec::disable)
             .anonymous(anonymous -> anonymous.principal(createAnonymousUser()))
             .httpBasic(Customizer.withDefaults())
             .authorizeExchange(customizer -> customizer
@@ -113,6 +96,8 @@ public class SecurityConfig {
 
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, USER_URL + "/me"),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, USER_URL + "/currentUser"),
+                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, USER_URL + "/lost-password"),
+                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, USER_URL + "/reset-lost-password"),
 
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, GROUP_URL + "/list"), // application view
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, QUERY_URL + "/execute"), // application view
@@ -139,6 +124,8 @@ public class SecurityConfig {
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, NewUrl.APPLICATION_URL + "/marketplace-apps"), // marketplace apps
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, NewUrl.USER_URL + "/me"),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, NewUrl.USER_URL + "/currentUser"),
+                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, NewUrl.USER_URL + "/lost-password"),
+                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, NewUrl.USER_URL + "/reset-lost-password"),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, NewUrl.GROUP_URL + "/list"),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, NewUrl.QUERY_URL + "/execute"),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, NewUrl.MATERIAL_URL + "/**"),
@@ -146,7 +133,9 @@ public class SecurityConfig {
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, NewUrl.DATASOURCE_URL + "/jsDatasourcePlugins"),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, "/api/docs/**")
                 )
-                	.permitAll()
+                .permitAll()
+                .pathMatchers("/api/plugins/**")
+                .permitAll()
                 .pathMatchers("/api/**")
                 	.authenticated()
                 .pathMatchers("/test/**")
@@ -223,7 +212,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public ForwardedHeaderTransformer forwardedHeaderTransformer() {
+    ForwardedHeaderTransformer forwardedHeaderTransformer() {
         return new ForwardedHeaderTransformer();
     }
 

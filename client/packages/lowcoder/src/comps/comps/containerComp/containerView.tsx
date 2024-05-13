@@ -195,7 +195,7 @@ const onFlyDrop = (layout: Layout, items: Layout, dispatch: DispatchType) => {
   }
 };
 
-const onDrop = (
+const onDrop = async (
   layout: Layout,
   items: Layout,
   event: DragEvent<HTMLElement>,
@@ -222,7 +222,20 @@ const onDrop = (
     const nameGenerator = editorState.getNameGenerator();
     const compInfo = parseCompType(compType);
     const compName = nameGenerator.genItemName(compInfo.compName);
-    const defaultDataFn = uiCompRegistry[compType as UICompType]?.defaultDataFn;
+    let defaultDataFn = undefined;
+    
+    if (!compInfo.isRemote) {
+      const {
+        defaultDataFnName,
+        defaultDataFnPath,
+      } = uiCompRegistry[compType as UICompType];
+  
+      if(defaultDataFnName && defaultDataFnPath) {
+        const module = await import(`../../${defaultDataFnPath}.tsx`);
+        defaultDataFn = module[defaultDataFnName];
+      }
+    }
+
     const widgetValue: GridItemDataType = {
       compType,
       name: compName,
@@ -329,6 +342,7 @@ export function InnerGrid(props: ViewPropsWithSelect) {
   const editorState = useContext(EditorContext);
   const { readOnly } = useContext(ExternalEditorContext);
 
+  // Falk: TODO: Here we can define the inner grid columns dynamically
   //Added By Aqib Mirza
   const defaultGrid =
     useContext(ThemeContext)?.theme?.gridColumns ||

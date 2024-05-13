@@ -1,15 +1,9 @@
 package org.lowcoder.api.util;
 
-import static org.lowcoder.domain.permission.model.ResourceHolder.USER;
-
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
-import java.util.Optional;
-
-import javax.annotation.Nullable;
-
+import com.google.common.hash.Hashing;
+import jakarta.annotation.Nullable;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.lowcoder.api.application.view.ApplicationInfoView;
 import org.lowcoder.api.application.view.ApplicationView;
@@ -32,7 +26,6 @@ import org.lowcoder.domain.query.model.LibraryQuery;
 import org.lowcoder.domain.user.model.User;
 import org.lowcoder.domain.user.service.UserService;
 import org.lowcoder.infra.event.ApplicationCommonEvent;
-import org.lowcoder.infra.event.EventType;
 import org.lowcoder.infra.event.FolderCommonEvent;
 import org.lowcoder.infra.event.LibraryQueryEvent;
 import org.lowcoder.infra.event.QueryExecutionEvent;
@@ -47,46 +40,51 @@ import org.lowcoder.infra.event.groupmember.GroupMemberRemoveEvent;
 import org.lowcoder.infra.event.groupmember.GroupMemberRoleUpdateEvent;
 import org.lowcoder.infra.event.user.UserLoginEvent;
 import org.lowcoder.infra.event.user.UserLogoutEvent;
+import org.lowcoder.plugin.api.event.LowcoderEvent.EventType;
+import org.lowcoder.sdk.constants.Authentication;
 import org.lowcoder.sdk.util.LocaleUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
-
-import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
+import java.nio.charset.StandardCharsets;
+import java.util.*;
+
+import static org.lowcoder.domain.permission.model.ResourceHolder.USER;
+
 @Slf4j
+@RequiredArgsConstructor
 @Component
 public class BusinessEventPublisher {
 
-    @Autowired
-    private ApplicationEventPublisher applicationEventPublisher;
-    @Autowired
-    private SessionUserService sessionUserService;
-    @Autowired
-    private GroupService groupService;
-    @Autowired
-    private UserService userService;
-    @Autowired
-    private FolderService folderService;
-    @Autowired
-    private ApplicationService applicationService;
-    @Autowired
-    private DatasourceService datasourceService;
-    @Autowired
-    private ResourcePermissionService resourcePermissionService;
+    private final ApplicationEventPublisher applicationEventPublisher;
+    private final SessionUserService sessionUserService;
+    private final GroupService groupService;
+    private final UserService userService;
+    private final FolderService folderService;
+    private final ApplicationService applicationService;
+    private final DatasourceService datasourceService;
+    private final ResourcePermissionService resourcePermissionService;
 
     public Mono<Void> publishFolderCommonEvent(String folderId, String folderName, EventType eventType) {
-        return sessionUserService.getVisitorOrgMemberCache()
-                .doOnNext(orgMember -> {
-                    FolderCommonEvent event = FolderCommonEvent.builder()
-                            .id(folderId)
-                            .name(folderName)
-                            .userId(orgMember.getUserId())
-                            .orgId(orgMember.getOrgId())
-                            .type(eventType)
-                            .build();
-                    applicationEventPublisher.publishEvent(event);
+
+        return sessionUserService.getVisitorToken()
+                .zipWith(sessionUserService.getVisitorOrgMemberCache())
+                .doOnNext(
+                    tuple -> {
+                        String token = tuple.getT1();
+                        OrgMember orgMember = tuple.getT2();
+                        FolderCommonEvent event = FolderCommonEvent.builder()
+                                .id(folderId)
+                                .name(folderName)
+                                .userId(orgMember.getUserId())
+                                .orgId(orgMember.getOrgId())
+                                .type(eventType)
+                                .isAnonymous(Authentication.isAnonymousUser(orgMember.getUserId()))
+                                .sessionHash(Hashing.sha512().hashString(token, StandardCharsets.UTF_8).toString())
+                                .build();
+                        event.populateDetails();
+                        applicationEventPublisher.publishEvent(event);
                 })
                 .then()
                 .onErrorResume(throwable -> {
@@ -106,6 +104,7 @@ public class BusinessEventPublisher {
                     return ApplicationView.builder()
                             .applicationInfoView(applicationInfoView)
                             .build();
+
                 })
                 .flatMap(applicationView -> publishApplicationCommonEvent(applicationView, eventType));
     }
@@ -126,9 +125,11 @@ public class BusinessEventPublisher {
                                         .map(Optional::of)
                                         .onErrorReturn(Optional.empty());
                             }))
+                            .zipWith(sessionUserService.getVisitorToken())
                             .doOnNext(tuple -> {
-                                OrgMember orgMember = tuple.getT1();
-                                Optional<Folder> optional = tuple.getT2();
+                                OrgMember orgMember = tuple.getT1().getT1();
+                                Optional<Folder> optional = tuple.getT1().getT2();
+                                String token = tuple.getT2();
                                 ApplicationInfoView applicationInfoView = applicationView.getApplicationInfoView();
                                 ApplicationCommonEvent event = ApplicationCommonEvent.builder()
                                         .orgId(orgMember.getOrgId())
@@ -138,7 +139,10 @@ public class BusinessEventPublisher {
                                         .type(eventType)
                                         .folderId(optional.map(Folder::getId).orElse(null))
                                         .folderName(optional.map(Folder::getName).orElse(null))
+                                        .isAnonymous(anonymous)
+                                        .sessionHash(Hashing.sha512().hashString(token, StandardCharsets.UTF_8).toString())
                                         .build();
+                                event.populateDetails();
                                 applicationEventPublisher.publishEvent(event);
                             })
                             .then()
@@ -150,13 +154,18 @@ public class BusinessEventPublisher {
     }
 
     public Mono<Void> publishUserLoginEvent(String source) {
-        return sessionUserService.getVisitorOrgMember()
-                .doOnNext(orgMember -> {
+        return sessionUserService.getVisitorOrgMember().zipWith(sessionUserService.getVisitorToken())
+                .doOnNext(tuple -> {
+                    OrgMember orgMember = tuple.getT1();
+                    String token = tuple.getT2();
                     UserLoginEvent event = UserLoginEvent.builder()
                             .orgId(orgMember.getOrgId())
                             .userId(orgMember.getUserId())
                             .source(source)
+                            .isAnonymous(Authentication.isAnonymousUser(orgMember.getUserId()))
+                            .sessionHash(Hashing.sha512().hashString(token, StandardCharsets.UTF_8).toString())
                             .build();
+                    event.populateDetails();
                     applicationEventPublisher.publishEvent(event);
                 })
                 .then()
@@ -168,11 +177,17 @@ public class BusinessEventPublisher {
 
     public Mono<Void> publishUserLogoutEvent() {
         return sessionUserService.getVisitorOrgMemberCache()
-                .doOnNext(orgMember -> {
+                .zipWith(sessionUserService.getVisitorToken())
+                .doOnNext(tuple -> {
+                    OrgMember orgMember = tuple.getT1();
+                    String token = tuple.getT2();
                     UserLogoutEvent event = UserLogoutEvent.builder()
                             .orgId(orgMember.getOrgId())
                             .userId(orgMember.getUserId())
+                            .isAnonymous(Authentication.isAnonymousUser(orgMember.getUserId()))
+                            .sessionHash(Hashing.sha512().hashString(token, StandardCharsets.UTF_8).toString())
                             .build();
+                    event.populateDetails();
                     applicationEventPublisher.publishEvent(event);
                 })
                 .then()
@@ -184,15 +199,19 @@ public class BusinessEventPublisher {
 
     public Mono<Void> publishGroupCreateEvent(Group group) {
         return sessionUserService.getVisitorOrgMemberCache()
-                .delayUntil(orgMember ->
+                .zipWith(sessionUserService.getVisitorToken())
+                .delayUntil(tuple ->
                         Mono.deferContextual(contextView -> {
                             Locale locale = LocaleUtils.getLocale(contextView);
                             GroupCreateEvent event = GroupCreateEvent.builder()
-                                    .orgId(orgMember.getOrgId())
-                                    .userId(orgMember.getUserId())
+                                    .orgId(tuple.getT1().getOrgId())
+                                    .userId(tuple.getT1().getUserId())
                                     .groupId(group.getId())
                                     .groupName(group.getName(locale))
+                                    .isAnonymous(Authentication.isAnonymousUser(tuple.getT1().getUserId()))
+                                    .sessionHash(Hashing.sha512().hashString(tuple.getT2(), StandardCharsets.UTF_8).toString())
                                     .build();
+                            event.populateDetails();
                             applicationEventPublisher.publishEvent(event);
                             return Mono.empty();
                         }))
@@ -208,15 +227,19 @@ public class BusinessEventPublisher {
             return Mono.empty();
         }
         return sessionUserService.getVisitorOrgMemberCache()
-                .delayUntil(orgMember ->
+                .zipWith(sessionUserService.getVisitorToken())
+                .delayUntil(tuple ->
                         Mono.deferContextual(contextView -> {
                             Locale locale = LocaleUtils.getLocale(contextView);
                             GroupUpdateEvent event = GroupUpdateEvent.builder()
-                                    .orgId(orgMember.getOrgId())
-                                    .userId(orgMember.getUserId())
+                                    .orgId(tuple.getT1().getOrgId())
+                                    .userId(tuple.getT1().getUserId())
                                     .groupId(previousGroup.getId())
                                     .groupName(previousGroup.getName(locale) + " => " + newGroupName)
+                                    .isAnonymous(Authentication.isAnonymousUser(tuple.getT1().getUserId()))
+                                    .sessionHash(Hashing.sha512().hashString(tuple.getT2(), StandardCharsets.UTF_8).toString())
                                     .build();
+                            event.populateDetails();
                             applicationEventPublisher.publishEvent(event);
                             return Mono.empty();
                         }))
@@ -232,15 +255,19 @@ public class BusinessEventPublisher {
             return Mono.empty();
         }
         return sessionUserService.getVisitorOrgMemberCache()
-                .delayUntil(orgMember ->
+                .zipWith(sessionUserService.getVisitorToken())
+                .delayUntil(tuple ->
                         Mono.deferContextual(contextView -> {
                             Locale locale = LocaleUtils.getLocale(contextView);
                             GroupDeleteEvent event = GroupDeleteEvent.builder()
-                                    .orgId(orgMember.getOrgId())
-                                    .userId(orgMember.getUserId())
+                                    .orgId(tuple.getT1().getOrgId())
+                                    .userId(tuple.getT1().getUserId())
                                     .groupId(previousGroup.getId())
                                     .groupName(previousGroup.getName(locale))
+                                    .isAnonymous(Authentication.isAnonymousUser(tuple.getT1().getUserId()))
+                                    .sessionHash(Hashing.sha512().hashString(tuple.getT2(), StandardCharsets.UTF_8).toString())
                                     .build();
+                            event.populateDetails();
                             applicationEventPublisher.publishEvent(event);
                             return Mono.empty();
                         }))
@@ -257,13 +284,15 @@ public class BusinessEventPublisher {
         }
         return Mono.zip(groupService.getById(groupId),
                         sessionUserService.getVisitorOrgMemberCache(),
-                        userService.findById(addMemberRequest.getUserId()))
+                        userService.findById(addMemberRequest.getUserId()),
+                        sessionUserService.getVisitorToken())
                 .delayUntil(tuple ->
                         Mono.deferContextual(contextView -> {
                             Locale locale = LocaleUtils.getLocale(contextView);
                             Group group = tuple.getT1();
                             OrgMember orgMember = tuple.getT2();
                             User member = tuple.getT3();
+                            String token = tuple.getT4();
                             GroupMemberAddEvent event = GroupMemberAddEvent.builder()
                                     .orgId(orgMember.getOrgId())
                                     .userId(orgMember.getUserId())
@@ -272,7 +301,10 @@ public class BusinessEventPublisher {
                                     .memberId(member.getId())
                                     .memberName(member.getName())
                                     .memberRole(addMemberRequest.getRole())
+                                    .isAnonymous(Authentication.isAnonymousUser(orgMember.getUserId()))
+                                    .sessionHash(Hashing.sha512().hashString(token, StandardCharsets.UTF_8).toString())
                                     .build();
+                            event.populateDetails();
                             applicationEventPublisher.publishEvent(event);
                             return Mono.empty();
                         }))
@@ -290,7 +322,8 @@ public class BusinessEventPublisher {
         }
         return Mono.zip(groupService.getById(groupId),
                         sessionUserService.getVisitorOrgMemberCache(),
-                        userService.findById(previousGroupMember.getUserId()))
+                        userService.findById(previousGroupMember.getUserId()),
+                        sessionUserService.getVisitorToken())
                 .delayUntil(tuple ->
                         Mono.deferContextual(contextView -> {
                             Locale locale = LocaleUtils.getLocale(contextView);
@@ -305,7 +338,10 @@ public class BusinessEventPublisher {
                                     .memberId(member.getId())
                                     .memberName(member.getName())
                                     .memberRole(previousGroupMember.getRole().getValue() + " => " + updateRoleRequest.getRole())
+                                    .isAnonymous(Authentication.isAnonymousUser(orgMember.getUserId()))
+                                    .sessionHash(Hashing.sha512().hashString(tuple.getT4(), StandardCharsets.UTF_8).toString())
                                     .build();
+                            event.populateDetails();
                             applicationEventPublisher.publishEvent(event);
                             return Mono.empty();
                         }))
@@ -322,7 +358,8 @@ public class BusinessEventPublisher {
         }
         return Mono.zip(groupService.getById(groupMember.getGroupId()),
                         userService.findById(groupMember.getUserId()),
-                        sessionUserService.getVisitorOrgMemberCache())
+                        sessionUserService.getVisitorOrgMemberCache(),
+                        sessionUserService.getVisitorToken())
                 .delayUntil(tuple ->
                         Mono.deferContextual(contextView -> {
                             Locale locale = LocaleUtils.getLocale(contextView);
@@ -337,7 +374,10 @@ public class BusinessEventPublisher {
                                     .memberId(user.getId())
                                     .memberName(user.getName())
                                     .memberRole(groupMember.getRole().getValue())
+                                    .isAnonymous(Authentication.isAnonymousUser(orgMember.getUserId()))
+                                    .sessionHash(Hashing.sha512().hashString(tuple.getT4(), StandardCharsets.UTF_8).toString())
                                     .build();
+                            event.populateDetails();
                             applicationEventPublisher.publishEvent(event);
                             return Mono.empty();
                         }))
@@ -354,7 +394,8 @@ public class BusinessEventPublisher {
         }
         return Mono.zip(sessionUserService.getVisitorOrgMemberCache(),
                         groupService.getById(previousGroupMember.getGroupId()),
-                        userService.findById(previousGroupMember.getUserId()))
+                        userService.findById(previousGroupMember.getUserId()),
+                        sessionUserService.getVisitorToken())
                 .delayUntil(tuple ->
                         Mono.deferContextual(contextView -> {
                             Locale locale = LocaleUtils.getLocale(contextView);
@@ -369,7 +410,10 @@ public class BusinessEventPublisher {
                                     .memberId(member.getId())
                                     .memberName(member.getName())
                                     .memberRole(previousGroupMember.getRole().getValue())
+                                    .isAnonymous(Authentication.isAnonymousUser(orgMember.getUserId()))
+                                    .sessionHash(Hashing.sha512().hashString(tuple.getT4(), StandardCharsets.UTF_8).toString())
                                     .build();
+                            event.populateDetails();
                             applicationEventPublisher.publishEvent(event);
                             return Mono.empty();
                         }))
@@ -395,15 +439,19 @@ public class BusinessEventPublisher {
 
     public Mono<Void> publishDatasourceEvent(Datasource datasource, EventType eventType) {
         return sessionUserService.getVisitorOrgMemberCache()
-                .flatMap(orgMember -> {
+                .zipWith(sessionUserService.getVisitorToken())
+                .flatMap(tuple -> {
                     DatasourceEvent event = DatasourceEvent.builder()
                             .datasourceId(datasource.getId())
                             .name(datasource.getName())
                             .type(datasource.getType())
                             .eventType(eventType)
-                            .userId(orgMember.getUserId())
-                            .orgId(orgMember.getOrgId())
+                            .userId(tuple.getT1().getUserId())
+                            .orgId(tuple.getT1().getOrgId())
+                            .isAnonymous(Authentication.isAnonymousUser(tuple.getT1().getUserId()))
+                            .sessionHash(Hashing.sha512().hashString(tuple.getT2(), StandardCharsets.UTF_8).toString())
                             .build();
+                    event.populateDetails();
                     applicationEventPublisher.publishEvent(event);
                     return Mono.<Void> empty();
                 })
@@ -435,7 +483,9 @@ public class BusinessEventPublisher {
     public Mono<Void> publishDatasourcePermissionEvent(String datasourceId,
             Collection<String> userIds, Collection<String> groupIds, String role,
             EventType eventType) {
-        return Mono.zip(sessionUserService.getVisitorOrgMemberCache(), datasourceService.getById(datasourceId))
+        return Mono.zip(sessionUserService.getVisitorOrgMemberCache(),
+                        datasourceService.getById(datasourceId),
+                        sessionUserService.getVisitorToken())
                 .flatMap(tuple -> {
                     OrgMember orgMember = tuple.getT1();
                     Datasource datasource = tuple.getT2();
@@ -449,7 +499,10 @@ public class BusinessEventPublisher {
                             .groupIds(groupIds)
                             .role(role)
                             .eventType(eventType)
+                            .isAnonymous(Authentication.isAnonymousUser(orgMember.getUserId()))
+                            .sessionHash(Hashing.sha512().hashString(tuple.getT3(), StandardCharsets.UTF_8).toString())
                             .build();
+                    datasourcePermissionEvent.populateDetails();
                     applicationEventPublisher.publishEvent(datasourcePermissionEvent);
                     return Mono.<Void> empty();
                 })
@@ -465,13 +518,20 @@ public class BusinessEventPublisher {
 
     public Mono<Void> publishLibraryQueryEvent(String id, String name, EventType eventType) {
         return sessionUserService.getVisitorOrgMemberCache()
-                .map(orgMember -> LibraryQueryEvent.builder()
-                        .userId(orgMember.getUserId())
-                        .orgId(orgMember.getOrgId())
-                        .id(id)
-                        .name(name)
-                        .eventType(eventType)
-                        .build())
+                .zipWith(sessionUserService.getVisitorToken())
+                .map(tuple -> {
+                    LibraryQueryEvent event = LibraryQueryEvent.builder()
+                            .userId(tuple.getT1().getUserId())
+                            .orgId(tuple.getT1().getOrgId())
+                            .id(id)
+                            .name(name)
+                            .eventType(eventType)
+                            .isAnonymous(Authentication.isAnonymousUser(tuple.getT1().getUserId()))
+                            .sessionHash(Hashing.sha512().hashString(tuple.getT2(), StandardCharsets.UTF_8).toString())
+                            .build();
+                    event.populateDetails();
+                    return event;
+                })
                 .doOnNext(applicationEventPublisher::publishEvent)
                 .then()
                 .onErrorResume(throwable -> {

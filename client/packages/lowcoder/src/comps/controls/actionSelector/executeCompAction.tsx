@@ -1,5 +1,4 @@
-import { customAction, routeByNameAction } from "lowcoder-core";
-import { CompParams, ConstructorToDataType } from "lowcoder-core";
+import { CompParams, ConstructorToDataType, customAction, routeByNameAction } from "lowcoder-core";
 import { GridItemComp } from "comps/comps/gridItemComp";
 import { SimpleNameComp } from "comps/comps/simpleNameComp";
 import { TemporaryStateItemComp } from "comps/comps/temporaryStateComp";
@@ -13,10 +12,12 @@ import { mapValues } from "lodash";
 import { Fragment, ReactNode } from "react";
 import { getPromiseAfterDispatch } from "util/promiseUtils";
 import {
+  ArrayNumberControl,
   ArrayStringControl,
   ArrayStringOrNumberControl,
   BoolCodeControl,
   CodeControlType,
+  JSONObjectArrayControl,
   JSONObjectControl,
   JSONValueControl,
   NumberControl,
@@ -30,7 +31,9 @@ const ParamsCompMap: Record<ParamType, CodeControlType> = {
   string: StringControl,
   boolean: BoolCodeControl,
   arrayString: ArrayStringControl,
+  arrayObject: JSONObjectArrayControl,
   arrayNumberString: ArrayStringOrNumberControl,
+  arrayNumber: ArrayNumberControl,
   JSON: JSONObjectControl,
   JSONValue: JSONValueControl,
 };

@@ -47,7 +47,7 @@ import UserApi from "api/userApi";
 import { validateResponse } from "api/apiUtils";
 import copyToClipboard from "copy-to-clipboard";
 import { BackgroundColor } from "constants/style";
-import { messageInstance } from "lowcoder-design";
+import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 
 const StyledMembersIcon = styled(MembersIcon)`
   g g {

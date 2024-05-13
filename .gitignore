@@ -9,3 +9,4 @@ client/node_modules/
 client/packages/lowcoder-plugin-demo/.yarn/install-state.gz
 client/packages/lowcoder-plugin-demo/yarn.lock
 client/packages/lowcoder-plugin-demo/.yarn/cache/@types-node-npm-16.18.68-56f72825c0-094ae9ed80.zip
+application-dev.yml
