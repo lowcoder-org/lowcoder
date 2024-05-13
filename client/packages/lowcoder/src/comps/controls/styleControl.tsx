@@ -473,7 +473,7 @@ function calcColors<ColorMap extends Record<string, string>>(
       res[name] = themeWithDefault[config.textDecoration] || 'none'
     }
     if(isBorderStyleConfig(config)){
-      res[name] = themeWithDefault[config.borderStyle] || 'dashed'
+      res[name] = themeWithDefault[config.borderStyle] || 'solid'
     }
     if (isMarginConfig(config)) {
       res[name] = themeWithDefault[config.margin];
