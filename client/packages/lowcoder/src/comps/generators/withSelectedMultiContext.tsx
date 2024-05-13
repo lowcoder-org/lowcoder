@@ -2,6 +2,7 @@ import _ from "lodash";
 import {
   CompAction,
   customAction,
+  isCustomAction,
   isMyCustomAction,
   MultiCompConstructor,
   wrapChildAction,
@@ -11,6 +12,8 @@ import { ReactNode } from "react";
 import { lastValueIfEqual, setFieldsNoTypeCheck } from "util/objectUtils";
 import { COMP_KEY, MAP_KEY, withMultiContext } from "./withMultiContext";
 import { paramsEqual } from "./withParams";
+import { LazyCompReadyAction } from "../comps/lazyLoadComp/lazyLoadComp";
+import { ModuleReadyAction } from "../comps/moduleComp/moduleComp";
 
 const SELECTED_KEY = "SELECTED";
 
@@ -69,12 +72,21 @@ export function withSelectedMultiContext<TCtor extends MultiCompConstructor>(
             comp.getOriginalComp().setParams(comp.cacheParamsMap.get(selection)!)
           );
         }
-      } else if (!action.editDSL || action.path[0] !== MAP_KEY || _.isNil(action.path[1])) {
+      } else if ((
+        !action.editDSL
+        && !isCustomAction<LazyCompReadyAction>(action, "LazyCompReady")
+        && !isCustomAction<ModuleReadyAction>(action, "moduleReady")
+        ) || action.path[0] !== MAP_KEY || _.isNil(action.path[1])
+      ) {
         if (action.path[0] === MAP_KEY && action.path[1] === SELECTED_KEY) {
           action.path[1] = this.selection;
         }
         comp = super.reduce(action);
-      } else if (action.editDSL && action.path[1] === SELECTED_KEY) {
+      } else if ((
+        action.editDSL
+        || isCustomAction<LazyCompReadyAction>(action, "LazyCompReady")
+        || isCustomAction<ModuleReadyAction>(action, "moduleReady")
+      ) && action.path[1] === SELECTED_KEY) {
         // broadcast
         const newAction = {
           ...action,
@@ -82,6 +94,12 @@ export function withSelectedMultiContext<TCtor extends MultiCompConstructor>(
         };
         comp = comp.reduce(WithMultiContextComp.forEachAction(newAction));
         comp = comp.reduce(wrapChildAction(COMP_KEY, newAction));
+      } else if (
+        !action.editDSL
+        && isCustomAction<ModuleReadyAction>(action, "moduleReady")
+        && action.path[0] === MAP_KEY
+      ) {
+        comp = super.reduce(action);
       }
 
       // console.info("exit withSelectedMultiContext reduce. action: ", action, "\nthis:", this, "\ncomp:", comp);
