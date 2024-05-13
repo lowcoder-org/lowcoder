@@ -32,6 +32,8 @@ public interface ApplicationRepository extends ReactiveMongoRepository<Applicati
 
     Flux<Application> findByIdIn(Collection<String> ids);
 
+    Flux<Application> findByCreatedByAndIdIn(String userId, Collection<String> ids);
+
     /**
      * Filter public applications from list of supplied IDs
      */

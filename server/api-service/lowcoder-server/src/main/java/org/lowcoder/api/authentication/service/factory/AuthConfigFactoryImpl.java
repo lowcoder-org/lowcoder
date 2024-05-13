@@ -10,11 +10,7 @@ import java.util.Set;
 
 import org.apache.commons.collections4.MapUtils;
 import org.lowcoder.api.authentication.dto.AuthConfigRequest;
-import org.lowcoder.sdk.auth.AbstractAuthConfig;
-import org.lowcoder.sdk.auth.EmailAuthConfig;
-import org.lowcoder.sdk.auth.Oauth2KeycloakAuthConfig;
-import org.lowcoder.sdk.auth.Oauth2OryAuthConfig;
-import org.lowcoder.sdk.auth.Oauth2SimpleAuthConfig;
+import org.lowcoder.sdk.auth.*;
 import org.lowcoder.sdk.auth.constants.AuthTypeConstants;
 import org.springframework.stereotype.Component;
 
@@ -23,12 +19,14 @@ public class AuthConfigFactoryImpl implements AuthConfigFactory {
 
     @Override
     public AbstractAuthConfig build(AuthConfigRequest authConfigRequest, boolean enable) {
+        buildOauth2GenericAuthConfig(authConfigRequest, enable);
         return switch (authConfigRequest.getAuthType()) {
             case AuthTypeConstants.FORM -> buildEmailAuthConfig(authConfigRequest, enable);
             case AuthTypeConstants.GITHUB -> buildOauth2SimpleAuthConfig(GITHUB, GITHUB_NAME, authConfigRequest, enable);
             case AuthTypeConstants.GOOGLE -> buildOauth2SimpleAuthConfig(GOOGLE, GOOGLE_NAME, authConfigRequest, enable);
             case AuthTypeConstants.ORY -> buildOauth2OryAuthConfig(authConfigRequest, enable);
             case AuthTypeConstants.KEYCLOAK -> buildOauth2KeycloakAuthConfig(authConfigRequest, enable);
+            case AuthTypeConstants.GENERIC -> buildOauth2GenericAuthConfig(authConfigRequest, enable);
             default -> throw new UnsupportedOperationException(authConfigRequest.getAuthType());
         };
     }
@@ -40,7 +38,8 @@ public class AuthConfigFactoryImpl implements AuthConfigFactory {
                 AuthTypeConstants.GITHUB,
                 AuthTypeConstants.GOOGLE,
                 AuthTypeConstants.ORY,
-                AuthTypeConstants.KEYCLOAK
+                AuthTypeConstants.KEYCLOAK,
+                AuthTypeConstants.GENERIC
         );
     }
 
@@ -93,5 +92,32 @@ public class AuthConfigFactoryImpl implements AuthConfigFactory {
                 .authType(authConfigRequest.getAuthType())
                 .build();
     }
-    
+
+    /**
+     * This method is to build Oauth2GenericAuth config
+     * @param authConfigRequest AuthConfigRequest
+     * @param enable boolean
+     * @return Oauth2SimpleAuthConfig
+     */
+    private Oauth2SimpleAuthConfig buildOauth2GenericAuthConfig(AuthConfigRequest authConfigRequest, boolean enable) {
+        return Oauth2GenericAuthConfig.builder()
+                .id(authConfigRequest.getId())
+                .enable(enable)
+                .enableRegister(authConfigRequest.isEnableRegister())
+                .source(authConfigRequest.getSource(AuthTypeConstants.GENERIC))
+                .sourceName(authConfigRequest.getSourceName(AuthTypeConstants.GENERIC))
+                .sourceDescription(authConfigRequest.getSourceDescription())
+                .sourceIcon(authConfigRequest.getSourceIcon())
+                .sourceCategory(authConfigRequest.getSourceCategory())
+                .clientId(requireNonNull(authConfigRequest.getClientId(), "clientId can not be null."))
+                .clientSecret(authConfigRequest.getClientSecret())
+                .issuerUri(authConfigRequest.getIssuerUri())
+                .authorizationEndpoint(authConfigRequest.getAuthorizationEndpoint())
+                .tokenEndpoint(authConfigRequest.getTokenEndpoint())
+                .userInfoEndpoint(authConfigRequest.getUserInfoEndpoint())
+                .scope(authConfigRequest.getScope())
+                .authType(AuthTypeConstants.GENERIC)
+                .userInfoIntrospection(MapUtils.getBoolean(authConfigRequest,"userInfoIntrospection"))
+                .build();
+    }
 }

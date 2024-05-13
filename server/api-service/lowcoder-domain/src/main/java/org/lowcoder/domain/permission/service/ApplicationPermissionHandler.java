@@ -53,10 +53,10 @@ class ApplicationPermissionHandler extends ResourcePermissionHandler {
     // This is for PTM apps that are public but only available to logged-in users
     @Override
     protected Mono<Map<String, List<ResourcePermission>>> getNonAnonymousUserPublicResourcePermissions
-            (Collection<String> resourceIds, ResourceAction resourceAction) {
+            (Collection<String> resourceIds, ResourceAction resourceAction, String userId) {
 
         Set<String> applicationIds = newHashSet(resourceIds);
-        return Mono.zip(applicationService.getPrivateApplicationIds(applicationIds),
+        return Mono.zip(applicationService.getPrivateApplicationIds(applicationIds, userId),
                         templateSolutionService.getTemplateApplicationIds(applicationIds))
                 .map(tuple -> {
                     Set<String> publicAppIds = tuple.getT1();
@@ -75,7 +75,7 @@ class ApplicationPermissionHandler extends ResourcePermissionHandler {
         }
 
         Set<String> applicationIds = newHashSet(resourceIds);
-        return Mono.zip(applicationService.getFilteredPublicApplicationIds(requestType, applicationIds, Boolean.TRUE, config.getMarketplace().isPrivateMode())
+        return Mono.zip(applicationService.getFilteredPublicApplicationIds(requestType, applicationIds, null, config.getMarketplace().isPrivateMode())
         					.defaultIfEmpty(new HashSet<>()),
                         templateSolutionService.getTemplateApplicationIds(applicationIds)
                         	.defaultIfEmpty(new HashSet<>())
@@ -88,9 +88,9 @@ class ApplicationPermissionHandler extends ResourcePermissionHandler {
 
 	@Override
 	protected Mono<Map<String, List<ResourcePermission>>> getNonAnonymousUserApplicationPublicResourcePermissions(
-			Collection<String> resourceIds, ResourceAction resourceAction, ApplicationRequestType requestType) {
+			Collection<String> resourceIds, ResourceAction resourceAction, ApplicationRequestType requestType, String userId) {
         Set<String> applicationIds = newHashSet(resourceIds);
-        return Mono.zip(applicationService.getFilteredPublicApplicationIds(requestType, applicationIds, Boolean.FALSE, config.getMarketplace().isPrivateMode()),
+        return Mono.zip(applicationService.getFilteredPublicApplicationIds(requestType, applicationIds, userId, config.getMarketplace().isPrivateMode()),
                         templateSolutionService.getTemplateApplicationIds(applicationIds))
                 .map(tuple -> {
                     Set<String> publicAppIds = tuple.getT1();

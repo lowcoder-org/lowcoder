@@ -31,10 +31,13 @@ import org.lowcoder.domain.organization.service.OrganizationService;
 import org.lowcoder.domain.user.model.*;
 import org.lowcoder.domain.user.service.UserService;
 import org.lowcoder.sdk.auth.AbstractAuthConfig;
+import org.lowcoder.sdk.auth.Oauth2GenericAuthConfig;
+import org.lowcoder.sdk.auth.constants.AuthTypeConstants;
 import org.lowcoder.sdk.config.AuthProperties;
 import org.lowcoder.sdk.exception.BizError;
 import org.lowcoder.sdk.exception.BizException;
 import org.lowcoder.sdk.util.CookieHelper;
+import org.lowcoder.sdk.webclient.WebClientBuildHelper;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ServerWebExchange;
@@ -329,7 +332,6 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
                         new ArrayList<>(user.getApiKeysList())
                 );
     }
-
 
     private Mono<Void> removeTokensByAuthId(String authId) {
         return sessionUserService.getVisitorOrgMemberCache()

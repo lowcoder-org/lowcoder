@@ -13,10 +13,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 import jakarta.annotation.Nullable;
 import lombok.extern.slf4j.Slf4j;
-import org.lowcoder.sdk.auth.EmailAuthConfig;
-import org.lowcoder.sdk.auth.Oauth2KeycloakAuthConfig;
-import org.lowcoder.sdk.auth.Oauth2OryAuthConfig;
-import org.lowcoder.sdk.auth.Oauth2SimpleAuthConfig;
+import org.lowcoder.sdk.auth.*;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -41,6 +38,7 @@ public final class JsonUtils {
         OBJECT_MAPPER.registerSubtypes(new NamedType(Oauth2SimpleAuthConfig.class, GOOGLE));
         OBJECT_MAPPER.registerSubtypes(new NamedType(Oauth2OryAuthConfig.class, ORY));
         OBJECT_MAPPER.registerSubtypes(new NamedType(Oauth2KeycloakAuthConfig.class, KEYCLOAK));
+        OBJECT_MAPPER.registerSubtypes(new NamedType(Oauth2GenericAuthConfig.class, GENERIC));
     }
 
     public static final JsonNode EMPTY_JSON_NODE = createObjectNode();

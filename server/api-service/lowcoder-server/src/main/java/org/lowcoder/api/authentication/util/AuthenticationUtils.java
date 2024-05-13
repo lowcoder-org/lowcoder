@@ -4,7 +4,11 @@ import static java.util.Collections.emptyMap;
 import static reactor.core.scheduler.Schedulers.newBoundedElastic;
 
 import java.util.Collection;
+import java.util.Map;
 
+import org.apache.commons.collections4.MapUtils;
+import org.lowcoder.domain.user.model.AuthToken;
+import org.lowcoder.domain.user.model.AuthUser;
 import org.lowcoder.domain.user.model.User;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -57,4 +61,29 @@ public final class AuthenticationUtils {
         };
     }
 
+    /**
+     * Utility method to map from Map to AuthToken
+     * @param map Object
+     * @return AuthToken
+     */
+    public static AuthToken mapToAuthToken(Map<String, Object> map) {
+        return AuthToken.builder()
+                .accessToken(MapUtils.getString(map, "access_token"))
+                .expireIn(MapUtils.getIntValue(map, "expires_in"))
+                .refreshToken(MapUtils.getString(map, "refresh_token"))
+                .build();
+    }
+
+    /**
+     * Utility method to map from Map to AuthUser
+     * @param map Object
+     * @return AuthUser
+     */
+    public static AuthUser mapToAuthUser(Map<String, Object> map) {
+        return AuthUser.builder()
+                .uid(MapUtils.getString(map, "sub"))
+                .username(MapUtils.getString(map, "email"))
+                .rawUserInfo(map)
+                .build();
+    }
 }

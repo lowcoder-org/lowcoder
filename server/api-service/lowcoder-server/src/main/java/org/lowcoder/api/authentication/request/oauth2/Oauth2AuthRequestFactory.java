@@ -4,11 +4,8 @@ import java.util.Set;
 
 import org.lowcoder.api.authentication.request.AuthRequest;
 import org.lowcoder.api.authentication.request.AuthRequestFactory;
-import org.lowcoder.api.authentication.request.oauth2.request.AbstractOauth2Request;
-import org.lowcoder.api.authentication.request.oauth2.request.GithubRequest;
-import org.lowcoder.api.authentication.request.oauth2.request.GoogleRequest;
-import org.lowcoder.api.authentication.request.oauth2.request.KeycloakRequest;
-import org.lowcoder.api.authentication.request.oauth2.request.OryRequest;
+import org.lowcoder.api.authentication.request.oauth2.request.*;
+import org.lowcoder.sdk.auth.Oauth2GenericAuthConfig;
 import org.lowcoder.sdk.auth.Oauth2KeycloakAuthConfig;
 import org.lowcoder.sdk.auth.Oauth2OryAuthConfig;
 import org.lowcoder.sdk.auth.Oauth2SimpleAuthConfig;
@@ -32,6 +29,7 @@ public class Oauth2AuthRequestFactory implements AuthRequestFactory<OAuth2Reques
             case GOOGLE -> new GoogleRequest((Oauth2SimpleAuthConfig) context.getAuthConfig());
             case ORY -> new OryRequest((Oauth2OryAuthConfig) context.getAuthConfig());
             case KEYCLOAK -> new KeycloakRequest((Oauth2KeycloakAuthConfig)context.getAuthConfig());
+            case GENERIC -> new GenericAuthRequest((Oauth2GenericAuthConfig) context.getAuthConfig());
             default -> throw new UnsupportedOperationException(context.getAuthConfig().getAuthType());
         };
     }
@@ -42,6 +40,7 @@ public class Oauth2AuthRequestFactory implements AuthRequestFactory<OAuth2Reques
                 GITHUB,
                 GOOGLE,
                 ORY,
-                KEYCLOAK);
+                KEYCLOAK,
+                GENERIC);
     }
 }
