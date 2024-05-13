@@ -418,12 +418,6 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
                 .stream()
                 .collect(Collectors.toMap(AbstractAuthConfig::getId, Function.identity()));
 
-        boolean authTypeAlreadyExists = authConfigMap.values().stream()
-                .anyMatch(config -> !config.getId().equals(newAuthConfig.getId()) && config.getAuthType().equals(newAuthConfig.getAuthType()));
-        if(authTypeAlreadyExists) {
-            return false;
-        }
-
         // Under the organization, the source can uniquely identify the whole auth config.
         AbstractAuthConfig old = authConfigMap.get(newAuthConfig.getId());
         if (old != null) {
