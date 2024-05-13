@@ -57,6 +57,7 @@ ${(props) => {
   display: flex;
   flex-direction: column;
   height: 100%;
+  border: ${(props)=>{return props.$style.borderWidth}} ${(props)=>{return props.$style.borderStyle}} ${(props)=>{return props.$style.border}} !important;
 `;
 
 const MainWrapper = styled.div<{
