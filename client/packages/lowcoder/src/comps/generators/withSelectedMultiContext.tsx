@@ -53,7 +53,7 @@ export function withSelectedMultiContext<TCtor extends MultiCompConstructor>(
     }
 
     override reduce(action: CompAction): this {
-      console.info("enter withSelectedMultiContext reduce. action: ", action, "\nthis: ", this);
+      // console.info("enter withSelectedMultiContext reduce. action: ", action, "\nthis: ", this);
       let comp = this;
       if (isMyCustomAction<SetSelectionAction>(action, "setSelection")) {
         const { selection, params } = action.value;
@@ -73,19 +73,20 @@ export function withSelectedMultiContext<TCtor extends MultiCompConstructor>(
           );
         }
       } else if ((
-          !action.editDSL
-          && !isCustomAction<LazyCompReadyAction>(action, "LazyCompReady")
-          && !isCustomAction<ModuleReadyAction>(action, "moduleReady")
-        ) || action.path[0] !== MAP_KEY || _.isNil(action.path[1])) {
+        !action.editDSL
+        && !isCustomAction<LazyCompReadyAction>(action, "LazyCompReady")
+        && !isCustomAction<ModuleReadyAction>(action, "moduleReady")
+        ) || action.path[0] !== MAP_KEY || _.isNil(action.path[1])
+      ) {
         if (action.path[0] === MAP_KEY && action.path[1] === SELECTED_KEY) {
           action.path[1] = this.selection;
         }
         comp = super.reduce(action);
       } else if ((
-          action.editDSL
-          || isCustomAction<LazyCompReadyAction>(action, "LazyCompReady")
-          || isCustomAction<ModuleReadyAction>(action, "moduleReady")
-        ) && action.path[1] === SELECTED_KEY) {
+        action.editDSL
+        || isCustomAction<LazyCompReadyAction>(action, "LazyCompReady")
+        || isCustomAction<ModuleReadyAction>(action, "moduleReady")
+      ) && action.path[1] === SELECTED_KEY) {
         // broadcast
         const newAction = {
           ...action,
@@ -93,6 +94,12 @@ export function withSelectedMultiContext<TCtor extends MultiCompConstructor>(
         };
         comp = comp.reduce(WithMultiContextComp.forEachAction(newAction));
         comp = comp.reduce(wrapChildAction(COMP_KEY, newAction));
+      } else if (
+        !action.editDSL
+        && isCustomAction<ModuleReadyAction>(action, "moduleReady")
+        && action.path[0] === MAP_KEY
+      ) {
+        comp = super.reduce(action);
       }
 
       // console.info("exit withSelectedMultiContext reduce. action: ", action, "\nthis:", this, "\ncomp:", comp);
