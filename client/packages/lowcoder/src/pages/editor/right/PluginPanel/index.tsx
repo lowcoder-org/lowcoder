@@ -36,7 +36,6 @@ export default function PluginPanel() {
       }),
     [commonSettings?.npmPlugins]
   );
-  
   const handleSetNpmPlugins = (nextNpmPlugins: string[]) => {
     dispatch(
       setCommonSettings({

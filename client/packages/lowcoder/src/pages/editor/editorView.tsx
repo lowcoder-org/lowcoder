@@ -374,6 +374,9 @@ function EditorView(props: EditorViewProps) {
   // we check if we are on the public cloud
   const isLowCoderDomain = window.location.hostname === 'app.lowcoder.cloud';
 
+  // we check if we are on the public cloud
+  const isLowCoderDomain = window.location.hostname === 'app.lowcoder.cloud';
+
   if (readOnly && hideHeader) {
     return (
       <CustomShortcutWrapper>
@@ -464,7 +467,6 @@ function EditorView(props: EditorViewProps) {
             <script key="clearbit-script" src="https://tag.clearbitscripts.com/v1/pk_dfbc0aeefb28dc63475b67134facf127/tags.js" referrerPolicy="strict-origin-when-cross-origin" type="text/javascript"></script>
         ]}
       </Helmet>
-
       {showNewUserGuide && <EditorTutorials />}
       <EditorGlobalHotKeys
         disabled={readOnly}
