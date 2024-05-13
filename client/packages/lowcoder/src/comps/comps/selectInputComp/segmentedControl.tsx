@@ -31,14 +31,7 @@ import { fixOldInputCompData } from "../textInputComp/textInputConstants";
 
 const getStyle = (style: SegmentStyleType) => {
   return css`
-      background-color: ${style.background};
-      border: ${style?.border};
-      border-style: ${style?.borderStyle};
-      border-width: ${style?.borderWidth};
-      border-radius: ${style?.radius};
     &.ant-segmented:not(.ant-segmented-disabled) {
-      
-
       &,
       .ant-segmented-item-selected,
       .ant-segmented-thumb,
