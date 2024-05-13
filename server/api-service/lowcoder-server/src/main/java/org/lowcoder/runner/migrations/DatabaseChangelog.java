@@ -23,6 +23,7 @@ import org.lowcoder.runner.migrations.job.AddPtmFieldsJob;
 import org.lowcoder.runner.migrations.job.AddSuperAdminUser;
 import org.lowcoder.runner.migrations.job.CompleteAuthType;
 import org.lowcoder.runner.migrations.job.MigrateAuthConfigJob;
+import org.springframework.context.annotation.Profile;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.UncategorizedMongoDbException;
 import org.springframework.data.mongodb.core.index.CompoundIndexDefinition;
@@ -35,6 +36,7 @@ import static org.lowcoder.sdk.util.IDUtils.generate;
 @SuppressWarnings("all")
 @Slf4j
 @ChangeLog(order = "001")
+@Profile("!test")
 public class DatabaseChangelog {
 
     @ChangeSet(order = "001", id = "init-indexes", author = "")
