@@ -374,9 +374,6 @@ function EditorView(props: EditorViewProps) {
   // we check if we are on the public cloud
   const isLowCoderDomain = window.location.hostname === 'app.lowcoder.cloud';
 
-  // we check if we are on the public cloud
-  const isLowCoderDomain = window.location.hostname === 'app.lowcoder.cloud';
-
   if (readOnly && hideHeader) {
     return (
       <CustomShortcutWrapper>
