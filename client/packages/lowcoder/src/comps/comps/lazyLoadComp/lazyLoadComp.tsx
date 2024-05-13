@@ -100,7 +100,6 @@ export function lazyLoadComp(
     }
 
     private async load() {
-      console.log('lazyLoad ->', compName);
       if (!compPath) {
         return;
       }
@@ -115,7 +114,6 @@ export function lazyLoadComp(
         log.error("loader not found, lazy load info:", compPath);
         return;
       }
-      console.log(LazyExportedComp)
 
       const params: CompParams<any> = {
         dispatch: this.dispatch,
