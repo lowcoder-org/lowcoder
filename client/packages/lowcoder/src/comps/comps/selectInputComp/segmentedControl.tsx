@@ -25,15 +25,13 @@ import { RefControl } from "comps/controls/refControl";
 
 import { useContext } from "react";
 import { EditorContext } from "comps/editorState";
-import { migrateOldData } from "comps/generators/simpleGenerators";
+import { migrateOldData, withDefault } from "comps/generators/simpleGenerators";
 import { fixOldInputCompData } from "../textInputComp/textInputConstants";
 
 
 const getStyle = (style: SegmentStyleType) => {
   return css`
     &.ant-segmented:not(.ant-segmented-disabled) {
-      background-color: ${style.background};
-
       &,
       .ant-segmented-item-selected,
       .ant-segmented-thumb,
@@ -79,7 +77,7 @@ const SegmentChildrenMap = {
   disabled: BoolCodeControl,
   onEvent: ChangeEventHandlerControl,
   options: SelectOptionControl,
-  style: styleControl(SegmentStyle),
+  style: withDefault(styleControl(SegmentStyle),{borderWidth:'1px'}),
   viewRef: RefControl<HTMLDivElement>,
 
   ...SelectInputValidationChildren,

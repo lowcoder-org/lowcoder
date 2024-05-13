@@ -50,6 +50,11 @@ import { DateRangeUIView } from "comps/comps/dateComp/dateRangeUIView";
 
 import { EditorContext } from "comps/editorState";
 
+const defaultStyle = {
+  borderStyle: 'solid',
+  borderWidth: '1px',
+}
+
 const EventOptions = [changeEvent, focusEvent, blurEvent] as const;
 
 const validationChildren = {
@@ -76,7 +81,7 @@ const commonChildren = {
   suffixIcon: withDefault(IconControl, "/icon:regular/calendar"),
   ...validationChildren,
   viewRef: RefControl<CommonPickerMethods>,
-  inputFieldStyle:styleControl(DateTimeStyle)
+  inputFieldStyle: withDefault(styleControl(DateTimeStyle), defaultStyle),
 };
 type CommonChildrenType = RecordConstructorToComp<typeof commonChildren>;
 

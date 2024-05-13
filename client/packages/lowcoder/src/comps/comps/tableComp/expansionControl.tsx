@@ -50,7 +50,7 @@ let ExpansionControlTmp = (function () {
       slot: ContextSlotControl,
     },
     () => ({ expandableConfig: {}, expandModalView: null })
-  )
+    )
     .setControlItemData({ filterText: label })
     .setPropertyViewFn((children, dispatch) => {
       return (
