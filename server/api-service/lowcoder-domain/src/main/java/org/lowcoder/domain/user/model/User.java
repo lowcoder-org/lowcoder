@@ -1,16 +1,13 @@
 package org.lowcoder.domain.user.model;
 
-import static com.google.common.base.Suppliers.memoize;
-import static org.lowcoder.infra.util.AssetUtils.toAssetPath;
-
-import java.time.Instant;
-import java.util.*;
-import java.util.function.Supplier;
-
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.type.TypeReference;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.jackson.Jacksonized;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.SetUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.lowcoder.domain.mongodb.AfterMongodbRead;
@@ -23,9 +20,12 @@ import org.lowcoder.sdk.util.JsonUtils;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import java.time.Instant;
+import java.util.*;
+import java.util.function.Supplier;
+
+import static com.google.common.base.Suppliers.memoize;
+import static org.lowcoder.infra.util.AssetUtils.toAssetPath;
 
 
 @Getter
@@ -42,8 +42,7 @@ public class User extends HasIdAndAuditing implements BeforeMongodbWrite, AfterM
 
     private String name;
 
-    @Builder.Default
-    private String uiLanguage = UiConstants.DEFAULT_UI_LANGUAGE;
+    private String uiLanguage;
 
     private String avatar;
 
@@ -79,8 +78,7 @@ public class User extends HasIdAndAuditing implements BeforeMongodbWrite, AfterM
     /**
      * Only used for mongodb (de)serialization
      */
-    @Builder.Default
-    private List<Object> apiKeys = new ArrayList<>();
+    private List<Object> apiKeys;
 
     @Transient
     @JsonIgnore
@@ -143,15 +141,25 @@ public class User extends HasIdAndAuditing implements BeforeMongodbWrite, AfterM
 
     @Override
     public void beforeMongodbWrite(MongodbInterceptorContext context) {
-        this.apiKeysList.forEach(apiKey -> apiKey.doEncrypt(s -> context.encryptionService().encryptString(s)));
-        apiKeys = JsonUtils.fromJsonSafely(JsonUtils.toJsonSafely(apiKeysList, SerializeConfig.JsonViews.Internal.class), new TypeReference<>() {
-        }, new ArrayList<>());
+        if (CollectionUtils.isNotEmpty(this.apiKeysList)) {
+            this.apiKeysList.forEach(apiKey -> apiKey.doEncrypt(s -> context.encryptionService().encryptString(s)));
+            apiKeys = JsonUtils.fromJsonSafely(JsonUtils.toJsonSafely(apiKeysList, SerializeConfig.JsonViews.Internal.class), new TypeReference<>() {
+            }, new ArrayList<>());
+        }
     }
 
     @Override
     public void afterMongodbRead(MongodbInterceptorContext context) {
-        this.apiKeysList = JsonUtils.fromJsonSafely(JsonUtils.toJson(apiKeys), new TypeReference<>() {
-        }, new ArrayList<>());
-        this.apiKeysList.forEach(authConfig -> authConfig.doDecrypt(s -> context.encryptionService().decryptString(s)));
+        if (CollectionUtils.isNotEmpty(apiKeys))
+        {
+            this.apiKeysList = JsonUtils.fromJsonSafely(JsonUtils.toJson(apiKeys), new TypeReference<>() {
+            }, new ArrayList<>());
+            this.apiKeysList.forEach(authConfig -> authConfig.doDecrypt(s -> context.encryptionService().decryptString(s)));
+        }
+
+        /** set UI language to default one if it's null **/
+        if (StringUtils.isBlank(this.uiLanguage)) {
+            this.uiLanguage = UiConstants.DEFAULT_UI_LANGUAGE;
+        }
     }
 }

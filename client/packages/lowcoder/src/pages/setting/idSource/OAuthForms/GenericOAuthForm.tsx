@@ -17,8 +17,9 @@ import Flex from "antd/es/flex";
 import Button from "antd/es/button";
 import axios from "axios";
 import { IconPicker } from "@lowcoder-ee/comps/controls/iconControl";
+import Switch from "antd/es/switch";
 
-const sourceMappingKeys = [
+export const sourceMappingKeys = [
   'uid',
   'email',
   'username',
@@ -49,7 +50,7 @@ interface OpenIdProvider {
   scopes_supported: string[],
 }
 
-interface ConfigProvider {
+export interface ConfigProvider {
   authType: string,
   source: string,
   sourceName: string,
@@ -223,6 +224,7 @@ function GenericOAuthForm(props: GenericOAuthFormProp) {
           const isPassword = valueObject && valueObject.isPassword;
           const isIcon = valueObject && valueObject.isIcon;
           const isList = valueObject && valueObject.isList;
+          const isSwitch = valueObject && valueObject.isSwitch;
           return (
             <div key={key}>
               <Form.Item
@@ -255,13 +257,15 @@ function GenericOAuthForm(props: GenericOAuthFormProp) {
                     placeholder={trans("idSource.encryptedServer")}
                     autoComplete={"one-time-code"}
                   />
-                ) : !isPassword && !isList && isIcon ? (
+                ) : isSwitch ? (
+                  <Switch />
+                ) : isIcon ? (
                   <IconPicker
                     onChange={(value) => form1.setFieldValue("sourceIcon", value)}
                     label={'Source Icon'}
                     value={form1.getFieldValue('sourceIcon')}
                   />
-                ) : !isPassword && isList && !isIcon ? (
+                ) : isList ? (
                   <CustomSelect
                     options={(value as ItemType).options}
                     placeholder={trans("idSource.formSelectPlaceholder", {

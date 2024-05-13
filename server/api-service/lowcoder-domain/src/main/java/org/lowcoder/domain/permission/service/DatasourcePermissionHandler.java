@@ -36,7 +36,7 @@ class DatasourcePermissionHandler extends ResourcePermissionHandler {
     }
 
     @Override
-    protected Mono<Map<String, List<ResourcePermission>>> getNonAnonymousUserPublicResourcePermissions(Collection<String> resourceIds, ResourceAction resourceAction) {
+    protected Mono<Map<String, List<ResourcePermission>>> getNonAnonymousUserPublicResourcePermissions(Collection<String> resourceIds, ResourceAction resourceAction, String userId) {
         return Mono.just(Collections.emptyMap());
     }
 
@@ -48,7 +48,7 @@ class DatasourcePermissionHandler extends ResourcePermissionHandler {
 
 	@Override
 	protected Mono<Map<String, List<ResourcePermission>>> getNonAnonymousUserApplicationPublicResourcePermissions(
-			Collection<String> resourceIds, ResourceAction resourceAction, ApplicationRequestType requestType) {
+			Collection<String> resourceIds, ResourceAction resourceAction, ApplicationRequestType requestType, String userId) {
         return Mono.just(Collections.emptyMap());
 	}
 

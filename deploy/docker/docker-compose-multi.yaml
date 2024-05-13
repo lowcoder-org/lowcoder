@@ -60,6 +60,17 @@ services:
       #
       LOWCODER_API_KEY_SECRET: "5a41b090758b39b226603177ef48d73ae9839dd458ccb7e66f7e7cc028d5a50b"
       LOWCODER_WORKSPACE_MODE: SAAS
+      # Lowcoder notification emails setup
+      LOWCODER_ADMIN_SMTP_HOST: smtp.gmail.com
+      LOWCODER_ADMIN_SMTP_PORT: 587
+      LOWCODER_ADMIN_SMTP_USERNAME:
+      LOWCODER_ADMIN_SMTP_PASSWORD:
+      LOWCODER_ADMIN_SMTP_AUTH: true
+      LOWCODER_ADMIN_SMTP_SSL_ENABLED: false
+      LOWCODER_ADMIN_SMTP_STARTTLS_ENABLED: true
+      LOWCODER_ADMIN_SMTP_STARTTLS_REQUIRED: true
+      # Email used as sender in lost password email
+      LOWCODER_EMAIL_NOTIFICATIONS_SENDER: info@localhost
     restart: unless-stopped
     depends_on:
       - mongodb
