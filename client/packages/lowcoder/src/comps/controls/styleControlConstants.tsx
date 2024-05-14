@@ -285,7 +285,7 @@ const STATIC_TEXT = {
 const LABEL = {
   name: "label",
   label: trans("label"),
-  depTheme: "canvas",
+  depTheme: "primarySurface",
   depType: DEP_TYPE.CONTRAST_TEXT,
   transformer: contrastText,
 } as const;
@@ -898,7 +898,7 @@ export const LabelStyle = [
 ]
 
 export const InputFieldStyle = [
-  getStaticBackground(SURFACE_COLOR),
+  getBackground(),
   ...STYLING_FIELDS_CONTAINER_SEQUENCE,
 ] as const;
 
