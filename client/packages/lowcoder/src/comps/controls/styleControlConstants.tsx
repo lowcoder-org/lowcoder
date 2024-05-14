@@ -27,6 +27,10 @@ export type RotationConfig = CommonColorConfig & {
   readonly rotation: string;
 };
 
+export type BoxShadowConfig = CommonColorConfig & {
+  readonly boxShadow: string;
+};
+
 export type OpacityConfig = CommonColorConfig & {
   readonly opacity: string;
 };
@@ -208,7 +212,8 @@ export type SingleColorConfig =
   | AnimationConfig
   | AnimationDelayConfig
   | AnimationDurationConfig
-  | OpacityConfig;
+  | OpacityConfig
+  | BoxShadowConfig;
 
 export const defaultTheme: ThemeDetail = {
   primary: '#3377FF',
@@ -225,6 +230,7 @@ export const defaultTheme: ThemeDetail = {
   animationDelay: '2s',
   animationDuration: '2s',
   opacity: '0.33',
+  boxShadow: '10px 5px 5px red;',
 };
 
 export const SURFACE_COLOR = '#FFFFFF';
@@ -424,6 +430,12 @@ const ROTATION = {
   name: 'rotation',
   label: 'Rotation',
   rotation: 'rotation',
+} as const;
+
+const BOXSHADOW = {
+  name: 'boxShadow',
+  label: trans('style.boxShadow'),
+  boxShadow: 'boxShadow',
 } as const;
 
 const OPACITY = {
@@ -640,6 +652,7 @@ const STYLING_FIELDS_CONTAINER_SEQUENCE = [
   ANIMATIONDELAY,
   ANIMATIONDURATION,
   OPACITY,
+  BOXSHADOW,
 ];
 
 const FILL = {

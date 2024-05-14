@@ -495,7 +495,8 @@ export const en = {
   // fourth part
 
   style: {
-    opacity: 'opacity',
+    boxShadow: 'Box Shadow',
+    opacity: 'Opacity',
     animation: 'Animation',
     animationDelay: 'Animation Delay',
     animationDuration: 'Animation Duration',
