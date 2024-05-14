@@ -17,4 +17,4 @@ spec:
       {{- end }}
     {{- end }}
   selector:
-    {{- include "lowcoder.selectorLabels" . | nindent 4 }}
+    {{- include "lowcoder.selectorLabels" (dict "component" "api-service" "Values" .Values "Release" .Release "Chart" .Chart) | nindent 4 }}

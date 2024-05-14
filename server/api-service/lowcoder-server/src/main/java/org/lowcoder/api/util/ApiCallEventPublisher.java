@@ -25,9 +25,9 @@ import java.nio.charset.StandardCharsets;
 import static org.springframework.http.HttpHeaders.writableHttpHeaders;
 
 @Slf4j
-@Aspect
+//@Aspect
 @RequiredArgsConstructor
-@Component
+//@Component
 public class ApiCallEventPublisher {
 
     private final ApplicationEventPublisher applicationEventPublisher;

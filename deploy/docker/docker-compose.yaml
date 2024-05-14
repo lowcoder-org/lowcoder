@@ -62,7 +62,7 @@ services:
       LOWCODER_MAX_QUERY_TIMEOUT: 120
       LOWCODER_WORKSPACE_MODE: SAAS
       # Lowcoder notification emails setup
-      LOWCODER_ADMIN_SMTP_HOST: smtp.gmail.com
+      LOWCODER_ADMIN_SMTP_HOST: localhost
       LOWCODER_ADMIN_SMTP_PORT: 587
       LOWCODER_ADMIN_SMTP_USERNAME: 
       LOWCODER_ADMIN_SMTP_PASSWORD: 

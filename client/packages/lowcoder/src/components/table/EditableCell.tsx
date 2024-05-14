@@ -128,6 +128,7 @@ export function EditableCell<T extends JSONValue>(props: EditableCellProps<T>) {
     >
       {status === "toSave" && !isEditing && <EditableChip />}
       <div
+        style={{minHeight: '24px'}}
         onDoubleClick={enterEditFn}
       >
         {normalView}

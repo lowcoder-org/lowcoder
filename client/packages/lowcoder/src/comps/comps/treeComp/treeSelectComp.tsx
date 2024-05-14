@@ -65,9 +65,9 @@ const childrenMap = {
   allowClear: BoolControl,
   showSearch: BoolControl.DEFAULT_TRUE,
   inputValue: stateComp<string>(""), // search value
-  style: styleControl(InputFieldStyle),
+  style: withDefault(styleControl(InputFieldStyle), {borderWidth: '1px'}),
   labelStyle:styleControl(LabelStyle),
-  inputFieldStyle:styleControl(TreeSelectStyle),
+  inputFieldStyle: withDefault(styleControl(TreeSelectStyle), {borderWidth: '1px'}),
   viewRef: RefControl<BaseSelectRef>,
 };
 

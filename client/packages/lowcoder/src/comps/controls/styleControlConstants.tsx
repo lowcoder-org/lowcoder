@@ -899,7 +899,9 @@ export const LabelStyle = [
 
 export const InputFieldStyle = [
   getBackground(),
-  ...STYLING_FIELDS_CONTAINER_SEQUENCE,
+  getStaticBorder(),
+  ...STYLING_FIELDS_CONTAINER_SEQUENCE.filter((style) => ['border'].includes(style.name) === false),
+  // ...STYLING_FIELDS_CONTAINER_SEQUENCE,
 ] as const;
 
 export const RatingStyle = [
@@ -1062,20 +1064,35 @@ export const RadioStyle = [
   HOVER_BACKGROUND_COLOR
 ] as const;
 
+
 export const SegmentStyle = [
   LABEL,
   ...STYLING_FIELDS_SEQUENCE.filter((style) => ['border', 'borderWidth'].includes(style.name) === false),
+  // getStaticBorder(SECOND_SURFACE_COLOR),
+    {
+    name: "border",
+    label: trans("style.border"),
+    depName: "background",
+    transformer: backgroundToBorder,
+  },
+  {
+    name: "borderWidth",
+    label: trans("style.borderWidth"),
+    borderWidth: "borderWidth",
+  }, 
+ 
+  getStaticBackground(SURFACE_COLOR), 
   {
     name: "indicatorBackground",
     label: trans("style.indicatorBackground"),
     color: SURFACE_COLOR,
   },
-  {
-    name: "background",
-    label: trans("style.background"),
-    depName: "indicatorBackground",
-    transformer: handleToSegmentBackground,
-  },
+  // {
+  //   name: "background",
+  //   label: trans("style.background"),
+  //   depName: "indicatorBackground",
+  //   transformer: toSelf,
+  // },
   {
     name: "text",
     label: trans("text"),
@@ -1083,6 +1100,7 @@ export const SegmentStyle = [
     depType: DEP_TYPE.CONTRAST_TEXT,
     transformer: contrastText,
   },
+
   VALIDATE,
 ] as const;
 
@@ -1096,8 +1114,8 @@ export const StepsStyle = [
   {
     name: "titleText",
     label: trans("title"),
-    depName: "background",
-    depType: DEP_TYPE.CONTRAST_TEXT,
+    depName: "text",
+    depType: DEP_TYPE.SELF,
     transformer: contrastText,
   },
   ...STYLING_FIELDS_SEQUENCE.filter((style) => ['background', 'textSize','textDecoration'].includes(style.name) === false),
@@ -1268,6 +1286,7 @@ export const IframeStyle = [getBackground(), getStaticBorder("#00000000"), RADIU
 
 export const DateTimeStyle = [
   ...getStaticBgBorderRadiusByBg(SURFACE_COLOR),
+  getStaticBorder(SECOND_SURFACE_COLOR),
   TEXT,
   MARGIN,
   PADDING,

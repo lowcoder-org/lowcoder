@@ -1,4 +1,4 @@
-import { en } from "./en";
+import { en } from "../locales/en";
 
 export const it: typeof en = {
   ...en,

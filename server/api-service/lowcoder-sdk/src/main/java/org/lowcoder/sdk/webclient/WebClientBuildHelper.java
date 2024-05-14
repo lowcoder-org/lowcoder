@@ -94,6 +94,9 @@ public class WebClientBuildHelper {
             httpClient = httpClient.resolver(new SafeHostResolverGroup(disallowedHosts));
         }
         return WebClient.builder()
+                .codecs(codecs -> codecs
+                        .defaultCodecs()
+                        .maxInMemorySize(20 * 1024 * 1024))
                 .clientConnector(new ReactorClientHttpConnector(httpClient));
     }
 
