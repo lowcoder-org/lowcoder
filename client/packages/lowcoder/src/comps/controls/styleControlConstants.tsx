@@ -285,7 +285,7 @@ const STATIC_TEXT = {
 const LABEL = {
   name: "label",
   label: trans("label"),
-  depTheme: "canvas",
+  depTheme: "primarySurface",
   depType: DEP_TYPE.CONTRAST_TEXT,
   transformer: contrastText,
 } as const;
