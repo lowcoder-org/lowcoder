@@ -496,6 +496,8 @@ export const en = {
 
   style: {
     animation: 'Animation',
+    animationDelay: 'Animation Delay',
+    animationDuration: 'Animation Duration',
     resetTooltip:
       'Reset styles. Clear the input field to reset an individual style.',
     textColor: 'Text Color',

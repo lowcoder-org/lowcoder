@@ -49,6 +49,8 @@ export interface ThemeDetail {
   gridColumns?: string; //Added By Aqib Mirza
   textSize?: string;
   animation?: string;
+  animationDelay?: string;
+  animationDuration?: string;
 }
 
 export function getThemeDetailName(key: keyof ThemeDetail) {

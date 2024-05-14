@@ -1,9 +1,9 @@
-import { ThemeDetail } from "api/commonSettingApi";
-import { darkenColor, isDarkColor, lightenColor, toHex } from "lowcoder-design";
-import { trans } from "i18n";
-import { StyleConfigType } from "./styleControl";
+import {ThemeDetail} from 'api/commonSettingApi';
+import {darkenColor, isDarkColor, lightenColor, toHex} from 'lowcoder-design';
+import {trans} from 'i18n';
+import {StyleConfigType} from './styleControl';
 
-type SupportPlatform = "pc" | "mobile";
+type SupportPlatform = 'pc' | 'mobile';
 
 type CommonColorConfig = {
   readonly name: string;
@@ -29,6 +29,14 @@ export type RotationConfig = CommonColorConfig & {
 
 export type AnimationConfig = CommonColorConfig & {
   readonly animation: string;
+};
+
+export type AnimationDelayConfig = CommonColorConfig & {
+  readonly animationDelay: string;
+};
+
+export type AnimationDurationConfig = CommonColorConfig & {
+  readonly animationDuration: string;
 };
 
 export type BackgroundImageConfig = CommonColorConfig & {
@@ -193,30 +201,34 @@ export type SingleColorConfig =
   | SiderBackgroundImageSizeConfig
   | SiderBackgroundImagePositionConfig
   | SiderBackgroundImageOriginConfig
-  | AnimationConfig;
+  | AnimationConfig
+  | AnimationDelayConfig
+  | AnimationDurationConfig;
 
 export const defaultTheme: ThemeDetail = {
-  primary: "#3377FF",
-  textDark: "#222222",
-  textLight: "#FFFFFF",
-  canvas: "#F5F5F6",
-  primarySurface: "#FFFFFF",
-  borderRadius: "4px",
-  margin: "3px",
-  padding: "3px",
-  gridColumns: "24",
-  textSize: "14px",
-  animation: "bounce",
+  primary: '#3377FF',
+  textDark: '#222222',
+  textLight: '#FFFFFF',
+  canvas: '#F5F5F6',
+  primarySurface: '#FFFFFF',
+  borderRadius: '4px',
+  margin: '3px',
+  padding: '3px',
+  gridColumns: '24',
+  textSize: '14px',
+  animation: 'bounce',
+  animationDelay: '2s',
+  animationDuration: '2s',
 };
 
-export const SURFACE_COLOR = "#FFFFFF";
-const SECOND_SURFACE_COLOR = "#D7D9E0";
-const ERROR_COLOR = "#F5222D";
-const SUCCESS_COLOR = "#079968";
+export const SURFACE_COLOR = '#FFFFFF';
+const SECOND_SURFACE_COLOR = '#D7D9E0';
+const ERROR_COLOR = '#F5222D';
+const SUCCESS_COLOR = '#079968';
 
 export enum DEP_TYPE {
-  CONTRAST_TEXT = "contrastText",
-  SELF = "toSelf",
+  CONTRAST_TEXT = 'contrastText',
+  SELF = 'toSelf',
 }
 
 export function contrastText(
@@ -224,7 +236,7 @@ export function contrastText(
   textDark: string,
   textLight: string
 ) {
-  return isDarkColor(color) && color !== "#00000000" ? textLight : textDark;
+  return isDarkColor(color) && color !== '#00000000' ? textLight : textDark;
 }
 
 // return similar background color
@@ -277,7 +289,7 @@ function handleToUnchecked(color: string) {
 // return segmented background
 function handleToSegmentBackground(color: string) {
   if (toHex(color) === SURFACE_COLOR) {
-    return "#E1E3EB";
+    return '#E1E3EB';
   }
   return contrastBackground(color);
 }
@@ -285,9 +297,9 @@ function handleToSegmentBackground(color: string) {
 // return table hover row background color
 export function handleToHoverRow(color: string) {
   if (isDarkColor(color)) {
-    return "#FFFFFF23";
+    return '#FFFFFF23';
   } else {
-    return "#00000007";
+    return '#00000007';
   }
 }
 
@@ -299,9 +311,9 @@ export function handleToSelectedRow(
   if (toHex(color) === SURFACE_COLOR) {
     return `${toHex(primary)?.substring(0, 7)}16`;
   } else if (isDarkColor(color)) {
-    return "#FFFFFF33";
+    return '#FFFFFF33';
   } else {
-    return "#00000011";
+    return '#00000011';
   }
 }
 
@@ -310,7 +322,7 @@ export function handleToHeadBg(color: string) {
   if (toHex(color) === SURFACE_COLOR) {
     return darkenColor(color, 0.06);
   }
-  if (toHex(color) === "#000000") {
+  if (toHex(color) === '#000000') {
     return SURFACE_COLOR;
   }
   if (isDarkColor(color)) {
@@ -327,7 +339,7 @@ function handleToDividerText(color: string) {
 
 // return calendar select background color
 function handleCalendarSelectColor(color: string) {
-  return lightenColor(color, 0.3) + "4C";
+  return lightenColor(color, 0.3) + '4C';
 }
 
 // return lighten color
@@ -338,7 +350,7 @@ function handleLightenColor(color: string) {
 // return calendar head button select background
 export function handleToCalendarHeadSelectBg(color: string) {
   if (toHex(color) === SURFACE_COLOR) {
-    return "#E1E3EB";
+    return '#E1E3EB';
   }
   return contrastBackground(color, 0.15);
 }
@@ -346,9 +358,9 @@ export function handleToCalendarHeadSelectBg(color: string) {
 // return calendar today background
 export function handleToCalendarToday(color: string) {
   if (isDarkColor(color)) {
-    return "#FFFFFF33";
+    return '#FFFFFF33';
   } else {
-    return "#0000000c";
+    return '#0000000c';
   }
 }
 
@@ -362,210 +374,222 @@ function handleCalendarText(
 }
 
 const TEXT = {
-  name: "text",
-  label: trans("text"),
-  depName: "background",
+  name: 'text',
+  label: trans('text'),
+  depName: 'background',
   depType: DEP_TYPE.CONTRAST_TEXT,
   transformer: contrastText,
 } as const;
 
 const STATIC_TEXT = {
-  name: "staticText",
-  label: trans("style.staticText"),
-  depTheme: "canvas",
+  name: 'staticText',
+  label: trans('style.staticText'),
+  depTheme: 'canvas',
   depType: DEP_TYPE.CONTRAST_TEXT,
   transformer: contrastText,
 } as const;
 
 const LABEL = {
-  name: "label",
-  label: trans("label"),
-  depTheme: "canvas",
+  name: 'label',
+  label: trans('label'),
+  depTheme: 'canvas',
   depType: DEP_TYPE.CONTRAST_TEXT,
   transformer: contrastText,
 } as const;
 
 const ACCENT = {
-  name: "accent",
-  label: trans("style.accent"),
-  depTheme: "primary",
+  name: 'accent',
+  label: trans('style.accent'),
+  depTheme: 'primary',
   depType: DEP_TYPE.SELF,
   transformer: toSelf,
-  platform: "pc",
+  platform: 'pc',
 } as const;
 
 const VALIDATE = {
-  name: "validate",
-  label: trans("style.validate"),
+  name: 'validate',
+  label: trans('style.validate'),
   color: ERROR_COLOR,
 } as const;
 
 const ACCENT_VALIDATE = [ACCENT, VALIDATE] as const;
 
 const ROTATION = {
-  name: "rotation",
-  label: "Rotation",
-  rotation: "rotation",
+  name: 'rotation',
+  label: 'Rotation',
+  rotation: 'rotation',
 } as const;
 
 const ANIMATION = {
-  name: "animation",
-  label: trans("style.animation"),
-  animation: "animation",
+  name: 'animation',
+  label: trans('style.animation'),
+  animation: 'animation',
+} as const;
+
+const ANIMATIONDELAY = {
+  name: 'animationDelay',
+  label: trans('style.animationDelay'),
+  animationDelay: 'animationDelay',
+} as const;
+
+const ANIMATIONDURATION = {
+  name: 'animationDuration',
+  label: trans('style.animationDuration'),
+  animationDuration: 'animationDuration',
 } as const;
 
 const BORDER = {
-  name: "border",
-  label: trans("style.border"),
-  depName: "background",
+  name: 'border',
+  label: trans('style.border'),
+  depName: 'background',
   transformer: backgroundToBorder,
 } as const;
 
 const RADIUS = {
-  name: "radius",
-  label: trans("style.borderRadius"),
-  radius: "borderRadius",
+  name: 'radius',
+  label: trans('style.borderRadius'),
+  radius: 'borderRadius',
 } as const;
 
 const BORDER_WIDTH = {
-  name: "borderWidth",
-  label: trans("style.borderWidth"),
-  borderWidth: "borderWidth",
+  name: 'borderWidth',
+  label: trans('style.borderWidth'),
+  borderWidth: 'borderWidth',
 } as const;
 
 const BACKGROUND_IMAGE = {
-  name: "backgroundImage",
-  label: trans("style.backgroundImage"),
-  backgroundImage: "backgroundImage",
+  name: 'backgroundImage',
+  label: trans('style.backgroundImage'),
+  backgroundImage: 'backgroundImage',
 } as const;
 
 const BACKGROUND_IMAGE_REPEAT = {
-  name: "backgroundImageRepeat",
-  label: trans("style.backgroundImageRepeat"),
-  backgroundImageRepeat: "backgroundImageRepeat",
+  name: 'backgroundImageRepeat',
+  label: trans('style.backgroundImageRepeat'),
+  backgroundImageRepeat: 'backgroundImageRepeat',
 } as const;
 
 const BACKGROUND_IMAGE_SIZE = {
-  name: "backgroundImageSize",
-  label: trans("style.backgroundImageSize"),
-  backgroundImageSize: "backgroundImageSize",
+  name: 'backgroundImageSize',
+  label: trans('style.backgroundImageSize'),
+  backgroundImageSize: 'backgroundImageSize',
 } as const;
 
 const BACKGROUND_IMAGE_POSITION = {
-  name: "backgroundImagePosition",
-  label: trans("style.backgroundImagePosition"),
-  backgroundImagePosition: "backgroundImagePosition",
+  name: 'backgroundImagePosition',
+  label: trans('style.backgroundImagePosition'),
+  backgroundImagePosition: 'backgroundImagePosition',
 } as const;
 
 const BACKGROUND_IMAGE_ORIGIN = {
-  name: "backgroundImageOrigin",
-  label: trans("style.backgroundImageOrigin"),
-  backgroundImageOrigin: "backgroundImageOrigin",
+  name: 'backgroundImageOrigin',
+  label: trans('style.backgroundImageOrigin'),
+  backgroundImageOrigin: 'backgroundImageOrigin',
 } as const;
 
 const MARGIN = {
-  name: "margin",
-  label: trans("style.margin"),
-  margin: "margin",
+  name: 'margin',
+  label: trans('style.margin'),
+  margin: 'margin',
 } as const;
 
 const PADDING = {
-  name: "padding",
-  label: trans("style.padding"),
-  padding: "padding",
+  name: 'padding',
+  label: trans('style.padding'),
+  padding: 'padding',
 } as const;
 
 const TEXT_SIZE = {
-  name: "textSize",
-  label: trans("style.textSize"),
-  textSize: "textSize",
+  name: 'textSize',
+  label: trans('style.textSize'),
+  textSize: 'textSize',
 } as const;
 
 const TEXT_WEIGHT = {
-  name: "textWeight",
-  label: trans("style.textWeight"),
-  textWeight: "textWeight",
+  name: 'textWeight',
+  label: trans('style.textWeight'),
+  textWeight: 'textWeight',
 } as const;
 
 const HOVER_BACKGROUND_COLOR = {
-  name: "hoverBackground",
-  label: trans("style.hoverBackground"),
-  hoverBackground: "hoverBackground",
+  name: 'hoverBackground',
+  label: trans('style.hoverBackground'),
+  hoverBackground: 'hoverBackground',
 };
 
 const FONT_FAMILY = {
-  name: "fontFamily",
-  label: trans("style.fontFamily"),
-  fontFamily: "fontFamily",
+  name: 'fontFamily',
+  label: trans('style.fontFamily'),
+  fontFamily: 'fontFamily',
 } as const;
 
 const FONT_STYLE = {
-  name: "fontStyle",
-  label: trans("style.fontStyle"),
-  fontStyle: "fontStyle",
+  name: 'fontStyle',
+  label: trans('style.fontStyle'),
+  fontStyle: 'fontStyle',
 } as const;
 
 const CONTAINER_HEADER_PADDING = {
-  name: "containerHeaderPadding",
-  label: trans("style.containerHeaderPadding"),
-  containerHeaderPadding: "padding",
+  name: 'containerHeaderPadding',
+  label: trans('style.containerHeaderPadding'),
+  containerHeaderPadding: 'padding',
 } as const;
 
 const CONTAINER_SIDER_PADDING = {
-  name: "containerSiderPadding",
-  label: trans("style.containerSiderPadding"),
-  containerSiderPadding: "padding",
+  name: 'containerSiderPadding',
+  label: trans('style.containerSiderPadding'),
+  containerSiderPadding: 'padding',
 } as const;
 
 const CONTAINER_FOOTER_PADDING = {
-  name: "containerFooterPadding",
-  label: trans("style.containerFooterPadding"),
-  containerFooterPadding: "padding",
+  name: 'containerFooterPadding',
+  label: trans('style.containerFooterPadding'),
+  containerFooterPadding: 'padding',
 } as const;
 
 const CONTAINER_BODY_PADDING = {
-  name: "containerBodyPadding",
-  label: trans("style.containerBodyPadding"),
-  containerBodyPadding: "padding",
+  name: 'containerBodyPadding',
+  label: trans('style.containerBodyPadding'),
+  containerBodyPadding: 'padding',
 } as const;
 
 const TEXT_TRANSFORM = {
-  name: "textTransform",
-  label: trans("style.textTransform"),
-  textTransform: "textTransform",
+  name: 'textTransform',
+  label: trans('style.textTransform'),
+  textTransform: 'textTransform',
 } as const;
 
 const TEXT_DECORATION = {
-  name: "textDecoration",
-  label: trans("style.textDecoration"),
-  textDecoration: "textDecoration",
+  name: 'textDecoration',
+  label: trans('style.textDecoration'),
+  textDecoration: 'textDecoration',
 } as const;
 
 const BORDER_STYLE = {
-  name: "borderStyle",
-  label: trans("style.borderStyle"),
-  borderStyle: "borderStyle",
+  name: 'borderStyle',
+  label: trans('style.borderStyle'),
+  borderStyle: 'borderStyle',
 } as const;
 
 const getStaticBorder = (color: string = SECOND_SURFACE_COLOR) =>
   ({
-    name: "border",
-    label: trans("style.border"),
+    name: 'border',
+    label: trans('style.border'),
     color,
   }) as const;
 
 const HEADER_BACKGROUND = {
-  name: "headerBackground",
-  label: trans("style.headerBackground"),
-  depName: "background",
+  name: 'headerBackground',
+  label: trans('style.headerBackground'),
+  depName: 'background',
   depType: DEP_TYPE.SELF,
   transformer: toSelf,
 } as const;
 
 const SIDER_BACKGROUND = {
-  name: "siderBackground",
-  label: trans("style.siderBackground"),
-  depName: "background",
+  name: 'siderBackground',
+  label: trans('style.siderBackground'),
+  depName: 'background',
   depType: DEP_TYPE.SELF,
   transformer: toSelf,
 } as const;
@@ -600,26 +624,28 @@ const STYLING_FIELDS_CONTAINER_SEQUENCE = [
   BORDER_STYLE,
   RADIUS,
   BORDER_WIDTH,
-  // ANIMATION,
+  ANIMATION,
+  ANIMATIONDELAY,
+  ANIMATIONDURATION,
 ];
 
 const FILL = {
-  name: "fill",
-  label: trans("style.fill"),
-  depTheme: "primary",
+  name: 'fill',
+  label: trans('style.fill'),
+  depTheme: 'primary',
   depType: DEP_TYPE.SELF,
   transformer: toSelf,
 } as const;
 
 const TRACK = {
-  name: "track",
-  label: trans("style.track"),
+  name: 'track',
+  label: trans('style.track'),
   color: SECOND_SURFACE_COLOR,
 } as const;
 
 const SUCCESS = {
-  name: "success",
-  label: trans("success"),
+  name: 'success',
+  label: trans('success'),
   color: SUCCESS_COLOR,
 } as const;
 
@@ -629,21 +655,21 @@ function getStaticBgBorderRadiusByBg(
 ) {
   return [
     getStaticBackground(background),
-    platform ? { ...BORDER, platform } : BORDER,
-    platform ? { ...RADIUS, platform } : RADIUS,
+    platform ? {...BORDER, platform} : BORDER,
+    platform ? {...RADIUS, platform} : RADIUS,
   ] as const;
 }
 
 function getBgBorderRadiusByBg(
-  background: keyof ThemeDetail = "primarySurface"
+  background: keyof ThemeDetail = 'primarySurface'
 ) {
   return [getBackground(background), BORDER, RADIUS] as const;
 }
 
-function getBackground(depTheme: keyof ThemeDetail = "primarySurface") {
+function getBackground(depTheme: keyof ThemeDetail = 'primarySurface') {
   return {
-    name: "background",
-    label: trans("style.background"),
+    name: 'background',
+    label: trans('style.background'),
     depTheme: depTheme,
     depType: DEP_TYPE.SELF,
     transformer: toSelf,
@@ -652,8 +678,8 @@ function getBackground(depTheme: keyof ThemeDetail = "primarySurface") {
 
 function getStaticBackground(color: string) {
   return {
-    name: "background",
-    label: trans("style.background"),
+    name: 'background',
+    label: trans('style.background'),
     color,
   } as const;
 }
@@ -686,14 +712,14 @@ function replaceAndMergeMultipleStyles(
 }
 
 export const ButtonStyle = [
-  getBackground("primary"),
+  getBackground('primary'),
   ...STYLING_FIELDS_SEQUENCE,
 ] as const;
 
 export const ToggleButtonStyle = [
-  getBackground("canvas"),
+  getBackground('canvas'),
   ...STYLING_FIELDS_SEQUENCE.map((style) => {
-    if (style.name === "border") {
+    if (style.name === 'border') {
       return {
         ...style,
         depType: DEP_TYPE.SELF,
@@ -708,17 +734,17 @@ export const ToggleButtonStyle = [
 
 export const TextStyle = [
   {
-    name: "background",
-    label: trans("style.background"),
-    depTheme: "canvas",
+    name: 'background',
+    label: trans('style.background'),
+    depTheme: 'canvas',
     depType: DEP_TYPE.SELF,
     transformer: toSelf,
   },
   ...STYLING_FIELDS_SEQUENCE,
   {
-    name: "links",
-    label: trans("style.links"),
-    depTheme: "primary",
+    name: 'links',
+    label: trans('style.links'),
+    depTheme: 'primary',
     depType: DEP_TYPE.SELF,
     transformer: toSelf,
   },
@@ -726,9 +752,9 @@ export const TextStyle = [
 
 export const MarginStyle = [
   {
-    name: "margin",
-    label: trans("style.margin"),
-    margin: "margin",
+    name: 'margin',
+    label: trans('style.margin'),
+    margin: 'margin',
   },
 ];
 
@@ -742,29 +768,29 @@ export const ContainerStyle = [
   MARGIN,
   PADDING,
   {
-    name: "backgroundImage",
-    label: trans("style.backgroundImage"),
-    backgroundImage: "backgroundImage",
+    name: 'backgroundImage',
+    label: trans('style.backgroundImage'),
+    backgroundImage: 'backgroundImage',
   },
   {
-    name: "backgroundImageRepeat",
-    label: trans("style.backgroundImageRepeat"),
-    backgroundImageRepeat: "backgroundImageRepeat",
+    name: 'backgroundImageRepeat',
+    label: trans('style.backgroundImageRepeat'),
+    backgroundImageRepeat: 'backgroundImageRepeat',
   },
   {
-    name: "backgroundImageSize",
-    label: trans("style.backgroundImageSize"),
-    backgroundImageSize: "backgroundImageSize",
+    name: 'backgroundImageSize',
+    label: trans('style.backgroundImageSize'),
+    backgroundImageSize: 'backgroundImageSize',
   },
   {
-    name: "backgroundImagePosition",
-    label: trans("style.backgroundImagePosition"),
-    backgroundImagePosition: "backgroundImagePosition",
+    name: 'backgroundImagePosition',
+    label: trans('style.backgroundImagePosition'),
+    backgroundImagePosition: 'backgroundImagePosition',
   },
   {
-    name: "backgroundImageOrigin",
-    label: trans("style.backgroundImageOrigin"),
-    backgroundImageOrigin: "backgroundImageOrigin",
+    name: 'backgroundImageOrigin',
+    label: trans('style.backgroundImageOrigin'),
+    backgroundImageOrigin: 'backgroundImageOrigin',
   },
 ] as const;
 
@@ -772,29 +798,29 @@ export const ContainerHeaderStyle = [
   CONTAINER_HEADER_PADDING,
   HEADER_BACKGROUND,
   {
-    name: "headerBackgroundImage",
-    label: trans("style.backgroundImage"),
-    headerBackgroundImage: "headerBackgroundImage",
+    name: 'headerBackgroundImage',
+    label: trans('style.backgroundImage'),
+    headerBackgroundImage: 'headerBackgroundImage',
   },
   {
-    name: "headerBackgroundImageRepeat",
-    label: trans("style.backgroundImageRepeat"),
-    headerBackgroundImageRepeat: "headerBackgroundImageRepeat",
+    name: 'headerBackgroundImageRepeat',
+    label: trans('style.backgroundImageRepeat'),
+    headerBackgroundImageRepeat: 'headerBackgroundImageRepeat',
   },
   {
-    name: "headerBackgroundImageSize",
-    label: trans("style.backgroundImageSize"),
-    headerBackgroundImageSize: "headerBackgroundImageSize",
+    name: 'headerBackgroundImageSize',
+    label: trans('style.backgroundImageSize'),
+    headerBackgroundImageSize: 'headerBackgroundImageSize',
   },
   {
-    name: "headerBackgroundImagePosition",
-    label: trans("style.backgroundImagePosition"),
-    headerBackgroundImagePosition: "headerBackgroundImagePosition",
+    name: 'headerBackgroundImagePosition',
+    label: trans('style.backgroundImagePosition'),
+    headerBackgroundImagePosition: 'headerBackgroundImagePosition',
   },
   {
-    name: "headerBackgroundImageOrigin",
-    label: trans("style.backgroundImageOrigin"),
-    headerBackgroundImageOrigin: "headerBackgroundImageOrigin",
+    name: 'headerBackgroundImageOrigin',
+    label: trans('style.backgroundImageOrigin'),
+    headerBackgroundImageOrigin: 'headerBackgroundImageOrigin',
   },
 ] as const;
 
@@ -802,116 +828,116 @@ export const ContainerSiderStyle = [
   CONTAINER_SIDER_PADDING,
   SIDER_BACKGROUND,
   {
-    name: "siderBackgroundImage",
-    label: trans("style.backgroundImage"),
-    siderBackgroundImage: "siderBackgroundImage",
+    name: 'siderBackgroundImage',
+    label: trans('style.backgroundImage'),
+    siderBackgroundImage: 'siderBackgroundImage',
   },
   {
-    name: "siderBackgroundImageRepeat",
-    label: trans("style.backgroundImageRepeat"),
-    siderBackgroundImageRepeat: "siderBackgroundImageRepeat",
+    name: 'siderBackgroundImageRepeat',
+    label: trans('style.backgroundImageRepeat'),
+    siderBackgroundImageRepeat: 'siderBackgroundImageRepeat',
   },
   {
-    name: "siderBackgroundImageSize",
-    label: trans("style.backgroundImageSize"),
-    siderBackgroundImageSize: "siderBackgroundImageSize",
+    name: 'siderBackgroundImageSize',
+    label: trans('style.backgroundImageSize'),
+    siderBackgroundImageSize: 'siderBackgroundImageSize',
   },
   {
-    name: "siderBackgroundImagePosition",
-    label: trans("style.backgroundImagePosition"),
-    siderBackgroundImagePosition: "siderBackgroundImagePosition",
+    name: 'siderBackgroundImagePosition',
+    label: trans('style.backgroundImagePosition'),
+    siderBackgroundImagePosition: 'siderBackgroundImagePosition',
   },
   {
-    name: "siderBackgroundImageOrigin",
-    label: trans("style.backgroundImageOrigin"),
-    siderBackgroundImageOrigin: "siderBackgroundImageOrigin",
+    name: 'siderBackgroundImageOrigin',
+    label: trans('style.backgroundImageOrigin'),
+    siderBackgroundImageOrigin: 'siderBackgroundImageOrigin',
   },
 ] as const;
 
 export const ContainerBodyStyle = [
   CONTAINER_BODY_PADDING,
   {
-    name: "background",
-    label: trans("style.background"),
-    depName: "background",
+    name: 'background',
+    label: trans('style.background'),
+    depName: 'background',
     depType: DEP_TYPE.SELF,
     transformer: toSelf,
   },
   {
-    name: "backgroundImage",
-    label: trans("style.backgroundImage"),
-    backgroundImage: "backgroundImage",
+    name: 'backgroundImage',
+    label: trans('style.backgroundImage'),
+    backgroundImage: 'backgroundImage',
   },
   {
-    name: "backgroundImageRepeat",
-    label: trans("style.backgroundImageRepeat"),
-    backgroundImageRepeat: "backgroundImageRepeat",
+    name: 'backgroundImageRepeat',
+    label: trans('style.backgroundImageRepeat'),
+    backgroundImageRepeat: 'backgroundImageRepeat',
   },
   {
-    name: "backgroundImageSize",
-    label: trans("style.backgroundImageSize"),
-    backgroundImageSize: "backgroundImageSize",
+    name: 'backgroundImageSize',
+    label: trans('style.backgroundImageSize'),
+    backgroundImageSize: 'backgroundImageSize',
   },
   {
-    name: "backgroundImagePosition",
-    label: trans("style.backgroundImagePosition"),
-    backgroundImagePosition: "backgroundImagePosition",
+    name: 'backgroundImagePosition',
+    label: trans('style.backgroundImagePosition'),
+    backgroundImagePosition: 'backgroundImagePosition',
   },
   {
-    name: "backgroundImageOrigin",
-    label: trans("style.backgroundImageOrigin"),
-    backgroundImageOrigin: "backgroundImageOrigin",
+    name: 'backgroundImageOrigin',
+    label: trans('style.backgroundImageOrigin'),
+    backgroundImageOrigin: 'backgroundImageOrigin',
   },
 ] as const;
 
 export const ContainerFooterStyle = [
   CONTAINER_FOOTER_PADDING,
   {
-    name: "footerBackground",
-    label: trans("style.background"),
-    depName: "background",
+    name: 'footerBackground',
+    label: trans('style.background'),
+    depName: 'background',
     depType: DEP_TYPE.SELF,
     transformer: toSelf,
   },
   {
-    name: "footerBackgroundImage",
-    label: trans("style.backgroundImage"),
-    footerBackgroundImage: "footerBackgroundImage",
+    name: 'footerBackgroundImage',
+    label: trans('style.backgroundImage'),
+    footerBackgroundImage: 'footerBackgroundImage',
   },
   {
-    name: "footerBackgroundImageRepeat",
-    label: trans("style.backgroundImageRepeat"),
-    footerBackgroundImageRepeat: "footerBackgroundImageRepeat",
+    name: 'footerBackgroundImageRepeat',
+    label: trans('style.backgroundImageRepeat'),
+    footerBackgroundImageRepeat: 'footerBackgroundImageRepeat',
   },
   {
-    name: "footerBackgroundImageSize",
-    label: trans("style.backgroundImageSize"),
-    footerBackgroundImageSize: "footerBackgroundImageSize",
+    name: 'footerBackgroundImageSize',
+    label: trans('style.backgroundImageSize'),
+    footerBackgroundImageSize: 'footerBackgroundImageSize',
   },
   {
-    name: "footerBackgroundImagePosition",
-    label: trans("style.backgroundImagePosition"),
-    footerBackgroundImagePosition: "footerBackgroundImagePosition",
+    name: 'footerBackgroundImagePosition',
+    label: trans('style.backgroundImagePosition'),
+    footerBackgroundImagePosition: 'footerBackgroundImagePosition',
   },
   {
-    name: "footerBackgroundImageOrigin",
-    label: trans("style.backgroundImageOrigin"),
-    footerBackgroundImageOrigin: "footerBackgroundImageOrigin",
+    name: 'footerBackgroundImageOrigin',
+    label: trans('style.backgroundImageOrigin'),
+    footerBackgroundImageOrigin: 'footerBackgroundImageOrigin',
   },
 ] as const;
 
 export const SliderStyle = [
   FILL,
   {
-    name: "thumbBorder",
-    label: trans("style.thumbBorder"),
-    depName: "fill",
+    name: 'thumbBorder',
+    label: trans('style.thumbBorder'),
+    depName: 'fill',
     depType: DEP_TYPE.SELF,
     transformer: toSelf,
   },
   {
-    name: "thumb",
-    label: trans("style.thumb"),
+    name: 'thumb',
+    label: trans('style.thumb'),
     color: SURFACE_COLOR,
   },
   TRACK,
@@ -936,9 +962,9 @@ export const ColorPickerStyle = [
 
 export const AvatarStyle = [
   {
-    name: "background",
-    label: trans("avatarComp.avatarBackground"),
-    color: "#bfbfbf",
+    name: 'background',
+    label: trans('avatarComp.avatarBackground'),
+    color: '#bfbfbf',
   },
   FILL,
 ] as const;
@@ -955,18 +981,18 @@ export const avatarLabelStyle = [
 
 export const avatarGroupStyle = [
   {
-    name: "fill",
-    label: trans("style.fill"),
-    color: "#FFFFFF",
+    name: 'fill',
+    label: trans('style.fill'),
+    color: '#FFFFFF',
   },
-  getBackground("primary"),
+  getBackground('primary'),
 ] as const;
 
 export const BadgeStyle = [
   {
-    name: "badgeColor",
-    label: trans("floatButton.badgeColor"),
-    color: "#ff4d4f",
+    name: 'badgeColor',
+    label: trans('floatButton.badgeColor'),
+    color: '#ff4d4f',
   },
 ] as const;
 
@@ -983,16 +1009,16 @@ export const TransferStyle = [
 ] as const;
 
 export const CardStyle = [
-  getStaticBackground("#ffffff"),
+  getStaticBackground('#ffffff'),
   {
-    name: "IconColor",
-    label: trans("card.IconColor"),
-    color: "#000000",
+    name: 'IconColor',
+    label: trans('card.IconColor'),
+    color: '#000000',
   },
   {
-    name: "activateColor",
-    label: trans("card.hoverColor"),
-    depTheme: "primary",
+    name: 'activateColor',
+    label: trans('card.hoverColor'),
+    depTheme: 'primary',
     depType: DEP_TYPE.SELF,
     transformer: toSelf,
   },
@@ -1006,42 +1032,37 @@ export const CardHeaderStyle = [
 ] as const;
 
 export const timerStyle = [
-  getBackground("primarySurface"),
+  getBackground('primarySurface'),
   ...STYLING_FIELDS_SEQUENCE,
 ] as const;
 
 export const startButtonStyle = [
-  getBackground("primarySurface"),
+  getBackground('primarySurface'),
   ...STYLING_FIELDS_SEQUENCE,
 ] as const;
 
 // end
 
 export const LabelStyle = [
-  ...replaceAndMergeMultipleStyles([...InputLikeStyle], "text", [LABEL]).filter(
-    (style) => style.name !== "radius" && style.name !== "background"
+  ...replaceAndMergeMultipleStyles([...InputLikeStyle], 'text', [LABEL]).filter(
+    (style) => style.name !== 'radius' && style.name !== 'background'
   ),
 ];
 
 export const InputFieldStyle = [
   getStaticBackground(SURFACE_COLOR),
-  {
-    name: "animation",
-    label: trans("style.animation"),
-    animation: "animation",
-  },
   ...STYLING_FIELDS_CONTAINER_SEQUENCE,
 ] as const;
 
 export const RatingStyle = [
   {
-    name: "checked",
-    label: trans("style.checked"),
-    color: "#FFD400",
+    name: 'checked',
+    label: trans('style.checked'),
+    color: '#FFD400',
   },
   {
-    name: "unchecked",
-    label: trans("style.unchecked"),
+    name: 'unchecked',
+    label: trans('style.unchecked'),
     color: SECOND_SURFACE_COLOR,
   },
   MARGIN,
@@ -1050,20 +1071,20 @@ export const RatingStyle = [
 
 export const SwitchStyle = [
   {
-    name: "handle",
-    label: trans("style.handle"),
+    name: 'handle',
+    label: trans('style.handle'),
     color: SURFACE_COLOR,
   },
   {
-    name: "unchecked",
-    label: trans("style.unchecked"),
-    depName: "handle",
+    name: 'unchecked',
+    label: trans('style.unchecked'),
+    depName: 'handle',
     transformer: handleToUnchecked,
   },
   {
-    name: "checked",
-    label: trans("style.checked"),
-    depTheme: "primary",
+    name: 'checked',
+    label: trans('style.checked'),
+    depTheme: 'primary',
     depType: DEP_TYPE.SELF,
     transformer: toSelf,
   },
@@ -1072,41 +1093,41 @@ export const SwitchStyle = [
 ] as const;
 
 export const SelectStyle = [
-  ...replaceAndMergeMultipleStyles(STYLING_FIELDS_SEQUENCE, "border", [
-    ...getStaticBgBorderRadiusByBg(SURFACE_COLOR, "pc"),
+  ...replaceAndMergeMultipleStyles(STYLING_FIELDS_SEQUENCE, 'border', [
+    ...getStaticBgBorderRadiusByBg(SURFACE_COLOR, 'pc'),
   ]),
   ...ACCENT_VALIDATE,
 ] as const;
 
 const multiSelectCommon = [
-  ...replaceAndMergeMultipleStyles(STYLING_FIELDS_SEQUENCE, "border", [
-    ...getStaticBgBorderRadiusByBg(SURFACE_COLOR, "pc"),
+  ...replaceAndMergeMultipleStyles(STYLING_FIELDS_SEQUENCE, 'border', [
+    ...getStaticBgBorderRadiusByBg(SURFACE_COLOR, 'pc'),
   ]),
   {
-    name: "tags",
-    label: trans("style.tags"),
-    color: "#F5F5F6",
-    platform: "pc",
+    name: 'tags',
+    label: trans('style.tags'),
+    color: '#F5F5F6',
+    platform: 'pc',
   },
   {
-    name: "tagsText",
-    label: trans("style.tagsText"),
-    depName: "tags",
+    name: 'tagsText',
+    label: trans('style.tagsText'),
+    depName: 'tags',
     depType: DEP_TYPE.CONTRAST_TEXT,
     transformer: contrastText,
-    platform: "pc",
+    platform: 'pc',
   },
 ] as const;
 
 export const MultiSelectStyle = [
   ...multiSelectCommon,
   {
-    name: "multiIcon",
-    label: trans("style.multiIcon"),
-    depTheme: "primary",
+    name: 'multiIcon',
+    label: trans('style.multiIcon'),
+    depTheme: 'primary',
     depType: DEP_TYPE.SELF,
     transformer: toSelf,
-    platform: "pc",
+    platform: 'pc',
   },
   ...ACCENT_VALIDATE,
 ] as const;
@@ -1122,18 +1143,18 @@ export const TabContainerStyle = [
     [
       ...ContainerStyle.filter(
         (style) =>
-          ["border", "radius", "f", "margin", "padding"].includes(
+          ['border', 'radius', 'f', 'margin', 'padding'].includes(
             style.name
           ) === false
       ),
       ...STYLING_FIELDS_SEQUENCE,
     ],
-    "text",
+    'text',
     [
       {
-        name: "tabText",
-        label: trans("style.tabText"),
-        depName: "headerBackground",
+        name: 'tabText',
+        label: trans('style.tabText'),
+        depName: 'headerBackground',
         depType: TEXT,
         transformer: toSelf,
       },
@@ -1155,7 +1176,7 @@ export const ModalStyle = [
 ] as const;
 
 export const CascaderStyle = [
-  ...getStaticBgBorderRadiusByBg(SURFACE_COLOR, "pc"),
+  ...getStaticBgBorderRadiusByBg(SURFACE_COLOR, 'pc'),
   TEXT,
   ACCENT,
   MARGIN,
@@ -1165,36 +1186,36 @@ export const CascaderStyle = [
 function checkAndUncheck() {
   return [
     {
-      name: "checkedBackground",
-      label: trans("style.checkedBackground"),
-      depTheme: "primary",
+      name: 'checkedBackground',
+      label: trans('style.checkedBackground'),
+      depTheme: 'primary',
       depType: DEP_TYPE.SELF,
       transformer: toSelf,
     },
     {
-      name: "uncheckedBackground",
-      label: trans("style.uncheckedBackground"),
+      name: 'uncheckedBackground',
+      label: trans('style.uncheckedBackground'),
       color: SURFACE_COLOR,
     },
     {
-      name: "uncheckedBorder",
-      label: trans("style.uncheckedBorder"),
-      depName: "uncheckedBackground",
+      name: 'uncheckedBorder',
+      label: trans('style.uncheckedBorder'),
+      depName: 'uncheckedBackground',
       transformer: backgroundToBorder,
     },
   ] as const;
 }
 
 export const CheckboxStyle = [
-  ...replaceAndMergeMultipleStyles(STYLING_FIELDS_SEQUENCE, "text", [
+  ...replaceAndMergeMultipleStyles(STYLING_FIELDS_SEQUENCE, 'text', [
     STATIC_TEXT,
     VALIDATE,
-  ]).filter((style) => style.name !== "border"),
+  ]).filter((style) => style.name !== 'border'),
   ...checkAndUncheck(),
   {
-    name: "checked",
-    label: trans("style.checked"),
-    depName: "checkedBackground",
+    name: 'checked',
+    label: trans('style.checked'),
+    depName: 'checkedBackground',
     depType: DEP_TYPE.CONTRAST_TEXT,
     transformer: contrastText,
   },
@@ -1202,15 +1223,15 @@ export const CheckboxStyle = [
 ] as const;
 
 export const RadioStyle = [
-  ...replaceAndMergeMultipleStyles(STYLING_FIELDS_SEQUENCE, "text", [
+  ...replaceAndMergeMultipleStyles(STYLING_FIELDS_SEQUENCE, 'text', [
     STATIC_TEXT,
     VALIDATE,
-  ]).filter((style) => style.name !== "border" && style.name !== "radius"),
+  ]).filter((style) => style.name !== 'border' && style.name !== 'radius'),
   ...checkAndUncheck(),
   {
-    name: "checked",
-    label: trans("style.checked"),
-    depName: "uncheckedBackground",
+    name: 'checked',
+    label: trans('style.checked'),
+    depName: 'uncheckedBackground',
     depType: DEP_TYPE.SELF,
     transformer: toSelf,
   },
@@ -1220,23 +1241,23 @@ export const RadioStyle = [
 export const SegmentStyle = [
   LABEL,
   ...STYLING_FIELDS_SEQUENCE.filter(
-    (style) => ["border", "borderWidth"].includes(style.name) === false
+    (style) => ['border', 'borderWidth'].includes(style.name) === false
   ),
   {
-    name: "indicatorBackground",
-    label: trans("style.indicatorBackground"),
+    name: 'indicatorBackground',
+    label: trans('style.indicatorBackground'),
     color: SURFACE_COLOR,
   },
   {
-    name: "background",
-    label: trans("style.background"),
-    depName: "indicatorBackground",
+    name: 'background',
+    label: trans('style.background'),
+    depName: 'indicatorBackground',
     transformer: handleToSegmentBackground,
   },
   {
-    name: "text",
-    label: trans("text"),
-    depName: "indicatorBackground",
+    name: 'text',
+    label: trans('text'),
+    depName: 'indicatorBackground',
     depType: DEP_TYPE.CONTRAST_TEXT,
     transformer: contrastText,
   },
@@ -1245,69 +1266,69 @@ export const SegmentStyle = [
 
 export const StepsStyle = [
   {
-    name: "activeBackground",
-    label: trans("style.accent"),
-    depName: "activeBackground",
+    name: 'activeBackground',
+    label: trans('style.accent'),
+    depName: 'activeBackground',
     transformer: handleToSegmentBackground,
   },
   {
-    name: "titleText",
-    label: trans("title"),
-    depName: "background",
+    name: 'titleText',
+    label: trans('title'),
+    depName: 'background',
     depType: DEP_TYPE.CONTRAST_TEXT,
     transformer: contrastText,
   },
   ...STYLING_FIELDS_SEQUENCE.filter(
     (style) =>
-      ["background", "textSize", "textDecoration"].includes(style.name) ===
+      ['background', 'textSize', 'textDecoration'].includes(style.name) ===
       false
   ),
   getBackground(),
   {
-    name: "backgroundImage",
-    label: trans("style.backgroundImage"),
-    backgroundImage: "backgroundImage",
+    name: 'backgroundImage',
+    label: trans('style.backgroundImage'),
+    backgroundImage: 'backgroundImage',
   },
   {
-    name: "backgroundImageRepeat",
-    label: trans("style.backgroundImageRepeat"),
-    backgroundImageRepeat: "backgroundImageRepeat",
+    name: 'backgroundImageRepeat',
+    label: trans('style.backgroundImageRepeat'),
+    backgroundImageRepeat: 'backgroundImageRepeat',
   },
   {
-    name: "backgroundImageSize",
-    label: trans("style.backgroundImageSize"),
-    backgroundImageSize: "backgroundImageSize",
+    name: 'backgroundImageSize',
+    label: trans('style.backgroundImageSize'),
+    backgroundImageSize: 'backgroundImageSize',
   },
   {
-    name: "backgroundImagePosition",
-    label: trans("style.backgroundImagePosition"),
-    backgroundImagePosition: "backgroundImagePosition",
+    name: 'backgroundImagePosition',
+    label: trans('style.backgroundImagePosition'),
+    backgroundImagePosition: 'backgroundImagePosition',
   },
   {
-    name: "backgroundImageOrigin",
-    label: trans("style.backgroundImageOrigin"),
-    backgroundImageOrigin: "backgroundImageOrigin",
+    name: 'backgroundImageOrigin',
+    label: trans('style.backgroundImageOrigin'),
+    backgroundImageOrigin: 'backgroundImageOrigin',
   },
 ] as const;
 
 const LinkTextStyle = [
   {
-    name: "text",
-    label: trans("text"),
-    depTheme: "primary",
+    name: 'text',
+    label: trans('text'),
+    depTheme: 'primary',
     depType: DEP_TYPE.SELF,
     transformer: toSelf,
   },
   {
-    name: "hoverText",
-    label: "Hover text", // trans("style.hoverRowBackground"),
-    depName: "text",
+    name: 'hoverText',
+    label: 'Hover text', // trans("style.hoverRowBackground"),
+    depName: 'text',
     transformer: handleToHoverLink,
   },
   {
-    name: "activeText",
-    label: "Active text", // trans("style.hoverRowBackground"),
-    depName: "text",
+    name: 'activeText',
+    label: 'Active text', // trans("style.hoverRowBackground"),
+    depName: 'text',
     transformer: handleToHoverLink,
   },
 ] as const;
@@ -1325,9 +1346,9 @@ export const TableToolbarStyle = [
   getBackground(),
   getStaticBorder(),
   {
-    name: "toolbarText",
-    label: trans("style.toolbarText"),
-    depName: "toolbarBackground",
+    name: 'toolbarText',
+    label: trans('style.toolbarText'),
+    depName: 'toolbarBackground',
     depType: DEP_TYPE.CONTRAST_TEXT,
     transformer: toSelf,
   },
@@ -1340,23 +1361,23 @@ export const TableHeaderStyle = [
   FONT_STYLE,
   TEXT,
   getStaticBackground(SURFACE_COLOR),
-  getBackground("primarySurface"),
+  getBackground('primarySurface'),
   {
-    name: "headerBackground",
-    label: trans("style.tableHeaderBackground"),
-    depName: "background",
+    name: 'headerBackground',
+    label: trans('style.tableHeaderBackground'),
+    depName: 'background',
     transformer: handleToHeadBg,
   },
   getStaticBorder(),
   {
-    name: "borderWidth",
-    label: trans("style.borderWidth"),
-    borderWidth: "borderWidth",
+    name: 'borderWidth',
+    label: trans('style.borderWidth'),
+    borderWidth: 'borderWidth',
   },
   {
-    name: "headerText",
-    label: trans("style.tableHeaderText"),
-    depName: "headerBackground",
+    name: 'headerText',
+    label: trans('style.tableHeaderText'),
+    depName: 'headerBackground',
     depType: DEP_TYPE.CONTRAST_TEXT,
     transformer: contrastText,
   },
@@ -1371,29 +1392,29 @@ export const TableRowStyle = [
   ...BG_STATIC_BORDER_RADIUS,
   getBackground(),
   {
-    name: "selectedRowBackground",
-    label: trans("style.selectedRowBackground"),
-    depName: "background",
-    depTheme: "primary",
+    name: 'selectedRowBackground',
+    label: trans('style.selectedRowBackground'),
+    depName: 'background',
+    depTheme: 'primary',
     transformer: handleToSelectedRow,
   },
   {
-    name: "hoverRowBackground",
-    label: trans("style.hoverRowBackground"),
-    depName: "background",
+    name: 'hoverRowBackground',
+    label: trans('style.hoverRowBackground'),
+    depName: 'background',
     transformer: handleToHoverRow,
   },
   {
-    name: "alternateBackground",
-    label: trans("style.alternateRowBackground"),
-    depName: "background",
+    name: 'alternateBackground',
+    label: trans('style.alternateRowBackground'),
+    depName: 'background',
     depType: DEP_TYPE.SELF,
     transformer: toSelf,
   },
 ] as const;
 
 export const TableColumnStyle = [
-  getStaticBackground("#00000000"),
+  getStaticBackground('#00000000'),
   getStaticBorder(),
   MARGIN,
 
@@ -1410,15 +1431,15 @@ export const TableColumnLinkStyle = [...LinkTextStyle] as const;
 export const FileStyle = [
   // ...getStaticBgBorderRadiusByBg(SURFACE_COLOR),
   getStaticBackground(SURFACE_COLOR),
-  ...replaceAndMergeMultipleStyles(STYLING_FIELDS_SEQUENCE, "border", [
-    getStaticBorder("#00000000"),
+  ...replaceAndMergeMultipleStyles(STYLING_FIELDS_SEQUENCE, 'border', [
+    getStaticBorder('#00000000'),
   ]),
   // TEXT, ACCENT, MARGIN, PADDING
 ] as const;
 
 export const FileViewerStyle = [
-  getStaticBackground("#FFFFFF"),
-  getStaticBorder("#00000000"),
+  getStaticBackground('#FFFFFF'),
+  getStaticBorder('#00000000'),
   RADIUS,
   MARGIN,
   PADDING,
@@ -1427,7 +1448,7 @@ export const FileViewerStyle = [
 
 export const IframeStyle = [
   getBackground(),
-  getStaticBorder("#00000000"),
+  getStaticBorder('#00000000'),
   RADIUS,
   BORDER_WIDTH,
   MARGIN,
@@ -1446,21 +1467,21 @@ export const DateTimeStyle = [
 
 function handleToHoverLink(color: string) {
   if (isDarkColor(color)) {
-    return "#FFFFFF23";
+    return '#FFFFFF23';
   } else {
-    return "#00000007";
+    return '#00000007';
   }
 }
 
 export const LinkStyle = [
   {
-    name: "background",
-    label: trans("style.background"),
-    depTheme: "canvas",
+    name: 'background',
+    label: trans('style.background'),
+    depTheme: 'canvas',
     depType: DEP_TYPE.SELF,
     transformer: toSelf,
   },
-  ...replaceAndMergeMultipleStyles(STYLING_FIELDS_SEQUENCE, "text", [
+  ...replaceAndMergeMultipleStyles(STYLING_FIELDS_SEQUENCE, 'text', [
     ...LinkTextStyle,
   ]),
 ] as const;
@@ -1472,11 +1493,11 @@ export const DividerStyle = [
     color: darkenColor(SECOND_SURFACE_COLOR, 0.1),
   }, */
   ...STYLING_FIELDS_SEQUENCE.map((style) => {
-    if (style.name === "text") {
+    if (style.name === 'text') {
       return {
-        name: "text",
-        label: trans("text"),
-        depName: "color",
+        name: 'text',
+        label: trans('text'),
+        depName: 'color',
         transformer: handleToDividerText,
       };
     }
@@ -1486,17 +1507,17 @@ export const DividerStyle = [
 
 // Hidden border and borderWidth properties as AntD doesnt allow these properties for progress bar
 export const ProgressStyle = [
-  ...replaceAndMergeMultipleStyles(STYLING_FIELDS_SEQUENCE, "text", [
+  ...replaceAndMergeMultipleStyles(STYLING_FIELDS_SEQUENCE, 'text', [
     {
-      name: "text",
-      label: trans("text"),
-      depTheme: "canvas",
+      name: 'text',
+      label: trans('text'),
+      depTheme: 'canvas',
       depType: DEP_TYPE.CONTRAST_TEXT,
       transformer: contrastText,
     },
   ]).filter(
     (style) =>
-      ["border", "borderWidth", "textTransform", "textDecoration"].includes(
+      ['border', 'borderWidth', 'textTransform', 'textDecoration'].includes(
         style.name
       ) === false
   ),
@@ -1506,20 +1527,20 @@ export const ProgressStyle = [
 ] as const;
 
 export const CircleProgressStyle = [
-  ...ProgressStyle.filter((style) => style.name !== "radius"),
+  ...ProgressStyle.filter((style) => style.name !== 'radius'),
 ];
 
 export const NavigationStyle = [
-  ...replaceAndMergeMultipleStyles(STYLING_FIELDS_SEQUENCE, "text", [
+  ...replaceAndMergeMultipleStyles(STYLING_FIELDS_SEQUENCE, 'text', [
     {
-      name: "text",
-      label: trans("text"),
-      depName: "background",
+      name: 'text',
+      label: trans('text'),
+      depName: 'background',
       depType: DEP_TYPE.CONTRAST_TEXT,
       transformer: contrastText,
     },
     ACCENT,
-    getStaticBackground("#FFFFFF00"),
+    getStaticBackground('#FFFFFF00'),
   ]),
   // {
   //   name: "text",
@@ -1541,7 +1562,7 @@ export const NavigationStyle = [
 ] as const;
 
 export const ImageStyle = [
-  getStaticBorder("#00000000"),
+  getStaticBorder('#00000000'),
   RADIUS,
   BORDER_WIDTH,
   MARGIN,
@@ -1549,8 +1570,8 @@ export const ImageStyle = [
 ] as const;
 
 export const IconStyle = [
-  getStaticBackground("#00000000"),
-  getStaticBorder("#00000000"),
+  getStaticBackground('#00000000'),
+  getStaticBorder('#00000000'),
   FILL,
   RADIUS,
   BORDER_WIDTH,
@@ -1565,9 +1586,9 @@ export const JsonSchemaFormStyle = BG_STATIC_BORDER_RADIUS;
 export const QRCodeStyle = [
   getBackground(),
   {
-    name: "color",
-    label: trans("color"),
-    color: "#000000",
+    name: 'color',
+    label: trans('color'),
+    color: '#000000',
   },
   MARGIN,
   PADDING,
@@ -1579,19 +1600,19 @@ export const QRCodeStyle = [
 export const TimeLineStyle = [
   getBackground(),
   {
-    name: "titleColor",
-    label: trans("timeLine.titleColor"),
-    color: "#000000",
+    name: 'titleColor',
+    label: trans('timeLine.titleColor'),
+    color: '#000000',
   },
   {
-    name: "labelColor",
-    label: trans("timeLine.labelColor"),
-    color: "#000000",
+    name: 'labelColor',
+    label: trans('timeLine.labelColor'),
+    color: '#000000',
   },
   {
-    name: "subTitleColor",
-    label: trans("timeLine.subTitleColor"),
-    color: "#848484",
+    name: 'subTitleColor',
+    label: trans('timeLine.subTitleColor'),
+    color: '#848484',
   },
   MARGIN,
   PADDING,
@@ -1613,48 +1634,48 @@ export const DrawerStyle = [getBackground()] as const;
 
 export const JsonEditorStyle = [LABEL] as const;
 
-export const EchartsStyle = [getBackground("primarySurface")] as const;
+export const EchartsStyle = [getBackground('primarySurface')] as const;
 
 export const CalendarStyle = [
-  getBackground("primarySurface"),
+  getBackground('primarySurface'),
   {
-    name: "border",
-    label: trans("style.border"),
-    depName: "background",
+    name: 'border',
+    label: trans('style.border'),
+    depName: 'background',
     transformer: calendarBackgroundToBorder,
   },
   RADIUS,
   {
-    name: "text",
-    label: trans("text"),
-    depName: "background",
+    name: 'text',
+    label: trans('text'),
+    depName: 'background',
     depType: DEP_TYPE.CONTRAST_TEXT,
     transformer: handleCalendarText,
   },
   {
-    name: "headerBtnBackground",
-    label: trans("calendar.headerBtnBackground"),
-    depName: "background",
+    name: 'headerBtnBackground',
+    label: trans('calendar.headerBtnBackground'),
+    depName: 'background',
     transformer: handleLightenColor,
   },
   {
-    name: "btnText",
-    label: trans("calendar.btnText"),
-    depName: "headerBtnBackground",
+    name: 'btnText',
+    label: trans('calendar.btnText'),
+    depName: 'headerBtnBackground',
     depType: DEP_TYPE.CONTRAST_TEXT,
     transformer: contrastText,
   },
   {
-    name: "title",
-    label: trans("calendar.title"),
-    depName: "background",
+    name: 'title',
+    label: trans('calendar.title'),
+    depName: 'background',
     depType: DEP_TYPE.CONTRAST_TEXT,
     transformer: contrastText,
   },
   {
-    name: "selectBackground",
-    label: trans("calendar.selectBackground"),
-    depTheme: "primary",
+    name: 'selectBackground',
+    label: trans('calendar.selectBackground'),
+    depTheme: 'primary',
     transformer: handleCalendarSelectColor,
   },
 ] as const;
@@ -1662,19 +1683,19 @@ export const CalendarStyle = [
 export const SignatureStyle = [
   ...getBgBorderRadiusByBg(),
   {
-    name: "pen",
-    label: trans("style.pen"),
-    color: "#000000",
+    name: 'pen',
+    label: trans('style.pen'),
+    color: '#000000',
   },
   {
-    name: "tips",
-    label: trans("style.tips"),
-    color: "#B8B9BF",
+    name: 'tips',
+    label: trans('style.tips'),
+    color: '#B8B9BF',
   },
   {
-    name: "footerIcon",
-    label: trans("style.footerIcon"),
-    color: "#222222",
+    name: 'footerIcon',
+    label: trans('style.footerIcon'),
+    color: '#222222',
   },
   MARGIN,
   PADDING,
@@ -1684,9 +1705,9 @@ export const SignatureStyle = [
 // Added by Aqib Mirza
 export const LottieStyle = [
   {
-    name: "background",
-    label: trans("style.background"),
-    depTheme: "canvas",
+    name: 'background',
+    label: trans('style.background'),
+    depTheme: 'canvas',
     depType: DEP_TYPE.SELF,
     transformer: toSelf,
   },
@@ -1696,9 +1717,9 @@ export const LottieStyle = [
 
 export const CommentStyle = [
   {
-    name: "background",
-    label: trans("style.background"),
-    depTheme: "primarySurface",
+    name: 'background',
+    label: trans('style.background'),
+    depTheme: 'primarySurface',
     depType: DEP_TYPE.SELF,
     transformer: toSelf,
   },
@@ -1722,9 +1743,9 @@ export const ResponsiveLayoutColStyle = [
 export const NavLayoutStyle = [
   ...getBgBorderRadiusByBg(),
   {
-    name: "text",
-    label: trans("text"),
-    depName: "background",
+    name: 'text',
+    label: trans('text'),
+    depName: 'background',
     // depTheme: "primary",
     depType: DEP_TYPE.CONTRAST_TEXT,
     transformer: contrastText,
@@ -1734,13 +1755,13 @@ export const NavLayoutStyle = [
 ] as const;
 
 export const NavLayoutItemStyle = [
-  getBackground("primarySurface"),
-  getStaticBorder("transparent"),
+  getBackground('primarySurface'),
+  getStaticBorder('transparent'),
   RADIUS,
   {
-    name: "text",
-    label: trans("text"),
-    depName: "background",
+    name: 'text',
+    label: trans('text'),
+    depName: 'background',
     depType: DEP_TYPE.CONTRAST_TEXT,
     transformer: contrastText,
   },
@@ -1749,34 +1770,34 @@ export const NavLayoutItemStyle = [
 ] as const;
 
 export const NavLayoutItemHoverStyle = [
-  getBackground("canvas"),
-  getStaticBorder("transparent"),
+  getBackground('canvas'),
+  getStaticBorder('transparent'),
   {
-    name: "text",
-    label: trans("text"),
-    depName: "background",
+    name: 'text',
+    label: trans('text'),
+    depName: 'background',
     depType: DEP_TYPE.CONTRAST_TEXT,
     transformer: contrastText,
   },
 ] as const;
 
 export const NavLayoutItemActiveStyle = [
-  getBackground("primary"),
-  getStaticBorder("transparent"),
+  getBackground('primary'),
+  getStaticBorder('transparent'),
   {
-    name: "text",
-    label: trans("text"),
-    depName: "background",
+    name: 'text',
+    label: trans('text'),
+    depName: 'background',
     depType: DEP_TYPE.CONTRAST_TEXT,
     transformer: contrastText,
   },
 ] as const;
 
-export const CarouselStyle = [getBackground("canvas")] as const;
+export const CarouselStyle = [getBackground('canvas')] as const;
 
 export const RichTextEditorStyle = [
   getStaticBorder(),
-  getBackground("primarySurface"),
+  getBackground('primarySurface'),
   RADIUS,
   BORDER_WIDTH,
 ] as const;
@@ -1877,58 +1898,58 @@ export type NavLayoutItemActiveStyleType = StyleConfigType<
 >;
 
 export function widthCalculator(margin: string) {
-  const marginArr = margin?.trim().replace(/\s+/g, " ").split(" ") || "";
+  const marginArr = margin?.trim().replace(/\s+/g, ' ').split(' ') || '';
   if (marginArr.length === 1) {
     return `calc(100% - ${
-      parseInt(margin.replace(/[^\d.]/g, "")) * 2 +
-      (margin.replace(/[0-9]/g, "") || "px")
+      parseInt(margin.replace(/[^\d.]/g, '')) * 2 +
+      (margin.replace(/[0-9]/g, '') || 'px')
     })`;
   } else if (marginArr.length === 2 || marginArr.length === 3) {
     return `calc(100% - ${
-      parseInt(marginArr[1].replace(/[^\d.]/g, "")) * 2 +
-      (marginArr[1].replace(/[0-9]/g, "") || "px")
+      parseInt(marginArr[1].replace(/[^\d.]/g, '')) * 2 +
+      (marginArr[1].replace(/[0-9]/g, '') || 'px')
     })`;
   } else {
     return `calc(100% - ${
-      parseInt(marginArr[1]?.replace(/[^\d.]/g, "") || "0") +
-      (marginArr[1]?.replace(/[0-9]/g, "") || "px")
+      parseInt(marginArr[1]?.replace(/[^\d.]/g, '') || '0') +
+      (marginArr[1]?.replace(/[0-9]/g, '') || 'px')
     } - ${
-      parseInt(marginArr[3]?.replace(/[^\d.]/g, "") || "0") +
-      (marginArr[3]?.replace(/[0-9]/g, "") || "px")
+      parseInt(marginArr[3]?.replace(/[^\d.]/g, '') || '0') +
+      (marginArr[3]?.replace(/[0-9]/g, '') || 'px')
     })`;
   }
 }
 
 export function heightCalculator(margin: string) {
-  const marginArr = margin?.trim().split(" ") || "";
+  const marginArr = margin?.trim().split(' ') || '';
   if (marginArr.length === 1 || marginArr.length === 2) {
     return `calc(100% - ${
-      parseInt(marginArr[0].replace(/[^\d.]/g, "")) * 2 +
-      (marginArr[0].replace(/[0-9]/g, "") || "px")
+      parseInt(marginArr[0].replace(/[^\d.]/g, '')) * 2 +
+      (marginArr[0].replace(/[0-9]/g, '') || 'px')
     })`;
   } else if (marginArr.length > 2) {
     return `calc(100% - ${
-      parseInt(marginArr[0]?.replace(/[^\d.]/g, "") || "0") +
-      (marginArr[0]?.replace(/[0-9]/g, "") || "px")
+      parseInt(marginArr[0]?.replace(/[^\d.]/g, '') || '0') +
+      (marginArr[0]?.replace(/[0-9]/g, '') || 'px')
     } - ${
-      parseInt(marginArr[2]?.replace(/[^\d.]/g, "") || "0") +
-      (marginArr[2]?.replace(/[0-9]/g, "") || "px")
+      parseInt(marginArr[2]?.replace(/[^\d.]/g, '') || '0') +
+      (marginArr[2]?.replace(/[0-9]/g, '') || 'px')
     })`;
   }
 }
 
 export function marginCalculator(margin: string) {
-  const marginArr = margin?.trim().split(" ") || "";
+  const marginArr = margin?.trim().split(' ') || '';
   if (marginArr.length === 1) {
-    return parseInt(margin.replace(/[^\d.]/g, "")) * 2;
+    return parseInt(margin.replace(/[^\d.]/g, '')) * 2;
   } else if (marginArr.length === 2) {
-    return parseInt(marginArr[0].replace(/[^\d.]/g, "")) * 2;
+    return parseInt(marginArr[0].replace(/[^\d.]/g, '')) * 2;
   } else {
     return (
-      parseInt(marginArr[0]?.replace(/[^\d.]/g, "") || "0") +
-      parseInt(marginArr[2]?.replace(/[^\d.]/g, "") || "0")
+      parseInt(marginArr[0]?.replace(/[^\d.]/g, '') || '0') +
+      parseInt(marginArr[2]?.replace(/[^\d.]/g, '') || '0')
     );
   }
 }
 
-export type { ThemeDetail };
+export type {ThemeDetail};
