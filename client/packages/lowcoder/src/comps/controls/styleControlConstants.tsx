@@ -277,7 +277,7 @@ const TEXT = {
 const STATIC_TEXT = {
   name: "staticText",
   label: trans("style.staticText"),
-  depTheme: "canvas",
+  depTheme: "primarySurface",
   depType: DEP_TYPE.CONTRAST_TEXT,
   transformer: contrastText,
 } as const;
@@ -562,7 +562,7 @@ function replaceAndMergeMultipleStyles(originalArray: any[], styleToReplace: str
 }
 
 export const ButtonStyle = [
-  getBackground('primary'),
+  getBackground(),
   ...STYLING_FIELDS_SEQUENCE
 ] as const;
 
@@ -1304,14 +1304,7 @@ function handleToHoverLink(color: string) {
 }
 
 export const LinkStyle = [
-
-  {
-    name: "background",
-    label: trans("style.background"),
-    depTheme: "canvas",
-    depType: DEP_TYPE.SELF,
-    transformer: toSelf,
-  },
+  getBackground(),
   ...replaceAndMergeMultipleStyles(STYLING_FIELDS_SEQUENCE, 'text', [...LinkTextStyle])
 ] as const;
 
