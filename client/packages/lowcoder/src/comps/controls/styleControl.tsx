@@ -1,15 +1,15 @@
-import {default as Tooltip} from 'antd/es/tooltip';
+import { default as Tooltip } from "antd/es/tooltip";
 import {
   getThemeDetailName,
   isThemeColorKey,
   ThemeDetail,
-} from 'api/commonSettingApi';
-import {ControlItemCompBuilder} from 'comps/generators/controlCompBuilder';
-import {childrenToProps, ToConstructor} from 'comps/generators/multi';
-import {BackgroundColorContext} from 'comps/utils/backgroundColorContext';
-import {ThemeContext} from 'comps/utils/themeContext';
-import {trans} from 'i18n';
-import _ from 'lodash';
+} from "api/commonSettingApi";
+import { ControlItemCompBuilder } from "comps/generators/controlCompBuilder";
+import { childrenToProps, ToConstructor } from "comps/generators/multi";
+import { BackgroundColorContext } from "comps/utils/backgroundColorContext";
+import { ThemeContext } from "comps/utils/themeContext";
+import { trans } from "i18n";
+import _ from "lodash";
 import {
   controlItem,
   IconReset,
@@ -27,17 +27,17 @@ import {
   BorderStyleIcon,
   BorderRadiusIcon,
   TextStyleIcon,
-} from 'lowcoder-design';
-import {useContext} from 'react';
-import styled from 'styled-components';
-import {useIsMobile} from 'util/hooks';
+} from "lowcoder-design";
+import { useContext } from "react";
+import styled from "styled-components";
+import { useIsMobile } from "util/hooks";
 import {
   CSSCodeControl,
   ObjectControl,
   RadiusControl,
   StringControl,
-} from './codeControl';
-import {ColorControl} from './colorControl';
+} from "./codeControl";
+import { ColorControl } from "./colorControl";
 import {
   defaultTheme,
   DepColorConfig,
@@ -72,167 +72,167 @@ import {
   TextTransformConfig,
   TextDecorationConfig,
   borderStyleConfig,
-} from './styleControlConstants';
-import {faTextWidth} from '@fortawesome/free-solid-svg-icons';
-import appSelectControl from './appSelectControl';
+} from "./styleControlConstants";
+import { faTextWidth } from "@fortawesome/free-solid-svg-icons";
+import appSelectControl from "./appSelectControl";
 
 function isSimpleColorConfig(
   config: SingleColorConfig
 ): config is SimpleColorConfig {
-  return config.hasOwnProperty('color');
+  return config.hasOwnProperty("color");
 }
 
 function isDepColorConfig(config: SingleColorConfig): config is DepColorConfig {
-  return config.hasOwnProperty('depName') || config.hasOwnProperty('depTheme');
+  return config.hasOwnProperty("depName") || config.hasOwnProperty("depTheme");
 }
 
 function isRadiusConfig(config: SingleColorConfig): config is RadiusConfig {
-  return config.hasOwnProperty('radius');
+  return config.hasOwnProperty("radius");
 }
 
 function isBorderWidthConfig(
   config: SingleColorConfig
 ): config is BorderWidthConfig {
-  return config.hasOwnProperty('borderWidth');
+  return config.hasOwnProperty("borderWidth");
 }
 
 function isRotationConfig(config: SingleColorConfig): config is RotationConfig {
-  return config.hasOwnProperty('rotation');
+  return config.hasOwnProperty("rotation");
 }
 
 function isBackgroundImageConfig(
   config: SingleColorConfig
 ): config is BackgroundImageConfig {
-  return config.hasOwnProperty('backgroundImage');
+  return config.hasOwnProperty("backgroundImage");
 }
 
 function isBackgroundImageRepeatConfig(
   config: SingleColorConfig
 ): config is BackgroundImageRepeatConfig {
-  return config.hasOwnProperty('backgroundImageRepeat');
+  return config.hasOwnProperty("backgroundImageRepeat");
 }
 
 function isBackgroundImageSizeConfig(
   config: SingleColorConfig
 ): config is BackgroundImageSizeConfig {
-  return config.hasOwnProperty('backgroundImageSize');
+  return config.hasOwnProperty("backgroundImageSize");
 }
 
 function isBackgroundImagePositionConfig(
   config: SingleColorConfig
 ): config is BackgroundImagePositionConfig {
-  return config.hasOwnProperty('backgroundImagePosition');
+  return config.hasOwnProperty("backgroundImagePosition");
 }
 
 function isBackgroundImageOriginConfig(
   config: SingleColorConfig
 ): config is BackgroundImageOriginConfig {
-  return config.hasOwnProperty('backgroundImageOrigin');
+  return config.hasOwnProperty("backgroundImageOrigin");
 }
 
 function isHeaderBackgroundImageConfig(
   config: SingleColorConfig
 ): config is HeaderBackgroundImageConfig {
-  return config.hasOwnProperty('headerBackgroundImage');
+  return config.hasOwnProperty("headerBackgroundImage");
 }
 function isHeaderBackgroundImageRepeatConfig(
   config: SingleColorConfig
 ): config is HeaderBackgroundImageRepeatConfig {
-  return config.hasOwnProperty('headerBackgroundImageRepeat');
+  return config.hasOwnProperty("headerBackgroundImageRepeat");
 }
 function isHeaderBackgroundImageSizeConfig(
   config: SingleColorConfig
 ): config is HeaderBackgroundImageSizeConfig {
-  return config.hasOwnProperty('headerBackgroundImageSize');
+  return config.hasOwnProperty("headerBackgroundImageSize");
 }
 function isHeaderBackgroundImagePositionConfig(
   config: SingleColorConfig
 ): config is HeaderBackgroundImagePositionConfig {
-  return config.hasOwnProperty('headerBackgroundImagePosition');
+  return config.hasOwnProperty("headerBackgroundImagePosition");
 }
 function isHeaderBackgroundImageOriginConfig(
   config: SingleColorConfig
 ): config is HeaderBackgroundImageOriginConfig {
-  return config.hasOwnProperty('headerBackgroundImageOrigin');
+  return config.hasOwnProperty("headerBackgroundImageOrigin");
 }
 function isFooterBackgroundImageConfig(
   config: SingleColorConfig
 ): config is FooterBackgroundImageConfig {
-  return config.hasOwnProperty('footerBackgroundImage');
+  return config.hasOwnProperty("footerBackgroundImage");
 }
 function isFooterBackgroundImageRepeatConfig(
   config: SingleColorConfig
 ): config is FooterBackgroundImageRepeatConfig {
-  return config.hasOwnProperty('footerBackgroundImageRepeat');
+  return config.hasOwnProperty("footerBackgroundImageRepeat");
 }
 function isFooterBackgroundImageSizeConfig(
   config: SingleColorConfig
 ): config is FooterBackgroundImageSizeConfig {
-  return config.hasOwnProperty('footerBackgroundImageSize');
+  return config.hasOwnProperty("footerBackgroundImageSize");
 }
 function isFooterBackgroundImagePositionConfig(
   config: SingleColorConfig
 ): config is FooterBackgroundImagePositionConfig {
-  return config.hasOwnProperty('footerBackgroundImagePosition');
+  return config.hasOwnProperty("footerBackgroundImagePosition");
 }
 function isFooterBackgroundImageOriginConfig(
   config: SingleColorConfig
 ): config is FooterBackgroundImageOriginConfig {
-  return config.hasOwnProperty('footerBackgroundImageOrigin');
+  return config.hasOwnProperty("footerBackgroundImageOrigin");
 }
 
 function isTextSizeConfig(config: SingleColorConfig): config is TextSizeConfig {
-  return config.hasOwnProperty('textSize');
+  return config.hasOwnProperty("textSize");
 }
 
 function isTextWeightConfig(
   config: SingleColorConfig
 ): config is TextWeightConfig {
-  return config.hasOwnProperty('textWeight');
+  return config.hasOwnProperty("textWeight");
 }
 
 function isFontFamilyConfig(
   config: SingleColorConfig
 ): config is FontFamilyConfig {
-  return config.hasOwnProperty('fontFamily');
+  return config.hasOwnProperty("fontFamily");
 }
 function isFontStyleConfig(
   config: SingleColorConfig
 ): config is FontStyleConfig {
-  return config.hasOwnProperty('fontStyle');
+  return config.hasOwnProperty("fontStyle");
 }
 function isTextTransformConfig(
   config: SingleColorConfig
 ): config is TextTransformConfig {
-  return config.hasOwnProperty('textTransform');
+  return config.hasOwnProperty("textTransform");
 }
 function isTextDecorationConfig(
   config: SingleColorConfig
 ): config is TextDecorationConfig {
-  return config.hasOwnProperty('textDecoration');
+  return config.hasOwnProperty("textDecoration");
 }
 function isBorderStyleConfig(
   config: SingleColorConfig
 ): config is borderStyleConfig {
-  return config.hasOwnProperty('borderStyle');
+  return config.hasOwnProperty("borderStyle");
 }
 
 function isMarginConfig(config: SingleColorConfig): config is MarginConfig {
-  return config.hasOwnProperty('margin');
+  return config.hasOwnProperty("margin");
 }
 
 function isAnimationConfig(
   config: SingleColorConfig
 ): config is AnimationConfig {
-  return config.hasOwnProperty('animation');
+  return config.hasOwnProperty("animation");
 }
 
 function isPaddingConfig(config: SingleColorConfig): config is PaddingConfig {
-  return config.hasOwnProperty('padding');
+  return config.hasOwnProperty("padding");
 }
 
 // function styleControl(colorConfig: Array<SingleColorConfig>) {
-type Names<T extends readonly SingleColorConfig[]> = T[number]['name'];
+type Names<T extends readonly SingleColorConfig[]> = T[number]["name"];
 export type StyleConfigType<T extends readonly SingleColorConfig[]> = {
   [K in Names<T>]: string;
 };
@@ -515,7 +515,7 @@ function calcColors<ColorMap extends Record<string, string>>(
       return;
     }
     if (!isEmptyAnimation(props[name]) && isAnimationConfig(config)) {
-      res[name] = 'bounce';
+      res[name] = "bounce";
       return;
     }
     if (!isEmptyPadding(props[name]) && isPaddingConfig(config)) {
@@ -537,78 +537,78 @@ function calcColors<ColorMap extends Record<string, string>>(
       res[name] = themeWithDefault[config.radius];
     }
     if (isBorderWidthConfig(config)) {
-      res[name] = '0px';
+      res[name] = "0px";
     }
     if (isRotationConfig(config)) {
-      res[name] = '0deg';
+      res[name] = "0deg";
     }
     if (isBackgroundImageConfig(config)) {
-      res[name] = '';
+      res[name] = "";
     }
     if (isBackgroundImageRepeatConfig(config)) {
-      res[name] = 'no-repeat';
+      res[name] = "no-repeat";
     }
     if (isBackgroundImageSizeConfig(config)) {
-      res[name] = 'cover';
+      res[name] = "cover";
     }
     if (isBackgroundImagePositionConfig(config)) {
-      res[name] = 'center';
+      res[name] = "center";
     }
     if (isBackgroundImageOriginConfig(config)) {
-      res[name] = 'padding-box';
+      res[name] = "padding-box";
     }
     if (isHeaderBackgroundImageConfig(config)) {
-      res[name] = '';
+      res[name] = "";
     }
     if (isHeaderBackgroundImageRepeatConfig(config)) {
-      res[name] = 'no-repeat';
+      res[name] = "no-repeat";
     }
     if (isHeaderBackgroundImageSizeConfig(config)) {
-      res[name] = 'cover';
+      res[name] = "cover";
     }
     if (isHeaderBackgroundImagePositionConfig(config)) {
-      res[name] = 'center';
+      res[name] = "center";
     }
     if (isHeaderBackgroundImageOriginConfig(config)) {
-      res[name] = 'padding-box';
+      res[name] = "padding-box";
     }
     if (isFooterBackgroundImageConfig(config)) {
-      res[name] = '';
+      res[name] = "";
     }
     if (isFooterBackgroundImageRepeatConfig(config)) {
-      res[name] = 'no-repeat';
+      res[name] = "no-repeat";
     }
     if (isFooterBackgroundImageSizeConfig(config)) {
-      res[name] = 'cover';
+      res[name] = "cover";
     }
     if (isFooterBackgroundImagePositionConfig(config)) {
-      res[name] = 'center';
+      res[name] = "center";
     }
     if (isFooterBackgroundImageOriginConfig(config)) {
-      res[name] = 'padding-box';
+      res[name] = "padding-box";
     }
     if (isTextSizeConfig(config)) {
       // TODO: remove default textSize after added in theme in backend.
-      res[name] = themeWithDefault[config.textSize] || '14px';
+      res[name] = themeWithDefault[config.textSize] || "14px";
     }
     if (isTextWeightConfig(config)) {
       // TODO: remove default textWeight after added in theme in backend.
-      res[name] = themeWithDefault[config.textWeight] || 'normal';
+      res[name] = themeWithDefault[config.textWeight] || "normal";
     }
     if (isFontFamilyConfig(config)) {
-      res[name] = themeWithDefault[config.fontFamily] || 'sans-serif';
+      res[name] = themeWithDefault[config.fontFamily] || "sans-serif";
     }
     if (isFontStyleConfig(config)) {
-      res[name] = themeWithDefault[config.fontStyle] || 'normal';
+      res[name] = themeWithDefault[config.fontStyle] || "normal";
     }
     if (isTextTransformConfig(config)) {
-      res[name] = themeWithDefault[config.textTransform] || 'none';
+      res[name] = themeWithDefault[config.textTransform] || "none";
     }
     if (isTextDecorationConfig(config)) {
-      res[name] = themeWithDefault[config.textDecoration] || 'none';
+      res[name] = themeWithDefault[config.textDecoration] || "none";
     }
     if (isBorderStyleConfig(config)) {
-      res[name] = themeWithDefault[config.borderStyle] || 'dashed';
+      res[name] = themeWithDefault[config.borderStyle] || "dashed";
     }
     if (isMarginConfig(config)) {
       res[name] = themeWithDefault[config.margin];
@@ -632,7 +632,7 @@ function calcColors<ColorMap extends Record<string, string>>(
         let depKey = config.depName
           ? res[config.depName]
           : themeWithDefault[config.depTheme!];
-        if (bgColor && config.depTheme === 'canvas') {
+        if (bgColor && config.depTheme === "canvas") {
           depKey = bgColor;
         }
         res[name] = config.transformer(
@@ -642,7 +642,7 @@ function calcColors<ColorMap extends Record<string, string>>(
         );
       } else if (
         config?.depType === DEP_TYPE.SELF &&
-        config.depTheme === 'canvas' &&
+        config.depTheme === "canvas" &&
         bgColor
       ) {
         res[name] = bgColor;
@@ -757,6 +757,12 @@ const StyledBackgroundImageIcon = styled(ImageCompIconSmall)`
   padding: 2px;
   color: #888;
 `;
+
+const AnimationPropIcon = styled(BorderWidthIcon)`
+  animation: bounce;
+  animation-delay: 2s;
+`;
+
 const RotationPropIcon = styled(RotationIcon)`
   margin: 0 8px 0 -3px;
   padding: 3px;
@@ -803,43 +809,44 @@ const ResetIcon = styled(IconReset)`
 export function styleControl<T extends readonly SingleColorConfig[]>(
   colorConfigs: T
 ) {
-  type ColorMap = {[K in Names<T>]: string};
+  type ColorMap = { [K in Names<T>]: string };
   const childrenMap: any = {};
   colorConfigs.map((config) => {
     const name: Names<T> = config.name;
     if (
-      name === 'radius' ||
-      name === 'borderWidth' ||
-      name === 'rotation' ||
-      name === 'cardRadius' ||
-      name === 'textSize' ||
-      name === 'textWeight' ||
-      name === 'textTransform' ||
-      name === 'textDecoration' ||
-      name === 'fontFamily' ||
-      name === 'borderStyle' ||
-      name === 'fontStyle' ||
-      name === 'backgroundImage' ||
-      name === 'backgroundImageRepeat' ||
-      name === 'backgroundImageSize' ||
-      name === 'backgroundImagePosition' ||
-      name === 'backgroundImageOrigin' ||
-      name === 'headerBackgroundImage' ||
-      name === 'headerBackgroundImageRepeat' ||
-      name === 'headerBackgroundImageSize' ||
-      name === 'headerBackgroundImagePosition' ||
-      name === 'headerBackgroundImageOrigin' ||
-      name === 'footerBackgroundImage' ||
-      name === 'footerBackgroundImageRepeat' ||
-      name === 'footerBackgroundImageSize' ||
-      name === 'footerBackgroundImagePosition' ||
-      name === 'footerBackgroundImageOrigin' ||
-      name === 'margin' ||
-      name === 'padding' ||
-      name === 'containerHeaderPadding' ||
-      name === 'containerSiderPadding' ||
-      name === 'containerFooterPadding' ||
-      name === 'containerBodyPadding'
+      name === "radius" ||
+      name === "borderWidth" ||
+      name === "animation" ||
+      name === "rotation" ||
+      name === "cardRadius" ||
+      name === "textSize" ||
+      name === "textWeight" ||
+      name === "textTransform" ||
+      name === "textDecoration" ||
+      name === "fontFamily" ||
+      name === "borderStyle" ||
+      name === "fontStyle" ||
+      name === "backgroundImage" ||
+      name === "backgroundImageRepeat" ||
+      name === "backgroundImageSize" ||
+      name === "backgroundImagePosition" ||
+      name === "backgroundImageOrigin" ||
+      name === "headerBackgroundImage" ||
+      name === "headerBackgroundImageRepeat" ||
+      name === "headerBackgroundImageSize" ||
+      name === "headerBackgroundImagePosition" ||
+      name === "headerBackgroundImageOrigin" ||
+      name === "footerBackgroundImage" ||
+      name === "footerBackgroundImageRepeat" ||
+      name === "footerBackgroundImageSize" ||
+      name === "footerBackgroundImagePosition" ||
+      name === "footerBackgroundImageOrigin" ||
+      name === "margin" ||
+      name === "padding" ||
+      name === "containerHeaderPadding" ||
+      name === "containerSiderPadding" ||
+      name === "containerFooterPadding" ||
+      name === "containerBodyPadding"
     ) {
       childrenMap[name] = StringControl;
     } else {
@@ -847,9 +854,9 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
     }
   });
   // [K in Names<T>]: new (params: CompParams<any>) => ColorControl;
-  const label = trans('prop.style');
+  const label = trans("prop.style");
   return new ControlItemCompBuilder(
-    childrenMap as ToConstructor<{[K in Names<T>]: ColorControl}>,
+    childrenMap as ToConstructor<{ [K in Names<T>]: ColorControl }>,
     (props) => {
       // const x = useContext(CompNameContext);
       const theme = useContext(ThemeContext);
@@ -857,7 +864,7 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
       return calcColors(props as ColorMap, colorConfigs, theme?.theme, bgColor);
     }
   )
-    .setControlItemData({filterText: label, searchChild: true})
+    .setControlItemData({ filterText: label, searchChild: true })
     .setPropertyViewFn((children) => {
       const theme = useContext(ThemeContext);
       const bgColor = useContext(BackgroundColorContext);
@@ -881,36 +888,37 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
                   colorConfigs.map((item) => {
                     const name: Names<T> = item.name;
                     if (
-                      name === 'radius' ||
-                      name === 'margin' ||
-                      name === 'padding' ||
-                      name === 'containerHeaderPadding' ||
-                      name === 'containerSiderPadding' ||
-                      name === 'containerFooterPadding' ||
-                      name === 'containerBodyPadding' ||
-                      name === 'borderWidth' ||
-                      name === 'rotation' ||
-                      name === 'backgroundImage' ||
-                      name === 'backgroundImageRepeat' ||
-                      name === 'backgroundImageSize' ||
-                      name === 'backgroundImagePosition' ||
-                      name === 'backgroundImageOrigin' ||
-                      name === 'headerBackgroundImage' ||
-                      name === 'headerBackgroundImageRepeat' ||
-                      name === 'headerBackgroundImageSize' ||
-                      name === 'headerBackgroundImagePosition' ||
-                      name === 'headerBackgroundImageOrigin' ||
-                      name === 'footerBackgroundImage' ||
-                      name === 'footerBackgroundImageRepeat' ||
-                      name === 'footerBackgroundImageSize' ||
-                      name === 'footerBackgroundImagePosition' ||
-                      name === 'footerBackgroundImageOrigin'
+                      name === "radius" ||
+                      name === "margin" ||
+                      name === "padding" ||
+                      name === "containerHeaderPadding" ||
+                      name === "containerSiderPadding" ||
+                      name === "containerFooterPadding" ||
+                      name === "containerBodyPadding" ||
+                      name === "borderWidth" ||
+                      name === "animation" ||
+                      name === "rotation" ||
+                      name === "backgroundImage" ||
+                      name === "backgroundImageRepeat" ||
+                      name === "backgroundImageSize" ||
+                      name === "backgroundImagePosition" ||
+                      name === "backgroundImageOrigin" ||
+                      name === "headerBackgroundImage" ||
+                      name === "headerBackgroundImageRepeat" ||
+                      name === "headerBackgroundImageSize" ||
+                      name === "headerBackgroundImagePosition" ||
+                      name === "headerBackgroundImageOrigin" ||
+                      name === "footerBackgroundImage" ||
+                      name === "footerBackgroundImageRepeat" ||
+                      name === "footerBackgroundImageSize" ||
+                      name === "footerBackgroundImagePosition" ||
+                      name === "footerBackgroundImageOrigin"
                     ) {
-                      children[name]?.dispatchChangeValueAction('');
+                      children[name]?.dispatchChangeValueAction("");
                     } else {
                       children[name] &&
                         children[name].dispatch(
-                          children[name].changeValueAction('')
+                          children[name].changeValueAction("")
                         );
                     }
                   });
@@ -918,7 +926,7 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
               >
                 <Tooltip
                   placement="topRight"
-                  title={trans('style.resetTooltip')}
+                  title={trans("style.resetTooltip")}
                 >
                   <ResetIcon title="" />
                 </Tooltip>
@@ -930,30 +938,30 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
               .filter(
                 (config) =>
                   !config.platform ||
-                  (isMobile && config.platform === 'mobile') ||
-                  (!isMobile && config.platform === 'pc')
+                  (isMobile && config.platform === "mobile") ||
+                  (!isMobile && config.platform === "pc")
               )
               .map((config, index) => {
                 const name: Names<T> = config.name;
-                let depMsg = (config as SimpleColorConfig)['color'];
+                let depMsg = (config as SimpleColorConfig)["color"];
                 if (isDepColorConfig(config)) {
                   if (config.depType === DEP_TYPE.CONTRAST_TEXT) {
-                    depMsg = trans('style.contrastText');
+                    depMsg = trans("style.contrastText");
                   } else if (
                     config.depType === DEP_TYPE.SELF &&
                     config.depTheme
                   ) {
                     depMsg = getThemeDetailName(config.depTheme);
                   } else {
-                    depMsg = trans('style.generated');
+                    depMsg = trans("style.generated");
                   }
                 }
                 return controlItem(
-                  {filterText: config.label},
+                  { filterText: config.label },
                   <div key={index}>
-                    {name === 'radius' ||
-                    name === 'gap' ||
-                    name === 'cardRadius'
+                    {name === "radius" ||
+                    name === "gap" ||
+                    name === "cardRadius"
                       ? (
                           children[name] as InstanceType<typeof StringControl>
                         ).propertyView({
@@ -961,7 +969,7 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
                           preInputNode: <RadiusPropIcon title="Radius" />,
                           placeholder: props[name],
                         })
-                      : name === 'borderWidth'
+                      : name === "borderWidth"
                         ? (
                             children[name] as InstanceType<typeof StringControl>
                           ).propertyView({
@@ -971,7 +979,7 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
                             ),
                             placeholder: props[name],
                           })
-                        : name === 'borderStyle'
+                        : name === "borderStyle"
                           ? (
                               children[name] as InstanceType<
                                 typeof StringControl
@@ -983,31 +991,33 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
                               ),
                               placeholder: props[name],
                             })
-                          : name === 'margin'
+                          : name === "animation"
                             ? (
                                 children[name] as InstanceType<
                                   typeof StringControl
                                 >
                               ).propertyView({
                                 label: config.label,
-                                preInputNode: <MarginIcon title="Margin" />,
+                                preInputNode: (
+                                  <AnimationPropIcon title="Animation-Type" />
+                                ),
                                 placeholder: props[name],
                               })
-                            : name === 'padding' ||
-                                name === 'containerHeaderPadding' ||
-                                name === 'containerSiderPadding' ||
-                                name === 'containerFooterPadding' ||
-                                name === 'containerBodyPadding'
+                            : name === "margin"
                               ? (
                                   children[name] as InstanceType<
                                     typeof StringControl
                                   >
                                 ).propertyView({
                                   label: config.label,
-                                  preInputNode: <PaddingIcon title="Padding" />,
+                                  preInputNode: <MarginIcon title="Margin" />,
                                   placeholder: props[name],
                                 })
-                              : name === 'textSize'
+                              : name === "padding" ||
+                                  name === "containerHeaderPadding" ||
+                                  name === "containerSiderPadding" ||
+                                  name === "containerFooterPadding" ||
+                                  name === "containerBodyPadding"
                                 ? (
                                     children[name] as InstanceType<
                                       typeof StringControl
@@ -1015,11 +1025,11 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
                                   ).propertyView({
                                     label: config.label,
                                     preInputNode: (
-                                      <StyledTextSizeIcon title="Font Size" />
+                                      <PaddingIcon title="Padding" />
                                     ),
                                     placeholder: props[name],
                                   })
-                                : name === 'textWeight'
+                                : name === "textSize"
                                   ? (
                                       children[name] as InstanceType<
                                         typeof StringControl
@@ -1027,11 +1037,11 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
                                     ).propertyView({
                                       label: config.label,
                                       preInputNode: (
-                                        <StyledTextWeightIcon title="Font Weight" />
+                                        <StyledTextSizeIcon title="Font Size" />
                                       ),
                                       placeholder: props[name],
                                     })
-                                  : name === 'fontFamily'
+                                  : name === "textWeight"
                                     ? (
                                         children[name] as InstanceType<
                                           typeof StringControl
@@ -1039,11 +1049,11 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
                                       ).propertyView({
                                         label: config.label,
                                         preInputNode: (
-                                          <StyledFontFamilyIcon title="Font Family" />
+                                          <StyledTextWeightIcon title="Font Weight" />
                                         ),
                                         placeholder: props[name],
                                       })
-                                    : name === 'textDecoration'
+                                    : name === "fontFamily"
                                       ? (
                                           children[name] as InstanceType<
                                             typeof StringControl
@@ -1051,11 +1061,11 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
                                         ).propertyView({
                                           label: config.label,
                                           preInputNode: (
-                                            <StyledTextDecorationPropIcon title="Text Decoration" />
+                                            <StyledFontFamilyIcon title="Font Family" />
                                           ),
                                           placeholder: props[name],
                                         })
-                                      : name === 'textTransform'
+                                      : name === "textDecoration"
                                         ? (
                                             children[name] as InstanceType<
                                               typeof StringControl
@@ -1063,11 +1073,11 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
                                           ).propertyView({
                                             label: config.label,
                                             preInputNode: (
-                                              <StyledTextTransformIcon title="Text Transform" />
+                                              <StyledTextDecorationPropIcon title="Text Decoration" />
                                             ),
                                             placeholder: props[name],
                                           })
-                                        : name === 'fontStyle'
+                                        : name === "textTransform"
                                           ? (
                                               children[name] as InstanceType<
                                                 typeof StringControl
@@ -1075,14 +1085,11 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
                                             ).propertyView({
                                               label: config.label,
                                               preInputNode: (
-                                                <StyledTextStyleIcon title="Font Style" />
+                                                <StyledTextTransformIcon title="Text Transform" />
                                               ),
                                               placeholder: props[name],
                                             })
-                                          : name === 'backgroundImage' ||
-                                              name ===
-                                                'headerBackgroundImage' ||
-                                              name === 'footerBackgroundImage'
+                                          : name === "fontStyle"
                                             ? (
                                                 children[name] as InstanceType<
                                                   typeof StringControl
@@ -1090,16 +1097,14 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
                                               ).propertyView({
                                                 label: config.label,
                                                 preInputNode: (
-                                                  <StyledBackgroundImageIcon title="Background Image" />
+                                                  <StyledTextStyleIcon title="Font Style" />
                                                 ),
                                                 placeholder: props[name],
                                               })
-                                            : name ===
-                                                  'backgroundImageRepeat' ||
+                                            : name === "backgroundImage" ||
                                                 name ===
-                                                  'headerBackgroundImageRepeat' ||
-                                                name ===
-                                                  'footerBackgroundImageRepeat'
+                                                  "headerBackgroundImage" ||
+                                                name === "footerBackgroundImage"
                                               ? (
                                                   children[
                                                     name
@@ -1109,11 +1114,16 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
                                                 ).propertyView({
                                                   label: config.label,
                                                   preInputNode: (
-                                                    <StyledBackgroundImageIcon title="Background Image Repeat" />
+                                                    <StyledBackgroundImageIcon title="Background Image" />
                                                   ),
                                                   placeholder: props[name],
                                                 })
-                                              : name === 'rotation'
+                                              : name ===
+                                                    "backgroundImageRepeat" ||
+                                                  name ===
+                                                    "headerBackgroundImageRepeat" ||
+                                                  name ===
+                                                    "footerBackgroundImageRepeat"
                                                 ? (
                                                     children[
                                                       name
@@ -1123,18 +1133,34 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
                                                   ).propertyView({
                                                     label: config.label,
                                                     preInputNode: (
-                                                      <RotationPropIcon title="Rotation" />
+                                                      <StyledBackgroundImageIcon title="Background Image Repeat" />
                                                     ),
                                                     placeholder: props[name],
                                                   })
-                                                : children[name].propertyView({
-                                                    label: config.label,
-                                                    panelDefaultColor:
-                                                      props[name],
-                                                    // isDep: isDepColorConfig(config),
-                                                    isDep: true,
-                                                    depMsg: depMsg,
-                                                  })}
+                                                : name === "rotation"
+                                                  ? (
+                                                      children[
+                                                        name
+                                                      ] as InstanceType<
+                                                        typeof StringControl
+                                                      >
+                                                    ).propertyView({
+                                                      label: config.label,
+                                                      preInputNode: (
+                                                        <RotationPropIcon title="Rotation" />
+                                                      ),
+                                                      placeholder: props[name],
+                                                    })
+                                                  : children[name].propertyView(
+                                                      {
+                                                        label: config.label,
+                                                        panelDefaultColor:
+                                                          props[name],
+                                                        // isDep: isDepColorConfig(config),
+                                                        isDep: true,
+                                                        depMsg: depMsg,
+                                                      }
+                                                    )}
                   </div>
                 );
               })}
@@ -1150,10 +1176,10 @@ export function useStyle<T extends readonly SingleColorConfig[]>(
 ) {
   const theme = useContext(ThemeContext);
   const bgColor = useContext(BackgroundColorContext);
-  type ColorMap = {[K in Names<T>]: string};
+  type ColorMap = { [K in Names<T>]: string };
   const props = {} as ColorMap;
   colorConfigs.forEach((config) => {
-    props[config.name as Names<T>] = '';
+    props[config.name as Names<T>] = "";
   });
   return calcColors(props, colorConfigs, theme?.theme, bgColor);
 }

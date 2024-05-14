@@ -1,29 +1,29 @@
-import {trans} from 'i18n';
-import {green, red, yellow} from '@ant-design/colors/es';
-import {FormItemProps} from 'antd/es/form/FormItem';
-import {BoolControl} from 'comps/controls/boolControl';
-import {NumberControl, StringControl} from 'comps/controls/codeControl';
-import {dropdownControl} from 'comps/controls/dropdownControl';
-import {withDefault} from 'comps/generators';
-import {MultiCompBuilder} from 'comps/generators/multi';
-import {labelCss, Section, Tooltip, UnderlineCss} from 'lowcoder-design';
-import {ValueFromOption} from 'lowcoder-design';
-import {isEmpty} from 'lodash';
-import {Fragment, ReactNode} from 'react';
-import styled, {css} from 'styled-components';
-import {AlignLeft} from 'lowcoder-design';
-import {AlignRight} from 'lowcoder-design';
-import {StarIcon} from 'lowcoder-design';
+import { trans } from "i18n";
+import { green, red, yellow } from "@ant-design/colors/es";
+import { FormItemProps } from "antd/es/form/FormItem";
+import { BoolControl } from "comps/controls/boolControl";
+import { NumberControl, StringControl } from "comps/controls/codeControl";
+import { dropdownControl } from "comps/controls/dropdownControl";
+import { withDefault } from "comps/generators";
+import { MultiCompBuilder } from "comps/generators/multi";
+import { labelCss, Section, Tooltip, UnderlineCss } from "lowcoder-design";
+import { ValueFromOption } from "lowcoder-design";
+import { isEmpty } from "lodash";
+import { Fragment, ReactNode } from "react";
+import styled, { css } from "styled-components";
+import { AlignLeft } from "lowcoder-design";
+import { AlignRight } from "lowcoder-design";
+import { StarIcon } from "lowcoder-design";
 
 import {
   LabelStyleType,
   heightCalculator,
   widthCalculator,
-} from './styleControlConstants';
+} from "./styleControlConstants";
 
 type LabelViewProps = Pick<
   FormItemProps,
-  'required' | 'help' | 'validateStatus'
+  "required" | "help" | "validateStatus"
 > & {
   children: ReactNode;
   style?: Record<string, string>;
@@ -51,7 +51,7 @@ function getStyle(style: any) {
   `;
 }
 
-const LabelViewWrapper = styled.div<{$style: any; inputFieldStyle: any}>`
+const LabelViewWrapper = styled.div<{ $style: any; inputFieldStyle: any }>`
   ${(props) => {
     return (
       props.$style && {
@@ -74,13 +74,13 @@ const MainWrapper = styled.div<{
   flex-grow: 1;
   width: 100%;
   margin-top: ${(props) =>
-    props.$position === 'column' && props.$hasLabel ? '4px' : 0};
+    props.$position === "column" && props.$hasLabel ? "4px" : 0};
   height: ${(props) =>
-    props.$position === 'column' && props.$hasLabel
-      ? 'calc(100% - 4px)'
-      : '100%'};
+    props.$position === "column" && props.$hasLabel
+      ? "calc(100% - 4px)"
+      : "100%"};
   display: flex;
-  align-items: ${(props) => (props.$position === 'row' ? 'center' : 'start')};
+  align-items: ${(props) => (props.$position === "row" ? "center" : "start")};
   flex-shrink: 0;
 `;
 
@@ -92,9 +92,9 @@ const LabelWrapper = styled.div<{
   display: flex;
   align-items: center;
   margin-right: 8px;
-  margin-bottom: ${(props) => (props.$position === 'row' ? 0 : '3.5px')};
-  justify-content: ${(props) => (props.$align === 'left' ? 'start' : 'end')};
-  max-width: ${(props) => (props.$position === 'row' ? '80%' : '100%')};
+  margin-bottom: ${(props) => (props.$position === "row" ? 0 : "3.5px")};
+  justify-content: ${(props) => (props.$align === "left" ? "start" : "end")};
+  max-width: ${(props) => (props.$position === "row" ? "80%" : "100%")};
   flex-shrink: 0;
 `;
 // ${(props) => props.$border && UnderlineCss};
@@ -103,7 +103,7 @@ const LabelWrapper = styled.div<{
 const Label = styled.span<{
   $border: boolean;
   $labelStyle: LabelStyleType;
-  $validateStatus: 'success' | 'warning' | 'error' | 'validating' | null;
+  $validateStatus: "success" | "warning" | "error" | "validating" | null;
 }>`
   ${labelCss};
   font-family: ${(props) => props.$labelStyle.fontFamily};
@@ -113,11 +113,11 @@ const Label = styled.span<{
   text-decoration: ${(props) => props.$labelStyle.textDecoration};
   font-size: ${(props) => props.$labelStyle.textSize};
   color: ${(props) =>
-    !!props.$validateStatus && props?.$validateStatus === 'error'
+    !!props.$validateStatus && props?.$validateStatus === "error"
       ? props.$labelStyle.validate
       : props.$labelStyle.label} !important;
   ${(props) =>
-    `border:${props.$labelStyle.borderWidth} ${props.$labelStyle.borderStyle} ${!!props.$validateStatus && props?.$validateStatus === 'error' ? props.$labelStyle.validate : props.$labelStyle.border};`}
+    `border:${props.$labelStyle.borderWidth} ${props.$labelStyle.borderStyle} ${!!props.$validateStatus && props?.$validateStatus === "error" ? props.$labelStyle.validate : props.$labelStyle.border};`}
   border-radius:${(props) => props.$labelStyle.radius};
   padding: ${(props) => props.$labelStyle.padding};
   margin: ${(props) => props.$labelStyle.margin};
@@ -153,38 +153,38 @@ const TooltipWrapper = styled.span`
 `;
 
 const PositionOptions = [
-  {label: trans('labelProp.left'), value: 'row'},
-  {label: trans('labelProp.top'), value: 'column'},
+  { label: trans("labelProp.left"), value: "row" },
+  { label: trans("labelProp.top"), value: "column" },
 ] as const;
 type PositionOptionsValue = ValueFromOption<typeof PositionOptions>;
 
 const AlignOptions = [
-  {label: <AlignLeft />, value: 'left'},
-  {label: <AlignRight />, value: 'right'},
+  { label: <AlignLeft />, value: "left" },
+  { label: <AlignRight />, value: "right" },
 ] as const;
 type AlignOptionsValue = ValueFromOption<typeof AlignOptions>;
 
 const WidthUnitOptions = [
-  {label: 'px', value: 'px'},
-  {label: '%', value: '%'},
+  { label: "px", value: "px" },
+  { label: "%", value: "%" },
 ];
 
 function getLabelWidth(width: number, widthUnit: string): string {
   if (width <= 0 || isNaN(width)) {
-    return '0%';
+    return "0%";
   }
   return width + widthUnit;
 }
 
 export const LabelControl = (function () {
   const childrenMap = {
-    text: withDefault(StringControl, trans('label')),
+    text: withDefault(StringControl, trans("label")),
     tooltip: StringControl,
     hidden: BoolControl,
     width: withDefault(NumberControl, 33),
-    widthUnit: dropdownControl(WidthUnitOptions, '%'),
-    position: dropdownControl(PositionOptions, 'row'),
-    align: dropdownControl(AlignOptions, 'left'),
+    widthUnit: dropdownControl(WidthUnitOptions, "%"),
+    position: dropdownControl(PositionOptions, "row"),
+    align: dropdownControl(AlignOptions, "left"),
   };
 
   return new MultiCompBuilder(
@@ -208,12 +208,12 @@ export const LabelControl = (function () {
               width: widthCalculator(
                 args && args.inputFieldStyle
                   ? args?.inputFieldStyle?.margin
-                  : '0px'
+                  : "0px"
               ),
               height: heightCalculator(
                 args && args.inputFieldStyle
                   ? args?.inputFieldStyle?.margin
-                  : '0px'
+                  : "0px"
               ),
             }}
           >
@@ -222,11 +222,11 @@ export const LabelControl = (function () {
                 $align={props.align}
                 style={{
                   width:
-                    props.position === 'row'
+                    props.position === "row"
                       ? getLabelWidth(props.width, props.widthUnit)
-                      : '100%',
-                  maxWidth: props.position === 'row' ? '70%' : '100%',
-                  fontSize: args && args.style ? args?.style?.textSize : '14px',
+                      : "100%",
+                  maxWidth: props.position === "row" ? "70%" : "100%",
+                  fontSize: args && args.style ? args?.style?.textSize : "14px",
                 }}
                 $position={props.position}
                 $hasToolTip={!!props.tooltip}
@@ -243,7 +243,7 @@ export const LabelControl = (function () {
                   placement="top"
                   color="#2c2c2c"
                   getPopupContainer={(node: any) =>
-                    node.closest('.react-grid-item')
+                    node.closest(".react-grid-item")
                   }
                 >
                   <Label
@@ -251,7 +251,7 @@ export const LabelControl = (function () {
                     $validateStatus={
                       args && args.validateStatus ? args.validateStatus : null
                     }
-                    $labelStyle={{...args.labelStyle}}
+                    $labelStyle={{ ...args.labelStyle }}
                   >
                     {props.text}
                   </Label>
@@ -262,13 +262,13 @@ export const LabelControl = (function () {
             <ChildrenWrapper
               style={{
                 width:
-                  props.position === 'row'
+                  props.position === "row"
                     ? `calc(100% - ${getLabelWidth(props.width, props.widthUnit)} - 8px)`
-                    : '100%',
+                    : "100%",
                 height:
-                  props.position === 'column' && !!props.text
-                    ? 'calc(100% - 22px)'
-                    : '100%',
+                  props.position === "column" && !!props.text
+                    ? "calc(100% - 22px)"
+                    : "100%",
               }}
             >
               {args.children}
@@ -278,16 +278,16 @@ export const LabelControl = (function () {
           {args.help && (
             <HelpWrapper
               $marginLeft={
-                props.position === 'column' ||
+                props.position === "column" ||
                 isEmpty(props.text) ||
                 props.hidden
-                  ? '0'
+                  ? "0"
                   : `calc(min(${getLabelWidth(props.width, props.widthUnit)} , 70%) + 8px)`
               }
               $color={
-                args.validateStatus === 'error'
+                args.validateStatus === "error"
                   ? red.primary
-                  : args.validateStatus === 'warning'
+                  : args.validateStatus === "warning"
                     ? yellow.primary
                     : green.primary
               }
@@ -300,21 +300,21 @@ export const LabelControl = (function () {
     }
   )
     .setPropertyViewFn((children) => (
-      <Section name={trans('label')}>
-        {children.text.propertyView({label: trans('labelProp.text')})}
-        {children.tooltip.propertyView({label: trans('labelProp.tooltip')})}
+      <Section name={trans("label")}>
+        {children.text.propertyView({ label: trans("labelProp.text") })}
+        {children.tooltip.propertyView({ label: trans("labelProp.tooltip") })}
         {children.position.propertyView({
-          label: trans('labelProp.position'),
+          label: trans("labelProp.position"),
           radioButton: true,
         })}
         {children.align.propertyView({
-          label: trans('labelProp.align'),
+          label: trans("labelProp.align"),
           radioButton: true,
         })}
-        {children.position.getView() !== 'column' &&
+        {children.position.getView() !== "column" &&
           children.width.propertyView({
-            label: trans('labelProp.width'),
-            tooltip: trans('labelProp.widthTooltip'),
+            label: trans("labelProp.width"),
+            tooltip: trans("labelProp.widthTooltip"),
             lastNode: children.widthUnit.propertyView({}),
           })}
       </Section>
