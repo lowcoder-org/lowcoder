@@ -51,6 +51,7 @@ export interface ThemeDetail {
   animation?: string;
   animationDelay?: string;
   animationDuration?: string;
+  opacity?: string;
 }
 
 export function getThemeDetailName(key: keyof ThemeDetail) {

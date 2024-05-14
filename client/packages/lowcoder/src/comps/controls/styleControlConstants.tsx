@@ -27,6 +27,10 @@ export type RotationConfig = CommonColorConfig & {
   readonly rotation: string;
 };
 
+export type OpacityConfig = CommonColorConfig & {
+  readonly opacity: string;
+};
+
 export type AnimationConfig = CommonColorConfig & {
   readonly animation: string;
 };
@@ -203,7 +207,8 @@ export type SingleColorConfig =
   | SiderBackgroundImageOriginConfig
   | AnimationConfig
   | AnimationDelayConfig
-  | AnimationDurationConfig;
+  | AnimationDurationConfig
+  | OpacityConfig;
 
 export const defaultTheme: ThemeDetail = {
   primary: '#3377FF',
@@ -219,6 +224,7 @@ export const defaultTheme: ThemeDetail = {
   animation: 'bounce',
   animationDelay: '2s',
   animationDuration: '2s',
+  opacity: '0.33',
 };
 
 export const SURFACE_COLOR = '#FFFFFF';
@@ -418,6 +424,12 @@ const ROTATION = {
   name: 'rotation',
   label: 'Rotation',
   rotation: 'rotation',
+} as const;
+
+const OPACITY = {
+  name: 'opacity',
+  label: trans('style.opacity'),
+  opacity: 'opacity',
 } as const;
 
 const ANIMATION = {
@@ -627,6 +639,7 @@ const STYLING_FIELDS_CONTAINER_SEQUENCE = [
   ANIMATION,
   ANIMATIONDELAY,
   ANIMATIONDURATION,
+  OPACITY,
 ];
 
 const FILL = {
