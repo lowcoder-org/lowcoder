@@ -35,6 +35,10 @@ export type BoxShadowColorConfig = CommonColorConfig & {
   readonly boxShadowColor: string;
 };
 
+export type AnimationIterationCountConfig = CommonColorConfig & {
+  readonly animationIterationCount: string;
+};
+
 export type OpacityConfig = CommonColorConfig & {
   readonly opacity: string;
 };
@@ -218,7 +222,8 @@ export type SingleColorConfig =
   | AnimationDurationConfig
   | OpacityConfig
   | BoxShadowConfig
-  | BoxShadowColorConfig;
+  | BoxShadowColorConfig
+  | AnimationIterationCountConfig;
 
 export const defaultTheme: ThemeDetail = {
   primary: '#3377FF',
@@ -237,6 +242,7 @@ export const defaultTheme: ThemeDetail = {
   opacity: '0.33',
   boxShadow: '10px 5px 5px',
   boxShadowColor: '#D7D9E0',
+  animationIterationCount: '10',
 };
 
 export const SURFACE_COLOR = '#FFFFFF';
@@ -462,6 +468,12 @@ const ANIMATION = {
   animation: 'animation',
 } as const;
 
+const ANIMATIONITERATIONCOUNT = {
+  name: 'animationIterationCount',
+  label: trans('style.animationIterationCount'),
+  animationIterationCount: 'animationIterationCount',
+} as const;
+
 const ANIMATIONDELAY = {
   name: 'animationDelay',
   label: trans('style.animationDelay'),
@@ -666,6 +678,7 @@ const STYLING_FIELDS_CONTAINER_SEQUENCE = [
   OPACITY,
   BOXSHADOW,
   BOXSHADOWCOLOR,
+  ANIMATIONITERATIONCOUNT,
 ];
 
 const FILL = {

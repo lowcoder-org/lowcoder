@@ -499,6 +499,7 @@ export const en = {
     boxShadow: 'Box Shadow',
     opacity: 'Opacity',
     animation: 'Animation',
+    animationIterationCount: 'Animation Iteration Count',
     animationDelay: 'Animation Delay',
     animationDuration: 'Animation Duration',
     resetTooltip:
