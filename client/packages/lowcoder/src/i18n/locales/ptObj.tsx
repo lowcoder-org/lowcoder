@@ -14,7 +14,7 @@ export const enObj: I18nObjects = {
         },
         phone: {
           type: "string",
-          title: "Telefone,
+          title: "Telefone",
           minLength: 11,
         },
         birthday: {
