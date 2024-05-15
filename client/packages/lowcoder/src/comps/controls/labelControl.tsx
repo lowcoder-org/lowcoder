@@ -117,9 +117,11 @@ const Label = styled.span<{
     !!props.$validateStatus && props?.$validateStatus === 'error'
       ? props.$labelStyle.validate
       : props.$labelStyle.label} !important;
-  ${(props) =>
-    `border:${props.$labelStyle.borderWidth} ${props.$labelStyle.borderStyle} ${!!props.$validateStatus && props?.$validateStatus === 'error' ? props.$labelStyle.validate : props.$labelStyle.border};`}
+  ${(props) => {
+    return `border:${props.$labelStyle.borderWidth} ${props.$labelStyle.borderStyle} ${!!props.$validateStatus && props?.$validateStatus === 'error' ? props.$labelStyle.validate : props.$labelStyle.border};`;
+  }}
   border-radius:${(props) => props.$labelStyle.radius};
+  rotate: ${(props) => props.$labelStyle.rotation};
   padding: ${(props) => props.$labelStyle.padding};
   margin: ${(props) => props.$labelStyle.margin};
   width: fit-content;
