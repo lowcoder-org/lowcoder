@@ -48,6 +48,7 @@ import {
   MarginConfig,
   BoxShadowConfig,
   OpacityConfig,
+  BoxShadowColorConfig,
   AnimationConfig,
   AnimationDelayConfig,
   AnimationDurationConfig,
@@ -231,6 +232,12 @@ function isBoxShadowConfig(
   return config.hasOwnProperty('boxShadow');
 }
 
+function isBoxShadowColorConfig(
+  config: SingleColorConfig
+): config is BoxShadowColorConfig {
+  return config.hasOwnProperty('boxShadowColor');
+}
+
 function isOpacityConfig(config: SingleColorConfig): config is OpacityConfig {
   return config.hasOwnProperty('opacity');
 }
@@ -367,6 +374,10 @@ function isEmptyOpacity(opacity: string) {
 
 function isEmptyBoxShadow(boxShadow: string) {
   return _.isEmpty(boxShadow);
+}
+
+function isEmptyBoxShadowColor(boxShadowColor: string) {
+  return _.isEmpty(boxShadowColor);
 }
 
 function isEmptyAnimation(animation: string) {
@@ -560,6 +571,10 @@ function calcColors<ColorMap extends Record<string, string>>(
       res[name] = props[name];
       return;
     }
+    if (!isEmptyBoxShadowColor(props[name]) && isBoxShadowColorConfig(config)) {
+      res[name] = props[name];
+      return;
+    }
     if (!isEmptyOpacity(props[name]) && isOpacityConfig(config)) {
       res[name] = props[name];
       return;
@@ -676,6 +691,9 @@ function calcColors<ColorMap extends Record<string, string>>(
     }
     if (isBoxShadowConfig(config)) {
       res[name] = themeWithDefault[config.boxShadow];
+    }
+    if (isBoxShadowColorConfig(config)) {
+      res[name] = themeWithDefault[config.boxShadowColor];
     }
     if (isOpacityConfig(config)) {
       res[name] = themeWithDefault[config.opacity];
@@ -832,23 +850,39 @@ const StyledBackgroundImageIcon = styled(ImageCompIconSmall)`
 `;
 
 const OpacityPropIcon = styled(BorderWidthIcon)`
-  opacity: 0.33;
+  margin: 0 8px 0 -3px;
+  padding: 3px;
+  color: #888;
+`;
+
+const BoxShadowColorPropIcon = styled(BorderWidthIcon)`
+  margin: 0 8px 0 -3px;
+  padding: 3px;
+  color: #888;
 `;
 
 const BoxShadowPropIcon = styled(BorderWidthIcon)`
-  box-shadow: 0.33;
+  margin: 0 8px 0 -3px;
+  padding: 3px;
+  color: #888;
 `;
 
 const AnimationPropIcon = styled(BorderWidthIcon)`
-  animation: bounce;
+  margin: 0 8px 0 -3px;
+  padding: 3px;
+  color: #888;
 `;
 
 const AnimationDelayPropIcon = styled(BorderWidthIcon)`
-  animation-delay: 2s;
+  margin: 0 8px 0 -3px;
+  padding: 3px;
+  color: #888;
 `;
 
 const AnimationDurationPropIcon = styled(BorderWidthIcon)`
-  animation-duration: 2s;
+  margin: 0 8px 0 -3px;
+  padding: 3px;
+  color: #888;
 `;
 
 const RotationPropIcon = styled(RotationIcon)`
@@ -905,6 +939,7 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
       name === 'radius' ||
       name === 'borderWidth' ||
       name === 'boxShadow' ||
+      name === 'boxShadowColor' ||
       name === 'opacity' ||
       name === 'animation' ||
       name === 'animationDelay' ||
@@ -989,6 +1024,7 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
                       name === 'containerBodyPadding' ||
                       name === 'borderWidth' ||
                       name === 'opacity' ||
+                      name === 'boxShadowColor' ||
                       name === 'boxShadow' ||
                       name === 'animation' ||
                       name === 'animationDelay' ||
@@ -1099,7 +1135,7 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
                                 ),
                                 placeholder: props[name],
                               })
-                            : name === 'boxShadow'
+                            : name === 'boxShadowColor'
                               ? (
                                   children[name] as InstanceType<
                                     typeof StringControl
@@ -1107,11 +1143,11 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
                                 ).propertyView({
                                   label: config.label,
                                   preInputNode: (
-                                    <BoxShadowPropIcon title="BoxShadow-Type" />
+                                    <BoxShadowColorPropIcon title="BoxShadowColor-Type" />
                                   ),
                                   placeholder: props[name],
                                 })
-                              : name === 'animation'
+                              : name === 'boxShadow'
                                 ? (
                                     children[name] as InstanceType<
                                       typeof StringControl
@@ -1119,11 +1155,11 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
                                   ).propertyView({
                                     label: config.label,
                                     preInputNode: (
-                                      <AnimationPropIcon title="Animation-Type" />
+                                      <BoxShadowPropIcon title="BoxShadow-Type" />
                                     ),
                                     placeholder: props[name],
                                   })
-                                : name === 'animationDelay'
+                                : name === 'animation'
                                   ? (
                                       children[name] as InstanceType<
                                         typeof StringControl
@@ -1131,11 +1167,11 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
                                     ).propertyView({
                                       label: config.label,
                                       preInputNode: (
-                                        <AnimationDelayPropIcon title="AnimationDelay-Type" />
+                                        <AnimationPropIcon title="Animation-Type" />
                                       ),
                                       placeholder: props[name],
                                     })
-                                  : name === 'animationDuration'
+                                  : name === 'animationDelay'
                                     ? (
                                         children[name] as InstanceType<
                                           typeof StringControl
@@ -1143,11 +1179,11 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
                                       ).propertyView({
                                         label: config.label,
                                         preInputNode: (
-                                          <AnimationDurationPropIcon title="AnimationDuration-Type" />
+                                          <AnimationDelayPropIcon title="AnimationDelay-Type" />
                                         ),
                                         placeholder: props[name],
                                       })
-                                    : name === 'margin'
+                                    : name === 'animationDuration'
                                       ? (
                                           children[name] as InstanceType<
                                             typeof StringControl
@@ -1155,15 +1191,11 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
                                         ).propertyView({
                                           label: config.label,
                                           preInputNode: (
-                                            <MarginIcon title="Margin" />
+                                            <AnimationDurationPropIcon title="AnimationDuration-Type" />
                                           ),
                                           placeholder: props[name],
                                         })
-                                      : name === 'padding' ||
-                                          name === 'containerHeaderPadding' ||
-                                          name === 'containerSiderPadding' ||
-                                          name === 'containerFooterPadding' ||
-                                          name === 'containerBodyPadding'
+                                      : name === 'margin'
                                         ? (
                                             children[name] as InstanceType<
                                               typeof StringControl
@@ -1171,11 +1203,15 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
                                           ).propertyView({
                                             label: config.label,
                                             preInputNode: (
-                                              <PaddingIcon title="Padding" />
+                                              <MarginIcon title="Margin" />
                                             ),
                                             placeholder: props[name],
                                           })
-                                        : name === 'textSize'
+                                        : name === 'padding' ||
+                                            name === 'containerHeaderPadding' ||
+                                            name === 'containerSiderPadding' ||
+                                            name === 'containerFooterPadding' ||
+                                            name === 'containerBodyPadding'
                                           ? (
                                               children[name] as InstanceType<
                                                 typeof StringControl
@@ -1183,11 +1219,11 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
                                             ).propertyView({
                                               label: config.label,
                                               preInputNode: (
-                                                <StyledTextSizeIcon title="Font Size" />
+                                                <PaddingIcon title="Padding" />
                                               ),
                                               placeholder: props[name],
                                             })
-                                          : name === 'textWeight'
+                                          : name === 'textSize'
                                             ? (
                                                 children[name] as InstanceType<
                                                   typeof StringControl
@@ -1195,11 +1231,11 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
                                               ).propertyView({
                                                 label: config.label,
                                                 preInputNode: (
-                                                  <StyledTextWeightIcon title="Font Weight" />
+                                                  <StyledTextSizeIcon title="Font Size" />
                                                 ),
                                                 placeholder: props[name],
                                               })
-                                            : name === 'fontFamily'
+                                            : name === 'textWeight'
                                               ? (
                                                   children[
                                                     name
@@ -1209,11 +1245,11 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
                                                 ).propertyView({
                                                   label: config.label,
                                                   preInputNode: (
-                                                    <StyledFontFamilyIcon title="Font Family" />
+                                                    <StyledTextWeightIcon title="Font Weight" />
                                                   ),
                                                   placeholder: props[name],
                                                 })
-                                              : name === 'textDecoration'
+                                              : name === 'fontFamily'
                                                 ? (
                                                     children[
                                                       name
@@ -1223,11 +1259,11 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
                                                   ).propertyView({
                                                     label: config.label,
                                                     preInputNode: (
-                                                      <StyledTextDecorationPropIcon title="Text Decoration" />
+                                                      <StyledFontFamilyIcon title="Font Family" />
                                                     ),
                                                     placeholder: props[name],
                                                   })
-                                                : name === 'textTransform'
+                                                : name === 'textDecoration'
                                                   ? (
                                                       children[
                                                         name
@@ -1237,11 +1273,11 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
                                                     ).propertyView({
                                                       label: config.label,
                                                       preInputNode: (
-                                                        <StyledTextTransformIcon title="Text Transform" />
+                                                        <StyledTextDecorationPropIcon title="Text Decoration" />
                                                       ),
                                                       placeholder: props[name],
                                                     })
-                                                  : name === 'fontStyle'
+                                                  : name === 'textTransform'
                                                     ? (
                                                         children[
                                                           name
@@ -1251,17 +1287,12 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
                                                       ).propertyView({
                                                         label: config.label,
                                                         preInputNode: (
-                                                          <StyledTextStyleIcon title="Font Style" />
+                                                          <StyledTextTransformIcon title="Text Transform" />
                                                         ),
                                                         placeholder:
                                                           props[name],
                                                       })
-                                                    : name ===
-                                                          'backgroundImage' ||
-                                                        name ===
-                                                          'headerBackgroundImage' ||
-                                                        name ===
-                                                          'footerBackgroundImage'
+                                                    : name === 'fontStyle'
                                                       ? (
                                                           children[
                                                             name
@@ -1271,17 +1302,17 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
                                                         ).propertyView({
                                                           label: config.label,
                                                           preInputNode: (
-                                                            <StyledBackgroundImageIcon title="Background Image" />
+                                                            <StyledTextStyleIcon title="Font Style" />
                                                           ),
                                                           placeholder:
                                                             props[name],
                                                         })
                                                       : name ===
-                                                            'backgroundImageRepeat' ||
+                                                            'backgroundImage' ||
                                                           name ===
-                                                            'headerBackgroundImageRepeat' ||
+                                                            'headerBackgroundImage' ||
                                                           name ===
-                                                            'footerBackgroundImageRepeat'
+                                                            'footerBackgroundImage'
                                                         ? (
                                                             children[
                                                               name
@@ -1291,12 +1322,17 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
                                                           ).propertyView({
                                                             label: config.label,
                                                             preInputNode: (
-                                                              <StyledBackgroundImageIcon title="Background Image Repeat" />
+                                                              <StyledBackgroundImageIcon title="Background Image" />
                                                             ),
                                                             placeholder:
                                                               props[name],
                                                           })
-                                                        : name === 'rotation'
+                                                        : name ===
+                                                              'backgroundImageRepeat' ||
+                                                            name ===
+                                                              'headerBackgroundImageRepeat' ||
+                                                            name ===
+                                                              'footerBackgroundImageRepeat'
                                                           ? (
                                                               children[
                                                                 name
@@ -1307,22 +1343,38 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
                                                               label:
                                                                 config.label,
                                                               preInputNode: (
-                                                                <RotationPropIcon title="Rotation" />
+                                                                <StyledBackgroundImageIcon title="Background Image Repeat" />
                                                               ),
                                                               placeholder:
                                                                 props[name],
                                                             })
-                                                          : children[
-                                                              name
-                                                            ].propertyView({
-                                                              label:
-                                                                config.label,
-                                                              panelDefaultColor:
-                                                                props[name],
-                                                              // isDep: isDepColorConfig(config),
-                                                              isDep: true,
-                                                              depMsg: depMsg,
-                                                            })}
+                                                          : name === 'rotation'
+                                                            ? (
+                                                                children[
+                                                                  name
+                                                                ] as InstanceType<
+                                                                  typeof StringControl
+                                                                >
+                                                              ).propertyView({
+                                                                label:
+                                                                  config.label,
+                                                                preInputNode: (
+                                                                  <RotationPropIcon title="Rotation" />
+                                                                ),
+                                                                placeholder:
+                                                                  props[name],
+                                                              })
+                                                            : children[
+                                                                name
+                                                              ].propertyView({
+                                                                label:
+                                                                  config.label,
+                                                                panelDefaultColor:
+                                                                  props[name],
+                                                                // isDep: isDepColorConfig(config),
+                                                                isDep: true,
+                                                                depMsg: depMsg,
+                                                              })}
                   </div>
                 );
               })}
