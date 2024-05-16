@@ -57,6 +57,7 @@ const LabelViewWrapper = styled.div<{$style: any; inputFieldStyle: any}>`
       props.$style && {
         ...props.$style,
         borderRadius: props.$style.radius,
+        rotate: props.$style.rotation,
         boxShadow: `${props.$style.boxShadow} ${props.$style.boxShadowColor}`,
       }
     );
