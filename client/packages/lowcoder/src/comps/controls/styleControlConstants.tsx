@@ -236,13 +236,13 @@ export const defaultTheme: ThemeDetail = {
   padding: '3px',
   gridColumns: '24',
   textSize: '14px',
-  animation: 'bounce',
-  animationDelay: '2s',
-  animationDuration: '2s',
-  opacity: '0.33',
-  boxShadow: '10px 5px 5px',
-  boxShadowColor: '#D7D9E0',
-  animationIterationCount: '10',
+  animation: '',
+  animationDelay: '',
+  animationDuration: '',
+  opacity: '1',
+  boxShadow: '',
+  boxShadowColor: '',
+  animationIterationCount: '',
 };
 
 export const SURFACE_COLOR = '#FFFFFF';
@@ -672,14 +672,14 @@ const STYLING_FIELDS_CONTAINER_SEQUENCE = [
   BORDER_STYLE,
   RADIUS,
   BORDER_WIDTH,
-  ANIMATION,
-  ANIMATIONDELAY,
-  ANIMATIONDURATION,
   OPACITY,
   BOXSHADOW,
   BOXSHADOWCOLOR,
-  ANIMATIONITERATIONCOUNT,
   ROTATION,
+  ANIMATION,
+  ANIMATIONDELAY,
+  ANIMATIONDURATION,
+  ANIMATIONITERATIONCOUNT,
 ];
 
 const FILL = {
