@@ -13,6 +13,7 @@
     "start": "yarn workspace lowcoder start",
     "start-win": "LOWCODER_API_SERVICE_URL=http://localhost:3000 yarn start",
     "start:ee": "REACT_APP_EDITION=enterprise yarn workspace lowcoder start",
+    "translate": "node --loader ts-node/esm ./scripts/translate.js",
     "build": "yarn node ./scripts/build.js",
     "test": "jest && yarn workspace lowcoder-comps test",
     "prepare": "yarn workspace lowcoder prepare",
@@ -53,6 +54,7 @@
     "rimraf": "^3.0.2",
     "shelljs": "^0.8.5",
     "svgo": "^3.0.0",
+    "ts-node": "^10.4.0",
     "typescript": "^4.8.4",
     "whatwg-fetch": "^3.6.2"
   },

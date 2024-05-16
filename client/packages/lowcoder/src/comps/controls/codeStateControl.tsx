@@ -210,7 +210,7 @@ function stateControlMethodExposing<T extends ExposeMethodCompConstructor<Abstra
   return withMethodExposingBase(VariantComp, [
     {
       method: {
-        name: trans("eventHandler.set") + _.upperFirst(param.name),
+        name: "set" + _.upperFirst(param.name),
         description: trans("exportMethod.setDesc", { property: param.name }),
         params: [param],
       },
@@ -222,7 +222,7 @@ function stateControlMethodExposing<T extends ExposeMethodCompConstructor<Abstra
     },
     {
       method: {
-        name: trans("eventHandler.clear") + _.upperFirst(param.name),
+        name: "clear" + _.upperFirst(param.name),
         description: trans("exportMethod.clearDesc", { property: param.name }),
         params: [],
       },
@@ -233,7 +233,7 @@ function stateControlMethodExposing<T extends ExposeMethodCompConstructor<Abstra
     },
     {
       method: {
-        name: trans("eventHandler.reset") + _.upperFirst(param.name),
+        name: "reset" + _.upperFirst(param.name),
         description: trans("exportMethod.resetDesc", { property: param.name }),
         params: [],
       },

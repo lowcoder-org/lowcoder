@@ -22,10 +22,10 @@ spring:
   webflux:
     base-path: /
   mail:
-    host: ${LOWCODER_ADMIN_SMTP_HOST:smtp.gmail.com}
+    host: ${LOWCODER_ADMIN_SMTP_HOST:localhost}
     port: ${LOWCODER_ADMIN_SMTP_PORT:587}
-    username: ${LOWCODER_ADMIN_SMTP_USERNAME:yourmail@gmail.com}
-    password: ${LOWCODER_ADMIN_SMTP_PASSWORD:yourpass}
+    username: ${LOWCODER_ADMIN_SMTP_USERNAME:info@localhost}
+    password: ${LOWCODER_ADMIN_SMTP_PASSWORD:s3cr3t}
     properties:
       mail:
         smtp:
@@ -83,7 +83,7 @@ common:
     password: ${LOWCODER_SUPERUSER_PASSWORD:}
   marketplace:
     private-mode: ${LOWCODER_MARKETPLACE_PRIVATE_MODE:true}
-  lowcoder-public-url: ${LOWCODER_PUBLIC_URL:http://localhost:8080}
+  lowcoder-public-url: ${LOWCODER_PUBLIC_URL:http://localhost:3000}
   notifications-email-sender: ${LOWCODER_EMAIL_NOTIFICATIONS_SENDER:info@localhost}
 
 material:
@@ -96,3 +96,8 @@ springdoc:
   swagger-ui:
     path: /api/docs/swagger-ui
   paths-to-exclude: /api/v1/**
+
+management:
+  health:
+    mail:
+      enabled: false

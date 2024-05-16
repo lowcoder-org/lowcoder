@@ -5,13 +5,13 @@ import {
   CompActionTypes,
   wrapChildAction,
 } from "lowcoder-core";
-import { AxisFormatterComp, EchartsAxisType } from "../chartComp/chartConfigs/cartesianAxisConfig";
-import { chartChildrenMap, ChartSize, getDataKeys } from "../chartComp/chartConstants";
-import { chartPropertyView } from "../chartComp/chartPropertyView";
+import { AxisFormatterComp, EchartsAxisType } from "../basicChartComp/chartConfigs/cartesianAxisConfig";
+import { chartChildrenMap, ChartSize, getDataKeys } from "../basicChartComp/chartConstants";
+import { chartPropertyView } from "../basicChartComp/chartPropertyView";
 import _ from "lodash";
 import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import ReactResizeDetector from "react-resize-detector";
-import ReactECharts from "../chartComp/reactEcharts";
+import ReactECharts from "../basicChartComp/reactEcharts";
 import {
   childrenToProps,
   depsConfig,
@@ -28,13 +28,13 @@ import {
   dropdownControl
 } from "lowcoder-sdk";
 import { getEchartsLocale, trans } from "i18n/comps";
-import { ItemColorComp } from "comps/chartComp/chartConfigs/lineChartConfig";
+import { ItemColorComp } from "comps/basicChartComp/chartConfigs/lineChartConfig";
 import {
   echartsConfigOmitChildren,
   getEchartsConfig,
   getSelectedPoints,
   loadGoogleMapsScript,
-} from "comps/chartComp/chartUtils";
+} from "comps/basicChartComp/chartUtils";
 import 'echarts-extension-gmap';
 import log from "loglevel";
 

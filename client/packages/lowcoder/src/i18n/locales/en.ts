@@ -1,4 +1,4 @@
-import table from './componentDocExtra/table.md?url';
+// import table from "./componentDocExtra/table.md?url";
 
 export const en = {
   productName: 'Lowcoder',
@@ -3527,43 +3527,39 @@ export const en = {
     title: 'Title',
     selectBackground: 'Selected Background',
   },
-  componentDocExtra: {
-    table: table,
-  },
-  idSource: {
-    title: 'User Authentication Provider',
-    form: 'Email',
-    pay: 'Premium',
-    enable: 'Enable',
-    unEnable: 'Not Enabled',
-    loginType: 'Login Type',
-    status: 'Status',
-    desc: 'Description',
-    manual: 'Address Book:',
-    syncManual: 'Sync Address Book',
-    syncManualSuccess: 'Sync Succeeded',
-    enableRegister: 'Allow Registration',
-    saveBtn: 'Save and Enable',
-    save: 'Save',
-    none: 'None',
-    formPlaceholder: 'Please Enter {label}',
-    formSelectPlaceholder: 'Please Select the {label}',
-    saveSuccess: 'Saved Successfully',
-    dangerLabel: 'Danger Zone',
-    dangerTip:
-      'Disabling This ID Provider May Result in Some Users Being Unable to Log In. Proceed With Caution.',
-    disable: 'Disable',
-    disableSuccess: 'Disabled Successfully',
-    encryptedServer: '-------- Encrypted on the Server Side --------',
-    disableTip: 'Tips',
-    disableContent:
-      'Disabling This ID Provider May Result in Some Users Being Unable to Log In. Are You Sure to Proceed?',
-    manualTip: '',
-    lockTip:
-      'The Content is Locked. To Make Changes, Please Click the {icon} to Unlock.',
-    lockModalContent:
-      "Changing the 'ID Attribute' Field Can Have Significant Impacts on User Identification. Please Confirm That You Understand the Implications of This Change Before Proceeding.",
-    payUserTag: 'Premium',
+  /*"componentDocExtra": {
+    "table": table,
+  },*/
+  "idSource": {
+    "title": "User Authentication Provider",
+    "form": "Email",
+    "pay": "Premium",
+    "enable": "Enable",
+    "unEnable": "Not Enabled",
+    "loginType": "Login Type",
+    "status": "Status",
+    "desc": "Description",
+    "manual": "Address Book:",
+    "syncManual": "Sync Address Book",
+    "syncManualSuccess": "Sync Succeeded",
+    "enableRegister": "Allow Registration",
+    "saveBtn": "Save and Enable",
+    "save": "Save",
+    "none": "None",
+    "formPlaceholder": "Please Enter {label}",
+    "formSelectPlaceholder": "Please Select the {label}",
+    "saveSuccess": "Saved Successfully",
+    "dangerLabel": "Danger Zone",
+    "dangerTip": "Disabling This ID Provider May Result in Some Users Being Unable to Log In. Proceed With Caution.",
+    "disable": "Disable",
+    "disableSuccess": "Disabled Successfully",
+    "encryptedServer": "-------- Encrypted on the Server Side --------",
+    "disableTip": "Tips",
+    "disableContent": "Disabling This ID Provider May Result in Some Users Being Unable to Log In. Are You Sure to Proceed?",
+    "manualTip": "",
+    "lockTip": "The Content is Locked. To Make Changes, Please Click the {icon} to Unlock.",
+    "lockModalContent": "Changing the 'ID Attribute' Field Can Have Significant Impacts on User Identification. Please Confirm That You Understand the Implications of This Change Before Proceeding.",
+    "payUserTag": "Premium"
   },
   slotControl: {
     configSlotView: 'Configure Slot View',

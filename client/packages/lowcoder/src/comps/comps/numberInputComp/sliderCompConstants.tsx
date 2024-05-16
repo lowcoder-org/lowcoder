@@ -91,12 +91,8 @@ export const SliderChildren = {
   label: LabelControl,
   disabled: BoolCodeControl,
   onEvent: ChangeEventHandlerControl,
-  style: styleControl(InputFieldStyle),
-  labelStyle: styleControl(
-    LabelStyle.filter(
-      (style) => ['accent', 'validate'].includes(style.name) === false
-    )
-  ),
+  style: withDefault(styleControl(InputFieldStyle), {borderWidth: '1px'}),
+  labelStyle:styleControl(LabelStyle.filter((style)=> ['accent','validate'].includes(style.name) === false)),
   prefixIcon: IconControl,
   suffixIcon: IconControl,
   inputFieldStyle: styleControl(SliderStyle),
