@@ -820,6 +820,7 @@ export const ContainerStyle = [
   BORDER_WIDTH,
   MARGIN,
   PADDING,
+  ROTATION,
   {
     name: 'backgroundImage',
     label: trans('style.backgroundImage'),
@@ -850,6 +851,7 @@ export const ContainerStyle = [
 export const ContainerHeaderStyle = [
   CONTAINER_HEADER_PADDING,
   HEADER_BACKGROUND,
+  ROTATION,
   {
     name: 'headerBackgroundImage',
     label: trans('style.backgroundImage'),
@@ -880,6 +882,7 @@ export const ContainerHeaderStyle = [
 export const ContainerSiderStyle = [
   CONTAINER_SIDER_PADDING,
   SIDER_BACKGROUND,
+  ROTATION,
   {
     name: 'siderBackgroundImage',
     label: trans('style.backgroundImage'),
@@ -909,6 +912,7 @@ export const ContainerSiderStyle = [
 
 export const ContainerBodyStyle = [
   CONTAINER_BODY_PADDING,
+  ROTATION,
   {
     name: 'background',
     label: trans('style.background'),

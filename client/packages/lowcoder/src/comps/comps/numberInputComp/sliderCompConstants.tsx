@@ -71,7 +71,7 @@ export const SliderStyled = styled(Slider)<{
 `;
 
 export const SliderWrapper = styled.div<{
-  $style: SliderStyleType;
+  $style?: SliderStyleType;
   vertical: boolean;
 }>`
   width: 100%;
@@ -80,7 +80,7 @@ export const SliderWrapper = styled.div<{
   justify-content: center;
   .ant-slider {
     width: 100%;
-    rotate: ${(props) => props.$style.rotation};
+    rotate: ${(props) => props?.$style?.rotation};
   }
 `;
 
