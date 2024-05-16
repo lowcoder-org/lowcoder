@@ -996,6 +996,7 @@ export const SliderStyle = [
   TRACK,
   MARGIN,
   PADDING,
+  ROTATION,
 ] as const;
 
 export const InputLikeStyle = [

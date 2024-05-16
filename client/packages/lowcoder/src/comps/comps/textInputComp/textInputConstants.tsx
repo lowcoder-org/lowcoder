@@ -1,28 +1,37 @@
-import { BoolControl } from "comps/controls/boolControl";
-import { check } from "util/convertUtils";
+import {BoolControl} from 'comps/controls/boolControl';
+import {check} from 'util/convertUtils';
 import {
   BoolCodeControl,
   CustomRuleControl,
   NumberControl,
   RegexControl,
   StringControl,
-} from "comps/controls/codeControl";
-import { stringExposingStateControl } from "comps/controls/codeStateControl";
-import { LabelControl } from "comps/controls/labelControl";
-import { InputLikeStyleType, LabelStyleType, heightCalculator, widthCalculator } from "comps/controls/styleControlConstants";
-import { Section, sectionNames, ValueFromOption } from "lowcoder-design";
-import _ from "lodash";
-import { css } from "styled-components";
-import { EMAIL_PATTERN, URL_PATTERN } from "util/stringUtils";
-import { MultiBaseComp, RecordConstructorToComp, RecordConstructorToView } from "lowcoder-core";
-import { dropdownControl } from "../../controls/dropdownControl";
-import { InputEventHandlerControl } from "../../controls/eventHandlerControl";
+} from 'comps/controls/codeControl';
+import {stringExposingStateControl} from 'comps/controls/codeStateControl';
+import {LabelControl} from 'comps/controls/labelControl';
+import {
+  InputLikeStyleType,
+  LabelStyleType,
+  heightCalculator,
+  widthCalculator,
+} from 'comps/controls/styleControlConstants';
+import {Section, sectionNames, ValueFromOption} from 'lowcoder-design';
+import _ from 'lodash';
+import {css} from 'styled-components';
+import {EMAIL_PATTERN, URL_PATTERN} from 'util/stringUtils';
+import {
+  MultiBaseComp,
+  RecordConstructorToComp,
+  RecordConstructorToView,
+} from 'lowcoder-core';
+import {dropdownControl} from '../../controls/dropdownControl';
+import {InputEventHandlerControl} from '../../controls/eventHandlerControl';
 import {
   ChildrenTypeToDepsKeys,
   CommonNameConfig,
   depsConfig,
-} from "../../generators/withExposing";
-import { formDataChildren } from "../formComp/formDataConstants";
+} from '../../generators/withExposing';
+import {formDataChildren} from '../formComp/formDataConstants';
 import {
   disabledPropertyView,
   maxLengthPropertyView,
@@ -30,11 +39,11 @@ import {
   placeholderPropertyView,
   regexPropertyView,
   requiredPropertyView,
-} from "comps/utils/propertyUtils";
-import { trans } from "i18n";
-import { ChangeEvent, useEffect, useRef, useState } from "react";
-import { refMethods } from "comps/generators/withMethodExposing";
-import { InputRef } from "antd/es/input";
+} from 'comps/utils/propertyUtils';
+import {trans} from 'i18n';
+import {ChangeEvent, useEffect, useRef, useState} from 'react';
+import {refMethods} from 'comps/generators/withMethodExposing';
+import {InputRef} from 'antd/es/input';
 import {
   blurMethod,
   clickMethod,
@@ -42,39 +51,39 @@ import {
   selectMethod,
   setRangeTextMethod,
   setSelectionRangeMethod,
-} from "comps/utils/methodUtils";
-import { RefControl } from "comps/controls/refControl";
-import { EvalParamType } from "comps/controls/actionSelector/executeCompTypes";
+} from 'comps/utils/methodUtils';
+import {RefControl} from 'comps/controls/refControl';
+import {EvalParamType} from 'comps/controls/actionSelector/executeCompTypes';
 
 export const TextInputValidationOptions = [
   {
-    label: "Text",
-    value: "Text",
+    label: 'Text',
+    value: 'Text',
     extra: /.*/,
-    help: "",
+    help: '',
   },
   {
-    label: "Email",
-    value: "Email",
+    label: 'Email',
+    value: 'Email',
     extra: EMAIL_PATTERN,
-    help: trans("validationDesc.email"),
+    help: trans('validationDesc.email'),
   },
   {
-    label: "URL",
-    value: "URL",
+    label: 'URL',
+    value: 'URL',
     extra: URL_PATTERN,
-    help: trans("validationDesc.url"),
+    help: trans('validationDesc.url'),
   },
   {
-    label: "Regex",
-    value: "Regex",
+    label: 'Regex',
+    value: 'Regex',
     extra: undefined,
-    help: trans("validationDesc.regex"),
+    help: trans('validationDesc.regex'),
   },
 ] as const;
 
 type ValidationParams = {
-  value: { value: string };
+  value: {value: string};
   required: boolean;
   minLength: number;
   maxLength: number;
@@ -90,52 +99,69 @@ const valueInfoMap = _.fromPairs(
 export const textInputValidate = (
   props: ValidationParams
 ): {
-  validateStatus: "success" | "warning" | "error" | "";
+  validateStatus: 'success' | 'warning' | 'error' | '';
   help?: string;
 } => {
   if (props.customRule) {
-    return { validateStatus: "error", help: props.customRule };
+    return {validateStatus: 'error', help: props.customRule};
   }
   const value = props.value.value;
   if (props.required && value.length === 0) {
-    return { validateStatus: "error", help: trans("prop.required") };
+    return {validateStatus: 'error', help: trans('prop.required')};
   }
   if (props.maxLength > 0 && value.length > props.maxLength) {
     return {
-      validateStatus: "error",
-      help: trans("validationDesc.maxLength", { length: value.length, maxLength: props.maxLength }),
+      validateStatus: 'error',
+      help: trans('validationDesc.maxLength', {
+        length: value.length,
+        maxLength: props.maxLength,
+      }),
     };
   }
   if (props.minLength > 0 && value.length < props.minLength) {
     return {
-      validateStatus: "error",
-      help: trans("validationDesc.minLength", { length: value.length, minLength: props.minLength }),
+      validateStatus: 'error',
+      help: trans('validationDesc.minLength', {
+        length: value.length,
+        minLength: props.minLength,
+      }),
     };
   }
   const optionValue = props.validationType;
   const regex: RegExp = valueInfoMap[optionValue]?.extra ?? props.regex; // pass if empty by default
   if (value && !regex.test(value)) {
-    return { validateStatus: "error", help: valueInfoMap[optionValue].help };
+    return {validateStatus: 'error', help: valueInfoMap[optionValue].help};
   }
-  return { validateStatus: "" };
+  return {validateStatus: ''};
 };
 
-const TextInputInvalidConfig = depsConfig<TextInputComp, ChildrenTypeToDepsKeys<TextInputComp>>({
-  name: "invalid",
-  desc: trans("export.invalidDesc"),
-  depKeys: ["value", "required", "minLength", "maxLength", "validationType", "regex", "customRule"],
+const TextInputInvalidConfig = depsConfig<
+  TextInputComp,
+  ChildrenTypeToDepsKeys<TextInputComp>
+>({
+  name: 'invalid',
+  desc: trans('export.invalidDesc'),
+  depKeys: [
+    'value',
+    'required',
+    'minLength',
+    'maxLength',
+    'validationType',
+    'regex',
+    'customRule',
+  ],
   func: (input) =>
     textInputValidate({
       ...input,
-      value: { value: input.value },
-    }).validateStatus !== "",
+      value: {value: input.value},
+    }).validateStatus !== '',
 });
 
 export const TextInputConfigs = [TextInputInvalidConfig, ...CommonNameConfig];
 
 export const textInputChildren = {
-  defaultValue: stringExposingStateControl("defaultValue"),
-  value: stringExposingStateControl("value"),
+  defaultValue: stringExposingStateControl('defaultValue'),
+  value: stringExposingStateControl('value'),
   disabled: BoolCodeControl,
   label: LabelControl,
   placeholder: StringControl,
@@ -146,36 +172,41 @@ export const textInputChildren = {
   required: BoolControl,
   minLength: NumberControl,
   maxLength: NumberControl,
-  validationType: dropdownControl(TextInputValidationOptions, "Text"),
+  validationType: dropdownControl(TextInputValidationOptions, 'Text'),
   regex: RegexControl,
   customRule: CustomRuleControl,
 
   ...formDataChildren,
 };
 
-export const textInputProps = (props: RecordConstructorToView<typeof textInputChildren>) => ({
+export const textInputProps = (
+  props: RecordConstructorToView<typeof textInputChildren>
+) => ({
   disabled: props.disabled,
   readOnly: props.readOnly,
   placeholder: props.placeholder,
   defaultValue: props.defaultValue.value,
   value: props.value.value,
-  onFocus: () => props.onEvent("focus"),
-  onBlur: () => props.onEvent("blur"),
-  onPressEnter: () => props.onEvent("submit"),
+  onFocus: () => props.onEvent('focus'),
+  onBlur: () => props.onEvent('blur'),
+  onPressEnter: () => props.onEvent('submit'),
 });
 
-export const useTextInputProps = (props: RecordConstructorToView<typeof textInputChildren>) => {
+export const useTextInputProps = (
+  props: RecordConstructorToView<typeof textInputChildren>
+) => {
   const [validateState, setValidateState] = useState({});
-  const changeRef = useRef(false)
+  const changeRef = useRef(false);
 
-  const propsRef = useRef<RecordConstructorToView<typeof textInputChildren>>(props);
+  const propsRef =
+    useRef<RecordConstructorToView<typeof textInputChildren>>(props);
   propsRef.current = props;
 
-  const defaultValue = { ...props.defaultValue }.value;
-  const inputValue = { ...props.value }.value;
+  const defaultValue = {...props.defaultValue}.value;
+  const inputValue = {...props.value}.value;
 
   useEffect(() => {
-    props.value.onChange(defaultValue)
+    props.value.onChange(defaultValue);
   }, [defaultValue]);
 
   useEffect(() => {
@@ -189,7 +220,7 @@ export const useTextInputProps = (props: RecordConstructorToView<typeof textInpu
         },
       })
     );
-    propsRef.current.onEvent("change");
+    propsRef.current.onEvent('change');
     changeRef.current = false;
   }, [inputValue]);
 
@@ -211,7 +242,7 @@ type TextInputComp = RecordConstructorToComp<typeof textInputChildren>;
 
 export const TextInputBasicSection = (children: TextInputComp) => (
   <Section name={sectionNames.basic}>
-    {children.defaultValue.propertyView({ label: trans("prop.defaultValue") })}
+    {children.defaultValue.propertyView({label: trans('prop.defaultValue')})}
     {placeholderPropertyView(children)}
   </Section>
 );
@@ -226,7 +257,7 @@ export const TextInputInteractionSection = (children: TextInputComp) => (
 export const TextInputValidationSection = (children: TextInputComp) => (
   <Section name={sectionNames.validation}>
     {requiredPropertyView(children)}
-    {children.validationType.propertyView({ label: trans("prop.textType") })}
+    {children.validationType.propertyView({label: trans('prop.textType')})}
     {valueInfoMap[children.validationType.getView()]?.extra === undefined &&
       regexPropertyView(children)}
     {minLengthPropertyView(children)}
@@ -235,11 +266,15 @@ export const TextInputValidationSection = (children: TextInputComp) => (
   </Section>
 );
 
-export function getStyle(style: InputLikeStyleType, labelStyle?: LabelStyleType) {
+export function getStyle(
+  style: InputLikeStyleType,
+  labelStyle?: LabelStyleType
+) {
   return css`
     border-radius: ${style.radius};
     border-width: ${style.borderWidth};
-    padding: ${style.padding};	
+    padding: ${style.padding};
+    rotate: ${style.rotation};
     // still use antd style when disabled
     &:not(.ant-input-disabled, .ant-input-affix-wrapper-disabled),
     input {
@@ -247,9 +282,9 @@ export function getStyle(style: InputLikeStyleType, labelStyle?: LabelStyleType)
       font-size: ${style.textSize};
       font-weight: ${style.textWeight};
       font-family: ${style.fontFamily};
-      font-style:${style.fontStyle};
-      text-transform:${style.textTransform};
-      text-decoration:${style.textDecoration};
+      font-style: ${style.fontStyle};
+      text-transform: ${style.textTransform};
+      text-decoration: ${style.textDecoration};
       background-color: ${style.background};
       border-color: ${style.border};
 
@@ -282,28 +317,38 @@ export function getStyle(style: InputLikeStyleType, labelStyle?: LabelStyleType)
 }
 
 export const inputRefMethods = [
-  ...refMethods<InputRef>([focusWithOptions, blurMethod, selectMethod, setSelectionRangeMethod]),
+  ...refMethods<InputRef>([
+    focusWithOptions,
+    blurMethod,
+    selectMethod,
+    setSelectionRangeMethod,
+  ]),
   {
     method: clickMethod,
-    execute: (comp: MultiBaseComp<{ viewRef: RefControl<InputRef> }>, params: EvalParamType[]) =>
-      comp.children.viewRef.viewRef?.input?.click(),
+    execute: (
+      comp: MultiBaseComp<{viewRef: RefControl<InputRef>}>,
+      params: EvalParamType[]
+    ) => comp.children.viewRef.viewRef?.input?.click(),
   },
   {
     method: setRangeTextMethod,
-    execute: (comp: MultiBaseComp<{ viewRef: RefControl<InputRef> }>, params: EvalParamType[]) =>
+    execute: (
+      comp: MultiBaseComp<{viewRef: RefControl<InputRef>}>,
+      params: EvalParamType[]
+    ) =>
       (comp.children.viewRef.viewRef?.input?.setRangeText as any)?.(...params),
   },
 ];
 
 export function checkMentionListData(data: any) {
-  if (data === "") return {}
+  if (data === '') return {};
   for (const key in data) {
-    check(data[key], ["array"], key, (node) => {
-      check(node, ["string"],);
-      return node
-    })
+    check(data[key], ['array'], key, (node) => {
+      check(node, ['string']);
+      return node;
+    });
   }
-  return data
+  return data;
 }
 
 // separate defaultValue and value for old components
