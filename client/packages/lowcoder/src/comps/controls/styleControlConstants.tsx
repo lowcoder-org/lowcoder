@@ -389,7 +389,8 @@ const TEXT_WEIGHT = {
 const HOVER_BACKGROUND_COLOR = {
   name: "hoverBackground",
   label: trans("style.hoverBackground"),
-  hoverBackground: "hoverBackground"
+  hoverBackground: "hoverBackground",
+  color: SECOND_SURFACE_COLOR,
 }
 
 const FONT_FAMILY = {
@@ -980,7 +981,7 @@ export const MultiSelectStyle = [
 
 export const ChildrenMultiSelectStyle = [
   ...STYLING_FIELDS_SEQUENCE,
-  getStaticBackground(SURFACE_COLOR)
+  getBackground()
 ] as const;
 
 export const TabContainerStyle = [
@@ -1033,6 +1034,7 @@ function checkAndUncheck() {
       name: "uncheckedBorder",
       label: trans("style.uncheckedBorder"),
       depName: "uncheckedBackground",
+      color:SECOND_SURFACE_COLOR,
       transformer: backgroundToBorder,
     },
   ] as const;
