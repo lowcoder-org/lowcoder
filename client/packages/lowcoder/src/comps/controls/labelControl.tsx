@@ -6,10 +6,10 @@ import {NumberControl, StringControl} from 'comps/controls/codeControl';
 import {dropdownControl} from 'comps/controls/dropdownControl';
 import {withDefault} from 'comps/generators';
 import {MultiCompBuilder} from 'comps/generators/multi';
-import {labelCss, Section, Tooltip, UnderlineCss} from 'lowcoder-design';
+import {labelCss, Section, Tooltip} from 'lowcoder-design';
 import {ValueFromOption} from 'lowcoder-design';
 import {isEmpty} from 'lodash';
-import {Fragment, ReactNode} from 'react';
+import {ReactNode} from 'react';
 import styled, {css} from 'styled-components';
 import {AlignLeft} from 'lowcoder-design';
 import {AlignRight} from 'lowcoder-design';
@@ -31,6 +31,7 @@ type LabelViewProps = Pick<
   field?: Record<string, string>;
   inputFieldStyle?: Record<string, string>;
   childrenInputFieldStyle?: Record<string, string>;
+  animationStyle?: Record<string, string>;
 };
 
 const StyledStarIcon = styled(StarIcon)`
@@ -51,7 +52,11 @@ function getStyle(style: any) {
   `;
 }
 
-const LabelViewWrapper = styled.div<{$style: any; inputFieldStyle: any}>`
+const LabelViewWrapper = styled.div<{
+  $style: any;
+  inputFieldStyle: any;
+  $animationStyle: any;
+}>`
   ${(props) => {
     return (
       props.$style && {
@@ -63,10 +68,19 @@ const LabelViewWrapper = styled.div<{$style: any; inputFieldStyle: any}>`
     );
   }}
   ${(props) => props.inputFieldStyle && getStyle(props.inputFieldStyle)}
+  ${(props) => props.$animationStyle && props.$animationStyle}
   display: flex;
   flex-direction: column;
   height: 100%;
-  border: ${(props)=>{return props.$style.borderWidth}} ${(props)=>{return props.$style.borderStyle}} ${(props)=>{return props.$style.border}} !important;
+  border: ${(props) => {
+      return props.$style.borderWidth;
+    }}
+    ${(props) => {
+      return props.$style.borderStyle;
+    }}
+    ${(props) => {
+      return props.$style.border;
+    }} !important;
 `;
 
 const MainWrapper = styled.div<{
@@ -199,6 +213,7 @@ export const LabelControl = (function () {
         <LabelViewWrapper
           $style={args.style}
           inputFieldStyle={args.inputFieldStyle}
+          $animationStyle={args.animationStyle}
         >
           <MainWrapper
             $position={props.position}

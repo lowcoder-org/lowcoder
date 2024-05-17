@@ -406,17 +406,17 @@ const TEXT = {
 } as const;
 
 const STATIC_TEXT = {
-  name: "staticText",
-  label: trans("style.staticText"),
-  depTheme: "primarySurface",
+  name: 'staticText',
+  label: trans('style.staticText'),
+  depTheme: 'primarySurface',
   depType: DEP_TYPE.CONTRAST_TEXT,
   transformer: contrastText,
 } as const;
 
 const LABEL = {
-  name: "label",
-  label: trans("label"),
-  depTheme: "primarySurface",
+  name: 'label',
+  label: trans('label'),
+  depTheme: 'primarySurface',
   depType: DEP_TYPE.CONTRAST_TEXT,
   transformer: contrastText,
 } as const;
@@ -676,11 +676,14 @@ const STYLING_FIELDS_CONTAINER_SEQUENCE = [
   BOXSHADOW,
   BOXSHADOWCOLOR,
   ROTATION,
+];
+
+export const AnimationStyle = [
   ANIMATION,
   ANIMATIONDELAY,
   ANIMATIONDURATION,
   ANIMATIONITERATIONCOUNT,
-];
+] as const;
 
 const FILL = {
   name: 'fill',
@@ -766,7 +769,7 @@ function replaceAndMergeMultipleStyles(
 
 export const ButtonStyle = [
   getBackground(),
-  ...STYLING_FIELDS_SEQUENCE
+  ...STYLING_FIELDS_SEQUENCE,
 ] as const;
 
 export const ToggleButtonStyle = [
@@ -1110,7 +1113,9 @@ export const LabelStyle = [
 export const InputFieldStyle = [
   getStaticBackground(SURFACE_COLOR),
   getStaticBorder(),
-  ...STYLING_FIELDS_CONTAINER_SEQUENCE.filter((style) => ['border'].includes(style.name) === false),
+  ...STYLING_FIELDS_CONTAINER_SEQUENCE.filter(
+    (style) => ['border'].includes(style.name) === false
+  ),
   // ...STYLING_FIELDS_CONTAINER_SEQUENCE,
 ] as const;
 
@@ -1298,24 +1303,25 @@ export const RadioStyle = [
   HOVER_BACKGROUND_COLOR,
 ] as const;
 
-
 export const SegmentStyle = [
   LABEL,
-  ...STYLING_FIELDS_SEQUENCE.filter((style) => ['border', 'borderWidth'].includes(style.name) === false),
+  ...STYLING_FIELDS_SEQUENCE.filter(
+    (style) => ['border', 'borderWidth'].includes(style.name) === false
+  ),
   // getStaticBorder(SECOND_SURFACE_COLOR),
-    {
-    name: "border",
-    label: trans("style.border"),
-    depName: "background",
+  {
+    name: 'border',
+    label: trans('style.border'),
+    depName: 'background',
     transformer: backgroundToBorder,
   },
   {
-    name: "borderWidth",
-    label: trans("style.borderWidth"),
-    borderWidth: "borderWidth",
-  }, 
- 
-  getStaticBackground(SURFACE_COLOR), 
+    name: 'borderWidth',
+    label: trans('style.borderWidth'),
+    borderWidth: 'borderWidth',
+  },
+
+  getStaticBackground(SURFACE_COLOR),
   {
     name: 'indicatorBackground',
     label: trans('style.indicatorBackground'),
@@ -1346,9 +1352,9 @@ export const StepsStyle = [
     transformer: handleToSegmentBackground,
   },
   {
-    name: "titleText",
-    label: trans("title"),
-    depName: "text",
+    name: 'titleText',
+    label: trans('title'),
+    depName: 'text',
     depType: DEP_TYPE.SELF,
     transformer: contrastText,
   },
@@ -1550,7 +1556,9 @@ function handleToHoverLink(color: string) {
 
 export const LinkStyle = [
   getBackground(),
-  ...replaceAndMergeMultipleStyles(STYLING_FIELDS_SEQUENCE, 'text', [...LinkTextStyle])
+  ...replaceAndMergeMultipleStyles(STYLING_FIELDS_SEQUENCE, 'text', [
+    ...LinkTextStyle,
+  ]),
 ] as const;
 
 export const DividerStyle = [
@@ -1885,6 +1893,7 @@ export type timerStyleType = StyleConfigType<typeof timerStyle>;
 export type StartButtonStyleType = StyleConfigType<typeof startButtonStyle>;
 
 export type LabelStyleType = StyleConfigType<typeof LabelStyle>;
+export type AnimationStyleType = StyleConfigType<typeof AnimationStyle>;
 export type InputLikeStyleType = StyleConfigType<typeof InputLikeStyle>;
 export type InputFieldStyleType = StyleConfigType<typeof InputFieldStyle>;
 export type ColorPickerStyleType = StyleConfigType<typeof ColorPickerStyle>;

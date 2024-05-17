@@ -3,6 +3,7 @@ import {Input, Section, sectionNames} from 'lowcoder-design';
 import {BoolControl} from 'comps/controls/boolControl';
 import {styleControl} from 'comps/controls/styleControl';
 import {
+  AnimationStyle,
   InputFieldStyle,
   InputLikeStyle,
   InputLikeStyleType,
@@ -87,6 +88,7 @@ const childrenMap = {
   componentSize: dropdownControl(componentSize, 'small'),
   valueInItems: booleanExposingStateControl('valueInItems'),
   inputFieldStyle: styleControl(InputLikeStyle),
+  animationStyle: styleControl(AnimationStyle),
 };
 
 const getValidate = (value: any): '' | 'warning' | 'error' | undefined => {
@@ -280,6 +282,7 @@ let AutoCompleteCompBase = (function () {
       style: props.style,
       labelStyle: props.labelStyle,
       inputFieldStyle: props.inputFieldStyle,
+      animationStyle: props.animationStyle,
       ...validateState,
     });
   })
@@ -343,6 +346,9 @@ let AutoCompleteCompBase = (function () {
           </Section>
           <Section name={sectionNames.inputFieldStyle}>
             {children.inputFieldStyle.getPropertyView()}
+          </Section>
+          <Section name={sectionNames.animationStyle}>
+            {children.animationStyle.getPropertyView()}
           </Section>
         </>
       );
