@@ -27,6 +27,10 @@ import {
   BorderStyleIcon,
   BorderRadiusIcon,
   TextStyleIcon,
+  StarSmileIcon,
+  TimerFlashIcon,
+  Timer2Icon,
+  RefreshLineIcon,
 } from 'lowcoder-design';
 import {useContext} from 'react';
 import styled from 'styled-components';
@@ -701,8 +705,8 @@ function calcColors<ColorMap extends Record<string, string>>(
     if (isTextDecorationConfig(config)) {
       res[name] = themeWithDefault[config.textDecoration] || 'none';
     }
-    if(isBorderStyleConfig(config)){
-      res[name] = themeWithDefault[config.borderStyle] || 'solid'
+    if (isBorderStyleConfig(config)) {
+      res[name] = themeWithDefault[config.borderStyle] || 'solid';
     }
     if (isMarginConfig(config)) {
       res[name] = themeWithDefault[config.margin];
@@ -870,7 +874,7 @@ const StyledBackgroundImageIcon = styled(ImageCompIconSmall)`
   color: #888;
 `;
 
-const AnimationIterationCountPropIcon = styled(BorderWidthIcon)`
+const AnimationIterationCountPropIcon = styled(RefreshLineIcon)`
   margin: 0 8px 0 -3px;
   padding: 3px;
   color: #888;
@@ -894,19 +898,19 @@ const BoxShadowPropIcon = styled(BorderWidthIcon)`
   color: #888;
 `;
 
-const AnimationPropIcon = styled(BorderWidthIcon)`
+const AnimationPropIcon = styled(StarSmileIcon)`
   margin: 0 8px 0 -3px;
   padding: 3px;
   color: #888;
 `;
 
-const AnimationDelayPropIcon = styled(BorderWidthIcon)`
+const AnimationDelayPropIcon = styled(TimerFlashIcon)`
   margin: 0 8px 0 -3px;
   padding: 3px;
   color: #888;
 `;
 
-const AnimationDurationPropIcon = styled(BorderWidthIcon)`
+const AnimationDurationPropIcon = styled(Timer2Icon)`
   margin: 0 8px 0 -3px;
   padding: 3px;
   color: #888;
