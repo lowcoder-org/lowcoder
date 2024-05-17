@@ -563,7 +563,7 @@ function replaceAndMergeMultipleStyles(originalArray: any[], styleToReplace: str
 }
 
 export const ButtonStyle = [
-  getBackground(),
+  getBackground('primary'),
   ...STYLING_FIELDS_SEQUENCE
 ] as const;
 
