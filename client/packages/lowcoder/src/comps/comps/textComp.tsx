@@ -26,10 +26,6 @@ const getStyle = (style: TextStyleType) => {
     border-radius: ${(style.radius ? style.radius : "4px")};
     border: ${(style.borderWidth ? style.borderWidth : "0px")} solid ${style.border};
     color: ${style.text};
-    font-size: ${style.textSize} !important;
-    font-weight: ${style.textWeight} !important;
-    font-family: ${style.fontFamily} !important;
-    font-style:${style.fontStyle} !important;
     text-transform:${style.textTransform} !important;
     text-decoration:${style.textDecoration} !important;
     background-color: ${style.background};
@@ -40,6 +36,9 @@ const getStyle = (style: TextStyleType) => {
       margin: ${style.margin} !important;	
       padding: ${style.padding};	
       width: ${widthCalculator(style.margin)};	
+      font-family: ${style.fontFamily} !important;
+      font-style:${style.fontStyle} !important;
+      font-size: ${style.textSize} !important;
       // height: ${heightCalculator(style.margin)};
       h1 {
         line-height: 1.5;
@@ -60,6 +59,7 @@ const getStyle = (style: TextStyleType) => {
       h5,
       h6 {
         color: ${style.text};
+        font-weight: ${style.textWeight} !important;
       }
       img,
       pre {
