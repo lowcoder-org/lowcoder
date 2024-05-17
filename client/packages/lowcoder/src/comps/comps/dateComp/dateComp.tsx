@@ -1,27 +1,40 @@
-import _, { noop } from "lodash";
-import dayjs from "dayjs";
-import { RecordConstructorToComp, RecordConstructorToView } from "lowcoder-core";
+import _, {noop} from 'lodash';
+import dayjs from 'dayjs';
+import {RecordConstructorToComp, RecordConstructorToView} from 'lowcoder-core';
 import {
   BoolCodeControl,
   CustomRuleControl,
   RangeControl,
   StringControl,
-} from "../../controls/codeControl";
-import { BoolControl } from "../../controls/boolControl";
+} from '../../controls/codeControl';
+import {BoolControl} from '../../controls/boolControl';
 import {
   blurEvent,
   changeEvent,
   eventHandlerControl,
   focusEvent,
-} from "../../controls/eventHandlerControl";
-import { LabelControl } from "../../controls/labelControl";
-import { stringExposingStateControl } from "../../controls/codeStateControl";
-import { UICompBuilder, withDefault } from "../../generators";
-import { CommonNameConfig, depsConfig, withExposingConfigs } from "../../generators/withExposing";
-import { formDataChildren, FormDataPropertyView } from "../formComp/formDataConstants";
-import { styleControl } from "comps/controls/styleControl";
-import {  DateTimeStyle, DateTimeStyleType, InputFieldStyle, LabelStyle } from "comps/controls/styleControlConstants";
-import { withMethodExposing } from "../../generators/withMethodExposing";
+} from '../../controls/eventHandlerControl';
+import {LabelControl} from '../../controls/labelControl';
+import {stringExposingStateControl} from '../../controls/codeStateControl';
+import {UICompBuilder, withDefault} from '../../generators';
+import {
+  CommonNameConfig,
+  depsConfig,
+  withExposingConfigs,
+} from '../../generators/withExposing';
+import {
+  formDataChildren,
+  FormDataPropertyView,
+} from '../formComp/formDataConstants';
+import {styleControl} from 'comps/controls/styleControl';
+import {
+  AnimationStyle,
+  DateTimeStyle,
+  DateTimeStyleType,
+  InputFieldStyle,
+  LabelStyle,
+} from 'comps/controls/styleControlConstants';
+import {withMethodExposing} from '../../generators/withMethodExposing';
 import {
   disabledPropertyView,
   formatPropertyView,
@@ -34,26 +47,35 @@ import {
   minuteStepPropertyView,
   requiredPropertyView,
   SecondStepPropertyView,
-} from "comps/utils/propertyUtils";
-import { trans } from "i18n";
-import { DATE_FORMAT, DATE_TIME_FORMAT, DateParser, PickerMode } from "util/dateTimeUtils";
-import React, { ReactNode, useContext } from "react";
-import { IconControl } from "comps/controls/iconControl";
-import { hasIcon } from "comps/utils";
-import { Section, sectionNames } from "components/Section";
-import { dateRefMethods, disabledTime, handleDateChange } from "comps/comps/dateComp/dateCompUtil";
-import { DateUIView } from "./dateUIView";
-import { useIsMobile } from "util/hooks";
-import { RefControl } from "comps/controls/refControl";
-import { CommonPickerMethods } from "antd/es/date-picker/generatePicker/interface";
-import { DateRangeUIView } from "comps/comps/dateComp/dateRangeUIView";
+} from 'comps/utils/propertyUtils';
+import {trans} from 'i18n';
+import {
+  DATE_FORMAT,
+  DATE_TIME_FORMAT,
+  DateParser,
+  PickerMode,
+} from 'util/dateTimeUtils';
+import React, {ReactNode, useContext} from 'react';
+import {IconControl} from 'comps/controls/iconControl';
+import {hasIcon} from 'comps/utils';
+import {Section, sectionNames} from 'components/Section';
+import {
+  dateRefMethods,
+  disabledTime,
+  handleDateChange,
+} from 'comps/comps/dateComp/dateCompUtil';
+import {DateUIView} from './dateUIView';
+import {useIsMobile} from 'util/hooks';
+import {RefControl} from 'comps/controls/refControl';
+import {CommonPickerMethods} from 'antd/es/date-picker/generatePicker/interface';
+import {DateRangeUIView} from 'comps/comps/dateComp/dateRangeUIView';
 
-import { EditorContext } from "comps/editorState";
+import {EditorContext} from 'comps/editorState';
 
 const defaultStyle = {
   borderStyle: 'solid',
   borderWidth: '1px',
-}
+};
 
 const EventOptions = [changeEvent, focusEvent, blurEvent] as const;
 
@@ -67,7 +89,7 @@ const validationChildren = {
 };
 const commonChildren = {
   label: LabelControl,
-  placeholder: withDefault(StringControl, trans("date.placeholder")),
+  placeholder: withDefault(StringControl, trans('date.placeholder')),
   format: StringControl,
   disabled: BoolCodeControl,
   onEvent: eventHandlerControl(EventOptions),
@@ -77,22 +99,42 @@ const commonChildren = {
   minuteStep: RangeControl.closed(1, 60, 1),
   secondStep: RangeControl.closed(1, 60, 1),
   style: styleControl(InputFieldStyle),
-  labelStyle: styleControl(LabelStyle.filter((style) => ['accent', 'validate'].includes(style.name) === false)),
-  suffixIcon: withDefault(IconControl, "/icon:regular/calendar"),
+  animationStyle: styleControl(AnimationStyle),
+  labelStyle: styleControl(
+    LabelStyle.filter(
+      (style) => ['accent', 'validate'].includes(style.name) === false
+    )
+  ),
+  suffixIcon: withDefault(IconControl, '/icon:regular/calendar'),
   ...validationChildren,
   viewRef: RefControl<CommonPickerMethods>,
   inputFieldStyle: withDefault(styleControl(DateTimeStyle), defaultStyle),
 };
 type CommonChildrenType = RecordConstructorToComp<typeof commonChildren>;
 
-const datePickerProps = (props: RecordConstructorToView<typeof commonChildren>) =>
-  _.pick(props, "format", "showTime", "use12Hours", "hourStep", "minuteStep", "secondStep", "placeholder");
+const datePickerProps = (
+  props: RecordConstructorToView<typeof commonChildren>
+) =>
+  _.pick(
+    props,
+    'format',
+    'showTime',
+    'use12Hours',
+    'hourStep',
+    'minuteStep',
+    'secondStep',
+    'placeholder'
+  );
 
 const timeFields = (children: CommonChildrenType, isMobile?: boolean) => [
-  children.showTime.propertyView({ label: trans("date.showTime") }),
-  !isMobile && children.use12Hours.propertyView({ label: trans("prop.use12Hours") }),
+  children.showTime.propertyView({label: trans('date.showTime')}),
+  !isMobile &&
+    children.use12Hours.propertyView({label: trans('prop.use12Hours')}),
 ];
-const commonAdvanceSection = (children: CommonChildrenType, isDate: boolean = true) => {
+const commonAdvanceSection = (
+  children: CommonChildrenType,
+  isDate: boolean = true
+) => {
   if (isDate && children.showTime.getView()) {
     return (
       <Section name={sectionNames.advanced}>
@@ -104,57 +146,63 @@ const commonAdvanceSection = (children: CommonChildrenType, isDate: boolean = tr
   }
 };
 
-const dateValidationFields = (children: CommonChildrenType, dateType: PickerMode = "date") => {
-  if (dateType === "date") {
+const dateValidationFields = (
+  children: CommonChildrenType,
+  dateType: PickerMode = 'date'
+) => {
+  if (dateType === 'date') {
     return [minDatePropertyView(children), maxDatePropertyView(children)];
   }
 };
 
-const timeValidationFields = (children: CommonChildrenType, dateType: PickerMode = "date") => {
-  if (dateType === "date" && children.showTime.getView()) {
+const timeValidationFields = (
+  children: CommonChildrenType,
+  dateType: PickerMode = 'date'
+) => {
+  if (dateType === 'date' && children.showTime.getView()) {
     return [minTimePropertyView(children), maxTimePropertyView(children)];
   }
 };
 
 function validate(
   props: RecordConstructorToView<typeof validationChildren> & {
-    value: { value: string };
+    value: {value: string};
   }
 ): {
-  validateStatus: "success" | "warning" | "error";
+  validateStatus: 'success' | 'warning' | 'error';
   help?: string;
 } {
   if (props.customRule) {
-    return { validateStatus: "error", help: props.customRule };
+    return {validateStatus: 'error', help: props.customRule};
   }
 
   const currentDateTime = dayjs(dayjs(props.value.value), DATE_TIME_FORMAT);
 
   if (props.required && !currentDateTime.isValid()) {
-    return { validateStatus: "error", help: trans("prop.required") };
+    return {validateStatus: 'error', help: trans('prop.required')};
   }
 
-  return { validateStatus: "success" };
+  return {validateStatus: 'success'};
 }
 
 const childrenMap = {
-  value: stringExposingStateControl("value"),
+  value: stringExposingStateControl('value'),
   ...commonChildren,
   ...formDataChildren,
 };
 export type DateCompViewProps = Pick<
   RecordConstructorToView<typeof childrenMap>,
-  | "disabled"
-  | "format"
-  | "minDate"
-  | "maxDate"
-  | "suffixIcon"
-  | "showTime"
-  | "use12Hours"
-  | "hourStep"
-  | "minuteStep"
-  | "secondStep"
-  | "viewRef"
+  | 'disabled'
+  | 'format'
+  | 'minDate'
+  | 'maxDate'
+  | 'suffixIcon'
+  | 'showTime'
+  | 'use12Hours'
+  | 'hourStep'
+  | 'minuteStep'
+  | 'secondStep'
+  | 'viewRef'
 > & {
   onFocus: () => void;
   onBlur: () => void;
@@ -173,7 +221,8 @@ export const datePickerControl = new UICompBuilder(childrenMap, (props) => {
     required: props.required,
     style: props.style,
     labelStyle: props.labelStyle,
-    inputFieldStyle:props.inputFieldStyle,
+    inputFieldStyle: props.inputFieldStyle,
+    animationStyle: props.animationStyle,
     children: (
       <DateUIView
         viewRef={props.viewRef}
@@ -189,16 +238,16 @@ export const datePickerControl = new UICompBuilder(childrenMap, (props) => {
           handleDateChange(
             time && time.isValid()
               ? time.format(props.showTime ? DATE_TIME_FORMAT : DATE_FORMAT)
-              : "",
+              : '',
             props.value.onChange,
             props.onEvent
           );
         }}
         onPanelChange={() => {
-          handleDateChange("", props.value.onChange, noop);
+          handleDateChange('', props.value.onChange, noop);
         }}
-        onFocus={() => props.onEvent("focus")}
-        onBlur={() => props.onEvent("blur")}
+        onFocus={() => props.onEvent('focus')}
+        onBlur={() => props.onEvent('blur')}
         suffixIcon={hasIcon(props.suffixIcon) && props.suffixIcon}
       />
     ),
@@ -211,21 +260,23 @@ export const datePickerControl = new UICompBuilder(childrenMap, (props) => {
       <>
         <Section name={sectionNames.basic}>
           {children.value.propertyView({
-            label: trans("prop.defaultValue"),
-            placeholder: "2022-04-07 21:39:59",
-            tooltip: trans("date.formatTip")
+            label: trans('prop.defaultValue'),
+            placeholder: '2022-04-07 21:39:59',
+            tooltip: trans('date.formatTip'),
           })}
         </Section>
 
         <FormDataPropertyView {...children} />
 
-        {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
-          <><Section name={sectionNames.validation}>
-            {requiredPropertyView(children)}
-            {dateValidationFields(children)}
-            {timeValidationFields(children)}
-            {children.customRule.propertyView({})}
-          </Section>
+        {(useContext(EditorContext).editorModeStatus === 'logic' ||
+          useContext(EditorContext).editorModeStatus === 'both') && (
+          <>
+            <Section name={sectionNames.validation}>
+              {requiredPropertyView(children)}
+              {dateValidationFields(children)}
+              {timeValidationFields(children)}
+              {children.customRule.propertyView({})}
+            </Section>
             <Section name={sectionNames.interaction}>
               {children.onEvent.getPropertyView()}
               {disabledPropertyView(children)}
@@ -235,24 +286,38 @@ export const datePickerControl = new UICompBuilder(childrenMap, (props) => {
         )}
 
         {/*{commonAdvanceSection(children, children.dateType.value === "date")}*/}
-        {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && children.label.getPropertyView()}
+        {(useContext(EditorContext).editorModeStatus === 'layout' ||
+          useContext(EditorContext).editorModeStatus === 'both') &&
+          children.label.getPropertyView()}
 
-        {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
+        {(useContext(EditorContext).editorModeStatus === 'layout' ||
+          useContext(EditorContext).editorModeStatus === 'both') && (
           <Section name={sectionNames.layout}>
-            {formatPropertyView({ children })}
-            {children.placeholder.propertyView({ label: trans("date.placeholderText") })}
+            {formatPropertyView({children})}
+            {children.placeholder.propertyView({
+              label: trans('date.placeholderText'),
+            })}
           </Section>
         )}
 
-        {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
-          <><Section name={sectionNames.advanced}>
-            {timeFields(children, isMobile)}
-            {children.suffixIcon.propertyView({ label: trans("button.suffixIcon") })}
-          </Section></>
+        {(useContext(EditorContext).editorModeStatus === 'logic' ||
+          useContext(EditorContext).editorModeStatus === 'both') && (
+          <>
+            <Section name={sectionNames.advanced}>
+              {timeFields(children, isMobile)}
+              {children.suffixIcon.propertyView({
+                label: trans('button.suffixIcon'),
+              })}
+            </Section>
+          </>
         )}
-        {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && !isMobile && commonAdvanceSection(children)}
+        {(useContext(EditorContext).editorModeStatus === 'logic' ||
+          useContext(EditorContext).editorModeStatus === 'both') &&
+          !isMobile &&
+          commonAdvanceSection(children)}
 
-        {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
+        {(useContext(EditorContext).editorModeStatus === 'layout' ||
+          useContext(EditorContext).editorModeStatus === 'both') && (
           <>
             <Section name={sectionNames.style}>
               {children.style.getPropertyView()}
@@ -262,6 +327,9 @@ export const datePickerControl = new UICompBuilder(childrenMap, (props) => {
             </Section>
             <Section name={sectionNames.inputFieldStyle}>
               {children.inputFieldStyle.getPropertyView()}
+            </Section>
+            <Section name={sectionNames.animationStyle}>
+              {children.animationStyle.getPropertyView()}
             </Section>
           </>
         )}
@@ -273,8 +341,8 @@ export const datePickerControl = new UICompBuilder(childrenMap, (props) => {
 
 export const dateRangeControl = (function () {
   const childrenMap = {
-    start: stringExposingStateControl("start"),
-    end: stringExposingStateControl("end"),
+    start: stringExposingStateControl('start'),
+    end: stringExposingStateControl('end'),
     ...commonChildren,
   };
 
@@ -304,35 +372,39 @@ export const dateRangeControl = (function () {
           props.start.onChange(
             start && start.isValid()
               ? start.format(props.showTime ? DATE_TIME_FORMAT : DATE_FORMAT)
-              : ""
+              : ''
           );
           props.end.onChange(
-            end && end.isValid() ? end.format(props.showTime ? DATE_TIME_FORMAT : DATE_FORMAT) : ""
+            end && end.isValid()
+              ? end.format(props.showTime ? DATE_TIME_FORMAT : DATE_FORMAT)
+              : ''
           );
-          props.onEvent("change");
+          props.onEvent('change');
         }}
         onPanelChange={(_, mode) => {
-          mode[0] !== "date" && handleDateChange("", props.start.onChange, noop);
-          mode[1] !== "date" && handleDateChange("", props.end.onChange, noop);
+          mode[0] !== 'date' &&
+            handleDateChange('', props.start.onChange, noop);
+          mode[1] !== 'date' && handleDateChange('', props.end.onChange, noop);
         }}
-        onFocus={() => props.onEvent("focus")}
-        onBlur={() => props.onEvent("blur")}
+        onFocus={() => props.onEvent('focus')}
+        onBlur={() => props.onEvent('blur')}
         suffixIcon={hasIcon(props.suffixIcon) && props.suffixIcon}
       />
     );
 
-    const startResult = validate({ ...props, value: props.start });
-    const endResult = validate({ ...props, value: props.end });
+    const startResult = validate({...props, value: props.start});
+    const endResult = validate({...props, value: props.end});
 
     return props.label({
       required: props.required,
       style: props.style,
-      labelStyle:props.labelStyle,
+      labelStyle: props.labelStyle,
       children: children,
-      inputFieldStyle:props.inputFieldStyle,
-      ...(startResult.validateStatus !== "success"
+      inputFieldStyle: props.inputFieldStyle,
+      animationStyle: props.animationStyle,
+      ...(startResult.validateStatus !== 'success'
         ? startResult
-        : endResult.validateStatus !== "success"
+        : endResult.validateStatus !== 'success'
           ? endResult
           : startResult),
     });
@@ -343,24 +415,26 @@ export const dateRangeControl = (function () {
         <>
           <Section name={sectionNames.basic}>
             {children.start.propertyView({
-              label: trans("date.start"),
-              placeholder: "2022-04-07 21:39:59",
-              tooltip: trans("date.formatTip"),
+              label: trans('date.start'),
+              placeholder: '2022-04-07 21:39:59',
+              tooltip: trans('date.formatTip'),
             })}
             {children.end.propertyView({
-              label: trans("date.end"),
-              placeholder: "2022-04-07 21:39:59",
-              tooltip: trans("date.formatTip"),
+              label: trans('date.end'),
+              placeholder: '2022-04-07 21:39:59',
+              tooltip: trans('date.formatTip'),
             })}
           </Section>
 
-          {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
-            <><Section name={sectionNames.validation}>
-              {requiredPropertyView(children)}
-              {dateValidationFields(children)}
-              {timeValidationFields(children)}
-              {children.customRule.propertyView({})}
-            </Section>
+          {(useContext(EditorContext).editorModeStatus === 'logic' ||
+            useContext(EditorContext).editorModeStatus === 'both') && (
+            <>
+              <Section name={sectionNames.validation}>
+                {requiredPropertyView(children)}
+                {dateValidationFields(children)}
+                {timeValidationFields(children)}
+                {children.customRule.propertyView({})}
+              </Section>
               <Section name={sectionNames.interaction}>
                 {children.onEvent.getPropertyView()}
                 {disabledPropertyView(children)}
@@ -369,24 +443,37 @@ export const dateRangeControl = (function () {
             </>
           )}
 
-          {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && children.label.getPropertyView()}
+          {(useContext(EditorContext).editorModeStatus === 'layout' ||
+            useContext(EditorContext).editorModeStatus === 'both') &&
+            children.label.getPropertyView()}
 
-          {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
+          {(useContext(EditorContext).editorModeStatus === 'layout' ||
+            useContext(EditorContext).editorModeStatus === 'both') && (
             <Section name={sectionNames.layout}>
-              {formatPropertyView({ children })}
-              {children.placeholder.propertyView({ label: trans("date.placeholderText") })}
+              {formatPropertyView({children})}
+              {children.placeholder.propertyView({
+                label: trans('date.placeholderText'),
+              })}
             </Section>
           )}
 
-          {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
-            <><Section name={sectionNames.advanced}>
-              {timeFields(children, isMobile)}
-              {children.suffixIcon.propertyView({ label: trans("button.suffixIcon") })}
-            </Section></>
+          {(useContext(EditorContext).editorModeStatus === 'logic' ||
+            useContext(EditorContext).editorModeStatus === 'both') && (
+            <>
+              <Section name={sectionNames.advanced}>
+                {timeFields(children, isMobile)}
+                {children.suffixIcon.propertyView({
+                  label: trans('button.suffixIcon'),
+                })}
+              </Section>
+            </>
           )}
-          {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && commonAdvanceSection(children)}
+          {(useContext(EditorContext).editorModeStatus === 'logic' ||
+            useContext(EditorContext).editorModeStatus === 'both') &&
+            commonAdvanceSection(children)}
 
-          {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
+          {(useContext(EditorContext).editorModeStatus === 'layout' ||
+            useContext(EditorContext).editorModeStatus === 'both') && (
             <>
               <Section name={sectionNames.style}>
                 {children.style.getPropertyView()}
@@ -397,9 +484,11 @@ export const dateRangeControl = (function () {
               <Section name={sectionNames.inputFieldStyle}>
                 {children.inputFieldStyle.getPropertyView()}
               </Section>
+              <Section name={sectionNames.animationStyle}>
+                {children.animationStyle.getPropertyView()}
+              </Section>
             </>
           )}
-
         </>
       );
     })
@@ -408,86 +497,100 @@ export const dateRangeControl = (function () {
 
 export const DatePickerComp = withExposingConfigs(datePickerControl, [
   depsConfig({
-    name: "value",
-    desc: trans("export.datePickerValueDesc"),
-    depKeys: ["value", "showTime"],
+    name: 'value',
+    desc: trans('export.datePickerValueDesc'),
+    depKeys: ['value', 'showTime'],
     func: (input) => {
       const mom = dayjs(input.value, DateParser);
-      return mom.isValid() ? mom.format(input.showTime ? DATE_TIME_FORMAT : DATE_FORMAT) : "";
+      return mom.isValid()
+        ? mom.format(input.showTime ? DATE_TIME_FORMAT : DATE_FORMAT)
+        : '';
     },
   }),
   depsConfig({
-    name: "formattedValue",
-    desc: trans("export.datePickerFormattedValueDesc"),
-    depKeys: ["value", "format"],
+    name: 'formattedValue',
+    desc: trans('export.datePickerFormattedValueDesc'),
+    depKeys: ['value', 'format'],
     func: (input) => {
       const mom = dayjs(input.value, DateParser);
-      return mom.isValid() ? mom.format(input.format) : "";
+      return mom.isValid() ? mom.format(input.format) : '';
     },
   }),
   depsConfig({
-    name: "timestamp",
-    desc: trans("export.datePickerTimestampDesc"),
-    depKeys: ["value"],
+    name: 'timestamp',
+    desc: trans('export.datePickerTimestampDesc'),
+    depKeys: ['value'],
     func: (input) => {
       const mom = dayjs(input.value, DateParser);
-      return mom.isValid() ? mom.unix() : "";
+      return mom.isValid() ? mom.unix() : '';
     },
   }),
   depsConfig({
-    name: "invalid",
-    desc: trans("export.invalidDesc"),
-    depKeys: ["value", "required", "minTime", "maxTime", "minDate", "maxDate", "customRule"],
+    name: 'invalid',
+    desc: trans('export.invalidDesc'),
+    depKeys: [
+      'value',
+      'required',
+      'minTime',
+      'maxTime',
+      'minDate',
+      'maxDate',
+      'customRule',
+    ],
     func: (input) =>
       validate({
         ...input,
-        value: { value: input.value },
-      } as any).validateStatus !== "success",
+        value: {value: input.value},
+      } as any).validateStatus !== 'success',
   }),
   ...CommonNameConfig,
 ]);
 
 export let DateRangeComp = withExposingConfigs(dateRangeControl, [
   depsConfig({
-    name: "start",
-    desc: trans("export.dateRangeStartDesc"),
-    depKeys: ["start", "showTime"],
+    name: 'start',
+    desc: trans('export.dateRangeStartDesc'),
+    depKeys: ['start', 'showTime'],
     func: (input) => {
       const mom = dayjs(input.start, DateParser);
-      return mom.isValid() ? mom.format(input.showTime ? DATE_TIME_FORMAT : DATE_FORMAT) : "";
+      return mom.isValid()
+        ? mom.format(input.showTime ? DATE_TIME_FORMAT : DATE_FORMAT)
+        : '';
     },
   }),
   depsConfig({
-    name: "end",
-    desc: trans("export.dateRangeEndDesc"),
-    depKeys: ["end", "showTime"],
+    name: 'end',
+    desc: trans('export.dateRangeEndDesc'),
+    depKeys: ['end', 'showTime'],
     func: (input) => {
       const mom = dayjs(input.end, DateParser);
-      return mom.isValid() ? mom.format(input.showTime ? DATE_TIME_FORMAT : DATE_FORMAT) : "";
+      return mom.isValid()
+        ? mom.format(input.showTime ? DATE_TIME_FORMAT : DATE_FORMAT)
+        : '';
     },
   }),
   depsConfig({
-    name: "startTimestamp",
-    desc: trans("export.dateRangeStartTimestampDesc"),
-    depKeys: ["start"],
+    name: 'startTimestamp',
+    desc: trans('export.dateRangeStartTimestampDesc'),
+    depKeys: ['start'],
     func: (input) => {
       const mom = dayjs(input.start, DateParser);
-      return mom.isValid() ? mom.unix() : "";
+      return mom.isValid() ? mom.unix() : '';
     },
   }),
   depsConfig({
-    name: "endTimestamp",
-    desc: trans("export.dateRangeEndTimestampDesc"),
-    depKeys: ["end"],
+    name: 'endTimestamp',
+    desc: trans('export.dateRangeEndTimestampDesc'),
+    depKeys: ['end'],
     func: (input) => {
       const mom = dayjs(input.end, DateParser);
-      return mom.isValid() ? mom.unix() : "";
+      return mom.isValid() ? mom.unix() : '';
     },
   }),
   depsConfig({
-    name: "formattedValue",
-    desc: trans("export.dateRangeFormattedValueDesc"),
-    depKeys: ["start", "end", "format"],
+    name: 'formattedValue',
+    desc: trans('export.dateRangeFormattedValueDesc'),
+    depKeys: ['start', 'end', 'format'],
     func: (input) => {
       const start = dayjs(input.start, DateParser);
       const end = dayjs(input.end, DateParser);
@@ -496,40 +599,49 @@ export let DateRangeComp = withExposingConfigs(dateRangeControl, [
         end.isValid() && end.format(input.format),
       ]
         .filter((item) => item)
-        .join(" - ");
+        .join(' - ');
     },
   }),
   depsConfig({
-    name: "formattedStartValue",
-    desc: trans("export.dateRangeFormattedStartValueDesc"),
-    depKeys: ["start", "format"],
+    name: 'formattedStartValue',
+    desc: trans('export.dateRangeFormattedStartValueDesc'),
+    depKeys: ['start', 'format'],
     func: (input) => {
       const start = dayjs(input.start, DateParser);
       return start.isValid() && start.format(input.format);
     },
   }),
   depsConfig({
-    name: "formattedEndValue",
-    desc: trans("export.dateRangeFormattedEndValueDesc"),
-    depKeys: ["end", "format"],
+    name: 'formattedEndValue',
+    desc: trans('export.dateRangeFormattedEndValueDesc'),
+    depKeys: ['end', 'format'],
     func: (input) => {
       const end = dayjs(input.end, DateParser);
       return end.isValid() && end.format(input.format);
     },
   }),
   depsConfig({
-    name: "invalid",
-    desc: trans("export.invalidDesc"),
-    depKeys: ["start", "end", "required", "minTime", "maxTime", "minDate", "maxDate", "customRule"],
+    name: 'invalid',
+    desc: trans('export.invalidDesc'),
+    depKeys: [
+      'start',
+      'end',
+      'required',
+      'minTime',
+      'maxTime',
+      'minDate',
+      'maxDate',
+      'customRule',
+    ],
     func: (input) =>
       validate({
         ...input,
-        value: { value: input.start },
-      }).validateStatus !== "success" ||
+        value: {value: input.start},
+      }).validateStatus !== 'success' ||
       validate({
         ...input,
-        value: { value: input.end },
-      }).validateStatus !== "success",
+        value: {value: input.end},
+      }).validateStatus !== 'success',
   }),
   ...CommonNameConfig,
 ]);
@@ -538,19 +650,19 @@ DateRangeComp = withMethodExposing(DateRangeComp, [
   ...dateRefMethods,
   {
     method: {
-      name: "clearAll",
-      description: trans("date.clearAllDesc"),
+      name: 'clearAll',
+      description: trans('date.clearAllDesc'),
       params: [],
     },
     execute: (comp) => {
-      comp.children.start.getView().onChange("");
-      comp.children.end.getView().onChange("");
+      comp.children.start.getView().onChange('');
+      comp.children.end.getView().onChange('');
     },
   },
   {
     method: {
-      name: "resetAll",
-      description: trans("date.resetAllDesc"),
+      name: 'resetAll',
+      description: trans('date.resetAllDesc'),
       params: [],
     },
     execute: (comp) => {

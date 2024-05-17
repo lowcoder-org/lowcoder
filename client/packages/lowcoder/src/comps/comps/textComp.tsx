@@ -1,45 +1,57 @@
-import { dropdownControl } from "comps/controls/dropdownControl";
-import { stringExposingStateControl } from "comps/controls/codeStateControl";
-import { AutoHeightControl } from "comps/controls/autoHeightControl";
-import { Section, sectionNames } from "lowcoder-design";
-import styled, { css } from "styled-components";
-import { AlignCenter } from "lowcoder-design";
-import { AlignLeft } from "lowcoder-design";
-import { AlignRight } from "lowcoder-design";
-import { UICompBuilder } from "../generators";
-import { NameConfig, NameConfigHidden, withExposingConfigs } from "../generators/withExposing";
-import { markdownCompCss, TacoMarkDown } from "lowcoder-design";
-import { styleControl } from "comps/controls/styleControl";
-import { TextStyle, TextStyleType, heightCalculator, widthCalculator } from "comps/controls/styleControlConstants";
-import { hiddenPropertyView } from "comps/utils/propertyUtils";
-import { trans } from "i18n";
-import { alignWithJustifyControl } from "comps/controls/alignControl";
+import {dropdownControl} from 'comps/controls/dropdownControl';
+import {stringExposingStateControl} from 'comps/controls/codeStateControl';
+import {AutoHeightControl} from 'comps/controls/autoHeightControl';
+import {Section, sectionNames} from 'lowcoder-design';
+import styled, {css} from 'styled-components';
+import {AlignCenter} from 'lowcoder-design';
+import {AlignLeft} from 'lowcoder-design';
+import {AlignRight} from 'lowcoder-design';
+import {UICompBuilder} from '../generators';
+import {
+  NameConfig,
+  NameConfigHidden,
+  withExposingConfigs,
+} from '../generators/withExposing';
+import {markdownCompCss, TacoMarkDown} from 'lowcoder-design';
+import {styleControl} from 'comps/controls/styleControl';
+import {
+  AnimationStyle,
+  AnimationStyleType,
+  TextStyle,
+  TextStyleType,
+  heightCalculator,
+  widthCalculator,
+} from 'comps/controls/styleControlConstants';
+import {hiddenPropertyView} from 'comps/utils/propertyUtils';
+import {trans} from 'i18n';
+import {alignWithJustifyControl} from 'comps/controls/alignControl';
 
-import { MarginControl } from "../controls/marginControl";
-import { PaddingControl } from "../controls/paddingControl";
+import {MarginControl} from '../controls/marginControl';
+import {PaddingControl} from '../controls/paddingControl';
 
-import React, { useContext } from "react";
-import { EditorContext } from "comps/editorState";
+import React, {useContext} from 'react';
+import {EditorContext} from 'comps/editorState';
 
 const getStyle = (style: TextStyleType) => {
   return css`
-    border-radius: ${(style.radius ? style.radius : "4px")};
-    border: ${(style.borderWidth ? style.borderWidth : "0px")} solid ${style.border};
+    border-radius: ${style.radius ? style.radius : '4px'};
+    border: ${style.borderWidth ? style.borderWidth : '0px'} solid
+      ${style.border};
     color: ${style.text};
     font-size: ${style.textSize} !important;
     font-weight: ${style.textWeight} !important;
     font-family: ${style.fontFamily} !important;
-    font-style:${style.fontStyle} !important;
-    text-transform:${style.textTransform} !important;
-    text-decoration:${style.textDecoration} !important;
+    font-style: ${style.fontStyle} !important;
+    text-transform: ${style.textTransform} !important;
+    text-decoration: ${style.textDecoration} !important;
     background-color: ${style.background};
     .markdown-body a {
       color: ${style.links};
     }
     .markdown-body {
-      margin: ${style.margin} !important;	
-      padding: ${style.padding};	
-      width: ${widthCalculator(style.margin)};	
+      margin: ${style.margin} !important;
+      padding: ${style.padding};
+      width: ${widthCalculator(style.margin)};
       // height: ${heightCalculator(style.margin)};
       h1 {
         line-height: 1.5;
@@ -72,12 +84,17 @@ const getStyle = (style: TextStyleType) => {
   `;
 };
 
-const TextContainer = styled.div<{ $type: string; $styleConfig: TextStyleType }>`
+const TextContainer = styled.div<{
+  $type: string;
+  $styleConfig: TextStyleType;
+  $animationStyle: AnimationStyleType;
+}>`
   height: 100%;
   overflow: auto;
   margin: 0;
+  ${(props) => props.$animationStyle}
   ${(props) =>
-    props.$type === "text" && "white-space:break-spaces;line-height: 1.9;"};
+    props.$type === 'text' && 'white-space:break-spaces;line-height: 1.9;'};
   ${(props) => props.$styleConfig && getStyle(props.$styleConfig)}
   display: flex;
   font-size: 13px;
@@ -99,33 +116,32 @@ const AlignVerticalCenter = styled(AlignCenter)`
 
 const typeOptions = [
   {
-    label: "Markdown",
-    value: "markdown",
+    label: 'Markdown',
+    value: 'markdown',
   },
   {
-    label: trans("text"),
-    value: "text",
+    label: trans('text'),
+    value: 'text',
   },
 ] as const;
 const VerticalAlignmentOptions = [
-  { label: <AlignTop />, value: "flex-start" },
-  { label: <AlignVerticalCenter />, value: "center" },
-  { label: <AlignBottom />, value: "flex-end" },
+  {label: <AlignTop />, value: 'flex-start'},
+  {label: <AlignVerticalCenter />, value: 'center'},
+  {label: <AlignBottom />, value: 'flex-end'},
 ] as const;
 
-
 let TextTmpComp = (function () {
-
   const childrenMap = {
     text: stringExposingStateControl(
-      "text",
-      trans("textShow.text", { name: "{{currentUser.name}}" })
+      'text',
+      trans('textShow.text', {name: '{{currentUser.name}}'})
     ),
     autoHeight: AutoHeightControl,
-    type: dropdownControl(typeOptions, "markdown"),
+    type: dropdownControl(typeOptions, 'markdown'),
     horizontalAlignment: alignWithJustifyControl(),
-    verticalAlignment: dropdownControl(VerticalAlignmentOptions, "center"),
+    verticalAlignment: dropdownControl(VerticalAlignmentOptions, 'center'),
     style: styleControl(TextStyle),
+    animationStyle: styleControl(AnimationStyle),
     margin: MarginControl,
     padding: PaddingControl,
   };
@@ -133,15 +149,20 @@ let TextTmpComp = (function () {
     const value = props.text.value;
     return (
       <TextContainer
+        $animationStyle={props.animationStyle}
         $type={props.type}
         $styleConfig={props.style}
         style={{
           justifyContent: props.horizontalAlignment,
-          alignItems: props.autoHeight ? "center" : props.verticalAlignment,
+          alignItems: props.autoHeight ? 'center' : props.verticalAlignment,
           textAlign: props.horizontalAlignment,
         }}
       >
-        {props.type === "markdown" ? <TacoMarkDown>{value}</TacoMarkDown> : value}
+        {props.type === 'markdown' ? (
+          <TacoMarkDown>{value}</TacoMarkDown>
+        ) : (
+          value
+        )}
       </TextContainer>
     );
   })
@@ -150,35 +171,42 @@ let TextTmpComp = (function () {
         <>
           <Section name={sectionNames.basic}>
             {children.type.propertyView({
-              label: trans("value"),
-              tooltip: trans("textShow.valueTooltip"),
+              label: trans('value'),
+              tooltip: trans('textShow.valueTooltip'),
               radioButton: true,
             })}
             {children.text.propertyView({})}
           </Section>
 
-          {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+          {['logic', 'both'].includes(
+            useContext(EditorContext).editorModeStatus
+          ) && (
             <Section name={sectionNames.interaction}>
               {hiddenPropertyView(children)}
             </Section>
           )}
 
-          {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+          {['layout', 'both'].includes(
+            useContext(EditorContext).editorModeStatus
+          ) && (
             <>
               <Section name={sectionNames.layout}>
                 {children.autoHeight.getPropertyView()}
                 {!children.autoHeight.getView() &&
                   children.verticalAlignment.propertyView({
-                    label: trans("textShow.verticalAlignment"),
+                    label: trans('textShow.verticalAlignment'),
                     radioButton: true,
                   })}
                 {children.horizontalAlignment.propertyView({
-                  label: trans("textShow.horizontalAlignment"),
+                  label: trans('textShow.horizontalAlignment'),
                   radioButton: true,
                 })}
               </Section>
               <Section name={sectionNames.style}>
                 {children.style.getPropertyView()}
+              </Section>
+              <Section name={sectionNames.animationStyle}>
+                {children.animationStyle.getPropertyView()}
               </Section>
             </>
           )}
@@ -195,6 +223,6 @@ TextTmpComp = class extends TextTmpComp {
 };
 
 export const TextComp = withExposingConfigs(TextTmpComp, [
-  new NameConfig("text", trans("textShow.textDesc")),
+  new NameConfig('text', trans('textShow.textDesc')),
   NameConfigHidden,
 ]);

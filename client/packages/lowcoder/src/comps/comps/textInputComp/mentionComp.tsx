@@ -1,30 +1,31 @@
-import { useState, useEffect } from "react";
+import {useState, useEffect} from 'react';
 import {
   NameConfig,
   NameConfigPlaceHolder,
   NameConfigRequired,
   withExposingConfigs,
-} from "comps/generators/withExposing";
-import { Section, sectionNames } from "lowcoder-design";
-import { BoolControl } from "../../controls/boolControl";
-import { AutoHeightControl } from "../../controls/autoHeightControl";
-import { UICompBuilder } from "../../generators";
-import { FormDataPropertyView } from "../formComp/formDataConstants";
+} from 'comps/generators/withExposing';
+import {Section, sectionNames} from 'lowcoder-design';
+import {BoolControl} from '../../controls/boolControl';
+import {AutoHeightControl} from '../../controls/autoHeightControl';
+import {UICompBuilder} from '../../generators';
+import {FormDataPropertyView} from '../formComp/formDataConstants';
 import {
   checkMentionListData,
   fixOldInputCompData,
   textInputChildren,
-} from "./textInputConstants";
+} from './textInputConstants';
 import {
   withMethodExposing,
   refMethods,
-} from "../../generators/withMethodExposing";
-import { styleControl } from "comps/controls/styleControl";
-import styled from "styled-components";
+} from '../../generators/withMethodExposing';
+import {styleControl} from 'comps/controls/styleControl';
+import styled from 'styled-components';
 import {
+  AnimationStyle,
   InputLikeStyle,
   InputLikeStyleType,
-} from "comps/controls/styleControlConstants";
+} from 'comps/controls/styleControlConstants';
 import {
   disabledPropertyView,
   hiddenPropertyView,
@@ -32,40 +33,38 @@ import {
   minLengthPropertyView,
   readOnlyPropertyView,
   requiredPropertyView,
-} from "comps/utils/propertyUtils";
-import { booleanExposingStateControl } from "comps/controls/codeStateControl";
-import { trans } from "i18n";
-import { RefControl } from "comps/controls/refControl";
-import { TextAreaRef } from "antd/es/input/TextArea";
-import { default as ConfigProvider } from "antd/es/config-provider";
-import { default as Mentions, type MentionsOptionProps } from "antd/es/mentions";
-import { blurMethod, focusWithOptions } from "comps/utils/methodUtils";
-import {
-  textInputValidate,
-} from "../textInputComp/textInputConstants";
-import { jsonControl } from "comps/controls/codeControl";
+} from 'comps/utils/propertyUtils';
+import {booleanExposingStateControl} from 'comps/controls/codeStateControl';
+import {trans} from 'i18n';
+import {RefControl} from 'comps/controls/refControl';
+import {TextAreaRef} from 'antd/es/input/TextArea';
+import {default as ConfigProvider} from 'antd/es/config-provider';
+import {default as Mentions, type MentionsOptionProps} from 'antd/es/mentions';
+import {blurMethod, focusWithOptions} from 'comps/utils/methodUtils';
+import {textInputValidate} from '../textInputComp/textInputConstants';
+import {jsonControl} from 'comps/controls/codeControl';
 import {
   submitEvent,
   eventHandlerControl,
   mentionEvent,
   focusEvent,
   blurEvent,
-  changeEvent
-} from "comps/controls/eventHandlerControl";
+  changeEvent,
+} from 'comps/controls/eventHandlerControl';
 
-import React, { useContext } from "react";
-import { EditorContext } from "comps/editorState";
-import { migrateOldData } from "comps/generators/simpleGenerators";
+import React, {useContext} from 'react';
+import {EditorContext} from 'comps/editorState';
+import {migrateOldData} from 'comps/generators/simpleGenerators';
 
 const Wrapper = styled.div<{
   $style: InputLikeStyleType;
 }>`
-  box-sizing:border-box;
+  box-sizing: border-box;
   .rc-textarea {
-    background-color:${(props) => props.$style.background};
-    padding:${(props) => props.$style.padding};
-    text-transform:${(props)=>props.$style.textTransform};
-    text-decoration:${(props)=>props.$style.textDecoration};
+    background-color: ${(props) => props.$style.background};
+    padding: ${(props) => props.$style.padding};
+    text-transform: ${(props) => props.$style.textTransform};
+    text-decoration: ${(props) => props.$style.textDecoration};
     margin: 0px 3px 0px 3px !important;
   }
 
@@ -96,51 +95,52 @@ let MentionTmpComp = (function () {
     allowClear: BoolControl,
     autoHeight: AutoHeightControl,
     style: styleControl(InputLikeStyle),
+    animationStyle: styleControl(AnimationStyle),
     mentionList: jsonControl(checkMentionListData, {
-      "@": ["Li Lei", "Han Meimei"],
-      "#": ["123", "456", "789"],
+      '@': ['Li Lei', 'Han Meimei'],
+      '#': ['123', '456', '789'],
     }),
     onEvent: eventHandlerControl(EventOptions),
-    invalid: booleanExposingStateControl("invalid"),
+    invalid: booleanExposingStateControl('invalid'),
   };
 
   return new UICompBuilder(childrenMap, (props) => {
-    const { mentionList } = props;
+    const {mentionList} = props;
     const [validateState, setvalidateState] = useState({});
     const [activationFlag, setActivationFlag] = useState(false);
-    const [prefix, setPrefix] = useState<PrefixType>("@");
-    type PrefixType = "@" | keyof typeof mentionList;
+    const [prefix, setPrefix] = useState<PrefixType>('@');
+    type PrefixType = '@' | keyof typeof mentionList;
 
     const onSearch = (_: string, newPrefix: PrefixType) => {
       setPrefix(newPrefix);
     };
     const onChange = (value: string) => {
       props.value.onChange(value);
-      props.onEvent("change");
+      props.onEvent('change');
     };
 
     const onPressEnter = (e: any) => {
       if (e.shiftKey) {
         e.preventDefault();
-        props.onEvent("submit");
+        props.onEvent('submit');
       }
     };
 
     const onSelect = (option: MentionsOptionProps) => {
-      props.onEvent("mention");
+      props.onEvent('mention');
     };
-    const getValidate = (value: any): "" | "warning" | "error" | undefined => {
+    const getValidate = (value: any): '' | 'warning' | 'error' | undefined => {
       if (
-        value.hasOwnProperty("validateStatus") &&
-        value["validateStatus"] === "error"
+        value.hasOwnProperty('validateStatus') &&
+        value['validateStatus'] === 'error'
       )
-        return "error";
-      return "";
+        return 'error';
+      return '';
     };
 
     const getTextInputValidate = () => {
       return {
-        value: { value: props.value.value },
+        value: {value: props.value.value},
         required: props.required,
         minLength: props?.minLength ?? 0,
         maxLength: props?.maxLength ?? 0,
@@ -154,7 +154,7 @@ let MentionTmpComp = (function () {
       if (activationFlag) {
         const temp = textInputValidate(getTextInputValidate());
         setvalidateState(temp);
-        props.invalid.onChange(temp.validateStatus !== "");
+        props.invalid.onChange(temp.validateStatus !== '');
       }
     }, [
       props.value.value,
@@ -184,9 +184,9 @@ let MentionTmpComp = (function () {
               prefix={Object.keys(mentionList)}
               onFocus={() => {
                 setActivationFlag(true);
-                props.onEvent("focus");
+                props.onEvent('focus');
               }}
-              onBlur={() => props.onEvent("blur")}
+              onBlur={() => props.onEvent('blur')}
               onPressEnter={onPressEnter}
               onSearch={onSearch}
               onChange={onChange}
@@ -202,15 +202,15 @@ let MentionTmpComp = (function () {
               }))}
               autoSize={props.autoHeight}
               style={{
-                height: "100%",
-                maxHeight: "100%",
-                resize: "none",
+                height: '100%',
+                maxHeight: '100%',
+                resize: 'none',
                 // padding: props.style.padding,
                 fontStyle: props.style.fontStyle,
                 fontFamily: props.style.fontFamily,
                 borderWidth: props.style.borderWidth,
                 fontWeight: props.style.textWeight,
-                fontSize: props.style.textSize
+                fontSize: props.style.textSize,
               }}
               readOnly={props.readOnly}
             />
@@ -218,57 +218,72 @@ let MentionTmpComp = (function () {
         </Wrapper>
       ),
       style: props.style,
+      animationStyle: props.animationStyle,
       ...validateState,
     });
   })
     .setPropertyViewFn((children) => (
       <>
         <Section name={sectionNames.basic}>
-          {children.value.propertyView({ label: trans("prop.defaultValue") })}
+          {children.value.propertyView({label: trans('prop.defaultValue')})}
           {children.placeholder.propertyView({
-            label: trans("prop.placeholder"),
+            label: trans('prop.placeholder'),
           })}
-          {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+          {['logic', 'both'].includes(
+            useContext(EditorContext).editorModeStatus
+          ) &&
             children.mentionList.propertyView({
-              label: trans("mention.mentionList"),
-            })
-          )}
+              label: trans('mention.mentionList'),
+            })}
         </Section>
         <FormDataPropertyView {...children} />
 
-        {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
-          children.label.getPropertyView()
-        )}
+        {['layout', 'both'].includes(
+          useContext(EditorContext).editorModeStatus
+        ) && children.label.getPropertyView()}
 
-        {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
-          <><Section name={sectionNames.interaction}>
-            {children.onEvent.getPropertyView()}
-            {disabledPropertyView(children)}
-          </Section>
-            <Section name={sectionNames.layout}>{hiddenPropertyView(children)}</Section>
+        {['logic', 'both'].includes(
+          useContext(EditorContext).editorModeStatus
+        ) && (
+          <>
+            <Section name={sectionNames.interaction}>
+              {children.onEvent.getPropertyView()}
+              {disabledPropertyView(children)}
+            </Section>
+            <Section name={sectionNames.layout}>
+              {hiddenPropertyView(children)}
+            </Section>
             <Section name={sectionNames.advanced}>
               {readOnlyPropertyView(children)}
-            </Section><Section name={sectionNames.validation}>
+            </Section>
+            <Section name={sectionNames.validation}>
               {requiredPropertyView(children)}
               {children.validationType.propertyView({
-                label: trans("prop.textType"),
+                label: trans('prop.textType'),
               })}
               {minLengthPropertyView(children)}
               {maxLengthPropertyView(children)}
               {children.customRule.propertyView({})}
-            </Section></>
+            </Section>
+          </>
         )}
 
-        {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
-          <><Section name={sectionNames.style}>
-            {children.style.getPropertyView()}
-          </Section></>
+        {['layout', 'both'].includes(
+          useContext(EditorContext).editorModeStatus
+        ) && (
+          <>
+            <Section name={sectionNames.style}>
+              {children.style.getPropertyView()}
+            </Section>
+            <Section name={sectionNames.animationStyle}>
+              {children.animationStyle.getPropertyView()}
+            </Section>
+          </>
         )}
       </>
     ))
     .build();
 })();
-
 
 MentionTmpComp = class extends MentionTmpComp {
   override autoHeight(): boolean {
@@ -284,10 +299,10 @@ const TextareaTmp2Comp = withMethodExposing(
 );
 
 export const MentionComp = withExposingConfigs(TextareaTmp2Comp, [
-  new NameConfig("value", trans("export.inputValueDesc")),
+  new NameConfig('value', trans('export.inputValueDesc')),
   NameConfigPlaceHolder,
   NameConfigRequired,
-  new NameConfig("invalid", trans("export.invalidDesc")),
-  new NameConfig("hidden", trans("export.hiddenDesc")),
-  new NameConfig("disabled", trans("export.disabledDesc")),
+  new NameConfig('invalid', trans('export.invalidDesc')),
+  new NameConfig('hidden', trans('export.hiddenDesc')),
+  new NameConfig('disabled', trans('export.disabledDesc')),
 ]);
