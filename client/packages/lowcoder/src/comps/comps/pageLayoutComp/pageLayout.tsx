@@ -1,4 +1,5 @@
 import {
+  AnimationStyleType,
   ContainerBodyStyleType,
   ContainerHeaderStyleType,
   ContainerStyleType,
@@ -55,7 +56,10 @@ const getStyle = (style: ContainerStyleType) => {
   `;
 };
 
-const Wrapper = styled.div<{$style: ContainerStyleType}>`
+const Wrapper = styled.div<{
+  $style: ContainerStyleType;
+  $animationStyle: AnimationStyleType;
+}>`
   display: flex;
   flex-flow: column;
   height: 100%;
@@ -63,6 +67,7 @@ const Wrapper = styled.div<{$style: ContainerStyleType}>`
   border-radius: 4px;
   ${(props) => props.$style && getStyle(props.$style)}
   rotate: ${(props) => props.$style.rotation};
+  ${(props) => props.$animationStyle}
 `;
 
 const HeaderInnerGrid = styled(InnerGrid)<{
@@ -163,6 +168,7 @@ const FooterInnerGrid = styled(InnerGrid)<{
 
 export type LayoutProps = LayoutViewProps & {
   hintPlaceholder?: ReactNode;
+  animationStyle: AnimationStyleType;
 };
 
 export function PageLayout(
@@ -171,7 +177,7 @@ export function PageLayout(
     setSiderCollapsed: (collapsed: boolean) => void;
   }
 ) {
-  const {container, siderCollapsed, setSiderCollapsed} = props;
+  const {container, siderCollapsed, setSiderCollapsed, animationStyle} = props;
   const {showHeader, showFooter, showSider} = container;
   const {items: headerItems, ...otherHeaderProps} = container.header;
   const {items: bodyItems, ...otherBodyProps} =
@@ -213,7 +219,7 @@ export function PageLayout(
           },
         }}
       >
-        <Wrapper $style={style}>
+        <Wrapper $style={style} $animationStyle={animationStyle}>
           <Layout
             style={{padding: '0px'}}
             hasSider={showSider && !container.innerSider}

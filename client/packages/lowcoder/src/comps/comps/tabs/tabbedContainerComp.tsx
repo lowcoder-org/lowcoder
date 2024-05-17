@@ -17,6 +17,8 @@ import {eventHandlerControl} from 'comps/controls/eventHandlerControl';
 import {TabsOptionControl} from 'comps/controls/optionsControl';
 import {styleControl} from 'comps/controls/styleControl';
 import {
+  AnimationStyle,
+  AnimationStyleType,
   ContainerBodyStyle,
   ContainerBodyStyleType,
   ContainerHeaderStyle,
@@ -85,6 +87,7 @@ const childrenMap = {
   style: withDefault(styleControl(TabContainerStyle), {borderWidth: '1px'}),
   headerStyle: styleControl(ContainerHeaderStyle),
   bodyStyle: styleControl(ContainerBodyStyle),
+  animationStyle: styleControl(AnimationStyle),
   tabsGutter: withDefault(NumberControl, 32),
   tabsCentered: withDefault(BoolControl, false),
 };
@@ -162,9 +165,11 @@ const StyledTabs = styled(Tabs)<{
   $bodyStyle: ContainerBodyStyleType;
   $isMobile?: boolean;
   $showHeader?: boolean;
+  $animationStyle: AnimationStyleType;
 }>`
   &.ant-tabs {
     height: 100%;
+    ${(props) => props.$animationStyle}
   }
 
   .ant-tabs-content-animated {
@@ -190,7 +195,6 @@ const StyledTabs = styled(Tabs)<{
   .ant-tabs-nav-operations {
     margin-right: -24px;
   }
-
   ${(props) =>
     props.$style &&
     getStyle(props.$style, props.$headerStyle, props.$bodyStyle)}
@@ -203,7 +207,15 @@ const ContainerInTab = (props: ContainerBaseProps) => {
 };
 
 const TabbedContainer = (props: TabbedContainerProps) => {
-  let {tabs, containers, dispatch, style, headerStyle, bodyStyle} = props;
+  let {
+    tabs,
+    containers,
+    dispatch,
+    style,
+    headerStyle,
+    bodyStyle,
+    animationStyle,
+  } = props;
 
   const visibleTabs = tabs.filter((tab) => !tab.hidden);
   const selectedTab = visibleTabs.find(
@@ -306,6 +318,7 @@ const TabbedContainer = (props: TabbedContainerProps) => {
             $style={style}
             $headerStyle={headerStyle}
             $bodyStyle={bodyStyle}
+            $animationStyle={animationStyle}
             $showHeader={showHeader}
             onChange={(key) => {
               if (key !== props.selectedTabKey.value) {
@@ -384,6 +397,9 @@ export const TabbedContainerBaseComp = (function () {
               </Section>
               <Section name={sectionNames.style}>
                 {children.style.getPropertyView()}
+              </Section>
+              <Section name={sectionNames.animationStyle}>
+                {children.animationStyle.getPropertyView()}
               </Section>
               {children.showHeader.getView() && (
                 <Section name={'Header Style'}>

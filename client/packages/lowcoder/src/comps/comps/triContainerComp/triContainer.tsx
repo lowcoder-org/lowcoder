@@ -1,4 +1,5 @@
 import {
+  AnimationStyleType,
   ContainerBodyStyleType,
   ContainerHeaderStyleType,
   ContainerStyleType,
@@ -39,12 +40,16 @@ const getStyle = (style: ContainerStyleType) => {
   `;
 };
 
-const Wrapper = styled.div<{$style: ContainerStyleType}>`
+const Wrapper = styled.div<{
+  $style: ContainerStyleType;
+  $animationStyle?: AnimationStyleType;
+}>`
   display: flex;
   flex-flow: column;
   height: 100%;
   border: 1px solid #d7d9e0;
   border-radius: 4px;
+  ${(props) => props.$animationStyle && props.$animationStyle}
   ${(props) => {
     return props.$style && getStyle(props.$style);
   }}
@@ -117,10 +122,11 @@ const FooterInnerGrid = styled(InnerGrid)<{
 
 export type TriContainerProps = TriContainerViewProps & {
   hintPlaceholder?: ReactNode;
+  animationStyle?: AnimationStyleType;
 };
 
 export function TriContainer(props: TriContainerProps) {
-  const {container} = props;
+  const {container, animationStyle} = props;
   const {showHeader, showFooter} = container;
   // When the header and footer are not displayed, the body must be displayed
   const showBody = container.showBody || (!showHeader && !showFooter);
@@ -139,7 +145,7 @@ export function TriContainer(props: TriContainerProps) {
 
   return (
     <div style={{padding: style.margin, height: '100%'}}>
-      <Wrapper $style={style}>
+      <Wrapper $style={style} $animationStyle={animationStyle}>
         {showHeader && (
           <BackgroundColorContext.Provider value={headerStyle.headerBackground}>
             <HeaderInnerGrid

@@ -5,6 +5,7 @@ import {
   widthCalculator,
   ContainerHeaderStyleType,
   ContainerBodyStyleType,
+  AnimationStyleType,
 } from 'comps/controls/styleControlConstants';
 import {EditorContext} from 'comps/editorState';
 import {BackgroundColorContext} from 'comps/utils/backgroundColorContext';
@@ -70,10 +71,14 @@ const getStyle = (style: TextStyleType) => {
   `;
 };
 
-const Wrapper = styled.div<{$style: ContainerStyleType}>`
+const Wrapper = styled.div<{
+  $style: ContainerStyleType;
+  $animationStyle: AnimationStyleType;
+}>`
   display: flex;
   flex-flow: column;
   height: 100%;
+  ${(props) => props.$animationStyle}
   border: ${(props) => props.$style.borderWidth} solid
     ${(props) => props.$style.border};
   border-radius: ${(props) => props.$style.radius};
@@ -183,10 +188,11 @@ export type TriContainerProps = TriContainerViewProps & {
   width: string;
   style: TextStyleType;
   horizontalAlignment: string;
+  animationStyle: AnimationStyleType;
 };
 
 export function TriContainer(props: TriContainerProps) {
-  const {container, text} = props;
+  const {container, text, animationStyle} = props;
   const {showHeader, showFooter} = container;
   // When the header and footer are not displayed, the body must be displayed
   const showBody = container.showBody || (!showHeader && !showFooter);
@@ -204,7 +210,7 @@ export function TriContainer(props: TriContainerProps) {
   const {style, headerStyle, bodyStyle, footerStyle} = container;
 
   return (
-    <Wrapper $style={style}>
+    <Wrapper $style={style} $animationStyle={animationStyle}>
       {showHeader && (
         <BackgroundColorContext.Provider value={container.style.background}>
           <HeaderInnerGrid
