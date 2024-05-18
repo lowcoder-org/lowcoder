@@ -154,7 +154,7 @@ export function PageLayout(props: LayoutProps & { siderCollapsed: boolean; setSi
             },
           }}
         >
-        <Wrapper $style={style} $animationStyle={animationStyle}>
+      <Wrapper $style={style} $animationStyle={animationStyle}>
         <Layout style={{padding: "0px"}} hasSider={showSider && !container.innerSider}>
           {showSider && !container.innerSider && !container.siderRight && (
             <><BackgroundColorContext.Provider value={siderStyle?.siderBackground}>
@@ -165,7 +165,7 @@ export function PageLayout(props: LayoutProps & { siderCollapsed: boolean; setSi
                 breakpoint="sm"
                 collapsedWidth={container.siderCollapsedWidth}
                 collapsed={siderCollapsed} onCollapse={(value) => onSiderCollapse(value)}
-                 >
+                >
                   <ScrollBar style={{ height: container.autoHeight ? "auto" : "100%", margin: "0px", padding: "0px" }} hideScrollbar={!container.siderScrollbars}>
                     <SiderInnerGrid
                       {...otherSiderProps}
@@ -277,7 +277,7 @@ export function PageLayout(props: LayoutProps & { siderCollapsed: boolean; setSi
                             collapsedWidth={container.siderCollapsedWidth}
                             reverseArrow={true}
                             collapsed={siderCollapsed} onCollapse={(value) => setSiderCollapsed(value)}
-                           >
+                          >
                             <ScrollBar style={{ height: container.autoHeight ? "auto" : "100%", margin: "0px", padding: "0px" }} hideScrollbar={!container.siderScrollbars}>
                               <SiderInnerGrid
                                 {...otherSiderProps}
@@ -326,30 +326,30 @@ export function PageLayout(props: LayoutProps & { siderCollapsed: boolean; setSi
                           $borderColor={style?.border}
                           $borderWidth={style?.borderWidth}
                           style={{ padding: bodyStyle.containerBodyPadding }} />
-                    )}
-                  </ScrollBar>
-                </Content>
-              )}
+                        )}
+                      </ScrollBar>
+                    </Content>
+                  )}
                   {showFooter && (
                     <Footer style={{ textAlign: 'center', padding: '0px', margin: '0px', backgroundColor: footerStyle?.footerBackground || 'transparent' }}>
                       <FooterInnerGrid
-                    $showBorder={showHeader}
-                    {...otherFooterProps}
+                        $showBorder={showHeader}
+                        {...otherFooterProps}
                         items={gridItemCompToGridItems(footerItems)}
                         autoHeight={true}
                         emptyRows={5}
                         minHeight={"48px"}
-                    containerPadding={[0, 0]}
-                    showName={{ top: showHeader ? 20 : 0 }}
+                         containerPadding={[0, 0]}
+                        showName={{ top: showHeader ? 20 : 0 }}
                         $backgroundColor={footerStyle?.footerBackground || 'transparent'}
                         $footerBackgroundImage={footerStyle?.footerBackgroundImage}
                         $footerBackgroundImageRepeat={footerStyle?.footerBackgroundImageRepeat}
                         $footerBackgroundImageSize={footerStyle?.footerBackgroundImageSize}
                         $footerBackgroundImagePosition={footerStyle?.footerBackgroundImagePosition}
                         $footerBackgroundImageOrigin={footerStyle?.footerBackgroundImageOrigin}
-                    $borderColor={style?.border}
-                    $borderWidth={style?.borderWidth}
-                    style={{ padding: footerStyle.containerFooterPadding }} />
+                        $borderColor={style?.border}
+                        $borderWidth={style?.borderWidth}
+                        style={{ padding: footerStyle.containerFooterPadding }} />
                     </Footer>
                   )}
                 </Layout>
@@ -364,7 +364,7 @@ export function PageLayout(props: LayoutProps & { siderCollapsed: boolean; setSi
                   collapsedWidth={container.siderCollapsedWidth}
                   reverseArrow={true}
                   collapsed={siderCollapsed} onCollapse={(value) => setSiderCollapsed(value)}
-                  >
+                   >
                     <ScrollBar style={{ height: container.autoHeight ? "auto" : "100%", margin: "0px", padding: "0px" }} hideScrollbar={!container.siderScrollbars}>
                       <SiderInnerGrid
                         {...otherSiderProps}
@@ -391,7 +391,7 @@ export function PageLayout(props: LayoutProps & { siderCollapsed: boolean; setSi
             {`
               .ant-layout-sider-trigger {
                 bottom: 4px !important;
-                 ${container.siderRight ? `
+                ${container.siderRight ? `
                   right: 8px !important;
                 ` : `
                   left: 8px !important;}
