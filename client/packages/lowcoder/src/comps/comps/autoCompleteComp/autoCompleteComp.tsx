@@ -58,7 +58,7 @@ import {
 
 
 
-const InputStyle = styled(Input)<{$style: InputLikeStyleType}>`
+const InputStyle = styled(Input)<{ $style: InputLikeStyleType }>`
   ${(props) => css`
     ${getStyle(props.$style)}
     input {
@@ -77,7 +77,7 @@ const childrenMap = {
   viewRef: RefControl<InputRef>,
   allowClear: BoolControl.DEFAULT_TRUE,
   style: styleControl(InputFieldStyle),
-  labelStyle: styleControl(LabelStyle),
+  labelStyle:styleControl(LabelStyle),
   prefixIcon: IconControl,
   suffixIcon: IconControl,
   items: jsonControl(convertAutoCompleteData, autoCompleteDate),
