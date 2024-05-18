@@ -59,7 +59,7 @@ const Warpper = styled.div<{
     background-color: ${props => props.$style?.background};
   }
   .ant-card .ant-card-body {
-  background-color: ${props => props.$bodyStyle?.background} !important;
+   background-color: ${props => props.$bodyStyle?.background} !important;
     border: ${props => props.$bodyStyle?.border};
     border-style: ${props => props.$bodyStyle?.borderStyle};
     border-width: ${props => props.$bodyStyle?.borderWidth};
