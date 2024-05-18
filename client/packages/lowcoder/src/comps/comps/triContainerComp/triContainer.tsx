@@ -145,7 +145,7 @@ export function TriContainer(props: TriContainerProps) {
           </BackgroundColorContext.Provider>
       )}
       {showFooter && (
-        <BackgroundColorContext.Provider value={footerStyle.footerBackground}>
+      <BackgroundColorContext.Provider value={footerStyle.footerBackground}>
           <FooterInnerGrid
             $showBorder={showHeader || showBody}
             {...otherFooterProps}
