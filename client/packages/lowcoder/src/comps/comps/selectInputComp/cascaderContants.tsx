@@ -46,18 +46,16 @@ export const CascaderChildren = {
 };
 
 export const CascaderPropertyView = (
-  children: RecordConstructorToComp<
-    typeof CascaderChildren & {hidden: typeof BoolCodeControl}
-  >
+  children: RecordConstructorToComp<typeof CascaderChildren & { hidden: typeof BoolCodeControl }>
 ) => (
   <>
     <Section name={sectionNames.basic}>
-      {children.options.propertyView({label: trans('cascader.options')})}
-      {children.value.propertyView({label: trans('prop.defaultValue')})}
+      {children.options.propertyView({ label: trans("cascader.options") })}
+      {children.value.propertyView({ label: trans("prop.defaultValue") })}
       {placeholderPropertyView(children)}
     </Section>
 
-    {['logic', 'both'].includes(useContext(EditorContext).editorModeStatus) && (
+    {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
       <Section name={sectionNames.interaction}>
         {children.onEvent.getPropertyView()}
         {disabledPropertyView(children)}
@@ -65,19 +63,18 @@ export const CascaderPropertyView = (
       </Section>
     )}
 
-    {['layout', 'both'].includes(useContext(EditorContext).editorModeStatus) &&
-      children.label.getPropertyView()}
+    {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+      children.label.getPropertyView()
+    )}
 
-    {['logic', 'both'].includes(useContext(EditorContext).editorModeStatus) && (
+    {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
       <Section name={sectionNames.advanced}>
         {allowClearPropertyView(children)}
         {showSearchPropertyView(children)}
       </Section>
     )}
 
-    {['layout', 'both'].includes(
-      useContext(EditorContext).editorModeStatus
-    ) && (
+    {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
       <>
         <Section name={sectionNames.style}>
           {children.style.getPropertyView()}
