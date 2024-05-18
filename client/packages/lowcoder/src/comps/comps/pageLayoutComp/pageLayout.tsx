@@ -339,7 +339,7 @@ export function PageLayout(props: LayoutProps & { siderCollapsed: boolean; setSi
                         autoHeight={true}
                         emptyRows={5}
                         minHeight={"48px"}
-                         containerPadding={[0, 0]}
+                        containerPadding={[0, 0]}
                         showName={{ top: showHeader ? 20 : 0 }}
                         $backgroundColor={footerStyle?.footerBackground || 'transparent'}
                         $footerBackgroundImage={footerStyle?.footerBackgroundImage}
