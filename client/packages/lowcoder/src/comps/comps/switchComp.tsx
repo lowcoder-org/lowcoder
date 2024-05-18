@@ -85,7 +85,7 @@ function fixOldData(oldData: any) {
  */
 let SwitchTmpComp = (function () {
   const childrenMap = {
-    value: booleanExposingStateControl('value'),
+    value: booleanExposingStateControl("value"),
     label: LabelControl,
     onEvent: eventHandlerControl(EventOptions),
     disabled: BoolCodeControl,
@@ -97,7 +97,7 @@ let SwitchTmpComp = (function () {
       )
     ),
     viewRef: RefControl<HTMLElement>,
-    inputFieldStyle: migrateOldData(styleControl(SwitchStyle), fixOldData),
+    inputFieldStyle:migrateOldData(styleControl(SwitchStyle), fixOldData),
     ...formDataChildren,
   };
   return new UICompBuilder(childrenMap, (props) => {
