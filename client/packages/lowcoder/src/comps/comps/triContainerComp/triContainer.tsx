@@ -1,70 +1,44 @@
-import {
-  AnimationStyleType,
-  ContainerBodyStyleType,
-  ContainerHeaderStyleType,
-  ContainerStyleType,
-  heightCalculator,
-  widthCalculator,
-} from 'comps/controls/styleControlConstants';
-import {EditorContext} from 'comps/editorState';
-import {BackgroundColorContext} from 'comps/utils/backgroundColorContext';
-import {HintPlaceHolder, ScrollBar} from 'lowcoder-design';
-import {ReactNode, useContext} from 'react';
-import styled, {css} from 'styled-components';
-import {checkIsMobile} from 'util/commonUtils';
-import {
-  gridItemCompToGridItems,
-  InnerGrid,
-} from '../containerComp/containerView';
-import {TriContainerViewProps} from '../triContainerComp/triContainerCompBuilder';
+import { AnimationStyleType, ContainerStyleType, heightCalculator, widthCalculator } from "comps/controls/styleControlConstants";
+import { EditorContext } from "comps/editorState";
+import { BackgroundColorContext } from "comps/utils/backgroundColorContext";
+import { HintPlaceHolder, ScrollBar } from "lowcoder-design";
+import { ReactNode, useContext } from "react";
+import styled, { css } from "styled-components";
+import { checkIsMobile } from "util/commonUtils";
+import { gridItemCompToGridItems, InnerGrid } from "../containerComp/containerView";
+import { TriContainerViewProps } from "../triContainerComp/triContainerCompBuilder";
 
 const getStyle = (style: ContainerStyleType) => {
   return css`
     border-color: ${style.border};
     border-width: ${style.borderWidth};
     border-radius: ${style.radius};
-    rotate: ${style.rotation};
     overflow: hidden;
     padding: ${style.padding};
     ${style.background && `background-color: ${style.background};`}
-    ${style.backgroundImage &&
-    `background-image: url(${style.backgroundImage});`}
-    ${style.backgroundImageRepeat &&
-    `background-repeat: ${style.backgroundImageRepeat};`}
-    ${style.backgroundImageSize &&
-    `background-size: ${style.backgroundImageSize};`}
-    ${style.backgroundImagePosition &&
-    `background-position: ${style.backgroundImagePosition};`}
-    ${style.backgroundImageOrigin &&
-    `background-origin: ${style.backgroundImageOrigin};`}
+    ${style.backgroundImage && `background-image: url(${style.backgroundImage});`}
+    ${style.backgroundImageRepeat && `background-repeat: ${style.backgroundImageRepeat};`}
+    ${style.backgroundImageSize && `background-size: ${style.backgroundImageSize};`}
+    ${style.backgroundImagePosition && `background-position: ${style.backgroundImagePosition};`}
+    ${style.backgroundImageOrigin && `background-origin: ${style.backgroundImageOrigin};`}
   `;
 };
 
-const Wrapper = styled.div<{
-  $style: ContainerStyleType;
-  $animationStyle?: AnimationStyleType;
-}>`
+const Wrapper = styled.div<{$style: ContainerStyleType; $animationStyle?:AnimationStyleType}>`
   display: flex;
   flex-flow: column;
   height: 100%;
   border: 1px solid #d7d9e0;
   border-radius: 4px;
-  ${(props) => props.$animationStyle && props.$animationStyle}
-  ${(props) => {
-    return props.$style && getStyle(props.$style);
-  }}
+  ${(props) => props.$style && getStyle(props.$style)}
+  ${props=>props.$animationStyle&&props.$animationStyle}
 `;
 
 const HeaderInnerGrid = styled(InnerGrid)<{
-  $backgroundColor: string;
-  $headerStyle: ContainerHeaderStyleType;
-}>`
+  $backgroundColor: string
+ }>`
   overflow: visible;
-  rotate:${(props) => {
-    return `${props.$headerStyle.rotation};`;
-  }}
-  ${(props) =>
-    props.$backgroundColor && `background-color: ${props.$backgroundColor};`}
+  ${(props) => props.$backgroundColor && `background-color: ${props.$backgroundColor};`}
   border-radius: 0;
 `;
 
@@ -73,16 +47,10 @@ const BodyInnerGrid = styled(InnerGrid)<{
   $backgroundColor: string;
   $borderColor: string;
   $borderWidth: string;
-  $bodyStyle: ContainerBodyStyleType;
 }>`
-  border-top: ${(props) =>
-    `${props.$showBorder ? props.$borderWidth : 0} solid ${props.$borderColor}`};
+  border-top: ${(props) => `${props.$showBorder ? props.$borderWidth : 0} solid ${props.$borderColor}`};
   flex: 1;
-  rotate:${(props) => {
-    return `${props.$bodyStyle.rotation};`;
-  }}
-  ${(props) =>
-    props.$backgroundColor && `background-color: ${props.$backgroundColor};`}
+  ${(props) => props.$backgroundColor && `background-color: ${props.$backgroundColor};`}
   border-radius: 0;
 `;
 
@@ -97,27 +65,15 @@ const FooterInnerGrid = styled(InnerGrid)<{
   $footerBackgroundImagePosition: string;
   $footerBackgroundImageOrigin: string;
 }>`
-  border-top: ${(props) =>
-    `${props.$showBorder ? props.$borderWidth : 0} solid ${props.$borderColor}`};
+  border-top: ${(props) => `${props.$showBorder ? props.$borderWidth : 0} solid ${props.$borderColor}`};
   overflow: visible;
-  ${(props) =>
-    props.$backgroundColor && `background-color: ${props.$backgroundColor};`}
+  ${(props) => props.$backgroundColor && `background-color: ${props.$backgroundColor};`}
   border-radius: 0;
-  ${(props) =>
-    props.$footerBackgroundImage &&
-    `background-image: url(${props.$footerBackgroundImage});`}
-  ${(props) =>
-    props.$footerBackgroundImageRepeat &&
-    `background-repeat: ${props.$footerBackgroundImageRepeat};`}
-  ${(props) =>
-    props.$footerBackgroundImageSize &&
-    `background-size: ${props.$footerBackgroundImageSize};`}
-  ${(props) =>
-    props.$footerBackgroundImagePosition &&
-    `background-position: ${props.$footerBackgroundImagePosition};`}
-  ${(props) =>
-    props.$footerBackgroundImageOrigin &&
-    `background-origin: ${props.$footerBackgroundImageOrigin};`}
+  ${(props) => props.$footerBackgroundImage && `background-image: url(${props.$footerBackgroundImage});`}
+  ${(props) => props.$footerBackgroundImageRepeat && `background-repeat: ${props.$footerBackgroundImageRepeat};`}
+  ${(props) => props.$footerBackgroundImageSize && `background-size: ${props.$footerBackgroundImageSize};`}
+  ${(props) => props.$footerBackgroundImagePosition && `background-position: ${props.$footerBackgroundImagePosition};`}
+  ${(props) => props.$footerBackgroundImageOrigin && `background-origin: ${props.$footerBackgroundImageOrigin};`}
 `;
 
 export type TriContainerProps = TriContainerViewProps & {
@@ -127,16 +83,20 @@ export type TriContainerProps = TriContainerViewProps & {
 
 export function TriContainer(props: TriContainerProps) {
   const {container, animationStyle} = props;
-  const {showHeader, showFooter} = container;
+  const { showHeader, showFooter } = container;
   // When the header and footer are not displayed, the body must be displayed
   const showBody = container.showBody || (!showHeader && !showFooter);
   const scrollbars = container.scrollbars;
 
-  const {items: headerItems, ...otherHeaderProps} = container.header;
-  const {items: bodyItems, ...otherBodyProps} =
-    container.body['0'].children.view.getView();
-  const {items: footerItems, ...otherFooterProps} = container.footer;
-  const {style, headerStyle, bodyStyle, footerStyle} = container;
+  const { items: headerItems, ...otherHeaderProps } = container.header;
+  const { items: bodyItems, ...otherBodyProps } = container.body["0"].children.view.getView();
+  const { items: footerItems, ...otherFooterProps } = container.footer;
+  const {
+    style,
+    headerStyle,
+    bodyStyle,
+    footerStyle,
+  } = container;
 
   const editorState = useContext(EditorContext);
   const maxWidth = editorState.getAppSettings().maxWidth;
@@ -156,7 +116,6 @@ export function TriContainer(props: TriContainerProps) {
               minHeight="46px"
               containerPadding={[paddingWidth, 3]}
               showName={{bottom: showBody || showFooter ? 20 : 0}}
-              $headerStyle={headerStyle}
               $backgroundColor={headerStyle?.headerBackground || 'transparent'}
               style={{padding: headerStyle.containerHeaderPadding}}
             />
@@ -184,7 +143,6 @@ export function TriContainer(props: TriContainerProps) {
                     ? [paddingWidth, 11.5]
                     : [paddingWidth, 11]
                 }
-                $bodyStyle={bodyStyle}
                 hintPlaceholder={props.hintPlaceholder ?? HintPlaceHolder}
                 $backgroundColor={bodyStyle?.background || 'transparent'}
                 $borderColor={style?.border}
