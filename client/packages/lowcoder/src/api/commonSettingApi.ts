@@ -1,7 +1,7 @@
-import Api from './api';
-import {AxiosPromise} from 'axios';
-import {ApiResponse, GenericApiResponse} from './apiResponses';
-import {trans} from 'i18n';
+import Api from "./api";
+import { AxiosPromise } from "axios";
+import { ApiResponse, GenericApiResponse } from "./apiResponses";
+import { trans } from "i18n";
 
 export type FetchCommonSettingPayload = {
   orgId: string;
@@ -59,45 +59,42 @@ export interface ThemeDetail {
 
 export function getThemeDetailName(key: keyof ThemeDetail) {
   switch (key) {
-    case 'primary':
-      return trans('themeDetail.primary');
-    case 'textDark':
-      return trans('themeDetail.textDark');
-    case 'textLight':
-      return trans('themeDetail.textLight');
-    case 'canvas':
-      return trans('themeDetail.canvas');
-    case 'primarySurface':
-      return trans('themeDetail.primarySurface');
-    case 'borderRadius':
-      return trans('themeDetail.borderRadius');
-    case 'margin':
-      return trans('style.margin');
-    case 'animation':
-      return trans('style.animation');
-    case 'padding':
-      return trans('style.padding');
+    case "primary":
+      return trans("themeDetail.primary");
+    case "textDark":
+      return trans("themeDetail.textDark");
+    case "textLight":
+      return trans("themeDetail.textLight");
+    case "canvas":
+      return trans("themeDetail.canvas");
+    case "primarySurface":
+      return trans("themeDetail.primarySurface");
+    case "borderRadius":
+      return trans("themeDetail.borderRadius");
+    case "margin":	
+      return trans("style.margin");	
+    case "padding":	
+      return trans("style.padding");
     //Added By Aqib Mirza
-    case 'gridColumns':
-      return trans('themeDetail.gridColumns');
-    case 'textSize':
-      return trans('style.textSize');
+    case "gridColumns":
+      return trans("themeDetail.gridColumns");
+    case "textSize":
+      return trans("style.textSize");
   }
-  return '';
+  return "";
 }
 
 export function isThemeColorKey(key: string) {
   switch (key as keyof ThemeDetail) {
-    case 'primary':
-    case 'textDark':
-    case 'textLight':
-    case 'canvas':
-    case 'primarySurface':
-    case 'margin':
-    case 'animation':
-    case 'padding':
-    case 'gridColumns': //Added By Aqib Mirza
-    case 'textSize':
+    case "primary":
+    case "textDark":
+    case "textLight":
+    case "canvas":
+    case "primarySurface":
+    case "margin":	
+    case "padding":
+    case "gridColumns": //Added By Aqib Mirza
+    case "textSize":
       return true;
   }
   return false;
@@ -108,8 +105,7 @@ export interface SetCommonSettingResponse extends ApiResponse {
 }
 
 class CommonSettingApi extends Api {
-  static commonSettingUrl = (orgId: string) =>
-    `/organizations/${orgId}/common-settings`;
+  static commonSettingUrl = (orgId: string) => `/organizations/${orgId}/common-settings`;
 
   static fetchCommonSetting(
     request: FetchCommonSettingPayload
@@ -120,7 +116,7 @@ class CommonSettingApi extends Api {
   static setCommonSetting<T>(
     request: SetCommonSettingPayload<T>
   ): AxiosPromise<SetCommonSettingResponse> {
-    const {orgId, ...rest} = request;
+    const { orgId, ...rest } = request;
     return Api.put(CommonSettingApi.commonSettingUrl(request.orgId), rest.data);
   }
 }
