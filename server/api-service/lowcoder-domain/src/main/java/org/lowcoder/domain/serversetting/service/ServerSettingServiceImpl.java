@@ -47,6 +47,7 @@ public class ServerSettingServiceImpl implements ServerSettingService {
     public void saveEnvironmentVariables() {
         Map<String, String> envVariables = System.getenv();
         Flux.fromIterable(envVariables.keySet())
+                .filter(key -> key.contains("LOWCODER_"))
                 .map(key -> {
                     String value = envVariables.getOrDefault(key, "");
                     if(EXCLUDED_KEYS.contains(key)) {

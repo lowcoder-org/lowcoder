@@ -89,6 +89,7 @@ public class SecurityConfig {
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.HEAD, STATE_URL + "/healthCheck"),
                         // used in public viewed apps
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, CONFIG_URL), // system config
+                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, SERVER_SETTING_URL), // system env
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, CONFIG_URL + "/deploymentId"), // system config
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, APPLICATION_URL + "/*/view"), // application view
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, APPLICATION_URL + "/*/view_marketplace"), // application view
