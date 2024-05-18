@@ -38,7 +38,7 @@ import {
 } from "comps/controls/styleControlConstants";
 // Initialise exposed values
 import { stateComp, valueComp } from "comps/generators/simpleGenerators";
-// The component's api for exposing properties externally
+// The component"s api for exposing properties externally
 import {
   NameConfig,
   NameConfigHidden,
@@ -86,26 +86,26 @@ const EventOptions = [
 
 const childrenMap = {
   value: jsonControl(convertCommentData, commentDate),
-  title: withDefault(StringControl, trans('comment.titledDefaultValue')),
-  placeholder: withDefault(StringControl, trans('comment.placeholder')),
-  buttonText: withDefault(StringControl, trans('comment.buttonText')),
+  title: withDefault(StringControl, trans("comment.titledDefaultValue")),
+  placeholder: withDefault(StringControl, trans("comment.placeholder")),
+  buttonText: withDefault(StringControl, trans("comment.buttonText")),
   sendCommentAble: BoolControl.DEFAULT_TRUE,
   deleteAble: BoolControl,
   userInfo: jsonControl(checkUserInfoData, {
-    name: '{{currentUser.name}}',
-    email: '{{currentUser.email}}',
+    name: "{{currentUser.name}}",
+    email: "{{currentUser.email}}",
   }),
   mentionList: jsonControl(checkMentionListData, {
-    '@': ['Li Lei', 'Han Meimei'],
-    '#': ['123', '456', '789'],
+    "@": ["Li Lei", "Han Meimei"],
+    "#": ["123", "456", "789"],
   }),
   onEvent: eventHandlerControl(EventOptions),
   style: styleControl(CommentStyle),
   animationStyle: styleControl(AnimationStyle),
-  commentList: jsonValueExposingStateControl('commentList', []),
-  deletedItem: jsonValueExposingStateControl('deletedItem', []),
-  submitedItem: jsonValueExposingStateControl('submitedItem', []),
-  mentionName: valueComp<string>(''),
+  commentList: jsonValueExposingStateControl("commentList", []),
+  deletedItem: jsonValueExposingStateControl("deletedItem", []),
+  submitedItem: jsonValueExposingStateControl("submitedItem", []),
+  mentionName: valueComp<string>(""),
 };
 
 const CommentCompBase = (
@@ -253,7 +253,7 @@ const CommentCompBase = (
         <List
           header={
             title !== "" ? (
-              <div style={{position: 'sticky', top:0, background: style.background}}>
+              <div style={{position: "sticky", top:0, background: style.background}}>
                 {commentListData.length > 1
                   ? title
                       .replaceAll("%d", commentListData.length.toString())
