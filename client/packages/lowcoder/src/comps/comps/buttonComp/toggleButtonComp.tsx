@@ -82,17 +82,17 @@ const ToggleTmpComp = (function () {
           loading={props.loading}
           disabled={props.disabled}
           onClick={() => {
-            props.onEvent('change');
+            props.onEvent("change");
             props.value.onChange(!props.value.value);
           }}
         >
-          {props.iconPosition === 'right' && text}
+          {props.iconPosition === "right" && text}
           {
             <IconWrapper>
               {props.value.value ? props.trueIcon : props.falseIcon}
             </IconWrapper>
           }
-          {props.iconPosition === 'left' && text}
+          {props.iconPosition === "left" && text}
         </Button100>
       </ButtonCompWrapperStyled>
     );
@@ -101,13 +101,13 @@ const ToggleTmpComp = (function () {
       <>
         <Section name={sectionNames.basic}>
           {children.value.propertyView({
-            label: trans('prop.defaultValue'),
-            tooltip: trans('toggleButton.valueDesc'),
+            label: trans("prop.defaultValue"),
+            tooltip: trans("toggleButton.valueDesc"),
           })}
         </Section>
 
-        {(useContext(EditorContext).editorModeStatus === 'logic' ||
-          useContext(EditorContext).editorModeStatus === 'both') && (
+        {(useContext(EditorContext).editorModeStatus === "logic" ||
+          useContext(EditorContext).editorModeStatus === "both") && (
           <>
             <Section name={sectionNames.interaction}>
               {children.onEvent.getPropertyView()}
@@ -117,41 +117,41 @@ const ToggleTmpComp = (function () {
             </Section>
             <Section name={sectionNames.advanced}>
               {children.showText.propertyView({
-                label: trans('toggleButton.showText'),
+                label: trans("toggleButton.showText"),
               })}
               {children.showText.getView() &&
                 children.trueText.propertyView({
-                  label: trans('toggleButton.trueLabel'),
+                  label: trans("toggleButton.trueLabel"),
                 })}
               {children.showText.getView() &&
                 children.falseText.propertyView({
-                  label: trans('toggleButton.falseLabel'),
+                  label: trans("toggleButton.falseLabel"),
                 })}
               {children.trueIcon.propertyView({
-                label: trans('toggleButton.trueIconLabel'),
+                label: trans("toggleButton.trueIconLabel"),
               })}
               {children.falseIcon.propertyView({
-                label: trans('toggleButton.falseIconLabel'),
+                label: trans("toggleButton.falseIconLabel"),
               })}
               {children.showText.getView() &&
                 children.iconPosition.propertyView({
-                  label: trans('toggleButton.iconPosition'),
+                  label: trans("toggleButton.iconPosition"),
                   radioButton: true,
                 })}
               {children.alignment.propertyView({
-                label: trans('toggleButton.alignment'),
+                label: trans("toggleButton.alignment"),
                 radioButton: true,
               })}
             </Section>
           </>
         )}
 
-        {(useContext(EditorContext).editorModeStatus === 'layout' ||
-          useContext(EditorContext).editorModeStatus === 'both') && (
+        {(useContext(EditorContext).editorModeStatus === "layout" ||
+          useContext(EditorContext).editorModeStatus === "both") && (
           <>
             <Section name={sectionNames.style}>
               {children.showBorder.propertyView({
-                label: trans('toggleButton.showBorder'),
+                label: trans("toggleButton.showBorder"),
               })}
               {children.style.getPropertyView()}
             </Section>
