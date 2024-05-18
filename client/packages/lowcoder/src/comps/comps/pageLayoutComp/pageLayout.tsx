@@ -1,31 +1,18 @@
-import {
-  AnimationStyleType,
-  ContainerBodyStyleType,
-  ContainerHeaderStyleType,
-  ContainerStyleType,
-  heightCalculator,
-  widthCalculator,
-} from 'comps/controls/styleControlConstants';
-import {EditorContext} from 'comps/editorState';
-import {BackgroundColorContext} from 'comps/utils/backgroundColorContext';
-import {HintPlaceHolder, ScrollBar} from 'lowcoder-design';
-import {ReactNode, useContext, useEffect} from 'react';
-import styled, {css} from 'styled-components';
-import {checkIsMobile} from 'util/commonUtils';
-import {
-  gridItemCompToGridItems,
-  InnerGrid,
-} from '../containerComp/containerView';
-import {LayoutViewProps} from './pageLayoutCompBuilder';
-import {ConfigProvider, Layout} from 'antd';
-import {
-  contrastBackground,
-  contrastText,
-} from 'comps/controls/styleControlConstants';
-import {useRef, useState} from 'react';
-import {LowcoderAppView} from 'appView/LowcoderAppView';
+import { AnimationStyleType, ContainerStyleType, heightCalculator, widthCalculator } from "comps/controls/styleControlConstants";
+import { EditorContext } from "comps/editorState";
+import { BackgroundColorContext } from "comps/utils/backgroundColorContext";
+import { HintPlaceHolder, ScrollBar } from "lowcoder-design";
+import { ReactNode, useContext, useEffect } from "react";
+import styled, { css } from "styled-components";
+import { checkIsMobile } from "util/commonUtils";
+import { gridItemCompToGridItems, InnerGrid } from "../containerComp/containerView";
+import { LayoutViewProps } from "./pageLayoutCompBuilder";
+import { ConfigProvider, Layout } from 'antd';
+import { contrastBackground, contrastText } from "comps/controls/styleControlConstants";
+import { useRef, useState } from "react";
+import { LowcoderAppView } from "appView/LowcoderAppView";
 
-const {Header, Content, Footer, Sider} = Layout;
+const { Header, Content, Footer, Sider } = Layout;
 
 const AppViewContainer = styled.div`
   width: 100%;
@@ -43,75 +30,48 @@ const getStyle = (style: ContainerStyleType) => {
     overflow: hidden;
     padding: ${style.padding};
     ${style.background && `background-color: ${style.background};`}
-    ${style.backgroundImage &&
-    `background-image: url(${style.backgroundImage});`}
-    ${style.backgroundImageRepeat &&
-    `background-repeat: ${style.backgroundImageRepeat};`}
-    ${style.backgroundImageSize &&
-    `background-size: ${style.backgroundImageSize};`}
-    ${style.backgroundImagePosition &&
-    `background-position: ${style.backgroundImagePosition};`}
-    ${style.backgroundImageOrigin &&
-    `background-origin: ${style.backgroundImageOrigin};`}
+    ${style.backgroundImage && `background-image: url(${style.backgroundImage});`}
+    ${style.backgroundImageRepeat && `background-repeat: ${style.backgroundImageRepeat};`}
+    ${style.backgroundImageSize && `background-size: ${style.backgroundImageSize};`}
+    ${style.backgroundImagePosition && `background-position: ${style.backgroundImagePosition};`}
+    ${style.backgroundImageOrigin && `background-origin: ${style.backgroundImageOrigin};`}
   `;
 };
 
-const Wrapper = styled.div<{
-  $style: ContainerStyleType;
-  $animationStyle: AnimationStyleType;
-}>`
+const Wrapper = styled.div<{ $style: ContainerStyleType,$animationStyle:AnimationStyleType }>`
   display: flex;
   flex-flow: column;
   height: 100%;
   border: 1px solid #d7d9e0;
   border-radius: 4px;
   ${(props) => props.$style && getStyle(props.$style)}
-  rotate: ${(props) => props.$style.rotation};
-  ${(props) => props.$animationStyle}
+  ${props=>props.$animationStyle}
 `;
 
 const HeaderInnerGrid = styled(InnerGrid)<{
-  $backgroundColor: string;
-  $headerStyle: ContainerHeaderStyleType;
-}>`
-  overflow: visible;  rotate:${(props) => {
-    return `${props.$headerStyle.rotation};`;
-  }}
-   rotate:${(props) => {
-     return `${props.$headerStyle.rotation}`;
-   }};
-  ${(props) =>
-    props.$backgroundColor && `background-color: ${props.$backgroundColor};`}
+  $backgroundColor: string
+ }>`
+  overflow: visible;
+  ${(props) => props.$backgroundColor && `background-color: ${props.$backgroundColor};`}
   border-radius: 0;
 `;
 
 const SiderInnerGrid = styled(InnerGrid)<{
-  $backgroundColor: string;
+  $backgroundColor: string
   $siderBackgroundImage: string;
   $siderBackgroundImageRepeat: string;
   $siderBackgroundImageSize: string;
   $siderBackgroundImagePosition: string;
   $siderBackgroundImageOrigin: string;
-}>`
+ }>`
   overflow: auto;
-  ${(props) =>
-    props.$backgroundColor && `background-color: ${props.$backgroundColor};`}
+  ${(props) => props.$backgroundColor && `background-color: ${props.$backgroundColor};`}
   border-radius: 0;
-  ${(props) =>
-    props.$siderBackgroundImage &&
-    `background-image: url(${props.$siderBackgroundImage});`}
-  ${(props) =>
-    props.$siderBackgroundImageRepeat &&
-    `background-repeat: ${props.$siderBackgroundImageRepeat};`}
-  ${(props) =>
-    props.$siderBackgroundImageSize &&
-    `background-size: ${props.$siderBackgroundImageSize};`}
-  ${(props) =>
-    props.$siderBackgroundImagePosition &&
-    `background-position: ${props.$siderBackgroundImagePosition};`}
-  ${(props) =>
-    props.$siderBackgroundImageOrigin &&
-    `background-origin: ${props.$siderBackgroundImageOrigin};`}
+  ${(props) => props.$siderBackgroundImage && `background-image: url(${props.$siderBackgroundImage});`}
+  ${(props) => props.$siderBackgroundImageRepeat && `background-repeat: ${props.$siderBackgroundImageRepeat};`}
+  ${(props) => props.$siderBackgroundImageSize && `background-size: ${props.$siderBackgroundImageSize};`}
+  ${(props) => props.$siderBackgroundImagePosition && `background-position: ${props.$siderBackgroundImagePosition};`}
+  ${(props) => props.$siderBackgroundImageOrigin && `background-origin: ${props.$siderBackgroundImageOrigin};`}
 `;
 
 const BodyInnerGrid = styled(InnerGrid)<{
@@ -119,16 +79,10 @@ const BodyInnerGrid = styled(InnerGrid)<{
   $backgroundColor: string;
   $borderColor: string;
   $borderWidth: string;
-  $bodyStyle: ContainerBodyStyleType;
 }>`
-  rotate: ${(props) => {
-    return `${props.$bodyStyle.rotation}`;
-  }};
-  border-top: ${(props) =>
-    `${props.$showBorder ? props.$borderWidth : 0} solid ${props.$borderColor}`};
+  border-top: ${(props) => `${props.$showBorder ? props.$borderWidth : 0} solid ${props.$borderColor}`};
   flex: 1;
-  ${(props) =>
-    props.$backgroundColor && `background-color: ${props.$backgroundColor};`}
+  ${(props) => props.$backgroundColor && `background-color: ${props.$backgroundColor};`}
   border-radius: 0;
 `;
 
@@ -143,63 +97,50 @@ const FooterInnerGrid = styled(InnerGrid)<{
   $footerBackgroundImagePosition: string;
   $footerBackgroundImageOrigin: string;
 }>`
-  border-top: ${(props) =>
-    `${props.$showBorder ? props.$borderWidth : 0} solid ${props.$borderColor}`};
+  border-top: ${(props) => `${props.$showBorder ? props.$borderWidth : 0} solid ${props.$borderColor}`};
   overflow: visible;
-  ${(props) =>
-    props.$backgroundColor && `background-color: ${props.$backgroundColor};`}
+  ${(props) => props.$backgroundColor && `background-color: ${props.$backgroundColor};`}
   border-radius: 0;
-  ${(props) =>
-    props.$footerBackgroundImage &&
-    `background-image: url(${props.$footerBackgroundImage});`}
-  ${(props) =>
-    props.$footerBackgroundImageRepeat &&
-    `background-repeat: ${props.$footerBackgroundImageRepeat};`}
-  ${(props) =>
-    props.$footerBackgroundImageSize &&
-    `background-size: ${props.$footerBackgroundImageSize};`}
-  ${(props) =>
-    props.$footerBackgroundImagePosition &&
-    `background-position: ${props.$footerBackgroundImagePosition};`}
-  ${(props) =>
-    props.$footerBackgroundImageOrigin &&
-    `background-origin: ${props.$footerBackgroundImageOrigin};`}
+  ${(props) => props.$footerBackgroundImage && `background-image: url(${props.$footerBackgroundImage});`}
+  ${(props) => props.$footerBackgroundImageRepeat && `background-repeat: ${props.$footerBackgroundImageRepeat};`}
+  ${(props) => props.$footerBackgroundImageSize && `background-size: ${props.$footerBackgroundImageSize};`}
+  ${(props) => props.$footerBackgroundImagePosition && `background-position: ${props.$footerBackgroundImagePosition};`}
+  ${(props) => props.$footerBackgroundImageOrigin && `background-origin: ${props.$footerBackgroundImageOrigin};`}
 `;
 
 export type LayoutProps = LayoutViewProps & {
   hintPlaceholder?: ReactNode;
-  animationStyle: AnimationStyleType;
+  animationStyle:AnimationStyleType;
 };
 
-export function PageLayout(
-  props: LayoutProps & {
-    siderCollapsed: boolean;
-    setSiderCollapsed: (collapsed: boolean) => void;
-  }
-) {
+
+export function PageLayout(props: LayoutProps & { siderCollapsed: boolean; setSiderCollapsed: (collapsed: boolean) => void }) {
   const {container, siderCollapsed, setSiderCollapsed, animationStyle} = props;
-  const {showHeader, showFooter, showSider} = container;
-  const {items: headerItems, ...otherHeaderProps} = container.header;
-  const {items: bodyItems, ...otherBodyProps} =
-    container.body['0'].children.view.getView();
-  const {items: footerItems, ...otherFooterProps} = container.footer;
-  const {items: siderItems, ...otherSiderProps} = container.sider;
-  const {style, headerStyle, siderStyle, bodyStyle, footerStyle} = container;
+  const { showHeader, showFooter, showSider } = container;
+  const { items: headerItems, ...otherHeaderProps } = container.header;
+  const { items: bodyItems, ...otherBodyProps } = container.body["0"].children.view.getView();
+  const { items: footerItems, ...otherFooterProps } = container.footer;
+  const { items: siderItems, ...otherSiderProps } = container.sider;
+  const {
+    style,
+    headerStyle,
+    siderStyle,
+    bodyStyle,
+    footerStyle,
+  } = container; 
 
   const editorState = useContext(EditorContext);
   const maxWidth = editorState.getAppSettings().maxWidth;
   const isMobile = checkIsMobile(maxWidth);
   const appRef = useRef();
 
-  function onSiderCollapse(collapsed: boolean) {
+  function onSiderCollapse (collapsed : boolean) {
     props.setSiderCollapsed(collapsed);
     // how to set the collapsed state in the container when the user manually collapses the sider?
   }
 
-  useEffect(() => {
-    setSiderCollapsed(container.siderCollapsed);
-  }, [container.siderCollapsed]);
-
+  useEffect(() => {setSiderCollapsed(container.siderCollapsed)} , [container.siderCollapsed]);
+  
   return (
     <div style={{padding: style.margin, height: '100%'}}>
       <ConfigProvider
@@ -296,7 +237,6 @@ export function PageLayout(
                     >
                       <HeaderInnerGrid
                         {...otherHeaderProps}
-                        $headerStyle={headerStyle}
                         items={gridItemCompToGridItems(headerItems)}
                         autoHeight={true}
                         emptyRows={5}
@@ -408,7 +348,6 @@ export function PageLayout(
                           </BackgroundColorContext.Provider>
                         ) : (
                           <BodyInnerGrid
-                            $bodyStyle={bodyStyle}
                             $showBorder={showHeader}
                             {...otherBodyProps}
                             items={gridItemCompToGridItems(bodyItems)}
@@ -518,7 +457,6 @@ export function PageLayout(
                       <BodyInnerGrid
                         $showBorder={showHeader}
                         {...otherBodyProps}
-                        $bodyStyle={bodyStyle}
                         items={gridItemCompToGridItems(bodyItems)}
                         autoHeight={container.autoHeight}
                         emptyRows={14}
