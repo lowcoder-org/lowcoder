@@ -87,11 +87,7 @@ const ToggleTmpComp = (function () {
           }}
         >
           {props.iconPosition === "right" && text}
-          {
-            <IconWrapper>
-              {props.value.value ? props.trueIcon : props.falseIcon}
-            </IconWrapper>
-          }
+          {<IconWrapper>{props.value.value ? props.trueIcon : props.falseIcon}</IconWrapper>}
           {props.iconPosition === "left" && text}
         </Button100>
       </ButtonCompWrapperStyled>
@@ -106,10 +102,8 @@ const ToggleTmpComp = (function () {
           })}
         </Section>
 
-        {(useContext(EditorContext).editorModeStatus === "logic" ||
-          useContext(EditorContext).editorModeStatus === "both") && (
-          <>
-            <Section name={sectionNames.interaction}>
+        {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
+          <><Section name={sectionNames.interaction}>
               {children.onEvent.getPropertyView()}
               {disabledPropertyView(children)}
               {hiddenPropertyView(children)}
