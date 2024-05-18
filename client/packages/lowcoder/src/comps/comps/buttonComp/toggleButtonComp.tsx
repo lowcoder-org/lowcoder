@@ -137,7 +137,7 @@ const ToggleTmpComp = (function () {
                 children.iconPosition.propertyView({
                   label: trans("toggleButton.iconPosition"),
                   radioButton: true,
-                })}
+              })}
               {children.alignment.propertyView({
                 label: trans("toggleButton.alignment"),
                 radioButton: true,
