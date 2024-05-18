@@ -48,6 +48,7 @@ const Warpper = styled.div<{
     rotate: ${props => props.$headerStyle?.rotation};
     margin: ${props => props.$headerStyle?.margin};
     padding: ${props => props.$headerStyle?.padding};
+  }
   .ant-card .ant-card-actions {
     border-top: 1px solid ${props => props.$style?.border};
   }
@@ -58,7 +59,7 @@ const Warpper = styled.div<{
     background-color: ${props => props.$style?.background};
   }
   .ant-card .ant-card-body {
-    background-color: ${props => props.$bodyStyle?.background} !important;
+     background-color: ${props => props.$bodyStyle?.background} !important;
     border: ${props => props.$bodyStyle?.border};
     border-style: ${props => props.$bodyStyle?.borderStyle};
     border-width: ${props => props.$bodyStyle?.borderWidth};
@@ -71,7 +72,7 @@ const Warpper = styled.div<{
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-   background-color: ${props => props.$style?.background};
+    background-color: ${props => props.$style?.background};
     border: ${props => props.$style?.border};
     border-style: ${props => props.$style?.borderStyle};
     border-radius: ${props => props.$style?.radius};
