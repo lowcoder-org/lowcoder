@@ -45,17 +45,19 @@ function getStyle(style: any) {
   `;
 }
 
-const LabelViewWrapper = styled.div<{ $style: any, inputFieldStyle: any,$animationStyle:AnimationStyleType }>`
+const LabelViewWrapper = styled.div<{ $style: any, inputFieldStyle: any,$animationStyle:any }>`
 ${(props) => {
     return (
       props.$style && {
         ...props.$style,
         borderRadius: props.$style.radius,
+        rotate: props.$style.rotation,
+        boxShadow: `${props.$style.boxShadow} ${props.$style.boxShadowColor}`,
       }
     );
   }}
   ${(props) => props.inputFieldStyle && getStyle(props.inputFieldStyle)}
-  ${(props) => props.animationStyle && props.animationStyle}
+  ${(props) => props.$animationStyle && props.$animationStyle}
   display: flex;
   flex-direction: column;
   height: 100%;
