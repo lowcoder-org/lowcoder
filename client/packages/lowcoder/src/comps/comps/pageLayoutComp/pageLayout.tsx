@@ -155,7 +155,7 @@ export function PageLayout(props: LayoutProps & { siderCollapsed: boolean; setSi
           }}
         >
         <Wrapper $style={style} $animationStyle={animationStyle}>
-          <Layout style={{padding: "0px"}} hasSider={showSider && !container.innerSider}>
+        <Layout style={{padding: "0px"}} hasSider={showSider && !container.innerSider}>
           {showSider && !container.innerSider && !container.siderRight && (
             <><BackgroundColorContext.Provider value={siderStyle?.siderBackground}>
               <Sider 
@@ -165,8 +165,8 @@ export function PageLayout(props: LayoutProps & { siderCollapsed: boolean; setSi
                 breakpoint="sm"
                 collapsedWidth={container.siderCollapsedWidth}
                 collapsed={siderCollapsed} onCollapse={(value) => onSiderCollapse(value)}
-                  >
-                    <ScrollBar style={{ height: container.autoHeight ? "auto" : "100%", margin: "0px", padding: "0px" }} hideScrollbar={!container.siderScrollbars}>
+                 >
+                  <ScrollBar style={{ height: container.autoHeight ? "auto" : "100%", margin: "0px", padding: "0px" }} hideScrollbar={!container.siderScrollbars}>
                     <SiderInnerGrid
                       {...otherSiderProps}
                       items={gridItemCompToGridItems(siderItems)}
