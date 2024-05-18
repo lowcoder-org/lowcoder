@@ -1,46 +1,30 @@
-import {withTheme} from '@rjsf/core';
-import type {
-  RJSFValidationError,
-  ErrorListProps,
-  UISchemaSubmitButtonOptions,
-} from '@rjsf/utils';
-import validator from '@rjsf/validator-ajv8';
+import { withTheme } from '@rjsf/core';
+import type { RJSFValidationError, ErrorListProps, UISchemaSubmitButtonOptions } from "@rjsf/utils";
+import validator from "@rjsf/validator-ajv8";
 // import Ajv from "@rjsf/validator-ajv8";
-import {default as Button} from 'antd/es/button';
-import {BoolControl} from 'comps/controls/boolControl';
-import {jsonObjectExposingStateControl} from 'comps/controls/codeStateControl';
-import {styleControl} from 'comps/controls/styleControl';
-import {
-  AnimationStyle,
-  AnimationStyleType,
-  JsonSchemaFormStyle,
-  type JsonSchemaFormStyleType,
-} from 'comps/controls/styleControlConstants';
-import {
-  depsConfig,
-  NameConfigHidden,
-  withExposingConfigs,
-} from 'comps/generators/withExposing';
-import {withMethodExposing} from 'comps/generators/withMethodExposing';
-import type {ValueFromOption} from 'lowcoder-design';
-import {i18nObjs, trans} from 'i18n';
-import type {JSONSchema7} from 'json-schema';
-import styled from 'styled-components';
-import {toBoolean, toNumber, toString} from 'util/convertUtils';
-import {Section, sectionNames} from 'lowcoder-design';
-import {jsonObjectControl} from '../../controls/codeControl';
-import {
-  eventHandlerControl,
-  submitEvent,
-} from '../../controls/eventHandlerControl';
-import {UICompBuilder} from '../../generators';
-import DateWidget from './dateWidget';
-import ErrorBoundary from './errorBoundary';
-import {Theme} from '@rjsf/antd';
-import {hiddenPropertyView} from 'comps/utils/propertyUtils';
+import { default as Button } from "antd/es/button";
+import { BoolControl } from "comps/controls/boolControl";
+import { jsonObjectExposingStateControl } from "comps/controls/codeStateControl";
+import { styleControl } from "comps/controls/styleControl";
+import { AnimationStyle, AnimationStyleType, JsonSchemaFormStyle, type JsonSchemaFormStyleType } from "comps/controls/styleControlConstants";
+import { depsConfig, NameConfigHidden, withExposingConfigs } from "comps/generators/withExposing";
+import { withMethodExposing } from "comps/generators/withMethodExposing";
+import type { ValueFromOption } from "lowcoder-design";
+import { i18nObjs, trans } from "i18n";
+import type { JSONSchema7 } from "json-schema";
+import styled from "styled-components";
+import { toBoolean, toNumber, toString } from "util/convertUtils";
+import { Section, sectionNames } from "lowcoder-design";
+import { jsonObjectControl } from "../../controls/codeControl";
+import { eventHandlerControl, submitEvent } from "../../controls/eventHandlerControl";
+import { UICompBuilder } from "../../generators";
+import DateWidget from "./dateWidget";
+import ErrorBoundary from "./errorBoundary";
+import { Theme } from "@rjsf/antd";
+import { hiddenPropertyView } from "comps/utils/propertyUtils";
 
-import {useContext} from 'react';
-import {EditorContext} from 'comps/editorState';
+import { useContext } from "react";
+import { EditorContext } from "comps/editorState";
 
 Theme.widgets.DateWidget = DateWidget(false);
 Theme.widgets.DateTimeWidget = DateWidget(true);
@@ -97,24 +81,21 @@ function convertData(schema?: JSONSchema7, data?: any) {
     return data;
   }
   // fix required invalidation problem
-  if (
-    schema.type !== 'object' &&
-    (data === undefined || data === null || data === '')
-  ) {
+  if (schema.type !== "object" && (data === undefined || data === null || data === "")) {
     return undefined;
   }
   switch (schema.type) {
-    case 'string':
+    case "string":
       return toString(data);
-    case 'number':
+    case "number":
       return toNumber(data);
-    case 'integer':
+    case "integer":
       return Math.trunc(toNumber(data));
-    case 'boolean':
+    case "boolean":
       return toBoolean(data);
-    case 'null':
+    case "null":
       return null;
-    case 'object': {
+    case "object": {
       const properties = schema.properties;
       if (!properties) {
         return data;
@@ -122,10 +103,7 @@ function convertData(schema?: JSONSchema7, data?: any) {
       let newData: Record<string, unknown> = {};
       Object.entries(properties).forEach(([key, definition]) => {
         const value = data ? data[key] : undefined;
-        newData[key] =
-          typeof definition === 'object'
-            ? convertData(definition, value)
-            : value;
+        newData[key] = typeof definition === "object" ? convertData(definition, value) : value;
       });
       return newData;
     }
@@ -140,34 +118,28 @@ function convertData(schema?: JSONSchema7, data?: any) {
 // JSON schema refer to https://json-schema.org/understanding-json-schema/reference/
 function getErrorMessage(error: RJSFValidationError): string {
   switch (error.name) {
-    case 'required':
-      return trans('jsonSchemaForm.required');
-    case 'maximum':
-      return trans('jsonSchemaForm.maximum', {value: error.params.limit});
-    case 'minimum':
-      return trans('jsonSchemaForm.minimum', {value: error.params.limit});
-    case 'exclusiveMaximum':
-      return trans('jsonSchemaForm.exclusiveMaximum', {
-        value: error.params.limit,
-      });
-    case 'exclusiveMinimum':
-      return trans('jsonSchemaForm.exclusiveMinimum', {
-        value: error.params.limit,
-      });
-    case 'multipleOf':
-      return trans('jsonSchemaForm.multipleOf', {
-        value: error.params.multipleOf,
-      });
-    case 'minLength':
-      return trans('jsonSchemaForm.minLength', {value: error.params.limit});
-    case 'maxLength':
-      return trans('jsonSchemaForm.maxLength', {value: error.params.limit});
-    case 'pattern':
-      return trans('jsonSchemaForm.pattern', {value: error.params.pattern});
-    case 'format':
-      return trans('jsonSchemaForm.format', {value: error.params.format});
+    case "required":
+      return trans("jsonSchemaForm.required");
+    case "maximum":
+      return trans("jsonSchemaForm.maximum", { value: error.params.limit });
+    case "minimum":
+      return trans("jsonSchemaForm.minimum", { value: error.params.limit });
+    case "exclusiveMaximum":
+      return trans("jsonSchemaForm.exclusiveMaximum", { value: error.params.limit });
+    case "exclusiveMinimum":
+      return trans("jsonSchemaForm.exclusiveMinimum", { value: error.params.limit });
+    case "multipleOf":
+      return trans("jsonSchemaForm.multipleOf", { value: error.params.multipleOf });
+    case "minLength":
+      return trans("jsonSchemaForm.minLength", { value: error.params.limit });
+    case "maxLength":
+      return trans("jsonSchemaForm.maxLength", { value: error.params.limit });
+    case "pattern":
+      return trans("jsonSchemaForm.pattern", { value: error.params.pattern });
+    case "format":
+      return trans("jsonSchemaForm.format", { value: error.params.format });
   }
-  return '';
+  return "";
 }
 
 function transformErrors(errors: RJSFValidationError[]): RJSFValidationError[] {
@@ -177,7 +149,7 @@ function transformErrors(errors: RJSFValidationError[]): RJSFValidationError[] {
       // Error message displayed below the comp (will not be displayed when "ui:help" is set in the UI schema)
       error.message = message;
       // Errors displayed in the error list, not displayed when empty
-      error.stack = '';
+      error.stack = "";
     }
     return error;
   });
@@ -190,7 +162,7 @@ function ErrorList(props: ErrorListProps) {
     return <></>;
   }
   return (
-    <div style={{color: 'red'}}>
+    <div style={{ color: "red" }}>
       <ul>
         {errors.map((error) => (
           <li key={error.stack}>{error.stack}</li>
@@ -202,12 +174,10 @@ function ErrorList(props: ErrorListProps) {
 
 function onSubmit(props: {
   resetAfterSubmit: boolean;
-  data: {reset: () => void};
-  onEvent: (
-    eventName: ValueFromOption<typeof EventOptions>
-  ) => Promise<unknown>;
+  data: { reset: () => void };
+  onEvent: (eventName: ValueFromOption<typeof EventOptions>) => Promise<unknown>;
 }): Promise<void> {
-  return props.onEvent('submit').then(() => {
+  return props.onEvent("submit").then(() => {
     if (props.resetAfterSubmit) {
       props.data.reset();
     }
@@ -230,7 +200,7 @@ let FormBasicComp = (function () {
   return new UICompBuilder(childrenMap, (props) => {
     // rjsf 4.20 supports ui:submitButtonOptions, but if the button is customized, it will not take effect. Here we implement it ourselves
     const buttonOptions = props?.uiSchema?.[
-      'ui:submitButtonOptions'
+      "ui:submitButtonOptions"
     ] as UISchemaSubmitButtonOptions;
 
     return (
@@ -265,41 +235,37 @@ let FormBasicComp = (function () {
     .setPropertyViewFn((children) => {
       return (
         <>
-          {(useContext(EditorContext).editorModeStatus === 'logic' ||
-            useContext(EditorContext).editorModeStatus === 'both') && (
+          {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
             <Section name={sectionNames.basic}>
+              
               {children.schema.propertyView({
                 label: (
                   <>
-                    {trans('jsonSchemaForm.jsonSchema') + ' ('}
+                    {trans("jsonSchemaForm.jsonSchema") + " ("}
                     <a
-                      href={
-                        'http://json-schema.org/learn/getting-started-step-by-step'
-                      }
-                      target={'_blank'}
+                      href={"http://json-schema.org/learn/getting-started-step-by-step"}
+                      target={"_blank"}
                       rel="noreferrer"
                     >
                       Docs 1
                     </a>
-                    {', '}
+                    {", "}
                     <a
-                      href={'https://jsonforms.io/examples/basic'}
-                      target={'_blank'}
+                      href={"https://jsonforms.io/examples/basic"}
+                      target={"_blank"}
                       rel="noreferrer"
                     >
                       Docs 2
                     </a>
-                    {')'}
+                    {")"}
                   </>
                 ),
                 tooltip: (
                   <>
-                    {trans('jsonSchemaForm.schemaTooltip') + ' '}
+                    {trans("jsonSchemaForm.schemaTooltip") + " "}
                     <a
-                      href={
-                        'http://json-schema.org/learn/getting-started-step-by-step'
-                      }
-                      target={'_blank'}
+                      href={"http://json-schema.org/learn/getting-started-step-by-step"}
+                      target={"_blank"}
                       rel="noreferrer"
                     >
                       JSON schema
@@ -310,33 +276,33 @@ let FormBasicComp = (function () {
               {children.uiSchema.propertyView({
                 label: (
                   <>
-                    {trans('jsonSchemaForm.uiSchema') + ' ('}
+                    {trans("jsonSchemaForm.uiSchema") + " ("}
                     <a
-                      href={'https://jsonforms.io/docs/uischema'}
-                      target={'_blank'}
+                      href={"https://jsonforms.io/docs/uischema"}
+                      target={"_blank"}
                       rel="noreferrer"
                     >
                       Docs 1
                     </a>
-                    {', '}
+                    {", "}
                     <a
-                      href={
-                        'https://rjsf-team.github.io/react-jsonschema-form/docs/api-reference/uiSchema'
-                      }
-                      target={'_blank'}
+                      href={"https://rjsf-team.github.io/react-jsonschema-form/docs/api-reference/uiSchema"}
+                      target={"_blank"}
                       rel="noreferrer"
                     >
                       Docs 2
                     </a>
-                    {')'}
-                  </>
+                    {")"}
+                  </> 
                 ),
                 tooltip: (
                   <>
-                    {trans('jsonSchemaForm.schemaTooltip') + ' '}
+                    {trans("jsonSchemaForm.schemaTooltip") + " "}
                     <a
-                      href={'https://jsonforms.io/docs/uischema'}
-                      target={'_blank'}
+                      href={
+                        "https://jsonforms.io/docs/uischema"
+                      }
+                      target={"_blank"}
                       rel="noreferrer"
                     >
                       UI schema
@@ -345,33 +311,32 @@ let FormBasicComp = (function () {
                 ),
               })}
               {children.data.propertyView({
-                label: trans('jsonSchemaForm.defaultData'),
+                label: trans("jsonSchemaForm.defaultData"),
               })}
             </Section>
           )}
 
-          {(useContext(EditorContext).editorModeStatus === 'logic' ||
-            useContext(EditorContext).editorModeStatus === 'both') && (
+          {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
             <Section name={sectionNames.interaction}>
               {children.onEvent.getPropertyView()}
               {hiddenPropertyView(children)}
               {children.resetAfterSubmit.propertyView({
-                label: trans('jsonSchemaForm.resetAfterSubmit'),
+                label: trans("jsonSchemaForm.resetAfterSubmit"),
               })}
             </Section>
           )}
 
-          {(useContext(EditorContext).editorModeStatus === 'layout' ||
-            useContext(EditorContext).editorModeStatus === 'both') && (
+          {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
             <>
-              <Section name={sectionNames.style}>
-                {children.style.getPropertyView()}
+            <Section name={sectionNames.style}>
+              {children.style.getPropertyView()}
+            </Section>
+            <Section name={sectionNames.animationStyle}>
+              {children.animationStyle.getPropertyView()}
               </Section>
-              <Section name={sectionNames.animationStyle}>
-                {children.animationStyle.getPropertyView()}
-              </Section>
-            </>
+              </>
           )}
+
         </>
       );
     })
@@ -380,9 +345,9 @@ let FormBasicComp = (function () {
 
 let FormTmpComp = withExposingConfigs(FormBasicComp, [
   depsConfig({
-    name: 'data',
-    desc: trans('jsonSchemaForm.dataDesc'),
-    depKeys: ['schema', 'data'],
+    name: "data",
+    desc: trans("jsonSchemaForm.dataDesc"),
+    depKeys: ["schema", "data"],
     func: (input) => {
       return convertData(input.schema, input.data);
     },
@@ -393,8 +358,8 @@ let FormTmpComp = withExposingConfigs(FormBasicComp, [
 FormTmpComp = withMethodExposing(FormTmpComp, [
   {
     method: {
-      name: 'submit',
-      description: trans('export.submitDesc'),
+      name: "submit",
+      description: trans("export.submitDesc"),
       params: [],
     },
     // FIXME: currently, it cannot be verified when submitted through the method, fix it later
