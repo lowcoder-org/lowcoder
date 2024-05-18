@@ -42,7 +42,7 @@ const JsonExplorerContainer = styled.div<{
   ${(props) => props.$animationStyle}
   height: 100%;
   overflow-y: scroll;
-  background-color: ${(props) => bgColorMap[props.$theme] || '#ffffff'};
+  background-color: ${(props) => bgColorMap[props.$theme] || "#ffffff"};
   border: 1px solid #d7d9e0;
   border-radius: 4px;
   padding: 10px;
@@ -50,10 +50,7 @@ const JsonExplorerContainer = styled.div<{
 
 let JsonExplorerTmpComp = (function () {
   const childrenMap = {
-    value: withDefault(
-      ArrayOrJSONObjectControl,
-      JSON.stringify(defaultData, null, 2)
-    ),
+    value: withDefault(ArrayOrJSONObjectControl, JSON.stringify(defaultData, null, 2)),
     indent: withDefault(NumberControl, 4),
     expandToggle: BoolControl.DEFAULT_TRUE,
     theme: dropdownControl(themeOptions, 'shapeshifter:inverted'),
@@ -78,27 +75,19 @@ let JsonExplorerTmpComp = (function () {
       return (
         <>
           <Section name={sectionNames.basic}>
-            {children.value.propertyView({
-              label: trans('export.jsonEditorDesc'),
-            })}
+            {children.value.propertyView({ label: trans("export.jsonEditorDesc") })}
           </Section>
 
-          {(useContext(EditorContext).editorModeStatus === 'logic' ||
-            useContext(EditorContext).editorModeStatus === 'both') && (
+          {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
             <Section name={sectionNames.interaction}>
               {hiddenPropertyView(children)}
-              {children.expandToggle.propertyView({
-                label: trans('jsonExplorer.expandToggle'),
-              })}
+              {children.expandToggle.propertyView({ label: trans("jsonExplorer.expandToggle") })}
             </Section>
           )}
 
-          {(useContext(EditorContext).editorModeStatus === 'logic' ||
-            useContext(EditorContext).editorModeStatus === 'both') && (
+          {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
             <Section name={sectionNames.advanced}>
-              {children.indent.propertyView({
-                label: trans('jsonExplorer.indent'),
-              })}
+              {children.indent.propertyView({ label: trans("jsonExplorer.indent") })}
             </Section>
           )}
 
