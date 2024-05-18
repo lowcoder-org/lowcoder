@@ -253,7 +253,7 @@ const CommentCompBase = (
         <List
           header={
             title !== "" ? (
-               <div style={{position: 'sticky', top:0, background: style.background}}>
+              <div style={{position: 'sticky', top:0, background: style.background}}>
                 {commentListData.length > 1
                   ? title
                       .replaceAll("%d", commentListData.length.toString())
