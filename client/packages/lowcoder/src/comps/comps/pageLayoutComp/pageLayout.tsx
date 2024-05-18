@@ -144,16 +144,16 @@ export function PageLayout(props: LayoutProps & { siderCollapsed: boolean; setSi
   return (
     <div style={{padding: style.margin, height: '100%'}}>
       <ConfigProvider
-        theme={{
+          theme={{
             components: {
               Layout: {
                 triggerBg : contrastBackground(container.siderStyle.siderBackground),
                 triggerColor : contrastText(container.siderStyle.siderBackground, "black", "white"),
                 siderBg : container.siderStyle.siderBackground,
               },
-          },
-        }}
-      >
+            },
+          }}
+        >
         <Wrapper $style={style} $animationStyle={animationStyle}>
           <Layout style={{padding: "0px"}} hasSider={showSider && !container.innerSider}>
           {showSider && !container.innerSider && !container.siderRight && (
