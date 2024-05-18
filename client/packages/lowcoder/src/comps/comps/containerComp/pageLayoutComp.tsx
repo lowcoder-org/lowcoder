@@ -65,7 +65,7 @@ export const ContainerBaseComp = (function () {
             {children.container.children.showSider.getView() && (
               <Section name={"Sider Style"}>
                 { children.container.siderStylePropertyView() }
-                </Section>
+              </Section>
               )}
             <Section name={"Body Style"}>
               { children.container.bodyStylePropertyView() }
@@ -73,7 +73,7 @@ export const ContainerBaseComp = (function () {
             {children.container.children.showFooter.getView() && (
               <Section name={"Footer Style"}>
                 { children.container.footerStylePropertyView() }
-                </Section>
+              </Section>
               )}
             </>
           )}
@@ -81,7 +81,7 @@ export const ContainerBaseComp = (function () {
       );
     })
     .build();
-})();
+})(); 
 
 // Compatible with old data
 function convertOldContainerParams(params: CompParams<any>) {
@@ -91,10 +91,7 @@ function convertOldContainerParams(params: CompParams<any>) {
   if (tempParams.value) {
     const container = tempParams.value.container;
     // old params
-    if (
-      container &&
-      (container.hasOwnProperty("layout") || container.hasOwnProperty("items"))
-    ) {
+    if (container && (container.hasOwnProperty("layout") || container.hasOwnProperty("items"))) {
       const autoHeight = tempParams.value.autoHeight;
       const scrollbars = tempParams.value.scrollbars;
       return {
@@ -102,7 +99,7 @@ function convertOldContainerParams(params: CompParams<any>) {
         value: {
           container: {
             showHeader: true,
-            body: {0: {view: container}},
+            body: { 0: { view: container } },
             showFooter: false,
             showSider: true,
             autoHeight: autoHeight,
@@ -114,6 +111,7 @@ function convertOldContainerParams(params: CompParams<any>) {
   }
   return tempParams;
 }
+
 
 class ContainerTmpComp extends ContainerBaseComp {
   constructor(params: CompParams<any>) {
@@ -128,20 +126,18 @@ const PageLayoutCompTmP = withExposingConfigs(ContainerTmpComp, [
   new NameConfig("container", trans("export.ratingValueDesc")),
   new CompDepsConfig(
     "siderCollapsed",
-    (comp) => ({
-      data: comp.children.container.children.siderCollapsed.nodeWithoutCache(),
-    }),
-    (input) => input.data.value,
-    trans("listView.itemsDesc")
+    (comp) => ({ data : comp.children.container.children.siderCollapsed.nodeWithoutCache()}),
+    (input) => input.data.value, trans("listView.itemsDesc")
   ),
 ]);
 
 export const PageLayoutComp = withMethodExposing(PageLayoutCompTmP, [
+
   {
     method: {
       name: "setSiderCollapsed",
       description: "Set the Sider of the PageLayout to be collapsed or not",
-      params: [{name: "collapsed", type: "boolean"}],
+      params: [{ name: "collapsed", type: "boolean" }],
     },
     execute: (comp, values) => {
       const page = values[0] as number;
@@ -149,7 +145,7 @@ export const PageLayoutComp = withMethodExposing(PageLayoutCompTmP, [
         // comp.children.pagination.children.pageNo.dispatchChangeValueAction(page);
       }
     },
-  },
+  }
 ]);
 
 type ContainerDataType = ToDataType<ContainerChildren<{}>>;
