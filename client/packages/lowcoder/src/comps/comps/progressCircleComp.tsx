@@ -67,7 +67,7 @@ export const StyledProgressCircle = styled(Progress)<{
 
 let ProgressCircleTmpComp = (function () {
   const childrenMap = {
-    value: numberExposingStateControl('value', 60),
+    value: numberExposingStateControl("value", 60),
     // borderRadius property hidden as it's not valid for progress circle
     style: styleControl(CircleProgressStyle),
     animationStyle: styleControl(AnimationStyle),
