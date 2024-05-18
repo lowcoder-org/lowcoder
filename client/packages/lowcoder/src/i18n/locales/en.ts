@@ -474,6 +474,13 @@ export const en = {
   // fourth part
 
   "style": {
+    "boxShadowColor": 'Box Shadow Color',
+    "boxShadow": 'Box Shadow',
+    "opacity": 'Opacity',
+    "animation": 'Animation',
+    "animationIterationCount": 'Animation Iteration Count',
+    "animationDelay": 'Animation Delay',
+    "animationDuration": 'Animation Duration',
     "resetTooltip": "Reset styles. Clear the input field to reset an individual style.",
     "textColor": "Text Color",
     "contrastText": "Contrast Text Color",

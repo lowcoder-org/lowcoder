@@ -1013,6 +1013,18 @@ export function styleControl<T extends readonly SingleColorConfig[]>(colorConfig
                                       ),
                                       placeholder: props[name],
                                     })
+                                : name === 'boxShadow'
+                                  ? (
+                                      children[name] as InstanceType<
+                                        typeof StringControl
+                                      >
+                                    ).propertyView({
+                                      label: config.label,
+                                      preInputNode: (
+                                        <BoxShadowPropIcon title="BoxShadow-Type" />
+                                      ),
+                                      placeholder: props[name],
+                                    })
                                   : name === 'animation'
                                     ? (
                                         children[name] as InstanceType<
