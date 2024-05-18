@@ -209,9 +209,9 @@ const AvatarGroupView = (props: RecordConstructorToView<typeof childrenMap> & { 
               else if (timerState === 'started') pauseAction()
               else if (timerState === 'paused') resumeAction()
             }}
-         >{timerState === 'stoped' ? trans('timer.start') : (timerState === 'started' ? trans('timer.pause') : trans('timer.resume'))}</StyledButton>
+          >{timerState === 'stoped' ? trans('timer.start') : (timerState === 'started' ? trans('timer.pause') : trans('timer.resume'))}</StyledButton>
           <StyledButton
-            $style={props.resetButtonStyle}
+          $style={props.resetButtonStyle}
           onClick={() => resetAction()}
           >{trans('timer.reset')}
           </StyledButton>
