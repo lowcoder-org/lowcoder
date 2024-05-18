@@ -218,7 +218,7 @@ const FormBaseComp = (function () {
             </>
           )}
 
-           {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
+          {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
             <>
               <Section name={sectionNames.layout}>
                 {children.container.getPropertyView()}
@@ -246,8 +246,8 @@ const FormBaseComp = (function () {
                 </Section>
               )}
               {children.container.children.showBody.getView() && (
-                <Section name={'Body Style'}>
-                  {children.container.bodyStylePropertyView()}
+                 <Section name={"Body Style"}>
+                  { children.container.bodyStylePropertyView() }
                 </Section>
               )}
               {children.container.children.showFooter.getView() && (
@@ -257,7 +257,7 @@ const FormBaseComp = (function () {
               )}
             </>
           )}
-          
+
         </>
       );
     })
