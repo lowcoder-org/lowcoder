@@ -1,35 +1,25 @@
-import {Section, sectionNames} from 'lowcoder-design';
-import {UICompBuilder} from '../../generators';
-import {
-  NameConfigHidden,
-  NameConfig,
-  withExposingConfigs,
-} from '../../generators/withExposing';
-import {defaultData} from './jsonConstants';
-import styled from 'styled-components';
-import {jsonValueExposingStateControl} from 'comps/controls/codeStateControl';
-import {ChangeEventHandlerControl} from 'comps/controls/eventHandlerControl';
-import {hiddenPropertyView} from 'comps/utils/propertyUtils';
-import {trans} from 'i18n';
-import {LabelControl} from 'comps/controls/labelControl';
-import {
-  formDataChildren,
-  FormDataPropertyView,
-} from '../formComp/formDataConstants';
-import {
-  AnimationStyle,
-  JsonEditorStyle,
-} from 'comps/controls/styleControlConstants';
-import {styleControl} from 'comps/controls/styleControl';
-import {migrateOldData, withDefault} from 'comps/generators/simpleGenerators';
-import {useRef, useEffect, useContext} from 'react';
+import { Section, sectionNames } from "lowcoder-design";
+import { UICompBuilder } from "../../generators";
+import { NameConfigHidden, NameConfig, withExposingConfigs } from "../../generators/withExposing";
+import { defaultData } from "./jsonConstants";
+import styled from "styled-components";
+import { jsonValueExposingStateControl } from "comps/controls/codeStateControl";
+import { ChangeEventHandlerControl } from "comps/controls/eventHandlerControl";
+import { hiddenPropertyView } from "comps/utils/propertyUtils";
+import { trans } from "i18n";
+import { LabelControl } from "comps/controls/labelControl";
+import { formDataChildren, FormDataPropertyView } from "../formComp/formDataConstants";
+import { AnimationStyle, JsonEditorStyle } from "comps/controls/styleControlConstants";
+import { styleControl } from "comps/controls/styleControl";
+import { migrateOldData, withDefault } from "comps/generators/simpleGenerators";
+import { useRef, useEffect, useContext } from "react";
 import {
   EditorState,
   EditorView,
   type EditorView as EditorViewType,
-} from 'base/codeEditor/codeMirror';
-import {useExtensions} from 'base/codeEditor/extensions';
-import {EditorContext} from 'comps/editorState';
+} from "base/codeEditor/codeMirror";
+import { useExtensions } from "base/codeEditor/extensions";
+import { EditorContext } from "comps/editorState";
 
 /**
  * JsonEditor Comp
@@ -47,11 +37,11 @@ const Wrapper = styled.div`
  * Compatible with old data 2022-10-19
  */
 function fixOldData(oldData: any) {
-  if (oldData && !oldData.hasOwnProperty('label')) {
+  if (oldData && !oldData.hasOwnProperty("label")) {
     return {
       ...oldData,
       label: {
-        text: '',
+        text: "",
       },
     };
   }
@@ -62,7 +52,7 @@ function fixOldData(oldData: any) {
  * Compatible with old data 2022-11-18
  */
 function fixOldDataSecond(oldData: any) {
-  if (oldData && oldData.hasOwnProperty('default')) {
+  if (oldData && oldData.hasOwnProperty("default")) {
     return {
       ...oldData,
       value: oldData.default,
@@ -86,9 +76,9 @@ let JsonEditorTmpComp = (function () {
     const wrapperRef = useRef<HTMLDivElement>(null);
     const view = useRef<EditorViewType | null>(null);
     const editContent = useRef<string>();
-    const {extensions} = useExtensions({
-      codeType: 'PureJSON',
-      language: 'json',
+    const { extensions } = useExtensions({
+      codeType: "PureJSON",
+      language: "json",
       showLineNum: true,
       enableClickCompName: false,
       onFocus: (focused) => {
@@ -101,7 +91,7 @@ let JsonEditorTmpComp = (function () {
         try {
           const value = JSON.parse(state.doc.toString());
           props.value.onChange(value);
-          props.onEvent('change');
+          props.onEvent("change");
         } catch (error) {}
       },
     });
@@ -112,7 +102,7 @@ let JsonEditorTmpComp = (function () {
           doc: JSON.stringify(props.value.value, null, 2),
           extensions,
         });
-        view.current = new EditorView({state, parent: wrapperRef.current});
+        view.current = new EditorView({ state, parent: wrapperRef.current });
       }
     }, [wrapperRef.current]);
 
@@ -141,35 +131,26 @@ let JsonEditorTmpComp = (function () {
       return (
         <>
           <Section name={sectionNames.basic}>
-            {children.value.propertyView({
-              label: trans('export.jsonEditorDesc'),
-            })}
+            {children.value.propertyView({ label: trans("export.jsonEditorDesc") })}
           </Section>
 
           <FormDataPropertyView {...children} />
 
-          {(useContext(EditorContext).editorModeStatus === 'logic' ||
-            useContext(EditorContext).editorModeStatus === 'both') && (
+          {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
             <Section name={sectionNames.interaction}>
               {children.onEvent.getPropertyView()}
               {hiddenPropertyView(children)}
             </Section>
           )}
 
-          {(useContext(EditorContext).editorModeStatus === 'layout' ||
-            useContext(EditorContext).editorModeStatus === 'both') &&
-            children.label.getPropertyView()}
-          {(useContext(EditorContext).editorModeStatus === 'layout' ||
-            useContext(EditorContext).editorModeStatus === 'both') && (
+          {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && ( children.label.getPropertyView() )}
+          {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
             <>
-              <Section name={sectionNames.style}>
-                {children.style.getPropertyView()}
-              </Section>
-              <Section name={sectionNames.animationStyle}>
-                {children.animationStyle.getPropertyView()}
-              </Section>
-            </>
+            <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
+              <Section name={sectionNames.animationStyle}>{children.animationStyle.getPropertyView()}</Section>
+              </>
           )}
+
         </>
       );
     })
@@ -187,6 +168,6 @@ JsonEditorTmpComp = class extends JsonEditorTmpComp {
 };
 
 export const JsonEditorComp = withExposingConfigs(JsonEditorTmpComp, [
-  new NameConfig('value', trans('export.jsonEditorDesc')),
+  new NameConfig("value", trans("export.jsonEditorDesc")),
   NameConfigHidden,
 ]);
