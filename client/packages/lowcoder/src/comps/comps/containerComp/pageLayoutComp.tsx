@@ -60,8 +60,8 @@ export const ContainerBaseComp = (function () {
             {children.container.children.showHeader.getView() && (
               <Section name={"Header Style"}>
                 { children.container.headerStylePropertyView() }
-                </Section>
-              )}
+              </Section>
+            )}
             {children.container.children.showSider.getView() && (
               <Section name={"Sider Style"}>
                 { children.container.siderStylePropertyView() }
