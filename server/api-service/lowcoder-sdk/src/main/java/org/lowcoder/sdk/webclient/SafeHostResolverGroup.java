@@ -1,12 +1,5 @@
 package org.lowcoder.sdk.webclient;
 
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.UnknownHostException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
-
 import io.netty.resolver.AddressResolver;
 import io.netty.resolver.AddressResolverGroup;
 import io.netty.resolver.InetNameResolver;
@@ -14,6 +7,13 @@ import io.netty.resolver.InetSocketAddressResolver;
 import io.netty.util.concurrent.EventExecutor;
 import io.netty.util.concurrent.Promise;
 import io.netty.util.internal.SocketUtils;
+
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.UnknownHostException;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
 
 public class SafeHostResolverGroup extends AddressResolverGroup<InetSocketAddress> {
 

@@ -1,25 +1,15 @@
 package org.lowcoder.sdk.plugin.sqlcommand.command.mysql;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.lowcoder.sdk.util.JsonUtils.toJson;
-
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import org.junit.Assert;
 import org.junit.Test;
 import org.lowcoder.sdk.plugin.sqlcommand.changeset.BulkObjectChangeSet;
 import org.lowcoder.sdk.plugin.sqlcommand.changeset.KeyValuePairChangeSet;
-import org.lowcoder.sdk.plugin.sqlcommand.command.mysql.MysqlBulkInsertCommand;
-import org.lowcoder.sdk.plugin.sqlcommand.command.mysql.MysqlBulkUpdateCommand;
-import org.lowcoder.sdk.plugin.sqlcommand.command.mysql.MysqlDeleteCommand;
-import org.lowcoder.sdk.plugin.sqlcommand.command.mysql.MysqlInsertCommand;
-import org.lowcoder.sdk.plugin.sqlcommand.command.mysql.MysqlUpdateCommand;
-import org.lowcoder.sdk.plugin.sqlcommand.command.mysql.MysqlUpsertCommand;
 import org.lowcoder.sdk.plugin.sqlcommand.filter.FilterSet;
+
+import java.util.*;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.lowcoder.sdk.util.JsonUtils.toJson;
 
 public class MysqlGuiCommandTest {
 

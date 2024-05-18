@@ -1,9 +1,9 @@
 package org.lowcoder.infra.event;
 
-import java.util.Map;
-
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
+
+import java.util.Map;
 
 @Getter
 @SuperBuilder
