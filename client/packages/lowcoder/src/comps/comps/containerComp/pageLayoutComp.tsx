@@ -66,7 +66,7 @@ export const ContainerBaseComp = (function () {
               <Section name={"Sider Style"}>
                 { children.container.siderStylePropertyView() }
               </Section>
-              )}
+            )}
             <Section name={"Body Style"}>
               { children.container.bodyStylePropertyView() }
             </Section>
