@@ -1,42 +1,26 @@
-import ReactResizeDetector from 'react-resize-detector';
+import ReactResizeDetector from "react-resize-detector";
+import { NameConfigHidden, withExposingConfigs } from "comps/generators/withExposing";
+import { Section, sectionNames } from "lowcoder-design";
+import { TriContainer } from "../triContainerComp/triContainer";
 import {
-  NameConfigHidden,
-  withExposingConfigs,
-} from 'comps/generators/withExposing';
-import {Section, sectionNames} from 'lowcoder-design';
-import {TriContainer} from '../triContainerComp/triContainer';
-import {ContainerCompBuilder} from '../triContainerComp/triContainerCompBuilder';
-import {
-  disabledPropertyView,
-  hiddenPropertyView,
-} from 'comps/utils/propertyUtils';
-import {trans} from 'i18n';
-import {BoolCodeControl, StringControl} from 'comps/controls/codeControl';
-import {BoolControl} from 'comps/controls/boolControl';
-import {useContext, useEffect, useRef, useState} from 'react';
-import {EditorContext} from 'comps/editorState';
-import {Card} from 'antd';
-import styled from 'styled-components';
-import {
-  AnimationStyle,
-  AnimationStyleType,
-  CardHeaderStyle,
-  CardHeaderStyleType,
-  CardStyle,
-  CardStyleType,
-} from 'comps/controls/styleControlConstants';
-import {MultiCompBuilder, withDefault} from 'comps/generators';
-import {IconControl} from 'comps/controls/iconControl';
-import {
-  ButtonEventHandlerControl,
-  CardEventHandlerControl,
-  clickEvent,
-  refreshEvent,
-} from 'comps/controls/eventHandlerControl';
-import {optionsControl} from 'comps/controls/optionsControl';
-import {dropdownControl} from 'comps/controls/dropdownControl';
-import {styleControl} from 'comps/controls/styleControl';
-const {Meta} = Card;
+  ContainerCompBuilder,
+} from "../triContainerComp/triContainerCompBuilder";
+import { disabledPropertyView, hiddenPropertyView } from "comps/utils/propertyUtils";
+import { trans } from "i18n";
+import { BoolCodeControl, StringControl } from "comps/controls/codeControl";
+import { BoolControl } from "comps/controls/boolControl";
+import { useContext, useEffect, useRef, useState } from "react";
+import { EditorContext } from "comps/editorState";
+import { Card } from "antd";
+import styled from "styled-components";
+import { AnimationStyle, AnimationStyleType, CardHeaderStyle, CardHeaderStyleType, CardStyle, CardStyleType } from "comps/controls/styleControlConstants";
+import { MultiCompBuilder, withDefault } from "comps/generators";
+import { IconControl } from "comps/controls/iconControl";
+import { ButtonEventHandlerControl, CardEventHandlerControl, clickEvent, refreshEvent } from "comps/controls/eventHandlerControl";
+import { optionsControl } from "comps/controls/optionsControl";
+import { dropdownControl } from "comps/controls/dropdownControl";
+import { styleControl } from "comps/controls/styleControl";
+const { Meta } = Card;
 
 const Warpper = styled.div<{
   $style: CardStyleType | undefined;
@@ -44,7 +28,7 @@ const Warpper = styled.div<{
   $cardType: string;
   $headerStyle: CardHeaderStyleType;
   $bodyStyle: CardHeaderStyleType;
-  $animationStyle: AnimationStyleType;
+  $animationStyle:AnimationStyleType;
 }>`
   height: 100%;
   width: 100%;
@@ -93,7 +77,7 @@ const Warpper = styled.div<{
     border-style: ${(props) => props.$style?.borderStyle};
     border-radius: ${(props) => props.$style?.radius};
     border-width: ${(props) => props.$style?.borderWidth};
-    ${(props) => props.$animationStyle}
+    ${props=>props.$animationStyle}
   }
   .ant-card-body {
     display: ${(props) => (props.$showMate ? '' : 'none')};
@@ -122,31 +106,28 @@ const Warpper = styled.div<{
 const ContainWarpper = styled.div`
   height: 100%;
   width: 100%;
-`;
+`
 
-const IconWarpper = styled.div<{
-  $style: CardStyleType | undefined;
-  disabled: boolean;
-}>`
-  pointer-events: ${(props) => (props.disabled ? 'none' : '')};
+const IconWarpper = styled.div<{ $style: CardStyleType | undefined, disabled: boolean }>`
+  pointer-events: ${props => props.disabled ? 'none' : ''};
   svg {
-    color: ${(props) => (props.disabled ? '#d9d9d9' : props.$style?.IconColor)};
+    color: ${props => props.disabled ? '#d9d9d9' : props.$style?.IconColor};
   }
   &:hover {
     svg {
-      color: ${(props) => props.$style?.activateColor};
+      color: ${props => props.$style?.activateColor};
     }
-  }
-`;
+}
+`
 
 const cardTypeOption = [
-  {label: trans('card.common'), value: 'common'},
-  {label: trans('card.custom'), value: 'custom'},
+  { label: trans("card.common"), value: "common" },
+  { label: trans("card.custom"), value: "custom" },
 ] as const;
 
 const sizeOptions = [
-  {label: trans('card.default'), value: 'default'},
-  {label: trans('card.small'), value: 'small'},
+  { label: trans("card.default"), value: "default" },
+  { label: trans("card.small"), value: "small" },
 ] as const;
 
 const EventOptions = [clickEvent, refreshEvent] as const;
@@ -154,7 +135,7 @@ const EventOptions = [clickEvent, refreshEvent] as const;
 const ActionIconOption = new MultiCompBuilder(
   {
     label: StringControl,
-    icon: withDefault(IconControl, '/icon:antd/settingoutlined'),
+    icon: withDefault(IconControl, "/icon:antd/settingoutlined"),
     disabled: BoolCodeControl,
     hidden: BoolCodeControl,
     onEvent: ButtonEventHandlerControl,
@@ -163,7 +144,7 @@ const ActionIconOption = new MultiCompBuilder(
 )
   .setPropertyViewFn((children) => (
     <>
-      {children.icon.propertyView({label: trans('button.icon')})}
+      {children.icon.propertyView({ label: trans("button.icon") })}
       {disabledPropertyView(children)}
       {hiddenPropertyView(children)}
       {children.onEvent.getPropertyView()}
@@ -173,18 +154,9 @@ const ActionIconOption = new MultiCompBuilder(
 
 const ActionOptionControl = optionsControl(ActionIconOption, {
   initOptions: [
-    {
-      label: trans('optionsControl.optionI', {i: 1}),
-      icon: '/icon:antd/settingoutlined',
-    },
-    {
-      label: trans('optionsControl.optionI', {i: 2}),
-      icon: '/icon:antd/editoutlined',
-    },
-    {
-      label: trans('optionsControl.optionI', {i: 3}),
-      icon: '/icon:antd/ellipsisoutlined',
-    },
+    { label: trans("optionsControl.optionI", { i: 1 }), icon: "/icon:antd/settingoutlined" },
+    { label: trans("optionsControl.optionI", { i: 2 }), icon: "/icon:antd/editoutlined" },
+    { label: trans("optionsControl.optionI", { i: 3 }), icon: "/icon:antd/ellipsisoutlined" },
   ],
 });
 
@@ -222,7 +194,7 @@ export const ContainerBaseComp = (function () {
       CONTAINER_BODY_PADDING: props.style.containerBodyPadding,
       border: '#00000000',
       background: props.style.background,
-    });
+    })
     const conRef = useRef<HTMLDivElement>(null);
     const [width, setWidth] = useState(0);
     const [height, setHeight] = useState(0);
@@ -251,54 +223,34 @@ export const ContainerBaseComp = (function () {
           onMouseLeave={() => props.onEvent('blur')}
           onClick={() => props.onEvent('click')}
         >
-          {
-            <Card
-              style={{width: width, height: '100%'}}
-              size={props.size}
-              hoverable={props.hoverable}
-              // 标题设置
-              title={props.showTitle && props.title}
-              extra={
-                props.showTitle && (
-                  <a href="#" onClick={() => props.onEvent('clickExtra')}>
-                    {props.extraTitle}
-                  </a>
-                )
+          {<Card
+            style={{ width: width, height: '100%' }}
+            size={props.size}
+            hoverable={props.hoverable}
+            // 标题设置
+            title={props.showTitle && props.title}
+            extra={props.showTitle && <a href="#" onClick={() => props.onEvent('clickExtra')}>{props.extraTitle}</a>}
+
+            // 内容
+            cover={props.cardType == 'common' && props.CoverImg && <img src={props.imgSrc} height={props.imgHeight} />}
+            actions={props.cardType == 'common' && props.showActionIcon ?
+              props.actionOptions.filter(item => !item.hidden).map(item => {
+                return (
+                  <IconWarpper
+                    onClick={() => item.onEvent('click')}
+                    disabled={item.disabled}
+                    $style={props.style}
+                  >
+                    {item.icon}
+                  </IconWarpper>)
               }
-              // 内容
-              cover={
-                props.cardType == 'common' &&
-                props.CoverImg && (
-                  <img src={props.imgSrc} height={props.imgHeight} />
-                )
-              }
-              actions={
-                props.cardType == 'common' && props.showActionIcon
-                  ? props.actionOptions
-                      .filter((item) => !item.hidden)
-                      .map((item) => {
-                        return (
-                          <IconWarpper
-                            onClick={() => item.onEvent('click')}
-                            disabled={item.disabled}
-                            $style={props.style}
-                          >
-                            {item.icon}
-                          </IconWarpper>
-                        );
-                      })
-                  : []
-              }
-            >
-              {props.cardType == 'common' && props.showMeta && (
-                <Meta title={props.metaTitle} description={props.metaDesc} />
-              )}
-              {props.cardType == 'custom' && (
-                <ContainWarpper>
-                  <TriContainer {...props} />
-                </ContainWarpper>
-              )}
-            </Card>
+              ) : []
+            }
+          >
+            {props.cardType == 'common' && props.showMeta && <Meta title={props.metaTitle} description={props.metaDesc} />}
+            {props.cardType == 'custom' && <ContainWarpper>
+              <TriContainer {...props} /></ContainWarpper>}
+          </Card>
           }
         </Warpper>
       </ReactResizeDetector>
@@ -307,60 +259,56 @@ export const ContainerBaseComp = (function () {
     .setPropertyViewFn((children) => {
       return (
         <>
-          {(useContext(EditorContext).editorModeStatus === 'logic' ||
-            useContext(EditorContext).editorModeStatus === 'both') && (
+          {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
             <>
               <Section name={sectionNames.basic}>
                 {children.size.propertyView({
-                  label: trans('card.titleSize'),
+                  label: trans("card.titleSize"),
                   radioButton: true,
                 })}
-                {children.showTitle.propertyView({
-                  label: trans('card.showTitle'),
-                })}
-                {children.showTitle.getView() &&
-                  children.title.propertyView({label: trans('card.title')})}
-                {children.showTitle.getView() &&
-                  children.extraTitle.propertyView({
-                    label: trans('card.extraTitle'),
-                  })}
-                {children.cardType.getView() == 'common' &&
-                  children.CoverImg.propertyView({
-                    label: trans('card.CoverImg'),
-                  })}
+                {children.showTitle.propertyView({ label: trans('card.showTitle') })}
+                {children.showTitle.getView() && children.title.propertyView({ label: trans('card.title') })}
+                {children.showTitle.getView() && children.extraTitle.propertyView({ label: trans('card.extraTitle') })}
+                {
+                  children.cardType.getView() == 'common' &&
+                  children.CoverImg.propertyView({ label: trans('card.CoverImg') })
+                }
 
-                {children.cardType.getView() == 'common' &&
+                {
+                  children.cardType.getView() == 'common' &&
                   children.CoverImg.getView() &&
-                  children.imgSrc.propertyView({label: trans('card.imgSrc')})}
-                {children.cardType.getView() == 'common' &&
+                  children.imgSrc.propertyView({ label: trans('card.imgSrc') })
+                }
+                {
+                  children.cardType.getView() == 'common' &&
                   children.CoverImg.getView() &&
-                  children.imgHeight.propertyView({
-                    label: trans('card.imgHeight'),
-                  })}
-                {children.cardType.getView() == 'common' &&
-                  children.showMeta.propertyView({
-                    label: trans('card.showMeta'),
-                  })}
-                {children.cardType.getView() == 'common' &&
+                  children.imgHeight.propertyView({ label: trans('card.imgHeight') })
+                }
+                {
+                  children.cardType.getView() == 'common' &&
+                  children.showMeta.propertyView({ label: trans('card.showMeta') })
+                }
+                {
+                  children.cardType.getView() == 'common' &&
                   children.showMeta.getView() &&
-                  children.metaTitle.propertyView({
-                    label: trans('card.metaTitle'),
-                  })}
-                {children.cardType.getView() == 'common' &&
+                  children.metaTitle.propertyView({ label: trans('card.metaTitle') })
+                }
+                {
+                  children.cardType.getView() == 'common' &&
                   children.showMeta.getView() &&
-                  children.metaDesc.propertyView({
-                    label: trans('card.metaDesc'),
-                  })}
+                  children.metaDesc.propertyView({ label: trans('card.metaDesc') })
+                }
 
-                {children.cardType.getView() == 'common' &&
-                  children.showActionIcon.propertyView({
-                    label: trans('card.showActionIcon'),
-                  })}
-                {children.cardType.getView() == 'common' &&
+                {
+                  children.cardType.getView() == 'common' &&
+                  children.showActionIcon.propertyView({ label: trans('card.showActionIcon') })
+                }
+                {
+                  children.cardType.getView() == 'common' &&
                   children.showActionIcon.getView() &&
-                  children.actionOptions.propertyView({
-                    title: trans('card.actionOptions'),
-                  })}
+                  children.actionOptions.propertyView({ title: trans('card.actionOptions') })
+                }
+
               </Section>
               <Section name={sectionNames.interaction}>
                 {hiddenPropertyView(children)}
@@ -369,12 +317,11 @@ export const ContainerBaseComp = (function () {
             </>
           )}
 
-          {(useContext(EditorContext).editorModeStatus === 'layout' ||
-            useContext(EditorContext).editorModeStatus === 'both') && (
+          {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
             <>
               <Section name={sectionNames.layout}>
                 {children.cardType.propertyView({
-                  label: trans('card.cardType'),
+                  label: trans("card.cardType"),
                   radioButton: true,
                 })}
               </Section>
@@ -398,6 +345,5 @@ export const ContainerBaseComp = (function () {
     .build();
 })();
 
-export const CardComp = withExposingConfigs(ContainerBaseComp, [
-  NameConfigHidden,
-]);
+export const CardComp = withExposingConfigs(ContainerBaseComp, [NameConfigHidden]);
+
