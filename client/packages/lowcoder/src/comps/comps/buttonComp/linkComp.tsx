@@ -37,9 +37,9 @@ const Link = styled(Button)<{
     font-family:${props.$style.fontFamily};
     font-weight:${props.$style.textWeight};
     border: ${props.$style.borderWidth} solid ${props.$style.border};
-    border-radius:${props.$style.radius ? props.$style.radius : '0px'};
-    text-transform:${props.$style.textTransform ? props.$style.textTransform : ''};
-    text-decoration:${props.$style.textDecoration ? props.$style.textDecoration : ''} !important;
+    border-radius:${props.$style.radius ? props.$style.radius:"0px"};
+    text-transform:${props.$style.textTransform ? props.$style.textTransform:""};
+    text-decoration:${props.$style.textDecoration ? props.$style.textDecoration:""} !important;
     background-color: ${props.$style.background};
     &:hover {
       color: ${props.$style.hoverText} !important;
@@ -49,7 +49,7 @@ const Link = styled(Button)<{
     }
   `}
 
-  &.ant-btn {
+  &.ant-btn { 
     display: inline-flex;
     align-items: center;
     > span {
@@ -101,18 +101,14 @@ const LinkTmpComp = (function () {
           $style={props.style}
           loading={props.loading}
           disabled={props.disabled}
-          onClick={() => props.onEvent('click')}
-          type={'link'}
+          onClick={() => props.onEvent("click")}
+          type={"link"}
         >
           {hasChildren && (
             <span>
-              {hasIcon(props.prefixIcon) && (
-                <IconWrapper>{props.prefixIcon}</IconWrapper>
-              )}
+              {hasIcon(props.prefixIcon) && <IconWrapper>{props.prefixIcon}</IconWrapper>}
               {!!props.text && props.text}
-              {hasIcon(props.suffixIcon) && (
-                <IconWrapper>{props.suffixIcon}</IconWrapper>
-              )}
+              {hasIcon(props.suffixIcon) && <IconWrapper>{props.suffixIcon}</IconWrapper>}
             </span>
           )}
         </Link>
