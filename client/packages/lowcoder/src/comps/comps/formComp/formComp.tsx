@@ -204,28 +204,21 @@ const FormBaseComp = (function () {
       return (
         <>
           <Section name={sectionNames.basic}>
-            {children.resetAfterSubmit.propertyView({
-              label: trans('formComp.resetAfterSubmit'),
-            })}
+            {children.resetAfterSubmit.propertyView({ label: trans("formComp.resetAfterSubmit") })}
           </Section>
 
-          {(useContext(EditorContext).editorModeStatus === 'logic' ||
-            useContext(EditorContext).editorModeStatus === 'both') && (
-            <>
-              <Section name={sectionNames.interaction}>
+          {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
+            <><Section name={sectionNames.interaction}>
                 {children.onEvent.getPropertyView()}
                 {disabledPropertyView(children)}
-                {children.disableSubmit.propertyView({
-                  label: trans('formComp.disableSubmit'),
-                })}
+                {children.disableSubmit.propertyView({ label: trans("formComp.disableSubmit") })}
                 {hiddenPropertyView(children)}
                 {loadingPropertyView(children)}
               </Section>
             </>
           )}
 
-          {(useContext(EditorContext).editorModeStatus === 'layout' ||
-            useContext(EditorContext).editorModeStatus === 'both') && (
+           {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
             <>
               <Section name={sectionNames.layout}>
                 {children.container.getPropertyView()}
@@ -233,17 +226,13 @@ const FormBaseComp = (function () {
             </>
           )}
 
-          {(useContext(EditorContext).editorModeStatus === 'logic' ||
-            useContext(EditorContext).editorModeStatus === 'both') && (
+          {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
             <Section name={sectionNames.advanced}>
-              {children.initialData.propertyView({
-                label: trans('formComp.initialData'),
-              })}
+              {children.initialData.propertyView({ label: trans("formComp.initialData") })}
             </Section>
           )}
 
-          {(useContext(EditorContext).editorModeStatus === 'layout' ||
-            useContext(EditorContext).editorModeStatus === 'both') && (
+          {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
             <>
               <Section name={sectionNames.style}>
                 {children.container.stylePropertyView()}
@@ -252,8 +241,8 @@ const FormBaseComp = (function () {
                 {children.animationStyle.getPropertyView()}
               </Section>
               {children.container.children.showHeader.getView() && (
-                <Section name={'Header Style'}>
-                  {children.container.headerStylePropertyView()}
+                <Section name={"Header Style"}>
+                  { children.container.headerStylePropertyView() }
                 </Section>
               )}
               {children.container.children.showBody.getView() && (
@@ -262,12 +251,13 @@ const FormBaseComp = (function () {
                 </Section>
               )}
               {children.container.children.showFooter.getView() && (
-                <Section name={'Footer Style'}>
-                  {children.container.footerStylePropertyView()}
+                <Section name={"Footer Style"}>
+                  { children.container.footerStylePropertyView() }
                 </Section>
               )}
             </>
           )}
+          
         </>
       );
     })
