@@ -1,7 +1,7 @@
-import React, {useEffect, useState} from 'react';
-import {Input, Section, sectionNames} from 'lowcoder-design';
-import {BoolControl} from 'comps/controls/boolControl';
-import {styleControl} from 'comps/controls/styleControl';
+import React, { useEffect, useState } from "react";
+import { Input, Section, sectionNames } from "lowcoder-design";
+import { BoolControl } from "comps/controls/boolControl";
+import { styleControl } from "comps/controls/styleControl";
 import {
   AnimationStyle,
   InputFieldStyle,
@@ -14,12 +14,12 @@ import {
   NameConfigPlaceHolder,
   NameConfigRequired,
   withExposingConfigs,
-} from 'comps/generators/withExposing';
-import styled, {css} from 'styled-components';
-import {UICompBuilder} from '../../generators';
-import {FormDataPropertyView} from '../formComp/formDataConstants';
-import {jsonControl} from 'comps/controls/codeControl';
-import {dropdownControl} from 'comps/controls/dropdownControl';
+} from "comps/generators/withExposing";
+import styled, { css } from "styled-components";
+import { UICompBuilder } from "../../generators";
+import { FormDataPropertyView } from "../formComp/formDataConstants";
+import { jsonControl } from "comps/controls/codeControl";
+import { dropdownControl } from "comps/controls/dropdownControl";
 import {
   getStyle,
   TextInputBasicSection,
@@ -28,21 +28,23 @@ import {
   TextInputInteractionSection,
   textInputValidate,
   TextInputValidationSection,
-} from '../textInputComp/textInputConstants';
+} from "../textInputComp/textInputConstants";
 import {
   allowClearPropertyView,
   hiddenPropertyView,
-} from 'comps/utils/propertyUtils';
-import {trans} from 'i18n';
-import {IconControl} from 'comps/controls/iconControl';
-import {hasIcon} from 'comps/utils';
-import {InputRef} from 'antd/es/input';
-import {default as ConfigProvider} from 'antd/es/config-provider';
-import {default as AutoComplete} from 'antd/es/auto-complete';
-import {RefControl} from 'comps/controls/refControl';
-import {booleanExposingStateControl} from 'comps/controls/codeStateControl';
+} from "comps/utils/propertyUtils";
+import { trans } from "i18n";
+import { IconControl } from "comps/controls/iconControl";
+import { hasIcon } from "comps/utils";
+import { InputRef } from "antd/es/input";
+import { default as ConfigProvider } from "antd/es/config-provider";
+import { default as AutoComplete } from "antd/es/auto-complete";
+import { RefControl } from "comps/controls/refControl";
+import {
+  booleanExposingStateControl,
+} from "comps/controls/codeStateControl";
 
-import {getDayJSLocale} from 'i18n/dayjsLocale';
+import { getDayJSLocale } from "i18n/dayjsLocale";
 import {
   autoCompleteDate,
   itemsDataTooltip,
@@ -52,22 +54,23 @@ import {
   autoCompleteType,
   autocompleteIconColor,
   componentSize,
-} from './autoCompleteConstants';
+} from "./autoCompleteConstants";
+
+
 
 const InputStyle = styled(Input)<{$style: InputLikeStyleType}>`
-  ${(props) => {
-    return css`
-      ${getStyle(props.$style)}
-      input {
-        padding: ${props.style?.padding};
-        rotate: ${props?.$style?.rotation};
-      }
-      .ant-select-single {
-        width: 100% !important;
-      }
-    `;
-  }}
+  ${(props) => css`
+    ${getStyle(props.$style)}
+    input {
+      padding: ${props.style?.padding};
+      rotate: ${props?.$style?.rotation};
+    }
+    .ant-select-single {
+      width: 100% !important;
+    }
+  `}
 `;
+
 
 const childrenMap = {
   ...textInputChildren,
@@ -91,13 +94,13 @@ const childrenMap = {
   animationStyle: styleControl(AnimationStyle),
 };
 
-const getValidate = (value: any): '' | 'warning' | 'error' | undefined => {
+const getValidate = (value: any): "" | "warning" | "error" | undefined => {
   if (
-    value.hasOwnProperty('validateStatus') &&
-    value['validateStatus'] === 'error'
+    value.hasOwnProperty("validateStatus") &&
+    value["validateStatus"] === "error"
   )
-    return 'error';
-  return '';
+    return "error";
+  return "";
 };
 
 let AutoCompleteCompBase = (function () {
@@ -115,10 +118,11 @@ let AutoCompleteCompBase = (function () {
       autocompleteIconColor,
       componentSize,
     } = props;
+    
 
     const getTextInputValidate = () => {
       return {
-        value: {value: props.value.value},
+        value: { value: props.value.value },
         required: props.required,
         minLength: props?.minLength ?? 0,
         maxLength: props?.maxLength ?? 0,
@@ -133,7 +137,7 @@ let AutoCompleteCompBase = (function () {
     const [validateState, setvalidateState] = useState({});
 
     //   是否中文环境
-    const [chineseEnv, setChineseEnv] = useState(getDayJSLocale() === 'zh-cn');
+    const [chineseEnv, setChineseEnv] = useState(getDayJSLocale() === "zh-cn");
 
     useEffect(() => {
       setsearchtext(props.value.value);
@@ -355,8 +359,8 @@ let AutoCompleteCompBase = (function () {
     })
     .setExposeMethodConfigs(autoCompleteRefMethods)
     .setExposeStateConfigs([
-      new NameConfig('value', trans('export.inputValueDesc')),
-      new NameConfig('valueInItems', trans('autoComplete.valueInItems')),
+      new NameConfig("value", trans("export.inputValueDesc")),
+      new NameConfig("valueInItems", trans("autoComplete.valueInItems")),
       NameConfigPlaceHolder,
       NameConfigRequired,
       ...TextInputConfigs,
@@ -371,9 +375,9 @@ AutoCompleteCompBase = class extends AutoCompleteCompBase {
 };
 
 export const AutoCompleteComp = withExposingConfigs(AutoCompleteCompBase, [
-  new NameConfig('value', trans('export.inputValueDesc')),
-  new NameConfig('valueInItems', trans('autoComplete.valueInItems')),
+  new NameConfig("value", trans("export.inputValueDesc")),
+  new NameConfig("valueInItems", trans("autoComplete.valueInItems")),
   NameConfigPlaceHolder,
-  NameConfigRequired,
+  NameConfigRequired, 
   ...TextInputConfigs,
 ]);
