@@ -169,21 +169,21 @@ let AutoCompleteCompBase = (function () {
               },
             }}
           >
-            <AutoComplete
+            <AutoComplete 
               disabled={props.disabled}
               value={searchtext}
-              options={items}
-              style={{width: "100%"}}
+              options={items} 
+              style={{ width: "100%" }}
               onChange={(value: string, option) => {
                 props.valueInItems.onChange(false);
                 setvalidateState(textInputValidate(getTextInputValidate()));
                 setsearchtext(value);
-                props.value.onChange(value);
-                props.onEvent("change");
-              }}
+                props.value.onChange(value); 
+                props.onEvent("change")
+              }} 
               onFocus={() => {
-                setActivationFlag(true);
-                props.onEvent("focus");
+                setActivationFlag(true) 
+                props.onEvent("focus") 
               }}
               onBlur={() => props.onEvent("blur")}
               onSelect={(data: string, option) => {
@@ -269,23 +269,23 @@ let AutoCompleteCompBase = (function () {
                 return false;
               }}
             >
-              <InputStyle
-                ref={props.viewRef}
-                placeholder={placeholder}
-                allowClear={props.allowClear}
-                $style={props.inputFieldStyle}
-                prefix={hasIcon(props.prefixIcon) && props.prefixIcon}
-                suffix={hasIcon(props.suffixIcon) && props.suffixIcon}
-                status={getValidate(validateState)}
-                onPressEnter={undefined}
-              />
+               <InputStyle
+                 ref={props.viewRef}
+                 placeholder={placeholder}
+                 allowClear={props.allowClear}
+                 $style={props.inputFieldStyle}
+                 prefix={hasIcon(props.prefixIcon) && props.prefixIcon}
+                 suffix={hasIcon(props.suffixIcon) && props.suffixIcon}
+                 status={getValidate(validateState)}
+                 onPressEnter={undefined}
+               />
             </AutoComplete>
           </ConfigProvider>
         </>
       ),
       style: props.style,
       labelStyle: props.labelStyle,
-      inputFieldStyle: props.inputFieldStyle,
+      inputFieldStyle:props.inputFieldStyle,
       animationStyle: props.animationStyle,
       ...validateState,
     });
