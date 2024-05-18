@@ -28,78 +28,78 @@ const Warpper = styled.div<{
   $cardType: string;
   $headerStyle: CardHeaderStyleType;
   $bodyStyle: CardHeaderStyleType;
-  $animationStyle: AnimationStyleType;
+  $animationStyle:AnimationStyleType;
 }>`
   height: 100%;
   width: 100%;
-  .ant-card-small > .ant-card-head {
-    background-color: ${(props) => props.$headerStyle?.background} !important;
-    border: ${(props) => props.$headerStyle?.border};
-    border-style: ${(props) => props.$headerStyle?.borderStyle};
-    border-width: ${(props) => props.$headerStyle?.borderWidth};
-    border-radius: ${(props) => props.$headerStyle?.radius};
-    font-size: ${(props) => props.$headerStyle?.textSize};
-    font-style: ${(props) => props.$headerStyle?.fontStyle};
-    font-family: ${(props) => props.$headerStyle?.fontFamily};
-    font-weight: ${(props) => props.$headerStyle?.textWeight};
-    text-transform: ${(props) => props.$headerStyle?.textTransform};
-    text-decoration: ${(props) => props.$headerStyle?.textDecoration};
-    color: ${(props) => props.$headerStyle?.text};
-    rotate: ${(props) => props.$headerStyle?.rotation};
-    margin: ${(props) => props.$headerStyle?.margin};
-    padding: ${(props) => props.$headerStyle?.padding};
+  .ant-card-small >.ant-card-head {
+    background-color: ${props => props.$headerStyle?.background} !important;
+    border: ${props => props.$headerStyle?.border};
+    border-style: ${props => props.$headerStyle?.borderStyle};
+    border-width: ${props => props.$headerStyle?.borderWidth};
+    border-radius: ${props => props.$headerStyle?.radius};
+    font-size: ${props => props.$headerStyle?.textSize};
+    font-style: ${props => props.$headerStyle?.fontStyle};
+    font-family: ${props => props.$headerStyle?.fontFamily};
+    font-weight: ${props => props.$headerStyle?.textWeight};
+    text-transform: ${props => props.$headerStyle?.textTransform};
+    text-decoration: ${props => props.$headerStyle?.textDecoration};
+    color: ${props => props.$headerStyle?.text};
+    rotate: ${props => props.$headerStyle?.rotation};
+    margin: ${props => props.$headerStyle?.margin};
+    padding: ${props => props.$headerStyle?.padding};
   }
   .ant-card .ant-card-actions {
-    border-top: 1px solid ${(props) => props.$style?.border};
+    border-top: 1px solid ${props => props.$style?.border};
   }
-  .ant-card .ant-card-actions > li:not(:last-child) {
-    border-inline-end: 1px solid ${(props) => props.$style?.border};
+  .ant-card .ant-card-actions>li:not(:last-child) {
+    border-inline-end: 1px solid ${props => props.$style?.border};
   }
   .ant-card .ant-card-actions {
-    background-color: ${(props) => props.$style?.background};
+    background-color: ${props => props.$style?.background};
   }
   .ant-card .ant-card-body {
-    background-color: ${(props) => props.$bodyStyle?.background} !important;
-    border: ${(props) => props.$bodyStyle?.border};
-    border-style: ${(props) => props.$bodyStyle?.borderStyle};
-    border-width: ${(props) => props.$bodyStyle?.borderWidth};
-    border-radius: ${(props) => props.$bodyStyle?.radius};
-    rotate: ${(props) => props.$bodyStyle?.rotation};
-    margin: ${(props) => props.$bodyStyle?.margin};
-    padding: ${(props) => props.$bodyStyle?.padding};
+  background-color: ${props => props.$bodyStyle?.background} !important;
+    border: ${props => props.$bodyStyle?.border};
+    border-style: ${props => props.$bodyStyle?.borderStyle};
+    border-width: ${props => props.$bodyStyle?.borderWidth};
+    border-radius: ${props => props.$bodyStyle?.radius};
+    rotate: ${props => props.$bodyStyle?.rotation};
+    margin: ${props => props.$bodyStyle?.margin};
+    padding: ${props => props.$bodyStyle?.padding};
   }
   .ant-card {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    background-color: ${(props) => props.$style?.background};
-    border: ${(props) => props.$style?.border};
-    border-style: ${(props) => props.$style?.borderStyle};
-    border-radius: ${(props) => props.$style?.radius};
-    border-width: ${(props) => props.$style?.borderWidth};
-    ${(props) => props.$animationStyle}
+    background-color: ${props => props.$style?.background};
+    border: ${props => props.$style?.border};
+    border-style: ${props => props.$style?.borderStyle};
+    border-radius: ${props => props.$style?.radius};
+    border-width: ${props => props.$style?.borderWidth};
+    ${props=>props.$animationStyle}
   }
   .ant-card-body {
-    display: ${(props) => (props.$showMate ? '' : 'none')};
-    height: ${(props) => (props.$cardType == 'custom' ? '100%' : 'auto')};
+    display: ${props => props.$showMate ? '' : 'none'};
+    height: ${props => props.$cardType == 'custom' ? '100%' : 'auto'};
   }
-  .ant-card-body .ant-card-meta .ant-card-meta-title {
-    color: ${(props) => props.$bodyStyle?.text} !important;
-    font-size: ${(props) => props.$bodyStyle?.textSize};
-    font-style: ${(props) => props.$bodyStyle?.fontStyle};
-    font-family: ${(props) => props.$bodyStyle?.fontFamily};
-    font-weight: ${(props) => props.$bodyStyle?.textWeight};
-    text-transform: ${(props) => props.$bodyStyle?.textTransform};
-    text-decoration: ${(props) => props.$bodyStyle?.textDecoration};
+  .ant-card-body .ant-card-meta .ant-card-meta-title{
+    color: ${props => props.$bodyStyle?.text} !important;
+    font-size: ${props => props.$bodyStyle?.textSize};
+    font-style: ${props => props.$bodyStyle?.fontStyle};
+    font-family: ${props => props.$bodyStyle?.fontFamily};
+    font-weight: ${props => props.$bodyStyle?.textWeight};
+    text-transform: ${props => props.$bodyStyle?.textTransform};
+    text-decoration: ${props => props.$bodyStyle?.textDecoration};
   }
-  .ant-card-body .ant-card-meta .ant-card-meta-description {
-    color: ${(props) => props.$bodyStyle?.text} !important;
-    font-size: ${(props) => props.$bodyStyle?.textSize};
-    font-style: ${(props) => props.$bodyStyle?.fontStyle};
-    font-family: ${(props) => props.$bodyStyle?.fontFamily};
-    font-weight: ${(props) => props.$bodyStyle?.textWeight};
-    text-transform: ${(props) => props.$bodyStyle?.textTransform};
-    text-decoration: ${(props) => props.$bodyStyle?.textDecoration};
+  .ant-card-body .ant-card-meta .ant-card-meta-description{
+    color: ${props => props.$bodyStyle?.text} !important;
+    font-size: ${props => props.$bodyStyle?.textSize};
+    font-style: ${props => props.$bodyStyle?.fontStyle};
+    font-family: ${props => props.$bodyStyle?.fontFamily};
+    font-weight: ${props => props.$bodyStyle?.textWeight};
+    text-transform: ${props => props.$bodyStyle?.textTransform};
+    text-decoration: ${props => props.$bodyStyle?.textDecoration};
   }
 `;
 
