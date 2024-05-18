@@ -45,7 +45,7 @@ const Container = styled.div<{
   overflow: auto;
   border-radius: ${(props) => props.$style.radius};
 
-  label[for='root-title'] {
+  label[for="root-title"] {
     font-size: 18px;
   }
 
@@ -189,10 +189,7 @@ let FormBasicComp = (function () {
     resetAfterSubmit: BoolControl,
     schema: jsonObjectControl(i18nObjs.jsonForm.defaultSchema),
     uiSchema: jsonObjectControl(i18nObjs.jsonForm.defaultUiSchema),
-    data: jsonObjectExposingStateControl(
-      'data',
-      i18nObjs.jsonForm.defaultFormData
-    ),
+    data: jsonObjectExposingStateControl("data", i18nObjs.jsonForm.defaultFormData),
     onEvent: eventHandlerControl(EventOptions),
     style: styleControl(JsonSchemaFormStyle),
     animationStyle: styleControl(AnimationStyle),
@@ -222,9 +219,9 @@ let FormBasicComp = (function () {
                 className={buttonOptions?.props?.className}
                 type="primary"
                 htmlType="submit"
-                style={{float: 'right'}}
+                style={{ float: "right" }}
               >
-                {buttonOptions?.submitText ?? trans('event.submit')}
+                {buttonOptions?.submitText ?? trans("event.submit")}
               </Button>
             }
           />
