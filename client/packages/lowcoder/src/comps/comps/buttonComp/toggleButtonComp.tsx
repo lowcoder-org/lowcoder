@@ -13,8 +13,8 @@ import { ChangeEventHandlerControl } from "../../controls/eventHandlerControl";
 import { CommonNameConfig, NameConfig, withExposingConfigs } from "../../generators/withExposing";
 import { Button100, ButtonCompWrapper, buttonRefMethods } from "./buttonCompConstants";
 import { IconControl } from "comps/controls/iconControl";
-import {  AlignWithStretchControl, LeftRightControl } from "comps/controls/dropdownControl";
-import {booleanExposingStateControl} from "comps/controls/codeStateControl";
+import { AlignWithStretchControl, LeftRightControl } from "comps/controls/dropdownControl";
+import { booleanExposingStateControl } from "comps/controls/codeStateControl";
 import {
   AnimationStyle,
   AnimationStyleType,
@@ -24,7 +24,7 @@ import { styleControl } from "comps/controls/styleControl";
 import { BoolControl } from "comps/controls/boolControl";
 import { RefControl } from "comps/controls/refControl";
 import React, { useContext } from "react";
-import { EditorContext } from "comps/editorState";
+import { EditorContext } from "comps/editorState"; 
 
 const IconWrapper = styled.div`
   display: flex;
