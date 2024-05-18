@@ -1,11 +1,11 @@
-import {trans} from 'i18n/design';
-import React, {ReactNode, useContext} from 'react';
-import styled from 'styled-components';
-import {ReactComponent as Packup} from 'icons/icon-Pack-up.svg';
-import {labelCss} from './Label';
-import {controlItem, ControlNode} from './control';
+import { trans } from "i18n/design";
+import React, { ReactNode, useContext } from "react";
+import styled from "styled-components";
+import { ReactComponent as Packup } from "icons/icon-Pack-up.svg";
+import { labelCss } from "./Label";
+import { controlItem, ControlNode } from "./control";
 
-const SectionItem = styled.div<{$width?: number}>`
+const SectionItem = styled.div<{ $width?: number }>`
   width: ${(props) => (props.$width ? props.$width : 312)}px;
   border-bottom: 1px solid #e1e3eb;
 
@@ -63,14 +63,14 @@ const SectionLabelDiv = styled.div`
   }
 `;
 
-const ShowChildren = styled.div<{$show?: string; $noMargin?: boolean}>`
-  display: ${(props) => props.$show || 'none'};
+const ShowChildren = styled.div<{ $show?: string; $noMargin?: boolean }>`
+  display: ${(props) => props.$show || "none"};
   flex-direction: column;
   gap: 8px;
   transition: all 3s;
   margin-left: ${(props) => (props.$noMargin ? 0 : 16)}px;
   padding-bottom: 16px;
-  padding-right: ${(props) => (props.$noMargin ? 0 : '16px')};
+  padding-right: ${(props) => (props.$noMargin ? 0 : "16px")};
 `;
 
 interface ISectionConfig<T> {
@@ -95,22 +95,16 @@ export interface PropertySectionContextType {
   state: PropertySectionState;
 }
 
-export const PropertySectionContext =
-  React.createContext<PropertySectionContextType>({
-    toggle: () => {},
-    compName: '',
-    state: {},
-  });
+export const PropertySectionContext = React.createContext<PropertySectionContextType>({
+  toggle: () => {},
+  compName: "",
+  state: {},
+});
 
 export const BaseSection = (props: ISectionConfig<ReactNode>) => {
-  const {name} = props;
-  const {compName, state, toggle} = useContext(PropertySectionContext);
-  const open =
-    props.open !== undefined
-      ? props.open
-      : name
-        ? state[compName]?.[name] !== false
-        : true;
+  const { name } = props;
+  const { compName, state, toggle } = useContext(PropertySectionContext);
+  const open = props.open !== undefined ? props.open : name ? state[compName]?.[name] !== false : true;
 
   // console.log("open", open, props.open);
 
@@ -124,15 +118,15 @@ export const BaseSection = (props: ISectionConfig<ReactNode>) => {
   return (
     <SectionItem $width={props.width} style={props.style}>
       {props.name && (
-        <SectionLabelDiv onClick={handleToggle} className={'section-header'}>
+        <SectionLabelDiv onClick={handleToggle} className={"section-header"}>
           <SectionLabel>{props.name}</SectionLabel>
-          <div style={{display: 'flex'}}>
+          <div style={{ display: "flex" }}>
             {open && props.additionalButton}
-            <PackupIcon deg={open ? 'rotate(0deg)' : 'rotate(180deg)'} />
+            <PackupIcon deg={open ? "rotate(0deg)" : "rotate(180deg)"} />
           </div>
         </SectionLabelDiv>
       )}
-      <ShowChildren $show={open ? 'flex' : 'none'} $noMargin={props.noMargin}>
+      <ShowChildren $show={open ? "flex" : "none"} $noMargin={props.noMargin}>
         {props.children}
       </ShowChildren>
     </SectionItem>
@@ -140,31 +134,28 @@ export const BaseSection = (props: ISectionConfig<ReactNode>) => {
 };
 
 export function Section(props: ISectionConfig<ControlNode>) {
-  return controlItem(
-    {filterText: props.name, searchChild: true},
-    <BaseSection {...props} />
-  );
+  return controlItem({ filterText: props.name, searchChild: true }, <BaseSection {...props} />);
 }
 
 // common section names
 export const sectionNames = {
-  basic: trans('prop.basic'),
-  interaction: trans('prop.interaction'),
-  advanced: trans('prop.advanced'),
-  validation: trans('prop.validation'),
-  layout: trans('prop.layout'),
-  style: trans('prop.style'),
-  labelStyle: trans('prop.labelStyle'),
-  animationStyle: trans('prop.animationStyle'),
-  data: trans('prop.data'),
-  meetings: trans('prop.meetings'), // added by Falk Wolsky
-  field: trans('prop.field'),
-  inputFieldStyle: trans('prop.inputFieldStyle'),
-  avatarStyle: trans('prop.avatarStyle'),
-  captionStyle: trans('prop.captionStyle'),
-  startButtonStyle: trans('prop.startButtonStyle'),
-  resetButtonStyle: trans('prop.resetButtonStyle'),
-  headerStyle: trans('prop.headerStyle'),
-  bodyStyle: trans('prop.bodyStyle'),
-  badgeStyle: trans('prop.badgeStyle'),
+  basic: trans("prop.basic"),
+  interaction: trans("prop.interaction"),
+  advanced: trans("prop.advanced"),
+  validation: trans("prop.validation"),
+  layout: trans("prop.layout"),
+  style: trans("prop.style"),
+  labelStyle:trans("prop.labelStyle"),
+  animationStyle:trans("prop.animationStyle"),
+  data: trans("prop.data"),
+  meetings: trans("prop.meetings"), // added by Falk Wolsky
+  field: trans("prop.field"),
+  inputFieldStyle:trans("prop.inputFieldStyle"),
+  avatarStyle:trans("prop.avatarStyle"),
+  captionStyle:trans("prop.captionStyle"),
+  startButtonStyle:trans("prop.startButtonStyle"),
+  resetButtonStyle:trans("prop.resetButtonStyle"),
+  headerStyle:trans("prop.headerStyle"),
+  bodyStyle:trans("prop.bodyStyle"),
+  badgeStyle:trans("prop.badgeStyle"),
 };
