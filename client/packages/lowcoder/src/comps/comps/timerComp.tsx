@@ -27,22 +27,22 @@ const Container = styled.div<{
   word-wrap: break-word;
   line-height: initial;
   ${props=>props.$animationStyle}
-  background-color: ${(props) => props.$style?.background};
-  font-weight: ${(props) => props?.$style?.textWeight};
-  border-radius: ${(props) => props?.$style?.radius};
-  font-size: ${(props) => props?.$style?.textSize};
-  rotate: ${(props) => props?.$style?.rotation};
-  text-transform: ${(props) => props?.$style?.textTransform};
-  color: ${(props) => props?.$style?.text};
-  border: ${(props) => props?.$style?.border};
-  border-style: ${(props) => props?.$style?.borderStyle};
-  border-width: ${(props) => props?.$style?.borderWidth};
-  font-family: ${(props) => props?.$style?.fontFamily};
-  font-style: ${(props) => props?.$style?.fontStyle};
-  margin: ${(props) => props?.$style?.margin};
-  padding: ${(props) => props?.$style?.padding};
-  background: ${(props) => props?.$style?.background};
-  text-decoration: ${(props) => props?.$style?.textDecoration};
+  background-color: ${props => props.$style?.background};
+ font-weight: ${props=>props?.$style?.textWeight};
+border-radius: ${props=>props?.$style?.radius};
+font-size: ${props=>props?.$style?.textSize};
+rotate: ${props=>props?.$style?.rotation};
+text-transform: ${props=>props?.$style?.textTransform};
+color: ${props=>props?.$style?.text};
+border: ${props => props?.$style?.border};
+border-style: ${props=>props?.$style?.borderStyle};
+border-width: ${props=>props?.$style?.borderWidth};
+font-family: ${props=>props?.$style?.fontFamily};
+font-style: ${props=>props?.$style?.fontStyle};
+margin: ${props=>props?.$style?.margin};
+padding: ${props=>props?.$style?.padding};
+background: ${props=>props?.$style?.background};
+text-decoration: ${props=>props?.$style?.textDecoration};
 `;
 
 const ButtonWarrper = styled.div`
@@ -105,7 +105,7 @@ const childrenMap = {
   startButtonStyle: styleControl(startButtonStyle),
   resetButtonStyle: styleControl(startButtonStyle),
   onEvent: eventHandlerControl(EventOptions),
-  defaultValue: stringExposingStateControl('defaultValue', '00:00:00:000'),
+  defaultValue: stringExposingStateControl("defaultValue", '00:00:00:000'),
   timerType: dropdownControl(timerTypeOptions, 'timer'),
   elapsedTime: stateComp<number>(0),
   timerState: stateComp<string>('stoped'),
@@ -203,24 +203,17 @@ const AvatarGroupView = (props: RecordConstructorToView<typeof childrenMap> & { 
           <StyledButton
             $style={props.startButtonStyle}
             disabled={!buttonState}
-            type={timerState === 'stoped' ? 'primary' : 'default'}
+            type={timerState === 'stoped' ? "primary" : 'default'}
             onClick={() => {
-              if (timerState === 'stoped') startAction();
-              else if (timerState === 'started') pauseAction();
-              else if (timerState === 'paused') resumeAction();
+              if (timerState === 'stoped') startAction()
+              else if (timerState === 'started') pauseAction()
+              else if (timerState === 'paused') resumeAction()
             }}
-          >
-            {timerState === 'stoped'
-              ? trans('timer.start')
-              : timerState === 'started'
-                ? trans('timer.pause')
-                : trans('timer.resume')}
-          </StyledButton>
+         >{timerState === 'stoped' ? trans('timer.start') : (timerState === 'started' ? trans('timer.pause') : trans('timer.resume'))}</StyledButton>
           <StyledButton
             $style={props.resetButtonStyle}
-            onClick={() => resetAction()}
-          >
-            {trans('timer.reset')}
+          onClick={() => resetAction()}
+          >{trans('timer.reset')}
           </StyledButton>
         </Space>
       </ButtonWarrper>
