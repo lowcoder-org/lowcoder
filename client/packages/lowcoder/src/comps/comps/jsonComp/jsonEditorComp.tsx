@@ -62,9 +62,9 @@ function fixOldDataSecond(oldData: any) {
 }
 
 const childrenMap = {
-  value: jsonValueExposingStateControl('value', defaultData),
+  value: jsonValueExposingStateControl("value", defaultData),
   onEvent: ChangeEventHandlerControl,
-  label: withDefault(LabelControl, {position: 'column'}),
+  label: withDefault(LabelControl, { position: "column" }),
   style: styleControl(JsonEditorStyle),
   animationStyle: styleControl(AnimationStyle),
 
@@ -119,12 +119,7 @@ let JsonEditorTmpComp = (function () {
     return props.label({
       style: props.style,
       animationStyle: props.animationStyle,
-      children: (
-        <Wrapper
-          ref={wrapperRef}
-          onFocus={() => (editContent.current = 'focus')}
-        />
-      ),
+      children: <Wrapper ref={wrapperRef} onFocus={() => (editContent.current = "focus")} />,
     });
   })
     .setPropertyViewFn((children) => {
