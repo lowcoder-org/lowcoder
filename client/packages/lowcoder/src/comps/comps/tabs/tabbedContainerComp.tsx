@@ -57,7 +57,7 @@ const childrenMap = {
   onEvent: eventHandlerControl(EVENT_OPTIONS),
   disabled: BoolCodeControl,
   showHeader: withDefault(BoolControl, true),
-  style: withDefault(styleControl(TabContainerStyle), {borderWidth:'1px'}),
+  style: withDefault(styleControl(TabContainerStyle),{borderWidth:'1px'}),
   headerStyle: styleControl(ContainerHeaderStyle),
   bodyStyle: styleControl(ContainerBodyStyle),
   animationStyle: styleControl(AnimationStyle),
@@ -274,7 +274,8 @@ const TabbedContainer = (props: TabbedContainerProps) => {
               items={tabItems}
               tabBarGutter={props.tabsGutter}
               centered={props.tabsCentered}
-            ></StyledTabs>
+          >
+          </StyledTabs>
         </BackgroundColorContext.Provider>
       </div>
     </ScrollBar>
