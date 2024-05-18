@@ -243,13 +243,13 @@ const UndefinedNumberControl = codeControl<number | undefined>((value: any) => {
 });
 
 const childrenMap = {
-  defaultValue: stringExposingStateControl('defaultValue'), // It is more convenient for string to handle various states, save raw input here
-  value: numberExposingStateControl('value'), // It is more convenient for string to handle various states, save raw input here
+  defaultValue: stringExposingStateControl("defaultValue"), // It is more convenient for string to handle various states, save raw input here
+  value: numberExposingStateControl("value"), // It is more convenient for string to handle various states, save raw input here
   placeholder: StringControl,
   disabled: BoolCodeControl,
   readOnly: BoolControl,
   label: LabelControl,
-  formatter: dropdownControl(FormatterOptions, 'standard'),
+  formatter: dropdownControl(FormatterOptions, "standard"),
   step: withDefault(NumberControl, 1),
   controls: BoolControl.DEFAULT_TRUE, // Whether to display the increase or decrease button
   precision: RangeControl.closed(0, 20, 0),
@@ -262,9 +262,7 @@ const childrenMap = {
   animationStyle: styleControl(AnimationStyle),
   prefixText: stringExposingStateControl('defaultValue'),
   prefixIcon: IconControl,
-  inputFieldStyle: withDefault(styleControl(InputLikeStyle), {
-    borderWidth: '1px',
-  }),
+  inputFieldStyle: withDefault(styleControl(InputLikeStyle), {borderWidth: '1px'}) ,
   // validation
   required: BoolControl,
   min: UndefinedNumberControl,
