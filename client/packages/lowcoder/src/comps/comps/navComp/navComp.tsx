@@ -36,20 +36,13 @@ type IProps = {
   $borderColor: string;
   $borderWidth: string;
   $borderRadius: string;
-  $animationStyle: AnimationStyleType;
+  $animationStyle:AnimationStyleType;
 };
 
 const Wrapper = styled('div')<
-  Pick<
-    IProps,
-    | '$bgColor'
-    | '$borderColor'
-    | '$borderWidth'
-    | '$borderRadius'
-    | '$animationStyle'
-  >
->`
-  ${(props) => props.$animationStyle}
+  Pick<IProps, '$bgColor' | '$borderColor' | '$borderWidth' | '$borderRadius'|'$animationStyle'>
+  >`
+${props=>props.$animationStyle}
   height: 100%;
   border-radius: ${(props) =>
     props.$borderRadius ? props.$borderRadius : '2px'};
