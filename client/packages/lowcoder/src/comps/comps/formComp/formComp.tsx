@@ -246,7 +246,7 @@ const FormBaseComp = (function () {
                 </Section>
               )}
               {children.container.children.showBody.getView() && (
-                 <Section name={"Body Style"}>
+                <Section name={"Body Style"}>
                   { children.container.bodyStylePropertyView() }
                 </Section>
               )}
@@ -257,7 +257,7 @@ const FormBaseComp = (function () {
               )}
             </>
           )}
-
+          
         </>
       );
     })
