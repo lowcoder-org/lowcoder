@@ -3,42 +3,39 @@ import {
   ContainerStyleType,
   heightCalculator,
   widthCalculator,
-  ContainerHeaderStyleType,
-  ContainerBodyStyleType,
   AnimationStyleType,
-} from 'comps/controls/styleControlConstants';
-import {EditorContext} from 'comps/editorState';
-import {BackgroundColorContext} from 'comps/utils/backgroundColorContext';
-import {HintPlaceHolder, TacoMarkDown} from 'lowcoder-design';
-import {ReactNode, useContext} from 'react';
-import styled, {css} from 'styled-components';
-import {checkIsMobile} from 'util/commonUtils';
+} from "comps/controls/styleControlConstants";
+import { EditorContext } from "comps/editorState";
+import { BackgroundColorContext } from "comps/utils/backgroundColorContext";
+import { HintPlaceHolder, TacoMarkDown } from "lowcoder-design";
+import { ReactNode, useContext } from "react";
+import styled, { css } from "styled-components";
+import { checkIsMobile } from "util/commonUtils";
 import {
   gridItemCompToGridItems,
   InnerGrid,
-} from '../containerComp/containerView';
-import {TriContainerViewProps} from '../triContainerComp/triContainerCompBuilder';
+} from "../containerComp/containerView";
+import { TriContainerViewProps } from "../triContainerComp/triContainerCompBuilder";
 
 const getStyle = (style: TextStyleType) => {
   return css`
-    border-radius: ${style.radius ? style.radius : '4px'};
-    border: ${style.borderWidth ? style.borderWidth : '0px'} solid
-      ${style.border};
+    border-radius: ${(style.radius ? style.radius : "4px")};
+    border: ${(style.borderWidth ? style.borderWidth : "0px")} solid ${style.border};
     color: ${style.text};
     font-size: ${style.textSize} !important;
     font-weight: ${style.textWeight} !important;
     font-family: ${style.fontFamily} !important;
-    font-style: ${style.fontStyle} !important;
-    text-transform: ${style.textTransform} !important;
-    text-decoration: ${style.textDecoration} !important;
+    font-style:${style.fontStyle} !important;
+    text-transform:${style.textTransform} !important;
+    text-decoration:${style.textDecoration} !important;
     background-color: ${style.background};
     .markdown-body a {
       color: ${style.links};
     }
     .markdown-body {
-      margin: ${style.margin} !important;
-      padding: ${style.padding};
-      width: ${widthCalculator(style.margin)};
+      margin: ${style.margin} !important;	
+      padding: ${style.padding};	
+      width: ${widthCalculator(style.margin)};	
       // height: ${heightCalculator(style.margin)};
       h1 {
         line-height: 1.5;
@@ -69,23 +66,22 @@ const getStyle = (style: TextStyleType) => {
       }
     }
   `;
-};
+  }
 
 const Wrapper = styled.div<{
   $style: ContainerStyleType;
-  $animationStyle: AnimationStyleType;
+  $animationStyle?: AnimationStyleType;
 }>`
+${props=>props.$animationStyle&&props.$animationStyle}
   display: flex;
   flex-flow: column;
   height: 100%;
-  ${(props) => props.$animationStyle}
   border: ${(props) => props.$style.borderWidth} solid
     ${(props) => props.$style.border};
   border-radius: ${(props) => props.$style.radius};
   background-color: ${(props) => props.$style.background};
   padding: ${(props) => props.$style.padding};
   margin: ${(props) => props.$style.margin};
-  rotate: ${(props) => props.$style.rotation};
   ${(props) =>
     props.$style.backgroundImage &&
     `background-image: url(${props.$style.backgroundImage});`}
@@ -114,15 +110,10 @@ const FloatTextWrapper = styled.div<{
 `;
 
 const HeaderInnerGrid = styled(InnerGrid)<{
-  $backgroundColor: string;
-  $headerStyle: ContainerHeaderStyleType;
-}>`
+  $backgroundColor: string
+ }>`
   overflow: visible;
-  rotate:${(props) => {
-    return `${props.$headerStyle.rotation};`;
-  }}
-  ${(props) =>
-    props.$backgroundColor && `background-color: ${props.$backgroundColor};`}
+  ${(props) => props.$backgroundColor && `background-color: ${props.$backgroundColor};`}
   border-radius: 0;
 `;
 
@@ -131,16 +122,10 @@ const BodyInnerGrid = styled(InnerGrid)<{
   $backgroundColor: string;
   $borderColor: string;
   $borderWidth: string;
-  $bodyStyle: ContainerBodyStyleType;
 }>`
-  rotate: ${(props) => {
-    return `${props.$bodyStyle.rotation}`;
-  }};
-  border-top: ${(props) =>
-    `${props.$showBorder ? props.$borderWidth : 0} solid ${props.$borderColor}`};
+  border-top: ${(props) => `${props.$showBorder ? props.$borderWidth : 0} solid ${props.$borderColor}`};
   flex: 1;
-  ${(props) =>
-    props.$backgroundColor && `background-color: ${props.$backgroundColor};`}
+  ${(props) => props.$backgroundColor && `background-color: ${props.$backgroundColor};`}
   border-radius: 0;
 `;
 
@@ -155,27 +140,15 @@ const FooterInnerGrid = styled(InnerGrid)<{
   $footerBackgroundImagePosition: string;
   $footerBackgroundImageOrigin: string;
 }>`
-  border-top: ${(props) =>
-    `${props.$showBorder ? props.$borderWidth : 0} solid ${props.$borderColor}`};
+  border-top: ${(props) => `${props.$showBorder ? props.$borderWidth : 0} solid ${props.$borderColor}`};
   overflow: visible;
-  ${(props) =>
-    props.$backgroundColor && `background-color: ${props.$backgroundColor};`}
+  ${(props) => props.$backgroundColor && `background-color: ${props.$backgroundColor};`}
   border-radius: 0;
-  ${(props) =>
-    props.$footerBackgroundImage &&
-    `background-image: url(${props.$footerBackgroundImage});`}
-  ${(props) =>
-    props.$footerBackgroundImageRepeat &&
-    `background-repeat: ${props.$footerBackgroundImageRepeat};`}
-  ${(props) =>
-    props.$footerBackgroundImageSize &&
-    `background-size: ${props.$footerBackgroundImageSize};`}
-  ${(props) =>
-    props.$footerBackgroundImagePosition &&
-    `background-position: ${props.$footerBackgroundImagePosition};`}
-  ${(props) =>
-    props.$footerBackgroundImageOrigin &&
-    `background-origin: ${props.$footerBackgroundImageOrigin};`}
+  ${(props) => props.$footerBackgroundImage && `background-image: url(${props.$footerBackgroundImage});`}
+  ${(props) => props.$footerBackgroundImageRepeat && `background-repeat: ${props.$footerBackgroundImageRepeat};`}
+  ${(props) => props.$footerBackgroundImageSize && `background-size: ${props.$footerBackgroundImageSize};`}
+  ${(props) => props.$footerBackgroundImagePosition && `background-position: ${props.$footerBackgroundImagePosition};`}
+  ${(props) => props.$footerBackgroundImageOrigin && `background-origin: ${props.$footerBackgroundImageOrigin};`}
 `;
 
 export type TriContainerProps = TriContainerViewProps & {
@@ -188,26 +161,31 @@ export type TriContainerProps = TriContainerViewProps & {
   width: string;
   style: TextStyleType;
   horizontalAlignment: string;
-  animationStyle: AnimationStyleType;
+  animationStyle?: AnimationStyleType;
 };
 
 export function TriContainer(props: TriContainerProps) {
   const {container, text, animationStyle} = props;
-  const {showHeader, showFooter} = container;
+  const { showHeader, showFooter } = container;
   // When the header and footer are not displayed, the body must be displayed
   const showBody = container.showBody || (!showHeader && !showFooter);
 
-  const {items: headerItems, ...otherHeaderProps} = container.header;
-  const {items: bodyItems, ...otherBodyProps} =
-    container.body['0'].children.view.getView();
-  const {items: footerItems, ...otherFooterProps} = container.footer;
+  const { items: headerItems, ...otherHeaderProps } = container.header;
+  const { items: bodyItems, ...otherBodyProps } =
+    container.body["0"].children.view.getView();
+  const { items: footerItems, ...otherFooterProps } = container.footer;
 
   const editorState = useContext(EditorContext);
   const maxWidth = editorState.getAppSettings().maxWidth;
   const isMobile = checkIsMobile(maxWidth);
   const paddingWidth = isMobile ? 7 : 19;
 
-  const {style, headerStyle, bodyStyle, footerStyle} = container;
+  const {
+    style,
+    headerStyle,
+    bodyStyle,
+    footerStyle,
+  } = container; 
 
   return (
     <Wrapper $style={style} $animationStyle={animationStyle}>
@@ -221,7 +199,6 @@ export function TriContainer(props: TriContainerProps) {
             minHeight="46px"
             containerPadding={[0, 0]}
             showName={{bottom: showFooter ? 20 : 0}}
-            $headerStyle={headerStyle}
             $backgroundColor={headerStyle?.headerBackground || 'transparent'}
             style={{padding: headerStyle.containerHeaderPadding}}
           />
@@ -236,7 +213,6 @@ export function TriContainer(props: TriContainerProps) {
             }}
           >
             <BodyInnerGrid
-              $bodyStyle={bodyStyle}
               $showBorder={false}
               {...otherBodyProps}
               items={gridItemCompToGridItems(bodyItems)}
