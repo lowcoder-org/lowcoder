@@ -213,7 +213,7 @@ export const ResponsiveLayoutBaseComp = (function () {
 
           {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
             <>
-              <Section name={sectionNames.layout}>
+            <Section name={sectionNames.layout}>
               {children.autoHeight.getPropertyView()}
             </Section>
             <Section name={trans("responsiveLayout.rowLayout")}>
