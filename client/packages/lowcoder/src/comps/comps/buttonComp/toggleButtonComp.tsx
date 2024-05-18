@@ -52,10 +52,7 @@ const ToggleTmpComp = (function () {
     value: booleanExposingStateControl("value"),
     showText: withDefault(BoolControl, true),
     trueText: withDefault(StringControl, trans("toggleButton.trueDefaultText")),
-    falseText: withDefault(
-      StringControl,
-      trans("toggleButton.falseDefaultText")
-    ),
+    falseText: withDefault(StringControl, trans("toggleButton.falseDefaultText")),
     onEvent: ChangeEventHandlerControl,
     disabled: BoolCodeControl,
     loading: BoolCodeControl,
@@ -90,11 +87,7 @@ const ToggleTmpComp = (function () {
           }}
         >
           {props.iconPosition === "right" && text}
-          {
-            <IconWrapper>
-              {props.value.value ? props.trueIcon : props.falseIcon}
-            </IconWrapper>
-          }
+           {<IconWrapper>{props.value.value ? props.trueIcon : props.falseIcon}</IconWrapper>}
           {props.iconPosition === "left" && text}
         </Button100>
       </ButtonCompWrapperStyled>
@@ -109,33 +102,21 @@ const ToggleTmpComp = (function () {
           })}
         </Section>
 
-        {(useContext(EditorContext).editorModeStatus === "logic" ||
-          useContext(EditorContext).editorModeStatus === "both") && (
-          <>
-            <Section name={sectionNames.interaction}>
+       {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
+          <><Section name={sectionNames.interaction}>
               {children.onEvent.getPropertyView()}
               {disabledPropertyView(children)}
               {hiddenPropertyView(children)}
               {loadingPropertyView(children)}
             </Section>
             <Section name={sectionNames.advanced}>
-              {children.showText.propertyView({
-                label: trans("toggleButton.showText"),
-              })}
+              {children.showText.propertyView({ label: trans("toggleButton.showText") })}
+              {children.showText.getView() && 
+                children.trueText.propertyView({ label: trans("toggleButton.trueLabel") })}
               {children.showText.getView() &&
-                children.trueText.propertyView({
-                  label: trans("toggleButton.trueLabel"),
-                })}
-              {children.showText.getView() &&
-                children.falseText.propertyView({
-                  label: trans("toggleButton.falseLabel"),
-                })}
-              {children.trueIcon.propertyView({
-                label: trans("toggleButton.trueIconLabel"),
-              })}
-              {children.falseIcon.propertyView({
-                label: trans("toggleButton.falseIconLabel"),
-              })}
+                children.falseText.propertyView({ label: trans("toggleButton.falseLabel") })}
+              {children.trueIcon.propertyView({ label: trans("toggleButton.trueIconLabel") })}
+              {children.falseIcon.propertyView({ label: trans("toggleButton.falseIconLabel") })}
               {children.showText.getView() &&
                 children.iconPosition.propertyView({
                   label: trans("toggleButton.iconPosition"),
@@ -144,7 +125,7 @@ const ToggleTmpComp = (function () {
               {children.alignment.propertyView({
                 label: trans("toggleButton.alignment"),
                 radioButton: true,
-              })}
+          })}
             </Section>
           </>
         )}
