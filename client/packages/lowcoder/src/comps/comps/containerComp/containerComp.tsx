@@ -1,28 +1,28 @@
-import {CompParams} from 'lowcoder-core';
-import {ToDataType} from 'comps/generators/multi';
+import {CompParams} from "lowcoder-core";
+import {ToDataType} from "comps/generators/multi";
 import {
   NameConfigHidden,
   withExposingConfigs,
-} from 'comps/generators/withExposing';
-import {NameGenerator} from 'comps/utils/nameGenerator';
-import {Section, sectionNames} from 'lowcoder-design';
-import {oldContainerParamsToNew} from '../containerBase';
-import {toSimpleContainerData} from '../containerBase/simpleContainerComp';
-import {TriContainer} from '../triContainerComp/triContainer';
+} from "comps/generators/withExposing";
+import {NameGenerator} from "comps/utils/nameGenerator";
+import {Section, sectionNames} from "lowcoder-design";
+import {oldContainerParamsToNew} from "../containerBase";
+import {toSimpleContainerData} from "../containerBase/simpleContainerComp";
+import {TriContainer} from "../triContainerComp/triContainer";
 import {
   ContainerChildren,
   ContainerCompBuilder,
-} from '../triContainerComp/triContainerCompBuilder';
+} from "../triContainerComp/triContainerCompBuilder";
 import {
   disabledPropertyView,
   hiddenPropertyView,
-} from 'comps/utils/propertyUtils';
-import {trans} from 'i18n';
-import {BoolCodeControl} from 'comps/controls/codeControl';
-import {DisabledContext} from 'comps/generators/uiCompBuilder';
-import React, {useContext} from 'react';
-import {EditorContext} from 'comps/editorState';
-import {AnimationStyle, styleControl} from '@lowcoder-ee/index.sdk';
+} from "comps/utils/propertyUtils";
+import {trans} from "i18n";
+import {BoolCodeControl} from "comps/controls/codeControl";
+import {DisabledContext} from "comps/generators/uiCompBuilder";
+import React, {useContext} from "react";
+import {EditorContext} from "comps/editorState";
+import {AnimationStyle, styleControl} from "@lowcoder-ee/index.sdk";
 
 export const ContainerBaseComp = (function () {
   const childrenMap = {
@@ -39,16 +39,16 @@ export const ContainerBaseComp = (function () {
     .setPropertyViewFn((children) => {
       return (
         <>
-          {(useContext(EditorContext).editorModeStatus === 'logic' ||
-            useContext(EditorContext).editorModeStatus === 'both') && (
+          {(useContext(EditorContext).editorModeStatus === "logic" ||
+            useContext(EditorContext).editorModeStatus === "both") && (
             <Section name={sectionNames.interaction}>
               {disabledPropertyView(children)}
               {hiddenPropertyView(children)}
             </Section>
           )}
 
-          {(useContext(EditorContext).editorModeStatus === 'layout' ||
-            useContext(EditorContext).editorModeStatus === 'both') && (
+          {(useContext(EditorContext).editorModeStatus === "layout" ||
+            useContext(EditorContext).editorModeStatus === "both") && (
             <>
               <Section name={sectionNames.layout}>
                 {children.container.getPropertyView()}
@@ -60,17 +60,17 @@ export const ContainerBaseComp = (function () {
                 {children.animationStyle.getPropertyView()}
               </Section>
               {children.container.children.showHeader.getView() && (
-                <Section name={'Header Style'}>
+                <Section name={"Header Style"}>
                   {children.container.headerStylePropertyView()}
                 </Section>
               )}
               {children.container.children.showBody.getView() && (
-                <Section name={'Body Style'}>
+                <Section name={"Body Style"}>
                   {children.container.bodyStylePropertyView()}
                 </Section>
               )}
               {children.container.children.showFooter.getView() && (
-                <Section name={'Footer Style'}>
+                <Section name={"Footer Style"}>
                   {children.container.footerStylePropertyView()}
                 </Section>
               )}
@@ -92,7 +92,7 @@ function convertOldContainerParams(params: CompParams<any>) {
     // old params
     if (
       container &&
-      (container.hasOwnProperty('layout') || container.hasOwnProperty('items'))
+      (container.hasOwnProperty("layout") || container.hasOwnProperty("items"))
     ) {
       const autoHeight = tempParams.value.autoHeight;
       const scrollbars = tempParams.value.scrollbars;
@@ -135,14 +135,14 @@ export function defaultContainerData(
       header: toSimpleContainerData([
         {
           item: {
-            compType: 'text',
-            name: nameGenerator.genItemName('containerTitle'),
+            compType: "text",
+            name: nameGenerator.genItemName("containerTitle"),
             comp: {
-              text: '### ' + trans('container.title'),
+              text: "### " + trans("container.title"),
             },
           },
           layoutItem: {
-            i: '',
+            i: "",
             h: 5,
             w: 24,
             x: 0,
