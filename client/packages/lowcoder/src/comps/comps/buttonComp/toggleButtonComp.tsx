@@ -87,7 +87,7 @@ const ToggleTmpComp = (function () {
           }}
         >
           {props.iconPosition === "right" && text}
-           {<IconWrapper>{props.value.value ? props.trueIcon : props.falseIcon}</IconWrapper>}
+          {<IconWrapper>{props.value.value ? props.trueIcon : props.falseIcon}</IconWrapper>}
           {props.iconPosition === "left" && text}
         </Button100>
       </ButtonCompWrapperStyled>
@@ -102,7 +102,7 @@ const ToggleTmpComp = (function () {
           })}
         </Section>
 
-       {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
+        {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
           <><Section name={sectionNames.interaction}>
               {children.onEvent.getPropertyView()}
               {disabledPropertyView(children)}
@@ -121,11 +121,11 @@ const ToggleTmpComp = (function () {
                 children.iconPosition.propertyView({
                   label: trans("toggleButton.iconPosition"),
                   radioButton: true,
-                })}
+            })}
               {children.alignment.propertyView({
                 label: trans("toggleButton.alignment"),
                 radioButton: true,
-          })}
+             })}
             </Section>
           </>
         )}
