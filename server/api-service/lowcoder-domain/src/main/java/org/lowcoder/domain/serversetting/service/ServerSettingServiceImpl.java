@@ -2,8 +2,6 @@ package org.lowcoder.domain.serversetting.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.lowcoder.domain.serversetting.model.ServerSetting;
-import org.lowcoder.sdk.exception.BizError;
-import org.lowcoder.sdk.exception.BizException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
@@ -39,8 +37,8 @@ public class ServerSettingServiceImpl implements ServerSettingService {
     }
 
     @Override
-    public Flux<ServerSetting> findAll() {
-        return repository.findAll();
+    public Mono<Map<String, String>> getServerSettingsMap() {
+        return repository.findAll().collectMap(ServerSetting::getKey, ServerSetting::getValue);
     }
 
     @PostConstruct
