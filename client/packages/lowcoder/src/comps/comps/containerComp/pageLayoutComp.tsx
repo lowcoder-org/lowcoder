@@ -74,7 +74,7 @@ export const ContainerBaseComp = (function () {
               <Section name={"Footer Style"}>
                 { children.container.footerStylePropertyView() }
               </Section>
-              )}
+            )}
             </>
           )}
         </>
@@ -132,7 +132,7 @@ const PageLayoutCompTmP = withExposingConfigs(ContainerTmpComp, [
 ]);
 
 export const PageLayoutComp = withMethodExposing(PageLayoutCompTmP, [
-
+  
   {
     method: {
       name: "setSiderCollapsed",
