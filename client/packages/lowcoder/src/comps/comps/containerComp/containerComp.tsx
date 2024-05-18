@@ -40,21 +40,16 @@ export const ContainerBaseComp = (function () {
             </Section>
           )}
 
-          {(useContext(EditorContext).editorModeStatus === "layout" ||
-            useContext(EditorContext).editorModeStatus === "both") && (
-            <>
-              <Section name={sectionNames.layout}>
-                {children.container.getPropertyView()}
-              </Section>
-              <Section name={sectionNames.style}>
-                {children.container.stylePropertyView()}
-              </Section>
-              <Section name={sectionNames.animationStyle}>
-                {children.animationStyle.getPropertyView()}
-              </Section>
-              {children.container.children.showHeader.getView() && (
-                <Section name={"Header Style"}>
-                  {children.container.headerStylePropertyView()}
+           {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
+            <><Section name={sectionNames.layout}>
+              {children.container.getPropertyView()}
+            </Section>
+            <Section name={sectionNames.style}>
+              { children.container.stylePropertyView() }
+            </Section>
+            {children.container.children.showHeader.getView() && (
+              <Section name={"Header Style"}>
+                { children.container.headerStylePropertyView() }
                 </Section>
               )}
               {children.container.children.showBody.getView() && (
