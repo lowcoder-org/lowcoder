@@ -142,10 +142,10 @@ export function TriContainer(props: TriContainerProps) {
                 style={{padding: bodyStyle.containerBodyPadding}}
               />
             </ScrollBar>
-          </BackgroundColorContext.Provider>
+        </BackgroundColorContext.Provider>
       )}
       {showFooter && (
-      <BackgroundColorContext.Provider value={footerStyle.footerBackground}>
+        <BackgroundColorContext.Provider value={footerStyle.footerBackground}>
           <FooterInnerGrid
             $showBorder={showHeader || showBody}
             {...otherFooterProps}
