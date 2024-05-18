@@ -1,8 +1,8 @@
-import { NameConfig, NameConfigHidden,withExposingConfigs } from "comps/generators/withExposing";
+import { NameConfig, NameConfigHidden, withExposingConfigs } from "comps/generators/withExposing";
 import { UICompBuilder, withDefault } from "comps/generators";
 import { Section, sectionNames } from "lowcoder-design";
 import styled from "styled-components";
-import { clickEvent,eventHandlerControl } from "comps/controls/eventHandlerControl";
+import { clickEvent, eventHandlerControl } from "comps/controls/eventHandlerControl";
 import { StringControl } from "comps/controls/codeControl";
 import { alignWithJustifyControl } from "comps/controls/alignControl";
 import { navListComp } from "./navItemComp";
@@ -37,15 +37,13 @@ const Wrapper = styled("div")<
   >`
 ${props=>props.$animationStyle}
   height: 100%;
-  border-radius: ${(props) =>
-    props.$borderRadius ? props.$borderRadius : "2px"};
+  border-radius: ${(props) => props.$borderRadius ? props.$borderRadius : '2px'};
   box-sizing: border-box;
-  border: ${(props) => (props.$borderWidth ? `${props.$borderWidth}` : "1px")}
-    solid ${(props) => props.$borderColor};
+  border: ${(props) => props.$borderWidth ? `${props.$borderWidth}` : '1px'} solid ${(props) => props.$borderColor};
   background-color: ${(props) => props.$bgColor};
 `;
 
-const NavInner = styled("div")<Pick<IProps, "$justify">>`
+const NavInner = styled("div") <Pick<IProps, "$justify">>`
   // margin: 0 -16px;
   height: 100%;
   display: flex;
@@ -62,23 +60,20 @@ const Item = styled.div<{
   $textSize: string;
   $margin: string;
   $padding: string;
-  $textTransform: string;
-  $textDecoration: string;
+  $textTransform:string;
+  $textDecoration:string;
 }>`
   height: 30px;
   line-height: 30px;
-  padding: ${(props) => (props.$padding ? props.$padding : "0 16px")};
+  padding: ${(props) => props.$padding ? props.$padding : '0 16px'};
   color: ${(props) => (props.$active ? props.$activeColor : props.$color)};
   font-weight: ${(props) => (props.$textWeight ? props.$textWeight : 500)};
-  font-family: ${(props) =>
-    props.$fontFamily ? props.$fontFamily : "sans-serif"};
-  font-style: ${(props) => (props.$fontStyle ? props.$fontStyle : "normal")};
-  font-size: ${(props) => (props.$textSize ? props.$textSize : "14px")};
-  text-transform: ${(props) =>
-    props.$textTransform ? props.$textTransform : ""};
-  text-decoration: ${(props) =>
-    props.$textDecoration ? props.$textDecoration : ""};
-  margin: ${(props) => (props.$margin ? props.$margin : "0px")};
+  font-family:${(props) => (props.$fontFamily ? props.$fontFamily : 'sans-serif')};
+  font-style:${(props) => (props.$fontStyle ? props.$fontStyle : 'normal')};
+  font-size:${(props) => (props.$textSize ? props.$textSize : '14px')};
+  text-transform:${(props) => (props.$textTransform ? props.$textTransform : '')};
+  text-decoration:${(props) => (props.$textDecoration ? props.$textDecoration : '')};
+  margin:${(props) => props.$margin ? props.$margin : '0px'};
 
   &:hover {
     color: ${(props) => props.$activeColor};
@@ -101,14 +96,14 @@ const LogoWrapper = styled.div`
   }
 `;
 
-const ItemList = styled.div<{$align: string}>`
+const ItemList = styled.div<{ $align: string }>`
   flex: 1;
   display: flex;
   flex-direction: row;
   justify-content: ${(props) => props.$align};
 `;
 
-const StyledMenu = styled(Menu)<MenuProps>`
+const StyledMenu = styled(Menu) <MenuProps>`
   &.ant-dropdown-menu {
     min-width: 160px;
   }
@@ -137,9 +132,7 @@ function fixOldStyleData(oldData: any) {
 
 const childrenMap = {
   logoUrl: StringControl,
-  logoEvent: withDefault(eventHandlerControl(logoEventHandlers), [
-    {name: "click"},
-  ]),
+  logoEvent: withDefault(eventHandlerControl(logoEventHandlers), [{ name: "click" }]),
   horizontalAlignment: alignWithJustifyControl(),
   style: migrateOldData(styleControl(NavigationStyle), fixOldStyleData),
   animationStyle: styleControl(AnimationStyle),
@@ -155,14 +148,12 @@ const NavCompBase = new UICompBuilder(childrenMap, (props) => {
   const items = (
     <>
       {data.map((menuItem, idx) => {
-        const {hidden, label, items, active, onEvent} = menuItem.getView();
+        const { hidden, label, items, active, onEvent } = menuItem.getView();
         if (hidden) {
           return null;
         }
-        const visibleSubItems = items.filter(
-          (item) => !item.children.hidden.getView()
-        );
-        const subMenuItems: Array<{key: string; label: string}> = [];
+        const visibleSubItems = items.filter((item) => !item.children.hidden.getView());
+        const subMenuItems: Array<{ key: string; label: string }> = [];
         const subMenuSelectedKeys: Array<string> = [];
         visibleSubItems.forEach((subItem, index) => {
           const key = index + "";
@@ -196,7 +187,7 @@ const NavCompBase = new UICompBuilder(childrenMap, (props) => {
           const subMenu = (
             <StyledMenu
               onClick={(e) => {
-                const {onEvent: onSubEvent} = items[Number(e.key)]?.getView();
+                const { onEvent: onSubEvent } = items[Number(e.key)]?.getView();
                 onSubEvent("click");
               }}
               selectedKeys={subMenuSelectedKeys}
@@ -204,7 +195,10 @@ const NavCompBase = new UICompBuilder(childrenMap, (props) => {
             />
           );
           return (
-            <Dropdown key={idx} dropdownRender={() => subMenu}>
+            <Dropdown
+              key={idx}
+              dropdownRender={() => subMenu}
+            >
               {item}
             </Dropdown>
           );
@@ -230,11 +224,7 @@ const NavCompBase = new UICompBuilder(childrenMap, (props) => {
             <img src={props.logoUrl} alt="LOGO" />
           </LogoWrapper>
         )}
-        {!justify ? (
-          <ItemList $align={props.horizontalAlignment}>{items}</ItemList>
-        ) : (
-          items
-        )}
+        {!justify ? <ItemList $align={props.horizontalAlignment}>{items}</ItemList> : items}
       </NavInner>
     </Wrapper>
   );
@@ -246,8 +236,7 @@ const NavCompBase = new UICompBuilder(childrenMap, (props) => {
           {menuPropertyView(children.items)}
         </Section>
 
-        {(useContext(EditorContext).editorModeStatus === "logic" ||
-          useContext(EditorContext).editorModeStatus === "both") && (
+        {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
           <Section name={sectionNames.interaction}>
             {hiddenPropertyView(children)}
           </Section>
@@ -264,15 +253,11 @@ const NavCompBase = new UICompBuilder(childrenMap, (props) => {
           </Section>
         )}
 
-        {(useContext(EditorContext).editorModeStatus === "logic" ||
-          useContext(EditorContext).editorModeStatus === "both") && (
+        
+        {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
           <Section name={sectionNames.advanced}>
-            {children.logoUrl.propertyView({
-              label: trans("navigation.logoURL"),
-              tooltip: trans("navigation.logoURLDesc"),
-            })}
-            {children.logoUrl.getView() &&
-              children.logoEvent.propertyView({inline: true})}
+            {children.logoUrl.propertyView({ label: trans("navigation.logoURL"), tooltip: trans("navigation.logoURLDesc") })}
+            {children.logoUrl.getView() && children.logoEvent.propertyView({ inline: true })}
           </Section>
         )}
 
