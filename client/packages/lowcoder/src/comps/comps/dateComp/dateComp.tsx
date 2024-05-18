@@ -67,7 +67,7 @@ const validationChildren = {
 };
 const commonChildren = {
   label: LabelControl,
-  placeholder: withDefault(StringControl, trans('date.placeholder')),
+  placeholder: withDefault(StringControl, trans("date.placeholder")),
   format: StringControl,
   disabled: BoolCodeControl,
   onEvent: eventHandlerControl(EventOptions),
@@ -78,12 +78,8 @@ const commonChildren = {
   secondStep: RangeControl.closed(1, 60, 1),
   style: styleControl(InputFieldStyle),
   animationStyle: styleControl(AnimationStyle),
-  labelStyle: styleControl(
-    LabelStyle.filter(
-      (style) => ['accent', 'validate'].includes(style.name) === false
-    )
-  ),
-  suffixIcon: withDefault(IconControl, '/icon:regular/calendar'),
+  labelStyle: styleControl(LabelStyle.filter((style) => ['accent', 'validate'].includes(style.name) === false)),
+  suffixIcon: withDefault(IconControl, "/icon:regular/calendar"),
   ...validationChildren,
   viewRef: RefControl<CommonPickerMethods>,
   inputFieldStyle: withDefault(styleControl(DateTimeStyle), defaultStyle),
