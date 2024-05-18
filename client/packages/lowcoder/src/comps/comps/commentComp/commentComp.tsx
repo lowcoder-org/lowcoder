@@ -1,23 +1,23 @@
-import React, { useEffect, useState, useRef, useContext } from "react";
+import React, {useEffect, useState, useRef, useContext} from 'react';
 // Render the component to the editor
 import {
   changeChildAction,
   CompAction,
   RecordConstructorToView,
-} from "lowcoder-core";
+} from 'lowcoder-core';
 // Text internationalisation conversion api
-import { trans } from "i18n";
+import {trans} from 'i18n';
 // General frame of the right property bar
-import { UICompBuilder, withDefault } from "../../generators";
+import {UICompBuilder, withDefault} from '../../generators';
 // Right-side attribute subframe
-import { Section, sectionNames } from "lowcoder-design";
+import {Section, sectionNames} from 'lowcoder-design';
 // Switch indicating whether the component is hidden or not
-import { hiddenPropertyView } from "comps/utils/propertyUtils";
+import {hiddenPropertyView} from 'comps/utils/propertyUtils';
 // Right property switch
-import { BoolControl } from "comps/controls/boolControl";
-import { styleControl } from "comps/controls/styleControl"; //样式输入框
-import { jsonValueExposingStateControl } from "comps/controls/codeStateControl";
-import { jsonControl, StringControl } from "comps/controls/codeControl";
+import {BoolControl} from 'comps/controls/boolControl';
+import {styleControl} from 'comps/controls/styleControl'; //样式输入框
+import {jsonValueExposingStateControl} from 'comps/controls/codeStateControl';
+import {jsonControl, StringControl} from 'comps/controls/codeControl';
 // Event Control
 import {
   clickEvent,
@@ -25,24 +25,25 @@ import {
   eventHandlerControl,
   deleteEvent,
   mentionEvent,
-} from "comps/controls/eventHandlerControl";
+} from 'comps/controls/eventHandlerControl';
 
-import { EditorContext } from "comps/editorState";
+import {EditorContext} from 'comps/editorState';
 
 // Introducing styles
 import {
+  AnimationStyle,
   CommentStyle,
   heightCalculator,
   widthCalculator,
-} from "comps/controls/styleControlConstants";
+} from 'comps/controls/styleControlConstants';
 // Initialise exposed values
-import { stateComp, valueComp } from "comps/generators/simpleGenerators";
+import {stateComp, valueComp} from 'comps/generators/simpleGenerators';
 // The component's api for exposing properties externally
 import {
   NameConfig,
   NameConfigHidden,
   withExposingConfigs,
-} from "comps/generators/withExposing";
+} from 'comps/generators/withExposing';
 
 import {
   commentDate,
@@ -52,19 +53,19 @@ import {
   convertCommentData,
   checkUserInfoData,
   checkMentionListData,
-} from "./commentConstants";
-import { default as Avatar } from "antd/es/avatar";
-import { default as List } from "antd/es/list";
-import { default as Button } from "antd/es/button";
-import { default as Mentions } from "antd/es/mentions";
-import { default as Tooltip } from "antd/es/tooltip";
-import VirtualList, { ListRef } from "rc-virtual-list";
-import _ from "lodash";
-import relativeTime from "dayjs/plugin/relativeTime";
-import dayjs from "dayjs";
+} from './commentConstants';
+import {default as Avatar} from 'antd/es/avatar';
+import {default as List} from 'antd/es/list';
+import {default as Button} from 'antd/es/button';
+import {default as Mentions} from 'antd/es/mentions';
+import {default as Tooltip} from 'antd/es/tooltip';
+import VirtualList, {ListRef} from 'rc-virtual-list';
+import _ from 'lodash';
+import relativeTime from 'dayjs/plugin/relativeTime';
+import dayjs from 'dayjs';
 // import "dayjs/locale/zh-cn";
-import { getInitialsAndColorCode } from "util/stringUtils";
-import { default as CloseOutlined } from "@ant-design/icons/CloseOutlined";
+import {getInitialsAndColorCode} from 'util/stringUtils';
+import {default as CloseOutlined} from '@ant-design/icons/CloseOutlined';
 dayjs.extend(relativeTime);
 // dayjs.locale("zh-cn");
 
@@ -85,25 +86,26 @@ const EventOptions = [
 
 const childrenMap = {
   value: jsonControl(convertCommentData, commentDate),
-  title: withDefault(StringControl, trans("comment.titledDefaultValue")),
-  placeholder: withDefault(StringControl, trans("comment.placeholder")),
-  buttonText: withDefault(StringControl, trans("comment.buttonText")),
+  title: withDefault(StringControl, trans('comment.titledDefaultValue')),
+  placeholder: withDefault(StringControl, trans('comment.placeholder')),
+  buttonText: withDefault(StringControl, trans('comment.buttonText')),
   sendCommentAble: BoolControl.DEFAULT_TRUE,
   deleteAble: BoolControl,
   userInfo: jsonControl(checkUserInfoData, {
-    name: "{{currentUser.name}}",
-    email: "{{currentUser.email}}",
+    name: '{{currentUser.name}}',
+    email: '{{currentUser.email}}',
   }),
   mentionList: jsonControl(checkMentionListData, {
-    "@": ["Li Lei", "Han Meimei"],
-    "#": ["123", "456", "789"],
+    '@': ['Li Lei', 'Han Meimei'],
+    '#': ['123', '456', '789'],
   }),
   onEvent: eventHandlerControl(EventOptions),
   style: styleControl(CommentStyle),
-  commentList: jsonValueExposingStateControl("commentList", []),
-  deletedItem: jsonValueExposingStateControl("deletedItem", []),
-  submitedItem: jsonValueExposingStateControl("submitedItem", []),
-  mentionName: valueComp<string>(""),
+  animationStyle: styleControl(AnimationStyle),
+  commentList: jsonValueExposingStateControl('commentList', []),
+  deletedItem: jsonValueExposingStateControl('deletedItem', []),
+  submitedItem: jsonValueExposingStateControl('submitedItem', []),
+  mentionName: valueComp<string>(''),
 };
 
 const CommentCompBase = (
@@ -125,20 +127,21 @@ const CommentCompBase = (
     userInfo,
     placeholder,
     deleteAble,
+    animationStyle,
   } = props;
-  type PrefixType = "@" | keyof typeof mentionList;
+  type PrefixType = '@' | keyof typeof mentionList;
   // Used to save the consolidated list of mentions
   const [MentionListData, setMentionList] = useState<typeof mentionList>([]);
   const [commentListData, setCommentListData] = useState<commentDataTYPE[]>([]);
-  const [prefix, setPrefix] = useState<PrefixType>("@");
-  const [context, setContext] = useState<string>("");
+  const [prefix, setPrefix] = useState<PrefixType>('@');
+  const [context, setContext] = useState<string>('');
   // Integrate the comment list with the names in the original mention list
   const mergeAllMentionList = (mentionList: any) => {
     setMentionList(
       _.merge(mentionList, {
-        "@": _.union(
+        '@': _.union(
           _.concat(
-            mentionList["@"],
+            mentionList['@'],
             _.map(commentListData, (item, index) => {
               return item?.user?.name;
             })
@@ -173,26 +176,26 @@ const CommentCompBase = (
   const generateCommentAvatar = (item: commentDataTYPE) => {
     return (
       <Avatar
-        onClick={() => props.onEvent("click")}
+        onClick={() => props.onEvent('click')}
         // If there is an avatar, no background colour is set, and if displayName is not null, displayName is called using getInitialsAndColorCode
         style={{
           backgroundColor: item?.user?.avatar
-            ? ""
+            ? ''
             : getInitialsAndColorCode(
                 item?.user?.displayName === undefined
                   ? item?.user?.name
                   : item?.user?.displayName
               )[1],
-          verticalAlign: "middle",
+          verticalAlign: 'middle',
         }}
         src={item?.user?.avatar}
       >
-        {" "}
+        {' '}
         {item?.user?.displayName
           ? item?.user?.displayName
           : /^([\u4e00-\u9fa5]{2,4})$/gi.test(item?.user?.name)
-          ? item?.user?.name.slice(-2)
-          : item?.user?.name[0]}
+            ? item?.user?.name.slice(-2)
+            : item?.user?.name[0]}
       </Avatar>
     );
   };
@@ -208,16 +211,16 @@ const CommentCompBase = (
     };
     props.submitedItem.onChange(subObject);
     setCommentListData(_.concat(commentListData, [subObject]));
-    setContext("");
+    setContext('');
     mergeAllMentionList(mentionList);
-    props.onEvent("submit");
+    props.onEvent('submit');
   };
 
   const handleDelete = (index: number) => {
     let temp = _.cloneDeep(commentListData);
     props.deletedItem.onChange(temp.splice(index, 1));
     setCommentListData(temp);
-    props.onEvent("delete");
+    props.onEvent('delete');
   };
 
   const onPressEnter = (e: any) => {
@@ -227,34 +230,46 @@ const CommentCompBase = (
     }
   };
   return (
-    <div style={{
-        margin: style.margin ?? "3px",
-        padding: style.padding ?? "3px",
-        width: widthCalculator(style.margin ?? "3px"),
-        height: heightCalculator(style.margin ?? "3px"),
+    <div
+      style={{
+        margin: style.margin ?? '3px',
+        padding: style.padding ?? '3px',
+        width: widthCalculator(style.margin ?? '3px'),
+        height: heightCalculator(style.margin ?? '3px'),
         background: style.background,
         borderRadius: style.radius,
-      }}>
+        animation: animationStyle.animation,
+        animationDelay: animationStyle.animationDelay,
+        animationDuration: animationStyle.animationDuration,
+        animationIterationCount: animationStyle.animationIterationCount,
+      }}
+    >
       <div
         style={{
-          overflow: "auto",
-          overflowX: "hidden",
-          height: "100%",
+          overflow: 'auto',
+          overflowX: 'hidden',
+          height: '100%',
         }}
         ref={divRef}
       >
         <List
           header={
-            title !== "" ? (
-              <div style={{position: 'sticky', top:0, background: style.background}}>
+            title !== '' ? (
+              <div
+                style={{
+                  position: 'sticky',
+                  top: 0,
+                  background: style.background,
+                }}
+              >
                 {commentListData.length > 1
                   ? title
-                      .replaceAll("%d", commentListData.length.toString())
-                      .replace("comment", "comments")
-                  : title.replaceAll("%d", commentListData.length.toString())}
+                      .replaceAll('%d', commentListData.length.toString())
+                      .replace('comment', 'comments')
+                  : title.replaceAll('%d', commentListData.length.toString())}
               </div>
             ) : (
-              ""
+              ''
             )
           }
           size="small"
@@ -275,7 +290,7 @@ const CommentCompBase = (
                   deleteAble
                     ? [
                         <CloseOutlined
-                          style={{ color: "#c32230" }}
+                          style={{color: '#c32230'}}
                           onClick={() => handleDelete(index)}
                         />,
                       ]
@@ -285,26 +300,26 @@ const CommentCompBase = (
                 <List.Item.Meta
                   avatar={generateCommentAvatar(item)}
                   title={
-                    <div onClick={() => props.onEvent("click")}>
+                    <div onClick={() => props.onEvent('click')}>
                       <a>{item?.user?.name}</a>
                       <Tooltip
                         title={
                           dayjs(item?.createdAt).isValid()
-                            ? dayjs(item?.createdAt).format("YYYY/M/D HH:mm:ss")
-                            : trans("comment.dateErr")
+                            ? dayjs(item?.createdAt).format('YYYY/M/D HH:mm:ss')
+                            : trans('comment.dateErr')
                         }
                         placement="bottom"
                       >
                         <span
                           style={{
-                            paddingLeft: "5px",
-                            color: "#999",
-                            fontSize: "11px",
+                            paddingLeft: '5px',
+                            color: '#999',
+                            fontSize: '11px',
                           }}
                         >
                           {dayjs(item?.createdAt).isValid()
                             ? dayjs(item?.createdAt).fromNow()
-                            : trans("comment.dateErr")}
+                            : trans('comment.dateErr')}
                         </span>
                       </Tooltip>
                     </div>
@@ -316,18 +331,26 @@ const CommentCompBase = (
           </VirtualList>
         </List>
         {sendCommentAble ? (
-          <div style={{position: "sticky", bottom: 0, background: style.background}}>
+          <div
+            style={{
+              position: 'sticky',
+              bottom: 0,
+              background: style.background,
+            }}
+          >
             <Mentions
               style={{
-                width: "100%",
+                width: '100%',
                 height: 50,
               }}
               onSearch={onSearch}
               prefix={Object.keys(MentionListData)}
               onChange={onChange}
               onSelect={(option: any) => {
-                dispatch(changeChildAction("mentionName", option?.value, false));
-                props.onEvent("mention");
+                dispatch(
+                  changeChildAction('mentionName', option?.value, false)
+                );
+                props.onEvent('mention');
               }}
               value={context}
               rows={2}
@@ -345,17 +368,17 @@ const CommentCompBase = (
             <Button
               type="primary"
               style={{
-                width: "100%",
-                marginTop: "10px",
+                width: '100%',
+                marginTop: '10px',
               }}
               onClick={handleSubmit}
-              disabled={context === ""}
+              disabled={context === ''}
             >
               {buttonText}
             </Button>
           </div>
         ) : (
-          ""
+          ''
         )}
       </div>
     </div>
@@ -370,54 +393,61 @@ let CommentBasicComp = (function () {
       <>
         <Section name={sectionNames.basic}>
           {children.title.propertyView({
-            label: trans("comment.title"),
+            label: trans('comment.title'),
           })}
         </Section>
 
-        {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
+        {(useContext(EditorContext).editorModeStatus === 'logic' ||
+          useContext(EditorContext).editorModeStatus === 'both') && (
           <>
-          <Section name={sectionNames.data}>
-            {children.value.propertyView({
-              label: trans("comment.value"),
-              tooltip: CommentDataTooltip,
-              placeholder: "[]",
-            })}
-            {children.userInfo.propertyView({
-              label: trans("comment.userInfo"),
-              tooltip: CommentUserDataTooltip,
-            })}
-            {children.mentionList.propertyView({
-              label: trans("comment.mentionList"),
-              tooltip: trans("comment.mentionListDec"),
-            })}
-          </Section>
-          <Section name={sectionNames.interaction}>
+            <Section name={sectionNames.data}>
+              {children.value.propertyView({
+                label: trans('comment.value'),
+                tooltip: CommentDataTooltip,
+                placeholder: '[]',
+              })}
+              {children.userInfo.propertyView({
+                label: trans('comment.userInfo'),
+                tooltip: CommentUserDataTooltip,
+              })}
+              {children.mentionList.propertyView({
+                label: trans('comment.mentionList'),
+                tooltip: trans('comment.mentionListDec'),
+              })}
+            </Section>
+            <Section name={sectionNames.interaction}>
               {children.onEvent.getPropertyView()}
               {hiddenPropertyView(children)}
               {children.sendCommentAble.propertyView({
-                label: trans("comment.showSendButton"),
+                label: trans('comment.showSendButton'),
               })}
               {children.deleteAble.propertyView({
-                label: trans("comment.deleteAble"),
+                label: trans('comment.deleteAble'),
               })}
             </Section>
           </>
         )}
 
-        {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
-          <><Section name={sectionNames.layout}>
-            {children.sendCommentAble.getView() &&
-              children.buttonText.propertyView({
-                label: trans("comment.buttonTextDec"),
+        {(useContext(EditorContext).editorModeStatus === 'layout' ||
+          useContext(EditorContext).editorModeStatus === 'both') && (
+          <>
+            <Section name={sectionNames.layout}>
+              {children.sendCommentAble.getView() &&
+                children.buttonText.propertyView({
+                  label: trans('comment.buttonTextDec'),
+                })}
+              {children.placeholder.propertyView({
+                label: trans('comment.placeholderDec'),
               })}
-            {children.placeholder.propertyView({
-              label: trans("comment.placeholderDec"),
-            })}
-          </Section><Section name={sectionNames.style}>
+            </Section>
+            <Section name={sectionNames.style}>
               {children.style.getPropertyView()}
-            </Section></>
+            </Section>
+            <Section name={sectionNames.animationStyle}>
+              {children.animationStyle.getPropertyView()}
+            </Section>
+          </>
         )}
-
       </>
     ))
     .build();
@@ -429,9 +459,9 @@ CommentBasicComp = class extends CommentBasicComp {
   }
 };
 export const CommentComp = withExposingConfigs(CommentBasicComp, [
-  new NameConfig("commentList", trans("comment.commentList")),
-  new NameConfig("deletedItem", trans("comment.deletedItem")),
-  new NameConfig("submitedItem", trans("comment.submitedItem")),
-  new NameConfig("mentionName", trans("comment.submitedItem")),
+  new NameConfig('commentList', trans('comment.commentList')),
+  new NameConfig('deletedItem', trans('comment.deletedItem')),
+  new NameConfig('submitedItem', trans('comment.submitedItem')),
+  new NameConfig('mentionName', trans('comment.submitedItem')),
   NameConfigHidden,
 ]);

@@ -1,18 +1,26 @@
-import { default as AntdRadioGroup } from "antd/es/radio/group";
-import { RadioStyleType } from "comps/controls/styleControlConstants";
-import styled, { css } from "styled-components";
-import { UICompBuilder } from "../../generators";
-import { CommonNameConfig, NameConfig, withExposingConfigs } from "../../generators/withExposing";
-import { RadioChildrenMap, RadioLayoutOptions, RadioPropertyView } from "./radioCompConstants";
+import {default as AntdRadioGroup} from 'antd/es/radio/group';
+import {RadioStyleType} from 'comps/controls/styleControlConstants';
+import styled, {css} from 'styled-components';
+import {UICompBuilder} from '../../generators';
+import {
+  CommonNameConfig,
+  NameConfig,
+  withExposingConfigs,
+} from '../../generators/withExposing';
+import {
+  RadioChildrenMap,
+  RadioLayoutOptions,
+  RadioPropertyView,
+} from './radioCompConstants';
 import {
   selectDivRefMethods,
   SelectInputInvalidConfig,
   useSelectInputValidate,
-} from "./selectInputConstants";
-import { EllipsisTextCss, ValueFromOption } from "lowcoder-design";
-import { trans } from "i18n";
-import { fixOldInputCompData } from "../textInputComp/textInputConstants";
-import { migrateOldData } from "comps/generators/simpleGenerators";
+} from './selectInputConstants';
+import {EllipsisTextCss, ValueFromOption} from 'lowcoder-design';
+import {trans} from 'i18n';
+import {fixOldInputCompData} from '../textInputComp/textInputConstants';
+import {migrateOldData} from 'comps/generators/simpleGenerators';
 
 const getStyle = (style: RadioStyleType) => {
   return css`
@@ -23,12 +31,12 @@ const getStyle = (style: RadioStyleType) => {
       padding: ${style.padding};
       span:not(.ant-radio) {
         ${EllipsisTextCss};
-        font-family:${style.fontFamily};
-        font-size:${style.textSize};
-        font-weight:${style.textWeight};
-        font-style:${style.fontStyle};
-        text-transform:${style.textTransform};
-        text-decoration:${style.textDecoration};
+        font-family: ${style.fontFamily};
+        font-size: ${style.textSize};
+        font-weight: ${style.textWeight};
+        font-style: ${style.fontStyle};
+        text-transform: ${style.textTransform};
+        text-decoration: ${style.textDecoration};
       }
 
       .ant-radio-checked {
@@ -45,16 +53,18 @@ const getStyle = (style: RadioStyleType) => {
       .ant-radio-inner {
         background-color: ${style.uncheckedBackground};
         border-color: ${style.uncheckedBorder};
-        border-width:${style.borderWidth};
+        border-width: ${style.borderWidth};
         &::after {
           background-color: ${style.checked};
         }
       }
 
-      &:hover .ant-radio-inner, 
+      &:hover .ant-radio-inner,
       .ant-radio:hover .ant-radio-inner,
       .ant-radio-input + ant-radio-inner {
-        background-color:${style.hoverBackground ? style.hoverBackground:'#ffff'};
+        background-color: ${style.hoverBackground
+          ? style.hoverBackground
+          : '#ffff'};
       }
 
       &:hover .ant-radio-inner,
@@ -75,18 +85,18 @@ const Radio = styled(AntdRadioGroup)<{
 
   ${(props) => props.$style && getStyle(props.$style)}
   ${(props) => {
-    if (props.$layout === "horizontal") {
+    if (props.$layout === 'horizontal') {
       return css`
         display: flex;
         align-items: center;
         flex-wrap: wrap;
       `;
-    } else if (props.$layout === "vertical") {
+    } else if (props.$layout === 'vertical') {
       return css`
         display: flex;
         flex-direction: column;
       `;
-    } else if (props.$layout === "auto_columns") {
+    } else if (props.$layout === 'auto_columns') {
       return css`
         break-inside: avoid;
         columns: 160px;
@@ -97,15 +107,13 @@ const Radio = styled(AntdRadioGroup)<{
 
 let RadioBasicComp = (function () {
   return new UICompBuilder(RadioChildrenMap, (props) => {
-    const [
-      validateState,
-      handleChange,
-    ] = useSelectInputValidate(props);
+    const [validateState, handleChange] = useSelectInputValidate(props);
     return props.label({
       required: props.required,
       style: props.style,
       labelStyle: props.labelStyle,
-      inputFieldStyle:props.inputFieldStyle,
+      inputFieldStyle: props.inputFieldStyle,
+      animationStyle: props.animationStyle,
       children: (
         <Radio
           ref={props.viewRef}
@@ -136,7 +144,7 @@ let RadioBasicComp = (function () {
 RadioBasicComp = migrateOldData(RadioBasicComp, fixOldInputCompData);
 
 export const RadioComp = withExposingConfigs(RadioBasicComp, [
-  new NameConfig("value", trans("selectInput.valueDesc")),
+  new NameConfig('value', trans('selectInput.valueDesc')),
   SelectInputInvalidConfig,
   ...CommonNameConfig,
 ]);

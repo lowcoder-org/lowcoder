@@ -1,33 +1,46 @@
-import { default as AntdSegmented } from "antd/es/segmented";
-import { BoolCodeControl } from "comps/controls/codeControl";
-import { stringExposingStateControl } from "comps/controls/codeStateControl";
-import { ChangeEventHandlerControl } from "comps/controls/eventHandlerControl";
-import { LabelControl } from "comps/controls/labelControl";
-import { SelectOptionControl } from "comps/controls/optionsControl";
-import { styleControl } from "comps/controls/styleControl";
-import { SegmentStyle, SegmentStyleType } from "comps/controls/styleControlConstants";
-import styled, { css } from "styled-components";
-import { UICompBuilder } from "../../generators";
-import { CommonNameConfig, NameConfig, withExposingConfigs } from "../../generators/withExposing";
-import { formDataChildren, FormDataPropertyView } from "../formComp/formDataConstants";
+import {default as AntdSegmented} from 'antd/es/segmented';
+import {BoolCodeControl} from 'comps/controls/codeControl';
+import {stringExposingStateControl} from 'comps/controls/codeStateControl';
+import {ChangeEventHandlerControl} from 'comps/controls/eventHandlerControl';
+import {LabelControl} from 'comps/controls/labelControl';
+import {SelectOptionControl} from 'comps/controls/optionsControl';
+import {styleControl} from 'comps/controls/styleControl';
+import {
+  AnimationStyle,
+  SegmentStyle,
+  SegmentStyleType,
+} from 'comps/controls/styleControlConstants';
+import styled, {css} from 'styled-components';
+import {UICompBuilder} from '../../generators';
+import {
+  CommonNameConfig,
+  NameConfig,
+  withExposingConfigs,
+} from '../../generators/withExposing';
+import {
+  formDataChildren,
+  FormDataPropertyView,
+} from '../formComp/formDataConstants';
 import {
   selectDivRefMethods,
   SelectInputInvalidConfig,
   SelectInputValidationChildren,
   SelectInputValidationSection,
   useSelectInputValidate,
-} from "./selectInputConstants";
-import { Section, sectionNames } from "lowcoder-design";
-import { hiddenPropertyView, disabledPropertyView } from "comps/utils/propertyUtils";
-import { trans } from "i18n";
-import { hasIcon } from "comps/utils";
-import { RefControl } from "comps/controls/refControl";
+} from './selectInputConstants';
+import {Section, sectionNames} from 'lowcoder-design';
+import {
+  hiddenPropertyView,
+  disabledPropertyView,
+} from 'comps/utils/propertyUtils';
+import {trans} from 'i18n';
+import {hasIcon} from 'comps/utils';
+import {RefControl} from 'comps/controls/refControl';
 
-import { useContext } from "react";
-import { EditorContext } from "comps/editorState";
-import { migrateOldData, withDefault } from "comps/generators/simpleGenerators";
-import { fixOldInputCompData } from "../textInputComp/textInputConstants";
-
+import {useContext} from 'react';
+import {EditorContext} from 'comps/editorState';
+import {migrateOldData, withDefault} from 'comps/generators/simpleGenerators';
+import {fixOldInputCompData} from '../textInputComp/textInputConstants';
 
 const getStyle = (style: SegmentStyleType) => {
   return css`
@@ -53,31 +66,33 @@ const getStyle = (style: SegmentStyleType) => {
     .ant-segmented-item-selected {
       border-radius: ${style.radius};
     }
-    &.ant-segmented, .ant-segmented-item-label {
-      font-family:${style.fontFamily};
-      font-style:${style.fontStyle};
-      font-size:${style.textSize};
-      font-weight:${style.textWeight};
-      text-transform:${style.textTransform};
-      text-decoration:${style.textDecoration};
+    &.ant-segmented,
+    .ant-segmented-item-label {
+      font-family: ${style.fontFamily};
+      font-style: ${style.fontStyle};
+      font-size: ${style.textSize};
+      font-weight: ${style.textWeight};
+      text-transform: ${style.textTransform};
+      text-decoration: ${style.textDecoration};
     }
   `;
 };
 
-const Segmented = styled(AntdSegmented)<{ $style: SegmentStyleType }>`
+const Segmented = styled(AntdSegmented)<{$style: SegmentStyleType}>`
   width: 100%;
   min-height: 24px; // keep the height unchanged when there are no options
   ${(props) => props.$style && getStyle(props.$style)}
 `;
 
 const SegmentChildrenMap = {
-  defaultValue: stringExposingStateControl("value"),
-  value: stringExposingStateControl("value"),
+  defaultValue: stringExposingStateControl('value'),
+  value: stringExposingStateControl('value'),
   label: LabelControl,
   disabled: BoolCodeControl,
   onEvent: ChangeEventHandlerControl,
   options: SelectOptionControl,
-  style: withDefault(styleControl(SegmentStyle),{borderWidth:'1px'}),
+  style: withDefault(styleControl(SegmentStyle), {borderWidth: '1px'}),
+  animationStyle: styleControl(AnimationStyle),
   viewRef: RefControl<HTMLDivElement>,
 
   ...SelectInputValidationChildren,
@@ -86,13 +101,11 @@ const SegmentChildrenMap = {
 
 let SegmentedControlBasicComp = (function () {
   return new UICompBuilder(SegmentChildrenMap, (props) => {
-    const [
-      validateState,
-      handleChange,
-    ] = useSelectInputValidate(props);
+    const [validateState, handleChange] = useSelectInputValidate(props);
     return props.label({
       required: props.required,
       style: props.style,
+      animationStyle: props.animationStyle,
       children: (
         <Segmented
           ref={props.viewRef}
@@ -120,27 +133,40 @@ let SegmentedControlBasicComp = (function () {
       <>
         <Section name={sectionNames.basic}>
           {children.options.propertyView({})}
-          {children.defaultValue.propertyView({ label: trans("prop.defaultValue") })}
+          {children.defaultValue.propertyView({
+            label: trans('prop.defaultValue'),
+          })}
         </Section>
 
-        {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
-          <><SelectInputValidationSection {...children} />
-          <FormDataPropertyView {...children} />
-          <Section name={sectionNames.interaction}>
-            {children.onEvent.getPropertyView()}
-            {disabledPropertyView(children)}
-            {hiddenPropertyView(children)}
-          </Section></>
+        {['logic', 'both'].includes(
+          useContext(EditorContext).editorModeStatus
+        ) && (
+          <>
+            <SelectInputValidationSection {...children} />
+            <FormDataPropertyView {...children} />
+            <Section name={sectionNames.interaction}>
+              {children.onEvent.getPropertyView()}
+              {disabledPropertyView(children)}
+              {hiddenPropertyView(children)}
+            </Section>
+          </>
         )}
 
-        {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
-          children.label.getPropertyView()
-        )}
+        {['layout', 'both'].includes(
+          useContext(EditorContext).editorModeStatus
+        ) && children.label.getPropertyView()}
 
-        {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
-          <Section name={sectionNames.style}>
-            {children.style.getPropertyView()}
-          </Section>
+        {['layout', 'both'].includes(
+          useContext(EditorContext).editorModeStatus
+        ) && (
+          <>
+            <Section name={sectionNames.style}>
+              {children.style.getPropertyView()}
+            </Section>
+            <Section name={sectionNames.animationStyle}>
+              {children.animationStyle.getPropertyView()}
+            </Section>
+          </>
         )}
       </>
     ))
@@ -148,10 +174,16 @@ let SegmentedControlBasicComp = (function () {
     .build();
 })();
 
-SegmentedControlBasicComp = migrateOldData(SegmentedControlBasicComp, fixOldInputCompData);
+SegmentedControlBasicComp = migrateOldData(
+  SegmentedControlBasicComp,
+  fixOldInputCompData
+);
 
-export const SegmentedControlComp = withExposingConfigs(SegmentedControlBasicComp, [
-  new NameConfig("value", trans("selectInput.valueDesc")),
-  SelectInputInvalidConfig,
-  ...CommonNameConfig,
-]);
+export const SegmentedControlComp = withExposingConfigs(
+  SegmentedControlBasicComp,
+  [
+    new NameConfig('value', trans('selectInput.valueDesc')),
+    SelectInputInvalidConfig,
+    ...CommonNameConfig,
+  ]
+);

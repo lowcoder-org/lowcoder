@@ -1,23 +1,34 @@
-import { NameConfig, NameConfigHidden, withExposingConfigs } from "comps/generators/withExposing";
-import { UICompBuilder, withDefault } from "comps/generators";
-import { Section, sectionNames } from "lowcoder-design";
-import styled from "styled-components";
-import { clickEvent, eventHandlerControl } from "comps/controls/eventHandlerControl";
-import { StringControl } from "comps/controls/codeControl";
-import { alignWithJustifyControl } from "comps/controls/alignControl";
-import { navListComp } from "./navItemComp";
-import { menuPropertyView } from "./components/MenuItemList";
-import { default as DownOutlined } from "@ant-design/icons/DownOutlined";
-import { default as Dropdown } from "antd/es/dropdown";
-import { default as Menu, MenuProps } from "antd/es/menu";
-import { migrateOldData } from "comps/generators/simpleGenerators";
-import { styleControl } from "comps/controls/styleControl";
-import { NavigationStyle } from "comps/controls/styleControlConstants";
-import { hiddenPropertyView } from "comps/utils/propertyUtils";
-import { trans } from "i18n";
+import {
+  NameConfig,
+  NameConfigHidden,
+  withExposingConfigs,
+} from 'comps/generators/withExposing';
+import {UICompBuilder, withDefault} from 'comps/generators';
+import {Section, sectionNames} from 'lowcoder-design';
+import styled from 'styled-components';
+import {
+  clickEvent,
+  eventHandlerControl,
+} from 'comps/controls/eventHandlerControl';
+import {StringControl} from 'comps/controls/codeControl';
+import {alignWithJustifyControl} from 'comps/controls/alignControl';
+import {navListComp} from './navItemComp';
+import {menuPropertyView} from './components/MenuItemList';
+import {default as DownOutlined} from '@ant-design/icons/DownOutlined';
+import {default as Dropdown} from 'antd/es/dropdown';
+import {default as Menu, MenuProps} from 'antd/es/menu';
+import {migrateOldData} from 'comps/generators/simpleGenerators';
+import {styleControl} from 'comps/controls/styleControl';
+import {
+  AnimationStyle,
+  AnimationStyleType,
+  NavigationStyle,
+} from 'comps/controls/styleControlConstants';
+import {hiddenPropertyView} from 'comps/utils/propertyUtils';
+import {trans} from 'i18n';
 
-import { useContext } from "react";
-import { EditorContext } from "comps/editorState";
+import {useContext} from 'react';
+import {EditorContext} from 'comps/editorState';
 
 type IProps = {
   $justify: boolean;
@@ -25,21 +36,34 @@ type IProps = {
   $borderColor: string;
   $borderWidth: string;
   $borderRadius: string;
+  $animationStyle: AnimationStyleType;
 };
 
-const Wrapper = styled("div") <Pick<IProps, "$bgColor" | "$borderColor" | "$borderWidth" | "$borderRadius">>`
+const Wrapper = styled('div')<
+  Pick<
+    IProps,
+    | '$bgColor'
+    | '$borderColor'
+    | '$borderWidth'
+    | '$borderRadius'
+    | '$animationStyle'
+  >
+>`
+  ${(props) => props.$animationStyle}
   height: 100%;
-  border-radius: ${(props) => props.$borderRadius ? props.$borderRadius : '2px'};
+  border-radius: ${(props) =>
+    props.$borderRadius ? props.$borderRadius : '2px'};
   box-sizing: border-box;
-  border: ${(props) => props.$borderWidth ? `${props.$borderWidth}` : '1px'} solid ${(props) => props.$borderColor};
+  border: ${(props) => (props.$borderWidth ? `${props.$borderWidth}` : '1px')}
+    solid ${(props) => props.$borderColor};
   background-color: ${(props) => props.$bgColor};
 `;
 
-const NavInner = styled("div") <Pick<IProps, "$justify">>`
+const NavInner = styled('div')<Pick<IProps, '$justify'>>`
   // margin: 0 -16px;
   height: 100%;
   display: flex;
-  justify-content: ${(props) => (props.$justify ? "space-between" : "left")};
+  justify-content: ${(props) => (props.$justify ? 'space-between' : 'left')};
 `;
 
 const Item = styled.div<{
@@ -52,21 +76,24 @@ const Item = styled.div<{
   $textSize: string;
   $margin: string;
   $padding: string;
-  $textTransform:string;
-  $textDecoration:string;
+  $textTransform: string;
+  $textDecoration: string;
 }>`
   height: 30px;
   line-height: 30px;
-  padding: ${(props) => props.$padding ? props.$padding : '0 16px'};
+  padding: ${(props) => (props.$padding ? props.$padding : '0 16px')};
   color: ${(props) => (props.$active ? props.$activeColor : props.$color)};
   font-weight: ${(props) => (props.$textWeight ? props.$textWeight : 500)};
-  font-family:${(props) => (props.$fontFamily ? props.$fontFamily : 'sans-serif')};
-  font-style:${(props) => (props.$fontStyle ? props.$fontStyle : 'normal')};
-  font-size:${(props) => (props.$textSize ? props.$textSize : '14px')};
-  text-transform:${(props) => (props.$textTransform ? props.$textTransform : '')};
-  text-decoration:${(props) => (props.$textDecoration ? props.$textDecoration : '')};
-  margin:${(props) => props.$margin ? props.$margin : '0px'};
-  
+  font-family: ${(props) =>
+    props.$fontFamily ? props.$fontFamily : 'sans-serif'};
+  font-style: ${(props) => (props.$fontStyle ? props.$fontStyle : 'normal')};
+  font-size: ${(props) => (props.$textSize ? props.$textSize : '14px')};
+  text-transform: ${(props) =>
+    props.$textTransform ? props.$textTransform : ''};
+  text-decoration: ${(props) =>
+    props.$textDecoration ? props.$textDecoration : ''};
+  margin: ${(props) => (props.$margin ? props.$margin : '0px')};
+
   &:hover {
     color: ${(props) => props.$activeColor};
     cursor: pointer;
@@ -88,14 +115,14 @@ const LogoWrapper = styled.div`
   }
 `;
 
-const ItemList = styled.div<{ $align: string }>`
+const ItemList = styled.div<{$align: string}>`
   flex: 1;
   display: flex;
   flex-direction: row;
   justify-content: ${(props) => props.$align};
 `;
 
-const StyledMenu = styled(Menu) <MenuProps>`
+const StyledMenu = styled(Menu)<MenuProps>`
   &.ant-dropdown-menu {
     min-width: 160px;
   }
@@ -107,10 +134,10 @@ const logoEventHandlers = [clickEvent];
 function fixOldStyleData(oldData: any) {
   if (
     oldData &&
-    (oldData.hasOwnProperty("accentColor") ||
-      oldData.hasOwnProperty("backgroundColor") ||
-      oldData.hasOwnProperty("borderColor") ||
-      oldData.hasOwnProperty("color"))
+    (oldData.hasOwnProperty('accentColor') ||
+      oldData.hasOwnProperty('backgroundColor') ||
+      oldData.hasOwnProperty('borderColor') ||
+      oldData.hasOwnProperty('color'))
   ) {
     return {
       text: oldData.color,
@@ -124,12 +151,15 @@ function fixOldStyleData(oldData: any) {
 
 const childrenMap = {
   logoUrl: StringControl,
-  logoEvent: withDefault(eventHandlerControl(logoEventHandlers), [{ name: "click" }]),
+  logoEvent: withDefault(eventHandlerControl(logoEventHandlers), [
+    {name: 'click'},
+  ]),
   horizontalAlignment: alignWithJustifyControl(),
   style: migrateOldData(styleControl(NavigationStyle), fixOldStyleData),
+  animationStyle: styleControl(AnimationStyle),
   items: withDefault(navListComp(), [
     {
-      label: trans("menuItem") + " 1",
+      label: trans('menuItem') + ' 1',
     },
   ]),
 };
@@ -139,15 +169,17 @@ const NavCompBase = new UICompBuilder(childrenMap, (props) => {
   const items = (
     <>
       {data.map((menuItem, idx) => {
-        const { hidden, label, items, active, onEvent } = menuItem.getView();
+        const {hidden, label, items, active, onEvent} = menuItem.getView();
         if (hidden) {
           return null;
         }
-        const visibleSubItems = items.filter((item) => !item.children.hidden.getView());
-        const subMenuItems: Array<{ key: string; label: string }> = [];
+        const visibleSubItems = items.filter(
+          (item) => !item.children.hidden.getView()
+        );
+        const subMenuItems: Array<{key: string; label: string}> = [];
         const subMenuSelectedKeys: Array<string> = [];
         visibleSubItems.forEach((subItem, index) => {
-          const key = index + "";
+          const key = index + '';
           subItem.children.active.getView() && subMenuSelectedKeys.push(key);
           subMenuItems.push({
             key: key,
@@ -168,7 +200,7 @@ const NavCompBase = new UICompBuilder(childrenMap, (props) => {
             $textTransform={props.style.textTransform}
             $textDecoration={props.style.textDecoration}
             $margin={props.style.margin}
-            onClick={() => onEvent("click")}
+            onClick={() => onEvent('click')}
           >
             {label}
             {items.length > 0 && <DownOutlined />}
@@ -178,18 +210,15 @@ const NavCompBase = new UICompBuilder(childrenMap, (props) => {
           const subMenu = (
             <StyledMenu
               onClick={(e) => {
-                const { onEvent: onSubEvent } = items[Number(e.key)]?.getView();
-                onSubEvent("click");
+                const {onEvent: onSubEvent} = items[Number(e.key)]?.getView();
+                onSubEvent('click');
               }}
               selectedKeys={subMenuSelectedKeys}
               items={subMenuItems}
             />
           );
           return (
-            <Dropdown
-              key={idx}
-              dropdownRender={() => subMenu}
-            >
+            <Dropdown key={idx} dropdownRender={() => subMenu}>
               {item}
             </Dropdown>
           );
@@ -199,10 +228,11 @@ const NavCompBase = new UICompBuilder(childrenMap, (props) => {
     </>
   );
 
-  const justify = props.horizontalAlignment === "justify";
+  const justify = props.horizontalAlignment === 'justify';
 
   return (
     <Wrapper
+      $animationStyle={props.animationStyle}
       $borderColor={props.style.border}
       $bgColor={props.style.background}
       $borderWidth={props.style.borderWidth}
@@ -210,11 +240,15 @@ const NavCompBase = new UICompBuilder(childrenMap, (props) => {
     >
       <NavInner $justify={justify}>
         {props.logoUrl && (
-          <LogoWrapper onClick={() => props.logoEvent("click")}>
+          <LogoWrapper onClick={() => props.logoEvent('click')}>
             <img src={props.logoUrl} alt="LOGO" />
           </LogoWrapper>
         )}
-        {!justify ? <ItemList $align={props.horizontalAlignment}>{items}</ItemList> : items}
+        {!justify ? (
+          <ItemList $align={props.horizontalAlignment}>{items}</ItemList>
+        ) : (
+          items
+        )}
       </NavInner>
     </Wrapper>
   );
@@ -226,33 +260,46 @@ const NavCompBase = new UICompBuilder(childrenMap, (props) => {
           {menuPropertyView(children.items)}
         </Section>
 
-        {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
+        {(useContext(EditorContext).editorModeStatus === 'logic' ||
+          useContext(EditorContext).editorModeStatus === 'both') && (
           <Section name={sectionNames.interaction}>
             {hiddenPropertyView(children)}
           </Section>
         )}
 
-        {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
+        {(useContext(EditorContext).editorModeStatus === 'layout' ||
+          useContext(EditorContext).editorModeStatus === 'both') && (
           <Section name={sectionNames.layout}>
             {children.horizontalAlignment.propertyView({
-              label: trans("navigation.horizontalAlignment"),
+              label: trans('navigation.horizontalAlignment'),
               radioButton: true,
             })}
             {hiddenPropertyView(children)}
           </Section>
         )}
 
-        {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
+        {(useContext(EditorContext).editorModeStatus === 'logic' ||
+          useContext(EditorContext).editorModeStatus === 'both') && (
           <Section name={sectionNames.advanced}>
-            {children.logoUrl.propertyView({ label: trans("navigation.logoURL"), tooltip: trans("navigation.logoURLDesc") })}
-            {children.logoUrl.getView() && children.logoEvent.propertyView({ inline: true })}
+            {children.logoUrl.propertyView({
+              label: trans('navigation.logoURL'),
+              tooltip: trans('navigation.logoURLDesc'),
+            })}
+            {children.logoUrl.getView() &&
+              children.logoEvent.propertyView({inline: true})}
           </Section>
         )}
 
-        {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
-          <Section name={sectionNames.style}>
-            {children.style.getPropertyView()}
-          </Section>
+        {(useContext(EditorContext).editorModeStatus === 'layout' ||
+          useContext(EditorContext).editorModeStatus === 'both') && (
+          <>
+            <Section name={sectionNames.style}>
+              {children.style.getPropertyView()}
+            </Section>
+            <Section name={sectionNames.animationStyle}>
+              {children.animationStyle.getPropertyView()}
+            </Section>
+          </>
         )}
       </>
     );
@@ -260,7 +307,7 @@ const NavCompBase = new UICompBuilder(childrenMap, (props) => {
   .build();
 
 export const NavComp = withExposingConfigs(NavCompBase, [
-  new NameConfig("logoUrl", trans("navigation.logoURLDesc")),
+  new NameConfig('logoUrl', trans('navigation.logoURLDesc')),
   NameConfigHidden,
-  new NameConfig("items", trans("navigation.itemsDesc")),
+  new NameConfig('items', trans('navigation.itemsDesc')),
 ]);
