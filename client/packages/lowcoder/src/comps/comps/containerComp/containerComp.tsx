@@ -86,7 +86,7 @@ function convertOldContainerParams(params: CompParams<any>) {
         value: {
           container: {
             showHeader: true,
-            body: { 0 : { view: container } },
+            body: { 0: { view: container } },
             showBody: true,
             showFooter: false,
             autoHeight: autoHeight,
