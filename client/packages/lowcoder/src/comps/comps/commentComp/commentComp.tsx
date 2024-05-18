@@ -38,7 +38,7 @@ import {
 } from "comps/controls/styleControlConstants";
 // Initialise exposed values
 import { stateComp, valueComp } from "comps/generators/simpleGenerators";
-// The component"s api for exposing properties externally
+// The component's api for exposing properties externally
 import {
   NameConfig,
   NameConfigHidden,
@@ -253,7 +253,7 @@ const CommentCompBase = (
         <List
           header={
             title !== "" ? (
-              <div style={{position: "sticky", top:0, background: style.background}}>
+               <div style={{position: 'sticky', top:0, background: style.background}}>
                 {commentListData.length > 1
                   ? title
                       .replaceAll("%d", commentListData.length.toString())
