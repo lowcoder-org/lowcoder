@@ -180,14 +180,14 @@ export function TriContainer(props: TriContainerProps) {
           value={container.style.background}
         >
           <HeaderInnerGrid
-            {...otherHeaderProps}
+              {...otherHeaderProps}
               items={gridItemCompToGridItems(headerItems)}
               autoHeight={true}
               emptyRows={5}
               minHeight="46px"
               containerPadding={[0, 0]}
               showName={{ bottom: showFooter ? 20 : 0 }}
-              $backgroundColor={headerStyle?.headerBackground || "transparent"}
+              $backgroundColor={headerStyle?.headerBackground || 'transparent'}
               style={{ padding: headerStyle.containerHeaderPadding }} />
         </BackgroundColorContext.Provider>
       )}
@@ -208,14 +208,14 @@ export function TriContainer(props: TriContainerProps) {
               minHeight={showHeader ? "143px" : "142px"}
               containerPadding={[0, 0]}
               hintPlaceholder={props.hintPlaceholder ?? HintPlaceHolder}
-              $backgroundColor={bodyStyle?.background || "transparent"}
+              $backgroundColor={bodyStyle?.background || 'transparent'}
               $borderColor={style?.border}
               $borderWidth={style?.borderWidth}
               style={{
                 float: `${props.float}`,
                 width: `${props.float === "none" ? "100%" : `${props.width}%`}`,
                 height: "100%",
-                ...container.bodyStyle,
+                ...container.bodyStyle
               }}
               />
             <FloatTextWrapper
@@ -246,7 +246,7 @@ export function TriContainer(props: TriContainerProps) {
             minHeight={"48px"}
             containerPadding={[0, 0]}
             showName={{ top: showHeader ? 20 : 0 }}
-            $backgroundColor={footerStyle?.footerBackground || "transparent"}
+            $backgroundColor={footerStyle?.footerBackground || 'transparent'}
             $footerBackgroundImage={footerStyle?.footerBackgroundImage}
             $footerBackgroundImageRepeat={footerStyle?.footerBackgroundImageRepeat}
             $footerBackgroundImageSize={footerStyle?.footerBackgroundImageSize}
@@ -254,8 +254,7 @@ export function TriContainer(props: TriContainerProps) {
             $footerBackgroundImageOrigin={footerStyle?.footerBackgroundImageOrigin}
             $borderColor={style?.border}
             $borderWidth={style?.borderWidth}
-            style={{padding: footerStyle.containerFooterPadding}}
-          />
+            style={{ padding: footerStyle.containerFooterPadding }} />
         </BackgroundColorContext.Provider>
       )}
     </Wrapper>
