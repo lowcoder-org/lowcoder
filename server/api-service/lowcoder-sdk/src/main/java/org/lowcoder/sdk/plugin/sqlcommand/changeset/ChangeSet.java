@@ -1,18 +1,14 @@
 package org.lowcoder.sdk.plugin.sqlcommand.changeset;
 
-import static org.lowcoder.sdk.exception.PluginCommonError.INVALID_GUI_SETTINGS;
-import static org.lowcoder.sdk.plugin.common.constant.Constants.CHANGE_SET_FORM_KEY;
-import static org.lowcoder.sdk.plugin.common.constant.Constants.CHANGE_SET_TYPE_KEY_VALUE_PAIRS;
-import static org.lowcoder.sdk.plugin.common.constant.Constants.CHANGE_SET_TYPE_OBJECT;
-import static org.lowcoder.sdk.plugin.common.constant.Constants.COMP_KEY;
-import static org.lowcoder.sdk.plugin.common.constant.Constants.COMP_TYPE_KEY;
+import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.lowcoder.sdk.exception.PluginException;
 
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.collections4.MapUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.lowcoder.sdk.exception.PluginException;
+import static org.lowcoder.sdk.exception.PluginCommonError.INVALID_GUI_SETTINGS;
+import static org.lowcoder.sdk.plugin.common.constant.Constants.*;
 
 public abstract class ChangeSet {
 

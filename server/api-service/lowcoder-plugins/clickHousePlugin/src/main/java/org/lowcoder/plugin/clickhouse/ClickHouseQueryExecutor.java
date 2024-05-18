@@ -1,37 +1,7 @@
 package org.lowcoder.plugin.clickhouse;
 
-import static com.google.common.collect.Maps.newLinkedHashMap;
-import static org.lowcoder.sdk.exception.PluginCommonError.CONNECTION_ERROR;
-import static org.lowcoder.sdk.exception.PluginCommonError.DATASOURCE_GET_STRUCTURE_ERROR;
-import static org.lowcoder.sdk.exception.PluginCommonError.PREPARED_STATEMENT_BIND_PARAMETERS_ERROR;
-import static org.lowcoder.sdk.exception.PluginCommonError.QUERY_ARGUMENT_ERROR;
-import static org.lowcoder.sdk.exception.PluginCommonError.QUERY_EXECUTION_ERROR;
-import static org.lowcoder.sdk.plugin.common.QueryExecutionUtils.getIdenticalColumns;
-import static org.lowcoder.sdk.plugin.common.QueryExecutionUtils.querySharedScheduler;
-import static org.lowcoder.sdk.plugin.common.sql.ResultSetParser.parseColumns;
-import static org.lowcoder.sdk.plugin.common.sql.ResultSetParser.parseRows;
-import static org.lowcoder.sdk.util.JsonUtils.toJson;
-import static org.lowcoder.sdk.util.MustacheHelper.doPrepareStatement;
-import static org.lowcoder.sdk.util.MustacheHelper.extractMustacheKeysInOrder;
-import static org.lowcoder.sdk.util.MustacheHelper.renderMustacheString;
-
-import java.math.BigDecimal;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.sql.Types;
-import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Supplier;
-
+import com.zaxxer.hikari.HikariDataSource;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.lowcoder.plugin.clickhouse.model.ClickHouseDatasourceConfig;
@@ -41,19 +11,30 @@ import org.lowcoder.sdk.config.dynamic.ConfigCenter;
 import org.lowcoder.sdk.exception.InvalidHikariDatasourceException;
 import org.lowcoder.sdk.exception.PluginException;
 import org.lowcoder.sdk.models.DatasourceStructure;
+import org.lowcoder.sdk.models.DatasourceStructure.Table;
 import org.lowcoder.sdk.models.LocaleMessage;
 import org.lowcoder.sdk.models.QueryExecutionResult;
-import org.lowcoder.sdk.models.DatasourceStructure.Table;
 import org.lowcoder.sdk.plugin.common.QueryExecutor;
 import org.lowcoder.sdk.plugin.common.SqlQueryUtils;
 import org.lowcoder.sdk.plugin.common.sql.SqlBasedQueryExecutionContext;
 import org.lowcoder.sdk.query.QueryVisitorContext;
 import org.pf4j.Extension;
-
-import com.zaxxer.hikari.HikariDataSource;
-
-import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
+
+import java.math.BigDecimal;
+import java.sql.*;
+import java.time.Duration;
+import java.util.*;
+import java.util.function.Supplier;
+
+import static com.google.common.collect.Maps.newLinkedHashMap;
+import static org.lowcoder.sdk.exception.PluginCommonError.*;
+import static org.lowcoder.sdk.plugin.common.QueryExecutionUtils.getIdenticalColumns;
+import static org.lowcoder.sdk.plugin.common.QueryExecutionUtils.querySharedScheduler;
+import static org.lowcoder.sdk.plugin.common.sql.ResultSetParser.parseColumns;
+import static org.lowcoder.sdk.plugin.common.sql.ResultSetParser.parseRows;
+import static org.lowcoder.sdk.util.JsonUtils.toJson;
+import static org.lowcoder.sdk.util.MustacheHelper.*;
 
 @Slf4j
 @Extension
