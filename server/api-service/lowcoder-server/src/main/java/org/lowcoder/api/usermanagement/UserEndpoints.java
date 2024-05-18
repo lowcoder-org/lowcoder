@@ -121,9 +121,21 @@ public interface UserEndpoints
     @PostMapping("/reset-password")
     public Mono<ResponseView<String>> resetPassword(@RequestBody ResetPasswordRequest request);
 
+	@Operation(
+			tags = TAG_USER_PASSWORD_MANAGEMENT,
+			operationId = "lostPassword",
+			summary = "Lost User Password",
+			description = "Initiate a Lost Password recovery process."
+	)
 	@PostMapping("/lost-password")
 	public Mono<ResponseView<Boolean>> lostPassword(@RequestBody LostPasswordRequest request);
 
+	@Operation(
+			tags = TAG_USER_PASSWORD_MANAGEMENT,
+			operationId = "resetLostPassword",
+			summary = "Reset Lost User Password",
+			description = "Resets lost password based on the token from lost password email."
+	)
 	@PostMapping("/reset-lost-password")
 	public Mono<ResponseView<Boolean>> resetLostPassword(@RequestBody ResetLostPasswordRequest request);
 
