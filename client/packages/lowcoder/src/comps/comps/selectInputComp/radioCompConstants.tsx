@@ -30,15 +30,15 @@ export const RadioLayoutOptions = [
 ] as const;
 
 export const RadioChildrenMap = {
-  defaultValue: stringExposingStateControl('value'),
-  value: stringExposingStateControl('value'),
+  defaultValue: stringExposingStateControl("value"),
+  value: stringExposingStateControl("value"),
   label: LabelControl,
   disabled: BoolCodeControl,
   onEvent: ChangeEventHandlerControl,
   options: SelectInputOptionControl,
   style: styleControl(InputFieldStyle),
-  labelStyle: styleControl(LabelStyle),
-  layout: dropdownControl(RadioLayoutOptions, 'horizontal'),
+  labelStyle:styleControl(LabelStyle),
+  layout: dropdownControl(RadioLayoutOptions, "horizontal"),
   viewRef: RefControl<HTMLDivElement>,
   inputFieldStyle: styleControl(RadioStyle),
   animationStyle: styleControl(AnimationStyle),
