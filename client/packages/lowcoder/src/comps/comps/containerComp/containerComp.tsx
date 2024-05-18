@@ -33,8 +33,7 @@ export const ContainerBaseComp = (function () {
     .setPropertyViewFn((children) => {
       return (
         <>
-          {(useContext(EditorContext).editorModeStatus === "logic" ||
-            useContext(EditorContext).editorModeStatus === "both") && (
+           {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
             <Section name={sectionNames.interaction}>
               {disabledPropertyView(children)}
               {hiddenPropertyView(children)}
