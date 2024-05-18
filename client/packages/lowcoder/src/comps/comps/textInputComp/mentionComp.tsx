@@ -99,11 +99,11 @@ let MentionTmpComp = (function () {
     style: styleControl(InputLikeStyle),
     animationStyle: styleControl(AnimationStyle),
     mentionList: jsonControl(checkMentionListData, {
-      '@': ['Li Lei', 'Han Meimei'],
-      '#': ['123', '456', '789'],
+      "@": ["Li Lei", "Han Meimei"],
+      "#": ["123", "456", "789"],
     }),
     onEvent: eventHandlerControl(EventOptions),
-    invalid: booleanExposingStateControl('invalid'),
+    invalid: booleanExposingStateControl("invalid"),
   };
 
   return new UICompBuilder(childrenMap, (props) => {
