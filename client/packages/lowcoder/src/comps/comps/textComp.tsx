@@ -124,7 +124,7 @@ let TextTmpComp = (function () {
   const childrenMap = {
     text: stringExposingStateControl(
       "text",
-      trans("textShow.text", { name: "{{ currentUser.name}}" })
+      trans("textShow.text", { name: "{{currentUser.name}}" })
     ),
     autoHeight: AutoHeightControl,
     type: dropdownControl(typeOptions, "markdown"),
@@ -148,11 +148,7 @@ let TextTmpComp = (function () {
           textAlign: props.horizontalAlignment,
         }}
       >
-        {props.type === "markdown" ? (
-          <TacoMarkDown>{value}</TacoMarkDown>
-        ) : (
-          value
-        )}
+        {props.type === "markdown" ? <TacoMarkDown>{value}</TacoMarkDown> : value}
       </TextContainer>
     );
   })
