@@ -46,18 +46,18 @@ const EVENT_OPTIONS = [
 
 const childrenMap = {
   tabs: TabsOptionControl,
-  selectedTabKey: stringExposingStateControl('key', 'Tab1'),
+  selectedTabKey: stringExposingStateControl("key", "Tab1"),
   containers: withDefault(sameTypeMap(SimpleContainerComp), {
-    0: {layout: {}, items: {}},
-    1: {layout: {}, items: {}},
+    0: { layout: {}, items: {} },
+    1: { layout: {}, items: {} },
   }),
   autoHeight: AutoHeightControl,
   scrollbars: withDefault(BoolControl, false),
-  placement: withDefault(PositionControl, 'top'),
+  placement: withDefault(PositionControl, "top"),
   onEvent: eventHandlerControl(EVENT_OPTIONS),
   disabled: BoolCodeControl,
   showHeader: withDefault(BoolControl, true),
-  style: withDefault(styleControl(TabContainerStyle), {borderWidth: '1px'}),
+  style: withDefault(styleControl(TabContainerStyle), {borderWidth:'1px'}),
   headerStyle: styleControl(ContainerHeaderStyle),
   bodyStyle: styleControl(ContainerBodyStyle),
   animationStyle: styleControl(AnimationStyle),
@@ -251,42 +251,30 @@ const TabbedContainer = (props: TabbedContainerProps) => {
   })
 
   return (
-    <ScrollBar
-      style={{
-        height: props.autoHeight ? '100%' : 'auto',
-        margin: '0px',
-        padding: '0px',
-      }}
-      hideScrollbar={!props.scrollbars}
-    >
-      <div
-        style={{
-          padding: props.style.margin,
-          height: props.autoHeight ? '100%' : 'auto',
-        }}
-      >
+    <ScrollBar style={{ height: props.autoHeight ? "100%" : "auto", margin: "0px", padding: "0px" }} hideScrollbar={!props.scrollbars}>
+      <div style={{padding: props.style.margin, height: props.autoHeight ? "100%" : "auto"}}>
         <BackgroundColorContext.Provider value={headerStyle.headerBackground}>
           <StyledTabs
             $animationStyle={props.animationStyle}
-            tabPosition={props.placement}
-            activeKey={activeKey}
-            $style={style}
-            $headerStyle={headerStyle}
-            $bodyStyle={bodyStyle}
-            $showHeader={showHeader}
-            onChange={(key) => {
-              if (key !== props.selectedTabKey.value) {
-                props.selectedTabKey.onChange(key);
-                props.onEvent('change');
-              }
-            }}
-            onTabClick={onTabClick}
-            animated
-            $isMobile={isMobile}
-            items={tabItems}
-            tabBarGutter={props.tabsGutter}
-            centered={props.tabsCentered}
-          ></StyledTabs>
+              tabPosition={props.placement}
+              activeKey={activeKey}
+              $style={style}
+              $headerStyle={headerStyle}
+              $bodyStyle={bodyStyle}
+              $showHeader={showHeader}
+              onChange={(key) => {
+                if (key !== props.selectedTabKey.value) {
+                  props.selectedTabKey.onChange(key);
+                  props.onEvent("change");
+                }
+              }}
+              onTabClick={onTabClick}
+              animated
+              $isMobile={isMobile}
+              items={tabItems}
+              tabBarGutter={props.tabsGutter}
+              centered={props.tabsCentered}
+            ></StyledTabs>
         </BackgroundColorContext.Provider>
       </div>
     </ScrollBar>
