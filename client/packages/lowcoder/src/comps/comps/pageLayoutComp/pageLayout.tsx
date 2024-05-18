@@ -187,7 +187,7 @@ export function PageLayout(props: LayoutProps & { siderCollapsed: boolean; setSi
                 </BackgroundColorContext.Provider>
               </>
             )}
-            <Layout style={{ padding: "0px" }}>
+              <Layout style={{ padding: "0px" }}>
                 {showHeader && (
                   <>
                     <BackgroundColorContext.Provider value={style.background}>
@@ -236,7 +236,7 @@ export function PageLayout(props: LayoutProps & { siderCollapsed: boolean; setSi
                               style={{ padding: siderStyle.containerSiderPadding }} />
                           </ScrollBar>
                         </Sider>
-                      </BackgroundColorContext.Provider>
+                        </BackgroundColorContext.Provider>
                       )}
                       <Content style={{ padding: '0px', margin: '0px', backgroundColor: bodyStyle?.background || 'transparent' }}>
                         <ScrollBar style={{ height: container.autoHeight ? "auto" : "100%", margin: "0px", padding: "0px" }} hideScrollbar={!container.contentScrollbars}>
@@ -277,8 +277,8 @@ export function PageLayout(props: LayoutProps & { siderCollapsed: boolean; setSi
                             collapsedWidth={container.siderCollapsedWidth}
                             reverseArrow={true}
                             collapsed={siderCollapsed} onCollapse={(value) => setSiderCollapsed(value)}
-                        >
-                          <ScrollBar style={{ height: container.autoHeight ? "auto" : "100%", margin: "0px", padding: "0px" }} hideScrollbar={!container.siderScrollbars}>
+                           >
+                            <ScrollBar style={{ height: container.autoHeight ? "auto" : "100%", margin: "0px", padding: "0px" }} hideScrollbar={!container.siderScrollbars}>
                               <SiderInnerGrid
                                 {...otherSiderProps}
                                 items={gridItemCompToGridItems(siderItems)}
@@ -304,17 +304,17 @@ export function PageLayout(props: LayoutProps & { siderCollapsed: boolean; setSi
                       <ScrollBar style={{ height: container.autoHeight ? "auto" : "100%", margin: "0px", padding: "0px" }} hideScrollbar={!container.contentScrollbars}>
                         {container.showApp && container.contentApp != "" ? (
                           <BackgroundColorContext.Provider value={bodyStyle?.background}>
-                        <AppViewContainer>
-                          <LowcoderAppView
-                            ref={appRef}
-                            appId={container.contentApp}
-                            baseUrl={container.baseUrl}
-                          />
-                        </AppViewContainer>
-                      </BackgroundColorContext.Provider>
-                    ) : (
-                      <BodyInnerGrid
-                        $showBorder={showHeader}
+                            <AppViewContainer>
+                              <LowcoderAppView
+                                ref={appRef}
+                                appId={container.contentApp}
+                                baseUrl={container.baseUrl}
+                              />
+                            </AppViewContainer>
+                          </BackgroundColorContext.Provider>
+                        ) : (
+                          <BodyInnerGrid
+                          $showBorder={showHeader}
                           {...otherBodyProps}
                           items={gridItemCompToGridItems(bodyItems)}
                           autoHeight={container.autoHeight}
