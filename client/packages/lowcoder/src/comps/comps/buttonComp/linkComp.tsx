@@ -1,39 +1,27 @@
-import {default as Button} from 'antd/es/button';
-import {
-  ButtonCompWrapper,
-  buttonRefMethods,
-} from 'comps/comps/buttonComp/buttonCompConstants';
-import {BoolCodeControl, StringControl} from 'comps/controls/codeControl';
-import {ButtonEventHandlerControl} from 'comps/controls/eventHandlerControl';
-import {styleControl} from 'comps/controls/styleControl';
-import {
-  AnimationStyle,
-  AnimationStyleType,
-  LinkStyle,
-  LinkStyleType,
-} from 'comps/controls/styleControlConstants';
-import {withDefault} from 'comps/generators';
-import {migrateOldData} from 'comps/generators/simpleGenerators';
-import {UICompBuilder} from 'comps/generators/uiCompBuilder';
-import {Section, sectionNames} from 'lowcoder-design';
-import styled from 'styled-components';
-import {
-  CommonNameConfig,
-  NameConfig,
-  withExposingConfigs,
-} from '../../generators/withExposing';
+import { default as Button } from "antd/es/button";
+import { ButtonCompWrapper, buttonRefMethods } from "comps/comps/buttonComp/buttonCompConstants";
+import { BoolCodeControl, StringControl } from "comps/controls/codeControl";
+import { ButtonEventHandlerControl } from "comps/controls/eventHandlerControl";
+import { styleControl } from "comps/controls/styleControl";
+import { AnimationStyle, AnimationStyleType, LinkStyle, LinkStyleType } from "comps/controls/styleControlConstants";
+import { withDefault } from "comps/generators";
+import { migrateOldData } from "comps/generators/simpleGenerators";
+import { UICompBuilder } from "comps/generators/uiCompBuilder";
+import { Section, sectionNames } from "lowcoder-design";
+import styled from "styled-components";
+import { CommonNameConfig, NameConfig, withExposingConfigs } from "../../generators/withExposing";
 import {
   hiddenPropertyView,
   disabledPropertyView,
   loadingPropertyView,
-} from 'comps/utils/propertyUtils';
-import {trans} from 'i18n';
-import {IconControl} from 'comps/controls/iconControl';
-import {hasIcon} from 'comps/utils';
-import {RefControl} from 'comps/controls/refControl';
+} from "comps/utils/propertyUtils";
+import { trans } from "i18n";
+import { IconControl } from "comps/controls/iconControl";
+import { hasIcon } from "comps/utils";
+import { RefControl } from "comps/controls/refControl";
 
-import {EditorContext} from 'comps/editorState';
-import React, {useContext} from 'react';
+import { EditorContext } from "comps/editorState";
+import React, { useContext } from "react";
 
 const Link = styled(Button)<{
   $style: LinkStyleType;
@@ -82,7 +70,7 @@ const IconWrapper = styled.span`
  * compatible with old data 2022-08-26
  */
 function fixOldData(oldData: any) {
-  if (oldData && oldData.hasOwnProperty('color')) {
+  if (oldData && oldData.hasOwnProperty("color")) {
     return {
       text: oldData.color,
     };
@@ -92,20 +80,19 @@ function fixOldData(oldData: any) {
 
 const LinkTmpComp = (function () {
   const childrenMap = {
-    text: withDefault(StringControl, trans('link.link')),
+    text: withDefault(StringControl, trans("link.link")),
     onEvent: ButtonEventHandlerControl,
     disabled: BoolCodeControl,
     loading: BoolCodeControl,
     style: migrateOldData(styleControl(LinkStyle), fixOldData),
-    animationStyle: styleControl(AnimationStyle),
+    animationStyle:styleControl(AnimationStyle),
     prefixIcon: IconControl,
     suffixIcon: IconControl,
     viewRef: RefControl<HTMLElement>,
   };
   return new UICompBuilder(childrenMap, (props) => {
     // chrome86 bug: button children should not contain only empty span
-    const hasChildren =
-      hasIcon(props.prefixIcon) || !!props.text || hasIcon(props.suffixIcon);
+    const hasChildren = hasIcon(props.prefixIcon) || !!props.text || hasIcon(props.suffixIcon);
     return (
       <ButtonCompWrapper disabled={props.disabled}>
         <Link
@@ -136,38 +123,26 @@ const LinkTmpComp = (function () {
       return (
         <>
           <Section name={sectionNames.basic}>
-            {children.text.propertyView({label: trans('text')})}
+            {children.text.propertyView({ label: trans("text") })}
           </Section>
 
-          {(useContext(EditorContext).editorModeStatus === 'logic' ||
-            useContext(EditorContext).editorModeStatus === 'both') && (
-            <>
-              <Section name={sectionNames.interaction}>
-                {children.onEvent.getPropertyView()}
-                {disabledPropertyView(children)}
-                {hiddenPropertyView(children)}
-                {loadingPropertyView(children)}
-              </Section>
+          {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
+            <><Section name={sectionNames.interaction}>
+              {children.onEvent.getPropertyView()}
+              {disabledPropertyView(children)}
+              {hiddenPropertyView(children)}
+              {loadingPropertyView(children)}
+            </Section>
               <Section name={sectionNames.advanced}>
-                {children.prefixIcon.propertyView({
-                  label: trans('button.prefixIcon'),
-                })}
-                {children.suffixIcon.propertyView({
-                  label: trans('button.suffixIcon'),
-                })}
-              </Section>
-            </>
+                {children.prefixIcon.propertyView({ label: trans("button.prefixIcon") })}
+                {children.suffixIcon.propertyView({ label: trans("button.suffixIcon") })}
+              </Section></>
           )}
 
-          {(useContext(EditorContext).editorModeStatus === 'layout' ||
-            useContext(EditorContext).editorModeStatus === 'both') && (
+          {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
             <>
-              <Section name={sectionNames.style}>
-                {children.style.getPropertyView()}
-              </Section>
-              <Section name={sectionNames.animationStyle}>
-                {children.animationStyle.getPropertyView()}
-              </Section>
+              <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
+              <Section name={sectionNames.animationStyle}>{children.animationStyle.getPropertyView()}</Section>
             </>
           )}
         </>
@@ -178,7 +153,7 @@ const LinkTmpComp = (function () {
 })();
 
 export const LinkComp = withExposingConfigs(LinkTmpComp, [
-  new NameConfig('text', trans('link.textDesc')),
-  new NameConfig('loading', trans('link.loadingDesc')),
+  new NameConfig("text", trans("link.textDesc")),
+  new NameConfig("loading", trans("link.loadingDesc")),
   ...CommonNameConfig,
 ]);
