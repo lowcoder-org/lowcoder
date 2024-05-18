@@ -36,9 +36,9 @@ function fixOldData(oldData: any) {
 
 const RatingBasicComp = (function () {
   const childrenMap = {
-    defaultValue: numberExposingStateControl('defaultValue'),
-    value: numberExposingStateControl('value'),
-    max: withDefault(NumberControl, '5'),
+    defaultValue: numberExposingStateControl("defaultValue"),
+    value: numberExposingStateControl("value"),
+    max: withDefault(NumberControl, "5"),
     label: LabelControl,
     allowHalf: BoolControl,
     disabled: BoolCodeControl,
