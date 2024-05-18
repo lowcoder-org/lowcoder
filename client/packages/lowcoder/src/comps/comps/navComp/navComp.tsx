@@ -251,7 +251,7 @@ const NavCompBase = new UICompBuilder(childrenMap, (props) => {
             {hiddenPropertyView(children)}
           </Section>
         )}
-        
+
         {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
           <Section name={sectionNames.advanced}>
             {children.logoUrl.propertyView({ label: trans("navigation.logoURL"), tooltip: trans("navigation.logoURLDesc") })}
