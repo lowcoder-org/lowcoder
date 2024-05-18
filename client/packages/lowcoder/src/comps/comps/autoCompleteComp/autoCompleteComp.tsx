@@ -183,7 +183,7 @@ let AutoCompleteCompBase = (function () {
               }} 
               onFocus={() => {
                 setActivationFlag(true) 
-                props.onEvent("focus") 
+                props.onEvent("focus")
               }}
               onBlur={() => props.onEvent("blur")}
               onSelect={(data: string, option) => {
@@ -269,16 +269,16 @@ let AutoCompleteCompBase = (function () {
                 return false;
               }}
             >
-               <InputStyle
-                 ref={props.viewRef}
-                 placeholder={placeholder}
-                 allowClear={props.allowClear}
-                 $style={props.inputFieldStyle}
-                 prefix={hasIcon(props.prefixIcon) && props.prefixIcon}
-                 suffix={hasIcon(props.suffixIcon) && props.suffixIcon}
-                 status={getValidate(validateState)}
-                 onPressEnter={undefined}
-               />
+                <InputStyle
+                  ref={props.viewRef}
+                  placeholder={placeholder}
+                  allowClear={props.allowClear}
+                  $style={props.inputFieldStyle}
+                  prefix={hasIcon(props.prefixIcon) && props.prefixIcon}
+                  suffix={hasIcon(props.suffixIcon) && props.suffixIcon}
+                  status={getValidate(validateState)}
+                  onPressEnter={undefined}
+                />
             </AutoComplete>
           </ConfigProvider>
         </>
@@ -302,7 +302,7 @@ let AutoCompleteCompBase = (function () {
               children.suffixIcon.propertyView({
                 label: trans("button.suffixIcon"),
               })}
-            {allowClearPropertyView(children)}
+              {allowClearPropertyView(children)}
           </Section>
           <Section name={trans("autoComplete.SectionDataName")}>
             {children.items.propertyView({
