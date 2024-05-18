@@ -82,7 +82,7 @@ const TextContainer = styled.div<{
   margin: 0;
   ${props=>props.$animationStyle}
   ${(props) =>
-    props.$type === 'text' && 'white-space:break-spaces;line-height: 1.9;'};
+    props.$type === "text" && "white-space:break-spaces;line-height: 1.9;"};
   ${(props) => props.$styleConfig && getStyle(props.$styleConfig)}
   display: flex;
   font-size: 13px;
@@ -123,13 +123,13 @@ let TextTmpComp = (function () {
 
   const childrenMap = {
     text: stringExposingStateControl(
-      'text',
-      trans('textShow.text', {name: '{{currentUser.name}}'})
+      "text",
+      trans("textShow.text", { name: "{{ currentUser.name}}" })
     ),
     autoHeight: AutoHeightControl,
-    type: dropdownControl(typeOptions, 'markdown'),
+    type: dropdownControl(typeOptions, "markdown"),
     horizontalAlignment: alignWithJustifyControl(),
-    verticalAlignment: dropdownControl(VerticalAlignmentOptions, 'center'),
+    verticalAlignment: dropdownControl(VerticalAlignmentOptions, "center"),
     style: styleControl(TextStyle),
     animationStyle: styleControl(AnimationStyle),
     margin: MarginControl,
@@ -144,11 +144,11 @@ let TextTmpComp = (function () {
         $styleConfig={props.style}
         style={{
           justifyContent: props.horizontalAlignment,
-          alignItems: props.autoHeight ? 'center' : props.verticalAlignment,
+          alignItems: props.autoHeight ? "center" : props.verticalAlignment,
           textAlign: props.horizontalAlignment,
         }}
       >
-        {props.type === 'markdown' ? (
+        {props.type === "markdown" ? (
           <TacoMarkDown>{value}</TacoMarkDown>
         ) : (
           value
