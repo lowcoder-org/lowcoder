@@ -1,34 +1,27 @@
-import {
-  NameConfig,
-  NameConfigHidden,
-  withExposingConfigs,
-} from 'comps/generators/withExposing';
-import {UICompBuilder, withDefault} from 'comps/generators';
-import {Section, sectionNames} from 'lowcoder-design';
+import { NameConfig, NameConfigHidden,withExposingConfigs } from 'comps/generators/withExposing';
+import { UICompBuilder, withDefault } from 'comps/generators';
+import { Section, sectionNames } from 'lowcoder-design';
 import styled from 'styled-components';
-import {
-  clickEvent,
-  eventHandlerControl,
-} from 'comps/controls/eventHandlerControl';
-import {StringControl} from 'comps/controls/codeControl';
-import {alignWithJustifyControl} from 'comps/controls/alignControl';
-import {navListComp} from './navItemComp';
-import {menuPropertyView} from './components/MenuItemList';
-import {default as DownOutlined} from '@ant-design/icons/DownOutlined';
-import {default as Dropdown} from 'antd/es/dropdown';
-import {default as Menu, MenuProps} from 'antd/es/menu';
-import {migrateOldData} from 'comps/generators/simpleGenerators';
-import {styleControl} from 'comps/controls/styleControl';
+import { clickEvent,eventHandlerControl } from 'comps/controls/eventHandlerControl';
+import { StringControl } from 'comps/controls/codeControl';
+import { alignWithJustifyControl } from 'comps/controls/alignControl';
+import { navListComp } from './navItemComp';
+import { menuPropertyView } from './components/MenuItemList';
+import { default as DownOutlined } from '@ant-design/icons/DownOutlined';
+import { default as Dropdown } from 'antd/es/dropdown';
+import { default as Menu, MenuProps } from 'antd/es/menu';
+import { migrateOldData } from 'comps/generators/simpleGenerators';
+import { styleControl } from 'comps/controls/styleControl';
 import {
   AnimationStyle,
   AnimationStyleType,
   NavigationStyle,
 } from 'comps/controls/styleControlConstants';
-import {hiddenPropertyView} from 'comps/utils/propertyUtils';
-import {trans} from 'i18n';
+import { hiddenPropertyView } from 'comps/utils/propertyUtils';
+import { trans } from 'i18n';
 
-import {useContext} from 'react';
-import {EditorContext} from 'comps/editorState';
+import { useContext } from 'react';
+import { EditorContext } from 'comps/editorState';
 
 type IProps = {
   $justify: boolean;
