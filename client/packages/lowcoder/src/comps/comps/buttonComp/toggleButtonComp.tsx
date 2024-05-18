@@ -116,23 +116,13 @@ const ToggleTmpComp = (function () {
               {loadingPropertyView(children)}
             </Section>
             <Section name={sectionNames.advanced}>
-              {children.showText.propertyView({
-                label: trans("toggleButton.showText"),
-              })}
+              {children.showText.propertyView({ label: trans("toggleButton.showText") })}
+              {children.showText.getView() && 
+                children.trueText.propertyView({ label: trans("toggleButton.trueLabel") })}
               {children.showText.getView() &&
-                children.trueText.propertyView({
-                  label: trans("toggleButton.trueLabel"),
-                })}
-              {children.showText.getView() &&
-                children.falseText.propertyView({
-                  label: trans("toggleButton.falseLabel"),
-                })}
-              {children.trueIcon.propertyView({
-                label: trans("toggleButton.trueIconLabel"),
-              })}
-              {children.falseIcon.propertyView({
-                label: trans("toggleButton.falseIconLabel"),
-              })}
+                children.falseText.propertyView({ label: trans("toggleButton.falseLabel") })}
+              {children.trueIcon.propertyView({ label: trans("toggleButton.trueIconLabel") })}
+              {children.falseIcon.propertyView({ label: trans("toggleButton.falseIconLabel") })}
               {children.showText.getView() &&
                 children.iconPosition.propertyView({
                   label: trans("toggleButton.iconPosition"),
