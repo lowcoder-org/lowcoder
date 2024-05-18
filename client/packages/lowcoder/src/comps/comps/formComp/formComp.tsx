@@ -3,12 +3,12 @@ import {
   depsConfig,
   NameConfig,
   withExposingConfigs,
-} from 'comps/generators/withExposing';
-import {Section, sectionNames} from 'lowcoder-design';
-import {genQueryId} from 'comps/utils/idGenerator';
-import {CompNameContext, EditorContext, EditorState} from 'comps/editorState';
-import {withMethodExposing} from 'comps/generators/withMethodExposing';
-import {ContainerPlaceholder} from 'lowcoder-design';
+} from "comps/generators/withExposing";
+import { Section, sectionNames } from "lowcoder-design";
+import { genQueryId } from "comps/utils/idGenerator";
+import { CompNameContext, EditorContext, EditorState } from "comps/editorState";
+import { withMethodExposing } from "comps/generators/withMethodExposing";
+import { ContainerPlaceholder } from "lowcoder-design";
 import {
   CompAction,
   CompActionTypes,
@@ -20,48 +20,45 @@ import {
   RecordConstructorToView,
   ValueAndMsg,
   wrapChildAction,
-} from 'lowcoder-core';
-import {NameGenerator} from 'comps/utils';
-import _ from 'lodash';
-import {CreateData, CreateForm} from './createForm';
-import {defaultLayout, GridItemComp} from '../gridItemComp';
-import {ReactNode, useContext} from 'react';
-import {pushAction} from 'comps/generators/list';
-import {FullColumnInfo} from './generate/dataSourceCommon';
-import {
-  eventHandlerControl,
-  submitEvent,
-} from 'comps/controls/eventHandlerControl';
+} from "lowcoder-core";
+import { NameGenerator } from "comps/utils";
+import _ from "lodash";
+import { CreateData, CreateForm } from "./createForm";
+import { defaultLayout, GridItemComp } from "../gridItemComp";
+import { ReactNode, useContext } from "react";
+import { pushAction } from "comps/generators/list";
+import { FullColumnInfo } from "./generate/dataSourceCommon";
+import { eventHandlerControl, submitEvent } from "comps/controls/eventHandlerControl";
 import {
   simpleContainerAddAction,
   toSimpleContainerData,
-} from '../containerBase/simpleContainerComp';
+} from "../containerBase/simpleContainerComp";
 import {
   ContainerCompBuilder,
   TriContainerViewProps,
-} from '../triContainerComp/triContainerCompBuilder';
-import {TriContainer} from '../triContainerComp/triContainer';
-import {traverseCompTree} from '../containerBase/utils';
-import {IForm} from './formDataConstants';
-import {default as Spin} from 'antd/lib/spin';
-import {BoolControl} from 'comps/controls/boolControl';
-import {BottomResTypeEnum} from 'types/bottomRes';
-import {BoolCodeControl, JSONObjectControl} from 'comps/controls/codeControl';
-import {JSONObject} from 'util/jsonTypes';
-import {EvalParamType} from 'comps/controls/actionSelector/executeCompTypes';
-import {LayoutItem} from 'layout/utils';
+} from "../triContainerComp/triContainerCompBuilder";
+import { TriContainer } from "../triContainerComp/triContainer";
+import { traverseCompTree } from "../containerBase/utils";
+import { IForm } from "./formDataConstants";
+import { default as Spin } from "antd/lib/spin";
+import { BoolControl } from "comps/controls/boolControl";
+import { BottomResTypeEnum } from "types/bottomRes";
+import { BoolCodeControl, JSONObjectControl } from "comps/controls/codeControl";
+import { JSONObject } from "util/jsonTypes";
+import { EvalParamType } from "comps/controls/actionSelector/executeCompTypes";
+import { LayoutItem } from "layout/utils";
 import {
   disabledPropertyView,
   hiddenPropertyView,
   loadingPropertyView,
-} from 'comps/utils/propertyUtils';
-import {trans} from 'i18n';
-import log from 'loglevel';
-import {DisabledContext} from 'comps/generators/uiCompBuilder';
-import {default as LoadingOutlined} from '@ant-design/icons/LoadingOutlined';
-import {messageInstance} from 'lowcoder-design/src/components/GlobalInstances';
-import {styled} from 'styled-components';
-import {AnimationStyle, styleControl} from '@lowcoder-ee/index.sdk';
+} from "comps/utils/propertyUtils";
+import { trans } from "i18n";
+import log from "loglevel";
+import { DisabledContext } from "comps/generators/uiCompBuilder";
+import { default as LoadingOutlined } from "@ant-design/icons/LoadingOutlined";
+import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
+import { styled } from "styled-components";
+import { AnimationStyle, styleControl } from "@lowcoder-ee/index.sdk";
 
 const FormWrapper = styled.div`
   height: 100%;
@@ -82,22 +79,18 @@ const childrenMap = {
   disableSubmit: BoolCodeControl,
   loading: BoolCodeControl,
   onEvent: eventHandlerControl(eventOptions),
-  animationStyle: styleControl(AnimationStyle),
+  animationStyle:styleControl(AnimationStyle)
 };
 
 type FormProps = TriContainerViewProps &
-  RecordConstructorToView<typeof childrenMap> & {dispatch: DispatchType};
+  RecordConstructorToView<typeof childrenMap> & { dispatch: DispatchType };
 
-function dispatchAsyncAddCompsAction(
-  props: FormProps,
-  columnInfos: FullColumnInfo[]
-) {
-  const {dispatch, layout, positionParams} =
-    props.container.body[0].children.view.getView();
+function dispatchAsyncAddCompsAction(props: FormProps, columnInfos: FullColumnInfo[]) {
+  const { dispatch, layout, positionParams } = props.container.body[0].children.view.getView();
   let y = 0;
-  const infos = columnInfos.map(({column, compName}) => {
+  const infos = columnInfos.map(({ column, compName }) => {
     const layoutItem: LayoutItem = {
-      i: '',
+      i: "",
       h: defaultLayout(column.comp.type).h,
       w: positionParams.cols,
       x: 0,
@@ -111,7 +104,7 @@ function dispatchAsyncAddCompsAction(
         comp: {
           ...column.comp.compInitData,
           formDataKey: column.name,
-          label: {text: column.label},
+          label: { text: column.label },
           required: column.required,
         },
       },
@@ -123,10 +116,10 @@ function dispatchAsyncAddCompsAction(
 
 function onEventData(queryName: string) {
   return {
-    name: 'submit',
+    name: "submit",
     handler: {
-      compType: 'executeQuery',
-      comp: {queryName: queryName},
+      compType: "executeQuery",
+      comp: { queryName: queryName },
     },
   };
 }
@@ -137,30 +130,21 @@ function onCreate(
   editorState: EditorState,
   formName: string
 ): string {
-  const {dispatch} = props;
+  const { dispatch } = props;
   const nameGenerator = editorState.getNameGenerator();
   const infos = data.columns.map((column) => {
-    const compName = nameGenerator.genItemName(
-      'form' + _.upperFirst(column.comp.type)
-    );
-    return {column, compName};
+    const compName = nameGenerator.genItemName("form" + _.upperFirst(column.comp.type));
+    return { column, compName };
   });
   dispatchAsyncAddCompsAction(props, infos);
 
   const tableName = data.tableName;
-  const lastName = tableName.substring(tableName.lastIndexOf('.') + 1);
-  const queryNamePrefix =
-    formName + 'SubmitTo' + lastName.split('_').map(_.upperFirst).join('');
+  const lastName = tableName.substring(tableName.lastIndexOf(".") + 1);
+  const queryNamePrefix = formName + "SubmitTo" + lastName.split("_").map(_.upperFirst).join("");
   const queryName = nameGenerator.genItemName(queryNamePrefix);
-  dispatch(
-    deferAction(wrapChildAction('onEvent', pushAction(onEventData(queryName))))
-  );
+  dispatch(deferAction(wrapChildAction("onEvent", pushAction(onEventData(queryName)))));
 
-  const queryData = data.dataSourceTypeConfig.getQueryInitData(
-    formName,
-    tableName,
-    infos
-  );
+  const queryData = data.dataSourceTypeConfig.getQueryInitData(formName, tableName, infos);
   const queriesComp = editorState.getQueriesComp();
   queriesComp.dispatch(
     deferAction(
@@ -169,14 +153,14 @@ function onCreate(
         id: genQueryId(),
         name: queryName,
         datasourceId: data.dataSourceId,
-        triggerType: 'manual',
-        notification: {showSuccess: true, showFail: true},
+        triggerType: "manual",
+        notification: { showSuccess: true, showFail: true },
       })
     )
   );
 
   editorState.setSelectedBottomRes(queryName, BottomResTypeEnum.Query);
-  return '';
+  return "";
 }
 
 const BodyPlaceholder = (props: FormProps) => {
@@ -184,7 +168,7 @@ const BodyPlaceholder = (props: FormProps) => {
   const formName = useContext(CompNameContext);
   return (
     <ContainerPlaceholder>
-      {trans('formComp.containerPlaceholder')}
+      {trans("formComp.containerPlaceholder")}
       <br />
       <CreateForm
         onCreate={(data: CreateData) =>
@@ -209,9 +193,7 @@ const FormBaseComp = (function () {
           >
             <TriContainer
               {...props}
-              hintPlaceholder={
-                <BodyPlaceholder {...props} dispatch={dispatch} />
-              }
+              hintPlaceholder={<BodyPlaceholder {...props} dispatch={dispatch} />}
             />
           </Spin>
         </FormWrapper>
@@ -295,19 +277,17 @@ const FormBaseComp = (function () {
 type FormDataType = ConstructorToDataType<typeof FormBaseComp>;
 
 type SetDataAction = {
-  type: 'setData';
+  type: "setData";
   initialData: JSONObject;
 };
 
 let FormTmpComp = class extends FormBaseComp implements IForm {
   onEventPropertyView(title: ReactNode) {
-    return this.children.onEvent.propertyView({title});
+    return this.children.onEvent.propertyView({ title });
   }
   traverseFormItems(consumer: (item: GridItemComp) => boolean) {
     return traverseCompTree(this.getCompTree(), (item) => {
-      return item.children.comp.children.formDataKey
-        ? consumer(item as GridItemComp)
-        : true;
+      return item.children.comp.children.formDataKey ? consumer(item as GridItemComp) : true;
     });
   }
   validateFormItems() {
@@ -338,9 +318,9 @@ let FormTmpComp = class extends FormBaseComp implements IForm {
       }
       const compType = item.children.compType.getView();
       log.warn(
-        trans('form') +
+        trans("form") +
           compType +
-          trans('formComp.notSupportMethod') +
+          trans("formComp.notSupportMethod") +
           searchMethods.map((m) => m.name)
       );
       return true;
@@ -349,24 +329,19 @@ let FormTmpComp = class extends FormBaseComp implements IForm {
   }
   setData(data: JSONObject, initialData?: JSONObject) {
     // For the properties, first find in data, then initialData, subcomponent default value (resetValue), empty value (clearValue)
-    const newData = {
-      ...(initialData ?? this.children.initialData.getView()),
-      ...data,
-    };
+    const newData = { ...(initialData ?? this.children.initialData.getView()), ...data };
     return this.runMethodOfItems(
       {
-        name: 'setValue',
+        name: "setValue",
         getParams: (t) => {
           // use component name when formDataKey is empty
-          const key =
-            t.children.comp.children.formDataKey?.getView() ||
-            t.children.name.getView();
+          const key = t.children.comp.children.formDataKey?.getView() || t.children.name.getView();
           const value = newData[key];
           return value !== undefined ? [value as EvalParamType] : undefined;
         },
       },
-      {name: 'resetValue'},
-      {name: 'clearValue'}
+      { name: "resetValue" },
+      { name: "clearValue" }
     );
   }
   reset() {
@@ -374,10 +349,10 @@ let FormTmpComp = class extends FormBaseComp implements IForm {
   }
   submit() {
     if (this.disableSubmit()) {
-      return Promise.reject('disableSubmit');
+      return Promise.reject("disableSubmit");
     }
     if (this.validateFormItems()) {
-      const promise = this.children.onEvent.getView()('submit');
+      const promise = this.children.onEvent.getView()("submit");
       return promise.then(() => {
         if (this.children.resetAfterSubmit.getView()) {
           return this.reset();
@@ -385,14 +360,12 @@ let FormTmpComp = class extends FormBaseComp implements IForm {
         return Promise.resolve();
       });
     } else {
-      messageInstance.error(trans('formComp.notValidForm'));
-      return Promise.reject('formComp.notValidForm');
+      messageInstance.error(trans("formComp.notValidForm"));
+      return Promise.reject("formComp.notValidForm");
     }
   }
   disableSubmit() {
-    return (
-      this.children.disabled.getView() || this.children.disableSubmit.getView()
-    );
+    return this.children.disabled.getView() || this.children.disableSubmit.getView();
   }
   override reduce(action: CompAction): this {
     switch (action.type) {
@@ -405,10 +378,8 @@ let FormTmpComp = class extends FormBaseComp implements IForm {
             this.dispatch(
               customAction<SetDataAction>(
                 {
-                  type: 'setData',
-                  initialData:
-                    (action.value['initialData'] as ValueAndMsg<JSONObject>)
-                      .value || {},
+                  type: "setData",
+                  initialData: (action.value["initialData"] as ValueAndMsg<JSONObject>).value || {},
                 },
                 false
               )
@@ -418,7 +389,7 @@ let FormTmpComp = class extends FormBaseComp implements IForm {
         return ret;
       }
       case CompActionTypes.CUSTOM:
-        if (isMyCustomAction<SetDataAction>(action, 'setData')) {
+        if (isMyCustomAction<SetDataAction>(action, "setData")) {
           this.setData({}, action.value.initialData);
           return this;
         }
@@ -430,41 +401,41 @@ let FormTmpComp = class extends FormBaseComp implements IForm {
 FormTmpComp = withMethodExposing(FormTmpComp, [
   {
     method: {
-      name: 'submit',
-      description: trans('export.submitDesc'),
+      name: "submit",
+      description: trans("export.submitDesc"),
       params: [],
     },
     execute: (comp, values) => comp.submit(),
   },
   {
     method: {
-      name: 'reset',
-      description: trans('formComp.resetDesc'),
+      name: "reset",
+      description: trans("formComp.resetDesc"),
       params: [],
     },
     execute: (comp, values) => comp.reset(),
   },
   {
     method: {
-      name: 'clear',
-      description: trans('formComp.clearDesc'),
+      name: "clear",
+      description: trans("formComp.clearDesc"),
       params: [],
     },
-    execute: (comp, values) => comp.runMethodOfItems({name: 'clearValue'}),
+    execute: (comp, values) => comp.runMethodOfItems({ name: "clearValue" }),
   },
   {
     method: {
-      name: 'setData',
-      description: trans('formComp.setDataDesc'),
-      params: [{name: 'data', type: 'JSON'}],
+      name: "setData",
+      description: trans("formComp.setDataDesc"),
+      params: [{ name: "data", type: "JSON" }],
     },
     execute: (comp, values) => {
       if (values.length !== 1) {
-        return Promise.reject(trans('formComp.valuesLengthError'));
+        return Promise.reject(trans("formComp.valuesLengthError"));
       }
       const data = values[0];
-      if (typeof data !== 'object' || data === null || Array.isArray(data)) {
-        return Promise.reject(trans('formComp.valueTypeError'));
+      if (typeof data !== "object" || data === null || Array.isArray(data)) {
+        return Promise.reject(trans("formComp.valueTypeError"));
       }
       return comp.setData(data);
     },
@@ -473,34 +444,31 @@ FormTmpComp = withMethodExposing(FormTmpComp, [
 
 export const FormComp = withExposingConfigs(FormTmpComp, [
   ...CommonNameConfig,
-  new NameConfig('loading', trans('formComp.loadingDesc')),
+  new NameConfig("loading", trans("formComp.loadingDesc")),
   depsConfig({
-    name: 'data',
-    desc: trans('formComp.dataDesc'),
-    depKeys: ['container'],
+    name: "data",
+    desc: trans("formComp.dataDesc"),
+    depKeys: ["container"],
     func: (input) => {
       const data: Record<string, unknown> = {};
       Object.entries(input.container).forEach(([name, value]) => {
         const exposingValues = value as any;
-        if (exposingValues?.hasOwnProperty('formDataKey')) {
+        if (exposingValues?.hasOwnProperty("formDataKey")) {
           // use component name when formDataKey is empty
-          data[exposingValues['formDataKey'] || name] = exposingValues['value'];
+          data[exposingValues["formDataKey"] || name] = exposingValues["value"];
         }
       });
       return data;
     },
   }),
   depsConfig({
-    name: 'invalid',
-    desc: trans('export.invalidDesc'),
-    depKeys: ['container'],
+    name: "invalid",
+    desc: trans("export.invalidDesc"),
+    depKeys: ["container"],
     func: (input) => {
       for (const [, value] of Object.entries(input.container)) {
         const exposingValues = value as any;
-        if (
-          exposingValues?.hasOwnProperty('formDataKey') &&
-          exposingValues['invalid']
-        ) {
+        if (exposingValues?.hasOwnProperty("formDataKey") && exposingValues["invalid"]) {
           return true;
         }
       }
@@ -509,23 +477,20 @@ export const FormComp = withExposingConfigs(FormTmpComp, [
   }),
 ]);
 
-export function defaultFormData(
-  compName: string,
-  nameGenerator: NameGenerator
-): FormDataType {
+export function defaultFormData(compName: string, nameGenerator: NameGenerator): FormDataType {
   return {
     container: {
       header: toSimpleContainerData([
         {
           item: {
-            compType: 'text',
-            name: nameGenerator.genItemName('formTitle'),
+            compType: "text",
+            name: nameGenerator.genItemName("formTitle"),
             comp: {
-              text: '### ' + trans('formComp.formTitle'),
+              text: "### " + trans("formComp.formTitle"),
             },
           },
           layoutItem: {
-            i: '',
+            i: "",
             h: 5,
             w: 24,
             x: 0,
@@ -536,16 +501,16 @@ export function defaultFormData(
       footer: toSimpleContainerData([
         {
           item: {
-            compType: 'button',
-            name: nameGenerator.genItemName('formButton'),
+            compType: "button",
+            name: nameGenerator.genItemName("formButton"),
             comp: {
-              text: trans('button.submit'),
-              type: 'submit',
+              text: trans("button.submit"),
+              type: "submit",
               form: compName,
             },
           },
           layoutItem: {
-            i: '',
+            i: "",
             h: 5,
             w: 10,
             x: 14,
