@@ -76,33 +76,19 @@ ${props=>props.$animationStyle&&props.$animationStyle}
   display: flex;
   flex-flow: column;
   height: 100%;
-  border: ${(props) => props.$style.borderWidth} solid
-    ${(props) => props.$style.border};
+  border: ${(props) => props.$style.borderWidth} solid ${(props) => props.$style.border};
   border-radius: ${(props) => props.$style.radius};
   background-color: ${(props) => props.$style.background};
   padding: ${(props) => props.$style.padding};
   margin: ${(props) => props.$style.margin};
-  ${(props) =>
-    props.$style.backgroundImage &&
-    `background-image: url(${props.$style.backgroundImage});`}
-  ${(props) =>
-    props.$style.backgroundImageRepeat &&
-    `background-repeat: ${props.$style.backgroundImageRepeat};`}
-  ${(props) =>
-    props.$style.backgroundImageSize &&
-    `background-size: ${props.$style.backgroundImageSize};`}
-  ${(props) =>
-    props.$style.backgroundImagePosition &&
-    `background-position: ${props.$style.backgroundImagePosition};`}
-  ${(props) =>
-    props.$style.backgroundImageOrigin &&
-    `background-origin: ${props.$style.backgroundImageOrigin};`}
+  ${(props) => props.$style.backgroundImage && `background-image: url(${props.$style.backgroundImage});`}
+  ${(props) => props.$style.backgroundImageRepeat && `background-repeat: ${props.$style.backgroundImageRepeat};`}
+  ${(props) => props.$style.backgroundImageSize && `background-size: ${props.$style.backgroundImageSize};`}
+  ${(props) => props.$style.backgroundImagePosition && `background-position: ${props.$style.backgroundImagePosition};`}
+  ${(props) => props.$style.backgroundImageOrigin && `background-origin: ${props.$style.backgroundImageOrigin};`}
 `;
 
-const FloatTextWrapper = styled.div<{
-  $style: TextStyleType;
-  $horizontalAlignment: any;
-}>`
+const FloatTextWrapper = styled.div<{ $style: TextStyleType, $horizontalAlignment : any }>`
   ${(props) => props.$style && getStyle(props.$style)}
   text-align: ${(props) => props.$horizontalAlignment};
   padding: ${(props) => props.$style.padding};
@@ -190,25 +176,26 @@ export function TriContainer(props: TriContainerProps) {
   return (
     <Wrapper $style={style} $animationStyle={animationStyle}>
       {showHeader && (
-        <BackgroundColorContext.Provider value={container.style.background}>
+        <BackgroundColorContext.Provider
+          value={container.style.background}
+        >
           <HeaderInnerGrid
             {...otherHeaderProps}
-            items={gridItemCompToGridItems(headerItems)}
-            autoHeight={true}
-            emptyRows={5}
-            minHeight="46px"
-            containerPadding={[0, 0]}
-            showName={{bottom: showFooter ? 20 : 0}}
-            $backgroundColor={headerStyle?.headerBackground || 'transparent'}
-            style={{padding: headerStyle.containerHeaderPadding}}
-          />
+              items={gridItemCompToGridItems(headerItems)}
+              autoHeight={true}
+              emptyRows={5}
+              minHeight="46px"
+              containerPadding={[0, 0]}
+              showName={{ bottom: showFooter ? 20 : 0 }}
+              $backgroundColor={headerStyle?.headerBackground || "transparent"}
+              style={{ padding: headerStyle.containerHeaderPadding }} />
         </BackgroundColorContext.Provider>
       )}
       {showBody && (
         <BackgroundColorContext.Provider value={container.style.background}>
           <div
             style={{
-              overflowY: 'scroll',
+              overflowY: "scroll",
               background: `${container.style.background}`,
             }}
           >
@@ -218,25 +205,25 @@ export function TriContainer(props: TriContainerProps) {
               items={gridItemCompToGridItems(bodyItems)}
               autoHeight={container.autoHeight}
               emptyRows={14}
-              minHeight={showHeader ? '143px' : '142px'}
+              minHeight={showHeader ? "143px" : "142px"}
               containerPadding={[0, 0]}
               hintPlaceholder={props.hintPlaceholder ?? HintPlaceHolder}
-              $backgroundColor={bodyStyle?.background || 'transparent'}
+              $backgroundColor={bodyStyle?.background || "transparent"}
               $borderColor={style?.border}
               $borderWidth={style?.borderWidth}
               style={{
                 float: `${props.float}`,
-                width: `${props.float === 'none' ? '100%' : `${props.width}%`}`,
-                height: '100%',
+                width: `${props.float === "none" ? "100%" : `${props.width}%`}`,
+                height: "100%",
                 ...container.bodyStyle,
               }}
-            />
+              />
             <FloatTextWrapper
               $style={props.style}
               $horizontalAlignment={props.horizontalAlignment}
             >
               <p>
-                {props.type === 'markdown' ? (
+                {props.type === "markdown" ? (
                   <TacoMarkDown>{text.value}</TacoMarkDown>
                 ) : (
                   text.value
@@ -247,28 +234,24 @@ export function TriContainer(props: TriContainerProps) {
         </BackgroundColorContext.Provider>
       )}
       {showFooter && (
-        <BackgroundColorContext.Provider value={container.style.background}>
+        <BackgroundColorContext.Provider
+          value={container.style.background}
+        >
           <FooterInnerGrid
             $showBorder={showHeader}
             {...otherFooterProps}
             items={gridItemCompToGridItems(footerItems)}
             autoHeight={true}
             emptyRows={5}
-            minHeight={'48px'}
+            minHeight={"48px"}
             containerPadding={[0, 0]}
-            showName={{top: showHeader ? 20 : 0}}
-            $backgroundColor={footerStyle?.footerBackground || 'transparent'}
+            showName={{ top: showHeader ? 20 : 0 }}
+            $backgroundColor={footerStyle?.footerBackground || "transparent"}
             $footerBackgroundImage={footerStyle?.footerBackgroundImage}
-            $footerBackgroundImageRepeat={
-              footerStyle?.footerBackgroundImageRepeat
-            }
+            $footerBackgroundImageRepeat={footerStyle?.footerBackgroundImageRepeat}
             $footerBackgroundImageSize={footerStyle?.footerBackgroundImageSize}
-            $footerBackgroundImagePosition={
-              footerStyle?.footerBackgroundImagePosition
-            }
-            $footerBackgroundImageOrigin={
-              footerStyle?.footerBackgroundImageOrigin
-            }
+            $footerBackgroundImagePosition={footerStyle?.footerBackgroundImagePosition}
+            $footerBackgroundImageOrigin={footerStyle?.footerBackgroundImageOrigin}
             $borderColor={style?.border}
             $borderWidth={style?.borderWidth}
             style={{padding: footerStyle.containerFooterPadding}}
