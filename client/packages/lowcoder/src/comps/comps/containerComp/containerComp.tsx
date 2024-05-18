@@ -51,17 +51,17 @@ export const ContainerBaseComp = (function () {
               <Section name={"Header Style"}>
                 { children.container.headerStylePropertyView() }
                 </Section>
-              )}
-              {children.container.children.showBody.getView() && (
-                <Section name={"Body Style"}>
-                  {children.container.bodyStylePropertyView()}
-                </Section>
-              )}
-              {children.container.children.showFooter.getView() && (
-                <Section name={"Footer Style"}>
-                  {children.container.footerStylePropertyView()}
-                </Section>
-              )}
+            )}
+            {children.container.children.showBody.getView() && (
+              <Section name={"Body Style"}>
+                { children.container.bodyStylePropertyView() }
+              </Section>
+            )}
+            {children.container.children.showFooter.getView() && (
+              <Section name={"Footer Style"}>
+                { children.container.footerStylePropertyView() }
+              </Section>
+            )}
             </>
           )}
         </>
