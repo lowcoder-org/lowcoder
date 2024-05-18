@@ -1,62 +1,47 @@
-import {default as Row} from 'antd/es/row';
-import {default as Col} from 'antd/es/col';
-import {JSONObject, JSONValue} from 'util/jsonTypes';
-import {
-  CompAction,
-  CompActionTypes,
-  deleteCompAction,
-  wrapChildAction,
-} from 'lowcoder-core';
-import {
-  DispatchType,
-  RecordConstructorToView,
-  wrapDispatch,
-} from 'lowcoder-core';
-import {AutoHeightControl} from 'comps/controls/autoHeightControl';
-import {ColumnOptionControl} from 'comps/controls/optionsControl';
-import {styleControl} from 'comps/controls/styleControl';
+import { default as Row } from "antd/es/row";
+import { default as Col } from "antd/es/col";
+import { JSONObject, JSONValue } from "util/jsonTypes";
+import { CompAction, CompActionTypes, deleteCompAction, wrapChildAction } from "lowcoder-core";
+import { DispatchType, RecordConstructorToView, wrapDispatch } from "lowcoder-core";
+import { AutoHeightControl } from "comps/controls/autoHeightControl";
+import { ColumnOptionControl } from "comps/controls/optionsControl";
+import { styleControl } from "comps/controls/styleControl";
 import {
   ResponsiveLayoutRowStyle,
   ResponsiveLayoutRowStyleType,
   ResponsiveLayoutColStyleType,
   ResponsiveLayoutColStyle,
   AnimationStyle,
-  AnimationStyleType,
-} from 'comps/controls/styleControlConstants';
-import {sameTypeMap, UICompBuilder, withDefault} from 'comps/generators';
-import {addMapChildAction} from 'comps/generators/sameTypeMap';
-import {
-  NameConfigHidden,
-  withExposingConfigs,
-} from 'comps/generators/withExposing';
-import {NameGenerator} from 'comps/utils';
-import {Section, controlItem, sectionNames} from 'lowcoder-design';
-import {HintPlaceHolder} from 'lowcoder-design';
-import _ from 'lodash';
-import React from 'react';
-import styled from 'styled-components';
-import {IContainer} from '../containerBase/iContainer';
-import {SimpleContainerComp} from '../containerBase/simpleContainerComp';
-import {CompTree, mergeCompTrees} from '../containerBase/utils';
+  AnimationStyleType
+} from "comps/controls/styleControlConstants";
+import { sameTypeMap, UICompBuilder, withDefault } from "comps/generators";
+import { addMapChildAction } from "comps/generators/sameTypeMap";
+import { NameConfigHidden, withExposingConfigs } from "comps/generators/withExposing";
+import { NameGenerator } from "comps/utils";
+import { Section, controlItem, sectionNames } from "lowcoder-design";
+import { HintPlaceHolder } from "lowcoder-design";
+import _ from "lodash";
+import React from "react";
+import styled from "styled-components";
+import { IContainer } from "../containerBase/iContainer";
+import { SimpleContainerComp } from "../containerBase/simpleContainerComp";
+import { CompTree, mergeCompTrees } from "../containerBase/utils";
 import {
   ContainerBaseProps,
   gridItemCompToGridItems,
   InnerGrid,
-} from '../containerComp/containerView';
-import {BackgroundColorContext} from 'comps/utils/backgroundColorContext';
-import {trans} from 'i18n';
-import {messageInstance} from 'lowcoder-design/src/components/GlobalInstances';
-import {BoolControl} from 'comps/controls/boolControl';
-import {BoolCodeControl, NumberControl} from 'comps/controls/codeControl';
+} from "../containerComp/containerView";
+import { BackgroundColorContext } from "comps/utils/backgroundColorContext";
+import { trans } from "i18n";
+import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
+import { BoolControl } from "comps/controls/boolControl";
+import { BoolCodeControl, NumberControl } from "comps/controls/codeControl";
 
-import {useContext} from 'react';
-import {EditorContext} from 'comps/editorState';
+import { useContext } from "react";
+import { EditorContext } from "comps/editorState";
 
-import {
-  disabledPropertyView,
-  hiddenPropertyView,
-} from 'comps/utils/propertyUtils';
-import {DisabledContext} from 'comps/generators/uiCompBuilder';
+import { disabledPropertyView, hiddenPropertyView } from "comps/utils/propertyUtils";
+import { DisabledContext } from "comps/generators/uiCompBuilder";
 
 const RowWrapper = styled(Row)<{
   $style: ResponsiveLayoutRowStyleType;
@@ -72,9 +57,9 @@ const RowWrapper = styled(Row)<{
 `;
 
 const ColWrapper = styled(Col)<{
-  $style: ResponsiveLayoutColStyleType;
-  $minWidth?: string;
-  $matchColumnsHeight: boolean;
+  $style: ResponsiveLayoutColStyleType,
+  $minWidth?: string,
+  $matchColumnsHeight: boolean,
 }>`
   display: flex;
   flex-direction: column;
@@ -82,23 +67,23 @@ const ColWrapper = styled(Col)<{
   max-width: ${(props) => props.$minWidth};
 
   > div {
-    height: ${(props) => (props.$matchColumnsHeight ? '100%' : 'auto')};
+    height: ${(props) => props.$matchColumnsHeight ? '100%' : 'auto'};
   }
 `;
 
-const childrenMap = {
+const childrenMap = { 
   disabled: BoolCodeControl,
   columns: ColumnOptionControl,
   containers: withDefault(sameTypeMap(SimpleContainerComp), {
-    0: {view: {}, layout: {}},
-    1: {view: {}, layout: {}},
+    0: { view: {}, layout: {} },
+    1: { view: {}, layout: {} },
   }),
   autoHeight: AutoHeightControl,
   rowBreak: withDefault(BoolControl, false),
   matchColumnsHeight: withDefault(BoolControl, true),
   rowStyle: withDefault(styleControl(ResponsiveLayoutRowStyle), {}),
   columnStyle: withDefault(styleControl(ResponsiveLayoutColStyle), {}),
-  animationStyle: styleControl(AnimationStyle),
+  animationStyle:styleControl(AnimationStyle),
   columnPerRowLG: withDefault(NumberControl, 4),
   columnPerRowMD: withDefault(NumberControl, 2),
   columnPerRowSM: withDefault(NumberControl, 1),
@@ -107,10 +92,10 @@ const childrenMap = {
 };
 
 type ViewProps = RecordConstructorToView<typeof childrenMap>;
-type ResponsiveLayoutProps = ViewProps & {dispatch: DispatchType};
+type ResponsiveLayoutProps = ViewProps & { dispatch: DispatchType };
 type ColumnContainerProps = Omit<ContainerBaseProps, 'style'> & {
-  style: ResponsiveLayoutColStyleType;
-};
+  style: ResponsiveLayoutColStyleType,
+}
 
 const ColumnContainer = (props: ColumnContainerProps) => {
   return (
@@ -123,6 +108,7 @@ const ColumnContainer = (props: ColumnContainerProps) => {
     />
   );
 };
+
 
 const ResponsiveLayout = (props: ResponsiveLayoutProps) => {
   let {
@@ -138,7 +124,7 @@ const ResponsiveLayout = (props: ResponsiveLayoutProps) => {
     columnPerRowSM,
     verticalSpacing,
     horizontalSpacing,
-    animationStyle,
+    animationStyle
   } = props;
 
   return (
@@ -236,7 +222,9 @@ const ResponsiveLayout = (props: ResponsiveLayoutProps) => {
 
 export const ResponsiveLayoutBaseComp = (function () {
   return new UICompBuilder(childrenMap, (props, dispatch) => {
-    return <ResponsiveLayout {...props} dispatch={dispatch} />;
+    return (
+      <ResponsiveLayout {...props} dispatch={dispatch} />
+    );
   })
     .setPropertyViewFn((children) => {
       return (
@@ -317,24 +305,17 @@ export const ResponsiveLayoutBaseComp = (function () {
     .build();
 })();
 
-class ResponsiveLayoutImplComp
-  extends ResponsiveLayoutBaseComp
-  implements IContainer
-{
+class ResponsiveLayoutImplComp extends ResponsiveLayoutBaseComp implements IContainer {
   private syncContainers(): this {
     const columns = this.children.columns.getView();
-    const ids: Set<string> = new Set(
-      columns.map((column) => String(column.id))
-    );
+    const ids: Set<string> = new Set(columns.map((column) => String(column.id)));
     let containers = this.children.containers.getView();
     // delete
     const actions: CompAction[] = [];
     Object.keys(containers).forEach((id) => {
       if (!ids.has(id)) {
         // log.debug("syncContainers delete. ids=", ids, " id=", id);
-        actions.push(
-          wrapChildAction('containers', wrapChildAction(id, deleteCompAction()))
-        );
+        actions.push(wrapChildAction("containers", wrapChildAction(id, deleteCompAction())));
       }
     });
     // new
@@ -342,10 +323,7 @@ class ResponsiveLayoutImplComp
       if (!containers.hasOwnProperty(id)) {
         // log.debug("syncContainers new containers: ", containers, " id: ", id);
         actions.push(
-          wrapChildAction(
-            'containers',
-            addMapChildAction(id, {layout: {}, items: {}})
-          )
+          wrapChildAction("containers", addMapChildAction(id, { layout: {}, items: {} }))
         );
       }
     });
@@ -361,26 +339,20 @@ class ResponsiveLayoutImplComp
     const columns = this.children.columns.getView();
     if (action.type === CompActionTypes.CUSTOM) {
       const value = action.value as JSONObject;
-      if (value.type === 'push') {
+      if (value.type === "push") {
         const itemValue = value.value as JSONObject;
         if (_.isEmpty(itemValue.key)) itemValue.key = itemValue.label;
         action = {
           ...action,
           value: {
             ...value,
-            value: {...itemValue},
+            value: { ...itemValue },
           },
         } as CompAction;
       }
-      const {path} = action;
-      if (
-        value.type === 'delete' &&
-        path[0] === 'columns' &&
-        columns.length <= 1
-      ) {
-        messageInstance.warning(
-          trans('responsiveLayout.atLeastOneColumnError')
-        );
+      const { path } = action;
+      if (value.type === "delete" && path[0] === 'columns' && columns.length <= 1) {
+        messageInstance.warning(trans("responsiveLayout.atLeastOneColumnError"));
         // at least one column
         return this;
       }
@@ -403,9 +375,7 @@ class ResponsiveLayoutImplComp
 
   getCompTree(): CompTree {
     const containerMap = this.children.containers.getView();
-    const compTrees = Object.values(containerMap).map((container) =>
-      container.getCompTree()
-    );
+    const compTrees = Object.values(containerMap).map((container) => container.getCompTree());
     return mergeCompTrees(compTrees);
   }
 
@@ -426,7 +396,7 @@ class ResponsiveLayoutImplComp
       container.getPasteValue(nameGenerator)
     );
 
-    return {...this.toJsonValue(), containers: containerPasteValueMap};
+    return { ...this.toJsonValue(), containers: containerPasteValueMap };
   }
 
   override autoHeight(): boolean {
@@ -436,5 +406,5 @@ class ResponsiveLayoutImplComp
 
 export const ResponsiveLayoutComp = withExposingConfigs(
   ResponsiveLayoutImplComp,
-  [NameConfigHidden]
+  [ NameConfigHidden]
 );
