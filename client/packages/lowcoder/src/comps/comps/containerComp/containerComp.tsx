@@ -50,7 +50,7 @@ export const ContainerBaseComp = (function () {
             {children.container.children.showHeader.getView() && (
               <Section name={"Header Style"}>
                 { children.container.headerStylePropertyView() }
-                </Section>
+              </Section>
             )}
             {children.container.children.showBody.getView() && (
               <Section name={"Body Style"}>
@@ -68,7 +68,7 @@ export const ContainerBaseComp = (function () {
       );
     })
     .build();
-})();
+})(); 
 
 // Compatible with old data
 function convertOldContainerParams(params: CompParams<any>) {
@@ -78,10 +78,7 @@ function convertOldContainerParams(params: CompParams<any>) {
   if (tempParams.value) {
     const container = tempParams.value.container;
     // old params
-    if (
-      container &&
-      (container.hasOwnProperty("layout") || container.hasOwnProperty("items"))
-    ) {
+    if (container && (container.hasOwnProperty("layout") || container.hasOwnProperty("items"))) {
       const autoHeight = tempParams.value.autoHeight;
       const scrollbars = tempParams.value.scrollbars;
       return {
@@ -89,7 +86,7 @@ function convertOldContainerParams(params: CompParams<any>) {
         value: {
           container: {
             showHeader: true,
-            body: {0: {view: container}},
+            body: { 0 : { view: container } },
             showBody: true,
             showFooter: false,
             autoHeight: autoHeight,
@@ -108,9 +105,7 @@ class ContainerTmpComp extends ContainerBaseComp {
   }
 }
 
-export const ContainerComp = withExposingConfigs(ContainerTmpComp, [
-  NameConfigHidden,
-]);
+export const ContainerComp = withExposingConfigs(ContainerTmpComp, [NameConfigHidden]);
 
 type ContainerDataType = ToDataType<ContainerChildren<{}>>;
 
