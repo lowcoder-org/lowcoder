@@ -74,7 +74,7 @@ const Item = styled.div<{
   text-transform:${(props) => (props.$textTransform ? props.$textTransform : '')};
   text-decoration:${(props) => (props.$textDecoration ? props.$textDecoration : '')};
   margin:${(props) => props.$margin ? props.$margin : '0px'};
-
+  
   &:hover {
     color: ${(props) => props.$activeColor};
     cursor: pointer;
@@ -242,8 +242,7 @@ const NavCompBase = new UICompBuilder(childrenMap, (props) => {
           </Section>
         )}
 
-        {(useContext(EditorContext).editorModeStatus === "layout" ||
-          useContext(EditorContext).editorModeStatus === "both") && (
+        {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
           <Section name={sectionNames.layout}>
             {children.horizontalAlignment.propertyView({
               label: trans("navigation.horizontalAlignment"),
@@ -252,7 +251,6 @@ const NavCompBase = new UICompBuilder(childrenMap, (props) => {
             {hiddenPropertyView(children)}
           </Section>
         )}
-
         
         {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
           <Section name={sectionNames.advanced}>
