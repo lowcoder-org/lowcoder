@@ -1,7 +1,5 @@
 package org.lowcoder.runner.migrations.job;
 
-import java.util.List;
-
 import org.apache.commons.collections4.CollectionUtils;
 import org.lowcoder.domain.organization.model.Organization;
 import org.lowcoder.domain.organization.model.OrganizationDomain;
@@ -14,6 +12,8 @@ import org.lowcoder.sdk.constants.WorkspaceMode;
 import org.lowcoder.sdk.util.IDUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 @Component
 public class MigrateAuthConfigJobImpl implements MigrateAuthConfigJob {

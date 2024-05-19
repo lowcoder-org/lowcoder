@@ -9,7 +9,6 @@ import org.lowcoder.domain.authentication.context.AuthRequestContext;
 import org.lowcoder.domain.authentication.context.FormAuthRequestContext;
 import org.lowcoder.domain.user.model.AuthUser;
 import org.lowcoder.sdk.config.CommonConfig;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 

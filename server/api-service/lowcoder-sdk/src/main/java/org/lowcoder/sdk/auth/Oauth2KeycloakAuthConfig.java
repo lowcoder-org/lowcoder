@@ -1,15 +1,10 @@
 package org.lowcoder.sdk.auth;
 
-import static org.lowcoder.sdk.auth.constants.Oauth2Constants.BASE_URL_PLACEHOLDER;
-import static org.lowcoder.sdk.auth.constants.Oauth2Constants.REALM_PLACEHOLDER;
-import static org.lowcoder.sdk.auth.constants.Oauth2Constants.SCOPE_PLACEHOLDER;
-
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.jackson.Jacksonized;
+
+import static org.lowcoder.sdk.auth.constants.Oauth2Constants.*;
 
 /**
  * 

@@ -1,7 +1,5 @@
 package org.lowcoder.sdk.util;
 
-import static java.util.function.Function.identity;
-
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -13,6 +11,8 @@ import java.util.function.Predicate;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static java.util.function.Function.identity;
 
 public class StreamUtils {
 
