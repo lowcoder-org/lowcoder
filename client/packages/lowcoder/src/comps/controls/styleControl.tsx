@@ -593,25 +593,25 @@ function calcColors<ColorMap extends Record<string, string>>(
       res[name] = themeWithDefault[config.padding];
     }
     if (isBoxShadowConfig(config)) {
-      res[name] = themeWithDefault[config.boxShadow];
+      res[name] = themeWithDefault[config.boxShadow] || '0px 0px 0px';
     }
     if (isBoxShadowColorConfig(config)) {
-      res[name] = themeWithDefault[config.boxShadowColor];
+      res[name] = themeWithDefault[config.boxShadowColor] || '0px 0px 0px';
     }
     if (isAnimationIterationCountConfig(config)) {
-      res[name] = themeWithDefault[config.animationIterationCount];
+      res[name] = themeWithDefault[config.animationIterationCount] || '0';
     }
     if (isOpacityConfig(config)) {
       res[name] = themeWithDefault[config.opacity];
     }
     if (isAnimationConfig(config)) {
-      res[name] = themeWithDefault[config.animation];
+      res[name] = themeWithDefault[config.animation] || 'none';
     }
     if (isAnimationDelayConfig(config)) {
-      res[name] = themeWithDefault[config.animationDelay];
+      res[name] = themeWithDefault[config.animationDelay] || '0s';
     }
     if (isAnimationDurationConfig(config)) {
-      res[name] = themeWithDefault[config.animationDuration];
+      res[name] = themeWithDefault[config.animationDuration] || '0s';
     }
   });
   // The second pass calculates dep
