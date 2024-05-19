@@ -6,7 +6,7 @@ import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.jackson.Jacksonized;
 import org.apache.commons.lang3.ObjectUtils;
-import org.lowcoder.sdk.config.SerializeConfig.JsonViews;
+import org.lowcoder.sdk.config.JsonViews;
 
 import java.util.function.Function;
 

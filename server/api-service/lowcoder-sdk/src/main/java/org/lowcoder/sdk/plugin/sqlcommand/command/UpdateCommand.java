@@ -1,22 +1,21 @@
 package org.lowcoder.sdk.plugin.sqlcommand.command;
 
-import static com.google.common.collect.Lists.newArrayList;
-import static org.lowcoder.sdk.exception.PluginCommonError.INVALID_UPDATE_COMMAND;
-import static org.lowcoder.sdk.plugin.sqlcommand.changeset.ChangeSet.parseChangeSet;
-import static org.lowcoder.sdk.plugin.sqlcommand.filter.FilterSet.parseFilterSet;
-import static org.lowcoder.sdk.util.MustacheHelper.renderMustacheString;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
+import com.google.common.collect.Sets;
 import org.lowcoder.sdk.exception.PluginException;
 import org.lowcoder.sdk.plugin.sqlcommand.GuiSqlCommand;
 import org.lowcoder.sdk.plugin.sqlcommand.changeset.ChangeSet;
 import org.lowcoder.sdk.plugin.sqlcommand.changeset.ChangeSetRow;
 import org.lowcoder.sdk.plugin.sqlcommand.filter.FilterSet;
 
-import com.google.common.collect.Sets;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import static com.google.common.collect.Lists.newArrayList;
+import static org.lowcoder.sdk.exception.PluginCommonError.INVALID_UPDATE_COMMAND;
+import static org.lowcoder.sdk.plugin.sqlcommand.changeset.ChangeSet.parseChangeSet;
+import static org.lowcoder.sdk.plugin.sqlcommand.filter.FilterSet.parseFilterSet;
+import static org.lowcoder.sdk.util.MustacheHelper.renderMustacheString;
 
 @SuppressWarnings("DuplicatedCode")
 public class UpdateCommand implements GuiSqlCommand {

@@ -1,9 +1,9 @@
 package org.lowcoder.sdk.config.dynamic;
 
+import com.google.common.annotations.VisibleForTesting;
+
 import java.util.Collections;
 import java.util.Map;
-
-import com.google.common.annotations.VisibleForTesting;
 
 @VisibleForTesting
 public class ConfigCenterForTest implements ConfigCenter {

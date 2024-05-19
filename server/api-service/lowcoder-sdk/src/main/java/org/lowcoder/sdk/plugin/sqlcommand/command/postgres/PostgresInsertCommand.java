@@ -1,15 +1,14 @@
 package org.lowcoder.sdk.plugin.sqlcommand.command.postgres;
 
-import static org.lowcoder.sdk.plugin.sqlcommand.command.GuiConstants.POSTGRES_COLUMN_DELIMITER;
-import static org.lowcoder.sdk.util.SqlGuiUtils.POSTGRES_SQL_STR_ESCAPE;
-
-import java.util.Map;
-
+import com.google.common.annotations.VisibleForTesting;
 import org.lowcoder.sdk.plugin.sqlcommand.changeset.ChangeSet;
 import org.lowcoder.sdk.plugin.sqlcommand.command.InsertCommand;
 import org.lowcoder.sdk.util.SqlGuiUtils.GuiSqlValue.EscapeSql;
 
-import com.google.common.annotations.VisibleForTesting;
+import java.util.Map;
+
+import static org.lowcoder.sdk.plugin.sqlcommand.command.GuiConstants.POSTGRES_COLUMN_DELIMITER;
+import static org.lowcoder.sdk.util.SqlGuiUtils.POSTGRES_SQL_STR_ESCAPE;
 
 public class PostgresInsertCommand extends InsertCommand {
 

@@ -1,6 +1,14 @@
 package org.lowcoder.infra.serverlog;
 
-import static org.lowcoder.infra.perf.PerfEvent.SERVER_LOG_BATCH_INSERT;
+import io.micrometer.core.instrument.Tags;
+import lombok.RequiredArgsConstructor;
+import org.apache.commons.collections4.CollectionUtils;
+import org.lowcoder.infra.event.SystemCommonEvent;
+import org.lowcoder.infra.perf.PerfHelper;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -9,17 +17,7 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.TimeUnit;
 
-import lombok.RequiredArgsConstructor;
-import org.apache.commons.collections4.CollectionUtils;
-import org.lowcoder.infra.event.SystemCommonEvent;
-import org.lowcoder.infra.perf.PerfHelper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Service;
-
-import io.micrometer.core.instrument.Tags;
-import reactor.core.publisher.Mono;
+import static org.lowcoder.infra.perf.PerfEvent.SERVER_LOG_BATCH_INSERT;
 
 @RequiredArgsConstructor
 @Service

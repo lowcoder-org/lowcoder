@@ -1,9 +1,8 @@
 package org.lowcoder.infra.event.groupmember;
 
-import org.lowcoder.infra.event.AbstractEvent;
-
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
+import org.lowcoder.infra.event.AbstractEvent;
 
 @Getter
 @SuperBuilder

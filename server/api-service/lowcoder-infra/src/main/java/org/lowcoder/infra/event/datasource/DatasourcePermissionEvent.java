@@ -1,11 +1,10 @@
 package org.lowcoder.infra.event.datasource;
 
-import java.util.Collection;
-
-import org.lowcoder.infra.event.AbstractEvent;
-
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
+import org.lowcoder.infra.event.AbstractEvent;
+
+import java.util.Collection;
 
 @Getter
 @SuperBuilder

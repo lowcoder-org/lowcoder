@@ -10,7 +10,6 @@ import org.lowcoder.sdk.config.AuthProperties;
 import org.lowcoder.sdk.config.CommonConfig;
 import org.lowcoder.sdk.constants.AuthSourceConstants;
 import org.lowcoder.sdk.constants.WorkspaceMode;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;

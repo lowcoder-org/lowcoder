@@ -1,14 +1,13 @@
 package org.lowcoder.sdk.plugin.sqlcommand.command.mysql;
 
-import static org.lowcoder.sdk.plugin.sqlcommand.command.GuiConstants.MYSQL_COLUMN_DELIMITER;
-
-import java.util.Map;
-
+import com.google.common.annotations.VisibleForTesting;
 import org.lowcoder.sdk.plugin.sqlcommand.changeset.ChangeSet;
 import org.lowcoder.sdk.plugin.sqlcommand.command.UpdateCommand;
 import org.lowcoder.sdk.plugin.sqlcommand.filter.FilterSet;
 
-import com.google.common.annotations.VisibleForTesting;
+import java.util.Map;
+
+import static org.lowcoder.sdk.plugin.sqlcommand.command.GuiConstants.MYSQL_COLUMN_DELIMITER;
 
 public class MysqlUpdateCommand extends UpdateCommand {
 
