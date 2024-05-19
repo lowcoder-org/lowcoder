@@ -908,7 +908,7 @@ export function styleControl<T extends readonly SingleColorConfig[]>(colorConfig
                 }}
               >
                 <Tooltip placement="topRight" title={trans("style.resetTooltip")}>
-                  <ResetIcon title="" />
+                  <ResetIcon title=""/>
                 </Tooltip>
               </span>
             )}
