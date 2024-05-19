@@ -474,7 +474,7 @@ export const en = {
   // fourth part
 
   "style": {
-    "boxShadowColor": 'Box Shadow Color',
+    "boxShadowColor": 'Shadow Color',
     "boxShadow": 'Box Shadow',
     "opacity": 'Opacity',
     "animation": 'Animation',

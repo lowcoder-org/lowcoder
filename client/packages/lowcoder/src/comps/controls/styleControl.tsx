@@ -27,6 +27,8 @@ import {
   TimerFlashIcon,
   Timer2Icon,
   RefreshLineIcon,
+  ShadowIcon,
+  OpacityIcon,
 } from 'lowcoder-design';
 import { useContext } from "react";
 import styled from "styled-components";
@@ -729,7 +731,7 @@ const AnimationIterationCountPropIcon = styled(RefreshLineIcon)`
   color: #888;
 `;
 
-const OpacityPropIcon = styled(BorderWidthIcon)`
+const OpacityPropIcon = styled(OpacityIcon)`
   margin: 0 8px 0 -3px;
   padding: 3px;
   color: #888;
@@ -741,7 +743,7 @@ const BoxShadowColorPropIcon = styled(BorderWidthIcon)`
   color: #888;
 `;
 
-const BoxShadowPropIcon = styled(BorderWidthIcon)`
+const BoxShadowPropIcon = styled(ShadowIcon)`
   margin: 0 8px 0 -3px;
   padding: 3px;
   color: #888;
@@ -788,7 +790,6 @@ export function styleControl<T extends readonly SingleColorConfig[]>(colorConfig
       name === 'radius' ||
       name === 'borderWidth' ||
       name === 'boxShadow' ||
-      name === 'boxShadowColor' ||
       name === 'animationIterationCount' ||
       name === 'opacity' ||
       name === 'animation' ||
@@ -1061,18 +1062,6 @@ export function styleControl<T extends readonly SingleColorConfig[]>(colorConfig
                                             ),
                                             placeholder: props[name],
                                           })
-                                        : name === 'boxShadowColor'
-                                          ? (
-                                              children[name] as InstanceType<
-                                                typeof StringControl
-                                              >
-                                            ).propertyView({
-                                              label: config.label,
-                                              preInputNode: (
-                                                <BoxShadowColorPropIcon title="BoxShadowColor-Type" />
-                                              ),
-                                              placeholder: props[name],
-                                            })
                                           : name === 'padding' ||
                                               name ===
                                                 'containerHeaderPadding' ||
