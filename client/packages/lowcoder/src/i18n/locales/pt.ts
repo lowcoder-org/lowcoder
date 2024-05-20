@@ -49,20 +49,24 @@ export const pt: typeof en = {
     "copySuccess": "Copiado com Sucesso",
     "copyError": "Erro ao copiar",
     "api": {
+        ...en.api,
         "publishSuccess": "Publicado com Sucesso",
         "recoverFailed": "Falha ao Recuperar",
         "needUpdate": "Sua versão está desatualizada. Por favor, atualize para a nova versão."
     },
     "codeEditor": {
+        ...en.codeEditor,
         "notSupportAutoFormat": "O editor de código atual não suporta formatação automática",
         "fold": "Dobrar"
     },
     "exportMethod": {
+        ...en.exportMethod,
         "setDesc": "Definir Propriedade: {property}",
         "clearDesc": "Limpar Propriedade: {property}",
         "resetDesc": "Resetar Propriedade: {property} ao Valor Padrão"
     },
     "method": {
+        ...en.method,
         "focus": "Definir Foco",
         "focusOptions": "Opções de Foco. Veja HTMLElement.focus()",
         "blur": "Remover Foco",
@@ -77,15 +81,18 @@ export const pt: typeof en = {
         "replaceEnd": "Índice de caractere baseado em 0 após o último caractere a ser substituído"
     },
     "errorBoundary": {
+        ...en.errorBoundary,
         "encounterError": "Carregamento do component falhou. Por favor, cheque sua configuração.",
         "clickToReload": "Clique para recarregar",
         "errorMsg": "Erro: "
     },
     "imgUpload": {
+        ...en.imgUpload,
         "notSupportError": "Somente suporta imagens do tipo {types}",
         "exceedSizeError": "Tamanho da imagem não deve passar de {size}"
     },
     "gridCompOperator": {
+        ...en.gridCompOperator,
         "notSupport": "Não suportado",
         "selectAtLeastOneComponent": "Por favor, selecione pelo menos um componente",
         "selectCompFirst": "Selecione componentes antes de copiar",
@@ -96,6 +103,7 @@ export const pt: typeof en = {
         "cutCompsSuccess": "Corte realizado com sucesso. Pressione {pasteKey} para colar, ou {undoKey} para desfazer."
     },
     "leftPanel": {
+        ...en.leftPanel,
         "queries": "Queries de Dados em seu Aplicativo",
         "globals": "Variavies de Dados Globais",
         "propTipsArr": "{num} Items",
@@ -121,6 +129,7 @@ export const pt: typeof en = {
 
 
     "bottomPanel": {
+        ...en.bottomPanel,
         "title": "Consultas de Dados",
         "run": "Executar",
         "noSelectedQuery": "Nenhuma Consulta Selecionada",
@@ -130,6 +139,7 @@ export const pt: typeof en = {
         "allData": "Todas as Tabelas"
     },
     "rightPanel": {
+        ...en.rightPanel,
         "propertyTab": "Propriedades",
         "noSelectedComps": "Nenhum Componente selecionado. Clique em um Componente para visualizar suas Propriedades.",
         "createTab": "Inserir",
@@ -146,6 +156,7 @@ export const pt: typeof en = {
         "issueHere": "aqui."
     },
     "prop": {
+        ...en.prop,
         "expand": "Expandir",
         "columns": "Colunas",
         "videokey": "Chave do Vídeo",
@@ -221,14 +232,17 @@ export const pt: typeof en = {
         "dataTestId": "ID Individual"
     },
     "autoHeightProp": {
+        ...en.autoHeightProp,
         "auto": "Auto",
         "fixed": "Fixa"
     },
     "textOverflowProp": {
+        ...en.textOverflowProp,
         "ellipsis": "Mouseover",
         "wrap": "Quebra de Linha"
     },
     "labelProp": {
+        ...en.labelProp,
         "text": "Rótulo",
         "tooltip": "Dica de Ferramenta",
         "position": "Posição",
@@ -243,6 +257,7 @@ export const pt: typeof en = {
     // third part
 
     "eventHandler": {
+        ...en.eventHandler,
         "eventHandlers": "Manipuladores de Eventos",
         "emptyEventHandlers": "Nenhum Manipulador de Eventos",
         "incomplete": "Seleção Incompleta",
@@ -329,6 +344,7 @@ export const pt: typeof en = {
         "description": "Descrição"
     },
     "event": {
+        ...en.event,
         "submit": "Enviar",
         "submitDesc": "Dispara ao Enviar",
         "change": "Alterar",
@@ -449,6 +465,7 @@ export const pt: typeof en = {
         "refreshDesc": "Dispara ao atualizar"
     },
     "themeDetail": {
+        ...en.themeDetail,
         "primary": "Cor da Marca",
         "primaryDesc": "Cor primária padrão usada pela maioria dos componentes",
         "textDark": "Cor do Texto Escuro",
@@ -477,6 +494,7 @@ export const pt: typeof en = {
     // fourth part
 
     "style": {
+        ...en.style,
         "resetTooltip": "Redefinir estilos. Limpe o campo de entrada para redefinir um estilo individual.",
         "textColor": "Cor do Texto",
         "contrastText": "Cor do Texto de Contraste",
@@ -557,6 +575,7 @@ export const pt: typeof en = {
         "footerBackgroundImageOrigin": "Origem da Imagem de Fundo do Rodapé"
     },
     "export": {
+        ...en.export,
         "hiddenDesc": "Se verdadeiro, o componente está oculto",
         "disabledDesc": "Se verdadeiro, o componente está desativado e não interativo",
         "visibleDesc": "Se verdadeiro, o componente é visível",
@@ -595,6 +614,7 @@ export const pt: typeof en = {
         "timeRangeFormattedEndValueDesc": "Hora de término formatada"
     },
     "validationDesc": {
+        ...en.validationDesc,
         "email": "Por favor, insira um endereço de e-mail válido",
         "url": "Por favor, insira uma URL válida",
         "regex": "Por favor, corresponda ao padrão especificado",
@@ -611,6 +631,7 @@ export const pt: typeof en = {
     // fifth part
 
     "query": {
+        ...en.query,
         "noQueries": "Não há consultas de dados disponíveis.",
         "queryTutorialButton": "Ver {value} documentos",
         "datasource": "Suas Fontes de Dados",
@@ -749,6 +770,7 @@ export const pt: typeof en = {
     // sixth part
 
     "sqlQuery": {
+        ...en.sqlQuery,
         "keyValuePairs": "Pares Chave-Valor",
         "object": "Objeto",
         "allowMultiModify": "Permitir Modificação Múltipla de Linhas",
@@ -772,11 +794,13 @@ export const pt: typeof en = {
         "primaryKeyColumn": "Coluna Chave Primária"
     },
     "EsQuery": {
+        ...en.EsQuery,
         "rawCommand": "Comando Bruto",
         "queryTutorialButton": "Ver Documentos da API do Elasticsearch",
         "request": "Pedido"
     },
     "googleSheets": {
+        ...en.googleSheets,
         "rowIndex": "Índice da Linha",
         "spreadsheetId": "ID da Planilha",
         "sheetName": "Nome da Planilha",
@@ -792,6 +816,7 @@ export const pt: typeof en = {
         "sortPlaceholder": "Nome"
     },
     "queryLibrary": {
+        ...en.queryLibrary,
         "export": "Exportar para JSON",
         "noInput": "A Consulta Atual Não Possui Entrada",
         "inputName": "Nome",
@@ -820,18 +845,22 @@ export const pt: typeof en = {
         "desc": "Descrição"
     },
     "snowflake": {
+        ...en.snowflake,
         "accountIdentifierTooltip": "Ver ",
         "extParamsTooltip": "Configurar Parâmetros de Conexão Adicionais"
     },
     "lowcoderQuery": {
+        ...en.lowcoderQuery,
         "queryOrgUsers": "Consultar Usuários do Espaço de Trabalho"
     },
     "redisQuery": {
+        ...en.redisQuery,
         "rawCommand": "Comando Bruto",
         "command": "Comando",
         "queryTutorial": "Visualizar Documentos de Comandos do Redis"
     },
     "httpQuery": {
+        ...en.httpQuery,
         "bodyFormDataTooltip": "Se {type} for selecionado, o formato do valor deve ser {object}. Exemplo: {example}",
         "text": "Texto",
         "file": "Arquivo",
@@ -840,6 +869,7 @@ export const pt: typeof en = {
         "forwardAllCookies": "Encaminhar Todos os Cookies"
     },
     "smtpQuery": {
+        ...en.smtpQuery,
         "attachment": "Anexo",
         "attachmentTooltip": "Pode ser usado com o componente de envio de arquivo, os dados precisam ser convertidos para:",
         "MIMETypeUrl": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types",
@@ -855,6 +885,7 @@ export const pt: typeof en = {
     // seventh part
 
     "uiCompCategory": {
+        ...en.uiCompCategory,
         "dashboards": "Dashboards e Relatórios",
         "layout": "Layout e Navegação",
         "forms": "Coleta de Dados e Formulários",
@@ -867,7 +898,7 @@ export const pt: typeof en = {
         "integration": "Integração e Extensão"
     },
     "uiComp": {
-
+        ...en.uiComp,
         "autoCompleteCompName": "Auto Completar",
         "autoCompleteCompDesc": "Um campo de entrada que fornece sugestões enquanto você digita, melhorando a experiência e a precisão do usuário.",
         "autoCompleteCompKeywords": "sugestões, auto completar, digitação, entrada",
@@ -1258,6 +1289,7 @@ export const pt: typeof en = {
 
 
     "comp": {
+        ...en.comp,
         "menuViewDocs": "Ver Documentação",
         "menuViewPlayground": "Ver Playground Interativo",
         "menuUpgradeToLatest": "Atualizar para a Última Versão",
@@ -1273,6 +1305,7 @@ export const pt: typeof en = {
         "searchProp": "Buscar"
     },
     "jsonSchemaForm": {
+        ...en.jsonSchemaForm,
         "retry": "Tentar Novamente",
         "resetAfterSubmit": "Redefinir Após Envio Bem-sucedido do Formulário",
         "jsonSchema": "Esquema JSON",
@@ -1292,9 +1325,11 @@ export const pt: typeof en = {
         "format": "Deve Coincidir com o Formato {value}"
     },
     "select": {
+        ...en.select,
         "inputValueDesc": "Valor de Pesquisa de Entrada"
     },
     "customComp": {
+        ...en.customComp,
         "text": "É um bom dia.",
         "triggerQuery": "Disparar Consulta",
         "updateData": "Atualizar Dados",
@@ -1304,6 +1339,7 @@ export const pt: typeof en = {
         "code": "Código do seu componente personalizado"
     },
     "tree": {
+        ...en.tree,
         "placeholder": "Por favor, selecione",
         "selectType": "Selecionar Tipo",
         "noSelect": "Sem Seleção",
@@ -1345,11 +1381,13 @@ export const pt: typeof en = {
         "helpDisableCheckbox": "Desativa a Caixa de Seleção (Tipo de Caixa de Seleção)"
     },
     "moduleContainer": {
+        ...en.moduleContainer,
         "eventTest": "Teste de Evento",
         "methodTest": "Teste de Método",
         "inputTest": "Teste de Entrada"
     },
     "password": {
+        ...en.password,
         "label": "Senha",
         "placeholder": "Por favor, digite a senha",
         "conformLabel": "Confirmar Senha",
@@ -1357,7 +1395,7 @@ export const pt: typeof en = {
         "visibilityToggle": "Mostrar Alternância de Visibilidade"
     },
     "richTextEditor": {
-
+        ...en.richTextEditor,
         "toolbar": "Personalizar Barra de Ferramentas",
         "toolbarDescription": "Você pode personalizar a barra de ferramentas. Consulte: https://quilljs.com/docs/modules/toolbar/ para obter mais detalhes.",
         "placeholder": "Por favor, insira...",
@@ -1374,6 +1412,7 @@ export const pt: typeof en = {
     // mousheng
 
     "floatButton": {
+        ...en.floatButton,
         "custom": "Personalizado",
         "backTop": "Voltar ao Topo",
         "buttonType": "Tipo de Botão",
@@ -1393,6 +1432,7 @@ export const pt: typeof en = {
     },
 
     "colorPicker": {
+        ...en.colorPicker,
         "trigger": "Disparadores de Eventos",
         "click": "Clique",
         "hover": "Passar o Mouse",
@@ -1402,6 +1442,7 @@ export const pt: typeof en = {
     },
 
     "badge": {
+        ...en.badge,
         "showCloseButton": "Mostrar botão de fechar",
         "Type": "Tipo de insígnia",
         "Count": "Contagem da insígnia",
@@ -1416,6 +1457,7 @@ export const pt: typeof en = {
     },
 
     "gantt": {
+        ...en.gantt,
         "key": "Chave",
         "title": "Título",
         "project": "Projeto",
@@ -1547,6 +1589,7 @@ export const pt: typeof en = {
     },
 
     "transfer": {
+        ...en.transfer,
         "sourceTitle": "Dados de Origem",
         "targetTitle": "Dados de Destino",
         "content": "Conteúdo {i}",
@@ -1562,6 +1605,7 @@ export const pt: typeof en = {
     },
 
     "avatarGroup": {
+        ...en.avatarGroup,
         "maxCount": "Contagem Máxima",
         "avatarSize": "Tamanho do Avatar",
         "autoColor": "Cor Automática",
@@ -1570,6 +1614,7 @@ export const pt: typeof en = {
     },
 
     "avatarComp": {
+        ...en.avatarComp,
         "square": "quadrado",
         "circle": "círculo",
         "icon": "ícone",
@@ -1590,7 +1635,7 @@ export const pt: typeof en = {
     },
 
     "card": {
-
+        ...en.card,
         "cardType": "Tipo de Cartão",
         "common": "comum",
         "custom": "personalizado",
@@ -1615,6 +1660,7 @@ export const pt: typeof en = {
     },
 
     "timer": {
+        ...en.timer,
         "timerState": "Estado do Temporizador",
         "elapsedTime": "Tempo Decorrido",
         "timer": "Temporizador",
@@ -1634,11 +1680,13 @@ export const pt: typeof en = {
     // ninth part
 
     "iconComp": {
+        ...en.iconComp,
         "icon": "Ícone",
         "autoSize": "Tamanho Automático do Ícone",
         "iconSize": "Tamanho do Ícone"
     },
     "numberInput": {
+        ...en.numberInput,
         "formatter": "Formatar",
         "precision": "Precisão",
         "allowNull": "Permitir Valor Nulo",
@@ -1650,15 +1698,18 @@ export const pt: typeof en = {
     },
 
     "slider": {
+        ...en.slider,
         "step": "Passo",
         "stepTooltip": "O valor deve ser maior que 0 e divisível por (Máx-Mín)",
         "vertical": "Orientação Vertical"
     },
     "rating": {
+        ...en.rating,
         "max": "Avaliação Máxima",
         "allowHalf": "Permitir Meias Pontuações"
     },
     "optionsControl": {
+        ...en.optionsControl,
         "optionList": "Opções",
         "option": "Opção",
         "optionI": "Opção {i}",
@@ -1667,6 +1718,7 @@ export const pt: typeof en = {
     },
 
     "stepOptionsControl": {
+        ...en.stepOptionsControl,
         "value": "Valor / Chave",
         "valueTooltip": "O valor do passo deve ser um número. Para o primeiro passo, deve ser igual ao valor inicial. Os números devem estar em ordem consistente e ascendente.",
         "title": "Título do Passo",
@@ -1676,6 +1728,7 @@ export const pt: typeof en = {
         "icon": "Ícone do Passo",
     },
     "step": {
+        ...en.step,
         "initialValue": "Começar Números em",
         "initialValueTooltip": "Onde começar a numeração visual. Deve ser 1 ou maior.",
         "valueDesc": "Valor Atual",
@@ -1703,11 +1756,13 @@ export const pt: typeof en = {
     },
 
     "coloredTagOptionControl": {
+        ...en.coloredTagOptionControl,
         "tag": "Texto da Tag",
         "color": "Cor",
         "icon": "Ícone",
     },
     "radio": {
+        ...en.radio,
         "options": "Opções",
         "horizontal": "Horizontal",
         "horizontalTooltip": "O Layout Horizontal se Ajusta Quando Acaba o Espaço",
@@ -1717,14 +1772,17 @@ export const pt: typeof en = {
         "autoColumnsTooltip": "A Coluna Automática Rearranja a Ordem Automaticamente Conforme o Espaço Permitido e Exibe em Múltiplas Colunas"
     },
     "cascader": {
+        ...en.cascader,
         "options": "Dados JSON para mostrar seleções em cascata",
     },
     "selectInput": {
+        ...en.selectInput,
         "valueDesc": "Valor Atualmente Selecionado",
         "selectedIndexDesc": "O Índice do Valor Atualmente Selecionado, ou -1 se Nenhum Valor Estiver Selecionado",
         "selectedLabelDesc": "O Rótulo do Valor Atualmente Selecionado"
     },
     "file": {
+        ...en.file,
         "typeErrorMsg": "Deve Ser um Número com uma Unidade de Tamanho de Arquivo Válida, ou um Número sem Unidade de Tamanho de Arquivo.",
         "fileEmptyErrorMsg": "Falha ao Carregar. O Tamanho do Arquivo Está Vazio.",
         "fileSizeExceedErrorMsg": "Falha ao Carregar. O Tamanho do Arquivo Excede o Limite.",
@@ -1752,6 +1810,7 @@ export const pt: typeof en = {
     },
 
     "date": {
+        ...en.date,
         "format": "Formato",
         "formatTip": "Suporte: 'AAAA-MM-DD HH:mm:ss', 'AAAA-MM-DD', 'Timestamp'",
         "reference": "Por Favor Consulte",
@@ -1772,6 +1831,7 @@ export const pt: typeof en = {
 
     },
     "time": {
+        ...en.time,
         "start": "Hora de Início",
         "end": "Hora de Término",
         "formatTip": "Suporte: 'HH:mm:ss', 'Timestamp'",
@@ -1782,6 +1842,7 @@ export const pt: typeof en = {
         "endTime": "Hora de Término"
     },
     "button": {
+        ...en.button,
         "prefixIcon": "Ícone Prefixo",
         "prefixText": "Texto Prefixo",
         "suffixIcon": "Ícone Sufixo",
@@ -1796,11 +1857,13 @@ export const pt: typeof en = {
         "formButtonEvent": "Evento"
     },
     "link": {
+        ...en.link,
         "link": "Link",
         "textDesc": "Texto Atualmente Exibido no Link",
         "loadingDesc": "O Link Está no Estado de Carregamento? Se Verdadeiro, o Link Atual Está Carregando"
     },
     "scanner": {
+        ...en.scanner,
         "text": "Clique para Escanear",
         "camera": "Câmera {index}",
         "changeCamera": "Alternar Câmera",
@@ -1810,10 +1873,12 @@ export const pt: typeof en = {
         "errTip": "Por Favor, Utilize Este Componente Sob HTTPS ou Localhost"
     },
     "dropdown": {
+        ...en.dropdown,
         "onlyMenu": "Exibir Apenas com Rótulo",
         "textDesc": "Texto Atualmente Exibido no Botão"
     },
     "textShow": {
+        ...en.textShow,
         "text": "### 👋 Olá, {name}",
         "valueTooltip": "Markdown Suporta a Maioria das Tags e Atributos HTML. Tags como iframe, Script e Outras Estão Desativadas por Motivos de Segurança.",
         "verticalAlignment": "Alinhamento Vertical",
@@ -1826,6 +1891,7 @@ export const pt: typeof en = {
 
 
     "table": {
+        ...en.table,
         "editable": "Editável",
         "columnNum": "Colunas",
         "viewModeResizable": "Largura da Coluna Ajustada pelo Usuário",
@@ -1985,12 +2051,14 @@ export const pt: typeof en = {
 
 
     "image": {
+        ...en.image,
         "src": "Fonte da Imagem",
         "srcDesc": "A fonte da imagem. Pode ser uma URL, um caminho ou uma string Base64. Por exemplo: data:image/png;base64, AAA... CCC",
         "supportPreview": "Suporte para visualização clicável (zoom)",
         "supportPreviewTip": "Efetivo quando a fonte da imagem é válida"
     },
     "progress": {
+        ...en.progress,
         "value": "Valor",
         "valueTooltip": "A porcentagem concluída como um valor entre 0 e 100",
         "showInfo": "Mostrar Valor",
@@ -1998,12 +2066,14 @@ export const pt: typeof en = {
         "showInfoDesc": "Se deve exibir o valor de progresso atual"
     },
     "fileViewer": {
+        ...en.fileViewer,
         "invalidURL": "Por favor, insira uma URL válida ou uma string Base64",
         "src": "URI do arquivo",
         "srcTooltip": "Pré-visualização do conteúdo do link fornecido por meio da incorporação de HTML, dados codificados em Base64 também podem ser suportados, por exemplo: data:application/pdf;base64, AAA... CCC",
         "srcDesc": "O URI do arquivo"
     },
     "divider": {
+        ...en.divider,
         "title": "Título",
         "align": "Alinhamento",
         "dashed": "Tracejado",
@@ -2012,6 +2082,7 @@ export const pt: typeof en = {
         "alignDesc": "Alinhamento do título do divisor"
     },
     "QRCode": {
+        ...en.QRCode,
         "value": "Valor do Conteúdo do Código QR",
         "valueTooltip": "O valor contém no máximo 2953 caracteres. O valor do código QR pode codificar vários tipos de dados, incluindo mensagens de texto, URLs, detalhes de contato (VCard/meCard), credenciais de login Wi-Fi, endereços de e-mail, números de telefone, mensagens SMS, coordenadas de geolocalização, detalhes de eventos de calendário, informações de pagamento, endereços de criptomoeda e links para download de aplicativos",
         "valueDesc": "O valor do conteúdo do código QR",
@@ -2026,6 +2097,7 @@ export const pt: typeof en = {
         "maxLength": "O conteúdo é muito longo. Defina o comprimento como menos de 2953 caracteres"
     },
     "jsonExplorer": {
+        ...en.jsonExplorer,
         "indent": "Indentação de cada nível",
         "expandToggle": "Expandir Árvore JSON",
         "theme": "Tema de Cores",
@@ -2038,6 +2110,7 @@ export const pt: typeof en = {
         "darkBlue": "Azul Escuro"
     },
     "audio": {
+        ...en.audio,
         "src": "URI da Fonte de Áudio ou String Base64",
         "defaultSrcUrl": "https://cdn.pixabay.com/audio/2023/07/06/audio_e12e5bea9d.mp3",
         "autoPlay": "Reprodução Automática",
@@ -2051,6 +2124,7 @@ export const pt: typeof en = {
         "endedDesc": "Disparado quando o áudio termina de ser reproduzido"
     },
     "video": {
+        ...en.video,
         "src": "URI da Fonte de Vídeo ou String Base64",
         "defaultSrcUrl": "https://www.youtube.com/watch?v=pRpeEdMmmQ0",
         "poster": "URL do Pôster",
@@ -2078,6 +2152,7 @@ export const pt: typeof en = {
         "duration": "A duração total do vídeo em segundos"
     },
     "media": {
+        ...en.media,
         "playDesc": "Inicia a reprodução da mídia.",
         "pauseDesc": "Pausa a reprodução da mídia.",
         "loadDesc": "Redefine a mídia para o início e reinicia a seleção do recurso de mídia.",
@@ -2086,18 +2161,21 @@ export const pt: typeof en = {
         "showPreview": "Mostrar pré-visualização"
     },
     "rangeSlider": {
+        ...en.rangeSlider,
         "start": "Valor Inicial",
         "end": "Valor Final",
         "step": "Tamanho do Passo",
         "stepTooltip": "A granularidade do controle deslizante, o valor deve ser maior que 0 e divisível por (Max-Min)"
     },
     "iconControl": {
+        ...en.iconControl,
         "selectIcon": "Selecionar um Ícone",
         "insertIcon": "Inserir um Ícone",
         "insertImage": "Inserir uma Imagem ou "
     },
 
     "shapeControl": {
+        ...en.shapeControl,
         "selectShape": "Selecionar uma Forma",
         "insertShape": "Inserir uma Forma",
         "insertImage": "Inserir uma Imagem ou ",
@@ -2107,22 +2185,26 @@ export const pt: typeof en = {
 
 
     "millisecondsControl": {
+        ...en.millisecondsControl,
         "timeoutTypeError": "Por favor, insira o período de timeout correto em ms, o valor atual é: {value}",
         "timeoutLessThanMinError": "A entrada deve ser maior que {left}, o valor atual é: {value}"
     },
     "selectionControl": {
+        ...en.selectionControl,
         "single": "Único",
         "multiple": "Múltiplo",
         "close": "Fechar",
         "mode": "Modo de Seleção"
     },
     "container": {
+        ...en.container,
         "title": "Título do Container Exibido",
         "titleTooltip": "O título do container",
         "flowWidth": "Largura do conteúdo",
         "floatType": "Tipo de Flutuação de Texto"
     },
     "drawer": {
+        ...en.drawer,
         "closePosition": "Posição do Botão Fechar",
         "placement": "Posição da Gaveta",
         "size": "Tamanho",
@@ -2138,6 +2220,7 @@ export const pt: typeof en = {
         "height": "Altura da Gaveta"
     },
     "meeting": {
+        ...en.meeting,
         "logLevel": "Nível de log do SDK da Agora",
         "placement": "Posição da Gaveta de Reuniões",
         "meeting": "Configurações de Reunião",
@@ -2192,6 +2275,7 @@ export const pt: typeof en = {
         "messages": "Mensagens Transmitidas"
     },
     "settings": {
+        ...en.settings,
         "title": "Configurações",
         "userGroups": "Grupos de Usuários",
         "organization": "Espaços de Trabalho",
@@ -2213,6 +2297,7 @@ export const pt: typeof en = {
 
 
     "memberSettings": {
+        ...en.memberSettings,
         "admin": "Admin",
         "adminGroupRoleInfo": "O administrador pode gerenciar membros do grupo e recursos",
         "adminOrgRoleInfo": "Os administradores possuem todos os recursos e podem gerenciar grupos.",
@@ -2253,6 +2338,7 @@ export const pt: typeof en = {
         "syncGroupTip": "Este grupo é um grupo de sincronização do catálogo de endereços e não pode ser editado"
     },
     "orgSettings": {
+        ...en.orgSettings,
         "newOrg": "Novo Espaço de Trabalho (Organização)",
         "title": "Espaço de Trabalho",
         "createOrg": "Criar Espaço de Trabalho (Organização)",
@@ -2277,6 +2363,7 @@ export const pt: typeof en = {
     "freeLimit": "Teste Gratuito",
 
     "tabbedContainer": {
+        ...en.tabbedContainer,
         "switchTab": "Alternar Aba",
         "switchTabDesc": "Acionado ao Alternar Abas",
         "tab": "Abas",
@@ -2290,6 +2377,7 @@ export const pt: typeof en = {
         "tabsCentered": "Abas Centralizadas",
     },
     "formComp": {
+        ...en.formComp,
         "containerPlaceholder": "Arraste Componentes do Painel à Direita ou",
         "openDialogButton": "Gerar um Formulário a partir de uma de suas Fontes de Dados",
         "resetAfterSubmit": "Redefinir Após Envio Bem-Sucedido",
@@ -2334,6 +2422,7 @@ export const pt: typeof en = {
 
 
     "modalComp": {
+        ...en.modalComp,
         "close": "Fechar",
         "closeDesc": "Acionado Quando a Caixa de Diálogo Modal é Fechada",
         "openModalDesc": "Abrir a Caixa de Diálogo",
@@ -2345,6 +2434,7 @@ export const pt: typeof en = {
         "modalWidthTooltip": "Número ou Porcentagem, Exemplo: 520, 60%"
     },
     "listView": {
+        ...en.listView,
         "noOfRows": "Contagem de Linhas",
         "noOfRowsTooltip": "Número de Linhas na Lista - Normalmente Configurado para uma Variável (por exemplo, '{{query1.data.length}}') para Apresentar Resultados da Consulta",
         "noOfColumns": "Contagem de Colunas",
@@ -2357,6 +2447,7 @@ export const pt: typeof en = {
         "dataTooltip": "Se Você Apenas Definir um Número, Este Campo Será Considerado como Contagem de Linhas, e os Dados Serão Considerados como Vazios."
     },
     "navigation": {
+        ...en.navigation,
         "addText": "Adicionar Item de Submenu",
         "logoURL": "URL do Logotipo da Navegação",
         "horizontalAlignment": "Alinhamento Horizontal",
@@ -2364,12 +2455,15 @@ export const pt: typeof en = {
         "itemsDesc": "Itens do Menu de Navegação Hierárquica"
     },
     "droppadbleMenuItem": {
+        ...en.droppadbleMenuItem,
         "subMenu": "Submenu {number}"
     },
     "navItemComp": {
+        ...en.navItemComp,
         "active": "Ativo"
     },
     "iframe": {
+        ...en.iframe,
         "URLDesc": "O URL de Origem para o Conteúdo do IFrame. Certifique-se de que o URL é HTTPS ou localhost. Além disso, certifique-se de que o URL não está bloqueado pela Política de Segurança de Conteúdo (CSP) do navegador. O cabeçalho 'X-Frame-Options' não deve ser definido como 'DENY' ou 'SAMEORIGIN'.",
         "allowDownload": "Permitir Downloads",
         "allowSubmitForm": "Permitir Envio de Formulário",
@@ -2378,6 +2472,7 @@ export const pt: typeof en = {
         "allowPopup": "Permitir Pop-ups"
     },
     "switchComp": {
+        ...en.switchComp,
         "defaultValue": "Valor Booleano Padrão",
         "open": "Ligado",
         "close": "Desligado",
@@ -2386,24 +2481,28 @@ export const pt: typeof en = {
         "valueDesc": "Status Atual do Interruptor"
     },
     "signature": {
+        ...en.signature,
         "tips": "Texto de Dica",
         "signHere": "Assine Aqui",
         "showUndo": "Mostrar Desfazer",
         "showClear": "Mostrar Limpar"
     },
     "localStorageComp": {
+        ...en.localStorageComp,
         "valueDesc": "Todos os Itens de Dados Armazenados Atualmente",
         "setItemDesc": "Adicionar um Item",
         "removeItemDesc": "Remover um Item",
         "clearItemDesc": "Limpar Todos os Itens"
     },
     "utilsComp": {
+        ...en.utilsComp,
         "openUrl": "Abrir URL",
         "openApp": "Abrir Aplicativo",
         "copyToClipboard": "Copiar para a Área de Transferência",
         "downloadFile": "Baixar Arquivo"
     },
     "messageComp": {
+        ...en.messageComp,
         "info": "Enviar uma Notificação",
         "loading": "Enviar uma Notificação de Carregamento",
         "success": "Enviar uma Notificação de Sucesso",
@@ -2411,6 +2510,7 @@ export const pt: typeof en = {
         "error": "Enviar uma Notificação de Erro"
     },
     "toastComp": {
+        ...en.toastComp,
         "destroy": "Fechar uma Notificação",
         "info": "Enviar uma Notificação",
         "loading": "Enviar uma Notificação de Carregamento",
@@ -2419,9 +2519,11 @@ export const pt: typeof en = {
         "error": "Enviar uma Notificação de Erro"
     },
     "themeComp": {
+        ...en.themeComp,
         "switchTo": "Alterar Tema"
     },
     "transformer": {
+        ...en.transformer,
         "preview": "Pré-Visualização",
         "docLink": "Saiba Mais Sobre Transformadores...",
         "previewSuccess": "Pré-Visualização Bem-Sucedida",
@@ -2430,6 +2532,7 @@ export const pt: typeof en = {
         "documentationText": "Os transformadores são projetados para transformação de dados e reutilização do seu código JavaScript multi-linha. Use transformadores para adaptar dados de consultas ou componentes às necessidades de seu aplicativo local. Ao contrário da consulta JavaScript, o transformador é projetado para realizar operações somente de leitura, o que significa que você não pode acionar uma consulta ou atualizar um estado temporário dentro de um transformador."
     },
     "temporaryState": {
+        ...en.temporaryState,
         "value": "Valor Inicial",
         "valueTooltip": "O Valor Inicial Armazenado no Estado Temporário Pode Ser Qualquer Valor JSON Válido.",
         "docLink": "Saiba Mais Sobre Estados Temporários...",
@@ -2440,6 +2543,7 @@ export const pt: typeof en = {
         "documentationText": "Os estados temporários são um recurso poderoso usado para gerenciar variáveis complexas que atualizam dinamicamente o estado dos componentes em seu aplicativo. Esses estados funcionam como armazenamento intermediário ou transitório para dados que podem mudar ao longo do tempo devido a interações do usuário ou outros processos."
     },
     "dataResponder": {
+        ...en.dataResponder,
         "data": "Dados",
         "dataDesc": "Dados do Data Responder Atual",
         "dataTooltip": "Quando Estes Dados São Alterados, Irão Acionar Ações Subsequentes.",
@@ -2453,6 +2557,7 @@ export const pt: typeof en = {
 
 
     "theme": {
+        ...en.theme,
         "title": "Temas",
         "createTheme": "Criar Tema",
         "themeName": "Nome do Tema:",
@@ -2524,6 +2629,7 @@ export const pt: typeof en = {
         "chartBuy": "Comprar"
     },
     "pluginSetting": {
+        ...en.pluginSetting,
         "title": "Plugins",
         "npmPluginTitle": "Plugins do npm",
         "npmPluginDesc": "Configure os plugins do npm para todas as aplicações no espaço de trabalho atual.",
@@ -2532,6 +2638,7 @@ export const pt: typeof en = {
         "saveSuccess": "Salvo com sucesso"
     },
     "advanced": {
+        ...en.advanced,
         "title": "Avançado",
         "defaultHomeTitle": "Página Inicial Padrão",
         "defaultHomeHelp": "A Página Inicial é a aplicação que todos os não desenvolvedores verão por padrão quando fizerem login. Observação: certifique-se de que a aplicação selecionada seja acessível aos não desenvolvedores.",
@@ -2560,6 +2667,7 @@ export const pt: typeof en = {
 
 
     "branding": {
+        ...en.branding,
         "title": "Branding",
         "logoTitle": "Logo",
         "logoHelp": "Somente .JPG, .SVG ou .PNG",
@@ -2572,6 +2680,7 @@ export const pt: typeof en = {
         "upload": "Clique para Fazer Upload"
     },
     "networkMessage": {
+        ...en.networkMessage,
         "200": "Sucesso",
         "201": "Criado",
         "204": "Sem Conteúdo",
@@ -2584,6 +2693,7 @@ export const pt: typeof en = {
         "timeout": "Tempo Limite da Solicitação"
     },
     "share": {
+        ...en.share,
         "title": "Compartilhar",
         "viewer": "Visualizador",
         "editor": "Editor",
@@ -2592,10 +2702,12 @@ export const pt: typeof en = {
         "datasourceOwner": "Pode Gerenciar"
     },
     "debug": {
+        ...en.debug,
         "title": "Título",
         "switch": "Alternar Componente: "
     },
     "module": {
+        ...en.module,
         "emptyText": "Sem Dados",
         "docLink": "Saiba Mais Sobre Módulos...",
         "documentationText": "Módulos são Aplicações completas, que podem ser incluídas e repetidas em outras Aplicações e funcionam como um único componente. Como os módulos podem ser incorporados, eles precisam ser capazes de interagir com suas aplicações ou sites externos. Essas quatro configurações ajudam a suportar a comunicação com um Módulo.",
@@ -2628,24 +2740,29 @@ export const pt: typeof en = {
         "event": "Evento"
     },
     "resultPanel": {
+        ...en.resultPanel,
         "returnFunction": "O Valor de Retorno é uma Função.",
         "consume": "{time}",
         "JSON": "Mostrar JSON"
     },
     "createAppButton": {
+        ...en.createAppButton,
         "creating": "Criando...",
         "created": "Criar {name}"
     },
     "apiMessage": {
+        ...en.apiMessage,
         "authenticationFail": "Falha na Autenticação do Usuário, Por Favor Faça Login Novamente",
         "verifyAccount": "Necessário Verificar a Conta",
         "functionNotSupported": "A Versão Atual Não Suporta Esta Função. Por Favor, Entre em Contato com a Equipe de Negócios da Lowcoder para Atualizar sua Conta"
     },
     "globalErrorMessage": {
+        ...en.globalErrorMessage,
         "createCompFail": "Falha ao Criar o Componente {comp}",
         "notHandledError": "Erro Não Tratado no Método {method}"
     },
     "aggregation": {
+        ...en.aggregation,
         "navLayout": "Barra de Navegação",
         "chooseApp": "Escolher Aplicativo",
         "iconTooltip": "Suporta Link de Imagem src ou String Base64 como data:image/png;base64,AAA... CCC",
@@ -2661,6 +2778,7 @@ export const pt: typeof en = {
 
 
     "appSetting": {
+        ...en.appSetting,
         "title": "Configurações Gerais do Aplicativo",
         "450": "450px (Celular)",
         "800": "800px (Tablet)",
@@ -2684,6 +2802,7 @@ export const pt: typeof en = {
         "showPublicHeader": "Mostrar cabeçalho na visualização pública"
     },
     "customShortcut": {
+        ...en.customShortcut,
         "title": "Atalhos Personalizados",
         "shortcut": "Atalho",
         "action": "Ação",
@@ -2693,6 +2812,7 @@ export const pt: typeof en = {
         "space": "Espaço"
     },
     "profile": {
+        ...en.profile,
         "orgSettings": "Configurações do Espaço de Trabalho",
         "switchOrg": "Trocar Espaço de Trabalho",
         "joinedOrg": "Meus Espaços de Trabalho",
@@ -2759,6 +2879,7 @@ export const pt: typeof en = {
         "deleteApiKeyError": "Algo deu errado. Por favor, tente novamente."
     },
     "shortcut": {
+        ...en.shortcut,
         "shortcutList": "Atalhos do Teclado",
         "click": "Clique",
         "global": "Global",
@@ -2794,6 +2915,7 @@ export const pt: typeof en = {
 
 
     "help": {
+        ...en.help,
         "videoText": "Visão Geral",
         "onBtnText": "OK",
         "permissionDenyTitle": "💡 Não Consegue Criar um Novo Aplicativo ou Fonte de Dados?",
@@ -2808,6 +2930,7 @@ export const pt: typeof en = {
         "submitIssue": "Enviar um Problema"
     },
     "header": {
+        ...en.header,
         "nameCheckMessage": "O Nome Não Pode Estar Vazio",
         "viewOnly": "Somente Visualização",
         "recoverAppSnapshotTitle": "Restaurar Esta Versão?",
@@ -2829,6 +2952,7 @@ export const pt: typeof en = {
         "editorMode_both": "Ambos"
     },
     "userAuth": {
+        ...en.userAuth,
         "registerByEmail": "Registrar",
         "email": "Email:",
         "inputEmail": "Por favor, digite seu email",
@@ -2866,6 +2990,7 @@ export const pt: typeof en = {
         "poweredByLowcoder": "Desenvolvido por: Lowcoder.cloud"
     },
     "preLoad": {
+        ...en.preLoad,
         "jsLibraryHelpText": "Adicione bibliotecas JavaScript ao seu aplicativo atual por meio de endereços URL. lodash, day.js, uuid, numbro são integrados ao sistema para uso imediato. As bibliotecas JavaScript são carregadas antes que o aplicativo seja inicializado, o que pode impactar no desempenho do aplicativo.",
         "exportedAs": "Exportado Como",
         "urlTooltip": "Endereço URL da biblioteca JavaScript, [unpkg.com](https://unpkg.com/) ou [jsdelivr.net](https://www.jsdelivr.com/) são recomendados",
@@ -2886,6 +3011,7 @@ export const pt: typeof en = {
         "jsLibrary": "Biblioteca JavaScript"
     },
     "editorTutorials": {
+        ...en.editorTutorials,
         "component": "Componente",
         "componentContent": "O painel direito de componentes oferece muitos blocos de aplicativos prontos (componentes). Eles podem ser arrastados para o canvas para uso. Você também pode criar seus próprios componentes com um pouco de conhecimento de codificação.",
         "canvas": "Canvas",
@@ -2895,6 +3021,7 @@ export const pt: typeof en = {
         "compProperties": "Propriedades do Componente"
     },
     "homeTutorials": {
+        ...en.homeTutorials,
         "createAppContent": "Bem-vindo! Clique em 'Aplicativo' e comece a criar seu primeiro aplicativo.",
         "createAppTitle": "Criar Aplicativo"
     },
@@ -2904,6 +3031,7 @@ export const pt: typeof en = {
 
 
     "history": {
+        ...en.history,
         "layout": "Ajuste de layout '{0}'",
         "upgrade": "Atualização de '{0}'",
         "delete": "Exclusão de '{0}'",
@@ -2921,6 +3049,7 @@ export const pt: typeof en = {
         "history": "Histórico"
     },
     "home": {
+        ...en.home,
         "profile": "Seu Perfil",
         "news": "Notícias",
         "orgHome": "Página Inicial (Org)",
@@ -3024,6 +3153,7 @@ export const pt: typeof en = {
 
 
     "npm": {
+        ...en.npm,
         "invalidNpmPackageName": "Nome ou URL do Pacote npm Inválido.",
         "pluginExisted": "Este plugin npm já existe",
         "compNotFound": "Componente {compName} não encontrado.",
@@ -3035,6 +3165,7 @@ export const pt: typeof en = {
         "addPluginBtnText": "Adicionar Plugin npm"
     },
     "toggleButton": {
+        ...en.toggleButton,
         "valueDesc": "O Valor Padrão do Botão de Alternância, Por Exemplo: Falso",
         "trueDefaultText": "Ocultar",
         "falseDefaultText": "Mostrar",
@@ -3052,6 +3183,7 @@ export const pt: typeof en = {
 
 
     "componentDoc": {
+        ...en.componentDoc,
         "markdownDemoText": "**Lowcoder** | Crie aplicativos de software para sua empresa e seus clientes com experiência mínima em codificação. Lowcoder é a melhor alternativa ao Retool, Appsmith ou Tooljet.",
         "demoText": "Lowcoder | Crie aplicativos de software para sua empresa e seus clientes com experiência mínima em codificação. Lowcoder é a melhor alternativa ao Retool, Appsmith ou Tooljet.",
         "submit": "Enviar",
@@ -3268,6 +3400,7 @@ export const pt: typeof en = {
 
 
     "playground": {
+        ...en.playground,
         "url": "https://app.lowcoder.cloud/playground/{compType}/1",
         "data": "Estado Atual dos Dados",
         "preview": "Visualizar",
@@ -3279,6 +3412,7 @@ export const pt: typeof en = {
         "methodParamsHelp": "Informe os Parâmetros do Método Usando JSON. Por Exemplo, Você Pode Definir os Parâmetros do setValue Com: [1] ou 1"
     },
     "calendar": {
+        ...en.calendar,
         "headerBtnBackground": "Cor de Fundo do Botão",
         "btnText": "Texto do Botão",
         "title": "Título",
@@ -3288,6 +3422,7 @@ export const pt: typeof en = {
       "table": table,
     },*/
     "idSource": {
+        ...en.idSource,
         "title": "Provedor de Autenticação do Usuário",
         "form": "Email",
         "pay": "Premium",
@@ -3319,9 +3454,11 @@ export const pt: typeof en = {
         "payUserTag": "Premium"
     },
     "slotControl": {
+        ...en.slotControl,
         "configSlotView": "Configurar Visualização de Slot"
     },
     "jsonLottie": {
+        ...en.jsonLottie,
         "lottieJson": "JSON Lottie",
         "speed": "Velocidade",
         "width": "Largura",
@@ -3337,6 +3474,7 @@ export const pt: typeof en = {
         "keepLastFrame": "Manter Último Quadro Exibido"
     },
     "timeLine": {
+        ...en.timeLine,
         "titleColor": "Cor do Título",
         "subTitleColor": "Cor do Subtítulo",
         "labelColor": "Cor do Rótulo",
@@ -3371,6 +3509,7 @@ export const pt: typeof en = {
 
 
     "comment": {
+        ...en.comment,
         "value": "Dados da Lista de Comentários",
         "showSendButton": "Permitir Comentários",
         "title": "Título",
@@ -3396,9 +3535,11 @@ export const pt: typeof en = {
         "helpcreatedAt": "Data de Criação"
     },
     "mention": {
+        ...en.mention,
         "mentionList": "Dados da Lista de Menções"
     },
     "autoComplete": {
+        ...en.autoComplete,
         "value": "Valor de Autocompletar",
         "checkedValueFrom": "Valor Verificado de",
         "ignoreCase": "Ignorar Maiúsculas e Minúsculas na Busca",
@@ -3425,6 +3566,7 @@ export const pt: typeof en = {
         "helpValue": "Valor"
     },
     "responsiveLayout": {
+        ...en.responsiveLayout,
         "column": "Colunas",
         "atLeastOneColumnError": "O Layout Responsivo Mantém Pelo Menos uma Coluna",
         "columnsPerRow": "Colunas por Linha",
@@ -3443,6 +3585,7 @@ export const pt: typeof en = {
         "columnsLayout": "Layout de Colunas"
     },
     "navLayout": {
+        ...en.navLayout,
         "mode": "Modo",
         "modeInline": "Inline",
         "modeVertical": "Vertical",
@@ -3453,6 +3596,7 @@ export const pt: typeof en = {
     },
 
     tour: {
+        ...en.tour,
         section1Title: "Passos",
         section1Subtitle: "Passos",
         tooltipExampleHeader: "Exemple:",
@@ -3530,6 +3674,7 @@ export const pt: typeof en = {
     },
 
     docUrls: {
+        ...en.docUrls,
         docHome: "https://docs.lowcoder.cloud/",
         apiDocHome: "https://docs.lowcoder.cloud/lowcoder-documentation/lowcoder-extension/lowcoder-open-rest-api",
         components: "https://app.lowcoder.cloud/components/{compType}",
@@ -3548,6 +3693,7 @@ export const pt: typeof en = {
         thirdLibUrlText: "Use third-party libraries",
     },
     datasourceTutorial: {
+        ...en.datasourceTutorial,
         mysql: "",
         mongodb: "",
         postgres: "",
@@ -3557,18 +3703,22 @@ export const pt: typeof en = {
         clickHouse: "",
     },
     queryTutorial: {
+        ...en.queryTutorial,
         js: "",
         transformer: "https://docs.lowcoder.cloud/business-logic-in-apps/write-javascript/transformers",
         tempState: "https://docs.lowcoder.cloud/business-logic-in-apps/write-javascript/temporary-state",
         dataResponder: "https://docs.lowcoder.cloud/lowcoder-documentation/business-logic-in-apps/write-javascript/data-responder",
     },
     customComponent: {
+        ...en.customComponent,
         entryUrl: "https://sdk.lowcoder.cloud/custom_component.html",
     },
     template: {
+        ...en.template,
         cloneUrl: "/apps/template-import/",
     },
     lowcoderUrl: {
+        ...en.lowcoderUrl,
         createIssue: "https://github.com/lowcoder-org/lowcoder/issues",
         discord: "https://discord.com/invite/qMG9uTmAx2",
     },

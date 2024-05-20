@@ -13,13 +13,16 @@ export const pt: typeof en = {
   nextStep: "Próximo",
   finish: "Finalizar",
   country: {
+    ...en.country,
     china: "China",
   },
   notification: {
+    ...en.notification,
     copySuccess: "Sucesso ao Copiar",
     copyFail: "Falha ao Copiar",
   },
   prop: {
+    ...en.prop,
     basic: "Básico",
     resources: "Recursos",
     interaction: "Interação",
@@ -41,6 +44,7 @@ export const pt: typeof en = {
     badgeStyle: 'Estilo do Emblema',
   },
   passwordInput: {
+    ...en.passwordInput,
     label: "Senha:",
     placeholder: "Insira sua senha",
     inconsistentPassword: "As duas senhas não são iguais",
@@ -48,32 +52,39 @@ export const pt: typeof en = {
     confirmPasswordPlaceholder: "Por favor insira a senha novamente",
   },
   verifyCodeInput: {
+    ...en.verifyCodeInput,
     label: "Código de verificação:",
     errorMsg: "O código deve ter {digitNum} digitos",
     placeholder: "Por favor insira {digitNum} digitos",
     sendCode: "Enviar Código",
   },
   iconSelect: {
+    ...en.iconSelect,
     title: "Selecionar Ícone",
     searchPlaceholder: "Pesquisar Ícone",
   },
   shapeSelect: {
+    ...en.shapeSelect,
     title: "Selecionar Forma",
     searchPlaceholder: "Pesquisar Forma",
   },
   eventHandler: {
+    ...en.eventHandler,
     advanced: "Avançado",
   },
   comp: {
+    ...en.comp,
     selectedCompsTitle: "{selectCompNum} componentes selecionados",
     selectedCompsDetail: "Clique no componente para ver suas propriedades",
     batchDelete: "Deletar em massa",
   },
   optionsControl: {
+    ...en.optionsControl,
     optionItemErrorMSg: `Opção de valor encontrada duplicada "{value}". Somente o primeiro item será mostrado. Por favor, troque para um valor único.`,
     emptyList: "Sem opções",
   },
   container: {
+    ...en.container,
     hintPlaceHolder: "Arraste componentes do painel da direita",
   },
 };
