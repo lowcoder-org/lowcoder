@@ -49,7 +49,7 @@ const childrenMap = {
   viewRef: RefControl<InputRef>,
   showCount: BoolControl,
   allowClear: BoolControl,
-  style: styleControl(InputFieldStyle),
+  style: withDefault(styleControl(InputFieldStyle),{background:'transparent'}) , 
   labelStyle:styleControl(LabelStyle), 
   prefixIcon: IconControl,
   suffixIcon: IconControl,

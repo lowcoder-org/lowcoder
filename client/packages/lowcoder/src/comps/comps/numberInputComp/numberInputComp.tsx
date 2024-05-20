@@ -257,7 +257,7 @@ const childrenMap = {
   allowNull: BoolControl,
   onEvent: InputEventHandlerControl,
   viewRef: RefControl<HTMLInputElement>,
-  style: styleControl(InputFieldStyle),
+  style: withDefault(styleControl(InputFieldStyle),{background:'transparent'}) , 
   labelStyle:styleControl(LabelStyle),
   prefixText : stringExposingStateControl("defaultValue"),
   animationStyle: styleControl(AnimationStyle),

@@ -71,7 +71,7 @@ let TextAreaTmpComp = (function () {
     viewRef: RefControl<TextAreaRef>,
     allowClear: BoolControl,
     autoHeight: withDefault(AutoHeightControl, "fixed"),
-    style: styleControl(InputFieldStyle),
+    style: withDefault(styleControl(InputFieldStyle),{background:'transparent'}) , 
     labelStyle: styleControl(LabelStyle),
     inputFieldStyle:  withDefault(styleControl(InputLikeStyle), {borderWidth: '1px'}),
     animationStyle: styleControl(AnimationStyle)
