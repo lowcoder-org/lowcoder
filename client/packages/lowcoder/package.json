@@ -36,6 +36,7 @@
     "@types/react-signature-canvas": "^1.0.2",
     "@types/react-test-renderer": "^18.0.0",
     "@types/react-virtualized": "^9.21.21",
+    "animate.css": "^4.1.1",
     "antd": "5.13.2",
     "axios": "^1.6.2",
     "buffer": "^6.0.3",

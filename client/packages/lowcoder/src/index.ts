@@ -10,6 +10,7 @@ import { bootstrap } from "./app";
 import "./index.less";
 import log from "loglevel";
 import "antd-mobile/es/global";
+import 'animate.css';
 
 window.numbro = numbro;
 window.Papa = Papa;

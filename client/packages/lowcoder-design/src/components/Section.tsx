@@ -146,6 +146,7 @@ export const sectionNames = {
   layout: trans("prop.layout"),
   style: trans("prop.style"),
   labelStyle:trans("prop.labelStyle"),
+  animationStyle:trans("prop.animationStyle"),
   data: trans("prop.data"),
   meetings: trans("prop.meetings"), // added by Falk Wolsky
   field: trans("prop.field"),
