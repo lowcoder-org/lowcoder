@@ -22,6 +22,7 @@ import { RefControl } from "comps/controls/refControl";
 
 import { useContext } from "react";
 import { EditorContext } from "comps/editorState";
+import { withDefault } from "@lowcoder-ee/index.sdk";
 
 export const RadioLayoutOptions = [
   { label: trans("radio.horizontal"), value: "horizontal" },
@@ -40,7 +41,7 @@ export const RadioChildrenMap = {
   labelStyle:styleControl(LabelStyle),
   layout: dropdownControl(RadioLayoutOptions, "horizontal"),
   viewRef: RefControl<HTMLDivElement>,
-  inputFieldStyle: styleControl(RadioStyle),
+  inputFieldStyle:withDefault(styleControl(RadioStyle),{borderWidth: '1px'}),
   animationStyle: styleControl(AnimationStyle),
   ...SelectInputValidationChildren,
   ...formDataChildren,

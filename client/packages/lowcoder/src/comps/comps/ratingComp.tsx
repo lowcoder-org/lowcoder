@@ -43,7 +43,7 @@ const RatingBasicComp = (function () {
     allowHalf: BoolControl,
     disabled: BoolCodeControl,
     onEvent: eventHandlerControl(EventOptions),
-    style: withDefault(styleControl(InputFieldStyle), {borderWidth: '1px'}),
+    style: withDefault(styleControl(InputFieldStyle),{background:'transparent'}) , 
     animationStyle: styleControl(AnimationStyle),
     labelStyle: styleControl(
       LabelStyle.filter(

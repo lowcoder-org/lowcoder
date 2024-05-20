@@ -49,11 +49,11 @@ const childrenMap = {
   viewRef: RefControl<InputRef>,
   showCount: BoolControl,
   allowClear: BoolControl,
-  style: withDefault(styleControl(InputFieldStyle), {borderWidth: '1px'}),
-  labelStyle: styleControl(LabelStyle),
+  style: withDefault(styleControl(InputFieldStyle),{background:'transparent'}) , 
+  labelStyle:styleControl(LabelStyle), 
   prefixIcon: IconControl,
   suffixIcon: IconControl,
-  inputFieldStyle: styleControl(InputLikeStyle),
+  inputFieldStyle:withDefault(styleControl(InputLikeStyle),{borderWidth: '1px'}) ,
   animationStyle: styleControl(AnimationStyle),
 };
 
