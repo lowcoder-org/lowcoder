@@ -26,7 +26,7 @@ import {
 import { withMethodExposing } from "../../generators/withMethodExposing";
 import { styleControl } from "comps/controls/styleControl";
 import styled from "styled-components";
-import {  InputFieldStyle, InputLikeStyle, InputLikeStyleType, LabelStyle } from "comps/controls/styleControlConstants";
+import {  AnimationStyle, InputFieldStyle, InputLikeStyle, InputLikeStyleType, LabelStyle } from "comps/controls/styleControlConstants";
 import {
   hiddenPropertyView,
   minLengthPropertyView,
@@ -59,7 +59,8 @@ let PasswordTmpComp = (function () {
     prefixIcon: IconControl,
     style: withDefault(styleControl(InputFieldStyle), {borderWidth: '1px'}),
     labelStyle: styleControl(LabelStyle),
-    inputFieldStyle: styleControl(InputLikeStyle)
+    inputFieldStyle: styleControl(InputLikeStyle),
+  animationStyle: styleControl(AnimationStyle),
   };
   return new UICompBuilder(childrenMap, (props) => {
     const [inputProps, validateState] = useTextInputProps(props);
@@ -77,6 +78,7 @@ let PasswordTmpComp = (function () {
       style: props.style,
       labelStyle: props.labelStyle,
       inputFieldStyle:props.inputFieldStyle,
+      animationStyle:props.animationStyle,
       ...validateState,
     });
   })
@@ -113,6 +115,7 @@ let PasswordTmpComp = (function () {
               <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
               <Section name={sectionNames.labelStyle}>{children.labelStyle.getPropertyView()}</Section>
               <Section name={sectionNames.inputFieldStyle}>{children.inputFieldStyle.getPropertyView()}</Section>
+              <Section name={sectionNames.animationStyle}>{children.animationStyle.getPropertyView()}</Section>
             </>
           )}
         </>

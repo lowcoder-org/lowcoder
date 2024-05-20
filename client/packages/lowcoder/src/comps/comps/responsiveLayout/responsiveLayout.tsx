@@ -10,7 +10,9 @@ import {
   ResponsiveLayoutRowStyle,
   ResponsiveLayoutRowStyleType,
   ResponsiveLayoutColStyleType,
-  ResponsiveLayoutColStyle
+  ResponsiveLayoutColStyle,
+  AnimationStyle,
+  AnimationStyleType
 } from "comps/controls/styleControlConstants";
 import { sameTypeMap, UICompBuilder, withDefault } from "comps/generators";
 import { addMapChildAction } from "comps/generators/sameTypeMap";
@@ -41,7 +43,11 @@ import { EditorContext } from "comps/editorState";
 import { disabledPropertyView, hiddenPropertyView } from "comps/utils/propertyUtils";
 import { DisabledContext } from "comps/generators/uiCompBuilder";
 
-const RowWrapper = styled(Row)<{$style: ResponsiveLayoutRowStyleType}>`
+const RowWrapper = styled(Row)<{
+  $style: ResponsiveLayoutRowStyleType;
+  $animationStyle: AnimationStyleType;
+}>`
+  ${(props) => props.$animationStyle}
   height: 100%;
   border: 1px solid ${(props) => props.$style.border};
   border-radius: ${(props) => props.$style.radius};
@@ -77,6 +83,7 @@ const childrenMap = {
   matchColumnsHeight: withDefault(BoolControl, true),
   rowStyle: withDefault(styleControl(ResponsiveLayoutRowStyle), {}),
   columnStyle: withDefault(styleControl(ResponsiveLayoutColStyle), {}),
+  animationStyle:styleControl(AnimationStyle),
   columnPerRowLG: withDefault(NumberControl, 4),
   columnPerRowMD: withDefault(NumberControl, 2),
   columnPerRowSM: withDefault(NumberControl, 1),
@@ -117,6 +124,7 @@ const ResponsiveLayout = (props: ResponsiveLayoutProps) => {
     columnPerRowSM,
     verticalSpacing,
     horizontalSpacing,
+    animationStyle
   } = props;
 
   return (
@@ -125,6 +133,7 @@ const ResponsiveLayout = (props: ResponsiveLayoutProps) => {
         <div style={{padding: rowStyle.margin, height: '100%'}}>
           <RowWrapper
             $style={rowStyle}
+            $animationStyle={animationStyle}
             wrap={rowBreak}
             gutter={[horizontalSpacing, verticalSpacing]}
           >
@@ -247,6 +256,9 @@ export const ResponsiveLayoutBaseComp = (function () {
             </Section>
             <Section name={trans("responsiveLayout.columnStyle")}>
               {children.columnStyle.getPropertyView()}
+            </Section>
+            <Section name={sectionNames.animationStyle}>
+                {children.animationStyle.getPropertyView()}
             </Section>
             </>
           )}

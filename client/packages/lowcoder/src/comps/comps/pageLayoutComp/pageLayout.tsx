@@ -1,4 +1,4 @@
-import { ContainerStyleType, heightCalculator, widthCalculator } from "comps/controls/styleControlConstants";
+import { AnimationStyleType, ContainerStyleType, heightCalculator, widthCalculator } from "comps/controls/styleControlConstants";
 import { EditorContext } from "comps/editorState";
 import { BackgroundColorContext } from "comps/utils/backgroundColorContext";
 import { HintPlaceHolder, ScrollBar } from "lowcoder-design";
@@ -38,13 +38,14 @@ const getStyle = (style: ContainerStyleType) => {
   `;
 };
 
-const Wrapper = styled.div<{ $style: ContainerStyleType }>`
+const Wrapper = styled.div<{ $style: ContainerStyleType,$animationStyle:AnimationStyleType }>`
   display: flex;
   flex-flow: column;
   height: 100%;
   border: 1px solid #d7d9e0;
   border-radius: 4px;
   ${(props) => props.$style && getStyle(props.$style)}
+  ${props=>props.$animationStyle}
 `;
 
 const HeaderInnerGrid = styled(InnerGrid)<{
@@ -109,11 +110,12 @@ const FooterInnerGrid = styled(InnerGrid)<{
 
 export type LayoutProps = LayoutViewProps & {
   hintPlaceholder?: ReactNode;
+  animationStyle:AnimationStyleType;
 };
 
 
 export function PageLayout(props: LayoutProps & { siderCollapsed: boolean; setSiderCollapsed: (collapsed: boolean) => void }) {
-  const { container, siderCollapsed, setSiderCollapsed } = props;
+  const {container, siderCollapsed, setSiderCollapsed, animationStyle} = props;
   const { showHeader, showFooter, showSider } = container;
   const { items: headerItems, ...otherHeaderProps } = container.header;
   const { items: bodyItems, ...otherBodyProps } = container.body["0"].children.view.getView();
@@ -152,7 +154,7 @@ export function PageLayout(props: LayoutProps & { siderCollapsed: boolean; setSi
             },
           }}
         >
-      <Wrapper $style={style}>
+      <Wrapper $style={style} $animationStyle={animationStyle}>
         <Layout style={{padding: "0px"}} hasSider={showSider && !container.innerSider}>
           {showSider && !container.innerSider && !container.siderRight && (
             <><BackgroundColorContext.Provider value={siderStyle?.siderBackground}>
@@ -362,8 +364,7 @@ export function PageLayout(props: LayoutProps & { siderCollapsed: boolean; setSi
                   collapsedWidth={container.siderCollapsedWidth}
                   reverseArrow={true}
                   collapsed={siderCollapsed} onCollapse={(value) => setSiderCollapsed(value)}
-                  
-                >
+                   >
                     <ScrollBar style={{ height: container.autoHeight ? "auto" : "100%", margin: "0px", padding: "0px" }} hideScrollbar={!container.siderScrollbars}>
                       <SiderInnerGrid
                         {...otherSiderProps}

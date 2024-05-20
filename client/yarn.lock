@@ -5848,6 +5848,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"animate.css@npm:^4.1.1":
+  version: 4.1.1
+  resolution: "animate.css@npm:4.1.1"
+  checksum: c7eb91540423532c549725a6dedea993735a05eadaa49ed4d1965ce166a6db36459adcc9667c1dfe13657fab92a2875bbee34ad0d942444a731badab69f762c8
+  languageName: node
+  linkType: hard
+
 "ansi-escapes@npm:^4.2.1, ansi-escapes@npm:^4.3.0":
   version: 4.3.2
   resolution: "ansi-escapes@npm:4.3.2"
@@ -13739,6 +13746,7 @@ coolshapes-react@lowcoder-org/coolshapes-react:
     "@types/regenerator-runtime": ^0.13.1
     "@types/uuid": ^8.3.4
     "@vitejs/plugin-react": ^2.2.0
+    animate.css: ^4.1.1
     antd: 5.13.2
     axios: ^1.6.2
     buffer: ^6.0.3

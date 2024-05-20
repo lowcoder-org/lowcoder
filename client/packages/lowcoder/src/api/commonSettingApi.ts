@@ -44,10 +44,17 @@ export interface ThemeDetail {
   primarySurface: string; // comp bg-color
   borderRadius: string;
   chart?: string;
-  margin?: string;	
+  margin?: string;
   padding?: string;
   gridColumns?: string; //Added By Aqib Mirza
   textSize?: string;
+  animation?: string;
+  animationDelay?: string;
+  animationDuration?: string;
+  opacity?: string;
+  boxShadow?: string;
+  boxShadowColor?: string;
+  animationIterationCount?: string;
 }
 
 export function getThemeDetailName(key: keyof ThemeDetail) {

@@ -8,7 +8,7 @@ import { Section, sectionNames } from "lowcoder-design";
 import _ from "lodash";
 import styled from "styled-components";
 import { styleControl } from "comps/controls/styleControl";
-import { DividerStyle, DividerStyleType, heightCalculator, widthCalculator } from "comps/controls/styleControlConstants";
+import { AnimationStyle, AnimationStyleType, DividerStyle, DividerStyleType, heightCalculator, widthCalculator } from "comps/controls/styleControlConstants";
 import { migrateOldData } from "comps/generators/simpleGenerators";
 import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
@@ -16,7 +16,11 @@ import { trans } from "i18n";
 import { useContext } from "react";
 import { EditorContext } from "comps/editorState";
 
-type IProps = DividerProps & { $style: DividerStyleType; dashed: boolean };
+type IProps = DividerProps & {
+  $style: DividerStyleType;
+  dashed: boolean;
+  $animationStyle:AnimationStyleType;
+};
 
 // TODO: find out how to set border style when text is active
 // TODO: enable type "vertical" https://ant.design/components/divider
@@ -34,6 +38,7 @@ const StyledDivider = styled(Divider) <IProps>`
     text-decoration:${(props)=>props.$style.textDecoration};
     font-style:${(props) => props.$style.fontStyle}
   }
+  ${props=>props.$animationStyle}
   min-width: 0;	
   width: ${(props) => {
     return widthCalculator(props.$style.margin);
@@ -66,6 +71,7 @@ const childrenMap = {
   dashed: BoolControl,
   align: alignControl(),
   style: styleControl(DividerStyle),
+  animationStyle: styleControl(AnimationStyle),
 };
 
 function fixOldStyleData(oldData: any) {
@@ -87,7 +93,12 @@ function fixOldStyleData(oldData: any) {
 export const DividerComp = migrateOldData(
   new UICompBuilder(childrenMap, (props) => {
     return (
-      <StyledDivider orientation={props.align} dashed={props.dashed} $style={props.style}>
+      <StyledDivider
+        orientation={props.align}
+        dashed={props.dashed}
+        $style={props.style}
+        $animationStyle={props.animationStyle}
+      >
         {props.title}
       </StyledDivider>
     );
@@ -117,6 +128,9 @@ export const DividerComp = migrateOldData(
               <Section name={sectionNames.style}>
                 {children.dashed.propertyView({ label: trans("divider.dashed") })}
                 {children.style.getPropertyView()}
+              </Section>
+              <Section name={sectionNames.animationStyle}>
+                {children.animationStyle.getPropertyView()}
               </Section>
             </>
           )}

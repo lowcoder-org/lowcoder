@@ -23,6 +23,7 @@ const SliderBasicComp = (function () {
       style: props.style,
       labelStyle: props.labelStyle,
       inputFieldStyle:props.inputFieldStyle,
+      animationStyle:props.animationStyle,
       children: (
         <SliderWrapper
           vertical={props.vertical}

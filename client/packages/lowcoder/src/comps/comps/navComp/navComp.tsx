@@ -12,7 +12,11 @@ import { default as Dropdown } from "antd/es/dropdown";
 import { default as Menu, MenuProps } from "antd/es/menu";
 import { migrateOldData } from "comps/generators/simpleGenerators";
 import { styleControl } from "comps/controls/styleControl";
-import { NavigationStyle } from "comps/controls/styleControlConstants";
+import {
+  AnimationStyle,
+  AnimationStyleType,
+  NavigationStyle,
+} from "comps/controls/styleControlConstants";
 import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 
@@ -25,9 +29,13 @@ type IProps = {
   $borderColor: string;
   $borderWidth: string;
   $borderRadius: string;
+  $animationStyle:AnimationStyleType;
 };
 
-const Wrapper = styled("div") <Pick<IProps, "$bgColor" | "$borderColor" | "$borderWidth" | "$borderRadius">>`
+const Wrapper = styled("div")<
+  Pick<IProps, "$bgColor" | "$borderColor" | "$borderWidth" | "$borderRadius"|"$animationStyle">
+  >`
+${props=>props.$animationStyle}
   height: 100%;
   border-radius: ${(props) => props.$borderRadius ? props.$borderRadius : '2px'};
   box-sizing: border-box;
@@ -127,6 +135,7 @@ const childrenMap = {
   logoEvent: withDefault(eventHandlerControl(logoEventHandlers), [{ name: "click" }]),
   horizontalAlignment: alignWithJustifyControl(),
   style: migrateOldData(styleControl(NavigationStyle), fixOldStyleData),
+  animationStyle: styleControl(AnimationStyle),
   items: withDefault(navListComp(), [
     {
       label: trans("menuItem") + " 1",
@@ -203,6 +212,7 @@ const NavCompBase = new UICompBuilder(childrenMap, (props) => {
 
   return (
     <Wrapper
+      $animationStyle={props.animationStyle}
       $borderColor={props.style.border}
       $bgColor={props.style.background}
       $borderWidth={props.style.borderWidth}
@@ -249,10 +259,16 @@ const NavCompBase = new UICompBuilder(childrenMap, (props) => {
           </Section>
         )}
 
-        {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
-          <Section name={sectionNames.style}>
-            {children.style.getPropertyView()}
-          </Section>
+        {(useContext(EditorContext).editorModeStatus === "layout" ||
+          useContext(EditorContext).editorModeStatus === "both") && (
+          <>
+            <Section name={sectionNames.style}>
+              {children.style.getPropertyView()}
+            </Section>
+            <Section name={sectionNames.animationStyle}>
+              {children.animationStyle.getPropertyView()}
+            </Section>
+          </>
         )}
       </>
     );

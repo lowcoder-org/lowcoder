@@ -13,7 +13,7 @@ import { useContext, useEffect, useRef, useState } from "react";
 import { EditorContext } from "comps/editorState";
 import { Card } from "antd";
 import styled from "styled-components";
-import { CardHeaderStyle, CardHeaderStyleType, CardStyle, CardStyleType } from "comps/controls/styleControlConstants";
+import { AnimationStyle, AnimationStyleType, CardHeaderStyle, CardHeaderStyleType, CardStyle, CardStyleType } from "comps/controls/styleControlConstants";
 import { MultiCompBuilder, withDefault } from "comps/generators";
 import { IconControl } from "comps/controls/iconControl";
 import { ButtonEventHandlerControl, CardEventHandlerControl, clickEvent, refreshEvent } from "comps/controls/eventHandlerControl";
@@ -22,7 +22,14 @@ import { dropdownControl } from "comps/controls/dropdownControl";
 import { styleControl } from "comps/controls/styleControl";
 const { Meta } = Card;
 
-const Warpper = styled.div<{ $style: CardStyleType | undefined, $showMate: boolean, $cardType: string, $headerStyle:CardHeaderStyleType, $bodyStyle:CardHeaderStyleType }>`
+const Warpper = styled.div<{
+  $style: CardStyleType | undefined;
+  $showMate: boolean;
+  $cardType: string;
+  $headerStyle: CardHeaderStyleType;
+  $bodyStyle: CardHeaderStyleType;
+  $animationStyle:AnimationStyleType;
+}>`
   height: 100%;
   width: 100%;
   .ant-card-small >.ant-card-head {
@@ -70,6 +77,7 @@ const Warpper = styled.div<{ $style: CardStyleType | undefined, $showMate: boole
     border-style: ${props => props.$style?.borderStyle};
     border-radius: ${props => props.$style?.radius};
     border-width: ${props => props.$style?.borderWidth};
+    ${props=>props.$animationStyle}
   }
   .ant-card-body {
     display: ${props => props.$showMate ? '' : 'none'};
@@ -173,6 +181,7 @@ export const ContainerBaseComp = (function () {
     style: styleControl(CardStyle),
     headerStyle: styleControl(CardHeaderStyle),
     bodyStyle: styleControl(CardHeaderStyle),
+    animationStyle: styleControl(AnimationStyle),
   };
 
   return new ContainerCompBuilder(childrenMap, (props, dispatch) => {
@@ -202,6 +211,7 @@ export const ContainerBaseComp = (function () {
         <Warpper
           ref={conRef}
           $style={props.style}
+          $animationStyle={props.animationStyle}
           $headerStyle={props.headerStyle}
           $bodyStyle={props.bodyStyle}
           $showMate={props.showMeta || props.cardType == 'custom'}
@@ -320,6 +330,9 @@ export const ContainerBaseComp = (function () {
               </Section>
               <Section name={sectionNames.bodyStyle}>
                 {children.bodyStyle.getPropertyView()}
+              </Section>
+              <Section name={sectionNames.animationStyle}>
+                {children.animationStyle.getPropertyView()}
               </Section>
             </>
           )}
