@@ -10,7 +10,8 @@ public enum ResourceType {
 
     APPLICATION("app"),
     DATASOURCE("data"),
-    FOLDER("folder");
+    FOLDER("folder"),
+    BUNDLE("bundle");
 
     private final String abbr;
 
