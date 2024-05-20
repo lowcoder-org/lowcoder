@@ -10,6 +10,7 @@ public final class NewUrl {
     public static final String DATASOURCE_URL = PREFIX + "/datasources";
     public static final String USER_URL = PREFIX + "/users";
     public static final String CONFIG_URL = PREFIX + "/configs";
+    public static final String SERVER_SETTING_URL = PREFIX + "/serverSettings";
     public static final String GROUP_URL = PREFIX + "/groups";
     public static final String ASSET_URL = PREFIX + "/assets";
 
