@@ -1,4 +1,7 @@
-export const pt = {
+import {en} from "./en"
+
+export const pt: typeof en = {
+  ...en,
   calendarChart: {
     calendarType: 'Gráfico Estilo Calendário',
     title: 'Título',

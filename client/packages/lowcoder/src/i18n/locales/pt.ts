@@ -1,6 +1,9 @@
 // import table from "./componentDocExtra/table.md?url";
 
-export const pt = {
+import {en} from "@lowcoder-ee/i18n/locales/en";
+
+export const pt: typeof en = {
+    ...en,
     "productName": "Lowcoder",
     "productDesc": "Crie aplicações de software para sua empresa e clientes com pouquíssima experiência de programação. Lowcoder é uma excelente alternativa para Retool, Appsmith e Tooljet.",
     "notSupportedBrowser": "Seu navegador atual pode ter problemas de compatibilidade. Para uma experiência melhor, por favor, utilize a última versão do Chrome.",

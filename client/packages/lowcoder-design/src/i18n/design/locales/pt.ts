@@ -1,4 +1,7 @@
-export const pt = {
+import {en} from "./en";
+
+export const pt: typeof en = {
+  ...en,
   addItem: "Adicionar",
   duplicate: "Duplicar",
   rename: "Renomear",

@@ -1,4 +1,6 @@
-export const pt = {
+import {en} from "./en"
+export const pt: typeof en = {
+  ...en,
   "style": {
     "textColor": "Cor do Texto",
     "contrastText": "Cor de Contraste do Texto",
