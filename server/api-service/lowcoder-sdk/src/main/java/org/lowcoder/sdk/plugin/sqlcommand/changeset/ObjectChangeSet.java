@@ -1,14 +1,13 @@
 package org.lowcoder.sdk.plugin.sqlcommand.changeset;
 
-import static org.lowcoder.sdk.exception.PluginCommonError.INVALID_GUI_SETTINGS;
+import com.fasterxml.jackson.databind.JsonNode;
+import org.lowcoder.sdk.exception.PluginException;
+import org.lowcoder.sdk.util.MustacheHelper;
 
 import java.util.Map;
 import java.util.Set;
 
-import org.lowcoder.sdk.exception.PluginException;
-import org.lowcoder.sdk.util.MustacheHelper;
-
-import com.fasterxml.jackson.databind.JsonNode;
+import static org.lowcoder.sdk.exception.PluginCommonError.INVALID_GUI_SETTINGS;
 
 public class ObjectChangeSet extends ChangeSet {
     private final String str;

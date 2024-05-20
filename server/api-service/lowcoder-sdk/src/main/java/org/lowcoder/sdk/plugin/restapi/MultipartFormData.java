@@ -1,7 +1,8 @@
 package org.lowcoder.sdk.plugin.restapi;
 
-import static com.google.common.base.Strings.nullToEmpty;
 import lombok.Setter;
+
+import static com.google.common.base.Strings.nullToEmpty;
 
 @Setter
 public class MultipartFormData {

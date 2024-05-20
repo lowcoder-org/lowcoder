@@ -1,20 +1,16 @@
 package org.lowcoder.sdk.plugin.mysql;
 
-import static org.lowcoder.sdk.util.ExceptionUtils.ofPluginException;
-import static org.lowcoder.sdk.util.JsonUtils.fromJson;
-import static org.lowcoder.sdk.util.JsonUtils.toJson;
-
-import java.util.Map;
-
 import lombok.experimental.SuperBuilder;
 import lombok.extern.jackson.Jacksonized;
+import lombok.extern.slf4j.Slf4j;
 import org.lowcoder.sdk.exception.PluginCommonError;
 import org.lowcoder.sdk.plugin.common.sql.SqlBasedDatasourceConnectionConfig;
 
-import com.google.common.annotations.VisibleForTesting;
+import java.util.Map;
 
-import lombok.Builder;
-import lombok.extern.slf4j.Slf4j;
+import static org.lowcoder.sdk.util.ExceptionUtils.ofPluginException;
+import static org.lowcoder.sdk.util.JsonUtils.fromJson;
+import static org.lowcoder.sdk.util.JsonUtils.toJson;
 
 @Slf4j
 @SuperBuilder

@@ -1,25 +1,23 @@
 package org.lowcoder.sdk.plugin.common.sql;
 
-import static org.apache.commons.collections4.MapUtils.emptyIfNull;
-import static org.apache.commons.lang3.ObjectUtils.firstNonNull;
-import static org.lowcoder.sdk.exception.BizError.INVALID_DATASOURCE_CONFIG_TYPE;
-import static org.lowcoder.sdk.util.ExceptionUtils.ofException;
+import com.fasterxml.jackson.annotation.JsonView;
+import lombok.Getter;
+import lombok.experimental.SuperBuilder;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.lowcoder.sdk.config.JsonViews;
+import org.lowcoder.sdk.exception.ServerException;
+import org.lowcoder.sdk.models.DatasourceConnectionConfig;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 import java.util.function.Function;
 
-import org.apache.commons.lang3.StringUtils;
-import org.lowcoder.sdk.config.SerializeConfig.JsonViews;
-import org.lowcoder.sdk.exception.ServerException;
-import org.lowcoder.sdk.models.DatasourceConnectionConfig;
-
-import com.fasterxml.jackson.annotation.JsonView;
-
-import lombok.Getter;
-import lombok.experimental.SuperBuilder;
-import lombok.extern.slf4j.Slf4j;
+import static org.apache.commons.collections4.MapUtils.emptyIfNull;
+import static org.apache.commons.lang3.ObjectUtils.firstNonNull;
+import static org.lowcoder.sdk.exception.BizError.INVALID_DATASOURCE_CONFIG_TYPE;
+import static org.lowcoder.sdk.util.ExceptionUtils.ofException;
 
 @Slf4j
 @Getter
