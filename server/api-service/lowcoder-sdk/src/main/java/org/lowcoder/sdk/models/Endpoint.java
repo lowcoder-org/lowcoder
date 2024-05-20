@@ -1,13 +1,10 @@
 package org.lowcoder.sdk.models;
 
 import lombok.Builder;
-import lombok.extern.jackson.Jacksonized;
-import org.apache.commons.lang3.StringUtils;
-
-import com.fasterxml.jackson.annotation.JsonCreator;
-
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import lombok.extern.jackson.Jacksonized;
+import org.apache.commons.lang3.StringUtils;
 
 @ToString
 @EqualsAndHashCode

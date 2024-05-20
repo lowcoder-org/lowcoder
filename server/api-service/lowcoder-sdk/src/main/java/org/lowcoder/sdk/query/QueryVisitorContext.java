@@ -1,14 +1,13 @@
 package org.lowcoder.sdk.query;
 
-import java.util.List;
-import java.util.Set;
-
+import lombok.Getter;
 import org.lowcoder.sdk.models.Property;
 import org.springframework.http.HttpCookie;
 import org.springframework.util.MultiValueMap;
-
-import lombok.Getter;
 import reactor.core.publisher.Mono;
+
+import java.util.List;
+import java.util.Set;
 
 @Getter
 public class QueryVisitorContext {

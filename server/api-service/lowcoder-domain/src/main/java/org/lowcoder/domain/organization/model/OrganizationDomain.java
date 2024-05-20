@@ -1,18 +1,16 @@
 package org.lowcoder.domain.organization.model;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import com.fasterxml.jackson.core.type.TypeReference;
+import lombok.Getter;
+import lombok.Setter;
 import org.lowcoder.domain.mongodb.MongodbInterceptorContext;
 import org.lowcoder.sdk.auth.AbstractAuthConfig;
-import org.lowcoder.sdk.config.SerializeConfig.JsonViews;
+import org.lowcoder.sdk.config.JsonViews;
 import org.lowcoder.sdk.util.JsonUtils;
 import org.springframework.data.annotation.Transient;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-
-import lombok.Getter;
-import lombok.Setter;
+import java.util.ArrayList;
+import java.util.List;
 
 public class OrganizationDomain implements EnterpriseConnectionConfig {
 

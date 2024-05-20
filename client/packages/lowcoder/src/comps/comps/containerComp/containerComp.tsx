@@ -16,10 +16,12 @@ import { BoolCodeControl } from "comps/controls/codeControl";
 import { DisabledContext } from "comps/generators/uiCompBuilder";
 import React, { useContext } from "react";
 import { EditorContext } from "comps/editorState";
+import { AnimationStyle, styleControl } from "@lowcoder-ee/index.sdk";
 
 export const ContainerBaseComp = (function () {
   const childrenMap = {
     disabled: BoolCodeControl,
+    animationStyle: styleControl(AnimationStyle),
   };
   return new ContainerCompBuilder(childrenMap, (props, dispatch) => {
     return (

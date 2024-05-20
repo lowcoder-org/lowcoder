@@ -1,18 +1,15 @@
 package org.lowcoder.sdk.plugin.common.ssl;
 
-import static org.apache.commons.lang3.ObjectUtils.firstNonNull;
-
-import java.util.function.Function;
-
+import com.fasterxml.jackson.annotation.JsonView;
+import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.jackson.Jacksonized;
 import org.jetbrains.annotations.Nullable;
-import org.lowcoder.sdk.config.SerializeConfig.JsonViews;
+import org.lowcoder.sdk.config.JsonViews;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonView;
+import java.util.function.Function;
 
-import lombok.Getter;
+import static org.apache.commons.lang3.ObjectUtils.firstNonNull;
 
 @Getter
 @SuperBuilder
