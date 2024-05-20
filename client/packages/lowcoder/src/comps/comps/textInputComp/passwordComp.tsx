@@ -57,9 +57,9 @@ let PasswordTmpComp = (function () {
     validationType: dropdownControl(TextInputValidationOptions, "Regex"),
     visibilityToggle: BoolControl.DEFAULT_TRUE,
     prefixIcon: IconControl,
-    style: withDefault(styleControl(InputFieldStyle), {borderWidth: '1px'}),
+    style:styleControl(InputFieldStyle), 
     labelStyle: styleControl(LabelStyle),
-    inputFieldStyle: styleControl(InputLikeStyle)
+    inputFieldStyle: withDefault(styleControl(InputLikeStyle),{borderWidth: '1px'}), 
   };
   return new UICompBuilder(childrenMap, (props) => {
     const [inputProps, validateState] = useTextInputProps(props);

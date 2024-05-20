@@ -71,9 +71,9 @@ let TextAreaTmpComp = (function () {
     viewRef: RefControl<TextAreaRef>,
     allowClear: BoolControl,
     autoHeight: withDefault(AutoHeightControl, "fixed"),
-    style: withDefault(styleControl(InputFieldStyle), {borderWidth: '1px'}),
+    style: styleControl(InputFieldStyle),
     labelStyle: styleControl(LabelStyle),
-    inputFieldStyle: styleControl(InputLikeStyle)
+    inputFieldStyle:  withDefault(styleControl(InputLikeStyle), {borderWidth: '1px'}),
   };
   return new UICompBuilder(childrenMap, (props) => {
     const [inputProps, validateState] = useTextInputProps(props);

@@ -43,7 +43,7 @@ const RatingBasicComp = (function () {
     allowHalf: BoolControl,
     disabled: BoolCodeControl,
     onEvent: eventHandlerControl(EventOptions),
-    style: withDefault(styleControl(InputFieldStyle), {borderWidth: '1px'}),
+    style:styleControl(InputFieldStyle),
     labelStyle: styleControl(LabelStyle.filter((style) => ['accent', 'validate'].includes(style.name) === false)),
     inputFieldStyle:migrateOldData(styleControl(RatingStyle), fixOldData),
     ...formDataChildren,

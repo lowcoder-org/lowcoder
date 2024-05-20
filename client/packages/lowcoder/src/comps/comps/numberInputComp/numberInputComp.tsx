@@ -257,7 +257,7 @@ const childrenMap = {
   allowNull: BoolControl,
   onEvent: InputEventHandlerControl,
   viewRef: RefControl<HTMLInputElement>,
-  style: withDefault(styleControl(InputFieldStyle), {borderWidth: '1px'}),
+  style: styleControl(InputFieldStyle),
   labelStyle:styleControl(LabelStyle),
   prefixText : stringExposingStateControl("defaultValue"),
   prefixIcon: IconControl,
