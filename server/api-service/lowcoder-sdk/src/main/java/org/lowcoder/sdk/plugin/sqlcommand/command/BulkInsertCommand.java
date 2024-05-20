@@ -1,13 +1,6 @@
 package org.lowcoder.sdk.plugin.sqlcommand.command;
 
-import static com.google.common.collect.Lists.newArrayList;
-import static org.lowcoder.sdk.exception.PluginCommonError.INVALID_INSERT_COMMAND;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
+import com.google.common.base.Joiner;
 import org.lowcoder.sdk.exception.PluginException;
 import org.lowcoder.sdk.plugin.sqlcommand.GuiSqlCommand;
 import org.lowcoder.sdk.plugin.sqlcommand.changeset.BulkObjectChangeSet;
@@ -16,7 +9,13 @@ import org.lowcoder.sdk.plugin.sqlcommand.changeset.ChangeSetRow;
 import org.lowcoder.sdk.plugin.sqlcommand.changeset.ChangeSetRows;
 import org.lowcoder.sdk.util.MustacheHelper;
 
-import com.google.common.base.Joiner;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import static com.google.common.collect.Lists.newArrayList;
+import static org.lowcoder.sdk.exception.PluginCommonError.INVALID_INSERT_COMMAND;
 
 public class BulkInsertCommand implements GuiSqlCommand {
 

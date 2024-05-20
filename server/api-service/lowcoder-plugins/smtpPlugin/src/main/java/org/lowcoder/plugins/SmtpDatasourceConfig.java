@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonView;
 import jakarta.annotation.Nullable;
 import lombok.Builder;
 import lombok.Getter;
-import org.lowcoder.sdk.config.SerializeConfig.JsonViews;
+import org.lowcoder.sdk.config.JsonViews;
 import org.lowcoder.sdk.models.DatasourceConnectionConfig;
 
 import java.util.function.Function;

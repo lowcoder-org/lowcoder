@@ -1,13 +1,12 @@
 package org.lowcoder.infra.event;
 
+import lombok.Getter;
+import lombok.experimental.SuperBuilder;
+import org.lowcoder.plugin.api.event.LowcoderEvent;
+
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
-
-import org.lowcoder.plugin.api.event.LowcoderEvent;
-
-import lombok.Getter;
-import lombok.experimental.SuperBuilder;
 
 @Getter
 @SuperBuilder

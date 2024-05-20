@@ -93,6 +93,7 @@ export function NewsLayout() {
             <h1 style={{color: "#ffffff", marginTop : "12px"}}>Lowcoder {trans("home.news")}</h1>
           </StyleNewsCover>
           <Card style={{ marginBottom: "20px", minHeight : "800px" }}>
+            <h4>{trans("home.newsLoading")}</h4>
             <iframe
               style={{ border: "none" }}
               title="Lowcoder News"

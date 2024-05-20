@@ -1,17 +1,17 @@
 package org.lowcoder.sdk.plugin.sqlcommand;
 
-import static org.lowcoder.sdk.exception.PluginCommonError.INVALID_GUI_SETTINGS;
-import static org.lowcoder.sdk.plugin.common.constant.Constants.ALLOW_MULTI_MODIFY_KEY;
-import static org.lowcoder.sdk.plugin.common.constant.Constants.TABLE_KEY;
+import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.lowcoder.sdk.exception.PluginException;
+import org.lowcoder.sdk.util.SqlGuiUtils.GuiSqlValue.EscapeSql;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.collections4.MapUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.lowcoder.sdk.exception.PluginException;
-import org.lowcoder.sdk.util.SqlGuiUtils.GuiSqlValue.EscapeSql;
+import static org.lowcoder.sdk.exception.PluginCommonError.INVALID_GUI_SETTINGS;
+import static org.lowcoder.sdk.plugin.common.constant.Constants.ALLOW_MULTI_MODIFY_KEY;
+import static org.lowcoder.sdk.plugin.common.constant.Constants.TABLE_KEY;
 
 public interface GuiSqlCommand {
 

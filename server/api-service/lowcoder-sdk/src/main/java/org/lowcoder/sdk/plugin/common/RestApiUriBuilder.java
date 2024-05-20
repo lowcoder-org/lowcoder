@@ -1,16 +1,16 @@
 package org.lowcoder.sdk.plugin.common;
 
-import static org.lowcoder.sdk.exception.PluginCommonError.QUERY_ARGUMENT_ERROR;
-import static org.lowcoder.sdk.util.ExceptionUtils.wrapException;
-import static org.lowcoder.sdk.util.MustacheHelper.renderMustacheString;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.http.client.utils.URIBuilder;
+import org.lowcoder.sdk.exception.PluginException;
 
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Map;
 
-import org.apache.commons.lang3.StringUtils;
-import org.apache.http.client.utils.URIBuilder;
-import org.lowcoder.sdk.exception.PluginException;
+import static org.lowcoder.sdk.exception.PluginCommonError.QUERY_ARGUMENT_ERROR;
+import static org.lowcoder.sdk.util.ExceptionUtils.wrapException;
+import static org.lowcoder.sdk.util.MustacheHelper.renderMustacheString;
 
 public final class RestApiUriBuilder {
 

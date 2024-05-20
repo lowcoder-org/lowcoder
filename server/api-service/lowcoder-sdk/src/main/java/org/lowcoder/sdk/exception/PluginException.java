@@ -1,12 +1,10 @@
 package org.lowcoder.sdk.exception;
 
-import java.util.Locale;
-
+import com.google.common.base.Preconditions;
+import lombok.Getter;
 import org.lowcoder.sdk.util.LocaleUtils;
 
-import com.google.common.base.Preconditions;
-
-import lombok.Getter;
+import java.util.Locale;
 
 @Getter
 public class PluginException extends BaseException {

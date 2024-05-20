@@ -1,13 +1,13 @@
 package org.lowcoder.sdk.plugin.sqlcommand.command.mysql;
 
-import static org.lowcoder.sdk.plugin.sqlcommand.changeset.BulkObjectChangeSet.parseBulkRecords;
-import static org.lowcoder.sdk.plugin.sqlcommand.command.GuiConstants.MYSQL_COLUMN_DELIMITER;
-
-import java.util.Map;
-
 import org.lowcoder.sdk.plugin.sqlcommand.GuiSqlCommand;
 import org.lowcoder.sdk.plugin.sqlcommand.changeset.BulkObjectChangeSet;
 import org.lowcoder.sdk.plugin.sqlcommand.command.BulkInsertCommand;
+
+import java.util.Map;
+
+import static org.lowcoder.sdk.plugin.sqlcommand.changeset.BulkObjectChangeSet.parseBulkRecords;
+import static org.lowcoder.sdk.plugin.sqlcommand.command.GuiConstants.MYSQL_COLUMN_DELIMITER;
 
 public class MysqlBulkInsertCommand extends BulkInsertCommand {
     protected MysqlBulkInsertCommand(String table, BulkObjectChangeSet bulkObjectChangeSet) {

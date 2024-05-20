@@ -1,6 +1,6 @@
 package org.lowcoder.sdk.plugin.common.sql;
 
-import static org.lowcoder.sdk.util.DateTimeUtils.DATE_TIME_FORMAT;
+import org.jetbrains.annotations.Nullable;
 
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -14,7 +14,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import org.jetbrains.annotations.Nullable;
+import static org.lowcoder.sdk.util.DateTimeUtils.DATE_TIME_FORMAT;
 
 /**
  * sql result parser
