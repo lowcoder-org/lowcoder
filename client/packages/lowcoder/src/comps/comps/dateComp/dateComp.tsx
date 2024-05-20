@@ -119,6 +119,7 @@ const timeValidationFields = (children: CommonChildrenType, dateType: PickerMode
 function validate(
   props: RecordConstructorToView<typeof validationChildren> & {
     value: { value: string };
+    showTime: boolean;
   }
 ): {
   validateStatus: "success" | "warning" | "error";
@@ -127,10 +128,9 @@ function validate(
   if (props.customRule) {
     return { validateStatus: "error", help: props.customRule };
   }
+  const currentDateTime = dayjs(props.value.value, DateParser);
 
-  const currentDateTime = dayjs(dayjs(props.value.value), DATE_TIME_FORMAT);
-
-  if (props.required && !currentDateTime.isValid()) {
+  if (props.required && (props.value.value === '' || !currentDateTime.isValid())) {
     return { validateStatus: "error", help: trans("prop.required") };
   }
 
@@ -169,6 +169,7 @@ export const datePickerControl = new UICompBuilder(childrenMap, (props) => {
   if (props.value.value !== '') {
     time = dayjs(props.value.value, DateParser);
   }
+
   return props.label({
     required: props.required,
     style: props.style,
