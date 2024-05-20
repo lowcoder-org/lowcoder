@@ -10,7 +10,7 @@ import { UICompBuilder } from "../generators";
 import { NameConfig, NameConfigHidden, withExposingConfigs } from "../generators/withExposing";
 import { markdownCompCss, TacoMarkDown } from "lowcoder-design";
 import { styleControl } from "comps/controls/styleControl";
-import { TextStyle, TextStyleType, heightCalculator, widthCalculator } from "comps/controls/styleControlConstants";
+import { AnimationStyle, AnimationStyleType, TextStyle, TextStyleType, heightCalculator, widthCalculator } from "comps/controls/styleControlConstants";
 import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { alignWithJustifyControl } from "comps/controls/alignControl";
@@ -72,10 +72,15 @@ const getStyle = (style: TextStyleType) => {
   `;
 };
 
-const TextContainer = styled.div<{ $type: string; $styleConfig: TextStyleType }>`
+const TextContainer = styled.div<{
+  $type: string;
+  $styleConfig: TextStyleType;
+  $animationStyle:AnimationStyleType;
+}>`
   height: 100%;
   overflow: auto;
   margin: 0;
+  ${props=>props.$animationStyle}
   ${(props) =>
     props.$type === "text" && "white-space:break-spaces;line-height: 1.9;"};
   ${(props) => props.$styleConfig && getStyle(props.$styleConfig)}
@@ -126,6 +131,7 @@ let TextTmpComp = (function () {
     horizontalAlignment: alignWithJustifyControl(),
     verticalAlignment: dropdownControl(VerticalAlignmentOptions, "center"),
     style: styleControl(TextStyle),
+    animationStyle: styleControl(AnimationStyle),
     margin: MarginControl,
     padding: PaddingControl,
   };
@@ -133,6 +139,7 @@ let TextTmpComp = (function () {
     const value = props.text.value;
     return (
       <TextContainer
+        $animationStyle={props.animationStyle}
         $type={props.type}
         $styleConfig={props.style}
         style={{
@@ -179,6 +186,9 @@ let TextTmpComp = (function () {
               </Section>
               <Section name={sectionNames.style}>
                 {children.style.getPropertyView()}
+              </Section>
+              <Section name={sectionNames.animationStyle}>
+                {children.animationStyle.getPropertyView()}
               </Section>
             </>
           )}

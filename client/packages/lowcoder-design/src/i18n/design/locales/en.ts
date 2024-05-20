@@ -23,6 +23,7 @@ export const en = {
     advanced: "Advanced",
     validation: "Validation",
     layout: "Layout",
+    animationStyle:"Animation Style",
     labelStyle: "Label Style",
     style: "Style",
     meetings: "Meeting Settings",

@@ -107,6 +107,7 @@ let RadioBasicComp = (function () {
       style: props.style,
       labelStyle: props.labelStyle,
       inputFieldStyle:props.inputFieldStyle,
+      animationStyle:props.animationStyle,
       children: (
         <Radio
           ref={props.viewRef}
