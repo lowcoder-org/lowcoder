@@ -32,6 +32,7 @@ import { HeaderBack } from "pages/setting/permission/styledComponents";
 import dsl from "./previewDsl";
 import chartDsl from "./chartPreviewDsl";
 import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
+import { Collapse, CollapseProps } from 'antd';
 
 const CodeEditor = lazy(
   () => import("base/codeEditor/codeEditor")
@@ -148,7 +149,166 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
     history.push(THEME_SETTING);
   };
 
+
+
   render() {
+
+    const themeSettings: CollapseProps['items'] = [
+      {
+        key: '1',
+        label: 'Colors',
+        children: 
+          <div className="common">
+            <div>
+              <DetailTitle>{trans("theme.mainColor")}</DetailTitle>
+              <ColorPicker
+                colorKey="primary"
+                name={trans("themeDetail.primary")}
+                desc={trans("themeDetail.primaryDesc")}
+                color={this.state.theme.primary}
+                configChange={(params) => this.configChange(params)}
+              />
+            </div>
+            <ColorPicker
+              colorKey="canvas"
+              name={trans("themeDetail.canvas")}
+              desc={trans("themeDetail.canvasDesc")}
+              color={this.state.theme.canvas}
+              configChange={(params) => this.configChange(params)}
+            />
+            <ColorPicker
+              colorKey="primarySurface"
+              name={trans("themeDetail.primarySurface")}
+              desc={trans("themeDetail.primarySurfaceDesc")}
+              color={this.state.theme.primarySurface}
+              configChange={(params) => this.configChange(params)}
+            />
+            <div>
+              <DetailTitle>{trans("theme.text")}</DetailTitle>
+              <ColorPicker
+                colorKey="textLight"
+                name={trans("themeDetail.textLight")}
+                desc={trans("themeDetail.textLightDesc")}
+                color={this.state.theme.textLight}
+                configChange={(params) => this.configChange(params)}
+              />
+            </div>
+            <ColorPicker
+              colorKey="textDark"
+              name={trans("themeDetail.textDark")}
+              desc={trans("themeDetail.textDarkDesc")}
+              color={this.state.theme.textDark}
+              configChange={(params) => this.configChange(params)}
+            />
+            
+          </div>
+      },
+      {
+        key: '2',
+        label: 'Text & Fonts',
+        children: <p>to define...</p>,
+      },
+      {
+        key: '3',
+        label: 'Layout',
+        children: 
+          <div className="common">
+            <div>
+              <DetailTitle>{trans("themeDetail.borderRadius")}</DetailTitle>
+              <ColorPicker
+                colorKey="borderRadius"
+                name={trans("themeDetail.borderRadius")}
+                desc={trans("themeDetail.borderRadiusDesc")}
+                radius={this.state.theme.borderRadius}
+                configChange={(params) => this.configChange(params)}
+              />
+            </div>
+            <div>
+              <DetailTitle>{trans("themeDetail.margin")}</DetailTitle>
+              <ColorPicker
+                colorKey="margin"
+                name={trans("themeDetail.margin")}
+                desc={trans("themeDetail.marginDesc")}
+                margin={this.state.theme.margin}
+                configChange={(params) => {
+                  this.configChange(params);
+                }}
+              />
+            </div>
+            <div>
+              <DetailTitle>{trans("themeDetail.padding")}</DetailTitle>
+              <ColorPicker
+                colorKey="padding"
+                name={trans("themeDetail.padding")}
+                desc={trans("themeDetail.paddingDesc")}
+                padding={this.state.theme.padding}
+                configChange={(params) => {
+                  this.configChange(params);
+                }}
+              />
+            </div>
+            <div>
+              <DetailTitle>{trans("themeDetail.gridColumns")}</DetailTitle>
+              <ColorPicker
+                colorKey="gridColumns"
+                name={trans("themeDetail.gridColumns")}
+                desc={trans("themeDetail.gridColumnsDesc")}
+                gridColumns={this.state.theme.gridColumns}
+                configChange={(params) => {
+                  this.configChange(params);
+                }}
+              />
+            </div>
+          </div>,
+      },
+      {
+        key: '4',
+        label: 'Components',
+        children: <p>to define...</p>,
+      },
+      {
+        key: '5',
+        label: 'Theme Preview',
+        children: <PreviewApp style={{marginTop: '3px'}} theme={this.state.theme} dsl={dsl} />,
+      },
+      {
+        key: '6',
+        label: 'eCharts Definition',
+        children: 
+          <div className="chart">
+            {/* <DetailTitle>{trans("themeDetail.chart")}</DetailTitle> */}
+            <ChartDesc>
+              {trans("themeDetail.chartDesc")}
+              <a target="_blank" href="https://echarts.apache.org/en/theme-builder.html" rel="noreferrer">
+                {" "}
+                {trans("themeDetail.echartsJson")}
+              </a>
+            </ChartDesc>
+            <ChartInput>
+            <div className="code-editor">
+              <CodeEditor
+                value={this.state.theme.chart || ""}
+                onChange={(value) => this.configChange({
+                  colorKey: "chart",
+                  chart: value.doc.toString() ? value.doc.toString() : undefined,
+                })}
+                styleName="higher"
+                codeType="Function"
+                showLineNum
+                bordered
+              />
+              </div>
+            </ChartInput>
+          </div>,
+      },
+      {
+        key: '7',
+        label: 'eCharts Definition Preview',
+        children: <PreviewApp style={{ height: "600px", margin: "20px 0 8px 0" }} theme={this.state.theme} dsl={chartDsl} />,
+      },
+      
+    ];
+
     return (
       <>
         <Prompt
@@ -199,128 +359,20 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
             </HeaderBack>
           </Header>
           <DetailContent>
-            <div className="common">
-              <div>
-                <DetailTitle>{trans("theme.mainColor")}</DetailTitle>
-                <ColorPicker
-                  colorKey="primary"
-                  name={trans("themeDetail.primary")}
-                  desc={trans("themeDetail.primaryDesc")}
-                  color={this.state.theme.primary}
-                  configChange={(params) => this.configChange(params)}
-                />
-              </div>
-              <ColorPicker
-                colorKey="canvas"
-                name={trans("themeDetail.canvas")}
-                desc={trans("themeDetail.canvasDesc")}
-                color={this.state.theme.canvas}
-                configChange={(params) => this.configChange(params)}
-              />
-              <ColorPicker
-                colorKey="primarySurface"
-                name={trans("themeDetail.primarySurface")}
-                desc={trans("themeDetail.primarySurfaceDesc")}
-                color={this.state.theme.primarySurface}
-                configChange={(params) => this.configChange(params)}
-              />
-              <div>
-                <DetailTitle>{trans("theme.text")}</DetailTitle>
-                <ColorPicker
-                  colorKey="textLight"
-                  name={trans("themeDetail.textLight")}
-                  desc={trans("themeDetail.textLightDesc")}
-                  color={this.state.theme.textLight}
-                  configChange={(params) => this.configChange(params)}
-                />
-              </div>
-              <ColorPicker
-                colorKey="textDark"
-                name={trans("themeDetail.textDark")}
-                desc={trans("themeDetail.textDarkDesc")}
-                color={this.state.theme.textDark}
-                configChange={(params) => this.configChange(params)}
-              />
-              <div>
-                <DetailTitle>{trans("themeDetail.borderRadius")}</DetailTitle>
-                <ColorPicker
-                  colorKey="borderRadius"
-                  name={trans("themeDetail.borderRadius")}
-                  desc={trans("themeDetail.borderRadiusDesc")}
-                  radius={this.state.theme.borderRadius}
-                  configChange={(params) => this.configChange(params)}
-                />
-              </div>
-            </div>
-            <div className="common">
-              <div>
-                <DetailTitle>{trans("themeDetail.margin")}</DetailTitle>
-                <ColorPicker
-                  colorKey="margin"
-                  name={trans("themeDetail.margin")}
-                  desc={trans("themeDetail.marginDesc")}
-                  margin={this.state.theme.margin}
-                  configChange={(params) => {
-                    this.configChange(params);
-                  }}
-                />
-              </div>
-              <div>
-                <DetailTitle>{trans("themeDetail.padding")}</DetailTitle>
-                <ColorPicker
-                  colorKey="padding"
-                  name={trans("themeDetail.padding")}
-                  desc={trans("themeDetail.paddingDesc")}
-                  padding={this.state.theme.padding}
-                  configChange={(params) => {
-                    this.configChange(params);
-                  }}
-                />
-              </div>
-              <div>
-                <DetailTitle>{trans("themeDetail.gridColumns")}</DetailTitle>
-                <ColorPicker
-                  colorKey="gridColumns"
-                  name={trans("themeDetail.gridColumns")}
-                  desc={trans("themeDetail.gridColumnsDesc")}
-                  gridColumns={this.state.theme.gridColumns}
-                  configChange={(params) => {
-                    this.configChange(params);
-                  }}
-                />
-              </div>
-            </div>
-            <PreviewApp style={{marginTop: '3px'}} theme={this.state.theme} dsl={dsl} />
-            <div className="chart">
-              <DetailTitle>{trans("themeDetail.chart")}</DetailTitle>
-              <ChartDesc>
-                {trans("themeDetail.chartDesc")}
-                <a target="_blank" href="https://echarts.apache.org/en/theme-builder.html" rel="noreferrer">
-                  {" "}
-                  {trans("themeDetail.echartsJson")}
-                </a>
-              </ChartDesc>
-              <ChartInput>
-              <div className="code-editor">
-                <CodeEditor
-                  value={this.state.theme.chart || ""}
-                  onChange={(value) => this.configChange({
-                    colorKey: "chart",
-                    chart: value.doc.toString() ? value.doc.toString() : undefined,
-                  })}
-                  styleName="higher"
-                  codeType="Function"
-                  showLineNum
-                  bordered
-                />
-                </div>
-              </ChartInput>
-            </div>
-            <PreviewApp
+
+          <Collapse items={themeSettings} defaultActiveKey={['1']} />
+
+            
+            
+            {/* <PreviewApp style={{marginTop: '3px'}} theme={this.state.theme} dsl={dsl} /> */}
+            
+
+            {/* <PreviewApp
               style={{ height: "346px", margin: "20px 0 8px 0" }}
               theme={this.state.theme}
               dsl={chartDsl}
-            />
+                /> */}
+
           </DetailContent>
           <Footer ref={this.footerRef} className="no-bottom">
             <ResetButton
