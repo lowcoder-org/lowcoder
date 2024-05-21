@@ -82,7 +82,7 @@ export const ColumnName = styled(InlineFlexAlignCenter)`
 `;
 
 export const DetailContent = styled.div`
-  max-width: 672px;
+  max-width: 95%;
   margin-left: 24px;
   padding-bottom: 80px;
   .common {
@@ -126,7 +126,7 @@ export const Footer = styled.div`
   bottom: 0;
   width: calc(100vw - 492px);
   background-color: #fff;
-  z-index: 1;
+  z-index: 1000;
   margin-right: 10px;
   &.no-bottom {
     box-shadow: 0 -6px 10px -6px rgba(0, 0, 0, 0.1);
