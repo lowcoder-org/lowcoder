@@ -257,10 +257,11 @@ const childrenMap = {
   allowNull: BoolControl,
   onEvent: InputEventHandlerControl,
   viewRef: RefControl<HTMLInputElement>,
-  style: withDefault(styleControl(InputFieldStyle), {borderWidth: '1px'}),
-  labelStyle: styleControl(LabelStyle),
+  style: withDefault(styleControl(InputFieldStyle),{background:'transparent'}) , 
+  labelStyle:styleControl(LabelStyle),
+  prefixText : stringExposingStateControl("defaultValue"),
   animationStyle: styleControl(AnimationStyle),
-  prefixText: stringExposingStateControl('defaultValue'),
+
   prefixIcon: IconControl,
   inputFieldStyle: withDefault(styleControl(InputLikeStyle), {borderWidth: '1px'}) ,
   // validation

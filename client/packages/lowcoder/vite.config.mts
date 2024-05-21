@@ -92,8 +92,8 @@ export const viteConfig: UserConfig = {
     },
   },
   optimizeDeps: {
-    entries: ['./src/**/*.{js,jsx,ts,tsx}']
-    // include: ['antd/es/*'],
+    entries: ['./src/**/*.{js,jsx,ts,tsx}'],
+    include: ['antd'],
     // include: ['antd/**/*'],
     // force: true,
   },

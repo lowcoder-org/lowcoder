@@ -57,10 +57,10 @@ let PasswordTmpComp = (function () {
     validationType: dropdownControl(TextInputValidationOptions, "Regex"),
     visibilityToggle: BoolControl.DEFAULT_TRUE,
     prefixIcon: IconControl,
-    style: withDefault(styleControl(InputFieldStyle), {borderWidth: '1px'}),
+    style: withDefault(styleControl(InputFieldStyle),{background:'transparent'}) , 
     labelStyle: styleControl(LabelStyle),
-    inputFieldStyle: styleControl(InputLikeStyle),
-  animationStyle: styleControl(AnimationStyle),
+    inputFieldStyle: withDefault(styleControl(InputLikeStyle),{borderWidth: '1px'}), 
+    animationStyle: styleControl(AnimationStyle),
   };
   return new UICompBuilder(childrenMap, (props) => {
     const [inputProps, validateState] = useTextInputProps(props);
