@@ -84,12 +84,14 @@ export function EditableCell<T extends JSONValue>(props: EditableCellProps<T>) {
   useEffect(() => {
     setTmpValue(value);
   }, [value]);
+
   const onChange = useCallback(
     (value: T) => {
       setTmpValue(value);
     },
     [setTmpValue]
   );
+
   const onChangeEnd = useCallback(() => {
     setIsEditing(false);
     dispatch(
@@ -127,11 +129,18 @@ export function EditableCell<T extends JSONValue>(props: EditableCellProps<T>) {
       textOverflow={props.textOverflow}
     >
       {status === "toSave" && !isEditing && <EditableChip />}
+      {normalView}
+      {/* overlay on normal view to handle double click for editing */}
       <div
-        style={{minHeight: '24px'}}
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+        }}
         onDoubleClick={enterEditFn}
       >
-        {normalView}
       </div>
     </ColumnTypeView>
   );
