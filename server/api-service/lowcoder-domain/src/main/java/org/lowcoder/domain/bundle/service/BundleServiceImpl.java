@@ -38,12 +38,12 @@ public class BundleServiceImpl implements BundleService {
         }
 
         return repository.findById(id)
-                .switchIfEmpty(Mono.error(new BizException(BizError.NO_RESOURCE_FOUND, "FOLDER_NOT_FOUND", id)));
+                .switchIfEmpty(Mono.error(new BizException(BizError.NO_RESOURCE_FOUND, "BUNDLE_NOT_FOUND", id)));
     }
 
     @Override
-    public Mono<Bundle> create(Bundle folder) {
-        return repository.save(folder);
+    public Mono<Bundle> create(Bundle bundle) {
+        return repository.save(bundle);
     }
 
     @Override

@@ -56,7 +56,7 @@ public interface BundleEndpoints
 			tags = TAG_BUNDLE_MANAGEMENT,
 		    operationId = "listBundleContents",
 		    summary = "Get Bundle contents",
-		    description = "Retrieve the contents of an Application Bundle within Lowcoder, including Applications and Subbundles."
+		    description = "Retrieve the contents of an Application Bundle within Lowcoder, including Applications."
 	)
     @GetMapping("/elements")
     public Mono<ResponseView<List<?>>> getElements(@RequestParam(value = "id", required = false) String bundleId,

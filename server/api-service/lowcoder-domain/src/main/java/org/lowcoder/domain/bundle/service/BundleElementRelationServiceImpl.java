@@ -8,6 +8,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.Objects;
 
 import static org.lowcoder.infra.birelation.BiRelationBizType.BUNDLE_ELEMENT;
 
@@ -29,7 +30,17 @@ public class BundleElementRelationServiceImpl implements BundleElementRelationSe
 
     @Override
     public Mono<Void> create(String bundleId, String elementId) {
-        return biRelationService.addBiRelation(BUNDLE_ELEMENT, bundleId, elementId, null, null)
+        return biRelationService.getBySourceId(BUNDLE_ELEMENT, bundleId)
+                .mapNotNull(rel -> {
+                    try {
+                        return Integer.parseInt(rel.getExtParam1());
+                    } catch (NumberFormatException e) {
+                        return null;
+                    }
+                })
+                .reduce(Integer::max)
+                .switchIfEmpty(Mono.just(0))
+                .flatMap(maxVal -> biRelationService.addBiRelation(BUNDLE_ELEMENT, bundleId, elementId, null, null, String.valueOf(maxVal + 1)))
                 .then();
     }
 

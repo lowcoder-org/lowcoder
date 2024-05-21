@@ -13,6 +13,8 @@ import org.lowcoder.domain.application.model.Application;
 import org.lowcoder.domain.application.model.ApplicationStatus;
 import org.lowcoder.domain.application.model.ApplicationType;
 import org.lowcoder.domain.application.service.ApplicationService;
+import org.lowcoder.domain.bundle.model.BundleElement;
+import org.lowcoder.domain.bundle.service.BundleElementRelationServiceImpl;
 import org.lowcoder.domain.interaction.UserApplicationInteraction;
 import org.lowcoder.domain.interaction.UserApplicationInteractionService;
 import org.lowcoder.domain.organization.model.OrgMember;
@@ -59,6 +61,7 @@ public class UserHomeApiServiceImpl implements UserHomeApiService {
     private final FolderApiService folderApiService;
     private final UserApplicationInteractionService userApplicationInteractionService;
     private final CommonConfig config;
+    private final BundleElementRelationServiceImpl bundleElementRelationServiceImpl;
 
     @Override
     public Mono<UserProfileView> buildUserProfileView(User user, ServerWebExchange exchange) {
@@ -225,15 +228,23 @@ public class UserHomeApiServiceImpl implements UserHomeApiService {
                                 Map<String, ResourcePermission> resourcePermissionMap = tuple.getT2();
                                 return resourcePermissionMap.containsKey(application.getId());
                             })
-                            .map(tuple -> {
+                            .flatMap(tuple -> {
                                 // build view
                                 Application application = tuple.getT1();
                                 Map<String, ResourcePermission> resourcePermissionMap = tuple.getT2();
                                 Map<String, User> userMap = tuple.getT3();
                                 Map<String, Instant> applicationLastViewTimeMap = tuple.getT4();
-                                ResourceRole resourceRole = resourcePermissionMap.get(application.getId()).getResourceRole();
-                                return buildView(application, resourceRole, userMap, applicationLastViewTimeMap.get(application.getId()),
-                                        withContainerSize);
+
+                                return bundleElementRelationServiceImpl.getByElementIds(List.of(Objects.requireNonNull(application.getId())))
+                                        .mapNotNull(BundleElement::position)
+                                        .defaultIfEmpty(0)
+                                        .collectList()
+                                        .flatMap(positions -> {
+                                            int position = positions.isEmpty() ? 0 : positions.get(0);
+                                            ResourceRole resourceRole = resourcePermissionMap.get(application.getId()).getResourceRole();
+                                            return Mono.just(buildView(application, resourceRole, userMap, applicationLastViewTimeMap.get(application.getId()),
+                                                    position, withContainerSize));
+                                        });
                             });
                 });
     }
@@ -365,7 +376,7 @@ public class UserHomeApiServiceImpl implements UserHomeApiService {
     }
 
     private ApplicationInfoView buildView(Application application, ResourceRole maxRole, Map<String, User> userMap, @Nullable Instant lastViewTime,
-            boolean withContainerSize) {
+                                          Integer bundlePosition, boolean withContainerSize) {
         ApplicationInfoViewBuilder applicationInfoViewBuilder = ApplicationInfoView.builder()
                 .applicationId(application.getId())
                 .orgId(application.getOrganizationId())
@@ -379,6 +390,7 @@ public class UserHomeApiServiceImpl implements UserHomeApiService {
                 .applicationStatus(application.getApplicationStatus())
                 .lastModifyTime(application.getUpdatedAt())
                 .lastViewTime(lastViewTime)
+                .bundlePosition(bundlePosition)
                 .publicToAll(application.isPublicToAll())
                 .publicToMarketplace(application.isPublicToMarketplace())
                 .agencyProfile(application.agencyProfile());

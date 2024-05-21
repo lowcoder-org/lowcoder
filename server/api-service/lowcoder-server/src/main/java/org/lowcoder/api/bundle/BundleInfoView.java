@@ -28,7 +28,6 @@ public class BundleInfoView {
     private boolean isVisible;
     private boolean isManageable;
 
-    private List<BundleInfoView> subBundles;
     private List<ApplicationInfoView> subApplications;
 
     private final Instant createTime;

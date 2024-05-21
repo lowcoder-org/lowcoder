@@ -55,7 +55,7 @@ public class BundleApiServiceImpl implements BundleApiService {
             // compare by last view time reversed.
             Comparator.comparingLong((ToLongFunction<Node<ApplicationInfoView, BundleInfoView>>) node -> {
                         if (node instanceof ElementNode<ApplicationInfoView, BundleInfoView> elementNode) {
-                            return elementNode.getSelf().getLastViewTime();
+                            return elementNode.getSelf().getBundlePosition();
                         }
                         return ((BundleNode<ApplicationInfoView, BundleInfoView>) node).getSelf().getCreateTime();
                     })
@@ -123,13 +123,12 @@ public class BundleApiServiceImpl implements BundleApiService {
     }
 
     /**
-     * only org admin and bundle creator can delete a bundle, when bundle is deleted,
-     * all sub bundles will be deleted, all sub files will be moved to root bundle
+     * only org admin and bundle creator can delete a bundle
      */
     @Override
     public Mono<Bundle> delete(@Nonnull String bundleId) {
         return checkManagePermission(bundleId)
-                .flatMap(orgMember -> buildBundleTree(orgMember.getOrgId()))
+                .flatMap(orgMember -> buildBundleTree(orgMember.getUserId()))
                 .flatMap(tree -> {
                     BundleNode<Object, Bundle> bundleNode = tree.get(bundleId);
                     if (bundleNode == null) {
@@ -217,11 +216,8 @@ public class BundleApiServiceImpl implements BundleApiService {
                                 return;
                             }
                             bundleInfoView.setManageable(orgMember.isAdmin() || orgMember.isSuperAdmin() ||  orgMember.getUserId().equals(bundleInfoView.getCreateBy()));
-
-                            List<BundleInfoView> bundleInfoViews = bundleNode.getBundleChildren().stream().filter(BundleInfoView::isVisible).toList();
-                            bundleInfoView.setSubBundles(bundleInfoViews);
                             bundleInfoView.setSubApplications(bundleNode.getElementChildren());
-                            bundleInfoView.setVisible(devOrAdmin || isNotEmpty(bundleInfoViews) || isNotEmpty(bundleInfoView.getSubApplications()));
+                            bundleInfoView.setVisible(devOrAdmin || isNotEmpty(bundleInfoView.getSubApplications()));
                         }
                     });
                 })
