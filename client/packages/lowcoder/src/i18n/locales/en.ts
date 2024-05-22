@@ -1969,6 +1969,7 @@ export const en = {
     "expandable": "Expandable",
     "configExpandedView": "Configure Expanded View",
     "toUpdateRowsDesc": "An Array of Objects for Rows to Be Updated in Editable Tables.",
+    "selectedCellDesc": "Selected Cell",
     "empty": "Empty",
     "falseValues": "Text When False",
     "iconTrue": "Icon When True",
