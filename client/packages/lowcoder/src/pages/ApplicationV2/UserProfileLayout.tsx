@@ -16,6 +16,8 @@ import { trans, languageList } from "../../i18n";
 import { ALL_APPLICATIONS_URL } from "constants/routesURL";
 import { default as Divider } from "antd/es/divider";
 
+import { fullAvatarUrl } from "util/urlUtils";
+
 import { Avatar, Button, Card, Col, Row, Space, Typography, Select, Tooltip } from "antd";
 
 import { fullAvatarUrl } from "util/urlUtils";
