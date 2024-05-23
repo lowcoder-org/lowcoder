@@ -1,4 +1,4 @@
-package org.lowcoder.api.bundle;
+package org.lowcoder.api.bundle.view;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -21,10 +21,13 @@ public class BundleInfoView {
     private final String title;
     private final String description;
     private final String category;
-    private final String type;
     private final String image;
     private final Long createAt;
     private final String createBy;
+    private final String folderId;
+    private final Boolean publicToAll;
+    private final Boolean publicToMarketplace;
+    private final Boolean agencyProfile;
     private boolean isVisible;
     private boolean isManageable;
 

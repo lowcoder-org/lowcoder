@@ -5,8 +5,12 @@ import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.lowcoder.api.bundle.BundleEndpoints.CreateBundleRequest;
 import org.lowcoder.api.application.view.ApplicationInfoView;
 import org.lowcoder.api.application.view.ApplicationPermissionView;
+import org.lowcoder.api.bundle.view.BundleInfoView;
+import org.lowcoder.api.bundle.view.BundlePermissionView;
+import org.lowcoder.api.home.FolderApiService;
 import org.lowcoder.api.home.SessionUserService;
 import org.lowcoder.api.home.UserHomeApiService;
 import org.lowcoder.api.permission.PermissionHelper;
@@ -15,6 +19,8 @@ import org.lowcoder.api.usermanagement.OrgDevChecker;
 import org.lowcoder.domain.application.model.ApplicationStatus;
 import org.lowcoder.domain.application.model.ApplicationType;
 import org.lowcoder.domain.bundle.model.Bundle;
+import org.lowcoder.domain.bundle.model.BundleRequestType;
+import org.lowcoder.domain.bundle.model.BundleStatus;
 import org.lowcoder.domain.bundle.service.BundleElementRelationService;
 import org.lowcoder.domain.bundle.service.BundleNode;
 import org.lowcoder.domain.bundle.service.BundleService;
@@ -24,10 +30,7 @@ import org.lowcoder.domain.group.service.GroupService;
 import org.lowcoder.domain.organization.model.OrgMember;
 import org.lowcoder.domain.organization.model.Organization;
 import org.lowcoder.domain.organization.service.OrganizationService;
-import org.lowcoder.domain.permission.model.ResourceAction;
-import org.lowcoder.domain.permission.model.ResourcePermission;
-import org.lowcoder.domain.permission.model.ResourceRole;
-import org.lowcoder.domain.permission.model.ResourceType;
+import org.lowcoder.domain.permission.model.*;
 import org.lowcoder.domain.permission.service.ResourcePermissionService;
 import org.lowcoder.domain.user.model.User;
 import org.lowcoder.domain.user.service.UserService;
@@ -43,6 +46,8 @@ import java.util.function.Function;
 import java.util.function.ToLongFunction;
 
 import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
+import static org.lowcoder.domain.bundle.model.BundleStatus.NORMAL;
+import static org.lowcoder.domain.permission.model.ResourceAction.*;
 import static org.lowcoder.infra.util.MonoUtils.emptyIfNull;
 import static org.lowcoder.sdk.exception.BizError.*;
 import static org.lowcoder.sdk.util.ExceptionUtils.ofError;
@@ -79,21 +84,76 @@ public class BundleApiServiceImpl implements BundleApiService {
     private final GroupService groupService;
     private final UserService userService;
     private final OrganizationService organizationService;
+    private final FolderApiService folderApiService;
 
     @Override
-    public Mono<BundleInfoView> create(Bundle bundle) {
+    public Mono<BundleInfoView> create(CreateBundleRequest createBundleRequest) {
+        Bundle bundle = Bundle.builder()
+                .name(createBundleRequest.name())
+                .image(createBundleRequest.image())
+                .title(createBundleRequest.title())
+                .description(createBundleRequest.description())
+                .category(createBundleRequest.description())
+                .bundleStatus(NORMAL)
+                .publicToAll(false)
+                .publicToMarketplace(false)
+                .agencyProfile(false)
+                .build();
         if (StringUtils.isBlank(bundle.getName())) {
             return Mono.error(new BizException(BizError.INVALID_PARAMETER, "BUNDLE_NAME_EMPTY"));
         }
         return orgDevChecker.checkCurrentOrgDev()
                 .then(sessionUserService.getVisitorOrgMemberCache())
                 .delayUntil(orgMember -> checkBundleNameUnique(bundle.getName(), orgMember.getUserId()))
+                .delayUntil(orgMember -> {
+                    String folderId = createBundleRequest.folderId();
+                    if (StringUtils.isBlank(folderId)) {
+                        return Mono.empty();
+                    }
+                    return folderApiService.checkFolderExist(folderId)
+                            .flatMap(folder -> folderApiService.checkFolderCurrentOrg(folder, orgMember.getOrgId()));
+                })
                 .flatMap(orgMember -> {
-                    bundle.setUserId(orgMember.getUserId());
                     bundle.setCreatedBy(orgMember.getUserId());
                     return bundleService.create(bundle);
                 })
-                .flatMap(f -> buildBundleInfoView(f, true, true));
+                .delayUntil(created -> autoGrantPermissionsByFolderDefault(created.getId(), createBundleRequest.folderId()))
+                .delayUntil(created -> folderApiService.move(created.getId(),
+                        createBundleRequest.folderId()))
+                .flatMap(f -> buildBundleInfoView(f, true, true, createBundleRequest.folderId()));
+    }
+
+    private Mono<Void> autoGrantPermissionsByFolderDefault(String bundleId, @Nullable String folderId) {
+        if (StringUtils.isBlank(folderId)) {
+            return Mono.empty();
+        }
+        return folderApiService.getPermissions(folderId)
+                .flatMapIterable(ApplicationPermissionView::getPermissions)
+                .groupBy(PermissionItemView::getRole)
+                .flatMap(sameRolePermissionItemViewFlux -> {
+                    String role = sameRolePermissionItemViewFlux.key();
+                    Flux<PermissionItemView> permissionItemViewFlux = sameRolePermissionItemViewFlux.cache();
+
+                    Mono<List<String>> userIdsMono = permissionItemViewFlux
+                            .filter(permissionItemView -> permissionItemView.getType() == ResourceHolder.USER)
+                            .map(PermissionItemView::getId)
+                            .collectList();
+
+                    Mono<List<String>> groupIdsMono = permissionItemViewFlux
+                            .filter(permissionItemView -> permissionItemView.getType() == ResourceHolder.GROUP)
+                            .map(PermissionItemView::getId)
+                            .collectList();
+
+                    return Mono.zip(userIdsMono, groupIdsMono)
+                            .flatMap(tuple -> {
+                                List<String> userIds = tuple.getT1();
+                                List<String> groupIds = tuple.getT2();
+                                return resourcePermissionService.insertBatchPermission(ResourceType.BUNDLE, bundleId,
+                                        new HashSet<>(userIds), new HashSet<>(groupIds),
+                                        ResourceRole.fromValue(role));
+                            });
+                })
+                .then();
     }
 
     @Override
@@ -104,7 +164,7 @@ public class BundleApiServiceImpl implements BundleApiService {
 
     @Override
     public Mono<Void> checkBundleCurrentUser(Bundle bundle, String currentUserId) {
-        if (currentUserId.equals(bundle.getUserId())) {
+        if (currentUserId.equals(bundle.getCreatedBy())) {
             return Mono.empty();
         }
         return Mono.error(new BizException(BUNDLE_NOT_EXIST, "BUNDLE_NOT_EXIST", bundle.getId()));
@@ -123,27 +183,57 @@ public class BundleApiServiceImpl implements BundleApiService {
     }
 
     /**
-     * only org admin and bundle creator can delete a bundle
+     * only bundle creator can delete a bundle
      */
     @Override
     public Mono<Bundle> delete(@Nonnull String bundleId) {
-        return checkManagePermission(bundleId)
-                .flatMap(orgMember -> buildBundleTree(orgMember.getUserId()))
-                .flatMap(tree -> {
-                    BundleNode<Object, Bundle> bundleNode = tree.get(bundleId);
-                    if (bundleNode == null) {
-                        return Mono.error(new BizException(BUNDLE_NOT_EXIST, "BUNDLE_NOT_EXIST", bundleId));
-                    }
-                    @SuppressWarnings("ConstantConditions")
-                    List<String> bundleIds = bundleNode.getAllBundleChildren().stream().map(Bundle::getId).toList();
-                    List<String> all = new ArrayList<>(bundleIds);
-                    all.add(bundleId);
+        return checkBundleStatus(bundleId, BundleStatus.RECYCLED)
+                .then(updateBundleStatus(bundleId, BundleStatus.DELETED))
+                .then(bundleService.findById(bundleId));
+    }
 
-                    return bundleService.deleteAllById(all)
-                            .then(removePermissions(bundleId))
-                            .then(bundleElementRelationService.deleteByBundleIds(all))
-                            .thenReturn(bundleNode.getSelf());
-                });
+    @Override
+    public Mono<Boolean> recycle(String bundleId) {
+        return checkBundleStatus(bundleId, NORMAL)
+                .then(updateBundleStatus(bundleId, BundleStatus.RECYCLED));
+    }
+
+    @Override
+    public Mono<Boolean> restore(String bundleId) {
+        return checkBundleStatus(bundleId, BundleStatus.RECYCLED)
+                .then(updateBundleStatus(bundleId, NORMAL));
+    }
+
+    @Override
+    public Flux<BundleInfoView> getRecycledBundles() {
+        return userHomeApiService.getAllAuthorisedBundles4CurrentOrgMember(BundleStatus.RECYCLED);
+    }
+
+    private Mono<Void> checkBundleStatus(String bundleId, BundleStatus expected) {
+        return bundleService.findById(bundleId)
+                .flatMap(bundle -> checkBundleStatus(bundle, expected));
+    }
+
+    private Mono<Void> checkBundleStatus(Bundle bundle, BundleStatus expected) {
+        if (expected == bundle.getBundleStatus()) {
+            return Mono.empty();
+        }
+        return Mono.error(new BizException(BizError.UNSUPPORTED_OPERATION, "BAD_REQUEST"));
+    }
+
+    private Mono<Boolean> updateBundleStatus(String bundleId, BundleStatus bundleStatus) {
+        return checkCurrentUserBundlePermission(bundleId, MANAGE_BUNDLES)
+                .then(Mono.defer(() -> {
+                    Bundle bundle = Bundle.builder()
+                            .bundleStatus(bundleStatus)
+                            .build();
+                    return bundleService.updateById(bundleId, bundle);
+                }));
+    }
+
+    private Mono<Void> checkCurrentUserBundlePermission(String bundleId, ResourceAction action) {
+        return sessionUserService.getVisitorId()
+                .flatMap(userId -> resourcePermissionService.checkResourcePermissionWithError(userId, bundleId, action));
     }
 
     private Mono<Void> removePermissions(String bundleId) {
@@ -158,14 +248,13 @@ public class BundleApiServiceImpl implements BundleApiService {
         Bundle newBundle = new Bundle();
         newBundle.setName(bundle.getName());
         newBundle.setTitle(bundle.getTitle());
-        newBundle.setType(bundle.getType());
         newBundle.setCategory(bundle.getCategory());
         newBundle.setDescription(bundle.getDescription());
         newBundle.setImage(bundle.getImage());
         return checkManagePermission(bundle.getId())
                 .then(bundleService.updateById(bundle.getId(), newBundle))
                 .then(bundleService.findById(bundle.getId()))
-                .flatMap(f -> buildBundleInfoView(f, true, true));
+                .flatMap(f -> buildBundleInfoView(f, true, true, null));
     }
 
     /**
@@ -236,6 +325,74 @@ public class BundleApiServiceImpl implements BundleApiService {
                 .map(bundles -> new Tree<>(bundles, Bundle::getId, __ -> null, Collections.emptyList(), null, null));
     }
 
+    @Override
+    public Mono<BundleInfoView> getPublishedBundle(String bundleId, BundleRequestType requestType) {
+        return checkBundlePermissionWithReadableErrorMsg(bundleId, READ_BUNDLES, requestType)
+                .zipWhen(permission -> bundleService.findById(bundleId)
+                        .delayUntil(bundle -> checkBundleStatus(bundle, BundleStatus.NORMAL))
+                        .delayUntil(bundle -> checkBundleViewRequest(bundle, requestType)))
+                .map(tuple -> {
+                    Bundle bundle = tuple.getT2();
+                    return BundleInfoView.builder()
+                            .bundleId(bundle.getId())
+                            .name(bundle.getName())
+                            .title(bundle.getTitle())
+                            .category(bundle.getCategory())
+                            .description(bundle.getDescription())
+                            .image(bundle.getImage())
+                            .publicToMarketplace(bundle.getPublicToMarketplace())
+                            .publicToAll(bundle.getPublicToAll())
+                            .agencyProfile(bundle.getAgencyProfile())
+                            .createAt(bundle.getCreatedAt().toEpochMilli())
+                            .createTime(bundle.getCreatedAt())
+                            .createBy(bundle.getCreatedBy())
+                            .build();
+                });
+    }
+
+    private Mono<Void> checkBundleViewRequest(Bundle bundle, BundleRequestType expected) {
+
+        // TODO: check bundle.isPublicToAll() from v2.4.0
+        if (expected == BundleRequestType.PUBLIC_TO_ALL) {
+            return Mono.empty();
+        }
+
+        // Falk: here is to check the ENV Variable LOWCODER_MARKETPLACE_PRIVATE_MODE
+        // isPublicToMarketplace & isPublicToAll must be both true
+        if (expected == BundleRequestType.PUBLIC_TO_MARKETPLACE && bundle.getPublicToMarketplace() && bundle.getPublicToAll()) {
+            return Mono.empty();
+        }
+
+        //
+        // Falk: bundle.agencyProfile() & isPublicToAll must be both true
+        if (expected == BundleRequestType.AGENCY_PROFILE && bundle.getAgencyProfile() && bundle.getPublicToAll()) {
+            return Mono.empty();
+        }
+        return Mono.error(new BizException(BizError.UNSUPPORTED_OPERATION, "BAD_REQUEST"));
+    }
+
+    @Override
+    @Nonnull
+    public Mono<ResourcePermission> checkBundlePermissionWithReadableErrorMsg(String bundleId, ResourceAction action, BundleRequestType requestType) {
+        return sessionUserService.getVisitorId()
+                .flatMap(visitorId -> resourcePermissionService.checkUserPermissionStatusOnBundle(visitorId, bundleId, action, requestType))
+                .flatMap(permissionStatus -> {
+                    if (!permissionStatus.hasPermission()) {
+                        if (permissionStatus.failByAnonymousUser()) {
+                            return ofError(USER_NOT_SIGNED_IN, "USER_NOT_SIGNED_IN");
+                        }
+
+                        if (permissionStatus.failByNotInOrg()) {
+                            return ofError(NO_PERMISSION_TO_REQUEST_APP, "INSUFFICIENT_PERMISSION");
+                        }
+
+                        String messageKey = action == EDIT_BUNDLES ? "NO_PERMISSION_TO_EDIT" : "NO_PERMISSION_TO_VIEW";
+                        return ofError(NO_PERMISSION_TO_REQUEST_APP, messageKey);
+                    }
+                    return Mono.just(permissionStatus.getPermission());
+                });
+    }
+
     private Mono<Tree<ApplicationInfoView, BundleInfoView>> buildApplicationInfoViewTree(@Nullable ApplicationType applicationType) {
 
         Mono<OrgMember> orgMemberMono = sessionUserService.getVisitorOrgMemberCache()
@@ -293,14 +450,11 @@ public class BundleApiServiceImpl implements BundleApiService {
     }
 
     /**
-     * only org admin and bundle creator has manage permissions
+     * only bundle creator has manage permissions
      */
     private Mono<OrgMember> checkManagePermission(String bundleId) {
         return sessionUserService.getVisitorOrgMemberCache()
                 .flatMap(orgMember -> {
-                    if (orgMember.isAdmin() || orgMember.isSuperAdmin()) {
-                        return Mono.just(orgMember);
-                    }
                     return isCreator(bundleId)
                             .flatMap(isCreator -> isCreator ? Mono.just(orgMember)
                                                             : ofError(BUNDLE_OPERATE_NO_PERMISSION, "BUNDLE_OPERATE_NO_PERMISSION"));
@@ -352,7 +506,7 @@ public class BundleApiServiceImpl implements BundleApiService {
     }
 
     @Override
-    public Mono<ApplicationPermissionView> getPermissions(String bundleId) {
+    public Mono<BundlePermissionView> getPermissions(String bundleId) {
 
         Mono<List<ResourcePermission>> bundlePermissions =
                 resourcePermissionService.getByResourceTypeAndResourceId(ResourceType.BUNDLE, bundleId).cache();
@@ -365,13 +519,13 @@ public class BundleApiServiceImpl implements BundleApiService {
 
         return bundleService.findById(bundleId)
                 .flatMap(bundle -> {
-                    Mono<Organization> orgMono = organizationService.getById(bundle.getUserId());
+                    Mono<Organization> orgMono = organizationService.getById(bundle.getCreatedBy());
                     return Mono.zip(groupPermissionPairsMono, userPermissionPairsMono, orgMono)
                             .map(tuple -> {
                                 List<PermissionItemView> groupPermissionPairs = tuple.getT1();
                                 List<PermissionItemView> userPermissionPairs = tuple.getT2();
                                 Organization organization = tuple.getT3();
-                                return ApplicationPermissionView.builder()
+                                return BundlePermissionView.builder()
                                         .groupPermissions(groupPermissionPairs)
                                         .userPermissions(userPermissionPairs)
                                         .creatorId(bundle.getCreatedBy())
@@ -382,21 +536,24 @@ public class BundleApiServiceImpl implements BundleApiService {
     }
 
     @Override
-    public Mono<BundleInfoView> buildBundleInfoView(Bundle bundle, boolean visible, boolean manageable) {
+    public Mono<BundleInfoView> buildBundleInfoView(Bundle bundle, boolean visible, boolean manageable, String folderId) {
         return userService.findById(bundle.getCreatedBy())
                 .map(user -> BundleInfoView.builder()
-                        .userId(bundle.getUserId())
+                        .userId(bundle.getCreatedBy())
                         .bundleId(bundle.getId())
                         .name(bundle.getName())
                         .description(bundle.getDescription())
                         .category(bundle.getCategory())
-                        .type(bundle.getType())
                         .image(bundle.getImage())
                         .createAt(bundle.getCreatedAt() == null ? 0 : bundle.getCreatedAt().toEpochMilli())
                         .createBy(user.getName())
                         .createTime(bundle.getCreatedAt())
                         .isVisible(visible)
                         .isManageable(manageable)
+                        .folderId(folderId)
+                        .publicToAll(bundle.getPublicToAll())
+                        .publicToMarketplace(bundle.getPublicToMarketplace())
+                        .agencyProfile(bundle.getAgencyProfile())
                         .build());
     }
 }

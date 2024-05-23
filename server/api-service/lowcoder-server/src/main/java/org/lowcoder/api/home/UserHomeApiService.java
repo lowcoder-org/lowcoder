@@ -4,9 +4,11 @@ package org.lowcoder.api.home;
 import jakarta.annotation.Nullable;
 import org.lowcoder.api.application.view.ApplicationInfoView;
 import org.lowcoder.api.application.view.MarketplaceApplicationInfoView;
+import org.lowcoder.api.bundle.view.BundleInfoView;
 import org.lowcoder.api.usermanagement.view.UserProfileView;
 import org.lowcoder.domain.application.model.ApplicationStatus;
 import org.lowcoder.domain.application.model.ApplicationType;
+import org.lowcoder.domain.bundle.model.BundleStatus;
 import org.lowcoder.domain.user.model.User;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Flux;
@@ -22,6 +24,8 @@ public interface UserHomeApiService {
 
     Flux<ApplicationInfoView> getAllAuthorisedApplications4CurrentOrgMember(@Nullable ApplicationType applicationType,
                                                                             @Nullable ApplicationStatus applicationStatus, boolean withContainerSize);
+
+    Flux<BundleInfoView> getAllAuthorisedBundles4CurrentOrgMember(@Nullable BundleStatus bundleStatus);
 
     public Flux<MarketplaceApplicationInfoView> getAllMarketplaceApplications(@Nullable ApplicationType applicationType);
 

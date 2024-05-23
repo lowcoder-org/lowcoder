@@ -6,6 +6,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.lowcoder.api.application.view.ApplicationInfoView;
 import org.lowcoder.api.application.view.ApplicationInfoView.ApplicationInfoViewBuilder;
 import org.lowcoder.api.application.view.MarketplaceApplicationInfoView;
+import org.lowcoder.api.bundle.view.BundleInfoView;
 import org.lowcoder.api.usermanagement.OrgDevChecker;
 import org.lowcoder.api.usermanagement.view.OrgAndVisitorRoleView;
 import org.lowcoder.api.usermanagement.view.UserProfileView;
@@ -13,8 +14,11 @@ import org.lowcoder.domain.application.model.Application;
 import org.lowcoder.domain.application.model.ApplicationStatus;
 import org.lowcoder.domain.application.model.ApplicationType;
 import org.lowcoder.domain.application.service.ApplicationService;
+import org.lowcoder.domain.bundle.model.Bundle;
 import org.lowcoder.domain.bundle.model.BundleElement;
+import org.lowcoder.domain.bundle.model.BundleStatus;
 import org.lowcoder.domain.bundle.service.BundleElementRelationServiceImpl;
+import org.lowcoder.domain.bundle.service.BundleService;
 import org.lowcoder.domain.interaction.UserApplicationInteraction;
 import org.lowcoder.domain.interaction.UserApplicationInteractionService;
 import org.lowcoder.domain.organization.model.OrgMember;
@@ -42,6 +46,7 @@ import java.util.stream.Collectors;
 
 import static java.util.Objects.isNull;
 import static org.lowcoder.domain.permission.model.ResourceAction.READ_APPLICATIONS;
+import static org.lowcoder.domain.permission.model.ResourceAction.READ_BUNDLES;
 import static org.lowcoder.infra.util.MonoUtils.emptyIfNull;
 import static org.lowcoder.sdk.util.StreamUtils.collectList;
 
@@ -62,6 +67,7 @@ public class UserHomeApiServiceImpl implements UserHomeApiService {
     private final UserApplicationInteractionService userApplicationInteractionService;
     private final CommonConfig config;
     private final BundleElementRelationServiceImpl bundleElementRelationServiceImpl;
+    private final BundleService bundleService;
 
     @Override
     public Mono<UserProfileView> buildUserProfileView(User user, ServerWebExchange exchange) {
@@ -245,6 +251,70 @@ public class UserHomeApiServiceImpl implements UserHomeApiService {
                                             return Mono.just(buildView(application, resourceRole, userMap, applicationLastViewTimeMap.get(application.getId()),
                                                     position, withContainerSize));
                                         });
+                            });
+                });
+    }
+
+    @Override
+    public Flux<BundleInfoView> getAllAuthorisedBundles4CurrentOrgMember(@Nullable BundleStatus bundleStatus) {
+
+        return sessionUserService.getVisitorOrgMemberCache()
+                .flatMapMany(orgMember -> {
+                    String visitorId = orgMember.getUserId();
+                    String currentOrgId = orgMember.getOrgId();
+                    // bundle flux
+                    Flux<Bundle> bundleFlux = Flux.defer(() -> {
+                                return bundleService.findByUserId(visitorId);
+                            })
+                            .filter(bundle -> isNull(bundleStatus) || bundle.getBundleStatus() == bundleStatus)
+                            .cache()
+                            .collectList()
+                            .flatMapIterable(Function.identity());
+
+                    Mono<Map<String, ResourcePermission>> resourcePermissionMapMono = bundleFlux
+                            .mapNotNull(Bundle::getId)
+                            .collectList()
+                            .flatMap(bundleIds -> resourcePermissionService.getMaxMatchingPermission(visitorId, bundleIds,
+                                    READ_BUNDLES))
+                            .cache();
+
+                    // user map
+                    Mono<Map<String, User>> userMapMono = bundleFlux
+                            .flatMap(bundle -> emptyIfNull(bundle.getCreatedBy()))
+                            .collectList()
+                            .flatMap(creatorIds -> userService.getByIds(creatorIds))
+                            .cache();
+
+                    return bundleFlux
+                            .flatMap(bundle -> Mono.zip(Mono.just(bundle), resourcePermissionMapMono, userMapMono))
+                            .filter(tuple -> {
+                                // filter by permission
+                                Bundle bundle = tuple.getT1();
+                                Map<String, ResourcePermission> resourcePermissionMap = tuple.getT2();
+                                return resourcePermissionMap.containsKey(bundle.getId());
+                            })
+                            .flatMap(tuple -> {
+                                // build view
+                                Bundle bundle = tuple.getT1();
+                                Map<String, ResourcePermission> resourcePermissionMap = tuple.getT2();
+                                Map<String, User> userMap = tuple.getT3();
+
+                                BundleInfoView bundleInfoView = BundleInfoView.builder()
+                                        .bundleId(bundle.getId())
+                                        .image(bundle.getImage())
+                                        .name(bundle.getName())
+                                        .title(bundle.getTitle())
+                                        .category(bundle.getCategory())
+                                        .description(bundle.getDescription())
+                                        .publicToAll(bundle.getPublicToAll())
+                                        .publicToMarketplace(bundle.getPublicToMarketplace())
+                                        .agencyProfile(bundle.getAgencyProfile())
+                                        .createTime(bundle.getCreatedAt())
+                                        .createAt(bundle.getCreatedAt().toEpochMilli())
+                                        .createBy(bundle.getCreatedBy())
+                                        .agencyProfile(bundle.getAgencyProfile())
+                                        .build();
+                                return Mono.just(bundleInfoView);
                             });
                 });
     }

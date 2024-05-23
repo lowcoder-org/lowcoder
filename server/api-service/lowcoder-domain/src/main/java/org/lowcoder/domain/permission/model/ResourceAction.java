@@ -21,9 +21,19 @@ public enum ResourceAction {
     EXPORT_APPLICATIONS(ResourceRole.EDITOR, ResourceType.APPLICATION),
     EDIT_APPLICATIONS(ResourceRole.EDITOR, ResourceType.APPLICATION),
 
+    MANAGE_BUNDLES(ResourceRole.OWNER, ResourceType.BUNDLE),
+    READ_BUNDLES(ResourceRole.VIEWER, ResourceType.BUNDLE),
+    PUBLISH_BUNDLES(ResourceRole.EDITOR, ResourceType.BUNDLE),
+    EXPORT_BUNDLES(ResourceRole.EDITOR, ResourceType.BUNDLE),
+    EDIT_BUNDLES(ResourceRole.EDITOR, ResourceType.BUNDLE),
+
     SET_APPLICATIONS_PUBLIC(ResourceRole.EDITOR, ResourceType.APPLICATION),
     SET_APPLICATIONS_PUBLIC_TO_MARKETPLACE(ResourceRole.EDITOR, ResourceType.APPLICATION),
     SET_APPLICATIONS_AS_AGENCY_PROFILE(ResourceRole.EDITOR, ResourceType.APPLICATION),
+
+    SET_BUNDLES_PUBLIC(ResourceRole.EDITOR, ResourceType.BUNDLE),
+    SET_BUNDLES_PUBLIC_TO_MARKETPLACE(ResourceRole.EDITOR, ResourceType.BUNDLE),
+    SET_BUNDLES_AS_AGENCY_PROFILE(ResourceRole.EDITOR, ResourceType.BUNDLE),
 
     // datasource action
     MANAGE_DATASOURCES(ResourceRole.OWNER, ResourceType.DATASOURCE),

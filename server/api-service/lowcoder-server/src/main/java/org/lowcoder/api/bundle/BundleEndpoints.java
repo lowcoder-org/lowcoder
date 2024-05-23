@@ -1,7 +1,11 @@
 package org.lowcoder.api.bundle;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.Operation;
-import org.lowcoder.api.application.view.ApplicationPermissionView;
+import jakarta.annotation.Nullable;
+import org.lowcoder.api.application.view.ApplicationView;
+import org.lowcoder.api.bundle.view.BundleInfoView;
+import org.lowcoder.api.bundle.view.BundlePermissionView;
 import org.lowcoder.api.framework.view.ResponseView;
 import org.lowcoder.domain.application.model.ApplicationType;
 import org.lowcoder.domain.bundle.model.Bundle;
@@ -26,7 +30,7 @@ public interface BundleEndpoints
 		    description = "Create a new Application Bundle within the Lowcoder to organize Applications effectively."
 	)
     @PostMapping
-    public Mono<ResponseView<BundleInfoView>> create(@RequestBody Bundle bundle);
+    public Mono<ResponseView<BundleInfoView>> create(@RequestBody CreateBundleRequest bundle);
 
 	@Operation(
 			tags = TAG_BUNDLE_MANAGEMENT,
@@ -37,6 +41,61 @@ public interface BundleEndpoints
     @DeleteMapping("/{id}")
     public Mono<ResponseView<Void>> delete(@PathVariable("id") String bundleId);
 
+
+	@Operation(
+			tags = TAG_BUNDLE_MANAGEMENT,
+			operationId = "recycleApplication",
+			summary = "Move Application to bin (do not delete)",
+			description = "Move a Lowcoder Application identified by its ID to the recycle bin without permanent deletion."
+	)
+	@PutMapping("/recycle/{applicationId}")
+	public Mono<ResponseView<Boolean>> recycle(@PathVariable String applicationId);
+
+	@Operation(
+			tags = TAG_BUNDLE_MANAGEMENT,
+			operationId = "restoreRecycledApplication",
+			summary = "Restore recycled Application",
+			description = "Restore a previously recycled Lowcoder Application identified by its ID"
+	)
+	@PutMapping("/restore/{applicationId}")
+	public Mono<ResponseView<Boolean>> restore(@PathVariable String applicationId);
+
+	@Operation(
+			tags = TAG_BUNDLE_MANAGEMENT,
+			operationId = "listRecycledBundles",
+			summary = "List recycled Bundles in bin",
+			description = "List all the recycled Lowcoder Bundles in the recycle bin where the authenticated or impersonated user has access."
+	)
+	@GetMapping("/recycle/list")
+	public Mono<ResponseView<List<BundleInfoView>>> getRecycledBundles();
+
+	@Operation(
+			tags = TAG_BUNDLE_MANAGEMENT,
+			operationId = "getBundleDataInViewMode",
+			summary = "Get Bundle data in view mode",
+			description = "Retrieve the data of a Lowcoder Bundle in view-mode by its ID."
+	)
+	@GetMapping("/{bundleId}/view")
+	public Mono<ResponseView<BundleInfoView>> getPublishedBundle(@PathVariable String bundleId);
+
+	@Operation(
+			tags = TAG_BUNDLE_MANAGEMENT,
+			operationId = "getMarketplaceBundleDataInViewMode",
+			summary = "Get Marketplace Bundle data in view mode",
+			description = "Retrieve the DSL data of a Lowcoder Bundle in view-mode by its ID for the Marketplace."
+	)
+	@GetMapping("/{bundleId}/view_marketplace")
+	public Mono<ResponseView<BundleInfoView>> getPublishedMarketPlaceBundle(@PathVariable String bundleId);
+
+	@Operation(
+			tags = TAG_BUNDLE_MANAGEMENT,
+			operationId = "getAgencyProfileBundleDataInViewMode",
+			summary = "Get Agency profile Bundle data in view mode",
+			description = "Retrieve the DSL data of a Lowcoder Bundle in view-mode by its ID marked as Agency Profile."
+	)
+	@GetMapping("/{bundleId}/view_agency")
+	public Mono<ResponseView<BundleInfoView>> getAgencyProfileBundle(@PathVariable String bundleId);
+
     /**
      * update name only.
      */
@@ -44,7 +103,7 @@ public interface BundleEndpoints
 			tags = TAG_BUNDLE_MANAGEMENT,
 		    operationId = "updateBundle",
 		    summary = "Update Bundle",
-		    description = "Modify the properties and settings of an existing Application Bundle within Lowcoder."
+		    description = "Modify the properties and settings of an existing Bundle Bundle within Lowcoder."
 	)
     @PutMapping
     public Mono<ResponseView<BundleInfoView>> update(@RequestBody Bundle bundle);
@@ -56,7 +115,7 @@ public interface BundleEndpoints
 			tags = TAG_BUNDLE_MANAGEMENT,
 		    operationId = "listBundleContents",
 		    summary = "Get Bundle contents",
-		    description = "Retrieve the contents of an Application Bundle within Lowcoder, including Applications."
+		    description = "Retrieve the contents of an Bundle Bundle within Lowcoder, including Bundles."
 	)
     @GetMapping("/elements")
     public Mono<ResponseView<List<?>>> getElements(@RequestParam(value = "id", required = false) String bundleId,
@@ -66,7 +125,7 @@ public interface BundleEndpoints
 			tags = TAG_BUNDLE_MANAGEMENT,
 		    operationId = "moveBundle",
 		    summary = "Move Bundle",
-		    description = "Relocate an Application Bundle to a different location in the Bundle hierarchy in Lowcoder using its unique ID."
+		    description = "Relocate an Bundle Bundle to a different location in the Bundle hierarchy in Lowcoder using its unique ID."
 	)
     @PutMapping("/move/{id}")
     public Mono<ResponseView<Void>> move(@PathVariable("id") String applicationLikeId,
@@ -76,7 +135,7 @@ public interface BundleEndpoints
 			tags = TAG_BUNDLE_PERMISSIONS,
 		    operationId = "updateBundlePermissions",
 		    summary = "Update Bundle permissions",
-		    description = "Modify permissions associated with a specific Application Bundle within Lowcoder."
+		    description = "Modify permissions associated with a specific Bundle Bundle within Lowcoder."
 	)
     @PutMapping("/{bundleId}/permissions/{permissionId}")
     public Mono<ResponseView<Void>> updatePermission(@PathVariable String bundleId,
@@ -87,7 +146,7 @@ public interface BundleEndpoints
 			tags = TAG_BUNDLE_PERMISSIONS,
 		    operationId = "revokeBundlePermissions",
 		    summary = "Revoke permissions from Bundle",
-		    description = "Remove specific permissions from an Application Bundle within Lowcoder, ensuring that selected Users or User-Groups no longer have access."
+		    description = "Remove specific permissions from an Bundle Bundle within Lowcoder, ensuring that selected Users or User-Groups no longer have access."
 	)
     @DeleteMapping("/{bundleId}/permissions/{permissionId}")
     public Mono<ResponseView<Void>> removePermission(
@@ -98,7 +157,7 @@ public interface BundleEndpoints
 			tags = TAG_BUNDLE_PERMISSIONS,
 		    operationId = "grantBundlePermissions",
 		    summary = "Grant permissions to Bundle",
-		    description = "Assign new permissions to a specific Application Bundle within Lowcoder, allowing authorized users to access it."
+		    description = "Assign new permissions to a specific Bundle Bundle within Lowcoder, allowing authorized users to access it."
 	)
     @PostMapping("/{bundleId}/permissions")
     public Mono<ResponseView<Void>> grantPermission(
@@ -109,15 +168,24 @@ public interface BundleEndpoints
 			tags = TAG_BUNDLE_PERMISSIONS,
 				    operationId = "listBundlePermissions",
 				    summary = "Get Bundle permissions",
-				    description = "Retrieve detailed information about permissions associated with a specific Application Bundle within Lowcoder."
+				    description = "Retrieve detailed information about permissions associated with a specific Bundle Bundle within Lowcoder."
 	)
     @GetMapping("/{bundleId}/permissions")
-    public Mono<ResponseView<ApplicationPermissionView>> getApplicationPermissions(@PathVariable String bundleId);
+    public Mono<ResponseView<BundlePermissionView>> getBundlePermissions(@PathVariable String bundleId);
 
     public record BatchAddPermissionRequest(String role, Set<String> userIds, Set<String> groupIds) {
     }
 
     public record UpdatePermissionRequest(String role) {
     }
+
+	public record CreateBundleRequest(@JsonProperty("orgId") String organizationId,
+										   String name,
+										   String title,
+										   String description,
+										   String category,
+										   String image,
+										   @Nullable String folderId) {
+	}
 
 }
