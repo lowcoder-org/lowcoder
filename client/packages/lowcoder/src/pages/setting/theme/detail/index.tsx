@@ -54,8 +54,8 @@ const ThemeSettingsView = styled.div`
 const StyleThemeSettingsCover = styled.div`
     display: flex;
     flex-direction: row;
-    background: rgb(131,58,180);
-    background: linear-gradient(34deg, rgba(131,58,180,1) 0%, rgba(253,29,29,1) 50%, rgba(252,176,69,1) 100%);
+    background: rgb(2,0,36);
+background: linear-gradient(34deg, rgba(2,0,36,1) 0%, rgba(102,9,121,1) 35%, rgba(0,255,181,1) 100%);
     padding: 15px;
     height: 80px;
     border-radius:10px 10px 0 0;
