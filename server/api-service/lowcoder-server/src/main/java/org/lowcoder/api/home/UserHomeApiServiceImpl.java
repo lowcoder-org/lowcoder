@@ -7,6 +7,7 @@ import org.lowcoder.api.application.view.ApplicationInfoView;
 import org.lowcoder.api.application.view.ApplicationInfoView.ApplicationInfoViewBuilder;
 import org.lowcoder.api.application.view.MarketplaceApplicationInfoView;
 import org.lowcoder.api.bundle.view.BundleInfoView;
+import org.lowcoder.api.bundle.view.MarketplaceBundleInfoView;
 import org.lowcoder.api.usermanagement.OrgDevChecker;
 import org.lowcoder.api.usermanagement.view.OrgAndVisitorRoleView;
 import org.lowcoder.api.usermanagement.view.UserProfileView;
@@ -222,7 +223,7 @@ public class UserHomeApiServiceImpl implements UserHomeApiService {
                     Mono<Map<String, User>> userMapMono = applicationFlux
                             .flatMap(application -> emptyIfNull(application.getCreatedBy()))
                             .collectList()
-                            .flatMap(creatorIds -> userService.getByIds(creatorIds))
+                            .flatMap(userService::getByIds)
                             .cache();
 
                     return applicationFlux
@@ -282,7 +283,7 @@ public class UserHomeApiServiceImpl implements UserHomeApiService {
                     Mono<Map<String, User>> userMapMono = bundleFlux
                             .flatMap(bundle -> emptyIfNull(bundle.getCreatedBy()))
                             .collectList()
-                            .flatMap(creatorIds -> userService.getByIds(creatorIds))
+                            .flatMap(userService::getByIds)
                             .cache();
 
                     return bundleFlux
@@ -330,7 +331,7 @@ public class UserHomeApiServiceImpl implements UserHomeApiService {
                     }
 
                     // application flux
-                    Flux<Application> applicationFlux = Flux.defer(() -> applicationService.findAllMarketplaceApps())
+                    Flux<Application> applicationFlux = Flux.defer(applicationService::findAllMarketplaceApps)
                             .filter(application -> isNull(applicationType) || application.getApplicationType() == applicationType.getValue())
                             .cache();
 
@@ -338,7 +339,7 @@ public class UserHomeApiServiceImpl implements UserHomeApiService {
                     Mono<Map<String, User>> userMapMono = applicationFlux
                             .flatMap(application -> emptyIfNull(application.getCreatedBy()))
                             .collectList()
-                            .flatMap(creatorIds -> userService.getByIds(creatorIds))
+                            .flatMap(userService::getByIds)
                             .cache();
 
                     // org map
@@ -398,7 +399,7 @@ public class UserHomeApiServiceImpl implements UserHomeApiService {
         return sessionUserService.getVisitorOrgMemberCache()
                 .flatMapMany(orgMember -> {
                     // application flux
-                    Flux<Application> applicationFlux = Flux.defer(() -> applicationService.findAllAgencyProfileApps())
+                    Flux<Application> applicationFlux = Flux.defer(applicationService::findAllAgencyProfileApps)
                             .filter(application -> isNull(applicationType) || application.getApplicationType() == applicationType.getValue())
                             .cache();
 
@@ -406,7 +407,7 @@ public class UserHomeApiServiceImpl implements UserHomeApiService {
                     Mono<Map<String, User>> userMapMono = applicationFlux
                             .flatMap(application -> emptyIfNull(application.getCreatedBy()))
                             .collectList()
-                            .flatMap(creatorIds -> userService.getByIds(creatorIds))
+                            .flatMap(userService::getByIds)
                             .cache();
 
                     // org map
@@ -439,6 +440,115 @@ public class UserHomeApiServiceImpl implements UserHomeApiService {
                                                 .orElse(""))
                                         .createAt(application.getCreatedAt().toEpochMilli())
                                         .createBy(application.getCreatedBy())
+                                        .build();
+                            });
+
+                });
+    }
+
+    @Override
+    public Flux<MarketplaceBundleInfoView> getAllMarketplaceBundles() {
+
+        return sessionUserService.isAnonymousUser()
+                .flatMapMany(isAnonymousUser -> {
+
+                    if(config.getMarketplace().isPrivateMode() && isAnonymousUser) {
+                        return Mono.empty();
+                    }
+
+                    // bundle flux
+                    Flux<Bundle> bundleFlux = Flux.defer(bundleService::findAllMarketplaceBundles)
+                            .cache();
+
+                    // user map
+                    Mono<Map<String, User>> userMapMono = bundleFlux
+                            .flatMap(bundle -> emptyIfNull(bundle.getCreatedBy()))
+                            .collectList()
+                            .flatMap(userService::getByIds)
+                            .cache();
+
+                    // org map
+                    Mono<Map<String, Organization>> orgMapMono = bundleFlux
+                            .flatMap(bundle -> emptyIfNull(bundle.getOrganizationId()))
+                            .collectList()
+                            .flatMap(orgIds -> organizationService.getByIds(orgIds)
+                                    .collectList()
+                                    .map(it -> it.stream().collect(Collectors.toMap(Organization::getId, Function.identity())))
+                            )
+                            .cache();
+
+
+                    return bundleFlux
+                            .flatMap(bundle -> Mono.zip(Mono.just(bundle), userMapMono, orgMapMono))
+                            .map(tuple2 -> {
+                                // build view
+                                Bundle bundle = tuple2.getT1();
+                                Map<String, User> userMap = tuple2.getT2();
+                                Map<String, Organization> orgMap = tuple2.getT3();
+
+                                return MarketplaceBundleInfoView.builder()
+                                        .bundleId(bundle.getId())
+                                        .name(bundle.getName())
+                                        .bundleStatus(bundle.getBundleStatus())
+                                        .orgId(bundle.getOrganizationId())
+                                        .orgName(orgMap.get(bundle.getOrganizationId()).getName())
+                                        .creatorEmail(Optional.ofNullable(userMap.get(bundle.getCreatedBy()))
+                                                .map(User::getName)
+                                                .orElse(""))
+                                        .createAt(bundle.getCreatedAt().toEpochMilli())
+                                        .createBy(bundle.getCreatedBy())
+                                        .build();
+
+                            });
+
+                });
+    }
+
+    @Override
+    public Flux<MarketplaceBundleInfoView> getAllAgencyProfileBundles() {
+
+        return sessionUserService.getVisitorOrgMemberCache()
+                .flatMapMany(orgMember -> {
+                    // bundle flux
+                    Flux<Bundle> bundleFlux = Flux.defer(bundleService::findAllAgencyProfileBundles)
+                            .cache();
+
+                    // user map
+                    Mono<Map<String, User>> userMapMono = bundleFlux
+                            .flatMap(bundle -> emptyIfNull(bundle.getCreatedBy()))
+                            .collectList()
+                            .flatMap(creatorIds -> userService.getByIds(creatorIds))
+                            .cache();
+
+                    // org map
+                    Mono<Map<String, Organization>> orgMapMono = bundleFlux
+                            .flatMap(bundle -> emptyIfNull(bundle.getOrganizationId()))
+                            .collectList()
+                            .flatMap(orgIds -> organizationService.getByIds(orgIds)
+                                    .collectList()
+                                    .map(it -> it.stream().collect(Collectors.toMap(Organization::getId, Function.identity())))
+                            )
+                            .cache();
+
+
+                    return bundleFlux
+                            .flatMap(bundle -> Mono.zip(Mono.just(bundle), userMapMono, orgMapMono))
+                            .map(tuple -> {
+                                // build view
+                                Bundle bundle = tuple.getT1();
+                                Map<String, User> userMap = tuple.getT2();
+                                Map<String, Organization> orgMap = tuple.getT3();
+                                return MarketplaceBundleInfoView.builder()
+                                        .bundleId(bundle.getId())
+                                        .name(bundle.getName())
+                                        .bundleStatus(bundle.getBundleStatus())
+                                        .orgId(bundle.getOrganizationId())
+                                        .orgName(orgMap.get(bundle.getOrganizationId()).getName())
+                                        .creatorEmail(Optional.ofNullable(userMap.get(bundle.getCreatedBy()))
+                                                .map(User::getName)
+                                                .orElse(""))
+                                        .createAt(bundle.getCreatedAt().toEpochMilli())
+                                        .createBy(bundle.getCreatedBy())
                                         .build();
                             });
 

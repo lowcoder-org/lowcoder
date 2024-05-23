@@ -2,6 +2,7 @@ package org.lowcoder.domain.bundle.service;
 
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
+import org.lowcoder.domain.application.model.Application;
 import org.lowcoder.domain.application.model.ApplicationRequestType;
 import org.lowcoder.domain.bundle.model.Bundle;
 import org.lowcoder.domain.bundle.model.BundleRequestType;
@@ -163,4 +164,15 @@ public class BundleServiceImpl implements BundleService {
                 .map(HasIdAndAuditing::getId)
                 .collect(Collectors.toSet());
     }
+
+    @Override
+    public Flux<Bundle> findAllMarketplaceBundles() {
+        return repository.findByPublicToAllIsTrueAndPublicToMarketplaceIsTrue();
+    }
+
+    @Override
+    public Flux<Bundle> findAllAgencyProfileBundles() {
+        return repository.findByPublicToAllIsTrueAndAgencyProfileIsTrue();
+    }
+
 }

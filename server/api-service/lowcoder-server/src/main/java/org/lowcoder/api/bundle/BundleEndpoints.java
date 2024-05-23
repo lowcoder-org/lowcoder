@@ -3,12 +3,13 @@ package org.lowcoder.api.bundle;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.annotation.Nullable;
-import org.lowcoder.api.application.view.ApplicationView;
 import org.lowcoder.api.bundle.view.BundleInfoView;
 import org.lowcoder.api.bundle.view.BundlePermissionView;
+import org.lowcoder.api.bundle.view.MarketplaceBundleInfoView;
 import org.lowcoder.api.framework.view.ResponseView;
 import org.lowcoder.domain.application.model.ApplicationType;
 import org.lowcoder.domain.bundle.model.Bundle;
+import org.lowcoder.domain.bundle.model.BundleStatus;
 import org.lowcoder.infra.constant.NewUrl;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
@@ -44,21 +45,21 @@ public interface BundleEndpoints
 
 	@Operation(
 			tags = TAG_BUNDLE_MANAGEMENT,
-			operationId = "recycleApplication",
-			summary = "Move Application to bin (do not delete)",
-			description = "Move a Lowcoder Application identified by its ID to the recycle bin without permanent deletion."
+			operationId = "recycleBundle",
+			summary = "Move Bundle to bin (do not delete)",
+			description = "Move a Lowcoder Bundle identified by its ID to the recycle bin without permanent deletion."
 	)
-	@PutMapping("/recycle/{applicationId}")
-	public Mono<ResponseView<Boolean>> recycle(@PathVariable String applicationId);
+	@PutMapping("/recycle/{bundleId}")
+	public Mono<ResponseView<Boolean>> recycle(@PathVariable String bundleId);
 
 	@Operation(
 			tags = TAG_BUNDLE_MANAGEMENT,
-			operationId = "restoreRecycledApplication",
-			summary = "Restore recycled Application",
-			description = "Restore a previously recycled Lowcoder Application identified by its ID"
+			operationId = "restoreRecycledBundle",
+			summary = "Restore recycled Bundle",
+			description = "Restore a previously recycled Lowcoder Bundle identified by its ID"
 	)
-	@PutMapping("/restore/{applicationId}")
-	public Mono<ResponseView<Boolean>> restore(@PathVariable String applicationId);
+	@PutMapping("/restore/{bundleId}")
+	public Mono<ResponseView<Boolean>> restore(@PathVariable String bundleId);
 
 	@Operation(
 			tags = TAG_BUNDLE_MANAGEMENT,
@@ -173,7 +174,35 @@ public interface BundleEndpoints
     @GetMapping("/{bundleId}/permissions")
     public Mono<ResponseView<BundlePermissionView>> getBundlePermissions(@PathVariable String bundleId);
 
-    public record BatchAddPermissionRequest(String role, Set<String> userIds, Set<String> groupIds) {
+	@Operation(
+			tags = TAG_BUNDLE_MANAGEMENT,
+			operationId = "listBundles",
+			summary = "List Bundles of current User",
+			description = "Retrieve a list of Lowcoder Bundles accessible by the authenticated or impersonated user."
+	)
+	@GetMapping("/list")
+	public Mono<ResponseView<List<BundleInfoView>>> getBundles(@RequestParam(required = false) BundleStatus bundleStatus);
+
+	@Operation(
+			tags = TAG_BUNDLE_MANAGEMENT,
+			operationId = "listMarketplaceBundles",
+			summary = "List Marketplace Bundles",
+			description = "Retrieve a list of Lowcoder Bundles that are published to the Marketplace"
+	)
+	@GetMapping("/marketplace-bundles")
+	public Mono<ResponseView<List<MarketplaceBundleInfoView>>> getMarketplaceBundles();
+
+	// Falk: why we use MarketplaceBundleInfoView for AgencyProfile?
+	@Operation(
+			tags = TAG_BUNDLE_MANAGEMENT,
+			operationId = "listAgencyProfileBundles",
+			summary = "List agency profile Bundles",
+			description = "Retrieve a list of Lowcoder Bundles that are set as agency profiles"
+	)
+	@GetMapping("/agency-profiles")
+	public Mono<ResponseView<List<MarketplaceBundleInfoView>>> getAgencyProfileBundles();
+
+	public record BatchAddPermissionRequest(String role, Set<String> userIds, Set<String> groupIds) {
     }
 
     public record UpdatePermissionRequest(String role) {

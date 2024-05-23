@@ -5,6 +5,7 @@ import jakarta.annotation.Nullable;
 import org.lowcoder.api.application.view.ApplicationInfoView;
 import org.lowcoder.api.application.view.MarketplaceApplicationInfoView;
 import org.lowcoder.api.bundle.view.BundleInfoView;
+import org.lowcoder.api.bundle.view.MarketplaceBundleInfoView;
 import org.lowcoder.api.usermanagement.view.UserProfileView;
 import org.lowcoder.domain.application.model.ApplicationStatus;
 import org.lowcoder.domain.application.model.ApplicationType;
@@ -30,4 +31,8 @@ public interface UserHomeApiService {
     public Flux<MarketplaceApplicationInfoView> getAllMarketplaceApplications(@Nullable ApplicationType applicationType);
 
     public Flux<MarketplaceApplicationInfoView> getAllAgencyProfileApplications(@Nullable ApplicationType applicationType);
+
+    Flux<MarketplaceBundleInfoView> getAllMarketplaceBundles();
+
+    Flux<MarketplaceBundleInfoView> getAllAgencyProfileBundles();
 }

@@ -25,4 +25,8 @@ public interface BundleRepository extends ReactiveMongoRepository<Bundle, String
      * Filter agency bundles from list of supplied IDs
      */
     Flux<Bundle> findByPublicToAllIsTrueAndAgencyProfileIsTrueAndIdIn(Collection<String> ids);
+
+    Flux<Bundle> findByPublicToAllIsTrueAndPublicToMarketplaceIsTrue();
+
+    Flux<Bundle> findByPublicToAllIsTrueAndAgencyProfileIsTrue();
 }

@@ -1,5 +1,6 @@
 package org.lowcoder.domain.bundle.service;
 
+import org.lowcoder.domain.application.model.Application;
 import org.lowcoder.domain.application.model.ApplicationRequestType;
 import org.lowcoder.domain.bundle.model.Bundle;
 import org.lowcoder.domain.bundle.model.BundleRequestType;
@@ -41,4 +42,8 @@ public interface BundleService {
     @NonEmptyMono
     @SuppressWarnings("ReactiveStreamsNullableInLambdaInTransform")
     Mono<Set<String>> getPublicAgencyBundleIds(Collection<String> bundleIds);
+
+    Flux<Bundle> findAllMarketplaceBundles();
+
+    Flux<Bundle> findAllAgencyProfileBundles();
 }
