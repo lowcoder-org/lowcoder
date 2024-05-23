@@ -5,6 +5,7 @@ import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.lowcoder.api.application.ApplicationEndpoints;
 import org.lowcoder.api.bundle.BundleEndpoints.CreateBundleRequest;
 import org.lowcoder.api.application.view.ApplicationInfoView;
 import org.lowcoder.api.application.view.ApplicationPermissionView;
@@ -555,5 +556,29 @@ public class BundleApiServiceImpl implements BundleApiService {
                         .publicToMarketplace(bundle.getPublicToMarketplace())
                         .agencyProfile(bundle.getAgencyProfile())
                         .build());
+    }
+
+    @Override
+    public Mono<Boolean> setBundlePublicToAll(String bundleId, boolean publicToAll) {
+        return checkCurrentUserBundlePermission(bundleId, ResourceAction.SET_APPLICATIONS_PUBLIC)
+                .then(checkBundleStatus(bundleId, BundleStatus.NORMAL))
+                .then(bundleService.setBundlePublicToAll(bundleId, publicToAll));
+    }
+
+    @Override
+    public Mono<Boolean> setBundlePublicToMarketplace(String bundleId, BundleEndpoints.BundlePublicToMarketplaceRequest request) {
+        return checkCurrentUserBundlePermission(bundleId, ResourceAction.SET_APPLICATIONS_PUBLIC_TO_MARKETPLACE)
+                .then(checkBundleStatus(bundleId, BundleStatus.NORMAL))
+                .then(bundleService.setBundlePublicToMarketplace
+                        (bundleId, request.publicToMarketplace()));
+    }
+
+    // Falk: why we have request.publicToMarketplace() - but here only agencyProfile? Not from request?
+    @Override
+    public Mono<Boolean> setBundleAsAgencyProfile(String bundleId, boolean agencyProfile) {
+        return checkCurrentUserBundlePermission(bundleId, ResourceAction.SET_APPLICATIONS_AS_AGENCY_PROFILE)
+                .then(checkBundleStatus(bundleId, BundleStatus.NORMAL))
+                .then(bundleService.setBundleAsAgencyProfile
+                        (bundleId, agencyProfile));
     }
 }

@@ -2,6 +2,7 @@ package org.lowcoder.api.bundle;
 
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
+import org.lowcoder.api.application.ApplicationEndpoints;
 import org.lowcoder.api.bundle.view.BundleInfoView;
 import org.lowcoder.api.bundle.view.BundlePermissionView;
 import org.lowcoder.domain.application.model.ApplicationType;
@@ -48,4 +49,10 @@ public interface BundleApiService {
     Mono<BundlePermissionView> getPermissions(String bundleId);
 
     Mono<BundleInfoView> buildBundleInfoView(Bundle bundle, boolean visible, boolean manageable, String folderId);
+
+    Mono<Boolean> setBundlePublicToAll(String bundleId, boolean publicToAll);
+
+    Mono<Boolean> setBundlePublicToMarketplace(String bundleId, BundleEndpoints.BundlePublicToMarketplaceRequest request);
+
+    Mono<Boolean> setBundleAsAgencyProfile(String bundleId, boolean agencyProfile);
 }

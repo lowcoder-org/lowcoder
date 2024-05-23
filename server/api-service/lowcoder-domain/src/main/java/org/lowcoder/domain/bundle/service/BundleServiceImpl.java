@@ -18,6 +18,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.Collection;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -173,6 +174,35 @@ public class BundleServiceImpl implements BundleService {
     @Override
     public Flux<Bundle> findAllAgencyProfileBundles() {
         return repository.findByPublicToAllIsTrueAndAgencyProfileIsTrue();
+    }
+
+    @Override
+    public Mono<Boolean> setBundlePublicToAll(String bundleId, boolean publicToAll) {
+        Bundle bundle = Bundle.builder()
+                .publicToAll(publicToAll)
+                .build();
+        return mongoUpsertHelper.updateById(bundle, bundleId);
+    }
+
+    @Override
+    public Mono<Boolean> setBundlePublicToMarketplace(String bundleId, Boolean publicToMarketplace) {
+
+        return findById(bundleId)
+
+                .map(bundle -> Bundle.builder()
+                        .publicToMarketplace(publicToMarketplace)
+                        .build())
+                .flatMap(bundle -> mongoUpsertHelper.updateById(bundle, bundleId));
+
+
+    }
+
+    @Override
+    public Mono<Boolean> setBundleAsAgencyProfile(String bundleId, boolean agencyProfile) {
+        Bundle bundle = Bundle.builder()
+                .agencyProfile(agencyProfile)
+                .build();
+        return mongoUpsertHelper.updateById(bundle, bundleId);
     }
 
 }

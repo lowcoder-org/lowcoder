@@ -3,6 +3,8 @@ package org.lowcoder.api.bundle;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.annotation.Nullable;
+import org.apache.commons.lang3.BooleanUtils;
+import org.lowcoder.api.application.ApplicationEndpoints;
 import org.lowcoder.api.bundle.view.BundleInfoView;
 import org.lowcoder.api.bundle.view.BundlePermissionView;
 import org.lowcoder.api.bundle.view.MarketplaceBundleInfoView;
@@ -192,7 +194,6 @@ public interface BundleEndpoints
 	@GetMapping("/marketplace-bundles")
 	public Mono<ResponseView<List<MarketplaceBundleInfoView>>> getMarketplaceBundles();
 
-	// Falk: why we use MarketplaceBundleInfoView for AgencyProfile?
 	@Operation(
 			tags = TAG_BUNDLE_MANAGEMENT,
 			operationId = "listAgencyProfileBundles",
@@ -201,6 +202,58 @@ public interface BundleEndpoints
 	)
 	@GetMapping("/agency-profiles")
 	public Mono<ResponseView<List<MarketplaceBundleInfoView>>> getAgencyProfileBundles();
+
+	@Operation(
+			tags = TAG_BUNDLE_MANAGEMENT,
+			operationId = "setBundleAsPublic",
+			summary = "Set Bundle as publicly available",
+			description = "Set a Lowcoder Bundle identified by its ID as generally publicly available. This is a preparation to published a Lowcoder Bundle in production mode."
+	)
+	@PutMapping("/{bundleId}/public-to-all")
+	public Mono<ResponseView<Boolean>> setBundlePublicToAll(@PathVariable String bundleId,
+																 @RequestBody BundleEndpoints.BundlePublicToAllRequest request);
+
+	@Operation(
+			tags = TAG_BUNDLE_MANAGEMENT,
+			operationId = "setBundleAsPublicToMarketplace",
+			summary = "Set Bundle as publicly available on marketplace but to only logged in users",
+			description = "Set a Lowcoder Bundle identified by its ID as publicly available on marketplace but to only logged in users."
+	)
+	@PutMapping("/{bundleId}/public-to-marketplace")
+	public Mono<ResponseView<Boolean>> setBundlePublicToMarketplace(@PathVariable String bundleId,
+																		 @RequestBody BundleEndpoints.BundlePublicToMarketplaceRequest request);
+
+	@Operation(
+			tags = TAG_BUNDLE_MANAGEMENT,
+			operationId = "setBundleAsAgencyProfile",
+			summary = "Set Bundle as agency profile",
+			description = "Set a Lowcoder Bundle identified by its ID as as agency profile but to only logged in users."
+	)
+	@PutMapping("/{bundleId}/agency-profile")
+	public Mono<ResponseView<Boolean>> setBundleAsAgencyProfile(@PathVariable String bundleId,
+																	 @RequestBody BundleEndpoints.BundleAsAgencyProfileRequest request);
+	
+	public record BundlePublicToAllRequest(Boolean publicToAll) {
+		@Override
+		public Boolean publicToAll() {
+			return BooleanUtils.isTrue(publicToAll);
+		}
+	}
+
+	public record BundlePublicToMarketplaceRequest(Boolean publicToMarketplace) {
+		@Override
+		public Boolean publicToMarketplace() {
+			return BooleanUtils.isTrue(publicToMarketplace);
+		}
+
+	}
+
+	public record BundleAsAgencyProfileRequest(Boolean agencyProfile) {
+		@Override
+		public Boolean agencyProfile() {
+			return BooleanUtils.isTrue(agencyProfile);
+		}
+	}
 
 	public record BatchAddPermissionRequest(String role, Set<String> userIds, Set<String> groupIds) {
     }

@@ -1,6 +1,7 @@
 package org.lowcoder.api.bundle;
 
 import lombok.RequiredArgsConstructor;
+import org.lowcoder.api.application.ApplicationEndpoints;
 import org.lowcoder.api.bundle.view.BundleInfoView;
 import org.lowcoder.api.bundle.view.BundlePermissionView;
 import org.lowcoder.api.bundle.view.MarketplaceBundleInfoView;
@@ -184,6 +185,27 @@ public class BundleController implements BundleEndpoints
     public Mono<ResponseView<List<MarketplaceBundleInfoView>>> getAgencyProfileBundles() {
         return userHomeApiService.getAllAgencyProfileBundles()
                 .collectList()
+                .map(ResponseView::success);
+    }
+
+    @Override
+    public Mono<ResponseView<Boolean>> setBundlePublicToAll(@PathVariable String bundleId,
+                                                                 @RequestBody BundleEndpoints.BundlePublicToAllRequest request) {
+        return bundleApiService.setBundlePublicToAll(bundleId, request.publicToAll())
+                .map(ResponseView::success);
+    }
+
+    @Override
+    public Mono<ResponseView<Boolean>> setBundlePublicToMarketplace(@PathVariable String bundleId,
+                                                                         @RequestBody BundleEndpoints.BundlePublicToMarketplaceRequest request) {
+        return bundleApiService.setBundlePublicToMarketplace(bundleId, request)
+                .map(ResponseView::success);
+    }
+
+    @Override
+    public Mono<ResponseView<Boolean>> setBundleAsAgencyProfile(@PathVariable String bundleId,
+                                                                     @RequestBody BundleEndpoints.BundleAsAgencyProfileRequest request) {
+        return bundleApiService.setBundleAsAgencyProfile(bundleId, request.agencyProfile())
                 .map(ResponseView::success);
     }
 }

@@ -43,6 +43,12 @@ public interface BundleService {
     @SuppressWarnings("ReactiveStreamsNullableInLambdaInTransform")
     Mono<Set<String>> getPublicAgencyBundleIds(Collection<String> bundleIds);
 
+    Mono<Boolean> setBundlePublicToAll(String bundleId, boolean publicToAll);
+
+    Mono<Boolean> setBundlePublicToMarketplace(String bundleId, Boolean publicToMarketplace);
+
+    Mono<Boolean> setBundleAsAgencyProfile(String bundleId, boolean agencyProfile);
+
     Flux<Bundle> findAllMarketplaceBundles();
 
     Flux<Bundle> findAllAgencyProfileBundles();
