@@ -1526,6 +1526,7 @@ export const FileViewerStyle = [
   MARGIN,
   PADDING,
   BORDER_WIDTH,
+  ROTATION
 ] as const;
 
 export const IframeStyle = [
@@ -1535,6 +1536,13 @@ export const IframeStyle = [
   BORDER_WIDTH,
   MARGIN,
   PADDING,
+  ROTATION
+] as const;
+
+export const CustomStyle = [
+  MARGIN,
+  PADDING,
+  ROTATION,
 ] as const;
 
 export const DateTimeStyle = [
@@ -1644,6 +1652,13 @@ export const ImageStyle = [
   BORDER_WIDTH,
   MARGIN,
   PADDING,
+  ROTATION
+] as const;
+
+export const AudioStyle = [
+  MARGIN,
+  PADDING,
+  ROTATION,
 ] as const;
 
 export const IconStyle = [
@@ -1654,9 +1669,13 @@ export const IconStyle = [
   BORDER_WIDTH,
   MARGIN,
   PADDING,
+  ROTATION
 ] as const;
 
-export const ListViewStyle = BG_STATIC_BORDER_RADIUS;
+export const ListViewStyle = [
+  ...BG_STATIC_BORDER_RADIUS,
+  ROTATION
+] as const;
 
 export const JsonSchemaFormStyle = BG_STATIC_BORDER_RADIUS;
 
@@ -1672,6 +1691,7 @@ export const QRCodeStyle = [
   BORDER,
   RADIUS,
   BORDER_WIDTH,
+  ROTATION
 ] as const;
 
 export const TimeLineStyle = [
@@ -1790,6 +1810,7 @@ export const LottieStyle = [
   },
   MARGIN,
   PADDING,
+  ROTATION
 ] as const;
 
 export const CommentStyle = [
@@ -1809,6 +1830,7 @@ export const ResponsiveLayoutRowStyle = [
   ...BG_STATIC_BORDER_RADIUS,
   MARGIN,
   PADDING,
+  ROTATION
 ] as const;
 
 export const ResponsiveLayoutColStyle = [
@@ -1870,7 +1892,7 @@ export const NavLayoutItemActiveStyle = [
   },
 ] as const;
 
-export const CarouselStyle = [getBackground("canvas")] as const;
+export const CarouselStyle = [getBackground("canvas"),ROTATION] as const;
 
 export const RichTextEditorStyle = [
   getStaticBorder(),
@@ -1939,6 +1961,7 @@ export type TableColumnLinkStyleType = StyleConfigType<
 export type FileStyleType = StyleConfigType<typeof FileStyle>;
 export type FileViewerStyleType = StyleConfigType<typeof FileViewerStyle>;
 export type IframeStyleType = StyleConfigType<typeof IframeStyle>;
+export type CustomStyleType = StyleConfigType<typeof CustomStyle>;
 export type DateTimeStyleType = StyleConfigType<typeof DateTimeStyle>;
 export type LinkStyleType = StyleConfigType<typeof LinkStyle>;
 export type DividerStyleType = StyleConfigType<typeof DividerStyle>;
@@ -1946,6 +1969,7 @@ export type ProgressStyleType = StyleConfigType<typeof ProgressStyle>;
 export type CircleProgressType = StyleConfigType<typeof CircleProgressStyle>;
 export type NavigationStyleType = StyleConfigType<typeof NavigationStyle>;
 export type ImageStyleType = StyleConfigType<typeof ImageStyle>;
+export type AudioStyleType = StyleConfigType<typeof AudioStyle>;
 export type IconStyleType = StyleConfigType<typeof IconStyle>;
 export type ListViewStyleType = StyleConfigType<typeof ListViewStyle>;
 export type JsonSchemaFormStyleType = StyleConfigType<

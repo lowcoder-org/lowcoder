@@ -16,6 +16,7 @@ export function getButtonStyle(buttonStyle: ButtonStyleType) {
       border-width:${buttonStyle.borderWidth};
       margin: ${buttonStyle.margin};	
       padding: ${buttonStyle.padding};
+      rotate: ${buttonStyle.rotation};
       &:not(:disabled) {
         --antd-wave-shadow-color: ${buttonStyle.border};
         border-color: ${buttonStyle.border};

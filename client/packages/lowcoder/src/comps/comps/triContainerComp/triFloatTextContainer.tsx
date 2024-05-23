@@ -22,6 +22,7 @@ const getStyle = (style: TextStyleType) => {
     border-radius: ${(style.radius ? style.radius : "4px")};
     border: ${(style.borderWidth ? style.borderWidth : "0px")} solid ${style.border};
     color: ${style.text};
+    rotate: ${style.rotation};
     font-size: ${style.textSize} !important;
     font-weight: ${style.textWeight} !important;
     font-family: ${style.fontFamily} !important;
@@ -81,6 +82,7 @@ ${props=>props.$animationStyle&&props.$animationStyle}
   background-color: ${(props) => props.$style.background};
   padding: ${(props) => props.$style.padding};
   margin: ${(props) => props.$style.margin};
+  rotate: ${(props) => props.$style.rotation};
   ${(props) => props.$style.backgroundImage && `background-image: url(${props.$style.backgroundImage});`}
   ${(props) => props.$style.backgroundImageRepeat && `background-repeat: ${props.$style.backgroundImageRepeat};`}
   ${(props) => props.$style.backgroundImageSize && `background-size: ${props.$style.backgroundImageSize};`}
@@ -188,7 +190,8 @@ export function TriContainer(props: TriContainerProps) {
               containerPadding={[0, 0]}
               showName={{ bottom: showFooter ? 20 : 0 }}
               $backgroundColor={headerStyle?.headerBackground || 'transparent'}
-              style={{ padding: headerStyle.containerHeaderPadding }} />
+              style={{ padding: headerStyle.containerHeaderPadding,
+              rotate:headerStyle.rotation }} />
         </BackgroundColorContext.Provider>
       )}
       {showBody && (
@@ -215,6 +218,7 @@ export function TriContainer(props: TriContainerProps) {
                 float: `${props.float}`,
                 width: `${props.float === "none" ? "100%" : `${props.width}%`}`,
                 height: "100%",
+                rotate: bodyStyle.rotation,
                 ...container.bodyStyle
               }}
               />

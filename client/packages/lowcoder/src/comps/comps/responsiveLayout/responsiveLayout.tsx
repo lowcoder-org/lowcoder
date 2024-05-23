@@ -54,6 +54,7 @@ const RowWrapper = styled(Row)<{
   padding: ${(props) => props.$style.padding};
   background-color: ${(props) => props.$style.background};
   overflow-x: auto;
+  rotate: ${props=> props.$style.rotation}
 `;
 
 const ColWrapper = styled(Col)<{
