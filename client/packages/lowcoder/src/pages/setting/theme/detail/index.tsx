@@ -1,4 +1,5 @@
 import { InputRef } from "antd/es/input";
+import styled from "styled-components";
 import {
   CommonSettingResponseData,
   SetCommonSettingPayload,
@@ -25,6 +26,13 @@ import {
   Footer,
   Header,
 } from "../styledComponents";
+import {
+  ColorPickerCompIcon,
+  TextSizeIcon,
+  PageLayoutCompIcon,
+  ShapesCompIcon,
+  ChartCompIcon,
+} from "lowcoder-design";
 import PreviewApp from "../../../../components/PreviewApp";
 import { trans } from "i18n";
 import { Prompt } from "react-router";
@@ -32,7 +40,26 @@ import { HeaderBack } from "pages/setting/permission/styledComponents";
 import dsl from "./previewDsl";
 import chartDsl from "./chartPreviewDsl";
 import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
-import { Collapse, CollapseProps } from 'antd';
+import { Card, Collapse, CollapseProps, Divider, Flex, List, Tooltip } from 'antd';
+
+const ThemeSettingsView = styled.div`
+  font-size: 14px;
+  color: #8b8fa3;
+  flex-grow: 1;
+  padding-top: 0px;
+  padding-left: 0px;
+  max-width: 100%;
+`;
+
+const StyleThemeSettingsCover = styled.div`
+    display: flex;
+    flex-direction: row;
+    background: rgb(131,58,180);
+    background: linear-gradient(34deg, rgba(131,58,180,1) 0%, rgba(253,29,29,1) 50%, rgba(252,176,69,1) 100%);
+    padding: 15px;
+    height: 80px;
+    border-radius:10px 10px 0 0;
+`;
 
 const CodeEditor = lazy(
   () => import("base/codeEditor/codeEditor")
@@ -149,164 +176,108 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
     history.push(THEME_SETTING);
   };
 
-
-
   render() {
 
-    const themeSettings: CollapseProps['items'] = [
+    const colorSettings = [
       {
-        key: '1',
-        label: 'Colors',
-        children: 
-          <div className="common">
-            <div>
-              <DetailTitle>{trans("theme.mainColor")}</DetailTitle>
-              <ColorPicker
-                colorKey="primary"
-                name={trans("themeDetail.primary")}
-                desc={trans("themeDetail.primaryDesc")}
-                color={this.state.theme.primary}
-                configChange={(params) => this.configChange(params)}
-              />
-            </div>
-            <ColorPicker
-              colorKey="canvas"
-              name={trans("themeDetail.canvas")}
-              desc={trans("themeDetail.canvasDesc")}
-              color={this.state.theme.canvas}
-              configChange={(params) => this.configChange(params)}
-            />
-            <ColorPicker
-              colorKey="primarySurface"
-              name={trans("themeDetail.primarySurface")}
-              desc={trans("themeDetail.primarySurfaceDesc")}
-              color={this.state.theme.primarySurface}
-              configChange={(params) => this.configChange(params)}
-            />
-            <div>
-              <DetailTitle>{trans("theme.text")}</DetailTitle>
-              <ColorPicker
-                colorKey="textLight"
-                name={trans("themeDetail.textLight")}
-                desc={trans("themeDetail.textLightDesc")}
-                color={this.state.theme.textLight}
-                configChange={(params) => this.configChange(params)}
-              />
-            </div>
-            <ColorPicker
-              colorKey="textDark"
-              name={trans("themeDetail.textDark")}
-              desc={trans("themeDetail.textDarkDesc")}
-              color={this.state.theme.textDark}
-              configChange={(params) => this.configChange(params)}
-            />
-            
-          </div>
+        key: 'primary',
+        title: trans('theme.mainColor'),
+        items: [
+          {
+            settingsKey: 'primary',
+            name: trans('themeDetail.primary'),
+            desc: trans('themeDetail.primaryDesc'),
+            color: this.state.theme.primary,
+          }
+        ]
       },
       {
-        key: '2',
-        label: 'Text & Fonts',
-        children: <p>to define...</p>,
+        items: [
+          {
+            settingsKey: 'canvas',
+            name: trans('themeDetail.canvas'),
+            desc: trans('themeDetail.canvasDesc'),
+            color: this.state.theme.canvas,
+          },
+          {
+            settingsKey: 'primarySurface',
+            name: trans('themeDetail.primarySurface'),
+            desc: trans('themeDetail.primarySurfaceDesc'),
+            color: this.state.theme.primarySurface,
+          }
+        ]
       },
       {
-        key: '3',
-        label: 'Layout',
-        children: 
-          <div className="common">
-            <div>
-              <DetailTitle>{trans("themeDetail.borderRadius")}</DetailTitle>
-              <ColorPicker
-                colorKey="borderRadius"
-                name={trans("themeDetail.borderRadius")}
-                desc={trans("themeDetail.borderRadiusDesc")}
-                radius={this.state.theme.borderRadius}
-                configChange={(params) => this.configChange(params)}
-              />
-            </div>
-            <div>
-              <DetailTitle>{trans("themeDetail.margin")}</DetailTitle>
-              <ColorPicker
-                colorKey="margin"
-                name={trans("themeDetail.margin")}
-                desc={trans("themeDetail.marginDesc")}
-                margin={this.state.theme.margin}
-                configChange={(params) => {
-                  this.configChange(params);
-                }}
-              />
-            </div>
-            <div>
-              <DetailTitle>{trans("themeDetail.padding")}</DetailTitle>
-              <ColorPicker
-                colorKey="padding"
-                name={trans("themeDetail.padding")}
-                desc={trans("themeDetail.paddingDesc")}
-                padding={this.state.theme.padding}
-                configChange={(params) => {
-                  this.configChange(params);
-                }}
-              />
-            </div>
-            <div>
-              <DetailTitle>{trans("themeDetail.gridColumns")}</DetailTitle>
-              <ColorPicker
-                colorKey="gridColumns"
-                name={trans("themeDetail.gridColumns")}
-                desc={trans("themeDetail.gridColumnsDesc")}
-                gridColumns={this.state.theme.gridColumns}
-                configChange={(params) => {
-                  this.configChange(params);
-                }}
-              />
-            </div>
-          </div>,
+        key: 'text',
+        title: trans('theme.text'),
+        items: [
+          {
+            settingsKey: 'textLight',
+            name: trans('themeDetail.textLight'),
+            desc: trans('themeDetail.textLightDesc'),
+            color: this.state.theme.textLight,
+          },
+          {
+            settingsKey: 'textDark',
+            name: trans('themeDetail.textDark'),
+            desc: trans('themeDetail.textDarkDesc'),
+            color: this.state.theme.textDark,
+          }
+        ]
+      }
+    ];
+
+    // const fontSettings = [];
+
+    const layoutSettings = [
+      {
+        title: trans('themeDetail.borderRadius'),
+        items: [
+          {
+            settingsKey: 'borderRadius',
+            name: trans('themeDetail.borderRadius'),
+            desc: trans('themeDetail.borderRadiusDesc'),
+            type: "radius",
+            value: this.state.theme.borderRadius,
+          }
+        ]
       },
       {
-        key: '4',
-        label: 'Components',
-        children: <p>to define...</p>,
+        title: trans('themeDetail.margin'),
+        items: [
+          {
+            settingsKey: 'margin',
+            name: trans('themeDetail.margin'),
+            desc: trans('themeDetail.marginDesc'),
+            type: "margin",
+            value: this.state.theme.margin,
+          }
+        ]
       },
       {
-        key: '5',
-        label: 'Theme Preview',
-        children: <PreviewApp style={{marginTop: '3px'}} theme={this.state.theme} dsl={dsl} />,
+        title: trans('themeDetail.padding'),
+        items: [
+          {
+            settingsKey: 'padding',
+            name: trans('themeDetail.padding'),
+            desc: trans('themeDetail.paddingDesc'),
+            type: "padding",
+            value: this.state.theme.padding,
+          }
+        ]
       },
       {
-        key: '6',
-        label: 'eCharts Definition',
-        children: 
-          <div className="chart">
-            {/* <DetailTitle>{trans("themeDetail.chart")}</DetailTitle> */}
-            <ChartDesc>
-              {trans("themeDetail.chartDesc")}
-              <a target="_blank" href="https://echarts.apache.org/en/theme-builder.html" rel="noreferrer">
-                {" "}
-                {trans("themeDetail.echartsJson")}
-              </a>
-            </ChartDesc>
-            <ChartInput>
-            <div className="code-editor">
-              <CodeEditor
-                value={this.state.theme.chart || ""}
-                onChange={(value) => this.configChange({
-                  colorKey: "chart",
-                  chart: value.doc.toString() ? value.doc.toString() : undefined,
-                })}
-                styleName="higher"
-                codeType="Function"
-                showLineNum
-                bordered
-              />
-              </div>
-            </ChartInput>
-          </div>,
-      },
-      {
-        key: '7',
-        label: 'eCharts Definition Preview',
-        children: <PreviewApp style={{ height: "600px", margin: "20px 0 8px 0" }} theme={this.state.theme} dsl={chartDsl} />,
-      },
-      
+        title: trans('themeDetail.gridColumns'),
+        items: [
+          {
+            settingsKey: 'gridColumns',
+            name: trans('themeDetail.gridColumns'),
+            desc: trans('themeDetail.gridColumnsDesc'),
+            type: "gridColumns",
+            value: this.state.theme.gridColumns,
+          }
+        ]
+      }
     ];
 
     return (
@@ -338,19 +309,8 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
           }}
           when={!this.isThemeNotChange()}
         ></Prompt>
-        <DetailContainer
-          onScroll={(e) => {
-            if (
-              e.currentTarget.scrollTop + e.currentTarget.clientHeight >=
-              e.currentTarget.scrollHeight - 2
-            ) {
-              // scroll to the bottom
-              this.footerRef.current && this.footerRef.current.classList.remove("no-bottom");
-            } else {
-              this.footerRef.current && this.footerRef.current.classList.add("no-bottom");
-            }
-          }}
-        >
+
+        <DetailContainer>
           <Header>
             <HeaderBack>
               <span onClick={() => this.goList()}>{trans("settings.theme")}</span>
@@ -358,22 +318,190 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
               <span>{this.state.name}</span>
             </HeaderBack>
           </Header>
+
           <DetailContent>
 
-          <Collapse items={themeSettings} defaultActiveKey={['1']} />
+            <ThemeSettingsView>
+              <StyleThemeSettingsCover>
+                <ColorPickerCompIcon width={"36px"} style={{marginRight : "10px"}}/> <h2 style={{color: "#ffffff", marginTop : "8px"}}> {trans("theme.mainColor")}</h2>
+              </StyleThemeSettingsCover>
+              <Card style={{ marginBottom: "20px", minHeight : "200px" }}>
+                <Flex gap={"middle"}>
+                  <List
+                    bordered
+                    dataSource={colorSettings}
+                    renderItem={(item) => (
+                      <>
+                        {item.title && (
+                            <List.Item>
+                              <DetailTitle>{item.title}</DetailTitle>
+                            </List.Item>
+        
+                        )}
+                        {item.items.map((colorItem) => (
+                          <Tooltip title={colorItem.desc} placement="right">
+                            <List.Item key={colorItem.settingsKey}>
+                              <ColorPicker
+                                colorKey={colorItem.settingsKey}
+                                name={colorItem.name}
+                                // desc={colorItem.desc}
+                                color={colorItem.color}
+                                configChange={(params) => {
+                                  this.configChange(params);
+                                }}
+                              />
+                          </List.Item>
+                          </Tooltip>
+                        ))}
+                      </>
+                    )}
+                  />
+                  <Divider type="vertical" style={{height: "610px"}}/>
+                  <PreviewApp style={{marginTop: '3px', height: "620px", width: "100%"}} theme={this.state.theme} dsl={dsl} />
+                </Flex>
+              </Card>  
+              
+            </ThemeSettingsView>
 
-            
-            
-            {/* <PreviewApp style={{marginTop: '3px'}} theme={this.state.theme} dsl={dsl} /> */}
-            
+            <ThemeSettingsView>
+              <StyleThemeSettingsCover>
+                <TextSizeIcon width={"36px"} style={{marginRight : "10px"}}/> <h2 style={{color: "#ffffff", marginTop : "8px"}}> {trans("theme.text")}</h2>
+              </StyleThemeSettingsCover>
+              <Card style={{ marginBottom: "20px", minHeight : "200px" }}>
+                
+              <Flex gap={"middle"}>
+                  {/* here we need to place the Font Configuration */}
+                  <Divider type="vertical" style={{height: "610px"}}/>
+                  <PreviewApp style={{marginTop: '3px', height: "620px", width: "100%"}} theme={this.state.theme} dsl={dsl} />
+                </Flex>
+              </Card>  
+              
+            </ThemeSettingsView>
 
-            {/* <PreviewApp
-              style={{ height: "346px", margin: "20px 0 8px 0" }}
-              theme={this.state.theme}
-              dsl={chartDsl}
-                /> */}
+            <ThemeSettingsView>
+              <StyleThemeSettingsCover>
+                <PageLayoutCompIcon width={"36px"} style={{marginRight : "10px"}}/> <h2 style={{color: "#ffffff", marginTop : "8px"}}> {trans("theme.layout")}</h2>
+              </StyleThemeSettingsCover>
+              <Card style={{ marginBottom: "20px", minHeight : "200px" }}>
+                
+                <Flex gap={"middle"}>
+                  <List
+                    bordered
+                    dataSource={layoutSettings}
+                    renderItem={(item) => (
+                      <>
+                        {item.title && (
+                            <List.Item>
+                              <DetailTitle>{item.title}</DetailTitle>
+                            </List.Item>
+                        )}
+                        {item.items.map((layoutSettingsItem) => (
+                          <Tooltip title={layoutSettingsItem.desc} placement="right">
+                            <List.Item key={layoutSettingsItem.settingsKey}>
+                              {layoutSettingsItem.type == "radius" && 
+                                <ColorPicker
+                                  colorKey={layoutSettingsItem.settingsKey}
+                                  name={layoutSettingsItem.name}
+                                  radius={layoutSettingsItem.value}
+                                  configChange={(params) => {
+                                    this.configChange(params);
+                                  }}
+                                />
+                              }
+                              {layoutSettingsItem.type == "margin" && 
+                                <ColorPicker
+                                  colorKey={layoutSettingsItem.settingsKey}
+                                  name={layoutSettingsItem.name}
+                                  margin={layoutSettingsItem.value}
+                                  configChange={(params) => {
+                                    this.configChange(params);
+                                  }}
+                                />
+                              }
+                              {layoutSettingsItem.type == "padding" && 
+                                <ColorPicker
+                                  colorKey={layoutSettingsItem.settingsKey}
+                                  name={layoutSettingsItem.name}
+                                  padding={layoutSettingsItem.value}
+                                  configChange={(params) => {
+                                    this.configChange(params);
+                                  }}
+                                />
+                              }
+                              {layoutSettingsItem.type == "gridColumns" && 
+                                <ColorPicker
+                                  colorKey={layoutSettingsItem.settingsKey}
+                                  name={layoutSettingsItem.name}
+                                  gridColumns={layoutSettingsItem.value}
+                                  configChange={(params) => {
+                                    this.configChange(params);
+                                  }}
+                                />
+                              }
+                          </List.Item>
+                          </Tooltip>
+                        ))}
+                      </>
+                    )}
+                  />
+                  <Divider type="vertical" style={{height: "610px"}}/>
+                  <PreviewApp style={{marginTop: '3px', height: "620px", width: "100%"}} theme={this.state.theme} dsl={dsl} />
+                </Flex>
+
+              </Card>  
+              
+            </ThemeSettingsView>
+
+            <ThemeSettingsView>
+              <StyleThemeSettingsCover>
+                <ShapesCompIcon width={"36px"} style={{marginRight : "10px"}}/> <h2 style={{color: "#ffffff", marginTop : "8px"}}> {trans("theme.components")}</h2>
+              </StyleThemeSettingsCover>
+              <Card style={{ marginBottom: "20px", minHeight : "200px" }}>
+                
+                <Divider />
+
+              </Card>  
+              
+            </ThemeSettingsView>
+
+            <ThemeSettingsView>
+              <StyleThemeSettingsCover>
+                <ChartCompIcon width={"36px"} style={{marginRight : "10px"}}/> <h2 style={{color: "#ffffff", marginTop : "8px"}}> {trans("theme.charts")}</h2>
+              </StyleThemeSettingsCover>
+              <Card style={{ marginBottom: "20px", minHeight : "200px" }}>
+                <ChartDesc>
+                  {trans("themeDetail.chartDesc")}
+                  <a target="_blank" href="https://echarts.apache.org/en/theme-builder.html" rel="noreferrer">
+                    {" "}
+                    {trans("themeDetail.echartsJson")}
+                  </a>
+                </ChartDesc>
+                <Flex gap={"middle"}>
+                  <ChartInput>
+                    <div className="code-editor" style={{height: "380px", width:"100%", minWidth:"300px"}}>
+                      <CodeEditor
+                        value={this.state.theme.chart || ""}
+                        onChange={(value) => this.configChange({
+                          colorKey: "chart",
+                          chart: value.doc.toString() ? value.doc.toString() : undefined,
+                        })}
+                        styleName="window"
+                        codeType="Function"
+                        showLineNum
+                        bordered
+                      />
+                    </div>
+                  </ChartInput>
+                  <Divider type="vertical" style={{height: "370px"}}/>
+                  <PreviewApp style={{ height: "380px", width: "100%", margin: "0" }} theme={this.state.theme} dsl={chartDsl} />
+                </Flex>
+
+              </Card>  
+              
+            </ThemeSettingsView>
 
           </DetailContent>
+
           <Footer ref={this.footerRef} className="no-bottom">
             <ResetButton
               icon={<ResetIcon />}
