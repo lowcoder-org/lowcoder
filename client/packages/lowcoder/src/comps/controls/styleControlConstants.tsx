@@ -773,6 +773,11 @@ export const ButtonStyle = [
   ...STYLING_FIELDS_SEQUENCE
 ] as const;
 
+export const DropdownStyle = [
+  getBackground('primary'),
+  ...STYLING_FIELDS_SEQUENCE.filter(style=>style.name!=='rotation'),
+] as const;
+
 export const ToggleButtonStyle = [
   getBackground("canvas"),
   ...STYLING_FIELDS_SEQUENCE.map((style) => {
@@ -824,7 +829,6 @@ export const ContainerStyle = [
   BORDER_WIDTH,
   MARGIN,
   PADDING,
-  ROTATION,
   {
     name: "backgroundImage",
     label: trans("style.backgroundImage"),
@@ -855,7 +859,6 @@ export const ContainerStyle = [
 export const ContainerHeaderStyle = [
   CONTAINER_HEADER_PADDING,
   HEADER_BACKGROUND,
-  ROTATION,
   {
     name: "headerBackgroundImage",
     label: trans("style.backgroundImage"),
@@ -886,7 +889,6 @@ export const ContainerHeaderStyle = [
 export const ContainerSiderStyle = [
   CONTAINER_SIDER_PADDING,
   SIDER_BACKGROUND,
-  ROTATION,
   {
     name: "siderBackgroundImage",
     label: trans("style.backgroundImage"),
@@ -916,7 +918,6 @@ export const ContainerSiderStyle = [
 
 export const ContainerBodyStyle = [
   CONTAINER_BODY_PADDING,
-  ROTATION,
   {
     name: "background",
     label: trans("style.background"),
@@ -1004,12 +1005,11 @@ export const SliderStyle = [
   TRACK,
   MARGIN,
   PADDING,
-  ROTATION,
 ] as const;
 
 export const InputLikeStyle = [
   getStaticBackground(SURFACE_COLOR),
-  ...STYLING_FIELDS_SEQUENCE,
+  ...STYLING_FIELDS_SEQUENCE.filter(style=>style.name!=='rotation'),
   ...ACCENT_VALIDATE,
 ] as const;
 
@@ -1018,7 +1018,7 @@ export const InputLikeStyle = [
 export const ColorPickerStyle = [
   LABEL,
   getStaticBackground(SURFACE_COLOR),
-  ...STYLING_FIELDS_SEQUENCE,
+  ...STYLING_FIELDS_SEQUENCE.filter(style => style.name!=='rotation'),
   ...ACCENT_VALIDATE,
 ] as const;
 
@@ -1033,12 +1033,12 @@ export const AvatarStyle = [
 
 export const avatarContainerStyle = [
   getStaticBackground(SURFACE_COLOR),
-  ...STYLING_FIELDS_CONTAINER_SEQUENCE,
+  ...STYLING_FIELDS_CONTAINER_SEQUENCE.filter(style=>style.name!=='rotation'),
 ] as const;
 
 export const avatarLabelStyle = [
   getStaticBackground(SURFACE_COLOR),
-  ...STYLING_FIELDS_SEQUENCE,
+  ...STYLING_FIELDS_SEQUENCE.filter((style) => style.name !== 'rotation'),
 ] as const;
 
 export const avatarGroupStyle = [
@@ -1067,7 +1067,7 @@ export const FloatButtonStyle = [
 
 export const TransferStyle = [
   getStaticBackground(SURFACE_COLOR),
-  ...STYLING_FIELDS_CONTAINER_SEQUENCE,
+  ...STYLING_FIELDS_CONTAINER_SEQUENCE.filter(style=>style.name!=='rotation'),
 ] as const;
 
 export const CardStyle = [
@@ -1107,7 +1107,7 @@ export const startButtonStyle = [
 
 export const LabelStyle = [
   ...replaceAndMergeMultipleStyles([...InputLikeStyle], "text", [LABEL]).filter(
-    (style) => style.name !== "radius" && style.name !== "background"
+    (style) => style.name !== "radius" && style.name !== "background"&&style.name!=='rotation'
   ),
 ];
 
@@ -1116,6 +1116,15 @@ export const InputFieldStyle = [
   getStaticBorder(),
   ...STYLING_FIELDS_CONTAINER_SEQUENCE.filter(
     (style) => ["border"].includes(style.name) === false
+  ),
+  // ...STYLING_FIELDS_CONTAINER_SEQUENCE,
+] as const;
+
+export const SignatureContainerStyle = [
+  getBackground(),
+  getStaticBorder(),
+  ...STYLING_FIELDS_CONTAINER_SEQUENCE.filter(
+    (style) => ['border'].includes(style.name) === false&&style.name!=='rotation'
   ),
   // ...STYLING_FIELDS_CONTAINER_SEQUENCE,
 ] as const;
@@ -1159,14 +1168,14 @@ export const SwitchStyle = [
 ] as const;
 
 export const SelectStyle = [
-  ...replaceAndMergeMultipleStyles(STYLING_FIELDS_SEQUENCE, "border", [
+  ...replaceAndMergeMultipleStyles(STYLING_FIELDS_SEQUENCE.filter(style=>style.name!=='rotation'), "border", [
     ...getStaticBgBorderRadiusByBg(SURFACE_COLOR, "pc"),
   ]),
   ...ACCENT_VALIDATE,
 ] as const;
 
 const multiSelectCommon = [
-  ...replaceAndMergeMultipleStyles(STYLING_FIELDS_SEQUENCE, "border", [
+  ...replaceAndMergeMultipleStyles(STYLING_FIELDS_SEQUENCE.filter(style=>style.name!=='rotation'), "border", [
     ...getStaticBgBorderRadiusByBg(SURFACE_COLOR, "pc"),
   ]),
   {
@@ -1213,7 +1222,7 @@ export const TabContainerStyle = [
             style.name
           ) === false
       ),
-      ...STYLING_FIELDS_SEQUENCE,
+      ...STYLING_FIELDS_SEQUENCE.filter(style=>style.name!=='rotation'),
     ],
     "text",
     [
@@ -1228,6 +1237,8 @@ export const TabContainerStyle = [
   ),
   ACCENT,
 ] as const;
+
+export const TabBodyStyle=[...ContainerBodyStyle] as const
 
 export const ModalStyle = [
   ...getBgBorderRadiusByBg(),
@@ -1274,7 +1285,7 @@ function checkAndUncheck() {
 }
 
 export const CheckboxStyle = [
-  ...replaceAndMergeMultipleStyles(STYLING_FIELDS_SEQUENCE, "text", [
+  ...replaceAndMergeMultipleStyles(STYLING_FIELDS_SEQUENCE.filter(styles=>styles.name!=='rotation'), "text", [
     STATIC_TEXT,
     VALIDATE,
   ]).filter((style) => style.name !== "border"),
@@ -1290,7 +1301,7 @@ export const CheckboxStyle = [
 ] as const;
 
 export const RadioStyle = [
-  ...replaceAndMergeMultipleStyles(STYLING_FIELDS_SEQUENCE, "text", [
+  ...replaceAndMergeMultipleStyles(STYLING_FIELDS_SEQUENCE.filter(style=>style.name!=='rotation'), "text", [
     STATIC_TEXT,
     VALIDATE,
   ]).filter((style) => style.name !== "border" && style.name !== "radius"),
@@ -1612,11 +1623,11 @@ export const ProgressStyle = [
 ] as const;
 
 export const CircleProgressStyle = [
-  ...ProgressStyle.filter((style) => style.name !== "radius"),
+  ...ProgressStyle.filter((style) => style.name !== "radius"&&style.name !== "rotation"),
 ];
 
 export const NavigationStyle = [
-  ...replaceAndMergeMultipleStyles(STYLING_FIELDS_SEQUENCE, "text", [
+  ...replaceAndMergeMultipleStyles(STYLING_FIELDS_SEQUENCE.filter(style=>style.name!=='rotation'), "text", [
     {
       name: "text",
       label: trans("text"),
@@ -1909,6 +1920,7 @@ export type AvatarContainerStyleType = StyleConfigType<
 >;
 export type AvatarGroupStyleType = StyleConfigType<typeof avatarGroupStyle>;
 export type FloatButtonStyleType = StyleConfigType<typeof FloatButtonStyle>;
+export type DropdownStyleType = StyleConfigType<typeof DropdownStyle>;
 export type BadgeStyleType = StyleConfigType<typeof BadgeStyle>;
 export type TransferStyleType = StyleConfigType<typeof TransferStyle>;
 export type CardStyleType = StyleConfigType<typeof CardStyle>;
@@ -1920,6 +1932,7 @@ export type LabelStyleType = StyleConfigType<typeof LabelStyle>;
 export type AnimationStyleType = StyleConfigType<typeof AnimationStyle>;
 export type InputLikeStyleType = StyleConfigType<typeof InputLikeStyle>;
 export type InputFieldStyleType = StyleConfigType<typeof InputFieldStyle>;
+export type SignatureContainerStyleType = StyleConfigType<typeof SignatureContainerStyle>;
 export type ColorPickerStyleType = StyleConfigType<typeof ColorPickerStyle>;
 export type ButtonStyleType = StyleConfigType<typeof ButtonStyle>;
 export type ToggleButtonStyleType = StyleConfigType<typeof ToggleButtonStyle>;
@@ -1944,6 +1957,7 @@ export type ChildrenMultiSelectStyleType = StyleConfigType<
   typeof ChildrenMultiSelectStyle
 >;
 export type TabContainerStyleType = StyleConfigType<typeof TabContainerStyle>;
+export type TabBodyStyleType = StyleConfigType<typeof TabBodyStyle>;
 export type ModalStyleType = StyleConfigType<typeof ModalStyle>;
 export type CascaderStyleType = StyleConfigType<typeof CascaderStyle>;
 export type CheckboxStyleType = StyleConfigType<typeof CheckboxStyle>;

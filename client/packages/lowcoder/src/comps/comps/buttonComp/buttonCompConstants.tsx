@@ -7,16 +7,16 @@ import { genActiveColor, genHoverColor } from "lowcoder-design";
 import { refMethods } from "comps/generators/withMethodExposing";
 import { blurMethod, clickMethod, focusWithOptions } from "comps/utils/methodUtils";
 
-export function getButtonStyle(buttonStyle: ButtonStyleType) {
+export function getButtonStyle(buttonStyle: any) {
   const hoverColor = genHoverColor(buttonStyle.background);
   const activeColor = genActiveColor(buttonStyle.background);
   return css`
     &&& {
       border-radius: ${buttonStyle.radius};
       border-width:${buttonStyle.borderWidth};
-      margin: ${buttonStyle.margin};	
+      margin: ${buttonStyle.margin};
       padding: ${buttonStyle.padding};
-      rotate: ${buttonStyle.rotation};
+      rotate: ${buttonStyle.rotation&&buttonStyle.rotation};
       &:not(:disabled) {
         --antd-wave-shadow-color: ${buttonStyle.border};
         border-color: ${buttonStyle.border};
@@ -29,9 +29,9 @@ export function getButtonStyle(buttonStyle: ButtonStyleType) {
         text-decoration:${buttonStyle.textDecoration};
         background-color: ${buttonStyle.background};
         border-radius: ${buttonStyle.radius};
-        margin: ${buttonStyle.margin};	
+        margin: ${buttonStyle.margin};
         padding: ${buttonStyle.padding};
-  
+
         &:hover,
         &:focus {
           color: ${buttonStyle.text};
@@ -52,7 +52,7 @@ export function getButtonStyle(buttonStyle: ButtonStyleType) {
   `;
 }
 
-export const Button100 = styled(Button)<{ $buttonStyle?: ButtonStyleType }>`
+export const Button100 = styled(Button)<{ $buttonStyle?: any }>`
   ${(props) => props.$buttonStyle && getButtonStyle(props.$buttonStyle)}
   width: 100%;
   height: auto;

@@ -7,7 +7,7 @@ import { stringExposingStateControl } from "comps/controls/codeStateControl";
 import { eventHandlerControl } from "comps/controls/eventHandlerControl";
 import { TabsOptionControl } from "comps/controls/optionsControl";
 import { styleControl } from "comps/controls/styleControl";
-import { AnimationStyle, AnimationStyleType, ContainerBodyStyle, ContainerBodyStyleType, ContainerHeaderStyle, ContainerHeaderStyleType, TabContainerStyle, TabContainerStyleType, heightCalculator, widthCalculator } from "comps/controls/styleControlConstants";
+import { AnimationStyle, AnimationStyleType, TabBodyStyleType, ContainerHeaderStyle, ContainerHeaderStyleType, TabBodyStyle, TabContainerStyle, TabContainerStyleType, heightCalculator, widthCalculator } from "comps/controls/styleControlConstants";
 import { sameTypeMap, UICompBuilder, withDefault } from "comps/generators";
 import { addMapChildAction } from "comps/generators/sameTypeMap";
 import { NameConfig, NameConfigHidden, withExposingConfigs } from "comps/generators/withExposing";
@@ -59,7 +59,7 @@ const childrenMap = {
   showHeader: withDefault(BoolControl, true),
   style: withDefault(styleControl(TabContainerStyle),{borderWidth:'1px'}),
   headerStyle: styleControl(ContainerHeaderStyle),
-  bodyStyle: styleControl(ContainerBodyStyle),
+  bodyStyle: styleControl(TabBodyStyle),
   animationStyle: styleControl(AnimationStyle),
   tabsGutter: withDefault(NumberControl, 32),
   tabsCentered: withDefault(BoolControl, false),
@@ -71,7 +71,7 @@ type TabbedContainerProps = ViewProps & { dispatch: DispatchType };
 const getStyle = (
   style: TabContainerStyleType,
   headerStyle: ContainerHeaderStyleType,
-  bodyStyle: ContainerBodyStyleType,
+  bodyStyle: TabBodyStyleType,
 ) => {
   return css`
     &.ant-tabs {
@@ -131,7 +131,7 @@ const getStyle = (
 const StyledTabs = styled(Tabs)<{ 
   $style: TabContainerStyleType;
   $headerStyle: ContainerHeaderStyleType;
-  $bodyStyle: ContainerBodyStyleType;
+  $bodyStyle: TabBodyStyleType;
   $isMobile?: boolean; 
   $showHeader?: boolean;
   $animationStyle:AnimationStyleType
