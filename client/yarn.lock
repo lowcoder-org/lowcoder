@@ -1701,31 +1701,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/runtime-corejs3@npm:^7.20.7, @babel/runtime-corejs3@npm:^7.22.15, @babel/runtime-corejs3@npm:^7.24.5":
-  version: 7.24.5
-  resolution: "@babel/runtime-corejs3@npm:7.24.5"
-  dependencies:
-    core-js-pure: ^3.30.2
-    regenerator-runtime: ^0.14.0
-  checksum: 59bee09c7a1d5a71f44f547402dbfe33e459579f828c41d837e6da3fc74d775436c862e1ef5417d56cb304574ec3a395104c72b672b3a35163f80b8ef237f4b6
-  languageName: node
-  linkType: hard
-
 "@babel/runtime@npm:^7.1.2, @babel/runtime@npm:^7.10.1, @babel/runtime@npm:^7.10.4, @babel/runtime@npm:^7.11.1, @babel/runtime@npm:^7.11.2, @babel/runtime@npm:^7.12.13, @babel/runtime@npm:^7.12.5, @babel/runtime@npm:^7.15.4, @babel/runtime@npm:^7.16.3, @babel/runtime@npm:^7.16.7, @babel/runtime@npm:^7.18.0, @babel/runtime@npm:^7.18.3, @babel/runtime@npm:^7.2.0, @babel/runtime@npm:^7.20.0, @babel/runtime@npm:^7.20.13, @babel/runtime@npm:^7.20.7, @babel/runtime@npm:^7.21.0, @babel/runtime@npm:^7.22.5, @babel/runtime@npm:^7.23.2, @babel/runtime@npm:^7.23.6, @babel/runtime@npm:^7.6.3, @babel/runtime@npm:^7.7.2, @babel/runtime@npm:^7.8.4, @babel/runtime@npm:^7.8.7, @babel/runtime@npm:^7.9.2":
   version: 7.24.4
   resolution: "@babel/runtime@npm:7.24.4"
   dependencies:
     regenerator-runtime: ^0.14.0
   checksum: 2f27d4c0ffac7ae7999ac0385e1106f2a06992a8bdcbf3da06adcac7413863cd08c198c2e4e970041bbea849e17f02e1df18875539b6afba76c781b6b59a07c3
-  languageName: node
-  linkType: hard
-
-"@babel/runtime@npm:^7.3.1":
-  version: 7.24.5
-  resolution: "@babel/runtime@npm:7.24.5"
-  dependencies:
-    regenerator-runtime: ^0.14.0
-  checksum: 755383192f3ac32ba4c62bd4f1ae92aed5b82d2c6665f39eb28fa94546777cf5c63493ea92dd03f1c2e621b17e860f190c056684b7f234270fdc91e29beda063
   languageName: node
   linkType: hard
 
@@ -1773,13 +1754,6 @@ __metadata:
   version: 0.2.3
   resolution: "@bcoe/v8-coverage@npm:0.2.3"
   checksum: 850f9305536d0f2bd13e9e0881cb5f02e4f93fad1189f7b2d4bebf694e3206924eadee1068130d43c11b750efcc9405f88a8e42ef098b6d75239c0f047de1a27
-  languageName: node
-  linkType: hard
-
-"@braintree/sanitize-url@npm:=7.0.2":
-  version: 7.0.2
-  resolution: "@braintree/sanitize-url@npm:7.0.2"
-  checksum: d90baf41220e2c6a53005ab89d01abd2ab007ba341ee77af6f0cc7e30f0fd9c1e8b78b19f7e60ba8c0befe4ecb772dcedb464bd5d768236d7fd8c373d236c169
   languageName: node
   linkType: hard
 
@@ -4300,499 +4274,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@swagger-api/apidom-ast@npm:^1.0.0-alpha.3":
-  version: 1.0.0-alpha.3
-  resolution: "@swagger-api/apidom-ast@npm:1.0.0-alpha.3"
-  dependencies:
-    "@babel/runtime-corejs3": ^7.20.7
-    "@swagger-api/apidom-error": ^1.0.0-alpha.1
-    "@types/ramda": ~0.30.0
-    ramda: ~0.30.0
-    ramda-adjunct: ^5.0.0
-    unraw: ^3.0.0
-  checksum: de502872206862eb285d3b69b884adc9afc477097a4f11c86750f6631e0ecb8914bb14fd418d9bd650f04c9536a1265e4d630df2caa1a5d84ee6c4a5c3e9a7b2
-  languageName: node
-  linkType: hard
-
-"@swagger-api/apidom-core@npm:>=1.0.0-alpha.3 <1.0.0-beta.0, @swagger-api/apidom-core@npm:^1.0.0-alpha.3":
-  version: 1.0.0-alpha.3
-  resolution: "@swagger-api/apidom-core@npm:1.0.0-alpha.3"
-  dependencies:
-    "@babel/runtime-corejs3": ^7.20.7
-    "@swagger-api/apidom-ast": ^1.0.0-alpha.3
-    "@swagger-api/apidom-error": ^1.0.0-alpha.1
-    "@types/ramda": ~0.30.0
-    minim: ~0.23.8
-    ramda: ~0.30.0
-    ramda-adjunct: ^5.0.0
-    short-unique-id: ^5.0.2
-    ts-mixer: ^6.0.3
-  checksum: d325da8e5ff5e5db291b34ef1ad70290ac91df385bd2e83c93691f9b70ff37dd993236cff77a91588fef14e26f1add0a24ed9e6158a3926f05050b48eb3f48c4
-  languageName: node
-  linkType: hard
-
-"@swagger-api/apidom-error@npm:>=1.0.0-alpha.1 <1.0.0-beta.0, @swagger-api/apidom-error@npm:^1.0.0-alpha.1":
-  version: 1.0.0-alpha.1
-  resolution: "@swagger-api/apidom-error@npm:1.0.0-alpha.1"
-  dependencies:
-    "@babel/runtime-corejs3": ^7.20.7
-  checksum: b394e6304caf461193820ce75017224b130c03c8ef538bd14e8f7462b37846bca1985f5490aac6025a8492693c390c9a346363c87092942d090d85606b45b462
-  languageName: node
-  linkType: hard
-
-"@swagger-api/apidom-json-pointer@npm:>=1.0.0-alpha.3 <1.0.0-beta.0, @swagger-api/apidom-json-pointer@npm:^1.0.0-alpha.0":
-  version: 1.0.0-alpha.3
-  resolution: "@swagger-api/apidom-json-pointer@npm:1.0.0-alpha.3"
-  dependencies:
-    "@babel/runtime-corejs3": ^7.20.7
-    "@swagger-api/apidom-core": ^1.0.0-alpha.3
-    "@swagger-api/apidom-error": ^1.0.0-alpha.1
-    "@types/ramda": ~0.30.0
-    ramda: ~0.30.0
-    ramda-adjunct: ^5.0.0
-  checksum: 6ad67b0820c913f4e9484745da56f172ea27a0efb3f7f135105497ddebdf97239f8730bf6f11072743d74c9511583ad037e5a3602edb4b587fee59dbf966b6fd
-  languageName: node
-  linkType: hard
-
-"@swagger-api/apidom-ns-api-design-systems@npm:^1.0.0-alpha.3":
-  version: 1.0.0-alpha.3
-  resolution: "@swagger-api/apidom-ns-api-design-systems@npm:1.0.0-alpha.3"
-  dependencies:
-    "@babel/runtime-corejs3": ^7.20.7
-    "@swagger-api/apidom-core": ^1.0.0-alpha.3
-    "@swagger-api/apidom-error": ^1.0.0-alpha.1
-    "@swagger-api/apidom-ns-openapi-3-1": ^1.0.0-alpha.3
-    "@types/ramda": ~0.30.0
-    ramda: ~0.30.0
-    ramda-adjunct: ^5.0.0
-    ts-mixer: ^6.0.3
-  checksum: 5dfbd6bbe49dd25c9d640495fe6cb1eb1192cc772711e4375f3cfed49976a635050a8161660db3d19733f39d54e5fc992191b32154d81c19b223ea7e924d3ebd
-  languageName: node
-  linkType: hard
-
-"@swagger-api/apidom-ns-asyncapi-2@npm:^1.0.0-alpha.0, @swagger-api/apidom-ns-asyncapi-2@npm:^1.0.0-alpha.3":
-  version: 1.0.0-alpha.3
-  resolution: "@swagger-api/apidom-ns-asyncapi-2@npm:1.0.0-alpha.3"
-  dependencies:
-    "@babel/runtime-corejs3": ^7.20.7
-    "@swagger-api/apidom-core": ^1.0.0-alpha.3
-    "@swagger-api/apidom-ns-json-schema-draft-7": ^1.0.0-alpha.3
-    "@types/ramda": ~0.30.0
-    ramda: ~0.30.0
-    ramda-adjunct: ^5.0.0
-    ts-mixer: ^6.0.3
-  checksum: 2653d52e9590454944d4d3b87405887c9cb89bab8d04fa0ad5c28fe2a45ee9c6c2ab7e51bc1a1cac4eb894e2457d927fd58e1ad76ba34c3eb7c1730782560fca
-  languageName: node
-  linkType: hard
-
-"@swagger-api/apidom-ns-json-schema-draft-4@npm:^1.0.0-alpha.3":
-  version: 1.0.0-alpha.3
-  resolution: "@swagger-api/apidom-ns-json-schema-draft-4@npm:1.0.0-alpha.3"
-  dependencies:
-    "@babel/runtime-corejs3": ^7.20.7
-    "@swagger-api/apidom-ast": ^1.0.0-alpha.3
-    "@swagger-api/apidom-core": ^1.0.0-alpha.3
-    "@types/ramda": ~0.30.0
-    ramda: ~0.30.0
-    ramda-adjunct: ^5.0.0
-    ts-mixer: ^6.0.4
-  checksum: e727e3f5444c5778cefd4e54eb97c8e71b4be72bdfd61da5f387de032e864afc3143e9324f11b8c1e65e872f505f1fb5afd0cc0641a705a00550c9aa63c7f1d1
-  languageName: node
-  linkType: hard
-
-"@swagger-api/apidom-ns-json-schema-draft-6@npm:^1.0.0-alpha.3":
-  version: 1.0.0-alpha.3
-  resolution: "@swagger-api/apidom-ns-json-schema-draft-6@npm:1.0.0-alpha.3"
-  dependencies:
-    "@babel/runtime-corejs3": ^7.20.7
-    "@swagger-api/apidom-core": ^1.0.0-alpha.3
-    "@swagger-api/apidom-error": ^1.0.0-alpha.1
-    "@swagger-api/apidom-ns-json-schema-draft-4": ^1.0.0-alpha.3
-    "@types/ramda": ~0.30.0
-    ramda: ~0.30.0
-    ramda-adjunct: ^5.0.0
-    ts-mixer: ^6.0.4
-  checksum: 35b49cc242291b6b0e63268ac44ebc73f1ae584ab31a0499516cab6f609767da3265924f631f32277695dcdb2ab6e9ca68178377c658e6bd63949a2ecfbcedf5
-  languageName: node
-  linkType: hard
-
-"@swagger-api/apidom-ns-json-schema-draft-7@npm:^1.0.0-alpha.3":
-  version: 1.0.0-alpha.3
-  resolution: "@swagger-api/apidom-ns-json-schema-draft-7@npm:1.0.0-alpha.3"
-  dependencies:
-    "@babel/runtime-corejs3": ^7.20.7
-    "@swagger-api/apidom-core": ^1.0.0-alpha.3
-    "@swagger-api/apidom-error": ^1.0.0-alpha.1
-    "@swagger-api/apidom-ns-json-schema-draft-6": ^1.0.0-alpha.3
-    "@types/ramda": ~0.30.0
-    ramda: ~0.30.0
-    ramda-adjunct: ^5.0.0
-    ts-mixer: ^6.0.4
-  checksum: 37e09e311cd01de80b4820fbbc6c8fc13bedb2ac4730ba731fa5f1ae24ac87fb1d0b2335e08d6d9241a249b7347e67a5af36728f63462686d690e07f3ea1708c
-  languageName: node
-  linkType: hard
-
-"@swagger-api/apidom-ns-openapi-2@npm:^1.0.0-alpha.0, @swagger-api/apidom-ns-openapi-2@npm:^1.0.0-alpha.3":
-  version: 1.0.0-alpha.3
-  resolution: "@swagger-api/apidom-ns-openapi-2@npm:1.0.0-alpha.3"
-  dependencies:
-    "@babel/runtime-corejs3": ^7.20.7
-    "@swagger-api/apidom-core": ^1.0.0-alpha.3
-    "@swagger-api/apidom-error": ^1.0.0-alpha.1
-    "@swagger-api/apidom-ns-json-schema-draft-4": ^1.0.0-alpha.3
-    "@types/ramda": ~0.30.0
-    ramda: ~0.30.0
-    ramda-adjunct: ^5.0.0
-    ts-mixer: ^6.0.3
-  checksum: 130f86a350f5154b90679f248991a15aecf66be49d6947b95d79dcb2d1b613c066855cf37f59eba591874b1d488e4db43e79730d89a91c1d7d2ef1a46d16c14a
-  languageName: node
-  linkType: hard
-
-"@swagger-api/apidom-ns-openapi-3-0@npm:^1.0.0-alpha.0, @swagger-api/apidom-ns-openapi-3-0@npm:^1.0.0-alpha.3":
-  version: 1.0.0-alpha.3
-  resolution: "@swagger-api/apidom-ns-openapi-3-0@npm:1.0.0-alpha.3"
-  dependencies:
-    "@babel/runtime-corejs3": ^7.20.7
-    "@swagger-api/apidom-core": ^1.0.0-alpha.3
-    "@swagger-api/apidom-error": ^1.0.0-alpha.1
-    "@swagger-api/apidom-ns-json-schema-draft-4": ^1.0.0-alpha.3
-    "@types/ramda": ~0.30.0
-    ramda: ~0.30.0
-    ramda-adjunct: ^5.0.0
-    ts-mixer: ^6.0.3
-  checksum: 25b76a2285a1fea4202d246af86f6e7a64ca0696718689b1307f6fa54f30f5b75d7fbf62223f86b76b3298a58b47dd73179834285ee77cb2158cb5bf21eb47d2
-  languageName: node
-  linkType: hard
-
-"@swagger-api/apidom-ns-openapi-3-1@npm:>=1.0.0-alpha.3 <1.0.0-beta.0, @swagger-api/apidom-ns-openapi-3-1@npm:^1.0.0-alpha.0, @swagger-api/apidom-ns-openapi-3-1@npm:^1.0.0-alpha.3":
-  version: 1.0.0-alpha.3
-  resolution: "@swagger-api/apidom-ns-openapi-3-1@npm:1.0.0-alpha.3"
-  dependencies:
-    "@babel/runtime-corejs3": ^7.20.7
-    "@swagger-api/apidom-ast": ^1.0.0-alpha.3
-    "@swagger-api/apidom-core": ^1.0.0-alpha.3
-    "@swagger-api/apidom-ns-openapi-3-0": ^1.0.0-alpha.3
-    "@types/ramda": ~0.30.0
-    ramda: ~0.30.0
-    ramda-adjunct: ^5.0.0
-    ts-mixer: ^6.0.3
-  checksum: d25fc30716086755b782588bb1887e079bf5acc5e0248b26d8ad9611ec6c72b53e1369261d48d3ee42a936f5954dc7a775d82203eaef551eef47b51c579d47aa
-  languageName: node
-  linkType: hard
-
-"@swagger-api/apidom-ns-workflows-1@npm:^1.0.0-alpha.0, @swagger-api/apidom-ns-workflows-1@npm:^1.0.0-alpha.3":
-  version: 1.0.0-alpha.3
-  resolution: "@swagger-api/apidom-ns-workflows-1@npm:1.0.0-alpha.3"
-  dependencies:
-    "@babel/runtime-corejs3": ^7.20.7
-    "@swagger-api/apidom-core": ^1.0.0-alpha.3
-    "@swagger-api/apidom-ns-openapi-3-1": ^1.0.0-alpha.3
-    "@types/ramda": ~0.30.0
-    ramda: ~0.30.0
-    ramda-adjunct: ^5.0.0
-    ts-mixer: ^6.0.3
-  checksum: 21665b0b9ee5f9cde4769bba0058231e19b9d87acc314b34d39982851f16b726c60a29bbb1dbeb06466b5b5c0f60ff0132a232e5c7412f0735be13e4860a0377
-  languageName: node
-  linkType: hard
-
-"@swagger-api/apidom-parser-adapter-api-design-systems-json@npm:^1.0.0-alpha.0":
-  version: 1.0.0-alpha.3
-  resolution: "@swagger-api/apidom-parser-adapter-api-design-systems-json@npm:1.0.0-alpha.3"
-  dependencies:
-    "@babel/runtime-corejs3": ^7.20.7
-    "@swagger-api/apidom-core": ^1.0.0-alpha.3
-    "@swagger-api/apidom-ns-api-design-systems": ^1.0.0-alpha.3
-    "@swagger-api/apidom-parser-adapter-json": ^1.0.0-alpha.3
-    "@types/ramda": ~0.30.0
-    ramda: ~0.30.0
-    ramda-adjunct: ^5.0.0
-  checksum: 6c8a45cb9866e707ecb201a6a6a60ff2486362914dd8b78daa06872782392ed322c5d23292a8287840d7b1d09af958cfacc76f2e63c28b85eeb397799e2f7ec0
-  languageName: node
-  linkType: hard
-
-"@swagger-api/apidom-parser-adapter-api-design-systems-yaml@npm:^1.0.0-alpha.0":
-  version: 1.0.0-alpha.3
-  resolution: "@swagger-api/apidom-parser-adapter-api-design-systems-yaml@npm:1.0.0-alpha.3"
-  dependencies:
-    "@babel/runtime-corejs3": ^7.20.7
-    "@swagger-api/apidom-core": ^1.0.0-alpha.3
-    "@swagger-api/apidom-ns-api-design-systems": ^1.0.0-alpha.3
-    "@swagger-api/apidom-parser-adapter-yaml-1-2": ^1.0.0-alpha.3
-    "@types/ramda": ~0.30.0
-    ramda: ~0.30.0
-    ramda-adjunct: ^5.0.0
-  checksum: b1f51ceb2524b8792f5cef6b3441572e7c7b2f51827311c4403f6efae2a1db670fed5dc7cb53ce58d8d19f3eb952916796a8f237e898531643a647ab760b38cb
-  languageName: node
-  linkType: hard
-
-"@swagger-api/apidom-parser-adapter-asyncapi-json-2@npm:^1.0.0-alpha.0":
-  version: 1.0.0-alpha.3
-  resolution: "@swagger-api/apidom-parser-adapter-asyncapi-json-2@npm:1.0.0-alpha.3"
-  dependencies:
-    "@babel/runtime-corejs3": ^7.20.7
-    "@swagger-api/apidom-core": ^1.0.0-alpha.3
-    "@swagger-api/apidom-ns-asyncapi-2": ^1.0.0-alpha.3
-    "@swagger-api/apidom-parser-adapter-json": ^1.0.0-alpha.3
-    "@types/ramda": ~0.30.0
-    ramda: ~0.30.0
-    ramda-adjunct: ^5.0.0
-  checksum: 36abaf9cc36a7741bbf85997096eb7b1f5f9a98a9a53acfbc09fdaed727ff840550ae7a89ef15f104adfa9ee8d77ffe1d52e7383cba182a0ff1f66f740bbd635
-  languageName: node
-  linkType: hard
-
-"@swagger-api/apidom-parser-adapter-asyncapi-yaml-2@npm:^1.0.0-alpha.0":
-  version: 1.0.0-alpha.3
-  resolution: "@swagger-api/apidom-parser-adapter-asyncapi-yaml-2@npm:1.0.0-alpha.3"
-  dependencies:
-    "@babel/runtime-corejs3": ^7.20.7
-    "@swagger-api/apidom-core": ^1.0.0-alpha.3
-    "@swagger-api/apidom-ns-asyncapi-2": ^1.0.0-alpha.3
-    "@swagger-api/apidom-parser-adapter-yaml-1-2": ^1.0.0-alpha.3
-    "@types/ramda": ~0.30.0
-    ramda: ~0.30.0
-    ramda-adjunct: ^5.0.0
-  checksum: 9fc8ff36ee2e6013703631ff71ad959c1645efafc1f7e11cf59f10bb49c893041373e8f4d8a8718a66b51098fe17ae3e597ecf881d8733d64a951b6584b89eb1
-  languageName: node
-  linkType: hard
-
-"@swagger-api/apidom-parser-adapter-json@npm:^1.0.0-alpha.0, @swagger-api/apidom-parser-adapter-json@npm:^1.0.0-alpha.3":
-  version: 1.0.0-alpha.3
-  resolution: "@swagger-api/apidom-parser-adapter-json@npm:1.0.0-alpha.3"
-  dependencies:
-    "@babel/runtime-corejs3": ^7.20.7
-    "@swagger-api/apidom-ast": ^1.0.0-alpha.3
-    "@swagger-api/apidom-core": ^1.0.0-alpha.3
-    "@swagger-api/apidom-error": ^1.0.0-alpha.1
-    "@types/ramda": ~0.30.0
-    node-gyp: latest
-    ramda: ~0.30.0
-    ramda-adjunct: ^5.0.0
-    tree-sitter: =0.20.4
-    tree-sitter-json: =0.20.2
-    web-tree-sitter: =0.20.3
-  checksum: af8f93ba62daf29d69b47e1737bb1b26014cdff5af473562d40c0ee1f2508575bc72aa6ad6b9c47e5044d362cd275f267e23f48a439ec163d51eec916ab38776
-  languageName: node
-  linkType: hard
-
-"@swagger-api/apidom-parser-adapter-openapi-json-2@npm:^1.0.0-alpha.0":
-  version: 1.0.0-alpha.3
-  resolution: "@swagger-api/apidom-parser-adapter-openapi-json-2@npm:1.0.0-alpha.3"
-  dependencies:
-    "@babel/runtime-corejs3": ^7.20.7
-    "@swagger-api/apidom-core": ^1.0.0-alpha.3
-    "@swagger-api/apidom-ns-openapi-2": ^1.0.0-alpha.3
-    "@swagger-api/apidom-parser-adapter-json": ^1.0.0-alpha.3
-    "@types/ramda": ~0.30.0
-    ramda: ~0.30.0
-    ramda-adjunct: ^5.0.0
-  checksum: 90491c785b3f26072957594d3463bef904f8026e80c2c24b4836abd94a2b0a5c01a91a9c599f945c93627d4740ec44b1e1d510092691c5d3a377705f7ed3fb84
-  languageName: node
-  linkType: hard
-
-"@swagger-api/apidom-parser-adapter-openapi-json-3-0@npm:^1.0.0-alpha.0":
-  version: 1.0.0-alpha.3
-  resolution: "@swagger-api/apidom-parser-adapter-openapi-json-3-0@npm:1.0.0-alpha.3"
-  dependencies:
-    "@babel/runtime-corejs3": ^7.20.7
-    "@swagger-api/apidom-core": ^1.0.0-alpha.3
-    "@swagger-api/apidom-ns-openapi-3-0": ^1.0.0-alpha.3
-    "@swagger-api/apidom-parser-adapter-json": ^1.0.0-alpha.3
-    "@types/ramda": ~0.30.0
-    ramda: ~0.30.0
-    ramda-adjunct: ^5.0.0
-  checksum: f9ddbf63ffb52f38f29a9aa427daee5b0a960a33ca42df2e5a0ab0a725cbf30d8bc60acb6302b44f7f9a56f93a8b3b6689788e7b33b09baf9af9aee3045ede30
-  languageName: node
-  linkType: hard
-
-"@swagger-api/apidom-parser-adapter-openapi-json-3-1@npm:^1.0.0-alpha.0":
-  version: 1.0.0-alpha.3
-  resolution: "@swagger-api/apidom-parser-adapter-openapi-json-3-1@npm:1.0.0-alpha.3"
-  dependencies:
-    "@babel/runtime-corejs3": ^7.20.7
-    "@swagger-api/apidom-core": ^1.0.0-alpha.3
-    "@swagger-api/apidom-ns-openapi-3-1": ^1.0.0-alpha.3
-    "@swagger-api/apidom-parser-adapter-json": ^1.0.0-alpha.3
-    "@types/ramda": ~0.30.0
-    ramda: ~0.30.0
-    ramda-adjunct: ^5.0.0
-  checksum: 2f57e499cb3c621194eb5c2b3b74fd2e2a8673dab90eddf46a43ad4ea3388ec5eb674afb677fb690221fe944a681b6401acac923899684ae9d53023580232789
-  languageName: node
-  linkType: hard
-
-"@swagger-api/apidom-parser-adapter-openapi-yaml-2@npm:^1.0.0-alpha.0":
-  version: 1.0.0-alpha.3
-  resolution: "@swagger-api/apidom-parser-adapter-openapi-yaml-2@npm:1.0.0-alpha.3"
-  dependencies:
-    "@babel/runtime-corejs3": ^7.20.7
-    "@swagger-api/apidom-core": ^1.0.0-alpha.3
-    "@swagger-api/apidom-ns-openapi-2": ^1.0.0-alpha.3
-    "@swagger-api/apidom-parser-adapter-yaml-1-2": ^1.0.0-alpha.3
-    "@types/ramda": ~0.30.0
-    ramda: ~0.30.0
-    ramda-adjunct: ^5.0.0
-  checksum: 04de0f8aa7f76e300bb3bfd62a099e8e31522437ccb3c91e17143721c87f7236ed1916f499e377812584e23a08ff554bba861ca90477262473947590e0712f8a
-  languageName: node
-  linkType: hard
-
-"@swagger-api/apidom-parser-adapter-openapi-yaml-3-0@npm:^1.0.0-alpha.0":
-  version: 1.0.0-alpha.3
-  resolution: "@swagger-api/apidom-parser-adapter-openapi-yaml-3-0@npm:1.0.0-alpha.3"
-  dependencies:
-    "@babel/runtime-corejs3": ^7.20.7
-    "@swagger-api/apidom-core": ^1.0.0-alpha.3
-    "@swagger-api/apidom-ns-openapi-3-0": ^1.0.0-alpha.3
-    "@swagger-api/apidom-parser-adapter-yaml-1-2": ^1.0.0-alpha.3
-    "@types/ramda": ~0.30.0
-    ramda: ~0.30.0
-    ramda-adjunct: ^5.0.0
-  checksum: e5cc7e8aa3e866294123c17350bd3f1534aafa76bae94668ee81fb1624b976baace86575f1161b700c70319342b5649ec8c7b77cd73845aed2bf465471d20682
-  languageName: node
-  linkType: hard
-
-"@swagger-api/apidom-parser-adapter-openapi-yaml-3-1@npm:^1.0.0-alpha.0":
-  version: 1.0.0-alpha.3
-  resolution: "@swagger-api/apidom-parser-adapter-openapi-yaml-3-1@npm:1.0.0-alpha.3"
-  dependencies:
-    "@babel/runtime-corejs3": ^7.20.7
-    "@swagger-api/apidom-core": ^1.0.0-alpha.3
-    "@swagger-api/apidom-ns-openapi-3-1": ^1.0.0-alpha.3
-    "@swagger-api/apidom-parser-adapter-yaml-1-2": ^1.0.0-alpha.3
-    "@types/ramda": ~0.30.0
-    ramda: ~0.30.0
-    ramda-adjunct: ^5.0.0
-  checksum: 74a63e587530cda0d49e221f40b0ed7a73e92569aa97d1b990b756cb272746298e499b45e46469c77baadf11fcb7bef2628e35f5e1990716ba33cb70a21b465b
-  languageName: node
-  linkType: hard
-
-"@swagger-api/apidom-parser-adapter-workflows-json-1@npm:^1.0.0-alpha.0":
-  version: 1.0.0-alpha.3
-  resolution: "@swagger-api/apidom-parser-adapter-workflows-json-1@npm:1.0.0-alpha.3"
-  dependencies:
-    "@babel/runtime-corejs3": ^7.20.7
-    "@swagger-api/apidom-core": ^1.0.0-alpha.3
-    "@swagger-api/apidom-ns-workflows-1": ^1.0.0-alpha.3
-    "@swagger-api/apidom-parser-adapter-json": ^1.0.0-alpha.3
-    "@types/ramda": ~0.30.0
-    ramda: ~0.30.0
-    ramda-adjunct: ^5.0.0
-  checksum: 1fa1162b67f6dbf1805994b7e7dd01bb30602e7004c6846e5124014fddab471740c0c0a702bf0ce1411f73db4aa16a2cbaa6293b49affa5b1532e7af8bf279b5
-  languageName: node
-  linkType: hard
-
-"@swagger-api/apidom-parser-adapter-workflows-yaml-1@npm:^1.0.0-alpha.0":
-  version: 1.0.0-alpha.3
-  resolution: "@swagger-api/apidom-parser-adapter-workflows-yaml-1@npm:1.0.0-alpha.3"
-  dependencies:
-    "@babel/runtime-corejs3": ^7.20.7
-    "@swagger-api/apidom-core": ^1.0.0-alpha.3
-    "@swagger-api/apidom-ns-workflows-1": ^1.0.0-alpha.3
-    "@swagger-api/apidom-parser-adapter-yaml-1-2": ^1.0.0-alpha.3
-    "@types/ramda": ~0.30.0
-    ramda: ~0.30.0
-    ramda-adjunct: ^5.0.0
-  checksum: cd6257f0a0c0d1d28fef6a5a972ef682ef80ed5f3f6b789bfef81d58e14c8f343bea5aef269f4a6c3249b86a5b2b972f2a0228a6c200f85c24284f9ff1536538
-  languageName: node
-  linkType: hard
-
-"@swagger-api/apidom-parser-adapter-yaml-1-2@npm:^1.0.0-alpha.0, @swagger-api/apidom-parser-adapter-yaml-1-2@npm:^1.0.0-alpha.3":
-  version: 1.0.0-alpha.3
-  resolution: "@swagger-api/apidom-parser-adapter-yaml-1-2@npm:1.0.0-alpha.3"
-  dependencies:
-    "@babel/runtime-corejs3": ^7.20.7
-    "@swagger-api/apidom-ast": ^1.0.0-alpha.3
-    "@swagger-api/apidom-core": ^1.0.0-alpha.3
-    "@swagger-api/apidom-error": ^1.0.0-alpha.1
-    "@types/ramda": ~0.30.0
-    node-gyp: latest
-    ramda: ~0.30.0
-    ramda-adjunct: ^5.0.0
-    tree-sitter: =0.20.4
-    tree-sitter-yaml: =0.5.0
-    web-tree-sitter: =0.20.3
-  checksum: 4636691a24644b8a30ba96753853d1b765dc1d5845804995d1aeb90d0eb7c7eea5909276c4e28df54146b10d6e54d6ea96f68dd03b90e19a62d7a540cea4481a
-  languageName: node
-  linkType: hard
-
-"@swagger-api/apidom-reference@npm:>=1.0.0-alpha.3 <1.0.0-beta.0":
-  version: 1.0.0-alpha.3
-  resolution: "@swagger-api/apidom-reference@npm:1.0.0-alpha.3"
-  dependencies:
-    "@babel/runtime-corejs3": ^7.20.7
-    "@swagger-api/apidom-core": ^1.0.0-alpha.3
-    "@swagger-api/apidom-error": ^1.0.0-alpha.1
-    "@swagger-api/apidom-json-pointer": ^1.0.0-alpha.0
-    "@swagger-api/apidom-ns-asyncapi-2": ^1.0.0-alpha.0
-    "@swagger-api/apidom-ns-openapi-2": ^1.0.0-alpha.0
-    "@swagger-api/apidom-ns-openapi-3-0": ^1.0.0-alpha.0
-    "@swagger-api/apidom-ns-openapi-3-1": ^1.0.0-alpha.0
-    "@swagger-api/apidom-ns-workflows-1": ^1.0.0-alpha.0
-    "@swagger-api/apidom-parser-adapter-api-design-systems-json": ^1.0.0-alpha.0
-    "@swagger-api/apidom-parser-adapter-api-design-systems-yaml": ^1.0.0-alpha.0
-    "@swagger-api/apidom-parser-adapter-asyncapi-json-2": ^1.0.0-alpha.0
-    "@swagger-api/apidom-parser-adapter-asyncapi-yaml-2": ^1.0.0-alpha.0
-    "@swagger-api/apidom-parser-adapter-json": ^1.0.0-alpha.0
-    "@swagger-api/apidom-parser-adapter-openapi-json-2": ^1.0.0-alpha.0
-    "@swagger-api/apidom-parser-adapter-openapi-json-3-0": ^1.0.0-alpha.0
-    "@swagger-api/apidom-parser-adapter-openapi-json-3-1": ^1.0.0-alpha.0
-    "@swagger-api/apidom-parser-adapter-openapi-yaml-2": ^1.0.0-alpha.0
-    "@swagger-api/apidom-parser-adapter-openapi-yaml-3-0": ^1.0.0-alpha.0
-    "@swagger-api/apidom-parser-adapter-openapi-yaml-3-1": ^1.0.0-alpha.0
-    "@swagger-api/apidom-parser-adapter-workflows-json-1": ^1.0.0-alpha.0
-    "@swagger-api/apidom-parser-adapter-workflows-yaml-1": ^1.0.0-alpha.0
-    "@swagger-api/apidom-parser-adapter-yaml-1-2": ^1.0.0-alpha.0
-    "@types/ramda": ~0.30.0
-    axios: ^1.4.0
-    minimatch: ^7.4.3
-    process: ^0.11.10
-    ramda: ~0.30.0
-    ramda-adjunct: ^5.0.0
-  dependenciesMeta:
-    "@swagger-api/apidom-error":
-      optional: true
-    "@swagger-api/apidom-json-pointer":
-      optional: true
-    "@swagger-api/apidom-ns-asyncapi-2":
-      optional: true
-    "@swagger-api/apidom-ns-openapi-2":
-      optional: true
-    "@swagger-api/apidom-ns-openapi-3-0":
-      optional: true
-    "@swagger-api/apidom-ns-openapi-3-1":
-      optional: true
-    "@swagger-api/apidom-ns-workflows-1":
-      optional: true
-    "@swagger-api/apidom-parser-adapter-api-design-systems-json":
-      optional: true
-    "@swagger-api/apidom-parser-adapter-api-design-systems-yaml":
-      optional: true
-    "@swagger-api/apidom-parser-adapter-asyncapi-json-2":
-      optional: true
-    "@swagger-api/apidom-parser-adapter-asyncapi-yaml-2":
-      optional: true
-    "@swagger-api/apidom-parser-adapter-json":
-      optional: true
-    "@swagger-api/apidom-parser-adapter-openapi-json-2":
-      optional: true
-    "@swagger-api/apidom-parser-adapter-openapi-json-3-0":
-      optional: true
-    "@swagger-api/apidom-parser-adapter-openapi-json-3-1":
-      optional: true
-    "@swagger-api/apidom-parser-adapter-openapi-yaml-2":
-      optional: true
-    "@swagger-api/apidom-parser-adapter-openapi-yaml-3-0":
-      optional: true
-    "@swagger-api/apidom-parser-adapter-openapi-yaml-3-1":
-      optional: true
-    "@swagger-api/apidom-parser-adapter-workflows-json-1":
-      optional: true
-    "@swagger-api/apidom-parser-adapter-workflows-yaml-1":
-      optional: true
-    "@swagger-api/apidom-parser-adapter-yaml-1-2":
-      optional: true
-  checksum: 892f86b8b5ad5cd95d44aae207f584efedb6132f540caaf260e75aa00b079468bcfc8a6c192c44a02961f29ac764ebc98ce74b88251170e2c25aca7757b4f548
-  languageName: node
-  linkType: hard
-
 "@testing-library/dom@npm:^9.0.0":
   version: 9.3.4
   resolution: "@testing-library/dom@npm:9.3.4"
@@ -5358,15 +4839,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/ramda@npm:~0.30.0":
-  version: 0.30.0
-  resolution: "@types/ramda@npm:0.30.0"
-  dependencies:
-    types-ramda: ^0.30.0
-  checksum: abe9d9c872778d2598298a0c4805fa715618fe79a4d7e203c71076bc72e28c97f04ffb108274cbfc33b0407a5aa3c2c37f609705a175d4102418e292e4e55a22
-  languageName: node
-  linkType: hard
-
 "@types/range-parser@npm:*":
   version: 1.2.7
   resolution: "@types/range-parser@npm:1.2.7"
@@ -5652,13 +5124,6 @@ __metadata:
   version: 2.0.10
   resolution: "@types/unist@npm:2.0.10"
   checksum: e2924e18dedf45f68a5c6ccd6015cd62f1643b1b43baac1854efa21ae9e70505db94290434a23da1137d9e31eb58e54ca175982005698ac37300a1c889f6c4aa
-  languageName: node
-  linkType: hard
-
-"@types/use-sync-external-store@npm:^0.0.3":
-  version: 0.0.3
-  resolution: "@types/use-sync-external-store@npm:0.0.3"
-  checksum: 161ddb8eec5dbe7279ac971531217e9af6b99f7783213566d2b502e2e2378ea19cf5e5ea4595039d730aa79d3d35c6567d48599f69773a02ffcff1776ec2a44e
   languageName: node
   linkType: hard
 
@@ -6581,13 +6046,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"apg-lite@npm:^1.0.3":
-  version: 1.0.3
-  resolution: "apg-lite@npm:1.0.3"
-  checksum: 69b2aaac4e479eb1afba6376802666ccc2384d9846474ebdd86f8ca9bd5754eea9d13038766bf67696f892e157fb577101ae40a69175c2d679c2898c0eaab5d8
-  languageName: node
-  linkType: hard
-
 "arg@npm:^4.1.0":
   version: 4.1.3
   resolution: "arg@npm:4.1.3"
@@ -6595,7 +6053,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"argparse@npm:^1.0.10, argparse@npm:^1.0.7":
+"argparse@npm:^1.0.7":
   version: 1.0.10
   resolution: "argparse@npm:1.0.10"
   dependencies:
@@ -6836,15 +6294,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"autolinker@npm:^3.11.0":
-  version: 3.16.2
-  resolution: "autolinker@npm:3.16.2"
-  dependencies:
-    tslib: ^2.3.0
-  checksum: 1d5d20ef23586629ec3c341052e6bb6250399cf5e66db21540c17b2f5b1137066435fb274a2115b57464d05e75b85afad61ef7cdf6ea693ef2920a3748b7249d
-  languageName: node
-  linkType: hard
-
 "available-typed-arrays@npm:^1.0.7":
   version: 1.0.7
   resolution: "available-typed-arrays@npm:1.0.7"
@@ -6883,17 +6332,6 @@ __metadata:
     form-data: ^4.0.0
     proxy-from-env: ^1.1.0
   checksum: bf007fa4b207d102459300698620b3b0873503c6d47bf5a8f6e43c0c64c90035a4f698b55027ca1958f61ab43723df2781c38a99711848d232cad7accbcdfcdd
-  languageName: node
-  linkType: hard
-
-"axios@npm:^1.4.0":
-  version: 1.7.2
-  resolution: "axios@npm:1.7.2"
-  dependencies:
-    follow-redirects: ^1.15.6
-    form-data: ^4.0.0
-    proxy-from-env: ^1.1.0
-  checksum: e457e2b0ab748504621f6fa6609074ac08c824bf0881592209dfa15098ece7e88495300e02cd22ba50b3468fd712fe687e629dcb03d6a3f6a51989727405aedf
   languageName: node
   linkType: hard
 
@@ -7118,7 +6556,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"base64-js@npm:^1.3.1, base64-js@npm:^1.5.1":
+"base64-js@npm:^1.3.1":
   version: 1.5.1
   resolution: "base64-js@npm:1.5.1"
   checksum: 669632eb3745404c2f822a18fc3a0122d2f9a7a13f7fb8b5823ee19d1d2ff9ee5b52c53367176ea4ad093c332fd5ab4bd0ebae5a8e27917a4105a4cfc86b1005
@@ -7166,17 +6604,6 @@ __metadata:
   version: 2.3.0
   resolution: "binary-extensions@npm:2.3.0"
   checksum: bcad01494e8a9283abf18c1b967af65ee79b0c6a9e6fcfafebfe91dbe6e0fc7272bafb73389e198b310516ae04f7ad17d79aacf6cb4c0d5d5202a7e2e52c7d98
-  languageName: node
-  linkType: hard
-
-"bl@npm:^4.0.3":
-  version: 4.1.0
-  resolution: "bl@npm:4.1.0"
-  dependencies:
-    buffer: ^5.5.0
-    inherits: ^2.0.4
-    readable-stream: ^3.4.0
-  checksum: 9e8521fa7e83aa9427c6f8ccdcba6e8167ef30cc9a22df26effcc5ab682ef91d2cbc23a239f945d099289e4bbcfae7a192e9c28c84c6202e710a0dfec3722662
   languageName: node
   linkType: hard
 
@@ -7402,16 +6829,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"buffer@npm:^5.5.0":
-  version: 5.7.1
-  resolution: "buffer@npm:5.7.1"
-  dependencies:
-    base64-js: ^1.3.1
-    ieee754: ^1.1.13
-  checksum: e2cf8429e1c4c7b8cbd30834ac09bd61da46ce35f5c22a78e6c2f04497d6d25541b16881e30a019c6fd3154150650ccee27a308eff3e26229d788bbdeb08ab84
-  languageName: node
-  linkType: hard
-
 "buffer@npm:^6.0.3":
   version: 6.0.3
   resolution: "buffer@npm:6.0.3"
@@ -7613,31 +7030,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"character-entities-legacy@npm:^1.0.0":
-  version: 1.1.4
-  resolution: "character-entities-legacy@npm:1.1.4"
-  checksum: fe03a82c154414da3a0c8ab3188e4237ec68006cbcd681cf23c7cfb9502a0e76cd30ab69a2e50857ca10d984d57de3b307680fff5328ccd427f400e559c3a811
-  languageName: node
-  linkType: hard
-
-"character-entities@npm:^1.0.0":
-  version: 1.2.4
-  resolution: "character-entities@npm:1.2.4"
-  checksum: e1545716571ead57beac008433c1ff69517cd8ca5b336889321c5b8ff4a99c29b65589a701e9c086cda8a5e346a67295e2684f6c7ea96819fe85cbf49bf8686d
-  languageName: node
-  linkType: hard
-
 "character-entities@npm:^2.0.0":
   version: 2.0.2
   resolution: "character-entities@npm:2.0.2"
   checksum: cf1643814023697f725e47328fcec17923b8f1799102a8a79c1514e894815651794a2bffd84bb1b3a4b124b050154e4529ed6e81f7c8068a734aecf07a6d3def
-  languageName: node
-  linkType: hard
-
-"character-reference-invalid@npm:^1.0.0":
-  version: 1.1.4
-  resolution: "character-reference-invalid@npm:1.1.4"
-  checksum: 20274574c70e05e2f81135f3b93285536bc8ff70f37f0809b0d17791a832838f1e49938382899ed4cb444e5bbd4314ca1415231344ba29f4222ce2ccf24fea0b
   languageName: node
   linkType: hard
 
@@ -7657,13 +7053,6 @@ __metadata:
     fsevents:
       optional: true
   checksum: d2f29f499705dcd4f6f3bbed79a9ce2388cf530460122eed3b9c48efeab7a4e28739c6551fd15bec9245c6b9eeca7a32baa64694d64d9b6faeb74ddb8c4a413d
-  languageName: node
-  linkType: hard
-
-"chownr@npm:^1.1.1":
-  version: 1.1.4
-  resolution: "chownr@npm:1.1.4"
-  checksum: 115648f8eb38bac5e41c3857f3e663f9c39ed6480d1349977c4d96c95a47266fcacc5a5aabf3cb6c481e22d72f41992827db47301851766c4fd77ac21a4f081d
   languageName: node
   linkType: hard
 
@@ -7889,13 +7278,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"comma-separated-tokens@npm:^1.0.0":
-  version: 1.0.8
-  resolution: "comma-separated-tokens@npm:1.0.8"
-  checksum: 0adcb07174fa4d08cf0f5c8e3aec40a36b5ff0c2c720e5e23f50fe02e6789d1d00a67036c80e0c1e1539f41d3e7f0101b074039dd833b4e4a59031b659d6ca0d
-  languageName: node
-  linkType: hard
-
 "comma-separated-tokens@npm:^2.0.0":
   version: 2.0.3
   resolution: "comma-separated-tokens@npm:2.0.3"
@@ -8097,7 +7479,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cookie@npm:0.6.0, cookie@npm:~0.6.0":
+"cookie@npm:0.6.0":
   version: 0.6.0
   resolution: "cookie@npm:0.6.0"
   checksum: f56a7d32a07db5458e79c726b77e3c2eff655c36792f2b6c58d351fb5f61531e5b1ab7f46987150136e366c65213cbe31729e02a3eaed630c3bf7334635fb410
@@ -8154,13 +7536,6 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   dependencies:
     browserslist: ^4.23.0
   checksum: cab5078e98625f889fd9bbbb19e84cb408f31c87e68302d380db0d26ae8e35c1b38cde084358ff345d4aa461af5f3c60d8a913a5b30bff3a83b4b7859374db36
-  languageName: node
-  linkType: hard
-
-"core-js-pure@npm:^3.30.2":
-  version: 3.37.1
-  resolution: "core-js-pure@npm:3.37.1"
-  checksum: a13a40e3951975cffef12a0933d3dbf1ecedbf9821e1ec8024884b587744951ad30e3762a86bcb8e2a18fdd4b8d7c8971b2391605329799fc04e1fc1e1397dc1
   languageName: node
   linkType: hard
 
@@ -8461,7 +7836,7 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   languageName: node
   linkType: hard
 
-"css.escape@npm:1.5.1, css.escape@npm:^1.5.1":
+"css.escape@npm:^1.5.1":
   version: 1.5.1
   resolution: "css.escape@npm:1.5.1"
   checksum: f6d38088d870a961794a2580b2b2af1027731bb43261cfdce14f19238a88664b351cc8978abc20f06cc6bbde725699dec8deb6fe9816b139fc3f2af28719e774
@@ -9095,15 +8470,6 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   languageName: node
   linkType: hard
 
-"decompress-response@npm:^6.0.0":
-  version: 6.0.0
-  resolution: "decompress-response@npm:6.0.0"
-  dependencies:
-    mimic-response: ^3.1.0
-  checksum: d377cf47e02d805e283866c3f50d3d21578b779731e8c5072d6ce8c13cc31493db1c2f6784da9d1d5250822120cefa44f1deab112d5981015f2e17444b763812
-  languageName: node
-  linkType: hard
-
 "dedent@npm:^1.0.0":
   version: 1.5.3
   resolution: "dedent@npm:1.5.3"
@@ -9163,13 +8529,6 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   languageName: node
   linkType: hard
 
-"deep-extend@npm:0.6.0, deep-extend@npm:^0.6.0":
-  version: 0.6.0
-  resolution: "deep-extend@npm:0.6.0"
-  checksum: 7be7e5a8d468d6b10e6a67c3de828f55001b6eb515d014f7aeb9066ce36bd5717161eb47d6a0f7bed8a9083935b465bc163ee2581c8b128d29bf61092fdf57a7
-  languageName: node
-  linkType: hard
-
 "deep-is@npm:^0.1.3, deep-is@npm:~0.1.3":
   version: 0.1.4
   resolution: "deep-is@npm:0.1.4"
@@ -9177,7 +8536,7 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   languageName: node
   linkType: hard
 
-"deepmerge@npm:^4.0.0, deepmerge@npm:^4.2.2, deepmerge@npm:^4.3.1, deepmerge@npm:~4.3.0":
+"deepmerge@npm:^4.0.0, deepmerge@npm:^4.2.2, deepmerge@npm:^4.3.1":
   version: 4.3.1
   resolution: "deepmerge@npm:4.3.1"
   checksum: 2024c6a980a1b7128084170c4cf56b0fd58a63f2da1660dcfe977415f27b17dbe5888668b59d0b063753f3220719d5e400b7f113609489c90160bb9a5518d052
@@ -9306,13 +8665,6 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   version: 1.2.0
   resolution: "destroy@npm:1.2.0"
   checksum: 0acb300b7478a08b92d810ab229d5afe0d2f4399272045ab22affa0d99dbaf12637659411530a6fcd597a9bdac718fc94373a61a95b4651bbc7b83684a565e38
-  languageName: node
-  linkType: hard
-
-"detect-libc@npm:^2.0.0":
-  version: 2.0.3
-  resolution: "detect-libc@npm:2.0.3"
-  checksum: 2ba6a939ae55f189aea996ac67afceb650413c7a34726ee92c40fb0deb2400d57ef94631a8a3f052055eea7efb0f99a9b5e6ce923415daa3e68221f963cfc27d
   languageName: node
   linkType: hard
 
@@ -9494,13 +8846,6 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   languageName: node
   linkType: hard
 
-"dompurify@npm:=3.1.4":
-  version: 3.1.4
-  resolution: "dompurify@npm:3.1.4"
-  checksum: 7b8d55d6e091c69cccfef73d066bd1bc82de32c81bc050b2c396b502afda0c853152760553aeb4d7ef86e7cf46bf49720fcb0c42a49ce939125cf40d7720ebb8
-  languageName: node
-  linkType: hard
-
 "dompurify@npm:^3.0.5":
   version: 3.1.1
   resolution: "dompurify@npm:3.1.1"
@@ -9551,13 +8896,6 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   version: 16.4.5
   resolution: "dotenv@npm:16.4.5"
   checksum: 301a12c3d44fd49888b74eb9ccf9f07a1f5df43f489e7fcb89647a2edcd84c42d6bc349dc8df099cd18f07c35c7b04685c1a4f3e6a6a9e6b30f8d48c15b7f49c
-  languageName: node
-  linkType: hard
-
-"drange@npm:^1.0.2":
-  version: 1.1.1
-  resolution: "drange@npm:1.1.1"
-  checksum: 7e6ed639f9ab4d826e79717e2b0685a7ab02ecd39dac6483305dcc43ea2a27dc78b538e10adaba35c086efab216ef1f53f22bc402abfd0d29454b1c5f48fecd1
   languageName: node
   linkType: hard
 
@@ -9699,15 +9037,6 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   dependencies:
     iconv-lite: ^0.6.2
   checksum: bb98632f8ffa823996e508ce6a58ffcf5856330fde839ae42c9e1f436cc3b5cc651d4aeae72222916545428e54fd0f6aa8862fd8d25bdbcc4589f1e3f3715e7f
-  languageName: node
-  linkType: hard
-
-"end-of-stream@npm:^1.1.0, end-of-stream@npm:^1.4.1":
-  version: 1.4.4
-  resolution: "end-of-stream@npm:1.4.4"
-  dependencies:
-    once: ^1.4.0
-  checksum: 530a5a5a1e517e962854a31693dbb5c0b2fc40b46dad2a56a2deec656ca040631124f4795823acc68238147805f8b021abbe221f4afed5ef3c8e8efc2024908b
   languageName: node
   linkType: hard
 
@@ -10661,13 +9990,6 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   languageName: node
   linkType: hard
 
-"expand-template@npm:^2.0.3":
-  version: 2.0.3
-  resolution: "expand-template@npm:2.0.3"
-  checksum: 588c19847216421ed92befb521767b7018dc88f88b0576df98cb242f20961425e96a92cbece525ef28cc5becceae5d544ae0f5b9b5e2aa05acb13716ca5b3099
-  languageName: node
-  linkType: hard
-
 "expect@npm:^29.0.0, expect@npm:^29.7.0":
   version: 29.7.0
   resolution: "expect@npm:29.7.0"
@@ -10797,13 +10119,6 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   languageName: node
   linkType: hard
 
-"fast-json-patch@npm:^3.0.0-1":
-  version: 3.1.1
-  resolution: "fast-json-patch@npm:3.1.1"
-  checksum: c4525b61b2471df60d4b025b4118b036d99778a93431aa44d1084218182841d82ce93056f0f3bbd731a24e6a8e69820128adf1873eb2199a26c62ef58d137833
-  languageName: node
-  linkType: hard
-
 "fast-json-stable-stringify@npm:^2.0.0, fast-json-stable-stringify@npm:^2.1.0":
   version: 2.1.0
   resolution: "fast-json-stable-stringify@npm:2.1.0"
@@ -10852,15 +10167,6 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   dependencies:
     reusify: ^1.0.4
   checksum: a8c5b26788d5a1763f88bae56a8ddeee579f935a831c5fe7a8268cea5b0a91fbfe705f612209e02d639b881d7b48e461a50da4a10cfaa40da5ca7cc9da098d88
-  languageName: node
-  linkType: hard
-
-"fault@npm:^1.0.0":
-  version: 1.0.4
-  resolution: "fault@npm:1.0.4"
-  dependencies:
-    format: ^0.2.0
-  checksum: 5ac610d8b09424e0f2fa8cf913064372f2ee7140a203a79957f73ed557c0e79b1a3d096064d7f40bde8132a69204c1fe25ec23634c05c6da2da2039cff26c4e7
   languageName: node
   linkType: hard
 
@@ -11135,13 +10441,6 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   languageName: node
   linkType: hard
 
-"format@npm:^0.2.0":
-  version: 0.2.2
-  resolution: "format@npm:0.2.2"
-  checksum: 646a60e1336250d802509cf24fb801e43bd4a70a07510c816fa133aa42cdbc9c21e66e9cc0801bb183c5b031c9d68be62e7fbb6877756e52357850f92aa28799
-  languageName: node
-  linkType: hard
-
 "formdata-polyfill@npm:^4.0.7":
   version: 4.0.10
   resolution: "formdata-polyfill@npm:4.0.10"
@@ -11169,13 +10468,6 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   version: 0.5.2
   resolution: "fresh@npm:0.5.2"
   checksum: 13ea8b08f91e669a64e3ba3a20eb79d7ca5379a81f1ff7f4310d54e2320645503cc0c78daedc93dfb6191287295f6479544a649c64d8e41a1c0fb0c221552346
-  languageName: node
-  linkType: hard
-
-"fs-constants@npm:^1.0.0":
-  version: 1.0.0
-  resolution: "fs-constants@npm:1.0.0"
-  checksum: 18f5b718371816155849475ac36c7d0b24d39a11d91348cfcb308b4494824413e03572c403c86d3a260e049465518c4f0d5bd00f0371cdfcad6d4f30a85b350d
   languageName: node
   linkType: hard
 
@@ -11338,13 +10630,6 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   dependencies:
     assert-plus: ^1.0.0
   checksum: ab18d55661db264e3eac6012c2d3daeafaab7a501c035ae0ccb193c3c23e9849c6e29b6ac762b9c2adae460266f925d55a3a2a3a3c8b94be2f222df94d70c046
-  languageName: node
-  linkType: hard
-
-"github-from-package@npm:0.0.0":
-  version: 0.0.0
-  resolution: "github-from-package@npm:0.0.0"
-  checksum: 14e448192a35c1e42efee94c9d01a10f42fe790375891a24b25261246ce9336ab9df5d274585aedd4568f7922246c2a78b8a8cd2571bfe99c693a9718e7dd0e3
   languageName: node
   linkType: hard
 
@@ -11653,13 +10938,6 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   languageName: node
   linkType: hard
 
-"hast-util-parse-selector@npm:^2.0.0":
-  version: 2.2.5
-  resolution: "hast-util-parse-selector@npm:2.2.5"
-  checksum: 22ee4afbd11754562144cb3c4f3ec52524dafba4d90ee52512902d17cf11066d83b38f7bdf6ca571bbc2541f07ba30db0d234657b6ecb8ca4631587466459605
-  languageName: node
-  linkType: hard
-
 "hast-util-parse-selector@npm:^3.0.0":
   version: 3.1.1
   resolution: "hast-util-parse-selector@npm:3.1.1"
@@ -11718,19 +10996,6 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   languageName: node
   linkType: hard
 
-"hastscript@npm:^6.0.0":
-  version: 6.0.0
-  resolution: "hastscript@npm:6.0.0"
-  dependencies:
-    "@types/hast": ^2.0.0
-    comma-separated-tokens: ^1.0.0
-    hast-util-parse-selector: ^2.0.0
-    property-information: ^5.0.0
-    space-separated-tokens: ^1.0.0
-  checksum: 5e50b85af0d2cb7c17979cb1ddca75d6b96b53019dd999b39e7833192c9004201c3cee6445065620ea05d0087d9ae147a4844e582d64868be5bc6b0232dfe52d
-  languageName: node
-  linkType: hard
-
 "hastscript@npm:^7.0.0":
   version: 7.2.0
   resolution: "hastscript@npm:7.2.0"
@@ -11750,13 +11015,6 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   bin:
     he: bin/he
   checksum: 3d4d6babccccd79c5c5a3f929a68af33360d6445587d628087f39a965079d84f18ce9c3d3f917ee1e3978916fc833bb8b29377c3b403f919426f91bc6965e7a7
-  languageName: node
-  linkType: hard
-
-"highlight.js@npm:^10.4.1, highlight.js@npm:~10.7.0":
-  version: 10.7.3
-  resolution: "highlight.js@npm:10.7.3"
-  checksum: defeafcd546b535d710d8efb8e650af9e3b369ef53e28c3dc7893eacfe263200bba4c5fcf43524ae66d5c0c296b1af0870523ceae3e3104d24b7abf6374a4fea
   languageName: node
   linkType: hard
 
@@ -12067,7 +11325,7 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   languageName: node
   linkType: hard
 
-"ieee754@npm:^1.1.13, ieee754@npm:^1.2.1":
+"ieee754@npm:^1.2.1":
   version: 1.2.1
   resolution: "ieee754@npm:1.2.1"
   checksum: 5144c0c9815e54ada181d80a0b810221a253562422e7c6c3a60b1901154184f49326ec239d618c416c1c5945a2e197107aee8d986a3dd836b53dffefd99b5e7e
@@ -12094,13 +11352,6 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   version: 9.0.21
   resolution: "immer@npm:9.0.21"
   checksum: 70e3c274165995352f6936695f0ef4723c52c92c92dd0e9afdfe008175af39fa28e76aafb3a2ca9d57d1fb8f796efc4dd1e1cc36f18d33fa5b74f3dfb0375432
-  languageName: node
-  linkType: hard
-
-"immutable@npm:^3.x.x":
-  version: 3.8.2
-  resolution: "immutable@npm:3.8.2"
-  checksum: 41909b386950ff84ca3cfca77c74cfc87d225a914e98e6c57996fa81a328da61a7c32216d6d5abad40f54747ffdc5c4b02b102e6ad1a504c1752efde8041f964
   languageName: node
   linkType: hard
 
@@ -12168,13 +11419,6 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   version: 2.0.3
   resolution: "inherits@npm:2.0.3"
   checksum: 78cb8d7d850d20a5e9a7f3620db31483aa00ad5f722ce03a55b110e5a723539b3716a3b463e2b96ce3fe286f33afc7c131fa2f91407528ba80cea98a7545d4c0
-  languageName: node
-  linkType: hard
-
-"ini@npm:~1.3.0":
-  version: 1.3.8
-  resolution: "ini@npm:1.3.8"
-  checksum: dfd98b0ca3a4fc1e323e38a6c8eb8936e31a97a918d3b377649ea15bdb15d481207a0dda1021efbd86b464cae29a0d33c1d7dcaf6c5672bee17fa849bc50a1b3
   languageName: node
   linkType: hard
 
@@ -12253,7 +11497,7 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   languageName: node
   linkType: hard
 
-"invariant@npm:^2.2.2, invariant@npm:^2.2.4":
+"invariant@npm:^2.2.4":
   version: 2.2.4
   resolution: "invariant@npm:2.2.4"
   dependencies:
@@ -12290,23 +11534,6 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   version: 2.2.0
   resolution: "ipaddr.js@npm:2.2.0"
   checksum: 770ba8451fd9bf78015e8edac0d5abd7a708cbf75f9429ca9147a9d2f3a2d60767cd5de2aab2b1e13ca6e4445bdeff42bf12ef6f151c07a5c6cf8a44328e2859
-  languageName: node
-  linkType: hard
-
-"is-alphabetical@npm:^1.0.0":
-  version: 1.0.4
-  resolution: "is-alphabetical@npm:1.0.4"
-  checksum: 6508cce44fd348f06705d377b260974f4ce68c74000e7da4045f0d919e568226dc3ce9685c5a2af272195384df6930f748ce9213fc9f399b5d31b362c66312cb
-  languageName: node
-  linkType: hard
-
-"is-alphanumerical@npm:^1.0.0":
-  version: 1.0.4
-  resolution: "is-alphanumerical@npm:1.0.4"
-  dependencies:
-    is-alphabetical: ^1.0.0
-    is-decimal: ^1.0.0
-  checksum: e2e491acc16fcf5b363f7c726f666a9538dba0a043665740feb45bba1652457a73441e7c5179c6768a638ed396db3437e9905f403644ec7c468fb41f4813d03f
   languageName: node
   linkType: hard
 
@@ -12424,13 +11651,6 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   languageName: node
   linkType: hard
 
-"is-decimal@npm:^1.0.0":
-  version: 1.0.4
-  resolution: "is-decimal@npm:1.0.4"
-  checksum: ed483a387517856dc395c68403a10201fddcc1b63dc56513fbe2fe86ab38766120090ecdbfed89223d84ca8b1cd28b0641b93cb6597b6e8f4c097a7c24e3fb96
-  languageName: node
-  linkType: hard
-
 "is-docker@npm:^2.0.0, is-docker@npm:^2.1.1":
   version: 2.2.1
   resolution: "is-docker@npm:2.2.1"
@@ -12501,13 +11721,6 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   dependencies:
     is-extglob: ^2.1.1
   checksum: d381c1319fcb69d341cc6e6c7cd588e17cd94722d9a32dbd60660b993c4fb7d0f19438674e68dfec686d09b7c73139c9166b47597f846af387450224a8101ab4
-  languageName: node
-  linkType: hard
-
-"is-hexadecimal@npm:^1.0.0":
-  version: 1.0.4
-  resolution: "is-hexadecimal@npm:1.0.4"
-  checksum: a452e047587b6069332d83130f54d30da4faf2f2ebaa2ce6d073c27b5703d030d58ed9e0b729c8e4e5b52c6f1dab26781bb77b7bc6c7805f14f320e328ff8cd5
   languageName: node
   linkType: hard
 
@@ -12621,13 +11834,6 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   dependencies:
     isobject: ^3.0.1
   checksum: 2a401140cfd86cabe25214956ae2cfee6fbd8186809555cd0e84574f88de7b17abacb2e477a6a658fa54c6083ecbda1e6ae404c7720244cd198903848fca70ca
-  languageName: node
-  linkType: hard
-
-"is-plain-object@npm:^5.0.0":
-  version: 5.0.0
-  resolution: "is-plain-object@npm:5.0.0"
-  checksum: e32d27061eef62c0847d303125440a38660517e586f2f3db7c9d179ae5b6674ab0f469d519b2e25c147a1a3bc87156d0d5f4d8821e0ce4a9ee7fe1fcf11ce45c
   languageName: node
   linkType: hard
 
@@ -13474,28 +12680,10 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   languageName: node
   linkType: hard
 
-"js-file-download@npm:^0.4.12":
-  version: 0.4.12
-  resolution: "js-file-download@npm:0.4.12"
-  checksum: a03847eef0184fbf34a7b7fd365ea6aa1a6cc142efeac52c4baa0cdde845dc93718eb66808dfcffd6c91b37ddc9d058d352ac9698b4280744bad3587240c93b6
-  languageName: node
-  linkType: hard
-
 "js-tokens@npm:^3.0.0 || ^4.0.0, js-tokens@npm:^4.0.0":
   version: 4.0.0
   resolution: "js-tokens@npm:4.0.0"
   checksum: 8a95213a5a77deb6cbe94d86340e8d9ace2b93bc367790b260101d2f36a2eaf4e4e22d9fa9cf459b38af3a32fb4190e638024cf82ec95ef708680e405ea7cc78
-  languageName: node
-  linkType: hard
-
-"js-yaml@npm:=4.1.0, js-yaml@npm:^4.1.0":
-  version: 4.1.0
-  resolution: "js-yaml@npm:4.1.0"
-  dependencies:
-    argparse: ^2.0.1
-  bin:
-    js-yaml: bin/js-yaml.js
-  checksum: c7830dfd456c3ef2c6e355cc5a92e6700ceafa1d14bba54497b34a99f0376cecbb3e9ac14d3e5849b426d5a5140709a66237a8c991c675431271c4ce5504151a
   languageName: node
   linkType: hard
 
@@ -13508,6 +12696,17 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   bin:
     js-yaml: bin/js-yaml.js
   checksum: bef146085f472d44dee30ec34e5cf36bf89164f5d585435a3d3da89e52622dff0b188a580e4ad091c3341889e14cb88cac6e4deb16dc5b1e9623bb0601fc255c
+  languageName: node
+  linkType: hard
+
+"js-yaml@npm:^4.1.0":
+  version: 4.1.0
+  resolution: "js-yaml@npm:4.1.0"
+  dependencies:
+    argparse: ^2.0.1
+  bin:
+    js-yaml: bin/js-yaml.js
+  checksum: c7830dfd456c3ef2c6e355cc5a92e6700ceafa1d14bba54497b34a99f0376cecbb3e9ac14d3e5849b426d5a5140709a66237a8c991c675431271c4ce5504151a
   languageName: node
   linkType: hard
 
@@ -14144,7 +13343,7 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   languageName: node
   linkType: hard
 
-"lodash.debounce@npm:^4, lodash.debounce@npm:^4.0.8":
+"lodash.debounce@npm:^4.0.8":
   version: 4.0.8
   resolution: "lodash.debounce@npm:4.0.8"
   checksum: a3f527d22c548f43ae31c861ada88b2637eb48ac6aa3eb56e82d44917971b8aa96fbb37aa60efea674dc4ee8c42074f90f7b1f772e9db375435f6c83a19b3bc6
@@ -14186,7 +13385,7 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   languageName: node
   linkType: hard
 
-"lodash@npm:^4, lodash@npm:^4.15.0, lodash@npm:^4.17.15, lodash@npm:^4.17.19, lodash@npm:^4.17.20, lodash@npm:^4.17.21, lodash@npm:^4.17.4":
+"lodash@npm:^4, lodash@npm:^4.17.15, lodash@npm:^4.17.19, lodash@npm:^4.17.20, lodash@npm:^4.17.21, lodash@npm:^4.17.4":
   version: 4.17.21
   resolution: "lodash@npm:4.17.21"
   checksum: eb835a2e51d381e561e508ce932ea50a8e5a68f4ebdd771ea240d3048244a8d13658acbd502cd4829768c56f2e16bdd4340b9ea141297d472517b83868e677f7
@@ -14443,7 +13642,6 @@ coolshapes-react@lowcoder-org/coolshapes-react:
     shelljs: ^0.8.5
     simplebar: ^6.2.5
     svgo: ^3.0.0
-    swagger-ui-react: ^5.17.12
     ts-node: ^10.4.0
     tui-image-editor: ^3.15.3
     typescript: ^4.8.4
@@ -14636,16 +13834,6 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   dependencies:
     tslib: ^2.0.3
   checksum: 83a0a5f159ad7614bee8bf976b96275f3954335a84fad2696927f609ddae902802c4f3312d86668722e668bef41400254807e1d3a7f2e8c3eede79691aa1f010
-  languageName: node
-  linkType: hard
-
-"lowlight@npm:^1.17.0":
-  version: 1.20.0
-  resolution: "lowlight@npm:1.20.0"
-  dependencies:
-    fault: ^1.0.0
-    highlight.js: ~10.7.0
-  checksum: 14a1815d6bae202ddee313fc60f06d46e5235c02fa483a77950b401d85b4c1e12290145ccd17a716b07f9328bd5864aa2d402b6a819ff3be7c833d9748ff8ba7
   languageName: node
   linkType: hard
 
@@ -15517,26 +14705,10 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   languageName: node
   linkType: hard
 
-"mimic-response@npm:^3.1.0":
-  version: 3.1.0
-  resolution: "mimic-response@npm:3.1.0"
-  checksum: 25739fee32c17f433626bf19f016df9036b75b3d84a3046c7d156e72ec963dd29d7fc8a302f55a3d6c5a4ff24259676b15d915aad6480815a969ff2ec0836867
-  languageName: node
-  linkType: hard
-
 "min-indent@npm:^1.0.0":
   version: 1.0.1
   resolution: "min-indent@npm:1.0.1"
   checksum: bfc6dd03c5eaf623a4963ebd94d087f6f4bbbfd8c41329a7f09706b0cb66969c4ddd336abeb587bc44bc6f08e13bf90f0b374f9d71f9f01e04adc2cd6f083ef1
-  languageName: node
-  linkType: hard
-
-"minim@npm:~0.23.8":
-  version: 0.23.8
-  resolution: "minim@npm:0.23.8"
-  dependencies:
-    lodash: ^4.15.0
-  checksum: 98e19a431189cee4dfad766e19948fb65b3607780bda2dc3f76b7bb35f9a468f372fb1b4c4b2ebfe348191e09f2b981579967b29cf02038798efe4eab326ffca
   languageName: node
   linkType: hard
 
@@ -15572,15 +14744,6 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   languageName: node
   linkType: hard
 
-"minimatch@npm:^7.4.3":
-  version: 7.4.6
-  resolution: "minimatch@npm:7.4.6"
-  dependencies:
-    brace-expansion: ^2.0.1
-  checksum: 1a6c8d22618df9d2a88aabeef1de5622eb7b558e9f8010be791cb6b0fa6e102d39b11c28d75b855a1e377b12edc7db8ff12a99c20353441caa6a05e78deb5da9
-  languageName: node
-  linkType: hard
-
 "minimatch@npm:^9.0.1":
   version: 9.0.4
   resolution: "minimatch@npm:9.0.4"
@@ -15590,7 +14753,7 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   languageName: node
   linkType: hard
 
-"minimist@npm:^1.2.0, minimist@npm:^1.2.3, minimist@npm:^1.2.6":
+"minimist@npm:^1.2.0, minimist@npm:^1.2.6":
   version: 1.2.8
   resolution: "minimist@npm:1.2.8"
   checksum: 75a6d645fb122dad29c06a7597bddea977258957ed88d7a6df59b5cd3fe4a527e253e9bbf2e783e4b73657f9098b96a5fe96ab8a113655d4109108577ecf85b0
@@ -15678,13 +14841,6 @@ coolshapes-react@lowcoder-org/coolshapes-react:
     minipass: ^3.0.0
     yallist: ^4.0.0
   checksum: f1fdeac0b07cf8f30fcf12f4b586795b97be856edea22b5e9072707be51fc95d41487faec3f265b42973a304fe3a64acd91a44a3826a963e37b37bafde0212c3
-  languageName: node
-  linkType: hard
-
-"mkdirp-classic@npm:^0.5.2, mkdirp-classic@npm:^0.5.3":
-  version: 0.5.3
-  resolution: "mkdirp-classic@npm:0.5.3"
-  checksum: 3f4e088208270bbcc148d53b73e9a5bd9eef05ad2cbf3b3d0ff8795278d50dd1d11a8ef1875ff5aea3fa888931f95bfcb2ad5b7c1061cfefd6284d199e6776ac
   languageName: node
   linkType: hard
 
@@ -15778,15 +14934,6 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   languageName: node
   linkType: hard
 
-"nan@npm:^2.14.0, nan@npm:^2.17.0, nan@npm:^2.18.0":
-  version: 2.19.0
-  resolution: "nan@npm:2.19.0"
-  dependencies:
-    node-gyp: latest
-  checksum: 29a894a003c1954c250d690768c30e69cd91017e2e5eb21b294380f7cace425559508f5ffe3e329a751307140b0bd02f83af040740fa4def1a3869be6af39600
-  languageName: node
-  linkType: hard
-
 "nano-css@npm:^5.6.1":
   version: 5.6.1
   resolution: "nano-css@npm:5.6.1"
@@ -15819,13 +14966,6 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   bin:
     nanoid: bin/nanoid.cjs
   checksum: d36c427e530713e4ac6567d488b489a36582ef89da1d6d4e3b87eded11eb10d7042a877958c6f104929809b2ab0bafa17652b076cdf84324aa75b30b722204f2
-  languageName: node
-  linkType: hard
-
-"napi-build-utils@npm:^1.0.1":
-  version: 1.0.2
-  resolution: "napi-build-utils@npm:1.0.2"
-  checksum: 06c14271ee966e108d55ae109f340976a9556c8603e888037145d6522726aebe89dd0c861b4b83947feaf6d39e79e08817559e8693deedc2c94e82c5cbd090c7
   languageName: node
   linkType: hard
 
@@ -15879,36 +15019,10 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   languageName: node
   linkType: hard
 
-"node-abi@npm:^3.3.0":
-  version: 3.62.0
-  resolution: "node-abi@npm:3.62.0"
-  dependencies:
-    semver: ^7.3.5
-  checksum: f480d26b5c3f4c329f2e084fe55e8ed2ec898d48c0135192009fa27e8d5760d272d6566c2a8ba348ca4740dbf6191fe90296b9e90d0aa2942cfd87bd44f0e977
-  languageName: node
-  linkType: hard
-
-"node-abort-controller@npm:^3.1.1":
-  version: 3.1.1
-  resolution: "node-abort-controller@npm:3.1.1"
-  checksum: 2c340916af9710328b11c0828223fc65ba320e0d082214a211311bf64c2891028e42ef276b9799188c4ada9e6e1c54cf7a0b7c05dd9d59fcdc8cd633304c8047
-  languageName: node
-  linkType: hard
-
 "node-domexception@npm:^1.0.0":
   version: 1.0.0
   resolution: "node-domexception@npm:1.0.0"
   checksum: ee1d37dd2a4eb26a8a92cd6b64dfc29caec72bff5e1ed9aba80c294f57a31ba4895a60fd48347cf17dd6e766da0ae87d75657dfd1f384ebfa60462c2283f5c7f
-  languageName: node
-  linkType: hard
-
-"node-fetch-commonjs@npm:^3.3.2":
-  version: 3.3.2
-  resolution: "node-fetch-commonjs@npm:3.3.2"
-  dependencies:
-    node-domexception: ^1.0.0
-    web-streams-polyfill: ^3.0.3
-  checksum: 7cc9bc3cba02c88ae031028c07af7f5053d1968e7f8e06931cdca51a695d66bb9fc9bca11bde31915a3e70a957b8e240c568f7ff47af5757efb5526c4389f570
   languageName: node
   linkType: hard
 
@@ -16206,7 +15320,7 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   languageName: node
   linkType: hard
 
-"once@npm:^1.3.0, once@npm:^1.3.1, once@npm:^1.4.0":
+"once@npm:^1.3.0":
   version: 1.4.0
   resolution: "once@npm:1.4.0"
   dependencies:
@@ -16253,15 +15367,6 @@ coolshapes-react@lowcoder-org/coolshapes-react:
     is-docker: ^2.1.1
     is-wsl: ^2.2.0
   checksum: 6388bfff21b40cb9bd8f913f9130d107f2ed4724ea81a8fd29798ee322b361ca31fa2cdfb491a5c31e43a3996cfe9566741238c7a741ada8d7af1cb78d85cf26
-  languageName: node
-  linkType: hard
-
-"openapi-path-templating@npm:^1.5.1":
-  version: 1.5.1
-  resolution: "openapi-path-templating@npm:1.5.1"
-  dependencies:
-    apg-lite: ^1.0.3
-  checksum: cb76cf416c80e83012752c35a25533b371ed4e0a6bc5fbe689b04efd06956fb27f0bc60b54f7da2cef5a00c1ff104611ef46db5e1376d62ffca47b70f44a3034
   languageName: node
   linkType: hard
 
@@ -16434,20 +15539,6 @@ coolshapes-react@lowcoder-org/coolshapes-react:
     pbkdf2: ^3.1.2
     safe-buffer: ^5.2.1
   checksum: 93c7194c1ed63a13e0b212d854b5213ad1aca0ace41c66b311e97cca0519cf9240f79435a0306a3b412c257f0ea3f1953fd0d9549419a0952c9e995ab361fd6c
-  languageName: node
-  linkType: hard
-
-"parse-entities@npm:^2.0.0":
-  version: 2.0.0
-  resolution: "parse-entities@npm:2.0.0"
-  dependencies:
-    character-entities: ^1.0.0
-    character-entities-legacy: ^1.0.0
-    character-reference-invalid: ^1.0.0
-    is-alphanumerical: ^1.0.0
-    is-decimal: ^1.0.0
-    is-hexadecimal: ^1.0.0
-  checksum: 7addfd3e7d747521afac33c8121a5f23043c6973809756920d37e806639b4898385d386fcf4b3c8e2ecf1bc28aac5ae97df0b112d5042034efbe80f44081ebce
   languageName: node
   linkType: hard
 
@@ -16785,28 +15876,6 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   languageName: node
   linkType: hard
 
-"prebuild-install@npm:^7.1.1":
-  version: 7.1.2
-  resolution: "prebuild-install@npm:7.1.2"
-  dependencies:
-    detect-libc: ^2.0.0
-    expand-template: ^2.0.3
-    github-from-package: 0.0.0
-    minimist: ^1.2.3
-    mkdirp-classic: ^0.5.3
-    napi-build-utils: ^1.0.1
-    node-abi: ^3.3.0
-    pump: ^3.0.0
-    rc: ^1.2.7
-    simple-get: ^4.0.0
-    tar-fs: ^2.0.0
-    tunnel-agent: ^0.6.0
-  bin:
-    prebuild-install: bin.js
-  checksum: 543dadf8c60e004ae9529e6013ca0cbeac8ef38b5f5ba5518cb0b622fe7f8758b34e4b5cb1a791db3cdc9d2281766302df6088bd1a225f206925d6fee17d6c5c
-  languageName: node
-  linkType: hard
-
 "prelude-ls@npm:^1.2.1":
   version: 1.2.1
   resolution: "prelude-ls@npm:1.2.1"
@@ -16852,20 +15921,6 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   languageName: node
   linkType: hard
 
-"prismjs@npm:^1.27.0":
-  version: 1.29.0
-  resolution: "prismjs@npm:1.29.0"
-  checksum: 007a8869d4456ff8049dc59404e32d5666a07d99c3b0e30a18bd3b7676dfa07d1daae9d0f407f20983865fd8da56de91d09cb08e6aa61f5bc420a27c0beeaf93
-  languageName: node
-  linkType: hard
-
-"prismjs@npm:~1.27.0":
-  version: 1.27.0
-  resolution: "prismjs@npm:1.27.0"
-  checksum: 85c7f4a3e999073502cc9e1882af01e3709706369ec254b60bff1149eda701f40d02512acab956012dc7e61cfd61743a3a34c1bd0737e8dbacd79141e5698bbc
-  languageName: node
-  linkType: hard
-
 "proc-log@npm:^3.0.0":
   version: 3.0.0
   resolution: "proc-log@npm:3.0.0"
@@ -16884,13 +15939,6 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   version: 2.0.1
   resolution: "process-nextick-args@npm:2.0.1"
   checksum: 1d38588e520dab7cea67cbbe2efdd86a10cc7a074c09657635e34f035277b59fbb57d09d8638346bf7090f8e8ebc070c96fa5fd183b777fff4f5edff5e9466cf
-  languageName: node
-  linkType: hard
-
-"process@npm:^0.11.10":
-  version: 0.11.10
-  resolution: "process@npm:0.11.10"
-  checksum: bfcce49814f7d172a6e6a14d5fa3ac92cc3d0c3b9feb1279774708a719e19acd673995226351a082a9ae99978254e320ccda4240ddc474ba31a76c79491ca7c3
   languageName: node
   linkType: hard
 
@@ -16931,15 +15979,6 @@ coolshapes-react@lowcoder-org/coolshapes-react:
     object-assign: ^4.1.1
     react-is: ^16.13.1
   checksum: c056d3f1c057cb7ff8344c645450e14f088a915d078dcda795041765047fa080d38e5d626560ccaac94a4e16e3aa15f3557c1a9a8d1174530955e992c675e459
-  languageName: node
-  linkType: hard
-
-"property-information@npm:^5.0.0":
-  version: 5.6.0
-  resolution: "property-information@npm:5.6.0"
-  dependencies:
-    xtend: ^4.0.0
-  checksum: fcf87c6542e59a8bbe31ca0b3255a4a63ac1059b01b04469680288998bcfa97f341ca989566adbb63975f4d85339030b82320c324a511532d390910d1c583893
   languageName: node
   linkType: hard
 
@@ -17002,16 +16041,6 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   languageName: node
   linkType: hard
 
-"pump@npm:^3.0.0":
-  version: 3.0.0
-  resolution: "pump@npm:3.0.0"
-  dependencies:
-    end-of-stream: ^1.1.0
-    once: ^1.3.1
-  checksum: e42e9229fba14732593a718b04cb5e1cfef8254544870997e0ecd9732b189a48e1256e4e5478148ecb47c8511dca2b09eae56b4d0aad8009e6fac8072923cfc9
-  languageName: node
-  linkType: hard
-
 "punycode@npm:^2.1.0, punycode@npm:^2.1.1":
   version: 2.3.1
   resolution: "punycode@npm:2.3.1"
@@ -17048,15 +16077,6 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   dependencies:
     side-channel: ^1.0.4
   checksum: 6e1f29dd5385f7488ec74ac7b6c92f4d09a90408882d0c208414a34dd33badc1a621019d4c799a3df15ab9b1d0292f97c1dd71dc7c045e69f81a8064e5af7297
-  languageName: node
-  linkType: hard
-
-"qs@npm:^6.10.2":
-  version: 6.12.1
-  resolution: "qs@npm:6.12.1"
-  dependencies:
-    side-channel: ^1.0.6
-  checksum: aa761d99e65b6936ba2dd2187f2d9976afbcda38deb3ff1b3fe331d09b0c578ed79ca2abdde1271164b5be619c521ec7db9b34c23f49a074e5921372d16242d5
   languageName: node
   linkType: hard
 
@@ -17103,32 +16123,6 @@ coolshapes-react@lowcoder-org/coolshapes-react:
     parchment: ^1.1.4
     quill-delta: ^3.6.2
   checksum: db3e265a8410a4554e50a18cae4ebc0b43a996a776bcf03e26abcadbf617f4db329d49a0fa3ada6a70538a369bbbdc8fa7a66086f194b481914bf1adbab16f8f
-  languageName: node
-  linkType: hard
-
-"ramda-adjunct@npm:^5.0.0":
-  version: 5.0.0
-  resolution: "ramda-adjunct@npm:5.0.0"
-  peerDependencies:
-    ramda: ">= 0.30.0"
-  checksum: 2f55fb4d19da4f4efcc79f302d23a45d86121f2cdaaf97a992359e115cdecc9e44089f60c684f64d3d5be3cc372223bb77fa6048a4debc2570879f6024e2bd67
-  languageName: node
-  linkType: hard
-
-"ramda@npm:~0.30.0":
-  version: 0.30.0
-  resolution: "ramda@npm:0.30.0"
-  checksum: a2b0bfc3d505193a759e5d3a25f617fbfb0dfa4d30ee6917d1975142dbcc1bc92e8465467cc3ccf9260e4d2011aba639db7a915eb376ca485191aff51bad03d8
-  languageName: node
-  linkType: hard
-
-"randexp@npm:^0.5.3":
-  version: 0.5.3
-  resolution: "randexp@npm:0.5.3"
-  dependencies:
-    drange: ^1.0.2
-    ret: ^0.2.0
-  checksum: 9a4011b4b012debea545fc379a18208876fffc1179d2ac211351caf7626a3956efc4bc41e329bc5b241a671553eda58e0703933a9bcfdf90dde501ba1a2cf40a
   languageName: node
   linkType: hard
 
@@ -17779,20 +16773,6 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   languageName: node
   linkType: hard
 
-"rc@npm:^1.2.7":
-  version: 1.2.8
-  resolution: "rc@npm:1.2.8"
-  dependencies:
-    deep-extend: ^0.6.0
-    ini: ~1.3.0
-    minimist: ^1.2.0
-    strip-json-comments: ~2.0.1
-  bin:
-    rc: ./cli.js
-  checksum: 2e26e052f8be2abd64e6d1dabfbd7be03f80ec18ccbc49562d31f617d0015fbdbcf0f9eed30346ea6ab789e0fdfe4337f033f8016efdbee0df5354751842080e
-  languageName: node
-  linkType: hard
-
 "react-base16-styling@npm:^0.6.0":
   version: 0.6.0
   resolution: "react-base16-styling@npm:0.6.0"
@@ -17815,18 +16795,6 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   languageName: node
   linkType: hard
 
-"react-copy-to-clipboard@npm:5.1.0":
-  version: 5.1.0
-  resolution: "react-copy-to-clipboard@npm:5.1.0"
-  dependencies:
-    copy-to-clipboard: ^3.3.1
-    prop-types: ^15.8.1
-  peerDependencies:
-    react: ^15.3.0 || 16 || 17 || 18
-  checksum: f00a4551b9b63c944a041a6ab46af5ef20ba1106b3bc25173e7ef9bffbfba17a613368682ab8820cfe8d4b3acc5335cd9ce20229145bcc1e6aa8d1db04c512e5
-  languageName: node
-  linkType: hard
-
 "react-countup@npm:^6.5.3":
   version: 6.5.3
   resolution: "react-countup@npm:6.5.3"
@@ -17835,18 +16803,6 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   peerDependencies:
     react: ">= 16.3.0"
   checksum: c9a9776737a469e68beb035b81334879bac2e7d8edb1721f97d115d7b88e87d6ad62fc99083e329650b4416fe33d85b33211719afd531b83399e12d7ded25f89
-  languageName: node
-  linkType: hard
-
-"react-debounce-input@npm:=3.3.0":
-  version: 3.3.0
-  resolution: "react-debounce-input@npm:3.3.0"
-  dependencies:
-    lodash.debounce: ^4
-    prop-types: ^15.8.1
-  peerDependencies:
-    react: ^15.3.0 || 16 || 17 || 18
-  checksum: c391ddc73047df759a68913ab8cb0444d211ab91657d94b3b1660ca434ece4a9ac611a7b8b3e82c89d3b7c3d061d0c99bdf6a426e61802848d1c783acb44b69f
   languageName: node
   linkType: hard
 
@@ -17952,28 +16908,6 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   languageName: node
   linkType: hard
 
-"react-immutable-proptypes@npm:2.2.0":
-  version: 2.2.0
-  resolution: "react-immutable-proptypes@npm:2.2.0"
-  dependencies:
-    invariant: ^2.2.2
-  peerDependencies:
-    immutable: ">=3.6.2"
-  checksum: 7e2a6cae621d213140102923fa305d6621444a37572cbf684a5ff5743746ba4dbacb30d60e6d8278702f3cbbc48805e716f69e2bf8c9953fd570f86254c1a2b1
-  languageName: node
-  linkType: hard
-
-"react-immutable-pure-component@npm:^2.2.0":
-  version: 2.2.2
-  resolution: "react-immutable-pure-component@npm:2.2.2"
-  peerDependencies:
-    immutable: ">= 2 || >= 4.0.0-rc"
-    react: ">= 16.6"
-    react-dom: ">= 16.6"
-  checksum: 73254040cb25b93343c03fb694c5eebbe558d486068ad9766d87ecb2661c38a2c2edf75e683da269f01a138f1aad1cd23cc456a857c5931af4ca54bf941bf12a
-  languageName: node
-  linkType: hard
-
 "react-innertext@npm:^1.1.5":
   version: 1.1.5
   resolution: "react-innertext@npm:1.1.5"
@@ -17981,15 +16915,6 @@ coolshapes-react@lowcoder-org/coolshapes-react:
     "@types/react": ">=0.0.0 <=99"
     react: ">=0.0.0 <=99"
   checksum: 01c9c8a5a471f03965b9d69c8bee02d420fd3a607b678004f0bdee098c9bccb3e2eae8460c90b1d180d2a8d544a3ddb09b8c2a11e5aa8b3a077733e2d9c25c2c
-  languageName: node
-  linkType: hard
-
-"react-inspector@npm:^6.0.1":
-  version: 6.0.2
-  resolution: "react-inspector@npm:6.0.2"
-  peerDependencies:
-    react: ^16.8.4 || ^17.0.0 || ^18.0.0
-  checksum: dab7a7daf570c283fdc5d4e07ee8941ee8670af698ab5a27a704602b248e29ab911b117310d64c30a4af93931b2d6ee2a729369e3f5ab7f02df4651692e195a5
   languageName: node
   linkType: hard
 
@@ -18148,25 +17073,6 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   languageName: node
   linkType: hard
 
-"react-redux@npm:^9.1.2":
-  version: 9.1.2
-  resolution: "react-redux@npm:9.1.2"
-  dependencies:
-    "@types/use-sync-external-store": ^0.0.3
-    use-sync-external-store: ^1.0.0
-  peerDependencies:
-    "@types/react": ^18.2.25
-    react: ^18.0
-    redux: ^5.0.0
-  peerDependenciesMeta:
-    "@types/react":
-      optional: true
-    redux:
-      optional: true
-  checksum: 1ee9cf41f29f68267320b4fc3bcf6a76a3825c82441612582678ddd827a2b60834f687d2a8b755c905885dfce476a1eb41af42b36f4dd71f8ee9991296a1e515
-  languageName: node
-  linkType: hard
-
 "react-refresh@npm:^0.14.0":
   version: 0.14.2
   resolution: "react-refresh@npm:0.14.2"
@@ -18281,21 +17187,6 @@ coolshapes-react@lowcoder-org/coolshapes-react:
     react: ^16.3.0 || ^17.0.0
     react-dom: ^16.3.0 || ^17.0.0
   checksum: c4930856eb8e9be638220423d452ddaab834aa43ff76069eeb057c6a5f1d0538f9e43c17bedd34bfd2a66ff4aa1e289557821d792db73a42ebf061bd1c92a423
-  languageName: node
-  linkType: hard
-
-"react-syntax-highlighter@npm:^15.5.0":
-  version: 15.5.0
-  resolution: "react-syntax-highlighter@npm:15.5.0"
-  dependencies:
-    "@babel/runtime": ^7.3.1
-    highlight.js: ^10.4.1
-    lowlight: ^1.17.0
-    prismjs: ^1.27.0
-    refractor: ^3.6.0
-  peerDependencies:
-    react: ">= 0.14.0"
-  checksum: c082b48f30f8ba8d0c55ed1d761910630860077c7ff5793c4c912adcb5760df06436ed0ad62be0de28113aac9ad2af55eccd995f8eee98df53382e4ced2072fb
   languageName: node
   linkType: hard
 
@@ -18440,7 +17331,7 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   languageName: node
   linkType: hard
 
-"readable-stream@npm:^3.0.6, readable-stream@npm:^3.1.1, readable-stream@npm:^3.4.0, readable-stream@npm:^3.6.0":
+"readable-stream@npm:^3.0.6, readable-stream@npm:^3.6.0":
   version: 3.6.2
   resolution: "readable-stream@npm:3.6.2"
   dependencies:
@@ -18529,15 +17420,6 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   languageName: node
   linkType: hard
 
-"redux-immutable@npm:^4.0.0":
-  version: 4.0.0
-  resolution: "redux-immutable@npm:4.0.0"
-  peerDependencies:
-    immutable: ^3.8.1 || ^4.0.0-rc.1
-  checksum: c24d3408c3d3b24e10ef3040b722e1d20520bf9a6c43b37653f49de93516e198ee247184003331227fa7a1f1598fb964fb4bcb41522586b31073000a3b3820e8
-  languageName: node
-  linkType: hard
-
 "redux-saga@npm:^1.1.3":
   version: 1.3.0
   resolution: "redux-saga@npm:1.3.0"
@@ -18556,13 +17438,6 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   languageName: node
   linkType: hard
 
-"redux@npm:^5.0.1":
-  version: 5.0.1
-  resolution: "redux@npm:5.0.1"
-  checksum: e74affa9009dd5d994878b9a1ce30d6569d986117175056edb003de2651c05b10fe7819d6fa94aea1a94de9a82f252f986547f007a2fbeb35c317a2e5f5ecf2c
-  languageName: node
-  linkType: hard
-
 "reflect.getprototypeof@npm:^1.0.4":
   version: 1.0.6
   resolution: "reflect.getprototypeof@npm:1.0.6"
@@ -18575,17 +17450,6 @@ coolshapes-react@lowcoder-org/coolshapes-react:
     globalthis: ^1.0.3
     which-builtin-type: ^1.1.3
   checksum: 88e9e65a7eaa0bf8e9a8bbf8ac07571363bc333ba8b6769ed5e013e0042ed7c385e97fae9049510b3b5fe4b42472d8f32de9ce8ce84902bc4297d4bbe3777dba
-  languageName: node
-  linkType: hard
-
-"refractor@npm:^3.6.0":
-  version: 3.6.0
-  resolution: "refractor@npm:3.6.0"
-  dependencies:
-    hastscript: ^6.0.0
-    parse-entities: ^2.0.0
-    prismjs: ~1.27.0
-  checksum: 39b01c4168c77c5c8486f9bf8907bbb05f257f15026057ba5728535815a2d90eed620468a4bfbb2b8ceefbb3ce3931a1be8b17152dbdbc8b0eef92450ff750a2
   languageName: node
   linkType: hard
 
@@ -18729,25 +17593,6 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   languageName: node
   linkType: hard
 
-"remarkable@npm:^2.0.1":
-  version: 2.0.1
-  resolution: "remarkable@npm:2.0.1"
-  dependencies:
-    argparse: ^1.0.10
-    autolinker: ^3.11.0
-  bin:
-    remarkable: bin/remarkable.js
-  checksum: aee83ece531a7196f92e668aa76450f17bc1af77ce2939153f57b289b54f3aa3a72f355f4d57680336ab8205d53dca7ae06e6e743355ad2d4868cc7c85eafe89
-  languageName: node
-  linkType: hard
-
-"repeat-string@npm:^1.5.2":
-  version: 1.6.1
-  resolution: "repeat-string@npm:1.6.1"
-  checksum: 1b809fc6db97decdc68f5b12c4d1a671c8e3f65ec4a40c238bc5200e44e85bcc52a54f78268ab9c29fcf5fe4f1343e805420056d1f30fa9a9ee4c2d93e3cc6c0
-  languageName: node
-  linkType: hard
-
 "request-promise-core@npm:1.1.4":
   version: 1.1.4
   resolution: "request-promise-core@npm:1.1.4"
@@ -18825,13 +17670,6 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   version: 1.0.0
   resolution: "requires-port@npm:1.0.0"
   checksum: eee0e303adffb69be55d1a214e415cf42b7441ae858c76dfc5353148644f6fd6e698926fc4643f510d5c126d12a705e7c8ed7e38061113bdf37547ab356797ff
-  languageName: node
-  linkType: hard
-
-"reselect@npm:^5.1.0":
-  version: 5.1.0
-  resolution: "reselect@npm:5.1.0"
-  checksum: 5bc9c5d03d7caea00d0c0e24330bf23d91801227346fec1cef6a60988ab8d3dd7cee76e6994ca0915bc1c20845bb2bd929b95753763e0a9db74c0f9dff5cb845
   languageName: node
   linkType: hard
 
@@ -18945,13 +17783,6 @@ coolshapes-react@lowcoder-org/coolshapes-react:
     onetime: ^5.1.0
     signal-exit: ^3.0.2
   checksum: 5b675c5a59763bf26e604289eab35711525f11388d77f409453904e1e69c0d37ae5889295706b2c81d23bd780165084d040f9b68fffc32cc921519031c4fa4af
-  languageName: node
-  linkType: hard
-
-"ret@npm:^0.2.0":
-  version: 0.2.2
-  resolution: "ret@npm:0.2.2"
-  checksum: 774964bb413a3525e687bca92d81c1cd75555ec33147c32ecca22f3d06409e35df87952cfe3d57afff7650a0f7e42139cf60cb44e94c29dde390243bc1941f16
   languageName: node
   linkType: hard
 
@@ -19530,15 +18361,6 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   languageName: node
   linkType: hard
 
-"serialize-error@npm:^8.1.0":
-  version: 8.1.0
-  resolution: "serialize-error@npm:8.1.0"
-  dependencies:
-    type-fest: ^0.20.2
-  checksum: 2eef236d50edd2d7926e602c14fb500dc3a125ee52e9f08f67033181b8e0be5d1122498bdf7c23c80683cddcad083a27974e9e7111ce23165f4d3bcdd6d65102
-  languageName: node
-  linkType: hard
-
 "serialize-javascript@npm:^4.0.0":
   version: 4.0.0
   resolution: "serialize-javascript@npm:4.0.0"
@@ -19638,7 +18460,7 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   languageName: node
   linkType: hard
 
-"sha.js@npm:^2.4.0, sha.js@npm:^2.4.11, sha.js@npm:^2.4.8":
+"sha.js@npm:^2.4.0, sha.js@npm:^2.4.8":
   version: 2.4.11
   resolution: "sha.js@npm:2.4.11"
   dependencies:
@@ -19702,16 +18524,6 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   languageName: node
   linkType: hard
 
-"short-unique-id@npm:^5.0.2":
-  version: 5.2.0
-  resolution: "short-unique-id@npm:5.2.0"
-  bin:
-    short-unique-id: bin/short-unique-id
-    suid: bin/short-unique-id
-  checksum: 55bfa5766cc7a1c5905a44337d0a1f8b5000174dec6b6e3039b6f93cf8f62b81ed4e5a525572266cbe20303a233f298cb3988c0f373ec0543a2706fe1b7f6cfc
-  languageName: node
-  linkType: hard
-
 "side-channel@npm:^1.0.4, side-channel@npm:^1.0.6":
   version: 1.0.6
   resolution: "side-channel@npm:1.0.6"
@@ -19742,24 +18554,6 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   version: 2.3.2
   resolution: "signature_pad@npm:2.3.2"
   checksum: f64fdc0a2743bf7ad7d35ba5017241dc840092d52912a01a76000eece03ba998535d30140e4b69476746711538e9f56507c390ca9def60ee86deb42cea335cd7
-  languageName: node
-  linkType: hard
-
-"simple-concat@npm:^1.0.0":
-  version: 1.0.1
-  resolution: "simple-concat@npm:1.0.1"
-  checksum: 4d211042cc3d73a718c21ac6c4e7d7a0363e184be6a5ad25c8a1502e49df6d0a0253979e3d50dbdd3f60ef6c6c58d756b5d66ac1e05cda9cacd2e9fc59e3876a
-  languageName: node
-  linkType: hard
-
-"simple-get@npm:^4.0.0":
-  version: 4.0.1
-  resolution: "simple-get@npm:4.0.1"
-  dependencies:
-    decompress-response: ^6.0.0
-    once: ^1.3.1
-    simple-concat: ^1.0.0
-  checksum: e4132fd27cf7af230d853fa45c1b8ce900cb430dd0a3c6d3829649fe4f2b26574c803698076c4006450efb0fad2ba8c5455fbb5755d4b0a5ec42d4f12b31d27e
   languageName: node
   linkType: hard
 
@@ -19948,13 +18742,6 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   version: 1.4.8
   resolution: "sourcemap-codec@npm:1.4.8"
   checksum: b57981c05611afef31605732b598ccf65124a9fcb03b833532659ac4d29ac0f7bfacbc0d6c5a28a03e84c7510e7e556d758d0bb57786e214660016fb94279316
-  languageName: node
-  linkType: hard
-
-"space-separated-tokens@npm:^1.0.0":
-  version: 1.1.5
-  resolution: "space-separated-tokens@npm:1.1.5"
-  checksum: 8ef68f1cfa8ccad316b7f8d0df0919d0f1f6d32101e8faeee34ea3a923ce8509c1ad562f57388585ee4951e92d27afa211ed0a077d3d5995b5ba9180331be708
   languageName: node
   linkType: hard
 
@@ -20349,13 +19136,6 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   languageName: node
   linkType: hard
 
-"strip-json-comments@npm:~2.0.1":
-  version: 2.0.1
-  resolution: "strip-json-comments@npm:2.0.1"
-  checksum: 1074ccb63270d32ca28edfb0a281c96b94dc679077828135141f27d52a5a398ef5e78bcf22809d23cadc2b81dfbe345eb5fd8699b385c8b1128907dec4a7d1e1
-  languageName: node
-  linkType: hard
-
 "style-loader@npm:^3.3.4":
   version: 3.3.4
   resolution: "style-loader@npm:3.3.4"
@@ -20508,75 +19288,6 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   languageName: node
   linkType: hard
 
-"swagger-client@npm:^3.28.1":
-  version: 3.28.1
-  resolution: "swagger-client@npm:3.28.1"
-  dependencies:
-    "@babel/runtime-corejs3": ^7.22.15
-    "@swagger-api/apidom-core": ">=1.0.0-alpha.3 <1.0.0-beta.0"
-    "@swagger-api/apidom-error": ">=1.0.0-alpha.1 <1.0.0-beta.0"
-    "@swagger-api/apidom-json-pointer": ">=1.0.0-alpha.3 <1.0.0-beta.0"
-    "@swagger-api/apidom-ns-openapi-3-1": ">=1.0.0-alpha.3 <1.0.0-beta.0"
-    "@swagger-api/apidom-reference": ">=1.0.0-alpha.3 <1.0.0-beta.0"
-    cookie: ~0.6.0
-    deepmerge: ~4.3.0
-    fast-json-patch: ^3.0.0-1
-    is-plain-object: ^5.0.0
-    js-yaml: ^4.1.0
-    node-abort-controller: ^3.1.1
-    node-fetch-commonjs: ^3.3.2
-    openapi-path-templating: ^1.5.1
-    qs: ^6.10.2
-    ramda-adjunct: ^5.0.0
-    traverse: =0.6.8
-  checksum: 663c53a4d6b1fea83355f8c509d422c29ce6b794dab625f5f32f4847afa29b521dd6b09b8278aa692130727a3a3a40e41e4d252b7c0d98895e41876511c37670
-  languageName: node
-  linkType: hard
-
-"swagger-ui-react@npm:^5.17.12":
-  version: 5.17.12
-  resolution: "swagger-ui-react@npm:5.17.12"
-  dependencies:
-    "@babel/runtime-corejs3": ^7.24.5
-    "@braintree/sanitize-url": =7.0.2
-    base64-js: ^1.5.1
-    classnames: ^2.5.1
-    css.escape: 1.5.1
-    deep-extend: 0.6.0
-    dompurify: =3.1.4
-    ieee754: ^1.2.1
-    immutable: ^3.x.x
-    js-file-download: ^0.4.12
-    js-yaml: =4.1.0
-    lodash: ^4.17.21
-    prop-types: ^15.8.1
-    randexp: ^0.5.3
-    randombytes: ^2.1.0
-    react-copy-to-clipboard: 5.1.0
-    react-debounce-input: =3.3.0
-    react-immutable-proptypes: 2.2.0
-    react-immutable-pure-component: ^2.2.0
-    react-inspector: ^6.0.1
-    react-redux: ^9.1.2
-    react-syntax-highlighter: ^15.5.0
-    redux: ^5.0.1
-    redux-immutable: ^4.0.0
-    remarkable: ^2.0.1
-    reselect: ^5.1.0
-    serialize-error: ^8.1.0
-    sha.js: ^2.4.11
-    swagger-client: ^3.28.1
-    url-parse: ^1.5.10
-    xml: =1.0.1
-    xml-but-prettier: ^1.0.1
-    zenscroll: ^4.0.2
-  peerDependencies:
-    react: ">=16.8.0 <19"
-    react-dom: ">=16.8.0 <19"
-  checksum: 03af70b205e6cf37358382e2496f3ee2cd6fc0c7d97108b122fd3ecb039c1dab456b514f06e9456d2f2966a61c55a42d57880aa935ecb58c8d318f1ddc3bd275
-  languageName: node
-  linkType: hard
-
 "symbol-tree@npm:^3.2.2, symbol-tree@npm:^3.2.4":
   version: 3.2.4
   resolution: "symbol-tree@npm:3.2.4"
@@ -20595,31 +19306,6 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   version: 2.2.1
   resolution: "tapable@npm:2.2.1"
   checksum: 3b7a1b4d86fa940aad46d9e73d1e8739335efd4c48322cb37d073eb6f80f5281889bf0320c6d8ffcfa1a0dd5bfdbd0f9d037e252ef972aca595330538aac4d51
-  languageName: node
-  linkType: hard
-
-"tar-fs@npm:^2.0.0":
-  version: 2.1.1
-  resolution: "tar-fs@npm:2.1.1"
-  dependencies:
-    chownr: ^1.1.1
-    mkdirp-classic: ^0.5.2
-    pump: ^3.0.0
-    tar-stream: ^2.1.4
-  checksum: f5b9a70059f5b2969e65f037b4e4da2daf0fa762d3d232ffd96e819e3f94665dbbbe62f76f084f1acb4dbdcce16c6e4dac08d12ffc6d24b8d76720f4d9cf032d
-  languageName: node
-  linkType: hard
-
-"tar-stream@npm:^2.1.4":
-  version: 2.2.0
-  resolution: "tar-stream@npm:2.2.0"
-  dependencies:
-    bl: ^4.0.3
-    end-of-stream: ^1.4.1
-    fs-constants: ^1.0.0
-    inherits: ^2.0.3
-    readable-stream: ^3.1.1
-  checksum: 699831a8b97666ef50021c767f84924cfee21c142c2eb0e79c63254e140e6408d6d55a065a2992548e72b06de39237ef2b802b99e3ece93ca3904a37622a66f3
   languageName: node
   linkType: hard
 
@@ -20872,13 +19558,6 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   languageName: node
   linkType: hard
 
-"traverse@npm:=0.6.8":
-  version: 0.6.8
-  resolution: "traverse@npm:0.6.8"
-  checksum: ef22abfc73fe2052403093b6747febbfeb52dcf827db1ca0542a78932c918706b9b12c373ef27e1c3e07e3e92eb1c646b4fe97b936fe775d59cbce7da417e13b
-  languageName: node
-  linkType: hard
-
 "tree-changes@npm:^0.11.2":
   version: 0.11.2
   resolution: "tree-changes@npm:0.11.2"
@@ -20896,37 +19575,6 @@ coolshapes-react@lowcoder-org/coolshapes-react:
     "@gilbarbara/deep-equal": ^0.1.1
     is-lite: ^0.8.2
   checksum: 86d890b18e83f2a20e7257982aec62efa186abbb08de4cead1c8062c50793f5b3c5fd09f98d9f4b8784b921e830687c0ea9bdb42ef4abb2eb9d6782d8c56a673
-  languageName: node
-  linkType: hard
-
-"tree-sitter-json@npm:=0.20.2":
-  version: 0.20.2
-  resolution: "tree-sitter-json@npm:0.20.2"
-  dependencies:
-    nan: ^2.18.0
-    node-gyp: latest
-  checksum: 4f5eba7fc86855d15510647e3e5803ea05a8cd5ab2a2a25c8d173a103ca02a6cc25b4cc925b3d234e31e6180f7eed4a50351d39e2c5254b06d6dd0fabeb6c3d8
-  languageName: node
-  linkType: hard
-
-"tree-sitter-yaml@npm:=0.5.0":
-  version: 0.5.0
-  resolution: "tree-sitter-yaml@npm:0.5.0"
-  dependencies:
-    nan: ^2.14.0
-    node-gyp: latest
-  checksum: 7962aea3784dd67098daff4ae984145189eb49b8f981f5a9e72bac97b77859a75030580d199712d671cdced5326599192b3549a428e162e9858a3bbb4cb2fff6
-  languageName: node
-  linkType: hard
-
-"tree-sitter@npm:=0.20.4":
-  version: 0.20.4
-  resolution: "tree-sitter@npm:0.20.4"
-  dependencies:
-    nan: ^2.17.0
-    node-gyp: latest
-    prebuild-install: ^7.1.1
-  checksum: 724f9773759a6ece317fff08deef2d2c63a6ea3b4f6723d5d6d56a7a886d27f799641d189d616c121a580e8492992bc2ede8d2e5c4241f30ff4ee9036dc6bb92
   languageName: node
   linkType: hard
 
@@ -20995,13 +19643,6 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   languageName: node
   linkType: hard
 
-"ts-mixer@npm:^6.0.3, ts-mixer@npm:^6.0.4":
-  version: 6.0.4
-  resolution: "ts-mixer@npm:6.0.4"
-  checksum: 36b1af526befd74345e736e9aa16f5c28876ebcea07784da14d929149fd7e6028cfd2fe9304c8efe8cb91b588443a9cc9e991df58e4c6e602326edbaae2af3ab
-  languageName: node
-  linkType: hard
-
 "ts-node@npm:^10.4.0":
   version: 10.9.2
   resolution: "ts-node@npm:10.9.2"
@@ -21037,13 +19678,6 @@ coolshapes-react@lowcoder-org/coolshapes-react:
     ts-node-transpile-only: dist/bin-transpile.js
     ts-script: dist/bin-script-deprecated.js
   checksum: fde256c9073969e234526e2cfead42591b9a2aec5222bac154b0de2fa9e4ceb30efcd717ee8bc785a56f3a119bdd5aa27b333d9dbec94ed254bd26f8944c67ac
-  languageName: node
-  linkType: hard
-
-"ts-toolbelt@npm:^9.6.0":
-  version: 9.6.0
-  resolution: "ts-toolbelt@npm:9.6.0"
-  checksum: 9f35fd95d895a5d32ea9fd2e532a695b0bae6cbff6832b77292efa188a0ed1ed6e54f63f74a8920390f3d909a7a3adb20a144686372a8e78b420246a9bd3d58a
   languageName: node
   linkType: hard
 
@@ -21287,15 +19921,6 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   version: 0.0.6
   resolution: "typedarray@npm:0.0.6"
   checksum: 33b39f3d0e8463985eeaeeacc3cb2e28bc3dfaf2a5ed219628c0b629d5d7b810b0eb2165f9f607c34871d5daa92ba1dc69f49051cf7d578b4cbd26c340b9d1b1
-  languageName: node
-  linkType: hard
-
-"types-ramda@npm:^0.30.0":
-  version: 0.30.0
-  resolution: "types-ramda@npm:0.30.0"
-  dependencies:
-    ts-toolbelt: ^9.6.0
-  checksum: 595be8f6ad2186b2838ee96bec73b601818382083866456cbabb59e8cec225e807cda9387843cbdc26a80d59040084f56d47edbcd59753f80da576dcc1faa476
   languageName: node
   linkType: hard
 
@@ -21571,13 +20196,6 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   languageName: node
   linkType: hard
 
-"unraw@npm:^3.0.0":
-  version: 3.0.0
-  resolution: "unraw@npm:3.0.0"
-  checksum: 19eee0bc500ce197d262b79723a2c8c81c1d716baaa2a62c48a4d0d6b9e1fd9d350c5df86262e51343d591ab9c8a47ed150317d0b867b2b65795cdc17ef69873
-  languageName: node
-  linkType: hard
-
 "update-browserslist-db@npm:^1.0.13":
   version: 1.0.13
   resolution: "update-browserslist-db@npm:1.0.13"
@@ -21618,7 +20236,7 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   languageName: node
   linkType: hard
 
-"url-parse@npm:^1.5.10, url-parse@npm:^1.5.3":
+"url-parse@npm:^1.5.3":
   version: 1.5.10
   resolution: "url-parse@npm:1.5.10"
   dependencies:
@@ -21663,7 +20281,7 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   languageName: node
   linkType: hard
 
-"use-sync-external-store@npm:^1.0.0, use-sync-external-store@npm:^1.2.0":
+"use-sync-external-store@npm:^1.2.0":
   version: 1.2.2
   resolution: "use-sync-external-store@npm:1.2.2"
   peerDependencies:
@@ -22187,13 +20805,6 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   languageName: node
   linkType: hard
 
-"web-tree-sitter@npm:=0.20.3":
-  version: 0.20.3
-  resolution: "web-tree-sitter@npm:0.20.3"
-  checksum: 1187b48d69d6f6319c74ca8f413e8d7c1703869a351070053351ef169c045aad16e5c6b2a73779beaade2f0b6bb3433166363355c9d02e9b2dcf60a195dbffdb
-  languageName: node
-  linkType: hard
-
 "web-vitals@npm:^2.1.0":
   version: 2.1.4
   resolution: "web-vitals@npm:2.1.4"
@@ -22695,15 +21306,6 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   languageName: node
   linkType: hard
 
-"xml-but-prettier@npm:^1.0.1":
-  version: 1.0.1
-  resolution: "xml-but-prettier@npm:1.0.1"
-  dependencies:
-    repeat-string: ^1.5.2
-  checksum: 66b400079d8f2b2a149d437d94a1286318fb80a4c181a9597282711b595de15640b0066a72a4a7093afce6369798dc9725d5c2338bde59ba1a33fd7f5e753635
-  languageName: node
-  linkType: hard
-
 "xml-name-validator@npm:^3.0.0":
   version: 3.0.0
   resolution: "xml-name-validator@npm:3.0.0"
@@ -22718,13 +21320,6 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   languageName: node
   linkType: hard
 
-"xml@npm:=1.0.1":
-  version: 1.0.1
-  resolution: "xml@npm:1.0.1"
-  checksum: 11b5545ef3f8fec3fa29ce251f50ad7b6c97c103ed4d851306ec23366f5fa4699dd6a942262df52313a0cd1840ab26256da253c023bad3309d8ce46fe6020ca0
-  languageName: node
-  linkType: hard
-
 "xmlchars@npm:^2.1.1, xmlchars@npm:^2.2.0":
   version: 2.2.0
   resolution: "xmlchars@npm:2.2.0"
@@ -22736,13 +21331,6 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   version: 2.2.0
   resolution: "xtend@npm:2.2.0"
   checksum: 9fcd1ddabefdb3c68a698b08177525ad14a6df3423b13bad9a53900d19374e476a43c219b0756d39675776b2326a35fe477c547cfb8a05ae9fea4ba2235bebe2
-  languageName: node
-  linkType: hard
-
-"xtend@npm:^4.0.0":
-  version: 4.0.2
-  resolution: "xtend@npm:4.0.2"
-  checksum: ac5dfa738b21f6e7f0dd6e65e1b3155036d68104e67e5d5d1bde74892e327d7e5636a076f625599dc394330a731861e87343ff184b0047fef1360a7ec0a5a36a
   languageName: node
   linkType: hard
 
@@ -22847,13 +21435,6 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   version: 1.0.0
   resolution: "yocto-queue@npm:1.0.0"
   checksum: 2cac84540f65c64ccc1683c267edce396b26b1e931aa429660aefac8fbe0188167b7aee815a3c22fa59a28a58d898d1a2b1825048f834d8d629f4c2a5d443801
-  languageName: node
-  linkType: hard
-
-"zenscroll@npm:^4.0.2":
-  version: 4.0.2
-  resolution: "zenscroll@npm:4.0.2"
-  checksum: 5fe5c8b685246985cbb8eb270bbbac013bddaf5cde0fb9042c7b5640e31877d11a28892a802426659fe505b0b514d4d004fedd27c0cc22682611cc8f9e43132e
   languageName: node
   linkType: hard
 
