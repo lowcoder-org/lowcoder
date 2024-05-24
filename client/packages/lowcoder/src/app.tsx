@@ -28,7 +28,6 @@ import {
   ORG_AUTH_FORGOT_PASSWORD_URL,
   ORG_AUTH_RESET_PASSWORD_URL,
 } from "constants/routesURL";
-
 import React from "react";
 import { createRoot } from "react-dom/client";
 import { Helmet } from "react-helmet";
@@ -222,7 +221,6 @@ class AppIndex extends React.Component<AppIndexProps, any> {
             <LazyRoute path={`${COMPONENT_DOC_URL}/:name`} component={LazyComponentDoc} />
             <LazyRoute path={`/playground/:name/:dsl`} component={LazyComponentPlayground} />
             <Redirect to={`${COMPONENT_DOC_URL}/input`} path="/components" />
-
             {developEnv() && (
               <>
                 <LazyRoute path="/debug_comp/:name" component={LazyDebugComp} />

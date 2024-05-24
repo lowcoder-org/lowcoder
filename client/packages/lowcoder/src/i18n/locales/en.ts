@@ -2199,6 +2199,7 @@ export const en = {
     "theme": "Themes",
     "plugin": "Plugins",
     "advanced": "Advanced",
+    "apiDocs": "API Docs",
     "lab": "Lab",
     "branding": "Branding",
     "oauthProviders": "User Authentication",

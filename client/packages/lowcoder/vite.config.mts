@@ -12,6 +12,7 @@ import dynamicImport from 'vite-plugin-dynamic-import';
 import { ensureLastSlash } from "./src/dev-utils/util";
 import { buildVars } from "./src/dev-utils/buildVars";
 import { globalDepPlugin } from "./src/dev-utils/globalDepPlguin";
+import { nodePolyfills } from 'vite-plugin-node-polyfills'
 
 dotenv.config();
 
@@ -157,6 +158,7 @@ export const viteConfig: UserConfig = {
     }),
     isVisualizerEnabled && visualizer(),
     dynamicImport(),
+    nodePolyfills({ include: ['process'] }),
   ].filter(Boolean),
 };
 
