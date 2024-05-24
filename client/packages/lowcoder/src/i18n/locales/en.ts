@@ -2937,6 +2937,7 @@ export const en = {
     "yourFolders" : "Your Folders",
     "modules": "Modules",
     "module": "Module",
+    "api" : "Lowcoder API",
     "trash": "Trash",
     "marketplace": "Marketplace",
     "allCategories": "All Categories",
