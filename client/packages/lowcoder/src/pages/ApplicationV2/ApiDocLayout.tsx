@@ -63,7 +63,7 @@ const ApiDocView = styled.div`
   flex-grow: 1;
   padding-top: 0px;
   padding-left: 40px;
-  max-width: 95%;
+  max-width: 98%;
 `;
 
 const StyleApiDocCover = styled.div`
@@ -98,12 +98,6 @@ export function ApiDoc(props: ApiDocLayoutProps) {
       onClick: () =>
         currentPath !== ALL_APPLICATIONS_URL && history.push(ALL_APPLICATIONS_URL),
     },
-    {
-      key: 0,
-      title: trans("home.api"),
-      onClick: () =>
-        currentPath !== API_DOCS_URL && history.push(API_DOCS_URL),
-    },
     ...breadcrumb.map((b, i) => ({
       key: i+1,
       title: b.text,
@@ -137,11 +131,11 @@ export function ApiDoc(props: ApiDocLayoutProps) {
           <Card style={{ marginBottom: "20px", minHeight : "800px", width: "100%" }}>
             <div style={{width : "100%"}}> {/* className={styles.stoplightApidoc} */}
               <API
-                layout="sidebar"
+                layout="responsive"
                 hideSchemas={true}
                 hideInternal={true}
                 hideExport={true}
-                tryItCredentialsPolicy="omit"
+                tryItCredentialsPolicy="include"
                 tryItCorsProxy={isSelfHost ? undefined : 'https://api-service.lowcoder.cloud'}
                 basePath="lowcoder-api"
                 apiDescriptionUrl="https://api-service.lowcoder.cloud/api/docs/api-docs"
