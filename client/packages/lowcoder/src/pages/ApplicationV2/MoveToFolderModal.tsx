@@ -108,7 +108,7 @@ export const MoveToFolderModal = (props: { source?: HomeRes; onClose: () => void
                       label: (
                         <FolderSelectLabel>
                           <FolderIcon style={{ marginRight: "8px", flexShrink: 0 }} />
-                          {trans("home.rootFolder")}
+                          {trans("home.rootFolder")} 
                         </FolderSelectLabel>
                       ),
                       value: "",
@@ -120,7 +120,7 @@ export const MoveToFolderModal = (props: { source?: HomeRes; onClose: () => void
                 .map((f) => ({
                   label: (
                     <FolderSelectLabel>
-                      <FolderIcon style={{ marginRight: "8px", flexShrink: 0 }} />
+                      <FolderIcon style={{ marginRight: "8px", width: "20px", flexShrink: 0 }} />
                       {f.name}
                     </FolderSelectLabel>
                   ),

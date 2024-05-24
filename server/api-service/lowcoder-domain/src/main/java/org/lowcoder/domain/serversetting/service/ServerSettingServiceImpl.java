@@ -29,7 +29,9 @@ public class ServerSettingServiceImpl implements ServerSettingService {
     "LOWCODER_ADMIN_SMTP_USERNAME",
     "LOWCODER_ADMIN_SMTP_PASSWORD",
     "LOWCODER_SUPERADMIN_PASSWORD",
-    "LOWCODER_SUPERADMIN_USERNAME");
+    "LOWCODER_SUPERADMIN_USERNAME",
+    "LOWCODER_SUPERUSER_PASSWORD",
+    "LOWCODER_SUPERUSER_USERNAME");
 
     @Autowired
     public ServerSettingServiceImpl(ServerSettingRepository repository) {
