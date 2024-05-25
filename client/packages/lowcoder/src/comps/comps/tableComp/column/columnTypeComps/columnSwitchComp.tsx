@@ -78,7 +78,7 @@ export const SwitchComp = (function () {
         return (
           <Switch 
             checked={value}
-            disabled={props.disabled}
+            disabled={props.disabled || true}
             ref={props.viewRef}
             onChange={(checked) => {
               props.value.onChange(checked);
@@ -96,20 +96,18 @@ export const SwitchComp = (function () {
     .setEditViewFn((props) => {
       return (
         <Wrapper
-          onBlur={(e) => {
-            if (!e.currentTarget?.contains(e.relatedTarget)) {
-              props.onChangeEnd();
-            }
+          onBlur={() => {
+            props.onChangeEnd()
           }}
         >
           <Switch
+            autoFocus
             defaultChecked={props.value}
             disabled={false}
-            onChange={(checked) => {
+            onChange={(checked, e) => {
               props.onChange(checked);
             }}
           />
-
         </Wrapper>
       );
     })

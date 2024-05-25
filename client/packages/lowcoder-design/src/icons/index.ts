@@ -125,6 +125,7 @@ export { ReactComponent as InviteUserIcon } from "./icon-application-invite-user
 export { ReactComponent as HomeEmptyIcon } from "./icon-application-empty.svg";
 export { ReactComponent as HomeListIcon } from "./icon-application-list.svg";
 export { ReactComponent as HomeCardIcon } from "./icon-application-card.svg";
+export { ReactComponent as APIDocsIcon } from "./remix/instance-line.svg";
 // export { ReactComponent as AllAppIcon } from "./icon-all-app.svg";
 
 

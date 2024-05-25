@@ -807,5 +807,17 @@ export const TableComp = withExposingConfigs(TableTmpComp, [
     },
     trans("table.filterDesc")
   ),
+  new DepsConfig(
+    "selectedCell",
+    (children) => {
+      return {
+        selectedCell: children.selectedCell.node(),
+      };
+    },
+    (input) => {
+      return input.selectedCell;
+    },
+    trans("table.selectedCellDesc")
+  ),
   new NameConfig("data", trans("table.dataDesc")),
 ]);

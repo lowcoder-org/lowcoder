@@ -477,6 +477,7 @@ type CustomTableProps<RecordType> = Omit<TableProps<RecordType>, "components" | 
   columnsStyle: TableColumnStyleType;
   size?: string;
   rowAutoHeight?: boolean;
+  onCellClick: (columnName: string, dataIndex: string) => void;
 };
 
 function TableCellView(props: {
@@ -631,6 +632,9 @@ function ResizeableTable<RecordType extends object>(props: CustomTableProps<Reco
         linkStyle,
         tableSize: props.size,
         autoHeight: props.rowAutoHeight,
+        onClick: () => {
+          props.onCellClick(col.titleText, String(col.dataIndex));
+        }
       }),
       onHeaderCell: () => ({
         width: resizeWidth,
@@ -868,6 +872,12 @@ export function TableCompView(props: {
                 (compChildren.data as any).isLoading()) ||
               compChildren.loading.getView()
             }
+            onCellClick={(columnName: string, dataIndex: string) => {
+              comp.children.selectedCell.dispatchChangeValueAction({
+                name: columnName,
+                dataIndex: dataIndex,
+              });
+            }}
           />
 
           <SlotConfigContext.Provider value={{ modalWidth: width && Math.max(width, 300) }}>
