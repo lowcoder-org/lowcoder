@@ -8,7 +8,7 @@ import {
 } from "api/commonSettingApi";
 import history from "util/history";
 import { BASE_URL, THEME_SETTING } from "constants/routesURL";
-import ColorPicker, { configChangeParams } from "../../../../components/ColorPicker";
+import ThemeSettingsSelector, { configChangeParams } from "../../../../components/ThemeSettingsSelector";
 import React, { lazy } from "react";
 import { connect } from "react-redux";
 import { fetchCommonSettings, setCommonSettings } from "redux/reduxActions/commonSettingsActions";
@@ -32,6 +32,7 @@ import {
   PageLayoutCompIcon,
   ShapesCompIcon,
   ChartCompIcon,
+  
 } from "lowcoder-design";
 import PreviewApp from "../../../../components/PreviewApp";
 import { trans } from "i18n";
@@ -41,6 +42,8 @@ import dsl from "./previewDsl";
 import chartDsl from "./chartPreviewDsl";
 import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 import { Card, Collapse, CollapseProps, Divider, Flex, List, Tooltip } from 'antd';
+
+import { ThemeCompPanel } from "pages/setting/theme/ThemeCompPanel";
 
 const ThemeSettingsView = styled.div`
   font-size: 14px;
@@ -160,7 +163,7 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
     this.setState({
       theme: {
         ...this.state.theme,
-        [params.colorKey]: params.color || params.radius || params.chart || params.margin || params.padding  || params.gridColumns,
+        [params.themeSettingKey]: params.color || params.radius || params.chart || params.margin || params.padding  || params.gridColumns,
       },
     });
   }
@@ -188,11 +191,7 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
             name: trans('themeDetail.primary'),
             desc: trans('themeDetail.primaryDesc'),
             color: this.state.theme.primary,
-          }
-        ]
-      },
-      {
-        items: [
+          },
           {
             settingsKey: 'canvas',
             name: trans('themeDetail.canvas'),
@@ -204,6 +203,12 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
             name: trans('themeDetail.primarySurface'),
             desc: trans('themeDetail.primarySurfaceDesc'),
             color: this.state.theme.primarySurface,
+          },
+          {
+            settingsKey: 'borderColor',
+            name: trans('themeDetail.borderColor'),
+            desc: trans('themeDetail.borderColorDesc'),
+            color: this.state.theme.borderColor,
           }
         ]
       },
@@ -227,11 +232,24 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
       }
     ];
 
-    // const fontSettings = [];
+    const fontSettings = [
+      {
+        title: trans('themeDetail.fonts'),
+        items: [
+          {
+            settingsKey: 'fontFamily',
+            name: trans('themeDetail.fontFamily'),
+            desc: trans('themeDetail.fontFamilyDesc'),
+            type: "fontFamily",
+            value: this.state.theme.fontFamily,
+          }
+        ]
+      },
+    ];
 
     const layoutSettings = [
       {
-        title: trans('themeDetail.borderRadius'),
+        title: trans('themeDetail.borders'),
         items: [
           {
             settingsKey: 'borderRadius',
@@ -239,11 +257,25 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
             desc: trans('themeDetail.borderRadiusDesc'),
             type: "radius",
             value: this.state.theme.borderRadius,
+          },
+          {
+            settingsKey: 'borderWidth',
+            name: trans('themeDetail.borderWidth'),
+            desc: trans('themeDetail.borderWidthDesc'),
+            type: "borderWidth",
+            value: this.state.theme.borderWidth,
+          },
+          {
+            settingsKey: 'borderStyle',
+            name: trans('themeDetail.borderStyle'),
+            desc: trans('themeDetail.borderStyleDesc'),
+            type: "radius",
+            value: this.state.theme.borderStyle,
           }
         ]
       },
       {
-        title: trans('themeDetail.margin'),
+        title: trans('themeDetail.spacing'),
         items: [
           {
             settingsKey: 'margin',
@@ -251,24 +283,14 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
             desc: trans('themeDetail.marginDesc'),
             type: "margin",
             value: this.state.theme.margin,
-          }
-        ]
-      },
-      {
-        title: trans('themeDetail.padding'),
-        items: [
+          },
           {
             settingsKey: 'padding',
             name: trans('themeDetail.padding'),
             desc: trans('themeDetail.paddingDesc'),
             type: "padding",
             value: this.state.theme.padding,
-          }
-        ]
-      },
-      {
-        title: trans('themeDetail.gridColumns'),
-        items: [
+          },
           {
             settingsKey: 'gridColumns',
             name: trans('themeDetail.gridColumns'),
@@ -277,7 +299,7 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
             value: this.state.theme.gridColumns,
           }
         ]
-      }
+      },
     ];
 
     return (
@@ -341,8 +363,8 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
                         {item.items.map((colorItem) => (
                           <Tooltip title={colorItem.desc} placement="right">
                             <List.Item key={colorItem.settingsKey}>
-                              <ColorPicker
-                                colorKey={colorItem.settingsKey}
+                              <ThemeSettingsSelector
+                                themeSettingKey={colorItem.settingsKey}
                                 name={colorItem.name}
                                 // desc={colorItem.desc}
                                 color={colorItem.color}
@@ -365,12 +387,40 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
 
             <ThemeSettingsView>
               <StyleThemeSettingsCover>
-                <TextSizeIcon width={"36px"} style={{marginRight : "10px"}}/> <h2 style={{color: "#ffffff", marginTop : "8px"}}> {trans("theme.text")}</h2>
+                <TextSizeIcon width={"36px"} style={{marginRight : "10px"}}/> <h2 style={{color: "#ffffff", marginTop : "8px"}}> {trans("theme.fonts")}</h2>
               </StyleThemeSettingsCover>
               <Card style={{ marginBottom: "20px", minHeight : "200px" }}>
                 
-              <Flex gap={"middle"}>
-                  {/* here we need to place the Font Configuration */}
+                <Flex gap={"middle"}>
+                  <List
+                    bordered
+                    dataSource={fontSettings}
+                    renderItem={(item) => (
+                      <>
+                        {item.title && (
+                            <List.Item>
+                              <DetailTitle>{item.title}</DetailTitle>
+                            </List.Item>
+                        )}
+                        {item.items.map((layoutSettingsItem) => (
+                          <Tooltip title={layoutSettingsItem.desc} placement="right">
+                            <List.Item key={layoutSettingsItem.settingsKey}>
+                              {layoutSettingsItem.type == "fontFamily" && 
+                                <ThemeSettingsSelector
+                                  themeSettingKey={layoutSettingsItem.settingsKey}
+                                  name={layoutSettingsItem.name}
+                                  fontFamily={layoutSettingsItem.value}
+                                  configChange={(params) => {
+                                    this.configChange(params);
+                                  }}
+                                />
+                              }
+                          </List.Item>
+                          </Tooltip>
+                        ))}
+                      </>
+                    )}
+                  />
                   <Divider type="vertical" style={{height: "610px"}}/>
                   <PreviewApp style={{marginTop: '3px', height: "620px", width: "100%"}} theme={this.state.theme} dsl={dsl} />
                 </Flex>
@@ -399,8 +449,8 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
                           <Tooltip title={layoutSettingsItem.desc} placement="right">
                             <List.Item key={layoutSettingsItem.settingsKey}>
                               {layoutSettingsItem.type == "radius" && 
-                                <ColorPicker
-                                  colorKey={layoutSettingsItem.settingsKey}
+                                <ThemeSettingsSelector
+                                  themeSettingKey={layoutSettingsItem.settingsKey}
                                   name={layoutSettingsItem.name}
                                   radius={layoutSettingsItem.value}
                                   configChange={(params) => {
@@ -408,9 +458,19 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
                                   }}
                                 />
                               }
+                              {layoutSettingsItem.type == "borderWidth" && 
+                                <ThemeSettingsSelector
+                                  themeSettingKey={layoutSettingsItem.settingsKey}
+                                  name={layoutSettingsItem.name}
+                                  borderWidth={layoutSettingsItem.value}
+                                  configChange={(params) => {
+                                    this.configChange(params);
+                                  }}
+                                />
+                              }
                               {layoutSettingsItem.type == "margin" && 
-                                <ColorPicker
-                                  colorKey={layoutSettingsItem.settingsKey}
+                                <ThemeSettingsSelector
+                                  themeSettingKey={layoutSettingsItem.settingsKey}
                                   name={layoutSettingsItem.name}
                                   margin={layoutSettingsItem.value}
                                   configChange={(params) => {
@@ -419,8 +479,8 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
                                 />
                               }
                               {layoutSettingsItem.type == "padding" && 
-                                <ColorPicker
-                                  colorKey={layoutSettingsItem.settingsKey}
+                                <ThemeSettingsSelector
+                                  themeSettingKey={layoutSettingsItem.settingsKey}
                                   name={layoutSettingsItem.name}
                                   padding={layoutSettingsItem.value}
                                   configChange={(params) => {
@@ -429,8 +489,8 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
                                 />
                               }
                               {layoutSettingsItem.type == "gridColumns" && 
-                                <ColorPicker
-                                  colorKey={layoutSettingsItem.settingsKey}
+                                <ThemeSettingsSelector
+                                  themeSettingKey={layoutSettingsItem.settingsKey}
                                   name={layoutSettingsItem.name}
                                   gridColumns={layoutSettingsItem.value}
                                   configChange={(params) => {
@@ -456,9 +516,14 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
               <StyleThemeSettingsCover>
                 <ShapesCompIcon width={"36px"} style={{marginRight : "10px"}}/> <h2 style={{color: "#ffffff", marginTop : "8px"}}> {trans("theme.components")}</h2>
               </StyleThemeSettingsCover>
-              <Card style={{ marginBottom: "20px", minHeight : "200px" }}>
-                
-                <Divider />
+              <Card style={{ marginBottom: "20px", minHeight : "1000px", overflow: "auto" }}>
+                <Flex gap={"middle"}>
+                  <ThemeCompPanel />
+                  <Divider type="vertical" style={{height: "510px"}}/>
+                  <div style={{minWidth: "250px"}}><h4>Properties Display</h4></div>
+                  <Divider type="vertical" style={{height: "510px"}}/>
+                  <PreviewApp style={{height: "500px", width: "40%" }} theme={this.state.theme} dsl={dsl} />
+                </Flex>
 
               </Card>  
               
@@ -482,7 +547,7 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
                       <CodeEditor
                         value={this.state.theme.chart || ""}
                         onChange={(value) => this.configChange({
-                          colorKey: "chart",
+                          themeSettingKey: "chart",
                           chart: value.doc.toString() ? value.doc.toString() : undefined,
                         })}
                         styleName="window"

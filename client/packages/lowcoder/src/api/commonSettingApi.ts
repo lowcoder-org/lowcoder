@@ -43,11 +43,15 @@ export interface ThemeDetail {
   canvas: string; // app bg-color
   primarySurface: string; // comp bg-color
   borderRadius: string;
+  borderColor?: string;
+  borderWidth?: string;
+  borderStyle?: string;
   chart?: string;
   margin?: string;
   padding?: string;
   gridColumns?: string; //Added By Aqib Mirza
   textSize?: string;
+  fontFamily?: string;
   animation?: string;
   animationDelay?: string;
   animationDuration?: string;
@@ -59,27 +63,20 @@ export interface ThemeDetail {
 
 export function getThemeDetailName(key: keyof ThemeDetail) {
   switch (key) {
-    case "primary":
-      return trans("themeDetail.primary");
-    case "textDark":
-      return trans("themeDetail.textDark");
-    case "textLight":
-      return trans("themeDetail.textLight");
-    case "canvas":
-      return trans("themeDetail.canvas");
-    case "primarySurface":
-      return trans("themeDetail.primarySurface");
-    case "borderRadius":
-      return trans("themeDetail.borderRadius");
-    case "margin":	
-      return trans("style.margin");	
-    case "padding":	
-      return trans("style.padding");
-    //Added By Aqib Mirza
-    case "gridColumns":
-      return trans("themeDetail.gridColumns");
-    case "textSize":
-      return trans("style.textSize");
+    case "primary": return trans("themeDetail.primary");
+    case "textDark": return trans("themeDetail.textDark");
+    case "textLight": return trans("themeDetail.textLight");
+    case "canvas": return trans("themeDetail.canvas");
+    case "primarySurface": return trans("themeDetail.primarySurface");
+    case "borderRadius": return trans("themeDetail.borderRadius");
+    case "borderColor": return trans("themeDetail.borderColor");
+    case "borderWidth": return trans("themeDetail.borderWidth");
+    case "borderStyle": return trans("themeDetail.borderStyle");
+    case "fontFamily": return trans("themeDetail.fontFamily");
+    case "margin": return trans("style.margin");	
+    case "padding":	return trans("style.padding");
+    case "gridColumns": return trans("themeDetail.gridColumns");
+    case "textSize": return trans("style.textSize");
   }
   return "";
 }
@@ -91,9 +88,14 @@ export function isThemeColorKey(key: string) {
     case "textLight":
     case "canvas":
     case "primarySurface":
+    case "borderRadius":
+    case "borderColor":
+    case "borderWidth":
+    case "borderStyle":
+    case "fontFamily":
     case "margin":	
     case "padding":
-    case "gridColumns": //Added By Aqib Mirza
+    case "gridColumns":
     case "textSize":
       return true;
   }
