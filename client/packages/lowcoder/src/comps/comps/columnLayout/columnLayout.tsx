@@ -7,11 +7,12 @@ import { AutoHeightControl } from "comps/controls/autoHeightControl";
 import { ColumnOptionControl } from "comps/controls/optionsControl";
 import { styleControl } from "comps/controls/styleControl";
 import {
-  ResponsiveLayoutRowStyle,
-  ResponsiveLayoutRowStyleType,
+  ContainerStyle,
+  ContainerStyleType,
   ResponsiveLayoutColStyleType,
   ResponsiveLayoutColStyle
 } from "comps/controls/styleControlConstants";
+
 import { sameTypeMap, UICompBuilder, withDefault } from "comps/generators";
 import { addMapChildAction } from "comps/generators/sameTypeMap";
 import { NameConfigHidden, withExposingConfigs } from "comps/generators/withExposing";
@@ -40,14 +41,33 @@ import { EditorContext } from "comps/editorState";
 import { disabledPropertyView, hiddenPropertyView } from "comps/utils/propertyUtils";
 import { DisabledContext } from "comps/generators/uiCompBuilder";
 
+const ContainWrapper = styled.div<{
+  $style: ContainerStyleType | undefined;
+}>`
+  background-color: ${(props) => props.$style?.background} !important;
+  border-radius: ${(props) => props.$style?.radius};
+  border-width: ${(props) => props.$style?.borderWidth};
+  border-color: ${(props) => props.$style?.border};
+  border-style: ${(props) => props.$style?.borderStyle};
+  rotate: ${(props) => props.$style?.rotation};
+  margin: ${(props) => props.$style?.margin};
+  padding: ${(props) => props.$style?.padding};
+`;
 
 const ColWrapper = styled(Col)<{
-  $style: ResponsiveLayoutColStyleType,
+  $style: ResponsiveLayoutColStyleType | undefined,
   $minWidth?: string,
   $matchColumnsHeight: boolean,
 }>`
   > div {
     height: ${(props) => props.$matchColumnsHeight ? '100%' : 'auto'};
+    background-color: ${(props) => props.$style?.background} !important;
+    border-radius: ${(props) => props.$style?.radius};
+    border-width: ${(props) => props.$style?.borderWidth};
+    border-color: ${(props) => props.$style?.border};
+    border-style: ${(props) => props.$style?.borderStyle};
+    margin: ${(props) => props.$style?.margin};
+    padding: ${(props) => props.$style?.padding};
   }
 `;
 
@@ -64,7 +84,8 @@ const childrenMap = {
   rowGap: withDefault(StringControl, "20px"),
   templateColumns: withDefault(StringControl, "1fr 1fr"),
   columnGap: withDefault(StringControl, "20px"),
-  columnStyle: withDefault(styleControl(ResponsiveLayoutColStyle), {})
+  style: withDefault(styleControl(ContainerStyle), {}),
+  columnStyle: withDefault(styleControl(ResponsiveLayoutColStyle),{borderWidth:'1px'})
 };
 
 type ViewProps = RecordConstructorToView<typeof childrenMap>;
@@ -89,7 +110,7 @@ const ColumnContainer = (props: ColumnContainerProps) => {
 
 const ColumnLayout = (props: ColumnLayoutProps) => {
   let {
-    columns,
+    columns, 
     containers,
     dispatch,
     matchColumnsHeight,
@@ -103,7 +124,7 @@ const ColumnLayout = (props: ColumnLayoutProps) => {
   return (
     <BackgroundColorContext.Provider value={"none"}>
       <DisabledContext.Provider value={props.disabled}>
-        <div style={{height: '100%', backgroundColor: "pink"}}>
+        <ContainWrapper $style={props.style}>
           <div style={{display: "grid", gridTemplateColumns: templateColumns, columnGap, gridTemplateRows: templateRows, rowGap}}>
             {columns.map(column => {
               const id = String(column.id);
@@ -111,7 +132,7 @@ const ColumnLayout = (props: ColumnLayoutProps) => {
               if(!containers[id]) return null
               const containerProps = containers[id].children;
 
-              const columnCustomStyle = {
+              /* const columnCustomStyle = {
                 margin: "0",
                 padding: !_.isEmpty(column.padding) ? column.padding : "0",
                 radius: "0",
@@ -121,16 +142,16 @@ const ColumnLayout = (props: ColumnLayoutProps) => {
                 backgroundImage: "linear-gradient(to bottom, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 1) 100%), linear-gradient(to bottom, rgba(253, 246, 199, 1) 0%, rgba(253, 246, 199, 1) 100%)",
                 backgroundClip: "content-box, padding-box", 
                
-              }
+              } */
               const noOfColumns = columns.length;
-              let backgroundStyle = columnCustomStyle.background;
+              /* let backgroundStyle = columnCustomStyle.background;
               if(!_.isEmpty(column.backgroundImage))  {
                 backgroundStyle = `center / cover url('${column.backgroundImage}') no-repeat, ${backgroundStyle}`;
-              }
+              } */
               return (
                 <ColWrapper
                   key={id}
-                  $style={columnCustomStyle}
+                  $style={props.columnStyle}
                   $minWidth={column.minWidth}
                   $matchColumnsHeight={matchColumnsHeight}
                 >
@@ -140,17 +161,14 @@ const ColumnLayout = (props: ColumnLayoutProps) => {
                     positionParams={containerProps.positionParams.getView()}
                     dispatch={childDispatch}
                     autoHeight={props.autoHeight}
-                    style={{
-                      ...columnCustomStyle,
-                      background: backgroundStyle,
-                    }}
+                    style={columnStyle}
                   />
                 </ColWrapper>
               )
               })
             }
           </div>
-        </div>
+        </ContainWrapper>
         </DisabledContext.Provider>
     </BackgroundColorContext.Provider>
   );
@@ -170,8 +188,6 @@ export const ResponsiveLayoutBaseComp = (function () {
               title: trans("responsiveLayout.column"),
               newOptionLabel: "Column",
             })}
-            {children.templateColumns.propertyView({label: "Column Definition"})}
-            {children.templateRows.propertyView({label: "Row Definition"})}
           </Section>
 
           {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
@@ -187,17 +203,27 @@ export const ResponsiveLayoutBaseComp = (function () {
               {children.autoHeight.getPropertyView()}
             </Section>
             <Section name={trans("responsiveLayout.columnsLayout")}>
-              {children.matchColumnsHeight.propertyView({
-                label: trans("responsiveLayout.matchColumnsHeight")
+              {children.matchColumnsHeight.propertyView({ label: trans("responsiveLayout.matchColumnsHeight")
               })}
               {controlItem({}, (
-                <div style={{ marginTop: '8px' }}>
-                  {trans("responsiveLayout.columnsSpacing")}
-                </div>
+                <div style={{ marginTop: '8px' }}>{trans("responsiveLayout.columnsSpacing")}</div>
               ))}
+              {children.templateColumns.propertyView({label: "Column Definition"})}
+              {children.templateRows.propertyView({label: "Row Definition"})}
               {children.columnGap.propertyView({label: "Column Gap"})}
               {children.rowGap.propertyView({label: "Row Gap"})}
             </Section>
+            </>
+          )}
+
+          {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
+            <>
+              <Section name={sectionNames.style}>
+                {children.style.getPropertyView()}
+              </Section>
+              <Section name={sectionNames.columnStyle}>
+                {children.columnStyle.getPropertyView()}
+              </Section>
             </>
           )}
         </>

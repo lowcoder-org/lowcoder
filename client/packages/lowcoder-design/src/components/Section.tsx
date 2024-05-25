@@ -158,4 +158,5 @@ export const sectionNames = {
   headerStyle:trans("prop.headerStyle"),
   bodyStyle:trans("prop.bodyStyle"),
   badgeStyle:trans("prop.badgeStyle"),
+  columnStyle:trans("prop.columnStyle"),
 };
