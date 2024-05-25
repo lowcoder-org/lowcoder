@@ -131,23 +131,7 @@ const ColumnLayout = (props: ColumnLayoutProps) => {
               const childDispatch = wrapDispatch(wrapDispatch(dispatch, "containers"), id);
               if(!containers[id]) return null
               const containerProps = containers[id].children;
-
-              /* const columnCustomStyle = {
-                margin: "0",
-                padding: !_.isEmpty(column.padding) ? column.padding : "0",
-                radius: "0",
-                border: "1px dashed pink", // `${!_.isEmpty(column.border) ? column.border : columnStyle.border}`,
-                background: !_.isEmpty(column.background) ? column.background : columnStyle.background,
-                overflow: "hidden",
-                backgroundImage: "linear-gradient(to bottom, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 1) 100%), linear-gradient(to bottom, rgba(253, 246, 199, 1) 0%, rgba(253, 246, 199, 1) 100%)",
-                backgroundClip: "content-box, padding-box", 
-               
-              } */
               const noOfColumns = columns.length;
-              /* let backgroundStyle = columnCustomStyle.background;
-              if(!_.isEmpty(column.backgroundImage))  {
-                backgroundStyle = `center / cover url('${column.backgroundImage}') no-repeat, ${backgroundStyle}`;
-              } */
               return (
                 <ColWrapper
                   key={id}
@@ -186,7 +170,7 @@ export const ResponsiveLayoutBaseComp = (function () {
           <Section name={sectionNames.basic}>
             {children.columns.propertyView({
               title: trans("responsiveLayout.column"),
-              newOptionLabel: "Column",
+              newOptionLabel: trans("responsiveLayout.addColumn"),
             })}
           </Section>
 
@@ -208,10 +192,10 @@ export const ResponsiveLayoutBaseComp = (function () {
               {controlItem({}, (
                 <div style={{ marginTop: '8px' }}>{trans("responsiveLayout.columnsSpacing")}</div>
               ))}
-              {children.templateColumns.propertyView({label: "Column Definition"})}
-              {children.templateRows.propertyView({label: "Row Definition"})}
-              {children.columnGap.propertyView({label: "Column Gap"})}
-              {children.rowGap.propertyView({label: "Row Gap"})}
+              {children.templateColumns.propertyView({label: trans("responsiveLayout.columnDefinition"), tooltip: trans("responsiveLayout.columnsDefinitionTooltip")})}
+              {children.templateRows.propertyView({label: trans("responsiveLayout.rowDefinition"), tooltip: trans("responsiveLayout.rowsDefinitionTooltip")})}
+              {children.columnGap.propertyView({label: trans("responsiveLayout.columnGap")})}
+              {children.rowGap.propertyView({label: trans("responsiveLayout.rowGap")})}
             </Section>
             </>
           )}

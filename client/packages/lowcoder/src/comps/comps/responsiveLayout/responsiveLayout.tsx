@@ -151,19 +151,7 @@ const ResponsiveLayout = (props: ResponsiveLayoutProps) => {
               const childDispatch = wrapDispatch(wrapDispatch(dispatch, "containers"), id);
               if(!containers[id]) return null
               const containerProps = containers[id].children;
-
-              /* const columnCustomStyle = {
-                margin: !_.isEmpty(column.margin) ? column.margin : columnStyle.margin,
-                padding: !_.isEmpty(column.padding) ? column.padding : columnStyle.padding,
-                radius: !_.isEmpty(column.radius) ? column.radius : columnStyle.radius,
-                border: `1px solid ${!_.isEmpty(column.border) ? column.border : columnStyle.border}`,
-                background: !_.isEmpty(column.background) ? column.background : columnStyle.background,
-              } */
               const noOfColumns = columns.length;
-              /* let backgroundStyle = columnCustomStyle.background;
-              if(!_.isEmpty(column.backgroundImage))  {
-                backgroundStyle = `center / cover url('${column.backgroundImage}') no-repeat, ${backgroundStyle}`;
-              } */
               return (
                 <ColWrapper
                   key={id}

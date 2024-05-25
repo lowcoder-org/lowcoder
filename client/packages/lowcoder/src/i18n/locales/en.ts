@@ -3436,6 +3436,11 @@ export const en = {
   },
   "responsiveLayout": {
     "column": "Columns",
+    "addColumn": "Add Column",
+    "columnDefinition": "Column Definition",
+    "rowDefinition": "Row Definition",
+    "columnGap": "Column Gap",
+    "rowGap": "Row Gap",
     "atLeastOneColumnError": "Responsive Layout Keeps at Least One Column",
     "columnsPerRow": "Columns per Row",
     "columnsSpacing": "Columns Spacing (px)",
@@ -3450,8 +3455,11 @@ export const en = {
     "rowBreak": "Row Break",
     "matchColumnsHeight": "Match Columns Height",
     "rowLayout": "Row Layout",
-    "columnsLayout": "Columns Layout"
+    "columnsLayout": "Columns Layout",
+    "columnsDefinitionTooltip": "Columns can be defined freely based on the CSS columns properties. For example, 'auto auto' will create two columns with equal width. Read more here: https://css-tricks.com/almanac/properties/g/grid-template-columns",
+    "rowsDefinitionTooltip": "Rows can be defined freely based on the CSS rows properties. For example, 'auto auto' will create two rows with equal height. Read more here: https://css-tricks.com/almanac/properties/g/grid-template-rows",
   },
+
   "navLayout": {
     "mode": "Mode",
     "modeInline": "Inline",
