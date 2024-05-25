@@ -221,14 +221,14 @@ function UIView(props: {
   const comp = props.comp;
   const childrenProps = childrenToProps(comp.children);
   const parentDisabled = useContext(DisabledContext);
-  const disabled = childrenProps["disabled"];
-  if (disabled !== undefined && typeof disabled === "boolean") {
-    childrenProps["disabled"] = disabled || parentDisabled;
+  const disabled = childrenProps['disabled'];
+  if (disabled !== undefined && typeof disabled === 'boolean') {
+    childrenProps['disabled'] = disabled || parentDisabled;
   }
 
   //ADDED BY FRED
   if (childrenProps.events) {
-    const events = childrenProps.events as { value?: any[] };
+    const events = childrenProps.events as {value?: any[]};
     if (!events.value || events.value.length === 0) {
       events.value = [];
     }
@@ -246,22 +246,31 @@ function UIView(props: {
     );
   }
 
+  let defaultChildren = comp.children;
+  const isNotContainer = defaultChildren.hasOwnProperty('style');
+  let rotationVal = null
+  if (isNotContainer) {
+    rotationVal = defaultChildren.style.children.rotation.valueAndMsg.value;
+  }
   return (
     <div
       ref={props.innerRef}
       className={childrenProps.className as string}
       data-testid={childrenProps.dataTestId as string}
       style={{
-        width: "100%",
-        height: "100%",
-        margin: "0px",
-        padding: "0px",
-      }}>
+        width: '100%',
+        height: '100%',
+        margin: '0px',
+        padding:
+          rotationVal === null
+            ? '0px'
+            : rotationVal === '' || rotationVal === '0deg'
+              ? '0px'
+              : '50% 0px',
+      }}
+    >
       <HidableView hidden={childrenProps.hidden as boolean}>
-        {props.viewFn(
-          childrenProps,
-          comp.dispatch
-        )}
+        {props.viewFn(childrenProps, comp.dispatch)}
       </HidableView>
     </div>
   );
