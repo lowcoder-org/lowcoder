@@ -429,6 +429,23 @@ export var uiCompMap: Registry = {
     defaultDataFnName: "defaultPageLayoutData",
     defaultDataFnPath: "comps/tableComp/mockTableComp",
   },
+  columnLayout: {
+    name: "Column Layout",
+    enName: "Column Layout",
+    description: trans("uiComp.responsiveLayoutCompDesc"),
+    categories: ["layout"],
+    icon: ResponsiveLayoutCompIcon,
+    keywords: trans("uiComp.responsiveLayoutCompKeywords"),
+    lazyLoad: true,
+    compName: 'ColumnLayoutComp',
+    compPath: 'comps/columnLayout/index',
+    withoutLoading: true,
+    layoutInfo: {
+      w: 24,
+      h: 25,
+      delayCollision: true,
+    },
+  },
   floatTextContainer: {
     name: trans("uiComp.floatTextContainerCompName"),
     enName: "Container",

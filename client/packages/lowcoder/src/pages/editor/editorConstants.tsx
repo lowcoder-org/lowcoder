@@ -99,8 +99,7 @@ import {
   HillchartCompIconSmall,
   TurnstileCaptchaCompIconSmall,
   PivotTableCompIconSmall,
-  GraphChartCompIconSmall
-
+  GraphChartCompIconSmall,
 } from "lowcoder-design";
 
 export const CompStateIcon: {
@@ -115,6 +114,7 @@ export const CompStateIcon: {
   chart: <ChartCompIconSmall />,
   checkbox: <CheckboxCompIconSmall />,
   collapsibleContainer: <CollapsibleContainerCompIconSmall />,
+  columnLayout: <IconCompIconSmall />,
   comment: <CommentCompIconSmall />,
   container: <ContainerCompIconSmall />,
   controlButton: <IconButtonCompIconSmall />,
