@@ -676,7 +676,7 @@ export const Padding = styled.div<{ $padding: string }>`
   }	
 }`
 // Added By Aqib Mirza
-export const GridColumns = styled.div<{ $gridColumns: string }>`
+export const GridColumns = styled.div<{ $gridColumns: string }>` 
   > div {
     margin: 3px;
     overflow: hidden;
@@ -686,3 +686,26 @@ export const GridColumns = styled.div<{ $gridColumns: string }>`
     }
   }
 `;
+
+export const BorderStyle = styled.div<{ $borderStyle: string }>` 
+  > div {
+    margin: 3px;
+    overflow: hidden;
+      > svg {
+        fill: currentColor;
+      }
+    }
+  }
+`;
+
+export const BorderWidth = styled.div<{ $borderWidth: string }>`
+  > div {
+    margin: 3px;
+    overflow: hidden;
+      > svg {
+        fill: currentColor;
+      }
+    }
+  }
+`;
+
