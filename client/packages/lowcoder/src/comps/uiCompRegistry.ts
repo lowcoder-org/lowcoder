@@ -160,6 +160,7 @@ export type UICompType =
   | "sunburstChart"
   | "themeriverChart" 
   | "basicChart"
+  | "columnLayout"
   ;
 
 

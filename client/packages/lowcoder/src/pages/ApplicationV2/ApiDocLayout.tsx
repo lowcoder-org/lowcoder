@@ -137,7 +137,7 @@ export function ApiDoc(props: ApiDocLayoutProps) {
                 hideExport={true}
                 tryItCredentialsPolicy="include"
                 tryItCorsProxy={isSelfHost ? undefined : 'https://api-service.lowcoder.cloud'}
-                basePath="lowcoder-api"
+                basePath={API_DOCS_URL}
                 apiDescriptionUrl="https://api-service.lowcoder.cloud/api/docs/api-docs"
               />
             </div>
