@@ -37,6 +37,7 @@ export const en = {
     headerStyle: 'Header Style',
     bodyStyle: 'Body Style',
     badgeStyle: 'Badge Style',
+    columnStyle: 'Column Style',
   },
   passwordInput: {
     label: "Password:",
