@@ -49,4 +49,11 @@ public class BundleElementRelationServiceImpl implements BundleElementRelationSe
         return biRelationService.getByTargetIds(BUNDLE_ELEMENT, elementIds)
                 .map(biRelation -> new BundleElement(biRelation.getSourceId(), biRelation.getTargetId(), Integer.parseInt(biRelation.getExtParam1())));
     }
+
+    @Override
+    public Mono<Void> updateElementPos(String bundleId, String elementId, long position) {
+        return biRelationService.getBiRelation(BUNDLE_ELEMENT, bundleId, elementId)
+                .doOnNext(biRelation -> biRelation.setExtParam1(String.valueOf(position)))
+                .then();
+    }
 }

@@ -279,6 +279,29 @@ public class BundleApiServiceImpl implements BundleApiService {
     }
 
     /**
+     * Reorder the applications in bundle based on the position
+     * @param bundleId id of the bundle to sort elements
+     * @param elementIds ids of the elements in the bundle to sort
+     * @return nothing
+     */
+    @Override
+    public Mono<Void> reorder(String bundleId, List<String> elementIds) {
+        return sessionUserService.getVisitorId()
+                // check permissions
+                .delayUntil(userId -> resourcePermissionService.checkResourcePermissionWithError(userId, bundleId,
+                        MANAGE_BUNDLES))
+                .flatMap(b -> Flux.fromIterable(elementIds)
+                        .index() // This will provide a tuple of (index, elementId)
+                        .flatMap(tuple -> {
+                            long index = tuple.getT1();
+                            String elementId = tuple.getT2();
+                            return bundleElementRelationService.updateElementPos(bundleId, elementId, index);
+                        })
+                        .then())
+                .then();
+    }
+
+    /**
      * get the sub elements of a bundle or root.
      *
      * @return flux of {@link ApplicationInfoView} or {@link BundleInfoView}

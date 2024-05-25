@@ -107,6 +107,12 @@ public class BundleController implements BundleEndpoints
     }
 
     @Override
+    public Mono<ResponseView<Void>> reorder(@PathVariable("bundleId") String bundleId,
+                                            @RequestParam(value = "elementIds", required = true) List<String> elementIds) {
+        return bundleApiService.reorder(bundleId, elementIds)
+                .then(Mono.fromSupplier(() -> ResponseView.success(null)));
+    }
+    @Override
     public Mono<ResponseView<Void>> updatePermission(@PathVariable String bundleId,
             @PathVariable String permissionId,
             @RequestBody UpdatePermissionRequest updatePermissionRequest) {

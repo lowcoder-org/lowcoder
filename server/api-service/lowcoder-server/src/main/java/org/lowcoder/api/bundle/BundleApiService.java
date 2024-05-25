@@ -11,9 +11,11 @@ import org.lowcoder.domain.bundle.model.BundleRequestType;
 import org.lowcoder.domain.permission.model.ResourceAction;
 import org.lowcoder.domain.permission.model.ResourcePermission;
 import org.lowcoder.domain.permission.model.ResourceRole;
+import org.lowcoder.sdk.config.dynamic.Conf;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
 import java.util.Set;
 
 public interface BundleApiService {
@@ -55,4 +57,6 @@ public interface BundleApiService {
     Mono<Boolean> setBundlePublicToMarketplace(String bundleId, BundleEndpoints.BundlePublicToMarketplaceRequest request);
 
     Mono<Boolean> setBundleAsAgencyProfile(String bundleId, boolean agencyProfile);
+
+    Mono<Void> reorder(String bundleId, List<String> elementIds);
 }

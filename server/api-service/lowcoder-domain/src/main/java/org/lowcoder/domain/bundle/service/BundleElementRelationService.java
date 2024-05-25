@@ -1,6 +1,7 @@
 package org.lowcoder.domain.bundle.service;
 
 import org.lowcoder.domain.bundle.model.BundleElement;
+import org.reactivestreams.Publisher;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -14,4 +15,6 @@ public interface BundleElementRelationService {
     Mono<Void> create(String bundleId, String elementId);
 
     Flux<BundleElement> getByElementIds(List<String> elementIds);
+
+    Mono<Void> updateElementPos(String bundleId, String elementId, long position);
 }

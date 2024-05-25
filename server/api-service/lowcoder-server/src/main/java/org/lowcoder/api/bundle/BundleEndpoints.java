@@ -128,11 +128,21 @@ public interface BundleEndpoints
 			tags = TAG_BUNDLE_MANAGEMENT,
 		    operationId = "moveBundle",
 		    summary = "Move Bundle",
-		    description = "Relocate an Bundle Bundle to a different location in the Bundle hierarchy in Lowcoder using its unique ID."
+		    description = "Relocate an application to a different bundle in Lowcoder using its unique ID."
 	)
     @PutMapping("/move/{id}")
     public Mono<ResponseView<Void>> move(@PathVariable("id") String applicationLikeId,
             @RequestParam(value = "targetBundleId", required = false) String targetBundleId);
+
+	@Operation(
+			tags = TAG_BUNDLE_MANAGEMENT,
+			operationId = "reorderBundle",
+			summary = "Reorder Bundle",
+			description = "Reorder bundle."
+	)
+	@PutMapping("/{bundleId}/reorder")
+	public Mono<ResponseView<Void>> reorder(@PathVariable("bundleId") String bundleId,
+										 @RequestParam(value = "elementIds", required = true) List<String> elementIds);
 
 	@Operation(
 			tags = TAG_BUNDLE_PERMISSIONS,
