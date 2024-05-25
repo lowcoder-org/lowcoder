@@ -188,8 +188,8 @@ let TmpModalComp = (function () {
     .setPropertyViewFn((children) => (
       <>
         <Section name={sectionNames.basic}>
-          {children.title.propertyView({ label: trans("drawer.title") })}
-          {children.title.getView() && children.titleAlign.propertyView({ label: trans("drawer.titleAlign"), radioButton: true })}
+          {children.title.propertyView({ label: trans("modalComp.title") })}
+          {children.title.getView() && children.titleAlign.propertyView({ label: trans("modalComp.titleAlign"), radioButton: true })}
           {children.autoHeight.getPropertyView()}
           {!children.autoHeight.getView() &&
             children.height.propertyView({

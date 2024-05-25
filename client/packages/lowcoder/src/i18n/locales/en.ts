@@ -2343,6 +2343,8 @@ export const en = {
     "openModalDesc": "Open the Dialog Box",
     "closeModalDesc": "Close the Dialog Box",
     "visibleDesc": "Is it Visible? If True, the Current Dialog Box Will Pop Up",
+    "title": "Drawer Title",
+    "titleAlign": "Title Alignment",
     "modalHeight": "Modal Height",
     "modalHeightTooltip": "Pixel, Example: 222",
     "modalWidth": "Modal Width",
