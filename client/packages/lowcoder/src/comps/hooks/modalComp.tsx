@@ -155,6 +155,8 @@ let TmpModalComp = (function () {
               zIndex={Layers.modal}
               modalRender={(node) => <ModalStyled $style={props.style}>{node}</ModalStyled>}
               mask={props.showMask}
+              className={props.className as string}
+              data-testid={props.dataTestId as string}
             >
               <InnerGrid
                 {...otherContainerProps}

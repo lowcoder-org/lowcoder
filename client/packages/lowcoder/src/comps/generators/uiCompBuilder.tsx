@@ -219,7 +219,6 @@ function UIView(props: {
   viewFn: any;
 }) {
   const comp = props.comp;
-
   const childrenProps = childrenToProps(comp.children);
   const parentDisabled = useContext(DisabledContext);
   const disabled = childrenProps["disabled"];
@@ -235,6 +234,17 @@ function UIView(props: {
     }
   }
   //END ADD BY FRED
+
+  if (comp.children.hasOwnProperty('showMask') && comp.children.hasOwnProperty('maskClosable')) {
+    return (
+      <HidableView hidden={childrenProps.hidden as boolean}>
+        {props.viewFn(
+          childrenProps,
+          comp.dispatch
+        )}
+      </HidableView>
+    );
+  }
 
   return (
     <div

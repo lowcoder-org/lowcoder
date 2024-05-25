@@ -26,6 +26,7 @@ import { selectSystemConfig } from "redux/selectors/configSelectors";
 import { enableCustomBrand } from "util/featureFlagUtils";
 import FreeLimitTag from "pages/common/freeLimitTag";
 import { Helmet } from "react-helmet";
+// import ApiDocs from "./apiDocs";
 
 enum SettingPageEnum {
   UserGroups = "permission",
@@ -34,6 +35,7 @@ enum SettingPageEnum {
   Theme = "theme",
   Branding = "branding",
   Advanced = "advanced",
+  // ApiDocs = "apiDocs",
   OAuthProvider = "oauth-provider",
   AppUsage = "app-usage",
   Environments = "environments",
@@ -71,6 +73,11 @@ export function SettingHome() {
       label: trans("settings.advanced"),
       icon: <LeftSettingIcon width={"20px"}/>,
     },
+    /* {
+      key: SettingPageEnum.ApiDocs,
+      label: trans("settings.apiDocs"),
+      icon: <LeftSettingIcon width={"20px"}/>,
+    }, */
 
     // Premium features
 
@@ -148,6 +155,7 @@ export function SettingHome() {
         {selectKey === SettingPageEnum.Audit && <AuditSetting />}
         {selectKey === SettingPageEnum.Branding && <BrandingSetting />}
         {selectKey === SettingPageEnum.Advanced && <AdvancedSetting />}
+        {/* {selectKey === SettingPageEnum.ApiDocs && <ApiDocs />} */}
       </TwoColumnSettingPageContent>
     </>
   );
