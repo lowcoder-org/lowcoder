@@ -98,6 +98,27 @@ springdoc:
   paths-to-exclude: /api/v1/**
 
 management:
+  endpoints:
+    enabled-by-default: false
+    web:
+      base-path: "/api/status"
+      exposure:
+        include: "health,metrics,prometheus"
+  endpoint:
+    health:
+      show-details: never
+      show-components: always
+      enabled: true
+    metrics:
+      enabled: true
+    prometheus:
+      enabled: true
   health:
     mail:
+      enabled: false
+    db:
+      enabled: true
+    redis:
+      enabled: true
+    diskspace:
       enabled: false
