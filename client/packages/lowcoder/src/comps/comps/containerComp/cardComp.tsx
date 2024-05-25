@@ -22,7 +22,7 @@ import { dropdownControl } from "comps/controls/dropdownControl";
 import { styleControl } from "comps/controls/styleControl";
 const { Meta } = Card;
 
-const Warpper = styled.div<{
+const Wrapper = styled.div<{
   $style: CardStyleType | undefined;
   $showMate: boolean;
   $cardType: string;
@@ -103,12 +103,12 @@ const Warpper = styled.div<{
   }
 `;
 
-const ContainWarpper = styled.div`
+const ContainWrapper = styled.div`
   height: 100%;
   width: 100%;
 `
 
-const IconWarpper = styled.div<{ $style: CardStyleType | undefined, disabled: boolean }>`
+const IconWrapper = styled.div<{ $style: CardStyleType | undefined, disabled: boolean }>`
   pointer-events: ${props => props.disabled ? 'none' : ''};
   svg {
     color: ${props => props.disabled ? '#d9d9d9' : props.$style?.IconColor};
@@ -208,7 +208,7 @@ export const ContainerBaseComp = (function () {
     };
     return (
       <ReactResizeDetector onResize={onResize}>
-        <Warpper
+        <Wrapper
           ref={conRef}
           $style={props.style}
           $animationStyle={props.animationStyle}
@@ -233,23 +233,23 @@ export const ContainerBaseComp = (function () {
             actions={props.cardType == 'common' && props.showActionIcon ?
               props.actionOptions.filter(item => !item.hidden).map(item => {
                 return (
-                  <IconWarpper
+                  <IconWrapper
                     onClick={() => item.onEvent('click')}
                     disabled={item.disabled}
                     $style={props.style}
                   >
                     {item.icon}
-                  </IconWarpper>)
+                  </IconWrapper>)
               }
               ) : []
             }
           >
             {props.cardType == 'common' && props.showMeta && <Meta title={props.metaTitle} description={props.metaDesc} />}
-            {props.cardType == 'custom' && <ContainWarpper>
-              <TriContainer {...props} /></ContainWarpper>}
+            {props.cardType == 'custom' && <ContainWrapper>
+              <TriContainer {...props} /></ContainWrapper>}
           </Card>
           }
-        </Warpper>
+        </Wrapper>
       </ReactResizeDetector>
     );
   })
