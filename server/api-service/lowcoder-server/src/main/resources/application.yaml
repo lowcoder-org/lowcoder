@@ -79,7 +79,7 @@ common:
   plugin-dirs:
     - ${LOWCODER_PLUGINS_DIR:../plugins}
   super-admin:
-    username: ${LOWCODER_SUPERUSER_USERNAME:test@lowcoder.org}
+    username: ${LOWCODER_SUPERUSER_USERNAME:admin@localhost}
     password: ${LOWCODER_SUPERUSER_PASSWORD:}
   marketplace:
     private-mode: ${LOWCODER_MARKETPLACE_PRIVATE_MODE:true}
