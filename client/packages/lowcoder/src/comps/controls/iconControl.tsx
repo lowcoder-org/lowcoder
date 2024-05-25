@@ -70,7 +70,7 @@ const Wrapper = styled.div`
   }
 `;
 
-const IconPicker = (props: {
+export const IconPicker = (props: {
   value: string;
   onChange: (value: string) => void;
   label?: ReactNode;

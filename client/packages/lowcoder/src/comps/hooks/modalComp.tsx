@@ -33,7 +33,7 @@ const getStyle = (style: ModalStyleType) => {
       border: ${style.borderWidth} solid ${style.border};
       overflow: hidden;
       background-color: ${style.background};
-      ${style.backgroundImage ? `background-image: ${style.backgroundImage} !important; ` : ';'}
+      ${style.backgroundImage ? `background-image: url(${style.backgroundImage}) !important; ` : ';'}
       ${style.backgroundImageRepeat ? `background-repeat: ${style.backgroundImageRepeat};` : 'no-repeat;'}
       ${style.backgroundImageSize ? `background-size: ${style.backgroundImageSize};` : 'cover'}
       ${style.backgroundImagePosition ? `background-position: ${style.backgroundImagePosition};` : 'center;'}
@@ -155,6 +155,8 @@ let TmpModalComp = (function () {
               zIndex={Layers.modal}
               modalRender={(node) => <ModalStyled $style={props.style}>{node}</ModalStyled>}
               mask={props.showMask}
+              className={props.className as string}
+              data-testid={props.dataTestId as string}
             >
               <InnerGrid
                 {...otherContainerProps}

@@ -1,7 +1,9 @@
 import {
+  ArrayNumberControl,
   ArrayStringControl,
   BoolCodeControl,
   CodeControlJSONType,
+  jsonArrayControl,
   jsonControl,
   jsonObjectControl,
   jsonValueControl,
@@ -30,8 +32,10 @@ import { memo } from "util/cacheUtils";
 import {
   toBoolean,
   toJSONObject,
+  toJSONObjectArray,
   toJSONValue,
   toNumber,
+  toNumberArray,
   toString,
   toStringArray,
   toStringNumberArray,
@@ -163,10 +167,14 @@ function convertValue(value: EvalParamType, type: ParamType) {
       return toNumber(value);
     case "boolean":
       return toBoolean(value);
+    case "arrayObject":
+      return toJSONObjectArray(value);
     case "arrayString":
       return toStringArray(value);
     case "arrayNumberString":
       return toStringNumberArray(value);
+    case "arrayNumber":
+      return toNumberArray(value);
     case "JSON":
       return toJSONObject(value);
     case "JSONValue":
@@ -183,8 +191,10 @@ function getTypeDefaultValue(type: ParamType) {
       return 0;
     case "boolean":
       return false;
+    case "arrayObject":
     case "arrayString":
     case "arrayNumberString":
+    case "arrayNumber":
       return [];
     case "JSON":
       return {};
@@ -249,9 +259,20 @@ export const arrayStringStateControl = (defaultValue?: string[]) =>
     []
   );
 
+export const arrayNumberStateControl = (defaultValue?: number[]) =>
+  withTmpState(
+    defaultValue === undefined
+      ? ArrayNumberControl
+      : withDefault(ArrayNumberControl, JSON.stringify(defaultValue)),
+    []
+  );
+
 export const jsonObjectStateControl = (defaultValue?: JSONObject) =>
   withTmpState(jsonObjectControl(defaultValue), {});
 
+export const arrayObjectStateControl = (defaultValue?: JSONObject[]) =>
+  withTmpState(jsonArrayControl(defaultValue), {});
+  
 export const jsonValueStateControl = (defaultValue?: JSONValue) =>
   withTmpState(jsonValueControl(defaultValue), "");
 
@@ -290,6 +311,18 @@ export const arrayStringExposingStateControl = (paramName: string, defaultValue?
   stateControlMethodExposing(arrayStringStateControl(defaultValue), {
     name: paramName,
     type: "arrayString",
+  });
+
+export const arrayNumberExposingStateControl = (paramName: string, defaultValue?: number[]) =>
+  stateControlMethodExposing(arrayNumberStateControl(defaultValue), {
+    name: paramName,
+    type: "arrayNumber",
+  });
+
+export const arrayObjectExposingStateControl = (paramName: string, defaultValue?: JSONObject[]) =>
+  stateControlMethodExposing(arrayObjectStateControl(defaultValue), {
+    name: paramName,
+    type: "arrayObject",
   });
 
 export const jsonObjectExposingStateControl = (paramName: string, defaultValue?: JSONObject) =>

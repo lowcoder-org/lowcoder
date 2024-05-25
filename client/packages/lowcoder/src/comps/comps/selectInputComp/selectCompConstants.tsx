@@ -40,6 +40,7 @@ import {
   heightCalculator,
   
   SelectStyle,
+  ChildrenMultiSelectStyleType,
 } from "comps/controls/styleControlConstants";
 import { stateComp, withDefault } from "../../generators";
 import {
@@ -55,10 +56,9 @@ import { RefControl } from "comps/controls/refControl";
 import { BaseSelectRef } from "rc-select";
 import { refMethods } from "comps/generators/withMethodExposing";
 import { blurMethod, focusMethod } from "comps/utils/methodUtils";
-
 import { useContext } from "react";
 import { EditorContext } from "comps/editorState";
-import { styleControl } from "@lowcoder-ee/index.sdk";
+import { styleControl } from "comps/controls/styleControl";
 
 export const getStyle = (
   style:
@@ -187,10 +187,25 @@ const Select = styled(AntdSelect) <{ $style: SelectStyleType & MultiSelectStyleT
   ${(props) => props.$style && getStyle(props.$style)}
 `;
 
-const DropdownStyled = styled.div<{ $style: MultiSelectStyleType }>`
-  ${(props) => props.$style && getDropdownStyle(props.$style)}
+const DropdownStyled = styled.div<{ $style: ChildrenMultiSelectStyleType }>`
+ background-color: ${props => props.$style?.background};
+    border: ${props => props.$style?.border};
+    border-style: ${props => props.$style?.borderStyle};
+    border-width: ${props => props.$style?.borderWidth};
+    border-radius: ${props => props.$style?.radius};
+    rotate: ${props => props.$style?.rotation};
+    margin: ${props => props.$style?.margin};
+    padding: ${props => props.$style?.padding};
   .ant-select-item-option-content {
-    ${(props) => `padding: ${props.$style.padding}`};
+    font-size: ${props => props.$style?.textSize};
+    font-style: ${props => props.$style?.fontStyle};
+    font-family: ${props => props.$style?.fontFamily};
+    font-weight: ${props => props.$style?.textWeight};
+    text-transform: ${props => props.$style?.textTransform};
+    color: ${props => props.$style?.text};
+  }
+  .option-label{
+    text-decoration: ${props => props.$style?.textDecoration} !important;
   }
   .option-label img {
     min-width: 14px;
@@ -230,11 +245,12 @@ export const SelectUIView = (
     mode?: "multiple" | "tags";
     value: any;
     style: SelectStyleType | MultiSelectStyleType;
+    childrenInputFieldStyle: ChildrenMultiSelectStyleType;
     onChange: (value: any) => void;
     dispatch: DispatchType;
   }
-) => (
-  <Select
+) => {
+  return <Select
     ref={props.viewRef}
     mode={props.mode}
     $style={props.style as SelectStyleType & MultiSelectStyleType}
@@ -247,7 +263,7 @@ export const SelectUIView = (
       option?.label.toLowerCase().includes(input.toLowerCase())
     }
     dropdownRender={(originNode: ReactNode) => (
-      <DropdownStyled $style={props.style as MultiSelectStyleType}>
+      <DropdownStyled $style={props.childrenInputFieldStyle as ChildrenMultiSelectStyleType}>
         {originNode}
       </DropdownStyled>
     )}
@@ -283,7 +299,7 @@ export const SelectUIView = (
         </Select.Option>
       ))}
   </Select>
-);
+}
 
 export const SelectPropertyView = (
   children: RecordConstructorToComp<
@@ -296,6 +312,7 @@ export const SelectPropertyView = (
     style: { getPropertyView: () => ControlNode };
     labelStyle: { getPropertyView: () => ControlNode };
     inputFieldStyle: { getPropertyView: () => ControlNode };
+    childrenInputFieldStyle: { getPropertyView: () => ControlNode };
   }
 ) => (
   <>
@@ -343,6 +360,9 @@ export const SelectPropertyView = (
           </Section>
           <Section name={sectionNames.inputFieldStyle}>
             {children.inputFieldStyle.getPropertyView()}
+          </Section>
+          <Section name={'Children Input Field Styles'}>
+            {children.childrenInputFieldStyle.getPropertyView()}
           </Section>
         </>
       )}

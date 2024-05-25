@@ -1,4 +1,5 @@
 import {
+  USER_PROFILE_URL,
   ALL_APPLICATIONS_URL,
   DATASOURCE_URL,
   FOLDER_URL,
@@ -9,7 +10,10 @@ import {
   QUERY_LIBRARY_URL,
   SETTING,
   TRASH_URL,
-  ADMIN_APP_URL
+  API_DOCS_URL,
+  // ADMIN_APP_URL,
+  NEWS_URL,
+  ORG_HOME_URL,
 } from "constants/routesURL";
 import { getUser, isFetchingUser } from "redux/selectors/usersSelectors";
 import { useDispatch, useSelector } from "react-redux";
@@ -19,6 +23,8 @@ import {
   FolderIcon,
   HomeDataSourceIcon,
   HomeIcon,
+  NewsIcon,
+  WorkspacesIcon,
   HomeModuleIcon,
   HomeQueryLibraryIcon,
   HomeSettingIcon,
@@ -28,7 +34,9 @@ import {
   RecyclerIcon,
   MarketplaceIcon,
   AppsIcon,
-  EnterpriseIcon
+  EnterpriseIcon,
+  UserIcon,
+  APIDocsIcon,
 } from "lowcoder-design";
 import React, { useEffect, useState } from "react";
 import { fetchAllApplications, fetchHomeData } from "redux/reduxActions/applicationActions";
@@ -39,6 +47,10 @@ import { QueryLibraryEditor } from "../queryLibrary/QueryLibraryEditor";
 import { ProductLoading } from "components/ProductLoading";
 import { Layout } from "../../components/layout/Layout";
 import { HomeView } from "./HomeView";
+import { UserProfileView } from "./UserProfileView";
+import { NewsView } from "./NewsView";
+import { ApiDocView } from "./ApiDocView";
+import { OrgView } from "./OrgView";
 import styled, { css } from "styled-components";
 import history from "../../util/history";
 import { FolderView } from "./FolderView";
@@ -110,6 +122,7 @@ const FolderNameWrapper = styled.div<{ $selected: boolean }>`
       display: inline-block;
     }
   }
+
 `;
 
 const FolderName = (props: { id: string; name: string }) => {
@@ -130,7 +143,10 @@ const FolderName = (props: { id: string; name: string }) => {
           setFolderNameEditing(false);
         }}
       />
-      <EditPopover items={[{ text: trans("rename"), onClick: () => setFolderNameEditing(true) }]}>
+      <EditPopover items={[
+          { text: trans("rename"), onClick: () => setFolderNameEditing(true) },
+          // Falk: TODO: Implement delete for Folders
+        ]}>
         <PopoverIcon tabIndex={-1} />
       </EditPopover>
     </>
@@ -248,6 +264,8 @@ export default function ApplicationHome() {
   const isSelfHost = window.location.host !== 'app.lowcoder.cloud';
 
   const handleFolderCreate = useCreateFolder();
+  
+  const isOrgAdmin = org?.createdBy == user.id ? true : false;
 
   useEffect(() => {
     dispatch(fetchHomeData({}));
@@ -310,12 +328,12 @@ export default function ApplicationHome() {
       };
     });
 
-  if (allFolders.length > 5) {
+  if (allFolders.length > 1) {
     folderItems = [
       ...folderItems,
       {
         text: (props: { selected?: boolean }) => (
-          <MoreFoldersWrapper $selected={Boolean(props.selected)}>{trans("more")}</MoreFoldersWrapper>
+          <MoreFoldersWrapper $selected={Boolean(props.selected)}>{trans("home.allFolders")}</MoreFoldersWrapper>
         ),
         routePath: FOLDERS_URL,
         routeComp: RootFolderListView,
@@ -339,6 +357,40 @@ export default function ApplicationHome() {
           {
             items: [
               {
+                text: <TabLabel>{trans("home.profile")}</TabLabel>,
+                routePath: USER_PROFILE_URL,
+                routeComp: UserProfileView,
+                icon: ({ selected, ...otherProps }) => selected ? <UserIcon {...otherProps} width={"24px"}/> : <UserIcon {...otherProps} width={"24px"}/>,
+              },
+              {
+                text: <TabLabel>{trans("home.news")}</TabLabel>,
+                routePath: NEWS_URL,
+                routeComp: NewsView,
+                icon: ({ selected, ...otherProps }) => selected ? <NewsIcon {...otherProps} width={"24px"}/> : <NewsIcon {...otherProps} width={"24px"}/>,
+                visible: ({ user }) => user.orgDev,
+                style: { color: "red" },
+              },
+              {
+                text: <TabLabel>{trans("home.orgHome")}</TabLabel>,
+                routePath: ORG_HOME_URL,
+                routePathExact: false,
+                routeComp: OrgView,
+                icon: ({ selected, ...otherProps }) => selected ? <WorkspacesIcon {...otherProps} width={"24px"}/> : <WorkspacesIcon {...otherProps} width={"24px"}/>,
+                visible: ({ user }) => !user.orgDev,
+              },
+              {
+                text: <TabLabel>{trans("home.marketplace")}</TabLabel>,
+                routePath: MARKETPLACE_URL,
+                routePathExact: false,
+                routeComp: MarketplaceView,
+                icon: ({ selected, ...otherProps }) => selected ? <MarketplaceIcon {...otherProps} width={"24px"}/> : <MarketplaceIcon {...otherProps} width={"24px"}/>,
+              },
+            ]
+          },
+
+          {
+            items: [
+              {
                 text: <TabLabel>{trans("home.allApplications")}</TabLabel>,
                 routePath: ALL_APPLICATIONS_URL,
                 routeComp: HomeView,
@@ -349,30 +401,17 @@ export default function ApplicationHome() {
                 routePath: MODULE_APPLICATIONS_URL,
                 routeComp: ModuleView,
                 icon: ({ selected, ...otherProps }) => selected ? <HomeModuleIcon {...otherProps} width={"24px"}/> : <HomeModuleIcon {...otherProps} width={"24px"}/>,
-                visible: ({ user }) => user.orgDev,
+                visible: ({ user }) => isOrgAdmin,
               },
-              {
-                text: <TabLabel>{trans("home.marketplace")}</TabLabel>,
-                routePath: MARKETPLACE_URL,
-                routePathExact: false,
-                routeComp: MarketplaceView,
-                icon: ({ selected, ...otherProps }) => selected ? <MarketplaceIcon {...otherProps} width={"24px"}/> : <MarketplaceIcon {...otherProps} width={"24px"}/>,
-                visible: ({ user }) => user.orgDev,
-              },
-              {
-                text: <TabLabel>{trans("home.trash")}</TabLabel>,
-                routePath: TRASH_URL,
-                routeComp: TrashView,
-                icon: ({ selected, ...otherProps }) => selected ? <RecyclerIcon {...otherProps} width={"24px"}/> : <RecyclerIcon {...otherProps} width={"24px"}/>,
-                visible: ({ user }) => user.orgDev,
-              },
+              
             ],
           },
+
           allFolders.length > 0
             ? {
                 title: (
                   <FolderSectionLabel>
-                    {trans("home.folders")}
+                    {trans("home.yourFolders")}
                     <FolderCountLabel>{`(${allFolders.length})`}</FolderCountLabel>
                     {user.orgDev && (
                       <CreateFolderIcon onClick={handleFolderCreate}>
@@ -385,8 +424,10 @@ export default function ApplicationHome() {
                 style: { marginTop: "8px" },
               }
             : { items: [] },
+          
           {
             items: [
+              
               {
                 text: <TabLabel>{trans("home.queryLibrary")}</TabLabel>,
                 routePath: QUERY_LIBRARY_URL,
@@ -404,14 +445,12 @@ export default function ApplicationHome() {
                 onSelected: (_, currentPath) => currentPath.split("/")[1] === "datasource",
               },
               {
-                text: <TabLabel>{trans("settings.title")}</TabLabel>,
-                routePath: SETTING,
-                routePathExact: false,
-                routeComp: Setting,
-                icon: ({ selected, ...otherProps }) => selected ? <HomeSettingIcon {...otherProps} width={"24px"}/> : <HomeSettingIcon {...otherProps} width={"24px"}/>,
+                text: <TabLabel>{trans("home.api")}</TabLabel>,
+                routePath: API_DOCS_URL,
+                routeComp: ApiDocView,
+                icon: ({ selected, ...otherProps }) => selected ? <APIDocsIcon {...otherProps} width={"24px"}/> : <APIDocsIcon {...otherProps} width={"24px"}/>,
                 visible: ({ user }) => user.orgDev,
-                onSelected: (_, currentPath) => currentPath.split("/")[1] === "setting",
-              },
+              }
             ],
           },
           isEE() ? {
@@ -426,6 +465,33 @@ export default function ApplicationHome() {
               },
             ],
           } : { items: [] },
+
+          {
+            items: [
+              {
+                text: <TabLabel>{trans("settings.title")}</TabLabel>,
+                routePath: SETTING,
+                routePathExact: false,
+                routeComp: Setting,
+                icon: ({ selected, ...otherProps }) => selected ? <HomeSettingIcon {...otherProps} width={"24px"}/> : <HomeSettingIcon {...otherProps} width={"24px"}/>,
+                visible: ({ user }) => user.orgDev,
+                onSelected: (_, currentPath) => currentPath.split("/")[1] === "setting",
+              },
+            ]
+          },
+
+          {
+            items: [
+              {
+                text: <TabLabel>{trans("home.trash")}</TabLabel>,
+                routePath: TRASH_URL,
+                routeComp: TrashView,
+                icon: ({ selected, ...otherProps }) => selected ? <RecyclerIcon {...otherProps} width={"24px"}/> : <RecyclerIcon {...otherProps} width={"24px"}/>,
+                visible: ({ user }) => user.orgDev,
+              },
+            ],
+          },
+
         ]}
       />
       {user.orgDev && (

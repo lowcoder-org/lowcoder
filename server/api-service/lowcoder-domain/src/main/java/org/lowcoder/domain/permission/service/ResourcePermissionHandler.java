@@ -88,7 +88,7 @@ abstract class ResourcePermissionHandler implements ResourcePermissionHandlerSer
             return publicResourcePermissionMono;
         }
 
-        Mono<UserPermissionOnResourceStatus> nonAnonymousPublicResourcePermissionMono = getNonAnonymousUserPublicResourcePermissions(singletonList(resourceId), resourceAction)
+        Mono<UserPermissionOnResourceStatus> nonAnonymousPublicResourcePermissionMono = getNonAnonymousUserPublicResourcePermissions(singletonList(resourceId), resourceAction, userId)
                 .map(it -> it.getOrDefault(resourceId, emptyList()))
                 .map(it -> {
                     if (!it.isEmpty()) {
@@ -141,13 +141,13 @@ abstract class ResourcePermissionHandler implements ResourcePermissionHandlerSer
             ResourceAction resourceAction);
 
     protected abstract Mono<Map<String, List<ResourcePermission>>> getNonAnonymousUserPublicResourcePermissions
-            (Collection<String> resourceIds, ResourceAction resourceAction);
+            (Collection<String> resourceIds, ResourceAction resourceAction, String userId);
 
     protected abstract Mono<Map<String, List<ResourcePermission>>> getAnonymousUserApplicationPermissions(Collection<String> resourceIds,
             ResourceAction resourceAction, ApplicationRequestType requestType);
 
     protected abstract Mono<Map<String, List<ResourcePermission>>> getNonAnonymousUserApplicationPublicResourcePermissions
-            (Collection<String> resourceIds, ResourceAction resourceAction, ApplicationRequestType requestType);
+            (Collection<String> resourceIds, ResourceAction resourceAction, ApplicationRequestType requestType, String userId);
     
     
     private Mono<Map<String, List<ResourcePermission>>> getAllMatchingPermissions0(String userId, String orgId, ResourceType resourceType,
@@ -229,7 +229,7 @@ abstract class ResourcePermissionHandler implements ResourcePermissionHandlerSer
             return publicResourcePermissionMono;
         }
 
-        Mono<UserPermissionOnResourceStatus> nonAnonymousPublicResourcePermissionMono = getNonAnonymousUserApplicationPublicResourcePermissions(singletonList(resourceId), resourceAction, requestType)
+        Mono<UserPermissionOnResourceStatus> nonAnonymousPublicResourcePermissionMono = getNonAnonymousUserApplicationPublicResourcePermissions(singletonList(resourceId), resourceAction, requestType, userId)
                 .map(it -> it.getOrDefault(resourceId, emptyList()))
                 .map(it -> {
                     if (!it.isEmpty()) {

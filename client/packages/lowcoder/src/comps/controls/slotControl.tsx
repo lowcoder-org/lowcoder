@@ -10,7 +10,7 @@ import { BackgroundColorContext } from "comps/utils/backgroundColorContext";
 import { CanvasContainerID } from "constants/domLocators";
 import { Layers } from "constants/Layers";
 import { trans } from "i18n";
-import { changeChildAction, ConstructorToView } from "lowcoder-core";
+import { changeChildAction, CompActionTypes, ConstructorToView } from "lowcoder-core";
 import { HintPlaceHolder, TacoButton } from "lowcoder-design";
 import { createContext, useContext } from "react";
 import styled from "styled-components";

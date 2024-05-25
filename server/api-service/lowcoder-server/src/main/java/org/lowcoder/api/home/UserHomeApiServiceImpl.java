@@ -104,6 +104,7 @@ public class UserHomeApiServiceImpl implements UserHomeApiService {
                                         .id(user.getId())
                                         .username(user.getName())
                                         .isAnonymous(user.isAnonymous())
+                                        .uiLanguage(user.getUiLanguage())
                                         .avatarUrl(user.getAvatarUrl())
                                         .avatar(user.getAvatar())
                                         .connections(user.getConnections())

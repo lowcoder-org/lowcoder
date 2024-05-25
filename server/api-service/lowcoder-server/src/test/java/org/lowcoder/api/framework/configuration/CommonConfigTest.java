@@ -1,9 +1,9 @@
 package org.lowcoder.api.framework.configuration;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import org.junit.jupiter.api.Test;
 import org.lowcoder.sdk.config.CommonConfig;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class CommonConfigTest 
 {

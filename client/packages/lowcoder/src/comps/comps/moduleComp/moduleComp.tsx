@@ -68,7 +68,7 @@ type UpdateDslAction = {
   moduleDsl: Record<string, DSLType>;
 };
 
-type ModuleReadyAction = {
+export type ModuleReadyAction = {
   type: "moduleReady";
   comp: RootComp;
 };
@@ -263,7 +263,6 @@ class ModuleTmpComp extends ModuleCompBase {
 
   override reduce(action: CompAction<JSONValue>): this {
     const appId = this.children.appId.getView();
-
     // init
     if (isMyCustomAction<InitAction>(action, "init")) {
       if (getReduceContext().disableUpdateState) return this;

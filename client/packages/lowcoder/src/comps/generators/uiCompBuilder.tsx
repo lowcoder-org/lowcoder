@@ -1,4 +1,4 @@
-import { BoolCodeControl } from "comps/controls/codeControl";
+import { BoolCodeControl, StringControl } from "comps/controls/codeControl";
 import React, { ReactNode, useContext, useRef } from "react";
 import { ExternalEditorContext } from "util/context/ExternalEditorContext";
 import { Comp, CompParams, MultiBaseComp } from "lowcoder-core";
@@ -22,10 +22,14 @@ import {
   MethodConfigsType,
   withMethodExposing,
 } from "./withMethodExposing";
+import { Section } from "lowcoder-design";
+import { trans } from "i18n";
 
 export type NewChildren<ChildrenCompMap extends Record<string, Comp<unknown>>> =
   ChildrenCompMap & {
     hidden: InstanceType<typeof BoolCodeControl>;
+    className: InstanceType<typeof StringControl>;
+    dataTestId: InstanceType<typeof StringControl>;
   };
 
 export function HidableView(props: {
@@ -50,12 +54,35 @@ export function HidableView(props: {
   }
 }
 
+export function ExtendedPropertyView<
+  ChildrenCompMap extends Record<string, Comp<unknown>>,
+>(props: {
+  children: JSX.Element | React.ReactNode,
+  childrenMap: NewChildren<ChildrenCompMap>
+}
+) {
+  return (
+    <>
+      {props.children}
+      <Section name={trans("prop.component")}>
+        {props.childrenMap.className?.propertyView({ label: trans("prop.className") })}
+        {props.childrenMap.dataTestId?.propertyView({ label: trans("prop.dataTestId") })}
+      </Section>
+    </>
+  );
+}
+
 export function uiChildren<
   ChildrenCompMap extends Record<string, Comp<unknown>>,
 >(
   childrenMap: ToConstructor<ChildrenCompMap>
 ): ToConstructor<NewChildren<ChildrenCompMap>> {
-  return { ...childrenMap, hidden: BoolCodeControl } as any;
+  return {
+    ...childrenMap,
+    hidden: BoolCodeControl,
+    className: StringControl,
+    dataTestId: StringControl
+  } as any;
 }
 
 type ViewReturn = ReactNode;
@@ -89,8 +116,20 @@ export class UICompBuilder<
   setPropertyViewFn(
     propertyViewFn: PropertyViewFnTypeForComp<NewChildren<ChildrenCompMap>>
   ) {
-    this.propertyViewFn = propertyViewFn;
+    this.propertyViewFn = this.decoratePropertyViewFn(propertyViewFn);
     return this;
+  }
+
+  decoratePropertyViewFn(
+    propertyViewFn: PropertyViewFnTypeForComp<NewChildren<ChildrenCompMap>>
+  ): PropertyViewFnTypeForComp<NewChildren<ChildrenCompMap>> {
+    return (childrenMap, dispatch) => {
+      return (
+        <ExtendedPropertyView childrenMap={childrenMap}>
+          {propertyViewFn(childrenMap, dispatch)}
+        </ExtendedPropertyView>
+      );
+    };
   }
 
   setExposeStateConfigs(
@@ -110,8 +149,11 @@ export class UICompBuilder<
   }
 
   build() {
-    if (this.childrenMap.hasOwnProperty("hidden")) {
-      throw new Error("already has hidden");
+    const reservedProps = ["hidden", "className", "dataTestId"];
+    for (const reservedProp of reservedProps) {
+      if (this.childrenMap.hasOwnProperty(reservedProp)) {
+        throw new Error(`Property »${reservedProp}« is reserved and must not be implemented in components!`);
+      }
     }
     const newChildrenMap = uiChildren(this.childrenMap);
     const builder = this;
@@ -122,7 +164,7 @@ export class UICompBuilder<
       ToNodeType<NewChildren<ChildrenCompMap>>
     > {
       ref: React.RefObject<HTMLDivElement> = React.createRef();
-      
+
       override parseChildrenFromValue(
         params: CompParams<ToDataType<NewChildren<ChildrenCompMap>>>
       ): NewChildren<ChildrenCompMap> {
@@ -138,7 +180,13 @@ export class UICompBuilder<
       }
 
       override getView(): ViewReturn {
-        return (<div ref={this.ref}><UIView comp={this} viewFn={builder.viewFn} /></div>);
+        return (
+          <UIView
+            innerRef={this.ref}
+            comp={this}
+            viewFn={builder.viewFn}
+          />
+        );
       }
 
       override getPropertyView(): ReactNode {
@@ -165,9 +213,12 @@ export const DisabledContext = React.createContext<boolean>(false);
 /**
  * Guaranteed to be in a react component, so that react hooks can be used internally
  */
-function UIView(props: { comp: any; viewFn: any }) {
+function UIView(props: {
+  innerRef: React.RefObject<HTMLDivElement>;
+  comp: any;
+  viewFn: any;
+}) {
   const comp = props.comp;
-
   const childrenProps = childrenToProps(comp.children);
   const parentDisabled = useContext(DisabledContext);
   const disabled = childrenProps["disabled"];
@@ -184,9 +235,34 @@ function UIView(props: { comp: any; viewFn: any }) {
   }
   //END ADD BY FRED
 
+  if (comp.children.hasOwnProperty('showMask') && comp.children.hasOwnProperty('maskClosable')) {
+    return (
+      <HidableView hidden={childrenProps.hidden as boolean}>
+        {props.viewFn(
+          childrenProps,
+          comp.dispatch
+        )}
+      </HidableView>
+    );
+  }
+
   return (
-    <HidableView hidden={childrenProps.hidden as boolean}>
-      {props.viewFn(childrenProps, comp.dispatch)}
-    </HidableView>
+    <div
+      ref={props.innerRef}
+      className={childrenProps.className as string}
+      data-testid={childrenProps.dataTestId as string}
+      style={{
+        width: "100%",
+        height: "100%",
+        margin: "0px",
+        padding: "0px",
+      }}>
+      <HidableView hidden={childrenProps.hidden as boolean}>
+        {props.viewFn(
+          childrenProps,
+          comp.dispatch
+        )}
+      </HidableView>
+    </div>
   );
 }

@@ -5,7 +5,7 @@ import { ChangeEventHandlerControl } from "comps/controls/eventHandlerControl";
 import { LabelControl } from "comps/controls/labelControl";
 import { SelectOptionControl } from "comps/controls/optionsControl";
 import { styleControl } from "comps/controls/styleControl";
-import { SegmentStyle, SegmentStyleType } from "comps/controls/styleControlConstants";
+import { AnimationStyle, SegmentStyle, SegmentStyleType } from "comps/controls/styleControlConstants";
 import styled, { css } from "styled-components";
 import { UICompBuilder } from "../../generators";
 import { CommonNameConfig, NameConfig, withExposingConfigs } from "../../generators/withExposing";
@@ -25,15 +25,13 @@ import { RefControl } from "comps/controls/refControl";
 
 import { useContext } from "react";
 import { EditorContext } from "comps/editorState";
-import { migrateOldData } from "comps/generators/simpleGenerators";
+import { migrateOldData, withDefault } from "comps/generators/simpleGenerators";
 import { fixOldInputCompData } from "../textInputComp/textInputConstants";
 
 
 const getStyle = (style: SegmentStyleType) => {
   return css`
     &.ant-segmented:not(.ant-segmented-disabled) {
-      background-color: ${style.background};
-
       &,
       .ant-segmented-item-selected,
       .ant-segmented-thumb,
@@ -79,7 +77,8 @@ const SegmentChildrenMap = {
   disabled: BoolCodeControl,
   onEvent: ChangeEventHandlerControl,
   options: SelectOptionControl,
-  style: styleControl(SegmentStyle),
+  style: withDefault(styleControl(SegmentStyle), { borderWidth: '1px' }),
+  animationStyle:styleControl(AnimationStyle),
   viewRef: RefControl<HTMLDivElement>,
 
   ...SelectInputValidationChildren,
@@ -95,6 +94,7 @@ let SegmentedControlBasicComp = (function () {
     return props.label({
       required: props.required,
       style: props.style,
+      animationStyle: props.animationStyle,
       children: (
         <Segmented
           ref={props.viewRef}
@@ -140,9 +140,14 @@ let SegmentedControlBasicComp = (function () {
         )}
 
         {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+          <>
           <Section name={sectionNames.style}>
             {children.style.getPropertyView()}
           </Section>
+          <Section name={sectionNames.animationStyle}>
+            {children.animationStyle.getPropertyView()}
+            </Section>
+            </>
         )}
       </>
     ))

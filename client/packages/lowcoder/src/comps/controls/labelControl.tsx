@@ -15,7 +15,7 @@ import { AlignLeft } from "lowcoder-design";
 import { AlignRight } from "lowcoder-design";
 import { StarIcon } from "lowcoder-design";
 
-import { LabelStyleType, heightCalculator, widthCalculator } from "./styleControlConstants";
+import { AnimationStyleType, LabelStyleType, heightCalculator, widthCalculator } from "./styleControlConstants";
 
 type LabelViewProps = Pick<FormItemProps, "required" | "help" | "validateStatus"> & {
   children: ReactNode;
@@ -23,6 +23,8 @@ type LabelViewProps = Pick<FormItemProps, "required" | "help" | "validateStatus"
   labelStyle?: Record<string, string>;
   field?: Record<string, string>;
   inputFieldStyle?: Record<string, string>;
+  childrenInputFieldStyle?: Record<string, string>;
+  animationStyle?: Record<string, string>;
 };
 
 const StyledStarIcon = styled(StarIcon)`
@@ -43,19 +45,23 @@ function getStyle(style: any) {
   `;
 }
 
-const LabelViewWrapper = styled.div<{ $style: any, inputFieldStyle: any }>`
+const LabelViewWrapper = styled.div<{ $style: any, inputFieldStyle: any,$animationStyle:any }>`
 ${(props) => {
     return (
       props.$style && {
         ...props.$style,
         borderRadius: props.$style.radius,
+        rotate: props.$style.rotation,
+        boxShadow: `${props.$style.boxShadow} ${props.$style.boxShadowColor}`,
       }
     );
   }}
   ${(props) => props.inputFieldStyle && getStyle(props.inputFieldStyle)}
+  ${(props) => props.$animationStyle && props.$animationStyle}
   display: flex;
   flex-direction: column;
   height: 100%;
+  border: ${(props)=>{return props.$style.borderWidth}} ${(props)=>{return props.$style.borderStyle}} ${(props)=>{return props.$style.border}} !important;
 `;
 
 const MainWrapper = styled.div<{
@@ -168,8 +174,9 @@ export const LabelControl = (function () {
     align: dropdownControl(AlignOptions, "left"),
   };
 
-  return new MultiCompBuilder(childrenMap, (props) => (args: LabelViewProps) => (
- <LabelViewWrapper $style={args.style} inputFieldStyle={args.inputFieldStyle}>
+  return new MultiCompBuilder(childrenMap, (props) => (args: LabelViewProps) => 
+  {
+    return <LabelViewWrapper $style={args.style} inputFieldStyle={args.inputFieldStyle} $animationStyle={args.animationStyle}>
       <MainWrapper
         $position={props.position}
         $hasLabel={!!props.text}
@@ -246,8 +253,8 @@ export const LabelControl = (function () {
           {args.help}
         </HelpWrapper>
       )}
-    </LabelViewWrapper>
-))
+    </LabelViewWrapper>}
+)
     .setPropertyViewFn((children) => (
       <Section name={trans("label")}>
         {children.text.propertyView({ label: trans("labelProp.text") })}

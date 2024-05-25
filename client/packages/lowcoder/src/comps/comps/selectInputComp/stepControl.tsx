@@ -7,7 +7,7 @@ import { StepOptionControl } from "comps/controls/optionsControl";
 import { styleControl } from "comps/controls/styleControl";
 import { StepsStyle, StepsStyleType, heightCalculator, widthCalculator, marginCalculator } from "comps/controls/styleControlConstants";
 import styled, { css } from "styled-components";
-import { UICompBuilder } from "../../generators";
+import { UICompBuilder, withDefault } from "../../generators";
 import { CommonNameConfig, NameConfig, withExposingConfigs } from "../../generators/withExposing";
 import { selectDivRefMethods, } from "./selectInputConstants";
 import { Section, sectionNames } from "lowcoder-design";
@@ -91,7 +91,7 @@ const StepsChildrenMap = {
   disabled: BoolCodeControl,
   onEvent: ChangeEventHandlerControl,
   options: StepOptionControl,
-  style: styleControl(StepsStyle),
+  style: withDefault( styleControl(StepsStyle), {text:'#D7D9E0'}),
   viewRef: RefControl<HTMLDivElement>
 };
 
@@ -112,11 +112,12 @@ let StepControlBasicComp = (function () {
       font-size: ${props.style.textSize};
       text-transform: ${props.style.textTransform};
       margin: ${props.style.margin};
+      rotate: ${props.style.rotation};
       padding: ${props.style.padding};
       background-color: ${props.style.background};
       border: ${props.style.borderWidth} solid ${props.style.border};
       border-radius: ${props.style.radius};
-      background-image: ${props.style.backgroundImage};
+      background-image: url(${props.style.backgroundImage});
       background-repeat: ${props.style.backgroundImageRepeat};
       background-size: ${props.style.backgroundImageSize};
       background-position: ${props.style.backgroundImagePosition};

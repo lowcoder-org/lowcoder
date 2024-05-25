@@ -3,6 +3,7 @@ import {
   ContainerStyleType,
   heightCalculator,
   widthCalculator,
+  AnimationStyleType,
 } from "comps/controls/styleControlConstants";
 import { EditorContext } from "comps/editorState";
 import { BackgroundColorContext } from "comps/utils/backgroundColorContext";
@@ -67,7 +68,11 @@ const getStyle = (style: TextStyleType) => {
   `;
   }
 
-const Wrapper = styled.div<{ $style: ContainerStyleType }>`
+const Wrapper = styled.div<{
+  $style: ContainerStyleType;
+  $animationStyle?: AnimationStyleType;
+}>`
+${props=>props.$animationStyle&&props.$animationStyle}
   display: flex;
   flex-flow: column;
   height: 100%;
@@ -76,7 +81,7 @@ const Wrapper = styled.div<{ $style: ContainerStyleType }>`
   background-color: ${(props) => props.$style.background};
   padding: ${(props) => props.$style.padding};
   margin: ${(props) => props.$style.margin};
-  ${(props) => props.$style.backgroundImage && `background-image: ${props.$style.backgroundImage};`}
+  ${(props) => props.$style.backgroundImage && `background-image: url(${props.$style.backgroundImage});`}
   ${(props) => props.$style.backgroundImageRepeat && `background-repeat: ${props.$style.backgroundImageRepeat};`}
   ${(props) => props.$style.backgroundImageSize && `background-size: ${props.$style.backgroundImageSize};`}
   ${(props) => props.$style.backgroundImagePosition && `background-position: ${props.$style.backgroundImagePosition};`}
@@ -92,20 +97,10 @@ const FloatTextWrapper = styled.div<{ $style: TextStyleType, $horizontalAlignmen
 
 const HeaderInnerGrid = styled(InnerGrid)<{
   $backgroundColor: string
-  $headerBackgroundImage: string;
-  $headerBackgroundImageRepeat: string;
-  $headerBackgroundImageSize: string;
-  $headerBackgroundImagePosition: string;
-  $headerBackgroundImageOrigin: string;
  }>`
   overflow: visible;
   ${(props) => props.$backgroundColor && `background-color: ${props.$backgroundColor};`}
   border-radius: 0;
-  ${(props) => props.$headerBackgroundImage && `background-image: ${props.$headerBackgroundImage};`}
-  ${(props) => props.$headerBackgroundImageRepeat && `background-repeat: ${props.$headerBackgroundImageRepeat};`}
-  ${(props) => props.$headerBackgroundImageSize && `background-size: ${props.$headerBackgroundImageSize};`}
-  ${(props) => props.$headerBackgroundImagePosition && `background-position: ${props.$headerBackgroundImagePosition};`}
-  ${(props) => props.$headerBackgroundImageOrigin && `background-origin: ${props.$headerBackgroundImageOrigin};`}
 `;
 
 const BodyInnerGrid = styled(InnerGrid)<{
@@ -113,21 +108,11 @@ const BodyInnerGrid = styled(InnerGrid)<{
   $backgroundColor: string;
   $borderColor: string;
   $borderWidth: string;
-  $backgroundImage: string;
-  $backgroundImageRepeat: string;
-  $backgroundImageSize: string;
-  $backgroundImagePosition: string;
-  $backgroundImageOrigin: string;
 }>`
   border-top: ${(props) => `${props.$showBorder ? props.$borderWidth : 0} solid ${props.$borderColor}`};
   flex: 1;
   ${(props) => props.$backgroundColor && `background-color: ${props.$backgroundColor};`}
   border-radius: 0;
-  ${(props) => props.$backgroundImage && `background-image: ${props.$backgroundImage};`}
-  ${(props) => props.$backgroundImageRepeat && `background-repeat: ${props.$backgroundImageRepeat};`}
-  ${(props) => props.$backgroundImageSize && `background-size: ${props.$backgroundImageSize};`}
-  ${(props) => props.$backgroundImagePosition && `background-position: ${props.$backgroundImagePosition};`}
-  ${(props) => props.$backgroundImageOrigin && `background-origin: ${props.$backgroundImageOrigin};`}
 `;
 
 const FooterInnerGrid = styled(InnerGrid)<{
@@ -145,7 +130,7 @@ const FooterInnerGrid = styled(InnerGrid)<{
   overflow: visible;
   ${(props) => props.$backgroundColor && `background-color: ${props.$backgroundColor};`}
   border-radius: 0;
-  ${(props) => props.$footerBackgroundImage && `background-image: ${props.$footerBackgroundImage};`}
+  ${(props) => props.$footerBackgroundImage && `background-image: url(${props.$footerBackgroundImage});`}
   ${(props) => props.$footerBackgroundImageRepeat && `background-repeat: ${props.$footerBackgroundImageRepeat};`}
   ${(props) => props.$footerBackgroundImageSize && `background-size: ${props.$footerBackgroundImageSize};`}
   ${(props) => props.$footerBackgroundImagePosition && `background-position: ${props.$footerBackgroundImagePosition};`}
@@ -162,10 +147,11 @@ export type TriContainerProps = TriContainerViewProps & {
   width: string;
   style: TextStyleType;
   horizontalAlignment: string;
+  animationStyle?: AnimationStyleType;
 };
 
 export function TriContainer(props: TriContainerProps) {
-  const { container, text } = props;
+  const {container, text, animationStyle} = props;
   const { showHeader, showFooter } = container;
   // When the header and footer are not displayed, the body must be displayed
   const showBody = container.showBody || (!showHeader && !showFooter);
@@ -188,7 +174,7 @@ export function TriContainer(props: TriContainerProps) {
   } = container; 
 
   return (
-    <Wrapper $style={style}>
+    <Wrapper $style={style} $animationStyle={animationStyle}>
       {showHeader && (
         <BackgroundColorContext.Provider
           value={container.style.background}
@@ -202,11 +188,6 @@ export function TriContainer(props: TriContainerProps) {
               containerPadding={[0, 0]}
               showName={{ bottom: showFooter ? 20 : 0 }}
               $backgroundColor={headerStyle?.headerBackground || 'transparent'}
-              $headerBackgroundImage={headerStyle?.headerBackgroundImage}
-              $headerBackgroundImageRepeat={headerStyle?.headerBackgroundImageRepeat}
-              $headerBackgroundImageSize={headerStyle?.headerBackgroundImageSize}
-              $headerBackgroundImagePosition={headerStyle?.headerBackgroundImagePosition}
-              $headerBackgroundImageOrigin={headerStyle?.headerBackgroundImageOrigin}
               style={{ padding: headerStyle.containerHeaderPadding }} />
         </BackgroundColorContext.Provider>
       )}
@@ -230,11 +211,6 @@ export function TriContainer(props: TriContainerProps) {
               $backgroundColor={bodyStyle?.background || 'transparent'}
               $borderColor={style?.border}
               $borderWidth={style?.borderWidth}
-              $backgroundImage={bodyStyle?.backgroundImage}
-              $backgroundImageRepeat={bodyStyle?.backgroundImageRepeat}
-              $backgroundImageSize={bodyStyle?.backgroundImageSize}
-              $backgroundImagePosition={bodyStyle?.backgroundImagePosition}
-              $backgroundImageOrigin={bodyStyle?.backgroundImageOrigin}
               style={{
                 float: `${props.float}`,
                 width: `${props.float === "none" ? "100%" : `${props.width}%`}`,

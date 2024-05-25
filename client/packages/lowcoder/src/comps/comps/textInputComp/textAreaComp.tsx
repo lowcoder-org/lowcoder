@@ -22,7 +22,7 @@ import {
 import { withMethodExposing, refMethods } from "../../generators/withMethodExposing";
 import { styleControl } from "comps/controls/styleControl";
 import styled from "styled-components";
-import {  InputFieldStyle, InputLikeStyle, InputLikeStyleType, LabelStyle } from "comps/controls/styleControlConstants";
+import {  AnimationStyle, InputFieldStyle, InputLikeStyle, InputLikeStyleType, LabelStyle } from "comps/controls/styleControlConstants";
 import { TextArea } from "components/TextArea";
 import {
   allowClearPropertyView,
@@ -71,9 +71,10 @@ let TextAreaTmpComp = (function () {
     viewRef: RefControl<TextAreaRef>,
     allowClear: BoolControl,
     autoHeight: withDefault(AutoHeightControl, "fixed"),
-    style: styleControl(InputFieldStyle),
+    style: withDefault(styleControl(InputFieldStyle),{background:'transparent'}) , 
     labelStyle: styleControl(LabelStyle),
-    inputFieldStyle: styleControl(InputLikeStyle)
+    inputFieldStyle:  withDefault(styleControl(InputLikeStyle), {borderWidth: '1px'}),
+    animationStyle: styleControl(AnimationStyle)
   };
   return new UICompBuilder(childrenMap, (props) => {
     const [inputProps, validateState] = useTextInputProps(props);
@@ -93,6 +94,7 @@ let TextAreaTmpComp = (function () {
       ),
       style: props.style,
       labelStyle: props.labelStyle,
+      animationStyle: props.animationStyle,
       ...validateState,
     });
   })
@@ -123,6 +125,7 @@ let TextAreaTmpComp = (function () {
             <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
             <Section name={sectionNames.labelStyle}>{children.labelStyle.getPropertyView()}</Section>
             <Section name={sectionNames.inputFieldStyle}>{children.inputFieldStyle.getPropertyView()}</Section>
+            <Section name={sectionNames.animationStyle}>{children.animationStyle.getPropertyView()}</Section>
           </>
         )}
       </>

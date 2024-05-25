@@ -67,6 +67,8 @@ const getStyle = (
         &,
         > td {
           background: ${genLinerGradient(rowStyle.background)};
+          border-bottom:${rowStyle.borderWidth} ${rowStyle.borderStyle} ${rowStyle.border} !important;
+          border-right:${rowStyle.borderWidth} ${rowStyle.borderStyle} ${rowStyle.border} !important;
         }
       }
 
@@ -74,6 +76,8 @@ const getStyle = (
         &,
         > td {
           background: ${alternateBackground};
+          border-bottom:${rowStyle.borderWidth} ${rowStyle.borderStyle} ${rowStyle.border} !important;
+          border-right:${rowStyle.borderWidth} ${rowStyle.borderStyle} ${rowStyle.border} !important;
         }
       }
 
@@ -136,14 +140,15 @@ const BackgroundWrapper = styled.div<{
   $style: TableStyleType;
   $tableAutoHeight: boolean;
 }>`  
-  ${(props) => !props.$tableAutoHeight && `height: calc(100% - ${props.$style.margin} - ${props.$style.margin});`}
   background: ${(props) => props.$style.background} !important;
-  border: ${(props) => `${props.$style.borderWidth} solid ${props.$style.border} !important`};
+  // border: ${(props) => `${props.$style.border} !important`};
   border-radius: ${(props) => props.$style.radius} !important;
   // padding: unset !important;
-  padding: ${(props) => props.$style.padding} !important
+  padding: ${(props) => props.$style.padding} !important;
   margin: ${(props) => props.$style.margin} !important;
   overflow: scroll !important;
+  border-style:${(props) => props.$style.borderStyle} !important;
+  border-width: ${(props) => `${props.$style.borderWidth} !important`};
   ${(props) => props.$style}
 `;
 
@@ -339,7 +344,6 @@ const TableTd = styled.td<{
   }
   background: ${(props) => props.$background} !important;
   border-color: ${(props) => props.$style.border} !important;
-  border-width: ${(props) => props.$style.borderWidth} !important;
   border-radius: ${(props) => props.$style.radius};
 
   padding: 0 !important;
@@ -473,6 +477,7 @@ type CustomTableProps<RecordType> = Omit<TableProps<RecordType>, "components" | 
   columnsStyle: TableColumnStyleType;
   size?: string;
   rowAutoHeight?: boolean;
+  onCellClick: (columnName: string, dataIndex: string) => void;
 };
 
 function TableCellView(props: {
@@ -533,7 +538,7 @@ function TableCellView(props: {
       text: columnStyle.text || columnsStyle.text,
       border: columnStyle.border || columnsStyle.border,
       radius: columnStyle.radius || columnsStyle.radius,
-      borderWidth: columnStyle.borderWidth || columnsStyle.borderWidth,
+      // borderWidth: columnStyle.borderWidth || columnsStyle.borderWidth,
       textSize: columnStyle.textSize || columnsStyle.textSize,
       textWeight: columnsStyle.textWeight || columnStyle.textWeight,
       fontFamily: columnsStyle.fontFamily || columnStyle.fontFamily,
@@ -627,6 +632,9 @@ function ResizeableTable<RecordType extends object>(props: CustomTableProps<Reco
         linkStyle,
         tableSize: props.size,
         autoHeight: props.rowAutoHeight,
+        onClick: () => {
+          props.onCellClick(col.titleText, String(col.dataIndex));
+        }
       }),
       onHeaderCell: () => ({
         width: resizeWidth,
@@ -864,6 +872,12 @@ export function TableCompView(props: {
                 (compChildren.data as any).isLoading()) ||
               compChildren.loading.getView()
             }
+            onCellClick={(columnName: string, dataIndex: string) => {
+              comp.children.selectedCell.dispatchChangeValueAction({
+                name: columnName,
+                dataIndex: dataIndex,
+              });
+            }}
           />
 
           <SlotConfigContext.Provider value={{ modalWidth: width && Math.max(width, 300) }}>

@@ -7,7 +7,7 @@ import lombok.extern.jackson.Jacksonized;
 import org.apache.commons.lang3.StringUtils;
 import org.lowcoder.sdk.auth.constants.AuthTypeConstants;
 import org.lowcoder.sdk.auth.constants.Oauth2Constants;
-import org.lowcoder.sdk.config.SerializeConfig.JsonViews;
+import org.lowcoder.sdk.config.JsonViews;
 
 import java.util.function.Function;
 
@@ -38,6 +38,7 @@ public class Oauth2SimpleAuthConfig extends AbstractAuthConfig {
             case AuthTypeConstants.GITHUB -> replaceAuthUrlClientIdPlaceholder(Oauth2Constants.GITHUB_AUTHORIZE_URL);
             case AuthTypeConstants.ORY -> replaceAuthUrlClientIdPlaceholder(Oauth2Constants.ORY_AUTHORIZE_URL);
             case AuthTypeConstants.KEYCLOAK -> replaceAuthUrlClientIdPlaceholder(Oauth2Constants.KEYCLOAK_AUTHORIZE_URL);
+            case AuthTypeConstants.GENERIC -> replaceAuthUrlClientIdPlaceholder(Oauth2Constants.GENERIC_AUTHORIZE_URL);
             default -> null;
         };
     }

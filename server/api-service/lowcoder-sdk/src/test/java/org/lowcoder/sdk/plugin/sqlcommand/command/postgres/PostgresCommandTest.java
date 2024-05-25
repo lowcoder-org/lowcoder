@@ -1,11 +1,6 @@
 package org.lowcoder.sdk.plugin.sqlcommand.command.postgres;
 
-import static org.lowcoder.sdk.util.JsonUtils.toJson;
-
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
+import com.google.common.collect.ImmutableMap;
 import org.assertj.core.api.Assertions;
 import org.junit.Assert;
 import org.junit.Test;
@@ -13,15 +8,14 @@ import org.lowcoder.sdk.plugin.sqlcommand.GuiSqlCommand.GuiSqlCommandRenderResul
 import org.lowcoder.sdk.plugin.sqlcommand.changeset.BulkObjectChangeSet;
 import org.lowcoder.sdk.plugin.sqlcommand.changeset.KeyValuePairChangeSet;
 import org.lowcoder.sdk.plugin.sqlcommand.command.UpdateOrDeleteSingleCommandRenderResult;
-import org.lowcoder.sdk.plugin.sqlcommand.command.postgres.PostgresBulkInsertCommand;
-import org.lowcoder.sdk.plugin.sqlcommand.command.postgres.PostgresBulkUpdateCommand;
-import org.lowcoder.sdk.plugin.sqlcommand.command.postgres.PostgresDeleteCommand;
-import org.lowcoder.sdk.plugin.sqlcommand.command.postgres.PostgresInsertCommand;
-import org.lowcoder.sdk.plugin.sqlcommand.command.postgres.PostgresUpdateCommand;
 import org.lowcoder.sdk.plugin.sqlcommand.filter.FilterSet;
 import org.lowcoder.sdk.util.SqlGuiUtils.GuiSqlValue.EscapeSql;
 
-import com.google.common.collect.ImmutableMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+import static org.lowcoder.sdk.util.JsonUtils.toJson;
 
 public class PostgresCommandTest {
 

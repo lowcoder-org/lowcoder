@@ -38,6 +38,26 @@ export interface GetUserResponse extends ApiResponse {
   } & BaseUserInfo;
 }
 
+export interface ApiKeyPayload {
+  name: string;
+  description?: string;
+}
+
+export interface ResetLostPasswordPayload {
+  token: string;
+  userEmail: string;
+  newPassword: string;
+}
+
+export interface FetchApiKeysResponse extends ApiResponse {
+  data: {
+    id: string;
+    name: string;
+    description: string;
+    token: string;
+  }
+}
+
 export type GetCurrentUserResponse = GenericApiResponse<CurrentUser>;
 
 class UserApi extends Api {
@@ -55,6 +75,11 @@ class UserApi extends Api {
   static markUserStatusURL = "/users/mark-status";
   static userDetailURL = (id: string) => `/users/userDetail/${id}`;
   static resetPasswordURL = `/users/reset-password`;
+  static forgotPasswordURL = `/users/lost-password`;
+  static resetLostPasswordURL = `/users/reset-lost-password`;
+  static fetchApiKeysURL = `/auth/api-keys`;
+  static createApiKeyURL = `/auth/api-key`;
+  static deleteApiKeyURL = (id: string) => `/auth/api-key/${id}`;
 
   static thirdPartyLogin(
     request: ThirdPartyAuthRequest & CommonLoginParam
@@ -119,6 +144,33 @@ class UserApi extends Api {
 
   static resetPassword(userId: string): AxiosPromise<ApiResponse> {
     return Api.post(UserApi.resetPasswordURL, { userId: userId });
+  }
+
+  static forgotPassword(userEmail: string): AxiosPromise<ApiResponse> {
+    return Api.post(UserApi.forgotPasswordURL, { userEmail });
+  }
+
+  static resetLostPassword(request: ResetLostPasswordPayload): AxiosPromise<ApiResponse> {
+    // console.log(request);
+    return Api.post(UserApi.resetLostPasswordURL, request);
+  }
+
+  static createApiKey({
+    name,
+    description = ''
+  }: ApiKeyPayload): AxiosPromise<ApiResponse> {
+    return Api.post(UserApi.createApiKeyURL, {
+      name,
+      description
+    });
+  }
+
+  static fetchApiKeys(): AxiosPromise<ApiResponse> {
+    return Api.get(UserApi.fetchApiKeysURL);
+  }
+
+  static deleteApiKey(apiKeyId: string): AxiosPromise<ApiResponse> {
+    return Api.delete(UserApi.deleteApiKeyURL(apiKeyId));
   }
 }
 

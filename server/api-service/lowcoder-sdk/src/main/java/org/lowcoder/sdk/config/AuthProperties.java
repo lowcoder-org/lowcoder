@@ -1,13 +1,7 @@
 package org.lowcoder.sdk.config;
 
-import static org.lowcoder.sdk.constants.AuthSourceConstants.GITHUB;
-import static org.lowcoder.sdk.constants.AuthSourceConstants.GITHUB_NAME;
-import static org.lowcoder.sdk.constants.AuthSourceConstants.GOOGLE;
-import static org.lowcoder.sdk.constants.AuthSourceConstants.GOOGLE_NAME;
-
-import java.util.ArrayList;
-import java.util.List;
-
+import lombok.Getter;
+import lombok.Setter;
 import org.lowcoder.sdk.auth.AbstractAuthConfig;
 import org.lowcoder.sdk.auth.EmailAuthConfig;
 import org.lowcoder.sdk.auth.Oauth2SimpleAuthConfig;
@@ -15,8 +9,10 @@ import org.lowcoder.sdk.auth.constants.AuthTypeConstants;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
-import lombok.Getter;
-import lombok.Setter;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.lowcoder.sdk.constants.AuthSourceConstants.*;
 
 @Getter
 @Setter

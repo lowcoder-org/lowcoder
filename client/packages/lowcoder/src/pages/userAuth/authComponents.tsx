@@ -6,6 +6,7 @@ import styled from "styled-components";
 import ReactHotkeys from "util/hotkeys";
 import { StyledLink } from "pages/common/styledComponent";
 import { trans } from "i18n";
+import { favicon } from "assets/images";
 
 const AuthCardContainer = styled.div`
   display: flex;
@@ -51,10 +52,16 @@ const AuthCardHeading = styled.div<{ $type?: string }>`
   }
 `;
 
-const AuthCardSubHeading = styled.div`
+const AuthCardSubFooter = styled.div`
   font-size: 14px;
-  color: #222222;
+  color: #dddddd;
   line-height: 14px;
+  margin-top: 40px;
+  > a {
+    margin-left: 4px;
+    color: #dddddd;
+    text-decoration: none;
+  }
 `
 
 const AuthBottom = styled.div`
@@ -62,8 +69,16 @@ const AuthBottom = styled.div`
   align-items: center;
   flex-wrap: wrap;
 
+  > a {
+    margin-right: auto;
+    margin-left: auto;
+    font-size: 1.3em;
+    font-weight: 500;
+  }
+
   > button {
     margin-right: 24px;
+    margin-left: 24px;
     margin-bottom: 16px;
     outline: 0;
   }
@@ -73,7 +88,6 @@ const AuthBottom = styled.div`
     &:nth-last-child(n + 5),
     &:nth-last-child(n + 5) ~ button {
       margin-right: 16px;
-
       .auth-label {
         display: none;
       }
@@ -135,12 +149,16 @@ export const AuthContainer = (props: {
       >
         {props.heading || ""}
       </AuthCardHeading>
-      { props.subHeading && (
-        <AuthCardSubHeading>
-          {props.subHeading}
-        </AuthCardSubHeading>
-      )}
+      
       <AuthCard>{props.children}</AuthCard>
+      { props.subHeading && (
+        <AuthCardSubFooter>
+          <img src={favicon} alt={"Lowcoder | " + trans("productDesc")} width="20px"/>
+          <a href="https://lowcoder.cloud" target="_blank" rel="noreferrer">
+            {props.subHeading}
+          </a>
+        </AuthCardSubFooter>
+      )}
     </AuthCardContainer>
   );
 };
@@ -261,11 +279,12 @@ export const StyledLoginButton = styled(TacoButton)`
 export const StyledRouteLink = styled(Link)`
   display: flex;
   align-items: center;
-
-  font-size: 16px;
+  margin-right: auto;
+  margin-left: auto;
+  font-size: 1.3em;
+  font-weight: 500;
   color: #4965f2;
   line-height: 16px;
-  margin-left: auto;
 
   &:hover {
     color: #315efb;
@@ -281,11 +300,13 @@ export const StyledRouteLinkLogin = styled(StyledRouteLink)`
 
 export const LoginCardTitle = styled.header`
   font-weight: 500;
-  font-size: 18px;
+  font-size: 2em;
   color: #222222;
   line-height: 18px;
   margin-bottom: 36px;
   margin-top: 8px;
+  margin-left: auto;
+  margin-right: auto;
   @media screen and (max-width: 640px) {
     margin: 0 0 26px 0;
   }

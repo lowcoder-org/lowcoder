@@ -20,7 +20,7 @@ import { UICompBuilder, withDefault } from "../../generators";
 import { CommonNameConfig, depsConfig, withExposingConfigs } from "../../generators/withExposing";
 import { formDataChildren, FormDataPropertyView } from "../formComp/formDataConstants";
 import { styleControl } from "comps/controls/styleControl";
-import {  DateTimeStyle, DateTimeStyleType, InputFieldStyle, LabelStyle } from "comps/controls/styleControlConstants";
+import {  AnimationStyle, DateTimeStyle, DateTimeStyleType, InputFieldStyle, LabelStyle } from "comps/controls/styleControlConstants";
 import { withMethodExposing } from "../../generators/withMethodExposing";
 import {
   disabledPropertyView,
@@ -50,6 +50,11 @@ import { DateRangeUIView } from "comps/comps/dateComp/dateRangeUIView";
 
 import { EditorContext } from "comps/editorState";
 
+const defaultStyle = {
+  borderStyle: 'solid',
+  borderWidth: '1px',
+}
+
 const EventOptions = [changeEvent, focusEvent, blurEvent] as const;
 
 const validationChildren = {
@@ -72,11 +77,12 @@ const commonChildren = {
   minuteStep: RangeControl.closed(1, 60, 1),
   secondStep: RangeControl.closed(1, 60, 1),
   style: styleControl(InputFieldStyle),
+  animationStyle: styleControl(AnimationStyle),
   labelStyle: styleControl(LabelStyle.filter((style) => ['accent', 'validate'].includes(style.name) === false)),
   suffixIcon: withDefault(IconControl, "/icon:regular/calendar"),
   ...validationChildren,
   viewRef: RefControl<CommonPickerMethods>,
-  inputFieldStyle:styleControl(DateTimeStyle)
+  inputFieldStyle: withDefault(styleControl(DateTimeStyle), defaultStyle),
 };
 type CommonChildrenType = RecordConstructorToComp<typeof commonChildren>;
 
@@ -114,6 +120,7 @@ const timeValidationFields = (children: CommonChildrenType, dateType: PickerMode
 function validate(
   props: RecordConstructorToView<typeof validationChildren> & {
     value: { value: string };
+    showTime: boolean;
   }
 ): {
   validateStatus: "success" | "warning" | "error";
@@ -122,10 +129,9 @@ function validate(
   if (props.customRule) {
     return { validateStatus: "error", help: props.customRule };
   }
+  const currentDateTime = dayjs(props.value.value, DateParser);
 
-  const currentDateTime = dayjs(dayjs(props.value.value), DATE_TIME_FORMAT);
-
-  if (props.required && !currentDateTime.isValid()) {
+  if (props.required && (props.value.value === '' || !currentDateTime.isValid())) {
     return { validateStatus: "error", help: trans("prop.required") };
   }
 
@@ -164,11 +170,13 @@ export const datePickerControl = new UICompBuilder(childrenMap, (props) => {
   if (props.value.value !== '') {
     time = dayjs(props.value.value, DateParser);
   }
+
   return props.label({
     required: props.required,
     style: props.style,
     labelStyle: props.labelStyle,
     inputFieldStyle:props.inputFieldStyle,
+    animationStyle:props.animationStyle,
     children: (
       <DateUIView
         viewRef={props.viewRef}
@@ -257,6 +265,9 @@ export const datePickerControl = new UICompBuilder(childrenMap, (props) => {
             </Section>
             <Section name={sectionNames.inputFieldStyle}>
               {children.inputFieldStyle.getPropertyView()}
+            </Section>
+            <Section name={sectionNames.animationStyle}>
+              {children.animationStyle.getPropertyView()}
             </Section>
           </>
         )}

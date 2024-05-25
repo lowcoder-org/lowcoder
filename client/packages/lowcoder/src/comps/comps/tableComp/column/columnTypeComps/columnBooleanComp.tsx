@@ -9,6 +9,8 @@ import { CheckboxStyle, CheckboxStyleType } from "comps/controls/styleControlCon
 import { useStyle } from "comps/controls/styleControl";
 import { dropdownControl } from "comps/controls/dropdownControl";
 import { TableCheckedIcon, TableUnCheckedIcon } from "lowcoder-design";
+import { IconControl } from "comps/controls/iconControl";
+import { hasIcon } from "comps/utils";
 
 const CheckboxStyled = styled(Checkbox)<{ $style: CheckboxStyleType }>`
   ${(props) => props.$style && getStyle(props.$style)}
@@ -20,6 +22,7 @@ const Wrapper = styled.div`
 `;
 
 const IconWrapper = styled.div<{ $style: CheckboxStyleType; $ifChecked: boolean }>`
+  pointer-events: none;
   height: 22px;
   svg {
     width: 14px;
@@ -48,6 +51,9 @@ const falseValuesOptions = [
 const childrenMap = {
   text: BoolCodeControl,
   falseValues: dropdownControl(falseValuesOptions, ""),
+  iconTrue: IconControl,
+  iconFalse: IconControl,
+  iconNull: IconControl,
 };
 
 const getBaseValue: ColumnTypeViewFn<typeof childrenMap, boolean, boolean> = (props) => props.text;
@@ -88,12 +94,9 @@ export const BooleanComp = (function () {
         const style = useStyle(CheckboxStyle);
         return (
           <IconWrapper $style={style} $ifChecked={value}>
-            {value ? (
-              <TableCheckedIcon />
-            ) : props.falseValues === "x" ? (
-              <TableUnCheckedIcon />
-            ) : (
-              props.falseValues
+            {value === true ? ( hasIcon(props.iconTrue) ? props.iconTrue : <TableCheckedIcon /> ) 
+            : value === false ? ( hasIcon(props.iconFalse) ? props.iconFalse  : ( props.falseValues === "x" ? <TableUnCheckedIcon /> : props.falseValues )
+            ) : ( hasIcon(props.iconNull) ? props.iconNull : "No Value"
             )}
           </IconWrapper>
         );
@@ -122,6 +125,15 @@ export const BooleanComp = (function () {
           {children.falseValues.propertyView({
             label: trans("table.falseValues"),
             radioButton: true,
+          })}
+          {children.iconTrue.propertyView({
+            label: trans("table.iconTrue"),
+          })}
+          {children.iconFalse.propertyView({
+            label: trans("table.iconFalse"),
+          })}
+          {children.iconNull.propertyView({
+            label: trans("table.iconNull"),
           })}
         </>
       );

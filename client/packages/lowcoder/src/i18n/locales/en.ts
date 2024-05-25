@@ -1,4 +1,4 @@
-import table from "./componentDocExtra/table.md?url";
+// import table from "./componentDocExtra/table.md?url";
 
 export const en = {
   "productName": "Lowcoder",
@@ -24,7 +24,9 @@ export const en = {
   "error": "Error",
   "reference": "Reference",
   "text": "Text",
+  "basic": "Basic",
   "label": "Label",
+  "layout": "Layout",
   "color": "Color",
   "form": "Form",
   "menu": "Menu",
@@ -207,10 +209,13 @@ export const en = {
     "contentScrollbar" : "Show Scrollbars in Content",
     "appID": "App Id",
     "showApp": "Show an App in the content area",
-    "showAppTooltip": "You can display whole Lowcoder Apps in the content area. Please mind, that for Modules we do not support Inputs, Outputs Events and Methods.",
-    "baseURL": "Lowcoder API Base URL",
+    "showAppTooltip": "You can display whole Apps in the content area. Please mind, that for Modules we do not support Inputs, Outputs Events and Methods.",
+    "baseURL": "API Base URL",
     "horizontal": "Horizontal",
     "minHorizontalWidth": "Minimum Horizontal Width",
+    "component": "Own Component Identifiers",
+    "className": "CSS Class name",
+    "dataTestId": "Individual ID",
   },
   "autoHeightProp": {
     "auto": "Auto",
@@ -225,6 +230,7 @@ export const en = {
     "tooltip": "Tooltip",
     "position": "Position",
     "left": "Left",
+    "right": "Right",
     "top": "Top",
     "align": "Alignment",
     "width": "Width",
@@ -312,6 +318,12 @@ export const en = {
     "meetingEventHandlersDesc": "Event Handlers related to Meeting Events",
     "collaborationEventHandlers": "Collaboration Event Handlers",
     "collaborationEventHandlersDesc": "Event Handlers related to Collaboration Events",
+    "set": "Set",
+    "clear": "Clear",
+    "reset": "Reset",
+    "messageType": "Message Type",
+    "placement": "Placement",
+    "description": "Description"
   },
   "event": {
     "submit": "Submit",
@@ -362,6 +374,8 @@ export const en = {
     "shareContentDesc": "Triggers on Share Content",
     "shareContentEnd": "Share Content End",
     "shareContentEndDesc": "Triggers on Share Content End",
+    "stopShare": "Stop Share",
+    "stopShareDesc": "Triggers on Stop Share",
     "meetingStart": "Meeting Start",
     "meetingStartDesc": "Triggers on Meeting Start",
     "meetingEnd": "Meeting End",
@@ -413,7 +427,23 @@ export const en = {
     "delete": "Delete",
     "deleteDesc": "Triggers on Delete",
     "mention": "Mention",
-    "mentionDesc": "Triggers on Mention"
+    "mentionDesc": "Triggers on Mention",
+    "search": "Search",
+    "searchDesc": "Triggers on Search",
+    "selectedChange": "Selection Change",
+    "selectedChangeDesc": "Triggers on changed Selection",
+    "clickExtra": "Click on Action",
+    "clickExtraDesc": "Triggers on Click on Extra Element",
+    "start": "Start",
+    "startDesc": "Triggers on Start",
+    "resume": "Resume",
+    "resumeDesc": "Triggers on Resume",
+    "countdown": "Countdown",
+    "countdownDesc": "Triggers on Countdown ends",
+    "reset": "Reset ends",
+    "resetDesc": "Triggers on Reset timer",
+    "refresh": "Refresh",
+    "refreshDesc": "Triggers on Refresh",
   },
   "themeDetail": {
     "primary": "Brand Color",
@@ -444,6 +474,13 @@ export const en = {
   // fourth part
 
   "style": {
+    "boxShadowColor": 'Shadow Color',
+    "boxShadow": 'Box Shadow',
+    "opacity": 'Opacity',
+    "animation": 'Animation',
+    "animationIterationCount": 'Animation Iteration Count',
+    "animationDelay": 'Animation Delay',
+    "animationDuration": 'Animation Duration',
     "resetTooltip": "Reset styles. Clear the input field to reset an individual style.",
     "textColor": "Text Color",
     "contrastText": "Contrast Text Color",
@@ -926,6 +963,10 @@ export const en = {
     "buttonCompDesc": "A versatile button component for submitting forms, triggering actions, or navigating.",
     "buttonCompKeywords": "button, submit, action, navigate",
 
+    "meetingControlCompName": "Icon Button",
+    "meetingCompDesc": "A button for controlling functions like start, end, mute, or share.",
+    "meetingCompKeywords": "control, button, start, end",
+
     "linkCompName": "Link",
     "linkCompDesc": "A hyperlink display component for navigation or linking to external resources.",
     "linkCompKeywords": "link, hyperlink, navigation, external",
@@ -998,7 +1039,7 @@ export const en = {
     "tabbedContainerCompDesc": "A container with tabbed navigation for organizing content into separate panels.",
     "tabbedContainerCompKeywords": "tabbed, container, navigation, panels",
 
-    "pageLayoutCompName": "Layout Container",
+    "pageLayoutCompName": "Page Layout",
     "pageLayoutCompDesc": "A container which offers to create a layout with header, sider, footer and main content areas",
     "pageLayoutCompKeywords": "layout, container, navigation, pages",
 
@@ -1070,7 +1111,7 @@ export const en = {
     "imageEditorCompDesc": "An interactive component for editing and manipulating images, offering various tools and filters.",
     "imageEditorCompKeywords": "image, editor, manipulate, tools",
 
-    "mermaidCompName": "Mermaid Charts",
+    "mermaidCompName": "Mermaid Chart",
     "mermaidCompDesc": "A component for rendering complex diagrams and flowcharts based on Mermaid syntax.",
     "mermaidCompKeywords": "mermaid, charts, diagrams, flowcharts",
 
@@ -1109,6 +1150,113 @@ export const en = {
     "tourCompName": "Tour",
     "tourCompDesc": "A product tour for guiding users.",
     "tourCompKeywords": "tour, product tour, walkthrough, interactive walkthrough",
+
+    "hillchartCompName": "Hillchart",
+    "hillchartCompDesc": "A visualization component for displaying project management state data in a hill chart format.",
+    "hillchartCompKeywords": "project management, hill chart, visualization, data",
+
+    "openLayersGeoMapCompName": "Openlayers Geomap",
+    "openLayersGeoMapCompDesc": "A component for displaying interactive maps using OpenLayers, with support for various map layers and features.",
+    "openLayersGeoMapCompKeywords": "openlayers, geo map, interactive, map layers",
+
+    "chartsGeoMapCompName": "Geo Map Charts",
+    "chartsGeoMapCompDesc": "A component for visualizing geographical data on interactive maps with dynamic charts",
+    "chartsGeoMapCompKeywords": "geo map, charts, visualization, geographical data",
+
+    "bpmnEditorCompName": "BPMN Editor",
+    "bpmnEditorCompDesc": "A component for viewing, creating and editing BPMN diagrams, supporting various BPMN elements and features.",
+    "bpmnEditorCompKeywords": "BPMN, editor, diagrams, elements, workflows",
+
+    "turnstileCaptchaCompName": "Turnstile Captcha",
+    "turnstileCaptchaCompDesc": "A captcha component to verify users against bots.",
+    "turnstileCaptchaCompKeywords": "captcha, verification, identity, security",
+
+    "pivotTableCompName": "Pivot Table",
+    "pivotTableCompDesc": "A data summarization and analysis tool for organizing and aggregating data in a tabular format.",
+    "pivotTableCompKeywords": "pivot table, data, analysis, aggregation",
+
+    "funnelChartCompName": "Funnel Chart",
+    "funnelChartCompDesc": "A visualization tool for displaying the progressive reduction of data as it passes through stages.",
+    "funnelChartCompKeywords": "funnel chart, sales, conversions, process",
+
+    "gaugeChartCompName": "Gauge Chart",
+    "gaugeChartCompDesc": "A chart that displays data as a reading on a dial, useful for indicating the status or level of something.",
+    "gaugeChartCompKeywords": "gauge chart, metrics, performance, status",
+
+    "sankeyChartCompName": "Sankey Chart",
+    "sankeyChartCompDesc": "A flow diagram in which the width of the arrows is proportional to the flow rate, used to show energy, material, or cost transfers.",
+    "sankeyChartCompKeywords": "sankey chart, flow, energy, costs",
+
+    "candleStickChartCompName": "Candlestick Chart",
+    "candleStickChartCompDesc": "A style of financial chart used to describe price movements of a security, derivative, or currency.",
+    "candleStickChartCompKeywords": "candlestick chart, stocks, trading, finance",
+
+    "radarChartCompName": "Radar Chart",
+    "radarChartCompDesc": "A graphical method of displaying multivariate data in the form of a two-dimensional chart of three or more quantitative variables.",
+    "radarChartCompKeywords": "radar chart, multivariate, performance analysis",
+
+    "heatmapChartCompName": "Heatmap Chart",
+    "heatmapChartCompDesc": "A graphical representation of data where individual values are represented as colors.",
+    "heatmapChartCompKeywords": "heatmap, data visualization, intensity",
+
+    "graphChartCompName": "Graph Chart",
+    "graphChartCompDesc": "A diagram representing a network of nodes connected by edges, useful for showing interconnections and relationships.",
+    "graphChartCompKeywords": "graph chart, networks, relationships, nodes",
+
+    "treeChartCompName": "Tree Chart",
+    "treeChartCompDesc": "A diagram that visually represents hierarchy in a tree-like structure, showing relationships among various nodes.",
+    "treeChartCompKeywords": "tree chart, hierarchy, organizational",
+
+    "treemapChartCompName": "Treemap Chart",
+    "treemapChartCompDesc": "A chart that uses nested rectangles to represent hierarchical data proportionately.",
+    "treemapChartCompKeywords": "treemap, hierarchy, data visualization",
+
+    "sunburstChartCompName": "Sunburst Chart",
+    "sunburstChartCompDesc": "A radial space-filling visualization technique that illustrates hierarchical relationships through layers of a circle.",
+    "sunburstChartCompKeywords": "sunburst chart, radial, hierarchy",
+
+    "themeriverChartCompName": "Theme River Chart",
+    "themeriverChartCompDesc": "A visualization resembling a stream graph that shows changes in a data set over time across categories.",
+    "themeriverChartCompKeywords": "theme river, time series, trends",
+
+    "basicChartCompName": "Basic Chart",
+    "basicChartCompDesc": "A versatile component for visualizing data through various types of charts and graphs.",
+    "basicChartCompKeywords": "chart, graph, data, visualization",
+
+    "shapeCompName": "Shapes",
+    "shapeCompDesc": "A collection of geometric shapes for use with diagrams, illustrations, and visualizations.",
+    "shapeCompKeywords": "shapes, geometric, diagrams, illustrations",
+
+    // by mousheng
+
+    "colorPickerCompName": "Color Picker",
+    "colorPickerCompDesc": "Intuitive color selection for customization.",
+    "colorPickerCompKeywords": "color, picker, customization",
+    
+    "floatButtonCompName": "Float Button",
+    "floatButtonCompDesc": "A floating action button for prominent and quick actions.",
+    "floatButtonCompKeywords": "float button, action, quick",
+
+    "avatarCompName": "Avatar",
+    "avatarCompDesc": "Displays user avatars or profile images for personalized identification.",
+    "avatarCompKeywords": "avatar, profile image, user identification",
+
+    "avatarGroupCompName": "Avatar Group",
+    "avatarGroupCompDesc": "A group of avatars to represent multiple users or entities in a compact and visually appealing way.",
+    "avatarGroupCompKeywords": "avatar group, users, entities, compact",
+
+    "transferName": "Transfer",
+    "transferDesc": "Facilitates data transfer between two lists with drag-and-drop functionality.",
+    "transferKeywords": "transfer, data, drag-and-drop",
+
+    "cardCompName": "Content Card",
+    "cardCompDesc": "A card component for displaying organized information or content in a structured manner.",
+    "cardCompKeywords": "card, information, content, display",
+
+    "timerCompName": "Timer",
+    "timerCompDesc": "A component that displays a countdown or elapsed time, useful for tracking durations and deadlines.",
+    "timerCompKeywords": "timer, countdown, elapsed time, tracking, durations, deadlines",
+
   },
 
 
@@ -1209,6 +1357,9 @@ export const en = {
   },
   "password": {
     "label": "Password",
+    "placeholder": "Please Enter Password",
+    "conformLabel": "Confirm Password",
+    "conformPlaceholder": "Please Confirm Password",
     "visibilityToggle": "Show Visibility Toggle"
   },
   "richTextEditor": {
@@ -1223,6 +1374,264 @@ export const en = {
     "edit": "Edit",
     "remove": "Remove",
     "defaultValue" : "Base Content"
+  },
+
+  // mousheng
+
+  "floatButton": {
+    "custom": "Custom",
+    "backTop": "Back Top",
+    "buttonType": "Button Type",
+    "buttonShape": "Button Shape",
+    "square": "Square",
+    "circle": "Circle",
+    "description": "Description",
+    "badge": "Badge",
+    "primary": "Primary",
+    "default": "Default",
+    "buttonTheme": "Button Theme",
+    "badgeColor": "Badge Color",
+    "dot": "Badge As Dot",
+    "hidden": "Hidden",
+    "visibilityHeight": "Visibility Height",
+    "visibilityHeightDesc": "Scroll to a certain height before displaying the return to top button, 0 is always displayed,Editing mode cannot preview in real-time"
+  },
+
+  "colorPicker": {
+    "trigger": "Triggers Event",
+    "click": "Click",
+    "hover": "Hover",
+    "disabledAlpha": "Disable Alpha Selection",
+    "recommended": "Recommended",
+    "showPresets": "Show Color Presets"
+  },
+
+  "badge": {
+    "showCloseButton": "Show close button",
+    "Type": "Badge type",
+    "Count": "Badge count",
+    "Size": "Badge size",
+    "SizeDefault": "default",
+    "SizeSmall": "Small",
+    "overflowCount": "Overflow count",
+    "Title": "Badge title",
+    "dot": "Dot",
+    "number": "Number",
+    "tooltip": "Tooltip"
+},
+
+  "gantt": {
+    "key": "Key",
+    "title": "Title",
+    "project": "Project",
+    "from": "From",
+    "minute": "minute",
+    "hour": "Hour",
+    "day": "Day",
+    "week": "Week",
+    "month": "Month",
+    "year": "Year",
+    "quarter": "Quarter",
+    "tasks": "Tasks Data",
+    "level": "level",
+    "durationUnit": "Duration unit",
+    "duration": "Duration",
+    "hourScalesFormat": "%F %d",
+    "dayScalesFormat": "%d %M",
+    "weekScalesFormat1": "%d %M",
+    "weekScalesFormat2": "%j %D",
+    "monthScalesFormat1": "%F, %Y",
+    "monthScalesFormat2": "Week #%W",
+    "quarterScalesFormat": "{y} Q{i}",
+    "yearScalesFormat": "%Y",
+    "tree": "tree",
+    "ColumnsData": "Columns Data",
+    "allowChangeTask": "DbClick Task",
+    "allowAddLink": "Add Link",
+    "allowLinkDelete": "Link Delete",
+    "allowProgressDrag": "Progress Drag",
+    "allowTaskDrag": "Task Drag",
+    "links": "Links Data",
+    "dataFormat": "Data parse Format",
+    "handleDateChange": "Handle Task Change",
+    "handleTaskChange": "Handle Task Change",
+    "handleAddedLink": "Handle Added Link",
+    "handleDeletedLink": "Handle Deleted Link",
+    "handleProgressDrag": "Handle Progress Drag",
+    "showTodayMark": "Show Today Mark",
+    "resize": "Resize",
+    "otherEvents": "Other Events",
+    "openAllBranchInit": "Open All Branch Init",
+    "date": "Date",
+    "text": "Text",
+    "progress": "progress",
+    "width": "Width",
+    "ColumnsType": "Cloumns Type",
+    "currentId": "Current ID",
+    "currentObject": "Current Object",
+    "addTask": "Add Task(s)",
+    "taskObject": "Task Object",
+    "taskObjectDesc": "Supports arrays of Tasks or single Task Object",
+    "linkID": "link ID",
+    "linkIDDesc": "Supports arrays of Links ID or single Link Object",
+    "removeTask": "Remove Task",
+    "taskID": "Task ID",
+    "taskIDDesc": "Supports arrays of IDs or single ID",
+    "add": "Add",
+    "expandingAll": "Expanding All",
+    "collapsingAll": "Collapsing All",
+    "addTaskFail": "The addition task failed, and the parameter type should be an object or an array object",
+    "addLinkFail": "The addition link failed, and the parameter type should be an object or an array object",
+    "removeTaskFail": "The deletion task failed, and the parameter type should be string or string array",
+    "removeLinkFail": "The deletion links failed, and the parameter type should be string array",
+    "otherData": "Other Data{i}",
+    "projectText": "Project #{i}",
+    "taskText": "Task #{i}",
+    "AutoCalculateProgress": "Auto Calculation Progress",
+    "allowProjectDrag": "Allow Project Drag",
+    "showColumns": "Show Columns",
+    "exportToPNG": "Export to PNG",
+    "exportToPDF": "Export to PDF",
+    "exportToExcel": "Export to Excel",
+    "progressLowBg": "Low BgColor",
+    "progressLowColor": "Low Progress Color",
+    "progressMediumBg": "Medium BgColor",
+    "progressMediumColor": "Medium Progress Color",
+    "progressHighBg": "Heigh BgColor",
+    "progressHighColor": "Heigh Progress Color",
+    "progresscompletedColor": "Completed Progress Color",
+    "lowProgressLine": "Low Progress Line",
+    "mediumProgressLine": "Medium Progress Line",
+    "SegmentedColor": "Progress Segmented Color",
+    "link_f2s": "Link F2S",
+    "link_s2s": "Link S2S",
+    "link_f2f": "Link F2F",
+    "link_s2f": "Link S2F",
+    "weekScale": "#{i}, ",
+    "showHolidays": "Show Holidays",
+    "StatutoryHolidays": "Statutory Holidays Data",
+    "skipOffTime": "Hides Non-Working Time",
+    "weekend": "Weekend",
+    "weekendSelected": "Weekend Selected",
+    "noWorkHour": "No Work Hour",
+    "noWorkHourSelected": "no Work Hour Selected",
+    "showWorkTimes": "Show Work Times",
+    "workTimeData": "Work Time Data",
+    "fit": "fit",
+    "manual": "manual",
+    "scaleMode": "Scale Mode",
+    "startDate": "Start Date",
+    "endDate": "End Date",
+    "addLink": "Add Link(s)",
+    "linkObject": "link Object",
+    "removeLink": "remove Link",
+    "allowSort": "Allow Sort",
+    "showTask": "Show Task",
+    "toggleOnDBClick": "Toggle On DBClick",
+    "sortOptions": "Initial Sorting Options",
+    "rowHeight": "Row Height",
+    "showTooltip": "Show Tooltip",
+    "tooltipTemplates": "Tooltip Template",
+    "allowResizeTask": "Allow Resize Task",
+    "projectColor": "Project Color",
+    "projectColorBg": "Project BgColor",
+    "taskColor": "Task Color",
+    "taskColorBg": "Task BgColor",
+    "milestoneColor": "Milestone Color",
+    "highlightOverdue": "Highlight Overdue",
+    "overdueColor": "Overdue Color",
+    "overdueBgColor": "Overdue BgColor",
+    "projectCompletedBgColor": "Project Completed BgColor",
+    "projectCompletedColor": "Project Completed Color",
+    "tag": "tag",
+    "tasksTableWidth": "Tasks Table Width",
+    "allowErrorMessage": "Allow Error Message",
+    "currentProjectId": "Current Project Id",
+    "currentProjectLastTask": "Current Project Last Task",
+    "onlySortProject": "Only Sort Project"
+  },
+
+  "transfer": {
+    "sourceTitle": "Source Data",
+    "targetTitle": "Target Data",
+    "content": "Content {i}",
+    "items": "Items",
+    "targetKeys": "Selected Keys",
+    "oneWay": "One Way",
+    "pagination": "Pagination",
+    "pageSize": "Page Size",
+    "allowSearch": "Allow Search",
+    "selectedKeys": "Selected Keys",
+    "searchInfo": "Search Info",
+    "targerObject": "Targer Object"
+  },
+
+  "avatarGroup": {
+    "maxCount": "Max Count",
+    "avatarSize": "Avatar Size",
+    "autoColor": "Auto Color",
+    "alignment": "Alignment",
+    "currentAvatar": "Current Avatar"
+  },
+
+  "avatarComp": {
+    "square": "square",
+    "circle": "circle",
+    "icon": "icon",
+    "shape": "shape",
+    "counts": "Badge",
+    "title": "title",
+    "src": "src",
+    "avatarCompTooltip": "The display priority is: image -> characters -> icon. Depending on what is first available.",
+    "iconSize": "Icon Size",
+    "avatarBackground": "Background",
+    "label": "Label",
+    "caption": "Caption",
+    "labelPosition": "Position",
+    "alignmentPosition": "alignment",
+    "text": "Text",
+    "enableDropDown": "Enable DropDown",
+    "containerBackground": "Background"
+  },
+
+  "card": {
+    "cardType": "Card Type",
+    "common": "common",
+    "custom": "custom",
+    "default": "default",
+    "small": "small",
+    "showTitle": "Show title",
+    "title": "Title",
+    "more": "More",
+    "extraTitle": "Call to Action",
+    "CoverImg": "Cover Image",
+    "imgSrc": "Image Source",
+    "showMeta": "Show Content",
+    "metaTitle": "Content Title",
+    "metaDesc": "Content Description",
+    "imgHeight": "Image Height",
+    "showActionIcon": "Show Action Options",
+    "actionOptions": "Action Options",
+    "menu": "Menu {i}",
+    "hoverColor": "hover Color",
+    "IconColor": "Icon Color",
+    "titleSize": "Title Size"
+  },
+
+  "timer": {
+    "timerState": "timer State",
+    "elapsedTime": "Elapsed Time",
+    "timer": "Timer",
+    "countdown": "Countdown",
+    "defaultValue": "Default Value",
+    "timerType": "Timer Type",
+    "start": "Start",
+    "pause": "Pause",
+    "resume": "Resume",
+    "reset": "Reset",
+    "startPause": "Start/Pause",
+    "hideButton": "Hide Button",
+    "fontColor": "Font Color"
   },
 
 
@@ -1245,7 +1654,8 @@ export const en = {
   },
   "slider": {
     "step": "Step",
-    "stepTooltip": "The Value Must Be Greater Than 0 and Divisible by (Max-Min)"
+    "stepTooltip": "The Value Must Be Greater Than 0 and Divisible by (Max-Min)",
+    "vertical": "Vertical Orientation",
   },
   "rating": {
     "max": "Max Rating",
@@ -1292,6 +1702,11 @@ export const en = {
     "showIcons" : "Show Icons instead Symbols",
     "responsive" : "Responsive",
     "selectable" : "Selectable",
+  },
+  "coloredTagOptionControl" : {
+    "tag" : "Tag Text",
+    "color" : "Color",
+    "icon" : "Icon",
   },
   "radio": {
     "options": "Options",
@@ -1367,6 +1782,7 @@ export const en = {
   },
   "button": {
     "prefixIcon": "Prefix Icon",
+    "prefixText": "Prefix Text",
     "suffixIcon": "Suffix Icon",
     "icon": "Icon",
     "iconSize": "Icon Size",
@@ -1470,6 +1886,8 @@ export const en = {
     "float": "Float",
     "prefix": "Prefix",
     "suffix": "Suffix",
+    "avatars": "Avatars",
+    "avatarGroupAlignment": "Avatars Alignment",
     "text": "Text",
     "number": "Number",
     "link": "Link",
@@ -1482,6 +1900,7 @@ export const en = {
     "button": "Button",
     "image": "Image",
     "boolean": "Boolean",
+    "switch": "Switch",
     "rating": "Rating",
     "progress": "Progress",
     "option": "Operation",
@@ -1499,6 +1918,8 @@ export const en = {
     "fixedToolbar": "Fixed Toolbar",
     "fixedToolbarTooltip": "Toolbar Will Be Fixed for Vertically Scrollable Table Based on Position",
     "hideBordered": "Show Resize Handles",
+    "showHeaderGridBorder": "Show Header Grid Border",
+    "showRowGridBorder": "Show Row Grid Border",
     "showVerticalRowGridBorder": "Show vertical Row Grid Border",
     "showHorizontalRowGridBorder": "Show horizontal Row Grid Border",
     "deleteColumn": "Delete Column",
@@ -1548,8 +1969,12 @@ export const en = {
     "expandable": "Expandable",
     "configExpandedView": "Configure Expanded View",
     "toUpdateRowsDesc": "An Array of Objects for Rows to Be Updated in Editable Tables.",
+    "selectedCellDesc": "Selected Cell",
     "empty": "Empty",
     "falseValues": "Text When False",
+    "iconTrue": "Icon When True",
+    "iconFalse": "Icon When False",
+    "iconNull": "Icon When Null",
     "allColumn": "All",
     "visibleColumn": "Visible",
     "emptyColumns": "No Columns Are Currently Visible"
@@ -1672,6 +2097,11 @@ export const en = {
     "insertImage": "Insert an Image or "
   },
 
+  "shapeControl": {
+    "selectShape": "Select an Shape",
+    "insertShape": "Insert an Shape",
+    "insertImage": "Insert an Image or ",
+  },
 
   // twelfth part
 
@@ -1751,7 +2181,7 @@ export const en = {
     "sharingCompName": "Screen Share Stream",
     "videoCompName": "Camera Stream",
     "videoSharingCompName": "Screen Share Stream",
-    "meetingControlCompName": "Control Button",
+    "meetingControlCompName": "Icon Button",
     "meetingCompDesc": "Meeting Component",
     "meetingCompControls": "Meeting Control",
     "meetingCompKeywords": "Agora Meeting, Web Meeting, Collaboration",
@@ -1769,6 +2199,7 @@ export const en = {
     "theme": "Themes",
     "plugin": "Plugins",
     "advanced": "Advanced",
+    "apiDocs": "API Docs",
     "lab": "Lab",
     "branding": "Branding",
     "oauthProviders": "User Authentication",
@@ -2007,7 +2438,7 @@ export const en = {
     "unStructuredError": "Unstructured Data {prev} Can't Be Updated by {path}",
     "valueDesc": "Temporary State Value",
     "deleteMessage": "The Temporary State is Deleted Successfully. You Can Use {undoKey} to Undo.",
-    "documentationText" : "Temporary states in Lowcoder are a powerful feature used to manage complex variables that dynamically update the state of components in your application. These states act as intermediary or transient storage for data that can change over time due to user interactions or other processes."
+    "documentationText" : "Temporary states are a powerful feature used to manage complex variables that dynamically update the state of components in your application. These states act as intermediary or transient storage for data that can change over time due to user interactions or other processes."
   },
   "dataResponder": {
     "data": "Data",
@@ -2123,6 +2554,7 @@ export const en = {
     "APIConsumptionDescription": "Here you can see the API Consumption for All Apps in the Current Workspace.",
     "overallAPIConsumption": "Overall API Consumption in this Workspace till now",
     "lastMonthAPIConsumption": "Last Month API Consumption, in this Workspace"
+
   },
 
 
@@ -2142,6 +2574,11 @@ export const en = {
     "upload": "Click to Upload"
   },
   "networkMessage": {
+    "200": "Success",
+    "201": "Created",
+    "204": "No Content",
+    "400": "Bad Request",
+    "404": "Not Found",
     "500": "Busy Service, Please Try Again Later",
     "0": "Failed to Connect to Server, Please Check Your Network",
     "401": "Authentication Failed, Please Log On Again",
@@ -2163,7 +2600,7 @@ export const en = {
   "module": {
     "emptyText": "No Data",
     "docLink": "Read More About Modules...",
-    "documentationText" : "Lowcoder Modules are complete Applications, that can get included and repeated in other Lowcoder Applications and it functions just like a single component. As modules can get embedded, they need to be able to interact with your outside apps or websites. This four settings help to support communication with a Module.",
+    "documentationText" : "Modules are complete Applications, that can get included and repeated in other Applications and it functions just like a single component. As modules can get embedded, they need to be able to interact with your outside apps or websites. This four settings help to support communication with a Module.",
     "circularReference": "Circular Reference, Current Module/Application Cannot Be Used!",
     "emptyTestInput": "The Current Module Has No Input to Test",
     "emptyTestMethod": "The Current Module Has No Method to Test",
@@ -2267,6 +2704,8 @@ export const en = {
     "bindingSuccess": "Binding {sourceName} Success",
     "uploadError": "Upload Error",
     "editProfilePicture": "Modify",
+    "saveUserNameTooltip": "Hit Enter to Save your new NicName. If you see your Email, it means that we just hijacked it as Username and you can change it to a better one. Your Email as technical username stays untouched.",
+    "changeAvatarTooltip": "You can Upload PNG or JPG files",
     "nameCheck": "Name Cannot Be Empty",
     "name": "Name: ",
     "namePlaceholder": "Please Enter Your Name",
@@ -2295,7 +2734,31 @@ export const en = {
     "alreadySetPassword": "Password Set",
     "setPassPlaceholder": "You Can Login with Password",
     "setPassAfterBind": "You Can Set Password After Account Bind",
-    "socialConnections": "Social Connections"
+    "socialConnections": "Social Connections",
+    "changeAvatar": "Change Avatar",
+    "about": "About",
+    "userId": "User ID",
+    "createdAt": "Created At",
+    "currentOrg": "Current Organization",
+    "settings": "Settings",
+    "uiLanguage": "UI Language",
+    "info": "Info",
+    "createdApps": "Your Created Apps",
+    "createdModules": "Your Created Modules",
+    "sharedApps": "Apps Shared with You",
+    "sharedModules": "Modules Shared with You",
+    "onMarketplace": "On Marketplace",
+    "howToPublish": "How to publish on Marketplace",
+    "memberOfOrgs": "Workspaces Membership",
+    "apiKeys": "API Keys",
+    "createApiKey": "Create API Key",
+    "apiKeyName": "Name",
+    "apiKeyDescription": "Description",
+    "apiKeyCopy": "Click the Api Key to get the value in your clipboard",
+    "apiKey": "API Key",
+    "deleteApiKey": "Delete API Key",
+    "deleteApiKeyContent": "Are you sure you want to delete this API key?",
+    "deleteApiKeyError": "Something went wrong. Please try again."
   },
   "shortcut": {
     "shortcutList": "Keyboard Shortcuts",
@@ -2371,8 +2834,12 @@ export const en = {
   "userAuth": {
     "registerByEmail": "Sign Up",
     "email": "Email:",
-    "inputEmail": "Please Enter Your Email",
-    "inputValidEmail": "Please Enter a Valid Email",
+    "inputEmail": "Please enter your email",
+    "inputValidEmail": "Please enter a valid email",
+    "forgotPassword": "Forgot Password",
+    "forgotPasswordInfo": "Enter your email and we'll send you a link to reset your password.",
+    "forgotPasswordSuccess": "Please check your email for reset password link.",
+    "forgotPasswordError": "Something went wrong. Please try again.",
     "register": "Sign Up",
     "userLogin": "Sign In",
     "login": "Sign In",
@@ -2381,7 +2848,7 @@ export const en = {
     "passwordCheckContainsNumberAndLetter": "Must Contain Letters and Numbers",
     "passwordCheckSpace": "Cannot Contain Whitespace Characters",
     "welcomeTitle": "Welcome to {productName}",
-    "inviteWelcomeTitle": "{username} Invite You to Login {productName}",
+    "inviteWelcomeTitle": "{username} invites You to work together",
     "terms": "Terms",
     "privacy": "Privacy Policy",
     "registerHint": "I Have Read and Agree to the",
@@ -2397,8 +2864,9 @@ export const en = {
     "resetPasswordDesc": "Reset User {name}'s Password. A New Password Will Be Generated After Reset.",
     "resetSuccess": "Reset Succeeded",
     "resetSuccessDesc": "Password Reset Succeeded. The New Password is: {password}",
+    "resetLostPasswordSuccess": "Password Reset Succeeded. Please login again.",
     "copyPassword": "Copy Password",
-    "poweredByLowcoder": "Powered by Lowcoder.cloud"
+    "poweredByLowcoder": "Powered by: Lowcoder.cloud"
   },
   "preLoad": {
     "jsLibraryHelpText": "Add JavaScript Libraries to Your Current Application via URL Addresses. lodash, day.js, uuid, numbro are Built into the System for Immediate Use. JavaScript Libraries are Loaded Before the Application is Initialized, Which Can Have an Impact on Application Performance.",
@@ -2430,8 +2898,7 @@ export const en = {
     "compProperties": "Component Properties"
   },
   "homeTutorials": {
-    // eslint-disable-next-line only-ascii/only-ascii
-    "createAppContent": "🎉 Welcome to {productName}, Click 'App' and Start to Create Your First Application.",
+    "createAppContent": "Welcome! Click 'App' and Start to Create Your First Application.",
     "createAppTitle": "Create App"
   },
 
@@ -2457,18 +2924,27 @@ export const en = {
     "history": "History"
   },
   "home": {
+    "profile": "Your Profile",
+    "news": "News",
+    "newsLoading": "It will load some seconds.",
+    "orgHome" : "Homepage (Org)",
+    "yourOrg": "Your Organization",
+    "orgHomeTitle": "Organization Homepage",
+    "appMarketplace": "Application Marketplace",
     "allApplications": "Your Apps",
     "allModules": "Your Modules",
     "allFolders": "All Folders",
+    "yourFolders" : "Your Folders",
     "modules": "Modules",
     "module": "Module",
+    "api" : "Lowcoder API",
     "trash": "Trash",
     "marketplace": "Marketplace",
     "allCategories": "All Categories",
     "queryLibrary": "Query Library",
     "datasource": "Data Sources",
     "selectDatasourceType": "Select Data Source Type",
-    "home": "Home | Admin Area",
+    "home": "Home",
     "all": "All",
     "app": "App",
     "navigation": "Navigation",
@@ -2481,6 +2957,7 @@ export const en = {
     "rootFolder": "Root",
     "import": "Import",
     "export": "Export to JSON",
+    "show": "Show",
     "inviteUser": "Invite members",
     "createFolder": "Create Folder",
     "createFolderSubTitle": "Folder name:",
@@ -2525,13 +3002,13 @@ export const en = {
     "appPublicMessage": "Make the app public. Anyone can view.",
     "modulePublicMessage": "Make the module public. Anyone can view.",
     "marketplaceURL": "https://api-service.lowcoder.cloud",
-    "appMarketplaceMessage": "Publish your App on Lowcoder Marketplace. Anyone can view and copy it from there.",
-    "moduleMarketplaceMessage": "Publish your Module on Lowcoder Marketplace. Anyone can view and copy it from there.",
+    "appMarketplaceMessage": "Publish your App on the Public Marketplace. Anyone can view and copy it from there.",
+    "moduleMarketplaceMessage": "Publish your Module on the Public Marketplace. Anyone can view and copy it from there.",
     "marketplaceGoodPublishing": "Please make sure your app is well-named and easy to use. Remove any sensitive information before publishing. Also, remove local datasources and replace by static built-in temporary data.",
     "noMarketplaceApps": "No apps yet in the marketplace",
     "errorMarketplaceApps": "Error while loading Marketplace Apps",
     "localMarketplaceTitle": "Local Marketplace",
-    "globalMarketplaceTitle": "Lowcoder Marketplace",
+    "globalMarketplaceTitle": "Public Marketplace",
     "memberPermissionList": "Member permissions: ",
     "orgName": "{orgName} admins",
     "addMember": "Add members",
@@ -2543,7 +3020,8 @@ export const en = {
     "copyModalfolderLabel": "Add to folder",
     "copyNamePlaceholder": "Please enter a {type} name",
     "chooseNavType": "Please choose navigation type",
-    "createNavigation": "Create Navigation"
+    "createNavigation": "Create Navigation",
+    "howToUseAPI": "How to use the Open Rest API",
   },
   "carousel": {
     "dotPosition": "Navigation Dots position",
@@ -2816,9 +3294,9 @@ export const en = {
     "title": "Title",
     "selectBackground": "Selected Background"
   },
-  "componentDocExtra": {
+  /*"componentDocExtra": {
     "table": table,
-  },
+  },*/
   "idSource": {
     "title": "User Authentication Provider",
     "form": "Email",
@@ -3063,6 +3541,7 @@ export const en = {
 
   docUrls: {
     docHome: "https://docs.lowcoder.cloud/",
+    apiDocHome: "https://docs.lowcoder.cloud/lowcoder-documentation/lowcoder-extension/lowcoder-open-rest-api",
     components: "https://app.lowcoder.cloud/components/{compType}",
     module: "https://docs.lowcoder.cloud/lowcoder-documentation/build-applications/create-a-new-app/modules",
     optionList: "",

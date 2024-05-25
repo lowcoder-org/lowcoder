@@ -146,8 +146,16 @@ export const sectionNames = {
   layout: trans("prop.layout"),
   style: trans("prop.style"),
   labelStyle:trans("prop.labelStyle"),
+  animationStyle:trans("prop.animationStyle"),
   data: trans("prop.data"),
   meetings: trans("prop.meetings"), // added by Falk Wolsky
   field: trans("prop.field"),
-  inputFieldStyle:trans("prop.inputFieldStyle")
+  inputFieldStyle:trans("prop.inputFieldStyle"),
+  avatarStyle:trans("prop.avatarStyle"),
+  captionStyle:trans("prop.captionStyle"),
+  startButtonStyle:trans("prop.startButtonStyle"),
+  resetButtonStyle:trans("prop.resetButtonStyle"),
+  headerStyle:trans("prop.headerStyle"),
+  bodyStyle:trans("prop.bodyStyle"),
+  badgeStyle:trans("prop.badgeStyle"),
 };

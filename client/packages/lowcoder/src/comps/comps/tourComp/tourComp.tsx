@@ -1,20 +1,24 @@
+
 import { trans } from "i18n";
-import {
-  CommonNameConfig,
-  MultiBaseComp,
-  NameConfig,
-  stringExposingStateControl,
-  UICompBuilder,
-  withExposingConfigs,
-  withMethodExposing
-} from "lowcoder-sdk";
+import { withMethodExposing } from "../../generators/withMethodExposing";
+import { UICompBuilder } from "../../generators";
+import { stringExposingStateControl } from "comps/controls/codeStateControl";
+import { CommonNameConfig, NameConfig, withExposingConfigs } from "../../generators/withExposing";
+import { MultiBaseComp } from "lowcoder-core";
+
+// FALK TODO: Check imports
+// import { MultiBaseComp } from "lowcoder-core";
+// import { UICompBuilder } from "comps/generators/uiCompBuilder";
+// import { stringExposingStateControl } from "comps/controls/codeStateControl";
+// import { withMethodExposing } from "comps/generators/withMethodExposing";
+
 import { TourChildrenMap, TourPropertyView } from "./tourPropertyView";
 import { Tour, TourProps } from "antd";
 import React, { useContext } from "react";
-import { EditorContext } from "@lowcoder-ee/comps/editorState";
-import { GridItemComp } from "@lowcoder-ee/comps/comps/gridItemComp";
-import { HookComp } from "@lowcoder-ee/comps/hooks/hookComp";
-import { TemporaryStateItemComp } from "@lowcoder-ee/comps/comps/temporaryStateComp";
+import { EditorContext } from "comps/editorState";
+import { GridItemComp } from "comps/comps/gridItemComp";
+import { HookComp } from "comps/hooks/hookComp";
+import { TemporaryStateItemComp } from "comps/comps/temporaryStateComp";
 
 /**
  * This component builds the Property Panel and the fake 'UI' for the Tour component
@@ -35,7 +39,7 @@ let TourBasicComp = (function() {
       let target = undefined;
       const compListItem = compMap.find((compItem) => compItem.children.name.getView() === targetName);
       if (compListItem) {
-        console.log(`setting selected comp to ${compListItem}`);
+        // console.log(`setting selected comp to ${compListItem}`);
         try {
           target = ((compListItem as MultiBaseComp).children.comp as GridItemComp).getRef?.();
         } catch (e) {

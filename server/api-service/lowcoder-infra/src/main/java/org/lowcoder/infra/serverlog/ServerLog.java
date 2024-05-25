@@ -1,15 +1,11 @@
 package org.lowcoder.infra.serverlog;
 
-import java.util.Map;
-
-import lombok.NoArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
 import lombok.extern.jackson.Jacksonized;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-
-import lombok.Builder;
-import lombok.Getter;
+import java.util.Map;
 
 
 @Document

@@ -71,6 +71,7 @@ export function EditableCell<T extends JSONValue>(props: EditableCellProps<T>) {
     changeValue,
     baseValue,
     candidateTags,
+    // tagColors
     candidateStatus,
     onTableEvent,
   } = props;
@@ -78,17 +79,19 @@ export function EditableCell<T extends JSONValue>(props: EditableCellProps<T>) {
   const editable = editViewFn ? props.editable : false;
   const { isEditing, setIsEditing } = useContext(TableCellContext);
   const value = changeValue ?? baseValue!;
-
   const [tmpValue, setTmpValue] = useState<T | null>(value);
+
   useEffect(() => {
     setTmpValue(value);
   }, [value]);
+
   const onChange = useCallback(
     (value: T) => {
       setTmpValue(value);
     },
     [setTmpValue]
   );
+
   const onChangeEnd = useCallback(() => {
     setIsEditing(false);
     dispatch(
@@ -126,11 +129,21 @@ export function EditableCell<T extends JSONValue>(props: EditableCellProps<T>) {
       textOverflow={props.textOverflow}
     >
       {status === "toSave" && !isEditing && <EditableChip />}
-      <div
-        onDoubleClick={enterEditFn}
-      >
-        {normalView}
-      </div>
+      {normalView}
+      {/* overlay on normal view to handle double click for editing */}
+      {editable && (
+        <div
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+          }}
+          onDoubleClick={enterEditFn}
+        >
+        </div>
+      )}
     </ColumnTypeView>
   );
 }

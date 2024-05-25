@@ -52,7 +52,7 @@ public interface ApplicationService {
 
     @NonEmptyMono
     @SuppressWarnings("ReactiveStreamsNullableInLambdaInTransform")
-    Mono<Set<String>> getFilteredPublicApplicationIds(ApplicationRequestType requestType, Collection<String> applicationIds, boolean isAnonymous, Boolean isPrivateMarketplace);
+    Mono<Set<String>> getFilteredPublicApplicationIds(ApplicationRequestType requestType, Collection<String> applicationIds, String userId, Boolean isPrivateMarketplace);
 
     @NonEmptyMono
     @SuppressWarnings("ReactiveStreamsNullableInLambdaInTransform")
@@ -60,7 +60,7 @@ public interface ApplicationService {
 
     @NonEmptyMono
     @SuppressWarnings("ReactiveStreamsNullableInLambdaInTransform")
-    Mono<Set<String>> getPrivateApplicationIds(Collection<String> applicationIds);
+    Mono<Set<String>> getPrivateApplicationIds(Collection<String> applicationIds, String userId);
 
     @NonEmptyMono
     @SuppressWarnings("ReactiveStreamsNullableInLambdaInTransform")

@@ -1,10 +1,10 @@
 package org.lowcoder.sdk.exception;
 
+import lombok.Getter;
+
 import static org.lowcoder.sdk.exception.ErrorLogType.SIMPLE;
 import static org.lowcoder.sdk.exception.ErrorLogType.VERBOSE;
 import static org.lowcoder.sdk.util.EnumUtils.checkDuplicates;
-
-import lombok.Getter;
 
 @Getter
 public enum BizError {

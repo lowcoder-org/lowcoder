@@ -278,15 +278,22 @@ export function ListView(props: Props) {
 
         <BodyWrapper ref={ref} $autoHeight={autoHeight}>
           <ScrollBar style={{ height: autoHeight ? "auto" : "100%", margin: "0px", padding: "0px" }} hideScrollbar={!scrollbars}>
-            <>{<ReactResizeDetector onResize={(width?: number, height?: number) => { if (height) setListHeight(height); }} observerOptions={{ box: "border-box" }} >
-              <ListOrientationWrapper
-                $isHorizontal={horizontal}
-                $isGrid={noOfColumns > 1}
-                $autoHeight={autoHeight}
-              >
-                {renders}
-              </ListOrientationWrapper>
-            </ReactResizeDetector>}</>
+            <ReactResizeDetector
+              onResize={(width?: number, height?: number) => {
+                if (height) setListHeight(height);
+              }}
+              observerOptions={{ box: "border-box" }}
+              render={() => (
+                <ListOrientationWrapper
+                  $isHorizontal={horizontal}
+                  $isGrid={noOfColumns > 1}
+                  $autoHeight={autoHeight}
+                >
+                  {renders}
+                </ListOrientationWrapper>
+              )}
+            >
+            </ReactResizeDetector>
           </ScrollBar>
         </BodyWrapper>
         <FooterWrapper>

@@ -398,7 +398,7 @@ export const IconSelect = (props: {
       visible={visible}
       setVisible={setVisible}
       trigger="click"
-      leftOffset={-96}
+      leftOffset={-30}
       searchKeywords={props.searchKeywords}
     />
   );

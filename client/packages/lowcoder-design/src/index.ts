@@ -47,6 +47,7 @@ export * from "./components/tacoInput";
 export * from "./components/tacoPagination";
 export * from "./components/toolTip";
 export * from "./components/video";
+export * from "./components/shapeSelect";
 
 export * from "./icons";
 

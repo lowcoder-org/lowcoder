@@ -167,6 +167,8 @@ let TmpDrawerComp = (function () {
               zIndex={Layers.drawer}
               maskClosable={props.maskClosable}
               mask={props.showMask}
+              className={props.className as string}
+              data-testid={props.dataTestId as string}
             >
               <ButtonStyle
                 $closePosition={props.closePosition}
