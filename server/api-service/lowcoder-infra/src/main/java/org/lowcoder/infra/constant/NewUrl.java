@@ -26,6 +26,7 @@ public final class NewUrl {
     public static final String LIBRARY_QUERY_RECORD_URL = PREFIX + "/library-query-records";
 
     public static final String FOLDER_URL = PREFIX + "/folders";
+    public static final String BUNDLE_URL = PREFIX + "/bundles";
 
     public static final String GITHUB_STAR = PREFIX + "/misc/github-star";
     public static final String JS_LIBRARY = PREFIX + "/misc/js-library";

@@ -4,6 +4,7 @@ import com.google.common.collect.Maps;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections4.CollectionUtils;
 import org.lowcoder.domain.application.model.ApplicationRequestType;
+import org.lowcoder.domain.bundle.model.BundleRequestType;
 import org.lowcoder.domain.datasource.model.Datasource;
 import org.lowcoder.domain.datasource.service.DatasourceService;
 import org.lowcoder.domain.permission.model.ResourceAction;
@@ -52,7 +53,17 @@ class DatasourcePermissionHandler extends ResourcePermissionHandler {
         return Mono.just(Collections.emptyMap());
 	}
 
-	@Override
+    @Override
+    protected Mono<Map<String, List<ResourcePermission>>> getAnonymousUserBundlePermissions(Collection<String> resourceIds, ResourceAction resourceAction, BundleRequestType requestType) {
+        return Mono.just(Collections.emptyMap());
+    }
+
+    @Override
+    protected Mono<Map<String, List<ResourcePermission>>> getNonAnonymousUserBundlePublicResourcePermissions(Collection<String> resourceIds, ResourceAction resourceAction, BundleRequestType requestType, String userId) {
+        return Mono.just(Collections.emptyMap());
+    }
+
+    @Override
     protected Mono<String> getOrgId(String resourceId) {
         return datasourceService.getById(resourceId)
                 .map(Datasource::getOrganizationId);
