@@ -57,7 +57,7 @@ public class BundleServiceImpl implements BundleService {
 
     @Override
     public Flux<Bundle> findByUserId(String userId) {
-        return repository.findByUserId(userId);
+        return repository.findByCreatedBy(userId);
     }
 
     @Override
