@@ -43,7 +43,7 @@ import chartDsl from "./chartPreviewDsl";
 import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 import { Card, Collapse, CollapseProps, Divider, Flex, List, Tooltip } from 'antd';
 
-import { themeCompPanel as ThemeCompPanel } from "pages/setting/theme/ThemeCompPanel";
+import { ThemeCompPanel } from "pages/setting/theme/ThemeCompPanel";
 
 const ThemeSettingsView = styled.div`
   font-size: 14px;
