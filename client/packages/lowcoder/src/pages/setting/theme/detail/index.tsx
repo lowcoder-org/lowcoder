@@ -43,7 +43,7 @@ import chartDsl from "./chartPreviewDsl";
 import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 import { Card, Collapse, CollapseProps, Divider, Flex, List, Tooltip } from 'antd';
 
-import { ThemeCompPanel } from "pages/setting/theme/ThemeCompPanel";
+import { themeCompPanel as ThemeCompPanel } from "pages/setting/theme/ThemeCompPanel";
 
 const ThemeSettingsView = styled.div`
   font-size: 14px;
@@ -518,7 +518,7 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
               </StyleThemeSettingsCover>
               <Card style={{ marginBottom: "20px", minHeight : "1000px", overflow: "auto" }}>
                 <Flex gap={"middle"}>
-                  <ThemeCompPanel />
+                  <ThemeCompPanel/>
                   <Divider type="vertical" style={{height: "510px"}}/>
                   <div style={{minWidth: "250px"}}><h4>Properties Display</h4></div>
                   <Divider type="vertical" style={{height: "510px"}}/>

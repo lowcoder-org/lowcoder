@@ -94,7 +94,7 @@ Object.keys(uiCompCategoryNames).forEach((cat) => {
   initialState[stateCompName][key] = key === uiCompCategoryNames.dashboards
 })
 
-export const ThemeCompPanel = () => {
+export const themeCompPanel = () => {
   const [searchValue, setSearchValue] = useState("");
   const [propertySectionState, setPropertySectionState] = useState<PropertySectionState>(initialState);
   const [searchedPropertySectionState, setSearchedPropertySectionState] = useState<PropertySectionState>({});
