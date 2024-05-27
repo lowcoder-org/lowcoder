@@ -65,6 +65,20 @@ Make sure that the apllication settings file contains the full local configurati
 Navigate to the file server/api-service/lowcoder-server/src/main/java/org/lowcoder/api/ServerApplication.java 
 This is the main class. Now you can use the IDE to "run" it or "debug it".
 
+You should see after approx a minute "Server Started" in the Logs and can then access the API via http://localhost:8080
+
+Before v2.4.0 you will get a HTTP Status 404 (which is ok in case).
+
+From v2.4.1 on you should see the status message:
+
+```JSON
+{
+    "code": 1,
+    "message": "Lowcoder API is up and runnig",
+    "success": true
+}
+```
+
 ## Using IntelliJ IDEA
 
 Configure the Run/Debug configuration as shown below.
