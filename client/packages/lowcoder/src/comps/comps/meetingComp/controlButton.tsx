@@ -55,6 +55,7 @@ const getStyle = (style: any) => {
       border: 1px solid ${style.border};
       border-radius: ${style.radius};
       margin: ${style.margin};
+      rotate: ${style.rotation};
       padding: ${style.padding};
       max-width: ${widthCalculator(style.margin)};
       max-height: ${heightCalculator(style.margin)};

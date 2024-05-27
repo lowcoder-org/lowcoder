@@ -3,7 +3,7 @@ import { BoolControl } from "comps/controls/boolControl";
 import { stringExposingStateControl } from "comps/controls/codeStateControl";
 import { dropdownControl } from "comps/controls/dropdownControl";
 import { styleControl } from "comps/controls/styleControl";
-import { QRCodeStyle, heightCalculator,	widthCalculator } from "comps/controls/styleControlConstants";
+import { AnimationStyle, QRCodeStyle, heightCalculator,	widthCalculator } from "comps/controls/styleControlConstants";
 import { UICompBuilder } from "comps/generators/uiCompBuilder";
 import { NameConfig, NameConfigHidden, withExposingConfigs } from "comps/generators/withExposing";
 import { Section, sectionNames } from "lowcoder-design";
@@ -31,6 +31,7 @@ const childrenMap = {
   includeMargin: BoolControl.DEFAULT_TRUE,
   image: StringControl,
   style: styleControl(QRCodeStyle),
+  animationStyle: styleControl(AnimationStyle),
 };
 
 const QRCodeView = (props: RecordConstructorToView<typeof childrenMap>) => {
@@ -50,7 +51,12 @@ const QRCodeView = (props: RecordConstructorToView<typeof childrenMap>) => {
         borderRadius: props.style.radius,
         border: `${props.style.borderWidth ? props.style.borderWidth : "1px"} solid ${
           props.style.border
-        }`,
+          }`,
+        rotate: props.style.rotation,
+        animation: props.animationStyle.animation,
+        animationDelay: props.animationStyle.animationDelay,
+        animationDuration: props.animationStyle.animationDuration,
+        animationIterationCount:props.animationStyle.animationIterationCount
       }}
     >
       <QRCodeSVG
@@ -99,10 +105,15 @@ let QRCodeBasicComp = (function () {
         )}
 
         {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
-          <Section name={sectionNames.style}>
+          <>
+            <Section name={sectionNames.style}>
             {children.style.getPropertyView()}
             {children.includeMargin.propertyView({ label: trans("QRCode.includeMargin") })}
-          </Section>
+            </Section>
+            <Section name={sectionNames.animationStyle}>
+            {children.animationStyle.getPropertyView()}
+            </Section>
+          </>
         )}
       </>
     ))

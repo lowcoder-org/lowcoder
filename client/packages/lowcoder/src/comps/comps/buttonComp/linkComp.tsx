@@ -30,6 +30,7 @@ const Link = styled(Button)<{
   ${(props) => props.$animationStyle}
   ${(props) => `
     color: ${props.$style.text};
+    rotate: ${props.$style.rotation};
     margin: ${props.$style.margin};
     padding: ${props.$style.padding};
     font-size: ${props.$style.textSize};
