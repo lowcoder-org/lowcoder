@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.lowcoder.domain.application.model.Application;
 import org.lowcoder.domain.application.model.ApplicationRequestType;
 import org.lowcoder.domain.application.service.ApplicationService;
+import org.lowcoder.domain.bundle.model.BundleRequestType;
 import org.lowcoder.domain.permission.model.ResourceAction;
 import org.lowcoder.domain.permission.model.ResourcePermission;
 import org.lowcoder.domain.permission.model.ResourceRole;
@@ -99,7 +100,17 @@ class ApplicationPermissionHandler extends ResourcePermissionHandler {
                 });
 	}
 
-	private List<ResourcePermission> getAnonymousUserPermission(String applicationId) {
+    @Override
+    protected Mono<Map<String, List<ResourcePermission>>> getAnonymousUserBundlePermissions(Collection<String> resourceIds, ResourceAction resourceAction, BundleRequestType requestType) {
+        return Mono.just(Collections.emptyMap());
+    }
+
+    @Override
+    protected Mono<Map<String, List<ResourcePermission>>> getNonAnonymousUserBundlePublicResourcePermissions(Collection<String> resourceIds, ResourceAction resourceAction, BundleRequestType requestType, String userId) {
+        return Mono.just(Collections.emptyMap());
+    }
+
+    private List<ResourcePermission> getAnonymousUserPermission(String applicationId) {
         return Collections.singletonList(ResourcePermission.builder()
                 .resourceId(applicationId)
                 .resourceType(ResourceType.APPLICATION)

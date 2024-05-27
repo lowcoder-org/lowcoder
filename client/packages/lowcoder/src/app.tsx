@@ -27,8 +27,8 @@ import {
   ADMIN_APP_URL,
   ORG_AUTH_FORGOT_PASSWORD_URL,
   ORG_AUTH_RESET_PASSWORD_URL,
+  API_DOCS_URL,
 } from "constants/routesURL";
-
 import React from "react";
 import { createRoot } from "react-dom/client";
 import { Helmet } from "react-helmet";
@@ -123,10 +123,43 @@ class AppIndex extends React.Component<AppIndexProps, any> {
           {<title>{this.props.brandName}</title>}
           {<link rel="icon" href={this.props.favicon} />}
           <meta name="description" content={trans("productDesc")} />
+          <meta name="keywords" content="Lowcoder, Applications, App Builder, Internal Applications, Websites, Dashboards, Data Visualization, Customer Applications, CRM, ERP, eCommerce, VideoMeeting, Rapid Development" />
+          <meta name="author" content="Lowcoder Software LTD" />
+          <meta name="robots" content="index, follow" />
+
+          
+          <meta key="og:title" property="og:title" content={this.props.brandName} />
+          <meta key="og:description" property="og:description" content={trans("productDesc")} />
+          <meta key="og:image" property="og:image" content="https://raw.githubusercontent.com/lowcoder-org/lowcoder-media-assets/main/images/App%20Editor%20%7C%20Main%20Screeen%20clean%20v2.4.0.png" />
+          <meta key="og:url" property="og:url" content={window.location.href} />
+          <meta key="og:type" property="og:type" content="website" />
+
+          <meta key="twitter:card" name="twitter:card" content="summary_large_image" />
+          <meta key="twitter:title" name="twitter:title" content={this.props.brandName} />
+          <meta key="twitter:description" name="twitter:description" content={trans("productDesc")} />
+          <meta key="twitter:image" name="twitter:image" content="https://raw.githubusercontent.com/lowcoder-org/lowcoder-media-assets/main/images/App%20Editor%20%7C%20Main%20Screeen%20clean%20v2.4.0.png" />
+
+          <meta key="viewport" name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+          <meta key="mobile-web-app-capable" name="mobile-web-app-capable" content="yes" />
+          <meta key="theme-color" name="theme-color" content="#b480de" />
+
+          <meta key="apple-mobile-web-app-capable" name="apple-mobile-web-app-capable" content="yes" />
+          <meta key="apple-mobile-web-app-status-bar-style" name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+          <meta key="apple-mobile-web-app-title" name="apple-mobile-web-app-title" content={this.props.brandName} />
+          <link key="apple-touch-icon" rel="apple-touch-icon" href="https://raw.githubusercontent.com/lowcoder-org/lowcoder-media-assets/main/images/Lowcoder%20Logo%20512.png" />
+          <link key="apple-touch-startup-image" rel="apple-touch-startup-image" href="https://raw.githubusercontent.com/lowcoder-org/lowcoder-media-assets/main/images/Lowcoder%20Logo%20512.png" />
+
+          <meta key="application-name" name="application-name" content={this.props.brandName} />
+          <meta key="msapplication-TileColor" name="msapplication-TileColor" content="#b480de" />
+          <meta key="msapplication-TileImage" name="msapplication-TileImage" content="https://raw.githubusercontent.com/lowcoder-org/lowcoder-media-assets/main/images/Lowcoder%20Logo%20150.png" />
+          {/* }<meta key="msapplication-config" name="msapplication-config" content="https://www.yourdomain.com/path/to/browserconfig.xml" />, */}
+
+          <link rel="canonical" href={window.location.href} />
           {isLowCoderDomain && [
             // Adding Support for iframely to be able to embedd the component explorer in the docu
-            <meta key="iframely:title" property="iframely:title" content="Lowcoder" />,
-            <meta key="iframely:description" property="iframely:description" content="Lowcoder | rapid App & VideoMeeting builder for everyone." />,
+            <meta key="iframely:title" property="iframely:title" content={this.props.brandName} />,
+            <meta key="iframely:description" property="iframely:description" content={trans("productDesc")} />,
+
             <link key="preconnect-googleapis" rel="preconnect" href="https://fonts.googleapis.com" />,
             <link key="preconnect-gstatic" rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />,
             <link key="font-ubuntu" href="https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,700;1,400&display=swap" rel="stylesheet" />,
@@ -176,6 +209,7 @@ class AppIndex extends React.Component<AppIndexProps, any> {
                 SETTING,
                 MARKETPLACE_URL,
                 ADMIN_APP_URL,
+                API_DOCS_URL,
               ]}
               // component={ApplicationListPage}
               component={LazyApplicationHome}
@@ -189,7 +223,6 @@ class AppIndex extends React.Component<AppIndexProps, any> {
             <LazyRoute path={`${COMPONENT_DOC_URL}/:name`} component={LazyComponentDoc} />
             <LazyRoute path={`/playground/:name/:dsl`} component={LazyComponentPlayground} />
             <Redirect to={`${COMPONENT_DOC_URL}/input`} path="/components" />
-
             {developEnv() && (
               <>
                 <LazyRoute path="/debug_comp/:name" component={LazyDebugComp} />

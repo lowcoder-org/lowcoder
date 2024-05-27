@@ -827,6 +827,7 @@ export const ContainerStyle = [
   getBackground(),
   RADIUS,
   BORDER_WIDTH,
+  BORDER_STYLE,
   MARGIN,
   PADDING,
   {
@@ -1838,14 +1839,22 @@ export const CommentStyle = [
 ] as const;
 
 export const ResponsiveLayoutRowStyle = [
-  ...BG_STATIC_BORDER_RADIUS,
+  getBackground("canvas"),
+  getStaticBorder("transparent"),
+  RADIUS,
+  BORDER_WIDTH,
+  BORDER_STYLE,
   MARGIN,
   PADDING,
   ROTATION
 ] as const;
 
 export const ResponsiveLayoutColStyle = [
-  ...BG_STATIC_BORDER_RADIUS,
+  getBackground("canvas"),
+  getStaticBorder("transparent"),
+  RADIUS,
+  BORDER_WIDTH,
+  BORDER_STYLE,
   MARGIN,
   PADDING,
 ] as const;
