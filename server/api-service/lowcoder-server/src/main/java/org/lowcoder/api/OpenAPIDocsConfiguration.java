@@ -69,7 +69,7 @@ public class OpenAPIDocsConfiguration {
     }
     
     
-    private static String createLocalServerUrl(String domain, int port, String contextPath)    
+    /* private static String createLocalServerUrl(String domain, int port, String contextPath)    
     {
     	StringBuilder sb = new StringBuilder("http");
     	
@@ -86,7 +86,7 @@ public class OpenAPIDocsConfiguration {
     	sb.append(contextPath);
     	
     	return sb.toString();
-    }
+    } */
     
     private Server createCustomServer()
     {
