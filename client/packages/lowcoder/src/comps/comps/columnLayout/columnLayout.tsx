@@ -49,7 +49,6 @@ const ContainWrapper = styled.div<{
   border-width: ${(props) => props.$style?.borderWidth};
   border-color: ${(props) => props.$style?.border};
   border-style: ${(props) => props.$style?.borderStyle};
-  rotate: ${(props) => props.$style?.rotation};
   margin: ${(props) => props.$style?.margin};
   padding: ${(props) => props.$style?.padding};
 `;

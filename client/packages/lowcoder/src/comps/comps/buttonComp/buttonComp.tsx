@@ -25,6 +25,7 @@ import {
 import { RefControl } from "comps/controls/refControl";
 
 import React, { useContext } from "react";
+import { AnimationStyle, styleControl } from "@lowcoder-ee/index.sdk";
 
 const FormLabel = styled(CommonBlueLabel)`
   font-size: 13px;
@@ -129,6 +130,7 @@ const ButtonTmpComp = (function () {
     prefixIcon: IconControl,
     suffixIcon: IconControl,
     style: ButtonStyleControl,
+    animationStyle:styleControl(AnimationStyle),
     viewRef: RefControl<HTMLElement>,
   };
   return new UICompBuilder(childrenMap, (props) => (

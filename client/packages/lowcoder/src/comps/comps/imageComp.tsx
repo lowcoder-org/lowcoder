@@ -17,6 +17,8 @@ import _ from "lodash";
 import ReactResizeDetector from "react-resize-detector";
 import { styleControl } from "comps/controls/styleControl";
 import {
+  AnimationStyle,
+  AnimationStyleType,
   ImageStyle,
   ImageStyleType,
   heightCalculator,
@@ -32,7 +34,7 @@ import { DEFAULT_IMG_URL } from "util/stringUtils";
 import { useContext } from "react";
 import { EditorContext } from "comps/editorState";
 
-const Container = styled.div<{ $style: ImageStyleType | undefined }>`
+const Container = styled.div<{ $style: ImageStyleType | undefined,$animationStyle:AnimationStyleType }>`
   height: 100%;
   width: 100%;
   display: flex;
@@ -47,6 +49,7 @@ const Container = styled.div<{ $style: ImageStyleType | undefined }>`
   img {
     object-fit: contain;
     pointer-events: auto;
+    ${props=>props.$animationStyle}
   }
 
   ${(props) => props.$style && getStyle(props.$style)}
@@ -61,6 +64,7 @@ const getStyle = (style: ImageStyleType) => {
       padding: ${style.padding};
       max-width: ${widthCalculator(style.margin)};
       max-height: ${heightCalculator(style.margin)};
+      rotate: ${style.rotation};
     }
 
     .ant-image-mask {
@@ -135,7 +139,7 @@ const ContainerImg = (props: RecordConstructorToView<typeof childrenMap>) => {
     <ReactResizeDetector
       onResize={onResize}
       render={() => (
-        <Container ref={conRef} $style={props.style}>
+        <Container ref={conRef} $style={props.style} $animationStyle={props.animationStyle}>
           <div
             ref={imgRef}
             style={
@@ -162,6 +166,7 @@ const childrenMap = {
   src: withDefault(StringStateControl, "https://temp.im/350x400"),
   onEvent: eventHandlerControl(EventOptions),
   style: styleControl(ImageStyle),
+  animationStyle: styleControl(AnimationStyle),
   autoHeight: withDefault(AutoHeightControl, "fixed"),
   supportPreview: BoolControl,
 };
@@ -196,6 +201,9 @@ let ImageBasicComp = new UICompBuilder(childrenMap, (props) => {
             </Section>
             <Section name={sectionNames.style}>
               {children.style.getPropertyView()}
+            </Section>
+            <Section name={sectionNames.animationStyle}>
+              {children.animationStyle.getPropertyView()}
             </Section>
           </>
         )}

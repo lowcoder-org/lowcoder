@@ -18,13 +18,16 @@ import {
 import { ContextContainerComp } from "./contextContainerComp";
 import { ListViewImplComp } from "./listViewComp";
 import { getCurrentItemParams, getData } from "./listViewUtils";
+import { AnimationStyleType } from "@lowcoder-ee/index.sdk";
 
-const ListViewWrapper = styled.div<{ $style: any; $paddingWidth: string }>`
+const ListViewWrapper = styled.div<{ $style: any; $paddingWidth: string,$animationStyle:AnimationStyleType }>`
   height: 100%;
   border: 1px solid ${(props) => props.$style.border};
   border-radius: ${(props) => props.$style.radius};
   padding: 3px ${(props) => props.$paddingWidth};
+  rotate: ${(props) => props.$style.rotation};
   background-color: ${(props) => props.$style.background};
+  ${props=>props.$animationStyle}
 `;
 
 const FooterWrapper = styled.div`
@@ -162,7 +165,6 @@ type Props = {
 };
 
 export function ListView(props: Props) {
-  // console.info("<---- listView renders.");
   const { comp } = props;
   const children = comp.children;
   const ref = useRef(null);
@@ -203,6 +205,7 @@ export function ListView(props: Props) {
     };
   }, [children.pagination, totalCount]);
   const style = children.style.getView();
+  const animationStyle = children.animationStyle.getView();
 
   const commonLayout = comp.realSimpleContainer()!.children.layout.getView();
   const isOneItem =
@@ -274,8 +277,7 @@ export function ListView(props: Props) {
   // log.debug("renders: ", renders);
   return (
     <BackgroundColorContext.Provider value={style.background}>
-      <ListViewWrapper $style={style} $paddingWidth={paddingWidth}>
-
+      <ListViewWrapper $style={style} $paddingWidth={paddingWidth} $animationStyle={animationStyle}>
         <BodyWrapper ref={ref} $autoHeight={autoHeight}>
           <ScrollBar style={{ height: autoHeight ? "auto" : "100%", margin: "0px", padding: "0px" }} hideScrollbar={!scrollbars}>
             <ReactResizeDetector
