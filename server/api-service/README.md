@@ -56,6 +56,15 @@ The contents should look like this:
 }
 ```
 
+Important is here the command -Dspring.profiles.active= - as it is responsible for the selection of the right apllication settings file too. 
+
+## Start the debug locally
+
+Make sure that the apllication settings file contains the full local configuration you need. The apllication settings file is named application-\<profile>.yaml and reside in server/api-service/lowcoder-server/src/main/resources. The profile relates to your setting in the launch file. For example: -Dspring.profiles.active=lowcoder would make sure, lowcoder seeks the right config at application-lowcoder.yaml
+
+Navigate to the file server/api-service/lowcoder-server/src/main/java/org/lowcoder/api/ServerApplication.java 
+This is the main class. Now you can use the IDE to "run" it or "debug it".
+
 ## Build and start the Lowcoder server jar
 
 1. Clone Lowcoder repository
@@ -63,7 +72,9 @@ The contents should look like this:
 
 ```shell
 cd server/api-service
+
 mvn clean package
+
 java -Dpf4j.mode=development -Dspring.profiles.active=lowcoder -Dpf4j.pluginsDir=lowcoder-plugins -jar lowcoder-server/target/lowcoder-api-service.jar
 ```
 
