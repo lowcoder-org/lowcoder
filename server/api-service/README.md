@@ -35,7 +35,7 @@ Now you can clone the Repository from Github: https://github.com/lowcoder-org/lo
 git@github.com:lowcoder-org/lowcoder.git
 ```
 
-## Unsing VS Code
+## Using VS Code
 
 Create a launch.json file in the .vscode folder of your new opened workspace.
 The contents should look like this:
@@ -65,7 +65,7 @@ Make sure that the apllication settings file contains the full local configurati
 Navigate to the file server/api-service/lowcoder-server/src/main/java/org/lowcoder/api/ServerApplication.java 
 This is the main class. Now you can use the IDE to "run" it or "debug it".
 
-## Unsing IntelliJ IDEA
+## Using IntelliJ IDEA
 
 Configure the Run/Debug configuration as shown below.
 
@@ -91,7 +91,8 @@ Configure the Run/Debug configuration as shown below.
 Next, execute the following commands in sequence
 
 ```shell
-cd server
+cd server/api-service
+
 mvn clean package
 ```
 
