@@ -7,7 +7,7 @@ import { genActiveColor, genHoverColor } from "lowcoder-design";
 import { refMethods } from "comps/generators/withMethodExposing";
 import { blurMethod, clickMethod, focusWithOptions } from "comps/utils/methodUtils";
 
-export function getButtonStyle(buttonStyle: any) {
+export function getButtonStyle(buttonStyle: ButtonStyleType) {
   const hoverColor = genHoverColor(buttonStyle.background);
   const activeColor = genActiveColor(buttonStyle.background);
   return css`
@@ -52,7 +52,7 @@ export function getButtonStyle(buttonStyle: any) {
   `;
 }
 
-export const Button100 = styled(Button)<{ $buttonStyle?: any }>`
+export const Button100 = styled(Button)<{ $buttonStyle?: ButtonStyleType }>`
   ${(props) => props.$buttonStyle && getButtonStyle(props.$buttonStyle)}
   width: 100%;
   height: auto;
