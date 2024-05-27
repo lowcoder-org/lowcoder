@@ -65,22 +65,6 @@ Make sure that the apllication settings file contains the full local configurati
 Navigate to the file server/api-service/lowcoder-server/src/main/java/org/lowcoder/api/ServerApplication.java 
 This is the main class. Now you can use the IDE to "run" it or "debug it".
 
-## Build and start the Lowcoder server jar
-
-1. Clone Lowcoder repository
-2. Next, execute the following commands in sequence
-
-```shell
-cd server/api-service
-
-mvn clean package
-
-java -Dpf4j.mode=development -Dspring.profiles.active=lowcoder -Dpf4j.pluginsDir=lowcoder-plugins -jar lowcoder-server/target/lowcoder-api-service.jar
-```
-
-
-Now, you can check the status of the service by visiting http://localhost:8080 through your browser. By default, you should see an HTTP 404 error.
-
 ## Unsing IntelliJ IDEA
 
 Configure the Run/Debug configuration as shown below.
@@ -112,5 +96,22 @@ mvn clean package
 ```
 
 After Maven package runs successfully, you can start the Lowcoder server with IntelliJ IDEA.
+
+
+## Build and start the Lowcoder server jar
+
+1. Clone Lowcoder repository
+2. Next, execute the following commands in sequence
+
+```shell
+cd server/api-service
+
+mvn clean package
+
+java -Dpf4j.mode=development -Dspring.profiles.active=lowcoder -Dpf4j.pluginsDir=lowcoder-plugins -jar lowcoder-server/target/lowcoder-api-service.jar
+```
+
+
+Now, you can check the status of the service by visiting http://localhost:8080 through your browser.
 
 For information on how to contribute to Lowcoder, please view our [Contribution Guide](https://docs.lowcoder.cloud/lowcoder-documentation/lowcoder-extension/opensource-contribution).
