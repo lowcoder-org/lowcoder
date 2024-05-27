@@ -10,7 +10,7 @@ import {
 import { BoolCodeControl, StringControl } from "comps/controls/codeControl";
 import { ScannerEventHandlerControl } from "comps/controls/eventHandlerControl";
 import { styleControl } from "comps/controls/styleControl";
-import { ButtonStyle } from "comps/controls/styleControlConstants";
+import { DropdownStyle } from "comps/controls/styleControlConstants";
 import { withDefault } from "comps/generators";
 import { UICompBuilder } from "comps/generators/uiCompBuilder";
 import { CustomModal, Section, sectionNames } from "lowcoder-design";
@@ -70,7 +70,7 @@ const ScannerTmpComp = (function () {
     maskClosable: withDefault(BoolControl, true),
     onEvent: ScannerEventHandlerControl,
     disabled: BoolCodeControl,
-    style: styleControl(ButtonStyle),
+    style: styleControl(DropdownStyle),
     viewRef: RefControl<HTMLElement>,
   };
   return new UICompBuilder(childrenMap, (props) => {
