@@ -144,6 +144,15 @@ public class BiRelationServiceImpl implements BiRelationService {
     }
 
     @Override
+    public Mono<Boolean> removeAllBiRelationsBySourceIdAndTargetId(BiRelationBizType bizType, String sourceId, String targetId) {
+        Query query = new Query();
+        query.addCriteria(where(BIZ_TYPE).is(bizType));
+        query.addCriteria(where(SOURCE_ID).is(sourceId));
+        query.addCriteria(where(TARGET_ID).is(targetId));
+        return mongoUpsertHelper.remove(query, BiRelation.class);
+    }
+
+    @Override
     public Mono<Boolean> removeAllBiRelations(BiRelationBizType bizType, List<String> sourceIds) {
         Query query = new Query();
         query.addCriteria(where(BIZ_TYPE).is(bizType));

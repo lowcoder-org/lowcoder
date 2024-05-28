@@ -11,6 +11,7 @@ public interface BundleElementRelationService {
     Mono<Boolean> deleteByBundleIds(List<String> bundleIds);
 
     Mono<Boolean> deleteByElementId(String elementId);
+    Mono<Boolean> deleteByBundleIdAndElementId(String bundleId, String elementId);
 
     Mono<Void> create(String bundleId, String elementId);
 
