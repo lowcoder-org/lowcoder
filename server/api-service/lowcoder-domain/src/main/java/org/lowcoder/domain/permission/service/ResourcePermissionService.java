@@ -34,9 +34,10 @@ public interface ResourcePermissionService {
                                                 String userId,
                                                 ResourceRole role);
 
-    Mono<Boolean> addApplicationPermissionToUser(String applicationId,
+    Mono<Boolean> addResourcePermissionToUser(String resourceId,
                                                  String userId,
-                                                 ResourceRole role);
+                                                 ResourceRole role,
+                                                 ResourceType type);
 
     Mono<Boolean> addApplicationPermissionToGroup(String applicationId,
                                                   String groupId,

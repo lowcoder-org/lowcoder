@@ -116,7 +116,7 @@ public class BundleApiServiceImpl implements BundleApiService {
                 })
                 .flatMap(orgMember -> {
                     bundle.setCreatedBy(orgMember.getUserId());
-                    return bundleService.create(bundle);
+                    return bundleService.create(bundle, orgMember.getUserId());
                 })
                 .delayUntil(created -> autoGrantPermissionsByFolderDefault(created.getId(), createBundleRequest.folderId()))
                 .delayUntil(created -> folderApiService.moveBundle(created.getId(),
