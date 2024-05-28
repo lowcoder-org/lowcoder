@@ -16,7 +16,7 @@ public interface BundleService {
 
     Mono<Bundle> findById(String id);
 
-    Mono<Bundle> create(Bundle bundle);
+    Mono<Bundle> create(Bundle bundle, String userId);
 
     Flux<Bundle> findByUserId(String bundleId);
 

@@ -98,10 +98,11 @@ public class ResourcePermissionServiceImpl implements ResourcePermissionService 
     }
 
     @Override
-    public Mono<Boolean> addApplicationPermissionToUser(String applicationId,
+    public Mono<Boolean> addResourcePermissionToUser(String resourceId,
                                                         String userId,
-                                                        ResourceRole role) {
-        return addPermission(ResourceType.APPLICATION, applicationId, ResourceHolder.USER, userId, role);
+                                                        ResourceRole role,
+                                                        ResourceType type) {
+        return addPermission(type, resourceId, ResourceHolder.USER, userId, role);
     }
 
     @Override

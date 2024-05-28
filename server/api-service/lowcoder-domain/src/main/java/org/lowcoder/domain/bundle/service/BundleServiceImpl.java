@@ -7,6 +7,9 @@ import org.lowcoder.domain.application.model.ApplicationRequestType;
 import org.lowcoder.domain.bundle.model.Bundle;
 import org.lowcoder.domain.bundle.model.BundleRequestType;
 import org.lowcoder.domain.bundle.repository.BundleRepository;
+import org.lowcoder.domain.permission.model.ResourceRole;
+import org.lowcoder.domain.permission.model.ResourceType;
+import org.lowcoder.domain.permission.service.ResourcePermissionService;
 import org.lowcoder.infra.annotation.NonEmptyMono;
 import org.lowcoder.infra.mongo.MongoUpsertHelper;
 import org.lowcoder.sdk.constants.FieldName;
@@ -30,6 +33,7 @@ public class BundleServiceImpl implements BundleService {
 
     private final BundleRepository repository;
     private final MongoUpsertHelper mongoUpsertHelper;
+    private final ResourcePermissionService resourcePermissionService;
 
     @Override
     public Mono<Boolean> updateById(String id, Bundle resource) {
@@ -51,8 +55,9 @@ public class BundleServiceImpl implements BundleService {
     }
 
     @Override
-    public Mono<Bundle> create(Bundle bundle) {
-        return repository.save(bundle);
+    public Mono<Bundle> create(Bundle newbundle, String visitorId) {
+        return repository.save(newbundle)
+                .delayUntil(bundle -> resourcePermissionService.addResourcePermissionToUser(bundle.getId(), visitorId, ResourceRole.OWNER, ResourceType.BUNDLE));
     }
 
     @Override

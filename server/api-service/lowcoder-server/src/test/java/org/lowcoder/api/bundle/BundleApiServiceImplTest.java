@@ -26,6 +26,7 @@ public class BundleApiServiceImplTest {
 
     @Test
     public void createBundleTest() {
+        //When org admin user creates bundle it succeed
         when(sessionUserService.getVisitorId()).thenReturn(Mono.just("user01"));
         when(sessionUserService.getVisitorOrgMemberCache()).thenReturn(Mono.just(new OrgMember("org01", "user01", MemberRole.ADMIN, "NORMAL", 0)));
         Mono<BundleInfoView> bundleInfoViewMono = bundleApiService.create(new BundleEndpoints.CreateBundleRequest(
@@ -50,5 +51,46 @@ public class BundleApiServiceImplTest {
                     assertNull(bundleInfoView.getFolderId());
                 })
                 .verifyComplete();
+
+        //When org dev user creates bundle it succeed
+        when(sessionUserService.getVisitorId()).thenReturn(Mono.just("user02"));
+        when(sessionUserService.getVisitorOrgMemberCache()).thenReturn(Mono.just(new OrgMember("org01", "user02", MemberRole.MEMBER, "NORMAL", 0)));
+        Mono<BundleInfoView> bundleInfoViewMono1 = bundleApiService.create(new BundleEndpoints.CreateBundleRequest(
+                "org01",
+                "name",
+                "title",
+                "description",
+                "category",
+                "image",
+                null));
+        StepVerifier.create(bundleInfoViewMono1)
+                .assertNext(bundleInfoView -> {
+                    assertNotNull(bundleInfoView.getBundleId());
+                    assertEquals("name", bundleInfoView.getName());
+                    assertEquals("title", bundleInfoView.getTitle());
+                    assertEquals("description", bundleInfoView.getDescription());
+                    assertEquals("category", bundleInfoView.getCategory());
+                    assertEquals("image", bundleInfoView.getImage());
+                    assertFalse(bundleInfoView.getPublicToAll());
+                    assertFalse(bundleInfoView.getPublicToMarketplace());
+                    assertFalse(bundleInfoView.getAgencyProfile());
+                    assertNull(bundleInfoView.getFolderId());
+                })
+                .verifyComplete();
+
+        //When non-dev create bundle throws error
+        when(sessionUserService.getVisitorId()).thenReturn(Mono.just("user01"));
+        when(sessionUserService.getVisitorOrgMemberCache()).thenReturn(Mono.just(new OrgMember("org01", "user01", MemberRole.MEMBER, "NORMAL", 0)));
+        Mono<BundleInfoView> bundleInfoViewMono2 = bundleApiService.create(new BundleEndpoints.CreateBundleRequest(
+                "org01",
+                "name",
+                "title",
+                "description",
+                "category",
+                "image",
+                null));
+        StepVerifier.create(bundleInfoViewMono2)
+                .expectError()
+                .verify();
     }
 }
