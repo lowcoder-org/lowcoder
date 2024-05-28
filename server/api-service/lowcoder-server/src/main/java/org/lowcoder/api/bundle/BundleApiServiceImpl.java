@@ -5,7 +5,6 @@ import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.lowcoder.api.application.ApplicationEndpoints;
 import org.lowcoder.api.bundle.BundleEndpoints.CreateBundleRequest;
 import org.lowcoder.api.application.view.ApplicationInfoView;
 import org.lowcoder.api.application.view.ApplicationPermissionView;
@@ -259,21 +258,44 @@ public class BundleApiServiceImpl implements BundleApiService {
     }
 
     /**
-     * @param targetBundleId null means root bundle
+     * @param applicationId app id to move
+     * @param fromBundleId bundle id to remove app from
+     * @param toBundleId bundle id to move app to
      */
     @Override
-    public Mono<Void> move(String applicationLikeId, @Nullable String targetBundleId) {
+    public Mono<Void> moveApp(String applicationId, String fromBundleId, String toBundleId) {
         return sessionUserService.getVisitorId()
                 // check permissions
-                .delayUntil(userId -> resourcePermissionService.checkResourcePermissionWithError(userId, applicationLikeId,
+                .delayUntil(userId -> resourcePermissionService.checkResourcePermissionWithError(userId, applicationId,
                         ResourceAction.MANAGE_APPLICATIONS))
                 // remove old relations
-                .then(bundleElementRelationService.deleteByElementId(applicationLikeId))
+                .then(bundleElementRelationService.deleteByBundleIdAndElementId(fromBundleId, applicationId))
                 .flatMap(b -> {
-                    if (StringUtils.isBlank(targetBundleId)) {
+                    if (StringUtils.isBlank(toBundleId)) {
                         return Mono.empty();
                     }
-                    return bundleElementRelationService.create(targetBundleId, applicationLikeId);
+                    return bundleElementRelationService.create(toBundleId, applicationId);
+                })
+                .then();
+    }
+
+    /**
+     * @param applicationId app id to add
+     * @param toBundleId bundle id to add app to
+     */
+    @Override
+    public Mono<Void> addApp(String applicationId, String toBundleId) {
+        return sessionUserService.getVisitorId()
+                // check permissions
+                .delayUntil(userId -> resourcePermissionService.checkResourcePermissionWithError(userId, applicationId,
+                        ResourceAction.MANAGE_APPLICATIONS))
+                // remove old relations
+                .then(bundleElementRelationService.deleteByBundleIdAndElementId(toBundleId, applicationId))
+                .flatMap(b -> {
+                    if (StringUtils.isBlank(toBundleId)) {
+                        return Mono.empty();
+                    }
+                    return bundleElementRelationService.create(toBundleId, applicationId);
                 })
                 .then();
     }

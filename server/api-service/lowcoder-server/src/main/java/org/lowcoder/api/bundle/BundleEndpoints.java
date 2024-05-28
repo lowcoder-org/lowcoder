@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.annotation.Nullable;
 import org.apache.commons.lang3.BooleanUtils;
-import org.lowcoder.api.application.ApplicationEndpoints;
 import org.lowcoder.api.bundle.view.BundleInfoView;
 import org.lowcoder.api.bundle.view.BundlePermissionView;
 import org.lowcoder.api.bundle.view.MarketplaceBundleInfoView;
@@ -126,13 +125,25 @@ public interface BundleEndpoints
 
 	@Operation(
 			tags = TAG_BUNDLE_MANAGEMENT,
-		    operationId = "moveBundle",
-		    summary = "Move Bundle",
+		    operationId = "moveApp",
+		    summary = "Move App to Bundle",
 		    description = "Relocate an application to a different bundle in Lowcoder using its unique ID."
 	)
-    @PutMapping("/move/{id}")
-    public Mono<ResponseView<Void>> move(@PathVariable("id") String applicationLikeId,
-            @RequestParam(value = "targetBundleId", required = false) String targetBundleId);
+    @PutMapping("/moveApp/{id}")
+    public Mono<ResponseView<Void>> moveApp(@PathVariable("id") String applicationId,
+            @RequestParam(value = "fromBundleId") String fromBundleId,
+			@RequestParam(value = "toBundleId") String toBundleId);
+
+	@Operation(
+			tags = TAG_BUNDLE_MANAGEMENT,
+			operationId = "addApp",
+			summary = "Add App to Bundle",
+			description = "Add an application to a bundle in Lowcoder using its unique ID."
+	)
+
+	@PutMapping("/addApp/{id}")
+	public Mono<ResponseView<Void>> addApp(@PathVariable("id") String applicationId,
+											@RequestParam(value = "toBundleId") String toBundleId);
 
 	@Operation(
 			tags = TAG_BUNDLE_MANAGEMENT,

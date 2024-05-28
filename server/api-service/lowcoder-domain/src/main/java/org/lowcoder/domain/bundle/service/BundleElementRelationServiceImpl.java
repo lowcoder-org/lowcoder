@@ -29,6 +29,11 @@ public class BundleElementRelationServiceImpl implements BundleElementRelationSe
     }
 
     @Override
+    public Mono<Boolean> deleteByBundleIdAndElementId(String bundleId, String elementId) {
+        return biRelationService.removeAllBiRelationsBySourceIdAndTargetId(BUNDLE_ELEMENT, bundleId, elementId);
+    }
+
+    @Override
     public Mono<Void> create(String bundleId, String elementId) {
         return biRelationService.getBySourceId(BUNDLE_ELEMENT, bundleId)
                 .mapNotNull(rel -> {
