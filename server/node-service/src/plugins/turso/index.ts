@@ -89,7 +89,7 @@ type Response = {
 const tursoPlugin: DataSourcePlugin<ActionDataType, DataSourceDataType> = {
   id: "turso",
   name: "Turso",
-  category: "api",
+  category: "database",
   icon: "turso.svg",
   dataSourceConfig,
   queryConfig,
