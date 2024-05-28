@@ -89,11 +89,12 @@ public class BundleApiServiceImpl implements BundleApiService {
     @Override
     public Mono<BundleInfoView> create(CreateBundleRequest createBundleRequest) {
         Bundle bundle = Bundle.builder()
+                .organizationId(createBundleRequest.organizationId())
                 .name(createBundleRequest.name())
                 .image(createBundleRequest.image())
                 .title(createBundleRequest.title())
                 .description(createBundleRequest.description())
-                .category(createBundleRequest.description())
+                .category(createBundleRequest.category())
                 .bundleStatus(NORMAL)
                 .publicToAll(false)
                 .publicToMarketplace(false)
@@ -118,7 +119,7 @@ public class BundleApiServiceImpl implements BundleApiService {
                     return bundleService.create(bundle);
                 })
                 .delayUntil(created -> autoGrantPermissionsByFolderDefault(created.getId(), createBundleRequest.folderId()))
-                .delayUntil(created -> folderApiService.move(created.getId(),
+                .delayUntil(created -> folderApiService.moveBundle(created.getId(),
                         createBundleRequest.folderId()))
                 .flatMap(f -> buildBundleInfoView(f, true, true, createBundleRequest.folderId()));
     }
@@ -587,6 +588,7 @@ public class BundleApiServiceImpl implements BundleApiService {
                 .map(user -> BundleInfoView.builder()
                         .userId(bundle.getCreatedBy())
                         .bundleId(bundle.getId())
+                        .title(bundle.getTitle())
                         .name(bundle.getName())
                         .description(bundle.getDescription())
                         .category(bundle.getCategory())
