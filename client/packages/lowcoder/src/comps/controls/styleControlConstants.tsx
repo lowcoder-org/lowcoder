@@ -812,6 +812,24 @@ export const TextStyle = [
   },
 ] as const;
 
+export const TextContainerStyle = [
+  {
+    name: "background",
+    label: trans("style.background"),
+    depTheme: "canvas",
+    depType: DEP_TYPE.SELF,
+    transformer: toSelf,
+  },
+  ...STYLING_FIELDS_SEQUENCE.filter(style=>style.name!=='rotation'),
+  {
+    name: "links",
+    label: trans("style.links"),
+    depTheme: "primary",
+    depType: DEP_TYPE.SELF,
+    transformer: toSelf,
+  },
+] as const;
+
 export const MarginStyle = [
   {
     name: "margin",
@@ -1946,6 +1964,7 @@ export type ColorPickerStyleType = StyleConfigType<typeof ColorPickerStyle>;
 export type ButtonStyleType = StyleConfigType<typeof ButtonStyle>;
 export type ToggleButtonStyleType = StyleConfigType<typeof ToggleButtonStyle>;
 export type TextStyleType = StyleConfigType<typeof TextStyle>;
+export type TextContainerStyleType = StyleConfigType<typeof TextContainerStyle>;
 export type ContainerStyleType = StyleConfigType<typeof ContainerStyle>;
 export type ContainerHeaderStyleType = StyleConfigType<
   typeof ContainerHeaderStyle

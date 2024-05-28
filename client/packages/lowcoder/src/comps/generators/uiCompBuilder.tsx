@@ -249,8 +249,10 @@ function UIView(props: {
   let defaultChildren = comp.children;
   const isNotContainer = defaultChildren.hasOwnProperty('style');
   let rotationVal = null
+  let boxShadowVal = null;
   if (isNotContainer) {
-    rotationVal = defaultChildren.style.children.rotation.valueAndMsg.value;
+    rotationVal = defaultChildren.style.children?.rotation?.valueAndMsg.value;
+    boxShadowVal = defaultChildren.style?.children?.boxShadow?.valueAndMsg?.value;
   }
   return (
     <div
@@ -262,11 +264,16 @@ function UIView(props: {
         height: '100%',
         margin: '0px',
         padding:
-          rotationVal === null
+          rotationVal === null || rotationVal === undefined
             ? '0px'
-            : rotationVal === '' || rotationVal === '0deg'
-              ? '0px'
-              : '50% 0px',
+            : boxShadowVal === null || boxShadowVal === undefined
+              ? rotationVal === '' || rotationVal === '0deg'
+                ? '0px'
+                : '50% 0px'
+              : (rotationVal === '' || rotationVal === '0deg') &&
+                  (boxShadowVal === '' || boxShadowVal === '0px')
+                ? '0px'
+                : '50% 0px',
       }}
     >
       <HidableView hidden={childrenProps.hidden as boolean}>

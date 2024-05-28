@@ -10,7 +10,7 @@ import { UICompBuilder } from "../generators";
 import { NameConfig, NameConfigHidden, withExposingConfigs } from "../generators/withExposing";
 import { markdownCompCss, TacoMarkDown } from "lowcoder-design";
 import { styleControl } from "comps/controls/styleControl";
-import { AnimationStyle, AnimationStyleType, TextStyle, TextStyleType, heightCalculator, widthCalculator } from "comps/controls/styleControlConstants";
+import { AnimationStyle, AnimationStyleType, TextContainerStyle, TextContainerStyleType, heightCalculator, widthCalculator } from "comps/controls/styleControlConstants";
 import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { alignWithJustifyControl } from "comps/controls/alignControl";
@@ -21,7 +21,7 @@ import { PaddingControl } from "../controls/paddingControl";
 import React, { useContext } from "react";
 import { EditorContext } from "comps/editorState";
 
-const getStyle = (style: TextStyleType) => {
+const getStyle = (style: TextContainerStyleType) => {
   return css`
     border-radius: ${(style.radius ? style.radius : "4px")};
     border: ${(style.borderWidth ? style.borderWidth : "0px")} solid ${style.border};
@@ -74,7 +74,7 @@ const getStyle = (style: TextStyleType) => {
 
 const TextContainer = styled.div<{
   $type: string;
-  $styleConfig: TextStyleType;
+  $styleConfig: TextContainerStyleType;
   $animationStyle:AnimationStyleType;
 }>`
   height: 100%;
@@ -130,7 +130,7 @@ let TextTmpComp = (function () {
     type: dropdownControl(typeOptions, "markdown"),
     horizontalAlignment: alignWithJustifyControl(),
     verticalAlignment: dropdownControl(VerticalAlignmentOptions, "center"),
-    style: styleControl(TextStyle),
+    style: styleControl(TextContainerStyle),
     animationStyle: styleControl(AnimationStyle),
     margin: MarginControl,
     padding: PaddingControl,
@@ -146,7 +146,6 @@ let TextTmpComp = (function () {
           justifyContent: props.horizontalAlignment,
           alignItems: props.autoHeight ? "center" : props.verticalAlignment,
           textAlign: props.horizontalAlignment,
-          rotate: props.style.rotation
         }}
       >
         {props.type === "markdown" ? <TacoMarkDown>{value}</TacoMarkDown> : value}
