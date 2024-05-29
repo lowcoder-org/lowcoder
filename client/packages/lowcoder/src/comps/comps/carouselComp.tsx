@@ -47,7 +47,7 @@ let CarouselBasicComp = (function () {
     dotPosition: withDefault(PositionControl, "bottom"),
     style: styleControl(CarouselStyle),
     animationStyle: styleControl(AnimationStyle),
-
+    restrictPaddingOnRotation:withDefault(BoolControl, true),
     ...formDataChildren,
   };
   return new UICompBuilder(childrenMap, (props) => {

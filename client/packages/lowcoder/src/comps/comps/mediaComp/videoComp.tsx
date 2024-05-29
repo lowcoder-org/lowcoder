@@ -120,6 +120,7 @@ const childrenMap = {
   playbackRate: RangeControl.closed(1, 2, 1),
   currentTimeStamp: numberExposingStateControl("currentTimeStamp", 0),
   duration: numberExposingStateControl("duration"),
+  restrictPaddingOnRotation:withDefault(BoolControl, true),
   ...mediaCommonChildren,
 };
  

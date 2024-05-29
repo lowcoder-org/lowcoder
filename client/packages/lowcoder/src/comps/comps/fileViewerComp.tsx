@@ -6,13 +6,14 @@ import { DocumentViewer } from "react-documents";
 import styled, { css } from "styled-components";
 import { Section, sectionNames } from "lowcoder-design";
 import { StringControl } from "../controls/codeControl";
-import { UICompBuilder } from "../generators";
+import { UICompBuilder, withDefault } from "../generators";
 import { NameConfig, NameConfigHidden, withExposingConfigs } from "../generators/withExposing";
 import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 
 import { useContext } from "react";
 import { EditorContext } from "comps/editorState";
+import { BoolControl } from "../controls/boolControl";
 
 const getStyle = (style: FileViewerStyleType) => {
   return css`
@@ -69,7 +70,8 @@ let FileViewerBasicComp = (function () {
   const childrenMap = {
     src: StringControl,
     style: styleControl(FileViewerStyle),
-    animationStyle:styleControl(AnimationStyle)
+    animationStyle: styleControl(AnimationStyle),
+    restrictPaddingOnRotation: withDefault(BoolControl, true),
   };
   return new UICompBuilder(childrenMap, (props) => {
     if (isEmpty(props.src)) {
