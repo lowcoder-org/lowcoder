@@ -10,7 +10,7 @@ import { UICompBuilder } from "../generators";
 import { NameConfig, NameConfigHidden, withExposingConfigs } from "../generators/withExposing";
 import { markdownCompCss, TacoMarkDown } from "lowcoder-design";
 import { styleControl } from "comps/controls/styleControl";
-import { AnimationStyle, AnimationStyleType, TextContainerStyle, TextContainerStyleType, heightCalculator, widthCalculator } from "comps/controls/styleControlConstants";
+import { AnimationStyle, AnimationStyleType, TextStyle, TextStyleType, heightCalculator, widthCalculator } from "comps/controls/styleControlConstants";
 import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { alignWithJustifyControl } from "comps/controls/alignControl";
@@ -21,23 +21,24 @@ import { PaddingControl } from "../controls/paddingControl";
 import React, { useContext } from "react";
 import { EditorContext } from "comps/editorState";
 
-const getStyle = (style: TextContainerStyleType) => {
+const getStyle = (style: TextStyleType) => {
   return css`
-    border-radius: ${(style.radius ? style.radius : "4px")};
-    border: ${(style.borderWidth ? style.borderWidth : "0px")} solid ${style.border};
+    border-radius: ${style.radius ? style.radius : '4px'};
+    border: ${style.borderWidth ? style.borderWidth : '0px'} solid
+      ${style.border};
     color: ${style.text};
-    text-transform:${style.textTransform} !important;
-    text-decoration:${style.textDecoration} !important;
+    text-transform: ${style.textTransform} !important;
+    text-decoration: ${style.textDecoration} !important;
     background-color: ${style.background};
     .markdown-body a {
       color: ${style.links};
     }
     .markdown-body {
-      margin: ${style.margin} !important;	
-      padding: ${style.padding};	
-      width: ${widthCalculator(style.margin)};	
+      margin: ${style.margin} !important;
+      padding: ${style.padding};
+      width: ${widthCalculator(style.margin)};
       font-family: ${style.fontFamily} !important;
-      font-style:${style.fontStyle} !important;
+      font-style: ${style.fontStyle} !important;
       font-size: ${style.textSize} !important;
       // height: ${heightCalculator(style.margin)};
       h1 {
@@ -74,15 +75,15 @@ const getStyle = (style: TextContainerStyleType) => {
 
 const TextContainer = styled.div<{
   $type: string;
-  $styleConfig: TextContainerStyleType;
-  $animationStyle:AnimationStyleType;
+  $styleConfig: TextStyleType;
+  $animationStyle: AnimationStyleType;
 }>`
   height: 100%;
   overflow: auto;
   margin: 0;
-  ${props=>props.$animationStyle}
+  ${(props) => props.$animationStyle}
   ${(props) =>
-    props.$type === "text" && "white-space:break-spaces;line-height: 1.9;"};
+    props.$type === 'text' && 'white-space:break-spaces;line-height: 1.9;'};
   ${(props) => props.$styleConfig && getStyle(props.$styleConfig)}
   display: flex;
   font-size: 13px;
@@ -123,14 +124,14 @@ let TextTmpComp = (function () {
 
   const childrenMap = {
     text: stringExposingStateControl(
-      "text",
-      trans("textShow.text", { name: "{{currentUser.name}}" })
+      'text',
+      trans('textShow.text', {name: '{{currentUser.name}}'})
     ),
     autoHeight: AutoHeightControl,
-    type: dropdownControl(typeOptions, "markdown"),
+    type: dropdownControl(typeOptions, 'markdown'),
     horizontalAlignment: alignWithJustifyControl(),
-    verticalAlignment: dropdownControl(VerticalAlignmentOptions, "center"),
-    style: styleControl(TextContainerStyle),
+    verticalAlignment: dropdownControl(VerticalAlignmentOptions, 'center'),
+    style: styleControl(TextStyle),
     animationStyle: styleControl(AnimationStyle),
     margin: MarginControl,
     padding: PaddingControl,
@@ -146,6 +147,7 @@ let TextTmpComp = (function () {
           justifyContent: props.horizontalAlignment,
           alignItems: props.autoHeight ? "center" : props.verticalAlignment,
           textAlign: props.horizontalAlignment,
+          rotate: props.style.rotation
         }}
       >
         {props.type === "markdown" ? <TacoMarkDown>{value}</TacoMarkDown> : value}
