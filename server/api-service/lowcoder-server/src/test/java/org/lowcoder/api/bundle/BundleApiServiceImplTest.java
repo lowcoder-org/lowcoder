@@ -93,4 +93,46 @@ public class BundleApiServiceImplTest {
                 .expectError()
                 .verify();
     }
+
+    @Test
+    public void moveAddAppTest() {
+        when(sessionUserService.getVisitorId()).thenReturn(Mono.just("user01"));
+        when(sessionUserService.getVisitorOrgMemberCache()).thenReturn(Mono.just(new OrgMember("org01", "user01", MemberRole.ADMIN, "NORMAL", 0)));
+        //Create bundles
+        Mono<BundleInfoView> bundleInfoViewMono = bundleApiService.create(new BundleEndpoints.CreateBundleRequest(
+                "org01",
+                "name",
+                "title",
+                "description",
+                "category",
+                "image",
+                null));
+        BundleInfoView bundleInfoView2 = bundleApiService.create(new BundleEndpoints.CreateBundleRequest(
+                "org01",
+                "name2",
+                "title",
+                "description",
+                "category",
+                "image",
+                null)).block();
+        assert bundleInfoView2 != null;
+
+        StepVerifier.create(bundleInfoViewMono)
+                .assertNext(bundleInfoView -> {
+                    //And then add app01 to created bundle
+                    StepVerifier.create(bundleApiService.addApp("app01", bundleInfoView.getBundleId()))
+                            .verifyComplete();
+                    //or move bundle
+                    StepVerifier.create(bundleApiService.moveApp("app01", bundleInfoView.getBundleId(), bundleInfoView2.getBundleId()))
+                            .verifyComplete();
+                    //Try no dev user to add app to bundle
+                    when(sessionUserService.getVisitorId()).thenReturn(Mono.just("user01"));
+                    when(sessionUserService.getVisitorOrgMemberCache()).thenReturn(Mono.just(new OrgMember("org01", "user01", MemberRole.MEMBER, "NORMAL", 0)));
+                    StepVerifier.create(bundleApiService.addApp("app01", bundleInfoView.getBundleId()))
+                            .expectError();
+                    StepVerifier.create(bundleApiService.moveApp("app01", bundleInfoView.getBundleId(), bundleInfoView2.getBundleId()))
+                            .expectError();
+                })
+                .verifyComplete();
+    }
 }
