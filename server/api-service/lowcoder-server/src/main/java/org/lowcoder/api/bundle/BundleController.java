@@ -1,7 +1,6 @@
 package org.lowcoder.api.bundle;
 
 import lombok.RequiredArgsConstructor;
-import org.lowcoder.api.application.ApplicationEndpoints;
 import org.lowcoder.api.bundle.view.BundleInfoView;
 import org.lowcoder.api.bundle.view.BundlePermissionView;
 import org.lowcoder.api.bundle.view.MarketplaceBundleInfoView;
@@ -98,11 +97,19 @@ public class BundleController implements BundleEndpoints
     }
 
     @Override
-    public Mono<ResponseView<Void>> move(@PathVariable("id") String applicationLikeId,
-            @RequestParam(value = "targetBundleId", required = false) String targetBundleId) {
-        return bundleApiService.move(applicationLikeId, targetBundleId)
+    public Mono<ResponseView<Void>> moveApp(@PathVariable("id") String applicationId,
+                                            @RequestParam(value = "fromBundleId") String fromBundleId,
+                                            @RequestParam(value = "toBundleId") String toBundleId) {
+        return bundleApiService.moveApp(applicationId, fromBundleId, toBundleId)
                 //TODO: Event Type not defined yet
 //                .then(businessEventPublisher.publishBundleCommonEvent(applicationLikeId, targetBundleId, BUNDLE_MOVE))
+                .then(Mono.fromSupplier(() -> ResponseView.success(null)));
+    }
+
+    @Override
+    public Mono<ResponseView<Void>> addApp(@PathVariable("id") String applicationId,
+                                            @RequestParam(value = "toBundleId") String toBundleId) {
+        return bundleApiService.addApp(applicationId, toBundleId)
                 .then(Mono.fromSupplier(() -> ResponseView.success(null)));
     }
 
