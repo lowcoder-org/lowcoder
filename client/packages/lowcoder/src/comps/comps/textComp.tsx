@@ -23,22 +23,21 @@ import { EditorContext } from "comps/editorState";
 
 const getStyle = (style: TextStyleType) => {
   return css`
-    border-radius: ${style.radius ? style.radius : '4px'};
-    border: ${style.borderWidth ? style.borderWidth : '0px'} solid
-      ${style.border};
+    border-radius: ${(style.radius ? style.radius : "4px")};
+    border: ${(style.borderWidth ? style.borderWidth : "0px")} solid ${style.border};
     color: ${style.text};
-    text-transform: ${style.textTransform} !important;
-    text-decoration: ${style.textDecoration} !important;
+    text-transform:${style.textTransform} !important;
+    text-decoration:${style.textDecoration} !important;
     background-color: ${style.background};
     .markdown-body a {
       color: ${style.links};
     }
     .markdown-body {
-      margin: ${style.margin} !important;
-      padding: ${style.padding};
-      width: ${widthCalculator(style.margin)};
+       margin: ${style.margin} !important;	
+      padding: ${style.padding};	
+      width: ${widthCalculator(style.margin)};	
       font-family: ${style.fontFamily} !important;
-      font-style: ${style.fontStyle} !important;
+      font-style:${style.fontStyle} !important;
       font-size: ${style.textSize} !important;
       // height: ${heightCalculator(style.margin)};
       h1 {
@@ -76,14 +75,14 @@ const getStyle = (style: TextStyleType) => {
 const TextContainer = styled.div<{
   $type: string;
   $styleConfig: TextStyleType;
-  $animationStyle: AnimationStyleType;
+  $animationStyle:AnimationStyleType;
 }>`
   height: 100%;
   overflow: auto;
   margin: 0;
-  ${(props) => props.$animationStyle}
+  ${props=>props.$animationStyle}
   ${(props) =>
-    props.$type === 'text' && 'white-space:break-spaces;line-height: 1.9;'};
+    props.$type === "text" && "white-space:break-spaces;line-height: 1.9;"};
   ${(props) => props.$styleConfig && getStyle(props.$styleConfig)}
   display: flex;
   font-size: 13px;
@@ -128,9 +127,9 @@ let TextTmpComp = (function () {
       trans('textShow.text', {name: '{{currentUser.name}}'})
     ),
     autoHeight: AutoHeightControl,
-    type: dropdownControl(typeOptions, 'markdown'),
+    type: dropdownControl(typeOptions, "markdown"),
     horizontalAlignment: alignWithJustifyControl(),
-    verticalAlignment: dropdownControl(VerticalAlignmentOptions, 'center'),
+    verticalAlignment: dropdownControl(VerticalAlignmentOptions, "center"),
     style: styleControl(TextStyle),
     animationStyle: styleControl(AnimationStyle),
     margin: MarginControl,
