@@ -4,6 +4,7 @@ import styled from "styled-components";
 const ColumnTypeViewWrapper = styled.div<{
   $textOverflow?: boolean
 }>`
+  position: relative;
   ${props => !props.$textOverflow && `
     div {
       overflow: hidden;

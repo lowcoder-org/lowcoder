@@ -23,6 +23,7 @@ export const en = {
     advanced: "Advanced",
     validation: "Validation",
     layout: "Layout",
+    animationStyle:"Animation Style",
     labelStyle: "Label Style",
     style: "Style",
     meetings: "Meeting Settings",
@@ -36,6 +37,7 @@ export const en = {
     headerStyle: 'Header Style',
     bodyStyle: 'Body Style',
     badgeStyle: 'Badge Style',
+    columnStyle: 'Column Style',
   },
   passwordInput: {
     label: "Password:",

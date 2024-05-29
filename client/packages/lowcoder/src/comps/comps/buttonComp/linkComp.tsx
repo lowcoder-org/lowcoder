@@ -3,7 +3,7 @@ import { ButtonCompWrapper, buttonRefMethods } from "comps/comps/buttonComp/butt
 import { BoolCodeControl, StringControl } from "comps/controls/codeControl";
 import { ButtonEventHandlerControl } from "comps/controls/eventHandlerControl";
 import { styleControl } from "comps/controls/styleControl";
-import { LinkStyle, LinkStyleType } from "comps/controls/styleControlConstants";
+import { AnimationStyle, AnimationStyleType, LinkStyle, LinkStyleType } from "comps/controls/styleControlConstants";
 import { withDefault } from "comps/generators";
 import { migrateOldData } from "comps/generators/simpleGenerators";
 import { UICompBuilder } from "comps/generators/uiCompBuilder";
@@ -23,9 +23,14 @@ import { RefControl } from "comps/controls/refControl";
 import { EditorContext } from "comps/editorState";
 import React, { useContext } from "react";
 
-const Link = styled(Button) <{ $style: LinkStyleType }>`
+const Link = styled(Button)<{
+  $style: LinkStyleType;
+  $animationStyle: AnimationStyleType;
+}>`
+  ${(props) => props.$animationStyle}
   ${(props) => `
     color: ${props.$style.text};
+    rotate: ${props.$style.rotation};
     margin: ${props.$style.margin};
     padding: ${props.$style.padding};
     font-size: ${props.$style.textSize};
@@ -81,6 +86,7 @@ const LinkTmpComp = (function () {
     disabled: BoolCodeControl,
     loading: BoolCodeControl,
     style: migrateOldData(styleControl(LinkStyle), fixOldData),
+    animationStyle:styleControl(AnimationStyle),
     prefixIcon: IconControl,
     suffixIcon: IconControl,
     viewRef: RefControl<HTMLElement>,
@@ -91,6 +97,7 @@ const LinkTmpComp = (function () {
     return (
       <ButtonCompWrapper disabled={props.disabled}>
         <Link
+          $animationStyle={props.animationStyle}
           ref={props.viewRef}
           $style={props.style}
           loading={props.loading}
@@ -130,7 +137,10 @@ const LinkTmpComp = (function () {
           )}
 
           {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
-            <><Section name={sectionNames.style}>{children.style.getPropertyView()}</Section></>
+            <>
+              <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
+              <Section name={sectionNames.animationStyle}>{children.animationStyle.getPropertyView()}</Section>
+            </>
           )}
         </>
       );

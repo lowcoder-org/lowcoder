@@ -7,6 +7,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections4.CollectionUtils;
 import org.lowcoder.domain.application.model.ApplicationRequestType;
+import org.lowcoder.domain.bundle.model.BundleRequestType;
 import org.lowcoder.domain.permission.model.*;
 import org.lowcoder.infra.annotation.NonEmptyMono;
 import org.lowcoder.infra.annotation.PossibleEmptyMono;
@@ -35,6 +36,8 @@ public class ResourcePermissionServiceImpl implements ResourcePermissionService 
     private final ResourcePermissionHandlerService applicationPermissionHandler;
     @Qualifier("datasourcePermissionHandler")
     private final ResourcePermissionHandlerService datasourcePermissionHandler;
+    @Qualifier("bundlePermissionHandler")
+    private final ResourcePermissionHandlerService bundlePermissionHandler;
 
     @Override
     public Mono<Map<String, Collection<ResourcePermission>>> getByResourceTypeAndResourceIds(ResourceType resourceType,
@@ -143,6 +146,10 @@ public class ResourcePermissionServiceImpl implements ResourcePermissionService 
             return applicationPermissionHandler;
         }
 
+        if (resourceType == ResourceType.BUNDLE) {
+            return bundlePermissionHandler;
+        }
+
         throw ofException(INVALID_PERMISSION_OPERATION, "INVALID_PERMISSION_OPERATION", resourceType);
     }
 
@@ -229,7 +236,15 @@ public class ResourcePermissionServiceImpl implements ResourcePermissionService 
 		ResourceType resourceType = resourceAction.getResourceType();
 		var resourcePermissionHandler = getResourcePermissionHandler(resourceType);
 		return resourcePermissionHandler.checkUserPermissionStatusOnApplication(userId, resourceId, resourceAction, requestType);
-}
+    }
+
+    @Override
+    public Mono<UserPermissionOnResourceStatus> checkUserPermissionStatusOnBundle
+            (String userId, String resourceId, ResourceAction resourceAction, BundleRequestType requestType) {
+        ResourceType resourceType = resourceAction.getResourceType();
+        var resourcePermissionHandler = getResourcePermissionHandler(resourceType);
+        return resourcePermissionHandler.checkUserPermissionStatusOnBundle(userId, resourceId, resourceAction, requestType);
+    }
     
     
     @Override

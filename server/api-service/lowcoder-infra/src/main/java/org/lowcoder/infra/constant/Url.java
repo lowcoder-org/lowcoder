@@ -7,6 +7,7 @@ public final class Url {
     public static final String DATASOURCE_URL = BASE_URL + VERSION + "/datasources";
     public static final String USER_URL = BASE_URL + VERSION + "/users";
     public static final String CONFIG_URL = BASE_URL + VERSION + "/configs";
+    public static final String SERVER_SETTING_URL = BASE_URL + VERSION + "/serverSettings";
     public static final String GROUP_URL = BASE_URL + VERSION + "/groups";
     public static final String ASSET_URL = BASE_URL + VERSION + "/assets";
 

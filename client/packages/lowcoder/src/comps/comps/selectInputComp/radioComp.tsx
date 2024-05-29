@@ -14,53 +14,53 @@ import { trans } from "i18n";
 import { fixOldInputCompData } from "../textInputComp/textInputConstants";
 import { migrateOldData } from "comps/generators/simpleGenerators";
 
-const getStyle = (style: RadioStyleType) => {
+const getStyle = (style: RadioStyleType, inputFieldStyle?:RadioStyleType ) => {
   return css`
     .ant-radio-wrapper:not(.ant-radio-wrapper-disabled) {
-      color: ${style.staticText};
+      color: ${inputFieldStyle?.staticText};
       // height: 22px;
       max-width: calc(100% - 8px);
-      padding: ${style.padding};
+      padding: ${inputFieldStyle?.padding};
       span:not(.ant-radio) {
         ${EllipsisTextCss};
-        font-family:${style.fontFamily};
-        font-size:${style.textSize};
-        font-weight:${style.textWeight};
-        font-style:${style.fontStyle};
-        text-transform:${style.textTransform};
-        text-decoration:${style.textDecoration};
+        font-family:${inputFieldStyle?.fontFamily};
+        font-size:${inputFieldStyle?.textSize};
+        font-weight:${inputFieldStyle?.textWeight};
+        font-style:${inputFieldStyle?.fontStyle};
+        text-transform:${inputFieldStyle?.textTransform};
+        text-decoration:${inputFieldStyle?.textDecoration};
       }
 
       .ant-radio-checked {
         .ant-radio-inner {
-          background-color: ${style.checkedBackground};
-          border-color: ${style.checkedBackground};
+          background-color: ${inputFieldStyle?.checkedBackground};
+          border-color: ${inputFieldStyle?.uncheckedBorder};
         }
 
         &::after {
-          border-color: ${style.checkedBackground};
+          border-color: ${inputFieldStyle?.uncheckedBorder};
         }
       }
 
       .ant-radio-inner {
-        background-color: ${style.uncheckedBackground};
-        border-color: ${style.uncheckedBorder};
-        border-width:${style.borderWidth};
+        background-color: ${inputFieldStyle?.uncheckedBackground};
+        border-color: ${inputFieldStyle?.uncheckedBorder};
+        border-width:${inputFieldStyle?.borderWidth};
         &::after {
-          background-color: ${style.checked};
+          background-color: ${inputFieldStyle?.checked};
         }
       }
 
       &:hover .ant-radio-inner, 
       .ant-radio:hover .ant-radio-inner,
       .ant-radio-input + ant-radio-inner {
-        background-color:${style.hoverBackground ? style.hoverBackground:'#ffff'};
+        background-color:${inputFieldStyle?.hoverBackground ? inputFieldStyle?.hoverBackground:'#ffff'};
       }
 
       &:hover .ant-radio-inner,
       .ant-radio:hover .ant-radio-inner,
       .ant-radio-input:focus + .ant-radio-inner {
-        border-color: ${style.checkedBackground};
+        border-color: ${inputFieldStyle?.uncheckedBorder};
       }
     }
   `;
@@ -69,11 +69,12 @@ const getStyle = (style: RadioStyleType) => {
 const Radio = styled(AntdRadioGroup)<{
   $style: RadioStyleType;
   $layout: ValueFromOption<typeof RadioLayoutOptions>;
+  $inputFieldStyle:RadioStyleType
 }>`
   width: 100%;
   min-height: 32px;
 
-  ${(props) => props.$style && getStyle(props.$style)}
+  ${(props) => props.$style && getStyle(props.$style, props.$inputFieldStyle)}
   ${(props) => {
     if (props.$layout === "horizontal") {
       return css`
@@ -106,12 +107,14 @@ let RadioBasicComp = (function () {
       style: props.style,
       labelStyle: props.labelStyle,
       inputFieldStyle:props.inputFieldStyle,
+      animationStyle:props.animationStyle,
       children: (
         <Radio
           ref={props.viewRef}
           disabled={props.disabled}
           value={props.value.value}
           $style={props.style}
+          $inputFieldStyle={props.inputFieldStyle}
           $layout={props.layout}
           onChange={(e) => {
             handleChange(e.target.value);

@@ -43,6 +43,7 @@ let CascaderBasicComp = (function () {
       labelStyle: props.labelStyle,
       inputFieldStyle:props.inputFieldStyle,
       childrenInputFieldStyle:props.childrenInputFieldStyle,
+      animationStyle:props.animationStyle,
       children: (
         <CascaderStyle
           ref={props.viewRef}
