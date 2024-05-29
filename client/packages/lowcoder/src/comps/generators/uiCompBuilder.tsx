@@ -248,6 +248,7 @@ function UIView(props: {
 
   let defaultChildren = comp.children;
   const isNotContainer = defaultChildren.hasOwnProperty('style');
+  const restrictPaddingOnRotation = defaultChildren.hasOwnProperty('restrictPaddingOnRotation');
   let rotationVal = null
   let boxShadowVal = null;
   if (isNotContainer) {
@@ -263,17 +264,24 @@ function UIView(props: {
         width: '100%',
         height: '100%',
         margin: '0px',
-        padding:
-          rotationVal === null || rotationVal === undefined
-            ? '0px'
-            : boxShadowVal === null || boxShadowVal === undefined
-              ? rotationVal === '' || rotationVal === '0deg'
-                ? '0px'
-                : '50% 0px'
-              : (rotationVal === '' || rotationVal === '0deg') &&
-                  (boxShadowVal === '' || boxShadowVal === '0px')
-                ? '0px'
-                : '50% 0px',
+        // padding:'0px',
+        padding: (
+          rotationVal === null || rotationVal === undefined || restrictPaddingOnRotation
+          ? '0px'
+          : (
+            boxShadowVal === null || boxShadowVal === undefined
+            ? (
+              rotationVal === '' || rotationVal === '0deg'
+              ? '0px'
+              : `calc(min(50%, ${Math.min(50, Math.abs(rotationVal.replace('deg', '')) / 90) * 100}%)) 0px`
+            )
+            : (
+              (rotationVal === '' || rotationVal === '0deg') && (boxShadowVal === '' || boxShadowVal === '0px')
+              ? '0px'
+              : `calc(min(50%, ${Math.min(50, Math.abs(rotationVal.replace('deg', '')) / 90) * 100}%)) 0px`
+            )
+          )
+        )
       }}
     >
       <HidableView hidden={childrenProps.hidden as boolean}>
