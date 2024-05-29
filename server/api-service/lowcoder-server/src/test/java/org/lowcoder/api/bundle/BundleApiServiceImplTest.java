@@ -31,7 +31,7 @@ public class BundleApiServiceImplTest {
         when(sessionUserService.getVisitorOrgMemberCache()).thenReturn(Mono.just(new OrgMember("org01", "user01", MemberRole.ADMIN, "NORMAL", 0)));
         Mono<BundleInfoView> bundleInfoViewMono = bundleApiService.create(new BundleEndpoints.CreateBundleRequest(
                 "org01",
-                "name",
+                "name1",
                 "title",
                 "description",
                 "category",
@@ -40,7 +40,7 @@ public class BundleApiServiceImplTest {
         StepVerifier.create(bundleInfoViewMono)
                 .assertNext(bundleInfoView -> {
                     assertNotNull(bundleInfoView.getBundleId());
-                    assertEquals("name", bundleInfoView.getName());
+                    assertEquals("name1", bundleInfoView.getName());
                     assertEquals("title", bundleInfoView.getTitle());
                     assertEquals("description", bundleInfoView.getDescription());
                     assertEquals("category", bundleInfoView.getCategory());
@@ -57,7 +57,7 @@ public class BundleApiServiceImplTest {
         when(sessionUserService.getVisitorOrgMemberCache()).thenReturn(Mono.just(new OrgMember("org01", "user02", MemberRole.MEMBER, "NORMAL", 0)));
         Mono<BundleInfoView> bundleInfoViewMono1 = bundleApiService.create(new BundleEndpoints.CreateBundleRequest(
                 "org01",
-                "name",
+                "name2",
                 "title",
                 "description",
                 "category",
@@ -66,7 +66,7 @@ public class BundleApiServiceImplTest {
         StepVerifier.create(bundleInfoViewMono1)
                 .assertNext(bundleInfoView -> {
                     assertNotNull(bundleInfoView.getBundleId());
-                    assertEquals("name", bundleInfoView.getName());
+                    assertEquals("name2", bundleInfoView.getName());
                     assertEquals("title", bundleInfoView.getTitle());
                     assertEquals("description", bundleInfoView.getDescription());
                     assertEquals("category", bundleInfoView.getCategory());
@@ -83,7 +83,7 @@ public class BundleApiServiceImplTest {
         when(sessionUserService.getVisitorOrgMemberCache()).thenReturn(Mono.just(new OrgMember("org01", "user01", MemberRole.MEMBER, "NORMAL", 0)));
         Mono<BundleInfoView> bundleInfoViewMono2 = bundleApiService.create(new BundleEndpoints.CreateBundleRequest(
                 "org01",
-                "name",
+                "name3",
                 "title",
                 "description",
                 "category",
@@ -101,24 +101,26 @@ public class BundleApiServiceImplTest {
         //Create bundles
         Mono<BundleInfoView> bundleInfoViewMono = bundleApiService.create(new BundleEndpoints.CreateBundleRequest(
                 "org01",
-                "name",
+                "name4",
                 "title",
                 "description",
                 "category",
                 "image",
                 null));
-        BundleInfoView bundleInfoView2 = bundleApiService.create(new BundleEndpoints.CreateBundleRequest(
+
+        Mono<BundleInfoView> bundleInfoViewMono2 = bundleApiService.create(new BundleEndpoints.CreateBundleRequest(
                 "org01",
-                "name2",
+                "name5",
                 "title",
                 "description",
                 "category",
                 "image",
-                null)).block();
-        assert bundleInfoView2 != null;
+                null));
 
-        StepVerifier.create(bundleInfoViewMono)
-                .assertNext(bundleInfoView -> {
+        StepVerifier.create(Mono.zip(bundleInfoViewMono, bundleInfoViewMono2))
+                .assertNext(tuple2 -> {
+                    var bundleInfoView = tuple2.getT1();
+                    var bundleInfoView2 = tuple2.getT2();
                     //And then add app01 to created bundle
                     StepVerifier.create(bundleApiService.addApp("app01", bundleInfoView.getBundleId()))
                             .verifyComplete();
