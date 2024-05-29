@@ -2,16 +2,16 @@ spring:
   data:
     mongodb:
       authentication-database: admin
-      uri: "mongodb://lowcoder:secret123@127.0.0.1:37017/lowcoder?authSource=admin"
+      uri: "mongodb://localhost:27017/lowcoder"
     redis:
-      url: "redis://127.0.0.1:16379"
+      url: "redis://127.0.0.1:6379"
 
 server:
-  port: 18080
+  port: 8080
 common:
   cookie-name: LOWCODER_DEBUG_TOKEN
   js-executor:
-    host: "http://127.0.0.1:16060"
+    host: "http://127.0.0.1:6060"
   workspace:
     mode: SAAS
 

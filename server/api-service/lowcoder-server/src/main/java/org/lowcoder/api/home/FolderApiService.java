@@ -23,6 +23,7 @@ public interface FolderApiService {
     Mono<FolderInfoView> update(Folder folder);
 
     Mono<Void> move(String applicationLikeId, @Nullable String targetFolderId);
+    Mono<Void> moveBundle(String bundleId, @Nullable String targetFolderId);
 
     Mono<Void> upsertLastViewTime(@Nullable String folderId);
 

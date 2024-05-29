@@ -45,6 +45,8 @@ public interface BiRelationService {
 
     Mono<Boolean> removeAllBiRelationsByTargetId(BiRelationBizType bizType, String targetId);
 
+    Mono<Boolean> removeAllBiRelationsBySourceIdAndTargetId(BiRelationBizType bizType, String sourceId, String targetId);
+
     Mono<Boolean> removeAllBiRelations(BiRelationBizType bizType, List<String> sourceIds);
 
     Mono<BiRelation> getBiRelation(BiRelationBizType bizType, String sourceId, String targetId);
