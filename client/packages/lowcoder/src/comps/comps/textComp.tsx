@@ -33,7 +33,7 @@ const getStyle = (style: TextStyleType) => {
       color: ${style.links};
     }
     .markdown-body {
-       margin: ${style.margin} !important;	
+      margin: ${style.margin} !important;	
       padding: ${style.padding};	
       width: ${widthCalculator(style.margin)};	
       font-family: ${style.fontFamily} !important;
@@ -123,8 +123,8 @@ let TextTmpComp = (function () {
 
   const childrenMap = {
     text: stringExposingStateControl(
-      'text',
-      trans('textShow.text', {name: '{{currentUser.name}}'})
+      "text",
+      trans("textShow.text", {name: "{{currentUser.name}}"})
     ),
     autoHeight: AutoHeightControl,
     type: dropdownControl(typeOptions, "markdown"),
