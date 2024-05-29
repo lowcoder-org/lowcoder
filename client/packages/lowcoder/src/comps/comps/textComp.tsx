@@ -124,7 +124,7 @@ let TextTmpComp = (function () {
   const childrenMap = {
     text: stringExposingStateControl(
       "text",
-      trans("textShow.text", {name: "{{currentUser.name}}"})
+      trans("textShow.text", { name: "{{currentUser.name}}" })
     ),
     autoHeight: AutoHeightControl,
     type: dropdownControl(typeOptions, "markdown"),
