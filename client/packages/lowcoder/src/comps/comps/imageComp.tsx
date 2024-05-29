@@ -169,7 +169,6 @@ const childrenMap = {
   animationStyle: styleControl(AnimationStyle),
   autoHeight: withDefault(AutoHeightControl, "fixed"),
   supportPreview: BoolControl,
-  restrictPaddingOnRotation:withDefault(BoolControl, true)
 };
 
 let ImageBasicComp = new UICompBuilder(childrenMap, (props) => {
