@@ -264,24 +264,17 @@ function UIView(props: {
         width: '100%',
         height: '100%',
         margin: '0px',
-        // padding:'0px',
         padding: (
-          rotationVal === null || rotationVal === undefined || restrictPaddingOnRotation
-          ? '0px'
-          : (
-            boxShadowVal === null || boxShadowVal === undefined
-            ? (
-              rotationVal === '' || rotationVal === '0deg'
-              ? '0px'
-              : `calc(min(50%, ${Math.min(50, Math.abs(rotationVal.replace('deg', '')) / 90) * 100}%)) 0px`
-            )
-            : (
-              (rotationVal === '' || rotationVal === '0deg') && (boxShadowVal === '' || boxShadowVal === '0px')
-              ? '0px'
-              : `calc(min(50%, ${Math.min(50, Math.abs(rotationVal.replace('deg', '')) / 90) * 100}%)) 0px`
-            )
-          )
-        )
+          (rotationVal === null || rotationVal === undefined || restrictPaddingOnRotation) &&
+          (boxShadowVal === null || boxShadowVal === undefined || boxShadowVal === '0px')
+        ) ? '0px' // Both rotation and box-shadow are empty or restricted
+          : rotationVal !== '' && rotationVal !== '0deg' // Rotation applied
+            ? (boxShadowVal !== '' && boxShadowVal !== '0px') // Both rotation and box-shadow applied
+              ? `calc(min(50%, ${Math.abs(rotationVal.replace('deg', '') + parseFloat(boxShadowVal.replace('px', ''))) / 90} * 100%)) 0px`
+            : `calc(min(50%, ${Math.abs(rotationVal.replace('deg', '')) / 90} * 100%)) 0px` // Only rotation applied
+          : boxShadowVal !== '' && boxShadowVal !== '0px' // Box-shadow applied
+          ? `calc(min(50%, ${Math.abs(parseFloat(boxShadowVal.replace('px', ''))) / 90} * 100%)) 0px`
+          : '0px' // Default value if neither rotation nor box-shadow is applied
       }}
     >
       <HidableView hidden={childrenProps.hidden as boolean}>
