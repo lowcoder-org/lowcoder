@@ -257,17 +257,7 @@ function UIView(props: {
     boxShadowVal = defaultChildren.style?.children?.boxShadow?.valueAndMsg?.value;
     restrictPaddingOnRotationVal = defaultChildren?.restrictPaddingOnRotation?.valueAndMsg?.value;
   }
-  return (
-    <div
-      ref={props.innerRef}
-      className={childrenProps.className as string}
-      data-testid={childrenProps.dataTestId as string}
-      style={{
-        width: '100%',
-        height: '100%',
-        margin: '0px',
-        padding:
-          (rotationVal === null ||
+  const getPadding = () =>(rotationVal === null ||
             rotationVal === undefined ||
             restrictPaddingOnRotation) &&
           (boxShadowVal === null ||
@@ -300,7 +290,18 @@ function UIView(props: {
                 ? '0px'
                 : boxShadowVal !== '' && boxShadowVal !== '0px' // Box-shadow applied
                   ? `calc(min(50%, ${Math.abs(parseFloat(boxShadowVal.replace('px', ''))) / 90} * 100%)) 0px`
-                  : '0px', // Default value if neither rotation nor box-shadow is applied
+                  : '0px' // Default value if neither rotation nor box-shadow is applied
+  return (
+    <div
+      ref={props.innerRef}
+      className={childrenProps.className as string}
+      data-testid={childrenProps.dataTestId as string}
+      style={{
+        width: '100%',
+        height: '100%',
+        margin: '0px',
+        padding:getPadding()
+          
       }}
     >
       <HidableView hidden={childrenProps.hidden as boolean}>
