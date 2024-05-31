@@ -187,7 +187,7 @@ const childrenMap = {
   prefixIcon: IconControl,
   style: ButtonStyleControl,
   viewRef: RefControl<HTMLElement>,
-  restrictPaddingOnRotation:withDefault(BoolControl, true)
+  restrictPaddingOnRotation:withDefault(StringControl, 'controlButton')
 };
 
 let ButtonTmpComp = (function () {

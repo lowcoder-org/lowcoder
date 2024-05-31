@@ -13,7 +13,6 @@ import { trans } from "i18n";
 
 import { useContext } from "react";
 import { EditorContext } from "comps/editorState";
-import { BoolControl } from "../controls/boolControl";
 
 const getStyle = (style: FileViewerStyleType) => {
   return css`
@@ -71,7 +70,7 @@ let FileViewerBasicComp = (function () {
     src: StringControl,
     style: styleControl(FileViewerStyle),
     animationStyle: styleControl(AnimationStyle),
-    restrictPaddingOnRotation: withDefault(BoolControl, true),
+    restrictPaddingOnRotation: withDefault(StringControl, 'fileViewer'),
   };
   return new UICompBuilder(childrenMap, (props) => {
     if (isEmpty(props.src)) {

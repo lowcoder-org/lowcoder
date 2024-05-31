@@ -10,7 +10,7 @@ import { AnimationStyle, AnimationStyleType, AudioStyle, ImageStyle, ImageStyleT
 import { BoolControl } from "comps/controls/boolControl";
 import { withDefault } from "../../generators/simpleGenerators";
 import { playIcon } from "lowcoder-design";
-import { RangeControl } from "../../controls/codeControl";
+import { RangeControl, StringControl } from "../../controls/codeControl";
 import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { Video } from "lowcoder-design";
@@ -120,7 +120,7 @@ const childrenMap = {
   playbackRate: RangeControl.closed(1, 2, 1),
   currentTimeStamp: numberExposingStateControl("currentTimeStamp", 0),
   duration: numberExposingStateControl("duration"),
-  restrictPaddingOnRotation:withDefault(BoolControl, true),
+  restrictPaddingOnRotation:withDefault(StringControl, 'video'),
   ...mediaCommonChildren,
 };
  

@@ -33,7 +33,7 @@ const childrenMap = {
   image: StringControl,
   style: styleControl(QRCodeStyle),
   animationStyle: styleControl(AnimationStyle),
-  restrictPaddingOnRotation: withDefault(BoolControl, true),
+  restrictPaddingOnRotation: withDefault(StringControl, 'qrCode'),
 };
 
 const QRCodeView = (props: RecordConstructorToView<typeof childrenMap>) => {
