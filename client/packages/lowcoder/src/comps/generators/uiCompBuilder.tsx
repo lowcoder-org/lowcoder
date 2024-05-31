@@ -269,7 +269,7 @@ function UIView(props: {
           (boxShadowVal === null || boxShadowVal === undefined || boxShadowVal === '0px')
         ) ? '0px' // Both rotation and box-shadow are empty or restricted
           : rotationVal !== '' && rotationVal !== '0deg' // Rotation applied
-            ? (boxShadowVal === null || boxShadowVal === undefined || boxShadowVal === '0px')?'0px':(boxShadowVal !== '' && boxShadowVal !== '0px') // Both rotation and box-shadow applied
+            ? (boxShadowVal === null || boxShadowVal === undefined || boxShadowVal === '0px')?`calc(min(50%, ${Math.abs(rotationVal.replace('deg', '')) / 90} * 100%)) 0px`:(boxShadowVal !== '' && boxShadowVal !== '0px') // Both rotation and box-shadow applied
               ? `calc(min(50%, ${Math.abs(rotationVal.replace('deg', '') + parseFloat(boxShadowVal.replace('px', ''))) / 90} * 100%)) 0px`
             : `calc(min(50%, ${Math.abs(rotationVal.replace('deg', '')) / 90} * 100%)) 0px` // Only rotation applied
           : (boxShadowVal === null || boxShadowVal === undefined || boxShadowVal === '0px')?'0px':(boxShadowVal !== '' && boxShadowVal !== '0px') // Box-shadow applied
