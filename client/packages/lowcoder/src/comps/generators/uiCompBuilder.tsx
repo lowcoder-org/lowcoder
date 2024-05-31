@@ -249,9 +249,9 @@ function UIView(props: {
   let defaultChildren = comp.children;
   const isNotContainer = defaultChildren.hasOwnProperty('style');
   const restrictPaddingOnRotation = defaultChildren.hasOwnProperty('restrictPaddingOnRotation');
-  let rotationVal = null
-  let boxShadowVal = null;
-  let restrictPaddingOnRotationVal=null;
+  let rotationVal:any = null
+  let boxShadowVal:any = null;
+  let restrictPaddingOnRotationVal:any=null;
   if (isNotContainer) {
     rotationVal = defaultChildren.style.children?.rotation?.valueAndMsg.value;
     boxShadowVal = defaultChildren.style?.children?.boxShadow?.valueAndMsg?.value;
