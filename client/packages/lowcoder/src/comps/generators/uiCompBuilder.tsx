@@ -274,17 +274,17 @@ function UIView(props: {
             boxShadowVal === undefined ||
             boxShadowVal === '0px')
             ? restrictPaddingOnRotationVal === 'qrCode'
-              ? '50% 0px'
+              ? rotationVal !== '' && rotationVal !== '0deg'?'50% 0px':'0px'
               : restrictPaddingOnRotationVal === 'image'
-                ? '10% 0px'
+                ? rotationVal !== '' && rotationVal !== '0deg'?'10% 0px':'0px'
                 : restrictPaddingOnRotationVal === 'imageCarousel'
-                  ? '35% 0px'
+                  ? rotationVal !== '' && rotationVal !== '0deg'?'35% 0px':'0px'
                   : restrictPaddingOnRotationVal === 'fileViewer'
-                    ? '65% 0px'
+                    ? rotationVal !== '' && rotationVal !== '0deg'?'65% 0px':'0px'
                     : restrictPaddingOnRotationVal === 'controlButton'
-                      ? '50% 0px'
+                      ? rotationVal !== '' && rotationVal !== '0deg'?'50% 0px':'0px'
                       : restrictPaddingOnRotationVal === 'video'
-                        ? '26% 0px'
+                        ? rotationVal !== '' && rotationVal !== '0deg'?'26% 0px':'0px'
                         : '0px' // Both rotation and box-shadow are empty or restricted
             : rotationVal !== '' && rotationVal !== '0deg' // Rotation applied
               ? boxShadowVal === null ||
