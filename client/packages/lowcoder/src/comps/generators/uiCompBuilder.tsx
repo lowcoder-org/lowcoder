@@ -282,7 +282,7 @@ function UIView(props: {
                   : restrictPaddingOnRotationVal === 'fileViewer'
                     ? rotationVal !== '' && rotationVal !== '0deg'?'65% 0px':'0px'
                     : restrictPaddingOnRotationVal === 'controlButton'
-                      ? rotationVal !== '' && rotationVal !== '0deg'?'50% 0px':'0px'
+                      ? rotationVal !== '' && rotationVal !== '0deg'?'10% 0px':'0px'
                       : restrictPaddingOnRotationVal === 'video'
                         ? rotationVal !== '' && rotationVal !== '0deg'?'26% 0px':'0px'
                         : '0px' // Both rotation and box-shadow are empty or restricted
