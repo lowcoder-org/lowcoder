@@ -264,7 +264,7 @@ function UIView(props: {
             boxShadowVal === undefined ||
             boxShadowVal === '0px')
             ? restrictPaddingOnRotationVal === 'qrCode'
-              ? rotationVal !== '' && rotationVal !== '0deg'?'50% 0px':'0px'
+              ? rotationVal !== '' && rotationVal !== '0deg'?'35% 0px':'0px'
               : restrictPaddingOnRotationVal === 'image'
                 ? rotationVal !== '' && rotationVal !== '0deg'?'10% 0px':'0px'
                 : restrictPaddingOnRotationVal === 'imageCarousel'
