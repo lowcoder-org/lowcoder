@@ -11,7 +11,7 @@ import { formDataChildren, FormDataPropertyView } from "./formComp/formDataConst
 import { PositionControl } from "comps/controls/dropdownControl";
 import { useRef, useState } from "react";
 import ReactResizeDetector from "react-resize-detector";
-import { ArrayStringControl } from "comps/controls/codeControl";
+import { ArrayStringControl, StringControl } from "comps/controls/codeControl";
 import { styleControl } from "comps/controls/styleControl";
 import { AnimationStyle, AnimationStyleType, CarouselStyle } from "comps/controls/styleControlConstants";
 
@@ -47,7 +47,7 @@ let CarouselBasicComp = (function () {
     dotPosition: withDefault(PositionControl, "bottom"),
     style: styleControl(CarouselStyle),
     animationStyle: styleControl(AnimationStyle),
-
+    restrictPaddingOnRotation:withDefault(StringControl, 'imageCarousel'),
     ...formDataChildren,
   };
   return new UICompBuilder(childrenMap, (props) => {

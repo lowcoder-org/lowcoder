@@ -63,7 +63,6 @@ const InputStyle = styled(Input)<{ $style: InputLikeStyleType }>`
     ${getStyle(props.$style)}
     input {
       padding: ${props.style?.padding};
-      rotate: ${props?.$style?.rotation};
     }
     .ant-select-single {
       width: 100% !important;

@@ -78,6 +78,7 @@ const Wrapper = styled.div<{
     border-style: ${props => props.$style?.borderStyle};
     border-radius: ${props => props.$style?.radius};
     border-width: ${props => props.$style?.borderWidth};
+    box-shadow: ${props=>`${props.$style?.boxShadow} ${props.$style?.boxShadowColor}`};
     ${props=>props.$animationStyle}
   }
   .ant-card-body {
