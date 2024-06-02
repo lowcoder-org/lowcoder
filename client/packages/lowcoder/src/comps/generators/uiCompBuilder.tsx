@@ -257,34 +257,64 @@ function UIView(props: {
     boxShadowVal = defaultChildren.style?.children?.boxShadow?.valueAndMsg?.value;
     restrictPaddingOnRotationVal = defaultChildren?.restrictPaddingOnRotation?.valueAndMsg?.value;
   }
-  const getPadding = () =>(rotationVal === null ||
-            rotationVal === undefined ||
-            restrictPaddingOnRotation) &&
-          (boxShadowVal === null ||
-            boxShadowVal === undefined ||
-            boxShadowVal === '0px')
-            ? restrictPaddingOnRotationVal === 'qrCode'
-              ? rotationVal !== '' && rotationVal !== '0deg'?'35% 0px':'0px'
-              : restrictPaddingOnRotationVal === 'image'
-                ? rotationVal !== '' && rotationVal !== '0deg'?'10% 0px':'0px'
-                    : restrictPaddingOnRotationVal === 'controlButton'
-                      ? rotationVal !== '' && rotationVal !== '0deg'?'10% 0px':'0px'
-                        : '0px' // Both rotation and box-shadow are empty or restricted
-            : rotationVal !== '' && rotationVal !== '0deg' // Rotation applied
-              ? boxShadowVal === null ||
-                boxShadowVal === undefined ||
-                boxShadowVal === '0px'
-                ? `calc(min(50%, ${Math.abs(rotationVal.replace('deg', '')) / 90} * 100%)) 0px`
-                : boxShadowVal !== '' && boxShadowVal !== '0px' // Both rotation and box-shadow applied
-                  ? `calc(min(50%, ${Math.abs(rotationVal.replace('deg', '') + parseFloat(boxShadowVal.replace('px', ''))) / 90} * 100%)) 0px`
-                  : `calc(min(50%, ${Math.abs(rotationVal.replace('deg', '')) / 90} * 100%)) 0px` // Only rotation applied
-              : boxShadowVal === null ||
-                  boxShadowVal === undefined ||
-                  boxShadowVal === '0px'
-                ? '0px'
-                : boxShadowVal !== '' && boxShadowVal !== '0px' // Box-shadow applied
-                  ? `calc(min(50%, ${Math.abs(parseFloat(boxShadowVal.replace('px', ''))) / 90} * 100%)) 0px`
-                  : '0px' // Default value if neither rotation nor box-shadow is applied
+  const getPadding = () => {
+    if (
+      (rotationVal === null ||
+        rotationVal === undefined ||
+        restrictPaddingOnRotation) &&
+      (boxShadowVal === null ||
+        boxShadowVal === undefined ||
+        boxShadowVal === '0px')
+    ) {
+      if (restrictPaddingOnRotationVal === 'qrCode') {
+        if (rotationVal !== '' && rotationVal !== '0deg') {
+          return '35% 0px';
+        } else {
+          return '0px';
+        }
+      } else if (restrictPaddingOnRotationVal === 'image') {
+        if (rotationVal !== '' && rotationVal !== '0deg') {
+          return '10% 0px';
+        } else {
+          return '0px';
+        }
+      } else if (restrictPaddingOnRotationVal === 'controlButton') {
+        if (rotationVal !== '' && rotationVal !== '0deg') {
+          return '10% 0px';
+        } else {
+          return '0px';
+        }
+      } else {
+        return '0px'; // Both rotation and box-shadow are empty or restricted
+      }
+    } else if (rotationVal !== '' && rotationVal !== '0deg') {
+      // Rotation applied
+      if (
+        boxShadowVal === null ||
+        boxShadowVal === undefined ||
+        boxShadowVal === '0px'
+      ) {
+        return `calc(min(50%, ${Math.abs(rotationVal.replace('deg', '')) / 90} * 100%)) 0px`;
+      } else if (boxShadowVal !== '' && boxShadowVal !== '0px') {
+        // Both rotation and box-shadow applied
+        return `calc(min(50%, ${Math.abs(rotationVal.replace('deg', '') + parseFloat(boxShadowVal.replace('px', ''))) / 90} * 100%)) 0px`;
+      } else {
+        return `calc(min(50%, ${Math.abs(rotationVal.replace('deg', '')) / 90} * 100%)) 0px`; // Only rotation applied
+      }
+    } else if (
+      boxShadowVal === null ||
+      boxShadowVal === undefined ||
+      boxShadowVal === '0px'
+    ) {
+      return '0px';
+    } else if (boxShadowVal !== '' && boxShadowVal !== '0px') {
+      // Box-shadow applied
+      return `calc(min(50%, ${Math.abs(parseFloat(boxShadowVal.replace('px', ''))) / 90} * 100%)) 0px`;
+    } else {
+      return '0px'; // Default value if neither rotation nor box-shadow is applied
+    }
+  };
+
   return (
     <div
       ref={props.innerRef}
