@@ -4,6 +4,7 @@ import styled from "styled-components";
 import { ReactComponent as Packup } from "icons/icon-Pack-up.svg";
 import { labelCss } from "./Label";
 import { controlItem, ControlNode } from "./control";
+import { Tooltip } from "./toolTip";
 
 const SectionItem = styled.div<{ $width?: number }>`
   width: ${(props) => (props.$width ? props.$width : 312)}px;
@@ -73,6 +74,12 @@ const ShowChildren = styled.div<{ $show?: string; $noMargin?: boolean }>`
   padding-right: ${(props) => (props.$noMargin ? 0 : "16px")};
 `;
 
+const TooltipWrapper = styled.a`
+  word-wrap: break-word;
+  word-break: break-word;
+  white-space: pre-wrap;
+  color:#fff;
+`;
 interface ISectionConfig<T> {
   name?: string;
   open?: boolean;
@@ -81,6 +88,7 @@ interface ISectionConfig<T> {
   style?: React.CSSProperties;
   children: T;
   additionalButton?: React.ReactNode;
+  tooltip?:string
 }
 
 export interface PropertySectionState {
@@ -102,7 +110,8 @@ export const PropertySectionContext = React.createContext<PropertySectionContext
 });
 
 export const BaseSection = (props: ISectionConfig<ReactNode>) => {
-  const { name } = props;
+  const { name,tooltip } = props;
+  console.log("🚀 ~ BaseSection ~ name:", name)
   const { compName, state, toggle } = useContext(PropertySectionContext);
   const open = props.open !== undefined ? props.open : name ? state[compName]?.[name] !== false : true;
 
@@ -118,17 +127,27 @@ export const BaseSection = (props: ISectionConfig<ReactNode>) => {
   return (
     <SectionItem $width={props.width} style={props.style}>
       {props.name && (
-        <SectionLabelDiv onClick={handleToggle} className={"section-header"}>
+        <SectionLabelDiv onClick={handleToggle} className={'section-header'}>
           <SectionLabel>{props.name}</SectionLabel>
-          <div style={{ display: "flex" }}>
+          <div style={{display: 'flex'}}>
             {open && props.additionalButton}
-            <PackupIcon deg={open ? "rotate(0deg)" : "rotate(180deg)"} />
+            <PackupIcon deg={open ? 'rotate(0deg)' : 'rotate(180deg)'} />
           </div>
         </SectionLabelDiv>
       )}
-      <ShowChildren $show={open ? "flex" : "none"} $noMargin={props.noMargin}>
-        {props.children}
-      </ShowChildren>
+      <Tooltip
+        title={tooltip && <TooltipWrapper href={tooltip}>{tooltip}</TooltipWrapper>}
+        arrow={{
+          pointAtCenter: true,
+        }}
+        placement="top"
+        color="#2c2c2c"
+        getPopupContainer={(node: any) => node.closest('.react-grid-item')}
+      >
+        <ShowChildren $show={open ? 'flex' : 'none'} $noMargin={props.noMargin}>
+          {props.children}
+        </ShowChildren>
+      </Tooltip>
     </SectionItem>
   );
 };
