@@ -6,11 +6,15 @@ import { NameConfig, NameConfigHidden, withExposingConfigs } from "../../generat
 import { RecordConstructorToView } from "lowcoder-core";
 import { useRef, useState } from "react";
 import { styleControl } from "comps/controls/styleControl";
-import { AnimationStyle, AnimationStyleType, AudioStyle, ImageStyle, ImageStyleType } from "comps/controls/styleControlConstants";
+import {
+  AnimationStyle,
+  AnimationStyleType,
+  VideoStyle,
+} from 'comps/controls/styleControlConstants';
 import { BoolControl } from "comps/controls/boolControl";
 import { withDefault } from "../../generators/simpleGenerators";
 import { playIcon } from "lowcoder-design";
-import { RangeControl, StringControl } from "../../controls/codeControl";
+import { RangeControl } from "../../controls/codeControl";
 import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { Video } from "lowcoder-design";
@@ -108,19 +112,18 @@ const ContainerVideo = (props: RecordConstructorToView<typeof childrenMap>) => {
 };
 
 const childrenMap = {
-  src: withDefault(StringStateControl, trans("video.defaultSrcUrl")),
-  poster: withDefault(StringStateControl, trans("video.defaultPosterUrl")),
+  src: withDefault(StringStateControl, trans('video.defaultSrcUrl')),
+  poster: withDefault(StringStateControl, trans('video.defaultPosterUrl')),
   onEvent: eventHandlerControl(EventOptions),
-  style: styleControl(AudioStyle),
+  style: styleControl(VideoStyle),
   animationStyle: styleControl(AnimationStyle),
   autoPlay: BoolControl,
   loop: BoolControl,
   controls: BoolControl,
   volume: RangeControl.closed(0, 1, 1),
   playbackRate: RangeControl.closed(1, 2, 1),
-  currentTimeStamp: numberExposingStateControl("currentTimeStamp", 0),
-  duration: numberExposingStateControl("duration"),
-  restrictPaddingOnRotation:withDefault(StringControl, 'video'),
+  currentTimeStamp: numberExposingStateControl('currentTimeStamp', 0),
+  duration: numberExposingStateControl('duration'),
   ...mediaCommonChildren,
 };
  

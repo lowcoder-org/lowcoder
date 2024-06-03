@@ -1556,7 +1556,6 @@ export const FileViewerStyle = [
   MARGIN,
   PADDING,
   BORDER_WIDTH,
-  ROTATION
 ] as const;
 
 export const IframeStyle = [
@@ -1690,6 +1689,8 @@ export const AudioStyle = [
   PADDING,
   ROTATION,
 ] as const;
+
+export const VideoStyle = [MARGIN, PADDING] as const;
 
 export const IconStyle = [
   getStaticBackground("#00000000"),
@@ -1930,7 +1931,7 @@ export const NavLayoutItemActiveStyle = [
   },
 ] as const;
 
-export const CarouselStyle = [getBackground("canvas"),ROTATION] as const;
+export const CarouselStyle = [getBackground("canvas")] as const;
 
 export const RichTextEditorStyle = [
   getStaticBorder(),
@@ -2012,6 +2013,7 @@ export type CircleProgressType = StyleConfigType<typeof CircleProgressStyle>;
 export type NavigationStyleType = StyleConfigType<typeof NavigationStyle>;
 export type ImageStyleType = StyleConfigType<typeof ImageStyle>;
 export type AudioStyleType = StyleConfigType<typeof AudioStyle>;
+export type VideoStyleType = StyleConfigType<typeof VideoStyle>;
 export type IconStyleType = StyleConfigType<typeof IconStyle>;
 export type ListViewStyleType = StyleConfigType<typeof ListViewStyle>;
 export type JsonSchemaFormStyleType = StyleConfigType<
