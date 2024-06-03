@@ -1,11 +1,11 @@
 package org.lowcoder.infra.js;
 
-import java.net.URI;
-
 import org.lowcoder.sdk.config.CommonConfigHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
+
+import java.net.URI;
 
 @Component
 public class NodeServerHelper {

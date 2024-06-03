@@ -39,6 +39,7 @@ import { useEffect, useRef, useState } from "react";
 import ReactResizeDetector from "react-resize-detector";
 
 import { useContext } from "react";
+import { BoolControl } from "@lowcoder-ee/index.sdk";
 
 const Container = styled.div<{ $style: any }>`
   height: 100%;
@@ -55,6 +56,7 @@ const getStyle = (style: any) => {
       border: 1px solid ${style.border};
       border-radius: ${style.radius};
       margin: ${style.margin};
+      rotate: ${style.rotation};
       padding: ${style.padding};
       max-width: ${widthCalculator(style.margin)};
       max-height: ${heightCalculator(style.margin)};
@@ -185,6 +187,7 @@ const childrenMap = {
   prefixIcon: IconControl,
   style: ButtonStyleControl,
   viewRef: RefControl<HTMLElement>,
+  restrictPaddingOnRotation:withDefault(StringControl, 'controlButton')
 };
 
 let ButtonTmpComp = (function () {

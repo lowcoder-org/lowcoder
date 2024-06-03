@@ -18,6 +18,8 @@ import { default as Divider } from "antd/es/divider";
 
 import { Avatar, Button, Card, Col, Row, Space, Typography, Select, Tooltip } from "antd";
 
+import { fullAvatarUrl } from "util/urlUtils";
+
 import {
   BlurFinishInput,
   OtpFormInput, // maybe to use
@@ -231,7 +233,7 @@ export function UserProfileLayout(props: UserProfileLayoutProps) {
             <StyleProfileContent>
               <Row gutter={[24, 24]} style={{ display: 'flex', alignItems: 'end' }}>
                 <Col lg={4}>
-                  <StyleAvatar src={<img src={user.avatarUrl ?? `https://eu.ui-avatars.com/api/?name=${user.username}&size=250`} alt="avatar" />} shape="square" size={120} />
+                  <StyleAvatar src={<img src={user.avatarUrl ? fullAvatarUrl(user.avatarUrl) : `https://eu.ui-avatars.com/api/?name=${user.username}&size=250`} alt="avatar" />} shape="square" size={120} />
                 </Col>
                 <Col lg={20}>
                   <Space style={{paddingLeft : "80px"}}>

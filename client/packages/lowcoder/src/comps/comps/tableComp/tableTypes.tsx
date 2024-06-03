@@ -225,6 +225,7 @@ const tableChildrenMap = {
   // todo: support object config
   dynamicColumnConfig: ArrayStringControl,
   expansion: ExpansionControl,
+  selectedCell: stateComp<JSONObject>({}),
 };
 
 export const TableInitComp = (function () {

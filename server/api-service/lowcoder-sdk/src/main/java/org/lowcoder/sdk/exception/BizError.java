@@ -1,10 +1,10 @@
 package org.lowcoder.sdk.exception;
 
+import lombok.Getter;
+
 import static org.lowcoder.sdk.exception.ErrorLogType.SIMPLE;
 import static org.lowcoder.sdk.exception.ErrorLogType.VERBOSE;
 import static org.lowcoder.sdk.util.EnumUtils.checkDuplicates;
-
-import lombok.Getter;
 
 @Getter
 public enum BizError {
@@ -143,6 +143,12 @@ public enum BizError {
 
     // material 6351 - 6400
     INVALID_MATERIAL_REQUEST(500, 6351),
+
+    //bundle 6401 - 6450
+    BUNDLE_OPERATE_NO_PERMISSION(500, 6401),
+    BUNDLE_NOT_EXIST(500, 6402),
+    BUNDLE_NAME_CONFLICT(500, 6403),
+    ILLEGAL_BUNDLE_PERMISSION_ID(500, 6404),
     ;
 
     static {

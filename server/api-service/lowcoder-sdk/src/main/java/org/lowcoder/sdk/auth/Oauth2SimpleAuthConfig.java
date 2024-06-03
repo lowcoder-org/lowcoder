@@ -7,7 +7,7 @@ import lombok.extern.jackson.Jacksonized;
 import org.apache.commons.lang3.StringUtils;
 import org.lowcoder.sdk.auth.constants.AuthTypeConstants;
 import org.lowcoder.sdk.auth.constants.Oauth2Constants;
-import org.lowcoder.sdk.config.SerializeConfig.JsonViews;
+import org.lowcoder.sdk.config.JsonViews;
 
 import java.util.function.Function;
 

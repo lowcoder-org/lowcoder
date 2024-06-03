@@ -10,6 +10,7 @@ import {
   QUERY_LIBRARY_URL,
   SETTING,
   TRASH_URL,
+  API_DOCS_URL,
   // ADMIN_APP_URL,
   NEWS_URL,
   ORG_HOME_URL,
@@ -35,6 +36,7 @@ import {
   AppsIcon,
   EnterpriseIcon,
   UserIcon,
+  APIDocsIcon,
 } from "lowcoder-design";
 import React, { useEffect, useState } from "react";
 import { fetchAllApplications, fetchHomeData } from "redux/reduxActions/applicationActions";
@@ -47,6 +49,7 @@ import { Layout } from "../../components/layout/Layout";
 import { HomeView } from "./HomeView";
 import { UserProfileView } from "./UserProfileView";
 import { NewsView } from "./NewsView";
+import { ApiDocView } from "./ApiDocView";
 import { OrgView } from "./OrgView";
 import styled, { css } from "styled-components";
 import history from "../../util/history";
@@ -365,6 +368,7 @@ export default function ApplicationHome() {
                 routeComp: NewsView,
                 icon: ({ selected, ...otherProps }) => selected ? <NewsIcon {...otherProps} width={"24px"}/> : <NewsIcon {...otherProps} width={"24px"}/>,
                 visible: ({ user }) => user.orgDev,
+                style: { color: "red" },
               },
               {
                 text: <TabLabel>{trans("home.orgHome")}</TabLabel>,
@@ -440,6 +444,13 @@ export default function ApplicationHome() {
                 visible: ({ user }) => user.orgDev,
                 onSelected: (_, currentPath) => currentPath.split("/")[1] === "datasource",
               },
+              {
+                text: <TabLabel>{trans("home.api")}</TabLabel>,
+                routePath: API_DOCS_URL,
+                routeComp: ApiDocView,
+                icon: ({ selected, ...otherProps }) => selected ? <APIDocsIcon {...otherProps} width={"24px"}/> : <APIDocsIcon {...otherProps} width={"24px"}/>,
+                visible: ({ user }) => user.orgDev,
+              }
             ],
           },
           isEE() ? {

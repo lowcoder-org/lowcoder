@@ -34,6 +34,8 @@ public class WebClientBuildHelper {
     private boolean systemProxy;
     private Long timeoutMs;
 
+    private int maxInMemorySize = 20 * 1024 * 1024;
+
     static {
         proxyHost = System.getProperty("http.proxyHost");
         proxyPortStr = System.getProperty("http.proxyPort");
@@ -64,7 +66,12 @@ public class WebClientBuildHelper {
     public WebClientBuildHelper timeoutMs(long milliseconds) {
         this.timeoutMs = milliseconds;
         return this;
-    }    
+    }
+
+    public WebClientBuildHelper maxInMemorySize(int maxInMemorySize) {
+        this.maxInMemorySize = maxInMemorySize;
+        return this;
+    }
     
     public WebClient build() {
         return toWebClientBuilder().build();
@@ -94,6 +101,9 @@ public class WebClientBuildHelper {
             httpClient = httpClient.resolver(new SafeHostResolverGroup(disallowedHosts));
         }
         return WebClient.builder()
+                .codecs(codecs -> codecs
+                        .defaultCodecs()
+                        .maxInMemorySize(maxInMemorySize))
                 .clientConnector(new ReactorClientHttpConnector(httpClient));
     }
 

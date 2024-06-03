@@ -15,7 +15,7 @@ import {
 } from "./selectInputConstants";
 import { formDataChildren } from "../formComp/formDataConstants";
 import { styleControl } from "comps/controls/styleControl";
-import { CheckboxStyle, CheckboxStyleType, InputFieldStyle, LabelStyle } from "comps/controls/styleControlConstants";
+import { AnimationStyle, CheckboxStyle, CheckboxStyleType, InputFieldStyle, LabelStyle } from "comps/controls/styleControlConstants";
 import { RadioLayoutOptions, RadioPropertyView } from "./radioCompConstants";
 import { dropdownControl } from "../../controls/dropdownControl";
 import { ValueFromOption } from "lowcoder-design";
@@ -141,6 +141,7 @@ let CheckboxBasicComp = (function () {
     layout: dropdownControl(RadioLayoutOptions, "horizontal"),
     viewRef: RefControl<HTMLDivElement>,
     inputFieldStyle:styleControl(CheckboxStyle),
+    animationStyle:styleControl(AnimationStyle),
     ...SelectInputValidationChildren,
     ...formDataChildren,
   };
@@ -154,6 +155,7 @@ let CheckboxBasicComp = (function () {
       style: props.style,
       labelStyle: props.labelStyle,
       inputFieldStyle:props.inputFieldStyle,
+      animationStyle:props.animationStyle,
       children: (
         <CheckboxGroup
           ref={props.viewRef}

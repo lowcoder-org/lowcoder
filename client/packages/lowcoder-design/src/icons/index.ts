@@ -125,6 +125,7 @@ export { ReactComponent as InviteUserIcon } from "./icon-application-invite-user
 export { ReactComponent as HomeEmptyIcon } from "./icon-application-empty.svg";
 export { ReactComponent as HomeListIcon } from "./icon-application-list.svg";
 export { ReactComponent as HomeCardIcon } from "./icon-application-card.svg";
+export { ReactComponent as APIDocsIcon } from "./remix/instance-line.svg";
 // export { ReactComponent as AllAppIcon } from "./icon-all-app.svg";
 
 
@@ -161,6 +162,10 @@ export { ReactComponent as ResetIcon } from "./icon-style-reset.svg";
 export { ReactComponent as EditIcon } from "./icon-edit.svg";
 export { ReactComponent as EditableIcon } from "./icon-editable.svg";
 export { ReactComponent as LeftStateIcon } from "./remix/node-tree.svg";
+export {ReactComponent as StarSmileIcon} from "./remix/star-smile-line.svg";
+export {ReactComponent as Timer2Icon} from "./remix/timer-2-line.svg";
+export {ReactComponent as TimerFlashIcon} from "./remix/timer-flash-line.svg";
+export {ReactComponent as RefreshLineIcon} from "./remix/refresh-line.svg";
 export { ReactComponent as LeftSettingIcon } from "./remix/tools-fill.svg";
 export { ReactComponent as LeftLayersIcon } from "./remix/stack-line.svg";
 export { ReactComponent as LeftHelpIcon } from "./icon-left-help.svg";
@@ -259,6 +264,7 @@ export { ReactComponent as ChartCompIconSmall } from "./v2/pie-chart-s.svg";
 export { ReactComponent as CheckboxCompIconSmall } from "./v2/checkbox-s.svg";
 export { ReactComponent as ColorPickerCompIconSmall } from "./v2/colorpicker-s.svg"; // new
 export { ReactComponent as CollapsibleContainerCompIconSmall } from "./v2/collapsible-container-s.svg"; // new
+export { ReactComponent as ColumnLayoutCompIconSmall } from "./v2/column-layout-s.svg"; // new
 export { ReactComponent as CommentCompIconSmall } from "./v2/comment-s.svg";
 export { ReactComponent as ContainerCompIconSmall } from "./v2/container-s.svg";
 export { ReactComponent as CustomCompIconSmall } from "./v2/custom-code-s.svg"; // new
@@ -360,6 +366,7 @@ export { ReactComponent as CascaderCompIcon } from "./v2/cascader-m.svg";
 export { ReactComponent as ChartCompIcon } from "./v2/pie-chart-m.svg";
 export { ReactComponent as CheckboxCompIcon } from "./v2/checkbox-m.svg";
 export { ReactComponent as CollapsibleContainerCompIcon } from "./v2/collapsible-container-m.svg";
+export { ReactComponent as ColumnLayoutCompIcon } from "./v2/column-layout-m.svg";
 export { ReactComponent as CommentCompIcon } from "./v2/comment-m.svg";
 export { ReactComponent as ColorPickerCompIcon } from "./v2/colorpicker-m.svg";
 export { ReactComponent as ContainerCompIcon } from "./v2/container-m.svg";

@@ -1,7 +1,7 @@
-import { ThemeDetail } from "api/commonSettingApi";
-import { darkenColor, isDarkColor, lightenColor, toHex } from "lowcoder-design";
-import { trans } from "i18n";
-import { StyleConfigType } from "./styleControl";
+import {ThemeDetail} from "api/commonSettingApi";
+import {darkenColor, isDarkColor, lightenColor, toHex} from "lowcoder-design";
+import {trans} from "i18n";
+import {StyleConfigType} from "./styleControl";
 
 type SupportPlatform = "pc" | "mobile";
 
@@ -27,29 +27,97 @@ export type RotationConfig = CommonColorConfig & {
   readonly rotation: string;
 };
 
-export type BackgroundImageConfig = CommonColorConfig & { readonly backgroundImage: string; };
-export type BackgroundImageRepeatConfig = CommonColorConfig & { readonly backgroundImageRepeat: string; };
-export type BackgroundImageSizeConfig = CommonColorConfig & { readonly backgroundImageSize: string; };
-export type BackgroundImagePositionConfig = CommonColorConfig & { readonly backgroundImagePosition: string; };
-export type BackgroundImageOriginConfig = CommonColorConfig & { readonly backgroundImageOrigin: string; };
+export type BoxShadowConfig = CommonColorConfig & {
+  readonly boxShadow: string;
+};
 
-export type HeaderBackgroundImageConfig = CommonColorConfig & { readonly headerBackgroundImage: string; };
-export type HeaderBackgroundImageRepeatConfig = CommonColorConfig & { readonly headerBackgroundImageRepeat: string; };
-export type HeaderBackgroundImageSizeConfig = CommonColorConfig & { readonly headerBackgroundImageSize: string; };
-export type HeaderBackgroundImagePositionConfig = CommonColorConfig & { readonly headerBackgroundImagePosition: string; };
-export type HeaderBackgroundImageOriginConfig = CommonColorConfig & { readonly headerBackgroundImageOrigin: string; };
+export type BoxShadowColorConfig = CommonColorConfig & {
+  readonly boxShadowColor: string;
+};
 
-export type SiderBackgroundImageConfig = CommonColorConfig & { readonly siderBackgroundImage: string; };
-export type SiderBackgroundImageRepeatConfig = CommonColorConfig & { readonly siderBackgroundImageRepeat: string; };
-export type SiderBackgroundImageSizeConfig = CommonColorConfig & { readonly siderBackgroundImageSize: string; };
-export type SiderBackgroundImagePositionConfig = CommonColorConfig & { readonly siderBackgroundImagePosition: string; };
-export type SiderBackgroundImageOriginConfig = CommonColorConfig & { readonly siderBackgroundImageOrigin: string; };
+export type AnimationIterationCountConfig = CommonColorConfig & {
+  readonly animationIterationCount: string;
+};
 
-export type FooterBackgroundImageConfig = CommonColorConfig & { readonly footerBackgroundImage: string; };
-export type FooterBackgroundImageRepeatConfig = CommonColorConfig & { readonly footerBackgroundImageRepeat: string; };
-export type FooterBackgroundImageSizeConfig = CommonColorConfig & { readonly footerBackgroundImageSize: string; };
-export type FooterBackgroundImagePositionConfig = CommonColorConfig & { readonly footerBackgroundImagePosition: string; };
-export type FooterBackgroundImageOriginConfig = CommonColorConfig & { readonly footerBackgroundImageOrigin: string; };
+export type OpacityConfig = CommonColorConfig & {
+  readonly opacity: string;
+};
+
+export type AnimationConfig = CommonColorConfig & {
+  readonly animation: string;
+};
+
+export type AnimationDelayConfig = CommonColorConfig & {
+  readonly animationDelay: string;
+};
+
+export type AnimationDurationConfig = CommonColorConfig & {
+  readonly animationDuration: string;
+};
+
+export type BackgroundImageConfig = CommonColorConfig & {
+  readonly backgroundImage: string;
+};
+export type BackgroundImageRepeatConfig = CommonColorConfig & {
+  readonly backgroundImageRepeat: string;
+};
+export type BackgroundImageSizeConfig = CommonColorConfig & {
+  readonly backgroundImageSize: string;
+};
+export type BackgroundImagePositionConfig = CommonColorConfig & {
+  readonly backgroundImagePosition: string;
+};
+export type BackgroundImageOriginConfig = CommonColorConfig & {
+  readonly backgroundImageOrigin: string;
+};
+
+export type HeaderBackgroundImageConfig = CommonColorConfig & {
+  readonly headerBackgroundImage: string;
+};
+export type HeaderBackgroundImageRepeatConfig = CommonColorConfig & {
+  readonly headerBackgroundImageRepeat: string;
+};
+export type HeaderBackgroundImageSizeConfig = CommonColorConfig & {
+  readonly headerBackgroundImageSize: string;
+};
+export type HeaderBackgroundImagePositionConfig = CommonColorConfig & {
+  readonly headerBackgroundImagePosition: string;
+};
+export type HeaderBackgroundImageOriginConfig = CommonColorConfig & {
+  readonly headerBackgroundImageOrigin: string;
+};
+
+export type SiderBackgroundImageConfig = CommonColorConfig & {
+  readonly siderBackgroundImage: string;
+};
+export type SiderBackgroundImageRepeatConfig = CommonColorConfig & {
+  readonly siderBackgroundImageRepeat: string;
+};
+export type SiderBackgroundImageSizeConfig = CommonColorConfig & {
+  readonly siderBackgroundImageSize: string;
+};
+export type SiderBackgroundImagePositionConfig = CommonColorConfig & {
+  readonly siderBackgroundImagePosition: string;
+};
+export type SiderBackgroundImageOriginConfig = CommonColorConfig & {
+  readonly siderBackgroundImageOrigin: string;
+};
+
+export type FooterBackgroundImageConfig = CommonColorConfig & {
+  readonly footerBackgroundImage: string;
+};
+export type FooterBackgroundImageRepeatConfig = CommonColorConfig & {
+  readonly footerBackgroundImageRepeat: string;
+};
+export type FooterBackgroundImageSizeConfig = CommonColorConfig & {
+  readonly footerBackgroundImageSize: string;
+};
+export type FooterBackgroundImagePositionConfig = CommonColorConfig & {
+  readonly footerBackgroundImagePosition: string;
+};
+export type FooterBackgroundImageOriginConfig = CommonColorConfig & {
+  readonly footerBackgroundImageOrigin: string;
+};
 
 export type TextSizeConfig = CommonColorConfig & {
   readonly textSize: string;
@@ -65,11 +133,11 @@ export type FontFamilyConfig = CommonColorConfig & {
 
 export type FontStyleConfig = CommonColorConfig & {
   readonly fontStyle: string;
-}
+};
 
 export type borderStyleConfig = CommonColorConfig & {
   readonly borderStyle: string;
-}
+};
 
 export type ContainerHeaderPaddingConfig = CommonColorConfig & {
   readonly containerHeaderPadding: string;
@@ -97,11 +165,11 @@ export type PaddingConfig = CommonColorConfig & {
 
 export type TextTransformConfig = CommonColorConfig & {
   readonly textTransform: string;
-}
+};
 
 export type TextDecorationConfig = CommonColorConfig & {
   readonly textDecoration: string;
-}
+};
 
 export type DepColorConfig = CommonColorConfig & {
   readonly depName?: string;
@@ -110,7 +178,52 @@ export type DepColorConfig = CommonColorConfig & {
   transformer: (color: string, ...rest: string[]) => string;
 };
 
-export type SingleColorConfig = SimpleColorConfig | DepColorConfig | RadiusConfig | BorderWidthConfig | RotationConfig | borderStyleConfig | BackgroundImageConfig | BackgroundImageRepeatConfig | BackgroundImageSizeConfig | BackgroundImagePositionConfig | BackgroundImageOriginConfig | TextSizeConfig | TextWeightConfig | TextTransformConfig | TextDecorationConfig | FontFamilyConfig | FontStyleConfig | MarginConfig | PaddingConfig | ContainerHeaderPaddingConfig | ContainerSiderPaddingConfig | ContainerFooterPaddingConfig | ContainerBodyPaddingConfig | HeaderBackgroundImageConfig | HeaderBackgroundImageRepeatConfig | HeaderBackgroundImageSizeConfig | HeaderBackgroundImagePositionConfig | HeaderBackgroundImageOriginConfig | FooterBackgroundImageConfig | FooterBackgroundImageRepeatConfig | FooterBackgroundImageSizeConfig | FooterBackgroundImagePositionConfig | FooterBackgroundImageOriginConfig | SiderBackgroundImageConfig | SiderBackgroundImageRepeatConfig | SiderBackgroundImageSizeConfig | SiderBackgroundImagePositionConfig | SiderBackgroundImageOriginConfig;
+export type SingleColorConfig =
+  | SimpleColorConfig
+  | DepColorConfig
+  | RadiusConfig
+  | BorderWidthConfig
+  | RotationConfig
+  | borderStyleConfig
+  | BackgroundImageConfig
+  | BackgroundImageRepeatConfig
+  | BackgroundImageSizeConfig
+  | BackgroundImagePositionConfig
+  | BackgroundImageOriginConfig
+  | TextSizeConfig
+  | TextWeightConfig
+  | TextTransformConfig
+  | TextDecorationConfig
+  | FontFamilyConfig
+  | FontStyleConfig
+  | MarginConfig
+  | PaddingConfig
+  | ContainerHeaderPaddingConfig
+  | ContainerSiderPaddingConfig
+  | ContainerFooterPaddingConfig
+  | ContainerBodyPaddingConfig
+  | HeaderBackgroundImageConfig
+  | HeaderBackgroundImageRepeatConfig
+  | HeaderBackgroundImageSizeConfig
+  | HeaderBackgroundImagePositionConfig
+  | HeaderBackgroundImageOriginConfig
+  | FooterBackgroundImageConfig
+  | FooterBackgroundImageRepeatConfig
+  | FooterBackgroundImageSizeConfig
+  | FooterBackgroundImagePositionConfig
+  | FooterBackgroundImageOriginConfig
+  | SiderBackgroundImageConfig
+  | SiderBackgroundImageRepeatConfig
+  | SiderBackgroundImageSizeConfig
+  | SiderBackgroundImagePositionConfig
+  | SiderBackgroundImageOriginConfig
+  | AnimationConfig
+  | AnimationDelayConfig
+  | AnimationDurationConfig
+  | OpacityConfig
+  | BoxShadowConfig
+  | BoxShadowColorConfig
+  | AnimationIterationCountConfig;
 
 export const defaultTheme: ThemeDetail = {
   primary: "#3377FF",
@@ -123,6 +236,13 @@ export const defaultTheme: ThemeDetail = {
   padding: "3px",
   gridColumns: "24",
   textSize: "14px",
+  animation: "",
+  animationDelay: "",
+  animationDuration: "",
+  opacity: "1",
+  boxShadow: "",
+  boxShadowColor: "",
+  animationIterationCount: "",
 };
 
 export const SURFACE_COLOR = "#FFFFFF";
@@ -135,8 +255,12 @@ export enum DEP_TYPE {
   SELF = "toSelf",
 }
 
-export function contrastText(color: string, textDark: string, textLight: string) {
-  return isDarkColor(color) && color !== '#00000000' ? textLight : textDark;
+export function contrastText(
+  color: string,
+  textDark: string,
+  textLight: string
+) {
+  return isDarkColor(color) && color !== "#00000000" ? textLight : textDark;
 }
 
 // return similar background color
@@ -204,7 +328,10 @@ export function handleToHoverRow(color: string) {
 }
 
 // return table select row background color
-export function handleToSelectedRow(color: string, primary: string = defaultTheme.primary) {
+export function handleToSelectedRow(
+  color: string,
+  primary: string = defaultTheme.primary
+) {
   if (toHex(color) === SURFACE_COLOR) {
     return `${toHex(primary)?.substring(0, 7)}16`;
   } else if (isDarkColor(color)) {
@@ -262,7 +389,11 @@ export function handleToCalendarToday(color: string) {
 }
 
 // return calendar text
-function handleCalendarText(color: string, textDark: string, textLight: string) {
+function handleCalendarText(
+  color: string,
+  textDark: string,
+  textLight: string
+) {
   return isDarkColor(color) ? textLight : lightenColor(textDark, 0.1);
 }
 
@@ -277,7 +408,7 @@ const TEXT = {
 const STATIC_TEXT = {
   name: "staticText",
   label: trans("style.staticText"),
-  depTheme: "canvas",
+  depTheme: "primarySurface",
   depType: DEP_TYPE.CONTRAST_TEXT,
   transformer: contrastText,
 } as const;
@@ -285,7 +416,7 @@ const STATIC_TEXT = {
 const LABEL = {
   name: "label",
   label: trans("label"),
-  depTheme: "canvas",
+  depTheme: "primarySurface",
   depType: DEP_TYPE.CONTRAST_TEXT,
   transformer: contrastText,
 } as const;
@@ -311,6 +442,48 @@ const ROTATION = {
   name: "rotation",
   label: "Rotation",
   rotation: "rotation",
+} as const;
+
+const BOXSHADOW = {
+  name: "boxShadow",
+  label: trans("style.boxShadow"),
+  boxShadow: "boxShadow",
+} as const;
+
+const BOXSHADOWCOLOR = {
+  name: "boxShadowColor",
+  label: trans("style.boxShadowColor"),
+  boxShadowColor: "boxShadowColor",
+} as const;
+
+const OPACITY = {
+  name: "opacity",
+  label: trans("style.opacity"),
+  opacity: "opacity",
+} as const;
+
+const ANIMATION = {
+  name: "animation",
+  label: trans("style.animation"),
+  animation: "animation",
+} as const;
+
+const ANIMATIONITERATIONCOUNT = {
+  name: "animationIterationCount",
+  label: trans("style.animationIterationCount"),
+  animationIterationCount: "animationIterationCount",
+} as const;
+
+const ANIMATIONDELAY = {
+  name: "animationDelay",
+  label: trans("style.animationDelay"),
+  animationDelay: "animationDelay",
+} as const;
+
+const ANIMATIONDURATION = {
+  name: "animationDuration",
+  label: trans("style.animationDuration"),
+  animationDuration: "animationDuration",
 } as const;
 
 const BORDER = {
@@ -389,7 +562,8 @@ const TEXT_WEIGHT = {
 const HOVER_BACKGROUND_COLOR = {
   name: "hoverBackground",
   label: trans("style.hoverBackground"),
-  hoverBackground: "hoverBackground"
+  hoverBackground: "hoverBackground",
+  color: SECOND_SURFACE_COLOR,
 }
 
 const FONT_FAMILY = {
@@ -402,7 +576,7 @@ const FONT_STYLE = {
   name: "fontStyle",
   label: trans("style.fontStyle"),
   fontStyle: "fontStyle",
-} as const
+} as const;
 
 const CONTAINER_HEADER_PADDING = {
   name: "containerHeaderPadding",
@@ -431,27 +605,27 @@ const CONTAINER_BODY_PADDING = {
 const TEXT_TRANSFORM = {
   name: "textTransform",
   label: trans("style.textTransform"),
-  textTransform: "textTransform"
+  textTransform: "textTransform",
 } as const;
 
 const TEXT_DECORATION = {
   name: "textDecoration",
   label: trans("style.textDecoration"),
-  textDecoration: "textDecoration"
+  textDecoration: "textDecoration",
 } as const;
 
 const BORDER_STYLE = {
   name: "borderStyle",
   label: trans("style.borderStyle"),
-  borderStyle: "borderStyle"
+  borderStyle: "borderStyle",
 } as const;
 
 const getStaticBorder = (color: string = SECOND_SURFACE_COLOR) =>
-({
-  name: "border",
-  label: trans("style.border"),
-  color,
-} as const);
+  ({
+    name: "border",
+    label: trans("style.border"),
+    color,
+  }) as const;
 
 const HEADER_BACKGROUND = {
   name: "headerBackground",
@@ -469,7 +643,11 @@ const SIDER_BACKGROUND = {
   transformer: toSelf,
 } as const;
 
-const BG_STATIC_BORDER_RADIUS = [getBackground(), getStaticBorder(), RADIUS] as const;
+const BG_STATIC_BORDER_RADIUS = [
+  getBackground(),
+  getStaticBorder(),
+  RADIUS,
+] as const;
 
 const STYLING_FIELDS_SEQUENCE = [
   MARGIN,
@@ -486,7 +664,7 @@ const STYLING_FIELDS_SEQUENCE = [
   RADIUS,
   BORDER_WIDTH,
   ROTATION,
-]
+];
 
 const STYLING_FIELDS_CONTAINER_SEQUENCE = [
   MARGIN,
@@ -495,7 +673,18 @@ const STYLING_FIELDS_CONTAINER_SEQUENCE = [
   BORDER_STYLE,
   RADIUS,
   BORDER_WIDTH,
+  OPACITY,
+  BOXSHADOW,
+  BOXSHADOWCOLOR,
+  ROTATION,
 ];
+
+export const AnimationStyle = [
+  ANIMATION,
+  ANIMATIONDELAY,
+  ANIMATIONDURATION,
+  ANIMATIONITERATIONCOUNT,
+] as const;
 
 const FILL = {
   name: "fill",
@@ -517,15 +706,20 @@ const SUCCESS = {
   color: SUCCESS_COLOR,
 } as const;
 
-function getStaticBgBorderRadiusByBg(background: string, platform?: SupportPlatform) {
+function getStaticBgBorderRadiusByBg(
+  background: string,
+  platform?: SupportPlatform
+) {
   return [
     getStaticBackground(background),
-    platform ? { ...BORDER, platform } : BORDER,
-    platform ? { ...RADIUS, platform } : RADIUS,
+    platform ? {...BORDER, platform} : BORDER,
+    platform ? {...RADIUS, platform} : RADIUS,
   ] as const;
 }
 
-function getBgBorderRadiusByBg(background: keyof ThemeDetail = "primarySurface") {
+function getBgBorderRadiusByBg(
+  background: keyof ThemeDetail = "primarySurface"
+) {
   return [getBackground(background), BORDER, RADIUS] as const;
 }
 
@@ -547,18 +741,31 @@ function getStaticBackground(color: string) {
   } as const;
 }
 
-function replaceAndMergeMultipleStyles(originalArray: any[], styleToReplace: string, replacingStyles: any[]): any[] {
-  let temp = []
-  let foundIndex = originalArray.findIndex((element) => element.name === styleToReplace)
+function replaceAndMergeMultipleStyles(
+  originalArray: any[],
+  styleToReplace: string,
+  replacingStyles: any[]
+): any[] {
+  let temp = [];
+  let foundIndex = originalArray.findIndex(
+    (element) => element.name === styleToReplace
+  );
 
   if (foundIndex !== -1) {
-    let elementsBeforeFoundIndex = originalArray.filter((item, index) => index < foundIndex)
-    let elementsAfterFoundIndex = originalArray.filter((item, index) => index > foundIndex)
-    temp = [...elementsBeforeFoundIndex, ...replacingStyles, ...elementsAfterFoundIndex]
-  } else
-    temp = [...originalArray]
+    let elementsBeforeFoundIndex = originalArray.filter(
+      (item, index) => index < foundIndex
+    );
+    let elementsAfterFoundIndex = originalArray.filter(
+      (item, index) => index > foundIndex
+    );
+    temp = [
+      ...elementsBeforeFoundIndex,
+      ...replacingStyles,
+      ...elementsAfterFoundIndex,
+    ];
+  } else temp = [...originalArray];
 
-  return temp
+  return temp;
 }
 
 export const ButtonStyle = [
@@ -566,20 +773,25 @@ export const ButtonStyle = [
   ...STYLING_FIELDS_SEQUENCE
 ] as const;
 
+export const DropdownStyle = [
+  getBackground('primary'),
+  ...STYLING_FIELDS_SEQUENCE.filter(style=>style.name!=='rotation'),
+] as const;
+
 export const ToggleButtonStyle = [
   getBackground("canvas"),
   ...STYLING_FIELDS_SEQUENCE.map((style) => {
-    if (style.name === 'border') {
+    if (style.name === "border") {
       return {
         ...style,
         depType: DEP_TYPE.SELF,
-        transformer: toSelf
-      }
+        transformer: toSelf,
+      };
     }
     return {
-      ...style
-    }
-  })
+      ...style,
+    };
+  }),
 ] as const;
 
 export const TextStyle = [
@@ -600,6 +812,24 @@ export const TextStyle = [
   },
 ] as const;
 
+export const TextContainerStyle = [
+  {
+    name: "background",
+    label: trans("style.background"),
+    depTheme: "canvas",
+    depType: DEP_TYPE.SELF,
+    transformer: toSelf,
+  },
+  ...STYLING_FIELDS_SEQUENCE.filter(style=>style.name!=='rotation'),
+  {
+    name: "links",
+    label: trans("style.links"),
+    depTheme: "primary",
+    depType: DEP_TYPE.SELF,
+    transformer: toSelf,
+  },
+] as const;
+
 export const MarginStyle = [
   {
     name: "margin",
@@ -611,10 +841,11 @@ export const MarginStyle = [
 export const ContainerStyle = [
   // ...BG_STATIC_BORDER_RADIUS,
   getStaticBorder(),
-  // ...STYLING_FIELDS_SEQUENCE.filter((style) => style.name !== 'border'),
+  // ...STYLING_FIELDS_SEQUENCE.filter((style) => style.name !== "border"),
   getBackground(),
   RADIUS,
   BORDER_WIDTH,
+  BORDER_STYLE,
   MARGIN,
   PADDING,
   {
@@ -666,8 +897,8 @@ export const ContainerHeaderStyle = [
     name: "headerBackgroundImagePosition",
     label: trans("style.backgroundImagePosition"),
     headerBackgroundImagePosition: "headerBackgroundImagePosition",
-  }
-  , {
+  },
+  {
     name: "headerBackgroundImageOrigin",
     label: trans("style.backgroundImageOrigin"),
     headerBackgroundImageOrigin: "headerBackgroundImageOrigin",
@@ -696,8 +927,8 @@ export const ContainerSiderStyle = [
     name: "siderBackgroundImagePosition",
     label: trans("style.backgroundImagePosition"),
     siderBackgroundImagePosition: "siderBackgroundImagePosition",
-  }
-  , {
+  },
+  {
     name: "siderBackgroundImageOrigin",
     label: trans("style.backgroundImageOrigin"),
     siderBackgroundImageOrigin: "siderBackgroundImageOrigin",
@@ -768,12 +999,12 @@ export const ContainerFooterStyle = [
     name: "footerBackgroundImagePosition",
     label: trans("style.backgroundImagePosition"),
     footerBackgroundImagePosition: "footerBackgroundImagePosition",
-  }
-  , {
+  },
+  {
     name: "footerBackgroundImageOrigin",
     label: trans("style.backgroundImageOrigin"),
     footerBackgroundImageOrigin: "footerBackgroundImageOrigin",
-  }
+  },
 ] as const;
 
 export const SliderStyle = [
@@ -797,7 +1028,7 @@ export const SliderStyle = [
 
 export const InputLikeStyle = [
   getStaticBackground(SURFACE_COLOR),
-  ...STYLING_FIELDS_SEQUENCE,
+  ...STYLING_FIELDS_SEQUENCE.filter(style=>style.name!=='rotation'),
   ...ACCENT_VALIDATE,
 ] as const;
 
@@ -806,7 +1037,7 @@ export const InputLikeStyle = [
 export const ColorPickerStyle = [
   LABEL,
   getStaticBackground(SURFACE_COLOR),
-  ...STYLING_FIELDS_SEQUENCE,
+  ...STYLING_FIELDS_SEQUENCE.filter(style => style.name!=='rotation'),
   ...ACCENT_VALIDATE,
 ] as const;
 
@@ -814,26 +1045,26 @@ export const AvatarStyle = [
   {
     name: "background",
     label: trans("avatarComp.avatarBackground"),
-    color: '#bfbfbf',
+    color: "#bfbfbf",
   },
   FILL,
 ] as const;
 
 export const avatarContainerStyle = [
   getStaticBackground(SURFACE_COLOR),
-  ...STYLING_FIELDS_CONTAINER_SEQUENCE
+  ...STYLING_FIELDS_CONTAINER_SEQUENCE.filter(style=>style.name!=='rotation'),
 ] as const;
 
 export const avatarLabelStyle = [
   getStaticBackground(SURFACE_COLOR),
-  ...STYLING_FIELDS_SEQUENCE
+  ...STYLING_FIELDS_SEQUENCE.filter((style) => style.name !== 'rotation'),
 ] as const;
 
 export const avatarGroupStyle = [
   {
     name: "fill",
     label: trans("style.fill"),
-    color: '#FFFFFF',
+    color: "#FFFFFF",
   },
   getBackground("primary"),
 ] as const;
@@ -855,7 +1086,7 @@ export const FloatButtonStyle = [
 
 export const TransferStyle = [
   getStaticBackground(SURFACE_COLOR),
-  ...STYLING_FIELDS_CONTAINER_SEQUENCE
+  ...STYLING_FIELDS_CONTAINER_SEQUENCE.filter(style=>style.name!=='rotation'),
 ] as const;
 
 export const CardStyle = [
@@ -873,7 +1104,7 @@ export const CardStyle = [
     transformer: toSelf,
   },
   CONTAINER_BODY_PADDING,
-  ...STYLING_FIELDS_CONTAINER_SEQUENCE
+  ...STYLING_FIELDS_CONTAINER_SEQUENCE,
 ] as const;
 
 export const CardHeaderStyle = [
@@ -883,24 +1114,37 @@ export const CardHeaderStyle = [
 
 export const timerStyle = [
   getBackground("primarySurface"),
- ...STYLING_FIELDS_SEQUENCE
+  ...STYLING_FIELDS_SEQUENCE,
 ] as const;
 
 export const startButtonStyle = [
   getBackground("primarySurface"),
-  ...STYLING_FIELDS_SEQUENCE
-] as const
+  ...STYLING_FIELDS_SEQUENCE,
+] as const;
 
 // end
 
 export const LabelStyle = [
-  ...replaceAndMergeMultipleStyles([...InputLikeStyle], 'text', [LABEL]).filter((style) => style.name !== 'radius' && style.name !== 'background')
-]
+  ...replaceAndMergeMultipleStyles([...InputLikeStyle], "text", [LABEL]).filter(
+    (style) => style.name !== "radius" && style.name !== "background"&&style.name!=='rotation'
+  ),
+];
 
 export const InputFieldStyle = [
-  getStaticBackground(SURFACE_COLOR),
+  getBackground(),
   getStaticBorder(),
-  ...STYLING_FIELDS_CONTAINER_SEQUENCE.filter((style) => ['border'].includes(style.name) === false),
+  ...STYLING_FIELDS_CONTAINER_SEQUENCE.filter(
+    (style) => ["border"].includes(style.name) === false
+  ),
+  // ...STYLING_FIELDS_CONTAINER_SEQUENCE,
+] as const;
+
+export const SignatureContainerStyle = [
+  getBackground(),
+  getStaticBorder(),
+  ...STYLING_FIELDS_CONTAINER_SEQUENCE.filter(
+    (style) => ['border'].includes(style.name) === false&&style.name!=='rotation'
+  ),
   // ...STYLING_FIELDS_CONTAINER_SEQUENCE,
 ] as const;
 
@@ -943,12 +1187,16 @@ export const SwitchStyle = [
 ] as const;
 
 export const SelectStyle = [
-  ...replaceAndMergeMultipleStyles(STYLING_FIELDS_SEQUENCE, 'border', [...getStaticBgBorderRadiusByBg(SURFACE_COLOR, "pc")]),
+  ...replaceAndMergeMultipleStyles(STYLING_FIELDS_SEQUENCE.filter(style=>style.name!=='rotation'), "border", [
+    ...getStaticBgBorderRadiusByBg(SURFACE_COLOR, "pc"),
+  ]),
   ...ACCENT_VALIDATE,
 ] as const;
 
 const multiSelectCommon = [
-  ...replaceAndMergeMultipleStyles(STYLING_FIELDS_SEQUENCE, 'border', [...getStaticBgBorderRadiusByBg(SURFACE_COLOR, "pc")]),
+  ...replaceAndMergeMultipleStyles(STYLING_FIELDS_SEQUENCE.filter(style=>style.name!=='rotation'), "border", [
+    ...getStaticBgBorderRadiusByBg(SURFACE_COLOR, "pc"),
+  ]),
   {
     name: "tags",
     label: trans("style.tags"),
@@ -980,20 +1228,36 @@ export const MultiSelectStyle = [
 
 export const ChildrenMultiSelectStyle = [
   ...STYLING_FIELDS_SEQUENCE,
-  getStaticBackground(SURFACE_COLOR)
+  getBackground()
 ] as const;
 
 export const TabContainerStyle = [
   // Keep background related properties of container as STYLING_FIELDS_SEQUENCE has rest of the properties
-  ...replaceAndMergeMultipleStyles([...ContainerStyle.filter((style) => ['border', 'radius', 'borderWidth', 'margin', 'padding'].includes(style.name) === false), ...STYLING_FIELDS_SEQUENCE], 'text', [{
-    name: "tabText",
-    label: trans("style.tabText"),
-    depName: "headerBackground",
-    depType: TEXT,
-    transformer: toSelf,
-  },]),
-  ACCENT
+  ...replaceAndMergeMultipleStyles(
+    [
+      ...ContainerStyle.filter(
+        (style) =>
+          ["border", "radius", "f", "margin", "padding"].includes(
+            style.name
+          ) === false
+      ),
+      ...STYLING_FIELDS_SEQUENCE.filter(style=>style.name!=='rotation'),
+    ],
+    "text",
+    [
+      {
+        name: "tabText",
+        label: trans("style.tabText"),
+        depName: "headerBackground",
+        depType: TEXT,
+        transformer: toSelf,
+      },
+    ]
+  ),
+  ACCENT,
 ] as const;
+
+export const TabBodyStyle=[...ContainerBodyStyle] as const
 
 export const ModalStyle = [
   ...getBgBorderRadiusByBg(),
@@ -1004,7 +1268,7 @@ export const ModalStyle = [
   BACKGROUND_IMAGE_REPEAT,
   BACKGROUND_IMAGE_SIZE,
   BACKGROUND_IMAGE_POSITION,
-  BACKGROUND_IMAGE_ORIGIN
+  BACKGROUND_IMAGE_ORIGIN,
 ] as const;
 
 export const CascaderStyle = [
@@ -1033,13 +1297,17 @@ function checkAndUncheck() {
       name: "uncheckedBorder",
       label: trans("style.uncheckedBorder"),
       depName: "uncheckedBackground",
+      color:SECOND_SURFACE_COLOR,
       transformer: backgroundToBorder,
     },
   ] as const;
 }
 
 export const CheckboxStyle = [
-  ...replaceAndMergeMultipleStyles(STYLING_FIELDS_SEQUENCE, 'text', [STATIC_TEXT, VALIDATE]).filter((style) => style.name !== 'border'),
+  ...replaceAndMergeMultipleStyles(STYLING_FIELDS_SEQUENCE.filter(styles=>styles.name!=='rotation'), "text", [
+    STATIC_TEXT,
+    VALIDATE,
+  ]).filter((style) => style.name !== "border"),
   ...checkAndUncheck(),
   {
     name: "checked",
@@ -1048,11 +1316,14 @@ export const CheckboxStyle = [
     depType: DEP_TYPE.CONTRAST_TEXT,
     transformer: contrastText,
   },
-  HOVER_BACKGROUND_COLOR
+  HOVER_BACKGROUND_COLOR,
 ] as const;
 
 export const RadioStyle = [
-  ...replaceAndMergeMultipleStyles(STYLING_FIELDS_SEQUENCE, 'text', [STATIC_TEXT, VALIDATE]).filter((style) => style.name !== 'border' && style.name !== 'radius'),
+  ...replaceAndMergeMultipleStyles(STYLING_FIELDS_SEQUENCE.filter(style=>style.name!=='rotation'), "text", [
+    STATIC_TEXT,
+    VALIDATE,
+  ]).filter((style) => style.name !== "border" && style.name !== "radius"),
   ...checkAndUncheck(),
   {
     name: "checked",
@@ -1061,15 +1332,16 @@ export const RadioStyle = [
     depType: DEP_TYPE.SELF,
     transformer: toSelf,
   },
-  HOVER_BACKGROUND_COLOR
+  HOVER_BACKGROUND_COLOR,
 ] as const;
-
 
 export const SegmentStyle = [
   LABEL,
-  ...STYLING_FIELDS_SEQUENCE.filter((style) => ['border', 'borderWidth'].includes(style.name) === false),
+  ...STYLING_FIELDS_SEQUENCE.filter(
+    (style) => ["border", "borderWidth"].includes(style.name) === false
+  ),
   // getStaticBorder(SECOND_SURFACE_COLOR),
-    {
+  {
     name: "border",
     label: trans("style.border"),
     depName: "background",
@@ -1079,9 +1351,9 @@ export const SegmentStyle = [
     name: "borderWidth",
     label: trans("style.borderWidth"),
     borderWidth: "borderWidth",
-  }, 
- 
-  getStaticBackground(SURFACE_COLOR), 
+  },
+
+  getStaticBackground(SURFACE_COLOR),
   {
     name: "indicatorBackground",
     label: trans("style.indicatorBackground"),
@@ -1118,7 +1390,11 @@ export const StepsStyle = [
     depType: DEP_TYPE.SELF,
     transformer: contrastText,
   },
-  ...STYLING_FIELDS_SEQUENCE.filter((style) => ['background', 'textSize','textDecoration'].includes(style.name) === false),
+  ...STYLING_FIELDS_SEQUENCE.filter(
+    (style) =>
+      ["background", "textSize", "textDecoration"].includes(style.name) ===
+      false
+  ),
   getBackground(),
   {
     name: "backgroundImage",
@@ -1172,7 +1448,7 @@ const LinkTextStyle = [
 export const TableStyle = [
   MARGIN,
   PADDING,
-  BORDER_STYLE, 
+  BORDER_STYLE,
   BORDER_WIDTH,
   ...BG_STATIC_BORDER_RADIUS,
 ] as const;
@@ -1197,7 +1473,7 @@ export const TableHeaderStyle = [
   FONT_STYLE,
   TEXT,
   getStaticBackground(SURFACE_COLOR),
-  getBackground('primarySurface'),
+  getBackground("primarySurface"),
   {
     name: "headerBackground",
     label: trans("style.tableHeaderBackground"),
@@ -1253,7 +1529,7 @@ export const TableColumnStyle = [
   getStaticBackground("#00000000"),
   getStaticBorder(),
   MARGIN,
-  
+
   RADIUS,
   TEXT,
   TEXT_SIZE,
@@ -1262,14 +1538,14 @@ export const TableColumnStyle = [
   FONT_STYLE,
 ] as const;
 
-export const TableColumnLinkStyle = [
-  ...LinkTextStyle,
-] as const;
+export const TableColumnLinkStyle = [...LinkTextStyle] as const;
 
 export const FileStyle = [
   // ...getStaticBgBorderRadiusByBg(SURFACE_COLOR),
   getStaticBackground(SURFACE_COLOR),
-  ...replaceAndMergeMultipleStyles(STYLING_FIELDS_SEQUENCE, 'border', [getStaticBorder('#00000000')]),
+  ...replaceAndMergeMultipleStyles(STYLING_FIELDS_SEQUENCE, "border", [
+    getStaticBorder("#00000000"),
+  ]),
   // TEXT, ACCENT, MARGIN, PADDING
 ] as const;
 
@@ -1279,10 +1555,24 @@ export const FileViewerStyle = [
   RADIUS,
   MARGIN,
   PADDING,
-  BORDER_WIDTH
+  BORDER_WIDTH,
 ] as const;
 
-export const IframeStyle = [getBackground(), getStaticBorder("#00000000"), RADIUS, BORDER_WIDTH, MARGIN, PADDING] as const;
+export const IframeStyle = [
+  getBackground(),
+  getStaticBorder("#00000000"),
+  RADIUS,
+  BORDER_WIDTH,
+  MARGIN,
+  PADDING,
+  ROTATION
+] as const;
+
+export const CustomStyle = [
+  MARGIN,
+  PADDING,
+  ROTATION,
+] as const;
 
 export const DateTimeStyle = [
   ...getStaticBgBorderRadiusByBg(SURFACE_COLOR),
@@ -1304,15 +1594,10 @@ function handleToHoverLink(color: string) {
 }
 
 export const LinkStyle = [
-
-  {
-    name: "background",
-    label: trans("style.background"),
-    depTheme: "canvas",
-    depType: DEP_TYPE.SELF,
-    transformer: toSelf,
-  },
-  ...replaceAndMergeMultipleStyles(STYLING_FIELDS_SEQUENCE, 'text', [...LinkTextStyle])
+  getBackground(),
+  ...replaceAndMergeMultipleStyles(STYLING_FIELDS_SEQUENCE, "text", [
+    ...LinkTextStyle,
+  ]),
 ] as const;
 
 export const DividerStyle = [
@@ -1322,36 +1607,45 @@ export const DividerStyle = [
     color: darkenColor(SECOND_SURFACE_COLOR, 0.1),
   }, */
   ...STYLING_FIELDS_SEQUENCE.map((style) => {
-    if (style.name === 'text') {
+    if (style.name === "text") {
       return {
         name: "text",
         label: trans("text"),
         depName: "color",
         transformer: handleToDividerText,
-      }
+      };
     }
-    return style
-  })
+    return style;
+  }),
 ] as const;
 
 // Hidden border and borderWidth properties as AntD doesnt allow these properties for progress bar
 export const ProgressStyle = [
-  ...replaceAndMergeMultipleStyles(STYLING_FIELDS_SEQUENCE, 'text', [{
-    name: "text",
-    label: trans("text"),
-    depTheme: "canvas",
-    depType: DEP_TYPE.CONTRAST_TEXT,
-    transformer: contrastText,
-  }]).filter((style) => ['border', 'borderWidth', 'textTransform', 'textDecoration'].includes(style.name) === false),
+  ...replaceAndMergeMultipleStyles(STYLING_FIELDS_SEQUENCE, "text", [
+    {
+      name: "text",
+      label: trans("text"),
+      depTheme: "canvas",
+      depType: DEP_TYPE.CONTRAST_TEXT,
+      transformer: contrastText,
+    },
+  ]).filter(
+    (style) =>
+      ["border", "borderWidth", "textTransform", "textDecoration"].includes(
+        style.name
+      ) === false
+  ),
   TRACK,
   FILL,
   SUCCESS,
 ] as const;
 
-export const CircleProgressStyle = [...ProgressStyle.filter((style) => style.name !== 'radius')]
+export const CircleProgressStyle = [
+  ...ProgressStyle.filter((style) => style.name !== "radius"&&style.name !== "rotation"),
+];
 
 export const NavigationStyle = [
-  ...replaceAndMergeMultipleStyles(STYLING_FIELDS_SEQUENCE, 'text', [
+  ...replaceAndMergeMultipleStyles(STYLING_FIELDS_SEQUENCE.filter(style=>style.name!=='rotation'), "text", [
     {
       name: "text",
       label: trans("text"),
@@ -1360,8 +1654,8 @@ export const NavigationStyle = [
       transformer: contrastText,
     },
     ACCENT,
-    getStaticBackground("#FFFFFF00")
-  ])
+    getStaticBackground("#FFFFFF00"),
+  ]),
   // {
   //   name: "text",
   //   label: trans("text"),
@@ -1381,7 +1675,22 @@ export const NavigationStyle = [
   // BORDER_WIDTH
 ] as const;
 
-export const ImageStyle = [getStaticBorder("#00000000"), RADIUS, BORDER_WIDTH, MARGIN, PADDING] as const;
+export const ImageStyle = [
+  getStaticBorder("#00000000"),
+  RADIUS,
+  BORDER_WIDTH,
+  MARGIN,
+  PADDING,
+  ROTATION
+] as const;
+
+export const AudioStyle = [
+  MARGIN,
+  PADDING,
+  ROTATION,
+] as const;
+
+export const VideoStyle = [MARGIN, PADDING] as const;
 
 export const IconStyle = [
   getStaticBackground("#00000000"),
@@ -1390,9 +1699,14 @@ export const IconStyle = [
   RADIUS,
   BORDER_WIDTH,
   MARGIN,
-  PADDING] as const;
+  PADDING,
+  ROTATION
+] as const;
 
-export const ListViewStyle = BG_STATIC_BORDER_RADIUS;
+export const ListViewStyle = [
+  ...BG_STATIC_BORDER_RADIUS,
+  ROTATION
+] as const;
 
 export const JsonSchemaFormStyle = BG_STATIC_BORDER_RADIUS;
 
@@ -1407,7 +1721,8 @@ export const QRCodeStyle = [
   PADDING,
   BORDER,
   RADIUS,
-  BORDER_WIDTH
+  BORDER_WIDTH,
+  ROTATION
 ] as const;
 
 export const TimeLineStyle = [
@@ -1429,7 +1744,7 @@ export const TimeLineStyle = [
   },
   MARGIN,
   PADDING,
-  RADIUS
+  RADIUS,
 ] as const;
 
 export const TreeStyle = [
@@ -1438,15 +1753,16 @@ export const TreeStyle = [
   VALIDATE,
 ] as const;
 
-export const TreeSelectStyle = [...multiSelectCommon, ...ACCENT_VALIDATE] as const;
+export const TreeSelectStyle = [
+  ...multiSelectCommon,
+  ...ACCENT_VALIDATE,
+] as const;
 
-export const DrawerStyle = [getBackground()] as const
+export const DrawerStyle = [getBackground()] as const;
 
 export const JsonEditorStyle = [LABEL] as const;
 
-export const EchartsStyle = [
-  getBackground("primarySurface"),
-] as const;
+export const EchartsStyle = [getBackground("primarySurface")] as const;
 
 export const CalendarStyle = [
   getBackground("primarySurface"),
@@ -1511,7 +1827,7 @@ export const SignatureStyle = [
   },
   MARGIN,
   PADDING,
-  BORDER_WIDTH
+  BORDER_WIDTH,
 ] as const;
 
 // Added by Aqib Mirza
@@ -1525,6 +1841,7 @@ export const LottieStyle = [
   },
   MARGIN,
   PADDING,
+  ROTATION
 ] as const;
 
 export const CommentStyle = [
@@ -1538,16 +1855,25 @@ export const CommentStyle = [
   MARGIN,
   PADDING,
   RADIUS,
-] as const
+] as const;
 
 export const ResponsiveLayoutRowStyle = [
-  ...BG_STATIC_BORDER_RADIUS,
+  getBackground("canvas"),
+  getStaticBorder("transparent"),
+  RADIUS,
+  BORDER_WIDTH,
+  BORDER_STYLE,
   MARGIN,
   PADDING,
+  ROTATION
 ] as const;
 
 export const ResponsiveLayoutColStyle = [
-  ...BG_STATIC_BORDER_RADIUS,
+  getBackground("canvas"),
+  getStaticBorder("transparent"),
+  RADIUS,
+  BORDER_WIDTH,
+  BORDER_STYLE,
   MARGIN,
   PADDING,
 ] as const;
@@ -1568,7 +1894,7 @@ export const NavLayoutStyle = [
 
 export const NavLayoutItemStyle = [
   getBackground("primarySurface"),
-  getStaticBorder('transparent'),
+  getStaticBorder("transparent"),
   RADIUS,
   {
     name: "text",
@@ -1583,7 +1909,7 @@ export const NavLayoutItemStyle = [
 
 export const NavLayoutItemHoverStyle = [
   getBackground("canvas"),
-  getStaticBorder('transparent'),
+  getStaticBorder("transparent"),
   {
     name: "text",
     label: trans("text"),
@@ -1595,7 +1921,7 @@ export const NavLayoutItemHoverStyle = [
 
 export const NavLayoutItemActiveStyle = [
   getBackground("primary"),
-  getStaticBorder('transparent'),
+  getStaticBorder("transparent"),
   {
     name: "text",
     label: trans("text"),
@@ -1611,15 +1937,18 @@ export const RichTextEditorStyle = [
   getStaticBorder(),
   getBackground("primarySurface"),
   RADIUS,
-  BORDER_WIDTH
+  BORDER_WIDTH,
 ] as const;
 
 export type QRCodeStyleType = StyleConfigType<typeof QRCodeStyle>;
 export type AvatarStyleType = StyleConfigType<typeof AvatarStyle>;
 export type AvatarLabelStyleType = StyleConfigType<typeof avatarLabelStyle>;
-export type AvatarContainerStyleType = StyleConfigType<typeof avatarContainerStyle>;
+export type AvatarContainerStyleType = StyleConfigType<
+  typeof avatarContainerStyle
+>;
 export type AvatarGroupStyleType = StyleConfigType<typeof avatarGroupStyle>;
 export type FloatButtonStyleType = StyleConfigType<typeof FloatButtonStyle>;
+export type DropdownStyleType = StyleConfigType<typeof DropdownStyle>;
 export type BadgeStyleType = StyleConfigType<typeof BadgeStyle>;
 export type TransferStyleType = StyleConfigType<typeof TransferStyle>;
 export type CardStyleType = StyleConfigType<typeof CardStyle>;
@@ -1628,24 +1957,36 @@ export type timerStyleType = StyleConfigType<typeof timerStyle>;
 export type StartButtonStyleType = StyleConfigType<typeof startButtonStyle>;
 
 export type LabelStyleType = StyleConfigType<typeof LabelStyle>;
+export type AnimationStyleType = StyleConfigType<typeof AnimationStyle>;
 export type InputLikeStyleType = StyleConfigType<typeof InputLikeStyle>;
 export type InputFieldStyleType = StyleConfigType<typeof InputFieldStyle>;
+export type SignatureContainerStyleType = StyleConfigType<typeof SignatureContainerStyle>;
 export type ColorPickerStyleType = StyleConfigType<typeof ColorPickerStyle>;
 export type ButtonStyleType = StyleConfigType<typeof ButtonStyle>;
 export type ToggleButtonStyleType = StyleConfigType<typeof ToggleButtonStyle>;
 export type TextStyleType = StyleConfigType<typeof TextStyle>;
+export type TextContainerStyleType = StyleConfigType<typeof TextContainerStyle>;
 export type ContainerStyleType = StyleConfigType<typeof ContainerStyle>;
-export type ContainerHeaderStyleType = StyleConfigType<typeof ContainerHeaderStyle>;
+export type ContainerHeaderStyleType = StyleConfigType<
+  typeof ContainerHeaderStyle
+>;
 export type ContainerBodyStyleType = StyleConfigType<typeof ContainerBodyStyle>;
-export type ContainerSiderStyleType = StyleConfigType<typeof ContainerSiderStyle>;
-export type ContainerFooterStyleType = StyleConfigType<typeof ContainerFooterStyle>;
+export type ContainerSiderStyleType = StyleConfigType<
+  typeof ContainerSiderStyle
+>;
+export type ContainerFooterStyleType = StyleConfigType<
+  typeof ContainerFooterStyle
+>;
 export type SliderStyleType = StyleConfigType<typeof SliderStyle>;
 export type RatingStyleType = StyleConfigType<typeof RatingStyle>;
 export type SwitchStyleType = StyleConfigType<typeof SwitchStyle>;
 export type SelectStyleType = StyleConfigType<typeof SelectStyle>;
 export type MultiSelectStyleType = StyleConfigType<typeof MultiSelectStyle>;
-export type ChildrenMultiSelectStyleType = StyleConfigType<typeof ChildrenMultiSelectStyle>;
+export type ChildrenMultiSelectStyleType = StyleConfigType<
+  typeof ChildrenMultiSelectStyle
+>;
 export type TabContainerStyleType = StyleConfigType<typeof TabContainerStyle>;
+export type TabBodyStyleType = StyleConfigType<typeof TabBodyStyle>;
 export type ModalStyleType = StyleConfigType<typeof ModalStyle>;
 export type CascaderStyleType = StyleConfigType<typeof CascaderStyle>;
 export type CheckboxStyleType = StyleConfigType<typeof CheckboxStyle>;
@@ -1657,10 +1998,13 @@ export type TableHeaderStyleType = StyleConfigType<typeof TableHeaderStyle>;
 export type TableToolbarStyleType = StyleConfigType<typeof TableToolbarStyle>;
 export type TableRowStyleType = StyleConfigType<typeof TableRowStyle>;
 export type TableColumnStyleType = StyleConfigType<typeof TableColumnStyle>;
-export type TableColumnLinkStyleType = StyleConfigType<typeof TableColumnLinkStyle>;
+export type TableColumnLinkStyleType = StyleConfigType<
+  typeof TableColumnLinkStyle
+>;
 export type FileStyleType = StyleConfigType<typeof FileStyle>;
 export type FileViewerStyleType = StyleConfigType<typeof FileViewerStyle>;
 export type IframeStyleType = StyleConfigType<typeof IframeStyle>;
+export type CustomStyleType = StyleConfigType<typeof CustomStyle>;
 export type DateTimeStyleType = StyleConfigType<typeof DateTimeStyle>;
 export type LinkStyleType = StyleConfigType<typeof LinkStyle>;
 export type DividerStyleType = StyleConfigType<typeof DividerStyle>;
@@ -1668,54 +2012,75 @@ export type ProgressStyleType = StyleConfigType<typeof ProgressStyle>;
 export type CircleProgressType = StyleConfigType<typeof CircleProgressStyle>;
 export type NavigationStyleType = StyleConfigType<typeof NavigationStyle>;
 export type ImageStyleType = StyleConfigType<typeof ImageStyle>;
+export type AudioStyleType = StyleConfigType<typeof AudioStyle>;
+export type VideoStyleType = StyleConfigType<typeof VideoStyle>;
 export type IconStyleType = StyleConfigType<typeof IconStyle>;
 export type ListViewStyleType = StyleConfigType<typeof ListViewStyle>;
-export type JsonSchemaFormStyleType = StyleConfigType<typeof JsonSchemaFormStyle>;
+export type JsonSchemaFormStyleType = StyleConfigType<
+  typeof JsonSchemaFormStyle
+>;
 export type TreeSelectStyleType = StyleConfigType<typeof TreeSelectStyle>;
 export type DrawerStyleType = StyleConfigType<typeof DrawerStyle>;
 export type JsonEditorStyleType = StyleConfigType<typeof JsonEditorStyle>;
 export type CalendarStyleType = StyleConfigType<typeof CalendarStyle>;
 export type SignatureStyleType = StyleConfigType<typeof SignatureStyle>;
 export type CarouselStyleType = StyleConfigType<typeof CarouselStyle>;
-export type RichTextEditorStyleType = StyleConfigType<typeof RichTextEditorStyle>;
-export type ResponsiveLayoutRowStyleType = StyleConfigType<typeof ResponsiveLayoutRowStyle>;
-export type ResponsiveLayoutColStyleType = StyleConfigType<typeof ResponsiveLayoutColStyle>;
+export type RichTextEditorStyleType = StyleConfigType<
+  typeof RichTextEditorStyle
+>;
+export type ResponsiveLayoutRowStyleType = StyleConfigType<
+  typeof ResponsiveLayoutRowStyle
+>;
+export type ResponsiveLayoutColStyleType = StyleConfigType<
+  typeof ResponsiveLayoutColStyle
+>;
 export type NavLayoutStyleType = StyleConfigType<typeof NavLayoutStyle>;
 export type NavLayoutItemStyleType = StyleConfigType<typeof NavLayoutItemStyle>;
-export type NavLayoutItemHoverStyleType = StyleConfigType<typeof NavLayoutItemHoverStyle>;
-export type NavLayoutItemActiveStyleType = StyleConfigType<typeof NavLayoutItemActiveStyle>;
+export type NavLayoutItemHoverStyleType = StyleConfigType<
+  typeof NavLayoutItemHoverStyle
+>;
+export type NavLayoutItemActiveStyleType = StyleConfigType<
+  typeof NavLayoutItemActiveStyle
+>;
 
 export function widthCalculator(margin: string) {
-  const marginArr = margin?.trim().replace(/\s+/g, ' ').split(" ") || "";
+  const marginArr = margin?.trim().replace(/\s+/g, " ").split(" ") || "";
   if (marginArr.length === 1) {
-    return `calc(100% - ${parseInt(margin.replace(/[^\d.]/g, "")) * 2 +
+    return `calc(100% - ${
+      parseInt(margin.replace(/[^\d.]/g, "")) * 2 +
       (margin.replace(/[0-9]/g, "") || "px")
-      })`;
+    })`;
   } else if (marginArr.length === 2 || marginArr.length === 3) {
-    return `calc(100% - ${parseInt(marginArr[1].replace(/[^\d.]/g, "")) * 2 +
-      (marginArr[1].replace(/[0-9]/g, "") || 'px')
-      })`;
+    return `calc(100% - ${
+      parseInt(marginArr[1].replace(/[^\d.]/g, "")) * 2 +
+      (marginArr[1].replace(/[0-9]/g, "") || "px")
+    })`;
   } else {
-    return `calc(100% - ${parseInt(marginArr[1]?.replace(/[^\d.]/g, "") || "0") +
+    return `calc(100% - ${
+      parseInt(marginArr[1]?.replace(/[^\d.]/g, "") || "0") +
       (marginArr[1]?.replace(/[0-9]/g, "") || "px")
-      } - ${parseInt(marginArr[3]?.replace(/[^\d.]/g, "") || "0") +
+    } - ${
+      parseInt(marginArr[3]?.replace(/[^\d.]/g, "") || "0") +
       (marginArr[3]?.replace(/[0-9]/g, "") || "px")
-      })`;
+    })`;
   }
 }
 
 export function heightCalculator(margin: string) {
   const marginArr = margin?.trim().split(" ") || "";
   if (marginArr.length === 1 || marginArr.length === 2) {
-    return `calc(100% - ${parseInt(marginArr[0].replace(/[^\d.]/g, "")) * 2 +
-      (marginArr[0].replace(/[0-9]/g, "") || 'px')
-      })`;
+    return `calc(100% - ${
+      parseInt(marginArr[0].replace(/[^\d.]/g, "")) * 2 +
+      (marginArr[0].replace(/[0-9]/g, "") || "px")
+    })`;
   } else if (marginArr.length > 2) {
-    return `calc(100% - ${parseInt(marginArr[0]?.replace(/[^\d.]/g, "") || "0") +
+    return `calc(100% - ${
+      parseInt(marginArr[0]?.replace(/[^\d.]/g, "") || "0") +
       (marginArr[0]?.replace(/[0-9]/g, "") || "px")
-      } - ${parseInt(marginArr[2]?.replace(/[^\d.]/g, "") || "0") +
+    } - ${
+      parseInt(marginArr[2]?.replace(/[^\d.]/g, "") || "0") +
       (marginArr[2]?.replace(/[0-9]/g, "") || "px")
-      })`;
+    })`;
   }
 }
 
@@ -1726,8 +2091,11 @@ export function marginCalculator(margin: string) {
   } else if (marginArr.length === 2) {
     return parseInt(marginArr[0].replace(/[^\d.]/g, "")) * 2;
   } else {
-    return parseInt(marginArr[0]?.replace(/[^\d.]/g, "") || "0") + parseInt(marginArr[2]?.replace(/[^\d.]/g, "") || "0")
+    return (
+      parseInt(marginArr[0]?.replace(/[^\d.]/g, "") || "0") +
+      parseInt(marginArr[2]?.replace(/[^\d.]/g, "") || "0")
+    );
   }
 }
 
-export type { ThemeDetail };
+export type {ThemeDetail};

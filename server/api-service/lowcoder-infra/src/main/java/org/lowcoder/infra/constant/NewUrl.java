@@ -10,6 +10,7 @@ public final class NewUrl {
     public static final String DATASOURCE_URL = PREFIX + "/datasources";
     public static final String USER_URL = PREFIX + "/users";
     public static final String CONFIG_URL = PREFIX + "/configs";
+    public static final String SERVER_SETTING_URL = PREFIX + "/serverSettings";
     public static final String GROUP_URL = PREFIX + "/groups";
     public static final String ASSET_URL = PREFIX + "/assets";
 
@@ -25,6 +26,7 @@ public final class NewUrl {
     public static final String LIBRARY_QUERY_RECORD_URL = PREFIX + "/library-query-records";
 
     public static final String FOLDER_URL = PREFIX + "/folders";
+    public static final String BUNDLE_URL = PREFIX + "/bundles";
 
     public static final String GITHUB_STAR = PREFIX + "/misc/github-star";
     public static final String JS_LIBRARY = PREFIX + "/misc/js-library";

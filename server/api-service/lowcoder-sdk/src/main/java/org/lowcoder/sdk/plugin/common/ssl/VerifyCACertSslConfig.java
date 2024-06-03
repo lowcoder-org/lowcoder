@@ -1,7 +1,6 @@
 package org.lowcoder.sdk.plugin.common.ssl;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import lombok.Builder;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.jackson.Jacksonized;
 

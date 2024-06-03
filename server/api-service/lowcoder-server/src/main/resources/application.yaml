@@ -11,7 +11,7 @@ spring:
     mongodb:
       authentication-database: admin
       auto-index-creation: false
-      uri: ${LOWCODER_MONGODB_URL:mongodb://localhost:27017/lowcoder?authSource=admin}
+      uri: ${LOWCODER_MONGODB_URL:mongodb://lowcoder:secret123@localhost:27017/lowcoder?retryWrites=true&loadBalanced=false&connectTimeoutMS=10000&authSource=admin&authMechanism=SCRAM-SHA-256}
     redis:
       url: ${LOWCODER_REDIS_URL:redis://localhost:6379}
   main:
@@ -22,10 +22,10 @@ spring:
   webflux:
     base-path: /
   mail:
-    host: ${LOWCODER_ADMIN_SMTP_HOST:smtp.gmail.com}
+    host: ${LOWCODER_ADMIN_SMTP_HOST:localhost}
     port: ${LOWCODER_ADMIN_SMTP_PORT:587}
-    username: ${LOWCODER_ADMIN_SMTP_USERNAME:yourmail@gmail.com}
-    password: ${LOWCODER_ADMIN_SMTP_PASSWORD:yourpass}
+    username: ${LOWCODER_ADMIN_SMTP_USERNAME:info@localhost}
+    password: ${LOWCODER_ADMIN_SMTP_PASSWORD:s3cr3t}
     properties:
       mail:
         smtp:
@@ -79,11 +79,11 @@ common:
   plugin-dirs:
     - ${LOWCODER_PLUGINS_DIR:../plugins}
   super-admin:
-    username: ${LOWCODER_SUPERUSER_USERNAME:test@lowcoder.org}
+    username: ${LOWCODER_SUPERUSER_USERNAME:admin@localhost}
     password: ${LOWCODER_SUPERUSER_PASSWORD:}
   marketplace:
     private-mode: ${LOWCODER_MARKETPLACE_PRIVATE_MODE:true}
-  lowcoder-public-url: ${LOWCODER_PUBLIC_URL:http://localhost:8080}
+  lowcoder-public-url: ${LOWCODER_PUBLIC_URL:http://localhost:3000}
   notifications-email-sender: ${LOWCODER_EMAIL_NOTIFICATIONS_SENDER:info@localhost}
 
 material:
@@ -92,7 +92,33 @@ material:
 
 springdoc:
   api-docs:
-    path: /api/docs/api-docs
+    path: /api/docs/openapi.json
   swagger-ui:
     path: /api/docs/swagger-ui
   paths-to-exclude: /api/v1/**
+
+management:
+  endpoints:
+    enabled-by-default: false
+    web:
+      base-path: "/api/status"
+      exposure:
+        include: "health,metrics,prometheus"
+  endpoint:
+    health:
+      show-details: never
+      show-components: always
+      enabled: true
+    metrics:
+      enabled: true
+    prometheus:
+      enabled: true
+  health:
+    mail:
+      enabled: false
+    db:
+      enabled: true
+    redis:
+      enabled: true
+    diskspace:
+      enabled: false

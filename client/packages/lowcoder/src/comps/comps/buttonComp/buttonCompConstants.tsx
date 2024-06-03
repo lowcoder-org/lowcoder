@@ -14,8 +14,9 @@ export function getButtonStyle(buttonStyle: ButtonStyleType) {
     &&& {
       border-radius: ${buttonStyle.radius};
       border-width:${buttonStyle.borderWidth};
-      margin: ${buttonStyle.margin};	
+      margin: ${buttonStyle.margin};
       padding: ${buttonStyle.padding};
+      rotate: ${buttonStyle.rotation&&buttonStyle.rotation};
       &:not(:disabled) {
         --antd-wave-shadow-color: ${buttonStyle.border};
         border-color: ${buttonStyle.border};
@@ -28,9 +29,9 @@ export function getButtonStyle(buttonStyle: ButtonStyleType) {
         text-decoration:${buttonStyle.textDecoration};
         background-color: ${buttonStyle.background};
         border-radius: ${buttonStyle.radius};
-        margin: ${buttonStyle.margin};	
+        margin: ${buttonStyle.margin};
         padding: ${buttonStyle.padding};
-  
+
         &:hover,
         &:focus {
           color: ${buttonStyle.text};

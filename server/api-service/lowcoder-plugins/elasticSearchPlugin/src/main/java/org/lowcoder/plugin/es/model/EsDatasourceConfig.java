@@ -1,21 +1,19 @@
 package org.lowcoder.plugin.es.model;
 
-import static org.lowcoder.sdk.exception.BizError.INVALID_DATASOURCE_CONFIG_TYPE;
-import static org.lowcoder.sdk.util.ExceptionUtils.ofException;
-
-import java.util.function.Function;
-
-import lombok.extern.jackson.Jacksonized;
-import org.apache.commons.lang3.ObjectUtils;
-import org.lowcoder.sdk.config.SerializeConfig.JsonViews;
-import org.lowcoder.sdk.models.DatasourceConnectionConfig;
-
 import com.fasterxml.jackson.annotation.JsonView;
-
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.jackson.Jacksonized;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.ObjectUtils;
+import org.lowcoder.sdk.config.JsonViews;
+import org.lowcoder.sdk.models.DatasourceConnectionConfig;
+
+import java.util.function.Function;
+
+import static org.lowcoder.sdk.exception.BizError.INVALID_DATASOURCE_CONFIG_TYPE;
+import static org.lowcoder.sdk.util.ExceptionUtils.ofException;
 
 @Slf4j
 @Setter

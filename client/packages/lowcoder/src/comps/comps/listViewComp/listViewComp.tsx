@@ -7,7 +7,7 @@ import {
   StringControl,
 } from "comps/controls/codeControl";
 import { styleControl } from "comps/controls/styleControl";
-import { ListViewStyle } from "comps/controls/styleControlConstants";
+import { AnimationStyle, ListViewStyle } from "comps/controls/styleControlConstants";
 import { UICompBuilder, stateComp, valueComp, withDefault, withPropertyViewFn, withViewFn } from "comps/generators";
 import {
   CompDepsConfig,
@@ -53,6 +53,7 @@ const childrenMap = {
   showBorder: BoolControl,
   pagination: withDefault(PaginationControl, { pageSize: "6" }),
   style: styleControl(ListViewStyle),
+  animationStyle: styleControl(AnimationStyle),
   horizontal: withDefault(BoolControl, false),
   minHorizontalWidth: withDefault(RadiusControl, '100px'),
 };

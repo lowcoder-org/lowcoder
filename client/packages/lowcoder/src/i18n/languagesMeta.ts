@@ -14,6 +14,7 @@ import {
     Flag_th,
     Flag_ar,
     Flag_pt,
+    Flag_br
   } from "lowcoder-design";
 
 // Define the structure for a single language's metadata
@@ -40,6 +41,10 @@ export interface LanguageMeta {
     de: {
       languageName: "Deutsch",
       flag: Flag_de
+    },
+    pt: {
+        languageName: "Português",
+        flag: Flag_br
     }
   };
   
