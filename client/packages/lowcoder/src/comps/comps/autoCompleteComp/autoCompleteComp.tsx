@@ -352,7 +352,7 @@ let AutoCompleteCompBase = (function () {
           </Section>
           <Section
             name={sectionNames.animationStyle}
-            tooltip="https://animate.style/"
+            hasTooltip={true}
           >
             {children.animationStyle.getPropertyView()}
           </Section>

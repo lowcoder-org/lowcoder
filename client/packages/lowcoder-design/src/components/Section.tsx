@@ -74,7 +74,7 @@ const ShowChildren = styled.div<{ $show?: string; $noMargin?: boolean }>`
   padding-right: ${(props) => (props.$noMargin ? 0 : "16px")};
 `;
 
-const TooltipWrapper = styled.a`
+const TooltipWrapper = styled.span`
   word-wrap: break-word;
   word-break: break-word;
   white-space: pre-wrap;
@@ -88,7 +88,7 @@ interface ISectionConfig<T> {
   style?: React.CSSProperties;
   children: T;
   additionalButton?: React.ReactNode;
-  tooltip?:string
+  hasTooltip?: boolean;
 }
 
 export interface PropertySectionState {
@@ -110,8 +110,7 @@ export const PropertySectionContext = React.createContext<PropertySectionContext
 });
 
 export const BaseSection = (props: ISectionConfig<ReactNode>) => {
-  const { name,tooltip } = props;
-  console.log("🚀 ~ BaseSection ~ name:", name)
+  const { name,hasTooltip } = props;
   const { compName, state, toggle } = useContext(PropertySectionContext);
   const open = props.open !== undefined ? props.open : name ? state[compName]?.[name] !== false : true;
 
@@ -136,7 +135,15 @@ export const BaseSection = (props: ISectionConfig<ReactNode>) => {
         </SectionLabelDiv>
       )}
       <Tooltip
-        title={tooltip && <TooltipWrapper href={tooltip}>{tooltip}</TooltipWrapper>}
+        title={
+          hasTooltip && (
+            <TooltipWrapper>
+              Here you can enter the animation type codes. Like bounce, swing or
+              tada. Read more about all possible codes at:{" "}
+              <a href="https://animate.style">https://animate.style</a>
+            </TooltipWrapper>
+          )
+        }
         arrow={{
           pointAtCenter: true,
         }}

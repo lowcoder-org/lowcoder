@@ -333,7 +333,7 @@ export const ContainerBaseComp = (function () {
               <Section name={sectionNames.bodyStyle}>
                 {children.bodyStyle.getPropertyView()}
               </Section>
-              <Section name={sectionNames.animationStyle}>
+              <Section name={sectionNames.animationStyle} hasTooltip={true}>
                 {children.animationStyle.getPropertyView()}
               </Section>
             </>
