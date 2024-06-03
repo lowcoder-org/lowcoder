@@ -517,6 +517,7 @@ export const en = {
     "containerBodyPadding": "Body Padding",
     "minWidth": "Minimum Width",
     "aspectRatio": "Aspect Ratio",
+    "text": "Text",
     "textSize": "Text Size",
     "textWeight": "Text Weight",
     "fontFamily": "Font Family",
@@ -536,6 +537,7 @@ export const en = {
     "footerBackgroundImageSize": "BgImage Size",
     "footerBackgroundImagePosition": "BgImage Position",
     "footerBackgroundImageOrigin": "BgImage Origin",
+    "rotation": "Rotation",
   },
   "export": {
     "hiddenDesc": "If true, the component is hidden",

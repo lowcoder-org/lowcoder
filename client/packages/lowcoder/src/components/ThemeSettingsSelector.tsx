@@ -26,6 +26,7 @@ export type configChangeParams = {
   borderColor?: string;
   borderWidth?: string;
   fontFamily?: string;
+  components?: Record<string, object>,
 };
 
 type ColorConfigProps = {

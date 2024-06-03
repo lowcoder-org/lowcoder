@@ -5,7 +5,7 @@ import { childrenToProps, ToConstructor } from "comps/generators/multi";
 import { BackgroundColorContext } from "comps/utils/backgroundColorContext";
 import { ThemeContext } from "comps/utils/themeContext";
 import { trans } from "i18n";
-import _ from "lodash";
+import _, { values } from "lodash";
 import {
   controlItem,
   IconReset,
@@ -80,6 +80,8 @@ import {
 } from "./styleControlConstants";
 import { faTextWidth } from "@fortawesome/free-solid-svg-icons";
 import appSelectControl from "./appSelectControl";
+import { JSONObject } from "@lowcoder-ee/util/jsonTypes";
+import { CompTypeContext } from "../utils/compTypeContext";
 
 function isSimpleColorConfig(config: SingleColorConfig): config is SimpleColorConfig {
   return config.hasOwnProperty("color");
@@ -350,9 +352,11 @@ function calcColors<ColorMap extends Record<string, string>>(
   props: ColorMap,
   colorConfigs: readonly SingleColorConfig[],
   theme?: ThemeDetail,
-  bgColor?: string
+  bgColor?: string,
+  compTheme?: Record<string, string>,
 ) {
-  const themeWithDefault = (theme || defaultTheme) as unknown as Record<string, string>;
+  let themeWithDefault = (theme || defaultTheme) as unknown as Record<string, string>;
+  themeWithDefault = {...themeWithDefault, ...(compTheme || {})};
   // Cover what is not there for the first pass
   let res: Record<string, string> = {};
   colorConfigs.forEach((config) => {
@@ -515,55 +519,55 @@ function calcColors<ColorMap extends Record<string, string>>(
       res[name] = themeWithDefault[config.radius];
     }
     if (isBorderWidthConfig(config)) {
-      res[name] = '0px';
+      res[name] = themeWithDefault[config.borderWidth] || '0px';
     }
     if (isRotationConfig(config)) {
-      res[name] = '0deg';
+      res[name] = themeWithDefault[config.rotation] || '0deg';
     }
     if (isBackgroundImageConfig(config)) {
-      res[name] = '';
+      res[name] = themeWithDefault[config.backgroundImage] || '';
     }
     if (isBackgroundImageRepeatConfig(config)) {
-      res[name] = 'no-repeat';
+      res[name] = themeWithDefault[config.backgroundImageRepeat] || 'no-repeat';
     }
     if (isBackgroundImageSizeConfig(config)) {
-      res[name] = 'cover';
+      res[name] = themeWithDefault[config.backgroundImageSize] || 'cover';
     }
     if (isBackgroundImagePositionConfig(config)) {
-      res[name] = 'center';
+      res[name] = themeWithDefault[config.backgroundImagePosition] || 'center';
     }
     if (isBackgroundImageOriginConfig(config)) {
-      res[name] = 'padding-box';
+      res[name] = themeWithDefault[config.backgroundImageOrigin] || 'padding-box';
     }
     if (isHeaderBackgroundImageConfig(config)) {
-      res[name] = '';
+      res[name] = themeWithDefault[config.headerBackgroundImage] || '';
     }
     if (isHeaderBackgroundImageRepeatConfig(config)) {
-      res[name] = 'no-repeat';
+      res[name] = themeWithDefault[config.headerBackgroundImageRepeat] || 'no-repeat';
     }
     if (isHeaderBackgroundImageSizeConfig(config)) {
-      res[name] = 'cover';
+      res[name] = themeWithDefault[config.headerBackgroundImageSize] || 'cover';
     }
     if (isHeaderBackgroundImagePositionConfig(config)) {
-      res[name] = 'center';
+      res[name] = themeWithDefault[config.headerBackgroundImagePosition] || 'center';
     }
     if (isHeaderBackgroundImageOriginConfig(config)) {
-      res[name] = 'padding-box';
+      res[name] = themeWithDefault[config.headerBackgroundImageOrigin] || 'padding-box';
     }
     if (isFooterBackgroundImageConfig(config)) {
-      res[name] = '';
+      res[name] = themeWithDefault[config.footerBackgroundImage] || '';
     }
     if (isFooterBackgroundImageRepeatConfig(config)) {
-      res[name] = 'no-repeat';
+      res[name] = themeWithDefault[config.footerBackgroundImageRepeat] || 'no-repeat';
     }
     if (isFooterBackgroundImageSizeConfig(config)) {
-      res[name] = 'cover';
+      res[name] = themeWithDefault[config.footerBackgroundImageSize] || 'cover';
     }
     if (isFooterBackgroundImagePositionConfig(config)) {
-      res[name] = 'center';
+      res[name] = themeWithDefault[config.footerBackgroundImagePosition] || 'center';
     }
     if (isFooterBackgroundImageOriginConfig(config)) {
-      res[name] = 'padding-box';
+      res[name] = themeWithDefault[config.footerBackgroundImageOrigin] || 'padding-box';
     }
     if (isTextSizeConfig(config)) {
       // TODO: remove default textSize after added in theme in backend.
@@ -836,15 +840,22 @@ export function styleControl<T extends readonly SingleColorConfig[]>(colorConfig
   return new ControlItemCompBuilder(
     childrenMap as ToConstructor<{ [K in Names<T>]: ColorControl }>,
     (props) => {
-      // const x = useContext(CompNameContext);
+      const compType = useContext(CompTypeContext);
       const theme = useContext(ThemeContext);
       const bgColor = useContext(BackgroundColorContext);
-      return calcColors(props as ColorMap, colorConfigs, theme?.theme, bgColor);
+      return calcColors(
+        props as ColorMap,
+        colorConfigs,
+        theme?.theme,
+        bgColor,
+        compType ? theme?.theme?.components?.[compType] as unknown as Record<string, string>: undefined,
+      );
     }
   )
     .setControlItemData({ filterText: label, searchChild: true })
     .setPropertyViewFn((children) => {
       const theme = useContext(ThemeContext);
+      const compType = useContext(CompTypeContext);
       const bgColor = useContext(BackgroundColorContext);
       const isMobile = useIsMobile();
 
@@ -852,7 +863,8 @@ export function styleControl<T extends readonly SingleColorConfig[]>(colorConfig
         childrenToProps(children) as ColorMap,
         colorConfigs,
         theme?.theme,
-        bgColor
+        bgColor,
+        compType ? theme?.theme?.components?.[compType] as unknown as Record<string, string>: undefined,
       );
       const showReset = Object.values(childrenToProps(children)).findIndex((item) => item) > -1;
       return (
