@@ -270,6 +270,26 @@
 						<configuration>
 							<outputDirectory>${assembly.lib.directory}</outputDirectory>
 							<includeScope>runtime</includeScope>
+							<excludeArtifactIds>rjson</excludeArtifactIds>
+						</configuration>
+					</execution>
+					<execution>
+						<id>copy-rjson-snapshot</id>
+						<phase>package</phase>
+						<goals>
+							<goal>copy</goal>
+						</goals>
+						<configuration>
+							<artifactItems>
+								<artifactItem>
+									<groupId>tv.twelvetone.rjson</groupId>
+									<artifactId>rjson</artifactId>
+									<version>LATEST</version>
+									<overWrite>true</overWrite>
+									<outputDirectory>${assembly.lib.directory}</outputDirectory>
+								</artifactItem>
+							</artifactItems>
+							<useBaseVersion>false</useBaseVersion>
 						</configuration>
 					</execution>
 				</executions>

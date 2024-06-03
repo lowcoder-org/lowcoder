@@ -1,16 +1,15 @@
 package org.lowcoder.sdk.plugin.sqlcommand.changeset;
 
-import static org.lowcoder.sdk.exception.PluginCommonError.INVALID_GUI_SETTINGS;
-import static org.lowcoder.sdk.plugin.common.constant.Constants.PRIMARY_KEY_FORM_KEY;
-import static org.lowcoder.sdk.plugin.common.constant.Constants.RECORD_FORM_KEY;
+import com.fasterxml.jackson.databind.JsonNode;
+import org.lowcoder.sdk.exception.PluginException;
+import org.lowcoder.sdk.util.MustacheHelper;
 
 import java.util.Map;
 import java.util.Set;
 
-import org.lowcoder.sdk.exception.PluginException;
-import org.lowcoder.sdk.util.MustacheHelper;
-
-import com.fasterxml.jackson.databind.JsonNode;
+import static org.lowcoder.sdk.exception.PluginCommonError.INVALID_GUI_SETTINGS;
+import static org.lowcoder.sdk.plugin.common.constant.Constants.PRIMARY_KEY_FORM_KEY;
+import static org.lowcoder.sdk.plugin.common.constant.Constants.RECORD_FORM_KEY;
 
 public class BulkObjectChangeSet {
     private final String str;

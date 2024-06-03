@@ -365,6 +365,7 @@ export default function ApplicationHome() {
                 routeComp: NewsView,
                 icon: ({ selected, ...otherProps }) => selected ? <NewsIcon {...otherProps} width={"24px"}/> : <NewsIcon {...otherProps} width={"24px"}/>,
                 visible: ({ user }) => user.orgDev,
+                style: { color: "red" },
               },
               {
                 text: <TabLabel>{trans("home.orgHome")}</TabLabel>,

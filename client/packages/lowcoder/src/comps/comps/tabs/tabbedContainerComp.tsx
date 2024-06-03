@@ -72,7 +72,6 @@ const getStyle = (
   headerStyle: ContainerHeaderStyleType,
   bodyStyle: ContainerBodyStyleType,
 ) => {
-  console.log("🚀 ~ style:", style)
   return css`
     &.ant-tabs {
       overflow: hidden;

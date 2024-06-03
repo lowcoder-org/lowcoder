@@ -1,24 +1,16 @@
 package org.lowcoder.sdk.helpers;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.lowcoder.sdk.util.MustacheHelper.extractMustacheKeys;
-import static org.lowcoder.sdk.util.MustacheHelper.extractMustacheKeysInOrder;
-import static org.lowcoder.sdk.util.MustacheHelper.tokenize;
-
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import org.junit.Assert;
 import org.junit.Test;
 import org.lowcoder.sdk.util.JsonUtils;
 import org.lowcoder.sdk.util.MustacheHelper;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
+import java.util.*;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.lowcoder.sdk.util.MustacheHelper.*;
 
 @SuppressWarnings(
         // Disabling this so we may use `Arrays.asList` with single argument, which is easier to refactor, just for tests.

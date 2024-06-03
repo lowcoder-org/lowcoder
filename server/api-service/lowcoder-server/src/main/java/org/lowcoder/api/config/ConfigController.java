@@ -1,5 +1,7 @@
 package org.lowcoder.api.config;
 
+import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
 import org.lowcoder.api.framework.view.ResponseView;
 import org.lowcoder.api.usermanagement.OrgApiService;
 import org.lowcoder.infra.config.model.ServerConfig;
@@ -11,9 +13,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ServerWebExchange;
-
-import jakarta.annotation.PostConstruct;
-import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
 @RequiredArgsConstructor

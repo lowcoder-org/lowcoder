@@ -13,7 +13,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.lowcoder.domain.mongodb.AfterMongodbRead;
 import org.lowcoder.domain.mongodb.BeforeMongodbWrite;
 import org.lowcoder.domain.mongodb.MongodbInterceptorContext;
-import org.lowcoder.sdk.config.SerializeConfig;
+import org.lowcoder.sdk.config.JsonViews;
 import org.lowcoder.sdk.constants.UiConstants;
 import org.lowcoder.sdk.models.HasIdAndAuditing;
 import org.lowcoder.sdk.util.JsonUtils;
@@ -143,7 +143,7 @@ public class User extends HasIdAndAuditing implements BeforeMongodbWrite, AfterM
     public void beforeMongodbWrite(MongodbInterceptorContext context) {
         if (CollectionUtils.isNotEmpty(this.apiKeysList)) {
             this.apiKeysList.forEach(apiKey -> apiKey.doEncrypt(s -> context.encryptionService().encryptString(s)));
-            apiKeys = JsonUtils.fromJsonSafely(JsonUtils.toJsonSafely(apiKeysList, SerializeConfig.JsonViews.Internal.class), new TypeReference<>() {
+            apiKeys = JsonUtils.fromJsonSafely(JsonUtils.toJsonSafely(apiKeysList, JsonViews.Internal.class), new TypeReference<>() {
             }, new ArrayList<>());
         }
     }

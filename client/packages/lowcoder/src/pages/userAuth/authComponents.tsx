@@ -6,6 +6,7 @@ import styled from "styled-components";
 import ReactHotkeys from "util/hotkeys";
 import { StyledLink } from "pages/common/styledComponent";
 import { trans } from "i18n";
+import { favicon } from "assets/images";
 
 const AuthCardContainer = styled.div`
   display: flex;
@@ -152,7 +153,7 @@ export const AuthContainer = (props: {
       <AuthCard>{props.children}</AuthCard>
       { props.subHeading && (
         <AuthCardSubFooter>
-          <img src="/src/assets/images/Lowcoder-Logo.svg" alt={"Lowcoder | " + trans("productDesc")} width="20px"/>
+          <img src={favicon} alt={"Lowcoder | " + trans("productDesc")} width="20px"/>
           <a href="https://lowcoder.cloud" target="_blank" rel="noreferrer">
             {props.subHeading}
           </a>

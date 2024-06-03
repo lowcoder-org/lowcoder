@@ -1,14 +1,6 @@
 package org.lowcoder.sdk.plugin.sqlcommand.command.postgres;
 
-import static com.google.common.collect.Lists.newArrayList;
-import static org.lowcoder.sdk.exception.PluginCommonError.INVALID_UPDATE_COMMAND;
-import static org.lowcoder.sdk.plugin.sqlcommand.command.GuiConstants.POSTGRES_COLUMN_DELIMITER;
-import static org.lowcoder.sdk.util.MustacheHelper.renderMustacheString;
-import static org.lowcoder.sdk.util.SqlGuiUtils.POSTGRES_SQL_STR_ESCAPE;
-
-import java.util.List;
-import java.util.Map;
-
+import com.google.common.annotations.VisibleForTesting;
 import org.lowcoder.sdk.exception.PluginException;
 import org.lowcoder.sdk.plugin.sqlcommand.changeset.ChangeSet;
 import org.lowcoder.sdk.plugin.sqlcommand.changeset.ChangeSetRow;
@@ -17,7 +9,14 @@ import org.lowcoder.sdk.plugin.sqlcommand.command.UpdateOrDeleteSingleCommandRen
 import org.lowcoder.sdk.plugin.sqlcommand.filter.FilterSet;
 import org.lowcoder.sdk.util.SqlGuiUtils.GuiSqlValue.EscapeSql;
 
-import com.google.common.annotations.VisibleForTesting;
+import java.util.List;
+import java.util.Map;
+
+import static com.google.common.collect.Lists.newArrayList;
+import static org.lowcoder.sdk.exception.PluginCommonError.INVALID_UPDATE_COMMAND;
+import static org.lowcoder.sdk.plugin.sqlcommand.command.GuiConstants.POSTGRES_COLUMN_DELIMITER;
+import static org.lowcoder.sdk.util.MustacheHelper.renderMustacheString;
+import static org.lowcoder.sdk.util.SqlGuiUtils.POSTGRES_SQL_STR_ESCAPE;
 
 public class PostgresUpdateCommand extends UpdateCommand {
 

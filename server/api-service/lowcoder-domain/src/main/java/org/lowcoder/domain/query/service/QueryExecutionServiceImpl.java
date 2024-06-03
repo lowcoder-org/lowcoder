@@ -16,7 +16,6 @@ import org.lowcoder.sdk.models.Property;
 import org.lowcoder.sdk.models.QueryExecutionResult;
 import org.lowcoder.sdk.query.QueryExecutionContext;
 import org.lowcoder.sdk.query.QueryVisitorContext;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
