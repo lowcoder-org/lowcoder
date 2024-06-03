@@ -89,7 +89,7 @@ public class BundleController implements BundleEndpoints
      * get all files under bundle
      */
     @Override
-    public Mono<ResponseView<List<?>>> getElements(@RequestParam(value = "id", required = false) String bundleId,
+    public Mono<ResponseView<List<?>>> getElements(@PathVariable String bundleId,
             @RequestParam(value = "applicationType", required = false) ApplicationType applicationType) {
         return bundleApiService.getElements(bundleId, applicationType)
                 .collectList()
