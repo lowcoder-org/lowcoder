@@ -5,7 +5,7 @@ import {
   uiCompRegistry,
 } from "comps/uiCompRegistry";
 import { isEmpty } from "lodash";
-import { language } from "i18n";
+import { language, trans } from "i18n";
 import {
   CompIconDiv,
   EmptyCompContent,
@@ -20,8 +20,18 @@ import {
   PropertySectionContextType,
   PropertySectionState,
   labelCss,
+  sectionNames,
 } from "lowcoder-design";
-import { Input } from "antd";
+import { Divider, Flex, Input } from "antd";
+import { genRandomKey } from "@lowcoder-ee/comps/utils/idGenerator";
+import dsl from "./detail/previewDsl";
+import { RootComp } from "@lowcoder-ee/comps/comps/rootComp";
+import { NameGenerator, evalAndReduceWithExposing } from "@lowcoder-ee/comps/utils";
+import ThemeSettingsSelector from "@lowcoder-ee/components/ThemeSettingsSelector";
+import ThemeSettingsCompStyles from "@lowcoder-ee/components/ThemeSettingsCompStyles";
+import { JSONObject } from "@lowcoder-ee/util/jsonTypes";
+import PreviewApp from "@lowcoder-ee/components/PreviewApp";
+import { parseCompType } from "@lowcoder-ee/comps/utils/remote";
 
 const CompDiv = styled.div`
   display: flex;
@@ -94,10 +104,14 @@ Object.keys(uiCompCategoryNames).forEach((cat) => {
   initialState[stateCompName][key] = key === uiCompCategoryNames.dashboards
 })
 
-export const ThemeCompPanel = () => {
+export const ThemeCompPanel = (props: any) => {
+  const { theme } = props;
   const [searchValue, setSearchValue] = useState("");
   const [propertySectionState, setPropertySectionState] = useState<PropertySectionState>(initialState);
   const [searchedPropertySectionState, setSearchedPropertySectionState] = useState<PropertySectionState>({});
+  const [styleChildrens, setStyleChildrens] = useState<Record<string, any>>({});
+  const [selectedComp, setSelectedComp] = useState<string>('');
+  const [appDsl, setAppDSL] = useState<JSONObject>();
 
   const categories = useMemo(() => {
     const cats: Record<string, [string, UICompManifest][]> = Object.fromEntries(
@@ -140,6 +154,61 @@ export const ThemeCompPanel = () => {
     }
   }, [searchValue])
 
+  const onCompSelect = async (compMap: [string, UICompManifest]) => {
+    setAppDSL(undefined);
+    const [compType, compInfo] = compMap;
+    setSelectedComp(compType);
+    const compKey = genRandomKey();
+    let { comp, defaultDataFn } = compInfo;
+
+    const compData = parseCompType(compType)
+    if (compInfo.lazyLoad) {
+      comp = (await import(`../../../comps/${compInfo.compPath!}`))[compInfo.compName!];
+      const {
+        defaultDataFnName,
+        defaultDataFnPath,
+      } = compInfo;
+  
+      if(defaultDataFnName && defaultDataFnPath) {
+        const module = await import(`../../../comps/${defaultDataFnPath}.tsx`);
+        defaultDataFn = module[defaultDataFnName];
+      }
+      const newComp = new comp!({});
+      const compChildrens = newComp.children;
+      const styleChildrenKeys = Object.keys(compChildrens).filter(child => child.toLowerCase().endsWith('style'));
+      let styleChildrens: Record<string, any> = {};
+      styleChildrenKeys.forEach((childKey: string) => {
+        styleChildrens[childKey] = compChildrens[childKey];
+      })
+      setStyleChildrens(styleChildrens);
+    } else {
+      comp = compInfo.comp;
+    }
+
+    const ui = {
+      items: {
+        [compKey]: {
+          compType: compType,
+          name: `${compType}1`,
+          comp: defaultDataFn
+            ? defaultDataFn("comp", new NameGenerator())
+            : new comp!({}),
+        }
+      },
+      layout: {
+        [compKey]: {
+          ...compInfo.layoutInfo,
+          w: (compInfo?.layoutInfo?.w || 5) * 1.5,
+          h: (compInfo?.layoutInfo?.h || 5),
+          i: compKey,
+          x: 2,
+          y: 2,
+        }
+      }
+    }
+    setAppDSL({...dsl as any, ui});
+  }
+
   const compList = useMemo(
     () =>
       Object.entries(categories)
@@ -166,7 +235,7 @@ export const ThemeCompPanel = () => {
               >
                 <InsertContain>
                   {infos.map((info) => (
-                    <CompDiv key={info[0]} className={info[0] === "table" ? tableDragClassName : ""}>
+                    <CompDiv key={info[0]} className={info[0] === "table" ? tableDragClassName : ""} onClick={() => onCompSelect(info)}>
                       <HovDiv>
                         <IconContain Icon={info[1].icon}></IconContain>
                       </HovDiv>
@@ -183,6 +252,48 @@ export const ThemeCompPanel = () => {
     [categories, searchValue]
   );
 
+  const stylePropertyView = useMemo(() => {
+    return (
+      <>
+        {Object.keys(styleChildrens)?.map((styleKey: string) => {
+          return (
+            <>
+              <h4>
+                { sectionNames.hasOwnProperty(styleKey)
+                  ? sectionNames[styleKey as keyof typeof sectionNames]
+                  : styleKey
+                }
+              </h4>
+              <ThemeSettingsCompStyles
+                styleOptions={Object.keys(styleChildrens[styleKey].children)}
+                defaultStyle={theme.components?.[selectedComp] || {}}
+                configChange={(params) => {
+                  props.onCompStyleChange(selectedComp, params);
+                }}
+              />
+            </>
+          )
+        })}
+      </>
+    )
+  }, [styleChildrens]);
+
+  const appPreview = useMemo(() => {
+    if (!appDsl) return null;
+
+    return (
+      <PreviewApp
+        style={{
+          height: "500px",
+          minWidth: "auto",
+          width: "100%",
+        }}
+        theme={theme}
+        dsl={appDsl}
+      />
+    );
+  }, [appDsl, theme]);
+
   if(!compList.length) return (
     <RightPanelContentWrapper>
       <EmptyCompContent />
@@ -190,18 +301,38 @@ export const ThemeCompPanel = () => {
   )
 
   return (
-    <RightPanelContentWrapper>
-      <Input.Search
-        placeholder="Search components"
-        value={searchValue}
-        onChange={(e) => setSearchValue(e.target.value)}
-        style={{ marginBottom: 16 }}
-      />
-      <PropertySectionContext.Provider
-        value={propertySectionContextValue}
-      >
-        {compList}
-      </PropertySectionContext.Provider>
-    </RightPanelContentWrapper>
+    <Flex style={{
+      height: "500px",
+      overflow: "hidden",
+    }}>
+      <RightPanelContentWrapper style={{
+        padding: "12px",
+        overflow: "auto",
+      }}>
+        <Input.Search
+          placeholder="Search components"
+          value={searchValue}
+          onChange={(e) => setSearchValue(e.target.value)}
+          style={{ marginBottom: 16 }}
+        />
+        <PropertySectionContext.Provider
+          value={propertySectionContextValue}
+        >
+          {compList}
+        </PropertySectionContext.Provider>
+      </RightPanelContentWrapper>
+      {/* <Divider type="vertical" style={{height: "510px"}}/> */}
+      <div style={{flex: "1"}}>
+        {appPreview}
+      </div>
+      {/* <Divider type="vertical" style={{height: "510px"}}/> */}
+      <div style={{
+        width: "280px",
+        padding: "12px",
+        overflow: "auto",
+      }}>
+        {stylePropertyView}
+      </div>
+    </Flex>
   );
 };

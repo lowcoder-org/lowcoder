@@ -235,6 +235,7 @@ function UIView(props: {
   }
   //END ADD BY FRED
 
+  // render condition for modal and drawer as we are not getting compType here
   if (comp.children.hasOwnProperty('showMask') && comp.children.hasOwnProperty('maskClosable')) {
     return (
       <HidableView hidden={childrenProps.hidden as boolean}>

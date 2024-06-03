@@ -246,6 +246,7 @@ export const defaultTheme: ThemeDetail = {
   boxShadow: "",
   boxShadowColor: "",
   animationIterationCount: "",
+  components: {},
 };
 
 export const SURFACE_COLOR = "#FFFFFF";
