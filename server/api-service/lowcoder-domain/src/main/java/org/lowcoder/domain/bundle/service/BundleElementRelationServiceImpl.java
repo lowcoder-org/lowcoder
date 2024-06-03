@@ -6,6 +6,7 @@ import org.lowcoder.infra.birelation.BiRelationService;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.util.List;
 import java.util.Objects;
@@ -54,6 +55,8 @@ public class BundleElementRelationServiceImpl implements BundleElementRelationSe
     public Mono<Void> updateElementPos(String bundleId, String elementId, long position) {
         return biRelationService.getBiRelation(BUNDLE_ELEMENT, bundleId, elementId)
                 .doOnNext(biRelation -> biRelation.setExtParam1(String.valueOf(position)))
+                .publishOn(Schedulers.boundedElastic())
+                .mapNotNull(biRelation -> biRelationService.upsert(biRelation).block())
                 .then();
     }
 }
