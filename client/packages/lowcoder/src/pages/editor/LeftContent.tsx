@@ -33,7 +33,6 @@ import { CollapseWrapper, DirectoryTreeStyle, Node } from "./styledComponents";
 import { DataNode, EventDataNode } from "antd/es/tree";
 import { isAggregationApp } from "util/appUtils";
 import Modal from "antd/es/modal/Modal";
-import copyToClipboard from "copy-to-clipboard";
 
 const CollapseTitleWrapper = styled.div`
   display: flex;
@@ -69,8 +68,22 @@ function getLen(config: string | boolean | number) {
   return 0;
 }
 
+function safeStringify(obj: any, space = 2) {
+  const cache = new Set();
+  return JSON.stringify(obj, (key, value) => {
+    if (typeof value === 'object' && value !== null) {
+      if (cache.has(value)) {
+        return '[Circular]';
+      }
+      cache.add(value);
+    }
+    return value;
+  }, space);
+}
+
+
 function toDataView(value: any, name: string, desc?: ReactNode, modal?: boolean) {
-  const str = typeof value === "function" ? "Function" : safeJSONStringify(value);
+  const str = typeof value === "function" ? "Function" : safeStringify(value);
   const descRecord: Record<string, ReactNode> = {};
   const shortenedString = modal === true ? (getLen(str) > 42 ? str.slice(0, 42) + "..." : str) : (getLen(str) > 20 ? str.slice(0, 20) + "..." : str);
   descRecord[name] = desc;
@@ -205,7 +218,7 @@ const CollapseView = React.memo(
                   </CollapseTitleWrapper>
                 </Tooltip>
                 {Object.keys(data).length > 0 && 
-                  <CopyTextButton text={JSON.stringify(data)} style={{ color: "#aaa", marginRight: "8px"  }} />
+                  <CopyTextButton text={safeStringify(data)} style={{ color: "#aaa", marginRight: "8px"  }} />
                 }
               </div>
             ),
@@ -440,7 +453,7 @@ export const LeftContent = (props: LeftContentProps) => {
             maskClosable={true} // Prevent closing on background click
           >
             <div
-              style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word', maxHeight: "calc(100vh - 400px)", overflow: "scroll" }}
+              style={{ whiteSpace: 'nowrap', wordWrap: 'normal', maxHeight: "calc(100vh - 400px)", overflow: "scroll" }}
               onClick={(e) => e.stopPropagation()} // Prevent closing on clicking inside the modal
             >
               {prepareData(data.data, data.dataDesc)}
