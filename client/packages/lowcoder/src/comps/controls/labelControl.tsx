@@ -46,7 +46,7 @@ function getStyle(style: any) {
 }
 
 const LabelViewWrapper = styled.div<{ $style: any, inputFieldStyle: any,$animationStyle:any }>`
-${(props) => {
+  ${(props) => {
     return (
       props.$style && {
         ...props.$style,
@@ -230,7 +230,8 @@ export const LabelControl = (function () {
                 ? `calc(100% - ${getLabelWidth(props.width, props.widthUnit)} - 8px)`
                 : "100%",
             height: props.position === "column" && !!props.text ? "calc(100% - 22px)" : "100%",
-            rotate:args?.inputFieldStyle?.rotation
+            rotate:args?.inputFieldStyle?.rotation,
+            boxShadow:`${args?.inputFieldStyle?.boxShadow} ${args?.inputFieldStyle?.boxShadowColor}`
           }}
         >
           {args.children}

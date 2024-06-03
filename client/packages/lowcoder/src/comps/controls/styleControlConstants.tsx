@@ -1028,6 +1028,8 @@ export const SliderStyle = [
 
 export const InputLikeStyle = [
   getStaticBackground(SURFACE_COLOR),
+  BOXSHADOW,
+  BOXSHADOWCOLOR,
   ...STYLING_FIELDS_SEQUENCE.filter(style=>style.name!=='rotation'),
   ...ACCENT_VALIDATE,
 ] as const;
