@@ -119,9 +119,11 @@ const getStyle = (style: InputLikeStyleType) => {
   `;
 };
 
-const InputNumber = styled(AntdInputNumber) <{
+const InputNumber = styled(AntdInputNumber)<{
   $style: InputLikeStyleType;
 }>`
+  box-shadow: ${(props) =>
+    `${props.$style?.boxShadow} ${props.$style?.boxShadowColor}`};
   width: 100%;
   ${(props) => props.$style && getStyle(props.$style)}
 `;

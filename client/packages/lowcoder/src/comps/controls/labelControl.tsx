@@ -231,7 +231,6 @@ export const LabelControl = (function () {
                 : "100%",
             height: props.position === "column" && !!props.text ? "calc(100% - 22px)" : "100%",
             rotate:args?.inputFieldStyle?.rotation,
-            boxShadow:`${args?.inputFieldStyle?.boxShadow} ${args?.inputFieldStyle?.boxShadowColor}`
           }}
         >
           {args.children}
