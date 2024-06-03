@@ -2,7 +2,6 @@ package org.lowcoder.api.bundle;
 
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
-import org.lowcoder.api.application.ApplicationEndpoints;
 import org.lowcoder.api.bundle.view.BundleInfoView;
 import org.lowcoder.api.bundle.view.BundlePermissionView;
 import org.lowcoder.domain.application.model.ApplicationType;
@@ -11,7 +10,6 @@ import org.lowcoder.domain.bundle.model.BundleRequestType;
 import org.lowcoder.domain.permission.model.ResourceAction;
 import org.lowcoder.domain.permission.model.ResourcePermission;
 import org.lowcoder.domain.permission.model.ResourceRole;
-import org.lowcoder.sdk.config.dynamic.Conf;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -35,7 +33,9 @@ public interface BundleApiService {
 
     Mono<BundleInfoView> update(Bundle bundle);
 
-    Mono<Void> move(String applicationLikeId, @Nullable String targetBundled);
+    Mono<Void> moveApp(String applicationId, String fromBundled, String toBundleId);
+
+    Mono<Void> addApp(String applicationId, String toBundleId);
 
     Flux<?> getElements(@Nullable String bundleId, @Nullable ApplicationType applicationType);
 

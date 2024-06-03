@@ -22,6 +22,7 @@ const getStyle = (style: TextStyleType) => {
     border-radius: ${(style.radius ? style.radius : "4px")};
     border: ${(style.borderWidth ? style.borderWidth : "0px")} solid ${style.border};
     color: ${style.text};
+    rotate: ${style.rotation&&style.rotation};
     font-size: ${style.textSize} !important;
     font-weight: ${style.textWeight} !important;
     font-family: ${style.fontFamily} !important;
@@ -188,7 +189,7 @@ export function TriContainer(props: TriContainerProps) {
               containerPadding={[0, 0]}
               showName={{ bottom: showFooter ? 20 : 0 }}
               $backgroundColor={headerStyle?.headerBackground || 'transparent'}
-              style={{ padding: headerStyle.containerHeaderPadding }} />
+              style={{ padding: headerStyle.containerHeaderPadding}} />
         </BackgroundColorContext.Provider>
       )}
       {showBody && (

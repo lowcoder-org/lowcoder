@@ -74,6 +74,7 @@ const Wrapper = styled.div<{
     justify-content: space-between;
     background-color: ${props => props.$style?.background};
     border: ${props => props.$style?.border};
+    rotate: ${props => props.$style?.rotation};
     border-style: ${props => props.$style?.borderStyle};
     border-radius: ${props => props.$style?.radius};
     border-width: ${props => props.$style?.borderWidth};

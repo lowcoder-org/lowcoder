@@ -2877,6 +2877,7 @@ export const en = {
     "jsLibraryHelpText": "Add JavaScript Libraries to Your Current Application via URL Addresses. lodash, day.js, uuid, numbro are Built into the System for Immediate Use. JavaScript Libraries are Loaded Before the Application is Initialized, Which Can Have an Impact on Application Performance.",
     "exportedAs": "Exported As",
     "urlTooltip": "URL Address of the JavaScript Library, [unpkg.com](https://unpkg.com/) or [jsdelivr.net](https://www.jsdelivr.com/) is Recommended",
+    "externalLibsHelperText" : "Only libraries using the UMD (Universal Module Definition) approach are supported. Read more here: https://github.com/umdjs/umd",
     "recommended": "Recommended",
     "viewJSLibraryDocument": "Document",
     "jsLibraryURLError": "Invalid URL",

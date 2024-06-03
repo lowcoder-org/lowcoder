@@ -3,7 +3,7 @@ import { default as Dropdown } from "antd/es/dropdown";
 import { default as DropdownButton } from "antd/es/dropdown/dropdown-button";
 import { BoolControl } from "comps/controls/boolControl";
 import { BoolCodeControl, StringControl } from "comps/controls/codeControl";
-import { ButtonStyleType } from "comps/controls/styleControlConstants";
+import { DropdownStyle, DropdownStyleType } from "comps/controls/styleControlConstants";
 import { withDefault } from "comps/generators";
 import { UICompBuilder } from "comps/generators/uiCompBuilder";
 import { disabledPropertyView, hiddenPropertyView } from "comps/utils/propertyUtils";
@@ -21,6 +21,7 @@ import {
   ButtonStyleControl,
   getButtonStyle,
 } from "./buttonCompConstants";
+import { styleControl } from "@lowcoder-ee/index.sdk";
 
 
 const StyledDropdownButton = styled(DropdownButton)`
@@ -32,7 +33,7 @@ const StyledDropdownButton = styled(DropdownButton)`
   }
 `;
 
-const LeftButtonWrapper = styled.div<{ $buttonStyle: ButtonStyleType }>`
+const LeftButtonWrapper = styled.div<{ $buttonStyle: DropdownStyleType }>`
   width: calc(100%);
   ${(props) => `margin: ${props.$buttonStyle.margin};`}
   margin-right: 0;
@@ -62,7 +63,7 @@ const LeftButtonWrapper = styled.div<{ $buttonStyle: ButtonStyleType }>`
   
 `;
 
-const RightButtonWrapper = styled.div<{ $buttonStyle: ButtonStyleType }>`
+const RightButtonWrapper = styled.div<{ $buttonStyle: DropdownStyleType }>`
   // width: 32px;
   ${(props) => `margin: ${props.$buttonStyle.margin};`}
   margin-left: -1px;
@@ -85,7 +86,7 @@ const DropdownTmpComp = (function () {
     options: DropdownOptionControl,
     disabled: BoolCodeControl,
     onEvent: ButtonEventHandlerControl,
-    style: ButtonStyleControl,
+    style: styleControl(DropdownStyle),
   };
   return new UICompBuilder(childrenMap, (props) => {
     const hasIcon =

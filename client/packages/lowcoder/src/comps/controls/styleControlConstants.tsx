@@ -773,6 +773,11 @@ export const ButtonStyle = [
   ...STYLING_FIELDS_SEQUENCE
 ] as const;
 
+export const DropdownStyle = [
+  getBackground('primary'),
+  ...STYLING_FIELDS_SEQUENCE.filter(style=>style.name!=='rotation'),
+] as const;
+
 export const ToggleButtonStyle = [
   getBackground("canvas"),
   ...STYLING_FIELDS_SEQUENCE.map((style) => {
@@ -825,7 +830,6 @@ export const ContainerStyle = [
   BORDER_STYLE,
   MARGIN,
   PADDING,
-  ROTATION,
   {
     name: "backgroundImage",
     label: trans("style.backgroundImage"),
@@ -856,7 +860,6 @@ export const ContainerStyle = [
 export const ContainerHeaderStyle = [
   CONTAINER_HEADER_PADDING,
   HEADER_BACKGROUND,
-  ROTATION,
   {
     name: "headerBackgroundImage",
     label: trans("style.backgroundImage"),
@@ -887,7 +890,6 @@ export const ContainerHeaderStyle = [
 export const ContainerSiderStyle = [
   CONTAINER_SIDER_PADDING,
   SIDER_BACKGROUND,
-  ROTATION,
   {
     name: "siderBackgroundImage",
     label: trans("style.backgroundImage"),
@@ -917,7 +919,6 @@ export const ContainerSiderStyle = [
 
 export const ContainerBodyStyle = [
   CONTAINER_BODY_PADDING,
-  ROTATION,
   {
     name: "background",
     label: trans("style.background"),
@@ -1005,12 +1006,11 @@ export const SliderStyle = [
   TRACK,
   MARGIN,
   PADDING,
-  ROTATION,
 ] as const;
 
 export const InputLikeStyle = [
   getStaticBackground(SURFACE_COLOR),
-  ...STYLING_FIELDS_SEQUENCE,
+  ...STYLING_FIELDS_SEQUENCE.filter(style=>style.name!=='rotation'),
   ...ACCENT_VALIDATE,
 ] as const;
 
@@ -1019,7 +1019,7 @@ export const InputLikeStyle = [
 export const ColorPickerStyle = [
   LABEL,
   getStaticBackground(SURFACE_COLOR),
-  ...STYLING_FIELDS_SEQUENCE,
+  ...STYLING_FIELDS_SEQUENCE.filter(style => style.name!=='rotation'),
   ...ACCENT_VALIDATE,
 ] as const;
 
@@ -1034,12 +1034,12 @@ export const AvatarStyle = [
 
 export const avatarContainerStyle = [
   getStaticBackground(SURFACE_COLOR),
-  ...STYLING_FIELDS_CONTAINER_SEQUENCE,
+  ...STYLING_FIELDS_CONTAINER_SEQUENCE.filter(style=>style.name!=='rotation'),
 ] as const;
 
 export const avatarLabelStyle = [
   getStaticBackground(SURFACE_COLOR),
-  ...STYLING_FIELDS_SEQUENCE,
+  ...STYLING_FIELDS_SEQUENCE.filter((style) => style.name !== 'rotation'),
 ] as const;
 
 export const avatarGroupStyle = [
@@ -1068,7 +1068,7 @@ export const FloatButtonStyle = [
 
 export const TransferStyle = [
   getStaticBackground(SURFACE_COLOR),
-  ...STYLING_FIELDS_CONTAINER_SEQUENCE,
+  ...STYLING_FIELDS_CONTAINER_SEQUENCE.filter(style=>style.name!=='rotation'),
 ] as const;
 
 export const CardStyle = [
@@ -1108,7 +1108,7 @@ export const startButtonStyle = [
 
 export const LabelStyle = [
   ...replaceAndMergeMultipleStyles([...InputLikeStyle], "text", [LABEL]).filter(
-    (style) => style.name !== "radius" && style.name !== "background"
+    (style) => style.name !== "radius" && style.name !== "background"&&style.name!=='rotation'
   ),
 ];
 
@@ -1117,6 +1117,15 @@ export const InputFieldStyle = [
   getStaticBorder(),
   ...STYLING_FIELDS_CONTAINER_SEQUENCE.filter(
     (style) => ["border"].includes(style.name) === false
+  ),
+  // ...STYLING_FIELDS_CONTAINER_SEQUENCE,
+] as const;
+
+export const SignatureContainerStyle = [
+  getBackground(),
+  getStaticBorder(),
+  ...STYLING_FIELDS_CONTAINER_SEQUENCE.filter(
+    (style) => ['border'].includes(style.name) === false&&style.name!=='rotation'
   ),
   // ...STYLING_FIELDS_CONTAINER_SEQUENCE,
 ] as const;
@@ -1160,14 +1169,14 @@ export const SwitchStyle = [
 ] as const;
 
 export const SelectStyle = [
-  ...replaceAndMergeMultipleStyles(STYLING_FIELDS_SEQUENCE, "border", [
+  ...replaceAndMergeMultipleStyles(STYLING_FIELDS_SEQUENCE.filter(style=>style.name!=='rotation'), "border", [
     ...getStaticBgBorderRadiusByBg(SURFACE_COLOR, "pc"),
   ]),
   ...ACCENT_VALIDATE,
 ] as const;
 
 const multiSelectCommon = [
-  ...replaceAndMergeMultipleStyles(STYLING_FIELDS_SEQUENCE, "border", [
+  ...replaceAndMergeMultipleStyles(STYLING_FIELDS_SEQUENCE.filter(style=>style.name!=='rotation'), "border", [
     ...getStaticBgBorderRadiusByBg(SURFACE_COLOR, "pc"),
   ]),
   {
@@ -1214,7 +1223,7 @@ export const TabContainerStyle = [
             style.name
           ) === false
       ),
-      ...STYLING_FIELDS_SEQUENCE,
+      ...STYLING_FIELDS_SEQUENCE.filter(style=>style.name!=='rotation'),
     ],
     "text",
     [
@@ -1229,6 +1238,8 @@ export const TabContainerStyle = [
   ),
   ACCENT,
 ] as const;
+
+export const TabBodyStyle=[...ContainerBodyStyle] as const
 
 export const ModalStyle = [
   ...getBgBorderRadiusByBg(),
@@ -1275,7 +1286,7 @@ function checkAndUncheck() {
 }
 
 export const CheckboxStyle = [
-  ...replaceAndMergeMultipleStyles(STYLING_FIELDS_SEQUENCE, "text", [
+  ...replaceAndMergeMultipleStyles(STYLING_FIELDS_SEQUENCE.filter(styles=>styles.name!=='rotation'), "text", [
     STATIC_TEXT,
     VALIDATE,
   ]).filter((style) => style.name !== "border"),
@@ -1291,7 +1302,7 @@ export const CheckboxStyle = [
 ] as const;
 
 export const RadioStyle = [
-  ...replaceAndMergeMultipleStyles(STYLING_FIELDS_SEQUENCE, "text", [
+  ...replaceAndMergeMultipleStyles(STYLING_FIELDS_SEQUENCE.filter(style=>style.name!=='rotation'), "text", [
     STATIC_TEXT,
     VALIDATE,
   ]).filter((style) => style.name !== "border" && style.name !== "radius"),
@@ -1527,6 +1538,7 @@ export const FileViewerStyle = [
   MARGIN,
   PADDING,
   BORDER_WIDTH,
+  ROTATION
 ] as const;
 
 export const IframeStyle = [
@@ -1536,6 +1548,13 @@ export const IframeStyle = [
   BORDER_WIDTH,
   MARGIN,
   PADDING,
+  ROTATION
+] as const;
+
+export const CustomStyle = [
+  MARGIN,
+  PADDING,
+  ROTATION,
 ] as const;
 
 export const DateTimeStyle = [
@@ -1605,11 +1624,11 @@ export const ProgressStyle = [
 ] as const;
 
 export const CircleProgressStyle = [
-  ...ProgressStyle.filter((style) => style.name !== "radius"),
+  ...ProgressStyle.filter((style) => style.name !== "radius"&&style.name !== "rotation"),
 ];
 
 export const NavigationStyle = [
-  ...replaceAndMergeMultipleStyles(STYLING_FIELDS_SEQUENCE, "text", [
+  ...replaceAndMergeMultipleStyles(STYLING_FIELDS_SEQUENCE.filter(style=>style.name!=='rotation'), "text", [
     {
       name: "text",
       label: trans("text"),
@@ -1645,6 +1664,13 @@ export const ImageStyle = [
   BORDER_WIDTH,
   MARGIN,
   PADDING,
+  ROTATION
+] as const;
+
+export const AudioStyle = [
+  MARGIN,
+  PADDING,
+  ROTATION,
 ] as const;
 
 export const IconStyle = [
@@ -1655,9 +1681,13 @@ export const IconStyle = [
   BORDER_WIDTH,
   MARGIN,
   PADDING,
+  ROTATION
 ] as const;
 
-export const ListViewStyle = BG_STATIC_BORDER_RADIUS;
+export const ListViewStyle = [
+  ...BG_STATIC_BORDER_RADIUS,
+  ROTATION
+] as const;
 
 export const JsonSchemaFormStyle = BG_STATIC_BORDER_RADIUS;
 
@@ -1673,6 +1703,7 @@ export const QRCodeStyle = [
   BORDER,
   RADIUS,
   BORDER_WIDTH,
+  ROTATION
 ] as const;
 
 export const TimeLineStyle = [
@@ -1791,6 +1822,7 @@ export const LottieStyle = [
   },
   MARGIN,
   PADDING,
+  ROTATION
 ] as const;
 
 export const CommentStyle = [
@@ -1814,6 +1846,7 @@ export const ResponsiveLayoutRowStyle = [
   BORDER_STYLE,
   MARGIN,
   PADDING,
+  ROTATION
 ] as const;
 
 export const ResponsiveLayoutColStyle = [
@@ -1879,7 +1912,7 @@ export const NavLayoutItemActiveStyle = [
   },
 ] as const;
 
-export const CarouselStyle = [getBackground("canvas")] as const;
+export const CarouselStyle = [getBackground("canvas"),ROTATION] as const;
 
 export const RichTextEditorStyle = [
   getStaticBorder(),
@@ -1896,6 +1929,7 @@ export type AvatarContainerStyleType = StyleConfigType<
 >;
 export type AvatarGroupStyleType = StyleConfigType<typeof avatarGroupStyle>;
 export type FloatButtonStyleType = StyleConfigType<typeof FloatButtonStyle>;
+export type DropdownStyleType = StyleConfigType<typeof DropdownStyle>;
 export type BadgeStyleType = StyleConfigType<typeof BadgeStyle>;
 export type TransferStyleType = StyleConfigType<typeof TransferStyle>;
 export type CardStyleType = StyleConfigType<typeof CardStyle>;
@@ -1907,6 +1941,7 @@ export type LabelStyleType = StyleConfigType<typeof LabelStyle>;
 export type AnimationStyleType = StyleConfigType<typeof AnimationStyle>;
 export type InputLikeStyleType = StyleConfigType<typeof InputLikeStyle>;
 export type InputFieldStyleType = StyleConfigType<typeof InputFieldStyle>;
+export type SignatureContainerStyleType = StyleConfigType<typeof SignatureContainerStyle>;
 export type ColorPickerStyleType = StyleConfigType<typeof ColorPickerStyle>;
 export type ButtonStyleType = StyleConfigType<typeof ButtonStyle>;
 export type ToggleButtonStyleType = StyleConfigType<typeof ToggleButtonStyle>;
@@ -1931,6 +1966,7 @@ export type ChildrenMultiSelectStyleType = StyleConfigType<
   typeof ChildrenMultiSelectStyle
 >;
 export type TabContainerStyleType = StyleConfigType<typeof TabContainerStyle>;
+export type TabBodyStyleType = StyleConfigType<typeof TabBodyStyle>;
 export type ModalStyleType = StyleConfigType<typeof ModalStyle>;
 export type CascaderStyleType = StyleConfigType<typeof CascaderStyle>;
 export type CheckboxStyleType = StyleConfigType<typeof CheckboxStyle>;
@@ -1948,6 +1984,7 @@ export type TableColumnLinkStyleType = StyleConfigType<
 export type FileStyleType = StyleConfigType<typeof FileStyle>;
 export type FileViewerStyleType = StyleConfigType<typeof FileViewerStyle>;
 export type IframeStyleType = StyleConfigType<typeof IframeStyle>;
+export type CustomStyleType = StyleConfigType<typeof CustomStyle>;
 export type DateTimeStyleType = StyleConfigType<typeof DateTimeStyle>;
 export type LinkStyleType = StyleConfigType<typeof LinkStyle>;
 export type DividerStyleType = StyleConfigType<typeof DividerStyle>;
@@ -1955,6 +1992,7 @@ export type ProgressStyleType = StyleConfigType<typeof ProgressStyle>;
 export type CircleProgressType = StyleConfigType<typeof CircleProgressStyle>;
 export type NavigationStyleType = StyleConfigType<typeof NavigationStyle>;
 export type ImageStyleType = StyleConfigType<typeof ImageStyle>;
+export type AudioStyleType = StyleConfigType<typeof AudioStyle>;
 export type IconStyleType = StyleConfigType<typeof IconStyle>;
 export type ListViewStyleType = StyleConfigType<typeof ListViewStyle>;
 export type JsonSchemaFormStyleType = StyleConfigType<
