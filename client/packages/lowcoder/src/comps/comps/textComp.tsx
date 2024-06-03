@@ -118,9 +118,7 @@ const VerticalAlignmentOptions = [
   { label: <AlignBottom />, value: "flex-end" },
 ] as const;
 
-
 let TextTmpComp = (function () {
-
   const childrenMap = {
     text: stringExposingStateControl(
       "text",

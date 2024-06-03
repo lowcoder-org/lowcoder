@@ -9,7 +9,7 @@ import {
 import history from "util/history";
 import { BASE_URL, THEME_SETTING } from "constants/routesURL";
 import ThemeSettingsSelector, { configChangeParams } from "../../../../components/ThemeSettingsSelector";
-import React, { lazy } from "react";
+import React, { lazy, useState } from "react";
 import { connect } from "react-redux";
 import { fetchCommonSettings, setCommonSettings } from "redux/reduxActions/commonSettingsActions";
 import { AppState } from "redux/reducers";
@@ -44,6 +44,7 @@ import { messageInstance } from "lowcoder-design/src/components/GlobalInstances"
 import { Card, Collapse, CollapseProps, Divider, Flex, List, Tooltip } from 'antd';
 
 import { ThemeCompPanel } from "pages/setting/theme/ThemeCompPanel";
+import { JSONObject } from "@lowcoder-ee/index.sdk";
 
 const ThemeSettingsView = styled.div`
   font-size: 14px;
@@ -91,6 +92,7 @@ type ThemeDetailPageState = {
   name: string;
   theme: ThemeDetail;
   canLeave: boolean;
+  compDsl?: JSONObject;
 };
 
 class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailPageState> {
@@ -103,6 +105,7 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
   constructor(props: ThemeDetailPageProps) {
     super(props);
     const { name, id, theme, type } = props.location.state || {};
+    console.log("defaultTheme", theme);
     if (!name || !id || !theme || !type) {
       history.replace(BASE_URL);
       window.location.reload();
@@ -123,6 +126,7 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
       theme,
       name,
       canLeave: false,
+      compDsl: undefined,
     };
     this.inputRef = React.createRef();
   }
@@ -171,7 +175,7 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
   isThemeNotChange() {
     return (
       JSON.stringify({ ...this.state.theme }) ===
-      JSON.stringify({ ...this.state.theme, ...this.themeDefault })
+      JSON.stringify({ ...this.themeDefault })
     );
   }
 
@@ -342,7 +346,6 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
           </Header>
 
           <DetailContent>
-
             <ThemeSettingsView>
               <StyleThemeSettingsCover>
                 <ColorPickerCompIcon width={"36px"} style={{marginRight : "10px"}}/> <h2 style={{color: "#ffffff", marginTop : "8px"}}> {trans("theme.mainColor")}</h2>
@@ -358,7 +361,6 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
                             <List.Item>
                               <DetailTitle>{item.title}</DetailTitle>
                             </List.Item>
-        
                         )}
                         {item.items.map((colorItem) => (
                           <Tooltip title={colorItem.desc} placement="right">
@@ -381,8 +383,7 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
                   <Divider type="vertical" style={{height: "610px"}}/>
                   <PreviewApp style={{marginTop: '3px', height: "620px", width: "100%"}} theme={this.state.theme} dsl={dsl} />
                 </Flex>
-              </Card>  
-              
+              </Card>
             </ThemeSettingsView>
 
             <ThemeSettingsView>
@@ -390,7 +391,6 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
                 <TextSizeIcon width={"36px"} style={{marginRight : "10px"}}/> <h2 style={{color: "#ffffff", marginTop : "8px"}}> {trans("theme.fonts")}</h2>
               </StyleThemeSettingsCover>
               <Card style={{ marginBottom: "20px", minHeight : "200px" }}>
-                
                 <Flex gap={"middle"}>
                   <List
                     bordered
@@ -424,8 +424,7 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
                   <Divider type="vertical" style={{height: "610px"}}/>
                   <PreviewApp style={{marginTop: '3px', height: "620px", width: "100%"}} theme={this.state.theme} dsl={dsl} />
                 </Flex>
-              </Card>  
-              
+              </Card>
             </ThemeSettingsView>
 
             <ThemeSettingsView>
@@ -433,7 +432,6 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
                 <PageLayoutCompIcon width={"36px"} style={{marginRight : "10px"}}/> <h2 style={{color: "#ffffff", marginTop : "8px"}}> {trans("theme.layout")}</h2>
               </StyleThemeSettingsCover>
               <Card style={{ marginBottom: "20px", minHeight : "200px" }}>
-                
                 <Flex gap={"middle"}>
                   <List
                     bordered
@@ -507,26 +505,36 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
                   <Divider type="vertical" style={{height: "610px"}}/>
                   <PreviewApp style={{marginTop: '3px', height: "620px", width: "100%"}} theme={this.state.theme} dsl={dsl} />
                 </Flex>
-
-              </Card>  
-              
+              </Card>
             </ThemeSettingsView>
 
             <ThemeSettingsView>
               <StyleThemeSettingsCover>
                 <ShapesCompIcon width={"36px"} style={{marginRight : "10px"}}/> <h2 style={{color: "#ffffff", marginTop : "8px"}}> {trans("theme.components")}</h2>
               </StyleThemeSettingsCover>
-              <Card style={{ marginBottom: "20px", minHeight : "1000px", overflow: "auto" }}>
-                <Flex gap={"middle"}>
-                  <ThemeCompPanel/>
-                  <Divider type="vertical" style={{height: "510px"}}/>
-                  <div style={{minWidth: "250px"}}><h4>Properties Display</h4></div>
-                  <Divider type="vertical" style={{height: "510px"}}/>
-                  <PreviewApp style={{height: "500px", width: "40%" }} theme={this.state.theme} dsl={dsl} />
-                </Flex>
-
-              </Card>  
-              
+              <Card
+                bodyStyle={{
+                  padding: '0px'
+                }}
+                style={{
+                  marginBottom: "20px",
+                }}
+              >
+                <ThemeCompPanel
+                  theme={this.state.theme}
+                  onCompStyleChange={(compName: string, compStyle: Record<string, string>) => {
+                    this.setState({
+                      theme: {
+                        ...this.state.theme,
+                        components: {
+                          ...this.state.theme.components,
+                          [compName]: compStyle,
+                        }
+                      },
+                    });
+                  }}
+                />
+              </Card>
             </ThemeSettingsView>
 
             <ThemeSettingsView>
@@ -560,9 +568,7 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
                   <Divider type="vertical" style={{height: "370px"}}/>
                   <PreviewApp style={{ height: "380px", width: "100%", margin: "0" }} theme={this.state.theme} dsl={chartDsl} />
                 </Flex>
-
-              </Card>  
-              
+              </Card>
             </ThemeSettingsView>
 
           </DetailContent>

@@ -59,6 +59,7 @@ export interface ThemeDetail {
   boxShadow?: string;
   boxShadowColor?: string;
   animationIterationCount?: string;
+  components?: Record<string, object>;
 }
 
 export function getThemeDetailName(key: keyof ThemeDetail) {
