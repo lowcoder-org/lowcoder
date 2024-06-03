@@ -11,7 +11,7 @@ import { formDataChildren, FormDataPropertyView } from "./formComp/formDataConst
 import { PositionControl } from "comps/controls/dropdownControl";
 import { useRef, useState } from "react";
 import ReactResizeDetector from "react-resize-detector";
-import { ArrayStringControl, StringControl } from "comps/controls/codeControl";
+import { ArrayStringControl } from "comps/controls/codeControl";
 import { styleControl } from "comps/controls/styleControl";
 import { AnimationStyle, AnimationStyleType, CarouselStyle } from "comps/controls/styleControlConstants";
 
@@ -25,12 +25,11 @@ const CarouselItem = styled.div<{ $src: string }>`
   background-size: contain;
 `;
 
-const Container = styled.div<{$bg: string; $rotation: string; $animationStyle:AnimationStyleType}>`
+const Container = styled.div<{$bg: string; $animationStyle:AnimationStyleType}>`
   &,
   .ant-carousel {
     height: 100%;
     background-color: ${(props) => props.$bg};
-    rotate: ${(props) => props.$rotation};
     ${props=>props.$animationStyle}
   }
 `;
@@ -47,7 +46,6 @@ let CarouselBasicComp = (function () {
     dotPosition: withDefault(PositionControl, "bottom"),
     style: styleControl(CarouselStyle),
     animationStyle: styleControl(AnimationStyle),
-    restrictPaddingOnRotation:withDefault(StringControl, 'imageCarousel'),
     ...formDataChildren,
   };
   return new UICompBuilder(childrenMap, (props) => {
@@ -62,7 +60,6 @@ let CarouselBasicComp = (function () {
       <Container
         ref={containerRef}
         $bg={props.style.background}
-        $rotation={props.style.rotation}
         $animationStyle={props.animationStyle}
       >
         <ReactResizeDetector onResize={onResize}>
