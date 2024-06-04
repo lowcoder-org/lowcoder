@@ -1,26 +1,45 @@
 package org.lowcoder.api.authentication;
 
+import com.google.common.collect.Iterables;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.lowcoder.api.authentication.request.AuthRequest;
+import org.lowcoder.api.authentication.request.AuthRequestFactory;
+import org.lowcoder.api.authentication.request.oauth2.Oauth2AuthRequestFactory;
+import org.lowcoder.api.authentication.request.oauth2.request.GenericAuthRequest;
+import org.lowcoder.api.authentication.service.AuthenticationApiServiceImpl;
+import org.lowcoder.api.common.mockuser.WithMockUser;
+import org.lowcoder.api.framework.view.ResponseView;
+import org.lowcoder.domain.authentication.AuthenticationService;
 import org.lowcoder.domain.authentication.AuthenticationServiceImpl;
-import org.lowcoder.domain.organization.model.Organization;
-import org.lowcoder.domain.organization.service.OrgMemberService;
-import org.lowcoder.domain.organization.service.OrganizationService;
+import org.lowcoder.domain.authentication.FindAuthConfig;
+import org.lowcoder.domain.authentication.context.AuthRequestContext;
+import org.lowcoder.domain.encryption.EncryptionService;
+import org.lowcoder.domain.user.model.*;
+import org.lowcoder.domain.user.repository.UserRepository;
 import org.lowcoder.sdk.auth.AbstractAuthConfig;
-import org.lowcoder.sdk.config.AuthProperties;
-import org.lowcoder.sdk.config.CommonConfig;
+import org.lowcoder.sdk.constants.AuthSourceConstants;
+import org.lowcoder.sdk.constants.GlobalContext;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.ResponseCookie;
+import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
+import org.springframework.mock.web.server.MockServerWebExchange;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
+import reactor.util.context.Context;
 
-import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.List;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import java.util.Objects;
+
+import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 
 /**
  * This class is for testing GenericAuth feature
@@ -29,55 +48,45 @@ import static org.mockito.Mockito.when;
 @RunWith(SpringRunner.class)
 public class GenericAuthenticateTest {
 
-    @InjectMocks
-    AuthenticationServiceImpl mockAuthenticationService;
-
-    @Mock
-    OrgMemberService mockOrgMemberService;
-
-    @Mock
-    OrganizationService mockOrganizationService;
-
-    @Mock
-    private AuthProperties authProperties;
-
-    @Mock
-    private CommonConfig commonConfig;
+    @Autowired
+    private AuthenticationController authenticationController;
+    @Autowired
+    private UserRepository userRepository;
+    @Autowired
+    private AuthenticationService authenticationService;
 
     @Test
-    public  void findAllAuthConfigsTest() throws Exception {
-        String orgId = "org123";
-        boolean enableOnly = true;
+    @WithMockUser
+    public void testGoogleLoginSuccess() {
+        String source = AuthSourceConstants.GOOGLE;
+        String code = "test-code-123456";
+        String orgId = "org01";
+        String redirectUrl = "https://test.com";
 
-        // Create mock objects
-        Organization mockOrganization = mock(Organization.class);
-        List<AbstractAuthConfig> mockAuthConfigs = Arrays.asList();
-        CommonConfig.Workspace mockedWorkspace = new CommonConfig.Workspace();
+        GenericAuthRequest.setIsTest(true);
+        String uid = "uId";
 
-        // Mock functions
-        when(mockOrganization.getAuthConfigs()).thenReturn(mockAuthConfigs);
-        when(mockOrganizationService.getByDomain()).thenReturn(Mono.just(mockOrganization));
-        when(mockOrganizationService.getById(orgId)).thenReturn(Mono.just(mockOrganization));
-        when(mockOrgMemberService.doesAtleastOneAdminExist()).thenReturn(Mono.just(true));
-        when(commonConfig.getWorkspace()).thenReturn(mockedWorkspace);
+        MockServerHttpRequest request = MockServerHttpRequest.post("").build();
+        MockServerWebExchange exchange = MockServerWebExchange.builder(request).build();
 
-        // Mocking auth properties email configuration
-        AuthProperties.Email emailConfig = new AuthProperties.Email();
-        emailConfig.setEnable(true);
-        emailConfig.setEnableRegister(true);
-        when(authProperties.getEmail()).thenReturn(emailConfig);
+        var authId = getGenericAuthConfigId(orgId).block();
+        Mono<User> userMono = authenticationController.loginWithThirdParty(authId, source, code, null, redirectUrl, orgId, exchange)
+                .then(userRepository.findByConnections_SourceAndConnections_RawId(source, uid));
 
-        // Use reflection to access the private method
-        Method findAllAuthConfigsByDomain = AuthenticationServiceImpl.class.getDeclaredMethod("findAllAuthConfigsByDomain");
-        findAllAuthConfigsByDomain.setAccessible(true);
-        Method findAllAuthConfigsForEnterpriseMode = AuthenticationServiceImpl.class.getDeclaredMethod("findAllAuthConfigsForEnterpriseMode");
-        findAllAuthConfigsForEnterpriseMode.setAccessible(true);
-        Method findAllAuthConfigsForSaasMode = AuthenticationServiceImpl.class.getDeclaredMethod("findAllAuthConfigsForSaasMode", String.class);
-        findAllAuthConfigsForSaasMode.setAccessible(true);
-
-        // Act & Assert
-        StepVerifier.create(mockAuthenticationService.findAllAuthConfigs(orgId, enableOnly))
-                .expectNextMatches(findAuthConfig -> findAuthConfig.authConfig().isEnable())
+        StepVerifier.create(userMono)
+                .assertNext(user -> {
+                    assertEquals("dummyname", user.getName());
+                    assertEquals(UserState.ACTIVATED, user.getState());
+                    assertEquals(1, user.getConnections().size());
+                    assertTrue(user.getIsEnabled());
+                })
                 .verifyComplete();
+    }
+
+    private Mono<String> getGenericAuthConfigId(String orgId) {
+        return authenticationService.findAuthConfigBySource(orgId, AuthSourceConstants.GOOGLE)
+                .map(FindAuthConfig::authConfig)
+                .map(AbstractAuthConfig::getId)
+                .contextWrite(Context.of(GlobalContext.DOMAIN, "avengers.com"));
     }
 }
