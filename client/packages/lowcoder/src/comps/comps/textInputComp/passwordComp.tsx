@@ -43,9 +43,11 @@ import React, { useContext } from "react";
 import { EditorContext } from "comps/editorState";
 import { migrateOldData } from "comps/generators/simpleGenerators";
 
-const PasswordStyle = styled(InputPassword) <{
+const PasswordStyle = styled(InputPassword)<{
   $style: InputLikeStyleType;
 }>`
+  box-shadow: ${(props) =>
+    `${props.$style?.boxShadow} ${props.$style?.boxShadowColor}`};
   ${(props) => props.$style && getStyle(props.$style)}
 `;
 
@@ -115,7 +117,7 @@ let PasswordTmpComp = (function () {
               <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
               <Section name={sectionNames.labelStyle}>{children.labelStyle.getPropertyView()}</Section>
               <Section name={sectionNames.inputFieldStyle}>{children.inputFieldStyle.getPropertyView()}</Section>
-              <Section name={sectionNames.animationStyle}>{children.animationStyle.getPropertyView()}</Section>
+              <Section name={sectionNames.animationStyle} hasTooltip={true}>{children.animationStyle.getPropertyView()}</Section>
             </>
           )}
         </>

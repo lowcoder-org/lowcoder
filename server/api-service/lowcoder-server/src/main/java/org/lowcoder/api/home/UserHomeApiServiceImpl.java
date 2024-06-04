@@ -244,10 +244,10 @@ public class UserHomeApiServiceImpl implements UserHomeApiService {
 
                                 return bundleElementRelationServiceImpl.getByElementIds(List.of(Objects.requireNonNull(application.getId())))
                                         .mapNotNull(BundleElement::position)
-                                        .defaultIfEmpty(0)
+                                        .defaultIfEmpty(0L)
                                         .collectList()
                                         .flatMap(positions -> {
-                                            int position = positions.isEmpty() ? 0 : positions.get(0);
+                                            long position = positions.isEmpty() ? 0 : positions.get(0);
                                             ResourceRole resourceRole = resourcePermissionMap.get(application.getId()).getResourceRole();
                                             return Mono.just(buildView(application, resourceRole, userMap, applicationLastViewTimeMap.get(application.getId()),
                                                     position, withContainerSize));
@@ -556,7 +556,7 @@ public class UserHomeApiServiceImpl implements UserHomeApiService {
     }
 
     private ApplicationInfoView buildView(Application application, ResourceRole maxRole, Map<String, User> userMap, @Nullable Instant lastViewTime,
-                                          Integer bundlePosition, boolean withContainerSize) {
+                                          Long bundlePosition, boolean withContainerSize) {
         ApplicationInfoViewBuilder applicationInfoViewBuilder = ApplicationInfoView.builder()
                 .applicationId(application.getId())
                 .orgId(application.getOrganizationId())
@@ -570,7 +570,6 @@ public class UserHomeApiServiceImpl implements UserHomeApiService {
                 .applicationStatus(application.getApplicationStatus())
                 .lastModifyTime(application.getUpdatedAt())
                 .lastViewTime(lastViewTime)
-                .bundlePosition(bundlePosition)
                 .publicToAll(application.isPublicToAll())
                 .publicToMarketplace(application.isPublicToMarketplace())
                 .agencyProfile(application.agencyProfile());
