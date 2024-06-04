@@ -63,7 +63,36 @@ public class GenericAuthenticateTest {
         String orgId = "org01";
         String redirectUrl = "https://test.com";
 
-        GenericAuthRequest.setIsTest(true);
+        GenericAuthRequest.setTest(true);
+        String uid = "uId";
+
+        MockServerHttpRequest request = MockServerHttpRequest.post("").build();
+        MockServerWebExchange exchange = MockServerWebExchange.builder(request).build();
+
+        var authId = getGenericAuthConfigId(orgId).block();
+        Mono<User> userMono = authenticationController.loginWithThirdParty(authId, source, code, null, redirectUrl, orgId, exchange)
+                .then(userRepository.findByConnections_SourceAndConnections_RawId(source, uid));
+
+        StepVerifier.create(userMono)
+                .assertNext(user -> {
+                    assertEquals("dummyname", user.getName());
+                    assertEquals(UserState.ACTIVATED, user.getState());
+                    assertEquals(1, user.getConnections().size());
+                    assertTrue(user.getIsEnabled());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithMockUser
+    public void testGoogleLoginWithNoRefreshSuccess() {
+        String source = AuthSourceConstants.GOOGLE;
+        String code = "test-code-123456";
+        String orgId = "org01";
+        String redirectUrl = "https://test.com";
+
+        GenericAuthRequest.setTest(true);
+        GenericAuthRequest.setTestCase01(true);
         String uid = "uId";
 
         MockServerHttpRequest request = MockServerHttpRequest.post("").build();
