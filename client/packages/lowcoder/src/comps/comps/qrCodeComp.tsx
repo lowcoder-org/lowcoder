@@ -112,7 +112,7 @@ let QRCodeBasicComp = (function () {
             {children.style.getPropertyView()}
             {children.includeMargin.propertyView({ label: trans("QRCode.includeMargin") })}
             </Section>
-            <Section name={sectionNames.animationStyle}>
+            <Section name={sectionNames.animationStyle} hasTooltip={true}>
             {children.animationStyle.getPropertyView()}
             </Section>
           </>

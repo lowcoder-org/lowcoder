@@ -335,7 +335,7 @@ export const TabbedContainerBaseComp = (function () {
               <Section name={"Body Style"}>
                 { children.bodyStyle.getPropertyView() }
               </Section>
-              <Section name={sectionNames.animationStyle}>
+              <Section name={sectionNames.animationStyle} hasTooltip={true}>
                 { children.animationStyle.getPropertyView() }
               </Section>
             </>
