@@ -1,5 +1,6 @@
 package org.lowcoder.api.authentication.request.oauth2.request;
 
+import lombok.Setter;
 import org.lowcoder.api.authentication.request.AuthException;
 import org.lowcoder.api.authentication.request.oauth2.GenericOAuthProviderSource;
 import org.lowcoder.api.authentication.request.oauth2.OAuth2RequestContext;
@@ -22,11 +23,10 @@ import static org.lowcoder.sdk.plugin.common.constant.Constants.HTTP_TIMEOUT;
  * This class is for Generic Auth Request
  */
 public class GenericAuthRequest  extends AbstractOauth2Request<Oauth2GenericAuthConfig>{
+    @Setter
     private static boolean isTest = false;
-
-    public static void setIsTest(boolean isTest) {
-        GenericAuthRequest.isTest = isTest;
-    }
+    @Setter
+    private static boolean testCase01 = false;
 
     public GenericAuthRequest(Oauth2GenericAuthConfig context) {
         super(context, new GenericOAuthProviderSource(context));
@@ -62,6 +62,7 @@ public class GenericAuthRequest  extends AbstractOauth2Request<Oauth2GenericAuth
     @Override
     protected Mono<AuthToken> refreshAuthToken(String refreshToken) {
         if(isTest) {
+            if(testCase01) return Mono.error(new AuthException(true));
             AuthToken authToken = AuthToken.builder().build();
             return Mono.just(authToken);
         } else return WebClientBuildHelper.builder()
