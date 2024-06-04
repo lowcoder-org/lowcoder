@@ -1192,6 +1192,8 @@ export const SelectStyle = [
   ...replaceAndMergeMultipleStyles(STYLING_FIELDS_SEQUENCE.filter(style=>style.name!=='rotation'), "border", [
     ...getStaticBgBorderRadiusByBg(SURFACE_COLOR, "pc"),
   ]),
+  BOXSHADOW,
+  BOXSHADOWCOLOR,
   ...ACCENT_VALIDATE,
 ] as const;
 
@@ -1584,6 +1586,8 @@ export const DateTimeStyle = [
   PADDING,
   BORDER_STYLE,
   BORDER_WIDTH,
+  BOXSHADOW,
+  BOXSHADOWCOLOR,
   ...ACCENT_VALIDATE,
 ] as const;
 
