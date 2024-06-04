@@ -16,7 +16,7 @@ import {
   withExposingConfigs,
 } from "comps/generators/withExposing";
 import styled, { css } from "styled-components";
-import { UICompBuilder } from "../../generators";
+import { UICompBuilder, withDefault } from "../../generators";
 import { FormDataPropertyView } from "../formComp/formDataConstants";
 import { jsonControl } from "comps/controls/codeControl";
 import { dropdownControl } from "comps/controls/dropdownControl";
@@ -58,7 +58,8 @@ import {
 
 
 
-const InputStyle = styled(Input)<{ $style: InputLikeStyleType }>`
+const InputStyle = styled(Input) <{ $style: InputLikeStyleType }>`
+box-shadow: ${props=>`${props.$style?.boxShadow} ${props.$style?.boxShadowColor}`};
   ${(props) => css`
     ${getStyle(props.$style)}
     input {
@@ -75,7 +76,7 @@ const childrenMap = {
   ...textInputChildren,
   viewRef: RefControl<InputRef>,
   allowClear: BoolControl.DEFAULT_TRUE,
-  style: styleControl(InputFieldStyle),
+  style: withDefault(styleControl(InputFieldStyle),{background:'transparent'}),
   labelStyle:styleControl(LabelStyle),
   prefixIcon: IconControl,
   suffixIcon: IconControl,
@@ -89,7 +90,7 @@ const childrenMap = {
   autocompleteIconColor: dropdownControl(autocompleteIconColor, "blue"),
   componentSize: dropdownControl(componentSize, "small"),
   valueInItems: booleanExposingStateControl("valueInItems"),
-  inputFieldStyle: styleControl(InputLikeStyle),
+  inputFieldStyle: withDefault(styleControl(InputLikeStyle),{borderWidth:'1px'}),
   animationStyle: styleControl(AnimationStyle),
 };
 
