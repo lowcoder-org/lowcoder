@@ -1227,6 +1227,8 @@ export const MultiSelectStyle = [
     transformer: toSelf,
     platform: "pc",
   },
+  BOXSHADOW,
+  BOXSHADOWCOLOR,
   ...ACCENT_VALIDATE,
 ] as const;
 
