@@ -252,7 +252,7 @@ export const ResponsiveLayoutBaseComp = (function () {
             <Section name={trans("responsiveLayout.columnStyle")}>
               {children.columnStyle.getPropertyView()}
             </Section>
-            <Section name={sectionNames.animationStyle}>
+            <Section name={sectionNames.animationStyle} hasTooltip={true}>
                 {children.animationStyle.getPropertyView()}
             </Section>
             </>

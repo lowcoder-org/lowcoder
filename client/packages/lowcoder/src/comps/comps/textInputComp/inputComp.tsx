@@ -109,7 +109,7 @@ let InputBasicComp = new UICompBuilder(childrenMap, (props) => {
             <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
             <Section name={sectionNames.labelStyle}>{children.labelStyle.getPropertyView()}</Section>
             <Section name={sectionNames.inputFieldStyle}>{children.inputFieldStyle.getPropertyView()}</Section>
-            <Section name={sectionNames.animationStyle}>{children.animationStyle.getPropertyView()}</Section>
+            <Section name={sectionNames.animationStyle} hasTooltip={true}>{children.animationStyle.getPropertyView()}</Section>
           </>
         )}
       </>

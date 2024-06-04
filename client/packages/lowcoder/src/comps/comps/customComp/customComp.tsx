@@ -247,7 +247,7 @@ const CustomCompBase = new UICompBuilder(childrenMap, (props, dispatch) => {
             <Section name={sectionNames.style}>
               {children.style.getPropertyView()}
             </Section>
-            <Section name={sectionNames.animationStyle}>
+            <Section name={sectionNames.animationStyle} hasTooltip={true}>
               {children.animationStyle.getPropertyView()}
             </Section>
           </>
