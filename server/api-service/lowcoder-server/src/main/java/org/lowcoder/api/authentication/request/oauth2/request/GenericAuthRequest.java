@@ -22,6 +22,11 @@ import static org.lowcoder.sdk.plugin.common.constant.Constants.HTTP_TIMEOUT;
  * This class is for Generic Auth Request
  */
 public class GenericAuthRequest  extends AbstractOauth2Request<Oauth2GenericAuthConfig>{
+    private static boolean isTest = false;
+
+    public static void setIsTest(boolean isTest) {
+        GenericAuthRequest.isTest = isTest;
+    }
 
     public GenericAuthRequest(Oauth2GenericAuthConfig context) {
         super(context, new GenericOAuthProviderSource(context));
@@ -29,7 +34,10 @@ public class GenericAuthRequest  extends AbstractOauth2Request<Oauth2GenericAuth
 
     @Override
     protected Mono<AuthToken> getAuthToken(OAuth2RequestContext context) {
-        return WebClientBuildHelper.builder()
+        if(isTest) {
+            AuthToken authToken = AuthToken.builder().build();
+            return Mono.just(authToken);
+        } else return WebClientBuildHelper.builder()
                 .systemProxy()
                 .timeoutMs(HTTP_TIMEOUT)
                 .build()
@@ -53,7 +61,10 @@ public class GenericAuthRequest  extends AbstractOauth2Request<Oauth2GenericAuth
 
     @Override
     protected Mono<AuthToken> refreshAuthToken(String refreshToken) {
-        return WebClientBuildHelper.builder()
+        if(isTest) {
+            AuthToken authToken = AuthToken.builder().build();
+            return Mono.just(authToken);
+        } else return WebClientBuildHelper.builder()
                 .systemProxy()
                 .timeoutMs(HTTP_TIMEOUT)
                 .build()
@@ -75,6 +86,13 @@ public class GenericAuthRequest  extends AbstractOauth2Request<Oauth2GenericAuth
 
     @Override
     protected Mono<AuthUser> getAuthUser(AuthToken authToken) {
+        if(isTest) {
+            AuthUser authUser = AuthUser.builder()
+                    .uid("uId")
+                    .username("dummyname")
+                    .build();
+            return Mono.just(authUser);
+        }
         return WebClientBuildHelper.builder()
                 .systemProxy()
                 .timeoutMs(HTTP_TIMEOUT)
