@@ -231,4 +231,3 @@ export const VideoSharingStreamComp = withExposingConfigs(SharingCompBuilder, [
   new NameConfig("loading", trans("meeting.loadingDesc")),
   ...CommonNameConfig,
 ]);
- 
