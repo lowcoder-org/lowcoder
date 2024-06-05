@@ -29,42 +29,47 @@ public class OpenAPIDocsConfiguration {
     
     @Bean
     OpenAPI customizeOpenAPI() {
+
         final String securitySchemeName = commonConfig.getCookieName();
+
         return new OpenAPI()
-                .info(new Info()
-                        .title("Lowcoder API")
-                        .version(commonConfig.getApiVersion()))
-                .addServersItem(new Server()
-                		.url(createLocalServerUrl("localhost", serverPort, contextPath))
-                		.description("Local development API service")
-                )
-                .addServersItem(createCustomServer())
-                .addServersItem(new Server()
-                		.url("https://api-service.lowcoder.cloud/")
-                		.description("Lowcoder Community Edition: Public Cloud API Access")
-                )
-                .addSecurityItem(new SecurityRequirement()
-                        .addList(securitySchemeName)).components(new Components()
-                        .addSecuritySchemes(
-                                securitySchemeName,
-                                new SecurityScheme()
-                                        .name(securitySchemeName)
-                                        .type(SecurityScheme.Type.APIKEY)
-                                        .in(SecurityScheme.In.COOKIE)
-                        )
-                        .addSecuritySchemes(
-		                        "API Key",
-		                        new SecurityScheme()
-		                        .name("API key")
-		                        .type(SecurityScheme.Type.HTTP)
-		                        .scheme("bearer")
-		                        .bearerFormat("JWT")
-		                )
-		        );
+			.info(new Info()
+			.title("Lowcoder Open Rest API")
+			.version(commonConfig.getApiVersion()))
+			/*.addServersItem(new Server()
+					.url(createLocalServerUrl("localhost", serverPort, contextPath))
+					.description("Local development API service")
+			) */
+			.addServersItem(createCustomServer())
+			.addServersItem(new Server()
+					.url("https://api-service.lowcoder.cloud/")
+					.description("Lowcoder Community Edition: Public Cloud API Access")
+			)
+			.addSecurityItem(new SecurityRequirement()
+					.addList(securitySchemeName)).components(new Components()
+					/* .addSecuritySchemes(
+						securitySchemeName,
+						new SecurityScheme()
+							.name(securitySchemeName)
+							.type(SecurityScheme.Type.HTTP) // HTTP-based authentication
+							.scheme("cookie") // Specify the authentication scheme as "cookie"
+							.description("Cookie-based authentication. Please ensure the client sends cookies with each request after authentication.")
+					) */
+					.addSecuritySchemes(
+						"API Key",
+						new SecurityScheme()
+							.name("Authorization")
+							.type(SecurityScheme.Type.APIKEY)
+							.in(SecurityScheme.In.HEADER)
+							.scheme("bearer")
+							.bearerFormat("JWT")
+							.description("API Key Authentication with a Bearer token. Copy your API Key and prefix it here with 'Bearer ' (e.g. 'Bearer eyJhbGciO...'")
+					)
+			);
     }
     
     
-    private static String createLocalServerUrl(String domain, int port, String contextPath)    
+    /* private static String createLocalServerUrl(String domain, int port, String contextPath)    
     {
     	StringBuilder sb = new StringBuilder("http");
     	
@@ -81,7 +86,7 @@ public class OpenAPIDocsConfiguration {
     	sb.append(contextPath);
     	
     	return sb.toString();
-    }
+    } */
     
     private Server createCustomServer()
     {

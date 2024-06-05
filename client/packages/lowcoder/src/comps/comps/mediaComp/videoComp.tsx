@@ -6,10 +6,14 @@ import { NameConfig, NameConfigHidden, withExposingConfigs } from "../../generat
 import { RecordConstructorToView } from "lowcoder-core";
 import { useRef, useState } from "react";
 import { styleControl } from "comps/controls/styleControl";
-import { ImageStyle, ImageStyleType } from "comps/controls/styleControlConstants";
+import {
+  AnimationStyle,
+  AnimationStyleType,
+  VideoStyle,
+} from 'comps/controls/styleControlConstants';
 import { BoolControl } from "comps/controls/boolControl";
 import { withDefault } from "../../generators/simpleGenerators";
-import { Container, playIcon } from "lowcoder-design";
+import { playIcon } from "lowcoder-design";
 import { RangeControl } from "../../controls/codeControl";
 import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
@@ -40,12 +44,32 @@ const getStyle = (style: ImageStyleType) => {
     padding: style.padding,
   };
 }; */
+const Container = styled.div<{ $style: any; $animationStyle: AnimationStyleType }>`
+${props => props.$style};
+rotate:${props => props.$style.rotation};
+${props=>props.$animationStyle};
+  height: 100%;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
+  div > video {
+    object-fit: contain;
+    pointer-events: auto;
+    height: 100%;
+    width: 100%;
+    :focus-visible {
+      outline: 0px;
+    }
+  }
+`;
 const ContainerVideo = (props: RecordConstructorToView<typeof childrenMap>) => {
   const videoRef = useRef<ReactPlayer | null>(null);
   let [posterClicked, setPosterClicked] = useState(false);
   return (
-    <Container ref={props.containerRef}>
+    <Container ref={props.containerRef} $style={props.style}
+      $animationStyle={props.animationStyle}>
       <Video 
         config={{
           file: {
@@ -88,17 +112,18 @@ const ContainerVideo = (props: RecordConstructorToView<typeof childrenMap>) => {
 };
 
 const childrenMap = {
-  src: withDefault(StringStateControl, trans("video.defaultSrcUrl")),
-  poster: withDefault(StringStateControl, trans("video.defaultPosterUrl")),
+  src: withDefault(StringStateControl, trans('video.defaultSrcUrl')),
+  poster: withDefault(StringStateControl, trans('video.defaultPosterUrl')),
   onEvent: eventHandlerControl(EventOptions),
-  style: styleControl(ImageStyle),
+  style: styleControl(VideoStyle),
+  animationStyle: styleControl(AnimationStyle),
   autoPlay: BoolControl,
   loop: BoolControl,
   controls: BoolControl,
   volume: RangeControl.closed(0, 1, 1),
   playbackRate: RangeControl.closed(1, 2, 1),
-  currentTimeStamp: numberExposingStateControl("currentTimeStamp", 0),
-  duration: numberExposingStateControl("duration"),
+  currentTimeStamp: numberExposingStateControl('currentTimeStamp', 0),
+  duration: numberExposingStateControl('duration'),
   ...mediaCommonChildren,
 };
  
@@ -147,7 +172,14 @@ let VideoBasicComp = (function () {
                   tooltip: trans("video.controlsTooltip"),
                 })}
 
-              </Section></>
+              </Section>
+              <Section name={sectionNames.style}>
+                {children.style.getPropertyView()}
+              </Section>
+              <Section name={sectionNames.animationStyle} hasTooltip={true}>
+                {children.animationStyle.getPropertyView()}
+              </Section>
+            </>
           )}
         </>
       );

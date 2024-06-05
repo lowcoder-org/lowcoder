@@ -74,9 +74,11 @@ const Wrapper = styled.div<{
     justify-content: space-between;
     background-color: ${props => props.$style?.background};
     border: ${props => props.$style?.border};
+    rotate: ${props => props.$style?.rotation};
     border-style: ${props => props.$style?.borderStyle};
     border-radius: ${props => props.$style?.radius};
     border-width: ${props => props.$style?.borderWidth};
+    box-shadow: ${props=>`${props.$style?.boxShadow} ${props.$style?.boxShadowColor}`};
     ${props=>props.$animationStyle}
   }
   .ant-card-body {
@@ -331,7 +333,7 @@ export const ContainerBaseComp = (function () {
               <Section name={sectionNames.bodyStyle}>
                 {children.bodyStyle.getPropertyView()}
               </Section>
-              <Section name={sectionNames.animationStyle}>
+              <Section name={sectionNames.animationStyle} hasTooltip={true}>
                 {children.animationStyle.getPropertyView()}
               </Section>
             </>

@@ -15,6 +15,7 @@ import org.lowcoder.domain.application.repository.ApplicationRepository;
 import org.lowcoder.domain.organization.repository.OrganizationRepository;
 import org.lowcoder.domain.organization.service.OrgMemberService;
 import org.lowcoder.domain.permission.model.ResourceRole;
+import org.lowcoder.domain.permission.model.ResourceType;
 import org.lowcoder.domain.permission.service.ResourcePermissionService;
 import org.lowcoder.domain.user.repository.UserRepository;
 import org.lowcoder.domain.user.service.UserService;
@@ -93,7 +94,7 @@ public class ApplicationServiceImpl implements ApplicationService {
     @Override
     public Mono<Application> create(Application newApplication, String visitorId) {
         return repository.save(newApplication)
-                .delayUntil(app -> resourcePermissionService.addApplicationPermissionToUser(app.getId(), visitorId, ResourceRole.OWNER));
+                .delayUntil(app -> resourcePermissionService.addResourcePermissionToUser(app.getId(), visitorId, ResourceRole.OWNER, ResourceType.APPLICATION));
     }
 
     /**

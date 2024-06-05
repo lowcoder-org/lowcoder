@@ -30,6 +30,7 @@ const Link = styled(Button)<{
   ${(props) => props.$animationStyle}
   ${(props) => `
     color: ${props.$style.text};
+    rotate: ${props.$style.rotation};
     margin: ${props.$style.margin};
     padding: ${props.$style.padding};
     font-size: ${props.$style.textSize};
@@ -138,7 +139,7 @@ const LinkTmpComp = (function () {
           {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
             <>
               <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
-              <Section name={sectionNames.animationStyle}>{children.animationStyle.getPropertyView()}</Section>
+              <Section name={sectionNames.animationStyle} hasTooltip={true}>{children.animationStyle.getPropertyView()}</Section>
             </>
           )}
         </>

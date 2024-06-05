@@ -56,6 +56,7 @@ const RowWrapper = styled(Row)<{
   padding: ${(props) => props.$style.padding};
   background-color: ${(props) => props.$style.background};
   overflow-x: auto;
+  rotate: ${props=> props.$style.rotation}
 `;
 
 const ColWrapper = styled(Col)<{
@@ -90,7 +91,7 @@ const childrenMap = {
   autoHeight: AutoHeightControl,
   rowBreak: withDefault(BoolControl, false),
   matchColumnsHeight: withDefault(BoolControl, true),
-  rowStyle: withDefault(styleControl(ResponsiveLayoutRowStyle), {}),
+  style: withDefault(styleControl(ResponsiveLayoutRowStyle), {}),
   columnStyle: withDefault(styleControl(ResponsiveLayoutColStyle), {}),
   animationStyle:styleControl(AnimationStyle),
   columnPerRowLG: withDefault(NumberControl, 4),
@@ -126,7 +127,7 @@ const ResponsiveLayout = (props: ResponsiveLayoutProps) => {
     dispatch,
     rowBreak,
     matchColumnsHeight,
-    rowStyle,
+    style,
     columnStyle,
     columnPerRowLG,
     columnPerRowMD,
@@ -137,11 +138,11 @@ const ResponsiveLayout = (props: ResponsiveLayoutProps) => {
   } = props;
 
   return (
-    <BackgroundColorContext.Provider value={props.rowStyle.background}>
+    <BackgroundColorContext.Provider value={props.style.background}>
       <DisabledContext.Provider value={props.disabled}>
-        <div style={{padding: rowStyle.margin, height: '100%'}}>
+        <div style={{padding: style.margin, height: '100%'}}>
           <RowWrapper
-            $style={rowStyle}
+            $style={style}
             $animationStyle={animationStyle}
             wrap={rowBreak}
             gutter={[horizontalSpacing, verticalSpacing]}
@@ -246,12 +247,12 @@ export const ResponsiveLayoutBaseComp = (function () {
               })}
             </Section>
             <Section name={trans("responsiveLayout.rowStyle")}>
-              {children.rowStyle.getPropertyView()}
+              {children.style.getPropertyView()}
             </Section>
             <Section name={trans("responsiveLayout.columnStyle")}>
               {children.columnStyle.getPropertyView()}
             </Section>
-            <Section name={sectionNames.animationStyle}>
+            <Section name={sectionNames.animationStyle} hasTooltip={true}>
                 {children.animationStyle.getPropertyView()}
             </Section>
             </>

@@ -3,7 +3,7 @@ import { BoolControl } from "comps/controls/boolControl";
 import { stringExposingStateControl } from "comps/controls/codeStateControl";
 import { dropdownControl } from "comps/controls/dropdownControl";
 import { styleControl } from "comps/controls/styleControl";
-import { BadgeStyle, BadgeStyleType, FloatButtonStyle, FloatButtonStyleType } from "comps/controls/styleControlConstants";
+import { AnimationStyle, AnimationStyleType, BadgeStyle, BadgeStyleType, FloatButtonStyle, FloatButtonStyleType } from "comps/controls/styleControlConstants";
 import { UICompBuilder } from "comps/generators/uiCompBuilder";
 import { NameConfig, NameConfigHidden, withExposingConfigs } from "comps/generators/withExposing";
 import { Section, sectionNames } from "lowcoder-design";
@@ -16,6 +16,12 @@ import { IconControl } from "comps/controls/iconControl";
 import styled from "styled-components";
 import { ButtonEventHandlerControl } from "comps/controls/eventHandlerControl";
 import { manualOptionsControl } from "comps/controls/optionsControl";
+
+const StyledFloatButton = styled(FloatButton)<{
+  $animationStyle: AnimationStyleType;
+}>`
+  ${(props) => props.$animationStyle}
+`;
 
 const Wrapper = styled.div<{ $badgeStyle: BadgeStyleType, $style: FloatButtonStyleType}>`
     width: 0px;
@@ -78,6 +84,7 @@ const childrenMap = {
     icon: withDefault(IconControl, '/icon:antd/questioncircleoutlined'),
     badgeStyle: styleControl(BadgeStyle),
     style: styleControl(FloatButtonStyle),
+    animationStyle: styleControl(AnimationStyle),
     buttons: manualOptionsControl(buttonGroupOption, {
         initOptions: [
             { id: 0, label: trans("optionsControl.optionI", { i: '1' }), icon: "/icon:antd/filetextoutlined", badge: '1' },
@@ -93,7 +100,8 @@ const childrenMap = {
 const FloatButtonView = (props: RecordConstructorToView<typeof childrenMap>) => {
     const renderButton = (button: any, onlyOne?: boolean) => {
         return !button?.hidden ? (
-            <FloatButton
+            <StyledFloatButton
+                $animationStyle={props.animationStyle}
                 key={button?.id}
                 icon={button?.icon}
                 onClick={() => button.onEvent("click")}
@@ -108,7 +116,7 @@ const FloatButtonView = (props: RecordConstructorToView<typeof childrenMap>) => 
     return (
         <Wrapper $badgeStyle={props.badgeStyle} $style={props.style}>
             {props.buttons.length === 1 ? (renderButton(props.buttons[0], true)) :
-                (<FloatButton.Group
+                (<StyledFloatButton.Group
                     trigger="hover"
                     icon={props.icon}
                     shape={props.shape}
@@ -116,31 +124,38 @@ const FloatButtonView = (props: RecordConstructorToView<typeof childrenMap>) => 
                     type={props.buttonTheme}
                 >
                     {props.buttons.map((button: any) => renderButton(button))}
-                </FloatButton.Group>)
+                </StyledFloatButton.Group>)
             }
         </Wrapper>
     );
 };
 
 let FloatButtonBasicComp = (function () {
-    return new UICompBuilder(childrenMap, (props) => <FloatButtonView {...props} />)
-        .setPropertyViewFn((children) => (
-            <>
-                <Section name={sectionNames.basic}>
-                    {children.buttons.propertyView({})}
-                    {children.icon.propertyView({ label: trans("icon") })}
-                    {children.shape.propertyView({ label: trans("floatButton.buttonShape"), radioButton: true })}
-                    {children.buttonTheme.propertyView({ label: trans("floatButton.buttonTheme"), radioButton: true })}
-                    {children.dot.propertyView({ label: trans("floatButton.dot") })}
-                </Section>
-                <Section name={sectionNames.layout}>
-                    {hiddenPropertyView(children)}
-                </Section>
-                <Section name={sectionNames.badgeStyle}>{children.badgeStyle.getPropertyView()}</Section>
-                <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
-            </>
-        ))
-        .build();
+    return new UICompBuilder(childrenMap, (props) => (
+      <FloatButtonView {...props} />
+    ))
+      .setPropertyViewFn((children) => (
+        <>
+          <Section name={sectionNames.basic}>
+            {children.buttons.propertyView({})}
+            {children.icon.propertyView({ label: trans("icon") })}
+            {children.shape.propertyView({ label: trans("floatButton.buttonShape"), radioButton: true })}
+            {children.buttonTheme.propertyView({ label: trans("floatButton.buttonTheme"), radioButton: true })}
+            {children.dot.propertyView({ label: trans("floatButton.dot") })}
+          </Section>
+          <Section name={sectionNames.layout}>
+            {hiddenPropertyView(children)}
+          </Section>
+          <Section name={sectionNames.badgeStyle}>{children.badgeStyle.getPropertyView()}</Section>
+          <Section name={sectionNames.style}>
+            {children.style.getPropertyView()}
+          </Section>
+          <Section name={sectionNames.animationStyle} hasTooltip={true}>
+            {children.animationStyle.getPropertyView()}
+          </Section>
+        </>
+      ))
+      .build();
 })();
 
 FloatButtonBasicComp = class extends FloatButtonBasicComp {

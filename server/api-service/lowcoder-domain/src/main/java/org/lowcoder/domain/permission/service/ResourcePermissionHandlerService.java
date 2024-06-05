@@ -1,6 +1,7 @@
 package org.lowcoder.domain.permission.service;
 
 import org.lowcoder.domain.application.model.ApplicationRequestType;
+import org.lowcoder.domain.bundle.model.BundleRequestType;
 import org.lowcoder.domain.permission.model.ResourceAction;
 import org.lowcoder.domain.permission.model.ResourcePermission;
 import org.lowcoder.domain.permission.model.UserPermissionOnResourceStatus;
@@ -20,4 +21,7 @@ public interface ResourcePermissionHandlerService {
 
     Mono<UserPermissionOnResourceStatus> checkUserPermissionStatusOnApplication(String userId, String resourceId,
                                                                                 ResourceAction resourceAction, ApplicationRequestType requestType);
+
+    Mono<UserPermissionOnResourceStatus> checkUserPermissionStatusOnBundle(String userId, String resourceId,
+                                                                                ResourceAction resourceAction, BundleRequestType requestType);
 }

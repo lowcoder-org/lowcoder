@@ -5,7 +5,7 @@ import { stringExposingStateControl, numberExposingStateControl } from "comps/co
 import { ChangeEventHandlerControl } from "comps/controls/eventHandlerControl";
 import { StepOptionControl } from "comps/controls/optionsControl";
 import { styleControl } from "comps/controls/styleControl";
-import { StepsStyle, StepsStyleType, heightCalculator, widthCalculator, marginCalculator } from "comps/controls/styleControlConstants";
+import { StepsStyle, StepsStyleType, heightCalculator, widthCalculator, marginCalculator, AnimationStyle, AnimationStyleType } from "comps/controls/styleControlConstants";
 import styled, { css } from "styled-components";
 import { UICompBuilder, withDefault } from "../../generators";
 import { CommonNameConfig, NameConfig, withExposingConfigs } from "../../generators/withExposing";
@@ -92,13 +92,15 @@ const StepsChildrenMap = {
   onEvent: ChangeEventHandlerControl,
   options: StepOptionControl,
   style: withDefault( styleControl(StepsStyle), {text:'#D7D9E0'}),
-  viewRef: RefControl<HTMLDivElement>
+  viewRef: RefControl<HTMLDivElement>,
+  animationStyle: styleControl(AnimationStyle)
 };
 
 let StepControlBasicComp = (function () {
   return new UICompBuilder(StepsChildrenMap, (props) => {
 
-    const StyledWrapper = styled.div<{ style: StepsStyleType }>`
+    const StyledWrapper = styled.div<{ style: StepsStyleType, $animationStyle: AnimationStyleType }>`
+    ${props=>props.$animationStyle}
       min-height: 24px;
       max-width: ${widthCalculator(props.style.margin)};
       max-height: ${heightCalculator(props.style.margin)};
@@ -167,7 +169,7 @@ let StepControlBasicComp = (function () {
               }
             }}
           >
-          <StyledWrapper style={props.style}>
+          <StyledWrapper style={props.style} $animationStyle={props.animationStyle}>
             <Steps 
               initial={props.initialValue.value -1}
               current={current}
@@ -245,9 +247,14 @@ let StepControlBasicComp = (function () {
         )}
 
         {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+          <>
           <Section name={sectionNames.style}>
             {children.style.getPropertyView()}
           </Section>
+          <Section name={sectionNames.animationStyle} hasTooltip={true}>
+            {children.animationStyle.getPropertyView()}
+          </Section>
+          </>
         )}
       </>
     ))

@@ -144,6 +144,7 @@ let TextTmpComp = (function () {
           justifyContent: props.horizontalAlignment,
           alignItems: props.autoHeight ? "center" : props.verticalAlignment,
           textAlign: props.horizontalAlignment,
+          rotate: props.style.rotation
         }}
       >
         {props.type === "markdown" ? <TacoMarkDown>{value}</TacoMarkDown> : value}
@@ -185,7 +186,7 @@ let TextTmpComp = (function () {
               <Section name={sectionNames.style}>
                 {children.style.getPropertyView()}
               </Section>
-              <Section name={sectionNames.animationStyle}>
+              <Section name={sectionNames.animationStyle} hasTooltip={true}>
                 {children.animationStyle.getPropertyView()}
               </Section>
             </>

@@ -196,6 +196,26 @@ public class FolderApiServiceImpl implements FolderApiService {
                 .then();
     }
 
+    /**
+     * @param targetFolderId null means root folder
+     */
+    @Override
+    public Mono<Void> moveBundle(String bundleId, @Nullable String targetFolderId) {
+        return sessionUserService.getVisitorId()
+                // check permissions
+                .delayUntil(userId -> resourcePermissionService.checkResourcePermissionWithError(userId, bundleId,
+                        ResourceAction.MANAGE_BUNDLES))
+                // remove old relations
+                .then(folderElementRelationService.deleteByElementId(bundleId))
+                .flatMap(b -> {
+                    if (StringUtils.isBlank(targetFolderId)) {
+                        return Mono.empty();
+                    }
+                    return folderElementRelationService.create(targetFolderId, bundleId);
+                })
+                .then();
+    }
+
     @Override
     public Mono<Void> upsertLastViewTime(@Nullable String folderId) {
         if (StringUtils.isBlank(folderId)) {

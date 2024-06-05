@@ -75,3 +75,30 @@ export const jsonMenuItems = [
     },
   }
 ]
+
+export const mobileNavJsonMenuItems = [
+  {
+    label: "Option 1",
+    icon: "https://cdn-icons-png.flaticon.com/128/149/149338.png",
+    app: {
+      appId: "",
+    },
+    hidden: false,
+  },
+  {
+    label: "Option 2",
+    icon: "https://cdn-icons-png.flaticon.com/128/149/149206.png",
+    app: {
+      appId: "",
+    },
+    hidden: false,
+  },
+  {
+    label: "Option 2",
+    icon: "https://cdn-icons-png.flaticon.com/128/149/149206.png",
+    app: {
+      appId: "",
+    },
+    hidden: true,
+  }
+]

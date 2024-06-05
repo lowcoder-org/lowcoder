@@ -79,6 +79,9 @@ export function listPropertyView(compType: ListCompType) {
             </Section>
             <Section name={sectionNames.style}>
               {children.style.getPropertyView()}
+            </Section>
+            <Section name={sectionNames.animationStyle} hasTooltip={true}>
+              {children.animationStyle.getPropertyView()}
             </Section></>
         )}
    

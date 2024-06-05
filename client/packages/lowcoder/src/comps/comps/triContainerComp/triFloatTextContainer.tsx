@@ -1,5 +1,5 @@
 import {
-  TextStyleType,
+  TextContainerStyleType,
   ContainerStyleType,
   heightCalculator,
   widthCalculator,
@@ -17,7 +17,7 @@ import {
 } from "../containerComp/containerView";
 import { TriContainerViewProps } from "../triContainerComp/triContainerCompBuilder";
 
-const getStyle = (style: TextStyleType) => {
+const getStyle = (style: TextContainerStyleType) => {
   return css`
     border-radius: ${(style.radius ? style.radius : "4px")};
     border: ${(style.borderWidth ? style.borderWidth : "0px")} solid ${style.border};
@@ -88,7 +88,7 @@ ${props=>props.$animationStyle&&props.$animationStyle}
   ${(props) => props.$style.backgroundImageOrigin && `background-origin: ${props.$style.backgroundImageOrigin};`}
 `;
 
-const FloatTextWrapper = styled.div<{ $style: TextStyleType, $horizontalAlignment : any }>`
+const FloatTextWrapper = styled.div<{ $style: TextContainerStyleType, $horizontalAlignment : any }>`
   ${(props) => props.$style && getStyle(props.$style)}
   text-align: ${(props) => props.$horizontalAlignment};
   padding: ${(props) => props.$style.padding};
@@ -145,7 +145,7 @@ export type TriContainerProps = TriContainerViewProps & {
   type: string;
   float: string;
   width: string;
-  style: TextStyleType;
+  style: TextContainerStyleType;
   horizontalAlignment: string;
   animationStyle?: AnimationStyleType;
 };
@@ -188,7 +188,7 @@ export function TriContainer(props: TriContainerProps) {
               containerPadding={[0, 0]}
               showName={{ bottom: showFooter ? 20 : 0 }}
               $backgroundColor={headerStyle?.headerBackground || 'transparent'}
-              style={{ padding: headerStyle.containerHeaderPadding }} />
+              style={{ padding: headerStyle.containerHeaderPadding}} />
         </BackgroundColorContext.Provider>
       )}
       {showBody && (

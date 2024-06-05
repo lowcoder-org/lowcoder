@@ -46,7 +46,7 @@ function getStyle(style: any) {
 }
 
 const LabelViewWrapper = styled.div<{ $style: any, inputFieldStyle: any,$animationStyle:any }>`
-${(props) => {
+  ${(props) => {
     return (
       props.$style && {
         ...props.$style,
@@ -199,6 +199,7 @@ export const LabelControl = (function () {
                 props.position === "row" ? getLabelWidth(props.width, props.widthUnit) : "100%",
               maxWidth: props.position === "row" ? "70%" : "100%",
               fontSize: args && args.style ? args?.style?.textSize : "14px",
+              rotate:args?.labelStyle?.rotation
             }}
             $position={props.position}
             $hasToolTip={!!props.tooltip}
@@ -229,6 +230,7 @@ export const LabelControl = (function () {
                 ? `calc(100% - ${getLabelWidth(props.width, props.widthUnit)} - 8px)`
                 : "100%",
             height: props.position === "column" && !!props.text ? "calc(100% - 22px)" : "100%",
+            rotate:args?.inputFieldStyle?.rotation,
           }}
         >
           {args.children}

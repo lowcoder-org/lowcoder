@@ -6,7 +6,7 @@ import { UICompBuilder } from "../../generators";
 import { NameConfig, NameConfigHidden, withExposingConfigs } from "../../generators/withExposing";
 import { RecordConstructorToView } from "lowcoder-core";
 import { styleControl } from "comps/controls/styleControl";
-import { ImageStyle } from "comps/controls/styleControlConstants";
+import { AnimationStyle, AnimationStyleType, AudioStyle, ImageStyle } from "comps/controls/styleControlConstants";
 import { TacoAudio } from "lowcoder-design";
 import { BoolControl } from "comps/controls/boolControl";
 import { withDefault } from "../../generators/simpleGenerators";
@@ -16,7 +16,10 @@ import { mediaCommonChildren, mediaMethods } from "./mediaUtils";
 import { useContext } from "react";
 import { EditorContext } from "comps/editorState";
 
-const Container = styled.div`
+const Container = styled.div<{ $style: any; $animationStyle: AnimationStyleType }>`
+${props => props.$style};
+rotate:${props => props.$style.rotation};
+${props=>props.$animationStyle};
   height: 100%;
   width: 100%;
   display: flex;
@@ -42,7 +45,11 @@ const EventOptions = [
 
 const ContainerAudio = (props: RecordConstructorToView<typeof childrenMap>) => {
   return (
-    <Container ref={props.containerRef}>
+    <Container
+      ref={props.containerRef}
+      $style={props.style}
+      $animationStyle={props.animationStyle}
+    >
       <TacoAudio
         audioRef={props.viewRef}
         url={props.src.value}
@@ -59,7 +66,8 @@ const ContainerAudio = (props: RecordConstructorToView<typeof childrenMap>) => {
 const childrenMap = {
   src: withDefault(StringStateControl, trans("audio.defaultSrcUrl")),
   onEvent: eventHandlerControl(EventOptions),
-  style: styleControl(ImageStyle),
+  style: styleControl(AudioStyle),
+  animationStyle: styleControl(AnimationStyle),
   autoPlay: BoolControl,
   loop: BoolControl,
   ...mediaCommonChildren,
@@ -91,7 +99,12 @@ let AudioBasicComp = (function () {
               })}
             </Section>
           )}
-
+          <Section name={sectionNames.style}>
+            {children.style.getPropertyView()}
+          </Section>
+          <Section name={sectionNames.animationStyle} hasTooltip={true}>
+            {children.animationStyle.getPropertyView()}
+          </Section>
         </>
       );
     })
