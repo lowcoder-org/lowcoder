@@ -4,11 +4,10 @@ import static java.util.Optional.ofNullable;
 import static org.apache.commons.lang3.ObjectUtils.firstNonNull;
 import static org.lowcoder.infra.util.AssetUtils.toAssetPath;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonView;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.jackson.Jacksonized;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -17,6 +16,7 @@ import org.lowcoder.domain.mongodb.AfterMongodbRead;
 import org.lowcoder.domain.mongodb.BeforeMongodbWrite;
 import org.lowcoder.domain.mongodb.MongodbInterceptorContext;
 import org.lowcoder.sdk.auth.AbstractAuthConfig;
+import org.lowcoder.sdk.config.JsonViews;
 import org.lowcoder.sdk.models.HasIdAndAuditing;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -88,11 +88,24 @@ public class Organization extends HasIdAndAuditing implements BeforeMongodbWrite
     }
 
     public static class OrganizationCommonSettings extends HashMap<String, Object> {
-        public static final String USER_EXTRA_TRANSFORMER = "userExtraTransformer";
-        public static final String USER_EXTRA_TRANSFORMER_UPDATE_TIME = "userExtraTransformer_updateTime";
-        public static final String PASSWORD_RESET_EMAIL_TEMPLATE = "passwordResetEmailTemplate";
-        // custom branding configs
-        public static final String CUSTOM_BRANDING_KEY = "branding";
+        public static final String PASSWORD_RESET_EMAIL_TEMPLATE = "PASSWORD_RESET_EMAIL_TEMPLATE";
+
+        /**
+         * Settings excluded from sanitized export
+         */
+        private final Set<String> excludedKeys = Set.of(
+            PASSWORD_RESET_EMAIL_TEMPLATE
+        );
+        public OrganizationCommonSettings sanitized() {
+            OrganizationCommonSettings sanitized = new OrganizationCommonSettings();
+            if (isEmpty()) {
+                return sanitized;
+            }
+            this.entrySet().stream()
+                    .filter((entry) -> !excludedKeys.contains(entry.getKey()))
+                    .forEach((entry) -> sanitized.put(entry.getKey(), entry.getValue()));
+            return sanitized;
+        }
     }
 
     public long getCreateTime() {
