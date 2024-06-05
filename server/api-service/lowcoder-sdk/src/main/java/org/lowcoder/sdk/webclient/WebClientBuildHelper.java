@@ -10,11 +10,13 @@ import org.lowcoder.sdk.plugin.common.ssl.DisableVerifySslConfig;
 import org.lowcoder.sdk.plugin.common.ssl.SslConfig;
 import org.lowcoder.sdk.plugin.common.ssl.SslHelper;
 import org.lowcoder.sdk.plugin.common.ssl.VerifySelfSignedCertSslConfig;
+import org.springframework.boot.context.properties.PropertyMapper;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClient.Builder;
 import reactor.netty.http.client.HttpClient;
 import reactor.netty.tcp.SslProvider;
+import reactor.netty.transport.ProxyProvider;
 import reactor.netty.transport.ProxyProvider.Proxy;
 
 import javax.net.ssl.SSLException;
@@ -28,6 +30,8 @@ public class WebClientBuildHelper {
 
     private static final String proxyHost;
     private static final String proxyPortStr;
+    private static final String proxyUsername;
+    private static final String proxyPassword;
 
     private SslConfig sslConfig;
     private Set<String> disallowedHosts;
@@ -39,6 +43,8 @@ public class WebClientBuildHelper {
     static {
         proxyHost = System.getProperty("http.proxyHost");
         proxyPortStr = System.getProperty("http.proxyPort");
+        proxyUsername = System.getProperty("http.proxyUsername");
+        proxyPassword = System.getProperty("http.proxyPassword");
     }
 
     private WebClientBuildHelper() {
@@ -92,10 +98,23 @@ public class WebClientBuildHelper {
                 httpClient = httpClient.secure(sslProviderWithSelfSignedCert(verifySelfSignedCertSslConfig));
             }
         }
-        if (systemProxy && StringUtils.isNoneBlank(proxyHost, proxyPortStr)) {
-            httpClient = httpClient.proxy(typeSpec -> typeSpec.type(Proxy.HTTP)
-                    .host(proxyHost)
-                    .port(Integer.parseInt(proxyPortStr)));
+        if (systemProxy && StringUtils.isNotBlank(proxyHost)) {
+            httpClient = httpClient.proxy(typeSpec -> {
+                        ProxyProvider.Builder builder = typeSpec
+                                .type(Proxy.HTTP)
+                                .host(proxyHost);
+                        PropertyMapper mapper = PropertyMapper.get();
+                        mapper.from(proxyPortStr)
+                                .whenHasText()
+                                .to(portStr -> builder.port(Integer.parseInt(portStr)));
+                        mapper.from(proxyUsername)
+                                .whenHasText()
+                                .to(builder::username);
+                        mapper.from(proxyPassword)
+                                .whenHasText()
+                                .to(password -> builder.password(s -> password));
+                    }
+            );
         }
         if (CollectionUtils.isNotEmpty(disallowedHosts)) {
             httpClient = httpClient.resolver(new SafeHostResolverGroup(disallowedHosts));
