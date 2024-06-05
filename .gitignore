@@ -14,4 +14,3 @@ server/api-service/lowcoder-server/src/main/resources/application-lowcoder.yml
 server/api-service/lowcoder-server/src/main/resources/application-debug.yaml
 .vscode/settings.json
 .vscode/launch.json
-server/api-service/lowcoder-server/src/main/resources/application-debug.yaml
