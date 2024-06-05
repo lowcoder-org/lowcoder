@@ -76,7 +76,7 @@ const commonChildren = {
   hourStep: RangeControl.closed(1, 24, 1),
   minuteStep: RangeControl.closed(1, 60, 1),
   secondStep: RangeControl.closed(1, 60, 1),
-  style: styleControl(InputFieldStyle),
+  style: withDefault(styleControl(InputFieldStyle),{background:'transparent'}),
   animationStyle: styleControl(AnimationStyle),
   labelStyle: styleControl(LabelStyle.filter((style) => ['accent', 'validate'].includes(style.name) === false)),
   suffixIcon: withDefault(IconControl, "/icon:regular/calendar"),
