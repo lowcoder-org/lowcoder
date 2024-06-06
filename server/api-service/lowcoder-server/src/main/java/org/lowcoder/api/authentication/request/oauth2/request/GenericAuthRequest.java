@@ -22,10 +22,6 @@ import static org.lowcoder.api.authentication.util.AuthenticationUtils.mapToAuth
  * This class is for Generic Auth Request
  */
 public class GenericAuthRequest  extends AbstractOauth2Request<Oauth2GenericAuthConfig>{
-    @Setter
-    private static boolean isTest = false;
-    @Setter
-    private static boolean testCase01 = false;
 
     public GenericAuthRequest(Oauth2GenericAuthConfig context) {
         super(context, new GenericOAuthProviderSource(context));
@@ -33,10 +29,7 @@ public class GenericAuthRequest  extends AbstractOauth2Request<Oauth2GenericAuth
 
     @Override
     protected Mono<AuthToken> getAuthToken(OAuth2RequestContext context) {
-        if(isTest) {
-            AuthToken authToken = AuthToken.builder().build();
-            return Mono.just(authToken);
-        } else return WebClientBuildHelper.builder()
+        return WebClientBuildHelper.builder()
                 .systemProxy()
                 .build()
                 .post()
@@ -59,11 +52,7 @@ public class GenericAuthRequest  extends AbstractOauth2Request<Oauth2GenericAuth
 
     @Override
     protected Mono<AuthToken> refreshAuthToken(String refreshToken) {
-        if(isTest) {
-            if(testCase01) return Mono.error(new AuthException(true));
-            AuthToken authToken = AuthToken.builder().build();
-            return Mono.just(authToken);
-        } else return WebClientBuildHelper.builder()
+        return WebClientBuildHelper.builder()
                 .systemProxy()
                 .build()
                 .post()
@@ -84,13 +73,6 @@ public class GenericAuthRequest  extends AbstractOauth2Request<Oauth2GenericAuth
 
     @Override
     protected Mono<AuthUser> getAuthUser(AuthToken authToken) {
-        if(isTest) {
-            AuthUser authUser = AuthUser.builder()
-                    .uid("uId")
-                    .username("dummyname")
-                    .build();
-            return Mono.just(authUser);
-        }
         return WebClientBuildHelper.builder()
                 .systemProxy()
                 .build()
