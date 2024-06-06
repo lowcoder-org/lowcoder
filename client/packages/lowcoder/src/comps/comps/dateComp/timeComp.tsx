@@ -73,7 +73,7 @@ const commonChildren = {
   hourStep: RangeControl.closed(1, 24, 1),
   minuteStep: RangeControl.closed(1, 60, 1),
   secondStep: RangeControl.closed(1, 60, 1),
-  style: styleControl(DateTimeStyle),
+  style: withDefault(styleControl(DateTimeStyle),{background:'transparent',borderWidth:'1px'}),
   suffixIcon: withDefault(IconControl, "/icon:regular/clock"),
   viewRef: RefControl<CommonPickerMethods>,
   ...validationChildren,
