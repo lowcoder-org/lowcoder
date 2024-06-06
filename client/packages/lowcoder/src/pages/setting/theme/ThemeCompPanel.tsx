@@ -5,14 +5,14 @@ import {
   uiCompRegistry,
 } from "comps/uiCompRegistry";
 import { isEmpty } from "lodash";
-import { language, trans } from "i18n";
+import { language } from "i18n";
 import {
   CompIconDiv,
   EmptyCompContent,
   RightPanelContentWrapper,
 } from "pages/editor/right/styledComponent";
 import { tableDragClassName } from "pages/tutorials/tutorialsConstant";
-import React, { useContext, useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
 import {
   BaseSection,
@@ -22,16 +22,14 @@ import {
   labelCss,
   sectionNames,
 } from "lowcoder-design";
-import { Divider, Flex, Input } from "antd";
-import { genRandomKey } from "@lowcoder-ee/comps/utils/idGenerator";
+import { Flex, Input } from "antd";
+import { genRandomKey } from "comps/utils/idGenerator";
 import dsl from "./detail/previewDsl";
-import { RootComp } from "@lowcoder-ee/comps/comps/rootComp";
-import { NameGenerator, evalAndReduceWithExposing } from "@lowcoder-ee/comps/utils";
-import ThemeSettingsSelector from "@lowcoder-ee/components/ThemeSettingsSelector";
-import ThemeSettingsCompStyles from "@lowcoder-ee/components/ThemeSettingsCompStyles";
-import { JSONObject } from "@lowcoder-ee/util/jsonTypes";
-import PreviewApp from "@lowcoder-ee/components/PreviewApp";
-import { parseCompType } from "@lowcoder-ee/comps/utils/remote";
+import { NameGenerator } from "comps/utils";
+import ThemeSettingsCompStyles from "components/ThemeSettingsCompStyles";
+import { JSONObject } from "util/jsonTypes";
+import PreviewApp from "components/PreviewApp";
+import { parseCompType } from "comps/utils/remote";
 
 const CompDiv = styled.div`
   display: flex;
@@ -109,7 +107,7 @@ export const ThemeCompPanel = (props: any) => {
   const [searchValue, setSearchValue] = useState("");
   const [propertySectionState, setPropertySectionState] = useState<PropertySectionState>(initialState);
   const [searchedPropertySectionState, setSearchedPropertySectionState] = useState<PropertySectionState>({});
-  const [styleChildrens, setStyleChildrens] = useState<Record<string, any>>({});
+  const [styleChildrens, setStyleChildrens] = useState<Record<string, any>>();
   const [selectedComp, setSelectedComp] = useState<string>('');
   const [appDsl, setAppDSL] = useState<JSONObject>();
 
@@ -156,57 +154,79 @@ export const ThemeCompPanel = (props: any) => {
 
   const onCompSelect = async (compMap: [string, UICompManifest]) => {
     setAppDSL(undefined);
-    const [compType, compInfo] = compMap;
-    setSelectedComp(compType);
-    const compKey = genRandomKey();
-    let { comp, defaultDataFn } = compInfo;
+    setStyleChildrens(undefined);
 
-    const compData = parseCompType(compType)
-    if (compInfo.lazyLoad) {
-      comp = (await import(`../../../comps/${compInfo.compPath!}`))[compInfo.compName!];
-      const {
-        defaultDataFnName,
-        defaultDataFnPath,
-      } = compInfo;
+    setTimeout(async () => {
+      
+      const [compType, compInfo] = compMap;
+      setSelectedComp(compType);
+      const compKey = genRandomKey();
+      let { comp, defaultDataFn } = compInfo;
   
-      if(defaultDataFnName && defaultDataFnPath) {
-        const module = await import(`../../../comps/${defaultDataFnPath}.tsx`);
-        defaultDataFn = module[defaultDataFnName];
-      }
-      const newComp = new comp!({});
-      const compChildrens = newComp.children;
-      const styleChildrenKeys = Object.keys(compChildrens).filter(child => child.toLowerCase().endsWith('style'));
-      let styleChildrens: Record<string, any> = {};
-      styleChildrenKeys.forEach((childKey: string) => {
-        styleChildrens[childKey] = compChildrens[childKey];
-      })
-      setStyleChildrens(styleChildrens);
-    } else {
-      comp = compInfo.comp;
-    }
+      const compData = parseCompType(compType)
+      if (compInfo.lazyLoad) {
+        comp = (await import(`../../../comps/${compInfo.compPath!}`))[compInfo.compName!];
+        const {
+          defaultDataFnName,
+          defaultDataFnPath,
+        } = compInfo;
+    
+        if(defaultDataFnName && defaultDataFnPath) {
+          const module = await import(`../../../comps/${defaultDataFnPath}.tsx`);
+          defaultDataFn = module[defaultDataFnName];
+        }
+        const newComp = new comp!({});
+        const compChildrens = newComp.children;
+        const styleChildrenKeys = Object.keys(compChildrens).filter(child => child.toLowerCase().endsWith('style'));
+        let styleChildrens: Record<string, any> = {};
+        styleChildrenKeys.forEach((childKey: string) => {
+          styleChildrens[childKey] = compChildrens[childKey];
+        })
+        setStyleChildrens(styleChildrens);
+      } else {
+        comp = compInfo.comp;
+        let newComp = new comp!({
+          dispatch: (action) => {
+            if (newComp) {
+              newComp = newComp.reduce(action);
+            }
+          },
+        }) as any;
+        await newComp.load();
 
-    const ui = {
-      items: {
-        [compKey]: {
-          compType: compType,
-          name: `${compType}1`,
-          comp: defaultDataFn
-            ? defaultDataFn("comp", new NameGenerator())
-            : new comp!({}),
-        }
-      },
-      layout: {
-        [compKey]: {
-          ...compInfo.layoutInfo,
-          w: (compInfo?.layoutInfo?.w || 5) * 1.5,
-          h: (compInfo?.layoutInfo?.h || 5),
-          i: compKey,
-          x: 2,
-          y: 2,
+
+        const compChildrens = newComp.children;
+        const styleChildrenKeys = Object.keys(compChildrens).filter(child => child.toLowerCase().endsWith('style') || child.toLowerCase().endsWith('styles'));
+        let styleChildrens: Record<string, any> = {};
+        styleChildrenKeys.forEach((childKey: string) => {
+          styleChildrens[childKey] = compChildrens[childKey];
+        })
+        setStyleChildrens(styleChildrens);
+      }
+  
+      const ui = {
+        items: {
+          [compKey]: {
+            compType: compType,
+            name: `${compType}1`,
+            comp: defaultDataFn
+              ? defaultDataFn("comp", new NameGenerator())
+              : new comp!({}),
+          }
+        },
+        layout: {
+          [compKey]: {
+            ...compInfo.layoutInfo,
+            w: (compInfo?.layoutInfo?.w || 5) * 1.5,
+            h: (compInfo?.layoutInfo?.h || 5),
+            i: compKey,
+            x: 2,
+            y: 2,
+          }
         }
       }
-    }
-    setAppDSL({...dsl as any, ui});
+      setAppDSL({...dsl as any, ui});
+    }, 0)
   }
 
   const compList = useMemo(
@@ -255,7 +275,7 @@ export const ThemeCompPanel = (props: any) => {
   const stylePropertyView = useMemo(() => {
     return (
       <>
-        {Object.keys(styleChildrens)?.map((styleKey: string) => {
+        {Object.keys(styleChildrens || {})?.map((styleKey: string) => {
           return (
             <>
               <h4>
@@ -265,7 +285,7 @@ export const ThemeCompPanel = (props: any) => {
                 }
               </h4>
               <ThemeSettingsCompStyles
-                styleOptions={Object.keys(styleChildrens[styleKey].children)}
+                styleOptions={Object.keys(styleChildrens?.[styleKey].children)}
                 defaultStyle={theme.components?.[selectedComp] || {}}
                 configChange={(params) => {
                   props.onCompStyleChange(selectedComp, params);
@@ -302,7 +322,7 @@ export const ThemeCompPanel = (props: any) => {
 
   return (
     <Flex style={{
-      height: "500px",
+      height: "600px",
       overflow: "hidden",
     }}>
       <RightPanelContentWrapper style={{
