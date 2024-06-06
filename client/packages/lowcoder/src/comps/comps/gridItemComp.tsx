@@ -39,7 +39,6 @@ const TmpComp = withTypeAndChildren<
 >(
   (type) => {
     const compInfo = parseCompType(type);
-
     if (compInfo.isRemote) {
       return remoteComp(compInfo);
     }
