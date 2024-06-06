@@ -209,7 +209,7 @@ export function setTransform({ top, left, width, height }: Position): Record<str
     msTransform: translate,
     OTransform: translate,
     width: `${width}px`,
-    height: `${height}px`,
+    height: `auto`,
     position: "absolute",
   };
 }
