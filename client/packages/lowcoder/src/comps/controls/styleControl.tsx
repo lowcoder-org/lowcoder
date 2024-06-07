@@ -80,7 +80,7 @@ import {
 } from "./styleControlConstants";
 import { faTextWidth } from "@fortawesome/free-solid-svg-icons";
 import appSelectControl from "./appSelectControl";
-import { JSONObject } from "@lowcoder-ee/util/jsonTypes";
+import { JSONObject, JSONValue } from "@lowcoder-ee/util/jsonTypes";
 import { CompTypeContext } from "../utils/compTypeContext";
 
 function isSimpleColorConfig(config: SingleColorConfig): config is SimpleColorConfig {
@@ -785,7 +785,10 @@ const ResetIcon = styled(IconReset)`
   }
 `;
 
-export function styleControl<T extends readonly SingleColorConfig[]>(colorConfigs: T) {
+export function styleControl<T extends readonly SingleColorConfig[]>(
+  colorConfigs: T,
+  styleKey: string = '',
+) {
   type ColorMap = { [K in Names<T>]: string };
   const childrenMap: any = {};
   colorConfigs.map((config) => {
@@ -843,12 +846,16 @@ export function styleControl<T extends readonly SingleColorConfig[]>(colorConfig
       const compType = useContext(CompTypeContext);
       const theme = useContext(ThemeContext);
       const bgColor = useContext(BackgroundColorContext);
+      const compTheme = compType
+        ? theme?.theme?.components?.[compType]?.[styleKey]
+        : undefined;
+
       return calcColors(
         props as ColorMap,
         colorConfigs,
         theme?.theme,
         bgColor,
-        compType ? theme?.theme?.components?.[compType] as unknown as Record<string, string>: undefined,
+        compTheme as Record<string, string> | undefined,
       );
     }
   )
@@ -858,13 +865,16 @@ export function styleControl<T extends readonly SingleColorConfig[]>(colorConfig
       const compType = useContext(CompTypeContext);
       const bgColor = useContext(BackgroundColorContext);
       const isMobile = useIsMobile();
+      const compTheme = compType
+        ? theme?.theme?.components?.[compType]?.[styleKey]
+        : undefined;
 
       const props = calcColors(
         childrenToProps(children) as ColorMap,
         colorConfigs,
         theme?.theme,
         bgColor,
-        compType ? theme?.theme?.components?.[compType] as unknown as Record<string, string>: undefined,
+        compTheme as Record<string, string> | undefined,
       );
       const showReset = Object.values(childrenToProps(children)).findIndex((item) => item) > -1;
       return (
