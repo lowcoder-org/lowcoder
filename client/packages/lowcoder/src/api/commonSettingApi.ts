@@ -2,6 +2,7 @@ import Api from "./api";
 import { AxiosPromise } from "axios";
 import { ApiResponse, GenericApiResponse } from "./apiResponses";
 import { trans } from "i18n";
+import { JSONObject } from "@lowcoder-ee/util/jsonTypes";
 
 export type FetchCommonSettingPayload = {
   orgId: string;
@@ -59,7 +60,7 @@ export interface ThemeDetail {
   boxShadow?: string;
   boxShadowColor?: string;
   animationIterationCount?: string;
-  components?: Record<string, object>;
+  components?: Record<string, JSONObject>;
 }
 
 export function getThemeDetailName(key: keyof ThemeDetail) {
