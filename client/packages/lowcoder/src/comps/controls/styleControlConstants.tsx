@@ -500,7 +500,7 @@ const BORDER = {
 const RADIUS = {
   name: "radius",
   label: trans("style.borderRadius"),
-  radius: "borderRadius",
+  radius: "radius",
 } as const;
 
 const BORDER_WIDTH = {
