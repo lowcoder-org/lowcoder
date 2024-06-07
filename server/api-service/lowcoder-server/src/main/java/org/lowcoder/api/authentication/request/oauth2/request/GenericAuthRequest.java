@@ -72,6 +72,7 @@ public class GenericAuthRequest  extends AbstractOauth2Request<Oauth2GenericAuth
 
     @Override
     protected Mono<AuthUser> getAuthUser(AuthToken authToken) {
+        if(!config.getUserInfoIntrospection()) return Mono.just(AuthUser.builder().build());
         return WebClientBuildHelper.builder()
                 .systemProxy()
                 .build()
