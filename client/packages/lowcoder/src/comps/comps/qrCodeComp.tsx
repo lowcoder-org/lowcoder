@@ -31,7 +31,7 @@ const childrenMap = {
   level: dropdownControl(levelOptions, 'L'),
   includeMargin: BoolControl.DEFAULT_TRUE,
   image: StringControl,
-  style: styleControl(QRCodeStyle),
+  style: withDefault(styleControl(QRCodeStyle),{background:'transparent'}),
   animationStyle: styleControl(AnimationStyle),
   restrictPaddingOnRotation: withDefault(StringControl, 'qrCode'),
 };
