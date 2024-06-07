@@ -164,7 +164,7 @@ export const ControlPropertyViewWrapper = (
         </LabelWrapper>
       )}
       {preInputNode}
-      <ChildrenWrapper style={childrenWrapperStyle} $layout={layout}>
+      <ChildrenWrapper style={{...childrenWrapperStyle,marginLeft:label==='Margin'||label==='Padding'?'6px':'0px'}} $layout={layout}>
         {children}
         {extraChildren}
       </ChildrenWrapper>
