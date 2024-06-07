@@ -12,7 +12,7 @@ import {
   RightPanelContentWrapper,
 } from "pages/editor/right/styledComponent";
 import { tableDragClassName } from "pages/tutorials/tutorialsConstant";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { Fragment, useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
 import {
   BaseSection,
@@ -162,8 +162,8 @@ export const ThemeCompPanel = (props: any) => {
       setSelectedComp(compType);
       const compKey = genRandomKey();
       let { comp, defaultDataFn } = compInfo;
-  
-      const compData = parseCompType(compType)
+      let newComp: any;
+
       if (compInfo.lazyLoad) {
         comp = (await import(`../../../comps/${compInfo.compPath!}`))[compInfo.compName!];
         const {
@@ -175,17 +175,10 @@ export const ThemeCompPanel = (props: any) => {
           const module = await import(`../../../comps/${defaultDataFnPath}.tsx`);
           defaultDataFn = module[defaultDataFnName];
         }
-        const newComp = new comp!({});
-        const compChildrens = newComp.children;
-        const styleChildrenKeys = Object.keys(compChildrens).filter(child => child.toLowerCase().endsWith('style'));
-        let styleChildrens: Record<string, any> = {};
-        styleChildrenKeys.forEach((childKey: string) => {
-          styleChildrens[childKey] = compChildrens[childKey];
-        })
-        setStyleChildrens(styleChildrens);
+        newComp = new comp!({});
       } else {
         comp = compInfo.comp;
-        let newComp = new comp!({
+        newComp = new comp!({
           dispatch: (action) => {
             if (newComp) {
               newComp = newComp.reduce(action);
@@ -193,14 +186,21 @@ export const ThemeCompPanel = (props: any) => {
           },
         }) as any;
         await newComp.load();
+      }
 
-
+      if (newComp) {
         const compChildrens = newComp.children;
-        const styleChildrenKeys = Object.keys(compChildrens).filter(child => child.toLowerCase().endsWith('style') || child.toLowerCase().endsWith('styles'));
+        let styleChildrenKeys = Object.keys(compChildrens).filter(child => child.toLowerCase().endsWith('style'));
         let styleChildrens: Record<string, any> = {};
         styleChildrenKeys.forEach((childKey: string) => {
           styleChildrens[childKey] = compChildrens[childKey];
         })
+        if (compChildrens.container) {
+          styleChildrenKeys = Object.keys(compChildrens.container.children).filter(child => child.toLowerCase().endsWith('style'));
+          styleChildrenKeys.forEach((childKey: string) => {
+            styleChildrens[childKey] = compChildrens.container.children[childKey];
+          })
+        }
         setStyleChildrens(styleChildrens);
       }
   
@@ -277,7 +277,7 @@ export const ThemeCompPanel = (props: any) => {
       <>
         {Object.keys(styleChildrens || {})?.map((styleKey: string) => {
           return (
-            <>
+            <Fragment key={styleKey}>
               <h4>
                 { sectionNames.hasOwnProperty(styleKey)
                   ? sectionNames[styleKey as keyof typeof sectionNames]
@@ -286,12 +286,12 @@ export const ThemeCompPanel = (props: any) => {
               </h4>
               <ThemeSettingsCompStyles
                 styleOptions={Object.keys(styleChildrens?.[styleKey].children)}
-                defaultStyle={theme.components?.[selectedComp] || {}}
+                defaultStyle={{...theme.components?.[selectedComp]?.[styleKey] || {}}}
                 configChange={(params) => {
-                  props.onCompStyleChange(selectedComp, params);
+                  props.onCompStyleChange(selectedComp, styleKey, params);
                 }}
               />
-            </>
+            </Fragment>
           )
         })}
       </>
@@ -304,7 +304,7 @@ export const ThemeCompPanel = (props: any) => {
     return (
       <PreviewApp
         style={{
-          height: "500px",
+          height: "600px",
           minWidth: "auto",
           width: "100%",
         }}
@@ -341,11 +341,9 @@ export const ThemeCompPanel = (props: any) => {
           {compList}
         </PropertySectionContext.Provider>
       </RightPanelContentWrapper>
-      {/* <Divider type="vertical" style={{height: "510px"}}/> */}
       <div style={{flex: "1"}}>
         {appPreview}
       </div>
-      {/* <Divider type="vertical" style={{height: "510px"}}/> */}
       <div style={{
         width: "280px",
         padding: "12px",

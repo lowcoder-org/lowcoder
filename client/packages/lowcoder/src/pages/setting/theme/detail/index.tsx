@@ -522,13 +522,20 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
               >
                 <ThemeCompPanel
                   theme={this.state.theme}
-                  onCompStyleChange={(compName: string, compStyle: Record<string, string>) => {
+                  onCompStyleChange={(
+                    compName: string,
+                    styleKey: string,
+                    compStyle: Record<string, string>
+                  ) => {
                     this.setState({
                       theme: {
                         ...this.state.theme,
                         components: {
                           ...this.state.theme.components,
-                          [compName]: compStyle,
+                          [compName]: {
+                            ...this.state.theme.components?.[compName],
+                            [styleKey]: compStyle,
+                          }
                         }
                       },
                     });
