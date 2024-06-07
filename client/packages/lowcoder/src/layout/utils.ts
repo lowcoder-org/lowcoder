@@ -199,9 +199,13 @@ export function getStatics(layout: Layout): Layout {
   return _.pickBy(layout, (l) => l.static);
 }
 
-export function setTransform({ top, left, width, height }: Position): Record<string, any> {
+export function setTransform({ top, left, width, height }: Position,name?:string): Record<string, any> {
   // Replace unitless items with px
   const translate = `translate(${left}px,${top}px)`;
+  function containsChart(str:string) {
+    return /chart/i.test(str);
+  }
+
   return {
     transform: translate,
     WebkitTransform: translate,
@@ -209,8 +213,8 @@ export function setTransform({ top, left, width, height }: Position): Record<str
     msTransform: translate,
     OTransform: translate,
     width: `${width}px`,
-    height: `auto`,
-    position: "absolute",
+    height: name ?containsChart(name)?`${height}px`:'auto':`${height}px`,
+    position: 'absolute',
   };
 }
 
