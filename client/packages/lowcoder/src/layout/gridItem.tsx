@@ -441,7 +441,7 @@ export function GridItem(props: GridItemProps) {
         cssTransforms: true,
       }),
       style: {
-        ...setTransform(pos,props.name),
+        ...setTransform(pos, props.name, props.autoHeight),
         opacity: layoutHide ? 0 : undefined,
         pointerEvents: layoutHide ? "none" : "auto",
       },
