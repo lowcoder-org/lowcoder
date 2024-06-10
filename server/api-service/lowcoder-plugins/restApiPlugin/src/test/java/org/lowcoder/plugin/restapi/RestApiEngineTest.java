@@ -180,7 +180,7 @@ public class RestApiEngineTest {
                     assertTrue(result.isSuccess());
                     assertNotNull(result.getData());
                     JsonNode url = ((ObjectNode) result.getData()).get("url");
-                    assertEquals("\"https://postman-echo.com/post?param=value+with+blank\"", url.toString());
+                    assertEquals("\"http://postman-echo.com/post?param=value+with+blank\"", url.toString());
                 })
                 .verifyComplete();
     }
