@@ -1594,6 +1594,7 @@ export const DateTimeStyle = [
   BORDER_WIDTH,
   BOXSHADOW,
   BOXSHADOWCOLOR,
+  ROTATION,
   ...ACCENT_VALIDATE,
 ] as const;
 
