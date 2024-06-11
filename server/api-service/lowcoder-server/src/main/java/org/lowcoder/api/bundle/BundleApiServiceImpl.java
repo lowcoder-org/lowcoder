@@ -3,7 +3,6 @@ package org.lowcoder.api.bundle;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.lowcoder.api.application.view.ApplicationInfoView;
 import org.lowcoder.api.application.view.ApplicationPermissionView;
@@ -199,6 +198,42 @@ public class BundleApiServiceImpl implements BundleApiService {
     @Override
     public Flux<BundleInfoView> getRecycledBundles() {
         return userHomeApiService.getAllAuthorisedBundles4CurrentOrgMember(BundleStatus.RECYCLED);
+    }
+    @Override
+    public Mono<BundlePermissionView> getBundlePermissions(String bundleId) {
+
+        Mono<List<ResourcePermission>> bundlePermissions = resourcePermissionService.getByBundleId(bundleId).cache();
+
+        Mono<List<PermissionItemView>> groupPermissionPairsMono = bundlePermissions
+                .flatMap(permissionHelper::getGroupPermissions);
+
+        Mono<List<PermissionItemView>> userPermissionPairsMono = bundlePermissions
+                .flatMap(permissionHelper::getUserPermissions);
+
+        return checkCurrentUserBundlePermission(bundleId, READ_BUNDLES)
+                .then(bundleService.findByIdWithoutDsl(bundleId))
+                .delayUntil(bundle -> checkBundleStatus(bundle, BundleStatus.NORMAL))
+                .flatMap(bundle -> {
+                    String creatorId = bundle.getCreatedBy();
+                    String orgId = bundle.getOrganizationId();
+
+                    Mono<Organization> orgMono = organizationService.getById(orgId);
+                    return Mono.zip(groupPermissionPairsMono, userPermissionPairsMono, orgMono)
+                            .map(tuple -> {
+                                List<PermissionItemView> groupPermissionPairs = tuple.getT1();
+                                List<PermissionItemView> userPermissionPairs = tuple.getT2();
+                                Organization organization = tuple.getT3();
+                                return BundlePermissionView.builder()
+                                        .groupPermissions(groupPermissionPairs)
+                                        .userPermissions(userPermissionPairs)
+                                        .creatorId(creatorId)
+                                        .orgName(organization.getName())
+                                        .publicToAll(bundle.isPublicToAll())
+                                        .publicToMarketplace(bundle.isPublicToMarketplace())
+                                        .agencyProfile(bundle.agencyProfile())
+                                        .build();
+                            });
+                });
     }
 
     private Mono<Void> checkBundleStatus(String bundleId, BundleStatus expected) {
@@ -511,30 +546,38 @@ public class BundleApiServiceImpl implements BundleApiService {
     }
 
     @Override
-    public Mono<Void> grantPermission(String bundleId, Set<String> userIds, Set<String> groupIds, ResourceRole role) {
-        if (CollectionUtils.isEmpty(userIds) && CollectionUtils.isEmpty(groupIds)) {
-            return Mono.empty();
+    public Mono<Boolean> grantPermission(String bundleId, Set<String> userIds, Set<String> groupIds, ResourceRole role) {
+        if (userIds.isEmpty() && groupIds.isEmpty()) {
+            return Mono.just(true);
         }
-        return Mono.from(checkManagePermission(bundleId))
-                .then(checkBundleExist(bundleId))
-                .then(Mono.defer(() -> resourcePermissionService.insertBatchPermission(ResourceType.BUNDLE, bundleId, userIds, groupIds, role)))
-                .then();
+
+        return checkCurrentUserBundlePermission(bundleId, MANAGE_BUNDLES)
+                .then(bundleService.findByIdWithoutDsl(bundleId))
+                .delayUntil(bundle -> checkBundleStatus(bundle, BundleStatus.NORMAL))
+                .switchIfEmpty(deferredError(BizError.BUNDLE_NOT_EXIST, "BUNDLE_NOT_FOUND", bundleId))
+                .then(resourcePermissionService.insertBatchPermission(ResourceType.BUNDLE, bundleId,
+                        userIds, groupIds, role))
+                .thenReturn(true);
     }
 
     @Override
-    public Mono<Void> updatePermission(String bundleId, String permissionId, ResourceRole role) {
-        return Mono.from(checkManagePermission(bundleId))
-                .then(checkPermissionResource(permissionId, bundleId))
-                .then(resourcePermissionService.updateRoleById(permissionId, role))
-                .then();
+    public Mono<Boolean> updatePermission(String bundleId, String permissionId, ResourceRole role) {
+        return checkCurrentUserBundlePermission(bundleId, MANAGE_BUNDLES)
+                .then(checkBundleStatus(bundleId, BundleStatus.NORMAL))
+                .then(resourcePermissionService.getById(permissionId))
+                .filter(permission -> StringUtils.equals(permission.getResourceId(), bundleId))
+                .switchIfEmpty(deferredError(ILLEGAL_BUNDLE_PERMISSION_ID, "ILLEGAL_BUNDLE_PERMISSION_ID"))
+                .then(resourcePermissionService.updateRoleById(permissionId, role));
     }
 
     @Override
-    public Mono<Void> removePermission(String bundleId, String permissionId) {
-        return Mono.from(checkManagePermission(bundleId))
-                .then(checkPermissionResource(permissionId, bundleId))
-                .then(resourcePermissionService.removeById(permissionId))
-                .then();
+    public Mono<Boolean> removePermission(String bundleId, String permissionId) {
+        return checkCurrentUserBundlePermission(bundleId, MANAGE_BUNDLES)
+                .then(checkBundleStatus(bundleId, BundleStatus.NORMAL))
+                .then(resourcePermissionService.getById(permissionId))
+                .filter(permission -> StringUtils.equals(permission.getResourceId(), bundleId))
+                .switchIfEmpty(deferredError(ILLEGAL_BUNDLE_PERMISSION_ID, "ILLEGAL_BUNDLE_PERMISSION_ID"))
+                .then(resourcePermissionService.removeById(permissionId));
     }
 
     private Mono<Void> checkPermissionResource(String permissionId, String bundleId) {

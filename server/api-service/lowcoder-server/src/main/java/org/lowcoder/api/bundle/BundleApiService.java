@@ -31,6 +31,7 @@ public interface BundleApiService {
 
     Mono<Boolean> restore(String bundleId);
     Flux<BundleInfoView> getRecycledBundles();
+    Mono<BundlePermissionView> getBundlePermissions(String bundleId);
 
     Mono<BundleInfoView> update(Bundle bundle);
     Mono<BundleInfoView> publish(String bundleId);
@@ -46,11 +47,11 @@ public interface BundleApiService {
     @Nonnull
     Mono<ResourcePermission> checkPermissionWithReadableErrorMsg(String bundleId, ResourceAction action);
 
-    Mono<Void> grantPermission(String bundleId, Set<String> userIds, Set<String> groupIds, ResourceRole role);
+    Mono<Boolean> grantPermission(String bundleId, Set<String> userIds, Set<String> groupIds, ResourceRole role);
 
-    Mono<Void> updatePermission(String bundleId, String permissionId, ResourceRole role);
+    Mono<Boolean> updatePermission(String bundleId, String permissionId, ResourceRole role);
 
-    Mono<Void> removePermission(String bundleId, String permissionId);
+    Mono<Boolean> removePermission(String bundleId, String permissionId);
 
     Mono<BundlePermissionView> getPermissions(String bundleId);
 

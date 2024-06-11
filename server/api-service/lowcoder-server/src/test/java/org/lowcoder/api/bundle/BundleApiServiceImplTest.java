@@ -4,14 +4,27 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.lowcoder.api.bundle.view.BundleInfoView;
+import org.lowcoder.api.bundle.view.BundlePermissionView;
 import org.lowcoder.api.common.mockuser.WithMockUser;
+import org.lowcoder.api.home.FolderApiService;
+import org.lowcoder.api.permission.view.PermissionItemView;
+import org.lowcoder.domain.bundle.model.Bundle;
 import org.lowcoder.domain.bundle.model.BundleRequestType;
+import org.lowcoder.domain.bundle.model.BundleStatus;
+import org.lowcoder.domain.bundle.service.BundleService;
+import org.lowcoder.domain.permission.model.ResourceHolder;
+import org.lowcoder.domain.permission.model.ResourceRole;
+import org.lowcoder.sdk.exception.BizError;
+import org.lowcoder.sdk.exception.BizException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
+
+import java.util.List;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -20,6 +33,10 @@ import static org.junit.jupiter.api.Assertions.*;
 public class BundleApiServiceImplTest {
     @Autowired
     BundleApiServiceImpl bundleApiService;
+    @Autowired
+    private FolderApiService folderApiService;
+    @Autowired
+    private BundleService bundleService;
 
     @Test
     @WithMockUser
@@ -176,9 +193,9 @@ public class BundleApiServiceImplTest {
     }
 
     private Mono<BundleInfoView> createBundle(String name, String folderId) {
-        BundleEndpoints.CreateBundleRequest createApplicationRequest =
+        BundleEndpoints.CreateBundleRequest createBundleRequest =
                 new BundleEndpoints.CreateBundleRequest("org01", name, "title", "desc", "category", "image", folderId);
-        return bundleApiService.create(createApplicationRequest);
+        return bundleApiService.create(createBundleRequest);
     }
 
     @Test
@@ -211,6 +228,188 @@ public class BundleApiServiceImplTest {
         // published dsl after publish
         StepVerifier.create(bundleIdMono.flatMap(id -> bundleApiService.getPublishedBundle(id, BundleRequestType.PUBLIC_TO_ALL)))
                 .assertNext(bundleView -> Assert.assertNotNull(bundleView.getPublishedBundleDSL()))
+                .verifyComplete();
+    }
+
+    private boolean equals(PermissionItemView p1, PermissionItemView p2) {
+        return p1.getType() == p2.getType()
+                && p1.getId().equals(p2.getId())
+                && p1.getRole().equals(p2.getRole());
+    }
+
+    @Test
+    @WithMockUser
+    public void testAutoInheritFoldersPermissionsOnBundleCreate() {
+        Mono<BundlePermissionView> permissionViewMono =
+                folderApiService.grantPermission("folder01", Set.of("user02"), Set.of("group01"), ResourceRole.EDITOR)
+                        .then(createBundle("test", "folder01"))
+                        .flatMap(bundleView -> bundleApiService.getBundlePermissions(
+                                bundleView.getBundleId()));
+
+        StepVerifier.create(permissionViewMono)
+                .assertNext(bundlePermissionView -> {
+                    Assert.assertTrue(bundlePermissionView.getPermissions().stream()
+                            .anyMatch(permissionItemView ->
+                                    equals(permissionItemView, PermissionItemView.builder()
+                                            .type(ResourceHolder.GROUP)
+                                            .id("group01")
+                                            .role(ResourceRole.EDITOR.getValue())
+                                            .build())
+                            ));
+                    Assert.assertTrue(bundlePermissionView.getPermissions().stream()
+                            .anyMatch(permissionItemView ->
+                                    equals(permissionItemView, PermissionItemView.builder()
+                                            .type(ResourceHolder.USER)
+                                            .id("user01")
+                                            .role(ResourceRole.OWNER.getValue())
+                                            .build())
+                            ));
+                    Assert.assertTrue(bundlePermissionView.getPermissions().stream()
+                            .anyMatch(permissionItemView ->
+                                    equals(permissionItemView, PermissionItemView.builder()
+                                            .type(ResourceHolder.USER)
+                                            .id("user02")
+                                            .role(ResourceRole.EDITOR.getValue())
+                                            .build())
+                            ));
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithMockUser
+    public void testRecycleAndDeleteBundleSuccess() {
+
+        Mono<Bundle> bundleMono = createBundle("bundle02", null)
+                .map(BundleInfoView::getBundleId)
+                .delayUntil(bundleId -> bundleApiService.recycle(bundleId))
+                .delayUntil(bundleId -> bundleApiService.delete(bundleId))
+                .flatMap(bundleId -> bundleService.findById(bundleId));
+        StepVerifier.create(bundleMono)
+                .assertNext(bundle -> Assert.assertSame(bundle.getBundleStatus(), BundleStatus.DELETED))
+                .verifyComplete();
+    }
+
+    @Test
+    @WithMockUser
+    public void testDeleteNormalBundleWithError() {
+
+        StepVerifier.create(bundleApiService.delete("bundle02"))
+                .expectErrorMatches(throwable -> throwable instanceof BizException bizException
+                        && bizException.getError() == BizError.UNSUPPORTED_OPERATION)
+                .verify();
+    }
+
+    @Test
+    @WithMockUser
+    public void testPermissions() {
+        // test grant permissions.
+        Mono<BundlePermissionView> bundlePermissionViewMono =
+                bundleApiService.grantPermission("bundle01", Set.of("user02"), Set.of("group01"), ResourceRole.EDITOR)
+                        .then(bundleApiService.getBundlePermissions("bundle01"));
+        StepVerifier.create(bundlePermissionViewMono)
+                .assertNext(bundlePermissionView -> {
+                    List<PermissionItemView> permissions = bundlePermissionView.getPermissions();
+                    Assert.assertEquals(2, permissions.size());
+                    Assert.assertTrue(permissions.stream()
+                            .anyMatch(permissionItemView -> {
+                                PermissionItemView other = PermissionItemView.builder()
+                                        .type(ResourceHolder.USER)
+                                        .id("user02")
+                                        .role(ResourceRole.EDITOR.getValue())
+                                        .build();
+                                return equals(permissionItemView, other);
+                            }));
+                    Assert.assertTrue(permissions.stream()
+                            .anyMatch(permissionItemView -> {
+                                PermissionItemView other = PermissionItemView.builder()
+                                        .type(ResourceHolder.GROUP)
+                                        .id("group01")
+                                        .role(ResourceRole.EDITOR.getValue())
+                                        .build();
+                                return equals(permissionItemView, other);
+                            }));
+                })
+                .verifyComplete();
+
+        // test update permissions.
+        bundlePermissionViewMono = bundleApiService.getBundlePermissions("bundle01")
+                .flatMap(bundlePermissionView -> {
+                    List<PermissionItemView> permissionItemViews = bundlePermissionView.getPermissions()
+                            .stream()
+                            .filter(permissionItemView -> {
+                                PermissionItemView other = PermissionItemView.builder()
+                                        .type(ResourceHolder.USER)
+                                        .id("user02")
+                                        .role(ResourceRole.EDITOR.getValue())
+                                        .build();
+                                return equals(permissionItemView, other);
+                            })
+                            .toList();
+                    Assert.assertEquals(1, permissionItemViews.size());
+                    String permissionId = permissionItemViews.get(0).getPermissionId();
+                    return bundleApiService.updatePermission("bundle01", permissionId, ResourceRole.VIEWER);
+                })
+                .then(bundleApiService.getBundlePermissions("bundle01"));
+        StepVerifier.create(bundlePermissionViewMono)
+                .assertNext(bundlePermissionView -> {
+                    List<PermissionItemView> permissions = bundlePermissionView.getPermissions();
+                    Assert.assertEquals(2, permissions.size());
+                    Assert.assertTrue(permissions.stream()
+                            .anyMatch(permissionItemView -> {
+                                PermissionItemView other = PermissionItemView.builder()
+                                        .type(ResourceHolder.USER)
+                                        .id("user02")
+                                        .role(ResourceRole.VIEWER.getValue())// updated
+                                        .build();
+                                return equals(permissionItemView, other);
+                            }));
+                    Assert.assertTrue(permissions.stream()
+                            .anyMatch(permissionItemView -> {
+                                PermissionItemView other = PermissionItemView.builder()
+                                        .type(ResourceHolder.GROUP)
+                                        .id("group01")
+                                        .role(ResourceRole.EDITOR.getValue())
+                                        .build();
+                                return equals(permissionItemView, other);
+                            }));
+                })
+                .verifyComplete();
+
+        // test remove permissions.
+        bundlePermissionViewMono = bundleApiService.getBundlePermissions("bundle01")
+                .flatMap(bundlePermissionView -> {
+                    List<PermissionItemView> permissionItemViews = bundlePermissionView.getPermissions()
+                            .stream()
+                            .filter(permissionItemView -> {
+                                PermissionItemView other = PermissionItemView.builder()
+                                        .type(ResourceHolder.USER)
+                                        .id("user02")
+                                        .role(ResourceRole.VIEWER.getValue())
+                                        .build();
+                                return equals(permissionItemView, other);
+                            })
+                            .toList();
+                    Assert.assertEquals(1, permissionItemViews.size());
+                    String permissionId = permissionItemViews.get(0).getPermissionId();
+                    return bundleApiService.removePermission("bundle01", permissionId);
+                })
+                .then(bundleApiService.getBundlePermissions("bundle01"));
+
+        StepVerifier.create(bundlePermissionViewMono)
+                .assertNext(bundlePermissionView -> {
+                    List<PermissionItemView> permissions = bundlePermissionView.getPermissions();
+                    Assert.assertEquals(1, permissions.size());
+                    Assert.assertTrue(permissions.stream()
+                            .anyMatch(permissionItemView -> {
+                                PermissionItemView other = PermissionItemView.builder()
+                                        .type(ResourceHolder.GROUP)
+                                        .id("group01")
+                                        .role(ResourceRole.EDITOR.getValue())
+                                        .build();
+                                return equals(permissionItemView, other);
+                            }));
+                })
                 .verifyComplete();
     }
 }

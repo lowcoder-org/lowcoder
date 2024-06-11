@@ -53,6 +53,16 @@ public class BundleServiceImpl implements BundleService {
     }
 
     @Override
+    public Mono<Bundle> findByIdWithoutDsl(String id) {
+        if (id == null) {
+            return Mono.error(new BizException(BizError.INVALID_PARAMETER, "INVALID_PARAMETER", FieldName.ID));
+        }
+
+        return repository.findById(id)
+                .switchIfEmpty(Mono.error(new BizException(BizError.NO_RESOURCE_FOUND, "CANT_FIND_BUNDLE", id)));
+    }
+
+    @Override
     public Mono<Bundle> create(Bundle newbundle, String visitorId) {
         return repository.save(newbundle)
                 .delayUntil(bundle -> resourcePermissionService.addResourcePermissionToUser(bundle.getId(), visitorId, ResourceRole.OWNER, ResourceType.BUNDLE));
