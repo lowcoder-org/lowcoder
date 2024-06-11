@@ -16,9 +16,6 @@ import org.lowcoder.domain.permission.model.ResourceHolder;
 import org.lowcoder.domain.permission.model.ResourceRole;
 import org.lowcoder.sdk.exception.BizError;
 import org.lowcoder.sdk.exception.BizException;
-import org.lowcoder.api.home.SessionUserServiceImpl;
-import org.lowcoder.domain.organization.model.MemberRole;
-import org.lowcoder.domain.organization.model.OrgMember;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -245,7 +242,7 @@ public class BundleApiServiceImplTest {
     public void testAutoInheritFoldersPermissionsOnBundleCreate() {
         Mono<BundlePermissionView> permissionViewMono =
                 folderApiService.grantPermission("folder01", Set.of("user02"), Set.of("group01"), ResourceRole.EDITOR)
-                        .then(createBundle("test", "folder01"))
+                        .then(createBundle("test2", "folder01"))
                         .flatMap(bundleView -> bundleApiService.getBundlePermissions(
                                 bundleView.getBundleId()));
 

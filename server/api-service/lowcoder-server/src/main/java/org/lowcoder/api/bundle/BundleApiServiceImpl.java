@@ -16,11 +16,13 @@ import org.lowcoder.api.permission.PermissionHelper;
 import org.lowcoder.api.permission.view.PermissionItemView;
 import org.lowcoder.api.usermanagement.OrgDevChecker;
 import org.lowcoder.domain.application.model.Application;
-import org.lowcoder.domain.application.model.ApplicationStatus;
 import org.lowcoder.domain.application.model.ApplicationType;
 import org.lowcoder.domain.application.repository.ApplicationRepository;
 import org.lowcoder.domain.application.service.ApplicationServiceImpl;
-import org.lowcoder.domain.bundle.model.*;
+import org.lowcoder.domain.bundle.model.Bundle;
+import org.lowcoder.domain.bundle.model.BundleApplication;
+import org.lowcoder.domain.bundle.model.BundleRequestType;
+import org.lowcoder.domain.bundle.model.BundleStatus;
 import org.lowcoder.domain.bundle.repository.BundleRepository;
 import org.lowcoder.domain.bundle.service.BundleElementRelationService;
 import org.lowcoder.domain.bundle.service.BundleService;
@@ -43,9 +45,7 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 import java.util.*;
-import java.util.function.Function;=
-import java.util.function.ToLongFunction;
-import java.util.stream.Collectors;
+import java.util.function.Function;
 
 import static org.lowcoder.domain.bundle.model.BundleStatus.NORMAL;
 import static org.lowcoder.domain.permission.model.ResourceAction.*;
