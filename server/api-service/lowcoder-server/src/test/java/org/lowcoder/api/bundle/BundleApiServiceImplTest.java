@@ -9,6 +9,7 @@ import org.lowcoder.domain.bundle.model.BundleRequestType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -19,14 +20,11 @@ import static org.junit.jupiter.api.Assertions.*;
 public class BundleApiServiceImplTest {
     @Autowired
     BundleApiServiceImpl bundleApiService;
-//    @MockBean
-//    SessionUserServiceImpl sessionUserService;
 
     @Test
-    public void createBundleTest() {
+    @WithMockUser
+    public void createBundleTestAdminUser() {
         //When org admin user creates bundle it succeed
-//        when(sessionUserService.getVisitorId()).thenReturn(Mono.just("user01"));
-//        when(sessionUserService.getVisitorOrgMemberCache()).thenReturn(Mono.just(new OrgMember("org01", "user01", MemberRole.ADMIN, "NORMAL", 0)));
         Mono<BundleInfoView> bundleInfoViewMono = bundleApiService.create(new BundleEndpoints.CreateBundleRequest(
                 "org01",
                 "name1",
@@ -49,10 +47,11 @@ public class BundleApiServiceImplTest {
                     assertNull(bundleInfoView.getFolderId());
                 })
                 .verifyComplete();
-
+    }
+    @Test
+    @WithMockUser(id="user02")
+    public void createBundleTestDevUser() {
         //When org dev user creates bundle it succeed
-//        when(sessionUserService.getVisitorId()).thenReturn(Mono.just("user02"));
-//        when(sessionUserService.getVisitorOrgMemberCache()).thenReturn(Mono.just(new OrgMember("org01", "user02", MemberRole.MEMBER, "NORMAL", 0)));
         Mono<BundleInfoView> bundleInfoViewMono1 = bundleApiService.create(new BundleEndpoints.CreateBundleRequest(
                 "org01",
                 "name2",
@@ -75,10 +74,11 @@ public class BundleApiServiceImplTest {
                     assertNull(bundleInfoView.getFolderId());
                 })
                 .verifyComplete();
-
+    }
+    @Test
+    @WithMockUser(id="user03")
+    public void createBundleTestNonDevUser() {
         //When non-dev create bundle throws error
-//        when(sessionUserService.getVisitorId()).thenReturn(Mono.just("user01"));
-//        when(sessionUserService.getVisitorOrgMemberCache()).thenReturn(Mono.just(new OrgMember("org01", "user01", MemberRole.MEMBER, "NORMAL", 0)));
         Mono<BundleInfoView> bundleInfoViewMono2 = bundleApiService.create(new BundleEndpoints.CreateBundleRequest(
                 "org01",
                 "name3",
@@ -93,9 +93,8 @@ public class BundleApiServiceImplTest {
     }
 
     @Test
-    public void moveAddAppTest() {
-//        when(sessionUserService.getVisitorId()).thenReturn(Mono.just("user01"));
-//        when(sessionUserService.getVisitorOrgMemberCache()).thenReturn(Mono.just(new OrgMember("org01", "user01", MemberRole.ADMIN, "NORMAL", 0)));
+    @WithMockUser
+    public void moveAddAppTestAdmin() {
         //Create bundles
         Mono<BundleInfoView> bundleInfoViewMono = bundleApiService.create(new BundleEndpoints.CreateBundleRequest(
                 "org01",
@@ -122,13 +121,6 @@ public class BundleApiServiceImplTest {
 
                     return bundleApiService.addApp("app01", bundleInfoView.getBundleId())
                             .then(bundleApiService.moveApp("app01", bundleInfoView.getBundleId(), bundleInfoView2.getBundleId()))
-                            .then(Mono.fromRunnable(() -> {
-                                // Try a no-dev user to add app to bundle
-//                                when(sessionUserService.getVisitorId()).thenReturn(Mono.just("user01"));
-//                                when(sessionUserService.getVisitorOrgMemberCache()).thenReturn(Mono.just(new OrgMember("org01", "user01", MemberRole.MEMBER, "NORMAL", 0)));
-                            }))
-                            .then(bundleApiService.addApp("app01", bundleInfoView.getBundleId()).onErrorResume(e -> Mono.empty()))
-                            .then(bundleApiService.moveApp("app01", bundleInfoView.getBundleId(), bundleInfoView2.getBundleId()).onErrorResume(e -> Mono.empty()))
                             //Get published bundle
                             .then(bundleApiService.getPublishedBundle(bundleInfoView2.getBundleId(), BundleRequestType.PUBLIC_TO_ALL))
                             .doOnNext(bundle -> {
@@ -141,6 +133,46 @@ public class BundleApiServiceImplTest {
 
         StepVerifier.create(testMono)
                 .verifyComplete();
+    }
+
+    @Test
+    @WithMockUser(id="user02")
+    public void moveAddAppTestNonDev() {
+        //Create bundles
+        Mono<BundleInfoView> bundleInfoViewMono = bundleApiService.create(new BundleEndpoints.CreateBundleRequest(
+                "org01",
+                "name4",
+                "title",
+                "description",
+                "category",
+                "image",
+                null));
+
+        Mono<BundleInfoView> bundleInfoViewMono2 = bundleApiService.create(new BundleEndpoints.CreateBundleRequest(
+                "org01",
+                "name5",
+                "title",
+                "description",
+                "category",
+                "image",
+                null));
+
+        Flux<?> testFlux = Flux.zip(bundleInfoViewMono, bundleInfoViewMono2)
+                .flatMap(tuple2 -> {
+                    var bundleInfoView = tuple2.getT1();
+                    var bundleInfoView2 = tuple2.getT2();
+
+                    return Flux.concat(bundleApiService.addApp("app01", bundleInfoView.getBundleId()),
+                            bundleApiService.moveApp("app01", bundleInfoView.getBundleId(), bundleInfoView2.getBundleId()));
+                });
+
+        StepVerifier.create(testFlux)
+                .expectError()
+                .verify();
+
+        StepVerifier.create(testFlux)
+                .expectError()
+                .verify();
     }
 
     private Mono<BundleInfoView> createBundle(String name, String folderId) {
