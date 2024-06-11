@@ -16,10 +16,13 @@ import org.lowcoder.api.home.UserHomeApiService;
 import org.lowcoder.api.permission.PermissionHelper;
 import org.lowcoder.api.permission.view.PermissionItemView;
 import org.lowcoder.api.usermanagement.OrgDevChecker;
+import org.lowcoder.domain.application.model.Application;
 import org.lowcoder.domain.application.model.ApplicationStatus;
 import org.lowcoder.domain.application.model.ApplicationType;
+import org.lowcoder.domain.application.repository.ApplicationRepository;
 import org.lowcoder.domain.application.service.ApplicationServiceImpl;
 import org.lowcoder.domain.bundle.model.*;
+import org.lowcoder.domain.bundle.repository.BundleRepository;
 import org.lowcoder.domain.bundle.service.BundleElementRelationService;
 import org.lowcoder.domain.bundle.service.BundleNode;
 import org.lowcoder.domain.bundle.service.BundleService;
@@ -47,6 +50,7 @@ import reactor.core.scheduler.Schedulers;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.ToLongFunction;
+import java.util.stream.Collectors;
 
 import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
 import static org.lowcoder.domain.bundle.model.BundleStatus.NORMAL;
@@ -72,6 +76,8 @@ public class BundleApiServiceImpl implements BundleApiService {
     private final OrganizationService organizationService;
     private final FolderApiService folderApiService;
     private final ApplicationServiceImpl applicationServiceImpl;
+    private final ApplicationRepository applicationRepository;
+    private final BundleRepository bundleRepository;
 
     @Override
     public Mono<BundleInfoView> create(CreateBundleRequest createBundleRequest) {
@@ -262,9 +268,25 @@ public class BundleApiServiceImpl implements BundleApiService {
                     if (StringUtils.isBlank(toBundleId)) {
                         return Mono.empty();
                     }
-                    return bundleElementRelationService.create(toBundleId, applicationId);
+                    return bundleService.findById(fromBundleId).map(bundle -> {
+                        var map = bundle.getEditingBundleDSL();
+                        if(map == null) map = new HashMap<>();
+                        ((List<Application>) map.computeIfAbsent("applications", k-> new ArrayList<>())).removeIf(app -> app.getId() == applicationId);
+                        bundle.setEditingBundleDSL(map);
+                        return bundle;
+                    }).map(bundle -> applicationRepository.findById(applicationId)
+                            .flatMap(newapplication -> addAppToBundle(bundle, newapplication)))
+                            .then(bundleElementRelationService.create(toBundleId, applicationId));
                 })
                 .then();
+    }
+
+    private Mono<Bundle> addAppToBundle(Bundle bundle, Application newapplication) {
+        var map = bundle.getEditingBundleDSL();
+        if(map == null) map = new HashMap<>();
+        ((List<Application>) map.computeIfAbsent("applications", k-> new ArrayList<>())).add(newapplication);
+        bundle.setEditingBundleDSL(map);
+        return bundleRepository.save(bundle);
     }
 
     /**
@@ -283,7 +305,9 @@ public class BundleApiServiceImpl implements BundleApiService {
                     if (StringUtils.isBlank(toBundleId)) {
                         return Mono.empty();
                     }
-                    return bundleElementRelationService.create(toBundleId, applicationId);
+                    return bundleService.findById(toBundleId).map(bundle -> applicationRepository.findById(applicationId)
+                                    .flatMap(newapplication-> addAppToBundle(bundle, newapplication)))
+                            .then(bundleElementRelationService.create(toBundleId, applicationId));
                 })
                 .then();
     }
@@ -344,6 +368,8 @@ public class BundleApiServiceImpl implements BundleApiService {
                             .category(bundle.getCategory())
                             .description(bundle.getDescription())
                             .image(bundle.getImage())
+//                            .editingBundleDSL(bundle.getEditingBundleDSL())
+                            .publishedBundleDSL(bundle.getPublishedBundleDSL())
                             .publicToMarketplace(bundle.getPublicToMarketplace())
                             .publicToAll(bundle.getPublicToAll())
                             .agencyProfile(bundle.getAgencyProfile())
