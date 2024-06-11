@@ -268,13 +268,15 @@ public class BundleApiServiceImpl implements BundleApiService {
                     if (StringUtils.isBlank(toBundleId)) {
                         return Mono.empty();
                     }
-                    return bundleService.findById(fromBundleId).map(bundle -> {
+                    return bundleService.findById(fromBundleId).flatMap(bundle -> {
                         var map = bundle.getEditingBundleDSL();
                         if(map == null) map = new HashMap<>();
-                        ((List<Application>) map.computeIfAbsent("applications", k-> new ArrayList<>())).removeIf(app -> app.getId() == applicationId);
+                        ((List<Application>) map.computeIfAbsent("applications", k-> new ArrayList<>())).removeIf(app -> app.getId().equals(applicationId));
                         bundle.setEditingBundleDSL(map);
-                        return bundle;
-                    }).map(bundle -> applicationRepository.findById(applicationId)
+                        return bundleRepository.save(bundle);
+                    })
+                        .then(bundleRepository.findById(toBundleId))
+                        .flatMap(bundle -> applicationRepository.findById(applicationId)
                             .flatMap(newapplication -> addAppToBundle(bundle, newapplication)))
                             .then(bundleElementRelationService.create(toBundleId, applicationId));
                 })
@@ -305,7 +307,7 @@ public class BundleApiServiceImpl implements BundleApiService {
                     if (StringUtils.isBlank(toBundleId)) {
                         return Mono.empty();
                     }
-                    return bundleService.findById(toBundleId).map(bundle -> applicationRepository.findById(applicationId)
+                    return bundleService.findById(toBundleId).flatMap(bundle -> applicationRepository.findById(applicationId)
                                     .flatMap(newapplication-> addAppToBundle(bundle, newapplication)))
                             .then(bundleElementRelationService.create(toBundleId, applicationId));
                 })
@@ -368,7 +370,6 @@ public class BundleApiServiceImpl implements BundleApiService {
                             .category(bundle.getCategory())
                             .description(bundle.getDescription())
                             .image(bundle.getImage())
-//                            .editingBundleDSL(bundle.getEditingBundleDSL())
                             .publishedBundleDSL(bundle.getPublishedBundleDSL())
                             .publicToMarketplace(bundle.getPublicToMarketplace())
                             .publicToAll(bundle.getPublicToAll())
