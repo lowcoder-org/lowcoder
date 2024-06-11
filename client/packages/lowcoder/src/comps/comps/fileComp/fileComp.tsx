@@ -427,7 +427,7 @@ let FileTmpComp = new UICompBuilder(childrenMap, (props, dispatch) => (
       {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
         <>
           <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
-          <Section name={sectionNames.animationStyle}>{children.animationStyle.getPropertyView()}</Section>
+          <Section name={sectionNames.animationStyle} hasTooltip={true}>{children.animationStyle.getPropertyView()}</Section>
         </>
       )}
     </>

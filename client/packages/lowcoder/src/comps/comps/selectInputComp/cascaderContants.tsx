@@ -88,7 +88,7 @@ export const CascaderPropertyView = (
         <Section name={'Children Input Field Style'}>
           {children.childrenInputFieldStyle.getPropertyView()}
         </Section>
-        <Section name={sectionNames.animationStyle}>
+        <Section name={sectionNames.animationStyle} hasTooltip={true}>
           {children.animationStyle.getPropertyView()}
         </Section>
       </>

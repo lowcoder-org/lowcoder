@@ -14,7 +14,7 @@ import { SelectInputInvalidConfig, useSelectInputValidate } from "./selectInputC
 
 import { PaddingControl } from "../../controls/paddingControl";	
 import { MarginControl } from "../../controls/marginControl";
-import { migrateOldData } from "comps/generators/simpleGenerators";
+import { migrateOldData, withDefault } from "comps/generators/simpleGenerators";
 import { fixOldInputCompData } from "../textInputComp/textInputConstants";
 
 let MultiSelectBasicComp = (function () {
@@ -22,9 +22,9 @@ let MultiSelectBasicComp = (function () {
     ...SelectChildrenMap,
     defaultValue: arrayStringExposingStateControl("defaultValue", ["1", "2"]),
     value: arrayStringExposingStateControl("value"),
-    style: styleControl(InputFieldStyle),
+    style: withDefault(styleControl(InputFieldStyle),{background:'transparent'}),
     labelStyle:styleControl(LabelStyle),
-    inputFieldStyle:styleControl(MultiSelectStyle),
+    inputFieldStyle:withDefault(styleControl(MultiSelectStyle),{borderWidth:'1px'}),
     childrenInputFieldStyle:styleControl(ChildrenMultiSelectStyle),
     margin: MarginControl,	
     padding: PaddingControl,

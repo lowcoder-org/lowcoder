@@ -812,6 +812,24 @@ export const TextStyle = [
   },
 ] as const;
 
+export const TextContainerStyle = [
+  {
+    name: "background",
+    label: trans("style.background"),
+    depTheme: "canvas",
+    depType: DEP_TYPE.SELF,
+    transformer: toSelf,
+  },
+  ...STYLING_FIELDS_SEQUENCE.filter(style=>style.name!=='rotation'),
+  {
+    name: "links",
+    label: trans("style.links"),
+    depTheme: "primary",
+    depType: DEP_TYPE.SELF,
+    transformer: toSelf,
+  },
+] as const;
+
 export const MarginStyle = [
   {
     name: "margin",
@@ -1010,6 +1028,8 @@ export const SliderStyle = [
 
 export const InputLikeStyle = [
   getStaticBackground(SURFACE_COLOR),
+  BOXSHADOW,
+  BOXSHADOWCOLOR,
   ...STYLING_FIELDS_SEQUENCE.filter(style=>style.name!=='rotation'),
   ...ACCENT_VALIDATE,
 ] as const;
@@ -1108,7 +1128,7 @@ export const startButtonStyle = [
 
 export const LabelStyle = [
   ...replaceAndMergeMultipleStyles([...InputLikeStyle], "text", [LABEL]).filter(
-    (style) => style.name !== "radius" && style.name !== "background"&&style.name!=='rotation'
+    (style) => style.name !== "radius" && style.name !== "background" && style.name!=='rotation' && style.name !== "boxShadow"&&style.name!=='boxShadowColor'
   ),
 ];
 
@@ -1172,6 +1192,8 @@ export const SelectStyle = [
   ...replaceAndMergeMultipleStyles(STYLING_FIELDS_SEQUENCE.filter(style=>style.name!=='rotation'), "border", [
     ...getStaticBgBorderRadiusByBg(SURFACE_COLOR, "pc"),
   ]),
+  BOXSHADOW,
+  BOXSHADOWCOLOR,
   ...ACCENT_VALIDATE,
 ] as const;
 
@@ -1205,6 +1227,8 @@ export const MultiSelectStyle = [
     transformer: toSelf,
     platform: "pc",
   },
+  BOXSHADOW,
+  BOXSHADOWCOLOR,
   ...ACCENT_VALIDATE,
 ] as const;
 
@@ -1538,7 +1562,6 @@ export const FileViewerStyle = [
   MARGIN,
   PADDING,
   BORDER_WIDTH,
-  ROTATION
 ] as const;
 
 export const IframeStyle = [
@@ -1565,6 +1588,9 @@ export const DateTimeStyle = [
   PADDING,
   BORDER_STYLE,
   BORDER_WIDTH,
+  BOXSHADOW,
+  BOXSHADOWCOLOR,
+  ROTATION,
   ...ACCENT_VALIDATE,
 ] as const;
 
@@ -1672,6 +1698,8 @@ export const AudioStyle = [
   PADDING,
   ROTATION,
 ] as const;
+
+export const VideoStyle = [MARGIN, PADDING] as const;
 
 export const IconStyle = [
   getStaticBackground("#00000000"),
@@ -1912,7 +1940,7 @@ export const NavLayoutItemActiveStyle = [
   },
 ] as const;
 
-export const CarouselStyle = [getBackground("canvas"),ROTATION] as const;
+export const CarouselStyle = [getBackground("canvas")] as const;
 
 export const RichTextEditorStyle = [
   getStaticBorder(),
@@ -1946,6 +1974,7 @@ export type ColorPickerStyleType = StyleConfigType<typeof ColorPickerStyle>;
 export type ButtonStyleType = StyleConfigType<typeof ButtonStyle>;
 export type ToggleButtonStyleType = StyleConfigType<typeof ToggleButtonStyle>;
 export type TextStyleType = StyleConfigType<typeof TextStyle>;
+export type TextContainerStyleType = StyleConfigType<typeof TextContainerStyle>;
 export type ContainerStyleType = StyleConfigType<typeof ContainerStyle>;
 export type ContainerHeaderStyleType = StyleConfigType<
   typeof ContainerHeaderStyle
@@ -1993,6 +2022,7 @@ export type CircleProgressType = StyleConfigType<typeof CircleProgressStyle>;
 export type NavigationStyleType = StyleConfigType<typeof NavigationStyle>;
 export type ImageStyleType = StyleConfigType<typeof ImageStyle>;
 export type AudioStyleType = StyleConfigType<typeof AudioStyle>;
+export type VideoStyleType = StyleConfigType<typeof VideoStyle>;
 export type IconStyleType = StyleConfigType<typeof IconStyle>;
 export type ListViewStyleType = StyleConfigType<typeof ListViewStyle>;
 export type JsonSchemaFormStyleType = StyleConfigType<

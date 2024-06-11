@@ -129,7 +129,7 @@ export const DividerComp = migrateOldData(
                 {children.dashed.propertyView({ label: trans("divider.dashed") })}
                 {children.style.getPropertyView()}
               </Section>
-              <Section name={sectionNames.animationStyle}>
+              <Section name={sectionNames.animationStyle}hasTooltip={true}>
                 {children.animationStyle.getPropertyView()}
               </Section>
             </>

@@ -51,6 +51,9 @@ public class GlobalExceptionHandler {
             apiPerfHelper.perf(e.getError(), exchange.getRequest().getPath());
             doLog(e, ctx, e.getError().logVerbose());
             Locale locale = getLocale(ctx);
+            if (e.getHeaders() != null && !e.getHeaders().isEmpty()) {
+                exchange.getResponse().getHeaders().addAll(e.getHeaders());
+            }
             return Mono.just(error(e.getBizErrorCode(), e.getMessage(locale)));
         });
     }
