@@ -2,8 +2,6 @@ package org.lowcoder.domain.bundle.service;
 
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
-import org.lowcoder.domain.application.model.Application;
-import org.lowcoder.domain.application.model.ApplicationRequestType;
 import org.lowcoder.domain.bundle.model.Bundle;
 import org.lowcoder.domain.bundle.model.BundleRequestType;
 import org.lowcoder.domain.bundle.repository.BundleRepository;
@@ -82,10 +80,24 @@ public class BundleServiceImpl implements BundleService {
                 });
     }
 
+    @Override
+    public Mono<Bundle> publish(String bundleId) {
+        return findById(bundleId)
+                .flatMap(newBundle -> { // copy editingApplicationDSL to publishedApplicationDSL
+                    Map<String, Object> editingBundleDSL = newBundle.getEditingBundleDSL();
+                    return updatePublishedBundleDSL(bundleId, editingBundleDSL)
+                            .thenReturn(newBundle);
+                });
+    }
+
+    @Override
+    public Mono<Boolean> updatePublishedBundleDSL(String bundleId, Map<String, Object> bundleDSL) {
+        Bundle bundle = Bundle.builder().publishedBundleDSL(bundleDSL).build();
+        return mongoUpsertHelper.updateById(bundle, bundleId);
+    }
 
     @Override
     @NonEmptyMono
-    @SuppressWarnings("ReactiveStreamsNullableInLambdaInTransform")
     public Mono<Set<String>> getFilteredPublicBundleIds(BundleRequestType requestType, Collection<String> bundleIds, String userId, Boolean isPrivateMarketplace) {
         boolean isAnonymous = StringUtils.isBlank(userId);
         switch(requestType)
@@ -149,7 +161,7 @@ public class BundleServiceImpl implements BundleService {
     @SuppressWarnings("ReactiveStreamsNullableInLambdaInTransform")
     public Mono<Set<String>> getPublicMarketplaceBundleIds(Collection<String> bundleIds, boolean isAnonymous, boolean isPrivateMarketplace) {
 
-        if ((isAnonymous && !isPrivateMarketplace) || !isAnonymous)
+        if (!isAnonymous || !isPrivateMarketplace)
         {
             return repository.findByPublicToAllIsTrueAndPublicToMarketplaceIsTrueAndIdIn(bundleIds)
                     .map(HasIdAndAuditing::getId)

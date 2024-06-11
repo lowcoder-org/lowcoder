@@ -5,9 +5,9 @@ import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.lowcoder.api.bundle.BundleEndpoints.CreateBundleRequest;
 import org.lowcoder.api.application.view.ApplicationInfoView;
 import org.lowcoder.api.application.view.ApplicationPermissionView;
+import org.lowcoder.api.bundle.BundleEndpoints.CreateBundleRequest;
 import org.lowcoder.api.bundle.view.BundleInfoView;
 import org.lowcoder.api.bundle.view.BundlePermissionView;
 import org.lowcoder.api.home.FolderApiService;
@@ -17,30 +17,28 @@ import org.lowcoder.api.permission.PermissionHelper;
 import org.lowcoder.api.permission.view.PermissionItemView;
 import org.lowcoder.api.usermanagement.OrgDevChecker;
 import org.lowcoder.domain.application.model.Application;
-import org.lowcoder.domain.application.model.ApplicationStatus;
 import org.lowcoder.domain.application.model.ApplicationType;
 import org.lowcoder.domain.application.repository.ApplicationRepository;
 import org.lowcoder.domain.application.service.ApplicationServiceImpl;
-import org.lowcoder.domain.bundle.model.*;
+import org.lowcoder.domain.bundle.model.Bundle;
+import org.lowcoder.domain.bundle.model.BundleApplication;
+import org.lowcoder.domain.bundle.model.BundleRequestType;
+import org.lowcoder.domain.bundle.model.BundleStatus;
 import org.lowcoder.domain.bundle.repository.BundleRepository;
 import org.lowcoder.domain.bundle.service.BundleElementRelationService;
-import org.lowcoder.domain.bundle.service.BundleNode;
 import org.lowcoder.domain.bundle.service.BundleService;
-import org.lowcoder.domain.bundle.service.*;
 import org.lowcoder.domain.group.service.GroupService;
 import org.lowcoder.domain.organization.model.OrgMember;
 import org.lowcoder.domain.organization.model.Organization;
+import org.lowcoder.domain.organization.service.OrgMemberService;
 import org.lowcoder.domain.organization.service.OrganizationService;
 import org.lowcoder.domain.permission.model.*;
 import org.lowcoder.domain.permission.service.ResourcePermissionService;
-import org.lowcoder.domain.user.model.User;
 import org.lowcoder.domain.user.service.UserService;
-import org.lowcoder.infra.birelation.BiRelation;
 import org.lowcoder.infra.birelation.BiRelationBizType;
 import org.lowcoder.infra.birelation.BiRelationServiceImpl;
 import org.lowcoder.sdk.exception.BizError;
 import org.lowcoder.sdk.exception.BizException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
@@ -49,14 +47,11 @@ import reactor.core.scheduler.Schedulers;
 
 import java.util.*;
 import java.util.function.Function;
-import java.util.function.ToLongFunction;
-import java.util.stream.Collectors;
 
-import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
 import static org.lowcoder.domain.bundle.model.BundleStatus.NORMAL;
 import static org.lowcoder.domain.permission.model.ResourceAction.*;
-import static org.lowcoder.infra.util.MonoUtils.emptyIfNull;
 import static org.lowcoder.sdk.exception.BizError.*;
+import static org.lowcoder.sdk.util.ExceptionUtils.deferredError;
 import static org.lowcoder.sdk.util.ExceptionUtils.ofError;
 
 @RequiredArgsConstructor
@@ -65,6 +60,7 @@ public class BundleApiServiceImpl implements BundleApiService {
     private final BiRelationServiceImpl biRelationService;
     private final BundleService bundleService;
     private final SessionUserService sessionUserService;
+    private final OrgMemberService orgMemberService;
     private final OrgDevChecker orgDevChecker;
     @Lazy
     private final UserHomeApiService userHomeApiService;
@@ -96,8 +92,10 @@ public class BundleApiServiceImpl implements BundleApiService {
         if (StringUtils.isBlank(bundle.getName())) {
             return Mono.error(new BizException(BizError.INVALID_PARAMETER, "BUNDLE_NAME_EMPTY"));
         }
-        return orgDevChecker.checkCurrentOrgDev()
-                .then(sessionUserService.getVisitorOrgMemberCache())
+        return sessionUserService.getVisitorId()
+                .flatMap(userId -> orgMemberService.getOrgMember(bundle.getOrganizationId(), userId))
+                .switchIfEmpty(deferredError(NOT_AUTHORIZED, "NOT_AUTHORIZED"))
+                .delayUntil(orgMember -> orgDevChecker.checkCurrentOrgDev())
                 .delayUntil(orgMember -> checkBundleNameUnique(bundle.getName(), orgMember.getUserId()))
                 .delayUntil(orgMember -> {
                     String folderId = createBundleRequest.folderId();
@@ -251,6 +249,29 @@ public class BundleApiServiceImpl implements BundleApiService {
                 .flatMap(f -> buildBundleInfoView(f, true, true, null));
     }
 
+    @Override
+    public Mono<BundleInfoView> publish(String bundleId) {
+        return checkBundleStatus(bundleId, BundleStatus.NORMAL)
+                .then(sessionUserService.getVisitorId())
+                .flatMap(userId -> resourcePermissionService.checkAndReturnMaxPermission(userId,
+                        bundleId, PUBLISH_BUNDLES))
+                .flatMap(permission -> bundleService.publish(bundleId)
+                        .map(bundleUpdated -> BundleInfoView.builder()
+                                .bundleId(bundleUpdated.getId())
+                                .name(bundleUpdated.getName())
+                                .editingBundleDSL(bundleUpdated.getEditingBundleDSL())
+                                .publishedBundleDSL(bundleUpdated.getPublishedBundleDSL())
+                                .title(bundleUpdated.getTitle())
+                                .image(bundleUpdated.getImage())
+                                .createAt(bundleUpdated.getCreatedAt().toEpochMilli())
+                                .category(bundleUpdated.getCategory())
+                                .agencyProfile(bundleUpdated.getAgencyProfile())
+                                .publicToAll(bundleUpdated.getPublicToAll())
+                                .publicToMarketplace(bundleUpdated.getPublicToMarketplace())
+                                .createBy(bundleUpdated.getCreatedBy())
+                                .build()));
+    }
+
     /**
      * @param applicationId app id to move
      * @param fromBundleId bundle id to remove app from
@@ -381,6 +402,32 @@ public class BundleApiServiceImpl implements BundleApiService {
                 });
     }
 
+    @Override
+    public Mono<BundleInfoView> getEditingBundle(String bundleId) {
+        return checkPermissionWithReadableErrorMsg(bundleId, READ_BUNDLES)
+                .zipWhen(permission -> bundleService.findById(bundleId)
+                        .delayUntil(bundle -> checkBundleStatus(bundle, BundleStatus.NORMAL)))
+                .map(tuple -> {
+                    Bundle bundle = tuple.getT2();
+                    return BundleInfoView.builder()
+                            .bundleId(bundle.getId())
+                            .name(bundle.getName())
+                            .title(bundle.getTitle())
+                            .category(bundle.getCategory())
+                            .description(bundle.getDescription())
+                            .image(bundle.getImage())
+                            .editingBundleDSL(bundle.getEditingBundleDSL())
+//                            .publishedBundleDSL(bundle.getPublishedBundleDSL())
+                            .publicToMarketplace(bundle.getPublicToMarketplace())
+                            .publicToAll(bundle.getPublicToAll())
+                            .agencyProfile(bundle.getAgencyProfile())
+                            .createAt(bundle.getCreatedAt().toEpochMilli())
+                            .createTime(bundle.getCreatedAt())
+                            .createBy(bundle.getCreatedBy())
+                            .build();
+                });
+    }
+
     private Mono<Void> checkBundleViewRequest(Bundle bundle, BundleRequestType expected) {
 
         // TODO: check bundle.isPublicToAll() from v2.4.0
@@ -400,6 +447,28 @@ public class BundleApiServiceImpl implements BundleApiService {
             return Mono.empty();
         }
         return Mono.error(new BizException(BizError.UNSUPPORTED_OPERATION, "BAD_REQUEST"));
+    }
+
+    @Override
+    @Nonnull
+    public Mono<ResourcePermission> checkPermissionWithReadableErrorMsg(String bundleId, ResourceAction action) {
+        return sessionUserService.getVisitorId()
+                .flatMap(visitorId -> resourcePermissionService.checkUserPermissionStatusOnResource(visitorId, bundleId, action))
+                .flatMap(permissionStatus -> {
+                    if (!permissionStatus.hasPermission()) {
+                        if (permissionStatus.failByAnonymousUser()) {
+                            return ofError(USER_NOT_SIGNED_IN, "USER_NOT_SIGNED_IN");
+                        }
+
+                        if (permissionStatus.failByNotInOrg()) {
+                            return ofError(NO_PERMISSION_TO_REQUEST_APP, "INSUFFICIENT_PERMISSION");
+                        }
+
+                        String messageKey = action == EDIT_APPLICATIONS ? "NO_PERMISSION_TO_EDIT" : "NO_PERMISSION_TO_VIEW";
+                        return ofError(NO_PERMISSION_TO_REQUEST_APP, messageKey);
+                    }
+                    return Mono.just(permissionStatus.getPermission());
+                });
     }
 
     @Override

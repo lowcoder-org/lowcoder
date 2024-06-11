@@ -65,6 +65,11 @@ public class BundleController implements BundleEndpoints
     }
 
     @Override
+    public Mono<ResponseView<BundleInfoView>> publish(@PathVariable String bundleId) {
+        return bundleApiService.publish(bundleId).map(ResponseView::success);
+    }
+
+    @Override
     public Mono<ResponseView<Boolean>> recycle(@PathVariable String bundleId) {
         return bundleApiService.recycle(bundleId)
 //                .delayUntil(__ -> businessEventPublisher.publishBundleCommonEvent(bundleId, null, BUNDLE_RECYCLED))

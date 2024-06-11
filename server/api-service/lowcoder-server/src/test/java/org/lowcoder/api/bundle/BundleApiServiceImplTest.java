@@ -1,35 +1,32 @@
 package org.lowcoder.api.bundle;
 
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.lowcoder.api.bundle.view.BundleInfoView;
-import org.lowcoder.api.home.SessionUserServiceImpl;
+import org.lowcoder.api.common.mockuser.WithMockUser;
 import org.lowcoder.domain.bundle.model.BundleRequestType;
-import org.lowcoder.domain.organization.model.MemberRole;
-import org.lowcoder.domain.organization.model.OrgMember;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit4.SpringRunner;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.when;
 
 @SpringBootTest
 @RunWith(SpringRunner.class)
 public class BundleApiServiceImplTest {
     @Autowired
     BundleApiServiceImpl bundleApiService;
-    @MockBean
-    SessionUserServiceImpl sessionUserService;
+//    @MockBean
+//    SessionUserServiceImpl sessionUserService;
 
     @Test
     public void createBundleTest() {
         //When org admin user creates bundle it succeed
-        when(sessionUserService.getVisitorId()).thenReturn(Mono.just("user01"));
-        when(sessionUserService.getVisitorOrgMemberCache()).thenReturn(Mono.just(new OrgMember("org01", "user01", MemberRole.ADMIN, "NORMAL", 0)));
+//        when(sessionUserService.getVisitorId()).thenReturn(Mono.just("user01"));
+//        when(sessionUserService.getVisitorOrgMemberCache()).thenReturn(Mono.just(new OrgMember("org01", "user01", MemberRole.ADMIN, "NORMAL", 0)));
         Mono<BundleInfoView> bundleInfoViewMono = bundleApiService.create(new BundleEndpoints.CreateBundleRequest(
                 "org01",
                 "name1",
@@ -54,8 +51,8 @@ public class BundleApiServiceImplTest {
                 .verifyComplete();
 
         //When org dev user creates bundle it succeed
-        when(sessionUserService.getVisitorId()).thenReturn(Mono.just("user02"));
-        when(sessionUserService.getVisitorOrgMemberCache()).thenReturn(Mono.just(new OrgMember("org01", "user02", MemberRole.MEMBER, "NORMAL", 0)));
+//        when(sessionUserService.getVisitorId()).thenReturn(Mono.just("user02"));
+//        when(sessionUserService.getVisitorOrgMemberCache()).thenReturn(Mono.just(new OrgMember("org01", "user02", MemberRole.MEMBER, "NORMAL", 0)));
         Mono<BundleInfoView> bundleInfoViewMono1 = bundleApiService.create(new BundleEndpoints.CreateBundleRequest(
                 "org01",
                 "name2",
@@ -80,8 +77,8 @@ public class BundleApiServiceImplTest {
                 .verifyComplete();
 
         //When non-dev create bundle throws error
-        when(sessionUserService.getVisitorId()).thenReturn(Mono.just("user01"));
-        when(sessionUserService.getVisitorOrgMemberCache()).thenReturn(Mono.just(new OrgMember("org01", "user01", MemberRole.MEMBER, "NORMAL", 0)));
+//        when(sessionUserService.getVisitorId()).thenReturn(Mono.just("user01"));
+//        when(sessionUserService.getVisitorOrgMemberCache()).thenReturn(Mono.just(new OrgMember("org01", "user01", MemberRole.MEMBER, "NORMAL", 0)));
         Mono<BundleInfoView> bundleInfoViewMono2 = bundleApiService.create(new BundleEndpoints.CreateBundleRequest(
                 "org01",
                 "name3",
@@ -97,8 +94,8 @@ public class BundleApiServiceImplTest {
 
     @Test
     public void moveAddAppTest() {
-        when(sessionUserService.getVisitorId()).thenReturn(Mono.just("user01"));
-        when(sessionUserService.getVisitorOrgMemberCache()).thenReturn(Mono.just(new OrgMember("org01", "user01", MemberRole.ADMIN, "NORMAL", 0)));
+//        when(sessionUserService.getVisitorId()).thenReturn(Mono.just("user01"));
+//        when(sessionUserService.getVisitorOrgMemberCache()).thenReturn(Mono.just(new OrgMember("org01", "user01", MemberRole.ADMIN, "NORMAL", 0)));
         //Create bundles
         Mono<BundleInfoView> bundleInfoViewMono = bundleApiService.create(new BundleEndpoints.CreateBundleRequest(
                 "org01",
@@ -127,8 +124,8 @@ public class BundleApiServiceImplTest {
                             .then(bundleApiService.moveApp("app01", bundleInfoView.getBundleId(), bundleInfoView2.getBundleId()))
                             .then(Mono.fromRunnable(() -> {
                                 // Try a no-dev user to add app to bundle
-                                when(sessionUserService.getVisitorId()).thenReturn(Mono.just("user01"));
-                                when(sessionUserService.getVisitorOrgMemberCache()).thenReturn(Mono.just(new OrgMember("org01", "user01", MemberRole.MEMBER, "NORMAL", 0)));
+//                                when(sessionUserService.getVisitorId()).thenReturn(Mono.just("user01"));
+//                                when(sessionUserService.getVisitorOrgMemberCache()).thenReturn(Mono.just(new OrgMember("org01", "user01", MemberRole.MEMBER, "NORMAL", 0)));
                             }))
                             .then(bundleApiService.addApp("app01", bundleInfoView.getBundleId()).onErrorResume(e -> Mono.empty()))
                             .then(bundleApiService.moveApp("app01", bundleInfoView.getBundleId(), bundleInfoView2.getBundleId()).onErrorResume(e -> Mono.empty()))
@@ -143,6 +140,45 @@ public class BundleApiServiceImplTest {
                 });
 
         StepVerifier.create(testMono)
+                .verifyComplete();
+    }
+
+    private Mono<BundleInfoView> createBundle(String name, String folderId) {
+        BundleEndpoints.CreateBundleRequest createApplicationRequest =
+                new BundleEndpoints.CreateBundleRequest("org01", name, "title", "desc", "category", "image", folderId);
+        return bundleApiService.create(createApplicationRequest);
+    }
+
+    @Test
+    @WithMockUser
+    public void testPublishBundle() {
+        Mono<String> bundleIdMono = createBundle("test", null)
+                .map(BundleInfoView::getBundleId)
+                .delayUntil(id ->bundleApiService.addApp("app01", id))
+                .cache();
+
+        // edit dsl before publish
+        StepVerifier.create(bundleIdMono.flatMap(id -> bundleApiService.getEditingBundle(id)))
+                .assertNext(bundleView -> Assert.assertNotNull(bundleView.getEditingBundleDSL()))
+                .verifyComplete();
+
+        // published dsl before publish
+        StepVerifier.create(bundleIdMono.flatMap(id -> bundleApiService.getPublishedBundle(id, BundleRequestType.PUBLIC_TO_ALL)))
+                .assertNext(bundleView -> Assert.assertNull(bundleView.getPublishedBundleDSL()))
+                .verifyComplete();
+
+        // publish
+        bundleIdMono = bundleIdMono
+                .delayUntil(id -> bundleApiService.publish(id));
+
+        // edit dsl after publish
+        StepVerifier.create(bundleIdMono.flatMap(id -> bundleApiService.getEditingBundle(id)))
+                .assertNext(bundleView -> Assert.assertNotNull(bundleView.getEditingBundleDSL()))
+                .verifyComplete();
+
+        // published dsl after publish
+        StepVerifier.create(bundleIdMono.flatMap(id -> bundleApiService.getPublishedBundle(id, BundleRequestType.PUBLIC_TO_ALL)))
+                .assertNext(bundleView -> Assert.assertNotNull(bundleView.getPublishedBundleDSL()))
                 .verifyComplete();
     }
 }

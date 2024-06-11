@@ -9,6 +9,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.Collection;
+import java.util.Map;
 import java.util.Set;
 
 public interface BundleService {
@@ -23,6 +24,8 @@ public interface BundleService {
     Mono<Void> deleteAllById(Collection<String> ids);
 
     Mono<Boolean> exist(String id);
+    Mono<Bundle> publish(String bundleId);
+    Mono<Boolean> updatePublishedBundleDSL(String bundleId, Map<String, Object> bundleDSL);
 
     @NonEmptyMono
     @SuppressWarnings("ReactiveStreamsNullableInLambdaInTransform")

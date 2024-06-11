@@ -23,6 +23,7 @@ public interface BundleApiService {
 
     Mono<Void> checkBundleCurrentUser(Bundle bundle, String currentOrgId);
     Mono<BundleInfoView> getPublishedBundle(String bundleId, BundleRequestType requestType);
+    Mono<BundleInfoView> getEditingBundle(String bundleId);
 
     Mono<Bundle> delete(@Nonnull String bundleId);
 
@@ -32,6 +33,7 @@ public interface BundleApiService {
     Flux<BundleInfoView> getRecycledBundles();
 
     Mono<BundleInfoView> update(Bundle bundle);
+    Mono<BundleInfoView> publish(String bundleId);
 
     Mono<Void> moveApp(String applicationId, String fromBundled, String toBundleId);
 
@@ -41,6 +43,8 @@ public interface BundleApiService {
 
     @Nonnull
     Mono<ResourcePermission> checkBundlePermissionWithReadableErrorMsg(String bundleId, ResourceAction action, BundleRequestType requestType);
+    @Nonnull
+    Mono<ResourcePermission> checkPermissionWithReadableErrorMsg(String bundleId, ResourceAction action);
 
     Mono<Void> grantPermission(String bundleId, Set<String> userIds, Set<String> groupIds, ResourceRole role);
 
