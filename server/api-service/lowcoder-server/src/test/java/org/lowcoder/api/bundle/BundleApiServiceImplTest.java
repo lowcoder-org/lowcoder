@@ -4,6 +4,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.lowcoder.api.bundle.view.BundleInfoView;
 import org.lowcoder.api.home.SessionUserServiceImpl;
+import org.lowcoder.domain.bundle.model.BundleRequestType;
 import org.lowcoder.domain.organization.model.MemberRole;
 import org.lowcoder.domain.organization.model.OrgMember;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -117,24 +118,31 @@ public class BundleApiServiceImplTest {
                 "image",
                 null));
 
-        StepVerifier.create(Mono.zip(bundleInfoViewMono, bundleInfoViewMono2))
-                .assertNext(tuple2 -> {
+        Mono<Void> testMono = Mono.zip(bundleInfoViewMono, bundleInfoViewMono2)
+                .flatMap(tuple2 -> {
                     var bundleInfoView = tuple2.getT1();
                     var bundleInfoView2 = tuple2.getT2();
-                    //And then add app01 to created bundle
-                    StepVerifier.create(bundleApiService.addApp("app01", bundleInfoView.getBundleId()))
-                            .verifyComplete();
-                    //or move bundle
-                    StepVerifier.create(bundleApiService.moveApp("app01", bundleInfoView.getBundleId(), bundleInfoView2.getBundleId()))
-                            .verifyComplete();
-                    //Try no dev user to add app to bundle
-                    when(sessionUserService.getVisitorId()).thenReturn(Mono.just("user01"));
-                    when(sessionUserService.getVisitorOrgMemberCache()).thenReturn(Mono.just(new OrgMember("org01", "user01", MemberRole.MEMBER, "NORMAL", 0)));
-                    StepVerifier.create(bundleApiService.addApp("app01", bundleInfoView.getBundleId()))
-                            .expectError();
-                    StepVerifier.create(bundleApiService.moveApp("app01", bundleInfoView.getBundleId(), bundleInfoView2.getBundleId()))
-                            .expectError();
-                })
+
+                    return bundleApiService.addApp("app01", bundleInfoView.getBundleId())
+                            .then(bundleApiService.moveApp("app01", bundleInfoView.getBundleId(), bundleInfoView2.getBundleId()))
+                            .then(Mono.fromRunnable(() -> {
+                                // Try a no-dev user to add app to bundle
+                                when(sessionUserService.getVisitorId()).thenReturn(Mono.just("user01"));
+                                when(sessionUserService.getVisitorOrgMemberCache()).thenReturn(Mono.just(new OrgMember("org01", "user01", MemberRole.MEMBER, "NORMAL", 0)));
+                            }))
+                            .then(bundleApiService.addApp("app01", bundleInfoView.getBundleId()).onErrorResume(e -> Mono.empty()))
+                            .then(bundleApiService.moveApp("app01", bundleInfoView.getBundleId(), bundleInfoView2.getBundleId()).onErrorResume(e -> Mono.empty()))
+                            //Get published bundle
+                            .then(bundleApiService.getPublishedBundle(bundleInfoView2.getBundleId(), BundleRequestType.PUBLIC_TO_ALL))
+                            .doOnNext(bundle -> {
+                                //should have no published dsl since not yet published
+                                assertNotNull(bundle.getBundleId());
+                                assertNull(bundle.getPublishedBundleDSL());
+                            })
+                            .then();
+                });
+
+        StepVerifier.create(testMono)
                 .verifyComplete();
     }
 }
