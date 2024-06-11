@@ -203,15 +203,15 @@ export function setTransform(
   {top, left, width, height }: Position,
   name ?: string,
   autoHeight?: boolean,
+  isDragging?: boolean,
 ): Record<string, any> {
   // Replace unitless items with px
   const translate = `translate(${left}px,${top}px)`;
   function containsChart(str:string) {
     return /chart/i.test(str);
   }
-  
   let updatedHeight = 'auto';
-  if (!autoHeight || (name && containsChart(name))) {
+  if (isDragging || !autoHeight || (name && containsChart(name))) {
     updatedHeight = `${height}px`;
   }
 
