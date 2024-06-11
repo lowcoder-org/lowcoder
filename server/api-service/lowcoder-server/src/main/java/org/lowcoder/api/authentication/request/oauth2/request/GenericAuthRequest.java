@@ -1,5 +1,6 @@
 package org.lowcoder.api.authentication.request.oauth2.request;
 
+import lombok.Setter;
 import org.lowcoder.api.authentication.request.AuthException;
 import org.lowcoder.api.authentication.request.oauth2.GenericOAuthProviderSource;
 import org.lowcoder.api.authentication.request.oauth2.OAuth2RequestContext;
@@ -75,6 +76,7 @@ public class GenericAuthRequest  extends AbstractOauth2Request<Oauth2GenericAuth
 
     @Override
     protected Mono<AuthUser> getAuthUser(AuthToken authToken) {
+        if(!config.getUserInfoIntrospection()) return Mono.just(AuthUser.builder().build());
         return WebClientBuildHelper.builder()
                 .systemProxy()
                 .timeoutMs(HTTP_TIMEOUT)

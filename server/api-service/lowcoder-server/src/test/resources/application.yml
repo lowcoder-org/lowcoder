@@ -4,6 +4,8 @@ spring:
   data:
     redis:
       url: redis://localhost:6370
+  profiles:
+    active: test
 
 de:
   flapdoodle:

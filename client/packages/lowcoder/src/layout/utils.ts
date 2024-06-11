@@ -199,11 +199,20 @@ export function getStatics(layout: Layout): Layout {
   return _.pickBy(layout, (l) => l.static);
 }
 
-export function setTransform({ top, left, width, height }: Position,name?:string): Record<string, any> {
+export function setTransform(
+  {top, left, width, height }: Position,
+  name ?: string,
+  autoHeight?: boolean,
+  isDragging?: boolean,
+): Record<string, any> {
   // Replace unitless items with px
   const translate = `translate(${left}px,${top}px)`;
   function containsChart(str:string) {
     return /chart/i.test(str);
+  }
+  let updatedHeight = 'auto';
+  if (isDragging || !autoHeight || (name && containsChart(name))) {
+    updatedHeight = `${height}px`;
   }
 
   return {
@@ -213,7 +222,7 @@ export function setTransform({ top, left, width, height }: Position,name?:string
     msTransform: translate,
     OTransform: translate,
     width: `${width}px`,
-    height: name ?containsChart(name)?`${height}px`:'auto':`${height}px`,
+    height: updatedHeight,
     position: 'absolute',
   };
 }
