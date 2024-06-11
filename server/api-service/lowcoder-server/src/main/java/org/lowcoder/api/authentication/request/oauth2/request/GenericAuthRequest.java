@@ -16,6 +16,7 @@ import java.util.Map;
 
 import static org.lowcoder.api.authentication.util.AuthenticationUtils.mapToAuthToken;
 import static org.lowcoder.api.authentication.util.AuthenticationUtils.mapToAuthUser;
+import static org.lowcoder.sdk.plugin.common.constant.Constants.HTTP_TIMEOUT;
 
 /**
  * This class is for Generic Auth Request
@@ -30,6 +31,7 @@ public class GenericAuthRequest  extends AbstractOauth2Request<Oauth2GenericAuth
     protected Mono<AuthToken> getAuthToken(OAuth2RequestContext context) {
         return WebClientBuildHelper.builder()
                 .systemProxy()
+                .timeoutMs(HTTP_TIMEOUT)
                 .build()
                 .post()
                 .uri(config.getTokenEndpoint())
@@ -53,6 +55,7 @@ public class GenericAuthRequest  extends AbstractOauth2Request<Oauth2GenericAuth
     protected Mono<AuthToken> refreshAuthToken(String refreshToken) {
         return WebClientBuildHelper.builder()
                 .systemProxy()
+                .timeoutMs(HTTP_TIMEOUT)
                 .build()
                 .post()
                 .uri(config.getTokenEndpoint())
@@ -74,6 +77,7 @@ public class GenericAuthRequest  extends AbstractOauth2Request<Oauth2GenericAuth
     protected Mono<AuthUser> getAuthUser(AuthToken authToken) {
         return WebClientBuildHelper.builder()
                 .systemProxy()
+                .timeoutMs(HTTP_TIMEOUT)
                 .build()
                 .get()
                 .uri(config.getUserInfoEndpoint())

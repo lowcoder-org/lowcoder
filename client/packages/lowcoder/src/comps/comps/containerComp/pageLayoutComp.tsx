@@ -54,7 +54,7 @@ export const ContainerBaseComp = (function () {
             <Section name={sectionNames.style}>
               { children.container.stylePropertyView() }
               </Section>
-              <Section name={sectionNames.animationStyle}>
+              <Section name={sectionNames.animationStyle} hasTooltip={true}>
                 {children.animationStyle.getPropertyView()}
               </Section>
             {children.container.children.showHeader.getView() && (

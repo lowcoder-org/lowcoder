@@ -14,4 +14,5 @@ public final class Constants {
     public static final String UPDATE_CHANGE_SET_FORM_KEY = "updateChangeSet";
     public static final String CHANGE_SET_TYPE_KEY_VALUE_PAIRS = "KEY_VALUE_PAIRS";
     public static final String CHANGE_SET_TYPE_OBJECT = "OBJECT";
+    public static final int HTTP_TIMEOUT = 10000; //10s
 }

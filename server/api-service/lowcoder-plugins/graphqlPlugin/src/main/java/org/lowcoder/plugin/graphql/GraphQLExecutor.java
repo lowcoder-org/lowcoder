@@ -244,6 +244,7 @@ public class GraphQLExecutor implements QueryExecutor<GraphQLDatasourceConfig, O
                 .then(Mono.defer(() -> {
                     URI uri = RestApiUriBuilder.buildUri(context.getUrl(), new HashMap<>(), context.getUrlParams());
                     WebClient.Builder webClientBuilder = WebClientBuildHelper.builder()
+                            .systemProxy()
                             .disallowedHosts(commonConfig.getDisallowedHosts())
                             .toWebClientBuilder();
 

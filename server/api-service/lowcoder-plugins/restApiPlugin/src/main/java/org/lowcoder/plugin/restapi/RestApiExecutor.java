@@ -218,6 +218,7 @@ public class RestApiExecutor implements QueryExecutor<RestApiDatasourceConfig, O
         return Mono.defer(() -> authByOauth2InheritFromLogin(context))
                 .then(Mono.defer(() -> {
                     WebClient.Builder webClientBuilder = WebClientBuildHelper.builder()
+                            .systemProxy()
                             .disallowedHosts(commonConfig.getDisallowedHosts())
                             .sslConfig(context.getSslConfig())
                             .timeoutMs(context.getTimeoutMs())

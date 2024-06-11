@@ -20,7 +20,6 @@ const getStyle = (style: FileViewerStyleType) => {
     height: ${heightCalculator(style.margin)};	
     margin: ${style.margin};	
     padding: ${style.padding};
-    rotate: ${style.rotation};
 
     overflow: hidden;
     background-color: ${style.background};
@@ -69,7 +68,7 @@ let FileViewerBasicComp = (function () {
   const childrenMap = {
     src: StringControl,
     style: styleControl(FileViewerStyle),
-    animationStyle:styleControl(AnimationStyle)
+    animationStyle: styleControl(AnimationStyle),
   };
   return new UICompBuilder(childrenMap, (props) => {
     if (isEmpty(props.src)) {
@@ -107,7 +106,7 @@ let FileViewerBasicComp = (function () {
               <Section name={sectionNames.style}>
               {children.style.getPropertyView()}
               </Section>
-              <Section name={sectionNames.animationStyle}>
+              <Section name={sectionNames.animationStyle} hasTooltip={true}>
               {children.animationStyle.getPropertyView()}
               </Section>
               </>

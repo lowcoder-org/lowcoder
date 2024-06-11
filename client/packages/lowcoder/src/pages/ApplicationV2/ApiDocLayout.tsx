@@ -1,6 +1,6 @@
 import styled, { createGlobalStyle } from "styled-components";
 import { trans } from "../../i18n";
-import { API } from '@stoplight/elements';
+// import { API } from '@stoplight/elements';
 import React from 'react';
 import { useLocation } from "react-router-dom";
 import history from "util/history";
@@ -130,7 +130,7 @@ export function ApiDoc(props: ApiDocLayoutProps) {
           </StyleApiDocCover>
           <Card style={{ marginBottom: "20px", minHeight : "800px", width: "100%" }}>
             <div style={{width : "100%"}}> {/* className={styles.stoplightApidoc} */}
-              <API
+              {/* <API
                 layout="responsive"
                 hideSchemas={true}
                 hideInternal={true}
@@ -139,7 +139,7 @@ export function ApiDoc(props: ApiDocLayoutProps) {
                 tryItCorsProxy={isSelfHost ? undefined : 'https://api-service.lowcoder.cloud'}
                 basePath={API_DOCS_URL}
                 apiDescriptionUrl="https://api-service.lowcoder.cloud/api/docs/api-docs"
-              />
+              /> */}
             </div>
           </Card>  
           

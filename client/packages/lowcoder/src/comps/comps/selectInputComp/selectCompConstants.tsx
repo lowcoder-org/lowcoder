@@ -109,6 +109,7 @@ export const getStyle = (
         background-color: ${style.background};
         border-color: ${style.border};
         border-width:${(style as SelectStyleType).borderWidth};
+        box-shadow:${(style as SelectStyleType).boxShadow} ${(style as SelectStyleType).boxShadowColor};
       }
 
       &.ant-select-focused,
@@ -181,10 +182,9 @@ const getDropdownStyle = (style: MultiSelectStyleType) => {
   `;
 };
 
-const Select = styled(AntdSelect) <{ $style: SelectStyleType & MultiSelectStyleType }>`
+const Select = styled(AntdSelect) <{ $style: SelectStyleType & MultiSelectStyleType,$inputFieldStyle:SelectStyleType }>`
   width: 100%;
-
-  ${(props) => props.$style && getStyle(props.$style)}
+  ${(props) => props.$inputFieldStyle && getStyle(props.$inputFieldStyle)}
 `;
 
 const DropdownStyled = styled.div<{ $style: ChildrenMultiSelectStyleType }>`
@@ -246,6 +246,7 @@ export const SelectUIView = (
     value: any;
     style: SelectStyleType | MultiSelectStyleType;
     childrenInputFieldStyle: ChildrenMultiSelectStyleType;
+    inputFieldStyle: SelectStyleType;
     onChange: (value: any) => void;
     dispatch: DispatchType;
   }
@@ -253,6 +254,7 @@ export const SelectUIView = (
   return <Select
     ref={props.viewRef}
     mode={props.mode}
+    $inputFieldStyle={props.inputFieldStyle}
     $style={props.style as SelectStyleType & MultiSelectStyleType}
     disabled={props.disabled}
     allowClear={props.allowClear}

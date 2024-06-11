@@ -39,6 +39,7 @@ import { useEffect, useRef, useState } from "react";
 import ReactResizeDetector from "react-resize-detector";
 
 import { useContext } from "react";
+import { BoolControl } from "@lowcoder-ee/index.sdk";
 
 const Container = styled.div<{ $style: any }>`
   height: 100%;
@@ -186,6 +187,7 @@ const childrenMap = {
   prefixIcon: IconControl,
   style: ButtonStyleControl,
   viewRef: RefControl<HTMLElement>,
+  restrictPaddingOnRotation:withDefault(StringControl, 'controlButton')
 };
 
 let ButtonTmpComp = (function () {
