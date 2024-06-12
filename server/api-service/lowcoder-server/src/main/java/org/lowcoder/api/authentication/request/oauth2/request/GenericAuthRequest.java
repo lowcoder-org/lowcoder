@@ -84,7 +84,7 @@ public class GenericAuthRequest  extends AbstractOauth2Request<Oauth2GenericAuth
                     if (map.containsKey("error") || map.containsKey("error_description")) {
                         return Mono.error(new AuthException(JsonUtils.toJson(map)));
                     }
-                    return Mono.just(mapToAuthUser(map));
+                    return Mono.just(mapToAuthUser(map, config.getSourceMappings()));
                 });
     }
 }

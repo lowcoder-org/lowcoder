@@ -108,6 +108,7 @@ public class AuthConfigFactoryImpl implements AuthConfigFactory {
                 .sourceDescription(authConfigRequest.getSourceDescription())
                 .sourceIcon(authConfigRequest.getSourceIcon())
                 .sourceCategory(authConfigRequest.getSourceCategory())
+                .sourceMappings(authConfigRequest.getSourceMappings())
                 .clientId(requireNonNull(authConfigRequest.getClientId(), "clientId can not be null."))
                 .clientSecret(authConfigRequest.getClientSecret())
                 .issuerUri(authConfigRequest.getIssuerUri())
