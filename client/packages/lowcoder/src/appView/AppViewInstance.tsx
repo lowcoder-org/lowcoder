@@ -14,6 +14,8 @@ import { saveAuthSearchParams } from "pages/userAuth/authUtils";
 import { Suspense, lazy } from "react";
 import Flex from "antd/es/flex";
 import { TacoButton } from "components/button";
+import { DatasourceApi } from "@lowcoder-ee/api/datasourceApi";
+import { registryDataSourcePlugin } from "@lowcoder-ee/constants/queryConstants";
 
 const AppView = lazy(
   () => import('./AppView')
@@ -101,6 +103,12 @@ export class AppViewInstance<I = any, O = any> {
             };
           }
         });
+      
+      await DatasourceApi.fetchJsDatasourceByApp(this.appId).then((res) => {
+        res.data.data.forEach((i) => {
+          registryDataSourcePlugin(i.type, i.id, i.pluginDefinition);
+        });
+      });
 
       setGlobalSettings({
         orgCommonSettings: data.data.orgCommonSettings,
