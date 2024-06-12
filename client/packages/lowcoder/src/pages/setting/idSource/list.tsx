@@ -75,7 +75,7 @@ export const IdSourceList = (props: any) => {
           let res: ConfigItem[] = resp.data.data.filter((item: ConfigItem) =>
             IdSource.includes(item.authType)
           );
-          res = _.uniqBy(res, 'authType');
+          // res = _.uniqBy(res, 'authType');
           setConfigs(res);
         }
       })
