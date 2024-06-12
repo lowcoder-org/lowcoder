@@ -97,7 +97,11 @@ public class AuthConfigRequest extends HashMap<String, Object> {
     }
 
     public String getSourceCategory() {
-        return getString("sourceDescription");
+        return getString("sourceCategory");
+    }
+
+    public HashMap<String, String> getSourceMappings() {
+        return (HashMap<String, String>) MapUtils.getMap(this, "sourceMappings");
     }
 
     public String getString(String key) {

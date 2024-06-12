@@ -4,6 +4,7 @@ import static java.util.Collections.emptyMap;
 import static reactor.core.scheduler.Schedulers.newBoundedElastic;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.collections4.MapUtils;
@@ -76,13 +77,16 @@ public final class AuthenticationUtils {
 
     /**
      * Utility method to map from Map to AuthUser
-     * @param map Object
+     *
+     * @param map            Object
+     * @param sourceMappings
      * @return AuthUser
      */
-    public static AuthUser mapToAuthUser(Map<String, Object> map) {
+    public static AuthUser mapToAuthUser(Map<String, Object> map, HashMap<String, String> sourceMappings) {
         return AuthUser.builder()
-                .uid(MapUtils.getString(map, "sub"))
-                .username(MapUtils.getString(map, "email"))
+                .uid(MapUtils.getString(map, MapUtils.getString(sourceMappings, "uid")))
+                .username(MapUtils.getString(map, MapUtils.getString(sourceMappings, "username")))
+                .avatar(MapUtils.getString(map, MapUtils.getString(sourceMappings, "avatar")))
                 .rawUserInfo(map)
                 .build();
     }
