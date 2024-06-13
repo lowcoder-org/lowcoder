@@ -166,7 +166,7 @@ export type DateCompViewProps = Pick<
 };
 
 export const datePickerControl = new UICompBuilder(childrenMap, (props) => {
-  let time = dayjs(null);
+  let time = null;
   if (props.value.value !== '') {
     time = dayjs(props.value.value, DateParser);
   }
@@ -187,7 +187,7 @@ export const datePickerControl = new UICompBuilder(childrenMap, (props) => {
         minDate={props.minDate}
         maxDate={props.maxDate}
         placeholder={props.placeholder}
-        value={time.isValid() ? time : null}
+        value={time?.isValid() ? time : null}
         onChange={(time) => {
           handleDateChange(
             time && time.isValid()
@@ -285,11 +285,12 @@ export const dateRangeControl = (function () {
   };
 
   return new UICompBuilder(childrenMap, (props) => {
-    let start = dayjs(null);
-    let end = dayjs(null);
+    let start = null;
+    let end = null;
     if (props.start.value !== '') {
       start = dayjs(props.start.value, DateParser);
     }
+
     if (props.end.value !== '') {
       end = dayjs(props.end.value, DateParser);
     }
@@ -300,8 +301,8 @@ export const dateRangeControl = (function () {
         $style={props.inputFieldStyle}
         disabled={props.disabled}
         {...datePickerProps(props)}
-        start={start.isValid() ? start : null}
-        end={end.isValid() ? end : null}
+        start={start?.isValid() ? start : null}
+        end={end?.isValid() ? end : null}
         minDate={props.minDate}
         maxDate={props.maxDate}
         placeholder={[props.placeholder, props.placeholder]}
@@ -418,8 +419,8 @@ export const DatePickerComp = withExposingConfigs(datePickerControl, [
     desc: trans("export.datePickerValueDesc"),
     depKeys: ["value", "showTime"],
     func: (input) => {
-      const mom = dayjs(input.value, DateParser);
-      return mom.isValid() ? mom.format(input.showTime ? DATE_TIME_FORMAT : DATE_FORMAT) : "";
+      const mom = Boolean(input.value) ? dayjs(input.value, DateParser) : null;
+      return mom?.isValid() ? mom.format(input.showTime ? DATE_TIME_FORMAT : DATE_FORMAT) : null;
     },
   }),
   depsConfig({
@@ -427,8 +428,8 @@ export const DatePickerComp = withExposingConfigs(datePickerControl, [
     desc: trans("export.datePickerFormattedValueDesc"),
     depKeys: ["value", "format"],
     func: (input) => {
-      const mom = dayjs(input.value, DateParser);
-      return mom.isValid() ? mom.format(input.format) : "";
+      const mom = Boolean(input.value) ? dayjs(input.value, DateParser) : null;
+      return mom?.isValid() ? mom.format(input.format) : "";
     },
   }),
   depsConfig({
@@ -436,8 +437,8 @@ export const DatePickerComp = withExposingConfigs(datePickerControl, [
     desc: trans("export.datePickerTimestampDesc"),
     depKeys: ["value"],
     func: (input) => {
-      const mom = dayjs(input.value, DateParser);
-      return mom.isValid() ? mom.unix() : "";
+      const mom = Boolean(input.value) ? dayjs(input.value, DateParser) : null;
+      return mom?.isValid() ? mom.unix() : "";
     },
   }),
   depsConfig({
@@ -459,8 +460,8 @@ export let DateRangeComp = withExposingConfigs(dateRangeControl, [
     desc: trans("export.dateRangeStartDesc"),
     depKeys: ["start", "showTime"],
     func: (input) => {
-      const mom = dayjs(input.start, DateParser);
-      return mom.isValid() ? mom.format(input.showTime ? DATE_TIME_FORMAT : DATE_FORMAT) : "";
+      const mom = Boolean(input.start) ? dayjs(input.start, DateParser): null;
+      return mom?.isValid() ? mom.format(input.showTime ? DATE_TIME_FORMAT : DATE_FORMAT) : null;
     },
   }),
   depsConfig({
@@ -468,8 +469,8 @@ export let DateRangeComp = withExposingConfigs(dateRangeControl, [
     desc: trans("export.dateRangeEndDesc"),
     depKeys: ["end", "showTime"],
     func: (input) => {
-      const mom = dayjs(input.end, DateParser);
-      return mom.isValid() ? mom.format(input.showTime ? DATE_TIME_FORMAT : DATE_FORMAT) : "";
+      const mom = Boolean(input.end) ? dayjs(input.end, DateParser): null;
+      return mom?.isValid() ? mom.format(input.showTime ? DATE_TIME_FORMAT : DATE_FORMAT) : null;
     },
   }),
   depsConfig({
@@ -477,8 +478,8 @@ export let DateRangeComp = withExposingConfigs(dateRangeControl, [
     desc: trans("export.dateRangeStartTimestampDesc"),
     depKeys: ["start"],
     func: (input) => {
-      const mom = dayjs(input.start, DateParser);
-      return mom.isValid() ? mom.unix() : "";
+      const mom = Boolean(input.start) ? dayjs(input.start, DateParser) : null;
+      return mom?.isValid() ? mom.unix() : "";
     },
   }),
   depsConfig({
@@ -486,8 +487,8 @@ export let DateRangeComp = withExposingConfigs(dateRangeControl, [
     desc: trans("export.dateRangeEndTimestampDesc"),
     depKeys: ["end"],
     func: (input) => {
-      const mom = dayjs(input.end, DateParser);
-      return mom.isValid() ? mom.unix() : "";
+      const mom = Boolean(input.end) ? dayjs(input.end, DateParser) : null;
+      return mom?.isValid() ? mom.unix() : "";
     },
   }),
   depsConfig({
@@ -495,11 +496,11 @@ export let DateRangeComp = withExposingConfigs(dateRangeControl, [
     desc: trans("export.dateRangeFormattedValueDesc"),
     depKeys: ["start", "end", "format"],
     func: (input) => {
-      const start = dayjs(input.start, DateParser);
-      const end = dayjs(input.end, DateParser);
+      const start = Boolean(input.start) ? dayjs(input.start, DateParser): null;
+      const end = Boolean(input.end) ? dayjs(input.end, DateParser): null;
       return [
-        start.isValid() && start.format(input.format),
-        end.isValid() && end.format(input.format),
+        start?.isValid() && start.format(input.format),
+        end?.isValid() && end.format(input.format),
       ]
         .filter((item) => item)
         .join(" - ");
@@ -510,8 +511,8 @@ export let DateRangeComp = withExposingConfigs(dateRangeControl, [
     desc: trans("export.dateRangeFormattedStartValueDesc"),
     depKeys: ["start", "format"],
     func: (input) => {
-      const start = dayjs(input.start, DateParser);
-      return start.isValid() && start.format(input.format);
+      const start = Boolean(input.start) ? dayjs(input.start, DateParser): null;
+      return start?.isValid() && start.format(input.format);
     },
   }),
   depsConfig({
@@ -519,8 +520,8 @@ export let DateRangeComp = withExposingConfigs(dateRangeControl, [
     desc: trans("export.dateRangeFormattedEndValueDesc"),
     depKeys: ["end", "format"],
     func: (input) => {
-      const end = dayjs(input.end, DateParser);
-      return end.isValid() && end.format(input.format);
+      const end = Boolean(input.end) ? dayjs(input.end, DateParser): null;
+      return end?.isValid() && end.format(input.format);
     },
   }),
   depsConfig({
