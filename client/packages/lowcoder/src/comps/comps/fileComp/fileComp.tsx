@@ -148,6 +148,10 @@ const getStyle = (style: FileStyleType) => {
       font-weight:${style.textWeight};
       font-style:${style.fontStyle};
       border-width:${style.borderWidth};
+      border-style:${style.borderStyle};
+      text-decoration:${style.textDecoration};
+      text-transform:${style.textTransform};
+      text-transform:${style.textTransform};
     }
 
     .ant-btn:not(:disabled) {

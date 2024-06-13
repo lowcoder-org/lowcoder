@@ -49,6 +49,10 @@ const Wrapper = styled.div<{
     margin: ${props => props.$headerStyle?.margin};
     padding: ${props => props.$headerStyle?.padding};
   }
+  .ant-card-head-title{
+    font-size: ${props => props.$headerStyle?.textSize};
+    font-family: ${props => props.$headerStyle?.fontFamily};
+  }
   .ant-card .ant-card-actions {
     border-top: 1px solid ${props => props.$style?.border};
   }
@@ -72,6 +76,8 @@ const Wrapper = styled.div<{
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    margin: ${props => props.$style?.margin};
+    padding: ${props => props.$style?.padding};
     background-color: ${props => props.$style?.background};
     border: ${props => props.$style?.border};
     rotate: ${props => props.$style?.rotation};

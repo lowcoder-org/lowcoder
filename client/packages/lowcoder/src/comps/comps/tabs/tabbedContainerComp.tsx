@@ -76,7 +76,7 @@ const getStyle = (
   return css`
     &.ant-tabs {
       overflow: hidden;
-      border: ${style.borderWidth} solid ${style.border};
+      border: ${style.borderWidth} ${style.borderStyle} ${style.border};
       border-radius: ${style.radius};
       padding: ${style.padding};
       background-color: ${style.background};
@@ -91,11 +91,13 @@ const getStyle = (
         .react-grid-layout {
           border-radius: 0;
           background-color: ${bodyStyle.background || 'transparent'};
+          padding: ${bodyStyle.containerBodyPadding};
         }
       }
 
       > .ant-tabs-nav {
         background-color: ${headerStyle.headerBackground || 'transparent'};
+        padding: ${headerStyle.containerHeaderPadding};
 
         .ant-tabs-tab {
           div {
@@ -108,6 +110,7 @@ const getStyle = (
         }
 
         .ant-tabs-tab-btn {
+          color: ${style.tabText} !important;
           font-size: ${style.textSize};
           font-family:${style.fontFamily};
           font-weight:${style.textWeight};
