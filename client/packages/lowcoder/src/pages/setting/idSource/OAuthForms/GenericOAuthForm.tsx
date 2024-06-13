@@ -120,7 +120,7 @@ function GenericOAuthForm(props: GenericOAuthFormProp) {
             tokenEndpoint: res.data.token_endpoint,
             userInfoEndpoint: res.data.userinfo_endpoint,
             jwksUri: res.data.jwks_uri,
-            scope: res.data.scopes_supported.join(','),
+            scope: res.data.scopes_supported.join(' '),
             sourceMappings: sourceMappingKeys.map(sourceKey => ({
               [sourceKey]: sourceKey,
             }))
