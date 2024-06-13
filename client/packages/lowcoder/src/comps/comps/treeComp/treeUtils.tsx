@@ -87,7 +87,7 @@ export function useTree(props: RecordConstructorToView<typeof treeCommonChildren
     } else {
       expanded.reset();
     }
-  }, [defaultExpandAll]);
+  }, [defaultExpandAll, treeData]);
 }
 
 type TreeCommonComp = NewChildren<RecordConstructorToComp<typeof treeCommonChildren>>;
