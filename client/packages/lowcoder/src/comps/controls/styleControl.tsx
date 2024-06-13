@@ -356,7 +356,20 @@ function calcColors<ColorMap extends Record<string, string>>(
   compTheme?: Record<string, string>,
 ) {
   let themeWithDefault = (theme || defaultTheme) as unknown as Record<string, string>;
-  themeWithDefault = {...themeWithDefault, ...(compTheme || {})};
+  let canvas;
+
+  if (compTheme && compTheme.background) {
+    canvas = compTheme.background;
+  } else if (theme && theme.canvas) {
+    canvas = theme.canvas;
+  } else {
+    canvas = defaultTheme.canvas;
+  }
+  themeWithDefault = {
+    ...themeWithDefault,
+    ...compTheme,
+    canvas 
+  };
   // Cover what is not there for the first pass
   let res: Record<string, string> = {};
   colorConfigs.forEach((config) => {
@@ -643,7 +656,7 @@ function calcColors<ColorMap extends Record<string, string>>(
       } else {
         const rest = [];
         config.depName && rest.push(res[config.depName]);
-        config.depTheme && rest.push(themeWithDefault[config.depTheme]);
+        config.depTheme && rest.push(themeWithDefault[config.depTheme]); 
         res[name] = config.transformer(rest[0], rest[1]);
       }
     }
@@ -847,8 +860,8 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
       const theme = useContext(ThemeContext);
       const bgColor = useContext(BackgroundColorContext);
       const compTheme = compType
-        ? theme?.theme?.components?.[compType]?.[styleKey]
-        : undefined;
+      ? theme?.theme?.components?.[compType]?.[styleKey]
+      : undefined;
 
       return calcColors(
         props as ColorMap,
