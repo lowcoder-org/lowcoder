@@ -18,4 +18,8 @@ public class FieldName {
         return ID;
     }
 
+    public static Boolean isGID(String id) {
+       return guessFieldNameFromId(id).equals(GID);
+    }
+
 }
