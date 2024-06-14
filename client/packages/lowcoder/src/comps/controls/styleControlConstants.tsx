@@ -493,7 +493,6 @@ const ANIMATIONDURATION = {
 const BORDER = {
   name: "border",
   label: trans("style.border"),
-  depName: "background",
   transformer: backgroundToBorder,
 } as const;
 
