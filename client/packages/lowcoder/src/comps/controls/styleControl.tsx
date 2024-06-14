@@ -355,21 +355,36 @@ function calcColors<ColorMap extends Record<string, string>>(
   bgColor?: string,
   compTheme?: Record<string, string>,
 ) {
+  console.log("🚀 ~ compTheme:", compTheme)
+  console.log("🚀 ~ theme:", theme)
+  console.log("🚀 ~ defaultTheme:", defaultTheme)
   let themeWithDefault = (theme || defaultTheme) as unknown as Record<string, string>;
   let canvas;
+  let textLight;
+  let borderColor;
 
   if (compTheme && compTheme.background) {
     canvas = compTheme.background;
+    textLight = compTheme.text;
+    borderColor = compTheme.border;
   } else if (theme && theme.canvas) {
     canvas = theme.canvas;
+    textLight = theme.textLight;
+    borderColor = theme.canvas;
   } else {
     canvas = defaultTheme.canvas;
+    textLight = defaultTheme.textLight;
+    borderColor = defaultTheme.canvas;
   }
   themeWithDefault = {
     ...themeWithDefault,
     ...compTheme,
-    canvas 
-  };
+    canvas,
+    textLight,
+    border:borderColor||canvas
+  };  console.log('🚀 ~ borderColor:', borderColor);
+
+  console.log("🚀 ~ themeWithDefault:", themeWithDefault)
   // Cover what is not there for the first pass
   let res: Record<string, string> = {};
   colorConfigs.forEach((config) => {
