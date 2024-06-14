@@ -61,6 +61,8 @@ public class ApplicationServiceImpl implements ApplicationService {
             return Mono.error(new BizException(BizError.INVALID_PARAMETER, "INVALID_PARAMETER", FieldName.ID));
         }
 
+        if(FieldName.guessFieldNameFromId(id).equals(FieldName.GID))
+            return Mono.from(repository.findByGid(id)).switchIfEmpty(Mono.error(new BizException(BizError.NO_RESOURCE_FOUND, "CANT_FIND_APPLICATION", id)));
         return repository.findById(id)
                 .switchIfEmpty(Mono.error(new BizException(BizError.NO_RESOURCE_FOUND, "CANT_FIND_APPLICATION", id)));
     }
@@ -127,6 +129,9 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     @Override
     public Flux<Application> findByIdIn(List<String> applicationIds) {
+        if(applicationIds.isEmpty()) return Flux.empty();
+        if(FieldName.guessFieldNameFromId(applicationIds.get(0)).equals(FieldName.GID))
+            return repository.findByGidIn(applicationIds);
         return repository.findByIdIn(applicationIds);
     }
 
@@ -257,9 +262,19 @@ public class ApplicationServiceImpl implements ApplicationService {
     @SuppressWarnings("ReactiveStreamsNullableInLambdaInTransform")
     public Mono<Set<String>> getPublicApplicationIds(Collection<String> applicationIds) {
 
+        if(applicationIds.isEmpty())
+            return repository.findByPublicToAllIsTrueAndIdIn(applicationIds)
+                    .map(HasIdAndAuditing::getId)
+                    .collect(Collectors.toSet());
+
+        if(FieldName.guessFieldNameFromId(applicationIds.stream().findFirst().get()).equals(FieldName.GID))
+            return repository.findByPublicToAllIsTrueAndGidIn(applicationIds)
+                    .map(Application::getGid)
+                    .collect(Collectors.toSet());
+
         return repository.findByPublicToAllIsTrueAndIdIn(applicationIds)
-                        .map(HasIdAndAuditing::getId)
-                        .collect(Collectors.toSet());
+                .map(HasIdAndAuditing::getId)
+                .collect(Collectors.toSet());
     }
 
 
@@ -272,13 +287,19 @@ public class ApplicationServiceImpl implements ApplicationService {
     public Mono<Set<String>> getPrivateApplicationIds(Collection<String> applicationIds, String userId) {
 
     	// TODO: in 2.4.0 we need to check whether the app was published or not
-        return repository.findByCreatedByAndIdIn(userId, applicationIds)
-                        .map(HasIdAndAuditing::getId)
-                        .collect(Collectors.toSet());
+        if(applicationIds.isEmpty())
+            return repository.findByCreatedByAndIdIn(userId, applicationIds)
+                    .map(HasIdAndAuditing::getId)
+                    .collect(Collectors.toSet());
 
-//        return repository.findByIdIn(applicationIds)
-//                        .map(HasIdAndAuditing::getId)
-//                        .collect(Collectors.toSet());
+        if(FieldName.guessFieldNameFromId(applicationIds.stream().findFirst().get()).equals(FieldName.GID))
+            return repository.findByCreatedByAndGidIn(userId, applicationIds)
+                    .map(Application::getGid)
+                    .collect(Collectors.toSet());
+
+        return repository.findByCreatedByAndIdIn(userId, applicationIds)
+                .map(HasIdAndAuditing::getId)
+                .collect(Collectors.toSet());
     }
     
     
@@ -292,6 +313,16 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     	if ((isAnonymous && !isPrivateMarketplace) || !isAnonymous)
     	{
+            if(applicationIds.isEmpty())
+                return repository.findByPublicToAllIsTrueAndPublicToMarketplaceIsTrueAndIdIn(applicationIds)
+                        .map(HasIdAndAuditing::getId)
+                        .collect(Collectors.toSet());
+
+            if(FieldName.guessFieldNameFromId(applicationIds.stream().findFirst().get()).equals(FieldName.GID))
+                return repository.findByPublicToAllIsTrueAndPublicToMarketplaceIsTrueAndGidIn(applicationIds)
+                        .map(Application::getGid)
+                        .collect(Collectors.toSet());
+
             return repository.findByPublicToAllIsTrueAndPublicToMarketplaceIsTrueAndIdIn(applicationIds)
                     .map(HasIdAndAuditing::getId)
                     .collect(Collectors.toSet());
@@ -306,6 +337,16 @@ public class ApplicationServiceImpl implements ApplicationService {
     @NonEmptyMono
     @SuppressWarnings("ReactiveStreamsNullableInLambdaInTransform")
     public Mono<Set<String>> getPublicAgencyApplicationIds(Collection<String> applicationIds) {
+
+        if(applicationIds.isEmpty())
+            return repository.findByPublicToAllIsTrueAndAgencyProfileIsTrueAndIdIn(applicationIds)
+                    .map(HasIdAndAuditing::getId)
+                    .collect(Collectors.toSet());
+
+        if(FieldName.guessFieldNameFromId(applicationIds.stream().findFirst().get()).equals(FieldName.GID))
+            return repository.findByPublicToAllIsTrueAndAgencyProfileIsTrueAndGidIn(applicationIds)
+                    .map(Application::getGid)
+                    .collect(Collectors.toSet());
 
         return repository.findByPublicToAllIsTrueAndAgencyProfileIsTrueAndIdIn(applicationIds)
                 .map(HasIdAndAuditing::getId)
