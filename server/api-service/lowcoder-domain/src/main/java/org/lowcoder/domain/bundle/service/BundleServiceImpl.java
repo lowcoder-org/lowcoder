@@ -68,9 +68,7 @@ public class BundleServiceImpl implements BundleService {
 
     @Override
     public Mono<Void> deleteAllById(Collection<String> ids) {
-        if(ids.isEmpty())
-            return repository.deleteAllById(ids);
-        if(FieldName.isGID(ids.stream().findFirst().get()))
+        if(!ids.isEmpty() && FieldName.isGID(ids.stream().findFirst().get()))
             return repository.deleteAllByGid(ids);
         return repository.deleteAllById(ids);
     }
