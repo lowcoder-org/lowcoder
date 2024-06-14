@@ -501,6 +501,7 @@ public class ApplicationApiServiceImpl implements ApplicationApiService {
     private ApplicationInfoView buildView(Application application, String role, @Nullable String folderId) {
         return ApplicationInfoView.builder()
                 .applicationId(application.getId())
+                .applicationGid(application.getGid())
                 .orgId(application.getOrganizationId())
                 .name(application.getName())
                 .createBy(application.getCreatedBy())

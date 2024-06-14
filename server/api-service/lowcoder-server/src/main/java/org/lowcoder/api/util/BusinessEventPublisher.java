@@ -135,6 +135,7 @@ public class BusinessEventPublisher {
                                         .orgId(orgMember.getOrgId())
                                         .userId(orgMember.getUserId())
                                         .applicationId(applicationInfoView.getApplicationId())
+                                        .applicationGid(applicationInfoView.getApplicationGid())
                                         .applicationName(applicationInfoView.getName())
                                         .type(eventType)
                                         .folderId(optional.map(Folder::getId).orElse(null))

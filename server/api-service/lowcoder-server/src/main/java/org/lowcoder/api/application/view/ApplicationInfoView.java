@@ -15,6 +15,7 @@ import java.time.Instant;
 public class ApplicationInfoView {
     private final String orgId;
     private final String applicationId;
+    private final String applicationGid;
     private final String name;
     private final long createAt;
     private final String createBy;

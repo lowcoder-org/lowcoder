@@ -9,12 +9,16 @@ import lombok.experimental.SuperBuilder;
 import org.lowcoder.sdk.models.HasIdAndAuditing;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.UUID;
+
 @Getter
 @Setter
 @Document
 @NoArgsConstructor
 @SuperBuilder
 public class Bundle extends HasIdAndAuditing {
+    @Getter
+    private String gid = UUID.randomUUID().toString();
     private String organizationId;
     @Nullable
     private String name;
