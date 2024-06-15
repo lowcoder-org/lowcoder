@@ -33,8 +33,11 @@ import { InputRef } from "antd/es/input";
 import { RefControl } from "comps/controls/refControl";
 import { migrateOldData, withDefault } from "comps/generators/simpleGenerators";
 
-import React, { useContext } from "react";
+import React, {useContext, useEffect} from 'react';
 import { EditorContext } from "comps/editorState";
+import { setInitialCompStyles } from "@lowcoder-ee/comps/utils/themeUtil";
+import { ThemeContext } from "@lowcoder-ee/index.sdk";
+import { CompTypeContext } from "@lowcoder-ee/comps/utils/compTypeContext";
 
 /**
  * Input Comp
@@ -51,16 +54,31 @@ const childrenMap = {
   viewRef: RefControl<InputRef>,
   showCount: BoolControl,
   allowClear: BoolControl,
-  style: withDefault(styleControl(InputFieldStyle),{background:'transparent'}) , 
-  labelStyle:styleControl(LabelStyle), 
+  style: withDefault(styleControl(InputFieldStyle,'style'),{background:'transparent'}) , 
+  labelStyle:styleControl(LabelStyle,'labelStyle'), 
   prefixIcon: IconControl,
   suffixIcon: IconControl,
-  inputFieldStyle:withDefault(styleControl(InputLikeStyle),{borderWidth: '1px'}) ,
-  animationStyle: styleControl(AnimationStyle),
+  inputFieldStyle:withDefault(styleControl(InputLikeStyle,'inputFieldStyle'),{borderWidth: '1px'}) ,
+  animationStyle: styleControl(AnimationStyle,'animationStyle'),
 };
 
-let InputBasicComp = new UICompBuilder(childrenMap, (props) => {
+let InputBasicComp = new UICompBuilder(childrenMap, (props, dispatch) => {
   const [inputProps, validateState] = useTextInputProps(props);
+  const theme = useContext(ThemeContext);
+  const compType = useContext(CompTypeContext);
+  const compTheme = theme?.theme?.components?.[compType];
+  const styleProps: Record<string, any> = {};
+  ['style','labelStyle','inputFieldStyle','animationStyle'].forEach((key: string) => {
+    styleProps[key] = (props as any)[key];
+  });
+
+  useEffect(() => {
+    setInitialCompStyles({
+      dispatch,
+      compTheme,
+      styleProps,
+    });
+  }, []);
   return props.label({
     required: props.required,
     children: (
@@ -87,13 +105,13 @@ let InputBasicComp = new UICompBuilder(childrenMap, (props) => {
         <TextInputBasicSection {...children} />
         <FormDataPropertyView {...children} />
 
-        {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+         {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
           children.label.getPropertyView()
         )}
 
-        {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+         {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
           <><TextInputInteractionSection {...children} />
-            <Section name={sectionNames.layout}>{hiddenPropertyView(children)}</Section>
+             <Section name={sectionNames.layout}>{hiddenPropertyView(children)}</Section>
             <Section name={sectionNames.advanced}>
               {children.prefixIcon.propertyView({ label: trans("button.prefixIcon") })}
               {children.suffixIcon.propertyView({ label: trans("button.suffixIcon") })}
@@ -108,7 +126,7 @@ let InputBasicComp = new UICompBuilder(childrenMap, (props) => {
           <>
             <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
             <Section name={sectionNames.labelStyle}>{children.labelStyle.getPropertyView()}</Section>
-            <Section name={sectionNames.inputFieldStyle}>{children.inputFieldStyle.getPropertyView()}</Section>
+           <Section name={sectionNames.inputFieldStyle}>{children.inputFieldStyle.getPropertyView()}</Section>
             <Section name={sectionNames.animationStyle} hasTooltip={true}>{children.animationStyle.getPropertyView()}</Section>
           </>
         )}
@@ -117,7 +135,7 @@ let InputBasicComp = new UICompBuilder(childrenMap, (props) => {
   })
   .setExposeMethodConfigs(inputRefMethods)
   .setExposeStateConfigs([
-    new NameConfig("value", trans("export.inputValueDesc")),
+   new NameConfig("value", trans("export.inputValueDesc")),
     NameConfigPlaceHolder,
     NameConfigRequired,
     ...TextInputConfigs,

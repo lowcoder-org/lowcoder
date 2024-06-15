@@ -1136,7 +1136,7 @@ export const LabelStyle = [
 ];
 
 export const InputFieldStyle = [
-  getBackground(),
+  getBackground('canvas'),
   getStaticBorder(),
   ...STYLING_FIELDS_CONTAINER_SEQUENCE.filter(
     (style) => ["border"].includes(style.name) === false

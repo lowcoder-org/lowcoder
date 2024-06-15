@@ -96,6 +96,9 @@ export function withDefault<T extends CompConstructor>(
     constructor(params: CompParams) {
       const newParams = { value: defaultValue, ...params };
       super(newParams);
+      console.log("🚀 ~ TEMP_CLASS ~ constructor ~ defaultValue:", defaultValue)
+      console.log("🚀 ~ TEMP_CLASS ~ constructor ~ newParams:", newParams)
+      console.log("🚀 ~ TEMP_CLASS ~ constructor ~ params:", params)
     }
     readonly IGNORABLE_DEFAULT_VALUE = undefined;
   }
