@@ -9,7 +9,7 @@ import { styleControl } from "comps/controls/styleControl";
 import { AnimationStyle, LottieStyle } from "comps/controls/styleControlConstants";
 import { trans } from "i18n";
 import { Section, sectionNames } from "lowcoder-design";
-import { useContext, lazy } from "react";  
+import { useContext, lazy, useEffect } from "react";  
 import { UICompBuilder, withDefault } from "../../generators";
 import {
   NameConfig,
@@ -18,6 +18,9 @@ import {
 } from "../../generators/withExposing";
 import { defaultLottie } from "./jsonConstants";
 import { EditorContext } from "comps/editorState";
+import { ThemeContext } from "@lowcoder-ee/index.sdk";
+import { CompTypeContext } from "@lowcoder-ee/comps/utils/compTypeContext";
+import { setInitialCompStyles } from "@lowcoder-ee/comps/utils/themeUtil";
 
 const Player = lazy(
   () => import('@lottiefiles/react-lottie-player')
@@ -94,12 +97,29 @@ let JsonLottieTmpComp = (function () {
     width: withDefault(NumberControl, 100),
     height: withDefault(NumberControl, 100),
     container: styleControl(LottieStyle),
-    animationStyle: styleControl(AnimationStyle),
+    animationStyle: styleControl(AnimationStyle,'animationStyle'),
     animationStart: dropdownControl(animationStartOptions, "auto"),
     loop: dropdownControl(loopOptions, "single"),
     keepLastFrame: BoolControl.DEFAULT_TRUE,
   };
-  return new UICompBuilder(childrenMap, (props) => {
+  return new UICompBuilder(childrenMap, (props,dispatch) => {
+    const theme = useContext(ThemeContext);
+    const compType = useContext(CompTypeContext);
+    const compTheme = theme?.theme?.components?.[compType];
+    const styleProps: Record<string, any> = {};
+    ['animationStyle'].forEach(
+      (key: string) => {
+        styleProps[key] = (props as any)[key];
+      }
+    );
+
+    useEffect(() => {
+      setInitialCompStyles({
+        dispatch,
+        compTheme,
+        styleProps,
+      });
+    }, []);
     return (
       <div
         style={{
