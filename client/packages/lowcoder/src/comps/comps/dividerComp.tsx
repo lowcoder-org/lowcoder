@@ -13,8 +13,11 @@ import { migrateOldData } from "comps/generators/simpleGenerators";
 import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import { EditorContext } from "comps/editorState";
+import { ThemeContext } from "../utils/themeContext";
+import { CompTypeContext } from "../utils/compTypeContext";
+import { setInitialCompStyles } from "../utils/themeUtil";
 
 type IProps = DividerProps & {
   $style: DividerStyleType;
@@ -70,8 +73,8 @@ const childrenMap = {
   title: StringControl,
   dashed: BoolControl,
   align: alignControl(),
-  style: styleControl(DividerStyle),
-  animationStyle: styleControl(AnimationStyle),
+  style: styleControl(DividerStyle,'style'),
+  animationStyle: styleControl(AnimationStyle,'animationStyle'),
 };
 
 function fixOldStyleData(oldData: any) {
@@ -91,7 +94,22 @@ function fixOldStyleData(oldData: any) {
 
 // Compatible with historical style data 2022-8-26
 export const DividerComp = migrateOldData(
-  new UICompBuilder(childrenMap, (props) => {
+  new UICompBuilder(childrenMap, (props, dispatch) => {
+    const theme = useContext(ThemeContext);
+    const compType = useContext(CompTypeContext);
+    const compTheme = theme?.theme?.components?.[compType];
+    const styleProps: Record<string, any> = {};
+    ['style', 'animationStyle'].forEach((key: string) => {
+      styleProps[key] = (props as any)[key];
+    });
+
+    useEffect(() => {
+      setInitialCompStyles({
+        dispatch,
+        compTheme,
+        styleProps,
+      });
+    }, []);
     return (
       <StyledDivider
         orientation={props.align}

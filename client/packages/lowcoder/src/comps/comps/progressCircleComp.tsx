@@ -9,8 +9,11 @@ import { NameConfig, NameConfigHidden, withExposingConfigs } from "../generators
 import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import { EditorContext } from "comps/editorState";
+import { ThemeContext } from "../utils/themeContext";
+import { CompTypeContext } from "../utils/compTypeContext";
+import { setInitialCompStyles } from "../utils/themeUtil";
 
 // TODO: after Update of ANTd, introduce Size attribute to ProgressCircle
 
@@ -69,10 +72,27 @@ let ProgressCircleTmpComp = (function () {
   const childrenMap = {
     value: numberExposingStateControl("value", 60),
     // borderRadius property hidden as it's not valid for progress circle
-    style: styleControl(CircleProgressStyle),
+    style: styleControl(CircleProgressStyle,'style'),
     animationStyle: styleControl(AnimationStyle),
   };
-  return new UICompBuilder(childrenMap, (props) => {
+  return new UICompBuilder(childrenMap, (props,dispatch) => {
+    const theme = useContext(ThemeContext);
+    const compType = useContext(CompTypeContext);
+    const compTheme = theme?.theme?.components?.[compType];
+    const styleProps: Record<string, any> = {};
+    ['style'].forEach(
+      (key: string) => {
+        styleProps[key] = (props as any)[key];
+      }
+    );
+
+    useEffect(() => {
+      setInitialCompStyles({
+        dispatch,
+        compTheme,
+        styleProps,
+      });
+    }, []);
     return (
       <StyledProgressCircle
         $style={props.style}

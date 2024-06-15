@@ -13,6 +13,10 @@ import { EllipsisTextCss, ValueFromOption } from "lowcoder-design";
 import { trans } from "i18n";
 import { fixOldInputCompData } from "../textInputComp/textInputConstants";
 import { migrateOldData } from "comps/generators/simpleGenerators";
+import { useContext, useEffect } from "react";
+import { ThemeContext } from "@lowcoder-ee/index.sdk";
+import { CompTypeContext } from "@lowcoder-ee/comps/utils/compTypeContext";
+import { setInitialCompStyles } from "@lowcoder-ee/comps/utils/themeUtil";
 
 const getStyle = (style: RadioStyleType, inputFieldStyle?:RadioStyleType ) => {
   return css`
@@ -97,11 +101,28 @@ const Radio = styled(AntdRadioGroup)<{
 `;
 
 let RadioBasicComp = (function () {
-  return new UICompBuilder(RadioChildrenMap, (props) => {
+  return new UICompBuilder(RadioChildrenMap, (props,dispatch) => {
     const [
       validateState,
       handleChange,
     ] = useSelectInputValidate(props);
+    const theme = useContext(ThemeContext);
+    const compType = useContext(CompTypeContext);
+    const compTheme = theme?.theme?.components?.[compType];
+    const styleProps: Record<string, any> = {};
+    ['style', 'labelStyle', 'inputFieldStyle', 'animationStyle'].forEach(
+      (key: string) => {
+        styleProps[key] = (props as any)[key];
+      }
+    );
+
+    useEffect(() => {
+      setInitialCompStyles({
+        dispatch,
+        compTheme,
+        styleProps,
+      });
+    }, []);
     return props.label({
       required: props.required,
       style: props.style,
