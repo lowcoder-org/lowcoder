@@ -2,7 +2,7 @@ import { MultiCompBuilder, withDefault, withViewFn } from "comps/generators";
 import { trans } from "i18n";
 import { Section, sectionNames } from "components/Section";
 import { manualOptionsControl } from "comps/controls/optionsControl";
-import { BoolCodeControl, StringControl, jsonControl } from "comps/controls/codeControl";
+import { BoolCodeControl, StringControl, jsonControl, NumberControl } from "comps/controls/codeControl";
 import { IconControl } from "comps/controls/iconControl";
 import styled from "styled-components";
 import React, { Suspense, useContext, useEffect, useMemo, useState } from "react";  
@@ -27,6 +27,9 @@ import { check } from "@lowcoder-ee/util/convertUtils";
 import { JSONObject } from "@lowcoder-ee/util/jsonTypes";
 import { isEmpty } from "lodash";
 import { ThemeContext } from "@lowcoder-ee/comps/utils/themeContext";
+import { AlignCenter } from "lowcoder-design";
+import { AlignLeft } from "lowcoder-design";
+import { AlignRight } from "lowcoder-design";
 
 const TabBar = React.lazy(() => import("antd-mobile/es/components/tab-bar"));
 const TabBarItem = React.lazy(() =>
@@ -35,8 +38,6 @@ const TabBarItem = React.lazy(() =>
   }))
 );
 
-const TabBarHeight = 56;
-const MaxWidth = 450;
 const AppViewContainer = styled.div`
   position: absolute;
   width: 100%;
@@ -46,16 +47,25 @@ const AppViewContainer = styled.div`
   height: 100%;
 `;
 
-const TabLayoutViewContainer = styled.div`
+const TabLayoutViewContainer = styled.div<{ 
+    maxWidth: number; 
+    tabBarHeight: string; 
+    // verticalAlignment: string;
+}>`
   margin: 0 auto;
-  max-width: ${MaxWidth}px;
+  max-width: ${(props) => props.maxWidth}px;
   position: relative;
-  height: calc(100% - ${TabBarHeight}px);
+  height: calc(100% - ${(props) => props.tabBarHeight});
+  display: flex;
+  flex-direction: column;
 `;
 
 const TabBarWrapper = styled.div<{
   $readOnly: boolean,
   $canvasBg: string,
+  $tabBarHeight: string,
+  $maxWidth: number,
+  $verticalAlignment: string;
 }>`
   max-width: inherit;
   background: ${(props) => (props.$canvasBg)};
@@ -64,21 +74,26 @@ const TabBarWrapper = styled.div<{
   bottom: 0;
   left: 0;
   right: 0;
-  width: ${(props) => (props.$readOnly ? "100%" : "418px")};
+  width: ${(props) => props.$readOnly ? "100%" : `${props.$maxWidth - 30}px`};
   z-index: ${Layers.tabBar};
   padding-bottom: env(safe-area-inset-bottom, 0);
 
   .adm-tab-bar-wrap {
     overflow: auto;
-    height: ${TabBarHeight}px;
+    height: ${(props) => props.$tabBarHeight};
+    display: flex;
+    flex-wrap: wrap;
+    align-content: ${(props) => props.$verticalAlignment };
   }
 `;
 
 const StyledTabBar = styled(TabBar)<{
+  $showSeparator: boolean,
   $tabStyle: NavLayoutStyleType,
   $tabItemStyle: NavLayoutItemStyleType,
   $tabItemHoverStyle: NavLayoutItemHoverStyleType,
   $tabItemActiveStyle: NavLayoutItemActiveStyleType,
+  $navIconSize: string;
 }>`
   width: ${(props) => `calc(100% - ${props.$tabStyle.margin} - ${props.$tabStyle.margin})`};
   border: ${(props) => props.$tabStyle.border};
@@ -86,12 +101,18 @@ const StyledTabBar = styled(TabBar)<{
   border-radius: ${(props) => props.$tabStyle.radius };
   margin: ${(props) => props.$tabStyle.margin };
   padding: ${(props) => props.$tabStyle.padding };
-  
+
+  ${(props) => props.$showSeparator ? `
   .adm-tab-bar-item:not(:last-child) {
-    border-right: ${(props) => props.$tabStyle.border};
+    border-right: ${props.$tabStyle.border};
   }
+  ` : ''}
+
   .adm-tab-bar-item-icon, .adm-tab-bar-item-title {
     color: ${(props) => props.$tabStyle.text};
+  }
+  .adm-tab-bar-item-icon, {
+    font-size: ${(props) => props.$navIconSize};
   }
   
   .adm-tab-bar-item {
@@ -123,6 +144,22 @@ const defaultStyle = {
   margin: '0px',
   padding: '0px',
 }
+
+const AlignTop = styled(AlignLeft)`
+  transform: rotate(90deg);
+`;
+const AlignBottom = styled(AlignRight)`
+  transform: rotate(90deg);
+`;
+const AlignVerticalCenter = styled(AlignCenter)`
+  transform: rotate(90deg);
+`;
+
+const VerticalAlignmentOptions = [
+  { label: <AlignTop />, value: "flex-start" },
+  { label: <AlignVerticalCenter />, value: "stretch" },
+  { label: <AlignBottom />, value: "flex-end" },
+] as const;
 
 type MenuItemStyleOptionValue = "normal" | "hover" | "active";
 
@@ -164,7 +201,14 @@ function convertTreeData(data: any) {
   return data === "" ? [] : checkDataNodes(data) ?? [];
 }
 
-function TabBarView(props: TabBarProps) {
+function TabBarView(props: TabBarProps & { 
+    tabBarHeight: string; 
+    maxWidth: number;
+    verticalAlignment: string;
+    showSeparator: boolean;
+    navIconSize: string;
+  }
+  ) {
   const {
     canvasBg, tabStyle, tabItemStyle, tabItemHoverStyle, tabItemActiveStyle,
   } = props;
@@ -173,6 +217,9 @@ function TabBarView(props: TabBarProps) {
       <TabBarWrapper
         $readOnly={props.readOnly}
         $canvasBg={canvasBg}
+        $tabBarHeight={props.tabBarHeight}
+        $maxWidth={props.maxWidth}
+        $verticalAlignment={props.verticalAlignment} 
       >
         <StyledTabBar
           onChange={(key: string) => {
@@ -185,6 +232,8 @@ function TabBarView(props: TabBarProps) {
           $tabItemStyle={tabItemStyle}
           $tabItemHoverStyle={tabItemHoverStyle}
           $tabItemActiveStyle={tabItemActiveStyle}
+          $showSeparator={props.showSeparator}
+          $navIconSize={props.navIconSize}
         >
           {props.tabs.map((tab) => {
             return (
@@ -249,6 +298,11 @@ let MobileTabLayoutTmp = (function () {
       initOptions: [],
     }),
     backgroundImage: withDefault(StringControl, ""),
+    tabBarHeight: withDefault(StringControl, "56px"), 
+    navIconSize: withDefault(StringControl, "32px"), 
+    maxWidth: withDefault(NumberControl, 450),
+    verticalAlignment: dropdownControl(VerticalAlignmentOptions, "stretch"),
+    showSeparator: withDefault(BoolCodeControl, true),
     navStyle: withDefault(styleControl(NavLayoutStyle), defaultStyle),
     navItemStyle: withDefault(styleControl(NavLayoutItemStyle), defaultStyle),
     navItemHoverStyle: withDefault(styleControl(NavLayoutItemHoverStyle), {}),
@@ -279,6 +333,13 @@ let MobileTabLayoutTmp = (function () {
               label: `Background Image`,
               placeholder: 'https://temp.im/350x400',
             })}
+            { children.showSeparator.propertyView({label: trans("navLayout.mobileNavVerticalShowSeparator")})}
+            {children.tabBarHeight.propertyView({label: trans("navLayout.mobileNavBarHeight")})}
+            {children.navIconSize.propertyView({label: trans("navLayout.mobileNavIconSize")})}
+            {children.maxWidth.propertyView({label: trans("navLayout.mobileNavVerticalMaxWidth")})}
+            {children.verticalAlignment.propertyView(
+              { label: trans("navLayout.mobileNavVerticalOrientation"),radioButton: true }
+            )}
           </Section>
           <Section name={trans("navLayout.navStyle")}>
             { children.navStyle.getPropertyView() }
@@ -318,6 +379,11 @@ MobileTabLayoutTmp = withViewFn(MobileTabLayoutTmp, (comp) => {
   const backgroundImage = comp.children.backgroundImage.getView();
   const jsonItems = comp.children.jsonItems.getView();
   const dataOptionType = comp.children.dataOptionType.getView();
+  const tabBarHeight = comp.children.tabBarHeight.getView();
+  const navIconSize = comp.children.navIconSize.getView();
+  const maxWidth = comp.children.maxWidth.getView();
+  const verticalAlignment = comp.children.verticalAlignment.getView();
+  const showSeparator = comp.children.showSeparator.getView();
   const bgColor = (useContext(ThemeContext)?.theme || defaultTheme).canvas;
 
   useEffect(() => {
@@ -384,12 +450,17 @@ MobileTabLayoutTmp = withViewFn(MobileTabLayoutTmp, (comp) => {
       tabItemStyle={navItemStyle}
       tabItemHoverStyle={navItemHoverStyle}
       tabItemActiveStyle={navItemActiveStyle}
+      tabBarHeight={tabBarHeight}
+      navIconSize={navIconSize}
+      maxWidth={maxWidth}
+      verticalAlignment={verticalAlignment}
+      showSeparator={showSeparator}
     />
   );
 
   if (readOnly) {
     return (
-      <TabLayoutViewContainer>
+      <TabLayoutViewContainer maxWidth={maxWidth} tabBarHeight={tabBarHeight}>
         <AppViewContainer>{appView}</AppViewContainer>
         {tabBarView}
       </TabLayoutViewContainer>
@@ -397,7 +468,7 @@ MobileTabLayoutTmp = withViewFn(MobileTabLayoutTmp, (comp) => {
   }
 
   return (
-    <CanvasContainer $maxWidth={MaxWidth} id={CanvasContainerID}>
+    <CanvasContainer $maxWidth={maxWidth} id={CanvasContainerID}>
       <EditorContainer>{appView}</EditorContainer>
       {tabBarView}
     </CanvasContainer>
