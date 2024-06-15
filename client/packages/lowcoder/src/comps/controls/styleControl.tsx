@@ -355,41 +355,43 @@ function calcColors<ColorMap extends Record<string, string>>(
   bgColor?: string,
   compTheme?: Record<string, string>,
 ) {
+  console.log("🚀 ~ props:", props)
   console.log("🚀 ~ compTheme:", compTheme)
   console.log("🚀 ~ theme:", theme)
   console.log("🚀 ~ defaultTheme:", defaultTheme)
   let themeWithDefault = (theme || defaultTheme) as unknown as Record<string, string>;
+  themeWithDefault = { ...themeWithDefault, ...(compTheme || {})};
   console.log("🚀 ~ themeWithDefault:", themeWithDefault)
   let canvas;
   let textLight;
   let borderColor;
 
-  if (compTheme && compTheme.background) {
-    console.log('1st ifffffffffffffff', compTheme.background);
-    canvas = compTheme.background;
-    textLight = compTheme.text;
-    borderColor = compTheme.border;
-  } else if (theme && theme.canvas) {
-        console.log('2nd else ifffffffffffffff', theme.canvas);
+// if (compTheme && compTheme.background) {
+//   console.log('1st ifffffffffffffff', compTheme.background);
+//   canvas = compTheme.background;
+//   textLight = compTheme.text;
+//   borderColor = compTheme.border;
+// } else if (theme && theme.canvas) {
+//       console.log('2nd else ifffffffffffffff', theme.canvas);
 
-    canvas = theme.canvas;
-    textLight = theme.textLight;
-    borderColor = theme.canvas;
-  } else {
-            console.log('3rd else ifffffffffffffff', defaultTheme.canvas);
+//   canvas = theme.canvas;
+//   textLight = theme.textLight;
+//   borderColor = theme.canvas;
+// } else {
+//           console.log('3rd else ifffffffffffffff', defaultTheme.canvas);
 
-    canvas = defaultTheme.canvas;
-    textLight = defaultTheme.textLight;
-    borderColor = defaultTheme.canvas;
-  }
-  themeWithDefault = {
-    ...themeWithDefault,
-    ...compTheme,
-    canvas,
-    textLight,
-    border:borderColor||canvas
-  };
-  console.log("🚀 ~ themeWithDefaultUpdated:", themeWithDefault)
+//   canvas = defaultTheme.canvas;
+//   textLight = defaultTheme.textLight;
+//   borderColor = defaultTheme.canvas;
+// }
+// themeWithDefault = {
+//   ...themeWithDefault,
+//   ...compTheme,
+//   canvas,
+//   textLight,
+//   border:borderColor||canvas
+// };
+//   console.log("🚀 ~ themeWithDefaultUpdated:", themeWithDefault)
 
   // Cover what is not there for the first pass
   let res: Record<string, string> = {};
@@ -877,8 +879,8 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
   return new ControlItemCompBuilder(
     childrenMap as ToConstructor<{ [K in Names<T>]: ColorControl }>,
     (props) => {
-      const compType = useContext(CompTypeContext);
-      const theme = useContext(ThemeContext);
+      const compType = useContext(CompTypeContext); 
+      const theme = useContext(ThemeContext);  
       const bgColor = useContext(BackgroundColorContext);
       const compTheme = compType
       ? theme?.theme?.components?.[compType]?.[styleKey]
