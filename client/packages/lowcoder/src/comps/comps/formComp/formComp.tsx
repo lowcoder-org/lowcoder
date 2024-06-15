@@ -25,7 +25,7 @@ import { NameGenerator } from "comps/utils";
 import _ from "lodash";
 import { CreateData, CreateForm } from "./createForm";
 import { defaultLayout, GridItemComp } from "../gridItemComp";
-import { ReactNode, useContext } from "react";
+import { ReactNode, useContext, useEffect } from "react";
 import { pushAction } from "comps/generators/list";
 import { FullColumnInfo } from "./generate/dataSourceCommon";
 import { eventHandlerControl, submitEvent } from "comps/controls/eventHandlerControl";
@@ -58,7 +58,9 @@ import { DisabledContext } from "comps/generators/uiCompBuilder";
 import { default as LoadingOutlined } from "@ant-design/icons/LoadingOutlined";
 import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 import { styled } from "styled-components";
-import { AnimationStyle, styleControl } from "@lowcoder-ee/index.sdk";
+import { AnimationStyle, styleControl, ThemeContext } from "@lowcoder-ee/index.sdk";
+import { CompTypeContext } from "@lowcoder-ee/comps/utils/compTypeContext";
+import { setInitialCompStyles } from "@lowcoder-ee/comps/utils/themeUtil";
 
 const FormWrapper = styled.div`
   height: 100%;
@@ -79,7 +81,7 @@ const childrenMap = {
   disableSubmit: BoolCodeControl,
   loading: BoolCodeControl,
   onEvent: eventHandlerControl(eventOptions),
-  animationStyle:styleControl(AnimationStyle)
+  animationStyle:styleControl(AnimationStyle,'animationStyle')
 };
 
 type FormProps = TriContainerViewProps &
@@ -183,6 +185,21 @@ const loadingIcon = <LoadingOutlined spin />;
 
 const FormBaseComp = (function () {
   return new ContainerCompBuilder(childrenMap, (props, dispatch) => {
+    const theme = useContext(ThemeContext);
+    const compType = useContext(CompTypeContext);
+    const compTheme = theme?.theme?.components?.[compType];
+    const styleProps: Record<string, any> = {};
+    ['animationStyle'].forEach((key: string) => {
+      styleProps[key] = (props as any)[key];
+    });
+
+    useEffect(() => {
+      setInitialCompStyles({
+        dispatch,
+        compTheme,
+        styleProps,
+      });
+    }, []);
     return (
       <DisabledContext.Provider value={props.disabled}>
         <FormWrapper>
