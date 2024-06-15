@@ -33,6 +33,9 @@ import { AlignRight } from "lowcoder-design";
 import { LayoutActionComp } from "./layoutActionComp";
 import { clickEvent, eventHandlerControl } from "@lowcoder-ee/index.sdk";
 import { defaultTheme } from "@lowcoder-ee/constants/themeConstants";
+import { AlignCenter } from "lowcoder-design";
+import { AlignLeft } from "lowcoder-design";
+import { AlignRight } from "lowcoder-design";
 
 const TabBar = React.lazy(() => import("antd-mobile/es/components/tab-bar"));
 const TabBarItem = React.lazy(() =>
