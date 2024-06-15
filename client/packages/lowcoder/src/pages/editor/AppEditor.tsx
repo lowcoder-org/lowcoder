@@ -97,6 +97,7 @@ export default function AppEditor() {
   }, [dispatch, applicationId, paramViewMode]);
 
   useEffect(() => {
+    if (!currentUser?.id) return;
     DatasourceApi.fetchJsDatasourceByApp(applicationId).then((res) => {
       res.data.data.forEach((i) => {
         registryDataSourcePlugin(i.type, i.id, i.pluginDefinition);
@@ -104,7 +105,7 @@ export default function AppEditor() {
       setIsDataSourcePluginRegistered(true);
     });
     dispatch(setShowAppSnapshot(false));
-  }, [applicationId, dispatch]);
+  }, [applicationId, dispatch, currentUser]);
 
   useEffect(() => {
     if (!fetchOrgGroupsFinished) {
