@@ -16,15 +16,16 @@ import org.lowcoder.api.home.UserHomeApiService;
 import org.lowcoder.api.permission.PermissionHelper;
 import org.lowcoder.api.permission.view.PermissionItemView;
 import org.lowcoder.api.usermanagement.OrgDevChecker;
+import org.lowcoder.domain.application.model.Application;
 import org.lowcoder.domain.application.model.ApplicationStatus;
 import org.lowcoder.domain.application.model.ApplicationType;
-import org.lowcoder.domain.bundle.model.Bundle;
-import org.lowcoder.domain.bundle.model.BundleRequestType;
-import org.lowcoder.domain.bundle.model.BundleStatus;
+import org.lowcoder.domain.application.repository.ApplicationRepository;
+import org.lowcoder.domain.application.service.ApplicationServiceImpl;
+import org.lowcoder.domain.bundle.model.*;
+import org.lowcoder.domain.bundle.repository.BundleRepository;
 import org.lowcoder.domain.bundle.service.BundleElementRelationService;
 import org.lowcoder.domain.bundle.service.BundleNode;
 import org.lowcoder.domain.bundle.service.BundleService;
-import org.lowcoder.domain.bundle.model.BundleElement;
 import org.lowcoder.domain.bundle.service.*;
 import org.lowcoder.domain.group.service.GroupService;
 import org.lowcoder.domain.organization.model.OrgMember;
@@ -34,16 +35,22 @@ import org.lowcoder.domain.permission.model.*;
 import org.lowcoder.domain.permission.service.ResourcePermissionService;
 import org.lowcoder.domain.user.model.User;
 import org.lowcoder.domain.user.service.UserService;
+import org.lowcoder.infra.birelation.BiRelation;
+import org.lowcoder.infra.birelation.BiRelationBizType;
+import org.lowcoder.infra.birelation.BiRelationServiceImpl;
 import org.lowcoder.sdk.exception.BizError;
 import org.lowcoder.sdk.exception.BizException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.ToLongFunction;
+import java.util.stream.Collectors;
 
 import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
 import static org.lowcoder.domain.bundle.model.BundleStatus.NORMAL;
@@ -55,24 +62,7 @@ import static org.lowcoder.sdk.util.ExceptionUtils.ofError;
 @RequiredArgsConstructor
 @Service
 public class BundleApiServiceImpl implements BundleApiService {
-
-    private static final Comparator<Node<ApplicationInfoView, BundleInfoView>> DEFAULT_COMPARATOR =
-            // compare by last view time reversed.
-            Comparator.comparingLong((ToLongFunction<Node<ApplicationInfoView, BundleInfoView>>) node -> {
-                        if (node instanceof ElementNode<ApplicationInfoView, BundleInfoView> elementNode) {
-                            return elementNode.getSelf().getBundlePosition();
-                        }
-                        return ((BundleNode<ApplicationInfoView, BundleInfoView>) node).getSelf().getCreateTime();
-                    })
-                    .reversed()
-                    // compare by name.
-                    .thenComparing(node -> {
-                        if (node instanceof ElementNode<ApplicationInfoView, BundleInfoView> elementNode) {
-                            return elementNode.getSelf().getName();
-                        }
-                        return ((BundleNode<ApplicationInfoView, BundleInfoView>) node).getSelf().getName();
-                    });
-
+    private final BiRelationServiceImpl biRelationService;
     private final BundleService bundleService;
     private final SessionUserService sessionUserService;
     private final OrgDevChecker orgDevChecker;
@@ -85,6 +75,9 @@ public class BundleApiServiceImpl implements BundleApiService {
     private final UserService userService;
     private final OrganizationService organizationService;
     private final FolderApiService folderApiService;
+    private final ApplicationServiceImpl applicationServiceImpl;
+    private final ApplicationRepository applicationRepository;
+    private final BundleRepository bundleRepository;
 
     @Override
     public Mono<BundleInfoView> create(CreateBundleRequest createBundleRequest) {
@@ -275,9 +268,27 @@ public class BundleApiServiceImpl implements BundleApiService {
                     if (StringUtils.isBlank(toBundleId)) {
                         return Mono.empty();
                     }
-                    return bundleElementRelationService.create(toBundleId, applicationId);
+                    return bundleService.findById(fromBundleId).flatMap(bundle -> {
+                        var map = bundle.getEditingBundleDSL();
+                        if(map == null) map = new HashMap<>();
+                        ((List<Application>) map.computeIfAbsent("applications", k-> new ArrayList<>())).removeIf(app -> app.getId().equals(applicationId));
+                        bundle.setEditingBundleDSL(map);
+                        return bundleRepository.save(bundle);
+                    })
+                        .then(bundleRepository.findById(toBundleId))
+                        .flatMap(bundle -> applicationRepository.findById(applicationId)
+                            .flatMap(newapplication -> addAppToBundle(bundle, newapplication)))
+                            .then(bundleElementRelationService.create(toBundleId, applicationId));
                 })
                 .then();
+    }
+
+    private Mono<Bundle> addAppToBundle(Bundle bundle, Application newapplication) {
+        var map = bundle.getEditingBundleDSL();
+        if(map == null) map = new HashMap<>();
+        ((List<Application>) map.computeIfAbsent("applications", k-> new ArrayList<>())).add(newapplication);
+        bundle.setEditingBundleDSL(map);
+        return bundleRepository.save(bundle);
     }
 
     /**
@@ -296,7 +307,9 @@ public class BundleApiServiceImpl implements BundleApiService {
                     if (StringUtils.isBlank(toBundleId)) {
                         return Mono.empty();
                     }
-                    return bundleElementRelationService.create(toBundleId, applicationId);
+                    return bundleService.findById(toBundleId).flatMap(bundle -> applicationRepository.findById(applicationId)
+                                    .flatMap(newapplication-> addAppToBundle(bundle, newapplication)))
+                            .then(bundleElementRelationService.create(toBundleId, applicationId));
                 })
                 .then();
     }
@@ -331,45 +344,15 @@ public class BundleApiServiceImpl implements BundleApiService {
      */
     @Override
     public Flux<?> getElements(@Nullable String bundleId, @Nullable ApplicationType applicationType) {
-        return buildApplicationInfoViewTree(applicationType)
-                .flatMap(tree -> {
-                    BundleNode<ApplicationInfoView, BundleInfoView> bundleNode = tree.get(bundleId);
-                    if (bundleNode == null) {
-                        return Mono.error(new BizException(BUNDLE_NOT_EXIST, "BUNDLE_NOT_EXIST", bundleId));
-                    }
-                    return Mono.just(bundleNode);
-                })
-                .zipWith(Mono.zip(sessionUserService.getVisitorOrgMemberCache(), orgDevChecker.isCurrentOrgDev()))
-                .doOnNext(tuple -> {
-                    BundleNode<ApplicationInfoView, BundleInfoView> node = tuple.getT1();
-                    OrgMember orgMember = tuple.getT2().getT1();
-                    boolean devOrAdmin = tuple.getT2().getT2();
-                    // father bundle's visibility depends on child nodes
-                    node.postOrderIterate(n -> {
-                        if (n instanceof BundleNode<ApplicationInfoView, BundleInfoView> bundleNode) {
-                            BundleInfoView bundleInfoView = bundleNode.getSelf();
-                            if (bundleInfoView == null) {
-                                return;
-                            }
-                            bundleInfoView.setManageable(orgMember.isAdmin() || orgMember.isSuperAdmin() ||  orgMember.getUserId().equals(bundleInfoView.getCreateBy()));
-                            bundleInfoView.setSubApplications(bundleNode.getElementChildren());
-                            bundleInfoView.setVisible(devOrAdmin || isNotEmpty(bundleInfoView.getSubApplications()));
-                        }
-                    });
-                })
-                .flatMapIterable(tuple -> tuple.getT1().getChildren())
-                .map(node -> {
-                    if (node instanceof ElementNode<ApplicationInfoView, BundleInfoView> elementNode) {
-                        return elementNode.getSelf();
-                    }
-                    return ((BundleNode<ApplicationInfoView, BundleInfoView>) node).getSelf();
-                });
-    }
-
-    private Mono<Tree<Object, Bundle>> buildBundleTree(String userId) {
-        return bundleService.findByUserId(userId)
-                .collectList()
-                .map(bundles -> new Tree<>(bundles, Bundle::getId, __ -> null, Collections.emptyList(), null, null));
+        return biRelationService.getBySourceId(BiRelationBizType.BUNDLE_ELEMENT, bundleId)
+                .sort((o1, o2) -> {
+                    var pos1 = Integer.parseInt(o1.getExtParam1());
+                    var pos2 = Integer.parseInt(o2.getExtParam1());
+                    return pos1 - pos2;
+                }).map(bi -> applicationServiceImpl.findById(bi.getTargetId()))
+                .index()
+                .publishOn(Schedulers.boundedElastic())
+                .map(tuple -> new BundleApplication(tuple.getT2().block(), tuple.getT1()));
     }
 
     @Override
@@ -387,6 +370,7 @@ public class BundleApiServiceImpl implements BundleApiService {
                             .category(bundle.getCategory())
                             .description(bundle.getDescription())
                             .image(bundle.getImage())
+                            .publishedBundleDSL(bundle.getPublishedBundleDSL())
                             .publicToMarketplace(bundle.getPublicToMarketplace())
                             .publicToAll(bundle.getPublicToAll())
                             .agencyProfile(bundle.getAgencyProfile())
@@ -437,62 +421,6 @@ public class BundleApiServiceImpl implements BundleApiService {
                         return ofError(NO_PERMISSION_TO_REQUEST_APP, messageKey);
                     }
                     return Mono.just(permissionStatus.getPermission());
-                });
-    }
-
-    private Mono<Tree<ApplicationInfoView, BundleInfoView>> buildApplicationInfoViewTree(@Nullable ApplicationType applicationType) {
-
-        Mono<OrgMember> orgMemberMono = sessionUserService.getVisitorOrgMemberCache()
-                .cache();
-
-        Flux<ApplicationInfoView> applicationInfoViewFlux =
-                userHomeApiService.getAllAuthorisedApplications4CurrentOrgMember(applicationType, ApplicationStatus.NORMAL, false)
-                        .cache();
-
-        Mono<Map<String, String>> application2BundleMapMono = applicationInfoViewFlux
-                .map(ApplicationInfoView::getApplicationId)
-                .collectList()
-                .flatMapMany(applicationIds -> bundleElementRelationService.getByElementIds(applicationIds))
-                .collectMap(BundleElement::elementId, BundleElement::bundleId);
-
-        Flux<Bundle> bundleFlux = orgMemberMono.flatMapMany(orgMember -> bundleService.findByUserId(orgMember.getUserId()))
-                .cache();
-
-        Mono<Map<String, User>> userMapMono = bundleFlux
-                .flatMap(bundle -> emptyIfNull(bundle.getCreatedBy()))
-                .collectList()
-                .flatMap(list -> userService.getByIds(list))
-                .cache();
-
-        Flux<BundleInfoView> bundleInfoViewFlux = bundleFlux
-                .flatMap(bundle -> Mono.zip(orgMemberMono, userMapMono)
-                        .map(tuple -> {
-                            OrgMember orgMember = tuple.getT1();
-                            Map<String, User> userMap = tuple.getT2();
-                            User creator = userMap.get(bundle.getCreatedBy());
-                            return BundleInfoView.builder()
-                                    .userId(orgMember.getUserId())
-                                    .bundleId(bundle.getId())
-                                    .name(bundle.getName())
-                                    .createAt(bundle.getCreatedAt().toEpochMilli())
-                                    .createBy(creator == null ? null : creator.getName())
-                                    .createTime(bundle.getCreatedAt())
-                                    .build();
-                        }));
-
-        return Mono.zip(applicationInfoViewFlux.collectList(),
-                        application2BundleMapMono,
-                        bundleInfoViewFlux.collectList())
-                .map(tuple -> {
-                    List<ApplicationInfoView> applicationInfoViews = tuple.getT1();
-                    Map<String, String> application2BundleMap = tuple.getT2();
-                    List<BundleInfoView> bundleInfoViews = tuple.getT3();
-                    return new Tree<>(bundleInfoViews,
-                            BundleInfoView::getBundleId,
-                            __ -> null,
-                            applicationInfoViews,
-                            application -> application2BundleMap.get(application.getApplicationId()),
-                            DEFAULT_COMPARATOR);
                 });
     }
 

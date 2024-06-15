@@ -17,6 +17,7 @@ import org.lowcoder.domain.group.model.Group;
 import org.lowcoder.domain.group.service.GroupMemberService;
 import org.lowcoder.domain.group.service.GroupService;
 import org.lowcoder.domain.organization.model.OrgMember;
+import org.lowcoder.domain.organization.model.Organization;
 import org.lowcoder.domain.organization.service.OrgMemberService;
 import org.lowcoder.domain.organization.service.OrganizationService;
 import org.lowcoder.domain.user.model.*;
@@ -267,7 +268,7 @@ public class UserServiceImpl implements UserService {
         return findByName(userEmail)
                 .zipWhen(user -> orgMemberService.getCurrentOrgMember(user.getId())
                 .flatMap(orgMember -> organizationService.getById(orgMember.getOrgId()))
-                .map(organization -> organization.getCommonSettings().get("PASSWORD_RESET_EMAIL_TEMPLATE")))
+                .map(organization -> organization.getCommonSettings().get(Organization.OrganizationCommonSettings.PASSWORD_RESET_EMAIL_TEMPLATE)))
                 .flatMap(tuple -> {
                     User user = tuple.getT1();
                     String emailTemplate = (String)tuple.getT2();

@@ -99,7 +99,7 @@ let JsonExplorerTmpComp = (function () {
                   label: trans('jsonExplorer.theme'),
                 })}
               </Section>
-              <Section name={sectionNames.animationStyle}>
+              <Section name={sectionNames.animationStyle} hasTooltip={true}>
                 {children.animationStyle.getPropertyView()}
               </Section>
             </>

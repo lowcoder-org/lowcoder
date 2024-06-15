@@ -20,7 +20,7 @@ import { TriContainer } from "../triContainerComp/triFloatTextContainer";
 import { dropdownControl } from "comps/controls/dropdownControl";
 import { withDefault } from "comps/generators/simpleGenerators";
 import { styleControl } from "comps/controls/styleControl";
-import { AnimationStyle, TextStyle } from "comps/controls/styleControlConstants";
+import { AnimationStyle, TextContainerStyle } from "comps/controls/styleControlConstants";
 import { useContext } from "react";
 import { EditorContext } from "comps/editorState";
 import { alignWithJustifyControl } from "comps/controls/alignControl";
@@ -62,7 +62,7 @@ export const ContainerBaseComp = (function () {
     float: dropdownControl(floatOptions, "left"),
     horizontalAlignment: alignWithJustifyControl(),
     width: withDefault(StringControl, "40"),
-    style: styleControl(TextStyle),
+    style: styleControl(TextContainerStyle),
     animationStyle: styleControl(AnimationStyle),
   };
   return new ContainerCompBuilder(childrenMap, (props, dispatch) => {
@@ -96,7 +96,7 @@ export const ContainerBaseComp = (function () {
               <Section name={"Floating Text Style"}>
                 {children.style.getPropertyView()}
               </Section>
-              <Section name={sectionNames.animationStyle}>
+              <Section name={sectionNames.animationStyle} hasTooltip={true}>
                 {children.animationStyle.getPropertyView()}
               </Section>
               <Section name={"Container Style"}>

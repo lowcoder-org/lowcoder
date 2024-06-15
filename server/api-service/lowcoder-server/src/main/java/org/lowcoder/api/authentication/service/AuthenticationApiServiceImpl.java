@@ -224,6 +224,11 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
                 Optional.ofNullable(authUser.getAuthToken()).map(ConnectionAuthToken::of).orElse(null));
         oldConnection.setRawUserInfo(authUser.getRawUserInfo());
 
+        //if auth by google, set refresh token
+        if (authUser.getAuthToken()!=null && oldConnection.getAuthConnectionAuthToken()!=null && StringUtils.isEmpty(authUser.getAuthToken().getRefreshToken()) && StringUtils.isNotEmpty(oldConnection.getAuthConnectionAuthToken().getRefreshToken())) {
+            authUser.getAuthToken().setRefreshToken(oldConnection.getAuthConnectionAuthToken().getRefreshToken());
+        }
+
         user.setActiveAuthId(oldConnection.getAuthId());
     }
 

@@ -1,20 +1,18 @@
 package org.lowcoder.plugin.sql;
 
-import static org.lowcoder.sdk.exception.PluginCommonError.INVALID_QUERY_SETTINGS;
-import static org.lowcoder.sdk.util.JsonUtils.fromJson;
-import static org.lowcoder.sdk.util.JsonUtils.toJson;
-
-import java.util.Map;
-
+import com.fasterxml.jackson.annotation.JsonAlias;
+import com.fasterxml.jackson.annotation.JsonCreator;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.extern.jackson.Jacksonized;
 import org.apache.commons.collections4.MapUtils;
 import org.lowcoder.sdk.exception.PluginException;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.Map;
 
-import lombok.Getter;
+import static org.lowcoder.sdk.exception.PluginCommonError.INVALID_QUERY_SETTINGS;
+import static org.lowcoder.sdk.util.JsonUtils.fromJson;
+import static org.lowcoder.sdk.util.JsonUtils.toJson;
 
 @Getter
 @Builder
@@ -25,14 +23,16 @@ public class SqlQueryConfig {
     private final boolean disablePreparedStatement;
     private final String mode;
 
+    @JsonAlias("commandType")
     private final String guiStatementType;
+    @JsonAlias("command")
     private final Map<String, Object> guiStatementDetail;
 
     @JsonCreator
     private SqlQueryConfig(String sql, boolean disablePreparedStatement,
             String mode,
-            @JsonProperty("commandType") String guiStatementType,
-            @JsonProperty("command") Map<String, Object> guiStatementDetail) {
+            String guiStatementType,
+            Map<String, Object> guiStatementDetail) {
         this.sql = sql;
         this.disablePreparedStatement = disablePreparedStatement;
         this.mode = mode;

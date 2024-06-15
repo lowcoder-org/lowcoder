@@ -33,6 +33,7 @@ import { DEFAULT_IMG_URL } from "util/stringUtils";
 
 import { useContext } from "react";
 import { EditorContext } from "comps/editorState";
+import { StringControl } from "../controls/codeControl";
 
 const Container = styled.div<{ $style: ImageStyleType | undefined,$animationStyle:AnimationStyleType }>`
   height: 100%;
@@ -169,6 +170,7 @@ const childrenMap = {
   animationStyle: styleControl(AnimationStyle),
   autoHeight: withDefault(AutoHeightControl, "fixed"),
   supportPreview: BoolControl,
+  restrictPaddingOnRotation:withDefault(StringControl, 'image')
 };
 
 let ImageBasicComp = new UICompBuilder(childrenMap, (props) => {
@@ -202,7 +204,7 @@ let ImageBasicComp = new UICompBuilder(childrenMap, (props) => {
             <Section name={sectionNames.style}>
               {children.style.getPropertyView()}
             </Section>
-            <Section name={sectionNames.animationStyle}>
+            <Section name={sectionNames.animationStyle} hasTooltip={true}>
               {children.animationStyle.getPropertyView()}
             </Section>
           </>

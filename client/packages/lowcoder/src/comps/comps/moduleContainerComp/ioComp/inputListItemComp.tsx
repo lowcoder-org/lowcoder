@@ -91,7 +91,7 @@ interface TestViewProps {
 
 function TestView(props: TestViewProps) {
   const { itemComp } = props;
-  const { name, type } = itemComp.getView();
+  const { name, type, description } = itemComp.getView();
   const testType = itemComp.children.test.children.compType.getView();
   const defaultType = itemComp.children.defaultValue.children.compType.getView();
 
@@ -109,14 +109,14 @@ function TestView(props: TestViewProps) {
 
   return (
     <Fragment>
-      {itemComp.children.test.children.comp.propertyView({ label: name, layout: "vertical" })}
+      {itemComp.children.test.children.comp.propertyView({ label: name, tooltip: description, layout: "vertical" })} 
     </Fragment>
   );
 }
 
 const childrenMap = {
   name: CompNameControl,
-  description: StringControl,
+  description: CompNameControl,
   type: dropdownControl(typeOptions, InputTypeEnum.Data),
   defaultValue: withType(defaultValueControls, InputTypeEnum.Data),
   test: withType(testControls, InputTypeEnum.Data),
@@ -132,7 +132,7 @@ class InputCompWithMethods extends InputCompBase {
 
   getTestView() {
     const { name } = this.getView();
-    return controlItem({ filterText: name }, <TestView key={name} itemComp={this} />);
+    return controlItem({ filterText: name }, <TestView key={name} itemComp={this} />)
   }
 
   private internalReduce(action: CompAction): this {

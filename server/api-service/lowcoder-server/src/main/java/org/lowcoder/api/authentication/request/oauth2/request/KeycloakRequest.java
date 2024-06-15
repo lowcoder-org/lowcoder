@@ -1,5 +1,6 @@
 package org.lowcoder.api.authentication.request.oauth2.request;
 
+import static org.lowcoder.sdk.plugin.common.constant.Constants.HTTP_TIMEOUT;
 import static org.springframework.web.reactive.function.BodyInserters.fromFormData;
 
 import java.net.URI;
@@ -40,6 +41,7 @@ public class KeycloakRequest extends AbstractOauth2Request<Oauth2KeycloakAuthCon
 
         return WebClientBuildHelper.builder()
                 .systemProxy()
+                .timeoutMs(HTTP_TIMEOUT)
                 .build()
                 .post()
                 .uri(uri)
@@ -76,6 +78,7 @@ public class KeycloakRequest extends AbstractOauth2Request<Oauth2KeycloakAuthCon
 
         return WebClientBuildHelper.builder()
                 .systemProxy()
+                .timeoutMs(HTTP_TIMEOUT)
                 .build()
                 .post()
                 .uri(uri)
@@ -105,6 +108,7 @@ public class KeycloakRequest extends AbstractOauth2Request<Oauth2KeycloakAuthCon
     protected Mono<AuthUser> getAuthUser(AuthToken authToken) {
         return WebClientBuildHelper.builder()
                 .systemProxy()
+                .timeoutMs(HTTP_TIMEOUT)
                 .build()
                 .post()
                 .uri(config.replaceAuthUrlClientIdPlaceholder(source.userInfo()))

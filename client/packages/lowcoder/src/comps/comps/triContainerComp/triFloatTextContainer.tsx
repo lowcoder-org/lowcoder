@@ -1,5 +1,5 @@
 import {
-  TextStyleType,
+  TextContainerStyleType,
   ContainerStyleType,
   heightCalculator,
   widthCalculator,
@@ -17,12 +17,11 @@ import {
 } from "../containerComp/containerView";
 import { TriContainerViewProps } from "../triContainerComp/triContainerCompBuilder";
 
-const getStyle = (style: TextStyleType) => {
+const getStyle = (style: TextContainerStyleType) => {
   return css`
     border-radius: ${(style.radius ? style.radius : "4px")};
     border: ${(style.borderWidth ? style.borderWidth : "0px")} solid ${style.border};
     color: ${style.text};
-    rotate: ${style.rotation&&style.rotation};
     font-size: ${style.textSize} !important;
     font-weight: ${style.textWeight} !important;
     font-family: ${style.fontFamily} !important;
@@ -89,7 +88,7 @@ ${props=>props.$animationStyle&&props.$animationStyle}
   ${(props) => props.$style.backgroundImageOrigin && `background-origin: ${props.$style.backgroundImageOrigin};`}
 `;
 
-const FloatTextWrapper = styled.div<{ $style: TextStyleType, $horizontalAlignment : any }>`
+const FloatTextWrapper = styled.div<{ $style: TextContainerStyleType, $horizontalAlignment : any }>`
   ${(props) => props.$style && getStyle(props.$style)}
   text-align: ${(props) => props.$horizontalAlignment};
   padding: ${(props) => props.$style.padding};
@@ -146,7 +145,7 @@ export type TriContainerProps = TriContainerViewProps & {
   type: string;
   float: string;
   width: string;
-  style: TextStyleType;
+  style: TextContainerStyleType;
   horizontalAlignment: string;
   animationStyle?: AnimationStyleType;
 };

@@ -27,6 +27,7 @@ type IProps = DividerProps & {
 
 const StyledDivider = styled(Divider) <IProps>`
   margin-top: 3.5px;
+  rotate:${props=>props.$style.rotation};
   .ant-divider-inner-text {
     height: 32px;
     display: flex;
@@ -50,8 +51,8 @@ const StyledDivider = styled(Divider) <IProps>`
     return props.$style.margin;
   }};	
   padding: ${(props) => props.$style.padding};
-  
-  border-top: ${(props) => (props.$style.borderWidth && props.$style.borderWidth != "0px" ? props.$style.borderWidth : "1px")} ${(props) => (props.dashed ? "dashed" : "solid")} ${(props) => props.$style.border};
+  border-radius:${props=>props.$style.radius};
+  border-top: ${(props) => (props.$style.borderWidth && props.$style.borderWidth != "0px" ? props.$style.borderWidth : "1px")} ${(props) => props.$style.borderStyle} ${(props) => props.$style.border};
 ""
   .ant-divider-inner-text::before, .ant-divider-inner-text::after {
     border-block-start: ${(props) => (props.$style.borderWidth && props.$style.borderWidth != "0px" ? props.$style.borderWidth : "1px")} ${(props) => (props.dashed ? "dashed" : "solid")} ${(props) => props.$style.border} !important;
@@ -129,7 +130,7 @@ export const DividerComp = migrateOldData(
                 {children.dashed.propertyView({ label: trans("divider.dashed") })}
                 {children.style.getPropertyView()}
               </Section>
-              <Section name={sectionNames.animationStyle}>
+              <Section name={sectionNames.animationStyle}hasTooltip={true}>
                 {children.animationStyle.getPropertyView()}
               </Section>
             </>

@@ -49,7 +49,7 @@ import { Layout } from "../../components/layout/Layout";
 import { HomeView } from "./HomeView";
 import { UserProfileView } from "./UserProfileView";
 import { NewsView } from "./NewsView";
-import { ApiDocView } from "./ApiDocView";
+// import { ApiDocView } from "./ApiDocView";
 import { OrgView } from "./OrgView";
 import styled, { css } from "styled-components";
 import history from "../../util/history";
@@ -444,13 +444,13 @@ export default function ApplicationHome() {
                 visible: ({ user }) => user.orgDev,
                 onSelected: (_, currentPath) => currentPath.split("/")[1] === "datasource",
               },
-              {
-                text: <TabLabel>{trans("home.api")}</TabLabel>,
-                routePath: API_DOCS_URL,
-                routeComp: ApiDocView,
-                icon: ({ selected, ...otherProps }) => selected ? <APIDocsIcon {...otherProps} width={"24px"}/> : <APIDocsIcon {...otherProps} width={"24px"}/>,
-                visible: ({ user }) => user.orgDev,
-              }
+              // {
+              //   text: <TabLabel>{trans("home.api")}</TabLabel>,
+              //   routePath: API_DOCS_URL,
+              //   routeComp: ApiDocView,
+              //   icon: ({ selected, ...otherProps }) => selected ? <APIDocsIcon {...otherProps} width={"24px"}/> : <APIDocsIcon {...otherProps} width={"24px"}/>,
+              //   visible: ({ user }) => user.orgDev,
+              // }
             ],
           },
           isEE() ? {

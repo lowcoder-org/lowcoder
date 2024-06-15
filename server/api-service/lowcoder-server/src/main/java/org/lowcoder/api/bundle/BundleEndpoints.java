@@ -119,8 +119,8 @@ public interface BundleEndpoints
 		    summary = "Get Bundle contents",
 		    description = "Retrieve the contents of an Bundle Bundle within Lowcoder, including Bundles."
 	)
-    @GetMapping("/elements")
-    public Mono<ResponseView<List<?>>> getElements(@RequestParam(value = "id", required = false) String bundleId,
+    @GetMapping("/{bundleId}/elements")
+    public Mono<ResponseView<List<?>>> getElements(@PathVariable String bundleId,
             @RequestParam(value = "applicationType", required = false) ApplicationType applicationType);
 
 	@Operation(

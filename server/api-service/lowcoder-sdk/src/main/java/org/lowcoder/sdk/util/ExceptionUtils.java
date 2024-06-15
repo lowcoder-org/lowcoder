@@ -1,6 +1,7 @@
 package org.lowcoder.sdk.util;
 
 import org.lowcoder.sdk.exception.*;
+import org.springframework.http.HttpHeaders;
 import reactor.core.publisher.Mono;
 
 import static reactor.core.Exceptions.throwIfFatal;
@@ -16,6 +17,10 @@ public final class ExceptionUtils {
 
     public static <T> Mono<T> ofError(BizError errorCode, String messageKey, Object... args) {
         return Mono.error(new BizException(errorCode, messageKey, args));
+    }
+
+    public static <T> Mono<T> ofErrorWithHeaders(BizError errorCode, String messageKey, HttpHeaders headers, Object... args) {
+        return Mono.error(new BizException(errorCode, messageKey, headers, args));
     }
 
     public static BizException ofException(BizError errorCode, String messageKey, Object... args) {

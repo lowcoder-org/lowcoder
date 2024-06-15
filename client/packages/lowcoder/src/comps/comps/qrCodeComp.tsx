@@ -14,6 +14,7 @@ import { StringControl } from "comps/controls/codeControl";
 
 import { useContext } from "react";
 import { EditorContext } from "comps/editorState";
+import { withDefault } from "../generators";
 
 // TODO: add styling for image (size)
 // TODO: add styling for bouding box (individual backround)
@@ -26,12 +27,13 @@ const levelOptions = [
 ] as const;
 
 const childrenMap = {
-  value: stringExposingStateControl("value"),
-  level: dropdownControl(levelOptions, "L"),
+  value: stringExposingStateControl('value'),
+  level: dropdownControl(levelOptions, 'L'),
   includeMargin: BoolControl.DEFAULT_TRUE,
   image: StringControl,
-  style: styleControl(QRCodeStyle),
+  style: withDefault(styleControl(QRCodeStyle),{background:'transparent'}),
   animationStyle: styleControl(AnimationStyle),
+  restrictPaddingOnRotation: withDefault(StringControl, 'qrCode'),
 };
 
 const QRCodeView = (props: RecordConstructorToView<typeof childrenMap>) => {
@@ -110,7 +112,7 @@ let QRCodeBasicComp = (function () {
             {children.style.getPropertyView()}
             {children.includeMargin.propertyView({ label: trans("QRCode.includeMargin") })}
             </Section>
-            <Section name={sectionNames.animationStyle}>
+            <Section name={sectionNames.animationStyle} hasTooltip={true}>
             {children.animationStyle.getPropertyView()}
             </Section>
           </>

@@ -37,7 +37,6 @@ public class ApplicationInfoView {
     private final boolean publicToAll;
     private final boolean publicToMarketplace;
     private final boolean agencyProfile;
-    private final int bundlePosition;
 
     public long getLastViewTime() {
         return lastViewTime == null ? 0 : lastViewTime.toEpochMilli();

@@ -11,6 +11,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.UUID;
 
+import java.util.Map;
+
 @Getter
 @Setter
 @Document
@@ -27,7 +29,11 @@ public class Bundle extends HasIdAndAuditing {
     private String category;
     private String image;
     private BundleStatus bundleStatus;
+
     private Boolean publicToAll;
     private Boolean publicToMarketplace;
     private Boolean agencyProfile;
+
+    private Map<String, Object> editingBundleDSL;
+    private Map<String, Object> publishedBundleDSL;
 }

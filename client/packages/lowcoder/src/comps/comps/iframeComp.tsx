@@ -21,7 +21,9 @@ const Wrapper = styled.div<{$style: IframeStyleType; $animationStyle:AnimationSt
       props.$style.borderWidth ? props.$style.borderWidth : '1px'}
     solid ${(props) => props.$style.border};
   border-radius: calc(min(${(props) => props.$style.radius}, 20px));
-rotate:${props => props.$style.rotation}
+rotate:${props => props.$style.rotation};
+margin:${props => props.$style.margin};
+padding:${props => props.$style.padding};
 ${props=>props.$animationStyle}
   iframe {
     border: 0;
@@ -87,7 +89,7 @@ let IFrameCompBase = new UICompBuilder(
         <Section name={sectionNames.style}>
           {children.style.getPropertyView()}
         </Section>
-        <Section name={sectionNames.animationStyle}>
+        <Section name={sectionNames.animationStyle} hasTooltip={true}>
           {children.animationStyle.getPropertyView()}
           </Section>
         </>

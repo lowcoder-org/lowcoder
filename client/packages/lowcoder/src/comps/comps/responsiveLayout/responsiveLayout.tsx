@@ -50,7 +50,7 @@ const RowWrapper = styled(Row)<{
   ${(props) => props.$animationStyle}
   height: 100%;
   border-radius: ${(props) => props.$style?.radius};
-  border-width: ${(props) => props.$style?.borderWidth}px;
+  border-width: ${(props) => props.$style?.borderWidth};
   border-color: ${(props) => props.$style?.border};
   border-style: ${(props) => props.$style?.borderStyle};
   padding: ${(props) => props.$style.padding};
@@ -91,7 +91,7 @@ const childrenMap = {
   autoHeight: AutoHeightControl,
   rowBreak: withDefault(BoolControl, false),
   matchColumnsHeight: withDefault(BoolControl, true),
-  rowStyle: withDefault(styleControl(ResponsiveLayoutRowStyle), {}),
+  style: withDefault(styleControl(ResponsiveLayoutRowStyle), {}),
   columnStyle: withDefault(styleControl(ResponsiveLayoutColStyle), {}),
   animationStyle:styleControl(AnimationStyle),
   columnPerRowLG: withDefault(NumberControl, 4),
@@ -127,7 +127,7 @@ const ResponsiveLayout = (props: ResponsiveLayoutProps) => {
     dispatch,
     rowBreak,
     matchColumnsHeight,
-    rowStyle,
+    style,
     columnStyle,
     columnPerRowLG,
     columnPerRowMD,
@@ -138,11 +138,11 @@ const ResponsiveLayout = (props: ResponsiveLayoutProps) => {
   } = props;
 
   return (
-    <BackgroundColorContext.Provider value={props.rowStyle.background}>
+    <BackgroundColorContext.Provider value={props.style.background}>
       <DisabledContext.Provider value={props.disabled}>
-        <div style={{padding: rowStyle.margin, height: '100%'}}>
+        <div style={{padding: style.margin, height: '100%'}}>
           <RowWrapper
-            $style={rowStyle}
+            $style={style}
             $animationStyle={animationStyle}
             wrap={rowBreak}
             gutter={[horizontalSpacing, verticalSpacing]}
@@ -247,12 +247,12 @@ export const ResponsiveLayoutBaseComp = (function () {
               })}
             </Section>
             <Section name={trans("responsiveLayout.rowStyle")}>
-              {children.rowStyle.getPropertyView()}
+              {children.style.getPropertyView()}
             </Section>
             <Section name={trans("responsiveLayout.columnStyle")}>
               {children.columnStyle.getPropertyView()}
             </Section>
-            <Section name={sectionNames.animationStyle}>
+            <Section name={sectionNames.animationStyle} hasTooltip={true}>
                 {children.animationStyle.getPropertyView()}
             </Section>
             </>
