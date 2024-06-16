@@ -24,7 +24,7 @@ public class EmailCommunicationServiceImpl implements EmailCommunicationService 
 
             MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, true);
 
-            mimeMessageHelper.setFrom(config.getLostPasswordEmailSender());
+            mimeMessageHelper.setFrom(config.getNotificationsEmailSender());
             mimeMessageHelper.setTo(to);
             mimeMessageHelper.setSubject(subject);
 
