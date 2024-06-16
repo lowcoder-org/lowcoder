@@ -36,7 +36,6 @@ import { useIsMobile } from "util/hooks";
 import { CSSCodeControl, ObjectControl, RadiusControl, StringControl } from "./codeControl";
 import { ColorControl } from "./colorControl";
 import {
-  defaultTheme,
   DepColorConfig,
   DEP_TYPE,
   RadiusConfig,
@@ -82,6 +81,7 @@ import { faTextWidth } from "@fortawesome/free-solid-svg-icons";
 import appSelectControl from "./appSelectControl";
 import { JSONObject, JSONValue } from "@lowcoder-ee/util/jsonTypes";
 import { CompTypeContext } from "../utils/compTypeContext";
+import { defaultTheme } from "@lowcoder-ee/constants/themeConstants";
 
 function isSimpleColorConfig(config: SingleColorConfig): config is SimpleColorConfig {
   return config.hasOwnProperty("color");
@@ -357,6 +357,7 @@ function calcColors<ColorMap extends Record<string, string>>(
 ) {
   let themeWithDefault = (theme || defaultTheme) as unknown as Record<string, string>;
   themeWithDefault = {...themeWithDefault, ...(compTheme || {})};
+
   // Cover what is not there for the first pass
   let res: Record<string, string> = {};
   colorConfigs.forEach((config) => {
@@ -628,6 +629,10 @@ function calcColors<ColorMap extends Record<string, string>>(
     }
     if (isDepColorConfig(config)) {
       if (config.depType && config.depType === DEP_TYPE.CONTRAST_TEXT) {
+        if (compTheme?.[name]) {
+          res[name] = compTheme[name];
+          return;
+        }
         // bgColor is the background color of the container component, equivalent to canvas
         let depKey = config.depName ? res[config.depName] : themeWithDefault[config.depTheme!];
         if (bgColor && config.depTheme === "canvas") {
@@ -640,12 +645,16 @@ function calcColors<ColorMap extends Record<string, string>>(
         );
       } else if (config?.depType === DEP_TYPE.SELF && config.depTheme === "canvas" && bgColor) {
         res[name] = bgColor;
+      } else if ((config?.depType || config?.depName) && compTheme?.[name]) {
+        res[name] = compTheme[name];
       } else {
         const rest = [];
         config.depName && rest.push(res[config.depName]);
         config.depTheme && rest.push(themeWithDefault[config.depTheme]);
         res[name] = config.transformer(rest[0], rest[1]);
       }
+    } else {
+      res[name] = themeWithDefault[config.name]
     }
   });
   return res as ColorMap;
