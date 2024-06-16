@@ -29,7 +29,7 @@ export const ColorSelect = (props: ColorSelectProps) => {
       dispatch && dispatch(changeValueAction(toHex(rgbaColor), true));
       changeColor && changeColor(toHex(rgbaColor));
     }, 200),
-    [dispatch]
+    [dispatch,changeColor]
   );
   return (
     <Popover

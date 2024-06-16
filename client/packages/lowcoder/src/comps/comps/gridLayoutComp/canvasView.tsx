@@ -15,11 +15,11 @@ import { ExternalEditorContext } from "util/context/ExternalEditorContext";
 import { AppTypeEnum } from "constants/applicationConstants";
 import { EditorContainerPadding, TopHeaderHeight } from "constants/style";
 import { ThemeContext } from "comps/utils/themeContext";
-import { defaultTheme } from "comps/controls/styleControlConstants";
 import { checkIsMobile } from "util/commonUtils";
 import { CanvasContainerID } from "constants/domLocators";
 import { CNRootContainer } from "constants/styleSelectors";
 import { ScrollBar } from "lowcoder-design";
+import { defaultTheme } from "@lowcoder-ee/constants/themeConstants";
 
 // min-height: 100vh;
 
