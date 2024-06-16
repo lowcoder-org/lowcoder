@@ -18,7 +18,8 @@ import {
   ContainerCompBuilder,
 } from "../pageLayoutComp/pageLayoutCompBuilder";
 import { PageLayout } from "../pageLayoutComp/pageLayout";
-import { AnimationStyle, styleControl } from "@lowcoder-ee/index.sdk";
+import { AnimationStyle } from "@lowcoder-ee/comps/controls/styleControlConstants";
+import { styleControl } from "@lowcoder-ee/comps/controls/styleControl";
 
 export const ContainerBaseComp = (function () {
   const childrenMap = {

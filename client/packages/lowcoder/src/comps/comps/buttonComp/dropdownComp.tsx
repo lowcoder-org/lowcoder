@@ -21,8 +21,7 @@ import {
   ButtonStyleControl,
   getButtonStyle,
 } from "./buttonCompConstants";
-import { styleControl } from "@lowcoder-ee/index.sdk";
-
+import { styleControl } from "@lowcoder-ee/comps/controls/styleControl";
 
 const StyledDropdownButton = styled(DropdownButton)`
   width: 100%;
