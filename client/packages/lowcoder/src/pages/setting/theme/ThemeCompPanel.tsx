@@ -314,11 +314,11 @@ export const ThemeCompPanel = (props: any) => {
     );
   }, [appDsl, theme]);
 
-  if(!compList.length) return (
-    <RightPanelContentWrapper>
-      <EmptyCompContent />
-    </RightPanelContentWrapper>
-  )
+  // if(!compList.length) return (
+  //   <RightPanelContentWrapper>
+  //     <EmptyCompContent />
+  //   </RightPanelContentWrapper>
+  // )
 
   return (
     <Flex style={{
