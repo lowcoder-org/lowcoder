@@ -60,7 +60,7 @@ import { ExternalEditorContext } from "util/context/ExternalEditorContext";
 import { selectCompModifierKeyPressed } from "util/keyUtils";
 import { defaultLayout, GridItemComp, GridItemDataType } from "../gridItemComp";
 import { ThemeContext } from "comps/utils/themeContext";
-import { defaultTheme } from "comps/controls/styleControlConstants";
+import { defaultTheme } from "@lowcoder-ee/constants/themeConstants";
 
 const childrenMap = {
   layout: valueComp<Layout>({}),
