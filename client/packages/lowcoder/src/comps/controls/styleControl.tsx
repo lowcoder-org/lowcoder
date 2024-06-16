@@ -36,7 +36,6 @@ import { useIsMobile } from "util/hooks";
 import { CSSCodeControl, ObjectControl, RadiusControl, StringControl } from "./codeControl";
 import { ColorControl } from "./colorControl";
 import {
-  defaultTheme,
   DepColorConfig,
   DEP_TYPE,
   RadiusConfig,
@@ -80,8 +79,9 @@ import {
 } from "./styleControlConstants";
 import { faTextWidth } from "@fortawesome/free-solid-svg-icons";
 import appSelectControl from "./appSelectControl";
-import { JSONObject } from "@lowcoder-ee/util/jsonTypes";
+import { JSONObject, JSONValue } from "@lowcoder-ee/util/jsonTypes";
 import { CompTypeContext } from "../utils/compTypeContext";
+import { defaultTheme } from "@lowcoder-ee/constants/themeConstants";
 
 function isSimpleColorConfig(config: SingleColorConfig): config is SimpleColorConfig {
   return config.hasOwnProperty("color");
@@ -355,8 +355,13 @@ function calcColors<ColorMap extends Record<string, string>>(
   bgColor?: string,
   compTheme?: Record<string, string>,
 ) {
-  let themeWithDefault = (theme || defaultTheme) as unknown as Record<string, string>;
-  themeWithDefault = {...themeWithDefault, ...(compTheme || {})};
+  // let themeWithDefault = (theme || defaultTheme) as unknown as Record<string, string>;
+  let themeWithDefault = {
+    ...defaultTheme,
+    ...(theme || {}),
+    ...(compTheme || {}),
+  } as unknown as Record<string, string>;
+
   // Cover what is not there for the first pass
   let res: Record<string, string> = {};
   colorConfigs.forEach((config) => {
@@ -628,6 +633,10 @@ function calcColors<ColorMap extends Record<string, string>>(
     }
     if (isDepColorConfig(config)) {
       if (config.depType && config.depType === DEP_TYPE.CONTRAST_TEXT) {
+        if (compTheme?.[name]) {
+          res[name] = compTheme[name];
+          return;
+        }
         // bgColor is the background color of the container component, equivalent to canvas
         let depKey = config.depName ? res[config.depName] : themeWithDefault[config.depTheme!];
         if (bgColor && config.depTheme === "canvas") {
@@ -640,12 +649,16 @@ function calcColors<ColorMap extends Record<string, string>>(
         );
       } else if (config?.depType === DEP_TYPE.SELF && config.depTheme === "canvas" && bgColor) {
         res[name] = bgColor;
+      } else if ((config?.depType || config?.depName) && compTheme?.[name]) {
+        res[name] = compTheme[name];
       } else {
         const rest = [];
         config.depName && rest.push(res[config.depName]);
         config.depTheme && rest.push(themeWithDefault[config.depTheme]);
         res[name] = config.transformer(rest[0], rest[1]);
       }
+    } else {
+      res[name] = themeWithDefault[config.name]
     }
   });
   return res as ColorMap;
@@ -785,7 +798,10 @@ const ResetIcon = styled(IconReset)`
   }
 `;
 
-export function styleControl<T extends readonly SingleColorConfig[]>(colorConfigs: T) {
+export function styleControl<T extends readonly SingleColorConfig[]>(
+  colorConfigs: T,
+  styleKey: string = '',
+) {
   type ColorMap = { [K in Names<T>]: string };
   const childrenMap: any = {};
   colorConfigs.map((config) => {
@@ -843,12 +859,19 @@ export function styleControl<T extends readonly SingleColorConfig[]>(colorConfig
       const compType = useContext(CompTypeContext);
       const theme = useContext(ThemeContext);
       const bgColor = useContext(BackgroundColorContext);
+      const compTheme = compType
+        ? {
+            ...(defaultTheme.components?.[compType]?.[styleKey] || {}) as unknown as Record<string, string>,
+            ...(theme?.theme?.components?.[compType]?.[styleKey] || {}) as unknown as Record<string, string>
+          }
+        : undefined;
+
       return calcColors(
         props as ColorMap,
         colorConfigs,
         theme?.theme,
         bgColor,
-        compType ? theme?.theme?.components?.[compType] as unknown as Record<string, string>: undefined,
+        compTheme as Record<string, string> | undefined,
       );
     }
   )
@@ -858,13 +881,16 @@ export function styleControl<T extends readonly SingleColorConfig[]>(colorConfig
       const compType = useContext(CompTypeContext);
       const bgColor = useContext(BackgroundColorContext);
       const isMobile = useIsMobile();
+      const compTheme = compType
+        ? theme?.theme?.components?.[compType]?.[styleKey]
+        : undefined;
 
       const props = calcColors(
         childrenToProps(children) as ColorMap,
         colorConfigs,
         theme?.theme,
         bgColor,
-        compType ? theme?.theme?.components?.[compType] as unknown as Record<string, string>: undefined,
+        compTheme as Record<string, string> | undefined,
       );
       const showReset = Object.values(childrenToProps(children)).findIndex((item) => item) > -1;
       return (

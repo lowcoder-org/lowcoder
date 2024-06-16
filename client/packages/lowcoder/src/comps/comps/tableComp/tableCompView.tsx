@@ -13,7 +13,6 @@ import {
   supportChildrenTree,
 } from "comps/comps/tableComp/tableUtils";
 import {
-  defaultTheme,
   handleToHoverRow,
   handleToSelectedRow,
   TableColumnLinkStyleType,
@@ -41,6 +40,11 @@ import { EmptyContent } from "pages/common/styledComponent";
 import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 import { ReactRef, ResizeHandleAxis } from "layout/gridLayoutPropTypes";
 import { CellColorViewType } from "./column/tableColumnComp";
+import { defaultTheme } from "@lowcoder-ee/constants/themeConstants";
+import { ThemeContext } from "@lowcoder-ee/comps/utils/themeContext";
+import { CompTypeContext } from "@lowcoder-ee/comps/utils/compTypeContext";
+import { setInitialCompStyles } from "@lowcoder-ee/comps/utils/themeUtil";
+import { childrenToProps } from "@lowcoder-ee/comps/generators/multi";
 
 
 function genLinerGradient(color: string) {
@@ -345,7 +349,6 @@ const TableTd = styled.td<{
   background: ${(props) => props.$background} !important;
   border-color: ${(props) => props.$style.border} !important;
   border-radius: ${(props) => props.$style.radius};
-
   padding: 0 !important;
 
   > div {
@@ -774,6 +777,24 @@ export function TableCompView(props: {
       data: pagedData,
     };
   }, [pagination, data]);
+
+  const childrenProps = childrenToProps(comp.children);
+  const theme = useContext(ThemeContext);
+  const compType = useContext(CompTypeContext);
+  const compTheme = theme?.theme?.components?.[compType];
+
+  const styleProps: Record<string, any> = {};
+  ['style', 'rowStyle', 'toolbarStyle', 'headerStyle', 'columnsStyle'].forEach((key: string) => {
+    styleProps[key] = (childrenProps as any)[key];
+  });
+
+  useEffect(() => {
+    setInitialCompStyles({
+      dispatch: comp.dispatch,
+      compTheme,
+      styleProps,
+    });
+  }, []);
 
   const handleChangeEvent = useCallback(
     (eventName: TableEventOptionValues) => {

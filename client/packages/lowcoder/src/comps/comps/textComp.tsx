@@ -6,7 +6,7 @@ import styled, { css } from "styled-components";
 import { AlignCenter } from "lowcoder-design";
 import { AlignLeft } from "lowcoder-design";
 import { AlignRight } from "lowcoder-design";
-import { UICompBuilder } from "../generators";
+import { UICompBuilder, withDefault } from "../generators";
 import { NameConfig, NameConfigHidden, withExposingConfigs } from "../generators/withExposing";
 import { markdownCompCss, TacoMarkDown } from "lowcoder-design";
 import { styleControl } from "comps/controls/styleControl";
@@ -18,8 +18,12 @@ import { alignWithJustifyControl } from "comps/controls/alignControl";
 import { MarginControl } from "../controls/marginControl";
 import { PaddingControl } from "../controls/paddingControl";
 
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import { EditorContext } from "comps/editorState";
+import { ThemeContext } from "../utils/themeContext";
+import { CompTypeContext } from "../utils/compTypeContext";
+import { changeChildAction } from "lowcoder-core";
+import { setInitialCompStyles } from "../utils/themeUtil";
 
 const getStyle = (style: TextStyleType) => {
   return css`
@@ -112,6 +116,7 @@ const typeOptions = [
     value: "text",
   },
 ] as const;
+
 const VerticalAlignmentOptions = [
   { label: <AlignTop />, value: "flex-start" },
   { label: <AlignVerticalCenter />, value: "center" },
@@ -128,13 +133,30 @@ let TextTmpComp = (function () {
     type: dropdownControl(typeOptions, "markdown"),
     horizontalAlignment: alignWithJustifyControl(),
     verticalAlignment: dropdownControl(VerticalAlignmentOptions, "center"),
-    style: styleControl(TextStyle),
-    animationStyle: styleControl(AnimationStyle),
+    style: styleControl(TextStyle, 'style'),
+    animationStyle: styleControl(AnimationStyle, 'animationStyle'),
     margin: MarginControl,
     padding: PaddingControl,
   };
-  return new UICompBuilder(childrenMap, (props) => {
+  return new UICompBuilder(childrenMap, (props, dispatch) => {
     const value = props.text.value;
+    const theme = useContext(ThemeContext);
+    const compType = useContext(CompTypeContext);
+    const compTheme = theme?.theme?.components?.[compType];
+  
+    const styleProps: Record<string, any> = {};
+    ['style', 'animationStyle'].forEach((key: string) => {
+      styleProps[key] = (props as any)[key];
+    });
+
+    useEffect(() => {
+      setInitialCompStyles({
+        dispatch,
+        compTheme,
+        styleProps,
+      });
+    }, []);
+  
     return (
       <TextContainer
         $animationStyle={props.animationStyle}

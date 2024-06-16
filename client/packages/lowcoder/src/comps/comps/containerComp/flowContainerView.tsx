@@ -6,8 +6,8 @@ import { CompSelectionWrapper } from "layout/compSelectionWrapper";
 import { useContext } from "react";
 import { EditorContext } from "comps/editorState";
 import { ThemeContext } from "comps/utils/themeContext";
-import { defaultTheme } from "comps/controls/styleControlConstants";
 import styled from "styled-components";
+import { defaultTheme } from "@lowcoder-ee/constants/themeConstants";
 
 const FlowContainerWrapper = styled.div<{ $bgColor: string; $maxWidth?: number; $minHeight: string }>`
   background-color: ${(props) => props.$bgColor};

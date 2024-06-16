@@ -30,6 +30,7 @@ import ThemeSettingsCompStyles from "components/ThemeSettingsCompStyles";
 import { JSONObject } from "util/jsonTypes";
 import PreviewApp from "components/PreviewApp";
 import { parseCompType } from "comps/utils/remote";
+import { defaultTheme } from "@lowcoder-ee/constants/themeConstants";
 
 const CompDiv = styled.div`
   display: flex;
@@ -308,17 +309,17 @@ export const ThemeCompPanel = (props: any) => {
           minWidth: "auto",
           width: "100%",
         }}
-        theme={theme}
+        theme={{...defaultTheme, ...theme}}
         dsl={appDsl}
       />
     );
   }, [appDsl, theme]);
 
-  if(!compList.length) return (
-    <RightPanelContentWrapper>
-      <EmptyCompContent />
-    </RightPanelContentWrapper>
-  )
+  // if(!compList.length) return (
+  //   <RightPanelContentWrapper>
+  //     <EmptyCompContent />
+  //   </RightPanelContentWrapper>
+  // )
 
   return (
     <Flex style={{

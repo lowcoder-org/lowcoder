@@ -43,14 +43,17 @@ export interface ThemeDetail {
   textLight: string;
   canvas: string; // app bg-color
   primarySurface: string; // comp bg-color
-  borderRadius: string;
-  borderColor?: string;
+  borderRadius?: string; // will be depreceated
+  borderColor?: string; // will be depreceated
+  radius?: string;
+  border?: string;
   borderWidth?: string;
   borderStyle?: string;
   chart?: string;
   margin?: string;
   padding?: string;
   gridColumns?: string; //Added By Aqib Mirza
+  text?: string;
   textSize?: string;
   fontFamily?: string;
   animation?: string;
@@ -70,8 +73,8 @@ export function getThemeDetailName(key: keyof ThemeDetail) {
     case "textLight": return trans("themeDetail.textLight");
     case "canvas": return trans("themeDetail.canvas");
     case "primarySurface": return trans("themeDetail.primarySurface");
-    case "borderRadius": return trans("themeDetail.borderRadius");
-    case "borderColor": return trans("themeDetail.borderColor");
+    case "radius": return trans("themeDetail.borderRadius");
+    case "border": return trans("themeDetail.borderColor");
     case "borderWidth": return trans("themeDetail.borderWidth");
     case "borderStyle": return trans("themeDetail.borderStyle");
     case "fontFamily": return trans("themeDetail.fontFamily");
@@ -92,6 +95,8 @@ export function isThemeColorKey(key: string) {
     case "primarySurface":
     case "borderRadius":
     case "borderColor":
+    case "radius":
+    case "border":
     case "borderWidth":
     case "borderStyle":
     case "fontFamily":

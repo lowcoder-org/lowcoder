@@ -11,10 +11,10 @@ import {
 import { MultiCompBuilder, sameTypeMap, withDefault } from "comps/generators";
 import { migrateOldData } from "comps/generators/simpleGenerators";
 import { NameGenerator } from "comps/utils";
-import { fromRecord, Node } from "lowcoder-core";
+import { changeValueAction, fromRecord, multiChangeAction, Node } from "lowcoder-core";
 import { nodeIsRecord } from "lowcoder-core";
 import _ from "lodash";
-import { ReactNode } from "react";
+import { ReactNode, useContext, useEffect } from "react";
 import { lastValueIfEqual } from "util/objectUtils";
 import {
   CompTree,
@@ -27,6 +27,9 @@ import { SimpleContainerComp } from "../containerBase/simpleContainerComp";
 import { ContainerBodyChildComp } from "./containerBodyChildComp";
 import { trans } from "i18n";
 import { ControlNode } from "lowcoder-design";
+import { ThemeContext } from "@lowcoder-ee/comps/utils/themeContext";
+import { CompTypeContext } from "@lowcoder-ee/comps/utils/compTypeContext";
+import { setInitialCompStyles } from "@lowcoder-ee/comps/utils/themeUtil";
 
 const childrenMap = {
   header: SimpleContainerComp,
@@ -40,15 +43,32 @@ const childrenMap = {
   showFooter: BoolControl,
   autoHeight: AutoHeightControl,
   scrollbars: withDefault(BoolControl, false),
-  style: withDefault(styleControl(ContainerStyle),{borderWidth:'1px'}),
-  headerStyle: styleControl(ContainerHeaderStyle),
-  bodyStyle: styleControl(ContainerBodyStyle),
-  footerStyle: styleControl(ContainerFooterStyle),
+  style: withDefault(styleControl(ContainerStyle, 'style'),{borderWidth:'1px'}),
+  headerStyle: styleControl(ContainerHeaderStyle, 'headerStyle'),
+  bodyStyle: styleControl(ContainerBodyStyle, 'bodyStyle'),
+  footerStyle: styleControl(ContainerFooterStyle, 'footerStyle'),
 };
 
 // Compatible with old style data 2022-8-15
 const TriContainerBaseComp = migrateOldData(
   new MultiCompBuilder(childrenMap, (props, dispatch) => {
+    const theme = useContext(ThemeContext);
+    const compType = useContext(CompTypeContext);
+    const compTheme = theme?.theme?.components?.[compType];
+    // Filter style props from children props
+    const styleProps: Record<string, any> = {};
+    ['style', 'headerStyle', 'bodyStyle', 'footerStyle'].forEach((key: string) => {
+      styleProps[key] = (props as any)[key];
+    });
+    // Update comp styles with combination of default style and comp theme style 
+    useEffect(() => {
+      setInitialCompStyles({
+        dispatch,
+        compTheme,
+        styleProps,
+      });
+    }, []);
+
     return { ...props, dispatch };
   }).build(),
   fixOldStyleData

@@ -1,5 +1,4 @@
-import _ from "lodash";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ConfigItem, Radius, Margin, Padding, GridColumns, BorderWidth, BorderStyle } from "../pages/setting/theme/styledComponents";
 import { isValidColor, toHex } from "components/colorSelect/colorUtils";
 import { ColorSelect } from "components/colorSelect";
@@ -28,6 +27,7 @@ import {
   RotationIcon,
  } from "lowcoder-design/src/icons";
 import { trans } from "i18n";
+import { debounce } from "lodash";
 
 export type configChangeParams = {
   themeSettingKey: string;
@@ -112,28 +112,22 @@ type CompStyleProps = {
 
 export default function ThemeSettingsCompStyles(props: CompStyleProps) {
   const { defaultStyle, styleOptions, configChange } = props;
-  const [compStyle, setCompStyle] = useState(defaultStyle)
-  
-  console.log('defaultStyle', defaultStyle);
+  const [compStyle, setCompStyle] = useState({...defaultStyle});
+
+  const updateThemeWithDebounce = useMemo(() => {
+    return debounce((updateStyles) => {
+      configChange(updateStyles);
+    }, 500);
+  }, [configChange]);
 
   const handleChange = (styleKey: string, styleValue: string) => {
-    setCompStyle((style) => {
-      const updateStyles = {
-        ...style,
-        [styleKey]: styleValue,
-      };
-      configChange(updateStyles);
-      return updateStyles;
-    });
+    const updateStyles = {
+      ...compStyle,
+      [styleKey]: styleValue,
+    };
+    setCompStyle(updateStyles);
+    updateThemeWithDebounce(updateStyles);
   }
-
-  const configChangeWithDebounce = _.debounce(configChange, 0);
-  const handleChangeWithDebounce = _.debounce(handleChange, 0);
-
-  useEffect(() => {
-    console.log(compStyle);
-  }, [compStyle]);
-
 
   const getLabelByStyle = (styleKey: string) => {
     let label = styleKey;
@@ -189,19 +183,19 @@ export default function ThemeSettingsCompStyles(props: CompStyleProps) {
       case 'radius':
       case 'cardRadius':
       case 'gap': {
-        placeholder = '';
+        placeholder = '2px';
         break;
       }
       case 'borderWidth': {
-        placeholder = '';
+        placeholder = '1px';
         break;
       }
       case 'borderStyle': {
-        placeholder = '';
+        placeholder = 'solid';
         break;
       }
       case 'margin': {
-        placeholder = '';
+        placeholder = '3px';
         break;
       }
       case 'padding':
@@ -209,59 +203,59 @@ export default function ThemeSettingsCompStyles(props: CompStyleProps) {
       case 'containerSiderPadding':
       case 'containerFooterPadding':
       case 'containerBodyPadding': {
-        placeholder = '';
+        placeholder = '3px';
         break;
       }
       case 'opacity': {
-        placeholder = '';
+        placeholder = '1';
         break;
       }
       case 'boxShadowColor': {
-        placeholder = '';
+        placeholder = '#FFFFFF';
         break;
       }
       case 'boxShadow': {
-        placeholder = '';
+        placeholder = '0px 0px 0px';
         break;
       }
       case 'animationIterationCount': {
-        placeholder = '';
+        placeholder = '0';
         break;
       }
       case 'animation': {
-        placeholder = '';
+        placeholder = 'none';
         break;
       }
       case 'animationDelay': {
-        placeholder = '';
+        placeholder = '0s';
         break;
       }
       case 'animationDuration': {
-        placeholder = '';
+        placeholder = '0s';
         break;
       }
       case 'textSize': {
-        placeholder = '';
+        placeholder = '14px';
         break;
       }
       case 'textWeight': {
-        placeholder = '';
+        placeholder = 'normal';
         break;
       }
       case 'fontFamily': {
-        placeholder = '';
+        placeholder = 'sans-serif';
         break;
       }
       case 'textDecoration': {
-        placeholder = '';
+        placeholder = 'none';
         break;
       }
       case 'textTransform': {
-        placeholder = '';
+        placeholder = 'none';
         break;
       }
       case 'fontStyle': {
-        placeholder = '';
+        placeholder = 'normal';
         break;
       }
       case 'backgroundImage':
@@ -273,11 +267,11 @@ export default function ThemeSettingsCompStyles(props: CompStyleProps) {
       case 'backgroundImageRepeat':
       case 'headerBackgroundImageRepeat':
       case 'footerBackgroundImageRepeat': {
-        placeholder = '';
+        placeholder = 'no-repeat';
         break;
       }
       case 'rotation': {
-        placeholder = '';
+        placeholder = '0deg';
         break;
       }
     }
@@ -392,13 +386,16 @@ export default function ThemeSettingsCompStyles(props: CompStyleProps) {
       marginBottom: "16px",
     }}>
       {styleOptions.map((styleKey: string) => (
-        <ConfigItem style={{
-          flexDirection: "row",
-          alignItems: "center",
-          margin: "0",
-          padding: "6px",
-          borderBottom: "1px solid lightgray",
-        }}>
+        <ConfigItem
+          key={styleKey}
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            margin: "0",
+            padding: "6px",
+            borderBottom: "1px solid lightgray",
+          }}
+        >
           <div className="text-desc" style={{
             width: "100px",
             minWidth: "auto",
@@ -415,14 +412,13 @@ export default function ThemeSettingsCompStyles(props: CompStyleProps) {
                 //   leading: true,
                 //   trailing: true,
                 // })}
+                changeColor={(value) => handleChange(styleKey, value)}
                 color={compStyle[styleKey]!}
                 trigger="hover"
               />
               <TacoInput
                 value={compStyle[styleKey]}
-                onChange={(e) => {
-                  handleChangeWithDebounce(styleKey, e.target.value);
-                }}
+                onChange={(e) => handleChange(styleKey, e.target.value)}
                 // onChange={(e) => setColor(e.target.value)}
                 // onBlur={colorInputBlur}
                 // onKeyUp={(e) => e.nativeEvent.key === "Enter" && colorInputBlur()}
@@ -437,14 +433,8 @@ export default function ThemeSettingsCompStyles(props: CompStyleProps) {
               {/* </Radius> */}
               <TacoInput
                 placeholder={getPlaceholderByStyle(styleKey)}
-                value={compStyle[styleKey]}
-                onChange={(e) => {
-                  handleChangeWithDebounce(styleKey, e.target.value);
-                  // setCompStyle((style) => ({
-                  //   ...style,
-                  //   [styleKey]: e.target.value,
-                  // }))
-                }}
+                defaultValue={compStyle[styleKey]}
+                onChange={(e) => handleChange(styleKey, e.target.value)}
                 // onBlur={(e) => radiusInputBlur(e.target.value)}
                 // onKeyUp={(e) => e.nativeEvent.key === "Enter" && radiusInputBlur(e.currentTarget.value)}
               />
