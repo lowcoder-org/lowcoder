@@ -86,8 +86,6 @@ function ThirdPartyLoginButton(props: {
     ? `Sign up with ${label}`
     : `Sign in with ${label}`;
 
-  console.log('config', config);
-
   return (
     <StyledLoginButton buttonType="normal" onClick={onLoginClick}>
       {config.icon && <MultiIconDisplay identifier={config.icon} width="20px" height="20px" style={{ marginRight: "20px", flexShrink: 0, color: "#000" }} />}
