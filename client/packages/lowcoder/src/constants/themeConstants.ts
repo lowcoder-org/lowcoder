@@ -20,6 +20,21 @@ const input = {
   }
 };
 
+const table = {
+  style: {
+    borderWidth: '1px'
+  },
+  rowStyle: {
+    borderWidth: '1px'
+  },
+  headerStyle: {
+    borderWidth: '1px'
+  },
+  columnsStyle: {
+    radius: '0px'
+  }
+}
+
 export const defaultTheme: ThemeDetail = {
   primary: "#3377FF",
   textDark: "#222222",
@@ -34,6 +49,7 @@ export const defaultTheme: ThemeDetail = {
   padding: "3px",
   gridColumns: "24",
   textSize: "14px",
+  text: "#222222",
   animation: "",
   animationDelay: "",
   animationDuration: "",
@@ -44,5 +60,6 @@ export const defaultTheme: ThemeDetail = {
   components: {
     text,
     input,
+    table,
   },
 };

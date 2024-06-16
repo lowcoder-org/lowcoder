@@ -355,8 +355,12 @@ function calcColors<ColorMap extends Record<string, string>>(
   bgColor?: string,
   compTheme?: Record<string, string>,
 ) {
-  let themeWithDefault = (theme || defaultTheme) as unknown as Record<string, string>;
-  themeWithDefault = {...themeWithDefault, ...(compTheme || {})};
+  // let themeWithDefault = (theme || defaultTheme) as unknown as Record<string, string>;
+  let themeWithDefault = {
+    ...defaultTheme,
+    ...(theme || {}),
+    ...(compTheme || {}),
+  } as unknown as Record<string, string>;
 
   // Cover what is not there for the first pass
   let res: Record<string, string> = {};
