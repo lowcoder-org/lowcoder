@@ -860,7 +860,10 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
       const theme = useContext(ThemeContext);
       const bgColor = useContext(BackgroundColorContext);
       const compTheme = compType
-        ? theme?.theme?.components?.[compType]?.[styleKey]
+        ? {
+            ...(defaultTheme.components?.[compType]?.[styleKey] || {}) as unknown as Record<string, string>,
+            ...(theme?.theme?.components?.[compType]?.[styleKey] || {}) as unknown as Record<string, string>
+          }
         : undefined;
 
       return calcColors(

@@ -35,6 +35,13 @@ const table = {
   }
 }
 
+const link = {
+  style: {
+    borderWidth: '0px',
+    background: 'transparent',
+  }
+}
+
 export const defaultTheme: ThemeDetail = {
   primary: "#3377FF",
   textDark: "#222222",
@@ -61,5 +68,6 @@ export const defaultTheme: ThemeDetail = {
     text,
     input,
     table,
+    link,
   },
 };
