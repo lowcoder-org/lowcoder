@@ -241,7 +241,7 @@ export function contrastText(
   textDark: string,
   textLight: string
 ) {
-  return isDarkColor(color) && color !== "#00000000" ? textLight : textDark;
+  return color && isDarkColor(color) && color !== "#00000000" ? textLight : textDark;
 }
 
 // return similar background color
