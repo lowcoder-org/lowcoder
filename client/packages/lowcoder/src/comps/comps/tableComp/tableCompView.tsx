@@ -13,7 +13,6 @@ import {
   supportChildrenTree,
 } from "comps/comps/tableComp/tableUtils";
 import {
-  defaultTheme,
   handleToHoverRow,
   handleToSelectedRow,
   TableColumnLinkStyleType,
@@ -41,6 +40,7 @@ import { EmptyContent } from "pages/common/styledComponent";
 import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 import { ReactRef, ResizeHandleAxis } from "layout/gridLayoutPropTypes";
 import { CellColorViewType } from "./column/tableColumnComp";
+import { defaultTheme } from "@lowcoder-ee/constants/themeConstants";
 
 
 function genLinerGradient(color: string) {

@@ -17,7 +17,7 @@ import { TransformerListComp } from "./transformerListComp";
 import UIComp from "./uiComp";
 import { ThemeContext } from "comps/utils/themeContext";
 import { ModuleLayoutCompName } from "constants/compConstants";
-import { defaultTheme as localDefaultTheme } from "comps/controls/styleControlConstants";
+import { defaultTheme as localDefaultTheme } from "constants/themeConstants";
 import { ModuleLoading } from "components/ModuleLoading";
 import EditorSkeletonView from "pages/editor/editorSkeletonView";
 import { getGlobalSettings } from "comps/utils/globalSettings";

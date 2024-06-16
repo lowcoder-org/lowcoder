@@ -20,7 +20,7 @@ import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { dropdownControl } from "@lowcoder-ee/comps/controls/dropdownControl";
 import { DataOption, DataOptionType, ModeOptions, menuItemStyleOptions, mobileNavJsonMenuItems } from "./navLayoutConstants";
 import { styleControl } from "@lowcoder-ee/comps/controls/styleControl";
-import { NavLayoutItemActiveStyle, NavLayoutItemActiveStyleType, NavLayoutItemHoverStyle, NavLayoutItemHoverStyleType, NavLayoutItemStyle, NavLayoutItemStyleType, NavLayoutStyle, NavLayoutStyleType, defaultTheme } from "@lowcoder-ee/comps/controls/styleControlConstants";
+import { NavLayoutItemActiveStyle, NavLayoutItemActiveStyleType, NavLayoutItemHoverStyle, NavLayoutItemHoverStyleType, NavLayoutItemStyle, NavLayoutItemStyleType, NavLayoutStyle, NavLayoutStyleType } from "@lowcoder-ee/comps/controls/styleControlConstants";
 import Segmented from "antd/es/segmented";
 import { controlItem } from "components/control";
 import { check } from "@lowcoder-ee/util/convertUtils";
@@ -30,6 +30,7 @@ import { ThemeContext } from "@lowcoder-ee/comps/utils/themeContext";
 import { AlignCenter } from "lowcoder-design";
 import { AlignLeft } from "lowcoder-design";
 import { AlignRight } from "lowcoder-design";
+import { defaultTheme } from "@lowcoder-ee/constants/themeConstants";
 
 const TabBar = React.lazy(() => import("antd-mobile/es/components/tab-bar"));
 const TabBarItem = React.lazy(() =>

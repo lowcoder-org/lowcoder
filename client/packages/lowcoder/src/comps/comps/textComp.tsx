@@ -134,7 +134,7 @@ let TextTmpComp = (function () {
     horizontalAlignment: alignWithJustifyControl(),
     verticalAlignment: dropdownControl(VerticalAlignmentOptions, "center"),
     style: styleControl(TextStyle, 'style'),
-    animationStyle: styleControl(AnimationStyle),
+    animationStyle: styleControl(AnimationStyle, 'animationStyle'),
     margin: MarginControl,
     padding: PaddingControl,
   };
@@ -143,8 +143,9 @@ let TextTmpComp = (function () {
     const theme = useContext(ThemeContext);
     const compType = useContext(CompTypeContext);
     const compTheme = theme?.theme?.components?.[compType];
+  
     const styleProps: Record<string, any> = {};
-    ['style'].forEach((key: string) => {
+    ['style', 'animationStyle'].forEach((key: string) => {
       styleProps[key] = (props as any)[key];
     });
 
