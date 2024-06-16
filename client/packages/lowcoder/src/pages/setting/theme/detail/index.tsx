@@ -212,7 +212,7 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
             settingsKey: 'borderColor',
             name: trans('themeDetail.borderColor'),
             desc: trans('themeDetail.borderColorDesc'),
-            color: this.state.theme.borderColor,
+            color: this.state.theme.border || this.state.theme.borderColor,
           }
         ]
       },
@@ -260,7 +260,7 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
             name: trans('themeDetail.borderRadius'),
             desc: trans('themeDetail.borderRadiusDesc'),
             type: "radius",
-            value: this.state.theme.borderRadius,
+            value: this.state.theme.radius || this.state.theme.borderRadius,
           },
           {
             settingsKey: 'borderWidth',

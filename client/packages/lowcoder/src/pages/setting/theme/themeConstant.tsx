@@ -27,7 +27,7 @@ export const themeTemplateList = [
       textLight: "#FFFFFF",
       canvas: "#F5F5F6",
       primarySurface: "#FFFFFF",
-      borderRadius: "4px",
+      radius: "4px",
       chart: JSON.stringify(ChartTheme, null, 2),
       gridColumns: "24", //Added By Aqib Mirza
       margin: "3px",
@@ -44,7 +44,7 @@ export const themeTemplateList = [
       textLight: "#FFFFFF",
       canvas: "#29324F",
       primarySurface: "#495780",
-      borderRadius: "4px",
+      radius: "4px",
       chart: JSON.stringify(ChartYellowTheme, null, 2),
       gridColumns: "24", //Added By Aqib Mirza
       margin: "3px",
@@ -61,7 +61,7 @@ export const themeTemplateList = [
       textLight: "#FFFFFF",
       canvas: "#F5F5F6",
       primarySurface: "#FFFFFF",
-      borderRadius: "4px",
+      radius: "4px",
       chart: JSON.stringify(ChartGreenTheme, null, 2),
       gridColumns: "24", //Added By Aqib Mirza
       margin: "3px",
