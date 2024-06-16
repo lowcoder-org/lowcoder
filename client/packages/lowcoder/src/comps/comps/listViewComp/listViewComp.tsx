@@ -52,8 +52,8 @@ const childrenMap = {
   scrollbars: withDefault(BoolControl, false),
   showBorder: BoolControl,
   pagination: withDefault(PaginationControl, { pageSize: "6" }),
-  style: styleControl(ListViewStyle),
-  animationStyle: styleControl(AnimationStyle),
+  style: styleControl(ListViewStyle, 'style'),
+  animationStyle: styleControl(AnimationStyle, 'animationStyle'),
   horizontal: withDefault(BoolControl, false),
   minHorizontalWidth: withDefault(RadiusControl, '100px'),
 };
