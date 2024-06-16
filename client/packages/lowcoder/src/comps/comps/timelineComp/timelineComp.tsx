@@ -47,6 +47,9 @@ import { timelineDate, timelineNode, TimelineDataTooltip } from "./timelineConst
 import { convertTimeLineData } from "./timelineUtils";
 import { default as Timeline } from "antd/es/timeline";
 import { EditorContext } from "comps/editorState";
+import { ThemeContext } from "@lowcoder-ee/comps/utils/themeContext";
+import { CompTypeContext } from "@lowcoder-ee/comps/utils/compTypeContext";
+import { setInitialCompStyles } from "@lowcoder-ee/comps/utils/themeUtil";
 
 const EventOptions = [
   clickEvent,
@@ -64,7 +67,7 @@ const childrenMap = {
   reverse: BoolControl,
   pending: withDefault(StringControl, trans("timeLine.defaultPending")),
   onEvent: eventHandlerControl(EventOptions),
-  style: styleControl(TimeLineStyle),
+  style: styleControl(TimeLineStyle, 'style'),
   clickedObject: valueComp<timelineNode>({ title: "" }),
   clickedIndex: valueComp<number>(0),
 };
@@ -89,6 +92,22 @@ const TimelineComp = (
 ) => {
   const { value, dispatch, style, mode, reverse, onEvent } = props;
   const [icons, setIcons] = useState<React.ReactNode[]>([]);
+  const theme = useContext(ThemeContext);
+  const compType = useContext(CompTypeContext);
+  const compTheme = theme?.theme?.components?.[compType];
+
+  const styleProps: Record<string, any> = {};
+  ['style'].forEach((key: string) => {
+    styleProps[key] = (props as any)[key];
+  });
+
+  useEffect(() => {
+    setInitialCompStyles({
+      dispatch,
+      compTheme,
+      styleProps,
+    });
+  }, []);
 
   useEffect(() => {
     const loadIcons = async () => {
