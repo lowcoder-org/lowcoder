@@ -80,7 +80,7 @@ const childrenMap = {
   disableSubmit: BoolCodeControl,
   loading: BoolCodeControl,
   onEvent: eventHandlerControl(eventOptions),
-  animationStyle:styleControl(AnimationStyle)
+  animationStyle: styleControl(AnimationStyle)
 };
 
 type FormProps = TriContainerViewProps &

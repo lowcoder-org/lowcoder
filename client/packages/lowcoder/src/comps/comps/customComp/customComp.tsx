@@ -219,7 +219,7 @@ function InnerCustomComponent(props: IProps) {
 const childrenMap = {
   model: jsonObjectStateControl(defaultModel),
   code: withDefault(StringControl, defaultCode),
-  style:styleControl(CustomStyle),
+  style: styleControl(CustomStyle),
   animationStyle:styleControl(AnimationStyle),
 };
 

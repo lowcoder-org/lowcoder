@@ -11,8 +11,8 @@ import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { EditorContext } from "comps/editorState";
 import { useContext } from "react";
-import { styleControl } from "@lowcoder-ee/comps/controls/styleControl";
 import { AnimationStyle, AnimationStyleType } from "@lowcoder-ee/comps/controls/styleControlConstants";
+import { styleControl } from "@lowcoder-ee/comps/controls/styleControl";
 
 /**
  * JsonExplorer Comp
@@ -55,7 +55,7 @@ let JsonExplorerTmpComp = (function () {
     indent: withDefault(NumberControl, 4),
     expandToggle: BoolControl.DEFAULT_TRUE,
     theme: dropdownControl(themeOptions, 'shapeshifter:inverted'),
-    animationStyle:styleControl(AnimationStyle),
+    animationStyle: styleControl(AnimationStyle),
   };
   return new UICompBuilder(childrenMap, (props) => (
     <JsonExplorerContainer

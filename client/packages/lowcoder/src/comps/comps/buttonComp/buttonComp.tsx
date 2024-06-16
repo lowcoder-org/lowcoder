@@ -131,7 +131,7 @@ const ButtonTmpComp = (function () {
     prefixIcon: IconControl,
     suffixIcon: IconControl,
     style: ButtonStyleControl,
-    animationStyle:styleControl(AnimationStyle),
+    animationStyle: styleControl(AnimationStyle),
     viewRef: RefControl<HTMLElement>,
   };
   return new UICompBuilder(childrenMap, (props) => (
