@@ -14,6 +14,12 @@ import reactor.core.publisher.Mono;
 
 public interface OrganizationService {
 
+    public static final String PASSWORD_RESET_EMAIL_TEMPLATE_DEFAULT = "<p>Hi, %s<br/>" +
+            "Here is the link to reset your password: %s<br/>" +
+            "Please note that the link will expire after 12 hours.<br/><br/>" +
+            "Regards,<br/>" +
+            "The Lowcoder Team</p>";
+
     @PossibleEmptyMono
     Mono<Organization> getOrganizationInEnterpriseMode();
 
