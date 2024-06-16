@@ -42,6 +42,19 @@ const link = {
   }
 }
 
+const rating = {
+  style: {
+    background: 'transparent',
+    borderWidth: '0px',
+  },
+  labelStyle: {
+    borderWidth: '0px',
+  },
+  inputFieldStyle: {
+    borderWidth: '0px',
+  }
+}
+
 export const defaultTheme: ThemeDetail = {
   primary: "#3377FF",
   textDark: "#222222",
@@ -69,5 +82,6 @@ export const defaultTheme: ThemeDetail = {
     input,
     table,
     link,
+    rating,
   },
 };
