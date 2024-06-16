@@ -75,6 +75,8 @@ import {
   AnimationConfig,
   AnimationDelayConfig,
   AnimationDurationConfig,
+  BackgroundConfig,
+  BorderConfig,
 
 
 } from "./styleControlConstants";
@@ -85,6 +87,14 @@ import { CompTypeContext } from "../utils/compTypeContext";
 
 function isSimpleColorConfig(config: SingleColorConfig): config is SimpleColorConfig {
   return config.hasOwnProperty("color");
+}
+
+function isBackgroundColorConfig(config: SingleColorConfig): config is BackgroundConfig {
+  return config.hasOwnProperty("background");
+}
+
+function isBorderConfig(config: SingleColorConfig): config is BorderConfig {
+  return config.hasOwnProperty("border");
 }
 
 function isDepColorConfig(config: SingleColorConfig): config is DepColorConfig {
@@ -359,7 +369,7 @@ function calcColors<ColorMap extends Record<string, string>>(
   console.log("🚀 ~ compTheme:", compTheme)
   console.log("🚀 ~ theme:", theme)
   console.log("🚀 ~ defaultTheme:", defaultTheme)
-  let themeWithDefault = (theme || defaultTheme) as unknown as Record<string, string>;
+  let themeWithDefault = {...(theme || defaultTheme)} as unknown as Record<string, string>;
   themeWithDefault = { ...themeWithDefault, ...(compTheme || {})};
   console.log("🚀 ~ themeWithDefault:", themeWithDefault)
   let canvas;
@@ -541,16 +551,15 @@ function calcColors<ColorMap extends Record<string, string>>(
       return;
     }
     if (!isEmptyColor(props[name])) {
-      if (isThemeColorKey(props[name])) {
-        res[name] = themeWithDefault[props[name]];
-      } else {
+      if (isThemeColorKey(name)) {
         res[name] = props[name];
-      }
+      } 
       return;
     }
-    if (isSimpleColorConfig(config)) {
-      res[name] = config.color;
-    }
+    // if (isSimpleColorConfig(config) && name === 'validate') {
+    //   res[name] = config.color;
+    // }
+    
     if (isRadiusConfig(config)) {
       res[name] = themeWithDefault[config.radius];
     }
@@ -654,6 +663,21 @@ function calcColors<ColorMap extends Record<string, string>>(
     }
     if (isAnimationDurationConfig(config)) {
       res[name] = themeWithDefault[config.animationDuration] || '0s';
+    }
+    // if (isBackgroundColorConfig(config)) {
+    //   console.log("isBackgroundColorConfig",themeWithDefault[config.background])
+    //   res[name] = themeWithDefault[config.background] ;
+    // }
+    // if (isBorderConfig(config)) {
+    //   console.log("isBorderConfig",themeWithDefault[config.border])
+
+    //   res[name] = themeWithDefault[config.border] ;
+    // }
+    if (isEmptyColor(props[name])) {
+      if (isThemeColorKey(name)) {
+        res[name] = themeWithDefault[config.name];
+      } 
+      return;
     }
   });
   // The second pass calculates dep

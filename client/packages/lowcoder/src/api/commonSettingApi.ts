@@ -60,6 +60,10 @@ export interface ThemeDetail {
   boxShadow?: string;
   boxShadowColor?: string;
   animationIterationCount?: string;
+  background?:string;
+  border?:string;
+  accent?:string;
+  validate?:string;
   components?: Record<string, JSONObject>;
 }
 
@@ -84,21 +88,26 @@ export function getThemeDetailName(key: keyof ThemeDetail) {
 }
 
 export function isThemeColorKey(key: string) {
+  console.log("key", key)
   switch (key as keyof ThemeDetail) {
     case "primary":
     case "textDark":
     case "textLight":
     case "canvas":
     case "primarySurface":
-    case "borderRadius":
+    case "accent":
+    case "validate":
+    // case "borderRadius":
     case "borderColor":
-    case "borderWidth":
-    case "borderStyle":
-    case "fontFamily":
-    case "margin":	
-    case "padding":
-    case "gridColumns":
-    case "textSize":
+    // case "borderWidth":
+    // case "borderStyle":
+    // case "fontFamily":
+    // case "margin":	
+    // case "padding":
+    // case "gridColumns":
+    // case "textSize":
+    case "background" :
+    case "border":
       return true;
   }
   return false;

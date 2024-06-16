@@ -54,7 +54,9 @@ export type AnimationDelayConfig = CommonColorConfig & {
 export type AnimationDurationConfig = CommonColorConfig & {
   readonly animationDuration: string;
 };
-
+export type BackgroundConfig = CommonColorConfig & {
+  readonly background: string;
+};
 export type BackgroundImageConfig = CommonColorConfig & {
   readonly backgroundImage: string;
 };
@@ -137,6 +139,9 @@ export type FontStyleConfig = CommonColorConfig & {
 
 export type borderStyleConfig = CommonColorConfig & {
   readonly borderStyle: string;
+};
+export type BorderConfig = CommonColorConfig & {
+  readonly border: string;
 };
 
 export type ContainerHeaderPaddingConfig = CommonColorConfig & {
@@ -223,7 +228,9 @@ export type SingleColorConfig =
   | OpacityConfig
   | BoxShadowConfig
   | BoxShadowColorConfig
-  | AnimationIterationCountConfig;
+  | AnimationIterationCountConfig
+  | BackgroundConfig
+  | BorderConfig;
 
 export const defaultTheme: ThemeDetail = {
   primary: "#3377FF",
