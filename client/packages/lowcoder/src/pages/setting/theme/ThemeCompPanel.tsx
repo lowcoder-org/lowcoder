@@ -305,7 +305,7 @@ export const ThemeCompPanel = (props: any) => {
     return (
       <PreviewApp
         style={{
-          height: "630px",
+          height: "680px",
           minWidth: "auto",
           width: "100%",
         }}
