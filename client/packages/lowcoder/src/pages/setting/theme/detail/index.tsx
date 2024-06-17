@@ -44,7 +44,7 @@ import { messageInstance } from "lowcoder-design/src/components/GlobalInstances"
 import { Card, Collapse, CollapseProps, Divider, Flex, List, Tooltip } from 'antd';
 
 import { ThemeCompPanel } from "pages/setting/theme/ThemeCompPanel";
-import { JSONObject } from "@lowcoder-ee/index.sdk";
+import { JSONObject } from "@lowcoder-ee/util/jsonTypes";
 
 const ThemeSettingsView = styled.div`
   font-size: 14px;

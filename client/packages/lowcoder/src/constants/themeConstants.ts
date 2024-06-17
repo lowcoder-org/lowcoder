@@ -55,17 +55,6 @@ const rating = {
   }
 }
 
-const time = {
-  style: {
-    background: 'transparent',
-    borderWidth:'1px'
-  },
-  inputFieldStyle: {
-    borderStyle: 'solid',
-    borderWidth: '1px',
-  },
-};
-
 const segmentedControl = {
   style: {
     borderWidth: '0px',
@@ -110,8 +99,8 @@ export const defaultTheme: ThemeDetail = {
     radio: input,
     date: input,
     dateRange: input,
-    time,
-    timeRange: time,
+    time: input,
+    timeRange: input,
     slider: input,
     rangeSlider: input,
     segmentedControl,

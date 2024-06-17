@@ -88,7 +88,7 @@ const commonChildren = {
   suffixIcon: withDefault(IconControl, "/icon:regular/calendar"),
   ...validationChildren,
   viewRef: RefControl<CommonPickerMethods>,
-  inputFieldStyle: withDefault(styleControl(DateTimeStyle, 'inputFieldStyle'), defaultStyle),
+  inputFieldStyle: styleControl(DateTimeStyle, 'inputFieldStyle'),
 };
 type CommonChildrenType = RecordConstructorToComp<typeof commonChildren>;
 

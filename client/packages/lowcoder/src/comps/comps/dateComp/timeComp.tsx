@@ -25,7 +25,7 @@ import {
 } from "../../generators/withExposing";
 import { formDataChildren, FormDataPropertyView } from "../formComp/formDataConstants";
 import { styleControl } from "comps/controls/styleControl";
-import { DateTimeStyle, DateTimeStyleType } from "comps/controls/styleControlConstants";
+import { AnimationStyle, DateTimeStyle, DateTimeStyleType, InputFieldStyle, LabelStyle } from "comps/controls/styleControlConstants";
 import { withMethodExposing } from "../../generators/withMethodExposing";
 import {
   disabledPropertyView,
@@ -76,7 +76,13 @@ const commonChildren = {
   hourStep: RangeControl.closed(1, 24, 1),
   minuteStep: RangeControl.closed(1, 60, 1),
   secondStep: RangeControl.closed(1, 60, 1),
-  style: styleControl(DateTimeStyle, 'style'),
+  style: styleControl(InputFieldStyle, 'style'),
+  animationStyle: styleControl(AnimationStyle, 'animationStyle'),
+  labelStyle: styleControl(
+    LabelStyle.filter((style) => ['accent', 'validate'].includes(style.name) === false),
+    'labelStyle',
+  ),
+  inputFieldStyle: styleControl(DateTimeStyle, 'inputFieldStyle'),
   suffixIcon: withDefault(IconControl, "/icon:regular/clock"),
   viewRef: RefControl<CommonPickerMethods>,
   ...validationChildren,
@@ -144,7 +150,7 @@ export const timePickerControl = new UICompBuilder(childrenMap, (props, dispatch
   const compType = useContext(CompTypeContext);
   const compTheme = theme?.theme?.components?.[compType];
   const styleProps: Record<string, any> = {};
-  ['style'].forEach((key: string) => {
+  ['style', 'labelStyle', 'inputFieldStyle', 'animationStyle'].forEach((key: string) => {
     styleProps[key] = (props as any)[key];
   });
 
@@ -164,10 +170,13 @@ export const timePickerControl = new UICompBuilder(childrenMap, (props, dispatch
   return props.label({
     required: props.required,
     style: props.style,
+    labelStyle: props.labelStyle,
+    inputFieldStyle:props.inputFieldStyle,
+    animationStyle:props.animationStyle,
     children: (
       <TimeUIView
         viewRef={props.viewRef}
-        $style={props.style}
+        $style={props.inputFieldStyle}
         disabled={props.disabled}
         value={time?.isValid() ? time : null}
         disabledTime={() => disabledTime(props.minTime, props.maxTime)}
@@ -234,9 +243,20 @@ export const timePickerControl = new UICompBuilder(childrenMap, (props, dispatch
       )}
 
       {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
-        <Section name={sectionNames.style}>
-          {children.style.getPropertyView()}
-        </Section>
+        <>
+          <Section name={sectionNames.style}>
+            {children.style.getPropertyView()}
+          </Section>
+          <Section name={sectionNames.labelStyle}>
+            {children.labelStyle.getPropertyView()}
+          </Section>
+          <Section name={sectionNames.inputFieldStyle}>
+            {children.inputFieldStyle.getPropertyView()}
+          </Section>
+          <Section name={sectionNames.animationStyle} hasTooltip={true}>
+            {children.animationStyle.getPropertyView()}
+          </Section>
+        </>
       )}
     </>
   ))
@@ -255,7 +275,7 @@ export const timeRangeControl = (function () {
     const compType = useContext(CompTypeContext);
     const compTheme = theme?.theme?.components?.[compType];
     const styleProps: Record<string, any> = {};
-    ['style'].forEach((key: string) => {
+    ['style', 'labelStyle', 'inputFieldStyle', 'animationStyle'].forEach((key: string) => {
       styleProps[key] = (props as any)[key];
     });
 
@@ -280,7 +300,7 @@ export const timeRangeControl = (function () {
     const children = (
       <TimeRangeUIView
         viewRef={props.viewRef}
-        $style={props.style}
+        $style={props.inputFieldStyle}
         disabled={props.disabled}
         start={start?.isValid() ? start : null}
         end={end?.isValid() ? end : null}
@@ -307,6 +327,9 @@ export const timeRangeControl = (function () {
     return props.label({
       required: props.required,
       style: props.style,
+      labelStyle: props.labelStyle,
+      inputFieldStyle:props.inputFieldStyle,
+      animationStyle:props.animationStyle,
       children: children,
       ...(startResult.validateStatus !== "success"
         ? startResult
@@ -359,9 +382,20 @@ export const timeRangeControl = (function () {
         )}
 
         {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
-          <Section name={sectionNames.style}>
-            {children.style.getPropertyView()}
-          </Section>
+          <>
+            <Section name={sectionNames.style}>
+              {children.style.getPropertyView()}
+            </Section>
+            <Section name={sectionNames.labelStyle}>
+              {children.labelStyle.getPropertyView()}
+            </Section>
+            <Section name={sectionNames.inputFieldStyle}>
+              {children.inputFieldStyle.getPropertyView()}
+            </Section>
+            <Section name={sectionNames.animationStyle} hasTooltip={true}>
+              {children.animationStyle.getPropertyView()}
+            </Section>
+          </>
         )}
       </>
     ))
