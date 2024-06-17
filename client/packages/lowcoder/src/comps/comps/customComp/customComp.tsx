@@ -14,6 +14,9 @@ import { trans } from "i18n";
 import { EditorContext } from "comps/editorState";
 import { AnimationStyle, AnimationStyleType, CustomStyle, CustomStyleType } from "@lowcoder-ee/comps/controls/styleControlConstants";
 import { styleControl } from "@lowcoder-ee/comps/controls/styleControl";
+import { ThemeContext } from "@lowcoder-ee/comps/utils/themeContext";
+import { CompTypeContext } from "@lowcoder-ee/comps/utils/compTypeContext";
+import { setInitialCompStyles } from "@lowcoder-ee/comps/utils/themeUtil";
 
 // TODO: eventually to embedd in container so we have styling?
 // TODO: support different starter templates for different frameworks (react, ANT, Flutter, Angular, etc)
@@ -219,11 +222,29 @@ function InnerCustomComponent(props: IProps) {
 const childrenMap = {
   model: jsonObjectStateControl(defaultModel),
   code: withDefault(StringControl, defaultCode),
-  style: styleControl(CustomStyle),
-  animationStyle:styleControl(AnimationStyle),
+  style: styleControl(CustomStyle , 'style'),
+  animationStyle:styleControl(AnimationStyle , 'animationStyle'),
 };
 
 const CustomCompBase = new UICompBuilder(childrenMap, (props, dispatch) => {
+
+
+  const theme = useContext(ThemeContext);
+  const compType = useContext(CompTypeContext);
+  const compTheme = theme?.theme?.components?.[compType];
+  const styleProps: Record<string, any> = {};
+  ['style','animationStyle'].forEach((key: string) => {
+    styleProps[key] = (props as any)[key];
+  });
+
+  useEffect(() => {
+    setInitialCompStyles({
+      dispatch,
+      compTheme,
+      styleProps,
+    });
+  }, []);
+  
   const { code, model } = props;
   return (
     <InnerCustomComponent

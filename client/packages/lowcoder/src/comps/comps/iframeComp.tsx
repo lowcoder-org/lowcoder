@@ -10,8 +10,11 @@ import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import log from "loglevel";
 
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import { EditorContext } from "comps/editorState";
+import { CompTypeContext } from "../utils/compTypeContext";
+import { ThemeContext } from "@lowcoder-ee/index.sdk";
+import { setInitialCompStyles } from "../utils/themeUtil";
 
 const Wrapper = styled.div<{$style: IframeStyleType; $animationStyle:AnimationStyleType}>`
   width: 100%;
@@ -45,10 +48,28 @@ let IFrameCompBase = new UICompBuilder(
     allowMicrophone: BoolControl,
     allowCamera: BoolControl,
     allowPopup: BoolControl,
-    style: styleControl(IframeStyle),
-    animationStyle: styleControl(AnimationStyle),
+    style: styleControl(IframeStyle , 'style'),
+    animationStyle: styleControl(AnimationStyle , 'animationStyle'),
   },
-  (props) => {
+  (props , dispatch) => {
+
+    const theme = useContext(ThemeContext);
+    const compType = useContext(CompTypeContext);
+    const compTheme = theme?.theme?.components?.[compType];
+    const styleProps: Record<string, any> = {};
+    ['style','animationStyle'].forEach((key: string) => {
+      styleProps[key] = (props as any)[key];
+    });
+
+    useEffect(() => {
+      setInitialCompStyles({
+        dispatch,
+        compTheme,
+        styleProps,
+      });
+    }, []);
+
+
     const sandbox = ["allow-scripts", "allow-same-origin"];
     props.allowSubmitForm && sandbox.push("allow-forms");
     props.allowDownload && sandbox.push("allow-downloads");
