@@ -20,6 +20,9 @@ import { ButtonEventHandlerControl, CardEventHandlerControl, clickEvent, refresh
 import { optionsControl } from "comps/controls/optionsControl";
 import { dropdownControl } from "comps/controls/dropdownControl";
 import { styleControl } from "comps/controls/styleControl";
+import { ThemeContext } from "@lowcoder-ee/comps/utils/themeContext";
+import { CompTypeContext } from "@lowcoder-ee/comps/utils/compTypeContext";
+import { setInitialCompStyles } from "@lowcoder-ee/comps/utils/themeUtil";
 const { Meta } = Card;
 
 const Wrapper = styled.div<{
@@ -186,13 +189,30 @@ export const ContainerBaseComp = (function () {
     actionOptions: ActionOptionControl,
 
     onEvent: CardEventHandlerControl,
-    style: styleControl(CardStyle),
-    headerStyle: styleControl(CardHeaderStyle),
-    bodyStyle: styleControl(CardHeaderStyle),
-    animationStyle: styleControl(AnimationStyle),
+    style: styleControl(CardStyle , 'style'),
+    headerStyle: styleControl(CardHeaderStyle , 'headerStyle'),
+    bodyStyle: styleControl(CardHeaderStyle , 'bodyStyle'),
+    animationStyle: styleControl(AnimationStyle , 'animationStyle'),
   };
 
   return new ContainerCompBuilder(childrenMap, (props, dispatch) => {
+
+    const theme = useContext(ThemeContext);
+    const compType = useContext(CompTypeContext);
+    const compTheme = theme?.theme?.components?.[compType];
+    const styleProps: Record<string, any> = {};
+    ['style', 'headerStyle', 'bodyStyle', 'animationStyle'].forEach((key: string) => {
+      styleProps[key] = (props as any)[key];
+    });
+
+    useEffect(() => {
+      setInitialCompStyles({
+        dispatch,
+        compTheme,
+        styleProps,
+      });
+    }, []);
+    
     props.container.showHeader = false;
     // 注入容器参数
     props.container.style = Object.assign(props.container.style, {
