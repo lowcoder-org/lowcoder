@@ -60,8 +60,34 @@ const segmentedControl = {
     borderWidth: '0px',
   }
 };
-;
 
+const columnLayout = {
+  columnStyle: {
+    borderWidth: '1px',
+  }
+};
+
+const tabbedContainer  = {
+  style: {
+    borderWidth: '1px',
+  }
+};
+
+const step  = {
+  style: {text:'#D7D9E0'}
+};
+
+const treeSelect  = {
+  inputFieldStyle: {
+    borderWidth: '1px',
+  }
+};
+
+const pageLayout  = {
+  style: {
+    borderWidth: '1px',
+  }
+};
 export const defaultTheme: ThemeDetail = {
   primary: "#3377FF",
   textDark: "#222222",
@@ -90,6 +116,11 @@ export const defaultTheme: ThemeDetail = {
     table,
     link,
     rating,
+    columnLayout,
+    tabbedContainer,
+    step,
+    treeSelect,
+    pageLayout,
     password: input,
     numberInput: input,
     textArea: input,
