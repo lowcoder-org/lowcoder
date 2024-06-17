@@ -174,7 +174,7 @@ var uiCompMap: Registry = {
     icon: VideoCompIcon,
     keywords: trans("meeting.meetingCompKeywords"),
     // comp: VideoSharingStreamComp,
-    comp: remoteComp({ ...builtInRemoteComps, compName: "meetingStream" }),
+    comp: remoteComp({ ...builtInRemoteComps, compName: "meetingSharing" }),
     withoutLoading: true,
     layoutInfo: {
       w: 12,

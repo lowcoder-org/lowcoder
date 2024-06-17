@@ -31,6 +31,7 @@ import { EditorContext } from "comps/editorState";
 
 // Introducing styles
 import {
+  AnimationStyle,
   CommentStyle,
   heightCalculator,
   widthCalculator,
@@ -100,6 +101,7 @@ const childrenMap = {
   }),
   onEvent: eventHandlerControl(EventOptions),
   style: styleControl(CommentStyle),
+  animationStyle: styleControl(AnimationStyle),
   commentList: jsonValueExposingStateControl("commentList", []),
   deletedItem: jsonValueExposingStateControl("deletedItem", []),
   submitedItem: jsonValueExposingStateControl("submitedItem", []),
@@ -125,6 +127,7 @@ const CommentCompBase = (
     userInfo,
     placeholder,
     deleteAble,
+    animationStyle,
   } = props;
   type PrefixType = "@" | keyof typeof mentionList;
   // Used to save the consolidated list of mentions
@@ -233,7 +236,11 @@ const CommentCompBase = (
         width: widthCalculator(style.margin ?? "3px"),
         height: heightCalculator(style.margin ?? "3px"),
         background: style.background,
-        borderRadius: style.radius,
+      borderRadius: style.radius,
+      animation: animationStyle.animation,
+      animationDelay: animationStyle.animationDelay,
+      animationDuration: animationStyle.animationDuration,
+        animationIterationCount:animationStyle.animationIterationCount
       }}>
       <div
         style={{
@@ -413,8 +420,12 @@ let CommentBasicComp = (function () {
             {children.placeholder.propertyView({
               label: trans("comment.placeholderDec"),
             })}
-          </Section><Section name={sectionNames.style}>
+          </Section>
+            <Section name={sectionNames.style}>
               {children.style.getPropertyView()}
+            </Section>
+            <Section name={sectionNames.animationStyle} hasTooltip={true}>
+              {children.animationStyle.getPropertyView()}
             </Section></>
         )}
 

@@ -5,6 +5,7 @@ import { StringControl } from "comps/controls/codeControl";
 import { booleanExposingStateControl } from "comps/controls/codeStateControl";
 import { eventHandlerControl } from "comps/controls/eventHandlerControl";
 import { styleControl } from "comps/controls/styleControl";
+import { HorizontalAlignmentControl } from "comps/controls/dropdownControl";
 import { ModalStyle, ModalStyleType } from "comps/controls/styleControlConstants";
 import { withMethodExposing } from "comps/generators/withMethodExposing";
 import { BackgroundColorContext } from "comps/utils/backgroundColorContext";
@@ -47,10 +48,18 @@ const getStyle = (style: ModalStyleType) => {
       }
     }
     .ant-modal-close {
-      inset-inline-end: 7px !important;
+      inset-inline-end: 10px !important;
+      top: 10px;
     }
   `;
 };
+
+const StyledModal = styled(Modal)<{$titleAlign?: string}>`
+  .ant-modal-title {
+    margin: 0px 20px !important;
+    text-align: ${(props) => props.$titleAlign || "center"};
+  }
+`;
 
 const DEFAULT_WIDTH = "60%";
 const DEFAULT_HEIGHT = 222;
@@ -91,6 +100,8 @@ let TmpModalComp = (function () {
       width: StringControl,
       height: StringControl,
       autoHeight: AutoHeightControl,
+      title: StringControl,
+      titleAlign: HorizontalAlignmentControl,
       style: styleControl(ModalStyle),
       maskClosable: withDefault(BoolControl, true),
       showMask: withDefault(BoolControl, true),
@@ -135,7 +146,7 @@ let TmpModalComp = (function () {
       return (
         <BackgroundColorContext.Provider value={props.style.background}>
           <ModalWrapper>
-            <Modal
+            <StyledModal
               height={height}
               resizeHandles={resizeHandles}
               onResizeStop={onResizeStop}
@@ -145,6 +156,8 @@ let TmpModalComp = (function () {
               getContainer={() => document.querySelector(`#${CanvasContainerID}`) || document.body}
               footer={null}
               styles={{body: bodyStyle}}
+              title={props.title}
+              $titleAlign={props.titleAlign}
               width={width}
               onCancel={(e) => {
                 props.visible.onChange(false);
@@ -155,6 +168,8 @@ let TmpModalComp = (function () {
               zIndex={Layers.modal}
               modalRender={(node) => <ModalStyled $style={props.style}>{node}</ModalStyled>}
               mask={props.showMask}
+              className={props.className as string}
+              data-testid={props.dataTestId as string}
             >
               <InnerGrid
                 {...otherContainerProps}
@@ -164,7 +179,7 @@ let TmpModalComp = (function () {
                 containerPadding={paddingValues ? [paddingValues[0] ?? 0, paddingValues[1] ?? 0] : [24,24]}
                 hintPlaceholder={HintPlaceHolder}
               />
-            </Modal>
+            </StyledModal>
           </ModalWrapper>
         </BackgroundColorContext.Provider>
       );
@@ -173,6 +188,8 @@ let TmpModalComp = (function () {
     .setPropertyViewFn((children) => (
       <>
         <Section name={sectionNames.basic}>
+          {children.title.propertyView({ label: trans("modalComp.title") })}
+          {children.title.getView() && children.titleAlign.propertyView({ label: trans("modalComp.titleAlign"), radioButton: true })}
           {children.autoHeight.getPropertyView()}
           {!children.autoHeight.getView() &&
             children.height.propertyView({

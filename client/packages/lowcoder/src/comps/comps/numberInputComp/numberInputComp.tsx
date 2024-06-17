@@ -30,7 +30,7 @@ import { formDataChildren, FormDataPropertyView } from "../formComp/formDataCons
 import { withMethodExposing, refMethods } from "../../generators/withMethodExposing";
 import { RefControl } from "../../controls/refControl";
 import { styleControl } from "comps/controls/styleControl";
-import {  InputFieldStyle, InputLikeStyle, InputLikeStyleType, LabelStyle, heightCalculator, widthCalculator } from "comps/controls/styleControlConstants";
+import {  AnimationStyle, InputFieldStyle, InputLikeStyle, InputLikeStyleType, LabelStyle, heightCalculator, widthCalculator } from "comps/controls/styleControlConstants";
 import {
   disabledPropertyView,
   hiddenPropertyView,
@@ -119,9 +119,11 @@ const getStyle = (style: InputLikeStyleType) => {
   `;
 };
 
-const InputNumber = styled(AntdInputNumber) <{
+const InputNumber = styled(AntdInputNumber)<{
   $style: InputLikeStyleType;
 }>`
+  box-shadow: ${(props) =>
+    `${props.$style?.boxShadow} ${props.$style?.boxShadowColor}`};
   width: 100%;
   ${(props) => props.$style && getStyle(props.$style)}
 `;
@@ -257,9 +259,11 @@ const childrenMap = {
   allowNull: BoolControl,
   onEvent: InputEventHandlerControl,
   viewRef: RefControl<HTMLInputElement>,
-  style: withDefault(styleControl(InputFieldStyle), {borderWidth: '1px'}),
+  style: withDefault(styleControl(InputFieldStyle),{background:'transparent'}) , 
   labelStyle:styleControl(LabelStyle),
   prefixText : stringExposingStateControl("defaultValue"),
+  animationStyle: styleControl(AnimationStyle),
+
   prefixIcon: IconControl,
   inputFieldStyle: withDefault(styleControl(InputLikeStyle), {borderWidth: '1px'}) ,
   // validation
@@ -384,6 +388,7 @@ let NumberInputTmpComp = (function () {
       style: props.style,
       labelStyle: props.labelStyle,
       inputFieldStyle:props.inputFieldStyle,
+      animationStyle:props.animationStyle,
       ...validate(props),
     });
   })
@@ -441,6 +446,9 @@ let NumberInputTmpComp = (function () {
           </Section>
           <Section name={sectionNames.inputFieldStyle}>
             {children.inputFieldStyle.getPropertyView()}
+          </Section>
+          <Section name={sectionNames.animationStyle} hasTooltip={true}>
+            {children.animationStyle.getPropertyView()}
           </Section>
           </>
         )}

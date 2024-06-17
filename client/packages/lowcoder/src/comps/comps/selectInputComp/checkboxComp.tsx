@@ -15,7 +15,7 @@ import {
 } from "./selectInputConstants";
 import { formDataChildren } from "../formComp/formDataConstants";
 import { styleControl } from "comps/controls/styleControl";
-import { CheckboxStyle, CheckboxStyleType, InputFieldStyle, LabelStyle } from "comps/controls/styleControlConstants";
+import { AnimationStyle, CheckboxStyle, CheckboxStyleType, InputFieldStyle, LabelStyle } from "comps/controls/styleControlConstants";
 import { RadioLayoutOptions, RadioPropertyView } from "./radioCompConstants";
 import { dropdownControl } from "../../controls/dropdownControl";
 import { ValueFromOption } from "lowcoder-design";
@@ -36,10 +36,20 @@ export const getStyle = (style: CheckboxStyleType) => {
         ${EllipsisTextCss};
       }
 
+      .ant-checkbox .ant-checkbox-checked > .ant-checkbox-inner {
+        border-color: ${style.checkedBorder};
+        border-width:${!!style.borderWidth ? style.borderWidth : '2px'};
+      }
+
+      .ant-checkbox:not(.ant-checkbox-checked) > .ant-checkbox-inner{
+        border-color: ${style.uncheckedBorder};
+        border-width:${!!style.borderWidth ? style.borderWidth : '2px'};
+      }
+
       .ant-checkbox-checked {
         .ant-checkbox-inner {
           background-color: ${style.checkedBackground};
-          border-color: ${style.checkedBackground};
+          border-color: ${style.checkedBorder};
           border-width:${!!style.borderWidth ? style.borderWidth : '2px'};
 
           &::after {
@@ -48,17 +58,17 @@ export const getStyle = (style: CheckboxStyleType) => {
         }
 
         &::after {
-          border-color: ${style.checkedBackground};
+          border-color: ${style.checkedBorder};
           border-width:${!!style.borderWidth ? style.borderWidth : '2px'};
           border-radius: ${style.radius};
         }
       }
       
       .ant-checkbox-inner {
-        border-radius: ${style.radius};
         background-color: ${style.uncheckedBackground};
-        border-color: ${style.uncheckedBorder};
-        border-width:${!!style.borderWidth ? style.borderWidth : '2px'};
+        border-radius: ${style.radius};
+        border-color: ${style.checkedBorder};
+        border-width:${style.borderWidth ? style.borderWidth : '2px'};
       }
     
       &:hover .ant-checkbox-inner, 
@@ -76,7 +86,7 @@ export const getStyle = (style: CheckboxStyleType) => {
       &:hover .ant-checkbox-inner,
       .ant-checkbox:hover .ant-checkbox-inner,
       .ant-checkbox-input:focus + .ant-checkbox-inner {
-        border-color: ${style.checkedBackground};
+        border-color: ${style.checkedBorder};
         border-width:${!!style.borderWidth ? style.borderWidth : '2px'};
       }
     }
@@ -141,6 +151,7 @@ let CheckboxBasicComp = (function () {
     layout: dropdownControl(RadioLayoutOptions, "horizontal"),
     viewRef: RefControl<HTMLDivElement>,
     inputFieldStyle:styleControl(CheckboxStyle),
+    animationStyle:styleControl(AnimationStyle),
     ...SelectInputValidationChildren,
     ...formDataChildren,
   };
@@ -154,6 +165,7 @@ let CheckboxBasicComp = (function () {
       style: props.style,
       labelStyle: props.labelStyle,
       inputFieldStyle:props.inputFieldStyle,
+      animationStyle:props.animationStyle,
       children: (
         <CheckboxGroup
           ref={props.viewRef}

@@ -13,7 +13,7 @@ import { useContext, useEffect, useRef, useState } from "react";
 import { EditorContext } from "comps/editorState";
 import { Card } from "antd";
 import styled from "styled-components";
-import { CardHeaderStyle, CardHeaderStyleType, CardStyle, CardStyleType } from "comps/controls/styleControlConstants";
+import { AnimationStyle, AnimationStyleType, CardHeaderStyle, CardHeaderStyleType, CardStyle, CardStyleType } from "comps/controls/styleControlConstants";
 import { MultiCompBuilder, withDefault } from "comps/generators";
 import { IconControl } from "comps/controls/iconControl";
 import { ButtonEventHandlerControl, CardEventHandlerControl, clickEvent, refreshEvent } from "comps/controls/eventHandlerControl";
@@ -22,7 +22,14 @@ import { dropdownControl } from "comps/controls/dropdownControl";
 import { styleControl } from "comps/controls/styleControl";
 const { Meta } = Card;
 
-const Warpper = styled.div<{ $style: CardStyleType | undefined, $showMate: boolean, $cardType: string, $headerStyle:CardHeaderStyleType, $bodyStyle:CardHeaderStyleType }>`
+const Wrapper = styled.div<{
+  $style: CardStyleType | undefined;
+  $showMate: boolean;
+  $cardType: string;
+  $headerStyle: CardHeaderStyleType;
+  $bodyStyle: CardHeaderStyleType;
+  $animationStyle:AnimationStyleType;
+}>`
   height: 100%;
   width: 100%;
   .ant-card-small >.ant-card-head {
@@ -41,6 +48,10 @@ const Warpper = styled.div<{ $style: CardStyleType | undefined, $showMate: boole
     rotate: ${props => props.$headerStyle?.rotation};
     margin: ${props => props.$headerStyle?.margin};
     padding: ${props => props.$headerStyle?.padding};
+  }
+  .ant-card-head-title{
+    font-size: ${props => props.$headerStyle?.textSize};
+    font-family: ${props => props.$headerStyle?.fontFamily};
   }
   .ant-card .ant-card-actions {
     border-top: 1px solid ${props => props.$style?.border};
@@ -65,11 +76,16 @@ const Warpper = styled.div<{ $style: CardStyleType | undefined, $showMate: boole
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    margin: ${props => props.$style?.margin};
+    padding: ${props => props.$style?.padding};
     background-color: ${props => props.$style?.background};
     border: ${props => props.$style?.border};
+    rotate: ${props => props.$style?.rotation};
     border-style: ${props => props.$style?.borderStyle};
     border-radius: ${props => props.$style?.radius};
     border-width: ${props => props.$style?.borderWidth};
+    box-shadow: ${props=>`${props.$style?.boxShadow} ${props.$style?.boxShadowColor}`};
+    ${props=>props.$animationStyle}
   }
   .ant-card-body {
     display: ${props => props.$showMate ? '' : 'none'};
@@ -95,12 +111,12 @@ const Warpper = styled.div<{ $style: CardStyleType | undefined, $showMate: boole
   }
 `;
 
-const ContainWarpper = styled.div`
+const ContainWrapper = styled.div`
   height: 100%;
   width: 100%;
 `
 
-const IconWarpper = styled.div<{ $style: CardStyleType | undefined, disabled: boolean }>`
+const IconWrapper = styled.div<{ $style: CardStyleType | undefined, disabled: boolean }>`
   pointer-events: ${props => props.disabled ? 'none' : ''};
   svg {
     color: ${props => props.disabled ? '#d9d9d9' : props.$style?.IconColor};
@@ -173,6 +189,7 @@ export const ContainerBaseComp = (function () {
     style: styleControl(CardStyle),
     headerStyle: styleControl(CardHeaderStyle),
     bodyStyle: styleControl(CardHeaderStyle),
+    animationStyle: styleControl(AnimationStyle),
   };
 
   return new ContainerCompBuilder(childrenMap, (props, dispatch) => {
@@ -199,9 +216,10 @@ export const ContainerBaseComp = (function () {
     };
     return (
       <ReactResizeDetector onResize={onResize}>
-        <Warpper
+        <Wrapper
           ref={conRef}
           $style={props.style}
+          $animationStyle={props.animationStyle}
           $headerStyle={props.headerStyle}
           $bodyStyle={props.bodyStyle}
           $showMate={props.showMeta || props.cardType == 'custom'}
@@ -223,23 +241,23 @@ export const ContainerBaseComp = (function () {
             actions={props.cardType == 'common' && props.showActionIcon ?
               props.actionOptions.filter(item => !item.hidden).map(item => {
                 return (
-                  <IconWarpper
+                  <IconWrapper
                     onClick={() => item.onEvent('click')}
                     disabled={item.disabled}
                     $style={props.style}
                   >
                     {item.icon}
-                  </IconWarpper>)
+                  </IconWrapper>)
               }
               ) : []
             }
           >
             {props.cardType == 'common' && props.showMeta && <Meta title={props.metaTitle} description={props.metaDesc} />}
-            {props.cardType == 'custom' && <ContainWarpper>
-              <TriContainer {...props} /></ContainWarpper>}
+            {props.cardType == 'custom' && <ContainWrapper>
+              <TriContainer {...props} /></ContainWrapper>}
           </Card>
           }
-        </Warpper>
+        </Wrapper>
       </ReactResizeDetector>
     );
   })
@@ -320,6 +338,9 @@ export const ContainerBaseComp = (function () {
               </Section>
               <Section name={sectionNames.bodyStyle}>
                 {children.bodyStyle.getPropertyView()}
+              </Section>
+              <Section name={sectionNames.animationStyle} hasTooltip={true}>
+                {children.animationStyle.getPropertyView()}
               </Section>
             </>
           )}

@@ -93,7 +93,12 @@ public class CustomErrorWebExceptionHandler extends DefaultErrorWebExceptionHand
         }
 
         Locale locale = globalContextService.getClientLocale(request);
-        return ServerResponse.status(bizException.getError().getHttpErrorCode())
+
+        ServerResponse.BodyBuilder response = ServerResponse.status(bizException.getError().getHttpErrorCode());
+        if (bizException.getHeaders() != null && !bizException.getHeaders().isEmpty()) {
+            response.headers(headersBuilder -> headersBuilder.addAll(bizException.getHeaders()));
+        }
+        return response
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(BodyInserters.fromValue(ResponseView.error(bizException.getError().getBizErrorCode(),
                         LocaleUtils.getMessage(locale, bizException.getMessageKey(), bizException.getArgs()))));

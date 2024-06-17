@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.google.common.base.MoreObjects;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.jackson.Jacksonized;
 import org.lowcoder.sdk.models.HasIdAndAuditing;
@@ -22,8 +23,11 @@ public class BiRelation extends HasIdAndAuditing {
     private String relation;
     private String state;
 
+    @Setter
     private String extParam1;
+    @Setter
     private String extParam2;
+    @Setter
     private String extParam3;
 
     public BiRelationBizType getBizType() {

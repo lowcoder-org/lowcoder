@@ -6,7 +6,7 @@ import { darkenColor } from "components/colorSelect/colorUtils";
 import { Section, sectionNames } from "components/Section";
 import { IconControl } from "comps/controls/iconControl";
 import { styleControl } from "comps/controls/styleControl";
-import { FileStyle, FileStyleType, heightCalculator, widthCalculator } from "comps/controls/styleControlConstants";
+import { AnimationStyle, AnimationStyleType, FileStyle, FileStyleType, heightCalculator, widthCalculator } from "comps/controls/styleControlConstants";
 import { withMethodExposing } from "comps/generators/withMethodExposing";
 import { hasIcon } from "comps/utils";
 import { getComponentDocUrl } from "comps/utils/compDocUtil";
@@ -101,6 +101,7 @@ const commonChildren = {
   disabled: BoolCodeControl,
   onEvent: eventHandlerControl(EventOptions),
   style: styleControl(FileStyle),
+  animationStyle: styleControl(AnimationStyle),
   parseFiles: BoolPureControl,
   parsedValue: stateComp<Array<JSONValue | null>>([]),
   prefixIcon: withDefault(IconControl, "/icon:solid/arrow-up-from-bracket"),
@@ -137,6 +138,7 @@ const getStyle = (style: FileStyleType) => {
   return css`
     .ant-btn {
       border-radius: ${style.radius};
+      rotate: ${style.rotation};
       margin: ${style.margin};	
       padding: ${style.padding};	
       width: ${widthCalculator(style.margin)};	
@@ -146,6 +148,10 @@ const getStyle = (style: FileStyleType) => {
       font-weight:${style.textWeight};
       font-style:${style.fontStyle};
       border-width:${style.borderWidth};
+      border-style:${style.borderStyle};
+      text-decoration:${style.textDecoration};
+      text-transform:${style.textTransform};
+      text-transform:${style.textTransform};
     }
 
     .ant-btn:not(:disabled) {
@@ -167,9 +173,13 @@ const getStyle = (style: FileStyleType) => {
   `;
 };
 
-const StyledUpload = styled(AntdUpload)<{ $style: FileStyleType }>`
+const StyledUpload = styled(AntdUpload)<{
+  $style: FileStyleType;
+  $animationStyle: AnimationStyleType;
+}>`
   .ant-upload,
   .ant-btn {
+    ${(props) => props.$animationStyle}
     width: 100%;
     display: inline-flex;
     justify-content: center;
@@ -185,7 +195,6 @@ const StyledUpload = styled(AntdUpload)<{ $style: FileStyleType }>`
       min-height: 1px;
     }
   }
-
   ${(props) => props.$style && getStyle(props.$style)}
 `;
 
@@ -252,6 +261,7 @@ const Upload = (
   const hasChildren = hasIcon(props.prefixIcon) || !!props.text || hasIcon(props.suffixIcon);
   return (
     <StyledUpload
+    $animationStyle={props.animationStyle}
       {...commonProps(props)}
       $style={style}
       fileList={fileList}
@@ -419,7 +429,10 @@ let FileTmpComp = new UICompBuilder(childrenMap, (props, dispatch) => (
       )}
 
       {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
-        <><Section name={sectionNames.style}>{children.style.getPropertyView()}</Section></>
+        <>
+          <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
+          <Section name={sectionNames.animationStyle} hasTooltip={true}>{children.animationStyle.getPropertyView()}</Section>
+        </>
       )}
     </>
   ))

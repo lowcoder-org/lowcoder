@@ -1,4 +1,4 @@
-import { ContainerStyleType, heightCalculator, widthCalculator } from "comps/controls/styleControlConstants";
+import { AnimationStyleType, ContainerStyleType, heightCalculator, widthCalculator } from "comps/controls/styleControlConstants";
 import { EditorContext } from "comps/editorState";
 import { BackgroundColorContext } from "comps/utils/backgroundColorContext";
 import { HintPlaceHolder, ScrollBar } from "lowcoder-design";
@@ -13,6 +13,7 @@ const getStyle = (style: ContainerStyleType) => {
     border-color: ${style.border};
     border-width: ${style.borderWidth};
     border-radius: ${style.radius};
+    border-style: ${style.borderStyle};
     overflow: hidden;
     padding: ${style.padding};
     ${style.background && `background-color: ${style.background};`}
@@ -24,13 +25,14 @@ const getStyle = (style: ContainerStyleType) => {
   `;
 };
 
-const Wrapper = styled.div<{ $style: ContainerStyleType }>`
+const Wrapper = styled.div<{$style: ContainerStyleType; $animationStyle?:AnimationStyleType}>`
   display: flex;
   flex-flow: column;
   height: 100%;
   border: 1px solid #d7d9e0;
   border-radius: 4px;
   ${(props) => props.$style && getStyle(props.$style)}
+  ${props=>props.$animationStyle&&props.$animationStyle}
 `;
 
 const HeaderInnerGrid = styled(InnerGrid)<{
@@ -77,10 +79,11 @@ const FooterInnerGrid = styled(InnerGrid)<{
 
 export type TriContainerProps = TriContainerViewProps & {
   hintPlaceholder?: ReactNode;
+  animationStyle?: AnimationStyleType;
 };
 
 export function TriContainer(props: TriContainerProps) {
-  const { container } = props;
+  const {container, animationStyle} = props;
   const { showHeader, showFooter } = container;
   // When the header and footer are not displayed, the body must be displayed
   const showBody = container.showBody || (!showHeader && !showFooter);
@@ -103,7 +106,7 @@ export function TriContainer(props: TriContainerProps) {
 
   return (
     <div style={{padding: style.margin, height: '100%'}}>
-    <Wrapper $style={style}>
+      <Wrapper $style={style} $animationStyle={animationStyle}>
       {showHeader && (
         <BackgroundColorContext.Provider value={headerStyle.headerBackground}>
           <HeaderInnerGrid

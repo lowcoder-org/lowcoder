@@ -12,8 +12,7 @@ import {
   SignatureStyleType,
   widthCalculator,
   heightCalculator,
-  
-  InputFieldStyle
+  SignatureContainerStyle
 } from "comps/controls/styleControlConstants";
 import { stateComp, withDefault } from "comps/generators/simpleGenerators";
 import { hiddenPropertyView } from "comps/utils/propertyUtils";
@@ -97,15 +96,15 @@ const Wrapper = styled.div<{ $style: SignatureStyleType; $isEmpty: boolean }>`
 `;
 
 const childrenMap = {
-  tips: withDefault(StringControl, trans("signature.signHere")),
+  tips: withDefault(StringControl, trans('signature.signHere')),
   onEvent: ChangeEventHandlerControl,
-  label: withDefault(LabelControl, { position: "column", text: "" }),
-  style: styleControl(InputFieldStyle),
+  label: withDefault(LabelControl, {position: 'column', text: ''}),
+  style: styleControl(SignatureContainerStyle),
   labelStyle: styleControl(LabelStyle),
   showUndo: withDefault(BoolControl, true),
   showClear: withDefault(BoolControl, true),
-  value: stateComp(""),
-  inputFieldStyle:styleControl(SignatureStyle),
+  value: stateComp(''),
+  inputFieldStyle: styleControl(SignatureStyle),
   ...formDataChildren,
 };
 

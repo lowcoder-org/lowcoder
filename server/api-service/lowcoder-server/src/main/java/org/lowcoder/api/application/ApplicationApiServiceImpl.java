@@ -45,22 +45,24 @@ import org.lowcoder.sdk.exception.BizException;
 import org.lowcoder.sdk.plugin.common.QueryExecutor;
 import org.lowcoder.sdk.util.ExceptionUtils;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static org.lowcoder.domain.application.model.ApplicationStatus.NORMAL;
 import static org.lowcoder.domain.permission.model.ResourceAction.*;
 import static org.lowcoder.sdk.exception.BizError.*;
-import static org.lowcoder.sdk.util.ExceptionUtils.deferredError;
-import static org.lowcoder.sdk.util.ExceptionUtils.ofError;
+import static org.lowcoder.sdk.util.ExceptionUtils.*;
 
 @RequiredArgsConstructor
 @Service
@@ -474,18 +476,34 @@ public class ApplicationApiServiceImpl implements ApplicationApiService {
                 .flatMap(visitorId -> resourcePermissionService.checkUserPermissionStatusOnApplication(visitorId, applicationId, action, requestType))
                 .flatMap(permissionStatus -> {
                     if (!permissionStatus.hasPermission()) {
+
+                        String orgId = "";
+                        try {
+                            orgId = applicationService.findById(applicationId)
+                                    .map(Application::getOrganizationId)
+                                    .onErrorReturn("")
+                                    .block(Duration.ofSeconds(2));
+                        } catch(Throwable cause) {
+                            log.warn("Couldn't get orgId! - {}", cause.getMessage());
+                        }
+
+                        HttpHeaders headers = new HttpHeaders();
+                        if (StringUtils.isNotBlank(orgId)) {
+                            headers.add("X-ORG-ID", orgId);
+                        }
+
                         if (permissionStatus.failByAnonymousUser()) {
-                            return ofError(USER_NOT_SIGNED_IN, "USER_NOT_SIGNED_IN");
+                            return ofErrorWithHeaders(USER_NOT_SIGNED_IN, "USER_NOT_SIGNED_IN", headers);
                         }
 
                         if (permissionStatus.failByNotInOrg()) {
-                            return ofError(NO_PERMISSION_TO_REQUEST_APP, "INSUFFICIENT_PERMISSION");
+                            return ofErrorWithHeaders(NO_PERMISSION_TO_REQUEST_APP, "INSUFFICIENT_PERMISSION", headers);
                         }
 
                         return suggestAppAdminSolutionService.getSuggestAppAdminNames(applicationId)
                                 .flatMap(names -> {
                                     String messageKey = action == EDIT_APPLICATIONS ? "NO_PERMISSION_TO_EDIT" : "NO_PERMISSION_TO_VIEW";
-                                    return ofError(NO_PERMISSION_TO_REQUEST_APP, messageKey, names);
+                                    return ofErrorWithHeaders(NO_PERMISSION_TO_REQUEST_APP, messageKey, headers, names);
                                 });
                     }
                     return Mono.just(permissionStatus.getPermission());

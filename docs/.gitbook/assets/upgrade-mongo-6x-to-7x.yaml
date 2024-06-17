@@ -1,0 +1,14 @@
+version: "3"
+services:
+
+  ##
+  ## Start Mongo 7.0.1 to upgrade from 6.x
+  ##
+  mongodb:
+    image: "mongo:7.0.1"
+    container_name: mongodb-701
+    ports:
+      - "27077:27017"
+    volumes:
+      - ./lowcoder-stacks/data/mongodb:/data/db
+

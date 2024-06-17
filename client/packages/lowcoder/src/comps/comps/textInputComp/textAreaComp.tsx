@@ -22,7 +22,7 @@ import {
 import { withMethodExposing, refMethods } from "../../generators/withMethodExposing";
 import { styleControl } from "comps/controls/styleControl";
 import styled from "styled-components";
-import {  InputFieldStyle, InputLikeStyle, InputLikeStyleType, LabelStyle } from "comps/controls/styleControlConstants";
+import {  AnimationStyle, InputFieldStyle, InputLikeStyle, InputLikeStyleType, LabelStyle } from "comps/controls/styleControlConstants";
 import { TextArea } from "components/TextArea";
 import {
   allowClearPropertyView,
@@ -38,9 +38,11 @@ import React, { useContext } from "react";
 import { EditorContext } from "comps/editorState";
 import { migrateOldData } from "comps/generators/simpleGenerators";
 
-const TextAreaStyled = styled(TextArea) <{
+const TextAreaStyled = styled(TextArea)<{
   $style: InputLikeStyleType;
 }>`
+  box-shadow: ${(props) =>
+    `${props.$style?.boxShadow} ${props.$style?.boxShadowColor}`};
   ${(props) => props.$style && getStyle(props.$style)}
 `;
 
@@ -71,9 +73,10 @@ let TextAreaTmpComp = (function () {
     viewRef: RefControl<TextAreaRef>,
     allowClear: BoolControl,
     autoHeight: withDefault(AutoHeightControl, "fixed"),
-    style: withDefault(styleControl(InputFieldStyle), {borderWidth: '1px'}),
+    style: withDefault(styleControl(InputFieldStyle),{background:'transparent'}) , 
     labelStyle: styleControl(LabelStyle),
-    inputFieldStyle: styleControl(InputLikeStyle)
+    inputFieldStyle:  withDefault(styleControl(InputLikeStyle), {borderWidth: '1px'}),
+    animationStyle: styleControl(AnimationStyle)
   };
   return new UICompBuilder(childrenMap, (props) => {
     const [inputProps, validateState] = useTextInputProps(props);
@@ -93,6 +96,7 @@ let TextAreaTmpComp = (function () {
       ),
       style: props.style,
       labelStyle: props.labelStyle,
+      animationStyle: props.animationStyle,
       ...validateState,
     });
   })
@@ -123,6 +127,7 @@ let TextAreaTmpComp = (function () {
             <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
             <Section name={sectionNames.labelStyle}>{children.labelStyle.getPropertyView()}</Section>
             <Section name={sectionNames.inputFieldStyle}>{children.inputFieldStyle.getPropertyView()}</Section>
+            <Section name={sectionNames.animationStyle} hasTooltip={true}>{children.animationStyle.getPropertyView()}</Section>
           </>
         )}
       </>

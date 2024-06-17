@@ -5,7 +5,7 @@ import { ChangeEventHandlerControl } from "../../controls/eventHandlerControl";
 import { Section, sectionNames } from "lowcoder-design";
 import { RecordConstructorToComp } from "lowcoder-core";
 import { styleControl } from "comps/controls/styleControl";
-import {  InputFieldStyle, LabelStyle, SliderStyle, SliderStyleType, heightCalculator, widthCalculator  } from "comps/controls/styleControlConstants";
+import {  AnimationStyle, InputFieldStyle, LabelStyle, SliderStyle, SliderStyleType, heightCalculator, widthCalculator  } from "comps/controls/styleControlConstants";
 import styled, { css } from "styled-components";
 import { default as Slider } from "antd/es/slider";
 import { darkenColor, fadeColor } from "lowcoder-design";
@@ -71,11 +71,12 @@ export const SliderChildren = {
   label: LabelControl,
   disabled: BoolCodeControl,
   onEvent: ChangeEventHandlerControl,
-  style: withDefault(styleControl(InputFieldStyle), {borderWidth: '1px'}),
+  style: withDefault(styleControl(InputFieldStyle),{background:'transparent'}) , 
   labelStyle:styleControl(LabelStyle.filter((style)=> ['accent','validate'].includes(style.name) === false)),
   prefixIcon: IconControl,
   suffixIcon: IconControl,
-  inputFieldStyle:styleControl(SliderStyle)
+  inputFieldStyle:styleControl(SliderStyle),
+  animationStyle:styleControl(AnimationStyle)
 };
 
 export const SliderPropertyView = (
@@ -108,6 +109,9 @@ export const SliderPropertyView = (
         </Section>
         <Section name={sectionNames.inputFieldStyle}>
           {children.inputFieldStyle.getPropertyView()}
+        </Section>
+        <Section name={sectionNames.animationStyle} hasTooltip={true}>
+          {children.animationStyle.getPropertyView()}
         </Section>
       </>
     )}

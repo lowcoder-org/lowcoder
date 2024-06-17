@@ -1,6 +1,6 @@
 import { default as Progress } from "antd/es/progress";
 import { styleControl } from "comps/controls/styleControl";
-import { CircleProgressStyle, CircleProgressType, heightCalculator, widthCalculator } from "comps/controls/styleControlConstants";
+import { AnimationStyle, AnimationStyleType, CircleProgressStyle, CircleProgressType, heightCalculator, widthCalculator } from "comps/controls/styleControlConstants";
 import styled, { css } from "styled-components";
 import { Section, sectionNames } from "lowcoder-design";
 import { numberExposingStateControl } from "../controls/codeStateControl";
@@ -45,7 +45,11 @@ const getStyle = (style: CircleProgressType) => {
   `;
 };
 
-export const StyledProgressCircle = styled(Progress) <{ $style: CircleProgressType }>`
+export const StyledProgressCircle = styled(Progress)<{
+  $style: CircleProgressType;
+  $animationStyle?: AnimationStyleType;
+}>`
+  ${(props) => props.$animationStyle}
   width: 100%;
   height: 100%;
   padding: 2px;
@@ -66,11 +70,13 @@ let ProgressCircleTmpComp = (function () {
     value: numberExposingStateControl("value", 60),
     // borderRadius property hidden as it's not valid for progress circle
     style: styleControl(CircleProgressStyle),
+    animationStyle: styleControl(AnimationStyle),
   };
   return new UICompBuilder(childrenMap, (props) => {
     return (
       <StyledProgressCircle
         $style={props.style}
+        $animationStyle={props.animationStyle}
         percent={Math.round(props.value.value)}
         type="circle"
       />
@@ -93,9 +99,14 @@ let ProgressCircleTmpComp = (function () {
           )}
 
           {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
-            <Section name={sectionNames.style}>
+            <>
+              <Section name={sectionNames.style}>
               {children.style.getPropertyView()}
-            </Section>
+              </Section>
+              <Section name={sectionNames.animationStyle} hasTooltip={true}>
+              {children.animationStyle.getPropertyView()}
+              </Section>
+              </>
           )}
         </>
       );

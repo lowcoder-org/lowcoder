@@ -22,6 +22,7 @@ import {
   CheckboxCompIcon,
   ColorPickerCompIcon,
   CollapsibleContainerCompIcon,
+  ColumnLayoutCompIcon,
   ContainerCompIcon,
   CustomCompIcon,
   DateCompIcon,
@@ -121,10 +122,9 @@ const builtInRemoteComps: Omit<RemoteCompInfo, "compName"> = {
   packageName: "lowcoder-comps",
 };
 
-export var uiCompMap: Registry = { 
+export var uiCompMap: Registry = {
   // Dashboards
 
-  
   // charts
   chart: {
     name: trans("uiComp.chartCompName") + " (legacy)",
@@ -154,7 +154,7 @@ export var uiCompMap: Registry = {
     },
   },
 
-  candleStickChart : {
+  candleStickChart: {
     name: trans("uiComp.candleStickChartCompName"),
     enName: "Candlestick Chart",
     description: trans("uiComp.candleStickChartCompDesc"),
@@ -163,11 +163,11 @@ export var uiCompMap: Registry = {
     keywords: trans("uiComp.candleStickChartCompKeywords"),
     comp: remoteComp({ ...builtInRemoteComps, compName: "candleStickChart" }),
     layoutInfo: {
-      "w": 12,
-      "h": 40
-    }
+      w: 12,
+      h: 40,
+    },
   },
-  funnelChart : {
+  funnelChart: {
     name: trans("uiComp.funnelChartCompName"),
     enName: "Sankey Chart",
     description: trans("uiComp.funnelChartCompDesc"),
@@ -176,11 +176,11 @@ export var uiCompMap: Registry = {
     keywords: trans("uiComp.funnelChartCompKeywords"),
     comp: remoteComp({ ...builtInRemoteComps, compName: "funnelChart" }),
     layoutInfo: {
-      "w": 12,
-      "h": 40
-    }
+      w: 12,
+      h: 40,
+    },
   },
-  gaugeChart : {
+  gaugeChart: {
     name: trans("uiComp.gaugeChartCompName"),
     enName: "Candlestick Chart",
     description: trans("uiComp.gaugeChartCompDesc"),
@@ -189,11 +189,11 @@ export var uiCompMap: Registry = {
     keywords: trans("uiComp.gaugeChartCompKeywords"),
     comp: remoteComp({ ...builtInRemoteComps, compName: "gaugeChart" }),
     layoutInfo: {
-      "w": 12,
-      "h": 40
-    }
+      w: 12,
+      h: 40,
+    },
   },
-  graphChart : {
+  graphChart: {
     name: trans("uiComp.graphChartCompName"),
     enName: "Graph Chart",
     description: trans("uiComp.graphChartCompDesc"),
@@ -202,9 +202,9 @@ export var uiCompMap: Registry = {
     keywords: trans("uiComp.graphChartCompKeywords"),
     comp: remoteComp({ ...builtInRemoteComps, compName: "graphChart" }),
     layoutInfo: {
-      "w": 12,
-      "h": 40
-    }
+      w: 12,
+      h: 40,
+    },
   },
   heatmapChart: {
     name: trans("uiComp.heatmapChartCompName"),
@@ -215,11 +215,11 @@ export var uiCompMap: Registry = {
     keywords: trans("uiComp.heatmapChartCompKeywords"),
     comp: remoteComp({ ...builtInRemoteComps, compName: "heatmapChart" }),
     layoutInfo: {
-      "w": 12,
-      "h": 40
-    }
+      w: 12,
+      h: 40,
+    },
   },
-  radarChart : {
+  radarChart: {
     name: trans("uiComp.radarChartCompName"),
     enName: "Radar Chart",
     description: trans("uiComp.radarChartCompDesc"),
@@ -228,11 +228,11 @@ export var uiCompMap: Registry = {
     keywords: trans("uiComp.radarChartCompKeywords"),
     comp: remoteComp({ ...builtInRemoteComps, compName: "radarChart" }),
     layoutInfo: {
-      "w": 12,
-      "h": 40
-    }
+      w: 12,
+      h: 40,
+    },
   },
-  sankeyChart : {
+  sankeyChart: {
     name: trans("uiComp.sankeyChartCompName"),
     enName: "Sankey Chart",
     description: trans("uiComp.sankeyChartCompDesc"),
@@ -241,9 +241,9 @@ export var uiCompMap: Registry = {
     keywords: trans("uiComp.sankeyChartCompKeywords"),
     comp: remoteComp({ ...builtInRemoteComps, compName: "sankeyChart" }),
     layoutInfo: {
-      "w": 12,
-      "h": 40
-    }
+      w: 12,
+      h: 40,
+    },
   },
   sunburstChart: {
     name: trans("uiComp.sunburstChartCompName"),
@@ -254,11 +254,11 @@ export var uiCompMap: Registry = {
     keywords: trans("uiComp.sunburstChartCompKeywords"),
     comp: remoteComp({ ...builtInRemoteComps, compName: "sunburstChart" }),
     layoutInfo: {
-      "w": 12,
-      "h": 40
-    }
+      w: 12,
+      h: 40,
+    },
   },
-  themeriverChart : {
+  themeriverChart: {
     name: trans("uiComp.themeriverChartCompName"),
     enName: "Theme River Chart",
     description: trans("uiComp.themeriverChartCompDesc"),
@@ -267,11 +267,11 @@ export var uiCompMap: Registry = {
     keywords: trans("uiComp.themeriverChartCompKeywords"),
     comp: remoteComp({ ...builtInRemoteComps, compName: "themeriverChart" }),
     layoutInfo: {
-      "w": 12,
-      "h": 40
-    }
+      w: 12,
+      h: 40,
+    },
   },
-  treeChart : {
+  treeChart: {
     name: trans("uiComp.treeChartCompName"),
     enName: "Tree Chart",
     description: trans("uiComp.treeChartCompDesc"),
@@ -279,12 +279,12 @@ export var uiCompMap: Registry = {
     icon: TreeChartCompIcon,
     keywords: trans("uiComp.treeChartCompKeywords"),
     comp: remoteComp({ ...builtInRemoteComps, compName: "treeChart" }),
-    layoutInfo : {
-      "w": 12,
-      "h": 40
-    }
+    layoutInfo: {
+      w: 12,
+      h: 40,
+    },
   },
-  treemapChart : {
+  treemapChart: {
     name: trans("uiComp.treemapChartCompName"),
     enName: "Treemap Chart",
     description: trans("uiComp.treemapChartCompDesc"),
@@ -293,11 +293,10 @@ export var uiCompMap: Registry = {
     keywords: trans("uiComp.treemapChartCompKeywords"),
     comp: remoteComp({ ...builtInRemoteComps, compName: "treemapChart" }),
     layoutInfo: {
-      "w": 12,
-      "h": 40
-    }
+      w: 12,
+      h: 40,
+    },
   },
-  
 
   // GeoMap
 
@@ -308,7 +307,12 @@ export var uiCompMap: Registry = {
     categories: ["dashboards"],
     icon: GeoMapLayersCompIcon,
     keywords: trans("uiComp.openLayersGeoMapCompKeywords"),
-    comp: remoteComp({compName: "geo", packageName: "lowcoder-comp-geo", source: "npm", isRemote: true}),
+    comp: remoteComp({
+      compName: "geo",
+      packageName: "lowcoder-comp-geo",
+      source: "npm",
+      isRemote: true,
+    }),
     layoutInfo: {
       w: 12,
       h: 50,
@@ -354,13 +358,18 @@ export var uiCompMap: Registry = {
     categories: ["dashboards"],
     icon: PivotTableCompIcon,
     keywords: trans("uiComp.pivotTableCompKeywords"),
-    comp: remoteComp({compName: "pivottable", packageName: "lowcoder-comp-reactpivottable", source: "npm", isRemote: true}),
+    comp: remoteComp({
+      compName: "pivottable",
+      packageName: "lowcoder-comp-reactpivottable",
+      source: "npm",
+      isRemote: true,
+    }),
     layoutInfo: {
       w: 12,
       h: 50,
     },
   },
-  
+
   mermaid: {
     name: trans("uiComp.mermaidCompName"),
     enName: "Mermaid Charts",
@@ -417,8 +426,8 @@ export var uiCompMap: Registry = {
     icon: PageLayoutCompIcon,
     keywords: trans("uiComp.pageLayoutCompKeywords"),
     lazyLoad: true,
-    compName: 'PageLayoutComp',
-    compPath: 'comps/containerComp/pageLayoutComp',
+    compName: "PageLayoutComp",
+    compPath: "comps/containerComp/pageLayoutComp",
     withoutLoading: true,
     layoutInfo: {
       w: 12,
@@ -428,6 +437,23 @@ export var uiCompMap: Registry = {
     },
     defaultDataFnName: "defaultPageLayoutData",
     defaultDataFnPath: "comps/tableComp/mockTableComp",
+  },
+  columnLayout: {
+    name: "Column Layout",
+    enName: "Column Layout",
+    description: trans("uiComp.responsiveLayoutCompDesc"),
+    categories: ["layout"],
+    icon: ColumnLayoutCompIcon,
+    keywords: trans("uiComp.responsiveLayoutCompKeywords"),
+    lazyLoad: true,
+    compName: "ColumnLayoutComp",
+    compPath: "comps/columnLayout/index",
+    withoutLoading: true,
+    layoutInfo: {
+      w: 24,
+      h: 25,
+      delayCollision: true,
+    },
   },
   floatTextContainer: {
     name: trans("uiComp.floatTextContainerCompName"),
@@ -674,7 +700,6 @@ export var uiCompMap: Registry = {
     withoutLoading: true,
   },
 
-
   // Scheduling
 
   calendar: {
@@ -715,7 +740,7 @@ export var uiCompMap: Registry = {
     categories: ["collaboration"],
     icon: VideoScreenshareCompIcon,
     keywords: trans("meeting.meetingCompKeywords"),
-    comp: remoteComp({ ...builtInRemoteComps, compName: "meetingStream" }),
+    comp: remoteComp({ ...builtInRemoteComps, compName: "meetingSharing" }),
     withoutLoading: true,
     layoutInfo: {
       w: 12,
@@ -785,7 +810,7 @@ export var uiCompMap: Registry = {
     name: trans("uiComp.commentCompName"),
     enName: "comment",
     description: trans("uiComp.commentCompDesc"),
-    categories: [ "collaboration"],
+    categories: ["collaboration"],
     icon: CommentCompIcon,
     keywords: trans("uiComp.commentCompKeywords"),
     lazyLoad: true,
@@ -1198,7 +1223,6 @@ export var uiCompMap: Registry = {
     },
   },
 
-
   // Project Management
 
   hillchart: {
@@ -1208,7 +1232,12 @@ export var uiCompMap: Registry = {
     categories: ["projectmanagement"],
     icon: HillchartCompIcon,
     keywords: trans("uiComp.hillchartCompKeywords"),
-    comp: remoteComp({compName: "hillcharts", packageName: "lowcoder-comp-hillcharts", source: "npm", isRemote: true}),
+    comp: remoteComp({
+      compName: "hillcharts",
+      packageName: "lowcoder-comp-hillcharts",
+      source: "npm",
+      isRemote: true,
+    }),
     layoutInfo: {
       w: 12,
       h: 50,
@@ -1221,7 +1250,12 @@ export var uiCompMap: Registry = {
     categories: ["projectmanagement", "documents"],
     icon: BPMNEditorCompIcon,
     keywords: trans("uiComp.bpmnEditorCompKeywords"),
-    comp: remoteComp({compName: "bpmn", packageName: "lowcoder-comp-bpmn-io", source: "npm", isRemote: true}),
+    comp: remoteComp({
+      compName: "bpmn",
+      packageName: "lowcoder-comp-bpmn-io",
+      source: "npm",
+      isRemote: true,
+    }),
     layoutInfo: {
       w: 19,
       h: 60,
@@ -1558,8 +1592,8 @@ export var uiCompMap: Registry = {
     categories: ["itemHandling", "documents"],
     keywords: trans("uiComp.transferKeywords"),
     lazyLoad: true,
-    compName: 'transferComp',
-    compPath: 'comps/transferComp',
+    compName: "transferComp",
+    compPath: "comps/transferComp",
     layoutInfo: {
       w: 12,
       h: 50,
@@ -1572,7 +1606,12 @@ export var uiCompMap: Registry = {
     categories: ["itemHandling"],
     icon: TurnstileCaptchaCompIcon,
     keywords: trans("uiComp.turnstileCaptchaCompKeywords"),
-    comp: remoteComp({compName: "cloudflareTurnstile", packageName: "lowcoder-comp-cf-turnstile", source: "npm", isRemote: true}),
+    comp: remoteComp({
+      compName: "cloudflareTurnstile",
+      packageName: "lowcoder-comp-cf-turnstile",
+      source: "npm",
+      isRemote: true,
+    }),
     layoutInfo: {
       w: 8,
       h: 20,

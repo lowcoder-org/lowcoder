@@ -1,5 +1,6 @@
 package org.lowcoder.api.authentication.request.oauth2.request;
 
+import lombok.Setter;
 import org.lowcoder.api.authentication.request.AuthException;
 import org.lowcoder.api.authentication.request.oauth2.GenericOAuthProviderSource;
 import org.lowcoder.api.authentication.request.oauth2.OAuth2RequestContext;
@@ -16,6 +17,7 @@ import java.util.Map;
 
 import static org.lowcoder.api.authentication.util.AuthenticationUtils.mapToAuthToken;
 import static org.lowcoder.api.authentication.util.AuthenticationUtils.mapToAuthUser;
+import static org.lowcoder.sdk.plugin.common.constant.Constants.HTTP_TIMEOUT;
 
 /**
  * This class is for Generic Auth Request
@@ -30,6 +32,7 @@ public class GenericAuthRequest  extends AbstractOauth2Request<Oauth2GenericAuth
     protected Mono<AuthToken> getAuthToken(OAuth2RequestContext context) {
         return WebClientBuildHelper.builder()
                 .systemProxy()
+                .timeoutMs(HTTP_TIMEOUT)
                 .build()
                 .post()
                 .uri(config.getTokenEndpoint())
@@ -53,6 +56,7 @@ public class GenericAuthRequest  extends AbstractOauth2Request<Oauth2GenericAuth
     protected Mono<AuthToken> refreshAuthToken(String refreshToken) {
         return WebClientBuildHelper.builder()
                 .systemProxy()
+                .timeoutMs(HTTP_TIMEOUT)
                 .build()
                 .post()
                 .uri(config.getTokenEndpoint())
@@ -72,8 +76,10 @@ public class GenericAuthRequest  extends AbstractOauth2Request<Oauth2GenericAuth
 
     @Override
     protected Mono<AuthUser> getAuthUser(AuthToken authToken) {
+        if(!Boolean.TRUE.equals(config.getUserInfoIntrospection())) return Mono.just(AuthUser.builder().build());
         return WebClientBuildHelper.builder()
                 .systemProxy()
+                .timeoutMs(HTTP_TIMEOUT)
                 .build()
                 .get()
                 .uri(config.getUserInfoEndpoint())
@@ -84,7 +90,7 @@ public class GenericAuthRequest  extends AbstractOauth2Request<Oauth2GenericAuth
                     if (map.containsKey("error") || map.containsKey("error_description")) {
                         return Mono.error(new AuthException(JsonUtils.toJson(map)));
                     }
-                    return Mono.just(mapToAuthUser(map));
+                    return Mono.just(mapToAuthUser(map, config.getSourceMappings()));
                 });
     }
 }

@@ -7,7 +7,26 @@
       "state": "ACTIVE",
       "organizationDomain": {
         "domain": "avengers.com",
-        "authConfigs": [
+        "configs": [
+          {
+            "source": "GOOGLE",
+            "sourceName": "Google OAuth",
+            "sourceDescription": "An OAuth Provider for Google",
+            "sourceIcon": "/icon:solid/address-card",
+            "sourceCategory": "DEVELOPMENT",
+            "clientId": "uR87...xWgdohR9jYeHU6",
+            "clientSecret": "ATOAUZhwL...xU5SsSRCDA158FEA4",
+            "issuer": "https://auth.google.com",
+            "authorizationEndpoint": "https://auth.google.com/authorize?audience=api.google.com&client_id=uR87lwqLSHRvGaltLYxWgdohR9jYeHU6&scope=&redirect_uri=$REDIRECT_URL&state=$STATE&response_type=code&prompt=consent",
+            "tokenEndpoint": "https://auth.google.com/oauth/token",
+            "userInfoEndpoint": "https://auth.google.com/userinfo",
+            "scope": "openid profile",
+            "id": "106e4f4a4f6a48e5aa23cca6757c29e4",
+            "authType": "GENERIC",
+            "userInfoIntrospection": false,
+            "enable": true,
+            "enableRegister": true
+          }
         ]
       }
     }

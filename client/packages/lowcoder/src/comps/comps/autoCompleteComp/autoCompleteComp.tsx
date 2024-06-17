@@ -3,6 +3,7 @@ import { Input, Section, sectionNames } from "lowcoder-design";
 import { BoolControl } from "comps/controls/boolControl";
 import { styleControl } from "comps/controls/styleControl";
 import {
+  AnimationStyle,
   InputFieldStyle,
   InputLikeStyle,
   InputLikeStyleType,
@@ -15,7 +16,7 @@ import {
   withExposingConfigs,
 } from "comps/generators/withExposing";
 import styled, { css } from "styled-components";
-import { UICompBuilder } from "../../generators";
+import { UICompBuilder, withDefault } from "../../generators";
 import { FormDataPropertyView } from "../formComp/formDataConstants";
 import { jsonControl } from "comps/controls/codeControl";
 import { dropdownControl } from "comps/controls/dropdownControl";
@@ -57,7 +58,8 @@ import {
 
 
 
-const InputStyle = styled(Input)<{ $style: InputLikeStyleType }>`
+const InputStyle = styled(Input) <{ $style: InputLikeStyleType }>`
+box-shadow: ${props=>`${props.$style?.boxShadow} ${props.$style?.boxShadowColor}`};
   ${(props) => css`
     ${getStyle(props.$style)}
     input {
@@ -74,7 +76,7 @@ const childrenMap = {
   ...textInputChildren,
   viewRef: RefControl<InputRef>,
   allowClear: BoolControl.DEFAULT_TRUE,
-  style: styleControl(InputFieldStyle),
+  style: withDefault(styleControl(InputFieldStyle),{background:'transparent'}),
   labelStyle:styleControl(LabelStyle),
   prefixIcon: IconControl,
   suffixIcon: IconControl,
@@ -88,7 +90,8 @@ const childrenMap = {
   autocompleteIconColor: dropdownControl(autocompleteIconColor, "blue"),
   componentSize: dropdownControl(componentSize, "small"),
   valueInItems: booleanExposingStateControl("valueInItems"),
-  inputFieldStyle: styleControl(InputLikeStyle),
+  inputFieldStyle: withDefault(styleControl(InputLikeStyle),{borderWidth:'1px'}),
+  animationStyle: styleControl(AnimationStyle),
 };
 
 const getValidate = (value: any): "" | "warning" | "error" | undefined => {
@@ -283,6 +286,7 @@ let AutoCompleteCompBase = (function () {
       style: props.style,
       labelStyle: props.labelStyle,
       inputFieldStyle:props.inputFieldStyle,
+      animationStyle: props.animationStyle,
       ...validateState,
     });
   })
@@ -290,38 +294,38 @@ let AutoCompleteCompBase = (function () {
       return (
         <>
           <Section>
-            {children.autoCompleteType.getView() === "normal" &&
+            {children.autoCompleteType.getView() === 'normal' &&
               children.prefixIcon.propertyView({
-                label: trans("button.prefixIcon"),
+                label: trans('button.prefixIcon'),
               })}
-            {children.autoCompleteType.getView() === "normal" &&
+            {children.autoCompleteType.getView() === 'normal' &&
               children.suffixIcon.propertyView({
-                label: trans("button.suffixIcon"),
+                label: trans('button.suffixIcon'),
               })}
-              {allowClearPropertyView(children)}
+            {allowClearPropertyView(children)}
           </Section>
-          <Section name={trans("autoComplete.SectionDataName")}>
+          <Section name={trans('autoComplete.SectionDataName')}>
             {children.items.propertyView({
-              label: trans("autoComplete.value"),
+              label: trans('autoComplete.value'),
               tooltip: itemsDataTooltip,
-              placeholder: "[]",
+              placeholder: '[]',
             })}
-            {getDayJSLocale() === "zh-cn" &&
+            {getDayJSLocale() === 'zh-cn' &&
               children.searchFirstPY.propertyView({
-                label: trans("autoComplete.searchFirstPY"),
+                label: trans('autoComplete.searchFirstPY'),
               })}
-            {getDayJSLocale() === "zh-cn" &&
+            {getDayJSLocale() === 'zh-cn' &&
               children.searchCompletePY.propertyView({
-                label: trans("autoComplete.searchCompletePY"),
+                label: trans('autoComplete.searchCompletePY'),
               })}
             {children.searchLabelOnly.propertyView({
-              label: trans("autoComplete.searchLabelOnly"),
+              label: trans('autoComplete.searchLabelOnly'),
             })}
             {children.ignoreCase.propertyView({
-              label: trans("autoComplete.ignoreCase"),
+              label: trans('autoComplete.ignoreCase'),
             })}
             {children.valueOrLabel.propertyView({
-              label: trans("autoComplete.checkedValueFrom"),
+              label: trans('autoComplete.checkedValueFrom'),
               radioButton: true,
             })}
           </Section>
@@ -346,6 +350,12 @@ let AutoCompleteCompBase = (function () {
           </Section>
           <Section name={sectionNames.inputFieldStyle}>
             {children.inputFieldStyle.getPropertyView()}
+          </Section>
+          <Section
+            name={sectionNames.animationStyle}
+            hasTooltip={true}
+          >
+            {children.animationStyle.getPropertyView()}
           </Section>
         </>
       );

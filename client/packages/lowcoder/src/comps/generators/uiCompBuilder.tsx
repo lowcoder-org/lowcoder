@@ -219,22 +219,105 @@ function UIView(props: {
   viewFn: any;
 }) {
   const comp = props.comp;
-
   const childrenProps = childrenToProps(comp.children);
   const parentDisabled = useContext(DisabledContext);
-  const disabled = childrenProps["disabled"];
-  if (disabled !== undefined && typeof disabled === "boolean") {
-    childrenProps["disabled"] = disabled || parentDisabled;
+  const disabled = childrenProps['disabled'];
+  if (disabled !== undefined && typeof disabled === 'boolean') {
+    childrenProps['disabled'] = disabled || parentDisabled;
   }
 
   //ADDED BY FRED
   if (childrenProps.events) {
-    const events = childrenProps.events as { value?: any[] };
+    const events = childrenProps.events as {value?: any[]};
     if (!events.value || events.value.length === 0) {
       events.value = [];
     }
   }
   //END ADD BY FRED
+
+  if (comp.children.hasOwnProperty('showMask') && comp.children.hasOwnProperty('maskClosable')) {
+    return (
+      <HidableView hidden={childrenProps.hidden as boolean}>
+        {props.viewFn(
+          childrenProps,
+          comp.dispatch
+        )}
+      </HidableView>
+    );
+  }
+
+  let defaultChildren = comp.children;
+  const isNotContainer = defaultChildren.hasOwnProperty('style');
+  const restrictPaddingOnRotation = defaultChildren.hasOwnProperty('restrictPaddingOnRotation');
+  let rotationVal:any = null
+  let boxShadowVal:any = null;
+  let restrictPaddingOnRotationVal:any=null;
+  if (isNotContainer) {
+    rotationVal = defaultChildren.style.children?.rotation?.valueAndMsg.value;
+    boxShadowVal = defaultChildren.style?.children?.boxShadow?.valueAndMsg?.value;
+    restrictPaddingOnRotationVal = defaultChildren?.restrictPaddingOnRotation?.valueAndMsg?.value;
+  }
+  const getPadding = () => {
+    if (
+      (rotationVal === null ||
+        rotationVal === undefined ||
+        restrictPaddingOnRotation) &&
+      (boxShadowVal === null ||
+        boxShadowVal === undefined ||
+        boxShadowVal === '0px')
+    ) {
+      if (restrictPaddingOnRotationVal === 'qrCode') {
+        if (rotationVal !== '' && rotationVal !== '0deg') {
+          return '35% 0px';
+        } else {
+          return '0px';
+        }
+      } else if (restrictPaddingOnRotationVal === 'image') {
+        if (rotationVal !== '' && rotationVal !== '0deg') {
+          return '10% 0px';
+        } else {
+          return '0px';
+        }
+      } else if (restrictPaddingOnRotationVal === 'controlButton') {
+        if (rotationVal !== '' && rotationVal !== '0deg') {
+          return '10% 0px';
+        } else {
+          return '0px';
+        }
+      } else {
+        return '0px'; // Both rotation and box-shadow are empty or restricted
+      }
+    }else if (
+      rotationVal === null ||
+      rotationVal === undefined ||
+      rotationVal === '0px'
+    ){return '0px'} else if (rotationVal !== '' && rotationVal !== '0deg') {
+      // Rotation applied
+      if (
+        boxShadowVal === null ||
+        boxShadowVal === undefined ||
+        boxShadowVal === '0px'
+      ) {
+        return `calc(min(50%, ${Math.abs(rotationVal.replace('deg', '')) / 90} * 100%)) 0px`;
+      } else if (boxShadowVal !== '' && boxShadowVal !== '0px') {
+        // Both rotation and box-shadow applied
+        return `calc(min(50%, ${Math.abs(rotationVal.replace('deg', '') + parseFloat(boxShadowVal.replace('px', ''))) / 90} * 100%)) 0px`;
+      } else {
+        return `calc(min(50%, ${Math.abs(rotationVal.replace('deg', '')) / 90} * 100%)) 0px`; // Only rotation applied
+      }
+    } else if (
+      boxShadowVal === null ||
+      boxShadowVal === undefined ||
+      boxShadowVal === '0px'
+    ) {
+      return '0px';
+    } else if (boxShadowVal !== '' && boxShadowVal !== '0px') {
+      // Box-shadow applied
+      return `calc(min(50%, ${Math.abs(parseFloat(boxShadowVal.replace('px', ''))) / 90} * 100%)) 0px`;
+    } else {
+      return '0px'; // Default value if neither rotation nor box-shadow is applied
+    }
+  };
 
   return (
     <div
@@ -242,16 +325,15 @@ function UIView(props: {
       className={childrenProps.className as string}
       data-testid={childrenProps.dataTestId as string}
       style={{
-        width: "100%",
-        height: "100%",
-        margin: "0px",
-        padding: "0px",
-      }}>
+        width: '100%',
+        height: '100%',
+        margin: '0px',
+        padding:getPadding()
+          
+      }}
+    >
       <HidableView hidden={childrenProps.hidden as boolean}>
-        {props.viewFn(
-          childrenProps,
-          comp.dispatch
-        )}
+        {props.viewFn(childrenProps, comp.dispatch)}
       </HidableView>
     </div>
   );

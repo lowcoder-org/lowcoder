@@ -24,7 +24,7 @@ public interface LibraryQueryRecordEndpoints
 	public static final String TAG_LIBRARY_QUERY_RECORDS = "Library Queries Record APIs";
 
 	@Operation(
-			tags = LIBRARY_QUERY_RECORD_URL,
+			tags = TAG_LIBRARY_QUERY_RECORDS,
 		    operationId = "deleteLibrartQueryRecord",
 		    summary = "Delete Library Query Record",
 		    description = "Permanently remove a specific Library Query Record from Lowcoder using its unique record ID."
@@ -33,7 +33,7 @@ public interface LibraryQueryRecordEndpoints
     public Mono<Void> delete(@PathVariable String libraryQueryRecordId);
 
 	@Operation(
-			tags = LIBRARY_QUERY_RECORD_URL,
+			tags = TAG_LIBRARY_QUERY_RECORDS,
 		    operationId = "getLibraryQueryRecord",
 		    summary = "Get Library Query Record",
 		    description = "Retrieve a specific Library Query Record within Lowcoder using the associated library query ID."
@@ -42,7 +42,7 @@ public interface LibraryQueryRecordEndpoints
     public Mono<ResponseView<List<LibraryQueryRecordMetaView>>> getByLibraryQueryId(@RequestParam(name = "libraryQueryId") String libraryQueryId);
 
 	@Operation(
-			tags = LIBRARY_QUERY_RECORD_URL,
+			tags = TAG_LIBRARY_QUERY_RECORDS,
 		    operationId = "listLibraryQueryRecords",
 		    summary = "Get Library Query Records",
 		    description = "Retrieve a list of Library Query Records, which store information related to executed queries within Lowcoder and the current Organization / Workspace by the impersonated User"

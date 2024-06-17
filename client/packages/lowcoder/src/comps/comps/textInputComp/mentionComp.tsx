@@ -22,6 +22,7 @@ import {
 import { styleControl } from "comps/controls/styleControl";
 import styled from "styled-components";
 import {
+  AnimationStyle,
   InputLikeStyle,
   InputLikeStyleType,
 } from "comps/controls/styleControlConstants";
@@ -96,6 +97,7 @@ let MentionTmpComp = (function () {
     allowClear: BoolControl,
     autoHeight: AutoHeightControl,
     style: styleControl(InputLikeStyle),
+    animationStyle: styleControl(AnimationStyle),
     mentionList: jsonControl(checkMentionListData, {
       "@": ["Li Lei", "Han Meimei"],
       "#": ["123", "456", "789"],
@@ -218,6 +220,7 @@ let MentionTmpComp = (function () {
         </Wrapper>
       ),
       style: props.style,
+      animationStyle: props.animationStyle,
       ...validateState,
     });
   })
@@ -260,9 +263,14 @@ let MentionTmpComp = (function () {
         )}
 
         {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
-          <><Section name={sectionNames.style}>
+          <>
+            <Section name={sectionNames.style}>
             {children.style.getPropertyView()}
-          </Section></>
+            </Section>
+            <Section name={sectionNames.animationStyle} hasTooltip={true}>
+            {children.animationStyle.getPropertyView()}
+            </Section>
+          </>
         )}
       </>
     ))

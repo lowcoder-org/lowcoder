@@ -15,7 +15,7 @@ import { AlignLeft } from "lowcoder-design";
 import { AlignRight } from "lowcoder-design";
 import { StarIcon } from "lowcoder-design";
 
-import { LabelStyleType, heightCalculator, widthCalculator } from "./styleControlConstants";
+import { AnimationStyleType, LabelStyleType, heightCalculator, widthCalculator } from "./styleControlConstants";
 
 type LabelViewProps = Pick<FormItemProps, "required" | "help" | "validateStatus"> & {
   children: ReactNode;
@@ -24,6 +24,7 @@ type LabelViewProps = Pick<FormItemProps, "required" | "help" | "validateStatus"
   field?: Record<string, string>;
   inputFieldStyle?: Record<string, string>;
   childrenInputFieldStyle?: Record<string, string>;
+  animationStyle?: Record<string, string>;
 };
 
 const StyledStarIcon = styled(StarIcon)`
@@ -44,16 +45,19 @@ function getStyle(style: any) {
   `;
 }
 
-const LabelViewWrapper = styled.div<{ $style: any, inputFieldStyle: any }>`
-${(props) => {
+const LabelViewWrapper = styled.div<{ $style: any, inputFieldStyle: any,$animationStyle:any }>`
+  ${(props) => {
     return (
       props.$style && {
         ...props.$style,
         borderRadius: props.$style.radius,
+        rotate: props.$style.rotation,
+        boxShadow: `${props.$style.boxShadow} ${props.$style.boxShadowColor}`,
       }
     );
   }}
   ${(props) => props.inputFieldStyle && getStyle(props.inputFieldStyle)}
+  ${(props) => props.$animationStyle && props.$animationStyle}
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -172,7 +176,7 @@ export const LabelControl = (function () {
 
   return new MultiCompBuilder(childrenMap, (props) => (args: LabelViewProps) => 
   {
-    return <LabelViewWrapper $style={args.style} inputFieldStyle={args.inputFieldStyle}>
+    return <LabelViewWrapper $style={args.style} inputFieldStyle={args.inputFieldStyle} $animationStyle={args.animationStyle}>
       <MainWrapper
         $position={props.position}
         $hasLabel={!!props.text}
@@ -195,6 +199,7 @@ export const LabelControl = (function () {
                 props.position === "row" ? getLabelWidth(props.width, props.widthUnit) : "100%",
               maxWidth: props.position === "row" ? "70%" : "100%",
               fontSize: args && args.style ? args?.style?.textSize : "14px",
+              rotate:args?.labelStyle?.rotation
             }}
             $position={props.position}
             $hasToolTip={!!props.tooltip}
@@ -225,6 +230,7 @@ export const LabelControl = (function () {
                 ? `calc(100% - ${getLabelWidth(props.width, props.widthUnit)} - 8px)`
                 : "100%",
             height: props.position === "column" && !!props.text ? "calc(100% - 22px)" : "100%",
+            rotate:args?.inputFieldStyle?.rotation,
           }}
         >
           {args.children}

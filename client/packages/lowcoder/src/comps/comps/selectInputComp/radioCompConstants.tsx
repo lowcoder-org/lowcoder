@@ -14,7 +14,7 @@ import {
 } from "./selectInputConstants";
 import { formDataChildren, FormDataPropertyView } from "../formComp/formDataConstants";
 import { styleControl } from "comps/controls/styleControl";
-import {  InputFieldStyle, LabelStyle, RadioStyle } from "comps/controls/styleControlConstants";
+import {  AnimationStyle, InputFieldStyle, LabelStyle, RadioStyle } from "comps/controls/styleControlConstants";
 import { dropdownControl } from "../../controls/dropdownControl";
 import { hiddenPropertyView, disabledPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
@@ -22,6 +22,7 @@ import { RefControl } from "comps/controls/refControl";
 
 import { useContext } from "react";
 import { EditorContext } from "comps/editorState";
+import { withDefault } from "@lowcoder-ee/index.sdk";
 
 export const RadioLayoutOptions = [
   { label: trans("radio.horizontal"), value: "horizontal" },
@@ -40,7 +41,8 @@ export const RadioChildrenMap = {
   labelStyle:styleControl(LabelStyle),
   layout: dropdownControl(RadioLayoutOptions, "horizontal"),
   viewRef: RefControl<HTMLDivElement>,
-  inputFieldStyle:styleControl(RadioStyle),
+  inputFieldStyle:withDefault(styleControl(RadioStyle),{borderWidth: '1px'}),
+  animationStyle: styleControl(AnimationStyle),
   ...SelectInputValidationChildren,
   ...formDataChildren,
 };
@@ -97,6 +99,7 @@ export const RadioPropertyView = (
       <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
       <Section name={sectionNames.labelStyle}>{children.labelStyle.getPropertyView()}</Section>
       <Section name={sectionNames.inputFieldStyle}>{children.inputFieldStyle.getPropertyView()}</Section>
+      <Section name={sectionNames.animationStyle} hasTooltip={true}>{children.animationStyle.getPropertyView()}</Section>
       </>
     )}
   </>

@@ -16,9 +16,9 @@ import { trans, languageList } from "../../i18n";
 import { ALL_APPLICATIONS_URL } from "constants/routesURL";
 import { default as Divider } from "antd/es/divider";
 
-import { fullAvatarUrl } from "util/urlUtils";
-
 import { Avatar, Button, Card, Col, Row, Space, Typography, Select, Tooltip } from "antd";
+
+import { fullAvatarUrl } from "util/urlUtils";
 
 import {
   BlurFinishInput,
@@ -130,9 +130,19 @@ const StyleProfileContent = styled.div`
     }
 `;
 
-const StyleAvatar = styled(Avatar)` 
-    position: relative;
-    border: 3px solid #eee;
+const StyleAvatar = styled(Avatar)`
+  position: relative;
+  border: 3px solid #eee;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  background-color: #0093E9;
+  background-image: linear-gradient(160deg, #0093E9 0%, #80D0C7 100%);
+  .ant-avatar-string {
+    font-size: 2em;
+  }
 `;
 
 const TextMuted = styled.div`
@@ -150,6 +160,11 @@ export type UserProfileLayoutMode = "view" | "trash" | "module" | "folder" | "fo
 export interface UserProfileLayoutProps {
   breadcrumb?: UserProfileBreadcrumbType[];
 }
+
+const getInitials = (name: string) => {
+  const initials = name.split(' ').map(word => word[0]).join('');
+  return initials.toUpperCase();
+};
 
 export function UserProfileLayout(props: UserProfileLayoutProps) {
 
@@ -233,7 +248,13 @@ export function UserProfileLayout(props: UserProfileLayoutProps) {
             <StyleProfileContent>
               <Row gutter={[24, 24]} style={{ display: 'flex', alignItems: 'end' }}>
                 <Col lg={4}>
-                  <StyleAvatar src={<img src={user.avatarUrl ? fullAvatarUrl(user.avatarUrl) : `https://eu.ui-avatars.com/api/?name=${user.username}&size=250`} alt="avatar" />} shape="square" size={120} />
+                  {user.avatarUrl ? (
+                    <StyleAvatar src={fullAvatarUrl(user.avatarUrl)} shape="square" size={120} />
+                  ) : (
+                    <StyleAvatar shape="square" size={120}>
+                      {getInitials(user.username)}
+                    </StyleAvatar>
+                  )}
                 </Col>
                 <Col lg={20}>
                   <Space style={{paddingLeft : "80px"}}>

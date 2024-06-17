@@ -12,6 +12,7 @@ import { EventData, EventTypeEnum } from "./types";
 import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { EditorContext } from "comps/editorState";
+import { AnimationStyle, AnimationStyleType, CustomStyle, CustomStyleType, styleControl } from "@lowcoder-ee/index.sdk";
 
 // TODO: eventually to embedd in container so we have styling?
 // TODO: support different starter templates for different frameworks (react, ANT, Flutter, Angular, etc)
@@ -67,13 +68,21 @@ const defaultCode = `
 type IProps = {
   code: string;
   model: any;
+  style: CustomStyleType;
+  animationStyle:AnimationStyleType
   onModelChange: (v: any) => void;
   dispatch: (action: CompAction<any>) => void;
 };
 
-const Wrapper = styled.div`
+const Wrapper = styled.div<{
+  $style: CustomStyleType;
+  $animationStyle: AnimationStyleType;
+}>`
   width: 100%;
   height: 100%;
+  ${(props) => props.$style};
+  rotate: ${(props) => props.$style.rotation};
+  ${(props) => props.$animationStyle};
   iframe {
     border: 0;
     width: 100%;
@@ -196,8 +205,12 @@ function InnerCustomComponent(props: IProps) {
   }, [code]);
 
   return (
-    <Wrapper>
-      <iframe ref={iframeRef} title="custom-comp" src={trans("customComponent.entryUrl")} />
+    <Wrapper $style={props.style} $animationStyle={props.animationStyle}>
+      <iframe
+        ref={iframeRef}
+        title="custom-comp"
+        src={trans('customComponent.entryUrl')}
+      />
     </Wrapper>
   );
 }
@@ -205,12 +218,16 @@ function InnerCustomComponent(props: IProps) {
 const childrenMap = {
   model: jsonObjectStateControl(defaultModel),
   code: withDefault(StringControl, defaultCode),
+  style:styleControl(CustomStyle),
+  animationStyle:styleControl(AnimationStyle),
 };
 
 const CustomCompBase = new UICompBuilder(childrenMap, (props, dispatch) => {
   const { code, model } = props;
   return (
     <InnerCustomComponent
+      style={props.style}
+      animationStyle={props.animationStyle}
       code={code}
       model={model.value}
       onModelChange={(v) => model.onChange(v)}
@@ -226,6 +243,12 @@ const CustomCompBase = new UICompBuilder(childrenMap, (props, dispatch) => {
               {children.model.propertyView({ label: trans("customComp.data") })}
               {children.code.propertyView({ label: trans("customComp.code"), language: "html" })}
               {hiddenPropertyView(children)}
+          </Section>
+            <Section name={sectionNames.style}>
+              {children.style.getPropertyView()}
+            </Section>
+            <Section name={sectionNames.animationStyle} hasTooltip={true}>
+              {children.animationStyle.getPropertyView()}
             </Section>
           </>
         )}  

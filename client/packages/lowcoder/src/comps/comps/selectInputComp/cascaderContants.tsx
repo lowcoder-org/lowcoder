@@ -6,7 +6,7 @@ import { arrayStringExposingStateControl } from "comps/controls/codeStateControl
 import { BoolControl } from "comps/controls/boolControl";
 import { LabelControl } from "comps/controls/labelControl";
 import { styleControl } from "comps/controls/styleControl";
-import { CascaderStyle, ChildrenMultiSelectStyle, InputFieldStyle, LabelStyle } from "comps/controls/styleControlConstants";
+import { AnimationStyle, CascaderStyle, ChildrenMultiSelectStyle, InputFieldStyle, LabelStyle } from "comps/controls/styleControlConstants";
 import {
   allowClearPropertyView,
   disabledPropertyView,
@@ -41,7 +41,8 @@ export const CascaderChildren = {
   margin: MarginControl,
   padding: PaddingControl,
   inputFieldStyle:styleControl(CascaderStyle),
-  childrenInputFieldStyle:styleControl(ChildrenMultiSelectStyle)
+  childrenInputFieldStyle:styleControl(ChildrenMultiSelectStyle),
+  animationStyle:styleControl(AnimationStyle)
 };
 
 export const CascaderPropertyView = (
@@ -86,6 +87,9 @@ export const CascaderPropertyView = (
         </Section>
         <Section name={'Children Input Field Style'}>
           {children.childrenInputFieldStyle.getPropertyView()}
+        </Section>
+        <Section name={sectionNames.animationStyle} hasTooltip={true}>
+          {children.animationStyle.getPropertyView()}
         </Section>
       </>
     )}

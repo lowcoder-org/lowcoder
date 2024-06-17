@@ -18,11 +18,12 @@ import {
   ContainerCompBuilder,
 } from "../pageLayoutComp/pageLayoutCompBuilder";
 import { PageLayout } from "../pageLayoutComp/pageLayout";
-
+import { AnimationStyle, styleControl } from "@lowcoder-ee/index.sdk";
 
 export const ContainerBaseComp = (function () {
-  const childrenMap = { 
-    disabled: BoolCodeControl
+  const childrenMap = {
+    disabled: BoolCodeControl,
+    animationStyle: styleControl(AnimationStyle),
   };
 
   return new ContainerCompBuilder(childrenMap, (props, dispatch) => {
@@ -52,7 +53,10 @@ export const ContainerBaseComp = (function () {
             </Section>
             <Section name={sectionNames.style}>
               { children.container.stylePropertyView() }
-            </Section>
+              </Section>
+              <Section name={sectionNames.animationStyle} hasTooltip={true}>
+                {children.animationStyle.getPropertyView()}
+              </Section>
             {children.container.children.showHeader.getView() && (
               <Section name={"Header Style"}>
                 { children.container.headerStylePropertyView() }

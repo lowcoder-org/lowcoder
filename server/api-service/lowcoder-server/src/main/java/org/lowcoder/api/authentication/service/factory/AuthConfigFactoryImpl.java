@@ -108,6 +108,7 @@ public class AuthConfigFactoryImpl implements AuthConfigFactory {
                 .sourceDescription(authConfigRequest.getSourceDescription())
                 .sourceIcon(authConfigRequest.getSourceIcon())
                 .sourceCategory(authConfigRequest.getSourceCategory())
+                .sourceMappings(authConfigRequest.getSourceMappings())
                 .clientId(requireNonNull(authConfigRequest.getClientId(), "clientId can not be null."))
                 .clientSecret(authConfigRequest.getClientSecret())
                 .issuerUri(authConfigRequest.getIssuerUri())
@@ -116,7 +117,7 @@ public class AuthConfigFactoryImpl implements AuthConfigFactory {
                 .userInfoEndpoint(authConfigRequest.getUserInfoEndpoint())
                 .scope(authConfigRequest.getScope())
                 .authType(AuthTypeConstants.GENERIC)
-                .userInfoIntrospection(MapUtils.getBoolean(authConfigRequest,"userInfoIntrospection"))
+                .userInfoIntrospection(MapUtils.getBoolean(authConfigRequest,"userInfoIntrospection", false))
                 .build();
     }
 }

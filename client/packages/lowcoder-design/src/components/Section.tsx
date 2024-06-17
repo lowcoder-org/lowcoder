@@ -4,6 +4,7 @@ import styled from "styled-components";
 import { ReactComponent as Packup } from "icons/icon-Pack-up.svg";
 import { labelCss } from "./Label";
 import { controlItem, ControlNode } from "./control";
+import { Tooltip } from "./toolTip";
 
 const SectionItem = styled.div<{ $width?: number }>`
   width: ${(props) => (props.$width ? props.$width : 312)}px;
@@ -73,6 +74,12 @@ const ShowChildren = styled.div<{ $show?: string; $noMargin?: boolean }>`
   padding-right: ${(props) => (props.$noMargin ? 0 : "16px")};
 `;
 
+const TooltipWrapper = styled.span`
+  word-wrap: break-word;
+  word-break: break-word;
+  white-space: pre-wrap;
+  color:#fff;
+`;
 interface ISectionConfig<T> {
   name?: string;
   open?: boolean;
@@ -81,6 +88,7 @@ interface ISectionConfig<T> {
   style?: React.CSSProperties;
   children: T;
   additionalButton?: React.ReactNode;
+  hasTooltip?: boolean;
 }
 
 export interface PropertySectionState {
@@ -102,7 +110,7 @@ export const PropertySectionContext = React.createContext<PropertySectionContext
 });
 
 export const BaseSection = (props: ISectionConfig<ReactNode>) => {
-  const { name } = props;
+  const { name,hasTooltip } = props;
   const { compName, state, toggle } = useContext(PropertySectionContext);
   const open = props.open !== undefined ? props.open : name ? state[compName]?.[name] !== false : true;
 
@@ -118,17 +126,35 @@ export const BaseSection = (props: ISectionConfig<ReactNode>) => {
   return (
     <SectionItem $width={props.width} style={props.style}>
       {props.name && (
-        <SectionLabelDiv onClick={handleToggle} className={"section-header"}>
+        <SectionLabelDiv onClick={handleToggle} className={'section-header'}>
           <SectionLabel>{props.name}</SectionLabel>
-          <div style={{ display: "flex" }}>
+          <div style={{display: 'flex'}}>
             {open && props.additionalButton}
-            <PackupIcon deg={open ? "rotate(0deg)" : "rotate(180deg)"} />
+            <PackupIcon deg={open ? 'rotate(0deg)' : 'rotate(180deg)'} />
           </div>
         </SectionLabelDiv>
       )}
-      <ShowChildren $show={open ? "flex" : "none"} $noMargin={props.noMargin}>
-        {props.children}
-      </ShowChildren>
+      <Tooltip
+        title={
+          hasTooltip && (
+            <TooltipWrapper>
+              Here you can enter the animation type codes. Like bounce, swing or
+              tada. Read more about all possible codes at:{" "}
+              <a href="https://animate.style">https://animate.style</a>
+            </TooltipWrapper>
+          )
+        }
+        arrow={{
+          pointAtCenter: true,
+        }}
+        placement="top"
+        color="#2c2c2c"
+        getPopupContainer={(node: any) => node.closest('.react-grid-item')}
+      >
+        <ShowChildren $show={open ? 'flex' : 'none'} $noMargin={props.noMargin}>
+          {props.children}
+        </ShowChildren>
+      </Tooltip>
     </SectionItem>
   );
 };
@@ -146,6 +172,7 @@ export const sectionNames = {
   layout: trans("prop.layout"),
   style: trans("prop.style"),
   labelStyle:trans("prop.labelStyle"),
+  animationStyle:trans("prop.animationStyle"),
   data: trans("prop.data"),
   meetings: trans("prop.meetings"), // added by Falk Wolsky
   field: trans("prop.field"),
@@ -157,4 +184,5 @@ export const sectionNames = {
   headerStyle:trans("prop.headerStyle"),
   bodyStyle:trans("prop.bodyStyle"),
   badgeStyle:trans("prop.badgeStyle"),
+  columnStyle:trans("prop.columnStyle"),
 };

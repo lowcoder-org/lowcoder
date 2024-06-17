@@ -36,6 +36,7 @@
     "@types/react-signature-canvas": "^1.0.2",
     "@types/react-test-renderer": "^18.0.0",
     "@types/react-virtualized": "^9.21.21",
+    "animate.css": "^4.1.1",
     "antd": "5.13.2",
     "axios": "^1.6.2",
     "buffer": "^6.0.3",
@@ -127,6 +128,7 @@
     "vite-plugin-checker": "^0.5.1",
     "vite-plugin-dynamic-import": "^1.5.0",
     "vite-plugin-html": "^3.2.0",
+    "vite-plugin-node-polyfills": "^0.22.0",
     "vite-plugin-svgr": "^2.2.2",
     "vite-tsconfig-paths": "^3.6.0"
   }

@@ -5,7 +5,7 @@ import { ChangeEventHandlerControl } from "comps/controls/eventHandlerControl";
 import { LabelControl } from "comps/controls/labelControl";
 import { SelectOptionControl } from "comps/controls/optionsControl";
 import { styleControl } from "comps/controls/styleControl";
-import { SegmentStyle, SegmentStyleType } from "comps/controls/styleControlConstants";
+import { AnimationStyle, SegmentStyle, SegmentStyleType } from "comps/controls/styleControlConstants";
 import styled, { css } from "styled-components";
 import { UICompBuilder } from "../../generators";
 import { CommonNameConfig, NameConfig, withExposingConfigs } from "../../generators/withExposing";
@@ -77,7 +77,8 @@ const SegmentChildrenMap = {
   disabled: BoolCodeControl,
   onEvent: ChangeEventHandlerControl,
   options: SelectOptionControl,
-  style: withDefault(styleControl(SegmentStyle),{borderWidth:'1px'}),
+  style: withDefault(styleControl(SegmentStyle), { borderWidth: '1px' }),
+  animationStyle:styleControl(AnimationStyle),
   viewRef: RefControl<HTMLDivElement>,
 
   ...SelectInputValidationChildren,
@@ -93,6 +94,7 @@ let SegmentedControlBasicComp = (function () {
     return props.label({
       required: props.required,
       style: props.style,
+      animationStyle: props.animationStyle,
       children: (
         <Segmented
           ref={props.viewRef}
@@ -138,9 +140,14 @@ let SegmentedControlBasicComp = (function () {
         )}
 
         {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+          <>
           <Section name={sectionNames.style}>
             {children.style.getPropertyView()}
           </Section>
+          <Section name={sectionNames.animationStyle} hasTooltip={true}>
+            {children.animationStyle.getPropertyView()}
+            </Section>
+            </>
         )}
       </>
     ))

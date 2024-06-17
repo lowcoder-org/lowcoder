@@ -111,7 +111,7 @@ interface InputItemProps {
   defaultValue: any;
   // defaultValue: InstanceType<ReturnType<typeof withType>>;
   type: InstanceType<ReturnType<typeof dropdownControl>>;
-  description: InstanceType<typeof StringControl>;
+  description: InstanceType<typeof CompNameControl>;
   onDelete: () => void;
   onTypeChange: (value: string) => void;
   defaultShowPopover: boolean;

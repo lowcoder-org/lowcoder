@@ -10,7 +10,7 @@ import { UICompBuilder, withDefault } from "../generators";
 import { CommonNameConfig, NameConfig, withExposingConfigs } from "../generators/withExposing";
 import { formDataChildren, FormDataPropertyView } from "./formComp/formDataConstants";
 import { styleControl } from "comps/controls/styleControl";
-import {  InputFieldStyle, LabelStyle, RatingStyle, RatingStyleType } from "comps/controls/styleControlConstants";
+import {  AnimationStyle, InputFieldStyle, LabelStyle, RatingStyle, RatingStyleType } from "comps/controls/styleControlConstants";
 import { migrateOldData } from "comps/generators/simpleGenerators";
 import { disabledPropertyView, hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
@@ -43,9 +43,14 @@ const RatingBasicComp = (function () {
     allowHalf: BoolControl,
     disabled: BoolCodeControl,
     onEvent: eventHandlerControl(EventOptions),
-    style: withDefault(styleControl(InputFieldStyle), {borderWidth: '1px'}),
-    labelStyle: styleControl(LabelStyle.filter((style) => ['accent', 'validate'].includes(style.name) === false)),
-    inputFieldStyle:migrateOldData(styleControl(RatingStyle), fixOldData),
+    style: withDefault(styleControl(InputFieldStyle),{background:'transparent'}) , 
+    animationStyle: styleControl(AnimationStyle),
+    labelStyle: styleControl(
+      LabelStyle.filter(
+        (style) => ['accent', 'validate'].includes(style.name) === false
+      )
+    ),
+    inputFieldStyle: migrateOldData(styleControl(RatingStyle), fixOldData),
     ...formDataChildren,
   };
   return new UICompBuilder(childrenMap, (props) => {
@@ -68,6 +73,7 @@ const RatingBasicComp = (function () {
       style: props.style,
       labelStyle: props.labelStyle,
       inputFieldStyle:props.inputFieldStyle,
+      animationStyle:props.animationStyle,
       children: (
         <RateStyled
           count={props.max}
@@ -123,6 +129,9 @@ const RatingBasicComp = (function () {
               </Section>
               <Section name={sectionNames.inputFieldStyle}>
                 {children.inputFieldStyle.getPropertyView()}
+              </Section>
+              <Section name={sectionNames.animationStyle} hasTooltip={true}>
+                {children.animationStyle.getPropertyView()}
               </Section>
             </>
           )}

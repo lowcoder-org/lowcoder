@@ -3,3 +3,4 @@
 export * from "./en";
 export * from "./zh";
 export * from "./de";
+export * from "./pt";

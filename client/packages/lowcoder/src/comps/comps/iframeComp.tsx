@@ -5,7 +5,7 @@ import { BoolControl } from "../controls/boolControl";
 import styled from "styled-components";
 import { NameConfig, NameConfigHidden, withExposingConfigs } from "../generators/withExposing";
 import { styleControl } from "comps/controls/styleControl";
-import { IframeStyle, IframeStyleType } from "comps/controls/styleControlConstants";
+import { AnimationStyle, AnimationStyleType, IframeStyle, IframeStyleType } from "comps/controls/styleControlConstants";
 import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import log from "loglevel";
@@ -13,13 +13,18 @@ import log from "loglevel";
 import { useContext } from "react";
 import { EditorContext } from "comps/editorState";
 
-const Wrapper = styled.div<{ $style: IframeStyleType }>`
+const Wrapper = styled.div<{$style: IframeStyleType; $animationStyle:AnimationStyleType}>`
   width: 100%;
   height: 100%;
   overflow: hidden;
-  border: ${(props) => (props.$style.borderWidth ? props.$style.borderWidth : "1px")} solid ${(props) => props.$style.border};
+  border: ${(props) =>
+      props.$style.borderWidth ? props.$style.borderWidth : '1px'}
+    solid ${(props) => props.$style.border};
   border-radius: calc(min(${(props) => props.$style.radius}, 20px));
-
+rotate:${props => props.$style.rotation};
+margin:${props => props.$style.margin};
+padding:${props => props.$style.padding};
+${props=>props.$animationStyle}
   iframe {
     border: 0;
     width: 100%;
@@ -41,6 +46,7 @@ let IFrameCompBase = new UICompBuilder(
     allowCamera: BoolControl,
     allowPopup: BoolControl,
     style: styleControl(IframeStyle),
+    animationStyle: styleControl(AnimationStyle),
   },
   (props) => {
     const sandbox = ["allow-scripts", "allow-same-origin"];
@@ -55,7 +61,7 @@ let IFrameCompBase = new UICompBuilder(
     const src = regex.test(props.url) ? props.url : "about:blank";
     log.log(props.url, regex.test(props.url) ? props.url : "about:blank", src);
     return (
-      <Wrapper $style={props.style}>
+      <Wrapper $style={props.style} $animationStyle={props.animationStyle}>
         <iframe src={src} sandbox={sandbox.join(" ")} allow={allow.join(";")} />
       </Wrapper>
     );
@@ -79,9 +85,14 @@ let IFrameCompBase = new UICompBuilder(
       )}
 
       {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+        <>
         <Section name={sectionNames.style}>
           {children.style.getPropertyView()}
         </Section>
+        <Section name={sectionNames.animationStyle} hasTooltip={true}>
+          {children.animationStyle.getPropertyView()}
+          </Section>
+        </>
       )}
     </>
   ))

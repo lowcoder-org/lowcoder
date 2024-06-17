@@ -58,6 +58,7 @@ import { DisabledContext } from "comps/generators/uiCompBuilder";
 import { default as LoadingOutlined } from "@ant-design/icons/LoadingOutlined";
 import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 import { styled } from "styled-components";
+import { AnimationStyle, styleControl } from "@lowcoder-ee/index.sdk";
 
 const FormWrapper = styled.div`
   height: 100%;
@@ -78,6 +79,7 @@ const childrenMap = {
   disableSubmit: BoolCodeControl,
   loading: BoolCodeControl,
   onEvent: eventHandlerControl(eventOptions),
+  animationStyle:styleControl(AnimationStyle)
 };
 
 type FormProps = TriContainerViewProps &
@@ -234,6 +236,9 @@ const FormBaseComp = (function () {
             <>
               <Section name={sectionNames.style}>
                 {children.container.stylePropertyView()}
+              </Section>
+              <Section name={sectionNames.animationStyle} hasTooltip={true}>
+                {children.animationStyle.getPropertyView()}
               </Section>
               {children.container.children.showHeader.getView() && (
                 <Section name={"Header Style"}>
