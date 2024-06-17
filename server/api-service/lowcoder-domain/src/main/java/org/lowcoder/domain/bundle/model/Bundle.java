@@ -1,6 +1,7 @@
 package org.lowcoder.domain.bundle.model;
 
 
+import com.github.f4b6a3.uuid.UuidCreator;
 import jakarta.annotation.Nullable;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,7 +21,7 @@ import java.util.Map;
 @SuperBuilder
 public class Bundle extends HasIdAndAuditing {
     @Getter
-    private String gid = UUID.randomUUID().toString();
+    private String gid = UuidCreator.getTimeOrderedEpoch().toString();
     private String organizationId;
     @Nullable
     private String name;

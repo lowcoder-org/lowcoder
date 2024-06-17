@@ -103,7 +103,7 @@ public class OrganizationServiceImpl implements OrganizationService {
 
     private Mono<Boolean> joinOrganizationInEnterpriseMode(String userId) {
         return getOrganizationInEnterpriseMode()
-                .flatMap(organization -> orgMemberService.addMember(organization.getId(), userId, MemberRole.MEMBER))
+                .flatMap(organization -> orgMemberService.addMember(organization.getGid(), userId, MemberRole.MEMBER))
                 .defaultIfEmpty(false);
     }
 
@@ -164,12 +164,19 @@ public class OrganizationServiceImpl implements OrganizationService {
 
     @Override
     public Mono<Organization> getById(String id) {
+        if(FieldName.isGID(id))
+            return repository.findByGidAndState(id, ACTIVE)
+                    .switchIfEmpty(deferredError(UNABLE_TO_FIND_VALID_ORG, "INVALID_ORG_ID"));
         return repository.findByIdAndState(id, ACTIVE)
                 .switchIfEmpty(deferredError(UNABLE_TO_FIND_VALID_ORG, "INVALID_ORG_ID"));
     }
 
     @Override
     public Mono<OrganizationCommonSettings> getOrgCommonSettings(String orgId) {
+        if(FieldName.isGID(orgId))
+            return repository.findByGidAndState(orgId, ACTIVE)
+                    .switchIfEmpty(deferredError(UNABLE_TO_FIND_VALID_ORG, "INVALID_ORG_ID"))
+                    .map(Organization::getCommonSettings);
         return repository.findByIdAndState(orgId, ACTIVE)
                 .switchIfEmpty(deferredError(UNABLE_TO_FIND_VALID_ORG, "INVALID_ORG_ID"))
                 .map(Organization::getCommonSettings);
@@ -177,6 +184,8 @@ public class OrganizationServiceImpl implements OrganizationService {
 
     @Override
     public Flux<Organization> getByIds(Collection<String> ids) {
+        if(!ids.isEmpty() && FieldName.isGID(ids.stream().findFirst().get()))
+            return repository.findByIdGinAndState(ids, ACTIVE);
         return repository.findByIdInAndState(ids, ACTIVE);
     }
 
@@ -203,7 +212,10 @@ public class OrganizationServiceImpl implements OrganizationService {
 
     @Override
     public Mono<Boolean> deleteLogo(String organizationId) {
-        return repository.findByIdAndState(organizationId, ACTIVE)
+        Mono<Organization> organizationMono;
+        if(FieldName.isGID(organizationId)) organizationMono = repository.findByGidAndState(organizationId, ACTIVE);
+        else organizationMono = repository.findByIdAndState(organizationId, ACTIVE);
+        return organizationMono
                 .flatMap(organization -> {
                     // delete from asset repo.
                     final String prevAssetId = organization.getLogoAssetId();

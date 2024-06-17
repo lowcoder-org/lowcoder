@@ -9,6 +9,7 @@ import static org.lowcoder.domain.application.ApplicationUtil.getDependentModule
 import java.util.*;
 import java.util.function.Supplier;
 
+import com.github.f4b6a3.uuid.UuidCreator;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -36,7 +37,7 @@ import lombok.Builder;
 @NoArgsConstructor
 public class Application extends HasIdAndAuditing {
     @Getter
-    private String gid = UUID.randomUUID().toString();
+    private String gid = UuidCreator.getTimeOrderedEpoch().toString();
     private String organizationId;
     private String name;
     private Integer applicationType;
