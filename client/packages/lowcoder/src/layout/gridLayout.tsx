@@ -52,6 +52,7 @@ import {
   updateInCanvasCount,
 } from "./utils";
 import { CompTypeContext } from "@lowcoder-ee/comps/utils/compTypeContext";
+import { CompContext } from "@lowcoder-ee/comps/utils/compContext";
 
 type GridLayoutState = {
   layout: Layout;
@@ -443,55 +444,60 @@ class GridLayout extends React.Component<GridLayoutProps, GridLayoutState> {
     const selectable = isSelectable;
     const positionParams = genPositionParams(this.props);
     return (
-      <CompTypeContext.Provider value={extraItem?.compType}>
-        <GridItem
-          compType={extraItem?.compType}
-          key={item.i}
-          containerWidth={width}
-          cols={cols}
-          margin={margin}
-          containerPadding={positionParams.containerPadding}
-          maxRows={maxRows}
-          rowHeight={rowHeight}
-          onDragStart={this.onDragStart}
-          onDrag={this.onDrag}
-          onDragEnd={this.onDragEnd}
-          onResizeStart={this.onResizeStart}
-          onResize={this.onResize}
-          onResizeStop={this.onResizeStop}
-          onHeightChange={this.onHeightChange}
-          isDraggable={isDraggable && isItemDraggable(item)}
-          isResizable={isResizable && isItemResizable(item)}
-          isSelectable={selectable}
-          transformScale={transformScale}
-          w={item.w}
-          h={extraItem?.hidden && !extraItem?.isSelected ? 0 : item.h}
-          x={item.x}
-          y={item.y}
-          i={item.i}
-          minH={item.minH}
-          minW={item.minW}
-          maxH={item.maxH}
-          maxW={item.maxW}
-          placeholder={item.placeholder}
-          layoutHide={item.hide}
-          static={item.static}
-          resizeHandles={getItemResizeHandles(item, extraItem)}
-          name={extraItem?.name}
-          autoHeight={extraItem?.autoHeight}
-          isSelected={extraItem?.isSelected}
-          hidden={extraItem?.hidden}
-          selectedSize={selectedSize}
-          clickItem={clickItem}
-          showName={{
-            top: showName?.top ?? 0,
-            bottom: (showName?.bottom ?? 0) + (this.ref.current?.scrollHeight ?? 0),
-          }}
-          zIndex={zIndex}
-        >
-          {child}
-        </GridItem>
-      </CompTypeContext.Provider>
+      <CompContext.Provider value={{
+        compType: extraItem?.compType,
+        comp: extraItem?.comp?.toJsonValue(),
+      }}>
+        <CompTypeContext.Provider value={extraItem?.compType}>
+          <GridItem
+            compType={extraItem?.compType}
+            key={item.i}
+            containerWidth={width}
+            cols={cols}
+            margin={margin}
+            containerPadding={positionParams.containerPadding}
+            maxRows={maxRows}
+            rowHeight={rowHeight}
+            onDragStart={this.onDragStart}
+            onDrag={this.onDrag}
+            onDragEnd={this.onDragEnd}
+            onResizeStart={this.onResizeStart}
+            onResize={this.onResize}
+            onResizeStop={this.onResizeStop}
+            onHeightChange={this.onHeightChange}
+            isDraggable={isDraggable && isItemDraggable(item)}
+            isResizable={isResizable && isItemResizable(item)}
+            isSelectable={selectable}
+            transformScale={transformScale}
+            w={item.w}
+            h={extraItem?.hidden && !extraItem?.isSelected ? 0 : item.h}
+            x={item.x}
+            y={item.y}
+            i={item.i}
+            minH={item.minH}
+            minW={item.minW}
+            maxH={item.maxH}
+            maxW={item.maxW}
+            placeholder={item.placeholder}
+            layoutHide={item.hide}
+            static={item.static}
+            resizeHandles={getItemResizeHandles(item, extraItem)}
+            name={extraItem?.name}
+            autoHeight={extraItem?.autoHeight}
+            isSelected={extraItem?.isSelected}
+            hidden={extraItem?.hidden}
+            selectedSize={selectedSize}
+            clickItem={clickItem}
+            showName={{
+              top: showName?.top ?? 0,
+              bottom: (showName?.bottom ?? 0) + (this.ref.current?.scrollHeight ?? 0),
+            }}
+            zIndex={zIndex}
+          >
+            {child}
+          </GridItem>
+        </CompTypeContext.Provider>
+      </CompContext.Provider>
     );
   }
 

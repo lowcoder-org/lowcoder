@@ -293,9 +293,10 @@ const getExtraLayout = (
     const autoHeight = item.autoHeight;
     const name = item.name;
     const compType = item.compType;
+    const comp = item.comp;
     const isSelected = selectedCompNames.has(name) || dragSelectedNames?.has?.(name);
     const hidden = item.hidden;
-    return { autoHeight, isSelected, name, hidden, compType };
+    return { autoHeight, isSelected, name, hidden, compType, comp };
   });
 };
 

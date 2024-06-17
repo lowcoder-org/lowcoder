@@ -27,6 +27,7 @@ import { ThemeContext } from "../utils/themeContext";
 import { CompTypeContext } from "../utils/compTypeContext";
 import { changeChildAction } from "lowcoder-core";
 import { setInitialCompStyles } from "../utils/themeUtil";
+import { BoolControl } from "../controls/boolControl";
 
 const getStyle = (style: TextStyleType) => {
   return css`
@@ -141,6 +142,7 @@ let TextTmpComp = (function () {
     animationStyle: styleControl(AnimationStyle, 'animationStyle'),
     margin: MarginControl,
     padding: PaddingControl,
+    themeApplied: BoolControl,
   };
   return new UICompBuilder(childrenMap, (props, dispatch) => {
     const value = props.text.value;
@@ -154,6 +156,7 @@ let TextTmpComp = (function () {
     });
 
     useEffect(() => {
+      if (props.themeApplied) return;
       setInitialCompStyles({
         dispatch,
         compTheme,

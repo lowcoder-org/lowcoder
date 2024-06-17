@@ -45,6 +45,7 @@ import { Card, Collapse, CollapseProps, Divider, Flex, List, Tooltip } from 'ant
 
 import { ThemeCompPanel } from "pages/setting/theme/ThemeCompPanel";
 import { JSONObject } from "@lowcoder-ee/util/jsonTypes";
+import Switch from "antd/es/switch";
 
 const ThemeSettingsView = styled.div`
   font-size: 14px;
@@ -75,6 +76,7 @@ type LocationProp = {
   name: string;
   id: string;
   type: DETAIL_TYPE;
+  overwriteStyles?: boolean;
 };
 
 type ThemeDetailPageProps = {
@@ -97,6 +99,7 @@ type ThemeDetailPageState = {
 
 class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailPageState> {
   themeDefault: ThemeDetail;
+  overwriteStyles: boolean;
   readonly id: string;
   readonly type: string;
   readonly inputRef: React.RefObject<InputRef>;
@@ -104,8 +107,7 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
 
   constructor(props: ThemeDetailPageProps) {
     super(props);
-    const { name, id, theme, type } = props.location.state || {};
-    console.log("defaultTheme", theme);
+    const { name, id, theme, type, overwriteStyles } = props.location.state || {};
     if (!name || !id || !theme || !type) {
       history.replace(BASE_URL);
       window.location.reload();
@@ -122,6 +124,7 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
 
     this.id = id;
     this.type = type;
+    this.overwriteStyles = Boolean(overwriteStyles);
     this.state = {
       theme,
       name,
@@ -133,6 +136,36 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
 
   handleReset() {
     this.setState({ theme: this.themeDefault });
+  }
+
+  handleOverwriteStyles(overwriteStyles: boolean) {
+    this.props.fetchCommonSettings(this.props.orgId, ({ themeList }) => {
+      let list = [];
+      const currentTheme = {
+        name: this.state.name,
+        id: this.id,
+        updateTime: new Date().getTime(),
+        theme: this.themeDefault,
+        overwriteStyles: overwriteStyles,
+      };
+      list = themeList!.map((theme) => {
+        if (theme.id === this.id) {
+          return currentTheme;
+        } else {
+          return theme;
+        }
+      });
+
+      this.props.setCommonSettings({
+        orgId: this.props.orgId,
+        data: { key: "themeList", value: list },
+        onSuccess: () => {
+          messageInstance.success(trans("theme.saveSuccessMsg"));
+          this.themeDefault = this.state.theme;
+          this.overwriteStyles = overwriteStyles;
+        },
+      });
+    });
   }
 
   handleSave() {
@@ -343,6 +376,15 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
               <ArrowIcon />
               <span>{this.state.name}</span>
             </HeaderBack>
+            <Flex gap={8}>
+              <b style={{margin: 0}}>
+                Overwrite styles
+              </b>
+              <Switch defaultValue={this.overwriteStyles} onChange={() => {
+                console.log('change');
+                this.handleOverwriteStyles(!this.overwriteStyles)
+              }}/>
+            </Flex>
           </Header>
 
           <DetailContent>

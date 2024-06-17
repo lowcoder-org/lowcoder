@@ -40,6 +40,7 @@ export function setInitialCompStyles({
       ...styleProps[styleKey],
     }, false);
   })
+  actions['themeApplied'] = changeValueAction(true, false);
 
   dispatch(
     multiChangeAction(actions),

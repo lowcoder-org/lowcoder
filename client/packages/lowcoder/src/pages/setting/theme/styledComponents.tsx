@@ -134,7 +134,10 @@ export const Footer = styled.div`
 `;
 
 export const Header = styled.div`
-  margin: 0 0 37px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 0 24px 37px 24px;
 `;
 
 export const DetailTitle = styled.div`

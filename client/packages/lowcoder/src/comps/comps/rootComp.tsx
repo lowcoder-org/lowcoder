@@ -70,7 +70,9 @@ function RootView(props: RootViewProps) {
     previewTheme?.previewTheme ||
     getCurrentTheme(themeList, appThemeId)?.theme ||
     localDefaultTheme;
-
+  
+  const overwriteStyles = Boolean(getCurrentTheme(themeList, appThemeId)?.overwriteStyles);
+  
   useEffect(() => {
     const newEditorState = new EditorState(comp, (changeEditorStateFn) => {
       setEditorState((oldState) => (oldState ? changeEditorStateFn(oldState) : undefined));
@@ -90,6 +92,7 @@ function RootView(props: RootViewProps) {
   const themeContextValue = useMemo(
     () => ({
       theme,
+      overwriteStyles,
     }),
     [theme]
   );

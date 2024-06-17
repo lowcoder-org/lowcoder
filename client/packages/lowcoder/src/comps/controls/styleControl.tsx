@@ -82,6 +82,7 @@ import appSelectControl from "./appSelectControl";
 import { JSONObject, JSONValue } from "@lowcoder-ee/util/jsonTypes";
 import { CompTypeContext } from "../utils/compTypeContext";
 import { defaultTheme } from "@lowcoder-ee/constants/themeConstants";
+import { CompContext } from "../utils/compContext";
 
 function isSimpleColorConfig(config: SingleColorConfig): config is SimpleColorConfig {
   return config.hasOwnProperty("color");
@@ -856,9 +857,11 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
   return new ControlItemCompBuilder(
     childrenMap as ToConstructor<{ [K in Names<T>]: ColorControl }>,
     (props) => {
-      const compType = useContext(CompTypeContext);
+      // const compType = useContext(CompTypeContext);
+      const {comp, compType} = useContext(CompContext);
       const theme = useContext(ThemeContext);
       const bgColor = useContext(BackgroundColorContext);
+      const { overwriteStyles } = theme || {}; 
       const compTheme = compType
         ? {
             ...(defaultTheme.components?.[compType]?.[styleKey] || {}) as unknown as Record<string, string>,
@@ -867,7 +870,7 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
         : undefined;
 
       return calcColors(
-        props as ColorMap,
+        overwriteStyles && !Boolean(comp?.comp?.themeApplied) ? {} as ColorMap : props as ColorMap,
         colorConfigs,
         theme?.theme,
         bgColor,
