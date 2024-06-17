@@ -20,6 +20,9 @@ import {
 } from "base/codeEditor/codeMirror";
 import { useExtensions } from "base/codeEditor/extensions";
 import { EditorContext } from "comps/editorState";
+import { setInitialCompStyles } from "@lowcoder-ee/comps/utils/themeUtil";
+import { CompTypeContext } from "@lowcoder-ee/comps/utils/compTypeContext";
+import { ThemeContext } from "@lowcoder-ee/comps/utils/themeContext";
 
 /**
  * JsonEditor Comp
@@ -65,14 +68,29 @@ const childrenMap = {
   value: jsonValueExposingStateControl("value", defaultData),
   onEvent: ChangeEventHandlerControl,
   label: withDefault(LabelControl, { position: "column" }),
-  style: styleControl(JsonEditorStyle),
-  animationStyle: styleControl(AnimationStyle),
-
+  style: styleControl(JsonEditorStyle, 'style'),
+  animationStyle: styleControl(AnimationStyle , 'animationStyle'),
   ...formDataChildren,
 };
 
 let JsonEditorTmpComp = (function () {
-  return new UICompBuilder(childrenMap, (props) => {
+  return new UICompBuilder(childrenMap, (props, dispatch) => {
+    const theme = useContext(ThemeContext);
+    const compType = useContext(CompTypeContext);
+    const compTheme = theme?.theme?.components?.[compType];
+    const styleProps: Record<string, any> = {};
+    ['style', 'animationStyle'].forEach((key: string) => {
+      styleProps[key] = (props as any)[key];
+    });
+
+    useEffect(() => {
+      setInitialCompStyles({
+        dispatch,
+        compTheme,
+        styleProps,
+      });
+    }, []);
+
     const wrapperRef = useRef<HTMLDivElement>(null);
     const view = useRef<EditorViewType | null>(null);
     const editContent = useRef<string>();

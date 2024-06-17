@@ -13,6 +13,10 @@ import { EllipsisTextCss, ValueFromOption } from "lowcoder-design";
 import { trans } from "i18n";
 import { fixOldInputCompData } from "../textInputComp/textInputConstants";
 import { migrateOldData } from "comps/generators/simpleGenerators";
+import { ThemeContext } from "../../utils/themeContext";
+import { useContext, useEffect } from "react";
+import { CompTypeContext } from "../../utils/compTypeContext";
+import { setInitialCompStyles } from "../../utils/themeUtil";
 
 const getStyle = (style: RadioStyleType, inputFieldStyle?:RadioStyleType ) => {
   return css`
@@ -97,7 +101,23 @@ const Radio = styled(AntdRadioGroup)<{
 `;
 
 let RadioBasicComp = (function () {
-  return new UICompBuilder(RadioChildrenMap, (props) => {
+  return new UICompBuilder(RadioChildrenMap, (props, dispatch) => {
+    const theme = useContext(ThemeContext);
+    const compType = useContext(CompTypeContext);
+    const compTheme = theme?.theme?.components?.[compType];
+    const styleProps: Record<string, any> = {};
+    ['style', 'labelStyle', 'inputFieldStyle', 'animationStyle'].forEach((key: string) => {
+      styleProps[key] = (props as any)[key];
+    });
+
+    useEffect(() => {
+      setInitialCompStyles({
+        dispatch,
+        compTheme,
+        styleProps,
+      });
+    }, []);
+
     const [
       validateState,
       handleChange,

@@ -7,6 +7,10 @@ import { formDataChildren, FormDataPropertyView } from "../formComp/formDataCons
 import { SliderChildren, SliderPropertyView, SliderStyled, SliderWrapper } from "./sliderCompConstants";
 import { hasIcon } from "comps/utils";
 import { BoolControl } from "comps/controls/boolControl";
+import { ThemeContext } from "../../utils/themeContext";
+import { useContext, useEffect } from "react";
+import { CompTypeContext } from "../../utils/compTypeContext";
+import { setInitialCompStyles } from "../../utils/themeUtil";
 
 const SliderBasicComp = (function () {
   /**
@@ -18,7 +22,24 @@ const SliderBasicComp = (function () {
     vertical: BoolControl,
     ...formDataChildren,
   };
-  return new UICompBuilder(childrenMap, (props) => {
+  return new UICompBuilder(childrenMap, (props, dispatch) => {
+    const theme = useContext(ThemeContext);
+    const compType = useContext(CompTypeContext);
+    console.log("compType", compType)
+    const compTheme = theme?.theme?.components?.[compType];
+    const styleProps: Record<string, any> = {};
+    ['style', 'labelStyle', 'inputFieldStyle', 'animationStyle'].forEach((key: string) => {
+      styleProps[key] = (props as any)[key];
+    });
+
+    useEffect(() => {
+      setInitialCompStyles({
+        dispatch,
+        compTheme,
+        styleProps,
+      });
+    }, []);
+
     return props.label({
       style: props.style,
       labelStyle: props.labelStyle,

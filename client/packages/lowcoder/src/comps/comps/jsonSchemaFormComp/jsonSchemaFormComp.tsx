@@ -23,8 +23,11 @@ import ErrorBoundary from "./errorBoundary";
 import { Theme } from "@rjsf/antd";
 import { hiddenPropertyView } from "comps/utils/propertyUtils";
 
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import { EditorContext } from "comps/editorState";
+import { ThemeContext } from '../../utils/themeContext';
+import { CompTypeContext } from '../../utils/compTypeContext';
+import { setInitialCompStyles } from '../../utils/themeUtil';
 
 Theme.widgets.DateWidget = DateWidget(false);
 Theme.widgets.DateTimeWidget = DateWidget(true);
@@ -191,10 +194,26 @@ let FormBasicComp = (function () {
     uiSchema: jsonObjectControl(i18nObjs.jsonForm.defaultUiSchema),
     data: jsonObjectExposingStateControl("data", i18nObjs.jsonForm.defaultFormData),
     onEvent: eventHandlerControl(EventOptions),
-    style: styleControl(JsonSchemaFormStyle),
-    animationStyle: styleControl(AnimationStyle),
+    style: styleControl(JsonSchemaFormStyle , 'style'),
+    animationStyle: styleControl(AnimationStyle , 'animationStyle'),
   };
-  return new UICompBuilder(childrenMap, (props) => {
+  return new UICompBuilder(childrenMap, (props, dispatch) => {
+    const theme = useContext(ThemeContext);
+    const compType = useContext(CompTypeContext);
+    const compTheme = theme?.theme?.components?.[compType];
+    const styleProps: Record<string, any> = {};
+    ['style','animationStyle'].forEach((key: string) => {
+      styleProps[key] = (props as any)[key];
+    });
+
+    useEffect(() => {
+      setInitialCompStyles({
+        dispatch,
+        compTheme,
+        styleProps,
+      });
+    }, []);
+
     // rjsf 4.20 supports ui:submitButtonOptions, but if the button is customized, it will not take effect. Here we implement it ourselves
     const buttonOptions = props?.uiSchema?.[
       "ui:submitButtonOptions"

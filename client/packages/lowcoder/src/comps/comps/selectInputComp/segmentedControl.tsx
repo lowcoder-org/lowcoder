@@ -23,10 +23,13 @@ import { trans } from "i18n";
 import { hasIcon } from "comps/utils";
 import { RefControl } from "comps/controls/refControl";
 
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import { EditorContext } from "comps/editorState";
 import { migrateOldData, withDefault } from "comps/generators/simpleGenerators";
 import { fixOldInputCompData } from "../textInputComp/textInputConstants";
+import { ThemeContext } from "../../utils/themeContext";
+import { CompTypeContext } from "../../utils/compTypeContext";
+import { setInitialCompStyles } from "../../utils/themeUtil";
 
 
 const getStyle = (style: SegmentStyleType) => {
@@ -77,8 +80,8 @@ const SegmentChildrenMap = {
   disabled: BoolCodeControl,
   onEvent: ChangeEventHandlerControl,
   options: SelectOptionControl,
-  style: withDefault(styleControl(SegmentStyle), { borderWidth: '1px' }),
-  animationStyle:styleControl(AnimationStyle),
+  style: styleControl(SegmentStyle, 'style'),
+  animationStyle: styleControl(AnimationStyle, 'animationStyle'),
   viewRef: RefControl<HTMLDivElement>,
 
   ...SelectInputValidationChildren,
@@ -86,7 +89,23 @@ const SegmentChildrenMap = {
 };
 
 let SegmentedControlBasicComp = (function () {
-  return new UICompBuilder(SegmentChildrenMap, (props) => {
+  return new UICompBuilder(SegmentChildrenMap, (props, dispatch) => {
+    const theme = useContext(ThemeContext);
+    const compType = useContext(CompTypeContext);
+    const compTheme = theme?.theme?.components?.[compType];
+    const styleProps: Record<string, any> = {};
+    ['style', 'animationStyle'].forEach((key: string) => {
+      styleProps[key] = (props as any)[key];
+    });
+
+    useEffect(() => {
+      setInitialCompStyles({
+        dispatch,
+        compTheme,
+        styleProps,
+      });
+    }, []);
+  
     const [
       validateState,
       handleChange,

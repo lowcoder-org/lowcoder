@@ -40,7 +40,7 @@ import {
 } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { TIME_FORMAT, TimeParser } from "util/dateTimeUtils";
-import React, { ReactNode, useContext } from "react";
+import React, { ReactNode, useContext, useEffect } from "react";
 import { IconControl } from "comps/controls/iconControl";
 import { hasIcon } from "comps/utils";
 import { Section, sectionNames } from "components/Section";
@@ -52,6 +52,9 @@ import { CommonPickerMethods } from "antd/es/date-picker/generatePicker/interfac
 import { TimePickerProps } from "antd/es/time-picker";
 
 import { EditorContext } from "comps/editorState";
+import { ThemeContext } from "@lowcoder-ee/comps/utils/themeContext";
+import { CompTypeContext } from "@lowcoder-ee/comps/utils/compTypeContext";
+import { setInitialCompStyles } from "@lowcoder-ee/comps/utils/themeUtil";
 
 const EventOptions = [changeEvent, focusEvent, blurEvent] as const;
 
@@ -73,7 +76,7 @@ const commonChildren = {
   hourStep: RangeControl.closed(1, 24, 1),
   minuteStep: RangeControl.closed(1, 60, 1),
   secondStep: RangeControl.closed(1, 60, 1),
-  style: withDefault(styleControl(DateTimeStyle),{background:'transparent',borderWidth:'1px'}),
+  style: styleControl(DateTimeStyle, 'style'),
   suffixIcon: withDefault(IconControl, "/icon:regular/clock"),
   viewRef: RefControl<CommonPickerMethods>,
   ...validationChildren,
@@ -136,7 +139,23 @@ export type TimeCompViewProps = Pick<
   placeholder?: string | [string, string];
 };
 
-export const timePickerControl = new UICompBuilder(childrenMap, (props) => {
+export const timePickerControl = new UICompBuilder(childrenMap, (props, dispatch) => {
+  const theme = useContext(ThemeContext);
+  const compType = useContext(CompTypeContext);
+  const compTheme = theme?.theme?.components?.[compType];
+  const styleProps: Record<string, any> = {};
+  ['style'].forEach((key: string) => {
+    styleProps[key] = (props as any)[key];
+  });
+
+  useEffect(() => {
+    setInitialCompStyles({
+      dispatch,
+      compTheme,
+      styleProps,
+    });
+  }, []);
+
   let time = null;
   if(props.value.value !== '') {
     time = dayjs(props.value.value, TimeParser);
@@ -231,7 +250,24 @@ export const timeRangeControl = (function () {
     ...commonChildren,
   };
 
-  return new UICompBuilder(childrenMap, (props) => {
+  return new UICompBuilder(childrenMap, (props, dispatch) => {
+    const theme = useContext(ThemeContext);
+    const compType = useContext(CompTypeContext);
+    const compTheme = theme?.theme?.components?.[compType];
+    const styleProps: Record<string, any> = {};
+    ['style'].forEach((key: string) => {
+      styleProps[key] = (props as any)[key];
+    });
+
+    useEffect(() => {
+      setInitialCompStyles({
+        dispatch,
+        compTheme,
+        styleProps,
+      });
+    }, []);
+
+
     let start = null;
     if(props.start.value !== '') {
       start = dayjs(props.start.value, TimeParser);

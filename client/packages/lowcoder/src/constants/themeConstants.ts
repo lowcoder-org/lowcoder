@@ -55,6 +55,24 @@ const rating = {
   }
 }
 
+const time = {
+  style: {
+    background: 'transparent',
+    borderWidth:'1px'
+  },
+  inputFieldStyle: {
+    borderStyle: 'solid',
+    borderWidth: '1px',
+  },
+};
+
+const segmentedControl = {
+  style: {
+    borderWidth: '0px',
+  }
+};
+;
+
 export const defaultTheme: ThemeDetail = {
   primary: "#3377FF",
   textDark: "#222222",
@@ -83,5 +101,21 @@ export const defaultTheme: ThemeDetail = {
     table,
     link,
     rating,
+    password: input,
+    numberInput: input,
+    textArea: input,
+    autocomplete: input,
+    switch: input,
+    checkbox: input,
+    radio: input,
+    date: input,
+    dateRange: input,
+    time,
+    timeRange: time,
+    slider: input,
+    rangeSlider: input,
+    segmentedControl,
+    select: input,
+    multiSelect: input,
   },
 };

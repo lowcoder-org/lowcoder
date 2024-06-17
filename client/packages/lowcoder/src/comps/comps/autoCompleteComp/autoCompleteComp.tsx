@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Input, Section, sectionNames } from "lowcoder-design";
 import { BoolControl } from "comps/controls/boolControl";
 import { styleControl } from "comps/controls/styleControl";
@@ -55,7 +55,9 @@ import {
   autocompleteIconColor,
   componentSize,
 } from "./autoCompleteConstants";
-
+import { CompTypeContext } from "@lowcoder-ee/comps/utils/compTypeContext";
+import { setInitialCompStyles } from "@lowcoder-ee/comps/utils/themeUtil";
+import { ThemeContext } from "@lowcoder-ee/comps/utils/themeContext";
 
 
 const InputStyle = styled(Input) <{ $style: InputLikeStyleType }>`
@@ -76,8 +78,8 @@ const childrenMap = {
   ...textInputChildren,
   viewRef: RefControl<InputRef>,
   allowClear: BoolControl.DEFAULT_TRUE,
-  style: withDefault(styleControl(InputFieldStyle),{background:'transparent'}),
-  labelStyle:styleControl(LabelStyle),
+  style: styleControl(InputFieldStyle , 'style'),
+  labelStyle: styleControl(LabelStyle , 'labelStyle'),
   prefixIcon: IconControl,
   suffixIcon: IconControl,
   items: jsonControl(convertAutoCompleteData, autoCompleteDate),
@@ -90,8 +92,8 @@ const childrenMap = {
   autocompleteIconColor: dropdownControl(autocompleteIconColor, "blue"),
   componentSize: dropdownControl(componentSize, "small"),
   valueInItems: booleanExposingStateControl("valueInItems"),
-  inputFieldStyle: withDefault(styleControl(InputLikeStyle),{borderWidth:'1px'}),
-  animationStyle: styleControl(AnimationStyle),
+  inputFieldStyle: styleControl(InputLikeStyle , 'inputFieldStyle'),
+  animationStyle: styleControl(AnimationStyle , 'animationStyle'),
 };
 
 const getValidate = (value: any): "" | "warning" | "error" | undefined => {
@@ -104,7 +106,23 @@ const getValidate = (value: any): "" | "warning" | "error" | undefined => {
 };
 
 let AutoCompleteCompBase = (function () {
-  return new UICompBuilder(childrenMap, (props) => {
+  return new UICompBuilder(childrenMap, (props, dispatch) => {
+    const theme = useContext(ThemeContext);
+    const compType = useContext(CompTypeContext);
+    const compTheme = theme?.theme?.components?.[compType];
+    const styleProps: Record<string, any> = {};
+    ['style', 'labelStyle', 'inputFieldStyle', 'animationStyle'].forEach((key: string) => {
+      styleProps[key] = (props as any)[key];
+    });
+
+    useEffect(() => {
+      setInitialCompStyles({
+        dispatch,
+        compTheme,
+        styleProps,
+      });
+    }, []);
+
     const {
       items,
       onEvent,

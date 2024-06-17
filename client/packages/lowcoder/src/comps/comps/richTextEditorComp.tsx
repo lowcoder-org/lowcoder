@@ -26,6 +26,9 @@ import { RichTextEditorStyle, RichTextEditorStyleType } from "comps/controls/sty
 
 import { useContext } from "react";
 import { EditorContext } from "comps/editorState";
+import { setInitialCompStyles } from "../utils/themeUtil";
+import { ThemeContext } from "../utils/themeContext";
+import { CompTypeContext } from "../utils/compTypeContext";
 
 const localizeStyle = css`
   & .ql-snow {
@@ -172,7 +175,7 @@ const childrenMap = {
   placeholder: withDefault(StringControl, trans("richTextEditor.placeholder")),
   toolbar: withDefault(StringControl, JSON.stringify(toolbarOptions)),
   onEvent: ChangeEventHandlerControl,
-  style: styleControl(RichTextEditorStyle),
+  style: styleControl(RichTextEditorStyle , 'style'),
 
   ...formDataChildren,
 };
@@ -290,7 +293,23 @@ function RichTextEditor(props: IProps) {
   );
 }
 
-const RichTextEditorCompBase = new UICompBuilder(childrenMap, (props) => {
+const RichTextEditorCompBase = new UICompBuilder(childrenMap, (props, dispatch) => {
+  const theme = useContext(ThemeContext);
+  const compType = useContext(CompTypeContext);
+  const compTheme = theme?.theme?.components?.[compType];
+  const styleProps: Record<string, any> = {};
+  ['style'].forEach((key: string) => {
+    styleProps[key] = (props as any)[key];
+  });
+
+  useEffect(() => {
+    setInitialCompStyles({
+      dispatch,
+      compTheme,
+      styleProps,
+    });
+  }, []);
+
   const handleChange = (v: string) => {
     props.value.onChange(v);
     props.onEvent("change");

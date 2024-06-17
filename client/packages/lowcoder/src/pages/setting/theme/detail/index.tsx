@@ -346,7 +346,7 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
           </Header>
 
           <DetailContent>
-            <ThemeSettingsView>
+            {/* <ThemeSettingsView>
               <StyleThemeSettingsCover>
                 <ColorPickerCompIcon width={"36px"} style={{marginRight : "10px"}}/> <h2 style={{color: "#ffffff", marginTop : "8px"}}> {trans("theme.mainColor")}</h2>
               </StyleThemeSettingsCover>
@@ -506,7 +506,7 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
                   <PreviewApp style={{marginTop: '3px', height: "620px", width: "100%"}} theme={this.state.theme} dsl={dsl} />
                 </Flex>
               </Card>
-            </ThemeSettingsView>
+            </ThemeSettingsView> */}
 
             <ThemeSettingsView>
               <StyleThemeSettingsCover>
@@ -544,7 +544,7 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
               </Card>
             </ThemeSettingsView>
 
-            <ThemeSettingsView>
+            {/* <ThemeSettingsView>
               <StyleThemeSettingsCover>
                 <ChartCompIcon width={"36px"} style={{marginRight : "10px"}}/> <h2 style={{color: "#ffffff", marginTop : "8px"}}> {trans("theme.charts")}</h2>
               </StyleThemeSettingsCover>
@@ -576,7 +576,7 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
                   <PreviewApp style={{ height: "380px", width: "100%", margin: "0" }} theme={this.state.theme} dsl={chartDsl} />
                 </Flex>
               </Card>
-            </ThemeSettingsView>
+            </ThemeSettingsView> */}
 
           </DetailContent>
 

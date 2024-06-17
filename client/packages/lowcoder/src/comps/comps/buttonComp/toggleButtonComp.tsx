@@ -23,8 +23,11 @@ import {
 import { styleControl } from "comps/controls/styleControl";
 import { BoolControl } from "comps/controls/boolControl";
 import { RefControl } from "comps/controls/refControl";
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import { EditorContext } from "comps/editorState"; 
+import { ThemeContext } from "@lowcoder-ee/comps/utils/themeContext";
+import { CompTypeContext } from "@lowcoder-ee/comps/utils/compTypeContext";
+import { setInitialCompStyles } from "@lowcoder-ee/comps/utils/themeUtil";
 
 const IconWrapper = styled.div`
   display: flex;
@@ -60,15 +63,31 @@ const ToggleTmpComp = (function () {
     falseIcon: withDefault(IconControl, "/icon:solid/AngleDown"),
     iconPosition: LeftRightControl,
     alignment: AlignWithStretchControl,
-    style: styleControl(ToggleButtonStyle),
-    animationStyle: styleControl(AnimationStyle),
+    style: styleControl(ToggleButtonStyle , 'style'),
+    animationStyle: styleControl(AnimationStyle , 'animationStyle'),
     showBorder: withDefault(BoolControl, true),
     viewRef: RefControl<HTMLElement>,
   };
-  return new UICompBuilder(childrenMap, (props) => {
+  return new UICompBuilder(childrenMap, (props, dispatch) => {
     const text = props.showText
       ? (props.value.value ? props.trueText : props.falseText) || undefined
       : undefined;
+    const theme = useContext(ThemeContext);
+    const compType = useContext(CompTypeContext);
+    const compTheme = theme?.theme?.components?.[compType];
+    const styleProps: Record<string, any> = {};
+    ['style',  'animationStyle'].forEach((key: string) => {
+      styleProps[key] = (props as any)[key];
+    });
+
+    useEffect(() => {
+      setInitialCompStyles({
+        dispatch,
+        compTheme,
+        styleProps,
+      });
+    }, []);
+
     return (
       <ButtonCompWrapperStyled
         disabled={props.disabled}

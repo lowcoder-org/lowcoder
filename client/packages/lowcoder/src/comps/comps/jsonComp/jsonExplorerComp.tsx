@@ -10,9 +10,12 @@ import { ArrayOrJSONObjectControl, NumberControl } from "comps/controls/codeCont
 import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { EditorContext } from "comps/editorState";
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import { AnimationStyle, AnimationStyleType } from "@lowcoder-ee/comps/controls/styleControlConstants";
 import { styleControl } from "@lowcoder-ee/comps/controls/styleControl";
+import { ThemeContext } from "@lowcoder-ee/comps/utils/themeContext";
+import { CompTypeContext } from "@lowcoder-ee/comps/utils/compTypeContext";
+import { setInitialCompStyles } from "@lowcoder-ee/comps/utils/themeUtil";
 
 /**
  * JsonExplorer Comp
@@ -55,23 +58,41 @@ let JsonExplorerTmpComp = (function () {
     indent: withDefault(NumberControl, 4),
     expandToggle: BoolControl.DEFAULT_TRUE,
     theme: dropdownControl(themeOptions, 'shapeshifter:inverted'),
-    animationStyle: styleControl(AnimationStyle),
+    animationStyle:styleControl(AnimationStyle, 'animationStyle'),
   };
-  return new UICompBuilder(childrenMap, (props) => (
-    <JsonExplorerContainer
-      $theme={props.theme as keyof typeof bgColorMap}
-      $animationStyle={props.animationStyle}
-    >
-      <ReactJson
-        name={false}
-        src={props.value}
-        theme={props.theme as ThemeKeys}
-        collapsed={!props.expandToggle}
-        displayDataTypes={false}
-        indentWidth={props.indent}
-      />
-    </JsonExplorerContainer>
-  ))
+  return new UICompBuilder(childrenMap, (props, dispatch) => {
+    const theme = useContext(ThemeContext);
+    const compType = useContext(CompTypeContext);
+    const compTheme = theme?.theme?.components?.[compType];
+    const styleProps: Record<string, any> = {};
+    ['animationStyle'].forEach((key: string) => {
+      styleProps[key] = (props as any)[key];
+    });
+
+    useEffect(() => {
+      setInitialCompStyles({
+        dispatch,
+        compTheme,
+        styleProps,
+      });
+    }, []);
+
+    return (
+      <JsonExplorerContainer
+        $theme={props.theme as keyof typeof bgColorMap}
+        $animationStyle={props.animationStyle}
+      >
+        <ReactJson
+          name={false}
+          src={props.value}
+          theme={props.theme as ThemeKeys}
+          collapsed={!props.expandToggle}
+          displayDataTypes={false}
+          indentWidth={props.indent}
+        />
+      </JsonExplorerContainer>
+    )
+  })
     .setPropertyViewFn((children) => {
       return (
         <>

@@ -34,9 +34,12 @@ import { RefControl } from "comps/controls/refControl";
 import { TextAreaRef } from "antd/es/input/TextArea";
 import { blurMethod, focusWithOptions } from "comps/utils/methodUtils";
 
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import { EditorContext } from "comps/editorState";
 import { migrateOldData } from "comps/generators/simpleGenerators";
+import { setInitialCompStyles } from "../../utils/themeUtil";
+import { ThemeContext } from "../../utils/themeContext";
+import { CompTypeContext } from "../../utils/compTypeContext";
 
 const TextAreaStyled = styled(TextArea)<{
   $style: InputLikeStyleType;
@@ -73,13 +76,29 @@ let TextAreaTmpComp = (function () {
     viewRef: RefControl<TextAreaRef>,
     allowClear: BoolControl,
     autoHeight: withDefault(AutoHeightControl, "fixed"),
-    style: withDefault(styleControl(InputFieldStyle),{background:'transparent'}) , 
-    labelStyle: styleControl(LabelStyle),
-    inputFieldStyle:  withDefault(styleControl(InputLikeStyle), {borderWidth: '1px'}),
-    animationStyle: styleControl(AnimationStyle)
+    style: styleControl(InputFieldStyle, 'style') , 
+    labelStyle: styleControl(LabelStyle ,'labelStyle' ),
+    inputFieldStyle: styleControl(InputLikeStyle , 'inputFieldStyle'),
+    animationStyle: styleControl(AnimationStyle, 'animationStyle')
   };
-  return new UICompBuilder(childrenMap, (props) => {
+  return new UICompBuilder(childrenMap, (props, dispatch) => {
     const [inputProps, validateState] = useTextInputProps(props);
+    const theme = useContext(ThemeContext);
+    const compType = useContext(CompTypeContext);
+    const compTheme = theme?.theme?.components?.[compType];
+    const styleProps: Record<string, any> = {};
+    ['style', 'labelStyle', 'inputFieldStyle', 'animationStyle'].forEach((key: string) => {
+      styleProps[key] = (props as any)[key];
+    });
+
+    useEffect(() => {
+      setInitialCompStyles({
+        dispatch,
+        compTheme,
+        styleProps,
+      });
+    }, []);
+
     return props.label({
       required: props.required,
       inputFieldStyle:props.inputFieldStyle,

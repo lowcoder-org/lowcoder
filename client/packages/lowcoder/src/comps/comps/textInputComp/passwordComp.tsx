@@ -25,7 +25,7 @@ import {
 } from "./textInputConstants";
 import { withMethodExposing } from "../../generators/withMethodExposing";
 import { styleControl } from "comps/controls/styleControl";
-import styled from "styled-components";
+import styled, { ThemeContext } from "styled-components";
 import {  AnimationStyle, InputFieldStyle, InputLikeStyle, InputLikeStyleType, LabelStyle } from "comps/controls/styleControlConstants";
 import {
   hiddenPropertyView,
@@ -39,9 +39,11 @@ import { trans } from "i18n";
 import { IconControl } from "comps/controls/iconControl";
 import { hasIcon } from "comps/utils";
 import { RefControl } from "comps/controls/refControl";
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import { EditorContext } from "comps/editorState";
 import { migrateOldData } from "comps/generators/simpleGenerators";
+import { CompTypeContext } from "../../utils/compTypeContext";
+import { setInitialCompStyles } from "../../utils/themeUtil";
 
 const PasswordStyle = styled(InputPassword)<{
   $style: InputLikeStyleType;
@@ -59,13 +61,29 @@ let PasswordTmpComp = (function () {
     validationType: dropdownControl(TextInputValidationOptions, "Regex"),
     visibilityToggle: BoolControl.DEFAULT_TRUE,
     prefixIcon: IconControl,
-    style: withDefault(styleControl(InputFieldStyle),{background:'transparent'}) , 
-    labelStyle: styleControl(LabelStyle),
-    inputFieldStyle: withDefault(styleControl(InputLikeStyle),{borderWidth: '1px'}), 
-    animationStyle: styleControl(AnimationStyle),
+    style: styleControl(InputFieldStyle ,'style' ) , 
+    labelStyle: styleControl(LabelStyle,'labelStyle'),
+    inputFieldStyle: styleControl(InputLikeStyle , 'inputFieldStyle'), 
+    animationStyle: styleControl(AnimationStyle , 'animationStyle'),
   };
-  return new UICompBuilder(childrenMap, (props) => {
+  return new UICompBuilder(childrenMap, (props, dispatch) => {
     const [inputProps, validateState] = useTextInputProps(props);
+    const theme = useContext(ThemeContext);
+    const compType = useContext(CompTypeContext);
+    const compTheme = theme?.theme?.components?.[compType];
+    const styleProps: Record<string, any> = {};
+    ['style', 'labelStyle', 'inputFieldStyle', 'animationStyle'].forEach((key: string) => {
+      styleProps[key] = (props as any)[key];
+    });
+
+    useEffect(() => {
+      setInitialCompStyles({
+        dispatch,
+        compTheme,
+        styleProps,
+      });
+    }, []);
+
     return props.label({
       required: props.required,
       children: (

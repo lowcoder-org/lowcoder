@@ -24,9 +24,12 @@ import {
 } from "./buttonCompConstants";
 import { RefControl } from "comps/controls/refControl";
 
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import { AnimationStyle } from "@lowcoder-ee/comps/controls/styleControlConstants";
 import { styleControl } from "@lowcoder-ee/comps/controls/styleControl";
+import { setInitialCompStyles } from "@lowcoder-ee/comps/utils/themeUtil";
+import { ThemeContext } from "@lowcoder-ee/comps/utils/themeContext";
+import { CompTypeContext } from "@lowcoder-ee/comps/utils/compTypeContext";
 
 const FormLabel = styled(CommonBlueLabel)`
   font-size: 13px;
@@ -131,35 +134,53 @@ const ButtonTmpComp = (function () {
     prefixIcon: IconControl,
     suffixIcon: IconControl,
     style: ButtonStyleControl,
-    animationStyle: styleControl(AnimationStyle),
+    animationStyle: styleControl(AnimationStyle, 'animationStyle'),
     viewRef: RefControl<HTMLElement>,
   };
-  return new UICompBuilder(childrenMap, (props) => (
-    <ButtonCompWrapper disabled={props.disabled}>
-      <EditorContext.Consumer>
-        {(editorState) => (
-          <Button100
-            ref={props.viewRef}
-            $buttonStyle={props.style}
-            loading={props.loading}
-            disabled={
-              props.disabled ||
-              (!isDefault(props.type) && getForm(editorState, props.form)?.disableSubmit())
-            }
-            onClick={() =>
-              isDefault(props.type) ? props.onEvent("click") : submitForm(editorState, props.form)
-            }
-          >
-            {props.prefixIcon && <IconWrapper>{props.prefixIcon}</IconWrapper>}
-            {
-              props.text || (props.prefixIcon || props.suffixIcon ? undefined : " ") // Avoid button disappearing
-            }
-            {props.suffixIcon && <IconWrapper>{props.suffixIcon}</IconWrapper>}
-          </Button100>
-        )}
-      </EditorContext.Consumer>
-    </ButtonCompWrapper>
-  ))
+  return new UICompBuilder(childrenMap, (props , dispatch) => {
+    const theme = useContext(ThemeContext);
+    const compType = useContext(CompTypeContext);
+    const compTheme = theme?.theme?.components?.[compType];
+    const styleProps: Record<string, any> = {};
+    ['style', 'animationStyle'].forEach((key: string) => {
+      styleProps[key] = (props as any)[key];
+    });
+
+    useEffect(() => {
+      setInitialCompStyles({
+        dispatch,
+        compTheme,
+        styleProps,
+      });
+    }, []);
+
+    return(
+      <ButtonCompWrapper disabled={props.disabled}>
+        <EditorContext.Consumer>
+          {(editorState) => (
+            <Button100
+              ref={props.viewRef}
+              $buttonStyle={props.style}
+              loading={props.loading}
+              disabled={
+                props.disabled ||
+                (!isDefault(props.type) && getForm(editorState, props.form)?.disableSubmit())
+              }
+              onClick={() =>
+                isDefault(props.type) ? props.onEvent("click") : submitForm(editorState, props.form)
+              }
+            >
+              {props.prefixIcon && <IconWrapper>{props.prefixIcon}</IconWrapper>}
+              {
+                props.text || (props.prefixIcon || props.suffixIcon ? undefined : " ") // Avoid button disappearing
+              }
+              {props.suffixIcon && <IconWrapper>{props.suffixIcon}</IconWrapper>}
+            </Button100>
+          )}
+        </EditorContext.Consumer>
+      </ButtonCompWrapper>
+    );
+  })
     .setPropertyViewFn((children) => (
       <>
         <Section name={sectionNames.basic}>

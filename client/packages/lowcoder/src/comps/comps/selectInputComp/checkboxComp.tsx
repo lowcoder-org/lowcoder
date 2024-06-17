@@ -24,6 +24,10 @@ import { trans } from "i18n";
 import { RefControl } from "comps/controls/refControl";
 import { migrateOldData } from "comps/generators/simpleGenerators";
 import { fixOldInputCompData } from "../textInputComp/textInputConstants";
+import { useContext, useEffect } from "react";
+import { setInitialCompStyles } from "../../utils/themeUtil";
+import { ThemeContext } from "../../utils/themeContext";
+import { CompTypeContext } from "../../utils/compTypeContext";
 
 export const getStyle = (style: CheckboxStyleType) => {
   return css`
@@ -146,16 +150,35 @@ let CheckboxBasicComp = (function () {
     disabled: BoolCodeControl,
     onEvent: ChangeEventHandlerControl,
     options: SelectInputOptionControl,
-    style: styleControl(InputFieldStyle),
-    labelStyle: styleControl(LabelStyle.filter((style) => ['accent', 'validate'].includes(style.name) === false)),
+    style: styleControl(InputFieldStyle , 'style'),
+    labelStyle: styleControl(
+      LabelStyle.filter((style) => ['accent', 'validate'].includes(style.name) === false),
+      'labelStyle',
+    ),
     layout: dropdownControl(RadioLayoutOptions, "horizontal"),
     viewRef: RefControl<HTMLDivElement>,
-    inputFieldStyle:styleControl(CheckboxStyle),
-    animationStyle:styleControl(AnimationStyle),
+    inputFieldStyle: styleControl(CheckboxStyle , 'inputFieldStyle'),
+    animationStyle: styleControl(AnimationStyle , 'animationStyle'),
     ...SelectInputValidationChildren,
     ...formDataChildren,
   };
-  return new UICompBuilder(childrenMap, (props) => {
+  return new UICompBuilder(childrenMap, (props, dispatch) => {
+    const theme = useContext(ThemeContext);
+    const compType = useContext(CompTypeContext);
+    const compTheme = theme?.theme?.components?.[compType];
+    const styleProps: Record<string, any> = {};
+    ['style', 'labelStyle', 'inputFieldStyle', 'animationStyle'].forEach((key: string) => {
+      styleProps[key] = (props as any)[key];
+    });
+
+    useEffect(() => {
+      setInitialCompStyles({
+        dispatch,
+        compTheme,
+        styleProps,
+      });
+    }, []);
+
     const [
       validateState,
       handleChange,

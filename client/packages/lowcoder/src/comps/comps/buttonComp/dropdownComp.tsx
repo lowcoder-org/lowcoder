@@ -9,7 +9,7 @@ import { UICompBuilder } from "comps/generators/uiCompBuilder";
 import { disabledPropertyView, hiddenPropertyView } from "comps/utils/propertyUtils";
 import { Section, sectionNames } from "lowcoder-design";
 import { trans } from "i18n";
-import React, { ReactElement, useContext } from "react";
+import React, { ReactElement, useContext, useEffect } from "react";
 import { EditorContext } from "comps/editorState";
 import styled from "styled-components";
 import { ButtonEventHandlerControl } from "../../controls/eventHandlerControl";
@@ -22,6 +22,9 @@ import {
   getButtonStyle,
 } from "./buttonCompConstants";
 import { styleControl } from "@lowcoder-ee/comps/controls/styleControl";
+import { ThemeContext } from "@lowcoder-ee/comps/utils/themeContext";
+import { CompTypeContext } from "@lowcoder-ee/comps/utils/compTypeContext";
+import { setInitialCompStyles } from "@lowcoder-ee/comps/utils/themeUtil";
 
 const StyledDropdownButton = styled(DropdownButton)`
   width: 100%;
@@ -85,9 +88,25 @@ const DropdownTmpComp = (function () {
     options: DropdownOptionControl,
     disabled: BoolCodeControl,
     onEvent: ButtonEventHandlerControl,
-    style: styleControl(DropdownStyle),
+    style: styleControl(DropdownStyle, 'style'),
   };
-  return new UICompBuilder(childrenMap, (props) => {
+  return new UICompBuilder(childrenMap, (props, dispatch) => {
+    const theme = useContext(ThemeContext);
+    const compType = useContext(CompTypeContext);
+    const compTheme = theme?.theme?.components?.[compType];
+    const styleProps: Record<string, any> = {};
+    ['style'].forEach((key: string) => {
+      styleProps[key] = (props as any)[key];
+    });
+
+    useEffect(() => {
+      setInitialCompStyles({
+        dispatch,
+        compTheme,
+        styleProps,
+      });
+    }, []);
+
     const hasIcon =
       props.options.findIndex((option) => (option.prefixIcon as ReactElement)?.props.value) > -1;
     const items = props.options

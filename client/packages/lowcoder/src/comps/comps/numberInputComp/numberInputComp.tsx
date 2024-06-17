@@ -54,6 +54,9 @@ import { useContext } from "react";
 import { EditorContext } from "comps/editorState";
 import { migrateOldData } from "comps/generators/simpleGenerators";
 import { fixOldInputCompData } from "../textInputComp/textInputConstants";
+import { ThemeContext } from "@lowcoder-ee/comps/utils/themeContext";
+import { CompTypeContext } from "@lowcoder-ee/comps/utils/compTypeContext";
+import { setInitialCompStyles } from "@lowcoder-ee/comps/utils/themeUtil";
 
 const getStyle = (style: InputLikeStyleType) => {
   return css`
@@ -259,13 +262,12 @@ const childrenMap = {
   allowNull: BoolControl,
   onEvent: InputEventHandlerControl,
   viewRef: RefControl<HTMLInputElement>,
-  style: withDefault(styleControl(InputFieldStyle),{background:'transparent'}) , 
-  labelStyle:styleControl(LabelStyle),
+  style: styleControl(InputFieldStyle , 'style') , 
+  labelStyle: styleControl(LabelStyle , 'labelStyle'),
   prefixText : stringExposingStateControl("defaultValue"),
-  animationStyle: styleControl(AnimationStyle),
-
+  animationStyle: styleControl(AnimationStyle , 'animationStyle'),
   prefixIcon: IconControl,
-  inputFieldStyle: withDefault(styleControl(InputLikeStyle), {borderWidth: '1px'}) ,
+  inputFieldStyle: styleControl(InputLikeStyle , 'inputFieldStyle'),
   // validation
   required: BoolControl,
   min: UndefinedNumberControl,
@@ -381,7 +383,23 @@ const CustomInputNumber = (props: RecordConstructorToView<typeof childrenMap>) =
 };
 
 let NumberInputTmpComp = (function () {
-  return new UICompBuilder(childrenMap, (props) => {
+  return new UICompBuilder(childrenMap, (props, dispatch) => {
+    const theme = useContext(ThemeContext);
+    const compType = useContext(CompTypeContext);
+    const compTheme = theme?.theme?.components?.[compType];
+    const styleProps: Record<string, any> = {};
+    ['style', 'labelStyle', 'inputFieldStyle', 'animationStyle'].forEach((key: string) => {
+      styleProps[key] = (props as any)[key];
+    });
+
+    useEffect(() => {
+      setInitialCompStyles({
+        dispatch,
+        compTheme,
+        styleProps,
+      });
+    }, []);
+
     return props.label({
       required: props.required,
       children: <CustomInputNumber {...props} />,
