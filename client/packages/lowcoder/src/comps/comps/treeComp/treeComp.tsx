@@ -33,6 +33,9 @@ import { SelectEventHandlerControl } from "comps/controls/eventHandlerControl";
 import { trans } from "i18n";
 import { useContext } from "react";
 import { EditorContext } from "comps/editorState";
+import { setInitialCompStyles } from "@lowcoder-ee/comps/utils/themeUtil";
+import { ThemeContext } from "@lowcoder-ee/comps/utils/themeContext";
+import { CompTypeContext } from "@lowcoder-ee/comps/utils/compTypeContext";
 
 type TreeStyleType = StyleConfigType<typeof TreeStyle>;
 
@@ -76,9 +79,9 @@ const childrenMap = {
   label: withDefault(LabelControl, { position: "column" }),
   // TODO: more event
   onEvent: SelectEventHandlerControl,
-  style: styleControl(InputFieldStyle),
-  labelStyle: styleControl(LabelStyle.filter((style) => ['accent', 'validate'].includes(style.name) === false)),
-  inputFieldStyle:styleControl(TreeStyle)
+  style: styleControl(InputFieldStyle , 'style'),
+  labelStyle: styleControl(LabelStyle.filter((style) => ['accent', 'validate'].includes(style.name) === false), 'labelStyle'),
+  inputFieldStyle:styleControl(TreeStyle, 'inputFieldStyle')
 };
 
 const TreeCompView = (props: RecordConstructorToView<typeof childrenMap>) => {
@@ -150,7 +153,27 @@ const TreeCompView = (props: RecordConstructorToView<typeof childrenMap>) => {
 };
 
 let TreeBasicComp = (function () {
-  return new UICompBuilder(childrenMap, (props) => <TreeCompView {...props} />)
+  return new UICompBuilder(childrenMap, (props , dispatch) => {
+
+    const theme = useContext(ThemeContext);
+    const compType = useContext(CompTypeContext);
+    const compTheme = theme?.theme?.components?.[compType];
+    const styleProps: Record<string, any> = {};
+    ['style', 'labelStyle', 'inputFieldStyle'].forEach((key: string) => {
+      styleProps[key] = (props as any)[key];
+    });
+
+    useEffect(() => {
+      setInitialCompStyles({
+        dispatch,
+        compTheme,
+        styleProps,
+      });
+    }, []);
+
+    
+    return(<TreeCompView {...props} />)}
+)
     .setPropertyViewFn((children) => (
       <>
         <Section name={sectionNames.basic}>

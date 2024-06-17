@@ -36,6 +36,9 @@ import { BaseSelectRef } from "rc-select";
 import { RefControl } from "comps/controls/refControl";
 import { useContext } from "react";
 import { EditorContext } from "comps/editorState";
+import { ThemeContext } from "@lowcoder-ee/comps/utils/themeContext";
+import { CompTypeContext } from "@lowcoder-ee/comps/utils/compTypeContext";
+import { setInitialCompStyles } from "@lowcoder-ee/comps/utils/themeUtil";
 
 const StyledTreeSelect = styled(TreeSelect)<{ $style: TreeSelectStyleType }>`
   width: 100%;
@@ -65,9 +68,9 @@ const childrenMap = {
   allowClear: BoolControl,
   showSearch: BoolControl.DEFAULT_TRUE,
   inputValue: stateComp<string>(""), // search value
-  style:styleControl(InputFieldStyle),
-  labelStyle:styleControl(LabelStyle),
-  inputFieldStyle: withDefault(styleControl(TreeSelectStyle), {borderWidth: '1px'}),
+  style:styleControl(InputFieldStyle , 'style'),
+  labelStyle:styleControl(LabelStyle  , 'labelStyle'),
+  inputFieldStyle: styleControl(TreeSelectStyle, 'inputFieldStyle'),
   viewRef: RefControl<BaseSelectRef>,
 };
 
@@ -145,9 +148,27 @@ const TreeCompView = (
 };
 
 let TreeBasicComp = (function () {
-  return new UICompBuilder(childrenMap, (props, dispatch) => (
+  return new UICompBuilder(childrenMap, (props, dispatch) => {
+    
+    const theme = useContext(ThemeContext);
+    const compType = useContext(CompTypeContext);
+    console.log("compType", compType)
+    const compTheme = theme?.theme?.components?.[compType];
+    const styleProps: Record<string, any> = {};
+    ['style', 'labelStyle', 'inputFieldStyle'].forEach((key: string) => {
+      styleProps[key] = (props as any)[key];
+    });
+
+    useEffect(() => {
+      setInitialCompStyles({
+        dispatch,
+        compTheme,
+        styleProps,
+      });
+    }, []);
+    return(
     <TreeCompView {...props} dispatch={dispatch} />
-  ))
+  )})
     .setPropertyViewFn((children) => (
       <>
         <Section name={sectionNames.basic}>
