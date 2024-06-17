@@ -346,7 +346,7 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
           </Header>
 
           <DetailContent>
-            {/* <ThemeSettingsView>
+            <ThemeSettingsView>
               <StyleThemeSettingsCover>
                 <ColorPickerCompIcon width={"36px"} style={{marginRight : "10px"}}/> <h2 style={{color: "#ffffff", marginTop : "8px"}}> {trans("theme.mainColor")}</h2>
               </StyleThemeSettingsCover>
@@ -386,7 +386,7 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
               </Card>
             </ThemeSettingsView>
 
-            <ThemeSettingsView>
+            {/* <ThemeSettingsView>
               <StyleThemeSettingsCover>
                 <TextSizeIcon width={"36px"} style={{marginRight : "10px"}}/> <h2 style={{color: "#ffffff", marginTop : "8px"}}> {trans("theme.fonts")}</h2>
               </StyleThemeSettingsCover>
@@ -425,7 +425,7 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
                   <PreviewApp style={{marginTop: '3px', height: "620px", width: "100%"}} theme={this.state.theme} dsl={dsl} />
                 </Flex>
               </Card>
-            </ThemeSettingsView>
+            </ThemeSettingsView> */}
 
             <ThemeSettingsView>
               <StyleThemeSettingsCover>
@@ -506,7 +506,7 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
                   <PreviewApp style={{marginTop: '3px', height: "620px", width: "100%"}} theme={this.state.theme} dsl={dsl} />
                 </Flex>
               </Card>
-            </ThemeSettingsView> */}
+            </ThemeSettingsView>
 
             <ThemeSettingsView>
               <StyleThemeSettingsCover>
@@ -514,7 +514,7 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
               </StyleThemeSettingsCover>
               <Card
                 bodyStyle={{
-                  padding: '0px'
+                  padding: '20px'
                 }}
                 style={{
                   marginBottom: "20px",

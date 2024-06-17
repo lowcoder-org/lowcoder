@@ -22,7 +22,7 @@ import {
   labelCss,
   sectionNames,
 } from "lowcoder-design";
-import { Flex, Input } from "antd";
+import { Card, Divider, Flex, Input } from "antd";
 import { genRandomKey } from "comps/utils/idGenerator";
 import dsl from "./detail/previewDsl";
 import { NameGenerator } from "comps/utils";
@@ -305,7 +305,7 @@ export const ThemeCompPanel = (props: any) => {
     return (
       <PreviewApp
         style={{
-          height: "600px",
+          height: "630px",
           minWidth: "auto",
           width: "100%",
         }}
@@ -322,36 +322,41 @@ export const ThemeCompPanel = (props: any) => {
   // )
 
   return (
-    <Flex style={{
-      height: "600px",
-      overflow: "hidden",
-    }}>
-      <RightPanelContentWrapper style={{
-        padding: "12px",
-        overflow: "auto",
+    <Card style={{ marginBottom: "20px", minHeight : "200px" }}>
+      <Flex style={{
+        height: "650px",
+        overflow: "hidden",
+        gap: "middle",
       }}>
-        <Input.Search
-          placeholder="Search components"
-          value={searchValue}
-          onChange={(e) => setSearchValue(e.target.value)}
-          style={{ marginBottom: 16 }}
-        />
-        <PropertySectionContext.Provider
-          value={propertySectionContextValue}
-        >
-          {compList}
-        </PropertySectionContext.Provider>
-      </RightPanelContentWrapper>
-      <div style={{flex: "1"}}>
-        {appPreview}
-      </div>
-      <div style={{
-        width: "280px",
-        padding: "12px",
-        overflow: "auto",
-      }}>
-        {stylePropertyView}
-      </div>
-    </Flex>
+        <RightPanelContentWrapper style={{
+          padding: "12px",
+          overflow: "auto",
+        }}>
+          <Input.Search
+            placeholder="Search components"
+            value={searchValue}
+            onChange={(e) => setSearchValue(e.target.value)}
+            style={{ marginBottom: 16 }}
+          />
+          <PropertySectionContext.Provider
+            value={propertySectionContextValue}
+          >
+            {compList}
+          </PropertySectionContext.Provider>
+        </RightPanelContentWrapper>
+        <Divider type="vertical" style={{height: "630px"}}/>
+        <div style={{flex: "1"}}>
+          {appPreview}
+        </div>
+        <Divider type="vertical" style={{height: "630px"}}/>
+        <div style={{
+          width: "280px",
+          padding: "12px",
+          overflow: "auto",
+        }}>
+          {stylePropertyView}
+        </div>
+      </Flex>
+    </Card>
   );
 };

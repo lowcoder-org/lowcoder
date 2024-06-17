@@ -284,19 +284,19 @@ export default function ThemeSettingsCompStyles(props: CompStyleProps) {
       case 'radius':
       case 'cardRadius':
       case 'gap': {
-        icon = <BorderRadiusIcon style={{width: "16px", margin: "-2px 0 2px -2px", padding: "0px"}}/>;
+        icon = <BorderRadiusIcon style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
         break;
       }
       case 'borderWidth': {
-        icon = <BorderWidthIcon style={{width: "16px", margin: "2px 0 0 2px", padding: "0px"}}/>;
+        icon = <BorderWidthIcon style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
         break;
       }
       case 'borderStyle': {
-        icon = <BorderStyleIcon style={{width: "16px", margin: "2px 0 0 2px", padding: "0px"}}/>;
+        icon = <BorderStyleIcon style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
         break;
       }
       case 'margin': {
-        icon = <ExpandIcon style={{width: "16px", margin: "2px 0 0 2px", padding: "0px"}}/>;
+        icon = <ExpandIcon style={{width: "16px", margin: "3px 0 0 5px", padding: "0px"}}/>;
         break;
       }
       case 'padding':
@@ -304,75 +304,75 @@ export default function ThemeSettingsCompStyles(props: CompStyleProps) {
       case 'containerSiderPadding':
       case 'containerFooterPadding':
       case 'containerBodyPadding': {
-        icon = <CompressIcon style={{width: "16px", margin: "2px 0 0 2px", padding: "0px"}}/>;
+        icon = <CompressIcon style={{width: "16px", margin: "3px 0 0 5px", padding: "0px"}}/>;
         break;
       }
       case 'opacity': {
-        icon = <OpacityIcon style={{width: "16px", margin: "2px 0 0 2px", padding: "0px"}}/>;
+        icon = <OpacityIcon style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
         break;
       }
       case 'boxShadowColor': {
-        icon = <BorderWidthIcon style={{width: "16px", margin: "2px 0 0 2px", padding: "0px"}}/>;
+        icon = <BorderWidthIcon style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
         break;
       }
       case 'boxShadow': {
-        icon = <ShadowIcon style={{width: "16px", margin: "2px 0 0 2px", padding: "0px"}}/>;
+        icon = <ShadowIcon style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
         break;
       }
       case 'animationIterationCount': {
-        icon = <RefreshLineIcon style={{width: "16px", margin: "2px 0 0 2px", padding: "0px"}}/>;
+        icon = <RefreshLineIcon style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
         break;
       }
       case 'animation': {
-        icon = <StarSmileIcon style={{width: "16px", margin: "2px 0 0 2px", padding: "0px"}}/>;
+        icon = <StarSmileIcon style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
         break;
       }
       case 'animationDelay': {
-        icon = <TimerFlashIcon style={{width: "16px", margin: "2px 0 0 2px", padding: "0px"}}/>;
+        icon = <TimerFlashIcon style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
         break;
       }
       case 'animationDuration': {
-        icon = <Timer2Icon style={{width: "16px", margin: "2px 0 0 2px", padding: "0px"}}/>;
+        icon = <Timer2Icon style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
         break;
       }
       case 'textSize': {
-        icon = <TextSizeIcon style={{width: "16px", margin: "2px 0 0 2px", padding: "0px"}}/>;
+        icon = <TextSizeIcon style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
         break;
       }
       case 'textWeight': {
-        icon = <TextWeightIcon style={{width: "16px", margin: "2px 0 0 2px", padding: "0px"}}/>;
+        icon = <TextWeightIcon style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
         break;
       }
       case 'fontFamily': {
-        icon = <FontFamilyIcon style={{width: "16px", margin: "2px 0 0 2px", padding: "0px"}}/>;
+        icon = <FontFamilyIcon style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
         break;
       }
       case 'textDecoration': {
-        icon = <TextDecorationIcon style={{width: "16px", margin: "2px 0 0 2px", padding: "0px"}}/>;
+        icon = <TextDecorationIcon style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
         break;
       }
       case 'textTransform': {
-        icon = <TextTransformationIcon style={{width: "16px", margin: "2px 0 0 2px", padding: "0px"}}/>;
+        icon = <TextTransformationIcon style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
         break;
       }
       case 'fontStyle': {
-        icon = <TextStyleIcon style={{width: "16px", margin: "2px 0 0 2px", padding: "0px"}}/>;
+        icon = <TextStyleIcon style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
         break;
       }
       case 'backgroundImage':
       case 'headerBackgroundImage':
       case 'footerBackgroundImage': {
-        icon = <ImageCompIconSmall style={{width: "16px", margin: "2px 0 0 2px", padding: "0px"}}/>;
+        icon = <ImageCompIconSmall style={{width: "16px", margin: "1px 0 0 5px", padding: "0px"}}/>;
         break;
       }
       case 'backgroundImageRepeat':
       case 'headerBackgroundImageRepeat':
       case 'footerBackgroundImageRepeat': {
-        icon = <ImageCompIconSmall style={{width: "16px", margin: "2px 0 0 2px", padding: "0px"}}/>;
+        icon = <ImageCompIconSmall style={{width: "16px", margin: "1px 0 0 5px", padding: "0px"}}/>;
         break;
       }
       case 'rotation': {
-        icon = <RotationIcon style={{width: "16px", margin: "2px 0 0 2px", padding: "0px"}}/>;
+        icon = <RotationIcon style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
         break;
       }
     }
@@ -382,7 +382,7 @@ export default function ThemeSettingsCompStyles(props: CompStyleProps) {
   return (
     <div style={{
       border: "1px solid lightgray",
-      borderRadius: "6px",
+      borderRadius: "4px",
       marginBottom: "16px",
     }}>
       {styleOptions.map((styleKey: string) => (
@@ -398,10 +398,11 @@ export default function ThemeSettingsCompStyles(props: CompStyleProps) {
         >
           <div className="text-desc" style={{
             width: "100px",
-            minWidth: "auto",
-            marginRight: "10px",
+            minWidth: "100px",
+            maxWidth: "100px",
+            marginRight: "5px",
           }}>
-            <div className="name">
+            <div className="name" >
               { getLabelByStyle(styleKey) }
             </div>
           </div>
@@ -417,6 +418,7 @@ export default function ThemeSettingsCompStyles(props: CompStyleProps) {
                 trigger="hover"
               />
               <TacoInput
+                style={{width: "80%", marginLeft: "5px"}}
                 value={compStyle[styleKey]}
                 onChange={(e) => handleChange(styleKey, e.target.value)}
                 // onChange={(e) => setColor(e.target.value)}
@@ -432,6 +434,7 @@ export default function ThemeSettingsCompStyles(props: CompStyleProps) {
                 </div>
               {/* </Radius> */}
               <TacoInput
+                style={{width: "80%", marginLeft: "5px"}}
                 placeholder={getPlaceholderByStyle(styleKey)}
                 defaultValue={compStyle[styleKey]}
                 onChange={(e) => handleChange(styleKey, e.target.value)}
