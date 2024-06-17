@@ -13,11 +13,13 @@ import { Transfer } from "antd";
 import ReactResizeDetector from "react-resize-detector";
 import { changeEvent, eventHandlerControl, searchEvent, selectedChangeEvent } from "../controls/eventHandlerControl";
 import styled, { css } from "styled-components";
-import { useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { valueComp, withDefault } from "../generators";
 import type { TransferDirection } from 'antd/es/transfer';
 import { _ } from "core-js";
-
+import { CompTypeContext } from "@lowcoder-ee/comps/utils/compTypeContext";
+import { setInitialCompStyles } from "@lowcoder-ee/comps/utils/themeUtil";
+import { ThemeContext } from "@lowcoder-ee/comps/utils/themeContext";
 
 const Container = styled.div<{ $style: TransferStyleType }>`
   height: 100%;
@@ -57,7 +59,7 @@ const defaultItems = [
 const EventOptions = [changeEvent, searchEvent, selectedChangeEvent] as const;
 
 const childrenMap = {
-  style: styleControl(TransferStyle),
+  style: styleControl(TransferStyle , 'style'),
   onEvent: eventHandlerControl(EventOptions),
   sourceTitle: withDefault(StringControl, trans('transfer.sourceTitle')),
   targetTitle: withDefault(StringControl, trans('transfer.targetTitle')),
@@ -140,7 +142,27 @@ const TransferView = (props: RecordConstructorToView<typeof childrenMap> & {
 };
 
 let TransferBasicComp = (function () {
-  return new UICompBuilder(childrenMap, (props, dispatch) => <TransferView {...props} dispatch={dispatch} />)
+  return new UICompBuilder(childrenMap, (props, dispatch) => {
+
+    const theme = useContext(ThemeContext);
+    const compType = useContext(CompTypeContext);
+    const compTheme = theme?.theme?.components?.[compType];
+    const styleProps: Record<string, any> = {};
+    ['style'].forEach((key: string) => {
+      styleProps[key] = (props as any)[key];
+    });
+
+    useEffect(() => {
+      setInitialCompStyles({
+        dispatch,
+        compTheme,
+        styleProps,
+      });
+    }, []);
+
+
+    return (
+    <TransferView {...props} dispatch={dispatch} />)})
     .setPropertyViewFn((children) => (
       <>
         <Section name={sectionNames.basic}>

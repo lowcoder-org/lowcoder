@@ -12,9 +12,12 @@ import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { StringControl } from "comps/controls/codeControl";
 
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import { EditorContext } from "comps/editorState";
 import { withDefault } from "../generators";
+import { CompTypeContext } from "@lowcoder-ee/comps/utils/compTypeContext";
+import { setInitialCompStyles } from "@lowcoder-ee/comps/utils/themeUtil";
+import { ThemeContext } from "@lowcoder-ee/comps/utils/themeContext";
 
 // TODO: add styling for image (size)
 // TODO: add styling for bouding box (individual backround)
@@ -31,8 +34,8 @@ const childrenMap = {
   level: dropdownControl(levelOptions, 'L'),
   includeMargin: BoolControl.DEFAULT_TRUE,
   image: StringControl,
-  style: withDefault(styleControl(QRCodeStyle),{background:'transparent'}),
-  animationStyle: styleControl(AnimationStyle),
+  style: styleControl(QRCodeStyle , 'style'),
+  animationStyle: styleControl(AnimationStyle  , 'animationStyle'),
   restrictPaddingOnRotation: withDefault(StringControl, 'qrCode'),
 };
 
@@ -78,7 +81,24 @@ const QRCodeView = (props: RecordConstructorToView<typeof childrenMap>) => {
 };
 
 let QRCodeBasicComp = (function () {
-  return new UICompBuilder(childrenMap, (props) => <QRCodeView {...props} />)
+  return new UICompBuilder(childrenMap, (props , dispatch) =>{
+
+    const theme = useContext(ThemeContext);
+    const compType = useContext(CompTypeContext);
+    const compTheme = theme?.theme?.components?.[compType];
+    const styleProps: Record<string, any> = {};
+    ['style' , 'animationStyle'].forEach((key: string) => {
+      styleProps[key] = (props as any)[key];
+    });
+
+    useEffect(() => {
+      setInitialCompStyles({
+        dispatch,
+        compTheme,
+        styleProps,
+      });
+    }, []);
+    return( <QRCodeView {...props} />)})
     .setPropertyViewFn((children) => (
       <>
         <Section name={sectionNames.basic}>

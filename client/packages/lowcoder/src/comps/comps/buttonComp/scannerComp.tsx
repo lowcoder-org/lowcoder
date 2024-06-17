@@ -24,6 +24,9 @@ import { BoolControl } from "comps/controls/boolControl";
 import type { ItemType } from "antd/es/menu/hooks/useItems";
 import { RefControl } from "comps/controls/refControl";
 import { EditorContext } from "comps/editorState"; 
+import { CompTypeContext } from "@lowcoder-ee/comps/utils/compTypeContext";
+import { setInitialCompStyles } from "@lowcoder-ee/comps/utils/themeUtil";
+import { ThemeContext } from "@lowcoder-ee/comps/utils/themeContext";
 
 const Error = styled.div`
   color: #f5222d;
@@ -70,10 +73,28 @@ const ScannerTmpComp = (function () {
     maskClosable: withDefault(BoolControl, true),
     onEvent: ScannerEventHandlerControl,
     disabled: BoolCodeControl,
-    style: styleControl(DropdownStyle),
+    style: styleControl(DropdownStyle, 'style'),
     viewRef: RefControl<HTMLElement>,
   };
-  return new UICompBuilder(childrenMap, (props) => {
+  return new UICompBuilder(childrenMap, (props ,dispatch) => {
+
+    const theme = useContext(ThemeContext);
+    const compType = useContext(CompTypeContext);
+    const compTheme = theme?.theme?.components?.[compType];
+    const styleProps: Record<string, any> = {};
+    ['style'].forEach((key: string) => {
+      styleProps[key] = (props as any)[key];
+    });
+
+    useEffect(() => {
+      setInitialCompStyles({
+        dispatch,
+        compTheme,
+        styleProps,
+      });
+    }, []);
+
+
     const [showModal, setShowModal] = useState(false);
     const [errMessage, setErrMessage] = useState("");
     const [videoConstraints, setVideoConstraints] = useState<MediaTrackConstraints>({

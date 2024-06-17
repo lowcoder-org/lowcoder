@@ -88,6 +88,14 @@ const pageLayout  = {
     borderWidth: '1px',
   }
 };
+
+const qrCode  = {
+  style: {
+    background:'transparent'
+  }
+};
+
+
 export const defaultTheme: ThemeDetail = {
   primary: "#3377FF",
   textDark: "#222222",
@@ -119,6 +127,7 @@ export const defaultTheme: ThemeDetail = {
     columnLayout,
     tabbedContainer,
     step,
+    qrCode,
     treeSelect,
     pageLayout,
     password: input,

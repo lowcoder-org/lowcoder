@@ -19,7 +19,7 @@ import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { changeValueAction, multiChangeAction } from "lowcoder-core";
 import { Section, sectionNames, UndoIcon } from "lowcoder-design";
-import React, { Suspense, useState } from "react";
+import React, { Suspense, useEffect, useState } from "react";
 import ReactResizeDetector from "react-resize-detector";
 import type SignatureCanvasType from "react-signature-canvas";
 import styled from "styled-components";
@@ -29,6 +29,9 @@ import { formDataChildren, FormDataPropertyView } from "./formComp/formDataConst
 
 import { useContext } from "react";
 import { EditorContext } from "comps/editorState";
+import { CompTypeContext } from "@lowcoder-ee/comps/utils/compTypeContext";
+import { setInitialCompStyles } from "@lowcoder-ee/comps/utils/themeUtil";
+import { ThemeContext } from "@lowcoder-ee/comps/utils/themeContext";
 
 const Wrapper = styled.div<{ $style: SignatureStyleType; $isEmpty: boolean }>`
   height: 100%;
@@ -99,12 +102,12 @@ const childrenMap = {
   tips: withDefault(StringControl, trans('signature.signHere')),
   onEvent: ChangeEventHandlerControl,
   label: withDefault(LabelControl, {position: 'column', text: ''}),
-  style: styleControl(SignatureContainerStyle),
-  labelStyle: styleControl(LabelStyle),
+  style: styleControl(SignatureContainerStyle , 'style'),
+  labelStyle: styleControl(LabelStyle , 'labelStyle'),
   showUndo: withDefault(BoolControl, true),
   showClear: withDefault(BoolControl, true),
   value: stateComp(''),
-  inputFieldStyle: styleControl(SignatureStyle),
+  inputFieldStyle: styleControl(SignatureStyle , 'inputFieldStyle'),
   ...formDataChildren,
 };
 
@@ -112,6 +115,23 @@ const SignatureCanvas = React.lazy(() => import("react-signature-canvas"));
 
 let SignatureTmpComp = (function () {
   return new UICompBuilder(childrenMap, (props, dispatch) => {
+
+    const theme = useContext(ThemeContext);
+    const compType = useContext(CompTypeContext);
+    const compTheme = theme?.theme?.components?.[compType];
+    const styleProps: Record<string, any> = {};
+    ['style', 'labelStyle', 'inputFieldStyle'].forEach((key: string) => {
+      styleProps[key] = (props as any)[key];
+    });
+
+    useEffect(() => {
+      setInitialCompStyles({
+        dispatch,
+        compTheme,
+        styleProps,
+      });
+    }, []);
+    
     let canvas: SignatureCanvasType | null = null;
     const [isBegin, setIsBegin] = useState(false);
     const [canvasSize, setCanvasSize] = useState([0, 0]);
