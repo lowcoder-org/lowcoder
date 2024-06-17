@@ -30,6 +30,9 @@ import {
 } from "../controls/eventHandlerControl";
 import { useContext } from "react";
 import { EditorContext } from "comps/editorState";
+import { ThemeContext } from "@lowcoder-ee/comps/utils/themeContext";
+import { CompTypeContext } from "@lowcoder-ee/comps/utils/compTypeContext";
+import { setInitialCompStyles } from "@lowcoder-ee/comps/utils/themeUtil";
 
 const Container = styled.div<{
   $style: IconStyleType | undefined;
@@ -62,8 +65,8 @@ ${props=>props.$animationStyle}
 const EventOptions = [clickEvent] as const;
 
 const childrenMap = {
-  style: styleControl(IconStyle),
-  animationStyle: styleControl(AnimationStyle),
+  style: styleControl(IconStyle,'style'),
+  animationStyle: styleControl(AnimationStyle,'animationStyle'),
   icon: withDefault(IconControl, "/icon:antd/homefilled"),
   autoHeight: withDefault(AutoHeightControl, "auto"),
   iconSize: withDefault(NumberControl, 20),
@@ -112,7 +115,25 @@ const IconView = (props: RecordConstructorToView<typeof childrenMap>) => {
 };
 
 let IconBasicComp = (function () {
-  return new UICompBuilder(childrenMap, (props) => <IconView {...props} />)
+  return new UICompBuilder(childrenMap, (props , dispatch) => { 
+    
+    const theme = useContext(ThemeContext);
+    const compType = useContext(CompTypeContext);
+    const compTheme = theme?.theme?.components?.[compType];
+    const styleProps: Record<string, any> = {};
+    ['style', 'animationStyle'].forEach((key: string) => {
+      styleProps[key] = (props as any)[key];
+    });
+
+    useEffect(() => {
+      setInitialCompStyles({
+        dispatch,
+        compTheme,
+        styleProps,
+      });
+    }, []);
+
+    return(<IconView {...props} />)})
     .setPropertyViewFn((children) => (
       <>
         <Section name={sectionNames.basic}>

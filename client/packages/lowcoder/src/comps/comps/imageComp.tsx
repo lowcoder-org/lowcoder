@@ -34,6 +34,9 @@ import { DEFAULT_IMG_URL } from "util/stringUtils";
 import { useContext } from "react";
 import { EditorContext } from "comps/editorState";
 import { StringControl } from "../controls/codeControl";
+import { ThemeContext } from "@lowcoder-ee/index.sdk";
+import { CompTypeContext } from "@lowcoder-ee/comps/utils/compTypeContext";
+import { setInitialCompStyles } from "@lowcoder-ee/comps/utils/themeUtil";
 
 const Container = styled.div<{ $style: ImageStyleType | undefined,$animationStyle:AnimationStyleType }>`
   height: 100%;
@@ -166,14 +169,31 @@ const ContainerImg = (props: RecordConstructorToView<typeof childrenMap>) => {
 const childrenMap = {
   src: withDefault(StringStateControl, "https://temp.im/350x400"),
   onEvent: eventHandlerControl(EventOptions),
-  style: styleControl(ImageStyle),
-  animationStyle: styleControl(AnimationStyle),
+  style: styleControl(ImageStyle , 'style'),
+  animationStyle: styleControl(AnimationStyle , 'animationStyle'),
   autoHeight: withDefault(AutoHeightControl, "fixed"),
   supportPreview: BoolControl,
   restrictPaddingOnRotation:withDefault(StringControl, 'image')
 };
 
-let ImageBasicComp = new UICompBuilder(childrenMap, (props) => {
+let ImageBasicComp = new UICompBuilder(childrenMap, (props , dispatch) => {
+
+  const theme = useContext(ThemeContext);
+  const compType = useContext(CompTypeContext);
+  const compTheme = theme?.theme?.components?.[compType];
+  const styleProps: Record<string, any> = {};
+  ['style','animationStyle'].forEach((key: string) => {
+    styleProps[key] = (props as any)[key];
+  });
+
+  useEffect(() => {
+    setInitialCompStyles({
+      dispatch,
+      compTheme,
+      styleProps,
+    });
+  }, []);
+  
   return <ContainerImg {...props} />;
 })
   .setPropertyViewFn((children) => {

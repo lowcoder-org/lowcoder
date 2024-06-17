@@ -13,8 +13,11 @@ import { withDefault } from "../../generators/simpleGenerators";
 import { trans } from "i18n";
 import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { mediaCommonChildren, mediaMethods } from "./mediaUtils";
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import { EditorContext } from "comps/editorState";
+import { ThemeContext } from "@lowcoder-ee/comps/utils/themeContext";
+import { CompTypeContext } from "@lowcoder-ee/comps/utils/compTypeContext";
+import { setInitialCompStyles } from "@lowcoder-ee/comps/utils/themeUtil";
 
 const Container = styled.div<{ $style: any; $animationStyle: AnimationStyleType }>`
 ${props => props.$style};
@@ -66,15 +69,32 @@ const ContainerAudio = (props: RecordConstructorToView<typeof childrenMap>) => {
 const childrenMap = {
   src: withDefault(StringStateControl, trans("audio.defaultSrcUrl")),
   onEvent: eventHandlerControl(EventOptions),
-  style: styleControl(AudioStyle),
-  animationStyle: styleControl(AnimationStyle),
+  style: styleControl(AudioStyle , 'style'),
+  animationStyle: styleControl(AnimationStyle , 'animationStyle'),
   autoPlay: BoolControl,
   loop: BoolControl,
   ...mediaCommonChildren,
 };
 
 let AudioBasicComp = (function () {
-  return new UICompBuilder(childrenMap, (props) => {
+  return new UICompBuilder(childrenMap, (props , dispatch) => {
+
+    const theme = useContext(ThemeContext);
+    const compType = useContext(CompTypeContext);
+    const compTheme = theme?.theme?.components?.[compType];
+    const styleProps: Record<string, any> = {};
+    ['style', 'animationStyle'].forEach((key: string) => {
+      styleProps[key] = (props as any)[key];
+    });
+
+    useEffect(() => {
+      setInitialCompStyles({
+        dispatch,
+        compTheme,
+        styleProps,
+      });
+    }, []);
+
     return <ContainerAudio {...props} />;
   })
     .setPropertyViewFn((children) => {

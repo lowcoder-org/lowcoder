@@ -9,7 +9,7 @@ import { trans } from "i18n";
 import { ChangeEventHandlerControl } from "comps/controls/eventHandlerControl";
 import { formDataChildren, FormDataPropertyView } from "./formComp/formDataConstants";
 import { PositionControl } from "comps/controls/dropdownControl";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import ReactResizeDetector from "react-resize-detector";
 import { ArrayStringControl } from "comps/controls/codeControl";
 import { styleControl } from "comps/controls/styleControl";
@@ -17,6 +17,9 @@ import { AnimationStyle, AnimationStyleType, CarouselStyle } from "comps/control
 
 import { useContext } from "react";
 import { EditorContext } from "comps/editorState";
+import { ThemeContext } from "@lowcoder-ee/index.sdk";
+import { CompTypeContext } from "@lowcoder-ee/comps/utils/compTypeContext";
+import { setInitialCompStyles } from "@lowcoder-ee/comps/utils/themeUtil";
 
 // TODO: dots at top position needs proper margin (should be the same as bottom position)
 
@@ -44,11 +47,28 @@ let CarouselBasicComp = (function () {
     onEvent: ChangeEventHandlerControl,
     showDots: withDefault(BoolControl, true),
     dotPosition: withDefault(PositionControl, "bottom"),
-    style: styleControl(CarouselStyle),
-    animationStyle: styleControl(AnimationStyle),
+    style: styleControl(CarouselStyle , 'style'),
+    animationStyle: styleControl(AnimationStyle , 'animationStyle'),
     ...formDataChildren,
   };
-  return new UICompBuilder(childrenMap, (props) => {
+  return new UICompBuilder(childrenMap, (props , dispatch) => {
+
+    const theme = useContext(ThemeContext);
+    const compType = useContext(CompTypeContext);
+    const compTheme = theme?.theme?.components?.[compType];
+    const styleProps: Record<string, any> = {};
+    ['style','animationStyle'].forEach((key: string) => {
+      styleProps[key] = (props as any)[key];
+    });
+  
+    useEffect(() => {
+      setInitialCompStyles({
+        dispatch,
+        compTheme,
+        styleProps,
+      });
+    }, []);
+
     const containerRef = useRef<HTMLDivElement>(null);
     const [height, setHeight] = useState(0);
     const onResize = () => {

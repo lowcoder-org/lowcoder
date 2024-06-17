@@ -4,7 +4,7 @@ import { StringStateControl, numberExposingStateControl } from "../../controls/c
 import { UICompBuilder } from "../../generators";
 import { NameConfig, NameConfigHidden, withExposingConfigs } from "../../generators/withExposing";
 import { RecordConstructorToView } from "lowcoder-core";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { styleControl } from "comps/controls/styleControl";
 import {
   AnimationStyle,
@@ -24,6 +24,9 @@ import { mediaCommonChildren, mediaMethods } from "./mediaUtils";
 import { useContext } from "react";
 import { EditorContext } from "comps/editorState";
 import styled, { css } from "styled-components";
+import { ThemeContext } from "@lowcoder-ee/comps/utils/themeContext";
+import { CompTypeContext } from "@lowcoder-ee/comps/utils/compTypeContext";
+import { setInitialCompStyles } from "@lowcoder-ee/comps/utils/themeUtil";
 
 const EventOptions = [
   { label: trans("video.play"), value: "play", description: trans("video.playDesc") },
@@ -115,8 +118,8 @@ const childrenMap = {
   src: withDefault(StringStateControl, trans('video.defaultSrcUrl')),
   poster: withDefault(StringStateControl, trans('video.defaultPosterUrl')),
   onEvent: eventHandlerControl(EventOptions),
-  style: styleControl(VideoStyle),
-  animationStyle: styleControl(AnimationStyle),
+  style: styleControl(VideoStyle , 'style'),
+  animationStyle: styleControl(AnimationStyle , 'animationStyle'),
   autoPlay: BoolControl,
   loop: BoolControl,
   controls: BoolControl,
@@ -128,7 +131,25 @@ const childrenMap = {
 };
  
 let VideoBasicComp = (function () {
-  return new UICompBuilder(childrenMap, (props) => {
+  return new UICompBuilder(childrenMap, (props , dispatch) => {
+
+    const theme = useContext(ThemeContext);
+    const compType = useContext(CompTypeContext);
+    const compTheme = theme?.theme?.components?.[compType];
+    const styleProps: Record<string, any> = {};
+    ['style', 'animationStyle'].forEach((key: string) => {
+      styleProps[key] = (props as any)[key];
+    });
+
+    useEffect(() => {
+      setInitialCompStyles({
+        dispatch,
+        compTheme,
+        styleProps,
+      });
+    }, []);
+
+
     return <ContainerVideo {...props} />;
   })
     .setPropertyViewFn((children) => {
@@ -176,9 +197,9 @@ let VideoBasicComp = (function () {
               <Section name={sectionNames.style}>
                 {children.style.getPropertyView()}
               </Section>
-              <Section name={sectionNames.animationStyle} hasTooltip={true}>
+              {/* <Section name={sectionNames.animationStyle} hasTooltip={true}>
                 {children.animationStyle.getPropertyView()}
-              </Section>
+              </Section> */}
             </>
           )}
         </>
