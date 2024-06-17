@@ -20,16 +20,35 @@ import {
 import { PageLayout } from "../pageLayoutComp/pageLayout";
 import { AnimationStyle } from "@lowcoder-ee/comps/controls/styleControlConstants";
 import { styleControl } from "@lowcoder-ee/comps/controls/styleControl";
+import { setInitialCompStyles } from "@lowcoder-ee/comps/utils/themeUtil";
+import { CompTypeContext } from "@lowcoder-ee/comps/utils/compTypeContext";
+import { ThemeContext } from "@lowcoder-ee/comps/utils/themeContext";
 
 export const ContainerBaseComp = (function () {
   const childrenMap = {
     disabled: BoolCodeControl,
-    animationStyle: styleControl(AnimationStyle),
+    animationStyle: styleControl(AnimationStyle , 'animationStyle'),
   };
 
   return new ContainerCompBuilder(childrenMap, (props, dispatch) => {
 
     const [siderCollapsed, setSiderCollapsed] = useState(false);
+
+    const theme = useContext(ThemeContext);
+    const compType = useContext(CompTypeContext);
+    const compTheme = theme?.theme?.components?.[compType];
+    const styleProps: Record<string, any> = {};
+    ['animationStyle'].forEach((key: string) => {
+      styleProps[key] = (props as any)[key];
+    });
+
+    useEffect(() => {
+      setInitialCompStyles({
+        dispatch,
+        compTheme,
+        styleProps,
+      });
+    }, []);
 
     return (
       <DisabledContext.Provider value={props.disabled}>
