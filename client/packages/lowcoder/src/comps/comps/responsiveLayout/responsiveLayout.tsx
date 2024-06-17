@@ -21,7 +21,7 @@ import { NameGenerator } from "comps/utils";
 import { Section, controlItem, sectionNames } from "lowcoder-design";
 import { HintPlaceHolder } from "lowcoder-design";
 import _ from "lodash";
-import React from "react";
+import React, { useEffect } from "react";
 import styled from "styled-components";
 import { IContainer } from "../containerBase/iContainer";
 import { SimpleContainerComp } from "../containerBase/simpleContainerComp";
@@ -42,6 +42,9 @@ import { EditorContext } from "comps/editorState";
 
 import { disabledPropertyView, hiddenPropertyView } from "comps/utils/propertyUtils";
 import { DisabledContext } from "comps/generators/uiCompBuilder";
+import { ThemeContext } from "@lowcoder-ee/comps/utils/themeContext";
+import { CompTypeContext } from "@lowcoder-ee/comps/utils/compTypeContext";
+import { setInitialCompStyles } from "@lowcoder-ee/comps/utils/themeUtil";
 
 const RowWrapper = styled(Row)<{
   $style: ResponsiveLayoutRowStyleType;
@@ -91,9 +94,9 @@ const childrenMap = {
   autoHeight: AutoHeightControl,
   rowBreak: withDefault(BoolControl, false),
   matchColumnsHeight: withDefault(BoolControl, true),
-  style: withDefault(styleControl(ResponsiveLayoutRowStyle), {}),
-  columnStyle: withDefault(styleControl(ResponsiveLayoutColStyle), {}),
-  animationStyle:styleControl(AnimationStyle),
+  style: styleControl(ResponsiveLayoutRowStyle , 'style'),
+  columnStyle: styleControl(ResponsiveLayoutColStyle , 'columnStyle'),
+  animationStyle:styleControl(AnimationStyle , 'animationStyle'),
   columnPerRowLG: withDefault(NumberControl, 4),
   columnPerRowMD: withDefault(NumberControl, 2),
   columnPerRowSM: withDefault(NumberControl, 1),
@@ -185,6 +188,24 @@ const ResponsiveLayout = (props: ResponsiveLayoutProps) => {
 
 export const ResponsiveLayoutBaseComp = (function () {
   return new UICompBuilder(childrenMap, (props, dispatch) => {
+
+    const theme = useContext(ThemeContext);
+    const compType = useContext(CompTypeContext);
+    const compTheme = theme?.theme?.components?.[compType];
+    const styleProps: Record<string, any> = {};
+    ['style', 'animationStyle', 'columnStyle'].forEach((key: string) => {
+      styleProps[key] = (props as any)[key];
+    });
+
+    useEffect(() => {
+      setInitialCompStyles({
+        dispatch,
+        compTheme,
+        styleProps,
+      });
+    }, []);
+
+    
     return (
       <ResponsiveLayout {...props} dispatch={dispatch} />
     );
