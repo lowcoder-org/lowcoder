@@ -1,3 +1,4 @@
+import { BASE_URL } from "constants/routesURL";
 import { NPM_PLUGIN_ASSETS_BASE_URL } from "constants/npmPlugins";
 import { trans } from "i18n";
 import { CompConstructor } from "lowcoder-core";
@@ -38,7 +39,7 @@ async function bundleLoader(
   remoteInfo: RemoteCompInfo
 ): Promise<CompConstructor | null> {
   const { packageName, packageVersion = "latest", compName } = remoteInfo;
-  const entry = `/${packageName}/${packageVersion}/index.js?v=${REACT_APP_COMMIT_ID}`;
+  const entry = `${BASE_URL !== "/" ? BASE_URL : ""}/${packageName}/${packageVersion}/index.js?v=${REACT_APP_COMMIT_ID}`;
   const module = await import(
     /* @vite-ignore */
     /* webpackIgnore: true */
