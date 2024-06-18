@@ -21,7 +21,7 @@ import java.util.Map;
 @SuperBuilder
 public class Bundle extends HasIdAndAuditing {
     @Getter
-    private String gid = UuidCreator.getTimeOrderedEpoch().toString();
+    private String gid;
     private String organizationId;
     @Nullable
     private String name;

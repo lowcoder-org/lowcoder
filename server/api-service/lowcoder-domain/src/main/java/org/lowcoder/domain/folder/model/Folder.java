@@ -16,7 +16,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class Folder extends HasIdAndAuditing {
 
     private String organizationId;
-    private String gid = UuidCreator.getTimeOrderedEpoch().toString();
+    private String gid;
     @Nullable
     private String parentFolderId; // null represents folder in the root folder
     private String parentFolderGid; // null represents folder in the root folder

@@ -37,7 +37,7 @@ import lombok.Builder;
 @NoArgsConstructor
 public class Application extends HasIdAndAuditing {
     @Getter
-    private String gid = UuidCreator.getTimeOrderedEpoch().toString();
+    private String gid;
     private String organizationId;
     private String name;
     private Integer applicationType;
@@ -64,6 +64,7 @@ public class Application extends HasIdAndAuditing {
             @JsonProperty("publicToMarketplace") Boolean publicToMarketplace,
             @JsonProperty("agencyProfile") Boolean agencyProfile
     ) {
+        this.gid = UuidCreator.getTimeOrderedEpoch().toString();
         this.organizationId = organizationId;
         this.name = name;
         this.applicationType = applicationType;

@@ -39,7 +39,7 @@ public class Organization extends HasIdAndAuditing implements BeforeMongodbWrite
 
     private static final OrganizationCommonSettings EMPTY_SETTINGS = new OrganizationCommonSettings();
     @Getter
-    private String gid = UuidCreator.getTimeOrderedEpoch().toString();
+    private String gid;
 
     private String name;
 

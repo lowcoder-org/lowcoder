@@ -1,5 +1,6 @@
 package org.lowcoder.api.home;
 
+import com.github.f4b6a3.uuid.UuidCreator;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
@@ -84,6 +85,7 @@ public class FolderApiServiceImpl implements FolderApiService {
         if (StringUtils.isBlank(folder.getName())) {
             return Mono.error(new BizException(BizError.INVALID_PARAMETER, "FOLDER_NAME_EMPTY"));
         }
+        folder.setGid(UuidCreator.getTimeOrderedEpoch().toString());
         return orgDevChecker.checkCurrentOrgDev()
                 .then(sessionUserService.getVisitorOrgMemberCache())
                 .delayUntil(orgMember -> {
