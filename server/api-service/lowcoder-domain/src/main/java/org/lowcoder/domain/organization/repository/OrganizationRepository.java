@@ -15,7 +15,7 @@ public interface OrganizationRepository extends ReactiveMongoRepository<Organiza
     Mono<Organization> findFirstByStateMatches(OrganizationState state);
 
     Flux<Organization> findByIdInAndState(Collection<String> id, OrganizationState state);
-    Flux<Organization> findByIdGinAndState(Collection<String> gid, OrganizationState state);
+    Flux<Organization> findByGidInAndState(Collection<String> gid, OrganizationState state);
 
     Mono<Organization> findByIdAndState(String id, OrganizationState state);
     Mono<Organization> findByGidAndState(String gid, OrganizationState state);

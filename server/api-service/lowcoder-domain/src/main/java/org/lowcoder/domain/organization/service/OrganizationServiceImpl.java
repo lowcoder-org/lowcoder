@@ -185,7 +185,7 @@ public class OrganizationServiceImpl implements OrganizationService {
     @Override
     public Flux<Organization> getByIds(Collection<String> ids) {
         if(!ids.isEmpty() && FieldName.isGID(ids.stream().findFirst().get()))
-            return repository.findByIdGinAndState(ids, ACTIVE);
+            return repository.findByGidInAndState(ids, ACTIVE);
         return repository.findByIdInAndState(ids, ACTIVE);
     }
 
