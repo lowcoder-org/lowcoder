@@ -73,7 +73,7 @@ const commonChildren = {
   hourStep: RangeControl.closed(1, 24, 1),
   minuteStep: RangeControl.closed(1, 60, 1),
   secondStep: RangeControl.closed(1, 60, 1),
-  style: styleControl(DateTimeStyle),
+  style: withDefault(styleControl(DateTimeStyle),{background:'transparent',borderWidth:'1px'}),
   suffixIcon: withDefault(IconControl, "/icon:regular/clock"),
   viewRef: RefControl<CommonPickerMethods>,
   ...validationChildren,
@@ -137,7 +137,7 @@ export type TimeCompViewProps = Pick<
 };
 
 export const timePickerControl = new UICompBuilder(childrenMap, (props) => {
-  let time = dayjs(null);
+  let time = null;
   if(props.value.value !== '') {
     time = dayjs(props.value.value, TimeParser);
   }
@@ -150,7 +150,7 @@ export const timePickerControl = new UICompBuilder(childrenMap, (props) => {
         viewRef={props.viewRef}
         $style={props.style}
         disabled={props.disabled}
-        value={time.isValid() ? time : null}
+        value={time?.isValid() ? time : null}
         disabledTime={() => disabledTime(props.minTime, props.maxTime)}
         {...timePickerComps(props)}
         hourStep={props.hourStep as hourStepType}
@@ -339,8 +339,8 @@ export const TimePickerComp = withExposingConfigs(timePickerControl, [
     desc: trans("export.timePickerFormattedValueDesc"),
     depKeys: ["value", "format"],
     func: (input) => {
-      const mom = dayjs(input.value, TimeParser);
-      return mom.isValid() ? mom.format(input.format) : "";
+      const mom = Boolean(input.value) ? dayjs(input.value, TimeParser) : null;
+      return mom?.isValid() ? mom.format(input.format) : '';
     },
   }),
   depsConfig({
@@ -364,11 +364,11 @@ export let TimeRangeComp = withExposingConfigs(timeRangeControl, [
     desc: trans("export.timeRangeFormattedValueDesc"),
     depKeys: ["start", "end", "format"],
     func: (input) => {
-      const start = dayjs(input.start, TimeParser);
-      const end = dayjs(input.end, TimeParser);
+      const start = Boolean(input.start) ? dayjs(input.start, TimeParser) : null;
+      const end = Boolean(input.end) ? dayjs(input.end, TimeParser) : null;
       return [
-        start.isValid() && start.format(input.format),
-        end.isValid() && end.format(input.format),
+        start?.isValid() && start.format(input.format),
+        end?.isValid() && end.format(input.format),
       ]
         .filter((item) => item)
         .join(" - ");
@@ -379,8 +379,8 @@ export let TimeRangeComp = withExposingConfigs(timeRangeControl, [
     desc: trans("export.timeRangeFormattedStartValueDesc"),
     depKeys: ["start", "format"],
     func: (input) => {
-      const start = dayjs(input.start, TimeParser);
-      return start.isValid() && start.format(input.format);
+      const start = Boolean(input.start) ? dayjs(input.start, TimeParser) : null;
+      return start?.isValid() && start.format(input.format);
     },
   }),
   depsConfig({
@@ -388,8 +388,8 @@ export let TimeRangeComp = withExposingConfigs(timeRangeControl, [
     desc: trans("export.timeRangeFormattedEndValueDesc"),
     depKeys: ["end", "format"],
     func: (input) => {
-      const end = dayjs(input.end, TimeParser);
-      return end.isValid() && end.format(input.format);
+      const end = Boolean(input.end) ? dayjs(input.end, TimeParser) : null;
+      return end?.isValid() && end.format(input.format);
     },
   }),
   depsConfig({

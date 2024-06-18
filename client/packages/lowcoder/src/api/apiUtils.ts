@@ -121,10 +121,13 @@ export const apiFailureResponseInterceptor = (error: any) => {
       // Need authorization
       if (!notAuthRequiredPath(error.config?.url)) {
         if (error.response.status === API_STATUS_CODES.REQUEST_NOT_AUTHORISED) {
+          // get x-org-id from failed request
+          const organizationId = error.response.headers['x-org-id'] || undefined;
           // Redirect to login and set a redirect url.
           StoreRegistry.getStore().dispatch(
             logoutAction({
               notAuthorised: true,
+              organizationId,
             })
           );
           return Promise.reject({

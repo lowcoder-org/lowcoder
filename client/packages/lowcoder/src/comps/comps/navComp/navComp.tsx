@@ -29,17 +29,18 @@ type IProps = {
   $borderColor: string;
   $borderWidth: string;
   $borderRadius: string;
-  $animationStyle:AnimationStyleType;
+  $borderStyle: string;
+  $animationStyle: AnimationStyleType;
 };
 
 const Wrapper = styled("div")<
-  Pick<IProps, "$bgColor" | "$borderColor" | "$borderWidth" | "$borderRadius"|"$animationStyle">
+  Pick<IProps, "$bgColor" | "$borderColor" | "$borderWidth" | "$borderRadius"|"$borderStyle"|"$animationStyle">
   >`
 ${props=>props.$animationStyle}
   height: 100%;
-  border-radius: ${(props) => props.$borderRadius ? props.$borderRadius : '2px'};
+  border-radius: ${(props) =>props.$borderRadius ? props.$borderRadius : '2px'};
   box-sizing: border-box;
-  border: ${(props) => props.$borderWidth ? `${props.$borderWidth}` : '1px'} solid ${(props) => props.$borderColor};
+  border: ${(props) => props.$borderWidth ? `${props.$borderWidth}` : '1px'} ${props=>props.$borderStyle} ${(props) => props.$borderColor};
   background-color: ${(props) => props.$bgColor};
 `;
 
@@ -212,11 +213,12 @@ const NavCompBase = new UICompBuilder(childrenMap, (props) => {
 
   return (
     <Wrapper
+      $borderStyle={props.style.borderStyle}
       $animationStyle={props.animationStyle}
       $borderColor={props.style.border}
       $bgColor={props.style.background}
       $borderWidth={props.style.borderWidth}
-      $borderRadius={props.style.borderRadius}
+      $borderRadius={props.style.radius}
     >
       <NavInner $justify={justify}>
         {props.logoUrl && (

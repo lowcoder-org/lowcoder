@@ -53,7 +53,7 @@ const Container = styled.div<{ $style: any }>`
 const getStyle = (style: any) => {
   return css`
     button {
-      border: 1px solid ${style.border};
+      border: ${style.borderWidth} ${style.borderStyle} ${style.border};
       border-radius: ${style.radius};
       margin: ${style.margin};
       rotate: ${style.rotation};

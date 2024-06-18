@@ -51,13 +51,6 @@ import static org.lowcoder.sdk.util.LocaleUtils.getMessage;
 public class OrganizationServiceImpl implements OrganizationService {
 
     private Conf<Integer> logoMaxSizeInKb;
-
-    private static final String PASSWORD_RESET_EMAIL_TEMPLATE_DEFAULT = "<p>Hi, %s<br/>" +
-            "Here is the link to reset your password: %s<br/>" +
-            "Please note that the link will expire after 12 hours.<br/><br/>" +
-            "Regards,<br/>" +
-            "The Lowcoder Team</p>";
-
     private final AssetRepository assetRepository;
     private final AssetService assetService;
     private final OrgMemberService orgMemberService;
@@ -141,7 +134,7 @@ public class OrganizationServiceImpl implements OrganizationService {
                         return Mono.error(new BizException(BizError.INVALID_PARAMETER, "INVALID_PARAMETER", FieldName.ORGANIZATION));
                     }
                     organization.setCommonSettings(new OrganizationCommonSettings());
-                    organization.getCommonSettings().put("PASSWORD_RESET_EMAIL_TEMPLATE",
+                    organization.getCommonSettings().put(OrganizationCommonSettings.PASSWORD_RESET_EMAIL_TEMPLATE,
                             PASSWORD_RESET_EMAIL_TEMPLATE_DEFAULT);
                     organization.setState(ACTIVE);
                     return Mono.just(organization);

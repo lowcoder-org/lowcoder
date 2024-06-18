@@ -109,6 +109,7 @@ public class UserHomeApiServiceImpl implements UserHomeApiService {
                     return Mono.zip(orgAndRolesMono, orgDevChecker.isCurrentOrgDev())
                             .map(tuple2 -> {
                                 List<OrgAndVisitorRoleView> orgAndRoles = tuple2.getT1();
+                                orgAndRoles.forEach(orgAndRole -> orgAndRole.getOrg().setCommonSettings(orgAndRole.getOrg().getCommonSettings().sanitized()));
                                 boolean isOrgDev = tuple2.getT2();
                                 return UserProfileView.builder()
                                         .id(user.getId())

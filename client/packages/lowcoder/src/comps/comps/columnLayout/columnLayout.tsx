@@ -42,8 +42,20 @@ import { disabledPropertyView, hiddenPropertyView } from "comps/utils/propertyUt
 import { DisabledContext } from "comps/generators/uiCompBuilder";
 
 const ContainWrapper = styled.div<{
-  $style: ContainerStyleType | undefined;
+  $style: ContainerStyleType & {
+    display: string,
+    gridTemplateColumns: string,
+    columnGap: string,
+    gridTemplateRows: string,
+    rowGap: string,
+  } | undefined;
 }>`
+  display: ${(props) => props.$style?.display};
+  grid-template-columns: ${(props) => props.$style?.gridTemplateColumns};
+  grid-template-rows: ${(props) => props.$style?.gridTemplateRows};
+  column-gap: ${(props) => props.$style?.columnGap};
+  row-gap: ${(props) => props.$style?.rowGap};
+
   background-color: ${(props) => props.$style?.background} !important;
   border-radius: ${(props) => props.$style?.radius};
   border-width: ${(props) => props.$style?.borderWidth};
@@ -59,7 +71,7 @@ const ColWrapper = styled(Col)<{
   $matchColumnsHeight: boolean,
 }>`
   > div {
-    height: ${(props) => props.$matchColumnsHeight ? '100%' : 'auto'};
+    height: ${(props) => props.$matchColumnsHeight ? `calc(100% - ${props.$style?.padding || 0} - ${props.$style?.padding || 0})` : 'auto'};
     background-color: ${(props) => props.$style?.background} !important;
     border-radius: ${(props) => props.$style?.radius};
     border-width: ${(props) => props.$style?.borderWidth};
@@ -121,17 +133,24 @@ const ColumnLayout = (props: ColumnLayoutProps) => {
   } = props;
 
   return (
-    <BackgroundColorContext.Provider value={"none"}>
+    <BackgroundColorContext.Provider value={props.style.background}>
       <DisabledContext.Provider value={props.disabled}>
-        <ContainWrapper $style={props.style}>
-          <div style={{display: "grid", gridTemplateColumns: templateColumns, columnGap, gridTemplateRows: templateRows, rowGap}}>
-            {columns.map(column => {
-              const id = String(column.id);
-              const childDispatch = wrapDispatch(wrapDispatch(dispatch, "containers"), id);
-              if(!containers[id]) return null
-              const containerProps = containers[id].children;
-              const noOfColumns = columns.length;
-              return (
+        <ContainWrapper $style={{
+          ...props.style,
+          display: "grid",
+          gridTemplateColumns: templateColumns,
+          columnGap,
+          gridTemplateRows: templateRows,
+          rowGap,
+        }}>
+          {columns.map(column => {
+            const id = String(column.id);
+            const childDispatch = wrapDispatch(wrapDispatch(dispatch, "containers"), id);
+            if(!containers[id]) return null
+            const containerProps = containers[id].children;
+            const noOfColumns = columns.length;
+            return (
+              <BackgroundColorContext.Provider value={props.columnStyle.background}>
                 <ColWrapper
                   key={id}
                   $style={props.columnStyle}
@@ -147,12 +166,12 @@ const ColumnLayout = (props: ColumnLayoutProps) => {
                     style={columnStyle}
                   />
                 </ColWrapper>
-              )
-              })
-            }
-          </div>
+              </BackgroundColorContext.Provider>
+            )
+            })
+          }
         </ContainWrapper>
-        </DisabledContext.Provider>
+      </DisabledContext.Provider>
     </BackgroundColorContext.Provider>
   );
 };

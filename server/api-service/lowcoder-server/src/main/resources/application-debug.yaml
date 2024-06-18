@@ -122,10 +122,3 @@ management:
       enabled: true
     diskspace:
       enabled: false
-
-debug: true
-
-logging:
-  level:
-    root: debug
-    org.lowcoder: debug

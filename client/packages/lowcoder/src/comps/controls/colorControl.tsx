@@ -27,7 +27,7 @@ const DepIcon = styled(IconDep)`
 const ColorInput = styled.div`
   //position: absolute;
   outline: none;
-  width: 140px;
+  width: 135px;
   min-height: 30px;
 `;
 

@@ -94,7 +94,7 @@ export const authConfig = {
       sourceIcon: { label: "Source Icon", isIcon: true, isRequire: true, },
       sourceCategory: { label: "Source Category", isRequire: true, isList: true, options: AuthCategories },
       ...clientIdandSecretConfig,
-      issuer: { label: 'Issuer URI', isRequire: true },
+      issuerUri: { label: 'Issuer URI', isRequire: true },
       authorizationEndpoint: { label: 'Authorization Endpoint', isRequire: true },
       tokenEndpoint: { label: 'Token Endpoint', isRequire: true },
       userInfoEndpoint: { label: 'UserInfo Endpoint', isRequire: true },

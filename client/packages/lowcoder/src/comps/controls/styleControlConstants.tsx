@@ -1192,6 +1192,8 @@ export const SelectStyle = [
   ...replaceAndMergeMultipleStyles(STYLING_FIELDS_SEQUENCE.filter(style=>style.name!=='rotation'), "border", [
     ...getStaticBgBorderRadiusByBg(SURFACE_COLOR, "pc"),
   ]),
+  BOXSHADOW,
+  BOXSHADOWCOLOR,
   ...ACCENT_VALIDATE,
 ] as const;
 
@@ -1225,6 +1227,8 @@ export const MultiSelectStyle = [
     transformer: toSelf,
     platform: "pc",
   },
+  BOXSHADOW,
+  BOXSHADOWCOLOR,
   ...ACCENT_VALIDATE,
 ] as const;
 
@@ -1330,8 +1334,8 @@ export const RadioStyle = [
   {
     name: "checked",
     label: trans("style.checked"),
-    depName: "uncheckedBackground",
-    depType: DEP_TYPE.SELF,
+    depName: "checkedBackground",
+    depType: DEP_TYPE.CONTRAST_TEXT,
     transformer: toSelf,
   },
   HOVER_BACKGROUND_COLOR,
@@ -1584,6 +1588,9 @@ export const DateTimeStyle = [
   PADDING,
   BORDER_STYLE,
   BORDER_WIDTH,
+  BOXSHADOW,
+  BOXSHADOWCOLOR,
+  ROTATION,
   ...ACCENT_VALIDATE,
 ] as const;
 
