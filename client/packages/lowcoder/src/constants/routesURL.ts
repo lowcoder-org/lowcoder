@@ -3,7 +3,8 @@ import { LocationDescriptor } from "history";
 import { UserGuideLocationState } from "pages/tutorials/tutorialsConstant";
 import { DatasourceType } from "@lowcoder-ee/constants/queryConstants";
 
-export const BASE_URL = "/";
+export const APP_ROOT = "/";
+export const BASE_URL = (APP_ROOT === "/")? APP_ROOT : "";
 export const USER_AUTH_URL = `${BASE_URL}/user/auth`;
 export const USER_PROFILE_URL = `${BASE_URL}/user/profile`;
 export const NEWS_URL = `${BASE_URL}/news`;
