@@ -3,40 +3,40 @@ import { LocationDescriptor } from "history";
 import { UserGuideLocationState } from "pages/tutorials/tutorialsConstant";
 import { DatasourceType } from "@lowcoder-ee/constants/queryConstants";
 
-export const APP_ROOT = "/";
-export const BASE_URL = (APP_ROOT === "/")? APP_ROOT : "";
-export const USER_AUTH_URL = `${BASE_URL}/user/auth`;
-export const USER_PROFILE_URL = `${BASE_URL}/user/profile`;
-export const NEWS_URL = `${BASE_URL}/news`;
-export const ORG_HOME_URL = `${BASE_URL}/org/home`;
-export const COMPONENT_DOC_URL = `${BASE_URL}/components`;
-export const SETTING = `${BASE_URL}/setting`;
-export const PERMISSION_SETTING = `${BASE_URL}/setting/permission`;
-export const ORGANIZATION_SETTING = `${BASE_URL}/setting/organization`;
-export const THEME_SETTING = `${BASE_URL}/setting/theme`;
-export const PLUGINS_SETTING = `${BASE_URL}/setting/plugins`;
-export const THEME_DETAIL = `${BASE_URL}/setting/theme/detail`;
+export const BASE_URL = "/";
+export const APP_ROOT = (BASE_URL === "/") ? "" : BASE_URL;
+export const USER_AUTH_URL = `${APP_ROOT}/user/auth`;
+export const USER_PROFILE_URL = `${APP_ROOT}/user/profile`;
+export const NEWS_URL = `${APP_ROOT}/news`;
+export const ORG_HOME_URL = `${APP_ROOT}/org/home`;
+export const COMPONENT_DOC_URL = `${APP_ROOT}/components`;
+export const SETTING = `${APP_ROOT}/setting`;
+export const PERMISSION_SETTING = `${APP_ROOT}/setting/permission`;
+export const ORGANIZATION_SETTING = `${APP_ROOT}/setting/organization`;
+export const THEME_SETTING = `${APP_ROOT}/setting/theme`;
+export const PLUGINS_SETTING = `${APP_ROOT}/setting/plugins`;
+export const THEME_DETAIL = `${APP_ROOT}/setting/theme/detail`;
 
-export const OAUTH_PROVIDER_SETTING = `${BASE_URL}/setting/oauth-provider`;
-export const OAUTH_PROVIDER_DETAIL = `${BASE_URL}/setting/oauth-provider/detail`;
+export const OAUTH_PROVIDER_SETTING = `${APP_ROOT}/setting/oauth-provider`;
+export const OAUTH_PROVIDER_DETAIL = `${APP_ROOT}/setting/oauth-provider/detail`;
 
 export const PERMISSION_SETTING_DETAIL = `${PERMISSION_SETTING}/:groupId`;
 export const ORGANIZATION_SETTING_DETAIL = `${ORGANIZATION_SETTING}/:orgId`;
 
-export const ALL_APPLICATIONS_URL = `${BASE_URL}/apps`;
-export const ADMIN_APP_URL = `${BASE_URL}/ee/:applicationId/:viewMode`;
+export const ALL_APPLICATIONS_URL = `${APP_ROOT}/apps`;
+export const ADMIN_APP_URL = `${APP_ROOT}/ee/:applicationId/:viewMode`;
 export const APPLICATION_MARKETPLACE_URL = `https://app.lowcoder.cloud/apps`;
-export const MODULE_APPLICATIONS_URL = `${BASE_URL}/apps/module`;
-export const MARKETPLACE_URL = `${BASE_URL}/marketplace`;
-export const DATASOURCE_URL = `${BASE_URL}/datasource`;
+export const MODULE_APPLICATIONS_URL = `${APP_ROOT}/apps/module`;
+export const MARKETPLACE_URL = `${APP_ROOT}/marketplace`;
+export const DATASOURCE_URL = `${APP_ROOT}/datasource`;
 export const DATASOURCE_CREATE_URL = `${DATASOURCE_URL}/new/:datasourceType`;
 export const DATASOURCE_EDIT_URL = `${DATASOURCE_URL}/:datasourceId`;
-export const QUERY_LIBRARY_URL = `${BASE_URL}/query-library`;
-export const API_DOCS_URL = `${BASE_URL}/lowcoder-api`;
-export const FOLDER_URL_PREFIX = `${BASE_URL}/folder`;
+export const QUERY_LIBRARY_URL = `${APP_ROOT}/query-library`;
+export const API_DOCS_URL = `${APP_ROOT}/lowcoder-api`;
+export const FOLDER_URL_PREFIX = `${APP_ROOT}/folder`;
 export const FOLDER_URL = `${FOLDER_URL_PREFIX}/:folderId`;
-export const FOLDERS_URL = `${BASE_URL}/folders`;
-export const TRASH_URL =`${BASE_URL}/trash`;
+export const FOLDERS_URL = `${APP_ROOT}/folders`;
+export const TRASH_URL = `${APP_ROOT}/trash`;
 export const IMPORT_APP_FROM_TEMPLATE_URL = `${ALL_APPLICATIONS_URL}/template-import/:templateId`;
 export const APP_EDITOR_URL = `${ALL_APPLICATIONS_URL}/:applicationId/:viewMode/:appPageId?`;
 
@@ -49,18 +49,18 @@ export const QR_CODE_OAUTH_URL = `${USER_AUTH_URL}/oauth/qrcode`;
 export const OAUTH_REDIRECT = `${USER_AUTH_URL}/oauth/redirect`;
 export const CAS_AUTH_REDIRECT = `${USER_AUTH_URL}/cas/redirect`;
 export const LDAP_AUTH_LOGIN_URL = `${USER_AUTH_URL}/ldap/login`;
-export const INVITE_LANDING_URL = `${BASE_URL}/invite/:invitationId`;
-export const ORG_AUTH_LOGIN_URL = `${BASE_URL}/org/:orgId/auth/login`;
-export const ORG_AUTH_REGISTER_URL = `${BASE_URL}/org/:orgId/auth/register`;
-export const ORG_AUTH_FORGOT_PASSWORD_URL = `${BASE_URL}/org/:orgId/auth/forgot-password`;
-export const ORG_AUTH_RESET_PASSWORD_URL = `${BASE_URL}/org/:orgId/auth/lost-password`;
+export const INVITE_LANDING_URL = `${APP_ROOT}/invite/:invitationId`;
+export const ORG_AUTH_LOGIN_URL = `${APP_ROOT}/org/:orgId/auth/login`;
+export const ORG_AUTH_REGISTER_URL = `${APP_ROOT}/org/:orgId/auth/register`;
+export const ORG_AUTH_FORGOT_PASSWORD_URL = `${APP_ROOT}/org/:orgId/auth/forgot-password`;
+export const ORG_AUTH_RESET_PASSWORD_URL = `${APP_ROOT}/org/:orgId/auth/lost-password`;
 export const MARKETPLACE_TYPE_URL = `${MARKETPLACE_URL}/:marketplaceType`;
 
 export const APPLICATION_VIEW_URL = (appId: string, viewMode: AppViewMode) =>
   `${ALL_APPLICATIONS_URL}/${appId}/${viewMode}`;
 
 export const APPLICATION_MARKETPLACE_VIEW_URL = (appId: string, viewMode: AppViewMode) =>
-`${APPLICATION_MARKETPLACE_URL}/${appId}/${viewMode}`;
+  `${APPLICATION_MARKETPLACE_URL}/${appId}/${viewMode}`;
 
 export const MARKETPLACE_URL_BY_TYPE = (type: MarketplaceType) =>
   `${MARKETPLACE_URL}/${type}`;
