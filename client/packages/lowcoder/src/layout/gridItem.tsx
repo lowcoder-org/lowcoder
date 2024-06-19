@@ -141,7 +141,9 @@ export function GridItem(props: GridItemProps) {
         onDrag={onDrag}
         onDragEnd={onDragEnd}
         onMouseDown={(e) => {
-          e.stopPropagation();
+          if (isDraggable) {
+            e.stopPropagation();
+          }
           const event = new MouseEvent("mousedown");
           document.dispatchEvent(event);
         }}
