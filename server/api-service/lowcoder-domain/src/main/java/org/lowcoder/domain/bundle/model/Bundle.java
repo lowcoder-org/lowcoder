@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+import org.apache.commons.lang3.BooleanUtils;
 import org.lowcoder.sdk.models.HasIdAndAuditing;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -32,4 +33,16 @@ public class Bundle extends HasIdAndAuditing {
 
     private Map<String, Object> editingBundleDSL;
     private Map<String, Object> publishedBundleDSL;
+
+    public boolean isPublicToAll() {
+        return BooleanUtils.toBooleanDefaultIfNull(publicToAll, false);
+    }
+
+    public boolean isPublicToMarketplace() {
+        return BooleanUtils.toBooleanDefaultIfNull(publicToMarketplace, false);
+    }
+
+    public boolean agencyProfile() {
+        return BooleanUtils.toBooleanDefaultIfNull(agencyProfile, false);
+    }
 }

@@ -253,6 +253,15 @@ public interface BundleEndpoints
 	@PutMapping("/{bundleId}/agency-profile")
 	public Mono<ResponseView<Boolean>> setBundleAsAgencyProfile(@PathVariable String bundleId,
 																	 @RequestBody BundleEndpoints.BundleAsAgencyProfileRequest request);
+
+	@Operation(
+			tags = TAG_BUNDLE_MANAGEMENT,
+			operationId = "publicBundle",
+			summary = "Publish Bundle for users",
+			description = "Set a Lowcoder Bundle identified by its ID as available to all selected Users or User-Groups. This is similar to the classic deployment. The Lowcoder Bundle gets published in production mode."
+	)
+	@PostMapping("/{bundleId}/publish")
+	public Mono<ResponseView<BundleInfoView>> publish(@PathVariable String bundleId);
 	
 	public record BundlePublicToAllRequest(Boolean publicToAll) {
 		@Override
