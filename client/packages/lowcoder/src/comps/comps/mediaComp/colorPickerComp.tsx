@@ -23,6 +23,9 @@ export function getStyle(style: ColorPickerStyleType) {
     &:not(.ant-input-disabled, .ant-input-affix-wrapper-disabled),
     input {
       background-color: ${style.background};
+      color:${style.text};
+      font-weight:${style.textWeight};
+      font-family:${style.fontFamily};
       border-color: ${style.border};
       &:focus,
       &.ant-input-affix-wrapper-focused {

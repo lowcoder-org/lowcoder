@@ -76,7 +76,7 @@ public class GenericAuthRequest  extends AbstractOauth2Request<Oauth2GenericAuth
 
     @Override
     protected Mono<AuthUser> getAuthUser(AuthToken authToken) {
-        if(!config.getUserInfoIntrospection()) return Mono.just(AuthUser.builder().build());
+        if(!Boolean.TRUE.equals(config.getUserInfoIntrospection())) return Mono.just(AuthUser.builder().build());
         return WebClientBuildHelper.builder()
                 .systemProxy()
                 .timeoutMs(HTTP_TIMEOUT)
@@ -90,7 +90,7 @@ public class GenericAuthRequest  extends AbstractOauth2Request<Oauth2GenericAuth
                     if (map.containsKey("error") || map.containsKey("error_description")) {
                         return Mono.error(new AuthException(JsonUtils.toJson(map)));
                     }
-                    return Mono.just(mapToAuthUser(map));
+                    return Mono.just(mapToAuthUser(map, config.getSourceMappings()));
                 });
     }
 }

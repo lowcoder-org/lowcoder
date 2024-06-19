@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { trans, transToNode } from "i18n";
 import IdSourceApi, { ConfigItem } from "api/idSourceApi";
 import { DetailContainer } from "pages/setting/theme/styledComponents";
@@ -48,6 +48,7 @@ type IdSourceDetailProps = {
 };
 
 export const IdSourceDetail = (props: IdSourceDetailProps) => {
+  const configDetail = props.location.state;
   const [form] = useForm();
   const [lock, setLock] = useState(() => {
     const config = props.location.state;
@@ -65,7 +66,14 @@ export const IdSourceDetail = (props: IdSourceDetailProps) => {
       return true;
     }
   });
-  const configDetail = props.location.state;
+
+  useEffect(() => {
+    if (configDetail.authType === AuthType.Generic) {
+      sourceMappingKeys.forEach((sourceKey) => {
+        form.setFieldValue(sourceKey, (configDetail as any).sourceMappings[sourceKey]);
+      })
+    }
+  }, [configDetail]);
   const goList = () => {
     history.push(OAUTH_PROVIDER_SETTING);
   };

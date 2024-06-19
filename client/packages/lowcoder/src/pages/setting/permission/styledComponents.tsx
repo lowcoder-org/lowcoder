@@ -22,6 +22,7 @@ import ReactJson from "react-json-view";
 import { StyledLink } from "pages/common/styledComponent";
 import _ from "lodash";
 import { Avatar, Card, List } from "antd";
+import { fullAvatarUrl } from "util/urlUtils";
 
 export const StyledTable = styled(AntdTable)`
   .ant-table-cell {
@@ -435,9 +436,9 @@ export function UserDetailPopup(props: { userId: string; title: string }) {
               style={{ width: "90%", borderRadius: 8, margin: "0 auto" }}
               cover={
                 <div style={{ display: 'flex', justifyContent: 'center', padding: 20 }}>
-                  <Avatar
+                  <Avatar 
                     size={100}
-                    src={userInfo.avatarUrl || ''}
+                    src={userInfo.avatarUrl ? fullAvatarUrl(userInfo.avatarUrl) : ''}
                     alt={userInfo.name || ''}
                   />
                 </div>

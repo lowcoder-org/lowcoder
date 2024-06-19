@@ -50,7 +50,7 @@ const RowWrapper = styled(Row)<{
   ${(props) => props.$animationStyle}
   height: 100%;
   border-radius: ${(props) => props.$style?.radius};
-  border-width: ${(props) => props.$style?.borderWidth}px;
+  border-width: ${(props) => props.$style?.borderWidth};
   border-color: ${(props) => props.$style?.border};
   border-style: ${(props) => props.$style?.borderStyle};
   padding: ${(props) => props.$style.padding};

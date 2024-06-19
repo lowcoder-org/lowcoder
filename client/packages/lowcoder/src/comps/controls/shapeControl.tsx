@@ -81,9 +81,9 @@ const IconPicker = (props: {
   IconType?: "OnlyAntd" | "All" | "default" | undefined;
 }) => {
   const icon = useShape(props.value);
-  console.log(props);
+  // console.log(props);
   let shapeDetails = props.value;
-  console.log("shapeDetails ", shapeDetails);
+  // console.log("shapeDetails ", shapeDetails);
 
   return (
     <ShapeSelect
@@ -173,7 +173,7 @@ type ChangeModeAction = {
 
 function ShapeControlView(props: { value: any }) {
   const { value } = props;
-  console.log("ShapeControlView ", value);
+  // console.log("ShapeControlView ", value);
   const icon = useShape(value);
   if (icon) {
     return icon.getView();
