@@ -1,6 +1,5 @@
 package org.lowcoder.api.authentication.request.oauth2.request;
 
-import lombok.Setter;
 import org.lowcoder.api.authentication.request.AuthException;
 import org.lowcoder.api.authentication.request.oauth2.GenericOAuthProviderSource;
 import org.lowcoder.api.authentication.request.oauth2.OAuth2RequestContext;
@@ -48,7 +47,7 @@ public class GenericAuthRequest  extends AbstractOauth2Request<Oauth2GenericAuth
                     if (map.containsKey("error") || map.containsKey("error_description")) {
                         return Mono.error(new AuthException(JsonUtils.toJson(map)));
                     }
-                    return Mono.just(mapToAuthToken(map));
+                    return Mono.just(mapToAuthToken(map, config.getSourceMappings()));
                 });
     }
 
@@ -70,7 +69,7 @@ public class GenericAuthRequest  extends AbstractOauth2Request<Oauth2GenericAuth
                     if (map.containsKey("error") || map.containsKey("error_description")) {
                         return Mono.error(new AuthException(JsonUtils.toJson(map)));
                     }
-                    return Mono.just(mapToAuthToken(map));
+                    return Mono.just(mapToAuthToken(map, config.getSourceMappings()));
                 });
     }
 
