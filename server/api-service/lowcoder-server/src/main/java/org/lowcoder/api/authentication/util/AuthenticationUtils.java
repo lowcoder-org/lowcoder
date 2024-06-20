@@ -93,4 +93,20 @@ public final class AuthenticationUtils {
                 .rawUserInfo(map)
                 .build();
     }
+
+    /**
+     * Merge two AuthUser object - overwrite high into low
+     * @param low base object for merge
+     * @param high overwriting object
+     * @return
+     */
+    public static AuthUser mergeAuthUser(AuthUser low, AuthUser high) {
+        return AuthUser.builder()
+                .uid(high.getUid() != null ? high.getUid() : low.getUid())
+                .username(high.getUsername() != null ? high.getUsername() : low.getUsername())
+                .avatar(high.getAvatar() != null ? high.getAvatar() : low.getAvatar())
+                .rawUserInfo(high.getRawUserInfo() != null ? high.getRawUserInfo() : low.getRawUserInfo())
+                .authToken(high.getAuthToken() != null ? high.getAuthToken() : low.getAuthToken())
+                .build();
+    }
 }
