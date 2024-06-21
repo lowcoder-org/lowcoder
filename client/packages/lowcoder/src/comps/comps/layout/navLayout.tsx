@@ -576,8 +576,7 @@ NavTmpLayout = withViewFn(NavTmpLayout, (comp) => {
       defaultOpenKeys={defaultOpenKeys}
       selectedKeys={[selectedKey]}
       $navItemStyle={{
-        // width: `calc(100% - ${getHorizontalMargin(navItemStyle.margin.split(' '))})`,
-        width: 'auto',
+        width: navMode === 'horizontal' ? 'auto' : `calc(100% - ${getHorizontalMargin(navItemStyle.margin.split(' '))})`,
         ...navItemStyle,
       }}
       $navItemHoverStyle={navItemHoverStyle}
