@@ -56,6 +56,16 @@ public class BundleServiceImpl implements BundleService {
     }
 
     @Override
+    public Mono<Bundle> findByIdWithoutDsl(String id) {
+        if (id == null) {
+            return Mono.error(new BizException(BizError.INVALID_PARAMETER, "INVALID_PARAMETER", FieldName.ID));
+        }
+
+        return repository.findById(id)
+                .switchIfEmpty(Mono.error(new BizException(BizError.NO_RESOURCE_FOUND, "CANT_FIND_BUNDLE", id)));
+    }
+
+    @Override
     public Mono<Bundle> create(Bundle newbundle, String visitorId) {
         return repository.save(newbundle)
                 .delayUntil(bundle -> resourcePermissionService.addResourcePermissionToUser(bundle.getId(), visitorId, ResourceRole.OWNER, ResourceType.BUNDLE));
@@ -85,10 +95,24 @@ public class BundleServiceImpl implements BundleService {
                 });
     }
 
+    @Override
+    public Mono<Bundle> publish(String bundleId) {
+        return findById(bundleId)
+                .flatMap(newBundle -> { // copy editingApplicationDSL to publishedApplicationDSL
+                    Map<String, Object> editingBundleDSL = newBundle.getEditingBundleDSL();
+                    return updatePublishedBundleDSL(bundleId, editingBundleDSL)
+                            .thenReturn(newBundle);
+                });
+    }
+
+    @Override
+    public Mono<Boolean> updatePublishedBundleDSL(String bundleId, Map<String, Object> bundleDSL) {
+        Bundle bundle = Bundle.builder().publishedBundleDSL(bundleDSL).build();
+        return mongoUpsertHelper.updateById(bundle, bundleId);
+    }
 
     @Override
     @NonEmptyMono
-    @SuppressWarnings("ReactiveStreamsNullableInLambdaInTransform")
     public Mono<Set<String>> getFilteredPublicBundleIds(BundleRequestType requestType, Collection<String> bundleIds, String userId, Boolean isPrivateMarketplace) {
         boolean isAnonymous = StringUtils.isBlank(userId);
         switch(requestType)

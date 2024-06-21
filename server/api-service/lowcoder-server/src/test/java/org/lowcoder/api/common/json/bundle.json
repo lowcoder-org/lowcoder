@@ -1,0 +1,65 @@
+{
+  "class": "org.lowcoder.domain.bundle.model.Bundle",
+  "data": [
+    {
+      "id": "bundle01",
+      "name": "bundle01",
+      "organizationId": "org01",
+      "bundleStatus": "NORMAL"
+    },
+    {
+      "id": "bundle02",
+      "name": "bundle02",
+      "organizationId": "org01",
+      "bundleStatus": "NORMAL"
+    },
+    {
+      "id": "bundle03",
+      "name": "bundle03",
+      "organizationId": "org01",
+      "bundleStatus": "RECYCLED"
+    },
+    {
+      "id": "bundle04",
+      "name": "bundle04",
+      "organizationId": "org01",
+      "bundleStatus": "DELETED"
+    },
+    {
+      "id": "bundle05",
+      "name": "bundle05",
+      "organizationId": "org01",
+      "bundleStatus": "NORMAL"
+    },
+    {
+      "id": "bundle06",
+      "name": "bundle06",
+      "organizationId": "org01",
+      "bundleStatus": "NORMAL"
+    },
+    {
+      "id": "bundle07",
+      "name": "bundle07",
+      "organizationId": "org01",
+      "bundleStatus": "NORMAL"
+    },
+    {
+      "id": "bundle08",
+      "name": "bundle08",
+      "organizationId": "org01",
+      "bundleStatus": "NORMAL"
+    },
+    {
+      "id": "bundle09",
+      "name": "bundle09",
+      "organizationId": "org01",
+      "bundleStatus": "NORMAL"
+    },
+    {
+      "id": "bundle10",
+      "name": "bundle10",
+      "organizationId": "org01",
+      "bundleStatus": "NORMAL"
+    }
+  ]
+}

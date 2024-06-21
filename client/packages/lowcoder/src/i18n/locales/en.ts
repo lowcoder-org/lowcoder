@@ -3473,7 +3473,13 @@ export const en = {
     "width": "Width",
     "widthTooltip": "Pixel or Percentage, e.g. 520, 60%",
     "navStyle": "Menu Style",
-    "navItemStyle": "Menu Item Style"
+    "navItemStyle": "Menu Item Style",
+    "navBackground": "Background Image",
+    "mobileNavVerticalOrientation": "Vertical Orientation",
+    "mobileNavVerticalMaxWidth": "Max Width",
+    "mobileNavBarHeight": "Navbar Height",
+    "mobileNavVerticalShowSeparator": "Show Separator",
+    "mobileNavIconSize": "Icon Size",
   },
 
   tour: { 

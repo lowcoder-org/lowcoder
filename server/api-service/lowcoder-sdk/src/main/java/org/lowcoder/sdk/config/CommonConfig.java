@@ -43,7 +43,7 @@ public class CommonConfig {
     private SuperAdmin superAdmin = new SuperAdmin();
     private Marketplace marketplace = new Marketplace();
     private String lowcoderPublicUrl;
-    private String lostPasswordEmailSender;
+    private String notificationsEmailSender;
 
     public boolean isSelfHost() {
         return !isCloud();

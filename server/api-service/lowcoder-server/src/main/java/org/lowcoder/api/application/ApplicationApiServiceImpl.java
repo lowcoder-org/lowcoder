@@ -50,11 +50,13 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static org.lowcoder.domain.application.model.ApplicationStatus.NORMAL;
@@ -475,10 +477,15 @@ public class ApplicationApiServiceImpl implements ApplicationApiService {
                 .flatMap(permissionStatus -> {
                     if (!permissionStatus.hasPermission()) {
 
-                        String orgId = applicationService.findById(applicationId)
-                                .map(Application::getOrganizationId)
-                                .onErrorReturn("")
-                                .block();
+                        String orgId = "";
+                        try {
+                            orgId = applicationService.findById(applicationId)
+                                    .map(Application::getOrganizationId)
+                                    .onErrorReturn("")
+                                    .block(Duration.ofSeconds(2));
+                        } catch(Throwable cause) {
+                            log.warn("Couldn't get orgId! - {}", cause.getMessage());
+                        }
 
                         HttpHeaders headers = new HttpHeaders();
                         if (StringUtils.isNotBlank(orgId)) {

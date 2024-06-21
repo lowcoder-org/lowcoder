@@ -35,6 +35,7 @@ type OAuthConfig = {
   authType: ServerAuthType;
   source: string;
   sourceName: string;
+  sourceIcon?: string;
   agentId?: string;
   clientId?: string;
   id?: string;
@@ -44,6 +45,7 @@ export type FormConfig = {
   enableRegister?: boolean;
   enable?: boolean;
   authType: ServerAuthType;
+  sourceIcon?: string;
   source: string;
   sourceName: string;
   id?: string;
@@ -72,7 +74,13 @@ export type SystemConfig = {
 export const transToSystemConfig = (responseData: ConfigResponseData): SystemConfig => {
   const thirdPartyAuthConfigs: ThirdPartyConfigType[] = [];
   responseData.authConfigs?.forEach((authConfig) => {
+
     const logo = ServerAuthTypeInfo[authConfig.authType]?.logo || GeneralLoginIcon;
+    var icon = "";
+    if (authConfig.authType === "GENERIC" && authConfig.sourceIcon) {
+      icon = authConfig.sourceIcon;
+    }
+
     if (isOAuthConfig(authConfig)) {
       const routeLinkConf: Partial<ThirdPartyConfigType> = isRouteLink(authConfig.authType)
         ? {
@@ -82,6 +90,7 @@ export const transToSystemConfig = (responseData: ConfigResponseData): SystemCon
         : {};
       thirdPartyAuthConfigs.push({
         logo: logo,
+        icon: icon,
         name: authConfig.sourceName,
         url: authConfig.authorizeUrl,
         sourceType: authConfig.source,

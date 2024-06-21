@@ -1334,8 +1334,8 @@ export const RadioStyle = [
   {
     name: "checked",
     label: trans("style.checked"),
-    depName: "uncheckedBackground",
-    depType: DEP_TYPE.SELF,
+    depName: "checkedBackground",
+    depType: DEP_TYPE.CONTRAST_TEXT,
     transformer: toSelf,
   },
   HOVER_BACKGROUND_COLOR,

@@ -95,8 +95,8 @@ export default function AppEditor() {
       dispatch(fetchQueryLibraryDropdown());
     }
   }, [dispatch, applicationId, paramViewMode]);
-
-  useEffect(() => {
+  
+  const fetchJSDataSourceByApp = () => {
     DatasourceApi.fetchJsDatasourceByApp(applicationId).then((res) => {
       res.data.data.forEach((i) => {
         registryDataSourcePlugin(i.type, i.id, i.pluginDefinition);
@@ -104,7 +104,7 @@ export default function AppEditor() {
       setIsDataSourcePluginRegistered(true);
     });
     dispatch(setShowAppSnapshot(false));
-  }, [applicationId, dispatch]);
+  };
 
   useEffect(() => {
     if (!fetchOrgGroupsFinished) {
@@ -128,6 +128,7 @@ export default function AppEditor() {
             },
           });
           setAppInfo(info);
+          fetchJSDataSourceByApp();
         },
       })
     );
