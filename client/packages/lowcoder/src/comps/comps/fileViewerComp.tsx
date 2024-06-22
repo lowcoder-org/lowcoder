@@ -1,7 +1,7 @@
 import { styleControl } from "comps/controls/styleControl";
 import { AnimationStyle, AnimationStyleType, FileViewerStyle, FileViewerStyleType, heightCalculator, widthCalculator } from "comps/controls/styleControlConstants";
 import { isEmpty } from "lodash";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { DocumentViewer } from "react-documents";
 import styled, { css } from "styled-components";
 import { Section, sectionNames } from "lowcoder-design";
@@ -13,6 +13,9 @@ import { trans } from "i18n";
 
 import { useContext } from "react";
 import { EditorContext } from "comps/editorState";
+import { CompTypeContext } from "@lowcoder-ee/comps/utils/compTypeContext";
+import { setInitialCompStyles } from "@lowcoder-ee/comps/utils/themeUtil";
+import { ThemeContext } from "@lowcoder-ee/comps/utils/themeContext";
 
 const getStyle = (style: FileViewerStyleType) => {
   return css`
@@ -67,10 +70,27 @@ const DraggableFileViewer = (props: { src: string; style: FileViewerStyleType,an
 let FileViewerBasicComp = (function () {
   const childrenMap = {
     src: StringControl,
-    style: styleControl(FileViewerStyle),
-    animationStyle: styleControl(AnimationStyle),
+    style: styleControl(FileViewerStyle , 'style'),
+    animationStyle: styleControl(AnimationStyle , 'animationStyle'),
   };
-  return new UICompBuilder(childrenMap, (props) => {
+  return new UICompBuilder(childrenMap, (props , dispatch) => {
+
+    const theme = useContext(ThemeContext);
+    const compType = useContext(CompTypeContext);
+    const compTheme = theme?.theme?.components?.[compType];
+    const styleProps: Record<string, any> = {};
+    ['style', 'animationStyle'].forEach((key: string) => {
+      styleProps[key] = (props as any)[key];
+    });
+
+    useEffect(() => {
+      setInitialCompStyles({
+        dispatch,
+        compTheme,
+        styleProps,
+      });
+    }, []);
+    
     if (isEmpty(props.src)) {
       return (
         <ErrorWrapper
