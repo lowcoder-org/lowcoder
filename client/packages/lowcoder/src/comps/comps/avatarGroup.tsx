@@ -10,7 +10,7 @@ import { NumberControl, StringControl } from "comps/controls/codeControl";
 import { Avatar, Tooltip } from "antd";
 import { clickEvent, eventHandlerControl, refreshEvent } from "../controls/eventHandlerControl";
 import styled from "styled-components";
-import { useContext, ReactElement } from "react";
+import { useContext, ReactElement, useEffect } from "react";
 import { MultiCompBuilder, stateComp, withDefault } from "../generators";
 import { EditorContext } from "comps/editorState";
 import { IconControl } from "../controls/iconControl";
@@ -19,6 +19,9 @@ import { optionsControl } from "../controls/optionsControl";
 import { BoolControl } from "../controls/boolControl";
 import { dropdownControl } from "../controls/dropdownControl";
 import { JSONObject } from "util/jsonTypes";
+import { CompTypeContext } from "@lowcoder-ee/comps/utils/compTypeContext";
+import { setInitialCompStyles } from "@lowcoder-ee/comps/utils/themeUtil";
+import { ThemeContext } from "@lowcoder-ee/comps/utils/themeContext";
 
 const MacaroneList = [
   '#fde68a',
@@ -86,8 +89,8 @@ export const alignOptions = [
 ] as const;
 
 const childrenMap = {
-  avatar: styleControl(avatarGroupStyle),
-  style: styleControl(avatarContainerStyle),
+  avatar: styleControl(avatarGroupStyle , 'avatar'),
+  style: styleControl(avatarContainerStyle , 'style'),
   maxCount: withDefault(NumberControl, 3),
   avatarSize: withDefault(NumberControl, 40),
   alignment: dropdownControl(alignOptions, "center"),
@@ -142,7 +145,24 @@ const AvatarGroupView = (props: RecordConstructorToView<typeof childrenMap> & { 
 };
 
 let AvatarGroupBasicComp = (function () {
-  return new UICompBuilder(childrenMap, (props, dispatch) => <AvatarGroupView {...props} dispatch={dispatch} />)
+  return new UICompBuilder(childrenMap, (props, dispatch) =>{
+    const theme = useContext(ThemeContext);
+    const compType = useContext(CompTypeContext);
+    const compTheme = theme?.theme?.components?.[compType];
+    const styleProps: Record<string, any> = {};
+    ['style', 'avatar'].forEach((key: string) => {
+      styleProps[key] = (props as any)[key];
+    });
+  
+    useEffect(() => {
+      setInitialCompStyles({
+        dispatch,
+        compTheme,
+        styleProps,
+      });
+    }, []); 
+    return( <AvatarGroupView {...props} dispatch={dispatch} />
+)}) 
     .setPropertyViewFn((children) => (
       <>
         {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (

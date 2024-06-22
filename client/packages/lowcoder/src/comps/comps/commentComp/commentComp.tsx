@@ -66,6 +66,12 @@ import dayjs from "dayjs";
 // import "dayjs/locale/zh-cn";
 import { getInitialsAndColorCode } from "util/stringUtils";
 import { default as CloseOutlined } from "@ant-design/icons/CloseOutlined";
+
+import { CompTypeContext } from "@lowcoder-ee/comps/utils/compTypeContext";
+import { setInitialCompStyles } from "@lowcoder-ee/comps/utils/themeUtil";
+import { ThemeContext } from "@lowcoder-ee/comps/utils/themeContext";
+
+
 dayjs.extend(relativeTime);
 // dayjs.locale("zh-cn");
 
@@ -100,8 +106,8 @@ const childrenMap = {
     "#": ["123", "456", "789"],
   }),
   onEvent: eventHandlerControl(EventOptions),
-  style: styleControl(CommentStyle),
-  animationStyle: styleControl(AnimationStyle),
+  style: styleControl(CommentStyle , 'style'),
+  animationStyle: styleControl(AnimationStyle , 'animationStyle'),
   commentList: jsonValueExposingStateControl("commentList", []),
   deletedItem: jsonValueExposingStateControl("deletedItem", []),
   submitedItem: jsonValueExposingStateControl("submitedItem", []),
@@ -370,9 +376,27 @@ const CommentCompBase = (
 };
 
 let CommentBasicComp = (function () {
-  return new UICompBuilder(childrenMap, (props, dispatch) => (
+  return new UICompBuilder(childrenMap, (props, dispatch) =>{ 
+
+    const theme = useContext(ThemeContext);
+    const compType = useContext(CompTypeContext);
+    const compTheme = theme?.theme?.components?.[compType];
+    const styleProps: Record<string, any> = {};
+    ['style', 'animationStyle'].forEach((key: string) => {
+      styleProps[key] = (props as any)[key];
+    });
+
+    useEffect(() => {
+      setInitialCompStyles({
+        dispatch,
+        compTheme,
+        styleProps,
+      });
+    }, []);
+
+    return (
     <CommentCompBase {...props} dispatch={dispatch} />
-  ))
+  )})
     .setPropertyViewFn((children) => (
       <>
         <Section name={sectionNames.basic}>

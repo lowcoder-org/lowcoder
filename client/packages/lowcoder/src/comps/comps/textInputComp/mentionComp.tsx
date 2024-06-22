@@ -58,6 +58,10 @@ import React, { useContext } from "react";
 import { EditorContext } from "comps/editorState";
 import { migrateOldData } from "comps/generators/simpleGenerators";
 
+import { CompTypeContext } from "@lowcoder-ee/comps/utils/compTypeContext";
+import { setInitialCompStyles } from "@lowcoder-ee/comps/utils/themeUtil";
+import { ThemeContext } from "@lowcoder-ee/comps/utils/themeContext";
+
 const Wrapper = styled.div<{
   $style: InputLikeStyleType;
 }>`
@@ -96,8 +100,8 @@ let MentionTmpComp = (function () {
     viewRef: RefControl<TextAreaRef>,
     allowClear: BoolControl,
     autoHeight: AutoHeightControl,
-    style: styleControl(InputLikeStyle),
-    animationStyle: styleControl(AnimationStyle),
+    style: styleControl(InputLikeStyle , 'style'),
+    animationStyle: styleControl(AnimationStyle , 'animationStyle'),
     mentionList: jsonControl(checkMentionListData, {
       "@": ["Li Lei", "Han Meimei"],
       "#": ["123", "456", "789"],
@@ -106,7 +110,25 @@ let MentionTmpComp = (function () {
     invalid: booleanExposingStateControl("invalid"),
   };
 
-  return new UICompBuilder(childrenMap, (props) => {
+  return new UICompBuilder(childrenMap, (props , dispatch) => {
+
+    const theme = useContext(ThemeContext);
+    const compType = useContext(CompTypeContext);
+    const compTheme = theme?.theme?.components?.[compType];
+    const styleProps: Record<string, any> = {};
+    ['style', 'animationStyle'].forEach((key: string) => {
+      styleProps[key] = (props as any)[key];
+    });
+
+    useEffect(() => {
+      setInitialCompStyles({
+        dispatch,
+        compTheme,
+        styleProps,
+      });
+    }, []);
+
+
     const { mentionList } = props;
     const [validateState, setvalidateState] = useState({});
     const [activationFlag, setActivationFlag] = useState(false);
