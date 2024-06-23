@@ -55,6 +55,7 @@
   * [Data selection & Javascript](build-applications/app-editor/data-selection-and-javascript.md)
   * [Use Markdown](build-applications/app-editor/use-markdown.md)
   * [Keyboard shortcuts](build-applications/app-editor/keyboard-shortcuts.md)
+  * [Query & Editing Roundtrips](build-applications/app-editor/query-and-editing-roundtrips.md)
 * [App Navigation](build-applications/app-navigation.md)
 * [App Interaction](build-applications/app-interaction/README.md)
   * [Event handlers](build-applications/app-interaction/event-handlers.md)
