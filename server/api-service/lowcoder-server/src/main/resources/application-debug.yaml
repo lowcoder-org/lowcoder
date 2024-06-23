@@ -22,10 +22,10 @@ spring:
   webflux:
     base-path: /
   mail:
-    host: ${LOWCODER_ADMIN_SMTP_HOST:localhost}
+    host: ${LOWCODER_ADMIN_SMTP_HOST:smtps.udag.de}
     port: ${LOWCODER_ADMIN_SMTP_PORT:587}
-    username: ${LOWCODER_ADMIN_SMTP_USERNAME:info@localhost}
-    password: ${LOWCODER_ADMIN_SMTP_PASSWORD:s3cr3t}
+    username: ${LOWCODER_ADMIN_SMTP_USERNAME:service@lowcoder.org}
+    password: ${LOWCODER_ADMIN_SMTP_PASSWORD:0AIOSNIS54XXTd-7Mrs7_7ha}
     properties:
       mail:
         smtp:
@@ -83,8 +83,8 @@ common:
     password: ${LOWCODER_SUPERUSER_PASSWORD:}
   marketplace:
     private-mode: ${LOWCODER_MARKETPLACE_PRIVATE_MODE:true}
-  lowcoder-public-url: ${LOWCODER_PUBLIC_URL:http://localhost:3000}
-  notifications-email-sender: ${LOWCODER_EMAIL_NOTIFICATIONS_SENDER:info@localhost}
+  lowcoder-public-url: ${LOWCODER_PUBLIC_URL:http://localhost:8000}
+  notifications-email-sender: ${LOWCODER_EMAIL_NOTIFICATIONS_SENDER:service@lowcoder.org}
 
 material:
   mongodb-grid-fs:
