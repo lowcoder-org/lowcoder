@@ -359,8 +359,8 @@ export function HomeLayout(props: HomeLayoutProps) {
   const resList: HomeRes[] = displayElements
     .filter((e) =>
       searchValue
-        ? e.name.toLocaleLowerCase().includes(searchValue.toLocaleLowerCase()) ||
-          e.createBy.toLocaleLowerCase().includes(searchValue.toLocaleLowerCase())
+        ? e.name?.toLocaleLowerCase().includes(searchValue?.toLocaleLowerCase()) ||
+          e.createBy?.toLocaleLowerCase().includes(searchValue?.toLocaleLowerCase())
         : true
     )
     .filter((e) => {
