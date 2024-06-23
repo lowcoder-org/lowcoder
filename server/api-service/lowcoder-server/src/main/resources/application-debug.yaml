@@ -4,8 +4,30 @@ spring:
       authentication-database: admin
       uri: "mongodb://lowcoder:secret123@127.0.0.1:27017/lowcoder?authSource=admin"
     redis:
-      url: "redis://127.0.0.1:6379"
-
+      url: ${LOWCODER_REDIS_URL:redis://localhost:6379}
+  main:
+    allow-bean-definition-overriding: false
+    allow-circular-references: false
+  codec:
+    max-in-memory-size: 20MB
+  webflux:
+    base-path: /
+  mail:
+    host: ${LOWCODER_ADMIN_SMTP_HOST:localhost}
+    port: ${LOWCODER_ADMIN_SMTP_PORT:587}
+    username: ${LOWCODER_ADMIN_SMTP_USERNAME:info@localhost}
+    password: ${LOWCODER_ADMIN_SMTP_PASSWORD:s3cr3t}
+    properties:
+      mail:
+        smtp:
+          auth: ${LOWCODER_ADMIN_SMTP_AUTH:true}
+          ssl:
+            enable: ${LOWCODER_ADMIN_SMTP_SSL_ENABLED:false}
+          starttls:
+            enable: ${LOWCODER_ADMIN_SMTP_STARTTLS_ENABLED:true}
+            required: ${LOWCODER_ADMIN_SMTP_STARTTLS_REQUIRED:true}
+        transport:
+          protocol: smtp
 server:
   port: 8080
 common:
@@ -13,7 +35,16 @@ common:
   js-executor:
     host: "http://127.0.0.1:6060"
   workspace:
-    mode: SAAS
+    mode: ${LOWCODER_WORKSPACE_MODE:SAAS}
+  plugin-dirs:
+    - ${LOWCODER_PLUGINS_DIR:../plugins}
+  super-admin:
+    username: ${LOWCODER_SUPERUSER_USERNAME:admin@localhost}
+    password: ${LOWCODER_SUPERUSER_PASSWORD:}
+  marketplace:
+    private-mode: ${LOWCODER_MARKETPLACE_PRIVATE_MODE:true}
+  lowcoder-public-url: ${LOWCODER_PUBLIC_URL:http://localhost:3000}
+  notifications-email-sender: ${LOWCODER_EMAIL_NOTIFICATIONS_SENDER:info@localhost}
 
 debug: true
 

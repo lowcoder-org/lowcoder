@@ -4,6 +4,5 @@
         "titleBar.activeBackground": "#3B431A",
         "titleBar.activeForeground": "#F9FAF2"
     },
-    "java.debug.settings.onBuildFailureProceed": true,
-    "java.compile.nullAnalysis.mode": "disabled"
+    "java.debug.settings.onBuildFailureProceed": true
 }
