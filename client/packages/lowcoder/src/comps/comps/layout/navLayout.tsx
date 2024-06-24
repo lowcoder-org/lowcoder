@@ -17,7 +17,7 @@ import { EditorContainer, EmptyContent } from "pages/common/styledComponent";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
 import { isUserViewMode, useAppPathParam } from "util/hooks";
-import { StringControl, jsonControl } from "comps/controls/codeControl";
+import { BoolCodeControl, StringControl, jsonControl } from "comps/controls/codeControl";
 import { styleControl } from "comps/controls/styleControl";
 import {
   NavLayoutStyle,
@@ -40,6 +40,8 @@ import {
   jsonMenuItems,
   menuItemStyleOptions
 } from "./navLayoutConstants";
+
+const { Header } = Layout;
 
 const DEFAULT_WIDTH = 240;
 type MenuItemStyleOptionValue = "normal" | "hover" | "active";
@@ -99,10 +101,12 @@ const StyledMenu = styled(AntdMenu)<{
   .ant-menu-submenu {
     margin: ${(props) => props.$navItemStyle?.margin};
     width: ${(props) => props.$navItemStyle?.width};
+    padding: 0;
 
     .ant-menu-submenu-title {
       width: 100%;
       height: auto !important;
+      max-height: 100%;
       background-color: ${(props) => props.$navItemStyle?.background};
       color: ${(props) => props.$navItemStyle?.text};
       border-radius: ${(props) => props.$navItemStyle?.radius} !important;
@@ -190,7 +194,8 @@ let NavTmpLayout = (function () {
     width: withDefault(StringControl, DEFAULT_WIDTH),
     backgroundImage: withDefault(StringControl, ""),
     mode: dropdownControl(ModeOptions, "inline"),
-    navStyle: withDefault(styleControl(NavLayoutStyle), defaultStyle),
+    collapse: BoolCodeControl,
+    navStyle: withDefault(styleControl(NavLayoutStyle), {...defaultStyle, padding: '1px'}),
     navItemStyle: withDefault(styleControl(NavLayoutItemStyle), defaultStyle),
     navItemHoverStyle: withDefault(styleControl(NavLayoutItemHoverStyle), {}),
     navItemActiveStyle: withDefault(styleControl(NavLayoutItemActiveStyle), {}),
@@ -225,6 +230,9 @@ let NavTmpLayout = (function () {
             { children.mode.propertyView({
               label: trans("labelProp.position"),
               radioButton: true
+            })}
+            { children.collapse.propertyView({
+              label: trans("labelProp.collapse"),
             })}
             {children.backgroundImage.propertyView({
               label: `Background Image`,
@@ -266,6 +274,7 @@ NavTmpLayout = withViewFn(NavTmpLayout, (comp) => {
   const items = comp.children.items.getView();
   const navWidth = comp.children.width.getView();
   const navMode = comp.children.mode.getView();
+  const navCollapse = comp.children.collapse.getView();
   const navStyle = comp.children.navStyle.getView();
   const navItemStyle = comp.children.navItemStyle.getView();
   const navItemHoverStyle = comp.children.navItemHoverStyle.getView();
@@ -547,32 +556,45 @@ NavTmpLayout = withViewFn(NavTmpLayout, (comp) => {
     backgroundStyle = `center / cover url('${backgroundImage}') no-repeat, ${backgroundStyle}`;
   }
 
+  let navMenu = (
+    <StyledMenu
+      items={menuItems}
+      mode={navMode}
+      style={{
+        height: `calc(100% - ${getVerticalMargin(navStyle.margin.split(' '))})`,
+        width: `calc(100% - ${getHorizontalMargin(navStyle.margin.split(' '))})`,
+        borderRight: navMode !== 'horizontal' ? `1px solid ${navStyle.border}` : 'none',
+        borderBottom: navMode === 'horizontal' ? `1px solid ${navStyle.border}` : 'none',
+        borderRadius: navStyle.radius,
+        color: navStyle.text,
+        margin: navStyle.margin,
+        padding: navStyle.padding,
+        background: backgroundStyle,
+        flex: 1,
+        minWidth: 0,
+      }}
+      defaultOpenKeys={defaultOpenKeys}
+      selectedKeys={[selectedKey]}
+      $navItemStyle={{
+        width: navMode === 'horizontal' ? 'auto' : `calc(100% - ${getHorizontalMargin(navItemStyle.margin.split(' '))})`,
+        ...navItemStyle,
+      }}
+      $navItemHoverStyle={navItemHoverStyle}
+      $navItemActiveStyle={navItemActiveStyle}
+    />
+  );
+
   let content = (
     <Layout>
-      <StyledSide theme="light" width={navWidth}>
-        <StyledMenu
-          items={menuItems}
-          mode={navMode}
-          style={{
-            height: `calc(100% - ${getVerticalMargin(navStyle.margin.split(' '))})`,
-            width: `calc(100% - ${getHorizontalMargin(navStyle.margin.split(' '))})`,
-            borderRight: `1px solid ${navStyle.border}`,
-            borderRadius: navStyle.radius,
-            color: navStyle.text,
-            margin: navStyle.margin,
-            padding: navStyle.padding,
-            background: backgroundStyle,
-          }}
-          defaultOpenKeys={defaultOpenKeys}
-          selectedKeys={[selectedKey]}
-          $navItemStyle={{
-            width: `calc(100% - ${getHorizontalMargin(navItemStyle.margin.split(' '))})`,
-            ...navItemStyle,
-          }}
-          $navItemHoverStyle={navItemHoverStyle}
-          $navItemActiveStyle={navItemActiveStyle}
-        />
-      </StyledSide>
+      {navMode === 'horizontal' ? (
+        <Header style={{ display: 'flex', alignItems: 'center', padding: 0 }}>
+          { navMenu }
+        </Header>
+      ) : (
+        <StyledSide theme="light" width={navWidth} collapsed={navCollapse}>
+          {navMenu}
+        </StyledSide>
+      )}
       <MainContent>{pageView}</MainContent>
     </Layout>
   );

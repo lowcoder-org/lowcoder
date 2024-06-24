@@ -6,12 +6,11 @@ import static java.util.Optional.ofNullable;
 import static org.lowcoder.domain.application.ApplicationUtil.getContainerSizeFromDSL;
 import static org.lowcoder.domain.application.ApplicationUtil.getDependentModulesFromDsl;
 
-import java.util.Collections;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Supplier;
 
+import com.github.f4b6a3.uuid.UuidCreator;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
@@ -37,7 +36,8 @@ import lombok.Builder;
 @SuperBuilder
 @NoArgsConstructor
 public class Application extends HasIdAndAuditing {
-
+    @Getter
+    private String gid;
     private String organizationId;
     private String name;
     private Integer applicationType;
@@ -64,6 +64,7 @@ public class Application extends HasIdAndAuditing {
             @JsonProperty("publicToMarketplace") Boolean publicToMarketplace,
             @JsonProperty("agencyProfile") Boolean agencyProfile
     ) {
+        this.gid = UuidCreator.getTimeOrderedEpoch().toString();
         this.organizationId = organizationId;
         this.name = name;
         this.applicationType = applicationType;
