@@ -53,7 +53,6 @@ const StyledDivider = styled(Divider) <IProps>`
   padding: ${(props) => props.$style.padding};
   border-radius:${props=>props.$style.radius};
   border-top: ${(props) => (props.$style.borderWidth && props.$style.borderWidth != "0px" ? props.$style.borderWidth : "1px")} ${(props) => props.$style.borderStyle} ${(props) => props.$style.border};
-""
   .ant-divider-inner-text::before, .ant-divider-inner-text::after {
     border-block-start: ${(props) => (props.$style.borderWidth && props.$style.borderWidth != "0px" ? props.$style.borderWidth : "1px")} ${(props) => (props.dashed ? "dashed" : "solid")} ${(props) => props.$style.border} !important;
     border-block-start-color: inherit;
@@ -64,6 +63,12 @@ const StyledDivider = styled(Divider) <IProps>`
     margin: 0;
     border-top-color: ${(props) => props.$style.color};
     color: ${(props) => props.$style.text};
+  }
+  &.ant-divider-horizontal.ant-divider-with-text::before,
+  &.ant-divider-horizontal.ant-divider-with-text::after  {
+    border-top-color: ${(props) => props.$style.color};
+    border-radius:${props=>props.$style.radius};
+    border-top: ${(props) => (props.$style.borderWidth && props.$style.borderWidth != "0px" ? props.$style.borderWidth : "1px")} ${(props) => props.$style.borderStyle} ${(props) => props.$style.border};
   }
 `;
 
