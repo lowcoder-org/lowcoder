@@ -1,15 +1,14 @@
 package org.lowcoder.api.application;
 
 
-import java.util.Map;
-import java.util.Set;
-
-import org.junit.Assert;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.lowcoder.api.application.ApplicationEndpoints.CreateApplicationRequest;
 import org.lowcoder.api.application.view.ApplicationView;
+import org.lowcoder.api.common.InitData;
 import org.lowcoder.api.common.mockuser.WithMockUser;
 import org.lowcoder.api.datasource.DatasourceApiService;
 import org.lowcoder.api.datasource.DatasourceApiServiceIntegrationTest;
@@ -23,22 +22,32 @@ import org.lowcoder.sdk.exception.BizError;
 import org.lowcoder.sdk.exception.BizException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
-
-import lombok.extern.slf4j.Slf4j;
+import org.springframework.test.context.ActiveProfiles;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.util.Map;
+import java.util.Set;
+
 @SuppressWarnings({"OptionalGetWithoutIsPresent"})
 @SpringBootTest
-@RunWith(SpringRunner.class)
+@ActiveProfiles("ApplicationApiServiceIntegrationTest")
+//@RunWith(SpringRunner.class)
 @Slf4j(topic = "ApplicationApiServiceIntegrationTest")
+@Disabled("Enable after all plugins are loaded in test mode")
 public class ApplicationApiServiceIntegrationTest {
 
     @Autowired
     private ApplicationApiService applicationApiService;
     @Autowired
     private DatasourceApiService datasourceApiService;
+    @Autowired
+    private InitData initData;
+
+    @BeforeEach
+    public void beforeEach() {
+        initData.init();
+    }
 
     @SuppressWarnings("ConstantConditions")
     @Test
@@ -68,11 +77,10 @@ public class ApplicationApiServiceIntegrationTest {
                 .flatMap(createApplicationRequest -> applicationApiService.create(createApplicationRequest));
 
         StepVerifier.create(applicationViewMono)
-                .assertNext(applicationView -> Assert.assertNotNull(applicationView.getApplicationInfoView().getApplicationId()))
+                .assertNext(applicationView -> Assertions.assertNotNull(applicationView.getApplicationInfoView().getApplicationId()))
                 .verifyComplete();
     }
 
-    @Ignore
     @SuppressWarnings("ConstantConditions")
     @Test
     @WithMockUser(id = "user02")

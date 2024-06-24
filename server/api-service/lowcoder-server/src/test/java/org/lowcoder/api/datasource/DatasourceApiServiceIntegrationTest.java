@@ -1,9 +1,10 @@
 package org.lowcoder.api.datasource;
 
-import org.junit.Assert;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.lowcoder.api.common.InitData;
 import org.lowcoder.api.common.mockuser.WithMockUser;
 import org.lowcoder.api.permission.view.CommonPermissionView;
 import org.lowcoder.api.permission.view.PermissionItemView;
@@ -15,7 +16,7 @@ import org.lowcoder.sdk.exception.BizException;
 import org.lowcoder.sdk.plugin.mysql.MysqlDatasourceConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.ActiveProfiles;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -27,10 +28,19 @@ import static org.lowcoder.domain.permission.model.ResourceRole.OWNER;
 import static org.lowcoder.domain.permission.model.ResourceRole.VIEWER;
 
 @SpringBootTest
-@RunWith(SpringRunner.class)
+@ActiveProfiles("test")
+@Disabled("Enable after all plugins are loaded in test mode")
+//@RunWith(SpringRunner.class)
 public class DatasourceApiServiceIntegrationTest {
     @Autowired
     private DatasourceApiService datasourceApiService;
+    @Autowired
+    private InitData initData;
+
+    @BeforeEach
+    public void beforeEach() {
+        initData.init();
+    }
 
     @Test
     @WithMockUser(id = "user02")
@@ -47,8 +57,8 @@ public class DatasourceApiServiceIntegrationTest {
 
         StepVerifier.create(datasourceListMono)
                 .assertNext(datasourceViews -> {
-                    Assert.assertFalse(findDatasourceView(datasourceViews, "mysql04").edit());
-                    Assert.assertTrue(findDatasourceView(datasourceViews, "mysql05").edit());
+                    Assertions.assertFalse(findDatasourceView(datasourceViews, "mysql04").edit());
+                    Assertions.assertTrue(findDatasourceView(datasourceViews, "mysql05").edit());
                 })
                 .verifyComplete();
     }
@@ -70,19 +80,19 @@ public class DatasourceApiServiceIntegrationTest {
 
         StepVerifier.create(commonPermissionViewMono)
                 .assertNext(commonPermissionView -> {
-                    Assert.assertEquals("The Avengers", commonPermissionView.getOrgName());
-                    Assert.assertEquals("user01", commonPermissionView.getCreatorId());
+                    Assertions.assertEquals("The Avengers", commonPermissionView.getOrgName());
+                    Assertions.assertEquals("user01", commonPermissionView.getCreatorId());
 
                     // assert group
-                    Assert.assertEquals(1, commonPermissionView.getGroupPermissions().size());
+                    Assertions.assertEquals(1, commonPermissionView.getGroupPermissions().size());
                     PermissionItemView permissionItemView = commonPermissionView.getGroupPermissions().get(0);
-                    Assert.assertEquals("group01", permissionItemView.getId());
-                    Assert.assertEquals("owner", permissionItemView.getRole());
+                    Assertions.assertEquals("group01", permissionItemView.getId());
+                    Assertions.assertEquals("owner", permissionItemView.getRole());
 
                     // assert user
-                    Assert.assertEquals(2, commonPermissionView.getUserPermissions().size());
-                    Assert.assertEquals("owner", findUserPermission(commonPermissionView, "user01").getRole());
-                    Assert.assertEquals("owner", findUserPermission(commonPermissionView, "user02").getRole());
+                    Assertions.assertEquals(2, commonPermissionView.getUserPermissions().size());
+                    Assertions.assertEquals("owner", findUserPermission(commonPermissionView, "user01").getRole());
+                    Assertions.assertEquals("owner", findUserPermission(commonPermissionView, "user02").getRole());
                 })
                 .verifyComplete();
     }
@@ -107,7 +117,7 @@ public class DatasourceApiServiceIntegrationTest {
         StepVerifier.create(commonPermissionViewMono)
                 .assertNext(commonPermissionView -> {
                     PermissionItemView user02 = findUserPermission(commonPermissionView, "user02");
-                    Assert.assertEquals("viewer", user02.getRole());
+                    Assertions.assertEquals("viewer", user02.getRole());
                 })
                 .verifyComplete();
 
@@ -119,7 +129,7 @@ public class DatasourceApiServiceIntegrationTest {
         StepVerifier.create(commonPermissionViewMono)
                 .assertNext(commonPermissionView -> {
                     PermissionItemView user02 = findUserPermission(commonPermissionView, "user02");
-                    Assert.assertNull(user02);
+                    Assertions.assertNull(user02);
                 })
                 .verifyComplete();
     }
