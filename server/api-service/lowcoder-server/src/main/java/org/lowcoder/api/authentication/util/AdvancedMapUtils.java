@@ -12,7 +12,7 @@ public class AdvancedMapUtils {
      * @return The string value if found, otherwise null.
      */
     public static String getString(Map<String, Object> map, String key) {
-        if(key == null) return null;
+        if(key == null || key.equals("false")) return null;
         String[] parts = key.split("\\.");
         Object current = map;
 
