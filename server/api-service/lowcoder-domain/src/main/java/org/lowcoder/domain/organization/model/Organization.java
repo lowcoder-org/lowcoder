@@ -8,6 +8,7 @@ import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonView;
+import com.github.f4b6a3.uuid.UuidCreator;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.jackson.Jacksonized;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -37,6 +38,8 @@ import lombok.Setter;
 public class Organization extends HasIdAndAuditing implements BeforeMongodbWrite, AfterMongodbRead {
 
     private static final OrganizationCommonSettings EMPTY_SETTINGS = new OrganizationCommonSettings();
+    @Getter
+    private String gid;
 
     private String name;
 

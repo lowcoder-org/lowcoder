@@ -26,7 +26,6 @@ public class ApplicationHistorySnapshotServiceTest {
     private ApplicationHistorySnapshotService service;
 
     @Test
-    @Ignore("Disabled until it is fixed")
     public void testServiceMethods() {
 
         String applicationId = "123123";
