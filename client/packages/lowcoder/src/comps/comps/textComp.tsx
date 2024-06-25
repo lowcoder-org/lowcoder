@@ -20,6 +20,9 @@ import { PaddingControl } from "../controls/paddingControl";
 
 import React, { useContext } from "react";
 import { EditorContext } from "comps/editorState";
+import { clickEvent, eventHandlerControl } from "../controls/eventHandlerControl";
+
+const EventOptions = [clickEvent] as const;
 
 const getStyle = (style: TextStyleType) => {
   return css`
@@ -126,6 +129,7 @@ let TextTmpComp = (function () {
       "text",
       trans("textShow.text", { name: "{{currentUser.name}}" })
     ),
+    onEvent: eventHandlerControl(EventOptions),
     autoHeight: AutoHeightControl,
     type: dropdownControl(typeOptions, "markdown"),
     horizontalAlignment: alignWithJustifyControl(),
@@ -148,6 +152,7 @@ let TextTmpComp = (function () {
           textAlign: props.horizontalAlignment,
           rotate: props.style.rotation
         }}
+        onClick={() => props.onEvent("click")}
       >
         {props.type === "markdown" ? <TacoMarkDown>{value}</TacoMarkDown> : value}
       </TextContainer>
@@ -168,6 +173,7 @@ let TextTmpComp = (function () {
           {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
             <Section name={sectionNames.interaction}>
               {hiddenPropertyView(children)}
+              {children.onEvent.getPropertyView()}
             </Section>
           )}
 
