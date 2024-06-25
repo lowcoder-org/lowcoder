@@ -24,7 +24,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class DatasourceDO extends HasIdAndAuditing {
-
+    private String gid;
     private String name;
     private String type;
     private String organizationId;
