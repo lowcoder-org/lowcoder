@@ -26,6 +26,7 @@ import lombok.Getter;
 @NoArgsConstructor
 public class LibraryQuery extends HasIdAndAuditing {
 
+    private String gid;
     private String organizationId;
     private String name;
     private Map<String, Object> libraryQueryDSL;
