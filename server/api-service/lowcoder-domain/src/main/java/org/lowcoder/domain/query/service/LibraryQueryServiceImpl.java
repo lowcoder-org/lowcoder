@@ -1,10 +1,5 @@
 package org.lowcoder.domain.query.service;
 
-import static org.lowcoder.sdk.exception.BizError.LIBRARY_QUERY_NOT_FOUND;
-import static org.lowcoder.sdk.util.ExceptionUtils.deferredError;
-
-import java.util.Map;
-
 import lombok.RequiredArgsConstructor;
 import org.lowcoder.domain.query.model.BaseQuery;
 import org.lowcoder.domain.query.model.LibraryQuery;
@@ -12,11 +7,14 @@ import org.lowcoder.domain.query.model.LibraryQueryRecord;
 import org.lowcoder.domain.query.repository.LibraryQueryRepository;
 import org.lowcoder.infra.mongo.MongoUpsertHelper;
 import org.lowcoder.sdk.constants.FieldName;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.util.Map;
+
+import static org.lowcoder.sdk.exception.BizError.LIBRARY_QUERY_NOT_FOUND;
+import static org.lowcoder.sdk.util.ExceptionUtils.deferredError;
 
 @RequiredArgsConstructor
 @Service

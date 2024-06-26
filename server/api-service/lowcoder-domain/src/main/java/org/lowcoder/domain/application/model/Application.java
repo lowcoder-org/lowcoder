@@ -1,14 +1,8 @@
 package org.lowcoder.domain.application.model;
 
 
-import static com.google.common.base.Suppliers.memoize;
-import static java.util.Optional.ofNullable;
-import static org.lowcoder.domain.application.ApplicationUtil.getContainerSizeFromDSL;
-import static org.lowcoder.domain.application.ApplicationUtil.getDependentModulesFromDsl;
-
-import java.util.*;
-import java.util.function.Supplier;
-
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.f4b6a3.uuid.UuidCreator;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -25,11 +19,16 @@ import org.lowcoder.sdk.util.JsonUtils;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.Collections;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Supplier;
 
-import lombok.Builder;
+import static com.google.common.base.Suppliers.memoize;
+import static java.util.Optional.ofNullable;
+import static org.lowcoder.domain.application.ApplicationUtil.getContainerSizeFromDSL;
+import static org.lowcoder.domain.application.ApplicationUtil.getDependentModulesFromDsl;
 
 @Document
 @Jacksonized
