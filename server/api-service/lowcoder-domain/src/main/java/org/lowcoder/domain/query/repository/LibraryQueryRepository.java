@@ -1,6 +1,5 @@
 package org.lowcoder.domain.query.repository;
 
-import org.jetbrains.annotations.NotNull;
 import org.lowcoder.domain.query.model.LibraryQuery;
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
 import org.springframework.stereotype.Repository;
