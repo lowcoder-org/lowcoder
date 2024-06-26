@@ -18,6 +18,7 @@ import org.lowcoder.sdk.models.HasIdAndAuditing;
 import org.lowcoder.sdk.util.JsonUtils;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.util.StringUtils;
 
 import java.util.Collections;
 import java.util.Map;
@@ -54,6 +55,7 @@ public class Application extends HasIdAndAuditing {
 
     public Application(
             @JsonProperty("orgId") String organizationId,
+            @JsonProperty("gid") String gid,
             @JsonProperty("name") String name,
             @JsonProperty("applicationType") Integer applicationType,
             @JsonProperty("applicationStatus") ApplicationStatus applicationStatus,
@@ -63,7 +65,7 @@ public class Application extends HasIdAndAuditing {
             @JsonProperty("publicToMarketplace") Boolean publicToMarketplace,
             @JsonProperty("agencyProfile") Boolean agencyProfile
     ) {
-        this.gid = UuidCreator.getTimeOrderedEpoch().toString();
+        this.gid = StringUtils.isEmpty(gid)?UuidCreator.getTimeOrderedEpoch().toString():gid;
         this.organizationId = organizationId;
         this.name = name;
         this.applicationType = applicationType;

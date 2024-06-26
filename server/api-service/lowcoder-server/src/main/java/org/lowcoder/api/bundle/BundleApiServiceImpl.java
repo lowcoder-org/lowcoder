@@ -78,7 +78,7 @@ public class BundleApiServiceImpl implements BundleApiService {
     @Override
     public Mono<BundleInfoView> create(CreateBundleRequest createBundleRequest) {
         Bundle bundle = Bundle.builder()
-                .gid(UuidCreator.getTimeOrderedEpoch().toString())
+                .gid(StringUtils.isEmpty(createBundleRequest.gid())?UuidCreator.getTimeOrderedEpoch().toString():createBundleRequest.gid())
                 .organizationId(createBundleRequest.organizationId())
                 .name(createBundleRequest.name())
                 .image(createBundleRequest.image())
