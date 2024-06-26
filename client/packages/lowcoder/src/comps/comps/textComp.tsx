@@ -28,6 +28,7 @@ import { CompTypeContext } from "../utils/compTypeContext";
 import { changeChildAction } from "lowcoder-core";
 import { setInitialCompStyles } from "../utils/themeUtil";
 import { BoolControl } from "../controls/boolControl";
+import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 const getStyle = (style: TextStyleType) => {
   return css`
@@ -142,27 +143,14 @@ let TextTmpComp = (function () {
     animationStyle: styleControl(AnimationStyle, 'animationStyle'),
     margin: MarginControl,
     padding: PaddingControl,
-    themeApplied: BoolControl,
   };
   return new UICompBuilder(childrenMap, (props, dispatch) => {
     const value = props.text.value;
-    const theme = useContext(ThemeContext);
-    const compType = useContext(CompTypeContext);
-    const compTheme = theme?.theme?.components?.[compType];
-  
-    const styleProps: Record<string, any> = {};
-    ['style', 'animationStyle'].forEach((key: string) => {
-      styleProps[key] = (props as any)[key];
-    });
 
-    useEffect(() => {
-      if (props.themeApplied) return;
-      setInitialCompStyles({
-        dispatch,
-        compTheme,
-        styleProps,
-      });
-    }, []);
+    useMergeCompStyles(
+      props as Record<string, any>,
+      dispatch
+    );
   
     return (
       <TextContainer
