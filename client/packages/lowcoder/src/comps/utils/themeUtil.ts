@@ -1,7 +1,7 @@
 import { ThemeType } from "api/commonSettingApi";
 import { getLocalThemeId } from "util/localStorageUtil";
 import { getGlobalSettings } from "./globalSettings";
-import { CompAction, multiChangeAction, changeValueAction } from "lowcoder-core";
+import { CompAction, multiChangeAction, changeValueAction, deferAction } from "lowcoder-core";
 import { JSONObject, JSONValue } from "@lowcoder-ee/util/jsonTypes";
 
 export const DEFAULT_THEMEID = "default";
@@ -27,22 +27,29 @@ export function setInitialCompStyles({
   dispatch,
   compTheme,
   styleProps,
+  themeId,
 }: {
   dispatch: (action: CompAction) => void,
   compTheme?: JSONObject,
   styleProps: Record<string, any>,
+  themeId?: string,
 }) {
   const styleKeys = Object.keys(styleProps);
-  const actions: Record<string, any> = {};
+  const actions: Record<string, any> = {
+    appliedThemeId: changeValueAction(themeId || '', true),
+  };
   styleKeys.forEach(styleKey => {
     actions[styleKey] = changeValueAction({
       ...(compTheme?.[styleKey] as object || {}),
       ...styleProps[styleKey],
-    }, false);
+    }, true);
   })
-  actions['themeApplied'] = changeValueAction(true, false);
 
-  dispatch(
-    multiChangeAction(actions),
-  );
+  setTimeout(() => {
+    dispatch(
+      deferAction(
+        multiChangeAction(actions),
+      )
+    );
+  }, 1000)
 }

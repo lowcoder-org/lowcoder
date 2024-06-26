@@ -444,10 +444,13 @@ class GridLayout extends React.Component<GridLayoutProps, GridLayoutState> {
     const selectable = isSelectable;
     const positionParams = genPositionParams(this.props);
     return (
-      <CompContext.Provider value={{
-        compType: extraItem?.compType,
-        comp: extraItem?.comp?.toJsonValue(),
-      }}>
+      <CompContext.Provider
+        key={item.i}
+        value={{
+          compType: extraItem?.compType,
+          comp: extraItem?.comp?.toJsonValue(),
+        }}
+      >
         <CompTypeContext.Provider value={extraItem?.compType}>
           <GridItem
             compType={extraItem?.compType}

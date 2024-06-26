@@ -24,12 +24,15 @@ import {
 } from "./withMethodExposing";
 import { Section } from "lowcoder-design";
 import { trans } from "i18n";
+import { BoolControl } from "../controls/boolControl";
+import { valueComp, withDefault } from "./simpleGenerators";
 
 export type NewChildren<ChildrenCompMap extends Record<string, Comp<unknown>>> =
   ChildrenCompMap & {
     hidden: InstanceType<typeof BoolCodeControl>;
     className: InstanceType<typeof StringControl>;
     dataTestId: InstanceType<typeof StringControl>;
+    preventStyleOverwriting: InstanceType<typeof BoolControl>;
   };
 
 export function HidableView(props: {
@@ -67,6 +70,7 @@ export function ExtendedPropertyView<
       <Section name={trans("prop.component")}>
         {props.childrenMap.className?.propertyView({ label: trans("prop.className") })}
         {props.childrenMap.dataTestId?.propertyView({ label: trans("prop.dataTestId") })}
+        {props.childrenMap.preventStyleOverwriting?.propertyView({ label: trans("prop.preventOverwriting") })}
       </Section>
     </>
   );
@@ -81,7 +85,9 @@ export function uiChildren<
     ...childrenMap,
     hidden: BoolCodeControl,
     className: StringControl,
-    dataTestId: StringControl
+    dataTestId: StringControl,
+    preventStyleOverwriting: withDefault(BoolControl, false),
+    appliedThemeId: valueComp<string>(''),
   } as any;
 }
 
@@ -149,7 +155,7 @@ export class UICompBuilder<
   }
 
   build() {
-    const reservedProps = ["hidden", "className", "dataTestId"];
+    const reservedProps = ["hidden", "className", "dataTestId", "preventStyleOverwriting", "appliedThemeId"];
     for (const reservedProp of reservedProps) {
       if (this.childrenMap.hasOwnProperty(reservedProp)) {
         throw new Error(`Property »${reservedProp}« is reserved and must not be implemented in components!`);

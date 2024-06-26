@@ -216,6 +216,7 @@ export const en = {
     "component": "Own Component Identifiers",
     "className": "CSS Class name",
     "dataTestId": "Individual ID",
+    "preventOverwriting": "Prevent overwriting styles",
   },
   "autoHeightProp": {
     "auto": "Auto",

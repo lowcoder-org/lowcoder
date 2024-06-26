@@ -35,7 +35,6 @@ export interface ThemeType {
   id: string;
   updateTime: number;
   theme: ThemeDetail;
-  overwriteStyles?: boolean;
 }
 
 export interface ThemeDetail {

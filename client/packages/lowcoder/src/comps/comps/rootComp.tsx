@@ -65,14 +65,17 @@ function RootView(props: RootViewProps) {
   const appThemeId = comp.children.settings.getView().themeId;
   const { orgCommonSettings } = getGlobalSettings();
   const themeList = orgCommonSettings?.themeList || [];
+  const selectedTheme = getCurrentTheme(themeList, appThemeId);
 
   const theme =
     previewTheme?.previewTheme ||
-    getCurrentTheme(themeList, appThemeId)?.theme ||
+    selectedTheme?.theme ||
     localDefaultTheme;
   
-  const overwriteStyles = Boolean(getCurrentTheme(themeList, appThemeId)?.overwriteStyles);
-  
+  const themeId = selectedTheme ? selectedTheme.id : (
+    previewTheme ? "" : 'default-theme-id'
+  ); 
+
   useEffect(() => {
     const newEditorState = new EditorState(comp, (changeEditorStateFn) => {
       setEditorState((oldState) => (oldState ? changeEditorStateFn(oldState) : undefined));
@@ -92,7 +95,7 @@ function RootView(props: RootViewProps) {
   const themeContextValue = useMemo(
     () => ({
       theme,
-      overwriteStyles,
+      themeId,
     }),
     [theme]
   );

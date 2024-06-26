@@ -83,6 +83,7 @@ import { JSONObject, JSONValue } from "@lowcoder-ee/util/jsonTypes";
 import { CompTypeContext } from "../utils/compTypeContext";
 import { defaultTheme } from "@lowcoder-ee/constants/themeConstants";
 import { CompContext } from "../utils/compContext";
+import { EditorContext } from "../editorState";
 
 function isSimpleColorConfig(config: SingleColorConfig): config is SimpleColorConfig {
   return config.hasOwnProperty("color");
@@ -358,7 +359,7 @@ function calcColors<ColorMap extends Record<string, string>>(
 ) {
   // let themeWithDefault = (theme || defaultTheme) as unknown as Record<string, string>;
   let themeWithDefault = {
-    ...defaultTheme,
+    // ...defaultTheme,
     ...(theme || {}),
     ...(compTheme || {}),
   } as unknown as Record<string, string>;
@@ -858,21 +859,32 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
     childrenMap as ToConstructor<{ [K in Names<T>]: ColorControl }>,
     (props) => {
       // const compType = useContext(CompTypeContext);
+      const editorState = useContext(EditorContext);
       const {comp, compType} = useContext(CompContext);
       const theme = useContext(ThemeContext);
       const bgColor = useContext(BackgroundColorContext);
-      const { overwriteStyles } = theme || {}; 
-      const compTheme = compType
+
+      const appSettingsComp = editorState.getAppSettingsComp();
+      const { preventAppStylesOverwriting } = appSettingsComp.getView();
+      const { themeId } = theme || {}; 
+      const { appliedThemeId, preventStyleOverwriting } = comp?.comp || {};
+      const appTheme = !preventStyleOverwriting && !preventAppStylesOverwriting
+        ? theme?.theme
+        : undefined;
+      const compTheme = compType && !preventStyleOverwriting && !preventAppStylesOverwriting
         ? {
-            ...(defaultTheme.components?.[compType]?.[styleKey] || {}) as unknown as Record<string, string>,
             ...(theme?.theme?.components?.[compType]?.[styleKey] || {}) as unknown as Record<string, string>
           }
         : undefined;
+      const styleProps = preventStyleOverwriting || preventAppStylesOverwriting || appliedThemeId === themeId
+        ? props as ColorMap
+        : {} as ColorMap;
+      
 
       return calcColors(
-        overwriteStyles && !Boolean(comp?.comp?.themeApplied) ? {} as ColorMap : props as ColorMap,
+        styleProps,
         colorConfigs,
-        theme?.theme,
+        appTheme,
         bgColor,
         compTheme as Record<string, string> | undefined,
       );

@@ -11,7 +11,6 @@ import {
   EmptyCompContent,
   RightPanelContentWrapper,
 } from "pages/editor/right/styledComponent";
-import { tableDragClassName } from "pages/tutorials/tutorialsConstant";
 import React, { Fragment, useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
 import {
@@ -68,12 +67,21 @@ const HovDiv = styled.div`
   &:hover + ${CompNameLabel} {
     color: #315efb;
   }
+  
+  &.selected + ${CompNameLabel} {
+    font-weight: 500;
+    color: #315efb;
+  }
 `;
 
-const IconContain = (props: { Icon: React.FunctionComponent<React.SVGProps<SVGSVGElement>> }) => {
-  const { Icon } = props;
+const IconContain = (props: {
+  Icon: React.FunctionComponent<React.SVGProps<SVGSVGElement>>,
+  isSelected: boolean,
+}) => {
+  const { Icon, isSelected } = props;
+  console.log(isSelected);
   return (
-    <CompIconDiv $w={64} $h={64}>
+    <CompIconDiv $w={64} $h={64} $isSelected={isSelected}>
       <Icon />
     </CompIconDiv>
   );
@@ -85,6 +93,7 @@ const InsertContain = styled.div`
   padding: 4px 0 0 0;
   box-sizing: border-box;
   gap: 8px;
+  margin: 0 1px;
 `;
 
 const SectionWrapper = styled.div`
@@ -218,11 +227,11 @@ export const ThemeCompPanel = (props: any) => {
         layout: {
           [compKey]: {
             ...compInfo.layoutInfo,
-            w: (compInfo?.layoutInfo?.w || 5) * 1.5,
+            w: (compInfo?.layoutInfo?.w || 5) * 2,
             h: (compInfo?.layoutInfo?.h || 5),
             i: compKey,
-            x: 2,
-            y: 2,
+            x: 1,
+            y: 1,
           }
         }
       }
@@ -256,9 +265,9 @@ export const ThemeCompPanel = (props: any) => {
               >
                 <InsertContain>
                   {infos.map((info) => (
-                    <CompDiv key={info[0]} className={info[0] === "table" ? tableDragClassName : ""} onClick={() => onCompSelect(info)}>
-                      <HovDiv>
-                        <IconContain Icon={info[1].icon}></IconContain>
+                    <CompDiv key={info[0]} onClick={() => onCompSelect(info)}>
+                      <HovDiv className={info[0] === selectedComp ? 'selected' : ''}>
+                        <IconContain isSelected={info[0] === selectedComp} Icon={info[1].icon}></IconContain>
                       </HovDiv>
                       <CompNameLabel>{info[1].name}</CompNameLabel>
                       {language !== "en" && <CompEnNameLabel>{info[1].enName}</CompEnNameLabel>}
@@ -270,7 +279,7 @@ export const ThemeCompPanel = (props: any) => {
           );
         })
         .filter((t) => t != null),
-    [categories, searchValue]
+    [categories, searchValue, selectedComp]
   );
 
   const stylePropertyView = useMemo(() => {
@@ -322,14 +331,17 @@ export const ThemeCompPanel = (props: any) => {
   // )
 
   return (
-    <Card style={{ marginBottom: "20px", minHeight : "200px" }}>
+    <Card
+      style={{ marginBottom: "20px", minHeight : "200px" }}
+      bodyStyle={{ padding: '24px 14px'}}
+    >
       <Flex style={{
         height: "650px",
         overflow: "hidden",
         gap: "middle",
       }}>
         <RightPanelContentWrapper style={{
-          padding: "12px",
+          padding: "0",
           overflow: "auto",
         }}>
           <Input.Search
