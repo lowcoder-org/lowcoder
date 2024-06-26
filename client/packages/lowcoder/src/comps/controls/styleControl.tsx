@@ -864,8 +864,8 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
       const theme = useContext(ThemeContext);
       const bgColor = useContext(BackgroundColorContext);
 
-      const appSettingsComp = editorState.getAppSettingsComp();
-      const { preventAppStylesOverwriting } = appSettingsComp.getView();
+      const appSettingsComp = editorState?.getAppSettingsComp();
+      const preventAppStylesOverwriting = appSettingsComp?.getView()?.preventAppStylesOverwriting;
       const { themeId } = theme || {}; 
       const { appliedThemeId, preventStyleOverwriting } = comp?.comp || {};
       const appTheme = !preventStyleOverwriting && !preventAppStylesOverwriting

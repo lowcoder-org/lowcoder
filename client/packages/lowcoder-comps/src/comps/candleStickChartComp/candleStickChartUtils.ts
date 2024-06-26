@@ -141,7 +141,7 @@ export function getEchartsConfig(
     'top': props.echartsLegendConfig.top === 'bottom' ?'top':'bottom',
     "left":"center"
   },
-  "backgroundColor": props?.style?.background || theme.background,
+  "backgroundColor": props?.style?.background || theme?.style?.background,
   "color": props.echartsOption.data?.map(data => data.color),
    "tooltip": props.tooltip&&{
     "trigger": "axis",

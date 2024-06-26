@@ -63,7 +63,6 @@ CandleStickChartTmpComp = withViewFn(CandleStickChartTmpComp, (comp) => {
     color: chartColorPalette,
     backgroundColor: "#fff",
   };
-
   let themeConfig = defaultChartTheme;
   try {
     themeConfig = theme?.theme.chart ? JSON.parse(theme?.theme.chart) : defaultChartTheme;
