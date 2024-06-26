@@ -268,7 +268,6 @@ const TabOptionComp = (function () {
               label && children.label.dispatchChangeValueAction(label);
             },
           })}
-          {children.app.propertyView({})}
           {children.label.propertyView({ label: trans("label") })}
           {hiddenPropertyView(children)}
           {children.icon.propertyView({
