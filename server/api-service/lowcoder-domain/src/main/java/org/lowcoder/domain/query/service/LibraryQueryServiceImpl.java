@@ -11,6 +11,7 @@ import org.lowcoder.domain.query.model.LibraryQuery;
 import org.lowcoder.domain.query.model.LibraryQueryRecord;
 import org.lowcoder.domain.query.repository.LibraryQueryRepository;
 import org.lowcoder.infra.mongo.MongoUpsertHelper;
+import org.lowcoder.sdk.constants.FieldName;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -27,6 +28,9 @@ public class LibraryQueryServiceImpl implements LibraryQueryService {
 
     @Override
     public Mono<LibraryQuery> getById(String libraryQueryId) {
+        if(FieldName.isGID(libraryQueryId))
+            return libraryQueryRepository.findByGid(libraryQueryId)
+                    .switchIfEmpty(deferredError(LIBRARY_QUERY_NOT_FOUND, "LIBRARY_QUERY_NOT_FOUND"));
         return libraryQueryRepository.findById(libraryQueryId)
                 .switchIfEmpty(deferredError(LIBRARY_QUERY_NOT_FOUND, "LIBRARY_QUERY_NOT_FOUND"));
     }
@@ -54,6 +58,8 @@ public class LibraryQueryServiceImpl implements LibraryQueryService {
 
     @Override
     public Mono<Void> delete(String libraryQueryId) {
+        if(FieldName.isGID(libraryQueryId))
+            return libraryQueryRepository.deleteByGid(libraryQueryId);
         return libraryQueryRepository.deleteById(libraryQueryId);
     }
 
