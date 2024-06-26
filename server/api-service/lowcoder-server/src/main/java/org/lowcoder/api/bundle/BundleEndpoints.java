@@ -292,6 +292,7 @@ public interface BundleEndpoints
     }
 
 	public record CreateBundleRequest(@JsonProperty("orgId") String organizationId,
+										   String gid,
 										   String name,
 										   String title,
 										   String description,

@@ -85,7 +85,7 @@ public class FolderApiServiceImpl implements FolderApiService {
         if (StringUtils.isBlank(folder.getName())) {
             return Mono.error(new BizException(BizError.INVALID_PARAMETER, "FOLDER_NAME_EMPTY"));
         }
-        folder.setGid(UuidCreator.getTimeOrderedEpoch().toString());
+        if(StringUtils.isEmpty(folder.getId())) folder.setGid(UuidCreator.getTimeOrderedEpoch().toString());
         return orgDevChecker.checkCurrentOrgDev()
                 .then(sessionUserService.getVisitorOrgMemberCache())
                 .delayUntil(orgMember -> {

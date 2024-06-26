@@ -97,6 +97,7 @@ public class ApplicationApiServiceImpl implements ApplicationApiService {
     public Mono<ApplicationView> create(CreateApplicationRequest createApplicationRequest) {
 
         Application application = new Application(createApplicationRequest.organizationId(),
+                createApplicationRequest.gid(),
                 createApplicationRequest.name(),
                 createApplicationRequest.applicationType(),
                 NORMAL,
