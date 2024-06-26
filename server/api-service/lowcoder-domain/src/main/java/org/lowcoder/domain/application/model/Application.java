@@ -132,7 +132,7 @@ public class Application extends HasIdAndAuditing {
     public ApplicationQuery getQueryByViewModeAndQueryId(boolean isViewMode, String queryId) {
         return (isViewMode ? getLiveQueries() : getEditingQueries())
                 .stream()
-                .filter(query -> queryId.equals(query.getId()))
+                .filter(query -> queryId.equals(query.getId()) || queryId.equals(query.getGid()))
                 .findFirst()
                 .orElseThrow(() -> new BizException(BizError.QUERY_NOT_FOUND, "LIBRARY_QUERY_NOT_FOUND"));
     }
