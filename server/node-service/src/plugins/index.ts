@@ -34,6 +34,7 @@ import didPlugin from "./did";
 import bigQueryPlugin from "./bigQuery";
 import appConfigPlugin from "./appconfig";
 import tursoPlugin from "./turso";
+import postmanEchoPlugin from "./postmanEcho";
 
 let plugins: (DataSourcePlugin | DataSourcePluginFactory)[] = [
   s3Plugin,
@@ -71,6 +72,7 @@ let plugins: (DataSourcePlugin | DataSourcePluginFactory)[] = [
   bigQueryPlugin,
   appConfigPlugin,
   tursoPlugin,
+  postmanEchoPlugin,
 ];
 
 try {
