@@ -30,6 +30,7 @@ import { ThemeContext } from "@lowcoder-ee/comps/utils/themeContext";
 import { AlignCenter } from "lowcoder-design";
 import { AlignLeft } from "lowcoder-design";
 import { AlignRight } from "lowcoder-design";
+import { LayoutActionComp } from "./layoutActionComp";
 
 const TabBar = React.lazy(() => import("antd-mobile/es/components/tab-bar"));
 const TabBarItem = React.lazy(() =>
@@ -250,6 +251,7 @@ const TabOptionComp = (function () {
   return new MultiCompBuilder(
     {
       app: AppSelectComp,
+      action: LayoutActionComp,
       label: StringControl,
       icon: IconControl,
       hidden: BoolCodeControl,
@@ -261,12 +263,17 @@ const TabOptionComp = (function () {
     .setPropertyViewFn((children, dispatch) => {
       return (
         <>
+          {children.action.propertyView({
+            onAppChange: (label:any) => {
+              label && children.label.dispatchChangeValueAction(label);
+            },
+          })}
           {children.app.propertyView({})}
           {children.label.propertyView({ label: trans("label") })}
           {hiddenPropertyView(children)}
           {children.icon.propertyView({
-            label: trans("icon"),
-            tooltip: trans("aggregation.iconTooltip"),
+            label: trans('icon'),
+            tooltip: trans('aggregation.iconTooltip'),
           })}
         </>
       );
