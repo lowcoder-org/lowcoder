@@ -18,6 +18,7 @@ import org.lowcoder.domain.application.model.Application;
 import org.lowcoder.domain.application.model.ApplicationType;
 import org.lowcoder.domain.datasource.model.Datasource;
 import org.lowcoder.domain.permission.model.ResourceRole;
+import org.lowcoder.sdk.constants.FieldName;
 import org.lowcoder.sdk.exception.BizError;
 import org.lowcoder.sdk.exception.BizException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,6 +69,7 @@ public class ApplicationApiServiceIntegrationTest {
         //
         Mono<ApplicationView> applicationViewMono = datasourceMono.map(datasource -> new CreateApplicationRequest(
                         "org01",
+                        "",
                         "app05",
                         ApplicationType.APPLICATION.getValue(),
                         Map.of("comp", "table"),
@@ -77,7 +79,10 @@ public class ApplicationApiServiceIntegrationTest {
                 .flatMap(createApplicationRequest -> applicationApiService.create(createApplicationRequest));
 
         StepVerifier.create(applicationViewMono)
-                .assertNext(applicationView -> Assertions.assertNotNull(applicationView.getApplicationInfoView().getApplicationId()))
+                .assertNext(applicationView -> {
+                    Assertions.assertNotNull(applicationView.getApplicationInfoView().getApplicationId());
+                    Assertions.assertTrue(FieldName.isGID(applicationView.getApplicationInfoView().getApplicationGid()));
+                })
                 .verifyComplete();
     }
 
@@ -100,6 +105,7 @@ public class ApplicationApiServiceIntegrationTest {
         //
         Mono<ApplicationView> applicationViewMono = datasourceMono.map(datasource -> new CreateApplicationRequest(
                         "org01",
+                        "",
                         "app03",
                         ApplicationType.APPLICATION.getValue(),
                         Map.of("comp", "table"),

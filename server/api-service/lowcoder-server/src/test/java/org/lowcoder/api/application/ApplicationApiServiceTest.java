@@ -124,7 +124,7 @@ public class ApplicationApiServiceTest {
 
     private Mono<ApplicationView> createApplication(String name, String folderId) {
         CreateApplicationRequest createApplicationRequest =
-                new CreateApplicationRequest("org01", name, ApplicationType.APPLICATION.getValue(),
+                new CreateApplicationRequest("org01", "", name, ApplicationType.APPLICATION.getValue(),
                         Map.of("comp", "table"), Map.of("comp", "list"), folderId);
         return applicationApiService.create(createApplicationRequest);
     }
