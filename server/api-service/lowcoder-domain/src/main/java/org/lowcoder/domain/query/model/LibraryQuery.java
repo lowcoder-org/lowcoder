@@ -2,6 +2,7 @@ package org.lowcoder.domain.query.model;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.jackson.Jacksonized;
 import org.lowcoder.sdk.models.HasIdAndAuditing;
@@ -16,6 +17,7 @@ import static com.google.common.base.Suppliers.memoize;
 
 @Document
 @Getter
+@Setter
 @SuperBuilder
 @Jacksonized
 @NoArgsConstructor

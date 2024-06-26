@@ -1,5 +1,6 @@
 package org.lowcoder.domain.query.service;
 
+import com.github.f4b6a3.uuid.UuidCreator;
 import lombok.RequiredArgsConstructor;
 import org.lowcoder.domain.query.model.BaseQuery;
 import org.lowcoder.domain.query.model.LibraryQuery;
@@ -8,6 +9,7 @@ import org.lowcoder.domain.query.repository.LibraryQueryRepository;
 import org.lowcoder.infra.mongo.MongoUpsertHelper;
 import org.lowcoder.sdk.constants.FieldName;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -46,6 +48,7 @@ public class LibraryQueryServiceImpl implements LibraryQueryService {
 
     @Override
     public Mono<LibraryQuery> insert(LibraryQuery libraryQuery) {
+        if(StringUtils.isEmpty(libraryQuery.getGid())) libraryQuery.setGid(UuidCreator.getTimeOrderedEpoch().toString());
         return libraryQueryRepository.save(libraryQuery);
     }
 
