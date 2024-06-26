@@ -53,6 +53,7 @@ public class BundleApiServiceImplTest {
         //When org admin user creates bundle it succeed
         Mono<BundleInfoView> bundleInfoViewMono = bundleApiService.create(new BundleEndpoints.CreateBundleRequest(
                 "org01",
+                "",
                 "name1",
                 "title",
                 "description",
@@ -80,6 +81,7 @@ public class BundleApiServiceImplTest {
         //When org dev user creates bundle it succeed
         Mono<BundleInfoView> bundleInfoViewMono1 = bundleApiService.create(new BundleEndpoints.CreateBundleRequest(
                 "org01",
+                "",
                 "name2",
                 "title",
                 "description",
@@ -107,6 +109,7 @@ public class BundleApiServiceImplTest {
         //When non-dev create bundle throws error
         Mono<BundleInfoView> bundleInfoViewMono2 = bundleApiService.create(new BundleEndpoints.CreateBundleRequest(
                 "org01",
+                "",
                 "name3",
                 "title",
                 "description",
@@ -124,6 +127,7 @@ public class BundleApiServiceImplTest {
         //Create bundles
         Mono<BundleInfoView> bundleInfoViewMono = bundleApiService.create(new BundleEndpoints.CreateBundleRequest(
                 "org01",
+                "",
                 "name4",
                 "title",
                 "description",
@@ -133,6 +137,7 @@ public class BundleApiServiceImplTest {
 
         Mono<BundleInfoView> bundleInfoViewMono2 = bundleApiService.create(new BundleEndpoints.CreateBundleRequest(
                 "org01",
+                "",
                 "name5",
                 "title",
                 "description",
@@ -167,6 +172,7 @@ public class BundleApiServiceImplTest {
         //Create bundles
         Mono<BundleInfoView> bundleInfoViewMono = bundleApiService.create(new BundleEndpoints.CreateBundleRequest(
                 "org01",
+                "",
                 "name4",
                 "title",
                 "description",
@@ -176,6 +182,7 @@ public class BundleApiServiceImplTest {
 
         Mono<BundleInfoView> bundleInfoViewMono2 = bundleApiService.create(new BundleEndpoints.CreateBundleRequest(
                 "org01",
+                "",
                 "name5",
                 "title",
                 "description",
@@ -203,7 +210,7 @@ public class BundleApiServiceImplTest {
 
     private Mono<BundleInfoView> createBundle(String name, String folderId) {
         BundleEndpoints.CreateBundleRequest createBundleRequest =
-                new BundleEndpoints.CreateBundleRequest("org01", name, "title", "desc", "category", "image", folderId);
+                new BundleEndpoints.CreateBundleRequest("org01", "" ,name, "title", "desc", "category", "image", folderId);
         return bundleApiService.create(createBundleRequest);
     }
 
