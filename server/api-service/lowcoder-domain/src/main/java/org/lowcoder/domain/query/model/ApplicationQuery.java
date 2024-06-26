@@ -17,6 +17,8 @@ public class ApplicationQuery {
 
     private final String id;
 
+    private final String gid;
+
     private final String name;
 
     private final BaseQuery baseQuery;
@@ -27,6 +29,7 @@ public class ApplicationQuery {
 
     @JsonCreator
     public ApplicationQuery(@JsonProperty("id") String id,
+            @JsonProperty("gid") String gid,
             @JsonProperty("name") String name,
             @JsonProperty("datasourceId") String datasourceId,
             @JsonProperty("comp") Map<String, Object> queryConfig,
@@ -34,6 +37,7 @@ public class ApplicationQuery {
             @JsonProperty("timeout") String timeoutStr,
             @JsonProperty("compType") String compType) {
         this.id = id;
+        this.gid = gid;
         this.name = name;
         this.triggerType = triggerType;
         this.timeoutStr = timeoutStr;
