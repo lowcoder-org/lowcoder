@@ -49,6 +49,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.google.common.collect.Sets.newHashSet;
+import static org.lowcoder.domain.organization.service.OrganizationServiceImpl.PASSWORD_RESET_EMAIL_TEMPLATE_DEFAULT;
 import static org.lowcoder.domain.user.model.UserDetail.ANONYMOUS_CURRENT_USER;
 import static org.lowcoder.sdk.constants.GlobalContext.CLIENT_IP;
 import static org.lowcoder.sdk.util.ExceptionUtils.ofError;
@@ -267,7 +268,7 @@ public class UserServiceImpl implements UserService {
         return findByName(userEmail)
                 .zipWhen(user -> orgMemberService.getCurrentOrgMember(user.getId())
                 .flatMap(orgMember -> organizationService.getById(orgMember.getOrgId()))
-                .map(organization -> organization.getCommonSettings().get("PASSWORD_RESET_EMAIL_TEMPLATE")))
+                .map(organization -> organization.getCommonSettings().getOrDefault(PASSWORD_RESET_EMAIL_TEMPLATE_DEFAULT, PASSWORD_RESET_EMAIL_TEMPLATE_DEFAULT)))
                 .flatMap(tuple -> {
                     User user = tuple.getT1();
                     String emailTemplate = (String)tuple.getT2();

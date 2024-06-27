@@ -8,6 +8,7 @@ import org.lowcoder.api.application.view.ApplicationInfoView;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 
 @Getter
 @Setter
@@ -31,7 +32,8 @@ public class BundleInfoView {
     private boolean isVisible;
     private boolean isManageable;
 
-    private List<ApplicationInfoView> subApplications;
+    private Map<String, Object> editingBundleDSL;
+    private Map<String, Object> publishedBundleDSL;
 
     private final Instant createTime;
 

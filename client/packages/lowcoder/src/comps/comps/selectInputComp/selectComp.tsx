@@ -18,16 +18,16 @@ import {
 import { useRef } from "react";
 import { RecordConstructorToView } from "lowcoder-core";
 import { fixOldInputCompData } from "../textInputComp/textInputConstants";
-import { migrateOldData } from "comps/generators/simpleGenerators";
+import { migrateOldData, withDefault } from "comps/generators/simpleGenerators";
 
 let SelectBasicComp = (function () {
   const childrenMap = {
     ...SelectChildrenMap,
     defaultValue: stringExposingStateControl("defaultValue"),
     value: stringExposingStateControl("value"),
-    style: styleControl(InputFieldStyle),
+    style: withDefault(styleControl(InputFieldStyle),{background:'transparent'}),
     labelStyle: styleControl(LabelStyle),
-    inputFieldStyle: styleControl(SelectStyle),
+    inputFieldStyle: withDefault(styleControl(SelectStyle),{borderWidth:'1px'}),
     childrenInputFieldStyle: styleControl(ChildrenMultiSelectStyle)
   };
   return new UICompBuilder(childrenMap, (props, dispatch) => {

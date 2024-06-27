@@ -96,8 +96,10 @@ export function withSelectedMultiContext<TCtor extends MultiCompConstructor>(
         comp = comp.reduce(wrapChildAction(COMP_KEY, newAction));
       } else if (
         !action.editDSL
-        && isCustomAction<ModuleReadyAction>(action, "moduleReady")
-        && action.path[0] === MAP_KEY
+        && (
+          isCustomAction<ModuleReadyAction>(action, "moduleReady")
+          || isCustomAction<LazyCompReadyAction>(action, "LazyCompReady")
+        ) && action.path[0] === MAP_KEY
       ) {
         comp = super.reduce(action);
       }

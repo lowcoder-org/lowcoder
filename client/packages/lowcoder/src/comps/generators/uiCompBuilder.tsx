@@ -287,7 +287,11 @@ function UIView(props: {
       } else {
         return '0px'; // Both rotation and box-shadow are empty or restricted
       }
-    } else if (rotationVal !== '' && rotationVal !== '0deg') {
+    }else if (
+      rotationVal === null ||
+      rotationVal === undefined ||
+      rotationVal === '0px'
+    ){return '0px'} else if (rotationVal !== '' && rotationVal !== '0deg') {
       // Rotation applied
       if (
         boxShadowVal === null ||

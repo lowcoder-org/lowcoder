@@ -54,9 +54,8 @@ public class ApiEventFilter implements WebFilter {
     private void emitEvent(ServerHttpRequest request, String token, OrgMember orgMember) {
         MultiValueMap<String, String> headers = writableHttpHeaders(request.getHeaders());
         headers.remove("Cookie");
-        String ipAddress = "n/a";
-        Optional<String> optionalIpAddress = headers.remove("X-Real-IP").stream().findFirst();
-        if(optionalIpAddress.isPresent()) ipAddress = optionalIpAddress.get();
+        Optional<String> ipAddressOptional = headers.remove("X-Real-IP").stream().findFirst();
+        String ipAddress = ipAddressOptional.orElse("");
 
         APICallEvent event = APICallEvent.builder()
                 .userId(orgMember.getUserId())

@@ -35,6 +35,7 @@ import { currentOrgAdmin } from "../../../util/permissionUtils";
 import CreateModal from "./createModal";
 import _ from "lodash";
 import { HelpText } from "components/HelpText";
+import { IconControlView } from "@lowcoder-ee/comps/controls/iconControl";
 
 export const IdSourceList = (props: any) => {
   const user = useSelector(getUser);
@@ -75,7 +76,7 @@ export const IdSourceList = (props: any) => {
           let res: ConfigItem[] = resp.data.data.filter((item: ConfigItem) =>
             IdSource.includes(item.authType)
           );
-          res = _.uniqBy(res, 'authType');
+          // res = _.uniqBy(res, 'authType');
           setConfigs(res);
         }
       })
@@ -137,10 +138,12 @@ export const IdSourceList = (props: any) => {
             render={(value: AuthType, record: ConfigItem) => (
               <SpanStyled disabled={authTypeDisabled(value, enableEnterpriseLogin)}>
                 {
-                  <img
-                    src={ServerAuthTypeInfo[value as AuthType]?.logo || GeneralLoginIcon}
-                    alt={value}
-                  />
+                  (record as any).sourceIcon
+                    ? <span className="sourceIcon"><IconControlView value={(record as any).sourceIcon} /></span>
+                    : <img
+                      src={ServerAuthTypeInfo[value as AuthType]?.logo || GeneralLoginIcon}
+                      alt={value}
+                    />
                 }
                 <span>
                   {value === AuthType.Generic

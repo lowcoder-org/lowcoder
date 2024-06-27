@@ -148,6 +148,10 @@ const getStyle = (style: FileStyleType) => {
       font-weight:${style.textWeight};
       font-style:${style.fontStyle};
       border-width:${style.borderWidth};
+      border-style:${style.borderStyle};
+      text-decoration:${style.textDecoration};
+      text-transform:${style.textTransform};
+      text-transform:${style.textTransform};
     }
 
     .ant-btn:not(:disabled) {
@@ -427,7 +431,7 @@ let FileTmpComp = new UICompBuilder(childrenMap, (props, dispatch) => (
       {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
         <>
           <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
-          <Section name={sectionNames.animationStyle}>{children.animationStyle.getPropertyView()}</Section>
+          <Section name={sectionNames.animationStyle} hasTooltip={true}>{children.animationStyle.getPropertyView()}</Section>
         </>
       )}
     </>

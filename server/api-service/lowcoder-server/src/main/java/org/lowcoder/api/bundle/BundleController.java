@@ -65,6 +65,11 @@ public class BundleController implements BundleEndpoints
     }
 
     @Override
+    public Mono<ResponseView<BundleInfoView>> publish(@PathVariable String bundleId) {
+        return bundleApiService.publish(bundleId).map(ResponseView::success);
+    }
+
+    @Override
     public Mono<ResponseView<Boolean>> recycle(@PathVariable String bundleId) {
         return bundleApiService.recycle(bundleId)
 //                .delayUntil(__ -> businessEventPublisher.publishBundleCommonEvent(bundleId, null, BUNDLE_RECYCLED))
@@ -89,7 +94,7 @@ public class BundleController implements BundleEndpoints
      * get all files under bundle
      */
     @Override
-    public Mono<ResponseView<List<?>>> getElements(@RequestParam(value = "id", required = false) String bundleId,
+    public Mono<ResponseView<List<?>>> getElements(@PathVariable String bundleId,
             @RequestParam(value = "applicationType", required = false) ApplicationType applicationType) {
         return bundleApiService.getElements(bundleId, applicationType)
                 .collectList()

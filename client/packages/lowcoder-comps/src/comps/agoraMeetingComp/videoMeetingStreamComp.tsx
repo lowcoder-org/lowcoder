@@ -130,7 +130,7 @@ let VideoCompBuilder = (function () {
         setVideo(userData.streamingVideo);
       }
     }, [props.userId.value]);
-    console.log("userId", userId);
+    // console.log("userId", userId);
     
 
     return (

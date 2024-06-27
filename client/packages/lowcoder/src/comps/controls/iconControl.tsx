@@ -208,7 +208,7 @@ type ChangeModeAction = {
   useCodeEditor: boolean;
 };
 
-function IconControlView(props: { value: string }) {
+export function IconControlView(props: { value: string }) {
   const { value } = props;
   const icon = useIcon(value);
   if (icon) {

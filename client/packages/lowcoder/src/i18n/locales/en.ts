@@ -229,6 +229,7 @@ export const en = {
     "text": "Label",
     "tooltip": "Tooltip",
     "position": "Position",
+    "collapse": "Collapse",
     "left": "Left",
     "right": "Right",
     "top": "Top",
@@ -3470,10 +3471,17 @@ export const en = {
     "mode": "Mode",
     "modeInline": "Inline",
     "modeVertical": "Vertical",
+    "modeHorizontal": "Horizontal",
     "width": "Width",
     "widthTooltip": "Pixel or Percentage, e.g. 520, 60%",
     "navStyle": "Menu Style",
-    "navItemStyle": "Menu Item Style"
+    "navItemStyle": "Menu Item Style",
+    "navBackground": "Background Image",
+    "mobileNavVerticalOrientation": "Vertical Orientation",
+    "mobileNavVerticalMaxWidth": "Max Width",
+    "mobileNavBarHeight": "Navbar Height",
+    "mobileNavVerticalShowSeparator": "Show Separator",
+    "mobileNavIconSize": "Icon Size",
   },
 
   tour: { 

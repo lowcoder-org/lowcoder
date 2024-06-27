@@ -25,7 +25,13 @@
             "authType": "GENERIC",
             "userInfoIntrospection": false,
             "enable": true,
-            "enableRegister": true
+            "enableRegister": true,
+            "sourceMappings": {
+              "uid": "sub",
+              "email": "email",
+              "username": "username",
+              "avatar": "avatar"
+            }
           }
         ]
       }

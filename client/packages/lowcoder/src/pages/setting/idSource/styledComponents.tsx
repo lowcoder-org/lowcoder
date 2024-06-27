@@ -62,10 +62,11 @@ export const SpanStyled = styled.div<{ disabled: boolean }>`
   align-items: center;
   height: 100%;
 
-  img {
+  img, .sourceIcon {
     width: 25px;
     height: 25px;
     margin-right: 12px;
+    text-align: center;
     opacity: ${(props) => props.disabled && "0.4"};
   }
 

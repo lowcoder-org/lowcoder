@@ -53,8 +53,14 @@ export const ColumnSelectComp = (function () {
     childrenMap,
     (props, dispatch) => {
       options = props.options;
-      const value = props.changeValue ?? getBaseValue(props, dispatch)
-      return props.options.find(x => x.value === value)?.label;
+      const value = props.changeValue ?? getBaseValue(props, dispatch);
+      const option = props.options.find(x => x.value === value);
+      return (
+        <>
+          <span>{option?.prefixIcon}</span>
+          <span>{option?.label}</span>
+        </>
+      );
     },
     (nodeValue) => nodeValue.text.value,
     getBaseValue,
