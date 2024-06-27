@@ -629,6 +629,7 @@ public class BundleApiServiceImpl implements BundleApiService {
                 .map(user -> BundleInfoView.builder()
                         .userId(bundle.getCreatedBy())
                         .bundleId(bundle.getId())
+                        .bundleGid(bundle.getGid())
                         .title(bundle.getTitle())
                         .name(bundle.getName())
                         .description(bundle.getDescription())
