@@ -15,6 +15,7 @@ import org.lowcoder.domain.bundle.model.BundleStatus;
 import org.lowcoder.domain.bundle.service.BundleService;
 import org.lowcoder.domain.permission.model.ResourceHolder;
 import org.lowcoder.domain.permission.model.ResourceRole;
+import org.lowcoder.sdk.constants.FieldName;
 import org.lowcoder.sdk.exception.BizError;
 import org.lowcoder.sdk.exception.BizException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -72,6 +73,8 @@ public class BundleApiServiceImplTest {
                     assertFalse(bundleInfoView.getPublicToMarketplace());
                     assertFalse(bundleInfoView.getAgencyProfile());
                     assertNull(bundleInfoView.getFolderId());
+                    assertNotNull(bundleInfoView.getBundleGid());
+                    assertTrue(FieldName.isGID(bundleInfoView.getBundleGid()));
                 })
                 .verifyComplete();
     }
@@ -100,6 +103,8 @@ public class BundleApiServiceImplTest {
                     assertFalse(bundleInfoView.getPublicToMarketplace());
                     assertFalse(bundleInfoView.getAgencyProfile());
                     assertNull(bundleInfoView.getFolderId());
+                    assertNotNull(bundleInfoView.getBundleGid());
+                    assertTrue(FieldName.isGID(bundleInfoView.getBundleGid()));
                 })
                 .verifyComplete();
     }
