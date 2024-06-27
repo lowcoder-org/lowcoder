@@ -34,7 +34,7 @@ public class Oauth2GenericAuthConfig extends Oauth2SimpleAuthConfig {
         return super.replaceAuthUrlClientIdPlaceholder(url)
                 .replace(BASE_URL_PLACEHOLDER, authorizationEndpoint)
                 .replace(SCOPE_PLACEHOLDER, scope)
-                .concat(Boolean.TRUE.equals(userCanSelectAccounts)?"&prompt=select_account":"");
+                .concat(Boolean.FALSE.equals(userCanSelectAccounts)?"":"&prompt=select_account");
     }
 
 
