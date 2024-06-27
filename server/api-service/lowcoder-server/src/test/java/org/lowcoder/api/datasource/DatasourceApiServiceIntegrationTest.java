@@ -11,6 +11,7 @@ import org.lowcoder.api.permission.view.PermissionItemView;
 import org.lowcoder.domain.datasource.model.Datasource;
 import org.lowcoder.domain.datasource.model.DatasourceCreationSource;
 import org.lowcoder.domain.datasource.model.DatasourceStatus;
+import org.lowcoder.sdk.constants.FieldName;
 import org.lowcoder.sdk.exception.BizError;
 import org.lowcoder.sdk.exception.BizException;
 import org.lowcoder.sdk.plugin.mysql.MysqlDatasourceConfig;
@@ -59,6 +60,7 @@ public class DatasourceApiServiceIntegrationTest {
                 .assertNext(datasourceViews -> {
                     Assertions.assertFalse(findDatasourceView(datasourceViews, "mysql04").edit());
                     Assertions.assertTrue(findDatasourceView(datasourceViews, "mysql05").edit());
+                    Assertions.assertTrue(FieldName.isGID(findDatasourceView(datasourceViews, "mysql04").datasource().getGid()));
                 })
                 .verifyComplete();
     }
