@@ -20,6 +20,7 @@ import org.lowcoder.domain.application.model.ApplicationType;
 import org.lowcoder.domain.application.service.ApplicationService;
 import org.lowcoder.domain.permission.model.ResourceHolder;
 import org.lowcoder.domain.permission.model.ResourceRole;
+import org.lowcoder.sdk.constants.FieldName;
 import org.lowcoder.sdk.exception.BizError;
 import org.lowcoder.sdk.exception.BizException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -124,7 +125,7 @@ public class ApplicationApiServiceTest {
 
     private Mono<ApplicationView> createApplication(String name, String folderId) {
         CreateApplicationRequest createApplicationRequest =
-                new CreateApplicationRequest("org01", name, ApplicationType.APPLICATION.getValue(),
+                new CreateApplicationRequest("org01", "", name, ApplicationType.APPLICATION.getValue(),
                         Map.of("comp", "table"), Map.of("comp", "list"), folderId);
         return applicationApiService.create(createApplicationRequest);
     }
@@ -274,4 +275,21 @@ public class ApplicationApiServiceTest {
                 .verifyComplete();
     }
 
+    @Test
+    @WithMockUser
+    public void testAppCreateAndRetrievalByGID() {
+
+        Mono<Application> applicationMono = createApplication("test", null)
+                .map(applicationView -> applicationView.getApplicationInfoView().getApplicationGid())
+                .delayUntil(applicationGid -> applicationApiService.recycle(applicationGid))
+                .delayUntil(applicationGid -> applicationApiService.delete(applicationGid))
+                .flatMap(applicationGid -> applicationService.findById(applicationGid));
+        StepVerifier.create(applicationMono)
+                .assertNext(application -> {
+                    Assertions.assertSame(application.getApplicationStatus(), ApplicationStatus.DELETED);
+                    Assertions.assertNotNull(application.getGid());
+                    Assertions.assertTrue(FieldName.isGID(application.getGid()));
+                })
+                .verifyComplete();
+    }
 }

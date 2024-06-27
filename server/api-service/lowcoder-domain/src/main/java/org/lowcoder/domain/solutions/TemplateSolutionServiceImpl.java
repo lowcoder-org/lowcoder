@@ -132,6 +132,7 @@ public class TemplateSolutionServiceImpl implements TemplateSolutionService {
     private Mono<String> createNewDatasourceFrom(String organizationId, String visitorId, Datasource datasource) {
         Datasource copyDatasource = new Datasource();
         copyDatasource.setName(generateCopyDatasourceName(datasource.getName()));
+        copyDatasource.setGid(datasource.getGid());
         copyDatasource.setType(datasource.getType());
         copyDatasource.setDetailConfig(datasource.getDetailConfig());
         copyDatasource.setCreationSource(DatasourceCreationSource.CLONE_FROM_TEMPLATE.getValue());

@@ -15,6 +15,7 @@ import org.lowcoder.domain.bundle.model.BundleStatus;
 import org.lowcoder.domain.bundle.service.BundleService;
 import org.lowcoder.domain.permission.model.ResourceHolder;
 import org.lowcoder.domain.permission.model.ResourceRole;
+import org.lowcoder.sdk.constants.FieldName;
 import org.lowcoder.sdk.exception.BizError;
 import org.lowcoder.sdk.exception.BizException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,6 +54,7 @@ public class BundleApiServiceImplTest {
         //When org admin user creates bundle it succeed
         Mono<BundleInfoView> bundleInfoViewMono = bundleApiService.create(new BundleEndpoints.CreateBundleRequest(
                 "org01",
+                "",
                 "name1",
                 "title",
                 "description",
@@ -71,6 +73,8 @@ public class BundleApiServiceImplTest {
                     assertFalse(bundleInfoView.getPublicToMarketplace());
                     assertFalse(bundleInfoView.getAgencyProfile());
                     assertNull(bundleInfoView.getFolderId());
+                    assertNotNull(bundleInfoView.getBundleGid());
+                    assertTrue(FieldName.isGID(bundleInfoView.getBundleGid()));
                 })
                 .verifyComplete();
     }
@@ -80,6 +84,7 @@ public class BundleApiServiceImplTest {
         //When org dev user creates bundle it succeed
         Mono<BundleInfoView> bundleInfoViewMono1 = bundleApiService.create(new BundleEndpoints.CreateBundleRequest(
                 "org01",
+                "",
                 "name2",
                 "title",
                 "description",
@@ -98,6 +103,8 @@ public class BundleApiServiceImplTest {
                     assertFalse(bundleInfoView.getPublicToMarketplace());
                     assertFalse(bundleInfoView.getAgencyProfile());
                     assertNull(bundleInfoView.getFolderId());
+                    assertNotNull(bundleInfoView.getBundleGid());
+                    assertTrue(FieldName.isGID(bundleInfoView.getBundleGid()));
                 })
                 .verifyComplete();
     }
@@ -107,6 +114,7 @@ public class BundleApiServiceImplTest {
         //When non-dev create bundle throws error
         Mono<BundleInfoView> bundleInfoViewMono2 = bundleApiService.create(new BundleEndpoints.CreateBundleRequest(
                 "org01",
+                "",
                 "name3",
                 "title",
                 "description",
@@ -124,6 +132,7 @@ public class BundleApiServiceImplTest {
         //Create bundles
         Mono<BundleInfoView> bundleInfoViewMono = bundleApiService.create(new BundleEndpoints.CreateBundleRequest(
                 "org01",
+                "",
                 "name4",
                 "title",
                 "description",
@@ -133,6 +142,7 @@ public class BundleApiServiceImplTest {
 
         Mono<BundleInfoView> bundleInfoViewMono2 = bundleApiService.create(new BundleEndpoints.CreateBundleRequest(
                 "org01",
+                "",
                 "name5",
                 "title",
                 "description",
@@ -167,6 +177,7 @@ public class BundleApiServiceImplTest {
         //Create bundles
         Mono<BundleInfoView> bundleInfoViewMono = bundleApiService.create(new BundleEndpoints.CreateBundleRequest(
                 "org01",
+                "",
                 "name4",
                 "title",
                 "description",
@@ -176,6 +187,7 @@ public class BundleApiServiceImplTest {
 
         Mono<BundleInfoView> bundleInfoViewMono2 = bundleApiService.create(new BundleEndpoints.CreateBundleRequest(
                 "org01",
+                "",
                 "name5",
                 "title",
                 "description",
@@ -203,7 +215,7 @@ public class BundleApiServiceImplTest {
 
     private Mono<BundleInfoView> createBundle(String name, String folderId) {
         BundleEndpoints.CreateBundleRequest createBundleRequest =
-                new BundleEndpoints.CreateBundleRequest("org01", name, "title", "desc", "category", "image", folderId);
+                new BundleEndpoints.CreateBundleRequest("org01", "" ,name, "title", "desc", "category", "image", folderId);
         return bundleApiService.create(createBundleRequest);
     }
 

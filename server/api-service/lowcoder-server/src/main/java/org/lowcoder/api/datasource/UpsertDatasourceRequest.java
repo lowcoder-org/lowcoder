@@ -10,6 +10,7 @@ import lombok.Setter;
 public class UpsertDatasourceRequest {
 
     private String id;
+    private String gid;
     private String name;
     private String type;
     private String organizationId;
