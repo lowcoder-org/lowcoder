@@ -88,6 +88,7 @@ public class GenericAuthenticateTest {
                 .scope("scope")
                 .sourceMappings(sourceMappings)
                 .userInfoIntrospection(true)
+                .userCanSelectAccounts(true)
                 .build();
 
         var organization = Organization.builder().build();
