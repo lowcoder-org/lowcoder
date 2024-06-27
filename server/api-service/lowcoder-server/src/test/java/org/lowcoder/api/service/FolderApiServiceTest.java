@@ -12,6 +12,7 @@ import org.lowcoder.api.permission.view.PermissionItemView;
 import org.lowcoder.domain.folder.model.Folder;
 import org.lowcoder.domain.folder.service.FolderService;
 import org.lowcoder.domain.permission.model.ResourceRole;
+import org.lowcoder.sdk.constants.FieldName;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
@@ -23,6 +24,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -48,7 +50,10 @@ public class FolderApiServiceTest {
         folder.setParentFolderId(null);
         folder.setName("root");
         StepVerifier.create(folderApiService.create(folder))
-                .assertNext(f -> assertNotNull(f.getFolderId()))
+                .assertNext(f -> {
+                    assertNotNull(f.getFolderId());
+                    assertTrue(FieldName.isGID(f.getFolderGid()));
+                })
                 .verifyComplete();
     }
 

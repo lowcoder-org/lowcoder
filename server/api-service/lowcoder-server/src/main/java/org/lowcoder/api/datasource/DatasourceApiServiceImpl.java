@@ -1,5 +1,6 @@
 package org.lowcoder.api.datasource;
 
+import com.github.f4b6a3.uuid.UuidCreator;
 import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections4.CollectionUtils;
@@ -73,6 +74,7 @@ public class DatasourceApiServiceImpl implements DatasourceApiService {
 
     @Override
     public Mono<Datasource> create(Datasource datasource) {
+        if(StringUtils.isEmpty(datasource.getGid())) datasource.setGid(UuidCreator.getTimeOrderedEpoch().toString());
         return sessionUserService.getVisitorId()
                 .flatMap(userId -> orgMemberService.getOrgMember(datasource.getOrganizationId(), userId))
                 .switchIfEmpty(deferredError(NOT_AUTHORIZED, "NOT_AUTHORIZED"))

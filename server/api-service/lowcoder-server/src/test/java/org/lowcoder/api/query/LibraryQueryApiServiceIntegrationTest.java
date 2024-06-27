@@ -10,6 +10,7 @@ import org.lowcoder.api.datasource.DatasourceApiService;
 import org.lowcoder.api.datasource.DatasourceApiServiceIntegrationTest;
 import org.lowcoder.api.query.view.LibraryQueryView;
 import org.lowcoder.domain.query.model.LibraryQuery;
+import org.lowcoder.sdk.constants.FieldName;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
@@ -49,7 +50,10 @@ public class LibraryQueryApiServiceIntegrationTest {
                 .then(libraryQueryApiService.listLibraryQueries());
 
         StepVerifier.create(listMono)
-                .assertNext(libraryQueryViews -> Assertions.assertNotNull(find(libraryQueryViews, "query01")))
+                .assertNext(libraryQueryViews -> {
+                    Assertions.assertNotNull(find(libraryQueryViews, "query01"));
+                    Assertions.assertTrue(FieldName.isGID(find(libraryQueryViews, "query01").gid()));
+                })
                 .verifyComplete();
     }
 

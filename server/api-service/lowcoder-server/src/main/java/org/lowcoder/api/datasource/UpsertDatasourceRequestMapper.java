@@ -34,7 +34,6 @@ public class UpsertDatasourceRequestMapper {
 
         Datasource datasource = new Datasource();
         datasource.setId(dto.getId());
-        datasource.setGid(StringUtils.isEmpty(dto.getGid())?UuidCreator.getTimeOrderedEpoch().toString():dto.getGid());
         datasource.setName(dto.getName());
         datasource.setType(dto.getType());
         datasource.setOrganizationId(dto.getOrganizationId());
