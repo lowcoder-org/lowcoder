@@ -20,6 +20,13 @@
       "organizationId": "org01",
       "name": "folder03",
       "createdBy": "user01"
+    },
+    {
+      "id": "folder04",
+      "gid": "01905d61-5c7e-788a-b650-82c983f04968",
+      "organizationId": "org01",
+      "name": "folder03",
+      "createdBy": "user01"
     }
   ]
 }

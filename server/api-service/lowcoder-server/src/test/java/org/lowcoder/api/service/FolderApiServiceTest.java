@@ -78,12 +78,45 @@ public class FolderApiServiceTest {
 
     @Test
     @WithMockUser
+    public void checkExistingByGid() {
+
+        String id = "01905d61-5c7e-788a-b650-82c983f04968";
+        String id2 = "01905d61-5c7e-788a-b650-82c983f04969";
+
+        StepVerifier.create(folderService.exist(id))
+                .expectNext(true)
+                .verifyComplete();
+
+        StepVerifier.create(folderService.exist(id2))
+                .expectNext(false)
+                .verifyComplete();
+    }
+
+    @Test
+    @WithMockUser
     public void update() {
         String id = "folder02";
 
         StepVerifier.create(folderService.findById(id))
                 .assertNext(folder -> Assertions.assertEquals("folder02", folder.getName()))
                 .verifyComplete();
+
+        Folder newFolder = new Folder();
+        newFolder.setId(id);
+        newFolder.setName("test_update");
+        StepVerifier.create(folderApiService.update(newFolder))
+                .assertNext(Assertions::assertNotNull)
+                .verifyComplete();
+
+        StepVerifier.create(folderService.findById(id))
+                .assertNext(folder -> Assertions.assertEquals("test_update", folder.getName()))
+                .verifyComplete();
+    }
+
+    @Test
+    @WithMockUser
+    public void updateByGid() {
+        String id = "019053a3-f968-7a57-91fd-36f50d43713c";
 
         Folder newFolder = new Folder();
         newFolder.setId(id);
