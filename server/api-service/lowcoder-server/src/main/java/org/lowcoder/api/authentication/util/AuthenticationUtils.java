@@ -74,7 +74,7 @@ public final class AuthenticationUtils {
                 .accessToken(MapUtils.getString(map, "access_token"))
                 .expireIn(MapUtils.getIntValue(map, "expires_in"))
                 .refreshToken(MapUtils.getString(map, "refresh_token"))
-                .jwt(AdvancedMapUtils.getString(map, MapUtils.getString(sourceMappings, "jwt")))
+                .jwt(AdvancedMapUtils.getString(map, MapUtils.getString(sourceMappings, "jwt", "access_token")))
                 .build();
     }
 
