@@ -50,6 +50,7 @@ import { EditorContext } from "comps/editorState";
 import { ThemeContext } from "@lowcoder-ee/comps/utils/themeContext";
 import { CompTypeContext } from "@lowcoder-ee/comps/utils/compTypeContext";
 import { setInitialCompStyles } from "@lowcoder-ee/comps/utils/themeUtil";
+import { useMergeCompStyles } from "@lowcoder-ee/index.sdk";
 
 const EventOptions = [
   clickEvent,
@@ -92,22 +93,7 @@ const TimelineComp = (
 ) => {
   const { value, dispatch, style, mode, reverse, onEvent } = props;
   const [icons, setIcons] = useState<React.ReactNode[]>([]);
-  const theme = useContext(ThemeContext);
-  const compType = useContext(CompTypeContext);
-  const compTheme = theme?.theme?.components?.[compType];
-
-  const styleProps: Record<string, any> = {};
-  ['style'].forEach((key: string) => {
-    styleProps[key] = (props as any)[key];
-  });
-
-  useEffect(() => {
-    setInitialCompStyles({
-      dispatch,
-      compTheme,
-      styleProps,
-    });
-  }, []);
+  useMergeCompStyles(props as Record<string, any>, dispatch);
 
   useEffect(() => {
     const loadIcons = async () => {

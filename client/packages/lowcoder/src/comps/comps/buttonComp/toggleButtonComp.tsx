@@ -28,6 +28,7 @@ import { EditorContext } from "comps/editorState";
 import { ThemeContext } from "@lowcoder-ee/comps/utils/themeContext";
 import { CompTypeContext } from "@lowcoder-ee/comps/utils/compTypeContext";
 import { setInitialCompStyles } from "@lowcoder-ee/comps/utils/themeUtil";
+import { useMergeCompStyles } from "@lowcoder-ee/index.sdk";
 
 const IconWrapper = styled.div`
   display: flex;
@@ -72,21 +73,7 @@ const ToggleTmpComp = (function () {
     const text = props.showText
       ? (props.value.value ? props.trueText : props.falseText) || undefined
       : undefined;
-    const theme = useContext(ThemeContext);
-    const compType = useContext(CompTypeContext);
-    const compTheme = theme?.theme?.components?.[compType];
-    const styleProps: Record<string, any> = {};
-    ['style',  'animationStyle'].forEach((key: string) => {
-      styleProps[key] = (props as any)[key];
-    });
-
-    useEffect(() => {
-      setInitialCompStyles({
-        dispatch,
-        compTheme,
-        styleProps,
-      });
-    }, []);
+    useMergeCompStyles(props as Record<string, any>, dispatch);
 
     return (
       <ButtonCompWrapperStyled

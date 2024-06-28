@@ -37,6 +37,7 @@ import { CompNameContext, EditorContext } from "../editorState";
 import { CompTypeContext } from "@lowcoder-ee/comps/utils/compTypeContext";
 import { setInitialCompStyles } from "@lowcoder-ee/comps/utils/themeUtil";
 import { ThemeContext } from "@lowcoder-ee/comps/utils/themeContext";
+import { useMergeCompStyles } from "@lowcoder-ee/index.sdk";
 
 const AvatarWrapper = styled(Avatar) <AvatarProps & { $cursorPointer?: boolean, $style: AvatarStyleType }>`
   background: ${(props) => props.$style.background};
@@ -201,22 +202,8 @@ const AvatarView = (props: RecordConstructorToView<typeof childrenMap>) => {
 
 let AvatarBasicComp = (function () {
   return new UICompBuilder(childrenMap, (props , dispatch) => { 
+    useMergeCompStyles(props as Record<string, any>, dispatch);    
 
-    const theme = useContext(ThemeContext);
-    const compType = useContext(CompTypeContext);
-    const compTheme = theme?.theme?.components?.[compType];
-    const styleProps: Record<string, any> = {};
-    ['style', 'labelStyle', 'inputFieldStyle', 'animationStyle'].forEach((key: string) => {
-      styleProps[key] = (props as any)[key];
-    });
-
-    useEffect(() => {
-      setInitialCompStyles({
-        dispatch,
-        compTheme,
-        styleProps,
-      });
-    }, []);
     return(<AvatarView {...props} />)})
     .setPropertyViewFn((children) => (
       <>

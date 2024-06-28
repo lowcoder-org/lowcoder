@@ -38,6 +38,7 @@ import { EditorContext } from "comps/editorState";
 import { ThemeContext } from "@lowcoder-ee/comps/utils/themeContext";
 import { CompTypeContext } from "@lowcoder-ee/comps/utils/compTypeContext";
 import { setInitialCompStyles } from "@lowcoder-ee/comps/utils/themeUtil";
+import { useMergeCompStyles } from "@lowcoder-ee/index.sdk";
 
 /**
  * Input Comp
@@ -64,23 +65,7 @@ const childrenMap = {
 
 let InputBasicComp = new UICompBuilder(childrenMap, (props, dispatch) => {
   const [inputProps, validateState] = useTextInputProps(props);
-
-  const theme = useContext(ThemeContext);
-  const compType = useContext(CompTypeContext);
-  const compTheme = theme?.theme?.components?.[compType];
-
-  const styleProps: Record<string, any> = {};
-  ['style', 'labelStyle', 'inputFieldStyle', 'animationStyle'].forEach((key: string) => {
-    styleProps[key] = (props as any)[key];
-  });
-
-  useEffect(() => {
-    setInitialCompStyles({
-      dispatch,
-      compTheme,
-      styleProps,
-    });
-  }, []);
+  useMergeCompStyles(props as Record<string, any>, dispatch);
 
   return props.label({
     required: props.required,

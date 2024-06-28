@@ -13,7 +13,7 @@ import log from "loglevel";
 import { useContext, useEffect } from "react";
 import { EditorContext } from "comps/editorState";
 import { CompTypeContext } from "../utils/compTypeContext";
-import { ThemeContext } from "@lowcoder-ee/index.sdk";
+import { ThemeContext, useMergeCompStyles } from "@lowcoder-ee/index.sdk";
 import { setInitialCompStyles } from "../utils/themeUtil";
 
 const Wrapper = styled.div<{$style: IframeStyleType; $animationStyle:AnimationStyleType}>`
@@ -51,24 +51,8 @@ let IFrameCompBase = new UICompBuilder(
     style: styleControl(IframeStyle , 'style'),
     animationStyle: styleControl(AnimationStyle , 'animationStyle'),
   },
-  (props , dispatch) => {
-
-    const theme = useContext(ThemeContext);
-    const compType = useContext(CompTypeContext);
-    const compTheme = theme?.theme?.components?.[compType];
-    const styleProps: Record<string, any> = {};
-    ['style','animationStyle'].forEach((key: string) => {
-      styleProps[key] = (props as any)[key];
-    });
-
-    useEffect(() => {
-      setInitialCompStyles({
-        dispatch,
-        compTheme,
-        styleProps,
-      });
-    }, []);
-
+  (props, dispatch) => {
+    useMergeCompStyles(props as Record<string, any>, dispatch);
 
     const sandbox = ["allow-scripts", "allow-same-origin"];
     props.allowSubmitForm && sandbox.push("allow-forms");

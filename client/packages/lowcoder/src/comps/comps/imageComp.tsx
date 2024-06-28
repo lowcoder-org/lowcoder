@@ -34,7 +34,7 @@ import { DEFAULT_IMG_URL } from "util/stringUtils";
 import { useContext } from "react";
 import { EditorContext } from "comps/editorState";
 import { StringControl } from "../controls/codeControl";
-import { ThemeContext } from "@lowcoder-ee/index.sdk";
+import { ThemeContext, useMergeCompStyles } from "@lowcoder-ee/index.sdk";
 import { CompTypeContext } from "@lowcoder-ee/comps/utils/compTypeContext";
 import { setInitialCompStyles } from "@lowcoder-ee/comps/utils/themeUtil";
 
@@ -176,23 +176,8 @@ const childrenMap = {
   restrictPaddingOnRotation:withDefault(StringControl, 'image')
 };
 
-let ImageBasicComp = new UICompBuilder(childrenMap, (props , dispatch) => {
-
-  const theme = useContext(ThemeContext);
-  const compType = useContext(CompTypeContext);
-  const compTheme = theme?.theme?.components?.[compType];
-  const styleProps: Record<string, any> = {};
-  ['style','animationStyle'].forEach((key: string) => {
-    styleProps[key] = (props as any)[key];
-  });
-
-  useEffect(() => {
-    setInitialCompStyles({
-      dispatch,
-      compTheme,
-      styleProps,
-    });
-  }, []);
+let ImageBasicComp = new UICompBuilder(childrenMap, (props, dispatch) => {
+  useMergeCompStyles(props as Record<string, any>, dispatch);
   
   return <ContainerImg {...props} />;
 })

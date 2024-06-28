@@ -11,6 +11,7 @@ import { ThemeContext } from "../../utils/themeContext";
 import { useContext, useEffect } from "react";
 import { CompTypeContext } from "../../utils/compTypeContext";
 import { setInitialCompStyles } from "../../utils/themeUtil";
+import { useMergeCompStyles } from "@lowcoder-ee/index.sdk";
 
 const SliderBasicComp = (function () {
   /**
@@ -23,22 +24,7 @@ const SliderBasicComp = (function () {
     ...formDataChildren,
   };
   return new UICompBuilder(childrenMap, (props, dispatch) => {
-    const theme = useContext(ThemeContext);
-    const compType = useContext(CompTypeContext);
-    console.log("compType", compType)
-    const compTheme = theme?.theme?.components?.[compType];
-    const styleProps: Record<string, any> = {};
-    ['style', 'labelStyle', 'inputFieldStyle', 'animationStyle'].forEach((key: string) => {
-      styleProps[key] = (props as any)[key];
-    });
-
-    useEffect(() => {
-      setInitialCompStyles({
-        dispatch,
-        compTheme,
-        styleProps,
-      });
-    }, []);
+    useMergeCompStyles(props as Record<string, any>, dispatch);
 
     return props.label({
       style: props.style,

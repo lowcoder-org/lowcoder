@@ -17,6 +17,7 @@ import { ThemeContext } from "../../utils/themeContext";
 import { useContext, useEffect } from "react";
 import { CompTypeContext } from "../../utils/compTypeContext";
 import { setInitialCompStyles } from "../../utils/themeUtil";
+import { useMergeCompStyles } from "@lowcoder-ee/index.sdk";
 
 const getStyle = (style: RadioStyleType, inputFieldStyle?:RadioStyleType ) => {
   return css`
@@ -102,21 +103,7 @@ const Radio = styled(AntdRadioGroup)<{
 
 let RadioBasicComp = (function () {
   return new UICompBuilder(RadioChildrenMap, (props, dispatch) => {
-    const theme = useContext(ThemeContext);
-    const compType = useContext(CompTypeContext);
-    const compTheme = theme?.theme?.components?.[compType];
-    const styleProps: Record<string, any> = {};
-    ['style', 'labelStyle', 'inputFieldStyle', 'animationStyle'].forEach((key: string) => {
-      styleProps[key] = (props as any)[key];
-    });
-
-    useEffect(() => {
-      setInitialCompStyles({
-        dispatch,
-        compTheme,
-        styleProps,
-      });
-    }, []);
+    useMergeCompStyles(props as Record<string, any>, dispatch);
 
     const [
       validateState,

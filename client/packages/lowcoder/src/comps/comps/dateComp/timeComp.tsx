@@ -55,6 +55,7 @@ import { EditorContext } from "comps/editorState";
 import { ThemeContext } from "@lowcoder-ee/comps/utils/themeContext";
 import { CompTypeContext } from "@lowcoder-ee/comps/utils/compTypeContext";
 import { setInitialCompStyles } from "@lowcoder-ee/comps/utils/themeUtil";
+import { useMergeCompStyles } from "@lowcoder-ee/index.sdk";
 
 const EventOptions = [changeEvent, focusEvent, blurEvent] as const;
 
@@ -146,21 +147,7 @@ export type TimeCompViewProps = Pick<
 };
 
 export const timePickerControl = new UICompBuilder(childrenMap, (props, dispatch) => {
-  const theme = useContext(ThemeContext);
-  const compType = useContext(CompTypeContext);
-  const compTheme = theme?.theme?.components?.[compType];
-  const styleProps: Record<string, any> = {};
-  ['style', 'labelStyle', 'inputFieldStyle', 'animationStyle'].forEach((key: string) => {
-    styleProps[key] = (props as any)[key];
-  });
-
-  useEffect(() => {
-    setInitialCompStyles({
-      dispatch,
-      compTheme,
-      styleProps,
-    });
-  }, []);
+  useMergeCompStyles(props as Record<string, any>, dispatch);
 
   let time = null;
   if(props.value.value !== '') {
@@ -271,22 +258,7 @@ export const timeRangeControl = (function () {
   };
 
   return new UICompBuilder(childrenMap, (props, dispatch) => {
-    const theme = useContext(ThemeContext);
-    const compType = useContext(CompTypeContext);
-    const compTheme = theme?.theme?.components?.[compType];
-    const styleProps: Record<string, any> = {};
-    ['style', 'labelStyle', 'inputFieldStyle', 'animationStyle'].forEach((key: string) => {
-      styleProps[key] = (props as any)[key];
-    });
-
-    useEffect(() => {
-      setInitialCompStyles({
-        dispatch,
-        compTheme,
-        styleProps,
-      });
-    }, []);
-
+    useMergeCompStyles(props as Record<string, any>, dispatch);
 
     let start = null;
     if(props.start.value !== '') {

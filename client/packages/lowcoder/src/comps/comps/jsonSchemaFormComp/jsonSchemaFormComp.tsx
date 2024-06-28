@@ -28,6 +28,7 @@ import { EditorContext } from "comps/editorState";
 import { ThemeContext } from '../../utils/themeContext';
 import { CompTypeContext } from '../../utils/compTypeContext';
 import { setInitialCompStyles } from '../../utils/themeUtil';
+import { useMergeCompStyles } from '@lowcoder-ee/index.sdk';
 
 Theme.widgets.DateWidget = DateWidget(false);
 Theme.widgets.DateTimeWidget = DateWidget(true);
@@ -198,21 +199,7 @@ let FormBasicComp = (function () {
     animationStyle: styleControl(AnimationStyle , 'animationStyle'),
   };
   return new UICompBuilder(childrenMap, (props, dispatch) => {
-    const theme = useContext(ThemeContext);
-    const compType = useContext(CompTypeContext);
-    const compTheme = theme?.theme?.components?.[compType];
-    const styleProps: Record<string, any> = {};
-    ['style','animationStyle'].forEach((key: string) => {
-      styleProps[key] = (props as any)[key];
-    });
-
-    useEffect(() => {
-      setInitialCompStyles({
-        dispatch,
-        compTheme,
-        styleProps,
-      });
-    }, []);
+    useMergeCompStyles(props as Record<string, any>, dispatch);    
 
     // rjsf 4.20 supports ui:submitButtonOptions, but if the button is customized, it will not take effect. Here we implement it ourselves
     const buttonOptions = props?.uiSchema?.[

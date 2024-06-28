@@ -20,6 +20,7 @@ import { EditorContext } from "comps/editorState";
 import { CompTypeContext } from "../utils/compTypeContext";
 import { ThemeContext } from "../utils/themeContext";
 import { setInitialCompStyles } from "../utils/themeUtil";
+import { useMergeCompStyles } from "@lowcoder-ee/index.sdk";
 
 
 const EventOptions = [changeEvent] as const;
@@ -62,22 +63,7 @@ const RatingBasicComp = (function () {
     const defaultValue = { ...props.defaultValue }.value;
     const value = { ...props.value }.value;
     const changeRef = useRef(false);
-    const theme = useContext(ThemeContext);
-    const compType = useContext(CompTypeContext);
-    const compTheme = theme?.theme?.components?.[compType];
-  
-    const styleProps: Record<string, any> = {};
-    ['style', 'animationStyle', 'labelStyle', 'inputFieldStyle'].forEach((key: string) => {
-      styleProps[key] = (props as any)[key];
-    });
-
-    useEffect(() => {
-      setInitialCompStyles({
-        dispatch,
-        compTheme,
-        styleProps,
-      });
-    }, []);
+    useMergeCompStyles(props as Record<string, any>, dispatch);
 
     useEffect(() => {
       props.value.onChange(defaultValue);

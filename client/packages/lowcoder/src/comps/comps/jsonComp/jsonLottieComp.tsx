@@ -21,6 +21,7 @@ import { EditorContext } from "comps/editorState";
 import { ThemeContext } from "@lowcoder-ee/comps/utils/themeContext";
 import { setInitialCompStyles } from "@lowcoder-ee/comps/utils/themeUtil";
 import { CompTypeContext } from "@lowcoder-ee/comps/utils/compTypeContext";
+import { useMergeCompStyles } from "@lowcoder-ee/index.sdk";
 
 const Player = lazy(
   () => import('@lottiefiles/react-lottie-player')
@@ -102,23 +103,8 @@ let JsonLottieTmpComp = (function () {
     loop: dropdownControl(loopOptions, "single"),
     keepLastFrame: BoolControl.DEFAULT_TRUE,
   };
-  return new UICompBuilder(childrenMap, (props , dispatch) => {
-
-    const theme = useContext(ThemeContext);
-    const compType = useContext(CompTypeContext);
-    const compTheme = theme?.theme?.components?.[compType];
-    const styleProps: Record<string, any> = {};
-    ['container', 'animationStyle'].forEach((key: string) => {
-      styleProps[key] = (props as any)[key];
-    });
-
-    useEffect(() => {
-      setInitialCompStyles({
-        dispatch,
-        compTheme,
-        styleProps,
-      });
-    }, []);
+  return new UICompBuilder(childrenMap, (props, dispatch) => {
+    useMergeCompStyles(props as Record<string, any>, dispatch);
 
     return (
       <div

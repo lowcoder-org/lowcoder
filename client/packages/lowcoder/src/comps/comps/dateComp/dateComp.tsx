@@ -43,7 +43,7 @@ import { hasIcon } from "comps/utils";
 import { Section, sectionNames } from "components/Section";
 import { dateRefMethods, disabledTime, handleDateChange } from "comps/comps/dateComp/dateCompUtil";
 import { DateUIView } from "./dateUIView";
-import { useIsMobile } from "util/hooks";
+import { useIsMobile, useMergeCompStyles } from "util/hooks";
 import { RefControl } from "comps/controls/refControl";
 import { CommonPickerMethods } from "antd/es/date-picker/generatePicker/interface";
 import { DateRangeUIView } from "comps/comps/dateComp/dateRangeUIView";
@@ -172,21 +172,7 @@ export type DateCompViewProps = Pick<
 };
 
 export const datePickerControl = new UICompBuilder(childrenMap, (props, dispatch) => {
-  const theme = useContext(ThemeContext);
-  const compType = useContext(CompTypeContext);
-  const compTheme = theme?.theme?.components?.[compType];
-  const styleProps: Record<string, any> = {};
-  ['style', 'labelStyle', 'inputFieldStyle', 'animationStyle'].forEach((key: string) => {
-    styleProps[key] = (props as any)[key];
-  });
-
-  useEffect(() => {
-    setInitialCompStyles({
-      dispatch,
-      compTheme,
-      styleProps,
-    });
-  }, []);
+ useMergeCompStyles(props as Record<string, any>, dispatch);
 
   let time = null;
   if (props.value.value !== '') {
@@ -307,21 +293,7 @@ export const dateRangeControl = (function () {
   };
 
   return new UICompBuilder(childrenMap, (props, dispatch) => {
-    const theme = useContext(ThemeContext);
-    const compType = useContext(CompTypeContext);
-    const compTheme = theme?.theme?.components?.[compType];
-    const styleProps: Record<string, any> = {};
-    ['style', 'labelStyle', 'inputFieldStyle', 'animationStyle'].forEach((key: string) => {
-      styleProps[key] = (props as any)[key];
-    });
-
-    useEffect(() => {
-      setInitialCompStyles({
-        dispatch,
-        compTheme,
-        styleProps,
-      });
-    }, []);
+    useMergeCompStyles(props as Record<string, any>, dispatch);
 
     let start = null;
     let end = null;

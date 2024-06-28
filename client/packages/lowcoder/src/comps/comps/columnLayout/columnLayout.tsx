@@ -43,6 +43,7 @@ import { DisabledContext } from "comps/generators/uiCompBuilder";
 import { ThemeContext } from "@lowcoder-ee/comps/utils/themeContext";
 import { CompTypeContext } from "@lowcoder-ee/comps/utils/compTypeContext";
 import { setInitialCompStyles } from "@lowcoder-ee/comps/utils/themeUtil";
+import { useMergeCompStyles } from "@lowcoder-ee/index.sdk";
 
 const ContainWrapper = styled.div<{
   $style: ContainerStyleType & {
@@ -181,23 +182,8 @@ const ColumnLayout = (props: ColumnLayoutProps) => {
 
 export const ResponsiveLayoutBaseComp = (function () {
   return new UICompBuilder(childrenMap, (props, dispatch) => {
+    useMergeCompStyles(props as Record<string, any>, dispatch);    
 
-    const theme = useContext(ThemeContext);
-    const compType = useContext(CompTypeContext);
-    const compTheme = theme?.theme?.components?.[compType];
-    const styleProps: Record<string, any> = {};
-    ['style', 'columnStyle'].forEach((key: string) => {
-      styleProps[key] = (props as any)[key];
-    });
-
-    useEffect(() => {
-      setInitialCompStyles({
-        dispatch,
-        compTheme,
-        styleProps,
-      });
-    }, []);
-    
     return (
       <ColumnLayout {...props} dispatch={dispatch} />
     );

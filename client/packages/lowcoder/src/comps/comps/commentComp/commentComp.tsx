@@ -70,6 +70,7 @@ import { default as CloseOutlined } from "@ant-design/icons/CloseOutlined";
 import { CompTypeContext } from "@lowcoder-ee/comps/utils/compTypeContext";
 import { setInitialCompStyles } from "@lowcoder-ee/comps/utils/themeUtil";
 import { ThemeContext } from "@lowcoder-ee/comps/utils/themeContext";
+import { useMergeCompStyles } from "@lowcoder-ee/index.sdk";
 
 
 dayjs.extend(relativeTime);
@@ -377,22 +378,7 @@ const CommentCompBase = (
 
 let CommentBasicComp = (function () {
   return new UICompBuilder(childrenMap, (props, dispatch) =>{ 
-
-    const theme = useContext(ThemeContext);
-    const compType = useContext(CompTypeContext);
-    const compTheme = theme?.theme?.components?.[compType];
-    const styleProps: Record<string, any> = {};
-    ['style', 'animationStyle'].forEach((key: string) => {
-      styleProps[key] = (props as any)[key];
-    });
-
-    useEffect(() => {
-      setInitialCompStyles({
-        dispatch,
-        compTheme,
-        styleProps,
-      });
-    }, []);
+    useMergeCompStyles(props as Record<string, any>, dispatch);    
 
     return (
     <CommentCompBase {...props} dispatch={dispatch} />

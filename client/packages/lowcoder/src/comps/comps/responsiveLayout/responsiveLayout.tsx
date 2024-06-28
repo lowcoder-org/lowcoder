@@ -45,6 +45,7 @@ import { DisabledContext } from "comps/generators/uiCompBuilder";
 import { ThemeContext } from "@lowcoder-ee/comps/utils/themeContext";
 import { CompTypeContext } from "@lowcoder-ee/comps/utils/compTypeContext";
 import { setInitialCompStyles } from "@lowcoder-ee/comps/utils/themeUtil";
+import { useMergeCompStyles } from "@lowcoder-ee/index.sdk";
 
 const RowWrapper = styled(Row)<{
   $style: ResponsiveLayoutRowStyleType;
@@ -188,24 +189,7 @@ const ResponsiveLayout = (props: ResponsiveLayoutProps) => {
 
 export const ResponsiveLayoutBaseComp = (function () {
   return new UICompBuilder(childrenMap, (props, dispatch) => {
-
-    const theme = useContext(ThemeContext);
-    const compType = useContext(CompTypeContext);
-    const compTheme = theme?.theme?.components?.[compType];
-    const styleProps: Record<string, any> = {};
-    ['style', 'animationStyle', 'columnStyle'].forEach((key: string) => {
-      styleProps[key] = (props as any)[key];
-    });
-
-    useEffect(() => {
-      setInitialCompStyles({
-        dispatch,
-        compTheme,
-        styleProps,
-      });
-    }, []);
-
-    
+    useMergeCompStyles(props as Record<string, any>, dispatch);    
     return (
       <ResponsiveLayout {...props} dispatch={dispatch} />
     );

@@ -14,6 +14,7 @@ import { EditorContext } from "comps/editorState";
 import { ThemeContext } from "../utils/themeContext";
 import { CompTypeContext } from "../utils/compTypeContext";
 import { setInitialCompStyles } from "../utils/themeUtil";
+import { useMergeCompStyles } from "@lowcoder-ee/index.sdk";
 
 // TODO: after Update of ANTd, introduce Size attribute to ProgressCircle
 
@@ -76,22 +77,7 @@ let ProgressCircleTmpComp = (function () {
     animationStyle: styleControl(AnimationStyle, 'animationStyle'),
   };
   return new UICompBuilder(childrenMap, (props, dispatch) => {
-    const theme = useContext(ThemeContext);
-    const compType = useContext(CompTypeContext);
-    const compTheme = theme?.theme?.components?.[compType];
-  
-    const styleProps: Record<string, any> = {};
-    ['style', 'animationStyle'].forEach((key: string) => {
-      styleProps[key] = (props as any)[key];
-    });
-
-    useEffect(() => {
-      setInitialCompStyles({
-        dispatch,
-        compTheme,
-        styleProps,
-      });
-    }, []);
+    useMergeCompStyles(props as Record<string, any>, dispatch);
 
     return (
       <StyledProgressCircle

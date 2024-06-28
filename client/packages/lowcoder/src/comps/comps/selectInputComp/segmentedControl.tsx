@@ -30,6 +30,7 @@ import { fixOldInputCompData } from "../textInputComp/textInputConstants";
 import { ThemeContext } from "../../utils/themeContext";
 import { CompTypeContext } from "../../utils/compTypeContext";
 import { setInitialCompStyles } from "../../utils/themeUtil";
+import { useMergeCompStyles } from "@lowcoder-ee/index.sdk";
 
 
 const getStyle = (style: SegmentStyleType) => {
@@ -90,21 +91,7 @@ const SegmentChildrenMap = {
 
 let SegmentedControlBasicComp = (function () {
   return new UICompBuilder(SegmentChildrenMap, (props, dispatch) => {
-    const theme = useContext(ThemeContext);
-    const compType = useContext(CompTypeContext);
-    const compTheme = theme?.theme?.components?.[compType];
-    const styleProps: Record<string, any> = {};
-    ['style', 'animationStyle'].forEach((key: string) => {
-      styleProps[key] = (props as any)[key];
-    });
-
-    useEffect(() => {
-      setInitialCompStyles({
-        dispatch,
-        compTheme,
-        styleProps,
-      });
-    }, []);
+    useMergeCompStyles(props as Record<string, any>, dispatch);
   
     const [
       validateState,

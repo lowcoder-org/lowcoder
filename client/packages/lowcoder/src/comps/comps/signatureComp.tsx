@@ -32,6 +32,7 @@ import { EditorContext } from "comps/editorState";
 import { CompTypeContext } from "@lowcoder-ee/comps/utils/compTypeContext";
 import { setInitialCompStyles } from "@lowcoder-ee/comps/utils/themeUtil";
 import { ThemeContext } from "@lowcoder-ee/comps/utils/themeContext";
+import { useMergeCompStyles } from "@lowcoder-ee/index.sdk";
 
 const Wrapper = styled.div<{ $style: SignatureStyleType; $isEmpty: boolean }>`
   height: 100%;
@@ -115,22 +116,7 @@ const SignatureCanvas = React.lazy(() => import("react-signature-canvas"));
 
 let SignatureTmpComp = (function () {
   return new UICompBuilder(childrenMap, (props, dispatch) => {
-
-    const theme = useContext(ThemeContext);
-    const compType = useContext(CompTypeContext);
-    const compTheme = theme?.theme?.components?.[compType];
-    const styleProps: Record<string, any> = {};
-    ['style', 'labelStyle', 'inputFieldStyle'].forEach((key: string) => {
-      styleProps[key] = (props as any)[key];
-    });
-
-    useEffect(() => {
-      setInitialCompStyles({
-        dispatch,
-        compTheme,
-        styleProps,
-      });
-    }, []);
+    useMergeCompStyles(props as Record<string, any>, dispatch);
     
     let canvas: SignatureCanvasType | null = null;
     const [isBegin, setIsBegin] = useState(false);
