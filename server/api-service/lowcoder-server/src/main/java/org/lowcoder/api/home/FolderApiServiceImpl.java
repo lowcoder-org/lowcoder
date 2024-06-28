@@ -439,6 +439,7 @@ public class FolderApiServiceImpl implements FolderApiService {
                 .map(user -> FolderInfoView.builder()
                         .orgId(folder.getOrganizationId())
                         .folderId(folder.getId())
+                        .folderGid(folder.getGid())
                         .parentFolderId(folder.getParentFolderId())
                         .name(folder.getName())
                         .description(folder.getDescription())
