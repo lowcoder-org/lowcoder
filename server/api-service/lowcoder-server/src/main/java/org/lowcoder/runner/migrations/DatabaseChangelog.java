@@ -3,7 +3,9 @@ package org.lowcoder.runner.migrations;
 import com.github.cloudyrock.mongock.ChangeLog;
 import com.github.cloudyrock.mongock.ChangeSet;
 import com.github.cloudyrock.mongock.driver.mongodb.springdata.v4.decorator.impl.MongockTemplate;
+import com.github.f4b6a3.uuid.UuidCreator;
 import lombok.extern.slf4j.Slf4j;
+import org.bson.Document;
 import org.lowcoder.domain.application.model.Application;
 import org.lowcoder.domain.datasource.model.Datasource;
 import org.lowcoder.domain.datasource.model.DatasourceStructureDO;
@@ -26,9 +28,15 @@ import org.lowcoder.runner.migrations.job.MigrateAuthConfigJob;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.UncategorizedMongoDbException;
+import org.springframework.data.mongodb.core.DocumentCallbackHandler;
 import org.springframework.data.mongodb.core.index.CompoundIndexDefinition;
 import org.springframework.data.mongodb.core.index.Index;
 import org.springframework.data.mongodb.core.index.IndexOperations;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
+
+import java.util.Set;
 
 import static org.lowcoder.domain.util.QueryDslUtils.fieldName;
 import static org.lowcoder.sdk.util.IDUtils.generate;
@@ -192,6 +200,55 @@ public class DatabaseChangelog {
     @ChangeSet(order = "021", id = "add-ptm-fields-to-applications", author = "")
     public void addPtmFieldsToApplicatgions(AddPtmFieldsJob addPtmFieldsJob) {
         addPtmFieldsJob.migrateApplicationsToInitPtmFields();
+    }
+
+    @ChangeSet(order = "022", id = "add-gid", author = "")
+    public void addGidToDBObjects(MongockTemplate mongoTemplate) {
+        // Define an array of collection names
+        String[] collectionNames = {"application", "bundle", "datasource", "libraryQuery", "folder"};
+
+        // Get the list of existing collections
+        Set<String> existingCollections = mongoTemplate.getCollectionNames();
+
+        for (String collectionName : collectionNames) {
+            if (existingCollections.contains(collectionName)) {
+                addGidField(mongoTemplate, collectionName);
+            } else {
+                System.out.println("Collection " + collectionName + " does not exist.");
+            }
+        }
+    }
+
+    private void addGidField(MongockTemplate mongoTemplate, String collectionName) {
+        // Create a query to match all documents
+        Query query = new Query();
+
+        // Use a DocumentCallbackHandler to iterate through each document
+        mongoTemplate.executeQuery(query, collectionName, new DocumentCallbackHandler() {
+            @Override
+            public void processDocument(Document document) {
+                // Generate a random UUID and ensure it is unique within the collection
+                String uniqueGid;
+                do {
+                    uniqueGid = UuidCreator.getTimeOrderedEpoch().toString();
+                } while (isGidPresent(mongoTemplate, collectionName, uniqueGid));
+
+                // Create an update object to add the 'gid' field
+                Update update = new Update();
+                update.set("gid", uniqueGid);
+
+                // Create a query to match the current document by its _id
+                Query idQuery = new Query(Criteria.where("_id").is(document.getObjectId("_id")));
+
+                // Update the document with the new 'gid' field
+                mongoTemplate.updateFirst(idQuery, update, collectionName);
+            }
+        });
+    }
+
+    private boolean isGidPresent(MongockTemplate mongoTemplate, String collectionName, String gid) {
+        Query query = new Query(Criteria.where("gid").is(gid));
+        return mongoTemplate.exists(query, collectionName);
     }
 
     public static Index makeIndex(String... fields) {
