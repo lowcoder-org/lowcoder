@@ -247,7 +247,12 @@ public class ApplicationApiServiceImpl implements ApplicationApiService {
 
     @Override
     public Mono<ApplicationView> getEditingApplication(String applicationId) {
-        return checkPermissionWithReadableErrorMsg(applicationId, EDIT_APPLICATIONS)
+        return applicationService.findById(applicationId).filter(application -> application.isPublicToAll() && application.isPublicToMarketplace())
+                .map(application -> {
+                    ResourcePermission permission = ResourcePermission.builder().resourceRole(ResourceRole.VIEWER).build();
+                    return permission;
+                })
+                .switchIfEmpty(checkPermissionWithReadableErrorMsg(applicationId, EDIT_APPLICATIONS))
                 .zipWhen(permission -> applicationService.findById(applicationId)
                         .delayUntil(application -> checkApplicationStatus(application, NORMAL)))
                 .zipWhen(tuple -> applicationService.getAllDependentModulesFromApplication(tuple.getT2(), false), TupleUtils::merge)
