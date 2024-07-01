@@ -253,7 +253,7 @@ const chartJsonModeChildren = {
   echartsLegendConfig: EchartsLegendConfig,
   echartsLabelConfig: EchartsLabelConfig,
   echartsConfig: EchartsOptionComp,
-  style: styleControl(EchartsStyle),
+  style: styleControl(EchartsStyle, 'style'),
   tooltip: withDefault(BoolControl, true),
   legendVisibility: withDefault(BoolControl, true),
 }

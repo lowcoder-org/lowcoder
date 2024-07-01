@@ -136,7 +136,7 @@ export function getEchartsConfig(props: EchartsConfigProps, chartSize?: ChartSiz
     'top': props.echartsLegendConfig.top === 'bottom' ?'top':'bottom',
     "left":"center"
   },
-  "backgroundColor": props?.style?.background,
+  "backgroundColor": props?.style?.background || theme?.style?.background,
   "color": props.echartsOption.data?.map(data => data.color),
    "tooltip": {
     "trigger": "axis",
