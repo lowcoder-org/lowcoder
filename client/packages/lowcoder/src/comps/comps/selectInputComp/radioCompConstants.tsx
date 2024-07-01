@@ -22,7 +22,7 @@ import { RefControl } from "comps/controls/refControl";
 
 import { useContext } from "react";
 import { EditorContext } from "comps/editorState";
-import { withDefault } from "@lowcoder-ee/index.sdk";
+import { withDefault } from "@lowcoder-ee/comps/generators/simpleGenerators";
 
 export const RadioLayoutOptions = [
   { label: trans("radio.horizontal"), value: "horizontal" },

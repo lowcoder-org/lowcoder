@@ -18,7 +18,7 @@ import {
 import { ContextContainerComp } from "./contextContainerComp";
 import { ListViewImplComp } from "./listViewComp";
 import { getCurrentItemParams, getData } from "./listViewUtils";
-import { AnimationStyleType } from "@lowcoder-ee/index.sdk";
+import { AnimationStyleType } from "@lowcoder-ee/comps/controls/styleControlConstants";
 
 const ListViewWrapper = styled.div<{ $style: any; $paddingWidth: string,$animationStyle:AnimationStyleType }>`
   height: 100%;

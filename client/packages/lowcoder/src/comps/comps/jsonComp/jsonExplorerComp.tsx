@@ -11,7 +11,8 @@ import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { EditorContext } from "comps/editorState";
 import { useContext } from "react";
-import { AnimationStyle, AnimationStyleType, styleControl } from "@lowcoder-ee/index.sdk";
+import { styleControl } from "@lowcoder-ee/comps/controls/styleControl";
+import { AnimationStyle, AnimationStyleType } from "@lowcoder-ee/comps/controls/styleControlConstants";
 
 /**
  * JsonExplorer Comp
