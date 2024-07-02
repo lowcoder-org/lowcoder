@@ -43,15 +43,12 @@ import { hasIcon } from "comps/utils";
 import { Section, sectionNames } from "components/Section";
 import { dateRefMethods, disabledTime, handleDateChange } from "comps/comps/dateComp/dateCompUtil";
 import { DateUIView } from "./dateUIView";
-import { useIsMobile, useMergeCompStyles } from "util/hooks";
+import { useIsMobile } from "util/hooks";
 import { RefControl } from "comps/controls/refControl";
 import { CommonPickerMethods } from "antd/es/date-picker/generatePicker/interface";
 import { DateRangeUIView } from "comps/comps/dateComp/dateRangeUIView";
-
 import { EditorContext } from "comps/editorState";
-import { ThemeContext } from "@lowcoder-ee/comps/utils/themeContext";
-import { CompTypeContext } from "@lowcoder-ee/comps/utils/compTypeContext";
-import { setInitialCompStyles } from "@lowcoder-ee/comps/utils/themeUtil";
+import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 const defaultStyle = {
   borderStyle: 'solid',

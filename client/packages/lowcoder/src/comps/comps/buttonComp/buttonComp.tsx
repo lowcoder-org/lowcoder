@@ -27,10 +27,7 @@ import { RefControl } from "comps/controls/refControl";
 import React, { useContext, useEffect } from "react";
 import { AnimationStyle } from "@lowcoder-ee/comps/controls/styleControlConstants";
 import { styleControl } from "@lowcoder-ee/comps/controls/styleControl";
-import { setInitialCompStyles } from "@lowcoder-ee/comps/utils/themeUtil";
-import { ThemeContext } from "@lowcoder-ee/comps/utils/themeContext";
-import { CompTypeContext } from "@lowcoder-ee/comps/utils/compTypeContext";
-import { useMergeCompStyles } from "@lowcoder-ee/index.sdk";
+import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 const FormLabel = styled(CommonBlueLabel)`
   font-size: 13px;

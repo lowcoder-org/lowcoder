@@ -20,10 +20,7 @@ import { ButtonEventHandlerControl, CardEventHandlerControl, clickEvent, refresh
 import { optionsControl } from "comps/controls/optionsControl";
 import { dropdownControl } from "comps/controls/dropdownControl";
 import { styleControl } from "comps/controls/styleControl";
-import { ThemeContext } from "@lowcoder-ee/comps/utils/themeContext";
-import { CompTypeContext } from "@lowcoder-ee/comps/utils/compTypeContext";
-import { setInitialCompStyles } from "@lowcoder-ee/comps/utils/themeUtil";
-import { useMergeCompStyles } from "@lowcoder-ee/index.sdk";
+import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 const { Meta } = Card;
 
 const Wrapper = styled.div<{

@@ -17,9 +17,7 @@ import { optionsControl } from "comps/controls/optionsControl";
 import { BoolControl } from "comps/controls/boolControl";
 import { dropdownControl } from "comps/controls/dropdownControl";
 import { JSONObject } from "util/jsonTypes";
-import { CompTypeContext } from "@lowcoder-ee/comps/utils/compTypeContext";
-import { setInitialCompStyles } from "@lowcoder-ee/comps/utils/themeUtil";
-import { ThemeContext } from "@lowcoder-ee/comps/utils/themeContext";
+import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 const MenuLinkWrapper = styled.div`
   > a {
@@ -111,22 +109,8 @@ export const ColumnAvatarsComp = (function () {
   return new ColumnTypeCompBuilder(
     childrenMap,
     (props , dispatch) => {
-
-      const theme = useContext(ThemeContext);
-      const compType = useContext(CompTypeContext);
-      const compTheme = theme?.theme?.components?.[compType];
-      const styleProps: Record<string, any> = {};
-      ['style'].forEach((key: string) => {
-        styleProps[key] = (props as any)[key];
-      });
-  
-      useEffect(() => {
-        setInitialCompStyles({
-          dispatch,
-          compTheme,
-          styleProps,
-        });
-      }, []);
+      
+      useMergeCompStyles(props, dispatch);
 
       return (
         <Container

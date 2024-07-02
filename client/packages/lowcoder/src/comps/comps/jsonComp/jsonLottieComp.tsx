@@ -18,10 +18,7 @@ import {
 } from "../../generators/withExposing";
 import { defaultLottie } from "./jsonConstants";
 import { EditorContext } from "comps/editorState";
-import { ThemeContext } from "@lowcoder-ee/comps/utils/themeContext";
-import { setInitialCompStyles } from "@lowcoder-ee/comps/utils/themeUtil";
-import { CompTypeContext } from "@lowcoder-ee/comps/utils/compTypeContext";
-import { useMergeCompStyles } from "@lowcoder-ee/index.sdk";
+import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 const Player = lazy(
   () => import('@lottiefiles/react-lottie-player')

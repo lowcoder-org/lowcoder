@@ -41,9 +41,7 @@ import { messageInstance } from "lowcoder-design/src/components/GlobalInstances"
 import { ReactRef, ResizeHandleAxis } from "layout/gridLayoutPropTypes";
 import { CellColorViewType } from "./column/tableColumnComp";
 import { defaultTheme } from "@lowcoder-ee/constants/themeConstants";
-import { ThemeContext } from "@lowcoder-ee/comps/utils/themeContext";
-import { CompTypeContext } from "@lowcoder-ee/comps/utils/compTypeContext";
-import { setInitialCompStyles } from "@lowcoder-ee/comps/utils/themeUtil";
+import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 import { childrenToProps } from "@lowcoder-ee/comps/generators/multi";
 
 
@@ -779,22 +777,8 @@ export function TableCompView(props: {
   }, [pagination, data]);
 
   const childrenProps = childrenToProps(comp.children);
-  const theme = useContext(ThemeContext);
-  const compType = useContext(CompTypeContext);
-  const compTheme = theme?.theme?.components?.[compType];
-
-  const styleProps: Record<string, any> = {};
-  ['style', 'rowStyle', 'toolbarStyle', 'headerStyle', 'columnsStyle'].forEach((key: string) => {
-    styleProps[key] = (childrenProps as any)[key];
-  });
-
-  useEffect(() => {
-    setInitialCompStyles({
-      dispatch: comp.dispatch,
-      compTheme,
-      styleProps,
-    });
-  }, []);
+  
+  useMergeCompStyles(childrenProps, comp.dispatch)
 
   const handleChangeEvent = useCallback(
     (eventName: TableEventOptionValues) => {

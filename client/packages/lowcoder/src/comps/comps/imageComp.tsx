@@ -34,9 +34,7 @@ import { DEFAULT_IMG_URL } from "util/stringUtils";
 import { useContext } from "react";
 import { EditorContext } from "comps/editorState";
 import { StringControl } from "../controls/codeControl";
-import { ThemeContext, useMergeCompStyles } from "@lowcoder-ee/index.sdk";
-import { CompTypeContext } from "@lowcoder-ee/comps/utils/compTypeContext";
-import { setInitialCompStyles } from "@lowcoder-ee/comps/utils/themeUtil";
+import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 const Container = styled.div<{ $style: ImageStyleType | undefined,$animationStyle:AnimationStyleType }>`
   height: 100%;

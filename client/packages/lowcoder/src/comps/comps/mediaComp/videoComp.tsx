@@ -24,10 +24,7 @@ import { mediaCommonChildren, mediaMethods } from "./mediaUtils";
 import { useContext } from "react";
 import { EditorContext } from "comps/editorState";
 import styled, { css } from "styled-components";
-import { ThemeContext } from "@lowcoder-ee/comps/utils/themeContext";
-import { CompTypeContext } from "@lowcoder-ee/comps/utils/compTypeContext";
-import { setInitialCompStyles } from "@lowcoder-ee/comps/utils/themeUtil";
-import { useMergeCompStyles } from "@lowcoder-ee/index.sdk";
+import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 const EventOptions = [
   { label: trans("video.play"), value: "play", description: trans("video.playDesc") },

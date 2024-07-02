@@ -20,10 +20,7 @@ import {
 import { PageLayout } from "../pageLayoutComp/pageLayout";
 import { AnimationStyle } from "@lowcoder-ee/comps/controls/styleControlConstants";
 import { styleControl } from "@lowcoder-ee/comps/controls/styleControl";
-import { setInitialCompStyles } from "@lowcoder-ee/comps/utils/themeUtil";
-import { CompTypeContext } from "@lowcoder-ee/comps/utils/compTypeContext";
-import { ThemeContext } from "@lowcoder-ee/comps/utils/themeContext";
-import { useMergeCompStyles } from "@lowcoder-ee/index.sdk";
+import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 export const ContainerBaseComp = (function () {
   const childrenMap = {

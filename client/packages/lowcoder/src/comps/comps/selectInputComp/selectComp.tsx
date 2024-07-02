@@ -19,10 +19,7 @@ import { useContext, useEffect, useRef } from "react";
 import { RecordConstructorToView } from "lowcoder-core";
 import { fixOldInputCompData } from "../textInputComp/textInputConstants";
 import { migrateOldData, withDefault } from "comps/generators/simpleGenerators";
-import { setInitialCompStyles } from "../../utils/themeUtil";
-import { ThemeContext } from "../../utils/themeContext";
-import { CompTypeContext } from "../../utils/compTypeContext";
-import { useMergeCompStyles } from "@lowcoder-ee/index.sdk";
+import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 let SelectBasicComp = (function () {
   const childrenMap = {

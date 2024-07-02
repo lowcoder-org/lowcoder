@@ -10,11 +10,9 @@ import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import log from "loglevel";
 
-import { useContext, useEffect } from "react";
+import { useContext } from "react";
 import { EditorContext } from "comps/editorState";
-import { CompTypeContext } from "../utils/compTypeContext";
-import { ThemeContext, useMergeCompStyles } from "@lowcoder-ee/index.sdk";
-import { setInitialCompStyles } from "../utils/themeUtil";
+import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 const Wrapper = styled.div<{$style: IframeStyleType; $animationStyle:AnimationStyleType}>`
   width: 100%;

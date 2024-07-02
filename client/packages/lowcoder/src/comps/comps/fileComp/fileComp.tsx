@@ -42,9 +42,8 @@ import { messageInstance } from "lowcoder-design/src/components/GlobalInstances"
 
 import React, { useContext } from "react";
 import { EditorContext } from "comps/editorState";
-import { CompTypeContext } from "@lowcoder-ee/comps/utils/compTypeContext";
-import { setInitialCompStyles } from "@lowcoder-ee/comps/utils/themeUtil";
-import { ThemeContext } from "@lowcoder-ee/comps/utils/themeContext";
+import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
+
 const FileSizeControl = codeControl((value) => {
   if (typeof value === "number") {
     return value;
@@ -382,26 +381,10 @@ const childrenMap = {
 };
 
 let FileTmpComp = new UICompBuilder(childrenMap, (props, dispatch) => {
-
-  const theme = useContext(ThemeContext);
-  const compType = useContext(CompTypeContext);
-  const compTheme = theme?.theme?.components?.[compType];
-  const styleProps: Record<string, any> = {};
-  ['style', 'animationStyle'].forEach((key: string) => {
-    styleProps[key] = (props as any)[key];
-  });
-
-  useEffect(() => {
-    setInitialCompStyles({
-      dispatch,
-      compTheme,
-      styleProps,
-    });
-  }, []);
+  useMergeCompStyles(props, dispatch);
   return(
-
-  <Upload {...props} dispatch={dispatch} />
-)})
+    <Upload {...props} dispatch={dispatch} />
+  )})
   .setPropertyViewFn((children) => (
     <>
       <Section name={sectionNames.basic}>

@@ -37,10 +37,7 @@ import { blurMethod, focusWithOptions } from "comps/utils/methodUtils";
 import React, { useContext, useEffect } from "react";
 import { EditorContext } from "comps/editorState";
 import { migrateOldData } from "comps/generators/simpleGenerators";
-import { setInitialCompStyles } from "../../utils/themeUtil";
-import { ThemeContext } from "../../utils/themeContext";
-import { CompTypeContext } from "../../utils/compTypeContext";
-import { useMergeCompStyles } from "@lowcoder-ee/index.sdk";
+import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 const TextAreaStyled = styled(TextArea)<{
   $style: InputLikeStyleType;

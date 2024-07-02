@@ -16,11 +16,7 @@ import styled, { css } from "styled-components";
 import { useContext, useEffect, useRef, useState } from "react";
 import { valueComp, withDefault } from "../generators";
 import type { TransferDirection } from 'antd/es/transfer';
-import { _ } from "core-js";
-import { CompTypeContext } from "@lowcoder-ee/comps/utils/compTypeContext";
-import { setInitialCompStyles } from "@lowcoder-ee/comps/utils/themeUtil";
-import { ThemeContext } from "@lowcoder-ee/comps/utils/themeContext";
-import { useMergeCompStyles } from "@lowcoder-ee/index.sdk";
+import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 const Container = styled.div<{ $style: TransferStyleType }>`
   height: 100%;

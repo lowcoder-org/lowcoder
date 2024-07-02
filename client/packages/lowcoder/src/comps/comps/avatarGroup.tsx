@@ -19,10 +19,7 @@ import { optionsControl } from "../controls/optionsControl";
 import { BoolControl } from "../controls/boolControl";
 import { dropdownControl } from "../controls/dropdownControl";
 import { JSONObject } from "util/jsonTypes";
-import { CompTypeContext } from "@lowcoder-ee/comps/utils/compTypeContext";
-import { setInitialCompStyles } from "@lowcoder-ee/comps/utils/themeUtil";
-import { ThemeContext } from "@lowcoder-ee/comps/utils/themeContext";
-import { useMergeCompStyles } from "@lowcoder-ee/index.sdk";
+import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 const MacaroneList = [
   '#fde68a',

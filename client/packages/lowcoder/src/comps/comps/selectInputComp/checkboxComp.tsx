@@ -24,11 +24,7 @@ import { trans } from "i18n";
 import { RefControl } from "comps/controls/refControl";
 import { migrateOldData } from "comps/generators/simpleGenerators";
 import { fixOldInputCompData } from "../textInputComp/textInputConstants";
-import { useContext, useEffect } from "react";
-import { setInitialCompStyles } from "../../utils/themeUtil";
-import { ThemeContext } from "../../utils/themeContext";
-import { CompTypeContext } from "../../utils/compTypeContext";
-import { useMergeCompStyles } from "@lowcoder-ee/index.sdk";
+import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 export const getStyle = (style: CheckboxStyleType) => {
   return css`

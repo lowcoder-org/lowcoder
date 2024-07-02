@@ -19,10 +19,7 @@ import { blurMethod, clickMethod, focusWithOptions } from "comps/utils/methodUti
 
 import { useContext, useEffect } from "react";
 import { EditorContext } from "comps/editorState";
-import { setInitialCompStyles } from "../utils/themeUtil";
-import { ThemeContext } from "../utils/themeContext";
-import { CompTypeContext } from "../utils/compTypeContext";
-import { useMergeCompStyles } from "@lowcoder-ee/index.sdk";
+import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 const EventOptions = [
   changeEvent,

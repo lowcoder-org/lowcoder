@@ -25,10 +25,7 @@ import { hiddenPropertyView } from "comps/utils/propertyUtils";
 
 import { useContext, useEffect } from "react";
 import { EditorContext } from "comps/editorState";
-import { ThemeContext } from '../../utils/themeContext';
-import { CompTypeContext } from '../../utils/compTypeContext';
-import { setInitialCompStyles } from '../../utils/themeUtil';
-import { useMergeCompStyles } from '@lowcoder-ee/index.sdk';
+import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 Theme.widgets.DateWidget = DateWidget(false);
 Theme.widgets.DateTimeWidget = DateWidget(true);

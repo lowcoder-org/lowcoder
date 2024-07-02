@@ -7,11 +7,7 @@ import { formDataChildren, FormDataPropertyView } from "../formComp/formDataCons
 import { SliderChildren, SliderPropertyView, SliderStyled, SliderWrapper } from "./sliderCompConstants";
 import { hasIcon } from "comps/utils";
 import { BoolControl } from "comps/controls/boolControl";
-import { ThemeContext } from "../../utils/themeContext";
-import { useContext, useEffect } from "react";
-import { CompTypeContext } from "../../utils/compTypeContext";
-import { setInitialCompStyles } from "../../utils/themeUtil";
-import { useMergeCompStyles } from "@lowcoder-ee/index.sdk";
+import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 const SliderBasicComp = (function () {
   /**

@@ -16,11 +16,7 @@ import { changeEvent, eventHandlerControl } from "comps/controls/eventHandlerCon
 import { jsonObjectExposingStateControl, stringExposingStateControl } from "comps/controls/codeStateControl";
 import { dropdownControl } from "comps/controls/dropdownControl";
 import { ArrayOrJSONObjectControl } from "comps/controls/codeControl";
-import { useContext, useEffect } from "react";
-import { setInitialCompStyles } from "@lowcoder-ee/comps/utils/themeUtil";
-import { ThemeContext } from "@lowcoder-ee/comps/utils/themeContext";
-import { CompTypeContext } from "@lowcoder-ee/comps/utils/compTypeContext";
-import { useMergeCompStyles } from "@lowcoder-ee/index.sdk";
+import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 export function getStyle(style: ColorPickerStyleType) {
   return css`

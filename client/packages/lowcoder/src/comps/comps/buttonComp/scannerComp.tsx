@@ -24,10 +24,7 @@ import { BoolControl } from "comps/controls/boolControl";
 import type { ItemType } from "antd/es/menu/hooks/useItems";
 import { RefControl } from "comps/controls/refControl";
 import { EditorContext } from "comps/editorState"; 
-import { CompTypeContext } from "@lowcoder-ee/comps/utils/compTypeContext";
-import { setInitialCompStyles } from "@lowcoder-ee/comps/utils/themeUtil";
-import { ThemeContext } from "@lowcoder-ee/comps/utils/themeContext";
-import { useMergeCompStyles } from "@lowcoder-ee/index.sdk";
+import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 const Error = styled.div`
   color: #f5222d;

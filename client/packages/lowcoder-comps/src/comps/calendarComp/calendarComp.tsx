@@ -42,7 +42,8 @@ import {
   CustomModal,
   jsonValueExposingStateControl,
   CalendarDeleteIcon,
-  Tooltip
+  Tooltip,
+  useMergeCompStyles,
 } from "lowcoder-sdk";
 
 import {
@@ -87,7 +88,7 @@ const childrenMap = {
   firstDay: dropdownControl(FirstDayOptions, "1"),
   dayMaxEvents: withDefault(NumberControl, 2),
   eventMaxStack: withDefault(NumberControl, 0),
-  style: styleControl(CalendarStyle),
+  style: styleControl(CalendarStyle, 'style'),
   licenseKey: withDefault( StringControl, "" ),
   currentFreeView: dropdownControl(DefaultWithFreeViewOptions, "timeGridWeek"),
   currentPremiumView: dropdownControl(DefaultWithPremiumViewOptions, "resourceTimelineDay"),
@@ -114,7 +115,7 @@ let CalendarBasicComp = (function () {
     licensed?: boolean;
     currentFreeView?: string; 
     currentPremiumView?: string; 
-  }) => {
+  }, dispatch: any) => {
 
     const theme = useContext(ThemeContext);
     const ref = createRef<HTMLDivElement>();
@@ -123,14 +124,14 @@ let CalendarBasicComp = (function () {
     const [left, setLeft] = useState<number | undefined>(undefined);
     const [licensed, setLicensed] = useState<boolean>(props.licenseKey !== "");
 
+    useMergeCompStyles(props, dispatch);
+
     useEffect(() => {
       setLicensed(props.licenseKey !== "");
     }, [props.licenseKey]);
 
     let currentView = licensed ? props.currentPremiumView : props.currentFreeView;
     let currentEvents = currentView == "resourceTimelineDay" || currentView == "resourceTimeGridDay" ? props.resourcesEvents : props.events;
-
-    console.log("currentEvents", currentEvents);
 
     // we use one central stack of events for all views
     let events = Array.isArray(currentEvents.value) ? currentEvents.value.map((item: EventType) => {

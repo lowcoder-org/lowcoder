@@ -36,12 +36,7 @@ export function isUserViewMode(params?: AppPathParams) {
  * whether it's user view mode (not editing)
  */
 export function useUserViewMode() {
-  let params;
-  try {
-    params = useParams<AppPathParams>();
-  } catch(error) {
-    console.error(error);
-  }
+  const params = useParams<AppPathParams>();
   return isUserViewMode(params);
 }
 

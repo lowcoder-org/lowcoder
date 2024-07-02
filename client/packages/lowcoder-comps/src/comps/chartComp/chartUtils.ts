@@ -128,7 +128,11 @@ export function getSeriesConfig(props: EchartsConfigProps) {
 }
 
 // https://echarts.apache.org/en/option.html
-export function getEchartsConfig(props: EchartsConfigProps, chartSize?: ChartSize): EChartsOptionWithMap {
+export function getEchartsConfig(
+  props: EchartsConfigProps,
+  chartSize?: ChartSize,
+  theme?: any,  
+): EChartsOptionWithMap {
   if (props.mode === "json") {
     return props.echartsOption ? props.echartsOption : {};
   }

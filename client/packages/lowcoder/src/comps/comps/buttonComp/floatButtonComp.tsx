@@ -17,9 +17,7 @@ import styled from "styled-components";
 import { ButtonEventHandlerControl } from "comps/controls/eventHandlerControl";
 import { manualOptionsControl } from "comps/controls/optionsControl";
 import { useContext, useEffect } from "react";
-import { ThemeContext } from "@lowcoder-ee/comps/utils/themeContext";
-import { CompTypeContext } from "@lowcoder-ee/comps/utils/compTypeContext";
-import { setInitialCompStyles } from "@lowcoder-ee/comps/utils/themeUtil";
+import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 const StyledFloatButton = styled(FloatButton)<{
   $animationStyle: AnimationStyleType;
@@ -136,25 +134,10 @@ const FloatButtonView = (props: RecordConstructorToView<typeof childrenMap>) => 
 
 let FloatButtonBasicComp = (function () {
     return new UICompBuilder(childrenMap, (props , dispatch) => {
-        const theme = useContext(ThemeContext);
-        const compType = useContext(CompTypeContext);
-        const compTheme = theme?.theme?.components?.[compType];
-        const styleProps: Record<string, any> = {};
-        ['style', 'animationStyle'].forEach((key: string) => {
-          styleProps[key] = (props as any)[key];
-        });
-    
-        useEffect(() => {
-          setInitialCompStyles({
-            dispatch,
-            compTheme,
-            styleProps,
-          });
-        }, []);
-    
-        return(
-      <FloatButtonView {...props} />
-    )})
+      useMergeCompStyles(props, dispatch);
+      return(
+        <FloatButtonView {...props} />
+      )})
       .setPropertyViewFn((children) => (
         <>
           <Section name={sectionNames.basic}>

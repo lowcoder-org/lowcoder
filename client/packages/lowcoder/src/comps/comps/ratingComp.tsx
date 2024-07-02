@@ -17,10 +17,7 @@ import { trans } from "i18n";
 
 import { useContext, useEffect, useRef } from "react";
 import { EditorContext } from "comps/editorState";
-import { CompTypeContext } from "../utils/compTypeContext";
-import { ThemeContext } from "../utils/themeContext";
-import { setInitialCompStyles } from "../utils/themeUtil";
-import { useMergeCompStyles } from "@lowcoder-ee/index.sdk";
+import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 
 const EventOptions = [changeEvent] as const;

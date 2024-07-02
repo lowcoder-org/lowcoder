@@ -20,10 +20,7 @@ import {
 } from "base/codeEditor/codeMirror";
 import { useExtensions } from "base/codeEditor/extensions";
 import { EditorContext } from "comps/editorState";
-import { setInitialCompStyles } from "@lowcoder-ee/comps/utils/themeUtil";
-import { CompTypeContext } from "@lowcoder-ee/comps/utils/compTypeContext";
-import { ThemeContext } from "@lowcoder-ee/comps/utils/themeContext";
-import { useMergeCompStyles } from "@lowcoder-ee/index.sdk";
+import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 /**
  * JsonEditor Comp

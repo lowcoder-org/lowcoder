@@ -13,10 +13,7 @@ import { trans } from "i18n";
 
 import { useContext } from "react";
 import { EditorContext } from "comps/editorState";
-import { CompTypeContext } from "@lowcoder-ee/comps/utils/compTypeContext";
-import { setInitialCompStyles } from "@lowcoder-ee/comps/utils/themeUtil";
-import { ThemeContext } from "@lowcoder-ee/comps/utils/themeContext";
-import { useMergeCompStyles } from "@lowcoder-ee/index.sdk";
+import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 const getStyle = (style: FileViewerStyleType) => {
   return css`

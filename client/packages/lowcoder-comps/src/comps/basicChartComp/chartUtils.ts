@@ -141,8 +141,8 @@ export function getEchartsConfig(
     "left":"center"
   },
   "backgroundColor": props?.style?.background || theme?.style?.background,
-      "color": props.echartsOption.data?.map(data => data.color),
-  "tooltip": props.tooltip&&{
+  "color": props.echartsOption.data?.map(data => data.color),
+  "tooltip": props.tooltip && {
     "trigger": "item",
     "formatter": "{a} <br/>{b} : {c}%"
   },

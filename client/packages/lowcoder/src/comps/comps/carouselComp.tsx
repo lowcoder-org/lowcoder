@@ -17,9 +17,7 @@ import { AnimationStyle, AnimationStyleType, CarouselStyle } from "comps/control
 
 import { useContext } from "react";
 import { EditorContext } from "comps/editorState";
-import { ThemeContext, useMergeCompStyles } from "@lowcoder-ee/index.sdk";
-import { CompTypeContext } from "@lowcoder-ee/comps/utils/compTypeContext";
-import { setInitialCompStyles } from "@lowcoder-ee/comps/utils/themeUtil";
+import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 // TODO: dots at top position needs proper margin (should be the same as bottom position)
 

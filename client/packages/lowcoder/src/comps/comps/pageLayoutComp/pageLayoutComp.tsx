@@ -28,10 +28,7 @@ import { ContainerBodyChildComp } from "./containerBodyChildComp";
 import { trans } from "i18n";
 import { ControlNode } from "lowcoder-design";
 import { StringControl } from "comps/controls/codeControl";
-import { useContext, useEffect } from "react";
-import { CompTypeContext } from "@lowcoder-ee/comps/utils/compTypeContext";
-import { setInitialCompStyles } from "@lowcoder-ee/comps/utils/themeUtil";
-import { ThemeContext } from "@lowcoder-ee/comps/utils/themeContext";
+import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 const childrenMap = {
   header: SimpleContainerComp,
@@ -65,24 +62,7 @@ const childrenMap = {
 // Compatible with old style data 2022-8-15
 const layoutBaseComp = migrateOldData(
   new MultiCompBuilder(childrenMap, (props, dispatch) => {
-
-    const theme = useContext(ThemeContext);
-    const compType = useContext(CompTypeContext);
-    console.log("compType", compType)
-    const compTheme = theme?.theme?.components?.[compType];
-    const styleProps: Record<string, any> = {};
-    ['style' , 'footerStyle', 'bodyStyle' , 'siderStyle', 'headerStyle'].forEach((key: string) => {
-      styleProps[key] = (props as any)[key];
-    });
-
-    useEffect(() => {
-      setInitialCompStyles({
-        dispatch,
-        compTheme,
-        styleProps,
-      });
-    }, []);
-
+    useMergeCompStyles(props, dispatch);
 
     return { ...props, dispatch };
   }).build(),

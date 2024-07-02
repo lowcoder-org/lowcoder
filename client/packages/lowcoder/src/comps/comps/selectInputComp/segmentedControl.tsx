@@ -27,10 +27,7 @@ import { useContext, useEffect } from "react";
 import { EditorContext } from "comps/editorState";
 import { migrateOldData, withDefault } from "comps/generators/simpleGenerators";
 import { fixOldInputCompData } from "../textInputComp/textInputConstants";
-import { ThemeContext } from "../../utils/themeContext";
-import { CompTypeContext } from "../../utils/compTypeContext";
-import { setInitialCompStyles } from "../../utils/themeUtil";
-import { useMergeCompStyles } from "@lowcoder-ee/index.sdk";
+import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 
 const getStyle = (style: SegmentStyleType) => {

@@ -7,11 +7,7 @@ import { UICompBuilder, withDefault } from "../../generators";
 import { CommonNameConfig, NameConfig, withExposingConfigs } from "../../generators/withExposing";
 import { CascaderChildren, CascaderPropertyView, defaultDataSource } from "./cascaderContants";
 import { refMethods } from "comps/generators/withMethodExposing";
-import { useContext, useEffect } from "react";
-import { CompTypeContext } from "@lowcoder-ee/comps/utils/compTypeContext";
-import { setInitialCompStyles } from "@lowcoder-ee/comps/utils/themeUtil";
-import { ThemeContext } from "@lowcoder-ee/comps/utils/themeContext";
-import { useMergeCompStyles } from "@lowcoder-ee/index.sdk";
+import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 const CascaderStyle = styled(Cascader)<{ $style: CascaderStyleType,$childrenInputFieldStyle:ChildrenMultiSelectStyleType }>`
   width: 100%;
