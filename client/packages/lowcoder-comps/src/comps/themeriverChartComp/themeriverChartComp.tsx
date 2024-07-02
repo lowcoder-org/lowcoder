@@ -144,7 +144,8 @@ ThemeriverChartTmpComp = withViewFn(ThemeriverChartTmpComp, (comp) => {
   const option = useMemo(() => {
     return getEchartsConfig(
       childrenToProps(echartsConfigChildren) as ToViewReturn<typeof echartsConfigChildren>,
-      chartSize
+      chartSize,
+      theme?.theme?.components?.candleStickChart || {},
     );
   }, [chartSize, ...Object.values(echartsConfigChildren)]);
 
