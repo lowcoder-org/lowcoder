@@ -39,6 +39,7 @@ import { useEffect, useRef, useState } from "react";
 import ReactResizeDetector from "react-resize-detector";
 
 import { useContext } from "react";
+import { IconScoutAssetType, IconscoutControl } from "@lowcoder-ee/comps/controls/iconscoutControl";
 
 const Container = styled.div<{ $style: any }>`
   height: 100%;
@@ -70,6 +71,13 @@ const FormLabel = styled(CommonBlueLabel)`
 
 const IconWrapper = styled.div<{ $style: any }>`
   display: flex;
+
+  ${(props) => props.$style && getStyleIcon(props.$style)}
+`;
+
+const IconScoutWrapper = styled.div<{ $style: any }>`
+  display: flex;
+  height: 100%;
 
   ${(props) => props.$style && getStyleIcon(props.$style)}
 `;
@@ -163,6 +171,11 @@ const typeOptions = [
   },
 ] as const;
 
+const ModeOptions = [
+  { label: "Standard", value: "standard" },
+  { label: "Advanced", value: "advanced" },
+] as const;
+
 function isDefault(type?: string) {
   return !type;
 }
@@ -183,7 +196,9 @@ const childrenMap = {
   disabled: BoolCodeControl,
   loading: BoolCodeControl,
   form: SelectFormControl,
+  sourceMode: dropdownControl(ModeOptions, "standard"),
   prefixIcon: IconControl,
+  prefixIconScout: IconscoutControl(IconScoutAssetType.ICON),
   style: ButtonStyleControl,
   viewRef: RefControl<HTMLElement>,
   restrictPaddingOnRotation:withDefault(StringControl, 'controlButton')
@@ -226,7 +241,7 @@ let ButtonTmpComp = (function () {
 
       setStyle(container?.clientHeight + "px", container?.clientWidth + "px");
     };
-
+    console.log(props.prefixIconScout);
     return (
       <EditorContext.Consumer>
         {(editorState) => (
@@ -270,14 +285,20 @@ let ButtonTmpComp = (function () {
                         : submitForm(editorState, props.form)
                     }
                   >
-                    {props.prefixIcon && (
+                    {props.sourceMode === 'standard' && props.prefixIcon && (
                       <IconWrapper
                         $style={{ ...props.style, size: props.iconSize }}
                       >
                         {props.prefixIcon}
                       </IconWrapper>
                     )}
-                    
+                    {props.sourceMode === 'advanced' && props.prefixIconScout && (
+                      <IconScoutWrapper
+                        $style={{ ...props.style, size: props.iconSize }}
+                      >
+                        {props.prefixIconScout}
+                      </IconScoutWrapper>
+                    )}
                   </Button100>
                 </div>
               </Container>
@@ -291,7 +312,14 @@ let ButtonTmpComp = (function () {
     .setPropertyViewFn((children) => (
       <>
         <Section name={sectionNames.basic}>
-          {children.prefixIcon.propertyView({
+          { children.sourceMode.propertyView({
+            label: "",
+            radioButton: true
+          })}
+          {children.sourceMode.getView() === 'standard' && children.prefixIcon.propertyView({
+            label: trans("button.icon"),
+          })}
+          {children.sourceMode.getView() === 'advanced' &&children.prefixIconScout.propertyView({
             label: trans("button.icon"),
           })}
         </Section>

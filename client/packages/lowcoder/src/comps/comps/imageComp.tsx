@@ -12,7 +12,7 @@ import {
   withExposingConfigs,
 } from "../generators/withExposing";
 import { RecordConstructorToView } from "lowcoder-core";
-import { useEffect, useRef, useState } from "react";
+import { ReactElement, useEffect, useRef, useState } from "react";
 import _ from "lodash";
 import ReactResizeDetector from "react-resize-detector";
 import { styleControl } from "comps/controls/styleControl";
@@ -35,6 +35,8 @@ import { useContext } from "react";
 import { EditorContext } from "comps/editorState";
 import { StringControl } from "../controls/codeControl";
 import { PositionControl } from "comps/controls/dropdownControl";
+import { dropdownControl } from "../controls/dropdownControl";
+import { IconScoutAssetType, IconscoutControl } from "../controls/iconscoutControl";
 
 const Container = styled.div<{ 
   $style: ImageStyleType | undefined, 
@@ -111,6 +113,10 @@ const getStyle = (style: ImageStyleType) => {
 };
 
 const EventOptions = [clickEvent] as const;
+const ModeOptions = [
+  { label: "URL", value: "standard" },
+  { label: "Advanced", value: "advanced" },
+] as const;
 
 const ContainerImg = (props: RecordConstructorToView<typeof childrenMap>) => {
   const imgRef = useRef<HTMLDivElement>(null);
@@ -194,7 +200,11 @@ const ContainerImg = (props: RecordConstructorToView<typeof childrenMap>) => {
             }
           >
             <AntImage
-              src={props.src.value}
+              src={
+                props.sourceMode === 'advanced'
+                ? (props.srcIconScout as ReactElement)?.props.value
+                : props.src.value
+              }
               referrerPolicy="same-origin"
               draggable={false}
               preview={props.supportPreview ? {src: props.previewSrc || props.src.value } : false}
@@ -210,7 +220,9 @@ const ContainerImg = (props: RecordConstructorToView<typeof childrenMap>) => {
 };
 
 const childrenMap = {
+  sourceMode: dropdownControl(ModeOptions, "standard"),
   src: withDefault(StringStateControl, "https://temp.im/350x400"),
+  srcIconScout: IconscoutControl(IconScoutAssetType.ILLUSTRATION),
   onEvent: eventHandlerControl(EventOptions),
   style: styleControl(ImageStyle , 'style'),
   animationStyle: styleControl(AnimationStyle , 'animationStyle'),
@@ -234,7 +246,14 @@ let ImageBasicComp = new UICompBuilder(childrenMap, (props) => {
     return (
       <>
         <Section name={sectionNames.basic}>
-          {children.src.propertyView({
+          { children.sourceMode.propertyView({
+            label: "",
+            radioButton: true
+          })}
+          {children.sourceMode.getView() === 'standard' && children.src.propertyView({
+            label: trans("image.src"),
+          })}
+          {children.sourceMode.getView() === 'advanced' &&children.srcIconScout.propertyView({
             label: trans("image.src"),
           })}
         </Section>

@@ -18,6 +18,7 @@ import {
 } from "../../generators/withExposing";
 import { defaultLottie } from "./jsonConstants";
 import { EditorContext } from "comps/editorState";
+import { IconScoutAssetType, IconscoutControl } from "@lowcoder-ee/comps/controls/iconscoutControl";
 
 const Player = lazy(
   () => import('@lottiefiles/react-lottie-player')
@@ -84,12 +85,20 @@ const speedOptions = [
   },
 ] as const;
 
+const ModeOptions = [
+  { label: "Data", value: "standard" },
+  { label: "Advanced", value: "advanced" },
+] as const;
+
 let JsonLottieTmpComp = (function () {
   const childrenMap = {
+    sourceMode: dropdownControl(ModeOptions, "standard"),
     value: withDefault(
       ArrayOrJSONObjectControl,
       JSON.stringify(defaultLottie, null, 2)
     ),
+    srcIconScout: IconscoutControl(IconScoutAssetType.LOTTIE),
+    valueIconScout: ArrayOrJSONObjectControl,
     speed: dropdownControl(speedOptions, "1"),
     width: withDefault(NumberControl, 100),
     height: withDefault(NumberControl, 100),
@@ -100,6 +109,7 @@ let JsonLottieTmpComp = (function () {
     keepLastFrame: BoolControl.DEFAULT_TRUE,
   };
   return new UICompBuilder(childrenMap, (props) => {
+    console.log(props.srcIconScout);
     return (
       <div
         style={{
@@ -145,7 +155,17 @@ let JsonLottieTmpComp = (function () {
       return (
         <>
           <Section name={sectionNames.basic}>
-            {children.value.propertyView({
+            { children.sourceMode.propertyView({
+              label: "",
+              radioButton: true
+            })}
+            {children.sourceMode.getView() === 'standard' && children.value.propertyView({
+              label: trans("jsonLottie.lottieJson"),
+            })}
+            {children.sourceMode.getView() === 'advanced' && children.srcIconScout.propertyView({
+              label: "Lottie Source",
+            })}
+            {children.sourceMode.getView() === 'advanced' && children.valueIconScout.propertyView({
               label: trans("jsonLottie.lottieJson"),
             })}
           </Section>
