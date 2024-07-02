@@ -28,7 +28,7 @@ let SelectBasicComp = (function () {
     style: withDefault(styleControl(InputFieldStyle),{background:'transparent'}),
     labelStyle: styleControl(LabelStyle),
     inputFieldStyle: withDefault(styleControl(SelectStyle),{borderWidth:'1px'}),
-    childrenInputFieldStyle: styleControl(ChildrenMultiSelectStyle)
+    childrenInputFieldStyle: withDefault(styleControl(ChildrenMultiSelectStyle),{text:'#000'})
   };
   return new UICompBuilder(childrenMap, (props, dispatch) => {
     const [
