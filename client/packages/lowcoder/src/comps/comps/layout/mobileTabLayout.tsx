@@ -31,6 +31,7 @@ import { AlignCenter } from "lowcoder-design";
 import { AlignLeft } from "lowcoder-design";
 import { AlignRight } from "lowcoder-design";
 import { LayoutActionComp } from "./layoutActionComp";
+import { clickEvent, eventHandlerControl } from "@lowcoder-ee/index.sdk";
 
 const TabBar = React.lazy(() => import("antd-mobile/es/components/tab-bar"));
 const TabBarItem = React.lazy(() =>
@@ -38,6 +39,7 @@ const TabBarItem = React.lazy(() =>
     default: module.TabBarItem,
   }))
 );
+const EventOptions = [clickEvent] as const;
 
 const AppViewContainer = styled.div`
   position: absolute;
@@ -172,6 +174,7 @@ type JsonItemNode = {
 }
 
 type TabBarProps = {
+  onEvent:any;
   tabs: Array<{
     title: string;
     icon?: React.ReactNode;
@@ -225,6 +228,7 @@ function TabBarView(props: TabBarProps & {
         <StyledTabBar
           onChange={(key: string) => {
             if (key) {
+              props.onEvent('click')
               props.onChange(key);
             }
           }}
@@ -282,8 +286,9 @@ const TabOptionComp = (function () {
 
 let MobileTabLayoutTmp = (function () {
   const childrenMap = {
+    onEvent: eventHandlerControl(EventOptions),
     dataOptionType: dropdownControl(DataOptionType, DataOption.Manual),
-    jsonItems: jsonControl<JsonItemNode[]>(convertTreeData, mobileNavJsonMenuItems),
+     jsonItems: jsonControl<JsonItemNode[]>(convertTreeData, mobileNavJsonMenuItems),
     tabs: manualOptionsControl(TabOptionComp, {
       initOptions: [
         {
@@ -350,6 +355,9 @@ let MobileTabLayoutTmp = (function () {
           <Section name={trans("navLayout.navStyle")}>
             { children.navStyle.getPropertyView() }
           </Section>
+          <Section name={trans("eventHandler.eventHandlers")}>
+            { children.onEvent.getPropertyView() }
+          </Section>
           <Section name={trans("navLayout.navItemStyle")}>
             {controlItem({}, (
               <Segmented
@@ -391,6 +399,7 @@ MobileTabLayoutTmp = withViewFn(MobileTabLayoutTmp, (comp) => {
   const verticalAlignment = comp.children.verticalAlignment.getView();
   const showSeparator = comp.children.showSeparator.getView();
   const bgColor = (useContext(ThemeContext)?.theme || defaultTheme).canvas;
+  const onEvent = comp.children.onEvent.getView();
 
   useEffect(() => {
     comp.children.jsonTabs.dispatchChangeValueAction({
@@ -434,6 +443,7 @@ MobileTabLayoutTmp = withViewFn(MobileTabLayoutTmp, (comp) => {
 
   const tabBarView = (
     <TabBarView
+      onEvent={onEvent}
       tabs={tabViews.map((tab, index) => ({
         key: index,
         title: tab.children.label.getView(),
