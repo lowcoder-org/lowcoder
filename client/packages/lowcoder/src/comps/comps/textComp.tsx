@@ -28,7 +28,7 @@ const EventOptions = [clickEvent] as const;
 const getStyle = (style: TextStyleType) => {
   return css`
     border-radius: ${(style.radius ? style.radius : "4px")};
-    border: ${(style.borderWidth ? style.borderWidth : "0px")} solid ${style.border};
+    border: ${(style.borderWidth ? style.borderWidth : "0px")} ${(style.borderStyle ? style.borderStyle : "solid")} ${style.border};
     color: ${style.text};
     text-transform:${style.textTransform} !important;
     text-decoration:${style.textDecoration} !important;
@@ -86,10 +86,18 @@ const TextContainer = styled.div<{
   margin: 0;
   ${props=>props.$animationStyle}
   ${(props) =>
-    props.$type === "text" && "white-space:break-spaces;line-height: 1.9;"};
+    props.$type === "text" && `
+    white-space:break-spaces;
+    line-height: 1.9;
+    font-size: ${props.$styleConfig.textSize};
+    font-weight: ${props.$styleConfig.textWeight};
+    font-style: ${props.$styleConfig.fontStyle};
+    font-family: ${props.$styleConfig.fontFamily};
+    margin: ${props.$styleConfig.margin};
+    padding: ${props.$styleConfig.padding};
+  `};
   ${(props) => props.$styleConfig && getStyle(props.$styleConfig)}
   display: flex;
-  font-size: ${(props) => props.$styleConfig.textSize};
   ${markdownCompCss};
   overflow-wrap: anywhere;
   .markdown-body {
