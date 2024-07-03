@@ -1243,7 +1243,7 @@ export const TabContainerStyle = [
     [
       ...ContainerStyle.filter(
         (style) =>
-          ["border", "radius", "f", "margin", "padding"].includes(
+          ["border", "radius", "f", "margin", "padding",'borderWidth','borderStyle'].includes(
             style.name
           ) === false
       ),
