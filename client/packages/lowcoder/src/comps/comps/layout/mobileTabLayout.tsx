@@ -339,6 +339,9 @@ let MobileTabLayoutTmp = (function () {
                 })
             }
           </Section>
+          <Section name={trans("eventHandler.eventHandlers")}>
+            { children.onEvent.getPropertyView() }
+          </Section>
           <Section name={sectionNames.layout}>
             {children.backgroundImage.propertyView({
               label: `Background Image`,
@@ -354,9 +357,6 @@ let MobileTabLayoutTmp = (function () {
           </Section>
           <Section name={trans("navLayout.navStyle")}>
             { children.navStyle.getPropertyView() }
-          </Section>
-          <Section name={trans("eventHandler.eventHandlers")}>
-            { children.onEvent.getPropertyView() }
           </Section>
           <Section name={trans("navLayout.navItemStyle")}>
             {controlItem({}, (
