@@ -2,6 +2,7 @@ import { hiddenPropertyView, showDataLoadingIndicatorsPropertyView } from "comps
 import {
   ArrayOrJSONObjectControl,
   NumberControl,
+  StringControl,
 } from "comps/controls/codeControl";
 import { dropdownControl } from "comps/controls/dropdownControl";
 import { BoolControl } from "comps/controls/boolControl";
@@ -19,6 +20,9 @@ import {
 import { defaultLottie } from "./jsonConstants";
 import { EditorContext } from "comps/editorState";
 import { IconScoutAssetType, IconscoutControl } from "@lowcoder-ee/comps/controls/iconscoutControl";
+import { isEmpty } from "lodash";
+import IconscoutApi from "@lowcoder-ee/api/iconscoutApi";
+import { changeValueAction, multiChangeAction } from "lowcoder-core";
 
 const Player = lazy(
   () => import('@lottiefiles/react-lottie-player')
@@ -98,7 +102,8 @@ let JsonLottieTmpComp = (function () {
       JSON.stringify(defaultLottie, null, 2)
     ),
     srcIconScout: IconscoutControl(IconScoutAssetType.LOTTIE),
-    valueIconScout: ArrayOrJSONObjectControl,
+    uuidIconScout: StringControl,
+    valueIconScout: withDefault(ArrayOrJSONObjectControl, JSON.stringify({})),
     speed: dropdownControl(speedOptions, "1"),
     width: withDefault(NumberControl, 100),
     height: withDefault(NumberControl, 100),
@@ -108,11 +113,38 @@ let JsonLottieTmpComp = (function () {
     loop: dropdownControl(loopOptions, "single"),
     keepLastFrame: BoolControl.DEFAULT_TRUE,
   };
-  return new UICompBuilder(childrenMap, (props) => {
-    console.log(props.srcIconScout);
+  return new UICompBuilder(childrenMap, (props, dispatch) => {
+
+    const downloadAsset = async (uuid: string) => {
+      try {
+        const result = await IconscoutApi.download(uuid, {
+          format: 'ai',
+        });
+        if (result && result.download_url) {
+          const json = await IconscoutApi.downloadJSON(result.download_url);
+          dispatch(
+            multiChangeAction({
+              uuidIconScout: changeValueAction(uuid, true),
+              valueIconScout: changeValueAction(JSON.stringify(json, null, 2), true)
+            })
+          ) 
+        }
+      } catch(error) {
+        console.error(error);
+      }
+
+    }
+    useEffect(() => {
+      if(props.srcIconScout?.uuid && props.srcIconScout?.uuid !== props.uuidIconScout) {
+        // get asset download link
+        downloadAsset(props.srcIconScout?.uuid);
+      }
+    }, [props.srcIconScout]);
+
     return (
       <div
         style={{
+          height: '100%',
           padding: `${props.container.margin}`,
           animation: props.animationStyle.animation,
           animationDelay: props.animationStyle.animationDelay,
@@ -139,7 +171,11 @@ let JsonLottieTmpComp = (function () {
             hover={props.animationStart === "on hover" && true}
             loop={props.loop === "single" ? false : true}
             speed={Number(props.speed)}
-            src={props.value}
+            src={
+              props.sourceMode === 'advanced'
+              ? (isEmpty(props.valueIconScout) ? '' : props.valueIconScout)
+              : props.value
+            }
             style={{
               height: "100%",
               width: "100%",
