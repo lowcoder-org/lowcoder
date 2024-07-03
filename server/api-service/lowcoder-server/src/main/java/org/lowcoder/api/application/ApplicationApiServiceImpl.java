@@ -49,6 +49,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -480,6 +481,7 @@ public class ApplicationApiServiceImpl implements ApplicationApiService {
     public Mono<ResourcePermission> checkApplicationPermissionWithReadableErrorMsg(String applicationId, ResourceAction action, ApplicationRequestType requestType) {
         return sessionUserService.getVisitorId()
                 .flatMap(visitorId -> resourcePermissionService.checkUserPermissionStatusOnApplication(visitorId, applicationId, action, requestType))
+                .publishOn(Schedulers.boundedElastic())
                 .flatMap(permissionStatus -> {
                     if (!permissionStatus.hasPermission()) {
 
@@ -488,7 +490,7 @@ public class ApplicationApiServiceImpl implements ApplicationApiService {
                             orgId = applicationService.findById(applicationId)
                                     .map(Application::getOrganizationId)
                                     .onErrorReturn("")
-                                    .block(Duration.ofSeconds(2));
+                                    .block(Duration.ofSeconds(5));
                         } catch(Throwable cause) {
                             log.warn("Couldn't get orgId! - {}", cause.getMessage());
                         }
