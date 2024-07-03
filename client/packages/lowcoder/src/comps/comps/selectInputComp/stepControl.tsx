@@ -18,11 +18,7 @@ import { RefControl } from "comps/controls/refControl";
 import { dropdownControl } from "comps/controls/dropdownControl";
 import { useContext, useState, useEffect } from "react";
 import { EditorContext } from "comps/editorState";
-import { ThemeContext } from "@lowcoder-ee/comps/utils/themeContext";
-import { setInitialCompStyles } from "@lowcoder-ee/comps/utils/themeUtil";
-import { CompTypeContext } from "@lowcoder-ee/comps/utils/compTypeContext";
-import { useMergeCompStyles } from "@lowcoder-ee/index.sdk";
-
+import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 const sizeOptions = [
   {

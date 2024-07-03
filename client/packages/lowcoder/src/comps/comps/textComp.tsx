@@ -23,11 +23,6 @@ import { EditorContext } from "comps/editorState";
 import { clickEvent, eventHandlerControl } from "../controls/eventHandlerControl";
 
 const EventOptions = [clickEvent] as const;
-import { ThemeContext } from "../utils/themeContext";
-import { CompTypeContext } from "../utils/compTypeContext";
-import { changeChildAction } from "lowcoder-core";
-import { setInitialCompStyles } from "../utils/themeUtil";
-import { BoolControl } from "../controls/boolControl";
 import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 const getStyle = (style: TextStyleType) => {
