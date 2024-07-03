@@ -17,6 +17,8 @@ import { trans } from "i18n";
 
 import { useContext, useEffect, useRef } from "react";
 import { EditorContext } from "comps/editorState";
+import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
+
 
 const EventOptions = [changeEvent] as const;
 
@@ -43,20 +45,22 @@ const RatingBasicComp = (function () {
     allowHalf: BoolControl,
     disabled: BoolCodeControl,
     onEvent: eventHandlerControl(EventOptions),
-    style: withDefault(styleControl(InputFieldStyle),{background:'transparent'}) , 
-    animationStyle: styleControl(AnimationStyle),
+    style: styleControl(InputFieldStyle, 'style') , 
+    animationStyle: styleControl(AnimationStyle, 'animationStyle'),
     labelStyle: styleControl(
       LabelStyle.filter(
         (style) => ['accent', 'validate'].includes(style.name) === false
-      )
+      ),
+      'labelStyle',
     ),
-    inputFieldStyle: migrateOldData(styleControl(RatingStyle), fixOldData),
+    inputFieldStyle: migrateOldData(styleControl(RatingStyle, 'inputFieldStyle'), fixOldData),
     ...formDataChildren,
   };
-  return new UICompBuilder(childrenMap, (props) => {
+  return new UICompBuilder(childrenMap, (props, dispatch) => {
     const defaultValue = { ...props.defaultValue }.value;
     const value = { ...props.value }.value;
-    const changeRef = useRef(false)
+    const changeRef = useRef(false);
+    useMergeCompStyles(props as Record<string, any>, dispatch);
 
     useEffect(() => {
       props.value.onChange(defaultValue);

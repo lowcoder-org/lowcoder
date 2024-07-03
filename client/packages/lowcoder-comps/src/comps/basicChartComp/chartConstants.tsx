@@ -251,11 +251,11 @@ export const chartUiModeChildren = {
 
 const chartJsonModeChildren = {
   echartsOption: jsonControl(toObject, i18nObjs.defaultEchartsJsonOption),
-  echartsTitle: withDefault(StringControl, trans("echarts.defaultTitle")),
+ echartsTitle: withDefault(StringControl, trans("echarts.defaultTitle")),
   echartsLegendConfig: EchartsLegendConfig,
   echartsLabelConfig: EchartsLabelConfig,
   echartsConfig: EchartsOptionComp,
-  style: styleControl(EchartsStyle),
+  style: styleControl(EchartsStyle, 'style'),
   tooltip: withDefault(BoolControl, true),
   legendVisibility: withDefault(BoolControl, true),
 }

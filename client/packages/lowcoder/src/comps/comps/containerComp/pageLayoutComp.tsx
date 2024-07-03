@@ -18,18 +18,20 @@ import {
   ContainerCompBuilder,
 } from "../pageLayoutComp/pageLayoutCompBuilder";
 import { PageLayout } from "../pageLayoutComp/pageLayout";
-import { styleControl } from "@lowcoder-ee/comps/controls/styleControl";
 import { AnimationStyle } from "@lowcoder-ee/comps/controls/styleControlConstants";
+import { styleControl } from "@lowcoder-ee/comps/controls/styleControl";
+import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 export const ContainerBaseComp = (function () {
   const childrenMap = {
     disabled: BoolCodeControl,
-    animationStyle: styleControl(AnimationStyle),
+    animationStyle: styleControl(AnimationStyle , 'animationStyle'),
   };
 
   return new ContainerCompBuilder(childrenMap, (props, dispatch) => {
 
     const [siderCollapsed, setSiderCollapsed] = useState(false);
+    useMergeCompStyles(props as Record<string, any>, dispatch);    
 
     return (
       <DisabledContext.Provider value={props.disabled}>

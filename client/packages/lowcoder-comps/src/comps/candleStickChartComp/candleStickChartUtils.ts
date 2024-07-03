@@ -12,6 +12,7 @@ import { chartColorPalette, isNumeric, JSONObject, loadScript } from "lowcoder-s
 import { calcXYConfig } from "comps/chartComp/chartConfigs/cartesianAxisConfig";
 import Big from "big.js";
 import { googleMapsApiUrl } from "../chartComp/chartConfigs/chartUrls";
+import { useContext } from "react";
 
 export function transformData(
   originData: JSONObject[],
@@ -128,7 +129,11 @@ export function getSeriesConfig(props: EchartsConfigProps) {
 }
 
 // https://echarts.apache.org/en/option.html
-export function getEchartsConfig(props: EchartsConfigProps, chartSize?: ChartSize): EChartsOptionWithMap {
+export function getEchartsConfig(
+  props: EchartsConfigProps,
+  chartSize?: ChartSize,
+  theme?: any,
+): EChartsOptionWithMap {
   if (props.mode === "json") {
     let opt={
   "title": {
@@ -136,7 +141,7 @@ export function getEchartsConfig(props: EchartsConfigProps, chartSize?: ChartSiz
     'top': props.echartsLegendConfig.top === 'bottom' ?'top':'bottom',
     "left":"center"
   },
-  "backgroundColor": props?.style?.background,
+  "backgroundColor": props?.style?.background || theme?.style?.background,
   "color": props.echartsOption.data?.map(data => data.color),
    "tooltip": props.tooltip&&{
     "trigger": "axis",

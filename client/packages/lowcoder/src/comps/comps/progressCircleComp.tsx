@@ -9,8 +9,9 @@ import { NameConfig, NameConfigHidden, withExposingConfigs } from "../generators
 import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import { EditorContext } from "comps/editorState";
+import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 // TODO: after Update of ANTd, introduce Size attribute to ProgressCircle
 
@@ -69,10 +70,12 @@ let ProgressCircleTmpComp = (function () {
   const childrenMap = {
     value: numberExposingStateControl("value", 60),
     // borderRadius property hidden as it's not valid for progress circle
-    style: styleControl(CircleProgressStyle),
-    animationStyle: styleControl(AnimationStyle),
+    style: styleControl(CircleProgressStyle, 'style'),
+    animationStyle: styleControl(AnimationStyle, 'animationStyle'),
   };
-  return new UICompBuilder(childrenMap, (props) => {
+  return new UICompBuilder(childrenMap, (props, dispatch) => {
+    useMergeCompStyles(props as Record<string, any>, dispatch);
+
     return (
       <StyledProgressCircle
         $style={props.style}

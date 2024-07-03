@@ -18,7 +18,7 @@ import { RefControl } from "comps/controls/refControl";
 import { dropdownControl } from "comps/controls/dropdownControl";
 import { useContext, useState, useEffect } from "react";
 import { EditorContext } from "comps/editorState";
-
+import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 const sizeOptions = [
   {
@@ -91,13 +91,15 @@ const StepsChildrenMap = {
   disabled: BoolCodeControl,
   onEvent: ChangeEventHandlerControl,
   options: StepOptionControl,
-  style: withDefault( styleControl(StepsStyle), {text:'#D7D9E0'}),
+  style: styleControl(StepsStyle , 'style'),
   viewRef: RefControl<HTMLDivElement>,
-  animationStyle: styleControl(AnimationStyle)
+  animationStyle: styleControl(AnimationStyle ,'animationStyle' )
 };
 
 let StepControlBasicComp = (function () {
-  return new UICompBuilder(StepsChildrenMap, (props) => {
+  return new UICompBuilder(StepsChildrenMap, (props , dispatch) => {
+    useMergeCompStyles(props as Record<string, any>, dispatch);    
+
 
     const StyledWrapper = styled.div<{ style: StepsStyleType, $animationStyle: AnimationStyleType }>`
     ${props=>props.$animationStyle}

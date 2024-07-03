@@ -6,7 +6,7 @@ import styled, { css } from "styled-components";
 import { AlignCenter } from "lowcoder-design";
 import { AlignLeft } from "lowcoder-design";
 import { AlignRight } from "lowcoder-design";
-import { UICompBuilder } from "../generators";
+import { UICompBuilder, withDefault } from "../generators";
 import { NameConfig, NameConfigHidden, withExposingConfigs } from "../generators/withExposing";
 import { markdownCompCss, TacoMarkDown } from "lowcoder-design";
 import { styleControl } from "comps/controls/styleControl";
@@ -18,9 +18,10 @@ import { alignWithJustifyControl } from "comps/controls/alignControl";
 import { MarginControl } from "../controls/marginControl";
 import { PaddingControl } from "../controls/paddingControl";
 
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import { EditorContext } from "comps/editorState";
 import { clickEvent, eventHandlerControl } from "../controls/eventHandlerControl";
+import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 const EventOptions = [clickEvent] as const;
 
@@ -115,15 +116,14 @@ const typeOptions = [
     value: "text",
   },
 ] as const;
+
 const VerticalAlignmentOptions = [
   { label: <AlignTop />, value: "flex-start" },
   { label: <AlignVerticalCenter />, value: "center" },
   { label: <AlignBottom />, value: "flex-end" },
 ] as const;
 
-
 let TextTmpComp = (function () {
-
   const childrenMap = {
     text: stringExposingStateControl(
       "text",
@@ -134,13 +134,19 @@ let TextTmpComp = (function () {
     type: dropdownControl(typeOptions, "markdown"),
     horizontalAlignment: alignWithJustifyControl(),
     verticalAlignment: dropdownControl(VerticalAlignmentOptions, "center"),
-    style: styleControl(TextStyle),
-    animationStyle: styleControl(AnimationStyle),
+    style: styleControl(TextStyle, 'style'),
+    animationStyle: styleControl(AnimationStyle, 'animationStyle'),
     margin: MarginControl,
     padding: PaddingControl,
   };
-  return new UICompBuilder(childrenMap, (props) => {
+  return new UICompBuilder(childrenMap, (props, dispatch) => {
     const value = props.text.value;
+
+    useMergeCompStyles(
+      props as Record<string, any>,
+      dispatch
+    );
+  
     return (
       <TextContainer
         $animationStyle={props.animationStyle}

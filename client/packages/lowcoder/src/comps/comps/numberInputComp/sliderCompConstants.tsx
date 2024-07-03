@@ -71,12 +71,15 @@ export const SliderChildren = {
   label: LabelControl,
   disabled: BoolCodeControl,
   onEvent: ChangeEventHandlerControl,
-  style: withDefault(styleControl(InputFieldStyle),{background:'transparent'}) , 
-  labelStyle:styleControl(LabelStyle.filter((style)=> ['accent','validate'].includes(style.name) === false)),
+  style: styleControl(InputFieldStyle, 'style'), 
+  labelStyle: styleControl(
+    LabelStyle.filter((style)=> ['accent','validate'].includes(style.name) === false),
+    'labelStyle',
+  ),
   prefixIcon: IconControl,
   suffixIcon: IconControl,
-  inputFieldStyle:styleControl(SliderStyle),
-  animationStyle:styleControl(AnimationStyle)
+  inputFieldStyle: styleControl(SliderStyle, 'inputFieldStyle'),
+  animationStyle: styleControl(AnimationStyle, 'animationStyle')
 };
 
 export const SliderPropertyView = (

@@ -186,6 +186,7 @@ const childrenMap = {
   showHeaderInPublic: withDefault(BoolControl, true),
   maxWidth: dropdownInputSimpleControl(OPTIONS, USER_DEFINE, "1920"),
   themeId: valueComp<string>(DEFAULT_THEMEID),
+  preventAppStylesOverwriting: withDefault(BoolControl, false),
   customShortcuts: CustomShortcutsComp,
   disableCollision: valueComp<boolean>(false),
 };
@@ -205,6 +206,7 @@ function AppSettingsModal(props: ChildrenInstance) {
     icon,
     category,
     showHeaderInPublic,
+    preventAppStylesOverwriting,
   } = props;
   const THEME_OPTIONS = themeList?.map((theme) => ({
     label: theme.name,
@@ -300,6 +302,11 @@ function AppSettingsModal(props: ChildrenInstance) {
             );
           }}
         />
+        <div style={{ margin: '20px 0'}}>
+          {preventAppStylesOverwriting.propertyView({
+            label: trans("prop.preventOverwriting"),
+          })}
+        </div>
       </DivStyled>
       {props.customShortcuts.getPropertyView()}
     </SettingsStyled>

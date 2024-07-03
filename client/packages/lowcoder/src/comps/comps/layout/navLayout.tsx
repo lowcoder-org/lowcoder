@@ -40,7 +40,7 @@ import {
   jsonMenuItems,
   menuItemStyleOptions
 } from "./navLayoutConstants";
-import { clickEvent, eventHandlerControl } from "@lowcoder-ee/index.sdk";
+import { clickEvent, eventHandlerControl } from "@lowcoder-ee/comps/controls/eventHandlerControl";
 
 const { Header } = Layout;
 

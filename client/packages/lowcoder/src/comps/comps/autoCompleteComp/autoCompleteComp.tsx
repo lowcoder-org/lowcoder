@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Input, Section, sectionNames } from "lowcoder-design";
 import { BoolControl } from "comps/controls/boolControl";
 import { styleControl } from "comps/controls/styleControl";
@@ -55,7 +55,7 @@ import {
   autocompleteIconColor,
   componentSize,
 } from "./autoCompleteConstants";
-
+import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 
 const InputStyle = styled(Input) <{ $style: InputLikeStyleType }>`
@@ -76,8 +76,8 @@ const childrenMap = {
   ...textInputChildren,
   viewRef: RefControl<InputRef>,
   allowClear: BoolControl.DEFAULT_TRUE,
-  style: withDefault(styleControl(InputFieldStyle),{background:'transparent'}),
-  labelStyle:styleControl(LabelStyle),
+  style: styleControl(InputFieldStyle , 'style'),
+  labelStyle: styleControl(LabelStyle , 'labelStyle'),
   prefixIcon: IconControl,
   suffixIcon: IconControl,
   items: jsonControl(convertAutoCompleteData, autoCompleteDate),
@@ -90,8 +90,8 @@ const childrenMap = {
   autocompleteIconColor: dropdownControl(autocompleteIconColor, "blue"),
   componentSize: dropdownControl(componentSize, "small"),
   valueInItems: booleanExposingStateControl("valueInItems"),
-  inputFieldStyle: withDefault(styleControl(InputLikeStyle),{borderWidth:'1px'}),
-  animationStyle: styleControl(AnimationStyle),
+  inputFieldStyle: styleControl(InputLikeStyle , 'inputFieldStyle'),
+  animationStyle: styleControl(AnimationStyle , 'animationStyle'),
 };
 
 const getValidate = (value: any): "" | "warning" | "error" | undefined => {
@@ -104,7 +104,9 @@ const getValidate = (value: any): "" | "warning" | "error" | undefined => {
 };
 
 let AutoCompleteCompBase = (function () {
-  return new UICompBuilder(childrenMap, (props) => {
+  return new UICompBuilder(childrenMap, (props, dispatch) => {
+   useMergeCompStyles(props as Record<string, any>, dispatch);
+
     const {
       items,
       onEvent,

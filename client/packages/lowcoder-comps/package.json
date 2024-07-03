@@ -34,30 +34,6 @@
   "lowcoder": {
     "description": "",
     "comps": {
-      "meetingController": {
-        "name": "Agora Meeting Controller",
-        "icon": "./icons/icon-comp-calendar.svg",
-        "layoutInfo": {
-          "w": 1,
-          "h": 1
-        }
-      },
-      "meetingSharing": {
-        "name": "Agora Meeting Sharing",
-        "icon": "./icons/icon-comp-calendar.svg",
-        "layoutInfo": {
-          "w": 6,
-          "h": 40
-        }
-      },
-      "meetingStream": {
-        "name": "Video Stream",
-        "icon": "./icons/icon-comp-calendar.svg",
-        "layoutInfo": {
-          "w": 6,
-          "h": 40
-        }
-      },
       "calendar": {
         "name": "Calendar",
         "icon": "./icons/icon-comp-calendar.svg",
@@ -192,6 +168,30 @@
         "layoutInfo": {
           "w": 19,
           "h": 60
+        }
+      },
+      "meetingController": {
+        "name": "Agora Meeting Controller",
+        "icon": "./icons/icon-comp-calendar.svg",
+        "layoutInfo": {
+          "w": 1,
+          "h": 1
+        }
+      },
+      "meetingSharing": {
+        "name": "Agora Meeting Sharing",
+        "icon": "./icons/icon-comp-calendar.svg",
+        "layoutInfo": {
+          "w": 6,
+          "h": 40
+        }
+      },
+      "meetingStream": {
+        "name": "Video Stream",
+        "icon": "./icons/icon-comp-calendar.svg",
+        "layoutInfo": {
+          "w": 6,
+          "h": 40
         }
       }
     }

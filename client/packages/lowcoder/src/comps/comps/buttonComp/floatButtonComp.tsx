@@ -16,6 +16,8 @@ import { IconControl } from "comps/controls/iconControl";
 import styled from "styled-components";
 import { ButtonEventHandlerControl } from "comps/controls/eventHandlerControl";
 import { manualOptionsControl } from "comps/controls/optionsControl";
+import { useContext, useEffect } from "react";
+import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 const StyledFloatButton = styled(FloatButton)<{
   $animationStyle: AnimationStyleType;
@@ -83,8 +85,8 @@ const childrenMap = {
     image: StringControl,
     icon: withDefault(IconControl, '/icon:antd/questioncircleoutlined'),
     badgeStyle: styleControl(BadgeStyle),
-    style: styleControl(FloatButtonStyle),
-    animationStyle: styleControl(AnimationStyle),
+    style: styleControl(FloatButtonStyle , 'style'),
+    animationStyle: styleControl(AnimationStyle , 'animationStyle'),
     buttons: manualOptionsControl(buttonGroupOption, {
         initOptions: [
             { id: 0, label: trans("optionsControl.optionI", { i: '1' }), icon: "/icon:antd/filetextoutlined", badge: '1' },
@@ -131,9 +133,11 @@ const FloatButtonView = (props: RecordConstructorToView<typeof childrenMap>) => 
 };
 
 let FloatButtonBasicComp = (function () {
-    return new UICompBuilder(childrenMap, (props) => (
-      <FloatButtonView {...props} />
-    ))
+    return new UICompBuilder(childrenMap, (props , dispatch) => {
+      useMergeCompStyles(props, dispatch);
+      return(
+        <FloatButtonView {...props} />
+      )})
       .setPropertyViewFn((children) => (
         <>
           <Section name={sectionNames.basic}>

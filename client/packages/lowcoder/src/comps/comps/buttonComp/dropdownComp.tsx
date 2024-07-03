@@ -9,7 +9,7 @@ import { UICompBuilder } from "comps/generators/uiCompBuilder";
 import { disabledPropertyView, hiddenPropertyView } from "comps/utils/propertyUtils";
 import { Section, sectionNames } from "lowcoder-design";
 import { trans } from "i18n";
-import React, { ReactElement, useContext } from "react";
+import React, { ReactElement, useContext, useEffect } from "react";
 import { EditorContext } from "comps/editorState";
 import styled from "styled-components";
 import { ButtonEventHandlerControl } from "../../controls/eventHandlerControl";
@@ -22,7 +22,7 @@ import {
   getButtonStyle,
 } from "./buttonCompConstants";
 import { styleControl } from "@lowcoder-ee/comps/controls/styleControl";
-
+import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 const StyledDropdownButton = styled(DropdownButton)`
   width: 100%;
@@ -86,9 +86,11 @@ const DropdownTmpComp = (function () {
     options: DropdownOptionControl,
     disabled: BoolCodeControl,
     onEvent: ButtonEventHandlerControl,
-    style: styleControl(DropdownStyle),
+    style: styleControl(DropdownStyle, 'style'),
   };
-  return new UICompBuilder(childrenMap, (props) => {
+  return new UICompBuilder(childrenMap, (props, dispatch) => {
+   useMergeCompStyles(props as Record<string, any>, dispatch);
+
     const hasIcon =
       props.options.findIndex((option) => (option.prefixIcon as ReactElement)?.props.value) > -1;
     const items = props.options

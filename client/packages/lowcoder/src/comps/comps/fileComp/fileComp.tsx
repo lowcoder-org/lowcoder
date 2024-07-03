@@ -42,6 +42,7 @@ import { messageInstance } from "lowcoder-design/src/components/GlobalInstances"
 
 import React, { useContext } from "react";
 import { EditorContext } from "comps/editorState";
+import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 const FileSizeControl = codeControl((value) => {
   if (typeof value === "number") {
@@ -100,8 +101,8 @@ const commonChildren = {
   showUploadList: BoolControl.DEFAULT_TRUE,
   disabled: BoolCodeControl,
   onEvent: eventHandlerControl(EventOptions),
-  style: styleControl(FileStyle),
-  animationStyle: styleControl(AnimationStyle),
+  style: styleControl(FileStyle , 'style'),
+  animationStyle: styleControl(AnimationStyle , 'animationStyle'),
   parseFiles: BoolPureControl,
   parsedValue: stateComp<Array<JSONValue | null>>([]),
   prefixIcon: withDefault(IconControl, "/icon:solid/arrow-up-from-bracket"),
@@ -379,9 +380,11 @@ const childrenMap = {
   ...formDataChildren,
 };
 
-let FileTmpComp = new UICompBuilder(childrenMap, (props, dispatch) => (
-  <Upload {...props} dispatch={dispatch} />
-))
+let FileTmpComp = new UICompBuilder(childrenMap, (props, dispatch) => {
+  useMergeCompStyles(props, dispatch);
+  return(
+    <Upload {...props} dispatch={dispatch} />
+  )})
   .setPropertyViewFn((children) => (
     <>
       <Section name={sectionNames.basic}>
