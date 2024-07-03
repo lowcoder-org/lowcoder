@@ -89,7 +89,7 @@ const TextContainer = styled.div<{
     props.$type === "text" && "white-space:break-spaces;line-height: 1.9;"};
   ${(props) => props.$styleConfig && getStyle(props.$styleConfig)}
   display: flex;
-  font-size: 13px;
+  font-size: ${(props) => props.$styleConfig.textSize};
   ${markdownCompCss};
   overflow-wrap: anywhere;
   .markdown-body {
