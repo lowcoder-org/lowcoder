@@ -40,11 +40,13 @@ import {
   jsonMenuItems,
   menuItemStyleOptions
 } from "./navLayoutConstants";
+import { clickEvent, eventHandlerControl } from "@lowcoder-ee/index.sdk";
 
 const { Header } = Layout;
 
 const DEFAULT_WIDTH = 240;
 type MenuItemStyleOptionValue = "normal" | "hover" | "active";
+const EventOptions = [clickEvent] as const;
 
 const StyledSide = styled(LayoutSider)`
   max-height: calc(100vh - ${TopHeaderHeight});
@@ -183,6 +185,7 @@ function convertTreeData(data: any) {
 
 let NavTmpLayout = (function () {
   const childrenMap = {
+    onEvent: eventHandlerControl(EventOptions),
     dataOptionType: dropdownControl(DataOptionType, DataOption.Manual),
     items: withDefault(LayoutMenuItemListComp, [
       {
@@ -220,6 +223,9 @@ let NavTmpLayout = (function () {
                   label: "Json Data",
                 })
             }
+          </Section>
+          <Section name={trans("eventHandler.eventHandlers")}>
+            { children.onEvent.getPropertyView() }
           </Section>
           <Section name={sectionNames.layout}>
             { children.width.propertyView({
@@ -282,7 +288,8 @@ NavTmpLayout = withViewFn(NavTmpLayout, (comp) => {
   const backgroundImage = comp.children.backgroundImage.getView();
   const jsonItems = comp.children.jsonItems.getView();
   const dataOptionType = comp.children.dataOptionType.getView();
-  
+  const onEvent = comp.children.onEvent.getView();
+
   // filter out hidden. unauthorised items filtered by server
   const filterItem = useCallback((item: LayoutMenuItemComp): boolean => {
     return !item.children.hidden.getView();
@@ -319,7 +326,8 @@ NavTmpLayout = withViewFn(NavTmpLayout, (comp) => {
     return generateItemKeyRecord(items)
   }, [dataOptionType, jsonItems, items, generateItemKeyRecord]);
 
-  const onMenuItemClick = useCallback(({key}: {key: string}) => {
+  const onMenuItemClick = useCallback(({ key }: { key: string }) => {
+    onEvent('click')
     const itemComp = itemKeyRecord[key]
   
     const url = [
