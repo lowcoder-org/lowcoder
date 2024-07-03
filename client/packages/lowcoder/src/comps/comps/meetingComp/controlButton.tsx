@@ -296,7 +296,7 @@ let ButtonTmpComp = (function () {
                       <IconScoutWrapper
                         $style={{ ...props.style, size: props.iconSize }}
                       >
-                        {props.prefixIconScout}
+                        <img src={props.prefixIconScout.value} />
                       </IconScoutWrapper>
                     )}
                   </Button100>

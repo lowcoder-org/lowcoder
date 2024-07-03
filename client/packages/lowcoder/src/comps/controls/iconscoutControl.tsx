@@ -1,38 +1,18 @@
-import type { EditorState, EditorView } from "base/codeEditor/codeMirror";
-import { iconRegexp, iconWidgetClass } from "base/codeEditor/extensions/iconExtension";
-import { i18nObjs, trans } from "i18n";
+import { trans } from "i18n";
 import {
-  AbstractComp,
-  CompAction,
-  CompActionTypes,
-  CompParams,
-  customAction,
-  DispatchType,
-  Node,
   SimpleComp,
-  ValueAndMsg,
 } from "lowcoder-core";
 import {
   BlockGrayLabel,
-  controlItem,
   ControlPropertyViewWrapper,
   DeleteInputIcon,
-  iconPrefix,
-  IconSelect,
-  IconSelectBase,
-  removeQuote,
-  SwitchJsIcon,
-  SwitchWrapper,
   TacoButton,
   TacoInput,
   useIcon,
   wrapperToControlItem,
 } from "lowcoder-design";
-import { ReactNode, SetStateAction, useCallback, useEffect, useRef, useState } from "react";
+import { ReactNode, useCallback, useRef, useState } from "react";
 import styled from "styled-components";
-import { setFieldsNoTypeCheck } from "util/objectUtils";
-import { StringControl } from "./codeControl";
-import { ControlParams } from "./controlParams";
 import Popover from "antd/es/popover";
 import { CloseIcon, SearchIcon } from "icons";
 import Draggable from "react-draggable";
@@ -40,6 +20,7 @@ import IconscoutApi, { SearchParams } from "api/iconscoutApi";
 import List, { ListRowProps } from "react-virtualized/dist/es/List";
 import { debounce } from "lodash";
 import Spin from "antd/es/spin";
+import { ControlParams } from "./controlParams";
 
 const ButtonWrapper = styled.div`
   width: 100%;
@@ -215,8 +196,9 @@ const columnNum = 8;
 
 export const IconPicker = (props: {
   assetType: string;
+  uuid: string;
   value: string;
-  onChange: (value: string) => void;
+  onChange: (key: string, value: string) => void;
   label?: ReactNode;
   IconType?: "OnlyAntd" | "All" | "default" | undefined;
 }) => {
@@ -229,8 +211,8 @@ export const IconPicker = (props: {
   const onChangeRef = useRef(props.onChange);
   onChangeRef.current = props.onChange;
   const onChangeIcon = useCallback(
-    (key: string) => {
-      onChangeRef.current(key);
+    (key: string, value: string) => {
+      onChangeRef.current(key, value);
       setVisible(false);
     }, []
   );
@@ -250,11 +232,9 @@ export const IconPicker = (props: {
   const fetchAsset = async (uuid: string) => {
     try {
       const result = await IconscoutApi.download(uuid, {
-        format: props.assetType === IconScoutAssetType.LOTTIE ? 'ai' : 'svg',
+        format: 'svg',
       });
-      if (props.assetType !== IconScoutAssetType.LOTTIE) {
-        onChangeIcon(result.url);
-      }
+      onChangeIcon(result.uuid, result.url);
     } catch (error) {
       console.error(error);
     }
@@ -276,9 +256,10 @@ export const IconPicker = (props: {
               tabIndex={0}
               onClick={() => {
                 if (props.assetType === IconScoutAssetType.LOTTIE) {
-                  onChangeIcon(icon.urls.thumb)
+                  onChangeIcon(icon.uuid, icon.urls.thumb )
+                } else {
+                  fetchAsset(icon.uuid);
                 }
-                fetchAsset(icon.uuid);
               }}
             >
               <IconWrapper>
@@ -352,15 +333,15 @@ export const IconPicker = (props: {
           <ButtonWrapper>
             <ButtonIconWrapper>
               {props.assetType === IconScoutAssetType.LOTTIE && (
-                <>{props.value}</>
+                <video style={{'width': '100%'}} src={props.value} autoPlay />
               )}
               {props.assetType !== IconScoutAssetType.LOTTIE && (
-                <IconControlView value={props.value} />
+                <IconControlView value={props.value} uuid={props.uuid}/>
               )}
             </ButtonIconWrapper>
             <StyledDeleteInputIcon
               onClick={(e) => {
-                props.onChange("");
+                props.onChange("", "");
                 e.stopPropagation();
               }}
             />
@@ -373,239 +354,51 @@ export const IconPicker = (props: {
   );
 };
 
-function onClickIcon(e: React.MouseEvent, v: EditorView) {
-  for (let t = e.target as HTMLElement | null; t; t = t.parentElement) {
-    if (t.classList.contains(iconWidgetClass)) {
-      const pos = v.posAtDOM(t);
-      const result = iconRegexp.exec(v.state.doc.sliceString(pos));
-      if (result) {
-        const from = pos + result.index;
-        return { from, to: from + result[0].length };
-      }
-    }
-  }
-}
-
-function IconSpan(props: { value: string }) {
-  const icon = useIcon(props.value);
-  return <span>{icon?.getView() ?? props.value}</span>;
-}
-
-function cardRichContent(s: string) {
-  let result = s.match(iconRegexp);
-  if (result) {
-    const nodes: React.ReactNode[] = [];
-    let pos = 0;
-    for (const iconStr of result) {
-      const i = s.indexOf(iconStr, pos);
-      if (i >= 0) {
-        nodes.push(s.slice(pos, i));
-        nodes.push(<IconSpan key={i} value={iconStr} />);
-        pos = i + iconStr.length;
-      }
-    }
-    nodes.push(s.slice(pos));
-    return nodes;
-  }
-  return s;
-}
-
-type Range = {
-  from: number;
-  to: number;
-};
-
-function IconCodeEditor(props: {
-  codeControl: InstanceType<typeof StringControl>;
-  params: ControlParams;
-}) {
-  const [visible, setVisible] = useState(false);
-  const [range, setRange] = useState<Range>();
-  const widgetPopup = useCallback(
-    (v: EditorView) => (
-      <IconSelectBase
-        onChange={(value) => {
-          const r: Range = range ?? v.state.selection.ranges[0] ?? { from: 0, to: 0 };
-          const insert = '"' + value + '"';
-          setRange({ ...r, to: r.from + insert.length });
-          v.dispatch({ changes: { ...r, insert } });
-        }}
-        visible={visible}
-        setVisible={setVisible}
-        trigger="contextMenu"
-        // parent={document.querySelector<HTMLElement>(`${CodeEditorTooltipContainer}`)}
-        searchKeywords={i18nObjs.iconSearchKeywords}
-      />
-    ),
-    [visible, range]
-  );
-  const onClick = useCallback((e: React.MouseEvent, v: EditorView) => {
-    const r = onClickIcon(e, v);
-    if (r) {
-      setVisible(true);
-      setRange(r);
-    }
-  }, []);
-  const extraOnChange = useCallback((state: EditorState) => {
-    // popover should hide on change
-    setVisible(false);
-    setRange(undefined);
-  }, []);
-  return props.codeControl.codeEditor({
-    ...props.params,
-    enableIcon: true,
-    widgetPopup,
-    onClick,
-    extraOnChange,
-    cardRichContent,
-    cardTips: (
-      <>
-        {trans("iconControl.insertImage")}
-        <TacoButton style={{ display: "inline" }} onClick={() => setVisible(true)}>
-          {trans("iconControl.insertIcon")}
-        </TacoButton>
-      </>
-    ),
-  });
-}
-
-function isSelectValue(value: any) {
-  return !value || (typeof value === "string" && value.startsWith(iconPrefix));
-}
-
-type ChangeModeAction = {
-  useCodeEditor: boolean;
-};
-
-export function IconControlView(props: { value: string }) {
+export function IconControlView(props: { value: string, uuid: string }) {
   const { value } = props;
   const icon = useIcon(value);
-  console.log(icon);
+
   if (icon) {
     return icon.getView();
   }
   return <StyledImage src={value} alt="" />;
 }
 
+type DataType = {
+  uuid: string;
+  value: string;
+}
 export function IconscoutControl(
   assetType: string = IconScoutAssetType.ICON,
 ) {
-  return class extends AbstractComp<ReactNode, string, Node<ValueAndMsg<string>>> {
-    private readonly useCodeEditor: boolean;
-    private readonly codeControl: InstanceType<typeof StringControl>;
-
-    constructor(params: CompParams<string>) {
-      super(params);
-      this.useCodeEditor = !isSelectValue(params.value);
-      this.codeControl = new StringControl(params);
-    }
-
-    override getView(): ReactNode {
-      const value = this.codeControl.getView();
-      return <IconControlView value={value} />;
+  return class IconscoutControl extends SimpleComp<DataType> {
+    readonly IGNORABLE_DEFAULT_VALUE = false;
+    protected getDefaultValue(): DataType {
+      return {
+        uuid: '',
+        value: '',
+      };
     }
 
     override getPropertyView(): ReactNode {
       throw new Error("Method not implemented.");
     }
 
-    changeModeAction() {
-      return customAction<ChangeModeAction>({ useCodeEditor: !this.useCodeEditor }, true);
-    }
-
-    propertyView(params: ControlParams) {
+    propertyView(params: ControlParams & { type?: "switch" | "checkbox" }) {
       return wrapperToControlItem(
         <ControlPropertyViewWrapper {...params}>
           <IconPicker
             assetType={assetType}
-            value={this.codeControl.getView()}
-            onChange={(x) => this.dispatchChangeValueAction(x)}
+            uuid={this.value.uuid}
+            value={this.value.value}
+            onChange={(uuid, value) => {
+              this.dispatchChangeValueAction({uuid, value})
+            }}
             label={params.label}
             IconType={params.IconType}
           />
         </ControlPropertyViewWrapper>
       );
     }
-
-    readonly IGNORABLE_DEFAULT_VALUE = "";
-    override toJsonValue(): string {
-      if (this.useCodeEditor) {
-        return this.codeControl.toJsonValue();
-      }
-      // in select mode, don't save editor's original value when saving
-      const v = removeQuote(this.codeControl.getView());
-      return isSelectValue(v) ? v : "";
-    }
-
-    override reduce(action: CompAction): this {
-      switch (action.type) {
-        case CompActionTypes.CUSTOM: {
-          const useCodeEditor = (action.value as ChangeModeAction).useCodeEditor;
-          let codeControl = this.codeControl;
-          if (!this.useCodeEditor && useCodeEditor) {
-            // value should be transformed when switching to editor from select mode
-            const value = this.codeControl.toJsonValue();
-            if (value && isSelectValue(value)) {
-              codeControl = codeControl.reduce(codeControl.changeValueAction(`{{ "${value}" }}`));
-            }
-          }
-          return setFieldsNoTypeCheck(this, { useCodeEditor, codeControl });
-        }
-        case CompActionTypes.CHANGE_VALUE: {
-          const useCodeEditor = this.useCodeEditor ? true : !isSelectValue(action.value);
-          const codeControl = this.codeControl.reduce(action);
-          if (useCodeEditor !== this.useCodeEditor || codeControl !== this.codeControl) {
-            return setFieldsNoTypeCheck(this, { useCodeEditor, codeControl });
-          }
-          return this;
-        }
-      }
-      const codeControl = this.codeControl.reduce(action);
-      if (codeControl !== this.codeControl) {
-        return setFieldsNoTypeCheck(this, { codeControl });
-      }
-      return this;
-    }
-
-    override nodeWithoutCache() {
-      return this.codeControl.nodeWithoutCache();
-    }
-
-    exposingNode() {
-      return this.codeControl.exposingNode();
-    }
-
-    override changeDispatch(dispatch: DispatchType): this {
-      const result = setFieldsNoTypeCheck(
-        super.changeDispatch(dispatch),
-        { codeControl: this.codeControl.changeDispatch(dispatch) },
-        { keepCacheKeys: ["node"] }
-      );
-      return result;
-    }
   }
 }
-
-// export class IconscoutControl extends SimpleComp<string> {
-//   readonly IGNORABLE_DEFAULT_VALUE = false;
-//   protected getDefaultValue(): string {
-//     return '';
-//   }
-
-//   override getPropertyView(): ReactNode {
-//     throw new Error("Method not implemented.");
-//   }
-
-//   propertyView(params: ControlParams & { type?: "switch" | "checkbox" }) {
-//     return wrapperToControlItem(
-//       <ControlPropertyViewWrapper {...params}>
-//         <IconPicker
-//           value={this.value}
-//           onChange={(x) => this.dispatchChangeValueAction(x)}
-//           label={params.label}
-//           IconType={params.IconType}
-//         />
-//       </ControlPropertyViewWrapper>
-//     );
-//   }
-// }

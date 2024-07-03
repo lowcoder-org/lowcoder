@@ -17,8 +17,8 @@ export type ResponseType = {
 };
 
 const apiUrl = "https://api.iconscout.com";
-const clientID = ""; //"91870410585071";
-const clientSecret = ""; // "GV5aCWpwdLWTxVXFBjMKSoyDPUyjzXLR";
+const clientID = "";
+const clientSecret = "";
 const currentPage = 1;
 const currentQuery = '';
 const currentData = [];
@@ -74,6 +74,11 @@ class IconscoutApi extends Api {
       params,
     });
     return response?.data.response.download;
+  }
+
+  static async downloadJSON(url: string): Promise<any> {
+    const response = await axios.get(url)
+    return response?.data;
   }
 }
 

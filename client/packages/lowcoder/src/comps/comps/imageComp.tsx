@@ -202,7 +202,7 @@ const ContainerImg = (props: RecordConstructorToView<typeof childrenMap>) => {
             <AntImage
               src={
                 props.sourceMode === 'advanced'
-                ? (props.srcIconScout as ReactElement)?.props.value
+                ? props.srcIconScout?.value
                 : props.src.value
               }
               referrerPolicy="same-origin"
@@ -253,7 +253,7 @@ let ImageBasicComp = new UICompBuilder(childrenMap, (props) => {
           {children.sourceMode.getView() === 'standard' && children.src.propertyView({
             label: trans("image.src"),
           })}
-          {children.sourceMode.getView() === 'advanced' &&children.srcIconScout.propertyView({
+          {children.sourceMode.getView() === 'advanced' && children.srcIconScout.propertyView({
             label: trans("image.src"),
           })}
         </Section>
