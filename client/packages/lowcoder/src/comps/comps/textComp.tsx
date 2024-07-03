@@ -21,9 +21,9 @@ import { PaddingControl } from "../controls/paddingControl";
 import React, { useContext, useEffect } from "react";
 import { EditorContext } from "comps/editorState";
 import { clickEvent, eventHandlerControl } from "../controls/eventHandlerControl";
+import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 const EventOptions = [clickEvent] as const;
-import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 const getStyle = (style: TextStyleType) => {
   return css`
