@@ -825,7 +825,6 @@ export function TableCompView(props: {
 
   return (
     <BackgroundColorContext.Provider value={style.background} >
-
       <BackgroundWrapper ref={ref} $style={style} $tableAutoHeight={tableAutoHeight}>
         {toolbar.position === "above" && toolbarView}
         <TableWrapper

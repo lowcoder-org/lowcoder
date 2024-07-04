@@ -79,7 +79,6 @@ const IconContain = (props: {
   isSelected: boolean,
 }) => {
   const { Icon, isSelected } = props;
-  console.log(isSelected);
   return (
     <CompIconDiv $w={64} $h={64} $isSelected={isSelected}>
       <Icon />

@@ -167,7 +167,7 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
     this.setState({
       theme: {
         ...this.state.theme,
-        [params.themeSettingKey]: params.color || params.radius || params.chart || params.margin || params.padding  || params.gridColumns,
+        [params.themeSettingKey]: params.color || params.radius || params.chart || params.margin || params.padding  || params.gridColumns || params.borderWidth || params.borderStyle || params.fontFamily,
       },
     });
   }
@@ -209,7 +209,7 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
             color: this.state.theme.primarySurface,
           },
           {
-            settingsKey: 'borderColor',
+            settingsKey: 'border',
             name: trans('themeDetail.borderColor'),
             desc: trans('themeDetail.borderColorDesc'),
             color: this.state.theme.border || this.state.theme.borderColor,
@@ -256,7 +256,7 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
         title: trans('themeDetail.borders'),
         items: [
           {
-            settingsKey: 'borderRadius',
+            settingsKey: 'radius',
             name: trans('themeDetail.borderRadius'),
             desc: trans('themeDetail.borderRadiusDesc'),
             type: "radius",

@@ -238,7 +238,7 @@ export default function ThemeSettingsSelector(props: ColorConfigProps) {
         <div className="desc">{desc}</div>
       </div>
       
-      {themeSettingKey !== "borderRadius" &&  
+      {themeSettingKey !== "radius" &&  
         themeSettingKey !== "margin" &&  
         themeSettingKey !== "padding" && 
         themeSettingKey !== "gridColumns" &&
@@ -283,7 +283,7 @@ export default function ThemeSettingsSelector(props: ColorConfigProps) {
           />
         </div>
       )} */}
-      {themeSettingKey === "borderRadius" && (
+      {themeSettingKey === "radius" && (
         <div className="config-input">
           <Radius $radius={defaultRadius || "0"}>
             <div>
