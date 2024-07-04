@@ -26,6 +26,7 @@ import {
   setTransform,
 } from "./utils";
 import styled from "styled-components";
+import { withErrorBoundary } from "@lowcoder-ee/index.sdk";
 
 type GridItemCallback<Data extends GridDragEvent | GridResizeEvent> = (
   i: string,
@@ -416,7 +417,7 @@ export function GridItem(props: GridItemProps) {
   const render = () => {
     let child = React.Children.only(children);
     // Create the child element. We clone the existing element but modify its className and style.
-    let newChild: React.ReactElement = React.cloneElement(child, {
+    let newChild: React.ReactElement = React.cloneElement(withErrorBoundary(child), {
       ref: elementRef,
       className: clsx(
         "react-grid-item",
