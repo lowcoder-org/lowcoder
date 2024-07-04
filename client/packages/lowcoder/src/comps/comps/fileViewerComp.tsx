@@ -1,7 +1,7 @@
 import { styleControl } from "comps/controls/styleControl";
 import { AnimationStyle, AnimationStyleType, FileViewerStyle, FileViewerStyleType, heightCalculator, widthCalculator } from "comps/controls/styleControlConstants";
 import { isEmpty } from "lodash";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { DocumentViewer } from "react-documents";
 import styled, { css } from "styled-components";
 import { Section, sectionNames } from "lowcoder-design";
@@ -13,6 +13,7 @@ import { trans } from "i18n";
 
 import { useContext } from "react";
 import { EditorContext } from "comps/editorState";
+import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 const getStyle = (style: FileViewerStyleType) => {
   return css`
@@ -67,10 +68,12 @@ const DraggableFileViewer = (props: { src: string; style: FileViewerStyleType,an
 let FileViewerBasicComp = (function () {
   const childrenMap = {
     src: StringControl,
-    style: styleControl(FileViewerStyle),
-    animationStyle: styleControl(AnimationStyle),
+    style: styleControl(FileViewerStyle , 'style'),
+    animationStyle: styleControl(AnimationStyle , 'animationStyle'),
   };
-  return new UICompBuilder(childrenMap, (props) => {
+  return new UICompBuilder(childrenMap, (props, dispatch) => {
+    useMergeCompStyles(props as Record<string, any>, dispatch);
+    
     if (isEmpty(props.src)) {
       return (
         <ErrorWrapper

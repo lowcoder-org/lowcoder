@@ -9,8 +9,6 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
-import jakarta.annotation.PostConstruct;
-
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.io.IOUtils;
 import org.lowcoder.sdk.models.HasIdAndAuditing;
@@ -18,6 +16,7 @@ import org.lowcoder.sdk.test.JsonFileReader;
 import org.lowcoder.sdk.util.JsonUtils;
 import org.lowcoder.sdk.util.MoreMapUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.stereotype.Component;
 
@@ -29,26 +28,11 @@ public class InitData {
     @Autowired
     private ReactiveMongoTemplate mongoTemplate;
 
-    @PostConstruct
-    @SuppressWarnings("BusyWait")
     public void init() {
         try {
-            while (true) {
-                if (STATE.compareAndSet(0, 1)) {
-                    // execute only once.
-                    execute();
-                    STATE.set(2);
-                }
-                if (STATE.get() == 1) {
-                    // wait for executing success.
-                    Thread.sleep(50);
-                    continue;
-                }
-                if (STATE.get() == 2) {
-                    // execute end, then break.
-                    break;
-                }
-            }
+            execute();
+        } catch (DuplicateKeyException ignored) {
+
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

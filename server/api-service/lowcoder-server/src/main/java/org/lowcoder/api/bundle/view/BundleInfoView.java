@@ -18,6 +18,7 @@ public class BundleInfoView {
 
     private final String userId;
     private final String bundleId;
+    private final String bundleGid;
     private final String name;
     private final String title;
     private final String description;

@@ -39,9 +39,10 @@ import { trans } from "i18n";
 import { IconControl } from "comps/controls/iconControl";
 import { hasIcon } from "comps/utils";
 import { RefControl } from "comps/controls/refControl";
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import { EditorContext } from "comps/editorState";
 import { migrateOldData } from "comps/generators/simpleGenerators";
+import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 const PasswordStyle = styled(InputPassword)<{
   $style: InputLikeStyleType;
@@ -59,13 +60,15 @@ let PasswordTmpComp = (function () {
     validationType: dropdownControl(TextInputValidationOptions, "Regex"),
     visibilityToggle: BoolControl.DEFAULT_TRUE,
     prefixIcon: IconControl,
-    style: withDefault(styleControl(InputFieldStyle),{background:'transparent'}) , 
-    labelStyle: styleControl(LabelStyle),
-    inputFieldStyle: withDefault(styleControl(InputLikeStyle),{borderWidth: '1px'}), 
-    animationStyle: styleControl(AnimationStyle),
+    style: styleControl(InputFieldStyle ,'style' ) , 
+    labelStyle: styleControl(LabelStyle,'labelStyle'),
+    inputFieldStyle: styleControl(InputLikeStyle , 'inputFieldStyle'), 
+    animationStyle: styleControl(AnimationStyle , 'animationStyle'),
   };
-  return new UICompBuilder(childrenMap, (props) => {
+  return new UICompBuilder(childrenMap, (props, dispatch) => {
     const [inputProps, validateState] = useTextInputProps(props);
+    useMergeCompStyles(props as Record<string, any>, dispatch);    
+
     return props.label({
       required: props.required,
       children: (

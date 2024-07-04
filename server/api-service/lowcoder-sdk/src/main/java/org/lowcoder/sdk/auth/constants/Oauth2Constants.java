@@ -48,6 +48,5 @@ public class Oauth2Constants {
             + "&redirect_uri=" + REDIRECT_URL_PLACEHOLDER
             + "&state=" + STATE_PLACEHOLDER
             + "&scope=" + SCOPE_PLACEHOLDER
-            + "&access_type=offline"
-            + "&prompt=select_account";
+            + "&access_type=offline";
 }

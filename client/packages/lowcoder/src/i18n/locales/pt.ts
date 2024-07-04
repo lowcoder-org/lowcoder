@@ -554,6 +554,7 @@ export const pt: typeof en = {
         "containerBodyPadding": "Preenchimento do Corpo do Contêiner",
         "minWidth": "Largura Mínima",
         "aspectRatio": "Proporção",
+        "text": "Texto",
         "textSize": "Tamanho do Texto",
         "textWeight": "Peso do Texto",
         "fontFamily": "Família da Fonte",

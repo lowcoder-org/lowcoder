@@ -47,6 +47,7 @@ import { timelineDate, timelineNode, TimelineDataTooltip } from "./timelineConst
 import { convertTimeLineData } from "./timelineUtils";
 import { default as Timeline } from "antd/es/timeline";
 import { EditorContext } from "comps/editorState";
+import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 const EventOptions = [
   clickEvent,
@@ -64,7 +65,7 @@ const childrenMap = {
   reverse: BoolControl,
   pending: withDefault(StringControl, trans("timeLine.defaultPending")),
   onEvent: eventHandlerControl(EventOptions),
-  style: styleControl(TimeLineStyle),
+  style: styleControl(TimeLineStyle, 'style'),
   clickedObject: valueComp<timelineNode>({ title: "" }),
   clickedIndex: valueComp<number>(0),
 };
@@ -89,6 +90,7 @@ const TimelineComp = (
 ) => {
   const { value, dispatch, style, mode, reverse, onEvent } = props;
   const [icons, setIcons] = useState<React.ReactNode[]>([]);
+  useMergeCompStyles(props as Record<string, any>, dispatch);
 
   useEffect(() => {
     const loadIcons = async () => {

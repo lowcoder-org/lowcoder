@@ -15,7 +15,7 @@ import { NameGenerator } from "comps/utils";
 import { ScrollBar, Section, sectionNames } from "lowcoder-design";
 import { HintPlaceHolder } from "lowcoder-design";
 import _ from "lodash";
-import React, { useCallback, useContext } from "react";
+import React, { useCallback, useContext, useEffect } from "react";
 import styled, { css } from "styled-components";
 import { IContainer } from "../containerBase/iContainer";
 import { SimpleContainerComp } from "../containerBase/simpleContainerComp";
@@ -35,6 +35,7 @@ import { checkIsMobile } from "util/commonUtils";
 import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 import { BoolControl } from "comps/controls/boolControl";
 import { PositionControl } from "comps/controls/dropdownControl";
+import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 const EVENT_OPTIONS = [
   {
@@ -57,10 +58,10 @@ const childrenMap = {
   onEvent: eventHandlerControl(EVENT_OPTIONS),
   disabled: BoolCodeControl,
   showHeader: withDefault(BoolControl, true),
-  style: withDefault(styleControl(TabContainerStyle),{borderWidth:'1px'}),
-  headerStyle: styleControl(ContainerHeaderStyle),
-  bodyStyle: styleControl(TabBodyStyle),
-  animationStyle: styleControl(AnimationStyle),
+  style: styleControl(TabContainerStyle , 'style'),
+  headerStyle: styleControl(ContainerHeaderStyle , 'headerStyle'),
+  bodyStyle: styleControl(TabBodyStyle , 'bodyStyle'),
+  animationStyle: styleControl(AnimationStyle , 'animationStyle'),
   tabsGutter: withDefault(NumberControl, 32),
   tabsCentered: withDefault(BoolControl, false),
 };
@@ -288,6 +289,8 @@ const TabbedContainer = (props: TabbedContainerProps) => {
 
 export const TabbedContainerBaseComp = (function () {
   return new UICompBuilder(childrenMap, (props, dispatch) => {
+    useMergeCompStyles(props as Record<string, any>, dispatch);    
+    
     return (
       <DisabledContext.Provider value={props.disabled}>
         <TabbedContainer {...props} dispatch={dispatch} />

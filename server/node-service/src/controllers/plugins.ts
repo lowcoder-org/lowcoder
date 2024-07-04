@@ -17,6 +17,10 @@ export async function listPlugins(req: Request, res: Response) {
 export async function runPluginQuery(req: Request, res: Response) {
   const { pluginName, dsl, context, dataSourceConfig } = req.body;
   const ctx = pluginServices.getPluginContext(req);
+
+
+  console.log("pluginName: ", pluginName, "dsl: ", dsl, "context: ", context, "dataSourceConfig: ", dataSourceConfig, "ctx: ", ctx);
+
   const result = await pluginServices.runPluginQuery(
     pluginName,
     dsl,

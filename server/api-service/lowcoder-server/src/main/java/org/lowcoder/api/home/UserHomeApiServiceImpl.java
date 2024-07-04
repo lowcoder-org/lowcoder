@@ -560,6 +560,7 @@ public class UserHomeApiServiceImpl implements UserHomeApiService {
                                           Long bundlePosition, boolean withContainerSize) {
         ApplicationInfoViewBuilder applicationInfoViewBuilder = ApplicationInfoView.builder()
                 .applicationId(application.getId())
+                .applicationGid(application.getGid())
                 .orgId(application.getOrganizationId())
                 .name(application.getName())
                 .createBy(Optional.ofNullable(userMap.get(application.getCreatedBy()))

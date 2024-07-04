@@ -1,17 +1,14 @@
 package org.lowcoder.api.application;
 
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import org.junit.Assert;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.lowcoder.api.application.ApplicationEndpoints.CreateApplicationRequest;
 import org.lowcoder.api.application.view.ApplicationPermissionView;
 import org.lowcoder.api.application.view.ApplicationView;
+import org.lowcoder.api.common.InitData;
 import org.lowcoder.api.common.mockuser.WithMockUser;
 import org.lowcoder.api.datasource.DatasourceApiService;
 import org.lowcoder.api.home.FolderApiService;
@@ -23,17 +20,21 @@ import org.lowcoder.domain.application.model.ApplicationType;
 import org.lowcoder.domain.application.service.ApplicationService;
 import org.lowcoder.domain.permission.model.ResourceHolder;
 import org.lowcoder.domain.permission.model.ResourceRole;
+import org.lowcoder.sdk.constants.FieldName;
 import org.lowcoder.sdk.exception.BizError;
 import org.lowcoder.sdk.exception.BizException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
-
-import lombok.extern.slf4j.Slf4j;
+import org.springframework.test.context.ActiveProfiles;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 @SpringBootTest
-@RunWith(SpringRunner.class)
+//@RunWith(SpringRunner.class)
+@ActiveProfiles("ApplicationApiServiceTest")
 @Slf4j(topic = "ApplicationApiServiceTest")
 public class ApplicationApiServiceTest {
 
@@ -45,10 +46,16 @@ public class ApplicationApiServiceTest {
     private ApplicationService applicationService;
     @Autowired
     private DatasourceApiService datasourceApiService;
+    @Autowired
+    private InitData initData;
+
+    @BeforeEach
+    public void beforeEach() {
+        initData.init();
+    }
 
     @Test
     @WithMockUser
-    @Ignore("Disabled until it is fixed")
     public void testAutoInheritFoldersPermissionsOnAppCreate() {
         Mono<ApplicationPermissionView> permissionViewMono =
                 folderApiService.grantPermission("folder01", Set.of("user02"), Set.of("group01"), ResourceRole.EDITOR)
@@ -58,7 +65,7 @@ public class ApplicationApiServiceTest {
 
         StepVerifier.create(permissionViewMono)
                 .assertNext(applicationPermissionView -> {
-                    Assert.assertTrue(applicationPermissionView.getPermissions().stream()
+                    Assertions.assertTrue(applicationPermissionView.getPermissions().stream()
                             .anyMatch(permissionItemView ->
                                     equals(permissionItemView, PermissionItemView.builder()
                                             .type(ResourceHolder.GROUP)
@@ -66,7 +73,7 @@ public class ApplicationApiServiceTest {
                                             .role(ResourceRole.EDITOR.getValue())
                                             .build())
                             ));
-                    Assert.assertTrue(applicationPermissionView.getPermissions().stream()
+                    Assertions.assertTrue(applicationPermissionView.getPermissions().stream()
                             .anyMatch(permissionItemView ->
                                     equals(permissionItemView, PermissionItemView.builder()
                                             .type(ResourceHolder.USER)
@@ -74,7 +81,7 @@ public class ApplicationApiServiceTest {
                                             .role(ResourceRole.OWNER.getValue())
                                             .build())
                             ));
-                    Assert.assertTrue(applicationPermissionView.getPermissions().stream()
+                    Assertions.assertTrue(applicationPermissionView.getPermissions().stream()
                             .anyMatch(permissionItemView ->
                                     equals(permissionItemView, PermissionItemView.builder()
                                             .type(ResourceHolder.USER)
@@ -94,7 +101,6 @@ public class ApplicationApiServiceTest {
 
     @Test
     @WithMockUser
-    @Ignore("Disabled until it is fixed")
     public void testRecycleAndDeleteApplicationSuccess() {
 
         Mono<Application> applicationMono = createApplication("app02", null)
@@ -103,13 +109,12 @@ public class ApplicationApiServiceTest {
                 .delayUntil(applicationId -> applicationApiService.delete(applicationId))
                 .flatMap(applicationId -> applicationService.findById(applicationId));
         StepVerifier.create(applicationMono)
-                .assertNext(application -> Assert.assertSame(application.getApplicationStatus(), ApplicationStatus.DELETED))
+                .assertNext(application -> Assertions.assertSame(application.getApplicationStatus(), ApplicationStatus.DELETED))
                 .verifyComplete();
     }
 
     @Test
     @WithMockUser
-    @Ignore("Disabled until it is fixed")
     public void testDeleteNormalApplicationWithError() {
 
         StepVerifier.create(applicationApiService.delete("app02"))
@@ -120,14 +125,13 @@ public class ApplicationApiServiceTest {
 
     private Mono<ApplicationView> createApplication(String name, String folderId) {
         CreateApplicationRequest createApplicationRequest =
-                new CreateApplicationRequest("org01", name, ApplicationType.APPLICATION.getValue(),
+                new CreateApplicationRequest("org01", "", name, ApplicationType.APPLICATION.getValue(),
                         Map.of("comp", "table"), Map.of("comp", "list"), folderId);
         return applicationApiService.create(createApplicationRequest);
     }
 
     @Test
     @WithMockUser
-    @Ignore("Disabled until it is fixed")
     public void testPublishApplication() {
         Mono<String> applicationIdMono = createApplication("test", null)
                 .map(applicationView -> applicationView.getApplicationInfoView().getApplicationId())
@@ -135,12 +139,12 @@ public class ApplicationApiServiceTest {
 
         // edit dsl before publish
         StepVerifier.create(applicationIdMono.flatMap(id -> applicationApiService.getEditingApplication(id)))
-                .assertNext(applicationView -> Assert.assertEquals(Map.of("comp", "list"), applicationView.getApplicationDSL()))
+                .assertNext(applicationView -> Assertions.assertEquals(Map.of("comp", "list"), applicationView.getApplicationDSL()))
                 .verifyComplete();
 
         // published dsl before publish
         StepVerifier.create(applicationIdMono.flatMap(id -> applicationApiService.getPublishedApplication(id, ApplicationRequestType.PUBLIC_TO_ALL)))
-                .assertNext(applicationView -> Assert.assertEquals(Map.of("comp", "table"), applicationView.getApplicationDSL()))
+                .assertNext(applicationView -> Assertions.assertEquals(Map.of("comp", "table"), applicationView.getApplicationDSL()))
                 .verifyComplete();
 
         // publish
@@ -149,18 +153,17 @@ public class ApplicationApiServiceTest {
 
         // edit dsl after publish
         StepVerifier.create(applicationIdMono.flatMap(id -> applicationApiService.getEditingApplication(id)))
-                .assertNext(applicationView -> Assert.assertEquals(Map.of("comp", "list"), applicationView.getApplicationDSL()))
+                .assertNext(applicationView -> Assertions.assertEquals(Map.of("comp", "list"), applicationView.getApplicationDSL()))
                 .verifyComplete();
 
         // published dsl after publish
         StepVerifier.create(applicationIdMono.flatMap(id -> applicationApiService.getPublishedApplication(id, ApplicationRequestType.PUBLIC_TO_ALL)))
-                .assertNext(applicationView -> Assert.assertEquals(Map.of("comp", "list"), applicationView.getApplicationDSL()))
+                .assertNext(applicationView -> Assertions.assertEquals(Map.of("comp", "list"), applicationView.getApplicationDSL()))
                 .verifyComplete();
     }
 
     @Test
     @WithMockUser
-    @Ignore("Disabled until it is fixed")
     public void testPermissions() {
         // test grant permissions.
         Mono<ApplicationPermissionView> applicationPermissionViewMono =
@@ -169,8 +172,8 @@ public class ApplicationApiServiceTest {
         StepVerifier.create(applicationPermissionViewMono)
                 .assertNext(applicationPermissionView -> {
                     List<PermissionItemView> permissions = applicationPermissionView.getPermissions();
-                    Assert.assertEquals(2, permissions.size());
-                    Assert.assertTrue(permissions.stream()
+                    Assertions.assertEquals(2, permissions.size());
+                    Assertions.assertTrue(permissions.stream()
                             .anyMatch(permissionItemView -> {
                                 PermissionItemView other = PermissionItemView.builder()
                                         .type(ResourceHolder.USER)
@@ -179,7 +182,7 @@ public class ApplicationApiServiceTest {
                                         .build();
                                 return equals(permissionItemView, other);
                             }));
-                    Assert.assertTrue(permissions.stream()
+                    Assertions.assertTrue(permissions.stream()
                             .anyMatch(permissionItemView -> {
                                 PermissionItemView other = PermissionItemView.builder()
                                         .type(ResourceHolder.GROUP)
@@ -205,7 +208,7 @@ public class ApplicationApiServiceTest {
                                 return equals(permissionItemView, other);
                             })
                             .toList();
-                    Assert.assertEquals(1, permissionItemViews.size());
+                    Assertions.assertEquals(1, permissionItemViews.size());
                     String permissionId = permissionItemViews.get(0).getPermissionId();
                     return applicationApiService.updatePermission("app01", permissionId, ResourceRole.VIEWER);
                 })
@@ -213,8 +216,8 @@ public class ApplicationApiServiceTest {
         StepVerifier.create(applicationPermissionViewMono)
                 .assertNext(applicationPermissionView -> {
                     List<PermissionItemView> permissions = applicationPermissionView.getPermissions();
-                    Assert.assertEquals(2, permissions.size());
-                    Assert.assertTrue(permissions.stream()
+                    Assertions.assertEquals(2, permissions.size());
+                    Assertions.assertTrue(permissions.stream()
                             .anyMatch(permissionItemView -> {
                                 PermissionItemView other = PermissionItemView.builder()
                                         .type(ResourceHolder.USER)
@@ -223,7 +226,7 @@ public class ApplicationApiServiceTest {
                                         .build();
                                 return equals(permissionItemView, other);
                             }));
-                    Assert.assertTrue(permissions.stream()
+                    Assertions.assertTrue(permissions.stream()
                             .anyMatch(permissionItemView -> {
                                 PermissionItemView other = PermissionItemView.builder()
                                         .type(ResourceHolder.GROUP)
@@ -249,7 +252,7 @@ public class ApplicationApiServiceTest {
                                 return equals(permissionItemView, other);
                             })
                             .toList();
-                    Assert.assertEquals(1, permissionItemViews.size());
+                    Assertions.assertEquals(1, permissionItemViews.size());
                     String permissionId = permissionItemViews.get(0).getPermissionId();
                     return applicationApiService.removePermission("app01", permissionId);
                 })
@@ -258,8 +261,8 @@ public class ApplicationApiServiceTest {
         StepVerifier.create(applicationPermissionViewMono)
                 .assertNext(applicationPermissionView -> {
                     List<PermissionItemView> permissions = applicationPermissionView.getPermissions();
-                    Assert.assertEquals(1, permissions.size());
-                    Assert.assertTrue(permissions.stream()
+                    Assertions.assertEquals(1, permissions.size());
+                    Assertions.assertTrue(permissions.stream()
                             .anyMatch(permissionItemView -> {
                                 PermissionItemView other = PermissionItemView.builder()
                                         .type(ResourceHolder.GROUP)
@@ -272,4 +275,21 @@ public class ApplicationApiServiceTest {
                 .verifyComplete();
     }
 
+    @Test
+    @WithMockUser
+    public void testAppCreateAndRetrievalByGID() {
+
+        Mono<Application> applicationMono = createApplication("test", null)
+                .map(applicationView -> applicationView.getApplicationInfoView().getApplicationGid())
+                .delayUntil(applicationGid -> applicationApiService.recycle(applicationGid))
+                .delayUntil(applicationGid -> applicationApiService.delete(applicationGid))
+                .flatMap(applicationGid -> applicationService.findById(applicationGid));
+        StepVerifier.create(applicationMono)
+                .assertNext(application -> {
+                    Assertions.assertSame(application.getApplicationStatus(), ApplicationStatus.DELETED);
+                    Assertions.assertNotNull(application.getGid());
+                    Assertions.assertTrue(FieldName.isGID(application.getGid()));
+                })
+                .verifyComplete();
+    }
 }

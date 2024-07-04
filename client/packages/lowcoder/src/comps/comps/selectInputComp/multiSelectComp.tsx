@@ -16,20 +16,24 @@ import { PaddingControl } from "../../controls/paddingControl";
 import { MarginControl } from "../../controls/marginControl";
 import { migrateOldData, withDefault } from "comps/generators/simpleGenerators";
 import { fixOldInputCompData } from "../textInputComp/textInputConstants";
+import { useContext, useEffect } from "react";
+import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 let MultiSelectBasicComp = (function () {
   const childrenMap = {
     ...SelectChildrenMap,
     defaultValue: arrayStringExposingStateControl("defaultValue", ["1", "2"]),
     value: arrayStringExposingStateControl("value"),
-    style: withDefault(styleControl(InputFieldStyle),{background:'transparent'}),
-    labelStyle:styleControl(LabelStyle),
-    inputFieldStyle:withDefault(styleControl(MultiSelectStyle),{borderWidth:'1px'}),
+    style: styleControl(InputFieldStyle , 'style'),
+    labelStyle:styleControl(LabelStyle , 'labelStyle'),
+    inputFieldStyle:styleControl(MultiSelectStyle , 'inputFieldStyle'),
     childrenInputFieldStyle:styleControl(ChildrenMultiSelectStyle),
     margin: MarginControl,	
     padding: PaddingControl,
   };
   return new UICompBuilder(childrenMap, (props, dispatch) => {
+    useMergeCompStyles(props as Record<string, any>, dispatch);
+
     const valueSet = new Set<any>(props.options.map((o) => o.value)); // Filter illegal default values entered by the user
     const [
       validateState,

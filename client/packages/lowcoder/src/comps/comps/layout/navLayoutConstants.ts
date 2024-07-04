@@ -3,6 +3,7 @@ import { trans } from "i18n";
 export const ModeOptions = [
   { label: trans("navLayout.modeInline"), value: "inline" },
   { label: trans("navLayout.modeVertical"), value: "vertical" },
+  { label: trans("navLayout.modeHorizontal"), value: "horizontal" },
 ] as const;
 
 export const DataOption = {

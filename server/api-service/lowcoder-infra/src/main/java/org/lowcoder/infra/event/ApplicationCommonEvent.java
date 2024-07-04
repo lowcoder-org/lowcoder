@@ -10,6 +10,7 @@ import lombok.experimental.SuperBuilder;
 public class ApplicationCommonEvent extends AbstractEvent {
 
     private final String applicationId;
+    private final String applicationGid;
     private final String applicationName;
     private final EventType type;
     @Nullable

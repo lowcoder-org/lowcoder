@@ -33,6 +33,7 @@ export type LayoutItem = {
 };
 export type ExtraItem = {
   name: string;
+  comp: any;
   compType: UICompType;
   autoHeight?: boolean;
   isSelected?: boolean;
@@ -203,6 +204,7 @@ export function setTransform(
   {top, left, width, height }: Position,
   name ?: string,
   autoHeight?: boolean,
+  hidden?: boolean,
   isDragging?: boolean,
 ): Record<string, any> {
   // Replace unitless items with px
@@ -211,7 +213,7 @@ export function setTransform(
     return /chart/i.test(str);
   }
   let updatedHeight = 'auto';
-  if (isDragging || !autoHeight || (name && containsChart(name))) {
+  if (isDragging || !autoHeight || hidden || (name && containsChart(name))) {
     updatedHeight = `${height}px`;
   }
 

@@ -21,7 +21,8 @@ import { hasIcon } from "comps/utils";
 import { RefControl } from "comps/controls/refControl";
 
 import { EditorContext } from "comps/editorState";
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
+import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 const Link = styled(Button)<{
   $style: LinkStyleType;
@@ -85,13 +86,16 @@ const LinkTmpComp = (function () {
     onEvent: ButtonEventHandlerControl,
     disabled: BoolCodeControl,
     loading: BoolCodeControl,
-    style: migrateOldData(styleControl(LinkStyle), fixOldData),
-    animationStyle:styleControl(AnimationStyle),
+    style: migrateOldData(styleControl(LinkStyle, 'style'), fixOldData),
+    animationStyle: styleControl(AnimationStyle, 'animationStyle'),
     prefixIcon: IconControl,
     suffixIcon: IconControl,
     viewRef: RefControl<HTMLElement>,
   };
-  return new UICompBuilder(childrenMap, (props) => {
+  return new UICompBuilder(childrenMap, (props, dispatch) => {
+    useMergeCompStyles(props as Record<string, any>, dispatch);    
+
+
     // chrome86 bug: button children should not contain only empty span
     const hasChildren = hasIcon(props.prefixIcon) || !!props.text || hasIcon(props.suffixIcon);
     return (

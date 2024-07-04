@@ -37,7 +37,7 @@ import {
 } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { DATE_FORMAT, DATE_TIME_FORMAT, DateParser, PickerMode } from "util/dateTimeUtils";
-import React, { ReactNode, useContext } from "react";
+import React, { ReactNode, useContext, useEffect } from "react";
 import { IconControl } from "comps/controls/iconControl";
 import { hasIcon } from "comps/utils";
 import { Section, sectionNames } from "components/Section";
@@ -47,8 +47,8 @@ import { useIsMobile } from "util/hooks";
 import { RefControl } from "comps/controls/refControl";
 import { CommonPickerMethods } from "antd/es/date-picker/generatePicker/interface";
 import { DateRangeUIView } from "comps/comps/dateComp/dateRangeUIView";
-
 import { EditorContext } from "comps/editorState";
+import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 const defaultStyle = {
   borderStyle: 'solid',
@@ -76,13 +76,16 @@ const commonChildren = {
   hourStep: RangeControl.closed(1, 24, 1),
   minuteStep: RangeControl.closed(1, 60, 1),
   secondStep: RangeControl.closed(1, 60, 1),
-  style: withDefault(styleControl(InputFieldStyle),{background:'transparent'}),
-  animationStyle: styleControl(AnimationStyle),
-  labelStyle: styleControl(LabelStyle.filter((style) => ['accent', 'validate'].includes(style.name) === false)),
+  style: styleControl(InputFieldStyle, 'style'),
+  animationStyle: styleControl(AnimationStyle, 'animationStyle'),
+  labelStyle: styleControl(
+    LabelStyle.filter((style) => ['accent', 'validate'].includes(style.name) === false),
+    'labelStyle',
+  ),
   suffixIcon: withDefault(IconControl, "/icon:regular/calendar"),
   ...validationChildren,
   viewRef: RefControl<CommonPickerMethods>,
-  inputFieldStyle: withDefault(styleControl(DateTimeStyle), defaultStyle),
+  inputFieldStyle: styleControl(DateTimeStyle, 'inputFieldStyle'),
 };
 type CommonChildrenType = RecordConstructorToComp<typeof commonChildren>;
 
@@ -165,7 +168,9 @@ export type DateCompViewProps = Pick<
   placeholder?: string | [string, string];
 };
 
-export const datePickerControl = new UICompBuilder(childrenMap, (props) => {
+export const datePickerControl = new UICompBuilder(childrenMap, (props, dispatch) => {
+ useMergeCompStyles(props as Record<string, any>, dispatch);
+
   let time = null;
   if (props.value.value !== '') {
     time = dayjs(props.value.value, DateParser);
@@ -284,7 +289,9 @@ export const dateRangeControl = (function () {
     ...commonChildren,
   };
 
-  return new UICompBuilder(childrenMap, (props) => {
+  return new UICompBuilder(childrenMap, (props, dispatch) => {
+    useMergeCompStyles(props as Record<string, any>, dispatch);
+
     let start = null;
     let end = null;
     if (props.start.value !== '') {

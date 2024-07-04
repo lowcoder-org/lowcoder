@@ -82,7 +82,7 @@ export const ColumnName = styled(InlineFlexAlignCenter)`
 `;
 
 export const DetailContent = styled.div`
-  max-width: 672px;
+  max-width: 95%;
   margin-left: 24px;
   padding-bottom: 80px;
   .common {
@@ -126,7 +126,7 @@ export const Footer = styled.div`
   bottom: 0;
   width: calc(100vw - 492px);
   background-color: #fff;
-  z-index: 1;
+  z-index: 1000;
   margin-right: 10px;
   &.no-bottom {
     box-shadow: 0 -6px 10px -6px rgba(0, 0, 0, 0.1);
@@ -134,7 +134,10 @@ export const Footer = styled.div`
 `;
 
 export const Header = styled.div`
-  margin: 0 0 37px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 0 24px 37px 24px;
 `;
 
 export const DetailTitle = styled.div`
@@ -676,7 +679,7 @@ export const Padding = styled.div<{ $padding: string }>`
   }	
 }`
 // Added By Aqib Mirza
-export const GridColumns = styled.div<{ $gridColumns: string }>`
+export const GridColumns = styled.div<{ $gridColumns: string }>` 
   > div {
     margin: 3px;
     overflow: hidden;
@@ -686,3 +689,26 @@ export const GridColumns = styled.div<{ $gridColumns: string }>`
     }
   }
 `;
+
+export const BorderStyle = styled.div<{ $borderStyle: string }>` 
+  > div {
+    margin: 3px;
+    overflow: hidden;
+      > svg {
+        fill: currentColor;
+      }
+    }
+  }
+`;
+
+export const BorderWidth = styled.div<{ $borderWidth: string }>`
+  > div {
+    margin: 3px;
+    overflow: hidden;
+      > svg {
+        fill: currentColor;
+      }
+    }
+  }
+`;
+

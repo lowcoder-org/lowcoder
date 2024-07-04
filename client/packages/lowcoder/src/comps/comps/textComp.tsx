@@ -6,7 +6,7 @@ import styled, { css } from "styled-components";
 import { AlignCenter } from "lowcoder-design";
 import { AlignLeft } from "lowcoder-design";
 import { AlignRight } from "lowcoder-design";
-import { UICompBuilder } from "../generators";
+import { UICompBuilder, withDefault } from "../generators";
 import { NameConfig, NameConfigHidden, withExposingConfigs } from "../generators/withExposing";
 import { markdownCompCss, TacoMarkDown } from "lowcoder-design";
 import { styleControl } from "comps/controls/styleControl";
@@ -18,13 +18,17 @@ import { alignWithJustifyControl } from "comps/controls/alignControl";
 import { MarginControl } from "../controls/marginControl";
 import { PaddingControl } from "../controls/paddingControl";
 
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import { EditorContext } from "comps/editorState";
+import { clickEvent, eventHandlerControl } from "../controls/eventHandlerControl";
+import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
+
+const EventOptions = [clickEvent] as const;
 
 const getStyle = (style: TextStyleType) => {
   return css`
     border-radius: ${(style.radius ? style.radius : "4px")};
-    border: ${(style.borderWidth ? style.borderWidth : "0px")} solid ${style.border};
+    border: ${(style.borderWidth ? style.borderWidth : "0px")} ${(style.borderStyle ? style.borderStyle : "solid")} ${style.border};
     color: ${style.text};
     text-transform:${style.textTransform} !important;
     text-decoration:${style.textDecoration} !important;
@@ -82,10 +86,18 @@ const TextContainer = styled.div<{
   margin: 0;
   ${props=>props.$animationStyle}
   ${(props) =>
-    props.$type === "text" && "white-space:break-spaces;line-height: 1.9;"};
+    props.$type === "text" && `
+    white-space:break-spaces;
+    line-height: 1.9;
+    font-size: ${props.$styleConfig.textSize};
+    font-weight: ${props.$styleConfig.textWeight};
+    font-style: ${props.$styleConfig.fontStyle};
+    font-family: ${props.$styleConfig.fontFamily};
+    margin: ${props.$styleConfig.margin};
+    padding: ${props.$styleConfig.padding};
+  `};
   ${(props) => props.$styleConfig && getStyle(props.$styleConfig)}
   display: flex;
-  font-size: 13px;
   ${markdownCompCss};
   overflow-wrap: anywhere;
   .markdown-body {
@@ -112,31 +124,37 @@ const typeOptions = [
     value: "text",
   },
 ] as const;
+
 const VerticalAlignmentOptions = [
   { label: <AlignTop />, value: "flex-start" },
   { label: <AlignVerticalCenter />, value: "center" },
   { label: <AlignBottom />, value: "flex-end" },
 ] as const;
 
-
 let TextTmpComp = (function () {
-
   const childrenMap = {
     text: stringExposingStateControl(
       "text",
       trans("textShow.text", { name: "{{currentUser.name}}" })
     ),
+    onEvent: eventHandlerControl(EventOptions),
     autoHeight: AutoHeightControl,
     type: dropdownControl(typeOptions, "markdown"),
     horizontalAlignment: alignWithJustifyControl(),
     verticalAlignment: dropdownControl(VerticalAlignmentOptions, "center"),
-    style: styleControl(TextStyle),
-    animationStyle: styleControl(AnimationStyle),
+    style: styleControl(TextStyle, 'style'),
+    animationStyle: styleControl(AnimationStyle, 'animationStyle'),
     margin: MarginControl,
     padding: PaddingControl,
   };
-  return new UICompBuilder(childrenMap, (props) => {
+  return new UICompBuilder(childrenMap, (props, dispatch) => {
     const value = props.text.value;
+
+    useMergeCompStyles(
+      props as Record<string, any>,
+      dispatch
+    );
+  
     return (
       <TextContainer
         $animationStyle={props.animationStyle}
@@ -148,6 +166,7 @@ let TextTmpComp = (function () {
           textAlign: props.horizontalAlignment,
           rotate: props.style.rotation
         }}
+        onClick={() => props.onEvent("click")}
       >
         {props.type === "markdown" ? <TacoMarkDown>{value}</TacoMarkDown> : value}
       </TextContainer>
@@ -168,6 +187,7 @@ let TextTmpComp = (function () {
           {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
             <Section name={sectionNames.interaction}>
               {hiddenPropertyView(children)}
+              {children.onEvent.getPropertyView()}
             </Section>
           )}
 

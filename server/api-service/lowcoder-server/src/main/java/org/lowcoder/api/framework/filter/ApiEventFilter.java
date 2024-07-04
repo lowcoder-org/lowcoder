@@ -19,6 +19,7 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Optional;
 
 import static org.lowcoder.sdk.constants.GlobalContext.CURRENT_ORG_MEMBER;
 import static org.lowcoder.sdk.constants.GlobalContext.VISITOR_TOKEN;
@@ -53,7 +54,8 @@ public class ApiEventFilter implements WebFilter {
     private void emitEvent(ServerHttpRequest request, String token, OrgMember orgMember) {
         MultiValueMap<String, String> headers = writableHttpHeaders(request.getHeaders());
         headers.remove("Cookie");
-        String ipAddress = headers.remove("X-Real-IP").stream().findFirst().get();
+        Optional<String> ipAddressOptional = headers.remove("X-Real-IP").stream().findFirst();
+        String ipAddress = ipAddressOptional.orElse("");
 
         APICallEvent event = APICallEvent.builder()
                 .userId(orgMember.getUserId())

@@ -17,8 +17,9 @@ import { RefControl } from "comps/controls/refControl";
 import { refMethods } from "comps/generators/withMethodExposing";
 import { blurMethod, clickMethod, focusWithOptions } from "comps/utils/methodUtils";
 
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import { EditorContext } from "comps/editorState";
+import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 const EventOptions = [
   changeEvent,
@@ -89,18 +90,21 @@ let SwitchTmpComp = (function () {
     label: LabelControl,
     onEvent: eventHandlerControl(EventOptions),
     disabled: BoolCodeControl,
-    style: styleControl(InputFieldStyle),
-    animationStyle: styleControl(AnimationStyle),
+    style: styleControl(InputFieldStyle , 'style'),
+    animationStyle: styleControl(AnimationStyle , 'animationStyle'),
     labelStyle: styleControl(
       LabelStyle.filter(
         (style) => ['accent', 'validate'].includes(style.name) === false
-      )
+      ),
+      'labelStyle'
     ),
     viewRef: RefControl<HTMLElement>,
-    inputFieldStyle:migrateOldData(styleControl(SwitchStyle), fixOldData),
+    inputFieldStyle: migrateOldData(styleControl(SwitchStyle, 'inputFieldStyle'), fixOldData),
     ...formDataChildren,
   };
-  return new UICompBuilder(childrenMap, (props) => {
+  return new UICompBuilder(childrenMap, (props, dispatch) => {
+    useMergeCompStyles(props as Record<string, any>, dispatch);
+
     return props.label({
       style: props.style,
       labelStyle: props.labelStyle,

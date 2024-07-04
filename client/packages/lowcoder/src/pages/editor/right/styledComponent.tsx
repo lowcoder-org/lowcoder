@@ -11,7 +11,7 @@ const NoShake = css`
   transform-style: preserve-3d;
 `;
 
-export const CompIconDiv = styled.div<{ $h: number; $w: number }>`
+export const CompIconDiv = styled.div<{ $h: number; $w: number, $isSelected?: boolean }>`
   ${NoShake};
   padding: 3px;
   background: #ffffff;
@@ -39,6 +39,17 @@ export const CompIconDiv = styled.div<{ $h: number; $w: number }>`
     transform-style: preserve-3d;
     backface-visibility: hidden;
   }
+  
+  ${(props) => props.$isSelected && `
+    ${NoShake};
+    padding: 0;
+    transform: scale(1.05);
+    transition: all 0.2s ease;
+    border: 2px solid #b3c4ff;
+    box-shadow: 0 0 5px 0 rgba(51, 119, 255, 0.15);
+    transform-style: preserve-3d;
+    backface-visibility: hidden;
+  `}
 `;
 
 export const RightPanelContentWrapper = styled.div`

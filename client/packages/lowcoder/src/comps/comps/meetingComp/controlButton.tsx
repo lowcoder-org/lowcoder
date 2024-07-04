@@ -39,7 +39,6 @@ import { useEffect, useRef, useState } from "react";
 import ReactResizeDetector from "react-resize-detector";
 
 import { useContext } from "react";
-import { BoolControl } from "@lowcoder-ee/index.sdk";
 
 const Container = styled.div<{ $style: any }>`
   height: 100%;

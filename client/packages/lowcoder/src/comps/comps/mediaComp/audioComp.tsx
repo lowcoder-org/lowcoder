@@ -13,8 +13,9 @@ import { withDefault } from "../../generators/simpleGenerators";
 import { trans } from "i18n";
 import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { mediaCommonChildren, mediaMethods } from "./mediaUtils";
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import { EditorContext } from "comps/editorState";
+import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 const Container = styled.div<{ $style: any; $animationStyle: AnimationStyleType }>`
 ${props => props.$style};
@@ -66,15 +67,17 @@ const ContainerAudio = (props: RecordConstructorToView<typeof childrenMap>) => {
 const childrenMap = {
   src: withDefault(StringStateControl, trans("audio.defaultSrcUrl")),
   onEvent: eventHandlerControl(EventOptions),
-  style: styleControl(AudioStyle),
-  animationStyle: styleControl(AnimationStyle),
+  style: styleControl(AudioStyle , 'style'),
+  animationStyle: styleControl(AnimationStyle , 'animationStyle'),
   autoPlay: BoolControl,
   loop: BoolControl,
   ...mediaCommonChildren,
 };
 
 let AudioBasicComp = (function () {
-  return new UICompBuilder(childrenMap, (props) => {
+  return new UICompBuilder(childrenMap, (props, dispatch) => {
+    useMergeCompStyles(props as Record<string, any>, dispatch);
+
     return <ContainerAudio {...props} />;
   })
     .setPropertyViewFn((children) => {

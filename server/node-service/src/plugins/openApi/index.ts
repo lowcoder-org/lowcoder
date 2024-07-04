@@ -82,6 +82,8 @@ export async function runOpenApi(
   const { actionName, ...otherActionData } = actionData;
   const { serverURL } = dataSourceConfig;
 
+
+
   let operation, realOperationId, definition: OpenAPI.Document | undefined;
 
   for (const {id, def} of await getDefinitions(spec, openApiSpecDereferenced)) {
@@ -114,6 +116,7 @@ export async function runOpenApi(
   try {
     const { parameters, requestBody } = normalizeParams(otherActionData, operation, isOas3Spec);
     let securities = extractSecurityParams(dataSourceConfig, definition);
+
     const response = await SwaggerClient.execute({
       spec: definition,
       operationId: realOperationId,
@@ -122,6 +125,7 @@ export async function runOpenApi(
       securities,
       responseContentType: "application/json",
       userFetch: async (url: string, req: RequestInit) => {
+        console.log("req", req);
         return fetch(url, req);
       },
       requestInterceptor: (req: any) => {

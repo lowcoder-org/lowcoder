@@ -1,10 +1,11 @@
 package org.lowcoder.api.bundle;
 
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.lowcoder.api.bundle.view.BundleInfoView;
 import org.lowcoder.api.bundle.view.BundlePermissionView;
+import org.lowcoder.api.common.InitData;
 import org.lowcoder.api.common.mockuser.WithMockUser;
 import org.lowcoder.api.home.FolderApiService;
 import org.lowcoder.api.permission.view.PermissionItemView;
@@ -14,11 +15,12 @@ import org.lowcoder.domain.bundle.model.BundleStatus;
 import org.lowcoder.domain.bundle.service.BundleService;
 import org.lowcoder.domain.permission.model.ResourceHolder;
 import org.lowcoder.domain.permission.model.ResourceRole;
+import org.lowcoder.sdk.constants.FieldName;
 import org.lowcoder.sdk.exception.BizError;
 import org.lowcoder.sdk.exception.BizException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.ActiveProfiles;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -29,7 +31,8 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
-@RunWith(SpringRunner.class)
+//@RunWith(SpringRunner.class)
+@ActiveProfiles("BundleApiServiceImplTest")
 public class BundleApiServiceImplTest {
     @Autowired
     BundleApiServiceImpl bundleApiService;
@@ -37,6 +40,13 @@ public class BundleApiServiceImplTest {
     private FolderApiService folderApiService;
     @Autowired
     private BundleService bundleService;
+    @Autowired
+    private InitData initData;
+
+    @BeforeEach
+    public void beforeEach() {
+        initData.init();
+    }
 
     @Test
     @WithMockUser
@@ -44,6 +54,7 @@ public class BundleApiServiceImplTest {
         //When org admin user creates bundle it succeed
         Mono<BundleInfoView> bundleInfoViewMono = bundleApiService.create(new BundleEndpoints.CreateBundleRequest(
                 "org01",
+                "",
                 "name1",
                 "title",
                 "description",
@@ -62,6 +73,8 @@ public class BundleApiServiceImplTest {
                     assertFalse(bundleInfoView.getPublicToMarketplace());
                     assertFalse(bundleInfoView.getAgencyProfile());
                     assertNull(bundleInfoView.getFolderId());
+                    assertNotNull(bundleInfoView.getBundleGid());
+                    assertTrue(FieldName.isGID(bundleInfoView.getBundleGid()));
                 })
                 .verifyComplete();
     }
@@ -71,6 +84,7 @@ public class BundleApiServiceImplTest {
         //When org dev user creates bundle it succeed
         Mono<BundleInfoView> bundleInfoViewMono1 = bundleApiService.create(new BundleEndpoints.CreateBundleRequest(
                 "org01",
+                "",
                 "name2",
                 "title",
                 "description",
@@ -89,6 +103,8 @@ public class BundleApiServiceImplTest {
                     assertFalse(bundleInfoView.getPublicToMarketplace());
                     assertFalse(bundleInfoView.getAgencyProfile());
                     assertNull(bundleInfoView.getFolderId());
+                    assertNotNull(bundleInfoView.getBundleGid());
+                    assertTrue(FieldName.isGID(bundleInfoView.getBundleGid()));
                 })
                 .verifyComplete();
     }
@@ -98,6 +114,7 @@ public class BundleApiServiceImplTest {
         //When non-dev create bundle throws error
         Mono<BundleInfoView> bundleInfoViewMono2 = bundleApiService.create(new BundleEndpoints.CreateBundleRequest(
                 "org01",
+                "",
                 "name3",
                 "title",
                 "description",
@@ -115,6 +132,7 @@ public class BundleApiServiceImplTest {
         //Create bundles
         Mono<BundleInfoView> bundleInfoViewMono = bundleApiService.create(new BundleEndpoints.CreateBundleRequest(
                 "org01",
+                "",
                 "name4",
                 "title",
                 "description",
@@ -124,6 +142,7 @@ public class BundleApiServiceImplTest {
 
         Mono<BundleInfoView> bundleInfoViewMono2 = bundleApiService.create(new BundleEndpoints.CreateBundleRequest(
                 "org01",
+                "",
                 "name5",
                 "title",
                 "description",
@@ -158,6 +177,7 @@ public class BundleApiServiceImplTest {
         //Create bundles
         Mono<BundleInfoView> bundleInfoViewMono = bundleApiService.create(new BundleEndpoints.CreateBundleRequest(
                 "org01",
+                "",
                 "name4",
                 "title",
                 "description",
@@ -167,6 +187,7 @@ public class BundleApiServiceImplTest {
 
         Mono<BundleInfoView> bundleInfoViewMono2 = bundleApiService.create(new BundleEndpoints.CreateBundleRequest(
                 "org01",
+                "",
                 "name5",
                 "title",
                 "description",
@@ -194,7 +215,7 @@ public class BundleApiServiceImplTest {
 
     private Mono<BundleInfoView> createBundle(String name, String folderId) {
         BundleEndpoints.CreateBundleRequest createBundleRequest =
-                new BundleEndpoints.CreateBundleRequest("org01", name, "title", "desc", "category", "image", folderId);
+                new BundleEndpoints.CreateBundleRequest("org01", "" ,name, "title", "desc", "category", "image", folderId);
         return bundleApiService.create(createBundleRequest);
     }
 
@@ -208,12 +229,12 @@ public class BundleApiServiceImplTest {
 
         // edit dsl before publish
         StepVerifier.create(bundleIdMono.flatMap(id -> bundleApiService.getEditingBundle(id)))
-                .assertNext(bundleView -> Assert.assertNotNull(bundleView.getEditingBundleDSL()))
+                .assertNext(bundleView -> Assertions.assertNotNull(bundleView.getEditingBundleDSL()))
                 .verifyComplete();
 
         // published dsl before publish
         StepVerifier.create(bundleIdMono.flatMap(id -> bundleApiService.getPublishedBundle(id, BundleRequestType.PUBLIC_TO_ALL)))
-                .assertNext(bundleView -> Assert.assertNull(bundleView.getPublishedBundleDSL()))
+                .assertNext(bundleView -> Assertions.assertNull(bundleView.getPublishedBundleDSL()))
                 .verifyComplete();
 
         // publish
@@ -222,12 +243,12 @@ public class BundleApiServiceImplTest {
 
         // edit dsl after publish
         StepVerifier.create(bundleIdMono.flatMap(id -> bundleApiService.getEditingBundle(id)))
-                .assertNext(bundleView -> Assert.assertNotNull(bundleView.getEditingBundleDSL()))
+                .assertNext(bundleView -> Assertions.assertNotNull(bundleView.getEditingBundleDSL()))
                 .verifyComplete();
 
         // published dsl after publish
         StepVerifier.create(bundleIdMono.flatMap(id -> bundleApiService.getPublishedBundle(id, BundleRequestType.PUBLIC_TO_ALL)))
-                .assertNext(bundleView -> Assert.assertNotNull(bundleView.getPublishedBundleDSL()))
+                .assertNext(bundleView -> Assertions.assertNotNull(bundleView.getPublishedBundleDSL()))
                 .verifyComplete();
     }
 
@@ -248,7 +269,7 @@ public class BundleApiServiceImplTest {
 
         StepVerifier.create(permissionViewMono)
                 .assertNext(bundlePermissionView -> {
-                    Assert.assertTrue(bundlePermissionView.getPermissions().stream()
+                    Assertions.assertTrue(bundlePermissionView.getPermissions().stream()
                             .anyMatch(permissionItemView ->
                                     equals(permissionItemView, PermissionItemView.builder()
                                             .type(ResourceHolder.GROUP)
@@ -256,7 +277,7 @@ public class BundleApiServiceImplTest {
                                             .role(ResourceRole.EDITOR.getValue())
                                             .build())
                             ));
-                    Assert.assertTrue(bundlePermissionView.getPermissions().stream()
+                    Assertions.assertTrue(bundlePermissionView.getPermissions().stream()
                             .anyMatch(permissionItemView ->
                                     equals(permissionItemView, PermissionItemView.builder()
                                             .type(ResourceHolder.USER)
@@ -264,7 +285,7 @@ public class BundleApiServiceImplTest {
                                             .role(ResourceRole.OWNER.getValue())
                                             .build())
                             ));
-                    Assert.assertTrue(bundlePermissionView.getPermissions().stream()
+                    Assertions.assertTrue(bundlePermissionView.getPermissions().stream()
                             .anyMatch(permissionItemView ->
                                     equals(permissionItemView, PermissionItemView.builder()
                                             .type(ResourceHolder.USER)
@@ -286,7 +307,7 @@ public class BundleApiServiceImplTest {
                 .delayUntil(bundleId -> bundleApiService.delete(bundleId))
                 .flatMap(bundleId -> bundleService.findById(bundleId));
         StepVerifier.create(bundleMono)
-                .assertNext(bundle -> Assert.assertSame(bundle.getBundleStatus(), BundleStatus.DELETED))
+                .assertNext(bundle -> Assertions.assertSame(bundle.getBundleStatus(), BundleStatus.DELETED))
                 .verifyComplete();
     }
 
@@ -310,8 +331,8 @@ public class BundleApiServiceImplTest {
         StepVerifier.create(bundlePermissionViewMono)
                 .assertNext(bundlePermissionView -> {
                     List<PermissionItemView> permissions = bundlePermissionView.getPermissions();
-                    Assert.assertEquals(2, permissions.size());
-                    Assert.assertTrue(permissions.stream()
+                    Assertions.assertEquals(2, permissions.size());
+                    Assertions.assertTrue(permissions.stream()
                             .anyMatch(permissionItemView -> {
                                 PermissionItemView other = PermissionItemView.builder()
                                         .type(ResourceHolder.USER)
@@ -320,7 +341,7 @@ public class BundleApiServiceImplTest {
                                         .build();
                                 return equals(permissionItemView, other);
                             }));
-                    Assert.assertTrue(permissions.stream()
+                    Assertions.assertTrue(permissions.stream()
                             .anyMatch(permissionItemView -> {
                                 PermissionItemView other = PermissionItemView.builder()
                                         .type(ResourceHolder.GROUP)
@@ -346,7 +367,7 @@ public class BundleApiServiceImplTest {
                                 return equals(permissionItemView, other);
                             })
                             .toList();
-                    Assert.assertEquals(1, permissionItemViews.size());
+                    Assertions.assertEquals(1, permissionItemViews.size());
                     String permissionId = permissionItemViews.get(0).getPermissionId();
                     return bundleApiService.updatePermission("bundle01", permissionId, ResourceRole.VIEWER);
                 })
@@ -354,8 +375,8 @@ public class BundleApiServiceImplTest {
         StepVerifier.create(bundlePermissionViewMono)
                 .assertNext(bundlePermissionView -> {
                     List<PermissionItemView> permissions = bundlePermissionView.getPermissions();
-                    Assert.assertEquals(2, permissions.size());
-                    Assert.assertTrue(permissions.stream()
+                    Assertions.assertEquals(2, permissions.size());
+                    Assertions.assertTrue(permissions.stream()
                             .anyMatch(permissionItemView -> {
                                 PermissionItemView other = PermissionItemView.builder()
                                         .type(ResourceHolder.USER)
@@ -364,7 +385,7 @@ public class BundleApiServiceImplTest {
                                         .build();
                                 return equals(permissionItemView, other);
                             }));
-                    Assert.assertTrue(permissions.stream()
+                    Assertions.assertTrue(permissions.stream()
                             .anyMatch(permissionItemView -> {
                                 PermissionItemView other = PermissionItemView.builder()
                                         .type(ResourceHolder.GROUP)
@@ -390,7 +411,7 @@ public class BundleApiServiceImplTest {
                                 return equals(permissionItemView, other);
                             })
                             .toList();
-                    Assert.assertEquals(1, permissionItemViews.size());
+                    Assertions.assertEquals(1, permissionItemViews.size());
                     String permissionId = permissionItemViews.get(0).getPermissionId();
                     return bundleApiService.removePermission("bundle01", permissionId);
                 })
@@ -399,8 +420,8 @@ public class BundleApiServiceImplTest {
         StepVerifier.create(bundlePermissionViewMono)
                 .assertNext(bundlePermissionView -> {
                     List<PermissionItemView> permissions = bundlePermissionView.getPermissions();
-                    Assert.assertEquals(1, permissions.size());
-                    Assert.assertTrue(permissions.stream()
+                    Assertions.assertEquals(1, permissions.size());
+                    Assertions.assertTrue(permissions.stream()
                             .anyMatch(permissionItemView -> {
                                 PermissionItemView other = PermissionItemView.builder()
                                         .type(ResourceHolder.GROUP)

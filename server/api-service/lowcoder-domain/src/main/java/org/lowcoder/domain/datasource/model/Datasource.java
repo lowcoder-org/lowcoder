@@ -71,6 +71,7 @@ public class Datasource extends HasIdAndAuditing {
         LOWCODER_API.setDetailConfig(LowcoderApiDatasourceConfig.INSTANCE);
     }
 
+    private String gid;
     private String name;
     private String type;
     private String organizationId;

@@ -33,8 +33,9 @@ import { InputRef } from "antd/es/input";
 import { RefControl } from "comps/controls/refControl";
 import { migrateOldData, withDefault } from "comps/generators/simpleGenerators";
 
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import { EditorContext } from "comps/editorState";
+import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 /**
  * Input Comp
@@ -51,16 +52,18 @@ const childrenMap = {
   viewRef: RefControl<InputRef>,
   showCount: BoolControl,
   allowClear: BoolControl,
-  style: withDefault(styleControl(InputFieldStyle),{background:'transparent'}) , 
-  labelStyle:styleControl(LabelStyle), 
+  style: styleControl(InputFieldStyle, 'style'), 
+  labelStyle:styleControl(LabelStyle, 'labelStyle'), 
   prefixIcon: IconControl,
   suffixIcon: IconControl,
-  inputFieldStyle:withDefault(styleControl(InputLikeStyle),{borderWidth: '1px'}) ,
-  animationStyle: styleControl(AnimationStyle),
+  inputFieldStyle: styleControl(InputLikeStyle, 'inputFieldStyle') ,
+  animationStyle: styleControl(AnimationStyle, 'animationStyle'),
 };
 
-let InputBasicComp = new UICompBuilder(childrenMap, (props) => {
+let InputBasicComp = new UICompBuilder(childrenMap, (props, dispatch) => {
   const [inputProps, validateState] = useTextInputProps(props);
+  useMergeCompStyles(props as Record<string, any>, dispatch);
+
   return props.label({
     required: props.required,
     children: (
