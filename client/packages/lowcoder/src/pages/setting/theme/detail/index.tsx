@@ -273,7 +273,7 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
             settingsKey: 'borderStyle',
             name: trans('themeDetail.borderStyle'),
             desc: trans('themeDetail.borderStyleDesc'),
-            type: "radius",
+            type: "borderStyle",
             value: this.state.theme.borderStyle,
           }
         ]
@@ -461,6 +461,16 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
                                   themeSettingKey={layoutSettingsItem.settingsKey}
                                   name={layoutSettingsItem.name}
                                   borderWidth={layoutSettingsItem.value}
+                                  configChange={(params) => {
+                                    this.configChange(params);
+                                  }}
+                                />
+                              }
+                              {layoutSettingsItem.type == "borderStyle" && 
+                                <ThemeSettingsSelector
+                                  themeSettingKey={layoutSettingsItem.settingsKey}
+                                  name={layoutSettingsItem.name}
+                                  borderStyle={layoutSettingsItem.value}
                                   configChange={(params) => {
                                     this.configChange(params);
                                   }}

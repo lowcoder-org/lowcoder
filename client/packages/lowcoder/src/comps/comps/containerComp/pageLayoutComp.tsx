@@ -20,7 +20,6 @@ import {
 import { PageLayout } from "../pageLayoutComp/pageLayout";
 import { AnimationStyle } from "@lowcoder-ee/comps/controls/styleControlConstants";
 import { styleControl } from "@lowcoder-ee/comps/controls/styleControl";
-import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 export const ContainerBaseComp = (function () {
   const childrenMap = {
@@ -30,8 +29,7 @@ export const ContainerBaseComp = (function () {
 
   return new ContainerCompBuilder(childrenMap, (props, dispatch) => {
 
-    const [siderCollapsed, setSiderCollapsed] = useState(false);
-    useMergeCompStyles(props as Record<string, any>, dispatch);    
+    const [siderCollapsed, setSiderCollapsed] = useState(false);  
 
     return (
       <DisabledContext.Provider value={props.disabled}>
