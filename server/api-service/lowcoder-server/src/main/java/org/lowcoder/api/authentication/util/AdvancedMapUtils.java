@@ -50,6 +50,6 @@ public class AdvancedMapUtils {
             }
         }
 
-        return current instanceof String ? (String) current : null;
+        return current!=null?current.toString():null;
     }
 }

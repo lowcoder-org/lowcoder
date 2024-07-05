@@ -42,6 +42,7 @@ public class GenericAuthRequest  extends AbstractOauth2Request<Oauth2GenericAuth
                         .with("client_secret", config.getClientSecret())
                         .with("grant_type", "authorization_code")
                         .with("redirect_uri", context.getRedirectUrl()))
+                .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
                 .bodyToMono(Map.class)
                 .flatMap(map -> {
