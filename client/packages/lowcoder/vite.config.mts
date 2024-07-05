@@ -12,12 +12,12 @@ import dynamicImport from 'vite-plugin-dynamic-import';
 import { ensureLastSlash } from "./src/dev-utils/util";
 import { buildVars } from "./src/dev-utils/buildVars";
 import { globalDepPlugin } from "./src/dev-utils/globalDepPlguin";
-import { nodePolyfills } from 'vite-plugin-node-polyfills'
+// import { nodePolyfills } from 'vite-plugin-node-polyfills'
 
 dotenv.config();
 
 const apiProxyTarget = process.env.LOWCODER_API_SERVICE_URL;
-const nodeServiceApiProxyTarget = process.env.NODE_SERVICE_API_PROXY_TARGET;
+const nodeServiceApiProxyTarget = process.env.LOWCODER_NODE_SERVICE_URL;
 const nodeEnv = process.env.NODE_ENV ?? "development";
 const isDev = nodeEnv === "development";
 const isVisualizerEnabled = !!process.env.ENABLE_VISUALIZER;
@@ -110,6 +110,10 @@ export const viteConfig: UserConfig = {
         javascriptEnabled: true,
       },
     },
+    modules: {
+      // Configuration for CSS modules
+      scopeBehaviour: 'local' // Ensures CSS modules are scoped locally by default
+    }
   },
   server: {
     open: true,
@@ -158,7 +162,7 @@ export const viteConfig: UserConfig = {
     }),
     isVisualizerEnabled && visualizer(),
     dynamicImport(),
-    nodePolyfills({ include: ['process'] }),
+    ({ include: ['process'] }),
   ].filter(Boolean),
 };
 
