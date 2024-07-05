@@ -388,8 +388,8 @@ const TableTd = styled.td<{
       `};
     `};
     
-    > div > .ant-badge > .ant-badge-status-text,
-    > div > div > .markdown-body {
+    > .ant-badge > .ant-badge-status-text,
+    > div > .markdown-body {
       color: ${(props) => props.$style.text};
     }
 
