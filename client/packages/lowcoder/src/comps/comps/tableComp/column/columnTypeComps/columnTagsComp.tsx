@@ -96,6 +96,7 @@ export const Wrapper = styled.div`
     width: 100%;
     height: 100%;
   }
+
   .ant-select {
     height: 100%;
     .ant-select-selector {
@@ -145,6 +146,9 @@ export const Wrapper = styled.div`
       }
     }
   }
+  .ant-tag {
+    margin-left: 20px;
+  }
   .ant-tag svg {
     margin-right: 4px;
   }
@@ -169,6 +173,7 @@ export const DropdownStyled = styled.div`
 `;
 
 export const TagStyled = styled(Tag)`
+  margin-right: 8px;
   svg {
     margin-right: 4px;
   }
@@ -259,9 +264,11 @@ export const ColumnTagsComp = (function () {
         // The actual eval value is of type number or boolean
         const tagText = String(tag);
         return (
-          <TagStyled color={getTagColor(tagText, tagOptions)} icon={getTagIcon(tagText, tagOptions)} key={index} >
-            {tagText}
-          </TagStyled>
+          <div>
+            <TagStyled color={getTagColor(tagText, tagOptions)} icon={getTagIcon(tagText, tagOptions)} key={index} >
+              {tagText}
+            </TagStyled>
+          </div>
         );
       });
       return view;
