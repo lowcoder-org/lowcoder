@@ -13,6 +13,7 @@ export interface CommonSettingResponseData {
   themeList?: ThemeType[];
   defaultTheme?: string | null;
   preloadCSS?: string | null;
+  preloadGlobalCSS?: string | null;
   preloadJavaScript?: string | null;
   runJavaScriptInHost?: boolean | null;
   preloadLibs?: string[] | null;
