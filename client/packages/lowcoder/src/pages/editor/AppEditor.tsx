@@ -26,8 +26,8 @@ import { fetchFolderElements } from "redux/reduxActions/folderActions";
 import { registryDataSourcePlugin } from "constants/queryConstants";
 import { DatasourceApi } from "api/datasourceApi";
 import { useRootCompInstance } from "./useRootCompInstance";
-import ErrorBoundary from "antd/es/alert/ErrorBoundary";
 import EditorSkeletonView from "./editorSkeletonView";
+import {ErrorBoundary, FallbackProps} from 'react-error-boundary';
 
 const AppSnapshot = lazy(() => {
   return import("pages/editor/appSnapshot")
@@ -135,7 +135,7 @@ export default function AppEditor() {
   }, [viewMode, applicationId, dispatch]);
 
   return (
-    <ErrorBoundary>
+    <ErrorBoundary fallback={<p>⚠️Something went wrong</p>}>
       {showAppSnapshot ? (
         <Suspense fallback={<EditorSkeletonView />}>
           <AppSnapshot
