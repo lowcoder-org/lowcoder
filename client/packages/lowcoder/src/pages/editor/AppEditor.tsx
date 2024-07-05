@@ -28,6 +28,8 @@ import { DatasourceApi } from "api/datasourceApi";
 import { useRootCompInstance } from "./useRootCompInstance";
 import EditorSkeletonView from "./editorSkeletonView";
 import {ErrorBoundary, FallbackProps} from 'react-error-boundary';
+import { ALL_APPLICATIONS_URL } from "@lowcoder-ee/constants/routesURL";
+import history from "util/history";
 
 const AppSnapshot = lazy(() => {
   return import("pages/editor/appSnapshot")
@@ -133,9 +135,14 @@ export default function AppEditor() {
       })
     );
   }, [viewMode, applicationId, dispatch]);
-
+const fallbackUI = (
+  <div style={{display:'flex', height:'100%', width:'100%', alignItems:'center',justifyContent:'center', gap:'8px',marginTop:'10px'}}>
+    <p style={{margin:0}}>Something went wrong while displaying this webpage</p>
+    <button onClick={() => history.push(ALL_APPLICATIONS_URL)} style={{background: '#4965f2',border: '1px solid #4965f2', color: '#ffffff',borderRadius:'6px'}}>Go to Apps</button>
+  </div>
+);
   return (
-    <ErrorBoundary fallback={<p>⚠️Something went wrong</p>}>
+    <ErrorBoundary fallback={fallbackUI}>
       {showAppSnapshot ? (
         <Suspense fallback={<EditorSkeletonView />}>
           <AppSnapshot

@@ -417,7 +417,7 @@ export function GridItem(props: GridItemProps) {
   const render = () => {
     let child = React.Children.only(children);
     // Create the child element. We clone the existing element but modify its className and style.
-    let newChild: React.ReactElement = React.cloneElement(withErrorBoundary(child), {
+    let newChild: React.ReactElement = React.cloneElement(child, {
       ref: elementRef,
       className: clsx(
         "react-grid-item",

@@ -53,7 +53,6 @@ import { SystemWarning } from "./components/SystemWarning";
 import { getBrandingConfig } from "./redux/selectors/configSelectors";
 import { buildMaterialPreviewURL } from "./util/materialUtils";
 import GlobalInstances from 'components/GlobalInstances';
-import {ErrorBoundary, FallbackProps} from 'react-error-boundary';
 
 const LazyUserAuthComp = React.lazy(() => import("pages/userAuth"));
 const LazyInviteLanding = React.lazy(() => import("pages/common/inviteLanding"));
@@ -90,10 +89,6 @@ type AppIndexProps = {
 };
 
 class AppIndex extends React.Component<AppIndexProps, any> {
-  constructor(props: any) {
-    super(props);
-    this.state = {error: null};
-  }
   componentDidMount() {
     this.props.getCurrentUser();
   }
@@ -106,16 +101,6 @@ class AppIndex extends React.Component<AppIndexProps, any> {
       this.props.fetchConfig(this.props.currentOrgId);
     }
   }
-  updateError = () => {
-    this.state.error('known');
-  };
-  fallbackRender = ({error, resetErrorBoundary}: FallbackProps) => {
-   return <div role="alert">
-      <h3>Error Boundary</h3>
-      <p>Something went wrong.</p>
-      <button onClick={resetErrorBoundary}>Reset</button>
-    </div>;
-  };
   render() {
     const isTemplate = hasQueryParam('template');
     const pathname = history.location.pathname;
@@ -281,12 +266,6 @@ class AppIndex extends React.Component<AppIndexProps, any> {
           ]}
         </Helmet>
         <SystemWarning />
-        <ErrorBoundary
-          fallbackRender={this.fallbackRender}
-          onReset={(details) => {
-            this.state.error(null);
-          }}
-        >
           <Router history={history}>
             <Switch>
               {/* 
@@ -387,7 +366,6 @@ class AppIndex extends React.Component<AppIndexProps, any> {
               )}
             </Switch>
           </Router>
-        </ErrorBoundary>
       </Wrapper>
     );
   }
