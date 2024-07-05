@@ -9,7 +9,7 @@ import {
   ContainerFooterStyle,
 } from "comps/controls/styleControlConstants";
 import { MultiCompBuilder, sameTypeMap, withDefault } from "comps/generators";
-import { migrateOldData } from "comps/generators/simpleGenerators";
+import { migrateOldData, valueComp } from "comps/generators/simpleGenerators";
 import { NameGenerator } from "comps/utils";
 import { changeValueAction, fromRecord, multiChangeAction, Node } from "lowcoder-core";
 import { nodeIsRecord } from "lowcoder-core";
@@ -45,6 +45,7 @@ const childrenMap = {
   headerStyle: styleControl(ContainerHeaderStyle, 'headerStyle'),
   bodyStyle: styleControl(ContainerBodyStyle, 'bodyStyle'),
   footerStyle: styleControl(ContainerFooterStyle, 'footerStyle'),
+  appliedThemeId: valueComp<string>(''), // for comp containing container, comps's appliedThemeId will always be empty so maintaining here
 };
 
 // Compatible with old style data 2022-8-15

@@ -1,7 +1,7 @@
-// this is the tpyes file next to index.js
-
 /// <reference types="react" />
-import React, { ReactNode } from 'react';
+import * as react from 'react';
+import { ReactNode } from 'react';
+import * as react_jsx_runtime from 'react/jsx-runtime';
 
 type EvalMethods = Record<string, Record<string, Function>>;
 type CodeType = undefined | "JSON" | "Function" | "PureJSON";
@@ -337,7 +337,7 @@ interface SandBoxOption {
 declare function evalScript(script: string, context: any, methods?: EvalMethods): any;
 declare function evalFunc(functionBody: string, context: any, methods?: EvalMethods, options?: SandBoxOption, isAsync?: boolean): any;
 
-declare function evalStyle(id: string, css: string[]): void;
+declare function evalStyle(id: string, css: string[], globalStyle?: boolean): void;
 declare function clearStyleEval(id?: string): void;
 
 declare class DefaultParser {
@@ -456,7 +456,7 @@ declare enum CompActionTypes {
      * broadcast other actions in comp tree structure.
      * used for encapsulate MultiBaseComp
      */
-    BROADCAST = "BROADCAST",
+    BROADCAST = "BROADCAST"
 }
 type ExtraActionType = "layout" | "delete" | "add" | "modify" | "rename" | "recover" | "upgrade";
 type ActionExtraInfo = {
@@ -650,9 +650,7 @@ declare const i18n: {
     region?: string | undefined;
     locales: string[];
 };
-
 declare function getValueByLocale<T>(defaultValue: T, func: (info: LocaleInfo) => T | undefined): T;
-
 type AddDot<T extends string> = T extends "" ? "" : `.${T}`;
 type ValidKey<T> = Exclude<keyof T, symbol>;
 type NestedKey<T> = (T extends object ? {
@@ -662,18 +660,17 @@ type AddPrefix<T, P extends string> = {
     [K in keyof T as K extends string ? `${P}${K}` : never]: T[K];
 };
 declare const globalMessages: AddPrefix<{}, "@">;
-
 type GlobalMessageKey = NestedKey<typeof globalMessages>;
 type VariableValue = string | number | boolean | Date | React.ReactNode;
-
 declare class Translator<Messages extends object> {
     private readonly messages;
     readonly language: string;
     constructor(fileData: object, filterLocales?: string, locales?: string[]);
     trans(key: NestedKey<Messages> | GlobalMessageKey, variables?: Record<string, VariableValue>): string;
-    transToNode(key: NestedKey<Messages> | GlobalMessageKey, variables?: Record<string, VariableValue>): ReactNode;
+    transToNode(key: NestedKey<Messages> | GlobalMessageKey, variables?: Record<string, VariableValue>): string | react.ReactElement<any, string | react.JSXElementConstructor<any>> | Iterable<react.ReactNode> | react_jsx_runtime.JSX.Element[];
     private getMessage;
+    private getNestedMessage;
 }
-declare function getI18nObjects<I18nObjects>(fileData: object, filterLocales?: string): I18nObjects;
+declare function getI18nObjects<I18nObjects>(fileData: object, filterLocales?: string): any;
 
 export { AbstractComp, AbstractNode, ActionContextType, ActionExtraInfo, ActionPriority, BroadcastAction, CachedNode, ChangeValueAction, CodeFunction, CodeNode, CodeNodeOptions, CodeType, Comp, CompAction, CompActionTypes, CompConstructor, CompParams, ConstructorToComp, ConstructorToDataType, ConstructorToNodeType, ConstructorToView, CustomAction, DispatchType, EvalMethods, ExecuteQueryAction, ExtraActionType, ExtraNodeType, FetchCheckNode, FetchInfo, FetchInfoOptions, FunctionNode, MultiBaseComp, MultiChangeAction, MultiCompConstructor, Node, NodeToValue, OptionalComp, OptionalNodeType, RecordConstructorToComp, RecordConstructorToView, RecordNode, RecordNodeToValue, RecordOptionalNodeToValue, RelaxedJsonParser, RenameAction, ReplaceCompAction, RouteByNameAction, SimpleAbstractComp, SimpleComp, SimpleCompAction, SimpleNode, Translator, TriggerModuleEventAction, UpdateActionContextAction, UpdateNodesV2Action, ValueAndMsg, WrapContextFn, WrapContextNodeV2, WrapNode, changeChildAction, changeDependName, changeEditDSLAction, changeValueAction, clearMockWindow, clearStyleEval, customAction, deferAction, deleteCompAction, dependingNodeMapEquals, evalFunc, evalFunctionResult, evalNodeOrMinor, evalPerfUtil, evalScript, evalStyle, executeQueryAction, fromRecord, fromUnevaledValue, fromValue, fromValueWithCache, getDynamicStringSegments, getI18nObjects, getValueByLocale, i18n, isBroadcastAction, isChildAction, isCustomAction, isDynamicSegment, isFetching, isMyCustomAction, mergeExtra, multiChangeAction, nodeIsRecord, onlyEvalAction, relaxedJSONToJSON, renameAction, replaceCompAction, routeByNameAction, transformWrapper, triggerModuleEventAction, unwrapChildAction, updateActionContextAction, updateNodesV2Action, withFunction, wrapActionExtraInfo, wrapChildAction, wrapContext, wrapDispatch };

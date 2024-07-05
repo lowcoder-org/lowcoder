@@ -4,15 +4,15 @@ function styleNamespace(id: string) {
   return `style-for-${id}`;
 }
 
-export function evalStyle(id: string, css: string[]) {
+export function evalStyle(id: string, css: string[], globalStyle?: boolean) {
   const styleId = styleNamespace(id);
-
+  const prefixId = globalStyle ? id : `#${id}`
   let compiledCSS = "";
   css.forEach((i) => {
     if (!i.trim()) {
       return;
     }
-    compiledCSS += serialize(compile(`#${id}{${i}}`), middleware([prefixer, stringify]));
+    compiledCSS += serialize(compile(`${prefixId}{${i}}`), middleware([prefixer, stringify]));
   });
 
   let styleNode = document.querySelector(`#${styleId}`);
