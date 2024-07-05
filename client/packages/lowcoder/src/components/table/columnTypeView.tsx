@@ -14,7 +14,6 @@ const ColumnTypeViewWrapper = styled.div<{
     }
     span {
       display: inline-block; /* Change display to inline-block for span */
-      overflow: hidden;
       white-space: nowrap;
       text-overflow: ellipsis;
       word-break: keep-all;
