@@ -26,7 +26,6 @@ import {
   setTransform,
 } from "./utils";
 import styled from "styled-components";
-import { withErrorBoundary } from "@lowcoder-ee/index.sdk";
 
 type GridItemCallback<Data extends GridDragEvent | GridResizeEvent> = (
   i: string,
