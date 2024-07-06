@@ -522,13 +522,7 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
               <StyleThemeSettingsCover>
                 <ShapesCompIcon width={"36px"} style={{marginRight : "10px"}}/> <h2 style={{color: "#ffffff", marginTop : "8px"}}> {trans("theme.components")}</h2>
               </StyleThemeSettingsCover>
-              <Card
-                bodyStyle={{
-                  padding: '20px'
-                }}
-                style={{
-                  marginBottom: "20px",
-                }}
+              <Card style={{ marginBottom: "20px", minHeight : "200px" }}
               >
                 <ThemeCompPanel
                   theme={this.state.theme}

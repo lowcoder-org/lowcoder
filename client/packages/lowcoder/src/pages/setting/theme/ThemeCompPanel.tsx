@@ -21,7 +21,7 @@ import {
   labelCss,
   sectionNames,
 } from "lowcoder-design";
-import { Card, Divider, Flex, Input } from "antd";
+import { Card, Divider, Flex, Input, List } from "antd";
 import { genRandomKey } from "comps/utils/idGenerator";
 import dsl from "./detail/previewDsl";
 import { NameGenerator } from "comps/utils";
@@ -330,31 +330,32 @@ export const ThemeCompPanel = (props: any) => {
   // )
 
   return (
-    <Card
-      style={{ marginBottom: "20px", minHeight : "200px" }}
-      bodyStyle={{ padding: '24px 14px'}}
-    >
       <Flex style={{
-        height: "650px",
         overflow: "hidden",
         gap: "middle",
       }}>
-        <RightPanelContentWrapper style={{
-          padding: "0",
-          overflow: "auto",
-        }}>
-          <Input.Search
-            placeholder="Search components"
-            value={searchValue}
-            onChange={(e) => setSearchValue(e.target.value)}
-            style={{ marginBottom: 16 }}
-          />
-          <PropertySectionContext.Provider
-            value={propertySectionContextValue}
-          >
-            {compList}
-          </PropertySectionContext.Provider>
-        </RightPanelContentWrapper>
+        <List
+          bordered
+          itemLayout="vertical"
+        >
+          <List.Item>
+            <Input.Search
+              placeholder="Search components"
+              value={searchValue}
+              onChange={(e) => setSearchValue(e.target.value)}
+              style={{ marginBottom: 16 }}
+            />
+          </List.Item>
+          <List.Item>
+            <div style={{overflow : "auto", height: "540px"}}>
+              <PropertySectionContext.Provider
+                value={propertySectionContextValue}
+              >
+                {compList}
+              </PropertySectionContext.Provider>
+            </div>
+          </List.Item>
+        </List>
         <Divider type="vertical" style={{height: "630px"}}/>
         <div style={{flex: "1"}}>
           {appPreview}
@@ -368,6 +369,5 @@ export const ThemeCompPanel = (props: any) => {
           {stylePropertyView}
         </div>
       </Flex>
-    </Card>
   );
 };
