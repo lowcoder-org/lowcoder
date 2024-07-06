@@ -313,7 +313,7 @@ export const ThemeCompPanel = (props: any) => {
     return (
       <PreviewApp
         style={{
-          height: "680px",
+          height: "650px",
           minWidth: "auto",
           width: "100%",
         }}
@@ -346,8 +346,8 @@ export const ThemeCompPanel = (props: any) => {
               style={{ marginBottom: 16 }}
             />
           </List.Item>
-          <List.Item>
-            <div style={{overflow : "auto", height: "540px"}}>
+          <List.Item style={{padding: "0 15px"}}>
+            <div style={{overflow : "auto", width: "230px", height: "540px"}}>
               <PropertySectionContext.Provider
                 value={propertySectionContextValue}
               >
@@ -357,7 +357,7 @@ export const ThemeCompPanel = (props: any) => {
           </List.Item>
         </List>
         <Divider type="vertical" style={{height: "630px"}}/>
-        <div style={{flex: "1"}}>
+        <div style={{flex: "1", height: "600px", borderRadius: "8px"}}>
           {appPreview}
         </div>
         <Divider type="vertical" style={{height: "630px"}}/>
@@ -365,6 +365,7 @@ export const ThemeCompPanel = (props: any) => {
           width: "280px",
           padding: "12px",
           overflow: "auto",
+          height: "630px",
         }}>
           {stylePropertyView}
         </div>

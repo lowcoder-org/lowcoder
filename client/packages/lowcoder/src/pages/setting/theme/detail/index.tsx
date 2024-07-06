@@ -412,10 +412,13 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
                                   fontFamily={layoutSettingsItem.value}
                                   configChange={(params) => {
                                     this.configChange(params);
-                                  }}
-                                />
+                                }}/>
                               }
-                          </List.Item>
+                            </List.Item>
+                            <List.Item>
+                              <div style={{ width: "200px", color: "#aaa"}}>Currently, the preview of Font-Family here in the Theme Settings may now show the right font. However, the Font Family Attribute comes into effect in all your apps, which uses this Theme.
+                              <br/><br/><a href="https://docs.lowcoder.cloud/lowcoder-documentation/build-applications/themes-and-styling#demo-2-custom-font-family" target="_blank">Remember, you neded to set the CSS inclue at App- or Workspace Level</a></div>
+                            </List.Item>
                           </Tooltip>
                         ))}
                       </>
@@ -522,7 +525,7 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
               <StyleThemeSettingsCover>
                 <ShapesCompIcon width={"36px"} style={{marginRight : "10px"}}/> <h2 style={{color: "#ffffff", marginTop : "8px"}}> {trans("theme.components")}</h2>
               </StyleThemeSettingsCover>
-              <Card style={{ marginBottom: "20px", minHeight : "200px" }}
+              <Card style={{ marginBottom: "20px", minHeight : "200px", height: "690px", overflow: "hidden"}}
               >
                 <ThemeCompPanel
                   theme={this.state.theme}
@@ -553,16 +556,20 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
                 <ChartCompIcon width={"36px"} style={{marginRight : "10px"}}/> <h2 style={{color: "#ffffff", marginTop : "8px"}}> {trans("theme.charts")}</h2>
               </StyleThemeSettingsCover>
               <Card style={{ marginBottom: "20px", minHeight : "200px" }}>
-                <ChartDesc>
-                  {trans("themeDetail.chartDesc")}
-                  <a target="_blank" href="https://echarts.apache.org/en/theme-builder.html" rel="noreferrer">
-                    {" "}
-                    {trans("themeDetail.echartsJson")}
-                  </a>
-                </ChartDesc>
                 <Flex gap={"middle"}>
                   <ChartInput>
-                    <div className="code-editor" style={{height: "380px", width:"100%", minWidth:"300px"}}>
+                  <List
+                    bordered>
+                    <List.Item>
+                      <div style={{width: "210px"}}>
+                        {trans("themeDetail.chartDesc")}
+                        <a target="_blank" href="https://echarts.apache.org/en/theme-builder.html" rel="noreferrer">
+                          {" "}
+                          {trans("themeDetail.echartsJson")}
+                        </a>
+                      </div>
+                    </List.Item>
+                    <List.Item style={{width : "260px", height: "370px", padding:"10px"}}>
                       <CodeEditor
                         value={this.state.theme.chart || ""}
                         onChange={(value) => this.configChange({
@@ -570,11 +577,12 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
                           chart: value.doc.toString() ? value.doc.toString() : undefined,
                         })}
                         styleName="window"
-                        codeType="Function"
-                        showLineNum
+                        codeType="PureJSON"
+                        showLineNum={false}
                         bordered
                       />
-                    </div>
+                    </List.Item>
+                    </List>
                   </ChartInput>
                   <Divider type="vertical" style={{height: "370px"}}/>
                   <PreviewApp style={{ height: "380px", width: "100%", margin: "0" }} theme={this.state.theme} dsl={chartDsl} />
