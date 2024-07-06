@@ -49,6 +49,7 @@ import { initApp } from "util/commonUtils";
 import { favicon } from "assets/images";
 import { hasQueryParam } from "util/urlUtils";
 import { isFetchUserFinished } from "redux/selectors/usersSelectors"; // getCurrentUser, 
+import { getIsCommonSettingFetched } from "redux/selectors/commonSettingSelectors";
 import { SystemWarning } from "./components/SystemWarning";
 import { getBrandingConfig } from "./redux/selectors/configSelectors";
 import { buildMaterialPreviewURL } from "./util/materialUtils";
@@ -79,6 +80,7 @@ const Wrapper = (props: { children: React.ReactNode, language: string }) => (
 
 type AppIndexProps = {
   isFetchUserFinished: boolean;
+  getIsCommonSettingFetched: boolean;
   currentOrgId?: string;
   orgDev: boolean;
   defaultHomePage: string | null | undefined;
@@ -121,7 +123,7 @@ class AppIndex extends React.Component<AppIndexProps, any> {
     // persisting the language in local storage
     localStorage.setItem('lowcoder_uiLanguage', this.props.uiLanguage);
 
-    // console.log("this.props.defaultHomePage: ", this.props.defaultHomePage)
+    console.log('Props: ', this.props);
 
     return (
       <Wrapper language={this.props.uiLanguage}>
@@ -272,21 +274,12 @@ class AppIndex extends React.Component<AppIndexProps, any> {
         <SystemWarning />
           <Router history={history}>
             <Switch>
-              {/* 
-              // we decided to show the org homepage in a own navigation page
-              {!this.props.orgDev && !!this.props.defaultHomePage ? (
-              <Redirect exact from={BASE_URL} to={APPLICATION_VIEW_URL(this.props.defaultHomePage, "view")}
-              />
-            ) : (
-              <Redirect exact from={BASE_URL} to={USER_PROFILE_URL} />
-            )}
-            {!this.props.orgDev && !!this.props.defaultHomePage && (
-              <Redirect exact from={ALL_APPLICATIONS_URL} to={APPLICATION_VIEW_URL(this.props.defaultHomePage, "view")}
-              />
-            )} */}
-
-              {!this.props.orgDev ? (
-                <Redirect exact from={BASE_URL} to={ORG_HOME_URL} />
+              {this.props.isFetchUserFinished && !this.props.orgDev ? (
+                this.props.getIsCommonSettingFetched && this.props.defaultHomePage !== undefined ? ( 
+                  <Redirect exact from={BASE_URL} to={APPLICATION_VIEW_URL(this.props.defaultHomePage || "", "view")}/>
+                ) : (
+                  <Redirect exact from={BASE_URL} to={ORG_HOME_URL} />
+                )
               ) : (
                 <Redirect exact from={BASE_URL} to={ALL_APPLICATIONS_URL} />
               )}
@@ -377,6 +370,7 @@ class AppIndex extends React.Component<AppIndexProps, any> {
 
 const mapStateToProps = (state: AppState) => ({
   isFetchUserFinished: isFetchUserFinished(state),
+  getIsCommonSettingFetched: getIsCommonSettingFetched(state),
   orgDev: state.ui.users.user.orgDev,
   currentOrgId: state.ui.users.user.currentOrgId,
   defaultHomePage: state.ui.application.homeOrg?.commonSettings.defaultHomePage,
