@@ -205,8 +205,8 @@ const LayoutSwitcher = styled.div`
   right: 36px;
   top: 6px;
   cursor: pointer;
-  width: 24px;
-  height: 24px;
+  width: 32px;
+  height: 16px;
   border-radius: 4px;
   z-index: ${Layers.homeLayoutSwitcher};
   display: flex;
@@ -462,7 +462,6 @@ export function HomeLayout(props: HomeLayoutProps) {
       </HeaderWrapper>
 
       {showNewUserGuide(user) && <HomepageTourV2 />}
-      {/*<HomepageTourV2 />*/}
 
         <HomeView>
           <StyleHomeCover>
@@ -532,7 +531,7 @@ export function HomeLayout(props: HomeLayoutProps) {
                       ) : (
                         <>
                           <LayoutSwitcher onClick={() => setLayout(layout === "list" ? "card" : "list")}>
-                            {layout === "list" ? <HomeCardIcon /> : <HomeListIcon />}
+                            {layout === "list" ? <HomeCardIcon style={{marginRight: "-11px"}}/> : <HomeListIcon style={{marginTop: "-30px"}}/>}
                           </LayoutSwitcher>
                         
                           {mode === "marketplace" && (

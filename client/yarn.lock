@@ -13884,6 +13884,7 @@ coolshapes-react@lowcoder-org/coolshapes-react:
     react-documents: ^1.2.1
     react-dom: ^18.2.0
     react-draggable: ^4.4.4
+    react-error-boundary: ^4.0.13
     react-grid-layout: ^1.3.0
     react-helmet: ^6.1.0
     react-joyride: ^2.4.0
@@ -17055,6 +17056,17 @@ coolshapes-react@lowcoder-org/coolshapes-react:
     react: ">= 16.3.0"
     react-dom: ">= 16.3.0"
   checksum: 9b15aac59244873ac4561c5a2bead43a56e18d406e0a5f242bd4f9d151c074530c02b99387983104bf43417292f9cf8d063e554ed08d88792235e3fbc965f1b8
+  languageName: node
+  linkType: hard
+
+"react-error-boundary@npm:^4.0.13":
+  version: 4.0.13
+  resolution: "react-error-boundary@npm:4.0.13"
+  dependencies:
+    "@babel/runtime": ^7.12.5
+  peerDependencies:
+    react: ">=16.13.1"
+  checksum: 50398d080015d51d22c6f94c56f4ea336d10232d72345b36ee6f15b6b643666d20b072829b02f091a80e5af68fe67f68a62ef0d2b649dbd759ead929304449af
   languageName: node
   linkType: hard
 
