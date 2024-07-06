@@ -78,8 +78,6 @@ export default function ColumnTypeView(props: {
   textOverflow?: boolean,
 }) {
 
-  console.log("ColumnTypeView.textOverflow", props.textOverflow);
-
   const wrapperRef = useRef<HTMLDivElement>(null);
   const hoverViewRef = useRef<HTMLDivElement>(null);
   const [isHover, setIsHover] = useState(false);
