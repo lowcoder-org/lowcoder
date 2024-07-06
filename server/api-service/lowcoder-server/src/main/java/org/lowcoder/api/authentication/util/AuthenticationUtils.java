@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.lang.StringUtils;
 import org.lowcoder.domain.user.model.AuthToken;
 import org.lowcoder.domain.user.model.AuthUser;
 import org.lowcoder.domain.user.model.User;
@@ -86,10 +87,16 @@ public final class AuthenticationUtils {
      * @return AuthUser
      */
     public static AuthUser mapToAuthUser(Map<String, Object> map, HashMap<String, String> sourceMappings) {
+        String uid = AdvancedMapUtils.getString(map, MapUtils.getString(sourceMappings, "uid"));
+        String email = AdvancedMapUtils.getString(map, MapUtils.getString(sourceMappings, "email"));
+        String username = AdvancedMapUtils.getString(map, MapUtils.getString(sourceMappings, "username"));
+        if(StringUtils.isEmpty(username)) username = email;
+        if(StringUtils.isEmpty(username)) username = uid;
+        String avatar = AdvancedMapUtils.getString(map, MapUtils.getString(sourceMappings, "avatar"));
         return AuthUser.builder()
-                .uid(AdvancedMapUtils.getString(map, MapUtils.getString(sourceMappings, "uid")))
-                .username(AdvancedMapUtils.getString(map, MapUtils.getString(sourceMappings, "username")))
-                .avatar(AdvancedMapUtils.getString(map, MapUtils.getString(sourceMappings, "avatar")))
+                .uid(uid)
+                .username(username)
+                .avatar(avatar)
                 .rawUserInfo(map)
                 .build();
     }

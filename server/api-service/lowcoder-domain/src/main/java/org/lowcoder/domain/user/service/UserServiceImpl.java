@@ -340,7 +340,7 @@ public class UserServiceImpl implements UserService {
                         List<Map<String, String>> groups = tuple2.getT2();
                         return UserDetail.builder()
                                 .id(user.getId())
-                                .name(user.getName())
+                                .name(StringUtils.isEmpty(user.getName())?user.getId():user.getName())
                                 .avatarUrl(user.getAvatarUrl())
                                 .uiLanguage(user.getUiLanguage())
                                 .email(convertEmail(user.getConnections()))
