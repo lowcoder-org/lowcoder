@@ -12140,6 +12140,7 @@ var Translator = /** @class */ (function () {
         // If still not found, return a default message or the key itself
         if (message === undefined) {
             console.warn("Translation missing for key: ".concat(key));
+            message = "oups! ".concat(key);
         }
         return message;
     };
