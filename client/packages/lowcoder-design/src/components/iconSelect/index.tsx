@@ -355,6 +355,7 @@ export const IconSelectBase = (props: {
   const { setVisible, parent } = props;
   return (
     <Popover
+      zIndex={4000}
       trigger={props.trigger}
       placement="left"
       align={{ offset: [props.leftOffset ?? 0, 0, 0, 0] }}
