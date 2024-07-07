@@ -115,7 +115,7 @@ class AppIndex extends React.Component<AppIndexProps, any> {
       }
     }
   }
-  render() {g
+  render() {
     const isTemplate = hasQueryParam('template');
     const pathname = history.location.pathname;
 
