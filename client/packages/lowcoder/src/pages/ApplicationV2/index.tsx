@@ -267,9 +267,9 @@ export default function ApplicationHome() {
   
   const isOrgAdmin = org?.createdBy == user.id ? true : false;
 
-  useEffect(() => {
-    dispatch(fetchHomeData({}));
-  }, [user.currentOrgId]);
+  // useEffect(() => {
+  //   dispatch(fetchHomeData({}));
+  // }, [user.currentOrgId]);
 
   useEffect(() => {
     if (!org) {
@@ -494,7 +494,10 @@ export default function ApplicationHome() {
 
         ]}
       />
-      {user.orgDev && (
+      
+      {/* 
+        // we have the invite dialog in the Admin Area, so we don't need it here
+        {user.orgDev && (
         <InviteDialog
           trigger={
             <InviteUser>
@@ -504,7 +507,7 @@ export default function ApplicationHome() {
           }
           style={{ marginLeft: "auto" }}
         />
-      )}
+      )} */}
     </DivStyled>
   );
 }

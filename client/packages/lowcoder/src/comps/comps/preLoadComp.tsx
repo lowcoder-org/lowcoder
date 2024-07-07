@@ -186,10 +186,31 @@ class CSSComp extends CodeTextControl implements RunAndClearable<string> {
   }
 }
 
+class GlobalCSSComp extends CodeTextControl implements RunAndClearable<string> {
+  id = "";
+  externalCSS: string = "";
+
+  async applyAllCSS() {
+    const css = this.getView();
+    evalStyle(this.id, [this.externalCSS, css], true);
+  }
+
+  async run(id: string, externalCSS: string = "") {
+    this.id = id;
+    this.externalCSS = externalCSS;
+    return this.applyAllCSS();
+  }
+
+  async clear() {
+    clearStyleEval(this.id);
+  }
+}
+
 const childrenMap = {
   libs: LibsComp,
   script: ScriptComp,
   css: CSSComp,
+  globalCSS: GlobalCSSComp,
 };
 
 type ChildrenInstance = RecordConstructorToComp<typeof childrenMap>;
@@ -215,7 +236,7 @@ function JavaScriptTabPane(props: { comp: ConstructorToComp<typeof ScriptComp> }
   );
 }
 
-function CSSTabPane(props: { comp: CSSComp }) {
+function CSSTabPane(props: { comp: CSSComp, isGlobal?: boolean }) {
   useEffect(() => {
     props.comp.applyAllCSS();
   }, [props.comp]);
@@ -238,6 +259,7 @@ function CSSTabPane(props: { comp: CSSComp }) {
 enum TabKey {
   JavaScript = "js",
   CSS = "css",
+  GLOBAL_CSS = "global_css",
 }
 
 function PreloadConfigModal(props: ChildrenInstance) {
@@ -254,6 +276,11 @@ function PreloadConfigModal(props: ChildrenInstance) {
       key: TabKey.CSS,
       label: 'CSS',
       children: <CSSTabPane comp={props.css} />
+    },
+    {
+      key: TabKey.GLOBAL_CSS,
+      label: 'Global CSS',
+      children: <CSSTabPane comp={props.globalCSS} isGlobal />
     },
   ]
   return (
@@ -309,8 +336,9 @@ export class PreloadComp extends PreloadCompBase {
 
   async run(id: string) {
     const { orgCommonSettings = {} } = getGlobalSettings();
-    const { preloadCSS, preloadJavaScript, preloadLibs, runJavaScriptInHost } = orgCommonSettings;
+    const { preloadCSS,preloadGlobalCSS, preloadJavaScript, preloadLibs, runJavaScriptInHost } = orgCommonSettings;
     await this.children.css.run(id, preloadCSS || "");
+    await this.children.globalCSS.run('body', preloadGlobalCSS || "");
     await this.children.libs.run(id, preloadLibs || [], !!runJavaScriptInHost);
     await this.children.script.run(id, preloadJavaScript || "", !!runJavaScriptInHost);
   }

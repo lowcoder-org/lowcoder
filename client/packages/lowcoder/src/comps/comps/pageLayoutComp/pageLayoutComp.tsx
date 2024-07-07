@@ -10,7 +10,7 @@ import {
   ContainerFooterStyle,
 } from "comps/controls/styleControlConstants";
 import { MultiCompBuilder, sameTypeMap, withDefault } from "comps/generators";
-import { migrateOldData } from "comps/generators/simpleGenerators";
+import { migrateOldData, valueComp } from "comps/generators/simpleGenerators";
 import { NameGenerator } from "comps/utils";
 import { fromRecord, Node } from "lowcoder-core";
 import { nodeIsRecord } from "lowcoder-core";
@@ -28,6 +28,7 @@ import { ContainerBodyChildComp } from "./containerBodyChildComp";
 import { trans } from "i18n";
 import { ControlNode } from "lowcoder-design";
 import { StringControl } from "comps/controls/codeControl";
+import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 const childrenMap = {
   header: SimpleContainerComp,
@@ -51,16 +52,19 @@ const childrenMap = {
   autoHeight: AutoHeightControl,
   siderScrollbars: withDefault(BoolControl, false),
   contentScrollbars: withDefault(BoolControl, false),
-  style: withDefault(styleControl(ContainerStyle),{borderWidth:'1px'}),
-  headerStyle: styleControl(ContainerHeaderStyle),
-  siderStyle: styleControl(ContainerSiderStyle),
-  bodyStyle: styleControl(ContainerBodyStyle),
-  footerStyle: styleControl(ContainerFooterStyle),
+  style: styleControl(ContainerStyle , 'style'),
+  headerStyle: styleControl(ContainerHeaderStyle , 'headerStyle'),
+  siderStyle: styleControl(ContainerSiderStyle , 'siderStyle'),
+  bodyStyle: styleControl(ContainerBodyStyle , 'bodyStyle'),
+  footerStyle: styleControl(ContainerFooterStyle , 'footerStyle'),
+  appliedThemeId: valueComp<string>(''),
 };
 
 // Compatible with old style data 2022-8-15
 const layoutBaseComp = migrateOldData(
   new MultiCompBuilder(childrenMap, (props, dispatch) => {
+    useMergeCompStyles(props, dispatch);
+
     return { ...props, dispatch };
   }).build(),
   fixOldStyleData

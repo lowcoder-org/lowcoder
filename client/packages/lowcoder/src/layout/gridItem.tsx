@@ -445,6 +445,7 @@ export function GridItem(props: GridItemProps) {
           pos,
           props.name,
           props.autoHeight,
+          props.hidden,
           Boolean(draggingUtils.isDragging())
         ),
         opacity: layoutHide ? 0 : undefined,

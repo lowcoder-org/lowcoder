@@ -34,6 +34,7 @@ import { DEFAULT_IMG_URL } from "util/stringUtils";
 import { useContext } from "react";
 import { EditorContext } from "comps/editorState";
 import { StringControl } from "../controls/codeControl";
+import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 const Container = styled.div<{ $style: ImageStyleType | undefined,$animationStyle:AnimationStyleType }>`
   height: 100%;
@@ -166,14 +167,16 @@ const ContainerImg = (props: RecordConstructorToView<typeof childrenMap>) => {
 const childrenMap = {
   src: withDefault(StringStateControl, "https://temp.im/350x400"),
   onEvent: eventHandlerControl(EventOptions),
-  style: styleControl(ImageStyle),
-  animationStyle: styleControl(AnimationStyle),
+  style: styleControl(ImageStyle , 'style'),
+  animationStyle: styleControl(AnimationStyle , 'animationStyle'),
   autoHeight: withDefault(AutoHeightControl, "fixed"),
   supportPreview: BoolControl,
   restrictPaddingOnRotation:withDefault(StringControl, 'image')
 };
 
-let ImageBasicComp = new UICompBuilder(childrenMap, (props) => {
+let ImageBasicComp = new UICompBuilder(childrenMap, (props, dispatch) => {
+  useMergeCompStyles(props as Record<string, any>, dispatch);
+  
   return <ContainerImg {...props} />;
 })
   .setPropertyViewFn((children) => {

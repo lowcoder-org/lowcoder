@@ -39,6 +39,9 @@ public class FolderServiceImpl implements FolderService {
             return Mono.error(new BizException(BizError.INVALID_PARAMETER, "INVALID_PARAMETER", FieldName.ID));
         }
 
+        if(FieldName.isGID(id))
+            return repository.findByGid(id)
+                    .switchIfEmpty(Mono.error(new BizException(BizError.NO_RESOURCE_FOUND, "FOLDER_NOT_FOUND", id)));
         return repository.findById(id)
                 .switchIfEmpty(Mono.error(new BizException(BizError.NO_RESOURCE_FOUND, "FOLDER_NOT_FOUND", id)));
     }
@@ -55,6 +58,8 @@ public class FolderServiceImpl implements FolderService {
 
     @Override
     public Mono<Void> deleteAllById(Collection<String> ids) {
+        if(!ids.isEmpty() && FieldName.isGID(ids.stream().findFirst().get()))
+            return repository.deleteAllByGid(ids);
         return repository.deleteAllById(ids);
     }
 

@@ -5,9 +5,15 @@ const ColumnTypeViewWrapper = styled.div<{
   $textOverflow?: boolean
 }>`
   position: relative;
-  ${props => !props.$textOverflow && `
+  ${props => props.$textOverflow == false && `
     div {
       overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      word-break: keep-all;
+    }
+    span {
+      display: inline-block; /* Change display to inline-block for span */
       white-space: nowrap;
       text-overflow: ellipsis;
       word-break: keep-all;
@@ -71,6 +77,7 @@ export default function ColumnTypeView(props: {
   children: React.ReactNode,
   textOverflow?: boolean,
 }) {
+
   const wrapperRef = useRef<HTMLDivElement>(null);
   const hoverViewRef = useRef<HTMLDivElement>(null);
   const [isHover, setIsHover] = useState(false);

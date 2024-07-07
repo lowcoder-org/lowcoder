@@ -80,6 +80,7 @@
     "chalk": "4",
     "flag-icons": "^7.2.1",
     "number-precision": "^1.6.0",
+    "posthog-js": "^1.144.2",
     "react-countup": "^6.5.3",
     "react-player": "^2.11.0",
     "resize-observer-polyfill": "^1.5.1",

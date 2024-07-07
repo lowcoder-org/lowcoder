@@ -9,12 +9,17 @@ import { getUser } from "redux/selectors/usersSelectors";
 import { getNextEntityName } from "util/stringUtils";
 import { validateResponse } from "api/apiUtils";
 import {
+  AddMemberButton,
   GroupNameView,
   OperationWrapper,
   EditBtn,
   PopoverIcon,
   CreateButton,
 } from "./styledComponents";
+import {
+  MembersIcon,
+} from "lowcoder-design";
+import styled from "styled-components";
 import { trans } from "i18n";
 import { getOrgGroups } from "redux/selectors/orgSelectors";
 import { Table } from "components/Table";
@@ -25,8 +30,16 @@ import { timestampToHumanReadable } from "../../../util/dateTimeUtils";
 import { usePermissionMenuItems } from "@lowcoder-ee/pages/setting/permission/permissionMenuItems";
 import { OrgGroup } from "constants/orgConstants";
 import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
+import InviteDialog from "pages/common/inviteDialog";
+import { Flex } from "antd";
 
 const NEW_GROUP_PREFIX = trans("memberSettings.newGroupPrefix");
+
+const StyledMembersIcon = styled(MembersIcon)`
+  g g {
+    stroke: #ffffff;
+  }
+`;
 
 type DataItemInfo = {
   key: string;
@@ -120,7 +133,8 @@ export default function PermissionSetting() {
       <Level1SettingPageTitleWithBtn>
         {trans("settings.userGroups")}
         {currentOrgAdmin(user) && (
-          <CreateButton
+          <Flex gap="middle">
+            <CreateButton
             loading={groupCreating}
             buttonType={"primary"}
             icon={<AddIcon />}
@@ -128,6 +142,12 @@ export default function PermissionSetting() {
           >
             {trans("memberSettings.createGroup")}
           </CreateButton>
+          <InviteDialog
+            trigger={<AddMemberButton buttonType="primary" icon={<StyledMembersIcon />}>
+              {trans("memberSettings.inviteUser")}
+            </AddMemberButton>}
+            style={{ marginLeft: "auto" }} />
+          </Flex>
         )}
       </Level1SettingPageTitleWithBtn>
       <div>

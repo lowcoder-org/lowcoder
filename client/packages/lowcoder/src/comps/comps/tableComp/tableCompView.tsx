@@ -13,7 +13,6 @@ import {
   supportChildrenTree,
 } from "comps/comps/tableComp/tableUtils";
 import {
-  defaultTheme,
   handleToHoverRow,
   handleToSelectedRow,
   TableColumnLinkStyleType,
@@ -41,6 +40,9 @@ import { EmptyContent } from "pages/common/styledComponent";
 import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 import { ReactRef, ResizeHandleAxis } from "layout/gridLayoutPropTypes";
 import { CellColorViewType } from "./column/tableColumnComp";
+import { defaultTheme } from "@lowcoder-ee/constants/themeConstants";
+import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
+import { childrenToProps } from "@lowcoder-ee/comps/generators/multi";
 
 
 function genLinerGradient(color: string) {
@@ -345,7 +347,6 @@ const TableTd = styled.td<{
   background: ${(props) => props.$background} !important;
   border-color: ${(props) => props.$style.border} !important;
   border-radius: ${(props) => props.$style.radius};
-
   padding: 0 !important;
 
   > div {
@@ -387,8 +388,8 @@ const TableTd = styled.td<{
       `};
     `};
     
-    > div > .ant-badge > .ant-badge-status-text,
-    > div > div > .markdown-body {
+    > .ant-badge > .ant-badge-status-text,
+    > div > .markdown-body {
       color: ${(props) => props.$style.text};
     }
 
@@ -775,6 +776,10 @@ export function TableCompView(props: {
     };
   }, [pagination, data]);
 
+  const childrenProps = childrenToProps(comp.children);
+  
+  useMergeCompStyles(childrenProps, comp.dispatch)
+
   const handleChangeEvent = useCallback(
     (eventName: TableEventOptionValues) => {
       if (eventName === "saveChanges" && !compChildren.onEvent.isBind(eventName)) {
@@ -820,7 +825,6 @@ export function TableCompView(props: {
 
   return (
     <BackgroundColorContext.Provider value={style.background} >
-
       <BackgroundWrapper ref={ref} $style={style} $tableAutoHeight={tableAutoHeight}>
         {toolbar.position === "above" && toolbarView}
         <TableWrapper

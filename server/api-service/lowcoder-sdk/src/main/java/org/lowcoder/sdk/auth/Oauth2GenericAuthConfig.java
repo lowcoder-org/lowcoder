@@ -26,13 +26,16 @@ public class Oauth2GenericAuthConfig extends Oauth2SimpleAuthConfig {
     private String scope;
     private HashMap<String, String> sourceMappings;
     private Boolean userInfoIntrospection;
+    private Boolean userCanSelectAccounts;
+    private Boolean postForUserEndpoint;
 
     @Override
     public String replaceAuthUrlClientIdPlaceholder(String url)
     {
         return super.replaceAuthUrlClientIdPlaceholder(url)
                 .replace(BASE_URL_PLACEHOLDER, authorizationEndpoint)
-                .replace(SCOPE_PLACEHOLDER, scope);
+                .replace(SCOPE_PLACEHOLDER, scope)
+                .concat(Boolean.FALSE.equals(userCanSelectAccounts)?"":"&prompt=select_account");
     }
 
 

@@ -23,6 +23,8 @@ public interface ResourcePermissionService {
 
     @NonEmptyMono
     Mono<List<ResourcePermission>> getByApplicationId(String applicationId);
+    @NonEmptyMono
+    Mono<List<ResourcePermission>> getByBundleId(String bundleId);
 
     @NonEmptyMono
     Mono<List<ResourcePermission>> getByDataSourceId(String dataSourceId);

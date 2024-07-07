@@ -20,7 +20,7 @@ import { TriContainerViewProps } from "../triContainerComp/triContainerCompBuild
 const getStyle = (style: TextContainerStyleType) => {
   return css`
     border-radius: ${(style.radius ? style.radius : "4px")};
-    border: ${(style.borderWidth ? style.borderWidth : "0px")} solid ${style.border};
+    border: ${(style.borderWidth ? style.borderWidth : "0px")} ${(style.borderStyle ? style.borderStyle : "solid")} ${style.border};
     color: ${style.text};
     font-size: ${style.textSize} !important;
     font-weight: ${style.textWeight} !important;
@@ -76,7 +76,7 @@ ${props=>props.$animationStyle&&props.$animationStyle}
   display: flex;
   flex-flow: column;
   height: 100%;
-  border: ${(props) => props.$style.borderWidth} solid ${(props) => props.$style.border};
+  border: ${(props) => props.$style.borderWidth} ${(props) => (props.$style.borderStyle ? props.$style.borderStyle : "solid")} ${(props) => props.$style.border};
   border-radius: ${(props) => props.$style.radius};
   background-color: ${(props) => props.$style.background};
   padding: ${(props) => props.$style.padding};

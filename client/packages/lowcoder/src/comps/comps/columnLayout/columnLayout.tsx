@@ -35,11 +35,12 @@ import { messageInstance } from "lowcoder-design/src/components/GlobalInstances"
 import { BoolControl } from "comps/controls/boolControl";
 import { BoolCodeControl, NumberControl, StringControl } from "comps/controls/codeControl";
 
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import { EditorContext } from "comps/editorState";
 
 import { disabledPropertyView, hiddenPropertyView } from "comps/utils/propertyUtils";
 import { DisabledContext } from "comps/generators/uiCompBuilder";
+import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 const ContainWrapper = styled.div<{
   $style: ContainerStyleType & {
@@ -95,8 +96,8 @@ const childrenMap = {
   rowGap: withDefault(StringControl, "20px"),
   templateColumns: withDefault(StringControl, "1fr 1fr"),
   columnGap: withDefault(StringControl, "20px"),
-  style: withDefault(styleControl(ContainerStyle), {}),
-  columnStyle: withDefault(styleControl(ResponsiveLayoutColStyle),{borderWidth:'1px'})
+  style: styleControl(ContainerStyle, 'style'),
+  columnStyle: styleControl(ResponsiveLayoutColStyle , 'columnStyle')
 };
 
 type ViewProps = RecordConstructorToView<typeof childrenMap>;
@@ -178,6 +179,8 @@ const ColumnLayout = (props: ColumnLayoutProps) => {
 
 export const ResponsiveLayoutBaseComp = (function () {
   return new UICompBuilder(childrenMap, (props, dispatch) => {
+    useMergeCompStyles(props as Record<string, any>, dispatch);    
+
     return (
       <ColumnLayout {...props} dispatch={dispatch} />
     );

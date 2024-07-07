@@ -7,7 +7,7 @@ import { TableOnEventView } from "comps/comps/tableComp/tableTypes";
 import { BoolControl } from "comps/controls/boolControl";
 import { StringControl } from "comps/controls/codeControl";
 import { dropdownControl } from "comps/controls/dropdownControl";
-import { defaultTheme, TableToolbarStyleType } from "comps/controls/styleControlConstants";
+import { TableToolbarStyleType } from "comps/controls/styleControlConstants";
 import { stateComp } from "comps/generators";
 import { genRandomKey } from "comps/utils/idGenerator";
 import { ThemeContext } from "comps/utils/themeContext";
@@ -38,6 +38,7 @@ import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
 import styled, { css } from "styled-components";
 import { JSONValue } from "util/jsonTypes";
 import { ControlNodeCompBuilder } from "comps/generators/controlCompBuilder";
+import { defaultTheme } from "@lowcoder-ee/constants/themeConstants";
 
 const SaveChangeButtons = styled.div`
   display: flex;

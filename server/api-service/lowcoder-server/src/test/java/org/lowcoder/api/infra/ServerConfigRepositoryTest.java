@@ -30,7 +30,6 @@ public class ServerConfigRepositoryTest {
     private ConfigInstance configInstance;
 
     @Test
-    @Ignore("Disabled until it is fixed")
     public void test() throws InterruptedException {
 
         Conf<Integer> test1 = configInstance.ofInteger("key1", 0);

@@ -36,6 +36,7 @@ import { BaseSelectRef } from "rc-select";
 import { RefControl } from "comps/controls/refControl";
 import { useContext } from "react";
 import { EditorContext } from "comps/editorState";
+import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 const StyledTreeSelect = styled(TreeSelect)<{ $style: TreeSelectStyleType }>`
   width: 100%;
@@ -65,9 +66,9 @@ const childrenMap = {
   allowClear: BoolControl,
   showSearch: BoolControl.DEFAULT_TRUE,
   inputValue: stateComp<string>(""), // search value
-  style:styleControl(InputFieldStyle),
-  labelStyle:styleControl(LabelStyle),
-  inputFieldStyle: withDefault(styleControl(TreeSelectStyle), {borderWidth: '1px'}),
+  style:styleControl(InputFieldStyle , 'style'),
+  labelStyle:styleControl(LabelStyle  , 'labelStyle'),
+  inputFieldStyle: styleControl(TreeSelectStyle, 'inputFieldStyle'),
   viewRef: RefControl<BaseSelectRef>,
 };
 
@@ -145,9 +146,12 @@ const TreeCompView = (
 };
 
 let TreeBasicComp = (function () {
-  return new UICompBuilder(childrenMap, (props, dispatch) => (
+  return new UICompBuilder(childrenMap, (props, dispatch) => {
+    useMergeCompStyles(props as Record<string, any>, dispatch);
+    
+    return(
     <TreeCompView {...props} dispatch={dispatch} />
-  ))
+  )})
     .setPropertyViewFn((children) => (
       <>
         <Section name={sectionNames.basic}>

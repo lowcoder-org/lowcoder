@@ -38,6 +38,7 @@ const AuthCategories = Object.keys(AuthCategoriesEnum).map(
   }
 );
 
+const GenericProviderCategories = [{label: "Generic OAuth Provider", value: "GENERIC"}];
 
 export const validatorOptions = [];
 
@@ -88,21 +89,20 @@ export const authConfig = {
     sourceName: "Generic",
     sourceValue: AuthType.Generic,
     form: {
-      source: { label: "Source", isRequire: true },
-      sourceName: { label: "Source Name", isRequire: true },
-      sourceDescription: { label: "Source Description", isRequire: false },
-      sourceIcon: { label: "Source Icon", isIcon: true, isRequire: true, },
-      sourceCategory: { label: "Source Category", isRequire: true, isList: true, options: AuthCategories },
+      source: { label: trans("idSource.source"), isRequire: true, isList: true, options: GenericProviderCategories},
+      sourceName: { label: trans("idSource.sourceName"), isRequire: true },
+      sourceDescription: { label: trans("idSource.sourceDescription"), isRequire: false },
+      sourceIcon: { label: trans("idSource.sourceIcon"), isIcon: true, isRequire: true, },
+      sourceCategory: { label: trans("idSource.sourceCategory"), isRequire: true, isList: true, options: AuthCategories },
       ...clientIdandSecretConfig,
-      issuerUri: { label: 'Issuer URI', isRequire: true },
-      authorizationEndpoint: { label: 'Authorization Endpoint', isRequire: true },
-      tokenEndpoint: { label: 'Token Endpoint', isRequire: true },
-      userInfoEndpoint: { label: 'UserInfo Endpoint', isRequire: true },
+      issuerUri: { label: trans("idSource.souceIssuerURI"), isRequire: true },
+      authorizationEndpoint: { label: trans("idSource.souceAuthorizationEndpoint"), isRequire: true },
+      tokenEndpoint: { label: trans("idSource.souceTokenEndpoint"), isRequire: true },
+      userInfoEndpoint: { label: trans("idSource.souceUserInfoEndpoint"), isRequire: true },
       // jwks: { label: 'Authorize URL', isRequire: true },
       scope: "Scope",
-      userInfoIntrospection: { label: 'Use OpenID User Introspection', isSwitch: true, isRequire: false},
-      // baseUrl: "Base URL",
-      // realm: "Realm",
+      userInfoIntrospection: { label: trans("idSource.userInfoIntrospection"), isSwitch: true, isRequire: false},
+      userCanSelectAccounts: { label: trans("idSource.userCanSelectAccounts"), isSwitch: true, isRequire: false},
     },
   },
 } as { [key: string]: { sourceName: string; sourceValue: AuthType, form: FormItemType } };

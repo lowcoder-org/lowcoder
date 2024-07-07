@@ -1,4 +1,5 @@
 import { InputRef } from "antd/es/input";
+import styled from "styled-components";
 import {
   CommonSettingResponseData,
   SetCommonSettingPayload,
@@ -7,8 +8,8 @@ import {
 } from "api/commonSettingApi";
 import history from "util/history";
 import { BASE_URL, THEME_SETTING } from "constants/routesURL";
-import ColorPicker, { configChangeParams } from "../../../../components/ColorPicker";
-import React, { lazy } from "react";
+import ThemeSettingsSelector, { configChangeParams } from "../../../../components/ThemeSettingsSelector";
+import React, { lazy, useState } from "react";
 import { connect } from "react-redux";
 import { fetchCommonSettings, setCommonSettings } from "redux/reduxActions/commonSettingsActions";
 import { AppState } from "redux/reducers";
@@ -25,6 +26,14 @@ import {
   Footer,
   Header,
 } from "../styledComponents";
+import {
+  ColorPickerCompIcon,
+  TextSizeIcon,
+  PageLayoutCompIcon,
+  ShapesCompIcon,
+  ChartCompIcon,
+  
+} from "lowcoder-design";
 import PreviewApp from "../../../../components/PreviewApp";
 import { trans } from "i18n";
 import { Prompt } from "react-router";
@@ -32,6 +41,30 @@ import { HeaderBack } from "pages/setting/permission/styledComponents";
 import dsl from "./previewDsl";
 import chartDsl from "./chartPreviewDsl";
 import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
+import { Card, Collapse, CollapseProps, Divider, Flex, List, Tooltip } from 'antd';
+
+import { ThemeCompPanel } from "pages/setting/theme/ThemeCompPanel";
+import { JSONObject } from "@lowcoder-ee/util/jsonTypes";
+import Switch from "antd/es/switch";
+
+const ThemeSettingsView = styled.div`
+  font-size: 14px;
+  color: #8b8fa3;
+  flex-grow: 1;
+  padding-top: 0px;
+  padding-left: 0px;
+  max-width: 100%;
+`;
+
+const StyleThemeSettingsCover = styled.div`
+    display: flex;
+    flex-direction: row;
+    background: rgb(2,0,36);
+background: linear-gradient(34deg, rgba(2,0,36,1) 0%, rgba(102,9,121,1) 35%, rgba(0,255,181,1) 100%);
+    padding: 15px;
+    height: 80px;
+    border-radius:10px 10px 0 0;
+`;
 
 const CodeEditor = lazy(
   () => import("base/codeEditor/codeEditor")
@@ -60,6 +93,7 @@ type ThemeDetailPageState = {
   name: string;
   theme: ThemeDetail;
   canLeave: boolean;
+  compDsl?: JSONObject;
 };
 
 class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailPageState> {
@@ -92,6 +126,7 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
       theme,
       name,
       canLeave: false,
+      compDsl: undefined,
     };
     this.inputRef = React.createRef();
   }
@@ -132,7 +167,7 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
     this.setState({
       theme: {
         ...this.state.theme,
-        [params.colorKey]: params.color || params.radius || params.chart || params.margin || params.padding  || params.gridColumns,
+        [params.themeSettingKey]: params.color || params.radius || params.chart || params.margin || params.padding  || params.gridColumns || params.borderWidth || params.borderStyle || params.fontFamily,
       },
     });
   }
@@ -140,7 +175,7 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
   isThemeNotChange() {
     return (
       JSON.stringify({ ...this.state.theme }) ===
-      JSON.stringify({ ...this.state.theme, ...this.themeDefault })
+      JSON.stringify({ ...this.themeDefault })
     );
   }
 
@@ -149,6 +184,128 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
   };
 
   render() {
+
+    const colorSettings = [
+      {
+        key: 'primary',
+        title: trans('theme.mainColor'),
+        items: [
+          {
+            settingsKey: 'primary',
+            name: trans('themeDetail.primary'),
+            desc: trans('themeDetail.primaryDesc'),
+            color: this.state.theme.primary,
+          },
+          {
+            settingsKey: 'canvas',
+            name: trans('themeDetail.canvas'),
+            desc: trans('themeDetail.canvasDesc'),
+            color: this.state.theme.canvas,
+          },
+          {
+            settingsKey: 'primarySurface',
+            name: trans('themeDetail.primarySurface'),
+            desc: trans('themeDetail.primarySurfaceDesc'),
+            color: this.state.theme.primarySurface,
+          },
+          {
+            settingsKey: 'border',
+            name: trans('themeDetail.borderColor'),
+            desc: trans('themeDetail.borderColorDesc'),
+            color: this.state.theme.border || this.state.theme.borderColor,
+          }
+        ]
+      },
+      {
+        key: 'text',
+        title: trans('theme.text'),
+        items: [
+          {
+            settingsKey: 'textLight',
+            name: trans('themeDetail.textLight'),
+            desc: trans('themeDetail.textLightDesc'),
+            color: this.state.theme.textLight,
+          },
+          {
+            settingsKey: 'textDark',
+            name: trans('themeDetail.textDark'),
+            desc: trans('themeDetail.textDarkDesc'),
+            color: this.state.theme.textDark,
+          }
+        ]
+      }
+    ];
+
+    const fontSettings = [
+      {
+        title: trans('themeDetail.fonts'),
+        items: [
+          {
+            settingsKey: 'fontFamily',
+            name: trans('themeDetail.fontFamily'),
+            desc: trans('themeDetail.fontFamilyDesc'),
+            type: "fontFamily",
+            value: this.state.theme.fontFamily,
+          }
+        ]
+      },
+    ];
+
+    const layoutSettings = [
+      {
+        title: trans('themeDetail.borders'),
+        items: [
+          {
+            settingsKey: 'radius',
+            name: trans('themeDetail.borderRadius'),
+            desc: trans('themeDetail.borderRadiusDesc'),
+            type: "radius",
+            value: this.state.theme.radius || this.state.theme.borderRadius,
+          },
+          {
+            settingsKey: 'borderWidth',
+            name: trans('themeDetail.borderWidth'),
+            desc: trans('themeDetail.borderWidthDesc'),
+            type: "borderWidth",
+            value: this.state.theme.borderWidth,
+          },
+          {
+            settingsKey: 'borderStyle',
+            name: trans('themeDetail.borderStyle'),
+            desc: trans('themeDetail.borderStyleDesc'),
+            type: "borderStyle",
+            value: this.state.theme.borderStyle,
+          }
+        ]
+      },
+      {
+        title: trans('themeDetail.spacing'),
+        items: [
+          {
+            settingsKey: 'margin',
+            name: trans('themeDetail.margin'),
+            desc: trans('themeDetail.marginDesc'),
+            type: "margin",
+            value: this.state.theme.margin,
+          },
+          {
+            settingsKey: 'padding',
+            name: trans('themeDetail.padding'),
+            desc: trans('themeDetail.paddingDesc'),
+            type: "padding",
+            value: this.state.theme.padding,
+          },
+          {
+            settingsKey: 'gridColumns',
+            name: trans('themeDetail.gridColumns'),
+            desc: trans('themeDetail.gridColumnsDesc'),
+            type: "gridColumns",
+            value: this.state.theme.gridColumns,
+          }
+        ]
+      },
+    ];
+
     return (
       <>
         <Prompt
@@ -178,19 +335,8 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
           }}
           when={!this.isThemeNotChange()}
         ></Prompt>
-        <DetailContainer
-          onScroll={(e) => {
-            if (
-              e.currentTarget.scrollTop + e.currentTarget.clientHeight >=
-              e.currentTarget.scrollHeight - 2
-            ) {
-              // scroll to the bottom
-              this.footerRef.current && this.footerRef.current.classList.remove("no-bottom");
-            } else {
-              this.footerRef.current && this.footerRef.current.classList.add("no-bottom");
-            }
-          }}
-        >
+
+        <DetailContainer>
           <Header>
             <HeaderBack>
               <span onClick={() => this.goList()}>{trans("settings.theme")}</span>
@@ -198,130 +344,254 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
               <span>{this.state.name}</span>
             </HeaderBack>
           </Header>
+
           <DetailContent>
-            <div className="common">
-              <div>
-                <DetailTitle>{trans("theme.mainColor")}</DetailTitle>
-                <ColorPicker
-                  colorKey="primary"
-                  name={trans("themeDetail.primary")}
-                  desc={trans("themeDetail.primaryDesc")}
-                  color={this.state.theme.primary}
-                  configChange={(params) => this.configChange(params)}
-                />
-              </div>
-              <ColorPicker
-                colorKey="canvas"
-                name={trans("themeDetail.canvas")}
-                desc={trans("themeDetail.canvasDesc")}
-                color={this.state.theme.canvas}
-                configChange={(params) => this.configChange(params)}
-              />
-              <ColorPicker
-                colorKey="primarySurface"
-                name={trans("themeDetail.primarySurface")}
-                desc={trans("themeDetail.primarySurfaceDesc")}
-                color={this.state.theme.primarySurface}
-                configChange={(params) => this.configChange(params)}
-              />
-              <div>
-                <DetailTitle>{trans("theme.text")}</DetailTitle>
-                <ColorPicker
-                  colorKey="textLight"
-                  name={trans("themeDetail.textLight")}
-                  desc={trans("themeDetail.textLightDesc")}
-                  color={this.state.theme.textLight}
-                  configChange={(params) => this.configChange(params)}
-                />
-              </div>
-              <ColorPicker
-                colorKey="textDark"
-                name={trans("themeDetail.textDark")}
-                desc={trans("themeDetail.textDarkDesc")}
-                color={this.state.theme.textDark}
-                configChange={(params) => this.configChange(params)}
-              />
-              <div>
-                <DetailTitle>{trans("themeDetail.borderRadius")}</DetailTitle>
-                <ColorPicker
-                  colorKey="borderRadius"
-                  name={trans("themeDetail.borderRadius")}
-                  desc={trans("themeDetail.borderRadiusDesc")}
-                  radius={this.state.theme.borderRadius}
-                  configChange={(params) => this.configChange(params)}
-                />
-              </div>
-            </div>
-            <div className="common">
-              <div>
-                <DetailTitle>{trans("themeDetail.margin")}</DetailTitle>
-                <ColorPicker
-                  colorKey="margin"
-                  name={trans("themeDetail.margin")}
-                  desc={trans("themeDetail.marginDesc")}
-                  margin={this.state.theme.margin}
-                  configChange={(params) => {
-                    this.configChange(params);
+            <ThemeSettingsView>
+              <StyleThemeSettingsCover>
+                <ColorPickerCompIcon width={"36px"} style={{marginRight : "10px"}}/> <h2 style={{color: "#ffffff", marginTop : "8px"}}> {trans("theme.mainColor")}</h2>
+              </StyleThemeSettingsCover>
+              <Card style={{ marginBottom: "20px", minHeight : "200px" }}>
+                <Flex gap={"middle"}>
+                  <List
+                    bordered
+                    dataSource={colorSettings}
+                    renderItem={(item) => (
+                      <>
+                        {item.title && (
+                            <List.Item>
+                              <DetailTitle>{item.title}</DetailTitle>
+                            </List.Item>
+                        )}
+                        {item.items.map((colorItem) => (
+                          <Tooltip title={colorItem.desc} placement="right">
+                            <List.Item key={colorItem.settingsKey}>
+                              <ThemeSettingsSelector
+                                themeSettingKey={colorItem.settingsKey}
+                                name={colorItem.name}
+                                // desc={colorItem.desc}
+                                color={colorItem.color}
+                                configChange={(params) => {
+                                  this.configChange(params);
+                                }}
+                              />
+                          </List.Item>
+                          </Tooltip>
+                        ))}
+                      </>
+                    )}
+                  />
+                  <Divider type="vertical" style={{height: "610px"}}/>
+                  <PreviewApp style={{marginTop: '3px', height: "620px", width: "100%"}} theme={this.state.theme} dsl={dsl} />
+                </Flex>
+              </Card>
+            </ThemeSettingsView>
+
+            <ThemeSettingsView>
+              <StyleThemeSettingsCover>
+                <TextSizeIcon width={"36px"} style={{marginRight : "10px"}}/> <h2 style={{color: "#ffffff", marginTop : "8px"}}> {trans("theme.fonts")}</h2>
+              </StyleThemeSettingsCover>
+              <Card style={{ marginBottom: "20px", minHeight : "200px" }}>
+                <Flex gap={"middle"}>
+                  <List
+                    bordered
+                    dataSource={fontSettings}
+                    renderItem={(item) => (
+                      <>
+                        {item.title && (
+                            <List.Item>
+                              <DetailTitle>{item.title}</DetailTitle>
+                            </List.Item>
+                        )}
+                        {item.items.map((layoutSettingsItem) => (
+                          <Tooltip title={layoutSettingsItem.desc} placement="right">
+                            <List.Item key={layoutSettingsItem.settingsKey}>
+                              {layoutSettingsItem.type == "fontFamily" && 
+                                <ThemeSettingsSelector
+                                  themeSettingKey={layoutSettingsItem.settingsKey}
+                                  name={layoutSettingsItem.name}
+                                  fontFamily={layoutSettingsItem.value}
+                                  configChange={(params) => {
+                                    this.configChange(params);
+                                }}/>
+                              }
+                            </List.Item>
+                            <List.Item>
+                              <div style={{ width: "200px", color: "#aaa"}}>Currently, the preview of Font-Family here in the Theme Settings may now show the right font. However, the Font Family Attribute comes into effect in all your apps, which uses this Theme.
+                              <br/><br/><a href="https://docs.lowcoder.cloud/lowcoder-documentation/build-applications/themes-and-styling#demo-2-custom-font-family" target="_blank">Remember, you neded to set the CSS inclue at App- or Workspace Level</a></div>
+                            </List.Item>
+                          </Tooltip>
+                        ))}
+                      </>
+                    )}
+                  />
+                  <Divider type="vertical" style={{height: "610px"}}/>
+                  <PreviewApp style={{marginTop: '3px', height: "620px", width: "100%"}} theme={this.state.theme} dsl={dsl} />
+                </Flex>
+              </Card>
+            </ThemeSettingsView>
+
+            <ThemeSettingsView>
+              <StyleThemeSettingsCover>
+                <PageLayoutCompIcon width={"36px"} style={{marginRight : "10px"}}/> <h2 style={{color: "#ffffff", marginTop : "8px"}}> {trans("theme.layout")}</h2>
+              </StyleThemeSettingsCover>
+              <Card style={{ marginBottom: "20px", minHeight : "200px" }}>
+                <Flex gap={"middle"}>
+                  <List
+                    bordered
+                    dataSource={layoutSettings}
+                    renderItem={(item) => (
+                      <>
+                        {item.title && (
+                            <List.Item>
+                              <DetailTitle>{item.title}</DetailTitle>
+                            </List.Item>
+                        )}
+                        {item.items.map((layoutSettingsItem) => (
+                          <Tooltip title={layoutSettingsItem.desc} placement="right">
+                            <List.Item key={layoutSettingsItem.settingsKey}>
+                              {layoutSettingsItem.type == "radius" && 
+                                <ThemeSettingsSelector
+                                  themeSettingKey={layoutSettingsItem.settingsKey}
+                                  name={layoutSettingsItem.name}
+                                  radius={layoutSettingsItem.value}
+                                  configChange={(params) => {
+                                    this.configChange(params);
+                                  }}
+                                />
+                              }
+                              {layoutSettingsItem.type == "borderWidth" && 
+                                <ThemeSettingsSelector
+                                  themeSettingKey={layoutSettingsItem.settingsKey}
+                                  name={layoutSettingsItem.name}
+                                  borderWidth={layoutSettingsItem.value}
+                                  configChange={(params) => {
+                                    this.configChange(params);
+                                  }}
+                                />
+                              }
+                              {layoutSettingsItem.type == "borderStyle" && 
+                                <ThemeSettingsSelector
+                                  themeSettingKey={layoutSettingsItem.settingsKey}
+                                  name={layoutSettingsItem.name}
+                                  borderStyle={layoutSettingsItem.value}
+                                  configChange={(params) => {
+                                    this.configChange(params);
+                                  }}
+                                />
+                              }
+                              {layoutSettingsItem.type == "margin" && 
+                                <ThemeSettingsSelector
+                                  themeSettingKey={layoutSettingsItem.settingsKey}
+                                  name={layoutSettingsItem.name}
+                                  margin={layoutSettingsItem.value}
+                                  configChange={(params) => {
+                                    this.configChange(params);
+                                  }}
+                                />
+                              }
+                              {layoutSettingsItem.type == "padding" && 
+                                <ThemeSettingsSelector
+                                  themeSettingKey={layoutSettingsItem.settingsKey}
+                                  name={layoutSettingsItem.name}
+                                  padding={layoutSettingsItem.value}
+                                  configChange={(params) => {
+                                    this.configChange(params);
+                                  }}
+                                />
+                              }
+                              {layoutSettingsItem.type == "gridColumns" && 
+                                <ThemeSettingsSelector
+                                  themeSettingKey={layoutSettingsItem.settingsKey}
+                                  name={layoutSettingsItem.name}
+                                  gridColumns={layoutSettingsItem.value}
+                                  configChange={(params) => {
+                                    this.configChange(params);
+                                  }}
+                                />
+                              }
+                          </List.Item>
+                          </Tooltip>
+                        ))}
+                      </>
+                    )}
+                  />
+                  <Divider type="vertical" style={{height: "610px"}}/>
+                  <PreviewApp style={{marginTop: '3px', height: "620px", width: "100%"}} theme={this.state.theme} dsl={dsl} />
+                </Flex>
+              </Card>
+            </ThemeSettingsView>
+
+            <ThemeSettingsView>
+              <StyleThemeSettingsCover>
+                <ShapesCompIcon width={"36px"} style={{marginRight : "10px"}}/> <h2 style={{color: "#ffffff", marginTop : "8px"}}> {trans("theme.components")}</h2>
+              </StyleThemeSettingsCover>
+              <Card style={{ marginBottom: "20px", minHeight : "200px", height: "690px", overflow: "hidden"}}
+              >
+                <ThemeCompPanel
+                  theme={this.state.theme}
+                  onCompStyleChange={(
+                    compName: string,
+                    styleKey: string,
+                    compStyle: Record<string, string>
+                  ) => {
+                    this.setState({
+                      theme: {
+                        ...this.state.theme,
+                        components: {
+                          ...this.state.theme.components,
+                          [compName]: {
+                            ...this.state.theme.components?.[compName],
+                            [styleKey]: compStyle,
+                          }
+                        }
+                      },
+                    });
                   }}
                 />
-              </div>
-              <div>
-                <DetailTitle>{trans("themeDetail.padding")}</DetailTitle>
-                <ColorPicker
-                  colorKey="padding"
-                  name={trans("themeDetail.padding")}
-                  desc={trans("themeDetail.paddingDesc")}
-                  padding={this.state.theme.padding}
-                  configChange={(params) => {
-                    this.configChange(params);
-                  }}
-                />
-              </div>
-              <div>
-                <DetailTitle>{trans("themeDetail.gridColumns")}</DetailTitle>
-                <ColorPicker
-                  colorKey="gridColumns"
-                  name={trans("themeDetail.gridColumns")}
-                  desc={trans("themeDetail.gridColumnsDesc")}
-                  gridColumns={this.state.theme.gridColumns}
-                  configChange={(params) => {
-                    this.configChange(params);
-                  }}
-                />
-              </div>
-            </div>
-            <PreviewApp style={{marginTop: '3px'}} theme={this.state.theme} dsl={dsl} />
-            <div className="chart">
-              <DetailTitle>{trans("themeDetail.chart")}</DetailTitle>
-              <ChartDesc>
-                {trans("themeDetail.chartDesc")}
-                <a target="_blank" href="https://echarts.apache.org/en/theme-builder.html" rel="noreferrer">
-                  {" "}
-                  {trans("themeDetail.echartsJson")}
-                </a>
-              </ChartDesc>
-              <ChartInput>
-              <div className="code-editor">
-                <CodeEditor
-                  value={this.state.theme.chart || ""}
-                  onChange={(value) => this.configChange({
-                    colorKey: "chart",
-                    chart: value.doc.toString() ? value.doc.toString() : undefined,
-                  })}
-                  styleName="higher"
-                  codeType="Function"
-                  showLineNum
-                  bordered
-                />
-                </div>
-              </ChartInput>
-            </div>
-            <PreviewApp
-              style={{ height: "346px", margin: "20px 0 8px 0" }}
-              theme={this.state.theme}
-              dsl={chartDsl}
-            />
+              </Card>
+            </ThemeSettingsView>
+
+            <ThemeSettingsView>
+              <StyleThemeSettingsCover>
+                <ChartCompIcon width={"36px"} style={{marginRight : "10px"}}/> <h2 style={{color: "#ffffff", marginTop : "8px"}}> {trans("theme.charts")}</h2>
+              </StyleThemeSettingsCover>
+              <Card style={{ marginBottom: "20px", minHeight : "200px" }}>
+                <Flex gap={"middle"}>
+                  <ChartInput>
+                  <List
+                    bordered>
+                    <List.Item>
+                      <div style={{width: "210px"}}>
+                        {trans("themeDetail.chartDesc")}
+                        <a target="_blank" href="https://echarts.apache.org/en/theme-builder.html" rel="noreferrer">
+                          {" "}
+                          {trans("themeDetail.echartsJson")}
+                        </a>
+                      </div>
+                    </List.Item>
+                    <List.Item style={{width : "260px", height: "370px", padding:"10px"}}>
+                      <CodeEditor
+                        value={this.state.theme.chart || ""}
+                        onChange={(value) => this.configChange({
+                          themeSettingKey: "chart",
+                          chart: value.doc.toString() ? value.doc.toString() : undefined,
+                        })}
+                        styleName="window"
+                        codeType="PureJSON"
+                        showLineNum={false}
+                        bordered
+                      />
+                    </List.Item>
+                    </List>
+                  </ChartInput>
+                  <Divider type="vertical" style={{height: "370px"}}/>
+                  <PreviewApp style={{ height: "380px", width: "100%", margin: "0" }} theme={this.state.theme} dsl={chartDsl} />
+                </Flex>
+              </Card>
+            </ThemeSettingsView>
+
           </DetailContent>
+
           <Footer ref={this.footerRef} className="no-bottom">
             <ResetButton
               icon={<ResetIcon />}

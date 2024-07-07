@@ -97,7 +97,7 @@ function fixOldData(oldData: any) {
   }
   return oldData;
 }
-const ButtonTmpStyleControl = styleControl(ButtonStyle);
+const ButtonTmpStyleControl = styleControl(ButtonStyle, 'style');
 export const ButtonStyleControl = migrateOldData(ButtonTmpStyleControl, fixOldData);
 
 export const buttonRefMethods = refMethods<HTMLElement>([

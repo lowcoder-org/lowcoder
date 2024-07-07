@@ -32,8 +32,9 @@ import { stringExposingStateControl } from "../controls/codeStateControl";
 import { BoolControl } from "../controls/boolControl";
 import { BadgeBasicSection, badgeChildren } from "./badgeComp/badgeConstants";
 import { DropdownOptionControl } from "../controls/optionsControl";
-import { ReactElement, useContext } from "react";
+import { ReactElement, useContext, useEffect } from "react";
 import { CompNameContext, EditorContext } from "../editorState";
+import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 const AvatarWrapper = styled(Avatar) <AvatarProps & { $cursorPointer?: boolean, $style: AvatarStyleType }>`
   background: ${(props) => props.$style.background};
@@ -118,10 +119,10 @@ const sideOptions = [
 ] as const;
 
 const childrenMap = {
-  style: styleControl(avatarContainerStyle),
-  avatarStyle: styleControl(AvatarStyle),
-  labelStyle: styleControl(avatarLabelStyle),
-  captionStyle: styleControl(avatarLabelStyle),
+  style: styleControl(avatarContainerStyle , 'style'),
+  avatarStyle: styleControl(AvatarStyle , 'avatarStyle'),
+  labelStyle: styleControl(avatarLabelStyle , 'labelStyle'),
+  captionStyle: styleControl(avatarLabelStyle , 'captionStyle'),
   icon: withDefault(IconControl, "/icon:solid/user"),
   iconSize: withDefault(NumberControl, 40),
   onEvent: eventHandlerControl(EventOptions),
@@ -197,7 +198,10 @@ const AvatarView = (props: RecordConstructorToView<typeof childrenMap>) => {
 };
 
 let AvatarBasicComp = (function () {
-  return new UICompBuilder(childrenMap, (props) => <AvatarView {...props} />)
+  return new UICompBuilder(childrenMap, (props , dispatch) => { 
+    useMergeCompStyles(props as Record<string, any>, dispatch);    
+
+    return(<AvatarView {...props} />)})
     .setPropertyViewFn((children) => (
       <>
         <Section name={sectionNames.basic}>

@@ -13,6 +13,7 @@ import { EllipsisTextCss, ValueFromOption } from "lowcoder-design";
 import { trans } from "i18n";
 import { fixOldInputCompData } from "../textInputComp/textInputConstants";
 import { migrateOldData } from "comps/generators/simpleGenerators";
+import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 const getStyle = (style: RadioStyleType, inputFieldStyle?:RadioStyleType ) => {
   return css`
@@ -97,7 +98,9 @@ const Radio = styled(AntdRadioGroup)<{
 `;
 
 let RadioBasicComp = (function () {
-  return new UICompBuilder(RadioChildrenMap, (props) => {
+  return new UICompBuilder(RadioChildrenMap, (props, dispatch) => {
+    useMergeCompStyles(props as Record<string, any>, dispatch);
+
     const [
       validateState,
       handleChange,

@@ -105,7 +105,10 @@ function getDataByLocale<T>(
       return { data: data as T, language: name.slice(0, 2) };
     }
   }
+  
   console.error(`Not found ${names}`);
+  // return fallback data for en language
+  return { data: fileData['en'], language: 'en'};
   // throw new Error(`Not found ${names}`);
 }
 
@@ -178,7 +181,7 @@ export class Translator<Messages extends object> {
     // If still not found, return a default message or the key itself
     if (message === undefined) {
       console.warn(`Translation missing for key: ${key}`);
-      `oups! ${key}`;
+      message = `oups! ${key}`;
     }
   
     return message;

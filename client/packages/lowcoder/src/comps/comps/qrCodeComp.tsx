@@ -12,9 +12,10 @@ import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { StringControl } from "comps/controls/codeControl";
 
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import { EditorContext } from "comps/editorState";
 import { withDefault } from "../generators";
+import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 // TODO: add styling for image (size)
 // TODO: add styling for bouding box (individual backround)
@@ -31,8 +32,8 @@ const childrenMap = {
   level: dropdownControl(levelOptions, 'L'),
   includeMargin: BoolControl.DEFAULT_TRUE,
   image: StringControl,
-  style: withDefault(styleControl(QRCodeStyle),{background:'transparent'}),
-  animationStyle: styleControl(AnimationStyle),
+  style: styleControl(QRCodeStyle , 'style'),
+  animationStyle: styleControl(AnimationStyle  , 'animationStyle'),
   restrictPaddingOnRotation: withDefault(StringControl, 'qrCode'),
 };
 
@@ -78,7 +79,10 @@ const QRCodeView = (props: RecordConstructorToView<typeof childrenMap>) => {
 };
 
 let QRCodeBasicComp = (function () {
-  return new UICompBuilder(childrenMap, (props) => <QRCodeView {...props} />)
+  return new UICompBuilder(childrenMap, (props, dispatch) => {
+    useMergeCompStyles(props as Record<string, any>, dispatch);
+    
+    return( <QRCodeView {...props} />)})
     .setPropertyViewFn((children) => (
       <>
         <Section name={sectionNames.basic}>

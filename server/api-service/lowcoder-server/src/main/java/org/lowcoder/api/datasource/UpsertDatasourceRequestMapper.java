@@ -3,6 +3,7 @@ package org.lowcoder.api.datasource;
 import static org.lowcoder.sdk.exception.BizError.INVALID_DATASOURCE_CONFIGURATION;
 import static org.lowcoder.sdk.util.ExceptionUtils.ofException;
 
+import com.github.f4b6a3.uuid.UuidCreator;
 import org.apache.commons.lang3.StringUtils;
 import org.lowcoder.domain.datasource.model.Datasource;
 import org.lowcoder.domain.plugin.service.DatasourceMetaInfoService;

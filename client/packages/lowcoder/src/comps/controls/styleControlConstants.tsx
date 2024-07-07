@@ -2,6 +2,7 @@ import {ThemeDetail} from "api/commonSettingApi";
 import {darkenColor, isDarkColor, lightenColor, toHex} from "lowcoder-design";
 import {trans} from "i18n";
 import {StyleConfigType} from "./styleControl";
+import { defaultTheme } from "@lowcoder-ee/constants/themeConstants";
 
 type SupportPlatform = "pc" | "mobile";
 
@@ -225,26 +226,6 @@ export type SingleColorConfig =
   | BoxShadowColorConfig
   | AnimationIterationCountConfig;
 
-export const defaultTheme: ThemeDetail = {
-  primary: "#3377FF",
-  textDark: "#222222",
-  textLight: "#FFFFFF",
-  canvas: "#F5F5F6",
-  primarySurface: "#FFFFFF",
-  borderRadius: "4px",
-  margin: "3px",
-  padding: "3px",
-  gridColumns: "24",
-  textSize: "14px",
-  animation: "",
-  animationDelay: "",
-  animationDuration: "",
-  opacity: "1",
-  boxShadow: "",
-  boxShadowColor: "",
-  animationIterationCount: "",
-};
-
 export const SURFACE_COLOR = "#FFFFFF";
 const SECOND_SURFACE_COLOR = "#D7D9E0";
 const ERROR_COLOR = "#F5222D";
@@ -260,7 +241,7 @@ export function contrastText(
   textDark: string,
   textLight: string
 ) {
-  return isDarkColor(color) && color !== "#00000000" ? textLight : textDark;
+  return color && isDarkColor(color) && color !== "#00000000" ? textLight : textDark;
 }
 
 // return similar background color
@@ -496,7 +477,7 @@ const BORDER = {
 const RADIUS = {
   name: "radius",
   label: trans("style.borderRadius"),
-  radius: "borderRadius",
+  radius: "radius",
 } as const;
 
 const BORDER_WIDTH = {
@@ -1243,7 +1224,7 @@ export const TabContainerStyle = [
     [
       ...ContainerStyle.filter(
         (style) =>
-          ["border", "radius", "f", "margin", "padding"].includes(
+          ["border", "radius", "f", "margin", "padding",'borderWidth','borderStyle'].includes(
             style.name
           ) === false
       ),

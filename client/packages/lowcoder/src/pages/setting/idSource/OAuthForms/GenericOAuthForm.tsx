@@ -65,6 +65,7 @@ export interface ConfigProvider {
   scope: string,
   sourceMappings: any,
   userInfoIntrospection?: boolean,
+  userCanSelectAccounts?: boolean,
 }
 
 type GenericOAuthFormProp = {

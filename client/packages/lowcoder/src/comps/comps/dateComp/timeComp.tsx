@@ -25,7 +25,7 @@ import {
 } from "../../generators/withExposing";
 import { formDataChildren, FormDataPropertyView } from "../formComp/formDataConstants";
 import { styleControl } from "comps/controls/styleControl";
-import { DateTimeStyle, DateTimeStyleType } from "comps/controls/styleControlConstants";
+import { AnimationStyle, DateTimeStyle, DateTimeStyleType, InputFieldStyle, LabelStyle } from "comps/controls/styleControlConstants";
 import { withMethodExposing } from "../../generators/withMethodExposing";
 import {
   disabledPropertyView,
@@ -40,7 +40,7 @@ import {
 } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { TIME_FORMAT, TimeParser } from "util/dateTimeUtils";
-import React, { ReactNode, useContext } from "react";
+import React, { ReactNode, useContext, useEffect } from "react";
 import { IconControl } from "comps/controls/iconControl";
 import { hasIcon } from "comps/utils";
 import { Section, sectionNames } from "components/Section";
@@ -52,6 +52,7 @@ import { CommonPickerMethods } from "antd/es/date-picker/generatePicker/interfac
 import { TimePickerProps } from "antd/es/time-picker";
 
 import { EditorContext } from "comps/editorState";
+import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 const EventOptions = [changeEvent, focusEvent, blurEvent] as const;
 
@@ -73,7 +74,13 @@ const commonChildren = {
   hourStep: RangeControl.closed(1, 24, 1),
   minuteStep: RangeControl.closed(1, 60, 1),
   secondStep: RangeControl.closed(1, 60, 1),
-  style: withDefault(styleControl(DateTimeStyle),{background:'transparent',borderWidth:'1px'}),
+  style: styleControl(InputFieldStyle, 'style'),
+  animationStyle: styleControl(AnimationStyle, 'animationStyle'),
+  labelStyle: styleControl(
+    LabelStyle.filter((style) => ['accent', 'validate'].includes(style.name) === false),
+    'labelStyle',
+  ),
+  inputFieldStyle: styleControl(DateTimeStyle, 'inputFieldStyle'),
   suffixIcon: withDefault(IconControl, "/icon:regular/clock"),
   viewRef: RefControl<CommonPickerMethods>,
   ...validationChildren,
@@ -136,7 +143,9 @@ export type TimeCompViewProps = Pick<
   placeholder?: string | [string, string];
 };
 
-export const timePickerControl = new UICompBuilder(childrenMap, (props) => {
+export const timePickerControl = new UICompBuilder(childrenMap, (props, dispatch) => {
+  useMergeCompStyles(props as Record<string, any>, dispatch);
+
   let time = null;
   if(props.value.value !== '') {
     time = dayjs(props.value.value, TimeParser);
@@ -145,10 +154,13 @@ export const timePickerControl = new UICompBuilder(childrenMap, (props) => {
   return props.label({
     required: props.required,
     style: props.style,
+    labelStyle: props.labelStyle,
+    inputFieldStyle:props.inputFieldStyle,
+    animationStyle:props.animationStyle,
     children: (
       <TimeUIView
         viewRef={props.viewRef}
-        $style={props.style}
+        $style={props.inputFieldStyle}
         disabled={props.disabled}
         value={time?.isValid() ? time : null}
         disabledTime={() => disabledTime(props.minTime, props.maxTime)}
@@ -215,9 +227,20 @@ export const timePickerControl = new UICompBuilder(childrenMap, (props) => {
       )}
 
       {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
-        <Section name={sectionNames.style}>
-          {children.style.getPropertyView()}
-        </Section>
+        <>
+          <Section name={sectionNames.style}>
+            {children.style.getPropertyView()}
+          </Section>
+          <Section name={sectionNames.labelStyle}>
+            {children.labelStyle.getPropertyView()}
+          </Section>
+          <Section name={sectionNames.inputFieldStyle}>
+            {children.inputFieldStyle.getPropertyView()}
+          </Section>
+          <Section name={sectionNames.animationStyle} hasTooltip={true}>
+            {children.animationStyle.getPropertyView()}
+          </Section>
+        </>
       )}
     </>
   ))
@@ -231,7 +254,9 @@ export const timeRangeControl = (function () {
     ...commonChildren,
   };
 
-  return new UICompBuilder(childrenMap, (props) => {
+  return new UICompBuilder(childrenMap, (props, dispatch) => {
+    useMergeCompStyles(props as Record<string, any>, dispatch);
+
     let start = null;
     if(props.start.value !== '') {
       start = dayjs(props.start.value, TimeParser);
@@ -244,7 +269,7 @@ export const timeRangeControl = (function () {
     const children = (
       <TimeRangeUIView
         viewRef={props.viewRef}
-        $style={props.style}
+        $style={props.inputFieldStyle}
         disabled={props.disabled}
         start={start?.isValid() ? start : null}
         end={end?.isValid() ? end : null}
@@ -271,6 +296,9 @@ export const timeRangeControl = (function () {
     return props.label({
       required: props.required,
       style: props.style,
+      labelStyle: props.labelStyle,
+      inputFieldStyle:props.inputFieldStyle,
+      animationStyle:props.animationStyle,
       children: children,
       ...(startResult.validateStatus !== "success"
         ? startResult
@@ -323,9 +351,20 @@ export const timeRangeControl = (function () {
         )}
 
         {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
-          <Section name={sectionNames.style}>
-            {children.style.getPropertyView()}
-          </Section>
+          <>
+            <Section name={sectionNames.style}>
+              {children.style.getPropertyView()}
+            </Section>
+            <Section name={sectionNames.labelStyle}>
+              {children.labelStyle.getPropertyView()}
+            </Section>
+            <Section name={sectionNames.inputFieldStyle}>
+              {children.inputFieldStyle.getPropertyView()}
+            </Section>
+            <Section name={sectionNames.animationStyle} hasTooltip={true}>
+              {children.animationStyle.getPropertyView()}
+            </Section>
+          </>
         )}
       </>
     ))

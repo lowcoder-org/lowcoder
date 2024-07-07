@@ -1,17 +1,10 @@
 package org.lowcoder.domain.application.model;
 
 
-import static com.google.common.base.Suppliers.memoize;
-import static java.util.Optional.ofNullable;
-import static org.lowcoder.domain.application.ApplicationUtil.getContainerSizeFromDSL;
-import static org.lowcoder.domain.application.ApplicationUtil.getDependentModulesFromDsl;
-
-import java.util.Collections;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.function.Supplier;
-
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.github.f4b6a3.uuid.UuidCreator;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
@@ -25,19 +18,26 @@ import org.lowcoder.sdk.models.HasIdAndAuditing;
 import org.lowcoder.sdk.util.JsonUtils;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.util.StringUtils;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.Collections;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Supplier;
 
-import lombok.Builder;
+import static com.google.common.base.Suppliers.memoize;
+import static java.util.Optional.ofNullable;
+import static org.lowcoder.domain.application.ApplicationUtil.getContainerSizeFromDSL;
+import static org.lowcoder.domain.application.ApplicationUtil.getDependentModulesFromDsl;
 
 @Document
 @Jacksonized
 @SuperBuilder
 @NoArgsConstructor
 public class Application extends HasIdAndAuditing {
-
+    @Getter
+    private String gid;
     private String organizationId;
     private String name;
     private Integer applicationType;
@@ -55,6 +55,7 @@ public class Application extends HasIdAndAuditing {
 
     public Application(
             @JsonProperty("orgId") String organizationId,
+            @JsonProperty("gid") String gid,
             @JsonProperty("name") String name,
             @JsonProperty("applicationType") Integer applicationType,
             @JsonProperty("applicationStatus") ApplicationStatus applicationStatus,
@@ -64,6 +65,7 @@ public class Application extends HasIdAndAuditing {
             @JsonProperty("publicToMarketplace") Boolean publicToMarketplace,
             @JsonProperty("agencyProfile") Boolean agencyProfile
     ) {
+        this.gid = StringUtils.isEmpty(gid)?UuidCreator.getTimeOrderedEpoch().toString():gid;
         this.organizationId = organizationId;
         this.name = name;
         this.applicationType = applicationType;
@@ -131,7 +133,7 @@ public class Application extends HasIdAndAuditing {
     public ApplicationQuery getQueryByViewModeAndQueryId(boolean isViewMode, String queryId) {
         return (isViewMode ? getLiveQueries() : getEditingQueries())
                 .stream()
-                .filter(query -> queryId.equals(query.getId()))
+                .filter(query -> queryId.equals(query.getId()) || queryId.equals(query.getGid()))
                 .findFirst()
                 .orElseThrow(() -> new BizException(BizError.QUERY_NOT_FOUND, "LIBRARY_QUERY_NOT_FOUND"));
     }

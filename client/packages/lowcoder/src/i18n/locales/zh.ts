@@ -482,6 +482,7 @@ export const zh: typeof en = {
         containerBodyPadding: "内边距",
         "containerSiderPadding": "Sider 衬垫",
         minWidth: "最小宽度",
+        text: "文本",
         textSize: "字体大小",
         textWeight: "字体粗细",
         "fontFamily": "字体",
