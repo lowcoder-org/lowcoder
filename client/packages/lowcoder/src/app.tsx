@@ -99,9 +99,9 @@ type AppIndexProps = {
 class AppIndex extends React.Component<AppIndexProps, any> {
   componentDidMount() {
     this.props.getCurrentUser();
-    if (!this.props.currentUserAnonymous) {
-      this.props.fetchHomeData(this.props.currentUserAnonymous);
-    }
+    // if (!this.props.currentUserAnonymous) {
+    //   this.props.fetchHomeData(this.props.currentUserAnonymous);
+    // }
   }
 
   componentDidUpdate(prevProps: AppIndexProps) {
@@ -115,7 +115,7 @@ class AppIndex extends React.Component<AppIndexProps, any> {
       }
     }
   }
-  render() {
+  render() {g
     const isTemplate = hasQueryParam('template');
     const pathname = history.location.pathname;
 
@@ -128,7 +128,7 @@ class AppIndex extends React.Component<AppIndexProps, any> {
     }
 
     // make sure all users in this app have checked login info
-    if (!this.props.isFetchUserFinished) { // || (this.props.currentUserId && !this.props.fetchHomeDataFinished)
+    if (!this.props.isFetchUserFinished || (this.props.currentUserId && !this.props.fetchHomeDataFinished)) {
       const hideLoadingHeader = isTemplate || isAuthUnRequired(pathname);
       return <ProductLoading hideHeader={hideLoadingHeader} />;
     }
