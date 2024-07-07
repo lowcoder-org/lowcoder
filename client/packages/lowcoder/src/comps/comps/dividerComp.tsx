@@ -26,9 +26,10 @@ type IProps = DividerProps & {
 
 // TODO: enable type "vertical" https://ant.design/components/divider
 
-const StyledDivider = styled(Divider) <IProps>`
+const StyledDivider = styled(Divider)<IProps>`
   margin-top: 3.5px;
-  rotate:${props=>props.$style.rotation};
+  rotate: ${(props) => props.$style.rotation};
+  
   .ant-divider-inner-text {
     height: 32px;
     display: flex;
@@ -36,26 +37,27 @@ const StyledDivider = styled(Divider) <IProps>`
     font-size: ${(props) => props.$style.textSize};
     font-weight: ${(props) => props.$style.textWeight};
     font-family: ${(props) => props.$style.fontFamily};
-    text-transform:${(props)=>props.$style.textTransform};
-    text-decoration:${(props)=>props.$style.textDecoration};
-    font-style:${(props) => props.$style.fontStyle}
+    text-transform: ${(props) => props.$style.textTransform};
+    ${(props) => props.$style.textDecoration !== undefined ? `text-decoration: ${props.$style.textDecoration};` : ''}
+    font-style: ${(props) => props.$style.fontStyle};
   }
-  ${props=>props.$animationStyle}
+
+  ${(props) => props.$animationStyle}
   min-width: 1px;
-  width: ${(props) => {
-    return widthCalculator(props.$style.margin);
-  }};	
-  min-height: ${(props) => {
-    return heightCalculator(props.$style.margin);
-  }};	
-  margin: ${(props) => {
-    return props.$style.margin;
-  }};	
+  width: ${(props) => widthCalculator(props.$style.margin)};
+  min-height: ${(props) => heightCalculator(props.$style.margin)};
+  margin: ${(props) => props.$style.margin};
   padding: ${(props) => props.$style.padding};
-  border-radius:${props=>props.$style.radius};
-  border-top: ${(props) => (props.$style.borderWidth && props.$style.borderWidth != "0px" ? props.$style.borderWidth : "1px")} ${(props) => props.$style.borderStyle} ${(props) => props.$style.border};
-  .ant-divider-inner-text::before, .ant-divider-inner-text::after {
-    border-block-start: ${(props) => (props.$style.borderWidth && props.$style.borderWidth != "0px" ? props.$style.borderWidth : "1px")} ${(props) => (props.dashed ? "dashed" : "solid")} ${(props) => props.$style.border} !important;
+  border-radius: ${(props) => props.$style.radius};
+  border-top: ${(props) => props.$style.borderWidth && props.$style.borderWidth !== "0px" ? props.$style.borderWidth : "1px"} 
+              ${(props) => props.$style.borderStyle} 
+              ${(props) => props.$style.border};
+
+  .ant-divider-inner-text::before,
+  .ant-divider-inner-text::after {
+    border-block-start: ${(props) => props.$style.borderWidth && props.$style.borderWidth !== "0px" ? props.$style.borderWidth : "1px"} 
+                      ${(props) => props.dashed ? "dashed" : "solid"} 
+                      ${(props) => props.$style.border} !important;
     border-block-start-color: inherit;
     border-block-end: 0;
     border-block-start-radius: inherit;
@@ -66,11 +68,14 @@ const StyledDivider = styled(Divider) <IProps>`
     border-top-color: ${(props) => props.$style.color};
     color: ${(props) => props.$style.text};
   }
+
   &.ant-divider-horizontal.ant-divider-with-text::before,
-  &.ant-divider-horizontal.ant-divider-with-text::after  {
+  &.ant-divider-horizontal.ant-divider-with-text::after {
     border-top-color: ${(props) => props.$style.color};
-    border-radius:${props=>props.$style.radius};
-    border-top: ${(props) => (props.$style.borderWidth && props.$style.borderWidth != "0px" ? props.$style.borderWidth : "1px")} ${(props) => props.$style.borderStyle} ${(props) => props.$style.border};
+    border-radius: ${(props) => props.$style.radius};
+    border-top: ${(props) => props.$style.borderWidth && props.$style.borderWidth !== "0px" ? props.$style.borderWidth : "1px"} 
+               ${(props) => props.$style.borderStyle} 
+               ${(props) => props.$style.border};
   }
 `;
 
