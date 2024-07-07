@@ -27,6 +27,7 @@ public class Oauth2GenericAuthConfig extends Oauth2SimpleAuthConfig {
     private HashMap<String, String> sourceMappings;
     private Boolean userInfoIntrospection;
     private Boolean userCanSelectAccounts;
+    private Boolean postForUserEndpoint;
 
     @Override
     public String replaceAuthUrlClientIdPlaceholder(String url)

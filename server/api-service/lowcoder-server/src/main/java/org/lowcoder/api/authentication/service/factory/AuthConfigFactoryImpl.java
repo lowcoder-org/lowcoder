@@ -117,8 +117,9 @@ public class AuthConfigFactoryImpl implements AuthConfigFactory {
                 .userInfoEndpoint(authConfigRequest.getUserInfoEndpoint())
                 .scope(authConfigRequest.getScope())
                 .authType(AuthTypeConstants.GENERIC)
-                .userInfoIntrospection(MapUtils.getBoolean(authConfigRequest,"userInfoIntrospection"))
-                .userCanSelectAccounts(MapUtils.getBoolean(authConfigRequest,"userCanSelectAccounts"))
+                .userInfoIntrospection(MapUtils.getBoolean(authConfigRequest,"userInfoIntrospection", false))
+                .userCanSelectAccounts(MapUtils.getBoolean(authConfigRequest,"userCanSelectAccounts", true))
+                .postForUserEndpoint(MapUtils.getBoolean(authConfigRequest,"postForUserEndpoint", false))
                 .build();
     }
 }
