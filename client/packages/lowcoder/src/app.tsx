@@ -55,6 +55,7 @@ import { getBrandingConfig } from "./redux/selectors/configSelectors";
 import { buildMaterialPreviewURL } from "./util/materialUtils";
 import GlobalInstances from 'components/GlobalInstances';
 import posthog from 'posthog-js'
+import { fetchHomeData } from "./redux/reduxActions/applicationActions";
 
 const LazyUserAuthComp = React.lazy(() => import("pages/userAuth"));
 const LazyInviteLanding = React.lazy(() => import("pages/common/inviteLanding"));
@@ -82,9 +83,12 @@ type AppIndexProps = {
   isFetchUserFinished: boolean;
   getIsCommonSettingFetched: boolean;
   currentOrgId?: string;
+  currentUserId: string;
   orgDev: boolean;
   defaultHomePage: string | null | undefined;
+  fetchHomeDataFinished: boolean;
   fetchConfig: (orgId?: string) => void;
+  fetchHomeData: () => void;
   getCurrentUser: () => void;
   favicon: string;
   brandName: string;
@@ -94,6 +98,7 @@ type AppIndexProps = {
 class AppIndex extends React.Component<AppIndexProps, any> {
   componentDidMount() {
     this.props.getCurrentUser();
+    this.props.fetchHomeData();
   }
 
   componentDidUpdate(prevProps: AppIndexProps) {
@@ -102,6 +107,7 @@ class AppIndex extends React.Component<AppIndexProps, any> {
       this.props.currentOrgId !== ''
     ) {
       this.props.fetchConfig(this.props.currentOrgId);
+      this.props.fetchHomeData();
     }
   }
   render() {
@@ -117,15 +123,13 @@ class AppIndex extends React.Component<AppIndexProps, any> {
     }
 
     // make sure all users in this app have checked login info
-    if (!this.props.isFetchUserFinished) {
+    if (!this.props.isFetchUserFinished || (this.props.currentUserId && !this.props.fetchHomeDataFinished)) {
       const hideLoadingHeader = isTemplate || isAuthUnRequired(pathname);
       return <ProductLoading hideHeader={hideLoadingHeader} />;
     }
 
     // persisting the language in local storage
     localStorage.setItem('lowcoder_uiLanguage', this.props.uiLanguage);
-
-    console.log('Props: ', this.props);
 
     return (
       <Wrapper language={this.props.uiLanguage}>
@@ -276,8 +280,8 @@ class AppIndex extends React.Component<AppIndexProps, any> {
         <SystemWarning />
           <Router history={history}>
             <Switch>
-              {this.props.isFetchUserFinished && !this.props.orgDev ? (
-                this.props.getIsCommonSettingFetched && this.props.defaultHomePage !== undefined ? ( 
+              {this.props.isFetchUserFinished && this.props.defaultHomePage? (
+                !this.props.orgDev ? ( 
                   <Redirect exact from={BASE_URL} to={APPLICATION_VIEW_URL(this.props.defaultHomePage || "", "view")}/>
                 ) : (
                   <Redirect exact from={BASE_URL} to={ORG_HOME_URL} />
@@ -374,8 +378,10 @@ const mapStateToProps = (state: AppState) => ({
   isFetchUserFinished: isFetchUserFinished(state),
   getIsCommonSettingFetched: getIsCommonSettingFetched(state),
   orgDev: state.ui.users.user.orgDev,
+  currentUserId: state.ui.users.currentUser.id,
   currentOrgId: state.ui.users.user.currentOrgId,
   defaultHomePage: state.ui.application.homeOrg?.commonSettings.defaultHomePage,
+  fetchHomeDataFinished: Boolean(state.ui.application.homeOrg?.commonSettings),
   favicon: getBrandingConfig(state)?.favicon
     ? buildMaterialPreviewURL(getBrandingConfig(state)?.favicon!)
     : favicon,
@@ -388,6 +394,7 @@ const mapDispatchToProps = (dispatch: any) => ({
     dispatch(fetchUserAction());
   },
   fetchConfig: (orgId?: string) => dispatch(fetchConfigAction(orgId)),
+  fetchHomeData: () => dispatch(fetchHomeData({}))
 });
 
 const AppIndexWithProps = connect(mapStateToProps, mapDispatchToProps)(AppIndex);
