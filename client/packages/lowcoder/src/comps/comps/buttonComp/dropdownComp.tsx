@@ -38,8 +38,8 @@ const LeftButtonWrapper = styled.div<{ $buttonStyle: DropdownStyleType }>`
   ${(props) => `margin: ${props.$buttonStyle.margin};`}
   margin-right: 0;
   .ant-btn span {
-    ${(props) => `text-decoration: ${props.$buttonStyle.textDecoration};`}
-    ${(props) => `font-family: ${props.$buttonStyle.fontFamily};`}
+    ${(props) => props.$buttonStyle.textDecoration !== undefined ? `text-decoration: ${props.$buttonStyle.textDecoration};` : ''}
+    ${(props) => props.$buttonStyle.fontFamily !== undefined ? `font-family: ${props.$buttonStyle.fontFamily};` : ''}
   }
   
   .ant-btn {
@@ -48,6 +48,7 @@ const LeftButtonWrapper = styled.div<{ $buttonStyle: DropdownStyleType }>`
     height: 100%;
     &.ant-btn-default {
       margin: 0 !important;
+
       ${(props) => `border-radius: ${props.$buttonStyle.radius} 0 0 ${props.$buttonStyle.radius};`}
       ${(props) => `text-transform: ${props.$buttonStyle.textTransform};`}
       ${(props) => `font-weight: ${props.$buttonStyle.textWeight};`}

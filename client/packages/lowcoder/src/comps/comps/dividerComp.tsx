@@ -2,7 +2,7 @@ import { default as Divider, DividerProps } from "antd/es/divider";
 import { StringControl } from "comps/controls/codeControl";
 import { BoolControl } from "comps/controls/boolControl";
 import { alignControl } from "comps/controls/alignControl";
-import { UICompBuilder } from "comps/generators";
+import { UICompBuilder, withDefault } from "comps/generators";
 import { NameConfig, NameConfigHidden } from "comps/generators/withExposing";
 import { Section, sectionNames } from "lowcoder-design";
 import _ from "lodash";
@@ -12,6 +12,8 @@ import { AnimationStyle, AnimationStyleType, DividerStyle, DividerStyleType, hei
 import { migrateOldData } from "comps/generators/simpleGenerators";
 import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
+import { AutoHeightControl } from "comps/controls/autoHeightControl";
+
 
 import { useContext } from "react";
 import { EditorContext } from "comps/editorState";
@@ -22,7 +24,6 @@ type IProps = DividerProps & {
   $animationStyle:AnimationStyleType;
 };
 
-// TODO: find out how to set border style when text is active
 // TODO: enable type "vertical" https://ant.design/components/divider
 
 const StyledDivider = styled(Divider) <IProps>`
@@ -40,7 +41,7 @@ const StyledDivider = styled(Divider) <IProps>`
     font-style:${(props) => props.$style.fontStyle}
   }
   ${props=>props.$animationStyle}
-  min-width: 0;	
+  min-width: 1px;
   width: ${(props) => {
     return widthCalculator(props.$style.margin);
   }};	
@@ -57,6 +58,7 @@ const StyledDivider = styled(Divider) <IProps>`
     border-block-start: ${(props) => (props.$style.borderWidth && props.$style.borderWidth != "0px" ? props.$style.borderWidth : "1px")} ${(props) => (props.dashed ? "dashed" : "solid")} ${(props) => props.$style.border} !important;
     border-block-start-color: inherit;
     border-block-end: 0;
+    border-block-start-radius: inherit;
   }
 
   &.ant-divider-horizontal.ant-divider-with-text {
@@ -76,6 +78,7 @@ const childrenMap = {
   title: StringControl,
   dashed: BoolControl,
   align: alignControl(),
+  autoHeight: withDefault(AutoHeightControl, "fixed"),
   style: styleControl(DividerStyle),
   animationStyle: styleControl(AnimationStyle),
 };
@@ -96,7 +99,7 @@ function fixOldStyleData(oldData: any) {
 
 
 // Compatible with historical style data 2022-8-26
-export const DividerComp = migrateOldData(
+const DividerTempComp = migrateOldData(
   new UICompBuilder(childrenMap, (props) => {
     return (
       <StyledDivider
@@ -130,6 +133,7 @@ export const DividerComp = migrateOldData(
                     label: trans("divider.align"),
                     radioButton: true,
                   })}
+                {children.autoHeight.getPropertyView()}
               </Section>
               <Section name={sectionNames.style}>
                 {children.dashed.propertyView({ label: trans("divider.dashed") })}
@@ -152,3 +156,9 @@ export const DividerComp = migrateOldData(
     .build(),
   fixOldStyleData
 );
+
+export const DividerComp = class extends DividerTempComp {
+  override autoHeight(): boolean {
+    return this.children.autoHeight.getView();
+  }
+};
