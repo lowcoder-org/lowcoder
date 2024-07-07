@@ -3,9 +3,7 @@ import { ApplicationMeta } from "constants/applicationConstants";
 import { User } from "constants/userConstants";
 
 
-export function currentOrgAdmin(user: User) {
-  console.log("userRole", user.orgRoleMap.get(user.currentOrgId));
-  
+export function currentOrgAdmin(user: User) {  
   return user.orgRoleMap.get(user.currentOrgId) === ADMIN_ROLE;
 }
 
