@@ -84,11 +84,12 @@ type AppIndexProps = {
   getIsCommonSettingFetched: boolean;
   currentOrgId?: string;
   currentUserId: string;
+  currentUserAnonymous: boolean;
   orgDev: boolean;
   defaultHomePage: string | null | undefined;
   fetchHomeDataFinished: boolean;
   fetchConfig: (orgId?: string) => void;
-  fetchHomeData: () => void;
+  fetchHomeData: (currentUserAnonymous?: boolean | undefined) => void;
   getCurrentUser: () => void;
   favicon: string;
   brandName: string;
@@ -98,7 +99,9 @@ type AppIndexProps = {
 class AppIndex extends React.Component<AppIndexProps, any> {
   componentDidMount() {
     this.props.getCurrentUser();
-    this.props.fetchHomeData();
+    if (!this.props.currentUserAnonymous) {
+      this.props.fetchHomeData(this.props.currentUserAnonymous);
+    }
   }
 
   componentDidUpdate(prevProps: AppIndexProps) {
@@ -107,7 +110,9 @@ class AppIndex extends React.Component<AppIndexProps, any> {
       this.props.currentOrgId !== ''
     ) {
       this.props.fetchConfig(this.props.currentOrgId);
-      this.props.fetchHomeData();
+      if (!this.props.currentUserAnonymous) {
+        this.props.fetchHomeData(this.props.currentUserAnonymous);
+      }
     }
   }
   render() {
@@ -123,7 +128,7 @@ class AppIndex extends React.Component<AppIndexProps, any> {
     }
 
     // make sure all users in this app have checked login info
-    if (!this.props.isFetchUserFinished || (this.props.currentUserId && !this.props.fetchHomeDataFinished)) {
+    if (!this.props.isFetchUserFinished) { // || (this.props.currentUserId && !this.props.fetchHomeDataFinished)
       const hideLoadingHeader = isTemplate || isAuthUnRequired(pathname);
       return <ProductLoading hideHeader={hideLoadingHeader} />;
     }
@@ -280,16 +285,6 @@ class AppIndex extends React.Component<AppIndexProps, any> {
         <SystemWarning />
           <Router history={history}>
             <Switch>
-              {this.props.isFetchUserFinished && this.props.defaultHomePage? (
-                !this.props.orgDev ? ( 
-                  <Redirect exact from={BASE_URL} to={APPLICATION_VIEW_URL(this.props.defaultHomePage || "", "view")}/>
-                ) : (
-                  <Redirect exact from={BASE_URL} to={ORG_HOME_URL} />
-                )
-              ) : (
-                <Redirect exact from={BASE_URL} to={ALL_APPLICATIONS_URL} />
-              )}
-
               <LazyRoute
                 exact
                 path={IMPORT_APP_FROM_TEMPLATE_URL}
@@ -351,7 +346,19 @@ class AppIndex extends React.Component<AppIndexProps, any> {
                 path={`/playground/:name/:dsl`}
                 component={LazyComponentPlayground}
               />
+
+              {this.props.isFetchUserFinished && this.props.defaultHomePage? (
+                !this.props.orgDev ? ( 
+                  <Redirect exact from={BASE_URL} to={APPLICATION_VIEW_URL(this.props.defaultHomePage || "", "view")}/>
+                ) : (
+                  <Redirect exact from={BASE_URL} to={ORG_HOME_URL} />
+                )
+              ) : (
+                <Redirect exact from={BASE_URL} to={ALL_APPLICATIONS_URL} />
+              )}
+
               <Redirect to={`${COMPONENT_DOC_URL}/input`} path="/components" />
+
               {developEnv() && (
                 <>
                   <LazyRoute
@@ -379,6 +386,7 @@ const mapStateToProps = (state: AppState) => ({
   getIsCommonSettingFetched: getIsCommonSettingFetched(state),
   orgDev: state.ui.users.user.orgDev,
   currentUserId: state.ui.users.currentUser.id,
+  currentUserAnonymous: state.ui.users.currentUser.name === "ANONYMOUS",
   currentOrgId: state.ui.users.user.currentOrgId,
   defaultHomePage: state.ui.application.homeOrg?.commonSettings.defaultHomePage,
   fetchHomeDataFinished: Boolean(state.ui.application.homeOrg?.commonSettings),
@@ -394,7 +402,15 @@ const mapDispatchToProps = (dispatch: any) => ({
     dispatch(fetchUserAction());
   },
   fetchConfig: (orgId?: string) => dispatch(fetchConfigAction(orgId)),
-  fetchHomeData: () => dispatch(fetchHomeData({}))
+  fetchHomeData: (currentUserAnonymous: boolean | undefined) => {
+    // the rule should be that if the user is not logged in and if he want to view an App, we should not fetch the home data
+    if (window.location.pathname == APP_EDITOR_URL && !currentUserAnonymous && !currentUserAnonymous === undefined) {
+      dispatch(fetchHomeData({}));
+    }
+    else {
+      dispatch(fetchHomeData({}));
+    }
+  }
 });
 
 const AppIndexWithProps = connect(mapStateToProps, mapDispatchToProps)(AppIndex);
