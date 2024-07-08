@@ -158,6 +158,7 @@ public class UserServiceImpl implements UserService {
     public Mono<User> createNewUserByAuthUser(AuthUser authUser) {
          User.UserBuilder userBuilder = User.builder()
                 .name(authUser.getUsername())
+                .email(authUser.getEmail())
                 .state(UserState.ACTIVATED)
                 .isEnabled(true)
                 .tpAvatarLink(authUser.getAvatar());

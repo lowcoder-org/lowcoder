@@ -96,6 +96,7 @@ public final class AuthenticationUtils {
         return AuthUser.builder()
                 .uid(uid)
                 .username(username)
+                .email(email)
                 .avatar(avatar)
                 .rawUserInfo(map)
                 .build();
@@ -111,6 +112,7 @@ public final class AuthenticationUtils {
         return AuthUser.builder()
                 .uid(high.getUid() != null ? high.getUid() : low.getUid())
                 .username(high.getUsername() != null ? high.getUsername() : low.getUsername())
+                .email(high.getEmail() != null ? high.getEmail() : low.getEmail())
                 .avatar(high.getAvatar() != null ? high.getAvatar() : low.getAvatar())
                 .rawUserInfo(high.getRawUserInfo() != null ? high.getRawUserInfo() : low.getRawUserInfo())
                 .authToken(high.getAuthToken() != null ? high.getAuthToken() : low.getAuthToken())
