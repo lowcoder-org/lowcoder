@@ -264,7 +264,7 @@ export async function parseOpenApi(
         return;
       }
 
-      const { tags } = operation;
+      const { tags = ["other"] } = operation;
       if (tags) {
         appendCategories(
           categories,
@@ -288,7 +288,7 @@ export async function parseOpenApi(
         );
       }
       const action: ActionConfig = {
-        category: operation.tags || "",
+        category: tags || "",
         actionName: operationId,
         label: actionLabel(httpMethod, path, operation),
         description: actionDescription(httpMethod, path, operation),

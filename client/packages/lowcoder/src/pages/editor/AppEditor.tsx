@@ -1,5 +1,5 @@
 import { AppPathParams, AppTypeEnum } from "constants/applicationConstants";
-import { Suspense, lazy, useEffect, useRef, useState } from "react";
+import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router";
 import { AppSummaryInfo, fetchApplicationInfo } from "redux/reduxActions/applicationActions";
@@ -30,6 +30,7 @@ import EditorSkeletonView from "./editorSkeletonView";
 import {ErrorBoundary, FallbackProps} from 'react-error-boundary';
 import { ALL_APPLICATIONS_URL } from "@lowcoder-ee/constants/routesURL";
 import history from "util/history";
+import Flex from "antd/es/flex";
 
 const AppSnapshot = lazy(() => {
   return import("pages/editor/appSnapshot")
@@ -56,6 +57,7 @@ export default function AppEditor() {
   const orgId = currentUser.currentOrgId;
   const firstRendered = useRef(false);
   const [isDataSourcePluginRegistered, setIsDataSourcePluginRegistered] = useState(false);
+  const [appError, setAppError] = useState('');
 
   setGlobalSettings({ applicationId, isViewMode: paramViewMode === "view" });
 
@@ -132,15 +134,37 @@ export default function AppEditor() {
           setAppInfo(info);
           fetchJSDataSourceByApp();
         },
+        onError: (errorMessage) => {
+          setAppError(errorMessage);
+        }
       })
     );
   }, [viewMode, applicationId, dispatch]);
-const fallbackUI = (
-  <div style={{display:'flex', height:'100%', width:'100%', alignItems:'center',justifyContent:'center', gap:'8px',marginTop:'10px'}}>
-    <p style={{margin:0}}>Something went wrong while displaying this webpage</p>
-    <button onClick={() => history.push(ALL_APPLICATIONS_URL)} style={{background: '#4965f2',border: '1px solid #4965f2', color: '#ffffff',borderRadius:'6px'}}>Go to Apps</button>
-  </div>
-);
+
+  const fallbackUI = useMemo(() => (
+    <Flex align="center" justify="center" vertical style={{
+      height: '300px',
+      width: '400px',
+      margin: '0 auto',
+    }}>
+      <h4 style={{margin: 0}}>Something went wrong while displaying this webpage</h4>
+      <button onClick={() => history.push(ALL_APPLICATIONS_URL)} style={{background: '#4965f2',border: '1px solid #4965f2', color: '#ffffff',borderRadius:'6px'}}>Go to Apps</button>
+    </Flex>
+  ), []);
+
+  if (Boolean(appError)) {
+    return (
+      <Flex align="center" justify="center" vertical style={{
+        height: '300px',
+        width: '400px',
+        margin: '0 auto',
+      }}>
+        <h4>{appError}</h4>
+        <button onClick={() => history.push(ALL_APPLICATIONS_URL)} style={{background: '#4965f2',border: '1px solid #4965f2', color: '#ffffff',borderRadius:'6px'}}>Back to Home</button>
+      </Flex>
+    )
+  }
+
   return (
     <ErrorBoundary fallback={fallbackUI}>
       {showAppSnapshot ? (

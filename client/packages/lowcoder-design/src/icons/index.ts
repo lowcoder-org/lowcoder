@@ -350,6 +350,7 @@ export { ReactComponent as GeoMapLayersCompIconSmall } from "./v2/geomap-layers-
 export { ReactComponent as HillchartCompIconSmall } from "./v2/hillchart-s.svg"; // new
 export { ReactComponent as PivotTableCompIconSmall } from "./v2/pivot-table-s.svg"; // new
 export { ReactComponent as TurnstileCaptchaCompIconSmall } from "./v2/turnstile-captcha-s.svg"; // new
+export { ReactComponent as GanttCompIconSmall } from "./v2/gantt-chart-s.svg"; // new
 
 
 // medium
@@ -435,6 +436,7 @@ export { ReactComponent as VideoCameraStreamCompIcon } from "./v2/camera-stream-
 export { ReactComponent as VideoScreenshareCompIcon } from "./v2/screen-share-stream-m.svg";
 export { ReactComponent as StepCompIcon } from "./v2/steps-m.svg";
 export { ReactComponent as SignatureCompIcon } from "./v2/signature-m.svg";
+export { ReactComponent as GanttCompIcon } from "./v2/gantt-chart-m.svg";
 
 export { ReactComponent as CandlestickChartCompIcon } from "./v2/candlestick-chart-m.svg";
 export { ReactComponent as FunnelChartCompIcon } from "./v2/funnel-chart-m.svg";
