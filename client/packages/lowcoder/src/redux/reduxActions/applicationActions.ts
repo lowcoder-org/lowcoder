@@ -132,6 +132,7 @@ export type FetchAppInfoPayload = {
   applicationId: string;
   type: ApplicationDSLType;
   onSuccess?: (info: AppSummaryInfo) => void;
+  onError?: (error: string) => void;
 };
 export const fetchApplicationInfo = (payload: FetchAppInfoPayload) => ({
   type: ReduxActionTypes.FETCH_APPLICATION_DETAIL,

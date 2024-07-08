@@ -181,7 +181,7 @@ export class Translator<Messages extends object> {
     // If still not found, return a default message or the key itself
     if (message === undefined) {
       console.warn(`Translation missing for key: ${key}`);
-      `oups! ${key}`;
+      message = `oups! ${key}`;
     }
   
     return message;

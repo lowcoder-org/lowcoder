@@ -49,11 +49,13 @@ import { initApp } from "util/commonUtils";
 import { favicon } from "assets/images";
 import { hasQueryParam } from "util/urlUtils";
 import { isFetchUserFinished } from "redux/selectors/usersSelectors"; // getCurrentUser, 
+import { getIsCommonSettingFetched } from "redux/selectors/commonSettingSelectors";
 import { SystemWarning } from "./components/SystemWarning";
 import { getBrandingConfig } from "./redux/selectors/configSelectors";
 import { buildMaterialPreviewURL } from "./util/materialUtils";
 import GlobalInstances from 'components/GlobalInstances';
 import posthog from 'posthog-js'
+import { fetchHomeData } from "./redux/reduxActions/applicationActions";
 
 const LazyUserAuthComp = React.lazy(() => import("pages/userAuth"));
 const LazyInviteLanding = React.lazy(() => import("pages/common/inviteLanding"));
@@ -79,10 +81,15 @@ const Wrapper = (props: { children: React.ReactNode, language: string }) => (
 
 type AppIndexProps = {
   isFetchUserFinished: boolean;
+  getIsCommonSettingFetched: boolean;
   currentOrgId?: string;
+  currentUserId: string;
+  currentUserAnonymous: boolean;
   orgDev: boolean;
   defaultHomePage: string | null | undefined;
+  fetchHomeDataFinished: boolean;
   fetchConfig: (orgId?: string) => void;
+  fetchHomeData: (currentUserAnonymous?: boolean | undefined) => void;
   getCurrentUser: () => void;
   favicon: string;
   brandName: string;
@@ -92,6 +99,9 @@ type AppIndexProps = {
 class AppIndex extends React.Component<AppIndexProps, any> {
   componentDidMount() {
     this.props.getCurrentUser();
+    // if (!this.props.currentUserAnonymous) {
+    //   this.props.fetchHomeData(this.props.currentUserAnonymous);
+    // }
   }
 
   componentDidUpdate(prevProps: AppIndexProps) {
@@ -100,6 +110,9 @@ class AppIndex extends React.Component<AppIndexProps, any> {
       this.props.currentOrgId !== ''
     ) {
       this.props.fetchConfig(this.props.currentOrgId);
+      if (!this.props.currentUserAnonymous) {
+        this.props.fetchHomeData(this.props.currentUserAnonymous);
+      }
     }
   }
   render() {
@@ -110,18 +123,18 @@ class AppIndex extends React.Component<AppIndexProps, any> {
     const isLowCoderDomain = window.location.hostname === 'app.lowcoder.cloud';
     const isLocalhost = window.location.hostname === 'localhost';
     
-    isLocalhost || isLowCoderDomain && posthog.init('phc_lD36OXeppUehLgI33YFhioTpXqThZ5QqR8IWeKvXP7f', { api_host: 'https://eu.i.posthog.com', person_profiles: 'always' });
+    if (isLocalhost || isLowCoderDomain) {
+      posthog.init('phc_lD36OXeppUehLgI33YFhioTpXqThZ5QqR8IWeKvXP7f', { api_host: 'https://eu.i.posthog.com', person_profiles: 'always' });
+    }
 
     // make sure all users in this app have checked login info
-    if (!this.props.isFetchUserFinished) {
+    if (!this.props.isFetchUserFinished || (this.props.currentUserId && !this.props.fetchHomeDataFinished)) {
       const hideLoadingHeader = isTemplate || isAuthUnRequired(pathname);
       return <ProductLoading hideHeader={hideLoadingHeader} />;
     }
 
     // persisting the language in local storage
     localStorage.setItem('lowcoder_uiLanguage', this.props.uiLanguage);
-
-    // console.log("this.props.defaultHomePage: ", this.props.defaultHomePage)
 
     return (
       <Wrapper language={this.props.uiLanguage}>
@@ -272,25 +285,6 @@ class AppIndex extends React.Component<AppIndexProps, any> {
         <SystemWarning />
           <Router history={history}>
             <Switch>
-              {/* 
-              // we decided to show the org homepage in a own navigation page
-              {!this.props.orgDev && !!this.props.defaultHomePage ? (
-              <Redirect exact from={BASE_URL} to={APPLICATION_VIEW_URL(this.props.defaultHomePage, "view")}
-              />
-            ) : (
-              <Redirect exact from={BASE_URL} to={USER_PROFILE_URL} />
-            )}
-            {!this.props.orgDev && !!this.props.defaultHomePage && (
-              <Redirect exact from={ALL_APPLICATIONS_URL} to={APPLICATION_VIEW_URL(this.props.defaultHomePage, "view")}
-              />
-            )} */}
-
-              {!this.props.orgDev ? (
-                <Redirect exact from={BASE_URL} to={ORG_HOME_URL} />
-              ) : (
-                <Redirect exact from={BASE_URL} to={ALL_APPLICATIONS_URL} />
-              )}
-
               <LazyRoute
                 exact
                 path={IMPORT_APP_FROM_TEMPLATE_URL}
@@ -352,7 +346,19 @@ class AppIndex extends React.Component<AppIndexProps, any> {
                 path={`/playground/:name/:dsl`}
                 component={LazyComponentPlayground}
               />
+
+              {this.props.isFetchUserFinished && this.props.defaultHomePage? (
+                !this.props.orgDev ? ( 
+                  <Redirect exact from={BASE_URL} to={APPLICATION_VIEW_URL(this.props.defaultHomePage || "", "view")}/>
+                ) : (
+                  <Redirect exact from={BASE_URL} to={ORG_HOME_URL} />
+                )
+              ) : (
+                <Redirect exact from={BASE_URL} to={ALL_APPLICATIONS_URL} />
+              )}
+
               <Redirect to={`${COMPONENT_DOC_URL}/input`} path="/components" />
+
               {developEnv() && (
                 <>
                   <LazyRoute
@@ -377,9 +383,13 @@ class AppIndex extends React.Component<AppIndexProps, any> {
 
 const mapStateToProps = (state: AppState) => ({
   isFetchUserFinished: isFetchUserFinished(state),
+  getIsCommonSettingFetched: getIsCommonSettingFetched(state),
   orgDev: state.ui.users.user.orgDev,
+  currentUserId: state.ui.users.currentUser.id,
+  currentUserAnonymous: state.ui.users.currentUser.name === "ANONYMOUS",
   currentOrgId: state.ui.users.user.currentOrgId,
   defaultHomePage: state.ui.application.homeOrg?.commonSettings.defaultHomePage,
+  fetchHomeDataFinished: Boolean(state.ui.application.homeOrg?.commonSettings),
   favicon: getBrandingConfig(state)?.favicon
     ? buildMaterialPreviewURL(getBrandingConfig(state)?.favicon!)
     : favicon,
@@ -392,6 +402,15 @@ const mapDispatchToProps = (dispatch: any) => ({
     dispatch(fetchUserAction());
   },
   fetchConfig: (orgId?: string) => dispatch(fetchConfigAction(orgId)),
+  fetchHomeData: (currentUserAnonymous: boolean | undefined) => {
+    // the rule should be that if the user is not logged in and if he want to view an App, we should not fetch the home data
+    if (window.location.pathname == APP_EDITOR_URL && !currentUserAnonymous && !currentUserAnonymous === undefined) {
+      dispatch(fetchHomeData({}));
+    }
+    else {
+      dispatch(fetchHomeData({}));
+    }
+  }
 });
 
 const AppIndexWithProps = connect(mapStateToProps, mapDispatchToProps)(AppIndex);

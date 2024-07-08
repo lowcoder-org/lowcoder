@@ -3,18 +3,12 @@
   "info": {
     "version": "1.0",
     "title": "Postman Echo",
-    "description": "Postman Echo is a service you can use to test your REST clients and make sample API calls. It provides endpoints for `GET`, `POST`, `PUT`, various auth mechanisms, and other utility endpoints.\n\nThe documentation for the endpoints as well as example responses can be found at [Postman Echo](https://echo.getpostman.com?source=echo-collection-app-onboarding).",
-    "termsOfService": "http://example.com/license/"
+    "description": "Postman Echo is a service you can use to test your REST clients and make sample API calls. It provides endpoints for `GET`, `POST`, `PUT`, various auth mechanisms, and other utility endpoints.\n\nThe documentation for the endpoints as well as example responses can be found at [Postman Echo](https://echo.getpostman.com?source=echo-collection-app-onboarding)."
   },
   "servers": [
     {
       "url": "https://postman-echo.com",
       "description": "Public Postman Echo Server"
-    }
-  ],
-  "security": [
-    {
-      "bearerAuth": []
     }
   ],
   "paths": {
@@ -36,13 +30,16 @@
               }
             }
           }
-        }
+        },
+        "tags": [
+          "Authentication"
+        ]
       }
     },
     "/basic-auth": {
       "get": {
         "summary": "Basic Auth",
-        "description": "This endpoint simulates a **basic-auth** protected endpoint. \nThe endpoint accepts a default username and password and returns a status code of `200 OK` only if the same is provided. \nOtherwise, it will return a status code `401 Unauthorized`.\n\n**Credentials:**\n- Username: `postman`\n- Password: `password`\n\nTo use this endpoint, send a request with the header `Authorization: Basic cG9zdG1hbjpwYXNzd29yZA==`. \nThe latter half of the header value is a base64 encoded concatenation of the default username and password.",
+        "description": "This endpoint simulates a **basic-auth** protected endpoint.\nThe endpoint accepts a default username and password and returns a status code of `200 OK` only if the same is provided.\nOtherwise, it will return a status code `401 Unauthorized`.\n\n**Credentials:**\n\n* Username: `postman`\n* Password: `password`\n\nTo use this endpoint, send a request with the header `Authorization: Basic cG9zdG1hbjpwYXNzd29yZA==`.\nThe latter half of the header value is a base64 encoded concatenation of the default username and password.",
         "operationId": "BasicAuthGet",
         "deprecated": false,
         "parameters": [],
@@ -57,13 +54,16 @@
               }
             }
           }
-        }
+        },
+        "tags": [
+          "Authentication"
+        ]
       }
     },
     "/oauth1": {
       "get": {
         "summary": "OAuth1.0 Verify Signature",
-        "description": "OAuth1.0a is a specification that defines a protocol that can be used by one\nservice to access \"protected\" resources (endpoints) on another service. A\nmajor part of OAuth1.0 is HTTP Request Signing. This endpoint allows you to \ncheck whether the request calculation works properly in the client. \n\nThe endpoint supports the HTTP `Authorization` header. In case the signature\nverification fails, the endpoint provides the following four debug values:\n\n- `base_uri`\n- `normalized_param_string`\n- `base_str`",
+        "description": "OAuth1.0a is a specification that defines a protocol that can be used by one\nservice to access \"protected\" resources (endpoints) on another service. A\nmajor part of OAuth1.0 is HTTP Request Signing. This endpoint allows you to\ncheck whether the request calculation works properly in the client.\n\nThe endpoint supports the HTTP `Authorization` header. In case the signature\nverification fails, the endpoint provides the following four debug values:\n\n* `base_uri`\n* `normalized_param_string`\n* `base_str`",
         "operationId": "Oauth1Get",
         "deprecated": false,
         "parameters": [],
@@ -78,13 +78,16 @@
               }
             }
           }
-        }
+        },
+        "tags": [
+          "Authentication"
+        ]
       }
     },
     "/auth/hawk": {
       "get": {
         "summary": "Hawk Auth",
-        "description": "This endpoint is protected with Hawk Authentication. [Hawk authentication](https://github.com/hueniverse/hawk) is a widely used protocol for protecting API endpoints. One of Hawk's main goals is to enable HTTP authentication for services that do not use TLS (although it can be used in conjunction with TLS as well).\n\nTo use this endpoint, select the \"Hawk Auth\" helper inside Postman, and set the following values:\n\n- Hawk Auth ID: `dh37fgj492je`\n- Hawk Auth Key: `werxhqb98rpaxn39848xru`",
+        "description": "This endpoint is protected with Hawk Authentication. [Hawk authentication](https://github.com/hueniverse/hawk) is a widely used protocol for protecting API endpoints. One of Hawk's main goals is to enable HTTP authentication for services that do not use TLS (although it can be used in conjunction with TLS as well).\n\nTo use this endpoint, select the \"Hawk Auth\" helper inside Postman, and set the following values:\n\n* Hawk Auth ID: `dh37fgj492je`\n* Hawk Auth Key: `werxhqb98rpaxn39848xru`",
         "operationId": "AuthHawkGet",
         "deprecated": false,
         "parameters": [],
@@ -99,7 +102,10 @@
               }
             }
           }
-        }
+        },
+        "tags": [
+          "Authentication"
+        ]
       }
     },
     "/cookies/set": {
@@ -139,7 +145,10 @@
               }
             }
           }
-        }
+        },
+        "tags": [
+          "Cookie"
+        ]
       }
     },
     "/cookies/delete": {
@@ -170,7 +179,10 @@
               }
             }
           }
-        }
+        },
+        "tags": [
+          "Cookie"
+        ]
       }
     },
     "/cookies": {
@@ -191,7 +203,10 @@
               }
             }
           }
-        }
+        },
+        "tags": [
+          "Cookie"
+        ]
       }
     },
     "/headers": {
@@ -212,7 +227,10 @@
               }
             }
           }
-        }
+        },
+        "tags": [
+          "Helpers"
+        ]
       }
     },
     "/response-headers": {
@@ -252,13 +270,16 @@
               }
             }
           }
-        }
+        },
+        "tags": [
+          "Helpers"
+        ]
       }
     },
     "/get": {
       "get": {
         "summary": "GET Request",
-        "description": "The HTTP `GET` request method is meant to retrieve data from a server. The data is identified by a unique URI (Uniform Resource Identifier). \n\nA `GET` request can pass parameters to the server using \"Query String Parameters\". For example, in the following request:\n\n> http://example.com/hi/there?hand=wave\n\nThe parameter \"hand\" has the value \"wave\".\n\nThis endpoint echoes the HTTP headers, request parameters, and the complete URI requested.",
+        "description": "The HTTP `GET` request method is meant to retrieve data from a server. The data is identified by a unique URI (Uniform Resource Identifier).\n\nA `GET` request can pass parameters to the server using \"Query String Parameters\". For example, in the following request:\n\n> http://example.com/hi/there?hand=wave\n\nThe parameter \"hand\" has the value \"wave\".\n\nThis endpoint echoes the HTTP headers, request parameters, and the complete URI requested.",
         "operationId": "GetGet",
         "deprecated": false,
         "parameters": [
@@ -283,16 +304,29 @@
               }
             }
           }
-        }
+        },
+        "tags": [
+          "Standard Requests"
+        ]
       }
     },
     "/post": {
       "post": {
         "summary": "POST Request",
-        "description": "The HTTP `POST` request method is meant to transfer data to a server and elicit a response. What data is returned depends on the implementation of the server.\n\nA `POST` request can pass parameters to the server using \"Query String Parameters\", as well as the Request Body. For example, in the following request:\n\n> POST /hi/there?hand=wave\n>\n> <request-body>\n\nThe parameter \"hand\" has the value \"wave\". The request body can be in multiple formats. These formats are defined by the MIME type of the request.",
+        "description": "The HTTP `POST` request method is meant to transfer data to a server and elicit a response. What data is returned depends on the implementation of the server.\n\nA `POST` request can pass parameters to the server using \"Query String Parameters\", as well as the Request Body. For example, in the following request:\n\n> POST /hi/there?hand=wave\n\nThe parameter \"hand\" has the value \"wave\". The request body can be in multiple formats. These formats are defined by the MIME type of the request.",
         "operationId": "PostPost",
         "deprecated": false,
-        "parameters": [],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "test",
+            "description": "an optional Query Parameter",
+            "schema": {
+              "type": "string"
+            },
+            "required": false
+          }
+        ],
         "responses": {
           "200": {
             "description": "The echoed request data.",
@@ -304,16 +338,52 @@
               }
             }
           }
+        },
+        "tags": [
+          "Standard Requests"
+        ],
+        "requestBody": {
+          "description": "A JSON based Payload",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string"
+              }
+            },
+            "others": {
+              "schema": {
+                "type": "object",
+                "properties": {}
+              },
+              "examples": {
+                "example1": {
+                  "value": {
+                    "hello": "world"
+                  }
+                }
+              }
+            }
+          }
         }
       }
     },
-    "/put": {
-      "put": {
-        "summary": "PUT Request",
-        "description": "The HTTP `PUT` request method is similar to HTTP `POST`. It is meant to transfer data to a server and elicit a response. What data is returned depends on the implementation of the server.\n\nA `PUT` request can pass parameters to the server using \"Query String Parameters\", as well as the Request Body. For example, in the following raw HTTP request:\n\n> PUT /hi/there?hand=wave\n>\n> <request-body>",
-        "operationId": "PutPut",
+    "/post/file": {
+      "post": {
+        "summary": "POST Request with File Upload (multipart/form-data)",
+        "description": "The HTTP `POST` request method is meant to transfer data to a server and elicit a response. What data is returned depends on the implementation of the server.\n\nA `POST` request can pass parameters to the server using \"Query String Parameters\", as well as the Request Body. For example, in the following request:\n\n> POST /hi/there?hand=wave\n\nThe parameter \"hand\" has the value \"wave\". The request body can be in multiple formats. These formats are defined by the MIME type of the request.",
+        "operationId": "PostFile",
         "deprecated": false,
-        "parameters": [],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "test",
+            "description": "an optional Query Parameter",
+            "schema": {
+              "type": "string"
+            },
+            "required": false
+          }
+        ],
         "responses": {
           "200": {
             "description": "The echoed request data.",
@@ -321,6 +391,160 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/RequestEcho"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Standard Requests"
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "address": {
+                    "type": "object",
+                    "properties": {
+                      "street": {
+                        "type": "string"
+                      },
+                      "city": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "profileImage": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "The profile image as base64 from File-Upload. You need to pack it in this JSON Structure, so the Backend-Server will turn it into binary format - {{ {data: file1.value[0], name: file1.files[0].name} }}"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/post/image": {
+      "post": {
+        "summary": "POST Request with Imnage (Base64 String) Upload (multipart/form-data)",
+        "description": "The HTTP `POST` request method is meant to transfer data to a server and elicit a response. What data is returned depends on the implementation of the server.\n\nA `POST` request can pass parameters to the server using \"Query String Parameters\", as well as the Request Body. For example, in the following request:\n\n> POST /hi/there?hand=wave\n\nThe parameter \"hand\" has the value \"wave\". The request body can be in multiple formats. These formats are defined by the MIME type of the request.",
+        "operationId": "PostImage",
+        "deprecated": false,
+        "parameters": [
+          {
+            "in": "query",
+            "name": "test",
+            "description": "an optional Query Parameter",
+            "schema": {
+              "type": "string"
+            },
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The echoed request data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RequestEcho"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Standard Requests"
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "address": {
+                    "type": "object",
+                    "properties": {
+                      "street": {
+                        "type": "string"
+                      },
+                      "city": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "profileImage": {
+                    "type": "string",
+                    "format": "base64"
+                  }
+                }
+              },
+              "encoding": {
+                "profileImage": {
+                  "contentType": "image/png, image/jpeg"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/put": {
+      "put": {
+        "summary": "PUT Request",
+        "description": "The HTTP `PUT` request method is similar to HTTP `POST`. It is meant to transfer data to a server and elicit a response. What data is returned depends on the implementation of the server.\n\nA `PUT` request can pass parameters to the server using \"Query String Parameters\", as well as the Request Body. For example, in the following raw HTTP request:\n\n> PUT /hi/there?hand=wave",
+        "operationId": "PutPut",
+        "deprecated": false,
+        "parameters": [
+          {
+            "in": "query",
+            "name": "test",
+            "description": "an optional Query Parameter",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The echoed request data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RequestEcho"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Standard Requests"
+        ],
+        "requestBody": {
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {}
+              },
+              "examples": {
+                "example1": {
+                  "value": {
+                    "hello": "world"
+                  }
                 }
               }
             }
@@ -334,7 +558,16 @@
         "description": "The HTTP `PATCH` method is used to update resources on a server. The exact use of `PATCH` requests depends on the server in question. There are a number of server implementations that handle `PATCH` differently. Technically, `PATCH` supports both Query String parameters and a Request Body.\n\nThis endpoint accepts an HTTP `PATCH` request and provides debug information such as the HTTP headers, Query String arguments, and the Request Body.",
         "operationId": "PatchPatch",
         "deprecated": false,
-        "parameters": [],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "test",
+            "description": "an optional Query Parameter",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "The echoed request data.",
@@ -342,6 +575,27 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/RequestEcho"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Standard Requests"
+        ],
+        "requestBody": {
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {}
+              },
+              "examples": {
+                "example1": {
+                  "value": {
+                    "hello": "world"
+                  }
                 }
               }
             }
@@ -355,7 +609,16 @@
         "description": "The HTTP `DELETE` method is used to delete resources on a server. The exact use of `DELETE` requests depends on the server implementation. In general, `DELETE` requests support both Query String parameters as well as a Request Body.\n\nThis endpoint accepts an HTTP `DELETE` request and provides debug information such as the HTTP headers, Query String arguments, and the Request Body.",
         "operationId": "DeleteDelete",
         "deprecated": false,
-        "parameters": [],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "test",
+            "description": "an optional Query Parameter",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "The echoed request data.",
@@ -367,13 +630,16 @@
               }
             }
           }
-        }
+        },
+        "tags": [
+          "Standard Requests"
+        ]
       }
     },
     "/status/200": {
       "get": {
         "summary": "Response Status Code",
-        "description": "This endpoint allows one to instruct the server which status code to respond with.\n\nEvery response is accompanied by a status code. The status code provides a summary of the nature of the response sent by the server. For example, a status code of `200` means everything is okay with the response and a code of `404` implies that the requested URL does not exist on the server. \nA list of all valid HTTP status codes can be found at the [List of Status Codes](https://en.wikipedia.org/wiki/List_of_HTTP_status_codes).",
+        "description": "This endpoint allows one to instruct the server which status code to respond with.\n\nEvery response is accompanied by a status code. The status code provides a summary of the nature of the response sent by the server. For example, a status code of `200` means everything is okay with the response and a code of `404` implies that the requested URL does not exist on the server.\nA list of all valid HTTP status codes can be found at the [List of Status Codes](https://en.wikipedia.org/wiki/List_of_HTTP_status_codes).",
         "operationId": "Status200Get",
         "deprecated": false,
         "parameters": [],
@@ -388,7 +654,10 @@
               }
             }
           }
-        }
+        },
+        "tags": [
+          "Helpers"
+        ]
       }
     },
     "/stream/10": {
@@ -409,7 +678,10 @@
               }
             }
           }
-        }
+        },
+        "tags": [
+          "Helpers"
+        ]
       }
     },
     "/delay/3": {
@@ -430,7 +702,10 @@
               }
             }
           }
-        }
+        },
+        "tags": [
+          "Helpers"
+        ]
       }
     },
     "/encoding/utf8": {
@@ -451,7 +726,10 @@
               }
             }
           }
-        }
+        },
+        "tags": [
+          "Helpers"
+        ]
       }
     },
     "/gzip": {
@@ -472,13 +750,16 @@
               }
             }
           }
-        }
+        },
+        "tags": [
+          "Helpers"
+        ]
       }
     },
     "/deflate": {
       "get": {
         "summary": "Deflate Compressed Response",
-        "description": "This endpoint returns the response using the [deflate compression algorithm](https://en.wikipedia.org/wiki/DEFLATE). \nThe uncompressed response is a JSON string containing the details of the request sent by the client. For this endpoint to work, one should request with an `Accept-encoding` header containing `deflate` as part of its value. Postman supports gzip, deflate, and SDCH decoding and automatically sends them as part of the request.\n\nHTTP Compression allows the server to send responses in a compressed format, which can reduce the amount of data that needs to be transferred over the network.",
+        "description": "This endpoint returns the response using the [deflate compression algorithm](https://en.wikipedia.org/wiki/DEFLATE).\nThe uncompressed response is a JSON string containing the details of the request sent by the client. For this endpoint to work, one should request with an `Accept-encoding` header containing `deflate` as part of its value. Postman supports gzip, deflate, and SDCH decoding and automatically sends them as part of the request.\n\nHTTP Compression allows the server to send responses in a compressed format, which can reduce the amount of data that needs to be transferred over the network.",
         "operationId": "DeflateGet",
         "deprecated": false,
         "parameters": [],
@@ -493,18 +774,14 @@
               }
             }
           }
-        }
+        },
+        "tags": [
+          "Helpers"
+        ]
       }
     }
   },
   "components": {
-    "securitySchemes": {
-      "bearerAuth": {
-        "type": "http",
-        "scheme": "bearer",
-        "bearerFormat": "JWT"
-      }
-    },
     "schemas": {
       "AuthResponse": {
         "type": "object",
@@ -638,5 +915,39 @@
         }
       }
     }
-  }
+  },
+  "tags": [
+    {
+      "name": "Standard Requests",
+      "description": "Test GET, POST, PUT, PATCH and DELETE",
+      "externalDocs": {
+        "description": "",
+        "url": ""
+      }
+    },
+    {
+      "name": "Authentication",
+      "description": "Test various Authentication Methods",
+      "externalDocs": {
+        "description": "",
+        "url": ""
+      }
+    },
+    {
+      "name": "Cookie",
+      "description": "Test Requests for Cookie Handling",
+      "externalDocs": {
+        "description": "",
+        "url": ""
+      }
+    },
+    {
+      "name": "Helpers",
+      "description": "",
+      "externalDocs": {
+        "description": "",
+        "url": ""
+      }
+    }
+  ]
 }

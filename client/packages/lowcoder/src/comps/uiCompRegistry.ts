@@ -161,6 +161,7 @@ export type UICompType =
   | "themeriverChart" 
   | "basicChart"
   | "columnLayout"
+  | "ganttChart"
   ;
 
 

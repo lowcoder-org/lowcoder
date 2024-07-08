@@ -52,7 +52,7 @@ const tableInitValue = {
 const tableData = {
   ...tableInitValue,
   data: JSON.stringify(i18nObjs.table.defaultData, null, " "),
-  columns: i18nObjs.table.columns.map((t: { key: string; title: string | undefined; isTag: boolean | undefined; }) =>
+  columns: i18nObjs.table.columns.map((t: any) =>
     newPrimaryColumn(t.key, calcColumnWidth(t.key, i18nObjs.table.defaultData), t.title, t.isTag)
   ),
 };
