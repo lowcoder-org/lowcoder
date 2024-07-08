@@ -98,7 +98,7 @@ public class OrganizationServiceImpl implements OrganizationService {
 
     private Mono<Boolean> joinOrganizationInEnterpriseMode(String userId) {
         return getOrganizationInEnterpriseMode()
-                .flatMap(organization -> orgMemberService.addMember(organization.getGid(), userId, MemberRole.MEMBER))
+                .flatMap(organization -> orgMemberService.addMember(organization.getId(), userId, MemberRole.MEMBER))
                 .defaultIfEmpty(false);
     }
 

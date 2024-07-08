@@ -42,6 +42,8 @@ public class User extends HasIdAndAuditing implements BeforeMongodbWrite, AfterM
 
     private String name;
 
+    private String email;
+
     private String uiLanguage;
 
     private String avatar;
