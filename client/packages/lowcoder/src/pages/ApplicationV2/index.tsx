@@ -267,9 +267,9 @@ export default function ApplicationHome() {
   
   const isOrgAdmin = org?.createdBy == user.id ? true : false;
 
-  // useEffect(() => {
-  //   dispatch(fetchHomeData({}));
-  // }, [user.currentOrgId]);
+  useEffect(() => {
+    dispatch(fetchHomeData({}));
+  }, [user.currentOrgId]);
 
   useEffect(() => {
     if (!org) {
