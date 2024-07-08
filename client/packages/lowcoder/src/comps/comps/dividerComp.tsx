@@ -17,10 +17,10 @@ import { AutoHeightControl } from "comps/controls/autoHeightControl";
 
 import { useContext } from "react";
 import { EditorContext } from "comps/editorState";
+import { useMergeCompStyles } from "@lowcoder-ee/index.sdk";
 
 type IProps = DividerProps & {
   $style: DividerStyleType;
-  dashed: boolean;
   $animationStyle:AnimationStyleType;
 };
 
@@ -56,7 +56,6 @@ const StyledDivider = styled(Divider)<IProps>`
   .ant-divider-inner-text::before,
   .ant-divider-inner-text::after {
     border-block-start: ${(props) => props.$style.borderWidth && props.$style.borderWidth !== "0px" ? props.$style.borderWidth : "1px"} 
-                      ${(props) => props.dashed ? "dashed" : "solid"} 
                       ${(props) => props.$style.border} !important;
     border-block-start-color: inherit;
     border-block-end: 0;
@@ -81,11 +80,10 @@ const StyledDivider = styled(Divider)<IProps>`
 
 const childrenMap = {
   title: StringControl,
-  dashed: BoolControl,
   align: alignControl(),
   autoHeight: withDefault(AutoHeightControl, "fixed"),
-  style: styleControl(DividerStyle),
-  animationStyle: styleControl(AnimationStyle),
+  style: styleControl(DividerStyle , 'style'),
+  animationStyle: styleControl(AnimationStyle , 'animationStyle'),
 };
 
 function fixOldStyleData(oldData: any) {
@@ -104,12 +102,13 @@ function fixOldStyleData(oldData: any) {
 
 
 // Compatible with historical style data 2022-8-26
-const DividerTempComp = migrateOldData(
-  new UICompBuilder(childrenMap, (props) => {
+export const DividerComp = migrateOldData(
+  new UICompBuilder(childrenMap, (props , dispatch) => {
+    useMergeCompStyles(props as Record<string, any>, dispatch);    
+
     return (
       <StyledDivider
         orientation={props.align}
-        dashed={props.dashed}
         $style={props.style}
         $animationStyle={props.animationStyle}
       >
@@ -138,10 +137,9 @@ const DividerTempComp = migrateOldData(
                     label: trans("divider.align"),
                     radioButton: true,
                   })}
-                {children.autoHeight.getPropertyView()}
+                {/* {children.autoHeight.getPropertyView()} */}
               </Section>
               <Section name={sectionNames.style}>
-                {children.dashed.propertyView({ label: trans("divider.dashed") })}
                 {children.style.getPropertyView()}
               </Section>
               <Section name={sectionNames.animationStyle}hasTooltip={true}>
@@ -153,7 +151,6 @@ const DividerTempComp = migrateOldData(
       );
     })
     .setExposeStateConfigs([
-      new NameConfig("dashed", trans("divider.dashedDesc")),
       new NameConfig("title", trans("divider.titleDesc")),
       new NameConfig("align", trans("divider.alignDesc")),
       NameConfigHidden,
@@ -162,8 +159,9 @@ const DividerTempComp = migrateOldData(
   fixOldStyleData
 );
 
-export const DividerComp = class extends DividerTempComp {
-  override autoHeight(): boolean {
-    return this.children.autoHeight.getView();
-  }
-};
+// export const DividerComp 
+// = class extends DividerTempComp {
+//   override autoHeight(): boolean {
+//     return this.children.autoHeight.getView();
+//   }
+// };
