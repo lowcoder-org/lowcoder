@@ -112,8 +112,8 @@ public class UserServiceImpl implements UserService {
         return repository.findByName(rawUuid);
     }
 
-    public Mono<User> findByEmail(String rawUuid) {
-        return repository.findByEmail(rawUuid);
+    public Mono<User> findByEmailDeep(String email) {
+        return repository.findByEmailOrConnections_Email(email, email);
     }
 
     @Override
@@ -155,7 +155,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Mono<User> findByAuthUserRawId(AuthUser authUser) {
-        return findByEmail(authUser.getEmail());
+        return findByEmailDeep(authUser.getEmail());
     }
 
     @Override

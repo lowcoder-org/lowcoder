@@ -42,6 +42,7 @@ public class AuthUser {
                 .authId(getAuthContext().getAuthConfig().getId())
                 .source(getSource())
                 .name(getUsername())
+                .email(getEmail())
                 .rawId(getUid())
                 .avatar(getAvatar())
                 .orgIds(StringUtils.isBlank(getOrgId()) ? Set.of() : Set.of(getOrgId()))
