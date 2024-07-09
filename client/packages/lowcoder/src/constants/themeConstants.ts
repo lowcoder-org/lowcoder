@@ -95,6 +95,11 @@ const qrCode  = {
   }
 };
 
+const divider  = {
+  style: {
+    radius: "0px"
+  }
+};
 
 export const defaultTheme: ThemeDetail = {
   primary: "#3377FF",
@@ -130,6 +135,7 @@ export const defaultTheme: ThemeDetail = {
     qrCode,
     treeSelect,
     pageLayout,
+    divider,
     password: input,
     numberInput: input,
     textArea: input,

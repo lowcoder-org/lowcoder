@@ -18,6 +18,7 @@ public class AuthUser {
 
     private String uid;
     private String username;
+    private String email;
     private String avatar;
     private Map<String, Object> rawUserInfo;
     private Map<String, Object> extra;
@@ -41,6 +42,7 @@ public class AuthUser {
                 .authId(getAuthContext().getAuthConfig().getId())
                 .source(getSource())
                 .name(getUsername())
+                .email(getEmail())
                 .rawId(getUid())
                 .avatar(getAvatar())
                 .orgIds(StringUtils.isBlank(getOrgId()) ? Set.of() : Set.of(getOrgId()))

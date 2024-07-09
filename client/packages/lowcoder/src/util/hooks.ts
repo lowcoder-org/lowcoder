@@ -177,7 +177,7 @@ export function useMergeCompStyles(
   const compTheme = theme?.theme?.components?.[compType];
   const themeId = theme?.themeId;
 
-  const styleKeys = Object.keys(props).filter(key => key.toLowerCase().endsWith('style'));
+  const styleKeys = Object.keys(props).filter(key => key.toLowerCase().endsWith('style' || 'styles'));
   const styleProps: Record<string, any> = {};
   styleKeys.forEach((key: string) => {
     styleProps[key] = (props as any)[key];

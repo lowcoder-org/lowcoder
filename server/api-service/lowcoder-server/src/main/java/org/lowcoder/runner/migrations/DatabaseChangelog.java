@@ -219,6 +219,30 @@ public class DatabaseChangelog {
         }
     }
 
+    @ChangeSet(order = "023", id = "add-email", author = "")
+    public void addEmailField(MongockTemplate mongoTemplate) {
+        // Create a query to match all documents
+        Query query = new Query();
+
+        // Use a DocumentCallbackHandler to iterate through each document
+        mongoTemplate.executeQuery(query, "user", new DocumentCallbackHandler() {
+            @Override
+            public void processDocument(Document document) {
+                // Generate a random UUID and ensure it is unique within the collection
+                String username = document.getString("name");
+                // Create an update object to add the 'gid' field
+                Update update = new Update();
+                update.set("email", username);
+
+                // Create a query to match the current document by its _id
+                Query idQuery = new Query(Criteria.where("_id").is(document.getObjectId("_id")));
+
+                // Update the document with the new 'gid' field
+                mongoTemplate.updateFirst(idQuery, update, "user");
+            }
+        });
+    }
+
     private void addGidField(MongockTemplate mongoTemplate, String collectionName) {
         // Create a query to match all documents
         Query query = new Query();
