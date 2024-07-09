@@ -22,14 +22,13 @@ import { useMergeCompStyles } from "@lowcoder-ee/index.sdk";
 type IProps = DividerProps & {
   $style: DividerStyleType;
   $animationStyle:AnimationStyleType;
+  type?: 'vertical' | 'horizontal';
 };
 
-// TODO: enable type "vertical" https://ant.design/components/divider
-
 const StyledDivider = styled(Divider)<IProps>`
+ 
   margin-top: 3.5px;
-  rotate: ${(props) => props.$style.rotation};
-  
+  rotate: ${(props) => props.type === 'vertical' ? '0deg' : props.$style.rotation};
   .ant-divider-inner-text {
     height: 32px;
     display: flex;
@@ -76,14 +75,22 @@ const StyledDivider = styled(Divider)<IProps>`
                ${(props) => props.$style.borderStyle} 
                ${(props) => props.$style.border};
   }
+  &.ant-divider-vertical {
+    height:  ${(props) =>  props.type === 'vertical' && '200px'}; 
+    border-left: ${(props) => props.$style.borderWidth && props.$style.borderWidth !== "0px" ? props.$style.borderWidth : "1px"} 
+                ${(props) => props.$style.borderStyle} 
+                ${(props) => props.$style.border};
+    border-top: none;
+  }
 `;
 
 const childrenMap = {
   title: StringControl,
   align: alignControl(),
-  autoHeight: withDefault(AutoHeightControl, "fixed"),
+  type: BoolControl,
+  autoHeight: withDefault(AutoHeightControl, "auto"),
   style: styleControl(DividerStyle , 'style'),
-  animationStyle: styleControl(AnimationStyle , 'animationStyle'),
+  animationStyle: styleControl(AnimationStyle ,'animationStyle'),
 };
 
 function fixOldStyleData(oldData: any) {
@@ -102,27 +109,30 @@ function fixOldStyleData(oldData: any) {
 
 
 // Compatible with historical style data 2022-8-26
-export const DividerComp = migrateOldData(
+const DividerTempComp = migrateOldData(
   new UICompBuilder(childrenMap, (props , dispatch) => {
     useMergeCompStyles(props as Record<string, any>, dispatch);    
+    const dividerType = props.type ? 'vertical' : 'horizontal'; 
 
     return (
       <StyledDivider
         orientation={props.align}
+        type={dividerType}
         $style={props.style}
         $animationStyle={props.animationStyle}
       >
-        {props.title}
+      {dividerType === 'horizontal' && props.title} 
       </StyledDivider>
     );
   })
     .setPropertyViewFn((children) => {
       return (
         <>
-          <Section name={sectionNames.basic}>
-            {children.title.propertyView({ label: trans("divider.title") })}
-          </Section>
-
+        {!children?.type?.getView() && 
+         <Section name={sectionNames.basic}>
+         {children.title.propertyView({ label: trans("divider.title") })}
+         </Section>}
+        
           {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
             <Section name={sectionNames.interaction}>
               {hiddenPropertyView(children)}
@@ -137,9 +147,10 @@ export const DividerComp = migrateOldData(
                     label: trans("divider.align"),
                     radioButton: true,
                   })}
-                {/* {children.autoHeight.getPropertyView()} */}
+                {children.autoHeight.getPropertyView()}
               </Section>
               <Section name={sectionNames.style}>
+                {children.type.propertyView({ label: trans("divider.type")})}
                 {children.style.getPropertyView()}
               </Section>
               <Section name={sectionNames.animationStyle}hasTooltip={true}>
@@ -159,9 +170,8 @@ export const DividerComp = migrateOldData(
   fixOldStyleData
 );
 
-// export const DividerComp 
-// = class extends DividerTempComp {
-//   override autoHeight(): boolean {
-//     return this.children.autoHeight.getView();
-//   }
-// };
+export const DividerComp = class extends DividerTempComp {
+  override autoHeight(): boolean {
+    return this.children.autoHeight.getView();
+  }
+};
