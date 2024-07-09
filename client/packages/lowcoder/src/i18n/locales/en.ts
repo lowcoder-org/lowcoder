@@ -2006,6 +2006,7 @@ export const en = {
     "title": "Title",
     "align": "Alignment",
     "dashed": "Dashed",
+    "type": "Vertical type",
     "dashedDesc": "Whether to Use Dashed Line",
     "titleDesc": "Divider Title",
     "alignDesc": "Divider Title Alignment"
