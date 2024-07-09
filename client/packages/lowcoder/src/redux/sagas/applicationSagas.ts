@@ -242,7 +242,8 @@ export function* fetchApplicationDetailSaga(action: ReduxAction<FetchAppInfoPayl
       return;
     } else if (!isValidResponse) {
       if (response.data.code === SERVER_ERROR_CODES.NO_PERMISSION_TO_REQUEST_APP) {
-        history.push(BASE_URL);
+        // history.push(BASE_URL);
+        action.payload.onError?.(response.data.message);
       }
       throw Error(response.data.message);
     }

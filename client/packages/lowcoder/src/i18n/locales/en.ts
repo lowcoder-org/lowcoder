@@ -1222,6 +1222,10 @@ export const en = {
     "shapeCompDesc": "A collection of geometric shapes for use with diagrams, illustrations, and visualizations.",
     "shapeCompKeywords": "shapes, geometric, diagrams, illustrations",
 
+    "ganttChartCompName" : "Gantt Chart",
+    "ganttChartCompDesc" : "A chart that illustrates a project schedule, showing the start and finish dates of elements and dependencies.",
+    "ganttChartCompKeywords" : "gantt chart, project management, schedule",
+
     // by mousheng
 
     "colorPickerCompName": "Color Picker",
