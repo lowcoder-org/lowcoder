@@ -5,14 +5,16 @@ Publishing an app in Lowcoder transitions it from a Editing State to a live (pub
 ## Publishing States
 
 1. **Editing State**:
-   * Apps in this state can only be accessed via the `/preview` endpoint by allowed users and user-groups.
+   * Apps in this state can only be accessed via the `/preview` endpoint by allowing users and user groups.
    * Changes made to the app are reflected in real-time during editing but are not visible to end-users until published.
 2. **Published State**:
-   * The most recent version of the app at the time of publishing becomes the official published version.
+   * The app's most recent version at the time of publishing becomes the official published version.
    * The published version remains unchanged until a new publish action is performed, even if further edits are made to the app in the meantime.
    * Published apps are accessible via the `/view` endpoint.
 
 <figure><img src="../.gitbook/assets/App Editor  Publish App.png" alt=""><figcaption></figcaption></figure>
+
+{% embed url="https://app.supademo.com/demo/clyedpmvb0tt1thf7nke6hx7j" %}
 
 ## Publishing Scope
 
