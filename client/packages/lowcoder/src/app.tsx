@@ -130,6 +130,11 @@ class AppIndex extends React.Component<AppIndexProps, any> {
     // make sure all users in this app have checked login info
     if (!this.props.isFetchUserFinished || (this.props.currentUserId && !this.props.fetchHomeDataFinished)) {
       const hideLoadingHeader = isTemplate || isAuthUnRequired(pathname);
+      // if the user just logged in, we send the event to posthog
+      if (sessionStorage.getItem('_just_logged_in_')) {
+        posthog.identify(this.props.currentUserId);
+        sessionStorage.removeItem('_just_logged_in_');
+      }
       return <ProductLoading hideHeader={hideLoadingHeader} />;
     }
 
