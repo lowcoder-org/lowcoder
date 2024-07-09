@@ -16,7 +16,7 @@ import { trans } from "i18n";
 import { EditorContainer, EmptyContent } from "pages/common/styledComponent";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
-import { isUserViewMode, useAppPathParam } from "util/hooks";
+import { isUserViewMode, useAppPathParam, useMergeCompStyles } from "util/hooks";
 import { BoolCodeControl, StringControl, jsonControl } from "comps/controls/codeControl";
 import { styleControl } from "comps/controls/styleControl";
 import {
@@ -41,6 +41,7 @@ import {
   menuItemStyleOptions
 } from "./navLayoutConstants";
 import { clickEvent, eventHandlerControl } from "@lowcoder-ee/comps/controls/eventHandlerControl";
+import { childrenToProps } from "@lowcoder-ee/comps/generators/multi";
 
 const { Header } = Layout;
 
@@ -198,10 +199,10 @@ let NavTmpLayout = (function () {
     backgroundImage: withDefault(StringControl, ""),
     mode: dropdownControl(ModeOptions, "inline"),
     collapse: BoolCodeControl,
-    navStyle: withDefault(styleControl(NavLayoutStyle), {...defaultStyle, padding: '1px'}),
-    navItemStyle: withDefault(styleControl(NavLayoutItemStyle), defaultStyle),
-    navItemHoverStyle: withDefault(styleControl(NavLayoutItemHoverStyle), {}),
-    navItemActiveStyle: withDefault(styleControl(NavLayoutItemActiveStyle), {}),
+    navStyle: styleControl(NavLayoutStyle, 'navStyle'),
+    navItemStyle: styleControl(NavLayoutItemStyle, 'navItemStyle'),
+    navItemHoverStyle: styleControl(NavLayoutItemHoverStyle, 'navItemHoverStyle'),
+    navItemActiveStyle: styleControl(NavLayoutItemActiveStyle, 'navItemActiveStyle'),
   };
   return new MultiCompBuilder(childrenMap, (props) => {
     return null;
@@ -289,6 +290,8 @@ NavTmpLayout = withViewFn(NavTmpLayout, (comp) => {
   const jsonItems = comp.children.jsonItems.getView();
   const dataOptionType = comp.children.dataOptionType.getView();
   const onEvent = comp.children.onEvent.getView();
+
+  useMergeCompStyles(childrenToProps(comp.children), comp.dispatch);
 
   // filter out hidden. unauthorised items filtered by server
   const filterItem = useCallback((item: LayoutMenuItemComp): boolean => {

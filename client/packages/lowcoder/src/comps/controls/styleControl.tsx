@@ -876,7 +876,7 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
             ...(theme?.theme?.components?.[compType]?.[styleKey] || {}) as unknown as Record<string, string>
           }
         : undefined;
-      const styleProps = preventStyleOverwriting || preventAppStylesOverwriting || appliedThemeId === themeId
+      const styleProps = (!comp && !compType) || preventStyleOverwriting || preventAppStylesOverwriting || appliedThemeId === themeId
         ? props as ColorMap
         : {} as ColorMap;
 
