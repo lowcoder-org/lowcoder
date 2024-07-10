@@ -113,7 +113,7 @@ public class UserServiceImpl implements UserService {
     }
 
     public Mono<User> findByEmailDeep(String email) {
-        return repository.findByEmailOrConnections_Email(email, email);
+        return repository.findByEmailOrConnections_Email(email, email).next();
     }
 
     @Override

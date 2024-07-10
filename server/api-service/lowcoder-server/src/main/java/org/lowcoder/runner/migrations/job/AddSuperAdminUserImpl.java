@@ -45,6 +45,7 @@ public class AddSuperAdminUserImpl implements AddSuperAdminUser {
         return AuthUser.builder()
                 .uid(username)
                 .username(username)
+                .email(username)
                 .authContext(authRequestContext)
                 .build();
     }
