@@ -186,7 +186,7 @@ const childrenMap = {
   showHeaderInPublic: withDefault(BoolControl, true),
   maxWidth: dropdownInputSimpleControl(OPTIONS, USER_DEFINE, "1920"),
   themeId: valueComp<string>(DEFAULT_THEMEID),
-  preventAppStylesOverwriting: withDefault(BoolControl, false),
+  preventAppStylesOverwriting: withDefault(BoolControl, true),
   customShortcuts: CustomShortcutsComp,
   disableCollision: valueComp<boolean>(false),
 };
