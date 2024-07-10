@@ -21,5 +21,5 @@ public interface UserRepository extends ReactiveMongoRepository<User, String> {
     Mono<User> findByName(String rawUuid);
 
     //email1 and email2 should be equal
-    Mono<User> findByEmailOrConnections_Email(String email1, String email2);
+    Flux<User> findByEmailOrConnections_Email(String email1, String email2);
 }
