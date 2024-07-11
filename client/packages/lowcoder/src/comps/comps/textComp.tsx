@@ -149,11 +149,11 @@ let TextTmpComp = (function () {
   };
   return new UICompBuilder(childrenMap, (props, dispatch) => {
     const value = props.text.value;
-
-    useMergeCompStyles(
-      props as Record<string, any>,
-      dispatch
-    );
+    
+    // useMergeCompStyles(
+    //   props as Record<string, any>,
+    //   dispatch
+    // );
   
     return (
       <TextContainer

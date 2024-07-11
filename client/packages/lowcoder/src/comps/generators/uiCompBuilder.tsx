@@ -26,6 +26,7 @@ import { Section } from "lowcoder-design";
 import { trans } from "i18n";
 import { BoolControl } from "../controls/boolControl";
 import { valueComp, withDefault } from "./simpleGenerators";
+import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 export type NewChildren<ChildrenCompMap extends Record<string, Comp<unknown>>> =
   ChildrenCompMap & {
@@ -226,6 +227,7 @@ function UIView(props: {
 }) {
   const comp = props.comp;
   const childrenProps = childrenToProps(comp.children);
+  const childrenJsonProps = comp.toJsonValue();
   const parentDisabled = useContext(DisabledContext);
   const disabled = childrenProps['disabled'];
   if (disabled !== undefined && typeof disabled === 'boolean') {
@@ -240,6 +242,11 @@ function UIView(props: {
     }
   }
   //END ADD BY FRED
+
+  useMergeCompStyles(
+    childrenJsonProps as Record<string, any>,
+    comp.dispatch
+  );
 
   // render condition for modal and drawer as we are not getting compType here
   if (comp.children.hasOwnProperty('showMask') && comp.children.hasOwnProperty('maskClosable')) {
