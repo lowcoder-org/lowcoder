@@ -1,5 +1,29 @@
 import { ThemeDetail } from "@lowcoder-ee/api/commonSettingApi";
 
+const theme = {
+  primary: "#3377FF",
+  textDark: "#222222",
+  textLight: "#FFFFFF",
+  canvas: "#F5F5F6",
+  primarySurface: "#FFFFFF",
+  border: "#D7D9E0",
+  radius: "4px",
+  borderWidth: "1px",
+  borderStyle: "solid",
+  margin: "3px",
+  padding: "3px",
+  gridColumns: "24",
+  textSize: "14px",
+  text: "#222222",
+  animation: "",
+  animationDelay: "",
+  animationDuration: "",
+  opacity: "1",
+  boxShadow: "",
+  boxShadowColor: "",
+  animationIterationCount: "",
+};
+
 const text = {
   style: {
     borderWidth: 0,
@@ -16,7 +40,14 @@ const input = {
   },
   inputFieldStyle: {
     borderWidth: '1px',
-    border: '#D7D9E0'
+    border: theme.border,
+  }
+};
+
+const select = {
+  ...input,
+  childrenInputFieldStyle: {
+    borderWidth: '0px',
   }
 };
 
@@ -77,12 +108,6 @@ const step  = {
   style: {text:'#D7D9E0'}
 };
 
-const treeSelect  = {
-  inputFieldStyle: {
-    borderWidth: '1px',
-  }
-};
-
 const pageLayout  = {
   style: {
     borderWidth: '1px',
@@ -95,34 +120,45 @@ const qrCode  = {
   }
 };
 
-const divider  = {
+const divider = {
   style: {
     radius: "0px"
   }
 };
 
+const navigation = {
+  style: {
+    borderWidth: '0px',
+  }
+}
+
+const slider = {
+  ...input,
+  inputFieldStyle: {
+    ...input.inputFieldStyle,
+    track: '#D7D9E0',
+  }
+}
+
+const switchComp = {
+  ...input,
+  inputFieldStyle: {
+    ...input.inputFieldStyle,
+    unchecked: '#D7D9E0',
+  }
+}
+
+const checkbox = {
+  ...input,
+  inputFieldStyle: {
+    ...input.inputFieldStyle,
+    uncheckedBorder: '#D7D9E0',
+  }
+}
+
+
 export const defaultTheme: ThemeDetail = {
-  primary: "#3377FF",
-  textDark: "#222222",
-  textLight: "#FFFFFF",
-  canvas: "#F5F5F6",
-  primarySurface: "#FFFFFF",
-  border: "#D7D9E0",
-  radius: "4px",
-  borderWidth: "1px",
-  borderStyle: "solid",
-  margin: "3px",
-  padding: "3px",
-  gridColumns: "24",
-  textSize: "14px",
-  text: "#222222",
-  animation: "",
-  animationDelay: "",
-  animationDuration: "",
-  opacity: "1",
-  boxShadow: "",
-  boxShadowColor: "",
-  animationIterationCount: "",
+  ...theme,
   components: {
     text,
     input,
@@ -133,24 +169,25 @@ export const defaultTheme: ThemeDetail = {
     tabbedContainer,
     step,
     qrCode,
-    treeSelect,
     pageLayout,
     divider,
+    navigation,
+    slider,
+    checkbox,
     password: input,
     numberInput: input,
     textArea: input,
     autocomplete: input,
-    switch: input,
-    checkbox: input,
-    radio: input,
+    switch: switchComp,
+    radio: checkbox,
     date: input,
     dateRange: input,
     time: input,
     timeRange: input,
-    slider: input,
-    rangeSlider: input,
+    rangeSlider: slider,
     segmentedControl,
-    select: input,
-    multiSelect: input,
+    select: select,
+    multiSelect: select,
+    treeSelect: select,
   },
 };

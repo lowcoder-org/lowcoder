@@ -17,7 +17,7 @@ import { AutoHeightControl } from "comps/controls/autoHeightControl";
 
 import { useContext } from "react";
 import { EditorContext } from "comps/editorState";
-import { useMergeCompStyles } from "@lowcoder-ee/index.sdk";
+import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 type IProps = DividerProps & {
   $style: DividerStyleType;

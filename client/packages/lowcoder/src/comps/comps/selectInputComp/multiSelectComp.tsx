@@ -25,9 +25,9 @@ let MultiSelectBasicComp = (function () {
     defaultValue: arrayStringExposingStateControl("defaultValue", ["1", "2"]),
     value: arrayStringExposingStateControl("value"),
     style: styleControl(InputFieldStyle , 'style'),
-    labelStyle:styleControl(LabelStyle , 'labelStyle'),
-    inputFieldStyle:styleControl(MultiSelectStyle , 'inputFieldStyle'),
-    childrenInputFieldStyle:styleControl(ChildrenMultiSelectStyle),
+    labelStyle: styleControl(LabelStyle , 'labelStyle'),
+    inputFieldStyle: styleControl(MultiSelectStyle , 'inputFieldStyle'),
+    childrenInputFieldStyle: styleControl(ChildrenMultiSelectStyle, 'childrenInputFieldStyle'),
     margin: MarginControl,	
     padding: PaddingControl,
   };

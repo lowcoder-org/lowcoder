@@ -22,6 +22,7 @@ import { trans } from "i18n";
 
 import { useContext } from "react";
 import { EditorContext } from "comps/editorState";
+import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 type IProps = {
   $justify: boolean;
@@ -135,8 +136,8 @@ const childrenMap = {
   logoUrl: StringControl,
   logoEvent: withDefault(eventHandlerControl(logoEventHandlers), [{ name: "click" }]),
   horizontalAlignment: alignWithJustifyControl(),
-  style: migrateOldData(styleControl(NavigationStyle), fixOldStyleData),
-  animationStyle: styleControl(AnimationStyle),
+  style: migrateOldData(styleControl(NavigationStyle, 'style'), fixOldStyleData),
+  animationStyle: styleControl(AnimationStyle, 'animationStyle'),
   items: withDefault(navListComp(), [
     {
       label: trans("menuItem") + " 1",
@@ -144,7 +145,9 @@ const childrenMap = {
   ]),
 };
 
-const NavCompBase = new UICompBuilder(childrenMap, (props) => {
+const NavCompBase = new UICompBuilder(childrenMap, (props, dispatch) => {
+  useMergeCompStyles(props, dispatch);
+
   const data = props.items;
   const items = (
     <>
