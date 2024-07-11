@@ -863,15 +863,17 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
       const {comp, compType} = useContext(CompContext);
       const theme = useContext(ThemeContext);
       const bgColor = useContext(BackgroundColorContext);
+      const { themeId } = theme || {};
+      const isPreviewTheme = themeId === 'preview-theme';
+
 
       const appSettingsComp = editorState?.getAppSettingsComp();
       const preventAppStylesOverwriting = appSettingsComp?.getView()?.preventAppStylesOverwriting;
-      const { themeId } = theme || {}; 
       const { appliedThemeId, preventStyleOverwriting } = comp?.comp?.container || comp?.comp || {};
-      const appTheme = !preventStyleOverwriting && !preventAppStylesOverwriting
+      const appTheme = isPreviewTheme || (!preventStyleOverwriting && !preventAppStylesOverwriting)
         ? theme?.theme
         : undefined;
-      const compTheme = compType && !preventStyleOverwriting && !preventAppStylesOverwriting
+      const compTheme = isPreviewTheme || (compType && !preventStyleOverwriting && !preventAppStylesOverwriting)
         ? {
             ...(theme?.theme?.components?.[compType]?.[styleKey] || {}) as unknown as Record<string, string>
           }
