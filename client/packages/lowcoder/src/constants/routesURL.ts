@@ -15,6 +15,7 @@ export const ORGANIZATION_SETTING = "/setting/organization";
 export const THEME_SETTING = "/setting/theme";
 export const PLUGINS_SETTING = "/setting/plugins";
 export const THEME_DETAIL = "/setting/theme/detail";
+export const THEME_DETAIL_URL = `${THEME_DETAIL}/:themeId`;
 
 export const OAUTH_PROVIDER_SETTING = "/setting/oauth-provider";
 export const OAUTH_PROVIDER_DETAIL = "/setting/oauth-provider/detail";
