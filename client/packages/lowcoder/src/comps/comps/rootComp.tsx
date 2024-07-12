@@ -73,7 +73,7 @@ function RootView(props: RootViewProps) {
     localDefaultTheme;
   
   const themeId = selectedTheme ? selectedTheme.id : (
-    previewTheme ? "" : 'default-theme-id'
+    previewTheme ? "preview-theme" : 'default-theme-id'
   ); 
 
   useEffect(() => {

@@ -1459,8 +1459,8 @@ export const TableHeaderStyle = [
   FONT_FAMILY,
   FONT_STYLE,
   TEXT,
-  getStaticBackground(SURFACE_COLOR),
-  getBackground("primarySurface"),
+  // getStaticBackground(SURFACE_COLOR),
+  // getBackground("primarySurface"),
   {
     name: "headerBackground",
     label: trans("style.tableHeaderBackground"),

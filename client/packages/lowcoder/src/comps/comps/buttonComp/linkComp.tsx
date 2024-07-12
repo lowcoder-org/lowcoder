@@ -36,7 +36,7 @@ const Link = styled(Button)<{
     padding: ${props.$style.padding};
     font-size: ${props.$style.textSize};
     font-style:${props.$style.fontStyle};
-    font-family:${props.$style.fontFamily};
+    ${props.$style.fontFamily && `font-family: ${props.$style.fontFamily}`};
     font-weight:${props.$style.textWeight};
     border: ${props.$style.borderWidth} ${props.$style.borderStyle} ${props.$style.border};
     border-radius:${props.$style.radius ? props.$style.radius:'0px'};

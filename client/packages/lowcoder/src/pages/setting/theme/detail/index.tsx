@@ -87,48 +87,53 @@ type ThemeDetailPageProps = {
   themeList?: ThemeType[];
   orgId: string;
   location: Location & { state: LocationProp };
+  match: any;
 };
 
 type ThemeDetailPageState = {
-  name: string;
-  theme: ThemeDetail;
+  name?: string;
+  theme?: ThemeDetail;
   canLeave: boolean;
   compDsl?: JSONObject;
 };
 
 class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailPageState> {
-  themeDefault: ThemeDetail;
+  themeDefault?: ThemeDetail;
   readonly id: string;
-  readonly type: string;
+  // readonly type: string;
   readonly inputRef: React.RefObject<InputRef>;
   footerRef = React.createRef<HTMLDivElement>();
 
   constructor(props: ThemeDetailPageProps) {
     super(props);
-    const { name, id, theme, type } = props.location.state || {};
-    if (!name || !id || !theme || !type) {
-      history.replace(BASE_URL);
-      window.location.reload();
-    }
+    this.id = this.props.match.params.themeId;
 
-    if (theme.chart) {
-      this.themeDefault = theme;
-    } else {
-      this.themeDefault = {
-        ...theme,
-        chart: undefined,
-      };
-    }
-
-    this.id = id;
-    this.type = type;
     this.state = {
-      theme,
-      name,
       canLeave: false,
       compDsl: undefined,
     };
     this.inputRef = React.createRef();
+  }
+
+  findCurrentTheme() {
+    const themeDetail = this.props.themeList?.find(item => item.id === this.id);
+    this.setState({
+      name: themeDetail?.name,
+      theme: themeDetail?.theme,
+    });
+    this.themeDefault = themeDetail?.theme;
+  }
+
+  componentDidMount() {
+    if(this.props.themeList?.length) {
+      this.findCurrentTheme();
+    }
+  }
+
+  componentDidUpdate(prevProps: ThemeDetailPageProps, prevState: ThemeDetailPageState) {
+    if (prevProps.themeList?.length !== this.props.themeList?.length) {
+      this.findCurrentTheme();
+    }
   }
 
   handleReset() {
@@ -164,6 +169,8 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
   }
 
   configChange(params: configChangeParams) {
+    if (!this.state.theme) return;
+
     this.setState({
       theme: {
         ...this.state.theme,
@@ -194,25 +201,25 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
             settingsKey: 'primary',
             name: trans('themeDetail.primary'),
             desc: trans('themeDetail.primaryDesc'),
-            color: this.state.theme.primary,
+            color: this.state.theme?.primary,
           },
           {
             settingsKey: 'canvas',
             name: trans('themeDetail.canvas'),
             desc: trans('themeDetail.canvasDesc'),
-            color: this.state.theme.canvas,
+            color: this.state.theme?.canvas,
           },
           {
             settingsKey: 'primarySurface',
             name: trans('themeDetail.primarySurface'),
             desc: trans('themeDetail.primarySurfaceDesc'),
-            color: this.state.theme.primarySurface,
+            color: this.state.theme?.primarySurface,
           },
           {
             settingsKey: 'border',
             name: trans('themeDetail.borderColor'),
             desc: trans('themeDetail.borderColorDesc'),
-            color: this.state.theme.border || this.state.theme.borderColor,
+            color: this.state.theme?.border || this.state.theme?.borderColor,
           }
         ]
       },
@@ -224,13 +231,13 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
             settingsKey: 'textLight',
             name: trans('themeDetail.textLight'),
             desc: trans('themeDetail.textLightDesc'),
-            color: this.state.theme.textLight,
+            color: this.state.theme?.textLight,
           },
           {
             settingsKey: 'textDark',
             name: trans('themeDetail.textDark'),
             desc: trans('themeDetail.textDarkDesc'),
-            color: this.state.theme.textDark,
+            color: this.state.theme?.textDark,
           }
         ]
       }
@@ -245,7 +252,7 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
             name: trans('themeDetail.fontFamily'),
             desc: trans('themeDetail.fontFamilyDesc'),
             type: "fontFamily",
-            value: this.state.theme.fontFamily,
+            value: this.state.theme?.fontFamily,
           }
         ]
       },
@@ -260,21 +267,21 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
             name: trans('themeDetail.borderRadius'),
             desc: trans('themeDetail.borderRadiusDesc'),
             type: "radius",
-            value: this.state.theme.radius || this.state.theme.borderRadius,
+            value: this.state.theme?.radius || this.state.theme?.borderRadius,
           },
           {
             settingsKey: 'borderWidth',
             name: trans('themeDetail.borderWidth'),
             desc: trans('themeDetail.borderWidthDesc'),
             type: "borderWidth",
-            value: this.state.theme.borderWidth,
+            value: this.state.theme?.borderWidth,
           },
           {
             settingsKey: 'borderStyle',
             name: trans('themeDetail.borderStyle'),
             desc: trans('themeDetail.borderStyleDesc'),
             type: "borderStyle",
-            value: this.state.theme.borderStyle,
+            value: this.state.theme?.borderStyle,
           }
         ]
       },
@@ -286,25 +293,38 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
             name: trans('themeDetail.margin'),
             desc: trans('themeDetail.marginDesc'),
             type: "margin",
-            value: this.state.theme.margin,
+            value: this.state.theme?.margin,
           },
           {
             settingsKey: 'padding',
             name: trans('themeDetail.padding'),
             desc: trans('themeDetail.paddingDesc'),
             type: "padding",
-            value: this.state.theme.padding,
+            value: this.state.theme?.padding,
           },
           {
             settingsKey: 'gridColumns',
             name: trans('themeDetail.gridColumns'),
             desc: trans('themeDetail.gridColumnsDesc'),
             type: "gridColumns",
-            value: this.state.theme.gridColumns,
+            value: this.state.theme?.gridColumns,
           }
         ]
       },
     ];
+
+    if (!this.themeDefault) {
+      return (
+        <Flex align="center" justify="center" vertical style={{
+          height: '300px',
+          width: '400px',
+          margin: '0 auto',
+        }}>
+          <h4>Oops! Theme not found.</h4>
+          <button onClick={() => history.push(THEME_SETTING)} style={{background: '#4965f2',border: '1px solid #4965f2', color: '#ffffff',borderRadius:'6px'}}>Back to Themes</button>
+        </Flex>
+      )
+    }
 
     return (
       <>
@@ -363,7 +383,7 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
                             </List.Item>
                         )}
                         {item.items.map((colorItem) => (
-                          <Tooltip title={colorItem.desc} placement="right">
+                          <Tooltip key={colorItem.settingsKey} title={colorItem.desc} placement="right">
                             <List.Item key={colorItem.settingsKey}>
                               <ThemeSettingsSelector
                                 themeSettingKey={colorItem.settingsKey}
@@ -381,7 +401,7 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
                     )}
                   />
                   <Divider type="vertical" style={{height: "610px"}}/>
-                  <PreviewApp style={{marginTop: '3px', height: "620px", width: "100%"}} theme={this.state.theme} dsl={dsl} />
+                  <PreviewApp style={{marginTop: '3px', height: "620px", width: "100%"}} theme={this.state.theme!} dsl={dsl} />
                 </Flex>
               </Card>
             </ThemeSettingsView>
@@ -403,7 +423,7 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
                             </List.Item>
                         )}
                         {item.items.map((layoutSettingsItem) => (
-                          <Tooltip title={layoutSettingsItem.desc} placement="right">
+                          <Tooltip key={layoutSettingsItem.settingsKey} title={layoutSettingsItem.desc} placement="right">
                             <List.Item key={layoutSettingsItem.settingsKey}>
                               {layoutSettingsItem.type == "fontFamily" && 
                                 <ThemeSettingsSelector
@@ -425,7 +445,7 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
                     )}
                   />
                   <Divider type="vertical" style={{height: "610px"}}/>
-                  <PreviewApp style={{marginTop: '3px', height: "620px", width: "100%"}} theme={this.state.theme} dsl={dsl} />
+                  <PreviewApp style={{marginTop: '3px', height: "620px", width: "100%"}} theme={this.state.theme!} dsl={dsl} />
                 </Flex>
               </Card>
             </ThemeSettingsView>
@@ -447,7 +467,7 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
                             </List.Item>
                         )}
                         {item.items.map((layoutSettingsItem) => (
-                          <Tooltip title={layoutSettingsItem.desc} placement="right">
+                          <Tooltip key={layoutSettingsItem.settingsKey} title={layoutSettingsItem.desc} placement="right">
                             <List.Item key={layoutSettingsItem.settingsKey}>
                               {layoutSettingsItem.type == "radius" && 
                                 <ThemeSettingsSelector
@@ -516,7 +536,7 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
                     )}
                   />
                   <Divider type="vertical" style={{height: "610px"}}/>
-                  <PreviewApp style={{marginTop: '3px', height: "620px", width: "100%"}} theme={this.state.theme} dsl={dsl} />
+                  <PreviewApp style={{marginTop: '3px', height: "620px", width: "100%"}} theme={this.state.theme!} dsl={dsl} />
                 </Flex>
               </Card>
             </ThemeSettingsView>
@@ -534,18 +554,20 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
                     styleKey: string,
                     compStyle: Record<string, string>
                   ) => {
-                    this.setState({
-                      theme: {
-                        ...this.state.theme,
-                        components: {
-                          ...this.state.theme.components,
-                          [compName]: {
-                            ...this.state.theme.components?.[compName],
-                            [styleKey]: compStyle,
+                    if (this.state.theme) {
+                      this.setState({
+                        theme: {
+                          ...this.state.theme,
+                          components: {
+                            ...this.state.theme.components,
+                            [compName]: {
+                              ...this.state.theme.components?.[compName],
+                              [styleKey]: compStyle,
+                            }
                           }
-                        }
-                      },
-                    });
+                        },
+                      });
+                    }
                   }}
                 />
               </Card>
@@ -571,7 +593,7 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
                     </List.Item>
                     <List.Item style={{width : "260px", height: "370px", padding:"10px"}}>
                       <CodeEditor
-                        value={this.state.theme.chart || ""}
+                        value={this.state.theme?.chart || ""}
                         onChange={(value) => this.configChange({
                           themeSettingKey: "chart",
                           chart: value.doc.toString() ? value.doc.toString() : undefined,
@@ -585,7 +607,7 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
                     </List>
                   </ChartInput>
                   <Divider type="vertical" style={{height: "370px"}}/>
-                  <PreviewApp style={{ height: "380px", width: "100%", margin: "0" }} theme={this.state.theme} dsl={chartDsl} />
+                  <PreviewApp style={{ height: "380px", width: "100%", margin: "0" }} theme={this.state.theme!} dsl={chartDsl} />
                 </Flex>
               </Card>
             </ThemeSettingsView>

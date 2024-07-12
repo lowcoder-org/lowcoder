@@ -75,14 +75,10 @@ export const getStyle = (style: CheckboxStyleType) => {
       &:hover .ant-checkbox-inner, 
       .ant-checkbox:hover .ant-checkbox-inner,
       .ant-checkbox-input + ant-checkbox-inner {
-        background-color:${style.hoverBackground ? style.hoverBackground : '#fff'};
+        ${style.hoverBackground && `background-color: ${style.hoverBackground}`};
       }
 
-      &:hover .ant-checkbox-checked .ant-checkbox-inner, 
-      .ant-checkbox:hover .ant-checkbox-inner,
-      .ant-checkbox-input + ant-checkbox-inner {
-        background-color:${style.hoverBackground ? style.hoverBackground : '#ffff'};
-      }
+      
 
       &:hover .ant-checkbox-inner,
       .ant-checkbox:hover .ant-checkbox-inner,
