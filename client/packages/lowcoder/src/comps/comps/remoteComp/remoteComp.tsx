@@ -133,7 +133,12 @@ export function remoteComp<T extends RemoteCompInfo = RemoteCompInfo>(
     }
 
     getView() {
-      const key = `${remoteInfo?.packageName}-${remoteInfo?.packageVersion}-${remoteInfo?.compName}`;
+      let key;
+      if (remoteInfo?.source === "npm") {
+       key = `${remoteInfo?.packageName}-${remoteInfo?.packageVersion}-${remoteInfo?.compName}`;
+      } else if (remoteInfo?.source === "url") {
+        key = `${remoteInfo?.sourceUrl}-${remoteInfo?.compName}`;
+      }
       return (
         <RemoteCompView key={key} loadComp={() => this.load()} loadingElement={loadingElement} />
       );

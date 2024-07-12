@@ -2,17 +2,34 @@ import axios from "axios";
 import { NPM_REGISTRY_URL } from "constants/npmPlugins";
 import { RemoteCompSource, RemoteCompInfo, NpmVersionMeta, NpmPackageMeta } from "types/remoteComp";
 
+export interface RemoteCompNpmOptions {
+  packageName: string;
+  packageVersion: string;
+}
+
+export interface RemoteCompFileOptions {
+  sourceUrl: string;
+}
+
 export function getRemoteCompType(
-  source: "npm",
-  packageName: string,
-  version: string,
+  source: RemoteCompSource,
+  config: RemoteCompNpmOptions | RemoteCompFileOptions,
   compName: string
 ) {
-  return `remote#${source}#${packageName}@${version}#${compName}`;
+  switch (source) {
+    case "url":
+      const { sourceUrl } = config as RemoteCompFileOptions;
+      return `remote#${source}#${sourceUrl}#${compName}`;
+    case "npm":
+      const { packageName, packageVersion } = config as RemoteCompNpmOptions;
+      return `remote#${source}#${packageName}@${packageVersion}#${compName}`;
+    default:
+      throw new Error(`Unknown remote source: ${source}`);
+  }
 }
 
 export function parseCompType(compType: string) {
-  const [type, source, packageNameAndVersion, compName] = compType.split("#");
+  const [type, source, sourceInfo, compName] = compType.split("#");
   const isRemote = type === "remote";
 
   if (!isRemote) {
@@ -22,18 +39,40 @@ export function parseCompType(compType: string) {
     };
   }
 
-  const [packageName, packageVersion] = packageNameAndVersion.split("@");
-  return {
-    compName,
-    isRemote,
-    packageName,
-    packageVersion,
-    source: source as RemoteCompSource,
-  } as RemoteCompInfo;
+  switch (source) {
+    case "url":
+      return {
+        compName,
+        isRemote,
+        source,
+        sourceUrl: sourceInfo,
+      } as RemoteCompInfo;
+      
+    case "npm":
+      const [packageName, packageVersion] = sourceInfo.split("@");
+      return {
+        compName,
+        isRemote,
+        packageName,
+        packageVersion,
+        source: source as RemoteCompSource,
+      } as RemoteCompInfo;
+
+    default:
+      throw new Error(`Unknown remote source: ${source}`);
+  }
 }
 
 export async function getNpmPackageMeta(packageName: string) {
   const res = await axios.get<NpmPackageMeta>(`${NPM_REGISTRY_URL}/${packageName}/`);
+  if (res.status >= 400) {
+    return null;
+  }
+  return res.data;
+}
+
+export async function getUrlPackageMeta(url: string) {
+  const res = await axios.get<NpmPackageMeta>(`${url}/package.json`);
   if (res.status >= 400) {
     return null;
   }
@@ -59,6 +98,7 @@ export function normalizeNpmPackage(nameOrUrl: string) {
   if (prefixReg.test(nameOrUrl)) {
     return nameOrUrl.replace(prefixReg, "");
   }
+
   return nameOrUrl;
 }
 

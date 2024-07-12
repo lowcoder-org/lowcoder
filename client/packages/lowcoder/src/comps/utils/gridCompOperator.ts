@@ -255,8 +255,10 @@ export class GridCompOperator {
 
     const nextCompType = getRemoteCompType(
       compInfo.source,
-      compInfo.packageName,
-      latestVersion.version,
+      {
+        packageName: compInfo.packageName,
+        packageVersion: latestVersion.version
+      },
       compInfo.compName
     );
     const compInfos: ActionExtraInfo["compInfos"] = [

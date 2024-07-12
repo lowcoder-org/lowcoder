@@ -7,11 +7,12 @@ import { useDispatch, useSelector } from "react-redux";
 import { AppState } from "redux/reducers";
 import { packageMetaReadyAction } from "redux/reduxActions/npmPluginActions";
 import styled from "styled-components";
-import { NpmPackageMeta } from "types/remoteComp";
+import { NpmPackageMeta, NpmVersionMeta, RemoteCompSource } from "types/remoteComp";
 import { PluginCompItem } from "./PluginCompItem";
 import { NPM_REGISTRY_URL } from "constants/npmPlugins";
 import { trans } from "i18n";
 import { RightContext } from "../rightContext";
+import { RemoteCompFileOptions, RemoteCompNpmOptions } from "@lowcoder-ee/comps/utils/remote";
 
 const PluginViewWrapper = styled.div`
   margin-bottom: 12px;
@@ -49,11 +50,13 @@ const PluginViewContent = styled.div`
 
 interface PluginViewProps {
   name: string;
+  source: RemoteCompSource;
+  options: RemoteCompFileOptions | RemoteCompNpmOptions;
   onRemove: () => void;
 }
 
 export function PluginItem(props: PluginViewProps) {
-  const { name, onRemove } = props;
+  const { name, source, options, onRemove } = props;
   const dispatch = useDispatch();
   const { onDrag, searchValue } = useContext(RightContext);
   const [loading, setLoading] = useState(false);
@@ -65,14 +68,44 @@ export function PluginItem(props: PluginViewProps) {
   const comps = versions[currentVersion]?.lowcoder?.comps || {};
   const compNames = Object.keys(comps);
 
+  let packageMetaUrl: string;
+  switch (source) {
+    case "npm":
+      packageMetaUrl = `${NPM_REGISTRY_URL}/${name}/`;
+      let npmOptions = options as RemoteCompNpmOptions;
+      npmOptions.packageVersion = currentVersion;
+      break;
+    case "url":
+      packageMetaUrl = `${(options as RemoteCompFileOptions).sourceUrl}/package.json`;
+      break;
+    default:
+      throw new Error(`Unknown remote source: ${source}`);
+  }
+
   useEffect(() => {
     setLoading(true);
-    axios.get<NpmPackageMeta>(`${NPM_REGISTRY_URL}/${name}/`).then((res) => {
+
+    axios.get<NpmPackageMeta|NpmVersionMeta>(packageMetaUrl).then((res) => {
       if (res.status >= 400) {
         return;
       }
       setLoading(false);
-      dispatch(packageMetaReadyAction(name, res.data));
+      let packageMeta: NpmPackageMeta;
+      if (!(res.data as NpmPackageMeta).versions) {
+        packageMeta = {
+          name: res.data.name,
+          versions: {
+            "static": res.data as NpmVersionMeta,
+          },
+          "dist-tags": {
+            latest: "static",
+          },
+        };
+      } else {
+        packageMeta = res.data as NpmPackageMeta;
+      }
+
+      dispatch(packageMetaReadyAction(name, packageMeta));
     });
   }, [dispatch, name]);
 
@@ -100,8 +133,8 @@ export function PluginItem(props: PluginViewProps) {
               key={compName}
               compName={compName}
               compMeta={comps[compName]}
-              packageName={name}
-              packageVersion={currentVersion}
+              source={source}
+              options={options}
             />
           ))}
       </PluginViewContent>

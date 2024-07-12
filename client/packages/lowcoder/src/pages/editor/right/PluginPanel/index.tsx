@@ -4,13 +4,16 @@ import { PluginItem } from "./PluginItem";
 import { useDispatch, useSelector } from "react-redux";
 import { setCommonSettings } from "redux/reduxActions/commonSettingsActions";
 import { getUser } from "redux/selectors/usersSelectors";
-import { BluePlusIcon, CustomModal, DocLink, TacoButton, TacoInput } from "lowcoder-design";
+import { BluePlusIcon, CustomModal, DocLink, TacoButton, TacoInput, TacoSwitch } from "lowcoder-design";
 import { getCommonSettings } from "redux/selectors/commonSettingSelectors";
 import styled from "styled-components";
 import { getNpmPackageMeta, normalizeNpmPackage, validateNpmPackage } from "comps/utils/remote";
 import { ComListTitle, ExtensionContentWrapper } from "../styledComponent";
 import { EmptyContent } from "components/EmptyContent";
 import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
+import { RemoteCompSource } from "@lowcoder-ee/types/remoteComp";
+
+const URL_SOURCE_PREFIX = "url:";
 
 const Footer = styled.div`
   display: flex;
@@ -23,19 +26,23 @@ export default function PluginPanel() {
   const dispatch = useDispatch();
   const [isAddModalShow, showAddModal] = useState(false);
   const [newPluginName, setNewPluginName] = useState("");
+  const [newPluginSource, setNewPluginSource] = useState("npm");
   const user = useSelector(getUser);
   const commonSettings = useSelector(getCommonSettings);
 
   const plugins = useMemo(
     () =>
-      (commonSettings?.npmPlugins || []).map((i) => {
+      (commonSettings?.npmPlugins || []).map((pluginIdentifier) => {
+        const source: RemoteCompSource = pluginIdentifier.startsWith(URL_SOURCE_PREFIX) ? "url" : "npm";
         return {
-          name: normalizeNpmPackage(i),
-          raw: i,
+          name: source === "url" ? pluginIdentifier.replace(URL_SOURCE_PREFIX, "") : normalizeNpmPackage(pluginIdentifier),
+          source,
+          raw: pluginIdentifier.replace(URL_SOURCE_PREFIX, ""),
         };
       }),
     [commonSettings?.npmPlugins]
   );
+
   const handleSetNpmPlugins = (nextNpmPlugins: string[]) => {
     dispatch(
       setCommonSettings({
@@ -52,10 +59,12 @@ export default function PluginPanel() {
     if (!newPluginName) {
       return;
     }
-    if (!validateNpmPackage(newPluginName)) {
+
+    if (newPluginSource === "npm" && !validateNpmPackage(newPluginName)) {
       messageInstance.error(trans("npm.invalidNpmPackageName"));
       return;
     }
+
     if (
       commonSettings.npmPlugins?.find(
         (i) => normalizeNpmPackage(i) === normalizeNpmPackage(newPluginName)
@@ -64,9 +73,11 @@ export default function PluginPanel() {
       messageInstance.error(trans("npm.pluginExisted"));
       return;
     }
+
     const nextNpmPlugins = (commonSettings?.npmPlugins || []).concat(newPluginName);
     handleSetNpmPlugins(nextNpmPlugins);
     setNewPluginName("");
+    setNewPluginSource("npm");
     showAddModal(false);
   };
 
@@ -75,9 +86,10 @@ export default function PluginPanel() {
     handleSetNpmPlugins(nextNpmPlugins);
   };
 
-  const items = plugins.map((i) => (
-    <PluginItem key={i.name} name={i.name} onRemove={() => handleRemove(i.raw)} />
-  ));
+  const items = plugins.map((i) => {
+      const options = i.source === "npm" ? { packageName: i.name,  packageVersion: "latest" } : { sourceUrl: i.name };
+      return <PluginItem key={i.name} name={i.name} source={i.source} options={options} onRemove={() => handleRemove(i.raw)} />;
+    });
 
   const empty = (
     <EmptyContent style={{ marginBottom: 8 }} text={trans("rightPanel.emptyPlugins")} />
@@ -102,13 +114,20 @@ export default function PluginPanel() {
         <span style={{ display: "block", marginBottom: "4px" }}>
           {trans("npm.pluginNameLabel")}
         </span>
+        <TacoSwitch
+          label="is Npm Plugin?"
+          checked={newPluginSource === "npm"}
+          onChange={(checked) => {
+            setNewPluginSource(checked ? "npm" : "url");
+          }}
+        />
         <TacoInput
           autoFocus
           onPressEnter={() => {
             handleAddNewPlugin();
           }}
           onChange={(e) => {
-            setNewPluginName(e.target.value);
+            setNewPluginName(`${URL_SOURCE_PREFIX}${e.target.value}`);
           }}
           value={newPluginName}
         />

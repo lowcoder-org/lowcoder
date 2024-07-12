@@ -1,7 +1,7 @@
 import { UICompManifest } from "comps/uiCompRegistry";
 import { CompConstructor } from "lowcoder-core";
 
-export type RemoteCompSource = "npm" | "bundle";
+export type RemoteCompSource = "npm" | "bundle" | "url";
 export interface LowcoderCompMeta extends Omit<UICompManifest, "comp" | "icon"> {
   icon?: string;
 }
@@ -28,6 +28,7 @@ export interface NpmPackageMeta {
 
 export interface RemoteCompInfo {
   source: RemoteCompSource;
+  sourceUrl?: string;
   compName: string;
   isRemote: true;
   packageName: string;

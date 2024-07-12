@@ -6,8 +6,8 @@ import {
 } from "constants/style";
 import { draggingUtils } from "layout";
 import styled from "styled-components";
-import { getRemoteCompType } from "comps/utils/remote";
-import { LowcoderCompMeta } from "types/remoteComp";
+import { getRemoteCompType, RemoteCompFileOptions, RemoteCompNpmOptions } from "comps/utils/remote";
+import { LowcoderCompMeta, RemoteCompSource } from "types/remoteComp";
 import { TransparentImg } from "util/commonUtils";
 import { ModuleIcon } from "lowcoder-design";
 import { NPM_PLUGIN_ASSETS_BASE_URL } from "constants/npmPlugins";
@@ -67,18 +67,33 @@ const ItemWrapper = styled.div`
 `;
 
 interface PluginCompItemProps {
-  packageName: string;
-  packageVersion: string;
+  source: RemoteCompSource;
+  options: RemoteCompNpmOptions | RemoteCompFileOptions;
   compName: string;
   compMeta: LowcoderCompMeta;
   onDrag: (compType: string) => void;
 }
 
 export function PluginCompItem(props: PluginCompItemProps) {
-  const { packageName, packageVersion, compName, compMeta, onDrag } = props;
-  const compType = getRemoteCompType("npm", packageName, packageVersion, compName);
+  const { source, options, compName, compMeta, onDrag } = props;
+  const compType = getRemoteCompType(source, options, compName);
+  const packageVersion = (options as RemoteCompNpmOptions).packageVersion;
 
-  const icon = `${NPM_PLUGIN_ASSETS_BASE_URL}/${packageName}@${packageVersion}/${compMeta.icon}`;
+  let baseUrl;
+  switch (source) {
+    case "npm":
+      const { packageName, packageVersion } = options as RemoteCompNpmOptions;
+      baseUrl = `${NPM_PLUGIN_ASSETS_BASE_URL}/${packageName}@${packageVersion}`;
+      break;
+    case "url":
+      const { sourceUrl } = options as RemoteCompFileOptions;
+      baseUrl = sourceUrl;
+      break;
+    default:
+      throw new Error(`Unknown remote source: ${source}`);
+  }
+
+  const icon = `${baseUrl}/${compMeta.icon}`;
 
   return (
     <ItemWrapper

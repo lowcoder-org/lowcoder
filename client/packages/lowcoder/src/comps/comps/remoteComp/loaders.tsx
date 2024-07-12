@@ -51,7 +51,28 @@ async function bundleLoader(
   return comp;
 }
 
+async function urlLoader(
+  remoteInfo: RemoteCompInfo
+): Promise<CompConstructor | null> {
+  const { sourceUrl, compName } = remoteInfo;
+  if (!sourceUrl) {
+    throw new Error("No source URL for remote component provided.");
+  }
+
+  const module = await import(
+    /* @vite-ignore */
+    /* webpackIgnore: true */
+    `${sourceUrl}/index.js`
+  );
+  const comp = module?.default?.[compName];
+  if (!comp) {
+    throw new Error(trans("npm.compNotFound", { compName }));
+  }
+  return comp;
+}
+
 export const loaders: Record<RemoteCompSource, RemoteCompLoader> = {
   npm: npmLoader,
   bundle: bundleLoader,
+  url: urlLoader,
 };
