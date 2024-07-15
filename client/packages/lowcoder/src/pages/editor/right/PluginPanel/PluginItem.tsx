@@ -92,14 +92,16 @@ export function PluginItem(props: PluginViewProps) {
       setLoading(false);
       let packageMeta: NpmPackageMeta;
       if (!(res.data as NpmPackageMeta).versions) {
+        // Create skeleton for packages linked via url as no index is available
+        const STATIC_VERSION = "static";
         packageMeta = {
           name: res.data.name,
           versions: {
-            "static": res.data as NpmVersionMeta,
+            [STATIC_VERSION]: res.data as NpmVersionMeta,
           },
           "dist-tags": {
-            latest: "static",
-          },
+            latest: STATIC_VERSION,
+          }
         };
       } else {
         packageMeta = res.data as NpmPackageMeta;

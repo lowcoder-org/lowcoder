@@ -4,14 +4,15 @@ import { PluginItem } from "./PluginItem";
 import { useDispatch, useSelector } from "react-redux";
 import { setCommonSettings } from "redux/reduxActions/commonSettingsActions";
 import { getUser } from "redux/selectors/usersSelectors";
-import { BluePlusIcon, CustomModal, DocLink, TacoButton, TacoInput, TacoSwitch } from "lowcoder-design";
+import { BluePlusIcon, CustomModal, DocLink, HelpIcon, TacoButton, TacoInput, TacoSwitch } from "lowcoder-design";
 import { getCommonSettings } from "redux/selectors/commonSettingSelectors";
 import styled from "styled-components";
-import { getNpmPackageMeta, normalizeNpmPackage, validateNpmPackage } from "comps/utils/remote";
+import { normalizeNpmPackage, validateNpmPackage } from "comps/utils/remote";
 import { ComListTitle, ExtensionContentWrapper } from "../styledComponent";
 import { EmptyContent } from "components/EmptyContent";
 import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 import { RemoteCompSource } from "@lowcoder-ee/types/remoteComp";
+import { Divider } from "antd";
 
 const URL_SOURCE_PREFIX = "url:";
 
@@ -56,7 +57,9 @@ export default function PluginPanel() {
   };
 
   const handleAddNewPlugin = () => {
-    if (!newPluginName) {
+    let pluginName = newPluginSource === "url" ? `${URL_SOURCE_PREFIX}${newPluginName}` : newPluginName;
+
+    if (!pluginName) {
       return;
     }
 
@@ -65,16 +68,21 @@ export default function PluginPanel() {
       return;
     }
 
+    if (newPluginSource === "url" && !newPluginName.startsWith("http")) {
+      messageInstance.error(trans("npm.invalidNpmPackageUrl"));
+      return;
+    }
+
     if (
       commonSettings.npmPlugins?.find(
-        (i) => normalizeNpmPackage(i) === normalizeNpmPackage(newPluginName)
+        (i) => (normalizeNpmPackage(i) === normalizeNpmPackage(newPluginName) || i === pluginName)
       )
     ) {
       messageInstance.error(trans("npm.pluginExisted"));
       return;
     }
 
-    const nextNpmPlugins = (commonSettings?.npmPlugins || []).concat(newPluginName);
+    const nextNpmPlugins = (commonSettings?.npmPlugins || []).concat(pluginName);
     handleSetNpmPlugins(nextNpmPlugins);
     setNewPluginName("");
     setNewPluginSource("npm");
@@ -82,7 +90,7 @@ export default function PluginPanel() {
   };
 
   const handleRemove = (name: string) => {
-    const nextNpmPlugins = commonSettings?.npmPlugins?.filter((i) => i !== name) || [];
+    const nextNpmPlugins = commonSettings?.npmPlugins?.filter((i) => (i !== name && i !== `${URL_SOURCE_PREFIX}${name}`)) || [];
     handleSetNpmPlugins(nextNpmPlugins);
   };
 
@@ -114,24 +122,27 @@ export default function PluginPanel() {
         <span style={{ display: "block", marginBottom: "4px" }}>
           {trans("npm.pluginNameLabel")}
         </span>
-        <TacoSwitch
-          label="is Npm Plugin?"
-          checked={newPluginSource === "npm"}
-          onChange={(checked) => {
-            setNewPluginSource(checked ? "npm" : "url");
-          }}
-        />
+        
         <TacoInput
           autoFocus
           onPressEnter={() => {
             handleAddNewPlugin();
           }}
           onChange={(e) => {
-            setNewPluginName(`${URL_SOURCE_PREFIX}${e.target.value}`);
+            setNewPluginName(e.target.value);
           }}
           value={newPluginName}
         />
-        <DocLink style={{ marginTop: 8 }} href={trans("docUrls.devNpmPlugin")}>
+        <Divider style={{ margin: "8px 0", border: "none" }} plain={true}  />
+        <TacoSwitch
+          label={trans("npm.pluginSourceUrlLabel")}
+          checked={newPluginSource === "url"}
+          onChange={(checked) => {
+            setNewPluginSource(checked ? "url" : "npm");
+          }}
+        />
+        <Divider style={{ margin: "16px 0" }} />
+        <DocLink href={trans("docUrls.devNpmPlugin")}>
           {trans("docUrls.devNpmPluginText")}
         </DocLink>
       </CustomModal>

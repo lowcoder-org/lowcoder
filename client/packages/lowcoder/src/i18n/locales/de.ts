@@ -2528,10 +2528,12 @@ export const de: typeof en = {
   "npm": {
       ...en.npm,
       "invalidNpmPackageName": "Ungültiger npm-Paketname oder URL.",
+      "invalidNpmPackageUrl": "Ungültige npm-Paket URL.",
       "pluginExisted": "Dieses npm Plugin existierte bereits",
       "compNotFound": "Komponente {compName} nicht gefunden.",
       "addPluginModalTitle": "Plugin aus einem npm-Repository hinzufügen",
       "pluginNameLabel": "URL oder Name des npm-Pakets",
+      "pluginSourceUrlLabel": "Wird von URL geladen?",
       "noCompText": "Keine Komponenten.",
       "compsLoading": "Laden...",
       "removePluginBtnText": "entfernen",

@@ -3041,10 +3041,12 @@ export const en = {
 
   "npm": {
     "invalidNpmPackageName": "Invalid npm Package Name or URL.",
+    "invalidNpmPackageUrl": "Invalid npm Package URL.",
     "pluginExisted": "This npm Plugin Already Existed",
     "compNotFound": "Component {compName} Not Found.",
     "addPluginModalTitle": "Add Plugin from a npm Repository",
     "pluginNameLabel": "npm Package's URL or Name",
+    "pluginSourceUrlLabel": "Will be loaded from URL?",
     "noCompText": "No Components.",
     "compsLoading": "Loading...",
     "removePluginBtnText": "Remove",

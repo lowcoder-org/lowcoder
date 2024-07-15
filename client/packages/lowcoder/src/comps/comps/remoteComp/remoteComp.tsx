@@ -132,15 +132,20 @@ export function remoteComp<T extends RemoteCompInfo = RemoteCompInfo>(
       );
     }
 
-    getView() {
-      let key;
-      if (remoteInfo?.source === "npm") {
-       key = `${remoteInfo?.packageName}-${remoteInfo?.packageVersion}-${remoteInfo?.compName}`;
-      } else if (remoteInfo?.source === "url") {
-        key = `${remoteInfo?.sourceUrl}-${remoteInfo?.compName}`;
+    private computeKey() {
+      switch (remoteInfo?.source) {
+        case "npm":
+          return `${remoteInfo?.packageName}-${remoteInfo?.packageVersion}-${remoteInfo?.compName}`;
+        case "url":
+          return `${remoteInfo?.sourceUrl}-${remoteInfo?.compName}`;
+        default:
+          throw new Error(`Cannot handle the following remote source: ${remoteInfo?.source}`);
       }
+    }
+
+    getView() {
       return (
-        <RemoteCompView key={key} loadComp={() => this.load()} loadingElement={loadingElement} />
+        <RemoteCompView key={this.computeKey()} loadComp={() => this.load()} loadingElement={loadingElement} />
       );
     }
 
