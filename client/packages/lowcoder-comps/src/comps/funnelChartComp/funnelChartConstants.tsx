@@ -248,14 +248,14 @@ export const chartUiModeChildren = {
   onUIEvent: eventHandlerControl(UIEventOptions),
 };
 
-const chartJsonModeChildren = {
+let chartJsonModeChildren: any = {
   echartsOption: jsonControl(toObject, i18nObjs.defaultFunnelChartOption),
   echartsTitle: withDefault(StringControl, trans("funnelChart.defaultTitle")),
   echartsLegendConfig: EchartsLegendConfig,
   echartsLabelConfig: EchartsLabelConfig,
   echartsConfig: EchartsOptionComp,
   echartsTitleConfig:EchartsTitleConfig,
-  style: styleControl(EchartsStyle, 'style'),
+  // style: styleControl(EchartsStyle, 'style'),
   tooltip: withDefault(BoolControl, true),
   label: withDefault(BoolControl, true),
   legendVisibility: withDefault(BoolControl, true),
@@ -266,6 +266,12 @@ const chartJsonModeChildren = {
   min:withDefault(NumberControl,trans('funnelChart.defaultMin')),
   max:withDefault(NumberControl,trans('funnelChart.defaultMax')),
   gap:withDefault(NumberControl,trans('funnelChart.defaultGap'))
+}
+if (EchartsStyle) {
+  chartJsonModeChildren = {
+    ...chartJsonModeChildren,
+    style: styleControl(EchartsStyle, 'style'),
+  }
 }
 
 const chartMapModeChildren = {

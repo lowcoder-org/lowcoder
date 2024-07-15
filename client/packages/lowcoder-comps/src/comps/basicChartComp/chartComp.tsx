@@ -74,7 +74,7 @@ BasicChartTmpComp = withViewFn(BasicChartTmpComp, (comp) => {
     log.error('theme chart error: ', error);
   }
 
-  useMergeCompStyles(childrenToProps(comp.children), comp.dispatch);
+  useMergeCompStyles?.(childrenToProps(comp.children), comp.dispatch);
 
   const triggerClickEvent = async (dispatch: any, action: CompAction<JSONValue>) => {
     await getPromiseAfterDispatch(

@@ -78,7 +78,7 @@ ChartTmpComp = withViewFn(ChartTmpComp, (comp) => {
   }
 
   const triggerClickEvent = async (dispatch: any, action: CompAction<JSONValue>) => {
-    await getPromiseAfterDispatch(
+    await getPromiseAfterDispatch?.(
       dispatch,
       action,
       { autoHandleAfterReduce: true }

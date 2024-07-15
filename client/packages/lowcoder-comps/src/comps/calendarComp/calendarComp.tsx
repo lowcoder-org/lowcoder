@@ -39,6 +39,7 @@ import {
   ThemeContext,
   CalendarStyle,
   DateParser,
+  modalInstance,
   CustomModal,
   jsonValueExposingStateControl,
   CalendarDeleteIcon,
@@ -70,16 +71,13 @@ import {
   resourceTimeGridHeaderToolbar,
 } from "./calendarConstants";
 
-// this should ensure backwards compatibility with older versions of the SDK
-const safeDragEventHandlerControl = typeof DragEventHandlerControl !== 'undefined' ? DragEventHandlerControl : () => {};
- 
-const childrenMap = {
+let childrenMap: any = {
   events: jsonValueExposingStateControl("events", defaultData),
   resourcesEvents: jsonValueExposingStateControl("resourcesEvents", resourcesEventsDefaultData),
   resources: jsonValueExposingStateControl("resources", resourcesDefaultData),
   resourceName: withDefault(StringControl, trans("calendar.resourcesDefault")),
   onEvent: ChangeEventHandlerControl,
-  onDropEvent: safeDragEventHandlerControl,
+  // onDropEvent: safeDragEventHandlerControl,
   editable: withDefault(BoolControl, true),
   showEventTime: withDefault(BoolControl, true),
   showWeekends: withDefault(BoolControl, true),
@@ -93,7 +91,13 @@ const childrenMap = {
   currentFreeView: dropdownControl(DefaultWithFreeViewOptions, "timeGridWeek"),
   currentPremiumView: dropdownControl(DefaultWithPremiumViewOptions, "resourceTimelineDay"),
 };
-
+// this should ensure backwards compatibility with older versions of the SDK
+if (DragEventHandlerControl) { 
+  childrenMap = {
+    ...childrenMap,
+    onDropEvent: DragEventHandlerControl,
+  }
+}
 let CalendarBasicComp = (function () {
   return new UICompBuilder(childrenMap, (props: { 
     events: any; 
@@ -124,7 +128,7 @@ let CalendarBasicComp = (function () {
     const [left, setLeft] = useState<number | undefined>(undefined);
     const [licensed, setLicensed] = useState<boolean>(props.licenseKey !== "");
 
-    useMergeCompStyles(props, dispatch);
+    useMergeCompStyles?.(props, dispatch);
 
     useEffect(() => {
       setLicensed(props.licenseKey !== "");
@@ -326,6 +330,8 @@ let CalendarBasicComp = (function () {
     };
 
     const showModal = (event: EventType, ifEdit: boolean) => {
+      if (!modalInstance) return;
+
       const modalTitle = ifEdit
         ? trans("calendar.editEvent")
         : trans("calendar.creatEvent");

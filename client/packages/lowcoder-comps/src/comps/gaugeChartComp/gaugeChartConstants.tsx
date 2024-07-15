@@ -248,14 +248,14 @@ export const chartUiModeChildren = {
   onUIEvent: eventHandlerControl(UIEventOptions),
 };
 
-const chartJsonModeChildren = {
+let chartJsonModeChildren: any = {
   echartsOption: jsonControl(toObject, i18nObjs.defaultGaugeChartOption),
   echartsTitle: withDefault(StringControl, trans("gaugeChart.defaultTitle")),
   echartsLegendConfig: EchartsLegendConfig,
   echartsLabelConfig: EchartsLabelConfig,
   echartsConfig: EchartsOptionComp,
   echartsTitleConfig:EchartsTitleConfig,
-  style: styleControl(EchartsStyle, 'style'),
+  // style: styleControl(EchartsStyle, 'style'),
   tooltip: withDefault(BoolControl, true),
   legendVisibility: withDefault(BoolControl, true),
   label: withDefault(BoolControl, true),
@@ -267,7 +267,12 @@ const chartJsonModeChildren = {
   max:withDefault(NumberControl,trans('gaugeChart.defaultMax')),
   gap:withDefault(NumberControl,trans('gaugeChart.defaultGap'))
 }
-
+if (EchartsStyle) {
+  chartJsonModeChildren = {
+    ...chartJsonModeChildren,
+    style: styleControl(EchartsStyle, 'style'),
+  }
+}
 const chartMapModeChildren = {
   mapInstance: stateComp(),
   getMapInstance: FunctionControl,

@@ -249,15 +249,21 @@ export const chartUiModeChildren = {
   onUIEvent: eventHandlerControl(UIEventOptions),
 };
 
-const chartJsonModeChildren = {
+let chartJsonModeChildren: any = {
   echartsOption: jsonControl(toObject, i18nObjs.defaultEchartsJsonOption),
- echartsTitle: withDefault(StringControl, trans("echarts.defaultTitle")),
+  echartsTitle: withDefault(StringControl, trans("echarts.defaultTitle")),
   echartsLegendConfig: EchartsLegendConfig,
   echartsLabelConfig: EchartsLabelConfig,
   echartsConfig: EchartsOptionComp,
-  style: styleControl(EchartsStyle, 'style'),
+  // style: styleControl(EchartsStyle, 'style'),
   tooltip: withDefault(BoolControl, true),
   legendVisibility: withDefault(BoolControl, true),
+}
+if (EchartsStyle) {
+  chartJsonModeChildren = {
+    ...chartJsonModeChildren,
+    style: styleControl(EchartsStyle, 'style'),
+  }
 }
 
 const chartMapModeChildren = {
