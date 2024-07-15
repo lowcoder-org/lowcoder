@@ -43,7 +43,6 @@ public class Oauth2AuthRequestFactory implements AuthRequestFactory<OAuth2Reques
                         .enableRegister(config.isEnableRegister())
                         .enable(config.isEnable())
                         .scope("read:email read:user")
-                        .userCanSelectAccounts(true)
                         .sourceMappings(sourceMappings)
                         .clientSecret(config.getClientSecret())
                         .clientId(config.getClientId())
