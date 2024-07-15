@@ -113,6 +113,7 @@ public class UserServiceImpl implements UserService {
     }
 
     public Mono<User> findByEmailDeep(String email) {
+        if(StringUtils.isEmpty(email)) return Mono.empty();
         return repository.findByEmailOrConnections_Email(email, email).next();
     }
 
