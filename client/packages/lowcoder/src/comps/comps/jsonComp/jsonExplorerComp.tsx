@@ -10,8 +10,10 @@ import { ArrayOrJSONObjectControl, NumberControl } from "comps/controls/codeCont
 import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { EditorContext } from "comps/editorState";
-import { useContext } from "react";
-import { AnimationStyle, AnimationStyleType, styleControl } from "@lowcoder-ee/index.sdk";
+import { useContext, useEffect } from "react";
+import { AnimationStyle, AnimationStyleType } from "@lowcoder-ee/comps/controls/styleControlConstants";
+import { styleControl } from "@lowcoder-ee/comps/controls/styleControl";
+import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 /**
  * JsonExplorer Comp
@@ -54,23 +56,27 @@ let JsonExplorerTmpComp = (function () {
     indent: withDefault(NumberControl, 4),
     expandToggle: BoolControl.DEFAULT_TRUE,
     theme: dropdownControl(themeOptions, 'shapeshifter:inverted'),
-    animationStyle:styleControl(AnimationStyle),
+    animationStyle:styleControl(AnimationStyle, 'animationStyle'),
   };
-  return new UICompBuilder(childrenMap, (props) => (
-    <JsonExplorerContainer
-      $theme={props.theme as keyof typeof bgColorMap}
-      $animationStyle={props.animationStyle}
-    >
-      <ReactJson
-        name={false}
-        src={props.value}
-        theme={props.theme as ThemeKeys}
-        collapsed={!props.expandToggle}
-        displayDataTypes={false}
-        indentWidth={props.indent}
-      />
-    </JsonExplorerContainer>
-  ))
+  return new UICompBuilder(childrenMap, (props, dispatch) => {
+    useMergeCompStyles(props as Record<string, any>, dispatch);
+
+    return (
+      <JsonExplorerContainer
+        $theme={props.theme as keyof typeof bgColorMap}
+        $animationStyle={props.animationStyle}
+      >
+        <ReactJson
+          name={false}
+          src={props.value}
+          theme={props.theme as ThemeKeys}
+          collapsed={!props.expandToggle}
+          displayDataTypes={false}
+          indentWidth={props.indent}
+        />
+      </JsonExplorerContainer>
+    )
+  })
     .setPropertyViewFn((children) => {
       return (
         <>

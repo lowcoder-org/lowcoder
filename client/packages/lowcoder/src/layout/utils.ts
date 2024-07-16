@@ -33,6 +33,7 @@ export type LayoutItem = {
 };
 export type ExtraItem = {
   name: string;
+  comp: any;
   compType: UICompType;
   autoHeight?: boolean;
   isSelected?: boolean;

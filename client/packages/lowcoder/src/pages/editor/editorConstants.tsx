@@ -82,6 +82,7 @@ import {
   ColorPickerCompIconSmall,
   TransferCompIconSmall,
   ShapesCompIconSmall,
+  GanttCompIconSmall,
 
   CandlestickChartCompIconSmall,
   FunnelChartCompIconSmall,
@@ -182,8 +183,9 @@ export const CompStateIcon: {
   treeSelect: <TreeSelectCompIconSmall />,
   video: <VideoCompIconSmall />,
   videocomponent: <VideoCameraStreamCompIconSmall />,
-  
+
   hillchart: <HillchartCompIconSmall/>,  
+  ganttChart: <GanttCompIconSmall/>,
   openLayersGeoMap: <GeoMapLayersCompIconSmall/>,  
   chartsGeoMap: <GeoMapChartsCompIconSmall/>,  
   bpmnEditor: <BPMNEditorCompIconSmall/>, 

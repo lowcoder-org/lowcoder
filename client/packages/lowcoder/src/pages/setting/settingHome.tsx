@@ -26,6 +26,7 @@ import { selectSystemConfig } from "redux/selectors/configSelectors";
 import { enableCustomBrand } from "util/featureFlagUtils";
 import FreeLimitTag from "pages/common/freeLimitTag";
 import { Helmet } from "react-helmet";
+import { Card } from "antd";
 // import ApiDocs from "./apiDocs";
 
 enum SettingPageEnum {
@@ -147,6 +148,10 @@ export function SettingHome() {
               history.push("/setting/" + value.key);
             } }
             items={items} />
+
+          <Card style={{marginTop: "40px", color:"#aaa"}}>
+            <div>If you are interested in early access to the upcoming Enterprise Edition, please contact us: <a href="mailto:service@lowcoder.cloud">service@lowcoder.cloud</a></div>
+          </Card>
         </SubSideBar>
         {selectKey === SettingPageEnum.UserGroups && <PermissionSetting />}
         {selectKey === SettingPageEnum.Organization && <Organization />}

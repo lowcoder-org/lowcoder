@@ -1,6 +1,7 @@
 package org.lowcoder.domain.bundle.model;
 
 
+import com.github.f4b6a3.uuid.UuidCreator;
 import jakarta.annotation.Nullable;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,6 +11,8 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.lowcoder.sdk.models.HasIdAndAuditing;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.UUID;
+
 import java.util.Map;
 
 @Getter
@@ -18,6 +21,8 @@ import java.util.Map;
 @NoArgsConstructor
 @SuperBuilder
 public class Bundle extends HasIdAndAuditing {
+    @Getter
+    private String gid;
     private String organizationId;
     @Nullable
     private String name;

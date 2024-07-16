@@ -4,7 +4,7 @@ import { BackgroundColorContext } from "comps/utils/backgroundColorContext";
 import _ from "lodash";
 import { ConstructorToView, deferAction } from "lowcoder-core";
 import { HintPlaceHolder, ScrollBar, pageItemRender } from "lowcoder-design";
-import { RefObject, useContext, createContext, useMemo, useRef } from "react";
+import { RefObject, useContext, createContext, useMemo, useRef, useEffect } from "react";
 import ReactResizeDetector from "react-resize-detector";
 import styled from "styled-components";
 import { checkIsMobile } from "util/commonUtils";
@@ -18,7 +18,9 @@ import {
 import { ContextContainerComp } from "./contextContainerComp";
 import { ListViewImplComp } from "./listViewComp";
 import { getCurrentItemParams, getData } from "./listViewUtils";
-import { AnimationStyleType } from "@lowcoder-ee/index.sdk";
+import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
+import { childrenToProps } from "@lowcoder-ee/comps/generators/multi";
+import { AnimationStyleType } from "@lowcoder-ee/comps/controls/styleControlConstants";
 
 const ListViewWrapper = styled.div<{ $style: any; $paddingWidth: string,$animationStyle:AnimationStyleType }>`
   height: 100%;
@@ -274,6 +276,11 @@ export function ListView(props: Props) {
   const maxWidth = editorState.getAppSettings().maxWidth;
   const isMobile = checkIsMobile(maxWidth);
   const paddingWidth = isMobile ? "4px" : "16px";
+
+  const childrenProps = childrenToProps(comp.children);
+
+  useMergeCompStyles(childrenProps, comp.dispatch);
+
   // log.debug("renders: ", renders);
   return (
     <BackgroundColorContext.Provider value={style.background}>

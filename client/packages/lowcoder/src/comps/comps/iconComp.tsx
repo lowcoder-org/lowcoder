@@ -30,6 +30,7 @@ import {
 } from "../controls/eventHandlerControl";
 import { useContext } from "react";
 import { EditorContext } from "comps/editorState";
+import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 const Container = styled.div<{
   $style: IconStyleType | undefined;
@@ -62,8 +63,8 @@ ${props=>props.$animationStyle}
 const EventOptions = [clickEvent] as const;
 
 const childrenMap = {
-  style: styleControl(IconStyle),
-  animationStyle: styleControl(AnimationStyle),
+  style: styleControl(IconStyle,'style'),
+  animationStyle: styleControl(AnimationStyle,'animationStyle'),
   icon: withDefault(IconControl, "/icon:antd/homefilled"),
   autoHeight: withDefault(AutoHeightControl, "auto"),
   iconSize: withDefault(NumberControl, 20),
@@ -112,7 +113,10 @@ const IconView = (props: RecordConstructorToView<typeof childrenMap>) => {
 };
 
 let IconBasicComp = (function () {
-  return new UICompBuilder(childrenMap, (props) => <IconView {...props} />)
+  return new UICompBuilder(childrenMap, (props, dispatch) => {
+    useMergeCompStyles(props as Record<string, any>, dispatch);
+
+    return(<IconView {...props} />)})
     .setPropertyViewFn((children) => (
       <>
         <Section name={sectionNames.basic}>

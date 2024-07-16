@@ -10,13 +10,14 @@ import { AlignCenter, AlignLeft, AlignRight } from "lowcoder-design";
 import { NumberControl } from "comps/controls/codeControl";
 import { Avatar, Tooltip } from "antd";
 import { clickEvent, eventHandlerControl, refreshEvent } from "comps/controls/eventHandlerControl";
-import { ReactElement } from "react";
+import { ReactElement, useContext, useEffect } from "react";
 import { IconControl } from "comps/controls/iconControl";
 import { ColorControl } from "comps/controls/colorControl";
 import { optionsControl } from "comps/controls/optionsControl";
 import { BoolControl } from "comps/controls/boolControl";
 import { dropdownControl } from "comps/controls/dropdownControl";
 import { JSONObject } from "util/jsonTypes";
+import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 const MenuLinkWrapper = styled.div`
   > a {
@@ -88,7 +89,7 @@ export const alignOptions = [
 
 export const ColumnAvatarsComp = (function () {
   const childrenMap = {
-    style: styleControl(avatarGroupStyle),
+    style: styleControl(avatarGroupStyle , 'style'),
     maxCount: withDefault(NumberControl, 3),
     avatarSize: withDefault(NumberControl, 40),
     alignment: dropdownControl(alignOptions, "center"),
@@ -107,7 +108,10 @@ export const ColumnAvatarsComp = (function () {
 
   return new ColumnTypeCompBuilder(
     childrenMap,
-    (props) => {
+    (props , dispatch) => {
+      
+      useMergeCompStyles(props, dispatch);
+
       return (
         <Container
           $style={props.style}

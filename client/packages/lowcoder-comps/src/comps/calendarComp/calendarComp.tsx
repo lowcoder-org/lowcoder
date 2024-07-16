@@ -39,10 +39,12 @@ import {
   ThemeContext,
   CalendarStyle,
   DateParser,
+  modalInstance,
   CustomModal,
   jsonValueExposingStateControl,
   CalendarDeleteIcon,
-  Tooltip
+  Tooltip,
+  useMergeCompStyles,
 } from "lowcoder-sdk";
 
 import {
@@ -69,16 +71,13 @@ import {
   resourceTimeGridHeaderToolbar,
 } from "./calendarConstants";
 
-// this should ensure backwards compatibility with older versions of the SDK
-const safeDragEventHandlerControl = typeof DragEventHandlerControl !== 'undefined' ? DragEventHandlerControl : () => {};
- 
-const childrenMap = {
+let childrenMap: any = {
   events: jsonValueExposingStateControl("events", defaultData),
   resourcesEvents: jsonValueExposingStateControl("resourcesEvents", resourcesEventsDefaultData),
   resources: jsonValueExposingStateControl("resources", resourcesDefaultData),
   resourceName: withDefault(StringControl, trans("calendar.resourcesDefault")),
   onEvent: ChangeEventHandlerControl,
-  onDropEvent: safeDragEventHandlerControl,
+  // onDropEvent: safeDragEventHandlerControl,
   editable: withDefault(BoolControl, true),
   showEventTime: withDefault(BoolControl, true),
   showWeekends: withDefault(BoolControl, true),
@@ -87,12 +86,18 @@ const childrenMap = {
   firstDay: dropdownControl(FirstDayOptions, "1"),
   dayMaxEvents: withDefault(NumberControl, 2),
   eventMaxStack: withDefault(NumberControl, 0),
-  style: styleControl(CalendarStyle),
+  style: styleControl(CalendarStyle, 'style'),
   licenseKey: withDefault( StringControl, "" ),
   currentFreeView: dropdownControl(DefaultWithFreeViewOptions, "timeGridWeek"),
   currentPremiumView: dropdownControl(DefaultWithPremiumViewOptions, "resourceTimelineDay"),
 };
-
+// this should ensure backwards compatibility with older versions of the SDK
+if (DragEventHandlerControl) { 
+  childrenMap = {
+    ...childrenMap,
+    onDropEvent: DragEventHandlerControl,
+  }
+}
 let CalendarBasicComp = (function () {
   return new UICompBuilder(childrenMap, (props: { 
     events: any; 
@@ -114,7 +119,7 @@ let CalendarBasicComp = (function () {
     licensed?: boolean;
     currentFreeView?: string; 
     currentPremiumView?: string; 
-  }) => {
+  }, dispatch: any) => {
 
     const theme = useContext(ThemeContext);
     const ref = createRef<HTMLDivElement>();
@@ -123,14 +128,14 @@ let CalendarBasicComp = (function () {
     const [left, setLeft] = useState<number | undefined>(undefined);
     const [licensed, setLicensed] = useState<boolean>(props.licenseKey !== "");
 
+    useMergeCompStyles?.(props, dispatch);
+
     useEffect(() => {
       setLicensed(props.licenseKey !== "");
     }, [props.licenseKey]);
 
     let currentView = licensed ? props.currentPremiumView : props.currentFreeView;
     let currentEvents = currentView == "resourceTimelineDay" || currentView == "resourceTimeGridDay" ? props.resourcesEvents : props.events;
-
-    console.log("currentEvents", currentEvents);
 
     // we use one central stack of events for all views
     let events = Array.isArray(currentEvents.value) ? currentEvents.value.map((item: EventType) => {
@@ -325,6 +330,8 @@ let CalendarBasicComp = (function () {
     };
 
     const showModal = (event: EventType, ifEdit: boolean) => {
+      if (!modalInstance) return;
+
       const modalTitle = ifEdit
         ? trans("calendar.editEvent")
         : trans("calendar.creatEvent");

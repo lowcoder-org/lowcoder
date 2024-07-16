@@ -24,6 +24,7 @@ import { trans } from "i18n";
 import { RefControl } from "comps/controls/refControl";
 import { migrateOldData } from "comps/generators/simpleGenerators";
 import { fixOldInputCompData } from "../textInputComp/textInputConstants";
+import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 export const getStyle = (style: CheckboxStyleType) => {
   return css`
@@ -74,14 +75,10 @@ export const getStyle = (style: CheckboxStyleType) => {
       &:hover .ant-checkbox-inner, 
       .ant-checkbox:hover .ant-checkbox-inner,
       .ant-checkbox-input + ant-checkbox-inner {
-        background-color:${style.hoverBackground ? style.hoverBackground : '#fff'};
+        ${style.hoverBackground && `background-color: ${style.hoverBackground}`};
       }
 
-      &:hover .ant-checkbox-checked .ant-checkbox-inner, 
-      .ant-checkbox:hover .ant-checkbox-inner,
-      .ant-checkbox-input + ant-checkbox-inner {
-        background-color:${style.hoverBackground ? style.hoverBackground : '#ffff'};
-      }
+      
 
       &:hover .ant-checkbox-inner,
       .ant-checkbox:hover .ant-checkbox-inner,
@@ -146,16 +143,21 @@ let CheckboxBasicComp = (function () {
     disabled: BoolCodeControl,
     onEvent: ChangeEventHandlerControl,
     options: SelectInputOptionControl,
-    style: styleControl(InputFieldStyle),
-    labelStyle: styleControl(LabelStyle.filter((style) => ['accent', 'validate'].includes(style.name) === false)),
+    style: styleControl(InputFieldStyle , 'style'),
+    labelStyle: styleControl(
+      LabelStyle.filter((style) => ['accent', 'validate'].includes(style.name) === false),
+      'labelStyle',
+    ),
     layout: dropdownControl(RadioLayoutOptions, "horizontal"),
     viewRef: RefControl<HTMLDivElement>,
-    inputFieldStyle:styleControl(CheckboxStyle),
-    animationStyle:styleControl(AnimationStyle),
+    inputFieldStyle: styleControl(CheckboxStyle , 'inputFieldStyle'),
+    animationStyle: styleControl(AnimationStyle , 'animationStyle'),
     ...SelectInputValidationChildren,
     ...formDataChildren,
   };
-  return new UICompBuilder(childrenMap, (props) => {
+  return new UICompBuilder(childrenMap, (props, dispatch) => {
+    useMergeCompStyles(props as Record<string, any>, dispatch);
+
     const [
       validateState,
       handleChange,

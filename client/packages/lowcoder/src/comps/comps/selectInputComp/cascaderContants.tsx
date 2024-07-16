@@ -34,15 +34,15 @@ export const CascaderChildren = {
   onEvent: SelectEventHandlerControl,
   allowClear: BoolControl,
   options: JSONObjectArrayControl,
-  style: styleControl(InputFieldStyle),
-  labelStyle: styleControl(LabelStyle.filter((style) => ['accent', 'validate'].includes(style.name) === false)),
+  style: styleControl(InputFieldStyle , 'style'),
+  labelStyle: styleControl(LabelStyle.filter((style) => ['accent', 'validate'].includes(style.name) === false), 'labelStyle'),
   showSearch: BoolControl.DEFAULT_TRUE,
   viewRef: RefControl<CascaderRef>,
   margin: MarginControl,
   padding: PaddingControl,
-  inputFieldStyle:styleControl(CascaderStyle),
+  inputFieldStyle:styleControl(CascaderStyle , 'inputFieldStyle'),
   childrenInputFieldStyle:styleControl(ChildrenMultiSelectStyle),
-  animationStyle:styleControl(AnimationStyle)
+  animationStyle:styleControl(AnimationStyle ,'animationStyle')
 };
 
 export const CascaderPropertyView = (
@@ -85,7 +85,7 @@ export const CascaderPropertyView = (
         <Section name={sectionNames.inputFieldStyle}>
           {children.inputFieldStyle.getPropertyView()}
         </Section>
-        <Section name={'Children Input Field Style'}>
+        <Section name={sectionNames.childrenInputFieldStyle}>
           {children.childrenInputFieldStyle.getPropertyView()}
         </Section>
         <Section name={sectionNames.animationStyle} hasTooltip={true}>

@@ -39,7 +39,7 @@ public class MongoUpsertHelper {
     private ApplicationEventPublisher applicationEventPublisher;
 
     public <T extends HasIdAndAuditing> Mono<Boolean> updateById(T partialResource, String id) {
-        return update(partialResource, FieldName.ID, id);
+        return update(partialResource, FieldName.guessFieldNameFromId(id), id);
     }
 
     public <T extends HasIdAndAuditing> Mono<Boolean> update(T partialResource, String uniqueKeyName, String uniqueKeyValue) {
@@ -69,7 +69,7 @@ public class MongoUpsertHelper {
     }
 
     public <T extends HasIdAndAuditing> Mono<Boolean> updatePurely(T partialResource, String id) {
-        Query query = new Query(Criteria.where(FieldName.ID).is(id));
+        Query query = new Query(Criteria.where(FieldName.guessFieldNameFromId(id)).is(id));
         return updatePurely(partialResource, query);
     }
 

@@ -1,8 +1,9 @@
-import { ADMIN_ROLE } from "constants/orgConstants";
+import { ADMIN_ROLE} from "constants/orgConstants";
 import { ApplicationMeta } from "constants/applicationConstants";
 import { User } from "constants/userConstants";
 
-export function currentOrgAdmin(user: User) {
+
+export function currentOrgAdmin(user: User) {  
   return user.orgRoleMap.get(user.currentOrgId) === ADMIN_ROLE;
 }
 

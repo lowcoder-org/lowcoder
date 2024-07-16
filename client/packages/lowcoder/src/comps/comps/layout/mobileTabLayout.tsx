@@ -20,7 +20,7 @@ import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { dropdownControl } from "@lowcoder-ee/comps/controls/dropdownControl";
 import { DataOption, DataOptionType, ModeOptions, menuItemStyleOptions, mobileNavJsonMenuItems } from "./navLayoutConstants";
 import { styleControl } from "@lowcoder-ee/comps/controls/styleControl";
-import { NavLayoutItemActiveStyle, NavLayoutItemActiveStyleType, NavLayoutItemHoverStyle, NavLayoutItemHoverStyleType, NavLayoutItemStyle, NavLayoutItemStyleType, NavLayoutStyle, NavLayoutStyleType, defaultTheme } from "@lowcoder-ee/comps/controls/styleControlConstants";
+import { NavLayoutItemActiveStyle, NavLayoutItemActiveStyleType, NavLayoutItemHoverStyle, NavLayoutItemHoverStyleType, NavLayoutItemStyle, NavLayoutItemStyleType, NavLayoutStyle, NavLayoutStyleType } from "@lowcoder-ee/comps/controls/styleControlConstants";
 import Segmented from "antd/es/segmented";
 import { controlItem } from "components/control";
 import { check } from "@lowcoder-ee/util/convertUtils";
@@ -30,6 +30,11 @@ import { ThemeContext } from "@lowcoder-ee/comps/utils/themeContext";
 import { AlignCenter } from "lowcoder-design";
 import { AlignLeft } from "lowcoder-design";
 import { AlignRight } from "lowcoder-design";
+import { LayoutActionComp } from "./layoutActionComp";
+import { defaultTheme } from "@lowcoder-ee/constants/themeConstants";
+import { clickEvent, eventHandlerControl } from "@lowcoder-ee/comps/controls/eventHandlerControl";
+import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
+import { childrenToProps } from "@lowcoder-ee/comps/generators/multi";
 
 const TabBar = React.lazy(() => import("antd-mobile/es/components/tab-bar"));
 const TabBarItem = React.lazy(() =>
@@ -37,6 +42,7 @@ const TabBarItem = React.lazy(() =>
     default: module.TabBarItem,
   }))
 );
+const EventOptions = [clickEvent] as const;
 
 const AppViewContainer = styled.div`
   position: absolute;
@@ -171,6 +177,7 @@ type JsonItemNode = {
 }
 
 type TabBarProps = {
+  onEvent:any;
   tabs: Array<{
     title: string;
     icon?: React.ReactNode;
@@ -223,8 +230,10 @@ function TabBarView(props: TabBarProps & {
       >
         <StyledTabBar
           onChange={(key: string) => {
+            console.log(key)
             if (key) {
               props.onChange(key);
+              props.onEvent('click')
             }
           }}
           activeKey={props.selectedKey}
@@ -250,6 +259,7 @@ const TabOptionComp = (function () {
   return new MultiCompBuilder(
     {
       app: AppSelectComp,
+      action: LayoutActionComp,
       label: StringControl,
       icon: IconControl,
       hidden: BoolCodeControl,
@@ -261,12 +271,16 @@ const TabOptionComp = (function () {
     .setPropertyViewFn((children, dispatch) => {
       return (
         <>
-          {children.app.propertyView({})}
+          {children.action.propertyView({
+            onAppChange: (label:any) => {
+              label && children.label.dispatchChangeValueAction(label);
+            },
+          })}
           {children.label.propertyView({ label: trans("label") })}
           {hiddenPropertyView(children)}
           {children.icon.propertyView({
-            label: trans("icon"),
-            tooltip: trans("aggregation.iconTooltip"),
+            label: trans('icon'),
+            tooltip: trans('aggregation.iconTooltip'),
           })}
         </>
       );
@@ -276,6 +290,7 @@ const TabOptionComp = (function () {
 
 let MobileTabLayoutTmp = (function () {
   const childrenMap = {
+    onEvent: eventHandlerControl(EventOptions),
     dataOptionType: dropdownControl(DataOptionType, DataOption.Manual),
     jsonItems: jsonControl<JsonItemNode[]>(convertTreeData, mobileNavJsonMenuItems),
     tabs: manualOptionsControl(TabOptionComp, {
@@ -303,12 +318,12 @@ let MobileTabLayoutTmp = (function () {
     maxWidth: withDefault(NumberControl, 450),
     verticalAlignment: dropdownControl(VerticalAlignmentOptions, "stretch"),
     showSeparator: withDefault(BoolCodeControl, true),
-    navStyle: withDefault(styleControl(NavLayoutStyle), defaultStyle),
-    navItemStyle: withDefault(styleControl(NavLayoutItemStyle), defaultStyle),
-    navItemHoverStyle: withDefault(styleControl(NavLayoutItemHoverStyle), {}),
-    navItemActiveStyle: withDefault(styleControl(NavLayoutItemActiveStyle), {}),
+    navStyle: styleControl(NavLayoutStyle, 'navStyle'),
+    navItemStyle: styleControl(NavLayoutItemStyle, 'navItemStyle'),
+    navItemHoverStyle: styleControl(NavLayoutItemHoverStyle, 'navItemHoverStyle'),
+    navItemActiveStyle: styleControl(NavLayoutItemActiveStyle, 'navItemActiveStyle'),
   };
-  return new MultiCompBuilder(childrenMap, (props) => {
+  return new MultiCompBuilder(childrenMap, (props, dispatch) => {
     return null;
   })
     .setPropertyViewFn((children) => {
@@ -327,6 +342,9 @@ let MobileTabLayoutTmp = (function () {
                   label: "Json Data",
                 })
             }
+          </Section>
+          <Section name={trans("eventHandler.eventHandlers")}>
+            { children.onEvent.getPropertyView() }
           </Section>
           <Section name={sectionNames.layout}>
             {children.backgroundImage.propertyView({
@@ -385,6 +403,9 @@ MobileTabLayoutTmp = withViewFn(MobileTabLayoutTmp, (comp) => {
   const verticalAlignment = comp.children.verticalAlignment.getView();
   const showSeparator = comp.children.showSeparator.getView();
   const bgColor = (useContext(ThemeContext)?.theme || defaultTheme).canvas;
+  const onEvent = comp.children.onEvent.getView();
+
+  useMergeCompStyles(childrenToProps(comp.children), comp.dispatch);
 
   useEffect(() => {
     comp.children.jsonTabs.dispatchChangeValueAction({
@@ -411,9 +432,20 @@ MobileTabLayoutTmp = withViewFn(MobileTabLayoutTmp, (comp) => {
   const appView = useMemo(() => {
     const currentTab = tabViews[tabIndex];
 
+    if (dataOptionType === DataOption.Json) {
+      return (currentTab &&
+        currentTab.children.app.getAppId() &&
+        currentTab.children.app.getView()) || (
+        <EmptyContent
+          text={readOnly ? "" : trans("aggregation.emptyTabTooltip")}
+          style={{ height: "100%", backgroundColor: "white" }}
+        />
+      );
+    }
+
     return (currentTab &&
-      currentTab.children.app.getAppId() &&
-      currentTab.children.app.getView()) || (
+      // currentTab.children.app.getAppId() &&
+      currentTab.children.action.getView()) || (
       <EmptyContent
         text={readOnly ? "" : trans("aggregation.emptyTabTooltip")}
         style={{ height: "100%", backgroundColor: "white" }}
@@ -428,6 +460,7 @@ MobileTabLayoutTmp = withViewFn(MobileTabLayoutTmp, (comp) => {
 
   const tabBarView = (
     <TabBarView
+      onEvent={onEvent}
       tabs={tabViews.map((tab, index) => ({
         key: index,
         title: tab.children.label.getView(),

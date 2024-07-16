@@ -24,8 +24,10 @@ import {
 } from "./buttonCompConstants";
 import { RefControl } from "comps/controls/refControl";
 
-import React, { useContext } from "react";
-import { AnimationStyle, styleControl } from "@lowcoder-ee/index.sdk";
+import React, { useContext, useEffect } from "react";
+import { AnimationStyle } from "@lowcoder-ee/comps/controls/styleControlConstants";
+import { styleControl } from "@lowcoder-ee/comps/controls/styleControl";
+import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 const FormLabel = styled(CommonBlueLabel)`
   font-size: 13px;
@@ -130,35 +132,39 @@ const ButtonTmpComp = (function () {
     prefixIcon: IconControl,
     suffixIcon: IconControl,
     style: ButtonStyleControl,
-    animationStyle:styleControl(AnimationStyle),
+    animationStyle: styleControl(AnimationStyle, 'animationStyle'),
     viewRef: RefControl<HTMLElement>,
   };
-  return new UICompBuilder(childrenMap, (props) => (
-    <ButtonCompWrapper disabled={props.disabled}>
-      <EditorContext.Consumer>
-        {(editorState) => (
-          <Button100
-            ref={props.viewRef}
-            $buttonStyle={props.style}
-            loading={props.loading}
-            disabled={
-              props.disabled ||
-              (!isDefault(props.type) && getForm(editorState, props.form)?.disableSubmit())
-            }
-            onClick={() =>
-              isDefault(props.type) ? props.onEvent("click") : submitForm(editorState, props.form)
-            }
-          >
-            {props.prefixIcon && <IconWrapper>{props.prefixIcon}</IconWrapper>}
-            {
-              props.text || (props.prefixIcon || props.suffixIcon ? undefined : " ") // Avoid button disappearing
-            }
-            {props.suffixIcon && <IconWrapper>{props.suffixIcon}</IconWrapper>}
-          </Button100>
-        )}
-      </EditorContext.Consumer>
-    </ButtonCompWrapper>
-  ))
+  return new UICompBuilder(childrenMap, (props , dispatch) => {
+    useMergeCompStyles(props as Record<string, any>, dispatch);
+
+    return(
+      <ButtonCompWrapper disabled={props.disabled}>
+        <EditorContext.Consumer>
+          {(editorState) => (
+            <Button100
+              ref={props.viewRef}
+              $buttonStyle={props.style}
+              loading={props.loading}
+              disabled={
+                props.disabled ||
+                (!isDefault(props.type) && getForm(editorState, props.form)?.disableSubmit())
+              }
+              onClick={() =>
+                isDefault(props.type) ? props.onEvent("click") : submitForm(editorState, props.form)
+              }
+            >
+              {props.prefixIcon && <IconWrapper>{props.prefixIcon}</IconWrapper>}
+              {
+                props.text || (props.prefixIcon || props.suffixIcon ? undefined : " ") // Avoid button disappearing
+              }
+              {props.suffixIcon && <IconWrapper>{props.suffixIcon}</IconWrapper>}
+            </Button100>
+          )}
+        </EditorContext.Consumer>
+      </ButtonCompWrapper>
+    );
+  })
     .setPropertyViewFn((children) => (
       <>
         <Section name={sectionNames.basic}>

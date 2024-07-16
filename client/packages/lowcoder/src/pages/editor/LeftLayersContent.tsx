@@ -40,7 +40,7 @@ import {
 } from "util/localStorageUtil";
 import { default as DownOutlined } from "@ant-design/icons/DownOutlined";
 import type { ItemType } from "antd/es/menu/hooks/useItems";
-import ColorPicker from "components/ColorPicker";
+import ThemeSettingsSelector from "components/ThemeSettingsSelector";
 
 export type DisabledCollisionStatus = "true" | "false"; // "true" means collision is not enabled - Layering works, "false" means collision is enabled - Layering does not work
 export type ToggleCollisionStatus = (collisionStatus?: DisabledCollisionStatus) => void;
@@ -566,20 +566,20 @@ export const LeftLayersContent = (props: LeftLayersContentProps) => {
               Apply Action
             </Button>
             <br/>
-            <ColorPicker
-                colorKey={"background"}
+            <ThemeSettingsSelector
+                themeSettingKey={"background"}
                 name={trans("componentDoc.styleBackgroundColor")}
                 color={"#ffffff"}
                 configChange={(params) => handleColorChange(params.color, "style.background")}
             />
-            <ColorPicker
-                colorKey={"border"}
+            <ThemeSettingsSelector
+                themeSettingKey={"border"}
                 name={trans("componentDoc.styleBorderColor")}
                 color={"#ffffff"}
                 configChange={(params) => handleColorChange(params.color, "style.border")}
             />
-            <ColorPicker
-                colorKey={"text"}
+            <ThemeSettingsSelector
+                themeSettingKey={"text"}
                 name={trans("style.textColor")}
                 color={"#ffffff"}
                 configChange={(params) => handleColorChange(params.color, "style.text")}

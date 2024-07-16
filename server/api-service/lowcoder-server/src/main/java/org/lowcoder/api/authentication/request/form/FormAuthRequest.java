@@ -55,7 +55,7 @@ public class FormAuthRequest implements AuthRequest {
                                 return Mono.empty();
                             });
                 })
-                .thenReturn(AuthUser.builder().uid(context.getLoginId()).username(context.getLoginId()).build());
+                .thenReturn(AuthUser.builder().uid(context.getLoginId()).username(context.getLoginId()).email(context.getLoginId()).build());
     }
 
     @Override

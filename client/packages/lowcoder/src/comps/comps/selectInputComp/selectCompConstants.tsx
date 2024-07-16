@@ -363,7 +363,7 @@ export const SelectPropertyView = (
           <Section name={sectionNames.inputFieldStyle}>
             {children.inputFieldStyle.getPropertyView()}
           </Section>
-          <Section name={'Children Input Field Styles'}>
+          <Section name={sectionNames.childrenInputFieldStyle}>
             {children.childrenInputFieldStyle.getPropertyView()}
           </Section>
         </>

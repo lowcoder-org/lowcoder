@@ -60,7 +60,7 @@ import { ExternalEditorContext } from "util/context/ExternalEditorContext";
 import { selectCompModifierKeyPressed } from "util/keyUtils";
 import { defaultLayout, GridItemComp, GridItemDataType } from "../gridItemComp";
 import { ThemeContext } from "comps/utils/themeContext";
-import { defaultTheme } from "comps/controls/styleControlConstants";
+import { defaultTheme } from "@lowcoder-ee/constants/themeConstants";
 
 const childrenMap = {
   layout: valueComp<Layout>({}),
@@ -293,9 +293,10 @@ const getExtraLayout = (
     const autoHeight = item.autoHeight;
     const name = item.name;
     const compType = item.compType;
+    const comp = item.comp;
     const isSelected = selectedCompNames.has(name) || dragSelectedNames?.has?.(name);
     const hidden = item.hidden;
-    return { autoHeight, isSelected, name, hidden, compType };
+    return { autoHeight, isSelected, name, hidden, compType, comp };
   });
 };
 

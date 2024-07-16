@@ -1,5 +1,6 @@
 package org.lowcoder.api.bundle;
 
+import com.github.f4b6a3.uuid.UuidCreator;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
@@ -77,6 +78,7 @@ public class BundleApiServiceImpl implements BundleApiService {
     @Override
     public Mono<BundleInfoView> create(CreateBundleRequest createBundleRequest) {
         Bundle bundle = Bundle.builder()
+                .gid(StringUtils.isEmpty(createBundleRequest.gid())?UuidCreator.getTimeOrderedEpoch().toString():createBundleRequest.gid())
                 .organizationId(createBundleRequest.organizationId())
                 .name(createBundleRequest.name())
                 .image(createBundleRequest.image())
@@ -627,6 +629,7 @@ public class BundleApiServiceImpl implements BundleApiService {
                 .map(user -> BundleInfoView.builder()
                         .userId(bundle.getCreatedBy())
                         .bundleId(bundle.getId())
+                        .bundleGid(bundle.getGid())
                         .title(bundle.getTitle())
                         .name(bundle.getName())
                         .description(bundle.getDescription())

@@ -20,6 +20,7 @@ import {
 } from "base/codeEditor/codeMirror";
 import { useExtensions } from "base/codeEditor/extensions";
 import { EditorContext } from "comps/editorState";
+import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 /**
  * JsonEditor Comp
@@ -65,14 +66,15 @@ const childrenMap = {
   value: jsonValueExposingStateControl("value", defaultData),
   onEvent: ChangeEventHandlerControl,
   label: withDefault(LabelControl, { position: "column" }),
-  style: styleControl(JsonEditorStyle),
-  animationStyle: styleControl(AnimationStyle),
-
+  style: styleControl(JsonEditorStyle, 'style'),
+  animationStyle: styleControl(AnimationStyle , 'animationStyle'),
   ...formDataChildren,
 };
 
 let JsonEditorTmpComp = (function () {
-  return new UICompBuilder(childrenMap, (props) => {
+  return new UICompBuilder(childrenMap, (props, dispatch) => {
+    useMergeCompStyles(props as Record<string, any>, dispatch);    
+
     const wrapperRef = useRef<HTMLDivElement>(null);
     const view = useRef<EditorViewType | null>(null);
     const editContent = useRef<string>();

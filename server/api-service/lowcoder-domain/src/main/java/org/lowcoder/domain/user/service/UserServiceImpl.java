@@ -112,6 +112,11 @@ public class UserServiceImpl implements UserService {
         return repository.findByName(rawUuid);
     }
 
+    public Mono<User> findByEmailDeep(String email) {
+        if(StringUtils.isEmpty(email)) return Mono.empty();
+        return repository.findByEmailOrConnections_Email(email, email).next();
+    }
+
     @Override
     public Mono<Boolean> saveProfilePhoto(Part filePart, User user) {
         String prevAvatar = ObjectUtils.defaultIfNull(user.getAvatar(), "");
@@ -151,13 +156,14 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Mono<User> findByAuthUserRawId(AuthUser authUser) {
-        return findByName(authUser.getUsername());
+        return findByEmailDeep(authUser.getEmail());
     }
 
     @Override
     public Mono<User> createNewUserByAuthUser(AuthUser authUser) {
          User.UserBuilder userBuilder = User.builder()
                 .name(authUser.getUsername())
+                .email(authUser.getEmail())
                 .state(UserState.ACTIVATED)
                 .isEnabled(true)
                 .tpAvatarLink(authUser.getAvatar());
@@ -340,7 +346,7 @@ public class UserServiceImpl implements UserService {
                         List<Map<String, String>> groups = tuple2.getT2();
                         return UserDetail.builder()
                                 .id(user.getId())
-                                .name(user.getName())
+                                .name(StringUtils.isEmpty(user.getName())?user.getId():user.getName())
                                 .avatarUrl(user.getAvatarUrl())
                                 .uiLanguage(user.getUiLanguage())
                                 .email(convertEmail(user.getConnections()))

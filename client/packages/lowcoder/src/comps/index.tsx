@@ -108,7 +108,8 @@ import {
   HillchartCompIcon,
   TurnstileCaptchaCompIcon,
   PivotTableCompIcon,
-  GraphChartCompIcon
+  GraphChartCompIcon,
+  GanttCompIcon,
 
 } from "lowcoder-design";
 
@@ -1224,6 +1225,25 @@ export var uiCompMap: Registry = {
   },
 
   // Project Management
+
+  ganttChart: {
+    name: trans("uiComp.ganttChartCompName"),
+    enName: "ganttChart",
+    description: trans("uiComp.ganttChartCompDesc"),
+    categories: ["projectmanagement"],
+    icon: GanttCompIcon,
+    keywords: trans("uiComp.ganttChartCompKeywords"),
+    comp: remoteComp({
+      compName: "ganttchart",
+      packageName: "lowcoder-comp-gantt-chart",
+      source: "npm",
+      isRemote: true,
+    }),
+    layoutInfo: {
+      w: 20,
+      h: 60,
+    },
+  },
 
   hillchart: {
     name: trans("uiComp.hillchartCompName"),

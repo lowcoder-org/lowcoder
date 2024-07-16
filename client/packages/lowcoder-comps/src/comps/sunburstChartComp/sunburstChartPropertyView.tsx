@@ -38,7 +38,7 @@ export function sunburstChartPropertyView(
         {children.onEvent.propertyView()}
       </Section>
       <Section name={sectionNames.style}>
-         {children.style.getPropertyView()}
+         {children.style?.getPropertyView()}
       </Section>
       <Section name={sectionNames.layout}>{hiddenPropertyView(children)}</Section>
     </>

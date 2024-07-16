@@ -177,6 +177,7 @@ export const sectionNames = {
   meetings: trans("prop.meetings"), // added by Falk Wolsky
   field: trans("prop.field"),
   inputFieldStyle:trans("prop.inputFieldStyle"),
+  childrenInputFieldStyle:trans("prop.childrenInputFieldStyle"),
   avatarStyle:trans("prop.avatarStyle"),
   captionStyle:trans("prop.captionStyle"),
   startButtonStyle:trans("prop.startButtonStyle"),

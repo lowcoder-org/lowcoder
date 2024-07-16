@@ -9,7 +9,7 @@ import { trans } from "i18n";
 import { ChangeEventHandlerControl } from "comps/controls/eventHandlerControl";
 import { formDataChildren, FormDataPropertyView } from "./formComp/formDataConstants";
 import { PositionControl } from "comps/controls/dropdownControl";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import ReactResizeDetector from "react-resize-detector";
 import { ArrayStringControl } from "comps/controls/codeControl";
 import { styleControl } from "comps/controls/styleControl";
@@ -17,6 +17,7 @@ import { AnimationStyle, AnimationStyleType, CarouselStyle } from "comps/control
 
 import { useContext } from "react";
 import { EditorContext } from "comps/editorState";
+import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 // TODO: dots at top position needs proper margin (should be the same as bottom position)
 
@@ -44,11 +45,13 @@ let CarouselBasicComp = (function () {
     onEvent: ChangeEventHandlerControl,
     showDots: withDefault(BoolControl, true),
     dotPosition: withDefault(PositionControl, "bottom"),
-    style: styleControl(CarouselStyle),
-    animationStyle: styleControl(AnimationStyle),
+    style: styleControl(CarouselStyle , 'style'),
+    animationStyle: styleControl(AnimationStyle , 'animationStyle'),
     ...formDataChildren,
   };
-  return new UICompBuilder(childrenMap, (props) => {
+  return new UICompBuilder(childrenMap, (props, dispatch) => {
+    useMergeCompStyles(props as Record<string, any>, dispatch);
+
     const containerRef = useRef<HTMLDivElement>(null);
     const [height, setHeight] = useState(0);
     const onResize = () => {

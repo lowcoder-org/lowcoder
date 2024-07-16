@@ -24,7 +24,8 @@ import {
   ThemeContext,
   chartColorPalette,
   getPromiseAfterDispatch,
-  dropdownControl
+  dropdownControl,
+  useMergeCompStyles,
 } from "lowcoder-sdk";
 import { getEchartsLocale, trans } from "i18n/comps";
 import { ItemColorComp } from "comps/chartComp/chartConfigs/lineChartConfig";
@@ -70,6 +71,8 @@ HeatmapChartTmpComp = withViewFn(HeatmapChartTmpComp, (comp) => {
   } catch (error) {
     log.error('theme chart error: ', error);
   }
+
+  useMergeCompStyles(childrenToProps(comp.children), comp.dispatch);
 
   const triggerClickEvent = async (dispatch: any, action: CompAction<JSONValue>) => {
     await getPromiseAfterDispatch(
@@ -144,7 +147,8 @@ HeatmapChartTmpComp = withViewFn(HeatmapChartTmpComp, (comp) => {
   const option = useMemo(() => {
     return getEchartsConfig(
       childrenToProps(echartsConfigChildren) as ToViewReturn<typeof echartsConfigChildren>,
-      chartSize
+      chartSize,
+      theme?.theme?.components?.candleStickChart || {},
     );
   }, [chartSize, ...Object.values(echartsConfigChildren)]);
 

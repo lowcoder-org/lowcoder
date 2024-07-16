@@ -47,7 +47,9 @@ type StatusEditPropsType = {
 const StatusEdit = (props: StatusEditPropsType) => {
   const defaultStatus = useContext(StatusContext);
   const [status, setStatus] = useState(defaultStatus);
+  const [allOptions, setAllOptions] = useState(BadgeStatusOptions);
   const [open, setOpen] = useState(true);
+
   return (
     <Wrapper>
       <CustomSelect
@@ -97,12 +99,12 @@ const StatusEdit = (props: StatusEditPropsType) => {
         }}
         onClick={() => setOpen(!open)}
       >
-        {status.map((value, index) => (
-          <CustomSelect.Option value={value.text} key={index}>
-            {value.status === "none" ? (
-              value.text
+        {allOptions.map((value, index) => (
+          <CustomSelect.Option value={value} key={index}>
+            {value === "none" ? (
+              value
             ) : (
-              <Badge status={value.status} text={value.text} />
+              <Badge status={value} text={value} />
             )}
           </CustomSelect.Option>
         ))}
@@ -117,7 +119,7 @@ export const BadgeStatusComp = (function () {
     (props, dispatch) => {
       const text = props.changeValue?.value ?? getBaseValue(props, dispatch).value;
       const status = props.changeValue?.status ?? getBaseValue(props, dispatch).status;
-      return status === "none" ? text : <Badge status={status} text={text} />;
+      return status === "none" ? text : <Badge status={status} text={text}/>;
     },
     (nodeValue) => [nodeValue.status.value, nodeValue.text.value].filter((t) => t).join(" "),
     getBaseValue

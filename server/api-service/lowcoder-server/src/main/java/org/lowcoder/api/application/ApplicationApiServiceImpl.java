@@ -49,6 +49,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -97,6 +98,7 @@ public class ApplicationApiServiceImpl implements ApplicationApiService {
     public Mono<ApplicationView> create(CreateApplicationRequest createApplicationRequest) {
 
         Application application = new Application(createApplicationRequest.organizationId(),
+                createApplicationRequest.gid(),
                 createApplicationRequest.name(),
                 createApplicationRequest.applicationType(),
                 NORMAL,
@@ -246,7 +248,12 @@ public class ApplicationApiServiceImpl implements ApplicationApiService {
 
     @Override
     public Mono<ApplicationView> getEditingApplication(String applicationId) {
-        return checkPermissionWithReadableErrorMsg(applicationId, EDIT_APPLICATIONS)
+        return applicationService.findById(applicationId).filter(application -> application.isPublicToAll() && application.isPublicToMarketplace())
+                .map(application -> {
+                    ResourcePermission permission = ResourcePermission.builder().resourceRole(ResourceRole.VIEWER).build();
+                    return permission;
+                })
+                .switchIfEmpty(checkPermissionWithReadableErrorMsg(applicationId, EDIT_APPLICATIONS))
                 .zipWhen(permission -> applicationService.findById(applicationId)
                         .delayUntil(application -> checkApplicationStatus(application, NORMAL)))
                 .zipWhen(tuple -> applicationService.getAllDependentModulesFromApplication(tuple.getT2(), false), TupleUtils::merge)
@@ -474,6 +481,7 @@ public class ApplicationApiServiceImpl implements ApplicationApiService {
     public Mono<ResourcePermission> checkApplicationPermissionWithReadableErrorMsg(String applicationId, ResourceAction action, ApplicationRequestType requestType) {
         return sessionUserService.getVisitorId()
                 .flatMap(visitorId -> resourcePermissionService.checkUserPermissionStatusOnApplication(visitorId, applicationId, action, requestType))
+                .publishOn(Schedulers.boundedElastic())
                 .flatMap(permissionStatus -> {
                     if (!permissionStatus.hasPermission()) {
 
@@ -482,7 +490,7 @@ public class ApplicationApiServiceImpl implements ApplicationApiService {
                             orgId = applicationService.findById(applicationId)
                                     .map(Application::getOrganizationId)
                                     .onErrorReturn("")
-                                    .block(Duration.ofSeconds(2));
+                                    .block(Duration.ofSeconds(5));
                         } catch(Throwable cause) {
                             log.warn("Couldn't get orgId! - {}", cause.getMessage());
                         }
@@ -519,6 +527,7 @@ public class ApplicationApiServiceImpl implements ApplicationApiService {
     private ApplicationInfoView buildView(Application application, String role, @Nullable String folderId) {
         return ApplicationInfoView.builder()
                 .applicationId(application.getId())
+                .applicationGid(application.getGid())
                 .orgId(application.getOrganizationId())
                 .name(application.getName())
                 .createBy(application.getCreatedBy())

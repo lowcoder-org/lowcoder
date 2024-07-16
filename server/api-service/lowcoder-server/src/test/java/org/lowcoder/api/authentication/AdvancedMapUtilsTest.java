@@ -17,10 +17,13 @@ public class AdvancedMapUtilsTest {
                 Collections.singletonMap("def", Collections.singletonMap("hi", "hello world")),
                 Collections.singletonMap("def", Collections.singletonMap("hi", "another value"))
         ));
+        nestedMap.put("false", "123");
 
         String value0 = AdvancedMapUtils.getString(nestedMap, "abc[0].def.hi");
         String value1 = AdvancedMapUtils.getString(nestedMap, "abc[1].def.hi");
+        String value2 = AdvancedMapUtils.getString(nestedMap, "false");
         Assertions.assertSame("hello world", value0);
         Assertions.assertSame("another value", value1);
+        Assertions.assertSame(null, value2);
     }
 }

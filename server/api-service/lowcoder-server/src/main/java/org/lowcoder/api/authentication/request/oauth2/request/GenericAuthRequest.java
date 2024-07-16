@@ -1,5 +1,6 @@
 package org.lowcoder.api.authentication.request.oauth2.request;
 
+import lombok.Setter;
 import org.lowcoder.api.authentication.request.AuthException;
 import org.lowcoder.api.authentication.request.oauth2.GenericOAuthProviderSource;
 import org.lowcoder.api.authentication.request.oauth2.OAuth2RequestContext;
@@ -9,6 +10,7 @@ import org.lowcoder.domain.user.model.AuthUser;
 import org.lowcoder.sdk.auth.Oauth2GenericAuthConfig;
 import org.lowcoder.sdk.util.JsonUtils;
 import org.lowcoder.sdk.webclient.WebClientBuildHelper;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.BodyInserters;
 import reactor.core.publisher.Mono;
@@ -41,6 +43,7 @@ public class GenericAuthRequest  extends AbstractOauth2Request<Oauth2GenericAuth
                         .with("client_secret", config.getClientSecret())
                         .with("grant_type", "authorization_code")
                         .with("redirect_uri", context.getRedirectUrl()))
+                .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
                 .bodyToMono(Map.class)
                 .flatMap(map -> {
@@ -95,7 +98,7 @@ public class GenericAuthRequest  extends AbstractOauth2Request<Oauth2GenericAuth
                 .systemProxy()
                 .timeoutMs(HTTP_TIMEOUT)
                 .build()
-                .get()
+                .method(Boolean.TRUE.equals(config.getPostForUserEndpoint())? HttpMethod.POST: HttpMethod.GET)
                 .uri(config.getUserInfoEndpoint())
                 .headers(headers -> headers.setBearerAuth(authToken.getAccessToken()))
                 .retrieve()

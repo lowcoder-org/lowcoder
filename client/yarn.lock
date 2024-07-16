@@ -3531,9 +3531,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@rjsf/antd@npm:^5.15.1":
-  version: 5.18.3
-  resolution: "@rjsf/antd@npm:5.18.3"
+"@rjsf/antd@npm:^5.18.6":
+  version: 5.18.6
+  resolution: "@rjsf/antd@npm:5.18.6"
   dependencies:
     classnames: ^2.5.1
     lodash: ^4.17.21
@@ -3546,13 +3546,13 @@ __metadata:
     antd: ^4.24.0 || ^5.8.5
     dayjs: ^1.8.0
     react: ^16.14.0 || >=17
-  checksum: 874ffe1e5b21a3b997788d63e9e35ae9364b162dfa0d274faedb3f50f7ba4ff4cdb97dd4a4fa8dbe672d705ba3cfd11814e1c1d2832c0f922311ba0c905ba67b
+  checksum: f33ce6a7807f6dd1adf52d4b25040317dc054c76cdb8f96a270f6211c84c1dc196eadd973c8bedadaac4345f3ff6b47e17fe008b6a8f792a6e79040436e545fe
   languageName: node
   linkType: hard
 
-"@rjsf/core@npm:^5.15.1":
-  version: 5.18.3
-  resolution: "@rjsf/core@npm:5.18.3"
+"@rjsf/core@npm:^5.18.6":
+  version: 5.18.6
+  resolution: "@rjsf/core@npm:5.18.6"
   dependencies:
     lodash: ^4.17.21
     lodash-es: ^4.17.21
@@ -3562,13 +3562,13 @@ __metadata:
   peerDependencies:
     "@rjsf/utils": ^5.18.x
     react: ^16.14.0 || >=17
-  checksum: 370586a38e6557367281cd3e6292abf4391a24ed3d7c19b02478a45ca5aeb337363f54d841a7077b1403a24014bb1969d568976f12220b3ccd1a076ed4875397
+  checksum: f07b25e34b3f3388fae1fbbf362b191000b3012d223e562699f9b11932d3378c422fc4abe5485c256b5023f8ecb43f071412b7e273af94272a1ee4067c308d44
   languageName: node
   linkType: hard
 
-"@rjsf/utils@npm:^5.15.1":
-  version: 5.18.3
-  resolution: "@rjsf/utils@npm:5.18.3"
+"@rjsf/utils@npm:^5.18.6":
+  version: 5.18.6
+  resolution: "@rjsf/utils@npm:5.18.6"
   dependencies:
     json-schema-merge-allof: ^0.8.1
     jsonpointer: ^5.0.1
@@ -3577,13 +3577,13 @@ __metadata:
     react-is: ^18.2.0
   peerDependencies:
     react: ^16.14.0 || >=17
-  checksum: 36f6574836e8ccad27b8215f940cb86b1a02939d325e0223a8d8e70b9ae65245e6649dd4835a40e628153f26d961a5cfbdd6c0bdd7b70a80f7cb1911357f78ff
+  checksum: 02d4590abc9d1ae313d222db48fcb0f6e5bf9558ef5a2e1a2c552e8ec21e44a4f32c9fbbc7539c1158216d6627068fd7b81957b78958b69f49de4b81a03a8cce
   languageName: node
   linkType: hard
 
-"@rjsf/validator-ajv8@npm:^5.15.1":
-  version: 5.18.3
-  resolution: "@rjsf/validator-ajv8@npm:5.18.3"
+"@rjsf/validator-ajv8@npm:^5.18.6":
+  version: 5.18.6
+  resolution: "@rjsf/validator-ajv8@npm:5.18.6"
   dependencies:
     ajv: ^8.12.0
     ajv-formats: ^2.1.1
@@ -3591,7 +3591,7 @@ __metadata:
     lodash-es: ^4.17.21
   peerDependencies:
     "@rjsf/utils": ^5.18.x
-  checksum: 628ea27aeab7cc0735be7d7121d66cb2edaa5835a6dbd18f745391722c8e008d00ed771b526881fcd5c0d6ba42f52c8ef691ee1f14698d41fd50595f9595384d
+  checksum: 04856ae0ae6f40748545130b1fb8628f5f4cc0fca60a30aa7b977a01a52150c42a003ea77c6f4d603b346d7fd3cba223f8ffb9c60f4b84063a9c29999ef436fb
   languageName: node
   linkType: hard
 
@@ -10298,6 +10298,13 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   languageName: node
   linkType: hard
 
+"fflate@npm:^0.4.8":
+  version: 0.4.8
+  resolution: "fflate@npm:0.4.8"
+  checksum: 29d8cbe44d5e7f53e7f5a160ac7f9cc025480c7b3bfd85c5f898cbe20dfa2dad4732daa534982664bf30b35896a90af44ea33ede5d94c5ffd1b8b0c0a0a56ca2
+  languageName: node
+  linkType: hard
+
 "file-entry-cache@npm:^6.0.1":
   version: 6.0.1
   resolution: "file-entry-cache@npm:6.0.1"
@@ -13726,6 +13733,7 @@ coolshapes-react@lowcoder-org/coolshapes-react:
     lowcoder-cli: "workspace:^"
     mq-polyfill: ^1.1.8
     number-precision: ^1.6.0
+    posthog-js: ^1.144.2
     prettier: ^3.1.0
     react-countup: ^6.5.3
     react-player: ^2.11.0
@@ -13822,10 +13830,10 @@ coolshapes-react@lowcoder-org/coolshapes-react:
     "@fortawesome/free-solid-svg-icons": ^6.5.1
     "@fortawesome/react-fontawesome": latest
     "@manaflair/redux-batch": ^1.0.0
-    "@rjsf/antd": ^5.15.1
-    "@rjsf/core": ^5.15.1
-    "@rjsf/utils": ^5.15.1
-    "@rjsf/validator-ajv8": ^5.15.1
+    "@rjsf/antd": ^5.18.6
+    "@rjsf/core": ^5.18.6
+    "@rjsf/utils": ^5.18.6
+    "@rjsf/validator-ajv8": ^5.18.6
     "@types/core-js": ^2.5.5
     "@types/intl": ^1.2.1
     "@types/lodash": ^4.14.194
@@ -13876,6 +13884,7 @@ coolshapes-react@lowcoder-org/coolshapes-react:
     react-documents: ^1.2.1
     react-dom: ^18.2.0
     react-draggable: ^4.4.4
+    react-error-boundary: ^4.0.13
     react-grid-layout: ^1.3.0
     react-helmet: ^6.1.0
     react-joyride: ^2.4.0
@@ -16028,6 +16037,24 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   languageName: node
   linkType: hard
 
+"posthog-js@npm:^1.144.2":
+  version: 1.144.2
+  resolution: "posthog-js@npm:1.144.2"
+  dependencies:
+    fflate: ^0.4.8
+    preact: ^10.19.3
+    web-vitals: ^4.0.1
+  checksum: c856f49a34b825eb0678b40e137affa4a79a29ff64205f059a9a0ad78ce6ac8b3d8413f955e3fa72b08cf91e923e443aedb7e41b2e40c76c1cab20b88fe1c3d7
+  languageName: node
+  linkType: hard
+
+"preact@npm:^10.19.3":
+  version: 10.22.1
+  resolution: "preact@npm:10.22.1"
+  checksum: 8762645766b1c057eaf9a58ff904b6659ffa7a7d33eb94dc2b96ff1ba08743855c3ade913dfbe9e8da994777aa9f4f5e9f23d39886340f23eaebcd98f5e107e5
+  languageName: node
+  linkType: hard
+
 "preact@npm:~10.12.1":
   version: 10.12.1
   resolution: "preact@npm:10.12.1"
@@ -17029,6 +17056,17 @@ coolshapes-react@lowcoder-org/coolshapes-react:
     react: ">= 16.3.0"
     react-dom: ">= 16.3.0"
   checksum: 9b15aac59244873ac4561c5a2bead43a56e18d406e0a5f242bd4f9d151c074530c02b99387983104bf43417292f9cf8d063e554ed08d88792235e3fbc965f1b8
+  languageName: node
+  linkType: hard
+
+"react-error-boundary@npm:^4.0.13":
+  version: 4.0.13
+  resolution: "react-error-boundary@npm:4.0.13"
+  dependencies:
+    "@babel/runtime": ^7.12.5
+  peerDependencies:
+    react: ">=16.13.1"
+  checksum: 50398d080015d51d22c6f94c56f4ea336d10232d72345b36ee6f15b6b643666d20b072829b02f091a80e5af68fe67f68a62ef0d2b649dbd759ead929304449af
   languageName: node
   linkType: hard
 
@@ -21078,6 +21116,13 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   version: 2.1.4
   resolution: "web-vitals@npm:2.1.4"
   checksum: 03d3f47dbf55c3dce07beb0ff5de8ddd52e2d0a53a8df5c84e7a16dda93543341d67231fa79b1d9772b091419af4ec0fd395b8bcf451a0e26846e3f76b3d0efc
+  languageName: node
+  linkType: hard
+
+"web-vitals@npm:^4.0.1":
+  version: 4.2.1
+  resolution: "web-vitals@npm:4.2.1"
+  checksum: 556989af90814c6a88eaeea57f778414b26e39d8857173a03e240f62e9cf732090acc97fba38f34f760bde086fef5ee90969920ff1ab3a185518176723589cb8
   languageName: node
   linkType: hard
 

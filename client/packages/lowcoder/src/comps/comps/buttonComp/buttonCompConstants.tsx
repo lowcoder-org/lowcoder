@@ -8,8 +8,8 @@ import { refMethods } from "comps/generators/withMethodExposing";
 import { blurMethod, clickMethod, focusWithOptions } from "comps/utils/methodUtils";
 
 export function getButtonStyle(buttonStyle: ButtonStyleType) {
-  const hoverColor = genHoverColor(buttonStyle.background);
-  const activeColor = genActiveColor(buttonStyle.background);
+  const hoverColor = buttonStyle.background && genHoverColor(buttonStyle.background);
+  const activeColor = buttonStyle.background && genActiveColor(buttonStyle.background);
   return css`
     &&& {
       border-radius: ${buttonStyle.radius};
@@ -97,7 +97,7 @@ function fixOldData(oldData: any) {
   }
   return oldData;
 }
-const ButtonTmpStyleControl = styleControl(ButtonStyle);
+const ButtonTmpStyleControl = styleControl(ButtonStyle, 'style');
 export const ButtonStyleControl = migrateOldData(ButtonTmpStyleControl, fixOldData);
 
 export const buttonRefMethods = refMethods<HTMLElement>([

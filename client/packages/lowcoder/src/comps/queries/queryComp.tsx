@@ -134,7 +134,7 @@ const childrenMap = {
   // advanced
   timeout: paramsMillisecondsControl({
     left: 0,
-    right: 120 * 1000,
+    right: 3200 * 1000,
     defaultValue: 10 * 1000,
   }),
   confirmationModal: QueryConfirmationModal,

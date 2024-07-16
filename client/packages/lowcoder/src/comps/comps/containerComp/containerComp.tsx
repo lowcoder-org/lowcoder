@@ -16,7 +16,8 @@ import { BoolCodeControl } from "comps/controls/codeControl";
 import { DisabledContext } from "comps/generators/uiCompBuilder";
 import React, { useContext } from "react";
 import { EditorContext } from "comps/editorState";
-import { AnimationStyle, styleControl } from "@lowcoder-ee/index.sdk";
+import { AnimationStyle } from "@lowcoder-ee/comps/controls/styleControlConstants";
+import { styleControl } from "@lowcoder-ee/comps/controls/styleControl";
 
 export const ContainerBaseComp = (function () {
   const childrenMap = {

@@ -118,6 +118,8 @@ public class AuthConfigFactoryImpl implements AuthConfigFactory {
                 .scope(authConfigRequest.getScope())
                 .authType(AuthTypeConstants.GENERIC)
                 .userInfoIntrospection(MapUtils.getBoolean(authConfigRequest,"userInfoIntrospection", false))
+                .userCanSelectAccounts(MapUtils.getBoolean(authConfigRequest,"userCanSelectAccounts", true))
+                .postForUserEndpoint(MapUtils.getBoolean(authConfigRequest,"postForUserEndpoint", false))
                 .build();
     }
 }
