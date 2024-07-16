@@ -111,7 +111,8 @@ const DropdownTmpComp = (function () {
         items={items}
         onClick={({ key }) => {
           const item = items.find((o) => o.key === key);
-          item && props.options[item.index]?.onEvent("click");
+          const itemIndex = props.options.findIndex(option => option.label === item?.label);
+          item && props.options[itemIndex]?.onEvent("click");
         }}
       />
     );
