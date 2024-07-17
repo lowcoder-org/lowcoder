@@ -336,7 +336,6 @@ function AppSettingsModal(props: ChildrenInstance) {
           }
           label={'Lowcoder Comps Version'}
           placement="bottom"
-          allowClear
           onChange={async (value) => {
             await getPromiseAfterDispatch(
               lowcoderCompVersion.dispatch,
