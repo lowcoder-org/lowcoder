@@ -151,7 +151,7 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
 
         if(linkExistingUser) {
             return sessionUserService.getVisitor()
-                    .flatMap(user -> userService.addNewConnectionAndReturnUser(user.getId(), authUser.toAuthConnection()));
+                    .flatMap(user -> userService.addNewConnectionAndReturnUser(user.getId(), authUser));
         }
 
         return findByAuthUserSourceAndRawId(authUser).zipWith(findByAuthUserRawId(authUser))
@@ -171,7 +171,7 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
                     // found for the same id in some different connection, then just add a new connection to the user
                     if(findByAuthUserSecond.userExist()) {
                         User user = findByAuthUserSecond.user();
-                        return userService.addNewConnectionAndReturnUser(user.getId(), authUser.toAuthConnection());
+                        return userService.addNewConnectionAndReturnUser(user.getId(), authUser);
                     }
 
                     // if the user is logging/registering via OAuth provider for the first time,
