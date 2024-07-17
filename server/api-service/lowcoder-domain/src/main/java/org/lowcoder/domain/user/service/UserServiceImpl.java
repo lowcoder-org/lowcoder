@@ -215,11 +215,17 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Mono<User> addNewConnectionAndReturnUser(String userId, Connection connection) {
+    public Mono<User> addNewConnectionAndReturnUser(String userId, AuthUser authUser) {
+        Connection connection = authUser.toAuthConnection();
         return findById(userId)
                 .doOnNext(user -> {
                     user.getConnections().add(connection);
                     user.setActiveAuthId(connection.getAuthId());
+
+                    if (AuthSourceConstants.EMAIL.equals(authUser.getSource())
+                            && authUser.getAuthContext() instanceof FormAuthRequestContext formAuthRequestContext) {
+                        user.setPassword(encryptionService.encryptPassword(formAuthRequestContext.getPassword()));
+                    }
                 })
                 .flatMap(repository::save);
     }
