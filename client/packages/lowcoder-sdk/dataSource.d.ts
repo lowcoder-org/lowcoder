@@ -319,6 +319,18 @@ export interface DataSourcePluginMeta extends DataSourcePluginBasicInfo {
     DataSourceConfig,
     {
       extra?: DynamicConfigObject;
+      authConfig?: {
+        type: AuthType;
+        authId?: string;
+      } & (
+        | {
+            username: string; // basic auth
+            password: string;
+          }
+        | OAuthConfig
+      );
+    
+      sslConfig?: SSLConfig;
     }
   >;
   queryConfig: DynamicConfigObject | QueryConfig;
