@@ -314,6 +314,7 @@ export var uiCompMap: Registry = {
       source: "npm",
       isRemote: true,
     }),
+    compName: "lowcoder-comp-geo",
     layoutInfo: {
       w: 12,
       h: 50,
@@ -365,6 +366,7 @@ export var uiCompMap: Registry = {
       source: "npm",
       isRemote: true,
     }),
+    compName: "lowcoder-comp-reactpivottable",
     layoutInfo: {
       w: 12,
       h: 50,
@@ -1239,6 +1241,7 @@ export var uiCompMap: Registry = {
       source: "npm",
       isRemote: true,
     }),
+    compName: "lowcoder-comp-gantt-chart",
     layoutInfo: {
       w: 20,
       h: 60,
@@ -1258,6 +1261,7 @@ export var uiCompMap: Registry = {
       source: "npm",
       isRemote: true,
     }),
+    compName: "lowcoder-comp-hillcharts",
     layoutInfo: {
       w: 12,
       h: 50,
@@ -1276,6 +1280,7 @@ export var uiCompMap: Registry = {
       source: "npm",
       isRemote: true,
     }),
+    compName: "lowcoder-comp-bpmn-io",
     layoutInfo: {
       w: 19,
       h: 60,
@@ -1632,6 +1637,7 @@ export var uiCompMap: Registry = {
       source: "npm",
       isRemote: true,
     }),
+    compName: "lowcoder-comp-cf-turnstile",
     layoutInfo: {
       w: 8,
       h: 20,
