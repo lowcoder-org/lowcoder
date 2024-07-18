@@ -94,8 +94,14 @@ class UserApi extends Api {
   }
 
   static formLogin(request: FormLoginRequest): AxiosPromise<ApiResponse> {
-    const { invitationId, ...reqBody } = request;
-    const queryParam = invitationId ? { invitationId: invitationId } : undefined;
+    const { invitationId, orgId, ...reqBody } = request;
+    let queryParam: Record<string, string> = {};
+    if (invitationId) {
+      queryParam['invitationId'] = invitationId;
+    }
+    if (orgId) {
+      queryParam['orgId'] = orgId;
+    }
     return Api.post(UserApi.formLoginURL, reqBody, queryParam);
   }
 
