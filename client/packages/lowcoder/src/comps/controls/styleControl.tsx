@@ -873,7 +873,7 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
       const { appliedThemeId, preventStyleOverwriting } = comp?.comp?.container || comp?.comp || {};
       const appTheme = isPreviewTheme || isDefaultTheme || (!preventStyleOverwriting && !preventAppStylesOverwriting)
         ? theme?.theme
-        : undefined;
+        : defaultTheme;
       const compTheme = isPreviewTheme || isDefaultTheme || (compType && !preventStyleOverwriting && !preventAppStylesOverwriting)
         ? {
             ...(
@@ -881,7 +881,7 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
               || defaultTheme.components?.[compType]?.[styleKey]
             ) as unknown as Record<string, string>
           }
-        : undefined;
+        : defaultTheme.components?.[compType]?.[styleKey];
       const styleProps = (!comp && !compType) || preventStyleOverwriting || preventAppStylesOverwriting || appliedThemeId === themeId
         ? props as ColorMap
         : {} as ColorMap;
