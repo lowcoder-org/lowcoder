@@ -66,7 +66,7 @@ function RemoteCompView(props: React.PropsWithChildren<RemoteCompViewProps>) {
     packageVersion = lowcoderCompPackageVersion;
   }
   // component plugin's package version
-  else if (compState.comp?.comp.version) {
+  else if (compState.comp?.comp?.version) {
     packageVersion = compState.comp?.comp.version;
   }
 
