@@ -4,7 +4,7 @@ import { dropdownInputSimpleControl } from "comps/controls/dropdownInputSimpleCo
 import { MultiCompBuilder, valueComp, withDefault } from "comps/generators";
 import { AddIcon, Dropdown } from "lowcoder-design";
 import { EllipsisSpan } from "pages/setting/theme/styledComponents";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { getDefaultTheme, getThemeList } from "redux/selectors/commonSettingSelectors";
 import styled, { css } from "styled-components";
@@ -19,6 +19,8 @@ import { IconControl } from "comps/controls/iconControl";
 import { dropdownControl } from "comps/controls/dropdownControl";
 import { ApplicationCategoriesEnum } from "constants/applicationConstants";
 import { BoolControl } from "../controls/boolControl";
+import { getNpmPackageMeta } from "../utils/remote";
+import { getPromiseAfterDispatch } from "@lowcoder-ee/util/promiseUtils";
 
 const TITLE = trans("appSetting.title");
 const USER_DEFINE = "__USER_DEFINE";
@@ -189,6 +191,7 @@ const childrenMap = {
   preventAppStylesOverwriting: withDefault(BoolControl, true),
   customShortcuts: CustomShortcutsComp,
   disableCollision: valueComp<boolean>(false),
+  lowcoderCompVersion: withDefault(StringControl, 'latest'),
 };
 type ChildrenInstance = RecordConstructorToComp<typeof childrenMap> & {
   themeList: ThemeType[];
@@ -196,6 +199,7 @@ type ChildrenInstance = RecordConstructorToComp<typeof childrenMap> & {
 };
 
 function AppSettingsModal(props: ChildrenInstance) {
+  const [lowcoderCompVersions, setLowcoderCompVersions] = useState(['latest']);
   const {
     themeList,
     defaultTheme,
@@ -207,11 +211,14 @@ function AppSettingsModal(props: ChildrenInstance) {
     category,
     showHeaderInPublic,
     preventAppStylesOverwriting,
+    lowcoderCompVersion,
   } = props;
+  
   const THEME_OPTIONS = themeList?.map((theme) => ({
     label: theme.name,
     value: theme.id + "",
   }));
+
   const themeWithDefault = (
     themeId.getView() === DEFAULT_THEMEID ||
     (!!themeId.getView() &&
@@ -225,6 +232,17 @@ function AppSettingsModal(props: ChildrenInstance) {
       themeId.dispatchChangeValueAction(themeWithDefault);
     }
   }, [themeWithDefault]);
+  
+  useEffect(() => {
+    const fetchCompsPackageMeta = async () => {
+      const packageMeta = await getNpmPackageMeta('lowcoder-comps');
+      if (packageMeta?.versions) {
+        setLowcoderCompVersions(Object.keys(packageMeta.versions).reverse())
+      }
+    }
+    fetchCompsPackageMeta();
+  }, [])
+
 
   const DropdownItem = (params: { value: string }) => {
     const themeItem = themeList.find((theme) => theme.id === params.value);
@@ -308,6 +326,30 @@ function AppSettingsModal(props: ChildrenInstance) {
           })}
         </div>
       </DivStyled>
+      <DividerStyled />
+      <DivStyled>
+        <Dropdown
+          defaultValue={lowcoderCompVersion.getView()}
+          placeholder={'Select version'}
+          options={
+            lowcoderCompVersions.map(version => ({label: version, value: version}))
+          }
+          label={'Lowcoder Comps Version'}
+          placement="bottom"
+          onChange={async (value) => {
+            await getPromiseAfterDispatch(
+              lowcoderCompVersion.dispatch,
+              lowcoderCompVersion.changeValueAction(value), {
+                autoHandleAfterReduce: true,
+              }
+            )
+            setTimeout(() => {
+              window.location.reload();
+            }, 1000);
+          }}
+        />
+      </DivStyled>
+      <DividerStyled />
       {props.customShortcuts.getPropertyView()}
     </SettingsStyled>
   );
