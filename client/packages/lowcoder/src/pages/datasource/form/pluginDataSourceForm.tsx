@@ -308,6 +308,12 @@ export const PluginDataSourceForm = (props: DatasourceFormProps) => {
             </React.Fragment>
           );
         })}
+        <FormKeyValueItem
+          name={"headers"}
+          label={"Headers"}
+          initialValue={dataSourceConfig?.headers}
+          labelWidth={122}
+        />
       </FormSection>
       <FormSection $size={props.size}>
         <FormSectionLabel>{trans("query.authentication")}</FormSectionLabel>
@@ -317,7 +323,7 @@ export const PluginDataSourceForm = (props: DatasourceFormProps) => {
           options={AuthTypeOptions}
           initialValue={dataSourceConfig?.authConfig?.type ?? "NO_AUTH"}
           afterChange={(value) => setAuthType(value)}
-          labelWidth={142}
+          labelWidth={122}
         />
         {showUserAuthSourceSelector()}
         {showAuthItem(authType)}

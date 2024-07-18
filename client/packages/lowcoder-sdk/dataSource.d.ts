@@ -329,9 +329,9 @@ export interface DataSourcePluginMeta extends DataSourcePluginBasicInfo {
           }
         | OAuthConfig
       );
-    
       sslConfig?: SSLConfig;
-    }
+      headers: KeyValue;
+    },
   >;
   queryConfig: DynamicConfigObject | QueryConfig;
   shouldValidateDataSourceConfig: boolean;
