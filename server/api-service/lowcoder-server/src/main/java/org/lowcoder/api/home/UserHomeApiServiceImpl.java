@@ -303,6 +303,7 @@ public class UserHomeApiServiceImpl implements UserHomeApiService {
 
                                 BundleInfoView bundleInfoView = BundleInfoView.builder()
                                         .bundleId(bundle.getId())
+                                        .bundleGid(bundle.getGid())
                                         .image(bundle.getImage())
                                         .name(bundle.getName())
                                         .title(bundle.getTitle())
@@ -489,6 +490,7 @@ public class UserHomeApiServiceImpl implements UserHomeApiService {
 
                                 return MarketplaceBundleInfoView.builder()
                                         .bundleId(bundle.getId())
+                                        .bundleGid(bundle.getGid())
                                         .name(bundle.getName())
                                         .bundleStatus(bundle.getBundleStatus())
                                         .orgId(bundle.getOrganizationId())
@@ -541,6 +543,7 @@ public class UserHomeApiServiceImpl implements UserHomeApiService {
                                 Map<String, Organization> orgMap = tuple.getT3();
                                 return MarketplaceBundleInfoView.builder()
                                         .bundleId(bundle.getId())
+                                        .bundleGid(bundle.getGid())
                                         .name(bundle.getName())
                                         .bundleStatus(bundle.getBundleStatus())
                                         .orgId(bundle.getOrganizationId())

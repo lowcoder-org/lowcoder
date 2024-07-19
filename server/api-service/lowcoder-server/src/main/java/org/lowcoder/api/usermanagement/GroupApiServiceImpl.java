@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import com.github.f4b6a3.uuid.UuidCreator;
 import lombok.RequiredArgsConstructor;
 import org.lowcoder.api.bizthreshold.AbstractBizThresholdChecker;
 import org.lowcoder.api.home.SessionUserService;
@@ -229,6 +230,7 @@ public class GroupApiServiceImpl implements GroupApiService {
                 .flatMap(orgMember -> {
                     String orgId = orgMember.getOrgId();
                     Group group = new Group();
+                    group.setGid(UuidCreator.getTimeOrderedEpoch().toString());
                     group.setOrganizationId(orgId);
                     group.setName(createGroupRequest.getName());
                     group.setDynamicRule(createGroupRequest.getDynamicRule());

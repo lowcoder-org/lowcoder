@@ -2,8 +2,10 @@ package org.lowcoder.api.usermanagement;
 
 import java.util.List;
 
+import com.github.f4b6a3.uuid.UuidCreator;
 import jakarta.validation.Valid;
 
+import org.apache.commons.lang.StringUtils;
 import org.lowcoder.api.authentication.dto.OrganizationDomainCheckResult;
 import org.lowcoder.api.framework.view.ResponseView;
 import org.lowcoder.api.usermanagement.view.OrgMemberListView;
@@ -39,6 +41,7 @@ public class OrganizationController implements OrganizationEndpoints
 
     @Override
     public Mono<ResponseView<OrgView>> create(@Valid @RequestBody Organization organization) {
+        if(StringUtils.isEmpty(organization.getGid())) organization.setGid(UuidCreator.getTimeOrderedEpoch().toString());
         return orgApiService.create(organization)
                 .map(ResponseView::success);
     }
