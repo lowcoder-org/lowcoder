@@ -16,6 +16,7 @@ import org.lowcoder.api.usermanagement.view.GroupView;
 import org.lowcoder.api.usermanagement.view.UpdateGroupRequest;
 import org.lowcoder.api.usermanagement.view.UpdateRoleRequest;
 import org.lowcoder.api.util.BusinessEventPublisher;
+import org.lowcoder.api.util.GIDUtil;
 import org.lowcoder.domain.group.service.GroupMemberService;
 import org.lowcoder.domain.group.service.GroupService;
 import org.lowcoder.domain.organization.model.MemberRole;
@@ -43,6 +44,8 @@ public class GroupController implements GroupEndpoints
     private BusinessEventPublisher businessEventPublisher;
     @Autowired
     private GroupService groupService;
+    @Autowired
+    private GIDUtil gidUtil;
 
     @Override
     public Mono<ResponseView<GroupView>> create(@Valid @RequestBody CreateGroupRequest newGroup) {
@@ -55,16 +58,18 @@ public class GroupController implements GroupEndpoints
     @Override
     public Mono<ResponseView<Boolean>> update(@PathVariable String groupId,
             @Valid @RequestBody UpdateGroupRequest updateGroupRequest) {
-        return groupService.getById(groupId)
-                .zipWhen(group -> groupApiService.update(groupId, updateGroupRequest))
+        String objectId = gidUtil.convertGroupIdToObjectId(groupId);
+        return groupService.getById(objectId)
+                .zipWhen(group -> groupApiService.update(objectId, updateGroupRequest))
                 .delayUntil(tuple -> businessEventPublisher.publishGroupUpdateEvent(tuple.getT2(), tuple.getT1(), updateGroupRequest.getGroupName()))
                 .map(tuple -> ResponseView.success(tuple.getT2()));
     }
 
     @Override
     public Mono<ResponseView<Boolean>> delete(@PathVariable String groupId) {
-        return groupService.getById(groupId)
-                .zipWhen(group -> groupApiService.deleteGroup(groupId))
+        String objectId = gidUtil.convertGroupIdToObjectId(groupId);
+        return groupService.getById(objectId)
+                .zipWhen(group -> groupApiService.deleteGroup(objectId))
                 .delayUntil(tuple -> businessEventPublisher.publishGroupDeleteEvent(tuple.getT2(), tuple.getT1()))
                 .map(tuple -> ResponseView.success(tuple.getT2()));
     }
@@ -80,7 +85,8 @@ public class GroupController implements GroupEndpoints
     public Mono<ResponseView<GroupMemberAggregateView>> getGroupMembers(@PathVariable String groupId,
             @RequestParam(name = "page", required = false, defaultValue = "1") int page,
             @RequestParam(name = "count", required = false, defaultValue = "100") int count) {
-        return groupApiService.getGroupMembers(groupId, page, count)
+        String objectId = gidUtil.convertGroupIdToObjectId(groupId);
+        return groupApiService.getGroupMembers(objectId, page, count)
                 .map(ResponseView::success);
     }
 
@@ -96,27 +102,30 @@ public class GroupController implements GroupEndpoints
         if (StringUtils.isBlank(addMemberRequest.getRole())) {
             return ofError(BizError.INVALID_PARAMETER, "INVALID_USER_ROLE");
         }
-        return groupApiService.addGroupMember(groupId, addMemberRequest.getUserId(), addMemberRequest.getRole())
-                .delayUntil(result -> businessEventPublisher.publishGroupMemberAddEvent(result, groupId, addMemberRequest))
+        String objectId = gidUtil.convertGroupIdToObjectId(groupId);
+        return groupApiService.addGroupMember(objectId, addMemberRequest.getUserId(), addMemberRequest.getRole())
+                .delayUntil(result -> businessEventPublisher.publishGroupMemberAddEvent(result, objectId, addMemberRequest))
                 .map(ResponseView::success);
     }
 
     @Override
     public Mono<ResponseView<Boolean>> updateRoleForMember(@RequestBody UpdateRoleRequest updateRoleRequest,
             @PathVariable String groupId) {
-        return groupMemberService.getGroupMember(groupId, updateRoleRequest.getUserId())
-                .zipWhen(tuple -> groupApiService.updateRoleForMember(groupId, updateRoleRequest))
+        String objectId = gidUtil.convertGroupIdToObjectId(groupId);
+        return groupMemberService.getGroupMember(objectId, updateRoleRequest.getUserId())
+                .zipWhen(tuple -> groupApiService.updateRoleForMember(objectId, updateRoleRequest))
                 .delayUntil(
-                        tuple -> businessEventPublisher.publishGroupMemberRoleUpdateEvent(tuple.getT2(), groupId, tuple.getT1(), updateRoleRequest))
+                        tuple -> businessEventPublisher.publishGroupMemberRoleUpdateEvent(tuple.getT2(), objectId, tuple.getT1(), updateRoleRequest))
                 .map(Tuple2::getT2)
                 .map(ResponseView::success);
     }
 
     @Override
     public Mono<ResponseView<Boolean>> leaveGroup(@PathVariable String groupId) {
+        String objectId = gidUtil.convertGroupIdToObjectId(groupId);
         return sessionUserService.getVisitorOrgMemberCache()
-                .flatMap(orgMember -> groupMemberService.getGroupMember(groupId, orgMember.getUserId()))
-                .zipWhen(tuple -> groupApiService.leaveGroup(groupId))
+                .flatMap(orgMember -> groupMemberService.getGroupMember(objectId, orgMember.getUserId()))
+                .zipWhen(tuple -> groupApiService.leaveGroup(objectId))
                 .delayUntil(tuple -> businessEventPublisher.publishGroupMemberLeaveEvent(tuple.getT2(), tuple.getT1()))
                 .map(Tuple2::getT2)
                 .map(ResponseView::success);
@@ -128,8 +137,9 @@ public class GroupController implements GroupEndpoints
         if (StringUtils.isBlank(userId)) {
             return ofError(BizError.INVALID_PARAMETER, "INVALID_USER_ID");
         }
-        return groupMemberService.getGroupMember(groupId, userId)
-                .zipWhen(groupMember -> groupApiService.removeUser(groupId, userId))
+        String objectId = gidUtil.convertGroupIdToObjectId(groupId);
+        return groupMemberService.getGroupMember(objectId, userId)
+                .zipWhen(groupMember -> groupApiService.removeUser(objectId, userId))
                 .delayUntil(tuple -> businessEventPublisher.publishGroupMemberRemoveEvent(tuple.getT2(), tuple.getT1()))
                 .map(Tuple2::getT2)
                 .map(ResponseView::success);

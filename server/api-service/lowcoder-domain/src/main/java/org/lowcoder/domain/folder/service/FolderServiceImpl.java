@@ -40,7 +40,7 @@ public class FolderServiceImpl implements FolderService {
         }
 
         if(FieldName.isGID(id))
-            return repository.findByGid(id)
+            return Mono.from(repository.findByGid(id))
                     .switchIfEmpty(Mono.error(new BizException(BizError.NO_RESOURCE_FOUND, "FOLDER_NOT_FOUND", id)));
         return repository.findById(id)
                 .switchIfEmpty(Mono.error(new BizException(BizError.NO_RESOURCE_FOUND, "FOLDER_NOT_FOUND", id)));

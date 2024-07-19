@@ -29,7 +29,7 @@ public class LibraryQueryServiceImpl implements LibraryQueryService {
     @Override
     public Mono<LibraryQuery> getById(String libraryQueryId) {
         if(FieldName.isGID(libraryQueryId))
-            return libraryQueryRepository.findByGid(libraryQueryId)
+            return Mono.from(libraryQueryRepository.findByGid(libraryQueryId))
                     .switchIfEmpty(deferredError(LIBRARY_QUERY_NOT_FOUND, "LIBRARY_QUERY_NOT_FOUND"));
         return libraryQueryRepository.findById(libraryQueryId)
                 .switchIfEmpty(deferredError(LIBRARY_QUERY_NOT_FOUND, "LIBRARY_QUERY_NOT_FOUND"));
