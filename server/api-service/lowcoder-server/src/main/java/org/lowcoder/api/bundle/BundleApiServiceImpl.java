@@ -295,6 +295,7 @@ public class BundleApiServiceImpl implements BundleApiService {
                 .flatMap(permission -> bundleService.publish(bundleId)
                         .map(bundleUpdated -> BundleInfoView.builder()
                                 .bundleId(bundleUpdated.getId())
+                                .bundleGid(bundleUpdated.getGid())
                                 .name(bundleUpdated.getName())
                                 .editingBundleDSL(bundleUpdated.getEditingBundleDSL())
                                 .publishedBundleDSL(bundleUpdated.getPublishedBundleDSL())
@@ -423,6 +424,7 @@ public class BundleApiServiceImpl implements BundleApiService {
                     Bundle bundle = tuple.getT2();
                     return BundleInfoView.builder()
                             .bundleId(bundle.getId())
+                            .bundleGid(bundle.getGid())
                             .name(bundle.getName())
                             .title(bundle.getTitle())
                             .category(bundle.getCategory())
@@ -448,6 +450,7 @@ public class BundleApiServiceImpl implements BundleApiService {
                     Bundle bundle = tuple.getT2();
                     return BundleInfoView.builder()
                             .bundleId(bundle.getId())
+                            .bundleGid(bundle.getGid())
                             .name(bundle.getName())
                             .title(bundle.getTitle())
                             .category(bundle.getCategory())
