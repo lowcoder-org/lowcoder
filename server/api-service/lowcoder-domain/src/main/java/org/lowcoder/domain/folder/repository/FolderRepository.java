@@ -13,6 +13,6 @@ import java.util.Collection;
 public interface FolderRepository extends ReactiveMongoRepository<Folder, String> {
 
     Flux<Folder> findByOrganizationId(String organizationId);
-    Mono<Folder> findByGid(String organizationGid);
+    Flux<Folder> findByGid(String organizationGid);
     Mono<Void> deleteAllByGid(Collection<String> gids);
 }
