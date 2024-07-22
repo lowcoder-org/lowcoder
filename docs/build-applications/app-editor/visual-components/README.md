@@ -1,8 +1,6 @@
 # Visual Components
 
-With Version 2.4.0 of Lowcoder, we have already 120 Components, so you can build stunning Applications and Web Integrations.\
-\
-(With Version 2.0.0 of Lowcoder there were 56 Components.)
+With Lowcoder Version 2.4.0, you can use more than 120 Components, so you can build stunning Applications and Web Integrations.
 
 These components share a number of [common settings and configurations](common-component-settings.md).
 
@@ -24,4 +22,5 @@ These components share a number of [common settings and configurations](common-c
 
 ### Extensible Components
 
-<table data-column-title-hidden data-view="cards"><thead><tr><th>button</th><th data-hidden data-type="content-ref"></th><th data-hidden data-card-cover data-type="files"></th><th data-hidden data-card-target data-type="content-ref"></th></tr></thead><tbody><tr><td>Chart / EChart</td><td><a href="charts-and-graphs.md">charts-and-graphs.md</a></td><td><a href="../../../.gitbook/assets/chart.svg">chart.svg</a></td><td><a href="charts-and-graphs.md">charts-and-graphs.md</a></td></tr><tr><td>Json Schema Form</td><td></td><td><a href="../../../.gitbook/assets/jsonSchemaForm.svg">jsonSchemaForm.svg</a></td><td></td></tr><tr><td>Custom Component</td><td></td><td><a href="../../../.gitbook/assets/custom.svg">custom.svg</a></td><td><a href="../../../lowcoder-extension/custom-component.md">custom-component.md</a></td></tr></tbody></table>
+<table data-column-title-hidden data-view="cards"><thead><tr><th>button</th><th></th><th data-hidden data-type="content-ref"></th><th data-hidden data-card-cover data-type="files"></th><th data-hidden data-card-target data-type="content-ref"></th></tr></thead><tbody><tr><td>Chart / EChart</td><td>A small Description  </td><td><a href="charts-and-graphs.md">charts-and-graphs.md</a></td><td><a href="../../../.gitbook/assets/chart.svg">chart.svg</a></td><td><a href="charts-and-graphs.md">charts-and-graphs.md</a></td></tr><tr><td>Json Schema Form</td><td></td><td></td><td><a href="../../../.gitbook/assets/jsonSchemaForm.svg">jsonSchemaForm.svg</a></td><td></td></tr><tr><td>Custom Component</td><td></td><td></td><td><a href="../../../.gitbook/assets/custom.svg">custom.svg</a></td><td><a href="../../../lowcoder-extension/custom-component.md">custom-component.md</a></td></tr></tbody></table>
+
