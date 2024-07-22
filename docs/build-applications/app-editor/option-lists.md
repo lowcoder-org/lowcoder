@@ -17,9 +17,22 @@ When more than one option in one list uses the same value, only the first option
 
 ## Manual mode
 
-Under **Basic** > **Manual**, click **+ Add** to create a new option. Select an option to manually configure it. You can click `···` to **Duplicate** or **Delete** an option and drag `⋮⋮` to arrange its position.
+In Manual Mode, data is entered into a Component manually. Users have to add entries one by one. Some components with Manual mode of data entry are :
 
-Check the value of the selected option under **Components** in the data browser. For example, when **New York** is selected, you can find the string value `"1"` for **locationSelect**.
+1. Select / Multi-Select
+2. Dropdown
+
+<figure><img src="../../.gitbook/assets/image.png" alt=""><figcaption></figcaption></figure>
+
+**Example :**
+
+Let’s take an example where a User has to choose his/her favourite color from a list of colors. We will use the **Select** component for this example. Please, go via the following demo. All the details have been explained in it.
+
+**App link :** [**https://app.lowcoder.cloud/apps/668e6c60ba4684206ee5d15e/view**](https://app.lowcoder.cloud/apps/668e6c60ba4684206ee5d15e/view)
+
+**Demo :**&#x20;
+
+{% embed url="https://app.supademo.com/demo/clyfrzyi60b6dai225qmc08sw" %}
 
 Manual mode is recommended for these scenarios:
 
@@ -29,8 +42,30 @@ Manual mode is recommended for these scenarios:
 
 ## Mapped mode
 
-When you have option list data that comes from data sources, transformers or temporary state, you can use **Mapped Mode**. Under **Basic** > **Mapped**, input your data source array in **Data** box using JavaScript (JS) code. A list of options will be automatically mapped from this array. For example, access university information via `{{university.data}}`. Each item in the result array contains `country`, `web_pages`, `alpha_two_code`, and `name`.
+In Mapped mode, data is usually coming from a Data source ( like an API or DB ), Transformer or Temporary state, Or it can be in JSON format. In other words, we use Mapped mode when we have dynamic data. Admin only needs to map the relevant data to respective fields, without mapping each value to a field. It’s fast and dynamic. E.g. we should use Mapped mode when we need to show a list of Countries name coming via an API. Some components with Mapped mode of data entry are :
 
-You can reference the value of any filed of an option through `item` and its index `i`, starting from 0. In the following example, the **Label** of each option is the `name` of the university, the **Value** is the `web_page`, and those containing an opening parenthesis `(` in their names are disabled. The default value is set to the `web_pages` of the first item using `{{university.data[0].web_pages}}`. Note that the default value of an option list should be an element from the **Value** array but not the **Label** array.
+1. Select / Multi-Select
+2. Dropdown
 
-Check the value of the selected option under **Components** in the data browser. For example, when "Ahi Evran University" is selected, its string value `[\"http://www.ahievran.edu.tr/\"]` is displayed.
+<figure><img src="../../.gitbook/assets/image (1).png" alt=""><figcaption></figcaption></figure>
+
+**Example :**
+
+Let’s take the 1st example where data is in JSON format, and contains a List of Objects where each object has a name and link fields. In the 2nd example, we show a list of all countries' names in a dropdown. Let’s go via following demo to understand the key concepts around Mapped data mode.
+
+**App link :** [**https://app.lowcoder.cloud/apps/667eb219f0558f2f43e386c3/view**](https://app.lowcoder.cloud/apps/667eb219f0558f2f43e386c3/view)
+
+**Demo :**&#x20;
+
+{% embed url="https://app.supademo.com/demo/clyfv3enn0byiai22mzzuskq1" %}
+
+**When to use Mapped Mode:**
+
+* When we have data coming from a Data source like API or DB, Transformer or Temporary state.
+* When data is used by multiple components.
+
+### Key difference b/w Manual & Mapped Mode : <a href="#howd0cosepq3" id="howd0cosepq3"></a>
+
+
+
+<table><thead><tr><th width="270">Details</th><th width="214">Use Manual Mode</th><th>Use Mapped Mode</th></tr></thead><tbody><tr><td>When data is coming via a Data source like API or DB</td><td>No</td><td>Yes</td></tr><tr><td>When data is used in multiple components</td><td>No</td><td>Yes</td></tr><tr><td>When Data is small/manageable</td><td>Yes</td><td>No</td></tr><tr><td>When data is used in single component</td><td>Yes</td><td>No</td></tr></tbody></table>
