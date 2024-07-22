@@ -69,8 +69,8 @@ const getStyle = (
         &,
         > td {
           background: ${genLinerGradient(rowStyle.background)};
-          border-bottom:${rowStyle.borderWidth} ${rowStyle.borderStyle} ${rowStyle.border} !important;
-          border-right:${rowStyle.borderWidth} ${rowStyle.borderStyle} ${rowStyle.border} !important;
+          // border-bottom:${rowStyle.borderWidth} ${rowStyle.borderStyle} ${rowStyle.border} !important;
+          // border-right:${rowStyle.borderWidth} ${rowStyle.borderStyle} ${rowStyle.border} !important;
         }
       }
 
@@ -78,8 +78,8 @@ const getStyle = (
         &,
         > td {
           background: ${alternateBackground};
-          border-bottom:${rowStyle.borderWidth} ${rowStyle.borderStyle} ${rowStyle.border} !important;
-          border-right:${rowStyle.borderWidth} ${rowStyle.borderStyle} ${rowStyle.border} !important;
+          // border-bottom:${rowStyle.borderWidth} ${rowStyle.borderStyle} ${rowStyle.border} !important;
+          // border-right:${rowStyle.borderWidth} ${rowStyle.borderStyle} ${rowStyle.border} !important;
         }
       }
 
@@ -192,7 +192,7 @@ const TableWrapper = styled.div<{
   }
 
   .ant-table {
-    background: ${(props) => props.$style.background};
+    background: ${(props) =>props.$style.background};
     .ant-table-container {
       border-left: unset;
       border-top: none !important;
@@ -221,7 +221,7 @@ const TableWrapper = styled.div<{
             border-color: ${(props) => props.$headerStyle.border};
             border-width: ${(props) => props.$headerStyle.borderWidth};
             color: ${(props) => props.$headerStyle.headerText};
-            border-inline-end: ${(props) => `${props.$headerStyle.borderWidth} solid ${props.$headerStyle.border}`} !important;
+            // border-inline-end: ${(props) => `${props.$headerStyle.borderWidth} solid ${props.$headerStyle.border}`} !important;
             ${(props) =>
     props.$fixedHeader && `
                 position: sticky;
@@ -269,6 +269,7 @@ const TableWrapper = styled.div<{
 
         td {
           padding: 0px 0px;
+          // ${(props) => props.$showHRowGridBorder ?'border-bottom: 1px solid #D7D9E0 !important;': `border-bottom: 0px;`}
         }
 
         thead > tr:first-child {
@@ -278,7 +279,7 @@ const TableWrapper = styled.div<{
         }
 
         tbody > tr > td:last-child {
-          border-right: unset;
+          border-right: unset !important;
         }
 
         .ant-empty-img-simple-g {
