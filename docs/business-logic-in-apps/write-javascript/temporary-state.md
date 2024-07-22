@@ -79,22 +79,10 @@ state2.setIn([1],"foo") // this will result to ["hello", "foo"]
 
 You can also call these two methods in event handlers. Select **Set temporary state** as the action and choose method on demand.
 
-## Example: Increment counter
+## Example: Multiple Steps Job application app
 
-In this example, the counter tracks the number of button clicks. Every time the user clicks the button, the number in the text component increases by one.
+In this example, we are building an app via which an Applicant can apply for a job by going via different steps. We will use Temporary state variable to store data on each step, and  will show all the data on the final step from Temporary state variable.
 
-Build an increment counter in following steps:
+The following demo shows all the steps of creating this app, and explains in detail the usage of Temporary state :&#x20;
 
-1. Add a button component `button1` and a text component `text1`.
-2. Create a temporary state `state1`, set its initial value as `0`. Bind `{{state1.value}}` as the display text of `text1`.
-3. Add an event handler for `button1`. Select the action **Set temporary state** and the method **setValue**, and then set `{{state1.value+1}}` as the value.
-4. Click the button, you can see the value of `text1` increases by one each time you click.
-
-You can also achieve the same result using JavaScript queries:
-
-1. Add a new query, select **Run JavaScript code**.
-2. Write JavaScript query with this code, and set it to be manually invoked:\
-   `state1.setValue(state1.value + 1)`
-3. Add an event handler of `button1` to run `query1`.
-
-Now click the **Increment counter** button, you should see the same result as above.
+{% embed url="https://app.supademo.com/demo/clyikd4yd03wbphh054on5hh2" %}

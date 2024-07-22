@@ -63,3 +63,11 @@ Instead, calling the method `setText()` in a JavaScript query reports no error.
 In another example, transformer`sort1` aims at sorting the data of `getUsers` by `first_name`, but the `sort()` method may change the original data, so an error occurs.
 
 In this case, use the method `_.orderBy()` provided by [lodash](https://lodash.com/) instead.
+
+## Example: Calculating Average via Transformers
+
+In this example, we are building an app via which an Applicant can apply for a job by going via different steps. We will use Temporary state variable to store data on each step, and  will show all the data on the final step from Temporary state variable.
+
+The following demo shows all the steps of creating this app, and explains in detail the usage of Temporary state :&#x20;
+
+{% embed url="https://app.supademo.com/demo/clyohuj2r0sluy805bs0e8mru" %}
