@@ -1,6 +1,10 @@
 # File upload
 
-<figure><img src="../../../.gitbook/assets/file.png" alt="" width="256"><figcaption><p>File Upload Component</p></figcaption></figure>
+<div align="left">
+
+<figure><img src="../../../.gitbook/assets/file-upload-l.svg" alt=""><figcaption><p>File Upload Component</p></figcaption></figure>
+
+</div>
 
 ## Basics
 
