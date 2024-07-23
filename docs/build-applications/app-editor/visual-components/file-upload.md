@@ -86,7 +86,9 @@ Files uploaded via the file upload component are stored in browser cache memory 
 
 {{file1.files[0].type}} // will return "application/json"
 
-{{file1.files[0].type}} // will return "247285" (in bytes)
+{{file1.files[0].size}} // will return "247285" (in bytes)
+
+{{file1.files[0].lastModified}} // will return the date of last Modification
 ```
 
 * `parsedValue`: A list of the value of the parsed files.
