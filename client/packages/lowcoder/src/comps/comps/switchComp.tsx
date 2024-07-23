@@ -6,7 +6,7 @@ import { LabelControl } from "comps/controls/labelControl";
 import { styleControl } from "comps/controls/styleControl";
 import { SwitchStyle, SwitchStyleType, LabelStyle,  InputFieldStyle, AnimationStyle } from "comps/controls/styleControlConstants";
 import { migrateOldData } from "comps/generators/simpleGenerators";
-import { Section, sectionNames } from "lowcoder-design";
+import { Section, lightenColor, sectionNames } from "lowcoder-design";
 import styled, { css } from "styled-components";
 import { UICompBuilder } from "../generators";
 import { CommonNameConfig, NameConfig, withExposingConfigs } from "../generators/withExposing";
@@ -38,13 +38,16 @@ const EventOptions = [
 const getStyle = (style: SwitchStyleType) => {
   return css`
     .ant-switch-handle::before {
-      background-color: ${style.handle};
+      background: ${style.handle};
     }
     button {
       background-image: none;
-      background-color: ${style.unchecked};
+      background: ${style.unchecked};
       &.ant-switch-checked {
-        background-color: ${style.checked};
+        background: ${style.checked};
+        &:hover:not(.ant-switch-disabled) {
+          background: ${lightenColor(style.checked, 0.2)}
+        }
       }
     }
   `;

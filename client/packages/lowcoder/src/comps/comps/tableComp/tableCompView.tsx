@@ -149,7 +149,7 @@ const BackgroundWrapper = styled.div<{
   padding: ${(props) => props.$style.padding} !important;
   margin: ${(props) => props.$style.margin} !important;
   overflow: scroll !important;
-  border-style:${(props) => props.$style.borderStyle} !important;
+  border-style: ${(props) => props.$style.borderStyle} !important;
   border-width: ${(props) => `${props.$style.borderWidth} !important`};
   ${(props) => props.$style}
 `;

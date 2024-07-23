@@ -115,7 +115,7 @@ export const getStyle = (
       &.ant-select-focused,
       &:hover {
         .ant-select-selector {
-          border-color: ${style.accent};
+          border-color: ${style.accent} !important;
         }
       }
 
