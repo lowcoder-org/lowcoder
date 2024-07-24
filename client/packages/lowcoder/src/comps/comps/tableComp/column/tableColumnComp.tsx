@@ -67,7 +67,7 @@ const CellColorTempComp = withContext(
       })
     )
     .build(),
-  ["currentCell"] as const
+  ["currentCell", "currentRow"] as const
 );
 
 // @ts-ignore
@@ -79,6 +79,7 @@ export class CellColorComp extends CellColorTempComp {
 
 // fixme, should be infer from RowColorComp, but withContext type incorrect
 export type CellColorViewType = (param: {
+  currentRow: any;
   currentCell: JSONValue | undefined; //number | string;
 }) => string;
 
@@ -152,6 +153,7 @@ export class ColumnComp extends ColumnInitComp {
         comp.children.cellColor.reduce(
           CellColorComp.changeContextDataAction({
             currentCell: undefined,
+            currentRow: {},
           })
         )
       );

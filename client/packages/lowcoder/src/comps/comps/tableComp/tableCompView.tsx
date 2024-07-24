@@ -535,6 +535,7 @@ function TableCellView(props: {
     });
     const cellColor = cellColorFn({
       currentCell: record[title],
+      currentRow: record,
     });
 
     const style = {
@@ -627,7 +628,7 @@ function ResizeableTable<RecordType extends object>(props: CustomTableProps<Reco
       },
       onCell: (record: RecordType, rowIndex: any) => ({
         record,
-        title: col.titleText,
+        title: String(col.dataIndex),
         rowColorFn: props.rowColorFn,
         rowHeightFn: props.rowHeightFn,
         cellColorFn: cellColorFn,
