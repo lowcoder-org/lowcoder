@@ -35,7 +35,6 @@ export const GoToURLAction = new MultiCompBuilder(childrenMap, (props) => {
   .setPropertyViewFn((children) => {
     return (
       <>
-        git
         <BranchDiv>
           {children.url.propertyView({
             label: "URL",
