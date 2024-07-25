@@ -38,7 +38,7 @@ The upload list presents the file names of all uploaded files in chronological o
 
 ### Parse files
 
-Toggle **Parse files** and Lowcoder will try to parse the uploaded file data structure into objects, arrays, or strings. This does not work with binary data but with structured text data like Excel, JSON, and CSV files.
+Toggle **Parse files** and Lowcoder will try to parse the uploaded file data structure into objects, arrays, or strings. This does not work with binary data but with structured text data like Excel, JSON, and CSV files. Excel files are only parseable if there is no formula/s applied on these.
 
 <figure><img src="../../../.gitbook/assets/App Editor  File Upload Parse.png" alt=""><figcaption><p>Lowcoder can try to parse the content of the files so you can directly access it.</p></figcaption></figure>
 
@@ -96,4 +96,8 @@ Files uploaded via the file upload component are stored in browser cache memory 
 ```
 
 * `parsedValue`: A list of the value of the parsed files.
+
+
+
+{% embed url="https://app.supademo.com/demo/clyyiwhcr1zh6z9kdrqgzyn4y" %}
 
