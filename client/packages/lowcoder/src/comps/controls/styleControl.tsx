@@ -74,6 +74,7 @@ import {
   AnimationConfig,
   AnimationDelayConfig,
   AnimationDurationConfig,
+  LineHeightConfig,
 
 
 } from "./styleControlConstants";
@@ -88,6 +89,9 @@ import { inputFieldComps } from "@lowcoder-ee/constants/compConstants";
 
 function isSimpleColorConfig(config: SingleColorConfig): config is SimpleColorConfig {
   return config.hasOwnProperty("color");
+}
+function isSimpleLineHeightConfig(config: SingleColorConfig): config is LineHeightConfig {
+  return config.hasOwnProperty("lineheight");
 }
 
 function isDepColorConfig(config: SingleColorConfig): config is DepColorConfig {
@@ -237,6 +241,9 @@ export type StyleConfigType<T extends readonly SingleColorConfig[]> = { [K in Na
 function isEmptyColor(color: string) {
   return _.isEmpty(color);
 }
+function isEmptyLineHeight(lineHeight: string) {
+  return _.isEmpty(lineHeight);
+}
 
 function isEmptyRadius(radius: string) {
   return _.isEmpty(radius);
@@ -375,6 +382,11 @@ function calcColors<ColorMap extends Record<string, string>>(
   let res: Record<string, string> = {};
   colorConfigs.forEach((config) => {
     const name = config.name;
+    if (!isEmptyLineHeight(props[name]) && isSimpleLineHeightConfig(config)) {
+      res[name] = props[name];
+      return;
+    }
+    
     if (!isEmptyRadius(props[name]) && isRadiusConfig(config)) {
       res[name] = props[name];
       return;
@@ -743,6 +755,11 @@ const StyleContent = styled.div`
     border-radius: 0 0 6px 6px;
   }
 `;
+const LineHeightPropIcon = styled(ExpandIcon)`
+  margin: 0 8px 0 -3px;
+  padding: 3px;
+  color: #888;
+`;
 
 const MarginIcon = styled(ExpandIcon)` margin: 0 8px 0 2px; color: #888`;
 const PaddingIcon = styled(CompressIcon)`	margin: 0 8px 0 2px; color: #888`;
@@ -853,7 +870,8 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
       name === 'containerHeaderPadding' ||
       name === 'containerSiderPadding' ||
       name === 'containerFooterPadding' ||
-      name === 'containerBodyPadding'
+      name === 'containerBodyPadding' ||
+      name === 'lineHeight'
     ) {
       childrenMap[name] = StringControl;
     } else {
@@ -966,7 +984,8 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
                       name === 'footerBackgroundImageRepeat' ||
                       name === 'footerBackgroundImageSize' ||
                       name === 'footerBackgroundImagePosition' ||
-                      name === 'footerBackgroundImageOrigin'
+                      name === 'footerBackgroundImageOrigin' ||
+                      name === 'lineHeight'
                     ) {
                       children[name]?.dispatchChangeValueAction('');
                     } else {
@@ -1299,6 +1318,14 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
                                                                   placeholder:
                                                                     props[name],
                                                                 })
+                                                                : name === 'lineHeight'  // Added lineHeight here
+                                                ? (
+                                                    children[name] as InstanceType<typeof StringControl>
+                                                  ).propertyView({
+                                                    label: config.label,
+                                                    preInputNode: <LineHeightPropIcon title="Line Height" />,
+                                                    placeholder: props[name],
+                                                  })
                                                               : children[
                                                                   name
                                                                 ].propertyView({
