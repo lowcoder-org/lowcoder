@@ -32,6 +32,7 @@ import {
   hiddenPropertyView,
   ChangeEventHandlerControl,
   DragEventHandlerControl,
+  CalendarEventHandlerControl,
   Section,
   sectionNames,
   dropdownControl,
@@ -76,7 +77,7 @@ let childrenMap: any = {
   resourcesEvents: jsonValueExposingStateControl("resourcesEvents", resourcesEventsDefaultData),
   resources: jsonValueExposingStateControl("resources", resourcesDefaultData),
   resourceName: withDefault(StringControl, trans("calendar.resourcesDefault")),
-  onEvent: ChangeEventHandlerControl,
+  onEvent: CalendarEventHandlerControl,
   // onDropEvent: safeDragEventHandlerControl,
   editable: withDefault(BoolControl, true),
   showEventTime: withDefault(BoolControl, true),
@@ -287,6 +288,10 @@ let CalendarBasicComp = (function () {
     }
 
     const handleDbClick = () => {
+      console.log("props.events", props.events)
+      console.log("props.onEvent", props.onEvent)
+      console.log("props", props)
+
       const event = props.events.value.find(
         (item: EventType) => item.id === editEvent.current?.id
       ) as EventType;
