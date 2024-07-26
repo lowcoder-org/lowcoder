@@ -59,6 +59,7 @@ import { blurMethod, focusMethod } from "comps/utils/methodUtils";
 import { useContext } from "react";
 import { EditorContext } from "comps/editorState";
 import { styleControl } from "comps/controls/styleControl";
+import SupaDemoDisplay from "comps/utils/supademoDisplay";
 
 export const getStyle = (
   style:
@@ -115,7 +116,7 @@ export const getStyle = (
       &.ant-select-focused,
       &:hover {
         .ant-select-selector {
-          border-color: ${style.accent};
+          border-color: ${style.accent} !important;
         }
       }
 

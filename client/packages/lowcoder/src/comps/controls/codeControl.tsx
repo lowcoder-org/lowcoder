@@ -100,18 +100,18 @@ export function codeControl<
       this._exposingNode = withFunction(this._node, (x) => x.value);
 
       // make sure handleChange's reference only changes when the instance changes, avoid CodeEditor frequent reconfigure
-      this.handleChange = debounce((state: EditorState) => {
+      this.handleChange = (state: EditorState) => {
         this.dispatchChangeValueAction(state.doc.toString());
-      }, 50);
+      };
     }
 
     override changeDispatch(dispatch: DispatchType) {
       // need to re-bind handleChange when dispatch changes, otherwise old instance's dispatch is still in use
       const comp = setFieldsNoTypeCheck(this, {
         dispatch,
-        handleChange: debounce((state: EditorState) => {
+        handleChange: (state: EditorState) => {
           comp.dispatchChangeValueAction(state.doc.toString());
-        }, 50),
+        },
       });
       return comp;
     }

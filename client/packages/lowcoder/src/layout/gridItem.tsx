@@ -141,6 +141,12 @@ export function GridItem(props: GridItemProps) {
         onDrag={onDrag}
         onDragEnd={onDragEnd}
         onMouseDown={(e) => {
+          // allow mouseDown event on lowcoder-comp-kanban to make drag/drop work
+          if((props.compType as string).includes('lowcoder-comp-kanban')) return;
+
+          // allow mouseDown event on lowcoder-comp-excalidraw to make drag/drop work
+          if((props.compType as string).includes('lowcoder-comp-excalidraw')) return;
+
           e.stopPropagation();
           const event = new MouseEvent("mousedown");
           document.dispatchEvent(event);

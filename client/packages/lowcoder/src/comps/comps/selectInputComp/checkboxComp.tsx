@@ -18,7 +18,7 @@ import { styleControl } from "comps/controls/styleControl";
 import { AnimationStyle, CheckboxStyle, CheckboxStyleType, InputFieldStyle, LabelStyle } from "comps/controls/styleControlConstants";
 import { RadioLayoutOptions, RadioPropertyView } from "./radioCompConstants";
 import { dropdownControl } from "../../controls/dropdownControl";
-import { ValueFromOption } from "lowcoder-design";
+import { ValueFromOption, lightenColor } from "lowcoder-design";
 import { EllipsisTextCss } from "lowcoder-design";
 import { trans } from "i18n";
 import { RefControl } from "comps/controls/refControl";
@@ -28,7 +28,6 @@ import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 export const getStyle = (style: CheckboxStyleType) => {
   return css`
-    &,
     .ant-checkbox-wrapper:not(.ant-checkbox-wrapper-disabled) {
       color: ${style.staticText};
       max-width: calc(100% - 8px);
@@ -47,7 +46,7 @@ export const getStyle = (style: CheckboxStyleType) => {
         border-width:${!!style.borderWidth ? style.borderWidth : '2px'};
       }
 
-      .ant-checkbox-checked {
+      .ant-checkbox-checked:not(.ant-checkbox-disabled) {
         .ant-checkbox-inner {
           background-color: ${style.checkedBackground};
           border-color: ${style.checkedBorder};
@@ -65,7 +64,7 @@ export const getStyle = (style: CheckboxStyleType) => {
         }
       }
       
-      .ant-checkbox-inner {
+      .ant-checkbox-inner) {
         background-color: ${style.uncheckedBackground};
         border-radius: ${style.radius};
         border-color: ${style.checkedBorder};
@@ -76,6 +75,7 @@ export const getStyle = (style: CheckboxStyleType) => {
       .ant-checkbox:hover .ant-checkbox-inner,
       .ant-checkbox-input + ant-checkbox-inner {
         ${style.hoverBackground && `background-color: ${style.hoverBackground}`};
+        ${style.hoverBackground && `border-color: ${style.hoverBackground}`};
       }
 
       
@@ -85,6 +85,11 @@ export const getStyle = (style: CheckboxStyleType) => {
       .ant-checkbox-input:focus + .ant-checkbox-inner {
         border-color: ${style.checkedBorder};
         border-width:${!!style.borderWidth ? style.borderWidth : '2px'};
+      }
+
+      &:hover .ant-checkbox-checked:not(.ant-checkbox-disabled) .ant-checkbox-inner {
+        background-color: ${style.hoverBackground || lightenColor(style.checkedBackground, 0.1)};
+        border-color: ${style.hoverBackground || lightenColor(style.checkedBackground, 0.1)};
       }
     }
 

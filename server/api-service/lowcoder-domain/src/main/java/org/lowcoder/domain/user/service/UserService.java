@@ -42,7 +42,7 @@ public interface UserService {
 
     Mono<Boolean> addNewConnection(String userId, Connection connection);
 
-    Mono<User> addNewConnectionAndReturnUser(String userId, Connection connection);
+    Mono<User> addNewConnectionAndReturnUser(String userId, AuthUser authUser);
 
     Mono<Void> deleteProfilePhoto(User visitor);
 

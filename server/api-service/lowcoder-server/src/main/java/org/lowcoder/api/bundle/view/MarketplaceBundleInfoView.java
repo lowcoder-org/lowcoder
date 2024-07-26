@@ -25,6 +25,7 @@ public class MarketplaceBundleInfoView {
 
     // Bundle details
     private final String bundleId;
+    private final String bundleGid;
     private final String name;
     private final long createAt;
     private final String createBy;

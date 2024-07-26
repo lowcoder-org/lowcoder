@@ -1,5 +1,5 @@
 import { BoolCodeControl, StringControl } from "comps/controls/codeControl";
-import React, { ReactNode, useContext, useRef } from "react";
+import React, { ReactNode, useContext, useEffect, useRef, useState } from "react";
 import { ExternalEditorContext } from "util/context/ExternalEditorContext";
 import { Comp, CompParams, MultiBaseComp } from "lowcoder-core";
 import {
@@ -22,10 +22,17 @@ import {
   MethodConfigsType,
   withMethodExposing,
 } from "./withMethodExposing";
-import { Section } from "lowcoder-design";
+import {Section, controlItem } from "lowcoder-design";
 import { trans } from "i18n";
 import { BoolControl } from "../controls/boolControl";
 import { valueComp, withDefault } from "./simpleGenerators";
+import { getPromiseAfterDispatch } from "@lowcoder-ee/util/promiseUtils";
+import { EditorContext } from "../editorState";
+import { values } from "lodash";
+import { UICompType, uiCompRegistry } from "../uiCompRegistry";
+import { getNpmPackageMeta } from "../utils/remote";
+import { compPluginsList } from "constants/compPluginConstants";
+import Select from "antd/es/select";
 
 export type NewChildren<ChildrenCompMap extends Record<string, Comp<unknown>>> =
   ChildrenCompMap & {
@@ -33,6 +40,7 @@ export type NewChildren<ChildrenCompMap extends Record<string, Comp<unknown>>> =
     className: InstanceType<typeof StringControl>;
     dataTestId: InstanceType<typeof StringControl>;
     preventStyleOverwriting: InstanceType<typeof BoolControl>;
+    version: InstanceType<typeof StringControl>;
   };
 
 export function HidableView(props: {
@@ -64,6 +72,28 @@ export function ExtendedPropertyView<
   childrenMap: NewChildren<ChildrenCompMap>
 }
 ) {
+  const [compVersions, setCompVersions] = useState(['latest']);
+  const [compName, setCompName] = useState('');
+  const editorState = useContext(EditorContext);
+  const selectedComp = values(editorState?.selectedComps())[0];
+  const compType = selectedComp?.children?.compType?.getView() as UICompType;
+  
+  useEffect(() => {
+    setCompName(uiCompRegistry[compType]?.compName || '');
+  }, [compType]);
+
+  useEffect(() => {
+    const fetchCompsPackageMeta = async () => {
+      const packageMeta = await getNpmPackageMeta(compName);
+      if (packageMeta?.versions) {
+        setCompVersions(Object.keys(packageMeta.versions).reverse())
+      }
+    }
+    if (Boolean(compName) && compPluginsList.includes(compName)) {
+      fetchCompsPackageMeta();
+    }
+  }, [compName]);
+
   return (
     <>
       {props.children}
@@ -72,6 +102,30 @@ export function ExtendedPropertyView<
         {props.childrenMap.dataTestId?.propertyView({ label: trans("prop.dataTestId") })}
         {props.childrenMap.preventStyleOverwriting?.propertyView({ label: trans("prop.preventOverwriting") })}
       </Section>
+      {compPluginsList.includes(compName) && (
+        <Section name={'Component Version'}>
+          {controlItem({}, (
+            <Select
+              defaultValue={props.childrenMap.version.getView()}
+              placeholder={'Select version'}
+              options={
+                compVersions.map(version => ({label: version, value: version}))
+              }
+              onChange={async (value) => {
+                await getPromiseAfterDispatch(
+                  props.childrenMap.version.dispatch,
+                  props.childrenMap.version.changeValueAction(value), {
+                    autoHandleAfterReduce: true,
+                  }
+                )
+                setTimeout(() => {
+                  window.location.reload();
+                }, 1000);
+              }}
+            />
+          ))}
+        </Section>
+      )}
     </>
   );
 }
@@ -88,6 +142,7 @@ export function uiChildren<
     dataTestId: StringControl,
     preventStyleOverwriting: withDefault(BoolControl, false),
     appliedThemeId: valueComp<string>(''),
+    version: withDefault(StringControl, 'latest'),
   } as any;
 }
 

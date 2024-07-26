@@ -106,7 +106,7 @@ export class ColumnListComp extends ColumnListTmpComp {
         type: "dataChanged",
         ...param,
       },
-      false
+      true
     );
   }
 

@@ -9,7 +9,7 @@ import { MultiCompBuilder } from "comps/generators/multi";
 import { labelCss, Section, Tooltip, UnderlineCss } from "lowcoder-design";
 import { ValueFromOption } from "lowcoder-design";
 import { isEmpty } from "lodash";
-import { Fragment, ReactNode } from "react";
+import { Fragment, ReactElement, ReactNode } from "react";
 import styled, { css } from "styled-components";
 import { AlignLeft } from "lowcoder-design";
 import { AlignRight } from "lowcoder-design";
@@ -237,7 +237,7 @@ export const LabelControl = (function () {
         </ChildrenWrapper>
       </MainWrapper>
 
-      {args.help && (
+      {args.help && Boolean((args.children as ReactElement)?.props.value) && (
         <HelpWrapper
           $marginLeft={
             props.position === "column" || isEmpty(props.text) || props.hidden

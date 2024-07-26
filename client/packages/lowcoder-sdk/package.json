@@ -1,6 +1,6 @@
 {
   "name": "lowcoder-sdk",
-  "version": "2.4.7",
+  "version": "2.4.8",
   "type": "module",
   "files": [
     "src",
@@ -28,8 +28,8 @@
     }
   },
   "scripts": {
-    "build": "vite build",
-    "start": "vite"
+    "build": "NODE_OPTIONS=--max_old_space_size=6442 vite build",
+    "start": "NODE_OPTIONS=--max_old_space_size=2048 vite"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^22.0.2",

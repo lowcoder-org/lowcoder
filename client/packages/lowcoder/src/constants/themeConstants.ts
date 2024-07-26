@@ -14,7 +14,7 @@ const theme = {
   padding: "3px",
   gridColumns: "24",
   textSize: "14px",
-  text: "#222222",
+  // text: "#222222",
   animation: "",
   animationDelay: "",
   animationDuration: "",
@@ -39,7 +39,7 @@ const input = {
     borderWidth: '0px',
   },
   inputFieldStyle: {
-    borderWidth: '1px',
+    // borderWidth: '1px',
     border: theme.border,
   }
 };
@@ -53,13 +53,19 @@ const select = {
 
 const table = {
   style: {
-    borderWidth: '1px'
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    border: '#D7D9E0',
   },
   rowStyle: {
-    borderWidth: '1px'
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    border: '#D7D9E0',
   },
   headerStyle: {
-    borderWidth: '1px'
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    border: '#D7D9E0',
   },
   columnsStyle: {
     radius: '0px'

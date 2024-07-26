@@ -5,7 +5,7 @@ import { childrenToProps, ToConstructor } from "comps/generators/multi";
 import { BackgroundColorContext } from "comps/utils/backgroundColorContext";
 import { ThemeContext } from "comps/utils/themeContext";
 import { trans } from "i18n";
-import _, { values } from "lodash";
+import _, { omit, values } from "lodash";
 import {
   controlItem,
   IconReset,
@@ -84,6 +84,7 @@ import { CompTypeContext } from "../utils/compTypeContext";
 import { defaultTheme } from "@lowcoder-ee/constants/themeConstants";
 import { CompContext } from "../utils/compContext";
 import { EditorContext } from "../editorState";
+import { inputFieldComps } from "@lowcoder-ee/constants/compConstants";
 
 function isSimpleColorConfig(config: SingleColorConfig): config is SimpleColorConfig {
   return config.hasOwnProperty("color");
@@ -356,6 +357,8 @@ function calcColors<ColorMap extends Record<string, string>>(
   theme?: ThemeDetail,
   bgColor?: string,
   compTheme?: Record<string, string>,
+  compType?: string,
+  styleKey?: string,
 ) {
   // let themeWithDefault = (theme || defaultTheme) as unknown as Record<string, string>;
   let themeWithDefault = {
@@ -363,6 +366,10 @@ function calcColors<ColorMap extends Record<string, string>>(
     ...(theme || {}),
     ...(compTheme || {}),
   } as unknown as Record<string, string>;
+  if (compType && styleKey && inputFieldComps.includes(compType) && styleKey !== 'inputFieldStyle') {
+    const style = theme?.components?.[compType]?.[styleKey] as Record<string, string>;
+    themeWithDefault['borderWidth'] = style?.['borderWidth'] || '0px';
+  }
 
   // Cover what is not there for the first pass
   let res: Record<string, string> = {};
@@ -873,15 +880,19 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
       const { appliedThemeId, preventStyleOverwriting } = comp?.comp?.container || comp?.comp || {};
       const appTheme = isPreviewTheme || isDefaultTheme || (!preventStyleOverwriting && !preventAppStylesOverwriting)
         ? theme?.theme
-        : undefined;
+        : defaultTheme;
       const compTheme = isPreviewTheme || isDefaultTheme || (compType && !preventStyleOverwriting && !preventAppStylesOverwriting)
         ? {
-            ...(
-              theme?.theme?.components?.[compType]?.[styleKey]
-              || defaultTheme.components?.[compType]?.[styleKey]
-            ) as unknown as Record<string, string>
+            ...(omit(defaultTheme, 'components', 'chart')),
+            ...defaultTheme.components?.[compType]?.[styleKey] as unknown as Record<string, string>,
+            ...(omit(theme?.theme, 'components', 'chart')),
+            ...theme?.theme?.components?.[compType]?.[styleKey] as unknown as Record<string, string>,
+            // ...(
+            //   theme?.theme?.components?.[compType]?.[styleKey]
+            //   // || defaultTheme.components?.[compType]?.[styleKey]
+            // ) as unknown as Record<string, string>
           }
-        : undefined;
+        : defaultTheme.components?.[compType]?.[styleKey];
       const styleProps = (!comp && !compType) || preventStyleOverwriting || preventAppStylesOverwriting || appliedThemeId === themeId
         ? props as ColorMap
         : {} as ColorMap;
@@ -892,6 +903,8 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
         appTheme,
         bgColor,
         compTheme as Record<string, string> | undefined,
+        compType,
+        styleKey,
       );
     }
   )

@@ -55,7 +55,7 @@ const getStyle = (style: RadioStyleType, inputFieldStyle?:RadioStyleType ) => {
       &:hover .ant-radio-inner, 
       .ant-radio:hover .ant-radio-inner,
       .ant-radio-input + ant-radio-inner {
-        background-color:${inputFieldStyle?.hoverBackground ? inputFieldStyle?.hoverBackground:'#ffff'};
+        ${inputFieldStyle?.hoverBackground && `background-color: ${style.hoverBackground}`};
       }
 
       &:hover .ant-radio-inner,

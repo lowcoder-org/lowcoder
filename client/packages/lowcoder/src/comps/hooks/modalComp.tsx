@@ -105,6 +105,7 @@ let TmpModalComp = (function () {
       style: styleControl(ModalStyle),
       maskClosable: withDefault(BoolControl, true),
       showMask: withDefault(BoolControl, true),
+      toggleClose:withDefault(BoolControl,true)
     },
     (props, dispatch) => {
       const userViewMode = useUserViewMode();
@@ -147,6 +148,7 @@ let TmpModalComp = (function () {
         <BackgroundColorContext.Provider value={props.style.background}>
           <ModalWrapper>
             <StyledModal
+              closable={props.toggleClose}
               height={height}
               resizeHandles={resizeHandles}
               onResizeStop={onResizeStop}
@@ -160,10 +162,10 @@ let TmpModalComp = (function () {
               $titleAlign={props.titleAlign}
               width={width}
               onCancel={(e) => {
-                props.visible.onChange(false);
+                props.toggleClose&&props.visible.onChange(false);
               }}
               afterClose={() => {
-                props.onEvent("close");
+                props.toggleClose&&props.onEvent("close");
               }}
               zIndex={Layers.modal}
               modalRender={(node) => <ModalStyled $style={props.style}>{node}</ModalStyled>}
@@ -207,6 +209,9 @@ let TmpModalComp = (function () {
           })}
           {children.showMask.propertyView({
             label: trans("prop.showMask"),
+          })}
+          {children.toggleClose.propertyView({
+            label: trans("prop.toggleClose"),
           })}
         </Section>
         <Section name={sectionNames.interaction}>{children.onEvent.getPropertyView()}</Section>

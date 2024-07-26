@@ -2,7 +2,7 @@ import { BoolCodeControl, NumberControl } from "../../controls/codeControl";
 import { LabelControl } from "../../controls/labelControl";
 import { withDefault } from "../../generators";
 import { ChangeEventHandlerControl } from "../../controls/eventHandlerControl";
-import { Section, sectionNames } from "lowcoder-design";
+import { Section, lightenColor, sectionNames } from "lowcoder-design";
 import { RecordConstructorToComp } from "lowcoder-core";
 import { styleControl } from "comps/controls/styleControl";
 import {  AnimationStyle, InputFieldStyle, LabelStyle, SliderStyle, SliderStyleType, heightCalculator, widthCalculator  } from "comps/controls/styleControlConstants";
@@ -40,6 +40,16 @@ const getStyle = (style: SliderStyleType, vertical: boolean) => {
       }
       .ant-slider-handle:focus {
         box-shadow: 0 0 0 5px ${fadeColor(darkenColor(style.thumbBorder, 0.08), 0.12)};
+      }
+      .ant-slider-handle::after {
+        box-shadow: 0 0 0 2px ${lightenColor(style.thumbBorder, 0.1)};
+      }
+      .ant-slider-handle:hover,
+      .ant-slider-handle:active,
+      .ant-slider-handle:focus {
+        &::after {
+          box-shadow: 0 0 0 5px ${style.thumbBorder};
+        }
       }
       ${vertical && css`
         width: auto;	

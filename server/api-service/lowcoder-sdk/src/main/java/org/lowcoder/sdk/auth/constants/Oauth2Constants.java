@@ -17,7 +17,7 @@ public class Oauth2Constants {
             + "&client_id=" + CLIENT_ID_PLACEHOLDER
             + "&redirect_uri=" + REDIRECT_URL_PLACEHOLDER
             + "&state=" + STATE_PLACEHOLDER
-            + "&scope=";
+            + "&scope=user";
 
     public static final String GOOGLE_AUTHORIZE_URL = "https://accounts.google.com/o/oauth2/v2/auth"
             + "?response_type=code"

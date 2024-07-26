@@ -540,11 +540,11 @@ const TEXT_WEIGHT = {
   textWeight: "textWeight",
 } as const;
 
-const HOVER_BACKGROUND_COLOR = {
+const CHECKBOX_HOVER_BACKGROUND_COLOR = {
   name: "hoverBackground",
   label: trans("style.hoverBackground"),
   hoverBackground: "hoverBackground",
-  color: SECOND_SURFACE_COLOR,
+  // color: SECOND_SURFACE_COLOR,
 }
 
 const FONT_FAMILY = {
@@ -1297,13 +1297,15 @@ export const CheckboxStyle = [
   ]).filter((style) => style.name !== "border"),
   ...checkAndUncheck(),
   {
-    name: "checked",
+    name: "checkedBorder",
     label: trans("style.checked"),
     depName: "checkedBackground",
-    depType: DEP_TYPE.CONTRAST_TEXT,
-    transformer: contrastText,
+    // depType: DEP_TYPE.CONTRAST_TEXT,
+    // transformer: contrastText,
+    depType: DEP_TYPE.SELF,
+    transformer: toSelf,
   },
-  HOVER_BACKGROUND_COLOR,
+  CHECKBOX_HOVER_BACKGROUND_COLOR,
 ] as const;
 
 export const RadioStyle = [
@@ -1313,13 +1315,13 @@ export const RadioStyle = [
   ]).filter((style) => style.name !== "border" && style.name !== "radius"),
   ...checkAndUncheck(),
   {
-    name: "checked",
+    name: "checkedBorder",
     label: trans("style.checked"),
     depName: "checkedBackground",
     depType: DEP_TYPE.CONTRAST_TEXT,
     transformer: toSelf,
   },
-  HOVER_BACKGROUND_COLOR,
+  CHECKBOX_HOVER_BACKGROUND_COLOR,
 ] as const;
 
 export const SegmentStyle = [

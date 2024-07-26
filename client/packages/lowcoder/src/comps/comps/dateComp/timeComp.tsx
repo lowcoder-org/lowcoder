@@ -251,6 +251,7 @@ export const timeRangeControl = (function () {
   const childrenMap = {
     start: stringExposingStateControl("start"),
     end: stringExposingStateControl("end"),
+    ...formDataChildren,
     ...commonChildren,
   };
 
@@ -319,6 +320,8 @@ export const timeRangeControl = (function () {
             tooltip: trans("time.formatTip"),
           })}
         </Section>
+        
+        <FormDataPropertyView {...children} />
 
         {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
           <><Section name={sectionNames.validation}>
@@ -470,6 +473,23 @@ TimeRangeComp = withMethodExposing(TimeRangeComp, [
     execute: (comp) => {
       comp.children.start.getView().reset();
       comp.children.end.getView().reset();
+    },
+  },
+  {
+    method: {
+      name: "setRange",
+      params: [],
+    },
+    execute: (comp, values) => {
+      if (values.length !== 1) {
+        return Promise.reject(trans("formComp.valuesLengthError"));
+      }
+      const data = values[0] as { start: string, end: string };
+      if (typeof data !== "object" || data === null || Array.isArray(data) || !data.hasOwnProperty('start') || !data.hasOwnProperty('end')) {
+        return Promise.reject(trans("formComp.valueTypeError"));
+      }
+      comp.children.start.getView().onChange(data.start);
+      comp.children.end.getView().onChange(data.end);
     },
   },
 ]);
