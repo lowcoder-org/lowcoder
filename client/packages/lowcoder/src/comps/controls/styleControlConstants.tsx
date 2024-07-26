@@ -379,18 +379,12 @@ export function handleToCalendarToday(color: string) {
 export function getLineHeightValue(theme: ThemeDetail, value: string | number) {
   if (typeof value === 'number') {
     return `${value}px`;
-  } else if (value === 'inherit') {
-    return 'inherit';
-  } else if (value === 'initial') {
-    return 'initial';
-  } else if (value === 'unset') {
-    return 'unset';
   } else {
     const lineHeightValue = theme.lineHeight;
     if (lineHeightValue) {
       return lineHeightValue;
     } else {
-      return '1.5'; // default line height value
+      return value; // default line height value
     }
   }
 }

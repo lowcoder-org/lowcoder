@@ -90,8 +90,11 @@ import { inputFieldComps } from "@lowcoder-ee/constants/compConstants";
 function isSimpleColorConfig(config: SingleColorConfig): config is SimpleColorConfig {
   return config.hasOwnProperty("color");
 }
-function isSimpleLineHeightConfig(config: SingleColorConfig): config is LineHeightConfig {
-  return config.hasOwnProperty("lineheight");
+function isLineHeightConfig(config: SingleColorConfig): config is LineHeightConfig {
+  return config.hasOwnProperty("lineHeight");
+}
+function isTextSizeConfig(config: SingleColorConfig): config is TextSizeConfig {
+  return config.hasOwnProperty("textSize");
 }
 
 function isDepColorConfig(config: SingleColorConfig): config is DepColorConfig {
@@ -161,9 +164,6 @@ function isFooterBackgroundImageOriginConfig(config: SingleColorConfig): config 
   return config.hasOwnProperty("footerBackgroundImageOrigin");
 }
 
-function isTextSizeConfig(config: SingleColorConfig): config is TextSizeConfig {
-  return config.hasOwnProperty("textSize");
-}
 
 function isTextWeightConfig(config: SingleColorConfig): config is TextWeightConfig {
   return config.hasOwnProperty("textWeight");
@@ -244,7 +244,9 @@ function isEmptyColor(color: string) {
 function isEmptyLineHeight(lineHeight: string) {
   return _.isEmpty(lineHeight);
 }
-
+function isEmptyTextSize(textSize: string) {
+  return _.isEmpty(textSize);
+}
 function isEmptyRadius(radius: string) {
   return _.isEmpty(radius);
 }
@@ -300,9 +302,7 @@ function isEmptyFooterBackgroundImageOriginConfig(footerBackgroundImageOrigin: s
   return _.isEmpty(footerBackgroundImageOrigin);
 }
 
-function isEmptyTextSize(textSize: string) {
-  return _.isEmpty(textSize);
-}
+
 function isEmptyTextWeight(textWeight: string) {
   return _.isEmpty(textWeight);
 }
@@ -376,17 +376,21 @@ function calcColors<ColorMap extends Record<string, string>>(
   if (compType && styleKey && inputFieldComps.includes(compType) && styleKey !== 'inputFieldStyle') {
     const style = theme?.components?.[compType]?.[styleKey] as Record<string, string>;
     themeWithDefault['borderWidth'] = style?.['borderWidth'] || '0px';
+    console.log("The values are ", themeWithDefault)
   }
 
   // Cover what is not there for the first pass
   let res: Record<string, string> = {};
   colorConfigs.forEach((config) => {
     const name = config.name;
-    if (!isEmptyLineHeight(props[name]) && isSimpleLineHeightConfig(config)) {
+    if (!isEmptyLineHeight(props[name]) && isLineHeightConfig(config)) {
       res[name] = props[name];
       return;
     }
-    
+    if (!isEmptyTextSize(props[name]) && isTextSizeConfig(config)) {
+      res[name] = props[name];
+      return;
+    }
     if (!isEmptyRadius(props[name]) && isRadiusConfig(config)) {
       res[name] = props[name];
       return;
@@ -460,10 +464,7 @@ function calcColors<ColorMap extends Record<string, string>>(
       res[name] = props[name];
       return;
     }
-    if (!isEmptyTextSize(props[name]) && isTextSizeConfig(config)) {
-      res[name] = props[name];
-      return;
-    }
+  
     if (!isEmptyTextWeight(props[name]) && isTextWeightConfig(config)) {
       res[name] = props[name];
       return;
@@ -645,6 +646,12 @@ function calcColors<ColorMap extends Record<string, string>>(
     if (isAnimationDurationConfig(config)) {
       res[name] = themeWithDefault[config.animationDuration] || '0s';
     }
+    if (isLineHeightConfig(config)) {
+
+      res[name] = themeWithDefault[config.lineHeight] || '20px';
+      console.log("The 2nd Values are", themeWithDefault);
+      console.log("The 2nd Values are", isLineHeightConfig);
+    }
   });
   // The second pass calculates dep
   colorConfigs.forEach((config) => {
@@ -682,6 +689,7 @@ function calcColors<ColorMap extends Record<string, string>>(
       res[name] = themeWithDefault[config.name]
     }
   });
+  console.log("The defaults are ", themeWithDefault)
   return res as ColorMap;
 }
 
@@ -1357,4 +1365,5 @@ export function useStyle<T extends readonly SingleColorConfig[]>(colorConfigs: T
     props[config.name as Names<T>] = "";
   });
   return calcColors(props, colorConfigs, theme?.theme, bgColor);
+
 }
