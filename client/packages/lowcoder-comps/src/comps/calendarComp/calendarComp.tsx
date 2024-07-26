@@ -46,7 +46,9 @@ import {
   CalendarDeleteIcon,
   Tooltip,
   useMergeCompStyles,
-} from "lowcoder-sdk";
+  EditorContext,
+  CompNameContext,
+} from 'lowcoder-sdk';
 
 import {
   DefaultWithFreeViewOptions,
@@ -121,6 +123,12 @@ let CalendarBasicComp = (function () {
     currentFreeView?: string; 
     currentPremiumView?: string; 
   }, dispatch: any) => {
+  
+  const comp = useContext(EditorContext).getUICompByName(
+    useContext(CompNameContext)
+    );
+    const onEventVal = comp?.toJsonValue().comp.onEvent;
+  
 
     const theme = useContext(ThemeContext);
     const ref = createRef<HTMLDivElement>();
@@ -288,10 +296,6 @@ let CalendarBasicComp = (function () {
     }
 
     const handleDbClick = () => {
-      console.log("props.events", props.events)
-      console.log("props.onEvent", props.onEvent)
-      console.log("props", props)
-
       const event = props.events.value.find(
         (item: EventType) => item.id === editEvent.current?.id
       ) as EventType;
@@ -308,7 +312,17 @@ let CalendarBasicComp = (function () {
         };
         showModal(eventInfo, true);
       } else {
-        showModal(editEvent.current, false);
+        if (onEventVal) {
+          onEventVal.forEach((event:any) => {
+            if (event.name === 'doubleClick') {
+              props.onEvent('doubleClick')
+            } else {
+              showModal(editEvent.current as EventType, false);
+            }
+          });
+        } else {
+          showModal(editEvent.current, false);
+        }
       }
     };
 
@@ -438,7 +452,6 @@ let CalendarBasicComp = (function () {
         props.onDropEvent("dropEvent");
       }
     };
-
     return (
       <Wrapper
         ref={ref}
