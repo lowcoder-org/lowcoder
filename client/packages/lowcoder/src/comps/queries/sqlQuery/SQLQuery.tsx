@@ -22,6 +22,7 @@ import { trans } from "i18n";
 import { ColumnNameDropdown } from "./columnNameDropdown";
 import React, { useContext } from "react";
 import { QueryContext } from "util/context/QueryContext";
+import SupaDemoDisplay from "comps/utils/supademoDisplay";
 
 const AllowMultiModifyComp = withPropertyViewFn(BoolPureControl, (comp) =>
   comp.propertyView({
@@ -140,6 +141,7 @@ const CommandMap = {
           label={trans("sqlQuery.primaryKeyColumn")}
         />
         {children.records.getPropertyView()}
+
       </>
     ))
     .build(),
@@ -176,7 +178,7 @@ const SQLQueryPropertyView = (props: { comp: InstanceType<typeof SQLQuery> }) =>
       {children.mode.getView() === "SQL" ? (
         children.sql.propertyView({
           placement: "bottom",
-          placeholder: "SELECT * FROM users;",
+          placeholder: "SELECT * FROM users WHERE user_id = {{userId}}::uuid", 
           styleName: "medium",
           language: "sql",
           enableMetaCompletion: true,
@@ -212,10 +214,12 @@ const SQLQueryPropertyView = (props: { comp: InstanceType<typeof SQLQuery> }) =>
               });
             }}
           />
+          
           {children.command.getPropertyView()}
         </>
       )}
     </>
+
   );
 };
 

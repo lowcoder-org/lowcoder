@@ -239,6 +239,7 @@ let FormBasicComp = (function () {
             <Section name={sectionNames.basic}>
               
               {children.schema.propertyView({
+                key: trans("jsonSchemaForm.jsonSchema"),
                 label: (
                   <>
                     {trans("jsonSchemaForm.jsonSchema") + " ("}
@@ -274,6 +275,7 @@ let FormBasicComp = (function () {
                 ),
               })}
               {children.uiSchema.propertyView({
+                key: trans("jsonSchemaForm.uiSchema"),
                 label: (
                   <>
                     {trans("jsonSchemaForm.uiSchema") + " ("}
@@ -311,6 +313,7 @@ let FormBasicComp = (function () {
                 ),
               })}
               {children.data.propertyView({
+                key: trans("jsonSchemaForm.defaultData"),
                 label: trans("jsonSchemaForm.defaultData"),
               })}
             </Section>
@@ -328,13 +331,13 @@ let FormBasicComp = (function () {
 
           {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
             <>
-            <Section name={sectionNames.style}>
-              {children.style.getPropertyView()}
-            </Section>
-            <Section name={sectionNames.animationStyle} hasTooltip={true}>
-              {children.animationStyle.getPropertyView()}
+              <Section name={sectionNames.style}>
+                {children.style.getPropertyView()}
               </Section>
-              </>
+              <Section name={sectionNames.animationStyle} hasTooltip={true}>
+                {children.animationStyle.getPropertyView()}
+              </Section>
+            </>
           )}
 
         </>
