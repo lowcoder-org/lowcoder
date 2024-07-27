@@ -1776,6 +1776,11 @@ var CodeNode = /** @class */ (function (_super) {
                     value.triggerType === "manual") {
                     return;
                 }
+                // wait for lazy loaded comps to load before executing query on page load
+                if (!Object.keys(value).length) {
+                  isFetching_1 = true;
+                  ready_1 = false;
+                }
                 if (_.has(value, IS_FETCHING_FIELD)) {
                     isFetching_1 = isFetching_1 || value.isFetching === true;
                 }

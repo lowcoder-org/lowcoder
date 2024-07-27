@@ -321,6 +321,7 @@ let FormTmpComp = class extends FormBaseComp implements IForm {
   setData(data: JSONObject, initialData?: JSONObject) {
     // For the properties, first find in data, then initialData, subcomponent default value (resetValue), empty value (clearValue)
     const newData = { ...(initialData ?? this.children.initialData.getView()), ...data };
+
     return this.runMethodOfItems(
       {
         name: "setValue",
@@ -331,8 +332,19 @@ let FormTmpComp = class extends FormBaseComp implements IForm {
           return value !== undefined ? [value as EvalParamType] : undefined;
         },
       },
+      {
+        name: "setRange",
+        getParams: (t) => {
+          // use component name when formDataKey is empty
+          const key = t.children.comp.children.formDataKey?.getView() || t.children.name.getView();
+          const value = newData[key] ? newData[key] : undefined;
+          return value !== undefined ? [value as EvalParamType] : undefined;
+        },
+      },
       { name: "resetValue" },
-      { name: "clearValue" }
+      { name: "resetAll" },
+      { name: "clearValue" },
+      { name: "clearAll" }
     );
   }
   reset() {
@@ -443,10 +455,24 @@ export const FormComp = withExposingConfigs(FormTmpComp, [
     func: (input) => {
       const data: Record<string, unknown> = {};
       Object.entries(input.container).forEach(([name, value]) => {
+
         const exposingValues = value as any;
         if (exposingValues?.hasOwnProperty("formDataKey")) {
           // use component name when formDataKey is empty
-          data[exposingValues["formDataKey"] || name] = exposingValues["value"];
+          let inputValue = exposingValues['value'];
+          // for timeRange/dateRange we don't have value
+          // instead we have start and end
+          if (
+            !inputValue
+            && exposingValues?.hasOwnProperty('start')
+            && exposingValues?.hasOwnProperty('end')
+          ) {
+            inputValue = {
+              start: exposingValues['start'],
+              end: exposingValues['end'],
+            }
+          }
+          data[exposingValues["formDataKey"] || name] = inputValue;
         }
       });
       return data;
