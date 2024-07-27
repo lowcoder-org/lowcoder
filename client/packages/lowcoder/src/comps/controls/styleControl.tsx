@@ -376,7 +376,6 @@ function calcColors<ColorMap extends Record<string, string>>(
   if (compType && styleKey && inputFieldComps.includes(compType) && styleKey !== 'inputFieldStyle') {
     const style = theme?.components?.[compType]?.[styleKey] as Record<string, string>;
     themeWithDefault['borderWidth'] = style?.['borderWidth'] || '0px';
-    console.log("The values are ", themeWithDefault)
   }
 
   // Cover what is not there for the first pass
@@ -649,8 +648,6 @@ function calcColors<ColorMap extends Record<string, string>>(
     if (isLineHeightConfig(config)) {
 
       res[name] = themeWithDefault[config.lineHeight] || '20px';
-      console.log("The 2nd Values are", themeWithDefault);
-      console.log("The 2nd Values are", isLineHeightConfig);
     }
   });
   // The second pass calculates dep
@@ -689,7 +686,6 @@ function calcColors<ColorMap extends Record<string, string>>(
       res[name] = themeWithDefault[config.name]
     }
   });
-  console.log("The defaults are ", themeWithDefault)
   return res as ColorMap;
 }
 
@@ -1327,13 +1323,13 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
                                                                     props[name],
                                                                 })
                                                                 : name === 'lineHeight'  // Added lineHeight here
-                                                ? (
-                                                    children[name] as InstanceType<typeof StringControl>
-                                                  ).propertyView({
-                                                    label: config.label,
-                                                    preInputNode: <LineHeightPropIcon title="Line Height" />,
-                                                    placeholder: props[name],
-                                                  })
+                                                                ? (
+                                                                  children[name] as InstanceType<typeof StringControl>
+                                                                ).propertyView({
+                                                                label: config.label,
+                                                                preInputNode: <LineHeightPropIcon title="Line Height" />,
+                                                                placeholder: props[name],
+                                                              })
                                                               : children[
                                                                   name
                                                                 ].propertyView({

@@ -779,7 +779,7 @@ function replaceAndMergeMultipleStyles(
 
 export const ButtonStyle = [
   getBackground('primary'),
-  ...STYLING_FIELDS_SEQUENCE
+  ...STYLING_FIELDS_SEQUENCE.filter(style=>style.name!=='lineHeight'),
 ] as const;
 
 export const DropdownStyle = [
@@ -1197,7 +1197,7 @@ export const SwitchStyle = [
 ] as const;
 
 export const SelectStyle = [
-  ...replaceAndMergeMultipleStyles(STYLING_FIELDS_SEQUENCE.filter(style=>style.name!=='rotation'), "border", [
+  ...replaceAndMergeMultipleStyles(STYLING_FIELDS_SEQUENCE.filter(style=>style.name!=='rotation' && style.name !== 'lineHeight'), "border", [
     ...getStaticBgBorderRadiusByBg(SURFACE_COLOR, "pc"),
   ]),
   BOXSHADOW,
@@ -1206,7 +1206,7 @@ export const SelectStyle = [
 ] as const;
 
 const multiSelectCommon = [
-  ...replaceAndMergeMultipleStyles(STYLING_FIELDS_SEQUENCE.filter(style=>style.name!=='rotation'), "border", [
+  ...replaceAndMergeMultipleStyles(STYLING_FIELDS_SEQUENCE.filter(style=>style.name!=='rotation' && style.name !== 'lineHeight'), "border", [
     ...getStaticBgBorderRadiusByBg(SURFACE_COLOR, "pc"),
   ]),
   {
