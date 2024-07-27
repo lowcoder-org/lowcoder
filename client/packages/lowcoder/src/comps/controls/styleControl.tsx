@@ -29,6 +29,7 @@ import {
   RefreshLineIcon,
   ShadowIcon,
   OpacityIcon,
+  LineHeightIcon
 } from 'lowcoder-design';
 import { useContext } from "react";
 import styled from "styled-components";
@@ -759,7 +760,7 @@ const StyleContent = styled.div`
     border-radius: 0 0 6px 6px;
   }
 `;
-const LineHeightPropIcon = styled(ExpandIcon)`
+const LineHeightPropIcon = styled(LineHeightIcon)`
   margin: 0 8px 0 -3px;
   padding: 3px;
   color: #888;
