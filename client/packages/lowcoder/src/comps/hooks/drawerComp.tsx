@@ -96,6 +96,7 @@ let TmpDrawerComp = (function () {
       closePosition: withDefault(LeftRightControl, "left"),
       maskClosable: withDefault(BoolControl, true),
       showMask: withDefault(BoolControl, true),
+      toggleClose:withDefault(BoolControl,true)
     },
     (props, dispatch) => {
       const isTopBom = ["top", "bottom"].includes(props.placement);
@@ -155,6 +156,7 @@ let TmpDrawerComp = (function () {
               className={props.className as string}
               data-testid={props.dataTestId as string}
             >
+            {props.toggleClose && (
               <ButtonStyle
                 $closePosition={props.closePosition}
                 onClick={() => {
@@ -163,6 +165,7 @@ let TmpDrawerComp = (function () {
               >
                 <CloseOutlined />
               </ButtonStyle>
+              )}
               <InnerGrid
                 {...otherContainerProps}
                 items={gridItemCompToGridItems(items)}
@@ -205,6 +208,9 @@ let TmpDrawerComp = (function () {
           })}
           {children.showMask.propertyView({
             label: trans("prop.showMask"),
+          })}
+          {children.toggleClose.propertyView({
+            label: trans("prop.toggleClose"),
           })}
         </Section>
         <Section name={sectionNames.interaction}>{children.onEvent.getPropertyView()}</Section>

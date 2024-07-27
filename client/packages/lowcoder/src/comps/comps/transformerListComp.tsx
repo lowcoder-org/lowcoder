@@ -13,6 +13,7 @@ import { BottomResComp, BottomResCompResult, BottomResTypeEnum } from "types/bot
 import { QueryTutorials } from "util/tutorialUtils";
 import { SimpleNameComp } from "./simpleNameComp";
 import { markdownCompCss, TacoMarkDown } from "lowcoder-design";
+import SupaDemoDisplay from "comps/utils/supademoDisplay";
 
 const TransformerItemCompBase = new MultiCompBuilder(
   {
@@ -44,7 +45,15 @@ const TransformerItemCompBase = new MultiCompBuilder(
                         <><br/><TacoMarkDown>{trans("transformer.documentationText")}</TacoMarkDown>
                         <DocLink style={{ marginTop: 8 }} href={QueryTutorials.transformer} title={trans("transformer.documentationText")}>
                           {trans("transformer.docLink")}
-                        </DocLink></>
+                        </DocLink><br/><br/>
+
+                        <SupaDemoDisplay
+                          url={trans("supademos.transformer")}
+                          modalWidth="80%"
+                          modalTop="20px"
+                        />
+
+                        </>
                       )}
                     </div>
                   ),

@@ -75,11 +75,11 @@ export function ExtendedPropertyView<
   const [compVersions, setCompVersions] = useState(['latest']);
   const [compName, setCompName] = useState('');
   const editorState = useContext(EditorContext);
-  const selectedComp = values(editorState.selectedComps())[0];
-  const compType = selectedComp.children.compType.getView() as UICompType;
+  const selectedComp = values(editorState?.selectedComps())[0];
+  const compType = selectedComp?.children?.compType?.getView() as UICompType;
   
   useEffect(() => {
-    setCompName(uiCompRegistry[compType].compName || '');
+    setCompName(uiCompRegistry[compType]?.compName || '');
   }, [compType]);
 
   useEffect(() => {
