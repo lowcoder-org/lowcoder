@@ -10,15 +10,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.lowcoder.api.framework.view.ResponseView;
 import org.lowcoder.api.permission.view.CommonPermissionView;
 import org.lowcoder.api.util.BusinessEventPublisher;
-import org.lowcoder.api.util.GIDUtil;
+import org.lowcoder.api.util.GidService;
 import org.lowcoder.domain.datasource.model.Datasource;
-import org.lowcoder.domain.datasource.model.DatasourceDO;
-import org.lowcoder.domain.datasource.repository.DatasourceDORepository;
 import org.lowcoder.domain.datasource.service.DatasourceService;
 import org.lowcoder.domain.datasource.service.DatasourceStructureService;
 import org.lowcoder.domain.permission.model.ResourceRole;
 import org.lowcoder.domain.plugin.client.dto.GetPluginDynamicConfigRequestDTO;
-import org.lowcoder.sdk.constants.FieldName;
 import org.lowcoder.sdk.exception.BizError;
 import org.lowcoder.sdk.models.DatasourceStructure;
 import org.lowcoder.sdk.models.DatasourceTestResult;
@@ -47,7 +44,7 @@ public class DatasourceController implements DatasourceEndpoints
     private final UpsertDatasourceRequestMapper upsertDatasourceRequestMapper;
     private final BusinessEventPublisher businessEventPublisher;
     private final DatasourceService datasourceService;
-    private final GIDUtil gidUtil;
+    private final GidService gidService;
 
     @Override
 	public Mono<ResponseView<Datasource>> create(@Valid @RequestBody UpsertDatasourceRequest request) {
@@ -59,7 +56,7 @@ public class DatasourceController implements DatasourceEndpoints
 
     @Override
     public Mono<ResponseView<Datasource>> getById(@PathVariable String id) {
-        String objectId = gidUtil.convertDatasourceIdToObjectId(id);
+        String objectId = gidService.convertDatasourceIdToObjectId(id);
         return datasourceApiService.findByIdWithPermission(objectId)
                 .delayUntil(datasourceService::removePasswordTypeKeysFromJsDatasourcePluginConfig)
                 .map(ResponseView::success);
@@ -68,7 +65,7 @@ public class DatasourceController implements DatasourceEndpoints
     @Override
     public Mono<ResponseView<Datasource>> update(@PathVariable String id,
             @RequestBody UpsertDatasourceRequest request) {
-        String objectId = gidUtil.convertDatasourceIdToObjectId(id);
+        String objectId = gidService.convertDatasourceIdToObjectId(id);
         Datasource resolvedDatasource = upsertDatasourceRequestMapper.resolve(request);
         return datasourceApiService.update(objectId, resolvedDatasource)
                 .delayUntil(datasourceService::removePasswordTypeKeysFromJsDatasourcePluginConfig)
@@ -78,7 +75,7 @@ public class DatasourceController implements DatasourceEndpoints
 
     @Override
     public Mono<ResponseView<Boolean>> delete(@PathVariable String id) {
-        String objectId = gidUtil.convertDatasourceIdToObjectId(id);
+        String objectId = gidService.convertDatasourceIdToObjectId(id);
         return datasourceApiService.delete(objectId)
                 .delayUntil(result -> {
                     if (BooleanUtils.isTrue(result)) {
@@ -109,7 +106,7 @@ public class DatasourceController implements DatasourceEndpoints
     @Override
     public Mono<ResponseView<DatasourceStructure>> getStructure(@PathVariable String datasourceId,
             @RequestParam(required = false, defaultValue = "false") boolean ignoreCache) {
-        String objectId = gidUtil.convertDatasourceIdToObjectId(datasourceId);
+        String objectId = gidService.convertDatasourceIdToObjectId(datasourceId);
         return datasourceStructureService.getStructure(objectId, ignoreCache)
                 .map(ResponseView::success);
     }
@@ -120,7 +117,7 @@ public class DatasourceController implements DatasourceEndpoints
      */
     @Override
     public Mono<ResponseView<List<Datasource>>> listJsDatasourcePlugins(@RequestParam("appId") String applicationId) {
-        String objectId = gidUtil.convertApplicationIdToObjectId(applicationId);
+        String objectId = gidService.convertApplicationIdToObjectId(applicationId);
         return datasourceApiService.listJsDatasourcePlugins(objectId)
                 .collectList()
                 .map(ResponseView::success);
@@ -146,7 +143,7 @@ public class DatasourceController implements DatasourceEndpoints
         if (StringUtils.isBlank(orgId)) {
             return ofError(BizError.INVALID_PARAMETER, "ORG_ID_EMPTY");
         }
-        String objectId = gidUtil.convertOrganizationIdToObjectId(orgId);
+        String objectId = gidService.convertOrganizationIdToObjectId(orgId);
         return datasourceApiService.listOrgDataSources(objectId)
                 .collectList()
                 .map(ResponseView::success);
@@ -157,7 +154,7 @@ public class DatasourceController implements DatasourceEndpoints
         if (StringUtils.isBlank(applicationId)) {
             return ofError(BizError.INVALID_PARAMETER, "INVALID_APP_ID");
         }
-        String objectId = gidUtil.convertApplicationIdToObjectId(applicationId);
+        String objectId = gidService.convertApplicationIdToObjectId(applicationId);
 
         return datasourceApiService.listAppDataSources(objectId)
                 .collectList()
@@ -166,7 +163,7 @@ public class DatasourceController implements DatasourceEndpoints
 
     @Override
     public Mono<ResponseView<CommonPermissionView>> getPermissions(@PathVariable("datasourceId") String datasourceId) {
-        String objectId = gidUtil.convertDatasourceIdToObjectId(datasourceId);
+        String objectId = gidService.convertDatasourceIdToObjectId(datasourceId);
         return datasourceApiService.getPermissions(objectId)
                 .map(ResponseView::success);
     }
@@ -174,7 +171,7 @@ public class DatasourceController implements DatasourceEndpoints
     @Override
     public Mono<ResponseView<Boolean>> grantPermission(@PathVariable String datasourceId,
             @RequestBody BatchAddPermissionRequest request) {
-        String objectId = gidUtil.convertDatasourceIdToObjectId(datasourceId);
+        String objectId = gidService.convertDatasourceIdToObjectId(datasourceId);
         ResourceRole role = ResourceRole.fromValue(request.role());
         if (role == null) {
             return ofError(INVALID_PARAMETER, "INVALID_PARAMETER", request.role());
@@ -215,7 +212,7 @@ public class DatasourceController implements DatasourceEndpoints
 
     @Override
     public Mono<ResponseView<Object>> info(@RequestParam(required = false) String datasourceId) {
-        String objectId = gidUtil.convertDatasourceIdToObjectId(datasourceId);
+        String objectId = gidService.convertDatasourceIdToObjectId(datasourceId);
         return Mono.just(ResponseView.success(datasourceApiService.info(objectId)));
     }
 
