@@ -189,6 +189,7 @@ const TableWrapper = styled.div<{
 
   .ant-table.ant-table-middle .ant-table-cell-with-append .ant-table-row-expand-icon {
     top: 14px;
+    margin-right:5px;
   }
 
   .ant-table {

@@ -53,6 +53,7 @@ import {
 } from "util/localStorageUtil";
 import { isAggregationApp } from "util/appUtils";
 import EditorSkeletonView from "./editorSkeletonView";
+import { getCommonSettings } from "@lowcoder-ee/redux/selectors/commonSettingSelectors";
 
 const LeftContent = lazy(
   () => import('./LeftContent')
@@ -278,6 +279,7 @@ function EditorView(props: EditorViewProps) {
   const editorState = useContext(EditorContext);
   const { readOnly, hideHeader } = useContext(ExternalEditorContext);
   const application = useSelector(currentApplication);
+  const commonSettings = useSelector(getCommonSettings);
   const locationState = useLocation<UserGuideLocationState>().state;
   const showNewUserGuide = locationState?.showNewUserGuide;
   const showAppSnapshot = useSelector(showAppSnapshotSelector);
@@ -369,11 +371,10 @@ function EditorView(props: EditorViewProps) {
     return () => window.removeEventListener(eventType, updateSize);
   }, []);
 
-  const hideBodyHeader = useTemplateViewMode() || (isViewMode && !showHeaderInPublic);
+  const hideBodyHeader = useTemplateViewMode() || (isViewMode && (!showHeaderInPublic || !commonSettings.showHeaderInPublicApps));
 
   // we check if we are on the public cloud
   const isLowCoderDomain = window.location.hostname === 'app.lowcoder.cloud';
-
   if (readOnly && hideHeader) {
     return (
       <CustomShortcutWrapper>
