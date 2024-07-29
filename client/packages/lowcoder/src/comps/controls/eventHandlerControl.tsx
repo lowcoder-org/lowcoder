@@ -700,6 +700,11 @@ export const DragEventHandlerControl = eventHandlerControl([
   dropEvent,
 ] as const);
 
+export const CalendarEventHandlerControl = eventHandlerControl([
+  changeEvent,
+  doubleClickEvent,
+] as const);
+
 export const ElementEventHandlerControl = eventHandlerControl([
   openEvent,
   editedEvent,
