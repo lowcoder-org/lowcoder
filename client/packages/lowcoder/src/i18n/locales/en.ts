@@ -2600,8 +2600,9 @@ export const en = {
     "APIConsumption": "API Consumption",
     "APIConsumptionDescription": "Here you can see the API Consumption for All Apps in the Current Workspace.",
     "overallAPIConsumption": "Overall API Consumption in this Workspace till now",
-    "lastMonthAPIConsumption": "Last Month API Consumption, in this Workspace"
-
+    "lastMonthAPIConsumption": "Last Month API Consumption, in this Workspace",
+    "showHeaderInPublicApps": "Show Header In Public View",
+    "showHeaderInPublicAppsHelp": "Set visibility of header in public view for all apps",
   },
 
 

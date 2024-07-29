@@ -2068,6 +2068,8 @@ export const zh: typeof en = {
         "APIConsumptionDescription": "API 消耗是指当前工作空间中所有应用程序的 API 消耗情况,包括调用次数和调用时间.",
         "overallAPIConsumption": "总体 API 消耗",
         "lastMonthAPIConsumption": "上个月 API 消耗",
+        "showHeaderInPublicApps": "在公共视图中显示标题",
+        "showHeaderInPublicAppsHelp": "设置所有应用程序的标题在公共视图中的可见性",
     },
     branding: {
         ...en.branding,
