@@ -62,6 +62,7 @@ export interface ThemeDetail {
   animationDuration?: string;
   opacity?: string;
   boxShadow?: string;
+  lineHeight?: string;
   boxShadowColor?: string;
   animationIterationCount?: string;
   components?: Record<string, JSONObject>;
@@ -83,6 +84,7 @@ export function getThemeDetailName(key: keyof ThemeDetail) {
     case "padding":	return trans("style.padding");
     case "gridColumns": return trans("themeDetail.gridColumns");
     case "textSize": return trans("style.textSize");
+    case "lineHeight": return trans("themeDetail.lineHeight"); 
   }
   return "";
 }
@@ -105,6 +107,7 @@ export function isThemeColorKey(key: string) {
     case "padding":
     case "gridColumns":
     case "textSize":
+      case "lineHeight":
       return true;
   }
   return false;

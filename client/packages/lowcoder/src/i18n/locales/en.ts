@@ -545,6 +545,7 @@ export const en = {
     "headerText": "Header Text Color",
     "labelColor": "Label Color",
     "label": "Label Color",
+    "lineHeight":"Line Height",
     "subTitleColor": "SubTitle Color",
     "titleText": "Title Color",
     "success": "Success Color",

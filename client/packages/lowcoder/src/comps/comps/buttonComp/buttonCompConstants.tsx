@@ -65,6 +65,7 @@ export const Button100 = styled(Button)<{ $buttonStyle?: ButtonStyleType }>`
     overflow: hidden;
     text-overflow: ellipsis;
   }
+  line-height:${(props) => props.$buttonStyle?.lineHeight}; 
 `;
 
 export const ButtonCompWrapper = styled.div<{ disabled: boolean }>`

@@ -216,6 +216,7 @@ export { ReactComponent as BorderRadiusIcon } from "./remix/rounded-corner.svg";
 export { ReactComponent as ShadowIcon } from "./remix/shadow-line.svg";
 export { ReactComponent as OpacityIcon } from "./remix/contrast-drop-2-line.svg";
 export { ReactComponent as AnimationIcon } from "./remix/loader-line.svg";
+export { ReactComponent as LineHeightIcon } from "./remix/line-height.svg";
 
 
 export { ReactComponent as LeftInfoLine } from "./remix/information-line.svg";

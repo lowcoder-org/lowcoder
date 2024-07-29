@@ -16,6 +16,11 @@ export type SimpleColorConfig = CommonColorConfig & {
   readonly color: string;
 };
 
+export type LineHeightConfig = CommonColorConfig & {
+  readonly lineHeight: string; // Define the lineHeight property
+};
+
+
 export type RadiusConfig = CommonColorConfig & {
   readonly radius: string;
 };
@@ -224,7 +229,10 @@ export type SingleColorConfig =
   | OpacityConfig
   | BoxShadowConfig
   | BoxShadowColorConfig
-  | AnimationIterationCountConfig;
+  | AnimationIterationCountConfig
+  | LineHeightConfig
+  
+ 
 
 export const SURFACE_COLOR = "#FFFFFF";
 const SECOND_SURFACE_COLOR = "#D7D9E0";
@@ -366,6 +374,18 @@ export function handleToCalendarToday(color: string) {
     return "#FFFFFF33";
   } else {
     return "#0000000c";
+  }
+}
+export function getLineHeightValue(theme: ThemeDetail, value: string | number) {
+  if (typeof value === 'number') {
+    return `${value}px`;
+  } else {
+    const lineHeightValue = theme.lineHeight;
+    if (lineHeightValue) {
+      return lineHeightValue;
+    } else {
+      return value; // default line height value
+    }
   }
 }
 
@@ -516,6 +536,12 @@ const BACKGROUND_IMAGE_ORIGIN = {
   backgroundImageOrigin: "backgroundImageOrigin",
 } as const;
 
+const LINE_HEIGHT = {
+  name: "lineHeight",
+  label: trans("style.lineHeight"),
+  lineHeight: "lineHeight",
+} as const;
+
 const MARGIN = {
   name: "margin",
   label: trans("style.margin"),
@@ -645,6 +671,7 @@ const STYLING_FIELDS_SEQUENCE = [
   RADIUS,
   BORDER_WIDTH,
   ROTATION,
+  LINE_HEIGHT
 ];
 
 const STYLING_FIELDS_CONTAINER_SEQUENCE = [
@@ -658,6 +685,7 @@ const STYLING_FIELDS_CONTAINER_SEQUENCE = [
   BOXSHADOW,
   BOXSHADOWCOLOR,
   ROTATION,
+  LINE_HEIGHT
 ];
 
 export const AnimationStyle = [
@@ -751,7 +779,7 @@ function replaceAndMergeMultipleStyles(
 
 export const ButtonStyle = [
   getBackground('primary'),
-  ...STYLING_FIELDS_SEQUENCE
+  ...STYLING_FIELDS_SEQUENCE.filter(style=>style.name!=='lineHeight'),
 ] as const;
 
 export const DropdownStyle = [
@@ -1116,10 +1144,9 @@ export const LabelStyle = [
 export const InputFieldStyle = [
   getBackground(),
   getStaticBorder(),
-  ...STYLING_FIELDS_CONTAINER_SEQUENCE.filter(
-    (style) => ["border"].includes(style.name) === false
+ ...STYLING_FIELDS_CONTAINER_SEQUENCE.filter(
+    (style) =>!["border", "lineHeight"].includes(style.name)
   ),
-  // ...STYLING_FIELDS_CONTAINER_SEQUENCE,
 ] as const;
 
 export const SignatureContainerStyle = [
@@ -1170,7 +1197,7 @@ export const SwitchStyle = [
 ] as const;
 
 export const SelectStyle = [
-  ...replaceAndMergeMultipleStyles(STYLING_FIELDS_SEQUENCE.filter(style=>style.name!=='rotation'), "border", [
+  ...replaceAndMergeMultipleStyles(STYLING_FIELDS_SEQUENCE.filter(style=>style.name!=='rotation' && style.name !== 'lineHeight'), "border", [
     ...getStaticBgBorderRadiusByBg(SURFACE_COLOR, "pc"),
   ]),
   BOXSHADOW,
@@ -1179,7 +1206,7 @@ export const SelectStyle = [
 ] as const;
 
 const multiSelectCommon = [
-  ...replaceAndMergeMultipleStyles(STYLING_FIELDS_SEQUENCE.filter(style=>style.name!=='rotation'), "border", [
+  ...replaceAndMergeMultipleStyles(STYLING_FIELDS_SEQUENCE.filter(style=>style.name!=='rotation' && style.name !== 'lineHeight'), "border", [
     ...getStaticBgBorderRadiusByBg(SURFACE_COLOR, "pc"),
   ]),
   {
@@ -1291,7 +1318,7 @@ function checkAndUncheck() {
 }
 
 export const CheckboxStyle = [
-  ...replaceAndMergeMultipleStyles(STYLING_FIELDS_SEQUENCE.filter(styles=>styles.name!=='rotation'), "text", [
+  ...replaceAndMergeMultipleStyles(STYLING_FIELDS_SEQUENCE.filter(styles=>styles.name!=='rotation' && styles.name !== 'lineHeight'),"text", [
     STATIC_TEXT,
     VALIDATE,
   ]).filter((style) => style.name !== "border"),
@@ -1309,7 +1336,7 @@ export const CheckboxStyle = [
 ] as const;
 
 export const RadioStyle = [
-  ...replaceAndMergeMultipleStyles(STYLING_FIELDS_SEQUENCE.filter(style=>style.name!=='rotation'), "text", [
+  ...replaceAndMergeMultipleStyles(STYLING_FIELDS_SEQUENCE.filter(style=>style.name!=='rotation'&& style.name !== 'lineHeight'), "text", [
     STATIC_TEXT,
     VALIDATE,
   ]).filter((style) => style.name !== "border" && style.name !== "radius"),
@@ -1554,7 +1581,7 @@ export const IframeStyle = [
   BORDER_WIDTH,
   MARGIN,
   PADDING,
-  ROTATION
+  ROTATION,
 ] as const;
 
 export const CustomStyle = [

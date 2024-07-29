@@ -204,6 +204,7 @@ const DropdownStyled = styled.div<{ $style: ChildrenMultiSelectStyleType }>`
     font-weight: ${props => props.$style?.textWeight};
     text-transform: ${props => props.$style?.textTransform};
     color: ${props => props.$style?.text};
+    line-height: ${props => props.$style?.lineHeight};
   }
   .option-label{
     text-decoration: ${props => props.$style?.textDecoration} !important;
