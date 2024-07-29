@@ -312,16 +312,11 @@ let CalendarBasicComp = (function () {
         };
         showModal(eventInfo, true);
       } else {
-        if (onEventVal) {
-          onEventVal.forEach((event:any) => {
-            if (event.name === 'doubleClick') {
-              props.onEvent('doubleClick')
-            } else {
-              showModal(editEvent.current as EventType, false);
-            }
-          });
+        if (onEventVal && onEventVal.some((e: any) => e.name === 'doubleClick')) {
+          // Check if 'doubleClick' is included in the array
+          props.onEvent('doubleClick');
         } else {
-          showModal(editEvent.current, false);
+          showModal(editEvent.current as EventType, false);
         }
       }
     };
