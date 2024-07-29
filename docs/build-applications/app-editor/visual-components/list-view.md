@@ -2,13 +2,17 @@
 
 The component **List View** displays rows of data. Similar to Form, Modal, and Drawer, it is also a container-like component that can hold other components or modules. For list viewing data, you first bind the data to a **List View** component and configure the naming rules for the items. Then, you design the display of the first row by dragging and dropping components, and this layout will be applied to all items within this component.
 
-The following is a demo of **List View**, displaying part of BEST BOOKS OF 2021 from [Goodreads](https://www.goodreads.com/choiceawards/best-books-2021):
+The following is a demo of **List View**, displaying movies from [IMDB](https://www.imdb.com/chart/top/?ref\_=nv\_mv\_250) :&#x20;
 
-Drag and drop **List View** onto the canvas. Each item contains an **Image**, a **Text** and a **Rating** component. You can update the exhibition of the whole **List View** component by configuring the layout of the first entry.
+{% embed url="https://demos.lowcoder.cloud/demo/clz2tcvmi3cb5z9kdmrxcm9kl" %}
 
-Click the **Image** component, you see the defaulted image source.
+Drag and drop **List View** onto the canvas. Each item contains an **Image**, a **Title** with **URL/Link** and a **Rating** component. You can update the exhibition of the whole **List View** component by configuring the layout of the first entry.
 
-The **List View** component retrieves data from a JSON array of objects and displays an **Image**, a **Text** and a **Rating** component for each entry. You can also pass query results to a **List View**.
+Click the **Title** component, and you will redirected to Movie page in a new Tab.
+
+The **List View** component retrieves data from a JSON array of objects and displays an **Image**, a **Title** and a **Rating** component for each entry. You can also pass query results to a **List View** and show dynamic data inside **List View** component. Following demo shows a **List View** showing Dynamic data via a REST query.
+
+{% embed url="https://demos.lowcoder.cloud/demo/clz2ubz2v3csqz9kdxugs5szi" %}
 
 ## Bind data
 
@@ -40,10 +44,6 @@ You can view the detailed data about the **List View** component, its items, the
 
 After binding valid data to **List View** component and designing its inside components, you can add data to these components. **List View** supports local variables `currentItem` and `i`. Notice that you only need to change data of the first row, and the same settings are applied to the other rows automatically.
 
-{% hint style="info" %}
-You can bind a static URL address to the **Image** component for image display; and because that URL address is static, the same image shows up in all rows.
-{% endhint %}
-
 ## Name items
 
 You can set the item index names and item data names. This is useful when embedding a list in another list. For example, you can set the index of one list as `i`, and the inner nested `j` to avoid naming conflict.
@@ -52,20 +52,20 @@ You can set the item index names and item data names. This is useful when embedd
 
 By default, item index is named as`i`, referring to the index of list data and starting from zero. Besides using `i` as numbers, you can also use `i` to dynamically access data from query results.
 
-For example, to access the `book_name` field from table `fiction` in the **Text** component, write the following code.
+For example, to access the `title` field from the object`Data` in the **Text** component, write the following code.
 
 ```javascript
-{{getAllFictions.data[i].book_name}}
+{{listview1.data[i].title}}
 ```
 
-Then you can see the fiction book names displayed in **List View** by index order.
+Then you can see the Movies title displayed in **List View** by index order.
 
 ### Item data name
 
-By default, you can reference the value of each item within a list using variable `currentItem`. For example, to display a serial number plus book name, write the following code in `text1` value.
+By default, you can reference the value of each item within a list using variable `currentItem`. For example, to display a serial number plus Movie Title, write the following code in `text` value.
 
 ```javascript
-{{i+1}}. {{currentItem.book_name}}
+{{i+1}}. {{currentItem.title}}
 ```
 
 {% hint style="info" %}
