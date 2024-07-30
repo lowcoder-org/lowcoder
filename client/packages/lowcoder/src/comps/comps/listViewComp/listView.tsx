@@ -286,7 +286,7 @@ export function ListView(props: Props) {
     <BackgroundColorContext.Provider value={style.background}>
       <ListViewWrapper $style={style} $paddingWidth={paddingWidth} $animationStyle={animationStyle}>
         <BodyWrapper ref={ref} $autoHeight={autoHeight}>
-          <ScrollBar style={{ height: autoHeight ? "auto" : "100%", margin: "0px", padding: "0px" }} hideScrollbar={!scrollbars}>
+          <ScrollBar style={{ height: autoHeight ? "auto" : "100%", margin: "0px", padding: "0px" }} hideScrollbar={!scrollbars} overflow={autoHeight?'hidden':'scroll'}>
             <ReactResizeDetector
               onResize={(width?: number, height?: number) => {
                 if (height) setListHeight(height);
