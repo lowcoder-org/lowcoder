@@ -199,6 +199,7 @@ export const de: typeof en = {
       "component": "Komponente",
       "className": "Klasse",
       "dataTestId": "Test ID",
+      "horizontalGridCells": "Horizontale Gitterzellen",
   },
   "autoHeightProp": {
       ...en.autoHeightProp,

@@ -219,6 +219,7 @@ export const zh: typeof en = {
         "baseURL": "Lowcoder API 基本 URL",
         "horizontal": "水平",
         "minHorizontalWidth": "最小水平宽度",
+        "horizontalGridCells": "水平网格单元",
     },
 
     autoHeightProp: {

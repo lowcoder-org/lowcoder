@@ -61,6 +61,9 @@ export function listPropertyView(compType: ListCompType) {
 
         {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
           <><Section name={sectionNames.layout}>
+              {children.horizontalGridCells.propertyView({
+                label: trans('prop.horizontalGridCells'),
+              })}
               {children.autoHeight.getPropertyView()}
               {(!children.autoHeight.getView() || children.horizontal.getView()) && 
                 children.scrollbars.propertyView({

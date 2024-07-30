@@ -219,6 +219,7 @@ export const en = {
     "dataTestId": "Individual ID",
     "preventOverwriting": "Prevent overwriting styles",
     "color": "Color",
+    "horizontalGridCells": "Horizontal Grid Cells",
   },
   "autoHeightProp": {
     "auto": "Auto",
