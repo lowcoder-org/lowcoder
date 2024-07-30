@@ -207,7 +207,8 @@ const TableWrapper = styled.div<{
       }
 
       .ant-table-content {
-        overflow: unset !important;
+        overflow-y:scroll;
+        overflow-x:scroll;
       }
 
       // A table expand row contains table
