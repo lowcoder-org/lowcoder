@@ -16,4 +16,7 @@ apiRouter.post("/validatePluginDataSourceConfig", pluginControllers.validatePlug
 apiRouter.get("/npm/registry/*", npmControllers.fetchRegistry);
 apiRouter.get("/npm/package/*", npmControllers.fetchPackageFile);
 
+apiRouter.post("/npm/registry/*", npmControllers.fetchRegistryWithConfig);
+apiRouter.post("/npm/package/*", npmControllers.fetchPackageFileWithConfig);
+
 export default apiRouter;
