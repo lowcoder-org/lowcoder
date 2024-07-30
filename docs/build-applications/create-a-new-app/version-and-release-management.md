@@ -25,6 +25,10 @@ You can restore your current draft to a history version.
 
 <figure><img src="../../.gitbook/assets/App Editor  App Editing History.png" alt=""><figcaption></figcaption></figure>
 
+### Demo :&#x20;
+
+{% embed url="https://demos.lowcoder.cloud/demo/clye1mf9v0rpsthf7eufsfmrm" %}
+
 ## Release management
 
 Apps are usually upgraded on a regular basis to include new features, improve business processes, and correct failures. However, the development of a new version of an app takes time and you need to ensure that user experience is not affected during this progress.

@@ -134,6 +134,10 @@ When an app uses a module, you can configure how the current app reacts to the m
 
 The following example conducts event tests in the **Event Test** section.
 
+### Demo
+
+{% embed url="https://demos.lowcoder.cloud/demo/WtS5m4F_GPcJsUpRLfwRI" %}
+
 ## Permissions
 
 End users are automatically granted permission to view modules in apps or other modules they have viewing permissions with. If you are an editor and wish to use a module in external apps, you should at least have the viewer's role of that module.&#x20;
