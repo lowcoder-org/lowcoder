@@ -229,7 +229,8 @@ export const pt: typeof en = {
         "minHorizontalWidth": "Largura Horizontal Mínima",
         "component": "Identificadores de Componentes Próprios",
         "className": "Nome da Classe CSS",
-        "dataTestId": "ID Individual"
+        "dataTestId": "ID Individual",
+        "horizontalGridCells": "Células de grade horizontal",
     },
     "autoHeightProp": {
         ...en.autoHeightProp,

@@ -43,6 +43,7 @@ import { EditorContext } from "comps/editorState";
 import { disabledPropertyView, hiddenPropertyView } from "comps/utils/propertyUtils";
 import { DisabledContext } from "comps/generators/uiCompBuilder";
 import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
+import SliderControl from "@lowcoder-ee/comps/controls/sliderControl";
 
 const RowWrapper = styled(Row)<{
   $style: ResponsiveLayoutRowStyleType;
@@ -89,6 +90,7 @@ const childrenMap = {
     0: { view: {}, layout: {} },
     1: { view: {}, layout: {} },
   }),
+  horizontalGridCells: SliderControl,
   autoHeight: AutoHeightControl,
   rowBreak: withDefault(BoolControl, false),
   matchColumnsHeight: withDefault(BoolControl, true),
@@ -135,7 +137,8 @@ const ResponsiveLayout = (props: ResponsiveLayoutProps) => {
     columnPerRowSM,
     verticalSpacing,
     horizontalSpacing,
-    animationStyle
+    animationStyle,
+    horizontalGridCells,
   } = props;
 
   return (
@@ -171,6 +174,7 @@ const ResponsiveLayout = (props: ResponsiveLayoutProps) => {
                     positionParams={containerProps.positionParams.getView()}
                     dispatch={childDispatch}
                     autoHeight={props.autoHeight}
+                    horizontalGridCells={horizontalGridCells}
                     style={columnStyle}
                   />
                 </ColWrapper>
@@ -212,6 +216,9 @@ export const ResponsiveLayoutBaseComp = (function () {
             <>
             <Section name={sectionNames.layout}>
               {children.autoHeight.getPropertyView()}
+              {children.horizontalGridCells.propertyView({
+                label: trans('prop.horizontalGridCells'),
+              })}
             </Section>
             <Section name={trans("responsiveLayout.rowLayout")}>
               {children.rowBreak.propertyView({
