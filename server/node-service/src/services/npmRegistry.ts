@@ -108,4 +108,26 @@ export class NpmRegistryService {
 
         return config;
     }
+
+    public static getRegistryEntryForPackageWithConfig(packageName: string, registryConfig: NpmRegistryConfig): NpmRegistryConfigEntry {
+        registryConfig = NpmRegistryService.sortRegistryConfig(registryConfig);
+        const config: NpmRegistryConfigEntry | undefined = registryConfig.find(entry => {
+            if (entry.scope.type === "organization") {
+                return packageName.startsWith(entry.scope.pattern);
+            } else if (entry.scope.type === "package") {
+                return packageName === entry.scope.pattern;
+            } else {
+                return true;
+            }
+        });
+
+        if (!config) {
+            logger.info(`No registry entry found for package: ${packageName}`);
+            return NpmRegistryService.DEFAULT_REGISTRY;
+        } else {
+            logger.info(`Found registry entry for package: ${packageName} -> ${config.registry.url}`);
+        }
+
+        return config;
+    }
 }
