@@ -52,10 +52,9 @@ export const ColumnDropdownComp = (function () {
       );
 
       return (
-
         <Dropdown
           trigger={["click"]}
-          placement="bottom"
+          placement="bottomRight"
           menu={{items}}
           dropdownRender={() => menu}
         >
