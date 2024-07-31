@@ -186,7 +186,8 @@ export function ListView(props: Props) {
     [children.noOfRows]
   );
   const autoHeight = useMemo(() => children.autoHeight.getView(), [children.autoHeight]);
-  const scrollbars = useMemo(() => children.scrollbars.getView(), [children.scrollbars]);
+  const showHorizontalScrollbar = useMemo(() => children.showHorizontalScrollbar.getView(), [children.showHorizontalScrollbar]);
+  const showVerticalScrollbar = useMemo(() => children.showVerticalScrollbar.getView(), [children.showVerticalScrollbar]);
   const horizontal = useMemo(() => children.horizontal.getView(), [children.horizontal]);
   const minHorizontalWidth = useMemo(() => children.minHorizontalWidth.getView(), [children.minHorizontalWidth]);
   const noOfColumns = useMemo(
@@ -286,7 +287,7 @@ export function ListView(props: Props) {
     <BackgroundColorContext.Provider value={style.background}>
       <ListViewWrapper $style={style} $paddingWidth={paddingWidth} $animationStyle={animationStyle}>
         <BodyWrapper ref={ref} $autoHeight={autoHeight}>
-          <ScrollBar style={{ height: autoHeight ? "auto" : "100%", margin: "0px", padding: "0px" }} hideScrollbar={!scrollbars} overflow={autoHeight?'hidden':'scroll'}>
+          <ScrollBar style={{ height: autoHeight ? "auto" : "100%", margin: "0px", padding: "0px" }} hideScrollbar={horizontal?!showHorizontalScrollbar:!showVerticalScrollbar} overflow={autoHeight?horizontal?'scroll':'hidden':'scroll'}>
             <ReactResizeDetector
               onResize={(width?: number, height?: number) => {
                 if (height) setListHeight(height);
