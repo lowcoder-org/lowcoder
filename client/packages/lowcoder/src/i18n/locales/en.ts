@@ -1896,6 +1896,7 @@ export const en = {
     "links": "Links",
     "tag": "Tag",
     "select": "Select",
+    "dropdown": "Dropdown",
     "date": "Date",
     "dateTime": "Date Time",
     "badgeStatus": "Status",
