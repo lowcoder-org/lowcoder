@@ -75,7 +75,7 @@ export class NpmRegistryService {
             const config = JSON.parse(registryConfig);
             return NpmRegistryService.sortRegistryConfig(config);
         } catch (error) {
-            console.error("Error parsing registry config", error);
+            logger.error(`Error parsing NPM registry config: ${error}`);
             return [];
         }
     }
