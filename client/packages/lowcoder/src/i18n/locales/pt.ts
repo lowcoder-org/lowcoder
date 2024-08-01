@@ -1903,6 +1903,8 @@ export const pt: typeof en = {
         "showFilter": "Mostrar Botão de Filtro",
         "showRefresh": "Mostrar Botão de Atualização",
         "showDownload": "Mostrar Botão de Download",
+        "columnSeparator": "Separador de colunas",
+        "columnSeparatorTooltip": "Separador de colunas (\"delimitador\") no arquivo CSV baixado. \n\nRecomendações:\n- Vírgula (,)\n- Ponto e vírgula (;)\n- Barra vertical (|)\n- Tabulação (\\t)",
         "columnSetting": "Mostrar Botão de Configuração de Coluna",
         "searchText": "Texto de Busca",
         "searchTextTooltip": "Pesquisar e filtrar os dados apresentados na tabela",

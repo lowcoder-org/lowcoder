@@ -1403,6 +1403,8 @@ export const zh: typeof en = {
         showFilter: "显示筛选按钮",
         showRefresh: "显示刷新按钮",
         showDownload: "显示下载按钮",
+        columnSeparator: "柱分离器",
+        columnSeparatorTooltip: "下载的 CSV 文件中的列分隔符（\“分隔符\”）。 \n\n建议：\n- 逗号 (,)\n- 分号 (;)\n- 竖线 (|)\n- 制表符 (\\t)",
         columnSetting: "显示列设置按钮",
         searchText: "搜索文本",
         searchTextTooltip: "搜索和筛选在表格中呈现的数据",

@@ -1381,6 +1381,8 @@ export const de: typeof en = {
       "showFilter": "Schaltfläche Filter anzeigen",
       "showRefresh": "Schaltfläche \"Aktualisieren\" anzeigen",
       "showDownload": "Download-Schaltfläche anzeigen",
+      "columnSeparator": "Spaltentrennzeichen",
+      "columnSeparatorTooltip": "Spaltentrennzeichen („Trennzeichen“) in der heruntergeladenen CSV-Datei. \n\nEmpfehlungen:\n- Komma (,)\n- Semikolon (;)\n- Pipe (|)\n- Tabulator (\\t)",
       "columnSetting": "Schaltfläche Spalteneinstellung anzeigen",
       "searchText": "Text suchen",
       "searchTextTooltip": "Suche und Filterung der in der Tabelle dargestellten Daten",

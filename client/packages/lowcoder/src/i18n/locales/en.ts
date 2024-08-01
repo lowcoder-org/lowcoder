@@ -1836,6 +1836,8 @@ export const en = {
     "showFilter": "Show Filter Button",
     "showRefresh": "Show Refresh Button",
     "showDownload": "Show Download Button",
+    "columnSeparator": "Column Separator",
+    "columnSeparatorTooltip": "Column Separator (\"delimiter\") in downloaded CSV file. \n\nRecommendations:\n- Comma (,)\n- Semicolon (;)\n- Pipe (|)\n- Tab (\\t)",
     "columnSetting": "Show Column Setting Button",
     "searchText": "Search Text",
     "searchTextTooltip": "Search and Filter the Data Presented in the Table",

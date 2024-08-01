@@ -97,6 +97,7 @@ export class TableImplComp extends TableInitComp implements IContainer {
       data: (this as any).exposingValues["displayData"],
       filename: fileName,
       fileType: "csv",
+      delimiter: this.children.toolbar.children.columnSeparator.getView(),
     });
   }
 
