@@ -88,7 +88,7 @@ export function ShapeTriContainer(props: TriContainerProps) {
   // const { showHeader, showFooter } = container;
   // When the header and footer are not displayed, the body must be displayed
   const showBody = true;
-  const scrollbars = container.scrollbars;
+  const showVerticalScrollbar = container.showVerticalScrollbar;
 
   const { items: bodyItems, ...otherBodyProps } =
   container.body["0"].children.view.getView();
@@ -111,30 +111,30 @@ export function ShapeTriContainer(props: TriContainerProps) {
   }, [icon.props]);
 
   return (
-    <div style={{ padding: style.margin, height: "100%" }}>
+    <div style={{padding: style.margin, height: '100%'}}>
       <Wrapper $style={style}>
         <BackgroundColorContext.Provider value={bodyStyle.background}>
           <ScrollBar
             style={{
-              height: container.autoHeight ? "auto" : "100%",
-              margin: "0px",
-              padding: "0px",
+              height: container.autoHeight ? 'auto' : '100%',
+              margin: '0px',
+              padding: '0px',
             }}
-            hideScrollbar={!scrollbars}
+            hideScrollbar={!showVerticalScrollbar}
           >
-            <div style={{ position: "relative", height: "100%" }}>
-              <StylesShape 
+            <div style={{position: 'relative', height: '100%'}}>
+              <StylesShape
                 $style={style}
                 type={shape?.value as any}
                 noise={false}
                 index={shape.index}
                 styles={{
-                  position: "absolute",
-                  top: "0",
-                  left: "50%",
-                  transform: "translateX(-50%)",
+                  position: 'absolute',
+                  top: '0',
+                  left: '50%',
+                  transform: 'translateX(-50%)',
                   width: widthCalculator(style.margin),
-                  height: "100%",
+                  height: '100%',
                 }}
               />
               <BodyInnerGrid
@@ -143,9 +143,9 @@ export function ShapeTriContainer(props: TriContainerProps) {
                 items={gridItemCompToGridItems(bodyItems)}
                 autoHeight={container.autoHeight}
                 emptyRows={14}
-                minHeight={"142px"}
+                minHeight={'142px'}
                 hintPlaceholder={props.hintPlaceholder ?? HintPlaceHolder}
-                $backgroundColor={bodyStyle?.background || "transparent"}
+                $backgroundColor={bodyStyle?.background || 'transparent'}
                 $borderColor={style?.border}
                 $borderWidth={style?.borderWidth}
                 $backgroundImage={bodyStyle?.backgroundImage}
