@@ -1039,7 +1039,7 @@ export const InputLikeStyle = [
   getStaticBackground(SURFACE_COLOR),
   BOXSHADOW,
   BOXSHADOWCOLOR,
-  ...STYLING_FIELDS_SEQUENCE.filter(style=>style.name!=='rotation'),
+  ...STYLING_FIELDS_SEQUENCE.filter((style)=>style.name!=='rotation' && style.name!=='lineHeight'),
   ...ACCENT_VALIDATE,
 ] as const;
 
@@ -1138,6 +1138,7 @@ export const startButtonStyle = [
 export const LabelStyle = [
   ...replaceAndMergeMultipleStyles([...InputLikeStyle], "text", [LABEL]).filter(
     (style) => style.name !== "radius" && style.name !== "background" && style.name!=='rotation' && style.name !== "boxShadow"&&style.name!=='boxShadowColor'
+    &&style.name!=='lineHeight'
   ),
 ];
 
