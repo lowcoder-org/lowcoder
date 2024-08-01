@@ -62,12 +62,12 @@ export function listPropertyView(compType: ListCompType) {
         {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
           <><Section name={sectionNames.layout}>
               {children.autoHeight.getPropertyView()}
-              {(!children.autoHeight.getView()) && 
+              {(!children.autoHeight.getView()) && !children.horizontal.getView()&&
                 children.showVerticalScrollbar.propertyView({
                 label: trans("prop.showVerticalScrollbar"),
                }  
               )}
-              {(!children.autoHeight.getView() || children.horizontal.getView()) && 
+              {(children.horizontal.getView()) && 
                 children.showHorizontalScrollbar.propertyView({
                 label: trans("prop.showHorizontalScrollbar"),
                }  
