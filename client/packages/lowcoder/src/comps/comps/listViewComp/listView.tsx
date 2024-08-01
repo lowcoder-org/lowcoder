@@ -98,6 +98,7 @@ type ListItemProps = {
   itemIdx: number;
   offset: number;
   containerProps: ConstructorToView<typeof SimpleContainerComp>;
+  horizontalGridCells?: number,
   autoHeight: boolean;
   scrollContainerRef?: RefObject<HTMLDivElement>;
   minHeight?: string;
@@ -117,7 +118,8 @@ function ListItem({
     containerProps,
     autoHeight,
     scrollContainerRef,
-    minHeight
+    minHeight,
+    horizontalGridCells,
   } = props;
 
   // disable the unmount function to save user's state with pagination
@@ -138,6 +140,7 @@ function ListItem({
         <ContainerInListView
           layout={containerProps.layout}
           items={gridItemCompToGridItems(containerProps.items)}
+          horizontalGridCells={horizontalGridCells}
           positionParams={containerProps.positionParams}
           // all layout changes should only reflect on the commonContainer
           dispatch={itemIdx === offset ? containerProps.dispatch : _.noop}
@@ -186,6 +189,7 @@ export function ListView(props: Props) {
     () => getData(children.noOfRows.getView()),
     [children.noOfRows]
   );
+  const horizontalGridCells = useMemo(() => children.horizontalGridCells.getView(), [children.horizontalGridCells]);
   const autoHeight = useMemo(() => children.autoHeight.getView(), [children.autoHeight]);
   const showHorizontalScrollbar = useMemo(() => children.showHorizontalScrollbar.getView(), [children.showHorizontalScrollbar]);
   const showVerticalScrollbar = useMemo(() => children.showVerticalScrollbar.getView(), [children.showVerticalScrollbar]);
@@ -261,6 +265,7 @@ export function ListView(props: Props) {
                 itemIdx={itemIdx}
                 offset={pageInfo.offset}
                 containerProps={containerProps}
+                horizontalGridCells={horizontalGridCells}
                 autoHeight={isDragging || dynamicHeight}
                 scrollContainerRef={ref}
                 minHeight={minHeight}

@@ -1777,7 +1777,7 @@ var CodeNode = /** @class */ (function (_super) {
                     return;
                 }
                 // wait for lazy loaded comps to load before executing query on page load
-                if (!Object.keys(value).length) {
+                if (!Object.keys(value).length && paths.size) {
                   isFetching_1 = true;
                   ready_1 = false;
                 }

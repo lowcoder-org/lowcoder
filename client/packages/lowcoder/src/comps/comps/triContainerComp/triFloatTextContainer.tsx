@@ -152,7 +152,7 @@ export type TriContainerProps = TriContainerViewProps & {
 
 export function TriContainer(props: TriContainerProps) {
   const {container, text, animationStyle} = props;
-  const { showHeader, showFooter } = container;
+  const { showHeader, showFooter, horizontalGridCells } = container;
   // When the header and footer are not displayed, the body must be displayed
   const showBody = container.showBody || (!showHeader && !showFooter);
 
@@ -180,15 +180,16 @@ export function TriContainer(props: TriContainerProps) {
           value={container.style.background}
         >
           <HeaderInnerGrid
-              {...otherHeaderProps}
-              items={gridItemCompToGridItems(headerItems)}
-              autoHeight={true}
-              emptyRows={5}
-              minHeight="46px"
-              containerPadding={[0, 0]}
-              showName={{ bottom: showFooter ? 20 : 0 }}
-              $backgroundColor={headerStyle?.headerBackground || 'transparent'}
-              style={{ padding: headerStyle.containerHeaderPadding}} />
+            {...otherHeaderProps}
+            horizontalGridCells={horizontalGridCells}
+            items={gridItemCompToGridItems(headerItems)}
+            autoHeight={true}
+            emptyRows={5}
+            minHeight="46px"
+            containerPadding={[0, 0]}
+            showName={{ bottom: showFooter ? 20 : 0 }}
+            $backgroundColor={headerStyle?.headerBackground || 'transparent'}
+            style={{ padding: headerStyle.containerHeaderPadding}} />
         </BackgroundColorContext.Provider>
       )}
       {showBody && (
@@ -202,6 +203,7 @@ export function TriContainer(props: TriContainerProps) {
             <BodyInnerGrid
               $showBorder={false}
               {...otherBodyProps}
+              horizontalGridCells={horizontalGridCells}
               items={gridItemCompToGridItems(bodyItems)}
               autoHeight={container.autoHeight}
               emptyRows={14}
@@ -240,6 +242,7 @@ export function TriContainer(props: TriContainerProps) {
           <FooterInnerGrid
             $showBorder={showHeader}
             {...otherFooterProps}
+            horizontalGridCells={horizontalGridCells}
             items={gridItemCompToGridItems(footerItems)}
             autoHeight={true}
             emptyRows={5}

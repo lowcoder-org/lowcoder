@@ -39,6 +39,7 @@ import { ListView } from "./listView";
 import { listPropertyView } from "./listViewPropertyView";
 import { getData } from "./listViewUtils";
 import { withMethodExposing } from "comps/generators/withMethodExposing";
+import SliderControl from "@lowcoder-ee/comps/controls/sliderControl";
 
 const childrenMap = {
   noOfRows: withIsLoadingMethod(NumberOrJSONObjectArrayControl), // FIXME: migrate "noOfRows" to "data"
@@ -51,6 +52,8 @@ const childrenMap = {
   autoHeight: AutoHeightControl,
   showVerticalScrollbar: withDefault(BoolControl, false),
   showHorizontalScrollbar: withDefault(BoolControl, false),
+  horizontalGridCells: SliderControl,
+  scrollbars: withDefault(BoolControl, false), //TOLOOK INTO
   showBorder: BoolControl,
   pagination: withDefault(PaginationControl, { pageSize: "6" }),
   style: styleControl(ListViewStyle, 'style'),

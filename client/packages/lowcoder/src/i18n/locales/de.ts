@@ -199,6 +199,7 @@ export const de: typeof en = {
       "component": "Komponente",
       "className": "Klasse",
       "dataTestId": "Test ID",
+      "horizontalGridCells": "Horizontale Gitterzellen",
   },
   "autoHeightProp": {
       ...en.autoHeightProp,
@@ -2079,7 +2080,9 @@ export const de: typeof en = {
       "preloadLibsAddBtn": "Eine Bibliothek hinzufügen",
       "saveSuccess": "Erfolgreich gerettet",
       "AuthOrgTitle": "Willkommensbildschirm des Arbeitsbereichs",
-      "AuthOrgDescrition": "Die URL, unter der sich deine Nutzer beim aktuellen Arbeitsbereich anmelden können."
+      "AuthOrgDescrition": "Die URL, unter der sich deine Nutzer beim aktuellen Arbeitsbereich anmelden können.",
+      "showHeaderInPublicApps": "Kopfzeile öffentlich anzeigen",
+      "showHeaderInPublicAppsHelp": "Legen Sie die Sichtbarkeit des Headers in der öffentlichen Ansicht für alle Apps fest",
   },
   "branding": {
       ...en.branding,

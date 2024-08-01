@@ -207,7 +207,8 @@ const TableWrapper = styled.div<{
       }
 
       .ant-table-content {
-        overflow: unset !important;
+        overflow-y:scroll;
+        overflow-x:scroll;
       }
 
       // A table expand row contains table
@@ -359,7 +360,7 @@ const TableTd = styled.td<{
     color: ${(props) => props.$style.text};
     font-weight: ${(props) => props.$style.textWeight};
     font-family: ${(props) => props.$style.fontFamily};
-    
+    overflow: hidden; 
     ${(props) => props.$tableSize === 'small' && `
       padding: 1px 8px;
       font-size: ${props.$defaultThemeDetail.textSize == props.$style.textSize ? '14px !important' : props.$style.textSize + ' !important'};

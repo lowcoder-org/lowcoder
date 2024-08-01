@@ -229,7 +229,8 @@ export const pt: typeof en = {
         "minHorizontalWidth": "Largura Horizontal Mínima",
         "component": "Identificadores de Componentes Próprios",
         "className": "Nome da Classe CSS",
-        "dataTestId": "ID Individual"
+        "dataTestId": "ID Individual",
+        "horizontalGridCells": "Células de grade horizontal",
     },
     "autoHeightProp": {
         ...en.autoHeightProp,
@@ -2660,7 +2661,9 @@ export const pt: typeof en = {
         "APIConsumption": "Consumo de API",
         "APIConsumptionDescription": "Aqui você pode ver o consumo de API para todas as aplicações no espaço de trabalho atual.",
         "overallAPIConsumption": "Consumo geral de API neste espaço de trabalho até o momento",
-        "lastMonthAPIConsumption": "Consumo de API do último mês, neste espaço de trabalho"
+        "lastMonthAPIConsumption": "Consumo de API do último mês, neste espaço de trabalho",
+        "showHeaderInPublicApps": "Mostrar cabeçalho em exibição pública",
+        "showHeaderInPublicAppsHelp": "Defina a visibilidade do cabeçalho em exibição pública para todos os aplicativos",
     },
 
 

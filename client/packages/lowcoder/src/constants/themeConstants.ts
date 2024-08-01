@@ -12,6 +12,7 @@ const theme = {
   borderStyle: "solid",
   margin: "3px",
   padding: "3px",
+  lineHeight: "18px",
   gridColumns: "24",
   textSize: "14px",
   // text: "#222222",
@@ -33,7 +34,7 @@ const text = {
 const input = {
   style: {
     borderWidth: '0px',
-    background: 'transparent',
+    background: 'transparent',  
   },
   labelStyle: {
     borderWidth: '0px',
@@ -41,6 +42,7 @@ const input = {
   inputFieldStyle: {
     // borderWidth: '1px',
     border: theme.border,
+    lineHeight: theme.lineHeight,
   }
 };
 

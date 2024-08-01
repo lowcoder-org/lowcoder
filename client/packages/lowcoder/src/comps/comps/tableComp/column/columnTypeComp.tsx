@@ -20,6 +20,7 @@ import { SimpleTextComp } from "./columnTypeComps/simpleTextComp";
 import { ColumnNumberComp } from "./columnTypeComps/ColumnNumberComp";
 
 import { ColumnAvatarsComp } from "./columnTypeComps/columnAvatarsComp";
+import { ColumnDropdownComp } from "./columnTypeComps/columnDropdownComp";
 
 const actionOptions = [
   {
@@ -49,6 +50,10 @@ const actionOptions = [
   {
     label: trans("table.select"),
     value: "select",
+  },
+  {
+    label: trans("table.dropdown"),
+    value: "dropdown",
   },
   {
     label: trans("table.badgeStatus"),
@@ -101,6 +106,7 @@ export const ColumnTypeCompMap = {
   link: LinkComp,
   tag: ColumnTagsComp,
   select: ColumnSelectComp,
+  dropdown: ColumnDropdownComp,
   links: ColumnLinksComp,
   image: ImageComp,
   markdown: ColumnMarkdownComp,

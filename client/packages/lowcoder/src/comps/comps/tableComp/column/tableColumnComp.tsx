@@ -86,6 +86,7 @@ export type CellColorViewType = (param: {
 export const columnChildrenMap = {
   // column title
   title: StringControl,
+  tooltip: StringControl,
   showTitle: withDefault(BoolControl, true),
   // a custom column or a data column
   isCustom: valueComp<boolean>(false),
@@ -206,6 +207,9 @@ export class ColumnComp extends ColumnInitComp {
         {this.children.title.propertyView({
           label: trans("table.columnTitle"),
           placeholder: this.children.dataIndex.getView(),
+        })}
+        {this.children.tooltip.propertyView({
+          label: trans("labelProp.tooltip"),
         })}
         <Dropdown
           showSearch={true}

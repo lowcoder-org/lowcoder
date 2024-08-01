@@ -22,6 +22,7 @@ import { isNumeric } from "util/stringUtils";
 import { NameConfig, withExposingConfigs } from "../generators/withExposing";
 import { BoolControl } from "comps/controls/boolControl";
 import { withDefault } from "comps/generators";
+import SliderControl from "../controls/sliderControl";
 
 const EventOptions = [
   { label: trans("modalComp.close"), value: "close", description: trans("modalComp.closeDesc") },
@@ -99,6 +100,7 @@ let TmpModalComp = (function () {
       onEvent: eventHandlerControl(EventOptions),
       width: StringControl,
       height: StringControl,
+      horizontalGridCells: SliderControl,
       autoHeight: AutoHeightControl,
       title: StringControl,
       titleAlign: HorizontalAlignmentControl,
@@ -176,6 +178,7 @@ let TmpModalComp = (function () {
               <InnerGrid
                 {...otherContainerProps}
                 items={gridItemCompToGridItems(items)}
+                horizontalGridCells={props.horizontalGridCells}
                 autoHeight={props.autoHeight}
                 minHeight={paddingValues ? DEFAULT_HEIGHT - paddingValues[0] * 2 + "px" : ""}
                 containerPadding={paddingValues ? [paddingValues[0] ?? 0, paddingValues[1] ?? 0] : [24,24]}
@@ -192,6 +195,9 @@ let TmpModalComp = (function () {
         <Section name={sectionNames.basic}>
           {children.title.propertyView({ label: trans("modalComp.title") })}
           {children.title.getView() && children.titleAlign.propertyView({ label: trans("modalComp.titleAlign"), radioButton: true })}
+          {children.horizontalGridCells.propertyView({
+            label: trans('prop.horizontalGridCells'),
+          })}
           {children.autoHeight.getPropertyView()}
           {!children.autoHeight.getView() &&
             children.height.propertyView({

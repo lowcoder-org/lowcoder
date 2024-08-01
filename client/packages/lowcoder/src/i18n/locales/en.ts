@@ -221,6 +221,7 @@ export const en = {
     "dataTestId": "Individual ID",
     "preventOverwriting": "Prevent overwriting styles",
     "color": "Color",
+    "horizontalGridCells": "Horizontal Grid Cells",
   },
   "autoHeightProp": {
     "auto": "Auto",
@@ -547,6 +548,7 @@ export const en = {
     "headerText": "Header Text Color",
     "labelColor": "Label Color",
     "label": "Label Color",
+    "lineHeight":"Line Height",
     "subTitleColor": "SubTitle Color",
     "titleText": "Title Color",
     "success": "Success Color",
@@ -1896,6 +1898,7 @@ export const en = {
     "links": "Links",
     "tag": "Tag",
     "select": "Select",
+    "dropdown": "Dropdown",
     "date": "Date",
     "dateTime": "Date Time",
     "badgeStatus": "Status",
@@ -2602,8 +2605,9 @@ export const en = {
     "APIConsumption": "API Consumption",
     "APIConsumptionDescription": "Here you can see the API Consumption for All Apps in the Current Workspace.",
     "overallAPIConsumption": "Overall API Consumption in this Workspace till now",
-    "lastMonthAPIConsumption": "Last Month API Consumption, in this Workspace"
-
+    "lastMonthAPIConsumption": "Last Month API Consumption, in this Workspace",
+    "showHeaderInPublicApps": "Show Header In Public View",
+    "showHeaderInPublicAppsHelp": "Set visibility of header in public view for all apps",
   },
 
 

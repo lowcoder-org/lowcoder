@@ -125,7 +125,6 @@ export async function runOpenApi(
       securities,
       responseContentType: "application/json",
       userFetch: async (url: string, req: RequestInit) => {
-        console.log("req", req);
         return fetch(url, req);
       },
       requestInterceptor: (req: any) => {

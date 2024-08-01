@@ -28,6 +28,7 @@ import { ContainerBodyChildComp } from "./containerBodyChildComp";
 import { trans } from "i18n";
 import { ControlNode } from "lowcoder-design";
 import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
+import SliderControl from "@lowcoder-ee/comps/controls/sliderControl";
 
 const childrenMap = {
   header: SimpleContainerComp,
@@ -41,6 +42,8 @@ const childrenMap = {
   showFooter: BoolControl,
   autoHeight: AutoHeightControl,
   showVerticalScrollbar: withDefault(BoolControl, false),
+  horizontalGridCells: SliderControl,
+  scrollbars: withDefault(BoolControl, false), //TOLOOK INTO
   style: withDefault(styleControl(ContainerStyle, 'style'),{borderWidth:'1px'}),
   headerStyle: styleControl(ContainerHeaderStyle, 'headerStyle'),
   bodyStyle: styleControl(ContainerBodyStyle, 'bodyStyle'),
@@ -121,7 +124,11 @@ export class TriContainerComp extends TriContainerBaseComp implements IContainer
   }
 
   getPropertyView(): ControlNode {    
-    return [this.areaPropertyView(), this.heightPropertyView()];
+    return [
+      this.areaPropertyView(),
+      this.heightPropertyView(),
+      this.gridPropertyView(),
+    ];
   }
 
   areaPropertyView() {
@@ -129,7 +136,6 @@ export class TriContainerComp extends TriContainerBaseComp implements IContainer
       this.children.showHeader.propertyView({ label: trans("prop.showHeader") }),
       this.children.showBody.propertyView({ label: trans("prop.showBody") }),
       this.children.showFooter.propertyView({ label: trans("prop.showFooter") }),
-      
     ];
   }
 
@@ -138,6 +144,14 @@ export class TriContainerComp extends TriContainerBaseComp implements IContainer
       this.children.autoHeight.getPropertyView(),
       (!this.children.autoHeight.getView()) && this.children.showVerticalScrollbar.propertyView({ label: trans("prop.showVerticalScrollbar") })
     ];
+  }
+
+  gridPropertyView() {
+    return [
+      this.children.horizontalGridCells.propertyView({
+        label: trans('prop.horizontalGridCells'),
+      }),
+    ]
   }
 
   stylePropertyView() {
