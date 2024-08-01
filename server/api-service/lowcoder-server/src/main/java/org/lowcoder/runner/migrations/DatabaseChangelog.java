@@ -36,6 +36,7 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 
+import java.time.Instant;
 import java.util.Set;
 
 import static org.lowcoder.domain.util.QueryDslUtils.fieldName;
@@ -239,6 +240,30 @@ public class DatabaseChangelog {
 
                 // Update the document with the new 'gid' field
                 mongoTemplate.updateFirst(idQuery, update, "user");
+            }
+        });
+    }
+
+    @ChangeSet(order = "024", id = "fill-create-at", author = "")
+    public void fillCreateAt(MongockTemplate mongoTemplate) {
+        // Create a query to match all documents
+        Query query = new Query();
+
+        // Use a DocumentCallbackHandler to iterate through each document
+        mongoTemplate.executeQuery(query, "folder", new DocumentCallbackHandler() {
+            @Override
+            public void processDocument(Document document) {
+                Object object = document.get("createdAt");
+                if(object != null) return;
+                // Create an update object to add the 'gid' field
+                Update update = new Update();
+                update.set("createdAt", Instant.now());
+
+                // Create a query to match the current document by its _id
+                Query idQuery = new Query(Criteria.where("_id").is(document.getObjectId("_id")));
+
+                // Update the document with the new 'gid' field
+                mongoTemplate.updateFirst(idQuery, update, "folder");
             }
         });
     }
