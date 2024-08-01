@@ -7,7 +7,7 @@ import org.lowcoder.api.bundle.view.MarketplaceBundleInfoView;
 import org.lowcoder.api.framework.view.ResponseView;
 import org.lowcoder.api.home.UserHomeApiService;
 import org.lowcoder.api.util.BusinessEventPublisher;
-import org.lowcoder.api.util.GIDUtil;
+import org.lowcoder.api.util.GidService;
 import org.lowcoder.domain.application.model.ApplicationType;
 import org.lowcoder.domain.bundle.model.Bundle;
 import org.lowcoder.domain.bundle.model.BundleRequestType;
@@ -34,7 +34,7 @@ public class BundleController implements BundleEndpoints
     private final BundleApiService bundleApiService;
     private final BusinessEventPublisher businessEventPublisher;
     private final UserHomeApiService userHomeApiService;
-    private final GIDUtil gidUtil;
+    private final GidService gidService;
 
     @Override
     public Mono<ResponseView<BundleInfoView>> create(@RequestBody CreateBundleRequest bundle) {
@@ -46,7 +46,7 @@ public class BundleController implements BundleEndpoints
 
     @Override
     public Mono<ResponseView<Void>> delete(@PathVariable("id") String bundleId) {
-        String objectId = gidUtil.convertBundleIdToObjectId(bundleId);
+        String objectId = gidService.convertBundleIdToObjectId(bundleId);
         return bundleApiService.delete(objectId)
 //                .delayUntil(f -> businessEventPublisher.publishBundleCommonEvent(f.getId(), f.getName(), EventType.BUNDLE_DELETE))
                 .then(Mono.fromSupplier(() -> ResponseView.success(null)));
@@ -69,13 +69,13 @@ public class BundleController implements BundleEndpoints
 
     @Override
     public Mono<ResponseView<BundleInfoView>> publish(@PathVariable String bundleId) {
-        String objectId = gidUtil.convertBundleIdToObjectId(bundleId);
+        String objectId = gidService.convertBundleIdToObjectId(bundleId);
         return bundleApiService.publish(objectId).map(ResponseView::success);
     }
 
     @Override
     public Mono<ResponseView<Boolean>> recycle(@PathVariable String bundleId) {
-        String objectId = gidUtil.convertBundleIdToObjectId(bundleId);
+        String objectId = gidService.convertBundleIdToObjectId(bundleId);
         return bundleApiService.recycle(objectId)
 //                .delayUntil(__ -> businessEventPublisher.publishBundleCommonEvent(bundleId, null, BUNDLE_RECYCLED))
                 .map(ResponseView::success);
@@ -83,7 +83,7 @@ public class BundleController implements BundleEndpoints
 
     @Override
     public Mono<ResponseView<Boolean>> restore(@PathVariable String bundleId) {
-        String objectId = gidUtil.convertBundleIdToObjectId(bundleId);
+        String objectId = gidService.convertBundleIdToObjectId(bundleId);
         return bundleApiService.restore(objectId)
 //                .delayUntil(__ -> businessEventPublisher.publishBundleCommonEvent(bundleId, null, BUNDLE_RESTORE))
                 .map(ResponseView::success);
@@ -102,7 +102,7 @@ public class BundleController implements BundleEndpoints
     @Override
     public Mono<ResponseView<List<?>>> getElements(@PathVariable String bundleId,
             @RequestParam(value = "applicationType", required = false) ApplicationType applicationType) {
-        String objectId = gidUtil.convertBundleIdToObjectId(bundleId);
+        String objectId = gidService.convertBundleIdToObjectId(bundleId);
         return bundleApiService.getElements(objectId, applicationType)
                 .collectList()
                 .map(ResponseView::success);
@@ -112,9 +112,9 @@ public class BundleController implements BundleEndpoints
     public Mono<ResponseView<Void>> moveApp(@PathVariable("id") String applicationId,
                                             @RequestParam(value = "fromBundleId") String fromBundleId,
                                             @RequestParam(value = "toBundleId") String toBundleId) {
-        String objectIdFrom = gidUtil.convertBundleIdToObjectId(fromBundleId);
-        String objectIdTo = gidUtil.convertBundleIdToObjectId(toBundleId);
-        String appId = gidUtil.convertApplicationIdToObjectId(applicationId);
+        String objectIdFrom = gidService.convertBundleIdToObjectId(fromBundleId);
+        String objectIdTo = gidService.convertBundleIdToObjectId(toBundleId);
+        String appId = gidService.convertApplicationIdToObjectId(applicationId);
         return bundleApiService.moveApp(appId, objectIdFrom, objectIdTo)
                 //TODO: Event Type not defined yet
 //                .then(businessEventPublisher.publishBundleCommonEvent(applicationLikeId, targetBundleId, BUNDLE_MOVE))
@@ -124,8 +124,8 @@ public class BundleController implements BundleEndpoints
     @Override
     public Mono<ResponseView<Void>> addApp(@PathVariable("id") String applicationId,
                                             @RequestParam(value = "toBundleId") String toBundleId) {
-        String objectIdTo = gidUtil.convertBundleIdToObjectId(toBundleId);
-        String appId = gidUtil.convertApplicationIdToObjectId(applicationId);
+        String objectIdTo = gidService.convertBundleIdToObjectId(toBundleId);
+        String appId = gidService.convertApplicationIdToObjectId(applicationId);
         return bundleApiService.addApp(appId, objectIdTo)
                 .then(Mono.fromSupplier(() -> ResponseView.success(null)));
     }
@@ -133,7 +133,7 @@ public class BundleController implements BundleEndpoints
     @Override
     public Mono<ResponseView<Void>> reorder(@PathVariable("bundleId") String bundleId,
                                             @RequestParam(value = "elementIds", required = true) List<String> elementIds) {
-        String objectId = gidUtil.convertBundleIdToObjectId(bundleId);
+        String objectId = gidService.convertBundleIdToObjectId(bundleId);
         return bundleApiService.reorder(objectId, elementIds)
                 .then(Mono.fromSupplier(() -> ResponseView.success(null)));
     }
@@ -141,7 +141,7 @@ public class BundleController implements BundleEndpoints
     public Mono<ResponseView<Void>> updatePermission(@PathVariable String bundleId,
             @PathVariable String permissionId,
             @RequestBody UpdatePermissionRequest updatePermissionRequest) {
-        String objectId = gidUtil.convertBundleIdToObjectId(bundleId);
+        String objectId = gidService.convertBundleIdToObjectId(bundleId);
         ResourceRole role = ResourceRole.fromValue(updatePermissionRequest.role());
         if (role == null) {
             return ofError(INVALID_PARAMETER, "INVALID_PARAMETER", updatePermissionRequest);
@@ -155,7 +155,7 @@ public class BundleController implements BundleEndpoints
     public Mono<ResponseView<Void>> removePermission(
             @PathVariable String bundleId,
             @PathVariable String permissionId) {
-        String objectId = gidUtil.convertBundleIdToObjectId(bundleId);
+        String objectId = gidService.convertBundleIdToObjectId(bundleId);
 
         return bundleApiService.removePermission(objectId, permissionId)
                 .then(Mono.fromSupplier(() -> ResponseView.success(null)));
@@ -165,7 +165,7 @@ public class BundleController implements BundleEndpoints
     public Mono<ResponseView<Void>> grantPermission(
             @PathVariable String bundleId,
             @RequestBody BatchAddPermissionRequest request) {
-        String objectId = gidUtil.convertBundleIdToObjectId(bundleId);
+        String objectId = gidService.convertBundleIdToObjectId(bundleId);
         ResourceRole role = ResourceRole.fromValue(request.role());
         if (role == null) {
             return ofError(INVALID_PARAMETER, "INVALID_PARAMETER", request.role());
@@ -176,14 +176,14 @@ public class BundleController implements BundleEndpoints
 
     @Override
     public Mono<ResponseView<BundlePermissionView>> getBundlePermissions(@PathVariable String bundleId) {
-        String objectId = gidUtil.convertBundleIdToObjectId(bundleId);
+        String objectId = gidService.convertBundleIdToObjectId(bundleId);
         return bundleApiService.getPermissions(objectId)
                 .map(ResponseView::success);
     }
 
     @Override
     public Mono<ResponseView<BundleInfoView>> getPublishedBundle(@PathVariable String bundleId) {
-        String objectId = gidUtil.convertBundleIdToObjectId(bundleId);
+        String objectId = gidService.convertBundleIdToObjectId(bundleId);
         return bundleApiService.getPublishedBundle(objectId, BundleRequestType.PUBLIC_TO_ALL)
 //                .delayUntil(bundleView -> businessEventPublisher.publishBundleCommonEvent(bundleView, BUNDLE_VIEW))
                 .map(ResponseView::success);
@@ -191,7 +191,7 @@ public class BundleController implements BundleEndpoints
 
     @Override
     public Mono<ResponseView<BundleInfoView>> getPublishedMarketPlaceBundle(@PathVariable String bundleId) {
-        String objectId = gidUtil.convertBundleIdToObjectId(bundleId);
+        String objectId = gidService.convertBundleIdToObjectId(bundleId);
         return bundleApiService.getPublishedBundle(objectId, BundleRequestType.PUBLIC_TO_MARKETPLACE)
 //                .delayUntil(bundleView -> businessEventPublisher.publishBundleCommonEvent(bundleView, BUNDLE_VIEW))
                 .map(ResponseView::success);
@@ -199,7 +199,7 @@ public class BundleController implements BundleEndpoints
 
     @Override
     public Mono<ResponseView<BundleInfoView>> getAgencyProfileBundle(@PathVariable String bundleId) {
-        String objectId = gidUtil.convertBundleIdToObjectId(bundleId);
+        String objectId = gidService.convertBundleIdToObjectId(bundleId);
         return bundleApiService.getPublishedBundle(objectId, BundleRequestType.AGENCY_PROFILE)
 //                .delayUntil(bundleView -> businessEventPublisher.publishBundleCommonEvent(bundleView, BUNDLE_VIEW))
                 .map(ResponseView::success);
@@ -229,7 +229,7 @@ public class BundleController implements BundleEndpoints
     @Override
     public Mono<ResponseView<Boolean>> setBundlePublicToAll(@PathVariable String bundleId,
                                                                  @RequestBody BundleEndpoints.BundlePublicToAllRequest request) {
-        String objectId = gidUtil.convertBundleIdToObjectId(bundleId);
+        String objectId = gidService.convertBundleIdToObjectId(bundleId);
         return bundleApiService.setBundlePublicToAll(objectId, request.publicToAll())
                 .map(ResponseView::success);
     }
@@ -237,7 +237,7 @@ public class BundleController implements BundleEndpoints
     @Override
     public Mono<ResponseView<Boolean>> setBundlePublicToMarketplace(@PathVariable String bundleId,
                                                                          @RequestBody BundleEndpoints.BundlePublicToMarketplaceRequest request) {
-        String objectId = gidUtil.convertBundleIdToObjectId(bundleId);
+        String objectId = gidService.convertBundleIdToObjectId(bundleId);
         return bundleApiService.setBundlePublicToMarketplace(objectId, request)
                 .map(ResponseView::success);
     }
@@ -245,7 +245,7 @@ public class BundleController implements BundleEndpoints
     @Override
     public Mono<ResponseView<Boolean>> setBundleAsAgencyProfile(@PathVariable String bundleId,
                                                                      @RequestBody BundleEndpoints.BundleAsAgencyProfileRequest request) {
-        String objectId = gidUtil.convertBundleIdToObjectId(bundleId);
+        String objectId = gidService.convertBundleIdToObjectId(bundleId);
         return bundleApiService.setBundleAsAgencyProfile(objectId, request.agencyProfile())
                 .map(ResponseView::success);
     }

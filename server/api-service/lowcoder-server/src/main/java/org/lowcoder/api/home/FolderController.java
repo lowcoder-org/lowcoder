@@ -9,16 +9,12 @@ import java.util.List;
 import org.lowcoder.api.application.view.ApplicationPermissionView;
 import org.lowcoder.api.framework.view.ResponseView;
 import org.lowcoder.api.util.BusinessEventPublisher;
-import org.lowcoder.api.util.GIDUtil;
+import org.lowcoder.api.util.GidService;
 import org.lowcoder.domain.application.model.ApplicationType;
 import org.lowcoder.domain.folder.model.Folder;
 import org.lowcoder.domain.folder.service.FolderService;
 import org.lowcoder.domain.permission.model.ResourceRole;
-import org.lowcoder.infra.constant.NewUrl;
 import org.lowcoder.plugin.api.event.LowcoderEvent.EventType;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -35,7 +31,7 @@ public class FolderController implements FolderEndpoints
     private final FolderService folderService;
     private final FolderApiService folderApiService;
     private final BusinessEventPublisher businessEventPublisher;
-    private final GIDUtil gidUtil;
+    private final GidService gidService;
 
     @Override
     public Mono<ResponseView<FolderInfoView>> create(@RequestBody Folder folder) {
@@ -47,7 +43,7 @@ public class FolderController implements FolderEndpoints
 
     @Override
     public Mono<ResponseView<Void>> delete(@PathVariable("id") String folderId) {
-        String objectId = gidUtil.convertFolderIdToObjectId(folderId);
+        String objectId = gidService.convertFolderIdToObjectId(folderId);
         return folderApiService.delete(objectId)
                 .delayUntil(f -> businessEventPublisher.publishFolderCommonEvent(f.getId(), f.getName(), EventType.FOLDER_DELETE))
                 .then(Mono.fromSupplier(() -> ResponseView.success(null)));
@@ -74,7 +70,7 @@ public class FolderController implements FolderEndpoints
     @Override
     public Mono<ResponseView<List<?>>> getElements(@RequestParam(value = "id", required = false) String folderId,
             @RequestParam(value = "applicationType", required = false) ApplicationType applicationType) {
-        String objectId = gidUtil.convertFolderIdToObjectId(folderId);
+        String objectId = gidService.convertFolderIdToObjectId(folderId);
         return folderApiService.getElements(objectId, applicationType)
                 .collectList()
                 .delayUntil(__ -> folderApiService.upsertLastViewTime(objectId))
@@ -84,7 +80,7 @@ public class FolderController implements FolderEndpoints
     @Override
     public Mono<ResponseView<Void>> move(@PathVariable("id") String applicationLikeId,
             @RequestParam(value = "targetFolderId", required = false) String targetFolderId) {
-        String objectId = gidUtil.convertFolderIdToObjectId(targetFolderId);
+        String objectId = gidService.convertFolderIdToObjectId(targetFolderId);
         return folderApiService.move(applicationLikeId, objectId)
                 .then(businessEventPublisher.publishApplicationCommonEvent(applicationLikeId, objectId, APPLICATION_MOVE))
                 .then(Mono.fromSupplier(() -> ResponseView.success(null)));
@@ -94,7 +90,7 @@ public class FolderController implements FolderEndpoints
     public Mono<ResponseView<Void>> updatePermission(@PathVariable String folderId,
             @PathVariable String permissionId,
             @RequestBody UpdatePermissionRequest updatePermissionRequest) {
-        String objectId = gidUtil.convertFolderIdToObjectId(folderId);
+        String objectId = gidService.convertFolderIdToObjectId(folderId);
         ResourceRole role = ResourceRole.fromValue(updatePermissionRequest.role());
         if (role == null) {
             return ofError(INVALID_PARAMETER, "INVALID_PARAMETER", updatePermissionRequest);
@@ -108,7 +104,7 @@ public class FolderController implements FolderEndpoints
     public Mono<ResponseView<Void>> removePermission(
             @PathVariable String folderId,
             @PathVariable String permissionId) {
-        String objectId = gidUtil.convertFolderIdToObjectId(folderId);
+        String objectId = gidService.convertFolderIdToObjectId(folderId);
 
         return folderApiService.removePermission(objectId, permissionId)
                 .then(Mono.fromSupplier(() -> ResponseView.success(null)));
@@ -118,7 +114,7 @@ public class FolderController implements FolderEndpoints
     public Mono<ResponseView<Void>> grantPermission(
             @PathVariable String folderId,
             @RequestBody BatchAddPermissionRequest request) {
-        String objectId = gidUtil.convertFolderIdToObjectId(folderId);
+        String objectId = gidService.convertFolderIdToObjectId(folderId);
         ResourceRole role = ResourceRole.fromValue(request.role());
         if (role == null) {
             return ofError(INVALID_PARAMETER, "INVALID_PARAMETER", request.role());
@@ -129,7 +125,7 @@ public class FolderController implements FolderEndpoints
 
     @Override
     public Mono<ResponseView<ApplicationPermissionView>> getApplicationPermissions(@PathVariable String folderId) {
-        String objectId = gidUtil.convertFolderIdToObjectId(folderId);
+        String objectId = gidService.convertFolderIdToObjectId(folderId);
         return folderApiService.getPermissions(objectId)
                 .map(ResponseView::success);
     }

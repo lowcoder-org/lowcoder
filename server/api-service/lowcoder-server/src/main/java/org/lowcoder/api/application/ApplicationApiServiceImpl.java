@@ -1,5 +1,6 @@
 package org.lowcoder.api.application;
 
+import com.github.f4b6a3.uuid.UuidCreator;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import jakarta.annotation.Nonnull;
@@ -98,7 +99,7 @@ public class ApplicationApiServiceImpl implements ApplicationApiService {
     public Mono<ApplicationView> create(CreateApplicationRequest createApplicationRequest) {
 
         Application application = new Application(createApplicationRequest.organizationId(),
-                createApplicationRequest.gid(),
+                UuidCreator.getTimeOrderedEpoch().toString(),
                 createApplicationRequest.name(),
                 createApplicationRequest.applicationType(),
                 NORMAL,
