@@ -6,7 +6,7 @@ import {
   ColumnTypeViewFn,
 } from "comps/comps/tableComp/column/columnTypeCompBuilder";
 import { ColumnValueTooltip } from "comps/comps/tableComp/column/simpleColumnTypeComps";
-import { codeControl } from "comps/controls/codeControl";
+import { codeControl, StringControl } from "comps/controls/codeControl";
 import { trans } from "i18n";
 import styled from "styled-components";
 import _ from "lodash";
@@ -16,6 +16,7 @@ import { hashToNum } from "util/stringUtils";
 import { CustomSelect, PackUpIcon } from "lowcoder-design";
 import { ScrollBar } from "lowcoder-design";
 import { ColoredTagOptionControl } from "comps/controls/optionsControl";
+import Tooltip from "antd/es/tooltip";
 
 const colors = PresetStatusColorTypes;
 
@@ -71,6 +72,7 @@ function getTagIcon(tagText: any, tagOptions: any[]) {
 
 const childrenMap = {
   text: TagsControl,
+  tooltip: StringControl,
   tagColors: ColoredTagOptionControl,
 };
 
@@ -271,7 +273,11 @@ export const ColumnTagsComp = (function () {
           </div>
         );
       });
-      return view;
+      return (
+        <Tooltip title={props.tooltip}>
+          {view}
+        </Tooltip>
+      );
     },
     (nodeValue) => {
       const text = nodeValue.text.value;
@@ -288,6 +294,10 @@ export const ColumnTagsComp = (function () {
       <>
         {children.text.propertyView({
           label: trans("table.columnValue"),
+          tooltip: ColumnValueTooltip,
+        })}
+        {children.tooltip.propertyView({
+          label: trans("table.columnTooltip"),
           tooltip: ColumnValueTooltip,
         })}
         {children.tagColors.propertyView({

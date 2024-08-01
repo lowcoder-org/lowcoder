@@ -1,4 +1,5 @@
 import { default as Input } from "antd/es/input";
+import Tooltip from "antd/es/tooltip";
 import {
   ColumnTypeCompBuilder,
   ColumnTypeViewFn,
@@ -23,6 +24,7 @@ const Wrapper = styled.div`
 
 const childrenMap = {
   text: StringControl,
+  tooltip: StringControl,
 };
 
 const getBaseValue: ColumnTypeViewFn<typeof childrenMap, string, string> = (props) => props.text;
@@ -33,9 +35,11 @@ export const ColumnMarkdownComp = (function () {
     (props, dispatch) => {
       const value = props.changeValue ?? getBaseValue(props, dispatch);
       return (
-        <Wrapper>
-          <TacoMarkDown>{value}</TacoMarkDown>
-        </Wrapper>
+        <Tooltip title={props.tooltip}>
+          <Wrapper>
+            <TacoMarkDown>{value}</TacoMarkDown>
+          </Wrapper>
+        </Tooltip>
       );
     },
     (nodeValue) => nodeValue.text.value,
@@ -58,6 +62,10 @@ export const ColumnMarkdownComp = (function () {
       <>
         {children.text.propertyView({
           label: trans("table.columnValue"),
+          tooltip: ColumnValueTooltip,
+        })}
+        {children.tooltip.propertyView({
+          label: trans("table.columnTooltip"),
           tooltip: ColumnValueTooltip,
         })}
       </>

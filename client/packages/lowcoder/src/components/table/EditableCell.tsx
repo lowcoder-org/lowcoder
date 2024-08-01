@@ -129,7 +129,7 @@ export function EditableCell<T extends JSONValue>(props: EditableCellProps<T>) {
       textOverflow={props.textOverflow}
     >
       {status === "toSave" && !isEditing && <EditableChip />}
-      {normalView}
+      {!editable && normalView}
       {/* overlay on normal view to handle double click for editing */}
       {editable && (
         <div
@@ -142,6 +142,7 @@ export function EditableCell<T extends JSONValue>(props: EditableCellProps<T>) {
           }}
           onDoubleClick={enterEditFn}
         >
+          {normalView}
         </div>
       )}
     </ColumnTypeView>

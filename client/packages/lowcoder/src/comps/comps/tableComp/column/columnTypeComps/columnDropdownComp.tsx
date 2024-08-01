@@ -47,7 +47,9 @@ export const ColumnDropdownComp = (function () {
       const menu = (
         <Menu
           items={items}
-          onClick={({ key }) => items.find((o) => o.key === key)?.onEvent?.("click")}
+          onClick={({ key }) => {
+            items.find((o) => o.key === key)?.onEvent?.("click")
+          }}
         />
       );
 

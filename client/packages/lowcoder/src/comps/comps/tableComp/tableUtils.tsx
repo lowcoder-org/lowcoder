@@ -337,7 +337,7 @@ export function columnsToAntdFormat(
       text: string;
       status: StatusType;
     }[];
-    const title = renderTitle({ title: column.title, tooltip: column.tooltip, editable: column.editable });
+    const title = renderTitle({ title: column.title, tooltip: column.titleTooltip, editable: column.editable });
    
     return {
       title: column.showTitle ? title : '',

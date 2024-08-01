@@ -7,8 +7,9 @@ import { MultiCompBuilder } from "comps/generators";
 import { disabledPropertyView, hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import styled from "styled-components";
-import { ColumnLink } from "comps/comps/tableComp/column/columnTypeComps/columnLinkComp";
+import { ColumnLink, ColumnValueTooltip } from "comps/comps/tableComp/column/columnTypeComps/columnLinkComp";
 import { LightActiveTextColor, PrimaryColor } from "constants/style";
+import Tooltip from "antd/es/tooltip";
 
 const MenuLinkWrapper = styled.div`
   > a {
@@ -67,6 +68,7 @@ export const ColumnLinksComp = (function () {
     options: manualOptionsControl(OptionItem, {
       initOptions: [{ label: trans("table.option1") }],
     }),
+    tooltip: StringControl,
   };
   return new ColumnTypeCompBuilder(
     childrenMap,
@@ -89,15 +91,21 @@ export const ColumnLinksComp = (function () {
         ));
 
       return (
-        <MenuWrapper>
-          <Menu mode="horizontal" items={menuItems}  />
-        </MenuWrapper>
+        <Tooltip title={props.tooltip}>
+          <MenuWrapper>
+            <Menu mode="horizontal" items={menuItems}  />
+          </MenuWrapper>
+        </Tooltip>
       )
     },
     () => ""
   )
     .setPropertyViewFn((children) => (
       <>
+        {children.tooltip.propertyView({
+          label: trans("table.columnTooltip"),
+          tooltip: ColumnValueTooltip,
+        })}
         {children.options.propertyView({
           newOptionLabel: trans("table.option"),
           title: trans("table.optionList"),
