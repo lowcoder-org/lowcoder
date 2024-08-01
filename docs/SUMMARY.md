@@ -34,6 +34,7 @@
 ## ✨ Build Applications
 
 * [Create a new App](build-applications/create-a-new-app/README.md)
+  * [App(s) Navigation](build-applications/create-a-new-app/app-s-navigation.md)
   * [Modules](build-applications/create-a-new-app/modules.md)
   * [Version and Release Management](build-applications/create-a-new-app/version-and-release-management.md)
 * [App Editor](build-applications/app-editor/README.md)
@@ -56,7 +57,6 @@
   * [Option lists](build-applications/app-editor/option-lists.md)
   * [Date handling](build-applications/app-editor/date-handling.md)
   * [Use Markdown](build-applications/app-editor/use-markdown.md)
-* [App Navigation](build-applications/app-navigation.md)
 * [App Interaction](build-applications/app-interaction/README.md)
   * [Event handlers](build-applications/app-interaction/event-handlers.md)
 * [Themes & Styling](build-applications/themes-and-styling/README.md)
