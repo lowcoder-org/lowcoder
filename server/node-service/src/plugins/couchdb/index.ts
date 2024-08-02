@@ -38,6 +38,23 @@ const dataSourceConfig = {
       tooltip: "",
       placeholder: "",
     },
+    {
+      label: "Spec Version",
+      key: "specVersion",
+      type: "select",
+      tooltip: "Version of the spec file.",
+      placeholder: "v1.0",
+      options: [
+        {
+          value: "v1.0",
+          label: "v1.0",
+        },
+        {
+          value: "v2.0",
+          label: "v2.0",
+        }
+      ]
+    },
   ],
 } as const;
 
@@ -77,6 +94,7 @@ const couchdbPlugin: DataSourcePlugin<any, DataSourceConfigType> = {
       url: "",
       serverURL: serverURL,
       dynamicParamsConfig: otherDataSourceConfig,
+      specVersion: dataSourceConfig.specVersion
     };
     return runOpenApi(actionData, runApiDsConfig, spec as OpenAPIV2.Document);
   },

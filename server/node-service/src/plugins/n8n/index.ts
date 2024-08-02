@@ -35,6 +35,23 @@ const dataSourceConfig = {
       tooltip:
         "You api key, doc: [n8n API authentication](https://docs.n8n.io/api/authentication/)",
     },
+    {
+      label: "Spec Version",
+      key: "specVersion",
+      type: "select",
+      tooltip: "Version of the spec file.",
+      placeholder: "v1.0",
+      options: [
+        {
+          value: "v1.0",
+          label: "v1.0",
+        },
+        {
+          value: "v2.0",
+          label: "v2.0",
+        }
+      ]
+    },
   ],
 } as const;
 
@@ -77,6 +94,7 @@ const n8nPlugin: DataSourcePlugin<any, DataSourceConfigType> = {
       dynamicParamsConfig: {
         "ApiKeyAuth.value": apiKey,
       },
+      specVersion: dataSourceConfig.specVersion
     };
     return runOpenApi(actionData, runApiDsConfig, spec as OpenAPIV3.Document);
   },

@@ -36,6 +36,23 @@ const dataSourceConfig = {
       tooltip: "Basic auth password",
       placeholder: "<API Token>",
     },
+    {
+      label: "Spec Version",
+      key: "specVersion",
+      type: "select",
+      tooltip: "Version of the spec file.",
+      placeholder: "v1.0",
+      options: [
+        {
+          value: "v1.0",
+          label: "v1.0",
+        },
+        {
+          value: "v2.0",
+          label: "v2.0",
+        }
+      ]
+    },
   ],
 } as const;
 
@@ -79,6 +96,7 @@ const jiraPlugin: DataSourcePlugin<any, DataSourceConfigType> = {
       url: "",
       serverURL: dataSourceConfig.serverUrl,
       dynamicParamsConfig: dataSourceConfig,
+      specVersion: dataSourceConfig.specVersion,
     };
     return runOpenApi(actionData, runApiDsConfig, spec);
   },

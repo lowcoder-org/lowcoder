@@ -23,6 +23,23 @@ const dataSourceConfig = {
       tooltip:
         "Another type of REST API key used for viewing Apps and related updates. [Documentation](https://documentation.onesignal.com/docs/accounts-and-keys#user-auth-key)",
     },
+    {
+      label: "Spec Version",
+      key: "specVersion",
+      type: "select",
+      tooltip: "Version of the spec file.",
+      placeholder: "v1.0",
+      options: [
+        {
+          value: "v1.0",
+          label: "v1.0",
+        },
+        {
+          value: "v2.0",
+          label: "v2.0",
+        }
+      ]
+    },
   ],
 } as const;
 
@@ -60,6 +77,7 @@ const oneSignalPlugin: DataSourcePlugin<any, DataSourceConfigType> = {
       url: "",
       serverURL: "",
       dynamicParamsConfig: dataSourceConfig,
+      specVersion: dataSourceConfig.specVersion,
     };
     return runOpenApi(actionData, runApiDsConfig, spec as OpenAPIV3.Document);
   },

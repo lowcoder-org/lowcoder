@@ -23,7 +23,24 @@ const dataSourceConfig = {
       "key": "personalAccessToken.value",
       "label": "Token",
       "tooltip": "A [personal access token](https://developers.asana.com/docs/personal-access-token) allows access to the api for the user who created it. This should be kept a secret and be treated like a password.",
-    }
+    },
+    {
+      label: "Spec Version",
+      key: "specVersion",
+      type: "select",
+      tooltip: "Version of the spec file.",
+      placeholder: "v1.0",
+      options: [
+        {
+          value: "v1.0",
+          label: "v1.0",
+        },
+        {
+          value: "v2.0",
+          label: "v2.0",
+        }
+      ]
+    },
   ]
 } as const;
 
@@ -58,6 +75,7 @@ const asanaPlugin: DataSourcePlugin<any, DataSourceConfigType> = {
       url: "",
       serverURL: "",
       dynamicParamsConfig: dataSourceConfig,
+      specVersion: dataSourceConfig.specVersion,
     };
     return runOpenApi(actionData, runApiDsConfig, spec as OpenAPIV3.Document);
   },

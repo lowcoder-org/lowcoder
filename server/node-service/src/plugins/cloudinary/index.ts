@@ -32,6 +32,23 @@ const dataSourceConfig = {
       tooltip: "Basic auth password",
       placeholder: "<Basic Auth Password>",
     },
+    {
+      label: "Spec Version",
+      key: "specVersion",
+      type: "select",
+      tooltip: "Version of the spec file.",
+      placeholder: "v1.0",
+      options: [
+        {
+          value: "v1.0",
+          label: "v1.0",
+        },
+        {
+          value: "v2.0",
+          label: "v2.0",
+        }
+      ]
+    },
   ],
 } as const;
 
@@ -74,6 +91,7 @@ const cloudinaryPlugin: DataSourcePlugin<any, DataSourceConfigType> = {
       url: "",
       serverURL: "",
       dynamicParamsConfig: dataSourceConfig,
+      specVersion: dataSourceConfig.specVersion,
     };
     return runOpenApi(actionData, runApiDsConfig, specList);
   },

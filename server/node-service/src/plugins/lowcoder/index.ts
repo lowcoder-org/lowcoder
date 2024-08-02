@@ -30,7 +30,24 @@ const dataSourceConfig = {
       label: "Authorization",
       "tooltip": "API Key Authentication with a Bearer token. Copy your API Key here. (e.g. 'Bearer eyJhbGciO...')",
       "placeholder": "API Key Authentication with a Bearer token. Copy your API Key here. (e.g. 'Bearer eyJhbGciO...')"
-    }
+    },
+    {
+      label: "Spec Version",
+      key: "specVersion",
+      type: "select",
+      tooltip: "Version of the spec file.",
+      placeholder: "v1.0",
+      options: [
+        {
+          value: "v1.0",
+          label: "v1.0",
+        },
+        {
+          value: "v2.0",
+          label: "v2.0",
+        }
+      ]
+    },
 ]
 } as const;
 
@@ -67,6 +84,7 @@ const lowcoderPlugin: DataSourcePlugin<any, DataSourceConfigType> = {
       url: "",
       serverURL: serverURL,
       dynamicParamsConfig: otherDataSourceConfig,
+      specVersion: dataSourceConfig.specVersion,
     };
     return runOpenApi(actionData, runApiDsConfig, spec as OpenAPIV3.Document);
   },

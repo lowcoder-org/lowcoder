@@ -16,6 +16,23 @@ const dataSourceConfig = {
       tooltip:
         "[Personal API Token](https://circleci.com/docs/managing-api-tokens/#creating-a-personal-api-token)",
     },
+    {
+      label: "Spec Version",
+      key: "specVersion",
+      type: "select",
+      tooltip: "Version of the spec file.",
+      placeholder: "v1.0",
+      options: [
+        {
+          value: "v1.0",
+          label: "v1.0",
+        },
+        {
+          value: "v2.0",
+          label: "v2.0",
+        }
+      ]
+    },
   ],
 } as const;
 
@@ -53,6 +70,7 @@ const circleCiPlugin: DataSourcePlugin<any, DataSourceConfigType> = {
       url: "",
       serverURL: "",
       dynamicParamsConfig: dataSourceConfig,
+      specVersion: dataSourceConfig.specVersion,
     };
     return runOpenApi(actionData, runApiDsConfig, spec as unknown as OpenAPIV3.Document);
   },

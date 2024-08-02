@@ -25,6 +25,23 @@ const dataSourceConfig = {
       tooltip: "You can gen a Secret Key [here](https://dashboard.stripe.com/test/apikeys)",
       placeholder: "<Secret Key>",
     },
+    {
+      label: "Spec Version",
+      key: "specVersion",
+      type: "select",
+      tooltip: "Version of the spec file.",
+      placeholder: "v1.0",
+      options: [
+        {
+          value: "v1.0",
+          label: "v1.0",
+        },
+        {
+          value: "v2.0",
+          label: "v2.0",
+        }
+      ]
+    },
   ],
 } as const;
 
@@ -60,6 +77,7 @@ const stripePlugin: DataSourcePlugin<any, DataSourceConfigType> = {
       url: "",
       serverURL: "",
       dynamicParamsConfig: dataSourceConfig,
+      specVersion: dataSourceConfig.specVersion,
     };
     // always use a new spec object
     // because of this bug: https://github.com/APIDevTools/json-schema-ref-parser/issues/271
