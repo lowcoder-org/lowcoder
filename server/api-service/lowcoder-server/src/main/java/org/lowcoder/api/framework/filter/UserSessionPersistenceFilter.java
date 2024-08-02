@@ -19,6 +19,7 @@ import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.time.Instant;
 import java.util.Optional;
@@ -121,7 +122,8 @@ public class UserSessionPersistenceFilter implements WebFilter {
                     oAuth2RequestContext.setAuthConfig(findAuthConfig.authConfig());
 
                     return authRequestFactory.build(oAuth2RequestContext);
-                }).flatMap(authRequest -> {
+                })
+                .publishOn(Schedulers.boundedElastic()).flatMap(authRequest -> {
                     if(authRequest == null) {
                         return Mono.just(user);
                     }
