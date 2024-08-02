@@ -1,38 +1,16 @@
-import { readYaml } from "../../common/util";
+import { dirToSpecList, specsToOptions } from "../../common/util";
 import _ from "lodash";
-import fs from "fs";
 import path from "path";
 import { OpenAPI } from "openapi-types";
 import { ConfigToType, DataSourcePlugin, QueryConfig } from "lowcoder-sdk/dataSource";
 import { runOpenApi } from "../openApi";
-import { MultiOpenApiSpecItem, parseMultiOpenApi, ParseOpenApiOptions } from "../openApi/parse";
-import { appendTags } from "../openApi/util";
+import { parseMultiOpenApi, ParseOpenApiOptions } from "../openApi/parse";
 
-function genTagFromFileName(name: string) {
-  const fileName = name.replace(/\.yaml|twilio_/g, "");
-  const parts = fileName.split("_");
-  return parts.reduce((a, b) => {
-    if (/v\d+/.test(b)) {
-      return `${a}(${b})`;
-    }
-    return a + _.upperFirst(b);
-  }, "");
+
+const specs = {
+  "twilio--V": dirToSpecList(path.join(__dirname, "./twilio.spec")),
+  "did--V": dirToSpecList(path.join(__dirname, "./did.spec")),
 }
-
-const specList: MultiOpenApiSpecItem[] = [];
-
-const start = performance.now();
-const specFiles = fs.readdirSync(path.join(__dirname, "./twilio.spec"));
-specFiles.forEach((specFile) => {
-  const spec = readYaml(path.join(__dirname, "./twilio.spec", specFile));
-  const tag = genTagFromFileName(specFile);
-  appendTags(spec, tag);
-  specList.push({
-    id: tag,
-    spec,
-  });
-});
-logger.info("twilio spec list loaded, duration: %d ms", performance.now() - start);
 
 const dataSourceConfig = {
   type: "dataSource",
@@ -55,16 +33,7 @@ const dataSourceConfig = {
       type: "select",
       tooltip: "Version of the spec file.",
       placeholder: "v1.0",
-      options: [
-        {
-          value: "v1.0",
-          label: "v1.0",
-        },
-        {
-          value: "v2.0",
-          label: "v2.0",
-        }
-      ]
+      options: specsToOptions(specs)
     },
   ],
 } as const;
@@ -86,9 +55,10 @@ const twilioPlugin: DataSourcePlugin<any, DataSourceConfigType> = {
   category: "api",
   dataSourceConfig,
 
-  queryConfig: async () => {
-    if (!queryConfig) {
-      const { actions, categories } = await parseMultiOpenApi(specList, parseOptions);
+  queryConfig: async (data) => {
+    console.log(data.specVersion);
+    // if (!queryConfig) {
+      const { actions, categories } = await parseMultiOpenApi(specs[data.specVersion as keyof typeof specs], parseOptions);
       queryConfig = {
         type: "query",
         label: "Action",
@@ -98,7 +68,7 @@ const twilioPlugin: DataSourcePlugin<any, DataSourceConfigType> = {
         },
         actions,
       };
-    }
+    // }
     return queryConfig;
   },
 
@@ -109,7 +79,7 @@ const twilioPlugin: DataSourcePlugin<any, DataSourceConfigType> = {
       dynamicParamsConfig: dataSourceConfig,
       specVersion: dataSourceConfig.specVersion,
     };
-    return runOpenApi(actionData, runApiDsConfig, specList);
+    return runOpenApi(actionData, runApiDsConfig, specs[dataSourceConfig.specVersion as keyof typeof specs]);
   },
 };
 

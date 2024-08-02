@@ -1,4 +1,4 @@
-import { readYaml } from "../../common/util";
+import { readYaml, specsToOptions } from "../../common/util";
 import _ from "lodash";
 import path from "path";
 import { OpenAPIV3, OpenAPI } from "openapi-types";
@@ -7,6 +7,10 @@ import { runOpenApi } from "../openApi";
 import { parseOpenApi, ParseOpenApiOptions } from "../openApi/parse";
 
 import spec from './postmanEcho.spec.json';
+const specs = {
+  "v1.0": spec,
+  "v2.0": spec,
+}
 
 
 const dataSourceConfig = {
@@ -18,16 +22,7 @@ const dataSourceConfig = {
       type: "select",
       tooltip: "Version of the spec file.",
       placeholder: "v1.0",
-      options: [
-        {
-          value: "v1.0",
-          label: "v1.0",
-        },
-        {
-          value: "v2.0",
-          label: "v2.0",
-        }
-      ]
+      options: specsToOptions(specs)
     },
   ]
 } as const;

@@ -1,4 +1,4 @@
-import { readYaml } from "../../common/util";
+import { readYaml, specsToOptions } from "../../common/util";
 import _ from "lodash";
 import path from "path";
 import { OpenAPIV3, OpenAPI } from "openapi-types";
@@ -9,6 +9,10 @@ import { readFileSync } from "fs";
 import { parse } from "yaml";
 
 const yamlContent = readFileSync(path.join(__dirname, "./stripe.spec.yaml"), "utf-8");
+const specs = {
+  "v1.0": yamlContent,
+  "v2.0": yamlContent,
+}
 
 const dataSourceConfig = {
   type: "dataSource",
@@ -31,16 +35,7 @@ const dataSourceConfig = {
       type: "select",
       tooltip: "Version of the spec file.",
       placeholder: "v1.0",
-      options: [
-        {
-          value: "v1.0",
-          label: "v1.0",
-        },
-        {
-          value: "v2.0",
-          label: "v2.0",
-        }
-      ]
+      options: specsToOptions(specs)
     },
   ],
 } as const;

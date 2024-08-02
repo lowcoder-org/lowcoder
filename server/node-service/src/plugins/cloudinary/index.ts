@@ -1,4 +1,4 @@
-import { readYaml } from "../../common/util";
+import { readYaml, specsToOptions } from "../../common/util";
 import _ from "lodash";
 import path from "path";
 import { OpenAPI } from "openapi-types";
@@ -14,7 +14,12 @@ const specList = [
   { spec: adminApiSpec, id: "admin" },
   { spec: uploadApiSpec, id: "upload" },
 ];
+const specs = {
+  "v1.0": specList,
+  "v2.0": specList,
+}
 
+//TODO: Thomas
 const dataSourceConfig = {
   type: "dataSource",
   params: [
@@ -38,16 +43,7 @@ const dataSourceConfig = {
       type: "select",
       tooltip: "Version of the spec file.",
       placeholder: "v1.0",
-      options: [
-        {
-          value: "v1.0",
-          label: "v1.0",
-        },
-        {
-          value: "v2.0",
-          label: "v2.0",
-        }
-      ]
+      options: specsToOptions(specs)
     },
   ],
 } as const;

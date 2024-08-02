@@ -1,26 +1,14 @@
-import { readYaml } from "../../common/util";
+import { dirToSpecList, specsToOptions } from "../../common/util";
 import _ from "lodash";
 import path from "path";
-import { OpenAPIV3, OpenAPI } from "openapi-types";
-import { QueryConfig, ConfigToType, DataSourcePlugin } from "lowcoder-sdk/dataSource";
+import { OpenAPI } from "openapi-types";
+import { ConfigToType, DataSourcePlugin, QueryConfig } from "lowcoder-sdk/dataSource";
 import { runOpenApi } from "../openApi";
-import { MultiOpenApiSpecItem, parseMultiOpenApi, ParseOpenApiOptions } from "../openApi/parse";
-import { appendTags } from "../../plugins/openApi/util";
-import { readdirSync } from "fs";
+import { parseMultiOpenApi, ParseOpenApiOptions } from "../openApi/parse";
 
-const specList: MultiOpenApiSpecItem[] = [];
-const specFiles = readdirSync(path.join(__dirname, "./did.spec"));
-const start = performance.now();
-specFiles.forEach((specFile) => {
-  const spec = readYaml(path.join(__dirname, "./did.spec", specFile));
-  const tag = _.upperFirst(specFile.replace(".json", ""));
-  appendTags(spec, tag);
-  specList.push({
-    spec,
-    id: tag,
-  });
-});
-logger.info("did spec list loaded, duration: %d ms", performance.now() - start);
+const specs = {
+  "v1.0": dirToSpecList(path.join(__dirname, "./did.spec")),
+}
 
 const dataSourceConfig = {
   type: "dataSource",
@@ -50,16 +38,7 @@ const dataSourceConfig = {
       type: "select",
       tooltip: "Version of the spec file.",
       placeholder: "v1.0",
-      options: [
-        {
-          value: "v1.0",
-          label: "v1.0",
-        },
-        {
-          value: "v2.0",
-          label: "v2.0",
-        }
-      ]
+      options: specsToOptions(specs)
     },
   ],
 } as const;
@@ -80,9 +59,9 @@ const didPlugin: DataSourcePlugin<any, DataSourceConfigType> = {
   icon: "did.svg",
   category: "api",
   dataSourceConfig,
-  queryConfig: async () => {
+  queryConfig: async (data) => {
     if (!queryConfig) {
-      const { actions, categories } = await parseMultiOpenApi(specList, parseOptions);
+      const { actions, categories } = await parseMultiOpenApi(specs[data.specVersion as keyof typeof specs], parseOptions);
       queryConfig = {
         type: "query",
         label: "Action",
@@ -102,7 +81,7 @@ const didPlugin: DataSourcePlugin<any, DataSourceConfigType> = {
       dynamicParamsConfig: dataSourceConfig,
       specVersion: dataSourceConfig.specVersion,
     };
-    return runOpenApi(actionData, runApiDsConfig, specList);
+    return runOpenApi(actionData, runApiDsConfig, specs[dataSourceConfig.specVersion as keyof typeof specs]);
   },
 };
 

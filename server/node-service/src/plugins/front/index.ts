@@ -5,6 +5,11 @@ import { runOpenApi } from "../openApi";
 import { parseOpenApi, ParseOpenApiOptions } from "../openApi/parse";
 
 import spec from "./front.spec.json";
+import { specsToOptions } from "../../common/util";
+const specs = {
+  "v1.0": spec,
+  "v2.0": spec,
+}
 
 const dataSourceConfig = {
   type: "dataSource",
@@ -20,16 +25,7 @@ const dataSourceConfig = {
       type: "select",
       tooltip: "Version of the spec file.",
       placeholder: "v1.0",
-      options: [
-        {
-          value: "v1.0",
-          label: "v1.0",
-        },
-        {
-          value: "v2.0",
-          label: "v2.0",
-        }
-      ]
+      options: specsToOptions(specs)
     },
   ],
 } as const;
