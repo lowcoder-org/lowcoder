@@ -1,15 +1,13 @@
 import { default as Input } from "antd/es/input";
-import { StringControl, StringOrNumberControl } from "comps/controls/codeControl";
+import { StringOrNumberControl } from "comps/controls/codeControl";
 import { trans } from "i18n";
 import { ColumnTypeCompBuilder, ColumnTypeViewFn } from "../columnTypeCompBuilder";
 import { ColumnValueTooltip } from "../simpleColumnTypeComps";
 import { IconControl } from "comps/controls/iconControl";
 import { hasIcon } from "comps/utils";
-import Tooltip from "antd/es/tooltip";
 
 const childrenMap = {
   text: StringOrNumberControl,
-  tooltip: StringControl,
   prefixIcon: IconControl,
   suffixIcon: IconControl,
 };
@@ -24,7 +22,7 @@ export const SimpleTextComp = (function () {
     (props, dispatch) => {
       const value = props.changeValue ?? getBaseValue(props, dispatch);
       return(
-        <Tooltip title={props.tooltip}>
+        <>
           {hasIcon(props.prefixIcon) && (
             <span>{props.prefixIcon}</span>
           )}
@@ -32,7 +30,7 @@ export const SimpleTextComp = (function () {
           {hasIcon(props.suffixIcon) && (
             <span>{props.suffixIcon}</span>
           )}
-        </Tooltip>
+        </>
       );
     },
     (nodeValue) => nodeValue.text.value,
@@ -56,10 +54,6 @@ export const SimpleTextComp = (function () {
         <>
           {children.text.propertyView({
             label: trans("table.columnValue"),
-            tooltip: ColumnValueTooltip,
-          })}
-          {children.tooltip.propertyView({
-            label: trans("table.columnTooltip"),
             tooltip: ColumnValueTooltip,
           })}
           {children.prefixIcon.propertyView({

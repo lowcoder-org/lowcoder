@@ -1,4 +1,4 @@
-import { BoolCodeControl, StringControl } from "comps/controls/codeControl";
+import { BoolCodeControl } from "comps/controls/codeControl";
 import { trans } from "i18n";
 import { default as Checkbox } from "antd/es/checkbox";
 import { ColumnTypeCompBuilder, ColumnTypeViewFn } from "../columnTypeCompBuilder";
@@ -13,7 +13,6 @@ import { RefControl } from "comps/controls/refControl";
 import { booleanExposingStateControl } from "comps/controls/codeStateControl";
 import { changeEvent, eventHandlerControl } from "comps/controls/eventHandlerControl";
 import { disabledPropertyView } from "comps/utils/propertyUtils";
-import Tooltip from "antd/es/tooltip";
 
 interface SwitchWrapperProps {
   disabled: boolean;
@@ -66,7 +65,6 @@ const childrenMap = {
   disabled: BoolCodeControl,
   style: styleControl(InputFieldStyle),
   viewRef: RefControl<HTMLElement>,
-  tooltip: StringControl,
 };
 
 const getBaseValue: ColumnTypeViewFn<typeof childrenMap, boolean, boolean> = (props) => props.switchState;
@@ -78,18 +76,16 @@ export const SwitchComp = (function () {
       const value = props.changeValue ?? getBaseValue(props, dispatch);
       const CheckBoxComp = () => {
         return (
-          <Tooltip title={props.tooltip}>
-            <Switch 
-              checked={value}
-              disabled={props.disabled || true}
-              ref={props.viewRef}
-              onChange={(checked) => {
-                props.value.onChange(checked);
-                props.onEvent("change");
-                props.onEvent(checked ? "true" : "false");
-              }}
-            />
-          </Tooltip>
+          <Switch 
+            checked={value}
+            disabled={props.disabled || true}
+            ref={props.viewRef}
+            onChange={(checked) => {
+              props.value.onChange(checked);
+              props.onEvent("change");
+              props.onEvent(checked ? "true" : "false");
+            }}
+          />
         );
       };
       return <CheckBoxComp />;
@@ -120,10 +116,6 @@ export const SwitchComp = (function () {
         <>
           {children.switchState.propertyView({
             label: trans("table.columnValue"),
-            tooltip: ColumnValueTooltip,
-          })}
-          {children.tooltip.propertyView({
-            label: trans("table.columnTooltip"),
             tooltip: ColumnValueTooltip,
           })}
           {children.onEvent.propertyView()}

@@ -8,7 +8,6 @@ import { withDefault } from "comps/generators";
 import styled from "styled-components";
 import { IconControl } from "comps/controls/iconControl";
 import { hasIcon } from "comps/utils";
-import Tooltip from "antd/es/tooltip";
 
 const InputNumberWrapper = styled.div`
   .ant-input-number  {
@@ -27,7 +26,6 @@ const InputNumberWrapper = styled.div`
 
 const childrenMap = {
   text: NumberControl,
-  tooltip: StringControl,
   step: withDefault(NumberControl, 1),
   precision: RangeControl.closed(0, 20, 0),
   float: BoolControl,
@@ -60,15 +58,13 @@ export const ColumnNumberComp = (function () {
         formattedValue = formattedValue.toFixed(precision + 1);
       }
       return (
-        <Tooltip title={props.tooltip}>
-          {hasIcon(props.prefixIcon) && (
+          <>{hasIcon(props.prefixIcon) && (
             <span>{props.prefixIcon}</span>
           )}
           <span>{props.prefix + formattedValue + props.suffix}</span>
           {hasIcon(props.suffixIcon) && (
             <span>{props.suffixIcon}</span>
-          )}
-        </Tooltip>
+          )} </>
       );
     },
     (nodeValue) => nodeValue.text.value,
@@ -97,10 +93,6 @@ export const ColumnNumberComp = (function () {
         <>
           {children.text.propertyView({
             label: trans("table.columnValue"),
-            tooltip: ColumnValueTooltip,
-          })}
-          {children.tooltip.propertyView({
-            label: trans("table.columnTooltip"),
             tooltip: ColumnValueTooltip,
           })}
           {children.step.propertyView({

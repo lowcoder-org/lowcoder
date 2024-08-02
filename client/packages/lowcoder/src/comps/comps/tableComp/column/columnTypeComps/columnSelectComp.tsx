@@ -7,11 +7,9 @@ import { StringControl } from "comps/controls/codeControl";
 import { trans } from "i18n";
 import { ColumnTypeCompBuilder, ColumnTypeViewFn } from "../columnTypeCompBuilder";
 import { ColumnValueTooltip } from "../simpleColumnTypeComps";
-import Tooltip from "antd/es/tooltip";
 
 const childrenMap = {
   text: StringControl,
-  tooltip: StringControl,
   options: SelectOptionControl,
 };
 
@@ -58,10 +56,10 @@ export const ColumnSelectComp = (function () {
       const value = props.changeValue ?? getBaseValue(props, dispatch);
       const option = props.options.find(x => x.value === value);
       return (
-        <Tooltip title={props.tooltip}>
+        <>
           <span>{option?.prefixIcon}</span>
           <span>{option?.label}</span>
-        </Tooltip>
+        </>
       );
     },
     (nodeValue) => nodeValue.text.value,
@@ -82,10 +80,6 @@ export const ColumnSelectComp = (function () {
         <>
           {children.text.propertyView({
             label: trans("table.columnValue"),
-            tooltip: ColumnValueTooltip,
-          })}
-          {children.tooltip.propertyView({
-            label: trans("table.columnTooltip"),
             tooltip: ColumnValueTooltip,
           })}
           {children.options.propertyView({

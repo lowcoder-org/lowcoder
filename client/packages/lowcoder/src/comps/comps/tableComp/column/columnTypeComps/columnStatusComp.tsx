@@ -10,7 +10,6 @@ import { ReactNode, useContext, useState } from "react";
 import { StatusContext } from "components/table/EditableCell";
 import { CustomSelect, PackUpIcon, ScrollBar } from "lowcoder-design";
 import { PresetStatusColorType } from "antd/es/_util/colors";
-import Tooltip from "antd/es/tooltip";
 
 export const ColumnValueTooltip = trans("table.columnValueTooltip");
 
@@ -27,7 +26,6 @@ export type StatusType = PresetStatusColorType | "none";
 
 const childrenMap = {
   text: StringControl,
-  tooltip: StringControl,
   status: stringUnionControl(BadgeStatusOptions, "none"),
 };
 
@@ -121,12 +119,7 @@ export const BadgeStatusComp = (function () {
     (props, dispatch) => {
       const text = props.changeValue?.value ?? getBaseValue(props, dispatch).value;
       const status = props.changeValue?.status ?? getBaseValue(props, dispatch).status;
-      const view = status === "none" ? text : <Badge status={status} text={text}/>;
-      return (
-        <Tooltip title={props.tooltip}>
-          {view}
-        </Tooltip>
-      )
+      return status === "none" ? text : <Badge status={status} text={text}/>;
     },
     (nodeValue) => [nodeValue.status.value, nodeValue.text.value].filter((t) => t).join(" "),
     getBaseValue
@@ -141,10 +134,6 @@ export const BadgeStatusComp = (function () {
         <>
           {children.text.propertyView({
             label: trans("table.columnValue"),
-            tooltip: ColumnValueTooltip,
-          })}
-          {children.tooltip.propertyView({
-            label: trans("table.columnTooltip"),
             tooltip: ColumnValueTooltip,
           })}
           {children.status.propertyView({

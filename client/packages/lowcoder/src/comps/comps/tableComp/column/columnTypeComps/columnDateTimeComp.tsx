@@ -9,11 +9,9 @@ import { formatPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { DATE_TIME_FORMAT } from "util/dateTimeUtils";
 import { DateEdit, formatDate } from "./columnDateComp";
-import Tooltip from "antd/es/tooltip";
 
 const childrenMap = {
   text: StringControl,
-  tooltip: StringControl,
   format: withDefault(StringControl, DATE_TIME_FORMAT),
 };
 
@@ -24,12 +22,7 @@ export const DateTimeComp = (function () {
     childrenMap,
     (props, dispatch) => {
       const value = props.changeValue ?? getBaseValue(props, dispatch);
-      const view = formatDate(value, props.format);
-      return (
-        <Tooltip title={props.tooltip}>
-          {view}
-        </Tooltip>
-      )
+      return formatDate(value, props.format);
     },
     (nodeValue) => formatDate(nodeValue.text.value, nodeValue.format.value),
     getBaseValue
@@ -46,10 +39,6 @@ export const DateTimeComp = (function () {
       <>
         {children.text.propertyView({
           label: trans("table.columnValue"),
-          tooltip: ColumnValueTooltip,
-        })}
-        {children.tooltip.propertyView({
-          label: trans("table.columnTooltip"),
           tooltip: ColumnValueTooltip,
         })}
         {formatPropertyView({ children, placeholder: DATE_TIME_FORMAT })}

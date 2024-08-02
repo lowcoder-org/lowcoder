@@ -1,10 +1,9 @@
-import { NumberControl, StringControl } from "comps/controls/codeControl";
+import { NumberControl } from "comps/controls/codeControl";
 import { trans } from "i18n";
 import { ColumnTypeCompBuilder, ColumnTypeViewFn } from "../columnTypeCompBuilder";
 import { ColumnValueTooltip } from "../simpleColumnTypeComps";
 import styled from "styled-components";
 import { default as Rate } from "antd/es/rate";
-import Tooltip from "antd/es/tooltip";
 
 const RateStyled = styled(Rate)<{ isEdit?: boolean }>`
   display: inline-flex;
@@ -47,7 +46,6 @@ const Wrapper = styled.div`
 
 const childrenMap = {
   text: NumberControl,
-  tooltip: StringControl,
 };
 
 const getBaseValue: ColumnTypeViewFn<typeof childrenMap, number, number> = (props) => props.text;
@@ -57,11 +55,7 @@ export const RatingComp = (function () {
     childrenMap,
     (props, dispatch) => {
       const value = props.changeValue ?? getBaseValue(props, dispatch);
-      return (
-        <Tooltip title={props.tooltip}>
-          <RateStyled disabled value={value} />
-        </Tooltip>
-      );
+      return <RateStyled disabled value={value} />;
     },
     (nodeValue) => nodeValue.text.value,
     getBaseValue
@@ -94,10 +88,6 @@ export const RatingComp = (function () {
         <>
           {children.text.propertyView({
             label: trans("table.columnValue"),
-            tooltip: ColumnValueTooltip,
-          })}
-          {children.tooltip.propertyView({
-            label: trans("table.columnTooltip"),
             tooltip: ColumnValueTooltip,
           })}
         </>

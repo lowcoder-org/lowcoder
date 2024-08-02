@@ -1,4 +1,4 @@
-import { BoolCodeControl, StringControl } from "comps/controls/codeControl";
+import { BoolCodeControl } from "comps/controls/codeControl";
 import { trans } from "i18n";
 import { default as Checkbox } from "antd/es/checkbox";
 import { ColumnTypeCompBuilder, ColumnTypeViewFn } from "../columnTypeCompBuilder";
@@ -11,7 +11,6 @@ import { dropdownControl } from "comps/controls/dropdownControl";
 import { TableCheckedIcon, TableUnCheckedIcon } from "lowcoder-design";
 import { IconControl } from "comps/controls/iconControl";
 import { hasIcon } from "comps/utils";
-import Tooltip from "antd/es/tooltip";
 
 const CheckboxStyled = styled(Checkbox)<{ $style: CheckboxStyleType }>`
   ${(props) => props.$style && getStyle(props.$style)}
@@ -52,7 +51,6 @@ const falseValuesOptions = [
 
 const childrenMap = {
   text: BoolCodeControl,
-  tooltip: StringControl,
   falseValues: dropdownControl(falseValuesOptions, ""),
   iconTrue: IconControl,
   iconFalse: IconControl,
@@ -96,14 +94,12 @@ export const BooleanComp = (function () {
       const CheckBoxComp = () => {
         const style = useStyle(CheckboxStyle);
         return (
-          <Tooltip title={props.tooltip}>
-            <IconWrapper $style={style} $ifChecked={value}>
-              {value === true ? ( hasIcon(props.iconTrue) ? props.iconTrue : <TableCheckedIcon /> ) 
-              : value === false ? ( hasIcon(props.iconFalse) ? props.iconFalse  : ( props.falseValues === "x" ? <TableUnCheckedIcon /> : props.falseValues )
-              ) : ( hasIcon(props.iconNull) ? props.iconNull : "No Value"
-              )}
-            </IconWrapper>
-          </Tooltip>
+          <IconWrapper $style={style} $ifChecked={value}>
+            {value === true ? ( hasIcon(props.iconTrue) ? props.iconTrue : <TableCheckedIcon /> ) 
+            : value === false ? ( hasIcon(props.iconFalse) ? props.iconFalse  : ( props.falseValues === "x" ? <TableUnCheckedIcon /> : props.falseValues )
+            ) : ( hasIcon(props.iconNull) ? props.iconNull : "No Value"
+            )}
+          </IconWrapper>
         );
       };
       return <CheckBoxComp />;
@@ -125,10 +121,6 @@ export const BooleanComp = (function () {
         <>
           {children.text.propertyView({
             label: trans("table.columnValue"),
-            tooltip: ColumnValueTooltip,
-          })}
-          {children.tooltip.propertyView({
-            label: trans("table.columnTooltip"),
             tooltip: ColumnValueTooltip,
           })}
           {children.falseValues.propertyView({

@@ -15,7 +15,6 @@ import { CalendarCompIconSmall, PrevIcon, SuperPrevIcon } from "lowcoder-design"
 import { useState } from "react";
 import styled from "styled-components";
 import { DateParser, DATE_FORMAT } from "util/dateTimeUtils";
-import Tooltip from "antd/es/tooltip";
 
 dayjs.extend(utc)
 
@@ -137,7 +136,6 @@ export function formatDate(date: string, format: string) {
 
 const childrenMap = {
   text: StringControl,
-  tooltip: StringControl,
   format: withDefault(StringControl, DATE_FORMAT),
 };
 
@@ -197,12 +195,7 @@ export const DateComp = (function () {
     childrenMap,
     (props, dispatch) => {
       const value = props.changeValue ?? getBaseValue(props, dispatch);
-      const view = formatDate(value, props.format);
-      return (
-        <Tooltip title={props.tooltip}>
-          {view}
-        </Tooltip>
-      );
+      return formatDate(value, props.format);
     },
     (nodeValue) => formatDate(nodeValue.text.value, nodeValue.format.value),
     getBaseValue
@@ -219,10 +212,6 @@ export const DateComp = (function () {
       <>
         {children.text.propertyView({
           label: trans("table.columnValue"),
-          tooltip: ColumnValueTooltip,
-        })}
-        {children.tooltip.propertyView({
-          label: trans("table.columnTooltip"),
           tooltip: ColumnValueTooltip,
         })}
         {formatPropertyView({ children, placeholder: DATE_FORMAT })}

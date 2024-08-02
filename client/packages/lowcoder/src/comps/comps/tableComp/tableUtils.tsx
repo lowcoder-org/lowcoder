@@ -366,11 +366,12 @@ export function columnsToAntdFormat(
       cellColorFn: column.cellColor,
       onWidthResize: column.onWidthResize,
       render: (value: any, record: RecordType, index: number) => {
+        const row = _.omit(record, OB_ROW_ORI_INDEX);
         return column
           .render(
             {
               currentCell: value,
-              currentRow: _.omit(record, OB_ROW_ORI_INDEX),
+              currentRow: row,
               currentIndex: index,
               currentOriginalIndex: tryToNumber(record[OB_ROW_ORI_INDEX]),
               initialColumns,
@@ -384,6 +385,11 @@ export function columnsToAntdFormat(
             candidateTags: tags,
             candidateStatus: status,
             textOverflow: column.textOverflow,
+            cellTooltip: column.cellTooltip({
+              currentCell: value,
+              currentRow: row,
+              currentIndex: index,
+            }),
             onTableEvent,
           });
       },

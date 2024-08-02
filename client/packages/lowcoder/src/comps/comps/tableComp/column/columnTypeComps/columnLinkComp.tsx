@@ -10,13 +10,11 @@ import { disabledPropertyView } from "comps/utils/propertyUtils";
 import styled, { css } from "styled-components";
 import { styleControl } from "comps/controls/styleControl";
 import { TableColumnLinkStyle } from "comps/controls/styleControlConstants";
-import Tooltip from "antd/es/tooltip";
 
 export const ColumnValueTooltip = trans("table.columnValueTooltip");
 
 const childrenMap = {
   text: StringControl,
-  tooltip: StringControl,
   onClick: ActionSelectorControlInContext,
   disabled: BoolCodeControl,
   style: styleControl(TableColumnLinkStyle),
@@ -34,16 +32,14 @@ const StyledLink = styled.a<{ $disabled: boolean }>`
   ${(props) => props.$disabled && disableCss};
 `;
 
-export const ColumnLink = (props: { disabled: boolean; label: string; tooltip?: string, onClick?: () => void }) => (
+export const ColumnLink = (props: { disabled: boolean; label: string; onClick?: () => void }) => (
   <StyledLink
     $disabled={props.disabled}
     onClick={() => {
       !props.disabled && props.onClick && props.onClick();
     }}
   >
-    <Tooltip title={props.tooltip}>
-      {props.label}
-    </Tooltip>
+    {props.label}
   </StyledLink>
 );
 
@@ -54,7 +50,7 @@ export const LinkComp = (function () {
     childrenMap,
     (props, dispatch) => {
       const value = props.changeValue ?? getBaseValue(props, dispatch);
-      return <ColumnLink disabled={props.disabled} label={value} tooltip={props.tooltip} onClick={props.onClick} />;
+      return <ColumnLink disabled={props.disabled} label={value} onClick={props.onClick} />;
     },
     (nodeValue) => nodeValue.text.value,
     getBaseValue
@@ -76,10 +72,6 @@ export const LinkComp = (function () {
       <>
         {children.text.propertyView({
           label: trans("table.columnValue"),
-          tooltip: ColumnValueTooltip,
-        })}
-        {children.tooltip.propertyView({
-          label: trans("table.columnTooltip"),
           tooltip: ColumnValueTooltip,
         })}
         {disabledPropertyView(children)}
