@@ -118,8 +118,8 @@ interface SectionProps {
 }
 
 const categories: Category[] = [
-  { label: trans("query.database"), filter: (t) => databasePlugins.includes(t.id) || t.id == "googleSheets" || t.definition?.category === "database" },
-  { label: trans("query.categoryBigdata"), filter: (t) => t.definition?.category === "Big Data" },
+  { label: trans("query.database"), filter: (t) => databasePlugins.includes(t.id) && t.id !== "snowflake" && t.id !== "clickHouse" && t.id !== "es" || t.id == "googleSheets" || t.definition?.category === "database"  },
+  { label: trans("query.categoryBigdata"), filter: (t) => t.id == "snowflake" || t.id == "clickHouse" || t.id == "es" || t.definition?.category === "Big Data" },
   { label: trans("query.categoryAi"), filter: (t) => t.definition?.category === "AI" },
   { label: trans("query.categoryDevops"), filter: (t) => t.definition?.category === "DevOps" },
   { label: trans("query.categoryAppdevelopment"), filter: (t) => t.id == "restApi" || t.id == "graphql" || t.definition?.category === "App Development" },
