@@ -14,14 +14,14 @@ const dataSourceConfig = {
   {
     "type": "groupTitle",
     "key": "serverURL",
-    "label": "Supabase API Url"
+    "label": "Supabase Management API Url"
   },
   {
-    key: "serverURL",
-    type: "textInput",
-    label: "Server URL",
-    rules: [{ required: true, message: "The server url is required" }],
-    placeholder: "https://<your couchdb server host>",
+    "key": "serverURL",
+    "type": "textInput",
+    "label": "Server URL",
+    "rules": [{ required: true, message: "The Supabase Management API url is required" }],
+    "placeholder": "https://api.supabase.com",
   },
   {
     "type": "groupTitle",
@@ -32,8 +32,9 @@ const dataSourceConfig = {
     "type": "password",
     "key": "bearerAuth.value",
     "label": "Token",
-    "tooltip": "API Key Authentication with a Bearer token. Copy your API Key from Supabase here. (e.g. 'eyJhbGciO...'",
-    "placeholder": "API Key Authentication with a Bearer token. Copy your API Key from Supabase here. (e.g. 'eyJhbGciO...'"
+    "rules": [{ required: true, message: "The Supabase Personal Access Token is required" }],
+    "tooltip": "API Key Authentication with a Bearer token. Copy your Personal Access Token from Supabase here. (e.g. 'sbp_bdd0•••'",
+    "placeholder": "Your Personal Access Token from Supabase here. (e.g. 'sbp_bdd0•••'"
   }
 ]
 } as const;
@@ -50,7 +51,7 @@ const supabaseApiPlugin: DataSourcePlugin<any, DataSourceConfigType> = {
   id: "supabaseApi",
   name: "Supabase Mgmt API",
   icon: "supabase.svg",
-  category: "api",
+  category: "App Development",
   dataSourceConfig,
   queryConfig: async () => {
     const { actions, categories } = await parseOpenApi(spec as unknown as OpenAPI.Document, parseOptions);

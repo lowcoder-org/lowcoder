@@ -42,7 +42,7 @@ const faunaPlugin: DataSourcePlugin<
 > = {
   id: "fauna",
   name: "Fauna",
-  category: "api",
+  category: "database",
   icon: "fauna.svg",
   dataSourceConfig,
   queryConfig: graphQLQueryConfig,

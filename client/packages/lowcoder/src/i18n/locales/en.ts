@@ -744,7 +744,19 @@ export const en = {
     "jsQueryDocLink": "About JavaScript Query",
     "dynamicDataSourceConfigLoadingText": "Loading extra datasource configuration...",
     "dynamicDataSourceConfigErrText": "Failed to load extra datasource configuration.",
-    "retry": "Retry"
+    "retry": "Retry",
+    "categoryDatabase" : "Database",
+    "categoryBigdata" : "Big Data",
+    "categoryAi" : "AI",
+    "categoryDevops" : "DevOps",
+    "categoryAppdevelopment" : "App Development",
+    "categoryWorkflow" : "Workflow",
+    "categoryMessaging" : "Messaging",
+    "categoryAssets" : "Assets & Storage",
+    "categoryProjectManagement" : "Project Management",
+    "categoryCrm" : "CRM",
+    "categoryEcommerce" : "E-commerce",
+    "categoryApis" : "Others",
   },
 
 

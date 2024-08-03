@@ -31,7 +31,7 @@ const circleCiPlugin: DataSourcePlugin<any, DataSourceConfigType> = {
   id: "circleCi",
   name: "CircleCI",
   icon: "circleCI.svg",
-  category: "api",
+  category: "DevOps",
   dataSourceConfig,
   queryConfig: async () => {
     const { actions, categories } = await parseOpenApi(

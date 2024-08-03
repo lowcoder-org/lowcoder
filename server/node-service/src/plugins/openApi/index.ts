@@ -157,7 +157,7 @@ const openApiPlugin: DataSourcePlugin<ActionDataType, DataSourceDataType> = {
   id: "openApi",
   name: "Open API",
   icon: "swagger.svg",
-  category: "api",
+  category: "App Development",
   dataSourceConfig: {
     ...dataSourceConfig,
     extra: async (dataSourceConfig) => {

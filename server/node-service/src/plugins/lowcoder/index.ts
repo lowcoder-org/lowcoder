@@ -46,7 +46,7 @@ const lowcoderPlugin: DataSourcePlugin<any, DataSourceConfigType> = {
   id: "lowcoder",
   name: "Lowcoder API",
   icon: "lowcoder.svg",
-  category: "api",
+  category: "App Development",
   dataSourceConfig,
   queryConfig: async () => {
     const { actions, categories } = await parseOpenApi(spec as unknown as OpenAPI.Document, parseOptions);

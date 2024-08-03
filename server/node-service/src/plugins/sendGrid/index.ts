@@ -30,7 +30,7 @@ const sendGridPlugin: DataSourcePlugin<any, DataSourceConfigType> = {
   id: "sendGrid",
   name: "SendGrid",
   icon: "sendGrid.svg",
-  category: "api",
+  category: "Messaging",
   dataSourceConfig,
   queryConfig: async () => {
     const { actions, categories } = await parseOpenApi(

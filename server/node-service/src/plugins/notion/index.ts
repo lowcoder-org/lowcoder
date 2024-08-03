@@ -39,7 +39,7 @@ const notionPlugin: DataSourcePlugin<any, DataSourceConfigType> = {
   id: "notion",
   name: "Notion",
   icon: "notion.svg",
-  category: "api",
+  category: "Project Management",
   dataSourceConfig,
   queryConfig: async () => {
     const { actions, categories } = await parseOpenApi(spec, parseOptions);
