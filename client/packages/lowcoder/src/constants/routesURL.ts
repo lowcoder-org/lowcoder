@@ -23,7 +23,7 @@ export const OAUTH_PROVIDER_DETAIL = "/setting/oauth-provider/detail";
 
 export const PERMISSION_SETTING_DETAIL = `${PERMISSION_SETTING}/:groupId`;
 export const ORGANIZATION_SETTING_DETAIL = `${ORGANIZATION_SETTING}/:orgId`;
-export const SUBSCRIPTION_SETTING_DETAIL = `${SUBSCRIPTION_SETTING}/:subscriptionId`;
+export const SUBSCRIPTION_DETAIL = `${SUBSCRIPTION_SETTING}/:subscriptionId`;
 
 export const ALL_APPLICATIONS_URL = "/apps";
 export const ADMIN_APP_URL = "/ee/:applicationId/:viewMode";
@@ -34,7 +34,6 @@ export const DATASOURCE_URL = `/datasource`;
 export const DATASOURCE_CREATE_URL = `${DATASOURCE_URL}/new/:datasourceType`;
 export const DATASOURCE_EDIT_URL = `${DATASOURCE_URL}/:datasourceId`;
 export const QUERY_LIBRARY_URL = `/query-library`;
-export const API_DOCS_URL = `/lowcoder-api`;
 export const FOLDER_URL_PREFIX = `/folder`;
 export const FOLDER_URL = `${FOLDER_URL_PREFIX}/:folderId`;
 export const FOLDERS_URL = `/folders`;
@@ -102,3 +101,5 @@ export function preview(applicationId: string) {
 export const buildGroupId = (groupId: string) => `${PERMISSION_SETTING}/${groupId}`;
 
 export const buildOrgId = (orgId: string) => `${ORGANIZATION_SETTING}/${orgId}`;
+
+export const buildSubscriptionId = (subscriptionId: string) => `${SUBSCRIPTION_SETTING}/${subscriptionId}`;

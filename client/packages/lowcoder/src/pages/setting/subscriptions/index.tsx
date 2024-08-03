@@ -1,13 +1,19 @@
-import { Route, Switch } from "react-router";
-import { SUBSCRIPTION_SETTING, SUBSCRIPTION_SETTING_DETAIL } from "constants/routesURL";
-import { SubscriptionList } from "./subscriptionList";
-import { SubscriptionSettingContent}  from "./subscriptionSettingContent";
+// index.tsx for routes
+import { Route, Switch, useLocation } from 'react-router-dom';
+import { SUBSCRIPTION_SETTING, SUBSCRIPTION_DETAIL } from 'constants/routesURL';
+import { SubscriptionSetting } from './subscriptionSetting';
+import SubscriptionContent from './subscriptionContent';
 
-export const Organization = () => {
+export const Subscription = () => {
+
+  const location = useLocation();
+
+  console.log("Current location:", location.pathname);
+
   return (
     <Switch>
-      <Route path={SUBSCRIPTION_SETTING} component={SubscriptionList} exact />
-      <Route path={SUBSCRIPTION_SETTING_DETAIL} component={SubscriptionSettingContent} exact />
+      <Route path={SUBSCRIPTION_SETTING} component={SubscriptionSetting} exact />
+      <Route path={SUBSCRIPTION_DETAIL} component={SubscriptionContent} exact />
     </Switch>
   );
 };
