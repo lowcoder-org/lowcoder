@@ -36,6 +36,7 @@ import appConfigPlugin from "./appconfig";
 import tursoPlugin from "./turso";
 import postmanEchoPlugin from "./postmanEcho";
 import lowcoderPlugin from "./lowcoder";
+import supabaseApiPlugin from "./supabaseApi";
 
 let plugins: (DataSourcePlugin | DataSourcePluginFactory)[] = [
   s3Plugin,
@@ -75,6 +76,7 @@ let plugins: (DataSourcePlugin | DataSourcePluginFactory)[] = [
   tursoPlugin,
   postmanEchoPlugin,
   lowcoderPlugin,
+  supabaseApiPlugin,
 ];
 
 try {
