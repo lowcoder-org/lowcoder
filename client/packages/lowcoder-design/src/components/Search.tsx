@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import { default as Input, InputProps } from "antd/es/input";
-import { ReactComponent as Icon } from "icons/icon-Search.svg";
+import { ReactComponent as Icon } from "icons/v1/icon-Search.svg";
 import React, { CSSProperties } from "react";
 
 const SearchInput = styled(Input)`

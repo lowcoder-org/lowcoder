@@ -36,7 +36,6 @@ import {
   AppsIcon,
   EnterpriseIcon,
   UserIcon,
-  APIDocsIcon,
 } from "lowcoder-design";
 import React, { useEffect, useState } from "react";
 import { fetchAllApplications, fetchHomeData } from "redux/reduxActions/applicationActions";
@@ -444,13 +443,6 @@ export default function ApplicationHome() {
                 visible: ({ user }) => user.orgDev,
                 onSelected: (_, currentPath) => currentPath.split("/")[1] === "datasource",
               },
-              // {
-              //   text: <TabLabel>{trans("home.api")}</TabLabel>,
-              //   routePath: API_DOCS_URL,
-              //   routeComp: ApiDocView,
-              //   icon: ({ selected, ...otherProps }) => selected ? <APIDocsIcon {...otherProps} width={"24px"}/> : <APIDocsIcon {...otherProps} width={"24px"}/>,
-              //   visible: ({ user }) => user.orgDev,
-              // }
             ],
           },
           isEE() ? {

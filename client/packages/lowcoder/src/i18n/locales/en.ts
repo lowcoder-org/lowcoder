@@ -2218,6 +2218,7 @@ export const en = {
     "title": "Settings",
     "userGroups": "User Groups",
     "organization": "Workspaces",
+    "subscription": "Subscriptions",
     "audit": "Audit Logs",
     "theme": "Themes",
     "plugin": "Plugins",
