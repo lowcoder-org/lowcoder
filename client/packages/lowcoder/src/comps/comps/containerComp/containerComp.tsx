@@ -81,7 +81,7 @@ function convertOldContainerParams(params: CompParams<any>) {
     // old params
     if (container && (container.hasOwnProperty("layout") || container.hasOwnProperty("items"))) {
       const autoHeight = tempParams.value.autoHeight;
-      const scrollbars = tempParams.value.scrollbars;
+      const scrollbars = tempParams.value.showVerticalScrollbar;
       return {
         ...tempParams,
         value: {

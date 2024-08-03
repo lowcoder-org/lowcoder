@@ -50,8 +50,10 @@ const childrenMap = {
   heightUnitOfRow: withDefault(NumberControl, 1),
   container: ContextContainerComp,
   autoHeight: AutoHeightControl,
+  showVerticalScrollbar: withDefault(BoolControl, false),
+  showHorizontalScrollbar: withDefault(BoolControl, false),
   horizontalGridCells: SliderControl,
-  scrollbars: withDefault(BoolControl, false),
+  scrollbars: withDefault(BoolControl, false), //TOLOOK INTO
   showBorder: BoolControl,
   pagination: withDefault(PaginationControl, { pageSize: "6" }),
   style: styleControl(ListViewStyle, 'style'),

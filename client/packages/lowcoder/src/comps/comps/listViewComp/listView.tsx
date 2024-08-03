@@ -57,7 +57,7 @@ const ListOrientationWrapper = styled.div<{
 }>`
   height: ${(props) => (props.$autoHeight ? "auto" : "100%")};
   display: flex;
-  flex-direction: ${(props) => (props.$isHorizontal && !props.$isGrid ? "row" : "column")};
+  flex-direction: ${(props) => (props.$isHorizontal ? "row" : "column")};
   height: 100%;
 `;
 
@@ -170,6 +170,7 @@ type Props = {
 };
 
 export function ListView(props: Props) {
+  console.log("🚀 ~ ListView ~ props:", props)
   const { comp } = props;
   const children = comp.children;
   const ref = useRef(null);
@@ -190,8 +191,10 @@ export function ListView(props: Props) {
   );
   const horizontalGridCells = useMemo(() => children.horizontalGridCells.getView(), [children.horizontalGridCells]);
   const autoHeight = useMemo(() => children.autoHeight.getView(), [children.autoHeight]);
-  const scrollbars = useMemo(() => children.scrollbars.getView(), [children.scrollbars]);
+  const showHorizontalScrollbar = useMemo(() => children.showHorizontalScrollbar.getView(), [children.showHorizontalScrollbar]);
+  const showVerticalScrollbar = useMemo(() => children.showVerticalScrollbar.getView(), [children.showVerticalScrollbar]);
   const horizontal = useMemo(() => children.horizontal.getView(), [children.horizontal]);
+  console.log("🚀 ~ ListView ~ horizontal:", horizontal)
   const minHorizontalWidth = useMemo(() => children.minHorizontalWidth.getView(), [children.minHorizontalWidth]);
   const noOfColumns = useMemo(
     () => Math.max(1, children.noOfColumns.getView()),
@@ -291,7 +294,7 @@ export function ListView(props: Props) {
     <BackgroundColorContext.Provider value={style.background}>
       <ListViewWrapper $style={style} $paddingWidth={paddingWidth} $animationStyle={animationStyle}>
         <BodyWrapper ref={ref} $autoHeight={autoHeight}>
-          <ScrollBar style={{ height: autoHeight ? "auto" : "100%", margin: "0px", padding: "0px" }} hideScrollbar={!scrollbars}>
+          <ScrollBar style={{ height: autoHeight ? "auto" : "100%", margin: "0px", padding: "0px" }} hideScrollbar={horizontal?!showHorizontalScrollbar:!showVerticalScrollbar} overflow={autoHeight?horizontal?'scroll':'hidden':'scroll'}>
             <ReactResizeDetector
               onResize={(width?: number, height?: number) => {
                 if (height) setListHeight(height);
