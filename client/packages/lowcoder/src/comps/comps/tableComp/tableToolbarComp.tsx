@@ -28,7 +28,7 @@ import {
   LinkButton,
   pageItemRender,
   RefreshIcon,
-  SettingIcon,
+  TableColumnVisibilityIcon,
   SuspensionBox,
   TacoButton,
   TacoInput,
@@ -97,14 +97,15 @@ const getStyle = (
       }
 
       .column-setting {
+        width: 20px;
         cursor: pointer;
 
         * {
-          ${style.toolbarText !== defaultTheme.textDark ? `stroke: ${style.toolbarText}` : null}
+          ${style.toolbarText && style.toolbarText !== defaultTheme.textDark ? `fill: ${style.toolbarText}` : `fill: #8b8fa3`} 
         }
 
         &:hover * {
-          stroke: ${theme?.primary};
+          fill: ${theme?.primary};
         }
       }
     }
@@ -799,7 +800,7 @@ export function TableToolbar(props: {
               visible={settingVisible}
               setVisible={setSettingVisible}
               content={<ColumnSetting columns={visibleColumns} setVisible={setSettingVisible} />}
-              Icon={SettingIcon}
+              Icon={TableColumnVisibilityIcon}
               iconClassName="column-setting"
             />
           )}

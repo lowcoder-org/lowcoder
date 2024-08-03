@@ -180,7 +180,7 @@ export { ReactComponent as LeftOpen } from "./icon-left-comp-open.svg";
 export { ReactComponent as LeftClose } from "./icon-left-comp-close.svg";
 export { ReactComponent as MaterialUploadIcon } from "./icon-material-upload.svg";
 export { ReactComponent as UndoIcon } from "./icon-undo.svg";
-
+ 
 export { ReactComponent as ManualIcon } from "./icon-manual.svg";
 export { ReactComponent as WarnIcon } from "./icon-warn.svg";
 export { ReactComponent as SyncManualIcon } from "./icon-sync-manual.svg";
@@ -197,7 +197,8 @@ export { ReactComponent as TableUnCheckedIcon } from "./icon-table-boolean-false
 export { ReactComponent as FileFolderIcon } from "./icon-editor-folder.svg";
 export { ReactComponent as ExpandIcon } from "./icon-expand.svg";
 export { ReactComponent as CompressIcon } from "./icon-compress.svg";
-export { ReactComponent as TableCellsIcon } from "./icon-table-cells.svg"; // Added By Aqib Mirza
+export { ReactComponent as TableCellsIcon } from "./icon-table-cells.svg";
+export { ReactComponent as TableColumnVisibilityIcon } from "./remix/layout-column-line.svg";
 
 // Style Props
 export { ReactComponent as WidthIcon } from "./icon-width.svg";
