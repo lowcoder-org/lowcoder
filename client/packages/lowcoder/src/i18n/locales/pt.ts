@@ -231,6 +231,8 @@ export const pt: typeof en = {
         "className": "Nome da Classe CSS",
         "dataTestId": "ID Individual",
         "horizontalGridCells": "Células de grade horizontal",
+        "showHorizontalScrollbar": "Show horizontal scrollbar",
+        "showVerticalScrollbar": "Show vertical scrollbar",
     },
     "autoHeightProp": {
         ...en.autoHeightProp,

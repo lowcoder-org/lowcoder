@@ -28,7 +28,7 @@ import { BackgroundColorContext } from "comps/utils/backgroundColorContext";
 import { PrimaryColor } from "constants/style";
 import { trans } from "i18n";
 import _ from "lodash";
-import { darkenColor, isDarkColor } from "lowcoder-design";
+import { darkenColor, isDarkColor, ScrollBar } from "lowcoder-design";
 import React, { Children, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { Resizable } from "react-resizable";
 import styled, { css } from "styled-components";
@@ -43,6 +43,7 @@ import { CellColorViewType } from "./column/tableColumnComp";
 import { defaultTheme } from "@lowcoder-ee/constants/themeConstants";
 import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 import { childrenToProps } from "@lowcoder-ee/comps/generators/multi";
+import { getVerticalMargin } from "@lowcoder-ee/util/cssUtil";
 
 
 function genLinerGradient(color: string) {
@@ -148,10 +149,13 @@ const BackgroundWrapper = styled.div<{
   // padding: unset !important;
   padding: ${(props) => props.$style.padding} !important;
   margin: ${(props) => props.$style.margin} !important;
-  overflow: scroll !important;
+  // overflow: scroll !important;
   border-style: ${(props) => props.$style.borderStyle} !important;
   border-width: ${(props) => `${props.$style.borderWidth} !important`};
-  ${(props) => props.$style}
+  border-color: ${(props) => `${props.$style.border} !important`};
+  height: calc(100% - ${(props) => getVerticalMargin(props.$style.margin.split(' '))});
+  // overflow-y: auto;
+  // ${(props) => props.$style}
 `;
 
 // TODO: find a way to limit the calc function for max-height only to first Margin value
@@ -166,7 +170,9 @@ const TableWrapper = styled.div<{
   $visibleResizables: boolean;
   $showHRowGridBorder?: boolean;
 }>`
-  overflow: unset !important;
+  // overflow: unset !important;
+  // max-height: 100%;
+  // overflow-y: auto;
 
   .ant-table-wrapper {
     border-top: unset;
@@ -193,22 +199,23 @@ const TableWrapper = styled.div<{
   }
 
   .ant-table {
-  overflow-y:scroll;
+    // overflow-y:scroll;
     background: ${(props) =>props.$style.background};
     .ant-table-container {
       border-left: unset;
       border-top: none !important;
       border-inline-start: none !important;
-      overflow-y:scroll;
-      height:300px
+      // overflow-y:scroll;
+      // height:300px;
 
       &::after {
         box-shadow: none !important;
       }
 
       .ant-table-content {
-        overflow-y:scroll;
-        overflow-x:scroll;
+        // overflow-y:scroll;
+        // overflow-x:scroll;
+        overflow: unset !important
       }
 
       // A table expand row contains table
@@ -220,6 +227,14 @@ const TableWrapper = styled.div<{
         border-top: unset;
 
         > .ant-table-thead {
+          ${(props) =>
+            props.$fixedHeader && `
+              position: sticky;
+              position: -webkit-sticky;
+              top: ${props.$fixedToolbar ? '47px' : '0'};
+              z-index: 99;
+            `
+          }
           > tr > th {
             background-color: ${(props) => props.$headerStyle.headerBackground};
            
@@ -227,14 +242,7 @@ const TableWrapper = styled.div<{
             border-width: ${(props) => props.$headerStyle.borderWidth};
             color: ${(props) => props.$headerStyle.headerText};
             // border-inline-end: ${(props) => `${props.$headerStyle.borderWidth} solid ${props.$headerStyle.border}`} !important;
-            ${(props) =>
-    props.$fixedHeader && `
-                position: sticky;
-                position: -webkit-sticky;
-                top: ${props.$fixedToolbar ? '47px' : '0'};
-                z-index: 99;
-              `
-  }
+            
 
             > div {
               margin: ${(props) => props.$headerStyle.margin};
@@ -715,6 +723,8 @@ export function TableCompView(props: {
   const toolbarStyle = compChildren.toolbarStyle.getView();
   const rowAutoHeight = compChildren.rowAutoHeight.getView();
   const tableAutoHeight = comp.getTableAutoHeight();
+  const showHorizontalScrollbar = compChildren.showHorizontalScrollbar.getView();
+  const showVerticalScrollbar = compChildren.showVerticalScrollbar.getView();
   const visibleResizables = compChildren.visibleResizables.getView();
   const showHRowGridBorder = compChildren.showHRowGridBorder.getView();
   const columnsStyle = compChildren.columnsStyle.getView();
@@ -833,69 +843,76 @@ export function TableCompView(props: {
   return (
     <BackgroundColorContext.Provider value={style.background} >
       <BackgroundWrapper ref={ref} $style={style} $tableAutoHeight={tableAutoHeight}>
-        {toolbar.position === "above" && toolbarView}
-        <TableWrapper
-          $style={style}
-          $rowStyle={rowStyle}
-          $headerStyle={headerStyle}
-          $toolbarStyle={toolbarStyle}
-          $toolbarPosition={toolbar.position}
-          $fixedHeader={compChildren.fixedHeader.getView()}
-          $fixedToolbar={toolbar.fixedToolbar && toolbar.position === 'above'}
-          $visibleResizables={visibleResizables}
-          $showHRowGridBorder={showHRowGridBorder}
-        >
-          <ResizeableTable<RecordType>
-            expandable={{
-              ...expansion.expandableConfig,
-              childrenColumnName: supportChildren
-                ? COLUMN_CHILDREN_KEY
-                : "OB_CHILDREN_KEY_PLACEHOLDER",
-              fixed: "left",
-              onExpand: (expanded) => {
-                if (expanded) {
-                  handleChangeEvent('rowExpand')
-                } else {
-                  handleChangeEvent('rowShrink')
+        {/* <div style={{
+          overflowY: 'auto',
+          maxHeight: '100%',
+        }}> */}
+        <ScrollBar style={{ height: "100%", margin: "0px", padding: "0px" }} hideScrollbar={!showVerticalScrollbar}>
+          {toolbar.position === "above" && toolbarView}
+          <TableWrapper
+            $style={style}
+            $rowStyle={rowStyle}
+            $headerStyle={headerStyle}
+            $toolbarStyle={toolbarStyle}
+            $toolbarPosition={toolbar.position}
+            $fixedHeader={compChildren.fixedHeader.getView()}
+            $fixedToolbar={toolbar.fixedToolbar && toolbar.position === 'above'}
+            $visibleResizables={visibleResizables}
+            $showHRowGridBorder={showHRowGridBorder}
+          >
+            <ResizeableTable<RecordType>
+              expandable={{
+                ...expansion.expandableConfig,
+                childrenColumnName: supportChildren
+                  ? COLUMN_CHILDREN_KEY
+                  : "OB_CHILDREN_KEY_PLACEHOLDER",
+                fixed: "left",
+                onExpand: (expanded) => {
+                  if (expanded) {
+                    handleChangeEvent('rowExpand')
+                  } else {
+                    handleChangeEvent('rowShrink')
+                  }
                 }
+              }}
+              rowColorFn={compChildren.rowColor.getView() as any}
+              rowHeightFn={compChildren.rowHeight.getView() as any}
+              {...compChildren.selection.getView()(onEvent)}
+              bordered={compChildren.showRowGridBorder.getView()}
+              onChange={(pagination, filters, sorter, extra) => {
+                onTableChange(pagination, filters, sorter, extra, comp.dispatch, onEvent);
+              }}
+              showHeader={!compChildren.hideHeader.getView()}
+              columns={antdColumns}
+              columnsStyle={columnsStyle}
+              viewModeResizable={compChildren.viewModeResizable.getView()}
+              visibleResizables={compChildren.visibleResizables.getView()}
+              dataSource={pageDataInfo.data}
+              size={compChildren.size.getView()}
+              rowAutoHeight={rowAutoHeight}
+              tableLayout="fixed"
+              loading={
+                loading ||
+                // fixme isLoading type
+                (compChildren.showDataLoadSpinner.getView() &&
+                  (compChildren.data as any).isLoading()) ||
+                compChildren.loading.getView()
               }
-            }}
-            rowColorFn={compChildren.rowColor.getView() as any}
-            rowHeightFn={compChildren.rowHeight.getView() as any}
-            {...compChildren.selection.getView()(onEvent)}
-            bordered={compChildren.showRowGridBorder.getView()}
-            onChange={(pagination, filters, sorter, extra) => {
-              onTableChange(pagination, filters, sorter, extra, comp.dispatch, onEvent);
-            }}
-            showHeader={!compChildren.hideHeader.getView()}
-            columns={antdColumns}
-            columnsStyle={columnsStyle}
-            viewModeResizable={compChildren.viewModeResizable.getView()}
-            visibleResizables={compChildren.visibleResizables.getView()}
-            dataSource={pageDataInfo.data}
-            size={compChildren.size.getView()}
-            rowAutoHeight={rowAutoHeight}
-            tableLayout="fixed"
-            loading={
-              loading ||
-              // fixme isLoading type
-              (compChildren.showDataLoadSpinner.getView() &&
-                (compChildren.data as any).isLoading()) ||
-              compChildren.loading.getView()
-            }
-            onCellClick={(columnName: string, dataIndex: string) => {
-              comp.children.selectedCell.dispatchChangeValueAction({
-                name: columnName,
-                dataIndex: dataIndex,
-              });
-            }}
-          />
+              onCellClick={(columnName: string, dataIndex: string) => {
+                comp.children.selectedCell.dispatchChangeValueAction({
+                  name: columnName,
+                  dataIndex: dataIndex,
+                });
+              }}
+            />
 
-          <SlotConfigContext.Provider value={{ modalWidth: width && Math.max(width, 300) }}>
-            {expansion.expandModalView}
-          </SlotConfigContext.Provider>
-        </TableWrapper>
-        {toolbar.position === "below" && toolbarView}
+            <SlotConfigContext.Provider value={{ modalWidth: width && Math.max(width, 300) }}>
+              {expansion.expandModalView}
+            </SlotConfigContext.Provider>
+          </TableWrapper>
+          {toolbar.position === "below" && toolbarView}
+        </ScrollBar>
+        {/* </div> */}
       </BackgroundWrapper>
 
     </BackgroundColorContext.Provider>

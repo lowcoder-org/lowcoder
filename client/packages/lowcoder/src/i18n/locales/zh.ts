@@ -220,6 +220,8 @@ export const zh: typeof en = {
         "horizontal": "水平",
         "minHorizontalWidth": "最小水平宽度",
         "horizontalGridCells": "水平网格单元",
+        "showHorizontalScrollbar": "Show horizontal scrollbar",
+        "showVerticalScrollbar": "Show vertical scrollbar",
     },
 
     autoHeightProp: {

@@ -200,6 +200,8 @@ export const de: typeof en = {
       "className": "Klasse",
       "dataTestId": "Test ID",
       "horizontalGridCells": "Horizontale Gitterzellen",
+      "showHorizontalScrollbar": "Show horizontal scrollbar",
+      "showVerticalScrollbar": "Show vertical scrollbar",
   },
   "autoHeightProp": {
       ...en.autoHeightProp,

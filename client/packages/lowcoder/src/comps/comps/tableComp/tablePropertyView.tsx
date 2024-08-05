@@ -462,6 +462,12 @@ export function compTablePropertyView<T extends MultiBaseComp<TableChildrenType>
               radioButton: true,
             })}
             {comp.children.autoHeight.getPropertyView()}
+            {comp.children.showHorizontalScrollbar.propertyView({
+              label: trans("prop.showHorizontalScrollbar"),
+            })}
+            {!comp.children.autoHeight.getView() && comp.children.showVerticalScrollbar.propertyView({
+              label: trans("prop.showVerticalScrollbar"),
+            })}
             {comp.children.fixedHeader.propertyView({
               label: trans("table.fixedHeader"),
               tooltip: trans("table.fixedHeaderTooltip")
