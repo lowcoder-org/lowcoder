@@ -39,7 +39,6 @@ import {
   saveCollisionStatus,
 } from "util/localStorageUtil";
 import { default as DownOutlined } from "@ant-design/icons/DownOutlined";
-import type { ItemType } from "antd/es/menu/hooks/useItems";
 import ThemeSettingsSelector from "components/ThemeSettingsSelector";
 
 export type DisabledCollisionStatus = "true" | "false"; // "true" means collision is not enabled - Layering works, "false" means collision is enabled - Layering does not work

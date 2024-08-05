@@ -235,7 +235,7 @@ export function Dropdown<T extends OptionsType>(props: DropdownProps<T>) {
         <SegmentedWrapper $placement={placement}>
           <Segmented
             block={true}
-            onChange={(value) => props.onChange(value.toString())}
+            onChange={(value) => props.onChange(String(value))}
             defaultValue={props.defaultValue}
             value={props.value}
             options={props.options as any}

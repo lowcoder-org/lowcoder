@@ -181,7 +181,7 @@ const TacoButton = forwardRef(
     props: Omit<ButtonProps, "type"> & {
       buttonType?: TacoButtonType;
     },
-    ref: React.Ref<HTMLElement>
+    ref: React.Ref<HTMLButtonElement>
   ) => {
     const { buttonType, ...restProps } = props;
     let loadingBackground;

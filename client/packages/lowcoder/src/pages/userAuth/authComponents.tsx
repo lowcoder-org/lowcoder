@@ -175,7 +175,7 @@ export const ConfirmButton = (props: {
   style?: CSSProperties;
   loading?: boolean;
 }) => {
-  const ref = useRef<HTMLElement>(null);
+  const ref = useRef<HTMLButtonElement>(null);
   return (
     <>
       <ReactHotkeys

@@ -1,11 +1,12 @@
 import { default as AntdSegmented } from "antd/es/segmented";
+import type { SegmentedProps } from "antd/es/segmented";
 import styled from "styled-components";
 
-type PropsType<T extends React.ForwardRefExoticComponent<any>> =
-  T extends React.ForwardRefExoticComponent<infer R> ? R : never;
-type SegmentedProps = PropsType<typeof AntdSegmented>;
+// type PropsType<T extends React.ForwardRefExoticComponent<any>> =
+//   T extends React.ForwardRefExoticComponent<infer R> ? R : never;
+// type SegmentedProps = PropsType<typeof AntdSegmented>;
 
-const StyledSegmented = styled(AntdSegmented)<PropsType<typeof AntdSegmented>>`
+const StyledSegmented = styled(AntdSegmented)<SegmentedProps>`
   width: 100%;
   height: 28px;
   border-radius: 6px;
