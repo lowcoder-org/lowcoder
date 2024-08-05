@@ -8,8 +8,7 @@ import { parseMultiOpenApi, ParseOpenApiOptions } from "../openApi/parse";
 
 
 const specs = {
-  "twilio--V": dirToSpecList(path.join(__dirname, "./twilio.spec")),
-  "did--V": dirToSpecList(path.join(__dirname, "./did.spec")),
+  "v1.0": dirToSpecList(path.join(__dirname, "./twilio.spec")),
 }
 
 const dataSourceConfig = {
