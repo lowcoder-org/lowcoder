@@ -16,10 +16,8 @@ const specList = [
 ];
 const specs = {
   "v1.0": specList,
-  "v2.0": specList,
 }
 
-//TODO: Thomas
 const dataSourceConfig = {
   type: "dataSource",
   params: [
@@ -59,7 +57,7 @@ const parseOptions: ParseOpenApiOptions = {
 
 type DataSourceConfigType = ConfigToType<typeof dataSourceConfig>;
 
-let queryConfig: QueryConfig;
+let queryConfig: any = {};
 
 const cloudinaryPlugin: DataSourcePlugin<any, DataSourceConfigType> = {
   id: "cloudinary",
@@ -67,10 +65,10 @@ const cloudinaryPlugin: DataSourcePlugin<any, DataSourceConfigType> = {
   icon: "cloudinary.svg",
   category: "api",
   dataSourceConfig,
-  queryConfig: async () => {
-    if (!queryConfig) {
-      const { actions, categories } = await parseMultiOpenApi(specList, parseOptions);
-      queryConfig = {
+  queryConfig: async (data) => {
+    if (!queryConfig[data.specVersion as keyof typeof queryConfig]) {
+      const { actions, categories } = await parseMultiOpenApi(specs[data.specVersion as keyof typeof specs], parseOptions);
+      queryConfig[data.specVersion as keyof typeof queryConfig] = {
         type: "query",
         label: "Action",
         categories: {
@@ -80,7 +78,7 @@ const cloudinaryPlugin: DataSourcePlugin<any, DataSourceConfigType> = {
         actions,
       };
     }
-    return queryConfig;
+    return queryConfig[data.specVersion as keyof typeof queryConfig];
   },
   run: function (actionData, dataSourceConfig): Promise<any> {
     const runApiDsConfig = {
@@ -89,7 +87,7 @@ const cloudinaryPlugin: DataSourcePlugin<any, DataSourceConfigType> = {
       dynamicParamsConfig: dataSourceConfig,
       specVersion: dataSourceConfig.specVersion,
     };
-    return runOpenApi(actionData, runApiDsConfig, specList);
+    return runOpenApi(actionData, runApiDsConfig, specs[dataSourceConfig.specVersion as keyof typeof specs]);
   },
 };
 

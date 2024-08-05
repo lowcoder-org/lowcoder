@@ -9,7 +9,6 @@ import { parseOpenApi, ParseOpenApiOptions } from "../openApi/parse";
 import spec from './postmanEcho.spec.json';
 const specs = {
   "v1.0": spec,
-  "v2.0": spec,
 }
 
 
@@ -41,8 +40,8 @@ const postmanEchoPlugin: DataSourcePlugin<any, DataSourceConfigType> = {
   icon: "postmanEcho.svg",
   category: "api",
   dataSourceConfig,
-  queryConfig: async () => {
-    const { actions, categories } = await parseOpenApi(spec as unknown as OpenAPI.Document, parseOptions);
+  queryConfig: async (data) => {
+    const { actions, categories } = await parseOpenApi(specs[data.specVersion as keyof typeof specs] as unknown as OpenAPI.Document, parseOptions);
     return {
       type: "query",
       label: "Action",
@@ -60,7 +59,7 @@ const postmanEchoPlugin: DataSourcePlugin<any, DataSourceConfigType> = {
       dynamicParamsConfig: dataSourceConfig,
       specVersion: dataSourceConfig.specVersion,
     };
-    return runOpenApi(actionData, runApiDsConfig, spec as OpenAPIV3.Document);
+    return runOpenApi(actionData, runApiDsConfig, specs[dataSourceConfig.specVersion as keyof typeof specs] as OpenAPIV3.Document);
   },
 };
 
