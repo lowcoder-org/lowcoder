@@ -7,13 +7,18 @@ import { DataSourceDataType } from "./dataSourceConfig";
 import run, { validateDataSourceConfig } from "./run";
 import { dataSourceConfig } from "./dataSourceConfig";
 
+const specs = {
+  "v1.0": queryConfig
+}
 const gcsPlugin = {
   id: "googleCloudStorage",
   name: "Google Cloud Storage",
   icon: "gcs.svg",
   category: "api",
   dataSourceConfig,
-  queryConfig: queryConfig,
+  queryConfig: async (data: any) => {
+    return specs[data.specVersion as keyof typeof specs];
+  },
 
   validateDataSourceConfig: async (dataSourceConfig: DataSourceDataType) => {
     return validateDataSourceConfig(dataSourceConfig);
