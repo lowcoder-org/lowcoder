@@ -21,17 +21,18 @@ import {
 import { useExtensions } from "base/codeEditor/extensions";
 import { EditorContext } from "comps/editorState";
 import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
+import { AutoHeightControl } from "@lowcoder-ee/index.sdk";
 
 /**
  * JsonEditor Comp
  */
 
-const Wrapper = styled.div`
+const Wrapper = styled.div<{$height:boolean}>`
   background-color: #fff;
   border: 1px solid #d7d9e0;
   border-radius: 4px;
   overflow: auto;
-  height: 100%;
+  height: ${props=>props.$height?'100%':'300px'};
 `;
 
 /**
@@ -63,11 +64,12 @@ function fixOldDataSecond(oldData: any) {
 }
 
 const childrenMap = {
-  value: jsonValueExposingStateControl("value", defaultData),
+  value: jsonValueExposingStateControl('value', defaultData),
   onEvent: ChangeEventHandlerControl,
-  label: withDefault(LabelControl, { position: "column" }),
+  autoHeight: AutoHeightControl,
+  label: withDefault(LabelControl, {position: 'column'}),
   style: styleControl(JsonEditorStyle, 'style'),
-  animationStyle: styleControl(AnimationStyle , 'animationStyle'),
+  animationStyle: styleControl(AnimationStyle, 'animationStyle'),
   ...formDataChildren,
 };
 
@@ -121,7 +123,7 @@ let JsonEditorTmpComp = (function () {
     return props.label({
       style: props.style,
       animationStyle: props.animationStyle,
-      children: <Wrapper ref={wrapperRef} onFocus={() => (editContent.current = "focus")} />,
+      children: <Wrapper ref={wrapperRef} onFocus={() => (editContent.current = "focus")} $height={props.autoHeight}/>,
     });
   })
     .setPropertyViewFn((children) => {
@@ -139,7 +141,9 @@ let JsonEditorTmpComp = (function () {
               {hiddenPropertyView(children)}
             </Section>
           )}
-
+          <Section name={trans('prop.height')}>
+            {children.autoHeight.propertyView({ label: trans('prop.height') })}
+          </Section>
           {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && ( children.label.getPropertyView() )}
           {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
             <>

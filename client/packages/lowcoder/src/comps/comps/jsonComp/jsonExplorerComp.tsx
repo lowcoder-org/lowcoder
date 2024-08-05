@@ -14,6 +14,7 @@ import { useContext, useEffect } from "react";
 import { AnimationStyle, AnimationStyleType } from "@lowcoder-ee/comps/controls/styleControlConstants";
 import { styleControl } from "@lowcoder-ee/comps/controls/styleControl";
 import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
+import { AutoHeightControl } from "@lowcoder-ee/index.sdk";
 
 /**
  * JsonExplorer Comp
@@ -40,9 +41,10 @@ const bgColorMap = {
 const JsonExplorerContainer = styled.div<{
   $theme: keyof typeof bgColorMap;
   $animationStyle: AnimationStyleType;
+  $height: boolean
 }>`
   ${(props) => props.$animationStyle}
-  height: 100%;
+  height: ${props => props.$height ?'100%':'300px'};
   overflow-y: scroll;
   background-color: ${(props) => bgColorMap[props.$theme] || "#ffffff"};
   border: 1px solid #d7d9e0;
@@ -53,6 +55,7 @@ const JsonExplorerContainer = styled.div<{
 let JsonExplorerTmpComp = (function () {
   const childrenMap = {
     value: withDefault(ArrayOrJSONObjectControl, JSON.stringify(defaultData, null, 2)),
+    autoHeight: AutoHeightControl,
     indent: withDefault(NumberControl, 4),
     expandToggle: BoolControl.DEFAULT_TRUE,
     theme: dropdownControl(themeOptions, 'shapeshifter:inverted'),
@@ -63,6 +66,7 @@ let JsonExplorerTmpComp = (function () {
 
     return (
       <JsonExplorerContainer
+        $height={props.autoHeight}
         $theme={props.theme as keyof typeof bgColorMap}
         $animationStyle={props.animationStyle}
       >
@@ -81,7 +85,7 @@ let JsonExplorerTmpComp = (function () {
       return (
         <>
           <Section name={sectionNames.basic}>
-            {children.value.propertyView({ label: trans("export.jsonEditorDesc") })}
+             {children.value.propertyView({ label: trans("export.jsonEditorDesc") })}
           </Section>
 
           {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
@@ -96,7 +100,9 @@ let JsonExplorerTmpComp = (function () {
               {children.indent.propertyView({ label: trans("jsonExplorer.indent") })}
             </Section>
           )}
-
+          <Section name={trans('prop.height')}>
+            {children.autoHeight.propertyView({label: trans('prop.height')})}
+          </Section>
           {(useContext(EditorContext).editorModeStatus === 'layout' ||
             useContext(EditorContext).editorModeStatus === 'both') && (
             <>
