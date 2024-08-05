@@ -8,7 +8,6 @@ import spec from "./woocommerce-spec.json";
 import { specsToOptions } from "../../common/util";
 const specs = {
   "v1.0": spec,
-  "v2.0": spec,
 }
 
 export function prepareServerUrl(url: string) {
