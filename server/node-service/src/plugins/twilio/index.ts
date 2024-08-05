@@ -44,7 +44,7 @@ const parseOptions: ParseOpenApiOptions = {
   },
 };
 
-let queryConfig: QueryConfig;
+let queryConfig: any = {};
 
 type DataSourceConfigType = ConfigToType<typeof dataSourceConfig>;
 
@@ -56,10 +56,9 @@ const twilioPlugin: DataSourcePlugin<any, DataSourceConfigType> = {
   dataSourceConfig,
 
   queryConfig: async (data) => {
-    console.log(data.specVersion);
-    // if (!queryConfig) {
+    if (!queryConfig[data.specVersion as keyof typeof queryConfig]) {
       const { actions, categories } = await parseMultiOpenApi(specs[data.specVersion as keyof typeof specs], parseOptions);
-      queryConfig = {
+      queryConfig[data.specVersion as keyof typeof queryConfig] = {
         type: "query",
         label: "Action",
         categories: {
@@ -68,8 +67,8 @@ const twilioPlugin: DataSourcePlugin<any, DataSourceConfigType> = {
         },
         actions,
       };
-    // }
-    return queryConfig;
+    }
+    return queryConfig[data.specVersion as keyof typeof queryConfig];
   },
 
   run: function (actionData, dataSourceConfig): Promise<any> {

@@ -51,7 +51,7 @@ const parseOptions: ParseOpenApiOptions = {
 
 type DataSourceConfigType = ConfigToType<typeof dataSourceConfig>;
 
-let queryConfig: QueryConfig | undefined;
+let queryConfig: any = {};
 
 const didPlugin: DataSourcePlugin<any, DataSourceConfigType> = {
   id: "did",
@@ -60,9 +60,9 @@ const didPlugin: DataSourcePlugin<any, DataSourceConfigType> = {
   category: "api",
   dataSourceConfig,
   queryConfig: async (data) => {
-    if (!queryConfig) {
+    if (!queryConfig[data.specVersion as keyof typeof queryConfig]) {
       const { actions, categories } = await parseMultiOpenApi(specs[data.specVersion as keyof typeof specs], parseOptions);
-      queryConfig = {
+      queryConfig[data.specVersion as keyof typeof queryConfig] = {
         type: "query",
         label: "Action",
         categories: {
@@ -72,7 +72,7 @@ const didPlugin: DataSourcePlugin<any, DataSourceConfigType> = {
         actions,
       };
     }
-    return queryConfig;
+    return queryConfig[data.specVersion as keyof typeof queryConfig];
   },
   run: function (actionData, dataSourceConfig): Promise<any> {
     const runApiDsConfig = {

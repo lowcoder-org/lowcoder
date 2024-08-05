@@ -10,7 +10,6 @@ import { specsToOptions } from "../../common/util";
 const specJson = readFileSync(path.join(__dirname, "./jira.spec.json")).toString();
 const specs = {
   "v1.0": specJson,
-  "v2.0": specJson,
 }
 //TODO: Thomas
 
@@ -64,7 +63,7 @@ const parseOptions: ParseOpenApiOptions = {
 
 type DataSourceConfigType = ConfigToType<typeof dataSourceConfig>;
 
-let queryConfig: QueryConfig;
+let queryConfig: any = {};
 
 const jiraPlugin: DataSourcePlugin<any, DataSourceConfigType> = {
   id: "jira",
@@ -72,10 +71,10 @@ const jiraPlugin: DataSourcePlugin<any, DataSourceConfigType> = {
   icon: "jira.svg",
   category: "api",
   dataSourceConfig,
-  queryConfig: async () => {
-    if (!queryConfig) {
-      const { actions, categories } = await parseOpenApi(JSON.parse(specJson), parseOptions);
-      queryConfig = {
+  queryConfig: async (data) => {
+    if (!queryConfig[data.specVersion as keyof typeof queryConfig]) {
+      const { actions, categories } = await parseOpenApi(JSON.parse(specs[data.specVersion as keyof typeof specs]), parseOptions);
+      queryConfig[data.specVersion as keyof typeof queryConfig] = {
         type: "query",
         label: "Action",
         categories: {
@@ -85,10 +84,10 @@ const jiraPlugin: DataSourcePlugin<any, DataSourceConfigType> = {
         actions,
       };
     }
-    return queryConfig;
+    return queryConfig[data.specVersion as keyof typeof queryConfig];
   },
   run: function (actionData, dataSourceConfig): Promise<any> {
-    const spec = JSON.parse(specJson);
+    const spec = JSON.parse(specs[dataSourceConfig.specVersion as keyof typeof specs]);
     const runApiDsConfig = {
       url: "",
       serverURL: dataSourceConfig.serverUrl,

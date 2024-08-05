@@ -8,7 +8,6 @@ import spec from "./oneSignal.spec.json";
 import { specsToOptions } from "../../common/util";
 const specs = {
   "v1.0": spec,
-  "v2.0": spec,
 }
 
 const dataSourceConfig = {
@@ -53,9 +52,9 @@ const oneSignalPlugin: DataSourcePlugin<any, DataSourceConfigType> = {
   icon: "oneSignal.svg",
   category: "api",
   dataSourceConfig,
-  queryConfig: async () => {
+  queryConfig: async (data) => {
     const { actions, categories } = await parseOpenApi(
-      spec as unknown as OpenAPI.Document,
+      specs[data.specVersion as keyof typeof specs] as unknown as OpenAPI.Document,
       parseOptions
     );
     return {
@@ -75,7 +74,7 @@ const oneSignalPlugin: DataSourcePlugin<any, DataSourceConfigType> = {
       dynamicParamsConfig: dataSourceConfig,
       specVersion: dataSourceConfig.specVersion,
     };
-    return runOpenApi(actionData, runApiDsConfig, spec as OpenAPIV3.Document);
+    return runOpenApi(actionData, runApiDsConfig, specs[dataSourceConfig.specVersion as keyof typeof specs] as OpenAPIV3.Document);
   },
 };
 
