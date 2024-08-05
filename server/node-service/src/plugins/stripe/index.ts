@@ -11,7 +11,6 @@ import { parse } from "yaml";
 const yamlContent = readFileSync(path.join(__dirname, "./stripe.spec.yaml"), "utf-8");
 const specs = {
   "v1.0": yamlContent,
-  "v2.0": yamlContent,
 }
 
 const dataSourceConfig = {
@@ -54,8 +53,8 @@ const stripePlugin: DataSourcePlugin<any, DataSourceConfigType> = {
   icon: "stripe.svg",
   category: "api",
   dataSourceConfig,
-  queryConfig: async () => {
-    const spec = parse(yamlContent);
+  queryConfig: async (data) => {
+    const spec = parse(specs[data.specVersion as keyof typeof specs]);
     const { actions, categories } = await parseOpenApi(spec as OpenAPI.Document, parseOptions);
     return {
       type: "query",
@@ -76,7 +75,7 @@ const stripePlugin: DataSourcePlugin<any, DataSourceConfigType> = {
     };
     // always use a new spec object
     // because of this bug: https://github.com/APIDevTools/json-schema-ref-parser/issues/271
-    const spec = parse(yamlContent);
+    const spec = parse(specs[dataSourceConfig.specVersion as keyof typeof specs]);
     return runOpenApi(actionData, runApiDsConfig, spec as OpenAPIV3.Document);
   },
 };
