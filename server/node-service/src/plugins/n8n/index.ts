@@ -7,7 +7,6 @@ import spec from "./spec.json";
 import { specsToOptions } from "../../common/util";
 const specs = {
   "v1.0": spec,
-  "v2.0": spec,
 }
 
 export function prepareServerUrl(url: string) {
@@ -70,8 +69,8 @@ const n8nPlugin: DataSourcePlugin<any, DataSourceConfigType> = {
   icon: "n8n.svg",
   category: "api",
   dataSourceConfig,
-  queryConfig: async () => {
-    const { actions, categories } = await parseOpenApi(spec as OpenAPI.Document, parseOptions);
+  queryConfig: async (data) => {
+    const { actions, categories } = await parseOpenApi(specs[data.specVersion as keyof typeof specs] as OpenAPI.Document, parseOptions);
     return {
       type: "query",
       label: "Operation",
@@ -92,7 +91,7 @@ const n8nPlugin: DataSourcePlugin<any, DataSourceConfigType> = {
       },
       specVersion: dataSourceConfig.specVersion
     };
-    return runOpenApi(actionData, runApiDsConfig, spec as OpenAPIV3.Document);
+    return runOpenApi(actionData, runApiDsConfig, specs[dataSourceConfig.specVersion as keyof typeof specs] as OpenAPIV3.Document);
   },
 };
 
