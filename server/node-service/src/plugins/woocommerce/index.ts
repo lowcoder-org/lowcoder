@@ -78,8 +78,8 @@ const wooCommercePlugin: DataSourcePlugin<any, DataSourceConfigType> = {
   icon: "woocommerce.svg",
   category: "api",
   dataSourceConfig,
-  queryConfig: async () => {
-    const { actions, categories } = await parseOpenApi(spec as OpenAPI.Document, parseOptions);
+  queryConfig: async (data) => {
+    const { actions, categories } = await parseOpenApi(specs[data.specVersion as keyof typeof specs] as OpenAPI.Document, parseOptions);
     return {
       type: "query",
       label: "Operation",
@@ -98,7 +98,7 @@ const wooCommercePlugin: DataSourcePlugin<any, DataSourceConfigType> = {
       dynamicParamsConfig: otherDataSourceConfig,
       specVersion: dataSourceConfig.specVersion
     };
-    return runOpenApi(actionData, runApiDsConfig, spec as unknown as OpenAPIV2.Document);
+    return runOpenApi(actionData, runApiDsConfig, specs[dataSourceConfig.specVersion as keyof typeof specs] as unknown as OpenAPIV2.Document);
   },
 };
 
