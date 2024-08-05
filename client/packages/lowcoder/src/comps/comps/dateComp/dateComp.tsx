@@ -45,10 +45,14 @@ import { dateRefMethods, disabledTime, handleDateChange } from "comps/comps/date
 import { DateUIView } from "./dateUIView";
 import { useIsMobile } from "util/hooks";
 import { RefControl } from "comps/controls/refControl";
-import { CommonPickerMethods } from "antd/es/date-picker/generatePicker/interface";
+// import { CommonPickerMethods } from "antd/es/date-picker/generatePicker/interface";
+import type { DatePickerType } from "antd/es/date-picker";
 import { DateRangeUIView } from "comps/comps/dateComp/dateRangeUIView";
 import { EditorContext } from "comps/editorState";
 import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
+import { DatePicker } from "antd";
+
+const CommonPickerMethods = _.pick(DatePicker, 'ref');
 
 const defaultStyle = {
   borderStyle: 'solid',
@@ -184,7 +188,7 @@ export const datePickerControl = new UICompBuilder(childrenMap, (props, dispatch
     animationStyle:props.animationStyle,
     children: (
       <DateUIView
-        viewRef={props.viewRef}
+        // viewRef={props.viewRef}
         disabledTime={() => disabledTime(props.minTime, props.maxTime)}
         $style={props.inputFieldStyle}
         disabled={props.disabled}
