@@ -78,7 +78,8 @@ export const getStyle = (
     .ant-select-selection-search {	
       padding: ${style.padding};
     }	
-    .ant-select-selection-search-input {
+    .ant-select-selection-search-input,
+    .ant-select-selection-item .option-label {
       font-family:${(style as SelectStyleType).fontFamily} !important;
       text-transform:${(style as SelectStyleType).textTransform} !important;
       text-decoration:${(style as SelectStyleType).textDecoration} !important;
