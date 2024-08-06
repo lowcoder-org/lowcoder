@@ -144,6 +144,7 @@ const BackgroundWrapper = styled.div<{
   $tableAutoHeight: boolean;
   $showHorizontalScrollbar: boolean;
   $showVerticalScrollbar: boolean;
+  $fixedToolbar: boolean;
 }>`
   display: flex;
   flex-direction: column;
@@ -158,8 +159,15 @@ const BackgroundWrapper = styled.div<{
   overflow: hidden;
 
   > div.table-scrollbar-wrapper {
-    height: auto;
     overflow: auto;
+    ${(props) => props.$fixedToolbar && `height: auto`};
+
+    ${(props) => (props.$showHorizontalScrollbar || props.$showVerticalScrollbar) && `
+      .simplebar-content-wrapper {
+        overflow: auto !important;
+      }  
+    `}
+
     ${(props) => !props.$showHorizontalScrollbar && `
       div.simplebar-horizontal {
         visibility: hidden !important;
@@ -847,6 +855,7 @@ export function TableCompView(props: {
     return <EmptyContent text={trans("table.emptyColumns")} />;
   }
 
+  const hideScrollbar = !showHorizontalScrollbar && !showVerticalScrollbar;
   return (
     <BackgroundColorContext.Provider value={style.background} >
       <BackgroundWrapper
@@ -855,14 +864,15 @@ export function TableCompView(props: {
         $tableAutoHeight={tableAutoHeight}
         $showHorizontalScrollbar={showHorizontalScrollbar}
         $showVerticalScrollbar={showVerticalScrollbar}
+        $fixedToolbar={toolbar.fixedToolbar}
       >
-        {toolbar.position === "above" && toolbar.fixedToolbar && toolbarView}
+        {toolbar.position === "above" && (toolbar.fixedToolbar || (tableAutoHeight && showHorizontalScrollbar)) && toolbarView}
         <ScrollBar
           className="table-scrollbar-wrapper"
           style={{ height: "100%", margin: "0px", padding: "0px" }}
-          hideScrollbar={!showHorizontalScrollbar && !showVerticalScrollbar}
-          prefixNode={toolbar.position === "above" && !toolbar.fixedToolbar && toolbarView}
-          suffixNode={toolbar.position === "below" && !toolbar.fixedToolbar && toolbarView}
+          hideScrollbar={hideScrollbar}
+          prefixNode={toolbar.position === "above" && !toolbar.fixedToolbar && !(tableAutoHeight && showHorizontalScrollbar) && toolbarView}
+          suffixNode={toolbar.position === "below" && !toolbar.fixedToolbar && !(tableAutoHeight && showHorizontalScrollbar) && toolbarView}
         >
           <TableWrapper
             $style={style}
@@ -926,7 +936,7 @@ export function TableCompView(props: {
             </SlotConfigContext.Provider>
           </TableWrapper>
         </ScrollBar>
-        {toolbar.position === "below" && toolbar.fixedToolbar && toolbarView}
+        {toolbar.position === "below" && (toolbar.fixedToolbar || (tableAutoHeight && showHorizontalScrollbar)) && toolbarView}
       </BackgroundWrapper>
 
     </BackgroundColorContext.Provider>
