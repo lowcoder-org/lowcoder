@@ -56,7 +56,7 @@ const jiraPlugin: DataSourcePlugin<any, DataSourceConfigType> = {
   id: "jira",
   name: "Jira",
   icon: "jira.svg",
-  category: "api",
+  category: "Project Management",
   dataSourceConfig,
   queryConfig: async () => {
     if (!queryConfig) {

@@ -1,6 +1,6 @@
 {
   "name": "lowcoder-sdk",
-  "version": "2.4.8",
+  "version": "2.4.11",
   "type": "module",
   "files": [
     "src",

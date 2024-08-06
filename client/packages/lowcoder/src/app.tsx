@@ -27,7 +27,6 @@ import {
   ADMIN_APP_URL,
   ORG_AUTH_FORGOT_PASSWORD_URL,
   ORG_AUTH_RESET_PASSWORD_URL,
-  API_DOCS_URL,
 } from "constants/routesURL";
 import React from "react";
 import { createRoot } from "react-dom/client";
@@ -253,7 +252,7 @@ class AppIndex extends React.Component<AppIndexProps, any> {
           {/* }<meta key="msapplication-config" name="msapplication-config" content="https://www.yourdomain.com/path/to/browserconfig.xml" />, */}
 
           <link rel="canonical" href={window.location.href} />
-          {isLowCoderDomain && [
+          {isLowCoderDomain || isLocalhost && [
             // Adding Support for iframely to be able to embedd the component explorer in the docu
             <meta
               key="iframely:title"
@@ -264,6 +263,12 @@ class AppIndex extends React.Component<AppIndexProps, any> {
               key="iframely:description"
               property="iframely:description"
               content={trans('productDesc')}
+            />,
+            <link
+              rel="iframely"
+              type="text/html"
+              href={window.location.href}
+              media="(aspect-ratio: 1280/720)"
             />,
 
             <link
@@ -320,8 +325,7 @@ class AppIndex extends React.Component<AppIndexProps, any> {
                   TRASH_URL,
                   SETTING,
                   MARKETPLACE_URL,
-                  ADMIN_APP_URL,
-                  API_DOCS_URL,
+                  ADMIN_APP_URL
                 ]}
                 // component={ApplicationListPage}
                 component={LazyApplicationHome}

@@ -13,6 +13,7 @@ import {
 } from "comps/uiCompRegistry";
 import { ExampleContext } from "./ExampleContext";
 import { trans } from "i18n";
+import { Helmet } from "react-helmet";
 
 type CompInfo = UICompManifest & { key: string };
 const groups: Partial<Record<UICompCategory, CompInfo[]>> = {};
@@ -93,13 +94,18 @@ export default function ComponentDoc() {
       {
         type: "component-change",
         componentName: params.name,
-      },
+      }, 
       "*"
     );
   }, [params.name]);
 
   return (
     <ExampleContext.Provider value={{ name: params.name }}>
+      <Helmet>
+        <meta key="iframely:title" property="iframely:title" content={"Lowcoder | " + (compManifest.enName ? compManifest.enName : params.name)} />,
+        <meta key="iframely:description" property="iframely:description" content={compManifest.description? compManifest.description.toString() : ""} />,
+        <link rel="iframely" type="text/html" href={window.location.href} media="(aspect-ratio: 1280/720)"/>,
+      </Helmet>
       <Wrapper>
         <div className="main">
           <div className="sidebar">

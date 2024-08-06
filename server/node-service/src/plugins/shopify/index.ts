@@ -21,7 +21,7 @@ const shopifyPlugin: DataSourcePlugin<
 > = {
   id: "shopify",
   name: "Shopify",
-  category: "api",
+  category: "eCommerce",
   icon: "shopify.svg",
   dataSourceConfig,
   queryConfig: graphQLQueryConfig,

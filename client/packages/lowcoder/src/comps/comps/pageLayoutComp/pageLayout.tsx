@@ -128,6 +128,7 @@ export function PageLayout(props: LayoutProps & { siderCollapsed: boolean; setSi
     siderStyle,
     bodyStyle,
     footerStyle,
+    horizontalGridCells,
   } = container; 
 
   const editorState = useContext(EditorContext);
@@ -171,6 +172,7 @@ export function PageLayout(props: LayoutProps & { siderCollapsed: boolean; setSi
                     <SiderInnerGrid
                       {...otherSiderProps}
                       items={gridItemCompToGridItems(siderItems)}
+                      horizontalGridCells={horizontalGridCells}
                       autoHeight={true}
                       emptyRows={30}
                       minHeight={`calc(100vh - ${style.padding}px)`}
@@ -196,6 +198,7 @@ export function PageLayout(props: LayoutProps & { siderCollapsed: boolean; setSi
                         <HeaderInnerGrid
                           {...otherHeaderProps}
                           items={gridItemCompToGridItems(headerItems)}
+                          horizontalGridCells={horizontalGridCells}
                           autoHeight={true}
                           emptyRows={5}
                           minHeight="46px"
@@ -223,6 +226,7 @@ export function PageLayout(props: LayoutProps & { siderCollapsed: boolean; setSi
                             <SiderInnerGrid
                               {...otherSiderProps}
                               items={gridItemCompToGridItems(siderItems)}
+                              horizontalGridCells={horizontalGridCells}
                               autoHeight={true}
                               emptyRows={30}
                               minHeight={`calc(100vh - ${style.padding}px)`}
@@ -256,6 +260,7 @@ export function PageLayout(props: LayoutProps & { siderCollapsed: boolean; setSi
                               $showBorder={showHeader}
                               {...otherBodyProps}
                               items={gridItemCompToGridItems(bodyItems)}
+                              horizontalGridCells={horizontalGridCells}
                               autoHeight={container.autoHeight}
                               emptyRows={14}
                               minHeight={showHeader ? "143px" : "142px"}
@@ -283,6 +288,7 @@ export function PageLayout(props: LayoutProps & { siderCollapsed: boolean; setSi
                               <SiderInnerGrid
                                 {...otherSiderProps}
                                 items={gridItemCompToGridItems(siderItems)}
+                                horizontalGridCells={horizontalGridCells}
                                 autoHeight={true}
                                 emptyRows={30}
                                 minHeight={`calc(100vh - ${style.padding}px)`}
@@ -318,6 +324,7 @@ export function PageLayout(props: LayoutProps & { siderCollapsed: boolean; setSi
                           $showBorder={showHeader}
                           {...otherBodyProps}
                           items={gridItemCompToGridItems(bodyItems)}
+                          horizontalGridCells={horizontalGridCells}
                           autoHeight={container.autoHeight}
                           emptyRows={14}
                           minHeight={showHeader ? "143px" : "142px"}
@@ -337,6 +344,7 @@ export function PageLayout(props: LayoutProps & { siderCollapsed: boolean; setSi
                         $showBorder={showHeader}
                         {...otherFooterProps}
                         items={gridItemCompToGridItems(footerItems)}
+                        horizontalGridCells={horizontalGridCells}
                         autoHeight={true}
                         emptyRows={5}
                         minHeight={"48px"}
@@ -370,6 +378,7 @@ export function PageLayout(props: LayoutProps & { siderCollapsed: boolean; setSi
                       <SiderInnerGrid
                         {...otherSiderProps}
                         items={gridItemCompToGridItems(siderItems)}
+                        horizontalGridCells={horizontalGridCells}
                         autoHeight={true}
                         emptyRows={30}
                         minHeight={`calc(100vh - ${style.padding}px)`}

@@ -14,6 +14,7 @@ export interface CommonSettingsState {
     preloadLibs?: string[] | null;
     applyPreloadCSSToHomePage?: boolean | null;
     runJavaScriptInHost?: boolean | null;
+    showHeaderInPublicApps?: boolean;
   };
   setResult: boolean;
 
