@@ -31,8 +31,8 @@ const Wrapper = styled.div<{$height: boolean; $showVerticalScrollbar:boolean}>`
   background-color: #fff;
   border: 1px solid #d7d9e0;
   border-radius: 4px;
-  overflow: scroll;
-  height: ${(props) => (props.$height ? '100%' : '300px')};
+  overflow-y: scroll;
+  height: ${(props) => (props.$height ? '100%' : '200px')};
   &::-webkit-scrollbar {
     width: 16px;
     display: ${props=>props.$showVerticalScrollbar&&'block !important'};
@@ -70,7 +70,7 @@ function fixOldDataSecond(oldData: any) {
 const childrenMap = {
   value: jsonValueExposingStateControl('value', defaultData),
   onEvent: ChangeEventHandlerControl,
-  autoHeight: AutoHeightControl,
+  autoHeight: withDefault(AutoHeightControl,'auto'),
   showVerticalScrollbar:BoolControl,
   label: withDefault(LabelControl, {position: 'column'}),
   style: styleControl(JsonEditorStyle, 'style'),
@@ -156,9 +156,9 @@ let JsonEditorTmpComp = (function () {
           <Section name={trans('prop.height')}>
             {children.autoHeight.propertyView({ label: trans('prop.height') })}
           </Section>
-          <Section name={sectionNames.layout}>
+          {!children.autoHeight.getView()&&<Section name={sectionNames.layout}>
             {children.showVerticalScrollbar.propertyView({label:trans('prop.showVerticalScrollbar')})}
-          </Section>
+          </Section>}
           {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && ( children.label.getPropertyView() )}
           {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
             <>
@@ -179,7 +179,7 @@ JsonEditorTmpComp = migrateOldData(JsonEditorTmpComp, fixOldDataSecond);
 
 JsonEditorTmpComp = class extends JsonEditorTmpComp {
   override autoHeight(): boolean {
-    return false;
+    return this.children.autoHeight.getView();
   }
 };
 

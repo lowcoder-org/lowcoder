@@ -60,7 +60,7 @@ const JsonExplorerContainer = styled.div<{
 let JsonExplorerTmpComp = (function () {
   const childrenMap = {
     value: withDefault(ArrayOrJSONObjectControl, JSON.stringify(defaultData, null, 2)),
-    autoHeight: AutoHeightControl,
+    autoHeight: withDefault(AutoHeightControl, 'auto'),
     showVerticalScrollbar:BoolControl,
     indent: withDefault(NumberControl, 4),
     expandToggle: BoolControl.DEFAULT_TRUE,
@@ -110,11 +110,11 @@ let JsonExplorerTmpComp = (function () {
           <Section name={trans('prop.height')}>
             {children.autoHeight.propertyView({label: trans('prop.height')})}
           </Section>
-          <Section name={sectionNames.layout}>
+          {!children.autoHeight.getView()&&<Section name={sectionNames.layout}>
             {children.showVerticalScrollbar.propertyView({
               label: trans('prop.showVerticalScrollbar'),
             })}
-          </Section>
+          </Section>}
           {(useContext(EditorContext).editorModeStatus === 'layout' ||
             useContext(EditorContext).editorModeStatus === 'both') && (
             <>
@@ -136,7 +136,7 @@ let JsonExplorerTmpComp = (function () {
 
 JsonExplorerTmpComp = class extends JsonExplorerTmpComp {
   override autoHeight(): boolean {
-    return false;
+    return this.children.autoHeight.getView();
   }
 };
 
