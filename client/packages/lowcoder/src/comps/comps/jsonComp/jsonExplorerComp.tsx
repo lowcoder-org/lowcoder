@@ -1,4 +1,4 @@
-import { Section, sectionNames } from "lowcoder-design";
+import { ScrollBar, Section, sectionNames } from "lowcoder-design";
 import { UICompBuilder, withDefault } from "../../generators";
 import { NameConfigHidden, NameConfig, withExposingConfigs } from "../../generators/withExposing";
 import ReactJson, { type ThemeKeys } from "react-json-view";
@@ -41,8 +41,6 @@ const bgColorMap = {
 const JsonExplorerContainer = styled.div<{
   $theme: keyof typeof bgColorMap;
   $animationStyle: AnimationStyleType;
-  $height: boolean;
-  $showVerticalScrollbar:boolean;
 }>`
   ${(props) => props.$animationStyle}
   height: 100%;
@@ -51,10 +49,6 @@ const JsonExplorerContainer = styled.div<{
   border: 1px solid #d7d9e0;
   border-radius: 4px;
   padding: 10px;
-  &::-webkit-scrollbar {
-    width: 16px;
-    display: ${props=>props.$showVerticalScrollbar&&'block !important'};
-  }
 `;
 
 let JsonExplorerTmpComp = (function () {
@@ -72,21 +66,21 @@ let JsonExplorerTmpComp = (function () {
 
     return (
       <JsonExplorerContainer
-        $height={props.autoHeight}
         $theme={props.theme as keyof typeof bgColorMap}
         $animationStyle={props.animationStyle}
-        $showVerticalScrollbar={props.showVerticalScrollbar}
       >
-        <ReactJson
-          name={false}
-          src={props.value}
-          theme={props.theme as ThemeKeys}
-          collapsed={!props.expandToggle}
-          displayDataTypes={false}
-          indentWidth={props.indent}
-        />
+        <ScrollBar hideScrollbar={!props.showVerticalScrollbar}>
+          <ReactJson
+            name={false}
+            src={props.value}
+            theme={props.theme as ThemeKeys}
+            collapsed={!props.expandToggle}
+            displayDataTypes={false}
+            indentWidth={props.indent}
+          />
+        </ScrollBar>
       </JsonExplorerContainer>
-    )
+    );
   })
     .setPropertyViewFn((children) => {
       return (
