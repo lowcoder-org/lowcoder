@@ -21,13 +21,13 @@ import {
 import { useExtensions } from "base/codeEditor/extensions";
 import { EditorContext } from "comps/editorState";
 import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
-import { AutoHeightControl } from "@lowcoder-ee/index.sdk";
+import { AutoHeightControl, BoolControl } from "@lowcoder-ee/index.sdk";
 
 /**
  * JsonEditor Comp
  */
 
-const Wrapper = styled.div<{$height: boolean}>`
+const Wrapper = styled.div<{$height: boolean; $showVerticalScrollbar:boolean}>`
   background-color: #fff;
   border: 1px solid #d7d9e0;
   border-radius: 4px;
@@ -35,7 +35,7 @@ const Wrapper = styled.div<{$height: boolean}>`
   height: ${(props) => (props.$height ? '100%' : '300px')};
   &::-webkit-scrollbar {
     width: 16px;
-    display:block !important;
+    display: ${props=>props.$showVerticalScrollbar&&'block !important'};
   }
 `;
 
@@ -71,6 +71,7 @@ const childrenMap = {
   value: jsonValueExposingStateControl('value', defaultData),
   onEvent: ChangeEventHandlerControl,
   autoHeight: AutoHeightControl,
+  showVerticalScrollbar:BoolControl,
   label: withDefault(LabelControl, {position: 'column'}),
   style: styleControl(JsonEditorStyle, 'style'),
   animationStyle: styleControl(AnimationStyle, 'animationStyle'),
@@ -127,7 +128,14 @@ let JsonEditorTmpComp = (function () {
     return props.label({
       style: props.style,
       animationStyle: props.animationStyle,
-      children: <Wrapper ref={wrapperRef} onFocus={() => (editContent.current = "focus")} $height={props.autoHeight}/>,
+      children: (
+        <Wrapper
+          ref={wrapperRef}
+          onFocus={() => (editContent.current = 'focus')}
+          $height={props.autoHeight}
+          $showVerticalScrollbar={props.showVerticalScrollbar}
+        />
+      ),
     });
   })
     .setPropertyViewFn((children) => {
@@ -147,6 +155,9 @@ let JsonEditorTmpComp = (function () {
           )}
           <Section name={trans('prop.height')}>
             {children.autoHeight.propertyView({ label: trans('prop.height') })}
+          </Section>
+          <Section name={sectionNames.layout}>
+            {children.showVerticalScrollbar.propertyView({label:trans('prop.showVerticalScrollbar')})}
           </Section>
           {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && ( children.label.getPropertyView() )}
           {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (

@@ -42,6 +42,7 @@ const JsonExplorerContainer = styled.div<{
   $theme: keyof typeof bgColorMap;
   $animationStyle: AnimationStyleType;
   $height: boolean;
+  $showVerticalScrollbar:boolean;
 }>`
   ${(props) => props.$animationStyle}
   height: ${(props) => (props.$height ? '100%' : '300px')};
@@ -52,7 +53,7 @@ const JsonExplorerContainer = styled.div<{
   padding: 10px;
   &::-webkit-scrollbar {
     width: 16px;
-    display: block !important;
+    display: ${props=>props.$showVerticalScrollbar&&'block !important'};
   }
 `;
 
@@ -60,6 +61,7 @@ let JsonExplorerTmpComp = (function () {
   const childrenMap = {
     value: withDefault(ArrayOrJSONObjectControl, JSON.stringify(defaultData, null, 2)),
     autoHeight: AutoHeightControl,
+    showVerticalScrollbar:BoolControl,
     indent: withDefault(NumberControl, 4),
     expandToggle: BoolControl.DEFAULT_TRUE,
     theme: dropdownControl(themeOptions, 'shapeshifter:inverted'),
@@ -73,6 +75,7 @@ let JsonExplorerTmpComp = (function () {
         $height={props.autoHeight}
         $theme={props.theme as keyof typeof bgColorMap}
         $animationStyle={props.animationStyle}
+        $showVerticalScrollbar={props.showVerticalScrollbar}
       >
         <ReactJson
           name={false}
@@ -106,6 +109,11 @@ let JsonExplorerTmpComp = (function () {
           )}
           <Section name={trans('prop.height')}>
             {children.autoHeight.propertyView({label: trans('prop.height')})}
+          </Section>
+          <Section name={sectionNames.layout}>
+            {children.showVerticalScrollbar.propertyView({
+              label: trans('prop.showVerticalScrollbar'),
+            })}
           </Section>
           {(useContext(EditorContext).editorModeStatus === 'layout' ||
             useContext(EditorContext).editorModeStatus === 'both') && (
