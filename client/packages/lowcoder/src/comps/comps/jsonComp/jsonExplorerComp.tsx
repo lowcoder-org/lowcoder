@@ -45,7 +45,7 @@ const JsonExplorerContainer = styled.div<{
   $showVerticalScrollbar:boolean;
 }>`
   ${(props) => props.$animationStyle}
-  height: ${(props) => (props.$height ? '100%' : '300px')};
+  height: 100%;
   overflow-y: scroll;
   background-color: ${(props) => bgColorMap[props.$theme] || '#ffffff'};
   border: 1px solid #d7d9e0;
