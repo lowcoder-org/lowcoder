@@ -185,10 +185,6 @@ const TableWrapper = styled.div<{
   $visibleResizables: boolean;
   $showHRowGridBorder?: boolean;
 }>`
-  // overflow: unset !important;
-  // max-height: 100%;
-  // overflow-y: auto;
-
   .ant-table-wrapper {
     border-top: unset;
     border-color: inherit;
@@ -214,22 +210,17 @@ const TableWrapper = styled.div<{
   }
 
   .ant-table {
-    // overflow-y:scroll;
     background: ${(props) =>props.$style.background};
     .ant-table-container {
       border-left: unset;
       border-top: none !important;
       border-inline-start: none !important;
-      // overflow-y:scroll;
-      // height:300px;
 
       &::after {
         box-shadow: none !important;
       }
 
       .ant-table-content {
-        // overflow-y:scroll;
-        // overflow-x:scroll;
         overflow: unset !important
       }
 
