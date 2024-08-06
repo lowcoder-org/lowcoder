@@ -220,8 +220,8 @@ export const en = {
     "preventOverwriting": "Prevent overwriting styles",
     "color": "Color",
     "horizontalGridCells": "Horizontal Grid Cells",
-    "showHorizontalScrollbar": "Show horizontal scrollbar",
-    "showVerticalScrollbar": "Show vertical scrollbar",
+    "showHorizontalScrollbar": "Show Horizontal Scrollbar",
+    "showVerticalScrollbar": "Show Vertical Scrollbar",
   },
   "autoHeightProp": {
     "auto": "Auto",

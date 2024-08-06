@@ -56,6 +56,8 @@ interface IProps {
   };
   $hideplaceholder?: boolean;
   hideScrollbar?: boolean;
+  prefixNode?: React.ReactNode;
+  suffixNode?: React.ReactNode;
 }
 
 export const ScrollBar = ({
@@ -65,6 +67,8 @@ export const ScrollBar = ({
   scrollableNodeProps,
   hideScrollbar = false,
   $hideplaceholder = false,
+  prefixNode,
+  suffixNode,
   ...otherProps
 }: IProps) => {
   const height = style?.height ?? '100%';
@@ -73,12 +77,24 @@ export const ScrollBar = ({
 
   return hideScrollbar ? (
     <ScrollBarWrapper className={className}>
+      {prefixNode}
       {children}
+      {suffixNode}
     </ScrollBarWrapper>
   ) : (
     <ScrollBarWrapper className={className}>
       <SimpleBar style={combinedStyle} scrollableNodeProps={scrollableNodeProps} {...otherProps}>
-        {children}
+        {({ scrollableNodeProps, contentNodeProps }) => {
+          return (
+            <div {...scrollableNodeProps as any}>
+              {prefixNode}
+              <div {...contentNodeProps as any}>
+                {children}
+              </div>
+              {suffixNode}
+            </div>
+          );
+        }}
       </SimpleBar>
     </ScrollBarWrapper>
   );

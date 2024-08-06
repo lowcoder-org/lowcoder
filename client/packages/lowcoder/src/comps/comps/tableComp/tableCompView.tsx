@@ -142,20 +142,35 @@ const TitleResizeHandle = styled.span`
 const BackgroundWrapper = styled.div<{
   $style: TableStyleType;
   $tableAutoHeight: boolean;
-}>`  
+  $showHorizontalScrollbar: boolean;
+  $showVerticalScrollbar: boolean;
+}>`
+  display: flex;
+  flex-direction: column;
   background: ${(props) => props.$style.background} !important;
-  // border: ${(props) => `${props.$style.border} !important`};
   border-radius: ${(props) => props.$style.radius} !important;
-  // padding: unset !important;
   padding: ${(props) => props.$style.padding} !important;
   margin: ${(props) => props.$style.margin} !important;
-  // overflow: scroll !important;
   border-style: ${(props) => props.$style.borderStyle} !important;
   border-width: ${(props) => `${props.$style.borderWidth} !important`};
   border-color: ${(props) => `${props.$style.border} !important`};
   height: calc(100% - ${(props) => getVerticalMargin(props.$style.margin.split(' '))});
-  // overflow-y: auto;
-  // ${(props) => props.$style}
+  overflow: hidden;
+
+  > div.table-scrollbar-wrapper {
+    height: auto;
+    overflow: auto;
+    ${(props) => !props.$showHorizontalScrollbar && `
+      div.simplebar-horizontal {
+        visibility: hidden !important;
+      }  
+    `}
+    ${(props) => !props.$showVerticalScrollbar && `
+      div.simplebar-vertical {
+        visibility: hidden !important;
+      }  
+    `}
+  }
 `;
 
 // TODO: find a way to limit the calc function for max-height only to first Margin value
@@ -231,7 +246,8 @@ const TableWrapper = styled.div<{
             props.$fixedHeader && `
               position: sticky;
               position: -webkit-sticky;
-              top: ${props.$fixedToolbar ? '47px' : '0'};
+              // top: ${props.$fixedToolbar ? '47px' : '0'};
+              top: 0;
               z-index: 99;
             `
           }
@@ -842,13 +858,21 @@ export function TableCompView(props: {
 
   return (
     <BackgroundColorContext.Provider value={style.background} >
-      <BackgroundWrapper ref={ref} $style={style} $tableAutoHeight={tableAutoHeight}>
-        {/* <div style={{
-          overflowY: 'auto',
-          maxHeight: '100%',
-        }}> */}
-        <ScrollBar style={{ height: "100%", margin: "0px", padding: "0px" }} hideScrollbar={!showVerticalScrollbar}>
-          {toolbar.position === "above" && toolbarView}
+      <BackgroundWrapper
+        ref={ref}
+        $style={style}
+        $tableAutoHeight={tableAutoHeight}
+        $showHorizontalScrollbar={showHorizontalScrollbar}
+        $showVerticalScrollbar={showVerticalScrollbar}
+      >
+        {toolbar.position === "above" && toolbar.fixedToolbar && toolbarView}
+        <ScrollBar
+          className="table-scrollbar-wrapper"
+          style={{ height: "100%", margin: "0px", padding: "0px" }}
+          hideScrollbar={!showHorizontalScrollbar && !showVerticalScrollbar}
+          prefixNode={toolbar.position === "above" && !toolbar.fixedToolbar && toolbarView}
+          suffixNode={toolbar.position === "below" && !toolbar.fixedToolbar && toolbarView}
+        >
           <TableWrapper
             $style={style}
             $rowStyle={rowStyle}
@@ -910,9 +934,8 @@ export function TableCompView(props: {
               {expansion.expandModalView}
             </SlotConfigContext.Provider>
           </TableWrapper>
-          {toolbar.position === "below" && toolbarView}
         </ScrollBar>
-        {/* </div> */}
+        {toolbar.position === "below" && toolbar.fixedToolbar && toolbarView}
       </BackgroundWrapper>
 
     </BackgroundColorContext.Provider>
