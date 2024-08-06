@@ -1,4 +1,4 @@
-import { dirToSpecList, specsToOptions } from "../../common/util";
+import { dirToSpecList, specsToOptions, version2spec } from "../../common/util";
 import _ from "lodash";
 import path from "path";
 import { OpenAPI } from "openapi-types";
@@ -61,7 +61,7 @@ const didPlugin: DataSourcePlugin<any, DataSourceConfigType> = {
   dataSourceConfig,
   queryConfig: async (data) => {
     if (!queryConfig[data.specVersion as keyof typeof queryConfig]) {
-      const { actions, categories } = await parseMultiOpenApi(specs[data.specVersion as keyof typeof specs], parseOptions);
+      const { actions, categories } = await parseMultiOpenApi(version2spec(specs, data.specVersion), parseOptions);
       queryConfig[data.specVersion as keyof typeof queryConfig] = {
         type: "query",
         label: "Action",
@@ -81,7 +81,7 @@ const didPlugin: DataSourcePlugin<any, DataSourceConfigType> = {
       dynamicParamsConfig: dataSourceConfig,
       specVersion: dataSourceConfig.specVersion,
     };
-    return runOpenApi(actionData, runApiDsConfig, specs[dataSourceConfig.specVersion as keyof typeof specs]);
+    return runOpenApi(actionData, runApiDsConfig, version2spec(specs, dataSourceConfig.specVersion));
   },
 };
 

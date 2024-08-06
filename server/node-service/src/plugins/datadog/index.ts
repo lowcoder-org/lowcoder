@@ -1,4 +1,4 @@
-import { readYaml, specsToOptions } from "../../common/util";
+import { readYaml, specsToOptions, version2spec } from "../../common/util";
 import _ from "lodash";
 import path from "path";
 import { OpenAPIV3, OpenAPI } from "openapi-types";
@@ -59,7 +59,7 @@ const datadogPlugin: DataSourcePlugin<any, DataSourceConfigType> = {
   category: "api",
   dataSourceConfig,
   queryConfig: async (data) => {
-    const { actions, categories } = await parseOpenApi(specs[data.specVersion as keyof typeof specs], parseOptions);
+    const { actions, categories } = await parseOpenApi(version2spec(specs, data.specVersion), parseOptions);
     return {
       type: "query",
       label: "Action",
@@ -77,7 +77,7 @@ const datadogPlugin: DataSourcePlugin<any, DataSourceConfigType> = {
       dynamicParamsConfig: dataSourceConfig,
       specVersion: dataSourceConfig.specVersion,
     };
-    return runOpenApi(actionData, runApiDsConfig, specs[dataSourceConfig.specVersion as keyof typeof specs] as OpenAPIV3.Document);
+    return runOpenApi(actionData, runApiDsConfig, version2spec(specs, dataSourceConfig.specVersion) as OpenAPIV3.Document);
   },
 };
 

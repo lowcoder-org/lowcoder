@@ -5,7 +5,7 @@ import { runOpenApi } from "../openApi";
 import { parseOpenApi, ParseOpenApiOptions } from "../openApi/parse";
 
 import spec from "./circleCi.spec.json";
-import { specsToOptions } from "../../common/util";
+import { specsToOptions, version2spec } from "../../common/util";
 const specs = {
   "v1.0": spec,
 }
@@ -47,7 +47,7 @@ const circleCiPlugin: DataSourcePlugin<any, DataSourceConfigType> = {
   dataSourceConfig,
   queryConfig: async (data) => {
     const { actions, categories } = await parseOpenApi(
-      specs[data.specVersion as keyof typeof specs] as unknown as OpenAPI.Document,
+      version2spec(specs, data.specVersion) as unknown as OpenAPI.Document,
       parseOptions
     );
     return {
@@ -67,7 +67,7 @@ const circleCiPlugin: DataSourcePlugin<any, DataSourceConfigType> = {
       dynamicParamsConfig: dataSourceConfig,
       specVersion: dataSourceConfig.specVersion,
     };
-    return runOpenApi(actionData, runApiDsConfig, specs[dataSourceConfig.specVersion as keyof typeof specs] as unknown as OpenAPIV3.Document);
+    return runOpenApi(actionData, runApiDsConfig, version2spec(specs, dataSourceConfig.specVersion) as unknown as OpenAPIV3.Document);
   },
 };
 

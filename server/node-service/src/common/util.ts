@@ -94,6 +94,15 @@ export function specsToOptions(specs: any) {
   return Object.keys(specs).map(k => ({value: k, label: k}));
 }
 
+export function version2spec(specs: any, version: any) {
+  if(version == undefined || version == "") {
+    const keys = Object.keys(specs);
+    if(keys.length == 0) return;
+    return specs[keys[0]];
+  }
+  return specs[version];
+}
+
 function genTagFromFileName(name: string) {
   const fileName = name.replace(/\.yaml|twilio_|\.json/g, "");
   const parts = fileName.split("_");

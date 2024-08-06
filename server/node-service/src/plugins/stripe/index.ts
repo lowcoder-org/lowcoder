@@ -1,4 +1,4 @@
-import { readYaml, specsToOptions } from "../../common/util";
+import { readYaml, specsToOptions, version2spec } from "../../common/util";
 import _ from "lodash";
 import path from "path";
 import { OpenAPIV3, OpenAPI } from "openapi-types";
@@ -54,7 +54,7 @@ const stripePlugin: DataSourcePlugin<any, DataSourceConfigType> = {
   category: "api",
   dataSourceConfig,
   queryConfig: async (data) => {
-    const spec = parse(specs[data.specVersion as keyof typeof specs]);
+    const spec = parse(version2spec(specs, data.specVersion));
     const { actions, categories } = await parseOpenApi(spec as OpenAPI.Document, parseOptions);
     return {
       type: "query",
@@ -75,7 +75,7 @@ const stripePlugin: DataSourcePlugin<any, DataSourceConfigType> = {
     };
     // always use a new spec object
     // because of this bug: https://github.com/APIDevTools/json-schema-ref-parser/issues/271
-    const spec = parse(specs[dataSourceConfig.specVersion as keyof typeof specs]);
+    const spec = parse(version2spec(specs, dataSourceConfig.specVersion));
     return runOpenApi(actionData, runApiDsConfig, spec as OpenAPIV3.Document);
   },
 };

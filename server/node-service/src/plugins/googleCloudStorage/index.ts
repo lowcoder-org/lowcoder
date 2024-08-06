@@ -6,6 +6,7 @@ import queryConfig, { ActionDataType } from "./queryConfig";
 import { DataSourceDataType } from "./dataSourceConfig";
 import run, { validateDataSourceConfig } from "./run";
 import { dataSourceConfig } from "./dataSourceConfig";
+import { version2spec } from "../../common/util";
 
 const specs = {
   "v1.0": queryConfig
@@ -17,7 +18,7 @@ const gcsPlugin = {
   category: "api",
   dataSourceConfig,
   queryConfig: async (data: any) => {
-    return specs[data.specVersion as keyof typeof specs];
+    return version2spec(specs, data.specVersion);
   },
 
   validateDataSourceConfig: async (dataSourceConfig: DataSourceDataType) => {

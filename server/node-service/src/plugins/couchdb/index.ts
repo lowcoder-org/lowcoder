@@ -4,7 +4,7 @@ import { ConfigToType, DataSourcePlugin } from "lowcoder-sdk/dataSource";
 import { runOpenApi } from "../openApi";
 import { defaultParseOpenApiOptions, parseOpenApi, ParseOpenApiOptions } from "../openApi/parse";
 import spec from "./CouchDB-3.1.1-resolved.json";
-import { specsToOptions } from "../../common/util";
+import { specsToOptions, version2spec } from "../../common/util";
 const specs = {
   "v1.0": spec,
 }
@@ -71,7 +71,7 @@ const couchdbPlugin: DataSourcePlugin<any, DataSourceConfigType> = {
   category: "database",
   dataSourceConfig,
   queryConfig: async (data) => {
-    const { actions, categories } = await parseOpenApi(specs[data.specVersion as keyof typeof specs] as OpenAPI.Document, parseOptions);
+    const { actions, categories } = await parseOpenApi(version2spec(specs, data.specVersion) as OpenAPI.Document, parseOptions);
     return {
       type: "query",
       label: "Operation",
@@ -90,7 +90,7 @@ const couchdbPlugin: DataSourcePlugin<any, DataSourceConfigType> = {
       dynamicParamsConfig: otherDataSourceConfig,
       specVersion: dataSourceConfig.specVersion
     };
-    return runOpenApi(actionData, runApiDsConfig, specs[dataSourceConfig.specVersion as keyof typeof specs] as OpenAPIV2.Document);
+    return runOpenApi(actionData, runApiDsConfig, version2spec(specs, dataSourceConfig.specVersion) as OpenAPIV2.Document);
   },
 };
 

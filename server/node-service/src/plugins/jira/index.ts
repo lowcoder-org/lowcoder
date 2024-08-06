@@ -5,7 +5,7 @@ import { ConfigToType, DataSourcePlugin, QueryConfig } from "lowcoder-sdk/dataSo
 import path from "path";
 import { runOpenApi } from "../openApi";
 import { parseOpenApi, ParseOpenApiOptions } from "../openApi/parse";
-import { specsToOptions } from "../../common/util";
+import { specsToOptions, version2spec } from "../../common/util";
 
 const specJson = readFileSync(path.join(__dirname, "./jira.spec.json")).toString();
 const specs = {
@@ -73,7 +73,7 @@ const jiraPlugin: DataSourcePlugin<any, DataSourceConfigType> = {
   dataSourceConfig,
   queryConfig: async (data) => {
     if (!queryConfig[data.specVersion as keyof typeof queryConfig]) {
-      const { actions, categories } = await parseOpenApi(JSON.parse(specs[data.specVersion as keyof typeof specs]), parseOptions);
+      const { actions, categories } = await parseOpenApi(JSON.parse(version2spec(specs, data.specVersion)), parseOptions);
       queryConfig[data.specVersion as keyof typeof queryConfig] = {
         type: "query",
         label: "Action",
@@ -87,7 +87,7 @@ const jiraPlugin: DataSourcePlugin<any, DataSourceConfigType> = {
     return queryConfig[data.specVersion as keyof typeof queryConfig];
   },
   run: function (actionData, dataSourceConfig): Promise<any> {
-    const spec = JSON.parse(specs[dataSourceConfig.specVersion as keyof typeof specs]);
+    const spec = JSON.parse(version2spec(specs, dataSourceConfig.specVersion));
     const runApiDsConfig = {
       url: "",
       serverURL: dataSourceConfig.serverUrl,

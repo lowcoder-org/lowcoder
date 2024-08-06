@@ -1,6 +1,6 @@
 import _ from "lodash";
 import { ConfigToType, DataSourcePlugin } from "lowcoder-sdk/dataSource";
-import { specsToOptions } from "../../common/util";
+import { specsToOptions, version2spec } from "../../common/util";
 
 const queryConfig = {
   type: "query",
@@ -64,7 +64,7 @@ const huggingFaceInferencePlugin: DataSourcePlugin<ActionConfigType, DataSourceC
   category: "api",
   dataSourceConfig,
   queryConfig: async (data) => {
-    return specs[data.specVersion as keyof typeof specs];
+    return version2spec(specs, data.specVersion);
   },
   run: async (actionData, dataSourceConfig) => {
     const response = await fetch(
