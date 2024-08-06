@@ -32,7 +32,8 @@ const Wrapper = styled.div<{$height: boolean; $showVerticalScrollbar:boolean}>`
   border: 1px solid #d7d9e0;
   border-radius: 4px;
   overflow-y: scroll;
-  height: ${(props) => (props.$height ? '100%' : '200px')};
+  min-height:200px;
+  height: 100%;
   &::-webkit-scrollbar {
     width: 16px;
     display: ${props=>props.$showVerticalScrollbar&&'block !important'};
