@@ -60,6 +60,7 @@ const getStyle = (style: InputLikeStyleType) => {
   return css`
     border-radius: ${style.radius};
     border-width:${style.borderWidth} !important;
+    // line-height: ${style.lineHeight} !important;
     // still use antd style when disabled
     &:not(.ant-input-number-disabled) {
       color: ${style.text};

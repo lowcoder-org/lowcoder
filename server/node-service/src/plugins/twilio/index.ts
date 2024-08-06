@@ -51,7 +51,7 @@ const twilioPlugin: DataSourcePlugin<any, DataSourceConfigType> = {
   id: "twilio",
   name: "Twilio",
   icon: "twilio.svg",
-  category: "api",
+  category: "Messaging",
   dataSourceConfig,
 
   queryConfig: async (data) => {

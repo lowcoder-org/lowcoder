@@ -44,7 +44,7 @@ const frontPlugin: DataSourcePlugin<any, DataSourceConfigType> = {
   id: "front",
   name: "Front",
   icon: "front.svg",
-  category: "api",
+  category: "CRM",
   dataSourceConfig,
   queryConfig: async (data) => {
     const { actions, categories } = await parseOpenApi(version2spec(specs, data.specVersion) as OpenAPI.Document, parseOptions);

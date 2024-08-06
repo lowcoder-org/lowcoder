@@ -11,8 +11,8 @@ const specs = {
 const firebasePlugin: DataSourcePlugin<ActionDataType, DataSourceDataType> = {
   id: "firebase",
   icon: "firebase.svg",
-  name: "Firebase",
-  category: "api",
+  name: "Google Firebase",
+  category: "App Development",
   queryConfig: async (data) => {
     return version2spec(specs, data.specVersion);
   },

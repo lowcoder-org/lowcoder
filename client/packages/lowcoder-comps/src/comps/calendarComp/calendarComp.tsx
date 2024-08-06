@@ -32,6 +32,7 @@ import {
   hiddenPropertyView,
   ChangeEventHandlerControl,
   DragEventHandlerControl,
+  CalendarEventHandlerControl,
   Section,
   sectionNames,
   dropdownControl,
@@ -45,7 +46,9 @@ import {
   CalendarDeleteIcon,
   Tooltip,
   useMergeCompStyles,
-} from "lowcoder-sdk";
+  EditorContext,
+  CompNameContext,
+} from 'lowcoder-sdk';
 
 import {
   DefaultWithFreeViewOptions,
@@ -76,7 +79,7 @@ let childrenMap: any = {
   resourcesEvents: jsonValueExposingStateControl("resourcesEvents", resourcesEventsDefaultData),
   resources: jsonValueExposingStateControl("resources", resourcesDefaultData),
   resourceName: withDefault(StringControl, trans("calendar.resourcesDefault")),
-  onEvent: ChangeEventHandlerControl,
+  onEvent: CalendarEventHandlerControl,
   // onDropEvent: safeDragEventHandlerControl,
   editable: withDefault(BoolControl, true),
   showEventTime: withDefault(BoolControl, true),
@@ -120,6 +123,12 @@ let CalendarBasicComp = (function () {
     currentFreeView?: string; 
     currentPremiumView?: string; 
   }, dispatch: any) => {
+  
+  const comp = useContext(EditorContext).getUICompByName(
+    useContext(CompNameContext)
+    );
+    const onEventVal = comp?.toJsonValue().comp.onEvent;
+  
 
     const theme = useContext(ThemeContext);
     const ref = createRef<HTMLDivElement>();
@@ -303,7 +312,12 @@ let CalendarBasicComp = (function () {
         };
         showModal(eventInfo, true);
       } else {
-        showModal(editEvent.current, false);
+        if (onEventVal && onEventVal.some((e: any) => e.name === 'doubleClick')) {
+          // Check if 'doubleClick' is included in the array
+          props.onEvent('doubleClick');
+        } else {
+          showModal(editEvent.current as EventType, false);
+        }
       }
     };
 
@@ -433,7 +447,6 @@ let CalendarBasicComp = (function () {
         props.onDropEvent("dropEvent");
       }
     };
-
     return (
       <Wrapper
         ref={ref}

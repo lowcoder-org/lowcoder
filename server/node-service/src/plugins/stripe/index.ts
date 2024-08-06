@@ -51,7 +51,7 @@ const stripePlugin: DataSourcePlugin<any, DataSourceConfigType> = {
   id: "stripe",
   name: "Stripe",
   icon: "stripe.svg",
-  category: "api",
+  category: "eCommerce",
   dataSourceConfig,
   queryConfig: async (data) => {
     const spec = parse(version2spec(specs, data.specVersion));

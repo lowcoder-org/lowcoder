@@ -224,7 +224,7 @@ function useCodeMirror(
       window.clearTimeout(isTypingRef.current);
       isTypingRef.current = window.setTimeout(() => (isTypingRef.current = 0), 100);
       onChange?.(state);
-    }, 100)
+    }, 1000)
     , [onChange]
   );
 

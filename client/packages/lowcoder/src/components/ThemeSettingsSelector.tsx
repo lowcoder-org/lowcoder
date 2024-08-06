@@ -381,7 +381,7 @@ export default function ThemeSettingsSelector(props: ColorConfigProps) {
             max={48} // Define the maximum value for the slider
             value={parseInt(gridColumns || "24")}
             onChange={(value) => setGridColumns(value.toString())}
-            onAfterChange={(value) => gridColumnsInputBlur(value.toString())}
+            onChangeComplete={(value) => gridColumnsInputBlur(value.toString())}
           />
         </div>
       )}

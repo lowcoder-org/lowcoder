@@ -54,7 +54,7 @@ const gitHubPlugin: DataSourcePlugin<any, DataSourceConfigType> = {
   id: "github",
   name: "GitHub",
   icon: "github.svg",
-  category: "api",
+  category: "App Development",
   dataSourceConfig,
   queryConfig: async (data) => {
     const { actions, categories } = await parseOpenApi(version2spec(specs, data.specVersion), parseOptions);

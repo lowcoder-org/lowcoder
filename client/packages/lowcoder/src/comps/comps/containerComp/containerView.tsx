@@ -121,6 +121,7 @@ type ExtraProps = {
   isSelectable?: boolean;
   overflow?: string;
   enableGridLines?: boolean;
+  horizontalGridCells?: number;
   onRowCountChange?: (rowHeight: number) => void;
 };
 
@@ -338,6 +339,8 @@ export function InnerGrid(props: ViewPropsWithSelect) {
     enableGridLines,
     isRowCountLocked,
   } = props;
+  const horizontalGridCells = props.horizontalGridCells ? String(props.horizontalGridCells) : undefined;
+  const currentTheme = useContext(ThemeContext)?.theme;
   const [currentRowCount, setRowCount] = useState(rowCount || Infinity);
   const [currentRowHeight, setRowHeight] = useState(DEFAULT_ROW_HEIGHT);
   const editorState = useContext(EditorContext);
@@ -346,7 +349,8 @@ export function InnerGrid(props: ViewPropsWithSelect) {
   // Falk: TODO: Here we can define the inner grid columns dynamically
   //Added By Aqib Mirza
   const defaultGrid =
-    useContext(ThemeContext)?.theme?.gridColumns ||
+    horizontalGridCells ||
+    currentTheme?.gridColumns ||
     defaultTheme?.gridColumns ||
     "12";
   /////////////////////

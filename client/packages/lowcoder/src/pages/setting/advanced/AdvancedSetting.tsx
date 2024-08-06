@@ -25,6 +25,7 @@ import { getGlobalSettings } from "comps/utils/globalSettings";
 import { fetchJSLibrary } from "util/jsLibraryUtils";
 import { evalFunc } from "lowcoder-core";
 import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
+import { default as Switch } from "antd/es/switch";
 
 const CodeEditor = lazy(
   () => import("base/codeEditor/codeEditor")
@@ -182,6 +183,34 @@ export function AdvancedSetting() {
             buttonType="primary"
             disabled={commonSettings.defaultHomePage === settings.defaultHomePage}
             onClick={() => handleSave("defaultHomePage")()}
+          >
+            {trans("advanced.saveBtn")}
+          </SaveButton>
+        </div>
+        <div className="section-title">{trans("advanced.showHeaderInPublicApps")}</div>
+        <HelpText style={{ marginBottom: 12 }}>{trans("advanced.showHeaderInPublicAppsHelp")}</HelpText>
+        <div className="section-content">
+          <Switch
+            style={{ marginBottom: 12 }}
+            checked={
+              settings.hasOwnProperty('showHeaderInPublicApps')
+              ? settings.showHeaderInPublicApps
+              : true
+            }
+            onChange={(value: boolean) => {
+              setSettings((v) => ({ ...v, showHeaderInPublicApps: value }));
+            }}
+          />
+          <SaveButton
+            buttonType="primary"
+            disabled={commonSettings.showHeaderInPublicApps === settings.showHeaderInPublicApps}
+            onClick={
+              () => handleSave("showHeaderInPublicApps")(
+                settings.hasOwnProperty('showHeaderInPublicApps')
+                ? settings.showHeaderInPublicApps
+                : true
+              )
+            }
           >
             {trans("advanced.saveBtn")}
           </SaveButton>

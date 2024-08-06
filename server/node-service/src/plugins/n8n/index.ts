@@ -67,7 +67,7 @@ const n8nPlugin: DataSourcePlugin<any, DataSourceConfigType> = {
   id: "n8n",
   name: "n8n",
   icon: "n8n.svg",
-  category: "api",
+  category: "Workflow",
   dataSourceConfig,
   queryConfig: async (data) => {
     const { actions, categories } = await parseOpenApi(version2spec(specs, data.specVersion) as OpenAPI.Document, parseOptions);

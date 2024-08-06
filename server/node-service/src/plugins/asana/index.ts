@@ -49,7 +49,7 @@ const asanaPlugin: DataSourcePlugin<any, DataSourceConfigType> = {
   id: "asana",
   name: "Asana",
   icon: "asana.svg",
-  category: "api",
+  category: "Project Management",
   dataSourceConfig,
   queryConfig: async (data) => {
     const { actions, categories } = await parseOpenApi(version2spec(specs, data.specVersion) as OpenAPI.Document, parseOptions);

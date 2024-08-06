@@ -64,6 +64,7 @@ const getStyle = (style: TextStyleType) => {
       h6 {
         color: ${style.text};
         font-weight: ${style.textWeight} !important;
+        line-height:${style.lineHeight};
       }
       img,
       pre {

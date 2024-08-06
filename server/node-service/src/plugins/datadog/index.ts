@@ -56,7 +56,7 @@ const datadogPlugin: DataSourcePlugin<any, DataSourceConfigType> = {
   id: "datadog",
   name: "Datadog",
   icon: "datadog.svg",
-  category: "api",
+  category: "DevOps",
   dataSourceConfig,
   queryConfig: async (data) => {
     const { actions, categories } = await parseOpenApi(version2spec(specs, data.specVersion), parseOptions);

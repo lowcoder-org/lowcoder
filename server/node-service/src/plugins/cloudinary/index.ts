@@ -63,7 +63,7 @@ const cloudinaryPlugin: DataSourcePlugin<any, DataSourceConfigType> = {
   id: "cloudinary",
   name: "Cloudinary",
   icon: "cloudinary.svg",
-  category: "api",
+  category: "Assets",
   dataSourceConfig,
   queryConfig: async (data) => {
     if (!queryConfig[data.specVersion as keyof typeof queryConfig]) {

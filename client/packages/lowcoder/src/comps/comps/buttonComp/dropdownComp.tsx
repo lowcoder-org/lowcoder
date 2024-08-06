@@ -60,6 +60,7 @@ const LeftButtonWrapper = styled.div<{ $buttonStyle: DropdownStyleType }>`
     ${(props) => `font-style: ${props.$buttonStyle.fontStyle};`}
 
     width: 100%;
+    line-height:${(props) => props.$buttonStyle.lineHeight}; 
   }
   
 `;

@@ -75,7 +75,7 @@ const wooCommercePlugin: DataSourcePlugin<any, DataSourceConfigType> = {
   id: "woocommerce",
   name: "WooCommerce",
   icon: "woocommerce.svg",
-  category: "api",
+  category: "eCommerce",
   dataSourceConfig,
   queryConfig: async (data) => {
     const { actions, categories } = await parseOpenApi(version2spec(specs, data.specVersion) as OpenAPI.Document, parseOptions);
