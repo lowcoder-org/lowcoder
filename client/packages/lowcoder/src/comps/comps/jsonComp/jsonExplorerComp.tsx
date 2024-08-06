@@ -41,15 +41,19 @@ const bgColorMap = {
 const JsonExplorerContainer = styled.div<{
   $theme: keyof typeof bgColorMap;
   $animationStyle: AnimationStyleType;
-  $height: boolean
+  $height: boolean;
 }>`
   ${(props) => props.$animationStyle}
-  height: ${props => props.$height ?'100%':'300px'};
+  height: ${(props) => (props.$height ? '100%' : '300px')};
   overflow-y: scroll;
-  background-color: ${(props) => bgColorMap[props.$theme] || "#ffffff"};
+  background-color: ${(props) => bgColorMap[props.$theme] || '#ffffff'};
   border: 1px solid #d7d9e0;
   border-radius: 4px;
   padding: 10px;
+  &::-webkit-scrollbar {
+    width: 16px;
+    display: block !important;
+  }
 `;
 
 let JsonExplorerTmpComp = (function () {

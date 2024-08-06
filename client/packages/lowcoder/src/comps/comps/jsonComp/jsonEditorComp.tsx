@@ -27,12 +27,16 @@ import { AutoHeightControl } from "@lowcoder-ee/index.sdk";
  * JsonEditor Comp
  */
 
-const Wrapper = styled.div<{$height:boolean}>`
+const Wrapper = styled.div<{$height: boolean}>`
   background-color: #fff;
   border: 1px solid #d7d9e0;
   border-radius: 4px;
-  overflow: auto;
-  height: ${props=>props.$height?'100%':'300px'};
+  overflow: scroll;
+  height: ${(props) => (props.$height ? '100%' : '300px')};
+  &::-webkit-scrollbar {
+    width: 16px;
+    display:block !important;
+  }
 `;
 
 /**
