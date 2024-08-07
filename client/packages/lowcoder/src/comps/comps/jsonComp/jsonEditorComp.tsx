@@ -110,8 +110,8 @@ let JsonEditorTmpComp = (function () {
           extensions,
         });
       }
-    }, [wrapperRef.current, props.showVerticalScrollbar]);
-    
+    }, [wrapperRef.current]);
+
     useEffect(() => {
       if (state.current&&wrapperRef.current) {
         view.current = new EditorView({ state: state.current, parent: wrapperRef.current });
