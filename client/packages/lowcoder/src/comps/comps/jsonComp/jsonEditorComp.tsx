@@ -107,9 +107,16 @@ let JsonEditorTmpComp = (function () {
           doc: JSON.stringify(props.value.value, null, 2),
           extensions,
         });
-        view.current = new EditorView({ state, parent: wrapperRef.current });
+        view.current = new EditorView({state, parent: wrapperRef.current});
       }
-    }, [wrapperRef.current]);
+      if (wrapperRef.current&&(props.showVerticalScrollbar||!props.showVerticalScrollbar)) {
+        const state = EditorState.create({
+          doc: JSON.stringify(props.value.value, null, 2),
+          extensions,
+        });
+        view.current = new EditorView({state, parent: wrapperRef.current});
+      }
+    }, [wrapperRef.current, props.showVerticalScrollbar]);
 
     if (wrapperRef.current && view.current && !editContent.current) {
       const state = EditorState.create({
@@ -125,8 +132,6 @@ let JsonEditorTmpComp = (function () {
       style: props.style,
       animationStyle: props.animationStyle,
       children: (
-        
- 
         <ScrollBar hideScrollbar={!props.showVerticalScrollbar}>
           <Wrapper
             ref={wrapperRef}
@@ -135,7 +140,6 @@ let JsonEditorTmpComp = (function () {
             $showVerticalScrollbar={props.showVerticalScrollbar}
           />
         </ScrollBar>
-        
       ),
     });
   })
