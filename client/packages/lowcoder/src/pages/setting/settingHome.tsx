@@ -2,7 +2,6 @@ import { Organization } from "./organization";
 import PermissionSetting from "./permission";
 import { ThemeHome } from "./theme";
 import { AdvancedSetting } from "./advanced/AdvancedSetting";
-import { SubscriptionSetting } from "./subscriptions/subscriptionSetting";
 import { currentOrgAdmin } from "util/permissionUtils";
 import { trans } from "i18n";
 import AuditSetting from "@lowcoder-ee/pages/setting/audit";
@@ -29,6 +28,7 @@ import { enableCustomBrand } from "util/featureFlagUtils";
 import FreeLimitTag from "pages/common/freeLimitTag";
 import { Helmet } from "react-helmet";
 import { Card } from "antd";
+import { Subscription } from "./subscriptions";
 
 enum SettingPageEnum {
   UserGroups = "permission",
@@ -129,13 +129,12 @@ export function SettingHome() {
         !enableCustomBrand(config) ||
         (!isSelfDomain(config) && !isEnterpriseMode(config)),
     },
+    // {
+    //   key: SettingPageEnum.Subscription,
+    //   label: trans("settings.subscription"),
+    //   icon: <SubscriptionIcon width={"20px"}/>, 
+    // },
   ];
-
-  {/* {
-    key: SettingPageEnum.Subscription,
-    label: trans("settings.subscription"),
-    icon: <SubscriptionIcon width={"20px"}/>, 
-  }, */}
 
   return (
     <>
@@ -162,7 +161,7 @@ export function SettingHome() {
         {selectKey === SettingPageEnum.Audit && <AuditSetting />}
         {selectKey === SettingPageEnum.Branding && <BrandingSetting />}
         {selectKey === SettingPageEnum.Advanced && <AdvancedSetting />}
-        {/* selectKey === SettingPageEnum.Subscription && <SubscriptionSetting /> */}
+        {/* {selectKey === SettingPageEnum.Subscription && <Subscription />} */}
       </TwoColumnSettingPageContent>
     </>
   );
