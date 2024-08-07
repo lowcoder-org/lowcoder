@@ -80,6 +80,8 @@ let JsonEditorTmpComp = (function () {
 
     const wrapperRef = useRef<HTMLDivElement>(null);
     const view = useRef<EditorViewType | null>(null);
+    const initialized = useRef(false);
+    const state = useRef<EditorState | null>(null);
     const editContent = useRef<string>();
     const { extensions } = useExtensions({
       codeType: "PureJSON",
@@ -102,21 +104,20 @@ let JsonEditorTmpComp = (function () {
     });
 
     useEffect(() => {
-      if (wrapperRef.current && !view.current) {
-        const state = EditorState.create({
+      if (!initialized.current && wrapperRef.current) {
+        state.current = EditorState.create({
           doc: JSON.stringify(props.value.value, null, 2),
           extensions,
         });
-        view.current = new EditorView({state, parent: wrapperRef.current});
-      }
-      if (wrapperRef.current&&(props.showVerticalScrollbar||!props.showVerticalScrollbar)) {
-        const state = EditorState.create({
-          doc: JSON.stringify(props.value.value, null, 2),
-          extensions,
-        });
-        view.current = new EditorView({state, parent: wrapperRef.current});
       }
     }, [wrapperRef.current, props.showVerticalScrollbar]);
+    
+    useEffect(() => {
+      if (state.current&&wrapperRef.current) {
+        view.current = new EditorView({ state: state.current, parent: wrapperRef.current });
+        initialized.current = true;
+      }
+    }, [props.showVerticalScrollbar])
 
     if (wrapperRef.current && view.current && !editContent.current) {
       const state = EditorState.create({
