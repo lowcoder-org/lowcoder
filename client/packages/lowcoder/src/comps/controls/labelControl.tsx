@@ -45,7 +45,7 @@ function getStyle(style: any) {
   `;
 }
 
-const LabelViewWrapper = styled.div<{ $style: any, inputFieldStyle: any,$animationStyle:any }>`
+const LabelViewWrapper = styled.div<{ $style: any, $inputFieldStyle: any,$animationStyle:any }>`
   ${(props) => {
     return (
       props.$style && {
@@ -56,7 +56,7 @@ const LabelViewWrapper = styled.div<{ $style: any, inputFieldStyle: any,$animati
       }
     );
   }}
-  ${(props) => props.inputFieldStyle && getStyle(props.inputFieldStyle)}
+  ${(props) => props.$inputFieldStyle && getStyle(props.$inputFieldStyle)}
   ${(props) => props.$animationStyle && props.$animationStyle}
   display: flex;
   flex-direction: column;
@@ -177,7 +177,7 @@ export const LabelControl = (function () {
 
   return new MultiCompBuilder(childrenMap, (props) => (args: LabelViewProps) => 
   {
-    return <LabelViewWrapper $style={args.style} inputFieldStyle={args.inputFieldStyle} $animationStyle={args.animationStyle}>
+    return <LabelViewWrapper $style={args.style} $inputFieldStyle={args.inputFieldStyle} $animationStyle={args.animationStyle}>
       <MainWrapper
         $position={props.position}
         $hasLabel={!!props.text}

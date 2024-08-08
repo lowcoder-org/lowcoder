@@ -22,7 +22,7 @@ const handleClick = async (
     DateCompViewProps,
     "showTime" | "minDate" | "maxDate" | "disabledTime" | "onFocus" | "onBlur"
   > & {
-    value: dayjs.Dayjs | null;
+    value?: dayjs.Dayjs | null;
     // onChange: (value: dayjs.Dayjs | null) => void;
     onChange: DatePickerProps<Dayjs>['onChange'];
   }

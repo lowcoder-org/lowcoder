@@ -34,31 +34,21 @@ export const DateUIView = (props: DataUIViewProps) => {
   const editorState = useContext(EditorContext);
 
   const placeholder = Array.isArray(props.placeholder) ? props.placeholder[0] : props.placeholder;
-  console.log('props', props);
   return useUIView(
     <DateMobileUIView {...props} />,
-    <DatePicker
-      showTime
-      onChange={(value, dateString) => {
-        console.log('Selected Time: ', value);
-        console.log('Formatted Selected Time: ', dateString);
-      }}
-      // onOk={onOk}
+    <DatePickerStyled
+      {...props}
+      multiple={false}
+      ref={props.viewRef as any}
+      minDate={props.minDate ? dayjs(props.minDate, DateParser) : undefined}
+      maxDate={props.maxDate ? dayjs(props.maxDate, DateParser) : undefined}
+      hourStep={props.hourStep as any}
+      minuteStep={props.minuteStep as any}
+      secondStep={props.secondStep as any}
+      disabledDate={(current) => disabledDate(current, props.minDate, props.maxDate)}
+      picker={"date"}
+      inputReadOnly={checkIsMobile(editorState?.getAppSettings().maxWidth)}
+      placeholder={placeholder}
     />
-    // <DatePickerStyled
-    //   {...props}
-    //   multiple={false}
-    //   ref={props.viewRef as any}
-    //   minDate={props.minDate ? dayjs(props.minDate, DateParser) : undefined}
-    //   maxDate={props.maxDate ? dayjs(props.maxDate, DateParser) : undefined}
-    //   hourStep={props.hourStep as any}
-    //   minuteStep={props.minuteStep as any}
-    //   secondStep={props.secondStep as any}
-    //   disabledDate={(current) => disabledDate(current, props.minDate, props.maxDate)}
-    //   picker={"date"}
-    //   inputReadOnly={checkIsMobile(editorState?.getAppSettings().maxWidth)}
-    //   placeholder={placeholder}
-    // />
-
   );
 };
