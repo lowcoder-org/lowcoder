@@ -198,7 +198,7 @@ export const en = {
     "toggleClose": "Enable Close Button",
     "showMask": "Show Mask",
     "textOverflow": "Text Overflow",
-    "scrollbar" : "Show Scrollbars",
+    "scrollbar": "Show Scrollbars",
     "siderScrollbar" : "Show Scrollbars in Sider",
     "siderRight" : "Show sider on the Right",
     "siderWidth" : "Sider Width",
