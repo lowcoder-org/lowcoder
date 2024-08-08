@@ -1512,7 +1512,6 @@ export const TableHeaderStyle = [
   },
   TEXT_SIZE,
   TEXT_WEIGHT,
-  FONT_FAMILY,
 ] as const;
 
 export const TableRowStyle = [
