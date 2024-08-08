@@ -106,7 +106,7 @@ let SegmentedControlBasicComp = (function () {
           value={props.value.value}
           $style={props.style}
           onChange={(value) => {
-            handleChange(value.toString());
+            handleChange(String(value));
           }}
           options={props.options
             .filter((option) => option.value !== undefined && !option.hidden)

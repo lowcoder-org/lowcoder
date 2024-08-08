@@ -44,11 +44,11 @@ import React, { ReactNode, useContext, useEffect } from "react";
 import { IconControl } from "comps/controls/iconControl";
 import { hasIcon } from "comps/utils";
 import { Section, sectionNames } from "components/Section";
-import { dateRefMethods, disabledTime, handleDateChange } from "comps/comps/dateComp/dateCompUtil";
+import { CommonPickerMethods, dateRefMethods, disabledTime, handleDateChange } from "comps/comps/dateComp/dateCompUtil";
 import { TimeUIView } from "./timeUIView";
 import { TimeRangeUIView } from "comps/comps/dateComp/timeRangeUIView";
 import { RefControl } from "comps/controls/refControl";
-import { CommonPickerMethods } from "antd/es/date-picker/generatePicker/interface";
+// import { CommonPickerMethods } from "antd/es/date-picker/generatePicker/interface";
 import { TimePickerProps } from "antd/es/time-picker";
 
 import { EditorContext } from "comps/editorState";

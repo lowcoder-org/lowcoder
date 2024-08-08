@@ -62,11 +62,11 @@ let CascaderBasicComp = (function () {
           onFocus={() => props.onEvent("focus")}
           onBlur={() => props.onEvent("blur")}
           dropdownRender={(menus: React.ReactNode) => (
-  <DropdownRenderStyle $childrenInputFieldStyle={props.childrenInputFieldStyle}>
-    {menus}
+            <DropdownRenderStyle $childrenInputFieldStyle={props.childrenInputFieldStyle}>
+              {menus}
             </DropdownRenderStyle>
           )}
-          onChange={(value: (string | number)[]) => {
+          onChange={(value: (string | number | null)[]) => {
             props.value.onChange(value as string[]);
             props.onEvent("change");
           }}
