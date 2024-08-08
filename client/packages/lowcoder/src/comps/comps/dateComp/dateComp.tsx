@@ -37,7 +37,7 @@ import {
 } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { DATE_FORMAT, DATE_TIME_FORMAT, DateParser, PickerMode } from "util/dateTimeUtils";
-import React, { ReactNode, useContext, useEffect, useRef } from "react";
+import React, { ReactNode, useContext, useEffect } from "react";
 import { IconControl } from "comps/controls/iconControl";
 import { hasIcon } from "comps/utils";
 import { Section, sectionNames } from "components/Section";
@@ -46,18 +46,9 @@ import { DateUIView } from "./dateUIView";
 import { useIsMobile } from "util/hooks";
 import { RefControl } from "comps/controls/refControl";
 // import { CommonPickerMethods } from "antd/es/date-picker/generatePicker/interface";
-import type { PickerPropsWithMultiple } from "antd/es/date-picker/generatePicker/interface";
 import { DateRangeUIView } from "comps/comps/dateComp/dateRangeUIView";
 import { EditorContext } from "comps/editorState";
 import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
-import { DatePicker } from "antd";
-// import type { PickerRef } from "";
-
-
-const defaultStyle = {
-  borderStyle: 'solid',
-  borderWidth: '1px',
-}
 
 const EventOptions = [changeEvent, focusEvent, blurEvent] as const;
 
@@ -173,8 +164,7 @@ export type DateCompViewProps = Pick<
 };
 
 export const datePickerControl = new UICompBuilder(childrenMap, (props, dispatch) => {
-  useMergeCompStyles(props as Record<string, any>, dispatch);
-  const pickerRef = useRef<any>();
+ useMergeCompStyles(props as Record<string, any>, dispatch);
 
   let time = null;
   if (props.value.value !== '') {
@@ -188,48 +178,32 @@ export const datePickerControl = new UICompBuilder(childrenMap, (props, dispatch
     inputFieldStyle:props.inputFieldStyle,
     animationStyle:props.animationStyle,
     children: (
-      // <DateUIView
-      //   viewRef={props.viewRef}
-      //   disabledTime={() => disabledTime(props.minTime, props.maxTime)}
-      //   $style={props.inputFieldStyle}
-      //   disabled={props.disabled}
-      //   {...datePickerProps(props)}
-      //   hourStep={props.hourStep}
-      //   minDate={props.minDate}
-      //   maxDate={props.maxDate}
-      //   placeholder={props.placeholder}
-      //   // value={time?.isValid() ? time : null}
-      //   defaultValue={time?.isValid() ? time : null}
-      //   onChange={(time) => {
-      //     console.log('onchange');
-      //     handleDateChange(
-      //       time && time.isValid()
-      //         ? time.format(props.showTime ? DATE_TIME_FORMAT : DATE_FORMAT)
-      //         : "",
-      //       props.value.onChange,
-      //       props.onEvent
-      //     );
-      //   }}
-      //   onPanelChange={() => {
-      //     console.log('onPanelChange');
-      //     handleDateChange("", props.value.onChange, noop);
-      //   }}
-      //   onFocus={() => props.onEvent("focus")}
-      //   onBlur={() => props.onEvent("blur")}
-      //   suffixIcon={hasIcon(props.suffixIcon) && props.suffixIcon}
-      // />
-      <DatePicker
-        ref={pickerRef}
-        showTime
-        needConfirm
-        onChange={(value, dateString) => {
-          console.log('Selected Time: ', value);
-          console.log('Formatted Selected Time: ', dateString);
+      <DateUIView
+        viewRef={props.viewRef}
+        disabledTime={() => disabledTime(props.minTime, props.maxTime)}
+        $style={props.inputFieldStyle}
+        disabled={props.disabled}
+        {...datePickerProps(props)}
+        hourStep={props.hourStep}
+        minDate={props.minDate}
+        maxDate={props.maxDate}
+        placeholder={props.placeholder}
+        // value={time?.isValid() ? time : null}
+        onChange={(time) => {
+          handleDateChange(
+            time && time.isValid()
+              ? time.format(props.showTime ? DATE_TIME_FORMAT : DATE_FORMAT)
+              : "",
+            props.value.onChange,
+            props.onEvent
+          );
         }}
-        onOpenChange={(open) => {
-          console.log('opne change', open);
+        onPanelChange={() => {
+          handleDateChange("", props.value.onChange, noop);
         }}
-        // onOk={onOk}
+        onFocus={() => props.onEvent("focus")}
+        onBlur={() => props.onEvent("blur")}
+        suffixIcon={hasIcon(props.suffixIcon) && props.suffixIcon}
       />
     ),
     ...validate(props),
@@ -574,7 +548,7 @@ export let DateRangeComp = withExposingConfigs(dateRangeControl, [
 ]);
 
 DateRangeComp = withMethodExposing(DateRangeComp, [
-  // ...dateRefMethods,
+  ...dateRefMethods,
   {
     method: {
       name: "clearAll",
