@@ -106,6 +106,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@ant-design/fast-color@npm:^2.0.6":
+  version: 2.0.6
+  resolution: "@ant-design/fast-color@npm:2.0.6"
+  dependencies:
+    "@babel/runtime": ^7.24.7
+  checksum: 01f81ff5901ee13b3b6dab3884cc07e4fbd82e412404179ad053828f7f218acd0b6ced89ab28440e96e9c51177d90c17020095627b78ebb2468ecb98294287de
+  languageName: node
+  linkType: hard
+
 "@ant-design/icons-svg@npm:^4.4.0":
   version: 4.4.2
   resolution: "@ant-design/icons-svg@npm:4.4.2"
@@ -3359,18 +3368,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@rc-component/color-picker@npm:~1.5.3":
-  version: 1.5.3
-  resolution: "@rc-component/color-picker@npm:1.5.3"
+"@rc-component/color-picker@npm:~2.0.0":
+  version: 2.0.1
+  resolution: "@rc-component/color-picker@npm:2.0.1"
   dependencies:
+    "@ant-design/fast-color": ^2.0.6
     "@babel/runtime": ^7.23.6
-    "@ctrl/tinycolor": ^3.6.1
     classnames: ^2.2.6
     rc-util: ^5.38.1
   peerDependencies:
     react: ">=16.9.0"
     react-dom: ">=16.9.0"
-  checksum: b0e54b69e583f62978aafa44e23a8f30a441352e37dc4b69772d2f19ce201b1e79b6ea1edda9fa1e71312205b5633f0709a215d976029e53cd133ff7f594dccb
+  checksum: 0c1f45362f50391d09488adca615d4810ad15e240b5938d1014cc22379cb900225eb186ca210c4d78f8abbcd626ff859e47c32c373a181783873fe4069455de4
   languageName: node
   linkType: hard
 
@@ -6042,9 +6051,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"antd@npm:^5.19.4":
-  version: 5.19.4
-  resolution: "antd@npm:5.19.4"
+"antd@npm:^5.20.0":
+  version: 5.20.0
+  resolution: "antd@npm:5.20.0"
   dependencies:
     "@ant-design/colors": ^7.1.0
     "@ant-design/cssinjs": ^1.21.0
@@ -6053,7 +6062,7 @@ __metadata:
     "@ant-design/react-slick": ~1.1.2
     "@babel/runtime": ^7.24.8
     "@ctrl/tinycolor": ^3.6.1
-    "@rc-component/color-picker": ~1.5.3
+    "@rc-component/color-picker": ~2.0.0
     "@rc-component/mutate-observer": ^1.1.0
     "@rc-component/qrcode": ~1.0.0
     "@rc-component/tour": ~1.15.0
@@ -6069,25 +6078,25 @@ __metadata:
     rc-dropdown: ~4.2.0
     rc-field-form: ~2.2.1
     rc-image: ~7.9.0
-    rc-input: ~1.5.1
-    rc-input-number: ~9.1.0
-    rc-mentions: ~2.14.0
+    rc-input: ~1.6.2
+    rc-input-number: ~9.2.0
+    rc-mentions: ~2.15.0
     rc-menu: ~9.14.1
     rc-motion: ^2.9.2
     rc-notification: ~5.6.0
     rc-pagination: ~4.2.0
-    rc-picker: ~4.6.9
+    rc-picker: ~4.6.11
     rc-progress: ~4.0.0
     rc-rate: ~2.13.0
     rc-resize-observer: ^1.4.0
     rc-segmented: ~2.3.0
     rc-select: ~14.15.1
-    rc-slider: ~10.6.2
+    rc-slider: ~11.1.3
     rc-steps: ~6.0.1
     rc-switch: ~4.1.0
     rc-table: ~7.45.7
     rc-tabs: ~15.1.1
-    rc-textarea: ~1.7.0
+    rc-textarea: ~1.8.1
     rc-tooltip: ~6.2.0
     rc-tree: ~5.8.8
     rc-tree-select: ~5.22.1
@@ -6098,7 +6107,7 @@ __metadata:
   peerDependencies:
     react: ">=16.9.0"
     react-dom: ">=16.9.0"
-  checksum: df38f4bdcf9e6806a4442b1630f95e8955ee2ee2c2d14ba8547f376b318a77b3c50993d486dc3bd32eeef29c317b608988bb44f995c678d9eac2b492e2b08381
+  checksum: 168781db7dd152153a7850d25c27301c132b127fa444f91496c2fd345307ab9c9baafc16686a36b5b9b497b046a01ec44e0bf330489d9245fee34919803da46e
   languageName: node
   linkType: hard
 
@@ -13928,7 +13937,7 @@ coolshapes-react@lowcoder-org/coolshapes-react:
     "@types/uuid": ^8.3.4
     "@vitejs/plugin-react": ^2.2.0
     animate.css: ^4.1.1
-    antd: ^5.19.4
+    antd: ^5.20.0
     axios: ^1.6.2
     buffer: ^6.0.3
     clsx: ^2.0.0
@@ -16626,25 +16635,25 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   languageName: node
   linkType: hard
 
-"rc-input-number@npm:~9.1.0":
-  version: 9.1.0
-  resolution: "rc-input-number@npm:9.1.0"
+"rc-input-number@npm:~9.2.0":
+  version: 9.2.0
+  resolution: "rc-input-number@npm:9.2.0"
   dependencies:
     "@babel/runtime": ^7.10.1
     "@rc-component/mini-decimal": ^1.0.1
     classnames: ^2.2.5
-    rc-input: ~1.5.0
+    rc-input: ~1.6.0
     rc-util: ^5.40.1
   peerDependencies:
     react: ">=16.9.0"
     react-dom: ">=16.9.0"
-  checksum: 8bbbe95ced30821010441db507e572a6bbee8bbbb2717767fe284d7d9a096d3c8fc385bbaeed749215aa1eb28917a260c948a05fb7b8b55fafeeb9363e7d1078
+  checksum: 0fb00352c014614044aad1deeb344c2d8e45b0e5303890f83a01ee90bee47c9846b7d2bf7cafb4fcf5fc9d39eac2088de69ad580d03583ca0b8489fb5c81b355
   languageName: node
   linkType: hard
 
-"rc-input@npm:~1.5.0, rc-input@npm:~1.5.1":
-  version: 1.5.1
-  resolution: "rc-input@npm:1.5.1"
+"rc-input@npm:~1.6.0, rc-input@npm:~1.6.2":
+  version: 1.6.3
+  resolution: "rc-input@npm:1.6.3"
   dependencies:
     "@babel/runtime": ^7.11.1
     classnames: ^2.2.1
@@ -16652,25 +16661,25 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   peerDependencies:
     react: ">=16.0.0"
     react-dom: ">=16.0.0"
-  checksum: 1fa1ed9a8b0d9aab5482ec66ac7f97c5083d036ae88ba5475f52b6926842034b6a9adc54df5e1fcb32f72b60e7c43639d51475cf2702f41e4774735fb0ed3619
+  checksum: ed73ac0275d5b989eddcb0202b8eed9a6d2d12c8b82646d814eb67b78e3956e6b624d8461a377c454d91cbfebd405893d24bd9bc377a1ee6a910b4a09c426fc7
   languageName: node
   linkType: hard
 
-"rc-mentions@npm:~2.14.0":
-  version: 2.14.0
-  resolution: "rc-mentions@npm:2.14.0"
+"rc-mentions@npm:~2.15.0":
+  version: 2.15.0
+  resolution: "rc-mentions@npm:2.15.0"
   dependencies:
     "@babel/runtime": ^7.22.5
     "@rc-component/trigger": ^2.0.0
     classnames: ^2.2.6
-    rc-input: ~1.5.0
+    rc-input: ~1.6.0
     rc-menu: ~9.14.0
-    rc-textarea: ~1.7.0
+    rc-textarea: ~1.8.0
     rc-util: ^5.34.1
   peerDependencies:
     react: ">=16.9.0"
     react-dom: ">=16.9.0"
-  checksum: 0c98a55660bc4f7f557a1415b7dc287ae69b1680092680eab3231c3810e1e9d23c69fb4b9428018624d375b90b41e39b887bbeb8d85b278ed6997de475ae3733
+  checksum: bead0b303bee045186b941c61e6af93777b406904f2c40546cdfd7cbed016140b3a36d1cc66b0ed3a7cfb34d3a18fa01e588933d42bcaf8e68cbb21bde2f05c0
   languageName: node
   linkType: hard
 
@@ -16782,9 +16791,9 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   languageName: node
   linkType: hard
 
-"rc-picker@npm:~4.6.9":
-  version: 4.6.11
-  resolution: "rc-picker@npm:4.6.11"
+"rc-picker@npm:~4.6.11":
+  version: 4.6.12
+  resolution: "rc-picker@npm:4.6.12"
   dependencies:
     "@babel/runtime": ^7.24.7
     "@rc-component/trigger": ^2.0.0
@@ -16808,7 +16817,7 @@ coolshapes-react@lowcoder-org/coolshapes-react:
       optional: true
     moment:
       optional: true
-  checksum: 8a2b72f01132ed901b59ec65d1792af9273a29f1c343d363421d6325a14cafb325acd9b1db1670bd26b3719bdbf37178396b78b6c06cefe65d32f955c67ac837
+  checksum: 76338976623731347b6102188442498eb01001712256596cb3b2ecc7cbfdcb192d42d617600ac3c4baf40e63857fc872e1d2d7ffcd663ca6d26c7f72ccbffdc5
   languageName: node
   linkType: hard
 
@@ -16888,9 +16897,9 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   languageName: node
   linkType: hard
 
-"rc-slider@npm:~10.6.2":
-  version: 10.6.2
-  resolution: "rc-slider@npm:10.6.2"
+"rc-slider@npm:~11.1.3":
+  version: 11.1.5
+  resolution: "rc-slider@npm:11.1.5"
   dependencies:
     "@babel/runtime": ^7.10.1
     classnames: ^2.2.5
@@ -16898,7 +16907,7 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   peerDependencies:
     react: ">=16.9.0"
     react-dom: ">=16.9.0"
-  checksum: 16c2e138c6e0a3e44d2ed515c2adcf02cf13273274df3e6ccbabcb4c1a54fd6a9ecca5a5babc5c2930c9c3480e5462d51e96a67344e84ba202507403c69cc7b3
+  checksum: eadf2e0e981525fbd3d5e403d7cfece12372603f7c64e32c417b5d20d939c6520d9c7c318b1396bfcb14d95fbc35e5bed9403ab41b5cba60659f253ada3d92f5
   languageName: node
   linkType: hard
 
@@ -16965,19 +16974,19 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   languageName: node
   linkType: hard
 
-"rc-textarea@npm:~1.7.0":
-  version: 1.7.0
-  resolution: "rc-textarea@npm:1.7.0"
+"rc-textarea@npm:~1.8.0, rc-textarea@npm:~1.8.1":
+  version: 1.8.1
+  resolution: "rc-textarea@npm:1.8.1"
   dependencies:
     "@babel/runtime": ^7.10.1
     classnames: ^2.2.1
-    rc-input: ~1.5.0
+    rc-input: ~1.6.0
     rc-resize-observer: ^1.0.0
     rc-util: ^5.27.0
   peerDependencies:
     react: ">=16.9.0"
     react-dom: ">=16.9.0"
-  checksum: 42bf6723ad844a838fc74979879dc1a418a43002839c75b0f0bd667af24bdcb61c91a7418ad4131196baba35abf0cb45fdf739c0d1f9c14d86e4a6b54fb51081
+  checksum: f7a4f78f6346c66f974209007d915688815e5c13472d2f8fb05d2836e1ffb040afdf88e4a320f4e1f484a82c33b19d8b65c9a71ff8cb78adeb9d02d2cbc08eb6
   languageName: node
   linkType: hard
 

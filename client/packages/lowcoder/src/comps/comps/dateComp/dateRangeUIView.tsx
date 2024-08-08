@@ -10,6 +10,7 @@ import { EditorContext } from "../../editorState";
 import { default as DatePicker } from "antd/es/date-picker";
 import { hasIcon } from "comps/utils";
 import { omit } from "lodash";
+import { DateParser } from "@lowcoder-ee/util/dateTimeUtils";
 
 const { RangePicker } = DatePicker;
 
@@ -57,6 +58,11 @@ export const DateRangeUIView = (props: DateRangeUIViewProps) => {
       inputReadOnly={checkIsMobile(editorState?.getAppSettings().maxWidth)}
       suffixIcon={hasIcon(props.suffixIcon) && props.suffixIcon}
       placeholder={placeholders}
+      minDate={props.minDate ? dayjs(props.minDate, DateParser) : undefined}
+      maxDate={props.maxDate ? dayjs(props.maxDate, DateParser) : undefined}
+      hourStep={props.hourStep as any}
+      minuteStep={props.minuteStep as any}
+      secondStep={props.secondStep as any}
     />
   );
 };

@@ -183,7 +183,7 @@ export const DateEdit = (props: DateEditProps) => {
           overflow: "hidden",
         }}
         onOpenChange={(open) => setPanelOpen(open)}
-        onChange={(value, dateString) => props.onChange(dateString)}
+        onChange={(value, dateString) => props.onChange(dateString as string)}
         onBlur={props.onChangeEnd}
       />
     </Wrapper>
