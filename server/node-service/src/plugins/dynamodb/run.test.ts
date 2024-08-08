@@ -8,6 +8,7 @@ test.skip("run dynamodb query", async () => {
     accessKey: "",
     secretKey: "",
     endpointUrl: "http://localhost:6789",
+    specVersion: "",
   };
 
   const createTableActionData: ActionDataType = {

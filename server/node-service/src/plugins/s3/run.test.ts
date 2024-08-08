@@ -6,6 +6,7 @@ const dataSourceConfig = {
   secretKey: "",
   endpointUrl: "",
   region: "us-west-2",
+  specVersion: "",
 };
 
 const bucket = "lowcoder-demo";

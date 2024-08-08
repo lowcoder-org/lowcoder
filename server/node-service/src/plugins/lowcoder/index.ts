@@ -1,4 +1,4 @@
-import { readYaml } from "../../common/util";
+import { readYaml, specsToOptions, version2spec } from "../../common/util";
 import _ from "lodash";
 import path from "path";
 import { OpenAPIV3, OpenAPI } from "openapi-types";
@@ -7,6 +7,9 @@ import { runOpenApi } from "../openApi";
 import { parseOpenApi, ParseOpenApiOptions } from "../openApi/parse";
 
 import spec from './lowcoder.spec.json';
+const specs = {
+  "v1.0": spec,
+}
 
 const dataSourceConfig = {
   type: "dataSource",
@@ -30,7 +33,15 @@ const dataSourceConfig = {
       label: "Authorization",
       "tooltip": "API Key Authentication with a Bearer token. Copy your API Key here. (e.g. 'Bearer eyJhbGciO...')",
       "placeholder": "API Key Authentication with a Bearer token. Copy your API Key here. (e.g. 'Bearer eyJhbGciO...')"
-    }
+    },
+    {
+      label: "Spec Version",
+      key: "specVersion",
+      type: "select",
+      tooltip: "Version of the spec file.",
+      placeholder: "v1.0",
+      options: specsToOptions(specs)
+    },
 ]
 } as const;
 
@@ -48,8 +59,8 @@ const lowcoderPlugin: DataSourcePlugin<any, DataSourceConfigType> = {
   icon: "lowcoder.svg",
   category: "App Development",
   dataSourceConfig,
-  queryConfig: async () => {
-    const { actions, categories } = await parseOpenApi(spec as unknown as OpenAPI.Document, parseOptions);
+  queryConfig: async (data) => {
+    const { actions, categories } = await parseOpenApi(version2spec(specs, data.specVersion) as unknown as OpenAPI.Document, parseOptions);
     return {
       type: "query",
       label: "Action",
@@ -66,8 +77,9 @@ const lowcoderPlugin: DataSourcePlugin<any, DataSourceConfigType> = {
       url: "",
       serverURL: serverURL,
       dynamicParamsConfig: otherDataSourceConfig,
+      specVersion: dataSourceConfig.specVersion,
     };
-    return runOpenApi(actionData, runApiDsConfig, spec as OpenAPIV3.Document);
+    return runOpenApi(actionData, runApiDsConfig, version2spec(specs, dataSourceConfig.specVersion) as OpenAPIV3.Document);
   },
 };
 
