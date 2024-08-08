@@ -199,7 +199,6 @@ export const en = {
     "showMask": "Show Mask",
     "textOverflow": "Text Overflow",
     "scrollbar": "Show Scrollbars",
-    "showVerticalScrollbar" : "Show Vertical Scrollbar",
     "siderScrollbar" : "Show Scrollbars in Sider",
     "siderRight" : "Show sider on the Right",
     "siderWidth" : "Sider Width",
