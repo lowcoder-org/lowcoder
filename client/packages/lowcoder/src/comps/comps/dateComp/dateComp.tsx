@@ -37,7 +37,7 @@ import {
 } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { DATE_FORMAT, DATE_TIME_FORMAT, DateParser, PickerMode } from "util/dateTimeUtils";
-import React, { ReactNode, useContext, useEffect } from "react";
+import React, { ReactNode, useContext, useEffect, useState } from "react";
 import { IconControl } from "comps/controls/iconControl";
 import { hasIcon } from "comps/utils";
 import { Section, sectionNames } from "components/Section";
@@ -164,12 +164,19 @@ export type DateCompViewProps = Pick<
 };
 
 export const datePickerControl = new UICompBuilder(childrenMap, (props, dispatch) => {
- useMergeCompStyles(props as Record<string, any>, dispatch);
-
-  let time = null;
+  useMergeCompStyles(props as Record<string, any>, dispatch);
+  
+  let time: dayjs.Dayjs | null = null;
   if (props.value.value !== '') {
     time = dayjs(props.value.value, DateParser);
   }
+  
+  const [tempValue, setTempValue] = useState<dayjs.Dayjs | null>(time);
+
+  useEffect(() => {
+    const value = props.value.value ? dayjs(props.value.value, DateParser) : null;
+    setTempValue(value);
+  }, [props.value.value])
 
   return props.label({
     required: props.required,
@@ -177,6 +184,7 @@ export const datePickerControl = new UICompBuilder(childrenMap, (props, dispatch
     labelStyle: props.labelStyle,
     inputFieldStyle:props.inputFieldStyle,
     animationStyle:props.animationStyle,
+    onMouseDown: (e) => e.stopPropagation(),
     children: (
       <DateUIView
         viewRef={props.viewRef}
@@ -188,7 +196,7 @@ export const datePickerControl = new UICompBuilder(childrenMap, (props, dispatch
         minDate={props.minDate}
         maxDate={props.maxDate}
         placeholder={props.placeholder}
-        // value={time?.isValid() ? time : null}
+        value={tempValue?.isValid() ? tempValue : null}
         onChange={(time) => {
           handleDateChange(
             time && time.isValid()
@@ -289,15 +297,28 @@ export const dateRangeControl = (function () {
   return new UICompBuilder(childrenMap, (props, dispatch) => {
     useMergeCompStyles(props as Record<string, any>, dispatch);
 
-    let start = null;
-    let end = null;
+    let start: dayjs.Dayjs | null = null;
     if (props.start.value !== '') {
       start = dayjs(props.start.value, DateParser);
     }
-
+    
+    let end: dayjs.Dayjs | null = null;
     if (props.end.value !== '') {
       end = dayjs(props.end.value, DateParser);
     }
+
+    const [tempStartValue, setTempStartValue] = useState<dayjs.Dayjs | null>(start);
+    const [tempEndValue, setTempEndValue] = useState<dayjs.Dayjs | null>(end);
+
+    useEffect(() => {
+      const value = props.start.value ? dayjs(props.start.value, DateParser) : null;
+      setTempStartValue(value);
+    }, [props.start.value])
+
+    useEffect(() => {
+      const value = props.end.value ? dayjs(props.end.value, DateParser) : null;
+      setTempEndValue(value);
+    }, [props.end.value])
 
     const children = (
       <DateRangeUIView
@@ -305,8 +326,8 @@ export const dateRangeControl = (function () {
         $style={props.inputFieldStyle}
         disabled={props.disabled}
         {...datePickerProps(props)}
-        start={start?.isValid() ? start : null}
-        end={end?.isValid() ? end : null}
+        start={tempStartValue?.isValid() ? tempStartValue : null}
+        end={tempEndValue?.isValid() ? tempEndValue : null}
         minDate={props.minDate}
         maxDate={props.maxDate}
         placeholder={[props.placeholder, props.placeholder]}
@@ -341,6 +362,7 @@ export const dateRangeControl = (function () {
       labelStyle:props.labelStyle,
       children: children,
       inputFieldStyle:props.inputFieldStyle,
+      onMouseDown: (e) => e.stopPropagation(),
       ...(startResult.validateStatus !== "success"
         ? startResult
         : endResult.validateStatus !== "success"
