@@ -70,11 +70,22 @@ export function SubscriptionSetting() {
     }
   };
 
+  const apiBody = {
+    path: "webhook/echo",
+    data: subscriptionCustomer,
+    method: "post",
+    headers: {
+      "Lowcoder-Token": "96a99c7b-3758-4c48-b4b1-a8cbf59e7d6c",
+      "Content-Type": "application/json"
+    }
+  }
+
   const createCustomer = async () => {
+
     console.log("createCustomerTry", subscriptionCustomer);
 
     try {
-      const result = await SubscriptionApi.createCustomer(subscriptionCustomer);
+      const result = await SubscriptionApi.createCustomer(apiBody);
       if (result) {
         console.log("createCustomer", result);
       }
