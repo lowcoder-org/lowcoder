@@ -8,7 +8,7 @@ import isEqual from "fast-deep-equal";
 import { trans } from "i18n";
 import log from "loglevel";
 
-const APP_STORE_NAMESPACE = "TACO_APP_LOCAL_STORE";
+const APP_STORE_NAMESPACE = "lowcoder_app_local_storage";
 
 const LocalStorageCompBase = withViewFn(
   simpleMultiComp({ values: stateComp<JSONObject>({}) }),

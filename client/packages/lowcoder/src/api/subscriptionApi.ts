@@ -25,7 +25,7 @@ export type ResponseType = {
   response: any;
 };
 
-const apiUrl = "https://flow.lowcoder.cloud/webhook/secure";
+const apiUrl = "http://localhost:8080/api/flow";
 const authHeader = "96a99c7b-3758-4c48-b4b1-a8cbf59e7d6c";
 
 const currentPage = 1;
@@ -41,7 +41,7 @@ const getAxiosInstance = (clientSecret?: string) => {
 
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
-    "Lowcoder-Token": authHeader,
+    // "Lowcoder-Token": authHeader,
   }
 
   const apiRequestConfig: AxiosRequestConfig = {
@@ -55,13 +55,12 @@ const getAxiosInstance = (clientSecret?: string) => {
 
 class SubscriptionApi extends Api {
   
-  static async createCustomer(body: Customer): Promise<any> {
+  static async createCustomer(body: any): Promise<any> {
     console.log("createCustomerCall", body);
 
     let response;
     try {
       response = await getAxiosInstance().request({
-        url: '/create-customer',
         method: "POST",
         withCredentials: true,
         data: body,
