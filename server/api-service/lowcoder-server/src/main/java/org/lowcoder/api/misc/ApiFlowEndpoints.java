@@ -30,7 +30,6 @@ public interface ApiFlowEndpoints
 	public record FlowRequest(String path,
 							  String method,
 							  Map<String, Object> data,
-							  Map<String, String> headers,
-							  @Nullable String host) {
+							  Map<String, String> headers) {
 	}
 }

@@ -26,9 +26,7 @@ public class ApiFlowController implements ApiFlowEndpoints
     @Override
     public Mono<String> flow(FlowRequest flowRequest) {
         try {
-            String url;
-            if (StringUtils.isEmpty(flowRequest.host())) url = "https://flow.lowcoder.cloud/" + flowRequest.path();
-            else url = flowRequest.host() + "/" + flowRequest.path();
+            String url = "https://flow.lowcoder.cloud/" + flowRequest.path();
             ObjectMapper objectMapper = new ObjectMapper();
             String jsonBody = objectMapper.writeValueAsString(flowRequest.data());
             return WebClientBuildHelper.builder()
