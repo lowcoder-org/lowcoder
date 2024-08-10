@@ -125,7 +125,6 @@ export async function runOpenApi(
       securities,
       responseContentType: "application/json",
       userFetch: async (url: string, req: RequestInit) => {
-        console.log("req", req);
         return fetch(url, req);
       },
       requestInterceptor: (req: any) => {
@@ -158,7 +157,7 @@ const openApiPlugin: DataSourcePlugin<ActionDataType, DataSourceDataType> = {
   id: "openApi",
   name: "Open API",
   icon: "swagger.svg",
-  category: "api",
+  category: "App Development",
   dataSourceConfig: {
     ...dataSourceConfig,
     extra: async (dataSourceConfig) => {

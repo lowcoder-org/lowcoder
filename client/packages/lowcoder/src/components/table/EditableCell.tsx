@@ -7,6 +7,7 @@ import styled from "styled-components";
 import { JSONValue } from "util/jsonTypes";
 import ColumnTypeView from "./columnTypeView";
 import { TableCellContext } from "comps/comps/tableComp/tableContext";
+import Tooltip from "antd/es/tooltip";
 
 type StatusType = PresetStatusColorType | "none";
 export const TABLE_EDITABLE_SWITCH_ON = true;
@@ -35,6 +36,7 @@ export interface CellProps {
   candidateTags?: string[];
   candidateStatus?: { text: string; status: StatusType }[];
   textOverflow?: boolean;
+  cellTooltip?: string;
   onTableEvent?: (eventName: any) => void;
 }
 
@@ -53,6 +55,25 @@ const BorderDiv = styled.div`
   top: 0;
   left: 0;
 `;
+
+const CellWrapper = ({
+  children,
+  tooltipTitle,
+}: {
+  children: ReactNode,
+  tooltipTitle?: string,
+}) => {
+  if (tooltipTitle) {
+    return (
+      <Tooltip title={tooltipTitle} placement="topLeft">
+        {children}
+      </Tooltip>
+    )
+  }
+  return (
+    <>{children}</>
+  )
+};
 
 interface EditableCellProps<T> extends CellProps {
   normalView: ReactNode;
@@ -123,27 +144,31 @@ export function EditableCell<T extends JSONValue>(props: EditableCellProps<T>) {
       </>
     );
   }
-
+  
   return (
-    <ColumnTypeView
-      textOverflow={props.textOverflow}
-    >
-      {status === "toSave" && !isEditing && <EditableChip />}
-      {normalView}
-      {/* overlay on normal view to handle double click for editing */}
-      {editable && (
-        <div
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '100%',
-          }}
-          onDoubleClick={enterEditFn}
-        >
-        </div>
-      )}
-    </ColumnTypeView>
+      <ColumnTypeView
+        textOverflow={props.textOverflow}
+      >
+        {status === "toSave" && !isEditing && <EditableChip />}
+        <CellWrapper tooltipTitle={props.cellTooltip}>
+          {normalView}
+        </CellWrapper>
+        {/* overlay on normal view to handle double click for editing */}
+        {editable && (
+          <CellWrapper tooltipTitle={props.cellTooltip}>
+            <div
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: '100%',
+                height: '100%',
+              }}
+              onDoubleClick={enterEditFn}
+            >
+            </div>
+          </CellWrapper>
+        )}
+      </ColumnTypeView>
   );
 }

@@ -50,7 +50,7 @@ const huggingFaceInferencePlugin: DataSourcePlugin<ActionConfigType, DataSourceC
   id: "huggingFaceInference",
   name: "Hugging Face Inference",
   icon: "huggingFace.svg",
-  category: "api",
+  category: "AI",
   dataSourceConfig,
   queryConfig,
   run: async (actionData, dataSourceConfig) => {

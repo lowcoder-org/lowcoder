@@ -10,7 +10,6 @@ import {
   QUERY_LIBRARY_URL,
   SETTING,
   TRASH_URL,
-  API_DOCS_URL,
   // ADMIN_APP_URL,
   NEWS_URL,
   ORG_HOME_URL,
@@ -22,13 +21,11 @@ import {
   EllipsisTextCss,
   FolderIcon,
   HomeDataSourceIcon,
-  HomeIcon,
   NewsIcon,
   WorkspacesIcon,
   HomeModuleIcon,
   HomeQueryLibraryIcon,
   HomeSettingIcon,
-  InviteUserIcon,
   PlusIcon,
   PointIcon,
   RecyclerIcon,
@@ -36,7 +33,6 @@ import {
   AppsIcon,
   EnterpriseIcon,
   UserIcon,
-  APIDocsIcon,
 } from "lowcoder-design";
 import React, { useEffect, useState } from "react";
 import { fetchAllApplications, fetchHomeData } from "redux/reduxActions/applicationActions";
@@ -444,13 +440,6 @@ export default function ApplicationHome() {
                 visible: ({ user }) => user.orgDev,
                 onSelected: (_, currentPath) => currentPath.split("/")[1] === "datasource",
               },
-              // {
-              //   text: <TabLabel>{trans("home.api")}</TabLabel>,
-              //   routePath: API_DOCS_URL,
-              //   routeComp: ApiDocView,
-              //   icon: ({ selected, ...otherProps }) => selected ? <APIDocsIcon {...otherProps} width={"24px"}/> : <APIDocsIcon {...otherProps} width={"24px"}/>,
-              //   visible: ({ user }) => user.orgDev,
-              // }
             ],
           },
           isEE() ? {

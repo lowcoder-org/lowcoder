@@ -40,7 +40,7 @@ const stripePlugin: DataSourcePlugin<any, DataSourceConfigType> = {
   id: "stripe",
   name: "Stripe",
   icon: "stripe.svg",
-  category: "api",
+  category: "eCommerce",
   dataSourceConfig,
   queryConfig: async () => {
     const spec = parse(yamlContent);

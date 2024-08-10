@@ -229,7 +229,10 @@ export const pt: typeof en = {
         "minHorizontalWidth": "Largura Horizontal Mínima",
         "component": "Identificadores de Componentes Próprios",
         "className": "Nome da Classe CSS",
-        "dataTestId": "ID Individual"
+        "dataTestId": "ID Individual",
+        "horizontalGridCells": "Células de grade horizontal",
+        "showHorizontalScrollbar": "Mostrar barra de rolagem horizontal",
+        "showVerticalScrollbar": "Mostrar barra de rolagem vertical",
     },
     "autoHeightProp": {
         ...en.autoHeightProp,
@@ -1902,6 +1905,8 @@ export const pt: typeof en = {
         "showFilter": "Mostrar Botão de Filtro",
         "showRefresh": "Mostrar Botão de Atualização",
         "showDownload": "Mostrar Botão de Download",
+        "columnSeparator": "Separador de colunas",
+        "columnSeparatorTooltip": "Separador de colunas (\"delimitador\") no arquivo CSV baixado. \n\nRecomendações:\n- Vírgula (,)\n- Ponto e vírgula (;)\n- Barra vertical (|)\n- Tabulação (\\t)",
         "columnSetting": "Mostrar Botão de Configuração de Coluna",
         "searchText": "Texto de Busca",
         "searchTextTooltip": "Pesquisar e filtrar os dados apresentados na tabela",
@@ -1934,9 +1939,11 @@ export const pt: typeof en = {
         "action": "Ação",
         "columnValue": "Valor da Coluna",
         "columnValueTooltip": "'{{currentCell}}': Dados da Célula Atual\n '{{currentRow}}': Dados da Linha Atual\n '{{currentIndex}}': Índice de Dados Atual (Começando de 0)\n Exemplo: '{{currentCell * 5}}' Mostra 5 Vezes o Valor Original dos Dados.",
+        "columnTooltip": "Dica de coluna",
         "imageSrc": "Fonte da Imagem",
         "imageSize": "Tamanho da Imagem",
         "columnTitle": "Título",
+        "columnTitleTooltip": "Dica de título",
         "showTitle": "Mostrar Título",
         "showTitleTooltip": "Mostrar/Ocultar título da coluna no cabeçalho da tabela",
         "sortable": "Classificável",
@@ -2660,7 +2667,9 @@ export const pt: typeof en = {
         "APIConsumption": "Consumo de API",
         "APIConsumptionDescription": "Aqui você pode ver o consumo de API para todas as aplicações no espaço de trabalho atual.",
         "overallAPIConsumption": "Consumo geral de API neste espaço de trabalho até o momento",
-        "lastMonthAPIConsumption": "Consumo de API do último mês, neste espaço de trabalho"
+        "lastMonthAPIConsumption": "Consumo de API do último mês, neste espaço de trabalho",
+        "showHeaderInPublicApps": "Mostrar cabeçalho em exibição pública",
+        "showHeaderInPublicAppsHelp": "Defina a visibilidade do cabeçalho em exibição pública para todos os aplicativos",
     },
 
 

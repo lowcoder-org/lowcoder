@@ -40,7 +40,7 @@ const huggingFacePlugin: DataSourcePlugin<any, DataSourceConfigType> = {
   id: "huggingFaceEndpoint",
   name: "Hugging Face Endpoints",
   icon: "huggingFace.svg",
-  category: "api",
+  category: "AI",
   dataSourceConfig,
   queryConfig: async () => {
     const { actions, categories } = await parseOpenApi(

@@ -25,6 +25,7 @@ import { useUserViewMode } from "util/hooks";
 import { isNumeric } from "util/stringUtils";
 import { NameConfig, withExposingConfigs } from "../generators/withExposing";
 import { title } from "process";
+import SliderControl from "../controls/sliderControl";
 
 const EventOptions = [closeEvent] as const;
 
@@ -90,6 +91,7 @@ let TmpDrawerComp = (function () {
       height: StringControl,
       title: StringControl,
       titleAlign: HorizontalAlignmentControl,
+      horizontalGridCells: SliderControl,
       autoHeight: AutoHeightControl,
       style: styleControl(DrawerStyle),
       placement: PositionControl,
@@ -169,6 +171,7 @@ let TmpDrawerComp = (function () {
               <InnerGrid
                 {...otherContainerProps}
                 items={gridItemCompToGridItems(items)}
+                horizontalGridCells={props.horizontalGridCells}
                 autoHeight={props.autoHeight}
                 minHeight={isTopBom ? DEFAULT_SIZE + "px" : "100%"}
                 style={{ height: "100%" }}
@@ -203,6 +206,9 @@ let TmpDrawerComp = (function () {
               tooltip: trans("drawer.heightTooltip"),
               placeholder: DEFAULT_SIZE + "",
             })}
+          {children.horizontalGridCells.propertyView({
+            label: trans('prop.horizontalGridCells'),
+          })}
           {children.maskClosable.propertyView({
             label: trans("prop.maskClosable"),
           })}

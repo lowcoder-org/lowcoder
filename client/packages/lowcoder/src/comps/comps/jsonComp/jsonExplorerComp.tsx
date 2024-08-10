@@ -1,4 +1,4 @@
-import { Section, sectionNames } from "lowcoder-design";
+import { ScrollBar, Section, sectionNames } from "lowcoder-design";
 import { UICompBuilder, withDefault } from "../../generators";
 import { NameConfigHidden, NameConfig, withExposingConfigs } from "../../generators/withExposing";
 import ReactJson, { type ThemeKeys } from "react-json-view";
@@ -14,6 +14,7 @@ import { useContext, useEffect } from "react";
 import { AnimationStyle, AnimationStyleType } from "@lowcoder-ee/comps/controls/styleControlConstants";
 import { styleControl } from "@lowcoder-ee/comps/controls/styleControl";
 import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
+import { AutoHeightControl } from "@lowcoder-ee/index.sdk";
 
 /**
  * JsonExplorer Comp
@@ -44,7 +45,7 @@ const JsonExplorerContainer = styled.div<{
   ${(props) => props.$animationStyle}
   height: 100%;
   overflow-y: scroll;
-  background-color: ${(props) => bgColorMap[props.$theme] || "#ffffff"};
+  background-color: ${(props) => bgColorMap[props.$theme] || '#ffffff'};
   border: 1px solid #d7d9e0;
   border-radius: 4px;
   padding: 10px;
@@ -53,6 +54,8 @@ const JsonExplorerContainer = styled.div<{
 let JsonExplorerTmpComp = (function () {
   const childrenMap = {
     value: withDefault(ArrayOrJSONObjectControl, JSON.stringify(defaultData, null, 2)),
+    autoHeight: withDefault(AutoHeightControl, 'auto'),
+    showVerticalScrollbar:BoolControl,
     indent: withDefault(NumberControl, 4),
     expandToggle: BoolControl.DEFAULT_TRUE,
     theme: dropdownControl(themeOptions, 'shapeshifter:inverted'),
@@ -66,22 +69,24 @@ let JsonExplorerTmpComp = (function () {
         $theme={props.theme as keyof typeof bgColorMap}
         $animationStyle={props.animationStyle}
       >
-        <ReactJson
-          name={false}
-          src={props.value}
-          theme={props.theme as ThemeKeys}
-          collapsed={!props.expandToggle}
-          displayDataTypes={false}
-          indentWidth={props.indent}
-        />
+        <ScrollBar hideScrollbar={!props.showVerticalScrollbar}>
+          <ReactJson
+            name={false}
+            src={props.value}
+            theme={props.theme as ThemeKeys}
+            collapsed={!props.expandToggle}
+            displayDataTypes={false}
+            indentWidth={props.indent}
+          />
+        </ScrollBar>
       </JsonExplorerContainer>
-    )
+    );
   })
     .setPropertyViewFn((children) => {
       return (
         <>
           <Section name={sectionNames.basic}>
-            {children.value.propertyView({ label: trans("export.jsonEditorDesc") })}
+             {children.value.propertyView({ label: trans("export.jsonEditorDesc") })}
           </Section>
 
           {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
@@ -96,7 +101,14 @@ let JsonExplorerTmpComp = (function () {
               {children.indent.propertyView({ label: trans("jsonExplorer.indent") })}
             </Section>
           )}
-
+          <Section name={trans('prop.height')}>
+            {children.autoHeight.propertyView({label: trans('prop.height')})}
+          </Section>
+          {!children.autoHeight.getView()&&<Section name={sectionNames.layout}>
+            {children.showVerticalScrollbar.propertyView({
+              label: trans('prop.showVerticalScrollbar'),
+            })}
+          </Section>}
           {(useContext(EditorContext).editorModeStatus === 'layout' ||
             useContext(EditorContext).editorModeStatus === 'both') && (
             <>
@@ -118,7 +130,7 @@ let JsonExplorerTmpComp = (function () {
 
 JsonExplorerTmpComp = class extends JsonExplorerTmpComp {
   override autoHeight(): boolean {
-    return false;
+    return this.children.autoHeight.getView();
   }
 };
 

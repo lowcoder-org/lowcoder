@@ -104,7 +104,7 @@ export type TriContainerProps = TriContainerViewProps & {
 
 export function TriContainer(props: TriContainerProps) {
   const {container, animationStyle} = props;
-  const { showHeader, showFooter } = container;
+  const { showHeader, showFooter, horizontalGridCells } = container;
   // When the header and footer are not displayed, the body must be displayed
   const showBody = container.showBody || (!showHeader && !showFooter);
   const scrollbars = container.scrollbars;
@@ -131,6 +131,7 @@ export function TriContainer(props: TriContainerProps) {
         <BackgroundColorContext.Provider value={headerStyle.headerBackground}>
           <HeaderInnerGrid
             {...otherHeaderProps}
+            horizontalGridCells={horizontalGridCells}
             items={gridItemCompToGridItems(headerItems)}
             autoHeight={true}
             emptyRows={5}
@@ -154,6 +155,7 @@ export function TriContainer(props: TriContainerProps) {
               <BodyInnerGrid
                 $showBorder={showHeader}
                 {...otherBodyProps}
+                horizontalGridCells={horizontalGridCells}
                 items={gridItemCompToGridItems(bodyItems)}
                 autoHeight={container.autoHeight}
                 emptyRows={14}
@@ -180,6 +182,7 @@ export function TriContainer(props: TriContainerProps) {
           <FooterInnerGrid
             $showBorder={showHeader || showBody}
             {...otherFooterProps}
+            horizontalGridCells={horizontalGridCells}
             items={gridItemCompToGridItems(footerItems)}
             autoHeight={true}
             emptyRows={5}

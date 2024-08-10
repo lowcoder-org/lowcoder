@@ -18,6 +18,8 @@ import { JSONObject, JSONValue } from "util/jsonTypes";
 import { StatusType } from "./column/columnTypeComps/columnStatusComp";
 import { ColumnListComp, tableDataRowExample } from "./column/tableColumnListComp";
 import { TableColumnLinkStyleType, TableColumnStyleType } from "comps/controls/styleControlConstants";
+import Tooltip from "antd/es/tooltip";
+import InfoCircleOutlined from "@ant-design/icons/InfoCircleOutlined";
 
 export const COLUMN_CHILDREN_KEY = "children";
 export const OB_ROW_ORI_INDEX = "__ob_origin_index";
@@ -240,11 +242,15 @@ export function getColumnsAggr(
   });
 }
 
-function renderTitle(props: { title: string; editable: boolean }) {
-  const { title, editable } = props;
+function renderTitle(props: { title: string; tooltip: string; editable: boolean }) {
+  const { title, tooltip, editable } = props;
   return (
     <div>
-      {title}
+      <Tooltip title={tooltip}>
+        <span style={{borderBottom: tooltip ? '1px dotted' : ''}}>
+          {title}
+        </span>
+      </Tooltip>
       {editable && <EditableIcon style={{ verticalAlign: "baseline", marginLeft: "4px" }} />}
     </div>
   );
@@ -331,7 +337,7 @@ export function columnsToAntdFormat(
       text: string;
       status: StatusType;
     }[];
-    const title = renderTitle({ title: column.title, editable: column.editable });
+    const title = renderTitle({ title: column.title, tooltip: column.titleTooltip, editable: column.editable });
    
     return {
       title: column.showTitle ? title : '',
@@ -360,11 +366,12 @@ export function columnsToAntdFormat(
       cellColorFn: column.cellColor,
       onWidthResize: column.onWidthResize,
       render: (value: any, record: RecordType, index: number) => {
+        const row = _.omit(record, OB_ROW_ORI_INDEX);
         return column
           .render(
             {
               currentCell: value,
-              currentRow: _.omit(record, OB_ROW_ORI_INDEX),
+              currentRow: row,
               currentIndex: index,
               currentOriginalIndex: tryToNumber(record[OB_ROW_ORI_INDEX]),
               initialColumns,
@@ -378,6 +385,11 @@ export function columnsToAntdFormat(
             candidateTags: tags,
             candidateStatus: status,
             textOverflow: column.textOverflow,
+            cellTooltip: column.cellTooltip({
+              currentCell: value,
+              currentRow: row,
+              currentIndex: index,
+            }),
             onTableEvent,
           });
       },

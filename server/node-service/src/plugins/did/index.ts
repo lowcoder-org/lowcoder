@@ -61,7 +61,7 @@ const didPlugin: DataSourcePlugin<any, DataSourceConfigType> = {
   id: "did",
   name: "D-ID",
   icon: "did.svg",
-  category: "api",
+  category: "AI",
   dataSourceConfig,
   queryConfig: async () => {
     if (!queryConfig) {

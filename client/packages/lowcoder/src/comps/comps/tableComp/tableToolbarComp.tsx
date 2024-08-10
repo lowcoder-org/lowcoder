@@ -8,7 +8,7 @@ import { BoolControl } from "comps/controls/boolControl";
 import { StringControl } from "comps/controls/codeControl";
 import { dropdownControl } from "comps/controls/dropdownControl";
 import { TableToolbarStyleType } from "comps/controls/styleControlConstants";
-import { stateComp } from "comps/generators";
+import { stateComp, withDefault } from "comps/generators";
 import { genRandomKey } from "comps/utils/idGenerator";
 import { ThemeContext } from "comps/utils/themeContext";
 import { trans } from "i18n";
@@ -28,7 +28,7 @@ import {
   LinkButton,
   pageItemRender,
   RefreshIcon,
-  SettingIcon,
+  TableColumnVisibilityIcon,
   SuspensionBox,
   TacoButton,
   TacoInput,
@@ -97,14 +97,15 @@ const getStyle = (
       }
 
       .column-setting {
+        width: 20px;
         cursor: pointer;
 
         * {
-          ${style.toolbarText !== defaultTheme.textDark ? `stroke: ${style.toolbarText}` : null}
+          ${style.toolbarText && style.toolbarText !== defaultTheme.textDark ? `fill: ${style.toolbarText}` : `fill: #8b8fa3`} 
         }
 
         &:hover * {
-          stroke: ${theme?.primary};
+          fill: ${theme?.primary};
         }
       }
     }
@@ -560,6 +561,7 @@ export const TableToolbarComp = (function () {
     // searchText: StringControl,
     filter: stateComp<TableFilter>({ stackType: "and", filters: [] }),
     position: dropdownControl(positionOptions, "below"),
+    columnSeparator: withDefault(StringControl, ','),
   };
 
   return new ControlNodeCompBuilder(childrenMap, (props, dispatch) => {
@@ -588,6 +590,10 @@ export const TableToolbarComp = (function () {
       children.showFilter.propertyView({ label: trans("table.showFilter") }),
       children.showRefresh.propertyView({ label: trans("table.showRefresh") }),
       children.showDownload.propertyView({ label: trans("table.showDownload") }),
+      children.showDownload.getView() && children.columnSeparator.propertyView({
+        label: trans("table.columnSeparator"),
+        tooltip: trans("table.columnSeparatorTooltip"),
+      }),
       children.columnSetting.propertyView({ label: trans("table.columnSetting") }),
       /* children.searchText.propertyView({
         label: trans("table.searchText"),
@@ -794,7 +800,7 @@ export function TableToolbar(props: {
               visible={settingVisible}
               setVisible={setSettingVisible}
               content={<ColumnSetting columns={visibleColumns} setVisible={setSettingVisible} />}
-              Icon={SettingIcon}
+              Icon={TableColumnVisibilityIcon}
               iconClassName="column-setting"
             />
           )}

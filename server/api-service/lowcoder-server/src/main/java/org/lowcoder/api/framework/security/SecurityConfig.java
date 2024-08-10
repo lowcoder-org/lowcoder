@@ -95,6 +95,7 @@ public class SecurityConfig {
                         // used in public viewed apps
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, CONFIG_URL), // system config
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, SERVER_SETTING_URL), // system env
+                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, FLOW_URL), // system config
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, CONFIG_URL + "/deploymentId"), // system config
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, APPLICATION_URL + "/*"), // application view
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, APPLICATION_URL + "/*/view"), // application view
@@ -124,6 +125,8 @@ public class SecurityConfig {
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, NewUrl.INVITATION_URL + "/**"),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, NewUrl.CUSTOM_AUTH + "/logout"),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, NewUrl.CONFIG_URL),
+                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, NewUrl.SERVER_SETTING_URL), // system env
+                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, NewUrl.FLOW_URL),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, NewUrl.CONFIG_URL + "/deploymentId"),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.HEAD, NewUrl.STATE_URL + "/healthCheck"),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, NewUrl.PREFIX + "/status/**"),

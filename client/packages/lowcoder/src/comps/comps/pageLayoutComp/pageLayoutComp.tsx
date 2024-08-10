@@ -29,6 +29,7 @@ import { trans } from "i18n";
 import { ControlNode } from "lowcoder-design";
 import { StringControl } from "comps/controls/codeControl";
 import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
+import SliderControl from "@lowcoder-ee/comps/controls/sliderControl";
 
 const childrenMap = {
   header: SimpleContainerComp,
@@ -49,6 +50,7 @@ const childrenMap = {
   siderWidth: withDefault(StringControl, "20%"),
   siderCollapsedWidth: withDefault(StringControl, "0"),
   showFooter: BoolControl,
+  horizontalGridCells: SliderControl,
   autoHeight: AutoHeightControl,
   siderScrollbars: withDefault(BoolControl, false),
   contentScrollbars: withDefault(BoolControl, false),
@@ -134,7 +136,11 @@ export class PageLayoutComp extends layoutBaseComp implements IContainer {
   }
 
   getPropertyView(): ControlNode {    
-    return [this.areaPropertyView(), this.heightPropertyView()];
+    return [
+      this.areaPropertyView(),
+      this.gridPropertyView(),
+      this.heightPropertyView(),
+    ];
   }
 
   areaPropertyView() {
@@ -157,6 +163,14 @@ export class PageLayoutComp extends layoutBaseComp implements IContainer {
       this.children.siderScrollbars.propertyView({ label: trans("prop.siderScrollbar")}),
       (!this.children.autoHeight.getView()) && this.children.contentScrollbars.propertyView({ label: trans("prop.contentScrollbar") }),
     ];
+  }
+
+  gridPropertyView() {
+    return [
+      this.children.horizontalGridCells.propertyView({
+        label: trans('prop.horizontalGridCells'),
+      }),
+    ]
   }
 
   appSelectorPropertyView() {

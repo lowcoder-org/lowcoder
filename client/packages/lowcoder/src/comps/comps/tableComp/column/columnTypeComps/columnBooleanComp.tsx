@@ -21,9 +21,10 @@ const Wrapper = styled.div`
   padding: 0 8px;
 `;
 
-const IconWrapper = styled.div<{ $style: CheckboxStyleType; $ifChecked: boolean }>`
-  pointer-events: none;
+const IconWrapper = styled.span<{ $style: CheckboxStyleType; $ifChecked: boolean }>`
+  // pointer-events: none;
   height: 22px;
+  display: inline-block;
   svg {
     width: 14px;
     height: 22px;

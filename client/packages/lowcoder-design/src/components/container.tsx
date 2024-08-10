@@ -1,7 +1,7 @@
 import { trans } from "i18n/design";
 import { ReactNode } from "react";
 import styled from "styled-components";
-import { ReactComponent as ContainerDrag } from "icons/icon-container-drag.svg";
+import { ReactComponent as ContainerDrag } from "icons/v1/icon-container-drag.svg";
 
 type ContainerPlaceholderProps = {
   children?: ReactNode;

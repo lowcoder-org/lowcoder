@@ -1,8 +1,8 @@
 import * as React from "react";
 import { ReactNode } from "react";
 import styled, { css } from "styled-components";
-import { ReactComponent as jsIcon } from "icons/icon-Js-colors.svg";
-import { ReactComponent as jsIconGray } from "icons/icon-Js-Gray.svg";
+import { ReactComponent as jsIcon } from "icons/v1/icon-Js-colors.svg";
+import { ReactComponent as jsIconGray } from "icons/v1/icon-Js-Gray.svg";
 import { ToolTipLabel } from "components/toolTip";
 
 type ControlPlacement = "bottom" | "right" | "modal";

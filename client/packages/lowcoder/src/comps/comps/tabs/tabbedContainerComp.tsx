@@ -36,6 +36,7 @@ import { messageInstance } from "lowcoder-design/src/components/GlobalInstances"
 import { BoolControl } from "comps/controls/boolControl";
 import { PositionControl } from "comps/controls/dropdownControl";
 import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
+import SliderControl from "@lowcoder-ee/comps/controls/sliderControl";
 
 const EVENT_OPTIONS = [
   {
@@ -53,6 +54,7 @@ const childrenMap = {
     1: { layout: {}, items: {} },
   }),
   autoHeight: AutoHeightControl,
+  horizontalGridCells: SliderControl,
   scrollbars: withDefault(BoolControl, false),
   placement: withDefault(PositionControl, "top"),
   onEvent: eventHandlerControl(EVENT_OPTIONS),
@@ -190,6 +192,7 @@ const TabbedContainer = (props: TabbedContainerProps) => {
     style,
     headerStyle,
     bodyStyle,
+    horizontalGridCells,
   } = props;
 
   const visibleTabs = tabs.filter((tab) => !tab.hidden);
@@ -243,6 +246,7 @@ const TabbedContainer = (props: TabbedContainerProps) => {
             <ContainerInTab
               layout={containerProps.layout.getView()}
               items={gridItemCompToGridItems(containerProps.items.getView())}
+              horizontalGridCells={horizontalGridCells}
               positionParams={containerProps.positionParams.getView()}
               dispatch={childDispatch}
               autoHeight={props.autoHeight}
@@ -323,6 +327,9 @@ export const TabbedContainerBaseComp = (function () {
                 {children.placement.propertyView({ label: trans("tabbedContainer.placement"), radioButton: true })}
                 {children.tabsCentered.propertyView({ label: trans("tabbedContainer.tabsCentered")})}
                 { children.tabsGutter.propertyView({ label: trans("tabbedContainer.gutter"), tooltip : trans("tabbedContainer.gutterTooltip") })}
+                {children.horizontalGridCells.propertyView({
+                  label: trans('prop.horizontalGridCells'),
+                })}
                 {children.autoHeight.getPropertyView()}
                 {!children.autoHeight.getView() && (
                   children.scrollbars.propertyView({

@@ -26,7 +26,7 @@ const postmanEchoPlugin: DataSourcePlugin<any, DataSourceConfigType> = {
   id: "postmanEcho",
   name: "Postman Echo",
   icon: "postmanEcho.svg",
-  category: "api",
+  category: "App Development",
   dataSourceConfig,
   queryConfig: async () => {
     const { actions, categories } = await parseOpenApi(spec as unknown as OpenAPI.Document, parseOptions);
