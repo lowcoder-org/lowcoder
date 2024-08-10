@@ -7,6 +7,7 @@ import static org.lowcoder.sdk.util.LocaleUtils.getLocale;
 import java.util.Collection;
 import java.util.Locale;
 
+import com.github.f4b6a3.uuid.UuidCreator;
 import lombok.RequiredArgsConstructor;
 import org.lowcoder.domain.group.event.GroupDeletedEvent;
 import org.lowcoder.domain.group.model.Group;
@@ -94,9 +95,11 @@ public class GroupServiceImpl implements GroupService {
             Group group = Group.builder()
                     .organizationId(organizationId)
                     .name(SystemGroups.getName(type, locale))
+                    .gid(UuidCreator.getTimeOrderedEpoch().toString())
                     .type(type)
                     .allUsersGroup(type.equals(ALL_USER))
                     .build();
+
             return repository.save(group);
         });
     }
