@@ -18,15 +18,12 @@ export interface Customer {
   userName: string;
   type: string;
   companyName: string;
-  address: CustomerAddress;
+  address?: CustomerAddress;
 }
 
 export type ResponseType = {
   response: any;
 };
-
-const apiUrl = "http://localhost:8080/api/flow";
-const authHeader = "96a99c7b-3758-4c48-b4b1-a8cbf59e7d6c";
 
 const currentPage = 1;
 const currentQuery = '';
@@ -41,11 +38,10 @@ const getAxiosInstance = (clientSecret?: string) => {
 
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
-    // "Lowcoder-Token": authHeader,
   }
 
   const apiRequestConfig: AxiosRequestConfig = {
-    baseURL: `${apiUrl}`,
+    baseURL: "http://localhost:8080/api/flow",
     headers,
   };
 
@@ -54,10 +50,8 @@ const getAxiosInstance = (clientSecret?: string) => {
 }
 
 class SubscriptionApi extends Api {
-  
-  static async createCustomer(body: any): Promise<any> {
-    console.log("createCustomerCall", body);
 
+  static async secureRequest(body: any): Promise<any> {
     let response;
     try {
       response = await getAxiosInstance().request({
@@ -66,8 +60,8 @@ class SubscriptionApi extends Api {
         data: body,
       });
     } catch (error) {
-      console.error("Error creating customer:", error);
-      throw error;
+      console.error("Error at Secure Flow Request:", error);
+      // throw error;
     }
     return response;
   }

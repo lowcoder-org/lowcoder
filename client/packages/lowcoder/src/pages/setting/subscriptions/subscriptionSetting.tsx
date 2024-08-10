@@ -1,4 +1,5 @@
 import { getUser } from "redux/selectors/usersSelectors";
+import React, { useEffect } from 'react';
 import { useSelector } from "react-redux";
 import styled from "styled-components";
 import { GreyTextColor } from "constants/style";
@@ -28,6 +29,11 @@ const SubscriptionSettingContent = styled.div`
   }
 
 `;
+
+const lcHeaders = {
+  "Lowcoder-Token": "96a99c7b-3758-4c48-b4b1-a8cbf59e7d6c",
+  "Content-Type": "application/json"
+};
 
 interface Pricing {
   type: string;
@@ -60,36 +66,51 @@ export function SubscriptionSetting() {
     userName: user.username,
     type: "org",
     companyName: "Example Company",
-    address: {
+    /* address: {
       line1: "123 Example Street",
       line2: "Suite 456",
       city: "Malaga",
       state: "Andalusia",
       country: "Spain",
       postalCode: "12345"
-    }
+    } */
   };
 
-  const apiBody = {
-    path: "webhook/echo",
-    data: subscriptionCustomer,
-    method: "post",
-    headers: {
-      "Lowcoder-Token": "96a99c7b-3758-4c48-b4b1-a8cbf59e7d6c",
-      "Content-Type": "application/json"
+  const createCustomer = async (subscriptionCustomer : Customer) => {
+    const apiBody = {
+      path: "webhook/secure/create-customer",
+      data: subscriptionCustomer,
+      method: "post",
+      headers: lcHeaders
     }
-  }
-
-  const createCustomer = async () => {
-
-    console.log("createCustomerTry", subscriptionCustomer);
-
     try {
-      const result = await SubscriptionApi.createCustomer(apiBody);
+      const result = await SubscriptionApi.secureRequest(apiBody);
       if (result) {
         console.log("createCustomer", result);
       }
-    } catch(error) {
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  const searchCustomer = async (subscriptionCustomer : Customer) => {
+    const apiBody = {
+      path: "webhook/secure/search-customer", 
+      data: subscriptionCustomer,
+      method: "post",
+      headers: lcHeaders
+    }
+    try {
+      const result = await SubscriptionApi.secureRequest(apiBody);
+      if (result) {
+        if (result.data.data.length === 0) {
+          console.log("searchCustomer", "Zero results");
+        }
+        else {
+          console.log("searchCustomer", result.data.data);
+        }
+      }
+    } catch (error) {
       console.error(error);
     }
   }
@@ -122,13 +143,18 @@ export function SubscriptionSetting() {
     }
   ];
 
+  useEffect(() => {
+    // Call searchCustomer as soon as the component mounts
+    searchCustomer(subscriptionCustomer);
+  }, []);
+
   return (
     <Level1SettingPageContent>
       <Level1SettingPageTitle>
         {trans("settings.subscription")}
       </Level1SettingPageTitle>
       <SubscriptionSettingContent>
-      <a onClick={createCustomer}>Create Customer</a>
+      <a onClick={(event) => createCustomer(subscriptionCustomer)}>Create Customer</a>
         <Flex wrap='wrap' gap="large">
           {products.map((product, index) => (
             <ProductCard
@@ -147,3 +173,4 @@ export function SubscriptionSetting() {
     </Level1SettingPageContent>
   );
 }
+
