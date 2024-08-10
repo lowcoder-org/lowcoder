@@ -9,7 +9,7 @@ import org.lowcoder.api.query.view.LibraryQueryRecordMetaView;
 import org.lowcoder.api.query.view.LibraryQueryView;
 import org.lowcoder.api.query.view.UpsertLibraryQueryRequest;
 import org.lowcoder.api.util.BusinessEventPublisher;
-import org.lowcoder.api.util.GIDUtil;
+import org.lowcoder.api.util.GidService;
 import org.lowcoder.domain.query.model.LibraryQuery;
 import org.lowcoder.domain.query.service.LibraryQueryService;
 import org.lowcoder.plugin.api.event.LowcoderEvent.EventType;
@@ -31,7 +31,7 @@ public class LibraryQueryController implements LibraryQueryEndpoints
     @Autowired
     private BusinessEventPublisher businessEventPublisher;
     @Autowired
-    private GIDUtil gidUtil;
+    private GidService gidService;
 
     @Override
     public Mono<ResponseView<List<LibraryQueryAggregateView>>> dropDownList() {
@@ -57,14 +57,14 @@ public class LibraryQueryController implements LibraryQueryEndpoints
     @Override
     public Mono<ResponseView<Boolean>> update(@PathVariable String libraryQueryId,
             @RequestBody UpsertLibraryQueryRequest upsertLibraryQueryRequest) {
-        String objectId = gidUtil.convertLibraryQueryIdToObjectId(libraryQueryId);
+        String objectId = gidService.convertLibraryQueryIdToObjectId(libraryQueryId);
         return libraryQueryApiService.update(objectId, upsertLibraryQueryRequest)
                 .map(ResponseView::success);
     }
 
     @Override
     public Mono<ResponseView<Boolean>> delete(@PathVariable String libraryQueryId) {
-        String objectId = gidUtil.convertLibraryQueryIdToObjectId(libraryQueryId);
+        String objectId = gidService.convertLibraryQueryIdToObjectId(libraryQueryId);
         return libraryQueryService.getById(objectId)
                 .delayUntil(__ -> libraryQueryApiService.delete(objectId))
                 .delayUntil(libraryQuery -> businessEventPublisher.publishLibraryQueryEvent(libraryQuery.getId(), libraryQuery.getName(),
@@ -75,7 +75,7 @@ public class LibraryQueryController implements LibraryQueryEndpoints
     @Override
     public Mono<ResponseView<LibraryQueryRecordMetaView>> publish(@PathVariable String libraryQueryId,
             @RequestBody LibraryQueryPublishRequest libraryQueryPublishRequest) {
-        String objectId = gidUtil.convertLibraryQueryIdToObjectId(libraryQueryId);
+        String objectId = gidService.convertLibraryQueryIdToObjectId(libraryQueryId);
         return libraryQueryApiService.publish(objectId, libraryQueryPublishRequest)
                 .delayUntil(__ -> libraryQueryService.getById(objectId)
                         .flatMap(libraryQuery -> businessEventPublisher.publishLibraryQuery(libraryQuery, EventType.LIBRARY_QUERY_PUBLISH)))

@@ -279,7 +279,6 @@ public interface ApplicationEndpoints
     }
 
     public record CreateApplicationRequest(@JsonProperty("orgId") String organizationId,
-										   String gid,
                                            String name,
                                            Integer applicationType,
                                            Map<String, Object> publishedApplicationDSL,
