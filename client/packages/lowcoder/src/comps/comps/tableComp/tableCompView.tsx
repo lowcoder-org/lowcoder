@@ -41,10 +41,8 @@ import { messageInstance } from "lowcoder-design/src/components/GlobalInstances"
 import { ReactRef, ResizeHandleAxis } from "layout/gridLayoutPropTypes";
 import { CellColorViewType } from "./column/tableColumnComp";
 import { defaultTheme } from "@lowcoder-ee/constants/themeConstants";
-import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 import { childrenToProps } from "@lowcoder-ee/comps/generators/multi";
 import { getVerticalMargin } from "@lowcoder-ee/util/cssUtil";
-
 
 function genLinerGradient(color: string) {
   return `linear-gradient(${color}, ${color})`;
@@ -809,8 +807,6 @@ export function TableCompView(props: {
   }, [pagination, data]);
 
   const childrenProps = childrenToProps(comp.children);
-  
-  useMergeCompStyles(childrenProps, comp.dispatch)
 
   const handleChangeEvent = useCallback(
     (eventName: TableEventOptionValues) => {

@@ -52,7 +52,6 @@ import { RefControl } from "comps/controls/refControl";
 import { TimePickerProps } from "antd/es/time-picker";
 
 import { EditorContext } from "comps/editorState";
-import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 const EventOptions = [changeEvent, focusEvent, blurEvent] as const;
 
@@ -143,9 +142,7 @@ export type TimeCompViewProps = Pick<
   placeholder?: string | [string, string];
 };
 
-export const timePickerControl = new UICompBuilder(childrenMap, (props, dispatch) => {
-  useMergeCompStyles(props as Record<string, any>, dispatch);
-
+export const timePickerControl = new UICompBuilder(childrenMap, (props) => {
   let time: dayjs.Dayjs | null = null;
   if(props.value.value !== '') {
     time = dayjs(props.value.value, TimeParser);
@@ -263,9 +260,7 @@ export const timeRangeControl = (function () {
     ...commonChildren,
   };
 
-  return new UICompBuilder(childrenMap, (props, dispatch) => {
-    useMergeCompStyles(props as Record<string, any>, dispatch);
-
+  return new UICompBuilder(childrenMap, (props) => {
     let start: dayjs.Dayjs | null = null;
     if(props.start.value !== '') {
       start = dayjs(props.start.value, TimeParser);

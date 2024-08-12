@@ -24,7 +24,6 @@ import { BoolControl } from "comps/controls/boolControl";
 import type { ItemType } from "antd/es/menu/interface";
 import { RefControl } from "comps/controls/refControl";
 import { EditorContext } from "comps/editorState"; 
-import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 const Error = styled.div`
   color: #f5222d;
@@ -74,9 +73,7 @@ const ScannerTmpComp = (function () {
     style: styleControl(DropdownStyle, 'style'),
     viewRef: RefControl<HTMLElement>,
   };
-  return new UICompBuilder(childrenMap, (props, dispatch) => {
-    useMergeCompStyles(props as Record<string, any>, dispatch);
-
+  return new UICompBuilder(childrenMap, (props) => {
     const [showModal, setShowModal] = useState(false);
     const [errMessage, setErrMessage] = useState("");
     const [videoConstraints, setVideoConstraints] = useState<MediaTrackConstraints>({

@@ -17,7 +17,6 @@ import styled, { css } from "styled-components";
 import { useContext, useEffect, useRef, useState } from "react";
 import { valueComp, withDefault } from "../generators";
 import type { TransferDirection } from 'antd/es/transfer';
-import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 const Container = styled.div<{ $style: TransferStyleType }>`
   height: 100%;
@@ -141,8 +140,6 @@ const TransferView = (props: RecordConstructorToView<typeof childrenMap> & {
 
 let TransferBasicComp = (function () {
   return new UICompBuilder(childrenMap, (props, dispatch) => {
-    useMergeCompStyles(props as Record<string, any>, dispatch);
-
     return (
     <TransferView {...props} dispatch={dispatch} />)})
     .setPropertyViewFn((children) => (

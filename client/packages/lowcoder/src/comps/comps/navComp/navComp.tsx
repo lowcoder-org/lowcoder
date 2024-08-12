@@ -22,7 +22,6 @@ import { trans } from "i18n";
 
 import { useContext } from "react";
 import { EditorContext } from "comps/editorState";
-import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 type IProps = {
   $justify: boolean;
@@ -145,9 +144,7 @@ const childrenMap = {
   ]),
 };
 
-const NavCompBase = new UICompBuilder(childrenMap, (props, dispatch) => {
-  useMergeCompStyles(props, dispatch);
-
+const NavCompBase = new UICompBuilder(childrenMap, (props) => {
   const data = props.items;
   const items = (
     <>

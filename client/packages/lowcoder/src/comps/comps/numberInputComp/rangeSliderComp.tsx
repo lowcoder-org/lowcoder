@@ -6,7 +6,6 @@ import { CommonNameConfig, NameConfig, withExposingConfigs } from "../../generat
 import { SliderChildren, SliderPropertyView, SliderStyled, SliderWrapper } from "./sliderCompConstants";
 import { hasIcon } from "comps/utils";
 import { BoolControl } from "comps/controls/boolControl";
-import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 const RangeSliderBasicComp = (function () {
   const childrenMap = {
@@ -16,7 +15,6 @@ const RangeSliderBasicComp = (function () {
     vertical: BoolControl,
   };
   return new UICompBuilder(childrenMap, (props, dispatch) => {
-    useMergeCompStyles(props as Record<string, any>, dispatch);
     return props.label({
       style: props.style,
       labelStyle: props.labelStyle,

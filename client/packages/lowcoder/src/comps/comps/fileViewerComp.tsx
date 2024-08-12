@@ -13,7 +13,6 @@ import { trans } from "i18n";
 
 import { useContext } from "react";
 import { EditorContext } from "comps/editorState";
-import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 const getStyle = (style: FileViewerStyleType) => {
   return css`
@@ -71,9 +70,7 @@ let FileViewerBasicComp = (function () {
     style: styleControl(FileViewerStyle , 'style'),
     animationStyle: styleControl(AnimationStyle , 'animationStyle'),
   };
-  return new UICompBuilder(childrenMap, (props, dispatch) => {
-    useMergeCompStyles(props as Record<string, any>, dispatch);
-    
+  return new UICompBuilder(childrenMap, (props) => {
     if (isEmpty(props.src)) {
       return (
         <ErrorWrapper
