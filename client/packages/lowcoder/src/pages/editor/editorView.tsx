@@ -446,7 +446,8 @@ function EditorView(props: EditorViewProps) {
   };
 
   return (
-    <><Helmet>
+    <>
+    <Helmet>
       {application && <title>{application.name}</title>}
       {isLowCoderDomain || isLocalhost && [
         // Adding Support for iframely to be able to embedd apps as iframes
@@ -457,14 +458,15 @@ function EditorView(props: EditorViewProps) {
           <meta key="iframely:title" property="iframely:title" content="Lowcoder 3" />,
           <meta key="iframely:description" property="iframely:description" content="Lowcoder | rapid App & VideoMeeting builder for everyone." />,
         ]),
-        <link rel="iframely" type="text/html" href={window.location.href} media="(aspect-ratio: 1280/720)" />,
+        <link key="iframely" rel="iframely" type="text/html" href={window.location.href} media="(aspect-ratio: 1280/720)" />,
         <link key="preconnect-googleapis" rel="preconnect" href="https://fonts.googleapis.com" />,
         <link key="preconnect-gstatic" rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />,
         <link key="font-ubuntu" href="https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,700;1,400&display=swap" rel="stylesheet" />,
         // adding Clearbit Support for Analytics
         <script key="clearbit-script" src="https://tag.clearbitscripts.com/v1/pk_dfbc0aeefb28dc63475b67134facf127/tags.js" referrerPolicy="strict-origin-when-cross-origin" type="text/javascript"></script>
       ]}
-    </Helmet><Height100Div
+    </Helmet>
+    <Height100Div
       onDragEnd={(e) => {
         // log.debug("layout: onDragEnd. Height100Div");
         editorState.setDragging(false);

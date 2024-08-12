@@ -265,6 +265,7 @@ class AppIndex extends React.Component<AppIndexProps, any> {
               content={trans('productDesc')}
             />,
             <link
+              key="iframely"
               rel="iframely"
               type="text/html"
               href={window.location.href}
