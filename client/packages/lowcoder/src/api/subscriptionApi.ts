@@ -10,7 +10,7 @@ export interface CustomerAddress {
   postalCode: string;
 }
 
-export interface Customer {
+export interface LowcoderCustomer {
   hostname: string;
   email: string;
   orgId: string;
@@ -19,6 +19,37 @@ export interface Customer {
   type: string;
   companyName: string;
   address?: CustomerAddress;
+}
+
+interface LowcoderMetadata {
+  lowcoder_host: string;
+  lowcoder_orgId: string;
+  lowcoder_type: string;
+  lowcoder_userId: string;
+}
+
+export interface StripeCustomer {
+  id: string;
+  object: string;
+  address?: object | null;
+  balance: number;
+  created: number;
+  currency: string | null;
+  default_source: string | null;
+  delinquent: boolean;
+  description: string | null;
+  discount: string | null;
+  email: string;
+  invoice_prefix: string;
+  invoice_settings: object | null;
+  livemode: boolean;
+  metadata: LowcoderMetadata;
+  name: string;
+  phone: string | null;
+  preferred_locales: string[];
+  shipping: string | null;
+  tax_exempt: string;
+  test_clock: string | null;
 }
 
 export type ResponseType = {

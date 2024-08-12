@@ -8,8 +8,6 @@ export const Subscription = () => {
 
   const location = useLocation();
 
-  console.log("Current location:", location.pathname);
-
   return (
     <Switch>
       <Route path={SUBSCRIPTION_SETTING} component={SubscriptionSetting} exact />

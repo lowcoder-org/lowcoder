@@ -1,9 +1,8 @@
-// productCard.tsx
 import React from 'react';
 import styled from 'styled-components';
 import { GreyTextColor } from 'constants/style';
 import { Card } from 'antd';
-import { SettingOutlined, CheckCircleOutlined, PlusSquareOutlined } from '@ant-design/icons';
+import { SettingOutlined, CheckCircleOutlined, PlusSquareOutlined, LoadingOutlined, InfoCircleOutlined } from '@ant-design/icons';
 import { buildSubscriptionId } from "constants/routesURL";
 import history from "util/history";
 
@@ -53,7 +52,9 @@ interface ProductCardProps {
   pricingType: string;
   pricing: Pricing[];
   activeSubscription: boolean;
-  accessLink: string;
+  checkoutLink: string;
+  checkoutLinkDataLoaded?: boolean;
+  subscriptionId: string;
 }
 
 export const ProductCard: React.FC<ProductCardProps> = ({
@@ -63,11 +64,23 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   pricingType,
   pricing,
   activeSubscription,
-  accessLink
+  checkoutLink,
+  checkoutLinkDataLoaded,
+  subscriptionId
 }) => {
 
-  const handleClick = () => {
-    history.push(buildSubscriptionId(accessLink));
+  const goToCheckout = () => {
+    if (checkoutLink) {
+      window.open(checkoutLink, '_blank');
+    }
+  };
+
+  const goToSubscriptionSettings = () => {
+    history.push(buildSubscriptionId(subscriptionId));
+  };
+
+  const goToSubscriptionInformation = () => {
+    // history.push(buildSubscriptionId(subscriptionId));
   };
 
   return (
@@ -75,11 +88,19 @@ export const ProductCard: React.FC<ProductCardProps> = ({
       hoverable
       cover={<img alt={title} src={image} />}
       actions={[
-        <SettingOutlined key="setting" onClick={handleClick} />,
+        activeSubscription ? (
+          <SettingOutlined key="setting" onClick={goToSubscriptionSettings} />
+        ) : (
+          <InfoCircleOutlined key="setting" onClick={goToSubscriptionInformation} />
+        ),
         activeSubscription ? (
           <CheckCircleOutlined key="check" style={{ color: 'green' }} />
         ) : (
-          <PlusSquareOutlined key="add" style={{ color: 'blue' }} />
+          checkoutLinkDataLoaded ? (
+            <PlusSquareOutlined key="add" style={{ color: 'blue'}} onClick={goToCheckout}/>
+          ) : (
+            <LoadingOutlined key="wait" />
+          )
         )
       ]}
     >
