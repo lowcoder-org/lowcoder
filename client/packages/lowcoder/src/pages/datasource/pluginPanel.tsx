@@ -103,12 +103,59 @@ export const localeContains = (str: string, sub: string): boolean => {
   return ascii(str).includes(ascii(sub));
 }
 
+// Define interfaces
+interface Category {
+  label: string;
+  filter: (t: DataSourceTypeInfo) => boolean;
+}
+
+interface SectionProps {
+  label: string;
+  filter: (t: DataSourceTypeInfo) => boolean;
+  datasourceTypes: DataSourceTypeInfo[];
+  searchValue: string;
+  onSelect: (t: DataSourceTypeInfo) => void;
+}
+
+const categories: Category[] = [
+  { label: trans("query.database"), filter: (t) => databasePlugins.includes(t.id) && t.id !== "snowflake" && t.id !== "clickHouse" && t.id !== "es" || t.id == "googleSheets" || t.definition?.category === "database"  },
+  { label: trans("query.categoryBigdata"), filter: (t) => t.id == "snowflake" || t.id == "clickHouse" || t.id == "es" || t.definition?.category === "Big Data" },
+  { label: trans("query.categoryAi"), filter: (t) => t.definition?.category === "AI" },
+  { label: trans("query.categoryDevops"), filter: (t) => t.definition?.category === "DevOps" },
+  { label: trans("query.categoryAppdevelopment"), filter: (t) => t.id == "restApi" || t.id == "graphql" || t.definition?.category === "App Development" },
+  { label: trans("query.categoryWorkflow"), filter: (t) => t.definition?.category === "Workflow" },
+  { label: trans("query.categoryMessaging"), filter: (t) => t.id == "smtp" || t.definition?.category === "Messaging" },
+  { label: trans("query.categoryAssets"), filter: (t) => t.definition?.category === "Assets" },
+  { label: trans("query.categoryProjectManagement"), filter: (t) => t.definition?.category === "Project Management" },
+  { label: trans("query.categoryCrm"), filter: (t) => t.definition?.category === "CRM" },
+  { label: trans("query.categoryEcommerce"), filter: (t) => t.definition?.category === "eCommerce" },
+  { label: trans("query.categoryApis"), filter: (t) => t.definition?.category === "api" },
+];
+
+// Section component
+const Section: React.FC<SectionProps> = ({ label, filter, datasourceTypes, searchValue, onSelect }) => (
+  <SectionWrapper>
+    <SectionLabel>{label}</SectionLabel>
+    <SectionBody>
+      {datasourceTypes
+        .filter(filter)
+        .filter((t) => localeContains(t.name, searchValue))
+        .map((t) => (
+          <DataSourceButton key={t.id} onClick={() => onSelect(t)}>
+            {t.id && getBottomResIcon(t.id, "large", t.definition?.icon)}
+            {t.name}
+          </DataSourceButton>
+        ))}
+    </SectionBody>
+  </SectionWrapper>
+);
+
 export const PluginPanel = (props: { onSelect: (t: DataSourceTypeInfo) => void }) => {
   const datasourceTypes = useSelector(getDataSourceTypes);
   const currentPage = useCurrentPage();
   const [searchValue, setSearchValue] = useState("");
   const apiList = currentPage === "queryLibrary" ? apiPluginsForQueryLibrary : apiPlugins;
-  
+
   return (
     <PanelWrapper>
       <OperationRightWrapper>
@@ -119,36 +166,16 @@ export const PluginPanel = (props: { onSelect: (t: DataSourceTypeInfo) => void }
           style={{ width: "192px", height: "32px", margin: "0" }}
         />
       </OperationRightWrapper>
-      <SectionWrapper>
-        <SectionLabel>{trans("query.database")}</SectionLabel>
-        <SectionBody>
-          {datasourceTypes
-            .filter((t) => databasePlugins.includes(t.id) || t.definition?.category === "database")
-            .filter((t) => localeContains(t.name, searchValue))
-            .map((t) => {
-              return (
-                <DataSourceButton key={t.id} onClick={() => props.onSelect(t)}>
-                  {t.id && getBottomResIcon(t.id, "large", t.definition?.icon)}
-                  {t.name}
-                </DataSourceButton>
-              );
-            })}
-        </SectionBody>
-      </SectionWrapper>
-      <SectionWrapper>
-        <SectionLabel>APIs</SectionLabel>
-        <SectionBody>
-          {datasourceTypes
-            .filter((t) => apiList.includes(t.id) || t.definition?.category === "api")
-            .filter((t) => localeContains(t.name, searchValue))
-            .map((t) => (
-              <DataSourceButton key={t.id} onClick={() => props.onSelect(t)}>
-                {t.id && getBottomResIcon(t.id, "large", t.definition?.icon)}
-                {t.name}
-              </DataSourceButton>
-            ))}
-        </SectionBody>
-      </SectionWrapper>
+      {categories.map(({ label, filter }) => (
+        <Section
+          key={label}
+          label={label}
+          filter={filter}
+          datasourceTypes={datasourceTypes}
+          searchValue={searchValue}
+          onSelect={props.onSelect}
+        />
+      ))}
     </PanelWrapper>
   );
 };

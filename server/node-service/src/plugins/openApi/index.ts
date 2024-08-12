@@ -39,7 +39,7 @@ const dataSourceConfig = {
       type: "textInput",
       tooltip: "Change the default server url written in the spec file.",
       placeholder: "https://example.com/api/v1",
-    },
+    }
   ],
 } as const;
 
@@ -157,7 +157,7 @@ const openApiPlugin: DataSourcePlugin<ActionDataType, DataSourceDataType> = {
   id: "openApi",
   name: "Open API",
   icon: "swagger.svg",
-  category: "api",
+  category: "App Development",
   dataSourceConfig: {
     ...dataSourceConfig,
     extra: async (dataSourceConfig) => {

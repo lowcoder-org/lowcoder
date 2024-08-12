@@ -79,7 +79,7 @@ let childrenMap: any = {
   resourcesEvents: jsonValueExposingStateControl("resourcesEvents", resourcesEventsDefaultData),
   resources: jsonValueExposingStateControl("resources", resourcesDefaultData),
   resourceName: withDefault(StringControl, trans("calendar.resourcesDefault")),
-  onEvent: CalendarEventHandlerControl,
+  onEvent: CalendarEventHandlerControl ? CalendarEventHandlerControl : ChangeEventHandlerControl,
   // onDropEvent: safeDragEventHandlerControl,
   editable: withDefault(BoolControl, true),
   showEventTime: withDefault(BoolControl, true),
@@ -124,10 +124,10 @@ let CalendarBasicComp = (function () {
     currentPremiumView?: string; 
   }, dispatch: any) => {
   
-  const comp = useContext(EditorContext).getUICompByName(
-    useContext(CompNameContext)
+    const comp = useContext(EditorContext).getUICompByName(
+      useContext(CompNameContext)
     );
-    const onEventVal = comp?.toJsonValue().comp.onEvent;
+    const onEventVal = comp?.toJsonValue()?.comp?.onEvent;
   
 
     const theme = useContext(ThemeContext);

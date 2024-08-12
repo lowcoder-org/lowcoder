@@ -31,9 +31,10 @@ interface SaveDataAsFileParams {
   filename: string;
   fileType: "empty" | "txt" | "json" | "csv" | "xlsx" | string;
   dataType?: "url" | "base64";
+  delimiter?: string;
 }
 
-export async function saveDataAsFile({ data, filename, fileType, dataType }: SaveDataAsFileParams) {
+export async function saveDataAsFile({ data, filename, fileType, dataType, delimiter }: SaveDataAsFileParams) {
   if (dataType === "url") {
     return saveAs(data, filename, { autoBom: true });
   }
@@ -72,11 +73,15 @@ export async function saveDataAsFile({ data, filename, fileType, dataType }: Sav
       } else {
         wb = XLSX.read(data, { type: "string" });
       }
-      blobData = XLSX.write(wb, {
+      let writeOptions: any = {
         bookType: finalFileType,
         bookSST: false, // whether to generate Shared String Table? setting true will slow down the generating speed, but more compatible for lower versioned iOS devices
         type: "buffer",
-      });
+      }
+      if (finalFileType === 'csv' && delimiter) {
+        writeOptions['FS'] = delimiter;
+      }
+      blobData = XLSX.write(wb, writeOptions);
       break;
   }
   const blob = new Blob([blobData], {

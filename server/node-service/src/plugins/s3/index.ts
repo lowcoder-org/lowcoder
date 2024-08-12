@@ -8,6 +8,13 @@ import run, { validateDataSourceConfig } from "./run";
 import getI18nTranslator from "./i18n";
 import getDataSourceConfig from "./dataSourceConfig";
 import getQueryConfig from "./queryConfig";
+import { dirToSpecList } from "../../common/util";
+import path from "path";
+
+
+const specs = {
+  "V1.0": "Nothing to do",
+}
 
 const s3Plugin: DataSourcePluginFactory = (context: PluginContext) => {
   const i18n = getI18nTranslator(context.languages);
@@ -16,9 +23,11 @@ const s3Plugin: DataSourcePluginFactory = (context: PluginContext) => {
     name: i18n.trans("name"),
     icon: "s3.svg",
     description: i18n.trans("description"),
-    category: "api",
-    dataSourceConfig: getDataSourceConfig(i18n),
-    queryConfig: getQueryConfig(i18n),
+    category: "Assets",
+    dataSourceConfig: getDataSourceConfig(i18n, specs),
+    queryConfig: async (data) => {
+      return getQueryConfig(i18n, data.specVersion as keyof typeof specs)
+    },
 
     validateDataSourceConfig: async (dataSourceConfig: DataSourceDataType) => {
       return validateDataSourceConfig(dataSourceConfig);

@@ -3,7 +3,7 @@ import { default as AntdTooltip, TooltipProps } from "antd/es/tooltip";
 import { CSSProperties, ReactNode } from "react";
 import styled, { css } from "styled-components";
 import { labelCss } from "components/Label";
-import { ReactComponent as CloseIcon } from "icons/icon-close.svg";
+import { ReactComponent as CloseIcon } from "icons/v1/icon-close.svg";
 import { TooltipRenderProps } from "react-joyride";
 import { trans } from "i18n/design";
 

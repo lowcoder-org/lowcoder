@@ -28,6 +28,7 @@ import { JSONValue } from "util/jsonTypes";
 import styled from "styled-components";
 import { TextOverflowControl } from "comps/controls/textOverflowControl";
 import { default as Divider } from "antd/es/divider";
+import { ColumnValueTooltip } from "./simpleColumnTypeComps";
 export type Render = ReturnType<ConstructorToComp<typeof RenderComp>["getOriginalComp"]>;
 export const RenderComp = withSelectedMultiContext(ColumnTypeComp);
 
@@ -83,10 +84,39 @@ export type CellColorViewType = (param: {
   currentCell: JSONValue | undefined; //number | string;
 }) => string;
 
+const cellTooltipLabel = trans("table.columnTooltip");
+const CellTooltipTempComp = withContext(
+  new MultiCompBuilder({ tooltip: StringControl }, (props) => props.tooltip)
+    .setPropertyViewFn((children) =>
+      children.tooltip.propertyView({
+        label: cellTooltipLabel,
+        tooltip: ColumnValueTooltip,
+      })
+    )
+    .build(),
+  ["currentCell", "currentRow", "currentIndex"] as const
+);
+
+// @ts-ignore
+export class CellTooltipComp extends CellTooltipTempComp {
+  override getPropertyView() {
+    return controlItem({ filterText: cellTooltipLabel }, super.getPropertyView());
+  }
+}
+
+// fixme, should be infer from RowColorComp, but withContext type incorrect
+export type CellTooltipViewType = (param: {
+  currentRow: any;
+  currentCell: JSONValue | undefined; //number | string;
+}) => string;
+
+
 export const columnChildrenMap = {
   // column title
   title: StringControl,
+  titleTooltip: StringControl,
   showTitle: withDefault(BoolControl, true),
+  cellTooltip: CellTooltipComp,
   // a custom column or a data column
   isCustom: valueComp<boolean>(false),
   // If it is a data column, it must be the name of the column and cannot be duplicated as a react key
@@ -157,6 +187,16 @@ export class ColumnComp extends ColumnInitComp {
           })
         )
       );
+      comp = comp.setChild(
+        "cellTooltip",
+        comp.children.cellTooltip.reduce(
+          CellTooltipComp.changeContextDataAction({
+            currentCell: undefined,
+            currentRow: {},
+            currentIndex: 0,
+          })
+        )
+      );
     }
     if (action.type === CompActionTypes.CHANGE_VALUE) {
       const title = comp.children.title.unevaledValue;
@@ -207,6 +247,10 @@ export class ColumnComp extends ColumnInitComp {
           label: trans("table.columnTitle"),
           placeholder: this.children.dataIndex.getView(),
         })}
+        {this.children.titleTooltip.propertyView({
+          label: trans("table.columnTitleTooltip"),
+        })}
+        {this.children.cellTooltip.getPropertyView()}
         <Dropdown
           showSearch={true}
           defaultValue={columnValue}

@@ -7,13 +7,16 @@ import com.github.f4b6a3.uuid.UuidCreator;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 import org.lowcoder.domain.application.model.Application;
+import org.lowcoder.domain.bundle.model.Bundle;
 import org.lowcoder.domain.datasource.model.Datasource;
 import org.lowcoder.domain.datasource.model.DatasourceStructureDO;
 import org.lowcoder.domain.datasource.model.TokenBasedConnection;
+import org.lowcoder.domain.folder.model.Folder;
 import org.lowcoder.domain.group.model.Group;
 import org.lowcoder.domain.group.model.QGroup;
 import org.lowcoder.domain.material.model.MaterialMeta;
 import org.lowcoder.domain.organization.model.Organization;
+import org.lowcoder.domain.query.model.ApplicationQuery;
 import org.lowcoder.domain.query.model.LibraryQuery;
 import org.lowcoder.domain.query.model.LibraryQueryRecord;
 import org.lowcoder.domain.user.model.User;
@@ -266,6 +269,30 @@ public class DatabaseChangelog {
                 mongoTemplate.updateFirst(idQuery, update, "folder");
             }
         });
+  
+    @ChangeSet(order = "025", id = "add-gid-indexes-unique", author = "")
+    public void addGidIndexesUnique(MongockTemplate mongoTemplate) {
+        // collections to add gid
+        String[] collectionNames = {"group", "organization"};
+
+        // Get the list of existing collections
+        Set<String> existingCollections = mongoTemplate.getCollectionNames();
+
+        for (String collectionName : collectionNames) {
+            if (existingCollections.contains(collectionName)) {
+                addGidField(mongoTemplate, collectionName);
+            } else {
+                System.out.println("Collection " + collectionName + " does not exist.");
+            }
+        }
+
+        ensureIndexes(mongoTemplate, Application.class, makeIndex("gid").unique());
+        ensureIndexes(mongoTemplate, Datasource.class, makeIndex("gid").unique());
+        ensureIndexes(mongoTemplate, Bundle.class, makeIndex("gid").unique());
+        ensureIndexes(mongoTemplate, Folder.class, makeIndex("gid").unique());
+        ensureIndexes(mongoTemplate, Group.class, makeIndex("gid").unique());
+        ensureIndexes(mongoTemplate, Organization.class, makeIndex("gid").unique());
+        ensureIndexes(mongoTemplate, LibraryQuery.class, makeIndex("gid").unique());
     }
 
     private void addGidField(MongockTemplate mongoTemplate, String collectionName) {
@@ -287,7 +314,7 @@ public class DatabaseChangelog {
                 update.set("gid", uniqueGid);
 
                 // Create a query to match the current document by its _id
-                Query idQuery = new Query(Criteria.where("_id").is(document.getObjectId("_id")));
+                Query idQuery = new Query(Criteria.where("_id").is(document.getObjectId("_id")).andOperator(Criteria.where("gid").isNull()));
 
                 // Update the document with the new 'gid' field
                 mongoTemplate.updateFirst(idQuery, update, collectionName);

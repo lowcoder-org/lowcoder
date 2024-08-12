@@ -40,15 +40,15 @@ import {
 } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { TIME_FORMAT, TimeParser } from "util/dateTimeUtils";
-import React, { ReactNode, useContext, useEffect } from "react";
+import React, { ReactNode, useContext, useEffect, useState } from "react";
 import { IconControl } from "comps/controls/iconControl";
 import { hasIcon } from "comps/utils";
 import { Section, sectionNames } from "components/Section";
-import { dateRefMethods, disabledTime, handleDateChange } from "comps/comps/dateComp/dateCompUtil";
+import { CommonPickerMethods, dateRefMethods, disabledTime, handleDateChange } from "comps/comps/dateComp/dateCompUtil";
 import { TimeUIView } from "./timeUIView";
 import { TimeRangeUIView } from "comps/comps/dateComp/timeRangeUIView";
 import { RefControl } from "comps/controls/refControl";
-import { CommonPickerMethods } from "antd/es/date-picker/generatePicker/interface";
+// import { CommonPickerMethods } from "antd/es/date-picker/generatePicker/interface";
 import { TimePickerProps } from "antd/es/time-picker";
 
 import { EditorContext } from "comps/editorState";
@@ -146,10 +146,17 @@ export type TimeCompViewProps = Pick<
 export const timePickerControl = new UICompBuilder(childrenMap, (props, dispatch) => {
   useMergeCompStyles(props as Record<string, any>, dispatch);
 
-  let time = null;
+  let time: dayjs.Dayjs | null = null;
   if(props.value.value !== '') {
     time = dayjs(props.value.value, TimeParser);
   }
+  
+  const [tempValue, setTempValue] = useState<dayjs.Dayjs | null>(time);
+
+  useEffect(() => {
+    const value = props.value.value ? dayjs(props.value.value, TimeParser) : null;
+    setTempValue(value);
+  }, [props.value.value])
 
   return props.label({
     required: props.required,
@@ -157,12 +164,13 @@ export const timePickerControl = new UICompBuilder(childrenMap, (props, dispatch
     labelStyle: props.labelStyle,
     inputFieldStyle:props.inputFieldStyle,
     animationStyle:props.animationStyle,
+    onMouseDown: (e) => e.stopPropagation(),
     children: (
       <TimeUIView
         viewRef={props.viewRef}
         $style={props.inputFieldStyle}
         disabled={props.disabled}
-        value={time?.isValid() ? time : null}
+        value={tempValue?.isValid() ? tempValue : null}
         disabledTime={() => disabledTime(props.minTime, props.maxTime)}
         {...timePickerComps(props)}
         hourStep={props.hourStep as hourStepType}
@@ -258,22 +266,35 @@ export const timeRangeControl = (function () {
   return new UICompBuilder(childrenMap, (props, dispatch) => {
     useMergeCompStyles(props as Record<string, any>, dispatch);
 
-    let start = null;
+    let start: dayjs.Dayjs | null = null;
     if(props.start.value !== '') {
       start = dayjs(props.start.value, TimeParser);
     }
-    let end = null;
+    let end: dayjs.Dayjs | null = null;
     if(props.end.value !== '') {
       end = dayjs(props.end.value, TimeParser);
     }
 
+    const [tempStartValue, setTempStartValue] = useState<dayjs.Dayjs | null>(start);
+    const [tempEndValue, setTempEndValue] = useState<dayjs.Dayjs | null>(end);
+
+    useEffect(() => {
+      const value = props.start.value ? dayjs(props.start.value, TimeParser) : null;
+      setTempStartValue(value);
+    }, [props.start.value])
+
+    useEffect(() => {
+      const value = props.end.value ? dayjs(props.end.value, TimeParser) : null;
+      setTempEndValue(value);
+    }, [props.end.value])
+    
     const children = (
       <TimeRangeUIView
         viewRef={props.viewRef}
         $style={props.inputFieldStyle}
         disabled={props.disabled}
-        start={start?.isValid() ? start : null}
-        end={end?.isValid() ? end : null}
+        start={tempStartValue?.isValid() ? tempStartValue : null}
+        end={tempEndValue?.isValid() ? tempEndValue : null}
         disabledTime={() => disabledTime(props.minTime, props.maxTime)}
         {...timePickerComps(props)}
         hourStep={props.hourStep as hourStepType}
@@ -301,6 +322,7 @@ export const timeRangeControl = (function () {
       inputFieldStyle:props.inputFieldStyle,
       animationStyle:props.animationStyle,
       children: children,
+      onMouseDown: (e) => e.stopPropagation(),
       ...(startResult.validateStatus !== "success"
         ? startResult
         : endResult.validateStatus !== "success"

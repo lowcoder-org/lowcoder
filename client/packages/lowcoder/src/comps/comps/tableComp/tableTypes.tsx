@@ -197,6 +197,8 @@ const tableChildrenMap = {
   hideHeader: BoolControl,
   fixedHeader: BoolControl,
   autoHeight: withDefault(AutoHeightControl, "auto"),
+  showVerticalScrollbar: BoolControl,
+  showHorizontalScrollbar: BoolControl,
   data: withIsLoadingMethod(JSONObjectArrayControl),
   showDataLoadSpinner: withDefault(BoolPureControl, true),
   columns: ColumnListComp,

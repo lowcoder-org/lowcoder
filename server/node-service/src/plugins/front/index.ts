@@ -5,6 +5,10 @@ import { runOpenApi } from "../openApi";
 import { parseOpenApi, ParseOpenApiOptions } from "../openApi/parse";
 
 import spec from "./front.spec.json";
+import { specsToOptions, version2spec } from "../../common/util";
+const specs = {
+  "v1.0": spec,
+}
 
 const dataSourceConfig = {
   type: "dataSource",
@@ -13,6 +17,14 @@ const dataSourceConfig = {
       type: "password",
       key: "http.value",
       label: "Token",
+    },
+    {
+      label: "Spec Version",
+      key: "specVersion",
+      type: "select",
+      tooltip: "Version of the spec file.",
+      placeholder: "v1.0",
+      options: specsToOptions(specs)
     },
   ],
 } as const;
@@ -32,10 +44,10 @@ const frontPlugin: DataSourcePlugin<any, DataSourceConfigType> = {
   id: "front",
   name: "Front",
   icon: "front.svg",
-  category: "api",
+  category: "CRM",
   dataSourceConfig,
-  queryConfig: async () => {
-    const { actions, categories } = await parseOpenApi(spec as OpenAPI.Document, parseOptions);
+  queryConfig: async (data) => {
+    const { actions, categories } = await parseOpenApi(version2spec(specs, data.specVersion) as OpenAPI.Document, parseOptions);
     return {
       type: "query",
       label: "Action",
@@ -51,8 +63,9 @@ const frontPlugin: DataSourcePlugin<any, DataSourceConfigType> = {
       url: "",
       serverURL: "",
       dynamicParamsConfig: dataSourceConfig,
+      specVersion: dataSourceConfig.specVersion,
     };
-    return runOpenApi(actionData, runApiDsConfig, spec as OpenAPIV3.Document);
+    return runOpenApi(actionData, runApiDsConfig, version2spec(specs, dataSourceConfig.specVersion) as OpenAPIV3.Document);
   },
 };
 

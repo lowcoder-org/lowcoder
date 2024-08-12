@@ -1,5 +1,5 @@
 import { default as AntdSelect, SelectProps as AntdSelectProps } from "antd/es/select";
-import { ReactComponent as PackUpIcon } from "icons/icon-Pack-up.svg";
+import { ReactComponent as PackUpIcon } from "icons/v1/icon-Pack-up.svg";
 import styled from "styled-components";
 import React from "react";
 
