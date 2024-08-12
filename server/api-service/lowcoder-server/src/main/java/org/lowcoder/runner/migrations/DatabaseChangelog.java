@@ -257,7 +257,7 @@ public class DatabaseChangelog {
             @Override
             public void processDocument(Document document) {
                 Object object = document.get("createdAt");
-                if(object != null) return;
+                if (object != null) return;
                 // Create an update object to add the 'gid' field
                 Update update = new Update();
                 update.set("createdAt", Instant.now());
@@ -269,6 +269,7 @@ public class DatabaseChangelog {
                 mongoTemplate.updateFirst(idQuery, update, "folder");
             }
         });
+    }
   
     @ChangeSet(order = "025", id = "add-gid-indexes-unique", author = "")
     public void addGidIndexesUnique(MongockTemplate mongoTemplate) {
