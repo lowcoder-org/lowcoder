@@ -493,7 +493,7 @@ const ResizeableTitle = (props: any) => {
         />
       )}
     >
-      <TableTh ref={elementRef} {...restProps} />
+      <TableTh ref={elementRef} {...restProps} title="" />
     </Resizable>
   );
 };

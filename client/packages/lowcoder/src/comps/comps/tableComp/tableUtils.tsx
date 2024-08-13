@@ -398,6 +398,7 @@ export function columnsToAntdFormat(
         ? {
             sorter: true,
             sortOrder: sortMap.get(column.dataIndex),
+            showSorterTooltip: false,
           }
         : {}),
     };
