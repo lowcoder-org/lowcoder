@@ -37,6 +37,7 @@ public class ApplicationHistorySnapshotController implements ApplicationHistoryS
     private final SessionUserService sessionUserService;
     private final UserService userService;
     private final ApplicationService applicationService;
+    private final ApplicationApiService applicationApiService;
 
     @Override
     public Mono<ResponseView<Boolean>> create(@RequestBody ApplicationHistorySnapshotRequest request) {
@@ -48,6 +49,7 @@ public class ApplicationHistorySnapshotController implements ApplicationHistoryS
                         request.context(),
                         visitorId)
                 )
+                .delayUntil(__ -> applicationApiService.updateUserApplicationLastViewTime(request.applicationId()))
                 .map(ResponseView::success);
     }
 

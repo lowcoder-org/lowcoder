@@ -1,22 +1,10 @@
 package org.lowcoder.api.application;
 
-import static org.apache.commons.collections4.SetUtils.emptyIfNull;
-import static org.lowcoder.plugin.api.event.LowcoderEvent.EventType.APPLICATION_CREATE;
-import static org.lowcoder.plugin.api.event.LowcoderEvent.EventType.APPLICATION_DELETE;
-import static org.lowcoder.plugin.api.event.LowcoderEvent.EventType.APPLICATION_RECYCLED;
-import static org.lowcoder.plugin.api.event.LowcoderEvent.EventType.APPLICATION_RESTORE;
-import static org.lowcoder.plugin.api.event.LowcoderEvent.EventType.APPLICATION_UPDATE;
-import static org.lowcoder.plugin.api.event.LowcoderEvent.EventType.APPLICATION_VIEW;
-import static org.lowcoder.sdk.exception.BizError.INVALID_PARAMETER;
-import static org.lowcoder.sdk.util.ExceptionUtils.ofError;
-
-import java.util.List;
-
+import lombok.RequiredArgsConstructor;
 import org.lowcoder.api.application.view.ApplicationInfoView;
 import org.lowcoder.api.application.view.ApplicationPermissionView;
 import org.lowcoder.api.application.view.ApplicationView;
 import org.lowcoder.api.application.view.MarketplaceApplicationInfoView;
-// should we not have a AgencyApplicationInfoView
 import org.lowcoder.api.framework.view.ResponseView;
 import org.lowcoder.api.home.SessionUserService;
 import org.lowcoder.api.home.UserHomeApiService;
@@ -27,14 +15,27 @@ import org.lowcoder.domain.application.model.Application;
 import org.lowcoder.domain.application.model.ApplicationRequestType;
 import org.lowcoder.domain.application.model.ApplicationStatus;
 import org.lowcoder.domain.application.model.ApplicationType;
+import org.lowcoder.domain.interaction.UserApplicationInteraction;
+import org.lowcoder.domain.interaction.UserApplicationInteractionService;
 import org.lowcoder.domain.permission.model.ResourceRole;
+import org.lowcoder.sdk.exception.BizError;
+import org.lowcoder.sdk.exception.BizException;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
+
+import java.time.Duration;
+import java.time.Instant;
+import java.util.Comparator;
+import java.util.List;
+
+import static org.apache.commons.collections4.SetUtils.emptyIfNull;
+import static org.lowcoder.plugin.api.event.LowcoderEvent.EventType.*;
+import static org.lowcoder.sdk.exception.BizError.INVALID_PARAMETER;
+import static org.lowcoder.sdk.util.ExceptionUtils.deferredError;
+import static org.lowcoder.sdk.util.ExceptionUtils.ofError;
 
 @RequiredArgsConstructor
 @RestController
@@ -45,6 +46,7 @@ public class ApplicationController implements ApplicationEndpoints {
     private final BusinessEventPublisher businessEventPublisher;
     private final SessionUserService sessionUserService;
     private final GidService gidService;
+    private final UserApplicationInteractionService userApplicationInteractionService;
 
     @Override
     public Mono<ResponseView<ApplicationView>> create(@RequestBody CreateApplicationRequest createApplicationRequest) {
@@ -94,7 +96,23 @@ public class ApplicationController implements ApplicationEndpoints {
     @Override
     public Mono<ResponseView<ApplicationView>> getEditingApplication(@PathVariable String applicationId) {
         String appId = gidService.convertApplicationIdToObjectId(applicationId);
-        return applicationApiService.getEditingApplication(appId)
+
+        return userApplicationInteractionService.findByAppId(appId)
+                .sort(Comparator.comparing(UserApplicationInteraction::lastViewTime))
+                .last()
+                .zipWith(sessionUserService.getVisitorId())
+                .flatMap(tuple -> {
+                    UserApplicationInteraction interaction = tuple.getT1();
+                    String currentUser = tuple.getT2();
+                    Instant twoMinutesAgo = Instant.now().minus(Duration.ofMinutes(2));
+                    if (interaction.lastViewTime() != null
+                            && interaction.lastViewTime().isAfter(twoMinutesAgo)
+                            && !interaction.userId().equals(currentUser)) {
+                        return Mono.error(new BizException(BizError.APPLICATION_LOCKED, "APPLICATION_LOCKED", appId));
+                    }
+                    return applicationApiService.getEditingApplication(appId);
+                })
+                .switchIfEmpty(Mono.defer(() -> applicationApiService.getEditingApplication(appId)))
                 .delayUntil(__ -> applicationApiService.updateUserApplicationLastViewTime(appId))
                 .map(ResponseView::success);
     }

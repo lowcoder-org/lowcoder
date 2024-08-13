@@ -9,4 +9,6 @@ public interface UserApplicationInteractionService {
     Mono<Void> upsert(String userId, String applicationId, Instant lastViewTime);
 
     Flux<UserApplicationInteraction> findByUserId(String userId);
+
+    Flux<UserApplicationInteraction> findByAppId(String appId);
 }

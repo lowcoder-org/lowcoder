@@ -30,4 +30,10 @@ public class UserApplicationInteractionServiceImpl implements UserApplicationInt
         return biRelationService.getBySourceId(BiRelationBizType.USER_APP_INTERACTION, userId)
                 .map(UserApplicationInteraction::of);
     }
+
+    @Override
+    public Flux<UserApplicationInteraction> findByAppId(String appId) {
+        return biRelationService.getByTargetId(BiRelationBizType.USER_APP_INTERACTION, appId)
+                .map(UserApplicationInteraction::of);
+    }
 }

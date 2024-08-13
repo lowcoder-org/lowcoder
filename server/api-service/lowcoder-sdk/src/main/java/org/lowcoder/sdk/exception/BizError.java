@@ -63,6 +63,7 @@ public enum BizError {
     INVALID_HISTORY_SNAPSHOT(500, 5307),
 
     NO_PERMISSION_TO_REQUEST_APP(403, 5308),
+    APPLICATION_LOCKED(403, 5309),
 
     // datasource related, code range 5500 - 5600
     DATASOURCE_NOT_FOUND(500, 5500),
