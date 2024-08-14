@@ -13822,7 +13822,7 @@ coolshapes-react@lowcoder-org/coolshapes-react:
     lowcoder-cli: "workspace:^"
     mq-polyfill: ^1.1.8
     number-precision: ^1.6.0
-    posthog-js: ^1.144.2
+    posthog-js: ^1.155.4
     prettier: ^3.1.0
     react-countup: ^6.5.3
     react-player: ^2.11.0
@@ -16126,14 +16126,14 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   languageName: node
   linkType: hard
 
-"posthog-js@npm:^1.144.2":
-  version: 1.144.2
-  resolution: "posthog-js@npm:1.144.2"
+"posthog-js@npm:^1.155.4":
+  version: 1.155.4
+  resolution: "posthog-js@npm:1.155.4"
   dependencies:
     fflate: ^0.4.8
     preact: ^10.19.3
     web-vitals: ^4.0.1
-  checksum: c856f49a34b825eb0678b40e137affa4a79a29ff64205f059a9a0ad78ce6ac8b3d8413f955e3fa72b08cf91e923e443aedb7e41b2e40c76c1cab20b88fe1c3d7
+  checksum: 749d180a4bfda0cb89307bad81eb230523c3e8f03dc94ac35dde212a130593a23dd98768bbff64753931dc501bca345397d7b39157dcc6eb174d57bd647c33d5
   languageName: node
   linkType: hard
 
