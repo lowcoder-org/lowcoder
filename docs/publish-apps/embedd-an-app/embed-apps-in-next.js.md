@@ -32,7 +32,6 @@ import "lowcoder-sdk/dist/style.css";
 
 * Create Wrapper Component to Embed Lowcoder Apps
 
-````
 ```
 "use client"
 import { LowcoderAppView } from "lowcoder-sdk";
@@ -57,33 +56,27 @@ function LowcoderAppWrapper(props) {
 
 export default LowcoderAppWrapper;
 ```
-````
 
 * Dynamically import the LowcoderAppWrapper component in the file where you want to embed the Lowcoder app
 
-````
 ```
 const LowcoderAppWrapper = dynamic(
   () => import('../components/LowcoderAppWrapper'), {ssr: false}
 );
 ```
-````
 
 * Now, we can embed  our Lowcoder app by just passing the appId to the imported LowcoderAppWrapper component.
 
-````
 ```
 <LowcoderAppWrapper
    appId='66ab6af10390b00771b2e649'
 />
 ```
-````
 
 ### Embed Lowcoder Modules
 
 * Create Wrapper Component to Embed Lowcoder Modules
 
-````
 ```
 "use client"
 import { useRef } from "react";
@@ -120,27 +113,28 @@ function LowcoderModuleWrapper(props) {
 
 export default LowcoderModuleWrapper;
 ```
-````
 
 * Dynamically import the LowcoderModuleWrapper component in the file where you want to embed the Lowcoder Module
 
-````
 ```
 const LowcoderModuleWrapper = dynamic(
   () => import('../components/LowcoderModuleWrapper'), {ssr: false}
 );
 ```
-````
 
 * Now, we can embed  our Lowcoder module by just passing the appId to the imported LowcoderModuleWrapper component.
 
-````
 ```
 <LowcoderModuleWrapper
    appId="660f13367c18a91b174fe96d"
 />
 ```
-````
+
+### Demo
+
+The result of the above code in NEXT.JS App is shown below in the Demo. The List component with Yellow background is the Lowcoder App and the Table component is the Lowcoder Module :&#x20;
+
+{% embed url="https://demos.lowcoder.cloud/demo/clzi68y2h1jaw9x776x7lwz8p" %}
 
 ### Properties
 
