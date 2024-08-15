@@ -10,7 +10,9 @@ To achieve this and create a "collection of App Screens," Lowcoder has the so-ca
 
 Lowcoder's "App Navigation" feature allows you to aggregate multiple app screens into a cohesive, multi-page application with a fully functional menu. This feature is available in both desktop and mobile variants, with hierarchical navigation on desktop and flat navigation on mobile. You can create menus manually or dynamically using data queries.
 
-{% embed url="https://demos.lowcoder.cloud/demo/clyso4e9b0uwkz9kd066pvs7n" %}
+## **Demo ( Desktop Navigation )**
+
+{% embed url="https://demos.lowcoder.cloud/demo/clztrrle711us4oytvazqslk8" %}
 
 ## **Steps to Create an App Navigation**
 
@@ -33,6 +35,10 @@ Lowcoder's "App Navigation" feature allows you to aggregate multiple app screens
    * As the last step, you need to decide with whom you will share the app and publish it. You can read about [app publishing here](../../publish-apps/publish-an-app.md). Navigation Apps behave exactly the same way.
 
 On the Lowcoder Admin homepage, click **New** and select **Navigation** to create a navigation page.
+
+## **Demo ( Mobile Navigation )**
+
+{% embed url="https://demos.lowcoder.cloud/demo/clyso4e9b0uwkz9kd066pvs7n" %}
 
 ## Menu items
 

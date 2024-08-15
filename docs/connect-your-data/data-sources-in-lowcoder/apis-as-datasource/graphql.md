@@ -29,6 +29,10 @@ For detailed information, see SSL Cert Verification.
 
 For detailed information, see Forward cookies.
 
+## Demo
+
+{% embed url="https://demos.lowcoder.cloud/demo/clzrd2cwp0a3n4oytjxdrml9t" %}
+
 ## Create a GraphQL query
 
 You can create GraphQL queries in two ways:

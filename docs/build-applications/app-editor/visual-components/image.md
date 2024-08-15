@@ -35,3 +35,7 @@ Toggle **Support click preview** in the **Properties** tab to allow users to pre
 ## Set the style of an image
 
 In **Properties** > **Style**, change border color and set **Border radius** in pixels or by percentage.
+
+## Insert/Retrieve an Image into/from Database
+
+{% embed url="https://demos.lowcoder.cloud/demo/clzilkh8x1ozt9x77uabp0vfa" %}

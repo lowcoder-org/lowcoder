@@ -57,6 +57,10 @@ It is possible to include global CSS styles to fine-tune the visuals of Apps. Al
 
 <figure><img src="../.gitbook/assets/Admin  Global Includes.png" alt=""><figcaption></figcaption></figure>
 
+### Demo
+
+{% embed url="https://demos.lowcoder.cloud/demo/clzs4nglo0g8s4oyt0xq85bqd" %}
+
 ### Further administrative Settings
 
 On self-hosted installations, you can set up thresholds for workspaces with the help of [ENV Variables](https://github.com/lowcoder-org/lowcoder/tree/main/deploy/docker#configuration)&#x20;

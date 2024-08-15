@@ -19,6 +19,6 @@ Follow the steps below:
 4. (Optional) Click **Test connection** to check whether the new data source is successfully connected.
 5. Click **Save**, and it will be saved to your data source library.
 
-## Query a MySQL data source
+## Query a MySQL data source ( Demo )
 
-Create `query1` and select the recently created data source. Insert a query and then click ▶ **Run**.
+{% embed url="https://demos.lowcoder.cloud/demo/clzgz1jrv17ci9x77c22hjlog" %}

@@ -97,7 +97,10 @@ Files uploaded via the file upload component are stored in browser cache memory 
 
 * `parsedValue`: A list of the value of the parsed files.
 
-
+### Demo ( File Upload & File Viewer )
 
 {% embed url="https://app.supademo.com/demo/clyyiwhcr1zh6z9kdrqgzyn4y" %}
 
+### Demo ( Inserting CSV File data into Database )
+
+{% embed url="https://demos.lowcoder.cloud/demo/clzia4nbk1ku89x77adrr1fes" %}

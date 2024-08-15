@@ -68,6 +68,8 @@ Based on your settings you can invite special users only or make the app public 
 
 After all tests are done, your app is ready to hit the market. You can use the "Preview Button" to explore how your App looks for a standard logged in user.
 
-<figure><img src="../.gitbook/assets/App Editor  Preview.png" alt=""><figcaption></figcaption></figure>
-
 With the same button, but by help of the small arrow on the right, you can finally publish the application in it's current state. Make sure, the app is then accessible (Share menu) as you expect. (public or for selected users only)
+
+We have created an App that contains all the useful demos about Lowcoder key Concepts and different Components. You may have a headstart by going through these Demos on following link :&#x20;
+
+{% embed url="https://app.lowcoder.cloud/apps/66bccb8972ed3d1d42a4510f/view_marketplace" %}
