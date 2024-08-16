@@ -139,6 +139,16 @@ public interface ApplicationEndpoints
 
 	@Operation(
 			tags = TAG_APPLICATION_MANAGEMENT,
+			operationId = "updateApplicationEditingState",
+			summary = "Update Application editing state",
+			description = "Update the editing state of a specific Lowcoder Application identified by its ID."
+	)
+	@PutMapping("/editState/{applicationId}")
+	public Mono<ResponseView<Boolean>> updateEditState(@PathVariable String applicationId,
+														@RequestBody UpdateEditStateRequest updateEditStateRequest);
+
+	@Operation(
+			tags = TAG_APPLICATION_MANAGEMENT,
 		    operationId = "getUserHomepageApplication",
 		    summary = "Get the homepage Application of current User",
 		    description = "Retrieve the first displayed Lowcoder Application for an authenticated or impersonated user."
@@ -285,5 +295,7 @@ public interface ApplicationEndpoints
                                            Map<String, Object> editingApplicationDSL,
                                            @Nullable String folderId) {
     }
+	public record UpdateEditStateRequest(Boolean editingFinished) {
+	}
 
 }
