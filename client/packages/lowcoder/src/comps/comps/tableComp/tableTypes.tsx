@@ -36,6 +36,7 @@ import { ExpansionControl } from "./expansionControl";
 import { PaginationControl } from "./paginationControl";
 import { SelectionControl } from "./selectionControl";
 import { AutoHeightControl } from "comps/controls/autoHeightControl";
+import { TableSummaryComp } from "./tableSummaryComp";
 
 const sizeOptions = [
   {
@@ -207,6 +208,7 @@ const tableChildrenMap = {
   pagination: PaginationControl,
   sort: valueComp<Array<SortValue>>([]),
   toolbar: TableToolbarComp,
+  showSummary: BoolControl,
   style: styleControl(TableStyle, 'style'),
   rowStyle: styleControl(TableRowStyle, 'rowStyle'),
   toolbarStyle: styleControl(TableToolbarStyle, 'toolbarStyle'),

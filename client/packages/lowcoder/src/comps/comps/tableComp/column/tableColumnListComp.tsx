@@ -17,11 +17,13 @@ import {
 import { shallowEqual } from "react-redux";
 import { JSONObject, JSONValue } from "util/jsonTypes";
 import { lastValueIfEqual } from "util/objectUtils";
+import { SummaryColumnComp } from "./tableSummaryColumnComp";
 
 /**
  * column list
  */
 const ColumnListTmpComp = list(ColumnComp);
+const SummaryColumnListTmpComp = list(SummaryColumnComp);
 
 /**
  * rowExample is used for code prompts
@@ -174,6 +176,142 @@ export class ColumnListComp extends ColumnListTmpComp {
     const columns = this.getView();
     const nodes = _(columns)
       .map((col) => col.children[field].node() as ReturnType<ColumnComp["children"][T]["node"]>)
+      .toPairs()
+      .fromPairs()
+      .value();
+    const result = lastValueIfEqual(
+      this,
+      "col_nodes_" + field,
+      [fromRecord(nodes), nodes] as const,
+      (a, b) => shallowEqual(a[1], b[1])
+    )[0];
+    return result;
+  }
+
+  setSelectionAction(key: string) {
+    return this.forEachAction(ColumnComp.setSelectionAction(key));
+  }
+}
+
+export class SummaryColumnListComp extends SummaryColumnListTmpComp {
+  override reduce(action: CompAction): this {
+    if (isMyCustomAction<ActionDataType>(action, "dataChanged")) {
+      const rowExample = action.value.rowExample;
+      const { readOnly } = getReduceContext();
+      let comp = this;
+      if (action.value.doGeneColumn && (action.value.dynamicColumn || !readOnly)) {
+        const actions = this.geneColumnsAction(rowExample, action.value.data);
+        comp = this.reduce(this.multiAction(actions));
+      }
+      return comp;
+    }
+    return super.reduce(action);
+  }
+
+  getChangeSet() {
+    const changeSet: Record<string, Record<string, JSONValue>> = {};
+    const columns = this.getView();
+    columns.forEach((column) => {
+      const columnChangeSet = column.getChangeSet();
+      Object.keys(columnChangeSet).forEach((dataIndex) => {
+        Object.keys(columnChangeSet[dataIndex]).forEach((key) => {
+          if (!_.isNil(columnChangeSet[dataIndex][key])) {
+            if (!changeSet[key]) changeSet[key] = {};
+            changeSet[key][dataIndex] = columnChangeSet[dataIndex][key];
+          }
+        });
+      });
+    });
+    return changeSet;
+  }
+
+  dispatchClearChangeSet() {
+    const columns = this.getView();
+    columns.forEach((column) => column.dispatchClearChangeSet());
+  }
+
+  /**
+   * If the table data changes, call this method to trigger the action
+   */
+  dataChangedAction(param: {
+    rowExample: JSONObject;
+    doGeneColumn: boolean;
+    dynamicColumn: boolean;
+    data: Array<JSONObject>;
+  }) {
+    return customAction<ActionDataType>(
+      {
+        type: "dataChanged",
+        ...param,
+      },
+      true
+    );
+  }
+
+  /**
+   * According to the data, adjust the column
+   */
+  private geneColumnsAction(rowExample: RowExampleType, data: Array<JSONObject>) {
+    // If no data, return directly
+    if (rowExample === undefined || rowExample === null) {
+      return [];
+    }
+    const dataKeys = Object.keys(rowExample);
+    if (dataKeys.length === 0) {
+      return [];
+    }
+    const columnsView = this.getView();
+    const actions: Array<any> = [];
+    let deleteCnt = 0;
+    columnsView.forEach((column, index) => {
+      if (column.getView().isCustom) {
+        return;
+      }
+      const dataIndex = column.getView().dataIndex;
+      if (dataIndex === COLUMN_CHILDREN_KEY || !dataKeys.find((key) => dataIndex === key)) {
+        // to Delete
+        actions.push(this.deleteAction(index - deleteCnt));
+        deleteCnt += 1;
+      }
+    });
+    // The order should be the same as the data
+    dataKeys.forEach((key) => {
+      if (key === COLUMN_CHILDREN_KEY && supportChildrenTree(data)) {
+        return;
+      }
+      if (!columnsView.find((column) => column.getView().dataIndex === key)) {
+        // to Add
+        actions.push(this.pushAction(newPrimaryColumn(key, calcColumnWidth(key, data))));
+      }
+    });
+    if (actions.length === 0) {
+      return [];
+    }
+    return actions;
+  }
+
+  withParamsNode() {
+    const columns = this.getView();
+    const nodes = _(columns)
+      .map((col) => col.children.render.getOriginalComp().node())
+      .toPairs()
+      .fromPairs()
+      .value();
+    const result = lastValueIfEqual(
+      this,
+      "withParamsNode",
+      [fromRecord(nodes), nodes] as const,
+      (a, b) => shallowEqual(a[1], b[1])
+    )[0];
+    return result;
+  }
+
+  getColumnsNode<T extends keyof SummaryColumnComp["children"]>(
+    field: T
+  ): RecordNode<Record<string, ReturnType<SummaryColumnComp["children"][T]["node"]>>> {
+    const columns = this.getView();
+    const nodes = _(columns)
+      .map((col) => col.children[field].node() as ReturnType<SummaryColumnComp["children"][T]["node"]>)
       .toPairs()
       .fromPairs()
       .value();

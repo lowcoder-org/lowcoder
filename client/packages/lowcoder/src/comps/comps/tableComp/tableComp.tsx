@@ -227,6 +227,17 @@ export class TableImplComp extends TableInitComp implements IContainer {
             })
           )
         );
+        // actions.push(
+        //   wrapChildAction(
+        //     "columns",
+        //     comp.children.summary.children.columns.dataChangedAction({
+        //       rowExample: nextRowExample || {},
+        //       doGeneColumn: doGene,
+        //       dynamicColumn: comp.children.dynamicColumn.getView(),
+        //       data: comp.children.data.getView(),
+        //     })
+        //   )
+        // );
         doGene && actions.push(comp.changeChildAction("dataRowExample", null));
         setTimeout(() => {
           actions.forEach((action) => comp.dispatch(deferAction(action)));
@@ -249,6 +260,10 @@ export class TableImplComp extends TableInitComp implements IContainer {
         "columns",
         comp.children.columns.reduce(comp.children.columns.setSelectionAction(newSelection))
       );
+      // comp.children.summary = comp.children.summary.setChild(
+      //   "columns",
+      //   comp.children.summary.children.columns.reduce(comp.children.summary.children.columns.setSelectionAction(newSelection))
+      // );
       needMoreEval = true;
     }
 

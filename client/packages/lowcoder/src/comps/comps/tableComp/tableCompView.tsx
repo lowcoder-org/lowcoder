@@ -39,10 +39,12 @@ import { SlotConfigContext } from "comps/controls/slotControl";
 import { EmptyContent } from "pages/common/styledComponent";
 import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 import { ReactRef, ResizeHandleAxis } from "layout/gridLayoutPropTypes";
-import { CellColorViewType } from "./column/tableColumnComp";
+import { CellColorViewType, ColumnComp } from "./column/tableColumnComp";
 import { defaultTheme } from "@lowcoder-ee/constants/themeConstants";
 import { childrenToProps } from "@lowcoder-ee/comps/generators/multi";
 import { getVerticalMargin } from "@lowcoder-ee/util/cssUtil";
+import { TableSummary } from "./tableSummaryComp";
+import { SummaryColumnComp } from "./column/tableSummaryColumnComp";
 
 function genLinerGradient(color: string) {
   return `linear-gradient(${color}, ${color})`;
@@ -748,6 +750,7 @@ export function TableCompView(props: {
   const data = comp.filterData;
   const sort = useMemo(() => compChildren.sort.getView(), [compChildren.sort]);
   const toolbar = useMemo(() => compChildren.toolbar.getView(), [compChildren.toolbar]);
+  // const summary = useMemo(() => compChildren.summary.getView(), [compChildren.summary]);
   const pagination = useMemo(() => compChildren.pagination.getView(), [compChildren.pagination]);
   const size = useMemo(() => compChildren.size.getView(), [compChildren.size]);
   const onEvent = useMemo(() => compChildren.onEvent.getView(), [compChildren.onEvent]);
@@ -780,10 +783,42 @@ export function TableCompView(props: {
       columnsAggrData,
     ]
   );
+
   const supportChildren = useMemo(
     () => supportChildrenTree(compChildren.data.getView()),
     [compChildren.data]
   );
+
+  // const summaryColumnsMap = useMemo(() => {
+  //   const columnsMap: Record<string, any> = {};
+  //   summary.columns.forEach(column => {
+  //     const columnData = column.toJsonValue();
+  //     columnsMap[columnData.dataIndex!] = columnData;
+  //   });
+  //   return columnsMap;
+  // }, [summary.columns]) 
+
+  // useEffect(() => {
+  //   // if (columns.length === comp.children.summary.children.columns.getView().length) return;
+  //   console.log('useEffect', columns);
+  //   const summaryColumns: any[] = [];
+  //   columns.forEach(col => {
+  //     const colData = col.toJsonValue();
+  //     const summaryColData = summaryColumnsMap[colData.dataIndex!];
+  //     console.log('colData Render', colData.render);
+  //     console.log('summaryColData Render', summaryColData?.render);
+  //     summaryColumns.push(new SummaryColumnComp({
+  //       value: {
+  //         title: colData.title,
+  //         dataIndex: colData.dataIndex,
+  //         render: summaryColData?.render || {} 
+  //       }
+  //     }))
+  //   })
+  //   comp.children.summary.children.columns.dispatch(
+  //     comp.children.summary.children.columns.setChildrensAction(summaryColumns as any[])
+  //   );
+  // }, [compChildren.columns]);
 
   const pageDataInfo = useMemo(() => {
     // Data pagination
@@ -846,6 +881,16 @@ export function TableCompView(props: {
       onEvent={onEvent}
     />
   );
+
+  // const summaryView = () => {
+  //   if (!summary.showSummary) return undefined;
+  //   return (
+  //     <TableSummary
+  //       showSummary={summary.showSummary}
+  //       columns={summary.columns}
+  //     />
+  //   );
+  // }
 
   if (antdColumns.length === 0) {
     return <EmptyContent text={trans("table.emptyColumns")} />;
@@ -925,6 +970,7 @@ export function TableCompView(props: {
                   dataIndex: dataIndex,
                 });
               }}
+              // summary={summaryView}
             />
 
             <SlotConfigContext.Provider value={{ modalWidth: width && Math.max(width, 300) }}>

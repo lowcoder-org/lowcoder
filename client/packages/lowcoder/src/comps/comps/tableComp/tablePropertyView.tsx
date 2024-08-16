@@ -34,6 +34,7 @@ import { GreyTextColor } from "constants/style";
 import { alignOptions } from "comps/controls/dropdownControl";
 import { ColumnTypeCompMap } from "comps/comps/tableComp/column/columnTypeComp";
 import { changeChildAction } from "lowcoder-core";
+import { summaryPropertyView } from "./tableSummaryComp";
 
 const InsertDiv = styled.div`
   display: flex;
@@ -418,6 +419,7 @@ function columnPropertyView<T extends MultiBaseComp<TableChildrenType>>(comp: T)
 export function compTablePropertyView<T extends MultiBaseComp<TableChildrenType> & { editorModeStatus: string }>(comp: T) {
   const editorModeStatus = comp.editorModeStatus;
   const dataLabel = trans("data");
+
   return (
     <>
       {["logic", "both"].includes(editorModeStatus) && (
@@ -446,6 +448,13 @@ export function compTablePropertyView<T extends MultiBaseComp<TableChildrenType>
             {comp.children.selection.getPropertyView()}
             {hiddenPropertyView(comp.children)}
             {loadingPropertyView(comp.children)}
+          </Section>
+
+          <Section name={"Summary"}>
+            {comp.children.showSummary.propertyView({
+              label: "Show Summary Row"
+            })}
+            {/* {comp.children.summary.getView().showSummary && summaryPropertyView(comp.children.summary)} */}
           </Section>
 
           <Section name={trans("prop.toolbar")}>
