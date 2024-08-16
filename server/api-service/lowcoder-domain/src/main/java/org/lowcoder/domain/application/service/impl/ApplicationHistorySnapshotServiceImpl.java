@@ -57,4 +57,9 @@ public class ApplicationHistorySnapshotServiceImpl implements ApplicationHistory
         return repository.findById(historySnapshotId)
                 .switchIfEmpty(deferredError(INVALID_HISTORY_SNAPSHOT, "INVALID_HISTORY_SNAPSHOT", historySnapshotId));
     }
+
+    @Override
+    public Mono<ApplicationHistorySnapshot> getLastSnapshotByApp(String applicationId) {
+        return repository.findAllByApplicationId(applicationId, PageRequest.of(0, 1).withSort(Direction.DESC, "createdAt")).last();
+    }
 }
