@@ -35,6 +35,8 @@ public interface ApplicationApiService {
 
     Mono<ApplicationView> publish(String applicationId);
 
+    Mono<Boolean> updateEditState(String applicationId, ApplicationEndpoints.UpdateEditStateRequest updateEditStateRequest);
+
     Mono<Boolean> grantPermission(String applicationId,
                                   Set<String> userIds,
                                   Set<String> groupIds, ResourceRole role);

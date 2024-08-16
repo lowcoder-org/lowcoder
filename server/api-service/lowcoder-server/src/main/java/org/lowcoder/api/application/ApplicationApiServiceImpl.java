@@ -372,6 +372,15 @@ public class ApplicationApiServiceImpl implements ApplicationApiService {
     }
 
     @Override
+    public Mono<Boolean> updateEditState(String applicationId, ApplicationEndpoints.UpdateEditStateRequest updateEditStateRequest) {
+        return checkApplicationStatus(applicationId, NORMAL)
+                .then(sessionUserService.getVisitorId())
+                .flatMap(userId -> resourcePermissionService.checkAndReturnMaxPermission(userId,
+                        applicationId, EDIT_APPLICATIONS))
+                .flatMap(permission -> applicationService.updateEditState(applicationId, updateEditStateRequest.editingFinished()));
+    }
+
+    @Override
     public Mono<Boolean> grantPermission(String applicationId,
                                          Set<String> userIds,
                                          Set<String> groupIds, ResourceRole role) {

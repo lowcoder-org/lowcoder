@@ -143,6 +143,13 @@ public class ApplicationController implements ApplicationEndpoints {
     }
 
     @Override
+    public Mono<ResponseView<Boolean>> updateEditState(@PathVariable String applicationId, @RequestBody UpdateEditStateRequest updateEditStateRequest) {
+        String appId = gidService.convertApplicationIdToObjectId(applicationId);
+        return applicationApiService.updateEditState(appId, updateEditStateRequest)
+                .map(ResponseView::success);
+    }
+
+    @Override
     public Mono<ResponseView<UserHomepageView>> getUserHomePage(@RequestParam(required = false, defaultValue = "0") int applicationType) {
         ApplicationType type = ApplicationType.fromValue(applicationType);
         return userHomeApiService.getUserHomePageView(type)
