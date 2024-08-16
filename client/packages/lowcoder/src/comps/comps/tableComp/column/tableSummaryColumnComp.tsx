@@ -112,25 +112,16 @@ export type CellTooltipViewType = (param: {
 
 
 export const columnChildrenMap = {
-  // column title
-  // title: valueComp<string>(""),
   value: StringControl,
-  // titleTooltip: StringControl,
-  // showTitle: withDefault(BoolControl, true),
   cellTooltip: CellTooltipComp,
   // a custom column or a data column
   isCustom: valueComp<boolean>(false),
   // If it is a data column, it must be the name of the column and cannot be duplicated as a react key
   dataIndex: valueComp<string>(""),
   hide: BoolControl,
-  // sortable: BoolControl,
-  // width: NumberControl,
-  // autoWidth: dropdownControl(columnWidthOptions, "auto"),
   render: RenderComp,
   align: HorizontalAlignmentControl,
-  // tempHide: stateComp<boolean>(false),
   fixed: dropdownControl(columnFixOptions, "close"),
-  // editable: BoolControl,
   background: withDefault(ColorControl, ""),
   margin: withDefault(RadiusControl, ""),
   text: withDefault(ColorControl, ""),
@@ -162,14 +153,6 @@ const StyledBackgroundImageIcon = styled(ImageCompIcon)` width: 24px; margin: 0 
 const ColumnInitComp = new MultiCompBuilder(columnChildrenMap, (props, dispatch) => {
   return {
     ...props,
-    // onWidthResize: (width: number) => {
-    //   dispatch(
-    //     multiChangeAction({
-    //       width: changeValueAction(width, true),
-    //       autoWidth: changeValueAction("fixed", true),
-    //     })
-    //   );
-    // },
   };
 })
   .setPropertyViewFn(() => <></>)
@@ -199,13 +182,6 @@ export class SummaryColumnComp extends ColumnInitComp {
         )
       );
     }
-    // if (action.type === CompActionTypes.CHANGE_VALUE) {
-    //   const title = comp.children.title.unevaledValue;
-    //   const dataIndex = comp.children.dataIndex.getView();
-    //   if (!Boolean(title)) {
-    //     comp.children.title.dispatchChangeValueAction(dataIndex);
-    //   }
-    // }
     return comp;
   }
 
@@ -214,6 +190,7 @@ export class SummaryColumnComp extends ColumnInitComp {
     const columnType = this.children.render.getSelectedComp().getComp().children.compType.getView();
     return {
       ...superView,
+      columnType,
     };
   }
 
@@ -232,7 +209,6 @@ export class SummaryColumnComp extends ColumnInitComp {
 
   propertyView(key: string) {
     const columnType = this.children.render.getSelectedComp().getComp().children.compType.getView();
-    const initialColumns = this.children.render.getSelectedComp().getParams()?.initialColumns as OptionType[] || [];
     const column = this.children.render.getSelectedComp().getComp().toJsonValue();
     let columnValue = '{{currentCell}}';
     if (column.comp?.hasOwnProperty('src')) {
@@ -243,46 +219,12 @@ export class SummaryColumnComp extends ColumnInitComp {
 
     return (
       <>
-        {/* {this.children.title.propertyView({
-          label: trans("table.columnTitle"),
-          placeholder: this.children.dataIndex.getView(),
-        })}
-        {this.children.titleTooltip.propertyView({
-          label: trans("table.columnTitleTooltip"),
-        })} */}
-        {/* <Dropdown
-          showSearch={true}
-          defaultValue={columnValue}
-          options={initialColumns}
-          label={trans("table.dataMapping")}
-          onChange={(value) => {
-            // Keep the previous text value, some components do not have text, the default value is currentCell
-            const compType = columnType;
-            let comp: Record<string, string> = { text: value};
-            if(columnType === 'image') {
-              comp = { src: value };
-            }
-            this.children.render.dispatchChangeValueAction({
-              compType,
-              comp,
-            } as any);
-          }}
-        /> */}
         {this.children.cellTooltip.getPropertyView()}
         {this.children.value.propertyView({
           label: "Column Value"
         })}
         {/* FIXME: cast type currently, return type of withContext should be corrected later */}
         {this.children.render.getPropertyView()}
-        {/* {this.children.showTitle.propertyView({
-          label: trans("table.showTitle"),
-          tooltip: trans("table.showTitleTooltip"),
-        })} */}
-        {/* {ColumnTypeCompMap[columnType].canBeEditable() &&
-          this.children.editable.propertyView({ label: trans("table.editable") })}
-        {this.children.sortable.propertyView({
-          label: trans("table.sortable"),
-        })} */}
         {this.children.hide.propertyView({
           label: trans("prop.hide"),
         })}
@@ -294,13 +236,6 @@ export class SummaryColumnComp extends ColumnInitComp {
           label: trans("table.fixedColumn"),
           radioButton: true,
         })}
-        {/* {this.children.autoWidth.propertyView({
-          label: trans("table.autoWidth"),
-          radioButton: true,
-        })}
-        {this.children.autoWidth.getView() === "fixed" &&
-          this.children.width.propertyView({ label: trans("prop.width") })} */}
-
         {(columnType === 'link' || columnType === 'links') && (
           <>
             <Divider style={{ margin: '12px 0' }} />
@@ -310,13 +245,13 @@ export class SummaryColumnComp extends ColumnInitComp {
               </div>
             ))}
             {this.children.linkColor.propertyView({
-              label: trans('text') // trans('style.background'),
+              label: trans('text')
             })}
             {this.children.linkHoverColor.propertyView({
-              label: "Hover text", // trans('style.background'),
+              label: "Hover text",
             })}
             {this.children.linkActiveColor.propertyView({
-              label: "Active text", // trans('style.background'),
+              label: "Active text",
             })}
           </>
         )}
@@ -396,37 +331,3 @@ export class SummaryColumnComp extends ColumnInitComp {
     return wrapChildAction("render", RenderComp.setSelectionAction(key));
   }
 }
-
-export type RawColumnType = ConstructorToView<typeof SummaryColumnComp>;
-export type ColumNodeType = ConstructorToNodeType<typeof SummaryColumnComp>;
-export type ColumnCompType = ConstructorToComp<typeof SummaryColumnComp>;
-
-/**
- * Custom column initialization data
- */
-// export function newCustomColumn(): ConstructorToDataType<typeof SummaryColumnComp> {
-//   return {
-//     // title: trans("table.customColumn"),
-//     dataIndex: genRandomKey(),
-//     isCustom: true,
-//   };
-// }
-
-/**
- * Initialization data of primary column
- */
-// export function newPrimaryColumn(
-//   key: string,
-//   width: number,
-//   title?: string,
-//   isTag?: boolean
-// ): ConstructorToDataType<typeof ColumnComp> {
-//   return {
-//     title: title ?? key,
-//     dataIndex: key,
-//     isCustom: false,
-//     autoWidth: "fixed",
-//     width: width + "",
-//     render: { compType: isTag ? "tag" : "text", comp: { text: "{{currentCell}}" } },
-//   };
-// }

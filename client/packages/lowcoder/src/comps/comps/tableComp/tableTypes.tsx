@@ -13,7 +13,7 @@ import {
 import { dropdownControl } from "comps/controls/dropdownControl";
 import { eventHandlerControl } from "comps/controls/eventHandlerControl";
 import { styleControl } from "comps/controls/styleControl";
-import { TableColumnStyle, TableRowStyle, TableStyle, TableToolbarStyle, TableHeaderStyle } from "comps/controls/styleControlConstants";
+import { TableColumnStyle, TableRowStyle, TableStyle, TableToolbarStyle, TableHeaderStyle, TableSummaryRowStyle } from "comps/controls/styleControlConstants";
 import {
   MultiCompBuilder,
   stateComp,
@@ -36,7 +36,6 @@ import { ExpansionControl } from "./expansionControl";
 import { PaginationControl } from "./paginationControl";
 import { SelectionControl } from "./selectionControl";
 import { AutoHeightControl } from "comps/controls/autoHeightControl";
-import { TableSummaryComp } from "./tableSummaryComp";
 
 const sizeOptions = [
   {
@@ -211,6 +210,7 @@ const tableChildrenMap = {
   showSummary: BoolControl,
   style: styleControl(TableStyle, 'style'),
   rowStyle: styleControl(TableRowStyle, 'rowStyle'),
+  summaryRowStyle: styleControl(TableSummaryRowStyle, 'summaryRowStyle'),
   toolbarStyle: styleControl(TableToolbarStyle, 'toolbarStyle'),
   headerStyle: styleControl(TableHeaderStyle, 'headerStyle'),
   searchText: StringControl,

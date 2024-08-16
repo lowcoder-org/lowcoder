@@ -12,7 +12,7 @@ import { clickEvent, eventHandlerControl, refreshEvent } from "../controls/event
 import styled from "styled-components";
 import { useContext, ReactElement, useEffect } from "react";
 import { MultiCompBuilder, stateComp, withDefault } from "../generators";
-import { CompNameContext, EditorContext } from "comps/editorState";
+import { EditorContext } from "comps/editorState";
 import { IconControl } from "../controls/iconControl";
 import { ColorControl } from "../controls/colorControl";
 import { optionsControl } from "../controls/optionsControl";
@@ -105,30 +105,6 @@ const childrenMap = {
 };
 
 const AvatarGroupView = (props: RecordConstructorToView<typeof childrenMap> & { dispatch: (action: CompAction) => void; }) => {
-  const comp = useContext(EditorContext).getUICompByName(useContext(CompNameContext));
-  
-  const updateAvatars = () => {
-    debugger;
-    if (!comp) return;
-    // comp?.children.comp.children?.avatars?.children.manual.dispatchChangeValueAction({
-    //   initOptions: [
-    //     { src: "https://api.dicebear.com/7.x/miniavs/svg?seed=1", label: String.fromCharCode(65 + Math.ceil(Math.random() * 25)) },
-    //     // { AvatarIcon: "/icon:antd/startwotone" },
-    //     // { label: String.fromCharCode(65 + Math.ceil(Math.random() * 25)) },
-    //     // { label: String.fromCharCode(65 + Math.ceil(Math.random() * 25)) },
-    //   ],
-    // });
-    // comp?.children.comp.children?.avatars.children.manual.children.manual.dispatch([
-    //   { src: "https://api.dicebear.com/7.x/miniavs/svg?seed=1", label: String.fromCharCode(65 + Math.ceil(Math.random() * 25)) }
-    // ])
-    comp?.children.comp.children?.avatars.children.manual.children.manual.dispatch(
-      comp?.children.comp.children?.avatars.children.manual.children.manual.setChildrensAction([
-        { src: "https://api.dicebear.com/7.x/miniavs/svg?seed=1", label: String.fromCharCode(65 + Math.ceil(Math.random() * 25)) }
-      ])
-    );
-  }
-  
-
   return (
     <Container
       $style={props.style}
@@ -151,7 +127,6 @@ const AvatarGroupView = (props: RecordConstructorToView<typeof childrenMap> & { 
                     onClick={() => {
                       props.onEvent("click")
                       props.dispatch(changeChildAction("currentAvatar", item as JSONObject, false));
-                      updateAvatars();
                     }}
                   >
                     {item.label}

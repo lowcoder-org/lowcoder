@@ -33,8 +33,7 @@ import React, { useMemo, useState } from "react";
 import { GreyTextColor } from "constants/style";
 import { alignOptions } from "comps/controls/dropdownControl";
 import { ColumnTypeCompMap } from "comps/comps/tableComp/column/columnTypeComp";
-import { changeChildAction } from "lowcoder-core";
-import { summaryPropertyView } from "./tableSummaryComp";
+import Segmented from "antd/es/segmented";
 
 const InsertDiv = styled.div`
   display: flex;
@@ -104,6 +103,19 @@ const ColumnBatchOptionWrapper = styled.div`
   line-height: 16px;
   font-size: 13px;
 `;
+
+type ViewOptionType = "normal" | "summary";
+
+const columnViewOptions = [
+  {
+    label: "Normal",
+    value: "normal",
+  },
+  {
+    label: "Summary",
+    value: "summary",
+  },
+];
 
 const columnFilterOptions = [
   { label: trans("table.allColumn"), value: "all" },
@@ -250,6 +262,7 @@ function ColumnPropertyView<T extends MultiBaseComp<TableChildrenType>>(props: {
   comp: T;
   columnLabel: string;
 }) {
+  const [viewMode, setViewMode] = useState('normal');
   const { comp } = props;
   const selection = getSelectedRowKeys(comp.children.selection)[0] ?? "0";
   const [columnFilterType, setColumnFilterType] = useState<ColumnFilterOptionValueType>("all");
@@ -366,7 +379,13 @@ function ColumnPropertyView<T extends MultiBaseComp<TableChildrenType>>(props: {
         }}
         content={(column, index) => (
           <>
-            {column.propertyView(selection)}
+            <Segmented
+              block
+              options={columnViewOptions}
+              value={viewMode}
+              onChange={(k) => setViewMode(k as ViewOptionType)}
+            />
+            {column.propertyView(selection, viewMode)}
             {column.getView().isCustom && (
               <RedButton
                 onClick={() => {
@@ -545,6 +564,9 @@ export function compTablePropertyView<T extends MultiBaseComp<TableChildrenType>
           </Section>
           <Section name={"Column Style"}>
             {comp.children.columnsStyle.getPropertyView()}
+          </Section>
+          <Section name={"Summary Row Style"}>
+            {comp.children.summaryRowStyle.getPropertyView()}
           </Section>
         </>
       )}

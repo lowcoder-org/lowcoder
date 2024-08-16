@@ -743,6 +743,7 @@ export function TableCompView(props: {
   const visibleResizables = compChildren.visibleResizables.getView();
   const showHRowGridBorder = compChildren.showHRowGridBorder.getView();
   const columnsStyle = compChildren.columnsStyle.getView();
+  const summaryRowStyle = compChildren.summaryRowStyle.getView();
   const changeSet = useMemo(() => compChildren.columns.getChangeSet(), [compChildren.columns]);
   const hasChange = useMemo(() => !_.isEmpty(changeSet), [changeSet]);
   const columns = useMemo(() => compChildren.columns.getView(), [compChildren.columns]);
@@ -751,6 +752,7 @@ export function TableCompView(props: {
   const sort = useMemo(() => compChildren.sort.getView(), [compChildren.sort]);
   const toolbar = useMemo(() => compChildren.toolbar.getView(), [compChildren.toolbar]);
   // const summary = useMemo(() => compChildren.summary.getView(), [compChildren.summary]);
+  const showSummary = useMemo(() => compChildren.showSummary.getView(), [compChildren.showSummary]);
   const pagination = useMemo(() => compChildren.pagination.getView(), [compChildren.pagination]);
   const size = useMemo(() => compChildren.size.getView(), [compChildren.size]);
   const onEvent = useMemo(() => compChildren.onEvent.getView(), [compChildren.onEvent]);
@@ -788,37 +790,6 @@ export function TableCompView(props: {
     () => supportChildrenTree(compChildren.data.getView()),
     [compChildren.data]
   );
-
-  // const summaryColumnsMap = useMemo(() => {
-  //   const columnsMap: Record<string, any> = {};
-  //   summary.columns.forEach(column => {
-  //     const columnData = column.toJsonValue();
-  //     columnsMap[columnData.dataIndex!] = columnData;
-  //   });
-  //   return columnsMap;
-  // }, [summary.columns]) 
-
-  // useEffect(() => {
-  //   // if (columns.length === comp.children.summary.children.columns.getView().length) return;
-  //   console.log('useEffect', columns);
-  //   const summaryColumns: any[] = [];
-  //   columns.forEach(col => {
-  //     const colData = col.toJsonValue();
-  //     const summaryColData = summaryColumnsMap[colData.dataIndex!];
-  //     console.log('colData Render', colData.render);
-  //     console.log('summaryColData Render', summaryColData?.render);
-  //     summaryColumns.push(new SummaryColumnComp({
-  //       value: {
-  //         title: colData.title,
-  //         dataIndex: colData.dataIndex,
-  //         render: summaryColData?.render || {} 
-  //       }
-  //     }))
-  //   })
-  //   comp.children.summary.children.columns.dispatch(
-  //     comp.children.summary.children.columns.setChildrensAction(summaryColumns as any[])
-  //   );
-  // }, [compChildren.columns]);
 
   const pageDataInfo = useMemo(() => {
     // Data pagination
@@ -882,15 +853,17 @@ export function TableCompView(props: {
     />
   );
 
-  // const summaryView = () => {
-  //   if (!summary.showSummary) return undefined;
-  //   return (
-  //     <TableSummary
-  //       showSummary={summary.showSummary}
-  //       columns={summary.columns}
-  //     />
-  //   );
-  // }
+  const summaryView = () => {
+    if (!showSummary) return undefined;
+    return (
+      <TableSummary
+        // showSummary={showSummary}
+        tableSize={size}
+        columns={columns}
+        summaryRowStyle={summaryRowStyle}
+      />
+    );
+  }
 
   if (antdColumns.length === 0) {
     return <EmptyContent text={trans("table.emptyColumns")} />;
@@ -970,7 +943,7 @@ export function TableCompView(props: {
                   dataIndex: dataIndex,
                 });
               }}
-              // summary={summaryView}
+              summary={summaryView}
             />
 
             <SlotConfigContext.Provider value={{ modalWidth: width && Math.max(width, 300) }}>
