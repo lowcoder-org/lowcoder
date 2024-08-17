@@ -1,5 +1,6 @@
 package org.lowcoder.domain.solutions;
 
+import com.github.f4b6a3.uuid.UuidCreator;
 import jakarta.annotation.Nonnull;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -65,6 +66,7 @@ public class TemplateSolutionServiceImpl implements TemplateSolutionService {
                     Map<String, Object> applicationDSL = JsonUtils.fromJsonMap(dsl);
                     Application application = Application.builder()
                             .applicationStatus(ApplicationStatus.NORMAL)
+                            .gid(UuidCreator.getTimeOrderedEpoch().toString())
                             .organizationId(organizationId)
                             .name(template.getName())
                             .editingApplicationDSL(applicationDSL)
@@ -132,7 +134,7 @@ public class TemplateSolutionServiceImpl implements TemplateSolutionService {
     private Mono<String> createNewDatasourceFrom(String organizationId, String visitorId, Datasource datasource) {
         Datasource copyDatasource = new Datasource();
         copyDatasource.setName(generateCopyDatasourceName(datasource.getName()));
-        copyDatasource.setGid(datasource.getGid());
+        copyDatasource.setGid(UuidCreator.getTimeOrderedEpoch().toString());
         copyDatasource.setType(datasource.getType());
         copyDatasource.setDetailConfig(datasource.getDetailConfig());
         copyDatasource.setCreationSource(DatasourceCreationSource.CLONE_FROM_TEMPLATE.getValue());

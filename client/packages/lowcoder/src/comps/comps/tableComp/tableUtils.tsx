@@ -315,7 +315,7 @@ export function columnsToAntdFormat(
     }
     return 0;
   });
-  return sortedColumns.flatMap((column) => {
+  return sortedColumns.flatMap((column, mIndex) => {
     if (
       columnHide({
         hide: column.hide,
@@ -340,6 +340,7 @@ export function columnsToAntdFormat(
     const title = renderTitle({ title: column.title, tooltip: column.titleTooltip, editable: column.editable });
    
     return {
+      key: `${column.dataIndex}-${mIndex}`,
       title: column.showTitle ? title : '',
       titleText: column.title,
       dataIndex: column.dataIndex,
@@ -397,6 +398,7 @@ export function columnsToAntdFormat(
         ? {
             sorter: true,
             sortOrder: sortMap.get(column.dataIndex),
+            showSorterTooltip: false,
           }
         : {}),
     };

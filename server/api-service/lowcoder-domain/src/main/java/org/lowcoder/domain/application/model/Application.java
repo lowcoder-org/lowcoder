@@ -65,7 +65,7 @@ public class Application extends HasIdAndAuditing {
             @JsonProperty("publicToMarketplace") Boolean publicToMarketplace,
             @JsonProperty("agencyProfile") Boolean agencyProfile
     ) {
-        this.gid = StringUtils.isEmpty(gid)?UuidCreator.getTimeOrderedEpoch().toString():gid;
+        this.gid = gid;
         this.organizationId = organizationId;
         this.name = name;
         this.applicationType = applicationType;
