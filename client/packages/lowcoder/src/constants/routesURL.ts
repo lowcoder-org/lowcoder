@@ -24,6 +24,8 @@ export const OAUTH_PROVIDER_DETAIL = "/setting/oauth-provider/detail";
 export const PERMISSION_SETTING_DETAIL = `${PERMISSION_SETTING}/:groupId`;
 export const ORGANIZATION_SETTING_DETAIL = `${ORGANIZATION_SETTING}/:orgId`;
 export const SUBSCRIPTION_DETAIL = `${SUBSCRIPTION_SETTING}/:subscriptionId`;
+export const SUBSCRIPTION_SUCCESS = `${SUBSCRIPTION_SETTING}/success/:checkoutSessionId`;
+export const SUBSCRIPTION_ERROR = `${SUBSCRIPTION_SETTING}/error/:checkoutSessionId`;
 
 export const ALL_APPLICATIONS_URL = "/apps";
 export const ADMIN_APP_URL = "/ee/:applicationId/:viewMode";

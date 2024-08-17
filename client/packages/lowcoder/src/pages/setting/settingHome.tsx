@@ -129,6 +129,11 @@ export function SettingHome() {
         !enableCustomBrand(config) ||
         (!isSelfDomain(config) && !isEnterpriseMode(config)),
     },
+    { 
+      key: SettingPageEnum.Subscription,
+      label: trans("settings.subscription"),
+      icon: <SubscriptionIcon width={"20px"}/>, 
+    }
   ];
 
   return (
@@ -156,7 +161,7 @@ export function SettingHome() {
         {selectKey === SettingPageEnum.Audit && <AuditSetting />}
         {selectKey === SettingPageEnum.Branding && <BrandingSetting />}
         {selectKey === SettingPageEnum.Advanced && <AdvancedSetting />}
-        {/* selectKey === SettingPageEnum.Subscription && <Subscription /> */}
+        {selectKey === SettingPageEnum.Subscription && <Subscription />}
       </TwoColumnSettingPageContent>
     </>
   );
