@@ -4,6 +4,7 @@ import static org.lowcoder.sdk.exception.BizError.INVALID_HISTORY_SNAPSHOT;
 import static org.lowcoder.sdk.util.ExceptionUtils.deferredError;
 import static org.lowcoder.sdk.util.ExceptionUtils.ofException;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 
@@ -60,6 +61,10 @@ public class ApplicationHistorySnapshotServiceImpl implements ApplicationHistory
 
     @Override
     public Mono<ApplicationHistorySnapshot> getLastSnapshotByApp(String applicationId) {
-        return repository.findAllByApplicationId(applicationId, PageRequest.of(0, 1).withSort(Direction.DESC, "createdAt")).last();
+        ApplicationHistorySnapshot _default = new ApplicationHistorySnapshot();
+        _default.setCreatedAt(Instant.ofEpochMilli(0));
+        _default.setCreatedBy("");
+        return repository.findAllByApplicationId(applicationId, PageRequest.of(0, 1).withSort(Direction.DESC, "createdAt"))
+                .switchIfEmpty(Mono.just(_default)).next();
     }
 }
